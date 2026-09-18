@@ -1238,6 +1238,7 @@ components:
           type: string
           minLength: 1
           maxLength: 200
+          pattern: '^(?!https?://)[a-z][a-z0-9_]*:\S+$'
           description: A controlled reference. A URL is rejected (docs/core-contracts.md:61).
         source_version:
           type: string
@@ -1326,9 +1327,13 @@ components:
         recommended_action:
           $ref: '#/components/schemas/RecommendedAction'
         suggested_amount_minor:
-          type: [integer, 'null']
+          type: integer
           minimum: 0
           maximum: 1000000000
+          description: |
+            What the run suggests. Absent means nothing was suggested; null is not a
+            second way to say the same thing. Java recomputes the real amount from the
+            line's paid amount (docs/product-spec.md:46).
         summary:
           type: string
           minLength: 1
@@ -1378,9 +1383,13 @@ components:
         recommended_action:
           $ref: '#/components/schemas/RecommendedAction'
         suggested_amount_minor:
-          type: [integer, 'null']
+          type: integer
           minimum: 0
           maximum: 1000000000
+          description: |
+            What the run suggests. Absent means nothing was suggested; null is not a
+            second way to say the same thing. Java recomputes the real amount from the
+            line's paid amount (docs/product-spec.md:46).
         summary:
           type: string
           minLength: 1

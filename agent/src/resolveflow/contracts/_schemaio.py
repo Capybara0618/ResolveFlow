@@ -63,6 +63,7 @@ SCHEMA_FILES = (
 CORE_SCHEMA_FILES = (
     "contracts/core/refund-command.schema.json",
     "contracts/core/event-envelope.schema.json",
+    "contracts/core/agent-proposal.schema.json",
 )
 
 #: RFC 3339, as used by every ``format: date-time`` in the schemas. The

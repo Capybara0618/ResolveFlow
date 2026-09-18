@@ -532,6 +532,7 @@ components:
           type: string
           minLength: 1
           maxLength: 200
+          pattern: '^(?!https?://)[a-z][a-z0-9_]*:\S+$'
           description: A controlled reference, never an arbitrary URL.
         source_version:
           type: string

@@ -22,6 +22,9 @@ from resolveflow.contracts._schemaio import CORE_SCHEMA_FILES, SCHEMA_FILES, sch
 
 CORE_COMMAND = "urn:resolveflow:core:refund-command:v2"
 CORE_ENVELOPE = "urn:resolveflow:core:event-envelope:v2"
+#: Added by C00.2c. The set is pinned rather than derived from the files on disk so a
+#: new core schema has to be acknowledged here instead of appearing silently.
+CORE_PROPOSAL = "urn:resolveflow:core:agent-proposal:v2"
 V1_COMMAND = "urn:resolveflow:execution-command:v1"
 V1_ENVELOPE = "urn:resolveflow:event-envelope:v1"
 
@@ -108,7 +111,7 @@ def test_core_schemas_use_their_own_urns() -> None:
     compat_registry, compat_documents = schema_registry(SCHEMA_FILES)
     core_ids = {document["$id"] for document in core_documents.values()}
     compat_ids = {document["$id"] for document in compat_documents.values()}
-    assert core_ids == {CORE_COMMAND, CORE_ENVELOPE}
+    assert core_ids == {CORE_COMMAND, CORE_ENVELOPE, CORE_PROPOSAL}
     assert core_ids.isdisjoint(compat_ids)
     assert len(core_documents) == len(CORE_SCHEMA_FILES)
     assert core_registry is not None and compat_registry is not None

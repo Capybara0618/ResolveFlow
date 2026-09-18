@@ -38,7 +38,7 @@
 | `openapi-commerce.yaml`（4 条 `/internal/v1/...` 路由） | 已建立（C00.2b-1，2026-09-18） |
 | `openapi-agent.yaml`（5 条路由，含 `/health`） | 已建立（C00.2b-2，2026-09-18） |
 | `openapi-case.yaml`（18 条路由：13 条 `/api/v1` + 5 条 `/internal/v1`） | 已建立（C00.2b-3，2026-09-18） |
-| `agent-proposal.schema.json` | 待建立（C00.2c） |
+| `agent-proposal.schema.json`（`urn:resolveflow:core:agent-proposal:v2`） | 已建立（C00.2c-1，2026-09-18） |
 | 核心路由覆盖测试（三份文档逐项对应） | 已建立（C00.2b，45 个测试） |
 | 核心正反 fixture | 待建立（C00.2c） |
 | Java/Pydantic 核心 DTO | 待建立（C00.2c） |
@@ -59,6 +59,9 @@
 9. **核心 case 文档是 18 条路由，不是 compat 的 21 条**：去掉 `/api/v1/policies/import`、`/publish`、`/revoke`（`docs/core-contracts.md:53` 说政策由受控脚本导入校验，不做管理 HTTP 全集），保留两条只读政策面。动作词汇收窄为 `REFUND` 单值（`Action`/`RequestedAction` 都是常量枚举，`RecommendedAction` 去掉 `RESHIP`，`docs/agent-spec.md:19`、`docs/core-scope.md:9`）；op 状态沿用五态收窄。
 10. **核心 `CaseSnapshot` 带 `timeline`**（compat 把它留给另一次读取）。权威：`docs/core-scope.md:7` 要求工单展示"结果与调查轨迹"、`docs/domain-model.md:34` 有独立持久化的 `case_timeline`、`docs/core-contracts.md:67` 要求它和 inbox/投影/本地事件同事务写入。轨迹与状态同事务才能保证两者不互相矛盾。
 11. **回调 payload 按 kind 强类型**：compat 把 `payload` 留成 `additionalProperties: true` 的自由对象；核心为四种 kind 各定义 `StartedPayload`/`QuestionPayload`/`ProposalPayload`/`FailedPayload`，并用 `if/then` 把 `kind` 钉到对应形状（QUESTION 的 `questions` 上限 3，`docs/core-contracts.md:59`）。`ProposalPayload` 与 `ProposalView` 拆开：payload 是 run 提交的方案本身，view 额外带 case 侧拥有的 `status`/`created_at`；C00.2c 的 `agent-proposal.schema.json` 必须与 `ProposalPayload` 字段一致，由测试守住不漂移。
+12. **核心提案比 compat 少两个字段**：不带 `case_id`（回调端点本身已按 case 定位，再带一份绑定只可能与 URL 不一致）、不带 `schema_version`（版本由 `$id` 承担，且该载荷不参与哈希）。compat 文档保留这两个字段。测试断言核心字段集合与 `ProposalPayload` **逐个属性、逐条约束**一致（含 `$ref` 解引用后比较），任一侧单独加约束都会失败。
+13. **`suggested_amount_minor` 不再接受 `null`**（compat 是 `[integer, null]`）："没建议金额"只由字段缺失表达，`null` 不是第二种说法。顺便修掉了同一事实两种表示的老毛病——这与决策 5 里 `aggregate_version`/`version` 的处理是同一类问题。核心 case 文档的 `ProposalPayload`/`ProposalView` 与提案 Schema 三处已同步收窄，测试同时断言三处都不允许 `null`。
+14. **`source_ref` 现在真的拒绝 URL**：`docs/core-contracts.md:61` 说"ref 不是可请求的任意 URL"，但 compat 只写了 `minLength`/`maxLength`——文档声称的约束并没有被 Schema 强制。核心三处（提案 Schema 的 `evidence_refs.items`、case 的 `EvidenceRef`、agent 的 `ObservationRecord`）统一加了 `pattern: '^(?!https?://)[a-z][a-z0-9_]*:\S+$'`，并加了把 `https://…` 当负例拒绝的测试。
 
 路由覆盖测试（`agent/tests/unit/test_contracts_core_routes.py`）直接从 `docs/core-contracts.md` 第3节表格解析路由，并把每类数量钉住（Case 18 / Commerce 4 / Agent 5 = 27），逐项与核心 OpenAPI 的 `paths` 对比；同时检查每个 `$ref` 都能在文档内解析、核心错误体与 compat 错误体逐字段相同、所有示例都能通过自身组件的校验（当前 45 个测试、52 个示例），以及 case 的内部路由必须用 service token、登录接口不得要求 token、QUESTION 问题数上限为 3。
 
