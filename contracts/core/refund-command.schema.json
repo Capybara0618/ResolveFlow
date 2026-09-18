@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:resolveflow:core:refund-command:v2",
+  "title": "CoreRefundCommandV2",
+  "description": [
+    "Core-v1.2 refund command payload (docs/core-contracts.md sections 1, 2 and 5).",
+    "Version marker: the URN and the envelope's schema_version=2 identify this protocol. The command carries no schema_version of its own, because every field it does carry is covered by payload_hash - a field outside the hash would let two different commands share a digest.",
+    "Deliberately absent, unlike the v1 compat command: entitlement_id (v1 filled it in after reservation, so the hash depended on a field that did not exist when the payload was fixed), address_hash (the v1 reship branch), and action RESHIP (docs/core-scope.md defers reship; the v1 Action enum keeps it as a compat asset only).",
+    "The required property set must equal canonical.REFUND_FIELDS plus payload_hash; test_contracts_core_schemas.py asserts that equality so this schema and the hasher cannot drift apart."
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "operation_id",
+    "case_id",
+    "authorization_id",
+    "input_revision",
+    "line_id",
+    "merchant_id",
+    "action",
+    "quantity",
+    "currency",
+    "amount_minor",
+    "payload_hash",
+    "policy_version",
+    "target_service"
+  ],
+  "properties": {
+    "operation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Pre-allocated when the authorisation is created and fixed for the whole operation (docs/core-contracts.md:19)."
+    },
+    "case_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "authorization_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Correlation only: the consumer must still verify signature, payload_hash and audience (docs/contracts.md:130)."
+    },
+    "input_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991,
+      "description": "Decision-input revision, not an optimistic-lock version (docs/domain-model.md:3)."
+    },
+    "line_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "merchant_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "action": {
+      "const": "REFUND",
+      "description": "The only executable core action; a reship command is not representable in v2."
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Whole-line refund only: this is the line's full quantity (docs/core-scope.md:9)."
+    },
+    "currency": {
+      "const": "CNY"
+    },
+    "amount_minor": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000000,
+      "description": "Integer minor units; the original line's paid amount. Float money is refused by the schema and by the canonicaliser (docs/contracts.md:19)."
+    },
+    "payload_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 over the canonical JSON of the other twelve fields. Excludes itself, trace and send time."
+    },
+    "policy_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "target_service": {
+      "const": "commerce-service"
+    }
+  }
+}

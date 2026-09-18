@@ -33,10 +33,23 @@
 | 文件 | 状态 |
 | --- | --- |
 | `profile.json` | 已建立（C00.1，2026-09-18） |
-| `openapi-case.yaml` / `openapi-commerce.yaml` / `openapi-agent.yaml` | 待建立（C00.2） |
-| `refund-command.schema.json` / `event-envelope.schema.json` / `agent-proposal.schema.json` | 待建立（C00.2） |
-| 核心正反 fixture 与核心路由覆盖测试 | 待建立（C00.2） |
-| Java/Pydantic 核心 DTO | 待建立（C00.2） |
+| `refund-command.schema.json`（`urn:resolveflow:core:refund-command:v2`） | 已建立（C00.2a，2026-09-18） |
+| `event-envelope.schema.json`（`urn:resolveflow:core:event-envelope:v2`） | 已建立（C00.2a，2026-09-18） |
+| `openapi-case.yaml` / `openapi-commerce.yaml` / `openapi-agent.yaml` | 待建立（C00.2b） |
+| `agent-proposal.schema.json` | 待建立（C00.2c） |
+| 核心正反 fixture 与核心路由覆盖测试 | 待建立（C00.2b/C00.2c） |
+| Java/Pydantic 核心 DTO | 待建立（C00.2c） |
 | core profile 启动/smoke 选择（不要求 fulfillment/Nacos/观测集群） | 待调整（C00.3） |
+
+## 4. C00.2a 的形状决策（v1 → v2 显式差异）
+
+这些差异是**有意的协议决定**，不是改名，写在这里以免被当成笔误：
+
+1. **信封不再重复 `aggregate_id`/`aggregate_version`**。`docs/core-contracts.md` 第5节把业务版本放在结果 payload 里，`docs/domain-model.md:3` 又明确 version（乐观锁）与 input_revision（决策输入）不得混用；两个位置都能放同一个版本就会不一致，因此 core 信封只保留路由与签名所需字段，`aggregate_version` 只在结果 payload 里出现一次。
+2. **结果也必须签名**。`docs/core-contracts.md:65` 要求 Commerce 签名结果、Case 校验来源与签名，所以 core 信封里 `signature`/`signing_key_id` 是必填；旧 v1 信封允许结果不签名（该行为在旧文件中原样保留）。
+3. **命令不带 `schema_version` 字段**。v2 由 URN 与信封 `schema_version=2` 标识；命令自身的每个字段都被 `payload_hash` 覆盖，放一个不参与哈希的版本字段会让两条不同命令共享摘要。
+4. **命令必填 `amount_minor`**，且 `action`/`target_service` 为常量。旧 v1 命令的 `amount_minor` 是条件必填，`target_service` 还允许 `fulfillment-service`——这些旧行为未被收紧，旧 fixture 照常通过。
+
+校验方式：核心 Schema 不在旧文件集里，用 `resolveflow.contracts._schemaio.CORE_SCHEMA_FILES` 传入 `validator_bundle` / `schema_registry`；测试 `agent/tests/unit/test_contracts_core_schemas.py` 断言两套 `$id` 互不相交、互不可解析，并断言命令的属性集合恰好等于 `canonical.REFUND_FIELDS + payload_hash`（Schema 与哈希实现不能各自漂移）。
 
 后端服务当前只有骨架与健康接口，核心路由与业务能力均未实现；`contracts/core` 里的目标文件不代表它们已经在运行。

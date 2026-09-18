@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:resolveflow:core:event-envelope:v2",
+  "title": "CoreEventEnvelopeV2",
+  "description": [
+    "Core-v1.2 event envelope (docs/core-contracts.md sections 1, 4 and 5). Four event types only: RefundRequested, RefundSucceeded, RefundFailed, RefundUnknown. Reship and entitlement events stay in the v1 compat envelope and are not representable here.",
+    "Version and topic are machine-checked rather than described: schema_version is const 2, the topic is enumerated, and the if/then branches pin each event type to its producer and topic (rf.case.core.v2 for the command, rf.commerce.core.v2 for results).",
+    "Shape change against v1, called out because it is a deliberate protocol decision rather than a rename: the envelope no longer repeats aggregate_id/aggregate_version. docs/core-contracts.md section 5 puts the business version in the result payload, and docs/domain-model.md:3 forbids mixing the optimistic-lock version with the input revision, so the version has exactly one home - the payload - instead of two that can disagree.",
+    "Both directions are signed in core: docs/core-contracts.md section 5 has Commerce sign its results, so a result envelope without signature/signing_key_id is invalid here, while the v1 envelope left results unsigned. The signature covers the canonical envelope excluding signature itself and including signing_key_id."
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "merchant_id",
+    "occurred_at",
+    "producer",
+    "topic",
+    "payload",
+    "signing_key_id",
+    "signature"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "event_type": {
+      "enum": ["RefundRequested", "RefundSucceeded", "RefundFailed", "RefundUnknown"]
+    },
+    "schema_version": {
+      "const": 2
+    },
+    "merchant_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC with an explicit offset; a naive local timestamp is refused because ordering is only meaningful across time zones with the offset present."
+    },
+    "producer": {
+      "enum": ["case-service", "commerce-service"]
+    },
+    "topic": {
+      "enum": ["rf.case.core.v2", "rf.commerce.core.v2"]
+    },
+    "traceparent": {
+      "type": "string",
+      "pattern": "^00-[a-f0-9]{32}-[a-f0-9]{16}-[a-f0-9]{2}$"
+    },
+    "causation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "payload": {
+      "type": "object"
+    },
+    "signing_key_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Kept inside the signed bytes; the target service checks it against its trust list (docs/contracts.md:20)."
+    },
+    "signature": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Ed25519 over the canonical envelope excluding this member."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["event_type"],
+        "properties": { "event_type": { "const": "RefundRequested" } }
+      },
+      "then": {
+        "properties": {
+          "producer": { "const": "case-service" },
+          "topic": { "const": "rf.case.core.v2" },
+          "payload": { "$ref": "urn:resolveflow:core:refund-command:v2" }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["event_type"],
+        "properties": { "event_type": { "enum": ["RefundSucceeded", "RefundFailed", "RefundUnknown"] } }
+      },
+      "then": {
+        "properties": {
+          "producer": { "const": "commerce-service" },
+          "topic": { "const": "rf.commerce.core.v2" },
+          "payload": { "$ref": "#/$defs/refundResult" }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "refundResult": {
+      "description": [
+        "RefundSucceeded / RefundFailed / RefundUnknown, exactly the fields docs/core-contracts.md section 5 lists for a result payload.",
+        "UNKNOWN is a result, not a failure: it keeps the reservation and is settled by querying Commerce, never by a second payment attempt (docs/core-scope.md invariant set).",
+        "The payload cannot know its own event_type, so the envelope selects this variant from event_type. amount_minor is money that moved; a quantity is not representable, because a core refund never ships goods."
+      ],
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operation_id", "line_id", "state", "amount_minor", "aggregate_version"],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "line_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "state": {
+          "enum": ["SUCCEEDED", "FAILED", "UNKNOWN"],
+          "description": "Terminal states of the target operation (docs/domain-model.md:126). The intermediate CREATED..IN_PROGRESS states exist only inside Commerce."
+        },
+        "amount_minor": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000000
+        },
+        "provider_ref": {
+          "type": ["string", "null"],
+          "maxLength": 200,
+          "description": "Masked in every public response (docs/contracts.md:128)."
+        },
+        "reason_code": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+        },
+        "aggregate_version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991,
+          "description": "Version of the authoritative Commerce aggregate (refund_operation/line_refund) this result reports; used for out-of-order detection, never for the case's input revision."
+        }
+      }
+    }
+  }
+}

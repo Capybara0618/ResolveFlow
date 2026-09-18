@@ -25,7 +25,12 @@
   - 命令与结果：先写测试运行 → 预期失败 `ModuleNotFoundError: resolveflow.contracts.core_profile`；实现后 `uv run --project agent --frozen pytest agent/tests/unit/test_contracts_core_profile.py -q` → 23 passed；`ruff check agent/src agent/tests` → All checks passed；`mypy agent/src` → Success: no issues found in 17 source files；`pytest agent/tests/unit -q` → **178 passed**（T02 原有 155 + 新增 23，无回归）；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（python-contracts-freeze 1.5s、python-contracts 9.5s、java-contracts 14.4s）。
   - 报告路径：`reports/verify/20260918-174507-contracts.txt`。
   - 关键结论：核心 profile 只授予动作 `REFUND` 与目标服务 `commerce-service`；`RESHIP` 仍在旧 `Action` 枚举中（兼容资产）但不在核心允许集合，并以 `reship` 列入 `capabilities.deferred`；`payload_hash` 的 12 个字段由测试直接与 `docs/core-contracts.md` 文本比对，profile 不能与权威文档各说一套；`entitlement_id`/`address_hash` 明确不在核心哈希字段内；旧 4 份 OpenAPI 与 5 份 Schema/fixture 有存在性测试，迁移不得静默删除。
-  - 未执行：C00.2（核心 OpenAPI/Schema/DTO/fixture/路由覆盖）与 C00.3（core profile 启动与 smoke 选择）未开始；`verify -Suite all-offline` 本轮未重跑（留到 C00.3）；core profile 的服务启动尚未验证。
+  - C00.2a 完成（2026-09-18）。修改文件：`contracts/core/refund-command.schema.json`（新建：v2 退款命令，13 个必需属性 = 12 个哈希字段 + payload_hash）、`contracts/core/event-envelope.schema.json`（新建：v2 信封，4 种事件 + 结果 payload）、`agent/src/resolveflow/contracts/_schemaio.py`（泛化：`CORE_SCHEMA_FILES` 与 `validator_bundle/schema_registry/load_openapi/component_validator` 的 files/directory 参数，旧默认值不变）、`agent/tests/unit/test_contracts_core_schemas.py`（新建：49 个测试）、`contracts/core/README.md`（更新现状表与形状决策）。
+  - 命令与结果：先跑新测试 → 3 处失败全部是测试自身写法（`quantity` 误列为未知字段、`event_type` 重复传参），修正后 `pytest agent/tests/unit/test_contracts_core_schemas.py -q` → 49 passed；`pytest agent/tests/unit -q` → **227 passed**（T02 原 155 + C00.1 的 23 + 本步 49，旧 OpenAPI 测试未受 `_schemaio` 泛化影响）；`ruff` All checks passed；`mypy agent/src` no issues in 17 files；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（1.5s / 9.1s / 5.7s）。
+  - 报告路径：`reports/verify/20260918-175954-contracts.txt`。
+  - 关键结论：核心 Schema 与旧 v1 的 `$id` 互不相交且互不可解析（测试断言）；`RESHIP`、`entitlement_id`、`address_hash`、旧 topic `rf.case.v1`、`schema_version=1`、无签名的结果、浮点/负/超上限金额均被拒；命令属性集合恰好等于 `canonical.REFUND_FIELDS + payload_hash`，Schema 与哈希实现不能各自漂移；旧 v1 命令/信封的宽松行为（RESHIP 分支、条件 amount_minor、结果不签名、信封带 aggregate_*）原样保留并有测试对照。
+  - 规范差异已按权威解决并记录：`docs/core-contracts.md` 第5节把 `aggregate_version` 放在结果 payload，因此 core 信封不再重复 `aggregate_id`/`aggregate_version`（旧 v1 信封保持不变）；详见 `contracts/core/README.md` 第4节。
+  - 未执行：C00.2b（三份核心 OpenAPI 与路由覆盖）、C00.2c（Java/Pydantic 核心 DTO 与 agent-proposal v2）、C00.3（core profile 启动与 smoke 选择）未开始；`verify -Suite all-offline` 本轮未重跑（留到 C00.3）；core profile 的服务启动尚未验证。
 
 ### C01 身份与订单只读切片
 
