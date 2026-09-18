@@ -1,0 +1,85 @@
+{
+  "_comment": "core-v1.2 部署 profile 的允许能力清单。权威：docs/core-scope.md（范围）与 docs/core-contracts.md（协议）。C00 只声明核心与兼容的边界，不表示核心 Schema/OpenAPI 已实现。",
+  "profile": "core-v1.2",
+  "profile_urn": "urn:resolveflow:profile:core-v1.2",
+  "authority": ["docs/core-scope.md", "docs/core-contracts.md"],
+  "deployment": {
+    "core_services": [
+      { "name": "gateway", "language": "java", "role": "入口、鉴权与路由" },
+      { "name": "case-service", "language": "java", "role": "工单、授权、审批与命令签发" },
+      { "name": "commerce-service", "language": "java", "role": "订单事实、退款执行与权威状态" },
+      { "name": "agent", "language": "python", "role": "单 Agent 调查、政策检索与方案生成" }
+    ],
+    "compat_only_services": ["fulfillment-service"],
+    "not_required": [
+      "nacos",
+      "sentinel",
+      "otel-collector",
+      "prometheus",
+      "grafana",
+      "tempo",
+      "jaeger"
+    ],
+    "infrastructure": {
+      "case": "mysql",
+      "commerce": "mysql",
+      "agent": "postgres+pgvector+checkpointer",
+      "cache": "redis",
+      "messaging": "rocketmq"
+    },
+    "notes": {
+      "fulfillment-service": "保留为兼容资产（骨架/协议/fixture/测试），默认不部署，不据此宣称已实现该能力。",
+      "shipment_data": "物流是 Commerce 内明确标识为 synthetic 的模拟外部数据模块，不冒充真实承运商接口。"
+    }
+  },
+  "protocol": {
+    "command_schema_version": 2,
+    "envelope_schema_version": 2,
+    "proposal_schema_version": 2,
+    "manifest_schema_version": 1,
+    "topics": {
+      "case": "rf.case.core.v2",
+      "commerce": "rf.commerce.core.v2"
+    },
+    "event_types": ["RefundRequested", "RefundSucceeded", "RefundFailed", "RefundUnknown"],
+    "payload_hash_fields": [
+      "operation_id",
+      "case_id",
+      "authorization_id",
+      "input_revision",
+      "line_id",
+      "merchant_id",
+      "action",
+      "quantity",
+      "currency",
+      "amount_minor",
+      "policy_version",
+      "target_service"
+    ],
+    "callback_kinds": ["STARTED", "QUESTION", "PROPOSAL", "FAILED"],
+    "callback_dispositions": ["ACCEPTED", "DUPLICATE", "STALE"],
+    "questions_max": 3
+  },
+  "capabilities": {
+    "allowed_actions": ["REFUND"],
+    "allowed_target_services": ["commerce-service"],
+    "deferred": {
+      "reship": "补发与库存不实现；旧协议里的 RESHIP 仅作为兼容资产保留，核心命令不接受。",
+      "inventory": "不建设库存模型与扣减。",
+      "entitlement_saga": "不做跨服务 reserve/start/commit/release 权益协议，也不做跨动作权益 Saga。",
+      "execution_cancel": "不做执行中取消；核心只允许授权消费前取消。",
+      "partial_refund": "只支持单个订单行全部数量、原行实付金额、整数分。",
+      "counterfactual_replay": "只做选定完整合成轨迹的 strict 回放。",
+      "world_replayer": "不实现合成世界回放器。",
+      "full_rag_ablation": "只做版本/商家硬过滤 + 真实 dense 检索 + BM25 基线，不做 hybrid/RRF/rerank 全家桶与四组强制消融。",
+      "observability_cluster": "不部署完整观测集群；保留有限日志与指标。",
+      "multi_agent": "单 Agent，不做多 Agent、自进化、Skills 市场或模型路由平台。"
+    }
+  },
+  "limits": {
+    "amount_min_minor": 1,
+    "amount_max_minor": 1000000000,
+    "currency": "CNY",
+    "max_exact_integer": 9007199254740991
+  }
+}

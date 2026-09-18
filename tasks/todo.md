@@ -7,20 +7,25 @@
 - T00：任务记录完成，兼容与版本锁；报告见docs/compatibility-report.md及reports/t00-compatibility/。
 - T01：任务记录完成，工程与命令/基础CI。
 - T02：任务记录完成，4份旧OpenAPI、双语言hash/签名/fixture；2026-09-18记录all-offline 17/17，Python155、Java shared-kernel29。
-- v1.2代码迁移尚未执行。下一项C00，不继续旧T03，不重新执行T00。
+- v1.2 迁移进行中：C00.1 已完成（2026-09-18，核心 profile 与允许能力清单），下一子步 C00.2；不继续旧T03，不重新执行T00。
 - 本轮只修订文档；后续完成项必须填写真实记录，不能引用本表把C任务勾完成。
 
 每个C工作包分子步实施，单子步尽量3–5核心文件；需更多时先在该任务下继续拆，不一次生成整包。命令当前/目标可用性见docs/engineering.md。
 
 ### C00 核心协议与启动范围迁移
 
-- [ ] C00.1：读取core-scope/core-contracts，建立核心协议目录与profile允许能力清单；确认旧fulfillment/补发/权益仅兼容保留。
+- [x] C00.1：读取core-scope/core-contracts，建立核心协议目录与profile允许能力清单；确认旧fulfillment/补发/权益仅兼容保留。
 - [ ] C00.2：按消费者分批新增核心Schema/OpenAPI、Java/Pydantic DTO及正反fixture/路由覆盖；新命令/事件/方案版本与旧基线显式区分。
 - [ ] C00.3：调整核心启动/smoke选择，默认不要求fulfillment/Nacos/全套观测；旧协议和测试保留，服务镜像未就绪则不宣称core profile完整可用。
 - 依赖：无（沿用已完成T00–T02）。文件：contracts/core、共享DTO、契约测试、infra/scripts；每子步再按协议/语言/profile拆分。
 - 验收：核心禁止RESHIP/entitlement假字段；旧compat和新core测试独立通过；迁移说明列出当前可启动服务与尚未实现能力。
 - 验证：pwsh -File scripts/verify.ps1 -Suite contracts；相关format/unit；Compose配置与已实现smoke，不要求未写业务的system套件。
-- 实际记录：未执行。
+- 实际记录：
+  - C00.1 完成（2026-09-18）。修改文件：`contracts/core/profile.json`（新建：核心版允许能力清单）、`contracts/core/README.md`（新建：核心/兼容边界与现状表）、`agent/src/resolveflow/contracts/core_profile.py`（新建：加载与校验）、`agent/tests/unit/test_contracts_core_profile.py`（新建：23 个测试）。
+  - 命令与结果：先写测试运行 → 预期失败 `ModuleNotFoundError: resolveflow.contracts.core_profile`；实现后 `uv run --project agent --frozen pytest agent/tests/unit/test_contracts_core_profile.py -q` → 23 passed；`ruff check agent/src agent/tests` → All checks passed；`mypy agent/src` → Success: no issues found in 17 source files；`pytest agent/tests/unit -q` → **178 passed**（T02 原有 155 + 新增 23，无回归）；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（python-contracts-freeze 1.5s、python-contracts 9.5s、java-contracts 14.4s）。
+  - 报告路径：`reports/verify/20260918-174507-contracts.txt`。
+  - 关键结论：核心 profile 只授予动作 `REFUND` 与目标服务 `commerce-service`；`RESHIP` 仍在旧 `Action` 枚举中（兼容资产）但不在核心允许集合，并以 `reship` 列入 `capabilities.deferred`；`payload_hash` 的 12 个字段由测试直接与 `docs/core-contracts.md` 文本比对，profile 不能与权威文档各说一套；`entitlement_id`/`address_hash` 明确不在核心哈希字段内；旧 4 份 OpenAPI 与 5 份 Schema/fixture 有存在性测试，迁移不得静默删除。
+  - 未执行：C00.2（核心 OpenAPI/Schema/DTO/fixture/路由覆盖）与 C00.3（core profile 启动与 smoke 选择）未开始；`verify -Suite all-offline` 本轮未重跑（留到 C00.3）；core profile 的服务启动尚未验证。
 
 ### C01 身份与订单只读切片
 
