@@ -142,9 +142,9 @@ paths:
       operationId: readRefundOperation
       summary: Authoritative refund operation state
       description: |
-        This answer ends a reconciliation; a broker retry or a timer never does
-        (docs/reliability-security.md). UNKNOWN is not a failure and keeps the
-        reservation.
+        This answer ends a reconciliation (docs/core-contracts.md:67): a broker retry or
+        a timer never does. UNKNOWN is not a failure and does not release the money or
+        the line occupation (docs/domain-model.md:15).
       parameters:
         - $ref: '#/components/parameters/OperationId'
       responses:
@@ -245,12 +245,14 @@ components:
       description: CNY minor units. Never a float (docs/core-contracts.md:17).
     OperationState:
       type: string
-      enum:
-        [CREATED, RESERVING, RESERVED, RECEIVED, STARTING, DISPATCHED, IN_PROGRESS,
-         TARGET_SUCCEEDED, COMMITTING, SUCCEEDED, UNKNOWN, RELEASING, FAILED, CANCELLED]
+      enum: [RECEIVED, IN_PROGRESS, UNKNOWN, SUCCEEDED, FAILED]
       description: |
-        The full internal refund_operation state machine (docs/domain-model.md:126).
-        Only SUCCEEDED/FAILED/UNKNOWN ever reach the result event.
+        The core refund_operation vocabulary, exactly the five states
+        docs/domain-model.md:57 assigns to core: RECEIVED/IN_PROGRESS/UNKNOWN/SUCCEEDED/
+        FAILED, and explicitly not the compat two-phase target protocol
+        (STARTING/CANCELLED and the reserve/commit states), which core does not run.
+        Only SUCCEEDED/FAILED/UNKNOWN ever reach the result event
+        (docs/core-contracts.md:67).
     LineRefundState:
       type: string
       enum: [FREE, RESERVED, CONSUMED]
@@ -342,7 +344,7 @@ components:
          line_paid_amount, refunded_amount, reserved_refund_amount, currency, paid_at,
          order_status, version]
       description: |
-        Carried over from the compat document unchanged: docs/domain-model.md:41 fixes
+        Carried over from the compat document unchanged: docs/domain-model.md:40-41 fixes
         these columns, and restating them differently for core would move the money
         contract for no reason.
       properties:

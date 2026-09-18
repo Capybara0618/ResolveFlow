@@ -34,7 +34,11 @@
   - 命令与结果：`pytest agent/tests/unit/test_contracts_core_routes.py -q` → 16 passed（中途 4 次失败全为测试自身缺陷：目录写成 `core`、正则缺 `re.MULTILINE`、`/health` 不属版本化前缀、路径重复拼接 `contracts`）；`pytest agent/tests/unit -q` → **243 passed**（此前 227 + 本步 16）；`ruff` All checks passed；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（1.5s / 8.8s / 5.5s）。
   - 报告路径：`reports/verify/20260918-180556-contracts.txt`。
   - 关键结论：核心路由表的权威是文档而非测试内的副本——测试解析 `docs/core-contracts.md` 第3节并钉住 Case 18 / Commerce 4 / Agent 5（共 27 条），再与核心 OpenAPI 的 `paths` 逐项比对；commerce 文档已确认不含 entitlement/packing/reship/cancel-before-start 任何片段，也没有 `Action` 与 `EntitlementState*` 组件，`line_refund` 状态收窄为 FREE/RESERVED/CONSUMED（compat 的 `IN_USE` 仍在旧枚举里，有对照断言）；`ShipmentSnapshot.synthetic` 为必填常量 true；文档内每个 `$ref` 均可解析，7 个示例全部通过自身组件校验；核心错误体与 compat 错误体逐字段相同（`docs/core-contracts.md:15` 要求错误体不变）。
-  - 未执行：C00.2b-2（agent 文档，5 条路由）、C00.2b-3（case 文档，18 条路由 + 三文档全量逐项对应）、C00.2c（Java/Pydantic 核心 DTO 与 agent-proposal v2）、C00.3（core profile 启动与 smoke 选择）未开始；`verify -Suite all-offline` 本轮未重跑（留到 C00.3）；core profile 的服务启动尚未验证。
+  - C00.2b-2 完成（2026-09-18）。修改文件：`contracts/core/openapi-agent.yaml`（新建：5 条路由 + RunRequest/RunView/ObservationRecord 等组件）、`agent/tests/unit/test_contracts_core_routes.py`（改为按文档参数化，31 个测试，覆盖 commerce 与 agent 两文档）、`contracts/core/README.md`（现状表与决策 6/7/8）。
+  - 命令与结果：`pytest agent/tests/unit/test_contracts_core_routes.py -q` → 31 passed（过程中 5 次失败均为真实信号或我自身缺陷：core agent 的 ApiError 描述未与 compat 逐字一致、`/health` 无业务规范可引（测试显式豁免）、ANALYZING 断言写法过宽、`domain-model.md` 正则漏 `_`、一行超 120 字符）；`pytest agent/tests/unit -q` → **258 passed**（此前 243 + 本步 15）；`ruff` All checks passed（修掉一处 E501）；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（1.4s / 10.5s / 5.2s）。
+  - 报告路径：`reports/verify/20260918-181250-contracts.txt`。
+  - 关键结论（规范冲突已按权威解决，写入 README 决策 7/8）：`docs/domain-model.md:57` 明确核心退款 operation 只有 RECEIVED/IN_PROGRESS/UNKNOWN/SUCCEEDED/FAILED 五态且不启用旧 STARTING/CANCELLED 目标协议——我最初照搬 compat 的 14 态两阶段状态机是错的，已收窄为五态，并加了从该句解析状态集合的测试（compat 枚举保持不动并同时断言）。核心 agent 文档三处收窄：`requested_actions` 只有 REFUND、证据来源去掉 LINE_ENTITLEMENT/PACKING_MANIFEST（核心无可复核端点）、`RunAccepted.status` 为常量 QUEUED（ANALYZING 是 case 状态）；`/health` 显式免 token。两文档的每个 `$ref` 均可在文档内解析，全部 18 个示例通过自身组件校验，核心错误体与 compat 错误体逐字段相同。
+  - 未执行：C00.2b-3（case 文档，18 条路由 + 三文档全量逐项对应）、C00.2c（Java/Pydantic 核心 DTO 与 agent-proposal v2）、C00.3（core profile 启动与 smoke 选择）未开始；`verify -Suite all-offline` 本轮未重跑（留到 C00.3）；core profile 的服务启动尚未验证。
 
 ### C01 身份与订单只读切片
 

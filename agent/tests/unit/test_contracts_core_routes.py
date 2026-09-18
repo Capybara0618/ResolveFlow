@@ -5,9 +5,9 @@ for ``核心路由与核心OpenAPI逐项对应``. That only means something if t
 of the document instead of being restated here: a route quietly dropped from the table
 while the OpenAPI keeps it - or the reverse - has to fail.
 
-This file starts with the commerce document (four routes); the agent and case documents
-arrive in the following sub-steps, and their counts are pinned now so the core surface
-cannot shrink unnoticed while they are still missing.
+The commerce and agent documents are covered here; the case document arrives in the last
+sub-step of C00.2b, and every owner's route count is pinned now so the core surface cannot
+shrink unnoticed while it is still missing.
 """
 
 from __future__ import annotations
@@ -26,10 +26,9 @@ from resolveflow.contracts._schemaio import (
 )
 
 CORE_DIR = "contracts/core"
-COMMERCE = "commerce"
 
 #: docs/core-contracts.md section 3, pinned per owner. C00 delivers all of them; a
-#: document that quietly stops covering one is what this number is here to catch.
+#: document that quietly stops covering one is what these numbers are here to catch.
 EXPECTED_ROUTE_COUNTS = {"Case": 18, "Commerce": 4, "Agent": 5}
 
 #: Routes the compat baseline has and core must not expose (docs/core-contracts.md:53).
@@ -46,6 +45,35 @@ class Route(NamedTuple):
     owner: str
     method: str
     path: str
+
+
+class DocumentSpec(NamedTuple):
+    """What one core document owes: its owner's routes plus its own protocol facts."""
+
+    owner: str
+    security_scheme: str
+    min_examples: int
+    example_components: frozenset[str]
+
+
+DOCUMENTS: dict[str, DocumentSpec] = {
+    "commerce": DocumentSpec(
+        owner="Commerce",
+        security_scheme="serviceToken",
+        min_examples=7,
+        example_components=frozenset(
+            {"LineContext", "ShipmentSnapshot", "LineRefundStatus", "RefundOperationView"}
+        ),
+    ),
+    "agent": DocumentSpec(
+        owner="Agent",
+        security_scheme="caseDispatcherToken",
+        min_examples=11,
+        example_components=frozenset(
+            {"HealthResponse", "RunRequest", "RunAccepted", "RunView", "CancelAck", "ObservationRecord"}
+        ),
+    ),
+}
 
 
 def route_table() -> list[Route]:
@@ -65,18 +93,26 @@ def owner_routes(owner: str) -> set[tuple[str, str]]:
     return {(route.method, route.path) for route in route_table() if route.owner == owner}
 
 
+def document(service: str) -> dict[str, Any]:
+    return load_openapi(service, CORE_DIR)
+
+
 def document_routes(service: str) -> set[tuple[str, str]]:
-    document = load_openapi(service, CORE_DIR)
     return {
         (method.upper(), path)
-        for path, item in document["paths"].items()
+        for path, item in document(service)["paths"].items()
         for method in item
         if method.lower() in {"get", "post", "put", "patch", "delete"}
     }
 
 
-def document(service: str) -> dict[str, Any]:
-    return load_openapi(service, CORE_DIR)
+def operation_ids(service: str) -> list[str]:
+    return [
+        operation["operationId"]
+        for item in document(service)["paths"].values()
+        for method, operation in item.items()
+        if method.lower() in {"get", "post"}
+    ]
 
 
 def resolve_pointer(document_: dict[str, Any], reference: str) -> Any:
@@ -104,12 +140,11 @@ def resolve_pointer(document_: dict[str, Any], reference: str) -> Any:
 
 
 def test_route_table_matches_the_expected_core_surface() -> None:
-    routes = route_table()
     counts: dict[str, int] = {}
-    for route in routes:
+    for route in route_table():
         counts[route.owner] = counts.get(route.owner, 0) + 1
     assert counts == EXPECTED_ROUTE_COUNTS
-    assert len(routes) == sum(EXPECTED_ROUTE_COUNTS.values())
+    assert len(route_table()) == sum(EXPECTED_ROUTE_COUNTS.values())
 
 
 def test_route_table_has_no_duplicate_route() -> None:
@@ -125,38 +160,44 @@ def test_every_route_is_under_a_versioned_http_prefix() -> None:
         assert route.method in {"GET", "POST"}, route
 
 
-# ------------------------------------------------------------------------- commerce
+# ------------------------------------------------------------------ per document
 
 
-def test_commerce_document_declares_exactly_the_commerce_routes() -> None:
-    assert document_routes(COMMERCE) == owner_routes("Commerce")
+@pytest.mark.parametrize("service", sorted(DOCUMENTS))
+def test_document_declares_exactly_the_routes_of_its_owner(service: str) -> None:
+    assert document_routes(service) == owner_routes(DOCUMENTS[service].owner)
 
 
-def test_commerce_document_marks_the_core_profile() -> None:
-    info = document(COMMERCE)["info"]
+@pytest.mark.parametrize("service", sorted(DOCUMENTS))
+def test_document_marks_the_core_profile(service: str) -> None:
+    info = document(service)["info"]
     assert info["version"] == "core-v1.2"
     assert info["x-core-profile"] == "core-v1.2"
     assert info["x-core-schema-version"] == 2
 
 
-def test_commerce_document_does_not_expose_the_deferred_surface() -> None:
-    paths = " ".join(document(COMMERCE)["paths"])
+@pytest.mark.parametrize("service", sorted(DOCUMENTS))
+def test_document_does_not_expose_the_deferred_surface(service: str) -> None:
+    paths = " ".join(document(service)["paths"])
     for fragment in DEFERRED_PATH_FRAGMENTS:
-        assert fragment not in paths, f"{fragment} must stay out of the core commerce document"
-    schemas = document(COMMERCE)["components"]["schemas"]
+        assert fragment not in paths, f"{fragment} must stay out of contracts/core/openapi-{service}.yaml"
+    schemas = document(service)["components"]["schemas"]
     assert "Action" not in schemas, "core has one executable action; an Action enum invites a second"
     assert "EntitlementStateView" not in schemas
     assert "EntitlementState" not in schemas
 
 
-def test_commerce_document_is_authenticated_by_a_service_token() -> None:
-    document_ = document(COMMERCE)
-    assert document_["security"] == [{"serviceToken": []}]
-    assert document_["components"]["securitySchemes"]["serviceToken"]["bearerFormat"] == "JWT"
+@pytest.mark.parametrize("service", sorted(DOCUMENTS))
+def test_document_is_authenticated_by_its_service_token(service: str) -> None:
+    document_ = document(service)
+    scheme = DOCUMENTS[service].security_scheme
+    assert document_["security"] == [{scheme: []}]
+    assert document_["components"]["securitySchemes"][scheme]["bearerFormat"] == "JWT"
 
 
-def test_every_reference_in_the_commerce_document_resolves_inside_it() -> None:
-    document_ = document(COMMERCE)
+@pytest.mark.parametrize("service", sorted(DOCUMENTS))
+def test_every_reference_in_the_document_resolves_inside_it(service: str) -> None:
+    document_ = document(service)
     references: list[str] = []
 
     def walk(node: Any) -> None:
@@ -171,45 +212,50 @@ def test_every_reference_in_the_commerce_document_resolves_inside_it() -> None:
                 walk(item)
 
     walk(document_)
-    assert references, "the commerce document declares no references at all"
+    assert references, f"openapi-{service}.yaml declares no references at all"
     for reference in references:
         assert not reference.startswith("urn:resolveflow:"), f"{reference} couples core to the compat protocol"
         resolve_pointer(document_, reference)
 
 
-def test_core_error_body_is_unchanged_from_the_compat_baseline() -> None:
-    core_error = document(COMMERCE)["components"]["schemas"]["ApiError"]
-    compat_error = load_openapi(COMMERCE)["components"]["schemas"]["ApiError"]
+@pytest.mark.parametrize("service", sorted(DOCUMENTS))
+def test_core_error_body_is_unchanged_from_the_compat_baseline(service: str) -> None:
+    core_error = document(service)["components"]["schemas"]["ApiError"]
+    compat_error = load_openapi(service)["components"]["schemas"]["ApiError"]
     assert core_error == compat_error, "docs/core-contracts.md:15 keeps the error body as it was"
 
 
-def test_line_refund_state_narrows_the_compat_entitlement_enum() -> None:
-    core_states = document(COMMERCE)["components"]["schemas"]["LineRefundState"]["enum"]
-    assert core_states == ["FREE", "RESERVED", "CONSUMED"]
-    # The compat enum keeps IN_USE for the deferred cross-service protocol; core does not.
-    assert "IN_USE" in {member.value for member in enums.EntitlementState}
-    assert "IN_USE" not in core_states
-
-
-def test_synthetic_marker_is_required_and_constant() -> None:
-    snapshot = document(COMMERCE)["components"]["schemas"]["ShipmentSnapshot"]
-    assert "synthetic" in snapshot["required"]
-    assert snapshot["properties"]["synthetic"] == {
-        "type": "boolean",
-        "const": True,
-        "description": snapshot["properties"]["synthetic"]["description"],
-    }
-
-
-def test_commerce_route_summaries_point_at_their_authority() -> None:
+@pytest.mark.parametrize("service", sorted(DOCUMENTS))
+def test_operations_have_ids_and_cite_their_authority(service: str) -> None:
     """A target document that does not say where its rules come from cannot be reviewed."""
-    for path, item in document(COMMERCE)["paths"].items():
+    identifiers = operation_ids(service)
+    assert len(identifiers) == len(set(identifiers)), f"duplicate operationId in openapi-{service}.yaml"
+    for path, item in document(service)["paths"].items():
         for method, operation in item.items():
             if method.lower() not in {"get", "post"}:
                 continue
             assert operation.get("summary"), f"{method} {path} has no summary"
+            if path == "/health":
+                # Liveness has no business rule to cite, and inventing one would be worse
+                # than the missing pointer.
+                continue
             description = operation.get("description", "")
             assert "docs/" in description, f"{method} {path} does not cite its authority document"
+
+
+@pytest.mark.parametrize("service", sorted(DOCUMENTS))
+def test_every_core_openapi_document_declares_the_core_profile(service: str) -> None:
+    directory = REPO_ROOT / CORE_DIR
+    names = {path.name for path in directory.glob("openapi-*.yaml")}
+    assert f"openapi-{service}.yaml" in names
+
+
+def test_no_compat_document_was_copied_into_the_core_directory() -> None:
+    directory = REPO_ROOT / CORE_DIR
+    for path in directory.glob("openapi-*.yaml"):
+        service = path.name.removeprefix("openapi-").removesuffix(".yaml")
+        assert document(service)["info"].get("x-core-profile") == "core-v1.2", f"{path.name} is not a core document"
+    assert not (directory / "openapi-fulfillment.yaml").exists()
 
 
 # -------------------------------------------------------------------------- examples
@@ -221,8 +267,7 @@ def operation_examples(service: str) -> list[tuple[str, str, Any]]:
     collected: list[tuple[str, str, Any]] = []
 
     def from_media(where: str, media: dict[str, Any]) -> None:
-        schema = media.get("schema", {})
-        reference = schema.get("$ref", "")
+        reference = media.get("schema", {}).get("$ref", "")
         if "example" in media and reference.startswith("#/components/schemas/"):
             collected.append((reference.rsplit("/", 1)[-1], where, media["example"]))
 
@@ -231,8 +276,7 @@ def operation_examples(service: str) -> list[tuple[str, str, Any]]:
             if method.lower() not in {"get", "post"}:
                 continue
             where = f"{method.upper()} {path}"
-            body = operation.get("requestBody", {})
-            for media in body.get("content", {}).values():
+            for media in operation.get("requestBody", {}).get("content", {}).values():
                 from_media(where, media)
             for status, response in operation.get("responses", {}).items():
                 if "$ref" in response:
@@ -245,31 +289,94 @@ def operation_examples(service: str) -> list[tuple[str, str, Any]]:
     return collected
 
 
-def test_commerce_examples_validate_against_their_own_schemas() -> None:
-    examples = operation_examples(COMMERCE)
-    assert len(examples) >= 7, f"expected the four success views and three error bodies, got {len(examples)}"
+@pytest.mark.parametrize("service", sorted(DOCUMENTS))
+def test_examples_validate_against_their_own_schemas(service: str) -> None:
+    examples = operation_examples(service)
+    expected = DOCUMENTS[service].min_examples
+    assert len(examples) >= expected, (
+        f"expected at least {expected} examples in openapi-{service}.yaml, got {len(examples)}"
+    )
     for component, where, example in examples:
-        validator = component_validator(COMMERCE, component, CORE_DIR, CORE_SCHEMA_FILES)
+        validator = component_validator(service, component, CORE_DIR, CORE_SCHEMA_FILES)
         errors = validator.error_messages(example)
         assert not errors, f"example at {where} does not satisfy {component}:\n  " + "\n  ".join(errors)
+    used = {component for component, _, _ in examples}
+    assert DOCUMENTS[service].example_components <= used
 
 
-def test_commerce_success_views_all_carry_an_example() -> None:
-    used = {component for component, _, _ in operation_examples(COMMERCE)}
-    assert {"LineContext", "ShipmentSnapshot", "LineRefundStatus", "RefundOperationView"} <= used
+# --------------------------------------------------------- core-only narrowing rules
+
+
+def core_operation_states_from_authority() -> list[str]:
+    """The five-state core vocabulary, read from docs/domain-model.md rather than copied."""
+    text = (REPO_ROOT / "docs" / "domain-model.md").read_text(encoding="utf-8")
+    match = re.search(r"核心退款operation用([A-Z_/]+)", text)
+    assert match, "docs/domain-model.md no longer states which refund operation states core uses"
+    return match.group(1).split("/")
+
+
+def test_commerce_operation_state_is_the_core_five() -> None:
+    core_states = document("commerce")["components"]["schemas"]["OperationState"]["enum"]
+    assert core_states == core_operation_states_from_authority()
+    compat_states = {member.value for member in enums.OperationState}
+    assert {"STARTING", "CANCELLED", "TARGET_SUCCEEDED"} <= compat_states, "compat keeps the two-phase protocol"
+    assert not {"STARTING", "CANCELLED", "TARGET_SUCCEEDED"} & set(core_states)
+
+
+def test_commerce_line_refund_state_narrows_the_compat_entitlement_enum() -> None:
+    core_states = document("commerce")["components"]["schemas"]["LineRefundState"]["enum"]
+    assert core_states == ["FREE", "RESERVED", "CONSUMED"]
+    # The compat enum keeps IN_USE for the deferred cross-service protocol; core does not.
+    assert "IN_USE" in {member.value for member in enums.EntitlementState}
+    assert "IN_USE" not in core_states
+
+
+def test_commerce_synthetic_marker_is_required_and_constant() -> None:
+    snapshot = document("commerce")["components"]["schemas"]["ShipmentSnapshot"]
+    assert "synthetic" in snapshot["required"]
+    synthetic = snapshot["properties"]["synthetic"]
+    assert synthetic["type"] == "boolean" and synthetic["const"] is True
+    assert synthetic["description"]
+
+
+def test_agent_requested_action_is_refund_only() -> None:
+    requested = document("agent")["components"]["schemas"]["RequestedAction"]["enum"]
+    assert requested == ["REFUND"]
+    compat = load_openapi("agent")["components"]["schemas"]["RequestedAction"]["enum"]
+    assert "RESHIP" in compat and "EITHER" in compat, "the compat document keeps the v1 vocabulary"
+
+
+def test_agent_evidence_source_types_are_all_re_readable_in_core() -> None:
+    core_types = document("agent")["components"]["schemas"]["EvidenceSourceType"]["enum"]
+    assert "LINE_ENTITLEMENT" not in core_types
+    assert "PACKING_MANIFEST" not in core_types
+    assert "SHIPMENT" in core_types and "POLICY_RULE" in core_types
+    compat_types = load_openapi("agent")["components"]["schemas"]["EvidenceSourceType"]["enum"]
+    assert "LINE_ENTITLEMENT" in compat_types and "PACKING_MANIFEST" in compat_types
+
+
+def test_agent_health_needs_no_service_token() -> None:
+    assert document("agent")["paths"]["/health"]["get"]["security"] == []
+
+
+def test_agent_run_accepted_does_not_borrow_case_vocabulary() -> None:
+    accepted = document("agent")["components"]["schemas"]["RunAccepted"]
+    status = accepted["properties"]["status"]
+    assert status["const"] == "QUEUED"
+    assert "enum" not in status, "a single committed status does not need an enum"
+    assert "ANALYZING" not in {status["const"]}
+    compat_status = load_openapi("agent")["components"]["schemas"]["RunAccepted"]["properties"]["status"]
+    assert "ANALYZING" in compat_status["enum"], "the compat document keeps the v1 vocabulary"
+    # CaseStatus.ANALYZING stays a case value; RunStatus never contains it.
+    assert "ANALYZING" in {member.value for member in enums.CaseStatus}
+    assert "ANALYZING" not in {member.value for member in enums.RunStatus}
+
+
+def test_agent_run_view_status_is_the_run_state_machine() -> None:
+    status = document("agent")["components"]["schemas"]["RunView"]["properties"]["status"]["enum"]
+    assert status == [member.value for member in enums.RunStatus]
 
 
 def test_missing_core_document_fails_loudly() -> None:
     with pytest.raises(FileNotFoundError):
         load_openapi("fulfillment", CORE_DIR)
-
-
-def test_every_core_openapi_document_declares_the_core_profile() -> None:
-    """A compat document copied into contracts/core/ would fail here."""
-    core_directory = REPO_ROOT / CORE_DIR
-    documents = sorted(core_directory.glob("openapi-*.yaml"))
-    assert documents, "contracts/core declares no OpenAPI document"
-    for path in documents:
-        service = path.name.removeprefix("openapi-").removesuffix(".yaml")
-        profile = document(service)["info"].get("x-core-profile")
-        assert profile == "core-v1.2", f"{path.name} is not a core protocol document"
