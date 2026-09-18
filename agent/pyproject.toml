@@ -39,6 +39,10 @@ dev = [
     "jsonschema>=4.26",
     "pyyaml>=6.0",
     "cryptography>=50.0",
+    # mypy --strict needs the stubs for the two libraries the contract fixtures read
+    # with; without them the whole contracts package is untyped at its edges.
+    "types-jsonschema>=4.26",
+    "types-pyyaml>=6.0",
 ]
 
 [build-system]

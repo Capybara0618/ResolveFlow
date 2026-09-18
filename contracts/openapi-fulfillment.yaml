@@ -70,6 +70,7 @@ paths:
       tags: [reship]
       operationId: readReshipOperation
       summary: Authoritative reship operation state
+      description: 'Returns this service own target operation, so a caller cannot make fulfillment report on commerce refund.'
       parameters:
         - $ref: '#/components/parameters/OperationId'
       responses:
@@ -99,6 +100,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReasonRequest'
+            example: {"reason": "packing was cancelled before the shipping label was created"}
       responses:
         '200':
           description: Cancellation recorded
@@ -136,12 +138,22 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: FORBIDDEN_SCOPE
+            message: the caller scope does not include the required action
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     NotFound:
       description: Not visible under this token's scope (404)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: NOT_FOUND
+            message: the resource does not exist under this principal
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     StateConflict:
       description: The operation already started, so cancellation is refused (409)
       content:
@@ -149,17 +161,21 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error:
-              code: STATE_CONFLICT
-              message: reship operation already accepted by the carrier; only forward completion is possible
-              retryable: false
-              trace_id: 0af7651916cd43dd8448eb211c80319c
+            code: STATE_CONFLICT
+            message: reship operation already accepted by the carrier; only forward completion is possible
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     ServiceUnavailable:
       description: Temporarily unavailable (503)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: SERVICE_UNAVAILABLE
+            message: the fulfillment provider did not answer in time
+            retryable: true
+            trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
     Uuid:
       type: string
@@ -197,19 +213,20 @@ components:
           maxLength: 2000
         retryable:
           type: boolean
+          description: |
+            Carried explicitly so a caller never infers retryability from the status
+            code. A network timeout is not a failed refund (docs/contracts.md:14).
         trace_id:
           type: [string, 'null']
           maxLength: 64
         details:
           type: [object, 'null']
           additionalProperties: true
+    # The HTTP error body is the flat object docs/contracts.md:14 fixes and
+    # com.resolveflow.shared.error.ApiError serialises. This alias keeps the
+    # response-body name the responses below reference without restating the shape.
     ErrorResponse:
-      type: object
-      additionalProperties: false
-      required: [error]
-      properties:
-        error:
-          $ref: '#/components/schemas/ApiError'
+      $ref: '#/components/schemas/ApiError'
     ShipmentEvent:
       type: object
       additionalProperties: false

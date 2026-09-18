@@ -2,7 +2,7 @@
 
 初始状态：全部40个工作包待实施。每个T下的小步骤依次完成；验收通过后才勾选。命令入口在T01建立，之后所有验证均应返回真实结果。v1.1新增T35–T39，按依赖插入，不等T34结束才开始。
 
-进度：T00 已完成（2026-09-15，实测 38 个测试通过）。T01 已完成（2026-09-17，`verify --suite all-offline` 14/14，27 个测试通过）。下一项为 T02。
+进度：T00 已完成（2026-09-15，实测 38 个测试通过）。T01 已完成（2026-09-17，`verify --suite all-offline` 14/14，27 个测试通过）。T02 已完成（2026-09-18，`verify -Suite all-offline` 17/17，Python 155 个测试、Java shared-kernel 29 个测试通过）。下一项为 T03。
 
 ## P0 基础
 
@@ -88,16 +88,55 @@
     4. Docker Desktop 在本机反复自行停止（内存紧张：15.3 GB 总量、空闲一度 0.5 GB），期间 `infra-up` 会失败；这是环境问题不是代码问题，doctor 已能报告。用户确认由其手动启动。
     5. `app` / `observability` profile 与 provider-stub 一样留待后续任务；`--profile app` 目前是 no-op（compose 不虚构不存在的服务），已在 engineering.md 说明。
     6. 审计中一条 nit 称 `ApiError` 使用了 Jackson 2 注解搭配 Jackson 3 运行时——**该结论不成立**：Jackson 3 的 POM 明确注明注解仍留在 Jackson 2.x groupId，实测序列化正常，已驳回。
-  - 未运行项（不得视为通过）：contracts / system / faults / performance / agent-eval / rag-eval / harness / harness-eval 全部未实现（各自的 verify 调用返回 exit 2 并说明归属任务）；Redis Lua 限流（T27）、OTLP（T26）、live 评测（未配置 API 与预算）。
+    7. 2026-09-18 追加：`verify.ps1` 的 `Test-HttpUp` 在 PowerShell 7 下误判（把无 charset 的响应 `Content` 当 byte[] 匹配 `UP`），导致 4 个 Java 服务健康也各等满 90s 报失败——T01 记录里"smoke ×5 PASS"是在 bash 版（curl）跑出来的，pwsh 版此前未覆盖 smoke。已由 T02 修复并实测（见 T02 记录第 6 条）。
+  - 未运行项（不得视为通过）：system / faults / performance / agent-eval / rag-eval / harness / harness-eval 未实现（各自的 verify 调用返回 exit 2 并说明归属任务）；`contracts` 自 2026-09-18 起由 T02 实现（见 T02 记录）；Redis Lua 限流（T27）、OTLP（T26）、live 评测（未配置 API 与预算）。
 
 ### T02 契约固化与跨语言fixture
 
-- [ ] T02.1：生成4份OpenAPI、DTO/Pydantic与正确/错误fixture。
-- [ ] T02.2：固定规范化hash、事件签名字段和enum映射。
+- [x] T02.1：生成4份OpenAPI、DTO/Pydantic与正确/错误fixture。
+- [x] T02.2：固定规范化hash、事件签名字段和enum映射。
 - 依赖：T01。文件：contracts/openapi-*.yaml、contracts/fixtures/*、对应契约测试。
 - 验收：所有contracts.md端点覆盖；未知字段、负金额、错action/target组合被拒绝。
 - 验证：verify -Suite contracts；Java/Python对同一fixture产生相同hash。
-- 实际记录：未执行。
+- 实际记录：
+  - 日期：2026-09-18。状态：**完成**。`verify -Suite contracts` 3/3 PASS；`verify -Suite all-offline` **17/17 PASS（0 FAIL、0 SKIPPED）**。
+  - 修改文件：
+    - `contracts/openapi-{case,commerce,fulfillment,agent}.yaml`：4 份 OpenAPI，共 39 个操作。补齐 13 个缺失的请求示例；`ErrorResponse` 统一为 `ApiError` 别名（扁平错误体）；修正 `RunView.status` 枚举；4 份 `ApiError` 完全一致；修正 2 处把 64 位 hash 解析成整数的 YAML。
+    - `contracts/fixtures/`：`examples/cross-language-canonical-inputs.json`（规范化输入，含越界 `invalid_payloads`）、`examples/valid.json`（32 条正向语料，错误体已扁平化）、`reject/reject.json`（54 条反向语料）、`expected-hashes.json`（7330 B）、`expected-enums.json`（3870 B / 23 组）、`README.md`（改写为实际用法）。
+    - `agent/src/resolveflow/contracts/`：`corpus.py`（新建：共享映射 + 正向/反向校验、占位符解析、信封签名、冻结值重算）、`canonical.py`（2^53-1 边界）、`enums.py`（+4 组枚举）、`models.py`、`_schemaio.py`、`events.py`、`fixtures.py`。
+    - `agent/tests/unit/`：`test_contracts_canonical.py`(31)、`test_contracts_fixtures.py`(32)、`test_contracts_openapi.py`(87)。
+    - `java/shared-kernel/src/{main,test}/java/com/resolveflow/shared/contract/`：`CanonicalJson`、`EventSignature`、`ContractEnums`（23 组）、`ContractFixtures`；`CanonicalJsonTest`(16)、`ContractCorpusAgreementTest`(8)。
+    - `scripts/`：`contracts_freeze.py`（改为委托 `resolveflow.contracts.corpus`，支持 `--check`）、`verify.ps1` / `verify.sh`（新增 `contracts` suite；uv 缓存兜底；`Test-HttpUp` 修复）。
+    - `agent/pyproject.toml` + `agent/uv.lock`（dev 组新增 `types-jsonschema`/`types-pyyaml`，锁文件仅新增 2 个包、无版本漂移）、`docs/engineering.md`（suite 清单）。
+  - 实际执行命令：
+    - `uv run --project agent python scripts/contracts_freeze.py --check` → `58 fixtures refused, 32 positive fixtures validated` + `frozen expectations match the corpus`
+    - `pwsh -File scripts/verify.ps1 -Suite contracts`（3/3 PASS）
+    - `pwsh -File scripts/verify.ps1 -Suite all-offline`（17/17 PASS）
+    - `uv run --project agent --frozen pytest agent/tests/unit -q`（155 passed）
+    - `java\mvnw.cmd -f java/pom.xml -B -pl shared-kernel test`（Tests run: 29）
+    - `uv run --project agent --frozen ruff check agent/src agent/tests`、`mypy agent/src`、`spotless:check`（均通过）
+  - 测试结果：
+    - Python **155/155 通过**（其中契约相关 150：canonical 31 + fixtures 32 + openapi 87；另有 T01 健康检查 5）。
+    - Java shared-kernel **29/29 通过**（CanonicalJsonTest 16、ContractCorpusAgreementTest 8、ApiErrorTest 5）。
+    - 全量 all-offline：format 4/4、unit 3/3、contracts 3/3、smoke 7/7（含 5 个服务真实启停）。
+    - 报告路径：`reports/verify/20260918-151213-all-offline.txt`（全量）、`reports/verify/20260918-144517-contracts.txt`、`reports/verify/20260918-151133-smoke.txt`。
+  - 实测确认的关键点：
+    1. **跨语言一致是独立重算出来的**：Python 生成冻结值，Java 只读同一批 fixture 独立重算，两侧逐字节相同——UTF-16 码元排序（U+10000 < U+E000 < U+FFFD，与码点排序不同）、2^53-1 越界整数拒绝、Ed25519 签名可复现（确定性）。只改一侧会让另一侧失败。
+    2. **端点覆盖可核对**：从 `docs/contracts.md` 正则解析出 39 条路由，与 4 份 OpenAPI 完全一致；唯一额外路由是 agent `GET /health`，测试中显式列为例外。新增路由或漏实现都会失败。
+    3. **反向语料覆盖验收要求**：未知成员、负金额、零金额、超上限、浮点金额、错 action/target（REFUND→fulfillment、RESHIP→commerce）、缺 payload_hash、未知 action 等 58 条全部被对应 schema 拒绝，且每条都写明"为什么必须被拒"。
+    4. **105 个 OpenAPI 示例逐个对自身 schema 校验**（本轮新增测试）——就是它抓出 2 处 YAML 把 64 位 hash 当整数、以及 13 个操作根本没有请求示例。
+    5. **两个实质冲突按权威解决**（不允许任选一个实现）：① 错误体形状——`docs/contracts.md:14` 与 T01 的 Java `ApiError` 都定义扁平 `{code,message,retryable,trace_id,details}`，此前 OpenAPI 写成了 `{error:{...}}`，已按权威改为扁平；② `RunView.status` 用了工单状态词汇（ANALYZING/PROPOSED…），按 `docs/agent-spec.md:17` 修正为 run 状态机，并把 4 组此前未冻结的线上枚举（`verification_result`/`carrier_conclusion`/`run_status`/`verified_status`）补进冻结表——否则 Java 与 Python 会对 run 状态、承运结论各说各话。
+    6. **两处入口/环境问题顺带修好**（都在 `scripts/`）：① uv 默认缓存位于工作区外、被拒写时所有 uv 步骤会在跑到测试前就失败，verify 现在兜底用仓库内 `tmp/uv-cache`（显式设置 `UV_CACHE_DIR` 时仍尊重外部设置）；② `verify.ps1` 的 `Test-HttpUp` 在 PowerShell 7 下把无 charset 的响应 `Content` 当作 byte[] 做逐元素匹配，永远匹配不到 `UP`，于是 4 个 Java 服务即使真的在 4 秒内健康也会各等满 90 秒报失败（`verify.sh` 用 curl 不受影响，T01 最终那次用的是 bash 版）。解码后再匹配 `"status":"UP"` 后，smoke 由 4 FAIL 变为 5 PASS（每个 4–5 秒），这也解释了"为什么之前那么慢"。
+  - 未决项：
+    1. `ApiError.code` 在 OpenAPI 里只是 `string(1..64)`，没有 enum 约束，"未知错误码"目前靠冻结枚举表而非 schema 拒绝。是否有意收紧待 T03（现宽松是为后续任务扩展错误码留空间）。
+    2. `contracts/*.schema.json` 中仍有 `if/then` 条件分支节点未强制"显式声明开放/封闭"；OpenAPI 组件已强制（`additionalProperties` 必须出现，开放对象必须登记在测试白名单里）。
+    3. 仓库**没有 `.gitignore`**，且 T01 那次提交把 `java/**/target/**`、`agent/**/__pycache__`、`web/node_modules/.vite` 等构建产物纳入版本控制。本轮未擅自动用户已有改动，建议下一步统一清理。
+    4. 4 份 OpenAPI 文档目前不是"可重复生成"的：`contracts_freeze.py` 只校验 schema 与语料一致、并冻结 hash/枚举，不重新生成 OpenAPI 文本。若要求 OpenAPI 成为生成物，需要把文档也纳入生成器（本轮为修内容直接改了文本）。
+    5. `agent/src/resolveflow/contracts/models.py`（Pydantic DTO）当前只被契约测试覆盖，尚未被 API 层使用，T03 起接入。
+  - 未运行项（不得视为通过）：
+    1. `verify -Suite system/faults/performance/agent-eval/rag-eval/harness/harness-eval` 仍按归属任务返回 exit 2。
+    2. live 模型调用与效果评测（未配置 API 与预算）。
+    3. `bash scripts/verify.sh` **本次未实测**：`bash -n scripts/verify.sh` 在此环境抛 `Bash/Service/CreateInstance/E_ACCESS_DENIED`（无法启动 bash）。verify.sh 的改动已逐条与 PowerShell 版对齐并人工比对，但未运行，失败原因属环境限制。
 
 ### T03 身份、网关与资源授权
 

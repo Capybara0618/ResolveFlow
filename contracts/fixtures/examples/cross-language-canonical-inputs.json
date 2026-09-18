@@ -146,6 +146,21 @@
       "amount_minor": 20000,
       "policy_version": "policy-2026.09-refund-v3",
       "target_service": "commerce-service"
+    },
+    "revision-beyond-the-exact-range": {
+      "_comment": "docs/contracts.md:19 caps revisions at 2^53-1 because that is the largest integer Java, Python and JavaScript hold exactly. One beyond it must be refused rather than serialised to a value the other language would round.",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+      "input_revision": 9007199254740992,
+      "line_id": "7001",
+      "merchant_id": "1",
+      "action": "REFUND",
+      "quantity": 1,
+      "currency": "CNY",
+      "amount_minor": 20000,
+      "policy_version": "policy-2026.09-refund-v3",
+      "target_service": "commerce-service"
     }
   },
   "unicode_documents": {

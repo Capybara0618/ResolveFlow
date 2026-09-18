@@ -49,9 +49,14 @@ paths:
       tags: [entitlement]
       operationId: readLineEntitlement
       summary: Current entitlement state for one line
+      description: 'Returns the authoritative entitlement state and version for one line. The Agent may read it to reason; only reserve/start/commit/release may change it.'
       parameters:
         - $ref: '#/components/parameters/LineId'
       responses:
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '200':
           description: Entitlement state
           content:
@@ -77,7 +82,7 @@ paths:
               operation_id: 3f2504e0-4f89-41d3-9a0c-0305e82c3301
               line_id: '7001'
               action: REFUND
-              payload_hash: 1111111111111111111111111111111111111111111111111111111111111111
+              payload_hash: '1111111111111111111111111111111111111111111111111111111111111111'
       responses:
         '200':
           description: Reservation result (idempotent on operation_id + payload_hash)
@@ -106,6 +111,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/EntitlementStartRequest'
+            example: {"target_service": "commerce-service", "payload_hash": "9f2c1b7d4e5a6081c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0"}
       responses:
         '200':
           description: Entitlement is now IN_USE
@@ -129,6 +135,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/EntitlementCommitRequest'
+            example: {"result_ref": "refund-8f2b1c4d", "payload_hash": "9f2c1b7d4e5a6081c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0"}
       responses:
         '200':
           description: Entitlement committed (idempotent)
@@ -154,6 +161,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/EntitlementReleaseRequest'
+            example: {"terminal_failure_ref": "refund-failed-1c4d8f2b", "payload_hash": "9f2c1b7d4e5a6081c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0"}
       responses:
         '200':
           description: Entitlement released (idempotent)
@@ -170,6 +178,7 @@ paths:
       tags: [entitlement]
       operationId: readEntitlement
       summary: Authoritative entitlement state for one operation
+      description: 'Authoritative entitlement state query. Reconciliation uses this answer, and only it may end an UNKNOWN operation: a timeout is not a failed refund (docs/contracts.md:125).'
       parameters:
         - $ref: '#/components/parameters/OperationId'
       responses:
@@ -217,6 +226,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReasonRequest'
+            example: {"reason": "the reservation was released before the target service started work"}
       responses:
         '200':
           description: Cancellation recorded
@@ -256,12 +266,22 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: FORBIDDEN_SCOPE
+            message: the caller scope does not include the required action
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     NotFound:
       description: Not visible under this token's scope (404)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: NOT_FOUND
+            message: the resource does not exist under this principal
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     StateConflict:
       description: The entitlement or operation is not in a state that permits this (409)
       content:
@@ -269,11 +289,10 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error:
-              code: STATE_CONFLICT
-              message: line 7001 already has a RESERVED entitlement for another operation
-              retryable: false
-              trace_id: 0af7651916cd43dd8448eb211c80319c
+            code: STATE_CONFLICT
+            message: line 7001 already has a RESERVED entitlement for another operation
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     SemanticInvalid:
       description: Business rejection (422), for example insufficient refundable balance
       content:
@@ -281,17 +300,21 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error:
-              code: SEMANTIC_INVALID
-              message: refundable balance for order 00000000-0000-4000-8000-0000000000aa is insufficient
-              retryable: false
-              trace_id: 0af7651916cd43dd8448eb211c80319c
+            code: SEMANTIC_INVALID
+            message: refundable balance for order 00000000-0000-4000-8000-0000000000aa is insufficient
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     ServiceUnavailable:
       description: Temporarily unavailable (503). A timeout here is never a failed refund.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: SERVICE_UNAVAILABLE
+            message: commerce database is temporarily unavailable
+            retryable: true
+            trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
     Uuid:
       type: string
@@ -343,19 +366,20 @@ components:
           maxLength: 2000
         retryable:
           type: boolean
+          description: |
+            Carried explicitly so a caller never infers retryability from the status
+            code. A network timeout is not a failed refund (docs/contracts.md:14).
         trace_id:
           type: [string, 'null']
           maxLength: 64
         details:
           type: [object, 'null']
           additionalProperties: true
+    # The HTTP error body is the flat object docs/contracts.md:14 fixes and
+    # com.resolveflow.shared.error.ApiError serialises. This alias keeps the
+    # response-body name the responses below reference without restating the shape.
     ErrorResponse:
-      type: object
-      additionalProperties: false
-      required: [error]
-      properties:
-        error:
-          $ref: '#/components/schemas/ApiError'
+      $ref: '#/components/schemas/ApiError'
     LineContext:
       type: object
       additionalProperties: false

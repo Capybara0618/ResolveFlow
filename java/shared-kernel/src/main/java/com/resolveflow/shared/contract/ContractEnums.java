@@ -424,6 +424,83 @@ public final class ContractEnums {
         }
     }
 
+    /** The reviewer's verdict on a piece of submitted evidence (docs/contracts.md:36). */
+    public enum VerificationResult implements WireValue {
+        CONFIRMED("CONFIRMED"),
+        REFUTED("REFUTED"),
+        INCONCLUSIVE("INCONCLUSIVE");
+
+        private final String wire;
+
+        VerificationResult(String wire) {
+            this.wire = wire;
+        }
+
+        @Override
+        public String wire() {
+            return wire;
+        }
+    }
+
+    /** What the carrier's own tracking concludes (docs/domain-model.md:57); UNKNOWN is not failure. */
+    public enum CarrierConclusion implements WireValue {
+        LOST("LOST"),
+        DELIVERED("DELIVERED"),
+        IN_TRANSIT("IN_TRANSIT"),
+        UNKNOWN("UNKNOWN");
+
+        private final String wire;
+
+        CarrierConclusion(String wire) {
+            this.wire = wire;
+        }
+
+        @Override
+        public String wire() {
+            return wire;
+        }
+    }
+
+    /** agent_run status, fixed by docs/agent-spec.md:17. */
+    public enum RunStatus implements WireValue {
+        QUEUED("QUEUED"),
+        RUNNING("RUNNING"),
+        CALLBACK_PENDING("CALLBACK_PENDING"),
+        WAITING_INPUT("WAITING_INPUT"),
+        COMPLETED("COMPLETED"),
+        FAILED("FAILED"),
+        CANCELLED("CANCELLED"),
+        STALE("STALE");
+
+        private final String wire;
+
+        RunStatus(String wire) {
+            this.wire = wire;
+        }
+
+        @Override
+        public String wire() {
+            return wire;
+        }
+    }
+    /** Packing-manifest verification (docs/domain-model.md:59); NO_RECORD is not a failure. */
+    public enum VerifiedStatus implements WireValue {
+        VERIFIED("VERIFIED"),
+        NOT_VERIFIED("NOT_VERIFIED"),
+        NO_RECORD("NO_RECORD");
+
+        private final String wire;
+
+        VerifiedStatus(String wire) {
+            this.wire = wire;
+        }
+
+        @Override
+        public String wire() {
+            return wire;
+        }
+    }
+
     private ContractEnums() {}
 
     /**
@@ -453,6 +530,10 @@ public final class ContractEnums {
         groups.put("operation_state", valuesOf(OperationState.class));
         groups.put("evidence_source_type", valuesOf(EvidenceSourceType.class));
         groups.put("error_code", valuesOf(ErrorCode.class));
+        groups.put("verification_result", valuesOf(VerificationResult.class));
+        groups.put("carrier_conclusion", valuesOf(CarrierConclusion.class));
+        groups.put("run_status", valuesOf(RunStatus.class));
+        groups.put("verified_status", valuesOf(VerifiedStatus.class));
         return Collections.unmodifiableMap(groups);
     }
 

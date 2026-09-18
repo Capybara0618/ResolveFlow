@@ -21,6 +21,7 @@ import json
 from typing import Any
 
 __all__ = [
+    "MAX_EXACT_INTEGER",
     "REFUND_FIELDS",
     "RESHIP_FIELDS",
     "CanonicalizationError",
@@ -29,6 +30,9 @@ __all__ = [
     "content_hash",
     "payload_hash",
 ]
+
+#: 2^53-1: the largest integer Java, Python and JavaScript represent exactly.
+MAX_EXACT_INTEGER = 9007199254740991
 
 # Fields covered by execution payload_hash, per docs/contracts.md:17.
 # Deliberately excluded: payload_hash itself (self-reference), entitlement_id
@@ -90,6 +94,12 @@ def _serialize(value: Any) -> str:
         return json.dumps(value, ensure_ascii=False)
     if isinstance(value, int):
         # int is checked before float, so bools (handled above) and ints stay exact.
+        # JCS bounds numbers at 2^53-1 so that every language's double can hold them
+        # exactly; docs/contracts.md:19 fixes the same bound for versions and
+        # revisions. Beyond it the value is refused rather than serialised, because
+        # Java, Python and JavaScript would no longer agree on it.
+        if abs(value) > MAX_EXACT_INTEGER:
+            raise CanonicalizationError(f"integer {value} exceeds the 2^53-1 contract bound")
         return str(value)
     if isinstance(value, float):
         raise CanonicalizationError(

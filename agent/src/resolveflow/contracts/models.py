@@ -24,7 +24,7 @@ Field typing notes:
 from __future__ import annotations
 
 import re
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Final, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator, model_validator
 
@@ -38,8 +38,8 @@ from resolveflow.contracts.enums import (
     Decision,
     EntitlementState,
     ErrorCode,
-    EvidenceSourceType,
     EventType,
+    EvidenceSourceType,
     IdempotencyDisposition,
     OperationState,
     Producer,
@@ -109,9 +109,9 @@ SHA256_HEX = Annotated[str, StringConstraints(pattern=r"^[a-f0-9]{64}$")]
 ReasonCode = Annotated[str, StringConstraints(pattern=r"^[A-Z][A-Z0-9_]{1,63}$")]
 
 #: docs/contracts.md:19 — the single money ceiling for the whole project.
-MAX_AMOUNT_MINOR = 1_000_000_000
+MAX_AMOUNT_MINOR: Final = 1_000_000_000
 #: 2^53-1; the largest integer Java, Python and JavaScript agree on exactly.
-MAX_SAFE_INTEGER = 2**53 - 1
+MAX_SAFE_INTEGER: Final = 9007199254740991
 
 MoneyMinor = Annotated[int, Field(ge=1, le=MAX_AMOUNT_MINOR)]
 PositiveRevision = Annotated[int, Field(ge=1, le=MAX_SAFE_INTEGER)]
@@ -218,7 +218,8 @@ class LoginRequest(ContractModel):
 
 class LoginResponse(ContractModel):
     access_token: str = Field(min_length=1)
-    token_type: Literal["Bearer"] = "Bearer"
+    # Not a secret: the OAuth token type is always the literal "Bearer".
+    token_type: Literal["Bearer"] = "Bearer"  # noqa: S105
     expires_in: Annotated[int, Field(ge=1, le=86400)]
     role: str = Field(min_length=1)
     merchant_id: str = Field(min_length=1)

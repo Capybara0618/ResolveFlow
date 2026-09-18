@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Unit tests for the canonicalisation rules themselves.
@@ -31,15 +32,17 @@ class CanonicalJsonTest {
     @Test
     @DisplayName("Object keys sort by UTF-16 code unit, matching RFC 8785")
     void ordersKeysByUtf16CodeUnit() {
-        // U+FFFD (BMP) and U+E000 (BMP) both sort before U+10000 under UTF-16 code-unit
-        // ordering, while a code-point sort puts the supplementary character first.
+        // U+10000 is the surrogate pair D800 DC00, so under UTF-16 code-unit ordering it sorts
+        // before both U+E000 and U+FFFD; a code-point sort would put the two BMP keys first.
         String canonical = CanonicalJson.canonicalize(
                 json("{\"\uD800\uDC00\":\"supplementary\",\"\uFFFD\":\"replacement\",\"\uE000\":\"private-use\"}"));
 
         assertThat(canonical)
                 .isEqualTo(
-                        "{\"\uFFFD\":\"replacement\",\"\uE000\":\"private-use\",\"\uD800\uDC00\":\"supplementary\"}");
-        assertThat(canonical.indexOf("\uFFFD")).isLessThan(canonical.indexOf("\uD800\uDC00"));
+                        "{\"\uD800\uDC00\":\"supplementary\",\"\uE000\":\"private-use\",\"\uFFFD\":\"replacement\"}");
+        // The ordering that actually distinguishes the two rules, asserted rather than implied.
+        assertThat(canonical.indexOf("\uD800\uDC00")).isLessThan(canonical.indexOf("\uE000"));
+        assertThat(canonical.indexOf("\uE000")).isLessThan(canonical.indexOf("\uFFFD"));
     }
 
     @Test
@@ -55,7 +58,8 @@ class CanonicalJsonTest {
         assertThat(CanonicalJson.canonicalize(json("{\"t\":\"tab:\\t newline:\\n quote:\\\" backslash:\\\\\"}")))
                 .isEqualTo("{\"t\":\"tab:\\t newline:\\n quote:\\\" backslash:\\\\\"}");
         // Control characters have no short form and use a four-digit escape with lowercase hex.
-        assertThat(CanonicalJson.canonicalize(json("{\"c\":\"unit-sep:\\u001f\"}"))).isEqualTo("{\"c\":\"unit-sep:\\u001f\"}");
+        assertThat(CanonicalJson.canonicalize(json("{\"c\":\"unit-sep:\\u001f\"}")))
+                .isEqualTo("{\"c\":\"unit-sep:\\u001f\"}");
         // A non-ASCII character stays as itself: escaping it would parse identically but
         // produce different bytes, and the hash is over bytes.
         assertThat(CanonicalJson.canonicalize(json("{\"n\":\"\u5f20\u4e09\"}"))).isEqualTo("{\"n\":\"\u5f20\u4e09\"}");
@@ -125,8 +129,12 @@ class CanonicalJsonTest {
     @Test
     @DisplayName("REFUND and RESHIP hash different field sets, so an amount never leaks into a reship")
     void refundAndReshipUseDifferentFieldSets() {
-        assertThat(CanonicalJson.fieldsForAction("REFUND")).contains("amount_minor").doesNotContain("address_hash");
-        assertThat(CanonicalJson.fieldsForAction("RESHIP")).contains("address_hash").doesNotContain("amount_minor");
+        assertThat(CanonicalJson.fieldsForAction("REFUND"))
+                .contains("amount_minor")
+                .doesNotContain("address_hash");
+        assertThat(CanonicalJson.fieldsForAction("RESHIP"))
+                .contains("address_hash")
+                .doesNotContain("amount_minor");
         assertThatThrownBy(() -> CanonicalJson.fieldsForAction("PARTIAL_REFUND"))
                 .isInstanceOf(CanonicalJson.CanonicalizationException.class);
     }
@@ -154,8 +162,8 @@ class CanonicalJsonTest {
     @Test
     @DisplayName("The canonical text of a document is stable across a re-parse")
     void canonicalTextIsStable() {
-        String text = CanonicalJson.canonicalize(ContractFixtures.canonicalCorpus().get("unicode_documents")
-                .get("control-and-supplementary"));
+        String text = CanonicalJson.canonicalize(
+                ContractFixtures.canonicalCorpus().get("unicode_documents").get("control-and-supplementary"));
         String again = CanonicalJson.canonicalize(json(text));
         assertThat(again).isEqualTo(text);
     }
@@ -163,30 +171,21 @@ class CanonicalJsonTest {
     @Test
     @DisplayName("Signing input normalises absent optional members to null")
     void normalisesAbsentOptionalMembers() {
-        var withNull = ContractFixtures.validCorpus()
-                .get("message_envelope")
-                .get("refund_requested_signed")
-                .deepCopy();
-        var without = ContractFixtures.validCorpus()
-                .get("message_envelope")
-                .get("refund_requested_signed")
-                .deepCopy();
+        ObjectNode withNull = ContractFixtures.messageEnvelope("refund_requested_signed");
+        ObjectNode without = ContractFixtures.messageEnvelope("refund_requested_signed");
         withNull.putNull("traceparent");
         without.remove("traceparent");
 
-        assertThat(EventSignature.signingInputBytes(without))
-                .isEqualTo(EventSignature.signingInputBytes(withNull));
+        assertThat(EventSignature.signingInputBytes(without)).isEqualTo(EventSignature.signingInputBytes(withNull));
     }
 
     @Test
     @DisplayName("The signature is excluded from its own signing input")
     void excludesTheSignatureFromItsOwnInput() {
-        JsonNode envelope = ContractFixtures.validCorpus()
-                .get("message_envelope")
-                .get("refund_requested_signed");
+        ObjectNode envelope = ContractFixtures.messageEnvelope("refund_requested_signed");
         String before = new String(EventSignature.signingInputBytes(envelope), StandardCharsets.UTF_8);
 
-        var tampered = envelope.deepCopy();
+        ObjectNode tampered = envelope.deepCopy();
         tampered.put("signature", "some-other-signature");
         String after = new String(EventSignature.signingInputBytes(tampered), StandardCharsets.UTF_8);
 
@@ -198,19 +197,17 @@ class CanonicalJsonTest {
     @Test
     @DisplayName("A tampered payload fails verification even though the signature itself is intact")
     void refusesATamperedPayload() {
-        JsonNode envelope = ContractFixtures.validCorpus()
-                .get("message_envelope")
-                .get("refund_requested_signed");
+        ObjectNode envelope = ContractFixtures.messageEnvelope("refund_requested_signed");
         JsonNode keys = ContractFixtures.expectedHashes().get("signing_keys");
-        var privateKey = EventSignature.privateKeyFromPkcs8(
-                ContractFixtures.decodeBase64(keys.get("private_key_pkcs8_base64").stringValue()));
+        var privateKey = EventSignature.privateKeyFromPkcs8(ContractFixtures.decodeBase64(
+                keys.get("private_key_pkcs8_base64").stringValue()));
         var publicKey = EventSignature.publicKeyFromSpki(
                 ContractFixtures.decodeBase64(keys.get("public_key_spki_base64").stringValue()));
 
         String signature = EventSignature.sign(envelope, privateKey);
         EventSignature.verify(envelope, signature, publicKey);
 
-        var tampered = envelope.deepCopy();
+        ObjectNode tampered = envelope.deepCopy();
         tampered.get("payload").asObject().put("amount_minor", 999999);
         assertThatThrownBy(() -> EventSignature.verify(tampered, signature, publicKey))
                 .isInstanceOf(EventSignature.EventSignatureException.class)

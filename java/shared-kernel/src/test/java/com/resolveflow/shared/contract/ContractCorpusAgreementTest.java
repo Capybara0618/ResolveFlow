@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * The cross-language half of T02: Java reproduces the frozen corpus values byte for byte.
@@ -34,22 +35,9 @@ class ContractCorpusAgreementTest {
     private static Map<String, String> frozen(String section) {
         JsonNode node = ContractFixtures.expectedHashes().get(section);
         Map<String, String> values = new LinkedHashMap<>();
-        node.properties().forEach(entry -> values.put(entry.getKey(), entry.getValue().stringValue()));
+        node.properties()
+                .forEach(entry -> values.put(entry.getKey(), entry.getValue().stringValue()));
         return values;
-    }
-
-    /** Resolve an envelope and inline the payload its {@code payload_ref} names. */
-    private static JsonNode resolveEnvelope(JsonNode corpus, String name, Map<String, String> values) {
-        JsonNode entry = corpus.get("message_envelope").get(name);
-        var instance = ContractFixtures.resolveInstance(entry, corpus);
-        String reference = entry.get("payload_ref").stringValue();
-        if (!reference.startsWith("execution_command.") && !reference.startsWith("event_payload.")) {
-            throw new ContractFixtures.FixtureException("envelope " + name + " references " + reference);
-        }
-        JsonNode payload = ContractFixtures.substituteValues(
-                ContractFixtures.resolveInstance(ContractFixtures.lookup(corpus, reference), corpus), values);
-        instance.set("payload", payload);
-        return instance;
     }
 
     @Test
@@ -61,9 +49,7 @@ class ContractCorpusAgreementTest {
         assertThat(expected).isNotEmpty();
         for (Map.Entry<String, JsonNode> entry : payloads.properties()) {
             String actual = CanonicalJson.payloadHash(ContractFixtures.stripAnnotations(entry.getValue()));
-            assertThat(actual)
-                    .as("payload hash of %s", entry.getKey())
-                    .isEqualTo(expected.get(entry.getKey()));
+            assertThat(actual).as("payload hash of %s", entry.getKey()).isEqualTo(expected.get(entry.getKey()));
         }
     }
 
@@ -74,15 +60,19 @@ class ContractCorpusAgreementTest {
         Map<String, String> expectedHashes = frozen("content_hashes");
         Map<String, String> expectedDocuments = frozen("canonical_documents");
 
-        canonical.get("content_hashes")
+        canonical
+                .get("content_hashes")
                 .properties()
-                .forEach(entry -> assertThat(CanonicalJson.contentHash(ContractFixtures.stripAnnotations(entry.getValue())))
+                .forEach(entry -> assertThat(
+                                CanonicalJson.contentHash(ContractFixtures.stripAnnotations(entry.getValue())))
                         .as("content hash of %s", entry.getKey())
                         .isEqualTo(expectedHashes.get(entry.getKey())));
 
-        canonical.get("unicode_documents")
+        canonical
+                .get("unicode_documents")
                 .properties()
-                .forEach(entry -> assertThat(CanonicalJson.canonicalize(ContractFixtures.stripAnnotations(entry.getValue())))
+                .forEach(entry -> assertThat(
+                                CanonicalJson.canonicalize(ContractFixtures.stripAnnotations(entry.getValue())))
                         .as("canonical text of %s", entry.getKey())
                         .isEqualTo(expectedDocuments.get(entry.getKey())));
     }
@@ -90,8 +80,9 @@ class ContractCorpusAgreementTest {
     @Test
     @DisplayName("The UTF-16 ordering fixture really distinguishes code-unit from code-point order")
     void utf16OrderingFixtureIsDiscriminating() {
-        // A guard on the guard: if this document ever stopped containing a supplementary
-        // character before a BMP one, the ordering test above would pass for the wrong reason.
+        // A guard on the guard: if this document ever lost its supplementary key, or its BMP keys
+        // stopped being ordered the other way round under a code-point sort, the frozen hash above
+        // would still match and would have stopped being evidence.
         String canonical = CanonicalJson.canonicalize(ContractFixtures.stripAnnotations(
                 ContractFixtures.canonicalCorpus().get("content_hashes").get("utf16-key-ordering")));
 
@@ -101,27 +92,28 @@ class ContractCorpusAgreementTest {
         assertThat(supplementary).isGreaterThan(0);
         assertThat(privateUse).isGreaterThan(0);
         assertThat(replacement).isGreaterThan(0);
-        assertThat(supplementary).isGreaterThan(privateUse).isGreaterThan(replacement);
+        // UTF-16 code-unit order: the surrogate pair first, then the two BMP keys. A code-point
+        // sort would produce exactly the opposite order for the supplementary key.
+        assertThat(supplementary).isLessThan(privateUse).isLessThan(replacement);
     }
 
     @Test
     @DisplayName("Signing inputs and signatures match the frozen bytes, and the frozen signature verifies")
     void signingInputsAndSignaturesMatch() {
         JsonNode corpus = ContractFixtures.validCorpus();
-        Map<String, String> values = ContractFixtures.placeholderValues();
         Map<String, String> expectedInputs = frozen("signing_inputs");
         Map<String, String> expectedSignatures = frozen("event_signatures");
 
         JsonNode keys = ContractFixtures.expectedHashes().get("signing_keys");
-        PrivateKey privateKey =
-                EventSignature.privateKeyFromPkcs8(ContractFixtures.decodeBase64(keys.get("private_key_pkcs8_base64").stringValue()));
-        PublicKey publicKey =
-                EventSignature.publicKeyFromSpki(ContractFixtures.decodeBase64(keys.get("public_key_spki_base64").stringValue()));
+        PrivateKey privateKey = EventSignature.privateKeyFromPkcs8(ContractFixtures.decodeBase64(
+                keys.get("private_key_pkcs8_base64").stringValue()));
+        PublicKey publicKey = EventSignature.publicKeyFromSpki(
+                ContractFixtures.decodeBase64(keys.get("public_key_spki_base64").stringValue()));
 
         assertThat(expectedInputs).isNotEmpty();
         for (Map.Entry<String, JsonNode> entry : corpus.get("message_envelope").properties()) {
             String name = entry.getKey();
-            JsonNode envelope = resolveEnvelope(corpus, name, values);
+            ObjectNode envelope = ContractFixtures.messageEnvelope(name);
 
             String signingInput = new String(EventSignature.signingInputBytes(envelope), StandardCharsets.UTF_8);
             assertThat(signingInput).as("signing input of %s", name).isEqualTo(expectedInputs.get(name));
@@ -159,16 +151,14 @@ class ContractCorpusAgreementTest {
         assertThat(values.keySet()).isSubsetOf(referenced);
 
         // A signed envelope's placeholder must name the signature that was actually frozen.
-        corpus.get("message_envelope")
-                .properties()
-                .forEach(entry -> {
-                    JsonNode placeholder = entry.getValue().get("_signature_placeholder");
-                    if (placeholder != null) {
-                        assertThat(values.get(placeholder.stringValue()))
-                                .as("placeholder %s", placeholder.stringValue())
-                                .isEqualTo(expectedSignatures.get(entry.getKey()));
-                    }
-                });
+        corpus.get("message_envelope").properties().forEach(entry -> {
+            JsonNode placeholder = entry.getValue().get("_signature_placeholder");
+            if (placeholder != null) {
+                assertThat(values.get(placeholder.stringValue()))
+                        .as("placeholder %s", placeholder.stringValue())
+                        .isEqualTo(expectedSignatures.get(entry.getKey()));
+            }
+        });
     }
 
     private static void collectPlaceholders(JsonNode node, Set<String> found) {
@@ -198,10 +188,11 @@ class ContractCorpusAgreementTest {
         JsonNode invalid = ContractFixtures.canonicalCorpus().get("invalid_payloads");
         assertThat(invalid.size()).isGreaterThanOrEqualTo(3);
 
-        invalid.properties().forEach(entry -> assertThatThrownBy(
-                        () -> CanonicalJson.payloadHash(ContractFixtures.stripAnnotations(entry.getValue())))
-                .as("invalid payload %s", entry.getKey())
-                .isInstanceOf(CanonicalJson.CanonicalizationException.class));
+        invalid.properties()
+                .forEach(entry -> assertThatThrownBy(
+                                () -> CanonicalJson.payloadHash(ContractFixtures.stripAnnotations(entry.getValue())))
+                        .as("invalid payload %s", entry.getKey())
+                        .isInstanceOf(CanonicalJson.CanonicalizationException.class));
     }
 
     @Test

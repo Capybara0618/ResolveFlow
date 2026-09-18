@@ -64,7 +64,7 @@ tasks/
 - 基础服务命令中的 `provider-stub`（T12）：在此之前请省略该服务名。**不要为让命令通过而放一个不实现支付/物流协议的空占位服务**——假 stub 比失败的命令更有害。
 - `--profile app`（T32 前服务镜像不完整）：当前为空操作，不会报错，也不会启动任何服务。
 - `scripts/replay.ps1`（T38）：尚未创建。
-- 各 `-Suite` 子命令（contracts T02、system T14、faults T29、performance/rag-eval T30、agent-eval T24/T31、harness T38、harness-eval T39）：未实现时 verify 入口以退出码 2 明确拒绝并指明归属任务，未知 suite 名退出 64，**都不会零步骤报成功**。
+- 各 `-Suite` 子命令（system T14、faults T29、performance/rag-eval T30、agent-eval T24/T31、harness T38、harness-eval T39）：未实现时 verify 入口以退出码 2 明确拒绝并指明归属任务，未知 suite 名退出 64，**都不会零步骤报成功**。`contracts` 已在 T02 实现（冻结校验 + 跨语言契约测试），不再属于本清单。
 
 verify.ps1接受-Suite、-Mode、-Seed、-Case（单故障/测试case过滤）；输出实际子命令及报告路径。all-offline包含格式、单元、契约、系统mock，不默认跑live收费测试或重压测。
 

@@ -1,0 +1,66 @@
+ResolveFlow verify
+  suite : all-offline
+  mode  : mock
+  seed  : 42
+  report: E:\Code\Agent+Backend\reports\verify\20260918-151213-all-offline.txt
+
+== format
+  -- java-spotless
+     \$ java\mvnw.cmd -f java/pom.xml -B spotless:check
+     PASS (3.5s)
+  -- python-ruff
+     \$ uv run --project agent ruff check agent/src agent/tests
+     PASS (0.2s)
+  -- python-mypy
+     \$ uv run --project agent mypy agent/src
+     PASS (0.6s)
+  -- web-typecheck
+     \$ pnpm --dir web typecheck
+     PASS (2.1s)
+
+== unit
+  -- java-unit
+     \$ java\mvnw.cmd -f java/pom.xml -B test
+     PASS (26.2s)
+  -- python-unit
+     \$ uv run --project agent pytest agent/tests/unit
+     PASS (9s)
+  -- web-test
+     \$ pnpm --dir web test
+     PASS (2s)
+
+== contracts
+  -- python-contracts-freeze
+     \$ uv run --project agent python scripts/contracts_freeze.py --check
+     PASS (1.5s)
+  -- python-contracts
+     \$ uv run --project agent pytest agent/tests/unit -k contracts
+     PASS (8.3s)
+  -- java-contracts
+     \$ java\mvnw.cmd -f java/pom.xml -B -pl shared-kernel test
+     PASS (4.4s)
+
+== smoke
+  -- infra-up
+     \$ docker compose -f infra/compose.yaml up -d
+     PASS (0.3s)
+  -- package
+     \$ java\mvnw.cmd -f java/pom.xml -B -DskipTests package
+     PASS (4.8s)
+  -- smoke-gateway
+     \$ java -jar java/gateway/target/gateway-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8080/actuator/health
+     PASS (5s)
+  -- smoke-commerce-service
+     \$ java -jar java/commerce-service/target/commerce-service-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8081/actuator/health
+     PASS (3.8s)
+  -- smoke-fulfillment-service
+     \$ java -jar java/fulfillment-service/target/fulfillment-service-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8082/actuator/health
+     PASS (3.7s)
+  -- smoke-case-service
+     \$ java -jar java/case-service/target/case-service-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8083/actuator/health
+     PASS (3.8s)
+  -- smoke-agent-service
+     \$ uv run --project agent uvicorn resolveflow.api.app:app --port 8090  # then GET http://127.0.0.1:8090/health
+     PASS (0.1s)
+
+SUITE 'all-offline' PASSED

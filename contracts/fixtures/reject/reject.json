@@ -1070,47 +1070,39 @@
   },
   "error_body": {
     "unknown-top-level-member": {
-      "why": "ErrorResponse is additionalProperties:false. An extra envelope member would let a service attach data outside the documented error body, which the web client does not render and the reviewer would never see.",
+      "why": "ApiError is additionalProperties:false. An extra member would let a service attach data outside the documented error body, which the web client does not render and the reviewer would never see.",
       "instance": {
-        "error": {
-          "code": "VERSION_CONFLICT",
-          "message": "case version 4 does not match If-Match version 5",
-          "retryable": false
-        },
+        "code": "VERSION_CONFLICT",
+        "message": "case version 4 does not match If-Match version 5",
+        "retryable": false,
         "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
       }
     },
     "missing-retryable": {
       "why": "retryable is required precisely so no caller infers retryability from the status code. A body without it is unusable on the money path, where retrying a refund is not free.",
       "instance": {
-        "error": {
-          "code": "SERVICE_UNAVAILABLE",
-          "message": "commerce database is temporarily unavailable"
-        }
+        "code": "SERVICE_UNAVAILABLE",
+        "message": "commerce database is temporarily unavailable"
       }
     },
     "retryable-as-a-string": {
-      "why": "retryable is a boolean. A truthy string would be interpreted differently by each language ('false' is truthy in some), which is exactly the kind of drift the cross-language contract exists to prevent.",
+      "why": "retryable is a boolean. A truthy string would be interpreted differently by each language (the string false is truthy in some), which is exactly the drift the cross-language contract exists to prevent.",
       "instance": {
-        "error": {
-          "code": "SERVICE_UNAVAILABLE",
-          "message": "commerce database is temporarily unavailable",
-          "retryable": "false"
-        }
+        "code": "SERVICE_UNAVAILABLE",
+        "message": "commerce database is temporarily unavailable",
+        "retryable": "false"
       }
     },
     "blank-error-code": {
       "why": "code is minLength 1: an empty code gives the caller and the dashboards nothing to act on.",
       "instance": {
-        "error": {
-          "code": "",
-          "message": "something went wrong",
-          "retryable": true
-        }
+        "code": "",
+        "message": "something went wrong",
+        "retryable": true
       }
     },
-    "missing-error-object": {
-      "why": "ErrorResponse requires the error object. An empty body would be indistinguishable from a truncated response.",
+    "body-without-a-code": {
+      "why": "code is required. A body carrying only a trace id says nothing about what failed, so the caller cannot act on it and support cannot triage it; the flat shape docs/contracts.md:14 fixes leaves nowhere else for the reason to live.",
       "instance": {
         "trace_id": "0af7651916cd43dd8448eb211c80319c"
       }
@@ -1118,12 +1110,10 @@
     "details-that-are-not-an-object": {
       "why": "details is documented as an object (or null). A string there would leak an upstream payload into the error body, which docs/contracts.md forbids.",
       "instance": {
-        "error": {
-          "code": "SEMANTIC_INVALID",
-          "message": "refundable balance is insufficient",
-          "retryable": false,
-          "details": "balance=0 requested=20000"
-        }
+        "code": "SEMANTIC_INVALID",
+        "message": "refundable balance is insufficient",
+        "retryable": false,
+        "details": "balance=0 requested=20000"
       }
     }
   }

@@ -239,21 +239,17 @@
   },
   "error_body": {
     "version_conflict": {
-      "error": {
-        "code": "VERSION_CONFLICT",
-        "message": "case version 4 does not match If-Match version 5",
-        "retryable": false,
-        "trace_id": "0af7651916cd43dd8448eb211c80319c",
-        "details": {"expected_version": 5, "actual_version": 4}
-      }
+      "code": "VERSION_CONFLICT",
+      "message": "case version 4 does not match If-Match version 5",
+      "retryable": false,
+      "trace_id": "0af7651916cd43dd8448eb211c80319c",
+      "details": {"expected_version": 5, "actual_version": 4}
     },
     "service_unavailable": {
-      "error": {
-        "code": "SERVICE_UNAVAILABLE",
-        "message": "commerce database is temporarily unavailable",
-        "retryable": true,
-        "trace_id": "0af7651916cd43dd8448eb211c80319c"
-      }
+      "code": "SERVICE_UNAVAILABLE",
+      "message": "commerce database is temporarily unavailable",
+      "retryable": true,
+      "trace_id": "0af7651916cd43dd8448eb211c80319c"
     }
   },
   "openapi_external": {

@@ -32,6 +32,7 @@ paths:
       tags: [runs]
       operationId: health
       summary: Liveness and build identity
+      description: 'Liveness probe. It answers from the process itself and never calls the model provider or the run store, so a provider outage cannot fail a liveness check.'
       security: []
       responses:
         '200':
@@ -71,7 +72,7 @@ paths:
                 evidence_refs: [ev-1]
               policy_manifest:
                 bundle_ids: [policy-logistics-2026.09]
-                manifest_hash: 9999999999999999999999999999999999999999999999999999999999999999
+                manifest_hash: '9999999999999999999999999999999999999999999999999999999999999999'
                 safety_epoch: 1
               deadline_at: '2026-09-18T05:00:00Z'
               traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01
@@ -124,6 +125,10 @@ paths:
       parameters:
         - $ref: '#/components/parameters/RunId'
       responses:
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '200':
           description: Cancellation recorded
           content:
@@ -188,12 +193,22 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: FORBIDDEN_SCOPE
+            message: the caller scope does not include the required action
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     NotFound:
       description: No such run under this caller's scope (404)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: NOT_FOUND
+            message: the resource does not exist under this principal
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     Conflict:
       description: Same run_id with a different body, or a terminal run (409)
       content:
@@ -201,17 +216,21 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error:
-              code: IDEMPOTENCY_CONFLICT
-              message: run e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa exists with a different input_revision
-              retryable: false
-              trace_id: 0af7651916cd43dd8448eb211c80319c
+            code: IDEMPOTENCY_CONFLICT
+            message: run e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa exists with a different input_revision
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     SemanticInvalid:
       description: The request cannot be executed as specified (422)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: SEMANTIC_INVALID
+            message: the request is well formed but cannot be satisfied
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     Overloaded:
       description: Queue is at its bound (429); the caller may retry later
       content:
@@ -219,11 +238,10 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error:
-              code: RATE_LIMITED
-              message: run queue is saturated; retry after the advertised delay
-              retryable: true
-              trace_id: 0af7651916cd43dd8448eb211c80319c
+            code: RATE_LIMITED
+            message: run queue is saturated; retry after the advertised delay
+            retryable: true
+            trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
     Uuid:
       type: string
@@ -265,19 +283,20 @@ components:
           maxLength: 2000
         retryable:
           type: boolean
+          description: |
+            Carried explicitly so a caller never infers retryability from the status
+            code. A network timeout is not a failed refund (docs/contracts.md:14).
         trace_id:
           type: [string, 'null']
           maxLength: 64
         details:
           type: [object, 'null']
           additionalProperties: true
+    # The HTTP error body is the flat object docs/contracts.md:14 fixes and
+    # com.resolveflow.shared.error.ApiError serialises. This alias keeps the
+    # response-body name the responses below reference without restating the shape.
     ErrorResponse:
-      type: object
-      additionalProperties: false
-      required: [error]
-      properties:
-        error:
-          $ref: '#/components/schemas/ApiError'
+      $ref: '#/components/schemas/ApiError'
     HealthResponse:
       type: object
       additionalProperties: false
@@ -399,7 +418,7 @@ components:
           $ref: '#/components/schemas/InputRevision'
         status:
           type: string
-          enum: [QUEUED, ANALYZING, WAITING_CUSTOMER, PROPOSED, FAILED, CANCELLED, COMPLETED]
+          enum: [QUEUED, RUNNING, CALLBACK_PENDING, WAITING_INPUT, COMPLETED, FAILED, CANCELLED, STALE]
         version:
           $ref: '#/components/schemas/Version'
         callback_ids:

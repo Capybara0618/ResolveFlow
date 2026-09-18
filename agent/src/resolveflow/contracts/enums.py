@@ -25,6 +25,7 @@ __all__ = [
     "CallbackKind",
     "CaseStatus",
     "CaseType",
+    "CarrierConclusion",
     "Decision",
     "EntitlementState",
     "ErrorCode",
@@ -37,8 +38,11 @@ __all__ = [
     "RecommendedAction",
     "RequestedAction",
     "RiskRoute",
+    "RunStatus",
     "ServiceName",
     "TimelineEventType",
+    "VerificationResult",
+    "VerifiedStatus",
 ]
 
 
@@ -260,6 +264,60 @@ class ErrorCode(StrEnum):
 
 
 # Convenience frozensets for validation and for the frozen enum fixture.
+class VerificationResult(StrEnum):
+    """The reviewer's verdict on submitted evidence (docs/contracts.md:36).
+
+    Kept apart from Decision: a reviewer may confirm or refute a piece of evidence
+    without approving the case, and the two must not be conflated in the timeline.
+    """
+
+    CONFIRMED = "CONFIRMED"
+    REFUTED = "REFUTED"
+    INCONCLUSIVE = "INCONCLUSIVE"
+
+
+class CarrierConclusion(StrEnum):
+    """What the carrier's own tracking concludes (docs/domain-model.md:57).
+
+    UNKNOWN means the carrier could not say; it is not a failure, and the Agent must
+    not read it as one.
+    """
+
+    LOST = "LOST"
+    DELIVERED = "DELIVERED"
+    IN_TRANSIT = "IN_TRANSIT"
+    UNKNOWN = "UNKNOWN"
+
+
+class RunStatus(StrEnum):
+    """agent_run status, fixed by docs/agent-spec.md:17.
+
+    COMPLETED means the callback was accepted by Java, not that money moved, and STALE
+    means the revision moved under a run that was waiting for input - both distinctions
+    are load-bearing, so the names are frozen rather than derived.
+    """
+
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    CALLBACK_PENDING = "CALLBACK_PENDING"
+    WAITING_INPUT = "WAITING_INPUT"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+    STALE = "STALE"
+
+class VerifiedStatus(StrEnum):
+    """Packing-manifest verification (docs/domain-model.md:59).
+
+    NO_RECORD is not a failed verification: the line simply has no authoritative
+    warehouse record, and only a record may be used to judge a short or wrong shipment.
+    """
+
+    VERIFIED = "VERIFIED"
+    NOT_VERIFIED = "NOT_VERIFIED"
+    NO_RECORD = "NO_RECORD"
+
+
 REQUESTED_ACTIONS = frozenset(RequestedAction)
 CASE_STATUSES = frozenset(CaseStatus)
 PROPOSAL_STATES = frozenset(ProposalStatus)

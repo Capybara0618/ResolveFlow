@@ -14,7 +14,7 @@
     A script must not skip failing tests and still return 0.
 
 .PARAMETER Suite
-    doctor | format | unit | smoke | all-offline | contracts | system | faults |
+    doctor | format | unit | contracts | smoke | all-offline | system | faults |
     performance | agent-eval | rag-eval | harness | harness-eval
 
 .PARAMETER Mode
@@ -43,6 +43,15 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $reportDir = Join-Path $repoRoot 'reports/verify'
 New-Item -ItemType Directory -Force -Path $reportDir | Out-Null
+
+# uv keeps its cache outside the repository by default. When that location is not
+# writable (restricted sandbox, locked-down profile) every uv step dies before it
+# reaches a test, which looks like a failing suite rather than a broken environment.
+# Honour an explicit UV_CACHE_DIR, otherwise use one inside the repository.
+if (-not $env:UV_CACHE_DIR) {
+    $env:UV_CACHE_DIR = Join-Path $repoRoot 'tmp/uv-cache'
+}
+New-Item -ItemType Directory -Force -Path $env:UV_CACHE_DIR | Out-Null
 
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $reportPath = Join-Path $reportDir "$stamp-$Suite.txt"
@@ -116,13 +125,28 @@ function Invoke-JavaVersion {
 }
 
 function Test-HttpUp {
+    <#
+      A service is up when it answers 200 *and* says UP. Both halves are required:
+      an actuator health endpoint returns 200 with status DOWN when a dependency is
+      unreachable, and treating that as healthy is the failure this guards against.
+
+      PowerShell 7 returns .Content as a byte array for a response with no charset
+      (Spring's actuator JSON is one), and -match on a byte array matches element
+      wise and never finds a substring. Decode it first; PowerShell 5.1 already
+      hands back a string, so both versions take the same path afterwards.
+    #>
     param([string]$Url, [int]$TimeoutSeconds = 90)
 
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
         try {
             $response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 5
-            if ($response.StatusCode -eq 200 -and $response.Content -match 'UP') { return $true }
+            $body = if ($response.Content -is [byte[]]) {
+                [Text.Encoding]::UTF8.GetString($response.Content)
+            } else {
+                [string]$response.Content
+            }
+            if ($response.StatusCode -eq 200 -and $body -match '"status"\s*:\s*"UP"') { return $true }
         } catch { Start-Sleep -Milliseconds 1500 }
     }
     return $false
@@ -138,7 +162,6 @@ $env:JAVA_HOME = $javaHome
 
 # Owned by a later task; must be explicit rather than silently empty.
 $notImplemented = @{
-    'contracts'    = 'T02 契约固化与跨语言fixture'
     'system'       = 'T14 case执行编排与退款闭环'
     'faults'       = 'T29 故障实验完整矩阵'
     'performance'  = 'T30 性能与RAG对照'
@@ -155,7 +178,7 @@ Write-Both "  seed  : $Seed"
 if ($Case) { Write-Both "  case  : $Case" }
 Write-Both "  report: $reportPath"
 
-$implementedSuites = @('doctor', 'format', 'unit', 'smoke', 'all-offline')
+$implementedSuites = @('doctor', 'format', 'unit', 'contracts', 'smoke', 'all-offline')
 
 # An unrecognised suite must fail loudly: otherwise a typo would run zero steps
 # and still report PASSED, which is the "skip masquerading as pass" failure
@@ -223,6 +246,28 @@ if ($Suite -in @('unit', 'all-offline')) {
         Write-Both '  -- web-test SKIPPED: web/node_modules missing' 'Yellow'
         $script:Failures += 'web-test-skipped'
     }
+}
+
+# --- contracts --------------------------------------------------------------
+if ($Suite -in @('contracts', 'all-offline')) {
+    <#
+      The contract suite is where the two languages are made to agree. Java
+      recomputes the frozen digests, signatures and enum values from
+      contracts/fixtures; Python regenerates nothing and asserts that what is
+      checked in still matches the corpus, so a fixture edited by hand to make a
+      test pass is caught here instead of at the next service.
+    #>
+    Write-Header 'contracts'
+
+    [void](Invoke-Step -Name 'python-contracts-freeze' -Command 'uv run --project agent python scripts/contracts_freeze.py --check' -Action {
+            & uv run --project agent --frozen python scripts/contracts_freeze.py --check
+        })
+    [void](Invoke-Step -Name 'python-contracts' -Command 'uv run --project agent pytest agent/tests/unit -k contracts' -Action {
+            & uv run --project agent --frozen pytest agent/tests/unit -q -k 'contracts'
+        })
+    [void](Invoke-Step -Name 'java-contracts' -Command 'java\mvnw.cmd -f java/pom.xml -B -pl shared-kernel test' -Action {
+            Invoke-JavaVersion -JavaHome $javaHome -MavenArgs @('-f', 'java/pom.xml', '-B', '-ntp', '-pl', 'shared-kernel', 'test')
+        })
 }
 
 # --- smoke ------------------------------------------------------------------

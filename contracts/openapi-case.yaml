@@ -211,6 +211,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReasonRequest'
+            example: {"reason": "customer withdrew the request before authorization"}
       responses:
         '200':
           description: Case cancelled
@@ -261,6 +262,7 @@ paths:
       tags: [review]
       operationId: listReviewQueue
       summary: Reviewer queue within the caller's merchant
+      description: 'Returns the reviewer merchant-scoped queue of cases awaiting a decision, ordered by created_at and id so a client resumes with a cursor instead of a deep offset (docs/contracts.md:15).'
       parameters:
         - name: status
           in: query
@@ -333,7 +335,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ManualProposalRequest'
+            example: {"action": "REFUND", "evidence_refs": [{"observation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301", "source_ref": "PAYMENT_LEDGER:order-7001:line-1", "source_version": "ledger-2026-09-18T05:00:00Z", "content_hash": "9f2c1b7d4e5a6081c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0"}], "policy_refs": [{"bundle_id": "policy-2026.09-refund-v3", "version": "v3", "rule_id": "R-104", "chunk_id": "R-104#duplicate-charge", "content_hash": "1c4d8f2b0a9e7c6d5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a39281706f5e4"}], "reason": "the payment ledger shows two settled charges for one line"}
       responses:
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
         '201':
           description: New proposal created
           content:
@@ -361,7 +366,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReviewedEvidenceRequest'
+            example: {"source_evidence_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301", "verification_result": "CONFIRMED", "reason": "the carrier screenshot matches the tracking id in the shipment record"}
       responses:
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
         '202':
           description: Verification appended
           content:
@@ -387,6 +395,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReasonRequest'
+            example: {"reason": "commerce was queried after an UNKNOWN result and reports no refund for this operation"}
       responses:
         '200':
           description: Current state after the query
@@ -403,6 +412,7 @@ paths:
       tags: [policies]
       operationId: importPolicyBundle
       summary: Import a policy bundle as a draft
+      description: 'Stores an imported policy bundle as a DRAFT owned by the importing admin. Import and publish are separate steps: publishing is the hash-checked, immutable one (docs/contracts.md:39).'
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -411,7 +421,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PolicyImportRequest'
+            example: {"bundle_json": {"bundle_id": "policy-2026.09-refund-v3", "rules": [{"rule_id": "R-104"}]}, "source_markdown": "# Refund policy v3\n\nDuplicate settled charges on one line are refundable."}
       responses:
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
         '201':
           description: Draft created
           content:
@@ -437,6 +450,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PolicyPublishRequest'
+            example: {"expected_hash": "9f2c1b7d4e5a6081c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0"}
       responses:
         '200':
           description: Published
@@ -463,6 +477,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReasonRequest'
+            example: {"reason": "superseded by policy-2026.10-refund-v4"}
       responses:
         '200':
           description: Revoked
@@ -489,6 +504,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AgentCallbackRequest'
+            example: {"callback_id": "cb-7f3a1c4d", "run_id": "018f0a3c-4b1e-7a2d-9f30-1c2b3a4d5e6f", "input_revision": 4, "kind": "PROPOSAL", "payload": {"proposal_id": "pr-2b8e6d10", "recommended_action": "REFUND"}}
       responses:
         '200':
           description: Callback classified
@@ -509,6 +525,10 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CaseId'
       responses:
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '200':
           description: Evidence references at the current revision
           content:
@@ -520,9 +540,14 @@ paths:
       tags: [internal]
       operationId: readPolicyManifest
       summary: Read the bundle/version/hash set a run must use
+      description: 'Returns the bundle/version/hash and effective interval a run must cite, so the Agent reads one manifest instead of re-deriving which rules applied to the case.'
       parameters:
         - $ref: '#/components/parameters/CaseId'
       responses:
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '200':
           description: Effective policy manifest for this case
           content:
@@ -534,6 +559,7 @@ paths:
       tags: [internal]
       operationId: readPublishedPolicy
       summary: Read a published bundle with its rules and hash
+      description: 'Returns the published policy source, rules and content hash. The caller verifies the hash, so Java never has to trust a Python summary of what the policy said.'
       parameters:
         - $ref: '#/components/parameters/BundleId'
       responses:
@@ -656,11 +682,10 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error:
-              code: VALIDATION_FAILED
-              message: requested_actions must contain at least one action
-              retryable: false
-              trace_id: 0af7651916cd43dd8448eb211c80319c
+            code: VALIDATION_FAILED
+            message: requested_actions must contain at least one action
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     Unauthenticated:
       description: Missing or invalid credentials (401)
       content:
@@ -668,23 +693,32 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error:
-              code: UNAUTHENTICATED
-              message: bearer token is missing or expired
-              retryable: false
-              trace_id: 0af7651916cd43dd8448eb211c80319c
+            code: UNAUTHENTICATED
+            message: bearer token is missing or expired
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     ForbiddenScope:
       description: Authenticated but outside the required scope (403)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: FORBIDDEN_SCOPE
+            message: the caller scope does not include the required action
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     NotFound:
       description: Not visible to this principal (404)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: NOT_FOUND
+            message: the resource does not exist under this principal
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     IdempotencyConflict:
       description: Idempotency key reused with a different payload (409)
       content:
@@ -692,23 +726,32 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error:
-              code: IDEMPOTENCY_CONFLICT
-              message: this Idempotency-Key was used with a different request body
-              retryable: false
-              trace_id: 0af7651916cd43dd8448eb211c80319c
+            code: IDEMPOTENCY_CONFLICT
+            message: this Idempotency-Key was used with a different request body
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     StateConflict:
       description: The resource is not in a state that permits this transition (409)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: STATE_CONFLICT
+            message: the resource is not in a state that accepts this request
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     SemanticInvalid:
       description: Well-formed but semantically invalid for the business rules (422)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: SEMANTIC_INVALID
+            message: the request is well formed but cannot be satisfied
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     RateLimited:
       description: Rate limit exceeded (429); safe to retry after the given delay
       content:
@@ -716,17 +759,21 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error:
-              code: RATE_LIMITED
-              message: too many login attempts
-              retryable: true
-              trace_id: 0af7651916cd43dd8448eb211c80319c
+            code: RATE_LIMITED
+            message: too many login attempts
+            retryable: true
+            trace_id: 0af7651916cd43dd8448eb211c80319c
     ServiceUnavailable:
       description: Temporarily unavailable (503); retryable, and never a failed refund
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: SERVICE_UNAVAILABLE
+            message: case database is temporarily unavailable
+            retryable: true
+            trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
     # ---------------------------------------------------------------- scalars
     Uuid:
@@ -849,13 +896,11 @@ components:
         details:
           type: [object, 'null']
           additionalProperties: true
+    # The HTTP error body is the flat object docs/contracts.md:14 fixes and
+    # com.resolveflow.shared.error.ApiError serialises. This alias keeps the
+    # response-body name the responses below reference without restating the shape.
     ErrorResponse:
-      type: object
-      additionalProperties: false
-      required: [error]
-      properties:
-        error:
-          $ref: '#/components/schemas/ApiError'
+      $ref: '#/components/schemas/ApiError'
     # ------------------------------------------------------------------- auth
     LoginRequest:
       type: object

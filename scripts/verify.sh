@@ -12,6 +12,14 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPORT_DIR="$REPO_ROOT/reports/verify"
 mkdir -p "$REPORT_DIR"
 
+# uv keeps its cache outside the repository by default. When that location is not
+# writable, every uv step dies before it reaches a test. Honour an explicit
+# UV_CACHE_DIR, otherwise use one inside the repository.
+if [ -z "${UV_CACHE_DIR:-}" ]; then
+    export UV_CACHE_DIR="$REPO_ROOT/tmp/uv-cache"
+fi
+mkdir -p "$UV_CACHE_DIR"
+
 SUITE="all-offline"
 MODE="mock"
 SEED="42"
@@ -27,8 +35,8 @@ while [ $# -gt 0 ]; do
             cat <<'USAGE'
 usage: scripts/verify.sh [--suite <name>] [--mode mock|live] [--seed N] [--case <filter>]
 
-suites: doctor format unit smoke all-offline
-        contracts system faults performance agent-eval rag-eval harness harness-eval
+suites: doctor format unit contracts smoke all-offline
+        deferred: system faults performance agent-eval rag-eval harness harness-eval
 USAGE
             exit 0 ;;
         *) echo "unknown argument: $1" >&2; exit 64 ;;
@@ -47,7 +55,6 @@ head2() { both ""; both "== $1"; }
 # Suites owned by a later task. Listing them here keeps the refusal explicit.
 not_implemented_owner() {
     case "$1" in
-        contracts)    echo "T02 契约固化与跨语言fixture" ;;
         system)       echo "T14 case执行编排与退款闭环" ;;
         faults)       echo "T29 故障实验完整矩阵" ;;
         performance)  echo "T30 性能与RAG对照" ;;
@@ -62,7 +69,7 @@ not_implemented_owner() {
 # Suites this script actually implements today.
 is_implemented_suite() {
     case "$1" in
-        doctor|format|unit|smoke|all-offline) return 0 ;;
+        doctor|format|unit|contracts|smoke|all-offline) return 0 ;;
         *) return 1 ;;
     esac
 }
@@ -135,8 +142,8 @@ both "  report: $REPORT_PATH"
 if ! is_known_suite "$SUITE"; then
     both ""
     both "UNKNOWN SUITE: '$SUITE' is not a suite this script implements."
-    both "Known suites: doctor format unit smoke all-offline"
-    both "Deferred to a later task: contracts system faults performance agent-eval rag-eval harness harness-eval"
+    both "Known suites: doctor format unit contracts smoke all-offline"
+    both "Deferred to a later task: system faults performance agent-eval rag-eval harness harness-eval"
     both "Refusing to report success for a suite that ran nothing."
     printf '%s\n' "${TRANSCRIPT[@]}" > "$REPORT_PATH"
     exit 64
@@ -190,6 +197,20 @@ if [ "$SUITE" = "unit" ] || [ "$SUITE" = "all-offline" ]; then
         both "  -- web-test SKIPPED: web/node_modules missing"
         FAILURES+=("web-test-skipped")
     fi
+fi
+
+if [ "$SUITE" = "contracts" ] || [ "$SUITE" = "all-offline" ]; then
+    head2 "contracts"
+
+    # Java recomputes the frozen digests, signatures and enum values from
+    # contracts/fixtures; Python asserts that the frozen files still match the
+    # corpus, so a fixture edited by hand to make a test pass is caught here.
+    run_step "python-contracts-freeze" "uv run --project agent python scripts/contracts_freeze.py --check" \
+        uv run --project agent --frozen python scripts/contracts_freeze.py --check || true
+    run_step "python-contracts" "uv run --project agent pytest agent/tests/unit -k contracts" \
+        uv run --project agent --frozen pytest agent/tests/unit -q -k contracts || true
+    run_step "java-contracts" "java/mvnw -f java/pom.xml -B -pl shared-kernel test" \
+        "$REPO_ROOT/java/mvnw" -f java/pom.xml -B -ntp -pl shared-kernel test || true
 fi
 
 if [ "$SUITE" = "smoke" ] || [ "$SUITE" = "all-offline" ]; then

@@ -150,6 +150,32 @@
       "SEMANTIC_INVALID",
       "RATE_LIMITED",
       "SERVICE_UNAVAILABLE"
+    ],
+    "verification_result": [
+      "CONFIRMED",
+      "REFUTED",
+      "INCONCLUSIVE"
+    ],
+    "carrier_conclusion": [
+      "LOST",
+      "DELIVERED",
+      "IN_TRANSIT",
+      "UNKNOWN"
+    ],
+    "run_status": [
+      "QUEUED",
+      "RUNNING",
+      "CALLBACK_PENDING",
+      "WAITING_INPUT",
+      "COMPLETED",
+      "FAILED",
+      "CANCELLED",
+      "STALE"
+    ],
+    "verified_status": [
+      "VERIFIED",
+      "NOT_VERIFIED",
+      "NO_RECORD"
     ]
   }
 }

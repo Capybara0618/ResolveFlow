@@ -69,9 +69,8 @@ public final class ContractFixtures {
             }
             candidate = candidate.getParent();
         }
-        throw new FixtureException(
-                "could not locate the repository root (no " + ROOT_MARKER + " in any parent of "
-                        + System.getProperty("user.dir") + ")");
+        throw new FixtureException("could not locate the repository root (no " + ROOT_MARKER + " in any parent of "
+                + System.getProperty("user.dir") + ")");
     }
 
     /** Load one repository-relative JSON file. */
@@ -132,8 +131,7 @@ public final class ContractFixtures {
         }
         ObjectNode instance = resolveInstance(entry, corpus);
         instance.set(
-                "payload",
-                substituteValues(resolveInstance(lookup(corpus, reference), corpus), placeholderValues()));
+                "payload", substituteValues(resolveInstance(lookup(corpus, reference), corpus), placeholderValues()));
         return instance;
     }
 
@@ -144,7 +142,8 @@ public final class ContractFixtures {
         if (table == null || !table.isObject()) {
             throw new FixtureException("expected-hashes.json has no placeholder_values object");
         }
-        table.properties().forEach(entry -> values.put(entry.getKey(), entry.getValue().stringValue()));
+        table.properties()
+                .forEach(entry -> values.put(entry.getKey(), entry.getValue().stringValue()));
         return values;
     }
 
