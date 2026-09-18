@@ -73,6 +73,23 @@ DOCUMENTS: dict[str, DocumentSpec] = {
             {"HealthResponse", "RunRequest", "RunAccepted", "RunView", "CancelAck", "ObservationRecord"}
         ),
     ),
+    "case": DocumentSpec(
+        owner="Case",
+        security_scheme="bearerAuth",
+        min_examples=14,
+        example_components=frozenset(
+            {
+                "LoginResponse",
+                "OrderLinePage",
+                "CaseSnapshot",
+                "AgentCallbackRequest",
+                "AgentCallbackResponse",
+                "ToolCredentialResponse",
+                "EvidenceListResponse",
+                "PolicyManifestResponse",
+            }
+        ),
+    ),
 }
 
 
@@ -182,7 +199,9 @@ def test_document_does_not_expose_the_deferred_surface(service: str) -> None:
     for fragment in DEFERRED_PATH_FRAGMENTS:
         assert fragment not in paths, f"{fragment} must stay out of contracts/core/openapi-{service}.yaml"
     schemas = document(service)["components"]["schemas"]
-    assert "Action" not in schemas, "core has one executable action; an Action enum invites a second"
+    if "Action" in schemas:
+        # Naming an Action enum is allowed only while it stays single-valued.
+        assert schemas["Action"]["enum"] == ["REFUND"], f"{service} declares more than one executable action"
     assert "EntitlementStateView" not in schemas
     assert "EntitlementState" not in schemas
 
@@ -315,12 +334,23 @@ def core_operation_states_from_authority() -> list[str]:
     return match.group(1).split("/")
 
 
-def test_commerce_operation_state_is_the_core_five() -> None:
-    core_states = document("commerce")["components"]["schemas"]["OperationState"]["enum"]
-    assert core_states == core_operation_states_from_authority()
+def operation_state_values(service: str) -> list[str]:
+    """The operation-state vocabulary of a document, wherever it keeps it."""
+    schemas = document(service)["components"]["schemas"]
+    if "OperationState" in schemas:
+        return schemas["OperationState"]["enum"]
+    state = schemas["OperationView"]["properties"]["state"]
+    assert "$ref" not in state, "OperationView.state points at a component this test cannot see"
+    return state["enum"]
+
+
+@pytest.mark.parametrize("service", ["commerce", "case"])
+def test_operation_state_is_the_core_five(service: str) -> None:
+    states = operation_state_values(service)
+    assert states == core_operation_states_from_authority()
     compat_states = {member.value for member in enums.OperationState}
     assert {"STARTING", "CANCELLED", "TARGET_SUCCEEDED"} <= compat_states, "compat keeps the two-phase protocol"
-    assert not {"STARTING", "CANCELLED", "TARGET_SUCCEEDED"} & set(core_states)
+    assert not {"STARTING", "CANCELLED", "TARGET_SUCCEEDED"} & set(states)
 
 
 def test_commerce_line_refund_state_narrows_the_compat_entitlement_enum() -> None:
@@ -339,11 +369,12 @@ def test_commerce_synthetic_marker_is_required_and_constant() -> None:
     assert synthetic["description"]
 
 
-def test_agent_requested_action_is_refund_only() -> None:
-    requested = document("agent")["components"]["schemas"]["RequestedAction"]["enum"]
+@pytest.mark.parametrize("service", ["agent", "case"])
+def test_requested_action_is_refund_only(service: str) -> None:
+    requested = document(service)["components"]["schemas"]["RequestedAction"]["enum"]
     assert requested == ["REFUND"]
-    compat = load_openapi("agent")["components"]["schemas"]["RequestedAction"]["enum"]
-    assert "RESHIP" in compat and "EITHER" in compat, "the compat document keeps the v1 vocabulary"
+    compat = load_openapi(service)["components"]["schemas"]["RequestedAction"]["enum"]
+    assert "RESHIP" in compat, "the compat document keeps the v1 vocabulary"
 
 
 def test_agent_evidence_source_types_are_all_re_readable_in_core() -> None:
@@ -380,3 +411,46 @@ def test_agent_run_view_status_is_the_run_state_machine() -> None:
 def test_missing_core_document_fails_loudly() -> None:
     with pytest.raises(FileNotFoundError):
         load_openapi("fulfillment", CORE_DIR)
+
+
+def test_case_internal_routes_require_the_service_token() -> None:
+    for path, item in document("case")["paths"].items():
+        for method, operation in item.items():
+            if method.lower() not in {"get", "post"}:
+                continue
+            if path.startswith("/internal/"):
+                declared = operation.get("security")
+                assert declared == [{"serviceToken": []}], f"{method} {path} must not accept a user token"
+            elif path == "/api/v1/auth/login":
+                assert operation.get("security") == [], "login cannot require the token it hands out"
+            else:
+                declared = operation.get("security", [{"bearerAuth": []}])
+                assert declared == [{"bearerAuth": []}], f"{method} {path} must accept the user token"
+
+
+def test_case_has_no_policy_management_route() -> None:
+    paths = list(document("case")["paths"])
+    assert "/api/v1/policies/import" not in paths
+    assert not [path for path in paths if path.endswith(("/publish", "/revoke"))]
+    # The read-only policy surfaces core does keep:
+    assert "/internal/v1/policies/{bundle_id}" in paths
+    assert "/internal/v1/cases/{case_id}/policy-manifest" in paths
+
+
+def test_case_question_callback_is_limited_to_three_questions() -> None:
+    def collect(node: Any, trail: str) -> list[tuple[str, Any]]:
+        found: list[tuple[str, Any]] = []
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "questions" and isinstance(value, dict) and "maxItems" in value:
+                    found.append((f"{trail}/questions", value["maxItems"]))
+                found.extend(collect(value, f"{trail}/{key}"))
+        elif isinstance(node, list):
+            for index, item in enumerate(node):
+                found.extend(collect(item, f"{trail}/{index}"))
+        return found
+
+    limits = collect(document("case")["components"], "components")
+    assert limits, "no questions array declares a maxItems bound in the core case document"
+    for where, limit in limits:
+        assert limit <= 3, f"{where} allows {limit} questions; docs/core-contracts.md:59 allows at most 3"

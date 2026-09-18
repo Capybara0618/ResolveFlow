@@ -1,0 +1,1970 @@
+openapi: 3.1.0
+info:
+  title: ResolveFlow case-service core API
+  version: core-v1.2
+  x-core-profile: core-v1.2
+  x-core-schema-version: 2
+  description: |
+    Core-v1.2 case surface: the customer case lifecycle, the reviewer decisions, the
+    operator reconciliation and the service-to-service endpoints the Agent needs.
+    Target protocol of C00 (docs/core-contracts.md sections 3 and 4); it does not claim
+    these operations are implemented yet.
+
+    Narrower than the T02 compat document (contracts/openapi-case.yaml):
+    - REFUND is the only executable action; reship is not implemented
+      (docs/core-scope.md:9).
+    - The refund operation vocabulary is the core five states
+      (docs/domain-model.md:57), not the compat two-phase machine.
+    - The three policy-management routes (/api/v1/policies/import, .../publish,
+      .../revoke) are absent: policy is imported and validated by a controlled script
+      (docs/core-contracts.md:53). The two read-only policy surfaces remain.
+    - A case view returns its investigation trajectory (docs/core-scope.md:7), which the
+      compat snapshot left to a separate timeline read.
+
+    The public surface is authenticated with the demonstration user JWT; every
+    /internal/v1/... operation requires the service token instead and is never exposed
+    through the gateway.
+servers:
+  - url: https://api.resolveflow.local
+    description: |
+      Local compose deployment through the gateway; no public instance is published.
+      Internal routes are reachable in-cluster only, never through this URL.
+tags:
+  - name: auth
+    description: Demonstration login. Synthetic seeded accounts only.
+  - name: orders
+    description: Read-only order views scoped to the authenticated principal.
+  - name: cases
+    description: Case lifecycle, evidence and cancellation.
+  - name: review
+    description: Reviewer queue and human authorisation decisions.
+  - name: operations
+    description: Operator-only reconciliation of an uncertain operation.
+  - name: internal
+    description: Service-to-service endpoints. Never exposed through the gateway.
+paths:
+  /api/v1/auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      summary: Exchange a synthetic account for a user JWT
+      description: |
+        Seeded demonstration accounts only; there is no registration or password reset.
+        The token carries the principal, and the merchant it belongs to is taken from the
+        account rather than from the request body (docs/core-contracts.md:15).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: demo-customer
+              password: demo-pass-1001
+      responses:
+        '200':
+          description: Signed-in principal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              example:
+                access_token: eyJhbGciOiJIUzI1NiJ9.demo.access.token
+                token_type: Bearer
+                expires_in: 3600
+                role: CUSTOMER
+                merchant_id: M-1001
+                customer_id: C-2002
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /api/v1/orders:
+    get:
+      tags: [orders]
+      operationId: listOrders
+      summary: Order lines visible to the authenticated principal
+      description: |
+        A customer sees only their own lines, a merchant only its own; the scope comes
+        from the token, so a crafted query cannot widen it (docs/core-contracts.md:15).
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: One page of order lines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderLinePage'
+              example:
+                items:
+                  - order_id: 00000000-0000-4000-8000-0000000000aa
+                    line_id: '7001'
+                    sku: SKU-RED-M
+                    category: apparel
+                    quantity: 2
+                    line_paid_amount: 2599
+                    currency: CNY
+                    paid_at: '2026-09-10T08:15:00Z'
+                    status: PAID
+                    version: 3
+                page:
+                  limit: 20
+                  next_cursor: null
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /api/v1/orders/{order_id}:
+    get:
+      tags: [orders]
+      operationId: readOrder
+      summary: One authorised order and its lines
+      description: |
+        The customer's own order, or a merchant's order for a line it owns
+        (docs/core-contracts.md:27). A line the principal cannot see is 404, not 403: the
+        existence of another tenant's order is not disclosed.
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Order lines the principal may see
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderLinePage'
+              example:
+                items:
+                  - order_id: 00000000-0000-4000-8000-0000000000aa
+                    line_id: '7001'
+                    sku: SKU-RED-M
+                    category: apparel
+                    quantity: 2
+                    line_paid_amount: 2599
+                    currency: CNY
+                    paid_at: '2026-09-10T08:15:00Z'
+                    status: PAID
+                    version: 3
+                page:
+                  limit: 20
+                  next_cursor: null
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/cases:
+    post:
+      tags: [cases]
+      operationId: createCase
+      summary: Open a refund case for one order line
+      description: |
+        Idempotent on the Idempotency-Key header; the same key with a different body is
+        409. The case starts at QUEUED with input_revision 1
+        (docs/domain-model.md:55).
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseCreateRequest'
+            example:
+              line_id: '7001'
+              description: 包裹显示已揽收但7天无新物流，疑似丢失，希望退款
+              requested_actions: [REFUND]
+      responses:
+        '201':
+          description: Case created
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseCreatedResponse'
+              example:
+                case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+                status: QUEUED
+                input_revision: 1
+                version: 1
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+  /api/v1/cases/{case_id}:
+    get:
+      tags: [cases]
+      operationId: readCase
+      summary: Case state, public evidence and investigation trajectory
+      description: |
+        Returns the case, its proposal, its authorisation, its operation and the
+        trajectory of what happened, in the order it happened
+        (docs/core-scope.md:7). The trajectory is read from case_timeline, which is
+        written in the same transaction as the inbox projection and the local event
+        (docs/core-contracts.md:67).
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Case snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseSnapshot'
+              example:
+                case:
+                  case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+                  status: PENDING_REVIEW
+                  input_revision: 1
+                  version: 6
+                  created_at: '2026-09-18T03:00:00Z'
+                  updated_at: '2026-09-18T04:30:00Z'
+                  requested_actions: [REFUND]
+                  line_id: '7001'
+                proposal:
+                  proposal_id: 5f0f0f0f-1111-4222-8333-444455556666
+                  run_id: e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa
+                  input_revision: 1
+                  case_type: LOGISTICS
+                  recommended_action: REFUND
+                  suggested_amount_minor: 2599
+                  summary: 物流7天无更新且承运商结论为丢失，按政策可全额退款
+                  reason_codes: [CARRIER_LOST, NO_SCAN_7D]
+                  evidence_refs:
+                    - observation_id: obs-1
+                      source_ref: line:7001/shipment
+                      source_version: '2'
+                      content_hash: '1111111111111111111111111111111111111111111111111111111111111111'
+                  policy_refs:
+                    - bundle_id: policy-logistics-2026.09
+                      version: '2026.09'
+                      rule_id: R-LOST-001
+                      chunk_id: c-01
+                      content_hash: '2222222222222222222222222222222222222222222222222222222222222222'
+                  missing_evidence: []
+                  status: VALIDATED
+                  created_at: '2026-09-18T04:28:00Z'
+                authorization:
+                  authorization_id: 7a7a7a7a-2222-4333-8444-555566667777
+                  authorization_version: 1
+                  status: PENDING_REVIEW
+                  action: REFUND
+                  planned_operation_id: 3f2504e0-4f89-41d3-9a0c-0305e82c3301
+                  payload_hash: '3333333333333333333333333333333333333333333333333333333333333333'
+                  expires_at: '2026-09-18T05:00:00Z'
+                operation: null
+                evidence:
+                  - observation_id: obs-1
+                    source_ref: line:7001/shipment
+                    source_version: '2'
+                    content_hash: '1111111111111111111111111111111111111111111111111111111111111111'
+                timeline:
+                  - event_id: t-1
+                    type: CASE_CREATED
+                    occurred_at: '2026-09-18T03:00:00Z'
+                    summary: 客户提交退款诉求
+                    revision: 1
+                  - event_id: t-2
+                    type: AGENT_STARTED
+                    occurred_at: '2026-09-18T03:00:05Z'
+                    summary: 调查run已受理
+                    revision: 1
+                  - event_id: t-3
+                    type: PROPOSAL_READY
+                    occurred_at: '2026-09-18T04:28:00Z'
+                    summary: 方案建议退款2599分，引用1条证据与1条政策
+                    revision: 1
+                  - event_id: t-4
+                    type: APPROVAL_REQUIRED
+                    occurred_at: '2026-09-18T04:30:00Z'
+                    summary: 等待人工审批
+                    revision: 1
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/cases/{case_id}/evidence:
+    post:
+      tags: [cases]
+      operationId: appendEvidence
+      summary: Append customer material to a case
+      description: |
+        Appending bumps input_revision, which invalidates the in-flight run rather than
+        silently changing what it is investigating (docs/domain-model.md:55). After the
+        authorisation is consumed the input is closed and this is 409
+        (docs/core-contracts.md:30).
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceAppendRequest'
+            example:
+              question_id: q-lost-1
+              text: 小区驿站确认7天内没有任何到件记录
+              evidence_kind: CUSTOMER_STATEMENT
+      responses:
+        '200':
+          description: Evidence appended and the revision bumped
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceSubmissionResponse'
+              example:
+                case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+                input_revision: 2
+                version: 7
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+  /api/v1/cases/{case_id}/cancel:
+    post:
+      tags: [cases]
+      operationId: cancelCase
+      summary: Cancel a case before its authorisation is consumed
+      description: |
+        Cancellation exists only before the authorisation is consumed; after that there
+        is no cancel edge, and the operation either succeeds, fails or stays UNKNOWN
+        (docs/domain-model.md:55).
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonRequest'
+            example:
+              reason: 客户自行与商家达成一致，不再需要退款
+      responses:
+        '200':
+          description: Case cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseCancelResponse'
+              example:
+                case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+                status: CANCELLED
+                version: 8
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+  /api/v1/cases/{case_id}/events:
+    get:
+      tags: [cases]
+      operationId: streamCaseEvents
+      summary: Server-sent events for one case
+      description: |
+        Resumption is by Last-Event-ID; the token is presented in the Authorization
+        header and never in the URL, because URLs end up in logs and referrers
+        (docs/core-contracts.md:32).
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - name: Last-Event-ID
+          in: header
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 64
+      responses:
+        '200':
+          description: Event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              example: |
+                id: t-4
+                event: case.updated
+                data: {"case_id":"9c858901-8a57-4791-81fe-4c455b099bc9","status":"PENDING_REVIEW","input_revision":1}
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/review/cases:
+    get:
+      tags: [review]
+      operationId: listReviewQueue
+      summary: Reviewer queue for the caller's merchant
+      description: |
+        Cases waiting on a human decision for this merchant only
+        (docs/core-contracts.md:33). The queue is a filter over case state, not a second
+        source of truth.
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: One page of cases needing review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewQueuePage'
+              example:
+                items:
+                  - case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+                    status: PENDING_REVIEW
+                    input_revision: 1
+                    version: 6
+                    updated_at: '2026-09-18T04:30:00Z'
+                    line_id: '7001'
+                    requested_actions: [REFUND]
+                page:
+                  limit: 20
+                  next_cursor: null
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+  /api/v1/cases/{case_id}/reviews:
+    post:
+      tags: [review]
+      operationId: submitReview
+      summary: Approve or reject the case authorisation
+      description: |
+        The reviewer acts on the version they saw; a stale authorization_version cannot
+        be applied, and approval re-validates the authorisation before consuming it
+        (docs/core-contracts.md:34). Only a human decision can move an authorisation to
+        APPROVED; model confidence is not authorisation (AGENTS.md).
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewRequest'
+            example:
+              authorization_id: 7a7a7a7a-2222-4333-8444-555566667777
+              authorization_version: 1
+              decision: APPROVE
+              reason: 物流结论与政策一致，证据充分
+      responses:
+        '200':
+          description: Decision recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+              example:
+                case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+                authorization_id: 7a7a7a7a-2222-4333-8444-555566667777
+                authorization_version: 2
+                status: APPROVED
+                case_version: 7
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+  /api/v1/cases/{case_id}/reviewed-evidence:
+    post:
+      tags: [review]
+      operationId: appendReviewedEvidence
+      summary: Append human verification without rewriting customer material
+      description: |
+        A reviewer's verification is a new evidence record that cites the record it
+        verified; the original customer statement is never edited
+        (docs/core-contracts.md:35). If the verification refutes what an approved
+        authorisation relied on, that authorisation is revoked rather than quietly kept.
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewedEvidenceRequest'
+            example:
+              source_evidence_id: ev-1
+              verification_result: CONFIRMED
+              reason: 承运商系统复核显示该件确实停留在分拨中心
+      responses:
+        '200':
+          description: Verification appended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewedEvidenceResponse'
+              example:
+                case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+                evidence_id: ev-2
+                input_revision: 3
+                case_version: 8
+                revoked_authorization_id: null
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+  /api/v1/cases/{case_id}/manual-proposals:
+    post:
+      tags: [review]
+      operationId: submitManualProposal
+      summary: Add a human-authored proposal as a new revision
+      description: |
+        A manual proposal is a new revision with its own citations, not a direct
+        payment instruction; approval still goes through the authorisation path
+        (docs/core-contracts.md:36).
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualProposalRequest'
+            example:
+              action: REFUND
+              evidence_refs:
+                - observation_id: obs-1
+                  source_ref: line:7001/shipment
+                  source_version: '2'
+                  content_hash: '1111111111111111111111111111111111111111111111111111111111111111'
+              policy_refs:
+                - bundle_id: policy-logistics-2026.09
+                  version: '2026.09'
+                  rule_id: R-LOST-001
+                  chunk_id: c-01
+                  content_hash: '2222222222222222222222222222222222222222222222222222222222222222'
+              reason: 人工复核后确认按丢失政策全额退款
+      responses:
+        '200':
+          description: Manual proposal recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManualProposalResponse'
+              example:
+                case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+                proposal_id: 5f0f0f0f-1111-4222-8333-444455556666
+                input_revision: 4
+                case_version: 9
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+  /api/v1/operations/{operation_id}/reconcile:
+    post:
+      tags: [operations]
+      operationId: reconcileOperation
+      summary: Ask Commerce for the authoritative state of an uncertain refund
+      description: |
+        Operator-only. Reconciliation asks the authority; it never turns a timeout into a
+        failure and never re-pays with a new id (docs/domain-model.md:15). A still
+        unknown answer stays UNKNOWN and keeps the money reserved.
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: Reconciled state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconcileResponse'
+              example:
+                operation_id: 3f2504e0-4f89-41d3-9a0c-0305e82c3301
+                state: UNKNOWN
+                reconciled: true
+                version: 6
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /internal/v1/cases/{case_id}/agent-callbacks:
+    post:
+      tags: [internal]
+      operationId: receiveAgentCallback
+      summary: Accept a run callback for a case
+      description: |
+        The disposition says what happened to this delivery: ACCEPTED, DUPLICATE for a
+        callback_id already seen, or STALE when the run's revision is no longer current
+        (docs/core-contracts.md:59). A stale or duplicated callback is not an error, and
+        a late STARTED never rolls the case state back.
+      security:
+        - serviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentCallbackRequest'
+            example:
+              callback_id: cb-9c858901-1-proposal
+              run_id: e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa
+              input_revision: 1
+              kind: PROPOSAL
+              payload:
+                proposal_id: 5f0f0f0f-1111-4222-8333-444455556666
+                run_id: e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa
+                input_revision: 1
+                case_type: LOGISTICS
+                recommended_action: REFUND
+                suggested_amount_minor: 2599
+                summary: 物流7天无更新且承运商结论为丢失，按政策可全额退款
+                reason_codes: [CARRIER_LOST, NO_SCAN_7D]
+                evidence_refs:
+                  - observation_id: obs-1
+                    source_ref: line:7001/shipment
+                    source_version: '2'
+                    content_hash: '1111111111111111111111111111111111111111111111111111111111111111'
+                policy_refs:
+                  - bundle_id: policy-logistics-2026.09
+                    version: '2026.09'
+                    rule_id: R-LOST-001
+                    chunk_id: c-01
+                    content_hash: '2222222222222222222222222222222222222222222222222222222222222222'
+                missing_evidence: []
+      responses:
+        '200':
+          description: Delivery disposition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentCallbackResponse'
+              example:
+                disposition: ACCEPTED
+                case_version: 6
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+  /internal/v1/runs/{run_id}/tool-credential:
+    post:
+      tags: [internal]
+      operationId: issueToolCredential
+      summary: Issue the scoped tool token for the run's current revision
+      description: |
+        The token is bound to run/case/revision/principal/aud/scope and never reaches the
+        model; a renewal is issued only after case-service confirms the revision is still
+        valid (docs/core-contracts.md:61).
+      security:
+        - serviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/RunId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToolCredentialRequest'
+            example:
+              case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+              input_revision: 1
+      responses:
+        '200':
+          description: Scoped credential
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolCredentialResponse'
+              example:
+                token: eyJhbGciOiJFZERTQSJ9.tool.scoped.token
+                expires_at: '2026-09-18T04:40:00Z'
+                scopes: [commerce:read, policy:read]
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+  /internal/v1/cases/{case_id}/evidence:
+    get:
+      tags: [internal]
+      operationId: readCaseEvidence
+      summary: Case evidence and its authorities for Java re-verification
+      description: |
+        Java re-reads the authoritative record behind each source_ref instead of trusting
+        a textual conclusion, and rejects an arbitrary URL as a source
+        (docs/core-contracts.md:61).
+      security:
+        - serviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Evidence records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceListResponse'
+              example:
+                case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+                input_revision: 1
+                evidence:
+                  - observation_id: obs-1
+                    source_ref: line:7001/shipment
+                    source_version: '2'
+                    content_hash: '1111111111111111111111111111111111111111111111111111111111111111'
+                  - observation_id: obs-2
+                    source_ref: line:7001/payment_ledger
+                    source_version: '3'
+                    content_hash: '4444444444444444444444444444444444444444444444444444444444444444'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/cases/{case_id}/policy-manifest:
+    get:
+      tags: [internal]
+      operationId: readPolicyManifest
+      summary: Policy bundles, versions and hashes bound to the case
+      description: |
+        The run is pinned to an immutable manifest; a case never silently switches to a
+        newer policy (docs/core-contracts.md:50).
+      security:
+        - serviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Pinned manifest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyManifestResponse'
+              example:
+                bundles:
+                  - bundle_ids: [policy-logistics-2026.09]
+                    manifest_hash: '9999999999999999999999999999999999999999999999999999999999999999'
+                    safety_epoch: 1
+                effective_from: '2026-09-01T00:00:00Z'
+                effective_to: null
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/policies/{bundle_id}:
+    get:
+      tags: [internal]
+      operationId: readPolicyBundle
+      summary: Authoritative policy rules for one bundle
+      description: |
+        The text the Agent cited, so Java can re-check the citation against the source
+        rather than against the Agent's summary (docs/core-contracts.md:51).
+      security:
+        - serviceToken: []
+      parameters:
+        - $ref: '#/components/parameters/BundleId'
+      responses:
+        '200':
+          description: Policy bundle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyBundle'
+              example:
+                bundle_id: policy-logistics-2026.09
+                version: '2026.09'
+                manifest_hash: '9999999999999999999999999999999999999999999999999999999999999999'
+                safety_epoch: 1
+                rules:
+                  - rule_id: R-LOST-001
+                    title: 承运商判定丢失
+                    text: 承运商结论为 LOST 且无有效签收时，可按行支付金额全额退款。
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        User JWT from the demonstration login. It carries the principal; X-User, X-Role
+        and X-Merchant headers are stripped at the gateway and never trusted here
+        (docs/core-contracts.md:15).
+    serviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Internal aud/scope token for the /internal/v1/... surface, which is never exposed
+        through the gateway.
+  parameters:
+    CaseId:
+      name: case_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    OrderId:
+      name: order_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    OperationId:
+      name: operation_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    RunId:
+      name: run_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    BundleId:
+      name: bundle_id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 64
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 200
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 128
+      description: Same key with a different body is 409 (docs/core-contracts.md:15).
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+        pattern: '^"[1-9][0-9]{0,15}"$'
+      description: The version the caller saw, quoted as an ETag.
+  headers:
+    Location:
+      description: Canonical URL of the created resource
+      schema:
+        type: string
+        minLength: 1
+  responses:
+    Unauthenticated:
+      description: Missing or invalid user token (401)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: UNAUTHENTICATED
+            message: the access token is missing or expired
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    ForbiddenScope:
+      description: The principal may not perform this action (403)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: FORBIDDEN_SCOPE
+            message: the caller may not review cases of another merchant
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    NotFound:
+      description: Not visible under this principal (404)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: NOT_FOUND
+            message: no case with that id for this principal
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    IdempotencyConflict:
+      description: Same idempotency key with a different body (409)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: IDEMPOTENCY_CONFLICT
+            message: this Idempotency-Key was already used with a different body
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    StateConflict:
+      description: The case or authorisation is not in a state that allows this (409)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: STATE_CONFLICT
+            message: the authorisation is already consumed; the input of a consumed case cannot change
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    SemanticInvalid:
+      description: The body disagrees with the token, the binding or the schema (422)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: SEMANTIC_INVALID
+            message: requested_actions may only contain REFUND
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    RateLimited:
+      description: Too many attempts; retry later (429)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: RATE_LIMITED
+            message: too many login attempts for this account
+            retryable: true
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    ServiceUnavailable:
+      description: A dependency is temporarily unavailable (503). A timeout is not a failure.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: SERVICE_UNAVAILABLE
+            message: commerce-service did not answer within the reconciliation budget
+            retryable: true
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+  schemas:
+    Uuid:
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    Sha256Hex:
+      type: string
+      pattern: '^[a-f0-9]{64}$'
+    Version:
+      type: integer
+      minimum: 1
+      maximum: 9007199254740991
+    InputRevision:
+      type: integer
+      minimum: 1
+      maximum: 9007199254740991
+      description: Decision-input revision, not an optimistic-lock version (docs/domain-model.md:3).
+    AmountMinor:
+      type: integer
+      minimum: 0
+      maximum: 1000000000
+      description: CNY minor units, always an integer (docs/core-contracts.md:17).
+    ReasonCode:
+      type: string
+      pattern: '^[A-Z][A-Z0-9_]{1,63}$'
+    Traceparent:
+      type: string
+      pattern: '^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$'
+    PageMeta:
+      type: object
+      additionalProperties: false
+      required: [limit]
+      properties:
+        next_cursor:
+          type: [string, 'null']
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+    ReasonRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+    Action:
+      type: string
+      enum: [REFUND]
+      description: |
+        The only executable action in core (docs/core-contracts.md:65). The compat enum
+        also had RESHIP; reship is not implemented (docs/core-scope.md:9).
+    RequestedAction:
+      type: string
+      enum: [REFUND]
+      description: |
+        What the customer asked for; the executable action is a subset. Core represents
+        only the refund request (docs/core-contracts.md:28).
+    RecommendedAction:
+      type: string
+      enum: [REFUND, REQUEST_INFO, MANUAL_REVIEW, REJECT]
+      description: |
+        The core proposal set (docs/agent-spec.md:19). RESHIP was dropped together with
+        the deferred reship workflow; the runtime fills in the identity, never the model.
+    CaseType:
+      type: string
+      enum: [LOGISTICS, DAMAGED, WRONG_MISSING, OUT_OF_SCOPE]
+    CaseStatus:
+      type: string
+      enum:
+        [QUEUED, ANALYZING, WAITING_CUSTOMER, PENDING_REVIEW, AUTHORIZED, EXECUTING,
+         RECONCILING, CLOSED_SUCCESS, CLOSED_REJECTED, CANCELLED]
+      description: |
+        Case lifecycle of docs/domain-model.md:55. CANCELLED exists only before the
+        authorisation is consumed; after consumption there is no cancel edge.
+    ProposalStatus:
+      type: string
+      enum: [PROPOSED, VALIDATED, STALE, REJECTED]
+      description: docs/domain-model.md:57.
+    AuthorizationStatus:
+      type: string
+      enum: [PENDING_REVIEW, APPROVED, REJECTED, EXPIRED, REVOKED, CONSUMED]
+      description: docs/domain-model.md:57.
+    OperationState:
+      type: string
+      enum: [RECEIVED, IN_PROGRESS, UNKNOWN, SUCCEEDED, FAILED]
+      description: |
+        The core refund_operation vocabulary (docs/domain-model.md:57): five states, and
+        explicitly not the compat two-phase target protocol.
+    CallbackKind:
+      type: string
+      enum: [STARTED, QUESTION, PROPOSAL, FAILED]
+      description: |
+        QUESTION and PROPOSAL are mutually exclusive terminal kinds; a late STARTED must
+        not roll the state back (docs/core-contracts.md:59).
+    CallbackDisposition:
+      type: string
+      enum: [ACCEPTED, DUPLICATE, STALE]
+      description: |
+        DUPLICATE means this callback_id was already applied; STALE means the run's
+        revision is no longer current. Neither is an error (docs/core-contracts.md:59).
+    TimelineEventType:
+      type: string
+      enum:
+        [CASE_CREATED, AGENT_STARTED, QUESTION_REQUIRED, PROPOSAL_READY, APPROVAL_REQUIRED,
+         EXECUTION_UPDATED, CASE_CLOSED]
+    EvidenceSourceType:
+      type: string
+      enum:
+        [ORDER_LINE, PAYMENT_LEDGER, SHIPMENT, SHIPMENT_TRACK, CUSTOMER_STATEMENT,
+         REVIEWER_VERIFICATION, POLICY_RULE]
+      description: |
+        Every value must be re-readable through a core endpoint. LINE_ENTITLEMENT and
+        PACKING_MANIFEST belong to deferred surfaces and are absent here.
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [code, message, retryable]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        retryable:
+          type: boolean
+          description: |
+            Carried explicitly so a caller never infers retryability from the status
+            code. A network timeout is not a failed refund (docs/contracts.md:14).
+        trace_id:
+          type: [string, 'null']
+          maxLength: 64
+        details:
+          type: [object, 'null']
+          additionalProperties: true
+    # The HTTP error body is the flat object docs/core-contracts.md:15 keeps unchanged
+    # and com.resolveflow.shared.error.ApiError serialises.
+    ErrorResponse:
+      $ref: '#/components/schemas/ApiError'
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 120
+        password:
+          type: string
+          minLength: 1
+          maxLength: 200
+    LoginResponse:
+      type: object
+      additionalProperties: false
+      required: [access_token, token_type, expires_in, role, merchant_id]
+      properties:
+        access_token:
+          type: string
+          minLength: 1
+        token_type:
+          type: string
+          const: Bearer
+        expires_in:
+          type: integer
+          minimum: 1
+          maximum: 86400
+        role:
+          type: string
+          minLength: 1
+          description: Customer, merchant reviewer or operator; the token's role decides.
+        merchant_id:
+          type: string
+          minLength: 1
+        customer_id:
+          type: [string, 'null']
+    OrderLineSummary:
+      type: object
+      additionalProperties: false
+      required: [order_id, line_id, sku, category, quantity, line_paid_amount, currency, paid_at, status, version]
+      properties:
+        order_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 64
+        category:
+          type: string
+          minLength: 1
+          maxLength: 64
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        line_paid_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        currency:
+          type: string
+          const: CNY
+        paid_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          minLength: 1
+          maxLength: 64
+        version:
+          $ref: '#/components/schemas/Version'
+    OrderLinePage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLineSummary'
+        page:
+          $ref: '#/components/schemas/PageMeta'
+    CaseCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [line_id, description, requested_actions]
+      properties:
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        requested_actions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/RequestedAction'
+    CaseCreatedResponse:
+      type: object
+      additionalProperties: false
+      required: [case_id, status, input_revision, version]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          $ref: '#/components/schemas/CaseStatus'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        version:
+          $ref: '#/components/schemas/Version'
+    EvidenceRef:
+      type: object
+      additionalProperties: false
+      required: [observation_id, source_ref, source_version, content_hash]
+      properties:
+        observation_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_ref:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: A controlled reference. A URL is rejected (docs/core-contracts.md:61).
+        source_version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        content_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+    PolicyRef:
+      type: object
+      additionalProperties: false
+      required: [bundle_id, version, rule_id, chunk_id, content_hash]
+      properties:
+        bundle_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        rule_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        chunk_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        content_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+    EvidenceAppendRequest:
+      type: object
+      additionalProperties: false
+      required: [text, evidence_kind]
+      properties:
+        question_id:
+          type: [string, 'null']
+          maxLength: 64
+        text:
+          type: string
+          minLength: 1
+          maxLength: 8000
+        evidence_kind:
+          $ref: '#/components/schemas/EvidenceSourceType'
+    EvidenceSubmissionResponse:
+      type: object
+      additionalProperties: false
+      required: [case_id, input_revision, version]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        version:
+          $ref: '#/components/schemas/Version'
+    CaseCancelResponse:
+      type: object
+      additionalProperties: false
+      required: [case_id, status, version]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          $ref: '#/components/schemas/CaseStatus'
+        version:
+          $ref: '#/components/schemas/Version'
+    ProposalPayload:
+      type: object
+      additionalProperties: false
+      required:
+        [proposal_id, run_id, input_revision, case_type, recommended_action, summary,
+         reason_codes]
+      description: |
+        The proposal a run submits (docs/core-contracts.md:59). The same field set is
+        fixed by contracts/core/agent-proposal.schema.json; a test keeps the two from
+        drifting apart.
+      properties:
+        proposal_id:
+          $ref: '#/components/schemas/Uuid'
+        run_id:
+          $ref: '#/components/schemas/Uuid'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        case_type:
+          $ref: '#/components/schemas/CaseType'
+        recommended_action:
+          $ref: '#/components/schemas/RecommendedAction'
+        suggested_amount_minor:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 1000000000
+        summary:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        reason_codes:
+          type: array
+          minItems: 1
+          maxItems: 16
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/ReasonCode'
+        evidence_refs:
+          type: array
+          maxItems: 32
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+        policy_refs:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/PolicyRef'
+        missing_evidence:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+            maxLength: 200
+          description: What the customer still has to supply; non-empty means REQUEST_INFO.
+    ProposalView:
+      type: object
+      additionalProperties: false
+      required:
+        [proposal_id, run_id, input_revision, case_type, recommended_action, summary,
+         reason_codes, status]
+      description: |
+        The case-side view of a proposal: the proposal fields plus the status case-service
+        owns. The proposal itself never carries its own approval status.
+      properties:
+        proposal_id:
+          $ref: '#/components/schemas/Uuid'
+        run_id:
+          $ref: '#/components/schemas/Uuid'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        case_type:
+          $ref: '#/components/schemas/CaseType'
+        recommended_action:
+          $ref: '#/components/schemas/RecommendedAction'
+        suggested_amount_minor:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 1000000000
+        summary:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        reason_codes:
+          type: array
+          minItems: 1
+          maxItems: 16
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/ReasonCode'
+        evidence_refs:
+          type: array
+          maxItems: 32
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+        policy_refs:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/PolicyRef'
+        missing_evidence:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+            maxLength: 200
+        status:
+          $ref: '#/components/schemas/ProposalStatus'
+        created_at:
+          type: string
+          format: date-time
+    AuthorizationState:
+      type: object
+      additionalProperties: false
+      required: [authorization_id, authorization_version, status, action, planned_operation_id, payload_hash]
+      properties:
+        authorization_id:
+          $ref: '#/components/schemas/Uuid'
+        authorization_version:
+          $ref: '#/components/schemas/Version'
+        status:
+          $ref: '#/components/schemas/AuthorizationStatus'
+        expires_at:
+          # anyOf rather than type: [string, 'null'] because a nullable field that also
+          # carries a format must apply that format to the string branch only.
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        action:
+          $ref: '#/components/schemas/Action'
+        planned_operation_id:
+          $ref: '#/components/schemas/Uuid'
+          description: Pre-allocated when the authorisation is created, so the hashed payload is fixed before approval (docs/core-contracts.md:19).
+        payload_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+          description: Covers the twelve canonical fields; the version itself is not hashed.
+    OperationView:
+      type: object
+      additionalProperties: false
+      required: [operation_id, action, state, target_service, version]
+      properties:
+        operation_id:
+          $ref: '#/components/schemas/Uuid'
+        action:
+          $ref: '#/components/schemas/Action'
+        state:
+          $ref: '#/components/schemas/OperationState'
+        target_service:
+          type: string
+          const: commerce-service
+        amount_minor:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 1000000000
+        quantity:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 1000
+        version:
+          $ref: '#/components/schemas/Version'
+          description: |
+            The refund_operation row version (docs/domain-model.md:43); the result event
+            reports the same number as aggregate_version (docs/core-contracts.md:67).
+    CaseSummary:
+      type: object
+      additionalProperties: false
+      required: [case_id, status, input_revision, version, created_at, updated_at, requested_actions, line_id]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          $ref: '#/components/schemas/CaseStatus'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        version:
+          $ref: '#/components/schemas/Version'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        requested_actions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/RequestedAction'
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+    TimelineEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, type, occurred_at, summary]
+      description: |
+        One row of the investigation trajectory the case view shows
+        (docs/core-scope.md:7). Rows are appended in the same transaction as the inbox
+        projection and the local event, so the trajectory cannot disagree with the state
+        (docs/core-contracts.md:67).
+      properties:
+        event_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        type:
+          $ref: '#/components/schemas/TimelineEventType'
+        occurred_at:
+          type: string
+          format: date-time
+        summary:
+          type: string
+          minLength: 1
+          maxLength: 500
+        revision:
+          oneOf:
+            - $ref: '#/components/schemas/InputRevision'
+            - type: 'null'
+    CaseSnapshot:
+      type: object
+      additionalProperties: false
+      required: [case]
+      properties:
+        case:
+          $ref: '#/components/schemas/CaseSummary'
+        proposal:
+          oneOf:
+            - $ref: '#/components/schemas/ProposalView'
+            - type: 'null'
+        authorization:
+          oneOf:
+            - $ref: '#/components/schemas/AuthorizationState'
+            - type: 'null'
+        operation:
+          oneOf:
+            - $ref: '#/components/schemas/OperationView'
+            - type: 'null'
+        evidence:
+          type: array
+          maxItems: 64
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+        timeline:
+          type: array
+          maxItems: 200
+          items:
+            $ref: '#/components/schemas/TimelineEvent'
+    ReviewQueueItem:
+      type: object
+      additionalProperties: false
+      required: [case_id, status, input_revision, version, updated_at, line_id, requested_actions]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          $ref: '#/components/schemas/CaseStatus'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        version:
+          $ref: '#/components/schemas/Version'
+        updated_at:
+          type: string
+          format: date-time
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        requested_actions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/RequestedAction'
+    ReviewQueuePage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewQueueItem'
+        page:
+          $ref: '#/components/schemas/PageMeta'
+    ReviewRequest:
+      type: object
+      additionalProperties: false
+      required: [authorization_id, authorization_version, decision, reason]
+      properties:
+        authorization_id:
+          $ref: '#/components/schemas/Uuid'
+        authorization_version:
+          $ref: '#/components/schemas/Version'
+          description: The version the reviewer saw. A stale version cannot be applied.
+        decision:
+          type: string
+          enum: [APPROVE, REJECT, REQUEST_INFO]
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    ReviewResponse:
+      type: object
+      additionalProperties: false
+      required: [case_id, authorization_id, authorization_version, status, case_version]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        authorization_id:
+          $ref: '#/components/schemas/Uuid'
+        authorization_version:
+          $ref: '#/components/schemas/Version'
+        status:
+          $ref: '#/components/schemas/AuthorizationStatus'
+        case_version:
+          $ref: '#/components/schemas/Version'
+    ManualProposalRequest:
+      type: object
+      additionalProperties: false
+      required: [action, evidence_refs, policy_refs, reason]
+      properties:
+        action:
+          $ref: '#/components/schemas/Action'
+        evidence_refs:
+          type: array
+          minItems: 1
+          maxItems: 32
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+        policy_refs:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/PolicyRef'
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    ManualProposalResponse:
+      type: object
+      additionalProperties: false
+      required: [case_id, proposal_id, input_revision, case_version]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        proposal_id:
+          $ref: '#/components/schemas/Uuid'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        case_version:
+          $ref: '#/components/schemas/Version'
+    ReviewedEvidenceRequest:
+      type: object
+      additionalProperties: false
+      required: [source_evidence_id, verification_result, reason]
+      properties:
+        source_evidence_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        verification_result:
+          type: string
+          enum: [CONFIRMED, REFUTED, INCONCLUSIVE]
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    ReviewedEvidenceResponse:
+      type: object
+      additionalProperties: false
+      required: [case_id, evidence_id, input_revision, case_version]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        evidence_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        case_version:
+          $ref: '#/components/schemas/Version'
+        revoked_authorization_id:
+          oneOf:
+            - $ref: '#/components/schemas/Uuid'
+            - type: 'null'
+    ReconcileResponse:
+      type: object
+      additionalProperties: false
+      required: [operation_id, state, reconciled, version]
+      properties:
+        operation_id:
+          $ref: '#/components/schemas/Uuid'
+        state:
+          $ref: '#/components/schemas/OperationState'
+        reconciled:
+          type: boolean
+          description: True when the authority answered; false when it could not be reached.
+        version:
+          $ref: '#/components/schemas/Version'
+    StartedPayload:
+      type: object
+      additionalProperties: false
+      required: [started_at]
+      properties:
+        started_at:
+          type: string
+          format: date-time
+    AgentQuestion:
+      type: object
+      additionalProperties: false
+      required: [field, prompt]
+      properties:
+        field:
+          type: string
+          minLength: 1
+          maxLength: 64
+        prompt:
+          type: string
+          minLength: 1
+          maxLength: 500
+    QuestionPayload:
+      type: object
+      additionalProperties: false
+      required: [question_id, questions]
+      description: |
+        At most three aggregated questions, each with a stable question_id, so a repeated
+        delivery is recognisable instead of being re-asked
+        (docs/core-contracts.md:59).
+      properties:
+        question_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        questions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/AgentQuestion'
+        reason_codes:
+          type: array
+          maxItems: 16
+          items:
+            $ref: '#/components/schemas/ReasonCode'
+    FailedPayload:
+      type: object
+      additionalProperties: false
+      required: [reason_codes, retryable]
+      properties:
+        reason_codes:
+          type: array
+          minItems: 1
+          maxItems: 16
+          items:
+            $ref: '#/components/schemas/ReasonCode'
+        retryable:
+          type: boolean
+        last_observation_refs:
+          type: array
+          maxItems: 32
+          items:
+            type: string
+            maxLength: 200
+    AgentCallbackRequest:
+      type: object
+      additionalProperties: false
+      required: [callback_id, run_id, input_revision, kind, payload]
+      properties:
+        callback_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: Stable per callback, so a redelivery is recognised as a duplicate.
+        run_id:
+          $ref: '#/components/schemas/Uuid'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        kind:
+          $ref: '#/components/schemas/CallbackKind'
+        payload:
+          oneOf:
+            - $ref: '#/components/schemas/StartedPayload'
+            - $ref: '#/components/schemas/QuestionPayload'
+            - $ref: '#/components/schemas/ProposalPayload'
+            - $ref: '#/components/schemas/FailedPayload'
+        traceparent:
+          oneOf:
+            - $ref: '#/components/schemas/Traceparent'
+            - type: 'null'
+      allOf:
+        - if:
+            properties:
+              kind:
+                const: STARTED
+          then:
+            properties:
+              payload:
+                $ref: '#/components/schemas/StartedPayload'
+        - if:
+            properties:
+              kind:
+                const: QUESTION
+          then:
+            properties:
+              payload:
+                $ref: '#/components/schemas/QuestionPayload'
+        - if:
+            properties:
+              kind:
+                const: PROPOSAL
+          then:
+            properties:
+              payload:
+                $ref: '#/components/schemas/ProposalPayload'
+        - if:
+            properties:
+              kind:
+                const: FAILED
+          then:
+            properties:
+              payload:
+                $ref: '#/components/schemas/FailedPayload'
+    AgentCallbackResponse:
+      type: object
+      additionalProperties: false
+      required: [disposition]
+      properties:
+        disposition:
+          $ref: '#/components/schemas/CallbackDisposition'
+        case_version:
+          oneOf:
+            - $ref: '#/components/schemas/Version'
+            - type: 'null'
+    EvidenceListResponse:
+      type: object
+      additionalProperties: false
+      required: [case_id, input_revision, evidence]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        evidence:
+          type: array
+          maxItems: 64
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+    PolicyManifestResponse:
+      type: object
+      additionalProperties: false
+      required: [bundles, effective_from]
+      properties:
+        bundles:
+          type: array
+          minItems: 1
+          maxItems: 16
+          items:
+            type: object
+            additionalProperties: false
+            required: [bundle_ids, manifest_hash, safety_epoch]
+            properties:
+              bundle_ids:
+                type: array
+                minItems: 1
+                maxItems: 16
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+              manifest_hash:
+                $ref: '#/components/schemas/Sha256Hex'
+              safety_epoch:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+        effective_from:
+          type: string
+          format: date-time
+        effective_to:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+    ToolCredentialRequest:
+      type: object
+      additionalProperties: false
+      required: [case_id, input_revision]
+      description: |
+        The revision the credential is being renewed for; case-service confirms it is
+        still current before signing a new one (docs/core-contracts.md:61).
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+    ToolCredentialResponse:
+      type: object
+      additionalProperties: false
+      required: [token, expires_at, scopes]
+      properties:
+        token:
+          type: string
+          minLength: 1
+          description: Scoped service token. Never persisted in an outbox body, never shown to the model.
+        expires_at:
+          type: string
+          format: date-time
+        scopes:
+          type: array
+          minItems: 1
+          maxItems: 16
+          items:
+            type: string
+            minLength: 1
+    PolicyRule:
+      type: object
+      additionalProperties: false
+      required: [rule_id, title, text]
+      properties:
+        rule_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+    PolicyBundle:
+      type: object
+      additionalProperties: false
+      required: [bundle_id, version, manifest_hash, rules]
+      description: |
+        An immutable, versioned rule set (docs/policy-rag.md). Core has no route that
+        publishes or revokes one; that happens through the controlled import script
+        (docs/core-contracts.md:53).
+      properties:
+        bundle_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        manifest_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+        safety_epoch:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        rules:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items:
+            $ref: '#/components/schemas/PolicyRule'
+security:
+  - bearerAuth: []
