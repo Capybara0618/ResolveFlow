@@ -43,7 +43,12 @@
   - 报告路径：`reports/verify/20260918-182754-contracts.txt`。
   - 关键结论：核心 OpenAPI 三份文档齐备，路由逐项对应（Case 18 / Commerce 4 / Agent 5 = 27 条，数量由文档表格解析并钉住）。case 文档比 compat 少 3 条政策管理路由（`docs/core-contracts.md:53`，政策由受控脚本导入），动作词汇收窄为 REFUND 单值、`RecommendedAction` 去掉 RESHIP；新增 `CaseSnapshot.timeline`（`docs/core-scope.md:7` + `docs/domain-model.md:34` + `docs/core-contracts.md:67` 同事务要求）；回调 payload 由 compat 的自由对象改为按 kind 强类型并加 `if/then` 锚定（QUESTION 问题数上限 3）；`ProposalPayload` 与 `ProposalView` 拆分，C00.2c 需用测试守住二者一致。
   - 过程记录（诚实项）：本轮曾把 case 文档的生成委派给后台子代理，它因通读 55 KB 旧文档耗尽上下文且**未产出任何文件**；随后由我按权威文档 + 精确读取 compat 组件分段自行完成。教训已记录：大文件移植任务应先切分读取范围再委派，或直接自己做。
-  - 未执行：C00.2c（agent-proposal.schema.json、Java/Pydantic 核心 DTO、核心正反 fixture）、C00.3（core profile 启动与 smoke 选择）未开始；`verify -Suite all-offline` 本轮未重跑（留到 C00.3）；core profile 的服务启动尚未验证。
+  - C00.2c 拆为三步（c-1 提案 Schema / c-2 核心正反 fixture 与 corpus / c-3 Java+Pydantic 核心 DTO），本轮完成 c-1（2026-09-18）。修改文件：`contracts/core/agent-proposal.schema.json`（新建，`urn:resolveflow:core:agent-proposal:v2`）、`agent/src/resolveflow/contracts/_schemaio.py`（CORE_SCHEMA_FILES 增加该文件）、`agent/tests/unit/test_contracts_core_proposal.py`（新建，44 个测试）、`agent/tests/unit/test_contracts_core_schemas.py`（核心 `$id` 钉住集合显式扩为三个）、`contracts/core/openapi-case.yaml`（ProposalPayload/ProposalView 的 suggested_amount_minor 去掉 null、EvidenceRef.source_ref 加 URL 拒绝 pattern）、`contracts/core/openapi-agent.yaml`（ObservationRecord.source_ref 同一 pattern）、`contracts/core/README.md`（现状表与决策 12/13/14）。
+  - 命令与结果：`pytest agent/tests/unit/test_contracts_core_proposal.py -q` → 44 passed（过程中 6 次失败：核心三个枚举缺 `type: string` 与 OpenAPI 组件不一致（4 项）、我的比较助手把 items 组件误当属性组件（已改为解引用比较）、以及负例 `https://example.com/x` 竟被接受——见下）；`pytest agent/tests/unit -q` → **316 passed**；`ruff` All checks passed（修掉 3 处 E501）；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（1.5s / 19.2s / 4.7s）。
+  - 报告路径：`reports/verify/20260918-183736-contracts.txt`。
+  - 关键结论（写入 README 决策 12/13/14）：核心提案不带 `case_id`（回调端点已按 case 定位）与 `schema_version`（版本由 `$id` 承担、该载荷不参与哈希），compat 两字段保留；测试逐个属性、逐条约束（含 `$ref` 解引用）断言提案 Schema 与 `ProposalPayload` 一致，任一侧单独加约束都会失败；`suggested_amount_minor` 三处同步去掉 `null`（缺失即表示没有建议金额）；最重要的一条：`docs/core-contracts.md:61` 说 ref 不是可请求的任意 URL，但 compat 只写了 minLength/maxLength —— **文档声称的约束并未被 Schema 强制**，负例测试把这个漏洞暴露出来后，核心三处统一加了拒绝 `https://` 的 pattern 并配负例断言。
+  - 记账修正：本条记录首次写入时脚本因中文引号与 Python 字符串冲突而中止，代码提交已先推送，故本条以补记提交进入历史（不改写已推送历史）。
+  - 未执行：C00.2c-2（核心正反 fixture 与 core_corpus）、C00.2c-3（Java/Pydantic 核心 DTO）、C00.3（core profile 启动与 smoke 选择）未开始；`verify -Suite all-offline` 本轮未重跑（留到 C00.3）；core profile 的服务启动尚未验证。
 
 ### C01 身份与订单只读切片
 
