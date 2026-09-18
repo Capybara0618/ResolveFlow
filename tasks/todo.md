@@ -130,9 +130,10 @@
   - 未决项：
     1. `ApiError.code` 在 OpenAPI 里只是 `string(1..64)`，没有 enum 约束，"未知错误码"目前靠冻结枚举表而非 schema 拒绝。是否有意收紧待 T03（现宽松是为后续任务扩展错误码留空间）。
     2. `contracts/*.schema.json` 中仍有 `if/then` 条件分支节点未强制"显式声明开放/封闭"；OpenAPI 组件已强制（`additionalProperties` 必须出现，开放对象必须登记在测试白名单里）。
-    3. 仓库**没有 `.gitignore`**，且 T01 那次提交把 `java/**/target/**`、`agent/**/__pycache__`、`web/node_modules/.vite` 等构建产物纳入版本控制。本轮未擅自动用户已有改动，建议下一步统一清理。
+    3. ~~仓库没有 `.gitignore`，构建产物被纳入版本控制~~ **已于 2026-09-18 处理**：GitHub 因 `tmp/env/temurin21.zip`（195 MB）与 `spike-service-0.0.1-SPIKE.jar`（140 MB）超过 100 MB 单文件上限而拒绝推送，因此补了根 `.gitignore`（`target/`、`node_modules/`、`__pycache__/`、各类缓存、`dist/`、`tmp/`），并重写本地历史把构建产物从所有提交中移除：跟踪文件 18,582 → 200，体积 1,223 MB → 1.21 MB，最大跟踪文件 149 KB。工作区文件一个都没删（jar、node_modules、zip 仍在磁盘上），旧历史保留在本地分支 `backup/pre-cleanup`。
     4. 4 份 OpenAPI 文档目前不是"可重复生成"的：`contracts_freeze.py` 只校验 schema 与语料一致、并冻结 hash/枚举，不重新生成 OpenAPI 文本。若要求 OpenAPI 成为生成物，需要把文档也纳入生成器（本轮为修内容直接改了文本）。
     5. `agent/src/resolveflow/contracts/models.py`（Pydantic DTO）当前只被契约测试覆盖，尚未被 API 层使用，T03 起接入。
+    6. **推送前的仓库清理（2026-09-18，用户要求提交到远程后处理）**：`git push` 被 GitHub 以 `GH001: Large files detected` 拒绝，原因在 T00/T01 那次提交里——`tmp/env/temurin21.zip` 195.57 MB、`spikes/compatibility/java-spike/spike-service/target/spike-service-0.0.1-SPIKE.jar` 140.11 MB 超过单文件 100 MB 上限。处理方式：新增根 `.gitignore`，并用 `git read-tree` + `git update-index --force-remove` + `git commit-tree` 重放历史（保留原提交信息与作者/时间），把构建产物从全部提交中剔除；`backup/pre-cleanup` 分支保留旧历史，工作区未做任何删除。核验：重写后 `git diff --name-only backup/pre-cleanup main` 共 18,384 条，除新增的 `.gitignore` 外全部落在构建产物路径模式内。
   - 未运行项（不得视为通过）：
     1. `verify -Suite system/faults/performance/agent-eval/rag-eval/harness/harness-eval` 仍按归属任务返回 exit 2。
     2. live 模型调用与效果评测（未配置 API 与预算）。
