@@ -1,0 +1,228 @@
+# ResolveFlow dependency and image lock
+#
+# Produced by T00. Every entry below was observed from a real resolver or registry
+# and exercised by a test that ran, not copied from documentation.
+#
+# Evidence: docs/compatibility-report.md
+# Spikes:   spikes/compatibility/
+# Verified: 2026-09-15
+#
+# Status vocabulary:
+#   verified   - a test/build exercised it on this machine and passed
+#   resolved   - the resolver selected it and the build succeeded, but no
+#                behaviour-specific test targets it yet
+#   candidate  - recorded for later selection; NOT part of the locked build
+
+meta:
+  locked_on: "2026-09-15"
+  verified_on_machine: "Windows 11 (win32), Docker Desktop 29.3.0"
+  network_note: >-
+    Docker Hub is DNS-poisoned on this network; images were pulled through the
+    docker.m.daocloud.io mirror. Because every image is pinned by digest, the
+    mirror cannot substitute different content without the pull failing.
+
+toolchain:
+  java:
+    distribution: Eclipse Temurin
+    version: "21.0.12.1+1"
+    vendor_build: "21.0.12.1+1-LTS"
+    install_path: "C:/Users/hjn/.jdks/jdk-21.0.12.1+1"
+    archive_sha256: "f9d6e191ab098c0d416e7d588a24420a8621cd2f4720dab2459b8b7b2d2d8b4e"
+    checksum_source: "api.adoptium.net v3 assets/latest/21 (verified against the mirror download)"
+    status: verified
+    note: >-
+      The host default JDK is 17 and is NOT sufficient. Builds must set JAVA_HOME
+      to the 21 install; T01's doctor script must fail loudly when it is absent.
+  maven:
+    version: "3.9.16"
+    install_path: "C:/Users/hjn/.maven/apache-maven-3.9.16"
+    source: "repo.maven.apache.org (Maven Central, direct)"
+    status: verified
+  python:
+    version: "3.12.13"
+    managed_by: "uv 0.10.8"
+    path: "C:/Users/hjn/AppData/Roaming/uv/python/cpython-3.12.13-windows-x86_64-none"
+    status: verified
+  node:
+    version: "22.23.2"
+    install_path: "C:/Users/hjn/.node/node-v22.23.2-win-x64"
+    source: "registry.npmmirror.com mirror"
+    status: verified
+  pnpm:
+    version: "12.4.1"
+    status: verified
+  docker:
+    client: "29.3.0"
+    server: "29.3.0"
+    server_min_api: "1.40"
+    status: verified
+
+# ---------------------------------------------------------------------------
+# Java runtime stack
+# ---------------------------------------------------------------------------
+java:
+  bom:
+    org.springframework.boot:spring-boot-starter-parent:
+      version: "4.0.8"
+      scope: "parent; newest released 4.0.x patch"
+      status: resolved
+    org.springframework.cloud:spring-cloud-dependencies:
+      version: "2025.1.3"
+      scope: "import; newest released 2025.1.x patch"
+      status: resolved
+    com.alibaba.cloud:spring-cloud-alibaba-dependencies:
+      version: "2025.1.0.0"
+      scope: "import; only published 2025.1.x release"
+      status: resolved
+
+  framework:
+    org.springframework:spring-core: {version: "7.0.9", status: resolved}
+    org.springframework.cloud:spring-cloud-commons: {version: "5.0.3", status: resolved}
+    org.springframework.cloud:spring-cloud-context: {version: "5.0.3", status: resolved}
+    org.springframework.cloud:spring-cloud-loadbalancer: {version: "5.0.3", status: resolved}
+    org.springframework.cloud:spring-cloud-openfeign-core: {version: "5.0.3", status: resolved}
+    io.github.openfeign:feign-core: {version: "13.6.1", status: resolved}
+    org.springframework.cloud:spring-cloud-gateway-server-webflux: {version: "5.0.3", status: verified}
+
+  persistence:
+    org.mybatis.spring.boot:mybatis-spring-boot-starter:
+      version: "4.1.0"
+      status: verified
+      note: >-
+        The SCA 2025.1.0.0 BOM also lists this artifact (at an older 3.0.x).
+        Resolution kept 4.1.0 and a build-time enforcer rule now fails if it
+        ever drops below 4.0, so the downgrade cannot happen silently.
+    org.mybatis:mybatis: {version: "3.5.19", status: verified}
+    org.mybatis:mybatis-spring: {version: "4.1.0", status: verified}
+    org.flywaydb:flyway-core: {version: "11.14.1", status: verified}
+    org.flywaydb:flyway-mysql: {version: "11.14.1", status: verified}
+    com.mysql:mysql-connector-j: {version: "9.7.0", status: verified}
+    org.springframework.boot:spring-boot-flyway:
+      version: "4.0.8"
+      status: verified
+      note: >-
+        Boot 4 moved autoconfiguration out of spring-boot-autoconfigure into
+        per-technology modules. Without this artifact Flyway silently never runs
+        (no error, no migration, no log line).
+
+  registry_and_resilience:
+    com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery: {version: "2025.1.0.0", status: verified}
+    com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config: {version: "2025.1.0.0", status: verified}
+    com.alibaba.nacos:nacos-client: {version: "3.1.1", status: verified}
+    com.alibaba.cloud:spring-cloud-starter-alibaba-sentinel: {version: "2025.1.0.0", status: verified}
+    com.alibaba.csp:sentinel-core: {version: "1.8.9", status: verified}
+
+  messaging:
+    org.apache.rocketmq:rocketmq-client:
+      version: "5.3.1"
+      scope: "classic remoting client, SCA-managed"
+      status: verified
+      note: >-
+        Chosen over rocketmq-client-java (gRPC), which requires deploying the
+        gRPC proxy. There is no 'spring-cloud-starter-alibaba-rocketmq' artifact
+        in any published version; the SCA RocketMQ starters are Stream binders.
+
+  serialization:
+    tools.jackson.core:jackson-databind: {version: "3.1.5", status: verified, note: "Boot 4 default"}
+    com.fasterxml.jackson.core:jackson-databind: {version: "2.21.5", status: resolved, note: "pulled in by Flyway; coexists with Jackson 3"}
+
+  test:
+    org.testcontainers:testcontainers: {version: "2.0.5", status: verified}
+    org.testcontainers:testcontainers-mysql: {version: "2.0.5", status: verified}
+    org.testcontainers:testcontainers-junit-jupiter: {version: "2.0.5", status: verified}
+    com.github.docker-java:docker-java-api: {version: "3.7.1", status: verified}
+    note: >-
+      Testcontainers 1.21.4 uses docker-java 3.4.2, which negotiates an API
+      version Docker Engine 29 rejects (server MinAPI 1.40) with HTTP 400.
+      Testcontainers 2.x is required on this Docker version.
+
+# ---------------------------------------------------------------------------
+# Python runtime stack
+# ---------------------------------------------------------------------------
+python:
+  lockfile: "spikes/compatibility/python-spike/uv.lock"
+  resolve_command: "uv lock (71 packages resolved)"
+  packages:
+    langgraph: {version: "1.2.11", status: verified}
+    langgraph-checkpoint: {version: "4.2.0", status: verified, note: "transitive, pinned by the lock"}
+    langgraph-checkpoint-postgres: {version: "3.1.2", status: verified}
+    psycopg: {version: "3.3.5", status: verified}
+    psycopg-pool: {version: "3.3.1", status: verified}
+    mcp: {version: "2.2.0", status: verified}
+    fastapi: {version: "0.141.1", status: verified}
+    pydantic: {version: "2.13.5", status: verified}
+    uvicorn: {version: "0.53.0", status: resolved}
+    httpx: {version: "0.28.1", status: resolved}
+  not_yet_locked:
+    # Needed from T19 (retrieval) and T20 (model client) onward.
+    - {package: pgvector, observed_version: "0.5.0", status: candidate}
+    - {package: sentence-transformers, observed_version: "6.0.1", status: candidate, note: "embedding model revision must be pinned at T19"}
+    - {package: rank-bm25, observed_version: "0.2.2", status: candidate}
+    - {package: jieba, observed_version: "0.42.1", status: candidate}
+    - {package: anthropic, observed_version: "1.5.0", status: candidate, note: "provider not chosen; do not treat as locked"}
+    - {package: openai, observed_version: "3.14.0", status: candidate, note: "provider not chosen; do not treat as locked"}
+
+# ---------------------------------------------------------------------------
+# Frontend
+# ---------------------------------------------------------------------------
+frontend:
+  lockfile: "spikes/compatibility/web-spike/pnpm-lock.yaml"
+  packages:
+    vue: {version: "3.5.42", status: verified}
+    vite: {version: "8.3.0", status: verified}
+    "@vitejs/plugin-vue": {version: "6.0.9", status: verified}
+    typescript: {version: "5.9.3", status: verified}
+    vue-tsc: {version: "3.3.11", status: verified}
+
+# ---------------------------------------------------------------------------
+# Images (pinned by digest; digests are content-addressed and identical
+# between the canonical repository and the mirror that served them)
+# ---------------------------------------------------------------------------
+images:
+  mysql:
+    ref: "mysql:8.4"
+    digest: "sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a"
+    status: verified
+    note: "The host already had mysql:8.0; 8.0 is NOT the fixed line."
+  postgres_pgvector:
+    ref: "pgvector/pgvector:pg16"
+    digest: "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b"
+    status: verified
+    note: "PostgreSQL 16 with the pgvector extension available; vector search exercised."
+  redis:
+    ref: "redis:7.4-alpine"
+    digest: "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf"
+    status: resolved
+    note: "Started and healthy; the Lua rate-limit path belongs to T27."
+  rocketmq:
+    ref: "apache/rocketmq:5.3.3"
+    digest: "sha256:455287638deddbbcd6cf48cdf988ed4d05bbac7265acc0c399d9d8228862a7d7"
+    status: verified
+    note: >-
+      One image serves both roles via its entrypoint ('nameserver' / 'broker').
+      brokerIP1 must be set or the broker advertises an unreachable container IP.
+  nacos:
+    ref: "nacos/nacos-server:v3.1.0"
+    digest: "sha256:259157f92e9715c4635f776f8f15faf358d8676834e39f21a26ba062fd9457a7"
+    status: verified
+    note: >-
+      Nacos 3.x refuses to start without NACOS_AUTH_TOKEN even when auth is
+      disabled.
+  testcontainers_ryuk:
+    ref: "testcontainers/ryuk:0.14.0"
+    digest: "sha256:7c1a8a9a47c780ed0f983770a662f80deb115d95cce3e2daa3d12115b8cd28f0"
+    status: verified
+    note: "Version must match the Testcontainers release in use (2.0.5)."
+
+# ---------------------------------------------------------------------------
+# Build-time guards (machine-checkable half of the G0 claim)
+# ---------------------------------------------------------------------------
+guards:
+  maven_enforcer:
+    - "requireJavaVersion [21,)"
+    - "requireMavenVersion [3.9,)"
+    - "requireReleaseDeps (no SNAPSHOT)"
+    - "bannedDependencies org.mybatis.spring.boot:mybatis-spring-boot-starter:[,4.0)"
+    - "bannedDependencies org.mybatis:mybatis-spring:[,4.0)"
+  command: "mvn -B -ntp validate   # from spikes/compatibility/java-spike"
+  status: verified

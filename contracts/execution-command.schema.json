@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:resolveflow:execution-command:v1",
+  "title": "ExecutionCommandV1",
+  "type": "object", "additionalProperties": false,
+  "required": ["operation_id", "case_id", "authorization_id", "input_revision", "line_id", "merchant_id", "action", "quantity", "currency", "payload_hash", "policy_version", "entitlement_id", "target_service"],
+  "properties": {
+    "operation_id": {"type": "string", "format": "uuid"},
+    "case_id": {"type": "string", "format": "uuid"},
+    "authorization_id": {"type": "string", "format": "uuid"},
+    "input_revision": {"type": "integer", "minimum": 1},
+    "line_id": {"type": "string", "minLength": 1},
+    "merchant_id": {"type": "string", "minLength": 1},
+    "action": {"enum": ["REFUND", "RESHIP"]},
+    "quantity": {"type": "integer", "minimum": 1},
+    "amount_minor": {"type": "integer", "minimum": 1, "maximum": 1000000000},
+    "currency": {"const": "CNY"},
+    "address_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "payload_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "policy_version": {"type": "string", "minLength": 1},
+    "entitlement_id": {"type": "string", "minLength": 1},
+    "target_service": {"enum": ["commerce-service", "fulfillment-service"]}
+  },
+  "allOf": [
+    {"if": {"properties": {"action": {"const": "REFUND"}}}, "then": {"required": ["amount_minor"], "properties": {"target_service": {"const": "commerce-service"}}}},
+    {"if": {"properties": {"action": {"const": "RESHIP"}}}, "then": {"required": ["address_hash"], "properties": {"target_service": {"const": "fulfillment-service"}}, "not": {"required": ["amount_minor"]}}}
+  ]
+}

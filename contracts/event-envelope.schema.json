@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:resolveflow:event-envelope:v1",
+  "title": "EventEnvelopeV1",
+  "type": "object", "additionalProperties": false,
+  "required": ["event_id", "event_type", "schema_version", "aggregate_id", "aggregate_version", "merchant_id", "occurred_at", "producer", "payload"],
+  "properties": {
+    "event_id": {"type": "string", "format": "uuid"},
+    "event_type": {"enum": ["RefundRequested", "ReshipRequested", "RefundSucceeded", "RefundFailed", "RefundUnknown", "ReshipSucceeded", "ReshipFailed", "ReshipUnknown", "EntitlementCommitted", "EntitlementReleased"]},
+    "schema_version": {"const": 1},
+    "aggregate_id": {"type": "string", "minLength": 1},
+    "aggregate_version": {"type": "integer", "minimum": 1},
+    "merchant_id": {"type": "string", "minLength": 1},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "producer": {"enum": ["case-service", "commerce-service", "fulfillment-service"]},
+    "traceparent": {"type": "string", "pattern": "^00-[a-f0-9]{32}-[a-f0-9]{16}-[a-f0-9]{2}$"},
+    "causation_id": {"type": "string", "minLength": 1},
+    "payload": {"type": "object"},
+    "signature": {"type": "string", "minLength": 1},
+    "signing_key_id": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {"if": {"required": ["event_type"], "properties": {"event_type": {"enum": ["RefundRequested", "ReshipRequested"]}}}, "then": {"required": ["signature", "signing_key_id"], "properties": {"producer": {"const": "case-service"}, "payload": {"$ref": "urn:resolveflow:execution-command:v1"}}}},
+    {"if": {"required": ["event_type"], "properties": {"event_type": {"const": "RefundRequested"}}}, "then": {"properties": {"payload": {"properties": {"action": {"const": "REFUND"}}}}}},
+    {"if": {"required": ["event_type"], "properties": {"event_type": {"const": "ReshipRequested"}}}, "then": {"properties": {"payload": {"properties": {"action": {"const": "RESHIP"}}}}}},
+    {"if": {"required": ["event_type"], "properties": {"event_type": {"enum": ["RefundSucceeded", "RefundFailed", "RefundUnknown"]}}}, "then": {"properties": {"producer": {"const": "commerce-service"}, "payload": {"$ref": "urn:resolveflow:execution-result-event:v1#/$defs/refundResult"}}}},
+    {"if": {"required": ["event_type"], "properties": {"event_type": {"enum": ["ReshipSucceeded", "ReshipFailed", "ReshipUnknown"]}}}, "then": {"properties": {"producer": {"const": "fulfillment-service"}, "payload": {"$ref": "urn:resolveflow:execution-result-event:v1#/$defs/reshipResult"}}}},
+    {"if": {"required": ["event_type"], "properties": {"event_type": {"enum": ["EntitlementCommitted", "EntitlementReleased"]}}}, "then": {"properties": {"producer": {"const": "commerce-service"}, "payload": {"$ref": "urn:resolveflow:execution-result-event:v1#/$defs/entitlementResult"}}}}
+  ]
+}

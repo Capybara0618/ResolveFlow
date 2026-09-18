@@ -1,0 +1,52 @@
+# T00 spike configuration. Nacos/Sentinel are OFF by default so the MySQL and
+# messaging tests can boot a context without those containers; the "nacos" profile
+# turns them on for the discovery/config/routing stage of T00.
+spring:
+  application:
+    name: spike-service
+  datasource:
+    # Ports map to spikes/compatibility/infra/spike-compose.yaml.
+    url: jdbc:mysql://127.0.0.1:13306/spike_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: spike
+    password: spike
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+    sentinel:
+      eager: false
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+
+server:
+  port: 8081
+
+logging:
+  level:
+    root: INFO
+
+---
+# $ mvn spring-boot:run -Dspring-boot.run.profiles=nacos
+spring:
+  config:
+    activate:
+      on-profile: nacos
+    import:
+      - optional:nacos:spike-service.yaml
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:18848
+      discovery:
+        enabled: true
+      config:
+        enabled: true
+        group: DEFAULT_GROUP

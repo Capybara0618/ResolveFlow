@@ -1,0 +1,30 @@
+warning: `VIRTUAL_ENV=D:\MiniConda` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts =============================
+platform win32 -- Python 3.12.13, pytest-9.1.1, pluggy-1.6.0 -- E:\Code\Agent+Backend\spikes\compatibility\python-spike\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: E:\Code\Agent+Backend\spikes\compatibility\python-spike
+configfile: pyproject.toml
+plugins: anyio-4.15.1, langsmith-0.12.4, asyncio-1.4.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 18 items
+
+tests/test_canonical.py::test_fixture_files_exist PASSED                 [  5%]
+tests/test_canonical.py::test_execution_payload_hashes_match_frozen_values PASSED [ 11%]
+tests/test_canonical.py::test_content_hashes_match_frozen_values PASSED  [ 16%]
+tests/test_canonical.py::test_hash_is_sha256_hex PASSED                  [ 22%]
+tests/test_canonical.py::test_runtime_fields_do_not_change_the_hash PASSED [ 27%]
+tests/test_canonical.py::test_utf16_key_ordering_differs_from_code_point_ordering PASSED [ 33%]
+tests/test_canonical.py::test_float_money_is_refused PASSED              [ 38%]
+tests/test_canonical.py::test_missing_field_is_refused PASSED            [ 44%]
+tests/test_canonical.py::test_unknown_action_is_refused PASSED           [ 50%]
+tests/test_canonical.py::test_canonical_output_has_no_whitespace_and_is_stable PASSED [ 55%]
+tests/test_checkpointer.py::test_postgres_and_pgvector_available PASSED  [ 61%]
+tests/test_checkpointer.py::test_checkpoint_persists_and_survives_a_new_connection PASSED [ 66%]
+tests/test_checkpointer.py::test_threads_are_isolated PASSED             [ 72%]
+tests/test_checkpointer.py::test_checkpoint_history_is_append_only PASSED [ 77%]
+tests/test_checkpointer.py::test_unknown_thread_has_no_checkpoint PASSED [ 83%]
+tests/test_mcp_stdio.py::test_stdio_session_lists_and_calls_tools PASSED [ 88%]
+tests/test_mcp_stdio.py::test_tool_reports_not_found_without_failing_the_session PASSED [ 94%]
+tests/test_mcp_stdio.py::test_unknown_tool_is_rejected PASSED            [100%]
+
+============================= 18 passed in 4.36s ==============================

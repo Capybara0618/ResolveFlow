@@ -1,0 +1,1130 @@
+{
+  "_comment": [
+    "T02 negative fixture corpus.",
+    "Every entry is an instance that the contract MUST refuse, plus the reason it exists. docs/contracts.md:131 makes 'unknown fields are rejected by default' a contract term, and docs/contracts.md:19/98 fix the money and target-service rules; this file is what turns those sentences into something a test can fail on.",
+    "The freeze script asserts each one is rejected by the schema named by its section, so a fixture cannot quietly become acceptable. If one of these starts passing, the protocol regressed: fix the schema, do not delete the entry.",
+    "Note the deliberate absence of format-only cases for fields whose schema has no other constraint: Python's jsonschema skips 'format' unless a checker is registered, so a case that only violates 'format' would pass vacuously. _schemaio.py registers an explicit date-time checker so the date-time cases below are real."
+  ],
+  "execution_command": {
+    "unknown-field": {
+      "why": "additionalProperties:false. An unlisted member means the two sides disagree about the message shape; accepting it would let a producer smuggle a field past the consumer's validation.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 20000,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service",
+        "skip_entitlement_check": true
+      }
+    },
+    "negative-amount": {
+      "why": "Money is a non-negative integer count of minor units (docs/contracts.md:19). A negative refund would move money the wrong way.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": -1,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "zero-amount": {
+      "why": "A refund command of 0 minor units is not an execution; it must be rejected rather than reach a target service that would then have to invent a semantic rule.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 0,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "amount-above-project-cap": {
+      "why": "docs/contracts.md:19 caps every amount at 1,000,000,000 minor units so Java, Python and JavaScript serialise the same integer exactly.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 1000000001,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "float-amount": {
+      "why": "docs/contracts.md:19 forbids float money. A JSON number with a fractional part must be refused by the schema, not rounded by a DTO.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 200.5,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "refund-targeting-fulfillment": {
+      "why": "Wrong action/target combination. A REFUND is executed by commerce only; routing it to fulfillment would ask the wrong authority to move money.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 20000,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "fulfillment-service"
+      }
+    },
+    "reship-targeting-commerce": {
+      "why": "The mirror of the case above: RESHIP is executed by fulfillment only.",
+      "instance": {
+        "operation_id": "11111111-2222-4333-8444-555555555555",
+        "case_id": "22222222-3333-4444-8555-666666666666",
+        "authorization_id": "33333333-4444-4555-8666-777777777777",
+        "input_revision": 2,
+        "line_id": "7002",
+        "merchant_id": "1",
+        "action": "RESHIP",
+        "quantity": 1,
+        "currency": "CNY",
+        "address_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-reship-v1",
+        "entitlement_id": "ent-7002-reship-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "reship-carrying-an-amount": {
+      "why": "A reship must not carry amount_minor: the shared entitlement guarantees at most one successful remediation per line, and a reship that also names an amount invites a second money movement.",
+      "instance": {
+        "operation_id": "11111111-2222-4333-8444-555555555555",
+        "case_id": "22222222-3333-4444-8555-666666666666",
+        "authorization_id": "33333333-4444-4555-8666-777777777777",
+        "input_revision": 2,
+        "line_id": "7002",
+        "merchant_id": "1",
+        "action": "RESHIP",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 20000,
+        "address_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-reship-v1",
+        "entitlement_id": "ent-7002-reship-1",
+        "target_service": "fulfillment-service"
+      }
+    },
+    "reship-without-address-hash": {
+      "why": "A reship has no shipment destination without address_hash, and the hash is what the payload_hash covers; without it two reships to different addresses would hash identically.",
+      "instance": {
+        "operation_id": "11111111-2222-4333-8444-555555555555",
+        "case_id": "22222222-3333-4444-8555-666666666666",
+        "authorization_id": "33333333-4444-4555-8666-777777777777",
+        "input_revision": 2,
+        "line_id": "7002",
+        "merchant_id": "1",
+        "action": "RESHIP",
+        "quantity": 1,
+        "currency": "CNY",
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-reship-v1",
+        "entitlement_id": "ent-7002-reship-1",
+        "target_service": "fulfillment-service"
+      }
+    },
+    "missing-payload-hash": {
+      "why": "execution-command.schema.json requires payload_hash. A command whose hash cannot be recomputed and compared can never be safely identified as a duplicate.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 20000,
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "malformed-payload-hash": {
+      "why": "The hash must be lowercase SHA-256 hex. A truncated or uppercase digest would compare unequal to a recomputed hash and silently defeat idempotency.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 20000,
+        "payload_hash": "DEADBEEF",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "unknown-action": {
+      "why": "Only REFUND and RESHIP exist (docs/domain-model.md:10). An unknown action has no field set for the payload hash and no owner service.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "PARTIAL_REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 20000,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "wrong-currency": {
+      "why": "The demo business is single-currency CNY. Accepting another currency would make amount_minor ambiguous and break the INV-01 sum.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "USD",
+        "amount_minor": 20000,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "input-revision-zero": {
+      "why": "input_revision is 1-based in every contract; 0 would collide with 'no revision' in the revisioned-material state machine.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 0,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 20000,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    },
+    "malformed-operation-id": {
+      "why": "operation_id is the idempotency and reconciliation key. It is declared format:uuid, and _schemaio.py registers a uuid checker so this fixture is actually enforced rather than skipped.",
+      "instance": {
+        "operation_id": "operation-1",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 20000,
+        "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "policy_version": "policy-2026.09-refund-v3",
+        "entitlement_id": "ent-7001-refund-1",
+        "target_service": "commerce-service"
+      }
+    }
+  },
+  "event_envelope": {
+    "unknown-member": {
+      "why": "The envelope is additionalProperties:false. A member the consumer does not know about must not be silently dropped, because it would also change nothing in the signature check if it were excluded by accident.",
+      "instance": {
+        "event_id": "aaaaaaaa-1111-4222-8333-444444444444",
+        "event_type": "RefundSucceeded",
+        "schema_version": 1,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18T02:16:30Z",
+        "producer": "commerce-service",
+        "payload": {
+          "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+          "line_id": "7001",
+          "state": "SUCCEEDED",
+          "amount_minor": 20000
+        },
+        "broker_message_id": "msg-1"
+      }
+    },
+    "refund-requested-without-signature": {
+      "why": "A RefundRequested envelope must carry signature and signing_key_id: the consumer verifies the case signature and the fixed payload_hash instead of trusting the message (docs/contracts.md:127).",
+      "instance": {
+        "event_id": "aaaaaaaa-1111-4222-8333-444444444444",
+        "event_type": "RefundRequested",
+        "schema_version": 1,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18T02:15:00Z",
+        "producer": "case-service",
+        "payload": {
+          "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+          "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+          "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+          "input_revision": 1,
+          "line_id": "7001",
+          "merchant_id": "1",
+          "action": "REFUND",
+          "quantity": 1,
+          "currency": "CNY",
+          "amount_minor": 20000,
+          "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+          "policy_version": "policy-2026.09-refund-v3",
+          "entitlement_id": "ent-7001-refund-1",
+          "target_service": "commerce-service"
+        }
+      }
+    },
+    "refund-requested-from-the-wrong-producer": {
+      "why": "Only case-service may publish an execution command (docs/contracts.md:119). A command published by commerce would be an authority signing for another authority.",
+      "instance": {
+        "event_id": "aaaaaaaa-1111-4222-8333-444444444444",
+        "event_type": "RefundRequested",
+        "schema_version": 1,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18T02:15:00Z",
+        "producer": "commerce-service",
+        "signature": "c2lnbmF0dXJl",
+        "signing_key_id": "rf-case-events-2026-09",
+        "payload": {
+          "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+          "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+          "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+          "input_revision": 1,
+          "line_id": "7001",
+          "merchant_id": "1",
+          "action": "REFUND",
+          "quantity": 1,
+          "currency": "CNY",
+          "amount_minor": 20000,
+          "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+          "policy_version": "policy-2026.09-refund-v3",
+          "entitlement_id": "ent-7001-refund-1",
+          "target_service": "commerce-service"
+        }
+      }
+    },
+    "reship-event-carrying-a-refund-command": {
+      "why": "Wrong event/action combination. event_type decides which action the payload must name; a mislabelled event would be routed to the wrong consumer group.",
+      "instance": {
+        "event_id": "cccccccc-1111-4222-8333-777777777777",
+        "event_type": "ReshipRequested",
+        "schema_version": 1,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18T04:05:00Z",
+        "producer": "case-service",
+        "signature": "c2lnbmF0dXJl",
+        "signing_key_id": "rf-case-events-2026-09",
+        "payload": {
+          "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+          "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+          "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+          "input_revision": 1,
+          "line_id": "7001",
+          "merchant_id": "1",
+          "action": "REFUND",
+          "quantity": 1,
+          "currency": "CNY",
+          "amount_minor": 20000,
+          "payload_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+          "policy_version": "policy-2026.09-refund-v3",
+          "entitlement_id": "ent-7001-refund-1",
+          "target_service": "commerce-service"
+        }
+      }
+    },
+    "unsupported-schema-version": {
+      "why": "docs/contracts.md:3 fixes schema_version=1. A version the consumer does not implement must be quarantined, never ACKed as if understood (docs/contracts.md:125).",
+      "instance": {
+        "event_id": "aaaaaaaa-1111-4222-8333-444444444444",
+        "event_type": "RefundSucceeded",
+        "schema_version": 2,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18T02:16:30Z",
+        "producer": "commerce-service",
+        "payload": {
+          "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+          "line_id": "7001",
+          "state": "SUCCEEDED",
+          "amount_minor": 20000
+        }
+      }
+    },
+    "unknown-event-type": {
+      "why": "event_type is a closed enum (docs/contracts.md:117). An unknown type has no consumer and no payload contract.",
+      "instance": {
+        "event_id": "aaaaaaaa-1111-4222-8333-444444444444",
+        "event_type": "RefundPartiallySucceeded",
+        "schema_version": 1,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18T02:16:30Z",
+        "producer": "commerce-service",
+        "payload": {
+          "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+          "line_id": "7001",
+          "state": "SUCCEEDED",
+          "amount_minor": 20000
+        }
+      }
+    },
+    "missing-payload": {
+      "why": "An envelope with no payload carries no state transition; the consumer must reject it rather than treat it as a no-op.",
+      "instance": {
+        "event_id": "aaaaaaaa-1111-4222-8333-444444444444",
+        "event_type": "RefundSucceeded",
+        "schema_version": 1,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18T02:16:30Z",
+        "producer": "commerce-service"
+      }
+    },
+    "malformed-traceparent": {
+      "why": "traceparent is W3C trace context and is pattern-checked; a malformed value would break the trace link that makes a single case debuggable.",
+      "instance": {
+        "event_id": "aaaaaaaa-1111-4222-8333-444444444444",
+        "event_type": "RefundSucceeded",
+        "schema_version": 1,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18T02:16:30Z",
+        "producer": "commerce-service",
+        "traceparent": "0af7651916cd43dd8448eb211c80319c",
+        "payload": {
+          "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+          "line_id": "7001",
+          "state": "SUCCEEDED",
+          "amount_minor": 20000
+        }
+      }
+    },
+    "malformed-occurred-at": {
+      "why": "occurred_at is format:date-time. Ordering of shipment and operation events is derived from it, so a free-form timestamp is not acceptable.",
+      "instance": {
+        "event_id": "aaaaaaaa-1111-4222-8333-444444444444",
+        "event_type": "RefundSucceeded",
+        "schema_version": 1,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18 02:16:30",
+        "producer": "commerce-service",
+        "payload": {
+          "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+          "line_id": "7001",
+          "state": "SUCCEEDED",
+          "amount_minor": 20000
+        }
+      }
+    },
+    "malformed-event-id": {
+      "why": "event_id is format:uuid and is the consumer's deduplication key; a free-form id would make replay detection unreliable.",
+      "instance": {
+        "event_id": "event-1",
+        "event_type": "RefundSucceeded",
+        "schema_version": 1,
+        "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "aggregate_version": 1,
+        "merchant_id": "1",
+        "occurred_at": "2026-09-18T02:16:30Z",
+        "producer": "commerce-service",
+        "payload": {
+          "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+          "line_id": "7001",
+          "state": "SUCCEEDED",
+          "amount_minor": 20000
+        }
+      }
+    }
+  },
+  "result_event_payload": {
+    "reship-result-carrying-an-amount": {
+      "schema": "urn:resolveflow:execution-result-event:v1#/$defs/reshipResult",
+      "why": "A reship result reports quantity, never money. An amount here would let a consumer record a refund from a fulfillment event.",
+      "instance": {
+        "operation_id": "11111111-2222-4333-8444-555555555555",
+        "line_id": "7002",
+        "state": "SUCCEEDED",
+        "provider_ref": "stub-reship-1c0d77e5",
+        "quantity": 1,
+        "amount_minor": 20000
+      }
+    },
+    "refund-result-without-amount": {
+      "schema": "urn:resolveflow:execution-result-event:v1#/$defs/refundResult",
+      "why": "A refund result must carry the amount that was actually moved: case projects the result onto the case, and an omitted amount is not the same as zero.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "line_id": "7001",
+        "state": "SUCCEEDED",
+        "provider_ref": "stub-refund-9f2c41a8",
+        "reason_code": "PROVIDER_ACCEPTED"
+      }
+    },
+    "refund-result-in-an-impossible-state": {
+      "schema": "urn:resolveflow:execution-result-event:v1#/$defs/refundResult",
+      "why": "Result events report SUCCEEDED/FAILED/UNKNOWN only (docs/contracts.md:121). A terminal or intermediate operation state in a result payload means the producer and consumer disagree about the state machine.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "line_id": "7001",
+        "state": "IN_USE",
+        "amount_minor": 20000,
+        "reason_code": "PROVIDER_ACCEPTED"
+      }
+    },
+    "entitlement-event-without-version": {
+      "schema": "urn:resolveflow:execution-result-event:v1#/$defs/entitlementResult",
+      "why": "EntitlementCommitted/EntitlementReleased carry the entitlement version so case can ignore an out-of-order notification; without it the event is unusable.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "line_id": "7001",
+        "state": "CONSUMED"
+      }
+    },
+    "entitlement-event-carrying-money": {
+      "schema": "urn:resolveflow:execution-result-event:v1#/$defs/entitlementResult",
+      "why": "An entitlement state transition is not a money result; attaching amount_minor would create a second, unaudited place where a refund amount lives.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "line_id": "7001",
+        "state": "CONSUMED",
+        "version": 4,
+        "amount_minor": 20000
+      }
+    },
+    "unknown-member": {
+      "schema": "urn:resolveflow:execution-result-event:v1#/$defs/refundResult",
+      "why": "Result payloads are additionalProperties:false for the same reason the commands are: an unlisted member is a protocol drift, not an extension.",
+      "instance": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "line_id": "7001",
+        "state": "SUCCEEDED",
+        "amount_minor": 20000,
+        "reason_code": "PROVIDER_ACCEPTED",
+        "retry_after_seconds": 30
+      }
+    }
+  },
+  "agent_proposal": {
+    "unknown-member": {
+      "why": "The proposal is a provider-supplied document; additionalProperties:false is what stops a model from inventing a field Java would then have to interpret.",
+      "instance": {
+        "schema_version": 1,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "REQUEST_INFO",
+        "evidence_refs": [],
+        "policy_refs": [],
+        "reason_codes": ["NEED_DESCRIPTION"],
+        "summary": "Ask the customer for the damage description.",
+        "missing_evidence": ["damage_description"],
+        "auto_approve": true
+      }
+    },
+    "refund-without-evidence": {
+      "why": "docs/product-spec.md forbids auto-refunding on a customer's unverified statement: a REFUND/RESHIP proposal must cite at least one Observation.",
+      "instance": {
+        "schema_version": 1,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "REFUND",
+        "suggested_amount_minor": 20000,
+        "evidence_refs": [],
+        "policy_refs": [
+          {
+            "bundle_id": "policy-logistics-2026.09",
+            "version": "3",
+            "rule_id": "SC-L-LOST-REFUND",
+            "chunk_id": "chunk-2",
+            "content_hash": "3333333333333333333333333333333333333333333333333333333333333333"
+          }
+        ],
+        "reason_codes": ["CARRIER_CONFIRMED_LOST"],
+        "summary": "The customer says the parcel is lost.",
+        "missing_evidence": []
+      }
+    },
+    "refund-without-policy-citation": {
+      "why": "A decision that cannot name the policy rule it applied is not reviewable, and the rule text is what Java re-reads to recompute the amount.",
+      "instance": {
+        "schema_version": 1,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "REFUND",
+        "suggested_amount_minor": 20000,
+        "evidence_refs": [
+          {
+            "observation_id": "obs-shipment-1",
+            "source_ref": "shipment:9001",
+            "source_version": "5",
+            "content_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "policy_refs": [],
+        "reason_codes": ["CARRIER_CONFIRMED_LOST"],
+        "summary": "Carrier reports the parcel lost.",
+        "missing_evidence": []
+      }
+    },
+    "refund-that-also-asks-for-evidence": {
+      "why": "A REFUND proposal must not list missing_evidence: proposing an execution and asking for more material at the same time is a contradiction the case state machine cannot represent.",
+      "instance": {
+        "schema_version": 1,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "REFUND",
+        "suggested_amount_minor": 20000,
+        "evidence_refs": [
+          {
+            "observation_id": "obs-shipment-1",
+            "source_ref": "shipment:9001",
+            "source_version": "5",
+            "content_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "policy_refs": [
+          {
+            "bundle_id": "policy-logistics-2026.09",
+            "version": "3",
+            "rule_id": "SC-L-LOST-REFUND",
+            "chunk_id": "chunk-2",
+            "content_hash": "3333333333333333333333333333333333333333333333333333333333333333"
+          }
+        ],
+        "reason_codes": ["CARRIER_CONFIRMED_LOST"],
+        "summary": "Carrier reports the parcel lost.",
+        "missing_evidence": ["signing_date"]
+      }
+    },
+    "negative-suggested-amount": {
+      "why": "Same money rule as the command: the suggested amount is still money, and Java compares it against a recomputed figure.",
+      "instance": {
+        "schema_version": 1,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "REFUND",
+        "suggested_amount_minor": -20000,
+        "evidence_refs": [
+          {
+            "observation_id": "obs-shipment-1",
+            "source_ref": "shipment:9001",
+            "source_version": "5",
+            "content_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "policy_refs": [
+          {
+            "bundle_id": "policy-logistics-2026.09",
+            "version": "3",
+            "rule_id": "SC-L-LOST-REFUND",
+            "chunk_id": "chunk-2",
+            "content_hash": "3333333333333333333333333333333333333333333333333333333333333333"
+          }
+        ],
+        "reason_codes": ["CARRIER_CONFIRMED_LOST"],
+        "summary": "Carrier reports the parcel lost.",
+        "missing_evidence": []
+      }
+    },
+    "unknown-recommended-action": {
+      "why": "The proposal action set is closed. 'PARTIAL_REFUND' would ask Java to authorise an action no executor implements.",
+      "instance": {
+        "schema_version": 1,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "PARTIAL_REFUND",
+        "evidence_refs": [],
+        "policy_refs": [],
+        "reason_codes": ["CARRIER_CONFIRMED_LOST"],
+        "summary": "Partially refund the line.",
+        "missing_evidence": []
+      }
+    },
+    "empty-reason-codes": {
+      "why": "reason_codes is the machine-readable 'why' the reviewer and the metrics read; an empty list makes the decision unauditable.",
+      "instance": {
+        "schema_version": 1,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "REQUEST_INFO",
+        "evidence_refs": [],
+        "policy_refs": [],
+        "reason_codes": [],
+        "summary": "Ask the customer for the damage description.",
+        "missing_evidence": ["damage_description"]
+      }
+    },
+    "duplicate-reason-codes": {
+      "why": "uniqueItems on reason_codes: a duplicated code makes the reported distribution of reasons wrong.",
+      "instance": {
+        "schema_version": 1,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "REQUEST_INFO",
+        "evidence_refs": [],
+        "policy_refs": [],
+        "reason_codes": ["DAMAGE_NOT_DESCRIBED", "DAMAGE_NOT_DESCRIBED"],
+        "summary": "Ask the customer for the damage description.",
+        "missing_evidence": ["damage_description"]
+      }
+    },
+    "malformed-evidence-ref-hash": {
+      "why": "Evidence citations are compared against the content hash of the stored Observation. A malformed hash can never match, so it must be refused at the boundary instead of failing later as a spurious conflict. Exercised on a nested evidence_refs item so the rejection is proven to happen inside the array.",
+      "instance": {
+        "schema_version": 1,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "REFUND",
+        "suggested_amount_minor": 20000,
+        "evidence_refs": [
+          {
+            "observation_id": "obs-shipment-1",
+            "source_ref": "shipment:9001",
+            "source_version": "5",
+            "content_hash": "not-a-hash"
+          }
+        ],
+        "policy_refs": [
+          {
+            "bundle_id": "policy-logistics-2026.09",
+            "version": "3",
+            "rule_id": "SC-L-LOST-REFUND",
+            "chunk_id": "chunk-2",
+            "content_hash": "3333333333333333333333333333333333333333333333333333333333333333"
+          }
+        ],
+        "reason_codes": ["CARRIER_CONFIRMED_LOST"],
+        "summary": "Carrier reports the parcel lost.",
+        "missing_evidence": []
+      }
+    },
+    "unsupported-schema-version": {
+      "why": "schema_version is const 1; case must quarantine an unknown proposal version rather than interpret it (docs/contracts.md:125).",
+      "instance": {
+        "schema_version": 2,
+        "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+        "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "input_revision": 1,
+        "case_type": "LOGISTICS",
+        "recommended_action": "REQUEST_INFO",
+        "evidence_refs": [],
+        "policy_refs": [],
+        "reason_codes": ["DAMAGE_NOT_DESCRIBED"],
+        "summary": "Ask the customer for the damage description.",
+        "missing_evidence": ["damage_description"]
+      }
+    }
+  },
+  "harness_manifest": {
+    "api-key-smuggled-into-the-manifest": {
+      "why": "T35 acceptance requires the manifest to carry no credentials. A manifest that can hold an api_key would end up persisted with the run and exported by the replay pack.",
+      "instance": {
+        "schema_version": 1,
+        "manifest_id": "4444444444444444444444444444444444444444444444444444444444444444",
+        "harness_version": "harness-1.1.0",
+        "code_revision": "git-0000000",
+        "graph_version": "graph-1",
+        "state_schema_version": 1,
+        "prompt_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "context_policy_version": "ctx-1",
+        "tool_schema_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "verifier_version": "verifier-1",
+        "policy_manifest_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+        "index_generation": "88888888-9999-4aaa-8bbb-cccccccccccc",
+        "model": {
+          "provider": "openai-compatible",
+          "model_id": "some-model",
+          "context_window_tokens": 32000,
+          "token_counter_version": "chars-div-4",
+          "parameters": {"temperature": 0}
+        },
+        "budgets": {
+          "max_model_calls": 12,
+          "max_external_calls": 16,
+          "max_local_reads": 8,
+          "max_total_input_tokens": 40000,
+          "max_total_output_tokens": 4000,
+          "max_prompt_tokens": 8192,
+          "max_output_tokens": 1024,
+          "active_deadline_seconds": 120,
+          "model_timeout_seconds": 30
+        },
+        "api_key": "sk-not-a-real-key"
+      }
+    },
+    "credential-inside-the-model-block": {
+      "why": "The model block is nested, so it needs the same rejection: a credential hidden one level down is still a credential in a persisted artifact.",
+      "instance": {
+        "schema_version": 1,
+        "manifest_id": "4444444444444444444444444444444444444444444444444444444444444444",
+        "harness_version": "harness-1.1.0",
+        "code_revision": "git-0000000",
+        "graph_version": "graph-1",
+        "state_schema_version": 1,
+        "prompt_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "context_policy_version": "ctx-1",
+        "tool_schema_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "verifier_version": "verifier-1",
+        "policy_manifest_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+        "index_generation": "88888888-9999-4aaa-8bbb-cccccccccccc",
+        "model": {
+          "provider": "openai-compatible",
+          "model_id": "some-model",
+          "context_window_tokens": 32000,
+          "token_counter_version": "chars-div-4",
+          "parameters": {"temperature": 0},
+          "api_key": "sk-not-a-real-key"
+        },
+        "budgets": {
+          "max_model_calls": 12,
+          "max_external_calls": 16,
+          "max_local_reads": 8,
+          "max_total_input_tokens": 40000,
+          "max_total_output_tokens": 4000,
+          "max_prompt_tokens": 8192,
+          "max_output_tokens": 1024,
+          "active_deadline_seconds": 120,
+          "model_timeout_seconds": 30
+        }
+      }
+    },
+    "budget-above-the-engineering-cap": {
+      "why": "The budget ceilings in harness-manifest.schema.json are the engineering bound (docs/agent-harness.md): a manifest asking for more than the cap must be refused, not clamped silently.",
+      "instance": {
+        "schema_version": 1,
+        "manifest_id": "4444444444444444444444444444444444444444444444444444444444444444",
+        "harness_version": "harness-1.1.0",
+        "code_revision": "git-0000000",
+        "graph_version": "graph-1",
+        "state_schema_version": 1,
+        "prompt_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "context_policy_version": "ctx-1",
+        "tool_schema_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "verifier_version": "verifier-1",
+        "policy_manifest_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+        "index_generation": "88888888-9999-4aaa-8bbb-cccccccccccc",
+        "model": {
+          "provider": "mock",
+          "model_id": "mock-deterministic-1",
+          "context_window_tokens": 32000,
+          "token_counter_version": "chars-div-4",
+          "parameters": {"temperature": 0, "top_p": 1, "seed": 42}
+        },
+        "budgets": {
+          "max_model_calls": 13,
+          "max_external_calls": 16,
+          "max_local_reads": 8,
+          "max_total_input_tokens": 40000,
+          "max_total_output_tokens": 4000,
+          "max_prompt_tokens": 8192,
+          "max_output_tokens": 1024,
+          "active_deadline_seconds": 120,
+          "model_timeout_seconds": 30
+        }
+      }
+    },
+    "context-window-too-small-to-hold-a-prompt": {
+      "why": "context_window_tokens has a documented floor; a smaller window cannot hold the frozen prompt, so the manifest is unusable rather than merely unusual.",
+      "instance": {
+        "schema_version": 1,
+        "manifest_id": "4444444444444444444444444444444444444444444444444444444444444444",
+        "harness_version": "harness-1.1.0",
+        "code_revision": "git-0000000",
+        "graph_version": "graph-1",
+        "state_schema_version": 1,
+        "prompt_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "context_policy_version": "ctx-1",
+        "tool_schema_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "verifier_version": "verifier-1",
+        "policy_manifest_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+        "index_generation": "88888888-9999-4aaa-8bbb-cccccccccccc",
+        "model": {
+          "provider": "mock",
+          "model_id": "mock-deterministic-1",
+          "context_window_tokens": 512,
+          "token_counter_version": "chars-div-4",
+          "parameters": {"temperature": 0}
+        },
+        "budgets": {
+          "max_model_calls": 12,
+          "max_external_calls": 16,
+          "max_local_reads": 8,
+          "max_total_input_tokens": 40000,
+          "max_total_output_tokens": 4000,
+          "max_prompt_tokens": 8192,
+          "max_output_tokens": 1024,
+          "active_deadline_seconds": 120,
+          "model_timeout_seconds": 30
+        }
+      }
+    },
+    "malformed-manifest-id": {
+      "why": "The manifest id is the content hash a checkpoint records and compares on recovery (docs/agent-harness.md). A non-hash id makes the compatibility check meaningless.",
+      "instance": {
+        "schema_version": 1,
+        "manifest_id": "harness-1.1.0",
+        "harness_version": "harness-1.1.0",
+        "code_revision": "git-0000000",
+        "graph_version": "graph-1",
+        "state_schema_version": 1,
+        "prompt_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "context_policy_version": "ctx-1",
+        "tool_schema_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "verifier_version": "verifier-1",
+        "policy_manifest_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+        "index_generation": "88888888-9999-4aaa-8bbb-cccccccccccc",
+        "model": {
+          "provider": "mock",
+          "model_id": "mock-deterministic-1",
+          "context_window_tokens": 32000,
+          "token_counter_version": "chars-div-4",
+          "parameters": {"temperature": 0}
+        },
+        "budgets": {
+          "max_model_calls": 12,
+          "max_external_calls": 16,
+          "max_local_reads": 8,
+          "max_total_input_tokens": 40000,
+          "max_total_output_tokens": 4000,
+          "max_prompt_tokens": 8192,
+          "max_output_tokens": 1024,
+          "active_deadline_seconds": 120,
+          "model_timeout_seconds": 30
+        }
+      }
+    },
+    "unknown-model-parameter": {
+      "why": "Model parameters are additionalProperties:false. A parameter nobody implemented would be reported as 'configured' while having no effect on the run.",
+      "instance": {
+        "schema_version": 1,
+        "manifest_id": "4444444444444444444444444444444444444444444444444444444444444444",
+        "harness_version": "harness-1.1.0",
+        "code_revision": "git-0000000",
+        "graph_version": "graph-1",
+        "state_schema_version": 1,
+        "prompt_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "context_policy_version": "ctx-1",
+        "tool_schema_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "verifier_version": "verifier-1",
+        "policy_manifest_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+        "index_generation": "88888888-9999-4aaa-8bbb-cccccccccccc",
+        "model": {
+          "provider": "mock",
+          "model_id": "mock-deterministic-1",
+          "context_window_tokens": 32000,
+          "token_counter_version": "chars-div-4",
+          "parameters": {"temperature": 0, "presence_penalty": 1.5}
+        },
+        "budgets": {
+          "max_model_calls": 12,
+          "max_external_calls": 16,
+          "max_local_reads": 8,
+          "max_total_input_tokens": 40000,
+          "max_total_output_tokens": 4000,
+          "max_prompt_tokens": 8192,
+          "max_output_tokens": 1024,
+          "active_deadline_seconds": 120,
+          "model_timeout_seconds": 30
+        }
+      }
+    },
+    "missing-index-generation": {
+      "why": "index_generation ties a run to the exact policy index it read. Recovering a checkpoint without it could silently answer from a rebuilt index (docs/context-engineering.md).",
+      "instance": {
+        "schema_version": 1,
+        "manifest_id": "4444444444444444444444444444444444444444444444444444444444444444",
+        "harness_version": "harness-1.1.0",
+        "code_revision": "git-0000000",
+        "graph_version": "graph-1",
+        "state_schema_version": 1,
+        "prompt_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "context_policy_version": "ctx-1",
+        "tool_schema_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "verifier_version": "verifier-1",
+        "policy_manifest_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+        "model": {
+          "provider": "mock",
+          "model_id": "mock-deterministic-1",
+          "context_window_tokens": 32000,
+          "token_counter_version": "chars-div-4",
+          "parameters": {"temperature": 0}
+        },
+        "budgets": {
+          "max_model_calls": 12,
+          "max_external_calls": 16,
+          "max_local_reads": 8,
+          "max_total_input_tokens": 40000,
+          "max_total_output_tokens": 4000,
+          "max_prompt_tokens": 8192,
+          "max_output_tokens": 1024,
+          "active_deadline_seconds": 120,
+          "model_timeout_seconds": 30
+        }
+      }
+    }
+  },
+  "error_body": {
+    "unknown-top-level-member": {
+      "why": "ErrorResponse is additionalProperties:false. An extra envelope member would let a service attach data outside the documented error body, which the web client does not render and the reviewer would never see.",
+      "instance": {
+        "error": {
+          "code": "VERSION_CONFLICT",
+          "message": "case version 4 does not match If-Match version 5",
+          "retryable": false
+        },
+        "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+      }
+    },
+    "missing-retryable": {
+      "why": "retryable is required precisely so no caller infers retryability from the status code. A body without it is unusable on the money path, where retrying a refund is not free.",
+      "instance": {
+        "error": {
+          "code": "SERVICE_UNAVAILABLE",
+          "message": "commerce database is temporarily unavailable"
+        }
+      }
+    },
+    "retryable-as-a-string": {
+      "why": "retryable is a boolean. A truthy string would be interpreted differently by each language ('false' is truthy in some), which is exactly the kind of drift the cross-language contract exists to prevent.",
+      "instance": {
+        "error": {
+          "code": "SERVICE_UNAVAILABLE",
+          "message": "commerce database is temporarily unavailable",
+          "retryable": "false"
+        }
+      }
+    },
+    "blank-error-code": {
+      "why": "code is minLength 1: an empty code gives the caller and the dashboards nothing to act on.",
+      "instance": {
+        "error": {
+          "code": "",
+          "message": "something went wrong",
+          "retryable": true
+        }
+      }
+    },
+    "missing-error-object": {
+      "why": "ErrorResponse requires the error object. An empty body would be indistinguishable from a truncated response.",
+      "instance": {
+        "trace_id": "0af7651916cd43dd8448eb211c80319c"
+      }
+    },
+    "details-that-are-not-an-object": {
+      "why": "details is documented as an object (or null). A string there would leak an upstream payload into the error body, which docs/contracts.md forbids.",
+      "instance": {
+        "error": {
+          "code": "SEMANTIC_INVALID",
+          "message": "refundable balance is insufficient",
+          "retryable": false,
+          "details": "balance=0 requested=20000"
+        }
+      }
+    }
+  }
+}

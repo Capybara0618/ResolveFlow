@@ -1,0 +1,8 @@
+ResolveFlow verify
+  suite : system
+  mode  : mock
+  seed  : 42
+  report: /e/Code/Agent+Backend/reports/verify/20260916-170914-system.txt
+
+NOT IMPLEMENTED: suite 'system' belongs to T14 case执行编排与退款闭环.
+Refusing to report success for a suite that ran nothing.

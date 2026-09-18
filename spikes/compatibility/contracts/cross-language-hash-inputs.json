@@ -1,0 +1,82 @@
+{
+  "_comment": "T00 cross-language canonicalisation fixture. Inputs only; the expected hashes live in cross-language-hash-expected.json and MUST be reproduced byte-for-byte by both Java and Python. See docs/contracts.md:13,17.",
+  "execution_payloads": [
+    {
+      "name": "refund-basic",
+      "payload": {
+        "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+        "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+        "input_revision": 1,
+        "line_id": "7001",
+        "merchant_id": "1",
+        "action": "REFUND",
+        "quantity": 1,
+        "currency": "CNY",
+        "amount_minor": 20000,
+        "policy_version": "policy-2026.09-refund-v3",
+        "target_service": "commerce-service"
+      }
+    },
+    {
+      "name": "refund-max-amount",
+      "payload": {
+        "operation_id": "00000000-0000-4000-8000-000000000001",
+        "case_id": "00000000-0000-4000-8000-000000000002",
+        "authorization_id": "00000000-0000-4000-8000-000000000003",
+        "input_revision": 9007199254740991,
+        "line_id": "line-with-unicode-行",
+        "merchant_id": "商家-42",
+        "action": "REFUND",
+        "quantity": 3,
+        "currency": "CNY",
+        "amount_minor": 1000000000,
+        "policy_version": "政策-2026.09-退款-v3",
+        "target_service": "commerce-service"
+      }
+    },
+    {
+      "name": "reship-basic",
+      "payload": {
+        "operation_id": "11111111-2222-4333-8444-555555555555",
+        "case_id": "22222222-3333-4444-8555-666666666666",
+        "authorization_id": "33333333-4444-4555-8666-777777777777",
+        "input_revision": 2,
+        "line_id": "7002",
+        "merchant_id": "1",
+        "action": "RESHIP",
+        "quantity": 1,
+        "currency": "CNY",
+        "address_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "policy_version": "policy-2026.09-reship-v1",
+        "target_service": "fulfillment-service"
+      }
+    }
+  ],
+  "content_hashes": [
+    {
+      "name": "evidence-doc",
+      "value": {
+        "source_type": "SHIPMENT_TRACK",
+        "source_ref": "shipment:9001:track:v3",
+        "source_version": 3,
+        "carrier": "SF",
+        "note": "包裹在运输中受损",
+        "events": [
+          {"code": "PICKED_UP", "at": "2026-09-01T02:00:00Z"},
+          {"code": "DAMAGED", "at": "2026-09-02T07:30:00Z", "warehouse": "仓-杭州"}
+        ]
+      }
+    },
+    {
+      "name": "utf16-key-ordering",
+      "_comment": "Keys chosen so code-point order and UTF-16 code-unit order differ: U+FFFD (BMP) vs U+10000 (supplementary). JCS requires UTF-16 order.",
+      "value": {
+        "�": "replacement-char",
+        "𐀀": "supplementary-plane-char",
+        "b": "ascii",
+        "A": "upper"
+      }
+    }
+  ]
+}

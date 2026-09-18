@@ -1,0 +1,406 @@
+{
+  "_comment": [
+    "T02 positive fixture corpus (input half).",
+    "Every entry names the schema it must satisfy; the fixture test validates each one against contracts/*.schema.json or the referenced OpenAPI component.",
+    "The execution-command values freeze the payload_hash, and the signed-envelope values freeze the signature, in expected-hashes.json. Both languages must reproduce those bytes exactly (docs/contracts.md:17).",
+    "contracts.md:131 asks for examples inside the OpenAPI documents as well; those are generated from this same corpus so the two cannot drift."
+  ],
+  "execution_command": {
+    "refund": {
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+      "input_revision": 1,
+      "line_id": "7001",
+      "merchant_id": "1",
+      "action": "REFUND",
+      "quantity": 1,
+      "currency": "CNY",
+      "amount_minor": 20000,
+      "payload_hash": "PLACEHOLDER_REFUND_BASIC",
+      "policy_version": "policy-2026.09-refund-v3",
+      "entitlement_id": "ent-7001-refund-1",
+      "target_service": "commerce-service"
+    },
+    "reship": {
+      "operation_id": "11111111-2222-4333-8444-555555555555",
+      "case_id": "22222222-3333-4444-8555-666666666666",
+      "authorization_id": "33333333-4444-4555-8666-777777777777",
+      "input_revision": 2,
+      "line_id": "7002",
+      "merchant_id": "1",
+      "action": "RESHIP",
+      "quantity": 1,
+      "currency": "CNY",
+      "address_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "payload_hash": "PLACEHOLDER_RESHIP_BASIC",
+      "policy_version": "policy-2026.09-reship-v1",
+      "entitlement_id": "ent-7002-reship-1",
+      "target_service": "fulfillment-service"
+    }
+  },
+  "event_payload": {
+    "refund_succeeded": {
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "line_id": "7001",
+      "state": "SUCCEEDED",
+      "provider_ref": "stub-refund-9f2c41a8",
+      "amount_minor": 20000,
+      "reason_code": "PROVIDER_ACCEPTED"
+    },
+    "refund_unknown": {
+      "_comment": "UNKNOWN is explicitly not terminal (docs/contracts.md:125) and keeps the reservation in place.",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "line_id": "7001",
+      "state": "UNKNOWN",
+      "amount_minor": 20000,
+      "reason_code": "PROVIDER_TIMEOUT"
+    },
+    "refund_failed": {
+      "operation_id": "77777777-8888-4999-8aaa-bbbbbbbbbbbb",
+      "line_id": "7003",
+      "state": "FAILED",
+      "amount_minor": 15000,
+      "reason_code": "PROVIDER_REJECTED"
+    },
+    "reship_succeeded": {
+      "operation_id": "11111111-2222-4333-8444-555555555555",
+      "line_id": "7002",
+      "state": "SUCCEEDED",
+      "provider_ref": "stub-reship-1c0d77e5",
+      "quantity": 1
+    },
+    "reship_unknown": {
+      "operation_id": "11111111-2222-4333-8444-555555555555",
+      "line_id": "7002",
+      "state": "UNKNOWN",
+      "quantity": 1,
+      "reason_code": "CARRIER_TIMEOUT"
+    },
+    "entitlement_committed": {
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "line_id": "7001",
+      "state": "CONSUMED",
+      "version": 4
+    },
+    "entitlement_released": {
+      "operation_id": "77777777-8888-4999-8aaa-bbbbbbbbbbbb",
+      "line_id": "7003",
+      "state": "FREE",
+      "version": 5
+    }
+  },
+  "message_envelope": {
+    "refund_requested_signed": {
+      "event_id": "aaaaaaaa-1111-4222-8333-444444444444",
+      "event_type": "RefundRequested",
+      "schema_version": 1,
+      "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "aggregate_version": 1,
+      "merchant_id": "1",
+      "occurred_at": "2026-09-18T02:15:00Z",
+      "producer": "case-service",
+      "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
+      "causation_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "payload_ref": "execution_command.refund",
+      "signing_key_id": "rf-case-events-2026-09",
+      "_signature_placeholder": "PLACEHOLDER_REFUND_REQUESTED_SIGNATURE",
+      "signature": "PLACEHOLDER_REFUND_REQUESTED_SIGNATURE"
+    },
+    "refund_requested_without_optional_members": {
+      "_comment": "No traceparent and no causation_id. These are the bytes the signing rule must normalise, so an omitted optional member and an explicit null sign the same input.",
+      "event_id": "aaaaaaaa-1111-4222-8333-555555555555",
+      "event_type": "RefundRequested",
+      "schema_version": 1,
+      "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "aggregate_version": 2,
+      "merchant_id": "1",
+      "occurred_at": "2026-09-18T03:40:12.500Z",
+      "producer": "case-service",
+      "payload_ref": "execution_command.refund",
+      "signing_key_id": "rf-case-events-2026-09",
+      "_signature_placeholder": "PLACEHOLDER_REFUND_REQUESTED_UNSIGNED_SIGNATURE",
+      "signature": "PLACEHOLDER_REFUND_REQUESTED_UNSIGNED_SIGNATURE"
+    },
+    "refund_succeeded_from_commerce": {
+      "_comment": "Result events are not signed by case-service; commerce and fulfillment publish unsigned state changes (docs/contracts.md:121).",
+      "event_id": "bbbbbbbb-1111-4222-8333-666666666666",
+      "event_type": "RefundSucceeded",
+      "schema_version": 1,
+      "aggregate_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "aggregate_version": 1,
+      "merchant_id": "1",
+      "occurred_at": "2026-09-18T02:16:30Z",
+      "producer": "commerce-service",
+      "payload_ref": "event_payload.refund_succeeded"
+    },
+    "reship_requested_signed": {
+      "event_id": "cccccccc-1111-4222-8333-777777777777",
+      "event_type": "ReshipRequested",
+      "schema_version": 1,
+      "aggregate_id": "11111111-2222-4333-8444-555555555555",
+      "aggregate_version": 1,
+      "merchant_id": "1",
+      "occurred_at": "2026-09-18T04:05:00Z",
+      "producer": "case-service",
+      "payload_ref": "execution_command.reship",
+      "signing_key_id": "rf-case-events-2026-09",
+      "_signature_placeholder": "PLACEHOLDER_RESHIP_REQUESTED_SIGNATURE",
+      "signature": "PLACEHOLDER_RESHIP_REQUESTED_SIGNATURE"
+    }
+  },
+  "agent_proposal": {
+    "refund_loss_confirmed": {
+      "schema_version": 1,
+      "proposal_id": "d1d1d1d1-2222-4333-8444-999999999999",
+      "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "input_revision": 1,
+      "case_type": "LOGISTICS",
+      "recommended_action": "REFUND",
+      "suggested_amount_minor": 20000,
+      "evidence_refs": [
+        {
+          "observation_id": "obs-order-line-1",
+          "source_ref": "order-line:7001",
+          "source_version": "3",
+          "content_hash": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        {
+          "observation_id": "obs-shipment-1",
+          "source_ref": "shipment:9001",
+          "source_version": "5",
+          "content_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      ],
+      "policy_refs": [
+        {
+          "bundle_id": "policy-logistics-2026.09",
+          "version": "3",
+          "rule_id": "SC-L-LOST-REFUND",
+          "chunk_id": "chunk-2",
+          "content_hash": "3333333333333333333333333333333333333333333333333333333333333333"
+        }
+      ],
+      "reason_codes": ["CARRIER_CONFIRMED_LOST", "WITHIN_AUTO_THRESHOLD"],
+      "summary": "Carrier reports the parcel lost after the 72h scan gap; the line has no prior remediation.",
+      "missing_evidence": []
+    },
+    "request_info_for_damage": {
+      "_comment": "A REQUEST_INFO proposal needs no evidence citation; it is asking for the evidence.",
+      "schema_version": 1,
+      "proposal_id": "d1d1d1d1-2222-4333-8444-aaaaaaaaaaaa",
+      "run_id": "e2e2e2e2-3333-4444-8555-bbbbbbbbbbbb",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "input_revision": 2,
+      "case_type": "DAMAGED",
+      "recommended_action": "REQUEST_INFO",
+      "evidence_refs": [],
+      "policy_refs": [],
+      "reason_codes": ["DAMAGE_NOT_DESCRIBED"],
+      "summary": "Customer says the item is broken but gave no description or photo-free statement of the damage.",
+      "missing_evidence": ["damage_description", "signing_date"]
+    }
+  },
+  "harness_manifest": {
+    "baseline_mock": {
+      "_comment": "A structurally valid manifest with no credentials. T35 adds the semantic checks (budget relationships, capability compatibility); T02 only freezes the shape.",
+      "schema_version": 1,
+      "manifest_id": "4444444444444444444444444444444444444444444444444444444444444444",
+      "harness_version": "harness-1.1.0",
+      "code_revision": "git-0000000",
+      "graph_version": "graph-1",
+      "state_schema_version": 1,
+      "prompt_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+      "context_policy_version": "ctx-1",
+      "tool_schema_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+      "verifier_version": "verifier-1",
+      "policy_manifest_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+      "index_generation": "88888888-9999-4aaa-8bbb-cccccccccccc",
+      "model": {
+        "provider": "mock",
+        "model_id": "mock-deterministic-1",
+        "context_window_tokens": 32000,
+        "token_counter_version": "chars-div-4",
+        "parameters": {"temperature": 0, "top_p": 1, "seed": 42}
+      },
+      "budgets": {
+        "max_model_calls": 12,
+        "max_external_calls": 16,
+        "max_local_reads": 8,
+        "max_total_input_tokens": 40000,
+        "max_total_output_tokens": 4000,
+        "max_prompt_tokens": 8192,
+        "max_output_tokens": 1024,
+        "active_deadline_seconds": 120,
+        "model_timeout_seconds": 30
+      }
+    }
+  },
+  "error_body": {
+    "version_conflict": {
+      "error": {
+        "code": "VERSION_CONFLICT",
+        "message": "case version 4 does not match If-Match version 5",
+        "retryable": false,
+        "trace_id": "0af7651916cd43dd8448eb211c80319c",
+        "details": {"expected_version": 5, "actual_version": 4}
+      }
+    },
+    "service_unavailable": {
+      "error": {
+        "code": "SERVICE_UNAVAILABLE",
+        "message": "commerce database is temporarily unavailable",
+        "retryable": true,
+        "trace_id": "0af7651916cd43dd8448eb211c80319c"
+      }
+    }
+  },
+  "openapi_external": {
+    "case_create_request": {
+      "line_id": "7001",
+      "description": "\u5305\u88f9\u4e22\u4e86\uff0c\u5e0c\u671b\u9000\u6b3e",
+      "requested_actions": ["REFUND", "EITHER"]
+    },
+    "case_created_response": {
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "status": "QUEUED",
+      "input_revision": 1,
+      "version": 1
+    },
+    "evidence_append_request": {
+      "question_id": "q-damage-1",
+      "text": "\u5f00\u7bb1\u540e\u5c4f\u5e55\u5df2\u788e\u88c2\uff0c\u5916\u7bb1\u6709\u51f9\u75d5",
+      "evidence_kind": "CUSTOMER_STATEMENT"
+    },
+    "review_request": {
+      "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+      "authorization_version": 2,
+      "decision": "APPROVE",
+      "reason": "\u91d1\u989d\u8d85\u8fc7\u81ea\u52a8\u9608\u503c\uff0c\u8bc1\u636e\u4e0e\u653f\u7b56\u7248\u672c\u5df2\u590d\u6838"
+    },
+    "reconcile_request": {
+      "reason": "\u5de5\u5355\u663e\u793a\u7ed3\u679c\u6838\u5b9e\u4e2d\uff0c\u89e6\u53d1\u72b6\u6001\u67e5\u8be2"
+    }
+  },
+  "openapi_internal": {
+    "run_request": {
+      "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "input_revision": 1,
+      "context": {
+        "merchant_id": "1",
+        "customer_id": "1001",
+        "order_id": "00000000-0000-4000-8000-0000000000aa",
+        "line_id": "7001"
+      },
+      "request": {
+        "description": "\u5305\u88f9\u4e22\u4e86\uff0c\u5e0c\u671b\u9000\u6b3e",
+        "requested_actions": ["REFUND"],
+        "evidence_refs": ["ev-1"]
+      },
+      "policy_manifest": {
+        "bundle_ids": ["policy-logistics-2026.09"],
+        "manifest_hash": "9999999999999999999999999999999999999999999999999999999999999999",
+        "safety_epoch": 1
+      },
+      "deadline_at": "2026-09-18T05:00:00Z",
+      "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+    },
+    "callback_question": {
+      "callback_id": "cb-9c858901-1-question",
+      "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+      "input_revision": 1,
+      "kind": "QUESTION",
+      "payload": {
+        "question_id": "q-damage-1",
+        "questions": [
+          {"field": "damage_description", "prompt": "\u8bf7\u63cf\u8ff0\u635f\u574f\u90e8\u4f4d\u548c\u7a0b\u5ea6"},
+          {"field": "signing_date", "prompt": "\u8bf7\u63d0\u4f9b\u7b7e\u6536\u65e5\u671f"}
+        ],
+        "reason_codes": ["DAMAGE_NOT_DESCRIBED"]
+      },
+      "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+    },
+    "callback_proposal": {
+      "callback_id": "cb-9c858901-1-proposal",
+      "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+      "input_revision": 1,
+      "kind": "PROPOSAL",
+      "payload_ref": "agent_proposal.refund_loss_confirmed"
+    },
+    "callback_failed": {
+      "callback_id": "cb-9c858901-1-failed",
+      "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+      "input_revision": 1,
+      "kind": "FAILED",
+      "payload": {
+        "reason_codes": ["MODEL_BUDGET_EXHAUSTED"],
+        "retryable": true,
+        "last_observation_refs": ["obs-order-line-1"]
+      }
+    },
+    "line_context": {
+      "order_id": "00000000-0000-4000-8000-0000000000aa",
+      "line_id": "7001",
+      "merchant_id": "1",
+      "customer_id": "1001",
+      "sku": "SKU-COFFEE-250",
+      "category": "BEVERAGE",
+      "quantity": 1,
+      "line_paid_amount": 20000,
+      "refunded_amount": 0,
+      "reserved_refund_amount": 0,
+      "currency": "CNY",
+      "paid_at": "2026-09-01T09:12:00Z",
+      "order_status": "PAID",
+      "version": 3
+    },
+    "shipment_evidence": {
+      "line_id": "7001",
+      "status": "IN_TRANSIT",
+      "carrier_conclusion": "LOST",
+      "events": [
+        {"code": "PICKED_UP", "occurred_at": "2026-09-01T02:00:00Z", "source_version": 1},
+        {"code": "SCAN_GAP_72H", "occurred_at": "2026-09-04T02:00:00Z", "source_version": 3}
+      ],
+      "source_version": 5,
+      "updated_at": "2026-09-04T02:00:00Z"
+    },
+    "packing_evidence": {
+      "line_id": "7002",
+      "sku": "SKU-TEA-100",
+      "shipped_quantity": 2,
+      "verified_status": "VERIFIED",
+      "version": 4
+    },
+    "entitlement_state": {
+      "entitlement_id": "ent-7001-refund-1",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "line_id": "7001",
+      "merchant_id": "1",
+      "action": "REFUND",
+      "state": "RESERVED",
+      "version": 2
+    },
+    "published_policy_bundle": {
+      "bundle_id": "policy-logistics-2026.09",
+      "merchant_id": "1",
+      "version": "3",
+      "category": "LOGISTICS",
+      "effective_from": "2026-09-01T00:00:00Z",
+      "effective_to": null,
+      "safety_epoch": 1,
+      "rules": [
+        {
+          "rule_id": "SC-L-LOST-REFUND",
+          "action": "REFUND",
+          "amount_cap_minor": 20000,
+          "requires_human": false,
+          "text": "\u627f\u8fd0\u5546\u786e\u8ba4\u4e22\u4ef6\u4e14\u91d1\u989d\u4e0d\u8d85\u8fc7\u4e24\u767e\u5143\u53ef\u81ea\u52a8\u9000\u6b3e\u3002"
+        }
+      ],
+      "source_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  }
+}

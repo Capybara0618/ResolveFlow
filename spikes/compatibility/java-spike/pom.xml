@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  T00 compatibility spike (temporary). Purpose: prove that the fixed version line
+  (Boot 4.0.x + Cloud 2025.1.x + SCA 2025.1.0.0 + MyBatis Boot4 line + Flyway + MySQL)
+  actually resolves and runs. Not production code; see docs/compatibility-report.md.
+  Versions here are candidates; the verified pins land in infra/versions.lock.yaml.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.0.8</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.resolveflow.spike</groupId>
+  <artifactId>java-spike</artifactId>
+  <version>0.0.1-SPIKE</version>
+  <packaging>pom</packaging>
+  <name>resolveflow-t00-java-spike</name>
+
+  <modules>
+    <module>spike-service</module>
+    <module>spike-gateway</module>
+  </modules>
+
+  <properties>
+    <java.version>21</java.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring-cloud.version>2025.1.3</spring-cloud.version>
+    <spring-cloud-alibaba.version>2025.1.0.0</spring-cloud-alibaba.version>
+    <mybatis-spring-boot.version>4.1.0</mybatis-spring-boot.version>
+    <!-- 2.x: modules renamed (testcontainers-mysql) and docker-java 3.7.1, which
+         negotiates the API version Docker Engine 29 requires (MinAPI 1.40).
+         1.21.4's docker-java 3.4.2 is rejected with HTTP 400 on this daemon. -->
+    <testcontainers.version>2.0.5</testcontainers.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+        <version>${spring-cloud-alibaba.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mybatis.spring.boot</groupId>
+        <artifactId>mybatis-spring-boot-starter</artifactId>
+        <version>${mybatis-spring-boot.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <!-- G0 requires "no SNAPSHOT and no disabled compatibility checks"; these
+           rules are the machine-checkable half of that claim. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-versions</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[21,)</version>
+                </requireJavaVersion>
+                <requireMavenVersion>
+                  <version>[3.9,)</version>
+                </requireMavenVersion>
+                <requireReleaseDeps>
+                  <message>No SNAPSHOT dependencies are allowed (G0).</message>
+                  <onlyWhenRelease>false</onlyWhenRelease>
+                </requireReleaseDeps>
+                <bannedDependencies>
+                  <message>
+                    MyBatis must stay on the Boot 4 compatible 4.x line. The SCA BOM
+                    manages an older 3.0.x; if this rule fires, a freeze took effect.
+                  </message>
+                  <excludes>
+                    <exclude>org.mybatis.spring.boot:mybatis-spring-boot-starter:[,4.0)</exclude>
+                    <exclude>org.mybatis:mybatis-spring:[,4.0)</exclude>
+                  </excludes>
+                </bannedDependencies>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <argLine>-Dfile.encoding=UTF-8</argLine>
+            <!-- The compatibility gates are named *IT because they need real containers. -->
+            <includes>
+              <include>**/*Test.java</include>
+              <include>**/*IT.java</include>
+            </includes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>

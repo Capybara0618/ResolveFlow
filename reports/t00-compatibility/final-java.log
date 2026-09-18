@@ -1,0 +1,164 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] resolveflow-t00-java-spike                                         [pom]
+[INFO] resolveflow-t00-spike-service                                      [jar]
+[INFO] resolveflow-t00-spike-gateway                                      [jar]
+[INFO] 
+[INFO] ------------------< com.resolveflow.spike:java-spike >------------------
+[INFO] Building resolveflow-t00-java-spike 0.0.1-SPIKE                    [1/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ java-spike ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] ----------------< com.resolveflow.spike:spike-service >-----------------
+[INFO] Building resolveflow-t00-spike-service 0.0.1-SPIKE                 [2/3]
+[INFO]   from spike-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] 1 problem was encountered while building the effective model for org.javassist:javassist:jar:3.21.0-GA during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ spike-service ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ spike-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ spike-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ spike-service ---
+[INFO] skip non existing resourceDirectory E:\Code\Agent+Backend\spikes\compatibility\java-spike\spike-service\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ spike-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ spike-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.resolveflow.spike.CrossLanguageHashIT
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.351 s -- in com.resolveflow.spike.CrossLanguageHashIT
+[INFO] Running com.resolveflow.spike.MySQLTransactionIT
+17:57:47.334 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.spike.MySQLTransactionIT]: MySQLTransactionIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+17:57:47.461 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.spike.SpikeServiceApplication for test class com.resolveflow.spike.MySQLTransactionIT
+17:57:47.538 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.spike.MySQLTransactionIT]: MySQLTransactionIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+17:57:47.539 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.spike.SpikeServiceApplication for test class com.resolveflow.spike.MySQLTransactionIT
+17:57:47.582 [main] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+17:57:47.588 [main] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+17:57:47.621 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 2.0.5
+17:57:48.208 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with Environment variables, system properties and defaults. Resolved dockerHost=npipe:////./pipe/dockerDesktopLinuxEngine
+17:57:48.210 [main] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+17:57:48.227 [main] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.3.0
+  API Version: 1.54
+  Operating System: Docker Desktop
+  Total Memory: 7580 MB
+  Labels: 
+    com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+17:57:48.379 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Creating container for image: testcontainers/ryuk:0.14.0
+17:57:48.550 [main] INFO org.testcontainers.utility.RegistryAuthLocator -- Credential helper/store (docker-credential-desktop) does not have credentials for https://index.docker.io/v1/
+17:57:48.767 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 is starting: 6cdb8c34ebb3654a89d5e4b4d73eb280eba840c9ee983e914834d91f55a70f74
+17:57:49.507 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 started in PT1.1276063S
+17:57:49.515 [main] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+17:57:49.515 [main] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+17:57:49.516 [main] INFO org.testcontainers.DockerClientFactory -- ?? Docker server version should be at least 1.6.0
+17:57:49.529 [main] INFO tc.mysql:8.4 -- Creating container for image: mysql:8.4
+17:57:49.753 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 is starting: bc75ea844889185928e65b35dc02cac3870b3493ccd2f119114fc835d7d281ba
+17:57:50.177 [main] INFO tc.mysql:8.4 -- Waiting for database connection to become available at jdbc:mysql://localhost:50837/spike_db using query 'SELECT 1'
+17:58:02.098 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 started in PT12.5697649S
+17:58:02.098 [main] INFO tc.mysql:8.4 -- Container is started (JDBC URL: jdbc:mysql://localhost:50837/spike_db)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-15T17:58:02.640+08:00  INFO 13688 --- [spike-service] [           main] c.resolveflow.spike.MySQLTransactionIT   : Starting MySQLTransactionIT using Java 21.0.12.1 with PID 13688 (started by hjn in E:\Code\Agent+Backend\spikes\compatibility\java-spike\spike-service)
+2026-09-15T17:58:02.643+08:00  INFO 13688 --- [spike-service] [           main] c.resolveflow.spike.MySQLTransactionIT   : No active profile set, falling back to 1 default profile: "default"
+2026-09-15T17:58:03.545+08:00  INFO 13688 --- [spike-service] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=e269dbe0-a2ed-346e-b228-7a60a7625b64
+2026-09-15T17:58:04.402+08:00  INFO 13688 --- [spike-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-15T17:58:04.577+08:00  INFO 13688 --- [spike-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@376bae20
+2026-09-15T17:58:04.578+08:00  INFO 13688 --- [spike-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-15T17:58:04.633+08:00  INFO 13688 --- [spike-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:50837/spike_db (MySQL 8.4)
+2026-09-15T17:58:04.738+08:00  WARN 13688 --- [spike-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-15T17:58:04.793+08:00  INFO 13688 --- [spike-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `spike_db`.`flyway_schema_history` does not exist yet
+2026-09-15T17:58:04.797+08:00  INFO 13688 --- [spike-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 1 migration (execution time 00:00.041s)
+2026-09-15T17:58:04.839+08:00  INFO 13688 --- [spike-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `spike_db`.`flyway_schema_history` ...
+2026-09-15T17:58:04.978+08:00  INFO 13688 --- [spike-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `spike_db`: << Empty Schema >>
+2026-09-15T17:58:04.996+08:00  INFO 13688 --- [spike-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `spike_db` to version "1 - spike init"
+2026-09-15T17:58:05.264+08:00  INFO 13688 --- [spike-service] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 1 migration to schema `spike_db`, now at version v1 (execution time 00:00.230s)
+2026-09-15T17:58:05.624+08:00  INFO 13688 --- [spike-service] [           main] o.s.c.openfeign.FeignClientFactoryBean   : For 'spike-service' URL not provided. Will try picking an instance via load-balancing.
+2026-09-15T17:58:05.739+08:00  INFO 13688 --- [spike-service] [           main] c.a.c.sentinel.SentinelWebMvcConfigurer  : [Sentinel Starter] register SentinelWebInterceptor with urlPatterns: [/**].
+2026-09-15T17:58:06.227+08:00  WARN 13688 --- [spike-service] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-09-15T17:58:06.331+08:00  INFO 13688 --- [spike-service] [           main] c.resolveflow.spike.MySQLTransactionIT   : Started MySQLTransactionIT in 4.095 seconds (process running for 20.357)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\hjn\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 21.33 s -- in com.resolveflow.spike.MySQLTransactionIT
+[INFO] Running com.resolveflow.spike.RocketMqIT
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.683 s -- in com.resolveflow.spike.RocketMqIT
+[INFO] Running com.resolveflow.spike.SentinelIT
+INFO: Sentinel log output type is: file
+INFO: Sentinel log charset is: utf-8
+INFO: Sentinel log base directory is: C:\Users\hjn\logs\csp\
+INFO: Sentinel log name use pid is: false
+INFO: Sentinel log level is: INFO
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.124 s -- in com.resolveflow.spike.SentinelIT
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ----------------< com.resolveflow.spike:spike-gateway >-----------------
+[INFO] Building resolveflow-t00-spike-gateway 0.0.1-SPIKE                 [3/3]
+[INFO]   from spike-gateway\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ spike-gateway ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ spike-gateway ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ spike-gateway ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ spike-gateway ---
+[INFO] skip non existing resourceDirectory E:\Code\Agent+Backend\spikes\compatibility\java-spike\spike-gateway\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ spike-gateway ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ spike-gateway ---
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for resolveflow-t00-java-spike 0.0.1-SPIKE:
+[INFO] 
+[INFO] resolveflow-t00-java-spike ......................... SUCCESS [  0.319 s]
+[INFO] resolveflow-t00-spike-service ...................... SUCCESS [ 28.606 s]
+[INFO] resolveflow-t00-spike-gateway ...................... SUCCESS [  0.352 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  29.644 s
+[INFO] Finished at: 2026-09-15T17:58:12+08:00
+[INFO] ------------------------------------------------------------------------

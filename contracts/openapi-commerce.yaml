@@ -1,0 +1,526 @@
+openapi: 3.1.0
+info:
+  title: ResolveFlow commerce-service API
+  version: 0.1.0
+  description: |
+    Order, payment-ledger and entitlement authority, plus the refund worker's
+    internal surface.
+
+    Authority: docs/contracts.md and docs/domain-model.md §3. This service owns the
+    money invariants INV-01/02/03 and never reads another service's database
+    (docs/architecture.md; T01 proved the grant is enforced, not merely agreed).
+
+    Everything under `/internal/` accepts only a service token with the matching
+    audience and scope, and is never exposed through the gateway.
+servers:
+  - url: http://commerce-service:8081
+    description: In-cluster address. Reached only through the gateway or a service token.
+tags:
+  - name: internal-read
+    description: Read-only business facts. The Agent reaches these through its scoped tools.
+  - name: entitlement
+    description: Line-entitlement reservation. Shared with reship; one successful remediation per line.
+  - name: refund
+    description: Refund operation state and reconciliation.
+paths:
+  /internal/v1/order-lines/{line_id}/context:
+    get:
+      tags: [internal-read]
+      operationId: readOrderLineContext
+      summary: Authoritative order, payment and line facts for one line
+      description: |
+        Java recomputes every amount from here; an Agent-suggested amount is never
+        trusted (docs/product-spec.md:46).
+      parameters:
+        - $ref: '#/components/parameters/LineId'
+      responses:
+        '200':
+          description: Line context at its current version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineContext'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/order-lines/{line_id}/entitlement:
+    get:
+      tags: [entitlement]
+      operationId: readLineEntitlement
+      summary: Current entitlement state for one line
+      parameters:
+        - $ref: '#/components/parameters/LineId'
+      responses:
+        '200':
+          description: Entitlement state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementStateView'
+  /internal/v1/entitlements/reserve:
+    post:
+      tags: [entitlement]
+      operationId: reserveEntitlement
+      summary: Reserve the line entitlement (and, for REFUND, the money)
+      description: |
+        One transaction: line row lock, then a conditional payment update. The same
+        operation retried returns the original result; a different operation on an
+        occupied line is 409 (docs/domain-model.md:51).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntitlementReserveRequest'
+            example:
+              operation_id: 3f2504e0-4f89-41d3-9a0c-0305e82c3301
+              line_id: '7001'
+              action: REFUND
+              payload_hash: 1111111111111111111111111111111111111111111111111111111111111111
+      responses:
+        '200':
+          description: Reservation result (idempotent on operation_id + payload_hash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementStateView'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+  /internal/v1/entitlements/{operation_id}/start:
+    post:
+      tags: [entitlement]
+      operationId: startEntitlement
+      summary: Take the exclusive start lock before calling the provider
+      description: |
+        RESERVED -> IN_USE. This CAS is what makes cancel-before-start and release
+        mutually exclusive with a provider call: only IN_USE may call the provider
+        (docs/domain-model.md:122).
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntitlementStartRequest'
+      responses:
+        '200':
+          description: Entitlement is now IN_USE
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementStateView'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+  /internal/v1/entitlements/{operation_id}/commit:
+    post:
+      tags: [entitlement]
+      operationId: commitEntitlement
+      summary: Commit an executed entitlement
+      description: IN_USE -> CONSUMED, and for REFUND the money moves from reserved to refunded in the same transaction.
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntitlementCommitRequest'
+      responses:
+        '200':
+          description: Entitlement committed (idempotent)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementStateView'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+  /internal/v1/entitlements/{operation_id}/release:
+    post:
+      tags: [entitlement]
+      operationId: releaseEntitlement
+      summary: Release an entitlement that provably never executed
+      description: |
+        Requires evidence that the target is terminally failed or cancelled. A
+        timeout is not such evidence: UNKNOWN keeps the reservation (INV-07).
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntitlementReleaseRequest'
+      responses:
+        '200':
+          description: Entitlement released (idempotent)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementStateView'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+  /internal/v1/entitlements/{operation_id}:
+    get:
+      tags: [entitlement]
+      operationId: readEntitlement
+      summary: Authoritative entitlement state for one operation
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: Entitlement state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementStateView'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/operations/{operation_id}:
+    get:
+      tags: [refund]
+      operationId: readRefundOperation
+      summary: Authoritative refund operation state
+      description: |
+        This is the answer that ends a reconciliation, not a broker retry or a timer
+        (docs/reliability-security.md).
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: Operation state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundOperationView'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/operations/{operation_id}/cancel-before-start:
+    post:
+      tags: [refund]
+      operationId: cancelRefundBeforeStart
+      summary: Persist a cancellation tombstone before the operation can start
+      description: |
+        Inserted even when the operation does not exist yet, so a late command cannot
+        start work that was already cancelled. A started operation returns 409
+        (docs/contracts.md:109).
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonRequest'
+      responses:
+        '200':
+          description: Cancellation recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelBeforeStartResponse'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+components:
+  securitySchemes:
+    serviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Internal aud/scope token. `X-User`, `X-Role` and `X-Merchant` headers are
+        stripped at the gateway and never trusted here (docs/contracts.md:10).
+  parameters:
+    LineId:
+      name: line_id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    OperationId:
+      name: operation_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+  responses:
+    ForbiddenScope:
+      description: Service token lacks the required scope (403)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not visible under this token's scope (404)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    StateConflict:
+      description: The entitlement or operation is not in a state that permits this (409)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: STATE_CONFLICT
+              message: line 7001 already has a RESERVED entitlement for another operation
+              retryable: false
+              trace_id: 0af7651916cd43dd8448eb211c80319c
+    SemanticInvalid:
+      description: Business rejection (422), for example insufficient refundable balance
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: SEMANTIC_INVALID
+              message: refundable balance for order 00000000-0000-4000-8000-0000000000aa is insufficient
+              retryable: false
+              trace_id: 0af7651916cd43dd8448eb211c80319c
+    ServiceUnavailable:
+      description: Temporarily unavailable (503). A timeout here is never a failed refund.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    Uuid:
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    Sha256Hex:
+      type: string
+      pattern: '^[a-f0-9]{64}$'
+    Version:
+      type: integer
+      minimum: 1
+      maximum: 9007199254740991
+    AmountMinor:
+      type: integer
+      minimum: 0
+      maximum: 1000000000
+      description: CNY minor units. Never a float (docs/contracts.md:19).
+    Action:
+      type: string
+      enum: [REFUND, RESHIP]
+    EntitlementState:
+      type: string
+      enum: [FREE, RESERVED, IN_USE, CONSUMED]
+    OperationState:
+      type: string
+      enum:
+        [CREATED, RESERVING, RESERVED, RECEIVED, STARTING, DISPATCHED, IN_PROGRESS,
+         TARGET_SUCCEEDED, COMMITTING, SUCCEEDED, UNKNOWN, RELEASING, FAILED, CANCELLED]
+    ReasonRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [code, message, retryable]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        retryable:
+          type: boolean
+        trace_id:
+          type: [string, 'null']
+          maxLength: 64
+        details:
+          type: [object, 'null']
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          $ref: '#/components/schemas/ApiError'
+    LineContext:
+      type: object
+      additionalProperties: false
+      required:
+        [order_id, line_id, merchant_id, customer_id, sku, category, quantity,
+         line_paid_amount, refunded_amount, reserved_refund_amount, currency, paid_at,
+         order_status, version]
+      properties:
+        order_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+        merchant_id:
+          type: string
+          minLength: 1
+        customer_id:
+          type: string
+          minLength: 1
+        sku:
+          type: string
+          minLength: 1
+        category:
+          type: string
+          minLength: 1
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        line_paid_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        refunded_amount:
+          $ref: '#/components/schemas/AmountMinor'
+          description: INV-01 term. refunded + reserved must never exceed line_paid_amount.
+        reserved_refund_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        currency:
+          type: string
+          const: CNY
+        paid_at:
+          type: string
+          format: date-time
+        order_status:
+          type: string
+          minLength: 1
+        version:
+          $ref: '#/components/schemas/Version'
+    EntitlementReserveRequest:
+      type: object
+      additionalProperties: false
+      required: [operation_id, line_id, action, payload_hash]
+      properties:
+        operation_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+        action:
+          $ref: '#/components/schemas/Action'
+        payload_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+    EntitlementStartRequest:
+      type: object
+      additionalProperties: false
+      required: [target_service, payload_hash]
+      properties:
+        target_service:
+          type: string
+          minLength: 1
+        payload_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+    EntitlementCommitRequest:
+      type: object
+      additionalProperties: false
+      required: [result_ref, payload_hash]
+      properties:
+        result_ref:
+          type: string
+          minLength: 1
+          maxLength: 200
+        payload_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+    EntitlementReleaseRequest:
+      type: object
+      additionalProperties: false
+      required: [terminal_failure_ref, payload_hash]
+      properties:
+        terminal_failure_ref:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Proof that the target terminally failed or was cancelled.
+        payload_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+    EntitlementStateView:
+      type: object
+      additionalProperties: false
+      required: [entitlement_id, line_id, merchant_id, state, version]
+      properties:
+        entitlement_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        operation_id:
+          oneOf:
+            - $ref: '#/components/schemas/Uuid'
+            - type: 'null'
+        line_id:
+          type: string
+          minLength: 1
+        merchant_id:
+          type: string
+          minLength: 1
+        action:
+          oneOf:
+            - $ref: '#/components/schemas/Action'
+            - type: 'null'
+        state:
+          $ref: '#/components/schemas/EntitlementState'
+        version:
+          $ref: '#/components/schemas/Version'
+    RefundOperationView:
+      type: object
+      additionalProperties: false
+      required: [operation_id, line_id, state, amount_minor, version]
+      properties:
+        operation_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+        state:
+          $ref: '#/components/schemas/OperationState'
+        amount_minor:
+          $ref: '#/components/schemas/AmountMinor'
+        provider_ref:
+          type: [string, 'null']
+          maxLength: 200
+          description: Masked in any public response (docs/contracts.md:121).
+        reason_code:
+          type: [string, 'null']
+          pattern: '^[A-Z][A-Z0-9_]{1,63}$'
+        next_check_at:
+          # anyOf, not type: [string, 'null']: a nullable field that also carries a
+          # format must apply that format to the string branch only.
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        version:
+          $ref: '#/components/schemas/Version'
+    CancelBeforeStartResponse:
+      type: object
+      additionalProperties: false
+      required: [operation_id, state, tombstone_created, version]
+      properties:
+        operation_id:
+          $ref: '#/components/schemas/Uuid'
+        state:
+          type: string
+          const: CANCELLED
+        tombstone_created:
+          type: boolean
+          description: True when no operation row existed and the tombstone was inserted.
+        version:
+          $ref: '#/components/schemas/Version'
+security:
+  - serviceToken: []

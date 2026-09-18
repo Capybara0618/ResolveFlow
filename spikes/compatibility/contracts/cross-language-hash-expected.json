@@ -1,0 +1,14 @@
+{
+  "_comment": "Frozen expected values for cross-language-hash-inputs.json. Produced by the Python implementation and independently reproduced by the Java implementation; both must agree byte-for-byte. A change here means a canonicalisation behaviour change and must be justified, not bulk-updated.",
+  "_produced_by": "spike_py.canonical (python 3.12, langgraph spike venv)",
+  "_verified_by": "com.resolveflow.spike.contract.PayloadHash (Java 21, java-spike)",
+  "execution_payload_hashes": {
+    "refund-basic": "370f7e5747bd2373ef2bd8a00a93dc28eb4ebcf05c13700bca665814bd5f77f3",
+    "refund-max-amount": "2dce0553de8d9d84027e6ad3b8911c7d64980bbeb64a62435ad3b61dd148a9f2",
+    "reship-basic": "ae3ee41a7d57f61bb68ba691bf9a054d07b6641874c2bda66f327338223dd4b1"
+  },
+  "content_hashes": {
+    "evidence-doc": "68cedafade7cb7464bdb641a86978bbcb667339fe70adf9430bfd67616926ff2",
+    "utf16-key-ordering": "7cfa6bb3368d9a3d30d6830c83a67c3648d57ec4bfd6ca9de293cb1c5964576e"
+  }
+}

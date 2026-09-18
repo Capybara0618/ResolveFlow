@@ -1,0 +1,18 @@
+ResolveFlow verify
+  suite : unit
+  mode  : mock
+  seed  : 42
+  report: /e/Code/Agent+Backend/reports/verify/20260916-170948-unit.txt
+
+== unit
+  -- java-unit
+     $ java/mvnw -f java/pom.xml -B test
+     PASS (29s)
+  -- python-unit
+     $ uv run --project agent pytest agent/tests/unit
+     PASS (2s)
+  -- web-test
+     $ pnpm --dir web test
+     PASS (17s)
+
+SUITE 'unit' PASSED

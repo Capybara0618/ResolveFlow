@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:resolveflow:execution-result-event:v1",
+  "title": "ExecutionResultEventV1",
+  "description": [
+    "Payload of the result and entitlement envelopes in docs/contracts.md section 6.",
+    "The payload cannot know its own event_type, so this file exposes the three field sets as $defs and contracts/event-envelope.schema.json selects one from event_type. That is what makes 'a ReshipSucceeded never carries amount_minor' a machine-checked rule instead of a sentence.",
+    "UNKNOWN is deliberately a member of the SUCCEEDED/FAILED/UNKNOWN set: it is a result, not a failure, and it keeps the entitlement reserved (docs/contracts.md:125)."
+  ],
+  "$ref": "#/$defs/base",
+  "$defs": {
+    "base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operation_id", "line_id", "state"],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "line_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": ["SUCCEEDED", "FAILED", "UNKNOWN", "CONSUMED", "FREE"]
+        },
+        "provider_ref": {
+          "type": ["string", "null"],
+          "maxLength": 200,
+          "description": "Masked in every public response (docs/contracts.md:121)."
+        },
+        "amount_minor": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000000
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "reason_code": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "refundResult": {
+      "description": "RefundSucceeded / RefundFailed / RefundUnknown. Reports the money that moved; never a quantity.",
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "required": ["amount_minor"],
+          "properties": { "state": { "enum": ["SUCCEEDED", "FAILED", "UNKNOWN"] } },
+          "not": { "required": ["quantity"] }
+        }
+      ]
+    },
+    "reshipResult": {
+      "description": "ReshipSucceeded / ReshipFailed / ReshipUnknown. Reports the shipped quantity; never money, because a reship must not become a second value movement.",
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "required": ["quantity"],
+          "properties": { "state": { "enum": ["SUCCEEDED", "FAILED", "UNKNOWN"] } },
+          "not": { "required": ["amount_minor"] }
+        }
+      ]
+    },
+    "entitlementResult": {
+      "description": "EntitlementCommitted / EntitlementReleased. Carries the entitlement version case compares before accepting the notification; no money and no quantity.",
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "required": ["version"],
+          "properties": { "state": { "enum": ["CONSUMED", "FREE"] } },
+          "not": { "anyOf": [{ "required": ["amount_minor"] }, { "required": ["quantity"] }] }
+        }
+      ]
+    }
+  }
+}

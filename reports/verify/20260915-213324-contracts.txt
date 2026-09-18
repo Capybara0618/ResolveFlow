@@ -1,0 +1,8 @@
+﻿ResolveFlow verify
+  suite : contracts
+  mode  : mock
+  seed  : 42
+  report: E:\Code\Agent+Backend\reports\verify\20260915-213324-contracts.txt
+
+NOT IMPLEMENTED: suite 'contracts' belongs to T02 契约固化与跨语言fixture.
+Refusing to report success for a suite that ran nothing.

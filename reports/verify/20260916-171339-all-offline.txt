@@ -1,0 +1,55 @@
+ResolveFlow verify
+  suite : all-offline
+  mode  : mock
+  seed  : 42
+  report: /e/Code/Agent+Backend/reports/verify/20260916-171339-all-offline.txt
+
+== format
+  -- java-spotless
+     $ java/mvnw -f java/pom.xml -B spotless:check
+     PASS (5s)
+  -- python-ruff
+     $ uv run --project agent ruff check agent/src agent/tests
+     PASS (0s)
+  -- python-mypy
+     $ uv run --project agent mypy agent/src
+     PASS (1s)
+  -- web-typecheck
+     $ pnpm --dir web typecheck
+     PASS (2s)
+
+== unit
+  -- java-unit
+     $ java/mvnw -f java/pom.xml -B test
+     PASS (27s)
+  -- python-unit
+     $ uv run --project agent pytest agent/tests/unit
+     PASS (1s)
+  -- web-test
+     $ pnpm --dir web test
+     PASS (2s)
+
+== smoke
+  -- infra-up
+     $ docker compose -f infra/compose.yaml up -d
+     PASS (1s)
+  -- package
+     $ java/mvnw -f java/pom.xml -B -DskipTests package
+     PASS (8s)
+  -- smoke-gateway
+     $ java -jar java/gateway/target/gateway-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8080/actuator/health
+     PASS (5s)
+  -- smoke-commerce-service
+     $ java -jar java/commerce-service/target/commerce-service-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8081/actuator/health
+     PASS (5s)
+  -- smoke-fulfillment-service
+     $ java -jar java/fulfillment-service/target/fulfillment-service-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8082/actuator/health
+     PASS (4s)
+  -- smoke-case-service
+     $ java -jar java/case-service/target/case-service-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8083/actuator/health
+     PASS (5s)
+  -- smoke-agent-service
+     $ uv run --project agent uvicorn resolveflow.api.app:app --port 8090  # then GET :8090/health
+     PASS (1s)
+
+SUITE 'all-offline' PASSED

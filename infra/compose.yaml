@@ -1,0 +1,126 @@
+# ResolveFlow local infrastructure.
+#
+# Scope of T01: the datastores and message/registry middleware the services need.
+# Deliberately NOT here yet:
+#   - provider-stub  -> T12 (the persisted refund/carrier simulator)
+#   - app profile    -> arrives with the service Dockerfiles
+#   - observability  -> T26 (OTel Collector, Prometheus, Grafana, Tempo)
+# `docker compose --profile app up` therefore succeeds as a no-op rather than
+# pretending to start services that do not exist yet.
+#
+# Port exposure: every infrastructure port is bound to 127.0.0.1, never 0.0.0.0.
+# docs/architecture.md asks that only the gateway, web and monitoring ports face
+# the host; binding the datastores to loopback keeps them off the network while
+# still letting the host-run Maven builds and tests reach them.
+#
+# Host ports: the loopback defaults for Postgres and Redis are deliberately NOT
+# 5432 / 6379. This machine already runs another project's Postgres and Redis on
+# those ports, and silently claiming them would break that stack. Every host port
+# is overridable through infra/.env (see infra/.env.example).
+# Image digests are recorded in infra/versions.lock.yaml. Pin by digest when
+# these move to a reproducible environment.
+
+name: resolveflow
+
+services:
+  mysql:
+    image: mysql:8.4
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # Creates commerce_db / fulfillment_db / case_db with per-service accounts.
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  postgres:
+    # PostgreSQL 16 with pgvector available (verified in T00).
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${PG_USER:-agent}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-agent}
+      POSTGRES_DB: ${PG_DB:-agent_db}
+    ports:
+      - "127.0.0.1:${PG_PORT:-55432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-agent} -d ${PG_DB:-agent_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    # Non-authoritative: cache, rate limiting, short-lived coordination only.
+    # Redis failing must never break an entitlement or money invariant (ADR 10).
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-56379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  rocketmq-namesrv:
+    image: apache/rocketmq:5.3.3
+    command: ["nameserver"]
+    environment:
+      JAVA_OPT_EXT: "-Xms256m -Xmx256m -Xmn128m"
+    ports:
+      - "127.0.0.1:${ROCKETMQ_NAMESRV_PORT:-9876}:9876"
+
+  rocketmq-broker:
+    image: apache/rocketmq:5.3.3
+    # A wrapper appends brokerIP1 at start-up, because the image cannot substitute
+    # environment variables inside a mounted config file.
+    entrypoint: ["/bin/bash", "/home/rocketmq/broker-entrypoint.sh"]
+    environment:
+      NAMESRV_ADDR: rocketmq-namesrv:9876
+      # Default 127.0.0.1 suits host-run services and tests; the app profile must
+      # set BROKER_IP1=rocketmq-broker so in-network callers can resolve it.
+      BROKER_IP1: ${BROKER_IP1:-127.0.0.1}
+      JAVA_OPT_EXT: "-Xms512m -Xmx512m -Xmn256m"
+    volumes:
+      - ./rocketmq/broker.conf:/home/rocketmq/broker.conf.base:ro
+      - ./rocketmq/broker-entrypoint.sh:/home/rocketmq/broker-entrypoint.sh:ro
+    ports:
+      - "127.0.0.1:${ROCKETMQ_BROKER_PORT:-10911}:10911"
+      - "127.0.0.1:${ROCKETMQ_BROKER_HA_PORT:-10909}:10909"
+    depends_on:
+      - rocketmq-namesrv
+
+  nacos:
+    # Service discovery and non-sensitive shared configuration.
+    # Nacos 3.x refuses to start without NACOS_AUTH_TOKEN even with auth disabled
+    # (T00 finding 5.8). The default below is a development-only value.
+    image: nacos/nacos-server:v3.1.0
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "false"
+      NACOS_AUTH_TOKEN: ${NACOS_AUTH_TOKEN:-cmVzb2x2ZWZsb3ctZGV2LW9ubHktdG9rZW4tMzJieXRlcy1sb25n}
+      NACOS_AUTH_IDENTITY_KEY: ${NACOS_AUTH_IDENTITY_KEY:-resolveflow}
+      NACOS_AUTH_IDENTITY_VALUE: ${NACOS_AUTH_IDENTITY_VALUE:-resolveflow-dev-only}
+      JVM_XMS: 256m
+      JVM_XMX: 512m
+    ports:
+      - "127.0.0.1:${NACOS_PORT:-8848}:8848"
+      - "127.0.0.1:${NACOS_GRPC_PORT:-9848}:9848"
+
+volumes:
+  # Named volumes so `docker compose stop` preserves data (docs/engineering.md 7).
+  # Clearing experimental data must be an explicit, named-volume operation.
+  mysql-data:
+  postgres-data:

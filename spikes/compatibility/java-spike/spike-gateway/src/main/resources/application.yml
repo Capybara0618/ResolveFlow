@@ -1,0 +1,28 @@
+# T00 gateway spike. Routes by logical service name (lb://spike-service), so a
+# successful route proves discovery + load balancing + gateway wiring together.
+server:
+  port: 8080
+
+spring:
+  application:
+    name: spike-gateway
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:18848
+      discovery:
+        enabled: true
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: spike-service
+              uri: lb://spike-service
+              predicates:
+                - Path=/spike/**
+    sentinel:
+      eager: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: INFO

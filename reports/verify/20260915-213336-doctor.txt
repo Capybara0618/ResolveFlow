@@ -1,0 +1,12 @@
+﻿ResolveFlow verify
+  suite : doctor
+  mode  : mock
+  seed  : 42
+  report: E:\Code\Agent+Backend\reports\verify\20260915-213336-doctor.txt
+
+== doctor
+  -- doctor
+     \$ pwsh -File scripts/doctor.ps1
+     PASS (6.6s)
+
+SUITE 'doctor' PASSED

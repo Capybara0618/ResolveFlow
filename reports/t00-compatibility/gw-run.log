@@ -1,0 +1,48 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-15T17:35:24.959+08:00  INFO 42576 --- [spike-gateway] [           main] c.r.s.gateway.SpikeGatewayApplication    : Starting SpikeGatewayApplication v0.0.1-SPIKE using Java 21.0.12.1 with PID 42576 (E:\Code\Agent+Backend\spikes\compatibility\java-spike\spike-gateway\target\spike-gateway-0.0.1-SPIKE.jar started by hjn in E:\Code\Agent+Backend\spikes\compatibility\java-spike)
+2026-09-15T17:35:24.966+08:00  INFO 42576 --- [spike-gateway] [           main] c.r.s.gateway.SpikeGatewayApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-09-15T17:35:26.422+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=18a46b43-0c30-39a7-9a5c-a3cb9a8d6960
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Version]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [XForwardedRemoteAddr]
+2026-09-15T17:35:28.011+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2026-09-15T17:35:28.012+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2026-09-15T17:35:28.212+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.c.s.SentinelWebFluxAutoConfiguration : [Sentinel Starter] register Sentinel SentinelWebFluxFilter
+2026-09-15T17:35:28.403+08:00  WARN 42576 --- [spike-gateway] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-09-15T17:35:28.801+08:00  INFO 42576 --- [spike-gateway] [           main] o.s.boot.reactor.netty.NettyWebServer    : Netty started on port 8080 (http)
+2026-09-15T17:35:28.857+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.nacos.client.logging.NacosLogging    : Nacos Logging Adapter Builder: com.alibaba.nacos.logger.adapter.logback14.LogbackNacosLoggingAdapterBuilder
+2026-09-15T17:35:28.858+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.nacos.client.logging.NacosLogging    : Nacos Logging Adapter: com.alibaba.nacos.logger.adapter.logback14.LogbackNacosLoggingAdapter match ch.qos.logback.classic.Logger success.
+2026-09-15T17:35:28.860+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.nacos.client.logging.NacosLogging    : Nacos Logging Adapter Builder: com.alibaba.nacos.logger.adapter.log4j2.Log4j2NacosLoggingAdapterBuilder
+2026-09-15T17:35:29.059+08:00  INFO 42576 --- [spike-gateway] [       Thread-4] c.a.n.c.a.r.identify.CredentialWatcher   : null No credential found
+2026-09-15T17:35:29.126+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.n.p.a.s.c.ClientAuthPluginManager    : [ClientAuthPluginManager] Load ClientAuthService com.alibaba.nacos.client.auth.impl.NacosClientAuthServiceImpl success.
+2026-09-15T17:35:29.127+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.n.p.a.s.c.ClientAuthPluginManager    : [ClientAuthPluginManager] Load ClientAuthService com.alibaba.nacos.client.auth.ram.RamClientAuthServiceImpl success.
+2026-09-15T17:35:29.939+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.n.c.a.AbstractAbilityControlManager  : Ready to get current node abilities...
+2026-09-15T17:35:29.942+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.n.c.a.AbstractAbilityControlManager  : Ready to initialize current node abilities, support modes: [SDK_CLIENT]
+2026-09-15T17:35:29.942+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.n.c.a.AbstractAbilityControlManager  : Initialize current abilities finish...
+2026-09-15T17:35:29.942+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.n.c.a.d.NacosAbilityManagerHolder    : [AbilityControlManager] Successfully initialize AbilityControlManager
+2026-09-15T17:35:29.988+08:00  INFO 42576 --- [spike-gateway] [           main] c.a.c.n.registry.NacosServiceRegistry    : nacos registry, DEFAULT_GROUP spike-gateway 172.28.16.1:8080 register finished
+2026-09-15T17:35:30.050+08:00  INFO 42576 --- [spike-gateway] [           main] c.r.s.gateway.SpikeGatewayApplication    : Started SpikeGatewayApplication in 5.723 seconds (process running for 7.2)
+INFO: Sentinel log output type is: file
+INFO: Sentinel log charset is: utf-8
+INFO: Sentinel log base directory is: C:\Users\hjn\logs\csp\
+INFO: Sentinel log name use pid is: false
+INFO: Sentinel log level is: INFO

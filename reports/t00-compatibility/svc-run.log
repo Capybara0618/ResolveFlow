@@ -1,0 +1,86 @@
+17:34:03.478 [main] INFO com.alibaba.nacos.plugin.auth.spi.client.ClientAuthPluginManager -- [ClientAuthPluginManager] Load ClientAuthService com.alibaba.nacos.client.auth.impl.NacosClientAuthServiceImpl success.
+17:34:03.478 [main] INFO com.alibaba.nacos.plugin.auth.spi.client.ClientAuthPluginManager -- [ClientAuthPluginManager] Load ClientAuthService com.alibaba.nacos.client.auth.ram.RamClientAuthServiceImpl success.
+17:34:04.642 [main] INFO com.alibaba.nacos.common.ability.AbstractAbilityControlManager -- Ready to get current node abilities...
+17:34:04.644 [main] INFO com.alibaba.nacos.common.ability.AbstractAbilityControlManager -- Ready to initialize current node abilities, support modes: [SDK_CLIENT]
+17:34:04.645 [main] INFO com.alibaba.nacos.common.ability.AbstractAbilityControlManager -- Initialize current abilities finish...
+17:34:04.646 [main] INFO com.alibaba.nacos.common.ability.discover.NacosAbilityManagerHolder -- [AbilityControlManager] Successfully initialize AbilityControlManager
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-15T17:34:05.308+08:00  INFO 24604 --- [spike-service] [           main] c.r.spike.SpikeServiceApplication        : Starting SpikeServiceApplication v0.0.1-SPIKE using Java 21.0.12.1 with PID 24604 (E:\Code\Agent+Backend\spikes\compatibility\java-spike\spike-service\target\spike-service-0.0.1-SPIKE.jar started by hjn in E:\Code\Agent+Backend\spikes\compatibility\java-spike)
+2026-09-15T17:34:05.309+08:00  INFO 24604 --- [spike-service] [           main] c.r.spike.SpikeServiceApplication        : The following 1 profile is active: "nacos"
+2026-09-15T17:34:05.394+08:00  INFO 24604 --- [spike-service] [           main] c.a.c.n.c.NacosConfigDataLoader          : [Nacos Config] Load config[dataId=spike-service.yaml, group=DEFAULT_GROUP] success
+2026-09-15T17:34:06.781+08:00  INFO 24604 --- [spike-service] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=740db2a2-a3ad-35c3-be39-b8794a403f66
+2026-09-15T17:34:07.694+08:00  INFO 24604 --- [spike-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-09-15T17:34:07.715+08:00  INFO 24604 --- [spike-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-15T17:34:07.715+08:00  INFO 24604 --- [spike-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-15T17:34:07.757+08:00  INFO 24604 --- [spike-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2359 ms
+2026-09-15T17:34:08.061+08:00  INFO 24604 --- [spike-service] [           main] o.s.c.openfeign.FeignClientFactoryBean   : For 'spike-service' URL not provided. Will try picking an instance via load-balancing.
+2026-09-15T17:34:08.421+08:00  INFO 24604 --- [spike-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-15T17:34:08.798+08:00  INFO 24604 --- [spike-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@c85486
+2026-09-15T17:34:08.801+08:00  INFO 24604 --- [spike-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-15T17:34:08.974+08:00  INFO 24604 --- [spike-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://127.0.0.1:13306/spike_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC (MySQL 8.4)
+2026-09-15T17:34:09.124+08:00  WARN 24604 --- [spike-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-15T17:34:09.167+08:00  INFO 24604 --- [spike-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `spike_db`.`flyway_schema_history` does not exist yet
+2026-09-15T17:34:09.172+08:00  INFO 24604 --- [spike-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 1 migration (execution time 00:00.030s)
+2026-09-15T17:34:09.218+08:00  INFO 24604 --- [spike-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `spike_db`.`flyway_schema_history` ...
+2026-09-15T17:34:09.353+08:00  INFO 24604 --- [spike-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `spike_db`: << Empty Schema >>
+2026-09-15T17:34:09.369+08:00  INFO 24604 --- [spike-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `spike_db` to version "1 - spike init"
+2026-09-15T17:34:09.562+08:00  INFO 24604 --- [spike-service] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 1 migration to schema `spike_db`, now at version v1 (execution time 00:00.127s)
+2026-09-15T17:34:10.473+08:00  INFO 24604 --- [spike-service] [           main] c.a.c.sentinel.SentinelWebMvcConfigurer  : [Sentinel Starter] register SentinelWebInterceptor with urlPatterns: [/**].
+2026-09-15T17:34:12.775+08:00  WARN 24604 --- [spike-service] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-09-15T17:34:13.205+08:00  INFO 24604 --- [spike-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-09-15T17:34:13.309+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.client.naming          : Nacos client key init properties: 
+	serverAddr=127.0.0.1:18848
+
+2026-09-15T17:34:13.316+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.client.naming          : initializer namespace from ans.namespace attribute : null
+2026-09-15T17:34:13.321+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.client.naming          : initializer namespace from ALIBABA_ALIWARE_NAMESPACE attribute :null
+2026-09-15T17:34:13.326+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.client.naming          : initializer namespace from namespace attribute :null
+2026-09-15T17:34:13.381+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.client.naming          : FailoverDataSource type is class com.alibaba.nacos.client.naming.backups.datasource.DiskFailoverDataSource
+2026-09-15T17:34:13.415+08:00  INFO 24604 --- [spike-service] [           main] c.a.n.c.a.AbstractServerListManager      : Load and match ServerListProvider com.alibaba.nacos.client.address.EndpointServerListProvider, match result: false
+2026-09-15T17:34:13.416+08:00  INFO 24604 --- [spike-service] [           main] c.a.n.c.a.AbstractServerListManager      : Load and match ServerListProvider com.alibaba.nacos.client.address.PropertiesListProvider, match result: true
+2026-09-15T17:34:13.418+08:00  INFO 24604 --- [spike-service] [           main] c.a.n.c.a.AbstractServerListManager      : Will use com.alibaba.nacos.client.address.PropertiesListProvider as ServerListProvider
+2026-09-15T17:34:13.425+08:00  INFO 24604 --- [spike-service] [           main] c.a.n.p.a.s.c.ClientAuthPluginManager    : [ClientAuthPluginManager] Load ClientAuthService com.alibaba.nacos.client.auth.impl.NacosClientAuthServiceImpl success.
+2026-09-15T17:34:13.426+08:00  INFO 24604 --- [spike-service] [           main] c.a.n.p.a.s.c.ClientAuthPluginManager    : [ClientAuthPluginManager] Load ClientAuthService com.alibaba.nacos.client.auth.ram.RamClientAuthServiceImpl success.
+2026-09-15T17:34:13.459+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.common.remote.client   : [RpcClientFactory] create a new rpc client of 3ce3b007-fd21-4398-92d6-1ebb336956cc
+2026-09-15T17:34:13.473+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.client.naming          : Create naming rpc client for uuid->3ce3b007-fd21-4398-92d6-1ebb336956cc
+2026-09-15T17:34:13.473+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] RpcClient init, ServerListFactory = com.alibaba.nacos.client.naming.core.NamingServerListManager
+2026-09-15T17:34:13.473+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Registry connection listener to current client:com.alibaba.nacos.client.naming.remote.gprc.redo.NamingGrpcRedoService
+2026-09-15T17:34:13.477+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Register server push request handler:com.alibaba.nacos.client.naming.remote.gprc.NamingPushRequestHandler
+2026-09-15T17:34:13.480+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Register server push request handler:com.alibaba.nacos.client.naming.remote.gprc.NamingFuzzyWatchNotifyRequestHandler
+2026-09-15T17:34:13.483+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Try to connect to server on start up, server: {serverIp = '127.0.0.1', server main port = 18848}
+2026-09-15T17:34:13.485+08:00  INFO 24604 --- [spike-service] [           main] c.a.n.c.remote.client.grpc.GrpcClient    : grpc client connection server: 127.0.0.1 ip, serverPort: 19848, grpcTslConfig: {"enableTls":false,"mutualAuthEnable":false,"trustAll":true}
+2026-09-15T17:34:13.674+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Success to connect to server [127.0.0.1:18848] on start up, connectionId = 1789464853568_172.25.0.1_56656
+2026-09-15T17:34:13.675+08:00  INFO 24604 --- [spike-service] [remote.worker.0] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Notify connected event to listeners.
+2026-09-15T17:34:13.675+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Register server push request handler:com.alibaba.nacos.common.remote.client.RpcClient$ConnectResetRequestHandler
+2026-09-15T17:34:13.676+08:00  INFO 24604 --- [spike-service] [remote.worker.0] com.alibaba.nacos.client.naming          : Grpc connection connect
+2026-09-15T17:34:13.677+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Register server push request handler:com.alibaba.nacos.common.remote.client.RpcClient$$Lambda/0x000002098543a620
+2026-09-15T17:34:13.692+08:00  INFO 24604 --- [spike-service] [           main] com.alibaba.nacos.client.naming          : [REGISTER-SERVICE] public registering service spike-service with instance Instance{instanceId='null', ip='172.28.16.1', port=8081, weight=1.0, healthy=true, enabled=true, ephemeral=true, clusterName='', serviceName='null', metadata={IPv6=null, preserved.register.source=SPRING_CLOUD}}
+2026-09-15T17:34:14.731+08:00  INFO 24604 --- [spike-service] [           main] c.a.c.n.registry.NacosServiceRegistry    : nacos registry, DEFAULT_GROUP spike-service 172.28.16.1:8081 register finished
+2026-09-15T17:34:14.808+08:00  INFO 24604 --- [spike-service] [           main] c.r.spike.SpikeServiceApplication        : Started SpikeServiceApplication in 12.291 seconds (process running for 15.362)
+2026-09-15T17:34:14.835+08:00  INFO 24604 --- [spike-service] [           main] c.a.nacos.client.config.impl.CacheData   : config listener notify warn timeout millis use default 60000 millis 
+2026-09-15T17:34:14.835+08:00  INFO 24604 --- [spike-service] [           main] c.a.nacos.client.config.impl.CacheData   : nacos.cache.data.init.snapshot = true 
+2026-09-15T17:34:14.878+08:00  INFO 24604 --- [spike-service] [           main] c.a.n.client.config.impl.ClientWorker    : [Config-fixed-public-127.0.0.1_18848] [subscribe] spike-service.yaml+DEFAULT_GROUP+public
+2026-09-15T17:34:14.923+08:00  INFO 24604 --- [spike-service] [           main] c.a.nacos.client.config.impl.CacheData   : [Config-fixed-public-127.0.0.1_18848] [add-listener] ok, tenant=public, dataId=spike-service.yaml, group=DEFAULT_GROUP, cnt=1
+2026-09-15T17:34:14.924+08:00  INFO 24604 --- [spike-service] [           main] c.a.c.n.refresh.NacosContextRefresher    : [Nacos Config] Listening config: dataId=spike-service.yaml, group=DEFAULT_GROUP
+2026-09-15T17:34:51.152+08:00  INFO 24604 --- [spike-service] [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-15T17:34:51.152+08:00  INFO 24604 --- [spike-service] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-15T17:34:51.153+08:00  INFO 24604 --- [spike-service] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+INFO: Sentinel log output type is: file
+INFO: Sentinel log charset is: utf-8
+INFO: Sentinel log base directory is: C:\Users\hjn\logs\csp\
+INFO: Sentinel log name use pid is: false
+INFO: Sentinel log level is: INFO
+2026-09-15T17:34:51.498+08:00  INFO 24604 --- [spike-service] [nio-8081-exec-4] com.alibaba.nacos.client.naming          : [SUBSCRIBE-SERVICE] service:spike-service, group:DEFAULT_GROUP, clusters: 
+2026-09-15T17:34:51.498+08:00  INFO 24604 --- [spike-service] [nio-8081-exec-4] com.alibaba.nacos.client.naming          : [GRPC-SUBSCRIBE] service:spike-service, group:DEFAULT_GROUP, cluster: 
+2026-09-15T17:34:51.533+08:00  INFO 24604 --- [spike-service] [nio-8081-exec-4] com.alibaba.nacos.client.naming          : init new ips(1) service: DEFAULT_GROUP@@spike-service -> [{"instanceId":"172.28.16.1#8081##DEFAULT_GROUP@@spike-service","ip":"172.28.16.1","port":8081,"weight":1.0,"healthy":true,"enabled":true,"ephemeral":true,"clusterName":"DEFAULT","serviceName":"DEFAULT_GROUP@@spike-service","metadata":{"preserved.register.source":"SPRING_CLOUD"},"instanceHeartBeatInterval":5000,"instanceHeartBeatTimeOut":15000,"ipDeleteTimeout":30000}]
+2026-09-15T17:34:51.534+08:00  INFO 24604 --- [spike-service] [nio-8081-exec-4] com.alibaba.nacos.client.naming          : current ips:(1) service: DEFAULT_GROUP@@spike-service -> [{"instanceId":"172.28.16.1#8081##DEFAULT_GROUP@@spike-service","ip":"172.28.16.1","port":8081,"weight":1.0,"healthy":true,"enabled":true,"ephemeral":true,"clusterName":"DEFAULT","serviceName":"DEFAULT_GROUP@@spike-service","metadata":{"preserved.register.source":"SPRING_CLOUD"},"instanceHeartBeatInterval":5000,"instanceHeartBeatTimeOut":15000,"ipDeleteTimeout":30000}]
+2026-09-15T17:34:52.112+08:00  INFO 24604 --- [spike-service] [or-127.0.0.1-31] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Receive server push request, request = NotifySubscriberRequest, requestId = 1
+2026-09-15T17:34:52.113+08:00  INFO 24604 --- [spike-service] [or-127.0.0.1-31] com.alibaba.nacos.common.remote.client   : [3ce3b007-fd21-4398-92d6-1ebb336956cc] Ack server push request, request = NotifySubscriberRequest, requestId = 1

@@ -1,0 +1,87 @@
+# T00 compatibility spike infrastructure.
+# Deliberately separate from the T01 infra/compose.yaml: this stack exists only to
+# run the compatibility gates and is disposable. Images are pinned by digest in
+# infra/versions.lock.yaml; digests were recorded from the pulled images.
+name: resolveflow-t00-spike
+
+services:
+  mysql:
+    image: mysql:8.4
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: spike_db
+      MYSQL_USER: spike
+      MYSQL_PASSWORD: spike
+    ports:
+      - "13306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  postgres:
+    # PostgreSQL 16 with pgvector preinstalled (project needs both).
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: agent
+      POSTGRES_DB: agent_db
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d agent_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "no"]
+    ports:
+      - "16379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  rocketmq-namesrv:
+    image: apache/rocketmq:5.3.3
+    command: ["nameserver"]
+    environment:
+      JAVA_OPT_EXT: "-Xms256m -Xmx256m -Xmn128m"
+    ports:
+      - "19876:9876"
+
+  rocketmq-broker:
+    image: apache/rocketmq:5.3.3
+    command: ["broker", "-c", "/home/rocketmq/broker.conf"]
+    environment:
+      NAMESRV_ADDR: rocketmq-namesrv:9876
+      JAVA_OPT_EXT: "-Xms512m -Xmx512m -Xmn256m"
+    volumes:
+      - ./rocketmq/broker.conf:/home/rocketmq/broker.conf:ro
+    ports:
+      - "10911:10911"
+      - "10909:10909"
+    depends_on:
+      - rocketmq-namesrv
+
+  nacos:
+    image: nacos/nacos-server:v3.1.0
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "false"
+      # Nacos 3.x refuses to start without a token even when auth is disabled.
+      # Dev-only value; a real deployment reads this from the environment.
+      NACOS_AUTH_TOKEN: "cmVzb2x2ZWZsb3ctdDAwLXNwaWtlLWRldi1vbmx5LXRva2VuLTMyYis="
+      NACOS_AUTH_IDENTITY_KEY: "resolveflow-spike"
+      NACOS_AUTH_IDENTITY_VALUE: "resolveflow-spike-dev-only"
+      JVM_XMS: 256m
+      JVM_XMX: 512m
+    ports:
+      - "18848:8848"
+      - "19848:9848"
+      - "18080:8080"

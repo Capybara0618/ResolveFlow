@@ -1,0 +1,10 @@
+ResolveFlow verify
+  suite : unicorn
+  mode  : mock
+  seed  : 42
+  report: /e/Code/Agent+Backend/reports/verify/20260917-095656-unicorn.txt
+
+UNKNOWN SUITE: 'unicorn' is not a suite this script implements.
+Known suites: doctor format unit smoke all-offline
+Deferred to a later task: contracts system faults performance agent-eval rag-eval harness harness-eval
+Refusing to report success for a suite that ran nothing.

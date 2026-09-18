@@ -1,0 +1,321 @@
+openapi: 3.1.0
+info:
+  title: ResolveFlow fulfillment-service API
+  version: 0.1.0
+  description: |
+    Shipment evidence, packing manifests, inventory and the reship operation.
+
+    Authority: docs/contracts.md and docs/domain-model.md §4. Two rules this
+    document is deliberately explicit about:
+
+    - A missing warehouse record is not the same as "confirmed no discrepancy".
+      `PackingEvidence.verified_status` separates `NO_RECORD` from `VERIFIED`
+      (docs/domain-model.md:59).
+    - A late shipment event never overwrites a newer state; events carry their
+      `source_version` so out-of-order delivery is detectable.
+
+    Everything under `/internal/` accepts only a scoped service token.
+servers:
+  - url: http://fulfillment-service:8082
+    description: In-cluster address. Reached only through the gateway or a service token.
+tags:
+  - name: internal-read
+    description: Read-only logistics facts reached by the Agent's scoped tools.
+  - name: reship
+    description: Reship operation state and reconciliation.
+paths:
+  /internal/v1/order-lines/{line_id}/shipment:
+    get:
+      tags: [internal-read]
+      operationId: readShipmentEvidence
+      summary: Shipment status, carrier conclusion and track events
+      description: |
+        The carrier conclusion — not the customer's statement — is what establishes a
+        lost parcel. A 72-hour scan gap alone may open an investigation but never
+        authorises a refund (docs/product-spec.md:35).
+      parameters:
+        - $ref: '#/components/parameters/LineId'
+      responses:
+        '200':
+          description: Shipment evidence at its current source version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShipmentEvidence'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/order-lines/{line_id}/packing:
+    get:
+      tags: [internal-read]
+      operationId: readPackingEvidence
+      summary: Warehouse packing manifest for one line
+      description: |
+        `verified_status: NO_RECORD` means no authoritative warehouse record exists;
+        it must not be read as "no discrepancy" (docs/product-spec.md:37).
+      parameters:
+        - $ref: '#/components/parameters/LineId'
+      responses:
+        '200':
+          description: Packing evidence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PackingEvidence'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/operations/{operation_id}:
+    get:
+      tags: [reship]
+      operationId: readReshipOperation
+      summary: Authoritative reship operation state
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: Operation state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReshipOperationView'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/operations/{operation_id}/cancel-before-start:
+    post:
+      tags: [reship]
+      operationId: cancelReshipBeforeStart
+      summary: Persist a cancellation tombstone before the reship can start
+      description: |
+        A tombstone is written even when the operation row does not exist yet, so a
+        late command cannot start once cancellation was recorded. Once the carrier
+        has accepted the reship, cancellation returns 409 and the only path is
+        forward (docs/domain-model.md:65).
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonRequest'
+      responses:
+        '200':
+          description: Cancellation recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelBeforeStartResponse'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+components:
+  securitySchemes:
+    serviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Internal aud/scope token. Forged identity headers are stripped at the gateway.
+  parameters:
+    LineId:
+      name: line_id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    OperationId:
+      name: operation_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+  responses:
+    ForbiddenScope:
+      description: Service token lacks the required scope (403)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not visible under this token's scope (404)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    StateConflict:
+      description: The operation already started, so cancellation is refused (409)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: STATE_CONFLICT
+              message: reship operation already accepted by the carrier; only forward completion is possible
+              retryable: false
+              trace_id: 0af7651916cd43dd8448eb211c80319c
+    ServiceUnavailable:
+      description: Temporarily unavailable (503)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    Uuid:
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    Version:
+      type: integer
+      minimum: 1
+      maximum: 9007199254740991
+    OperationState:
+      type: string
+      enum:
+        [CREATED, RESERVING, RESERVED, RECEIVED, STARTING, DISPATCHED, IN_PROGRESS,
+         TARGET_SUCCEEDED, COMMITTING, SUCCEEDED, UNKNOWN, RELEASING, FAILED, CANCELLED]
+    ReasonRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [code, message, retryable]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        retryable:
+          type: boolean
+        trace_id:
+          type: [string, 'null']
+          maxLength: 64
+        details:
+          type: [object, 'null']
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          $ref: '#/components/schemas/ApiError'
+    ShipmentEvent:
+      type: object
+      additionalProperties: false
+      required: [code, occurred_at, source_version]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        occurred_at:
+          type: string
+          format: date-time
+        source_version:
+          $ref: '#/components/schemas/Version'
+          description: Used to detect a late event that must not overwrite newer state.
+    ShipmentEvidence:
+      type: object
+      additionalProperties: false
+      required: [line_id, status, carrier_conclusion, events, source_version, updated_at]
+      properties:
+        line_id:
+          type: string
+          minLength: 1
+        status:
+          type: string
+          minLength: 1
+        carrier_conclusion:
+          type: string
+          enum: [LOST, DELIVERED, IN_TRANSIT, UNKNOWN]
+          description: Only LOST or DELIVERED are terminal carrier conclusions.
+        events:
+          type: array
+          maxItems: 200
+          items:
+            $ref: '#/components/schemas/ShipmentEvent'
+        source_version:
+          $ref: '#/components/schemas/Version'
+        updated_at:
+          type: string
+          format: date-time
+    PackingEvidence:
+      type: object
+      additionalProperties: false
+      required: [line_id, sku, shipped_quantity, verified_status, version]
+      properties:
+        line_id:
+          type: string
+          minLength: 1
+        sku:
+          type: string
+          minLength: 1
+        shipped_quantity:
+          type: integer
+          minimum: 0
+          maximum: 1000
+        verified_status:
+          type: string
+          enum: [VERIFIED, NOT_VERIFIED, NO_RECORD]
+          description: NO_RECORD is not evidence of no discrepancy.
+        version:
+          $ref: '#/components/schemas/Version'
+    ReshipOperationView:
+      type: object
+      additionalProperties: false
+      required: [operation_id, line_id, state, quantity, version]
+      properties:
+        operation_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+        state:
+          $ref: '#/components/schemas/OperationState'
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        provider_ref:
+          type: [string, 'null']
+          maxLength: 200
+          description: Masked in any public response.
+        reason_code:
+          type: [string, 'null']
+          pattern: '^[A-Z][A-Z0-9_]{1,63}$'
+        next_check_at:
+          # anyOf, not type: [string, 'null']: a nullable field that also carries a
+          # format must apply that format to the string branch only.
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        version:
+          $ref: '#/components/schemas/Version'
+    CancelBeforeStartResponse:
+      type: object
+      additionalProperties: false
+      required: [operation_id, state, tombstone_created, version]
+      properties:
+        operation_id:
+          $ref: '#/components/schemas/Uuid'
+        state:
+          type: string
+          const: CANCELLED
+        tombstone_created:
+          type: boolean
+        version:
+          $ref: '#/components/schemas/Version'
+security:
+  - serviceToken: []

@@ -1,0 +1,21 @@
+ResolveFlow verify
+  suite : format
+  mode  : mock
+  seed  : 42
+  report: E:\Code\Agent+Backend\reports\verify\20260918-110653-format.txt
+
+== format
+  -- java-spotless
+     \$ java\mvnw.cmd -f java/pom.xml -B spotless:check
+     PASS (9.3s)
+  -- python-ruff
+     \$ uv run --project agent ruff check agent/src agent/tests
+     PASS (1.1s)
+  -- python-mypy
+     \$ uv run --project agent mypy agent/src
+     PASS (1.3s)
+  -- web-typecheck
+     \$ pnpm --dir web typecheck
+     PASS (6s)
+
+SUITE 'format' PASSED

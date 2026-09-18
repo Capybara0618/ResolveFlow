@@ -1,0 +1,48 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] resolveflow-t00-java-spike                                         [pom]
+[INFO] resolveflow-t00-spike-service                                      [jar]
+[INFO] resolveflow-t00-spike-gateway                                      [jar]
+[INFO] 
+[INFO] ------------------< com.resolveflow.spike:java-spike >------------------
+[INFO] Building resolveflow-t00-java-spike 0.0.1-SPIKE                    [1/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ java-spike ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] ----------------< com.resolveflow.spike:spike-service >-----------------
+[INFO] Building resolveflow-t00-spike-service 0.0.1-SPIKE                 [2/3]
+[INFO]   from spike-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ spike-service ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] ----------------< com.resolveflow.spike:spike-gateway >-----------------
+[INFO] Building resolveflow-t00-spike-gateway 0.0.1-SPIKE                 [3/3]
+[INFO]   from spike-gateway\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ spike-gateway ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for resolveflow-t00-java-spike 0.0.1-SPIKE:
+[INFO] 
+[INFO] resolveflow-t00-java-spike ......................... SUCCESS [  0.380 s]
+[INFO] resolveflow-t00-spike-service ...................... SUCCESS [  0.758 s]
+[INFO] resolveflow-t00-spike-gateway ...................... SUCCESS [  0.100 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.593 s
+[INFO] Finished at: 2026-09-15T17:17:07+08:00
+[INFO] ------------------------------------------------------------------------

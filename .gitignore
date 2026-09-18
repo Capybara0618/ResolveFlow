@@ -1,0 +1,25 @@
+# 构建产物：源码仓库不跟踪，重新构建即可再生
+target/
+dist/
+*.class
+*.jar
+!java/.mvn/wrapper/maven-wrapper.jar
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+.pnpm-store/
+
+# 工具缓存
+.uv-cache/
+
+# 临时目录：日志、下载物、一次性脚本
+tmp/

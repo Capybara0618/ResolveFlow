@@ -1,0 +1,7 @@
+SERVICE            STATUS
+mysql              Up 41 minutes (healthy)
+nacos              Up 38 minutes
+postgres           Up 41 minutes (healthy)
+redis              Up 41 minutes (healthy)
+rocketmq-broker    Up 41 minutes
+rocketmq-namesrv   Up 41 minutes

@@ -1,0 +1,21 @@
+# commerce-service — T01 skeleton configuration.
+# Ports follow docs/architecture.md (container-internal ports).
+server:
+  port: 8081
+
+spring:
+  application:
+    name: commerce-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      # Details stay hidden by default: the gateway is reachable from outside the
+      # compose network, and component/DB status is useful reconnaissance. The
+      # Agent service takes the same position (status only). Enable temporarily
+      # with -Dmanagement.endpoint.health.show-details=always when debugging.
+      show-details: never

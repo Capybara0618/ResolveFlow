@@ -1,0 +1,132 @@
+# Minimal CI, established with T01 and grown by T32.
+#
+# What runs here is exactly what scripts/verify.sh runs locally: the same suites,
+# the same failure semantics. CI must not become a second, weaker definition of
+# "passing" — a check that cannot run is a failure, not a skip
+# (docs/engineering.md 5: 关键安全/资金测试不允许因依赖不可用而标通过).
+#
+# Not here yet, deliberately:
+#   - database/MQ integration suites (arrive with T10-T16)
+#   - fault, performance and live model evaluation (nightly/manual, T29-T31)
+#   - replay golden packs (T38)
+# The PR pipeline grows with the code; it does not pretend to cover it early.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Keeps Java tooling quiet and deterministic in CI.
+  MAVEN_OPTS: -Dfile.encoding=UTF-8
+
+jobs:
+  offline:
+    name: offline verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: '0.10.8'
+          enable-cache: true
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '12.4.1'
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install Python dependencies
+        # --frozen: the lockfile is the truth. A dependency that moved without a
+        # lockfile change is a supply-chain event, not a build detail.
+        run: uv sync --project agent --frozen --all-extras
+
+      - name: Install web dependencies
+        run: pnpm --dir web install --frozen-lockfile
+
+      - name: Doctor
+        run: bash scripts/doctor.sh
+
+      - name: Format and lint
+        run: bash scripts/verify.sh --suite format
+
+      - name: Unit tests
+        run: bash scripts/verify.sh --suite unit
+
+  infra:
+    name: infra and smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: '0.10.8'
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --project agent --frozen --all-extras
+
+      - name: Smoke (starts the stack and boots every service)
+        run: bash scripts/verify.sh --suite smoke
+
+      - name: Upload verification reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-reports
+          path: reports/verify/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: docker compose -f infra/compose.yaml logs --tail 200

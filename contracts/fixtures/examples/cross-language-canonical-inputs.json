@@ -1,0 +1,160 @@
+{
+  "_comment": [
+    "T02 cross-language canonicalisation fixture (input half).",
+    "docs/contracts.md:13 requires request hashing over canonicalised JSON (RFC 8785 / JCS), never over raw bytes; docs/contracts.md:17 fixes the exact field set for the execution payload_hash and requires T02 to freeze both the inputs and the resulting bytes.",
+    "The expected values live in expected-hashes.json and must be reproduced byte-for-byte by Java (com.resolveflow.shared.contract.CanonicalJson) and Python (resolveflow.contracts.canonical). The two implementations were written independently on purpose: agreement between them is evidence, agreement of one implementation with itself would not be.",
+    "Money is integer minor units everywhere. contracts.md:19 forbids float money and caps revisions at 2^53-1; both languages therefore refuse a float rather than rounding it."
+  ],
+  "execution_payloads": {
+    "refund-basic": {
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+      "input_revision": 1,
+      "line_id": "7001",
+      "merchant_id": "1",
+      "action": "REFUND",
+      "quantity": 1,
+      "currency": "CNY",
+      "amount_minor": 20000,
+      "policy_version": "policy-2026.09-refund-v3",
+      "target_service": "commerce-service"
+    },
+    "refund-max-amount-and-max-revision": {
+      "operation_id": "00000000-0000-4000-8000-000000000001",
+      "case_id": "00000000-0000-4000-8000-000000000002",
+      "authorization_id": "00000000-0000-4000-8000-000000000003",
+      "input_revision": 9007199254740991,
+      "line_id": "line-with-unicode-行",
+      "merchant_id": "商家-42",
+      "action": "REFUND",
+      "quantity": 3,
+      "currency": "CNY",
+      "amount_minor": 1000000000,
+      "policy_version": "政策-2026.09-退款-v3",
+      "target_service": "commerce-service"
+    },
+    "reship-basic": {
+      "operation_id": "11111111-2222-4333-8444-555555555555",
+      "case_id": "22222222-3333-4444-8555-666666666666",
+      "authorization_id": "33333333-4444-4555-8666-777777777777",
+      "input_revision": 2,
+      "line_id": "7002",
+      "merchant_id": "1",
+      "action": "RESHIP",
+      "quantity": 1,
+      "currency": "CNY",
+      "address_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "policy_version": "policy-2026.09-reship-v1",
+      "target_service": "fulfillment-service"
+    },
+    "refund-with-runtime-fields-present": {
+      "_comment": "payload_hash, entitlement_id, trace_id and sent_at are filled in after the hash is computed and must not change it (docs/contracts.md:17).",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+      "input_revision": 1,
+      "line_id": "7001",
+      "merchant_id": "1",
+      "action": "REFUND",
+      "quantity": 1,
+      "currency": "CNY",
+      "amount_minor": 20000,
+      "policy_version": "policy-2026.09-refund-v3",
+      "target_service": "commerce-service",
+      "payload_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "entitlement_id": "ent-not-yet-reserved",
+      "trace_id": "trace-abc",
+      "sent_at": "2026-09-18T00:00:00Z"
+    },
+    "refund-non-ascii-and-control-chars": {
+      "_comment": "Exercises JCS string escaping and UTF-8 output on both sides: escaped control characters, non-BMP code points and a surrogate pair.",
+      "operation_id": "44444444-5555-4666-8777-888888888888",
+      "case_id": "55555555-6666-4777-8888-999999999999",
+      "authorization_id": "66666666-7777-4888-8999-aaaaaaaaaaaa",
+      "input_revision": 7,
+      "line_id": "line-\t-tab-\\-backslash-\"\u0001-\uD83D\uDE00-𐀀",
+      "merchant_id": "商户\u0002测试",
+      "action": "REFUND",
+      "quantity": 1,
+      "currency": "CNY",
+      "amount_minor": 1,
+      "policy_version": "政策-带\"引号\"-v1",
+      "target_service": "commerce-service"
+    }
+  },
+  "content_hashes": {
+    "evidence-doc": {
+      "source_type": "SHIPMENT_TRACK",
+      "source_ref": "shipment:9001:track:v3",
+      "source_version": 3,
+      "carrier": "SF",
+      "note": "包裹在运输中受损",
+      "events": [
+        {"code": "PICKED_UP", "at": "2026-09-01T02:00:00Z"},
+        {"code": "DAMAGED", "at": "2026-09-02T07:30:00Z", "warehouse": "仓-杭州"}
+      ]
+    },
+    "utf16-key-ordering": {
+      "_comment": "Keys chosen so code-point order and UTF-16 code-unit order differ: U+FFFD (BMP) and U+E000 (BMP) against U+10000 (supplementary). JCS requires UTF-16 order, and a naive code-point sort produces different bytes.",
+      "�": "replacement-char",
+      "": "private-use-bmp",
+      "𐀀": "supplementary-plane-char",
+      "b": "ascii-lower",
+      "A": "ascii-upper",
+      "a": "ascii-lower-tiebreak"
+    },
+    "nested-null-and-boolean": {
+      "_comment": "null must canonicalise to the literal null rather than being dropped, and booleans must not be serialised as integers.",
+      "flags": {"retryable": true, "reconciled": false},
+      "replacement": null,
+      "amounts": [0, 1, 1000000000]
+    }
+  },
+  "invalid_payloads": {
+    "float-amount": {
+      "_comment": "contracts.md:19 forbids float money; both languages must refuse it rather than round it.",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+      "input_revision": 1,
+      "line_id": "7001",
+      "merchant_id": "1",
+      "action": "REFUND",
+      "quantity": 1,
+      "currency": "CNY",
+      "amount_minor": 200.5,
+      "policy_version": "policy-2026.09-refund-v3",
+      "target_service": "commerce-service"
+    },
+    "missing-hashed-field": {
+      "_comment": "A field covered by the hash that is absent must fail loudly; otherwise two different payloads could hash the same.",
+      "action": "REFUND",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301"
+    },
+    "unknown-action": {
+      "_comment": "Only REFUND and RESHIP exist; an unknown action has no field set and no hash.",
+      "action": "PARTIAL_REFUND",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "authorization_id": "7d444840-9dc0-11d1-b245-5ffdce74fad2",
+      "input_revision": 1,
+      "line_id": "7001",
+      "merchant_id": "1",
+      "quantity": 1,
+      "currency": "CNY",
+      "amount_minor": 20000,
+      "policy_version": "policy-2026.09-refund-v3",
+      "target_service": "commerce-service"
+    }
+  },
+  "unicode_documents": {
+    "control-and-supplementary": {
+      "_comment": "Expected canonical text is frozen in expected-hashes.json so both sides are compared on bytes, not on a parsed structure that could hide escaping differences.",
+      "z": "last",
+      "nested": {"b": 2, "a": [true, null, "x\ny"]},
+      "text": "tab:\t newline:\n quote:\" backslash:\\ unit-sep:\u001f smile:😀 supplementary:𐀀",
+      "A": "upper-first-in-utf16"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+$ vue-tsc --noEmit && vite build
+[36mvite v8.3.0 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 11 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                 0.33 kB │ gzip:  0.24 kB
+dist/assets/index-CFk0EGgD.js  61.87 kB │ gzip: 24.53 kB │ map: 535.98 kB
+
+[32m✓ built in 103ms[39m

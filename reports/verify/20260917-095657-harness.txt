@@ -1,0 +1,8 @@
+ResolveFlow verify
+  suite : harness
+  mode  : mock
+  seed  : 42
+  report: /e/Code/Agent+Backend/reports/verify/20260917-095657-harness.txt
+
+NOT IMPLEMENTED: suite 'harness' belongs to T38 隔离回放与GH验收.
+Refusing to report success for a suite that ran nothing.

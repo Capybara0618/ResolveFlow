@@ -1,0 +1,155 @@
+{
+  "_comment": [
+    "T02 frozen enum mapping. Java (com.resolveflow.shared.contract.ContractEnums) and Python (resolveflow.contracts.enums) both assert against this file.",
+    "A member renamed on one side therefore fails a test on both, instead of producing an unroutable action at runtime.",
+    "Regenerate with: uv run --project agent --frozen python scripts/contracts_freeze.py"
+  ],
+  "enums": {
+    "event_type": [
+      "RefundRequested",
+      "ReshipRequested",
+      "RefundSucceeded",
+      "RefundFailed",
+      "RefundUnknown",
+      "ReshipSucceeded",
+      "ReshipFailed",
+      "ReshipUnknown",
+      "EntitlementCommitted",
+      "EntitlementReleased"
+    ],
+    "producer": [
+      "case-service",
+      "commerce-service",
+      "fulfillment-service"
+    ],
+    "action": [
+      "REFUND",
+      "RESHIP"
+    ],
+    "requested_action": [
+      "REFUND",
+      "RESHIP",
+      "EITHER"
+    ],
+    "case_type": [
+      "LOGISTICS",
+      "DAMAGED",
+      "WRONG_MISSING",
+      "OUT_OF_SCOPE"
+    ],
+    "recommended_action": [
+      "REFUND",
+      "RESHIP",
+      "REQUEST_INFO",
+      "MANUAL_REVIEW",
+      "REJECT"
+    ],
+    "case_status": [
+      "QUEUED",
+      "ANALYZING",
+      "WAITING_CUSTOMER",
+      "PENDING_REVIEW",
+      "AUTHORIZED",
+      "EXECUTING",
+      "RECONCILING",
+      "CLOSED_SUCCESS",
+      "CLOSED_REJECTED",
+      "CANCELLED"
+    ],
+    "timeline_event_type": [
+      "CASE_CREATED",
+      "AGENT_STARTED",
+      "QUESTION_REQUIRED",
+      "PROPOSAL_READY",
+      "APPROVAL_REQUIRED",
+      "EXECUTION_UPDATED",
+      "CASE_CLOSED"
+    ],
+    "callback_kind": [
+      "STARTED",
+      "QUESTION",
+      "PROPOSAL",
+      "FAILED"
+    ],
+    "callback_disposition": [
+      "ACCEPTED",
+      "DUPLICATE",
+      "STALE"
+    ],
+    "idempotency_disposition": [
+      "CREATED",
+      "REPLAYED",
+      "CONFLICT"
+    ],
+    "proposal_status": [
+      "PROPOSED",
+      "VALIDATED",
+      "STALE",
+      "REJECTED"
+    ],
+    "authorization_status": [
+      "PENDING_REVIEW",
+      "APPROVED",
+      "REJECTED",
+      "EXPIRED",
+      "REVOKED",
+      "CONSUMED"
+    ],
+    "decision": [
+      "APPROVE",
+      "REJECT",
+      "REQUEST_INFO"
+    ],
+    "risk_route": [
+      "AUTO",
+      "REVIEW",
+      "NEED_INFO",
+      "BLOCK"
+    ],
+    "entitlement_state": [
+      "FREE",
+      "RESERVED",
+      "IN_USE",
+      "CONSUMED"
+    ],
+    "operation_state": [
+      "CREATED",
+      "RESERVING",
+      "RESERVED",
+      "RECEIVED",
+      "STARTING",
+      "DISPATCHED",
+      "IN_PROGRESS",
+      "TARGET_SUCCEEDED",
+      "COMMITTING",
+      "SUCCEEDED",
+      "UNKNOWN",
+      "RELEASING",
+      "FAILED",
+      "CANCELLED"
+    ],
+    "evidence_source_type": [
+      "ORDER_LINE",
+      "PAYMENT_LEDGER",
+      "LINE_ENTITLEMENT",
+      "SHIPMENT",
+      "SHIPMENT_TRACK",
+      "PACKING_MANIFEST",
+      "CUSTOMER_STATEMENT",
+      "REVIEWER_VERIFICATION",
+      "POLICY_RULE"
+    ],
+    "error_code": [
+      "VALIDATION_FAILED",
+      "UNAUTHENTICATED",
+      "FORBIDDEN_SCOPE",
+      "NOT_FOUND",
+      "IDEMPOTENCY_CONFLICT",
+      "STATE_CONFLICT",
+      "VERSION_CONFLICT",
+      "SEMANTIC_INVALID",
+      "RATE_LIMITED",
+      "SERVICE_UNAVAILABLE"
+    ]
+  }
+}

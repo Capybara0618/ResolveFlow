@@ -1,0 +1,463 @@
+openapi: 3.1.0
+info:
+  title: ResolveFlow agent-service internal API
+  version: 0.1.0
+  description: |
+    The Python Agent's control plane, called by case-service only.
+
+    Authority: docs/contracts.md §3 and docs/agent-harness.md. Three properties are
+    fixed here rather than left to later implementation tasks:
+
+    - The model never sees the service token. Case-service signs a short-lived,
+      scoped tool credential; the Agent presents it to the resource services.
+    - A `202` means the run is durable in PostgreSQL. Accepting a run before it is
+      persisted would lose work silently on a restart (T17).
+    - Run identity (`run_id`, `case_id`, `input_revision`, `proposal_id`) is injected
+      from the authenticated task context. A model cannot name another run
+      (docs/contracts.md:58).
+
+    There is no public route here. The service listens on the internal network and
+    browsers never reach it.
+servers:
+  - url: http://agent-service:8090
+    description: In-cluster address only.
+tags:
+  - name: runs
+    description: Durable run intake, status and cancellation.
+  - name: observations
+    description: The tool records Java re-reads to verify an Agent citation.
+paths:
+  /health:
+    get:
+      tags: [runs]
+      operationId: health
+      summary: Liveness and build identity
+      security: []
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /internal/v1/runs:
+    post:
+      tags: [runs]
+      operationId: createRun
+      summary: Accept a durable investigation run
+      description: |
+        Idempotent on `run_id`, which case-service derives from
+        `(case_id, input_revision)`. The same key with a different body is 409. The
+        response is only sent after the run row is committed, so a caller that got a
+        202 can rely on it (docs/contracts.md:56).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+            example:
+              run_id: e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa
+              case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
+              input_revision: 1
+              context:
+                merchant_id: '1'
+                customer_id: '1001'
+                order_id: 00000000-0000-4000-8000-0000000000aa
+                line_id: '7001'
+              request:
+                description: 包裹丢了，希望退款
+                requested_actions: [REFUND]
+                evidence_refs: [ev-1]
+              policy_manifest:
+                bundle_ids: [policy-logistics-2026.09]
+                manifest_hash: 9999999999999999999999999999999999999999999999999999999999999999
+                safety_epoch: 1
+              deadline_at: '2026-09-18T05:00:00Z'
+              traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01
+      responses:
+        '202':
+          description: Run persisted and queued
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunAccepted'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+        '429':
+          $ref: '#/components/responses/Overloaded'
+  /internal/v1/runs/{run_id}:
+    get:
+      tags: [runs]
+      operationId: readRun
+      summary: Run status for case-service reconciliation
+      description: |
+        Returns status, the callback ids already emitted, the run version and a
+        masked result summary. It never returns raw model text or credentials.
+      parameters:
+        - $ref: '#/components/parameters/RunId'
+      responses:
+        '200':
+          description: Current run state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunView'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/runs/{run_id}/cancel:
+    post:
+      tags: [runs]
+      operationId: cancelRun
+      summary: Mark a run cancelled
+      description: |
+        Cancellation is best effort for cost: an in-flight model request may still be
+        billed, and its result is then discarded. That is stated rather than hidden
+        because it is the honest bound on cancellation (docs/contracts.md:64).
+      parameters:
+        - $ref: '#/components/parameters/RunId'
+      responses:
+        '200':
+          description: Cancellation recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelAck'
+  /internal/v1/runs/{run_id}/observations/{observation_id}:
+    get:
+      tags: [observations]
+      operationId: readObservation
+      summary: Read one tool observation record and its source hash
+      description: |
+        Java does not trust a textual conclusion from Python. It re-reads the
+        authoritative business record through the same `source_ref`, checks ownership
+        and version, and re-investigates if the version moved (docs/contracts.md:62).
+        Customer statements are only ever checked against stored case evidence, never
+        promoted to warehouse fact.
+      parameters:
+        - $ref: '#/components/parameters/RunId'
+        - name: observation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 64
+      responses:
+        '200':
+          description: Observation record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservationRecord'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  securitySchemes:
+    caseDispatcherToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Service token whose audience is the Agent service and whose scope is limited
+        to run submission and status. The model never receives this token.
+  parameters:
+    RunId:
+      name: run_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+  headers:
+    Location:
+      description: Canonical URL of the accepted run.
+      schema:
+        type: string
+        format: uri-reference
+  responses:
+    ForbiddenScope:
+      description: Caller is not the case-dispatcher, or lacks the run scope (403)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: No such run under this caller's scope (404)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Same run_id with a different body, or a terminal run (409)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: IDEMPOTENCY_CONFLICT
+              message: run e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa exists with a different input_revision
+              retryable: false
+              trace_id: 0af7651916cd43dd8448eb211c80319c
+    SemanticInvalid:
+      description: The request cannot be executed as specified (422)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Overloaded:
+      description: Queue is at its bound (429); the caller may retry later
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: RATE_LIMITED
+              message: run queue is saturated; retry after the advertised delay
+              retryable: true
+              trace_id: 0af7651916cd43dd8448eb211c80319c
+  schemas:
+    Uuid:
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    Sha256Hex:
+      type: string
+      pattern: '^[a-f0-9]{64}$'
+    Version:
+      type: integer
+      minimum: 1
+      maximum: 9007199254740991
+    InputRevision:
+      type: integer
+      minimum: 1
+      maximum: 9007199254740991
+    Traceparent:
+      type: string
+      pattern: '^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$'
+    RequestedAction:
+      type: string
+      enum: [REFUND, RESHIP, EITHER]
+    EvidenceSourceType:
+      type: string
+      enum:
+        [ORDER_LINE, PAYMENT_LEDGER, LINE_ENTITLEMENT, SHIPMENT, SHIPMENT_TRACK,
+         PACKING_MANIFEST, CUSTOMER_STATEMENT, REVIEWER_VERIFICATION, POLICY_RULE]
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [code, message, retryable]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        retryable:
+          type: boolean
+        trace_id:
+          type: [string, 'null']
+          maxLength: 64
+        details:
+          type: [object, 'null']
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          $ref: '#/components/schemas/ApiError'
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status, service, version]
+      properties:
+        status:
+          type: string
+          const: UP
+        service:
+          type: string
+          minLength: 1
+        version:
+          type: string
+          minLength: 1
+    RunRequestContext:
+      type: object
+      additionalProperties: false
+      required: [merchant_id, customer_id, order_id, line_id]
+      properties:
+        merchant_id:
+          type: string
+          minLength: 1
+        customer_id:
+          type: string
+          minLength: 1
+        order_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+    RunRequestPayload:
+      type: object
+      additionalProperties: false
+      required: [description, requested_actions]
+      properties:
+        description:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        requested_actions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/RequestedAction'
+        evidence_refs:
+          type: array
+          maxItems: 64
+          items:
+            type: string
+            minLength: 1
+    PolicyManifestRef:
+      type: object
+      additionalProperties: false
+      required: [bundle_ids, manifest_hash, safety_epoch]
+      properties:
+        bundle_ids:
+          type: array
+          minItems: 1
+          maxItems: 16
+          items:
+            type: string
+            minLength: 1
+        manifest_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+        safety_epoch:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+    RunRequest:
+      type: object
+      additionalProperties: false
+      required: [run_id, case_id, input_revision, context, request, policy_manifest, deadline_at]
+      properties:
+        run_id:
+          $ref: '#/components/schemas/Uuid'
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        context:
+          $ref: '#/components/schemas/RunRequestContext'
+        request:
+          $ref: '#/components/schemas/RunRequestPayload'
+        policy_manifest:
+          $ref: '#/components/schemas/PolicyManifestRef'
+        deadline_at:
+          type: string
+          format: date-time
+          description: |
+            The queued deadline. Recovery must not extend it (docs/agent-harness.md,
+            T22): a run that waited too long is a different outcome than one that
+            investigated slowly.
+        traceparent:
+          oneOf:
+            - $ref: '#/components/schemas/Traceparent'
+            - type: 'null'
+    RunAccepted:
+      type: object
+      additionalProperties: false
+      required: [run_id, status]
+      properties:
+        run_id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          type: string
+          enum: [QUEUED, ANALYZING]
+    RunView:
+      type: object
+      additionalProperties: false
+      required: [run_id, case_id, input_revision, status, version]
+      properties:
+        run_id:
+          $ref: '#/components/schemas/Uuid'
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        status:
+          type: string
+          enum: [QUEUED, ANALYZING, WAITING_CUSTOMER, PROPOSED, FAILED, CANCELLED, COMPLETED]
+        version:
+          $ref: '#/components/schemas/Version'
+        callback_ids:
+          type: array
+          maxItems: 64
+          items:
+            type: string
+            minLength: 1
+        result_summary:
+          type: [string, 'null']
+          maxLength: 2000
+          description: Masked summary only; never raw model text.
+    CancelAck:
+      type: object
+      additionalProperties: false
+      required: [run_id, status, cancellation_requested]
+      properties:
+        run_id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          type: string
+          enum: [CANCELLED, COMPLETED, FAILED]
+        cancellation_requested:
+          type: boolean
+    ObservationRecord:
+      type: object
+      additionalProperties: false
+      required: [observation_id, run_id, tool_name, source_type, source_ref, source_version, content_hash, observed_at]
+      properties:
+        observation_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        run_id:
+          $ref: '#/components/schemas/Uuid'
+        tool_name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_type:
+          $ref: '#/components/schemas/EvidenceSourceType'
+        source_ref:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: A controlled reference, never an arbitrary URL.
+        source_version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        content_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+        observed_at:
+          type: string
+          format: date-time
+        result:
+          type: [object, 'null']
+          additionalProperties: true
+          description: The stored tool result Java re-reads and compares against the authority.
+security:
+  - caseDispatcherToken: []
