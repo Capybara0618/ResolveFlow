@@ -1,44 +1,48 @@
-# ResolveFlow · 智能售后决策与执行平台
+# ResolveFlow · 售后调查与退款Agent
 
-> 当前阶段：框架文档 v1.1（Harness深化），2026-09-15。尚未实现业务代码，尚无性能、准确率或可靠性实测结果。
+> 当前框架：v1.2个人项目核心版，2026-09-18。T00–T02有历史完成证据；核心业务与v1.2迁移仍待实施，不能把规划当成果。
 
-面向 Java 后端、Agent 开发和 AI 应用开发岗位的个人工程项目。消费者提交售后诉求，Python Agent 自主调查业务证据、检索适用政策并提出方案；Java 微服务校验方案、处理审批，可靠执行模拟退款或补发。
+面向Agent开发、AI应用开发与Java后端实习的个人技术展示项目。主链路：自主调查订单/物流与政策 → 补证或人工审批 → Java可靠执行模拟退款 → 查看轨迹及结果。
 
-目标是用可运行代码、故障实验和可复现评测形成简历证据。数据与商家政策均为明确标识的合成样例，不接真实支付，不宣称商业流量或真实客户。
+重点做深领域Harness与可靠退款，不做公司级售后平台。合成数据和模拟支付明确标记；无商用流量、高可用集群或效果提升承诺。
 
-## 阅读入口
+## 先读这四份
 
-| 文件 | 回答的问题 |
+| 文件 | 用途 |
 | --- | --- |
-| [项目规格](docs/product-spec.md) | 做什么、用户是谁、业务范围、完成标准 |
-| [架构决策](docs/architecture.md) | 服务拆分、调用方式、存储、技术取舍 |
-| [领域与数据模型](docs/domain-model.md) | 状态、表、约束、资金及商品权益 |
-| [Agent规格](docs/agent-spec.md) | Agent如何取证、追问、恢复与结束 |
-| [Harness核心架构](docs/agent-harness.md) | 模型与运行层如何分工，模块接口、动作与预算如何约束 |
-| [上下文工程](docs/context-engineering.md) | 每步看什么，关键证据如何保留，长轨迹如何按需读取 |
-| [轨迹回放](docs/trajectory-replay.md) | 如何复现失败、比较变体，为什么历史日志不能回答所有新分支 |
-| [接口与事件契约](docs/contracts.md) | Java/Python如何协作，消息和接口有哪些 |
-| [可靠性与安全](docs/reliability-security.md) | 重复退款、未知结果、过期审批、故障如何处理 |
-| [政策与检索](docs/policy-rag.md) | 政策时间语义、结构化规则、检索评测 |
-| [验证与实验](docs/evaluation.md) | 如何证明有效，如何防止指标失真 |
-| [工程与运行规范](docs/engineering.md) | 目录、命令、代码规范、CI和部署 |
-| [依赖与来源](docs/stack-and-sources.md) | 版本线、首轮兼容性关卡、官方资料 |
-| [简历证据映射](docs/resume-evidence.md) | 技术点必须提供哪些实验证据 |
-| [实施计划](tasks/plan.md) | 阶段、顺序、里程碑 |
-| [任务清单](tasks/todo.md) | 每项任务的验收、验证和依赖 |
-| [后续模型交接](docs/implementation-handoff.md) | 从哪里开始、怎样持续推进与报告 |
-| [框架审阅记录](docs/framework-review.md) | 本轮验证了什么、实施阶段还要验证什么 |
+| [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
+| [执行账本](tasks/todo.md) | 历史成果、新C00–C13任务与实际进度 |
+| [实现交接](docs/implementation-handoff.md) | 模型如何继续、不能走哪些捷径 |
+| [DSH交接](docs/dsh-migration-handoff.md) | 跨客户端断点与旧会话边界 |
 
-## 框架的固定边界
+下一项是C00：在已有成果上迁移核心协议/profile，不重做T00，不继续旧T03–T39。旧任务记录在[归档](tasks/archive/v1.1-todo.md)，仅作历史。
 
-- Java：Gateway、Commerce、Fulfillment、Case 四个进程；Python：Agent 一个服务（API与worker可使用同镜像分别启动）。
-- 一张售后单处理一个订单行的全部购买数量；一个订单行最多成功获得一次退款或补发。
-- Agent只读业务数据、提出方案；授权、金额、权益占用和写操作由Java负责。
-- 单Agent动态决策，由领域Harness提供上下文工程、受控工具执行、持久恢复、版本化轨迹和隔离回放；不以固定业务工具链冒充自主调查。
-- MySQL保存业务事实；PostgreSQL保存Agent状态与政策索引；Redis用于缓存、限流和短期协调；RocketMQ用于Java业务事件。
-- 真实模型模式用于Agent效果评测；确定性模拟模型用于离线CI和故障测试，两类结果分别报告。
-- 本轮仅确定框架。后续实现从T00开始；基础设施补丁版本在T00用实际兼容性测试锁定。
+## 设计索引
 
-## 推荐下一条实施指令
+| 文件 | 内容 |
+| --- | --- |
+| [业务规格](docs/product-spec.md) | 物流/损坏退款、追问/审批、执行中不取消 |
+| [架构](docs/architecture.md) | Gateway+Case+Commerce+Python Agent |
+| [领域状态](docs/domain-model.md) | 金额预留、退款幂等、版本与状态不变量 |
+| [核心契约目标](docs/core-contracts.md) | C00要落实的core协议，与旧基线分离 |
+| [旧协议基线](docs/contracts.md) | 已有T02测试解析的v1全集，不是必做范围 |
+| [Agent规格](docs/agent-spec.md) | 5个MCP工具、动态动作、预算与恢复 |
+| [Harness](docs/agent-harness.md) | 运行层模块、上下文、控制与验证 |
+| [上下文](docs/context-engineering.md) | 关键事实保真、裁剪与按需读回 |
+| [严格回放](docs/trajectory-replay.md) | 选定完整轨迹离线复现，不做反事实平台 |
+| [可靠性](docs/reliability-security.md) | 消息、UNKNOWN、权限与事务边界 |
+| [政策检索](docs/policy-rag.md) | dense+BM25基线、硬过滤与引用 |
+| [验证计划](docs/evaluation.md) | 小规模真实对照、核心故障、性能与演示 |
+| [工程命令](docs/engineering.md) | 现有入口与未实现目标入口分开 |
+| [版本依据](docs/stack-and-sources.md) | 复用实际锁，不重新大规模选型 |
+| [简历证据](docs/resume-evidence.md) | 7个候选亮点方向，按实际结果取舍 |
+| [实施计划](tasks/plan.md) | 垂直切片与依赖 |
+| [修订检查](docs/framework-review.md) | 历史与本轮检查边界 |
 
-阅读 AGENTS.md、docs/implementation-handoff.md 和 tasks/todo.md，从 T00 开始按依赖逐项实施。遵循已确定的服务边界和数据不变量；先完成版本兼容性验证，再交付第一条端到端业务链路。每项任务提供测试证据并更新进度。遇到重大架构冲突先提交有证据的修订建议，常规实施细节自行处理。
+## 边界
+
+Java负责业务权限/金额/审批与执行；Agent只读调查和提出方案。模型根据Observation选下一行动，不固定全量工具链。退款UNKNOWN保持占用并对账；同订单行至多一次成功退款。
+
+保留微服务、MySQL、PG/pgvector、Redis、RocketMQ和LangGraph现有版本锁。Fulfillment/补发/库存、反事实回放、全量消融及完整观测平台退出核心；旧代码不删除，默认部署的实际切换待C00。
+
+不根据文件数量或组件数量判断完成。核心版应有可运行演示、真实报告、可解释取舍与失败案例。

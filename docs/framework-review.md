@@ -1,6 +1,6 @@
 # 框架审阅记录
 
-日期：2026-09-15。当前框架v1.1；下文先保留v1.0原检查记录，再记录本轮Harness深化检查。不包括尚不存在的业务实现。
+当前框架v1.2（2026-09-18）。下文v1.0/v1.1是2026-09-15的历史检查，旧范围/任务数量/“尚未实现”只描述当时，不作为当前进度。当前范围见core-scope，当前进度见tasks/todo；v1.2检查另列于末尾。
 
 ## v1.0已执行检查（历史记录）
 
@@ -48,3 +48,21 @@ T00实测锁定：框架补丁版本/镜像digest、客户端兼容、PG checkpo
 最终复核补清：排队deadline与120秒调查窗口分别持久化，恢复不延长期限；回调投递与模型调查预算分开；工具模型excerpt上限与原始网络响应上限分开；GH在T38、完整消融在T39/G6，避免交接模型误判阶段顺序。
 
 限制：本轮Schema fixture验证结构和范围，不验证真实manifest内容hash、provider能力或跨字段预算关系；这些语义测试明确归T35。H系列、GH、回放网络隔离、C0/C1/C2、真实模型效果均为待实现验收，未运行。文档检查不能替代未来代码测试，14项简历证据当前全部是计划。
+
+## v1.2个人项目收缩检查（2026-09-18）
+
+用户确认以个人技术亮点为目标，不做公司级平台。本轮仅修改规格、范围、实施任务与模型交接，未修改业务代码、Schema/OpenAPI、fixture、测试或依赖锁；未改数据库、未提交/推送。
+
+范围变更：仅保留退款；Gateway/Case/Commerce与Python Agent；Fulfillment/补发/库存/跨动作权益不在核心部署；Harness保留动态决策、上下文、预算、恢复与选定轨迹strict回放。反事实/world、全量消融与完整观测配套退出门槛。用户已确认的保留范围内权限和金额不变量继续强制。
+
+当前新任务为C00–C13，旧T00–T02成果保留，T03–T39不按旧顺序继续。旧plan/todo完整内容已归档至tasks/archive；本轮逐内容核对（归一化换行后）与修改前一致。旧contracts文档继续供既有T02路由测试读取，核心目标另列core-contracts；代码迁移归C00，尚未执行。
+
+实际检查与命令：
+
+- 文档脚本：26份Markdown、53个本地链接及代码围栏检查通过；14个C任务都有依赖/验收/验证/未执行记录，依赖引用完整且无环。
+- git diff --check：通过，无空白错误。
+- .\\agent\\.venv\\Scripts\\python.exe -m pytest agent/tests/unit -q：155 passed，10.53秒；1个既有Starlette/AnyIO弃用警告，未为文档任务修改依赖。
+- .\\agent\\.venv\\Scripts\\python.exe scripts/contracts_freeze.py --check：32个正向fixture验证、58个非法fixture拒绝，frozen expectations match the corpus。
+- Git变更范围检查仅含Markdown；历史任务归档没有删除原有实际记录。
+
+本轮未运行Java构建、Docker全栈smoke、业务故障/性能/live模型评测，因未改对应代码且核心实现尚未开始；不据Python通过宣称整个系统已正确。核心任务均仍待执行，未来简历指标仍须实际报告。

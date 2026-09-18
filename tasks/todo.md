@@ -1,481 +1,145 @@
-# 可执行任务清单
+# 核心版执行账本 · v1.2
 
-初始状态：全部40个工作包待实施。每个T下的小步骤依次完成；验收通过后才勾选。命令入口在T01建立，之后所有验证均应返回真实结果。v1.1新增T35–T39，按依赖插入，不等T34结束才开始。
+2026-09-18。当前唯一实施入口。旧40个T任务已退出当前必做顺序；完整原进度/命令/报告原样保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
-进度：T00 已完成（2026-09-15，实测 38 个测试通过）。T01 已完成（2026-09-17，`verify --suite all-offline` 14/14，27 个测试通过）。T02 已完成（2026-09-18，`verify -Suite all-offline` 17/17，Python 155 个测试、Java shared-kernel 29 个测试通过）。下一项为 T03。
+## 已有成果（历史记录，非本轮重测）
 
-## P0 基础
+- T00：任务记录完成，兼容与版本锁；报告见docs/compatibility-report.md及reports/t00-compatibility/。
+- T01：任务记录完成，工程与命令/基础CI。
+- T02：任务记录完成，4份旧OpenAPI、双语言hash/签名/fixture；2026-09-18记录all-offline 17/17，Python155、Java shared-kernel29。
+- v1.2代码迁移尚未执行。下一项C00，不继续旧T03，不重新执行T00。
+- 本轮只修订文档；后续完成项必须填写真实记录，不能引用本表把C任务勾完成。
 
-### T00 依赖兼容与版本锁
+每个C工作包分子步实施，单子步尽量3–5核心文件；需更多时先在该任务下继续拆，不一次生成整包。命令当前/目标可用性见docs/engineering.md。
 
-- [x] T00.1：按stack-and-sources建立最小Java兼容试验，验证Boot/Cloud/SCA、MySQL事务、MQ收发。
-- [x] T00.2：验证Python PG checkpointer、MCP stdio和跨语言JSON；锁全部版本/digest。
-- 依赖：无。文件：spikes/compatibility/*、infra/versions.lock.yaml、docs/compatibility-report.md（待创建）。
-- 验收：无跳过兼容检查、无SNAPSHOT；报告列出实际运行版本与结果，失败有复现。
-- 验证：最小Java集成测试、Python保存/恢复测试、一次真实MCP调用；通过后进入G0。
-- 实际记录：
-  - 日期：2026-09-15。状态：**完成**，G0 两条硬性要求由 Maven Enforcer 机器校验通过。
-  - 修改文件：
-    - `spikes/compatibility/java-spike/`（父 POM + `spike-service` + `spike-gateway`；含 Enforcer 守卫、Flyway 迁移、EntitlementService/Mapper、`PayloadHash`）
-    - `spikes/compatibility/java-spike/spike-service/src/test/java/.../{MySQLTransactionIT,RocketMqIT,SentinelIT,CrossLanguageHashIT}.java`
-    - `spikes/compatibility/infra/spike-compose.yaml`、`spikes/compatibility/infra/rocketmq/broker.conf`
-    - `spikes/compatibility/python-spike/`（`pyproject.toml`、`uv.lock`、`src/spike_py/{canonical,mcp_server}.py`、`tests/{test_canonical,test_checkpointer,test_mcp_stdio}.py`）
-    - `spikes/compatibility/web-spike/`（Vue3+TS+Vite 最小工程 + `pnpm-lock.yaml`）
-    - `spikes/compatibility/contracts/cross-language-hash-{inputs,expected}.json`
-    - `infra/versions.lock.yaml`（新建）、`docs/compatibility-report.md`（新建）
-    - `reports/t00-compatibility/`（原始日志 7 份 + `EVIDENCE-SUMMARY.md` + `compose-status.txt`）
-  - 实际执行命令：
-    - `docker compose -f spikes/compatibility/infra/spike-compose.yaml up -d`
-    - `mvn -B -ntp validate`（Enforcer）、`mvn -B -ntp test`（Java 全量）
-    - `java -jar spike-service-0.0.1-SPIKE.jar --spring.profiles.active=nacos` 与 gateway 同跑，curl 验证路由/发现/配置/Feign
-    - `uv lock`；`uv sync --frozen`；`uv run --frozen pytest tests/ -v`
-    - `pnpm install --frozen-lockfile`；`pnpm build`
-  - 测试结果：
-    - Java **20/20 通过**（MySQLTransactionIT 9、CrossLanguageHashIT 6、SentinelIT 3、RocketMqIT 2），BUILD SUCCESS
-    - Python **18/18 通过**（canonical 10、checkpointer 5、mcp_stdio 3）
-    - 前端 `vue-tsc --noEmit && vite build` 通过，产出 `dist/`（61.87 kB js）
-    - Enforcer 4 条规则全部 passed
-    - 全部跑在真实容器上：MySQL 8.4、PostgreSQL 16 + pgvector、RocketMQ 5.3.3、Nacos 3.1.0；无 mock 替代
-  - 锁定结果：Boot 4.0.8 / Cloud 2025.1.3 / SCA 2025.1.0.0 / MyBatis starter 4.1.0 / Flyway 11.14.1 / RocketMQ client 5.3.1（classic）/ Testcontainers 2.0.5 / LangGraph 1.2.11 / checkpointer-postgres 3.1.2 / MCP SDK 2.2.0；6 个镜像全部按 digest 固定。明细见 `infra/versions.lock.yaml`。
-  - 报告路径：`docs/compatibility-report.md`
-  - 未决项：
-    1. `docs/stack-and-sources.md:12` 的"RocketMQ starter"表述与事实不符（该坐标不存在），建议修订；本次已按用户确认改用 classic 客户端直连。
-    2. `docs/stack-and-sources.md:13` 未点名 Gateway 坐标，Cloud 2025.1 已改名为 `spring-cloud-starter-gateway-server-webflux`，建议补上。
-    3. RocketMQ client 版本：SCA 管理 5.3.1，社区最新 5.5.1；本次以 BOM 一致性优先，若后续需要 5.5.x 需重新验证。
-    4. Nacos 客户端 3.1.1 与服务端 3.1.0 **无官方书面兼容矩阵**，本次仅实测可用（注册/发现/配置导入通过），结论限于实测范围。
-    5. `spikes/` 为临时工程，待 T01 建立正式骨架后按需清理，未擅自删除。
-    6. Docker Hub 在本网络 DNS 被污染，走镜像源 + digest 固定；CI 需另配可达镜像源。
-  - 未运行项（不得视为通过）：Redis Lua 限流（T27）、OTLP 链路（T26）、live 模型调用与效果（未配置 API/预算）、embedding revision 与 pgvector 维度过滤（T19）、故障/性能/RAG 实验（T29/T30）、CI（T01/T32）。
+### C00 核心协议与启动范围迁移
 
-### T01 工程与命令入口
-
-- [x] T01.1：Maven模块、Python包、共享fixture布局、服务健康接口。
-- [x] T01.2：Compose基础设施与doctor/verify入口，建立最小CI。
-- 依赖：T00。文件：java/pom.xml与模块构建文件、agent/pyproject.toml、infra/compose.yaml、scripts/*；按模块分批。
-- 验收：每个服务可单独构建；命令找不到依赖时清晰失败；app启动能读健康状态。
-- 验证：doctor、Java test、Python unit、Compose配置检查和smoke。
-- 实际记录：
-  - 日期：2026-09-16/17。状态：**完成**，`verify --suite all-offline` 14/14 步通过。
-  - 修改文件：
-    - `java/`：父 `pom.xml`（自 T00 继承全部版本锁与 Enforcer 守卫，另加 Spotless 与 integration profile）、`mvnw`/`mvnw.cmd`/`.mvn/`、`shared-kernel/`（`ApiError` 错误协议 + 5 个测试）、`gateway/`、`commerce-service/`、`fulfillment-service/`、`case-service/`（各含 pom、Application、application.yml、健康测试）
-    - `agent/`：`pyproject.toml`、`uv.lock`、`src/resolveflow/{__init__,api/{__init__,app},runtime,harness,tools,policies,callbacks}`、`tests/{unit,integration}`（5 个测试）
-    - `web/`：`package.json`、`vite.config.ts`、`tsconfig.json`、`index.html`、`src/{main.ts,App.vue,money.ts,env.d.ts}`、`tests/{money,app}.spec.ts`（9 个测试）、`pnpm-lock.yaml`
-    - `infra/`：`compose.yaml`、`.env.example`、`mysql/init/01-databases.sql`、`postgres/init/01-extensions.sql`、`rocketmq/{broker.conf,broker-entrypoint.sh}`（`versions.lock.yaml` 属 T00）
-    - `scripts/`：`doctor.ps1`、`doctor.sh`、`verify.ps1`、`verify.sh`
-    - `.github/workflows/ci.yml`
-    - 目录占位：`fixtures/{business,policies,provider}`、`contracts/fixtures`、`evals/{datasets,baselines,runner,metrics,replay,variants}`、`tests/{system,faults,performance}`（各带 README 说明归属任务）
-  - 实际执行命令：
-    - `java/mvnw -f java/pom.xml -B test`；`mvnw -pl <module> -am test`；`mvnw verify -Pintegration`
-    - `uv lock --project agent`；`uv sync --project agent --frozen --all-extras`；`uv run --project agent --frozen pytest agent/tests/unit`
-    - `pnpm --dir web install`；`pnpm --dir web test`；`pnpm --dir web build`
-    - `docker compose -f infra/compose.yaml up -d`
-    - `bash scripts/doctor.sh`；`powershell -File scripts/doctor.ps1`
-    - `bash scripts/verify.sh --suite all-offline`（最终一次 EXIT=0）
-  - 测试结果（最终 all-offline，14/14 通过）：
-    - java-spotless PASS、python-ruff PASS、python-mypy PASS、web-typecheck PASS
-    - java-unit PASS（13 个测试：shared-kernel 5 + 4 服务 × 2）、python-unit PASS（5）、web-test PASS（9）
-    - infra-up PASS、package PASS、smoke ×5 PASS（gateway / commerce / fulfillment / case / agent 均启动并读到健康）
-    - 合计 **27 个测试**；报告：`reports/verify/20260917-*-all-offline.txt`
-  - 实测确认的关键点：
-    - MySQL 初始化建出 commerce_db / fulfillment_db / case_db，三个账号各自只有本库权限；实测 `commerce` 读 `case_db.orders` 返回 **ERROR 1142 拒绝**——数据归属边界是被强制的，不只是约定。
-    - PostgreSQL 16.15 + pgvector 0.8.6 就位。
-    - RocketMQ broker 以 `127.0.0.1:10911` 注册（宿主机可达）。
-    - verify 入口三态明确：已实现 suite 执行、延后 suite 退出 2、未知 suite 退出 64，均不会零步骤报成功。
-  - 未决项（前两项已于 2026-09-18 处理）：
-    1. ~~基础服务命令含 `provider-stub` 必然失败~~ **已处理**：`docs/engineering.md` 表格中 4 类"尚未可执行"的命令加了 ※ 标记，并在表下集中说明归属任务——`provider-stub`（T12）、`--profile app`（T32 前为空操作）、`scripts/replay.ps1`（T38）、各 `-Suite` 子命令。特别写明**不要为让命令通过而放不实现协议的空占位 stub**。实测标注后的表格结构完好（27 行、管道符一致）。
-    2. ~~本机没有 pwsh~~ **已处理**：经 winget 安装 PowerShell **7.6.6**（用户级，位于 `%LOCALAPPDATA%\Microsoft\WindowsApps\pwsh.exe`）。用 pwsh 7 复跑并验证：`doctor` suite PASS、`format` suite 4/4 PASS、`unit` suite 3/3 PASS、未知 suite 退出 64、延后 suite 退出 2。`docs/engineering.md:36` 的 `pwsh -File ...` 现在可直接执行。两个 .ps1 同时兼容 Windows PowerShell 5.1（需 UTF-8 BOM）。
-    3. **"每个服务可单独构建"需带 `-am`**：`mvnw -pl case-service test` 在干净本地仓库下失败（shared-kernel 是 reactor SNAPSHOT），`-pl case-service -am test` 成功。已在 `java/pom.xml` 注释写明，失败信息明确。
-    4. Docker Desktop 在本机反复自行停止（内存紧张：15.3 GB 总量、空闲一度 0.5 GB），期间 `infra-up` 会失败；这是环境问题不是代码问题，doctor 已能报告。用户确认由其手动启动。
-    5. `app` / `observability` profile 与 provider-stub 一样留待后续任务；`--profile app` 目前是 no-op（compose 不虚构不存在的服务），已在 engineering.md 说明。
-    6. 审计中一条 nit 称 `ApiError` 使用了 Jackson 2 注解搭配 Jackson 3 运行时——**该结论不成立**：Jackson 3 的 POM 明确注明注解仍留在 Jackson 2.x groupId，实测序列化正常，已驳回。
-    7. 2026-09-18 追加：`verify.ps1` 的 `Test-HttpUp` 在 PowerShell 7 下误判（把无 charset 的响应 `Content` 当 byte[] 匹配 `UP`），导致 4 个 Java 服务健康也各等满 90s 报失败——T01 记录里"smoke ×5 PASS"是在 bash 版（curl）跑出来的，pwsh 版此前未覆盖 smoke。已由 T02 修复并实测（见 T02 记录第 6 条）。
-  - 未运行项（不得视为通过）：system / faults / performance / agent-eval / rag-eval / harness / harness-eval 未实现（各自的 verify 调用返回 exit 2 并说明归属任务）；`contracts` 自 2026-09-18 起由 T02 实现（见 T02 记录）；Redis Lua 限流（T27）、OTLP（T26）、live 评测（未配置 API 与预算）。
-
-### T02 契约固化与跨语言fixture
-
-- [x] T02.1：生成4份OpenAPI、DTO/Pydantic与正确/错误fixture。
-- [x] T02.2：固定规范化hash、事件签名字段和enum映射。
-- 依赖：T01。文件：contracts/openapi-*.yaml、contracts/fixtures/*、对应契约测试。
-- 验收：所有contracts.md端点覆盖；未知字段、负金额、错action/target组合被拒绝。
-- 验证：verify -Suite contracts；Java/Python对同一fixture产生相同hash。
-- 实际记录：
-  - 日期：2026-09-18。状态：**完成**。`verify -Suite contracts` 3/3 PASS；`verify -Suite all-offline` **17/17 PASS（0 FAIL、0 SKIPPED）**。
-  - 修改文件：
-    - `contracts/openapi-{case,commerce,fulfillment,agent}.yaml`：4 份 OpenAPI，共 39 个操作。补齐 13 个缺失的请求示例；`ErrorResponse` 统一为 `ApiError` 别名（扁平错误体）；修正 `RunView.status` 枚举；4 份 `ApiError` 完全一致；修正 2 处把 64 位 hash 解析成整数的 YAML。
-    - `contracts/fixtures/`：`examples/cross-language-canonical-inputs.json`（规范化输入，含越界 `invalid_payloads`）、`examples/valid.json`（32 条正向语料，错误体已扁平化）、`reject/reject.json`（54 条反向语料）、`expected-hashes.json`（7330 B）、`expected-enums.json`（3870 B / 23 组）、`README.md`（改写为实际用法）。
-    - `agent/src/resolveflow/contracts/`：`corpus.py`（新建：共享映射 + 正向/反向校验、占位符解析、信封签名、冻结值重算）、`canonical.py`（2^53-1 边界）、`enums.py`（+4 组枚举）、`models.py`、`_schemaio.py`、`events.py`、`fixtures.py`。
-    - `agent/tests/unit/`：`test_contracts_canonical.py`(31)、`test_contracts_fixtures.py`(32)、`test_contracts_openapi.py`(87)。
-    - `java/shared-kernel/src/{main,test}/java/com/resolveflow/shared/contract/`：`CanonicalJson`、`EventSignature`、`ContractEnums`（23 组）、`ContractFixtures`；`CanonicalJsonTest`(16)、`ContractCorpusAgreementTest`(8)。
-    - `scripts/`：`contracts_freeze.py`（改为委托 `resolveflow.contracts.corpus`，支持 `--check`）、`verify.ps1` / `verify.sh`（新增 `contracts` suite；uv 缓存兜底；`Test-HttpUp` 修复）。
-    - `agent/pyproject.toml` + `agent/uv.lock`（dev 组新增 `types-jsonschema`/`types-pyyaml`，锁文件仅新增 2 个包、无版本漂移）、`docs/engineering.md`（suite 清单）。
-  - 实际执行命令：
-    - `uv run --project agent python scripts/contracts_freeze.py --check` → `58 fixtures refused, 32 positive fixtures validated` + `frozen expectations match the corpus`
-    - `pwsh -File scripts/verify.ps1 -Suite contracts`（3/3 PASS）
-    - `pwsh -File scripts/verify.ps1 -Suite all-offline`（17/17 PASS）
-    - `uv run --project agent --frozen pytest agent/tests/unit -q`（155 passed）
-    - `java\mvnw.cmd -f java/pom.xml -B -pl shared-kernel test`（Tests run: 29）
-    - `uv run --project agent --frozen ruff check agent/src agent/tests`、`mypy agent/src`、`spotless:check`（均通过）
-  - 测试结果：
-    - Python **155/155 通过**（其中契约相关 150：canonical 31 + fixtures 32 + openapi 87；另有 T01 健康检查 5）。
-    - Java shared-kernel **29/29 通过**（CanonicalJsonTest 16、ContractCorpusAgreementTest 8、ApiErrorTest 5）。
-    - 全量 all-offline：format 4/4、unit 3/3、contracts 3/3、smoke 7/7（含 5 个服务真实启停）。
-    - 报告路径：`reports/verify/20260918-151213-all-offline.txt`（全量）、`reports/verify/20260918-144517-contracts.txt`、`reports/verify/20260918-151133-smoke.txt`。
-  - 实测确认的关键点：
-    1. **跨语言一致是独立重算出来的**：Python 生成冻结值，Java 只读同一批 fixture 独立重算，两侧逐字节相同——UTF-16 码元排序（U+10000 < U+E000 < U+FFFD，与码点排序不同）、2^53-1 越界整数拒绝、Ed25519 签名可复现（确定性）。只改一侧会让另一侧失败。
-    2. **端点覆盖可核对**：从 `docs/contracts.md` 正则解析出 39 条路由，与 4 份 OpenAPI 完全一致；唯一额外路由是 agent `GET /health`，测试中显式列为例外。新增路由或漏实现都会失败。
-    3. **反向语料覆盖验收要求**：未知成员、负金额、零金额、超上限、浮点金额、错 action/target（REFUND→fulfillment、RESHIP→commerce）、缺 payload_hash、未知 action 等 58 条全部被对应 schema 拒绝，且每条都写明"为什么必须被拒"。
-    4. **105 个 OpenAPI 示例逐个对自身 schema 校验**（本轮新增测试）——就是它抓出 2 处 YAML 把 64 位 hash 当整数、以及 13 个操作根本没有请求示例。
-    5. **两个实质冲突按权威解决**（不允许任选一个实现）：① 错误体形状——`docs/contracts.md:14` 与 T01 的 Java `ApiError` 都定义扁平 `{code,message,retryable,trace_id,details}`，此前 OpenAPI 写成了 `{error:{...}}`，已按权威改为扁平；② `RunView.status` 用了工单状态词汇（ANALYZING/PROPOSED…），按 `docs/agent-spec.md:17` 修正为 run 状态机，并把 4 组此前未冻结的线上枚举（`verification_result`/`carrier_conclusion`/`run_status`/`verified_status`）补进冻结表——否则 Java 与 Python 会对 run 状态、承运结论各说各话。
-    6. **两处入口/环境问题顺带修好**（都在 `scripts/`）：① uv 默认缓存位于工作区外、被拒写时所有 uv 步骤会在跑到测试前就失败，verify 现在兜底用仓库内 `tmp/uv-cache`（显式设置 `UV_CACHE_DIR` 时仍尊重外部设置）；② `verify.ps1` 的 `Test-HttpUp` 在 PowerShell 7 下把无 charset 的响应 `Content` 当作 byte[] 做逐元素匹配，永远匹配不到 `UP`，于是 4 个 Java 服务即使真的在 4 秒内健康也会各等满 90 秒报失败（`verify.sh` 用 curl 不受影响，T01 最终那次用的是 bash 版）。解码后再匹配 `"status":"UP"` 后，smoke 由 4 FAIL 变为 5 PASS（每个 4–5 秒），这也解释了"为什么之前那么慢"。
-  - 未决项：
-    1. `ApiError.code` 在 OpenAPI 里只是 `string(1..64)`，没有 enum 约束，"未知错误码"目前靠冻结枚举表而非 schema 拒绝。是否有意收紧待 T03（现宽松是为后续任务扩展错误码留空间）。
-    2. `contracts/*.schema.json` 中仍有 `if/then` 条件分支节点未强制"显式声明开放/封闭"；OpenAPI 组件已强制（`additionalProperties` 必须出现，开放对象必须登记在测试白名单里）。
-    3. ~~仓库没有 `.gitignore`，构建产物被纳入版本控制~~ **已于 2026-09-18 处理**：GitHub 因 `tmp/env/temurin21.zip`（195 MB）与 `spike-service-0.0.1-SPIKE.jar`（140 MB）超过 100 MB 单文件上限而拒绝推送，因此补了根 `.gitignore`（`target/`、`node_modules/`、`__pycache__/`、各类缓存、`dist/`、`tmp/`），并重写本地历史把构建产物从所有提交中移除：跟踪文件 18,582 → 200，体积 1,223 MB → 1.21 MB，最大跟踪文件 149 KB。工作区文件一个都没删（jar、node_modules、zip 仍在磁盘上），旧历史保留在本地分支 `backup/pre-cleanup`。
-    4. 4 份 OpenAPI 文档目前不是"可重复生成"的：`contracts_freeze.py` 只校验 schema 与语料一致、并冻结 hash/枚举，不重新生成 OpenAPI 文本。若要求 OpenAPI 成为生成物，需要把文档也纳入生成器（本轮为修内容直接改了文本）。
-    5. `agent/src/resolveflow/contracts/models.py`（Pydantic DTO）当前只被契约测试覆盖，尚未被 API 层使用，T03 起接入。
-    6. **推送前的仓库清理（2026-09-18，用户要求提交到远程后处理）**：`git push` 被 GitHub 以 `GH001: Large files detected` 拒绝，原因在 T00/T01 那次提交里——`tmp/env/temurin21.zip` 195.57 MB、`spikes/compatibility/java-spike/spike-service/target/spike-service-0.0.1-SPIKE.jar` 140.11 MB 超过单文件 100 MB 上限。处理方式：新增根 `.gitignore`，并用 `git read-tree` + `git update-index --force-remove` + `git commit-tree` 重放历史（保留原提交信息与作者/时间），把构建产物从全部提交中剔除；`backup/pre-cleanup` 分支保留旧历史，工作区未做任何删除。核验：重写后 `git diff --name-only backup/pre-cleanup main` 共 18,384 条，除新增的 `.gitignore` 外全部落在构建产物路径模式内。
-  - 未运行项（不得视为通过）：
-    1. `verify -Suite system/faults/performance/agent-eval/rag-eval/harness/harness-eval` 仍按归属任务返回 exit 2。
-    2. live 模型调用与效果评测（未配置 API 与预算）。
-    3. `bash scripts/verify.sh` **本次未实测**：`bash -n scripts/verify.sh` 在此环境抛 `Bash/Service/CreateInstance/E_ACCESS_DENIED`（无法启动 bash）。verify.sh 的改动已逐条与 PowerShell 版对齐并人工比对，但未运行，失败原因属环境限制。
-
-### T03 身份、网关与资源授权
-
-- [ ] T03.1：演示用户登录、JWT签发/验证、商家与用户范围。
-- [ ] T03.2：网关剥离伪造头，资源服务独立校验service scope。
-- 依赖：T02。文件：gateway安全配置、case身份模块、shared安全库、授权集成测试。
-- 验收：合法请求可达；跨用户/商家、过期token、错误aud拒绝；不信任前端role。
-- 验证：JWT单元+双商家越权集成测试。
+- [ ] C00.1：读取core-scope/core-contracts，建立核心协议目录与profile允许能力清单；确认旧fulfillment/补发/权益仅兼容保留。
+- [ ] C00.2：按消费者分批新增核心Schema/OpenAPI、Java/Pydantic DTO及正反fixture/路由覆盖；新命令/事件/方案版本与旧基线显式区分。
+- [ ] C00.3：调整核心启动/smoke选择，默认不要求fulfillment/Nacos/全套观测；旧协议和测试保留，服务镜像未就绪则不宣称core profile完整可用。
+- 依赖：无（沿用已完成T00–T02）。文件：contracts/core、共享DTO、契约测试、infra/scripts；每子步再按协议/语言/profile拆分。
+- 验收：核心禁止RESHIP/entitlement假字段；旧compat和新core测试独立通过；迁移说明列出当前可启动服务与尚未实现能力。
+- 验证：pwsh -File scripts/verify.ps1 -Suite contracts；相关format/unit；Compose配置与已实现smoke，不要求未写业务的system套件。
 - 实际记录：未执行。
 
-## P1 业务与决策
+### C01 身份与订单只读切片
 
-### T04 订单与支付事实读取
-
-- [ ] 建立commerce迁移/种子/Repository/API，固定行实付金额与支付时间。
-- 依赖：T03。文件：commerce migration、order domain、repository、controller及测试。
-- 验收：整数金额、订单归属及版本正确，空库迁移可重复启动。
-- 验证：MySQL Testcontainers + order context契约测试。
+- [ ] C01.1：演示身份/网关与资源服务JWT，固定商家/用户/审核角色；不做完整IAM。
+- [ ] C01.2：Commerce订单/支付快照迁移、种子和读接口，Case公共订单视图，跨主体拒绝。
+- 依赖：C00。文件：Java安全模块、Commerce订单、Case视图及测试，按纵向接口分批。
+- 验收：本人能看订单，跨用户/商家不能看；金额为整数原快照，独立数据库账户不跨库读取。
+- 验证：JWT/归属单元、MySQL集成与核心契约测试。
 - 实际记录：未执行。
 
-### T05 物流、仓库证据读取
+### C02 建单、材料与版本
 
-- [ ] 建立shipment/轨迹/packing模型、版本化种子与只读API。
-- 依赖：T03。文件：fulfillment migration、evidence domain/repository/controller/tests。
-- 验收：缺少仓库记录与“确认无差异”区分；迟到轨迹不覆盖新状态。
-- 验证：版本乱序和SC-L/SC-W evidence fixtures。
+- [ ] C02.1：建单/幂等/同line活跃slot、状态与查询。
+- [ ] C02.2：补充证据增revision、消费前取消、timeline和权限；预留SSE读接口。
+- 依赖：C01。文件：Case domain/application/api/migration/tests；逐行为交付。
+- 验收：同key换body409、同line不并发建多个活跃case；材料不覆盖，旧revision不可写。
+- 验证：数据库并发建单、状态转换与材料权限测试。
 - 实际记录：未执行。
 
-### T06 创建工单、材料与状态机
+### C03 政策、方案与审批
 
-- [ ] T06.1：创建工单、active slot、幂等与timeline。
-- [ ] T06.2：补充材料revision、撤销、超时转人工。
-- 依赖：T04,T05。文件：case domain/application/api/migration及状态测试。
-- 验收：一个line一个活跃case；相同key换body409；旧版本修改失败。
-- 验证：状态表所有合法/非法边、并发建单、可注入Clock测试。
+- [ ] C03.1：合成政策受控导入、不可变版本、按支付时间选择；不做管理后台。
+- [ ] C03.2：Java方案校验/金额重算/风险路由与人工核验。
+- [ ] C03.3：版本授权、审批/消费/取消事务边界；消费后拒绝材料变更，固定operation ID。
+- 依赖：C02。文件：Case policy/decision/authorization及各自测试，分模块实施。
+- 验收：物流自动条件完整，损坏始终人工；旧授权/过期/越权拒绝，approve与consume竞态可解释。
+- 验证：规则表驱动、200元边界、revision/取消/消费并发测试。
 - 实际记录：未执行。
 
-### T07 政策原件、结构化规则与版本
+### C04 持久模拟退款与本地金额事务
 
-- [ ] T07.1：导入/发布/撤销、区间冲突锁、不可变bundle。
-- [ ] T07.2：三场景政策与合同时间选择、safety_epoch。
-- 依赖：T06。文件：case policy模块、迁移、fixtures/policies、policy tests。
-- 验收：旧订单不会用新政策；多版本冲突拒绝发布；正文规则一致性检查。
-- 验证：边界时间、撤销、跨商家、并发发布测试。
+- [ ] C04.1：SQLite provider-stub退款幂等、查询、丢响应/延迟可见与重启。
+- [ ] C04.2：Commerce line_refund/ledger/operation，接收命令本地预留、成功/失败结算。
+- [ ] C04.3：事务外调用provider、UNKNOWN持久对账，不实现跨服务权益协议。
+- 依赖：C01。文件：fixtures/provider、Commerce退款及迁移/测试；stub与业务事务分开。
+- 验收：同ID换载荷拒绝；100并发不超退；UNKNOWN保持预留，成功不二次结算。
+- 验证：provider协议/重启、MySQL事务/并发、成功丢响应集成测试。
 - 实际记录：未执行。
 
-### T08 Java方案校验与风险路由
+### C05 消息与退款端到端
 
-- [ ] 实现Schema引用验证、权威事实校验、金额重算、AUTO/REVIEW/NEED_INFO/BLOCK。
-- 依赖：T07。文件：case decision domain/application、fixtures、tests。
-- 验收：缺证/用户单方陈述不自动退款；200元阈值边界正确；confidence无授权作用。
-- 验证：产品规则表驱动测试、伪造引用和建议金额不符测试。
+- [ ] C05.1：Case/Commerce Outbox/inbox、核心topic验签、持久重试与错误记录。
+- [ ] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
+- 依赖：C03,C04。文件：messaging、Case执行、Commerce消费者及集成测试。
+- 验收：重复/乱序/ACK丢失不重复业务；目标确认成功才关单；失败释放后再试须新授权。
+- 验证：真实RocketMQ+MySQL系统退款测试，CF1/CF2/CF3定点冒烟。
 - 实际记录：未执行。
 
-### T09 版本化审批与授权消费
+### C06 Agent控制面、MCP与能力冒烟
 
-- [ ] T09.1：人工方案、批准/驳回/请求信息、expiry。
-- [ ] T09.2：授权消费CAS+唯一operation、输入更新/撤销竞争。
-- 依赖：T08。文件：case authorization/approval/application/migration/tests。
-- 验收：过期或换payload不能执行；批准与撤销有可解释线性化点。
-- 验证：并发双审批、修改材料与消费竞态；G1。
+- [ ] C06.1：PG持久run入口、Case HTTP outbox与绑定，尚无模型也能可靠排队。
+- [ ] C06.2：Commerce模拟物流只读适配、5个stdio MCP工具、scope与错误Observation。
+- [ ] C06.3：mock ModelClient和经预算确认的live小样本结构化调用；提前核验工具能力，不预跑固定业务链。
+- 依赖：C02。文件：agent/api/tools、Case dispatcher、Commerce物流及测试；分语言/端点小步。
+- 验收：202在落库后，真实MCP list/call，模型无法改line/身份；mock/live记录分开。
+- 验证：PG重复提交、MCP协议/越权、工具失败；live不可用明确阻塞项，不伪造。
 - 实际记录：未执行。
 
-## P2 可靠退款
+### C07 政策检索与上下文
 
-### T10 Outbox/inbox基础设施
-
-- [ ] T10.1：MySQL本地事件、dispatcher租约、MQ持久投递。
-- [ ] T10.2：inbox事务去重、毒消息与DLQ/重驱。
-- 依赖：T02,T06。文件：shared messaging、各service迁移、MQ集成测试。
-- 验收：F01–F03正常恢复，broker ACK不等价业务成功。
-- 验证：真实RocketMQ容器重复/崩溃测试。
+- [ ] C07.1：固定bundle索引、真实dense与BM25基线、版本/商家过滤、引用。
+- [ ] C07.2：ContextBuilder关键事实/来源/冲突保真、token上限、原文索引及scope读回。
+- 依赖：C03,C06。文件：agent/policies、harness/context、相应fixtures/tests。
+- 验收：索引未就绪不搜旧版本；关键字段不被摘要改写；超限明确终止，原文可按ref读回。
+- 验证：检索过滤/真实embedding冒烟、上下文七类fixture；无四组消融要求。
 - 实际记录：未执行。
 
-### T11 权益与金额预留
+### C08 动态Harness与业务接入
 
-- [ ] T11.1：reserve/start/commit/release API及状态约束。
-- [ ] T11.2：退款/补发互斥、订单账条件UPDATE、不同operation冲突。
-- 依赖：T04,T10。文件：commerce entitlement/ledger/application/migration/tests。
-- 验收：INV-01/02/03及IN_USE不能超时释放；重复请求同结果。
-- 验证：100并发同line、多行共订单余额、start/release竞态。
+- [ ] C08.1：固定manifest/动作ABI、动态循环、预算预占/重试、防无进展与候选引用验证。
+- [ ] C08.2：问题/方案/失败回调outbox，补证新run、旧结果STALE，Java复核后退款。
+- 依赖：C05,C07。文件：agent/harness/runtime/callbacks、Case回调及端到端测试。
+- 验收：至少6组配对证据由模型决定不同合理行动；身份不由模型生成；预算/权限有界，闭环不是固定workflow。
+- 验证：H1/H2/H3、mock系统闭环、live小样本（需API预算）。
 - 实际记录：未执行。
 
-### T12 持久provider模拟器
+### C09 持久恢复与版本保护
 
-- [ ] 实现SQLite持久退款/运单API、幂等键、GET状态与注入点。
-- 依赖：T02。文件：fixtures/provider应用/容器/协议/tests。
-- 验收：成功后丢响应、重启保留结果、相同key不同金额409。
-- 验证：provider协议测试与进程重启实验。
+- [ ] C09.1：checkpointer fence事务、租约/advisory lock与取消，复用T00已验证能力。
+- [ ] C09.2：稳定call记录、已落库结果复用、UNKNOWN计费/预占、manifest不兼容拒绝。
+- 依赖：C08。文件：agent/runtime持久层、调用存储、故障测试。
+- 验收：旧worker不能写checkpoint/有效回调；预算/deadline不重置；补证继续与同run故障恢复区分。
+- 验证：H4/CF6两类崩溃窗口、旧fence/旧revision/版本不匹配测试。
 - 实际记录：未执行。
 
-### T13 退款目标服务
+### C10 选定轨迹的strict回放
 
-- [ ] T13.1：消费命令、操作持久化、start权益、provider调用。
-- [ ] T13.2：成功/失败/UNKNOWN账务与结果事件。
-- 依赖：T10,T11,T12。文件：commerce refund worker/application/repository/tests。
-- 验收：网络调用在事务外；未知不释放；成功一次记账。
-- 验证：F04/F05及重复命令集成测试。
+- [ ] C10.1：只读导出合成ReplayPack、实际输入/显式响应/观察/usage/Clock与hash。
+- [ ] C10.2：只支持strict、隔离adapter与CallbackSink、禁网络执行，5个完整golden packs。
+- 依赖：C09。文件：evals/replay、scripts/replay入口、隔离配置与回归测试。
+- 验收：规范状态/动作/引用/预算一致；缺记录/篡改/不支持轨迹拒绝，无业务写；不实现反事实/world。
+- 验证：H5、strict正反fixture与真实网络阻断测试。
 - 实际记录：未执行。
 
-### T14 case执行编排与退款闭环
+### C11 轻量展示、核心启动与查询优化
 
-- [ ] T14.1：授权消费后reserve/dispatch，持久编排步骤。
-- [ ] T14.2：结果投影、权威查询、收敛与timeline。
-- 依赖：T09,T13。文件：case orchestration/results/query/tests。
-- 验收：从人工/低风险方案到退款成功，重启不丢操作。
-- 验证：verify -Suite system -Case refund；G2并记录首条可演示链路。
+- [ ] C11.1：简单建单/补证、审批、轨迹/结果视图，SSE权限与断线续读；不建运营后台。
+- [ ] C11.2：一条查询路径索引/非权威缓存优化与Redis有界回源，保留优化前基线。
+- [ ] C11.3：core profile服务镜像/健康启动、有限日志指标、已有CI加入核心回归；不依赖Nacos/完整观测集群。
+- 依赖：C08。文件：web、Case SSE/query、infra/scripts/CI；三个子项分开迭代。
+- 验收：能操作核心闭环、看清UNKNOWN/人工/失败；查询优化不影响授权事实；一键启动不是空操作。
+- 验证：web test/build与浏览器核心交互、SQL EXPLAIN、core smoke、已实现all-offline。
 - 实际记录：未执行。
 
-## P3 补发与恢复
+### C12 核心实验与报告
 
-### T15 补发库存与Saga
-
-- [ ] T15.1：库存条件预留、补发操作、承运商交互。
-- [ ] T15.2：正向commit与确定失败补偿，复用case编排。
-- 依赖：T14,T05。文件：fulfillment inventory/reship、case action adapter、tests。
-- 验收：不足库存不负数；发货成功后不能释放已用库存。
-- 验证：F06/F07/F08。
+- [ ] C12.1：80业务/20安全/40检索案例、冻结划分和至少20个人审记录；小样本先检验Gold正确性。
+- [ ] C12.2：B1/A真实模型对照及指定样例重复、RAG两组、CF1–CF6与一项性能实验。
+- [ ] C12.3：统计全部失败/成本/分母/资源、分析负面结果，不强求每项提升。
+- 依赖：C09,C10,C11。文件：evals/datasets/runner/metrics、tests/faults/performance、reports；按一个实验一批。
+- 验收：evaluation核心范围全部有真实报告；非法执行0；缺API/预算标阻塞而非通过。
+- 验证：agent-eval live、rag-eval、faults、performance及报告输入hash/计算核对。
 - 实际记录：未执行。
 
-### T16 取消墓碑、启动竞态与对账
+### C13 核心交付与简历主张审计
 
-- [ ] T16.1：目标cancel-before-start与STARTING保护。
-- [ ] T16.2：UNKNOWN扫描、操作台reconcile端点、原ID重驱。
-- 依赖：T15。文件：target operation state、case reconciliation、tests/faults。
-- 验收：迟到消息不启动取消操作；UNKNOWN继续占用；不凭超时回滚资金。
-- 验证：F09/F10及跨服务重启，G3。
-- 实际记录：未执行。
-
-## P4 Agent
-
-### T17 Python持久任务控制面
-
-- [ ] T17.1：run接收、唯一revision、PG任务表及查询。
-- [ ] T17.2：Java HTTP outbox调度、取消和过载响应。
-- 依赖：T02,T06,T10。文件：agent/api、agent migrations、case agent dispatcher、tests。
-- 验收：202发生在落库后；重复提交同run；无模型也能排队重启。
-- 验证：PG集成+HTTP响应丢失测试。
-- 实际记录：未执行。
-
-### T18 MCP工具与受限身份
-
-- [ ] T18.1：6个真实stdio MCP tools及Java HTTP适配。
-- [ ] T18.2：run token签发/续签、scope注入、日志持久化。
-- 依赖：T17,T04,T05,T07。文件：agent/tools、case tool-token、scope tests。
-- 验收：模型无法改URL/line身份；真实tools/list/call可运行。
-- 验证：跨主体、伪造参数、过期token、工具失败测试。
-- 实际记录：未执行。
-
-### T19 政策索引与检索
-
-- [ ] T19.1：bundle同步、generation原子就绪、精确过滤。
-- [ ] T19.2：BM25+dense+RRF+rerank、引用、降级。
-- 依赖：T07,T17。文件：agent/policies、PG migrations、RAG fixtures/tests。
-- 验收：硬过滤不可被查询覆盖；索引未就绪不使用旧规则；固定模型revision。
-- 验证：同名跨商家/历史版本检索与F17。
-- 实际记录：未执行。
-
-### T20 Harness驱动的单Agent循环与预算
-
-- [ ] T20.1：ModelClient mock/live、StateGraph动作循环与结构化输出。
-- [ ] T20.2：证据引用校验、预算、重试、取消、工具并发。
-- 依赖：T18,T19,T35,T36,T37。文件：agent/harness、agent/runtime、model adapter、prompt版本、tests。
-- 验收：模型观察后决定下一行动；无隐式预取；预占预算/无进展停止，重试计费；Schema最多修复一次；上下文与执行可追溯。
-- 验证：H-AUT/H-RUN mock轨迹测试；具备API配置时做live小样本能力冒烟并记录成本。
-- 实际记录：未执行。
-
-### T21 回调、追问与旧版本隔离
-
-- [ ] T21.1：PG callback_outbox与Java幂等接收。
-- [ ] T21.2：QUESTION补证新run，PROPOSAL进入Java授权，旧run STALE。
-- 依赖：T20,T08,T09,T17。文件：agent/callbacks、case agent callbacks、system tests。
-- 验收：完整Agent退款/人工审批链路；迟到STARTED不回退状态。
-- 验证：F14/F18与US-02/03/04。
-- 实际记录：未执行。
-
-### T22 Checkpoint、租约与恢复
-
-- [ ] T22.1：PG checkpointer、租约心跳、fence/advisory lock。
-- [ ] T22.2：已落库工具/模型结果复用，未知模型调用单独计费统计。
-- 依赖：T21。文件：agent/runtime persistence/scheduler/model-call ledger、fault tests。
-- 验收：旧worker不能提交有效结果；两种崩溃窗口不同语义清晰。
-- 验证：F12/F13/F18，G4 mock完整链路+live能力冒烟。
-- 实际记录：未执行。
-
-### T23 数据集与Gold
-
-- [ ] T23.1：240案例（含24组自治配对）及分层划分、60安全例、120 RAG查询；另列至少30个长上下文压力例。
-- [ ] T23.2：Gold规则生成、人工抽查清单、冻结hash。
-- 依赖：T07,T08。文件：evals/datasets、fixtures、dataset validation tests。
-- 验收：模板/订单家族隔离、正确动作集合、分母完整；人审待做明确列出。
-- 验证：泄漏扫描、标签一致性、数据manifest校验。
-- 实际记录：未执行。
-
-### T24 基线与评测runner
-
-- [ ] T24.1：B0/B1/A统一输入、工具权限与安全层。
-- [ ] T24.2：结果落盘、失败不丢弃、统计区间、Token成本。
-- 依赖：T20,T23。文件：evals/baselines/runner/metrics、unit tests。
-- 验收：mock可一键复现；结果包含全部case；provider价格配置不硬编码为事实。
-- 验证：固定fixture计算指标手算对照、verify -Suite agent-eval -Mode mock。
-- 实际记录：未执行。
-
-## P5 工程完善
-
-### T25 SQL与Redis缓存
-
-- [ ] T25.1：工单游标、索引、基线SQL执行计划。
-- [ ] T25.2：非权威读缓存、single-flight、失效和Redis故障回源。
-- 依赖：T14。文件：commerce query/cache、case query、migration、performance fixtures。
-- 验收：授权不走陈旧缓存；分页稳定；故障不突破资金不变量。
-- 验证：查询集成、缓存冷/热测试、EXPLAIN记录。
-- 实际记录：未执行。
-
-### T26 全链路观测
-
-- [ ] T26.1：HTTP/MQ/Python工具及模型trace。
-- [ ] T26.2：业务指标、看板、告警、脱敏审计展示。
-- 依赖：T22,T16。文件：infra/observability、shared tracing、agent instrumentation、tests。
-- 验收：单case能定位失败工具/消息；无高基数ID指标标签，无token泄漏。
-- 验证：完整trace样例、故障告警触发、日志脱敏扫描。
-- 实际记录：未执行。
-
-### T27 服务治理与有界资源
-
-- [ ] T27.1：Gateway跨实例令牌桶、Sentinel下游熔断。
-- [ ] T27.2：worker并发、总deadline、MQ积压/模型故障转人工。
-- 依赖：T25,T26。文件：gateway限流、Java client、agent scheduler、fault tests。
-- 验收：无多层重试风暴；Agent故障仍能建单；资源上限可观测。
-- 验证：F15及限流/超时集成。
-- 实际记录：未执行。
-
-### T28 工单工作台与SSE
-
-- [ ] T28.1：消费者建单/补证、员工审核页面。
-- [ ] T28.2：时间线、脱敏工具轨迹、SSE续读与错误状态。
-- 依赖：T21,T16。文件：web各视图、case events API、Playwright tests；分视图实施。
-- 验收：三个视图完成US-01到08主要交互，旧审批提示刷新。
-- 验证：web test/build、SSE Last-Event-ID重连、浏览器权限测试。
-- 实际记录：未执行。
-
-### T32 完整CI与可启动性
-
-- [ ] 完善矩阵、固定镜像、依赖缓存、全新环境迁移、mock端到端。
-- 依赖：T22,T28,T38。文件：.github/workflows、scripts/verify、infra、tests。
-- 验收：all-offline执行真实全部必要检查；关键项不能skip冒充pass。
-- 验证：干净lab库构建/测试/启动（不得清用户库），G5。
-- 实际记录：未执行。
-
-## P6 实验与交付
-
-### T29 故障实验完整矩阵
-
-- [ ] 编排F01–F18注入、固定seed、自动查询不变量及恢复分位数。
-- 依赖：T16,T22,T27,T32。文件：tests/faults、scripts、reports/faults。
-- 验收：每类>=20次，有原始日志/最终账/未决项，违规效果为0。
-- 验证：verify -Suite faults -Seed 42；错误必须修复并保留旧报告。
-- 实际记录：未执行。
-
-### T30 性能与RAG对照
-
-- [ ] T30.1：后端冷/热/无缓存与索引前后同负载实验。
-- [ ] T30.2：BM25/dense/hybrid/rerank四组RAG对照。
-- 依赖：T25,T27,T19,T23,T32。文件：tests/performance、evals/rag、reports。
-- 验收：资源/负载/样本/配置齐全，效果退化如实呈现。
-- 验证：verify -Suite performance及-Suite rag-eval -Mode live。
-- 实际记录：未执行。
-
-### T31 live模型评测与人工抽查
-
-- [ ] T31.1：模型访问/预算确认后先dev，再冻结test运行B0/B1/A各3次。
-- [ ] T31.2：人工抽查至少60例、分析错误、报告成本/区间。
-- 依赖：T24,T22,T23,T32,T38。文件：evals配置、reports/agent、人工抽查记录。
-- 验收：mock/live分开、全部test计入分母、提示与模型版本可追踪。
-- 验证：verify -Suite agent-eval -Mode live；无key可BLOCKED不能标完成。
-- 实际记录：未执行。
-
-### T33 演示与技术讲解
-
-- [ ] 完成9个固定fixture演示（原6个+自治/上下文/回放3个）、运行手册、故障解释、技术取舍FAQ。
-- 依赖：T28,T29,T30,T31,T39。文件：docs/demo.md、docs/runbook.md、docs/interview-notes.md、reports索引。
-- 验收：陌生使用者可按命令完成演示，能解释每条简历主张证据。
-- 验证：新lab环境按手册逐项执行并保存记录。
-- 实际记录：未执行。
-
-### T34 最终架构与证据审计
-
-- [ ] 校核INV-01到10、US-01到08、R01到14、G0到G6及GH证据映射，修复缺口。
-- 依赖：T29,T30,T31,T32,T33,T39。文件：docs/resume-evidence.md、reports/final-review.md、tasks状态。
-- 验收：技术实现、实验结论和展示描述一致；没有未证实“高可用/零重复/真实用户”等主张。
-- 验证：all-offline最终回归、报告manifest核对、G6通过。
-- 实际记录：未执行。
-
-## v1.1 Harness工作包（按依赖插入P4/P6）
-
-### T35 Harness边界、manifest与动作ABI
-
-- [ ] T35.1：按agent-harness建立类型化模块接口，落地严格ModelDecision Schema/Pydantic和manifest加载/内容hash。
-- [ ] T35.2：检查模型参数能力、预算关系、版本兼容；保留Prompt artifact，禁止静默升级恢复配置。
-- 依赖：T02,T17。文件：agent/harness/types与manifest、contracts/model-decision.schema.json、contracts/fixtures、unit tests。
-- 验收：6种动作严格区分，运行身份不可由模型指定；manifest不含凭证；无效hash/超预算/不兼容版本明确拒绝。
-- 验证：verify -Suite contracts及-Suite harness -Case manifest；正反fixture、hash与版本测试。
-- 实际记录：未执行。
-
-### T36 ContextBuilder与EvidenceLedger
-
-- [ ] T36.1：实现P0–P4确定性组装、来源分级/版本/冲突、关键字段保留及token预算；不引入LLM摘要器。
-- [ ] T36.2：实现按scope读取原始Observation、裁剪索引、合法tool pair和实际请求快照；依T35仓储接口用fixture测试，在T20与T37实际存储集成。
-- 依赖：T35,T18,T19。文件：agent/harness/context与evidence、unit tests、fixtures/context；分算法与持久适配交付。
-- 验收：H-CTX-01–05通过；同输入hash一致；长材料可精确读回；关键层超限显式失败，无推断升级权威事实。
-- 验证：verify -Suite harness -Case context；边界/冲突/恶意文本/多语言长度fixture。
-- 实际记录：未执行。
-
-### T37 SessionStore、调用账与轨迹包
-
-- [ ] T37.1：agent_db追加manifest/context/event/evidence/budget迁移，事件与关键记录同事务、fence保护、稳定call_id。
-- [ ] T37.2：持久显式模型输出和实际请求、用量预占/结算/UNKNOWN；实现合成ReplayPack只读导出与hash清单。
-- 依赖：T35,T17。文件：agent/harness/session、agent migrations、scripts/replay.ps1 export、PG integration tests。
-- 验收：event sequence唯一有序；重入不伪造或丢观察；导出无凭证、不覆盖原pack，日志不是新的业务状态权威。
-- 验证：PG事务/并发/旧fence测试、导出hash/脱敏测试；预留崩溃fixture给T22/T38。
-- 实际记录：未执行。
-
-### T38 隔离回放与GH验收
-
-- [ ] T38.1：strict记录响应回放、RecordedToolAdapter、临时评测库和本地CallbackSink；固定完整golden packs。
-- [ ] T38.2：counterfactual-recorded分支匹配/REPLAY_MISS；复用T23合成世界实现world模式；记录首个差异/覆盖率。
-- [ ] T38.3：执行容器出站约束、拒绝业务凭证/回调/原库写入；综合验收GH。
-- 依赖：T22,T24,T37。文件：evals/replay、scripts/replay.ps1 run、infra/replay、agent/tests、reports/harness-gate。
-- 验收：H-RPL-01–06通过；strict不访问模型或Java，变体缺分支不猜答案；无权威业务效果，三模式不混报。
-- 验证：verify -Suite harness、strict golden packs、mock反事实、无网络测试及GH；live小样本沿用同版本T20有效记录，否则补测。
-- 实际记录：未执行。
-
-### T39 Harness消融与简历证据
-
-- [ ] T39.1：dev定C0/C1/C2，冻结配置后test各3次；正常/压力分层，复用符合条件的T31 C2结果。
-- [ ] T39.2：完成live自治配对、上下文总成本/质量/overflow、回放覆盖和安全有界的停止策略消融报告。
-- [ ] T39.3：映射R07/R08/R11/R13/R14到代码、测试、实际报告和面试解释，保留负面结果。
-- 依赖：T31,T38,T36,T23。文件：evals/variants、evals/metrics、reports/harness、docs/resume-evidence.md。
-- 验收：全部分母和UNKNOWN/INCOMPLETE明确；未见分支不混充回放成功，未提升如实报告；API预算不足标阻塞，不填假指标。
-- 验证：verify -Suite harness-eval -Mode live -Seed 42；报告hash/配对统计校验；交由T34最终审计。
+- [ ] C13.1：5个可复现演示、启动/故障手册、个人技术取舍说明。
+- [ ] C13.2：按CI-01–10、US-C1–6、K1–K7检查代码/测试/报告，对照实际支持范围写简历候选条目。
+- 依赖：C12。文件：docs/demo.md、docs/runbook.md、docs/interview-notes.md、reports/core-final-review.md、todo记录。
+- 验收：陌生使用者能复现核心演示；没有未实现补发/反事实/商用/高可用主张；延期项不阻塞完成。
+- 验证：最终相关all-offline、演示实跑、报告与简历证据核对；未运行明确列出。
 - 实际记录：未执行。

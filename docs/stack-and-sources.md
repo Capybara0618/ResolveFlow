@@ -1,6 +1,6 @@
 # 技术版本线与依据
 
-核对日期2026-09-15。下面冻结组件与版本线，具体补丁/镜像digest必须在T00完成实际构建后写入infra/versions.lock.yaml和锁文件。当前未执行构建，不宣称整套依赖兼容已验证。
+v1.2说明（2026-09-18）：T00–T02已有实测记录，实际补丁/digest以infra/versions.lock.yaml、构建锁文件和docs/compatibility-report.md为准；下表保留原选型依据，不要求重新选型。核心范围以docs/core-scope.md为准：Nacos/Sentinel/完整观测及reranker非必做，不因列在表中就必须部署。本轮仅修订范围，不重新验证组件当前发布状态。
 
 ## 1. 选型
 
@@ -9,8 +9,8 @@
 | Java | 21 LTS | 固定发行版与镜像digest |
 | Spring Boot | 4.0.x | 匹配Cloud2025.1支持补丁，选已发布维护补丁 |
 | Spring Cloud | 2025.1.x | BOM管理，禁止混2025.0 |
-| Spring Cloud Alibaba | 2025.1.0.0 | 已发布正式版，验证Nacos/Sentinel/RocketMQ starter |
-| Gateway/Security/OpenFeign | 上述BOM对应 | 不单独猜starter版本；测试Jackson3序列化 |
+| Spring Cloud Alibaba | 2025.1.0.0 | 沿用已测BOM；Nacos/Sentinel可选，RocketMQ使用T00已测classic客户端，不假设存在对应starter |
+| Gateway/Security/OpenFeign | 上述BOM对应 | 沿用T00已测spring-cloud-starter-gateway-server-webflux及序列化组合，不重新猜坐标 |
 | Maven/MyBatis/Flyway | Maven3.9.x；MyBatis Boot4兼容线；Flyway BOM可用版 | T00真实最小事务与迁移验证，禁止SNAPSHOT |
 | MySQL | 8.4 LTS | 固定patch与digest |
 | Redis | 7.x | 固定patch，测试Lua限流 |
@@ -27,6 +27,8 @@
 若MyBatis Boot4 starter确有兼容阻塞，先核实官方版本与最小复现；可用Spring JDBC实现相同Repository接口，记录ADR修订，不能偷偷改整个Boot版本。若涉及多个核心依赖不兼容，提交备选组合和成本，由用户决定主要版本回退。常规补丁锁定无需再询问。
 
 ## 2. T00兼容性关卡
+
+本节为已执行的历史关卡要求。实际通过/未运行内容以任务归档与兼容报告为准，v1.2不把可选组件重新作为核心启动门槛。
 
 必须验证：Maven解析+Java启动；Nacos config/import+服务发现；Gateway路由；MySQL事务/Flyway；RocketMQ发送消费；Sentinel基本熔断；Python依赖解析+PG checkpoint保存恢复；MCP stdio工具调用；跨Java/Python JSON/hash fixture；前端最小build。
 
