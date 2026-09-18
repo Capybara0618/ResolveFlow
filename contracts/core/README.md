@@ -35,7 +35,9 @@
 | `profile.json` | 已建立（C00.1，2026-09-18） |
 | `refund-command.schema.json`（`urn:resolveflow:core:refund-command:v2`） | 已建立（C00.2a，2026-09-18） |
 | `event-envelope.schema.json`（`urn:resolveflow:core:event-envelope:v2`） | 已建立（C00.2a，2026-09-18） |
-| `openapi-case.yaml` / `openapi-commerce.yaml` / `openapi-agent.yaml` | 待建立（C00.2b） |
+| `openapi-commerce.yaml`（4 条 `/internal/v1/...` 路由） | 已建立（C00.2b-1，2026-09-18） |
+| `openapi-agent.yaml` | 待建立（C00.2b-2） |
+| `openapi-case.yaml`（18 条路由，含 5 条内部路由） | 待建立（C00.2b-3） |
 | `agent-proposal.schema.json` | 待建立（C00.2c） |
 | 核心正反 fixture 与核心路由覆盖测试 | 待建立（C00.2b/C00.2c） |
 | Java/Pydantic 核心 DTO | 待建立（C00.2c） |
@@ -49,6 +51,10 @@
 2. **结果也必须签名**。`docs/core-contracts.md:65` 要求 Commerce 签名结果、Case 校验来源与签名，所以 core 信封里 `signature`/`signing_key_id` 是必填；旧 v1 信封允许结果不签名（该行为在旧文件中原样保留）。
 3. **命令不带 `schema_version` 字段**。v2 由 URN 与信封 `schema_version=2` 标识；命令自身的每个字段都被 `payload_hash` 覆盖，放一个不参与哈希的版本字段会让两条不同命令共享摘要。
 4. **命令必填 `amount_minor`**，且 `action`/`target_service` 为常量。旧 v1 命令的 `amount_minor` 是条件必填，`target_service` 还允许 `fulfillment-service`——这些旧行为未被收紧，旧 fixture 照常通过。
+5. **同一行版本在两个线面上名字不同，各自有权威**：结果事件 payload 用 `aggregate_version`（`docs/core-contracts.md:67`），Commerce 的 REST 视图用 `version`（`docs/domain-model.md:43` 的列名）。两处都指向同一条 `refund_operation` 行的乐观锁版本，且各自的描述里写明了对方，避免被读成两个事实。
+6. **核心 commerce 文档收窄了 compat 文档**：只保留 4 条 `/internal/v1/...` 路由，`/internal/v1/entitlements/*` 与 `cancel-before-start` 不在核心（`docs/core-contracts.md:53`）；`line_refund` 状态枚举只有 `FREE/RESERVED/CONSUMED`，compat 的 `IN_USE` 属于被延期的跨服务权益协议，因此核心文档里没有 `Action`/`EntitlementState*` 组件。物流视图新增必填常量 `synthetic: true`（`docs/core-scope.md:30`），不允许伪装成真实承运商接口。
+
+路由覆盖测试（`agent/tests/unit/test_contracts_core_routes.py`）直接从 `docs/core-contracts.md` 第3节表格解析路由，并把每类数量钉住（Case 18 / Commerce 4 / Agent 5 = 27），逐项与核心 OpenAPI 的 `paths` 对比；同时检查每个 `$ref` 都能在文档内解析、核心错误体与 compat 错误体逐字段相同、以及所有示例都能通过自身组件的校验。
 
 校验方式：核心 Schema 不在旧文件集里，用 `resolveflow.contracts._schemaio.CORE_SCHEMA_FILES` 传入 `validator_bundle` / `schema_registry`；测试 `agent/tests/unit/test_contracts_core_schemas.py` 断言两套 `$id` 互不相交、互不可解析，并断言命令的属性集合恰好等于 `canonical.REFUND_FIELDS + payload_hash`（Schema 与哈希实现不能各自漂移）。
 

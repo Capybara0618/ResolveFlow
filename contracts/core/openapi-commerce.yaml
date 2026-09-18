@@ -1,0 +1,462 @@
+openapi: 3.1.0
+info:
+  title: ResolveFlow commerce-service core API
+  version: core-v1.2
+  x-core-profile: core-v1.2
+  x-core-schema-version: 2
+  description: |
+    Core-v1.2 commerce surface: authoritative order/payment/line facts, the synthetic
+    shipment adapter, the line refund status and the authoritative refund operation
+    state. Target protocol of C00 (docs/core-contracts.md section 3); it does not claim
+    that these operations are implemented yet.
+
+    Narrower than the T02 compat document (contracts/openapi-commerce.yaml) on purpose:
+    the entitlement reserve/start/commit/release protocol is deferred
+    (docs/core-scope.md:16), so the four /internal/v1/entitlements/* routes and the
+    cancel-before-start tombstone are absent here. They stay in the compat document and
+    are not deployed in core.
+
+    Logistics are a read-only synthetic adapter inside Commerce
+    (docs/core-scope.md:30): the shipment view must say `synthetic: true` rather than
+    impersonate a carrier integration, and there is no fulfillment database.
+
+    Everything under /internal/ accepts only a service token with the matching audience
+    and scope, and is never exposed through the gateway.
+servers:
+  - url: http://commerce-service:8081
+    description: In-cluster address. Reached only through the gateway or a service token.
+tags:
+  - name: internal-read
+    description: Read-only business facts. The Agent reaches these through its scoped tools.
+  - name: refund
+    description: Refund operation state and the reconciliation answer.
+paths:
+  /internal/v1/order-lines/{line_id}/context:
+    get:
+      tags: [internal-read]
+      operationId: readOrderLineContext
+      summary: Authoritative order, payment and line facts for one line
+      description: |
+        Java recomputes every amount from here; an Agent-suggested amount is never
+        trusted (docs/product-spec.md:46).
+      parameters:
+        - $ref: '#/components/parameters/LineId'
+      responses:
+        '200':
+          description: Line context at its current version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineContext'
+              example:
+                order_id: 00000000-0000-4000-8000-0000000000aa
+                line_id: '7001'
+                merchant_id: M-1001
+                customer_id: C-2002
+                sku: SKU-RED-M
+                category: apparel
+                quantity: 2
+                line_paid_amount: 2599
+                refunded_amount: 0
+                reserved_refund_amount: 0
+                currency: CNY
+                paid_at: '2026-09-10T08:15:00Z'
+                order_status: PAID
+                version: 3
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/order-lines/{line_id}/shipment:
+    get:
+      tags: [internal-read]
+      operationId: readOrderLineShipment
+      summary: Versioned synthetic shipment evidence for one line
+      description: |
+        Labels itself synthetic instead of imitating a carrier API, and carries the
+        source version so a late event cannot overwrite newer state
+        (docs/domain-model.md:44).
+      parameters:
+        - $ref: '#/components/parameters/LineId'
+      responses:
+        '200':
+          description: Shipment snapshot at its current source version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShipmentSnapshot'
+              example:
+                line_id: '7001'
+                synthetic: true
+                status: LOST
+                carrier_conclusion: LOST
+                events:
+                  - code: PICKED_UP
+                    occurred_at: '2026-09-11T03:00:00Z'
+                    source_version: 1
+                  - code: NO_SCAN_7D
+                    occurred_at: '2026-09-18T03:00:00Z'
+                    source_version: 2
+                source_version: 2
+                updated_at: '2026-09-18T03:05:00Z'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/order-lines/{line_id}/refund-status:
+    get:
+      tags: [refund]
+      operationId: readLineRefundStatus
+      summary: Refunded, reserved and current refund state for one line
+      description: |
+        A view over payment_ledger and line_refund (docs/domain-model.md:41-42). The
+        refundable amount is deliberately not returned: it is paid minus refunded minus
+        reserved, and a stored copy of a derived number is how two services start
+        disagreeing about the same money.
+      parameters:
+        - $ref: '#/components/parameters/LineId'
+      responses:
+        '200':
+          description: Line refund state at its current version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineRefundStatus'
+              example:
+                line_id: '7001'
+                merchant_id: M-1001
+                line_paid_amount: 2599
+                refunded_amount: 0
+                reserved_refund_amount: 2599
+                currency: CNY
+                state: RESERVED
+                operation_id: 3f2504e0-4f89-41d3-9a0c-0305e82c3301
+                version: 4
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /internal/v1/operations/{operation_id}:
+    get:
+      tags: [refund]
+      operationId: readRefundOperation
+      summary: Authoritative refund operation state
+      description: |
+        This answer ends a reconciliation; a broker retry or a timer never does
+        (docs/reliability-security.md). UNKNOWN is not a failure and keeps the
+        reservation.
+      parameters:
+        - $ref: '#/components/parameters/OperationId'
+      responses:
+        '200':
+          description: Operation state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundOperationView'
+              example:
+                operation_id: 3f2504e0-4f89-41d3-9a0c-0305e82c3301
+                line_id: '7001'
+                state: UNKNOWN
+                amount_minor: 2599
+                provider_ref: null
+                reason_code: PROVIDER_TIMEOUT
+                next_check_at: '2026-09-18T10:05:00Z'
+                version: 5
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  securitySchemes:
+    serviceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Internal aud/scope token. X-User, X-Role and X-Merchant headers are stripped at
+        the gateway and never trusted here (docs/core-contracts.md:15).
+  parameters:
+    LineId:
+      name: line_id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 64
+    OperationId:
+      name: operation_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+  responses:
+    ForbiddenScope:
+      description: Service token lacks the required scope (403)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: FORBIDDEN_SCOPE
+            message: the caller scope does not include the required action
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    NotFound:
+      description: Not visible under this token's scope (404)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: NOT_FOUND
+            message: the resource does not exist under this principal
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    ServiceUnavailable:
+      description: Temporarily unavailable (503). A timeout here is never a failed refund.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: SERVICE_UNAVAILABLE
+            message: commerce database is temporarily unavailable
+            retryable: true
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+  schemas:
+    Uuid:
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    Sha256Hex:
+      type: string
+      pattern: '^[a-f0-9]{64}$'
+    Version:
+      type: integer
+      minimum: 1
+      maximum: 9007199254740991
+    AmountMinor:
+      type: integer
+      minimum: 0
+      maximum: 1000000000
+      description: CNY minor units. Never a float (docs/core-contracts.md:17).
+    OperationState:
+      type: string
+      enum:
+        [CREATED, RESERVING, RESERVED, RECEIVED, STARTING, DISPATCHED, IN_PROGRESS,
+         TARGET_SUCCEEDED, COMMITTING, SUCCEEDED, UNKNOWN, RELEASING, FAILED, CANCELLED]
+      description: |
+        The full internal refund_operation state machine (docs/domain-model.md:126).
+        Only SUCCEEDED/FAILED/UNKNOWN ever reach the result event.
+    LineRefundState:
+      type: string
+      enum: [FREE, RESERVED, CONSUMED]
+      description: |
+        line_refund states in core (docs/domain-model.md:42). The compat entitlement
+        enum also had IN_USE; that state belonged to the cross-service
+        reserve/start/commit/release protocol, which core does not implement.
+    CarrierConclusion:
+      type: string
+      enum: [LOST, DELIVERED, IN_TRANSIT, UNKNOWN]
+      description: Only LOST or DELIVERED are terminal carrier conclusions.
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [code, message, retryable]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        retryable:
+          type: boolean
+          description: |
+            Carried explicitly so a caller never infers retryability from the status
+            code. A network timeout is not a failed refund (docs/contracts.md:14).
+        trace_id:
+          type: [string, 'null']
+          maxLength: 64
+        details:
+          type: [object, 'null']
+          additionalProperties: true
+    ErrorResponse:
+      $ref: '#/components/schemas/ApiError'
+    ShipmentEvent:
+      type: object
+      additionalProperties: false
+      required: [code, occurred_at, source_version]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        occurred_at:
+          type: string
+          format: date-time
+        source_version:
+          $ref: '#/components/schemas/Version'
+          description: Used to detect a late event that must not overwrite newer state.
+    ShipmentSnapshot:
+      type: object
+      additionalProperties: false
+      required: [line_id, synthetic, status, carrier_conclusion, events, source_version, updated_at]
+      properties:
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        synthetic:
+          type: boolean
+          const: true
+          description: |
+            Required and constant: core ships a simulator, so a response must not read
+            like a real carrier integration (docs/core-scope.md:30).
+        status:
+          type: string
+          minLength: 1
+          maxLength: 64
+        carrier_conclusion:
+          $ref: '#/components/schemas/CarrierConclusion'
+        events:
+          type: array
+          maxItems: 200
+          items:
+            $ref: '#/components/schemas/ShipmentEvent'
+        source_version:
+          $ref: '#/components/schemas/Version'
+        updated_at:
+          type: string
+          format: date-time
+    LineContext:
+      type: object
+      additionalProperties: false
+      required:
+        [order_id, line_id, merchant_id, customer_id, sku, category, quantity,
+         line_paid_amount, refunded_amount, reserved_refund_amount, currency, paid_at,
+         order_status, version]
+      description: |
+        Carried over from the compat document unchanged: docs/domain-model.md:41 fixes
+        these columns, and restating them differently for core would move the money
+        contract for no reason.
+      properties:
+        order_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        customer_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 64
+        category:
+          type: string
+          minLength: 1
+          maxLength: 64
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        line_paid_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        refunded_amount:
+          $ref: '#/components/schemas/AmountMinor'
+          description: INV-01 term. refunded + reserved must never exceed line_paid_amount.
+        reserved_refund_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        currency:
+          type: string
+          const: CNY
+        paid_at:
+          type: string
+          format: date-time
+        order_status:
+          type: string
+          minLength: 1
+          maxLength: 64
+        version:
+          $ref: '#/components/schemas/Version'
+    LineRefundStatus:
+      type: object
+      additionalProperties: false
+      required:
+        [line_id, merchant_id, line_paid_amount, refunded_amount, reserved_refund_amount,
+         currency, state, version]
+      properties:
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        line_paid_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        refunded_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        reserved_refund_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        currency:
+          type: string
+          const: CNY
+        state:
+          $ref: '#/components/schemas/LineRefundState'
+        operation_id:
+          oneOf:
+            - $ref: '#/components/schemas/Uuid'
+            - type: 'null'
+        version:
+          $ref: '#/components/schemas/Version'
+    RefundOperationView:
+      type: object
+      additionalProperties: false
+      required: [operation_id, line_id, state, amount_minor, version]
+      properties:
+        operation_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        state:
+          $ref: '#/components/schemas/OperationState'
+        amount_minor:
+          $ref: '#/components/schemas/AmountMinor'
+        provider_ref:
+          type: [string, 'null']
+          maxLength: 200
+          description: Masked in any public response (docs/contracts.md:128).
+        reason_code:
+          type: [string, 'null']
+          pattern: '^[A-Z][A-Z0-9_]{1,63}$'
+        next_check_at:
+          # anyOf, not type: [string, 'null']: a nullable field that also carries a
+          # format must apply that format to the string branch only.
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        version:
+          $ref: '#/components/schemas/Version'
+          description: |
+            Same row version the result event reports as aggregate_version
+            (docs/core-contracts.md:67); this REST view keeps the domain-model column
+            name from docs/domain-model.md:43.
+security:
+  - serviceToken: []

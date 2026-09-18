@@ -30,7 +30,11 @@
   - 报告路径：`reports/verify/20260918-175954-contracts.txt`。
   - 关键结论：核心 Schema 与旧 v1 的 `$id` 互不相交且互不可解析（测试断言）；`RESHIP`、`entitlement_id`、`address_hash`、旧 topic `rf.case.v1`、`schema_version=1`、无签名的结果、浮点/负/超上限金额均被拒；命令属性集合恰好等于 `canonical.REFUND_FIELDS + payload_hash`，Schema 与哈希实现不能各自漂移；旧 v1 命令/信封的宽松行为（RESHIP 分支、条件 amount_minor、结果不签名、信封带 aggregate_*）原样保留并有测试对照。
   - 规范差异已按权威解决并记录：`docs/core-contracts.md` 第5节把 `aggregate_version` 放在结果 payload，因此 core 信封不再重复 `aggregate_id`/`aggregate_version`（旧 v1 信封保持不变）；详见 `contracts/core/README.md` 第4节。
-  - 未执行：C00.2b（三份核心 OpenAPI 与路由覆盖）、C00.2c（Java/Pydantic 核心 DTO 与 agent-proposal v2）、C00.3（core profile 启动与 smoke 选择）未开始；`verify -Suite all-offline` 本轮未重跑（留到 C00.3）；core profile 的服务启动尚未验证。
+  - C00.2b 拆为三步（b-1 commerce / b-2 agent / b-3 case），本轮完成 b-1（2026-09-18）。修改文件：`contracts/core/openapi-commerce.yaml`（新建：4 条核心路由 + LineContext/ShipmentSnapshot/LineRefundStatus/RefundOperationView 及错误体）、`agent/tests/unit/test_contracts_core_routes.py`（新建：16 个测试，含从 `docs/core-contracts.md` 第3节解析路由表并钉住每类数量）、`contracts/core/README.md`（现状表与决策 5/6）。
+  - 命令与结果：`pytest agent/tests/unit/test_contracts_core_routes.py -q` → 16 passed（中途 4 次失败全为测试自身缺陷：目录写成 `core`、正则缺 `re.MULTILINE`、`/health` 不属版本化前缀、路径重复拼接 `contracts`）；`pytest agent/tests/unit -q` → **243 passed**（此前 227 + 本步 16）；`ruff` All checks passed；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（1.5s / 8.8s / 5.5s）。
+  - 报告路径：`reports/verify/20260918-180556-contracts.txt`。
+  - 关键结论：核心路由表的权威是文档而非测试内的副本——测试解析 `docs/core-contracts.md` 第3节并钉住 Case 18 / Commerce 4 / Agent 5（共 27 条），再与核心 OpenAPI 的 `paths` 逐项比对；commerce 文档已确认不含 entitlement/packing/reship/cancel-before-start 任何片段，也没有 `Action` 与 `EntitlementState*` 组件，`line_refund` 状态收窄为 FREE/RESERVED/CONSUMED（compat 的 `IN_USE` 仍在旧枚举里，有对照断言）；`ShipmentSnapshot.synthetic` 为必填常量 true；文档内每个 `$ref` 均可解析，7 个示例全部通过自身组件校验；核心错误体与 compat 错误体逐字段相同（`docs/core-contracts.md:15` 要求错误体不变）。
+  - 未执行：C00.2b-2（agent 文档，5 条路由）、C00.2b-3（case 文档，18 条路由 + 三文档全量逐项对应）、C00.2c（Java/Pydantic 核心 DTO 与 agent-proposal v2）、C00.3（core profile 启动与 smoke 选择）未开始；`verify -Suite all-offline` 本轮未重跑（留到 C00.3）；core profile 的服务启动尚未验证。
 
 ### C01 身份与订单只读切片
 
