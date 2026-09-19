@@ -25,6 +25,15 @@ spring:
       # rather than something to ignore (Boot defaults this to false).
       fail-on-unknown-properties: true
 
+# Demonstration identity for the internal surface (C01.2b-2). The secret is a local default, not a
+# deployment key: it must match case-service's for a service token to verify, and the boundary that
+# separates the two surfaces is the audience, not the key. A deployment overrides it.
+resolveflow:
+  identity:
+    jwt:
+      secret: resolveflow-core-demo-identity-secret
+      ttl-seconds: 3600
+
 mybatis:
   configuration:
     map-underscore-to-camel-case: true

@@ -102,10 +102,10 @@
 `GET /internal/v1/order-lines`（service token、`merchant_id` 必填、`customer_id` 可选、游标分页，返回 `OrderLinePage`），表格已在 `docs/core-contracts.md` 第3节新增一行，Commerce 路由数因此 4 → 5、总数 27 → 28。
 作用域由 Case 从已校验的用户 token 推导后传入内部调用；公共路由不接受 `merchant_id`/`customer_id`/`scope` 参数，有测试钉住这一点，因为一旦公共路由能指定作用域，客户就能读别人的订单行。
 两个文档里的 `OrderLineSummary`/`OrderLinePage`/`PageMeta` 定义逐字相同，由测试逐项比对，避免同一载荷在两个文档里各自漂移。
-**这条内部路由的落地进度**：C01.2b-1 已完成 `commerce_db` 的迁移（`orders`/`order_line`/`payment_ledger`）、演示种子与按主体作用域的读服务，并用真实 MySQL 的集成测试验证（含「同一 customer_id 换商家查不到」与分页不重不漏）；HTTP 路由与 service token 校验尚未接上（C01.2b-2），所以这条路由目前仍不可调用。
+**这条内部路由的落地进度**：C01.2b-1 完成了 `commerce_db` 的迁移（`orders`/`order_line`/`payment_ledger`）、演示种子与按主体作用域的读服务；C01.2b-2 接上了 HTTP 路由与 service token 校验（用户 token 一律 403，缺 token 401，缺 `merchant_id` 或坏游标 400），并证明 MySQL 账户确实不跨库读取。**它现在可以调用了**（case-service 侧尚未开始调用，那是 C01.2c）。
 
-## 7. 已实现的核心路由（C01.1，2026-09-19）
+## 7. 已实现的核心路由（C01.1–C01.2，2026-09-19）
 
-28 条核心路由里真正实现的目前是 **1 条**：case-service 的 `POST /api/v1/auth/login`（演示账号登录）。它按核心 OpenAPI 的 `LoginRequest`/`LoginResponse` 出入参，登录不需要 token，失败走统一错误体（401 `UNAUTHENTICATED` 对"口令错"与"账号不存在"只有同一条消息，400 `INVALID_ARGUMENT` 拒绝未知字段）。
+28 条核心路由里真正实现的目前是 **2 条**：case-service 的 `POST /api/v1/auth/login`（演示账号登录）与 commerce-service 的 `GET /internal/v1/order-lines`（按主体列订单行，service token 专用）。它按核心 OpenAPI 的 `LoginRequest`/`LoginResponse` 出入参，登录不需要 token，失败走统一错误体（401 `UNAUTHENTICATED` 对"口令错"与"账号不存在"只有同一条消息，400 `INVALID_ARGUMENT` 拒绝未知字段）。
 
 除此之外**全部仍是目标协议**：订单、工单、证据、授权、审批、内部接口都没有实现，`GET /api/v1/orders` 之类仍是 404。演示账号见 `docs/product-spec.md:9`（CUSTOMER/REVIEWER/OPERATOR、2 个合成商家各 ≥2 用户）；口令只存 PBKDF2-SHA256 哈希（`docs/domain-model.md:24`），签名是 HS256、用户面与服务面 `aud` 分离，且算法固定不读 token 自带的 `alg`。没有 JWKS、密钥轮换、RS256、refresh 或吊销列表——这是演示身份，不是可用于生产的 IAM。
