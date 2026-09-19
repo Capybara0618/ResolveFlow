@@ -29,7 +29,10 @@ CORE_DIR = "contracts/core"
 
 #: docs/core-contracts.md section 3, pinned per owner. C00 delivers all of them; a
 #: document that quietly stops covering one is what these numbers are here to catch.
-EXPECTED_ROUTE_COUNTS = {"Case": 18, "Commerce": 4, "Agent": 5}
+#: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
+#: Commerce internally, but no listing route existed for it to call (see the C01.2
+#: record in tasks/todo.md).
+EXPECTED_ROUTE_COUNTS = {"Case": 18, "Commerce": 5, "Agent": 5}
 
 #: Routes the compat baseline has and core must not expose (docs/core-contracts.md:53).
 DEFERRED_PATH_FRAGMENTS = (
@@ -367,6 +370,44 @@ def test_commerce_synthetic_marker_is_required_and_constant() -> None:
     synthetic = snapshot["properties"]["synthetic"]
     assert synthetic["type"] == "boolean" and synthetic["const"] is True
     assert synthetic["description"]
+
+
+@pytest.mark.parametrize("name", ["OrderLineSummary", "OrderLinePage", "PageMeta"])
+def test_the_internal_order_view_is_the_public_order_view(name: str) -> None:
+    """Case's public order view and Commerce's internal one must be the same shape.
+
+    Case owns the public Order API (docs/core-contracts.md:53) and builds it from Commerce's
+    listing route (docs/core-contracts.md:26), which C01.2 added because the table named the
+    dependency without giving it a route. Two documents describing one payload is how a member ends
+    up added on one side only, so the two definitions are compared literally: the shared primitives
+    they point at (Uuid/AmountMinor/Version) are byte-identical apart from the URN prefix, so any
+    difference here is a real divergence rather than a naming artifact.
+    """
+    public = document("case")["components"]["schemas"][name]
+    internal = document("commerce")["components"]["schemas"][name]
+
+    assert internal == public
+
+
+def test_the_order_listing_route_takes_its_scope_from_the_caller_not_the_client() -> None:
+    op = document("commerce")["paths"]["/internal/v1/order-lines"]["get"]
+    names = [param["$ref"].rsplit("/", 1)[-1] for param in op["parameters"]]
+    assert names == ["MerchantId", "CustomerId", "Cursor", "Limit"]
+    params = document("commerce")["components"]["parameters"]
+    assert params["MerchantId"]["required"] is True
+    assert params["CustomerId"]["required"] is False, "a merchant-scoped caller lists the whole merchant"
+    # The scope exists only on the internal route. If the public Case route offered merchant_id or
+    # customer_id, a customer could ask for someone else's lines (docs/core-contracts.md:15).
+    public = document("case")["paths"]["/api/v1/orders"]["get"]
+    public_names = {
+        document("case")["components"]["parameters"][param["$ref"].rsplit("/", 1)[-1]]["name"]
+        for param in public["parameters"]
+        if "$ref" in param
+    }
+    assert not {"merchant_id", "customer_id", "scope"} & public_names
+    assert "内部请求Commerce" in (
+        REPO_ROOT / "docs" / "core-contracts.md"
+    ).read_text(encoding="utf-8"), "the authority that made this route necessary moved"
 
 
 @pytest.mark.parametrize("service", ["agent", "case"])

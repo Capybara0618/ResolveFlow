@@ -31,6 +31,49 @@ tags:
   - name: refund
     description: Refund operation state and the reconciliation answer.
 paths:
+  /internal/v1/order-lines:
+    get:
+      tags: [internal-read]
+      operationId: listOrderLines
+      summary: Order lines visible to one principal scope, for Case's public order view
+      description: |
+        Case owns the public Order API and builds its view from here
+        (docs/core-contracts.md:26: "当前主体订单视图；内部请求Commerce"), because
+        commerce_db owns orders and payments (docs/architecture.md:11). The scope is
+        passed by Case from the verified user token: no request-supplied identity can
+        widen it (docs/core-contracts.md:15), and a caller cannot name a scope it was
+        not given. Lines outside the scope are absent from the result rather than
+        reported as forbidden, so the list does not disclose what the principal may not
+        see; a service token without the read scope is 403 (403).
+      parameters:
+        - $ref: '#/components/parameters/MerchantId'
+        - $ref: '#/components/parameters/CustomerId'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Lines within the requested scope, newest first
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderLinePage'
+              example:
+                items:
+                  - order_id: 00000000-0000-4000-8000-0000000000aa
+                    line_id: '7001'
+                    sku: SKU-RED-M
+                    category: apparel
+                    quantity: 2
+                    line_paid_amount: 2599
+                    currency: CNY
+                    paid_at: '2026-09-10T08:15:00Z'
+                    status: PAID
+                    version: 3
+                page:
+                  limit: 20
+                  next_cursor: null
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
   /internal/v1/order-lines/{line_id}/context:
     get:
       tags: [internal-read]
@@ -193,6 +236,39 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/Uuid'
+    MerchantId:
+      name: merchant_id
+      in: query
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 64
+    CustomerId:
+      name: customer_id
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 64
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 200
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
   responses:
     ForbiddenScope:
       description: Service token lacks the required scope (403)
@@ -228,6 +304,67 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    PageMeta:
+      type: object
+      additionalProperties: false
+      required: [limit]
+      properties:
+        next_cursor:
+          type: [string, 'null']
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+    OrderLineSummary:
+      type: object
+      additionalProperties: false
+      required:
+        [order_id, line_id, sku, category, quantity, line_paid_amount, currency, paid_at, status, version]
+      properties:
+        order_id:
+          $ref: '#/components/schemas/Uuid'
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 64
+        category:
+          type: string
+          minLength: 1
+          maxLength: 64
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        line_paid_amount:
+          $ref: '#/components/schemas/AmountMinor'
+        currency:
+          type: string
+          const: CNY
+        paid_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          minLength: 1
+          maxLength: 64
+        version:
+          $ref: '#/components/schemas/Version'
+    OrderLinePage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLineSummary'
+        page:
+          $ref: '#/components/schemas/PageMeta'
     Uuid:
       type: string
       pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'

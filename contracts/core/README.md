@@ -67,7 +67,7 @@
 14. **`source_ref` 现在真的拒绝 URL**：`docs/core-contracts.md:61` 说"ref 不是可请求的任意 URL"，但 compat 只写了 `minLength`/`maxLength`——文档声称的约束并没有被 Schema 强制。核心三处（提案 Schema 的 `evidence_refs.items`、case 的 `EvidenceRef`、agent 的 `ObservationRecord`）统一加了 `pattern: '^(?!https?://)[a-z][a-z0-9_]*:\S+$'`，并加了把 `https://…` 当负例拒绝的测试。
 15. **引用行号现在被机器校验**（`agent/tests/unit/test_contracts_core_citations.py`）：扫描 `contracts/**`、`agent/src/resolveflow/contracts/**`、`java/shared-kernel/.../contract/**` 里所有 `docs/X.md:N` 形式的引用，断言该文件存在且至少有 N 行。加这条守卫是因为发现 `contracts/core/event-envelope.schema.json` 引用 `docs/domain-model.md` 的第126行（该文件仅 72 行），而当时的引用规则只覆盖 OpenAPI 文档、且只检查"写了引用"而非"引用指得通"。守卫上线后一共揪出 15 处指不到的行号（1 处在核心、14 处在 compat 基线与 Python/Java 契约源码里）：`docs/product-spec.md` 的第46行（该文件仅 40 行，真实权威是第 25 行"Java 重算金额，与建议不一致不能静默修改后执行"）、`docs/domain-model.md` 的第104/110/122/126行、`docs/engineering.md` 的第98行，全部改为真实行号：case 取消/对账 → `docs/domain-model.md:55`，旧 revision 无效 → `docs/domain-model.md:13`，方案不可原地改载荷 → `docs/domain-model.md:29`，provider 调用规则 → `docs/domain-model.md:51`（并注明 `IN_USE` 只是兼容超集 `docs/domain-model.md:59`），JWT 校验 → `docs/core-contracts.md:15`。这些改动只动描述文本与 DTO 文档串，不动任何线上形状；本 README 里对"曾引错的行号"一律用"第 N 行"表述，好让守卫只统计真正的引用。
 
-路由覆盖测试（`agent/tests/unit/test_contracts_core_routes.py`）直接从 `docs/core-contracts.md` 第3节表格解析路由，并把每类数量钉住（Case 18 / Commerce 4 / Agent 5 = 27），逐项与核心 OpenAPI 的 `paths` 对比；同时检查每个 `$ref` 都能在文档内解析、核心错误体与 compat 错误体逐字段相同、所有示例都能通过自身组件的校验（当前 45 个测试、52 个示例），以及 case 的内部路由必须用 service token、登录接口不得要求 token、QUESTION 问题数上限为 3。
+路由覆盖测试（`agent/tests/unit/test_contracts_core_routes.py`）直接从 `docs/core-contracts.md` 第3节表格解析路由，并把每类数量钉住（Case 18 / Commerce 5 / Agent 5 = 28），逐项与核心 OpenAPI 的 `paths` 对比；同时检查每个 `$ref` 都能在文档内解析、核心错误体与 compat 错误体逐字段相同、所有示例都能通过自身组件的校验（当前 49 个测试、53 个示例），以及 case 的内部路由必须用 service token、登录接口不得要求 token、QUESTION 问题数上限为 3。
 
 校验方式：核心 Schema 不在旧文件集里，用 `resolveflow.contracts._schemaio.CORE_SCHEMA_FILES` 传入 `validator_bundle` / `schema_registry`；测试 `agent/tests/unit/test_contracts_core_schemas.py` 断言两套 `$id` 互不相交、互不可解析，并断言命令的属性集合恰好等于 `canonical.REFUND_FIELDS + payload_hash`（Schema 与哈希实现不能各自漂移）。
 
@@ -90,12 +90,22 @@
 
 **启动集合只有一个来源**：`scripts/verify.ps1` 从 `contracts/core/profile.json` 读 `core_services` / `compat_only_services` 来决定启谁，脚本里只保留"名字 → jar 与端口"的映射；profile 里加了服务却没有启动器会当场失败，而不是被静默跳过。
 
-**尚未实现（不要读成已有能力）**：核心 27 条路由里目前只有 1 条真的实现了（见下节），退款闭环、Agent 调查与政策检索、恢复/回放/实验，全部还是目标协议；observability 容器目前根本不存在，将来也应放在自己的 compose profile 里，而不是默认集合。
+**尚未实现（不要读成已有能力）**：核心 28 条路由里目前只有 1 条真的实现了（见下节），退款闭环、Agent 调查与政策检索、恢复/回放/实验，全部还是目标协议；observability 容器目前根本不存在，将来也应放在自己的 compose profile 里，而不是默认集合。
 
 **证据**：`reports/verify/20260919-102959-smoke.txt`（核心 profile；跑之前先 `docker compose --profile compat stop nacos`，当时 Nacos 容器是停的）、`reports/verify/20260919-103025-smoke.txt`（compat profile，含 fulfillment 与 Nacos）。两份都 PASS。
 
-## 6. 已实现的核心路由（C01.1，2026-09-19）
+## 6. C01.2 发现的契约缺口：订单视图有公共路由，没有内部来源
 
-27 条核心路由里真正实现的目前是 **1 条**：case-service 的 `POST /api/v1/auth/login`（演示账号登录）。它按核心 OpenAPI 的 `LoginRequest`/`LoginResponse` 出入参，登录不需要 token，失败走统一错误体（401 `UNAUTHENTICATED` 对"口令错"与"账号不存在"只有同一条消息，400 `INVALID_ARGUMENT` 拒绝未知字段）。
+核心路由表里 Case 的 `GET /api/v1/orders` 写着「当前主体订单视图；内部请求Commerce」（`docs/core-contracts.md:26`），但核心 commerce 文档（compat 也一样）**没有任何按主体列订单行的内部路由**：原有 4 条都是按 `line_id` 或 `operation_id` 取单点事实。订单与支付属于 `commerce_db`（`docs/architecture.md:11`），而 Case 既没有订单表也没有订单投影（`docs/domain-model.md` 的 case_db 一节没有这类表），所以 Case 无法在不越权读别人库的前提下实现这条公共路由。
+
+处理方式（不挑方便版本）：**补上缺的那条内部读路由**，并把它写回权威表格——
+`GET /internal/v1/order-lines`（service token、`merchant_id` 必填、`customer_id` 可选、游标分页，返回 `OrderLinePage`），表格已在 `docs/core-contracts.md` 第3节新增一行，Commerce 路由数因此 4 → 5、总数 27 → 28。
+作用域由 Case 从已校验的用户 token 推导后传入内部调用；公共路由不接受 `merchant_id`/`customer_id`/`scope` 参数，有测试钉住这一点，因为一旦公共路由能指定作用域，客户就能读别人的订单行。
+两个文档里的 `OrderLineSummary`/`OrderLinePage`/`PageMeta` 定义逐字相同，由测试逐项比对，避免同一载荷在两个文档里各自漂移。
+**这条内部路由本身尚未实现**（C01.2 之后的小步才落在 commerce-service 里）。
+
+## 7. 已实现的核心路由（C01.1，2026-09-19）
+
+28 条核心路由里真正实现的目前是 **1 条**：case-service 的 `POST /api/v1/auth/login`（演示账号登录）。它按核心 OpenAPI 的 `LoginRequest`/`LoginResponse` 出入参，登录不需要 token，失败走统一错误体（401 `UNAUTHENTICATED` 对"口令错"与"账号不存在"只有同一条消息，400 `INVALID_ARGUMENT` 拒绝未知字段）。
 
 除此之外**全部仍是目标协议**：订单、工单、证据、授权、审批、内部接口都没有实现，`GET /api/v1/orders` 之类仍是 404。演示账号见 `docs/product-spec.md:9`（CUSTOMER/REVIEWER/OPERATOR、2 个合成商家各 ≥2 用户）；口令只存 PBKDF2-SHA256 哈希（`docs/domain-model.md:24`），签名是 HS256、用户面与服务面 `aud` 分离，且算法固定不读 token 自带的 `alg`。没有 JWKS、密钥轮换、RS256、refresh 或吊销列表——这是演示身份，不是可用于生产的 IAM。
