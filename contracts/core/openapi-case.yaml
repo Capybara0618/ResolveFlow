@@ -1133,7 +1133,16 @@ components:
     ProposalStatus:
       type: string
       enum: [PROPOSED, VALIDATED, STALE, REJECTED]
-      description: docs/domain-model.md:57.
+      description: |
+        docs/domain-model.md:57, with what each value claims (C03.2b-2):
+
+        VALIDATED means the policy citations were re-checked against the version pinned on
+        this case and the amount was recomputed from the line's own amounts - so it is a claim
+        about what this service verified, not about what the run said. REJECTED means a check
+        refused it and refusal_reason says which. STALE means it belonged to an input revision
+        that is no longer the case's current one. PROPOSED is stored but not yet re-checked
+        (the manual path, C03.3); the agent path is never stored as PROPOSED, because a
+        proposal is checked before it is recorded.
     AuthorizationStatus:
       type: string
       enum: [PENDING_REVIEW, APPROVED, REJECTED, EXPIRED, REVOKED, CONSUMED]
@@ -1533,6 +1542,22 @@ components:
             maxLength: 200
         status:
           $ref: '#/components/schemas/ProposalStatus'
+        recomputed_amount_minor:
+          $ref: '#/components/schemas/AmountMinor'
+          description: |
+            What this service recomputed from the line's own amounts (paid minus refunded
+            minus reserved, docs/product-spec.md:25) - never the run's suggestion, which is
+            kept beside it as suggested_amount_minor so a reviewer can see both. Absent when
+            there was nothing to recompute (a non-REFUND action) or the proposal was refused
+            before an amount existed.
+        refusal_reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: |
+            Why a REJECTED proposal was refused, in the words of the check that refused it.
+            A status alone would tell a reviewer that something was wrong without telling them
+            what, and the reviewer is the person who has to act on it.
         created_at:
           type: string
           format: date-time

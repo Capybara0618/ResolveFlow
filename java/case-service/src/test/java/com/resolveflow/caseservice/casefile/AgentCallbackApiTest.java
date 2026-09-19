@@ -394,26 +394,30 @@ class AgentCallbackApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    @DisplayName("a proposal is refused while its citations cannot be re-checked")
-    void aProposalIsRefusedUntilTheRecheckExists() {
+    @DisplayName("a proposal that does not bind to this case is refused, and leaves nothing behind")
+    void aProposalThatDoesNotBindToThisCaseIsRefused() {
         String caseId = openCase();
         ObjectNode proposal = MAPPER.createObjectNode();
         proposal.put("schema_version", 2);
         proposal.put("proposal_id", "5f0f0f0f-1111-4222-8333-444455556666");
         proposal.put("run_id", RUN);
-        proposal.put("case_id", caseId);
+        proposal.put("case_id", java.util.UUID.randomUUID().toString());
         proposal.put("input_revision", 1);
         proposal.put("case_type", "LOGISTICS");
         proposal.put("recommended_action", "REFUND");
         proposal.put("summary", "物流7天无更新且承运商结论为丢失");
         proposal.putArray("reason_codes").add("CARRIER_LOST");
 
-        deliverExpecting(caseId, envelope("cb-proposal", 1, "PROPOSAL", proposal), 422)
+        deliverExpecting(caseId, envelope("cb-proposal-unbound", 1, "PROPOSAL", proposal), 422)
                 .expectBody(String.class)
                 .value(body -> assertThat(MAPPER.readTree(body).get("message").stringValue())
-                        .contains("re-checked"));
+                        .contains("case_id"));
         assertThat(status(caseId)).isEqualTo("QUEUED");
-        assertThat(inboxCount(caseId)).isZero();
+        assertThat(inboxCount(caseId))
+                .as("the check happens before the claim, so a refused body is not even recorded as arrived")
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM case_proposal", Integer.class))
+                .isZero();
     }
 
     @Test

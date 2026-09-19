@@ -136,6 +136,51 @@ class CommerceOrderLineClientTest {
     }
 
     @Test
+    @DisplayName("the line context keeps the documented member names and reports what is left to refund")
+    void theLineContextMatchesTheCoreContract() {
+        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7001/context"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header("Authorization", org.hamcrest.Matchers.startsWith("Bearer ")))
+                .andRespond(withSuccess("""
+                        {"order_id":"%s","line_id":"7001","merchant_id":"M-1001","customer_id":"C-2002",
+                         "sku":"SKU-RED-M","category":"apparel","quantity":2,"line_paid_amount":2599,
+                         "refunded_amount":500,"reserved_refund_amount":100,"currency":"CNY",
+                         "paid_at":"2026-09-10T08:15:00Z","order_status":"PAID","version":4}
+                        """.formatted(ORDER), MediaType.APPLICATION_JSON));
+
+        CommerceOrderLineClient.LineContext context =
+                client.readLineContext("7001").orElseThrow();
+
+        server.verify();
+        assertThat(context.merchantId()).isEqualTo("M-1001");
+        assertThat(context.customerId()).isEqualTo("C-2002");
+        assertThat(context.linePaidAmount()).isEqualTo(2599L);
+        assertThat(context.refundableAmountMinor())
+                .as("what is left is paid minus refunded minus reserved, and never below zero")
+                .isEqualTo(1999L);
+    }
+
+    @Test
+    @DisplayName("a line Commerce does not have is empty, and a Commerce failure is not")
+    void aMissingLineIsEmptyAndAFailureIsNot() {
+        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7001/context"))
+                .andRespond(org.springframework.test.web.client.response.MockRestResponseCreators.withStatus(
+                        org.springframework.http.HttpStatus.NOT_FOUND));
+
+        assertThat(client.readLineContext("7001"))
+                .as("a line that is gone is a fact the re-check records; it is not an outage")
+                .isEmpty();
+
+        server.reset();
+        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7001/context"))
+                .andRespond(withServerError());
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> client.readLineContext("7001"))
+                .as("an unavailable Commerce must not be read as 'there is nothing to refund'")
+                .isInstanceOf(CommerceUnavailableException.class);
+    }
+
+    @Test
     @DisplayName("the public payload keeps the documented member names and instant format")
     void thePublicPayloadMatchesTheCoreContract() throws Exception {
         AuthenticatedPrincipal customer =

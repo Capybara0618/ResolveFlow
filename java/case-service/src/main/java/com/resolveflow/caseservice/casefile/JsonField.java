@@ -47,4 +47,23 @@ final class JsonField {
             return null;
         }
     }
+
+    /**
+     * The same tolerance for a whole-number member.
+     *
+     * <p>Needed for the same reason as {@link #flag}: an amount stored as a JSON number is not a string, so
+     * reading it through {@link #of} reports it as absent. That is how a trajectory once said "方案已就绪"
+     * for a proposal whose recomputed amount was right there in the row.
+     */
+    static Long number(String canonicalJson, String field) {
+        if (canonicalJson == null || canonicalJson.isBlank()) {
+            return null;
+        }
+        try {
+            JsonNode node = MAPPER.readTree(canonicalJson).get(field);
+            return node == null || node.isNull() ? null : node.asLong();
+        } catch (RuntimeException error) {
+            return null;
+        }
+    }
 }

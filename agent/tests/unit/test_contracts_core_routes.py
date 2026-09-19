@@ -576,6 +576,39 @@ def test_a_citable_rule_publishes_the_hash_a_citation_must_carry() -> None:
     )
 
 
+def test_a_checked_proposal_says_what_was_checked_and_why_it_was_refused() -> None:
+    """The re-check produces two facts the reader cannot get from anywhere else.
+
+    ``ProposalView`` carries the run's own suggestion; what this service recomputed from the line's amounts and
+    the reason a proposal was refused only exist on this side. A ``REJECTED`` status without a reason tells a
+    reviewer that something is wrong without telling them what, and the reviewer is who has to act on it.
+    """
+    case = document("case")
+    view = case["components"]["schemas"]["ProposalView"]
+    assert "suggested_amount_minor" in view["properties"], (
+        "the run's suggestion stays visible: hiding it would hide the disagreement"
+    )
+    assert "recomputed_amount_minor" in view["properties"], (
+        "the amount Java recomputed has to be readable, or the product claim (Java owns the amount) is invisible"
+    )
+    assert "refusal_reason" in view["properties"]
+    assert {"recomputed_amount_minor", "refusal_reason"} <= set(view["properties"]) - set(view["required"]), (
+        "both are absent when they do not apply: an action with no amount, or a proposal that was not refused"
+    )
+
+    status = case["components"]["schemas"]["ProposalStatus"]["description"]
+    for claim in ("VALIDATED", "REJECTED", "STALE", "PROPOSED"):
+        assert claim in status, f"the status vocabulary has to say what {claim} claims"
+    assert "recomputed" in status and "refused" in status, (
+        "the description has to say that VALIDATED covers the amount re-check and that REJECTED has a reason"
+    )
+
+    snapshot = case["components"]["schemas"]["CaseSnapshot"]["properties"]["proposal"]["oneOf"]
+    assert {"$ref": "#/components/schemas/ProposalView"} in snapshot, (
+        "the case view is where a reviewer reads the proposal, so it has to be able to carry one"
+    )
+
+
 def test_the_line_context_is_where_the_amount_is_recomputed_from() -> None:
     """Java owns the refund amount, so the contract has to name the read it recomputes from.
 

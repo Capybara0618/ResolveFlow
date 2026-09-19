@@ -46,12 +46,19 @@ public class AgentCallbackWriter {
 
     private final CaseRepository cases;
     private final AgentCallbackRepository inbox;
+    private final ProposalService proposals;
     private final Clock clock;
     private final ObjectMapper mapper;
 
-    public AgentCallbackWriter(CaseRepository cases, AgentCallbackRepository inbox, Clock clock, ObjectMapper mapper) {
+    public AgentCallbackWriter(
+            CaseRepository cases,
+            AgentCallbackRepository inbox,
+            ProposalService proposals,
+            Clock clock,
+            ObjectMapper mapper) {
         this.cases = cases;
         this.inbox = inbox;
+        this.proposals = proposals;
         this.clock = clock;
         this.mapper = mapper;
     }
@@ -71,18 +78,28 @@ public class AgentCallbackWriter {
         }
 
         // The payload is read and checked before anything is written, so a malformed delivery cannot leave a
-        // status transition behind that is rolled back a moment later.
+        // status transition behind that is rolled back a moment later. A proposal is re-checked here too: that
+        // half only reads, so it is still "nothing written before the claim".
         Payload payload = parse(callback);
+        ProposalReCheck.Outcome outcome = null;
         CaseStatus next =
                 switch (callback.kind()) {
                     case STARTED -> startedStatus(row, callback);
                     case QUESTION -> questionStatus(row, callback, payload.questions());
                     case FAILED -> failureStatus(row, callback, payload.failure());
-                    case PROPOSAL -> throw proposalsAreNotAcceptedYet();
+                    case PROPOSAL -> {
+                        outcome = proposals.check(row, payload.proposal());
+                        yield CaseStatus.PENDING_REVIEW;
+                    }
                 };
 
         // The claim goes in before the effect, so a losing race cannot leave an effect behind.
         claim(caseId, callback, payloadHash, AgentCallback.Disposition.ACCEPTED, now);
+        ProposalService.Recorded recorded = null;
+        if (outcome != null) {
+            // Stored after the claim, in this transaction: a redelivery that loses the race rolls this back.
+            recorded = proposals.record(row, payload.proposal(), callback.payload(), payloadHash, outcome, now);
+        }
         if (cases.transition(caseId, row.status().name(), next.name(), now) != 1) {
             // Unreachable while the row lock is held; kept because silently returning a version nobody
             // advanced would make the response a claim about a write that did not happen.
@@ -94,7 +111,7 @@ public class AgentCallbackWriter {
                 UUID.randomUUID().toString(),
                 nextSequence(caseId),
                 eventType(callback.kind()).name(),
-                detail(callback, payload),
+                detail(callback, payload, recorded),
                 now,
                 callback.inputRevision());
         return new AgentCallbackService.Receipt(AgentCallback.Disposition.ACCEPTED, row.version() + 1, null);
@@ -169,19 +186,6 @@ public class AgentCallbackWriter {
         return failure.retryable() ? CaseStatus.QUEUED : CaseStatus.PENDING_REVIEW;
     }
 
-    /**
-     * The one refusal that is about this deployment rather than about the delivery.
-     *
-     * <p>It is a 422 and not a 501 because the contract declares no such status for this route, and it is not a
-     * silent acceptance because a proposal nobody checked is exactly what Java owns the amount to prevent.
-     * The message says what is missing, so the caller learns something it can act on.
-     */
-    private static CaseService.SemanticInvalidException proposalsAreNotAcceptedYet() {
-        return new CaseService.SemanticInvalidException(
-                "a proposal cannot be accepted until its citations and amounts can be re-checked against"
-                        + " this service's own records, which this deployment does not do yet");
-    }
-
     private void requireNotAlreadyAsked(CaseRow row, AgentCallback callback) {
         if (alreadyAsked(row.caseId(), callback.inputRevision())) {
             throw new CaseService.SemanticInvalidException("revision " + callback.inputRevision()
@@ -220,18 +224,26 @@ public class AgentCallbackWriter {
                 new Payload(
                         AgentCallbackValidation.started(callback.payload(mapper, AgentCallback.Started.class)),
                         null,
+                        null,
                         null);
             case QUESTION ->
                 new Payload(
                         null,
                         AgentCallbackValidation.questions(callback.payload(mapper, AgentCallback.Questions.class)),
+                        null,
                         null);
             case FAILED ->
                 new Payload(
                         null,
                         null,
-                        AgentCallbackValidation.failure(callback.payload(mapper, AgentCallback.Failure.class)));
-            case PROPOSAL -> throw proposalsAreNotAcceptedYet();
+                        AgentCallbackValidation.failure(callback.payload(mapper, AgentCallback.Failure.class)),
+                        null);
+            case PROPOSAL ->
+                new Payload(
+                        null,
+                        null,
+                        null,
+                        AgentCallbackValidation.proposal(callback.payload(mapper, ProposalSubmission.class)));
         };
     }
 
@@ -251,7 +263,7 @@ public class AgentCallbackWriter {
      * are never stored separately, so they cannot disagree. Only what a reader of this event needs is here —
      * not the whole payload, whose own facts belong in the table that owns them.
      */
-    private String detail(AgentCallback callback, Payload payload) {
+    private String detail(AgentCallback callback, Payload payload, ProposalService.Recorded recorded) {
         ObjectNode detail = mapper.createObjectNode();
         detail.put("run_id", callback.runId());
         detail.put("kind", callback.kind().name());
@@ -275,7 +287,18 @@ public class AgentCallbackWriter {
                 ArrayNode codes = detail.putArray("reason_codes");
                 payload.failure().reasonCodes().forEach(codes::add);
             }
-            case PROPOSAL -> throw proposalsAreNotAcceptedYet();
+            case PROPOSAL -> {
+                detail.put("status", recorded.status().name());
+                if (recorded.recomputedAmountMinor() != null) {
+                    detail.put("recomputed_amount_minor", recorded.recomputedAmountMinor());
+                }
+                if (payload.proposal().suggestedAmountMinor() != null) {
+                    detail.put("suggested_amount_minor", payload.proposal().suggestedAmountMinor());
+                }
+                if (recorded.refusalReason() != null) {
+                    detail.put("refusal_reason", recorded.refusalReason());
+                }
+            }
         }
         return CanonicalJson.canonicalize(detail);
     }
@@ -285,7 +308,10 @@ public class AgentCallbackWriter {
         return highest == null ? 1 : highest + 1;
     }
 
-    /** Exactly one of the three is present, decided by the kind. */
+    /** Exactly one of the four is present, decided by the kind. */
     private record Payload(
-            AgentCallback.Started started, AgentCallback.Questions questions, AgentCallback.Failure failure) {}
+            AgentCallback.Started started,
+            AgentCallback.Questions questions,
+            AgentCallback.Failure failure,
+            ProposalSubmission proposal) {}
 }

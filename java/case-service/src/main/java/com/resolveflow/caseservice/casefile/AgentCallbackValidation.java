@@ -156,6 +156,22 @@ final class AgentCallbackValidation {
                 reasonCodes(questions.reasonCodes(), false));
     }
 
+    /**
+     * A proposal payload is not checked here, and that is deliberate.
+     *
+     * <p>Its limits belong to the proposal schema, and its members have to agree with the case the delivery
+     * was made for — the current revision, the case id, the pinned policy version, the line's own amounts.
+     * Those checks need the case row, so they live in {@link ProposalReCheck}, which is also where a refusal
+     * becomes a stored REJECTED instead of an error answer. Duplicating half of them here would give a
+     * producer two different answers to the same mistake.
+     */
+    static ProposalSubmission proposal(ProposalSubmission proposal) {
+        if (proposal == null) {
+            throw new CaseService.SemanticInvalidException("a PROPOSAL callback needs a proposal payload");
+        }
+        return proposal;
+    }
+
     static AgentCallback.Failure failure(AgentCallback.Failure failure) {
         if (failure.reasonCodes() == null) {
             throw new CaseService.SemanticInvalidException("reason_codes is required");

@@ -70,6 +70,7 @@ public abstract class CaseDatabaseTest {
     protected static void deleteAllCaseData(JdbcTemplate jdbc) {
         for (String table : java.util.List.of(
                 "agent_callback",
+                "case_proposal",
                 "case_evidence",
                 "case_policy_bundle",
                 "case_policy_manifest",

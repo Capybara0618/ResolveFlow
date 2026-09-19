@@ -61,6 +61,8 @@ run请求沿用run/case/input_revision、受控context(merchant/customer/order/l
 
 回调kind为STARTED/QUESTION/PROPOSAL/FAILED；QUESTION与PROPOSAL互斥终局。QUESTION含稳定question_id、最多3个问题及原因；PROPOSAL使用核心方案Schema；FAILED含原因、已知观察ref。旧revision/人工接管后返回STALE且不重试；相同callback换载荷拒绝；STARTED迟到不回退状态。
 
+PROPOSAL的接受分两类：结构或绑定错误（`schema_version`、`case_id`/`input_revision`与工单不一致、未知`case_type`/`recommended_action`、非REFUND带金额、`source_ref`是URL等）是422——这条消息不是方案；**可检内容**则是"已核对并被拒"的持久事实，存`case_proposal`为`REJECTED`并写`refusal_reason`。可检部分全用本服务自己的记录：引用必须落在工单钉住的版本上（`bundle_id`在钉住集合内、`version`等于库存版本、`rule_id`+`chunk_id`存在且重算`content_hash`相符——引用新版本、引用已改正文、引用不存在规则都算拒绝），REFUND必须至少一条政策引用，金额从Commerce行上下文重算（paid−refunded−reserved，且必须仍属该工单的商家与客户），`suggested_amount_minor`只保留作对照；重算为0或低于建议值即拒绝。`VALIDATED`只说明引用与金额通过了本服务的核对，不等于批准，也不代表run结论正确；两种结果都使工单进入`PENDING_REVIEW`（人工接管后同一revision再投递即STALE）。
+
 Java校验证据时按固定source_ref映射查询权威数据，而非信任Python文字。用户材料不是权威退款依据，ref不是可请求的任意URL。工具token绑定run/case/revision/merchant/customer/line/aud/scope，续签需Case确认有效，模型看不到token。
 
 ## 5. MQ与授权

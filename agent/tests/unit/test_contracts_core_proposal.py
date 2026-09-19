@@ -183,12 +183,29 @@ def test_suggested_amount_is_absent_or_an_integer_never_null() -> None:
     assert shape(view_component()["properties"]["suggested_amount_minor"]) == shape(schema_property)
 
 
-def test_proposal_view_is_the_payload_plus_the_status_case_owns() -> None:
+def test_proposal_view_is_the_payload_plus_the_members_case_owns() -> None:
     payload = set(payload_component()["properties"])
     view = set(view_component()["properties"])
     assert payload <= view
-    assert view - payload == {"status", "created_at"}
+    # C03.2b-2b added the two members a reviewer needs to see what Java checked: what it recomputed from
+    # its own records, and why it refused when it did. Both belong to Case, not to the producer.
+    assert view - payload == {"status", "created_at", "recomputed_amount_minor", "refusal_reason"}
     assert set(view_component()["required"]) - set(payload_component()["required"]) == {"status"}
+
+
+def test_the_recomputed_amount_is_named_as_case_own_conclusion() -> None:
+    view = view_component()
+    recomputed = view["properties"]["recomputed_amount_minor"]
+    assert "recomputed_amount_minor" not in payload_component()["properties"], (
+        "a producer cannot send the amount Java is supposed to recompute"
+    )
+    assert shape(resolve_component(recomputed)) == shape(
+        resolve_component(payload_component()["properties"]["suggested_amount_minor"])
+    ), "the amount Java recomputes is the same kind of amount a producer may suggest"
+    assert "suggested" in recomputed["description"] or "recomputed" in recomputed["description"]
+    refusal = view["properties"]["refusal_reason"]
+    assert refusal["minLength"] == 1 and refusal["maxLength"] == 500
+    assert "refusal_reason" not in view["required"], "a validated proposal has no refusal to report"
 
 
 # ------------------------------------------------------------------------- instances

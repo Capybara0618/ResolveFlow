@@ -35,9 +35,11 @@ public class CaseReadService {
     }
 
     private final CaseRepository cases;
+    private final ProposalService proposals;
 
-    public CaseReadService(CaseRepository cases) {
+    public CaseReadService(CaseRepository cases, ProposalService proposals) {
         this.cases = cases;
+        this.proposals = proposals;
     }
 
     public CaseSnapshotResponse read(AuthenticatedPrincipal principal, String caseId) {
@@ -45,7 +47,11 @@ public class CaseReadService {
         if (row == null || !visibleTo(principal, row)) {
             throw new CaseNotVisibleException();
         }
-        return new CaseSnapshotResponse(summary(row), null, trajectory(caseId));
+        // The proposal is read together with the case's current revision, because that is what makes a
+        // proposal from an older revision come back STALE: that fact belongs to the read, not to a stored
+        // copy that would have to be rewritten every time a revision moves (C03.2b-2).
+        return new CaseSnapshotResponse(
+                summary(row), proposals.view(caseId, row.inputRevision()), null, trajectory(caseId));
     }
 
     private static boolean visibleTo(AuthenticatedPrincipal principal, CaseRow row) {

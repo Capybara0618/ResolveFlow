@@ -24,7 +24,7 @@ final class TimelineSummary {
                     case EVIDENCE_APPENDED -> appended(event);
                     case AGENT_STARTED -> "调查已受理";
                     case QUESTION_REQUIRED -> "需要客户补充说明";
-                    case PROPOSAL_READY -> "方案已就绪";
+                    case PROPOSAL_READY -> proposed(event);
                     case APPROVAL_REQUIRED -> "等待人工审批";
                     case EXECUTION_UPDATED -> "执行状态已更新";
                     case AGENT_FAILED -> failed(event);
@@ -59,6 +59,24 @@ final class TimelineSummary {
     private static String failed(TimelineEventRow event) {
         boolean retryable = Boolean.TRUE.equals(JsonField.flag(event.detail(), "retryable"));
         return retryable ? "调查失败，将自动重试" : "调查失败，转人工处理";
+    }
+
+    /**
+     * A proposal says whether this service could check it, because that is what happens next.
+     *
+     * <p>"方案已就绪" alone would be true and useless: a refusal and a validated proposal both end the run,
+     * and the reader's next action is completely different — approve a checked amount, or look at why the
+     * proposal could not be checked. The reason is quoted rather than summarised, because it was written for
+     * exactly this reader.
+     */
+    private static String proposed(TimelineEventRow event) {
+        String status = JsonField.of(event.detail(), "status");
+        if (!"REJECTED".equals(status)) {
+            Long amount = JsonField.number(event.detail(), "recomputed_amount_minor");
+            return amount == null ? "方案已就绪，等待人工确认" : "方案已按政策核对，重算金额 " + amount + " 分，等待人工确认";
+        }
+        String reason = JsonField.of(event.detail(), "refusal_reason");
+        return reason == null ? "方案未通过核对，转人工处理" : "方案未通过核对，转人工处理：" + reason;
     }
 
     /**

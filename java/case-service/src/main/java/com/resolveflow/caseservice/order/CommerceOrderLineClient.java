@@ -89,6 +89,51 @@ public class CommerceOrderLineClient {
         return fetch(principal, null, lineId, null, 1);
     }
 
+    /**
+     * One line's own amounts, by line id, for the re-check that recomputes a refund (C03.2a's route).
+     *
+     * <p>This is the one read that is not scoped by the principal: the contract declares it that way and the
+     * scope check moves to the caller, which is why the response carries {@code merchant_id} and
+     * {@code customer_id} — the caller confirms the line belongs to the case it is re-checking instead of
+     * trusting that it does. An empty answer means Commerce does not have the line, which is a refusal this
+     * service records rather than an outage it retries.
+     */
+    public java.util.Optional<LineContext> readLineContext(String lineId) {
+        if (lineId == null || lineId.isBlank()) {
+            throw new IllegalArgumentException("a line id is required to read a line context");
+        }
+        try {
+            LineContext context = rest.get()
+                    .uri("/internal/v1/order-lines/{lineId}/context", lineId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken())
+                    .retrieve()
+                    .onStatus(status -> status.value() == 404, (request, response) -> {
+                        throw new LineContextMissingException(lineId);
+                    })
+                    .body(LineContext.class);
+            if (context == null) {
+                throw new CommerceProtocolException("commerce returned an empty line context");
+            }
+            return java.util.Optional.of(context);
+        } catch (LineContextMissingException error) {
+            return java.util.Optional.empty();
+        } catch (CommerceProtocolException error) {
+            throw error;
+        } catch (RuntimeException error) {
+            throw new CommerceUnavailableException("commerce could not answer the line-context read", error);
+        }
+    }
+
+    /** Raised internally for Commerce's 404 so it is not mistaken for an outage. */
+    private static class LineContextMissingException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        LineContextMissingException(String lineId) {
+            super("commerce has no such order line: " + lineId);
+        }
+    }
+
     private OrderLinePage fetch(
             AuthenticatedPrincipal principal, String orderId, String lineId, String cursor, Integer limit) {
         try {
@@ -161,6 +206,63 @@ public class CommerceOrderLineClient {
 
             String status,
             long version) {}
+
+    /**
+     * Commerce's authoritative line context: the paid amount, what has already been refunded or reserved,
+     * and the ownership the caller verifies.
+     *
+     * <p>Unknown members are refused by this service's Jackson configuration, so a Commerce that grows a
+     * member fails here loudly rather than being silently ignored.
+     */
+    public record LineContext(
+            @com.fasterxml.jackson.annotation.JsonProperty("order_id")
+            String orderId,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("line_id")
+            String lineId,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("merchant_id")
+            String merchantId,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("customer_id")
+            String customerId,
+
+            String sku,
+            String category,
+            int quantity,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("line_paid_amount")
+            long linePaidAmount,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("refunded_amount")
+            long refundedAmount,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("reserved_refund_amount")
+            long reservedRefundAmount,
+
+            String currency,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("paid_at")
+            Instant paidAt,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("order_status")
+            String orderStatus,
+
+            long version) {
+
+        /**
+         * What this line can still refund, as a floor rather than a promise.
+         *
+         * <p>{@code refunded_amount} and {@code reserved_refund_amount} are the <b>order's</b> ledger
+         * (docs/domain-model.md: the ledger is per order), so a refund elsewhere in the order makes this
+         * line look smaller than its own entitlement. That direction is deliberate: the re-check may refuse
+         * a refund it could have granted, never grant one it could not, and a floor never exceeds what the
+         * order can actually pay out. Never negative.
+         */
+        public long refundableAmountMinor() {
+            return Math.max(0L, linePaidAmount - refundedAmount - reservedRefundAmount);
+        }
+    }
 
     public record PageMeta(
             @com.fasterxml.jackson.annotation.JsonProperty("next_cursor")

@@ -1,0 +1,22 @@
+ResolveFlow verify
+  suite : contracts
+  mode  : mock
+  seed  : 42
+  profile : core
+  report: E:\Code\Agent+Backend\reports\verify\20260919-160256-contracts.txt
+
+== contracts
+  -- python-contracts-freeze
+     \$ uv run --project agent python scripts/contracts_freeze.py --check
+     PASS (1.5s)
+  -- python-core-contracts-freeze
+     \$ uv run --project agent python scripts/contracts_core_freeze.py --check
+     PASS (0.5s)
+  -- python-contracts
+     \$ uv run --project agent pytest agent/tests/unit -k contracts
+     PASS (25.1s)
+  -- java-contracts
+     \$ java\mvnw.cmd -f java/pom.xml -B -pl shared-kernel test
+     PASS (6.6s)
+
+SUITE 'contracts' PASSED
