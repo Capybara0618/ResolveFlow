@@ -21,6 +21,7 @@ final class TimelineSummary {
         String sentence =
                 switch (event.kind()) {
                     case CASE_CREATED -> created(event);
+                    case EVIDENCE_APPENDED -> appended(event);
                     case AGENT_STARTED -> "调查已受理";
                     case QUESTION_REQUIRED -> "需要客户补充说明";
                     case PROPOSAL_READY -> "方案已就绪";
@@ -34,5 +35,17 @@ final class TimelineSummary {
     private static String created(TimelineEventRow event) {
         String lineId = JsonField.of(event.detail(), "line_id");
         return lineId == null ? "客户提交退款诉求" : "客户提交退款诉求（line_id=" + lineId + "）";
+    }
+
+    /**
+     * Saying who supplied the material, not just that something arrived.
+     *
+     * <p>"A revision moved" is exactly the kind of statement the case view exists to explain, and the two
+     * possible suppliers are different facts: a customer answered, or staff checked something themselves
+     * (docs/domain-model.md:27).
+     */
+    private static String appended(TimelineEventRow event) {
+        String kind = JsonField.of(event.detail(), "evidence_kind");
+        return "REVIEWER_VERIFICATION".equals(kind) ? "商家核验并记录" : "客户补充了材料";
     }
 }

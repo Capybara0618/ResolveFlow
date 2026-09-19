@@ -320,6 +320,19 @@ paths:
         silently changing what it is investigating (docs/domain-model.md:55). After the
         authorisation is consumed the input is closed and this is 409
         (docs/core-contracts.md:30).
+
+        Material is appended, never overwritten: each submission is its own record with its
+        own id, so an earlier statement stays readable next to the one that corrected it
+        (docs/domain-model.md:27). The revision is the server's, not the caller's: the body
+        has no revision member, and material can only land on the revision the case is at now
+        plus one, so there is no way to write into a past revision.
+
+        Who may assert what is part of the protocol, because evidence is provenance
+        (docs/agent-spec.md): the case's own customer may submit a CUSTOMER_STATEMENT, and the
+        merchant that owns the line may submit a REVIEWER_VERIFICATION. The remaining kinds
+        (ORDER_LINE, PAYMENT_LEDGER, SHIPMENT, SHIPMENT_TRACK, POLICY_RULE) are facts read from
+        Commerce or from policy, never something a client asserts about itself, so they are 403
+        here and arrive through the investigation instead.
       parameters:
         - $ref: '#/components/parameters/CaseId'
       requestBody:
@@ -343,6 +356,10 @@ paths:
                 case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
                 input_revision: 2
                 version: 7
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -1095,8 +1112,13 @@ components:
     TimelineEventType:
       type: string
       enum:
-        [CASE_CREATED, AGENT_STARTED, QUESTION_REQUIRED, PROPOSAL_READY, APPROVAL_REQUIRED,
-         EXECUTION_UPDATED, CASE_CLOSED]
+        [CASE_CREATED, EVIDENCE_APPENDED, AGENT_STARTED, QUESTION_REQUIRED, PROPOSAL_READY,
+         APPROVAL_REQUIRED, EXECUTION_UPDATED, CASE_CLOSED]
+      description: |
+        The trajectory of what happened (docs/core-scope.md:7). EVIDENCE_APPENDED is the
+        customer answering or adding material: without it a case whose input revision moved
+        would show a revision nobody asked for, and the gap would be invisible in exactly the
+        view that exists to explain the case (docs/core-contracts.md:30).
     EvidenceSourceType:
       type: string
       enum:

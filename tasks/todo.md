@@ -131,7 +131,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 ### C02 建单、材料与版本
 
 - [x] C02.1：建单/幂等/同line活跃slot、状态与查询（C02.1a 建单 + C02.1b 查询）。
-- [ ] C02.2：补充证据增revision、消费前取消、timeline和权限；预留SSE读接口。
+- [ ] C02.2：补充证据增revision（见 C02.2a）、消费前取消、timeline和权限；预留SSE读接口。
 - 依赖：C01。文件：Case domain/application/api/migration/tests；逐行为交付。
 - 验收：同key换body409、同line不并发建多个活跃case；材料不覆盖，旧revision不可写。
 - 验证：数据库并发建单、状态转换与材料权限测试。
@@ -154,6 +154,18 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service 38，0 失败 0 错误；`-Suite contracts` **PASSED**（52，`reports/verify/20260919-125643-contracts.txt`）；`-Suite unit` **PASSED**（`reports/verify/20260919-125713-unit.txt`）；`-Suite smoke`（core）**PASSED**（`reports/verify/20260919-125846-smoke.txt`）。
   - 两次失败都是测试自身的问题，不是实现缺陷：① 建单测试仍断言旧词表 `case.opened`（迁移是刻意改词表，测试跟着改成 `CASE_CREATED` 并注明原因）；② 可见性测试原本用「JWT 字符串里是否含 M-1001」判断角色——JWT 是 base64，当然不含，于是把操作员也当成不该可见，写成显式的 `Caller(who, token, mayRead)` 三元组，失败信息里也会说出是谁被放进来了。另 `StatusAssertions` 在该版本没有 `as(String)`，改为在 `value(...)` 里用 AssertJ 带描述的断言。
   - C02.1 完成判据：同 key 换 body 409、同 line 不并发建多个活跃 case、状态与查询可用、跨主体 404 且与不存在不可区分——全部有测试（含 8 线程并发）与真实端到端证据；材料相关（C02.2）未开始，材料不覆盖/旧 revision 不可写仍属未验证。
+  - C02.2a 完成（2026-09-19）：`POST /api/v1/cases/{case_id}/evidence` 材料追加。
+  - 契约缺口修正（两处）：① 该路由只声明 `200/404/409/422`，**缺 `401`**（作用域来自 token）与 **`403`**（客户端不得把系统读到的事实当成自己的陈述）；② 契约的 `TimelineEventType` 是闭枚举，却**没有任何成员表示「材料到了」**——那样一个 revision 变了却无人解释的工单视图，恰好是最需要解释的那种。补 `EVIDENCE_APPENDED`，并把来源规则写进路由描述（客户的 `CUSTOMER_STATEMENT`、商家的 `REVIEWER_VERIFICATION`；`ORDER_LINE`/`PAYMENT_LEDGER`/`SHIPMENT`/`SHIPMENT_TRACK`/`POLICY_RULE` 是平台自己读的事实，客户端提交即 403）。契约测试 53 通过，新增的测试断言「每个 kind 要么是某人说的、要么是系统读的，两者不重叠」。
+  - **只追加的迁移** `V3__case_evidence.sql`：建 `case_evidence`（来源/ref/version/content_hash/input_revision/observed_at/内容/question_id/提交者与角色），主键 `(case_id, evidence_id)`，`input_revision >= 2` 的 CHECK（revision 1 是建单，永不含材料），`source_type` 用契约枚举的 CHECK；并用 `DROP CHECK` + `ADD CONSTRAINT` 把 V2 的 `kind` 闭列表扩到含 `EVIDENCE_APPENDED`（追加而非回改 V2）。
+  - 代码：`EvidenceSourceType`（与契约枚举逐字一致，并显式标注哪种是「平台读到的」）、`EvidenceRepository`（只有 insert / 查询 / 加 revision，**没有任何 update 或 delete 语句**，所以「材料不覆盖」不是靠人记得，而是没有能破坏它的代码路径）、`CaseEvidenceService`（一个事务内：锁 case 行 → 校验可见性/状态/来源 → 写材料 → 同一条 SQL 里 `input_revision+1` 与 `version+1` → 写 `EVIDENCE_APPENDED` 轨迹）、`EvidenceAppendRequest`（**没有 revision 成员**，带了就是未知成员 400）、`EvidenceSubmissionResponse`、`CaseController` 追加路由、`ApiExceptionHandler` 增 409 `STATE_CONFLICT`、`CaseRepository.findCaseForUpdate`/`highestSequence`、`TimelineEventType.EVIDENCE_APPENDED`、`TimelineSummary` 给该类型一句话（`switch` 是穷尽的，所以以后新增事件类型**编译期**就会要求给它一句话）。
+  - 三条规则的落点：① 来源由 `requireProvenance` 判定（客户只能交陈述、商家只能交自己的核验、机器来源一律 403）；② revision 由服务端决定——请求体里没有这个成员，所以「写进旧 revision」没有可拼写的表达，比校验一个客户端传来的数字更强；③ 输入封闭由状态判定，`EXECUTING`/`RECONCILING`/终态 → 409，且**被拒绝的追加不会移动 revision**（有断言）。
+  - 顺带删掉 `CaseRepository.countCasesForLine`：它**从未被调用**，而它的查询统计的是该行的**所有** case 而非活跃 slot，与「同行一次只有一个活跃 case」相矛盾。活跃规则实际由 `active_case_slot` 主键 + `DuplicateKeyException` 正确且并发安全地实现，所以这不是「修了一个 bug」，而是删掉一个没人调用、却写错规则的陷阱。
+  - 测试 `casefile/EvidenceApiTest.java`（8）：200 成员集合与契约一致 + 库内 hash 64 位 + `source_ref=customer:C-2002` + case 的 revision/version 同时 +1 + 轨迹第二条是 `EVIDENCE_APPENDED` 且 revision=2 + 读回视图 summary「客户补充了材料」；两次提交是两条记录且旧内容仍在、id 与 hash 都不同（**材料不覆盖**）；带 `input_revision` 的 body 是 400 且库内**不存在** revision=1 的材料（**旧 revision 不可写**）；4 种机器来源对客户一律 403、reviewer 交客户陈述 403、别的客户 404、reviewer 交自己的核验 200；`EXECUTING` 下 409 且 revision 未动；`WAITING_CUSTOMER` 补证回 `QUEUED`、`PENDING_REVIEW` 补证只动 revision 不动状态；空文本/未知 kind/缺 kind/超 8000 字符 422、无 token 401、不存在工单 404；**并发 8**：4 个追加并发拿到 2/3/4/5 四个互不相同的 revision、库内 4 条记录 4 个不同 revision、case 恰好 +4（`FOR UPDATE` 串行化的直接证据）。
+  - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service **46**，0 失败 0 错误；`-Suite contracts` **PASSED**（53，`reports/verify/20260919-131248-contracts.txt`）；`-Suite unit` **PASSED**（`reports/verify/20260919-131320-unit.txt`）；`-Suite smoke`（core）**PASSED**（`reports/verify/20260919-131456-smoke.txt`）。
+  - **真实端到端**（只启动 case-service，**故意不启动 Commerce**，证明追加材料这一路径不依赖下游）：向 C02.1b 之前建的工单 `58a76775…` 追加 → 200 `{case_id, input_revision:2, version:2}`；同一客户提交 `SHIPMENT` → 403 `SHIPMENT is read by the investigation, not asserted by a caller`；带 `input_revision:1` 的 body → 400；读回工单 → 轨迹两条（`CASE_CREATED` revision 1、`EVIDENCE_APPENDED` revision 2），case 的 `input_revision=2 version=2`。迁移就地生效：`flyway_schema_history` rank 3 `case evidence` success=1（V1→V2→V3 全为 1）。库内材料：`source_type=CUSTOMER_STATEMENT`、`source_ref=customer:C-2002`、hash 64 位、`appended_role=CUSTOMER`。
+  - 一个诚实的小插曲：`docker exec mysql` 打印中文显示为 `????`，我用 `HEX(LEFT(content,2))` 判定是控制台字符集而非存储损坏——`E5B08FE58CBA`（小区）、`CHAR_LENGTH=17`，即真 UTF-8。没有靠「看起来像」下结论。
+  - 落库与可见性的**已知缺口**（如实记录，不假装完整）：材料写入后没有公开读回路径——契约里工单视图的 `evidence` 数组是 **Agent observation 的引用**（`observation_id`），在 C06 把观测绑定到材料之前，我不发明 observation_id，所以该数组仍不输出；也就是说现在「材料存下来并可校验，但还看不到」。
+  - C02.2 剩余：消费前取消（含终态**释放活跃 slot**）、SSE 读接口（`GET /api/v1/cases/{case_id}/events`，Last-Event-ID 续传、token 只在 header）。C03 的授权消费会补上「已消费授权」这一层的 409 判定（当前按状态判定，对 `EXECUTING`/`RECONCILING` 已经正确）。
 
 ### C03 政策、方案与审批
 

@@ -133,6 +133,39 @@ public interface CaseRepository {
             """)
     CaseRow findCase(@Param("caseId") String caseId);
 
+    /**
+     * The same row, locked for the rest of the transaction.
+     *
+     * <p>Appending material reads the revision, writes material at that revision plus one and bumps
+     * the case, and those three must not be interleaved with another append: two submissions arriving
+     * together would otherwise both claim the same revision (docs/domain-model.md:36).
+     */
+    @Select("""
+            SELECT case_id        AS caseId,
+                   merchant_id    AS merchantId,
+                   customer_id    AS customerId,
+                   line_id        AS lineId,
+                   order_id       AS orderId,
+                   status         AS status,
+                   version        AS version,
+                   input_revision AS inputRevision,
+                   expires_at     AS expiresAt,
+                   created_at     AS createdAt,
+                   updated_at     AS updatedAt
+              FROM aftersale_case
+             WHERE case_id = #{caseId}
+               FOR UPDATE
+            """)
+    CaseRow findCaseForUpdate(@Param("caseId") String caseId);
+
+    /** The highest trajectory sequence written for a case, or null when it has none. */
+    @Select("""
+            SELECT MAX(sequence)
+              FROM case_timeline
+             WHERE case_id = #{caseId}
+            """)
+    Integer highestSequence(@Param("caseId") String caseId);
+
     @Select("""
             SELECT action
               FROM case_requested_action
@@ -140,14 +173,6 @@ public interface CaseRepository {
              ORDER BY action
             """)
     List<String> findRequestedActions(@Param("caseId") String caseId);
-
-    @Select("""
-            SELECT COUNT(*)
-              FROM aftersale_case
-             WHERE merchant_id = #{merchantId}
-               AND line_id = #{lineId}
-            """)
-    int countCasesForLine(@Param("merchantId") String merchantId, @Param("lineId") String lineId);
 
     /** The answer already given for one idempotency key, replayed verbatim rather than recomputed. */
     record StoredResponse(

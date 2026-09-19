@@ -558,3 +558,28 @@ def test_the_case_view_is_bounded_and_declares_its_refusals() -> None:
     assert snapshot["properties"]["evidence"]["maxItems"] <= 64
     event = document("case")["components"]["schemas"]["TimelineEvent"]["properties"]
     assert "revision" in event, "an event reports the input revision it belongs to"
+
+def test_evidence_provenance_is_part_of_the_protocol() -> None:
+    """Material is provenance: who asserted it decides what it can mean.
+
+    The evidence route accepts an evidence_kind, and the kind list mixes two very different things —
+    what a person says, and what the system read from Commerce or policy. A protocol that let a
+    client submit SHIPMENT would let it fabricate a carrier fact, so the route declares 403 for the
+    kinds a client may not assert, and the enum member that records the append exists so the
+    trajectory shows a revision change with a reason (docs/core-contracts.md:30).
+    """
+    route = document("case")["paths"]["/api/v1/cases/{case_id}/evidence"]["post"]
+    for code in ("200", "401", "403", "404", "409", "422"):
+        assert code in route["responses"], f"POST evidence must declare {code}"
+
+    kinds = document("case")["components"]["schemas"]["EvidenceSourceType"]["enum"]
+    person = {"CUSTOMER_STATEMENT", "REVIEWER_VERIFICATION"}
+    machine = {"ORDER_LINE", "PAYMENT_LEDGER", "SHIPMENT", "SHIPMENT_TRACK", "POLICY_RULE"}
+    assert person | machine == set(kinds), "every declared kind is either a person's or a machine's"
+    assert not (person & machine), "a kind cannot be both somebody's statement and a system fact"
+
+    events = document("case")["components"]["schemas"]["TimelineEventType"]["enum"]
+    assert "EVIDENCE_APPENDED" in events, (
+        "an input revision that moved with nothing in the trajectory would leave the case view unable"
+        " to explain why"
+    )

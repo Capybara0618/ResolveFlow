@@ -27,11 +27,17 @@ public class CaseController {
 
     private final CaseService cases;
     private final CaseReadService reads;
+    private final CaseEvidenceService evidence;
     private final RequestPrincipalResolver principals;
 
-    public CaseController(CaseService cases, CaseReadService reads, RequestPrincipalResolver principals) {
+    public CaseController(
+            CaseService cases,
+            CaseReadService reads,
+            CaseEvidenceService evidence,
+            RequestPrincipalResolver principals) {
         this.cases = cases;
         this.reads = reads;
+        this.evidence = evidence;
         this.principals = principals;
     }
 
@@ -53,5 +59,14 @@ public class CaseController {
             @PathVariable("case_id") String caseId) {
         AuthenticatedPrincipal principal = principals.resolve(authorization);
         return ResponseEntity.ok(reads.read(principal, caseId));
+    }
+
+    @PostMapping("/{case_id}/evidence")
+    public ResponseEntity<EvidenceSubmissionResponse> appendEvidence(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable("case_id") String caseId,
+            @RequestBody EvidenceAppendRequest request) {
+        AuthenticatedPrincipal principal = principals.resolve(authorization);
+        return ResponseEntity.ok(evidence.append(principal, caseId, request));
     }
 }

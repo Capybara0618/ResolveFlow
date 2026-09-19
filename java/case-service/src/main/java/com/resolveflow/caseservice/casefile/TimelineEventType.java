@@ -13,6 +13,8 @@ package com.resolveflow.caseservice.casefile;
  */
 public enum TimelineEventType {
     CASE_CREATED,
+    /** Material arrived and the input revision moved (docs/domain-model.md:55). */
+    EVIDENCE_APPENDED,
     AGENT_STARTED,
     QUESTION_REQUIRED,
     PROPOSAL_READY,
