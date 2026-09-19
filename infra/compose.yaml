@@ -8,6 +8,14 @@
 # `docker compose --profile app up` therefore succeeds as a no-op rather than
 # pretending to start services that do not exist yet.
 #
+# Compose profiles (v1.2):
+#   - default            core: mysql, postgres, redis, rocketmq
+#   - --profile compat   adds nacos, the T02 compatibility asset the core profile
+#                        does not require (docs/core-scope.md:32,
+#                        contracts/core/profile.json -> deployment.not_required)
+# No observability containers exist yet; when they arrive they belong behind their
+# own profile, not in the default set.
+#
 # Port exposure: every infrastructure port is bound to 127.0.0.1, never 0.0.0.0.
 # docs/architecture.md asks that only the gateway, web and monitoring ports face
 # the host; binding the datastores to loopback keeps them off the network while
@@ -106,6 +114,13 @@ services:
     # Service discovery and non-sensitive shared configuration.
     # Nacos 3.x refuses to start without NACOS_AUTH_TOKEN even with auth disabled
     # (T00 finding 5.8). The default below is a development-only value.
+    #
+    # Kept out of the default `docker compose up`: the core profile does not depend on
+    # a registry (docs/core-scope.md:32, docs/architecture.md:43) and `contracts/core/
+    # profile.json` lists nacos under `not_required`. It is a compatibility asset from
+    # T02, so `docker compose --profile compat up -d` still starts it, and
+    # `scripts/verify.ps1 -Suite smoke -Profile compat` is the entry point that uses it.
+    profiles: ["compat"]
     image: nacos/nacos-server:v3.1.0
     environment:
       MODE: standalone

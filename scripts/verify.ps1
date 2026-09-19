@@ -35,7 +35,12 @@ param(
     [string]$Suite = 'all-offline',
     [string]$Mode = 'mock',
     [int]$Seed = 42,
-    [string]$Case = ''
+    [string]$Case = '',
+    # Which services the smoke suite starts. 'core' is the v1.2 default
+    # (docs/core-scope.md:32, docs/architecture.md:43); 'compat' adds the assets kept
+    # from the old protocol, which are not deployed by default.
+    [ValidateSet('core', 'compat')]
+    [string]$Profile = 'core'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -175,6 +180,7 @@ Write-Both "ResolveFlow verify" 'White'
 Write-Both "  suite : $Suite"
 Write-Both "  mode  : $Mode"
 Write-Both "  seed  : $Seed"
+Write-Both "  profile : $Profile"
 if ($Case) { Write-Both "  case  : $Case" }
 Write-Both "  report: $reportPath"
 
@@ -282,20 +288,46 @@ if ($Suite -in @('smoke', 'all-offline')) {
     #>
     Write-Header 'smoke'
 
-    [void](Invoke-Step -Name 'infra-up' -Command 'docker compose -f infra/compose.yaml up -d' -Action {
-            & docker compose -f (Join-Path $repoRoot 'infra/compose.yaml') up -d
+    # The startable set comes from contracts/core/profile.json rather than a second list
+    # here: two lists would drift, and the profile is the artefact the rest of the
+    # project already reads. Nacos and Sentinel are 'not_required' there, so the
+    # compat profile is the only one that starts the registry container.
+    $coreProfile = Get-Content (Join-Path $repoRoot 'contracts/core/profile.json') -Raw | ConvertFrom-Json
+    $javaServices = @($coreProfile.deployment.core_services | Where-Object { $_.language -eq 'java' } |
+        ForEach-Object { $_.name })
+    $compatServices = @($coreProfile.deployment.compat_only_services)
+    if ($Profile -eq 'compat') { $javaServices += $compatServices }
+    Write-Both "  services: $($javaServices -join ', '), agent" 'DarkGray'
+
+    $composeArgs = @('compose', '-f', (Join-Path $repoRoot 'infra/compose.yaml'))
+    if ($Profile -eq 'compat') { $composeArgs += @('--profile', 'compat') }
+    $composeArgs += 'up'
+    $composeArgs += '-d'
+
+    [void](Invoke-Step -Name 'infra-up' -Command ("docker " + ($composeArgs -join ' ')) -Action {
+            & docker @composeArgs
         })
 
     [void](Invoke-Step -Name 'package' -Command 'java\mvnw.cmd -f java/pom.xml -B -DskipTests package' -Action {
             Invoke-JavaVersion -JavaHome $javaHome -MavenArgs @('-f', 'java/pom.xml', '-B', '-ntp', '-DskipTests', 'package')
         })
 
-    $services = @(
+    # Every startable service needs a launcher entry here; the set actually started is
+    # the intersection with the profile, so adding a service to the profile without a
+    # launcher fails the run instead of silently skipping it.
+    $known = @(
         @{ Name = 'gateway';             Jar = 'java/gateway/target/gateway-0.1.0-SNAPSHOT.jar';                         Port = 8080 },
         @{ Name = 'commerce-service';    Jar = 'java/commerce-service/target/commerce-service-0.1.0-SNAPSHOT.jar';       Port = 8081 },
         @{ Name = 'fulfillment-service'; Jar = 'java/fulfillment-service/target/fulfillment-service-0.1.0-SNAPSHOT.jar'; Port = 8082 },
         @{ Name = 'case-service';        Jar = 'java/case-service/target/case-service-0.1.0-SNAPSHOT.jar';             Port = 8083 }
     )
+
+    $unknown = @($javaServices | Where-Object { $_ -notin $known.Name })
+    if ($unknown.Count -gt 0) {
+        throw "profile lists startable service(s) with no launcher: $($unknown -join ', ')"
+    }
+
+    $services = @($known | Where-Object { $_.Name -in $javaServices })
 
     foreach ($service in $services) {
         $jarPath = Join-Path $repoRoot $service.Jar

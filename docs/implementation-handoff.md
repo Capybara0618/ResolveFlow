@@ -4,13 +4,21 @@
 
 ## 当前事实
 
-T00–T02有已完成证据，包含锁、骨架、旧协议与测试。v1.2仅完成文档规划，代码/profile/核心Schema尚未迁移。旧资料见tasks/archive，不要重新生成全部项目或删除已有测试。
+T00–T02有已完成证据，包含锁、骨架、旧协议与测试。C00（核心协议与启动范围迁移）已完成：`contracts/core` 下已有 profile、三个 v2 Schema、三份核心 OpenAPI、正反 fixture 与冻结期望值，Python/Java 两侧核心 DTO 与跨语言字节级一致测试，启动/smoke 已按 core profile 选择。旧资料见tasks/archive，不要重新生成全部项目或删除已有测试。
+
+### 当前可启动的服务（2026-09-19）
+
+`pwsh -File scripts/verify.ps1 -Suite smoke` 默认 `-Profile core`，实际启动并读健康端点：gateway(8080)、commerce-service(8081)、case-service(8083)、agent(8090)。默认**不**启动 `fulfillment-service` 与 Nacos；`-Profile compat` 才加上它们（旧入口与旧断言保留）。证据见 `reports/verify/` 下的两份 smoke 报告。
+
+### 尚未实现（不要读成已有能力）
+
+后端服务仍只有骨架与健康接口：核心 27 条路由、退款闭环、Agent 调查/政策检索、恢复与回放、实验与主张都未实现；observability 容器尚不存在。`contracts/core` 里的目标协议不代表已在运行。
 
 ## 开始步骤
 
 1. 读AGENTS.md、README.md、core-scope、dsh-migration-handoff、tasks/plan和todo。
 2. 检查git status与当前实现；并行客户端如仍在改同一文件，先停止冲突编辑并确认交接，不覆盖其工作。
-3. 下一项C00：区分旧兼容协议与核心协议，先迁移契约/profile，再进入业务；C00完成前不继续旧T03扩展。
+3. C00已完成（协议/profile/DTO/fixture/启动范围），下一项C01；C00之后不回到旧T03扩展，按tasks/todo.md的C01–C13图推进。
 4. 只加载当前任务相关专题规格；每子步3–5核心文件，先失败测试、再实现/验证、更新真实记录。
 
 ## 不再必做

@@ -37,7 +37,7 @@ public RefundOperation accept(RefundCommand command) {
 | Java契约 | .\java\mvnw.cmd -f java/pom.xml -B -pl shared-kernel -am test |
 | 前端 | pnpm --dir web test |
 
-当前all-offline包含真实服务smoke和基础设施依赖，不等于不需要Docker；它只表示不使用外部付费模型API。旧smoke仍可能启动fulfillment/Nacos，C00调整核心选择并保留可选旧兼容入口，不能删失败断言来伪造通过。
+当前all-offline包含真实服务smoke和基础设施依赖，不等于不需要Docker；它只表示不使用外部付费模型API。核心选择已调整（C00.3）：`verify.ps1 -Suite smoke`默认`-Profile core`，只启动gateway/commerce/case与Agent，不启动fulfillment与Nacos；`-Profile compat`保留旧的完整入口，旧断言一条未删。启动集合来自`contracts/core/profile.json`，不在脚本里再写一份。
 
 ## 3. 尚未实现的目标入口
 

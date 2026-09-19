@@ -15,8 +15,8 @@
 ### C00 核心协议与启动范围迁移
 
 - [x] C00.1：读取core-scope/core-contracts，建立核心协议目录与profile允许能力清单；确认旧fulfillment/补发/权益仅兼容保留。
-- [ ] C00.2：按消费者分批新增核心Schema/OpenAPI、Java/Pydantic DTO及正反fixture/路由覆盖；新命令/事件/方案版本与旧基线显式区分。
-- [ ] C00.3：调整核心启动/smoke选择，默认不要求fulfillment/Nacos/全套观测；旧协议和测试保留，服务镜像未就绪则不宣称core profile完整可用。
+- [x] C00.2：按消费者分批新增核心Schema/OpenAPI、Java/Pydantic DTO及正反fixture/路由覆盖；新命令/事件/方案版本与旧基线显式区分。
+- [x] C00.3：调整核心启动/smoke选择，默认不要求fulfillment/Nacos/全套观测；旧协议和测试保留，服务镜像未就绪则不宣称core profile完整可用。
 - 依赖：无（沿用已完成T00–T02）。文件：contracts/core、共享DTO、契约测试、infra/scripts；每子步再按协议/语言/profile拆分。
 - 验收：核心禁止RESHIP/entitlement假字段；旧compat和新core测试独立通过；迁移说明列出当前可启动服务与尚未实现能力。
 - 验证：pwsh -File scripts/verify.ps1 -Suite contracts；相关format/unit；Compose配置与已实现smoke，不要求未写业务的system套件。
@@ -79,7 +79,11 @@
   - 跨语言证据的四条（写入 fixtures/README）：一是 record 的**线上字段名**（读 `@JsonProperty` 而非字段名）与对应 schema 的 `properties` 集合一致；二是每条正向语料能反序列化并**原样写回**——这是 Java 在没有 JSON Schema 校验器时能给的形状层证据（读入 schema 合法文档再写回若变样，Java 产出的文档就不是它 schema 接受的那份）；三是 Java 复算的 `payload_hash` 与规范化 JSON 字节等于 Python 冻结值；四是 Java 能用冻结的 SPKI 公钥验过 5 个信封签名、用 compat 验签器**验不过**（compat 给核心信封补 `aggregate_*` 并漏签 `topic`），并用冻结的 PKCS#8 私钥重签出逐字节相同的签名（Ed25519 确定性）。
   - 往返断言抓到真实缺陷：Java record 会把**缺席**的可选成员写成显式 `null`（`traceparent`/`causation_id`），而核心 schema 对它们是 `type: string` 且 `additionalProperties: false`——即 Java 作为生产者会产出自己 schema 拒绝的信封。已给三个含可选成员的 record 加 `@JsonInclude(NON_NULL)`；注意这一层不会影响 payload 内部（Map 内容的 null 仍保留，`provider_ref: null` 照常往返）。
   - 另修一处编译错误：`RecordComponent[]` 没有 `stream()`，改为普通循环。
-  - C00.2c 小结：a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正反语料 51 条）、c-3a/3b（Python+Java DTO 与跨语言字节级一致）均已完成并推送；`verify -Suite all-offline` 在核心改动后完整通过。
+a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正反语料 51 条）、c-3a/3b（Python+Java DTO 与跨语言字节级一致）均已完成并推送；`verify -Suite all-offline` 在核心改动后完整通过。
+  - C00.3 完成（2026-09-19）。修改文件：`scripts/verify.ps1`（新增 `-Profile core|compat`，默认 core；启动集合从 `contracts/core/profile.json` 的 `core_services`/`compat_only_services` 读出，脚本只保留「名字→jar 与端口」映射；profile 里有服务却没有启动器会当场 throw；报告里记录本次用的 profile）、`infra/compose.yaml`（Nacos 挂到 `compat` profile 后面，默认 `docker compose up -d` 不再拉起；头部注释写明两个 profile 与"观测容器将来也该有自己的 profile"）、`agent/tests/unit/test_contracts_core_startup.py`（新建，17 个测试）、`contracts/core/README.md`（新增第 5 节「启动范围与尚未实现的能力」+ 现状表两行）、`docs/implementation-handoff.md`（当前事实与「当前可启动的服务/尚未实现」两节，并把「下一项 C00」改为「C00 已完成，下一项 C01」）、`docs/engineering.md:40`（原句「旧 smoke 仍可能启动 fulfillment/Nacos」已过时，改为当前事实）。
+  - 命令与结果：`pytest agent/tests/unit/test_contracts_core_startup.py -q` → **17 passed**；`pytest agent/tests/unit -q` → **524 passed, 9 skipped**；`ruff` All checks passed；`docker compose --profile compat stop nacos` 后 `pwsh -File scripts/verify.ps1 -Suite smoke`（默认 core）→ **PASSED**，启动集合 `gateway, case-service, commerce-service, agent`，报告 `reports/verify/20260919-102959-smoke.txt`；`pwsh -File scripts/verify.ps1 -Suite smoke -Profile compat` → **PASSED**，启动集合多出 `fulfillment-service`，且 `infra-up` 带 `--profile compat` 拉起了 Nacos，报告 `reports/verify/20260919-103025-smoke.txt`；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**，报告 `reports/verify/20260919-103213-all-offline.txt`。
+  - 关键做法：一是**启动集合只有一个来源**——脚本从 profile 读，避免「文档说不需要、脚本里又启动一份」的漂移；二是**核心 smoke 的证据是先把 Nacos 容器停掉再跑**（不是假定服务不依赖它），四个进程照常起来并通过健康检查；三是**旧入口保留**：`-Profile compat` 才加 fulfillment 与 Nacos，旧断言一条未删（`docs/engineering.md:40` 的要求）；四是新增测试盯着「`not_required` 里的容器不得出现在默认 compose 集合里」和「profile 里每个服务都要有启动器」，因为把容器悄悄放回默认集合会让「核心不依赖它」这句话变成假的，而不需要改任何文档。
+  - 事实核对：四个服务的 `application.yml` 目前只有端口与 `application.name`，没有 Nacos 发现、没有数据源配置——所以核心 smoke 不依赖 Nacos 是可验证的事实，而不是假设；`fulfillment-service` 的骨架、协议、测试原样保留，只是默认不启动。
   - 未执行：`verify -Suite all-offline` 仍未重跑（留到 C00.3）
   - 未执行：C00.3（core profile 的启动与 smoke 选择：当前 smoke 仍会拉起 fulfillment-service 与 Nacos，且启动清单尚未迁移到 core 口径）未开始。；C00.2c-2b（核心反向 fixture）、C00.2c-3（Java/Pydantic 核心 DTO）、C00.3（core profile 启动与 smoke 选择）未开始；core profile 的服务启动尚未验证。
 

@@ -44,8 +44,8 @@
 | 核心反向 fixture（`fixtures/reject.json`） | 已建立（C00.2c-2b，2026-09-19；51 条负例、18 个测试） |
 | 核心期望值冻结（`fixtures/expected.json`，`scripts/contracts_core_freeze.py --check`） | 已建立（C00.2c-3b-1，2026-09-19；8 个测试，已纳入 contracts suite） |
 | Java 核心 record 与跨语言证据（`shared/core/CoreContract.java` 等，7 个测试） | 已建立（C00.2c-3b-2，2026-09-19） |
-| Java/Pydantic 核心 DTO | 待建立（C00.2c） |
-| core profile 启动/smoke 选择（不要求 fulfillment/Nacos/观测集群） | 待调整（C00.3） |
+| Java/Pydantic 核心 DTO | 已建立（C00.2c-3a/3b，2026-09-19；Python 80 个测试、Java 7 个测试） |
+| core profile 启动/smoke 选择（不要求 fulfillment/Nacos/观测集群） | 已调整（C00.3，2026-09-19；17 个测试，两个 profile 各跑通一次 smoke） |
 
 ## 4. C00.2a 的形状决策（v1 → v2 显式差异）
 
@@ -72,3 +72,24 @@
 校验方式：核心 Schema 不在旧文件集里，用 `resolveflow.contracts._schemaio.CORE_SCHEMA_FILES` 传入 `validator_bundle` / `schema_registry`；测试 `agent/tests/unit/test_contracts_core_schemas.py` 断言两套 `$id` 互不相交、互不可解析，并断言命令的属性集合恰好等于 `canonical.REFUND_FIELDS + payload_hash`（Schema 与哈希实现不能各自漂移）。
 
 后端服务当前只有骨架与健康接口，核心路由与业务能力均未实现；`contracts/core` 里的目标文件不代表它们已经在运行。
+
+## 5. 启动范围与尚未实现的能力（C00.3）
+
+**当前真的能启动的**（`pwsh -File scripts/verify.ps1 -Suite smoke`，默认 `-Profile core`，逐个进程启起来并读健康端点）：
+
+| 进程 | 端口 | 健康端点 |
+| --- | --- | --- |
+| gateway（Java） | 8080 | `/actuator/health` |
+| commerce-service（Java） | 8081 | `/actuator/health` |
+| case-service（Java） | 8083 | `/actuator/health` |
+| agent（Python） | 8090 | `/health` |
+
+**默认不启动**：`fulfillment-service`（`profile.json` 的 `compat_only_services`）与 Nacos（`not_required`）。Nacos 容器在 `infra/compose.yaml` 里挂到 `compat` profile 后面，所以 `docker compose up -d` 不会拉起它——这一条有测试盯着（`agent/tests/unit/test_contracts_core_startup.py`），因为把容器悄悄放回默认集合会让"核心不依赖它"这句话变成假的，而没有任何文档需要改动。
+
+**旧入口保留**：`-Profile compat` 才加上 `fulfillment-service`，并让 `infra-up` 带 `--profile compat`（于是 Nacos 也会起来）。旧协议、旧 fixture、旧测试与旧断言一条没删（`docs/engineering.md:40`）。
+
+**启动集合只有一个来源**：`scripts/verify.ps1` 从 `contracts/core/profile.json` 读 `core_services` / `compat_only_services` 来决定启谁，脚本里只保留"名字 → jar 与端口"的映射；profile 里加了服务却没有启动器会当场失败，而不是被静默跳过。
+
+**尚未实现（不要读成已有能力）**：核心 27 条路由、退款闭环、Agent 调查与政策检索、恢复/回放/实验，全部还是目标协议；observability 容器目前根本不存在，将来也应放在自己的 compose profile 里，而不是默认集合。
+
+**证据**：`reports/verify/20260919-102959-smoke.txt`（核心 profile；跑之前先 `docker compose --profile compat stop nacos`，当时 Nacos 容器是停的）、`reports/verify/20260919-103025-smoke.txt`（compat profile，含 fulfillment 与 Nacos）。两份都 PASS。
