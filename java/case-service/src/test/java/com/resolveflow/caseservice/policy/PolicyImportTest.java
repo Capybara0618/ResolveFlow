@@ -15,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * The controlled policy import (docs/core-contracts.md:50,53).
@@ -31,9 +30,6 @@ class PolicyImportTest extends CaseDatabaseTest {
 
     @Autowired
     PolicySourceReader reader;
-
-    @Autowired
-    JdbcTemplate jdbc;
 
     @TempDir
     Path temp;
@@ -161,8 +157,8 @@ class PolicyImportTest extends CaseDatabaseTest {
     }
 
     @Test
-    @DisplayName("two versions may not cover the same payment time, and a gap is allowed")
-    void windowsMayNotOverlap() throws IOException {
+    @DisplayName("a newer version may supersede an open one, but not cross an explicit end")
+    void aNewerVersionSupersedesRatherThanOverlaps() throws IOException {
         bundle("a.yaml", source("policy-logistics-2026.08", "2026-08-01T00:00:00Z", "2026-09-01T00:00:00Z", 1, "R-1"));
         imports.importDirectory(temp);
 
@@ -170,12 +166,30 @@ class PolicyImportTest extends CaseDatabaseTest {
         bundle("b.yaml", source("policy-logistics-2026.09", "2026-08-15T00:00:00Z", null, 2, "R-1"));
         assertThatThrownBy(() -> imports.importDirectory(temp))
                 .isInstanceOf(PolicyImportService.ImportRefusedException.class)
-                .hasMessageContaining("would not be unique");
+                .hasMessageContaining("crosses policy-logistics-2026.08")
+                .hasMessageContaining("explicit end");
 
         Files.delete(temp.resolve("b.yaml"));
         // Starting after a gap is fine: a payment before any published policy genuinely has none.
         bundle("c.yaml", source("policy-logistics-2026.09", "2026-09-05T00:00:00Z", null, 2, "R-1"));
         assertThat(imports.importDirectory(temp).imported()).hasSize(1);
+
+        // The open version can be superseded: this is what publishing a new policy is. Refusing it
+        // would mean a policy set that can never move on, because the next version always overlaps
+        // the one with no end — and closing that one would be editing an immutable version.
+        Files.delete(temp.resolve("c.yaml"));
+        bundle("d.yaml", source("policy-logistics-2026.10", "2026-10-01T00:00:00Z", null, 3, "R-1"));
+        assertThat(imports.importDirectory(temp).imported()).hasSize(1);
+
+        // A version that starts before an installed one would rewrite history rather than continue it.
+        Files.delete(temp.resolve("d.yaml"));
+        bundle("e.yaml", source("policy-logistics-2026.09.5", "2026-09-20T00:00:00Z", null, 4, "R-1"));
+        assertThatThrownBy(() -> imports.importDirectory(temp)).hasMessageContaining("does not rewrite it");
+
+        // And two versions starting at the same instant would leave a payment with two policies.
+        Files.delete(temp.resolve("e.yaml"));
+        bundle("f.yaml", source("policy-logistics-2026.10-bis", "2026-10-01T00:00:00Z", null, 4, "R-1"));
+        assertThatThrownBy(() -> imports.importDirectory(temp)).hasMessageContaining("no way to choose");
     }
 
     @Test

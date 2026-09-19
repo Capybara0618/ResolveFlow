@@ -163,7 +163,17 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 测试：`policy/PolicyImportTest`（5）、`policy/PolicyApiTest`（4）、`policy/PolicyMutationGuardTest`（2）。命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service **70**（0 失败 0 错误）；`-Suite format` **PASSED**（`reports/verify/20260919-141501-format.txt`）、`-Suite contracts` **PASSED**（58，`…-141148-contracts.txt`）、`-Suite unit` **PASSED**（`…-141218-unit.txt`）、`-Suite smoke`（core）**PASSED**（`…-141359-smoke.txt`）。
   - 格式套件发现 **C01.2 遗留的真实违规**：`OrderLineReadService.list(...)` 一行超长未格式化，说明 C02.2c 那次只跑了 contracts/unit/smoke、没跑 format（该次记录也只声称了这三项）。已 `spotless:apply` 修好（纯换行，无语义变化）。
   - **真实端到端**（compose 真 MySQL + 打包后的 jar）：① 受控导入 `imported 2 [2026.08 (3 rules, 20a178a4…), 2026.09 (5 rules, 2fe077a7…)]`，退出码 0；再跑一次 `imported 0, skipped 2` 且规则数不翻倍（幂等）；② 同 bundle_id 改一条规则正文 → 退出码 1，报出旧/新 hash，存储行 hash 与规则数不变；③ 窗口与 2026.08 重叠的新 bundle → 退出码 1「would not be unique」；④ 起服务后用真实 service token 读 → 200，成员恰为 `bundle_id,version,manifest_hash,safety_epoch,rules`，hash 与库里一致，5 条规则按源序，中文正文完整；⑤ 无令牌 → 401 `UNAUTHENTICATED`（`application/json`）、**用户令牌** → 403 `FORBIDDEN_SCOPE`「this route requires a service token, not a user token」、未知 bundle → 404 `NOT_FOUND`。
-  - **已知缺口（未做，未声称）**：服务令牌目前只校验 `aud`/`sub`，**没有 scope claim**，因此也没有任何路由做最小权限校验（契约 `serviceToken` 的说明提到 scope）。留到 C06/C07 真正给 Agent 签发工具令牌时统一处理，避免现在先造一套没人用的 scope 词表。另一条：`CaseServiceApplicationTest` 会连 compose 真库跑 Flyway（T01 遗留），待评估是否改为继承 `CaseDatabaseTest`。
+  - C03.1b 完成（2026-09-19）：按**支付时间**选版本并钉在工单上（`case_policy_manifest` + `case_policy_bundle`），只读面 `GET /internal/v1/cases/{case_id}/policy-manifest`。C03.1 全部完成。
+  - 选择与写入的位置：选择在建单事务**之前**（它是本服务自己库的读），选中的版本随工单在**同一事务**内写入；付款时间来自建单时本来就要问 Commerce 的那一次查询（`CommerceLineLookup.Line` 因此多了 `paidAt`，注释说明为什么不在之后再问一次——同一事实问两次就是给自己两次自相矛盾的机会）。工单上同时存下**生效窗口**与**被选中时的支付时间**，所以「为什么是这一版」由工单自己回答，而不是回头从一张已经往前走的政策表里重新推导。
+  - **测试发现 C03.1a 的规则是真缺陷（不是测试写错）**：C03.1a 要求「窗口不得重叠」。可 `policy-logistics-2026.09` 是开口的（`effective_to: null`），于是**任何新版本都必然与它重叠而被拒绝**；要关闭旧窗口就得改它，而它按设计不可变——**一个发布不出新版本的政策集不是版本化，是冻住了**。我把新版本 `2026.10` 的导入写进测试，导入当场拒绝，缺陷因此暴露。
+  - 修正后的语义（`fixtures/policies/README.md` 与 `docs/core-contracts.md` 均已改写）：选择＝**生效起点最晚**且未被显式结束的版本（「无结束日期」表示「到被后继版本取代为止」，这正是发布新政策的含义；也顺带让「热修」成为可能：更晚开始的一版在其区间内接管，之后旧版若仍在显式结束之前则重新生效）。导入校验从「不得重叠」收窄为**「不得产生歧义」**：同一 `effective_from` 两次 → 拒绝（同一时刻两套政策无从选择）；起点早于已装版本 → 拒绝（那是改写历史而不是延续，报「does not rewrite it」）；跨越**显式结束**窗口 → 拒绝（作者说那版到此为止，别的东西覆盖那一刻自相矛盾）。区间之间仍允许有空隙。
+  - **测试里我自己的两个 bug**（如实记录）：① stub 的支付时间是个「旋钮」，我设成八月后没拨回来，于是两个工单都拿到八月政策，测试本来要断言的「九月付款拿九月版」失败；② 行号用 `"71" + (++counter)` 拼出 `717101` 这种 id（无害但难看），改成 `nextLine()`。
+  - 其它实现细节：`PolicyManifestController` 的 404 有两种消息——「没有这个工单」与「这个工单没有钉住政策」；**不做回填**（选择需要的支付时间并不存在工单上，回填只能靠猜），因此 V5 之前建的工单会明确得到后者。`PolicyManifestRepository` 没有 update 语句：把工单重新钉到新政策正是契约禁止的「silently switches」。422 而非 409：没有任何冲突，是这次请求要求一个没有政策可裁的退款；若照开，失败会推到 Agent 那里、看起来像模型问题而不是缺政策。
+  - 测试：`casefile/PolicyManifestApiTest`（5）：八月付款拿到 `2026.08`（hash/epoch/窗口 `[2026-08-01, 2026-09-01)` 都对）而九月付款拿到 `2026.09`（`effective_to` **缺省**而非 null）；开单后导入 `2026.10` 再读 manifest **逐字不变**；七月付款 → 422 且报出支付时间与三个已装区间、库里**没有**工单与 slot；manifest 路由无令牌 401、用户令牌 403、未知工单 404、无 manifest 工单 404（消息不同）；manifest 与工单**同事务**（`selected_by_paid_at` 也存下来）。`PolicyImportTest` 的窗口用例按修正后的规则重写（新增：取代开口版本被允许、起点早于已装被拒、同一起点被拒）。`CaseDatabaseTest` 统一：外键删除顺序加上两张新表，并在 `@BeforeEach` 里「库里没有政策就导入仓库自己的 fixture」——每个开单测试都需要政策版本，而用真 fixture 顺带证明发布的政策文件可导入。
+  - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service **75**（0 失败 0 错误）；`-Suite format` **PASSED**（`reports/verify/20260919-143122-format.txt`）、`-Suite contracts` **PASSED**（59，`…-143131-contracts.txt`）、`-Suite unit` **PASSED**（`…-143203-unit.txt`）、`-Suite smoke`（core）**PASSED**（`…-143351-smoke.txt`）。
+  - **真实端到端**（两个 jar + compose 真 MySQL，V5 已应用 rank 5 success=1）：① 7001 建单 → 工单钉住 `policy-logistics-2026.09`，库中 hash `2fe077a7…`、`effective_from=2026-09-01`、`effective_to=NULL`、`selected_by_paid_at=2026-09-10 08:15:00`，bundle 行 `policy-logistics-2026.09`；② 真实受控命令导入 `2026.10`（开口版本被取代，退出码 0），再读**已开**工单的 manifest → **逐字不变**；③ 同支付时间的新工单（先取消占用的 7001）仍拿 `2026.09`——**装了十月版也不改变九月付款的选择**；④ 把 7002 的支付时间临时改成七月 → 建单 **422** `SEMANTIC_INVALID`，消息列出 `2026.08 [2026-08-01, 2026-09-01)`、`2026.09 [2026-09-01, open)`、`2026.10 [2026-10-01, open)`——注意该行**已有活跃工单**却先得到政策拒绝，说明政策拒绝发生在 slot 冲突之前；随后把种子支付时间**改回**并确认（7001/7002 均为 `2026-09-10 08:15:00`）；⑤ manifest 路由无令牌 401、用户令牌 403、未知工单 404；⑥ 验证完把临时导入的 `2026.10` 从库里删除，使演示库与仓库 fixture 一致（按设计允许删除整版：可见的破坏，而已开工单钉住的是 hash，事后核对会明确失败而不是悄悄匹配错正文）。
+  - 记录一次**有意改真实数据**的操作（未清库、未删卷）：为触发「没有政策覆盖」的真实路径，临时把 `commerce_db.order_line` 中 7002 的 `paid_at` 改为七月再改回，两步都如上验证；仓库内没有任何测试或代码依赖这个改动。
+  - **已知缺口（未做、未声称）**：服务令牌只校验 `aud`/`sub`，没有 scope claim（同上一条，留到 C06/C07）；`CaseServiceApplicationTest` 会连 compose 真库跑 Flyway（T01 遗留）；Commerce 的 `GET /internal/v1/order-lines/{line_id}/context` 仍未实现——本步不需要它（列表已返回 `paid_at`），它的 ledger/refunded 成员是 C03.2「金额重算」才需要的，届时一并实现。
 - 依赖：C01。文件：Case domain/application/api/migration/tests；逐行为交付。
 - 验收：同key换body409、同line不并发建多个活跃case；材料不覆盖，旧revision不可写。
 - 验证：数据库并发建单、状态转换与材料权限测试。
@@ -201,7 +211,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C03 政策、方案与审批
 
-- [ ] C03.1：合成政策受控导入（C03.1a）、不可变版本、按支付时间选择；不做管理后台。
+- [x] C03.1：合成政策受控导入（C03.1a）、不可变版本、按支付时间选择并钉在工单上（C03.1b）；不做管理后台。
 - [ ] C03.2：Java方案校验/金额重算/风险路由与人工核验。
 - [ ] C03.3：版本授权、审批/消费/取消事务边界；消费后拒绝材料变更，固定operation ID。
 - 依赖：C02。文件：Case policy/decision/authorization及各自测试，分模块实施。

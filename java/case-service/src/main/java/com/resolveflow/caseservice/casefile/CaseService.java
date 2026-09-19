@@ -1,5 +1,7 @@
 package com.resolveflow.caseservice.casefile;
 
+import com.resolveflow.caseservice.policy.PolicyManifest;
+import com.resolveflow.caseservice.policy.PolicySelectionService;
 import com.resolveflow.shared.contract.CanonicalJson;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.Role;
@@ -108,13 +110,20 @@ public class CaseService {
     private final CaseRepository cases;
     private final CaseWriter writer;
     private final CommerceLineLookup commerce;
+    private final PolicySelectionService policy;
     private final Clock clock;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public CaseService(CaseRepository cases, CaseWriter writer, CommerceLineLookup commerce, Clock clock) {
+    public CaseService(
+            CaseRepository cases,
+            CaseWriter writer,
+            CommerceLineLookup commerce,
+            PolicySelectionService policy,
+            Clock clock) {
         this.cases = cases;
         this.writer = writer;
         this.commerce = commerce;
+        this.policy = policy;
         this.clock = clock;
     }
 
@@ -142,6 +151,11 @@ public class CaseService {
         // The scope is the token's, and Commerce answers with the order the line really belongs to.
         CommerceLineLookup.Line line = commerce.findLine(principal, lineId).orElseThrow(LineNotVisibleException::new);
 
+        // The version is chosen by the payment time, before the transaction: it is a read of this
+        // service's own database, and refusing here means a case no policy can decide is never opened
+        // at all rather than opened and left undecidable.
+        PolicyManifest manifest = policy.selectFor(line.paidAt());
+
         Instant now = Instant.now(clock);
         String caseId = UUID.randomUUID().toString();
         try {
@@ -155,6 +169,7 @@ public class CaseService {
                     description,
                     idempotencyKey,
                     requestHash,
+                    manifest,
                     now));
         } catch (DuplicateKeyException error) {
             // Two unique keys can collide here, and they mean different things.

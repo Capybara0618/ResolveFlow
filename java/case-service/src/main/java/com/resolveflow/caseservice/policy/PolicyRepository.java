@@ -86,6 +86,25 @@ public interface PolicyRepository {
             """)
     List<StoredWindow> listWindowsForUpdate();
 
+    /**
+     * The installed windows, read without a lock, for choosing a version by payment time.
+     *
+     * <p>{@link #listWindowsForUpdate()} is the same query on purpose: that one is a locking read inside
+     * the import transaction, where the answer decides whether an insert happens, and this one is an
+     * ordinary read where the answer decides which version a case is pinned to. Making them one method
+     * would put a lock on the case-opening path for no reason.
+     */
+    @Select("""
+            SELECT bundle_id      AS bundleId,
+                   manifest_hash  AS manifestHash,
+                   safety_epoch   AS safetyEpoch,
+                   effective_from AS effectiveFrom,
+                   effective_to   AS effectiveTo
+              FROM policy_bundle
+             ORDER BY effective_from
+            """)
+    List<StoredWindow> listEffectiveWindows();
+
     /** A stored bundle header, without its rules. */
     record StoredBundle(
             String bundleId,

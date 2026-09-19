@@ -19,6 +19,9 @@ class StubCommerce extends CommerceOrderLineClient {
 
     static final String ORDER = "00000000-0000-4000-8000-0000000000aa";
 
+    /** The payment time Commerce reports; a test moves it to ask for a different policy version. */
+    volatile Instant paidAt = Instant.parse("2026-09-10T08:15:00Z");
+
     volatile boolean lineVisible = true;
     volatile AuthenticatedPrincipal lastPrincipal;
     volatile String lastLineId;
@@ -35,17 +38,7 @@ class StubCommerce extends CommerceOrderLineClient {
             return new OrderLinePage(List.of(), new PageMeta(null, 1));
         }
         return new OrderLinePage(
-                List.of(new OrderLineSummary(
-                        ORDER,
-                        lineId,
-                        "SKU-RED-M",
-                        "apparel",
-                        2,
-                        2599,
-                        "CNY",
-                        Instant.parse("2026-09-10T08:15:00Z"),
-                        "PAID",
-                        3)),
+                List.of(new OrderLineSummary(ORDER, lineId, "SKU-RED-M", "apparel", 2, 2599, "CNY", paidAt, "PAID", 3)),
                 new PageMeta(null, 1));
     }
 }

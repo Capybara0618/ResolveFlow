@@ -41,7 +41,7 @@ public class PolicyWriter {
             }
             return false;
         }
-        requireNoOverlap(draft);
+        requireNoAmbiguity(draft);
         policies.insertBundle(
                 draft.bundleId(),
                 draft.version(),
@@ -59,21 +59,45 @@ public class PolicyWriter {
     }
 
     /**
-     * Half-open windows: a version covers {@code [from, to)}.
+     * A version may not make the choice ambiguous, and that is a narrower rule than "windows may not
+     * overlap".
+     *
+     * <p>The first version of this check refused any overlap, and C03.1b's test found what that means in
+     * practice: a version with no end date can never be followed by another one, because the next version
+     * always overlaps it — and closing the old window would mean editing a version that is immutable by
+     * design. A policy set that cannot publish a new version is not versioned, it is frozen.
+     *
+     * <p>So selection is by the <b>latest start</b> that is not after the payment time, respecting explicit
+     * ends (see {@link PolicySelectionService}). That leaves exactly one ambiguity — two versions starting at
+     * the same instant — which is refused here. Two other shapes are refused because they are a mistake
+     * rather than a supersession: a version that starts before an installed one (it would rewrite history
+     * instead of continuing it), and a version that crosses a window with an explicit end (the author said
+     * that version ended there, and something else covering that instant contradicts them).
      *
      * <p>Read under a lock because the answer decides whether the insert happens: without it, two imports
-     * running at once could each see a free range and store two versions that cover the same payment time.
+     * running at once could each see a different set of windows and both insert.
      */
-    private void requireNoOverlap(PolicySourceReader.Draft draft) {
+    private void requireNoAmbiguity(PolicySourceReader.Draft draft) {
         for (PolicyRepository.StoredWindow window : policies.listWindowsForUpdate()) {
-            boolean overlaps = (draft.effectiveTo() == null
-                            || window.effectiveFrom().isBefore(draft.effectiveTo()))
-                    && (window.effectiveTo() == null || draft.effectiveFrom().isBefore(window.effectiveTo()));
-            if (overlaps) {
+            if (draft.effectiveFrom().equals(window.effectiveFrom())) {
+                throw new PolicyImportService.ImportRefusedException(draft.bundleId() + " starts at "
+                        + draft.effectiveFrom() + ", the same instant as " + window.bundleId()
+                        + "; a payment then would have two policies and no way to choose");
+            }
+            if (draft.effectiveFrom().isBefore(window.effectiveFrom())) {
+                throw new PolicyImportService.ImportRefusedException(draft.bundleId() + " starts at "
+                        + draft.effectiveFrom() + ", before " + window.bundleId() + " at " + window.effectiveFrom()
+                        + "; a version supersedes what is in force, it does not rewrite it");
+            }
+            boolean crossesAnExplicitEnd = window.effectiveTo() != null
+                    && (draft.effectiveTo() == null || window.effectiveFrom().isBefore(draft.effectiveTo()))
+                    && draft.effectiveFrom().isBefore(window.effectiveTo());
+            if (crossesAnExplicitEnd) {
                 throw new PolicyImportService.ImportRefusedException(draft.bundleId() + " covers "
                         + draft.effectiveFrom() + ".."
-                        + (draft.effectiveTo() == null ? "open" : draft.effectiveTo()) + ", which overlaps "
-                        + window.bundleId() + "; selection by payment time would not be unique");
+                        + (draft.effectiveTo() == null ? "open" : draft.effectiveTo()) + ", which crosses "
+                        + window.bundleId() + " [" + window.effectiveFrom() + ", " + window.effectiveTo()
+                        + "), a window with an explicit end");
             }
         }
     }

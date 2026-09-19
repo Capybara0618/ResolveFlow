@@ -51,7 +51,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | GET /internal/v1/cases/{case_id}/policy-manifest | 绑定bundle/version/hash |
 | Case | GET /internal/v1/policies/{bundle_id} | 授权政策正文/规则 |
 
-核心不开放旧entitlements、packing、cancel-before-start或补发端点。政策由受控脚本导入校验，不做管理HTTP全集。Order API的公共归属仍为Case，以复用现有协议模式；不暗改网关到数据库。
+核心不开放旧entitlements、packing、cancel-before-start或补发端点。政策由受控脚本导入校验，不做管理HTTP全集。版本按订单行**支付时间**选择：取生效起点最晚且未被显式结束的版本，因此无结束日期的版本会被后继版本取代，而历史订单不会被新政策套用；选中的版本与hash在开单事务中钉在工单上，之后导入新版本不改变已开工单。Order API的公共归属仍为Case，以复用现有协议模式；不暗改网关到数据库。
 
 ## 4. 运行与回调
 

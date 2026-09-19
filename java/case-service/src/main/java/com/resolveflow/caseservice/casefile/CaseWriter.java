@@ -1,5 +1,7 @@
 package com.resolveflow.caseservice.casefile;
 
+import com.resolveflow.caseservice.policy.PolicyManifest;
+import com.resolveflow.caseservice.policy.PolicyManifestRepository;
 import com.resolveflow.shared.contract.CanonicalJson;
 import java.time.Instant;
 import java.util.List;
@@ -17,8 +19,8 @@ import tools.jackson.databind.node.ObjectNode;
  * so no network call is ever inside it (docs/engineering.md:68).
  *
  * <p>Everything a reader would expect to have happened together is here together: the case, what the
- * customer asked for, the slot that makes a second open case impossible, the first trajectory entry,
- * and the stored idempotent answer. A partial version of these would describe a case that never
+ * customer asked for, the slot that makes a second open case impossible, the policy version it is pinned
+ * to, the first trajectory entry, and the stored idempotent answer. A partial version of these would describe a case that never
  * happened.
  */
 @Component
@@ -35,13 +37,16 @@ public class CaseWriter {
             String description,
             String idempotencyKey,
             String requestHash,
+            PolicyManifest manifest,
             Instant now) {}
 
     private final CaseRepository cases;
+    private final PolicyManifestRepository manifests;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public CaseWriter(CaseRepository cases) {
+    public CaseWriter(CaseRepository cases, PolicyManifestRepository manifests) {
         this.cases = cases;
+        this.manifests = manifests;
     }
 
     @Transactional
@@ -62,6 +67,19 @@ public class CaseWriter {
             cases.insertRequestedAction(write.caseId(), action.name());
         }
         cases.insertSlot(write.merchantId(), write.lineId(), write.caseId(), write.now());
+        // The policy the case is pinned to is written with the case: a case exists under a policy or it
+        // does not exist, and a later import must not be able to change what an open case is decided by.
+        manifests.insertManifest(
+                write.caseId(),
+                write.manifest().manifestHash(),
+                write.manifest().safetyEpoch(),
+                write.manifest().effectiveFrom(),
+                write.manifest().effectiveTo(),
+                write.manifest().selectedByPaidAt(),
+                write.now());
+        for (String bundleId : write.manifest().bundleIds()) {
+            manifests.insertBundle(write.caseId(), bundleId);
+        }
         // The event carries its own id and the revision it belongs to: deriving either from the
         // sequence number would make it change meaning when the case gains revisions.
         cases.insertTimeline(

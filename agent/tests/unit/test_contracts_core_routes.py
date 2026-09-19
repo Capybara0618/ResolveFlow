@@ -528,6 +528,30 @@ def test_the_policy_read_route_serves_the_text_a_citation_is_checked_against() -
     assert bundle["properties"]["rules"]["minItems"] >= 1, "a bundle with no rules decides nothing"
 
 
+def test_the_pinned_manifest_route_says_how_a_version_is_chosen() -> None:
+    """The manifest route is where "which policy decided this" is answerable.
+
+    The choice is by the line's payment time (docs/core-contracts.md:50), and the contract has to say so:
+    a reader that assumed "the newest policy" would be wrong about every historical order, which is the
+    exact mistake versioning exists to prevent. The response is bounded to the manifest and the window it
+    was chosen by — re-deriving either at read time would answer with today's choice.
+    """
+    operation = document("case")["paths"]["/internal/v1/cases/{case_id}/policy-manifest"]["get"]
+    assert operation["security"] == [{"serviceToken": []}]
+    assert {"200", "401", "403", "404"} <= set(operation["responses"])
+    description = operation["description"]
+    assert "pinned" in description and "newer policy" in description, (
+        "the route has to state the pinning property in the words of the decision it protects"
+    )
+
+    manifest = document("case")["components"]["schemas"]["PolicyManifestResponse"]
+    assert manifest["additionalProperties"] is False
+    assert set(manifest["required"]) == {"bundles", "effective_from"}
+    bundle = manifest["properties"]["bundles"]["items"]
+    assert set(bundle["required"]) == {"bundle_ids", "manifest_hash", "safety_epoch"}
+    assert bundle["additionalProperties"] is False
+
+
 def test_case_question_callback_is_limited_to_three_questions() -> None:
     def collect(node: Any, trail: str) -> list[tuple[str, Any]]:
         found: list[tuple[str, Any]] = []

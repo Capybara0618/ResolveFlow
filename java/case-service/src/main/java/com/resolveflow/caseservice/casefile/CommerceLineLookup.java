@@ -16,8 +16,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommerceLineLookup {
 
-    /** The one fact about a line that a case needs: which order it belongs to. */
-    public record Line(String orderId, String lineId) {}
+    /**
+     * The two facts about a line that a case needs: which order it belongs to, and when it was paid.
+     *
+     * <p>The payment time is here rather than fetched later because it decides the policy version the
+     * case is pinned to (docs/core-contracts.md:50), and that happens while the case is being opened —
+     * a second call to Commerce for a fact the first call already returned would be a second chance to
+     * disagree with itself.
+     */
+    public record Line(String orderId, String lineId, java.time.Instant paidAt) {}
 
     private final CommerceOrderLineClient commerce;
 
@@ -39,6 +46,6 @@ public class CommerceLineLookup {
             return Optional.empty();
         }
         CommerceOrderLineClient.OrderLineSummary line = items.get(0);
-        return Optional.of(new Line(line.orderId(), line.lineId()));
+        return Optional.of(new Line(line.orderId(), line.lineId(), line.paidAt()));
     }
 }

@@ -8,6 +8,8 @@ import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.caseservice.order.OrderController;
 import com.resolveflow.caseservice.order.RequestPrincipalResolver;
 import com.resolveflow.caseservice.policy.PolicyController;
+import com.resolveflow.caseservice.policy.PolicyManifestController;
+import com.resolveflow.caseservice.policy.PolicySelectionService;
 import com.resolveflow.shared.error.ApiError;
 import com.resolveflow.shared.security.DemoAccounts;
 import com.resolveflow.shared.security.JwtCodec;
@@ -133,6 +135,26 @@ public class ApiExceptionHandler {
     }
 
     /** The Idempotency-Key header is part of the route, not optional advice. */
+    /**
+     * A payment time no installed policy version covers (C03.1b).
+     *
+     * <p>422 rather than 409: nothing about the case is in conflict, the request asks for a refund no
+     * policy can decide. Opening the case anyway would move the failure to the Agent, where it would look
+     * like a modelling problem rather than a missing policy.
+     */
+    @ExceptionHandler(PolicySelectionService.PolicyUnavailableException.class)
+    public ResponseEntity<ApiError> policyUnavailable(
+            PolicySelectionService.PolicyUnavailableException error, HttpServletRequest request) {
+        return error(HttpStatus.UNPROCESSABLE_CONTENT, "SEMANTIC_INVALID", error.getMessage(), false, request);
+    }
+
+    /** The case is unknown, or has no pinned manifest (C03.1b). */
+    @ExceptionHandler(PolicyManifestController.PolicyManifestNotFoundException.class)
+    public ResponseEntity<ApiError> policyManifestNotFound(
+            PolicyManifestController.PolicyManifestNotFoundException error, HttpServletRequest request) {
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
+    }
+
     @ExceptionHandler(CaseService.MissingIdempotencyKeyException.class)
     public ResponseEntity<ApiError> missingIdempotencyKey(
             CaseService.MissingIdempotencyKeyException error, HttpServletRequest request) {
