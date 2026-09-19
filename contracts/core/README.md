@@ -90,6 +90,12 @@
 
 **启动集合只有一个来源**：`scripts/verify.ps1` 从 `contracts/core/profile.json` 读 `core_services` / `compat_only_services` 来决定启谁，脚本里只保留"名字 → jar 与端口"的映射；profile 里加了服务却没有启动器会当场失败，而不是被静默跳过。
 
-**尚未实现（不要读成已有能力）**：核心 27 条路由、退款闭环、Agent 调查与政策检索、恢复/回放/实验，全部还是目标协议；observability 容器目前根本不存在，将来也应放在自己的 compose profile 里，而不是默认集合。
+**尚未实现（不要读成已有能力）**：核心 27 条路由里目前只有 1 条真的实现了（见下节），退款闭环、Agent 调查与政策检索、恢复/回放/实验，全部还是目标协议；observability 容器目前根本不存在，将来也应放在自己的 compose profile 里，而不是默认集合。
 
 **证据**：`reports/verify/20260919-102959-smoke.txt`（核心 profile；跑之前先 `docker compose --profile compat stop nacos`，当时 Nacos 容器是停的）、`reports/verify/20260919-103025-smoke.txt`（compat profile，含 fulfillment 与 Nacos）。两份都 PASS。
+
+## 6. 已实现的核心路由（C01.1，2026-09-19）
+
+27 条核心路由里真正实现的目前是 **1 条**：case-service 的 `POST /api/v1/auth/login`（演示账号登录）。它按核心 OpenAPI 的 `LoginRequest`/`LoginResponse` 出入参，登录不需要 token，失败走统一错误体（401 `UNAUTHENTICATED` 对"口令错"与"账号不存在"只有同一条消息，400 `INVALID_ARGUMENT` 拒绝未知字段）。
+
+除此之外**全部仍是目标协议**：订单、工单、证据、授权、审批、内部接口都没有实现，`GET /api/v1/orders` 之类仍是 404。演示账号见 `docs/product-spec.md:9`（CUSTOMER/REVIEWER/OPERATOR、2 个合成商家各 ≥2 用户）；口令只存 PBKDF2-SHA256 哈希（`docs/domain-model.md:24`），签名是 HS256、用户面与服务面 `aud` 分离，且算法固定不读 token 自带的 `alg`。没有 JWKS、密钥轮换、RS256、refresh 或吊销列表——这是演示身份，不是可用于生产的 IAM。

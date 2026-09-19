@@ -6,6 +6,19 @@ server:
 spring:
   application:
     name: case-service
+  jackson:
+    deserialization:
+      # The core schemas are additionalProperties: false, so an unknown member is a protocol error
+      # rather than something to ignore. Boot defaults this to false; the contracts decide here.
+      fail-on-unknown-properties: true
+
+# Demonstration identity (C01.1). The secret below is a local default, not a deployment key: the
+# core profile is meant to be runnable and explainable. A real deployment must override it.
+resolveflow:
+  identity:
+    jwt:
+      secret: resolveflow-core-demo-identity-secret
+      ttl-seconds: 3600
 
 management:
   endpoints:

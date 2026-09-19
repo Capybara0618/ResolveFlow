@@ -94,7 +94,14 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - 依赖：C00。文件：Java安全模块、Commerce订单、Case视图及测试，按纵向接口分批。
 - 验收：本人能看订单，跨用户/商家不能看；金额为整数原快照，独立数据库账户不跨库读取。
 - 验证：JWT/归属单元、MySQL集成与核心契约测试。
-- 实际记录：未执行。
+- 实际记录：
+  - C01.1a 完成（2026-09-19）：shared-kernel 演示身份。新增 `java/shared-kernel/src/main/java/com/resolveflow/shared/security/`：`Role.java`（CUSTOMER/REVIEWER/OPERATOR，`docs/product-spec.md:9`）、`AuthenticatedPrincipal.java`（record 构造器直接拒绝「REVIEWER 带 customer_id」与「CUSTOMER 无 customer_id」，无效主体无法存在）、`JwtCodec.java`（HS256；`aud` 分离用户面/服务面；算法固定、不读 token 自带的 `alg`；exp/nbf/必需 claim 逐条校验；`Authorization: Bearer` 解析；失败一律带明确原因的 `TokenException`）、`DemoAccounts.java`（6 个种子账号：M-1001 有 demo-customer/demo-customer-2/demo-reviewer，M-1002 有 demo-customer-m2/demo-reviewer-m2，另有本地 demo-operator；只存 PBKDF2-SHA256 哈希，未知账号同样走一次派生以免用时间泄露用户名）；测试 `JwtCodecTest.java`（12）、`DemoAccountsTest.java`（7）。
+  - C01.1b 完成（2026-09-19）：case-service 登录端点。新增 `java/case-service/src/main/java/com/resolveflow/caseservice/auth/`：`LoginRequest.java`（长度按核心 OpenAPI 1..120/1..200，空值算 400 不算 401）、`LoginResponse.java`（snake_case，`customer_id` 仅在客户账号出现）、`AuthController.java`（`POST /api/v1/auth/login`，无 merchant/role 参数，主体只来自账号）、`IdentityConfiguration.java`（`JwtCodec`/`DemoAccounts`/`Clock` bean，密钥走配置而不是源码常量），以及 `error/ApiExceptionHandler.java`（统一错误体；401 单一消息防用户名枚举；400 含未知字段；`trace_id` 取 `X-Request-Id` 否则生成）；`case-service/src/main/resources/application.yml` 打开 `spring.jackson.deserialization.fail-on-unknown-properties`（核心 Schema 全是 `additionalProperties: false`，Boot 默认却是忽略未知字段，因此这条由契约决定）；测试 `AuthControllerTest.java`（7）。
+  - 命令与结果：C01.1a 先写测试后实现，首跑为编译失败（`JwtCodec`/`AuthenticatedPrincipal`/`Role`/`DemoAccounts` 不存在）即本步的红；实现后 `java\mvnw.cmd -f java/pom.xml -B -ntp -pl shared-kernel test` → **Tests run: 55, Failures: 0, Errors: 0**。C01.1b：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am test` → **shared-kernel 55 + case-service 9（AuthControllerTest 7、CaseServiceApplicationTest 2），Failures: 0, Errors: 0**。整套入口：`pwsh -File scripts/verify.ps1 -Suite format` → **PASSED**（报告 `reports/verify/20260919-104541-format.txt`），`-Suite unit` → **PASSED**（java-unit 40.9s、python-unit 21.9s，报告 `reports/verify/20260919-104551-unit.txt`）。
+  - 过程中三次失败都不是实现缺陷：`foreignKeyIsRefused` 用了 14 字符的外部密钥，先撞上 codec 的「密钥至少 16 字符」前置校验；`roleAndCustomerMustAgree` 原本期望 codec 抛 `TokenException`，实际由 `AuthenticatedPrincipal` 构造器拒绝——按事实改写为「一致性由 record 保证，同时保留 token 级校验」，并补了两条用 `signRaw` 伪造 claim 的负例；`issuedTokenVerifiesAsAUserToken` 用测试自己写的密钥去验服务签发的 token，改为注入容器里装配好的 `JwtCodec` bean（否则服务换了密钥这条测试还会绿）。另有一次编辑脚本失败：该测试文件是 CRLF，按 LF 匹配必然 0 处——脚本改为按文件实际换行符构造匹配串。
+  - 提交拆分的失误（如实记录）：C01.1b 的红测试 `AuthControllerTest.java` 被 `git add -A` 一起并进了 C01.1a 的提交 `5b303df`，于是该提交里的 case-service Java 测试是红的（端点还没实现，且其中一条口令写成了 `demo-pass-1001`）。不重写已推送历史，改为让 C01.1b 紧随其后落地：本步提交同时修正口令为 `demo-pass-1003` 并让测试转绿；此后 `git add` 要按路径而不是 `-A`，别把下一步的红测试捎带进去。
+  - 安全边界（明写的「没做」）：无 JWKS、无密钥轮换、无 RS256、无 refresh、无吊销列表；演示密钥与演示口令均为非机密材料，`application.yml` 里的默认签名密钥只是让 core profile 可跑可解释，真实部署必须覆盖。
+  - 未执行：`demo_user` 表迁移与种子、`GET /api/v1/orders` 等读接口与跨主体拒绝（均属 C01.2）；资源服务侧的鉴权过滤器/拦截器要等第一条受保护路由再落地，目前只有 `JwtCodec` 级校验与错误处理。
 
 ### C02 建单、材料与版本
 

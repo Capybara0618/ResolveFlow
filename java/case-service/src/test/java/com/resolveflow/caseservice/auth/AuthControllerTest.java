@@ -3,7 +3,8 @@ package com.resolveflow.caseservice.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.resolveflow.shared.security.JwtCodec;
-import java.time.Duration;
+import com.resolveflow.shared.security.Role;
+import java.time.Instant;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,9 @@ class AuthControllerTest {
     @Autowired
     RestTestClient rest;
 
+    @Autowired
+    JwtCodec jwtCodec;
+
     @Test
     @DisplayName("a seeded account exchanges for a token, with no Authorization header")
     void loginIssuesAToken() {
@@ -54,7 +58,8 @@ class AuthControllerTest {
         assertThat(json.get("access_token").stringValue()).isNotBlank();
         assertThat(json.properties().stream().map(Map.Entry::getKey))
                 .as("no extra members: the schema is additionalProperties: false")
-                .containsExactlyInAnyOrder("access_token", "token_type", "expires_in", "role", "merchant_id", "customer_id");
+                .containsExactlyInAnyOrder(
+                        "access_token", "token_type", "expires_in", "role", "merchant_id", "customer_id");
     }
 
     @Test
@@ -63,7 +68,7 @@ class AuthControllerTest {
         String body = rest.post()
                 .uri("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("username", "demo-reviewer", "password", "demo-pass-1001"))
+                .body(Map.of("username", "demo-reviewer", "password", "demo-pass-1003"))
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -72,10 +77,11 @@ class AuthControllerTest {
                 .getResponseBody();
 
         String token = MAPPER.readTree(body).get("access_token").stringValue();
-        JwtCodec codec = new JwtCodec("demo-identity-secret-not-a-deployment-key", Duration.ofHours(1));
-        assertThat(codec.principalFromAuthorizationHeader("Bearer " + token, java.time.Instant.now())
+        // Verified with the codec this service actually wired, not with a copy of the secret: a test
+        // that re-declares the key would keep passing after the service was wired to another one.
+        assertThat(jwtCodec.principalFromAuthorizationHeader("Bearer " + token, Instant.now())
                         .role())
-                .isEqualTo(com.resolveflow.shared.security.Role.REVIEWER);
+                .isEqualTo(Role.REVIEWER);
     }
 
     @Test
