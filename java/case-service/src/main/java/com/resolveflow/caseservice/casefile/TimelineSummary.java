@@ -27,7 +27,7 @@ final class TimelineSummary {
                     case PROPOSAL_READY -> "方案已就绪";
                     case APPROVAL_REQUIRED -> "等待人工审批";
                     case EXECUTION_UPDATED -> "执行状态已更新";
-                    case CASE_CLOSED -> "工单已关闭";
+                    case CASE_CLOSED -> closed(event);
                 };
         return sentence.length() <= MAX_LENGTH ? sentence : sentence.substring(0, MAX_LENGTH);
     }
@@ -47,5 +47,16 @@ final class TimelineSummary {
     private static String appended(TimelineEventRow event) {
         String kind = JsonField.of(event.detail(), "evidence_kind");
         return "REVIEWER_VERIFICATION".equals(kind) ? "商家核验并记录" : "客户补充了材料";
+    }
+
+    /**
+     * The terminal event says which ending it was.
+     *
+     * <p>{@code CASE_CLOSED} is the contract's only terminal event type, so the distinction between a
+     * cancellation and any later ending lives in the detail. A view that showed "closed" for a case the
+     * customer cancelled would be hiding the one fact the reader cares about.
+     */
+    private static String closed(TimelineEventRow event) {
+        return "CANCELLED".equals(JsonField.of(event.detail(), "status")) ? "工单已取消" : "工单已关闭";
     }
 }

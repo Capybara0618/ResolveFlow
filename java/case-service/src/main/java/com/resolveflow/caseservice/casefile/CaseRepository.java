@@ -2,10 +2,12 @@ package com.resolveflow.caseservice.casefile;
 
 import java.time.Instant;
 import java.util.List;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 /**
  * The case write and read surface, one statement per documented fact.
@@ -165,6 +167,40 @@ public interface CaseRepository {
              WHERE case_id = #{caseId}
             """)
     Integer highestSequence(@Param("caseId") String caseId);
+
+    /**
+     * Move the case to CANCELLED, but only from the status it was read at.
+     *
+     * <p>The expected status is a condition of the write, not only of the check before it: two cancels
+     * arriving together cannot both match, so at most one moves the version. Returns the rows changed,
+     * and the caller treats anything but 1 as the conflict it is.
+     */
+    @Update("""
+            UPDATE aftersale_case
+               SET status = 'CANCELLED',
+                   version = version + 1,
+                   updated_at = #{updatedAt}
+             WHERE case_id = #{caseId}
+               AND status = #{expectedStatus}
+            """)
+    int markCancelled(
+            @Param("caseId") String caseId,
+            @Param("expectedStatus") String expectedStatus,
+            @Param("updatedAt") java.time.Instant updatedAt);
+
+    /**
+     * Free the line, because the case holding it has ended (docs/domain-model.md:26).
+     *
+     * <p>The row is the lock: while it exists the line has an active case, and deleting it is what lets
+     * the same line be asked about again. It is deleted, never flagged, so there is no state in which a
+     * released slot could still be read as held.
+     */
+    @Delete("""
+            DELETE FROM active_case_slot
+             WHERE merchant_id = #{merchantId}
+               AND line_id = #{lineId}
+            """)
+    int releaseActiveSlot(@Param("merchantId") String merchantId, @Param("lineId") String lineId);
 
     @Select("""
             SELECT action

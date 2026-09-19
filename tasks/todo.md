@@ -132,6 +132,16 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 - [x] C02.1：建单/幂等/同line活跃slot、状态与查询（C02.1a 建单 + C02.1b 查询）。
 - [ ] C02.2：补充证据增revision（见 C02.2a）、消费前取消、timeline和权限；预留SSE读接口。
+  - C02.2b 完成（2026-09-19）：`POST /api/v1/cases/{case_id}/cancel` 消费前取消 + **终态释放活跃 slot**。
+  - 契约缺口修正：该路由只声明 `200/404/409`，**缺 `401`**（作用域来自 token）；并把「取消是终态、终态释放该行的活跃 slot（`docs/domain-model.md:26`）、不可重复取消（第二次 409 而不是假装又取消了一次）、可见者皆可取消（客户或拥有该行的商家）、看不到的工单 404 而非 403」写进路由描述。契约测试 54 通过（新增：取消路由声明 401/404/409、描述里必须提到释放该行、`ReasonRequest.reason` 必填且 minLength=1）。
+  - 代码：`CaseCancellationService`（一个事务内：锁 case 行 → 校验可见性/可取消 → **条件更新** → 释放 slot → 写 `CASE_CLOSED` 轨迹）、`CaseCancelResponse`、`ReasonRequest`、`CaseController` 取消路由、`CaseRepository.markCancelled`/`releaseActiveSlot`、`CaseStateConflictException`（从 `CaseEvidenceService` 里提出来成为独立类型，因为现在是两个服务共用的「该状态不允许此变更」）。
+  - 两处「两条规则落在一个动作上」的取舍：① `markCancelled` 把**期望状态写进 UPDATE 的 WHERE**，所以「两个取消同时到达不可能都成功」是数据库的条件写，而不只是上面的检查；② 状态更新与 slot 释放**同事务**——已取消却仍占着行会让该行以后永远拒绝；释放了却还活着的行会同时存在两个活跃 case。
+  - 「终态释放」用唯一有意义的方式断言：取消后**对同一行重新建单**（HTTP 201、新 case_id、slot 恰好 1 条）。
+  - 测试 `casefile/CaseCancelApiTest.java`（8）：200 成员集合与契约一致 + status/version + **input_revision 不变**（取消不是新输入）+ slot 归零 + 轨迹 `CASE_CLOSED` 且 detail 含 CANCELLED/cancelled_by + 读回视图 summary；**同一行可再次建单**；再次取消 409 且 version 与 `CASE_CLOSED` 轨迹条目都没动；`EXECUTING` 下 409 且**没有释放 slot**；别人的客户/别的商家/不存在的工单 404、无 token 401、且这些尝试都没改动 case；reason 空白/缺失/超 500 字 422；取消后追加材料 409；**并发 2 个取消恰好一个成功**、version 只 +1、`CASE_CLOSED` 只有一条。
+  - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service **54**，0 失败 0 错误；`-Suite contracts` **PASSED**（`reports/verify/20260919-132350-contracts.txt`）；`-Suite unit` **PASSED**（`reports/verify/20260919-132320-unit.txt` 的后续 `-132422`）；`-Suite smoke`（core）**PASSED**（`reports/verify/20260919-132554-smoke.txt`）。
+  - **真实端到端**（两个 jar + compose 真 MySQL）：对前几步建的工单取消 → 200 `{CANCELLED, version:3}`；再次取消 → 409；**对已取消工单补材料 → 409 且文案为「already ended as CANCELLED」**；随后对同一行（7001）重新建单 → **201 新 case_id**；再取消新单 → 200；库内三条 case 中两条 CANCELLED、`active_case_slot` 只剩仍为 QUEUED 的那条（7002）——终态释放与活跃占用同时成立。
+  - 一次**我自己制造的错误被真实验证抓到**：第一次写这个端到端时 PowerShell 给 `Invoke-WebRequest` 传了两次 `-Headers`，reopen 请求**根本没发出去**，`$new` 为 null 而我把这当成「验过了」。重跑时才发出真正的请求并拿到 201。同一轮里还暴露出**码对但话在说谎**：给已取消工单补材料返回的 409 文案是「this case is already executing」（它明明是 CANCELLED）。原因是终态与已消费共用了一条消息；已按状态分开（终态→「already ended as X」，执行中→「already executing」），并让两个测试**断言文案**（含 `doesNotContain("executing")`）而不只断言 code。
+  - C02.2 剩余：SSE 读接口（`GET /api/v1/cases/{case_id}/events`，Last-Event-ID 续传、token 只在 header、可见性同读路由）。
 - 依赖：C01。文件：Case domain/application/api/migration/tests；逐行为交付。
 - 验收：同key换body409、同line不并发建多个活跃case；材料不覆盖，旧revision不可写。
 - 验证：数据库并发建单、状态转换与材料权限测试。

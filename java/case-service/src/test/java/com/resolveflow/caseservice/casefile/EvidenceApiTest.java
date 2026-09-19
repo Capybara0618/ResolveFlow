@@ -289,8 +289,12 @@ class EvidenceApiTest extends CaseDatabaseTest {
                 .expectStatus()
                 .isEqualTo(409)
                 .expectBody(String.class)
-                .value(body -> assertThat(MAPPER.readTree(body).get("code").stringValue())
-                        .isEqualTo("STATE_CONFLICT"));
+                .value(body -> {
+                    JsonNode error = MAPPER.readTree(body);
+                    assertThat(error.get("code").stringValue()).isEqualTo("STATE_CONFLICT");
+                    // The words matter as much as the code: this case is running, not ended.
+                    assertThat(error.get("message").stringValue()).contains("already executing");
+                });
 
         assertThat(evidenceRows(caseId)).isEmpty();
         assertThat(jdbc.queryForObject(

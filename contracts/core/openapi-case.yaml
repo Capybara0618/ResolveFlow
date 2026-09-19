@@ -375,6 +375,15 @@ paths:
         Cancellation exists only before the authorisation is consumed; after that there
         is no cancel edge, and the operation either succeeds, fails or stays UNKNOWN
         (docs/domain-model.md:55).
+
+        Cancelling reaches a terminal state, and a terminal case releases the line's active
+        slot, so the same line can be asked about again (docs/domain-model.md:26). It is not
+        idempotent: a case that is already terminal does not accept another transition, and a
+        second cancel answers 409 rather than pretending a second cancellation happened.
+
+        Anyone who can see the case may cancel it — the customer, or the merchant that owns the
+        line. There is no separate permission for it, and a case the principal cannot see is 404
+        rather than 403, for the same reason as the case view.
       parameters:
         - $ref: '#/components/parameters/CaseId'
       requestBody:
@@ -396,6 +405,8 @@ paths:
                 case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
                 status: CANCELLED
                 version: 8
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':

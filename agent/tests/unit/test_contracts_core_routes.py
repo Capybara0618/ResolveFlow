@@ -583,3 +583,22 @@ def test_evidence_provenance_is_part_of_the_protocol() -> None:
         "an input revision that moved with nothing in the trajectory would leave the case view unable"
         " to explain why"
     )
+
+def test_cancellation_is_a_terminal_transition_the_contract_describes() -> None:
+    """The first terminal edge in the core, and the contract has to say what it frees.
+
+    A cancelled case stops occupying its line (docs/domain-model.md:26), which is a promise a client can
+    observe by asking about the line again. The route also has to refuse a second cancel: a terminal case
+    has no further transition, and answering 200 twice would claim two cancellations happened.
+    """
+    route = document("case")["paths"]["/api/v1/cases/{case_id}/cancel"]["post"]
+    for code in ("200", "401", "404", "409"):
+        assert code in route["responses"], f"POST cancel must declare {code}"
+    description = route["description"]
+    assert "releases the line" in description or "release" in description, (
+        "the freed line is the part a client can check"
+    )
+
+    reason = document("case")["components"]["schemas"]["ReasonRequest"]
+    assert reason["required"] == ["reason"], "a cancellation without a reason is not a cancellation"
+    assert reason["properties"]["reason"]["minLength"] == 1

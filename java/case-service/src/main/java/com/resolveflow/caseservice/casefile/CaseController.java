@@ -28,16 +28,19 @@ public class CaseController {
     private final CaseService cases;
     private final CaseReadService reads;
     private final CaseEvidenceService evidence;
+    private final CaseCancellationService cancellations;
     private final RequestPrincipalResolver principals;
 
     public CaseController(
             CaseService cases,
             CaseReadService reads,
             CaseEvidenceService evidence,
+            CaseCancellationService cancellations,
             RequestPrincipalResolver principals) {
         this.cases = cases;
         this.reads = reads;
         this.evidence = evidence;
+        this.cancellations = cancellations;
         this.principals = principals;
     }
 
@@ -68,5 +71,14 @@ public class CaseController {
             @RequestBody EvidenceAppendRequest request) {
         AuthenticatedPrincipal principal = principals.resolve(authorization);
         return ResponseEntity.ok(evidence.append(principal, caseId, request));
+    }
+
+    @PostMapping("/{case_id}/cancel")
+    public ResponseEntity<CaseCancelResponse> cancel(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable("case_id") String caseId,
+            @RequestBody ReasonRequest request) {
+        AuthenticatedPrincipal principal = principals.resolve(authorization);
+        return ResponseEntity.ok(cancellations.cancel(principal, caseId, request));
     }
 }

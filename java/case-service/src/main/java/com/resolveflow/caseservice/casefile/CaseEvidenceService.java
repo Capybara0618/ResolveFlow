@@ -39,16 +39,6 @@ public class CaseEvidenceService {
 
     private static final int MAX_TEXT = 8000;
 
-    /** The input is closed: this case has already been authorised and consumed. */
-    public static class StateConflictException extends RuntimeException {
-
-        private static final long serialVersionUID = 1L;
-
-        public StateConflictException(String message) {
-            super(message);
-        }
-    }
-
     private final CaseRepository cases;
     private final EvidenceRepository evidence;
     private final Clock clock;
@@ -109,10 +99,15 @@ public class CaseEvidenceService {
     }
 
     private static void requireOpenInput(CaseRow row) {
-        if (row.status() == CaseStatus.EXECUTING
-                || row.status() == CaseStatus.RECONCILING
-                || row.status().isTerminal()) {
-            throw new StateConflictException(
+        // A terminal case and a consumed case both refuse material, and they are not the same thing: one
+        // has ended, the other is running. Saying "already executing" about a cancelled case would be a
+        // false statement about the case in the one message a client will read.
+        if (row.status().isTerminal()) {
+            throw new CaseStateConflictException(
+                    "this case already ended as " + row.status() + "; the input of an ended case cannot change");
+        }
+        if (row.status() == CaseStatus.EXECUTING || row.status() == CaseStatus.RECONCILING) {
+            throw new CaseStateConflictException(
                     "this case is already executing; the input of a consumed case cannot change");
         }
     }

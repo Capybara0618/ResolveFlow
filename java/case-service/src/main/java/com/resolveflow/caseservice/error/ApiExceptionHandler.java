@@ -1,9 +1,9 @@
 package com.resolveflow.caseservice.error;
 
 import com.resolveflow.caseservice.auth.LoginRequest.InvalidLoginRequestException;
-import com.resolveflow.caseservice.casefile.CaseEvidenceService;
 import com.resolveflow.caseservice.casefile.CaseReadService;
 import com.resolveflow.caseservice.casefile.CaseService;
+import com.resolveflow.caseservice.casefile.CaseStateConflictException;
 import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.caseservice.order.OrderController;
 import com.resolveflow.caseservice.order.RequestPrincipalResolver;
@@ -102,9 +102,8 @@ public class ApiExceptionHandler {
      * The input is closed: the case has been authorised and consumed, so material cannot be
      * appended and the case cannot be cancelled (docs/core-contracts.md:30).
      */
-    @ExceptionHandler(CaseEvidenceService.StateConflictException.class)
-    public ResponseEntity<ApiError> stateConflict(
-            CaseEvidenceService.StateConflictException error, HttpServletRequest request) {
+    @ExceptionHandler(CaseStateConflictException.class)
+    public ResponseEntity<ApiError> stateConflict(CaseStateConflictException error, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiError.of("STATE_CONFLICT", error.getMessage(), false, traceId(request)));
     }
