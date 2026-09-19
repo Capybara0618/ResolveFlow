@@ -109,6 +109,20 @@
       "flags": {"retryable": true, "reconciled": false},
       "replacement": null,
       "amounts": [0, 1, 1000000000]
+    },
+    "policy-rule-citation": {
+      "_comment": "C03.2b-2a: the bytes a policy citation hashes. Java derives the citable rule from what it stored and Python recomputes the same digest from this file, so the hash a run copies from the policy route is the hash Java will check.",
+      "bundle_id": "policy-logistics-2026.09",
+      "chunk_id": "c-01",
+      "title": "承运商判定丢失",
+      "text": "承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。"
+    },
+    "policy-rule-citation-other-bundle": {
+      "_comment": "The same wording under another version: identical text is not an identical citation, which is what citing a version means.",
+      "bundle_id": "policy-logistics-2026.10",
+      "chunk_id": "c-01",
+      "title": "承运商判定丢失",
+      "text": "承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。"
     }
   },
   "invalid_payloads": {

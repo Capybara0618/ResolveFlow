@@ -56,16 +56,30 @@ public interface PolicyRepository {
             """)
     StoredBundle findBundle(@Param("bundleId") String bundleId);
 
-    /** Rules in the order the source file wrote them. */
+    /**
+     * Rules in the order the source file wrote them, as rows: position included, chunk id and content hash not.
+     *
+     * <p>{@link #findRules(String)} derives the citable members from the row, so what this returns is what was
+     * actually imported. Storing them instead would let a stored hash outlive an edit to the text it describes.
+     */
     @Select("""
-            SELECT rule_id AS ruleId,
-                   title   AS title,
-                   text    AS text
+            SELECT bundle_id AS bundleId,
+                   position   AS position,
+                   rule_id    AS ruleId,
+                   title      AS title,
+                   text       AS text
               FROM policy_rule
              WHERE bundle_id = #{bundleId}
              ORDER BY position
             """)
-    List<PolicyRule> findRules(@Param("bundleId") String bundleId);
+    List<StoredRule> findStoredRules(@Param("bundleId") String bundleId);
+
+    /** The citable rules of a bundle, with their chunk ids and hashes derived from the stored text. */
+    default List<PolicyRule> findRules(String bundleId) {
+        return findStoredRules(bundleId).stream()
+                .map(row -> PolicyRule.from(row.bundleId(), row.position(), row.ruleId(), row.title(), row.text()))
+                .toList();
+    }
 
     /**
      * Every stored window, locked, so an import can refuse one that would overlap an existing version.
@@ -104,6 +118,9 @@ public interface PolicyRepository {
              ORDER BY effective_from
             """)
     List<StoredWindow> listEffectiveWindows();
+
+    /** A stored rule row, exactly as {@code policy_rule} holds it. */
+    record StoredRule(String bundleId, int position, String ruleId, String title, String text) {}
 
     /** A stored bundle header, without its rules. */
     record StoredBundle(

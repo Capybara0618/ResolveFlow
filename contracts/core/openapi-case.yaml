@@ -866,6 +866,8 @@ paths:
                   - rule_id: R-LOST-001
                     title: 承运商判定丢失
                     text: 承运商结论为 LOST 且无有效签收时，可按行支付金额全额退款。
+                    chunk_id: c-01
+                    content_hash: '3333333333333333333333333333333333333333333333333333333333333333'
         '401':
           $ref: '#/components/responses/Unauthenticated'
         '403':
@@ -2044,7 +2046,16 @@ components:
     PolicyRule:
       type: object
       additionalProperties: false
-      required: [rule_id, title, text]
+      required: [rule_id, title, text, chunk_id, content_hash]
+      description: |
+        One rule, plus the two members a citation needs.
+
+        chunk_id and content_hash are here because PolicyRef requires them and no other
+        route publishes them: without them a run could only guess the hash it is supposed
+        to cite, and the citation check would be unverifiable by construction. They are
+        derived from the stored rule — chunk_id from its position in the bundle, content_hash
+        from the bundle id, chunk id, title and text — never read from the file the bundle
+        was imported from, so what a run cites is what this service will re-hash.
       properties:
         rule_id:
           type: string
@@ -2058,6 +2069,12 @@ components:
           type: string
           minLength: 1
           maxLength: 4000
+        chunk_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        content_hash:
+          $ref: '#/components/schemas/Sha256Hex'
     PolicyBundle:
       type: object
       additionalProperties: false

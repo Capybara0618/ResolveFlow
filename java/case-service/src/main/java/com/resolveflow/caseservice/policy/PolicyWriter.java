@@ -52,7 +52,7 @@ public class PolicyWriter {
                 importedAt,
                 draft.sourcePath());
         int position = 0;
-        for (PolicyRule rule : draft.rules()) {
+        for (PolicySourceReader.SourceRule rule : draft.rules()) {
             policies.insertRule(draft.bundleId(), rule.ruleId(), position++, rule.title(), rule.text());
         }
         return true;

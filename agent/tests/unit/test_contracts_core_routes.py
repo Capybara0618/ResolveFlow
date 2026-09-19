@@ -553,6 +553,29 @@ def test_every_callback_kind_has_something_in_the_trajectory_to_show_for_it() ->
         assert event in events, f"{kind} is accepted but {event} cannot be shown"
 
 
+def test_a_citable_rule_publishes_the_hash_a_citation_must_carry() -> None:
+    """PolicyRef requires chunk_id and content_hash, so the route that serves rules must publish both.
+
+    Otherwise the check is unverifiable by construction: Java re-hashes the rule it stored and compares it
+    with what the run cited, and a run that could only guess would fail a check it had no way to pass —
+    which is a stricter way of saying the citation would never be trusted.
+    """
+    case = document("case")
+    rule = case["components"]["schemas"]["PolicyRule"]
+    assert set(rule["required"]) == {"rule_id", "title", "text", "chunk_id", "content_hash"}
+    assert rule["additionalProperties"] is False
+
+    policy_ref = case["components"]["schemas"]["PolicyRef"]
+    assert {"chunk_id", "content_hash"} <= set(policy_ref["required"]), (
+        "the citation and the citable rule have to agree on what a citation names"
+    )
+    route = case["paths"]["/internal/v1/policies/{bundle_id}"]["get"]
+    example_rule = route["responses"]["200"]["content"]["application/json"]["example"]["rules"][0]
+    assert {"chunk_id", "content_hash"} <= set(example_rule), (
+        "the example has to show a citable rule, or a reader cannot see what to cite"
+    )
+
+
 def test_the_line_context_is_where_the_amount_is_recomputed_from() -> None:
     """Java owns the refund amount, so the contract has to name the read it recomputes from.
 

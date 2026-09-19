@@ -101,7 +101,7 @@ public class PolicyImportService {
                 "effective_to",
                 draft.effectiveTo() == null ? null : draft.effectiveTo().toString());
         ArrayNode rules = node.putArray("rules");
-        for (PolicyRule rule : draft.rules()) {
+        for (PolicySourceReader.SourceRule rule : draft.rules()) {
             ObjectNode item = rules.addObject();
             item.put("rule_id", rule.ruleId());
             item.put("title", rule.title());

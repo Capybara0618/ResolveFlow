@@ -35,6 +35,16 @@ public class PolicySourceReader {
     private static final Set<String> RULE_MEMBERS = Set.of("rule_id", "title", "text");
     private static final int MAX_RULES = 200;
 
+    /**
+     * One rule as the source file writes it.
+     *
+     * <p>Deliberately not {@link PolicyRule}: a file has no chunk ids and no hashes, and this reader refuses
+     * unknown members rather than ignoring them — so a draft carrying derived members would either have to
+     * invent them before the bundle id is known or accept them from the file, and both would make the source
+     * file the authority for something the service must be able to recompute.
+     */
+    public record SourceRule(String ruleId, String title, String text) {}
+
     /** A bundle that is well formed but may still collide with what is already stored. */
     public record Draft(
             String bundleId,
@@ -42,7 +52,7 @@ public class PolicySourceReader {
             int safetyEpoch,
             Instant effectiveFrom,
             Instant effectiveTo,
-            List<PolicyRule> rules,
+            List<SourceRule> rules,
             String sourcePath) {}
 
     /** A source file that cannot be accepted as a bundle. */
@@ -113,12 +123,12 @@ public class PolicySourceReader {
             throw new InvalidBundleException(
                     source + ": effective_to must be after effective_from, otherwise the version covers nothing");
         }
-        List<PolicyRule> rules = readRules(source, members);
+        List<SourceRule> rules = readRules(source, members);
 
         return new Draft(bundleId, version, safetyEpoch, effectiveFrom, effectiveTo, rules, source);
     }
 
-    private static List<PolicyRule> readRules(String file, Map<String, Object> members) {
+    private static List<SourceRule> readRules(String file, Map<String, Object> members) {
         Object raw = members.get("rules");
         if (!(raw instanceof List<?> entries) || entries.isEmpty()) {
             throw new InvalidBundleException(
@@ -127,7 +137,7 @@ public class PolicySourceReader {
         if (entries.size() > MAX_RULES) {
             throw new InvalidBundleException(file + ": at most " + MAX_RULES + " rules, found " + entries.size());
         }
-        List<PolicyRule> rules = new ArrayList<>();
+        List<SourceRule> rules = new ArrayList<>();
         Set<String> seen = new java.util.HashSet<>();
         for (Object entry : entries) {
             if (!(entry instanceof Map<?, ?> rawRule)) {
@@ -142,7 +152,7 @@ public class PolicySourceReader {
             }
             String title = requireString(file, rule, "title");
             String body = requireString(file, rule, "text");
-            rules.add(new PolicyRule(ruleId, title, body));
+            rules.add(new SourceRule(ruleId, title, body));
         }
         return List.copyOf(rules);
     }

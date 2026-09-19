@@ -105,7 +105,7 @@ class PolicyImportTest extends CaseDatabaseTest {
                 draft.safetyEpoch(),
                 draft.effectiveFrom(),
                 draft.effectiveTo(),
-                List.of(new PolicyRule("R-LOST-001", "标题 R-LOST-001", "改动过的正文")),
+                List.of(new PolicySourceReader.SourceRule("R-LOST-001", "标题 R-LOST-001", "改动过的正文")),
                 draft.sourcePath());
         assertThat(imports.hash(changed)).isNotEqualTo(stored.get("manifest_hash"));
     }

@@ -26,7 +26,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import load_der_private_key, load_der_public_key
 
 from resolveflow.contracts._schemaio import load_json
-from resolveflow.contracts.canonical import payload_hash
+from resolveflow.contracts.canonical import content_hash, payload_hash
 from resolveflow.contracts.corpus import (
     EVENT_PAYLOAD_DEFS,
     OPENAPI_COMPONENTS,
@@ -281,3 +281,36 @@ def test_the_frozen_files_are_generated_not_hand_written() -> None:
     # suite says so before anyone debugs a hash mismatch.
     assert any("contracts_freeze.py" in line for line in EXPECTED_HASHES["_comment"])
     assert any("contracts_freeze.py" in line for line in EXPECTED_ENUMS["_comment"])
+
+
+class TestTheCitationFixturesAreWhatJavaHashes:
+    """C03.2b-2a: Java derives a rule's ``content_hash`` from the stored rule and a run cites it back.
+
+    Java builds that document in ``PolicyRule.hash`` from the same four members and numbers chunks from one,
+    as the contract's example does (``chunk_id: c-01``). If the member names or the numbering drifted, the two
+    sides would compute different digests for the same rule and every citation check would fail for a reason
+    nobody could see from either side alone.
+    """
+
+    FIXTURES = ("policy-rule-citation", "policy-rule-citation-other-bundle")
+    MEMBERS = {"bundle_id", "chunk_id", "title", "text"}
+
+    @pytest.mark.parametrize("name", FIXTURES)
+    def test_the_frozen_citation_names_the_members_java_hashes(self, name: str) -> None:
+        entry = CANONICAL["content_hashes"][name]
+        assert {key for key in entry if not key.startswith("_")} == self.MEMBERS
+        assert entry["chunk_id"] == "c-01", "chunks are numbered from one, as the contract example writes them"
+        assert EXPECTED_HASHES["content_hashes"][name] == content_hash(strip_annotations(entry))
+
+    def test_the_same_text_under_two_versions_is_two_citations(self) -> None:
+        first, second = (CANONICAL["content_hashes"][name] for name in self.FIXTURES)
+        # Annotations are ignored: the two fixtures carry their own explanations, and a comment is not content.
+        rule = self.MEMBERS - {"bundle_id"}
+        assert {key: first[key] for key in rule} == {key: second[key] for key in rule}, (
+            "the two fixtures have to be the same rule, or the comparison proves nothing"
+        )
+        assert first["bundle_id"] != second["bundle_id"]
+        assert (
+            EXPECTED_HASHES["content_hashes"][self.FIXTURES[0]]
+            != EXPECTED_HASHES["content_hashes"][self.FIXTURES[1]]
+        ), "the same wording in another version is a different citation, which is why a citation names one"

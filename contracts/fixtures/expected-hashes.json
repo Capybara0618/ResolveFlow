@@ -26,7 +26,9 @@
   "content_hashes": {
     "evidence-doc": "68cedafade7cb7464bdb641a86978bbcb667339fe70adf9430bfd67616926ff2",
     "utf16-key-ordering": "41eeb41ef1b9dd54dbb92dd1aeacbd502e861e2bc9adfae54bbdad493b66ec85",
-    "nested-null-and-boolean": "d66fab81063a6c16bcbd85130c505044eb5fe04ee7cb393115d5527275ffe033"
+    "nested-null-and-boolean": "d66fab81063a6c16bcbd85130c505044eb5fe04ee7cb393115d5527275ffe033",
+    "policy-rule-citation": "8e1c9863e3d0fd66d82f51fddfda480e002e12280784d0bbd60f572f23be2a65",
+    "policy-rule-citation-other-bundle": "c8375d2da1329977bce068b9e80f0a6bc8869c5e6144003a58112db742142895"
   },
   "canonical_documents": {
     "control-and-supplementary": "{\"A\":\"upper-first-in-utf16\",\"nested\":{\"a\":[true,null,\"x\\ny\"],\"b\":2},\"text\":\"tab:\\t newline:\\n quote:\\\" backslash:\\\\ unit-sep:\\u001f smile:😀 supplementary:𐀀\",\"z\":\"last\"}"

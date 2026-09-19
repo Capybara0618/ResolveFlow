@@ -3,6 +3,7 @@ package com.resolveflow.caseservice.policy;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.resolveflow.caseservice.CaseDatabaseTest;
+import com.resolveflow.shared.contract.ContractFixtures;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.JwtCodec;
 import com.resolveflow.shared.security.Role;
@@ -112,14 +113,64 @@ class PolicyApiTest extends CaseDatabaseTest {
         assertThat(json.get("rules")).hasSize(2);
         JsonNode first = json.get("rules").get(0);
         assertThat(first.properties().stream().map(java.util.Map.Entry::getKey))
-                .containsExactlyInAnyOrder("rule_id", "title", "text");
+                .as("the citation members are served here because this is the only route that publishes a rule")
+                .containsExactlyInAnyOrder("rule_id", "title", "text", "chunk_id", "content_hash");
         assertThat(first.get("rule_id").stringValue()).isEqualTo("R-LOST-001");
         assertThat(first.get("text").stringValue())
                 .as("byte for byte what the policy author wrote, which is the whole point of the route")
                 .isEqualTo("承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。");
+        assertThat(first.get("chunk_id").stringValue()).isEqualTo("c-01");
+        assertThat(first.get("content_hash").stringValue())
+                .as("the frozen cross-language digest of the same rule text (contracts/fixtures/"
+                        + "expected-hashes.json, recomputed by Python in agent/tests/unit/"
+                        + "test_contracts_fixtures.py): the hash a run copies from this route is the hash "
+                        + "Java checks when it re-checks the citation")
+                .isEqualTo(frozenContentHash("policy-rule-citation"));
         assertThat(json.get("rules").get(1).get("rule_id").stringValue())
                 .as("source order, not whatever order the table returned")
                 .isEqualTo("R-NOSCAN-7D");
+        assertThat(json.get("rules").get(1).get("chunk_id").stringValue()).isEqualTo("c-02");
+        assertThat(json.get("rules").get(1).get("content_hash").stringValue())
+                .as("a different rule is a different chunk of the same bundle")
+                .matches("[a-f0-9]{64}")
+                .isNotEqualTo(first.get("content_hash").stringValue());
+    }
+
+    /** The frozen content hash both languages recompute for one corpus fixture. */
+    private static String frozenContentHash(String fixture) {
+        return ContractFixtures.expectedHashes()
+                .get("content_hashes")
+                .get(fixture)
+                .stringValue();
+    }
+
+    @Test
+    @DisplayName("the same wording in another bundle is a different citation, because a citation names a version")
+    void theSameTextInAnotherBundleHashesDifferently() throws IOException {
+        // A copy of the same rule under another bundle id, in a window that does not collide with the first.
+        String other = BUNDLE.replace("policy-logistics-2026.09", "policy-logistics-2026.10")
+                .replace("\"2026.09\"", "\"2026.10\"")
+                .replace("\"2026-09-01T00:00:00Z\"", "\"2026-10-01T00:00:00Z\"");
+        java.nio.file.Files.writeString(temp.resolve("later.yaml"), other, java.nio.charset.StandardCharsets.UTF_8);
+        imports.importDirectory(temp);
+
+        JsonNode later = MAPPER.readTree(rest.get()
+                .uri("/internal/v1/policies/policy-logistics-2026.10")
+                .header("Authorization", "Bearer " + serviceToken())
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody());
+
+        assertThat(later.get("rules").get(0).get("text").stringValue())
+                .isEqualTo("承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。");
+        assertThat(later.get("rules").get(0).get("chunk_id").stringValue()).isEqualTo("c-01");
+        assertThat(later.get("rules").get(0).get("content_hash").stringValue())
+                .as("frozen for the other bundle as well: identical text under another version is a different "
+                        + "citation, which is the only reason to cite a version")
+                .isEqualTo(frozenContentHash("policy-rule-citation-other-bundle"));
     }
 
     @Test

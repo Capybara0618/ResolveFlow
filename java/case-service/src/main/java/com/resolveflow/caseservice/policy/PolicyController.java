@@ -45,11 +45,20 @@ public class PolicyController {
      * the domain record is named in camel case, and the wire is snake case. Reusing it would make every future
      * member of the stored rule a wire member by accident, and the contract is explicit about which members
      * exist.
+     *
+     * <p>{@code chunk_id} and {@code content_hash} are served because the contract's {@code PolicyRef} requires
+     * them: this is the only route that publishes a rule, so it is the only place a run can learn what to cite
+     * (C03.2b-2a). They are derived from the stored text on every read, not stored beside it.
      */
-    public record Rule(@JsonProperty("rule_id") String ruleId, String title, String text) {
+    public record Rule(
+            @JsonProperty("rule_id") String ruleId,
+            String title,
+            String text,
+            @JsonProperty("chunk_id") String chunkId,
+            @JsonProperty("content_hash") String contentHash) {
 
         static Rule of(PolicyRule rule) {
-            return new Rule(rule.ruleId(), rule.title(), rule.text());
+            return new Rule(rule.ruleId(), rule.title(), rule.text(), rule.chunkId(), rule.contentHash());
         }
     }
 
