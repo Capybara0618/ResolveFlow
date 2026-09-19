@@ -200,7 +200,9 @@ paths:
       summary: Cancel a case before execution starts
       description: |
         AUTHORIZED and later states cannot be cancelled directly; the operation must
-        be reconciled first (docs/domain-model.md:104).
+        be reconciled first. Cancelling is only allowed before the authorisation is
+        consumed, and UNKNOWN is settled by reconciliation, not by a second payment
+        (docs/domain-model.md:55).
       parameters:
         - $ref: '#/components/parameters/CaseId'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -287,8 +289,8 @@ paths:
       summary: Approve, reject or request more information
       description: |
         The decision is bound to `authorization_id` + `authorization_version`, so a
-        decision computed against a superseded version cannot be applied
-        (docs/domain-model.md:110).
+        decision computed against a superseded version cannot be applied: a stale or
+        revoked proposal cannot be newly authorised (docs/domain-model.md:13).
       parameters:
         - $ref: '#/components/parameters/CaseId'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -324,7 +326,7 @@ paths:
       summary: Reviewer authors a replacement proposal
       description: |
         Creates a new proposal and revision. An existing payload is never edited in
-        place (docs/contracts.md:35, docs/domain-model.md:110).
+        place (docs/contracts.md:35, docs/domain-model.md:29).
       parameters:
         - $ref: '#/components/parameters/CaseId'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -602,8 +604,9 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: |
-        Issuer, audience and key location are configured per environment
-        (docs/engineering.md:98). A UUID is never an authentication credential.
+        Issuer and audience are validated on every JWT (docs/core-contracts.md:15).
+        Key material is per-environment configuration and is never committed
+        (docs/engineering.md:64). A UUID is never an authentication credential.
   parameters:
     CaseId:
       name: case_id

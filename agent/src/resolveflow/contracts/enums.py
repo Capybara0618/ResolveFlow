@@ -114,7 +114,7 @@ class RecommendedAction(StrEnum):
 
 
 class CaseStatus(StrEnum):
-    """docs/domain-model.md:86 case state machine."""
+    """docs/domain-model.md:55 case lifecycle."""
 
     QUEUED = "QUEUED"
     ANALYZING = "ANALYZING"
@@ -166,7 +166,7 @@ class IdempotencyDisposition(StrEnum):
 
 
 class ProposalStatus(StrEnum):
-    """docs/domain-model.md:110."""
+    """docs/domain-model.md:57."""
 
     PROPOSED = "PROPOSED"
     VALIDATED = "VALIDATED"
@@ -175,7 +175,7 @@ class ProposalStatus(StrEnum):
 
 
 class AuthorizationStatus(StrEnum):
-    """docs/domain-model.md:110."""
+    """docs/domain-model.md:57."""
 
     PENDING_REVIEW = "PENDING_REVIEW"
     APPROVED = "APPROVED"
@@ -194,7 +194,7 @@ class Decision(StrEnum):
 
 
 class RiskRoute(StrEnum):
-    """docs/product-spec.md:41 low-risk gate outcome, computed by Java."""
+    """docs/product-spec.md:19 low-risk gate outcome, computed by Java."""
 
     AUTO = "AUTO"
     REVIEW = "REVIEW"
@@ -212,7 +212,11 @@ class EntitlementState(StrEnum):
 
 
 class OperationState(StrEnum):
-    """docs/domain-model.md:126 target operation states."""
+    """docs/domain-model.md:59: a compat superset kept for deserialisation.
+
+    The target core vocabulary is five states (docs/domain-model.md:57), and
+    supporting deserialisation of the old ones is not permission to execute them.
+    """
 
     CREATED = "CREATED"
     RESERVING = "RESERVING"

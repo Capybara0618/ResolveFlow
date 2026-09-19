@@ -30,7 +30,7 @@ paths:
       summary: Authoritative order, payment and line facts for one line
       description: |
         Java recomputes every amount from here; an Agent-suggested amount is never
-        trusted (docs/product-spec.md:46).
+        trusted (docs/product-spec.md:25).
       parameters:
         - $ref: '#/components/parameters/LineId'
       responses:
@@ -102,7 +102,8 @@ paths:
       description: |
         RESERVED -> IN_USE. This CAS is what makes cancel-before-start and release
         mutually exclusive with a provider call: only IN_USE may call the provider
-        (docs/domain-model.md:122).
+        (docs/domain-model.md:51). IN_USE belongs to the compat operation vocabulary,
+        which is kept only as a deserialisation superset (docs/domain-model.md:59).
       parameters:
         - $ref: '#/components/parameters/OperationId'
       requestBody:

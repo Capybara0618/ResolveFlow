@@ -124,12 +124,24 @@ def test_core_proposal_drops_reship_from_the_action_set() -> None:
     assert compat == ["REFUND", "RESHIP", "REQUEST_INFO", "MANUAL_REVIEW", "REJECT"]
 
 
-def test_core_proposal_has_no_case_id_and_no_schema_version() -> None:
-    properties = proposal_schema()["properties"]
-    assert "case_id" not in properties, "the callback endpoint is already case-scoped"
-    assert "schema_version" not in properties, "the $id carries the version; the payload is not hashed"
-    compat_properties = load_json("contracts/agent-proposal.schema.json")["properties"]
-    assert "case_id" in compat_properties and "schema_version" in compat_properties
+def test_core_proposal_carries_its_protocol_version_and_case_binding() -> None:
+    """Correction of an earlier (uncommitted-authority) narrowing.
+
+    This test first asserted the opposite - that a core proposal carries neither
+    ``schema_version`` nor ``case_id`` - on the reasoning that the callback endpoint is
+    already case-scoped and that the payload is not hashed. ``docs/core-contracts.md:9``
+    settles it the other way ("核心Agent方案schema_version=2...其他字段复用旧结构"): the
+    compat proposal is the field authority and it carries both. ``:57`` adds the reason
+    ``case_id`` is useful rather than redundant - "body主体必须与service JWT及Case绑定
+    一致" only has something to check if the binding is in the body.
+    """
+    schema = proposal_schema()
+    assert schema["properties"]["schema_version"] == {"const": 2}
+    assert "case_id" in schema["required"]
+    assert set(schema["required"]) <= set(schema["properties"])
+    compat = load_json("contracts/agent-proposal.schema.json")
+    assert compat["properties"]["schema_version"] == {"const": 1}
+    assert compat["required"].count("case_id") == 1
 
 
 def test_actionable_proposal_must_cite_evidence_and_policy() -> None:
@@ -184,8 +196,10 @@ def test_proposal_view_is_the_payload_plus_the_status_case_owns() -> None:
 
 def refund_proposal() -> dict[str, Any]:
     return {
+        "schema_version": 2,
         "proposal_id": "5f0f0f0f-1111-4222-8333-444455556666",
         "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
         "input_revision": 1,
         "case_type": "LOGISTICS",
         "recommended_action": "REFUND",
@@ -229,8 +243,10 @@ def test_the_case_openapi_accepts_the_same_instance() -> None:
 def test_request_info_proposal_without_citations_is_accepted() -> None:
     """Only REFUND is conditional; asking the customer for material cites nothing yet."""
     instance = {
+        "schema_version": 2,
         "proposal_id": "5f0f0f0f-1111-4222-8333-444455556666",
         "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+        "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
         "input_revision": 1,
         "case_type": "DAMAGED",
         "recommended_action": "REQUEST_INFO",
@@ -253,8 +269,11 @@ def test_request_info_proposal_without_citations_is_accepted() -> None:
         ({"suggested_amount_minor": 25.99}, "money is integer minor units"),
         ({"suggested_amount_minor": None}, "absent is how 'no suggestion' is expressed"),
         ({"suggested_amount_minor": 1000000001}, "above the amount ceiling"),
-        ({"schema_version": 2}, "the payload carries no version field"),
-        ({"case_id": "9c858901-8a57-4791-81fe-4c455b099bc9"}, "the callback URL already carries the case"),
+        ({"schema_version": 1}, "a v2 proposal is never the compat version"),
+        ({"schema_version": "2"}, "the version is a number, not a string"),
+        ({"status": "VALIDATED"}, "the payload cannot carry the status case-service owns"),
+        ({"created_at": "2026-09-18T04:28:00Z"}, "created_at belongs to the view, not the payload"),
+        ({"case_id": "9c858901"}, "the case binding is a UUID"),
         ({"reason_codes": []}, "a proposal without a reason cannot be reviewed"),
         ({"reason_codes": ["carrier_lost"]}, "reason codes are upper case"),
         ({"summary": ""}, "the reviewer has nothing to read"),

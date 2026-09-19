@@ -143,7 +143,7 @@ public final class ContractEnums {
         }
     }
 
-    /** docs/domain-model.md:86 case state machine. */
+    /** docs/domain-model.md:55 case lifecycle. */
     public enum CaseStatus implements WireValue {
         QUEUED("QUEUED"),
         ANALYZING("ANALYZING"),
@@ -245,7 +245,7 @@ public final class ContractEnums {
         }
     }
 
-    /** docs/domain-model.md:110. */
+    /** docs/domain-model.md:57. */
     public enum ProposalStatus implements WireValue {
         PROPOSED("PROPOSED"),
         VALIDATED("VALIDATED"),
@@ -264,7 +264,7 @@ public final class ContractEnums {
         }
     }
 
-    /** docs/domain-model.md:110. */
+    /** docs/domain-model.md:57. */
     public enum AuthorizationStatus implements WireValue {
         PENDING_REVIEW("PENDING_REVIEW"),
         APPROVED("APPROVED"),
@@ -303,7 +303,7 @@ public final class ContractEnums {
         }
     }
 
-    /** docs/product-spec.md:41 low-risk gate outcome, computed by Java. */
+    /** docs/product-spec.md:19 low-risk gate outcome, computed by Java. */
     public enum RiskRoute implements WireValue {
         AUTO("AUTO"),
         REVIEW("REVIEW"),
@@ -341,7 +341,11 @@ public final class ContractEnums {
         }
     }
 
-    /** docs/domain-model.md:126 target operation states. */
+    /**
+     * docs/domain-model.md:59: a compat superset kept for deserialisation.
+     *
+     * <p>The target core vocabulary is five states (docs/domain-model.md:57).
+     */
     public enum OperationState implements WireValue {
         CREATED("CREATED"),
         RESERVING("RESERVING"),

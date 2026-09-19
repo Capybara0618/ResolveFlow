@@ -2,12 +2,14 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:resolveflow:core:agent-proposal:v2",
   "title": "AgentProposalV2",
-  "description": "Core-v1.2 proposal a run submits to case-service as the payload of a PROPOSAL callback (docs/core-contracts.md:59). It must stay field-for-field identical to the ProposalPayload component of contracts/core/openapi-case.yaml; a test fails when the two drift apart. Unlike the compat document it carries no case_id (the callback endpoint is already case-scoped, so a second copy of the binding could only disagree with the URL) and no schema_version (the $id carries the version, and the payload is not hashed).",
+  "description": "Core-v1.2 proposal a run submits to case-service as the payload of a PROPOSAL callback (docs/core-contracts.md:59). It must stay field-for-field identical to the ProposalPayload component of contracts/core/openapi-case.yaml; a test fails when the two drift apart. schema_version=2 and case_id are both carried, because docs/core-contracts.md:9 keeps the compat proposal's field structure (that document has schema_version 1) and docs/core-contracts.md:57 requires the body's subject to agree with the service JWT and the Case binding, which Java can only cross-check if the binding is present.",
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "schema_version",
     "proposal_id",
     "run_id",
+    "case_id",
     "input_revision",
     "case_type",
     "recommended_action",
@@ -15,11 +17,16 @@
     "reason_codes"
   ],
   "properties": {
+    "schema_version": {"const": 2},
     "proposal_id": {
       "type": "string",
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     },
     "run_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "case_id": {
       "type": "string",
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     },

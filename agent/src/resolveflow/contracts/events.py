@@ -22,6 +22,7 @@ Two rules here are load-bearing and easy to get subtly wrong:
 from __future__ import annotations
 
 import base64
+from collections.abc import Callable
 from typing import Any
 
 from cryptography.exceptions import InvalidSignature
@@ -30,11 +31,16 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey,
 from resolveflow.contracts.canonical import canonical_bytes
 
 __all__ = [
+    "CORE_ENVELOPE_KEYS",
+    "CORE_SIGNABLE_KEYS",
     "ENVELOPE_KEYS",
     "SIGNABLE_KEYS",
     "EventSignatureError",
+    "core_signing_input_bytes",
+    "sign_core_envelope",
     "sign_envelope",
     "signing_input_bytes",
+    "verify_core_envelope",
     "verify_envelope",
 ]
 
@@ -61,6 +67,34 @@ ENVELOPE_KEYS = (
 # Signed members: everything except the signature itself.
 SIGNABLE_KEYS = tuple(key for key in ENVELOPE_KEYS if key != "signature")
 
+#: The core-v1.2 envelope members (contracts/core/event-envelope.schema.json). Core
+#: dropped the compat ``aggregate_id``/``aggregate_version`` members - the business
+#: version moved into the result payload, so it has one home instead of two that can
+#: disagree - and added the routing ``topic``. Reusing ``SIGNABLE_KEYS`` for a core
+#: envelope would therefore sign *different* bytes: it would fill ``aggregate_id`` and
+#: ``aggregate_version`` with JSON ``null`` (members the core envelope does not declare)
+#: and omit ``topic`` (which it does declare). Both sides would be self-consistent and
+#: still disagree, so core signs over this tuple instead. The optional ``traceparent``
+#: and ``causation_id`` are kept from v1 and are normalised to ``null`` when absent,
+#: exactly as before. A test pins this tuple against the core schema's declared members.
+CORE_ENVELOPE_KEYS = (
+    "event_id",
+    "event_type",
+    "schema_version",
+    "merchant_id",
+    "occurred_at",
+    "producer",
+    "topic",
+    "traceparent",
+    "causation_id",
+    "payload",
+    "signature",
+    "signing_key_id",
+)
+
+#: Core signed members: everything except the signature itself (docs/core-contracts.md:19).
+CORE_SIGNABLE_KEYS = tuple(key for key in CORE_ENVELOPE_KEYS if key != "signature")
+
 
 class EventSignatureError(ValueError):
     """The envelope cannot be signed or verified as specified."""
@@ -86,6 +120,44 @@ def verify_envelope(
     public_key: Ed25519PublicKey,
 ) -> None:
     """Raise :class:`EventSignatureError` unless ``signature_b64`` covers this envelope."""
+    _verify(envelope, signature_b64, public_key, signing_input_bytes)
+
+
+def core_signing_input_bytes(envelope: dict[str, Any]) -> bytes:
+    """Return the canonical bytes a core-v1.2 envelope's ``signature`` covers.
+
+    Requires every member of :data:`CORE_SIGNABLE_KEYS` to be declared by the core
+    envelope schema and normalises absent optional members to JSON ``null``, exactly as
+    the compat rule does, so a producer that omits a member and one that sends an
+    explicit ``null`` still sign identical bytes.
+    """
+    unsigned = {key: envelope.get(key) for key in CORE_SIGNABLE_KEYS}
+    payload = unsigned.get("payload")
+    if not isinstance(payload, dict):
+        raise EventSignatureError("envelope payload must be a JSON object to be signed")
+    return canonical_bytes(unsigned)
+
+
+def sign_core_envelope(envelope: dict[str, Any], private_key: Ed25519PrivateKey) -> str:
+    """Return the base64 signature over a core envelope's normalised signing input."""
+    return base64.b64encode(private_key.sign(core_signing_input_bytes(envelope))).decode("ascii")
+
+
+def verify_core_envelope(
+    envelope: dict[str, Any],
+    signature_b64: str,
+    public_key: Ed25519PublicKey,
+) -> None:
+    """Raise :class:`EventSignatureError` unless the signature covers this core envelope."""
+    _verify(envelope, signature_b64, public_key, core_signing_input_bytes)
+
+
+def _verify(
+    envelope: dict[str, Any],
+    signature_b64: str,
+    public_key: Ed25519PublicKey,
+    signing_input: Callable[[dict[str, Any]], bytes],
+) -> None:
     try:
         raw = base64.b64decode(signature_b64, validate=True)
     except (ValueError, TypeError) as error:  # binascii.Error subclasses ValueError
@@ -93,6 +165,6 @@ def verify_envelope(
     if len(raw) != 64:
         raise EventSignatureError(f"Ed25519 signature must be 64 bytes, got {len(raw)}")
     try:
-        public_key.verify(raw, signing_input_bytes(envelope))
+        public_key.verify(raw, signing_input(envelope))
     except InvalidSignature as error:
         raise EventSignatureError("envelope signature does not cover this envelope") from error

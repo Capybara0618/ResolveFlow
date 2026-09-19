@@ -121,7 +121,7 @@
         },
         "state": {
           "enum": ["SUCCEEDED", "FAILED", "UNKNOWN"],
-          "description": "Terminal states of the target operation (docs/domain-model.md:126). The intermediate CREATED..IN_PROGRESS states exist only inside Commerce."
+          "description": "Terminal states of the target operation (docs/domain-model.md:57). The intermediate CREATED..IN_PROGRESS states exist only inside Commerce."
         },
         "amount_minor": {
           "type": "integer",

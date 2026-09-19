@@ -227,8 +227,10 @@ paths:
                   requested_actions: [REFUND]
                   line_id: '7001'
                 proposal:
+                  schema_version: 2
                   proposal_id: 5f0f0f0f-1111-4222-8333-444455556666
                   run_id: e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa
+                  case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
                   input_revision: 1
                   case_type: LOGISTICS
                   recommended_action: REFUND
@@ -613,8 +615,10 @@ paths:
               input_revision: 1
               kind: PROPOSAL
               payload:
+                schema_version: 2
                 proposal_id: 5f0f0f0f-1111-4222-8333-444455556666
                 run_id: e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa
+                case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
                 input_revision: 1
                 case_type: LOGISTICS
                 recommended_action: REFUND
@@ -1309,13 +1313,21 @@ components:
       type: object
       additionalProperties: false
       required:
-        [proposal_id, run_id, input_revision, case_type, recommended_action, summary,
-         reason_codes]
+        [schema_version, proposal_id, run_id, case_id, input_revision, case_type,
+         recommended_action, summary, reason_codes]
       description: |
         The proposal a run submits (docs/core-contracts.md:59). The same field set is
         fixed by contracts/core/agent-proposal.schema.json; a test keeps the two from
-        drifting apart.
+        drifting apart. schema_version and case_id are carried because
+        docs/core-contracts.md:9 keeps the compat field structure and
+        docs/core-contracts.md:57 requires the body's subject to agree with the service
+        JWT and the Case binding - a copy Java can cross-check, not a second truth.
       properties:
+        schema_version:
+          const: 2
+          description: Protocol version of the proposal payload (docs/core-contracts.md:9).
+        case_id:
+          $ref: '#/components/schemas/Uuid'
         proposal_id:
           $ref: '#/components/schemas/Uuid'
         run_id:
@@ -1333,7 +1345,7 @@ components:
           description: |
             What the run suggests. Absent means nothing was suggested; null is not a
             second way to say the same thing. Java recomputes the real amount from the
-            line's paid amount (docs/product-spec.md:46).
+            line's paid amount (docs/product-spec.md:25).
         summary:
           type: string
           minLength: 1
@@ -1366,12 +1378,16 @@ components:
       type: object
       additionalProperties: false
       required:
-        [proposal_id, run_id, input_revision, case_type, recommended_action, summary,
-         reason_codes, status]
+        [schema_version, proposal_id, run_id, case_id, input_revision, case_type,
+         recommended_action, summary, reason_codes, status]
       description: |
         The case-side view of a proposal: the proposal fields plus the status case-service
         owns. The proposal itself never carries its own approval status.
       properties:
+        schema_version:
+          const: 2
+        case_id:
+          $ref: '#/components/schemas/Uuid'
         proposal_id:
           $ref: '#/components/schemas/Uuid'
         run_id:
@@ -1389,7 +1405,7 @@ components:
           description: |
             What the run suggests. Absent means nothing was suggested; null is not a
             second way to say the same thing. Java recomputes the real amount from the
-            line's paid amount (docs/product-spec.md:46).
+            line's paid amount (docs/product-spec.md:25).
         summary:
           type: string
           minLength: 1

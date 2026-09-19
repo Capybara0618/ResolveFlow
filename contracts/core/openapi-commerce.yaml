@@ -38,7 +38,7 @@ paths:
       summary: Authoritative order, payment and line facts for one line
       description: |
         Java recomputes every amount from here; an Agent-suggested amount is never
-        trusted (docs/product-spec.md:46).
+        trusted (docs/product-spec.md:25).
       parameters:
         - $ref: '#/components/parameters/LineId'
       responses:
