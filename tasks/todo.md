@@ -89,7 +89,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C01 身份与订单只读切片
 
-- [ ] C01.1：演示身份/网关与资源服务JWT，固定商家/用户/审核角色；不做完整IAM。
+- [x] C01.1：演示身份/网关与资源服务JWT，固定商家/用户/审核角色；不做完整IAM。
 - [ ] C01.2：Commerce订单/支付快照迁移、种子和读接口，Case公共订单视图，跨主体拒绝。
 - 依赖：C00。文件：Java安全模块、Commerce订单、Case视图及测试，按纵向接口分批。
 - 验收：本人能看订单，跨用户/商家不能看；金额为整数原快照，独立数据库账户不跨库读取。
@@ -101,7 +101,10 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 过程中三次失败都不是实现缺陷：`foreignKeyIsRefused` 用了 14 字符的外部密钥，先撞上 codec 的「密钥至少 16 字符」前置校验；`roleAndCustomerMustAgree` 原本期望 codec 抛 `TokenException`，实际由 `AuthenticatedPrincipal` 构造器拒绝——按事实改写为「一致性由 record 保证，同时保留 token 级校验」，并补了两条用 `signRaw` 伪造 claim 的负例；`issuedTokenVerifiesAsAUserToken` 用测试自己写的密钥去验服务签发的 token，改为注入容器里装配好的 `JwtCodec` bean（否则服务换了密钥这条测试还会绿）。另有一次编辑脚本失败：该测试文件是 CRLF，按 LF 匹配必然 0 处——脚本改为按文件实际换行符构造匹配串。
   - 提交拆分的失误（如实记录）：C01.1b 的红测试 `AuthControllerTest.java` 被 `git add -A` 一起并进了 C01.1a 的提交 `5b303df`，于是该提交里的 case-service Java 测试是红的（端点还没实现，且其中一条口令写成了 `demo-pass-1001`）。不重写已推送历史，改为让 C01.1b 紧随其后落地：本步提交同时修正口令为 `demo-pass-1003` 并让测试转绿；此后 `git add` 要按路径而不是 `-A`，别把下一步的红测试捎带进去。
   - 安全边界（明写的「没做」）：无 JWKS、无密钥轮换、无 RS256、无 refresh、无吊销列表；演示密钥与演示口令均为非机密材料，`application.yml` 里的默认签名密钥只是让 core profile 可跑可解释，真实部署必须覆盖。
-  - 未执行：`demo_user` 表迁移与种子、`GET /api/v1/orders` 等读接口与跨主体拒绝（均属 C01.2）；资源服务侧的鉴权过滤器/拦截器要等第一条受保护路由再落地，目前只有 `JwtCodec` 级校验与错误处理。
+  - C01.1c 完成（2026-09-19）：网关身份头卫生。新增 `java/gateway/src/main/java/com/resolveflow/gateway/security/IdentityHeaderStripFilter.java`（WebFlux `WebFilter`，最高优先级，剥离 `X-User`/`X-Role`/`X-Merchant`/`X-Customer`）与 `IdentityHeaderStripFilterTest.java`（3 个）。做在 WebFilter 层而不是 Gateway 的 `GlobalFilter`：网关目前没有路由，没有路由时 GlobalFilter 根本不会跑，只在有路由时才成立的规则不能算已实现。同时给 `AuthControllerTest` 加了一条反证 `identityHeadersAreNeverTrusted`：请求带上**另一个商家**的 `X-Merchant`/`X-Role`/`X-Customer` 去登录，返回的仍是 `M-1001`/`C-2002`/`CUSTOMER`——即绕过网关直连服务也伪造不了身份，网关剥离只是卫生而不是安全边界。
+  - 命令与结果：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl gateway,case-service -am test` → gateway 5（过滤 3 + 应用 2）、case-service 10（AuthControllerTest 8 + 应用 2）、shared-kernel 55，全部 0 失败 0 错误；`pwsh -File scripts/verify.ps1 -Suite unit` → **PASSED**（java-unit 32.2s、python-unit 24.2s、web-test 3.3s，报告 `reports/verify/20260919-105005-unit.txt`）。
+  - 又一次编译失败是测试自身问题：`MockServerHttpRequest.get(URI)` 在该版本只有 `get(String)` 重载；spotless 重排过该文件，所以按 LF 匹配的编辑脚本再次 0 处命中，改为先读文件确认实际文本再改。
+  - C01.1 完成判据：演示身份可登录、token 携带主体且服务只认 token、网关不转发客户端自称的身份、旧协议与旧测试未动（compat 基线无改动）。
 
 ### C02 建单、材料与版本
 

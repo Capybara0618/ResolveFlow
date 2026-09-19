@@ -63,6 +63,33 @@ class AuthControllerTest {
     }
 
     @Test
+    @DisplayName("an identity header changes nothing, even when the gateway is bypassed")
+    void identityHeadersAreNeverTrusted() {
+        // The gateway strips these (IdentityHeaderStripFilter), but the service must not depend on that:
+        // a direct in-cluster call must be just as unable to name its own principal
+        // (docs/core-contracts.md:15). The merchant below is the *other* merchant on purpose.
+        String body = rest.post()
+                .uri("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-User", "demo-customer-m2")
+                .header("X-Role", "OPERATOR")
+                .header("X-Merchant", "M-1002")
+                .header("X-Customer", "C-2004")
+                .body(Map.of("username", "demo-customer", "password", "demo-pass-1001"))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        JsonNode json = MAPPER.readTree(body);
+        assertThat(json.get("merchant_id").stringValue()).isEqualTo("M-1001");
+        assertThat(json.get("customer_id").stringValue()).isEqualTo("C-2002");
+        assertThat(json.get("role").stringValue()).isEqualTo("CUSTOMER");
+    }
+
+    @Test
     @DisplayName("the issued token is one this service would accept as its principal")
     void issuedTokenVerifiesAsAUserToken() {
         String body = rest.post()
