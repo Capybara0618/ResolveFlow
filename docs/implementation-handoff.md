@@ -8,7 +8,7 @@ T00–T02有已完成证据，包含锁、骨架、旧协议与测试。C00（�
 
 ### 当前可启动的服务（2026-09-19）
 
-`pwsh -File scripts/verify.ps1 -Suite smoke` 默认 `-Profile core`，实际启动并读健康端点：gateway(8080)、commerce-service(8081)、case-service(8083)、agent(8090)。默认**不**启动 `fulfillment-service` 与 Nacos；`-Profile compat` 才加上它们（旧入口与旧断言保留）。证据见 `reports/verify/` 下的两份 smoke 报告。
+`pwsh -File scripts/verify.ps1 -Suite smoke` 默认 `-Profile core`，实际启动并读健康端点：gateway(8080)、commerce-service(8081)、case-service(8083)、agent(8090)。commerce-service 自 C01.2b 起在启动时连接 `commerce_db` 并跑 Flyway 迁移（compose 的 mysql 由 smoke 的 infra-up 先起，本机默认 `commerce/commerce`），所以它现在真的需要一个数据库才能健康。默认**不**启动 `fulfillment-service` 与 Nacos；`-Profile compat` 才加上它们（旧入口与旧断言保留）。证据见 `reports/verify/` 下的两份 smoke 报告。
 
 ### 尚未实现（不要读成已有能力）
 

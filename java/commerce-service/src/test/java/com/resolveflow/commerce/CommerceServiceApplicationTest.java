@@ -15,10 +15,14 @@ import org.springframework.test.web.servlet.client.RestTestClient;
  *
  * <p>Uses RestTestClient — Boot 4 removed TestRestTemplate; the Spring Framework 7
  * replacement lives in the webmvc test starter (see docs/compatibility-report.md).
+ *
+ * <p>Extends CommerceDatabaseTest because the service now owns commerce_db: the context can
+ * only start with a database reachable and the migrations applied, and this test is where a
+ * broken migration shows up first.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
-class CommerceServiceApplicationTest {
+class CommerceServiceApplicationTest extends CommerceDatabaseTest {
 
     @Autowired
     RestTestClient rest;

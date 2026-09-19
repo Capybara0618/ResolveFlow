@@ -28,6 +28,32 @@
       <artifactId>shared-kernel</artifactId>
     </dependency>
 
+    <!-- commerce_db belongs to this service: orders, order lines and the payment ledger
+         (docs/architecture.md:11, docs/domain-model.md:40-41). Flyway applies the migrations and
+         MyBatis reads them; both are T00-locked (infra/versions.lock.yaml). spring-boot-flyway is a
+         Boot 4 per-technology module: without it Flyway silently never runs. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-flyway</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-mysql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mybatis.spring.boot</groupId>
+      <artifactId>mybatis-spring-boot-starter</artifactId>
+    </dependency>
+
     <!-- Boot 4 requires a per-technology test starter; plain spring-boot-starter-test
          no longer brings web test support (TestRestTemplate was removed entirely). -->
     <dependency>
@@ -38,6 +64,20 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- The read model is tested against a real MySQL with the real migrations, not against a
+         stand-in database: the migrations and the seed are the artifacts under test
+         (docs/engineering.md:68). Versions come from the Testcontainers BOM in the root pom. -->
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-mysql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

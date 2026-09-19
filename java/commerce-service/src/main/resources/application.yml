@@ -7,6 +7,31 @@ spring:
   application:
     name: commerce-service
 
+  # commerce_db is this service's own schema and it has its own MySQL account
+  # (infra/mysql/init/01-databases.sql; docs/engineering.md:60). The defaults match the local
+  # compose container; a deployment supplies the same names from its environment.
+  # Time is stored and read as UTC: the protocol carries UTC instants (docs/core-contracts.md:17),
+  # and a driver left on the JVM default zone would silently shift every paid_at.
+  datasource:
+    url: ${COMMERCE_DB_URL:jdbc:mysql://127.0.0.1:3306/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${COMMERCE_DB_USER:commerce}
+    password: ${COMMERCE_DB_PASSWORD:commerce}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    deserialization:
+      # The core schemas are additionalProperties: false; an unknown member is a protocol error
+      # rather than something to ignore (Boot defaults this to false).
+      fail-on-unknown-properties: true
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    # Rows map into records through their canonical constructor; the mapper interfaces have no
+    # setters to fall back on, so argument names must be compiled in (Boot's parent does that).
+    arg-name-based-constructor-auto-mapping: true
+
 management:
   endpoints:
     web:

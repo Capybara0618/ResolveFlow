@@ -102,7 +102,7 @@
 `GET /internal/v1/order-lines`（service token、`merchant_id` 必填、`customer_id` 可选、游标分页，返回 `OrderLinePage`），表格已在 `docs/core-contracts.md` 第3节新增一行，Commerce 路由数因此 4 → 5、总数 27 → 28。
 作用域由 Case 从已校验的用户 token 推导后传入内部调用；公共路由不接受 `merchant_id`/`customer_id`/`scope` 参数，有测试钉住这一点，因为一旦公共路由能指定作用域，客户就能读别人的订单行。
 两个文档里的 `OrderLineSummary`/`OrderLinePage`/`PageMeta` 定义逐字相同，由测试逐项比对，避免同一载荷在两个文档里各自漂移。
-**这条内部路由本身尚未实现**（C01.2 之后的小步才落在 commerce-service 里）。
+**这条内部路由的落地进度**：C01.2b-1 已完成 `commerce_db` 的迁移（`orders`/`order_line`/`payment_ledger`）、演示种子与按主体作用域的读服务，并用真实 MySQL 的集成测试验证（含「同一 customer_id 换商家查不到」与分页不重不漏）；HTTP 路由与 service token 校验尚未接上（C01.2b-2），所以这条路由目前仍不可调用。
 
 ## 7. 已实现的核心路由（C01.1，2026-09-19）
 
