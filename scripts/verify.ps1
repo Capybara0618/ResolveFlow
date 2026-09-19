@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Verification entry point for ResolveFlow.
 
@@ -261,6 +261,9 @@ if ($Suite -in @('contracts', 'all-offline')) {
 
     [void](Invoke-Step -Name 'python-contracts-freeze' -Command 'uv run --project agent python scripts/contracts_freeze.py --check' -Action {
             & uv run --project agent --frozen python scripts/contracts_freeze.py --check
+        })
+    [void](Invoke-Step -Name 'python-core-contracts-freeze' -Command 'uv run --project agent python scripts/contracts_core_freeze.py --check' -Action {
+            & uv run --project agent --frozen python scripts/contracts_core_freeze.py --check
         })
     [void](Invoke-Step -Name 'python-contracts' -Command 'uv run --project agent pytest agent/tests/unit -k contracts' -Action {
             & uv run --project agent --frozen pytest agent/tests/unit -q -k 'contracts'

@@ -30,6 +30,7 @@ from resolveflow.contracts.fixtures import PLACEHOLDER_PREFIX, collect_placehold
 
 __all__ = [
     "CORE_CORPUS_PATH",
+    "CORE_EXPECTED_PATH",
     "CORE_REJECT_PATH",
     "CORE_REJECT_TARGETS",
     "CORE_SCHEMA_SECTIONS",
@@ -51,6 +52,7 @@ __all__ = [
 
 CORE_CORPUS_PATH = "contracts/core/fixtures/valid.json"
 CORE_REJECT_PATH = "contracts/core/fixtures/reject.json"
+CORE_EXPECTED_PATH = "contracts/core/fixtures/expected.json"
 
 #: Schema every section's entries must satisfy. The URNs are written out rather than read
 #: from the files so the corpus test can compare them against the ids actually on disk:

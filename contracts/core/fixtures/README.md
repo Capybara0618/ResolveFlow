@@ -6,6 +6,7 @@
 | --- | --- |
 | `valid.json` | 正向语料：执行命令、四种事件信封、提案（可执行与追问各一条），以及被它们引用的共享组件与测试签名密钥 |
 | `reject.json` | 反向语料：每条都是「必须被拒绝」的实例，并写明为什么必须被拒 |
+| `expected.json` | 冻结的期望值：由 `scripts/contracts_core_freeze.py` 从 `valid.json` 重算生成，Java 与 Python 各自复现它 |
 
 ## 语料结构
 
@@ -57,9 +58,24 @@
 
 覆盖情况：命令 15 条、信封 13 条、提案 19 条、摘要输入 4 条，共 51 条；每个核心 schema 都有负例（`test_every_core_schema_has_negative_coverage`）。
 
+## 期望值为什么要冻结
+
+上面说过占位符由 `core_corpus` 在解析时重算而不是冻结——那是说**语料文件里**不抄摘要。但「Python 自己算出来又自己对上」证明不了 Java 也这么算。所以另有 `expected.json`：由 `scripts/contracts_core_freeze.py` 从同一份 `valid.json` 算出并写盘，Java 与 Python 各自从语料复现它并比对。冻结的是**跨语言的比较点**，不是让语料自洽：文件一旦过期，`contracts_core_freeze.py --check` 与 pytest 都会失败。
+
+`expected.json` 里每一节都有用途：
+
+| 节 | 用途 |
+| --- | --- |
+| `placeholder_values` | 语料里每个 `PLACEHOLDER_*` 的取值，Java 直接借用（与 compat 的 `expected-hashes.json` 同构） |
+| `payload_hashes` / `canonical_payloads` | 命令摘要与它覆盖的规范化 JSON，用于 DTO 层的跨语言比对 |
+| `signing_inputs` / `event_signatures` | 签名覆盖的确切字节与签名，使「两侧签的是同一串字节」可比较 |
+| `signing_keys` | 测试密钥的 PKCS#8 与 SPKI DER（Java 用现成的 `EventSignature` 加载）、被签名成员列表 |
+| `refused` | 本轮被拒绝的反向语料行，作为生成记录 |
+
 ## 校验命令
 
 ```
-uv run --project agent --frozen pytest agent/tests/unit/test_contracts_core_corpus.py agent/tests/unit/test_contracts_core_reject.py -q
+uv run --project agent --frozen pytest agent/tests/unit/test_contracts_core_corpus.py agent/tests/unit/test_contracts_core_reject.py agent/tests/unit/test_contracts_core_freeze.py -q
+uv run --project agent --frozen python scripts/contracts_core_freeze.py --check
 pwsh -File scripts/verify.ps1 -Suite contracts
 ```
