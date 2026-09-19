@@ -27,4 +27,24 @@ final class JsonField {
             return null;
         }
     }
+
+    /**
+     * The same tolerance for a boolean member.
+     *
+     * <p>A separate reader rather than {@link #of} reading {@code "true"}: {@code stringValue()} on a boolean
+     * node does not produce a string, so a flag read through the string reader looks absent — which is how a
+     * retryable failure once said "handed to a person". {@code null} means absent or unreadable, and only the
+     * caller decides what a missing flag means.
+     */
+    static Boolean flag(String canonicalJson, String field) {
+        if (canonicalJson == null || canonicalJson.isBlank()) {
+            return null;
+        }
+        try {
+            JsonNode node = MAPPER.readTree(canonicalJson).get(field);
+            return node == null || node.isNull() ? null : node.asBoolean();
+        } catch (RuntimeException error) {
+            return null;
+        }
+    }
 }

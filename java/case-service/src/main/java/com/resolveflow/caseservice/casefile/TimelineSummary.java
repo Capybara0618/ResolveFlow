@@ -27,6 +27,7 @@ final class TimelineSummary {
                     case PROPOSAL_READY -> "方案已就绪";
                     case APPROVAL_REQUIRED -> "等待人工审批";
                     case EXECUTION_UPDATED -> "执行状态已更新";
+                    case AGENT_FAILED -> failed(event);
                     case CASE_CLOSED -> closed(event);
                 };
         return sentence.length() <= MAX_LENGTH ? sentence : sentence.substring(0, MAX_LENGTH);
@@ -47,6 +48,17 @@ final class TimelineSummary {
     private static String appended(TimelineEventRow event) {
         String kind = JsonField.of(event.detail(), "evidence_kind");
         return "REVIEWER_VERIFICATION".equals(kind) ? "商家核验并记录" : "客户补充了材料";
+    }
+
+    /**
+     * A failure says whether it is worth trying again, because that is what the reader has to do next.
+     *
+     * <p>"调查失败" alone would leave the one question a person actually has unanswered: is this case
+     * waiting for a retry, or for me.
+     */
+    private static String failed(TimelineEventRow event) {
+        boolean retryable = Boolean.TRUE.equals(JsonField.flag(event.detail(), "retryable"));
+        return retryable ? "调查失败，将自动重试" : "调查失败，转人工处理";
     }
 
     /**

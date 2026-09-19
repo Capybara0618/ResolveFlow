@@ -219,6 +219,45 @@ public interface CaseRepository {
             @Param("updatedAt") java.time.Instant updatedAt);
 
     /**
+     * Move the case to {@code newStatus} — or only bump its version — but only from the status it was read
+     * at.
+     *
+     * <p>Same shape as {@link #markCancelled}, one transition instead of one verb: the expected status is a
+     * condition of the write, so two transitions arriving together cannot both match. {@code newStatus} may
+     * equal {@code expectedStatus}, which is how a delivery that only appends a trajectory row still moves the
+     * version it was appended at.
+     */
+    @Update("""
+            UPDATE aftersale_case
+               SET status = #{newStatus},
+                   version = version + 1,
+                   updated_at = #{updatedAt}
+             WHERE case_id = #{caseId}
+               AND status = #{expectedStatus}
+            """)
+    int transition(
+            @Param("caseId") String caseId,
+            @Param("expectedStatus") String expectedStatus,
+            @Param("newStatus") String newStatus,
+            @Param("updatedAt") java.time.Instant updatedAt);
+
+    /**
+     * The details of the trajectory rows of one kind at one revision.
+     *
+     * <p>This is how the question rule is enforced without a table of its own: "this revision already asked
+     * something" is a fact about the trajectory, and the trajectory is already the record of what happened.
+     */
+    @Select("""
+            SELECT detail
+              FROM case_timeline
+             WHERE case_id = #{caseId}
+               AND kind = #{kind}
+               AND input_revision = #{inputRevision}
+            """)
+    List<String> findDetailsAtRevision(
+            @Param("caseId") String caseId, @Param("kind") String kind, @Param("inputRevision") int inputRevision);
+
+    /**
      * Free the line, because the case holding it has ended (docs/domain-model.md:26).
      *
      * <p>The row is the lock: while it exists the line has an active case, and deleting it is what lets

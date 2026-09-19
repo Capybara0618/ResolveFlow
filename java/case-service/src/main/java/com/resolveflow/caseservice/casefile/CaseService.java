@@ -62,6 +62,17 @@ public class CaseService {
         public IdempotencyConflictException() {
             super("this idempotency key was already used with a different body");
         }
+
+        /**
+         * The same conflict, described by whoever knows which identity was reused.
+         *
+         * <p>A callback id is not an {@code Idempotency-Key}, and saying so in the message is the difference
+         * between a producer knowing which of its two identities it broke and it knowing only that something
+         * was refused.
+         */
+        public IdempotencyConflictException(String message) {
+            super(message);
+        }
     }
 
     /** The line already has an open case. */

@@ -59,6 +59,19 @@ public RefundOperation accept(RefundCommand command) {
 
 MySQL的Case/Commerce独立schema/账号；PG Agent账户只访问agent_db；Redis不是授权事实。RocketMQ用核心v2 topics。core profile不依赖Nacos/Sentinel/完整观测容器；保留锁与可选配置，避免全量换栈。
 
+### 演示账号（C03.2b-1 补记）
+
+口令只以 PBKDF2 哈希存在 `DemoAccounts` 里，仓库文档此前没有列出；下表是**按哈希逐个验证过**的口令（不是按命名猜的），跑真实端到端要登录时用得上。它们只是演示凭据，正式部署应换掉并轮换 JWT 密钥。
+
+| 用户名 | 商户/客户 | 角色 | 口令 |
+| --- | --- | --- | --- |
+| demo-customer | M-1001 / C-2002 | CUSTOMER | demo-pass-1001 |
+| demo-customer-2 | M-1001 / C-2003 | CUSTOMER | demo-pass-1002 |
+| demo-reviewer | M-1001 | REVIEWER | demo-pass-1003 |
+| demo-operator | M-1001 | OPERATOR | demo-pass-3001 |
+| demo-customer-m2 | M-1002 / C-2004 | CUSTOMER | demo-pass-2001 |
+| demo-reviewer-m2 | M-1002 | REVIEWER | demo-pass-2002 |
+
 provider-stub在C04落地轻量Python+SQLite持久模拟退款，含幂等/故障注入，不实现物流写协议。物流只读适配内置Commerce；版本化合成资料可从fixtures加载。
 
 秘密不入库/日志/报告；.env不提交。故障路由仅lab且受控。数据库迁移只追加；旧履约库和卷不因停用被删除。关闭用compose stop保留卷，不授权清库、Git历史重写、推送、购买或公网发布。

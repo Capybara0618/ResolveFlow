@@ -528,6 +528,31 @@ def test_the_policy_read_route_serves_the_text_a_citation_is_checked_against() -
     assert bundle["properties"]["rules"]["minItems"] >= 1, "a bundle with no rules decides nothing"
 
 
+def test_every_callback_kind_has_something_in_the_trajectory_to_show_for_it() -> None:
+    """An accepted callback that leaves no trace is a delivery nobody can see happened.
+
+    The route answers ACCEPTED and the run is over; if the trajectory vocabulary has no event for that
+    kind, the case view shows a case that is apparently still thinking — which is exactly the view that
+    exists to explain what happened (docs/core-scope.md:7). FAILED is the one that was missing: a
+    retryable failure queues the case again, a non-retryable one hands it to a human, and both are
+    events, not states.
+    """
+    case = document("case")
+    kinds = case["components"]["schemas"]["CallbackKind"]["enum"]
+    events = case["components"]["schemas"]["TimelineEventType"]["enum"]
+    consequence = {
+        "STARTED": "AGENT_STARTED",
+        "QUESTION": "QUESTION_REQUIRED",
+        "PROPOSAL": "PROPOSAL_READY",
+        "FAILED": "AGENT_FAILED",
+    }
+    assert set(kinds) == set(consequence), (
+        "a new callback kind needs a decided consequence, not a default"
+    )
+    for kind, event in consequence.items():
+        assert event in events, f"{kind} is accepted but {event} cannot be shown"
+
+
 def test_the_line_context_is_where_the_amount_is_recomputed_from() -> None:
     """Java owns the refund amount, so the contract has to name the read it recomputes from.
 
