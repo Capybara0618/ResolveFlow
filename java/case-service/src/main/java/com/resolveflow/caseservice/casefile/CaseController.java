@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
  * {@code POST /api/v1/cases} (docs/core-contracts.md:28).
@@ -29,6 +30,7 @@ public class CaseController {
     private final CaseReadService reads;
     private final CaseEvidenceService evidence;
     private final CaseCancellationService cancellations;
+    private final CaseEventStreamService streams;
     private final RequestPrincipalResolver principals;
 
     public CaseController(
@@ -36,11 +38,13 @@ public class CaseController {
             CaseReadService reads,
             CaseEvidenceService evidence,
             CaseCancellationService cancellations,
+            CaseEventStreamService streams,
             RequestPrincipalResolver principals) {
         this.cases = cases;
         this.reads = reads;
         this.evidence = evidence;
         this.cancellations = cancellations;
+        this.streams = streams;
         this.principals = principals;
     }
 
@@ -80,5 +84,20 @@ public class CaseController {
             @RequestBody ReasonRequest request) {
         AuthenticatedPrincipal principal = principals.resolve(authorization);
         return ResponseEntity.ok(cancellations.cancel(principal, caseId, request));
+    }
+
+    /**
+     * The event stream. The content type is not declared with {@code produces} on purpose: a refusal
+     * before the stream starts (no token, or a case this principal cannot see) has to be renderable as
+     * the standard error body even though the client asked for {@code text/event-stream}. Spring sets
+     * {@code text/event-stream} itself once the emitter starts.
+     */
+    @GetMapping("/{case_id}/events")
+    public SseEmitter streamEvents(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @RequestHeader(name = "Last-Event-ID", required = false) String lastEventId,
+            @PathVariable("case_id") String caseId) {
+        AuthenticatedPrincipal principal = principals.resolve(authorization);
+        return streams.stream(principal, caseId, lastEventId);
     }
 }

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.mysql.MySQLContainer;
@@ -47,6 +48,25 @@ public abstract class CaseDatabaseTest {
         registry.add(
                 "spring.datasource.hikari.connection-timeout",
                 () -> Duration.ofSeconds(30).toMillis());
+    }
+
+    /**
+     * Empties the case tables for a test that needs a known starting point.
+     *
+     * <p>The order is the foreign-key order and it lives here rather than in each test: when a child
+     * table arrives, exactly one method has to learn about it instead of every cleanup in the suite
+     * (case_evidence proved the point — every test that deleted the parent started failing).
+     */
+    protected static void deleteAllCaseData(JdbcTemplate jdbc) {
+        for (String table : java.util.List.of(
+                "case_evidence",
+                "request_idempotency",
+                "case_timeline",
+                "active_case_slot",
+                "case_requested_action",
+                "aftersale_case")) {
+            jdbc.execute("DELETE FROM " + table);
+        }
     }
 
     protected static Connection connectToCaseDb() throws SQLException {

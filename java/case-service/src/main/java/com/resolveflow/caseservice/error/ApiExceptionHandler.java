@@ -15,6 +15,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,8 +42,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiError> unauthenticated(
             DemoAccounts.CredentialsRejectedException error, HttpServletRequest request) {
         LOG.debug("login refused: {}", error.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiError.of("UNAUTHENTICATED", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED", error.getMessage(), false, request);
     }
 
     @ExceptionHandler({InvalidLoginRequestException.class, HttpMessageNotReadableException.class})
@@ -50,16 +50,14 @@ public class ApiExceptionHandler {
         String message = error instanceof InvalidLoginRequestException
                 ? error.getMessage()
                 : "request body is not a valid JSON object with exactly the documented members";
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiError.of("INVALID_ARGUMENT", message, false, traceId(request)));
+        return error(HttpStatus.BAD_REQUEST, "INVALID_ARGUMENT", message, false, request);
     }
 
     /** A rejected user token is an authentication failure, never a 500. */
     @ExceptionHandler(JwtCodec.TokenException.class)
     public ResponseEntity<ApiError> tokenRefused(JwtCodec.TokenException error, HttpServletRequest request) {
         LOG.debug("token refused: {}", error.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiError.of("UNAUTHENTICATED", "the bearer token was refused", false, traceId(request)));
+        return error(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED", "the bearer token was refused", false, request);
     }
 
     /** A protected route reached without a usable token (C01.2c). */
@@ -67,8 +65,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiError> unauthenticated(
             RequestPrincipalResolver.UnauthenticatedException error, HttpServletRequest request) {
         LOG.debug("principal could not be resolved: {}", error.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiError.of("UNAUTHENTICATED", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED", error.getMessage(), false, request);
     }
 
     /**
@@ -80,8 +77,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(OrderController.OrderNotVisibleException.class)
     public ResponseEntity<ApiError> notVisible(
             OrderController.OrderNotVisibleException error, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
     }
 
     /**
@@ -93,9 +89,12 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiError> commerceUnavailable(
             CommerceOrderLineClient.CommerceUnavailableException error, HttpServletRequest request) {
         LOG.warn("commerce is unavailable: {}", error.getMessage());
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(ApiError.of(
-                        "SERVICE_UNAVAILABLE", "the order service is temporarily unavailable", true, traceId(request)));
+        return error(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "SERVICE_UNAVAILABLE",
+                "the order service is temporarily unavailable",
+                true,
+                request);
     }
 
     /**
@@ -104,8 +103,7 @@ public class ApiExceptionHandler {
      */
     @ExceptionHandler(CaseStateConflictException.class)
     public ResponseEntity<ApiError> stateConflict(CaseStateConflictException error, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiError.of("STATE_CONFLICT", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.CONFLICT, "STATE_CONFLICT", error.getMessage(), false, request);
     }
 
     /**
@@ -116,24 +114,21 @@ public class ApiExceptionHandler {
     @ExceptionHandler(CaseReadService.CaseNotVisibleException.class)
     public ResponseEntity<ApiError> caseNotVisible(
             CaseReadService.CaseNotVisibleException error, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
     }
 
     /** A create request that is well formed but asks for something core cannot honour. */
     @ExceptionHandler(CaseService.SemanticInvalidException.class)
     public ResponseEntity<ApiError> semanticInvalid(
             CaseService.SemanticInvalidException error, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body(ApiError.of("SEMANTIC_INVALID", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.UNPROCESSABLE_CONTENT, "SEMANTIC_INVALID", error.getMessage(), false, request);
     }
 
     /** The Idempotency-Key header is part of the route, not optional advice. */
     @ExceptionHandler(CaseService.MissingIdempotencyKeyException.class)
     public ResponseEntity<ApiError> missingIdempotencyKey(
             CaseService.MissingIdempotencyKeyException error, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiError.of("INVALID_ARGUMENT", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.BAD_REQUEST, "INVALID_ARGUMENT", error.getMessage(), false, request);
     }
 
     /**
@@ -148,30 +143,26 @@ public class ApiExceptionHandler {
     @ExceptionHandler(CaseService.IdempotencyConflictException.class)
     public ResponseEntity<ApiError> idempotencyConflict(
             CaseService.IdempotencyConflictException error, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiError.of("IDEMPOTENCY_CONFLICT", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.CONFLICT, "IDEMPOTENCY_CONFLICT", error.getMessage(), false, request);
     }
 
     @ExceptionHandler(CaseService.CaseAlreadyOpenException.class)
     public ResponseEntity<ApiError> caseAlreadyOpen(
             CaseService.CaseAlreadyOpenException error, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiError.of("CASE_ALREADY_OPEN", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.CONFLICT, "CASE_ALREADY_OPEN", error.getMessage(), false, request);
     }
 
     /** An invisible line is 404, exactly like an invisible order (docs/core-contracts.md:27). */
     @ExceptionHandler(CaseService.LineNotVisibleException.class)
     public ResponseEntity<ApiError> lineNotVisible(
             CaseService.LineNotVisibleException error, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
     }
 
     @ExceptionHandler(CaseService.ForbiddenScopeException.class)
     public ResponseEntity<ApiError> forbiddenScope(
             CaseService.ForbiddenScopeException error, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiError.of("FORBIDDEN_SCOPE", error.getMessage(), false, traceId(request)));
+        return error(HttpStatus.FORBIDDEN, "FORBIDDEN_SCOPE", error.getMessage(), false, request);
     }
 
     /** A Commerce answer this service cannot read is a bug here, not a caller error. */
@@ -179,12 +170,27 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiError> commerceProtocol(
             CommerceOrderLineClient.CommerceProtocolException error, HttpServletRequest request) {
         LOG.error("commerce answered something this service cannot read: {}", error.getMessage());
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(ApiError.of(
-                        "SERVICE_UNAVAILABLE",
-                        "the order service answered an unusable response",
-                        true,
-                        traceId(request)));
+        return error(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "SERVICE_UNAVAILABLE",
+                "the order service answered an unusable response",
+                true,
+                request);
+    }
+
+    /**
+     * Every error body is JSON, whatever the caller asked for.
+     *
+     * <p>Without an explicit content type the body is negotiated against the request's {@code Accept},
+     * and an event-stream client asks for {@code text/event-stream} — so the one client that most needs a
+     * refusal it can read could not be sent one: negotiation failed and the refusal turned into a 500.
+     * An error is not a representation choice, so it is not negotiated (found by the C02.2c stream test).
+     */
+    private static ResponseEntity<ApiError> error(
+            HttpStatus status, String code, String message, boolean retryable, HttpServletRequest request) {
+        return ResponseEntity.status(status)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(ApiError.of(code, message, retryable, traceId(request)));
     }
 
     private static String traceId(HttpServletRequest request) {

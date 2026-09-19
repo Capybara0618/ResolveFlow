@@ -71,12 +71,7 @@ class CaseCancelApiTest extends CaseDatabaseTest {
 
     @BeforeEach
     void clean() {
-        jdbc.execute("DELETE FROM case_evidence");
-        jdbc.execute("DELETE FROM request_idempotency");
-        jdbc.execute("DELETE FROM case_timeline");
-        jdbc.execute("DELETE FROM active_case_slot");
-        jdbc.execute("DELETE FROM case_requested_action");
-        jdbc.execute("DELETE FROM aftersale_case");
+        deleteAllCaseData(jdbc);
         commerce.lineVisible = true;
     }
 

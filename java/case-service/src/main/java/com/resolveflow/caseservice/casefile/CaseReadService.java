@@ -74,14 +74,7 @@ public class CaseReadService {
                 row.lineId());
     }
 
-    private List<CaseSnapshotResponse.TimelineEventResponse> trajectory(String caseId) {
-        return cases.findTimeline(caseId).stream()
-                .map(event -> new CaseSnapshotResponse.TimelineEventResponse(
-                        event.eventId(),
-                        event.kind(),
-                        event.occurredAt(),
-                        TimelineSummary.of(event),
-                        event.inputRevision()))
-                .toList();
+    private List<TimelineEventView> trajectory(String caseId) {
+        return cases.findTimeline(caseId).stream().map(TimelineEventView::of).toList();
     }
 }

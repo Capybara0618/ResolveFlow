@@ -68,11 +68,7 @@ class CaseApiTest extends CaseDatabaseTest {
     void cleanAndReset() {
         // Each test starts from an empty case_db. This is the test container, never a real database:
         // nothing here deletes a volume or a developer's data (docs/engineering.md:64).
-        jdbc.execute("DELETE FROM request_idempotency");
-        jdbc.execute("DELETE FROM case_timeline");
-        jdbc.execute("DELETE FROM active_case_slot");
-        jdbc.execute("DELETE FROM case_requested_action");
-        jdbc.execute("DELETE FROM aftersale_case");
+        deleteAllCaseData(jdbc);
         commerce.lineVisible = true;
         // The stub is a singleton in a shared context, so what one test observed is still here:
         // a test asserting "Commerce was never asked" has to start from no observation at all.

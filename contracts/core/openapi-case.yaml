@@ -420,6 +420,24 @@ paths:
         Resumption is by Last-Event-ID; the token is presented in the Authorization
         header and never in the URL, because URLs end up in logs and referrers
         (docs/core-contracts.md:32).
+
+        Each frame is one trajectory row: the id is the event's own id, the event name is a
+        TimelineEventType member, and the data is the same event object the case view returns, so a
+        client that has read the case once can parse the stream with what it already has. The stream
+        replays what already happened before it pushes what happens next, so subscribing late is not
+        the same as missing the beginning.
+
+        A Last-Event-ID this case never issued is not an error: the client cannot be resumed, so the
+        stream starts from the beginning and says so in a comment — a superset of what the client is
+        missing is more useful than a refusal it cannot act on. Comments (heartbeats, that notice) are
+        never events.
+
+        The stream ends when the case does: after the final event of a terminal case is sent, the
+        response completes rather than staying open for an event that can no longer happen. A refusal
+        before the stream starts (no token, or a case this principal cannot see) is the standard error
+        body as application/json, even though the request asked for text/event-stream: an error is not a
+        representation choice, and an event-stream client that cannot read its own refusals is worse off
+        than one that gets a different content type.
       parameters:
         - $ref: '#/components/parameters/CaseId'
         - name: Last-Event-ID
@@ -437,9 +455,11 @@ paths:
               schema:
                 type: string
               example: |
-                id: t-4
-                event: case.updated
-                data: {"case_id":"9c858901-8a57-4791-81fe-4c455b099bc9","status":"PENDING_REVIEW","input_revision":1}
+                id: 3f1b0d2c-9a4e-4c6b-8f0a-6d5c2b7e1a90
+                event: CASE_CREATED
+                data: {"event_id":"3f1b0d2c-9a4e-4c6b-8f0a-6d5c2b7e1a90","type":"CASE_CREATED","occurred_at":"2026-09-18T04:20:00Z","summary":"客户提交退款诉求（line_id=7001）","revision":1}
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '404':
           $ref: '#/components/responses/NotFound'
   /api/v1/review/cases:

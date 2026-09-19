@@ -18,7 +18,7 @@ import java.util.List;
 public record CaseSnapshotResponse(
         @JsonProperty("case") CaseSummaryResponse caseSummary,
         List<EvidenceRefResponse> evidence,
-        List<TimelineEventResponse> timeline) {
+        List<TimelineEventView> timeline) {
 
     /** The case itself: the members the contract requires of a {@code CaseSummary}. */
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -39,12 +39,4 @@ public record CaseSnapshotResponse(
             @JsonProperty("source_ref") String sourceRef,
             @JsonProperty("source_version") String sourceVersion,
             @JsonProperty("content_hash") String contentHash) {}
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record TimelineEventResponse(
-            @JsonProperty("event_id") String eventId,
-            TimelineEventType type,
-            @JsonProperty("occurred_at") Instant occurredAt,
-            String summary,
-            Integer revision) {}
 }

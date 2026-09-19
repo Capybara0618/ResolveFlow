@@ -90,6 +90,36 @@ public interface CaseRepository {
             """)
     List<TimelineEventRow> findTimeline(@Param("caseId") String caseId);
 
+    /**
+     * The trajectory after a sequence number, which is how the event stream resumes and how it polls.
+     *
+     * <p>One read serves both: replaying from zero and asking for what is new since the last frame are the
+     * same question, so the stream has no separate replay path that could disagree with its live path.
+     */
+    @Select("""
+            SELECT case_id        AS caseId,
+                   event_id       AS eventId,
+                   sequence       AS sequence,
+                   kind           AS kind,
+                   detail         AS detail,
+                   occurred_at    AS occurredAt,
+                   input_revision AS inputRevision
+              FROM case_timeline
+             WHERE case_id = #{caseId}
+               AND sequence > #{sequence}
+             ORDER BY sequence
+            """)
+    List<TimelineEventRow> findTimelineAfter(@Param("caseId") String caseId, @Param("sequence") int sequence);
+
+    /** Where one event sits in a case's trajectory, or null when this case never issued that id. */
+    @Select("""
+            SELECT sequence
+              FROM case_timeline
+             WHERE case_id = #{caseId}
+               AND event_id = #{eventId}
+            """)
+    Integer findSequenceByEventId(@Param("caseId") String caseId, @Param("eventId") String eventId);
+
     @Insert("""
             INSERT INTO request_idempotency (merchant_id, idempotency_key, request_hash, response_status,
                                             response_body, case_id, created_at)

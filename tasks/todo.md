@@ -131,7 +131,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 ### C02 建单、材料与版本
 
 - [x] C02.1：建单/幂等/同line活跃slot、状态与查询（C02.1a 建单 + C02.1b 查询）。
-- [ ] C02.2：补充证据增revision（见 C02.2a）、消费前取消、timeline和权限；预留SSE读接口。
+- [x] C02.2：补充证据增revision（C02.2a）、消费前取消（C02.2b）、timeline和权限、SSE读接口（C02.2c）。
   - C02.2b 完成（2026-09-19）：`POST /api/v1/cases/{case_id}/cancel` 消费前取消 + **终态释放活跃 slot**。
   - 契约缺口修正：该路由只声明 `200/404/409`，**缺 `401`**（作用域来自 token）；并把「取消是终态、终态释放该行的活跃 slot（`docs/domain-model.md:26`）、不可重复取消（第二次 409 而不是假装又取消了一次）、可见者皆可取消（客户或拥有该行的商家）、看不到的工单 404 而非 403」写进路由描述。契约测试 54 通过（新增：取消路由声明 401/404/409、描述里必须提到释放该行、`ReasonRequest.reason` 必填且 minLength=1）。
   - 代码：`CaseCancellationService`（一个事务内：锁 case 行 → 校验可见性/可取消 → **条件更新** → 释放 slot → 写 `CASE_CLOSED` 轨迹）、`CaseCancelResponse`、`ReasonRequest`、`CaseController` 取消路由、`CaseRepository.markCancelled`/`releaseActiveSlot`、`CaseStateConflictException`（从 `CaseEvidenceService` 里提出来成为独立类型，因为现在是两个服务共用的「该状态不允许此变更」）。
@@ -141,7 +141,17 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service **54**，0 失败 0 错误；`-Suite contracts` **PASSED**（`reports/verify/20260919-132350-contracts.txt`）；`-Suite unit` **PASSED**（`reports/verify/20260919-132320-unit.txt` 的后续 `-132422`）；`-Suite smoke`（core）**PASSED**（`reports/verify/20260919-132554-smoke.txt`）。
   - **真实端到端**（两个 jar + compose 真 MySQL）：对前几步建的工单取消 → 200 `{CANCELLED, version:3}`；再次取消 → 409；**对已取消工单补材料 → 409 且文案为「already ended as CANCELLED」**；随后对同一行（7001）重新建单 → **201 新 case_id**；再取消新单 → 200；库内三条 case 中两条 CANCELLED、`active_case_slot` 只剩仍为 QUEUED 的那条（7002）——终态释放与活跃占用同时成立。
   - 一次**我自己制造的错误被真实验证抓到**：第一次写这个端到端时 PowerShell 给 `Invoke-WebRequest` 传了两次 `-Headers`，reopen 请求**根本没发出去**，`$new` 为 null 而我把这当成「验过了」。重跑时才发出真正的请求并拿到 201。同一轮里还暴露出**码对但话在说谎**：给已取消工单补材料返回的 409 文案是「this case is already executing」（它明明是 CANCELLED）。原因是终态与已消费共用了一条消息；已按状态分开（终态→「already ended as X」，执行中→「already executing」），并让两个测试**断言文案**（含 `doesNotContain("executing")`）而不只断言 code。
-  - C02.2 剩余：SSE 读接口（`GET /api/v1/cases/{case_id}/events`，Last-Event-ID 续传、token 只在 header、可见性同读路由）。
+  - C02.2c 完成（2026-09-19）：`GET /api/v1/cases/{case_id}/events` SSE 轨迹流。C02.2 全部完成。
+  - 契约缺口与**示例造假**各一处：该路由只声明 `200/404`，**缺 `401`**；而它的 200 示例写的是 `event: case.updated` + `id: t-4` + 一个自造的 data 形状——契约的 `TimelineEventType` 里根本没有 `case.updated`，示例在教客户端一个工单视图永远不会返回的名字。示例改成真实词表（`event: CASE_CREATED`、id 为事件 UUID、data 就是工单视图的 `TimelineEvent` 对象），并把「先重放后推送、frame 语义、未知 Last-Event-ID 从头重放并用注释说明、注释永不是事件、终态收流、预流拒绝是 JSON」写进描述。契约测试 56 通过，新增两条：① SSE 示例里的 `event:` 必须是 `TimelineEventType` 成员且 data 必须含 `event_id`/`occurred_at`；② **跨三个文档**断言没有任何路由把凭据类参数放在 query（`docs/core-contracts.md:32`：URL 会进日志与 referrer）。
+  - 代码：`CaseEventStreamService`（订阅者一个 `Stream`：首次 tick 重放、之后轮询，同一条 `sequence > cursor` 读既做重放又做轮询，所以重放不是一条可能和实时路径不一致的特殊逻辑；1s 轮询、15s 心跳注释、10 分钟上限；`Last-Event-ID` 未知则 `cursor=0` 并发一条注释）、`CaseTrajectoryReader`（**状态与轨迹在同一事务快照里读**，见下）、`TimelineEventView`（工单视图与事件流共用同一个映射，删掉了 `CaseSnapshotResponse` 里重复的嵌套记录）、`CaseRepository.findTimelineAfter`/`findSequenceByEventId`、`CaseController` 路由（**故意不写 `produces`**，理由见下）。
+  - **实现里的真 bug（被测试抓到）**：最初状态与轨迹是两次独立读。撤销把状态与闭合事件**一起**提交，于是某一 tick 更早的轨迹读还在旧快照、之后的状态读已看到 `CANCELLED` → 流在闭合事件发出前就 `complete()`，订阅者最后收到的是材料追加，工单就这么「停」了。修法是把两次读放进**同一事务快照**（`CaseTrajectoryReader`，`@Transactional(readOnly = true)`；为跨代理边界才单独成类），此后一个 tick 要么看到活着的工单、要么看到终态**及解释它的事件**，不会只见其一。这条 bug 是「实时投递」测试抓到的——只测重放的测试永远看不到它。
+  - **预流拒绝的渲染问题（真实环境实测才发现）**：SSE 客户端会发 `Accept: text/event-stream`，而错误体是 JSON，协商失败会把拒绝变成 **500**（不是 401）。第一次跑 SSE 测试就是 500。修法：`ApiExceptionHandler` 新增一个 `error(...)` 助手，**给每个错误体显式设置 `MediaType.APPLICATION_JSON`**（15 处调用点统一改写）——错误不是一种表示选择，因此不参与协商；一个读不懂自己拒绝原因的流式客户端比换个 content type 更糟。
+  - **测试清理顺序集中到基类**：`case_evidence` 对 `aftersale_case` 有外键，加表后所有「删父表」的测试开始失败（7 个 error）。与其在每个测试里补一行，改为 `CaseDatabaseTest.deleteAllCaseData(jdbc)` 一处持有外键顺序并说明理由（C03 还会加子表，届时只需一处学习）。
+  - 测试 `casefile/CaseEventStreamApiTest.java`（5）：终态工单重放三帧且**顺序**正确、data 成员集合与契约一致；`Last-Event-ID` 指向已见事件则该事件不再发送、其后的事件都发送；未知 id → 从头重放且带 `unknown Last-Event-ID` 注释；**先订阅再从另一线程改工单** → 订阅者收到 `CASE_CREATED`、后来的 `EVIDENCE_APPENDED` 与 `CASE_CLOSED`（只测重放的测试会漏掉这条）；无 token 401（JSON）、别的客户/别的商家/不存在的工单 404，全部在流开始前。
+  - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service **59**，0 失败 0 错误；`-Suite contracts` **PASSED**（56，`reports/verify/20260919-133803-contracts.txt`）；`-Suite unit` **PASSED**（`reports/verify/20260919-133832-unit.txt`）；`-Suite smoke`（core）**PASSED**（`reports/verify/20260919-134004-smoke.txt`）。
+  - **真实端到端**（两个 jar + compose 真 MySQL，curl -N）：① 订阅终态工单 → `content-type: text/event-stream`，重放三帧（id/event/data 齐全）后自行收流；② `Accept: text/event-stream` 且无 token → **401 JSON 错误体**、别的客户 → 404 JSON（修复前的 500 已不复现）；③ 未知 `Last-Event-ID` → 先输出 `:unknown Last-Event-ID; replaying from the beginning` 再重放三帧；④ **实时投递**：先 `curl -N` 开流（header 经 `--config` 传入，避免引号被拆），3 秒后追加材料、再 2 秒后取消，订阅者依次收到 `CASE_CREATED`、`EVIDENCE_APPENDED`（开流之后才发生）、`CASE_CLOSED`（summary「工单已取消」），随后流自动结束。
+  - 两次**我自己造成的验证失误**（如实记录）：第一次实时投递的 curl 用了 `Start-Process -H "Authorization: Bearer ..."`，参数里的空格被拆开导致收到 401——我差点把「实时投递没验成」记成通过；第二次换行时踩到「真实 404」（7003 不在种子客户的订单里，这也是正确行为），再换到被占用的 7002 又得到 `CASE_ALREADY_OPEN`（顺带证明单活跃 case 规则在真库跨进程成立）。第三次才对上，并且这次把 header 写进 curl 配置文件。
+  - C02.2 完成判据：材料只追加不覆盖、旧 revision 不可写、消费后 409、消费前取消并释放活跃 slot、轨迹与权限、SSE 读接口——均有测试（含并发）与真实端到端证据。之后进入 C03（策略/决策/审批）。
 - 依赖：C01。文件：Case domain/application/api/migration/tests；逐行为交付。
 - 验收：同key换body409、同line不并发建多个活跃case；材料不覆盖，旧revision不可写。
 - 验证：数据库并发建单、状态转换与材料权限测试。

@@ -602,3 +602,48 @@ def test_cancellation_is_a_terminal_transition_the_contract_describes() -> None:
     reason = document("case")["components"]["schemas"]["ReasonRequest"]
     assert reason["required"] == ["reason"], "a cancellation without a reason is not a cancellation"
     assert reason["properties"]["reason"]["minLength"] == 1
+
+def test_the_event_stream_is_a_read_of_the_same_trajectory() -> None:
+    """The stream must not be a second source of truth, and the token must not be in the URL.
+
+    Two things are easy to get wrong here and both are visible in the document: an example that invents
+    an event vocabulary the enum does not have (the stream then teaches clients a name the case view will
+    never return), and a credential carried in the query string, where it ends up in logs and referrers
+    (docs/core-contracts.md:32).
+    """
+    route = document("case")["paths"]["/api/v1/cases/{case_id}/events"]["get"]
+    for code in ("200", "401", "404"):
+        assert code in route["responses"], f"GET events must declare {code}"
+
+    last_event = next(p for p in route["parameters"] if p.get("name") == "Last-Event-ID")
+    assert last_event["in"] == "header", "resumption travels in a header, not a query parameter"
+    assert last_event["required"] is False, "a client with no history yet can still subscribe"
+    assert last_event["schema"]["maxLength"] == 64
+
+    example = route["responses"]["200"]["content"]["text/event-stream"]["example"]
+    event_name = next(line.split(":", 1)[1].strip() for line in example.splitlines() if line.startswith("event:"))
+    events = document("case")["components"]["schemas"]["TimelineEventType"]["enum"]
+    assert event_name in events, f"the example teaches {event_name}, which is not a timeline event type"
+    assert "event_id" in example and "occurred_at" in example, (
+        "the frame data is the case view's event object, not a smaller private shape"
+    )
+
+
+def test_no_route_carries_a_credential_in_the_query_string() -> None:
+    """A token in a URL ends up in logs and referrers (docs/core-contracts.md:32).
+
+    This is asserted across every core document rather than only the stream, because the rule is not about
+    the stream: one route accepting `?token=` would be enough to put credentials in access logs.
+    """
+    suspicious = ("token", "secret", "password", "authorization", "api_key", "apikey")
+    for name in ("case", "commerce", "agent"):
+        for path, operations in document(name)["paths"].items():
+            for method, operation in operations.items():
+                for parameter in operation.get("parameters", []):
+                    if isinstance(parameter, dict) and "name" in parameter:
+                        lowered = parameter["name"].lower()
+                    else:
+                        lowered = str(parameter).lower()
+                    assert not any(word in lowered for word in suspicious) or (
+                        isinstance(parameter, dict) and parameter.get("in") == "header"
+                    ), f"{method.upper()} {path} takes {parameter} outside a header"
