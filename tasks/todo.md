@@ -74,7 +74,14 @@
   - 冻结内容与证据：`placeholder_values`（6 个占位符）、`payload_hashes`/`canonical_payloads`（命令摘要与它覆盖的规范化 JSON）、`signing_inputs`/`event_signatures`（5 个信封的签名输入与签名）、`signing_keys`（测试密钥的 PKCS#8 与 SPKI DER、被签名成员列表）、`refused`（本轮的拒绝记录）。测试断言：重算值等于冻结值；签名能用核心签名输入在 Python 侧验过；签名输入字节与冻结串一致；被签名成员列表是核心的那一套（含 `topic`、不含 `aggregate_*`）；DER 私钥/公钥解回来等于语料声明的种子与公钥（Java 会用现成的 `EventSignature` 加载这两个 blob）；同一信封在 compat 规则下签的是不同字节。
   - 生成脚本过程中修掉的两个自身缺陷：一是先按 `resolve_core_instance` 的返回值去查占位符表（返回值已被替换成摘要，查表必然 KeyError），改为「token 从语料读、value 从重算表读」，这样写错 token 会直接报错而不是把自己冻结进去；二是漏了 `import sys`。
   - 未执行：Java 侧核心 DTO（records）、Java 的 core fixture 加载与跨语言摘要/签名比对测试（C00.2c-3b-2）尚未开始。
-  - 未执行：`verify -Suite all-offline` 仍未重跑（留到 C00.3）；C00.2c-2b（核心反向 fixture）、C00.2c-3（Java/Pydantic 核心 DTO）、C00.3（core profile 启动与 smoke 选择）未开始；core profile 的服务启动尚未验证。
+  - C00.2c-3b-2 Java 核心 record 与跨语言证据（2026-09-19）：新增 `java/shared-kernel/src/main/java/com/resolveflow/shared/core/` 下 `CoreContract.java`（6 个 record，与 Python `core_models.py` 同名同字段，与 v1 显式区分）、`CoreFixtures.java`（读同一份核心语料：节→schema 表、`payload_ref` 与顶层 `_ref` 别名、递归清理注解、按冻结表代换占位符）、`CoreEventSignature.java`（核心签名输入与 Ed25519 签/验，含被签名成员列表），以及 `src/test/java/com/resolveflow/shared/core/CoreContractTest.java`（7 个测试）。
+  - 命令与结果：`mvnw -pl shared-kernel spotless:apply` → BUILD SUCCESS；`mvnw -pl shared-kernel test` → **Tests run: 36, Failures: 0**（其中核心 7 个）；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（含 format/unit/contracts 与 smoke：5 个服务与 Python API 启动并通过健康检查）；报告 `reports/verify/20260919-101928-all-offline.txt`。
+  - 跨语言证据的四条（写入 fixtures/README）：一是 record 的**线上字段名**（读 `@JsonProperty` 而非字段名）与对应 schema 的 `properties` 集合一致；二是每条正向语料能反序列化并**原样写回**——这是 Java 在没有 JSON Schema 校验器时能给的形状层证据（读入 schema 合法文档再写回若变样，Java 产出的文档就不是它 schema 接受的那份）；三是 Java 复算的 `payload_hash` 与规范化 JSON 字节等于 Python 冻结值；四是 Java 能用冻结的 SPKI 公钥验过 5 个信封签名、用 compat 验签器**验不过**（compat 给核心信封补 `aggregate_*` 并漏签 `topic`），并用冻结的 PKCS#8 私钥重签出逐字节相同的签名（Ed25519 确定性）。
+  - 往返断言抓到真实缺陷：Java record 会把**缺席**的可选成员写成显式 `null`（`traceparent`/`causation_id`），而核心 schema 对它们是 `type: string` 且 `additionalProperties: false`——即 Java 作为生产者会产出自己 schema 拒绝的信封。已给三个含可选成员的 record 加 `@JsonInclude(NON_NULL)`；注意这一层不会影响 payload 内部（Map 内容的 null 仍保留，`provider_ref: null` 照常往返）。
+  - 另修一处编译错误：`RecordComponent[]` 没有 `stream()`，改为普通循环。
+  - C00.2c 小结：a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正反语料 51 条）、c-3a/3b（Python+Java DTO 与跨语言字节级一致）均已完成并推送；`verify -Suite all-offline` 在核心改动后完整通过。
+  - 未执行：`verify -Suite all-offline` 仍未重跑（留到 C00.3）
+  - 未执行：C00.3（core profile 的启动与 smoke 选择：当前 smoke 仍会拉起 fulfillment-service 与 Nacos，且启动清单尚未迁移到 core 口径）未开始。；C00.2c-2b（核心反向 fixture）、C00.2c-3（Java/Pydantic 核心 DTO）、C00.3（core profile 启动与 smoke 选择）未开始；core profile 的服务启动尚未验证。
 
 ### C01 身份与订单只读切片
 

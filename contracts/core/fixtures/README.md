@@ -72,6 +72,15 @@
 | `signing_keys` | 测试密钥的 PKCS#8 与 SPKI DER（Java 用现成的 `EventSignature` 加载）、被签名成员列表 |
 | `refused` | 本轮被拒绝的反向语料行，作为生成记录 |
 
+## 跨语言证据（Java 侧）
+
+Java 的记录在 `java/shared-kernel/src/main/java/com/resolveflow/shared/core/`：`CoreContract.java`（6 个 record，与 Python 的 `core_models.py` 同名同字段）、`CoreFixtures.java`（读取同一份语料并解析引用与占位符）、`CoreEventSignature.java`（核心签名输入与验签）。测试 `CoreContractTest.java` 断言四件事：
+
+1. 每个 record 的**线上字段名**（读 `@JsonProperty`，不是字段名）与对应 schema 的 `properties` 集合一致。
+2. 每条正向语料能被反序列化并**原样写回**——这是 Java 在没有 JSON Schema 校验器时能给出的形状层证据：若读入一个 schema 合法的文档再写回会变样，那 Java 自己产出的文档就不是它 schema 接受的那份。（这条断言实际抓到了一个缺陷：record 会把**缺席**的可选成员写成显式 `null`，而核心 schema 拒绝显式 null，所以已给可选成员加 `@JsonInclude(NON_NULL)`。）
+3. Java 复算的 `payload_hash` 与规范化 JSON 字节等于 Python 冻结的值。
+4. Java 能用冻结的 SPKI 公钥验过 5 个信封的签名，且**用 compat 验签器验不过**（compat 会给核心信封补 `aggregate_*` 并漏签 `topic`），并能用冻结的 PKCS#8 私钥重签出逐字节相同的签名（Ed25519 确定性）。
+
 ## 校验命令
 
 ```
