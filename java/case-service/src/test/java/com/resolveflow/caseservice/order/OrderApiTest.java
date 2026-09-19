@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -33,9 +32,9 @@ import tools.jackson.databind.ObjectMapper;
  * outage. The real cross-service call is exercised separately by running both services (see the C01.2c
  * record), because a stubbed downstream proves this side and nothing about the other.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+// The context now owns case_db, so these tests run against a real one too.
 @AutoConfigureRestTestClient
-class OrderApiTest {
+class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String ORDER = "00000000-0000-4000-8000-0000000000aa";

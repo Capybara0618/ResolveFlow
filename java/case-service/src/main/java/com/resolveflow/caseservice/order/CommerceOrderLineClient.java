@@ -64,7 +64,7 @@ public class CommerceOrderLineClient {
 
     /** One page of the order lines this principal may see, newest first. */
     public OrderLinePage list(AuthenticatedPrincipal principal, String orderId, String cursor, Integer limit) {
-        return fetch(principal, orderId, cursor, limit);
+        return fetch(principal, orderId, null, cursor, limit);
     }
 
     /**
@@ -75,10 +75,22 @@ public class CommerceOrderLineClient {
      * disclosing that the order exists at all (docs/core-contracts.md:27).
      */
     public OrderLinePage readOrder(AuthenticatedPrincipal principal, String orderId) {
-        return fetch(principal, orderId, null, null);
+        return fetch(principal, orderId, null, null, null);
     }
 
-    private OrderLinePage fetch(AuthenticatedPrincipal principal, String orderId, String cursor, Integer limit) {
+    /**
+     * The lines of one line id inside the principal's scope, at most one row.
+     *
+     * <p>This is the "is this line mine?" question Case asks before opening a case. It is a scoped
+     * read, not a check the caller performs: the scope again comes from the principal, and an empty
+     * page is the only answer for a line the caller may not see (docs/core-contracts.md:28).
+     */
+    public OrderLinePage listByLine(AuthenticatedPrincipal principal, String lineId) {
+        return fetch(principal, null, lineId, null, 1);
+    }
+
+    private OrderLinePage fetch(
+            AuthenticatedPrincipal principal, String orderId, String lineId, String cursor, Integer limit) {
         try {
             OrderLinePage page = rest.get()
                     .uri(uriBuilder -> {
@@ -90,6 +102,9 @@ public class CommerceOrderLineClient {
                         }
                         if (orderId != null && !orderId.isBlank()) {
                             builder.queryParam("order_id", orderId);
+                        }
+                        if (lineId != null && !lineId.isBlank()) {
+                            builder.queryParam("line_id", lineId);
                         }
                         if (cursor != null && !cursor.isBlank()) {
                             builder.queryParam("cursor", cursor);

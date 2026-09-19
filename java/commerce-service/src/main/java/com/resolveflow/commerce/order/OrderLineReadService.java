@@ -36,7 +36,17 @@ public class OrderLineReadService {
     }
 
     public Page list(String merchantId, String customerId, String cursor, Integer requestedLimit) {
-        return list(merchantId, customerId, null, cursor, requestedLimit);
+        return list(merchantId, customerId, null, null, cursor, requestedLimit);
+    }
+
+    /** The same listing narrowed to one order (Case public single-order read). */
+    public Page listByOrder(String merchantId, String customerId, String orderId, String cursor, Integer limit) {
+        return list(merchantId, customerId, orderId, null, cursor, limit);
+    }
+
+    /** The same listing narrowed to one line; Case asks this before opening a case. */
+    public Page listByLine(String merchantId, String customerId, String lineId) {
+        return list(merchantId, customerId, null, lineId, null, 1);
     }
 
     /**
@@ -48,7 +58,7 @@ public class OrderLineReadService {
      * than that order's lines, and Case can answer 404 without disclosing that the order exists
      * (docs/core-contracts.md:27).
      */
-    public Page list(String merchantId, String customerId, String orderId, String cursor, Integer requestedLimit) {
+    public Page list(String merchantId, String customerId, String orderId, String lineId, String cursor, Integer requestedLimit) {
         if (merchantId == null || merchantId.isBlank()) {
             throw new IllegalArgumentException("a listing needs a merchant scope");
         }
@@ -58,6 +68,7 @@ public class OrderLineReadService {
                 merchantId,
                 blankToNull(customerId),
                 blankToNull(orderId),
+                blankToNull(lineId),
                 after == null ? null : after.paidAt(),
                 after == null ? null : after.lineId(),
                 limit + 1);

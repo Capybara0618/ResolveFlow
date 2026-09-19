@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import tools.jackson.databind.JsonNode;
@@ -23,9 +22,9 @@ import tools.jackson.databind.ObjectMapper;
  * LoginResponse shape exactly — snake_case, token_type Bearer, role and merchant_id. Failures use the
  * shared error body so the gateway and the Agent see one error shape everywhere.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+// The context now owns case_db, so these tests run against a real one too.
 @AutoConfigureRestTestClient
-class AuthControllerTest {
+class AuthControllerTest extends com.resolveflow.caseservice.CaseDatabaseTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 

@@ -28,6 +28,43 @@
       <artifactId>shared-kernel</artifactId>
     </dependency>
 
+    <!-- Case owns case_db: the case, its evidence, its authorisation and its trajectory
+         (docs/architecture.md:11). Versions come from the T00 lock, not from a fresh choice.
+         spring-boot-flyway is a per-technology module in Boot 4: without it, migrations
+         never run and the failure is silent. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-flyway</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-mysql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mybatis.spring.boot</groupId>
+      <artifactId>mybatis-spring-boot-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-mysql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Boot 4 requires a per-technology test starter; plain spring-boot-starter-test
          no longer brings web test support (TestRestTemplate was removed entirely). -->
     <dependency>

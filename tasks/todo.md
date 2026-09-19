@@ -130,12 +130,22 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C02 建单、材料与版本
 
-- [ ] C02.1：建单/幂等/同line活跃slot、状态与查询。
+- [ ] C02.1：建单/幂等/同line活跃slot、状态与查询（建单部分见 C02.1a；`GET /api/v1/cases/{case_id}` 未开始）。
 - [ ] C02.2：补充证据增revision、消费前取消、timeline和权限；预留SSE读接口。
 - 依赖：C01。文件：Case domain/application/api/migration/tests；逐行为交付。
 - 验收：同key换body409、同line不并发建多个活跃case；材料不覆盖，旧revision不可写。
 - 验证：数据库并发建单、状态转换与材料权限测试。
-- 实际记录：未执行。
+  - C02.1a 完成（2026-09-19）：`POST /api/v1/cases` 的建单、幂等与同 line 单活跃 case。
+  - 先补契约（本步又一次先改协议）：`contracts/core/openapi-case.yaml` 给建单路由补 `403`（商家侧令牌没有可归属的 customer，商家走审核队列）与 `503`（建单要问 Commerce 行归属，下游不可用必须是被声明的可重试答案），并在描述里写明「同 key 同 body 重放存储的答案」「同 line 最多一个活跃 case」；`contracts/core/openapi-commerce.yaml` 给内部列行路由加可选 `line_id`（与 `order_id` 同性质：作用域内收窄，绝不是绕过作用域），因为建单要回答契约声明的「行不属于我就是 404」。两个新契约测试先写、先失败（建单必须声明 201/401/403/404/409/422/503；列行路由参数集合恰好是 MerchantId/CustomerId/OrderId/LineId/Cursor/Limit）。契约测试 51 通过。
+  - 迁移：`java/case-service/src/main/resources/db/migration/V1__case_core_tables.sql`（列与约束按 `docs/domain-model.md:22-36`）。`aftersale_case`（status 的 CHECK 就是契约的 10 个枚举值；`expires_at` 可空——它的值属于 C03 的授权，不留占位日期）；`case_requested_action` 用子表而不是 JSON 列，于是「核心只代表退款请求」（`docs/core-contracts.md:28`）落到 `CHECK (action = 'REFUND')`；`active_case_slot` **整行就是锁**，`PRIMARY KEY (merchant_id, line_id)`，终态删除即「终态释放」（`docs/domain-model.md:26`）——MySQL 没有部分索引，与其用「状态列 + 生成列」绕，不如让槽位的存在本身就是活跃；`case_timeline`（追加，`detail` 存规范化 JSON 文本，不为一个类型处理器引入依赖）；`request_idempotency`（存**当时返回的** body 与状态：事后重算会把旧 key 变成「当前状态」，那不是承诺过的东西）。
+  - 代码：`casefile/CaseStatus.java`（10 个枚举值与契约逐字一致 + `isTerminal`）、`RequestedAction.java`（只有 REFUND）、`CaseRow.java`、`CaseRepository.java`（MyBatis `@Mapper`）、`CaseWriter.java`（**一个事务**写入 case、动作、槽位、轨迹首条与幂等答案：业务结果、轨迹与幂等在同一事务）、`CaseService.java`、`CommerceLineLookup.java`、`CaseController.java`、`CaseCreateRequest`/`CaseCreatedResponse`（成员与契约逐字一致）。
+  - `CaseService` 的顺序即设计：先校验主体是 customer → 解析动作与描述 → 幂等键命中就回放存储的答案、指纹不同就 409 → **再**问 Commerce「这行是不是你的」 → 最后才进事务（外部网络调用不在长事务里，`docs/engineering.md:68`）。唯一键冲突被分成两种 409：同 key 不同 body 是 `IDEMPOTENCY_CONFLICT`（换新 key 才有意义），同 line 已有活跃 case 是 `CASE_ALREADY_OPEN`（重试永远没用，去读那个 case）。请求指纹用 shared-kernel 已有的 `CanonicalJson.contentHash`（与 `payload_hash` 同一套规范化），动作排序后参与哈希。
+  - 数据库测试：`CaseDatabaseTest.java`（与 commerce 相同的单例 MySQL 容器模式，库名/账号与 compose 一致；`AuthControllerTest` 与 `OrderApiTest` 也改为继承它——上下文现在真的需要 case_db，连不上就是启动失败，不该在测试里遮掉）；`casefile/CaseApiTest.java`（8：201+Location+轨迹首条是客户原话、同 key 同 body 逐字重放且只建一个 case、同 key 不同 body 409 且不建、同 line 第二个 key 409 `CASE_ALREADY_OPEN`、行不可见 404 且不写任何行、商家令牌 403 且 **Commerce 一次都没被问**、缺幂等键/多字段 400、`RESHIP`/空/重复动作 422）。
+  - **并发证据**（C02 验收「同 line 不并发建多个活跃 case」）：`casefile/CaseSlotConcurrencyTest.java` 用 8 个真线程同时发起，断言恰好 1 个成功、7 个 `CASE_ALREADY_OPEN`，且库里 `aftersale_case`=1、`active_case_slot`=1、`case_timeline`=1、`case_requested_action`=1；另一个测试让 8 个线程用**同一个**幂等键，断言只可能留下 1 个 case、所有成功答案指向同一 case_id，并如实断言「并发重复可能被告知重试」，不假装它一定是重放。
+  - **真实跨服务端到端**（两个 jar + compose 真 MySQL）：`POST /api/v1/cases`（line 7001，行归属由 Commerce 真实判定）→ **201**，`Location: /api/v1/cases/58a7…`，body `{QUEUED,1,1}`；同 key 同 body → 逐字相同；同 key 换 body → 409 `IDEMPOTENCY_CONFLICT`；换 key 同 line → 409 `CASE_ALREADY_OPEN`；line 7201（M-1002/C-2004 的）→ 404；自己的另一行 7002 → 201；demo-reviewer → 403 `FORBIDDEN_SCOPE`；另一个顾客的 token 请求 line 7001 → 404；缺幂等键 → 400 `INVALID_ARGUMENT`。库内：2 个 case（均 M-1001/C-2002）、2 个槽位、2 条 `case.opened`、幂等表只留 `k1`/`k4`（status 201）；`case_db.flyway_schema_history` rank 1 `case core tables` success=1。
+  - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service 33，0 失败 0 错误；`mvnw -pl commerce-service -am test` → commerce-service 22，0 失败 0 错误；`-Suite contracts` **PASSED**（51，`reports/verify/20260919-124118-contracts.txt`）；`-Suite unit` **PASSED**（java-unit 57s、python-unit 18.9s、web-test 2.2s，`reports/verify/20260919-124401-unit.txt`）；`-Suite smoke`（core）**PASSED**（`reports/verify/20260919-124526-smoke.txt`，case-service 启动时现在会跑 Flyway）。
+  - 三次失败都不是设计缺陷，如实记录：① 配置补丁插入了一个**重复的顶层 `spring:` 键**，SnakeYAML 在加载上下文时直接拒绝（真实缺陷，已并入已有 `spring:` 块）；② `list(...)` 多了一个参数后，C01.2c-1 写的三处测试调用点不再编译（改用 `listByOrder`，意图更清楚）；③ 商家 403 测试断言「Commerce 从未被问」失败，因为打桩 bean 在共享上下文里保留了上一测试的观测值——测试卫生问题，已在 `@BeforeEach` 重置。另外把已弃用的 `HttpStatus.UNPROCESSABLE_ENTITY` 换成 Spring 7 的 `UNPROCESSABLE_CONTENT`。
+  - C02.1 尚未完成：`GET /api/v1/cases/{case_id}`（状态与公开证据）未实现，所以不勾选。C02.1b 计划：读路由 + 主体可见性（跨主体 404）+ 从 `case_timeline` 读轨迹。
 
 ### C03 政策、方案与审批
 

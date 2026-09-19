@@ -44,9 +44,10 @@ public class OrderLineController {
             @RequestParam("merchant_id") String merchantId,
             @RequestParam(name = "customer_id", required = false) String customerId,
             @RequestParam(name = "order_id", required = false) String orderId,
+            @RequestParam(name = "line_id", required = false) String lineId,
             @RequestParam(name = "cursor", required = false) String cursor,
             @RequestParam(name = "limit", required = false) Integer limit) {
-        OrderLineReadService.Page page = service.list(merchantId, customerId, orderId, cursor, limit);
+        OrderLineReadService.Page page = service.list(merchantId, customerId, orderId, lineId, cursor, limit);
         return ResponseEntity.ok(new OrderLinePageResponse(
                 page.items().stream().map(OrderLineSummaryResponse::from).toList(),
                 new PageMetaResponse(page.nextCursor(), page.limit())));

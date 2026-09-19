@@ -46,15 +46,18 @@ paths:
         reported as forbidden, so the list does not disclose what the principal may not
         see; a service token without the read scope is 403 (403).
 
-        order_id narrows the same scoped result to one order, which is what Case's
-        GET /api/v1/orders/{order_id} needs: filtering inside the scope is a narrowing,
-        never a way around it, so an order that is not the caller's simply yields no
-        lines and Case answers 404 without disclosing that the order exists
-        (docs/core-contracts.md:27).
+        order_id and line_id narrow the same scoped result; both are what Case needs when it
+        owns a public route but not the data. Case reads one order by order_id
+        (GET /api/v1/orders/{order_id}) and, before opening a case, asks whether one line is
+        inside the caller's scope (POST /api/v1/cases answers 404 for a line the principal
+        cannot see, docs/core-contracts.md:28). Filtering inside the scope is a narrowing,
+        never a way around it: a line that is not the caller's yields no lines, so Case can
+        answer 404 without disclosing that it exists (docs/core-contracts.md:27).
       parameters:
         - $ref: '#/components/parameters/MerchantId'
         - $ref: '#/components/parameters/CustomerId'
         - $ref: '#/components/parameters/OrderId'
+        - $ref: '#/components/parameters/LineId'
         - $ref: '#/components/parameters/Cursor'
         - $ref: '#/components/parameters/Limit'
       responses:
@@ -265,6 +268,14 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/Uuid'
+    LineId:
+      name: line_id
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 64
     Cursor:
       name: cursor
       in: query

@@ -106,6 +106,6 @@
 
 ## 7. 已实现的核心路由（C01.1–C01.2，2026-09-19）
 
-28 条核心路由里真正实现的目前是 **4 条**：case-service 的 `POST /api/v1/auth/login`、`GET /api/v1/orders`、`GET /api/v1/orders/{order_id}`，以及 commerce-service 的 `GET /internal/v1/order-lines`（service token 专用，供前者使用）。它按核心 OpenAPI 的 `LoginRequest`/`LoginResponse` 出入参，登录不需要 token，失败走统一错误体（401 `UNAUTHENTICATED` 对"口令错"与"账号不存在"只有同一条消息，400 `INVALID_ARGUMENT` 拒绝未知字段）。
+28 条核心路由里真正实现的目前是 **5 条**：case-service 的 `POST /api/v1/auth/login`、`GET /api/v1/orders`、`GET /api/v1/orders/{order_id}`、`POST /api/v1/cases`（建单幂等与同 line 单活跃 case），以及 commerce-service 的 `GET /internal/v1/order-lines`（service token 专用，供前两者使用）。它按核心 OpenAPI 的 `LoginRequest`/`LoginResponse` 出入参，登录不需要 token，失败走统一错误体（401 `UNAUTHENTICATED` 对"口令错"与"账号不存在"只有同一条消息，400 `INVALID_ARGUMENT` 拒绝未知字段）。
 
 除此之外**全部仍是目标协议**：订单、工单、证据、授权、审批、内部接口都没有实现，`GET /api/v1/orders` 之类仍是 404。演示账号见 `docs/product-spec.md:9`（CUSTOMER/REVIEWER/OPERATOR、2 个合成商家各 ≥2 用户）；口令只存 PBKDF2-SHA256 哈希（`docs/domain-model.md:24`），签名是 HS256、用户面与服务面 `aud` 分离，且算法固定不读 token 自带的 `alg`。没有 JWKS、密钥轮换、RS256、refresh 或吊销列表——这是演示身份，不是可用于生产的 IAM。

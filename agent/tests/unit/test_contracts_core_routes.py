@@ -392,12 +392,16 @@ def test_the_internal_order_view_is_the_public_order_view(name: str) -> None:
 def test_the_order_listing_route_takes_its_scope_from_the_caller_not_the_client() -> None:
     op = document("commerce")["paths"]["/internal/v1/order-lines"]["get"]
     names = [param["$ref"].rsplit("/", 1)[-1] for param in op["parameters"]]
-    assert names == ["MerchantId", "CustomerId", "OrderId", "Cursor", "Limit"]
+    assert names == ["MerchantId", "CustomerId", "OrderId", "LineId", "Cursor", "Limit"]
     params = document("commerce")["components"]["parameters"]
     assert params["MerchantId"]["required"] is True
     assert params["CustomerId"]["required"] is False, "a merchant-scoped caller lists the whole merchant"
-    # order_id narrows the same scope; it is a filter, not a second scope
+    # order_id and line_id narrow the same scope; both are filters, not a second scope
     assert params["OrderId"]["required"] is False
+    assert params["LineId"]["required"] is False, (
+        "Case asks whether one line is inside the caller's scope before opening a case; a required"
+        " line_id would make that a listing by line instead of a scoped narrowing"
+    )
     # The scope exists only on the internal route. If the public Case route offered merchant_id or
     # customer_id, a customer could ask for someone else's lines (docs/core-contracts.md:15).
     public = document("case")["paths"]["/api/v1/orders"]["get"]
@@ -519,3 +523,17 @@ def test_the_order_view_declares_what_its_dependency_can_do_to_it() -> None:
     assert names == ["Cursor", "Limit"], (
         "the public listing takes paging and nothing else: a scope parameter would let a caller name one"
     )
+
+def test_a_case_is_opened_by_its_customer_and_never_by_merchant_staff() -> None:
+    """The create route is a customer action, and the contract says so in its responses.
+
+    Merchant staff work the review queue (docs/core-contracts.md:33); a merchant-scoped token
+    carries no customer to attribute a case to, so the route declares 403 rather than inventing
+    one. It also declares 409 for the second attempt on a line that already has an open case
+    (docs/domain-model.md:26) and 404 for a line outside the caller's scope, so \"not yours\" and
+    \"does not exist\" stay one answer (docs/core-contracts.md:27).
+    """
+    responses = document("case")["paths"]["/api/v1/cases"]["post"]["responses"]
+    for code in ("201", "401", "403", "404", "409", "422"):
+        assert code in responses, f"POST /api/v1/cases must declare {code}"
+    assert "503" in responses, "the line check calls Commerce, so an outage is declared here too"

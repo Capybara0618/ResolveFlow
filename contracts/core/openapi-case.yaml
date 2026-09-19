@@ -163,8 +163,14 @@ paths:
       summary: Open a refund case for one order line
       description: |
         Idempotent on the Idempotency-Key header; the same key with a different body is
-        409. The case starts at QUEUED with input_revision 1
-        (docs/domain-model.md:55).
+        409, and the same key with the same body replays the stored answer. The case starts
+        at QUEUED with input_revision 1 (docs/domain-model.md:55), and its line must be one
+        the principal can see: the scope is derived from the token, so a line that is not
+        the caller's is 404 like any other invisible resource (docs/core-contracts.md:27).
+        Merchant staff do not open cases here; they work the review queue
+        (docs/core-contracts.md:33), so a merchant-scoped token without a customer is 403.
+        One line has at most one active case; a second attempt while one is open is 409
+        (docs/domain-model.md:26).
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -194,12 +200,16 @@ paths:
                 version: 1
         '401':
           $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/IdempotencyConflict'
         '422':
           $ref: '#/components/responses/SemanticInvalid'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /api/v1/cases/{case_id}:
     get:
       tags: [cases]

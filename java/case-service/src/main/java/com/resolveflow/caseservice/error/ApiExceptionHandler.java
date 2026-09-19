@@ -1,6 +1,7 @@
 package com.resolveflow.caseservice.error;
 
 import com.resolveflow.caseservice.auth.LoginRequest.InvalidLoginRequestException;
+import com.resolveflow.caseservice.casefile.CaseService;
 import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.caseservice.order.OrderController;
 import com.resolveflow.caseservice.order.RequestPrincipalResolver;
@@ -93,6 +94,60 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(ApiError.of(
                         "SERVICE_UNAVAILABLE", "the order service is temporarily unavailable", true, traceId(request)));
+    }
+
+    /** A create request that is well formed but asks for something core cannot honour. */
+    @ExceptionHandler(CaseService.SemanticInvalidException.class)
+    public ResponseEntity<ApiError> semanticInvalid(
+            CaseService.SemanticInvalidException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ApiError.of("SEMANTIC_INVALID", error.getMessage(), false, traceId(request)));
+    }
+
+    /** The Idempotency-Key header is part of the route, not optional advice. */
+    @ExceptionHandler(CaseService.MissingIdempotencyKeyException.class)
+    public ResponseEntity<ApiError> missingIdempotencyKey(
+            CaseService.MissingIdempotencyKeyException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiError.of("INVALID_ARGUMENT", error.getMessage(), false, traceId(request)));
+    }
+
+    /**
+     * Two different 409s, because they ask the caller for different things.
+     *
+     * <p>A repeated key with a different body is `IDEMPOTENCY_CONFLICT` and is not retryable: the
+     * caller must use a new key. A line that already has an open case is `CASE_ALREADY_OPEN`:
+     * retrying changes nothing, and the caller should read the case that exists
+     * (docs/domain-model.md:26). Reusing one code for both would tell a client to retry a request
+     * that can never succeed.
+     */
+    @ExceptionHandler(CaseService.IdempotencyConflictException.class)
+    public ResponseEntity<ApiError> idempotencyConflict(
+            CaseService.IdempotencyConflictException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of("IDEMPOTENCY_CONFLICT", error.getMessage(), false, traceId(request)));
+    }
+
+    @ExceptionHandler(CaseService.CaseAlreadyOpenException.class)
+    public ResponseEntity<ApiError> caseAlreadyOpen(
+            CaseService.CaseAlreadyOpenException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of("CASE_ALREADY_OPEN", error.getMessage(), false, traceId(request)));
+    }
+
+    /** An invisible line is 404, exactly like an invisible order (docs/core-contracts.md:27). */
+    @ExceptionHandler(CaseService.LineNotVisibleException.class)
+    public ResponseEntity<ApiError> lineNotVisible(
+            CaseService.LineNotVisibleException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));
+    }
+
+    @ExceptionHandler(CaseService.ForbiddenScopeException.class)
+    public ResponseEntity<ApiError> forbiddenScope(
+            CaseService.ForbiddenScopeException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiError.of("FORBIDDEN_SCOPE", error.getMessage(), false, traceId(request)));
     }
 
     /** A Commerce answer this service cannot read is a bug here, not a caller error. */

@@ -11,9 +11,26 @@ spring:
       # The core schemas are additionalProperties: false, so an unknown member is a protocol error
       # rather than something to ignore. Boot defaults this to false; the contracts decide here.
       fail-on-unknown-properties: true
+  datasource:
+    # case_db, and the case_svc account that may read nothing else
+    # (docs/engineering.md:60; infra/mysql/init/01-databases.sql).
+    url: ${CASE_DB_URL:jdbc:mysql://127.0.0.1:3306/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${CASE_DB_USER:case_svc}
+    password: ${CASE_DB_PASSWORD:case_svc}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 
-# Demonstration identity (C01.1). The secret below is a local default, not a deployment key: the
-# core profile is meant to be runnable and explainable. A real deployment must override it.
+# Demonstration identity (C01.1) lives under resolveflow.identity below; the secret is a local
+# default, not a deployment key: the core profile is meant to be runnable and explainable, and a real
+# deployment must override it.
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    # Rows map into records through their canonical constructor; there are no setters to
+    # fall back on, so argument names must be compiled in (Boot's parent does that).
+    arg-name-based-constructor-auto-mapping: true
+
 resolveflow:
   commerce:
     # Where Case reaches Commerce for the order view. The local default matches a JVM run of
