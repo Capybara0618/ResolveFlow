@@ -144,7 +144,8 @@ class CaseApiTest extends CaseDatabaseTest {
                         "SELECT kind FROM case_timeline WHERE case_id = ? AND sequence = 1",
                         String.class,
                         created.get("case_id").stringValue()))
-                .isEqualTo("case.opened");
+                .as("the contract calls this CASE_CREATED (TimelineEventType)")
+                .isEqualTo("CASE_CREATED");
         assertThat(jdbc.queryForObject(
                         "SELECT detail FROM case_timeline WHERE case_id = ? AND sequence = 1",
                         String.class,

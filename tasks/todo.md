@@ -130,7 +130,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C02 建单、材料与版本
 
-- [ ] C02.1：建单/幂等/同line活跃slot、状态与查询（建单部分见 C02.1a；`GET /api/v1/cases/{case_id}` 未开始）。
+- [x] C02.1：建单/幂等/同line活跃slot、状态与查询（C02.1a 建单 + C02.1b 查询）。
 - [ ] C02.2：补充证据增revision、消费前取消、timeline和权限；预留SSE读接口。
 - 依赖：C01。文件：Case domain/application/api/migration/tests；逐行为交付。
 - 验收：同key换body409、同line不并发建多个活跃case；材料不覆盖，旧revision不可写。
@@ -145,7 +145,15 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **真实跨服务端到端**（两个 jar + compose 真 MySQL）：`POST /api/v1/cases`（line 7001，行归属由 Commerce 真实判定）→ **201**，`Location: /api/v1/cases/58a7…`，body `{QUEUED,1,1}`；同 key 同 body → 逐字相同；同 key 换 body → 409 `IDEMPOTENCY_CONFLICT`；换 key 同 line → 409 `CASE_ALREADY_OPEN`；line 7201（M-1002/C-2004 的）→ 404；自己的另一行 7002 → 201；demo-reviewer → 403 `FORBIDDEN_SCOPE`；另一个顾客的 token 请求 line 7001 → 404；缺幂等键 → 400 `INVALID_ARGUMENT`。库内：2 个 case（均 M-1001/C-2002）、2 个槽位、2 条 `case.opened`、幂等表只留 `k1`/`k4`（status 201）；`case_db.flyway_schema_history` rank 1 `case core tables` success=1。
   - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service 33，0 失败 0 错误；`mvnw -pl commerce-service -am test` → commerce-service 22，0 失败 0 错误；`-Suite contracts` **PASSED**（51，`reports/verify/20260919-124118-contracts.txt`）；`-Suite unit` **PASSED**（java-unit 57s、python-unit 18.9s、web-test 2.2s，`reports/verify/20260919-124401-unit.txt`）；`-Suite smoke`（core）**PASSED**（`reports/verify/20260919-124526-smoke.txt`，case-service 启动时现在会跑 Flyway）。
   - 三次失败都不是设计缺陷，如实记录：① 配置补丁插入了一个**重复的顶层 `spring:` 键**，SnakeYAML 在加载上下文时直接拒绝（真实缺陷，已并入已有 `spring:` 块）；② `list(...)` 多了一个参数后，C01.2c-1 写的三处测试调用点不再编译（改用 `listByOrder`，意图更清楚）；③ 商家 403 测试断言「Commerce 从未被问」失败，因为打桩 bean 在共享上下文里保留了上一测试的观测值——测试卫生问题，已在 `@BeforeEach` 重置。另外把已弃用的 `HttpStatus.UNPROCESSABLE_ENTITY` 换成 Spring 7 的 `UNPROCESSABLE_CONTENT`。
-  - C02.1 尚未完成：`GET /api/v1/cases/{case_id}`（状态与公开证据）未实现，所以不勾选。C02.1b 计划：读路由 + 主体可见性（跨主体 404）+ 从 `case_timeline` 读轨迹。
+  - C02.1b 完成（2026-09-19）：`GET /api/v1/cases/{case_id}` 的工单视图、可见性与轨迹。
+  - 契约缺口修正：该路由原先只声明 `200`/`404`，**缺 `401`**——作用域来自 token，缺 token 必然 401，同一类问题在 C01.2 也出现过（补上并在描述里写明「可见性同订单视图：本人工单或拥有该行的商家；别人的工单是 404 而非 403，proposal/authorization/operation 存在时才出现」）。新契约测试钉住：401/404 都在、`CaseSnapshot.required` 只有 `case`（其余是「存在才出现」）、轨迹 `maxItems ≤ 200`、证据 `maxItems ≤ 64`、`TimelineEvent` 有 `revision`。契约测试 52 通过。
+  - **只追加的迁移**：`java/case-service/src/main/resources/db/migration/V2__case_timeline_vocabulary.sql`。V1 已执行，绝不回改（`docs/engineering.md:64`），所以两件 V1 当时不可能知道的事用 V2 修正：① `kind` 用了自造拼写 `case.opened`，而契约的 `TimelineEventType` 是**闭枚举**、首值是 `CASE_CREATED`——不能对着契约校验的轨迹只是私有日志；② 事件需要自己的身份与所属 input revision，从序号推导会让事件 id 随 revision 改变含义。V2 加 `event_id`/`input_revision` 两列、为既有行 `UUID()` 补齐并改写旧拼写、然后**删掉临时默认值**并对 `kind` 加 CHECK（7 个契约枚举值）与 `input_revision >= 1`。
+  - 代码：`TimelineEventType.java`（与契约枚举逐字一致；只有 `CASE_CREATED` 会被写入，其余属于 C06 起的步骤，声明它们是因为契约已经有）、`TimelineEventRow.java`、`CaseReadService.java`（可见性同订单视图：本商家 + 本人；差一个商家或不同 customer 一律同一个 `CaseNotVisibleException`，即「看不到」与「不存在」在**同一处抛出同一个异常**）、`CaseSnapshotResponse.java`（`case`/`evidence`/`timeline`，proposal/authorization/operation 未实现前**缺席而不是 null**——同一个事实不写两种表示）、`TimelineSummary.java` + `JsonField.java`（给轨迹行生成人读的一句话；从存储的 `detail` 派生而不是二次存储，两者无法互相矛盾；`detail` 读不出来时仍然给出类型与时间，宁可有缺口也不让整条轨迹加载失败）、`CaseController` 增加读路由、`CaseRepository` 增加 `findTimeline` 与 `event_id`/`input_revision` 写入、`CaseWriter` 写 `CASE_CREATED` 并生成事件 UUID。
+  - 测试：`casefile/CaseReadApiTest.java`（5：本人读到的 `case` 成员集合与契约逐字一致、轨迹首条 `CASE_CREATED` + `event_id` + `revision=1` + 时间戳带 Z、四个不该出现的成员确实缺席、拥有该行的商家（reviewer）能读（审核队列就是商家的视图）、同商家不同客户/另一商家客户/另一商家 review 一律 404、操作员（同商家）能读、**别人的工单与不存在的工单 message 逐字相同**、缺 token 401、两次读取响应逐字相同（事件 id 是存储的，不会随读而变））。
+  - **真实端到端**（两个 jar + compose 真 MySQL，并且是对**迁移前建的**工单读回）：`GET /api/v1/cases/58a76775…` → 200 `{case:{QUEUED,1,1,created_at,updated_at,[REFUND],7001}, timeline:[{event_id:23285ea2…, CASE_CREATED, 客户提交退款诉求（line_id=7001）, revision:1}]}`；demo-reviewer(M-1001) → 200；另一个顾客 → 404；不存在的 case → 404（与前者 message 相同）；无 token → 401。迁移在**已跑过 V1 的库上就地生效**的独立证据：`case_db.flyway_schema_history` rank 2 `case timeline vocabulary` success=1，两条既有行变成 `CASE_CREATED` + `input_revision=1` + 36 位 `event_id`（即 V2 的 `UUID()` 补齐确实执行过）。
+  - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service 38，0 失败 0 错误；`-Suite contracts` **PASSED**（52，`reports/verify/20260919-125643-contracts.txt`）；`-Suite unit` **PASSED**（`reports/verify/20260919-125713-unit.txt`）；`-Suite smoke`（core）**PASSED**（`reports/verify/20260919-125846-smoke.txt`）。
+  - 两次失败都是测试自身的问题，不是实现缺陷：① 建单测试仍断言旧词表 `case.opened`（迁移是刻意改词表，测试跟着改成 `CASE_CREATED` 并注明原因）；② 可见性测试原本用「JWT 字符串里是否含 M-1001」判断角色——JWT 是 base64，当然不含，于是把操作员也当成不该可见，写成显式的 `Caller(who, token, mayRead)` 三元组，失败信息里也会说出是谁被放进来了。另 `StatusAssertions` 在该版本没有 `as(String)`，改为在 `value(...)` 里用 AssertJ 带描述的断言。
+  - C02.1 完成判据：同 key 换 body 409、同 line 不并发建多个活跃 case、状态与查询可用、跨主体 404 且与不存在不可区分——全部有测试（含 8 线程并发）与真实端到端证据；材料相关（C02.2）未开始，材料不覆盖/旧 revision 不可写仍属未验证。
 
 ### C03 政策、方案与审批
 

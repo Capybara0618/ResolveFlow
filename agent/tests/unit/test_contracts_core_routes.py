@@ -537,3 +537,24 @@ def test_a_case_is_opened_by_its_customer_and_never_by_merchant_staff() -> None:
     for code in ("201", "401", "403", "404", "409", "422"):
         assert code in responses, f"POST /api/v1/cases must declare {code}"
     assert "503" in responses, "the line check calls Commerce, so an outage is declared here too"
+
+def test_the_case_view_is_bounded_and_declares_its_refusals() -> None:
+    """The trajectory is a view, not a dump: it is capped, and the route says how it refuses.
+
+    A trajectory endpoint without a bound is an endpoint that eventually returns a case file nobody
+    can render (the review UI reads this). The bound is in the contract because the reader needs to
+    know how much of a history it will be asked to show, and because \"read the whole timeline\"
+    is not a promise any service can keep.
+    """
+    route = document("case")["paths"]["/api/v1/cases/{case_id}"]["get"]
+    assert "401" in route["responses"], "the scope comes from the token, so it can refuse one"
+    assert "404" in route["responses"], "another tenant's case is not disclosed"
+
+    snapshot = document("case")["components"]["schemas"]["CaseSnapshot"]
+    assert snapshot["required"] == ["case"], (
+        "only the case itself is always present; proposal/authorisation/operation appear when they exist"
+    )
+    assert snapshot["properties"]["timeline"]["maxItems"] <= 200
+    assert snapshot["properties"]["evidence"]["maxItems"] <= 64
+    event = document("case")["components"]["schemas"]["TimelineEvent"]["properties"]
+    assert "revision" in event, "an event reports the input revision it belongs to"

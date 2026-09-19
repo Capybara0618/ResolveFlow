@@ -221,6 +221,12 @@ paths:
         (docs/core-scope.md:7). The trajectory is read from case_timeline, which is
         written in the same transaction as the inbox projection and the local event
         (docs/core-contracts.md:67).
+
+        Visibility follows the same rule as the order view: the case's own customer, or the
+        merchant that owns the line. A case the principal cannot see is 404, never 403, so
+        the existence of another tenant's case is not disclosed (docs/core-contracts.md:27).
+        The proposal, authorisation and operation members appear once those exist; a case at
+        QUEUED has none of them yet.
       parameters:
         - $ref: '#/components/parameters/CaseId'
       responses:
@@ -300,6 +306,8 @@ paths:
                     occurred_at: '2026-09-18T04:30:00Z'
                     summary: 等待人工审批
                     revision: 1
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '404':
           $ref: '#/components/responses/NotFound'
   /api/v1/cases/{case_id}/evidence:

@@ -5,6 +5,8 @@ import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import java.net.URI;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,10 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class CaseController {
 
     private final CaseService cases;
+    private final CaseReadService reads;
     private final RequestPrincipalResolver principals;
 
-    public CaseController(CaseService cases, RequestPrincipalResolver principals) {
+    public CaseController(CaseService cases, CaseReadService reads, RequestPrincipalResolver principals) {
         this.cases = cases;
+        this.reads = reads;
         this.principals = principals;
     }
 
@@ -41,5 +45,13 @@ public class CaseController {
         return ResponseEntity.created(
                         URI.create("/api/v1/cases/" + created.body().caseId()))
                 .body(created.body());
+    }
+
+    @GetMapping("/{case_id}")
+    public ResponseEntity<CaseSnapshotResponse> read(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable("case_id") String caseId) {
+        AuthenticatedPrincipal principal = principals.resolve(authorization);
+        return ResponseEntity.ok(reads.read(principal, caseId));
     }
 }

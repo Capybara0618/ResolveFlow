@@ -3,6 +3,7 @@ package com.resolveflow.caseservice.casefile;
 import com.resolveflow.shared.contract.CanonicalJson;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
@@ -61,7 +62,16 @@ public class CaseWriter {
             cases.insertRequestedAction(write.caseId(), action.name());
         }
         cases.insertSlot(write.merchantId(), write.lineId(), write.caseId(), write.now());
-        cases.insertTimeline(write.caseId(), 1, "case.opened", openedDetail(write), write.now());
+        // The event carries its own id and the revision it belongs to: deriving either from the
+        // sequence number would make it change meaning when the case gains revisions.
+        cases.insertTimeline(
+                write.caseId(),
+                UUID.randomUUID().toString(),
+                1,
+                TimelineEventType.CASE_CREATED.name(),
+                openedDetail(write),
+                write.now(),
+                1);
 
         CaseCreatedResponse body = new CaseCreatedResponse(write.caseId(), CaseStatus.QUEUED, 1, 1L);
         String responseBody = mapper.writeValueAsString(body);

@@ -1,6 +1,7 @@
 package com.resolveflow.caseservice.error;
 
 import com.resolveflow.caseservice.auth.LoginRequest.InvalidLoginRequestException;
+import com.resolveflow.caseservice.casefile.CaseReadService;
 import com.resolveflow.caseservice.casefile.CaseService;
 import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.caseservice.order.OrderController;
@@ -94,6 +95,18 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(ApiError.of(
                         "SERVICE_UNAVAILABLE", "the order service is temporarily unavailable", true, traceId(request)));
+    }
+
+    /**
+     * A case the principal cannot see, answered exactly like one that does not exist
+     * (docs/core-contracts.md:27): two different answers would let anyone enumerate case ids by
+     * watching which one they got.
+     */
+    @ExceptionHandler(CaseReadService.CaseNotVisibleException.class)
+    public ResponseEntity<ApiError> caseNotVisible(
+            CaseReadService.CaseNotVisibleException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));
     }
 
     /** A create request that is well formed but asks for something core cannot honour. */

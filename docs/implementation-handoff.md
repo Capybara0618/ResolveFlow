@@ -12,7 +12,7 @@ T00–T02有已完成证据，包含锁、骨架、旧协议与测试。C00（�
 
 ### 尚未实现（不要读成已有能力）
 
-后端服务基本仍只有骨架与健康接口，外加四处例外：case-service 的 `POST /api/v1/auth/login`（演示账号换 JWT）、`GET /api/v1/orders`、`GET /api/v1/orders/{order_id}` 与 `POST /api/v1/cases`（建单：`Idempotency-Key` 幂等、同 line 单活跃 case、行归属由 Commerce 判定；作用域一律由已校验主体推导，内部调 commerce-service 的 `GET /internal/v1/order-lines`，后者 service token 专用，数据来自 `commerce_db` 的迁移与种子）。case-service 现在需要 `case_db`（Flyway 迁移 + `case_svc` 账户）。核心其余 24 条路由、退款闭环、Agent 调查/政策检索、恢复与回放、实验与主张都未实现；observability 容器尚不存在。`contracts/core` 里的目标协议不代表已在运行。
+后端服务基本仍只有骨架与健康接口，外加四处例外：case-service 的 `POST /api/v1/auth/login`（演示账号换 JWT）、`GET /api/v1/orders`、`GET /api/v1/orders/{order_id}`、`POST /api/v1/cases`（建单：`Idempotency-Key` 幂等、同 line 单活跃 case、行归属由 Commerce 判定）与 `GET /api/v1/cases/{case_id}`（工单视图 + 轨迹；跨主体 404）；作用域一律由已校验主体推导，内部调 commerce-service 的 `GET /internal/v1/order-lines`，后者 service token 专用，数据来自 `commerce_db` 的迁移与种子。case-service 需要 `case_db`（Flyway 迁移 + `case_svc` 账户）。核心其余 23 条路由、退款闭环、Agent 调查/政策检索、恢复与回放、实验与主张都未实现；observability 容器尚不存在。`contracts/core` 里的目标协议不代表已在运行。
 
 ## 开始步骤
 

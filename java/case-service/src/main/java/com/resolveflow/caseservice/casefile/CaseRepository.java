@@ -59,15 +59,34 @@ public interface CaseRepository {
      * case itself: a case with no reason for existing would be a state nobody can explain.
      */
     @Insert("""
-            INSERT INTO case_timeline (case_id, sequence, kind, detail, occurred_at)
-            VALUES (#{caseId}, #{sequence}, #{kind}, #{detail}, #{occurredAt})
+            INSERT INTO case_timeline (case_id, event_id, sequence, kind, detail, occurred_at,
+                                       input_revision)
+            VALUES (#{caseId}, #{eventId}, #{sequence}, #{kind}, #{detail}, #{occurredAt},
+                    #{inputRevision})
             """)
     void insertTimeline(
             @Param("caseId") String caseId,
+            @Param("eventId") String eventId,
             @Param("sequence") int sequence,
             @Param("kind") String kind,
             @Param("detail") String detail,
-            @Param("occurredAt") Instant occurredAt);
+            @Param("occurredAt") Instant occurredAt,
+            @Param("inputRevision") int inputRevision);
+
+    /** The trajectory in the order it happened (docs/core-scope.md:7). */
+    @Select("""
+            SELECT case_id        AS caseId,
+                   event_id       AS eventId,
+                   sequence       AS sequence,
+                   kind           AS kind,
+                   detail         AS detail,
+                   occurred_at    AS occurredAt,
+                   input_revision AS inputRevision
+              FROM case_timeline
+             WHERE case_id = #{caseId}
+             ORDER BY sequence
+            """)
+    List<TimelineEventRow> findTimeline(@Param("caseId") String caseId);
 
     @Insert("""
             INSERT INTO request_idempotency (merchant_id, idempotency_key, request_hash, response_status,
