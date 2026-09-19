@@ -40,7 +40,8 @@
 | `openapi-case.yaml`（18 条路由：13 条 `/api/v1` + 5 条 `/internal/v1`） | 已建立（C00.2b-3，2026-09-18） |
 | `agent-proposal.schema.json`（`urn:resolveflow:core:agent-proposal:v2`） | 已建立（C00.2c-1，2026-09-18） |
 | 核心路由覆盖测试（三份文档逐项对应） | 已建立（C00.2b，45 个测试） |
-| 核心正反 fixture | 待建立（C00.2c） |
+| 核心正向 fixture（`fixtures/valid.json`） | 已建立（C00.2c-2a，2026-09-19；含 45 个语料测试） |
+| 核心反向 fixture（`fixtures/reject.json`） | 待建立（C00.2c-2b） |
 | Java/Pydantic 核心 DTO | 待建立（C00.2c） |
 | core profile 启动/smoke 选择（不要求 fulfillment/Nacos/观测集群） | 待调整（C00.3） |
 

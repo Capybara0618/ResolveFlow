@@ -1,0 +1,204 @@
+{
+  "_comment": [
+    "core-v1.2 正向语料（docs/core-contracts.md:7 要求 C00 建立核心正反 fixture）。",
+    "与 compat 语料并列，不替换它：旧文件 contracts/fixtures/examples/valid.json 保持原样。",
+    "每节该用哪个 schema 由 agent/src/resolveflow/contracts/core_corpus.py 的 CORE_SCHEMA_SECTIONS 固定，语料不能自己挑校验器。",
+    "以 PLACEHOLDER_ 开头的值是占位符，由 core_corpus 在解析时按权威规则重算：命令的 payload_hash 覆盖 docs/core-contracts.md:17 与 :18 列出的 12 个字段；信封签名覆盖除 signature 自身以外的全部成员（含 signing_key_id，docs/core-contracts.md:19），并用 signing_keys 里的测试密钥现签。",
+    "因此任何一个被签名字段改动都会让签名失效，不会再出现「复制粘贴导致语料内部互相矛盾」的情况。",
+    "引用关系：message_envelopes 用 payload_ref 指向 components，agent_proposals 用 _ref 指向 components；_ 开头的是给人看的注解，解析时会被去掉。"
+  ],
+  "signing_keys": {
+    "_comment": [
+      "仅测试用密钥，明文保存是刻意的：Java 与 Python 必须用同一密钥签出同一字节，才能证明签名算法一致。",
+      "取值是 RFC 8032 第 7.1 节 TEST 1 的公开测试向量（种子与公钥都在标准里），不是任何环境的生产密钥，也不是需要保护的秘密。",
+      "core_corpus 会校验 private_seed_hex 推导出的公钥确实等于这里声明的 public_key_hex，防止抄错。"
+    ],
+    "core-fixture-key-1": {
+      "private_seed_hex": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60",
+      "public_key_hex": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+    }
+  },
+  "components": {
+    "_comment": "被别的条目引用的完整对象放在这里，避免同一对象在多处复制粘贴。",
+    "refundCommandLostParcel": {
+      "_comment": [
+        "核心唯一可执行的命令形状：单个订单行全部数量、原行实付金额、action 常量 REFUND、target_service 常量 commerce-service（docs/core-scope.md:9、docs/core-contracts.md:65）。",
+        "没有 entitlement_id 与 address_hash：前者是 v1 预留后才填的字段，放进会被哈希的载荷会让摘要依赖一个当时还不存在的值；后者属于被延期的补发分支（docs/core-contracts.md:19）。",
+        "operation_id 在授权创建时就预分配并固定，所以它属于被哈希的字段（docs/core-contracts.md:19）。"
+      ],
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "authorization_id": "7a7a7a7a-2222-4333-8444-555566667777",
+      "input_revision": 1,
+      "line_id": "7001",
+      "merchant_id": "merchant-demo-1",
+      "action": "REFUND",
+      "quantity": 2,
+      "currency": "CNY",
+      "amount_minor": 2599,
+      "policy_version": "policy-logistics-2026.09",
+      "target_service": "commerce-service",
+      "payload_hash": "PLACEHOLDER_CORE_PAYLOAD_HASH_LOST_PARCEL"
+    },
+    "refundResultSucceeded": {
+      "_comment": "结果 payload 就是 docs/core-contracts.md:67 列出的字段：operation_id、line_id、state、amount_minor、provider_ref（可空）、reason_code、aggregate_version。没有数量字段——核心退款不发货。",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "line_id": "7001",
+      "state": "SUCCEEDED",
+      "amount_minor": 2599,
+      "provider_ref": "stub-ref-0001",
+      "reason_code": null,
+      "aggregate_version": 7
+    },
+    "refundResultFailed": {
+      "_comment": "确定失败：金额与行占用被释放，可以走新 revision、新方案、新授权重新申请（docs/domain-model.md:49、:51）。",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "line_id": "7001",
+      "state": "FAILED",
+      "amount_minor": 2599,
+      "provider_ref": null,
+      "reason_code": "PROVIDER_DECLINED",
+      "aggregate_version": 8
+    },
+    "refundResultUnknown": {
+      "_comment": "UNKNOWN 是结果而不是失败：不释放金额与行占用、不换 ID 重试，只能沿原 provider key 查询收敛（docs/domain-model.md:15、docs/core-contracts.md:67）。",
+      "operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+      "line_id": "7001",
+      "state": "UNKNOWN",
+      "amount_minor": 2599,
+      "provider_ref": null,
+      "reason_code": "PROVIDER_TIMEOUT",
+      "aggregate_version": 9
+    },
+    "proposalRefund": {
+      "_comment": [
+        "可执行方案：REFUND 必须引用至少一条证据与一条政策、且不再索取材料（contracts/core/agent-proposal.schema.json 的 allOf 条件，权威是 docs/core-scope.md:7 要求「有引用的方案」）。",
+        "schema_version 与 case_id 都在：compat 提案就是带这两个字段的字段结构，docs/core-contracts.md:9 说核心方案只改版本与动作、其他字段复用旧结构；docs/core-contracts.md:57 又要求 body 主体与 service JWT 及 Case 绑定一致，绑定不在 body 里就没有可交叉校验的东西。"
+      ],
+      "schema_version": 2,
+      "proposal_id": "5f0f0f0f-1111-4222-8333-444455556666",
+      "run_id": "e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "input_revision": 1,
+      "case_type": "LOGISTICS",
+      "recommended_action": "REFUND",
+      "suggested_amount_minor": 2599,
+      "summary": "物流7天无更新且承运商结论为丢失，按政策可全额退款",
+      "reason_codes": ["CARRIER_LOST", "NO_SCAN_7D"],
+      "evidence_refs": [
+        {
+          "observation_id": "obs-shipment-1",
+          "source_ref": "line:7001/shipment",
+          "source_version": "2",
+          "content_hash": "1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      ],
+      "policy_refs": [
+        {
+          "bundle_id": "policy-logistics-2026.09",
+          "version": "2026.09",
+          "rule_id": "R-LOST-001",
+          "chunk_id": "c-01",
+          "content_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      ],
+      "missing_evidence": []
+    },
+    "proposalRequestInfo": {
+      "_comment": "追问方案：只有 REFUND 带引用条件，REQUEST_INFO 可以没有证据与政策引用，但要写明还缺什么材料（docs/core-contracts.md:59 的 QUESTION 最多 3 问）。",
+      "schema_version": 2,
+      "proposal_id": "6a6a6a6a-2222-4333-8444-555566667777",
+      "run_id": "f3f3f3f3-4444-4555-8666-bbbbbbbbbbbb",
+      "case_id": "9c858901-8a57-4791-81fe-4c455b099bc9",
+      "input_revision": 2,
+      "case_type": "DAMAGED",
+      "recommended_action": "REQUEST_INFO",
+      "summary": "损坏描述不足，需要客户补充照片与签收时间",
+      "reason_codes": ["DAMAGE_NOT_DESCRIBED"],
+      "missing_evidence": ["损坏部位照片", "签收日期"]
+    }
+  },
+  "execution_commands": {
+    "_comment": "命令语料：只有 REFUND 一种动作，补发命令在核心协议里不可表达（docs/core-scope.md:17）。",
+    "lost_parcel_full_line": {"_ref": "components.refundCommandLostParcel"}
+  },
+  "message_envelopes": {
+    "_comment": [
+      "信封语料：四种事件类型 + 被签名的可选成员各覆盖一次。",
+      "producer 与 topic 由事件类型决定（RefundRequested 走 rf.case.core.v2，结果走 rf.commerce.core.v2，docs/core-contracts.md:9），两者都由核心 Schema 的 if/then 钉住。",
+      "结果也必须签名：docs/core-contracts.md:67 要求 Commerce 签名结果、Case 验证来源与签名；v1 信封允许结果不签名，核心不允许。"
+    ],
+    "refund_requested": {
+      "_comment": "带 traceparent 的命令信封：traceparent 不参与 payload_hash，但属于被签名的信封成员，所以它可以用来证明「可选成员缺失与显式 null 签出同一字节」之外的另一种情况——带值时确实被签。",
+      "event_id": "0f8fad5b-d9cb-469f-a165-70867728950e",
+      "event_type": "RefundRequested",
+      "schema_version": 2,
+      "merchant_id": "merchant-demo-1",
+      "occurred_at": "2026-09-18T04:28:00Z",
+      "producer": "case-service",
+      "topic": "rf.case.core.v2",
+      "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+      "payload_ref": "components.refundCommandLostParcel",
+      "signing_key_id": "core-fixture-key-1",
+      "signature": "PLACEHOLDER_CORE_SIGNATURE_REFUND_REQUESTED"
+    },
+    "refund_requested_without_traceparent": {
+      "_comment": "同一个载荷、不带 traceparent：与显式传 traceparent: null 的信封必须签出同一字节（缺失成员在规范化前补成 null，docs/core-contracts.md:19 的签名范围加上旧规则里同一处理）。",
+      "event_id": "1a1a1a1a-3333-4444-8555-666677778888",
+      "event_type": "RefundRequested",
+      "schema_version": 2,
+      "merchant_id": "merchant-demo-1",
+      "occurred_at": "2026-09-18T04:28:01Z",
+      "producer": "case-service",
+      "topic": "rf.case.core.v2",
+      "payload_ref": "components.refundCommandLostParcel",
+      "signing_key_id": "core-fixture-key-1",
+      "signature": "PLACEHOLDER_CORE_SIGNATURE_REFUND_REQUESTED_NO_TRACEPARENT"
+    },
+    "refund_succeeded": {
+      "_comment": "带 causation_id 的成功结果：causation_id 同样是被签名的可选成员。",
+      "event_id": "2b2b2b2b-4444-4555-8666-777788889999",
+      "event_type": "RefundSucceeded",
+      "schema_version": 2,
+      "merchant_id": "merchant-demo-1",
+      "occurred_at": "2026-09-18T04:31:00Z",
+      "producer": "commerce-service",
+      "topic": "rf.commerce.core.v2",
+      "causation_id": "0f8fad5b-d9cb-469f-a165-70867728950e",
+      "payload_ref": "components.refundResultSucceeded",
+      "signing_key_id": "core-fixture-key-1",
+      "signature": "PLACEHOLDER_CORE_SIGNATURE_REFUND_SUCCEEDED"
+    },
+    "refund_failed": {
+      "_comment": "确定失败：Case 收到后释放占用并把工单送回人工复核（docs/domain-model.md:49、:55）。",
+      "event_id": "3c3c3c3c-5555-4666-8777-88889999aaaa",
+      "event_type": "RefundFailed",
+      "schema_version": 2,
+      "merchant_id": "merchant-demo-1",
+      "occurred_at": "2026-09-18T04:32:00Z",
+      "producer": "commerce-service",
+      "topic": "rf.commerce.core.v2",
+      "payload_ref": "components.refundResultFailed",
+      "signing_key_id": "core-fixture-key-1",
+      "signature": "PLACEHOLDER_CORE_SIGNATURE_REFUND_FAILED"
+    },
+    "refund_unknown": {
+      "_comment": "未知结果：投影成 RECONCILING，由对账查询收敛，绝不触发第二次付款（docs/domain-model.md:15、:55）。",
+      "event_id": "4d4d4d4d-6666-4777-8888-9999aaaabbbb",
+      "event_type": "RefundUnknown",
+      "schema_version": 2,
+      "merchant_id": "merchant-demo-1",
+      "occurred_at": "2026-09-18T04:33:00Z",
+      "producer": "commerce-service",
+      "topic": "rf.commerce.core.v2",
+      "payload_ref": "components.refundResultUnknown",
+      "signing_key_id": "core-fixture-key-1",
+      "signature": "PLACEHOLDER_CORE_SIGNATURE_REFUND_UNKNOWN"
+    }
+  },
+  "agent_proposals": {
+    "_comment": "方案语料：可执行方案与追问方案各一条。",
+    "refund_lost_parcel": {"_ref": "components.proposalRefund"},
+    "request_info_damage": {"_ref": "components.proposalRequestInfo"}
+  }
+}
