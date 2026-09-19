@@ -12,7 +12,7 @@ T00–T02有已完成证据，包含锁、骨架、旧协议与测试。C00（�
 
 ### 尚未实现（不要读成已有能力）
 
-后端服务基本仍只有骨架与健康接口，外加两处例外：case-service 的 `POST /api/v1/auth/login` 真的能用了（演示账号换 JWT，失败走统一错误体），commerce-service 的 `GET /internal/v1/order-lines` 也能用（service token 专用，数据来自 `commerce_db` 的迁移与种子）。核心其余 26 条路由、退款闭环、Agent 调查/政策检索、恢复与回放、实验与主张都未实现；observability 容器尚不存在。`contracts/core` 里的目标协议不代表已在运行。
+后端服务基本仍只有骨架与健康接口，外加三处例外：case-service 的 `POST /api/v1/auth/login`（演示账号换 JWT）、`GET /api/v1/orders` 与 `GET /api/v1/orders/{order_id}`（作用域由已校验主体推导，内部调 commerce-service 的 `GET /internal/v1/order-lines`，后者 service token 专用，数据来自 `commerce_db` 的迁移与种子）。核心其余 25 条路由、退款闭环、Agent 调查/政策检索、恢复与回放、实验与主张都未实现；observability 容器尚不存在。`contracts/core` 里的目标协议不代表已在运行。
 
 ## 开始步骤
 

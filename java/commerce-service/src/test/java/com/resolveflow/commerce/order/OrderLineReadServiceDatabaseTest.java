@@ -114,7 +114,22 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
     }
 
     @Test
-    @DisplayName("an unknown merchant scope is empty rather than an error")
+    @DisplayName("an order filter narrows the scope and cannot escape it")
+    void anOrderFilterCannotEscapeTheScope() {
+        // C01.2c: Case reads one order through this filter. Naming an order that is not in the
+        // scope must yield nothing, so Case can answer 404 without disclosing that it exists.
+        assertThat(service.list("M-1001", "C-2002", ORDER_A, null, null).items())
+                .extracting(OrderLineRow::lineId)
+                .containsExactly("7002", "7001");
+        assertThat(service.list("M-1002", "C-2004", ORDER_A, null, null).items())
+                .as("order %s belongs to M-1001/C-2002, not to this scope", ORDER_A)
+                .isEmpty();
+        assertThat(service.list("M-1001", "C-2003", ORDER_A, null, null).items())
+                .as("same merchant, different customer: still not theirs")
+                .isEmpty();
+    }
+
+    @Test
     void anUnknownScopeIsEmpty() {
         assertThat(service.list("M-9999", null, null, null).items()).isEmpty();
     }

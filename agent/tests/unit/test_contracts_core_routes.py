@@ -392,10 +392,12 @@ def test_the_internal_order_view_is_the_public_order_view(name: str) -> None:
 def test_the_order_listing_route_takes_its_scope_from_the_caller_not_the_client() -> None:
     op = document("commerce")["paths"]["/internal/v1/order-lines"]["get"]
     names = [param["$ref"].rsplit("/", 1)[-1] for param in op["parameters"]]
-    assert names == ["MerchantId", "CustomerId", "Cursor", "Limit"]
+    assert names == ["MerchantId", "CustomerId", "OrderId", "Cursor", "Limit"]
     params = document("commerce")["components"]["parameters"]
     assert params["MerchantId"]["required"] is True
     assert params["CustomerId"]["required"] is False, "a merchant-scoped caller lists the whole merchant"
+    # order_id narrows the same scope; it is a filter, not a second scope
+    assert params["OrderId"]["required"] is False
     # The scope exists only on the internal route. If the public Case route offered merchant_id or
     # customer_id, a customer could ask for someone else's lines (docs/core-contracts.md:15).
     public = document("case")["paths"]["/api/v1/orders"]["get"]
@@ -495,3 +497,25 @@ def test_case_question_callback_is_limited_to_three_questions() -> None:
     assert limits, "no questions array declares a maxItems bound in the core case document"
     for where, limit in limits:
         assert limit <= 3, f"{where} allows {limit} questions; docs/core-contracts.md:59 allows at most 3"
+
+def test_the_order_view_declares_what_its_dependency_can_do_to_it() -> None:
+    """The public order view is a call to Commerce, so its failure modes are part of the contract.
+
+    A downstream outage must be a declared, retryable 503 rather than an undeclared 500: a caller
+    that reads a timeout as \"this order does not exist\" would quietly turn an outage into a
+    refund-path surprise (docs/core-contracts.md:27). The listing needs 401 (the scope comes from
+    the token), the single order needs 404 (another tenant's order is not disclosed).
+    """
+    paths = document("case")["paths"]
+    listing = paths["/api/v1/orders"]["get"]["responses"]
+    single = paths["/api/v1/orders/{order_id}"]["get"]["responses"]
+
+    assert "503" in listing and "503" in single, "an unavailable Commerce is an answer both routes declare"
+    assert "401" in listing, "the listing is scoped by the token, so it can refuse one"
+    assert "401" not in single, "the single-order route says 404 rather than telling on the token"
+    assert "404" in single, "an order the principal cannot see is 404, never 403"
+    forbidden = paths["/api/v1/orders"]["get"].get("parameters", [])
+    names = [parameter.get("$ref", "").rsplit("/", 1)[-1] for parameter in forbidden]
+    assert names == ["Cursor", "Limit"], (
+        "the public listing takes paging and nothing else: a scope parameter would let a caller name one"
+    )

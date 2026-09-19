@@ -15,6 +15,10 @@ spring:
 # Demonstration identity (C01.1). The secret below is a local default, not a deployment key: the
 # core profile is meant to be runnable and explainable. A real deployment must override it.
 resolveflow:
+  commerce:
+    # Where Case reaches Commerce for the order view. The local default matches a JVM run of
+    # commerce-service; compose overrides it with the in-cluster address.
+    base-url: ${COMMERCE_BASE_URL:http://127.0.0.1:8081}
   identity:
     jwt:
       secret: resolveflow-core-demo-identity-secret

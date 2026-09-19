@@ -117,6 +117,8 @@ paths:
                   next_cursor: null
         '401':
           $ref: '#/components/responses/Unauthenticated'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /api/v1/orders/{order_id}:
     get:
       tags: [orders]
@@ -152,6 +154,8 @@ paths:
                   next_cursor: null
         '404':
           $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /api/v1/cases:
     post:
       tags: [cases]

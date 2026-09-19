@@ -101,7 +101,21 @@ class OrderLineControllerTest extends CommerceDatabaseTest {
     }
 
     @Test
-    @DisplayName("the cursor walks the pages and then reports no more")
+    @DisplayName("an order filter returns that order's lines inside the scope, and nothing otherwise")
+    void anOrderFilterNarrowsInsideTheScope() {
+        JsonNode mine = MAPPER.readTree(body(
+                serviceToken(), "merchant_id=M-1001&customer_id=C-2002&order_id=00000000-0000-4000-8000-0000000000aa"));
+        assertThat(mine.get("items")).hasSize(2);
+        assertThat(mine.get("items").toString()).doesNotContain("7101");
+
+        // The same order, asked for by the other merchant: an empty page, not an error and not the
+        // lines themselves. Case turns this into a 404 (docs/core-contracts.md:27).
+        JsonNode foreign = MAPPER.readTree(
+                body(serviceToken(), "merchant_id=M-1002&order_id=00000000-0000-4000-8000-0000000000aa"));
+        assertThat(foreign.get("items")).isEmpty();
+    }
+
+    @Test
     void theCursorPages() {
         JsonNode first = MAPPER.readTree(body(serviceToken(), "merchant_id=M-1001&limit=1"));
         assertThat(first.get("items")).hasSize(1);

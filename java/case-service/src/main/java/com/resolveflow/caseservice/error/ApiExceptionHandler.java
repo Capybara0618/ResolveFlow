@@ -1,6 +1,9 @@
 package com.resolveflow.caseservice.error;
 
 import com.resolveflow.caseservice.auth.LoginRequest.InvalidLoginRequestException;
+import com.resolveflow.caseservice.order.CommerceOrderLineClient;
+import com.resolveflow.caseservice.order.OrderController;
+import com.resolveflow.caseservice.order.RequestPrincipalResolver;
 import com.resolveflow.shared.error.ApiError;
 import com.resolveflow.shared.security.DemoAccounts;
 import com.resolveflow.shared.security.JwtCodec;
@@ -54,6 +57,55 @@ public class ApiExceptionHandler {
         LOG.debug("token refused: {}", error.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiError.of("UNAUTHENTICATED", "the bearer token was refused", false, traceId(request)));
+    }
+
+    /** A protected route reached without a usable token (C01.2c). */
+    @ExceptionHandler(RequestPrincipalResolver.UnauthenticatedException.class)
+    public ResponseEntity<ApiError> unauthenticated(
+            RequestPrincipalResolver.UnauthenticatedException error, HttpServletRequest request) {
+        LOG.debug("principal could not be resolved: {}", error.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiError.of("UNAUTHENTICATED", error.getMessage(), false, traceId(request)));
+    }
+
+    /**
+     * An order the principal cannot see is 404, never 403 (docs/core-contracts.md:27).
+     *
+     * <p>The message is the generic one the contract uses for this surface, so the answer to "is this
+     * order someone else's?" is the same as the answer to "does this order exist?".
+     */
+    @ExceptionHandler(OrderController.OrderNotVisibleException.class)
+    public ResponseEntity<ApiError> notVisible(
+            OrderController.OrderNotVisibleException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));
+    }
+
+    /**
+     * Commerce being unreachable is this service's problem, not the caller's: 503 and retryable, so
+     * the caller does not read it as "your order does not exist" and does not treat a timeout as a
+     * refusal. A timeout is never a failed refund, and it is never a missing order either.
+     */
+    @ExceptionHandler(CommerceOrderLineClient.CommerceUnavailableException.class)
+    public ResponseEntity<ApiError> commerceUnavailable(
+            CommerceOrderLineClient.CommerceUnavailableException error, HttpServletRequest request) {
+        LOG.warn("commerce is unavailable: {}", error.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ApiError.of(
+                        "SERVICE_UNAVAILABLE", "the order service is temporarily unavailable", true, traceId(request)));
+    }
+
+    /** A Commerce answer this service cannot read is a bug here, not a caller error. */
+    @ExceptionHandler(CommerceOrderLineClient.CommerceProtocolException.class)
+    public ResponseEntity<ApiError> commerceProtocol(
+            CommerceOrderLineClient.CommerceProtocolException error, HttpServletRequest request) {
+        LOG.error("commerce answered something this service cannot read: {}", error.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ApiError.of(
+                        "SERVICE_UNAVAILABLE",
+                        "the order service answered an unusable response",
+                        true,
+                        traceId(request)));
     }
 
     private static String traceId(HttpServletRequest request) {

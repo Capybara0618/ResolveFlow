@@ -36,6 +36,19 @@ public class OrderLineReadService {
     }
 
     public Page list(String merchantId, String customerId, String cursor, Integer requestedLimit) {
+        return list(merchantId, customerId, null, cursor, requestedLimit);
+    }
+
+    /**
+     * The same listing narrowed to one order, which is what Case's {@code
+     * GET /api/v1/orders/{order_id}} reads.
+     *
+     * <p>{@code orderId} filters inside the scope rather than replacing it: it is combined with the
+     * merchant (and customer) above, so naming another tenant's order yields an empty page rather
+     * than that order's lines, and Case can answer 404 without disclosing that the order exists
+     * (docs/core-contracts.md:27).
+     */
+    public Page list(String merchantId, String customerId, String orderId, String cursor, Integer requestedLimit) {
         if (merchantId == null || merchantId.isBlank()) {
             throw new IllegalArgumentException("a listing needs a merchant scope");
         }
@@ -44,6 +57,7 @@ public class OrderLineReadService {
         List<OrderLineRow> rows = repository.findVisible(
                 merchantId,
                 blankToNull(customerId),
+                blankToNull(orderId),
                 after == null ? null : after.paidAt(),
                 after == null ? null : after.lineId(),
                 limit + 1);

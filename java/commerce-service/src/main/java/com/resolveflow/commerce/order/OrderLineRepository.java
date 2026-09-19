@@ -36,6 +36,9 @@ public interface OrderLineRepository {
             <if test="customerId != null">
                AND l.customer_id = #{customerId}
             </if>
+            <if test="orderId != null">
+               AND l.order_id = #{orderId}
+            </if>
             <if test="beforePaidAt != null">
                AND (l.paid_at &lt; #{beforePaidAt}
                     OR (l.paid_at = #{beforePaidAt} AND l.line_id &lt; #{beforeLineId}))
@@ -47,6 +50,7 @@ public interface OrderLineRepository {
     List<OrderLineRow> findVisible(
             @Param("merchantId") String merchantId,
             @Param("customerId") String customerId,
+            @Param("orderId") String orderId,
             @Param("beforePaidAt") Instant beforePaidAt,
             @Param("beforeLineId") String beforeLineId,
             @Param("limitPlusOne") int limitPlusOne);

@@ -45,9 +45,16 @@ paths:
         not given. Lines outside the scope are absent from the result rather than
         reported as forbidden, so the list does not disclose what the principal may not
         see; a service token without the read scope is 403 (403).
+
+        order_id narrows the same scoped result to one order, which is what Case's
+        GET /api/v1/orders/{order_id} needs: filtering inside the scope is a narrowing,
+        never a way around it, so an order that is not the caller's simply yields no
+        lines and Case answers 404 without disclosing that the order exists
+        (docs/core-contracts.md:27).
       parameters:
         - $ref: '#/components/parameters/MerchantId'
         - $ref: '#/components/parameters/CustomerId'
+        - $ref: '#/components/parameters/OrderId'
         - $ref: '#/components/parameters/Cursor'
         - $ref: '#/components/parameters/Limit'
       responses:
@@ -252,6 +259,12 @@ components:
         type: string
         minLength: 1
         maxLength: 64
+    OrderId:
+      name: order_id
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/Uuid'
     Cursor:
       name: cursor
       in: query
