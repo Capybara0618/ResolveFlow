@@ -41,7 +41,7 @@
 | `agent-proposal.schema.json`（`urn:resolveflow:core:agent-proposal:v2`） | 已建立（C00.2c-1，2026-09-18） |
 | 核心路由覆盖测试（三份文档逐项对应） | 已建立（C00.2b，45 个测试） |
 | 核心正向 fixture（`fixtures/valid.json`） | 已建立（C00.2c-2a，2026-09-19；含 45 个语料测试） |
-| 核心反向 fixture（`fixtures/reject.json`） | 待建立（C00.2c-2b） |
+| 核心反向 fixture（`fixtures/reject.json`） | 已建立（C00.2c-2b，2026-09-19；51 条负例、18 个测试） |
 | Java/Pydantic 核心 DTO | 待建立（C00.2c） |
 | core profile 启动/smoke 选择（不要求 fulfillment/Nacos/观测集群） | 待调整（C00.3） |
 

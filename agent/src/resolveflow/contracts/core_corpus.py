@@ -24,12 +24,14 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey,
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 from resolveflow.contracts._schemaio import CORE_SCHEMA_FILES, load_json, validator_bundle
-from resolveflow.contracts.canonical import payload_hash
+from resolveflow.contracts.canonical import CanonicalizationError, payload_hash
 from resolveflow.contracts.events import EventSignatureError, sign_core_envelope, verify_core_envelope
 from resolveflow.contracts.fixtures import PLACEHOLDER_PREFIX, collect_placeholders, resolve_instance, substitute_values
 
 __all__ = [
     "CORE_CORPUS_PATH",
+    "CORE_REJECT_PATH",
+    "CORE_REJECT_TARGETS",
     "CORE_SCHEMA_SECTIONS",
     "SIGNING_KEY_ID",
     "SUPPORT_SECTIONS",
@@ -38,11 +40,17 @@ __all__ = [
     "core_placeholder_tokens",
     "core_signing_keys",
     "load_core_corpus",
+    "load_core_reject_corpus",
     "resolve_core_instance",
+    "resolve_core_negative_instance",
+    "strip_annotations",
     "validate_core_corpus",
+    "validate_core_invalid_payloads",
+    "validate_core_reject_corpus",
 ]
 
 CORE_CORPUS_PATH = "contracts/core/fixtures/valid.json"
+CORE_REJECT_PATH = "contracts/core/fixtures/reject.json"
 
 #: Schema every section's entries must satisfy. The URNs are written out rather than read
 #: from the files so the corpus test can compare them against the ids actually on disk:
@@ -63,6 +71,17 @@ CORE_SCHEMA_SECTIONS: dict[str, str] = {
 SUPPORT_SECTIONS = ("components", "signing_keys")
 
 SIGNING_KEY_ID = "core-fixture-key-1"
+
+#: The schema each negative section's instances must be refused by, or ``None`` when the
+#: refusal has to come from the hasher because the rule (integer money, the 2^53-1 bound,
+#: which fields a digest covers) is not expressible as a JSON Schema constraint on the
+#: digest input.
+CORE_REJECT_TARGETS: dict[str, str | None] = {
+    "execution_commands": CORE_COMMAND,
+    "event_envelopes": CORE_ENVELOPE,
+    "agent_proposals": CORE_PROPOSAL,
+    "canonical_payloads": None,
+}
 
 
 class CoreCorpusError(ValueError):
@@ -215,6 +234,165 @@ def resolve_core_instance(
 def core_placeholder_tokens(corpus: dict[str, Any]) -> set[str]:
     """Every ``PLACEHOLDER_*`` token the corpus file uses, annotations included."""
     return collect_placeholders(corpus)
+
+
+# ----------------------------------------------------------------- the negative corpus
+
+
+def load_core_reject_corpus() -> dict[str, Any]:
+    return load_json(CORE_REJECT_PATH)
+
+
+def _remove_path(instance: dict[str, Any], dotted: str) -> None:
+    """Delete a dotted path, refusing a path that was not there.
+
+    A silent no-op would turn "this fixture must lack ``payload.aggregate_version``" into
+    a fixture that still has it - a negative case that tests nothing while looking
+    deliberate.
+    """
+    parts = dotted.split(".")
+    node: Any = instance
+    for part in parts[:-1]:
+        if not isinstance(node, dict) or part not in node:
+            raise CoreCorpusError(f"negative fixture removes {dotted!r}, but {part!r} is not there")
+        node = node[part]
+    last = parts[-1]
+    if not isinstance(node, dict) or last not in node:
+        raise CoreCorpusError(f"negative fixture removes {dotted!r}, but it is not there")
+    del node[last]
+
+
+def _negative_instance(
+    entry: dict[str, Any],
+    valid: dict[str, Any],
+    values: dict[str, str],
+    where: str,
+) -> dict[str, Any]:
+    """Build one negative instance from a full object or from a named base plus a delta.
+
+    A negative fixture is interesting for its delta, so most entries name a positive base
+    and change one thing. Two forms are supported: ``instance`` (a complete object, for
+    cases that share nothing with a positive fixture) and ``base`` plus ``overrides`` /
+    ``remove``, where ``base`` is ``valid:<dotted path>`` into the positive corpus.
+    """
+    if "instance" in entry:
+        candidate = copy.deepcopy(entry["instance"])
+        if not isinstance(candidate, dict):
+            raise CoreCorpusError(f"negative fixture {where}.instance must be an object")
+        instance = strip_annotations(candidate)
+    elif "base" in entry:
+        prefix, _, path = str(entry["base"]).partition(":")
+        if prefix != "valid" or not path:
+            raise CoreCorpusError(
+                f"negative fixture {where} names base {entry['base']!r}; only 'valid:<path>' is known"
+            )
+        referenced = _lookup(valid, path)
+        if not isinstance(referenced, dict):
+            raise CoreCorpusError(f"negative fixture {where} bases itself on a non-object at {path!r}")
+        instance = strip_annotations(resolve_instance(referenced, valid))
+    else:
+        raise CoreCorpusError(f"negative fixture {where} must provide instance or base")
+    instance = substitute_values(instance, values)
+    for dotted in entry.get("remove", []):
+        _remove_path(instance, dotted)
+    overrides = entry.get("overrides", {})
+    if not isinstance(overrides, dict):
+        raise CoreCorpusError(f"negative fixture {where}.overrides must be an object")
+    instance.update(overrides)
+    return instance
+
+
+def resolve_core_negative_instance(
+    reject: dict[str, Any],
+    section: str,
+    name: str,
+    valid: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """One concrete negative instance, for tests that inspect the deltas themselves."""
+    positive = valid if valid is not None else load_core_corpus()
+    entries = reject[section]
+    if not isinstance(entries, dict) or name not in entries:
+        raise CoreCorpusError(f"negative corpus has no fixture {section}.{name}")
+    entry = entries[name]
+    if not isinstance(entry, dict):
+        raise CoreCorpusError(f"negative fixture {section}.{name} must be an object")
+    return _negative_instance(entry, positive, computed_placeholder_values(positive), f"{section}.{name}")
+
+
+def validate_core_reject_corpus(
+    reject: dict[str, Any] | None = None,
+    valid: dict[str, Any] | None = None,
+) -> list[str]:
+    """Assert every negative fixture is refused by the schema its section names.
+
+    Returns one line per fixture. A rejection that starts passing means the protocol
+    regressed and the schema needs fixing - not the fixture.
+    """
+    document = reject if reject is not None else load_core_reject_corpus()
+    positive = valid if valid is not None else load_core_corpus()
+    values = computed_placeholder_values(positive)
+    checked: list[str] = []
+    for section, entries in document.items():
+        if section.startswith("_"):
+            continue
+        if section not in CORE_REJECT_TARGETS:
+            raise CoreCorpusError(f"negative corpus section '{section}' names no schema to be refused by")
+        target = CORE_REJECT_TARGETS[section]
+        if target is None:
+            # Checked by the hasher rather than a schema; see validate_core_invalid_payloads.
+            continue
+        validator = validator_bundle(target, CORE_SCHEMA_FILES)
+        if not isinstance(entries, dict):
+            raise CoreCorpusError(f"negative corpus section '{section}' must be an object")
+        for name in sorted(name for name in entries if not name.startswith("_")):
+            entry = entries[name]
+            if not isinstance(entry, dict):
+                raise CoreCorpusError(f"negative fixture {section}.{name} must be an object")
+            why = entry.get("why")
+            if not isinstance(why, str) or not why:
+                raise CoreCorpusError(f"negative fixture {section}.{name} does not say why it must be refused")
+            instance = _negative_instance(entry, positive, values, f"{section}.{name}")
+            if validator.accepts(instance):
+                raise CoreCorpusError(
+                    f"negative fixture {section}.{name} is accepted by {validator.name}, but it must be refused. "
+                    f"Reason it exists: {why}"
+                )
+            checked.append(f"rejected as required: {section}.{name}")
+    return checked
+
+
+def validate_core_invalid_payloads(reject: dict[str, Any] | None = None) -> list[str]:
+    """Prove every payload JSON Schema cannot describe is refused rather than hashed.
+
+    A float amount, an integer past 2^53-1, a missing hashed field and an action whose
+    field set is different cannot be expressed as a JSON Schema constraint on *the
+    digest input*; they are checked by calling the hasher, the way a producer would. A
+    payload that silently hashes is worse than one that hashes wrongly: both sides would
+    agree on a digest for something that must not exist.
+    """
+    document = reject if reject is not None else load_core_reject_corpus()
+    positive = load_core_corpus()
+    values = computed_placeholder_values(positive)
+    entries = document.get("canonical_payloads", {})
+    if not isinstance(entries, dict):
+        raise CoreCorpusError("negative corpus section 'canonical_payloads' must be an object")
+    checked: list[str] = []
+    for name in sorted(name for name in entries if not name.startswith("_")):
+        entry = entries[name]
+        why = entry.get("why")
+        if not isinstance(why, str) or not why:
+            raise CoreCorpusError(f"negative fixture canonical_payloads.{name} does not say why it must be refused")
+        instance = _negative_instance(entry, positive, values, f"canonical_payloads.{name}")
+        try:
+            digest = payload_hash(instance)
+        except CanonicalizationError:
+            checked.append(f"refused by the hasher: canonical_payloads.{name}")
+            continue
+        raise CoreCorpusError(
+            f"negative fixture canonical_payloads.{name} was hashed as {digest}, but it must be refused. "
+            f"Reason it exists: {why}"
+        )
+    return checked
 
 
 def validate_core_corpus(corpus: dict[str, Any] | None = None) -> list[str]:

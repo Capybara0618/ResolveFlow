@@ -1,0 +1,313 @@
+{
+  "_comment": [
+    "core-v1.2 反向语料：每一条都是「必须被拒绝」的实例，并且必须写明为什么必须被拒。",
+    "权威要求见 docs/core-contracts.md:71：新 Schema 拒绝补发、负数/浮点、错 target、伪造来源及未知字段。",
+    "每条都用 base 指向正向语料里的对象再给一个增量（overrides / remove），因为反向语料值得读的是「差在哪」；也可以直接给完整 instance。",
+    "remove 支持点路径（例如 payload.aggregate_version）；删一个不存在的路径会当场失败，否则一条「本该缺少某字段」的负例可能其实什么都没测。",
+    "canonical_payloads 一节不由 JSON Schema 拒绝，而由哈希实现拒绝：整数金额、2^53-1 上界、摘要覆盖哪些字段，都无法用「约束摘要输入」的 JSON Schema 表达。"
+  ],
+  "execution_commands": {
+    "_comment": "必须被 urn:resolveflow:core:refund-command:v2 拒绝的命令。",
+    "reship_action": {
+      "why": "补发被延期，核心命令只允许 REFUND（docs/core-scope.md:17、docs/core-contracts.md:65、docs/core-contracts.md:71）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"action": "RESHIP"}
+    },
+    "missing_payload_hash": {
+      "why": "payload_hash 是必填：没有它就没有「同 operation_id 同载荷」的判据（docs/core-contracts.md:17）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "remove": ["payload_hash"]
+    },
+    "hash_not_hex": {
+      "why": "摘要必须是 64 位小写十六进制；大写或短串都说明它不是 SHA-256（docs/core-contracts.md:17）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"payload_hash": "NOT-A-SHA256"}
+    },
+    "entitlement_id_present": {
+      "why": "v1 在预留后才填 entitlement_id，放进会被哈希的载荷会让摘要依赖当时不存在的值（docs/core-contracts.md:19）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"entitlement_id": "ent-0001"}
+    },
+    "address_hash_present": {
+      "why": "address_hash 属于被延期的补发分支，核心命令里是未知字段（docs/core-contracts.md:19、docs/core-contracts.md:71）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"address_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+    },
+    "schema_version_present": {
+      "why": "核心命令不带 schema_version：命令的每个字段都被摘要覆盖，放一个不参与哈希的版本字段会让两条不同命令共享摘要（docs/core-contracts.md:17、docs/core-contracts.md:18）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"schema_version": 2}
+    },
+    "wrong_target_service": {
+      "why": "核心命令的 target_service 只能是 commerce-service（docs/core-contracts.md:65、docs/core-contracts.md:71）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"target_service": "fulfillment-service"}
+    },
+    "currency_not_cny": {
+      "why": "金额只支持 CNY 整数分（docs/core-scope.md:9）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"currency": "USD"}
+    },
+    "amount_zero": {
+      "why": "金额下界是 1 分（docs/core-contracts.md:17）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"amount_minor": 0}
+    },
+    "amount_float": {
+      "why": "金额是整数分，浮点金额在金额层面就不该存在（docs/domain-model.md:3、docs/core-contracts.md:71）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"amount_minor": 25.99}
+    },
+    "amount_over_ceiling": {
+      "why": "金额上界是 1,000,000,000 分（docs/core-contracts.md:17）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"amount_minor": 1000000001}
+    },
+    "quantity_zero": {
+      "why": "核心只做整行全量退款，数量必须至少为 1（docs/core-scope.md:9）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"quantity": 0}
+    },
+    "revision_zero": {
+      "why": "input_revision 从 1 开始，且它是决策输入版本而不是乐观锁 version（docs/domain-model.md:3）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"input_revision": 0}
+    },
+    "line_id_empty": {
+      "why": "line_id 是命令归属的定位依据，空串无法定位（docs/core-contracts.md:65）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"line_id": ""}
+    },
+    "unknown_field": {
+      "why": "未知字段必须被拒绝，否则「多带一个字段」会变成一条静默的旁路（docs/core-contracts.md:71）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"note": "free text"}
+    }
+  },
+  "event_envelopes": {
+    "_comment": "必须被 urn:resolveflow:core:event-envelope:v2 拒绝的信封。",
+    "v1_schema_version": {
+      "why": "核心信封的 schema_version 常量是 2；收到 1 说明对端还在说 v1（docs/core-contracts.md:9）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "overrides": {"schema_version": 1}
+    },
+    "reship_event_type": {
+      "why": "核心只有四种事件类型，补发事件不在其中（docs/core-contracts.md:9）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "overrides": {"event_type": "ReshipSucceeded"}
+    },
+    "entitlement_event_type": {
+      "why": "跨服务权益协议被延期，权益事件不是核心事件（docs/core-contracts.md:9、docs/core-contracts.md:53）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "overrides": {"event_type": "EntitlementCommitted"}
+    },
+    "requested_on_commerce_topic": {
+      "why": "RefundRequested 必须走 rf.case.core.v2；topic 写错会把命令送到只认结果的消费者（docs/core-contracts.md:9）。",
+      "base": "valid:message_envelopes.refund_requested",
+      "overrides": {"topic": "rf.commerce.core.v2"}
+    },
+    "result_signed_by_case_service": {
+      "why": "结果由 Commerce 发出；producer 写 case-service 就是伪造来源（docs/core-contracts.md:67、docs/core-contracts.md:71）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "overrides": {"producer": "case-service"}
+    },
+    "result_without_signature": {
+      "why": "核心要求结果也签名；v1 允许结果不签名，核心不允许（docs/core-contracts.md:67）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "remove": ["signature"]
+    },
+    "result_without_signing_key_id": {
+      "why": "signing_key_id 在被签名的成员里，缺了它就无法把签名对到信任列表（docs/core-contracts.md:19）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "remove": ["signing_key_id"]
+    },
+    "aggregate_id_present": {
+      "why": "业务版本只放在结果 payload 里一次；信封再放一份就会有两个可能不一致的位置（docs/domain-model.md:3）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "overrides": {"aggregate_id": "op-0001"}
+    },
+    "aggregate_version_on_envelope": {
+      "why": "同上：aggregate_version 属于结果 payload，不属于信封（docs/domain-model.md:3、docs/core-contracts.md:67）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "overrides": {"aggregate_version": 7}
+    },
+    "result_without_aggregate_version": {
+      "why": "结果 payload 必须带 aggregate_version，否则无法判断乱序结果（docs/core-contracts.md:67）。",
+      "base": "valid:message_envelopes.refund_unknown",
+      "remove": ["payload.aggregate_version"]
+    },
+    "result_state_in_progress": {
+      "why": "终态只有 SUCCEEDED/FAILED/UNKNOWN；IN_PROGRESS 属于 Commerce 内部状态，不该出现在事件里（docs/domain-model.md:57）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "overrides": {"payload": {"operation_id": "3f2504e0-4f89-41d3-9a0c-0305e82c3301", "line_id": "7001", "state": "IN_PROGRESS", "amount_minor": 2599, "aggregate_version": 7}}
+    },
+    "naive_timestamp": {
+      "why": "时间必须带偏移；没有偏移的时间戳在跨时区时无法排序（docs/core-contracts.md:17）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "overrides": {"occurred_at": "2026-09-18T04:31:00"}
+    },
+    "event_id_not_uuid": {
+      "why": "ID 用 UUID（docs/domain-model.md:3）。",
+      "base": "valid:message_envelopes.refund_succeeded",
+      "overrides": {"event_id": "evt-1"}
+    },
+    "bad_traceparent": {
+      "why": "traceparent 的 W3C 形状是被 Schema 钉住的，随手写的追踪号无法与上游关联（docs/core-contracts.md:19）。",
+      "base": "valid:message_envelopes.refund_requested",
+      "overrides": {"traceparent": "trace-1"}
+    },
+    "command_from_commerce": {
+      "why": "命令由 Case 签名发出；producer 写 commerce-service 就是伪造来源（docs/core-contracts.md:65、docs/core-contracts.md:71）。",
+      "base": "valid:message_envelopes.refund_requested",
+      "overrides": {"producer": "commerce-service"}
+    }
+  },
+  "agent_proposals": {
+    "_comment": "必须被 urn:resolveflow:core:agent-proposal:v2 拒绝的提案。",
+    "reship_action": {
+      "why": "核心方案不允许 RESHIP（docs/core-contracts.md:9）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"recommended_action": "RESHIP"}
+    },
+    "either_action": {
+      "why": "EITHER 是 compat 面向客户的值，不是方案动作（docs/agent-spec.md:19）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"recommended_action": "EITHER"}
+    },
+    "v1_schema_version": {
+      "why": "核心方案 schema_version 常量是 2，其他字段复用旧结构（docs/core-contracts.md:9）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"schema_version": 1}
+    },
+    "missing_schema_version": {
+      "why": "schema_version 必填：Java 需要据此区分 v1 与 v2 方案（docs/core-contracts.md:9）。",
+      "base": "valid:components.proposalRefund",
+      "remove": ["schema_version"]
+    },
+    "missing_case_id": {
+      "why": "case_id 必填：body 主体必须与 service JWT 及 Case 绑定一致，绑定不在 body 里就没有可交叉校验的东西（docs/core-contracts.md:9、docs/core-contracts.md:57）。",
+      "base": "valid:components.proposalRefund",
+      "remove": ["case_id"]
+    },
+    "refund_without_evidence": {
+      "why": "可执行方案必须引用证据（docs/core-scope.md:7）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"evidence_refs": []}
+    },
+    "refund_without_policy": {
+      "why": "可执行方案必须引用政策（docs/core-scope.md:7）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"policy_refs": []}
+    },
+    "refund_asking_for_evidence": {
+      "why": "可执行方案不能再索取材料：那是 REQUEST_INFO 的语义，两者互斥终局（docs/core-contracts.md:59）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"missing_evidence": ["损坏部位照片"]}
+    },
+    "amount_null": {
+      "why": "没有建议金额用「字段缺失」表达，null 不是第二种说法，否则同一事实有两种编码（docs/product-spec.md:25）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"suggested_amount_minor": null}
+    },
+    "amount_float": {
+      "why": "金额是整数分（docs/domain-model.md:3）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"suggested_amount_minor": 25.99}
+    },
+    "amount_over_ceiling": {
+      "why": "金额上界 1,000,000,000 分（docs/core-contracts.md:17）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"suggested_amount_minor": 1000000001}
+    },
+    "status_present": {
+      "why": "方案载荷不带审批状态，状态由 case 侧拥有；带在载荷里会让两侧各有一份状态（docs/domain-model.md:57）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"status": "VALIDATED"}
+    },
+    "created_at_present": {
+      "why": "created_at 属于 case 侧的 ProposalView，不属于 run 提交的载荷（docs/core-contracts.md:59）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"created_at": "2026-09-18T04:28:00Z"}
+    },
+    "summary_empty": {
+      "why": "摘要为空时审核员没有可读的内容（docs/core-contracts.md:59）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"summary": ""}
+    },
+    "reason_codes_empty": {
+      "why": "没有理由码的方案无法被审核或复盘（docs/core-contracts.md:59）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"reason_codes": []}
+    },
+    "reason_code_lowercase": {
+      "why": "线上理由码是大写下划线形式，小写会与其他服务的取值对不上（docs/core-contracts.md:59）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"reason_codes": ["carrier_lost"]}
+    },
+    "source_ref_is_url": {
+      "why": "ref 不是可请求的任意 URL，Java 按固定 source_ref 映射查权威数据（docs/core-contracts.md:61）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {
+        "evidence_refs": [
+          {
+            "observation_id": "obs-shipment-1",
+            "source_ref": "https://example.com/orders/7001",
+            "source_version": "2",
+            "content_hash": "1111111111111111111111111111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    "evidence_without_content_hash": {
+      "why": "证据引用必须带 content_hash，否则无法证明 Java 复核的是同一份内容（docs/core-contracts.md:61）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {
+        "evidence_refs": [
+          {"observation_id": "obs-shipment-1", "source_ref": "line:7001/shipment", "source_version": "2"}
+        ]
+      }
+    },
+    "policy_ref_without_chunk": {
+      "why": "政策引用必须定位到具体 chunk，只给 bundle 无法说明依据的是哪条规则（docs/core-contracts.md:59）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {
+        "policy_refs": [
+          {
+            "bundle_id": "policy-logistics-2026.09",
+            "version": "2026.09",
+            "rule_id": "R-LOST-001",
+            "content_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ]
+      }
+    },
+    "unknown_field": {
+      "why": "未知字段必须被拒绝（docs/core-contracts.md:71）。",
+      "base": "valid:components.proposalRefund",
+      "overrides": {"note": "free text"}
+    }
+  },
+  "canonical_payloads": {
+    "_comment": "必须被哈希实现拒绝的摘要输入：这些规则无法用 JSON Schema 表达。",
+    "float_amount": {
+      "why": "浮点金额没有规范化表示，直接拒绝而不是序列化（docs/core-contracts.md:17、docs/core-contracts.md:71）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"amount_minor": 25.99}
+    },
+    "revision_past_2_53": {
+      "why": "revision/version 不超过 2^53-1，超过后各语言的双精度不再一致（docs/core-contracts.md:17）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"input_revision": 9007199254740992}
+    },
+    "missing_hashed_field": {
+      "why": "摘要覆盖的 12 个字段缺一不可，缺字段应当报错而不是算出一个别的摘要（docs/core-contracts.md:18）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "remove": ["line_id"]
+    },
+    "reship_action": {
+      "why": "补发走的是另一套被哈希字段（含 address_hash），拿退款字段按补发动作算摘要是错的（docs/core-contracts.md:19）。",
+      "base": "valid:components.refundCommandLostParcel",
+      "overrides": {"action": "RESHIP"}
+    }
+  }
+}
