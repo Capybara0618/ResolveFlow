@@ -82,6 +82,8 @@ paths:
                 page:
                   limit: 20
                   next_cursor: null
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
   /internal/v1/order-lines/{line_id}/context:
@@ -116,6 +118,8 @@ paths:
                 paid_at: '2026-09-10T08:15:00Z'
                 order_status: PAID
                 version: 3
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
         '404':
@@ -152,6 +156,8 @@ paths:
                     source_version: 2
                 source_version: 2
                 updated_at: '2026-09-18T03:05:00Z'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
         '404':
@@ -185,6 +191,8 @@ paths:
                 state: RESERVED
                 operation_id: 3f2504e0-4f89-41d3-9a0c-0305e82c3301
                 version: 4
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
         '404':
@@ -216,6 +224,8 @@ paths:
                 reason_code: PROVIDER_TIMEOUT
                 next_check_at: '2026-09-18T10:05:00Z'
                 version: 5
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
         '404':
@@ -294,6 +304,18 @@ components:
         maximum: 100
         default: 20
   responses:
+    Unauthenticated:
+      description: Missing or invalid user token (401)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: UNAUTHENTICATED
+            message: the access token is missing or expired
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+
     ForbiddenScope:
       description: Service token lacks the required scope (403)
       content:

@@ -1,0 +1,19 @@
+# 2026.08 版物流退款政策（合成数据）
+#
+# 一个 bundle 是一份不可变规则集：改内容等于换版本。生效区间用于按"支付时间"选择版本，
+# 区间不得与其它 bundle 重叠（导入时校验）。
+bundle_id: policy-logistics-2026.08
+version: "2026.08"
+safety_epoch: 1
+effective_from: "2026-08-01T00:00:00Z"
+effective_to: "2026-09-01T00:00:00Z"
+rules:
+  - rule_id: R-LOST-001
+    title: 承运商判定丢失
+    text: 承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。
+  - rule_id: R-SIGNED-001
+    title: 已签收
+    text: 存在有效签收记录时不予退款；客户主张未收到时须由人工核验后再决定。
+  - rule_id: R-DELAY-001
+    title: 超时未达
+    text: 承运商结论为 DELAYED 且超过承诺时效 7 天时，可由人工核验后按行支付金额退款。

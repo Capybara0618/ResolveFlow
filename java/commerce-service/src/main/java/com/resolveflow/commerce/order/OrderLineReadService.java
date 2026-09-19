@@ -58,7 +58,13 @@ public class OrderLineReadService {
      * than that order's lines, and Case can answer 404 without disclosing that the order exists
      * (docs/core-contracts.md:27).
      */
-    public Page list(String merchantId, String customerId, String orderId, String lineId, String cursor, Integer requestedLimit) {
+    public Page list(
+            String merchantId,
+            String customerId,
+            String orderId,
+            String lineId,
+            String cursor,
+            Integer requestedLimit) {
         if (merchantId == null || merchantId.isBlank()) {
             throw new IllegalArgumentException("a listing needs a merchant scope");
         }

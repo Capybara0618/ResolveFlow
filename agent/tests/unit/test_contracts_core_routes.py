@@ -484,6 +484,50 @@ def test_case_has_no_policy_management_route() -> None:
     assert "/internal/v1/cases/{case_id}/policy-manifest" in paths
 
 
+def test_every_internal_route_declares_both_refusals_of_the_service_filter() -> None:
+    """An internal route can refuse a request in two ways, and both are part of its contract.
+
+    The filter answers a missing or broken token with 401 and a valid *user* token with 403
+    (docs/core-contracts.md:15) before any handler runs. A route that declares only 404 leaves a
+    caller unable to tell "my service token is wrong" from "that case does not exist" — and the
+    policy read route shipped that way until C03.1a, so this asserts it for every internal route
+    rather than for the one that was noticed.
+    """
+    offenders: list[str] = []
+    for service in ("case", "commerce", "agent"):
+        for path, item in document(service)["paths"].items():
+            if not path.startswith("/internal/"):
+                continue
+            for method, operation in item.items():
+                if method.lower() not in {"get", "post"}:
+                    continue
+                responses = operation.get("responses", {})
+                if not {"401", "403"} <= set(responses):
+                    offenders.append(f"{method.upper()} {path} ({service})")
+    assert offenders == [], f"internal routes must declare 401 and 403: {offenders}"
+
+
+def test_the_policy_read_route_serves_the_text_a_citation_is_checked_against() -> None:
+    """The bundle route is the source of truth for a citation (docs/core-contracts.md:51).
+
+    Two things have to be true of it: it is service-only, and the rules it returns are the rules
+    themselves. The effective window is deliberately absent from the response — it decides *which*
+    version applies (by payment time, docs/core-contracts.md:50), and the schema forbids extra
+    members, so a window in the response would be a contract violation, not extra information.
+    """
+    operation = document("case")["paths"]["/internal/v1/policies/{bundle_id}"]["get"]
+    assert operation["security"] == [{"serviceToken": []}]
+    assert {"200", "401", "403", "404"} <= set(operation["responses"])
+
+    bundle = document("case")["components"]["schemas"]["PolicyBundle"]
+    assert bundle["additionalProperties"] is False
+    assert set(bundle["required"]) == {"bundle_id", "version", "manifest_hash", "rules"}
+    assert "effective_from" not in bundle["properties"], (
+        "the window is how the version is chosen, not something the reader of the rules needs"
+    )
+    assert bundle["properties"]["rules"]["minItems"] >= 1, "a bundle with no rules decides nothing"
+
+
 def test_case_question_callback_is_limited_to_three_questions() -> None:
     def collect(node: Any, trail: str) -> list[tuple[str, Any]]:
         found: list[tuple[str, Any]] = []

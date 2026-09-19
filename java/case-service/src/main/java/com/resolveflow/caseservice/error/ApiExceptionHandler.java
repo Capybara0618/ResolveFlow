@@ -7,6 +7,7 @@ import com.resolveflow.caseservice.casefile.CaseStateConflictException;
 import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.caseservice.order.OrderController;
 import com.resolveflow.caseservice.order.RequestPrincipalResolver;
+import com.resolveflow.caseservice.policy.PolicyController;
 import com.resolveflow.shared.error.ApiError;
 import com.resolveflow.shared.security.DemoAccounts;
 import com.resolveflow.shared.security.JwtCodec;
@@ -114,6 +115,13 @@ public class ApiExceptionHandler {
     @ExceptionHandler(CaseReadService.CaseNotVisibleException.class)
     public ResponseEntity<ApiError> caseNotVisible(
             CaseReadService.CaseNotVisibleException error, HttpServletRequest request) {
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
+    }
+
+    /** An unknown policy bundle on the internal read surface (C03.1a). */
+    @ExceptionHandler(PolicyController.PolicyBundleNotFoundException.class)
+    public ResponseEntity<ApiError> policyBundleNotFound(
+            PolicyController.PolicyBundleNotFoundException error, HttpServletRequest request) {
         return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
     }
 

@@ -1,0 +1,101 @@
+package com.resolveflow.caseservice.policy;
+
+import java.time.Instant;
+import java.util.List;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+/**
+ * Stored policy bundles and their rules.
+ *
+ * <p>There is deliberately no update and no delete statement here. A version is immutable, and the way to
+ * be sure of that is for the code to have no means of editing one — the migration's triggers refuse an edit
+ * as well, but they are the second line, not the first.
+ */
+@Mapper
+public interface PolicyRepository {
+
+    @Insert("""
+            INSERT INTO policy_bundle (bundle_id, version, manifest_hash, safety_epoch, effective_from,
+                                       effective_to, imported_at, source_path)
+            VALUES (#{bundleId}, #{version}, #{manifestHash}, #{safetyEpoch}, #{effectiveFrom},
+                    #{effectiveTo}, #{importedAt}, #{sourcePath})
+            """)
+    void insertBundle(
+            @Param("bundleId") String bundleId,
+            @Param("version") String version,
+            @Param("manifestHash") String manifestHash,
+            @Param("safetyEpoch") int safetyEpoch,
+            @Param("effectiveFrom") Instant effectiveFrom,
+            @Param("effectiveTo") Instant effectiveTo,
+            @Param("importedAt") Instant importedAt,
+            @Param("sourcePath") String sourcePath);
+
+    @Insert("""
+            INSERT INTO policy_rule (bundle_id, rule_id, position, title, text)
+            VALUES (#{bundleId}, #{ruleId}, #{position}, #{title}, #{text})
+            """)
+    void insertRule(
+            @Param("bundleId") String bundleId,
+            @Param("ruleId") String ruleId,
+            @Param("position") int position,
+            @Param("title") String title,
+            @Param("text") String text);
+
+    @Select("""
+            SELECT bundle_id      AS bundleId,
+                   version        AS version,
+                   manifest_hash  AS manifestHash,
+                   safety_epoch   AS safetyEpoch,
+                   effective_from AS effectiveFrom,
+                   effective_to   AS effectiveTo
+              FROM policy_bundle
+             WHERE bundle_id = #{bundleId}
+            """)
+    StoredBundle findBundle(@Param("bundleId") String bundleId);
+
+    /** Rules in the order the source file wrote them. */
+    @Select("""
+            SELECT rule_id AS ruleId,
+                   title   AS title,
+                   text    AS text
+              FROM policy_rule
+             WHERE bundle_id = #{bundleId}
+             ORDER BY position
+            """)
+    List<PolicyRule> findRules(@Param("bundleId") String bundleId);
+
+    /**
+     * Every stored window, locked, so an import can refuse one that would overlap an existing version.
+     *
+     * <p>{@code FOR UPDATE} is what makes the refusal hold: the answer decides whether the caller inserts,
+     * and two imports running at once must not both find the range free. It is only ever called inside the
+     * import transaction.
+     */
+    @Select("""
+            SELECT bundle_id      AS bundleId,
+                   manifest_hash  AS manifestHash,
+                   safety_epoch   AS safetyEpoch,
+                   effective_from AS effectiveFrom,
+                   effective_to   AS effectiveTo
+              FROM policy_bundle
+             ORDER BY effective_from
+               FOR UPDATE
+            """)
+    List<StoredWindow> listWindowsForUpdate();
+
+    /** A stored bundle header, without its rules. */
+    record StoredBundle(
+            String bundleId,
+            String version,
+            String manifestHash,
+            int safetyEpoch,
+            Instant effectiveFrom,
+            Instant effectiveTo) {}
+
+    /** A stored window, used for overlap checks and for choosing a version. */
+    record StoredWindow(
+            String bundleId, String manifestHash, int safetyEpoch, Instant effectiveFrom, Instant effectiveTo) {}
+}

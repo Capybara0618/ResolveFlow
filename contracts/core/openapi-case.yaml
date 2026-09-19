@@ -717,6 +717,8 @@ paths:
               example:
                 disposition: ACCEPTED
                 case_version: 6
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
         '404':
@@ -758,6 +760,8 @@ paths:
                 token: eyJhbGciOiJFZERTQSJ9.tool.scoped.token
                 expires_at: '2026-09-18T04:40:00Z'
                 scopes: [commerce:read, policy:read]
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
         '409':
@@ -796,6 +800,8 @@ paths:
                     source_ref: line:7001/payment_ledger
                     source_version: '3'
                     content_hash: '4444444444444444444444444444444444444444444444444444444444444444'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
         '404':
@@ -826,6 +832,10 @@ paths:
                     safety_epoch: 1
                 effective_from: '2026-09-01T00:00:00Z'
                 effective_to: null
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
         '404':
           $ref: '#/components/responses/NotFound'
   /internal/v1/policies/{bundle_id}:
@@ -856,6 +866,10 @@ paths:
                   - rule_id: R-LOST-001
                     title: 承运商判定丢失
                     text: 承运商结论为 LOST 且无有效签收时，可按行支付金额全额退款。
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
         '404':
           $ref: '#/components/responses/NotFound'
 components:

@@ -151,7 +151,19 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service **59**，0 失败 0 错误；`-Suite contracts` **PASSED**（56，`reports/verify/20260919-133803-contracts.txt`）；`-Suite unit` **PASSED**（`reports/verify/20260919-133832-unit.txt`）；`-Suite smoke`（core）**PASSED**（`reports/verify/20260919-134004-smoke.txt`）。
   - **真实端到端**（两个 jar + compose 真 MySQL，curl -N）：① 订阅终态工单 → `content-type: text/event-stream`，重放三帧（id/event/data 齐全）后自行收流；② `Accept: text/event-stream` 且无 token → **401 JSON 错误体**、别的客户 → 404 JSON（修复前的 500 已不复现）；③ 未知 `Last-Event-ID` → 先输出 `:unknown Last-Event-ID; replaying from the beginning` 再重放三帧；④ **实时投递**：先 `curl -N` 开流（header 经 `--config` 传入，避免引号被拆），3 秒后追加材料、再 2 秒后取消，订阅者依次收到 `CASE_CREATED`、`EVIDENCE_APPENDED`（开流之后才发生）、`CASE_CLOSED`（summary「工单已取消」），随后流自动结束。
   - 两次**我自己造成的验证失误**（如实记录）：第一次实时投递的 curl 用了 `Start-Process -H "Authorization: Bearer ..."`，参数里的空格被拆开导致收到 401——我差点把「实时投递没验成」记成通过；第二次换行时踩到「真实 404」（7003 不在种子客户的订单里，这也是正确行为），再换到被占用的 7002 又得到 `CASE_ALREADY_OPEN`（顺带证明单活跃 case 规则在真库跨进程成立）。第三次才对上，并且这次把 header 写进 curl 配置文件。
-  - C02.2 完成判据：材料只追加不覆盖、旧 revision 不可写、消费后 409、消费前取消并释放活跃 slot、轨迹与权限、SSE 读接口——均有测试（含并发）与真实端到端证据。之后进入 C03（策略/决策/审批）。
+  - C03.1a 完成（2026-09-19）：合成政策 bundle 受控导入 + 不可变版本 + 只读面 `GET /internal/v1/policies/{bundle_id}`（schema_version 无关，走 service token）。
+  - 政策原件放 `fixtures/policies/bundles/`（2026.08 三条规则、2026.09 五条规则，两版真的不同，否则「按支付时间选版本」没有可验证的新旧差），生效区间 2026.08 与 2026.09 不重叠、后者开放。README 里 T01/T07 的占位说明改成实际约定。
+  - 导入是**受控命令**而非 HTTP：`java -jar case-service.jar --spring.main.web-application-type=none --resolveflow.policy.import-dir=fixtures/policies/bundles`，`@ConditionalOnProperty` 保证普通启动绝不改政策（否则政策会变成「部署的函数」）。拒绝时进程退出码 1，所以流水线里不会被当成成功。
+  - 三条让「不可变版本」有意义的规则，各有测试：① **hash 由内容算出、不读文件里的 hash**（文件自带 hash 就能声称一套、装着另一套；而这个 hash 是以后证明「当初生效的规则就是被引用的规则」的依据）；② **同内容重复导入是跳过而非第二版**（重新部署后再跑一次是正常操作）；③ **同 bundle_id 换内容被拒绝**，报出旧 hash 与新 hash，并保持存储行不变。manifest_hash = 规范化 JSON（bundle_id/version/safety_epoch/窗口/按序规则）的 SHA-256，不含文件路径（同一 bundle 复制到别处仍是同一 bundle）。
+  - 窗口**不得重叠**（选择必须唯一），**允许有空隙**（政策发布前的支付就是没有政策，必须显式处理，不能悄悄借用最近的版本）。校验另含：未知成员拒绝（拼错的成员被忽略＝bundle 的规则比作者以为的少，而规则正是退款决定的引用依据）、同 bundle 内 rule_id 重复、空规则集、`effective_to <= effective_from`、非 `Z` 结尾的瞬时（拒绝而不是归一化：窗口必须与作者写下的一致）；规则数上限 200、position 保序（读取按 position，正文按作者写的顺序返回）。
+  - 契约缺口：`GET /internal/v1/policies/{bundle_id}` 只声明 200/404，而 `/internal/**` 过滤器在处理器之前就会用 **401**（无/坏令牌）和 **403**（合法**用户**令牌）拒绝。补上后顺手加了一条**覆盖全部内部路由**的契约测试——结果发现 **16 处**内部路由都没声明这两个拒绝（含已实现的 commerce `GET /internal/v1/order-lines`），三个文档都补了，commerce/agent 文档还缺 `Unauthenticated` 响应组件（一并补）。契约测试 56 → **58**。
+  - **真实代码 bug（测试抓到）**：路由最初直接返回领域记录 `PolicyRule`，于是响应里出现 `ruleId` 而不是 `rule_id`——**契约形状与实际输出不一致**，而契约测试当时还没覆盖这条 200 示例。修法：控制器有自己的响应记录 `Rule`（`@JsonProperty("rule_id")`）并按「一个事实一种表示」映射，领域记录不再兼任线协议。
+  - **MySQL 拒绝把不可变性做成触发器**：应用账户在开启 binlog 时没有 SUPER 权限，`CREATE TRIGGER` 报 1419（"You do not have the SUPER privilege and binary logging is enabled"），迁移因此失败并留下 `policy_bundle`/`policy_rule` 半成品与一条失败 history 记录。**迁移只在特权账户下能通过，比没有触发器更糟**——它在本机通过、在下一台机器失败。于是改成：mapper 里没有 UPDATE/DELETE（只有 insert 与 select），并由 `PolicyMutationGuardTest` **读 mapper 自己的注解**断言这一点（比全局搜「UPDATE」字样更精确：这张表只有一个写入者，而它只插入）。删除整版仍允许：那是破坏性的且可见，而 case 会钉住它做决定时的 hash，事后用重新导入的版本核对引用会明确失败，而不是悄悄匹配错正文。
+  - **我自己造成的两次验证失误**（如实记录）：① 修复 compose 上那条失败迁移时，我先用 `Add-Content` 拼接改动版政策，把 YAML 写坏了，导入以「语法错误」被拒——那是我的文件写错，不是不可变性生效，重做后才拿到真正的「同 bundle_id 换内容被拒绝」；② `CaseServiceApplicationTest`（T01 的启动验收）**不继承 `CaseDatabaseTest`**，所以它连的是 compose 真 MySQL，我这次 `mvn test` 因此把 compose 的 `case_db` 迁移到一半。已按 Flyway 的提示修复（丢弃半成品表 + 删掉失败 history 行，未清库、未删卷），但这种「跑单元测试会写开发库」的行为本身是个隐患，记在下面待处理。
+  - 测试：`policy/PolicyImportTest`（5）、`policy/PolicyApiTest`（4）、`policy/PolicyMutationGuardTest`（2）。命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service **70**（0 失败 0 错误）；`-Suite format` **PASSED**（`reports/verify/20260919-141501-format.txt`）、`-Suite contracts` **PASSED**（58，`…-141148-contracts.txt`）、`-Suite unit` **PASSED**（`…-141218-unit.txt`）、`-Suite smoke`（core）**PASSED**（`…-141359-smoke.txt`）。
+  - 格式套件发现 **C01.2 遗留的真实违规**：`OrderLineReadService.list(...)` 一行超长未格式化，说明 C02.2c 那次只跑了 contracts/unit/smoke、没跑 format（该次记录也只声称了这三项）。已 `spotless:apply` 修好（纯换行，无语义变化）。
+  - **真实端到端**（compose 真 MySQL + 打包后的 jar）：① 受控导入 `imported 2 [2026.08 (3 rules, 20a178a4…), 2026.09 (5 rules, 2fe077a7…)]`，退出码 0；再跑一次 `imported 0, skipped 2` 且规则数不翻倍（幂等）；② 同 bundle_id 改一条规则正文 → 退出码 1，报出旧/新 hash，存储行 hash 与规则数不变；③ 窗口与 2026.08 重叠的新 bundle → 退出码 1「would not be unique」；④ 起服务后用真实 service token 读 → 200，成员恰为 `bundle_id,version,manifest_hash,safety_epoch,rules`，hash 与库里一致，5 条规则按源序，中文正文完整；⑤ 无令牌 → 401 `UNAUTHENTICATED`（`application/json`）、**用户令牌** → 403 `FORBIDDEN_SCOPE`「this route requires a service token, not a user token」、未知 bundle → 404 `NOT_FOUND`。
+  - **已知缺口（未做，未声称）**：服务令牌目前只校验 `aud`/`sub`，**没有 scope claim**，因此也没有任何路由做最小权限校验（契约 `serviceToken` 的说明提到 scope）。留到 C06/C07 真正给 Agent 签发工具令牌时统一处理，避免现在先造一套没人用的 scope 词表。另一条：`CaseServiceApplicationTest` 会连 compose 真库跑 Flyway（T01 遗留），待评估是否改为继承 `CaseDatabaseTest`。
 - 依赖：C01。文件：Case domain/application/api/migration/tests；逐行为交付。
 - 验收：同key换body409、同line不并发建多个活跃case；材料不覆盖，旧revision不可写。
 - 验证：数据库并发建单、状态转换与材料权限测试。
@@ -189,7 +201,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C03 政策、方案与审批
 
-- [ ] C03.1：合成政策受控导入、不可变版本、按支付时间选择；不做管理后台。
+- [ ] C03.1：合成政策受控导入（C03.1a）、不可变版本、按支付时间选择；不做管理后台。
 - [ ] C03.2：Java方案校验/金额重算/风险路由与人工核验。
 - [ ] C03.3：版本授权、审批/消费/取消事务边界；消费后拒绝材料变更，固定operation ID。
 - 依赖：C02。文件：Case policy/decision/authorization及各自测试，分模块实施。
