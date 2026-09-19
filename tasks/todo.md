@@ -173,7 +173,15 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 命令与结果：`mvnw -pl case-service -am test` → shared-kernel 55 + case-service **75**（0 失败 0 错误）；`-Suite format` **PASSED**（`reports/verify/20260919-143122-format.txt`）、`-Suite contracts` **PASSED**（59，`…-143131-contracts.txt`）、`-Suite unit` **PASSED**（`…-143203-unit.txt`）、`-Suite smoke`（core）**PASSED**（`…-143351-smoke.txt`）。
   - **真实端到端**（两个 jar + compose 真 MySQL，V5 已应用 rank 5 success=1）：① 7001 建单 → 工单钉住 `policy-logistics-2026.09`，库中 hash `2fe077a7…`、`effective_from=2026-09-01`、`effective_to=NULL`、`selected_by_paid_at=2026-09-10 08:15:00`，bundle 行 `policy-logistics-2026.09`；② 真实受控命令导入 `2026.10`（开口版本被取代，退出码 0），再读**已开**工单的 manifest → **逐字不变**；③ 同支付时间的新工单（先取消占用的 7001）仍拿 `2026.09`——**装了十月版也不改变九月付款的选择**；④ 把 7002 的支付时间临时改成七月 → 建单 **422** `SEMANTIC_INVALID`，消息列出 `2026.08 [2026-08-01, 2026-09-01)`、`2026.09 [2026-09-01, open)`、`2026.10 [2026-10-01, open)`——注意该行**已有活跃工单**却先得到政策拒绝，说明政策拒绝发生在 slot 冲突之前；随后把种子支付时间**改回**并确认（7001/7002 均为 `2026-09-10 08:15:00`）；⑤ manifest 路由无令牌 401、用户令牌 403、未知工单 404；⑥ 验证完把临时导入的 `2026.10` 从库里删除，使演示库与仓库 fixture 一致（按设计允许删除整版：可见的破坏，而已开工单钉住的是 hash，事后核对会明确失败而不是悄悄匹配错正文）。
   - 记录一次**有意改真实数据**的操作（未清库、未删卷）：为触发「没有政策覆盖」的真实路径，临时把 `commerce_db.order_line` 中 7002 的 `paid_at` 改为七月再改回，两步都如上验证；仓库内没有任何测试或代码依赖这个改动。
-  - **已知缺口（未做、未声称）**：服务令牌只校验 `aud`/`sub`，没有 scope claim（同上一条，留到 C06/C07）；`CaseServiceApplicationTest` 会连 compose 真库跑 Flyway（T01 遗留）；Commerce 的 `GET /internal/v1/order-lines/{line_id}/context` 仍未实现——本步不需要它（列表已返回 `paid_at`），它的 ledger/refunded 成员是 C03.2「金额重算」才需要的，届时一并实现。
+  - C03.2a 完成（2026-09-19）：Commerce 的 `GET /internal/v1/order-lines/{line_id}/context` —— Java 重算退款金额的**唯一权威读取**。**只交付读取面**：重算的消费者是 C03.2b 的方案回调重检，因此本步不声称「金额已被重算」，只声称这条读取已按契约实现并可用。
+  - 为什么需要它：C01.2 的列表已能给 `paid_at`，但「这单还能退多少」需要 ledger 的 `refunded_amount`/`reserved_refund_amount`（`docs/domain-model.md:41` 说 ledger 是钱的权威记录）。金额若从别处拿就是同一笔钱的第二种说法，所以只读 ledger。
+  - **唯一一处按 line_id 无 scope 的读**，因此把理由写进代码注释而不是让它看起来像疏忽：契约就是这么声明的，scope 检查没有消失而是**搬到了调用方**——响应里带上 `merchant_id`/`customer_id`，Case 用它们确认该行属于自己正在复核的工单才使用其余字段；**用户永远到不了这里**，`/internal/**` 的过滤器在 handler 之前就拒了用户令牌。列表则相反：不回显归属（回显 scope 等于让调用方确认刚读的是谁的行），也不含已动金额。
+  - 实现：`LineContextRow`（14 个成员，与契约 `LineContext` 逐一对应）＋ `OrderLineRepository.findContext`（`LEFT JOIN payment_ledger ON g.order_id = l.order_id`，**按 order 而不按 line**：ledger 以 order 为主键，给一行编造自己的分摊就是在编造钱；无 ledger 行时金额为 0，含义是「还没有钱动过」）＋ `OrderLineReadService.readContext` 返回 `Optional` ＋ controller 的 `LineContextResponse` 与 404 `LineNotFoundException` 映射（不存在的行是 404，不是 403）。
+  - `OrderLineRepository` 的类注释同步改写：原文写「没有任何不带 scope 的读方法」，现在有一处，注释说明它不是漏洞而是契约声明的位置迁移——不把注释留在与代码不符的状态。
+  - 测试：`internal/OrderLineContextControllerTest`（3）在线程上打真 MySQL——成员与契约逐一对应（含 `paid_at` 为 `2026-09-10T08:15:00Z`、`version` 3、`order_status` PAID）；**把 ledger 改成 refunded=500/reserved=100 后 context 随之变化**（金额是读出来的不是写死的），同一时刻列表**不含** `refunded_amount` 也不回显 `merchant_id`（两种视图的差别是被断言的，不是被描述的）；未知行 404 且消息为 `no such order line: …`、无令牌 401、用户令牌 403。`@AfterEach` 把 ledger 改回原值（种子数据保持原样）。
+  - 契约侧：`test_the_line_context_is_where_the_amount_is_recomputed_from` —— 断言 context 声明的 14 个成员全部 required（重算不能猜缺失项）、`additionalProperties: false`、路由给出 401/403/404，并且**列表项不得出现** `merchant_id`/`customer_id`/`refunded_amount`/`reserved_refund_amount`。文档计数同步：核心已实现 12 条（`contracts/core/README.md`），`docs/implementation-handoff.md` 改为「核心其余 17 条路由」。
+  - 命令与结果：`mvnw -pl commerce-service -am test` → shared-kernel 55 + commerce **25**（0 失败 0 错误）；`-Suite format` **PASSED**（`reports/verify/20260919-144216-format.txt`）、`-Suite contracts` **PASSED**（60，`…-144227-contracts.txt`）、`-Suite unit` **PASSED**（`…-144305-unit.txt`）、`-Suite smoke`（core）**PASSED**（`…-144456-smoke.txt`）。
+  - **未做（下一步 C03.2b）**：还没有任何代码消费这条读取——方案回调（`POST /internal/v1/cases/{case_id}/agent-callbacks`）的 Java 重检、引用核对（对钉住 manifest 的 bundle/hash）、金额重算与风险路由到 `PENDING_REVIEW` 都还没实现。真实端到端也留到那时一起做（现在只有容器内的 HTTP 测试）。
 - 依赖：C01。文件：Case domain/application/api/migration/tests；逐行为交付。
 - 验收：同key换body409、同line不并发建多个活跃case；材料不覆盖，旧revision不可写。
 - 验证：数据库并发建单、状态转换与材料权限测试。
@@ -212,7 +220,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 ### C03 政策、方案与审批
 
 - [x] C03.1：合成政策受控导入（C03.1a）、不可变版本、按支付时间选择并钉在工单上（C03.1b）；不做管理后台。
-- [ ] C03.2：Java方案校验/金额重算/风险路由与人工核验。
+- [ ] C03.2：Java方案校验/金额重算/风险路由与人工核验（C03.2a 已补出重算所需的权威读取；回调重检与风险路由在做）。
 - [ ] C03.3：版本授权、审批/消费/取消事务边界；消费后拒绝材料变更，固定operation ID。
 - 依赖：C02。文件：Case policy/decision/authorization及各自测试，分模块实施。
 - 验收：物流自动条件完整，损坏始终人工；旧授权/过期/越权拒绝，approve与consume竞态可解释。

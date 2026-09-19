@@ -83,6 +83,20 @@ public class OrderLineReadService {
         return new Page(page, OrderLineCursor.after(page, hasMore), limit);
     }
 
+    /**
+     * One line with its order's ledger amounts, for Java's own re-check of a proposed refund (C03.2a).
+     *
+     * <p>Empty means no such line. It does not mean "not yours": this read has no scope of its own, and the
+     * caller is the service that already decided the line is in scope — it verifies the ownership this
+     * returns against the case before using anything else in it.
+     */
+    public java.util.Optional<LineContextRow> readContext(String lineId) {
+        if (lineId == null || lineId.isBlank()) {
+            throw new IllegalArgumentException("a line context read needs a line id");
+        }
+        return java.util.Optional.ofNullable(repository.findContext(lineId));
+    }
+
     private static int normaliseLimit(Integer requestedLimit) {
         if (requestedLimit == null) {
             return DEFAULT_LIMIT;

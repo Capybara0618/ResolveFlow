@@ -528,6 +528,51 @@ def test_the_policy_read_route_serves_the_text_a_citation_is_checked_against() -
     assert bundle["properties"]["rules"]["minItems"] >= 1, "a bundle with no rules decides nothing"
 
 
+def test_the_line_context_is_where_the_amount_is_recomputed_from() -> None:
+    """Java owns the refund amount, so the contract has to name the read it recomputes from.
+
+    The distinction this pins: the internal listing (built for the public order view) withholds the
+    owning merchant and customer, while the context discloses them. That is not an inconsistency — the
+    listing answers a *user* (echoing the scope back would confirm whose row was read), and the context
+    answers the service that has to confirm the line belongs to the case it is re-checking.
+    """
+    commerce = document("commerce")
+    operation = commerce["paths"]["/internal/v1/order-lines/{line_id}/context"]["get"]
+    assert {"200", "401", "403", "404"} <= set(operation["responses"])
+    assert "recomputes" in operation["description"]
+    assert "never" in operation["description"], (
+        "the route has to say a suggested amount is not the amount"
+    )
+
+    context = commerce["components"]["schemas"]["LineContext"]
+    assert context["additionalProperties"] is False
+    assert set(context["required"]) == {
+        "order_id",
+        "line_id",
+        "merchant_id",
+        "customer_id",
+        "sku",
+        "category",
+        "quantity",
+        "line_paid_amount",
+        "refunded_amount",
+        "reserved_refund_amount",
+        "currency",
+        "paid_at",
+        "order_status",
+        "version",
+    }
+    assert set(context["properties"]) == set(context["required"]), (
+        "every member is required: a recomputation cannot guess a missing one"
+    )
+
+    listing_item = commerce["components"]["schemas"]["OrderLineSummary"]
+    for withheld in ("merchant_id", "customer_id", "refunded_amount", "reserved_refund_amount"):
+        assert withheld not in listing_item["properties"], (
+            f"{withheld} must not appear in the user-facing order view"
+        )
+
+
 def test_the_pinned_manifest_route_says_how_a_version_is_chosen() -> None:
     """The manifest route is where "which policy decided this" is answerable.
 

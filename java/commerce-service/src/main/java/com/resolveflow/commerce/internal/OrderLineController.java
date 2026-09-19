@@ -2,6 +2,7 @@ package com.resolveflow.commerce.internal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.resolveflow.commerce.order.LineContextRow;
 import com.resolveflow.commerce.order.OrderLineReadService;
 import com.resolveflow.commerce.order.OrderLineRow;
 import com.resolveflow.shared.security.JwtCodec;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +53,70 @@ public class OrderLineController {
         return ResponseEntity.ok(new OrderLinePageResponse(
                 page.items().stream().map(OrderLineSummaryResponse::from).toList(),
                 new PageMetaResponse(page.nextCursor(), page.limit())));
+    }
+
+    /**
+     * {@code GET /internal/v1/order-lines/{line_id}/context}: the facts Java recomputes a refund from.
+     *
+     * <p>This is where "Java owns the amount" stops being a claim (docs/product-spec.md:25): the amount a
+     * model suggested is never the amount that gets refunded, and the check needs the line's paid amount plus
+     * what the ledger says has already been refunded or reserved. Ownership is in the response because the
+     * caller verifies it against the case — the reading service has already refused to disclose a line the
+     * user could not see, so this is not the place scope is enforced, it is the place it is confirmed.
+     */
+    @GetMapping("/{line_id}/context")
+    public ResponseEntity<LineContextResponse> context(@PathVariable("line_id") String lineId) {
+        return service.readContext(lineId)
+                .map(LineContextResponse::from)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new LineNotFoundException(lineId));
+    }
+
+    /** The contract's {@code LineContext}, member for member. */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record LineContextResponse(
+            @JsonProperty("order_id") String orderId,
+            @JsonProperty("line_id") String lineId,
+            @JsonProperty("merchant_id") String merchantId,
+            @JsonProperty("customer_id") String customerId,
+            String sku,
+            String category,
+            int quantity,
+            @JsonProperty("line_paid_amount") long linePaidAmount,
+            @JsonProperty("refunded_amount") long refundedAmount,
+            @JsonProperty("reserved_refund_amount") long reservedRefundAmount,
+            String currency,
+            @JsonProperty("paid_at") Instant paidAt,
+            @JsonProperty("order_status") String orderStatus,
+            long version) {
+
+        static LineContextResponse from(LineContextRow row) {
+            return new LineContextResponse(
+                    row.orderId(),
+                    row.lineId(),
+                    row.merchantId(),
+                    row.customerId(),
+                    row.sku(),
+                    row.category(),
+                    row.quantity(),
+                    row.linePaidAmount(),
+                    row.refundedAmount(),
+                    row.reservedRefundAmount(),
+                    row.currency(),
+                    row.paidAt(),
+                    row.orderStatus(),
+                    row.version());
+        }
+    }
+
+    /** No such line. The caller decides what that means; here it is the contract's 404. */
+    public static class LineNotFoundException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        public LineNotFoundException(String lineId) {
+            super("no such order line: " + lineId);
+        }
     }
 
     /** One row of the page; the owning merchant/customer are not echoed back to the caller. */

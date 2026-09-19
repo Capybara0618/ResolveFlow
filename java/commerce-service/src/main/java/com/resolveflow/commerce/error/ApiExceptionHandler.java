@@ -1,5 +1,6 @@
 package com.resolveflow.commerce.error;
 
+import com.resolveflow.commerce.internal.OrderLineController;
 import com.resolveflow.commerce.order.OrderLineCursor;
 import com.resolveflow.shared.error.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +23,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  */
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+    @ExceptionHandler(OrderLineController.LineNotFoundException.class)
+    public ResponseEntity<ApiError> lineNotFound(
+            OrderLineController.LineNotFoundException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));
+    }
 
     @ExceptionHandler({
         MissingServletRequestParameterException.class,

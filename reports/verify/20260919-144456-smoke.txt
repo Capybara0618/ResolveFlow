@@ -1,0 +1,29 @@
+ResolveFlow verify
+  suite : smoke
+  mode  : mock
+  seed  : 42
+  profile : core
+  report: E:\Code\Agent+Backend\reports\verify\20260919-144456-smoke.txt
+
+== smoke
+  services: gateway, case-service, commerce-service, agent
+  -- infra-up
+     \$ docker compose -f E:\Code\Agent+Backend\infra\compose.yaml up -d
+     PASS (0.5s)
+  -- package
+     \$ java\mvnw.cmd -f java/pom.xml -B -DskipTests package
+     PASS (7.7s)
+  -- smoke-gateway
+     \$ java -jar java/gateway/target/gateway-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8080/actuator/health
+     PASS (5.6s)
+  -- smoke-commerce-service
+     \$ java -jar java/commerce-service/target/commerce-service-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8081/actuator/health
+     PASS (7.3s)
+  -- smoke-case-service
+     \$ java -jar java/case-service/target/case-service-0.1.0-SNAPSHOT.jar  # then GET http://127.0.0.1:8083/actuator/health
+     PASS (7.3s)
+  -- smoke-agent-service
+     \$ uv run --project agent uvicorn resolveflow.api.app:app --port 8090  # then GET http://127.0.0.1:8090/health
+     PASS (0.1s)
+
+SUITE 'smoke' PASSED
