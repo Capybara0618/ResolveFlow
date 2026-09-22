@@ -112,4 +112,29 @@ public final class CoreEventSignature {
             throw new CoreSignatureException("Ed25519 verification failed", error);
         }
     }
+
+    /**
+     * A producer's private key from its PKCS#8 DER bytes.
+     *
+     * <p>The bytes come from configuration, not from source: docs/security-and-limits has the real key
+     * mounted at runtime. The fixture key exists so the whole path can be run and explained locally.
+     */
+    public static PrivateKey privateKeyFromPkcs8(byte[] der) {
+        try {
+            return java.security.KeyFactory.getInstance("Ed25519")
+                    .generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(der));
+        } catch (GeneralSecurityException error) {
+            throw new CoreSignatureException("not a usable Ed25519 private key", error);
+        }
+    }
+
+    /** A trusted public key from its SPKI DER bytes (docs/contracts.md:20 — checked against a trust list). */
+    public static PublicKey publicKeyFromSpki(byte[] der) {
+        try {
+            return java.security.KeyFactory.getInstance("Ed25519")
+                    .generatePublic(new java.security.spec.X509EncodedKeySpec(der));
+        } catch (GeneralSecurityException error) {
+            throw new CoreSignatureException("not a usable Ed25519 public key", error);
+        }
+    }
 }

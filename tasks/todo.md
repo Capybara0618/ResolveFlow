@@ -329,6 +329,15 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **未做 / 下一步（C04）**：授权的**消费**边界——授权 `CONSUMED`、工单 `EXECUTING`、与命令 outbox 同事务、消费后冻结材料（契约已写、实现未做）；`POST /api/v1/cases/{case_id}/reviews` 之后的人工作废面（把已批准但被材料变更作废的授权写成 `EXPIRED`，现在这条路径只剩"撤回"，因为撤回发生在写入事务里，`AuthorizationService`/`ReviewDecisionService` 里为"批准时发现失效"准备的分支在材料路径上已不再是主路径）。本步不声称任何退款已执行、任何授权已被消费。
   - **已知缺口（未做、未声称）**：`expires_at` 仍一律缺失；命令只带一个 `policy_version`；证据引用只记录不核对（C04）；Case 无 run→case 绑定（C06）；服务令牌只校验 `aud`/`sub`；`GET /api/v1/orders` 坏游标仍把 Commerce 的 400 变 503；C03.3a 之前被接受的方案仍无授权且不回填；撤回理由会覆盖该行原有的理由（行只表达"当前处于什么状态"，历史在轨迹里）；人工方案仍无政策金额判断（重算即上限）。另外本步之后 `web/node_modules` 与 `java/**/target` 是重新安装/构建出来的，不是原有产物。
 
+- C05.1a 完成（2026-09-22）：**带签名的 event outbox**（case-service 侧）。这一步交付的是"业务结果与它的事件同生共死，且事件离开服务时是可被对方验证的"。
+  - **迁移 `V12__case_event_outbox.sql`**：`event_outbox`（event_id 主键、event_type/schema_version/merchant_id/topic/producer、**存的是签好名的 envelope 本身**、signature/signing_key_id、`PENDING/PUBLISHED/DEAD`、attempts/last_error/next_attempt_at）与 `case_execution_command`（`authorization_id` 主键、`operation_id` 唯一，外键指向 event_id 与 case_id）。envelope 用 `LONGTEXT` 而**不是** JSON 列：JSON 列可以重排文档，而重排过的文档就不再是被签名的那个字节序列。
+  - **`shared-kernel/CoreEnvelope`**（协议，不是数据）：构建与校验 core 信封。producer 与 topic **由 event type 决定**，调用方不能各自选择——否则能造出任何消费者规则都不匹配的信封；两者都在签名覆盖范围内。校验做四件事且每件对应一种攻击：签名必须存在、event type 必须属于声称的 producer、topic 必须是该类型的 topic、schema_version 必须是 2，然后才验签。另加 `resultPayload(...)`（成员与 envelope schema 的 `refundResult` 一致）与 PKCS#8/SPKI 加载。`CoreEventSignature` 补上 `privateKeyFromPkcs8`/`publicKeyFromSpki`。
+  - **`case-service/outbox`**：`EventOutbox.writeRefundCommand(...)` 在**调用方的事务里**（`@Transactional` 传播）签名并落库——命令的 13 个成员由 `RefundCommand.toJson` + `payloadHash` 组装，调用方不能自己拼一个自由格式载荷；`OutboxRepository` 的每条语句都只在期望状态下生效；`OutboxDeliveryService.deliverDue(limit)` 按创建顺序投递，失败记录 `last_error` + 递增退避，**超过 max-attempts 转 `DEAD` 而不删除**（丢掉的事件正是运维需要的事实）；`EventPublisher` 只有一个方法，默认实现 **`NoTransportConfigured` 明确抛错**——broker 没接线时不能看起来像"已投递"，一个悄悄丢事件的 outbox 会让所有"至少一次"的说法变成假的。
+  - **三处自己写错、被自己的测试抓到**：① 回滚测试把 `@Transactional` 写在测试类自己的方法上（自调用不走代理），于是"事件随业务回滚"这条根本没被测到——改用 `TransactionTemplate` 显式开事务；② JDBC 参数传了 `Instant` 而不是 `Timestamp`，`created_at` 直接语法错；③ 我原本给了一个**公开的通用 `write(eventType, …)`**，于是 case-service 可以自己造一个 `producer=commerce-service` 的结果信封并用自己的私钥签名。改成 private，只留 `writeRefundCommand` 这一个入口，并加一条断言"公开方法里没有 `write`"——**入口本身就是边界**，不能只靠运行时检查。
+  - 命令与结果：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am test` → case-service **158**（0 失败；新增 `outbox/CaseEventOutboxApiTest` **13** 条：信封已签名且 canonical 与存储逐字一致、签名覆盖 topic/producer（改写任一即失败）、事件与效果同事务（回滚后无行）、投递成功即标记、第二轮不再重发、失败保留并排下一次、尝试耗尽转 DEAD 且不被普通循环复活、按创建顺序投递、公开入口不含通用 write、坏 traceparent 拒绝、信封可读回、退避递增且不溢出、一个 authorisation 只能有一条命令）；`java\mvnw.cmd -f java/pom.xml -B -ntp test` → **237 通过 0 失败**；`spotless` 干净；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（`reports/verify/20260922-183224-all-offline.txt`）。
+  - **未做（下一步 C05.1b/C05.2）**：**没有真实 RocketMQ 发布器**——默认 publisher 故意抛错，所以事件现在会重试后变 DEAD，这是如实状态；消费端（Commerce 的 inbox + 验签 + 命令消费）未做；结果事件（`RefundSucceeded/Failed/Unknown`）的 outbox 未做；`RefundRequested` 的写入**尚未接进**批准/消费路径（本步只交付 outbox 本身与它的入口，谁在何时调用它是 C05.2）。
+  - **已知缺口（未做、未声称）**：`case_execution_command` 的表建好了但**还没有写入方**；签名密钥默认取 contracts 里的 fixture 键（演示用，部署需自带并轮换），`signing_key_id` 目前只被记录、没有 trust list 校验；outbox 没有定时调度器（`deliverDue` 要被调用）；`case-service` 的 `Clock` 复用 identity 的 bean，outbox 与它共享"现在"。
+
 ### C04 持久模拟退款与本地金额事务
 
 - [x] C04.1：SQLite provider-stub退款幂等、查询、丢响应/延迟可见与重启。
@@ -375,7 +384,8 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C05 消息与退款端到端
 
-- [ ] C05.1：Case/Commerce Outbox/inbox、核心topic验签、持久重试与错误记录。
+- [x] C05.1a：**带签名的 event outbox**（case-service 侧）——C05.1 的第一个子步。
+- [ ] C05.1b：RocketMQ 发布器与消费端验签（真实 topic `rf.case.core.v2`）。
 - [ ] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
 - 依赖：C03,C04。文件：messaging、Case执行、Commerce消费者及集成测试。
 - 验收：重复/乱序/ACK丢失不重复业务；目标确认成功才关单；失败释放后再试须新授权。
