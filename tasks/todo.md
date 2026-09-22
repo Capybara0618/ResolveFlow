@@ -331,13 +331,24 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C04 持久模拟退款与本地金额事务
 
-- [ ] C04.1：SQLite provider-stub退款幂等、查询、丢响应/延迟可见与重启。
+- [x] C04.1：SQLite provider-stub退款幂等、查询、丢响应/延迟可见与重启。
 - [ ] C04.2：Commerce line_refund/ledger/operation，接收命令本地预留、成功/失败结算。
 - [ ] C04.3：事务外调用provider、UNKNOWN持久对账，不实现跨服务权益协议。
 - 依赖：C01。文件：fixtures/provider、Commerce退款及迁移/测试；stub与业务事务分开。
 - 验收：同ID换载荷拒绝；100并发不超退；UNKNOWN保持预留，成功不二次结算。
 - 验证：provider协议/重启、MySQL事务/并发、成功丢响应集成测试。
-- 实际记录：未执行。
+
+- C04.1 完成（2026-09-22）：持久模拟退款 provider——**先失败测试、后实现**，协议与故障语义同时落成文档。这一步要交付的是"退款链路能遇到一个会丢响应、会超时、会重启的对端"，而不是一个永远配合的假函数。
+  - **先失败的测试**：新增 `agent/tests/unit/test_provider_stub.py`（14 条），先跑红为**收集期失败**（`ModuleNotFoundError: No module named 'resolveflow.provider_stub'`，`1 error in 0.33s`），日志留在 `tmp/c04.1-provider-red.txt`（这次**真的**留下了红跑日志，与 C03.3c-2 那条欠账相反）。
+  - **协议只有两个操作**：`request_refund(operation_id, line_id, amount_minor, currency)` 与 `query_refund(key or provider_ref, at)`，都返回同一条 `RefundResult`。`responded` 与 `state` 是**两个不同的成员**：前者说"这次调用有没有拿到回答"，后者说"provider 认为这笔钱是什么状态"。丢响应与超时都让调用方拿不到回答，但只有前者背后有 provider 已知的结果——把两者合并，就是"重试变成重复付款"的起点。
+  - **三条不变式**：① 同键同载荷返回原结果，同键换载荷（金额/行/币种任一不同）抛 `ProviderConflictError`——允许覆盖就等于让"到底付了多少"取决于最后一次写入（`docs/domain-model.md:11`）；② 幂等键**由上游给**（`provider_key = operation_id`，`docs/domain-model.md:51`），`provider_ref` 只是 provider 自己的凭据，重试不得换键；③ `FAILED` 是墓碑——上游在确定失败时已释放金额，所以同一个键**永远不会**再被执行成功，后来的请求得到那条失败记录本身。
+  - **`UNKNOWN` 不是 `FAILED`，`NOT_FOUND` 也不是**：超时记录为 `UNKNOWN`（不结算），此后查询仍是 `UNKNOWN`，直到 `settle()`；延迟可见（`DELAYED_VISIBILITY`）在 `visible_after` 之前一律 `NOT_FOUND`、之后才返回真实状态——"查不到"不是"没发生"，两者都不释放预留（`docs/domain-model.md:15`）。
+  - **自己写出的四处错误（全部由自己的测试抓到）**：① `sqlite3` 默认行工厂是 tuple，按列名读全崩 → 设 `row_factory = sqlite3.Row`（并在注释里写明"列多了不会整体错位"）；② `attempts()` 把"重复呈递"也算成一次尝试，于是"同键换载荷被拒后 attempts == 2"——`attempts` 现在只数**真正到达 provider 的请求**，另加 `receipts()` 数"这个键被呈递过几次"，两个成员分开表达两件事；③ 我把重试 `LOST_RESPONSE` 的 `responded` 写成 `False`（"这次回答也没送到"），但重试**确实**拿到了收据——改为"重试总能拿到真回答，只有 `UNKNOWN` 无话可说"，`responded` 语义因此是"本次调用是否拿到回答"；④ `mypy --strict` 报 `stored` 变量二次绑定类型不符 → 用独立变量名 `written`。
+  - **持久化**：状态只在一个 SQLite 文件里（`refund_request` / `request_attempt` / `injected_fault` 三张表），**没有进程内缓存**——一个把状态放在内存里的模拟器无法用来测它存在的理由（重启）。重启后 `SUCCEEDED` 仍在、`UNKNOWN` 仍是 `UNKNOWN`、`attempts` 不从零开始；有一条测试直接读那个文件，防止"缓存替存储回答"把重启测试变成谎话。金额一律整数分（非正数在碰到 provider 之前就被拒），另有一条守卫断言该模块源码里**不出现 `float`**。
+  - **文档与代码互钉**：`fixtures/provider/README.md`（T12 占位已被取代）写协议、状态表、故障表与"为什么幂等键由上游给"；新增守卫测试断言**文档里出现代码接受的每个故障名与每个状态**、出现"UNKNOWN 不是 FAILED"、出现"幂等键来自上游"与"凭据不对 Agent 可见"。散文没人类型检查，所以让文档被测试钉住它无法自己复述的事实。
+  - 命令与结果：`uv run --no-cache --project agent --frozen pytest agent/tests/unit/test_provider_stub.py -q` → **14 passed**；`uv run --no-cache --project agent --frozen pytest agent/tests/unit -q` → **566 passed, 9 skipped**（本步 +14）；`uv run --project agent --frozen ruff check agent/src agent/tests` → **All checks passed**；`uv run --project agent --frozen mypy agent/src` → **Success: no issues found in 20 source files**（strict）；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（`reports/verify/20260922-174825-all-offline.txt`，含 spotless/ruff/mypy/web typecheck、Java unit、Python unit、web test、两份 freeze、contracts、四个 smoke）。
+  - **未做（下一步 C04.2）**：Commerce 的 `line_refund`/`ledger`/`operation` 迁移与接收命令时的**本地**预留、成功/失败结算（provider 网络调用必须在事务外，`docs/engineering.md:23`）；本步只交付"对端"，不声称任何退款已由 Commerce 执行。C04.3 才做事务外调用与 UNKNOWN 持久对账。
+  - **已知缺口（未做、未声称）**：模拟器只以进程内适配器暴露，**没有**独立 HTTP 端口或 compose 服务（核心 profile 不计 provider 微服务，`docs/core-scope.md:30`；C04.3 需要时再加最小入口）；故障注入是每键或全局两档，没有按调用序号/概率注入；`DELAYED_VISIBILITY` 只影响查询可见性，不影响 `request_refund` 的回答；provider 不校验 `line_id` 是否存在（它不共享业务库，也没有业务数据）。
 
 ### C05 消息与退款端到端
 
