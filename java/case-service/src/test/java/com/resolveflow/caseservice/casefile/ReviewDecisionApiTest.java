@@ -441,7 +441,7 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    @DisplayName("an approval arrived at after the input moved lapses the authorisation instead of executing it")
+    @DisplayName("material arriving retires the authorisation, so the approval it was written for is gone")
     void anApprovalAfterTheInputMovedIsRefused() {
         JsonNode view = authorisedCase("decision-input-moved");
         String caseId = view.get("case").get("case_id").stringValue();
@@ -458,16 +458,19 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
                 .isOk();
         long caseVersion = view(caseId, reviewer()).get("case").get("version").asLong();
 
+        // C03.3c-2 retired the authorisation in the append's own transaction. C03.3b left it PENDING_REVIEW
+        // and let this approval do the lapsing, which meant the case view advertised an approval over input
+        // it could never be applied to until somebody tried to use it.
         assertThat(decideStatus(caseId, reviewer(), "\"" + caseVersion + "\"", authorizationId, 1, "APPROVE", "仍然批准"))
+                .as("the withdrawal already happened, and a decision on a withdrawn authorisation loses")
                 .isEqualTo(409);
         assertThat(caseStatus(caseId))
-                .as("a case whose authorisation lapsed stays with a person rather than becoming approved")
+                .as("a case whose authorisation was retired stays with a person rather than becoming approved")
                 .isEqualTo("PENDING_REVIEW");
-        String reason = authorizationColumn(caseId, "decision_reason");
-        assertThat(authorizationColumn(caseId, "status")).isEqualTo("EXPIRED");
-        assertThat(reason)
-                .as("the row says which fact moved, so the next reader is not left guessing")
-                .contains("input revision 1")
+        assertThat(authorizationColumn(caseId, "status")).isEqualTo("REVOKED");
+        assertThat(authorizationColumn(caseId, "decision_reason"))
+                .as("the row says which act retired it, so the next reader is not left guessing")
+                .contains("new customer material")
                 .contains("revision 2");
     }
 

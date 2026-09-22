@@ -231,7 +231,7 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    @DisplayName("a refutation is recorded the same way, and revokes nothing because nothing can be revoked yet")
+    @DisplayName("a refutation is recorded the same way; with no approval on the case there is nothing to retire")
     void aRefutationIsRecorded() {
         String customerToken = customer("M-1001", "C-2002");
         String reviewerToken = reviewer("demo-reviewer", "M-1001");

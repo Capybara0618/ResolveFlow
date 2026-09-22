@@ -42,7 +42,7 @@ public class ManualProposalService {
     private final CaseRepository cases;
     private final ProposalService proposals;
     private final ProposalReCheck reCheck;
-    private final AuthorizationRepository authorisations;
+    private final LiveAuthorization liveAuthorisations;
     private final AuthorizationService authorizationService;
     private final Clock clock;
     private final ObjectMapper mapper;
@@ -51,14 +51,14 @@ public class ManualProposalService {
             CaseRepository cases,
             ProposalService proposals,
             ProposalReCheck reCheck,
-            AuthorizationRepository authorisations,
+            LiveAuthorization liveAuthorisations,
             AuthorizationService authorizationService,
             Clock clock,
             ObjectMapper mapper) {
         this.cases = cases;
         this.proposals = proposals;
         this.reCheck = reCheck;
-        this.authorisations = authorisations;
+        this.liveAuthorisations = liveAuthorisations;
         this.authorizationService = authorizationService;
         this.clock = clock;
         this.mapper = mapper;
@@ -173,24 +173,16 @@ public class ManualProposalService {
     /**
      * Retire the case's live authorisation, in the transaction that replaces it.
      *
-     * <p>Missing (no live authorisation) and racing (it moved between the read and the write) are treated
-     * differently: the first is normal — most manual proposals are written for a case whose run never
-     * produced one — and the second is a conflict, because the row this statement meant to retire was decided
-     * by somebody else while the proposal was being checked.
+     * <p>The rule itself lives in {@link LiveAuthorization}, because writing new input is not something only
+     * this route does: material and verifications retire an approval for the same reason. What is specific to
+     * this route is the reason it records — the id of the proposal that replaced it — so the sentence a later
+     * reader finds on the old row names the act rather than saying "something changed".
      */
     private String supersedeLiveAuthorisation(CaseRow row, String proposalId, Instant now) {
-        AuthorizationRepository.StoredAuthorization live = authorisations.findLatest(row.caseId());
-        if (live == null
-                || (live.authorizationStatus() != AuthorizationStatus.PENDING_REVIEW
-                        && live.authorizationStatus() != AuthorizationStatus.APPROVED)) {
-            return null;
-        }
-        String reason = "superseded by proposal " + proposalId + " at input revision " + row.inputRevision();
-        if (authorisations.revoke(live.authorizationId(), live.authorizationVersion(), reason, now) != 1) {
-            throw new CaseStateConflictException("authorisation " + live.authorizationId()
-                    + " was decided while this proposal was being checked; nothing was recorded");
-        }
-        return live.authorizationId();
+        return liveAuthorisations.revoke(
+                row.caseId(),
+                "superseded by proposal " + proposalId + " at input revision " + row.inputRevision(),
+                now);
     }
 
     private String proposalDetail(

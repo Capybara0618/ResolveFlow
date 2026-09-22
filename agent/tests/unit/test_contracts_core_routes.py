@@ -1081,6 +1081,67 @@ def test_a_manual_proposal_is_new_input_that_retires_the_old_authorisation() -> 
     )
 
 
+def test_new_input_retires_the_live_authorisation_and_says_which_one() -> None:
+    """Every route that moves the input revision retires the authorisation fixed to the old one.
+
+    An authorisation is created for one revision and its payload is hashed from that revision's citations
+    (docs/core-contracts.md:68). So the moment the revision moves, the approval describes input the case no
+    longer has: a reviewer could approve it afterwards and this service would be about to pay against
+    material that changed. Leaving it `APPROVED` and letting the later re-check catch it is not the same
+    guarantee, because between the two there is a window in which the case view says "approved" about the
+    wrong revision — and the trajectory would show nothing that retired it.
+
+    That rule is not about one route. Three routes write new input — this document's generic material append,
+    a human verification, and a manual proposal — so all three say it and none of them may quietly keep an
+    authorisation alive. The response tells the caller **which** authorisation it retired, and says "nothing
+    was retired" by omitting the member (the same way `next_cursor` says "no more pages"): a null-valued
+    member would let a reader who never checked look the same as a reader who checked and found nothing.
+    """
+    case = document("case")
+    existing = case["components"]["schemas"]["ReviewedEvidenceResponse"]
+    assert "revoked_authorization_id" in existing["properties"], (
+        "this member exists; the question is whether the route can ever fill it"
+    )
+
+    def operation(operation_id: str) -> dict[str, Any]:
+        return next(
+            route
+            for item in case["paths"].values()
+            for method, route in item.items()
+            if method == "post" and route.get("operationId") == operation_id
+        )
+
+    for operation_id in ("appendEvidence", "appendReviewedEvidence", "submitManualProposal"):
+        description = operation(operation_id)["description"]
+        assert "REVOKED" in description, (
+            f"{operation_id} writes new input, so it has to name the status the live authorisation lands in"
+        )
+        assert "revision" in description, (
+            f"{operation_id} has to say the revision is what retires the authorisation"
+        )
+        assert "authorisation" in description, f"{operation_id} has to name the thing it retires"
+
+    for component in ("EvidenceSubmissionResponse", "ReviewedEvidenceResponse"):
+        response = case["components"]["schemas"][component]
+        branches = response["properties"]["revoked_authorization_id"]["oneOf"]
+        assert [branch.get("$ref", branch.get("type")) for branch in branches] == [
+            "#/components/schemas/Uuid",
+            "null",
+        ], f"{component} has to be able to name the authorisation it revoked"
+
+    # The document has to teach both answers somewhere: the append example shows a submission that retired
+    # one, and the verification example shows the ordinary case where there was nothing to retire. An example
+    # that only ever showed a revocation would leave "absent" undefined for the reader who needs it.
+    revoked_example = operation("appendEvidence")["responses"]["200"]["content"]["application/json"]["example"]
+    assert "revoked_authorization_id" in revoked_example, (
+        "a reader has to be shown an answer that names the authorisation it retired"
+    )
+    kept_example = operation("appendReviewedEvidence")["responses"]["200"]["content"]["application/json"]["example"]
+    assert "revoked_authorization_id" not in kept_example, (
+        "and the ordinary answer, where there was nothing to retire, says so by omitting the member"
+    )
+
+
 def test_no_route_carries_a_credential_in_the_query_string() -> None:
     """A token in a URL ends up in logs and referrers (docs/core-contracts.md:32).
 

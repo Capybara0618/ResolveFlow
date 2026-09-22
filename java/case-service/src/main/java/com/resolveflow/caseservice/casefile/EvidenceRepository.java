@@ -117,16 +117,22 @@ public interface EvidenceRepository {
      * Bump the case's input revision and its version together, under the row lock the caller holds.
      *
      * <p>Both move in one statement so a reader can never see a revision without the version that goes
-     * with it. The status moves out of {@code WAITING_CUSTOMER} only: that is the documented edge
-     * ({{@code 补证从 WAITING_CUSTOMER 增 revision→QUEUED}}, docs/domain-model.md:55), and material that
-     * arrives while a proposal is under review bumps the revision without pretending the case went back
-     * to the queue.
+     * with it. Material that arrives while a proposal is under review bumps the revision without pretending
+     * the case went back to the queue, and material that answers a question follows the documented edge
+     * ({@code 补证从 WAITING_CUSTOMER 增 revision→QUEUED}, docs/domain-model.md:55).
+     *
+     * <p>An {@code AUTHORIZED} case is the third case, and the one this statement used to get wrong
+     * (C03.3c-2): its approval is retired by the same transaction, so leaving it {@code AUTHORIZED} would
+     * claim the case can be executed while it holds nothing approved — the status outliving the fact it
+     * names. It goes back to {@code PENDING_REVIEW}, which is where a case waiting for a decision belongs.
      */
     @Update("""
             UPDATE aftersale_case
                SET input_revision = input_revision + 1,
                    version = version + 1,
-                   status = CASE WHEN status = 'WAITING_CUSTOMER' THEN 'QUEUED' ELSE status END,
+                   status = CASE WHEN status = 'AUTHORIZED' THEN 'PENDING_REVIEW'
+                                 WHEN status = 'WAITING_CUSTOMER' THEN 'QUEUED'
+                                 ELSE status END,
                    updated_at = #{updatedAt}
              WHERE case_id = #{caseId}
             """)

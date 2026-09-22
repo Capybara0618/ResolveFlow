@@ -6,11 +6,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * The answer to a recorded verification (contracts/core/openapi-case.yaml, {@code ReviewedEvidenceResponse}).
  *
- * <p>{@code revoked_authorization_id} is always absent today, and that absence has a meaning: no
- * authorisation was affected. There are no authorisations yet — the approval path is C03.3 — so a
- * verification that refutes a record cannot revoke anything, and this service does not pretend otherwise
- * by inventing an id. When C03.3 exists, a refutation of material an approved authorisation relied on will
- * fill this member instead of quietly leaving the authorisation in place.
+ * <p>{@code revoked_authorization_id} names the live authorisation this new revision retired, and its
+ * <b>absence</b> means there was no live authorisation to retire — not that nobody looked. The server always
+ * looks (C03.3c, {@link LiveAuthorization}), because an authorisation is fixed to the revision its payload
+ * was hashed from and this route moves that revision.
+ *
+ * <p>It is not conditional on the reviewer's verdict: a CONFIRMED verification retires the approval exactly
+ * as a REFUTED one does. What invalidated the fixed payload is the input moving, and reporting a revocation
+ * only for REFUTED would attribute it to the wrong fact.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ReviewedEvidenceResponse(
@@ -20,7 +23,8 @@ public record ReviewedEvidenceResponse(
         @JsonProperty("case_version") long caseVersion,
         @JsonProperty("revoked_authorization_id") String revokedAuthorizationId) {
 
-    static ReviewedEvidenceResponse recorded(String caseId, String evidenceId, int inputRevision, long caseVersion) {
-        return new ReviewedEvidenceResponse(caseId, evidenceId, inputRevision, caseVersion, null);
+    static ReviewedEvidenceResponse recorded(
+            String caseId, String evidenceId, int inputRevision, long caseVersion, String revokedAuthorizationId) {
+        return new ReviewedEvidenceResponse(caseId, evidenceId, inputRevision, caseVersion, revokedAuthorizationId);
     }
 }

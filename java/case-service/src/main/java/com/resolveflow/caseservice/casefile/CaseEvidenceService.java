@@ -27,6 +27,10 @@ import tools.jackson.databind.node.ObjectNode;
  *   <li><b>Once the input is consumed it is closed.</b> After consumption the operation is running and
  *       the input it was authorised against cannot change; that answer is 409, not a silent bump
  *       (docs/core-contracts.md:30).
+ *   <li><b>New input retires the live authorisation.</b> An authorisation is fixed to the revision its
+ *       payload was hashed from, so a revision that moves leaves an approval describing input the case no
+ *       longer has. Both append routes therefore revoke it in the same transaction that writes the
+ *       material and name it in the response (C03.3c, {@link LiveAuthorization}).
  * </ol>
  *
  * <p>The state check is written against the case status, because the authorisation that consumption
@@ -46,12 +50,15 @@ public class CaseEvidenceService {
 
     private final CaseRepository cases;
     private final EvidenceRepository evidence;
+    private final LiveAuthorization liveAuthorisations;
     private final Clock clock;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public CaseEvidenceService(CaseRepository cases, EvidenceRepository evidence, Clock clock) {
+    public CaseEvidenceService(
+            CaseRepository cases, EvidenceRepository evidence, LiveAuthorization liveAuthorisations, Clock clock) {
         this.cases = cases;
         this.evidence = evidence;
+        this.liveAuthorisations = liveAuthorisations;
         this.clock = clock;
     }
 
@@ -89,8 +96,10 @@ public class CaseEvidenceService {
                 questionId,
                 null,
                 null,
-                appendedDetail(kind, text, questionId, principal));
-        return new EvidenceSubmissionResponse(row.caseId(), written.inputRevision(), written.version());
+                appendedDetail(kind, text, questionId, principal),
+                retireBecause("new customer material", revision));
+        return new EvidenceSubmissionResponse(
+                row.caseId(), written.inputRevision(), written.version(), written.revokedAuthorizationId());
     }
 
     /**
@@ -102,10 +111,10 @@ public class CaseEvidenceService {
      * property of the store: neither record is ever updated, so the verified one keeps its text and its hash
      * and both stay readable side by side.
      *
-     * <p>Revocation is deliberately absent. The contract says a refutation of material an approved
-     * authorisation relied on revokes that authorisation; there are no authorisations until C03.3, and this
-     * method does not pretend to have checked for one — the response's absent {@code
-     * revoked_authorization_id} means "no authorisation was affected" (see {@link ReviewedEvidenceResponse}).
+     * <p>New input retires the case's live authorisation, and it does so whatever the reviewer concluded:
+     * what invalidated the fixed payload is the revision moving, not the verdict. Revoking only on REFUTED
+     * would leave a CONFIRMED verification — which is also new input — with an approval that describes the
+     * revision before it.
      */
     @Transactional
     public ReviewedEvidenceResponse review(
@@ -150,19 +159,45 @@ public class CaseEvidenceService {
                 null,
                 sourceEvidenceId,
                 result,
-                verificationDetail(result, sourceEvidenceId, reason, principal));
+                verificationDetail(result, sourceEvidenceId, reason, principal),
+                retireBecause("a reviewer's verification " + result.name(), revision));
         return ReviewedEvidenceResponse.recorded(
-                row.caseId(), written.evidenceId(), written.inputRevision(), written.version());
+                row.caseId(),
+                written.evidenceId(),
+                written.inputRevision(),
+                written.version(),
+                written.revokedAuthorizationId());
     }
 
-    /** What one append produced: the new record's id, the revision it landed on and the case's new version. */
-    private record Written(String evidenceId, int inputRevision, long version) {}
+    /**
+     * The retirement sentence a reader of the old authorisation row will find.
+     *
+     * <p>It names the act and the revision it moved to, because "why is this approval withdrawn" is the next
+     * reader's question, and "something changed" is not an answer. The revision it moved <em>from</em> is not
+     * in the sentence: the authorisation's own {@code input_revision} column already says that, and two places
+     * to read one number is how they start disagreeing.
+     */
+    private static String retireBecause(String because, int revision) {
+        return because + " moved the input to revision " + revision;
+    }
 
     /**
-     * The one place an append happens: the record, the revision bump and the trajectory row.
+     * What one append produced: the new record's id, the revision it landed on, the case's new version and
+     * the authorisation it retired ({@code null} when the case had none alive).
+     */
+    private record Written(String evidenceId, int inputRevision, long version, String revokedAuthorizationId) {}
+
+    /**
+     * The one place an append happens: the record, the revision bump, the retirement of the approval fixed to
+     * the old revision, and the trajectory row.
      *
-     * <p>Both routes go through it so that "appending material always moves the revision and always leaves a
-     * trajectory row" cannot hold for one route and not the other.
+     * <p>Both routes go through it so that "appending material always moves the revision, always retires a
+     * live approval and always leaves a trajectory row" cannot hold for one route and not the other.
+     *
+     * <p>The retirement happens here rather than in the caller's argument list because order is the point: the
+     * material is already recorded when the approval is withdrawn, so a reader can never find the new revision
+     * on the case while the old approval is still live. Both writes are in the caller's transaction, so either
+     * both are visible or neither is.
      */
     private Written write(
             CaseRow row,
@@ -178,7 +213,8 @@ public class CaseEvidenceService {
             String questionId,
             String reviewedEvidenceId,
             VerificationResult result,
-            String detail) {
+            String detail,
+            String retirementReason) {
         evidence.insertEvidence(
                 row.caseId(),
                 evidenceId,
@@ -196,6 +232,7 @@ public class CaseEvidenceService {
                 principal.role().name(),
                 now);
         evidence.bumpRevision(row.caseId(), now);
+        String revoked = liveAuthorisations.revoke(row.caseId(), retirementReason, now);
         cases.insertTimeline(
                 row.caseId(),
                 UUID.randomUUID().toString(),
@@ -204,7 +241,7 @@ public class CaseEvidenceService {
                 detail,
                 now,
                 revision);
-        return new Written(evidenceId, revision, row.version() + 1);
+        return new Written(evidenceId, revision, row.version() + 1, revoked);
     }
 
     private CaseRow lockedVisibleCase(AuthenticatedPrincipal principal, String caseId) {

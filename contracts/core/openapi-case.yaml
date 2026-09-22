@@ -340,6 +340,15 @@ paths:
         authorisation is consumed the input is closed and this is 409
         (docs/core-contracts.md:30).
 
+        New input also retires the case's live authorisation: it is fixed to the revision
+        its payload was hashed from, so the revision moving leaves an approval that
+        describes input the case no longer has. That authorisation becomes REVOKED —
+        nobody decided it, and the recorded reason names the revision that retired it —
+        and the response names it, so a caller that submitted material learns which
+        approval it moved. The case then returns to PENDING_REVIEW if it had been
+        AUTHORIZED: an approval was never a payment, so retiring one costs nothing and
+        leaves no operation behind.
+
         Material is appended, never overwritten: each submission is its own record with its
         own id, so an earlier statement stays readable next to the one that corrected it
         (docs/domain-model.md:27). The revision is the server's, not the caller's: the body
@@ -375,6 +384,7 @@ paths:
                 case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
                 input_revision: 2
                 version: 7
+                revoked_authorization_id: 7a7a7a7a-2222-4333-8444-555566667777
         '401':
           $ref: '#/components/responses/Unauthenticated'
         '403':
@@ -582,15 +592,20 @@ paths:
       description: |
         A reviewer's verification is a new evidence record that cites the record it
         verified; the original customer statement is never edited
-        (docs/core-contracts.md:35). If the verification refutes what an approved
-        authorisation relied on, that authorisation is revoked rather than quietly kept —
-        that half needs an authorisation to revoke, so until the authorisation path exists
-        (C03.3) `revoked_authorization_id` is absent, and its absence means "no
-        authorisation was affected", not "nobody checked". The record it created is read
-        back through the case view's `evidence` (EvidenceView), which is what makes the
-        conclusion a fact a later reader can see instead of a sentence to parse. Merchant
-        staff record verifications and a customer may not (403), for the same reason a
-        customer may not submit a carrier fact as its own.
+        (docs/core-contracts.md:35). Recording one moves the input revision, and moving
+        the revision retires the case's live authorisation: it is fixed to the revision
+        its payload was hashed from, so it becomes REVOKED and `revoked_authorization_id`
+        names it. Revocation is the revision moving, not the reviewer's verdict — a
+        CONFIRMED verification retires it exactly as a REFUTED one does, because the
+        conclusion is not what invalidated the payload. Absent
+        `revoked_authorization_id` therefore means "there was no live authorisation to
+        retire", which is different from "nobody checked": the server always looks.
+
+        The record it created is read back through the case view's `evidence`
+        (EvidenceView), which is what makes the conclusion a fact a later reader can see
+        instead of a sentence to parse. Merchant staff record verifications and a customer
+        may not (403), for the same reason a customer may not submit a carrier fact as its
+        own.
       parameters:
         - $ref: '#/components/parameters/CaseId'
       requestBody:
@@ -615,7 +630,6 @@ paths:
                 evidence_id: 1d1c2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b
                 input_revision: 3
                 case_version: 8
-                revoked_authorization_id: null
         '401':
           $ref: '#/components/responses/Unauthenticated'
         '403':
@@ -1578,6 +1592,13 @@ components:
           $ref: '#/components/schemas/InputRevision'
         version:
           $ref: '#/components/schemas/Version'
+        revoked_authorization_id:
+          oneOf:
+            - $ref: '#/components/schemas/Uuid'
+            - type: 'null'
+          description: |
+            The live authorisation this submission retired, absent when the case had none
+            (the authorisation is fixed to a revision, so new input cannot leave it applied).
     CaseCancelResponse:
       type: object
       additionalProperties: false
@@ -2087,6 +2108,10 @@ components:
           oneOf:
             - $ref: '#/components/schemas/Uuid'
             - type: 'null'
+          description: |
+            The live authorisation this new revision retired, absent when the case had none.
+            A verification retires it whatever the conclusion was: what invalidated the
+            payload is the revision moving, not the verdict.
     ReconcileResponse:
       type: object
       additionalProperties: false

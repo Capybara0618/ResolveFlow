@@ -349,7 +349,7 @@ class AuthorizationApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    @DisplayName("material arriving later moves the case, not the authorisation's own revision")
+    @DisplayName("material arriving later moves the case, retires the authorisation and leaves its revision alone")
     void theAuthorisationKeepsTheRevisionItFixed() {
         String caseId = openCase();
         deliver(
@@ -365,9 +365,15 @@ class AuthorizationApiTest extends CaseDatabaseTest {
         assertThat(view.get("authorization").get("input_revision").asInt())
                 .as("an approved payload for revision 1 is not a payload for revision 2")
                 .isEqualTo(1);
+        // C03.3c-2: new input retires the live authorisation, in the transaction that writes the material.
+        // C03.3b left it PENDING_REVIEW for the approval path to refuse later, which left a window in which
+        // the case view said an approval for revision 1 was still available on revision 2.
         assertThat(view.get("authorization").get("status").stringValue())
-                .as("the authorisation is still standing until someone decides it (C03.3b)")
-                .isEqualTo("PENDING_REVIEW");
+                .as("an approval fixed to the previous revision cannot stay live over this one")
+                .isEqualTo("REVOKED");
+        assertThat(authorizationColumn(caseId, "decision_reason"))
+                .as("the reason names the act that retired it, for the next reader")
+                .contains("moved the input to revision 2");
         assertThat(view.get("proposal").get("status").stringValue()).isEqualTo("STALE");
     }
 

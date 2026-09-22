@@ -189,8 +189,20 @@ def test_proposal_view_is_the_payload_plus_the_members_case_owns() -> None:
     assert payload <= view
     # C03.2b-2b added the two members a reviewer needs to see what Java checked: what it recomputed from
     # its own records, and why it refused when it did. Both belong to Case, not to the producer.
-    assert view - payload == {"status", "created_at", "recomputed_amount_minor", "refusal_reason"}
-    assert set(view_component()["required"]) - set(payload_component()["required"]) == {"status"}
+    assert view - payload == {
+        "status",
+        "created_at",
+        "recomputed_amount_minor",
+        "refusal_reason",
+        "origin",
+        "authored_by",
+        "authored_role",
+    }
+    # C03.3c added `origin` to the required members along with the author's two fields: a reader that cannot
+    # tell who wrote the proposal cannot know which of the two disjoint shapes it is looking at, and
+    # `created_at` stays optional because a reviewer reading a proposal does not need to know when it was
+    # recorded to weigh it.
+    assert set(view_component()["required"]) - set(payload_component()["required"]) == {"status", "origin"}
 
 
 def test_the_recomputed_amount_is_named_as_case_own_conclusion() -> None:
@@ -252,8 +264,11 @@ def test_a_refund_proposal_is_accepted() -> None:
 def test_the_case_openapi_accepts_the_same_instance() -> None:
     instance = refund_proposal()
     assert component_validator("case", "ProposalPayload", "contracts/core", CORE_SCHEMA_FILES).accepts(instance)
+    # The view adds what case-service owns: the status and who wrote the proposal. C03.3c made the author a
+    # required member with two disjoint shapes, so a run's proposal now has to say it came from a run — the
+    # instance here is the same payload the run submitted, read back with its origin.
     assert component_validator("case", "ProposalView", "contracts/core", CORE_SCHEMA_FILES).accepts(
-        {**instance, "status": "VALIDATED", "created_at": "2026-09-18T04:28:00Z"}
+        {**instance, "status": "VALIDATED", "created_at": "2026-09-18T04:28:00Z", "origin": "AGENT"}
     )
 
 
