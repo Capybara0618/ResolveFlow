@@ -332,7 +332,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 ### C04 持久模拟退款与本地金额事务
 
 - [x] C04.1：SQLite provider-stub退款幂等、查询、丢响应/延迟可见与重启。
-- [ ] C04.2：Commerce line_refund/ledger/operation，接收命令本地预留、成功/失败结算。
+- [x] C04.2：Commerce line_refund/ledger/operation，接收命令本地预留、成功/失败结算。
 - [ ] C04.3：事务外调用provider、UNKNOWN持久对账，不实现跨服务权益协议。
 - 依赖：C01。文件：fixtures/provider、Commerce退款及迁移/测试；stub与业务事务分开。
 - 验收：同ID换载荷拒绝；100并发不超退；UNKNOWN保持预留，成功不二次结算。
@@ -349,6 +349,17 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 命令与结果：`uv run --no-cache --project agent --frozen pytest agent/tests/unit/test_provider_stub.py -q` → **14 passed**；`uv run --no-cache --project agent --frozen pytest agent/tests/unit -q` → **566 passed, 9 skipped**（本步 +14）；`uv run --project agent --frozen ruff check agent/src agent/tests` → **All checks passed**；`uv run --project agent --frozen mypy agent/src` → **Success: no issues found in 20 source files**（strict）；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（`reports/verify/20260922-174825-all-offline.txt`，含 spotless/ruff/mypy/web typecheck、Java unit、Python unit、web test、两份 freeze、contracts、四个 smoke）。
   - **未做（下一步 C04.2）**：Commerce 的 `line_refund`/`ledger`/`operation` 迁移与接收命令时的**本地**预留、成功/失败结算（provider 网络调用必须在事务外，`docs/engineering.md:23`）；本步只交付"对端"，不声称任何退款已由 Commerce 执行。C04.3 才做事务外调用与 UNKNOWN 持久对账。
   - **已知缺口（未做、未声称）**：模拟器只以进程内适配器暴露，**没有**独立 HTTP 端口或 compose 服务（核心 profile 不计 provider 微服务，`docs/core-scope.md:30`；C04.3 需要时再加最小入口）；故障注入是每键或全局两档，没有按调用序号/概率注入；`DELAYED_VISIBILITY` 只影响查询可见性，不影响 `request_refund` 的回答；provider 不校验 `line_id` 是否存在（它不共享业务库，也没有业务数据）。
+
+- C04.2 完成（2026-09-22）：Commerce 的**本地**金额侧——行退款位、退款操作与收件箱三张表，加上"接受并预留"与"结算"两组事务。这一步回答的是"一条命令到达时，钱在本地怎么被占住、怎么被花掉或放掉"，并且**不调用 provider**（那是 C04.3）。
+  - **迁移 `V3__commerce_refund_local.sql`**：`line_refund`（`FREE/RESERVED/CONSUMED`，行槽自带 holder，`operation_id` 为空 ⟺ FREE）；`refund_operation`（`docs/domain-model.md:43` 的列，核心五态 `RECEIVED/IN_PROGRESS/UNKNOWN/SUCCEEDED/FAILED`）；`refund_request_inbox`（投递 id 主键）。两个 CHECK 是设计的一部分：`(state = 'FREE') = (operation_id IS NULL)`（释放后不残留持有者，`CONSUMED` 仍记得是谁填的），以及 `(state IN ('SUCCEEDED','FAILED')) = (settled_at IS NOT NULL)`（"钱什么时候动"只有一个答案）。
+  - **"每行最多一次成功退款"由 schema 保证**：MySQL 没有部分索引，所以用生成列 `live_marker`（`RESERVED`/`CONSUMED` 时有值、`FREE` 时为 NULL）加唯一键 `(line_id, live_marker)`——唯一索引允许多个 NULL，正好表达"任意个已终结退款、最多一个活着的"。**这里我先写错、动手前改掉**：最初给 `provider_key` 加了 `UNIQUE`，那会禁止 `docs/domain-model.md:51` 允许的"确定失败释放后重新申请"（新 operation 撞同一个键），而 `line_id` 层面的唯一约束又会禁掉所有重试。正确做法是 `provider_key = operation_id` 由主键保证唯一，行级唯一交给生成列索引。
+  - **接受事务的顺序就是设计**（`RefundAcceptanceService`）：先解析并**重新推导** `payload_hash`（命令与授权必须描述同一笔钱，`docs/core-contracts.md:19`）→ 再查 operation id（同 id 同 hash 返回原记录＝幂等，同 id 换 hash 拒绝）→ 再查投递 id 是否被别的命令用过 → 再 `slotForUpdate` 读槽与行事实 → 按固定顺序 `lockLedger` → `INSERT` operation（`state=RECEIVED`，`provider_key=operation_id` 此时定死）→ 写收件箱 → `reserveInLedger`（条件里带上 `refunded + reserved + 本次 ≤ paid`）→ `holdForRefund`（条件 `state='FREE'`）。锁序（先账本后行槽）在仓储里写死，两条不同行的退款不会互锁。
+  - **结算事务（`RefundSettlementService`）重入只动一次钱**：三层保证——已终局直接返回；状态转移写在 `WHERE state IN ('RECEIVED','IN_PROGRESS','UNKNOWN')` 里；账本语句自带金额条件。成功＝`reserved → refunded` 且行槽 `CONSUMED`；确定失败＝释放 `reserved`、行槽回 `FREE` 并清 holder，**失败的命令行保留**（"这个键失败过、钱已释放"正是下一个读者需要的事实，`docs/domain-model.md:47`）。
+  - **自己写出、又被自己的测试抓到的四处**：① commerce-service **没有** `Clock` bean（case-service 有，我想当然），14 个测试在上下文启动时就红了 → 新增 `RefundClockConfiguration`；② 我先把收件箱行插在 operation 之前，撞上 `fk_refund_request_inbox_operation`（14 个错误）→ 改成"投递 id 的检查仍在前、行在 operation 之后写"；③ 测试夹具每次调用都新造 `case_id`/`authorization_id`，于是"重投"根本不是重投（同 id 换载荷）→ 夹具按 operation id 缓存文档，重投才真的逐字相同；④ 并发测试用 `HashMap` 缓存夹具 → `ConcurrentModificationException` 把 100 条命令全变成"非预期失败"，改成 `ConcurrentHashMap`。另有一处**断言写错**：我断言"被拒后 7002 的预留为 0"，但两条演示行同属一个订单的账本，7001 的预留本来就在上面——改为断言槽状态与"账本仍是第一笔的 2599"。
+  - **红跑发现的一个真事实**：把 `action` 改成 `RESHIP` 时，`CanonicalJson.payloadHash` 会因为缺 `address_hash` 抛异常（按 action 选择字段集，RESHIP 是兼容基线的形状）——而核心根本没有 `address_hash`。测试因此改为**不重算 hash**，让 action 检查先拒绝，并把这条顺序写进断言注释：先按协议拒绝未知动作，canonicaliser 的抱怨只是第二道防线。
+  - 命令与结果：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl commerce-service -am test` → commerce-service **44**（0 失败；新增 `refund/RefundAcceptanceApiTest` **19** 条，真 MySQL + 真迁移 + 真事务：预留行与钱、重投幂等且不重复预留、同 id 换载荷拒绝、篡改 hash 拒绝、金额/数量/币种/归属/未知行五种拒绝、已持有行拒绝、**100 并发命令恰好一条成功**（活 operation 恰好 1、预留恰好 2599）、成功后 `reserved → refunded` 且行 `CONSUMED`、二次结算只动一次钱、已退行永不再退、确定失败释放且保留失败行、失败后同 id 只回放、释放后新 operation 可再次申请、账本拒绝付不起的预留）；`java\mvnw.cmd -f java/pom.xml -B -ntp test` → **229 通过 0 失败**（shared-kernel 55、gateway 5、commerce **44**、fulfillment 2、case-service 145）；`spotless:apply` 后 `spotless:check` 干净；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（`reports/verify/20260922-180433-all-offline.txt`，含 spotless/ruff/mypy/web typecheck、Java unit、Python unit、web test、两份 freeze、contracts、四个 smoke）。
+  - **未做（下一步 C04.3）**：provider 调用（在事务外）、`UNKNOWN` 的持久对账与重试、结果 outbox；本步**没有**给 Commerce 开任何 HTTP 入口——命令由消息到达（C05），现在只有服务层可调用，因此不声称"经真实队列收过退款命令"。
+  - **已知缺口（未做、未声称）**：`refund_operation` 的 `UNKNOWN` 只被 `markUnknown` 预留、没有调用者（C04.3）；`retry_at` 同理；authorization 唯一键防的是"一个授权两次退款"，但**不**校验授权是否已被 Case 消费（那是 C05 的跨服务事实）；`refund_request_inbox` 只记投递 id，没有消息签名/来源校验（C05）；本步的 100 并发是同进程内的，不是跨进程/跨消息重投。
 
 ### C05 消息与退款端到端
 
