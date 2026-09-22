@@ -39,15 +39,32 @@ final class TimelineSummary {
     }
 
     /**
-     * Saying who supplied the material, not just that something arrived.
+     * Saying who supplied the material, and — for a verification — what they concluded.
      *
      * <p>"A revision moved" is exactly the kind of statement the case view exists to explain, and the two
      * possible suppliers are different facts: a customer answered, or staff checked something themselves
-     * (docs/domain-model.md:27).
+     * (docs/domain-model.md:27). For a structured verification the conclusion is the fact a reader needs, so
+     * it is stated here as well as stored in the record: a reviewer who refuted the customer's statement and
+     * one who confirmed it leave the same kind of row, and a trajectory that called both "商家核验并记录"
+     * would bury the difference the next person has to act on.
      */
     private static String appended(TimelineEventRow event) {
         String kind = JsonField.of(event.detail(), "evidence_kind");
-        return "REVIEWER_VERIFICATION".equals(kind) ? "商家核验并记录" : "客户补充了材料";
+        if (!"REVIEWER_VERIFICATION".equals(kind)) {
+            return "客户补充了材料";
+        }
+        String result = JsonField.of(event.detail(), "verification_result");
+        return result == null ? "商家核验并记录" : "人工核验：" + sentence(result);
+    }
+
+    /** The conclusion in the words a person reads, with an unknown value shown rather than hidden. */
+    private static String sentence(String result) {
+        return switch (result) {
+            case "CONFIRMED" -> "已确认该材料";
+            case "REFUTED" -> "已否证该材料";
+            case "INCONCLUSIVE" -> "未能确认该材料";
+            default -> "核验结果 " + result;
+        };
     }
 
     /**

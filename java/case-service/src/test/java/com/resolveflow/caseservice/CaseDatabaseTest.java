@@ -66,8 +66,13 @@ public abstract class CaseDatabaseTest {
      * <p>The order is the foreign-key order and it lives here rather than in each test: when a child
      * table arrives, exactly one method has to learn about it instead of every cleanup in the suite
      * (case_evidence proved the point — every test that deleted the parent started failing).
+     *
+     * <p>A verification points at another row of {@code case_evidence} (C03.2c), so the pointers are
+     * cleared before the table: the citations are the child side of a foreign key inside one table, and a
+     * single {@code DELETE} cannot promise it removes the referenced row after the row that references it.
      */
     protected static void deleteAllCaseData(JdbcTemplate jdbc) {
+        jdbc.execute("DELETE FROM case_evidence WHERE reviewed_evidence_id IS NOT NULL");
         for (String table : java.util.List.of(
                 "agent_callback",
                 "case_proposal",

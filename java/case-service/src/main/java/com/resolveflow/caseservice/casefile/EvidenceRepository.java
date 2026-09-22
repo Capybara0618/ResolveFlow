@@ -13,6 +13,10 @@ import org.apache.ibatis.annotations.Update;
  * <p>There is deliberately no update and no delete statement in this mapper. "Material is never
  * overwritten" is therefore not a rule somebody has to remember while writing a service: there is no
  * code path that could break it.
+ *
+ * <p>One insert serves both routes that append. A customer's statement passes no verification members, and
+ * a structured verification passes both; keeping them in one statement means "what an evidence row is"
+ * lives in one place instead of in two column lists that could drift apart.
  */
 @Mapper
 public interface EvidenceRepository {
@@ -20,9 +24,11 @@ public interface EvidenceRepository {
     @Insert("""
             INSERT INTO case_evidence (case_id, evidence_id, source_type, source_ref, source_version,
                                        content_hash, input_revision, observed_at, content, question_id,
+                                       reviewed_evidence_id, verification_result,
                                        appended_by, appended_role, created_at)
             VALUES (#{caseId}, #{evidenceId}, #{sourceType}, #{sourceRef}, #{sourceVersion},
                     #{contentHash}, #{inputRevision}, #{observedAt}, #{content}, #{questionId},
+                    #{reviewedEvidenceId}, #{verificationResult},
                     #{appendedBy}, #{appendedRole}, #{createdAt})
             """)
     void insertEvidence(
@@ -36,6 +42,8 @@ public interface EvidenceRepository {
             @Param("observedAt") java.time.Instant observedAt,
             @Param("content") String content,
             @Param("questionId") String questionId,
+            @Param("reviewedEvidenceId") String reviewedEvidenceId,
+            @Param("verificationResult") String verificationResult,
             @Param("appendedBy") String appendedBy,
             @Param("appendedRole") String appendedRole,
             @Param("createdAt") java.time.Instant createdAt);
@@ -57,6 +65,8 @@ public interface EvidenceRepository {
                    observed_at    AS observedAt,
                    content        AS content,
                    question_id    AS questionId,
+                   reviewed_evidence_id AS reviewedEvidenceId,
+                   verification_result  AS verificationResult,
                    appended_by    AS appendedBy,
                    appended_role  AS appendedRole,
                    created_at     AS createdAt
@@ -66,6 +76,35 @@ public interface EvidenceRepository {
              LIMIT #{limit}
             """)
     List<EvidenceRow> findRecent(@Param("caseId") String caseId, @Param("limit") int limit);
+
+    /**
+     * One record of one case, which is how a verification finds the record it claims to verify.
+     *
+     * <p>Scoped by {@code case_id} in the statement rather than checked afterwards: a record of another case
+     * is not found here at all, so "you cannot verify material from a case you are not acting on" is the
+     * query's shape instead of a comparison a later edit could drop.
+     */
+    @Select("""
+            SELECT case_id        AS caseId,
+                   evidence_id    AS evidenceId,
+                   source_type    AS sourceType,
+                   source_ref     AS sourceRef,
+                   source_version AS sourceVersion,
+                   content_hash   AS contentHash,
+                   input_revision AS inputRevision,
+                   observed_at    AS observedAt,
+                   content        AS content,
+                   question_id    AS questionId,
+                   reviewed_evidence_id AS reviewedEvidenceId,
+                   verification_result  AS verificationResult,
+                   appended_by    AS appendedBy,
+                   appended_role  AS appendedRole,
+                   created_at     AS createdAt
+              FROM case_evidence
+             WHERE case_id = #{caseId}
+               AND evidence_id = #{evidenceId}
+            """)
+    EvidenceRow findEvidence(@Param("caseId") String caseId, @Param("evidenceId") String evidenceId);
 
     @Select("""
             SELECT COUNT(*)
@@ -105,7 +144,20 @@ public interface EvidenceRepository {
             java.time.Instant observedAt,
             String content,
             String questionId,
+            String reviewedEvidenceId,
+            String verificationResult,
             String appendedBy,
             String appendedRole,
-            java.time.Instant createdAt) {}
+            java.time.Instant createdAt) {
+
+        EvidenceSourceType kind() {
+            return EvidenceSourceType.of(sourceType);
+        }
+
+        /** The conclusion, or null for material that carries none (every customer statement, and the
+         * free-text verifications recorded before this route existed). */
+        VerificationResult conclusion() {
+            return verificationResult == null ? null : VerificationResult.of(verificationResult);
+        }
+    }
 }

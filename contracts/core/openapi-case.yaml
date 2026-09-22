@@ -281,10 +281,28 @@ paths:
                   expires_at: '2026-09-18T05:00:00Z'
                 operation: null
                 evidence:
-                  - observation_id: obs-1
-                    source_ref: line:7001/shipment
+                  - observation_id: 5f0c2b1a-9d3e-4a7b-8c2d-1e3f5a7b9c0d
+                    source_ref: customer:C-2002
                     source_version: '2'
-                    content_hash: '1111111111111111111111111111111111111111111111111111111111111111'
+                    content_hash: '5555555555555555555555555555555555555555555555555555555555555555'
+                    evidence_kind: CUSTOMER_STATEMENT
+                    content: 包裹在分拨中心停了七天没有任何更新
+                    input_revision: 2
+                    observed_at: '2026-09-18T04:20:00Z'
+                    appended_by: demo-customer
+                    appended_role: CUSTOMER
+                  - observation_id: 1d1c2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b
+                    source_ref: evidence:5f0c2b1a-9d3e-4a7b-8c2d-1e3f5a7b9c0d
+                    source_version: '2'
+                    content_hash: '6666666666666666666666666666666666666666666666666666666666666666'
+                    evidence_kind: REVIEWER_VERIFICATION
+                    content: 承运商系统复核显示该件确实停留在分拨中心
+                    input_revision: 3
+                    observed_at: '2026-09-18T04:30:00Z'
+                    appended_by: demo-reviewer
+                    appended_role: REVIEWER
+                    reviewed_evidence_id: 5f0c2b1a-9d3e-4a7b-8c2d-1e3f5a7b9c0d
+                    verification_result: CONFIRMED
                 timeline:
                   - event_id: t-1
                     type: CASE_CREATED
@@ -557,7 +575,14 @@ paths:
         A reviewer's verification is a new evidence record that cites the record it
         verified; the original customer statement is never edited
         (docs/core-contracts.md:35). If the verification refutes what an approved
-        authorisation relied on, that authorisation is revoked rather than quietly kept.
+        authorisation relied on, that authorisation is revoked rather than quietly kept —
+        that half needs an authorisation to revoke, so until the authorisation path exists
+        (C03.3) `revoked_authorization_id` is absent, and its absence means "no
+        authorisation was affected", not "nobody checked". The record it created is read
+        back through the case view's `evidence` (EvidenceView), which is what makes the
+        conclusion a fact a later reader can see instead of a sentence to parse. Merchant
+        staff record verifications and a customer may not (403), for the same reason a
+        customer may not submit a carrier fact as its own.
       parameters:
         - $ref: '#/components/parameters/CaseId'
       requestBody:
@@ -567,7 +592,7 @@ paths:
             schema:
               $ref: '#/components/schemas/ReviewedEvidenceRequest'
             example:
-              source_evidence_id: ev-1
+              source_evidence_id: 9c858901-8a57-4791-81fe-4c455b099bc9
               verification_result: CONFIRMED
               reason: 承运商系统复核显示该件确实停留在分拨中心
       responses:
@@ -579,10 +604,14 @@ paths:
                 $ref: '#/components/schemas/ReviewedEvidenceResponse'
               example:
                 case_id: 9c858901-8a57-4791-81fe-4c455b099bc9
-                evidence_id: ev-2
+                evidence_id: 1d1c2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b
                 input_revision: 3
                 case_version: 8
                 revoked_authorization_id: null
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -1376,6 +1405,74 @@ components:
           maxLength: 64
         content_hash:
           $ref: '#/components/schemas/Sha256Hex'
+    VerificationResult:
+      type: string
+      enum: [CONFIRMED, REFUTED, INCONCLUSIVE]
+      description: |
+        What a human concluded about one record, in the only three answers that keep the
+        record's fate honest: confirmed, refuted, or not established. "Not established" is
+        a third answer on purpose — forcing a reviewer to pick a side would produce
+        conclusions the reviewer does not hold, and this value is what a later reader needs
+        to see (docs/core-contracts.md:35).
+    EvidenceView:
+      type: object
+      additionalProperties: false
+      required: [observation_id, source_ref, source_version, content_hash, evidence_kind, content,
+                 input_revision, observed_at, appended_by, appended_role]
+      description: |
+        The material as the case view serves it: the citation shape above plus what only the
+        case can say — which kind of material it is, the material itself, who appended it and
+        when. A reviewer cannot verify what it cannot read, so the text is part of the read
+        surface, while `EvidenceRef` (used by proposals and by the internal re-read route)
+        stays a citation without text: a citation must not become a way to smuggle unverified
+        text into a proposal (docs/core-contracts.md:61).
+      properties:
+        observation_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_ref:
+          type: string
+          minLength: 1
+          maxLength: 200
+          pattern: '^(?!https?://)[a-z][a-z0-9_]*:\S+$'
+        source_version:
+          type: string
+          minLength: 1
+          maxLength: 64
+        content_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+        evidence_kind:
+          $ref: '#/components/schemas/EvidenceSourceType'
+        content:
+          type: string
+          minLength: 1
+          maxLength: 8000
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+        observed_at:
+          type: string
+          format: date-time
+        appended_by:
+          type: string
+          minLength: 1
+          maxLength: 64
+        appended_role:
+          type: string
+          enum: [CUSTOMER, REVIEWER, OPERATOR]
+        reviewed_evidence_id:
+          oneOf:
+            - $ref: '#/components/schemas/Uuid'
+            - type: 'null'
+          description: |
+            Present only on a REVIEWER_VERIFICATION: the record this one verifies. The
+            verified record is never edited, so both stay readable and their hashes stay
+            meaningful.
+        verification_result:
+          oneOf:
+            - $ref: '#/components/schemas/VerificationResult'
+            - type: 'null'
+          description: Present on the same records, and only on those.
     PolicyRef:
       type: object
       additionalProperties: false
@@ -1711,8 +1808,12 @@ components:
         evidence:
           type: array
           maxItems: 64
+          description: |
+            The case's material, readable here because a reviewer cannot verify what it
+            cannot read. Each entry is an EvidenceView: the citation plus the text and, for
+            a human verification, which record it verified and what it concluded.
           items:
-            $ref: '#/components/schemas/EvidenceRef'
+            $ref: '#/components/schemas/EvidenceView'
         timeline:
           type: array
           maxItems: 200
@@ -1829,12 +1930,13 @@ components:
       required: [source_evidence_id, verification_result, reason]
       properties:
         source_evidence_id:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/Uuid'
+          description: |
+            The record being verified. It is one this service issued, so it is a Uuid rather
+            than an open string, and a record that is not in this case is a semantic refusal
+            (422) rather than a new record that cites nothing.
         verification_result:
-          type: string
-          enum: [CONFIRMED, REFUTED, INCONCLUSIVE]
+          $ref: '#/components/schemas/VerificationResult'
         reason:
           type: string
           minLength: 1
@@ -1847,9 +1949,7 @@ components:
         case_id:
           $ref: '#/components/schemas/Uuid'
         evidence_id:
-          type: string
-          minLength: 1
-          maxLength: 64
+          $ref: '#/components/schemas/Uuid'
         input_revision:
           $ref: '#/components/schemas/InputRevision'
         case_version:

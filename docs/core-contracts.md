@@ -32,7 +32,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | GET /api/v1/cases/{case_id}/events | SSE，Last-Event-ID，鉴权不放URL |
 | Case | GET /api/v1/review/cases | 商家内审核队列：仅 PENDING_REVIEW，按 updated_at 倒序，keyset 游标分页；客户角色 403，坏游标/坏 limit 400 |
 | Case | POST /api/v1/cases/{case_id}/reviews | 审核当前授权；批准时重新校验 |
-| Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料 |
+| Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料：新记录引用被核验记录（`reviewed_evidence_id`）并带 `verification_result`，两条都在工单视图的 `EvidenceView` 里可读；客户角色 403，跨工单引用 422 |
 | Case | POST /api/v1/cases/{case_id}/manual-proposals | 新revision/方案，非直接付款 |
 | Case | POST /api/v1/operations/{operation_id}/reconcile | OPERATOR请求查状态，不再次付款 |
 | Agent | POST /internal/v1/runs | PG落库后202，同case/revision唯一 |
@@ -62,6 +62,8 @@ run请求沿用run/case/input_revision、受控context(merchant/customer/order/l
 回调kind为STARTED/QUESTION/PROPOSAL/FAILED；QUESTION与PROPOSAL互斥终局。QUESTION含稳定question_id、最多3个问题及原因；PROPOSAL使用核心方案Schema；FAILED含原因、已知观察ref。旧revision/人工接管后返回STALE且不重试；相同callback换载荷拒绝；STARTED迟到不回退状态。
 
 PROPOSAL的接受分两类：结构或绑定错误（`schema_version`、`case_id`/`input_revision`与工单不一致、未知`case_type`/`recommended_action`、非REFUND带金额、`source_ref`是URL等）是422——这条消息不是方案；**可检内容**则是"已核对并被拒"的持久事实，存`case_proposal`为`REJECTED`并写`refusal_reason`。可检部分全用本服务自己的记录：引用必须落在工单钉住的版本上（`bundle_id`在钉住集合内、`version`等于库存版本、`rule_id`+`chunk_id`存在且重算`content_hash`相符——引用新版本、引用已改正文、引用不存在规则都算拒绝），REFUND必须至少一条政策引用，金额从Commerce行上下文重算（paid−refunded−reserved，且必须仍属该工单的商家与客户），`suggested_amount_minor`只保留作对照；重算为0或低于建议值即拒绝。`VALIDATED`只说明引用与金额通过了本服务的核对，不等于批准，也不代表run结论正确；两种结果都使工单进入`PENDING_REVIEW`（人工接管后同一revision再投递即STALE）。
+
+人工核验（`reviewed-evidence`）与客户材料一样是**追加**：新记录用`reviewed_evidence_id`引用被核验的那一条、用`verification_result`记下CONFIRMED/REFUTED/INCONCLUSIVE，被核验记录的正文与hash一律不动（表内没有update/delete语句，引用是`(case_id, evidence_id)`外键，跨工单引用在库层面不可能）。核验对象必须是本工单的**材料**而不是别人核验的结论（核验的核验会让"核的是什么"退化成链条），客户角色不能记录核验（403）。`EvidenceView`是工单视图里材料的样子：引用形状+正文+谁在哪个revision追加的；核验结论因此是结构化事实而不是要人去解析的句子，而`EvidenceRef`（方案引用与内部复读用）仍然**不含正文**——引用不能变成夹带未核验文本的通道。REFUTED目前不撤销任何授权：授权要到C03.3才存在，`revoked_authorization_id`缺失的含义是"没有授权受影响"，不是"没人检查过"。
 
 Java校验证据时按固定source_ref映射查询权威数据，而非信任Python文字。用户材料不是权威退款依据，ref不是可请求的任意URL。工具token绑定run/case/revision/merchant/customer/line/aud/scope，续签需Case确认有效，模型看不到token。
 

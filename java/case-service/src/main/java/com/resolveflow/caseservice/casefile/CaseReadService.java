@@ -36,10 +36,12 @@ public class CaseReadService {
 
     private final CaseRepository cases;
     private final ProposalService proposals;
+    private final EvidenceRepository evidence;
 
-    public CaseReadService(CaseRepository cases, ProposalService proposals) {
+    public CaseReadService(CaseRepository cases, ProposalService proposals, EvidenceRepository evidence) {
         this.cases = cases;
         this.proposals = proposals;
+        this.evidence = evidence;
     }
 
     public CaseSnapshotResponse read(AuthenticatedPrincipal principal, String caseId) {
@@ -50,8 +52,31 @@ public class CaseReadService {
         // The proposal is read together with the case's current revision, because that is what makes a
         // proposal from an older revision come back STALE: that fact belongs to the read, not to a stored
         // copy that would have to be rewritten every time a revision moves (C03.2b-2).
+        // A case with no material yet reports the member's absence rather than an empty array: the case view
+        // keeps one way to say "nothing here", the same way it does for the proposal (C03.2c).
+        List<CaseSnapshotResponse.EvidenceViewResponse> material = material(caseId);
         return new CaseSnapshotResponse(
-                summary(row), proposals.view(caseId, row.inputRevision()), null, trajectory(caseId));
+                summary(row),
+                proposals.view(caseId, row.inputRevision()),
+                material.isEmpty() ? null : material,
+                trajectory(caseId));
+    }
+
+    /**
+     * The case's material, oldest first.
+     *
+     * <p>The store is read newest-first with the contract's own bound and then reversed, so a case that
+     * somehow holds more records than the view declares (the append routes refuse to grow past the bound
+     * since C03.2c, but a database upgraded from before that could) shows the most recent material rather
+     * than an arbitrary prefix of the oldest.
+     */
+    private List<CaseSnapshotResponse.EvidenceViewResponse> material(String caseId) {
+        List<EvidenceRepository.EvidenceRow> newestFirst = evidence.findRecent(caseId, CaseEvidenceService.MAX_RECORDS);
+        List<CaseSnapshotResponse.EvidenceViewResponse> oldestFirst = new java.util.ArrayList<>(newestFirst.size());
+        for (int index = newestFirst.size() - 1; index >= 0; index--) {
+            oldestFirst.add(CaseSnapshotResponse.EvidenceViewResponse.of(newestFirst.get(index)));
+        }
+        return List.copyOf(oldestFirst);
     }
 
     private static boolean visibleTo(AuthenticatedPrincipal principal, CaseRow row) {

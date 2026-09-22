@@ -771,6 +771,62 @@ def test_the_review_queue_names_what_it_holds_and_refuses_a_page_it_did_not_issu
     assert item["properties"]["status"]["$ref"].endswith("CaseStatus")
 
 
+def test_a_human_verification_is_a_record_and_the_case_view_is_where_it_is_read() -> None:
+    """A reviewer cannot verify what it cannot read, and a verification nobody can read is not evidence.
+
+    The verification route posts `source_evidence_id` / `verification_result` / `reason`, and the case view
+    is the only surface where material is read. If the view kept serving bare `EvidenceRef` citations, the
+    one structured human conclusion in the case would exist in the database and nowhere else, and a reader
+    wanting to know whether the reviewer confirmed or refuted the customer's statement would have to parse
+    a trajectory sentence. So the view gets `EvidenceView` — the citation shape plus the material itself and
+    the two members only a verification has — while `EvidenceRef` stays the shape a citation uses, without
+    `content`: a citation must not become a way to smuggle unverified text into a proposal.
+
+    The identifiers in this exchange are the ones this service issues, so they are `Uuid` and not an open
+    string: an agent observation id (`obs-1`) is a different kind of thing and stays a string where it
+    belongs.
+    """
+    case = document("case")
+    route = case["paths"]["/api/v1/cases/{case_id}/reviewed-evidence"]["post"]
+    for code in ("200", "401", "403", "404", "409", "422"):
+        assert code in route["responses"], f"POST reviewed-evidence must declare {code}"
+
+    request = case["components"]["schemas"]["ReviewedEvidenceRequest"]
+    assert request["properties"]["source_evidence_id"]["$ref"].endswith("Uuid"), (
+        "the record being verified is one this service issued"
+    )
+    response = case["components"]["schemas"]["ReviewedEvidenceResponse"]
+    assert response["properties"]["evidence_id"]["$ref"].endswith("Uuid"), (
+        "and so is the record the verification creates"
+    )
+
+    view = resolve_pointer(case, "#/components/schemas/EvidenceView")
+    assert view["additionalProperties"] is False
+    for member in ("evidence_kind", "content", "input_revision", "observed_at", "appended_by", "appended_role"):
+        assert member in view["required"], f"the view has to carry {member}, or it is still only a citation"
+    assert view["properties"]["content"]["maxLength"] <= 8000, "the same bound the append route enforces"
+    assert view["properties"]["evidence_kind"]["$ref"].endswith("EvidenceSourceType")
+    assert view["properties"]["reviewed_evidence_id"]["oneOf"][0]["$ref"].endswith("Uuid")
+    assert view["properties"]["verification_result"]["oneOf"][0]["$ref"].endswith("VerificationResult"), (
+        "the view can carry a conclusion, and its absence is the null branch"
+    )
+
+    verification = resolve_pointer(case, "#/components/schemas/VerificationResult")
+    assert verification["enum"] == ["CONFIRMED", "REFUTED", "INCONCLUSIVE"], (
+        "one vocabulary for a human conclusion, used by the request and the view alike"
+    )
+    assert request["properties"]["verification_result"]["$ref"].endswith("VerificationResult"), (
+        "two enums would let the request accept a value the reader cannot render"
+    )
+
+    snapshot = resolve_pointer(case, "#/components/schemas/CaseSnapshot")
+    assert snapshot["properties"]["evidence"]["items"]["$ref"].endswith("EvidenceView"), (
+        "the case view is where a reviewer reads the material"
+    )
+    citation = resolve_pointer(case, "#/components/schemas/EvidenceRef")
+    assert "content" not in citation["properties"], "a citation is not a place to put text"
+
+
 def test_the_case_view_is_bounded_and_declares_its_refusals() -> None:
     """The trajectory is a view, not a dump: it is capped, and the route says how it refuses.
 

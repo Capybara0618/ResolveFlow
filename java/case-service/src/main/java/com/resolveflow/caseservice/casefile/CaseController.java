@@ -77,6 +77,15 @@ public class CaseController {
         return ResponseEntity.ok(evidence.append(principal, caseId, request));
     }
 
+    @PostMapping("/{case_id}/reviewed-evidence")
+    public ResponseEntity<ReviewedEvidenceResponse> reviewEvidence(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable("case_id") String caseId,
+            @RequestBody ReviewedEvidenceRequest request) {
+        AuthenticatedPrincipal principal = principals.resolve(authorization);
+        return ResponseEntity.ok(evidence.review(principal, caseId, request));
+    }
+
     @PostMapping("/{case_id}/cancel")
     public ResponseEntity<CaseCancelResponse> cancel(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,

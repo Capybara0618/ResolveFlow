@@ -39,6 +39,11 @@ public class CaseEvidenceService {
 
     private static final int MAX_TEXT = 8000;
 
+    /** The contract's {@code maxItems} on the case view's evidence: material must not fall out of the view. */
+    public static final int MAX_RECORDS = 64;
+
+    private static final int MAX_REASON = 1000;
+
     private final CaseRepository cases;
     private final EvidenceRepository evidence;
     private final Clock clock;
@@ -62,19 +67,19 @@ public class CaseEvidenceService {
 
         // The case row is locked for the whole append, so the revision the material records is the
         // revision the case is at when the row is written (docs/domain-model.md:36: 锁case行并校验).
-        CaseRow row = cases.findCaseForUpdate(caseId);
-        if (row == null || !visibleTo(principal, row)) {
-            throw new CaseReadService.CaseNotVisibleException();
-        }
+        CaseRow row = lockedVisibleCase(principal, caseId);
         requireOpenInput(row);
         requireProvenance(principal, kind);
+        requireRoom(caseId);
 
         Instant now = Instant.now(clock);
         int revision = row.inputRevision() + 1;
-        evidence.insertEvidence(
-                caseId,
-                UUID.randomUUID().toString(),
-                kind.name(),
+        String evidenceId = UUID.randomUUID().toString();
+        Written written = write(
+                row,
+                principal,
+                evidenceId,
+                kind,
                 sourceRef(principal, kind),
                 String.valueOf(revision),
                 contentHash(caseId, kind, text, principal, questionId),
@@ -82,20 +87,148 @@ public class CaseEvidenceService {
                 now,
                 text,
                 questionId,
+                null,
+                null,
+                appendedDetail(kind, text, questionId, principal));
+        return new EvidenceSubmissionResponse(row.caseId(), written.inputRevision(), written.version());
+    }
+
+    /**
+     * A reviewer's verification of one record (docs/core-contracts.md:35).
+     *
+     * <p>What this route adds over the generic append is structure, and the structure is the point: the new
+     * record names the record it verified and states what the reviewer concluded, so a later reader (and a
+     * later re-check) can act on it. "The customer statement was not edited" is not a promise made here but a
+     * property of the store: neither record is ever updated, so the verified one keeps its text and its hash
+     * and both stay readable side by side.
+     *
+     * <p>Revocation is deliberately absent. The contract says a refutation of material an approved
+     * authorisation relied on revokes that authorisation; there are no authorisations until C03.3, and this
+     * method does not pretend to have checked for one — the response's absent {@code
+     * revoked_authorization_id} means "no authorisation was affected" (see {@link ReviewedEvidenceResponse}).
+     */
+    @Transactional
+    public ReviewedEvidenceResponse review(
+            AuthenticatedPrincipal principal, String caseId, ReviewedEvidenceRequest request) {
+        EvidenceSourceType kind = EvidenceSourceType.REVIEWER_VERIFICATION;
+        requireProvenance(principal, kind);
+        String sourceEvidenceId = requireUuid(request.sourceEvidenceId(), "source_evidence_id");
+        VerificationResult result = parseResult(request);
+        String reason = requireReason(request);
+
+        CaseRow row = lockedVisibleCase(principal, caseId);
+        requireOpenInput(row);
+        requireRoom(caseId);
+
+        EvidenceRepository.EvidenceRow verified = evidence.findEvidence(caseId, sourceEvidenceId);
+        if (verified == null) {
+            throw new CaseService.SemanticInvalidException(
+                    "source_evidence_id " + sourceEvidenceId + " is not a record of this case");
+        }
+        // Verifying a verification would make "what was verified" regress into a chain, and the chain's
+        // last link would be the only statement with any material behind it. Material is verified once.
+        if (verified.kind() == EvidenceSourceType.REVIEWER_VERIFICATION) {
+            throw new CaseService.SemanticInvalidException(
+                    "source_evidence_id " + sourceEvidenceId + " is itself a verification; material is verified,"
+                            + " not the record of somebody's verification of it");
+        }
+
+        Instant now = Instant.now(clock);
+        int revision = row.inputRevision() + 1;
+        String evidenceId = UUID.randomUUID().toString();
+        Written written = write(
+                row,
+                principal,
+                evidenceId,
+                kind,
+                "evidence:" + sourceEvidenceId,
+                String.valueOf(verified.inputRevision()),
+                verificationContentHash(caseId, sourceEvidenceId, verified.contentHash(), result, reason, principal),
+                revision,
+                now,
+                reason,
+                null,
+                sourceEvidenceId,
+                result,
+                verificationDetail(result, sourceEvidenceId, reason, principal));
+        return ReviewedEvidenceResponse.recorded(
+                row.caseId(), written.evidenceId(), written.inputRevision(), written.version());
+    }
+
+    /** What one append produced: the new record's id, the revision it landed on and the case's new version. */
+    private record Written(String evidenceId, int inputRevision, long version) {}
+
+    /**
+     * The one place an append happens: the record, the revision bump and the trajectory row.
+     *
+     * <p>Both routes go through it so that "appending material always moves the revision and always leaves a
+     * trajectory row" cannot hold for one route and not the other.
+     */
+    private Written write(
+            CaseRow row,
+            AuthenticatedPrincipal principal,
+            String evidenceId,
+            EvidenceSourceType kind,
+            String sourceRef,
+            String sourceVersion,
+            String contentHash,
+            int revision,
+            Instant now,
+            String content,
+            String questionId,
+            String reviewedEvidenceId,
+            VerificationResult result,
+            String detail) {
+        evidence.insertEvidence(
+                row.caseId(),
+                evidenceId,
+                kind.name(),
+                sourceRef,
+                sourceVersion,
+                contentHash,
+                revision,
+                now,
+                content,
+                questionId,
+                reviewedEvidenceId,
+                result == null ? null : result.name(),
                 principal.subject(),
                 principal.role().name(),
                 now);
-        evidence.bumpRevision(caseId, now);
+        evidence.bumpRevision(row.caseId(), now);
         cases.insertTimeline(
-                caseId,
+                row.caseId(),
                 UUID.randomUUID().toString(),
-                nextSequence(caseId),
+                nextSequence(row.caseId()),
                 TimelineEventType.EVIDENCE_APPENDED.name(),
-                appendedDetail(kind, text, questionId, principal),
+                detail,
                 now,
                 revision);
+        return new Written(evidenceId, revision, row.version() + 1);
+    }
 
-        return new EvidenceSubmissionResponse(caseId, revision, row.version() + 1);
+    private CaseRow lockedVisibleCase(AuthenticatedPrincipal principal, String caseId) {
+        CaseRow row = cases.findCaseForUpdate(caseId);
+        if (row == null || !visibleTo(principal, row)) {
+            throw new CaseReadService.CaseNotVisibleException();
+        }
+        return row;
+    }
+
+    /**
+     * The case view's evidence array is capped at 64 by the contract, so a case that reached the cap must
+     * refuse new material rather than let the oldest record silently fall out of the view.
+     *
+     * <p>Refusing is the honest half of a bounded view: a reader that cannot see a record must be told the
+     * record was not accepted, not left to assume it was never submitted.
+     */
+    private void requireRoom(String caseId) {
+        int held = evidence.countForCase(caseId);
+        if (held >= MAX_RECORDS) {
+            throw new CaseService.SemanticInvalidException("this case already holds " + MAX_RECORDS
+                    + " evidence records, which is the case view's declared bound; no further material is"
+                    + " accepted because it would not be readable");
+        }
     }
 
     private static void requireOpenInput(CaseRow row) {
@@ -155,6 +288,43 @@ public class CaseEvidenceService {
         return request.text();
     }
 
+    private static VerificationResult parseResult(ReviewedEvidenceRequest request) {
+        try {
+            return VerificationResult.of(request.verificationResult());
+        } catch (IllegalArgumentException error) {
+            throw new CaseService.SemanticInvalidException(error.getMessage());
+        }
+    }
+
+    private static String requireReason(ReviewedEvidenceRequest request) {
+        if (request.reason() == null || request.reason().isBlank()) {
+            throw new CaseService.SemanticInvalidException("reason is required");
+        }
+        if (request.reason().length() > MAX_REASON) {
+            throw new CaseService.SemanticInvalidException("reason must be at most " + MAX_REASON + " characters");
+        }
+        return request.reason();
+    }
+
+    /**
+     * The named record, checked for shape before the lookup.
+     *
+     * <p>The identifier is one this service issues, so a value that is not a uuid is a refusal rather than a
+     * lookup that would silently find nothing: "you sent a nonsense id" and "there is no such record" are
+     * different client mistakes and get different sentences.
+     */
+    private static String requireUuid(String raw, String member) {
+        if (raw == null || raw.isBlank()) {
+            throw new CaseService.SemanticInvalidException(member + " is required");
+        }
+        try {
+            UUID.fromString(raw);
+        } catch (IllegalArgumentException error) {
+            throw new CaseService.SemanticInvalidException(member + " must be a uuid, not " + raw);
+        }
+        return raw;
+    }
+
     private static String normaliseQuestionId(EvidenceAppendRequest request) {
         String questionId = request.questionId();
         if (questionId == null || questionId.isBlank()) {
@@ -204,6 +374,46 @@ public class CaseEvidenceService {
         detail.put("submitted_by", principal.subject());
         detail.put("submitted_role", principal.role().name());
         detail.put("preview", text.length() <= 200 ? text : text.substring(0, 200));
+        return CanonicalJson.canonicalize(detail);
+    }
+
+    /**
+     * The hash of a verification: the conclusion, the reason, who reached it, and the hash of the record it
+     * is about.
+     *
+     * <p>Covering the verified record's hash is what makes "this conclusion was about that material" a fact
+     * rather than a claim: material is never edited, so the hash still identifies exactly what the reviewer
+     * looked at, and a verification cannot be re-pointed at a different record without changing its own.
+     */
+    private String verificationContentHash(
+            String caseId,
+            String sourceEvidenceId,
+            String sourceContentHash,
+            VerificationResult result,
+            String reason,
+            AuthenticatedPrincipal principal) {
+        ObjectNode node = mapper.createObjectNode();
+        node.put("case_id", caseId);
+        node.put("evidence_kind", EvidenceSourceType.REVIEWER_VERIFICATION.name());
+        node.put("reviewed_evidence_id", sourceEvidenceId);
+        node.put("reviewed_content_hash", sourceContentHash);
+        node.put("verification_result", result.name());
+        node.put("reason", reason);
+        node.put("submitted_by", principal.subject());
+        node.put("submitted_role", principal.role().name());
+        return CanonicalJson.contentHash(node);
+    }
+
+    /** The trajectory detail of a verification: both structured members, so the sentence can state them. */
+    private String verificationDetail(
+            VerificationResult result, String sourceEvidenceId, String reason, AuthenticatedPrincipal principal) {
+        ObjectNode detail = mapper.createObjectNode();
+        detail.put("evidence_kind", EvidenceSourceType.REVIEWER_VERIFICATION.name());
+        detail.put("reviewed_evidence_id", sourceEvidenceId);
+        detail.put("verification_result", result.name());
+        detail.put("submitted_by", principal.subject());
+        detail.put("submitted_role", principal.role().name());
+        detail.put("preview", reason.length() <= 200 ? reason : reason.substring(0, 200));
         return CanonicalJson.canonicalize(detail);
     }
 
