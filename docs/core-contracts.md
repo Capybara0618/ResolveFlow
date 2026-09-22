@@ -31,7 +31,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/cases/{case_id}/cancel | 仅授权消费前可取消 |
 | Case | GET /api/v1/cases/{case_id}/events | SSE，Last-Event-ID，鉴权不放URL |
 | Case | GET /api/v1/review/cases | 商家内审核队列：仅 PENDING_REVIEW，按 updated_at 倒序，keyset 游标分页；客户角色 403，坏游标/坏 limit 400 |
-| Case | POST /api/v1/cases/{case_id}/reviews | 审核当前授权；批准时重新校验 |
+| Case | POST /api/v1/cases/{case_id}/reviews | 人工决定当前授权；`If-Match`为工单版本、body带授权自己的版本，任一过期409；批准前重新校验；客户角色403 |
 | Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料：新记录引用被核验记录（`reviewed_evidence_id`）并带 `verification_result`，两条都在工单视图的 `EvidenceView` 里可读；客户角色 403，跨工单引用 422 |
 | Case | POST /api/v1/cases/{case_id}/manual-proposals | 新revision/方案，非直接付款 |
 | Case | POST /api/v1/operations/{operation_id}/reconcile | OPERATOR请求查状态，不再次付款 |
@@ -63,11 +63,17 @@ run请求沿用run/case/input_revision、受控context(merchant/customer/order/l
 
 PROPOSAL的接受分两类：结构或绑定错误（`schema_version`、`case_id`/`input_revision`与工单不一致、未知`case_type`/`recommended_action`、非REFUND带金额、`source_ref`是URL等）是422——这条消息不是方案；**可检内容**则是"已核对并被拒"的持久事实，存`case_proposal`为`REJECTED`并写`refusal_reason`。可检部分全用本服务自己的记录：引用必须落在工单钉住的版本上（`bundle_id`在钉住集合内、`version`等于库存版本、`rule_id`+`chunk_id`存在且重算`content_hash`相符——引用新版本、引用已改正文、引用不存在规则都算拒绝），REFUND必须至少一条政策引用，金额从Commerce行上下文重算（paid−refunded−reserved，且必须仍属该工单的商家与客户），`suggested_amount_minor`只保留作对照；重算为0或低于建议值即拒绝。`VALIDATED`只说明引用与金额通过了本服务的核对，不等于批准，也不代表run结论正确；两种结果都使工单进入`PENDING_REVIEW`（人工接管后同一revision再投递即STALE）。
 
-人工核验（`reviewed-evidence`）与客户材料一样是**追加**：新记录用`reviewed_evidence_id`引用被核验的那一条、用`verification_result`记下CONFIRMED/REFUTED/INCONCLUSIVE，被核验记录的正文与hash一律不动（表内没有update/delete语句，引用是`(case_id, evidence_id)`外键，跨工单引用在库层面不可能）。核验对象必须是本工单的**材料**而不是别人核验的结论（核验的核验会让"核的是什么"退化成链条），客户角色不能记录核验（403）。`EvidenceView`是工单视图里材料的样子：引用形状+正文+谁在哪个revision追加的；核验结论因此是结构化事实而不是要人去解析的句子，而`EvidenceRef`（方案引用与内部复读用）仍然**不含正文**——引用不能变成夹带未核验文本的通道。REFUTED目前不撤销任何授权：授权要到C03.3才存在，`revoked_authorization_id`缺失的含义是"没有授权受影响"，不是"没人检查过"。
+人工核验（`reviewed-evidence`）与客户材料一样是**追加**：新记录用`reviewed_evidence_id`引用被核验的那一条、用`verification_result`记下CONFIRMED/REFUTED/INCONCLUSIVE，被核验记录的正文与hash一律不动（表内没有update/delete语句，引用是`(case_id, evidence_id)`外键，跨工单引用在库层面不可能）。核验对象必须是本工单的**材料**而不是别人核验的结论（核验的核验会让"核的是什么"退化成链条），客户角色不能记录核验（403）。`EvidenceView`是工单视图里材料的样子：引用形状+正文+谁在哪个revision追加的；核验结论因此是结构化事实而不是要人去解析的句子，而`EvidenceRef`（方案引用与内部复读用）仍然**不含正文**——引用不能变成夹带未核验文本的通道。REFUTED目前不撤销任何授权：核验是"这条材料站不住"的记录，不是对已定载荷的处置，撤销要走人工决定或（C03.3c的）取代，`revoked_authorization_id`缺失的含义是"没有授权受影响"，不是"没人检查过"。
 
 授权（`AuthorizationState`）在**通过重检的那一刻**与方案同事务创建，不是等人打开页面时才算：`operation_id` 此时预分配、`payload_hash` 此时按12个命令字段算定，两者都写进轨迹的"等待人工审批"行。这条顺序是"重试不会多付一次"的全部依据——载荷在批准之前就固定了，批准只是把已固定的载荷放行，重试只能复用同一个 operation id。授权因此带着**自己的** `input_revision`：材料在批准前到达会把工单推到新revision，而授权仍然描述它创建时的那份输入，所以读模型必须能让审批逻辑（和读页面的人）看到两者不同，而不是拿工单的当前revision去冒充。只有"通过重检且会动钱"的方案才会产生授权：被拒方案没有可批准的东西，通过重检但不动钱的建议也没有本服务能执行的东西，给它们建一行等于把无法执行的批准摆到审核员面前。`expires_at`目前一律缺失（核心没有到期策略），授权的失效要么是被取代、要么是被撤销、要么是被消费。
 
 Java校验证据时按固定source_ref映射查询权威数据，而非信任Python文字。用户材料不是权威退款依据，ref不是可请求的任意URL。工具token绑定run/case/revision/merchant/customer/line/aud/scope，续签需Case确认有效，模型看不到token。
+
+人工决定（`POST /api/v1/cases/{case_id}/reviews`）用**两把锁**管两件不同的事：`If-Match`是审阅者读过的**工单**版本（这条路由上的ETag就是工单版本，读页面和提交决定必须看同一个版本），body里的`authorization_version`是授权**自己**的版本。任一过期都回409且不写任何东西——两者都过期时也是先报工单那把锁，因为"你读的是旧页面"是更根本的那条。**决定终局**不是靠事前检查：版本与`status = 'PENDING_REVIEW'`一起写进UPDATE的WHERE，所以两个人同时决定时第二个必然匹配0行（docs/domain-model.md:31）；这也意味着同一个请求体第二次提交是409，而不是"和上次一样所以成功"。
+
+三种决定各有后果，且都不等于"执行"。`APPROVE`先把授权置`APPROVED`（版本+1），再把工单推到`AUTHORIZED`——**不消费、不派发**，消费是C04派发事务的事，把批准和付款合成一步会让"批准了但还没付"这个真实状态无处安放。批准前重新校验三件事，且三种失败**不是同一种失败**：授权固定的`input_revision`是否仍是工单的revision、`payload_hash`能否从本服务自己的行重算出来——这两件是关于**本服务固定下来的载荷**的陈述，不成立就是永久的，授权转`EXPIRED`并在`decision_reason`写明哪个事实动了（拒绝本身不能把这个失效回滚掉，所以这条路径用`noRollbackFor`保住它），工单留在`PENDING_REVIEW`由人处理；Commerce说这一行当前付不起则是关于**世界**的陈述，只回409、不令授权作废，因为明天可能又能付，把世界的变化写成这个服务的终局决定是越权。`REJECT`置`REJECTED`、工单转`CLOSED_REJECTED`、释放活跃slot并写`CASE_CLOSED`行：拒绝是对这份输入的结论，而该工单没有第二个活授权，留在`PENDING_REVIEW`只会让它永远躺在队列里。`REQUEST_INFO`置`EXPIRED`（不是`REJECTED`：核验者问的是问题，没有否决）、工单回到`WAITING_CUSTOMER`——客户补材料会把revision推走，而载荷是给旧revision定的，所以它此后不可能再被应用。三种都写`AUTHORIZATION_DECIDED`轨迹行，并把`decided_by`/`decided_role`/`decision_reason`/`decided_at`落库（`AuthorizationState`因此多出四个可空成员：无人决定时缺失而不是null）；决定者只能是REVIEWER或OPERATOR（客户角色403，被决定的人不能自己批），角色记进库里而不是假定。
+
+授权表的**活授权唯一**由库保证：`live_marker`是`status`的生成列（`PENDING_REVIEW`/`APPROVED`时为`'LIVE'`，其余为NULL），唯一键在`(case_id, live_marker)`上，而MySQL的唯一索引允许多个NULL，于是一个工单可以有任意多个已终结的授权、同时最多一个活授权。"这个工单可以执行哪一次授权"因此是单行事实，由schema而不是每个写入者记得检查来保证（C03.3c的取代就建在这条不变式上）。`PENDING_REVIEW`必须没有决定列、`APPROVED`/`REJECTED`/`CONSUMED`必须有全部决定列、`EXPIRED`/`REVOKED`两者皆可——"被取代"背后没有人，"被要求补材料"背后有人，拒绝存下这个差别就是丢掉谁问的。
 
 ## 5. MQ与授权
 

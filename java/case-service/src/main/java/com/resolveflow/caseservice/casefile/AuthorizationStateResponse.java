@@ -14,8 +14,12 @@ import java.time.Instant;
  * a human approves is the payment the command carries.
  *
  * <p>{@code expires_at} is absent whenever no expiry is set, which is currently always: core-v1.2 has no
- * expiry policy, and an authorisation stops being usable by being superseded, revoked or consumed. Absent
- * rather than null, the same way the case view says "no proposal" and "no material".
+ * expiry policy, and an authorisation stops being usable by being superseded, lapsed, revoked or consumed.
+ * Absent rather than null, the same way the case view says "no proposal" and "no material".
+ *
+ * <p>The decision members are the record of what a person decided (C03.3b), absent while nobody has. They
+ * live here rather than in the trajectory because the trajectory has no actor member: a decision readable
+ * only as a summary sentence would be a fact this service stores and its readers cannot query.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AuthorizationStateResponse(
@@ -26,7 +30,11 @@ public record AuthorizationStateResponse(
         ExecutableAction action,
         @JsonProperty("planned_operation_id") String plannedOperationId,
         @JsonProperty("payload_hash") String payloadHash,
-        @JsonProperty("expires_at") Instant expiresAt) {
+        @JsonProperty("expires_at") Instant expiresAt,
+        @JsonProperty("decided_by") String decidedBy,
+        @JsonProperty("decided_role") String decidedRole,
+        @JsonProperty("decided_at") Instant decidedAt,
+        @JsonProperty("decision_reason") String decisionReason) {
 
     static AuthorizationStateResponse of(AuthorizationRepository.StoredAuthorization stored) {
         return new AuthorizationStateResponse(
@@ -37,6 +45,10 @@ public record AuthorizationStateResponse(
                 ExecutableAction.of(stored.action()),
                 stored.plannedOperationId(),
                 stored.payloadHash(),
-                stored.expiresAt());
+                stored.expiresAt(),
+                stored.decidedBy(),
+                stored.decidedRole(),
+                stored.decidedAt(),
+                stored.decisionReason());
     }
 }

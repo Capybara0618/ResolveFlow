@@ -1,7 +1,6 @@
 package com.resolveflow.caseservice.casefile;
 
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
-import com.resolveflow.shared.security.Role;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +51,7 @@ public class CaseReadService {
 
     public CaseSnapshotResponse read(AuthenticatedPrincipal principal, String caseId) {
         CaseRow row = cases.findCase(caseId);
-        if (row == null || !visibleTo(principal, row)) {
+        if (row == null || !row.visibleTo(principal)) {
             throw new CaseNotVisibleException();
         }
         // The proposal is read together with the case's current revision, because that is what makes a
@@ -86,17 +85,6 @@ public class CaseReadService {
             oldestFirst.add(CaseSnapshotResponse.EvidenceViewResponse.of(newestFirst.get(index)));
         }
         return List.copyOf(oldestFirst);
-    }
-
-    private static boolean visibleTo(AuthenticatedPrincipal principal, CaseRow row) {
-        if (!row.merchantId().equals(principal.merchantId())) {
-            return false;
-        }
-        if (principal.role() == Role.CUSTOMER) {
-            return row.customerId().equals(principal.customerId());
-        }
-        // REVIEWER and OPERATOR see the merchant's cases; the review queue is their view.
-        return true;
     }
 
     private CaseSnapshotResponse.CaseSummaryResponse summary(CaseRow row) {

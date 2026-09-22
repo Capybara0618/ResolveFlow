@@ -1,7 +1,6 @@
 package com.resolveflow.caseservice.casefile;
 
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
-import com.resolveflow.shared.security.Role;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
@@ -41,7 +40,7 @@ public class CaseCancellationService {
         String reason = requireReason(request);
 
         CaseRow row = cases.findCaseForUpdate(caseId);
-        if (row == null || !visibleTo(principal, row)) {
+        if (row == null || !row.visibleTo(principal)) {
             throw new CaseReadService.CaseNotVisibleException();
         }
         requireCancellable(row);
@@ -75,13 +74,6 @@ public class CaseCancellationService {
             throw new CaseStateConflictException(
                     "this case is already executing; there is no cancel edge after consumption");
         }
-    }
-
-    private static boolean visibleTo(AuthenticatedPrincipal principal, CaseRow row) {
-        if (!row.merchantId().equals(principal.merchantId())) {
-            return false;
-        }
-        return principal.role() != Role.CUSTOMER || row.customerId().equals(principal.customerId());
     }
 
     private static String requireReason(ReasonRequest request) {

@@ -527,10 +527,15 @@ paths:
       operationId: submitReview
       summary: Approve or reject the case authorisation
       description: |
-        The reviewer acts on the version they saw; a stale authorization_version cannot
-        be applied, and approval re-validates the authorisation before consuming it
-        (docs/core-contracts.md:34). Only a human decision can move an authorisation to
-        APPROVED; model confidence is not authorisation (AGENTS.md).
+        The reviewer acts on the version they saw: If-Match carries the case version that was
+        read and the body carries the authorization_version, and neither a stale case version
+        nor a stale authorization_version can be applied. Approval re-validates the
+        authorisation before consuming it (docs/core-contracts.md:34): the revision it fixed
+        has to still be the case's revision, the payload hash has to still be the one this
+        service can recompute, and the line has to still be payable. Only a human decision can
+        move an authorisation to APPROVED; model confidence is not authorisation (AGENTS.md).
+        A refusal that can never become applicable expires the authorisation it refused, and
+        says so in the trajectory.
       parameters:
         - $ref: '#/components/parameters/CaseId'
         - $ref: '#/components/parameters/IfMatch'
@@ -558,6 +563,8 @@ paths:
                 authorization_version: 2
                 status: APPROVED
                 case_version: 7
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
         '404':
@@ -994,7 +1001,12 @@ components:
       schema:
         type: string
         pattern: '^"[1-9][0-9]{0,15}"$'
-      description: The version the caller saw, quoted as an ETag.
+      description: |
+        The version the caller saw, quoted as an ETag. On a case resource this is the case
+        version: the body's authorization_version guards the decision itself, and this guards
+        the reading the decision was made from. A request that read version N and arrives after
+        something else moved the case to N+1 is refused rather than applied to a state nobody
+        looked at.
   headers:
     Location:
       description: Canonical URL of the created resource
@@ -1217,7 +1229,7 @@ components:
       type: string
       enum:
         [CASE_CREATED, EVIDENCE_APPENDED, AGENT_STARTED, QUESTION_REQUIRED, PROPOSAL_READY,
-         APPROVAL_REQUIRED, EXECUTION_UPDATED, AGENT_FAILED, CASE_CLOSED]
+         APPROVAL_REQUIRED, AUTHORIZATION_DECIDED, EXECUTION_UPDATED, AGENT_FAILED, CASE_CLOSED]
       description: |
         The trajectory of what happened (docs/core-scope.md:7). EVIDENCE_APPENDED is the
         customer answering or adding material: without it a case whose input revision moved
@@ -1230,6 +1242,12 @@ components:
         non-retryable one are the same event with different consequences (the case is queued
         again, or it is handed to a human), so the retryable flag rides in the event detail
         rather than in a second type.
+
+        APPROVAL_REQUIRED and AUTHORIZATION_DECIDED are the two halves of the human step, kept
+        apart on purpose: the first says a person has to look, the second says a person did and
+        on what grounds. One type doing both would make a trajectory unable to tell a case that
+        is still waiting from one that was decided and then moved on by other means
+        (docs/core-contracts.md:34).
     EvidenceSourceType:
       type: string
       enum:
@@ -1711,6 +1729,33 @@ components:
             used for the superseded case.
         action:
           $ref: '#/components/schemas/Action'
+        decided_by:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: |
+            Who decided, absent while nobody has. The trajectory has no actor member, so this
+            is where a decision is readable as a fact instead of being parsed out of a summary
+            sentence; the sentence quotes the same reason for the person reading it.
+        decided_role:
+          type: string
+          enum: [CUSTOMER, REVIEWER, OPERATOR]
+          description: |
+            The role the decision was made in, absent while nobody has decided. The same
+            vocabulary the material carries (EvidenceView.appended_role), because both answer
+            "on whose authority" about one case.
+        decided_at:
+          type: string
+          format: date-time
+          description: When the decision was recorded, absent while nobody has decided.
+        decision_reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: |
+            Why, in the words of the person who decided. Required when a decision is submitted
+            (ReviewRequest.reason) and kept here afterwards, because the next reader's question
+            is not only what was decided but on what grounds.
         planned_operation_id:
           $ref: '#/components/schemas/Uuid'
           description: Pre-allocated when the authorisation is created, so the hashed payload is fixed before approval (docs/core-contracts.md:19).

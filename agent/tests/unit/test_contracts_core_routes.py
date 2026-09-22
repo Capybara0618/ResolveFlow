@@ -876,6 +876,60 @@ def test_the_authorisation_says_which_revision_its_payload_fixed() -> None:
     )
 
 
+def test_a_decision_is_recorded_against_the_version_the_reviewer_saw() -> None:
+    """An approval is an act with an actor, a reason and a version, and the contract has to carry all three.
+
+    Two facts decide whether this route can be implemented without inventing a place for them. The first is
+    that a reviewer acts on what they read: the case's version and the authorisation's version are both
+    optimistic locks, and the body carries only the second, so `If-Match` has to say which one it is or two
+    implementations would disagree about what a stale request means. The second is that the trajectory has
+    no actor member, so a decision recorded only as a summary sentence ("审核员 X 批准了授权：…") would be
+    readable by a person and invisible to anything else - the same objection that made the human verification
+    a structured member rather than a phrase. The authorisation is the record being decided, so its decision
+    lives there: who, in which role, when, and why.
+    """
+    case = document("case")
+    route = case["paths"]["/api/v1/cases/{case_id}/reviews"]["post"]
+    for code in ("200", "401", "403", "404", "409", "422"):
+        assert code in route["responses"], f"POST reviews must declare {code}"
+
+    parameters = {parameter["$ref"].rsplit("/", 1)[-1] for parameter in route["parameters"]}
+    assert "IfMatch" in parameters and "CaseId" in parameters
+    if_match = resolve_pointer(case, "#/components/parameters/IfMatch")
+    assert "case" in if_match["description"].lower(), (
+        "an ETag on the case resource has to say it is the case's version, not a second authorisation version"
+    )
+    assert "case version" in route["description"].lower(), (
+        "and the route has to say the same thing where the two versions meet"
+    )
+
+    request = resolve_pointer(case, "#/components/schemas/ReviewRequest")
+    assert request["properties"]["decision"]["enum"] == ["APPROVE", "REJECT", "REQUEST_INFO"]
+    assert request["properties"]["authorization_version"]["$ref"].endswith("Version")
+    response = resolve_pointer(case, "#/components/schemas/ReviewResponse")
+    for member in ("authorization_version", "case_version"):
+        assert member in response["required"], (
+            f"the answer has to report {member}: both moved, and the reviewer has to be able to tell"
+        )
+
+    state = resolve_pointer(case, "#/components/schemas/AuthorizationState")
+    for member in ("decided_by", "decided_role", "decided_at", "decision_reason"):
+        assert member in state["properties"], (
+            f"{member} is where the decision is readable instead of being parsed out of a sentence"
+        )
+        assert member not in state["required"], "and it is absent while nobody has decided"
+    assert state["properties"]["decided_at"]["format"] == "date-time", (
+        "a decision has a time; absent means nobody decided, and null is not a second spelling of that"
+    )
+    assert "absent" in state["properties"]["decided_by"]["description"].lower()
+
+    kinds = resolve_pointer(case, "#/components/schemas/TimelineEventType")["enum"]
+    assert "AUTHORIZATION_DECIDED" in kinds, (
+        "waiting for a human and a human having decided are different events, not one event with two readings"
+    )
+    assert "APPROVAL_REQUIRED" in kinds, "the waiting row keeps its own type"
+
+
 def test_the_case_view_is_bounded_and_declares_its_refusals() -> None:
     """The trajectory is a view, not a dump: it is capped, and the route says how it refuses.
 

@@ -26,6 +26,7 @@ final class TimelineSummary {
                     case QUESTION_REQUIRED -> "需要客户补充说明";
                     case PROPOSAL_READY -> proposed(event);
                     case APPROVAL_REQUIRED -> approvalRequired(event);
+                    case AUTHORIZATION_DECIDED -> authorizationDecided(event);
                     case EXECUTION_UPDATED -> "执行状态已更新";
                     case AGENT_FAILED -> failed(event);
                     case CASE_CLOSED -> closed(event);
@@ -107,6 +108,36 @@ final class TimelineSummary {
     private static String approvalRequired(TimelineEventRow event) {
         Long version = JsonField.number(event.detail(), "authorization_version");
         return version == null ? "等待人工审批" : "等待人工审批（授权版本 " + version + "）";
+    }
+
+    /**
+     * The decision row says who decided what, and quotes the reason.
+     *
+     * <p>All three are in the row's detail and in the authorisation the view serves; the sentence exists so a
+     * person reading the trajectory does not have to cross-reference. The reason is quoted rather than
+     * summarised because it was written for exactly this reader — the next person to look at the case.
+     */
+    private static String authorizationDecided(TimelineEventRow event) {
+        String decision = JsonField.of(event.detail(), "decision");
+        Long version = JsonField.number(event.detail(), "authorization_version");
+        String who = JsonField.of(event.detail(), "decided_by");
+        String reason = JsonField.of(event.detail(), "reason");
+        String act =
+                switch (decision == null ? "" : decision) {
+                    case "APPROVE" -> "批准了退款授权";
+                    case "REJECT" -> "驳回了退款授权";
+                    case "REQUEST_INFO" -> "要求客户补充材料";
+                    default -> decision == null ? "记录了审核决定" : "记录了审核决定 " + decision;
+                };
+        StringBuilder sentence = new StringBuilder();
+        sentence.append(who == null ? "审核员" : "审核员 " + who).append(' ').append(act);
+        if (version != null) {
+            sentence.append("（授权版本 ").append(version).append('）');
+        }
+        if (reason != null) {
+            sentence.append("：").append(reason);
+        }
+        return sentence.toString();
     }
 
     /**
