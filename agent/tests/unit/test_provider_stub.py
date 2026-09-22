@@ -247,6 +247,12 @@ def test_the_written_protocol_and_the_code_say_the_same_thing() -> None:
         "the document has to say that the idempotency key comes from upstream"
     )
     assert "不对 Agent 可见" in document, "and that the provider credential is not the Agent's to see"
+    # C04.3 added the HTTP surface: the paths and the 404 rule are what a cross-process caller reads first,
+    # and a document that stopped at the in-process API would leave Commerce's client with no reference.
+    for path in ("/provider/v1/refunds", "/provider/v1/_lab/faults"):
+        assert path in document, f"the protocol document has to document {path}"
+    assert "404 不是失败" in document, "and that a 404 from the provider is not a failure"
+    assert "RESOLVEFLOW_LAB_ROUTES" in document, "and how the lab surface is turned on"
 
 
 def test_money_is_counted_in_integer_minor_units(tmp_path: Path) -> None:

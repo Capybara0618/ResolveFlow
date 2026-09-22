@@ -125,6 +125,38 @@ public interface RefundOperationRepository {
             @Param("reasonCode") String reasonCode,
             @Param("settledAt") Instant settledAt);
 
+    /**
+     * Claim the right to talk to the provider about this operation.
+     *
+     * <p>The expected state is in the statement, so two dispatchers racing for one operation cannot both
+     * reach the provider: the second matches no row and reports zero
+     * (docs/domain-model.md:49, 所有终局更新检查前置状态/版本).
+     */
+    @Update("""
+            UPDATE refund_operation
+               SET state = 'IN_PROGRESS',
+                   version = version + 1
+             WHERE operation_id = #{operationId}
+               AND state IN ('RECEIVED', 'UNKNOWN')
+            """)
+    int markInProgress(@Param("operationId") String operationId);
+
+    /**
+     * The operations that have waited past their retry time.
+     *
+     * <p>Read in the caller's transaction and then reconciled outside it: the list is a snapshot, and the
+     * provider calls that follow must not hold the transaction open.
+     */
+    @Select("""
+            SELECT operation_id
+              FROM refund_operation
+             WHERE state = 'UNKNOWN'
+               AND (retry_at IS NULL OR retry_at <= #{now})
+             ORDER BY retry_at, operation_id
+             LIMIT #{limit}
+            """)
+    java.util.List<String> findDueForReconciliation(@Param("now") Instant now, @Param("limit") int limit);
+
     /** Record that the provider gave no answer, and when to ask again (C04.3 owns the retry loop). */
     @Update("""
             UPDATE refund_operation

@@ -34,6 +34,12 @@ resolveflow:
       secret: resolveflow-core-demo-identity-secret
       ttl-seconds: 3600
 
+  # The refund provider is the outside world, reached over HTTP (fixtures/provider/README.md). It is not
+  # part of the core process set (docs/core-scope.md:30); the default points at the stub the Agent service
+  # hosts, and a deployment points it at whatever actually moves money.
+  provider:
+    base-url: ${REFUND_PROVIDER_URL:http://127.0.0.1:8090}
+
 mybatis:
   configuration:
     map-underscore-to-camel-case: true

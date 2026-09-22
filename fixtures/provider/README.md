@@ -4,12 +4,27 @@
 
 ## 1. 两个操作
 
-模拟器同时以两种方式暴露同一个内核：**进程内适配器**（`resolveflow.provider_stub.RefundProviderStub`，供 Commerce 的集成测试与 lab 直接调用）与**持久化状态文件**（SQLite，见下）。协议本身只有两个操作：
+模拟器同时以两种方式暴露同一个内核：**进程内适配器**（`resolveflow.provider_stub.RefundProviderStub`，供 Python 侧的测试与 lab 直接调用）与**HTTP 面**（C04.3，供 Commerce 跨进程调用）。协议本身只有两个操作：
 
 | 操作 | 输入 | 输出 |
 | --- | --- | --- |
 | `request_refund` | `operation_id`（即幂等键）、`line_id`、`amount_minor`、`currency`、可选的 `requested_at` | 一条 `RefundResult` |
 | `query_refund` | `operation_id` 或 provider 发出的 `provider_ref`；可选 `at` 观察时刻 | 一条 `RefundResult`，键不存在时 `state=NOT_FOUND` |
+
+### HTTP 面（C04.3）
+
+进程由 Agent 服务承载（provider 是 Python 程序，`docs/engineering.md:75`；它不是 Agent 的一部分，只是同进程的独立路由）。默认库文件在 `tmp/provider/refund-provider.sqlite3`（可被 `RESOLVEFLOW_PROVIDER_DB` 覆盖）。
+
+| 方法 | 路径 | 回答 |
+| --- | --- | --- |
+| `POST` | `/provider/v1/refunds` | 200 + `RefundResult`；**409** 同键换了载荷；422 金额非法（`amount_minor <= 0`）或字段缺失 |
+| `GET` | `/provider/v1/refunds/{operation_id 或 provider_ref}` | 200 + `RefundResult`；**404** 这个 provider 没有该键 |
+
+**404 不是失败**：延迟可见的 provider 在窗口内就是 404，而钱可能已经被它拿走了，所以调用方对 404 只能"稍后再问"，不能释放预留。响应体是 `operation_id`/`state`/`provider_ref`/`amount_minor`/`currency`/`reason_code`/`settled_at`/`visible_after`/`responded`，与进程内结果同形；其中 **`responded=false` 表示"这次调用没有拿到回答"**，调用方必须把它当 `UNKNOWN`（即便响应里的 `state` 已经是终局），否则等于凭一个自己没收到的回答结账。
+
+### lab 面（默认不存在）
+
+`/provider/v1/_lab/faults`（POST 装故障、DELETE 清空）与 `/provider/v1/_lab/operations/{operation_id}/settle`（手工了结 `UNKNOWN`）**只在显式开启时存在**：`create_app(lab_routes=True)` 或环境变量 `RESOLVEFLOW_LAB_ROUTES=1`。跨进程的测试需要它们（它伸不进 provider 的内存），而部署的进程不该带一条能让 provider 行为异常的路由（`docs/engineering.md:77` —— 故障路由仅lab且受控）。未知的故障名返回 422 而不是被忽略：装了等于没装的故障会让故障测试"因为错误的原因"通过。
 
 `RefundResult` 的成员：`operation_id`、`state`、`provider_ref`、`amount_minor`、`currency`、`reason_code`、`settled_at`、`visible_after`、`responded`。**`responded` 与 `state` 是两件事**：前者说的是"这次调用有没有拿到回答"，后者说的是"provider 认为这笔钱现在是什么状态"。丢响应与超时都会让调用方拿不到回答，但只有前者背后有一个 provider 已知的结果——把两者混为一谈，正是"重试变成重复付款"的起点。
 

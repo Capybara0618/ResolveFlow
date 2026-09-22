@@ -333,7 +333,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 - [x] C04.1：SQLite provider-stub退款幂等、查询、丢响应/延迟可见与重启。
 - [x] C04.2：Commerce line_refund/ledger/operation，接收命令本地预留、成功/失败结算。
-- [ ] C04.3：事务外调用provider、UNKNOWN持久对账，不实现跨服务权益协议。
+- [x] C04.3：事务外调用provider、UNKNOWN持久对账，不实现跨服务权益协议。
 - 依赖：C01。文件：fixtures/provider、Commerce退款及迁移/测试；stub与业务事务分开。
 - 验收：同ID换载荷拒绝；100并发不超退；UNKNOWN保持预留，成功不二次结算。
 - 验证：provider协议/重启、MySQL事务/并发、成功丢响应集成测试。
@@ -360,6 +360,18 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 命令与结果：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl commerce-service -am test` → commerce-service **44**（0 失败；新增 `refund/RefundAcceptanceApiTest` **19** 条，真 MySQL + 真迁移 + 真事务：预留行与钱、重投幂等且不重复预留、同 id 换载荷拒绝、篡改 hash 拒绝、金额/数量/币种/归属/未知行五种拒绝、已持有行拒绝、**100 并发命令恰好一条成功**（活 operation 恰好 1、预留恰好 2599）、成功后 `reserved → refunded` 且行 `CONSUMED`、二次结算只动一次钱、已退行永不再退、确定失败释放且保留失败行、失败后同 id 只回放、释放后新 operation 可再次申请、账本拒绝付不起的预留）；`java\mvnw.cmd -f java/pom.xml -B -ntp test` → **229 通过 0 失败**（shared-kernel 55、gateway 5、commerce **44**、fulfillment 2、case-service 145）；`spotless:apply` 后 `spotless:check` 干净；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（`reports/verify/20260922-180433-all-offline.txt`，含 spotless/ruff/mypy/web typecheck、Java unit、Python unit、web test、两份 freeze、contracts、四个 smoke）。
   - **未做（下一步 C04.3）**：provider 调用（在事务外）、`UNKNOWN` 的持久对账与重试、结果 outbox；本步**没有**给 Commerce 开任何 HTTP 入口——命令由消息到达（C05），现在只有服务层可调用，因此不声称"经真实队列收过退款命令"。
   - **已知缺口（未做、未声称）**：`refund_operation` 的 `UNKNOWN` 只被 `markUnknown` 预留、没有调用者（C04.3）；`retry_at` 同理；authorization 唯一键防的是"一个授权两次退款"，但**不**校验授权是否已被 Case 消费（那是 C05 的跨服务事实）；`refund_request_inbox` 只记投递 id，没有消息签名/来源校验（C05）；本步的 100 并发是同进程内的，不是跨进程/跨消息重投。
+
+- C04.3 完成（2026-09-22）：把 provider 调用放到事务**外面**，并让没有结果的退款可以持久地对账。分两个子步落地：先让 provider 真的能跨进程被调用，再做派发与对账。
+  - **C04.3a provider 跨进程**：`resolveflow.api.app` 新增三个路由——`POST /provider/v1/refunds`（400/409/422 与 200）、`GET /provider/v1/refunds/{key}`（未知键 **404**，"查不到"不等于"失败"）、以及**只有显式开启才存在**的 lab 面 `/provider/v1/_lab/*`（`inject`/`clear_faults`/`settle`）。lab 面默认关闭（`create_app(lab_routes=…)` 或 `RESOLVEFLOW_LAB_ROUTES=1`）：跨进程的测试无法伸进 provider 的内存，而部署的进程不该带一条能让它行为异常的路由（`docs/engineering.md:77`）。provider 库默认落在被 gitignore 的 `tmp/provider/` 下。
+  - **C04.3a 抓到的一个真 bug**：`RefundProviderStub` 原来持有一条 `sqlite3` 连接，而 HTTP 请求由不同线程处理——`SQLite objects created in a thread can only be used in that same thread`。C04.1 的进程内测试永远看不到它，第一次用 `TestClient` 就红了。改为**每线程一条连接 + 一把锁**（锁也让写序列化，这正是"provider 一次处理一笔付款"的诚实模型）。
+  - **C04.3b 派发与对账（Java）**：`RefundProviderClient` 用 `RestClient` 调 provider；**传输错误（拒绝连接、读超时）= `UNKNOWN` 而不是异常**（`docs/domain-model.md:51` 网络超时=UNKNOWN而非失败），并自带 connect 2s / read 5s 超时——没有读超时，派发会永远挂着把 operation 停在 `IN_PROGRESS`，"没有回答"就永远不会变成 `UNKNOWN`。`RefundDispatchService` 是三段式，**每一段是自己的事务**：① `claim` 把 operation 从 `RECEIVED`/`UNKNOWN` 推到 `IN_PROGRESS` 并提交（预留已是持久的，进程死在调用中间钱仍被占住、operation 仍可找到）；② 调 provider，**不持有任何数据库锁**；③ 另起事务应用结果。`reconcile` 是**读**而不是重发（operation 已经发过了，再让它付一次是错的，剩下的问题只有"后来怎么样了"）；`reconcileDue(limit)` 先在一个短事务里取到期清单、再在事务外逐个对账（把 N 次网络调用放进一个事务正是这个类要避免的事）。
+  - **一个语义 bug，被自己的集成测试抓到**：provider 返回 `SUCCEEDED` 但 `responded=false`（丢响应）时，我最初直接按 `SUCCEEDED` 结算——那等于**凭一个自己没收到的回答把钱结掉**，而且会让重试变成空操作。现在 `isRefunded()`/`isRefused()` 都要求 `responded`，丢响应记录为 `UNKNOWN` 且 `reason_code=PROVIDER_RESPONSE_LOST`（与"provider 什么都没说"的 `PROVIDER_NO_ANSWER` 分开：前者不需要改行为，后者可能要查 provider），重试拿回原结果后才真正结算。
+  - **跨进程集成测试**（`RefundDispatchApiTest`，8 条）：Java 通过 Surefire 用 `agent/.venv/Scripts/python.exe` 起**真的** provider 进程（随机端口、一次性 SQLite、输出重定向到文件而不是管道），用 `@DynamicPropertySource` 把 `resolveflow.provider.base-url` 指过去，再用 lab 路由注入故障。覆盖：成功后账本 `reserved → refunded` 且行 `CONSUMED`；超时留 `UNKNOWN` 且**预留不动**；丢响应第一次 `UNKNOWN`、第二次同键拿回 `SUCCEEDED` 且**只动一次钱**；延迟可见时查询得 404 → 仍 `UNKNOWN`、预留不动；确定失败释放并把行放回 `FREE`；`UNKNOWN` 在 provider 侧 `settle` 后可对账；`reconcileDue` 只取到期项；已终结的 operation 不再发第二次。
+  - **另一处自己写错**：测试里的 operation id 写成 `op-<uuid>`（39 字符）而列是 `CHAR(36)`——列本身是对的（真实 id 就是 Case 预分配的 uuid），所以改的是夹具：`operation()` 现在返回真 uuid，并在注释里写明"测试不该造出协议产不出的请求"。
+  - **自己写错的两处小问题**：`RefundClockConfiguration` 里 provider 的 `RestClient.Builder` 是独立的 bean（不共用内部面那个），并带显式超时；`reconcileDue` 初稿把网络调用圈进了事务，写完即改。
+  - 命令与结果：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl commerce-service -am test` → commerce-service **52**（0 失败；C04.2 的 19 条 + 本步 8 条跨进程 + 既有 25 条）；`java\mvnw.cmd -f java/pom.xml -B -ntp test` → **237 通过 0 失败**（shared-kernel 55、gateway 5、commerce 52、fulfillment 2、case-service 145）；`uv run --no-cache --project agent --frozen pytest agent/tests/unit -q` → **577 passed, 9 skipped**（本步 +11：provider HTTP 面 11 条）；`spotless:apply` 后 `spotless:check` 干净；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（`reports/verify/20260922-181901-all-offline.txt`，含 spotless/ruff/mypy/web typecheck、Java unit、Python unit、web test、两份 freeze、contracts、四个 smoke）。
+  - **未做（下一步 C05）**：结果的 outbox 与 `RefundSucceeded/Failed/Unknown` 事件（Commerce 现在只落本地状态，还没有把结果投影给 Case）、RocketMQ 的消费入口（因此**还没有**任何真实队列把命令送到这组服务）、跨进程的签名/来源校验。**对账目前没有自动调度器**：`reconcileDue` 是要被调用的方法，本步没有加定时任务，所以"UNKNOWN 会被自动重试"这句话还不能说——它需要 C05 或 C11 的入口。
+  - **已知缺口（未做、未声称）**：`refund_operation` 的 `provider_ref` 只在成功时写入；`retry_at` 的回退是固定 30 秒，没有指数退避；provider 的 lab 面在测试进程里开着，但这只由 `RESOLVEFLOW_LAB_ROUTES` 控制，没有来源限制（它不在默认进程里）；`DELAYED_VISIBILITY` 的窗口在本步的 Java 测试里靠 SQL 直接把 operation 置为 `UNKNOWN` 来构造（provider 侧的窗口行为由 C04.1/HTTP 的 Python 测试覆盖）；provider 的 HTTP 路径与 404 语义已补进 `fixtures/provider/README.md`（并有守卫测试钉住路径在文档里出现）。
 
 ### C05 消息与退款端到端
 

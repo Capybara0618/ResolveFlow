@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import datetime as dt
 import sqlite3
+import threading
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -108,18 +109,36 @@ class RefundProviderStub:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._clock = clock or (lambda: dt.datetime.now(dt.UTC))
-        self._connection = sqlite3.connect(self.path, isolation_level=None)
-        # Rows are read by column name, so a column added by a later migration cannot silently shift
-        # every reader by one position.
-        self._connection.row_factory = sqlite3.Row
-        self._connection.execute("PRAGMA journal_mode=WAL")
-        self._connection.execute("PRAGMA foreign_keys=ON")
+        # One connection per thread, plus a lock around every statement. The stub is served over HTTP, so
+        # requests arrive on whichever worker thread handles them, and a single connection created on the
+        # first thread cannot be used from another (sqlite3 refuses rather than corrupting). The lock keeps
+        # the write sequences serialised, which is also the honest model of a provider: one payment at a
+        # time, in the order it received them.
+        self._connections = threading.local()
+        self._lock = threading.RLock()
         self._create_schema()
 
     # ------------------------------------------------------------------ lifecycle
 
+    @property
+    def _connection(self) -> sqlite3.Connection:
+        connection: sqlite3.Connection | None = getattr(self._connections, "handle", None)
+        if connection is None:
+            connection = sqlite3.connect(self.path, isolation_level=None)
+            # Rows are read by column name, so a column added by a later migration cannot silently shift
+            # every reader by one position.
+            connection.row_factory = sqlite3.Row
+            connection.execute("PRAGMA journal_mode=WAL")
+            connection.execute("PRAGMA foreign_keys=ON")
+            self._connections.handle = connection
+        return connection
+
     def close(self) -> None:
-        self._connection.close()
+        with self._lock:
+            connection: sqlite3.Connection | None = getattr(self._connections, "handle", None)
+            if connection is not None:
+                connection.close()
+                self._connections.handle = None
 
     def __enter__(self) -> RefundProviderStub:
         return self
