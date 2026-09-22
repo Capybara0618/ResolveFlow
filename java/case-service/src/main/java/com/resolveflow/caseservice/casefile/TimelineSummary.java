@@ -25,7 +25,7 @@ final class TimelineSummary {
                     case AGENT_STARTED -> "调查已受理";
                     case QUESTION_REQUIRED -> "需要客户补充说明";
                     case PROPOSAL_READY -> proposed(event);
-                    case APPROVAL_REQUIRED -> "等待人工审批";
+                    case APPROVAL_REQUIRED -> approvalRequired(event);
                     case EXECUTION_UPDATED -> "执行状态已更新";
                     case AGENT_FAILED -> failed(event);
                     case CASE_CLOSED -> closed(event);
@@ -94,6 +94,19 @@ final class TimelineSummary {
         }
         String reason = JsonField.of(event.detail(), "refusal_reason");
         return reason == null ? "方案未通过核对，转人工处理" : "方案未通过核对，转人工处理：" + reason;
+    }
+
+    /**
+     * The waiting-for-a-human row names the authorisation version, because that is what has to come back.
+     *
+     * <p>"等待人工审批" is true and would leave the reviewer to guess which of a case's authorisations is
+     * waiting; the decision route refuses a version that is not current, so the version is the one fact the
+     * reader needs to act. The amount is deliberately not repeated here: the proposal row already says what
+     * was recomputed, and two sentences carrying the same number would eventually disagree.
+     */
+    private static String approvalRequired(TimelineEventRow event) {
+        Long version = JsonField.number(event.detail(), "authorization_version");
+        return version == null ? "等待人工审批" : "等待人工审批（授权版本 " + version + "）";
     }
 
     /**

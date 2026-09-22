@@ -32,18 +32,41 @@ import org.springframework.stereotype.Component;
 public class ProposalReCheck {
 
     /** What the re-check decided, and why when it refused. */
-    public record Outcome(ProposalStatus status, Long recomputedAmountMinor, String refusalReason) {
+    public record Outcome(
+            ProposalStatus status, Long recomputedAmountMinor, String refusalReason, Executable execution) {
+
+        /**
+         * The rest of the execution payload a validated refund fixes (C03.3a).
+         *
+         * <p>The amount is not repeated here: it is {@code recomputedAmountMinor}, the number this check
+         * arrived at from Commerce's own line amounts, and a second field holding the same value would be a
+         * second thing to keep in step. What is here is what the check read on the way and would otherwise
+         * have to read again: the line's quantity and currency, and the version of the policy the proposal
+         * relies on. A command carries exactly one {@code policy_version}, so it is the version behind the
+         * proposal's first citation - the policy this refund actually leans on - rather than a guess over
+         * the pinned set.
+         */
+        public record Executable(int quantity, String currency, String policyVersion) {}
 
         public boolean isValidated() {
             return status == ProposalStatus.VALIDATED;
         }
 
+        /** Whether this outcome gave the case something a human can approve and this service can execute. */
+        public boolean isExecutable() {
+            return isValidated() && execution != null;
+        }
+
         static Outcome validated(Long recomputedAmountMinor) {
-            return new Outcome(ProposalStatus.VALIDATED, recomputedAmountMinor, null);
+            return new Outcome(ProposalStatus.VALIDATED, recomputedAmountMinor, null, null);
+        }
+
+        static Outcome executable(long recomputedAmountMinor, Executable execution) {
+            return new Outcome(ProposalStatus.VALIDATED, recomputedAmountMinor, null, execution);
         }
 
         static Outcome refused(String reason) {
-            return new Outcome(ProposalStatus.REJECTED, null, reason);
+            return new Outcome(ProposalStatus.REJECTED, null, reason, null);
         }
     }
 
@@ -119,7 +142,12 @@ public class ProposalReCheck {
                     + " minor units but this service recomputed " + refundable
                     + " from the line's paid, refunded and reserved amounts");
         }
-        return Outcome.validated(refundable);
+        // The version is read from the bundle behind the proposal's first citation, which the loop above has
+        // already proved exists and is pinned on this case.
+        PolicyRepository.StoredBundle cited =
+                policies.findBundle(submission.policies().get(0).bundleId());
+        return Outcome.executable(
+                refundable, new Outcome.Executable(line.quantity(), line.currency(), cited.version()));
     }
 
     /**

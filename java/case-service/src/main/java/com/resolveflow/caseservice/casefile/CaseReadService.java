@@ -36,11 +36,17 @@ public class CaseReadService {
 
     private final CaseRepository cases;
     private final ProposalService proposals;
+    private final AuthorizationService authorisations;
     private final EvidenceRepository evidence;
 
-    public CaseReadService(CaseRepository cases, ProposalService proposals, EvidenceRepository evidence) {
+    public CaseReadService(
+            CaseRepository cases,
+            ProposalService proposals,
+            AuthorizationService authorisations,
+            EvidenceRepository evidence) {
         this.cases = cases;
         this.proposals = proposals;
+        this.authorisations = authorisations;
         this.evidence = evidence;
     }
 
@@ -58,6 +64,9 @@ public class CaseReadService {
         return new CaseSnapshotResponse(
                 summary(row),
                 proposals.view(caseId, row.inputRevision()),
+                // The authorisation is read as it was fixed, not derived from the proposal: it is the thing a
+                // human decides on, so its own revision has to be shown even when the case has moved past it.
+                authorisations.view(caseId),
                 material.isEmpty() ? null : material,
                 trajectory(caseId));
     }

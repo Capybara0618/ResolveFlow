@@ -23,7 +23,10 @@ import tools.jackson.databind.node.ObjectNode;
  *   <li>Insert the inbox row. That insert is the claim on the callback id, and it happens before any effect,
  *       so a redelivery that races the first one fails on the primary key and rolls back having changed
  *       nothing.
- *   <li>Apply the effect: at most one status transition, exactly one trajectory row, one version bump.
+ *   <li>Apply the effect: at most one status transition, one trajectory row for the delivery itself, one
+ *       version bump — plus, when a validated refund fixes a payload, a second trajectory row saying that a
+ *       human decision is now required (C03.3a). That is a different act with a different reader, so it is a
+ *       row of its own rather than a member of the proposal's row.
  * </ol>
  *
  * <p>STALE is written to the inbox like ACCEPTED, because "this delivery arrived and did not apply" is
@@ -47,6 +50,7 @@ public class AgentCallbackWriter {
     private final CaseRepository cases;
     private final AgentCallbackRepository inbox;
     private final ProposalService proposals;
+    private final AuthorizationService authorisations;
     private final Clock clock;
     private final ObjectMapper mapper;
 
@@ -54,11 +58,13 @@ public class AgentCallbackWriter {
             CaseRepository cases,
             AgentCallbackRepository inbox,
             ProposalService proposals,
+            AuthorizationService authorisations,
             Clock clock,
             ObjectMapper mapper) {
         this.cases = cases;
         this.inbox = inbox;
         this.proposals = proposals;
+        this.authorisations = authorisations;
         this.clock = clock;
         this.mapper = mapper;
     }
@@ -96,9 +102,14 @@ public class AgentCallbackWriter {
         // The claim goes in before the effect, so a losing race cannot leave an effect behind.
         claim(caseId, callback, payloadHash, AgentCallback.Disposition.ACCEPTED, now);
         ProposalService.Recorded recorded = null;
+        AuthorizationService.Created authorisation = null;
         if (outcome != null) {
             // Stored after the claim, in this transaction: a redelivery that loses the race rolls this back.
             recorded = proposals.record(row, payload.proposal(), callback.payload(), payloadHash, outcome, now);
+            // A validated refund fixes its payload here, in the same transaction, so "the proposal passed"
+            // and "there is an authorisation to approve" cannot be true apart (C03.3a).
+            authorisation =
+                    authorisations.create(row, outcome, payload.proposal().proposalId(), now);
         }
         if (cases.transition(caseId, row.status().name(), next.name(), now) != 1) {
             // Unreachable while the row lock is held; kept because silently returning a version nobody
@@ -114,6 +125,19 @@ public class AgentCallbackWriter {
                 detail(callback, payload, recorded),
                 now,
                 callback.inputRevision());
+        if (authorisation != null) {
+            // A second row rather than a member of the first: the proposal passing its re-check and a human
+            // being required to decide are two acts with different readers, and the second is the one the
+            // reviewer queue and the approval route are about.
+            cases.insertTimeline(
+                    caseId,
+                    UUID.randomUUID().toString(),
+                    nextSequence(caseId),
+                    TimelineEventType.APPROVAL_REQUIRED.name(),
+                    authorisationDetail(authorisation),
+                    now,
+                    callback.inputRevision());
+        }
         return new AgentCallbackService.Receipt(AgentCallback.Disposition.ACCEPTED, row.version() + 1, null);
     }
 
@@ -300,6 +324,23 @@ public class AgentCallbackWriter {
                 }
             }
         }
+        return CanonicalJson.canonicalize(detail);
+    }
+
+    /**
+     * What the "a human has to decide" row keeps.
+     *
+     * <p>The version is the fact the decision route checks and the reviewer has to send back, the operation
+     * id is the payment that would be executed, and the hash is over the fields that payment consists of. The
+     * trajectory therefore names the exact thing being approved rather than only that something is waiting.
+     */
+    private String authorisationDetail(AuthorizationService.Created created) {
+        ObjectNode detail = mapper.createObjectNode();
+        detail.put("authorization_id", created.authorizationId());
+        detail.put("authorization_version", created.authorizationVersion());
+        detail.put("planned_operation_id", created.plannedOperationId());
+        detail.put("amount_minor", created.amountMinor());
+        detail.put("payload_hash", created.payloadHash());
         return CanonicalJson.canonicalize(detail);
     }
 

@@ -75,6 +75,7 @@ public abstract class CaseDatabaseTest {
         jdbc.execute("DELETE FROM case_evidence WHERE reviewed_evidence_id IS NOT NULL");
         for (String table : java.util.List.of(
                 "agent_callback",
+                "case_authorization",
                 "case_proposal",
                 "case_evidence",
                 "case_policy_bundle",

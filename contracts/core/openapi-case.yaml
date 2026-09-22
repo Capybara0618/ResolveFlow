@@ -276,9 +276,9 @@ paths:
                   authorization_version: 1
                   status: PENDING_REVIEW
                   action: REFUND
+                  input_revision: 1
                   planned_operation_id: 3f2504e0-4f89-41d3-9a0c-0305e82c3301
                   payload_hash: '3333333333333333333333333333333333333333333333333333333333333333'
-                  expires_at: '2026-09-18T05:00:00Z'
                 operation: null
                 evidence:
                   - observation_id: 5f0c2b1a-9d3e-4a7b-8c2d-1e3f5a7b9c0d
@@ -1680,7 +1680,9 @@ components:
     AuthorizationState:
       type: object
       additionalProperties: false
-      required: [authorization_id, authorization_version, status, action, planned_operation_id, payload_hash]
+      required:
+        [authorization_id, authorization_version, status, action, input_revision,
+         planned_operation_id, payload_hash]
       properties:
         authorization_id:
           $ref: '#/components/schemas/Uuid'
@@ -1688,6 +1690,14 @@ components:
           $ref: '#/components/schemas/Version'
         status:
           $ref: '#/components/schemas/AuthorizationStatus'
+        input_revision:
+          $ref: '#/components/schemas/InputRevision'
+          description: |
+            The revision this authorisation was derived from and whose payload it fixed. Not
+            the same thing as the case's current input_revision: material arriving between
+            creation and approval moves the case on while the authorisation keeps describing
+            the input that was checked, so an approval has to compare the two rather than
+            assume they agree (docs/core-contracts.md:34).
         expires_at:
           # anyOf rather than type: [string, 'null'] because a nullable field that also
           # carries a format must apply that format to the string branch only.
@@ -1695,6 +1705,10 @@ components:
             - type: string
               format: date-time
             - type: 'null'
+          description: |
+            Absent means no expiry is set. Nothing in core-v1.2 sets one yet: an approved
+            authorisation lapses by being superseded or revoked, not by time, and EXPIRED is
+            used for the superseded case.
         action:
           $ref: '#/components/schemas/Action'
         planned_operation_id:
@@ -1702,7 +1716,14 @@ components:
           description: Pre-allocated when the authorisation is created, so the hashed payload is fixed before approval (docs/core-contracts.md:19).
         payload_hash:
           $ref: '#/components/schemas/Sha256Hex'
-          description: Covers the twelve canonical fields; the version itself is not hashed.
+          description: |
+            SHA-256 over the canonical JSON of the twelve command fields -
+            operation_id (= planned_operation_id), case_id, authorization_id, input_revision,
+            line_id, merchant_id, action, quantity, currency, amount_minor, policy_version and
+            target_service (contracts/core/refund-command.schema.json). The version itself is
+            not hashed: an authorisation that is re-versioned without changing what it would
+            execute still hashes the same command, which is what makes the hash a statement
+            about the payment rather than about the row.
     OperationView:
       type: object
       additionalProperties: false

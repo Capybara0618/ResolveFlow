@@ -827,6 +827,55 @@ def test_a_human_verification_is_a_record_and_the_case_view_is_where_it_is_read(
     assert "content" not in citation["properties"], "a citation is not a place to put text"
 
 
+def test_the_authorisation_says_which_revision_its_payload_fixed() -> None:
+    """An authorisation is a fixed payload, so the revision it fixed has to be readable.
+
+    `AuthorizationState.planned_operation_id` is allocated when the authorisation is created precisely so
+    the hashed payload is settled before a human approves it, and that payload covers `input_revision`
+    (contracts/core/refund-command.schema.json). Without a revision of its own, the read model could only
+    offer `case.input_revision`, which is the *current* revision and not necessarily the one the hash was
+    computed over: material arriving between creation and approval moves the case forward while the
+    authorisation keeps describing the old input. A reviewer looking at that state would see an APPROVED
+    authorisation, a case at a newer revision and a `payload_hash` fixed over neither in particular - which
+    is exactly the confusion the approval guard (C03.3) has to refuse, and it can only refuse what it, and
+    the person reading the view, can see.
+    """
+    case = document("case")
+    state = resolve_pointer(case, "#/components/schemas/AuthorizationState")
+    assert state["additionalProperties"] is False
+    assert "input_revision" in state["required"], (
+        "the authorisation's own revision is readable, not inferred from the case's current one"
+    )
+    assert state["properties"]["input_revision"]["$ref"].endswith("InputRevision")
+    assert "the revision" in state["properties"]["input_revision"]["description"].lower(), (
+        "and the description has to say which revision it is"
+    )
+    assert state["properties"]["planned_operation_id"]["$ref"].endswith("Uuid")
+    assert "Pre-allocated" in state["properties"]["planned_operation_id"]["description"], (
+        "the operation id is fixed before approval, which is what makes a retry unable to pay twice"
+    )
+    assert state["properties"]["payload_hash"]["$ref"].endswith("Sha256Hex")
+    assert "expires_at" in state["properties"], "no expiry is set in the core demo, and absent must be sayable"
+
+    # The command a consumer verifies and the authorisation a reviewer reads hash the same twelve fields;
+    # if the authorisation's own description named a different set, a reviewer verifying one would have
+    # verified something else than the command carries.
+    for field in ("operation_id", "case_id", "authorization_id", "input_revision", "amount_minor"):
+        assert field in state["properties"]["payload_hash"]["description"], (
+            f"the authorisation has to say its hash covers {field}, as the command does"
+        )
+
+    snapshot = resolve_pointer(case, "#/components/schemas/CaseSnapshot")
+    assert snapshot["properties"]["authorization"]["oneOf"][0]["$ref"].endswith("AuthorizationState"), (
+        "the case view is where a reviewer reads the authorisation before deciding"
+    )
+    view = case["paths"]["/api/v1/cases/{case_id}"]["get"]["responses"]["200"]["content"]["application/json"]
+    authorisation = view["example"]["authorization"]
+    assert authorisation["input_revision"] == view["example"]["case"]["input_revision"], (
+        "the example has to keep the case and the authorisation it shows on the same revision"
+    )
+
+
 def test_the_case_view_is_bounded_and_declares_its_refusals() -> None:
     """The trajectory is a view, not a dump: it is capped, and the route says how it refuses.
 

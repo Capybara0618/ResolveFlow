@@ -13,8 +13,11 @@ import tools.jackson.databind.JsonNode;
  * <p>{@code proposal} is carried as the JSON that was submitted plus the members this service decided, rather
  * than as a record mirroring every proposal member: the contract says an absent amount is not a null one, so
  * rebuilding the document from a parsed record would turn "nothing was suggested" into an explicit null. The
- * authorisation and operation members are still absent until the steps that create them exist — absent, not
- * null, because an empty member and a missing member would be two spellings of the same fact.
+ * operation member is still absent until the step that creates it exists — absent, not null, because an empty
+ * member and a missing member would be two spellings of the same fact.
+ *
+ * <p>{@code authorization} is the human decision's subject (C03.3a): which payment a reviewer is being asked
+ * to approve, at which revision, with the operation id and payload hash fixed at creation.
  *
  * <p>{@code evidence} is the material itself, because a reviewer cannot verify what it cannot read: the case
  * view is the human surface for the same records the internal route serves as citations
@@ -24,6 +27,7 @@ import tools.jackson.databind.JsonNode;
 public record CaseSnapshotResponse(
         @JsonProperty("case") CaseSummaryResponse caseSummary,
         JsonNode proposal,
+        AuthorizationStateResponse authorization,
         List<EvidenceViewResponse> evidence,
         List<TimelineEventView> timeline) {
 

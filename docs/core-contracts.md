@@ -65,6 +65,8 @@ PROPOSAL的接受分两类：结构或绑定错误（`schema_version`、`case_id
 
 人工核验（`reviewed-evidence`）与客户材料一样是**追加**：新记录用`reviewed_evidence_id`引用被核验的那一条、用`verification_result`记下CONFIRMED/REFUTED/INCONCLUSIVE，被核验记录的正文与hash一律不动（表内没有update/delete语句，引用是`(case_id, evidence_id)`外键，跨工单引用在库层面不可能）。核验对象必须是本工单的**材料**而不是别人核验的结论（核验的核验会让"核的是什么"退化成链条），客户角色不能记录核验（403）。`EvidenceView`是工单视图里材料的样子：引用形状+正文+谁在哪个revision追加的；核验结论因此是结构化事实而不是要人去解析的句子，而`EvidenceRef`（方案引用与内部复读用）仍然**不含正文**——引用不能变成夹带未核验文本的通道。REFUTED目前不撤销任何授权：授权要到C03.3才存在，`revoked_authorization_id`缺失的含义是"没有授权受影响"，不是"没人检查过"。
 
+授权（`AuthorizationState`）在**通过重检的那一刻**与方案同事务创建，不是等人打开页面时才算：`operation_id` 此时预分配、`payload_hash` 此时按12个命令字段算定，两者都写进轨迹的"等待人工审批"行。这条顺序是"重试不会多付一次"的全部依据——载荷在批准之前就固定了，批准只是把已固定的载荷放行，重试只能复用同一个 operation id。授权因此带着**自己的** `input_revision`：材料在批准前到达会把工单推到新revision，而授权仍然描述它创建时的那份输入，所以读模型必须能让审批逻辑（和读页面的人）看到两者不同，而不是拿工单的当前revision去冒充。只有"通过重检且会动钱"的方案才会产生授权：被拒方案没有可批准的东西，通过重检但不动钱的建议也没有本服务能执行的东西，给它们建一行等于把无法执行的批准摆到审核员面前。`expires_at`目前一律缺失（核心没有到期策略），授权的失效要么是被取代、要么是被撤销、要么是被消费。
+
 Java校验证据时按固定source_ref映射查询权威数据，而非信任Python文字。用户材料不是权威退款依据，ref不是可请求的任意URL。工具token绑定run/case/revision/merchant/customer/line/aud/scope，续签需Case确认有效，模型看不到token。
 
 ## 5. MQ与授权

@@ -190,7 +190,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 - [x] C03.1：合成政策受控导入（C03.1a）、不可变版本、按支付时间选择并钉在工单上（C03.1b）；不做管理后台。
 - [ ] C03.2：Java方案校验/金额重算/风险路由与人工核验（C03.2a 重算所需的权威读取、C03.2b-1 回调收件箱与投递语义、C03.2b-2a 可引用规则 hash、C03.2b-2b PROPOSAL 重检/入库/读回、C03.2c-1 审核队列、C03.2c-2 人工核验追加与工单视图材料读回均已完成）。
-- [ ] C03.3：版本授权、审批/消费/取消事务边界；消费后拒绝材料变更，固定operation ID。
+- [ ] C03.3：版本授权、审批/消费/取消事务边界；消费后拒绝材料变更，固定operation ID（C03.3a 授权记录与固定载荷已完成；C03.3b 人工决定、C03.3c 消费边界与人工方案未做）。
 - 依赖：C02。文件：Case policy/decision/authorization及各自测试，分模块实施。
 - 验收：物流自动条件完整，损坏始终人工；旧授权/过期/越权拒绝，approve与consume竞态可解释。
 - 验证：规则表驱动、200元边界、revision/取消/消费并发测试。
@@ -278,6 +278,17 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 文档计数同步：已实现核心路由 **14 → 15**（28 − 15 = **其余 13 条**），`contracts/core/README.md` 与 `docs/implementation-handoff.md` 同步；`docs/core-contracts.md` §4 增一段人工核验语义（追加、引用、核验对象、`EvidenceView` 与 `EvidenceRef` 的分工、REFUTED 目前不撤销任何授权）。
   - **未做（下一步 C03.3）**：`POST /api/v1/cases/{case_id}/reviews`（审核当前授权、批准时重新校验）、`POST /api/v1/cases/{case_id}/manual-proposals`（人工方案作为新 revision）、版本授权、审批/消费/取消事务边界、消费后拒绝材料变更、固定 operation ID。本步不声称批准、不声称已退款，也不声称 REFUTED 会撤销授权。
   - **已知缺口（未做、未声称）**：`EvidenceView` 只服务工单视图，内部复读路由 `GET /internal/v1/cases/{case_id}/evidence` 仍未实现（它按引用复读权威记录，属 C04/C06 侧）；`GET /api/v1/orders` 坏游标仍会把 Commerce 的 400 变 503（上一步记录，本步未动）；证据引用只记录不核对（C04）；Case 仍没有 run→case 绑定表（C06）；服务令牌仍只校验 `aud`/`sub`；`verification_result` 的 CHECK 允许历史无绑定核验行，视图里这些行没有 `reviewed_evidence_id`/`verification_result`。
+
+- C03.3a 完成（2026-09-22）：授权记录与固定载荷——**先契约、后实现**。这一步要交付的是"审核员到底在批准什么"：一个在批准之前就定死的载荷，而不是批准时现场拼出来的付款。
+  - **先失败的契约测试**：新增 `test_the_authorisation_says_which_revision_its_payload_fixed`（1 failed：`input_revision` 不在 `AuthorizationState.required`），先跑红再改文档。缺口是：`payload_hash` 覆盖12个命令字段（其中含 `input_revision`），而 `AuthorizationState` 只有工单的"当前" revision 可读——材料在创建与批准之间到达时，工单前进、授权仍描述旧输入，读者（和审批守卫）看到的是一个 `payload_hash` 覆盖着谁都说不清的输入，只能靠 `proposal=STALE` 去猜。契约改动：`AuthorizationState` 增必填 `input_revision`（说明写明"不是工单的当前 revision"）；`payload_hash` 的说明从此逐字列出12个字段（含 `operation_id = planned_operation_id`）并说明为什么版本本身不入hash（重新版本化而不改可执行内容时hash不变，说明的是付款而不是行）；`expires_at` 说明补上"缺失=没有到期策略"；工单视图示例补 `input_revision`、去掉示例里的 `expires_at`（本服务一律缺失，示例不该示范一个不存在的策略）。
+  - **固定载荷就是"重试不会多付一次"的全部依据**：`RefundCommand` 把12个字段收在一处（`toJson`/`payloadHash`），授权在 `AgentCallbackWriter` 的事务内、`proposals.record` 之后创建：此刻抽 `planned_operation_id`、按 `CanonicalJson.payloadHash` 算定 `payload_hash`、连同金额/数量/币种/政策版本落库（V9 `case_authorization`，`planned_operation_id` 唯一键、`action='REFUND'`、金额/数量/币种/版本/状态/hash 全部 CHECK）。C04 的消费会把同一条命令重建出来，所以"批准的是什么"与"执行的是什么"不是两个各自拼出来、只是长得像的对象。
+  - **只有能执行的才有授权**：`ProposalReCheck.Outcome` 增 `Executable(quantity, currency, policyVersion)`（金额不重复：就是 `recomputedAmountMinor`），`isExecutable()` 只对"通过重检且会动钱"为真；被拒方案与通过重检但不动钱的建议都不建行——给它们建一行等于把无法执行的批准摆到审核员面前。政策版本取方案**第一条引用**背后的 bundle 版本（命令只带一个 `policy_version`，而这条引用正是这次退款所依赖的政策）。
+  - **轨迹说"有人要决定"**：契约里早已声明却一直没人用的 `APPROVAL_REQUIRED` 现在被用上——第二个轨迹行（与方案行分开：方案通过重检和"需要人来决定"是两个不同读者的事），细节带 `authorization_id`/`authorization_version`/`planned_operation_id`/`amount_minor`/`payload_hash`，摘要从"等待人工审批"改成"等待人工审批（授权版本 N）"（版本正是决定路由要校验、审核员要回传的那个事实；金额不在摘要里重复，方案行已经说过）。
+  - **自己写出的错误**：① `nextSequence` 的插入式编辑把方法体删了（编译失败，立刻发现并补回）；② `deleteAllCaseData` 少删新表，5 个测试在清理时撞上 `fk_authorization_proposal` → 把 `case_authorization` 加进外键顺序（这正是那个方法存在的理由：新子表只让一处知道）。
+  - 命令与结果：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am test` → case-service **126**（0 失败；新增 `casefile/AuthorizationApiTest` 6 条：通过重检的退款定死载荷且**测试自己按12字段重算hash比对**、轨迹出现"授权版本 1"且细节含 operation id 与 hash、被拒方案不授权、不动钱的建议不授权、材料到达后授权保持自己的 revision 而工单前进、operation id 全库唯一）；`uv run pytest agent/tests/unit/test_contracts_core_routes.py agent/tests/unit/test_contracts_core_schemas.py -q` → **115 passed**；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（`reports/verify/20260922-115916-all-offline.txt`）。
+  - **端到端如实说明**：创建路径的证据是 Testcontainers（真 MySQL、真迁移、真 HTTP，见上），**compose 上没有做创建路径的端到端**——真实栈现在没有可投递方案的状态：四条 order line 的活跃 slot 都被 PENDING_REVIEW 工单占着（不取消既有演示工单就开不了新单），而按设计"人工接管后再投递 PROPOSAL 就是 STALE"。compose 这轮做的是只读检查（新 jar 上线 + V9 已应用 rank 9）：`611effe2` 无方案无授权、`e567b0c8` 方案 REJECTED（材料到达后读作 STALE）无授权、`8c6de823` 的 VALIDATED 方案**没有**授权。第三条是这轮发现的真实历史缺口：它是在 C03.3a 之前被接受的老方案，迁移只加表、不回填——**事后补一个 operation id 与 hash 等于替一个没人做过的决定背书**；把它接起来是 C03.3c 人工方案路径的事（脚本 `tmp/e2e_authorization_read.py`，只读、不改库）。
+  - **未做（下一步 C03.3b）**：`POST /api/v1/cases/{case_id}/reviews`（批准/驳回/要材料）、决定列（`decided_by`/`reason`/`decided_at`）与 `AUTHORIZATION_DECIDED` 轨迹事件、`If-Match`（工单版本）与 `authorization_version` 双重陈旧校验、批准时按当前 revision 重新校验、旧授权被取代（`EXPIRED`）与"一个工单最多一个可决定授权"的唯一键。本步不声称任何授权可被批准或已消费。
+  - **已知缺口（未做、未声称）**：C03.3a 之前被接受的方案没有授权且不回填（上面已记）；`expires_at` 一律缺失（无到期策略，`EXPIRED` 目前只预留）；命令只带一个 `policy_version`，若钉住集合跨版本则以第一条引用为准；授权消费、`manual-proposals`、批准后材料变更使已批准授权失效都未实现；`GET /api/v1/orders` 坏游标仍把 Commerce 的 400 变 503；证据引用只记录不核对（C04）；Case 仍无 run→case 绑定表（C06）；服务令牌仍只校验 `aud`/`sub`。
 
 ### C04 持久模拟退款与本地金额事务
 
