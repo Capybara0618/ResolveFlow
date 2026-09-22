@@ -279,6 +279,62 @@ public interface CaseRepository {
             """)
     List<String> findRequestedActions(@Param("caseId") String caseId);
 
+    /**
+     * The reviewer's queue: the merchant's cases that are waiting on a human decision (C03.2c).
+     *
+     * <p>The filter is the status, not a queue table. A {@code review_queue} table would be a second place
+     * where "this case needs a person" is written down, and the two would disagree the first time a case
+     * moved without it — the contract says the queue is a filter over case state for exactly this reason
+     * ({@code ReviewQueuePage}: "not a second source of truth").
+     *
+     * <p>Order and keyset are the same pair: {@code (updated_at DESC, case_id DESC)} with the strict
+     * comparison, so a case updated between two pages is not served twice. {@code limit + 1} rows are asked
+     * for, because "is there another page" is a question about one row past the page and nothing else.
+     */
+    @Select("""
+            SELECT case_id        AS caseId,
+                   merchant_id    AS merchantId,
+                   line_id        AS lineId,
+                   status         AS status,
+                   input_revision AS inputRevision,
+                   version        AS version,
+                   updated_at     AS updatedAt
+              FROM aftersale_case
+             WHERE merchant_id = #{merchantId}
+               AND status = 'PENDING_REVIEW'
+               AND (#{afterUpdatedAt} IS NULL
+                    OR updated_at < #{afterUpdatedAt}
+                    OR (updated_at = #{afterUpdatedAt} AND case_id < #{afterCaseId}))
+             ORDER BY updated_at DESC, case_id DESC
+             LIMIT #{limit}
+            """)
+    List<ReviewQueueRow> findReviewQueue(
+            @Param("merchantId") String merchantId,
+            @Param("afterUpdatedAt") Instant afterUpdatedAt,
+            @Param("afterCaseId") String afterCaseId,
+            @Param("limit") int limit);
+
+    /**
+     * The requested actions of several cases at once.
+     *
+     * <p>One statement rather than one per row: the queue page is up to a hundred cases, and a reviewer's
+     * page turning into a hundred and one queries is the kind of thing that only shows up under load.
+     * The {@code IN} list is built by MyBatis from the parameter, so there is no string concatenation here.
+     */
+    @Select("""
+            <script>
+            SELECT case_id AS caseId, action AS action
+              FROM case_requested_action
+             WHERE case_id IN
+               <foreach item="caseId" collection="caseIds" open="(" separator="," close=")">#{caseId}</foreach>
+             ORDER BY case_id, action
+            </script>
+            """)
+    List<RequestedActionRow> findRequestedActionsFor(@Param("caseIds") List<String> caseIds);
+
+    /** One (case, action) pair, so a caller can group them without a second query per case. */
+    record RequestedActionRow(String caseId, String action) {}
+
     /** The answer already given for one idempotency key, replayed verbatim rather than recomputed. */
     record StoredResponse(
             String idempotencyKey, String requestHash, int responseStatus, String responseBody, String caseId) {}

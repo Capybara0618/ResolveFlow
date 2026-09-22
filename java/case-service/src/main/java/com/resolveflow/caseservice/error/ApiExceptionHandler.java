@@ -4,6 +4,8 @@ import com.resolveflow.caseservice.auth.LoginRequest.InvalidLoginRequestExceptio
 import com.resolveflow.caseservice.casefile.CaseReadService;
 import com.resolveflow.caseservice.casefile.CaseService;
 import com.resolveflow.caseservice.casefile.CaseStateConflictException;
+import com.resolveflow.caseservice.casefile.ReviewQueueCursor;
+import com.resolveflow.caseservice.casefile.ReviewQueueService;
 import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.caseservice.order.OrderController;
 import com.resolveflow.caseservice.order.RequestPrincipalResolver;
@@ -158,6 +160,19 @@ public class ApiExceptionHandler {
     @ExceptionHandler(CaseService.MissingIdempotencyKeyException.class)
     public ResponseEntity<ApiError> missingIdempotencyKey(
             CaseService.MissingIdempotencyKeyException error, HttpServletRequest request) {
+        return error(HttpStatus.BAD_REQUEST, "INVALID_ARGUMENT", error.getMessage(), false, request);
+    }
+
+    /**
+     * A page this service did not issue, or a limit outside the declared range (C03.2c).
+     *
+     * <p>400 rather than 422: the body of a paged read is not the question, the query string is, and the
+     * contract declares {@code InvalidArgument} for this route. It is also not a 500 — an unreadable cursor
+     * is the caller's to fix — and it is deliberately not "treat it as no cursor", which would quietly serve
+     * the first page again and make a paging bug look like a short queue.
+     */
+    @ExceptionHandler({ReviewQueueCursor.InvalidCursorException.class, ReviewQueueService.InvalidPageException.class})
+    public ResponseEntity<ApiError> invalidPage(RuntimeException error, HttpServletRequest request) {
         return error(HttpStatus.BAD_REQUEST, "INVALID_ARGUMENT", error.getMessage(), false, request);
     }
 

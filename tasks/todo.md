@@ -189,7 +189,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 ### C03 政策、方案与审批
 
 - [x] C03.1：合成政策受控导入（C03.1a）、不可变版本、按支付时间选择并钉在工单上（C03.1b）；不做管理后台。
-- [ ] C03.2：Java方案校验/金额重算/风险路由与人工核验（C03.2a 重算所需的权威读取、C03.2b-1 回调收件箱与投递语义、C03.2b-2a 可引用规则 hash、C03.2b-2b PROPOSAL 重检/入库/读回已完成；人工核验面 C03.2c 未做）。
+- [ ] C03.2：Java方案校验/金额重算/风险路由与人工核验（C03.2a 重算所需的权威读取、C03.2b-1 回调收件箱与投递语义、C03.2b-2a 可引用规则 hash、C03.2b-2b PROPOSAL 重检/入库/读回、C03.2c 审核队列已完成；人工核验追加 `reviewed-evidence` 未做）。
 - [ ] C03.3：版本授权、审批/消费/取消事务边界；消费后拒绝材料变更，固定operation ID。
 - 依赖：C02。文件：Case policy/decision/authorization及各自测试，分模块实施。
 - 验收：物流自动条件完整，损坏始终人工；旧授权/过期/越权拒绝，approve与consume竞态可解释。
@@ -254,6 +254,18 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - 文档计数同步：核心已实现路由 **12 → 13**（回调路由转正，四种 kind 都可接受），`contracts/core/README.md` 与 `docs/implementation-handoff.md` 的 PROPOSAL 附注改写；顺手发现 handoff 原写「核心其余 17 条」与 28−12 不符，按 28−13 改为 **15 条**；`docs/core-contracts.md` §4 补一段 PROPOSAL 接受规则（两类拒绝、核对哪些、`VALIDATED` 不等于批准）。
   - **未做（下一步 C03.2c）**：人工核验追加 `POST /api/v1/cases/{case_id}/reviewed-evidence` 与审核队列 `GET /api/v1/review/cases`；方案的**人工**路径 `POST /api/v1/cases/{case_id}/manual-proposals` 与审批/消费/取消事务边界属 C03.3。本步不声称批准、不声称已退款。
   - **已知缺口（未做、未声称）**：证据引用只**记录**不核对（C04 才按 `source_ref` 映射查权威数据）；收件箱不校验 `run_id` 与工单的绑定——Case 仍没有 run→case 绑定表（C06 签发工具令牌时才有）；服务令牌仍只校验 `aud`/`sub`；`recomputed_amount_minor` 是**行级下限**（订单 ledger 按订单记账，`refunded`/`reserved` 是订单级，已在 `LineContext` 注释里说明）；`CaseServiceApplicationTest` 仍连 compose 真库跑 Flyway（T01 遗留）。
+
+- C03.2c 完成（2026-09-22）：审核队列 `GET /api/v1/review/cases`——**先契约、后实现**。契约缺口是「队列装什么、坏游标算什么」两个都没写：`ReviewQueuePage` 只说「filter over case state, not a second source of truth」，没说是哪个状态，于是两个实现可以一个把 `WAITING_CUSTOMER` 也放进审核队列、另一个不放；而路由只有 200/403，本服务自己发不出的游标没有任何被声明的答案（当前实现会直接 500）。先写失败的契约测试 `test_the_review_queue_names_what_it_holds_and_refuses_a_page_it_did_not_issue`（1 failed：`must declare 400`），再改契约——新增 `InvalidArgument` 响应组件与路由的 `400`/`401`，并在描述里点名 `PENDING_REVIEW` 与 `updated_at` 倒序 keyset 分页。
+  - **队列是过滤视图，不是第二份事实来源**：没有 `review_queue` 表，只有 `WHERE status = 'PENDING_REVIEW'`；`WAITING_CUSTOMER` 是「等客户」，客户没答之前审核员没有可决定的东西，把它塞进队列会让审核员在没有客户输入的情况下做决定（测试 `theQueueHoldsCasesWaitingOnAPerson` 用 QUESTION 回调造出这种工单并断言它不在队列里）。
+  - **作用域只来自令牌**：路由参数只有 `Cursor`/`Limit`（契约测试断言这一点），商家来自已校验主体，客户角色得到 **403 `FORBIDDEN_SCOPE`** 而不是空页——空页等于谎报「本商家没有待审」。跨商家不可见：`demo-reviewer`（M-1001）看不到 M-1002 的待审工单，测试同时断言那个工单的 `merchant_id` 真的是 M-1002（否则「看不到」可能只是建单失败）。
+  - **游标是 `(updated_at, case_id)` 的 keyset**：`case_id` 是并列裁决者而不是装饰——同一请求开出的多个工单 `updated_at` 可以同微秒，没有它页边界就是掷硬币。响应用**缺失** `next_cursor` 表示结束（一种说法），坏游标/`limit` 越界是 **400 `INVALID_ARGUMENT`**：不 clamp（问 500 给 100，看起来就像「商家只有 100 个待审」）、也不当作没游标（那会把首页再发一遍，把分页 bug 伪装成短队列）。测试 `aBadPageIsAClientError` 断言四种坏输入都是 400 且库内没有多出任何 `PENDING_REVIEW` 工单。
+  - 实现：新增 `casefile/ReviewQueueCursor`（keyset 编解码 + `after`）、`ReviewQueueRow`、`ReviewQueueService`（状态过滤 + limit 边界 + 一次查询取整页 requested_actions，避免 100+1 次查询）、`ReviewController`（成员逐字按 `ReviewQueueItem`，自己的 `PageMeta` 记录，注释说明它与订单那条同形但不同源：订单的分页对象是 Commerce 原样透传、游标由 Commerce 拥有）；`CaseRepository` 增 `findReviewQueue` 与 `<script><foreach>` 的 `findRequestedActionsFor`；`ApiExceptionHandler` 增坏分页 → 400。
+  - 自己写出的 bug（测试抓到）：测试里用 ISO 字符串直接 `UPDATE ... updated_at`（`DATETIME(6)` 列）→ `Data truncation: Incorrect datetime value`，改用 `java.sql.Timestamp.from(Instant.parse(...))`。
+  - 命令与结果：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am test` → case-service **111**（0 失败 0 错误；新增 `casefile/ReviewQueueApiTest` 6 条：只含待人工工单、行成员集合、跨商家不可见、客户 403、`limit=1` 三页walk不重不漏、坏分页 400 且不写库）；`uv run --no-cache --project agent --frozen pytest agent/tests/unit/test_contracts_core_routes.py -q` → **64 passed**；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（`reports/verify/20260922-110739-all-offline.txt`）；提交前又单独跑一次 `-Suite format` → **PASSED**（`reports/verify/20260922-111339-format.txt`）确认新文件已被 Spotless 收编。
+  - **真实端到端且不改库**（case 8083 + compose 真 MySQL；脚本 `tmp/e2e_review_queue.py`，只走真实 HTTP）：三个登录（`demo-reviewer` M-1001、`demo-reviewer-m2` M-1002、`demo-customer` M-1001）→ M-1001 队列得到 3 条且**与库内 `updated_at` 倒序逐一对上** `8822a70b / 8c6de823 / 611effe2`（`updated_at 2026-09-19T08:09:38.829143Z`，带尾 Z 的微秒精度），行成员恰为契约要求的 7 个、`requested_actions=[REFUND]`；M-1002 队列得到 `e567b0c8`（另一个商家）；客户 → 403 `FORBIDDEN_SCOPE`；坏游标 → 400 `cursor is not an updated_at:case_id pair`、`limit=101` → 400；`limit=1` 走 3 页恰好各一次；被取消的 `ffe85df4` 不在任何队列里。跑完复核 `aftersale_case` 11 行、`case_timeline` 32 行、`agent_callback` 12 行、`case_proposal` 5 行、最后一个轨迹事件仍是 08:11:53——这条 e2e **只读**，没有为了演示而造数据。
+  - 文档计数同步：已实现核心路由 **13 → 14**，`contracts/core/README.md`（并说明队列为何是过滤视图）与 `docs/implementation-handoff.md`（28 − 14 = **其余 14 条**）同步。
+  - **未做（下一步仍是 C03.2c 的人工核验面）**：`POST /api/v1/cases/{case_id}/reviewed-evidence`（人工核验追加、不改原材料）尚未实现——它需要一个契约决策：`ReviewedEvidenceRequest` 带 `source_evidence_id`/`verification_result`/`reason`，而现有 `EvidenceRef` 只有 `observation_id/source_ref/source_version/content_hash`，**核验结论与「核验的是哪条」在读回面上还没有地方声明**（唯一能表达它的是轨迹摘要，让读者解析自然语言句子等于没有结构）。因此本步不声称人工核验已可用。`POST /api/v1/cases/{case_id}/reviews` 与 `manual-proposals`、批准/消费/取消事务边界属 C03.3。
+  - **已知缺口（未做、未声称）**：`GET /api/v1/orders` 拿到坏游标时会把 Commerce 的 400 变成 503（Case 只把它们分别映射成「不可用/协议不可用」），本步只在**队列**这条自己拥有游标的路由上把坏分页定成 400，未顺手改订单路由；证据引用仍只记录不核对（C04）；Case 仍没有 run→case 绑定表（C06）；服务令牌仍只校验 `aud`/`sub`。
 
 ### C04 持久模拟退款与本地金额事务
 

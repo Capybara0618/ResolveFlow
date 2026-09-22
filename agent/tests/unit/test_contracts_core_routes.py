@@ -732,6 +732,45 @@ def test_a_case_is_opened_by_its_customer_and_never_by_merchant_staff() -> None:
         assert code in responses, f"POST /api/v1/cases must declare {code}"
     assert "503" in responses, "the line check calls Commerce, so an outage is declared here too"
 
+def test_the_review_queue_names_what_it_holds_and_refuses_a_page_it_did_not_issue() -> None:
+    """The queue is a filter over case state, so the contract has to say which state.
+
+    "Waiting on a human decision" is a status, not a mood: without naming it, one implementation puts
+    a case the customer still has to answer in front of a reviewer and another does not, and the queue
+    stops meaning the same thing on both sides of the wire. Its cursor is opaque and issued by this
+    service, so handing back something else is a client error: the route declares 400 rather than
+    letting an unreadable cursor become a 500 or, worse, silently restart the listing.
+    """
+    route = document("case")["paths"]["/api/v1/review/cases"]["get"]
+    for code in ("200", "400", "401", "403"):
+        assert code in route["responses"], f"GET /api/v1/review/cases must declare {code}"
+    assert "403" in route["responses"], "a customer has no merchant queue to read"
+    assert route["responses"]["400"]["$ref"].endswith("InvalidArgument"), (
+        "a bad page is a client error with the protocol's own code, not a made-up one"
+    )
+
+    description = route["description"]
+    assert "PENDING_REVIEW" in description, "the queue says which status it holds"
+    assert "updated_at" in description, "and how it is ordered, so paging is not left to chance"
+
+    parameters = [parameter.get("$ref", "").rsplit("/", 1)[-1] for parameter in route.get("parameters", [])]
+    assert parameters == ["Cursor", "Limit"], (
+        "the queue takes paging and nothing else: a merchant_id parameter would be scope from the client"
+    )
+
+    item = document("case")["components"]["schemas"]["ReviewQueueItem"]
+    assert set(item["required"]) == {
+        "case_id",
+        "status",
+        "input_revision",
+        "version",
+        "updated_at",
+        "line_id",
+        "requested_actions",
+    }, "the queue row is what a reviewer needs to pick a case, and nothing else"
+    assert item["properties"]["status"]["$ref"].endswith("CaseStatus")
+
+
 def test_the_case_view_is_bounded_and_declares_its_refusals() -> None:
     """The trajectory is a view, not a dump: it is capped, and the route says how it refuses.
 

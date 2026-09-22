@@ -470,7 +470,11 @@ paths:
       description: |
         Cases waiting on a human decision for this merchant only
         (docs/core-contracts.md:33). The queue is a filter over case state, not a second
-        source of truth.
+        source of truth: it holds the cases in PENDING_REVIEW for the caller's merchant,
+        newest first by updated_at, paged with an opaque keyset cursor over
+        (updated_at, case_id). A case waiting on the customer is not in the queue — the
+        reviewer has nothing to do with it yet — and an authorisation decision on a case
+        the customer must still answer would be a decision taken without their input.
       parameters:
         - $ref: '#/components/parameters/Cursor'
         - $ref: '#/components/parameters/Limit'
@@ -493,6 +497,10 @@ paths:
                 page:
                   limit: 20
                   next_cursor: null
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
   /api/v1/cases/{case_id}/reviews:
@@ -974,6 +982,17 @@ components:
           example:
             code: UNAUTHENTICATED
             message: the access token is missing or expired
+            retryable: false
+            trace_id: 0af7651916cd43dd8448eb211c80319c
+    InvalidArgument:
+      description: A query parameter or header the route cannot use (400)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: INVALID_ARGUMENT
+            message: cursor is not a page this service issued
             retryable: false
             trace_id: 0af7651916cd43dd8448eb211c80319c
     ForbiddenScope:

@@ -30,7 +30,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/cases/{case_id}/evidence | 追加材料并增revision，消费后409 |
 | Case | POST /api/v1/cases/{case_id}/cancel | 仅授权消费前可取消 |
 | Case | GET /api/v1/cases/{case_id}/events | SSE，Last-Event-ID，鉴权不放URL |
-| Case | GET /api/v1/review/cases | 商家内审核队列 |
+| Case | GET /api/v1/review/cases | 商家内审核队列：仅 PENDING_REVIEW，按 updated_at 倒序，keyset 游标分页；客户角色 403，坏游标/坏 limit 400 |
 | Case | POST /api/v1/cases/{case_id}/reviews | 审核当前授权；批准时重新校验 |
 | Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料 |
 | Case | POST /api/v1/cases/{case_id}/manual-proposals | 新revision/方案，非直接付款 |
