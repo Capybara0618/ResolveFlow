@@ -58,6 +58,13 @@ public abstract class CaseDatabaseTest {
         registry.add(
                 "spring.datasource.hikari.connection-timeout",
                 () -> Duration.ofSeconds(30).toMillis());
+        // Every distinct Spring context the suite caches keeps its own Hikari pool, and Spring's default of
+        // ten connections per pool outgrew the container's default of 151 once the module reached this many
+        // contexts — the run then failed in whichever class started next, with "Too many connections" from
+        // Flyway, which reads like a migration problem and is not one. Two connections per context is all a
+        // sequential test needs, and the limit belongs to the suite's shape rather than to the class that
+        // happened to arrive last.
+        registry.add("spring.datasource.hikari.maximum-pool-size", () -> 2);
     }
 
     /**

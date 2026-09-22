@@ -53,11 +53,9 @@ public class ReviewQueueService {
     }
 
     public Page list(AuthenticatedPrincipal principal, String cursor, Integer requestedLimit) {
-        if (principal.role() == com.resolveflow.shared.security.Role.CUSTOMER) {
-            throw new CaseService.ForbiddenScopeException(
-                    "the review queue belongs to a merchant's staff; a customer-scoped token has no queue"
-                            + " to read");
-        }
+        CaseStaff.require(
+                principal,
+                "the review queue belongs to a merchant's staff; a customer-scoped token has no queue" + " to read");
         int limit = normaliseLimit(requestedLimit);
         ReviewQueueCursor after = ReviewQueueCursor.decode(cursor);
         List<ReviewQueueRow> rows = cases.findReviewQueue(

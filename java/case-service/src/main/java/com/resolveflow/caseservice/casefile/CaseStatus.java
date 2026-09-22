@@ -28,6 +28,22 @@ public enum CaseStatus {
         return this == CLOSED_SUCCESS || this == CLOSED_REJECTED || this == CANCELLED;
     }
 
+    /**
+     * Whether new input can still be added at all: a new evidence record, or a person's proposal.
+     *
+     * <p>It is not the negation of {@link #isTerminal()}: {@code EXECUTING} and {@code RECONCILING} are not
+     * terminal (money is moving and the outcome is unknown) but their input is frozen, because the payload
+     * being executed was fixed from the input as it stood (docs/domain-model.md:36). The freeze is the
+     * difference between "this case is over" and "this case can no longer be argued with".
+     */
+    public boolean acceptsNewInput() {
+        return this == QUEUED
+                || this == ANALYZING
+                || this == WAITING_CUSTOMER
+                || this == PENDING_REVIEW
+                || this == AUTHORIZED;
+    }
+
     public static CaseStatus of(String stored) {
         try {
             return valueOf(stored);

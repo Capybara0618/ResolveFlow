@@ -21,15 +21,20 @@ import tools.jackson.databind.ObjectMapper;
 public interface ProposalRepository {
 
     @Insert("""
-            INSERT INTO case_proposal (proposal_id, case_id, run_id, input_revision, sequence, status,
-                                       recomputed_amount_minor, refusal_reason, payload, payload_hash, created_at)
-            VALUES (#{proposalId}, #{caseId}, #{runId}, #{inputRevision}, #{sequence}, #{status},
-                    #{recomputedAmountMinor}, #{refusalReason}, #{payload}, #{payloadHash}, #{createdAt})
+            INSERT INTO case_proposal (proposal_id, case_id, run_id, origin, authored_by, authored_role,
+                                       input_revision, sequence, status, recomputed_amount_minor,
+                                       refusal_reason, payload, payload_hash, created_at)
+            VALUES (#{proposalId}, #{caseId}, #{runId}, #{origin}, #{authoredBy}, #{authoredRole},
+                    #{inputRevision}, #{sequence}, #{status}, #{recomputedAmountMinor},
+                    #{refusalReason}, #{payload}, #{payloadHash}, #{createdAt})
             """)
     void insert(
             @Param("proposalId") String proposalId,
             @Param("caseId") String caseId,
             @Param("runId") String runId,
+            @Param("origin") String origin,
+            @Param("authoredBy") String authoredBy,
+            @Param("authoredRole") String authoredRole,
             @Param("inputRevision") int inputRevision,
             @Param("sequence") long sequence,
             @Param("status") String status,
@@ -54,6 +59,9 @@ public interface ProposalRepository {
             SELECT proposal_id             AS proposalId,
                    case_id                 AS caseId,
                    run_id                  AS runId,
+                   origin                  AS origin,
+                   authored_by             AS authoredBy,
+                   authored_role           AS authoredRole,
                    input_revision          AS inputRevision,
                    sequence                AS sequence,
                    status                  AS status,
@@ -73,6 +81,9 @@ public interface ProposalRepository {
             SELECT proposal_id             AS proposalId,
                    case_id                 AS caseId,
                    run_id                  AS runId,
+                   origin                  AS origin,
+                   authored_by             AS authoredBy,
+                   authored_role           AS authoredRole,
                    input_revision          AS inputRevision,
                    sequence                AS sequence,
                    status                  AS status,
@@ -91,6 +102,9 @@ public interface ProposalRepository {
             SELECT proposal_id             AS proposalId,
                    case_id                 AS caseId,
                    run_id                  AS runId,
+                   origin                  AS origin,
+                   authored_by             AS authoredBy,
+                   authored_role           AS authoredRole,
                    input_revision          AS inputRevision,
                    sequence                AS sequence,
                    status                  AS status,
@@ -110,6 +124,9 @@ public interface ProposalRepository {
             String proposalId,
             String caseId,
             String runId,
+            ProposalOrigin origin,
+            String authoredBy,
+            String authoredRole,
             int inputRevision,
             long sequence,
             String status,

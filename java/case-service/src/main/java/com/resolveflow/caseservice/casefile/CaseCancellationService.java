@@ -56,7 +56,7 @@ public class CaseCancellationService {
         cases.insertTimeline(
                 caseId,
                 UUID.randomUUID().toString(),
-                nextSequence(caseId),
+                cases.nextTimelineSequence(caseId),
                 TimelineEventType.CASE_CLOSED.name(),
                 closedDetail(reason, principal),
                 now,
@@ -96,10 +96,5 @@ public class CaseCancellationService {
         detail.put("cancelled_by", principal.subject());
         detail.put("cancelled_role", principal.role().name());
         return com.resolveflow.shared.contract.CanonicalJson.canonicalize(detail);
-    }
-
-    private int nextSequence(String caseId) {
-        Integer highest = cases.highestSequence(caseId);
-        return highest == null ? 1 : highest + 1;
     }
 }

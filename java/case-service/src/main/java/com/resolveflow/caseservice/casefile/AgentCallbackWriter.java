@@ -120,7 +120,7 @@ public class AgentCallbackWriter {
         cases.insertTimeline(
                 caseId,
                 UUID.randomUUID().toString(),
-                nextSequence(caseId),
+                cases.nextTimelineSequence(caseId),
                 eventType(callback.kind()).name(),
                 detail(callback, payload, recorded),
                 now,
@@ -132,7 +132,7 @@ public class AgentCallbackWriter {
             cases.insertTimeline(
                     caseId,
                     UUID.randomUUID().toString(),
-                    nextSequence(caseId),
+                    cases.nextTimelineSequence(caseId),
                     TimelineEventType.APPROVAL_REQUIRED.name(),
                     authorisationDetail(authorisation),
                     now,
@@ -342,11 +342,6 @@ public class AgentCallbackWriter {
         detail.put("amount_minor", created.amountMinor());
         detail.put("payload_hash", created.payloadHash());
         return CanonicalJson.canonicalize(detail);
-    }
-
-    private int nextSequence(String caseId) {
-        Integer highest = cases.highestSequence(caseId);
-        return highest == null ? 1 : highest + 1;
     }
 
     /** Exactly one of the four is present, decided by the kind. */

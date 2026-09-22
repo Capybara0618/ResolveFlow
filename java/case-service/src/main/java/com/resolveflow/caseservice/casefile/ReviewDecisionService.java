@@ -3,7 +3,6 @@ package com.resolveflow.caseservice.casefile;
 import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.shared.contract.CanonicalJson;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
-import com.resolveflow.shared.security.Role;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
@@ -134,7 +133,7 @@ public class ReviewDecisionService {
         cases.insertTimeline(
                 row.caseId(),
                 UUID.randomUUID().toString(),
-                nextSequence(row.caseId()),
+                cases.nextTimelineSequence(row.caseId()),
                 TimelineEventType.AUTHORIZATION_DECIDED.name(),
                 decisionDetail(row, stored, ReviewDecision.APPROVE, principal, reason),
                 now,
@@ -166,7 +165,7 @@ public class ReviewDecisionService {
         cases.insertTimeline(
                 row.caseId(),
                 UUID.randomUUID().toString(),
-                nextSequence(row.caseId()),
+                cases.nextTimelineSequence(row.caseId()),
                 TimelineEventType.AUTHORIZATION_DECIDED.name(),
                 decisionDetail(row, stored, ReviewDecision.REJECT, principal, reason),
                 now,
@@ -176,7 +175,7 @@ public class ReviewDecisionService {
         cases.insertTimeline(
                 row.caseId(),
                 UUID.randomUUID().toString(),
-                nextSequence(row.caseId()),
+                cases.nextTimelineSequence(row.caseId()),
                 TimelineEventType.CASE_CLOSED.name(),
                 CanonicalJson.canonicalize(closing),
                 now,
@@ -205,7 +204,7 @@ public class ReviewDecisionService {
         cases.insertTimeline(
                 row.caseId(),
                 UUID.randomUUID().toString(),
-                nextSequence(row.caseId()),
+                cases.nextTimelineSequence(row.caseId()),
                 TimelineEventType.AUTHORIZATION_DECIDED.name(),
                 decisionDetail(row, stored, ReviewDecision.REQUEST_INFO, principal, reason),
                 now,
@@ -301,11 +300,10 @@ public class ReviewDecisionService {
     }
 
     private void requireStaff(AuthenticatedPrincipal principal) {
-        if (principal.role() == Role.CUSTOMER) {
-            throw new CaseService.ForbiddenScopeException(
-                    "a CUSTOMER may not decide an authorisation; the case's customer is the party the"
-                            + " decision is about");
-        }
+        CaseStaff.require(
+                principal,
+                "a CUSTOMER may not decide an authorisation; the case's customer is the party the"
+                        + " decision is about");
     }
 
     private static void requireCurrentReading(CaseRow row, long seenCaseVersion) {
@@ -394,10 +392,5 @@ public class ReviewDecisionService {
             case REJECT -> CaseStatus.CLOSED_REJECTED;
             case REQUEST_INFO -> CaseStatus.WAITING_CUSTOMER;
         };
-    }
-
-    private int nextSequence(String caseId) {
-        Integer highest = cases.highestSequence(caseId);
-        return highest == null ? 1 : highest + 1;
     }
 }

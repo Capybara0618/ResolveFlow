@@ -1,6 +1,7 @@
 package com.resolveflow.caseservice.casefile;
 
 import com.resolveflow.shared.contract.CanonicalJson;
+import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import java.time.Instant;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -58,6 +59,9 @@ public class ProposalService {
                 submission.proposalId(),
                 row.caseId(),
                 submission.runId(),
+                ProposalOrigin.AGENT.name(),
+                null,
+                null,
                 submission.inputRevision(),
                 sequence,
                 outcome.status().name(),
@@ -65,6 +69,42 @@ public class ProposalService {
                 outcome.refusalReason(),
                 CanonicalJson.canonicalize(document),
                 payloadHash,
+                now);
+        return new Recorded(outcome.status(), outcome.recomputedAmountMinor(), outcome.refusalReason(), sequence);
+    }
+
+    /**
+     * Store a person's proposal, in the caller's transaction (the manual route's).
+     *
+     * <p>Unlike the agent path, {@code document} here is not a document that arrived: a person submits what
+     * they rely on and why, and this service builds the proposal from it (C03.3c-1). So the stored payload uses
+     * the proposal's own member names — the author's {@code reason} is the proposal's {@code summary}, their
+     * {@code action} is its {@code recommended_action} — and the origin and author are read back from their
+     * own columns rather than duplicated into the payload. The payload hash is this service's hash of the
+     * document it recorded, which is the only honest answer when no delivery brought a hash of its own.
+     */
+    public Recorded recordManual(
+            CaseRow row,
+            String proposalId,
+            JsonNode document,
+            ProposalReCheck.Outcome outcome,
+            AuthenticatedPrincipal author,
+            Instant now) {
+        long sequence = proposals.nextSequence(row.caseId());
+        proposals.insert(
+                proposalId,
+                row.caseId(),
+                null,
+                ProposalOrigin.HUMAN.name(),
+                author.subject(),
+                author.role().name(),
+                row.inputRevision(),
+                sequence,
+                outcome.status().name(),
+                outcome.recomputedAmountMinor(),
+                outcome.refusalReason(),
+                CanonicalJson.canonicalize(document),
+                CanonicalJson.contentHash(document),
                 now);
         return new Recorded(outcome.status(), outcome.recomputedAmountMinor(), outcome.refusalReason(), sequence);
     }
@@ -84,6 +124,15 @@ public class ProposalService {
         }
         var view = mapper.createObjectNode();
         stored.payloadAsJson(mapper).properties().forEach(entry -> view.set(entry.getKey(), entry.getValue()));
+        // Who wrote it comes from the row, not from the payload: the two authors' documents differ exactly
+        // here, and a payload that carried its own origin would be a second place saying the same thing.
+        view.put("origin", stored.origin().name());
+        if (stored.authoredBy() != null) {
+            view.put("authored_by", stored.authoredBy());
+        }
+        if (stored.authoredRole() != null) {
+            view.put("authored_role", stored.authoredRole());
+        }
         view.put("status", stored.statusAt(caseInputRevision).name());
         if (stored.recomputedAmountMinor() != null) {
             view.put("recomputed_amount_minor", stored.recomputedAmountMinor());

@@ -1021,6 +1021,66 @@ def test_the_event_stream_is_a_read_of_the_same_trajectory() -> None:
     )
 
 
+def test_a_manual_proposal_is_new_input_that_retires_the_old_authorisation() -> None:
+    """A human proposal is a new revision, and the approval it retires has to be named as retired.
+
+    Three facts belong in the document because a caller cannot infer any of them:
+
+    - the submission moves the case's input revision (it is new decision input, not a comment on the old
+      one), which is why the response reports both `input_revision` and `case_version`;
+    - a live authorisation fixed for the previous revision is **superseded** rather than left approved, since
+      its payload can never be applied to input it was not fixed for (docs/domain-model.md:36);
+    - approval still goes through the authorisation path, so a manual proposal is never a payment
+      instruction (docs/core-contracts.md:36).
+
+    The request is also checked for the member it must *not* have: a manual proposal that could name an
+    amount would move the money decision to the caller, and "Java owns the amount" is the invariant the
+    recomputation exists to protect.
+    """
+    case = document("case")
+    operation = case["paths"]["/api/v1/cases/{case_id}/manual-proposals"]["post"]
+    for code in ("200", "401", "403", "404", "409", "422"):
+        assert code in operation["responses"], f"a manual proposal must declare {code}"
+
+    description = operation["description"]
+    assert "input revision" in description, "the route has to say that the revision moves"
+    assert "supersede" in description, "the authorisation it replaces has to be described"
+    assert "REVOKED" in description, "and the status it lands in has to be named"
+    assert "authorisation" in description and "approval" in description, (
+        "a manual proposal is not itself an approval"
+    )
+
+    request = case["components"]["schemas"]["ManualProposalRequest"]
+    assert request["additionalProperties"] is False
+    assert set(request["required"]) == {"action", "evidence_refs", "policy_refs", "reason"}
+    assert "amount_minor" not in request["properties"] and "suggested_amount_minor" not in request["properties"], (
+        "a manual proposal names what it relies on, not how much to pay"
+    )
+
+    response = case["components"]["schemas"]["ManualProposalResponse"]
+    assert response["additionalProperties"] is False
+    assert set(response["required"]) == {"case_id", "proposal_id", "input_revision", "case_version"}
+
+    # The read model has to be able to carry both authors without pretending they are the same document:
+    # a proposal from a run classified the case and named reason codes, a person did neither, and inventing
+    # either for them would put words in their mouth. So ProposalView declares who wrote it and each author's
+    # members are a disjoint set.
+    view = case["components"]["schemas"]["ProposalView"]
+    assert "origin" in view["required"], "a reader must be able to tell who wrote the proposal"
+    assert "run_id" not in view["required"] and "case_type" not in view["required"]
+
+    branches = [set(branch["required"]) for branch in view["oneOf"]]
+    run_shaped = {"run_id", "case_type", "reason_codes"}
+    author_shaped = {"authored_by", "authored_role"}
+    assert len(branches) == 2, "there are two authors, so there are two documents"
+    assert any(run_shaped <= branch and not (author_shaped & branch) for branch in branches), (
+        "a run's proposal carries the run's classification and its reason codes"
+    )
+    assert any(author_shaped <= branch and not (run_shaped & branch) for branch in branches), (
+        "a person's proposal carries the person, and no run classification"
+    )
+
+
 def test_no_route_carries_a_credential_in_the_query_string() -> None:
     """A token in a URL ends up in logs and referrers (docs/core-contracts.md:32).
 

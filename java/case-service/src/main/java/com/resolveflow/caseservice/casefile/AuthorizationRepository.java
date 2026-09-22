@@ -156,6 +156,36 @@ public interface AuthorizationRepository {
             @Param("reason") String reason,
             @Param("now") Instant now);
 
+    /**
+     * Withdraw the authorisation a case still has alive, because a newer revision replaced it (C03.3c).
+     *
+     * <p>The live one is whichever row the unique key allows ({@code uq_authorization_live}), so this
+     * statement does not need to be told its id — but the caller does, to name it in the trajectory, which is
+     * why it reads first and names the id here as well. The version moves with the status, so a decision that
+     * was in flight against the old version loses rather than applying to a withdrawn authorisation.
+     *
+     * <p>REVOKED rather than EXPIRED because somebody's act retired it (a newer proposal, or a material
+     * change), and the reason records which act — this overwrites whatever reason the row carried, because the
+     * row states the authorisation's current condition and the trajectory is where its history lives (the
+     * decision that approved it is an {@code AUTHORIZATION_DECIDED} row naming this id). An authorisation that
+     * was never decided keeps its null decision columns, so a withdrawal cannot be mistaken for a decision.
+     */
+    @Update("""
+            UPDATE case_authorization
+               SET status = 'REVOKED',
+                   authorization_version = authorization_version + 1,
+                   decision_reason = #{reason},
+                   updated_at = #{now}
+             WHERE authorization_id = #{authorizationId}
+               AND authorization_version = #{expectedVersion}
+               AND status IN ('PENDING_REVIEW', 'APPROVED')
+            """)
+    int revoke(
+            @Param("authorizationId") String authorizationId,
+            @Param("expectedVersion") long expectedVersion,
+            @Param("reason") String reason,
+            @Param("now") Instant now);
+
     /** A stored authorisation row, exactly as the table holds it. */
     record StoredAuthorization(
             String authorizationId,

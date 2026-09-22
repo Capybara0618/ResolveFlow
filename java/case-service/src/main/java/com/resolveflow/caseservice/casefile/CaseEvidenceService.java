@@ -199,7 +199,7 @@ public class CaseEvidenceService {
         cases.insertTimeline(
                 row.caseId(),
                 UUID.randomUUID().toString(),
-                nextSequence(row.caseId()),
+                cases.nextTimelineSequence(row.caseId()),
                 TimelineEventType.EVIDENCE_APPENDED.name(),
                 detail,
                 now,
@@ -209,7 +209,7 @@ public class CaseEvidenceService {
 
     private CaseRow lockedVisibleCase(AuthenticatedPrincipal principal, String caseId) {
         CaseRow row = cases.findCaseForUpdate(caseId);
-        if (row == null || !visibleTo(principal, row)) {
+        if (row == null || !row.visibleTo(principal)) {
             throw new CaseReadService.CaseNotVisibleException();
         }
         return row;
@@ -258,13 +258,6 @@ public class CaseEvidenceService {
             throw new CaseService.ForbiddenScopeException(
                     "a " + principal.role() + " may not submit " + kind + " as its own material");
         }
-    }
-
-    private static boolean visibleTo(AuthenticatedPrincipal principal, CaseRow row) {
-        if (!row.merchantId().equals(principal.merchantId())) {
-            return false;
-        }
-        return principal.role() != Role.CUSTOMER || row.customerId().equals(principal.customerId());
     }
 
     private EvidenceSourceType parseKind(EvidenceAppendRequest request) {
@@ -415,10 +408,5 @@ public class CaseEvidenceService {
         detail.put("submitted_role", principal.role().name());
         detail.put("preview", reason.length() <= 200 ? reason : reason.substring(0, 200));
         return CanonicalJson.canonicalize(detail);
-    }
-
-    private int nextSequence(String caseId) {
-        Integer highest = cases.highestSequence(caseId);
-        return highest == null ? 1 : highest + 1;
     }
 }

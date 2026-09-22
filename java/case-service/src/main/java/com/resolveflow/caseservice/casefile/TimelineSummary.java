@@ -86,15 +86,21 @@ final class TimelineSummary {
      * and the reader's next action is completely different — approve a checked amount, or look at why the
      * proposal could not be checked. The reason is quoted rather than summarised, because it was written for
      * exactly this reader.
+     *
+     * <p>A person's proposal says who wrote it (C03.3c). Nobody's run proposed it, so a reader who needed to
+     * ask "who decided this should be refunded" would otherwise have to work backwards from the decision row.
      */
     private static String proposed(TimelineEventRow event) {
         String status = JsonField.of(event.detail(), "status");
+        boolean human = "HUMAN".equals(JsonField.of(event.detail(), "origin"));
+        String author = JsonField.of(event.detail(), "authored_by");
+        String subject = human ? (author == null ? "人工方案" : "人工方案（" + author + "）") : "方案";
         if (!"REJECTED".equals(status)) {
             Long amount = JsonField.number(event.detail(), "recomputed_amount_minor");
-            return amount == null ? "方案已就绪，等待人工确认" : "方案已按政策核对，重算金额 " + amount + " 分，等待人工确认";
+            return amount == null ? subject + "已按政策核对，等待人工确认" : subject + "已按政策核对，重算金额 " + amount + " 分，等待人工确认";
         }
         String reason = JsonField.of(event.detail(), "refusal_reason");
-        return reason == null ? "方案未通过核对，转人工处理" : "方案未通过核对，转人工处理：" + reason;
+        return reason == null ? subject + "未通过核对，转人工处理" : subject + "未通过核对，转人工处理：" + reason;
     }
 
     /**

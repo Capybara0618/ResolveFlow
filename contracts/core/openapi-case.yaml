@@ -247,6 +247,7 @@ paths:
                   requested_actions: [REFUND]
                   line_id: '7001'
                 proposal:
+                  origin: AGENT
                   schema_version: 2
                   proposal_id: 5f0f0f0f-1111-4222-8333-444455556666
                   run_id: e2e2e2e2-3333-4444-8555-aaaaaaaaaaaa
@@ -633,7 +634,23 @@ paths:
       description: |
         A manual proposal is a new revision with its own citations, not a direct
         payment instruction; approval still goes through the authorisation path
-        (docs/core-contracts.md:36).
+        (docs/core-contracts.md:36). Merchant staff submit it, and a customer may not:
+        the citations are the merchant's argument about the case, not the party's request.
+        Submitting one moves the case's input revision, because a person's citation set is
+        new decision input rather than a comment on the agent's — which is why the response
+        reports both the revision the submission produced and the case version it left
+        behind. The amount is recomputed from Commerce and the payload is fixed from the
+        citations supplied, so the request has no amount member to argue with.
+
+        A live authorisation is fixed to the revision it was created for, so this
+        submission **supersedes** it: that authorisation becomes REVOKED (nobody decided
+        it, and the recorded reason names the revision that retired it) and a new
+        authorisation is created for the new revision — the one a reviewer then approves or
+        refuses. A case that was AUTHORIZED therefore returns to PENDING_REVIEW, because an
+        approval is not a payment: the only thing that turns an approval into money is
+        consumption. Once the case is executing or terminal its input is frozen and this
+        route answers 409 rather than starting a new revision
+        (docs/domain-model.md:36).
       parameters:
         - $ref: '#/components/parameters/CaseId'
       requestBody:
@@ -668,8 +685,12 @@ paths:
                 proposal_id: 5f0f0f0f-1111-4222-8333-444455556666
                 input_revision: 4
                 case_version: 9
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/StateConflict'
         '422':
@@ -1190,6 +1211,13 @@ components:
       description: |
         Case lifecycle of docs/domain-model.md:55. CANCELLED exists only before the
         authorisation is consumed; after consumption there is no cancel edge.
+    ProposalOrigin:
+      type: string
+      enum: [AGENT, HUMAN]
+      description: |
+        Who wrote the proposal, and therefore which members the rest of the document has
+        (C03.3c). A run's proposal is the run's classification of the case; a person's is
+        their reading of the same material, so it names the person and not a run.
     ProposalStatus:
       type: string
       enum: [PROPOSED, VALIDATED, STALE, REJECTED]
@@ -1200,13 +1228,24 @@ components:
         this case and the amount was recomputed from the line's own amounts - so it is a claim
         about what this service verified, not about what the run said. REJECTED means a check
         refused it and refusal_reason says which. STALE means it belonged to an input revision
-        that is no longer the case's current one. PROPOSED is stored but not yet re-checked
-        (the manual path, C03.3); the agent path is never stored as PROPOSED, because a
-        proposal is checked before it is recorded.
+        that is no longer the case's current one, which is derived at read time rather than
+        stored. PROPOSED would mean stored but not yet re-checked, and **no core route stores
+        one**: the agent path checks before recording, and the manual path is re-checked
+        synchronously too (C03.3c) because an approval has to be an approval of a fixed
+        payload — a proposal that could change at approval time would make "Java owns the
+        amount" untrue. The member is kept because the enumeration is the domain's, not this
+        release's.
     AuthorizationStatus:
       type: string
       enum: [PENDING_REVIEW, APPROVED, REJECTED, EXPIRED, REVOKED, CONSUMED]
-      description: docs/domain-model.md:57.
+      description: |
+        docs/domain-model.md:57. EXPIRED and REVOKED both mean "this can no longer be
+        applied", and they differ in who ended it: EXPIRED is the authorisation lapsing on
+        its own grounds (the input it was fixed for moved, or the reviewer asked for more
+        material), while REVOKED is it being withdrawn or **superseded** — a newer revision
+        produced a different authorisation, or a decision retired it (C03.3c). Neither was
+        ever applied: only CONSUMED means a payment was dispatched, and only consumption is
+        irreversible.
     OperationState:
       type: string
       enum: [RECEIVED, IN_PROGRESS, UNKNOWN, SUCCEEDED, FAILED]
@@ -1619,12 +1658,36 @@ components:
       type: object
       additionalProperties: false
       required:
-        [schema_version, proposal_id, run_id, case_id, input_revision, case_type,
-         recommended_action, summary, reason_codes, status]
+        [schema_version, proposal_id, case_id, input_revision, recommended_action, summary,
+         status, origin]
+      oneOf:
+        - required: [run_id, case_type, reason_codes]
+        - required: [authored_by, authored_role]
       description: |
         The case-side view of a proposal: the proposal fields plus the status case-service
         owns. The proposal itself never carries its own approval status.
+
+        `origin` says who wrote it, and that decides which of the other members exist
+        rather than leaving them optional by accident: a proposal from a run carries
+        `run_id`, `case_type` and `reason_codes` because the run classified the case and
+        named its codes, while a human-authored proposal carries `authored_by` and
+        `authored_role` instead. A person does not re-classify the case, and inventing a
+        `case_type` or a reason code for them would put words in their mouth; the two sets
+        are therefore disjoint, and a document claiming both would be claiming two authors
+        (C03.3c). `schema_version` is 2 for both — it is the core protocol version, not the
+        author's. A human proposal's `summary` is the reason its author wrote: there is no
+        second free-text member saying the same thing.
       properties:
+        origin:
+          $ref: '#/components/schemas/ProposalOrigin'
+        authored_by:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: The staff subject who submitted it; present exactly when origin is HUMAN.
+        authored_role:
+          type: string
+          enum: [REVIEWER, OPERATOR]
         schema_version:
           const: 2
         case_id:

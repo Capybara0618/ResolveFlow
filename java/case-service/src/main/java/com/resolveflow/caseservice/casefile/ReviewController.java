@@ -17,8 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * The reviewer's two surfaces: {@code GET /api/v1/review/cases} (docs/core-contracts.md:33) and
- * {@code POST /api/v1/cases/{case_id}/reviews} (docs/core-contracts.md:34).
+ * The reviewer's surfaces: {@code GET /api/v1/review/cases} (docs/core-contracts.md:33),
+ * {@code POST /api/v1/cases/{case_id}/reviews} (docs/core-contracts.md:34) and
+ * {@code POST /api/v1/cases/{case_id}/manual-proposals} (docs/core-contracts.md:36).
  *
  * <p>The controller resolves the principal, hands the decision to the service, and answers with the members
  * the contract declares — with their documented spelling, because each is a declared document and not an
@@ -35,12 +36,17 @@ public class ReviewController {
 
     private final ReviewQueueService queue;
     private final ReviewDecisionService decisions;
+    private final ManualProposalService manualProposals;
     private final RequestPrincipalResolver principals;
 
     public ReviewController(
-            ReviewQueueService queue, ReviewDecisionService decisions, RequestPrincipalResolver principals) {
+            ReviewQueueService queue,
+            ReviewDecisionService decisions,
+            ManualProposalService manualProposals,
+            RequestPrincipalResolver principals) {
         this.queue = queue;
         this.decisions = decisions;
+        this.manualProposals = manualProposals;
         this.principals = principals;
     }
 
@@ -61,6 +67,15 @@ public class ReviewController {
             @RequestBody ReviewRequest request) {
         AuthenticatedPrincipal principal = principals.resolve(authorization);
         return ResponseEntity.ok(decisions.decide(principal, caseId, ifMatch, request));
+    }
+
+    @PostMapping("/api/v1/cases/{case_id}/manual-proposals")
+    public ResponseEntity<ManualProposalResponse> submitManualProposal(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable("case_id") String caseId,
+            @RequestBody ManualProposalRequest request) {
+        AuthenticatedPrincipal principal = principals.resolve(authorization);
+        return ResponseEntity.ok(manualProposals.submit(principal, caseId, request));
     }
 
     public record ReviewQueuePageResponse(List<ReviewQueueItemResponse> items, PageMeta page) {

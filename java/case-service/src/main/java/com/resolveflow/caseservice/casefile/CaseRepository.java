@@ -199,6 +199,19 @@ public interface CaseRepository {
     Integer highestSequence(@Param("caseId") String caseId);
 
     /**
+     * The next position in this case's trajectory.
+     *
+     * <p>It wraps {@link #highestSequence} rather than leaving each writer to redo the arithmetic, because
+     * five of them append trajectory rows and all five have to agree on what "next" means: a second spelling
+     * of it would be a way to write two rows at one position, which the primary key would then refuse as a
+     * caller's bug instead of the collision it actually is (C03.3c-1).
+     */
+    default int nextTimelineSequence(String caseId) {
+        Integer highest = highestSequence(caseId);
+        return highest == null ? 1 : highest + 1;
+    }
+
+    /**
      * Move the case to CANCELLED, but only from the status it was read at.
      *
      * <p>The expected status is a condition of the write, not only of the check before it: two cancels
@@ -238,6 +251,30 @@ public interface CaseRepository {
     int transition(
             @Param("caseId") String caseId,
             @Param("expectedStatus") String expectedStatus,
+            @Param("newStatus") String newStatus,
+            @Param("updatedAt") java.time.Instant updatedAt);
+
+    /**
+     * Move the case's input revision and its status in one statement, from the revision it was read at.
+     *
+     * <p>A revision move is the fact that retires everything decided from the previous revision, so it is one
+     * write rather than two: a status change that committed while the revision stayed put would leave a case
+     * pointing at a proposal it no longer matches, and the expected revision in the WHERE clause means two
+     * submissions arriving together cannot both move it (C03.3c-1).
+     */
+    @Update("""
+            UPDATE aftersale_case
+               SET input_revision = #{newRevision},
+                   status = #{newStatus},
+                   version = version + 1,
+                   updated_at = #{updatedAt}
+             WHERE case_id = #{caseId}
+               AND input_revision = #{expectedRevision}
+            """)
+    int advanceRevision(
+            @Param("caseId") String caseId,
+            @Param("expectedRevision") int expectedRevision,
+            @Param("newRevision") int newRevision,
             @Param("newStatus") String newStatus,
             @Param("updatedAt") java.time.Instant updatedAt);
 
