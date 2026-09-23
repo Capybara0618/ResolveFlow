@@ -41,9 +41,13 @@ public class RefundReconcileLoop {
     @Scheduled(fixedDelayString = "${resolveflow.refund.poll-interval-ms:2000}")
     public void reconcileUnknown() {
         try {
-            int looked = dispatch.reconcileDue(batchSize);
-            if (looked > 0) {
-                LOG.info("refund reconciliation pass: {} unresolved operation(s) asked about", looked);
+            RefundDispatchService.Pass pass = dispatch.reconcileDue(batchSize);
+            if (pass.attempted() > 0) {
+                LOG.info(
+                        "refund reconciliation pass: {} unresolved operation(s) asked about, {} could not be"
+                                + " reconciled and will be retried",
+                        pass.attempted() - pass.failed(),
+                        pass.failed());
             }
         } catch (RuntimeException unexpected) {
             LOG.warn("refund reconciliation pass failed; the next tick will try again", unexpected);

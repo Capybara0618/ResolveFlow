@@ -42,9 +42,13 @@ public class RefundDispatchLoop {
     @Scheduled(fixedDelayString = "${resolveflow.refund.poll-interval-ms:2000}")
     public void sendReserved() {
         try {
-            int sent = dispatch.dispatchDue(batchSize);
-            if (sent > 0) {
-                LOG.info("refund dispatch pass: {} reserved operation(s) sent to the provider", sent);
+            RefundDispatchService.Pass pass = dispatch.dispatchDue(batchSize);
+            if (pass.attempted() > 0) {
+                LOG.info(
+                        "refund dispatch pass: {} reserved operation(s) sent to the provider, {} could not be"
+                                + " sent and will be retried",
+                        pass.attempted() - pass.failed(),
+                        pass.failed());
             }
         } catch (RuntimeException unexpected) {
             LOG.warn("refund dispatch pass failed; the next tick will try again", unexpected);

@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -31,6 +33,8 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 @Service
 public class RefundDispatchService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RefundDispatchService.class);
 
     /** How long to wait before asking the provider again about an unresolved operation. */
     private static final Duration RETRY_BACKOFF = Duration.ofSeconds(30);
@@ -81,21 +85,42 @@ public class RefundDispatchService {
      * deployment it is this pass. Every C04 test called {@link #dispatch(String)} directly, which is exactly
      * why the missing entry point could stay invisible.
      *
-     * <p>One operation's failure does not stop the pass, for the same reason it does not in
-     * {@code reconcileDue}: the loop that calls this logs and tries the whole pass again on its next tick, and
-     * a pass that died on its first bad row would stop every refund behind it. A provider that cannot be
-     * reached is not a failure here either — it comes back as {@code UNKNOWN} with a retry time, which is the
-     * reservation this class exists to keep.
+     * <p><b>One operation's failure does not stop the pass</b> (C05.2c-2b). That is not defensive style: this
+     * project's own {@code commerce_db} held four orphaned {@code RECEIVED} operations from earlier driver runs
+     * whose reservations the driver had reset, and settling any of them raises — {@code line 7001 is not held
+     * by operation …}. Because the due list is ordered oldest first, a pass that propagated that failure would
+     * have thrown on the same first row on every tick and <em>never reached the newer, perfectly valid refund
+     * behind it</em>. The same shape of failure was already recorded for the command direction, where a backlog
+     * of refusals re-took one line's lock and deadlocked a later valid command (C05.1c). A sweeper that one bad
+     * row can stop is not a sweeper.
+     *
+     * <p>A provider that cannot be reached is not a failure here: it comes back as {@code UNKNOWN} with a
+     * retry time, which is the reservation this class exists to keep.
+     *
+     * <p><b>A failure has two shapes, and they differ.</b> If it happens before the claim commits, the row is
+     * still {@code RECEIVED} and the next pass tries it again. If it happens after — and it usually will,
+     * because {@code markInProgress} is its own committed transaction (C04.3) — the row is left
+     * {@code IN_PROGRESS}, which <em>no pass picks up</em>: re-sending an {@code IN_PROGRESS} row could be a
+     * second request rather than a retry of a known-absent answer. That second shape is a real gap, recorded in
+     * the ledger and demonstrated by {@code oneBadOperationDoesNotStopThePass}; it is not papered over here.
      *
      * @param limit how many to attempt in one pass, so a backlog is worked through in bounded steps
-     * @return the number of operations this pass looked at
      */
-    public int dispatchDue(int limit) {
+    public Pass dispatchDue(int limit) {
         List<String> due = Objects.requireNonNull(transactions.execute(status -> operations.findDueForDispatch(limit)));
+        int attempted = 0;
+        int failed = 0;
         for (String operationId : due) {
-            dispatch(operationId);
+            attempted++;
+            try {
+                dispatch(operationId);
+            } catch (RuntimeException failure) {
+                failed++;
+                LOG.warn(
+                        "refund operation {} could not be sent; the rest of this pass continues", operationId, failure);
+            }
         }
-        return due.size();
+        return new Pass(attempted, failed);
     }
 
     /**
@@ -118,17 +143,42 @@ public class RefundDispatchService {
      * that held a transaction across N network calls would hold locks for as long as the slowest provider
      * answer, which is the thing this class exists to avoid.
      *
+     * <p>One operation that cannot be reconciled does not stop the pass, for the reason spelled out on
+     * {@link #dispatchDue(int)}: the two passes fail the same way, and a pass that a single bad row can stop is
+     * a pass that never reaches the good rows behind it. This mirrors {@code ExecutionDispatchLoop}'s choice on
+     * the case side, where each candidate is consumed on its own so one bad approval cannot stop the rest.
+     *
      * @param limit how many to attempt in one pass, so a backlog is worked through in bounded steps
-     * @return the number of operations this pass looked at
      */
-    public int reconcileDue(int limit) {
+    public Pass reconcileDue(int limit) {
         List<String> due = Objects.requireNonNull(
                 transactions.execute(status -> operations.findDueForReconciliation(Instant.now(), limit)));
+        int attempted = 0;
+        int failed = 0;
         for (String operationId : due) {
-            reconcile(operationId);
+            attempted++;
+            try {
+                reconcile(operationId);
+            } catch (RuntimeException failure) {
+                failed++;
+                LOG.warn(
+                        "refund operation {} could not be reconciled; the rest of this pass continues and this"
+                                + " one is left for the next tick",
+                        operationId,
+                        failure);
+            }
         }
-        return due.size();
+        return new Pass(attempted, failed);
     }
+
+    /**
+     * What one pass did, so a caller (or a test) can assert on the numbers instead of on the log.
+     *
+     * <p>{@code attempted} counts the operations the pass took from its due list, not the ones that worked: an
+     * operation that threw was still looked at, and reporting it as "not attempted" would hide the backlog the
+     * sweep exists to work through.
+     */
+    public record Pass(int attempted, int failed) {}
 
     // ------------------------------------------------------------------ transactions
 

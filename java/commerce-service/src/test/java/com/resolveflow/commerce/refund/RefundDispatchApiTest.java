@@ -280,14 +280,14 @@ class RefundDispatchApiTest extends CommerceDatabaseTest {
         armFault("REQUEST_TIMEOUT", operationId);
         dispatch.dispatch(operationId);
 
-        assertThat(dispatch.reconcileDue(10))
+        assertThat(dispatch.reconcileDue(10).attempted())
                 .as("a fresh UNKNOWN has just been written with a backoff, so it is not due yet")
                 .isZero();
 
         settleAtProvider(operationId, "SUCCEEDED");
         jdbc.update("UPDATE refund_operation SET retry_at = ? WHERE operation_id = ?", Instant.now(), operationId);
 
-        assertThat(dispatch.reconcileDue(10)).isEqualTo(1);
+        assertThat(dispatch.reconcileDue(10).attempted()).isEqualTo(1);
         assertThat(operations.find(operationId).state()).isEqualTo("SUCCEEDED");
     }
 
@@ -297,7 +297,7 @@ class RefundDispatchApiTest extends CommerceDatabaseTest {
         String operationId = operation();
         acceptance.accept("req-1", command(operationId));
 
-        assertThat(dispatch.dispatchDue(10))
+        assertThat(dispatch.dispatchDue(10).attempted())
                 .as("the pass is what turns a reservation into a request at the provider; without it nothing"
                         + " ever calls the provider in a deployment, however many tests call dispatch(id)")
                 .isEqualTo(1);
@@ -308,10 +308,61 @@ class RefundDispatchApiTest extends CommerceDatabaseTest {
         assertThat(reserved()).isZero();
         assertThat(slotState()).isEqualTo("CONSUMED");
 
-        assertThat(dispatch.dispatchDue(10))
+        assertThat(dispatch.dispatchDue(10).attempted())
                 .as("the operation is settled now, so it is no longer one of the reserved ones to send")
                 .isZero();
         assertThat(operations.find(operationId).state()).isEqualTo("SUCCEEDED");
+    }
+
+    @Test
+    @DisplayName("an operation that cannot be sent does not stop the pass reaching the ones behind it")
+    void oneBadOperationDoesNotStopThePass() {
+        // The real database this was written against held exactly this: orphaned RECEIVED operations left by
+        // earlier driver runs, whose reservations the driver had reset. Settling one raises ("line 7001 is not
+        // held by operation ..."), and because the due list is oldest-first, a pass that propagated that would
+        // have thrown on the same row every tick and never sent the valid refund behind it. The orphan is
+        // inserted with an earlier reserved_at so it is genuinely in front of the good one.
+        String orphan = operation();
+        jdbc.update(
+                "INSERT INTO refund_operation (operation_id, authorization_id, case_id, input_revision,"
+                        + " merchant_id, line_id, action, quantity, currency, amount_minor, payload_hash,"
+                        + " policy_version, state, provider_key, retry_at, reserved_at, version)"
+                        + " VALUES (?, ?, ?, 2, ?, ?, 'REFUND', 2, 'CNY', 2599, ?, '2026.09', 'RECEIVED', ?, NULL,"
+                        + " ?, 1)",
+                orphan,
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                MERCHANT,
+                LINE_7001,
+                "orphan-payload-hash",
+                orphan,
+                Instant.now().minusSeconds(60));
+
+        String good = operation();
+        acceptance.accept("req-1", command(good));
+
+        RefundDispatchService.Pass pass = dispatch.dispatchDue(10);
+
+        assertThat(pass.attempted())
+                .as("both were in front of the pass: the orphan because it is older, the good one because it"
+                        + " is reserved")
+                .isEqualTo(2);
+        assertThat(pass.failed())
+                .as("the orphan cannot be settled — its line is held by another operation — and that is honest")
+                .isEqualTo(1);
+        assertThat(operations.find(good).state())
+                .as("the valid refund behind the bad row was still sent and settled in the same pass")
+                .isEqualTo("SUCCEEDED");
+        assertThat(operations.find(orphan).state())
+                .as("the bad row is left exactly as its own transactions committed it, not quietly changed."
+                        + " It ended IN_PROGRESS, and that is the stranding this project already recorded as a"
+                        + " gap rather than papering over: the claim (markInProgress) commits before the provider"
+                        + " is asked, so a failure afterwards leaves a row that neither findDueForDispatch (which"
+                        + " selects RECEIVED) nor findDueForReconciliation (which selects due UNKNOWN) will ever"
+                        + " pick up again")
+                .isEqualTo("IN_PROGRESS");
+        assertThat(refunded()).isEqualTo(2599);
+        assertThat(reserved()).isZero();
     }
 
     @Test

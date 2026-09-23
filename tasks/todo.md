@@ -545,6 +545,40 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **未做（下一步 c-3）**：两段端到端驱动。`scripts/e2e_transport_refund.py` 现在只证明"命令跨过 broker 并被预留"
     （它连 commerce 的 provider 面都没碰）；c-3 要扩成"建单→人工通过→命令→Commerce→provider→结果事件→Case 关单"，
     并显式打开：case 侧 `resolveflow.dispatch.enabled` + 两侧 outbox 投递 + 两侧 consumer + commerce 侧两个新开关。
+- C05.2c-2b 完成（2026-09-23）：**一趟派发/对账不再被单行拖死**——由真实库里的孤儿行逼出来的修复。
+  - **真实发现（准备 c-3 时查 `commerce_db` 得到，不是假想）**：库里有 **4 条 `RECEIVED` 孤儿 operation**，
+    全在 `line 7001`（`33feba2a…`/`3814379a…`/`a9fd7022…`/`0d30ffb0…`，最早 03:03、最晚 03:53），
+    来自 C05.1c 的各轮驱动——驱动每轮会把所选行与订单账本重置，于是上一轮的 operation 行留了下来。
+    因为 due 列表按 `reserved_at` **升序**，这 4 条排在最前面；而结算一条孤儿会抛
+    （`line 7001 is not held by operation …`，`RefundSettlementService.consumeSlot` 的状态条件不匹配）。
+    于是 c-2 那版"一趟不捕获异常"的 `dispatchDue` 会**每一跳都在同一行上抛**，
+    **永远走不到它后面那条完全合法的退款**——这正是 C05.1c 记过的同一种形状（命令方向积压重取锁、
+    把后面一条合法命令死锁掉）。
+  - **修法**：`dispatchDue` 与 `reconcileDue` 都改成"每个 operation 各自一个 try"，返回
+    `Pass(attempted, failed)`——`attempted` 是**从 due 列表取出的条数**而不是成功的条数（抛了的也算被看过，
+    报成"没尝试"会正好掩盖扫描器该清掉的积压）。两个循环的日志改写为
+    "send 了 N 条、M 条没能发出并将重试"。
+  - **顺带更正 c-2 记录里一句只说对一半的话**：c-2 写"失败的那条留给下一跳"——只有**claim 之前**失败时才对。
+    claim（`markInProgress`）是**先提交的独立事务**（C04.3 三段式），所以失败通常发生在 claim **之后** →
+    行停在 `IN_PROGRESS`，而**两个 due 查询都不会再捡回它**（`findDueForDispatch` 只选 `RECEIVED`、
+    `findDueForReconciliation` 只选到期的 `UNKNOWN`）。这正是 c-2 记录里已经写下的"IN_PROGRESS 会卡住"缺口，
+    本步**用测试把它钉成可复现事实**：`oneBadOperationDoesNotStopThePass` 跑完后那条孤儿就是 `IN_PROGRESS`。
+    **本步不修它**（修它要给 claim 放开 `IN_PROGRESS` 并规定超时回收规则，属于独立决定）；只把日志措辞从
+    "留给下一跳"改成"本趟继续"，不再暗示它一定会被重发。
+  - **测试**：新增 `oneBadOperationDoesNotStopThePass`——一条孤儿（`reserved_at` 更早）+ 一条合法：
+    断言 `attempted=2`、`failed=1`、**合法那条在同一趟里仍被发出并 `SUCCEEDED`**、
+    账本 `refunded=2599`/`reserved=0`、孤儿停在 `IN_PROGRESS`（`.as(...)` 里写明这就是那个已记录的缺口）。
+    既有 `onlyDueOperationsAreReconciled` 的断言由 `reconcileDue` 的 `int` 改为 `.attempted()`，
+    **断言含义一条未改**（"新 UNKNOWN 未到期 → 0"、"到期 → 1"）。
+  - **命令与结果（含一次失败留档）**：`-Dtest=RefundDispatchApiTest` 第一次 **10 条里 1 条失败**——
+    失败的是**我自己写错的断言**（"孤儿应停在 `RECEIVED`"），真相是 `IN_PROGRESS`；日志
+    `tmp/c052c2b-resilient-pass.txt`。改正断言后 **10/10 绿**（`tmp/c052c2b-resilient-pass2.txt`）；
+    全量 commerce-service **70 条，0 失败 0 错误 0 skipped**（基线 68 + 本步 2）；`spotless:apply` 后
+    `spotless:check` **exit 0**，并按惯例 spotless 之后**复跑全量**仍 **70 条绿**、BUILD SUCCESS
+    （`tmp/c052c2b-commerce-post-spotless.txt`）。证据归档 `reports/c052c-advance/`。
+  - **对 c-3 的影响（下一片必须据此写）**：驱动**不能**假定"打开两个开关后自己的 operation 一定会被处理"——
+    它必须选一条不与孤儿相交的行（当前孤儿全在 `7001`，即订单 `…aa`），并把"孤儿被扫到后失败/卡住"
+    作为**预期事实**写进报告，而不是当成驱动失败；断言只按**自己那条 `case_id`/`operation_id`** 收窄。
 
 ### C04 持久模拟退款与本地金额事务
 
