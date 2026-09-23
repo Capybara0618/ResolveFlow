@@ -153,7 +153,13 @@ public class CaseResultConsumer {
 
         // The case is resolved from this service's own record of the operation, never from the message.
         ExecutionCommandRepository.StoredCommand command = commandFor(operationId, verified, rawMessage);
-        CaseRow row = cases.findCase(command.caseId());
+        // C05.2b-3b slice ⑤: the case row is read *for update*, and it is read before the inbox claim on purpose.
+        // Two results for the same case arriving together — which at-least-once delivery allows — would otherwise
+        // both insert their inbox row first and only then contend for this row: opposite lock orders, which MySQL
+        // resolves by killing one of them with a deadlock (found by the concurrent test, not by reasoning). Taking
+        // the shared row first makes the second transaction wait here, where the ordering rule below then sees the
+        // winner's committed version and treats the loser as the stale fact it is.
+        CaseRow row = cases.findCaseForUpdate(command.caseId());
         if (row == null) {
             refusal(
                     CaseResultVerifier.Refusal.UNKNOWN_OPERATION,
@@ -294,7 +300,12 @@ public class CaseResultConsumer {
                 row.caseId(),
                 UUID.randomUUID().toString(),
                 cases.nextTimelineSequence(row.caseId()),
-                timelineKindFor(target),
+                // C05.2b-3b slice ⑤: a stale delivery is never written under a closure kind. It closed nothing —
+                // writing
+                // it as CASE_CLOSED told the concurrent test the case had closed twice when what had really
+                // happened was one closure and one ignored older copy of the same fact. The kind describes what
+                // this row did, not what the incoming document wished had happened.
+                stale ? TimelineEventType.EXECUTION_UPDATED.name() : timelineKindFor(target),
                 outcomeDetail(
                         row, payload, eventId, operationId, lineId, amountMinor, state, recorded, supersededVersion),
                 now,

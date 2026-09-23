@@ -489,9 +489,109 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
                 .isNotNull();
     }
 
+    @Test
+    @DisplayName("C05.2b-3b: a refused result leaves the case exactly as it was — no trace, no movement")
+    void aRefusedResultLeavesTheCaseUntouched() {
+        String eventId = UUID.randomUUID().toString();
+        String tampered = succeeded(eventId, MERCHANT, 3).replace("2599", "1");
+        String statusBefore = caseStatus();
+        long versionBefore =
+                jdbc.queryForObject("SELECT version FROM aftersale_case WHERE case_id = ?", Long.class, caseId);
+        int timelineBefore =
+                jdbc.queryForObject("SELECT COUNT(*) FROM case_timeline WHERE case_id = ?", Integer.class, caseId);
+
+        assertThatThrownBy(() -> consumer.consume(tampered))
+                .isInstanceOf(CaseResultVerifier.RefusedEventException.class);
+
+        // b-3a asserted the inbox half of this ("a result that failed verification is not a fact"). C05.2b-3b adds
+        // the other half, because from here on an accepted result *moves* the case: "nothing happened" is now a
+        // claim that has to be asserted rather than assumed.
+        assertThat(caseStatus()).isEqualTo(statusBefore);
+        assertThat(jdbc.queryForObject("SELECT version FROM aftersale_case WHERE case_id = ?", Long.class, caseId))
+                .as("a refused result cannot have moved the case, so it cannot have moved its version either")
+                .isEqualTo(versionBefore);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM case_timeline WHERE case_id = ?", Integer.class, caseId))
+                .as("and it leaves no trajectory row claiming an outcome arrived")
+                .isEqualTo(timelineBefore);
+    }
+
+    @Test
+    @DisplayName("C05.2b-3b: two deliveries of the same version cannot close the case twice")
+    void twoDeliveriesOfTheSameVersionCannotCloseTheCaseTwice() throws InterruptedException {
+        String firstEventId = UUID.randomUUID().toString();
+        String secondEventId = UUID.randomUUID().toString();
+        long versionBefore =
+                jdbc.queryForObject("SELECT version FROM aftersale_case WHERE case_id = ?", Long.class, caseId);
+        CaseResultConsumer.Disposition[] dispositions = new CaseResultConsumer.Disposition[2];
+        Throwable[] failures = new Throwable[2];
+
+        Thread first =
+                new Thread(() -> consumeRecording(succeeded(firstEventId, MERCHANT, 6), dispositions, failures, 0));
+        Thread second =
+                new Thread(() -> consumeRecording(succeeded(secondEventId, MERCHANT, 6), dispositions, failures, 1));
+        first.start();
+        second.start();
+        // Joining both threads is what makes the reads below safe: it creates the happens-before edge between the
+        // writes the workers did and this thread's assertions on them.
+        first.join();
+        second.join();
+
+        assertThat(failures[0])
+                .as("a delivery colliding with another must not blow up")
+                .isNull();
+        assertThat(failures[1])
+                .as("a delivery colliding with another must not blow up")
+                .isNull();
+        assertThat(dispositions[0])
+                .as("both events are new, so both are claimed; what they may not both do is move the case")
+                .isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+        assertThat(dispositions[1]).isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+
+        assertThat(caseStatus())
+                .as("both events say the same thing at the same version, so the case closes exactly once")
+                .isEqualTo("CLOSED_SUCCESS");
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM case_timeline WHERE case_id = ? AND kind = 'CASE_CLOSED'",
+                        Integer.class,
+                        caseId))
+                .as("one operation, one closure: the delivery that lost must not add a second one")
+                .isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT version FROM aftersale_case WHERE case_id = ?", Long.class, caseId))
+                .as("the case moved once, not twice")
+                .isEqualTo(versionBefore + 1);
+        // The losing delivery is accounted for in exactly one of the two honest ways, depending on whether it read
+        // the operation's applied version before or after the winner committed: recorded as stale, or left visibly
+        // unapplied because its guarded UPDATE matched no row. What it must never be is a second closure.
+        int staleTraces = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM case_timeline WHERE case_id = ? AND detail LIKE '%ignored_as_stale%'",
+                Integer.class, caseId);
+        int leftUnapplied = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM case_result_inbox WHERE case_id = ? AND projected_at IS NULL",
+                Integer.class,
+                caseId);
+        assertThat(staleTraces + leftUnapplied)
+                .as("the delivery that did not win is either recorded as stale or left visibly unapplied")
+                .isEqualTo(1);
+    }
+
     // ------------------------------------------------------------------ fixtures
 
     /** A signed result, as Commerce's C05.2b-1 outbox writes it. */
+    /**
+     * Runs one {@code consume} on a worker thread, recording what it returned or threw (C05.2b-3b slice ⑤).
+     *
+     * <p>The refusals this consumer raises are exceptions on purpose, so a concurrent test has to catch them
+     * inside the worker: letting one escape would report a lost race as a broken test.
+     */
+    private void consumeRecording(
+            String message, CaseResultConsumer.Disposition[] dispositions, Throwable[] failures, int slot) {
+        try {
+            dispositions[slot] = consumer.consume(message);
+        } catch (Throwable error) {
+            failures[slot] = error;
+        }
+    }
+
     private String succeeded(String eventId, String merchantId, long aggregateVersion) {
         return resultEnvelope(
                 eventId,

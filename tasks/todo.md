@@ -446,6 +446,13 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **`projected_at` 的含义在这一片明确下来并写进代码注释**：它表示"这一行**已经处理过**、工单状态反映了那个决定"；对陈旧行来说，决定就是"保留更新的那条事实"。此前"已应用"的说法容易读成"一定改变了状态"，现在两处不一致被消掉了。
   - **红跑很有价值**：实现前，迟到的低版本**真的又把工单推进了一次**（`expected: 5L but was: 6L`，并且多写了一行会误导读者的轨迹）——这正是 at-least-once 下最典型的静默错误，而不是一个假想的边界。
   - **命令与结果**：先红（`expected: 5L but was: 6L`，`reports/c052b3b-projection/20260923-slice4-red.txt`）→ 实现后 `CaseResultConsumerApiTest` **12/12**、全量 case-service **175 条，0 失败 0 错误 1 skipped**（`reports/c052b3b-projection/20260923-slice4-full-suite-175-green.txt`）、`spotless:check` **干净**。**余下⑤（幂等与同事务边界的补全）**，然后进 C05.2c。
+  - **切片⑤ 完成（2026-09-23）——这一片不是补测试，而是找出并修掉了三个真缺陷。** 起因是我记下"`transition` 返回 0 的那条生产路径没有测试"，于是写了并发投递测试：两个不同事件、同一 `operation_id`、同一 `aggregate_version`，两个线程同时 `consume`。它在三个层次上各炸了一次，每次都是真的：
+    1. **锁顺序死锁**：`DeadlockLoserDataAccessException`（`reports/c052b3b-projection/20260923-slice5-red-deadlock.txt`）。两个事务都先插自己的 inbox 行（同一 operation 的插入意向锁落在同一索引间隙），再去更新**同一行工单**——锁顺序相反，MySQL 只能杀掉一个。修法：`consume` 改用 `cases.findCaseForUpdate(...)`，把**工单行锁放在认领之前**，让第二个事务在第一步就排队；这同时让"输的那个"能看到赢家已提交的状态。
+    2. **快照读撞主键**：`DuplicateKeyException: Duplicate entry '<case>-6' for key 'case_timeline.PRIMARY'`（`…-slice5-red-duplicate-sequence.txt`）。`nextTimelineSequence` 用 `SELECT MAX(sequence)` 分配位置，而它在 REPEATABLE READ 下是**快照读**：即使工单行已加锁，两个事务也会被告知同一个"最高序号"。修法：新增 `highestSequenceForUpdate`（`FOR UPDATE`）专供**分配**使用，`highestSequence` 保持不加锁留给读路径（不能一概加锁）。注意这不只影响结果投影——它是**所有五个写轨迹的地方共用的分配入口**，所以这个洞在派发路径上同样存在。
+    3. **陈旧行被写成"关单"**：`expected: 1 but was: 2`，两条 `CASE_CLOSED`（`…-slice5-red-two-closures.txt`）。陈旧分支写 timeline 时用的是**目标状态**的 kind，于是一条被忽略的旧成功也被写成 `CASE_CLOSED`——轨迹里凭空多出第二次关单。修法：陈旧行恒用 `EXECUTION_UPDATED`（`stale ? EXECUTION_UPDATED.name() : timelineKindFor(target)`）——kind 描述"这一行做了什么"，不是"来件希望发生过什么"。同批还把 `highestAppliedVersion` 改成加锁读，否则等锁的那个事务会从自己的快照里读到"还没有任何已应用行"，从而把同一事实应用第二遍。
+  - **另加一条边界测试**：拒签事件在**工单侧**也不留痕——状态与 version 不变、timeline 行数不变。b-3a 只断言了"没存进 inbox"；投影落地之后，"什么都没发生"必须被断言，不能假定。
+  - **稳定性与记录缺口（如实说明）**：并发测试连续跑 **3 次、每次 14/14 绿**，但那个循环的输出只在会话里、没有单独落盘。落盘的证据是随后的全量绿日志与上面三份红日志；若要更强的稳定性证据，下一轮可以用 `-Dtest=…` 循环若干次并 tee 到 `reports/`。
+  - **命令与结果**：全量 case-service **177 条，0 失败 0 错误 1 skipped**（`reports/c052b3b-projection/20260923-slice5-full-suite-177-green.txt`）、`spotless:check` **干净**。改动：`CaseResultConsumer`、`CaseRepository`、`CaseResultInboxRepository`、`CaseResultConsumerApiTest`。**C05.2b-3b 到此收尾：三种结局的投影 + 定序 + 并发安全，且未新增状态、kind、列或迁移。**下一步是 C05.2c（真实 broker 两段端到端，含 case 侧结果监听器接线）。
 
 ### C04 持久模拟退款与本地金额事务
 

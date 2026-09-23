@@ -199,15 +199,39 @@ public interface CaseRepository {
     Integer highestSequence(@Param("caseId") String caseId);
 
     /**
+     * The highest trajectory sequence written for a case, read <em>for update</em>, or null when it has none
+     * (C05.2b-3b slice ⑤).
+     *
+     * <p>{@link #highestSequence} is a consistent read, so under REPEATABLE READ it answers from the transaction's
+     * snapshot: two transactions appending to the same case would both be told the same "highest" and then collide
+     * on the primary key — even when they already hold the case row, because a snapshot does not move. Allocation
+     * therefore goes through this locking read, which sees the latest committed position and serialises the two
+     * writers. Readers keep the unlocked one: only the arithmetic needs the lock.
+     */
+    @Select("""
+            SELECT MAX(sequence)
+              FROM case_timeline
+             WHERE case_id = #{caseId}
+             FOR UPDATE
+            """)
+    Integer highestSequenceForUpdate(@Param("caseId") String caseId);
+
+    /**
      * The next position in this case's trajectory.
      *
      * <p>It wraps {@link #highestSequence} rather than leaving each writer to redo the arithmetic, because
      * five of them append trajectory rows and all five have to agree on what "next" means: a second spelling
      * of it would be a way to write two rows at one position, which the primary key would then refuse as a
      * caller's bug instead of the collision it actually is (C03.3c-1).
+     *
+     * <p>Allocation is a <em>locking</em> read (C05.2b-3b slice ⑤). A consistent read answers from the
+     * transaction's snapshot, so two writers appending to the same case at the same time would both be told the
+     * same "highest" and then collide on the primary key even when they already hold the case row — found by the
+     * concurrent-delivery test rather than by reasoning. Locking here serialises them and always sees the latest
+     * committed position.
      */
     default int nextTimelineSequence(String caseId) {
-        Integer highest = highestSequence(caseId);
+        Integer highest = highestSequenceForUpdate(caseId);
         return highest == null ? 1 : highest + 1;
     }
 

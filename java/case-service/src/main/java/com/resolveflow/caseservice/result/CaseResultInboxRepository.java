@@ -110,6 +110,12 @@ public interface CaseResultInboxRepository {
      * <p>This is what lets an out-of-order delivery be recognised: the inbox already records the version every
      * result arrived with, so ordering needs no new column and no new table. Only <em>applied</em> rows count — a
      * row still waiting to be applied must not make a lower version look stale.
+     *
+     * <p>It is a <em>locking</em> read (C05.2b-3b slice ⑤), and that is not an optimisation: a consistent read
+     * answers from the transaction's snapshot, so a delivery that waited for the case row would still be told that
+     * nothing had been applied — and would apply the same fact a second time. That is exactly what the concurrent
+     * test caught: two deliveries of the same version, two closures. Reading for update sees the winner's
+     * committed row, which is what makes the loser recognisable as the stale fact it is.
      */
     @Select("""
             SELECT MAX(aggregate_version)
@@ -117,6 +123,7 @@ public interface CaseResultInboxRepository {
              WHERE consumer = #{consumer}
                AND operation_id = #{operationId}
                AND projected_at IS NOT NULL
+             FOR UPDATE
             """)
     Integer highestAppliedVersion(@Param("consumer") String consumer, @Param("operationId") String operationId);
 
