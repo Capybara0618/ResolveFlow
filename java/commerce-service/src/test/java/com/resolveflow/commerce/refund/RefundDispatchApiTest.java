@@ -292,6 +292,29 @@ class RefundDispatchApiTest extends CommerceDatabaseTest {
     }
 
     @Test
+    @DisplayName("a pass sends the operations that are only reserved, and a later pass finds nothing left")
+    void aPassSendsReservedOperationsToTheProvider() {
+        String operationId = operation();
+        acceptance.accept("req-1", command(operationId));
+
+        assertThat(dispatch.dispatchDue(10))
+                .as("the pass is what turns a reservation into a request at the provider; without it nothing"
+                        + " ever calls the provider in a deployment, however many tests call dispatch(id)")
+                .isEqualTo(1);
+
+        RefundOperationRepository.StoredOperation settled = operations.find(operationId);
+        assertThat(settled.state()).isEqualTo("SUCCEEDED");
+        assertThat(refunded()).isEqualTo(2599);
+        assertThat(reserved()).isZero();
+        assertThat(slotState()).isEqualTo("CONSUMED");
+
+        assertThat(dispatch.dispatchDue(10))
+                .as("the operation is settled now, so it is no longer one of the reserved ones to send")
+                .isZero();
+        assertThat(operations.find(operationId).state()).isEqualTo("SUCCEEDED");
+    }
+
+    @Test
     @DisplayName("dispatching a settled operation again does not ask the provider a second time")
     void aSettledOperationIsNotSentAgain() {
         String operationId = operation();

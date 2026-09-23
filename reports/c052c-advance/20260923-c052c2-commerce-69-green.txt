@@ -1,0 +1,315 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] resolveflow-java                                                   [pom]
+[INFO] shared-kernel                                                      [jar]
+[INFO] commerce-service                                                   [jar]
+[INFO] 
+[INFO] ------------------< com.resolveflow:resolveflow-java >------------------
+[INFO] Building resolveflow-java 0.1.0-SNAPSHOT                           [1/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ resolveflow-java ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] -------------------< com.resolveflow:shared-kernel >--------------------
+[INFO] Building shared-kernel 0.1.0-SNAPSHOT                              [2/3]
+[INFO]   from shared-kernel\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ shared-kernel ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ shared-kernel ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.resolveflow.shared.contract.CanonicalJsonTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.048 s -- in com.resolveflow.shared.contract.CanonicalJsonTest
+[INFO] Running com.resolveflow.shared.contract.ContractCorpusAgreementTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.055 s -- in com.resolveflow.shared.contract.ContractCorpusAgreementTest
+[INFO] Running com.resolveflow.shared.core.CoreContractTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.160 s -- in com.resolveflow.shared.core.CoreContractTest
+[INFO] Running com.resolveflow.shared.core.CoreTopicNamesTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.resolveflow.shared.core.CoreTopicNamesTest
+[INFO] Running com.resolveflow.shared.error.ApiErrorTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 s -- in com.resolveflow.shared.error.ApiErrorTest
+[INFO] Running com.resolveflow.shared.security.DemoAccountsTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.358 s -- in com.resolveflow.shared.security.DemoAccountsTest
+[INFO] Running com.resolveflow.shared.security.JwtCodecTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.resolveflow.shared.security.JwtCodecTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 58, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] ------------------< com.resolveflow:commerce-service >------------------
+[INFO] Building commerce-service 0.1.0-SNAPSHOT                           [3/3]
+[INFO]   from commerce-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] 1 problem was encountered while building the effective model for org.javassist:javassist:jar:3.21.0-GA during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ commerce-service ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ commerce-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 5 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ commerce-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ commerce-service ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\commerce-service\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ commerce-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ commerce-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.resolveflow.commerce.CommerceServiceApplicationTest
+15:23:44.729 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceServiceApplicationTest]: CommerceServiceApplicationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:23:45.061 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.CommerceServiceApplicationTest
+15:23:45.149 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceServiceApplicationTest]: CommerceServiceApplicationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:23:45.150 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:23:45.153 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.CommerceServiceApplicationTest
+15:23:45.194 [main] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+15:23:45.195 [main] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+15:23:45.239 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 2.0.5
+15:23:45.419 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Loaded org.testcontainers.dockerclient.NpipeSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+15:23:45.742 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with local Npipe socket (npipe:////./pipe/docker_engine)
+15:23:45.743 [main] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+15:23:45.763 [main] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.3.0
+  API Version: 1.54
+  Operating System: Docker Desktop
+  Total Memory: 7580 MB
+  Labels: 
+    com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+15:23:45.920 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Creating container for image: testcontainers/ryuk:0.14.0
+15:23:46.131 [main] INFO org.testcontainers.utility.RegistryAuthLocator -- Credential helper/store (docker-credential-desktop) does not have credentials for https://index.docker.io/v1/
+15:23:46.263 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 is starting: cc7381de28d55cb71a9bbce9121faf7f37b9cd10d91b292b44dca4211d714985
+15:23:46.650 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 started in PT0.7300791S
+15:23:46.657 [main] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+15:23:46.657 [main] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+15:23:46.658 [main] INFO org.testcontainers.DockerClientFactory -- ?? Docker server version should be at least 1.6.0
+15:23:46.658 [main] INFO tc.mysql:8.4 -- Creating container for image: mysql:8.4
+15:23:46.727 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 is starting: 386057f270a4bc990ad4119cce8d5dea8041fdb6cd2e8cd6f93cebdb9769024c
+15:23:47.070 [main] INFO tc.mysql:8.4 -- Waiting for database connection to become available at jdbc:mysql://localhost:59157/commerce_db using query 'SELECT 1'
+15:23:56.337 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 started in PT9.6787716S
+15:23:56.338 [main] INFO tc.mysql:8.4 -- Container is started (JDBC URL: jdbc:mysql://localhost:59157/commerce_db)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T15:23:56.666+08:00  INFO 22084 --- [commerce-service] [           main] c.r.c.CommerceServiceApplicationTest     : Starting CommerceServiceApplicationTest using Java 21.0.12.1 with PID 22084 (started by hjn in E:\Code+Agent+Backend\java\commerce-service)
+2026-09-23T15:23:56.667+08:00  INFO 22084 --- [commerce-service] [           main] c.r.c.CommerceServiceApplicationTest     : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T15:23:58.192+08:00  INFO 22084 --- [commerce-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T15:23:58.209+08:00  INFO 22084 --- [commerce-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T15:23:58.210+08:00  INFO 22084 --- [commerce-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T15:23:58.318+08:00  INFO 22084 --- [commerce-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1632 ms
+2026-09-23T15:23:58.853+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-23T15:23:58.873+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7f3a92fd
+2026-09-23T15:23:58.874+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-23T15:23:58.908+08:00  INFO 22084 --- [commerce-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:59157/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T15:23:58.995+08:00  WARN 22084 --- [commerce-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T15:23:59.051+08:00  INFO 22084 --- [commerce-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `commerce_db`.`flyway_schema_history` does not exist yet
+2026-09-23T15:23:59.055+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.043s)
+2026-09-23T15:23:59.075+08:00  INFO 22084 --- [commerce-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `commerce_db`.`flyway_schema_history` ...
+2026-09-23T15:23:59.144+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `commerce_db`: << Empty Schema >>
+2026-09-23T15:23:59.161+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "1 - commerce order read model"
+2026-09-23T15:23:59.267+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "2 - demo order seed"
+2026-09-23T15:23:59.305+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "3 - commerce refund local"
+2026-09-23T15:23:59.442+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "4 - commerce event inbox"
+2026-09-23T15:23:59.508+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "5 - commerce result outbox"
+2026-09-23T15:23:59.558+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 5 migrations to schema `commerce_db`, now at version v5 (execution time 00:00.276s)
+2026-09-23T15:24:00.447+08:00  INFO 22084 --- [commerce-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T15:24:00.521+08:00  INFO 22084 --- [commerce-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 59269 (http) with context path '/'
+2026-09-23T15:24:00.531+08:00  INFO 22084 --- [commerce-service] [           main] c.r.c.CommerceServiceApplicationTest     : Started CommerceServiceApplicationTest in 4.164 seconds (process running for 16.8)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (C:\Users\hjn\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-09-23T15:24:01.300+08:00  INFO 22084 --- [commerce-service] [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T15:24:01.300+08:00  INFO 22084 --- [commerce-service] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T15:24:01.301+08:00  INFO 22084 --- [commerce-service] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 17.08 s -- in com.resolveflow.commerce.CommerceServiceApplicationTest
+[INFO] Running com.resolveflow.commerce.CrossSchemaPrivilegeTest
+2026-09-23T15:24:01.502+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CrossSchemaPrivilegeTest]: CrossSchemaPrivilegeTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:01.504+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.CrossSchemaPrivilegeTest
+2026-09-23T15:24:01.505+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CrossSchemaPrivilegeTest]: CrossSchemaPrivilegeTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:01.506+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:01.507+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.CrossSchemaPrivilegeTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T15:24:01.790+08:00  INFO 22084 --- [commerce-service] [           main] c.r.commerce.CrossSchemaPrivilegeTest    : Starting CrossSchemaPrivilegeTest using Java 21.0.12.1 with PID 22084 (started by hjn in E:\Code+Agent+Backend\java\commerce-service)
+2026-09-23T15:24:01.791+08:00  INFO 22084 --- [commerce-service] [           main] c.r.commerce.CrossSchemaPrivilegeTest    : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T15:24:02.038+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-09-23T15:24:02.055+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4ba88ab5
+2026-09-23T15:24:02.056+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-09-23T15:24:02.061+08:00  INFO 22084 --- [commerce-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:59157/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T15:24:02.071+08:00  WARN 22084 --- [commerce-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T15:24:02.085+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.011s)
+2026-09-23T15:24:02.098+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `commerce_db`: 5
+2026-09-23T15:24:02.099+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `commerce_db` is up to date. No migration necessary.
+2026-09-23T15:24:02.240+08:00  INFO 22084 --- [commerce-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T15:24:02.249+08:00  INFO 22084 --- [commerce-service] [           main] c.r.commerce.CrossSchemaPrivilegeTest    : Started CrossSchemaPrivilegeTest in 0.479 seconds (process running for 18.519)
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.985 s -- in com.resolveflow.commerce.CrossSchemaPrivilegeTest
+[INFO] Running com.resolveflow.commerce.internal.OrderLineContextControllerTest
+2026-09-23T15:24:02.493+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.internal.OrderLineContextControllerTest]: OrderLineContextControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:02.505+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.internal.OrderLineContextControllerTest
+2026-09-23T15:24:02.505+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.internal.OrderLineContextControllerTest]: OrderLineContextControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:02.506+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:02.506+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.internal.OrderLineContextControllerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.189 s -- in com.resolveflow.commerce.internal.OrderLineContextControllerTest
+[INFO] Running com.resolveflow.commerce.internal.OrderLineControllerTest
+2026-09-23T15:24:02.683+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.internal.OrderLineControllerTest]: OrderLineControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:02.685+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.internal.OrderLineControllerTest
+2026-09-23T15:24:02.686+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.internal.OrderLineControllerTest]: OrderLineControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:02.686+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:02.687+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.internal.OrderLineControllerTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.101 s -- in com.resolveflow.commerce.internal.OrderLineControllerTest
+[INFO] Running com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest
+2026-09-23T15:24:02.785+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest]: RefundCommandConsumerApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:02.796+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest
+2026-09-23T15:24:02.797+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest]: RefundCommandConsumerApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:02.797+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:02.798+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest
+2026-09-23T15:24:03.008+08:00  WARN 22084 --- [commerce-service] [           main] c.r.c.messaging.RefundCommandConsumer    : refused a core event: UNTRUSTED_KEY (key some-other-key is not in this service's trust list)
+2026-09-23T15:24:03.123+08:00  WARN 22084 --- [commerce-service] [           main] c.r.c.messaging.RefundCommandConsumer    : refused a core event: WRONG_DIRECTION (this consumer executes RefundRequested, not RefundSucceeded)
+2026-09-23T15:24:03.206+08:00  WARN 22084 --- [commerce-service] [           main] c.r.c.messaging.RefundCommandConsumer    : refused a core event: MALFORMED (the message is not JSON: Unrecognized token 'this': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #UNKNOWN])
+2026-09-23T15:24:03.238+08:00  WARN 22084 --- [commerce-service] [           main] c.r.c.messaging.RefundCommandConsumer    : refused a core event: UNTRUSTED_KEY (key an-untrusted-key is not in this service's trust list)
+2026-09-23T15:24:03.303+08:00  WARN 22084 --- [commerce-service] [           main] c.r.c.messaging.RefundCommandConsumer    : refused a core event: BAD_SIGNATURE (core envelope signature does not cover this envelope)
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.526 s -- in com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest
+[INFO] Running com.resolveflow.commerce.messaging.ResultOutboxDeliveryApiTest
+2026-09-23T15:24:03.314+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.messaging.ResultOutboxDeliveryApiTest
+2026-09-23T15:24:03.314+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:03.314+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.messaging.ResultOutboxDeliveryApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T15:24:03.340+08:00  INFO 22084 --- [commerce-service] [           main] c.r.c.m.ResultOutboxDeliveryApiTest      : Starting ResultOutboxDeliveryApiTest using Java 21.0.12.1 with PID 22084 (started by hjn in E:\Code+Agent+Backend\java\commerce-service)
+2026-09-23T15:24:03.340+08:00  INFO 22084 --- [commerce-service] [           main] c.r.c.m.ResultOutboxDeliveryApiTest      : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T15:24:03.534+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-09-23T15:24:03.543+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection com.mysql.cj.jdbc.ConnectionImpl@56c75b4f
+2026-09-23T15:24:03.544+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-09-23T15:24:03.550+08:00  INFO 22084 --- [commerce-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:59157/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T15:24:03.560+08:00  WARN 22084 --- [commerce-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T15:24:03.576+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.012s)
+2026-09-23T15:24:03.587+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `commerce_db`: 5
+2026-09-23T15:24:03.588+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `commerce_db` is up to date. No migration necessary.
+2026-09-23T15:24:03.706+08:00  INFO 22084 --- [commerce-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T15:24:03.714+08:00  INFO 22084 --- [commerce-service] [           main] c.r.c.m.ResultOutboxDeliveryApiTest      : Started ResultOutboxDeliveryApiTest in 0.39 seconds (process running for 19.984)
+2026-09-23T15:24:03.740+08:00  WARN 22084 --- [commerce-service] [           main] c.r.c.m.ResultOutboxDeliveryService      : result event 8f8f8f8f-1111-4222-8333-444455556666 gave up after 2 attempts: broker is down
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.486 s -- in com.resolveflow.commerce.messaging.ResultOutboxDeliveryApiTest
+[INFO] Running com.resolveflow.commerce.order.OrderLineReadServiceDatabaseTest
+2026-09-23T15:24:03.799+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.order.OrderLineReadServiceDatabaseTest]: OrderLineReadServiceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:03.807+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.order.OrderLineReadServiceDatabaseTest
+2026-09-23T15:24:03.807+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.order.OrderLineReadServiceDatabaseTest]: OrderLineReadServiceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:03.807+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:03.808+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.order.OrderLineReadServiceDatabaseTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.077 s -- in com.resolveflow.commerce.order.OrderLineReadServiceDatabaseTest
+[INFO] Running com.resolveflow.commerce.refund.RefundAcceptanceApiTest
+2026-09-23T15:24:03.877+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.refund.RefundAcceptanceApiTest]: RefundAcceptanceApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:03.888+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.refund.RefundAcceptanceApiTest
+2026-09-23T15:24:03.889+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.refund.RefundAcceptanceApiTest]: RefundAcceptanceApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:03.890+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:03.890+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.refund.RefundAcceptanceApiTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.204 s -- in com.resolveflow.commerce.refund.RefundAcceptanceApiTest
+[INFO] Running com.resolveflow.commerce.refund.RefundDispatchApiTest
+2026-09-23T15:24:05.083+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.refund.RefundDispatchApiTest]: RefundDispatchApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:05.084+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.refund.RefundDispatchApiTest
+2026-09-23T15:24:05.085+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.refund.RefundDispatchApiTest]: RefundDispatchApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:05.085+08:00  INFO 22084 --- [commerce-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T15:24:05.086+08:00  INFO 22084 --- [commerce-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.refund.RefundDispatchApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T15:24:05.984+08:00  INFO 22084 --- [commerce-service] [           main] c.r.c.refund.RefundDispatchApiTest       : Starting RefundDispatchApiTest using Java 21.0.12.1 with PID 22084 (started by hjn in E:\Code+Agent+Backend\java\commerce-service)
+2026-09-23T15:24:05.984+08:00  INFO 22084 --- [commerce-service] [           main] c.r.c.refund.RefundDispatchApiTest       : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T15:24:06.199+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-09-23T15:24:06.208+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection com.mysql.cj.jdbc.ConnectionImpl@c4cec4e
+2026-09-23T15:24:06.209+08:00  INFO 22084 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2026-09-23T15:24:06.217+08:00  INFO 22084 --- [commerce-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:59157/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T15:24:06.280+08:00  WARN 22084 --- [commerce-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T15:24:06.294+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.010s)
+2026-09-23T15:24:06.305+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `commerce_db`: 5
+2026-09-23T15:24:06.306+08:00  INFO 22084 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `commerce_db` is up to date. No migration necessary.
+2026-09-23T15:24:06.406+08:00  INFO 22084 --- [commerce-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T15:24:06.413+08:00  INFO 22084 --- [commerce-service] [           main] c.r.c.refund.RefundDispatchApiTest       : Started RefundDispatchApiTest in 0.449 seconds (process running for 22.683)
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.152 s -- in com.resolveflow.commerce.refund.RefundDispatchApiTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 69, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for resolveflow-java 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] resolveflow-java ................................... SUCCESS [  0.295 s]
+[INFO] shared-kernel ...................................... SUCCESS [  3.816 s]
+[INFO] commerce-service ................................... SUCCESS [ 25.538 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  30.013 s
+[INFO] Finished at: 2026-09-23T15:24:07+08:00
+[INFO] ------------------------------------------------------------------------

@@ -488,7 +488,9 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
     `reports/c052c-listener/20260923-c052c1-case-suite-177-green.txt`）；`spotless:check` 先红后绿
     （新文件被 spotless 重排了 `@Value` 的换行，`tmp/c052c1-spotless-check.txt` 是那次红跑）。
   - **如实记录本片的证据边界**：监听器**没有** broker-free 单测——它的 `handle` 是私有方法且依赖
-    具体类 `CaseResultConsumer`，项目里没有 Mockito；而为它单独开一个接缝会让它与 commerce 的同形对象
+    具体类 `CaseResultConsumer`，项目的测试里一处 Mockito 都没用过（虽然 Spring Boot 的测试 starter 把
+    mockito-core 带上了 test classpath——c-2 跑测试时那句 "Mockito is currently self-attaching" 就是它）；
+    而为它单独开一个接缝会让它与 commerce 的同形对象
     不再同形（账本"未清的审查待办"第 2 条已经在抱怨两侧不对称）。这与 commerce 侧
     `RefundCommandListener` 的处境**完全相同**（它同样没有单测）。所以本片只声称"编译、注入、默认关闭
     不回归"，可执行证据留给 c-3 的真实 broker 端到端。
@@ -502,6 +504,47 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
     `@Scheduled` 调用 `reconcileDue`），所以"UNKNOWN 会被自动重试"这句话在**真实链路**上仍不成立——
     C04.3 当年把入口留给"C05 或 C11"，而 C05.2c 的验收要求 CF3 走到这条对账路径上，因此这个入口属于
     本任务范围。c-1 本身不碰它。
+- C05.2c-2 完成（2026-09-23）：**Commerce 侧退款推进入口**——把 C04.2 的"预留"与 C04.3 的"给 provider 打电话"接上真实的调度者。
+  - **开工前查到的真实缺口（本步存在的理由）**：`RefundDispatchService` 在 `src/main` 里**一个调用者都没有**
+    （已 grep 核对：`dispatch`/`reconcile`/`reconcileDue` 在 `java/commerce-service` 的 `src/main` 内没有任何
+    `@Scheduled` 或控制器调用），所以真实部署里：命令把行预留成 `RECEIVED` 之后**没有人给 provider 打电话**——
+    没有 provider 请求、没有结果事件、工单永远停在 `EXECUTING`。而 C04 的全部测试都自己调 `dispatch(id)`，
+    所以这个洞在测试里看不见。C04.3 当年把入口留给"C05 或 C11"，本步就是"C05"。
+  - **先红**：给 `RefundDispatchApiTest` 新增 `aPassSendsReservedOperationsToTheProvider`（调
+    `dispatch.dispatchDue(10)`），跑 `-Dtest=RefundDispatchApiTest` → **编译红**（`找不到符号: 方法 dispatchDue(int)`，
+    日志 `tmp/c052c2-dispatchdue-red.txt`）。这次是**编译红而不是行为红**，如实记下：本步是给一个此前根本不存在的方法
+    写测试，形状由 C04.3 已定死的 `reconcileDue` 同形决定，而不是由我试出来。
+  - **两个循环、两个开关（刻意的选择，不是复制粘贴）**：`RefundDispatchLoop`
+    （`resolveflow.refund.dispatch-enabled`）与 `RefundReconcileLoop`（`resolveflow.refund.reconcile-enabled`），
+    各自 `@Scheduled(fixedDelayString="${resolveflow.refund.poll-interval-ms:2000}")`、`batch-size:50`、默认关闭、
+    一趟抛异常只记日志等下一跳——与 `OutboxDeliveryLoop`/`ExecutionDispatchLoop` 同形。**为什么不合成一个开关**：
+    两趟问的不是同一件事——派发是**请求动钱**，对账只是**读发生了什么**；事故时操作者要能"停掉新的动钱请求、
+    但让已经飞出去的退款对完账"，合并开关会把这个决定拿走。两趟都遵守"一趟只做一趟的事、没东西可做就不报成功"
+    （`docs/engineering.md:56`）。
+  - **新增的查询只有一条**：`findDueForDispatch(limit)` = `WHERE state = 'RECEIVED' ORDER BY reserved_at, operation_id LIMIT ?`。
+    **刻意不含 `IN_PROGRESS`**：那个状态表示"给 provider 的电话已经打出去（或被打断）"，扫描器再发一次是**第二次请求**
+    而不是对"已知无答案"的重试，把两者混为一谈正是丢响应场景最怕的事。**代价如实记下**：进程在 `markInProgress`
+    之后、拿到答案之前死掉，那一行会**永远卡在 `IN_PROGRESS`**（`findDueForReconciliation` 只选 `UNKNOWN`，
+    没有别的路把它捡回来）。这是真实遗留缺口，本步不修——修它需要一条"IN_PROGRESS 超时回收"规则与一个新的时间列，
+    属于独立决定——写在这里而不是假装不存在。
+  - **服务层是 `reconcileDue` 的镜像**：`dispatchDue(limit)` 在**一个短事务里读名单**、事务关闭后才逐个
+    `dispatch(operationId)`（每次调用自己又是"提交 `IN_PROGRESS` → 事务外打网络 → 提交结果"三段），所以一趟 `N` 个
+    操作的扫描**不会**把事务开在网络调用上（`docs/engineering.md:23`）；一个操作失败不中止整趟（由外层循环下一跳重试），
+    provider 不可达也不抛异常而是变成带 `retry_at` 的 `UNKNOWN`。
+  - **命令与结果**：红（编译）→ 实现后 `-Dtest=RefundDispatchApiTest` → **9/9 绿**（原 8 + 新增 1，
+    `tmp/c052c2-dispatchdue-green.txt`）；全量 commerce-service → **69 条，0 失败 0 错误 0 skipped**
+    （原 68 + 1，`tmp/c052c2-commerce-full.txt`）；`spotless:apply` 后 `spotless:check` **exit 0**，并按项目惯例
+    在 spotless 之后**复跑全量** → 仍 **69 条 0 失败**、BUILD SUCCESS（`tmp/c052c2-commerce-post-spotless.txt`）。
+    证据归档 `reports/c052c-advance/`。
+  - **新测试断言的是"扫描器真的在工作"**，而不是再调一遍 `dispatch(id)`：一趟 `dispatchDue(10)` 返回 **1**、
+    那笔 operation 变 `SUCCEEDED`、账本 `refunded=2599`/`reserved=0`、行位 `CONSUMED`；**紧接着再跑一趟返回 0**
+    且状态不变（它不再是 `RECEIVED`，所以不再被捡起）。这正是"没有入口时它永远不会发生"的那件事。
+  - **两个循环本身没有单测**，与 `OutboxDeliveryLoop`/`ExecutionDispatchLoop` 的既有处境一致（循环只是
+    `@Scheduled` 外壳，被调用的服务方法才是被测对象）；可执行证据来自 c-3 的真实链路——那里必须显式打开这两个开关，
+    否则工单到不了 provider。
+  - **未做（下一步 c-3）**：两段端到端驱动。`scripts/e2e_transport_refund.py` 现在只证明"命令跨过 broker 并被预留"
+    （它连 commerce 的 provider 面都没碰）；c-3 要扩成"建单→人工通过→命令→Commerce→provider→结果事件→Case 关单"，
+    并显式打开：case 侧 `resolveflow.dispatch.enabled` + 两侧 outbox 投递 + 两侧 consumer + commerce 侧两个新开关。
 
 ### C04 持久模拟退款与本地金额事务
 
@@ -554,7 +597,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - [x] C05.1c：真实 RocketMQ + MySQL 的系统级退款 e2e（CF1/CF2 定点，含 5 个真实发现）。
 - [ ] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
   - [x] C05.2a 授权消费与命令写入方；C05.2b 结果 outbox/传输/Case inbox 与投影（b-1…b-3b 全部完成）。
-  - [ ] C05.2c 真实链路两段 e2e 与 CF3 定点：**c-1 case 侧结果监听器已完成**；c-2 Commerce 对账调度入口、c-3 两段 e2e、c-4 CF3 未做。
+  - [ ] C05.2c 真实链路两段 e2e 与 CF3 定点：**c-1 case 侧结果监听器、c-2 Commerce 退款推进入口（派发+对账两个循环）已完成**；c-3 两段 e2e、c-4 CF3 未做。
 - 依赖：C03,C04。文件：messaging、Case执行、Commerce消费者及集成测试。
 - 验收：重复/乱序/ACK丢失不重复业务；目标确认成功才关单；失败释放后再试须新授权。
 - 验证：真实RocketMQ+MySQL系统退款测试，CF1/CF2/CF3定点冒烟。

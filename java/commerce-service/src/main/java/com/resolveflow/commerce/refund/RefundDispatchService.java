@@ -72,6 +72,33 @@ public class RefundDispatchService {
     }
 
     /**
+     * Send every operation that is reserved and has not been sent yet (C05.2c).
+     *
+     * <p>This is the other half of {@link #reconcileDue(int)}, and it exists for a failure this project has
+     * already been bitten by in the other direction: a durable row that nothing in a running service ever
+     * picks up. The command consumer reserves the money and stops there — deliberately, because the provider
+     * call must not happen inside that transaction — so "who sends it afterwards" has to be somebody, and in a
+     * deployment it is this pass. Every C04 test called {@link #dispatch(String)} directly, which is exactly
+     * why the missing entry point could stay invisible.
+     *
+     * <p>One operation's failure does not stop the pass, for the same reason it does not in
+     * {@code reconcileDue}: the loop that calls this logs and tries the whole pass again on its next tick, and
+     * a pass that died on its first bad row would stop every refund behind it. A provider that cannot be
+     * reached is not a failure here either — it comes back as {@code UNKNOWN} with a retry time, which is the
+     * reservation this class exists to keep.
+     *
+     * @param limit how many to attempt in one pass, so a backlog is worked through in bounded steps
+     * @return the number of operations this pass looked at
+     */
+    public int dispatchDue(int limit) {
+        List<String> due = Objects.requireNonNull(transactions.execute(status -> operations.findDueForDispatch(limit)));
+        for (String operationId : due) {
+            dispatch(operationId);
+        }
+        return due.size();
+    }
+
+    /**
      * Ask the provider what happened to an operation whose outcome is still unknown.
      *
      * <p>This is the reconciliation half, and it is a *read* at the provider rather than a re-request: the

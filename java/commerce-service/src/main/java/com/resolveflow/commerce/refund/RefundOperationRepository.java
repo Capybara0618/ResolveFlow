@@ -142,6 +142,31 @@ public interface RefundOperationRepository {
     int markInProgress(@Param("operationId") String operationId);
 
     /**
+     * The operations that are reserved but have never been sent to the provider (C05.2c).
+     *
+     * <p>{@code RECEIVED} is the state a command leaves behind: the money is reserved and the operation is
+     * durable, and asking the provider to move it is a separate step that happens outside any transaction
+     * (C04.3). Until C05.2c nothing in a running service asked for that list, so a reservation could sit in
+     * {@code RECEIVED} forever while every test — which called {@code dispatch(id)} itself — stayed green.
+     *
+     * <p>Ordered by {@code reserved_at} so a backlog is worked through oldest first, and bounded by
+     * {@code limit} so one pass cannot run unboundedly long.
+     *
+     * <p>{@code IN_PROGRESS} is deliberately not included: a row in that state is one whose provider call is
+     * already under way (or was interrupted mid-call), and sending it again from a sweeper would be a second
+     * request rather than a retry of a known-absent answer. Rows stranded there are a real gap, recorded in the
+     * ledger rather than papered over here.
+     */
+    @Select("""
+            SELECT operation_id
+              FROM refund_operation
+             WHERE state = 'RECEIVED'
+             ORDER BY reserved_at, operation_id
+             LIMIT #{limit}
+            """)
+    java.util.List<String> findDueForDispatch(@Param("limit") int limit);
+
+    /**
      * The operations that have waited past their retry time.
      *
      * <p>Read in the caller's transaction and then reconciled outside it: the list is a snapshot, and the
