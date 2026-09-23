@@ -1,0 +1,967 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] resolveflow-java                                                   [pom]
+[INFO] shared-kernel                                                      [jar]
+[INFO] case-service                                                       [jar]
+[INFO] 
+[INFO] ------------------< com.resolveflow:resolveflow-java >------------------
+[INFO] Building resolveflow-java 0.1.0-SNAPSHOT                           [1/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ resolveflow-java ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] -------------------< com.resolveflow:shared-kernel >--------------------
+[INFO] Building shared-kernel 0.1.0-SNAPSHOT                              [2/3]
+[INFO]   from shared-kernel\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ shared-kernel ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ shared-kernel ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.resolveflow.shared.contract.CanonicalJsonTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.552 s -- in com.resolveflow.shared.contract.CanonicalJsonTest
+[INFO] Running com.resolveflow.shared.contract.ContractCorpusAgreementTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.044 s -- in com.resolveflow.shared.contract.ContractCorpusAgreementTest
+[INFO] Running com.resolveflow.shared.core.CoreContractTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.161 s -- in com.resolveflow.shared.core.CoreContractTest
+[INFO] Running com.resolveflow.shared.core.CoreTopicNamesTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.resolveflow.shared.core.CoreTopicNamesTest
+[INFO] Running com.resolveflow.shared.error.ApiErrorTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.resolveflow.shared.error.ApiErrorTest
+[INFO] Running com.resolveflow.shared.security.DemoAccountsTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.381 s -- in com.resolveflow.shared.security.DemoAccountsTest
+[INFO] Running com.resolveflow.shared.security.JwtCodecTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in com.resolveflow.shared.security.JwtCodecTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 58, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --------------------< com.resolveflow:case-service >--------------------
+[INFO] Building case-service 0.1.0-SNAPSHOT                               [3/3]
+[INFO]   from case-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] 1 problem was encountered while building the effective model for org.javassist:javassist:jar:3.21.0-GA during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ case-service ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ case-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 14 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ case-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ case-service ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\case-service\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ case-service ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 29 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ case-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.resolveflow.caseservice.auth.AuthControllerTest
+17:07:21.766 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.caseservice.auth.AuthControllerTest]: AuthControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+17:07:21.909 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.auth.AuthControllerTest
+17:07:22.007 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.caseservice.auth.AuthControllerTest]: AuthControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+17:07:22.007 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+17:07:22.011 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.auth.AuthControllerTest
+17:07:22.065 [main] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+17:07:22.067 [main] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+17:07:22.110 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 2.0.5
+17:07:22.333 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Loaded org.testcontainers.dockerclient.NpipeSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+17:07:22.770 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with local Npipe socket (npipe:////./pipe/docker_engine)
+17:07:22.771 [main] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+17:07:22.791 [main] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.3.0
+  API Version: 1.54
+  Operating System: Docker Desktop
+  Total Memory: 7580 MB
+  Labels: 
+    com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+17:07:23.026 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Creating container for image: testcontainers/ryuk:0.14.0
+17:07:23.273 [main] INFO org.testcontainers.utility.RegistryAuthLocator -- Credential helper/store (docker-credential-desktop) does not have credentials for https://index.docker.io/v1/
+17:07:23.460 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 is starting: 8bb0deeacbd3dd7ee57862725bc8f7196d8894b96c9b07cbe416ac163264cbd0
+17:07:24.132 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 started in PT1.1061706S
+17:07:24.142 [main] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+17:07:24.142 [main] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+17:07:24.142 [main] INFO org.testcontainers.DockerClientFactory -- ?? Docker server version should be at least 1.6.0
+17:07:24.142 [main] INFO tc.mysql:8.4 -- Creating container for image: mysql:8.4
+17:07:24.257 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 is starting: 9f0196363b28f2f48ebd494145643cce76d8b1cf729b4bfd16af71d813991d20
+17:07:24.692 [main] INFO tc.mysql:8.4 -- Waiting for database connection to become available at jdbc:mysql://localhost:56542/case_db using query 'SELECT 1'
+17:07:34.605 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 started in PT10.4621651S
+17:07:34.605 [main] INFO tc.mysql:8.4 -- Container is started (JDBC URL: jdbc:mysql://localhost:56542/case_db)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:35.290+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.auth.AuthControllerTest  : Starting AuthControllerTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:35.292+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.auth.AuthControllerTest  : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:36.686+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:36.706+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:36.707+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:36.832+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1526 ms
+2026-09-23T17:07:37.324+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-23T17:07:37.351+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@57859e2c
+2026-09-23T17:07:37.354+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-23T17:07:37.422+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:37.541+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:37.607+08:00  INFO 6228 --- [case-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `case_db`.`flyway_schema_history` does not exist yet
+2026-09-23T17:07:37.613+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.053s)
+2026-09-23T17:07:37.659+08:00  INFO 6228 --- [case-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `case_db`.`flyway_schema_history` ...
+2026-09-23T17:07:37.779+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: << Empty Schema >>
+2026-09-23T17:07:37.793+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "1 - case core tables"
+2026-09-23T17:07:37.946+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "2 - case timeline vocabulary"
+2026-09-23T17:07:38.063+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "3 - case evidence"
+2026-09-23T17:07:38.181+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "4 - policy bundles"
+2026-09-23T17:07:38.284+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "5 - case policy manifest"
+2026-09-23T17:07:38.371+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "6 - agent callback inbox"
+2026-09-23T17:07:38.473+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "7 - case proposal"
+2026-09-23T17:07:38.529+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "8 - reviewed evidence"
+2026-09-23T17:07:38.627+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "9 - case authorization"
+2026-09-23T17:07:38.692+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "10 - authorization decision"
+2026-09-23T17:07:38.828+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "11 - case proposal author"
+2026-09-23T17:07:38.915+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "12 - case event outbox"
+2026-09-23T17:07:39.014+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "13 - case result inbox"
+2026-09-23T17:07:39.106+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "14 - case result inbox deliveries"
+2026-09-23T17:07:39.196+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 14 migrations to schema `case_db`, now at version v14 (execution time 00:00.986s)
+2026-09-23T17:07:40.173+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:40.249+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 56656 (http) with context path '/'
+2026-09-23T17:07:40.257+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.auth.AuthControllerTest  : Started AuthControllerTest in 5.407 seconds (process running for 20.328)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\hjn\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-09-23T17:07:41.317+08:00  INFO 6228 --- [case-service] [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:07:41.317+08:00  INFO 6228 --- [case-service] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:07:41.318+08:00  INFO 6228 --- [case-service] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 20.32 s -- in com.resolveflow.caseservice.auth.AuthControllerTest
+[INFO] Running com.resolveflow.caseservice.casefile.AgentCallbackApiTest
+2026-09-23T17:07:41.923+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.AgentCallbackApiTest
+2026-09-23T17:07:41.925+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:41.927+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.AgentCallbackApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:41.955+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.AgentCallbackApiTest      : Starting AgentCallbackApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:41.955+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.AgentCallbackApiTest      : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:42.224+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:42.225+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:42.226+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:42.304+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 347 ms
+2026-09-23T17:07:42.357+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-09-23T17:07:42.369+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5d1acb3a
+2026-09-23T17:07:42.369+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-09-23T17:07:42.377+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:42.386+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:42.407+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.017s)
+2026-09-23T17:07:42.421+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:42.423+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:07:42.580+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:42.593+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 56669 (http) with context path '/'
+2026-09-23T17:07:42.596+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.AgentCallbackApiTest      : Started AgentCallbackApiTest in 0.664 seconds (process running for 22.667)
+2026-09-23T17:07:42.646+08:00  INFO 6228 --- [case-service] [o-auto-2-exec-1] o.a.c.c.C.[Tomcat-1].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:07:42.646+08:00  INFO 6228 --- [case-service] [o-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:07:42.647+08:00  INFO 6228 --- [case-service] [o-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.567 s -- in com.resolveflow.caseservice.casefile.AgentCallbackApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.AuthorizationApiTest
+2026-09-23T17:07:44.438+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.AuthorizationApiTest
+2026-09-23T17:07:44.439+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:44.440+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.AuthorizationApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:44.463+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.AuthorizationApiTest      : Starting AuthorizationApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:44.463+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.AuthorizationApiTest      : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:44.715+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:44.716+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:44.716+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:44.824+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 359 ms
+2026-09-23T17:07:44.882+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-09-23T17:07:44.893+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6e737ae4
+2026-09-23T17:07:44.894+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-09-23T17:07:44.901+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:44.911+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:44.931+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.016s)
+2026-09-23T17:07:44.944+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:44.945+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:07:45.076+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:45.086+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 56678 (http) with context path '/'
+2026-09-23T17:07:45.089+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.AuthorizationApiTest      : Started AuthorizationApiTest in 0.645 seconds (process running for 25.16)
+2026-09-23T17:07:45.204+08:00  INFO 6228 --- [case-service] [o-auto-3-exec-1] o.a.c.c.C.[Tomcat-2].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:07:45.205+08:00  INFO 6228 --- [case-service] [o-auto-3-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:07:45.206+08:00  INFO 6228 --- [case-service] [o-auto-3-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.760 s -- in com.resolveflow.caseservice.casefile.AuthorizationApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.AuthorizationConsumptionApiTest
+2026-09-23T17:07:46.201+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.AuthorizationConsumptionApiTest
+2026-09-23T17:07:46.202+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:46.202+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.AuthorizationConsumptionApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:46.224+08:00  INFO 6228 --- [case-service] [           main] c.r.c.c.AuthorizationConsumptionApiTest  : Starting AuthorizationConsumptionApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:46.224+08:00  INFO 6228 --- [case-service] [           main] c.r.c.c.AuthorizationConsumptionApiTest  : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:46.439+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:46.439+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:46.440+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:46.518+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 292 ms
+2026-09-23T17:07:46.593+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-09-23T17:07:46.611+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6b1be058
+2026-09-23T17:07:46.611+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2026-09-23T17:07:46.621+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:46.633+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:46.654+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.016s)
+2026-09-23T17:07:46.677+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:46.678+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:07:46.823+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:46.833+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 56687 (http) with context path '/'
+2026-09-23T17:07:46.836+08:00  INFO 6228 --- [case-service] [           main] c.r.c.c.AuthorizationConsumptionApiTest  : Started AuthorizationConsumptionApiTest in 0.631 seconds (process running for 26.908)
+2026-09-23T17:07:46.948+08:00  INFO 6228 --- [case-service] [o-auto-4-exec-1] o.a.c.c.C.[Tomcat-3].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:07:46.949+08:00  INFO 6228 --- [case-service] [o-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:07:46.949+08:00  INFO 6228 --- [case-service] [o-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-09-23T17:07:47.105+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ExecutionDispatchLoop     : authorisation a101e058-dee1-450d-9df7-af553e5e6756 consumed: case a2a36720-fb5b-4244-ac7b-c2a5c9dde203 is executing, operation 46a000bc-d38c-49cc-a90f-b44bb0b76d82, event 16ff6d79-9403-4129-9a71-f660fad50f36
+2026-09-23T17:07:47.526+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ExecutionDispatchLoop     : authorisation dfb5d8e7-3789-484c-97b5-6b0bb177e09e consumed: case 9de71853-a02c-47e0-9f0f-09156f59193c is executing, operation b1fa063b-4b37-421c-b473-658dafcd1d0b, event f415c7c5-9119-4c45-9323-d352a11dc0dd
+2026-09-23T17:07:47.728+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ExecutionDispatchLoop     : authorisation 0071314a-9154-4e7e-87d1-deb0f9ed31e8 was not consumed: the command this service can rebuild hashes to 69dacd073b6ec6e8d1a433322e77daa9de5a1dd41defefbed290cc651336b1da instead of the fixed 0000000000000000000000000000000000000000000000000000000000000000, so nothing that was approved could be sent
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.537 s -- in com.resolveflow.caseservice.casefile.AuthorizationConsumptionApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.CaseApiTest
+2026-09-23T17:07:47.737+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseApiTest
+2026-09-23T17:07:47.738+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:47.739+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:47.758+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.casefile.CaseApiTest     : Starting CaseApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:47.758+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.casefile.CaseApiTest     : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:47.974+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:47.975+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:47.975+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:48.055+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 295 ms
+2026-09-23T17:07:48.094+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Starting...
+2026-09-23T17:07:48.106+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Added connection com.mysql.cj.jdbc.ConnectionImpl@29a1c0b7
+2026-09-23T17:07:48.107+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Start completed.
+2026-09-23T17:07:48.115+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:48.123+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:48.141+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.014s)
+2026-09-23T17:07:48.154+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:48.155+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:07:48.266+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:48.275+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 56691 (http) with context path '/'
+2026-09-23T17:07:48.278+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.casefile.CaseApiTest     : Started CaseApiTest in 0.537 seconds (process running for 28.349)
+2026-09-23T17:07:48.340+08:00  INFO 6228 --- [case-service] [o-auto-5-exec-1] o.a.c.c.C.[Tomcat-4].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:07:48.340+08:00  INFO 6228 --- [case-service] [o-auto-5-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:07:48.342+08:00  INFO 6228 --- [case-service] [o-auto-5-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.045 s -- in com.resolveflow.caseservice.casefile.CaseApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.CaseCancelApiTest
+2026-09-23T17:07:48.783+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseCancelApiTest
+2026-09-23T17:07:48.784+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:48.784+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseCancelApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:48.807+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseCancelApiTest         : Starting CaseCancelApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:48.807+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseCancelApiTest         : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:49.057+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:49.058+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:49.058+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:49.146+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 337 ms
+2026-09-23T17:07:49.191+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Starting...
+2026-09-23T17:07:49.201+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-6 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5cd96071
+2026-09-23T17:07:49.202+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Start completed.
+2026-09-23T17:07:49.208+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:49.216+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:49.236+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.017s)
+2026-09-23T17:07:49.248+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:49.248+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:07:49.360+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:49.372+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 56699 (http) with context path '/'
+2026-09-23T17:07:49.374+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseCancelApiTest         : Started CaseCancelApiTest in 0.588 seconds (process running for 29.445)
+2026-09-23T17:07:49.426+08:00  INFO 6228 --- [case-service] [o-auto-6-exec-1] o.a.c.c.C.[Tomcat-5].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:07:49.426+08:00  INFO 6228 --- [case-service] [o-auto-6-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:07:49.427+08:00  INFO 6228 --- [case-service] [o-auto-6-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.486 s -- in com.resolveflow.caseservice.casefile.CaseCancelApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.CaseEventStreamApiTest
+2026-09-23T17:07:50.270+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseEventStreamApiTest
+2026-09-23T17:07:50.271+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:50.272+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseEventStreamApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:50.288+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseEventStreamApiTest    : Starting CaseEventStreamApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:50.288+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseEventStreamApiTest    : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:50.511+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:50.512+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:50.512+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:50.589+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 300 ms
+2026-09-23T17:07:50.625+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Starting...
+2026-09-23T17:07:50.638+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-7 - Added connection com.mysql.cj.jdbc.ConnectionImpl@71f55a59
+2026-09-23T17:07:50.638+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Start completed.
+2026-09-23T17:07:50.646+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:50.655+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:50.674+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.015s)
+2026-09-23T17:07:50.687+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:50.689+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:07:50.829+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:50.843+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 56703 (http) with context path '/'
+2026-09-23T17:07:50.845+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseEventStreamApiTest    : Started CaseEventStreamApiTest in 0.568 seconds (process running for 30.916)
+2026-09-23T17:07:50.922+08:00  INFO 6228 --- [case-service] [o-auto-7-exec-1] o.a.c.c.C.[Tomcat-6].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:07:50.922+08:00  INFO 6228 --- [case-service] [o-auto-7-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:07:50.923+08:00  INFO 6228 --- [case-service] [o-auto-7-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.195 s -- in com.resolveflow.caseservice.casefile.CaseEventStreamApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.CaseReadApiTest
+2026-09-23T17:07:54.466+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseReadApiTest
+2026-09-23T17:07:54.466+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:54.467+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseReadApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:54.480+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseReadApiTest           : Starting CaseReadApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:54.480+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseReadApiTest           : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:54.667+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:54.669+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:54.669+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:54.737+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 256 ms
+2026-09-23T17:07:54.772+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Starting...
+2026-09-23T17:07:54.783+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-8 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2a1a57e5
+2026-09-23T17:07:54.783+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Start completed.
+2026-09-23T17:07:54.789+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:54.797+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:54.813+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.012s)
+2026-09-23T17:07:54.822+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:54.823+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:07:54.919+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:54.926+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 56194 (http) with context path '/'
+2026-09-23T17:07:54.927+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseReadApiTest           : Started CaseReadApiTest in 0.458 seconds (process running for 34.999)
+2026-09-23T17:07:54.980+08:00  INFO 6228 --- [case-service] [o-auto-8-exec-1] o.a.c.c.C.[Tomcat-7].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:07:54.980+08:00  INFO 6228 --- [case-service] [o-auto-8-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:07:54.980+08:00  INFO 6228 --- [case-service] [o-auto-8-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.867 s -- in com.resolveflow.caseservice.casefile.CaseReadApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+2026-09-23T17:07:55.333+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+2026-09-23T17:07:55.334+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:55.335+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:55.350+08:00  INFO 6228 --- [case-service] [           main] c.r.c.c.CaseResultConsumerApiTest        : Starting CaseResultConsumerApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:55.350+08:00  INFO 6228 --- [case-service] [           main] c.r.c.c.CaseResultConsumerApiTest        : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:55.532+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:55.533+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:55.533+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:55.606+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 255 ms
+2026-09-23T17:07:55.641+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Starting...
+2026-09-23T17:07:55.652+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-9 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1046987b
+2026-09-23T17:07:55.652+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Start completed.
+2026-09-23T17:07:55.658+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:55.665+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:55.682+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.011s)
+2026-09-23T17:07:55.694+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:55.695+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:07:55.793+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:55.802+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 56198 (http) with context path '/'
+2026-09-23T17:07:55.806+08:00  INFO 6228 --- [case-service] [           main] c.r.c.c.CaseResultConsumerApiTest        : Started CaseResultConsumerApiTest in 0.468 seconds (process running for 35.877)
+2026-09-23T17:07:55.893+08:00  INFO 6228 --- [case-service] [o-auto-9-exec-1] o.a.c.c.C.[Tomcat-8].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:07:55.893+08:00  INFO 6228 --- [case-service] [o-auto-9-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:07:55.894+08:00  INFO 6228 --- [case-service] [o-auto-9-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-09-23T17:07:56.021+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result c866af5d-79df-4496-85cc-80e980b45878 for case 5233d736-c4f2-4fbf-b5c8-6e7cdf6d0111 recorded: operation 0de804d9-aa24-4eea-bb35-5cec4ff9ebd8 is SUCCEEDED at Commerce version 3
+2026-09-23T17:07:56.033+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result c866af5d-79df-4496-85cc-80e980b45878 for case 5233d736-c4f2-4fbf-b5c8-6e7cdf6d0111 was delivered again; the first delivery stands
+2026-09-23T17:07:56.240+08:00  WARN 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: BAD_SIGNATURE (core envelope signature does not cover this envelope)
+2026-09-23T17:07:56.448+08:00  WARN 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: UNTRUSTED_KEY (key some-other-key is not in this service's trust list)
+2026-09-23T17:07:56.667+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 085a598e-f745-426d-9c34-5feafdcaf135 for case 8b03fd29-ee69-476e-a78d-6853193b4436 recorded: operation 31e73a87-c520-4d44-9ee8-7c196fb9d35a is SUCCEEDED at Commerce version 3
+2026-09-23T17:07:56.899+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result d5240cf1-8276-47cd-b326-924bfc86fa80 for case 120ef5f2-2737-40b4-8e2e-7ecef2c4388f recorded: operation e97b6232-2958-4844-97b1-15a143a46ae0 is FAILED at Commerce version 4
+2026-09-23T17:07:56.920+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result ae2d2604-b88e-4ecb-ba6c-5fa4e0c6e896 for case 120ef5f2-2737-40b4-8e2e-7ecef2c4388f recorded: operation e97b6232-2958-4844-97b1-15a143a46ae0 is FAILED at Commerce version 3
+2026-09-23T17:07:57.142+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 41e711ac-8981-45c4-be57-d76ba9293489 for case cc5f3d19-457e-42c1-b6a4-8cc2e89a5846 recorded: operation 53218633-89b3-47e7-bcc5-3f2791b66f8e is UNKNOWN at Commerce version 5
+2026-09-23T17:07:57.369+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 9f3a0a2c-c083-4ca7-9246-d28f79b3b277 for case c292d5fe-026d-4add-9ccd-c717acbcdc73 recorded: operation b23334fc-febb-46e1-81cf-9461ce9c1da8 is SUCCEEDED at Commerce version 3
+2026-09-23T17:07:57.381+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 9f3a0a2c-c083-4ca7-9246-d28f79b3b277 for case c292d5fe-026d-4add-9ccd-c717acbcdc73 was delivered again; the first delivery stands
+2026-09-23T17:07:57.584+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result f4c8388e-e1f2-4c32-9bdd-b891da0e65da for case 354fb384-357b-497f-b4e3-dc928f1fbadc recorded: operation 87fe9647-6fbe-4145-8ec1-e2c71c66b8fc is SUCCEEDED at Commerce version 3
+2026-09-23T17:07:57.594+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result f4c8388e-e1f2-4c32-9bdd-b891da0e65da for case 354fb384-357b-497f-b4e3-dc928f1fbadc was delivered again; the first delivery stands
+2026-09-23T17:07:57.605+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result f4c8388e-e1f2-4c32-9bdd-b891da0e65da for case 354fb384-357b-497f-b4e3-dc928f1fbadc was delivered again; the first delivery stands
+2026-09-23T17:07:57.812+08:00  WARN 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: WRONG_MERCHANT (the result is scoped to M-1002 but case 604950b9-c3a9-4fb6-9ce8-b39d88dfb651 belongs to M-1001)
+2026-09-23T17:07:58.047+08:00  WARN 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: UNKNOWN_OPERATION (operation 059a5d1c-f408-4133-b5c6-a7985e79e799 was never issued a command by this service)
+2026-09-23T17:07:58.259+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 594fd459-a3b6-43ea-bccb-841e9b5f88ed for case 2eb08075-ed82-40af-8412-114a46323b72 recorded: operation c75cc563-f856-483d-afc7-d98c5a982c94 is FAILED at Commerce version 4
+2026-09-23T17:07:58.468+08:00  INFO 6228 --- [case-service] [      Thread-48] c.r.c.result.CaseResultConsumer          : result 67b5e5bd-119a-444f-81a2-e3219bad6e23 for case 30f1aaee-d2a9-4088-a2b6-cd5ce023f947 recorded: operation 13c676d4-a27f-4e39-b369-15b096462809 is SUCCEEDED at Commerce version 6
+2026-09-23T17:07:58.478+08:00  INFO 6228 --- [case-service] [      Thread-49] c.r.c.result.CaseResultConsumer          : result cd1e2573-1390-4253-a2d0-02ee51289ee1 for case 30f1aaee-d2a9-4088-a2b6-cd5ce023f947 recorded: operation 13c676d4-a27f-4e39-b369-15b096462809 is SUCCEEDED at Commerce version 6
+2026-09-23T17:07:58.703+08:00  WARN 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: BAD_SIGNATURE (core envelope signature does not cover this envelope)
+2026-09-23T17:07:58.910+08:00  INFO 6228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result dfe9a461-f945-43d7-b81e-7048d1c835be for case eb29c0f1-491d-47f7-bc44-4573ed661ad7 recorded: operation f0e292aa-ab16-4c8c-b7ec-95853ce0e24a is SUCCEEDED at Commerce version 3
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.589 s -- in com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.CaseSlotConcurrencyTest
+2026-09-23T17:07:58.922+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseSlotConcurrencyTest
+2026-09-23T17:07:58.923+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:58.924+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseSlotConcurrencyTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:58.937+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseSlotConcurrencyTest   : Starting CaseSlotConcurrencyTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:58.937+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseSlotConcurrencyTest   : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:59.119+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:59.119+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:59.120+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:59.192+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 254 ms
+2026-09-23T17:07:59.224+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Starting...
+2026-09-23T17:07:59.233+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-10 - Added connection com.mysql.cj.jdbc.ConnectionImpl@40c78bd1
+2026-09-23T17:07:59.233+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Start completed.
+2026-09-23T17:07:59.239+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:59.248+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:59.261+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.010s)
+2026-09-23T17:07:59.271+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:59.272+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:07:59.356+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:07:59.363+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54549 (http) with context path '/'
+2026-09-23T17:07:59.365+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.CaseSlotConcurrencyTest   : Started CaseSlotConcurrencyTest in 0.439 seconds (process running for 39.436)
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.661 s -- in com.resolveflow.caseservice.casefile.CaseSlotConcurrencyTest
+[INFO] Running com.resolveflow.caseservice.casefile.EvidenceApiTest
+2026-09-23T17:07:59.585+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.EvidenceApiTest
+2026-09-23T17:07:59.585+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:07:59.585+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.EvidenceApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:07:59.598+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.EvidenceApiTest           : Starting EvidenceApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:07:59.598+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.EvidenceApiTest           : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:07:59.781+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:07:59.782+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:07:59.782+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:07:59.856+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 256 ms
+2026-09-23T17:07:59.886+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Starting...
+2026-09-23T17:07:59.894+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-11 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1e748256
+2026-09-23T17:07:59.894+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Start completed.
+2026-09-23T17:07:59.899+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:07:59.907+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:07:59.921+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.011s)
+2026-09-23T17:07:59.930+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:07:59.932+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:00.019+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:00.035+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54553 (http) with context path '/'
+2026-09-23T17:08:00.037+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.EvidenceApiTest           : Started EvidenceApiTest in 0.45 seconds (process running for 40.108)
+2026-09-23T17:08:00.107+08:00  INFO 6228 --- [case-service] [-auto-11-exec-1] o.a.c.c.C.[Tomcat-10].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:00.107+08:00  INFO 6228 --- [case-service] [-auto-11-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:00.108+08:00  INFO 6228 --- [case-service] [-auto-11-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.358 s -- in com.resolveflow.caseservice.casefile.EvidenceApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.InputMovesRetireApprovalApiTest
+2026-09-23T17:08:00.944+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.InputMovesRetireApprovalApiTest
+2026-09-23T17:08:00.945+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:00.945+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.InputMovesRetireApprovalApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:00.963+08:00  INFO 6228 --- [case-service] [           main] c.r.c.c.InputMovesRetireApprovalApiTest  : Starting InputMovesRetireApprovalApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:00.963+08:00  INFO 6228 --- [case-service] [           main] c.r.c.c.InputMovesRetireApprovalApiTest  : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:01.175+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:01.175+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:01.175+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:01.246+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 282 ms
+2026-09-23T17:08:01.277+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Starting...
+2026-09-23T17:08:01.288+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-12 - Added connection com.mysql.cj.jdbc.ConnectionImpl@b1c23d9
+2026-09-23T17:08:01.288+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Start completed.
+2026-09-23T17:08:01.294+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:01.303+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:01.317+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.011s)
+2026-09-23T17:08:01.328+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:01.329+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:01.411+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:01.419+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54560 (http) with context path '/'
+2026-09-23T17:08:01.422+08:00  INFO 6228 --- [case-service] [           main] c.r.c.c.InputMovesRetireApprovalApiTest  : Started InputMovesRetireApprovalApiTest in 0.474 seconds (process running for 41.493)
+2026-09-23T17:08:01.474+08:00  INFO 6228 --- [case-service] [-auto-12-exec-1] o.a.c.c.C.[Tomcat-11].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:01.474+08:00  INFO 6228 --- [case-service] [-auto-12-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:01.475+08:00  INFO 6228 --- [case-service] [-auto-12-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.307 s -- in com.resolveflow.caseservice.casefile.InputMovesRetireApprovalApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.ManualProposalApiTest
+2026-09-23T17:08:02.249+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ManualProposalApiTest
+2026-09-23T17:08:02.250+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:02.250+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ManualProposalApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:02.261+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ManualProposalApiTest     : Starting ManualProposalApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:02.261+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ManualProposalApiTest     : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:02.441+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:02.442+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:02.442+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:02.513+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 250 ms
+2026-09-23T17:08:02.547+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Starting...
+2026-09-23T17:08:02.556+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-13 - Added connection com.mysql.cj.jdbc.ConnectionImpl@e3c1a4b
+2026-09-23T17:08:02.556+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-13 - Start completed.
+2026-09-23T17:08:02.562+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:02.571+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:02.583+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.010s)
+2026-09-23T17:08:02.593+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:02.594+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:02.678+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:02.685+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54565 (http) with context path '/'
+2026-09-23T17:08:02.687+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ManualProposalApiTest     : Started ManualProposalApiTest in 0.435 seconds (process running for 42.758)
+2026-09-23T17:08:02.790+08:00  INFO 6228 --- [case-service] [-auto-13-exec-1] o.a.c.c.C.[Tomcat-12].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:02.790+08:00  INFO 6228 --- [case-service] [-auto-13-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:02.791+08:00  INFO 6228 --- [case-service] [-auto-13-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.571 s -- in com.resolveflow.caseservice.casefile.ManualProposalApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.PolicyManifestApiTest
+2026-09-23T17:08:03.821+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.PolicyManifestApiTest
+2026-09-23T17:08:03.822+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:03.822+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.PolicyManifestApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:03.832+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.PolicyManifestApiTest     : Starting PolicyManifestApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:03.832+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.PolicyManifestApiTest     : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:04.009+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:04.010+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:04.010+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:04.084+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 252 ms
+2026-09-23T17:08:04.114+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Starting...
+2026-09-23T17:08:04.123+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-14 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2cd06634
+2026-09-23T17:08:04.123+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Start completed.
+2026-09-23T17:08:04.128+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:04.135+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:04.148+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.010s)
+2026-09-23T17:08:04.157+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:04.158+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:04.245+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:04.252+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54572 (http) with context path '/'
+2026-09-23T17:08:04.254+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.PolicyManifestApiTest     : Started PolicyManifestApiTest in 0.43 seconds (process running for 44.326)
+2026-09-23T17:08:04.341+08:00  INFO 6228 --- [case-service] [-auto-14-exec-1] o.a.c.c.C.[Tomcat-13].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:04.342+08:00  INFO 6228 --- [case-service] [-auto-14-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:04.342+08:00  INFO 6228 --- [case-service] [-auto-14-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.028 s -- in com.resolveflow.caseservice.casefile.PolicyManifestApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.ProposalReCheckApiTest
+2026-09-23T17:08:04.851+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ProposalReCheckApiTest
+2026-09-23T17:08:04.851+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:04.852+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ProposalReCheckApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:04.861+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ProposalReCheckApiTest    : Starting ProposalReCheckApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:04.861+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ProposalReCheckApiTest    : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:05.043+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:05.044+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:05.044+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:05.118+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 256 ms
+2026-09-23T17:08:05.149+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Starting...
+2026-09-23T17:08:05.158+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-15 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4ea36a3
+2026-09-23T17:08:05.158+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Start completed.
+2026-09-23T17:08:05.165+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:05.172+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:05.186+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.010s)
+2026-09-23T17:08:05.195+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:05.196+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:05.285+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:05.292+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54576 (http) with context path '/'
+2026-09-23T17:08:05.293+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ProposalReCheckApiTest    : Started ProposalReCheckApiTest in 0.44 seconds (process running for 45.365)
+2026-09-23T17:08:05.367+08:00  INFO 6228 --- [case-service] [-auto-15-exec-1] o.a.c.c.C.[Tomcat-14].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:05.367+08:00  INFO 6228 --- [case-service] [-auto-15-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:05.368+08:00  INFO 6228 --- [case-service] [-auto-15-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.644 s -- in com.resolveflow.caseservice.casefile.ProposalReCheckApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.RefundChainSystemTest
+[WARNING] Tests run: 3, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0 s -- in com.resolveflow.caseservice.casefile.RefundChainSystemTest
+[INFO] Running com.resolveflow.caseservice.casefile.ReviewDecisionApiTest
+2026-09-23T17:08:07.500+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ReviewDecisionApiTest
+2026-09-23T17:08:07.500+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:07.500+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ReviewDecisionApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:07.512+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ReviewDecisionApiTest     : Starting ReviewDecisionApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:07.512+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ReviewDecisionApiTest     : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:07.676+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:07.676+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:07.676+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:07.740+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 228 ms
+2026-09-23T17:08:07.773+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Starting...
+2026-09-23T17:08:07.784+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-16 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3de53faa
+2026-09-23T17:08:07.784+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Start completed.
+2026-09-23T17:08:07.793+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:07.803+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:07.821+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.014s)
+2026-09-23T17:08:07.831+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:07.832+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:07.943+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:07.955+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54583 (http) with context path '/'
+2026-09-23T17:08:07.956+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ReviewDecisionApiTest     : Started ReviewDecisionApiTest in 0.454 seconds (process running for 48.027)
+2026-09-23T17:08:08.076+08:00  INFO 6228 --- [case-service] [-auto-16-exec-1] o.a.c.c.C.[Tomcat-15].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:08.077+08:00  INFO 6228 --- [case-service] [-auto-16-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:08.077+08:00  INFO 6228 --- [case-service] [-auto-16-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.076 s -- in com.resolveflow.caseservice.casefile.ReviewDecisionApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.ReviewedEvidenceApiTest
+2026-09-23T17:08:09.578+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ReviewedEvidenceApiTest
+2026-09-23T17:08:09.578+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:09.579+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ReviewedEvidenceApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:09.589+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ReviewedEvidenceApiTest   : Starting ReviewedEvidenceApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:09.589+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ReviewedEvidenceApiTest   : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:09.750+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:09.751+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:09.751+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:09.812+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 222 ms
+2026-09-23T17:08:09.849+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Starting...
+2026-09-23T17:08:09.860+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-17 - Added connection com.mysql.cj.jdbc.ConnectionImpl@30d88e2
+2026-09-23T17:08:09.860+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Start completed.
+2026-09-23T17:08:09.866+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:09.874+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:09.888+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.011s)
+2026-09-23T17:08:09.897+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:09.898+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:09.984+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:09.990+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54589 (http) with context path '/'
+2026-09-23T17:08:09.992+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ReviewedEvidenceApiTest   : Started ReviewedEvidenceApiTest in 0.412 seconds (process running for 50.064)
+2026-09-23T17:08:10.049+08:00  INFO 6228 --- [case-service] [-auto-17-exec-1] o.a.c.c.C.[Tomcat-16].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:10.049+08:00  INFO 6228 --- [case-service] [-auto-17-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:10.050+08:00  INFO 6228 --- [case-service] [-auto-17-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.749 s -- in com.resolveflow.caseservice.casefile.ReviewedEvidenceApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.ReviewQueueApiTest
+2026-09-23T17:08:11.326+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ReviewQueueApiTest
+2026-09-23T17:08:11.327+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:11.328+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.ReviewQueueApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:11.341+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ReviewQueueApiTest        : Starting ReviewQueueApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:11.341+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ReviewQueueApiTest        : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:11.488+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:11.488+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:11.488+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:11.559+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 218 ms
+2026-09-23T17:08:11.589+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Starting...
+2026-09-23T17:08:11.602+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-18 - Added connection com.mysql.cj.jdbc.ConnectionImpl@a4e9275
+2026-09-23T17:08:11.602+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Start completed.
+2026-09-23T17:08:11.608+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:11.616+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:11.630+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.011s)
+2026-09-23T17:08:11.642+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:11.643+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:11.752+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:11.761+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54593 (http) with context path '/'
+2026-09-23T17:08:11.762+08:00  INFO 6228 --- [case-service] [           main] c.r.c.casefile.ReviewQueueApiTest        : Started ReviewQueueApiTest in 0.431 seconds (process running for 51.834)
+2026-09-23T17:08:11.813+08:00  INFO 6228 --- [case-service] [-auto-18-exec-1] o.a.c.c.C.[Tomcat-17].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:11.813+08:00  INFO 6228 --- [case-service] [-auto-18-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:11.813+08:00  INFO 6228 --- [case-service] [-auto-18-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.079 s -- in com.resolveflow.caseservice.casefile.ReviewQueueApiTest
+[INFO] Running com.resolveflow.caseservice.CaseServiceApplicationTest
+2026-09-23T17:08:12.404+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseServiceApplicationTest]: CaseServiceApplicationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:12.411+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.CaseServiceApplicationTest
+2026-09-23T17:08:12.411+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseServiceApplicationTest]: CaseServiceApplicationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:12.412+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.CaseServiceApplicationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:12.424+08:00  INFO 6228 --- [case-service] [           main] c.r.c.CaseServiceApplicationTest         : Starting CaseServiceApplicationTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:12.424+08:00  INFO 6228 --- [case-service] [           main] c.r.c.CaseServiceApplicationTest         : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:12.586+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:12.588+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:12.588+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:12.655+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 230 ms
+2026-09-23T17:08:12.681+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Starting...
+2026-09-23T17:08:12.698+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Added connection com.mysql.cj.jdbc.ConnectionImpl@75e2a6d4
+2026-09-23T17:08:12.698+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Start completed.
+2026-09-23T17:08:12.747+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://127.0.0.1:3306/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:12.768+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:12.790+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.018s)
+2026-09-23T17:08:12.803+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:12.804+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:12.878+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:12.886+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54605 (http) with context path '/'
+2026-09-23T17:08:12.887+08:00  INFO 6228 --- [case-service] [           main] c.r.c.CaseServiceApplicationTest         : Started CaseServiceApplicationTest in 0.473 seconds (process running for 52.959)
+2026-09-23T17:08:12.893+08:00  INFO 6228 --- [case-service] [-auto-19-exec-1] o.a.c.c.C.[Tomcat-18].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:12.894+08:00  INFO 6228 --- [case-service] [-auto-19-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:12.894+08:00  INFO 6228 --- [case-service] [-auto-19-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.523 s -- in com.resolveflow.caseservice.CaseServiceApplicationTest
+[INFO] Running com.resolveflow.caseservice.order.CommerceOrderLineClientTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.058 s -- in com.resolveflow.caseservice.order.CommerceOrderLineClientTest
+[INFO] Running com.resolveflow.caseservice.order.OrderApiTest
+2026-09-23T17:08:12.996+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.order.OrderApiTest
+2026-09-23T17:08:12.997+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:12.997+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.order.OrderApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:13.009+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.order.OrderApiTest       : Starting OrderApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:13.009+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.order.OrderApiTest       : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:13.184+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:13.185+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:13.185+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:13.254+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 244 ms
+2026-09-23T17:08:13.280+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-20 - Starting...
+2026-09-23T17:08:13.290+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-20 - Added connection com.mysql.cj.jdbc.ConnectionImpl@31e7d420
+2026-09-23T17:08:13.290+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-20 - Start completed.
+2026-09-23T17:08:13.296+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:13.303+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:13.316+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.010s)
+2026-09-23T17:08:13.324+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:13.325+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:13.394+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:13.401+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54616 (http) with context path '/'
+2026-09-23T17:08:13.402+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.order.OrderApiTest       : Started OrderApiTest in 0.403 seconds (process running for 53.473)
+2026-09-23T17:08:13.407+08:00  INFO 6228 --- [case-service] [-auto-20-exec-1] o.a.c.c.C.[Tomcat-19].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T17:08:13.407+08:00  INFO 6228 --- [case-service] [-auto-20-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T17:08:13.409+08:00  INFO 6228 --- [case-service] [-auto-20-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-09-23T17:08:13.477+08:00  WARN 6228 --- [case-service] [-auto-20-exec-7] c.r.c.error.ApiExceptionHandler          : commerce is unavailable: boom
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.494 s -- in com.resolveflow.caseservice.order.OrderApiTest
+[INFO] Running com.resolveflow.caseservice.outbox.CaseEventOutboxApiTest
+2026-09-23T17:08:13.495+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.outbox.CaseEventOutboxApiTest
+2026-09-23T17:08:13.496+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:13.498+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.outbox.CaseEventOutboxApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:13.516+08:00  INFO 6228 --- [case-service] [           main] c.r.c.outbox.CaseEventOutboxApiTest      : Starting CaseEventOutboxApiTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:13.516+08:00  INFO 6228 --- [case-service] [           main] c.r.c.outbox.CaseEventOutboxApiTest      : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:13.704+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:13.705+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:13.705+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:13.779+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 261 ms
+2026-09-23T17:08:13.811+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-21 - Starting...
+2026-09-23T17:08:13.822+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-21 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2d8f1ac5
+2026-09-23T17:08:13.822+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-21 - Start completed.
+2026-09-23T17:08:13.830+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:13.841+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:13.858+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.013s)
+2026-09-23T17:08:13.868+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:13.869+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:13.952+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:13.958+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54620 (http) with context path '/'
+2026-09-23T17:08:13.960+08:00  INFO 6228 --- [case-service] [           main] c.r.c.outbox.CaseEventOutboxApiTest      : Started CaseEventOutboxApiTest in 0.459 seconds (process running for 54.031)
+2026-09-23T17:08:14.447+08:00  WARN 6228 --- [case-service] [           main] c.r.c.outbox.OutboxDeliveryService       : outbox event cb2a9015-edb5-45f4-83b1-645870a0e4e8 gave up after 2 attempts: broker refused the connection
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.145 s -- in com.resolveflow.caseservice.outbox.CaseEventOutboxApiTest
+[INFO] Running com.resolveflow.caseservice.outbox.CoreEventTransportSystemTest
+[WARNING] Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0 s -- in com.resolveflow.caseservice.outbox.CoreEventTransportSystemTest
+[INFO] Running com.resolveflow.caseservice.policy.PolicyApiTest
+2026-09-23T17:08:14.629+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.policy.PolicyApiTest]: PolicyApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:14.642+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.policy.PolicyApiTest
+2026-09-23T17:08:14.643+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.policy.PolicyApiTest]: PolicyApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:14.643+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:14.644+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.policy.PolicyApiTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.254 s -- in com.resolveflow.caseservice.policy.PolicyApiTest
+[INFO] Running com.resolveflow.caseservice.policy.PolicyImportTest
+2026-09-23T17:08:14.884+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.policy.PolicyImportTest]: PolicyImportTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:14.885+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.policy.PolicyImportTest
+2026-09-23T17:08:14.886+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.policy.PolicyImportTest]: PolicyImportTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:14.886+08:00  INFO 6228 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T17:08:14.886+08:00  INFO 6228 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.policy.PolicyImportTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T17:08:14.897+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.policy.PolicyImportTest  : Starting PolicyImportTest using Java 21.0.12.1 with PID 6228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T17:08:14.897+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.policy.PolicyImportTest  : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T17:08:15.041+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T17:08:15.042+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T17:08:15.042+08:00  INFO 6228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T17:08:15.111+08:00  INFO 6228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 213 ms
+2026-09-23T17:08:15.158+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-22 - Starting...
+2026-09-23T17:08:15.175+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-22 - Added connection com.mysql.cj.jdbc.ConnectionImpl@48531cd8
+2026-09-23T17:08:15.176+08:00  INFO 6228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-22 - Start completed.
+2026-09-23T17:08:15.186+08:00  INFO 6228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:56542/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T17:08:15.201+08:00  WARN 6228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T17:08:15.223+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.018s)
+2026-09-23T17:08:15.237+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T17:08:15.239+08:00  INFO 6228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T17:08:15.321+08:00  INFO 6228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T17:08:15.329+08:00  INFO 6228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 54625 (http) with context path '/'
+2026-09-23T17:08:15.331+08:00  INFO 6228 --- [case-service] [           main] c.r.caseservice.policy.PolicyImportTest  : Started PolicyImportTest in 0.443 seconds (process running for 55.402)
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.708 s -- in com.resolveflow.caseservice.policy.PolicyImportTest
+[INFO] Running com.resolveflow.caseservice.policy.PolicyMutationGuardTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.resolveflow.caseservice.policy.PolicyMutationGuardTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 180, Failures: 0, Errors: 0, Skipped: 4
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for resolveflow-java 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] resolveflow-java ................................... SUCCESS [  0.314 s]
+[INFO] shared-kernel ...................................... SUCCESS [  3.010 s]
+[INFO] case-service ....................................... SUCCESS [01:04 min]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:08 min
+[INFO] Finished at: 2026-09-23T17:08:16+08:00
+[INFO] ------------------------------------------------------------------------

@@ -79,6 +79,15 @@ class RefundChainSystemTest {
     private static final String LINE_UNKNOWN = env("RESOLVEFLOW_E2E_LINE_UNKNOWN", "");
 
     /**
+     * A third line, which commerce will refuse to refund: it exists in {@code order_line} and has no
+     * {@code line_refund} row, so the acceptance path answers {@code LINE_NOT_FOUND}. The driver mints it with
+     * {@code slot=False}, which is the state its own mint produced by accident in C05.2c-3 — the run that first
+     * showed a case sitting in EXECUTING with nobody ever telling it why. Blank when no such line was minted, in
+     * which case the refusal test skips rather than fails.
+     */
+    private static final String LINE_REFUSED = env("RESOLVEFLOW_E2E_LINE_REFUSED", "");
+
+    /**
      * Where the provider stub is. The driver starts one per run on a free port with its lab surface on, and
      * passes it down; the default is the port the module tests and the README use.
      */
@@ -397,6 +406,59 @@ class RefundChainSystemTest {
                         "case_db",
                         "SELECT COUNT(*) FROM case_timeline WHERE case_id = '" + caseId + "' AND kind = 'CASE_CLOSED'"))
                 .isEqualTo("1");
+    }
+
+    @Test
+    @DisplayName("a command commerce refuses comes back to the case instead of leaving it executing")
+    void theRefusedCommandComesBackToTheCase() throws Exception {
+        // C05.3b. Before it, this ran to the same point and then stopped: commerce refused the command with a
+        // WARN line and nothing else — a domain refusal is terminal for the transport, so the delivery was
+        // acknowledged and gone — while the case had already written case_execution_command and consumed the
+        // authorisation. It waited in EXECUTING for an answer that could not come. This is the same refusal the
+        // driver hit twice by accident in C05.2c-3, now asked of the real chain on purpose.
+        Assumptions.assumeTrue(
+                !LINE_REFUSED.isBlank(),
+                "the refusal run needs a line with no line_refund row (RESOLVEFLOW_E2E_LINE_REFUSED)");
+        ApprovedCase run = driveToApproval(LINE_REFUSED);
+        String caseId = run.caseId();
+
+        // The case is pushed out of the approval state by the dispatch loop, refused by commerce, and told why —
+        // three hops over the real broker, so the status is awaited rather than sampled once (C05.3a's lesson,
+        // learned the hard way in C05.2c-4: asserting a state the system has not been given time to reach is
+        // racing it).
+        await(
+                "the case is returned to a person",
+                () -> "PENDING_REVIEW".equals(caseStatus(caseId)) ? "ok" : null,
+                CHAIN_TIMEOUT);
+
+        assertThat(scalar("case_db", "SELECT COUNT(*) FROM case_execution_command WHERE case_id = '" + caseId + "'"))
+                .as("the case really did send a command; that is what made the silence a hole")
+                .isEqualTo("1");
+        assertThat(scalar(
+                        "commerce_db", "SELECT COUNT(*) FROM refund_operation WHERE line_id = '" + LINE_REFUSED + "'"))
+                .as("a refused command reserves nothing, so there is no operation to reconcile")
+                .isEqualTo("0");
+
+        String operationId =
+                scalar("case_db", "SELECT operation_id FROM case_execution_command WHERE case_id = '" + caseId + "'");
+        assertThat(operationId)
+                .as("the answer has to be correlated through the operation id the case itself fixed")
+                .isNotBlank();
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT COUNT(*) FROM case_result_inbox WHERE operation_id = '" + operationId
+                                + "' AND event_type = 'RefundFailed' AND state = 'FAILED'"
+                                + " AND disposition = 'ACCEPTED'"))
+                .as("the case recorded why, which is the fact it never used to receive")
+                .isEqualTo("1");
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT COUNT(*) FROM case_timeline WHERE case_id = '" + caseId + "' AND kind = 'CASE_CLOSED'"))
+                .as("and nothing was closed: no refund happened, so there is no outcome to close on")
+                .isEqualTo("0");
+        assertThat(scalar("commerce_db", "SELECT COUNT(*) FROM line_refund WHERE line_id = '" + LINE_REFUSED + "'"))
+                .as("the line still has no refund slot: the refusal did not create one")
+                .isEqualTo("0");
     }
 
     // ------------------------------------------------------------------ the provider's lab surface

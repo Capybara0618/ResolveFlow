@@ -130,13 +130,19 @@ def wait_health(name: str, url: str, proc, report: "base.Report", timeout: float
     return False
 
 
-def create_demo_line(amount_minor: int, report: "base.Report") -> tuple[str, str, str]:
+def create_demo_line(amount_minor: int, report: "base.Report", slot: bool = True) -> tuple[str, str, str]:
     """Mint this run's own demo order, line and ledger row; return (line_id, merchant, customer).
 
     Every seeded fixture line already carries an open case from the 2026-09-19 sessions, and opening a second
     case for a line is refused with ``CASE_ALREADY_OPEN`` — correctly. So a chain run has two honest options:
     cancel somebody else's case, or bring its own line. This brings its own. It is also what makes the run
     repeatable: a fresh line_id per run means the next run does not have to reason about this one's leftovers.
+
+    ``slot=False`` mints the line *without* its ``line_refund`` row, which is the state that makes the domain
+    refuse a command with ``LINE_NOT_FOUND``. That is not a contrived fixture: it is exactly the failure this
+    driver produced by accident in C05.2c-3 (the mint was missing the slot row), and it is the cheapest honest
+    way to reach a domain refusal end to end — a real line, a real case, a real command, refused by the real
+    acceptance path for a reason the world gives rather than one the test injects.
 
     The line_id starts with 9 so that a look at the database later can tell a driver-minted line from a seeded
     one. The merchant and customer are the fixture demo pair, so the case-service's order visibility and the
@@ -167,11 +173,14 @@ def create_demo_line(amount_minor: int, report: "base.Report") -> tuple[str, str
         # but has no slot row is reported as "no order line ... in this service" — found by running this
         # (C05.2c-3), and worth stating because the message points at the wrong table. updated_at has no
         # default, and live_marker is a generated column, so neither can be supplied: only MySQL decides it.
-        " INSERT INTO commerce_db.line_refund (line_id, state, operation_id, version, updated_at)"
-        f" VALUES ('{line_id}', 'FREE', NULL, 1, '{now}');"
-        "COMMIT;")
+        # slot=False leaves exactly this row out, on purpose (C05.3b): the refusal test needs a line the
+        # acceptance path will refuse, and this is the real one.
+        + ("" if not slot else
+           " INSERT INTO commerce_db.line_refund (line_id, state, operation_id, version, updated_at)"
+           f" VALUES ('{line_id}', 'FREE', NULL, 1, '{now}');")
+        + "COMMIT;")
     report.note(f"minted order {order_id} line {line_id} for {amount_minor} minor (sku {sku}-DRV-{line_id},"
-                f" category {category})")
+                f" category {category}{'' if slot else ', deliberately WITHOUT its line_refund slot row'})")
     return line_id, "M-1001", "C-2002"
 
 
@@ -250,6 +259,17 @@ def main() -> int:
             cf3_line, _m2, _c2 = create_demo_line(int(cf3_amount), report)
             report.step(f"minted a second line for the CF3 run: {cf3_line}", True, 0.0,
                         f"paid {cf3_amount} minor; the lost-response test must not share a slot with the happy path")
+
+        # And a third for the refusal run (C05.3b): a line the acceptance path will refuse with LINE_NOT_FOUND,
+        # so the end-to-end question "does the case hear about a refusal" is asked of the real chain rather than
+        # of a test double.
+        refused_line = ""
+        if args.line is None:
+            refused_amount = base.scalar(
+                "SELECT line_paid_amount FROM commerce_db.order_line WHERE line_id = '7001'")
+            refused_line, _m3, _c3 = create_demo_line(int(refused_amount), report, slot=False)
+            report.step(f"minted a third line for the refusal run: {refused_line}", True, 0.0,
+                        f"paid {refused_amount} minor, no line_refund slot row: commerce must refuse the command")
 
         report.section("build")
         started = time.time()
@@ -336,6 +356,7 @@ def main() -> int:
                 RESOLVEFLOW_E2E_CHAIN="true",
                 RESOLVEFLOW_E2E_LINE=line,
                 RESOLVEFLOW_E2E_LINE_UNKNOWN=cf3_line,
+                RESOLVEFLOW_E2E_LINE_REFUSED=refused_line,
                 RESOLVEFLOW_E2E_PROVIDER_BASE=f"http://127.0.0.1:{provider_port}",
                 RESOLVEFLOW_E2E_CASE_BASE=f"http://127.0.0.1:{CASE_PORT}",
                 RESOLVEFLOW_E2E_MYSQL_HOST="127.0.0.1",
@@ -438,6 +459,55 @@ def main() -> int:
                                     f" attempts={row[3]}")
             except Exception as unreadable:  # noqa: BLE001 - evidence, not a gate
                 report.note(f"could not read the provider sqlite file: {unreadable}")
+
+        report.section("refusal: the command commerce would not accept (C05.3b)")
+        if refused_line:
+            refused_case = base.mysql_rows(
+                "SELECT case_id, status FROM case_db.aftersale_case "
+                f"WHERE line_id = '{refused_line}' ORDER BY created_at DESC LIMIT 1")
+            # case_execution_command has no line_id column — it is keyed by case, which is also the honest way to
+            # ask: "did THIS case send a command" rather than "did some case for this line". Each of these is a
+            # subquery on the case's own command, so nothing here can silently answer about a different case.
+            refused_case_id = refused_case[0][0] if refused_case else ""
+            command_sql = (
+                "SELECT operation_id FROM case_db.case_execution_command"
+                f" WHERE case_id = '{refused_case_id}' ORDER BY created_at DESC LIMIT 1")
+            refused_command = base.mysql_rows(command_sql) if refused_case_id else []
+            refused_answer = base.mysql_rows(
+                "SELECT event_type, status, JSON_UNQUOTE(JSON_EXTRACT(envelope, '$.payload.reason_code')),"
+                " JSON_UNQUOTE(JSON_EXTRACT(envelope, '$.payload.state'))"
+                " FROM commerce_db.event_outbox WHERE event_type = 'RefundFailed' AND"
+                f" JSON_UNQUOTE(JSON_EXTRACT(envelope, '$.payload.operation_id')) = ({command_sql})"
+            ) if refused_case_id else []
+            refused_inbox = base.mysql_rows(
+                "SELECT event_type, state, disposition, IFNULL(detail, '-'), deliveries"
+                f" FROM case_db.case_result_inbox WHERE operation_id = ({command_sql})"
+            ) if refused_case_id else []
+            refused_operations = base.mysql_rows(
+                f"SELECT COUNT(*) FROM commerce_db.refund_operation WHERE line_id = '{refused_line}'")
+            refused_closed = base.mysql_rows(
+                "SELECT COUNT(*) FROM case_db.case_timeline"
+                f" WHERE case_id = '{refused_case_id}' AND kind = 'CASE_CLOSED'") if refused_case_id else []
+            report.note(f"case_execution_command {refused_command}   (the case did send a command)")
+            report.note(f"event_outbox (answer)    {refused_answer}   (commerce's answer, signed)")
+            report.note(f"case_result_inbox        {refused_inbox}")
+            report.note(f"aftersale_case           {refused_case}")
+            report.note(f"refund_operation count   {refused_operations}   (a refusal reserves nothing)")
+            report.note(f"CASE_CLOSED count        {refused_closed}")
+            if refused_case:
+                report.check("the refused case went back to a person", refused_case[0][1], "PENDING_REVIEW",
+                             refused_case[0][1] == "PENDING_REVIEW")
+            if refused_answer:
+                report.check("commerce answered the refusal", refused_answer[0][2], "LINE_NOT_FOUND",
+                             refused_answer[0][2] == "LINE_NOT_FOUND")
+            if refused_inbox:
+                report.check("the case recorded the refusal as a fact", refused_inbox[0][0], "RefundFailed",
+                             refused_inbox[0][0] == "RefundFailed")
+            if refused_operations:
+                report.check("no operation was opened for a refused command", refused_operations[0][0], "0",
+                             refused_operations[0][0] == "0")
+            if refused_closed:
+                report.check("and nothing was closed", refused_closed[0][0], "0", refused_closed[0][0] == "0")
 
         report.section("background noise this run did not cause")
         orphans = base.mysql_rows(

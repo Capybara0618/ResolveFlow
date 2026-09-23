@@ -775,6 +775,26 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
     侧的单元证据（回答行存在、`reason_code` 正确）；端到端未验证。下一步：驱动铸一条**没有 `line_refund`
     slot 行**的坏行（正是 c-3 run2/run5 真实撞到的 `LINE_NOT_FOUND`），加一条系统测试断言工单落到
     `PENDING_REVIEW` 且 `CASE_CLOSED` 为 0。
+- C05.3b（e2e 半程）完成（2026-09-23）：**上面那句"e2e 尚未跑"已经补上**——拒绝链在真实
+  RocketMQ+MySQL 上端到端跑通。新增第三条链测试 `theRefusedCommandComesBackToTheCase`；驱动
+  `create_demo_line(..., slot=False)` 铸一条**没有 `line_refund` slot 行**的行（正是 c-3 run2/run5 真实
+  撞到的那个状态），并新增 `RESOLVEFLOW_E2E_LINE_REFUSED` 与报告里的一节 refusal 事实。
+  **`RESULT: PASSED (89.8s)`**，库里的实际事实：
+  `case_execution_command` 1 行（工单**确实发过命令**）、`event_outbox` 回答 =
+  `RefundFailed/PUBLISHED/LINE_NOT_FOUND/FAILED`、`case_result_inbox` = `RefundFailed/FAILED/ACCEPTED/1 次投递`、
+  `aftersale_case` = **`PENDING_REVIEW`**、`refund_operation` = 0、`CASE_CLOSED` = 0。
+  即：**命令被 world 拒绝 → 工单从"静默卡在 EXECUTING"变成"回到人手里"**，且没有任何钱被预留、没有关单。
+  - 回归：`-pl case-service -am test` **180 条 0 失败 0 错误 4 skipped**（新增第 3 条 env 开关默认跳过；
+    基线 179+1）、commerce **71 条**、`spotless:check` **exit 0**（apply 后复跑套件，保证证据对应提交文本）。
+    证据归档 `reports/c053-refusal/`（含 `…-commands-and-results.txt`）。
+  - **顺带修掉两处会让人查错地方的坑**：① `case_execution_command` **没有 `line_id` 列**（只有
+    case_id/operation_id/event_id/authorization_id/input_revision/created_at），驱动的第一版按 `line_id` 查会
+    直接报错——改成按 **case_id** 查，这本来也更对："这个工单发过命令吗"而不是"这条行上某个工单发过吗"；
+    ② `case_timeline` 的列是 **`kind`** 不是 `event_type`，驱动第一版写错。两处都是"先跑一次才发现"。
+  - **未运行（不声称）**：**没有为这条测试单独跑 e2e 红**——e2e 是在修复已经在位之后跑的，所以它证明的是绿的一半。
+    红的一半只有单元级证据（`expected: 1 but was: 0`，没有回答行）；拒绝本身在 c-3 run3/run5 的真实链路上
+    **被观察到过**（`no order line 9154932 in this service`，当时工单停在 EXECUTING），但那一次没有针对它的断言，
+    所以那是"观察"而不是"记录下来的红"。要补 e2e 红就得把回答那一步临时摘掉再跑一次，本步没有做。
 
 ### C04 持久模拟退款与本地金额事务
 

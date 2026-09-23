@@ -1,0 +1,95 @@
+# C05.2c ȫ��·�˵��ˣ����� �� �˹�ͨ�� �� ���� �� Commerce �� provider �� ����¼� �� Case �ص�
+run 20260923-170457  line None
+
+== environment
+  -- compose MySQL answers
+     PASS (0.2s)
+  -- RocketMQ name server listens on 9876
+     PASS (0.0s)
+     minted order e233c322-64dd-4f8b-bbd2-dff581c566cf line 9170457 for 2599 minor (sku SKU-RED-M-DRV-9170457, category apparel)
+  -- minted a fresh line for this run: 9170457
+     PASS (0.7s)  paid 2599 minor, no case on it and none of the 7001 orphans touch it
+     minted order 52b38aef-237e-42ec-895e-12deed11e849 line 9170458 for 2599 minor (sku SKU-RED-M-DRV-9170458, category apparel)
+  -- minted a second line for the CF3 run: 9170458
+     PASS (0.0s)  paid 2599 minor; the lost-response test must not share a slot with the happy path
+     minted order 5f70a320-4128-4d5f-9d39-e78440aad6d2 line 91704581 for 2599 minor (sku SKU-RED-M-DRV-91704581, category apparel, deliberately WITHOUT its line_refund slot row)
+  -- minted a third line for the refusal run: 91704581
+     PASS (0.0s)  paid 2599 minor, no line_refund slot row: commerce must refuse the command
+
+== build
+  -- mvnw package (skipTests)
+     PASS (13.6s)  log 20260923-170457-build.txt
+
+== three processes
+     provider: E:\Code+Agent+Backend\agent\.venv\Scripts\python.exe -m uvicorn resolveflow.api.app:app --host 127.0.0.1 --port 53958 --log-level warning  (log E:\Code+Agent+Backend\reports\c052c-chain\provider.log)
+     case-service: C:\Users\hjn\.jdks\jdk-21.0.12.1+1\bin\java -jar E:\Code+Agent+Backend\java\case-service\target\case-service-0.1.0-SNAPSHOT.jar --resolveflow.commerce.base-url=http://127.0.0.1:8081 --resolveflow.dispatch.enabled=true --resolveflow.dispatch.poll-interval-ms=500 --resolveflow.events.namesrv=127.0.0.1:9876 --resolveflow.events.publisher.enabled=true --resolveflow.events.outbox.delivery-enabled=true --resolveflow.events.outbox.poll-interval-ms=300 --resolveflow.events.consumer.enabled=true  (log E:\Code+Agent+Backend\reports\c052c-chain\case-service.log)
+     commerce-service: C:\Users\hjn\.jdks\jdk-21.0.12.1+1\bin\java -jar E:\Code+Agent+Backend\java\commerce-service\target\commerce-service-0.1.0-SNAPSHOT.jar --resolveflow.provider.base-url=http://127.0.0.1:53958 --resolveflow.events.namesrv=127.0.0.1:9876 --resolveflow.events.consumer.enabled=true --resolveflow.events.publisher.enabled=true --resolveflow.events.outbox.delivery-enabled=true --resolveflow.events.outbox.poll-interval-ms=300 --resolveflow.refund.dispatch-enabled=true --resolveflow.refund.reconcile-enabled=true --resolveflow.refund.poll-interval-ms=8000  (log E:\Code+Agent+Backend\reports\c052c-chain\commerce-service.log)
+  -- the three processes are up
+     PASS (9.7s)  provider=True commerce=True case=True
+
+== the chain
+     $ mvnw -Dtest=RefundChainSystemTest with RESOLVEFLOW_E2E_CHAIN=true LINE=9170457
+  -- RefundChainSystemTest passes
+     PASS (58.2s)  log 20260923-170457-chain-test.txt
+
+== what the databases hold
+     aftersale_case     [['bef45e29-fd7a-4284-bdbe-afb2fea088d7', 'CLOSED_SUCCESS', '5']]
+     refund_operation   [['1898b065-df42-4eab-b1d4-2f7c1424b227', 'SUCCEEDED', '2599', 'prv-664cd925-8446-4bca-8d08-38cfef519968']]
+     payment_ledger     [['2599', '0']]
+     line_refund        [['CONSUMED', '1898b065-df42-4eab-b1d4-2f7c1424b227']]
+     case_result_inbox  [['ACCEPTED', 'duplicate delivery ignored', '2', '2026-09-23 09:05:38.649776', 'SUCCEEDED', '2599']]
+     case_timeline      [['APPROVAL_REQUIRED', '1'], ['AUTHORIZATION_DECIDED', '1'], ['CASE_CLOSED', '1'], ['CASE_CREATED', '1'], ['EXECUTION_UPDATED', '1'], ['PROPOSAL_READY', '1']]
+     execution_command  [['1']]
+  -- the case is closed
+     PASS  observed=CLOSED_SUCCESS  expected=CLOSED_SUCCESS
+  -- the provider settled it
+     PASS  observed=SUCCEEDED  expected=SUCCEEDED
+  -- the refunded amount is the line's
+     PASS  observed=2599  expected=2599
+  -- nothing is left reserved
+     PASS  observed=0  expected=0
+  -- the ledger holds exactly one refund
+     PASS  observed=2599  expected=2599
+  -- the line can never be refunded again
+     PASS  observed=CONSUMED  expected=CONSUMED
+
+== CF3: the line whose answer was lost
+     case_result_inbox  [['RefundUnknown', 'UNKNOWN', 'ACCEPTED', '-', '1'], ['RefundSucceeded', 'SUCCEEDED', 'ACCEPTED', '-', '1']]  (two facts: the unknown, then the recovered success)
+     aftersale_case     [['bbe4be99-646b-46e1-9809-643569f1bd46', 'CLOSED_SUCCESS']]
+     refund_operation   [['90955c33-916e-4b66-91c8-a9caa134100e', 'SUCCEEDED', 'prv-fe40b9ec-1a54-4d86-af71-6b18a7c44ae5']]
+     payment_ledger     [['2599', '0']]
+     line_refund        [['CONSUMED', '90955c33-916e-4b66-91c8-a9caa134100e']]
+  -- the CF3 case is closed too
+     PASS  observed=CLOSED_SUCCESS  expected=CLOSED_SUCCESS
+  -- the CF3 reservation became the refund
+     PASS  observed=2599  expected=2599
+  -- and is no longer reserved
+     PASS  observed=0  expected=0
+  -- the lost answer was reconciled, not re-sent
+     PASS  observed=SUCCEEDED  expected=SUCCEEDED
+     provider sqlite    operation=1898b065-df42-4eab-b1d4-2f7c1424b227 state=SUCCEEDED ref=prv-664cd925-8446-4bca-8d08-38cfef519968 attempts=1
+     provider sqlite    operation=90955c33-916e-4b66-91c8-a9caa134100e state=SUCCEEDED ref=prv-fe40b9ec-1a54-4d86-af71-6b18a7c44ae5 attempts=1
+
+== refusal: the command commerce would not accept (C05.3b)
+     case_execution_command [['a8c01140-18e7-476e-a52d-9d32b715ec0e']]   (the case did send a command)
+     event_outbox (answer)    [['RefundFailed', 'PUBLISHED', 'LINE_NOT_FOUND', 'FAILED']]   (commerce's answer, signed)
+     case_result_inbox        [['RefundFailed', 'FAILED', 'ACCEPTED', '-', '1']]
+     aftersale_case           [['e47a95ca-5b46-471f-8e16-1263cbac8819', 'PENDING_REVIEW']]
+     refund_operation count   [['0']]   (a refusal reserves nothing)
+     CASE_CLOSED count        [['0']]
+  -- the refused case went back to a person
+     PASS  observed=PENDING_REVIEW  expected=PENDING_REVIEW
+  -- commerce answered the refusal
+     PASS  observed=LINE_NOT_FOUND  expected=LINE_NOT_FOUND
+  -- the case recorded the refusal as a fact
+     PASS  observed=RefundFailed  expected=RefundFailed
+  -- no operation was opened for a refused command
+     PASS  observed=0  expected=0
+  -- and nothing was closed
+     PASS  observed=0  expected=0
+
+== background noise this run did not cause
+     operations left on line 7001 by earlier driver runs, by state: [['IN_PROGRESS', '3'], ['SUCCEEDED', '1']]
+     with the dispatch loop enabled these are swept on the first tick. The ones whose line is held by a different operation refuse to settle and stay IN_PROGRESS forever �� the gap the ledger records. The one that really did hold line 7001's slot settles: that is a reservation from C05.1c that had been stuck since, and this loop finishing it is money actually moving, not noise. Neither is caused by this run.
+
+RESULT: PASSED (89.8s)
