@@ -420,6 +420,12 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **本轮命令与结果**：红 `-Dtest=CaseResultConsumerApiTest#aThirdDeliveryIsStillADuplicate` → `expected: DUPLICATE but was: ACCEPTED`；修后类级 **8/8 绿**（7 + 新的第三次投递测试，并断言 `deliveries == 3`，`tmp/c052b3a-review-fix-green.txt`）；全量 case-service **171 条，0 失败 0 错误 1 skipped**（`reports/c052b3a-result-inbox/20260923-1350-full-suite-171-green.txt`），`spotless:check` **干净**，`scripts/verify.ps1 -Suite all-offline` **PASSED**（`reports/verify/20260923-135102-all-offline.txt`；其中 `smoke-agent-service` 又是 0.1s——8090 仍被外部 PID 25796 占用，与前述同一原因，这一项同样不算证据）。
 - **父级复核（2026-09-23 13:52，与上面的自述分开读）**：b-3a 由子代理执行、**运行中途被中断**，留下未提交成果。父级独立复核到的只有：类级 `CaseResultConsumerApiTest` **7/7 绿**（`tmp/c052b3a-review-run1.txt`）、**全量 case-service 170 条 0 失败 0 错误 1 skipped**（`reports/c052b3a-result-inbox/20260923-1352-…-independent-rerun.txt`）、编译与 V13 迁移可用。父级**没有**逐行读 `CaseResultConsumer`/`CaseResultVerifier`/`CaseResultRejectionLog`，所以上面那些设计细节（拒签用 `REQUIRES_NEW`、`disposition` 两值、`projected_at` 永不写…）**目前只有它的自述与 7 条测试作依据，代码级审查仍未做**——不能因为测试绿了就当作审查过了。全量绿日志那处引用已按上一条更正。
   - **未做（明确不是本步）**：投影（b-3b）；结果事件真的从 broker 到本消费者的 RocketMQ 监听器与两段 e2e（C05.2c）；`docs/core-contracts.md:86` 那句里"投影与 timeline 同事务"的另外两半。**投影一行代码都没写，`projected_at` 由本步保持着 NULL。**
+- C05.2b-3b 开工（2026-09-23，**本步只做了约束侦察与计划，一行代码都没写**）：
+  - **状态机不需要新增状态**：`CaseStatus` 已含 `RECONCILING`/`CLOSED_SUCCESS`/`PENDING_REVIEW`，与 `docs/domain-model.md:55` 逐成员一致，且迁移的 CHECK 就是这个枚举——投影只能在这三个里选，也够用。
+  - **timeline 词汇表是钉住的**：V2 的 `chk_timeline_kind` 只允许 7 种（`CASE_CREATED/AGENT_STARTED/QUESTION_REQUIRED/PROPOSAL_READY/APPROVAL_REQUIRED/EXECUTION_UPDATED/CASE_CLOSED`）。**因此投影的三种结局不需要新 kind**：`RECONCILING` 与 `PENDING_REVIEW` 是"执行中发生了什么"→ `EXECUTION_UPDATED`；成功关单 → `CASE_CLOSED`。这是本步已定的设计决定（宁可复用现有词汇，也不为投影先造一个新 kind，再回头去动已冻结的契约 CHECK）。
+  - **迁移入口唯一**：`CaseRepository.transition(...)`（@Update，期望前置状态写在 WHERE 里，与 C05.2a 同一形状）是状态迁移的唯一通道，投影必须走它，不得自己写 UPDATE。
+  - **计划（先红后绿，每片一次提交）**：① 目标成功 → `CLOSED_SUCCESS` + `CASE_CLOSED` timeline + 标记 `projected_at`；② 确定失败（金额已释放）→ `PENDING_REVIEW` + `EXECUTION_UPDATED` + `projected_at`；③ `UNKNOWN` → `RECONCILING`（不释放、不关单）+ `projected_at`；④ **乱序与迟到**：按载荷 `aggregate_version` 只让更高的版本推进状态，迟到的低版本**不改变状态但必须留痕**；⑤ **幂等**：`markProjected` 的 `projected_at IS NULL` 条件保证同一 inbox 行只投影一次（这也是 b-3a 那个 bug 没波及投影的原因）；⑥ inbox 行、投影与 timeline **同一事务**（`docs/core-contracts.md:86`）。
+  - **下一轮第一个动作**：写 ① 的失败测试（接受一条 `RefundSucceeded` 后工单应变为 `CLOSED_SUCCESS` 且 timeline 出现 `CASE_CLOSED`），跑红，再实现。
 
 ### C04 持久模拟退款与本地金额事务
 
