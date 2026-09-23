@@ -408,6 +408,41 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
                 .isNotNull();
     }
 
+    @Test
+    @DisplayName("C05.2b-3b: an unknown outcome parks the case in RECONCILING — not closed, nothing released")
+    void anUnknownOutcomeParksTheCaseInReconciling() {
+        String eventId = UUID.randomUUID().toString();
+
+        assertThat(consumer.consume(unknown(eventId, MERCHANT, 5, "PROVIDER_TIMEOUT")))
+                .isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+
+        // docs/domain-model.md:55 sends UNKNOWN to RECONCILING rather than to a closure, because "we do not know"
+        // releases nothing and settles nothing: the reservation still stands at Commerce and the outcome is still
+        // unknown, so a person (or a later reconciliation) has to find out. None of that is the case's to decide,
+        // which is why this service only records where the case now stands.
+        assertThat(caseStatus()).isEqualTo("RECONCILING");
+        assertThat(jdbc.queryForObject(
+                        "SELECT detail FROM case_timeline WHERE case_id = ? ORDER BY sequence DESC LIMIT 1",
+                        String.class,
+                        caseId))
+                .as("the trajectory names the outcome and keeps Commerce's reason code beside it")
+                .contains("\"outcome\":\"UNKNOWN\"")
+                .contains("PROVIDER_TIMEOUT")
+                .contains("RECONCILING");
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM case_timeline WHERE case_id = ? AND kind = 'CASE_CLOSED'",
+                        Integer.class,
+                        caseId))
+                .as("an unknown outcome must not be dressed up as a closure of any kind")
+                .isZero();
+        assertThat(CaseStatus.of(caseStatus()).acceptsNewInput())
+                .as("and the input stays frozen: the money may still move, so nothing may be re-argued yet")
+                .isFalse();
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId)
+                        .projectedAt())
+                .isNotNull();
+    }
+
     // ------------------------------------------------------------------ fixtures
 
     /** A signed result, as Commerce's C05.2b-1 outbox writes it. */
@@ -423,6 +458,20 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
                 "commerce-service-demo-key",
                 producerKey(),
                 operationId);
+    }
+
+    /** A signed unknown outcome, as Commerce's outbox writes it when the provider would not say. */
+    private String unknown(String eventId, String merchantId, long aggregateVersion, String reasonCode) {
+        return resultEnvelope(
+                eventId,
+                merchantId,
+                CoreEnvelope.UNKNOWN,
+                2599,
+                null,
+                reasonCode,
+                aggregateVersion,
+                "commerce-service-demo-key",
+                producerKey());
     }
 
     /** A signed determined failure, as Commerce's outbox writes it after it released the reservation. */

@@ -291,11 +291,14 @@ public class CaseResultConsumer {
     /**
      * Which status an outcome moves the case to, or {@code null} while that outcome's projection is a later slice.
      *
-     * <p>docs/domain-model.md:55: a success closes the case, and a <em>determined</em> failure sends it back to a
-     * person — the money is released, so going again needs a new authorisation, which is why the case must accept
-     * input again rather than being closed. {@code UNKNOWN} is deliberately absent: it is not a determined
-     * failure, nothing was released for it (the same document's settlement rules), and its edge
-     * ({@code -> RECONCILING}) is slice ③.
+     * <p>docs/domain-model.md:55: a success closes the case; a <em>determined</em> failure sends it back to a
+     * person, because the money is released and going again needs a new authorisation; and an unknown answer parks
+     * it in {@code RECONCILING}, because "we do not know" releases nothing and settles nothing — the money may
+     * still move, so the input stays frozen (docs/domain-model.md:36) until somebody finds out what happened.
+     *
+     * <p>{@code null} therefore does not mean "an outcome we reject" but "an outcome this step does not project":
+     * a state this version cannot place is still claimed in the inbox and left visibly unapplied, rather than
+     * being silently marked applied while the case stands still.
      */
     private static CaseStatus targetStatus(String state) {
         if (CoreEnvelope.SUCCEEDED.equals(state)) {
@@ -304,13 +307,16 @@ public class CaseResultConsumer {
         if (CoreEnvelope.FAILED.equals(state)) {
             return CaseStatus.PENDING_REVIEW;
         }
+        if (CoreEnvelope.UNKNOWN.equals(state)) {
+            return CaseStatus.RECONCILING;
+        }
         return null;
     }
 
     /**
      * The trajectory kind for a target status: the contract's only terminal event type for a close, and its
      * general "execution moved" type for everything else (TimelineEventType). It is derived from the status rather
-     * than listed per outcome, which is also why slice ③'s {@code RECONCILING} will need no new kind either.
+     * than listed per outcome, which is also why slice ③'s {@code RECONCILING} arrived with no new kind at all.
      */
     private static String timelineKindFor(CaseStatus target) {
         return target.isTerminal() ? TimelineEventType.CASE_CLOSED.name() : TimelineEventType.EXECUTION_UPDATED.name();

@@ -437,6 +437,9 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **切片② 实现完成（2026-09-23）**：确定失败 → `EXECUTING → PENDING_REVIEW` + 一条 `EXECUTION_UPDATED` timeline 行（detail 里带 `reason_code`），同样在 `consume` 的同一事务里。做法上是把"目标状态"抽成一张表：`targetStatus(state)` 只认 `SUCCEEDED→CLOSED_SUCCESS` 与 `FAILED→PENDING_REVIEW`，而 trajectory 的 kind **由目标状态派生**（终态 → `CASE_CLOSED`，否则 → `EXECUTION_UPDATED`），所以切片③的 `RECONCILING` 也只要一行、同样不需要新 kind。`UNKNOWN` 明确**不在表里**：规格上它不是确定失败、也没有释放任何金额（`docs/domain-model.md` 的结算规则），它的边（→`RECONCILING`）属于切片③，在落地前该结果照旧被认领落库并保持 `projected_at` NULL。
   - **为什么失败要回到"人"而不是关单**：金额已释放，再试需要**新的授权**，所以工单必须重新接受输入（`CaseStatus.acceptsNewInput()` 含 `PENDING_REVIEW`），这与"同行最多一次成功退款"的不变量一致；测试同时断言了**没有** `CASE_CLOSED` 行——失败不是成功，这条断言是这一片最该有的那句。
   - **命令与结果**：先红（`expected: "PENDING_REVIEW" but was: "EXECUTING"`，`reports/c052b3b-projection/20260923-slice2-red.txt`）→ 实现后 `CaseResultConsumerApiTest` **10/10**、全量 case-service **173 条，0 失败 0 错误 1 skipped**（`reports/c052b3b-projection/20260923-slice2-full-suite-173-green.txt`）、`spotless:check` **干净**。**切片③（UNKNOWN→RECONCILING）是下一片**，之后是④定序与⑤幂等边界。
+  - **切片③ 实现完成（2026-09-23）**：`UNKNOWN → RECONCILING`——不关单、不释放（释放与否本来就不是 case 的事实，它只记录自己现在站在哪），timeline kind 由目标状态派生，所以**依然没有新增 kind**。同时把 `targetStatus` 的 javadoc 里那句已过时的"UNKNOWN 故意不在表里"改写成"`null` 不代表我们拒绝这个结果，而代表这一步还不投影它"，不留过时说明（这正是审查里记下的那类毛病）。
+  - **这一片的四条断言**：状态是 `RECONCILING`；最新 timeline 行写明 `outcome=UNKNOWN` 与 Commerce 给的 `reason_code`；**没有任何 `CASE_CLOSED` 行**（"不知道"不许被包装成任何一种关单）；`acceptsNewInput()` 为假——钱还可能动，输入继续冻结（`docs/domain-model.md:36`）。
+  - **命令与结果**：先红（`expected: "RECONCILING" but was: "EXECUTING"`，`reports/c052b3b-projection/20260923-slice3-red.txt`）→ 实现后 `CaseResultConsumerApiTest` **11/11**、全量 case-service **174 条，0 失败 0 错误 1 skipped**（`reports/c052b3b-projection/20260923-slice3-full-suite-174-green.txt`）、`spotless:check` **干净**。**至此三种结算结局（成功关单／确定失败回审／未知进对账）的投影都在，且全程没有新增状态、kind 或迁移。**剩下的④定序（迟到的低版本不改状态但必须留痕）与⑤幂等/同事务边界是下一片。
 
 ### C04 持久模拟退款与本地金额事务
 
