@@ -449,6 +449,28 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                 .as("a reference is a mapping to look up, not something to fetch")
                 .isEqualTo(422);
 
+        // C05.4d: the contract marks all four members of an evidence reference required
+        // (contracts/core/openapi-case.yaml:1465), and source_version and content_hash are precisely what a later
+        // verification compares. A citation missing them can never be checked — and it used to be accepted and
+        // written into the stored proposal with the member absent (ManualProposalService:158).
+        ObjectNode noHash = request("REFUND", "材料引用没有 content_hash");
+        ((ObjectNode) noHash.get("evidence_refs").get(0)).remove("content_hash");
+        assertThat(submitStatus(caseId, reviewer(), noHash))
+                .as("a reference without its hash is a reference nobody can ever check")
+                .isEqualTo(422);
+
+        ObjectNode notAHash = request("REFUND", "材料引用的 content_hash 不是 sha256");
+        ((ObjectNode) notAHash.get("evidence_refs").get(0)).put("content_hash", "not-a-hash");
+        assertThat(submitStatus(caseId, reviewer(), notAHash))
+                .as("the contract says Sha256Hex, so a free-form string is not a hash")
+                .isEqualTo(422);
+
+        ObjectNode noVersion = request("REFUND", "材料引用没有 source_version");
+        ((ObjectNode) noVersion.get("evidence_refs").get(0)).remove("source_version");
+        assertThat(submitStatus(caseId, reviewer(), noVersion))
+                .as("the version is the other half of what verification compares")
+                .isEqualTo(422);
+
         ObjectNode blankReason = request("REFUND", "   ");
         assertThat(submitStatus(caseId, reviewer(), blankReason)).isEqualTo(422);
 

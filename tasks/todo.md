@@ -943,6 +943,13 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **核对过没有别的签发者会被误伤**：`signRaw` 的 javadoc 说"seeder 与测试用"，但全仓 grep 只有 `JwtCodec` 自己与 `JwtCodecTest` 在调用它；**Python 侧一处也不手写 JWT**（`agent/`、`scripts/` 里没有 `jwt.encode`/`hs256`/aud 相关代码），演示令牌都来自 `issue()` 或登录路由，都带 `iss`。
   - 命令与结果：`JwtCodecTest` 13 条 0 失败；`mvn -f java/pom.xml -B -ntp test` → shared-kernel **59** / 5 / commerce **72** / 2 / case **187（4 skipped）**，全 0 失败；`spotless:check` exit 0；spotless 重排 shared-kernel 后**重跑** shared-kernel 59 条 0 失败（日志分开存两份，避免用"格式化前"的绿灯冒充格式化后的）。证据 `reports/c054-debts/`。
 - **仍待核（下一轮）**：④ 证据引用只记录不核对（`:330`，尚未对着代码核）；⑤ 命令只带一个 `policy_version`；⑥ CF2 的另一半（乱序消费 / 多实例争抢同一队列，`:364` 之后无记录）。（③ 已于 C05.4c 完成，② 已核实为设计边界，① 已于 C05.4a 完成。）
+- C05.4d 还债④完成（2026-09-23）：**证据引用从"只记录不核对"变成"至少核对到可被核对"**（先红后绿）。
+  - **先核代码，结论比账本那句话更细**。账本 `:330` 写"证据引用只记录不核对"——**属实**，但要分两半看：① **`policy_refs` 是真核对的**：`ProposalReCheck.citationProblem` 从**库里存的规则重算 hash** 与引用比对，并要求 bundle 是**钉在本工单上**的版本（C03.2b-2a）——这一半不是缺口；② **`evidence_refs` 只有形状检查**：`requireEvidenceRefs` 原来只看**条数**与 `source_ref` 的正则（拒 URL、不抓取）。`EvidenceCitation` 的 javadoc **本来就是诚实的**（"Recorded, not verified …"，还引了契约同一句话），所以这**不是被藏起来的洞**，而是已声明的边界；只是它的触发条件那句 **"the reads that arrive with C04" 已过时**——C04 过去了也没做，今天本服务唯一能解析的引用类型是订单行上下文（C03.2a），运单类读取要等 C06.2。javadoc 已按此更正。
+  - **但边界里有一处真违规，今天就修了**：契约把证据引用的**四个成员全标 required**（`openapi-case.yaml:1465` 与 `agent-proposal.schema.json:51`：`observation_id`/`source_ref`/`source_version`/`content_hash`，后者是 `Sha256Hex`），而 Java 只查 `source_ref`。于是**缺 `content_hash`／`source_version`／`observation_id` 的引用被接受**，还被原样**写进存下来的方案文档**（`ManualProposalService:158` 把 null 也写进去）——而 `source_version` 与 `content_hash` 恰恰是后续核对要**比对**的两样：这样的引用不是"尚未核对"，而是**永远无法核对**。
+  - **先红**：在 `ManualProposalApiTest.aRefusedSubmissionChangesNothing`（该测试本就以"什么都没写"收尾，新用例正好落进同一条尾巴）加三个用例——缺 `content_hash`、`content_hash` 不是 sha256、缺 `source_version`；红跑 **`expected: 422 but was: 200`**（**被接受了**）。
+  - **实现**：`requireEvidenceRefs` 除 source_ref 正则外，还要求 `observation_id` 非空、`source_version` 非空、`content_hash` 匹配 `^[a-f0-9]{64}$`；javadoc 同时改掉过时的 "until C04" 与描述。**未做**（如实记录）：契约里的 maxLength（`observation_id`/`source_version` 64、`source_ref` 200）没在这一层再加一道（`additionalProperties:false` 已由 Jackson 拒未知成员覆盖）。
+  - **仍然没做的是"解析引用"本身**（需要每种 `source_ref` 都有权威读取；今天只有订单行上下文），触发点写明是 **C06.2**。
+  - 命令与结果：聚焦两类 7/15 绿；`mvn -f java/pom.xml -B -ntp test` → shared-kernel **59** / 5 / commerce **72** / 2 / case **187（4 skipped）**，全 0 失败（**这次是先 spotless:apply 再跑**，不存在"用格式化前的绿灯冒充"）；`spotless:check` exit 0。证据 `reports/c054-debts/`。
 
 ### C06 Agent控制面、MCP与能力冒烟
 

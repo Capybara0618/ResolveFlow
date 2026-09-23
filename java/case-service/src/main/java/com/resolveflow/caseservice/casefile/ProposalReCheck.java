@@ -203,8 +203,14 @@ public class ProposalReCheck {
      * never become a way to make this service read something the submitter chose.
      *
      * <p>What is <em>not</em> checked here is whether the referenced material exists or says what the
-     * proposal claims: refs are recorded, not verified, until C04 binds them to the records this service
-     * issued. That gap is stated rather than papered over.
+     * proposal claims: refs are recorded, not verified, until this service has an authoritative read for that
+     * kind of reference. The order-line context is the only one it has today (C03.2a); the shipment reads
+     * arrive with the Agent Harness (C06.2). That gap is stated rather than papered over.
+     *
+     * <p>What <em>is</em> checked is that a reference is complete enough to ever be checked at all: the contract
+     * marks all four members required, and {@code source_version} and {@code content_hash} are the two a
+     * verification compares (C05.4d). Before that check existed a citation could arrive without them and be
+     * stored with the member absent, so it was not merely unverified — it was unverifiable.
      */
     public void requireEvidenceRefs(List<EvidenceCitation> evidence, int minItems, int maxItems) {
         if (evidence == null || evidence.size() < minItems || evidence.size() > maxItems) {
@@ -215,6 +221,18 @@ public class ProposalReCheck {
             if (citation.sourceRef() == null || !citation.sourceRef().matches("^(?!https?://)[a-z][a-z0-9_]*:\\S+$")) {
                 throw new CaseService.SemanticInvalidException("evidence source_ref is not a controlled reference: "
                         + citation.sourceRef() + " (a URL is refused, not fetched)");
+            }
+            if (citation.observationId() == null || citation.observationId().isBlank()) {
+                throw new CaseService.SemanticInvalidException(
+                        "evidence observation_id is required on every reference");
+            }
+            if (citation.sourceVersion() == null || citation.sourceVersion().isBlank()) {
+                throw new CaseService.SemanticInvalidException("evidence source_version is required: a reference"
+                        + " with no version is one nothing can be compared against later");
+            }
+            if (citation.contentHash() == null || !citation.contentHash().matches("^[a-f0-9]{64}$")) {
+                throw new CaseService.SemanticInvalidException(
+                        "evidence content_hash must be a sha256 hex digest: " + citation.contentHash());
             }
         }
     }
