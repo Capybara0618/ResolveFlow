@@ -1,6 +1,7 @@
 package com.resolveflow.caseservice.casefile;
 
 import java.time.Instant;
+import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -185,6 +186,61 @@ public interface AuthorizationRepository {
             @Param("expectedVersion") long expectedVersion,
             @Param("reason") String reason,
             @Param("now") Instant now);
+
+    /**
+     * Consume an approved authorisation: the transition that turns a decision into an execution (C05.2a).
+     *
+     * <p>The version and the {@code APPROVED} status are conditions of the write, for the same reason the
+     * decision's are: two dispatch attempts arriving together — two instances, or a retry after a lost
+     * response — cannot both consume it, and the second matches no row and reports zero instead of sending a
+     * second command.
+     *
+     * <p>The decision columns are deliberately left alone. {@code CONSUMED} has to keep who approved it and on
+     * what grounds: the approval is the reason this row may be spent, and overwriting {@code decision_reason}
+     * with a sentence about the dispatch would replace the decision's grounds with a note about the plumbing.
+     * When it was consumed is {@code updated_at}, which moves with the status, and the {@code EXECUTION_UPDATED}
+     * trajectory row that names this authorisation.
+     */
+    @Update("""
+            UPDATE case_authorization
+               SET status = 'CONSUMED',
+                   authorization_version = authorization_version + 1,
+                   updated_at = #{now}
+             WHERE authorization_id = #{authorizationId}
+               AND authorization_version = #{expectedVersion}
+               AND status = 'APPROVED'
+            """)
+    int consume(
+            @Param("authorizationId") String authorizationId,
+            @Param("expectedVersion") long expectedVersion,
+            @Param("now") Instant now);
+
+    /**
+     * The authorisations waiting for the dispatch transaction: approved, on a case that is still
+     * {@code AUTHORIZED}.
+     *
+     * <p>{@code APPROVED} alone would be enough while both halves of consumption commit together, so the join
+     * is the other half of the same fact rather than a second rule: a case cancelled after its approval has no
+     * execution edge, and the cancellation retires the approval in its own transaction (C05.2a). Stating it
+     * here means a reader that finds a case that is no longer {@code AUTHORIZED} while its authorisation still
+     * says {@code APPROVED} dispatches nothing, instead of trusting that the two writers agree.
+     *
+     * <p>Oldest first, so a backlog is worked in the order it was approved.
+     */
+    @Select("""
+            SELECT a.authorization_id AS authorizationId,
+                   a.case_id          AS caseId
+              FROM case_authorization a
+              JOIN aftersale_case c ON c.case_id = a.case_id
+             WHERE a.status = 'APPROVED'
+               AND c.status = 'AUTHORIZED'
+             ORDER BY a.updated_at, a.authorization_id
+             LIMIT #{limit}
+            """)
+    List<DispatchCandidate> findAwaitingDispatch(@Param("limit") int limit);
+
+    /** One approved authorisation the dispatch loop may consume. */
+    record DispatchCandidate(String authorizationId, String caseId) {}
 
     /** A stored authorisation row, exactly as the table holds it. */
     record StoredAuthorization(

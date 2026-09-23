@@ -60,4 +60,32 @@ public record RefundCommand(
     public String payloadHash(ObjectMapper mapper) {
         return CanonicalJson.payloadHash(toJson(mapper));
     }
+
+    /**
+     * The command an approved authorisation fixed, rebuilt from the row that holds it (C05.2a).
+     *
+     * <p>Two moments rebuild these twelve fields from the stored authorisation instead of from a plan: the
+     * approval's re-check, which recomputes the hash and compares it with the one that was fixed, and the
+     * consumption transaction, which is about to send the command. They share this factory because the whole
+     * point of "what was approved" and "what was executed" being one object disappears if the two assemblies
+     * can drift — the hash comparison is only a statement about the payload while one assembly produces both
+     * sides of it.
+     *
+     * <p>{@code lineId} and {@code merchantId} come from the case row: the authorisation stores the payload
+     * fields it fixed, not the case's own identity.
+     */
+    public static RefundCommand fixedBy(AuthorizationRepository.StoredAuthorization stored, CaseRow row) {
+        return new RefundCommand(
+                stored.plannedOperationId(),
+                row.caseId(),
+                stored.authorizationId(),
+                stored.inputRevision(),
+                row.lineId(),
+                row.merchantId(),
+                ExecutableAction.of(stored.action()),
+                stored.quantity(),
+                stored.currency(),
+                stored.amountMinor(),
+                stored.policyVersion());
+    }
 }

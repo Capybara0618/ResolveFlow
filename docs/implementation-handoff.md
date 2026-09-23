@@ -18,7 +18,7 @@ T00–T02有已完成证据，包含锁、骨架、旧协议与测试。C00（�
 
 1. 读AGENTS.md、README.md、core-scope、dsh-migration-handoff、tasks/plan和todo。
 2. 检查git status与当前实现；并行客户端如仍在改同一文件，先停止冲突编辑并确认交接，不覆盖其工作。
-3. C00–C03 已完成，C04.1–C04.3、C05.1a/C05.1b/C05.1c 也已完成（退款执行侧：持久 provider、Commerce 本地金额、带签名 event outbox、RocketMQ 接线与消费端 inbox、真实 broker 上的系统级 e2e）；下一项是 C05.2（授权→命令→结果投影，`case_execution_command` 目前有表无写入方），再按 tasks/todo.md 的 C01–C13 图推进，不回旧 T03 扩展。C05.1c 的复跑方式与五个发现（含"发现 D：确定性业务拒绝曾被无限重投"这一 C05 复审要点）见 tasks/todo.md 的 C05.1c 条目。
+3. C00–C03 已完成，C04.1–C04.3、C05.1a/C05.1b/C05.1c、C05.2a 也已完成（退款执行侧：持久 provider、Commerce 本地金额、带签名 event outbox、RocketMQ 接线与消费端 inbox、真实 broker 上的系统级 e2e；C05.2a 补上授权→命令的写入方：`case_execution_command` 不再是"有表无代码"，消费与命令在同一事务，取消会撤回还没消费的批准）；下一项是 **C05.2b**（Commerce 的结果事件 `RefundSucceeded/Failed/Unknown` → `rf.commerce.core.v2`，以及 Case 的投影：成功才关单、失败释放后再试须新授权、UNKNOWN 保持，并回答"业务拒绝怎么回传 Case"），再按 tasks/todo.md 的 C01–C13 图推进，不回旧 T03 扩展。C05.1c 的复跑方式与五个发现（含"发现 D：确定性业务拒绝曾被无限重投"这一 C05 复审要点）见 tasks/todo.md 的 C05.1c 条目，C05.2a 的实现、守卫与未做项见同文件 C05.2a 条目。
 4. 只加载当前任务相关专题规格；每子步3–5核心文件，先失败测试、再实现/验证、更新真实记录。
 5. **开工前先确认工作区是真的**：本仓库在 2026-09-22 与 2026-09-23 两次被会话之外的进程静默回退/删除（第二次把工作区退回 2026-09-22 16:36 的快照，未推送的提交与文件全部消失，C05.1b 的代码只能从会话记录里恢复）。因此：先 `git log -1` 与 `git status` 核对 HEAD 是不是预期提交，发现文件批量消失时先停掉自己起的后台作业与进程、把残留状态保全到仓库外，再从远端恢复，并优先把已验证的提交推到远端——本机不是可靠存储。详见 tasks/todo.md 的 C03.3c-2 与 C05.1b 两条记录。
 

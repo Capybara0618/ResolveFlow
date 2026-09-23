@@ -22,16 +22,24 @@ import tools.jackson.databind.node.ObjectNode;
  * transition is not available" is the truth and "cancelled" would be a claim about a cancellation that did
  * not happen. The guard is checked under the case's row lock and repeated in the UPDATE's WHERE clause, so
  * two cancels arriving together cannot both move the version.
+ *
+ * <p>An approval that is still live is withdrawn in the same transaction (C05.2a). "Before the authorisation
+ * is consumed" is precisely this window — after a reviewer approved and before the dispatch transaction spent
+ * it — and a case that ended while its authorisation still said {@code APPROVED} would leave a row claiming
+ * money may still be spent on work that no longer exists. {@code REVOKED} rather than {@code EXPIRED} because
+ * somebody cancelled it, and the reason names the act.
  */
 @Service
 public class CaseCancellationService {
 
     private final CaseRepository cases;
+    private final LiveAuthorization liveAuthorizations;
     private final Clock clock;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public CaseCancellationService(CaseRepository cases, Clock clock) {
+    public CaseCancellationService(CaseRepository cases, LiveAuthorization liveAuthorizations, Clock clock) {
         this.cases = cases;
+        this.liveAuthorizations = liveAuthorizations;
         this.clock = clock;
     }
 
@@ -53,6 +61,9 @@ public class CaseCancellationService {
                     "this case is no longer in " + row.status() + "; nothing was cancelled");
         }
         cases.releaseActiveSlot(row.merchantId(), row.lineId());
+        // Before the trajectory row, so a reader never sees the case closed while an approval it can still
+        // spend is alive. Nothing to withdraw is the ordinary case and returns null.
+        liveAuthorizations.revoke(caseId, "the case was cancelled before the authorisation was consumed", now);
         cases.insertTimeline(
                 caseId,
                 UUID.randomUUID().toString(),

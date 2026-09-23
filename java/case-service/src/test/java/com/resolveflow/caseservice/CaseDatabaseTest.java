@@ -81,6 +81,11 @@ public abstract class CaseDatabaseTest {
     protected static void deleteAllCaseData(JdbcTemplate jdbc) {
         jdbc.execute("DELETE FROM case_evidence WHERE reviewed_evidence_id IS NOT NULL");
         for (String table : java.util.List.of(
+                // The command table and the outbox are cleaned here because consuming an authorisation writes
+                // both (C05.2a), and the command row holds foreign keys into them: a case cannot be deleted
+                // while a command still names it.
+                "case_execution_command",
+                "event_outbox",
                 "agent_callback",
                 "case_authorization",
                 "case_proposal",

@@ -228,18 +228,9 @@ public class ReviewDecisionService {
                     + " but the case is at revision " + row.inputRevision()
                     + "; the input it was checked against has changed, so it can never be applied";
         }
-        RefundCommand command = new RefundCommand(
-                stored.plannedOperationId(),
-                row.caseId(),
-                stored.authorizationId(),
-                stored.inputRevision(),
-                row.lineId(),
-                row.merchantId(),
-                ExecutableAction.of(stored.action()),
-                stored.quantity(),
-                stored.currency(),
-                stored.amountMinor(),
-                stored.policyVersion());
+        // Rebuilt rather than remembered: the hash below is only evidence about this authorisation while the
+        // same assembly produces the command that is eventually sent (RefundCommand.fixedBy, C05.2a).
+        RefundCommand command = RefundCommand.fixedBy(stored, row);
         if (!command.payloadHash(mapper).equals(stored.payloadHash())) {
             return "the payload hash of this authorisation cannot be recomputed from its own row, so what it"
                     + " would execute is not what was approved";
