@@ -2,16 +2,20 @@ package com.resolveflow.caseservice.result;
 
 import com.resolveflow.caseservice.casefile.CaseRepository;
 import com.resolveflow.caseservice.casefile.CaseRow;
+import com.resolveflow.caseservice.casefile.CaseStatus;
 import com.resolveflow.caseservice.casefile.ExecutionCommandRepository;
+import com.resolveflow.caseservice.casefile.TimelineEventType;
 import com.resolveflow.shared.core.CoreEnvelope;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Consuming one signed refund result (C05.2b-3a, docs/core-contracts.md:86, docs/domain-model.md:55).
@@ -210,6 +214,13 @@ public class CaseResultConsumer {
                     + " rows, so it is neither claimed nor a duplicate");
         }
 
+        // C05.2b-3b: applying the outcome is the second half of this same transaction
+        // (docs/core-contracts.md:86), so the inbox row that claims the result and the case that changes because
+        // of it cannot disagree — and a crash between them is not a state the database can hold.
+        if (applyToCase(row, state, operationId, lineId, amountMinor, eventId)) {
+            inbox.markProjected(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId, Instant.now(clock));
+        }
+
         LOG.info(
                 "result {} for case {} recorded: operation {} is {} at Commerce version {}",
                 eventId,
@@ -218,6 +229,76 @@ public class CaseResultConsumer {
                 state,
                 aggregateVersion);
         return Disposition.ACCEPTED;
+    }
+
+    /**
+     * Apply one accepted outcome to the case (C05.2b-3b, docs/domain-model.md:55).
+     *
+     * <p><b>Slice ① implements the success edge only:</b> {@code EXECUTING -> CLOSED_SUCCESS}, with the
+     * timeline's existing {@code CASE_CLOSED} kind — the vocabulary is pinned by a CHECK constraint and already
+     * has what this needs, so no new kind is invented for it.
+     *
+     * <p>A determined failure ({@code -> PENDING_REVIEW}) and an unknown answer ({@code -> RECONCILING}) are
+     * slices ② and ③. Until they land, a result whose state is not {@code SUCCEEDED} is still claimed and
+     * recorded, and is deliberately left with {@code projected_at} NULL — the marker that says "claimed, not yet
+     * applied". That is the honest interim: the row is visibly outstanding, instead of being marked applied while
+     * the case does not move.
+     *
+     * @return whether the case was actually moved, so the caller only marks the row applied when it was
+     */
+    private boolean applyToCase(
+            CaseRow row, String state, String operationId, String lineId, long amountMinor, String eventId) {
+        if (!CoreEnvelope.SUCCEEDED.equals(state)) {
+            LOG.info(
+                    "result {} says {}; projecting that outcome is a later slice of C05.2b-3b, so case {} keeps"
+                            + " its status and the inbox row stays unapplied",
+                    eventId,
+                    state,
+                    row.caseId());
+            return false;
+        }
+        Instant now = Instant.now(clock);
+        if (cases.transition(row.caseId(), row.status().name(), CaseStatus.CLOSED_SUCCESS.name(), now) != 1) {
+            // The expected status is in the statement, so this means the case was not EXECUTING when the result
+            // arrived. Which delivery may move it, and in what order, is exactly slice ④ (ordering by
+            // aggregate_version); leaving the row unapplied keeps that decision open instead of guessing here.
+            LOG.warn(
+                    "case {} was {} when result {} arrived, so nothing was projected and the row stays unapplied",
+                    row.caseId(),
+                    row.status(),
+                    eventId);
+            return false;
+        }
+        cases.insertTimeline(
+                row.caseId(),
+                UUID.randomUUID().toString(),
+                cases.nextTimelineSequence(row.caseId()),
+                TimelineEventType.CASE_CLOSED.name(),
+                closureDetail(row, eventId, operationId, lineId, amountMinor, state),
+                now,
+                row.inputRevision());
+        return true;
+    }
+
+    /**
+     * What the trajectory row says about the closure.
+     *
+     * <p>{@code CASE_CLOSED} is the contract's only terminal event type, so the status and the outcome that
+     * caused it are written into the detail rather than into the kind (the same reasoning the cancellation path
+     * states for its own terminal row). The operation, the line and the amount are here because this row is what
+     * a person reads to answer "which refund closed this" without joining three tables.
+     */
+    private String closureDetail(
+            CaseRow row, String eventId, String operationId, String lineId, long amountMinor, String state) {
+        ObjectNode detail = mapper.createObjectNode();
+        detail.put("case_status", CaseStatus.CLOSED_SUCCESS.name());
+        detail.put("outcome", state);
+        detail.put("operation_id", operationId);
+        detail.put("event_id", eventId);
+        detail.put("line_id", lineId);
+        detail.put("amount_minor", amountMinor);
+        detail.put("case_id", row.caseId());
+        return detail.toString();
     }
 
     /**

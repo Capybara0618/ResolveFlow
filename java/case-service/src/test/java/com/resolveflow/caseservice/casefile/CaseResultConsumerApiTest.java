@@ -175,12 +175,13 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
         assertThat(stored.reasonCode()).isNull();
         assertThat(stored.signingKeyId()).isEqualTo("commerce-service-demo-key");
         assertThat(stored.envelope())
-                .as("the signed bytes are kept verbatim, which is what makes the verification reproducible")
+                .as("the verified document is kept — canonically serialised, not byte-verbatim: key order and"
+                        + " whitespace are normalised — which is what makes the verification reproducible")
                 .contains(eventId);
         assertThat(stored.signature()).isNotBlank();
         assertThat(stored.projectedAt())
-                .as("projection onto the case state machine is C05.2b-3b's step, not this one")
-                .isNull();
+                .as("C05.2b-3b slice ① applies a SUCCEEDED result inside this same transaction, so the row says so")
+                .isNotNull();
     }
 
     @Test
@@ -289,33 +290,30 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    @DisplayName(
-            "boundary of C05.2b-3a: an accepted RefundSucceeded leaves the case EXECUTING, because projection is C05.2b-3b")
-    void anAcceptedResultIsNotProjectedYet() {
+    @DisplayName("C05.2b-3b: the boundary b-3a left behind is crossed — a redelivery closes nothing twice")
+    void aRedeliveredResultDoesNotCloseTheCaseTwice() {
         String eventId = UUID.randomUUID().toString();
-        long versionBefore =
+        String message = succeeded(eventId, MERCHANT, 3);
+
+        assertThat(consumer.consume(message)).isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+        long versionAfterFirst =
                 jdbc.queryForObject("SELECT version FROM aftersale_case WHERE case_id = ?", Long.class, caseId);
 
-        assertThat(consumer.consume(succeeded(eventId, MERCHANT, 3)))
-                .isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
-
-        // This assertion is the sub-step's boundary, stated out loud rather than left to be discovered: the
-        // result is durably received and *not* projected. C05.2b-3b owns the transition to CLOSED_SUCCESS and
-        // the timeline row that records the outcome, and it will consume the inbox row this step left behind.
-        assertThat(caseStatus())
-                .as("projection is C05.2b-3b's step; this sub-step only lands the fact durably")
-                .isEqualTo("EXECUTING");
+        // This test used to assert the opposite ("the result is received and *not* projected, because projection
+        // is C05.2b-3b's step"). This is that step, so the assertion is rewritten into the fact b-3a promised to
+        // hand over rather than deleted: the second delivery finds the claim in the inbox and changes nothing —
+        // no second closure, no second timeline row, no second version bump.
+        assertThat(consumer.consume(message)).isEqualTo(CaseResultConsumer.Disposition.DUPLICATE);
+        assertThat(caseStatus()).isEqualTo("CLOSED_SUCCESS");
         assertThat(jdbc.queryForObject("SELECT version FROM aftersale_case WHERE case_id = ?", Long.class, caseId))
-                .as("nothing about the case moved, so nothing can have been projected")
-                .isEqualTo(versionBefore);
+                .as("a duplicate is not a new fact and must not move the case again")
+                .isEqualTo(versionAfterFirst);
         assertThat(jdbc.queryForObject(
                         "SELECT COUNT(*) FROM case_timeline WHERE case_id = ? AND kind = 'CASE_CLOSED'",
                         Integer.class,
                         caseId))
-                .isZero();
-        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId)
-                        .projectedAt())
-                .isNull();
+                .as("the timeline records what happened, not how often it was delivered")
+                .isEqualTo(1);
     }
 
     @Test
@@ -349,6 +347,32 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
         assertThat(inbox.rejections().get(0).eventId())
                 .as("the rejection names the event, so the message can be found again")
                 .isEqualTo(eventId);
+    }
+
+    @Test
+    @DisplayName("C05.2b-3b: an accepted RefundSucceeded closes the case and records it in the timeline")
+    void anAcceptedSuccessClosesTheCase() {
+        String eventId = UUID.randomUUID().toString();
+
+        assertThat(consumer.consume(succeeded(eventId, MERCHANT, 3)))
+                .isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+
+        // docs/core-contracts.md:86 puts the inbox row, the projection and the local timeline in one
+        // transaction, so this is the same consume() call and not a later loop: the result that was accepted
+        // above is the result that closed the case.
+        assertThat(caseStatus())
+                .as("the money moved and the case heard about it")
+                .isEqualTo("CLOSED_SUCCESS");
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM case_timeline WHERE case_id = ? AND kind = 'CASE_CLOSED'",
+                        Integer.class,
+                        caseId))
+                .as("CASE_CLOSED is the vocabulary's existing kind for this; no new kind is invented")
+                .isEqualTo(1);
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId)
+                        .projectedAt())
+                .as("the inbox row says it has been applied, which is what makes a redelivery harmless")
+                .isNotNull();
     }
 
     // ------------------------------------------------------------------ fixtures

@@ -430,6 +430,10 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **这一步定下了一个设计要点**：`docs/core-contracts.md:86` 要求 inbox 行、投影与 timeline **同一事务**，所以投影**不是**另起一个扫描循环，而是 `CaseResultConsumer.consume` 那笔事务的后半段（认领→投影→`markProjected` 全在一起）。这既满足规范，也让"接受一条结果"与"工单因此改变"不可能分家；`projected_at` 则留作幂等标记与将来的补算入口。
   - **一个必须同时处理的后果（不许悄悄删断言）**：b-3a 的边界测试 `anAcceptedResultIsNotProjectedYet` 断言的是**相反**的事实（接受了结果但工单仍是 `EXECUTING`，因为投影是 b-3b 的事）。b-3b 正是它指向的下一步，所以要把它**改写成它承诺的下一个事实**（工单现在会动），而不是删掉——按 AGENTS.md「不为通过而删断言」，这次是规格上正当的推翻，改写与理由记在账本。
   - **红测试故意未提交**（提交一条已知失败的测试会让 `main` 处于红门禁状态），它留在工作树的 `CaseResultConsumerApiTest` 里；源码与红跑日志归档在 `reports/c052b3b-projection/`，以防工作区再次静默回退时丢掉这一步。**下一轮动作**：实现切片①（`EXECUTING → CLOSED_SUCCESS` + `CASE_CLOSED` timeline + `markProjected`，全部在 `consume` 的同一事务里），并把上面那条边界测试改写成新事实。
+  - **切片① 实现完成（2026-09-23）**：`CaseResultConsumer.consume` 在认领成功之后（**同一事务**）调用 `applyToCase(...)`：`EXECUTING → CLOSED_SUCCESS` + 一条 `CASE_CLOSED` timeline 行 + `markProjected`。**没有新增 timeline kind、没有新迁移**——V2 那七种 kind 已含 `CASE_CLOSED`，符合"复用冻结词汇"的决定。`cases.transition` 返回 0（工单当时不是 `EXECUTING`）时**既不标记 projected 也不写 timeline**，只留日志：那是切片④（按 `aggregate_version` 定序，谁有权推进）要决定的事，这一步不猜。
+  - **切片②③ 落地前的老实中间态**：`state != SUCCEEDED` 的结果照样被认领、照样落库，但**故意保持 `projected_at` 为 NULL**——"已认领、未应用"的标记，而不是在工单没动的情况下谎称已应用。
+  - **两条 b-3a 的边界断言被正当地翻转（改写而非删除，按 AGENTS.md 不许为通过而删断言）**：① `anAcceptedResultIsNotProjectedYet` → 改写成 `aRedeliveredResultDoesNotCloseTheCaseTwice`（第二次投递是 `DUPLICATE`、状态仍是 `CLOSED_SUCCESS`、version 不再动、`CASE_CLOSED` 行仍只有 1 条）；② `aSignedResultIsStoredAgainstItsCase` 里 `projectedAt` 由 `isNull()` 改为 `isNotNull()`。顺带把同一处"envelope 逐字保存"的不实说法改成"规范化保存（键序与空白归一），非逐字"——正是审查里记下的那条。
+  - **命令与结果**：先红（`expected: "CLOSED_SUCCESS" but was: "EXECUTING"`）→ 实现后该测试绿（一次编译通过）→ 全量 case-service 首次复跑 **172 条 1 失败**（就是上面第②条旧边界断言，`expected: null but was: <timestamp>`）→ 改写后复跑 **全量 172 条，0 失败 0 错误 1 skipped**（`reports/c052b3b-projection/20260923-slice1-full-suite-172-green.txt`），`spotless:apply` 后 `spotless:check` **干净**；`spotless:apply` 已跑。**本片至此完成**：工单现在会因为"钱真的退成了"而关单，且与认领同一事务。
 
 ### C04 持久模拟退款与本地金额事务
 
