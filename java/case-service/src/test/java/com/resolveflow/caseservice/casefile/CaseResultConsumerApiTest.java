@@ -375,6 +375,39 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
                 .isNotNull();
     }
 
+    @Test
+    @DisplayName("C05.2b-3b: a determined failure sends the case back to review instead of closing it")
+    void aDeterminedFailureSendsTheCaseBackToReview() {
+        String eventId = UUID.randomUUID().toString();
+
+        assertThat(consumer.consume(failed(eventId, MERCHANT, 4, "PROVIDER_DECLINED")))
+                .isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+
+        // docs/domain-model.md:55: 确定失败且金额释放 -> PENDING_REVIEW. The release itself is Commerce's fact and
+        // is asserted there (RefundAcceptanceApiTest asserts the reservation really went to zero); what this
+        // service owns is its own status and the trajectory row that says why it moved.
+        assertThat(caseStatus())
+                .as("a failed refund is not a closed case: it goes back to a human, who must authorise again")
+                .isEqualTo("PENDING_REVIEW");
+        assertThat(jdbc.queryForObject(
+                        "SELECT detail FROM case_timeline WHERE case_id = ? ORDER BY sequence DESC LIMIT 1",
+                        String.class,
+                        caseId))
+                .as("the newest trajectory row names the outcome and the reason code Commerce gave")
+                .contains("\"outcome\":\"FAILED\"")
+                .contains("PROVIDER_DECLINED")
+                .contains("PENDING_REVIEW");
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM case_timeline WHERE case_id = ? AND kind = 'CASE_CLOSED'",
+                        Integer.class,
+                        caseId))
+                .as("and nothing claims the case was closed successfully")
+                .isZero();
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId)
+                        .projectedAt())
+                .isNotNull();
+    }
+
     // ------------------------------------------------------------------ fixtures
 
     /** A signed result, as Commerce's C05.2b-1 outbox writes it. */
@@ -390,6 +423,20 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
                 "commerce-service-demo-key",
                 producerKey(),
                 operationId);
+    }
+
+    /** A signed determined failure, as Commerce's outbox writes it after it released the reservation. */
+    private String failed(String eventId, String merchantId, long aggregateVersion, String reasonCode) {
+        return resultEnvelope(
+                eventId,
+                merchantId,
+                CoreEnvelope.FAILED,
+                2599,
+                null,
+                reasonCode,
+                aggregateVersion,
+                "commerce-service-demo-key",
+                producerKey());
     }
 
     private String resultEnvelope(

@@ -217,7 +217,7 @@ public class CaseResultConsumer {
         // C05.2b-3b: applying the outcome is the second half of this same transaction
         // (docs/core-contracts.md:86), so the inbox row that claims the result and the case that changes because
         // of it cannot disagree — and a crash between them is not a state the database can hold.
-        if (applyToCase(row, state, operationId, lineId, amountMinor, eventId)) {
+        if (applyToCase(row, payload, state, operationId, lineId, amountMinor, eventId)) {
             inbox.markProjected(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId, Instant.now(clock));
         }
 
@@ -234,21 +234,29 @@ public class CaseResultConsumer {
     /**
      * Apply one accepted outcome to the case (C05.2b-3b, docs/domain-model.md:55).
      *
-     * <p><b>Slice ① implements the success edge only:</b> {@code EXECUTING -> CLOSED_SUCCESS}, with the
-     * timeline's existing {@code CASE_CLOSED} kind — the vocabulary is pinned by a CHECK constraint and already
-     * has what this needs, so no new kind is invented for it.
+     * <p>Slices ① and ② are here: {@code EXECUTING -> CLOSED_SUCCESS} for a successful refund, and
+     * {@code EXECUTING -> PENDING_REVIEW} for a determined failure whose money Commerce has already released.
+     * The target status decides the trajectory kind too — a terminal target is the contract's {@code CASE_CLOSED},
+     * anything else is {@code EXECUTION_UPDATED} — so neither a status nor a kind is invented: the migration's
+     * CHECK constraints already hold every value used here.
      *
-     * <p>A determined failure ({@code -> PENDING_REVIEW}) and an unknown answer ({@code -> RECONCILING}) are
-     * slices ② and ③. Until they land, a result whose state is not {@code SUCCEEDED} is still claimed and
-     * recorded, and is deliberately left with {@code projected_at} NULL — the marker that says "claimed, not yet
-     * applied". That is the honest interim: the row is visibly outstanding, instead of being marked applied while
-     * the case does not move.
+     * <p>An unknown answer ({@code -> RECONCILING}) is slice ③. Until it lands, a result whose state has no target
+     * is still claimed and recorded, and is deliberately left with {@code projected_at} NULL — the marker that
+     * says "claimed, not yet applied". That is the honest interim: the row is visibly outstanding, instead of
+     * being marked applied while the case does not move.
      *
      * @return whether the case was actually moved, so the caller only marks the row applied when it was
      */
     private boolean applyToCase(
-            CaseRow row, String state, String operationId, String lineId, long amountMinor, String eventId) {
-        if (!CoreEnvelope.SUCCEEDED.equals(state)) {
+            CaseRow row,
+            JsonNode payload,
+            String state,
+            String operationId,
+            String lineId,
+            long amountMinor,
+            String eventId) {
+        CaseStatus target = targetStatus(state);
+        if (target == null) {
             LOG.info(
                     "result {} says {}; projecting that outcome is a later slice of C05.2b-3b, so case {} keeps"
                             + " its status and the inbox row stays unapplied",
@@ -258,7 +266,7 @@ public class CaseResultConsumer {
             return false;
         }
         Instant now = Instant.now(clock);
-        if (cases.transition(row.caseId(), row.status().name(), CaseStatus.CLOSED_SUCCESS.name(), now) != 1) {
+        if (cases.transition(row.caseId(), row.status().name(), target.name(), now) != 1) {
             // The expected status is in the statement, so this means the case was not EXECUTING when the result
             // arrived. Which delivery may move it, and in what order, is exactly slice ④ (ordering by
             // aggregate_version); leaving the row unapplied keeps that decision open instead of guessing here.
@@ -273,30 +281,70 @@ public class CaseResultConsumer {
                 row.caseId(),
                 UUID.randomUUID().toString(),
                 cases.nextTimelineSequence(row.caseId()),
-                TimelineEventType.CASE_CLOSED.name(),
-                closureDetail(row, eventId, operationId, lineId, amountMinor, state),
+                timelineKindFor(target),
+                outcomeDetail(row, payload, eventId, operationId, lineId, amountMinor, state, target),
                 now,
                 row.inputRevision());
         return true;
     }
 
     /**
-     * What the trajectory row says about the closure.
+     * Which status an outcome moves the case to, or {@code null} while that outcome's projection is a later slice.
      *
-     * <p>{@code CASE_CLOSED} is the contract's only terminal event type, so the status and the outcome that
-     * caused it are written into the detail rather than into the kind (the same reasoning the cancellation path
-     * states for its own terminal row). The operation, the line and the amount are here because this row is what
-     * a person reads to answer "which refund closed this" without joining three tables.
+     * <p>docs/domain-model.md:55: a success closes the case, and a <em>determined</em> failure sends it back to a
+     * person — the money is released, so going again needs a new authorisation, which is why the case must accept
+     * input again rather than being closed. {@code UNKNOWN} is deliberately absent: it is not a determined
+     * failure, nothing was released for it (the same document's settlement rules), and its edge
+     * ({@code -> RECONCILING}) is slice ③.
      */
-    private String closureDetail(
-            CaseRow row, String eventId, String operationId, String lineId, long amountMinor, String state) {
+    private static CaseStatus targetStatus(String state) {
+        if (CoreEnvelope.SUCCEEDED.equals(state)) {
+            return CaseStatus.CLOSED_SUCCESS;
+        }
+        if (CoreEnvelope.FAILED.equals(state)) {
+            return CaseStatus.PENDING_REVIEW;
+        }
+        return null;
+    }
+
+    /**
+     * The trajectory kind for a target status: the contract's only terminal event type for a close, and its
+     * general "execution moved" type for everything else (TimelineEventType). It is derived from the status rather
+     * than listed per outcome, which is also why slice ③'s {@code RECONCILING} will need no new kind either.
+     */
+    private static String timelineKindFor(CaseStatus target) {
+        return target.isTerminal() ? TimelineEventType.CASE_CLOSED.name() : TimelineEventType.EXECUTION_UPDATED.name();
+    }
+
+    /**
+     * What the trajectory row says about the outcome.
+     *
+     * <p>{@code CASE_CLOSED} is the contract's only terminal event type, so the status and the outcome that caused
+     * it are written into the detail rather than into the kind (the same reasoning the cancellation path states
+     * for its own terminal row). The operation, the line and the amount are here because this row is what a person
+     * reads to answer "which refund moved this case, and for how much" without joining three tables; the reason
+     * code is here because whoever is looking at a case sent back to review needs Commerce's word for why.
+     */
+    private String outcomeDetail(
+            CaseRow row,
+            JsonNode payload,
+            String eventId,
+            String operationId,
+            String lineId,
+            long amountMinor,
+            String state,
+            CaseStatus target) {
         ObjectNode detail = mapper.createObjectNode();
-        detail.put("case_status", CaseStatus.CLOSED_SUCCESS.name());
+        detail.put("case_status", target.name());
         detail.put("outcome", state);
         detail.put("operation_id", operationId);
         detail.put("event_id", eventId);
         detail.put("line_id", lineId);
         detail.put("amount_minor", amountMinor);
+        String reasonCode = optionalText(payload, "reason_code");
+        if (reasonCode != null) {
+            detail.put("reason_code", reasonCode);
+        }
         detail.put("case_id", row.caseId());
         return detail.toString();
     }
