@@ -363,6 +363,15 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **失败记录（9 次尝试、8 次失败，全部留档）**：`105524`/`105735`/`105815` 系统测试本身失败（构建/类路径与首次接线）；`110313` 卡在发现 A（topic 非法字符，`awaitPublished` 超时）；`110200` 是驱动自身 bug（一处 unpack 写错导致报告都没写出，已顺手让"驱动自己出错也必须留下报告"）；`111824`/`113155` 是发现 E②（选了 7101 却带 7001 的金额）；`113621` 是发现 D 的积压死锁风暴；`114114` 是发现 E②的第二次（取的是订单金额 4598 而非行金额 2599，而那轮的陈旧命令恰好以正确的 2599 抢先占住了行）。
   - **未做 / 下一步**：CF3（provider 成功但响应丢失）属 C04.3 的路径、不是传输层；真实 broker 上的**乱序**面（CF2 的另一半）与多实例争抢同一队列未验证（本轮只有一个消费实例）；`case_execution_command` 仍无写入方，结果事件与 Commerce→Case 投影仍是 C05.2；发现 C 的残留死锁与发现 D 的"拒绝回传"都点名留给 C05 复审。**本轮没有推送**：这些提交的推送需要用户再次授权。
 
+### C05.2 拆分（开工计划，2026-09-23；用户选定为下一步，**尚未实现**）
+
+大工作包先拆子步。C05.2 的验收在清单里已经写明：重复/乱序/ACK 丢失不重复业务、目标确认成功才关单、失败释放后再试须新授权；验证是真实 RocketMQ + MySQL 的系统退款测试与 CF1/CF2/CF3 定点冒烟。拆成三步，每步 3–5 个核心文件：
+
+- **C05.2a（case-service：授权 → 命令的写入方）**：`case_execution_command`（V12 建表）目前**有表无代码**。在"人工通过"的那个事务里，把 C03.3a 已经定死的 `operation_id`/`payload_hash` 组装成 `RefundCommand` 与 `CoreEnvelope`，交给 C05.1a 的 `EventOutbox.writeRefundCommand`（业务效果、命令行、outbox 行同一事务；外部调用不放进来）。幂等靠唯一键：同一授权重复批准/重试不产生第二条命令。**不得**为未定死的授权、被拒方案或不动钱的建议发命令。文件：`V13__case_execution_command.sql`（补列/唯一键）、`execution/ExecutionCommandWriter` 与 repository、审批路径接线、`ExecutionCommandWriterApiTest`。验收：重复不产生第二条命令、命令与授权同事务回滚、越权与未定死授权无命令。
+- **C05.2b（Commerce → Case 的结果事件与投影）**：Commerce 在结算（成功/失败/UNKNOWN，含 C04.3 的对账路径）时写 `refund_result_outbox`（与本地状态同事务，至少一次）→ 投递到 `rf.commerce.core.v2`（`CoreEnvelope.COMMERCE_TOPIC`，`CoreTopicNames.brokerName` 已经能给它派生合法名）；case-service 新增结果消费者（验签 + `(consumer, event_id)` inbox，复用 C05.1b 的同一套判断）与投影：**成功才关单**，失败释放后要新授权，UNKNOWN 保持预留、不释放不换 id。文件：`V5__commerce_result_outbox.sql`、`outbox/ResultEventOutbox` + 发布器（复用 `RocketMqEventPublisher`）、`V14__case_result_inbox.sql` + `messaging/RefundResultListener` + 投影服务 + 两侧测试。
+- **C05.2c（真实链路的系统级 e2e + CF3 定点）**：把 C05.1c 的驱动扩成"建单 → 人工通过 → 命令 → Commerce → provider（含丢响应场景）→ 结果事件 → Case 关单"，断言三条不变量与 CF1/CF2/CF3；CF3（provider 成功但响应丢失 → UNKNOWN 且不结算）走到 C04.3 的对账路径上，**这一步才第一次让 C04.3 的对账面在真实链路上被触发**。文件：驱动脚本、两侧的系统测试、报告归档。
+- **C05.2 开工前要一起定的两件事（C05.1c 留下，不许含糊过去）**：① 并发 upsert 残留死锁的取舍（`INSERT IGNORE` vs 按 event id 选队列 + 顺序消费）；② 业务拒绝如何回传 Case（当前只有 Commerce 的日志行，C05.2b 的结果事件正是它该走的通道，要明确"拒绝"是不是一种结果事件）。
+
 ### C04 持久模拟退款与本地金额事务
 
 - [x] C04.1：SQLite provider-stub退款幂等、查询、丢响应/延迟可见与重启。
