@@ -1,0 +1,185 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] resolveflow-java                                                   [pom]
+[INFO] shared-kernel                                                      [jar]
+[INFO] commerce-service                                                   [jar]
+[INFO] 
+[INFO] ------------------< com.resolveflow:resolveflow-java >------------------
+[INFO] Building resolveflow-java 0.1.0-SNAPSHOT                           [1/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ resolveflow-java ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] -------------------< com.resolveflow:shared-kernel >--------------------
+[INFO] Building shared-kernel 0.1.0-SNAPSHOT                              [2/3]
+[INFO]   from shared-kernel\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ shared-kernel ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ shared-kernel ---
+[INFO] 
+[INFO] ------------------< com.resolveflow:commerce-service >------------------
+[INFO] Building commerce-service 0.1.0-SNAPSHOT                           [3/3]
+[INFO]   from commerce-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] 1 problem was encountered while building the effective model for org.javassist:javassist:jar:3.21.0-GA during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ commerce-service ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ commerce-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 5 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ commerce-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ commerce-service ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\commerce-service\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ commerce-service ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 10 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] /E:/Code+Agent+Backend/java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java: E:\Code+Agent+Backend\java\commerce-service\src\test\java\com\resolveflow\commerce\refund\RefundAcceptanceApiTest.javaʹ�û򸲸����ѹ�ʱ�� API��
+[INFO] /E:/Code+Agent+Backend/java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java: �й���ϸ��Ϣ, ��ʹ�� -Xlint:deprecation ���±��롣
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ commerce-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest
+16:53:12.957 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest]: RefundCommandConsumerApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:53:13.155 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest
+16:53:13.236 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest]: RefundCommandConsumerApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:53:13.236 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.commerce.CommerceDatabaseTest]: CommerceDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:53:13.238 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.commerce.CommerceServiceApplication for test class com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest
+16:53:13.290 [main] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+16:53:13.292 [main] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+16:53:13.334 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 2.0.5
+16:53:13.559 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Loaded org.testcontainers.dockerclient.NpipeSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+16:53:13.986 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with local Npipe socket (npipe:////./pipe/docker_engine)
+16:53:13.987 [main] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+16:53:14.010 [main] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.3.0
+  API Version: 1.54
+  Operating System: Docker Desktop
+  Total Memory: 7580 MB
+  Labels: 
+    com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+16:53:14.199 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Creating container for image: testcontainers/ryuk:0.14.0
+16:53:14.369 [main] INFO org.testcontainers.utility.RegistryAuthLocator -- Credential helper/store (docker-credential-desktop) does not have credentials for https://index.docker.io/v1/
+16:53:14.540 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 is starting: 90d1edab4d6c2d52b1c51684267edade780e12eacb0e7e8f7986d6f8d4a50e3e
+16:53:15.421 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 started in PT1.2215044S
+16:53:15.430 [main] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+16:53:15.430 [main] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+16:53:15.430 [main] INFO org.testcontainers.DockerClientFactory -- ?? Docker server version should be at least 1.6.0
+16:53:15.431 [main] INFO tc.mysql:8.4 -- Creating container for image: mysql:8.4
+16:53:15.511 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 is starting: 04df3c5830560cc15c34d4137c138df9b951ffd86c174324e2aaca746ca6addd
+16:53:15.970 [main] INFO tc.mysql:8.4 -- Waiting for database connection to become available at jdbc:mysql://localhost:52589/commerce_db using query 'SELECT 1'
+16:53:26.061 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 started in PT10.6295352S
+16:53:26.061 [main] INFO tc.mysql:8.4 -- Container is started (JDBC URL: jdbc:mysql://localhost:52589/commerce_db)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T16:53:26.590+08:00  INFO 19836 --- [commerce-service] [           main] c.r.c.m.RefundCommandConsumerApiTest     : Starting RefundCommandConsumerApiTest using Java 21.0.12.1 with PID 19836 (started by hjn in E:\Code+Agent+Backend\java\commerce-service)
+2026-09-23T16:53:26.592+08:00  INFO 19836 --- [commerce-service] [           main] c.r.c.m.RefundCommandConsumerApiTest     : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T16:53:28.103+08:00  INFO 19836 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-23T16:53:28.127+08:00  INFO 19836 --- [commerce-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1a1f22f2
+2026-09-23T16:53:28.129+08:00  INFO 19836 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-23T16:53:28.166+08:00  INFO 19836 --- [commerce-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:52589/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T16:53:28.268+08:00  WARN 19836 --- [commerce-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T16:53:28.323+08:00  INFO 19836 --- [commerce-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `commerce_db`.`flyway_schema_history` does not exist yet
+2026-09-23T16:53:28.328+08:00  INFO 19836 --- [commerce-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.042s)
+2026-09-23T16:53:28.366+08:00  INFO 19836 --- [commerce-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `commerce_db`.`flyway_schema_history` ...
+2026-09-23T16:53:28.459+08:00  INFO 19836 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `commerce_db`: << Empty Schema >>
+2026-09-23T16:53:28.475+08:00  INFO 19836 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "1 - commerce order read model"
+2026-09-23T16:53:28.592+08:00  INFO 19836 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "2 - demo order seed"
+2026-09-23T16:53:28.634+08:00  INFO 19836 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "3 - commerce refund local"
+2026-09-23T16:53:28.785+08:00  INFO 19836 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "4 - commerce event inbox"
+2026-09-23T16:53:28.864+08:00  INFO 19836 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `commerce_db` to version "5 - commerce result outbox"
+2026-09-23T16:53:28.914+08:00  INFO 19836 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 5 migrations to schema `commerce_db`, now at version v5 (execution time 00:00.299s)
+2026-09-23T16:53:29.917+08:00  INFO 19836 --- [commerce-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T16:53:29.984+08:00  INFO 19836 --- [commerce-service] [           main] c.r.c.m.RefundCommandConsumerApiTest     : Started RefundCommandConsumerApiTest in 3.706 seconds (process running for 18.007)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\hjn\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 18.47 s <<< FAILURE! -- in com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest
+[ERROR] com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest.aRefusedCommandIsAnswered -- Time elapsed: 1.138 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+[the case is owed an answer it can correlate: the operation id it fixed when it sent the command, and which its own case_execution_command names] 
+expected: 1
+ but was: 0
+	at com.resolveflow.commerce.messaging.RefundCommandConsumerApiTest.aRefusedCommandIsAnswered(RefundCommandConsumerApiTest.java:338)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   RefundCommandConsumerApiTest.aRefusedCommandIsAnswered:338 [the case is owed an answer it can correlate: the operation id it fixed when it sent the command, and which its own case_execution_command names] 
+expected: 1
+ but was: 0
+[INFO] 
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for resolveflow-java 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] resolveflow-java ................................... SUCCESS [  0.355 s]
+[INFO] shared-kernel ...................................... SUCCESS [  0.958 s]
+[INFO] commerce-service ................................... FAILURE [ 24.912 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  26.742 s
+[INFO] Finished at: 2026-09-23T16:53:31+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.6:test (default-test) on project commerce-service: There are test failures.
+[ERROR] 
+[ERROR] See E:\Code+Agent+Backend\java\commerce-service\target\surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :commerce-service

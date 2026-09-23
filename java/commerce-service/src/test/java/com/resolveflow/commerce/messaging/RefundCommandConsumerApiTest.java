@@ -265,11 +265,20 @@ class RefundCommandConsumerApiTest extends CommerceDatabaseTest {
     }
 
     @Test
-    @DisplayName("a command the world refuses rolls back, so the transport may retry it")
+    @DisplayName("a command the world refuses rolls back, and the case is still answered")
     void aRefusedCommandRollsBack() {
         // The line does not exist in commerce, so the acceptance path refuses. That is a *business* refusal, not
-        // a message the consumer should hide from the transport: if the line is added, the same delivery becomes
-        // applicable, so the claim has to roll back with the failure.
+        // a message the consumer should hide from the transport, and the claim still rolls back with the
+        // failure: a refusal raised after the operation row is inserted would otherwise commit half a
+        // reservation. What the rollback must NOT take with it is the answer — the case is owed a reason, so the
+        // answer is written in its own transaction (RefusedCommandAnswer) and survives this one. See
+        // aRefusedCommandIsAnswered for that half; this test is the rollback half.
+        //
+        // Corrected in C05.3b: this test used to say the rollback happened "so the transport may retry it", and
+        // the assertion below repeated it. Nothing retried — RefundCommandListener acknowledges a domain refusal
+        // as terminal (it must; asking again cannot change the world) — so the premise described a retry that no
+        // code performed, and the case was never told. The assertions were right; the sentence explaining them
+        // was not.
         ObjectNode payload = commandPayloadFor(
                 UUID.randomUUID().toString(), 2599, UUID.randomUUID().toString());
         payload.put("line_id", "9999");
@@ -293,11 +302,59 @@ class RefundCommandConsumerApiTest extends CommerceDatabaseTest {
                 .as("the failed command reserved nothing")
                 .isZero();
         assertThat(inbox.find(EventTrustConfiguration.REFUND_COMMAND_CONSUMER, eventId))
-                .as("its inbox claim rolled back, so the transport may retry it after the bug is fixed")
+                .as("its inbox claim rolled back, so a refusal after the operation row was inserted cannot leave"
+                        + " half a reservation behind")
                 .isNull();
         assertThat(inbox.rejections())
                 .as("a business refusal is not a protocol rejection, so nothing is filed as poison")
                 .isEmpty();
+    }
+
+    @Test
+    @DisplayName("a command the world refuses is answered to the case, not dropped")
+    void aRefusedCommandIsAnswered() {
+        // The hole this pins (C05.3b). The refusal used to leave one WARN line and nothing else: this consumer's
+        // transaction rolled back, and the listener acknowledged the refusal as terminal — so the message was
+        // gone, and the case (which had already written a row saying it sent a command, and consumed the
+        // authorisation) waited in EXECUTING forever. The test above asserted "the transport may retry it" while
+        // the listener had already decided no retry would come; each half was tested, and the combination was
+        // never asserted by anyone until the real chain exposed it (C05.2c, run3/run5).
+        String operationId = UUID.randomUUID().toString();
+        ObjectNode payload =
+                commandPayloadFor(operationId, 2599, UUID.randomUUID().toString());
+        payload.put("line_id", "9999");
+        payload.put("payload_hash", CanonicalJson.payloadHash(withoutHash(payload)));
+        String message = CoreEnvelope.canonical(CoreEnvelope.sign(
+                UUID.randomUUID().toString(),
+                CoreEnvelope.REFUND_REQUESTED,
+                MERCHANT,
+                Instant.now(),
+                payload,
+                null,
+                null,
+                "case-service-demo-key",
+                producerKey()));
+
+        assertThatThrownBy(() -> consumer.consume(message))
+                .as("until the answer exists, this refusal is still only a log line")
+                .isInstanceOf(com.resolveflow.commerce.refund.RefundRejectedException.class);
+
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM event_outbox WHERE event_type = 'RefundFailed'"
+                                + " AND JSON_UNQUOTE(JSON_EXTRACT(envelope, '$.payload.operation_id')) = ?",
+                        Integer.class,
+                        operationId))
+                .as("the case is owed an answer it can correlate: the operation id it fixed when it sent the"
+                        + " command, and which its own case_execution_command names")
+                .isEqualTo(1);
+        assertThat(jdbc.queryForObject(
+                        "SELECT JSON_UNQUOTE(JSON_EXTRACT(envelope, '$.payload.reason_code')) FROM event_outbox"
+                                + " WHERE event_type = 'RefundFailed'"
+                                + " AND JSON_UNQUOTE(JSON_EXTRACT(envelope, '$.payload.operation_id')) = ?",
+                        String.class,
+                        operationId))
+                .as("and the answer says which refusal it was, so a person can be shown why")
+                .isEqualTo("LINE_NOT_FOUND");
     }
 
     @Test

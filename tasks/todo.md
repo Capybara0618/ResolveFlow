@@ -736,6 +736,45 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
     父级这次是真的跑了命令，两者一致。
   - 未确认（留给读者）：`GET /internal/v1/order-lines` **该不该算核心路由**本身就是 C01.2a 做过的契约决定；
     按当前权威（`docs/core-contracts.md` + 测试）28 成立，27 只在它书写当天成立。
+- C05.3b（Commerce 半程）完成（2026-09-23）：**被 domain 拒绝的命令现在会回传 Case**，工单不再静默停在
+  `EXECUTING`。修改文件：`RefundRejectedException`（带上被拒的命令 + `withCommand`）、
+  `RefundAcceptanceService`（在 `accept` 里一处统一挂载，未来新增拒绝点不可能忘）、
+  `ResultEventOutbox.writeRefusedCommand`（签一条 `RefundFailed`）、新 bean `RefusedCommandAnswer`
+  （`REQUIRES_NEW`）、`RefundCommandConsumer`（catch + 回答）、`RefundCommandConsumerApiTest`（+1 条，并更正
+  旧测试里那句错的前提）。**commerce 71 条 0 失败**（原 70+1）、`RefundCommandConsumerApiTest` 11 条绿、
+  `spotless:check` exit 0。
+  - **先红**：新增 `aRefusedCommandIsAnswered` 先红在 `expected: 1 but was: 0`——`event_outbox` 里没有任何回答行
+    （证据 `reports/c053-refusal/20260923-c053b-red-no-answer-row.txt`）。
+  - **形状**（与 c-3a 定的契约决定一致）：`RefundFailed` + `reason_code = RefundError.name()` +
+    `operation_id` 取自**命令本身**（Case 自己固定、且已写进 `case_execution_command`，所以能关联）+
+    `aggregate_version = 1`（该 operation 只会有一个事实）+ `provider_ref` 显式 null。**不新增事件类型**，
+    Case 侧代码**不用改**（现有投影已把 `FAILED → PENDING_REVIEW`）。
+  - **第一次转绿时撞到的坑（留档）**：让 `consume` 捕获后**正常 return** 不行——内层
+    `RefundAcceptanceService.accept` 的 `@Transactional` 在抛异常时已经把**共享事务**标成 rollback-only，
+    外层正常提交就得到 `UnexpectedRollbackException: Transaction rolled back because it has been marked as
+    rollback-only`（证据 `…c053b-rollback-only-trap.txt`）。**而 `noRollbackFor` 不是解法、反而更危险**：
+    `accept` 可能在 `operations.insert` **之后**才拒绝（账本拒绝预留、slot 被别人持有），不让事务回滚就会
+    提交**半个预留**——正是 `docs/domain-model.md:41` 禁止的状态。所以**回滚保持不动，只让"回答"活下来**：
+    走 `RefusedCommandAnswer` 的 `REQUIRES_NEW`（与本项目两个 `EventRejectionLog`/`CaseResultRejectionLog`
+    同一个理由、同一个形状；javadoc 写明自调用会静默加入将回滚的事务、证据会消失）。
+    因此投递仍是**终态 ACK**、claim 仍回滚；代价是至少一次语义下"ACK 丢失会回答第二次"，而 Case 侧第二次是
+    同 operation、同 `aggregate_version` 的旧事实 → 只写 `EXECUTION_UPDATED`，不会重复动钱（本次没有任何钱
+    被预留）。**未选**改 `ResultOutboxRepository.insert` 做确定性 event_id/幂等的理由：那是结算路径共用的
+    仓库，改动风险大于这一行的收益。
+  - **顺带修掉同一个洞的第二种形状**：命令**没解析出来**就拒绝的（`MALFORMED_COMMAND`/
+    `PAYLOAD_HASH_MISMATCH`）此前也只是 WARN + ACK。它没有可关联的 operation id，所以**不回答**，但改为落
+    `event_rejection`（协议拒绝），让它在操作台可见、而不是随日志轮转消失。
+  - **更正的旧断言（没有删除断言）**：`aRefusedCommandRollsBack` 的 DisplayName 与两处 `.as(...)` 原写
+    "rollback 是为了让 transport 重试"——**没有任何代码会重试**：`RefundCommandListener` 把 domain 拒绝按
+    终态 ACK（它必须如此：重问不改变世界，而且重试会反复拿行锁、C05.1c 真broker 上撞过）。
+    三个实质断言（无 operation、claim 为 null、不落 poison）**原样保留且仍成立**，只把那句错的前提改对并
+    标注 C05.3b 更正。**根因是"两半各测各的"**：消费者测试断言"transport 可能重试"，监听器测试断言"终态
+    ACK"，没有任何测试断言两者合起来的结果；而监听器的注释里早就写着"把拒绝带回 Case 是 C05.2 的结果投影"
+    ——一个从未被实现的意图，直到 c-3 的两次真实运行把它暴露出来。
+  - **未运行（不声称）**：**e2e 尚未跑**。"工单真的从 `EXECUTING` 落到 `PENDING_REVIEW`"目前只有 commerce
+    侧的单元证据（回答行存在、`reason_code` 正确）；端到端未验证。下一步：驱动铸一条**没有 `line_refund`
+    slot 行**的坏行（正是 c-3 run2/run5 真实撞到的 `LINE_NOT_FOUND`），加一条系统测试断言工单落到
+    `PENDING_REVIEW` 且 `CASE_CLOSED` 为 0。
 
 ### C04 持久模拟退款与本地金额事务
 

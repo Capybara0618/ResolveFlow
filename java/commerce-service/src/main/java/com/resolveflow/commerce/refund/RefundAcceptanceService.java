@@ -73,6 +73,17 @@ public class RefundAcceptanceService {
                     RefundError.MALFORMED_COMMAND, "a command arrives with the delivery id that identifies it");
         }
         RefundCommand command = RefundCommand.parse(mapper, document);
+        // Every refusal from here on is about a command this service understood, so every one of them carries
+        // it (C05.3b): the consumer answers the case with a RefundFailed naming the operation id, and a throw
+        // site added later cannot forget to attach it because the attaching happens once, here.
+        try {
+            return acceptParsed(requestId, command);
+        } catch (RefundRejectedException refused) {
+            throw refused.withCommand(command);
+        }
+    }
+
+    private Receipt acceptParsed(String requestId, RefundCommand command) {
         Instant now = Instant.now(clock);
 
         RefundOperationRepository.StoredOperation existing = operations.find(command.operationId());

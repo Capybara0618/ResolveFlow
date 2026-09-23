@@ -1,6 +1,7 @@
 package com.resolveflow.commerce.messaging;
 
 import com.resolveflow.commerce.refund.RefundAcceptanceService;
+import com.resolveflow.commerce.refund.RefundRejectedException;
 import com.resolveflow.shared.core.CoreEnvelope;
 import java.time.Clock;
 import java.time.Instant;
@@ -30,12 +31,19 @@ import tools.jackson.databind.ObjectMapper;
  *       what it does. A domain refusal (the line is held, the amount is not the line's) is deliberately *not*
  *       filed as poison — C05.1b's decision — and the listener acknowledges it rather than retrying a decision
  *       that cannot change (C05.1c, {@link RefundCommandListener}).
+ *   <li><b>Answer a refusal.</b> A refusal about a command this service understood is answered with a signed
+ *       {@code RefundFailed} naming why, in this same transaction, and the delivery ends as {@code REFUSED}
+ *       (C05.3b). Before that, the refusal ended the delivery with nothing written down, and the case — already
+ *       told by its own records that a command was sent — waited in EXECUTING for an answer that could not
+ *       come. See {@link #refuse}.
  * </ol>
  *
- * <p>A refusal is written to {@code event_rejection} and then reported to the transport as a failure. That
+ * <p>A <em>protocol</em> refusal (the message is not JSON, the signature does not hold, the event type is not
+ * this consumer's) is written to {@code event_rejection} and then reported to the transport as a failure. That
  * combination is deliberate: the row is what an operator reads, and the failed acknowledgement is what stops a
  * poison message from being acknowledged as if it had been applied
- * (docs/engineering.md:56 — 毒消息最终DLQ，需要操作台可追踪).
+ * (docs/engineering.md:56 — 毒消息最终DLQ，需要操作台可追踪). A <em>domain</em> refusal is different and is
+ * handled differently: see {@link #refuse}.
  */
 @Service
 public class RefundCommandConsumer {
@@ -60,19 +68,24 @@ public class RefundCommandConsumer {
     private final Clock clock;
     private final ObjectMapper mapper;
 
+    /** Where the answer to a refused command is written, in its own transaction (C05.3b). */
+    private final RefusedCommandAnswer answers;
+
     public RefundCommandConsumer(
             EventInboxRepository inbox,
             EventVerifier verifier,
             RefundAcceptanceService acceptance,
             EventRejectionLog rejections,
             Clock clock,
-            ObjectMapper mapper) {
+            ObjectMapper mapper,
+            RefusedCommandAnswer answers) {
         this.inbox = inbox;
         this.verifier = verifier;
         this.acceptance = acceptance;
         this.rejections = rejections;
         this.clock = clock;
         this.mapper = mapper;
+        this.answers = answers;
     }
 
     /**
@@ -126,8 +139,58 @@ public class RefundCommandConsumer {
                     EventVerifier.Refusal.MALFORMED, "a refund command has a payload object");
         }
 
-        RefundAcceptanceService.Receipt receipt = acceptance.accept(eventId, payload);
+        RefundAcceptanceService.Receipt receipt;
+        try {
+            receipt = acceptance.accept(eventId, payload);
+        } catch (RefundRejectedException refused) {
+            throw refuse(refused, verified, rawMessage);
+        }
         return receipt.replayed() ? Disposition.DUPLICATE : Disposition.ACCEPTED;
+    }
+
+    /**
+     * Tell the case why its command was refused, then let the refusal end this delivery (C05.3b).
+     *
+     * <p>What was missing before this: the refusal rolled the claim back and the listener acknowledged the
+     * delivery as terminal, which it has to do — asking again does not change the world, and the retries took
+     * the line's lock each time (C05.1c). So the command was gone, and the case, which had already written a row
+     * saying it sent one and consumed the authorisation, waited in EXECUTING for an answer that could not come.
+     * The listener's own comment said "carrying the refusal back to the case is C05.2's result projection"; this
+     * is that projection's input, arriving one sub-step late.
+     *
+     * <p><b>Why the answer is written in its own transaction.</b> This one is about to roll back — and it must:
+     * a refusal raised after {@code operations.insert} (the ledger then refuses the reservation) would otherwise
+     * commit half a reservation, which is precisely the state the domain forbids. Marking the refusal
+     * {@code noRollbackFor} would do that, so the answer goes through {@link RefusedCommandAnswer}, whose
+     * {@code REQUIRES_NEW} transaction survives this one. The cost is the at-least-once one this project already
+     * accepts: if the acknowledgement is lost the delivery is answered a second time, which the case records as a
+     * stale fact about an operation it has already decided (nothing moves twice, because no money was reserved).
+     *
+     * <p>Two kinds of refusal reach here, and they are not the same thing:
+     *
+     * <ul>
+     *   <li><b>About a command this service understood</b> ({@link RefundRejectedException#command()} is set):
+     *       the case is owed an answer and gets one — {@code RefundFailed} naming the reason, correlated through
+     *       the operation id the case itself fixed, so the projection returns it to a person instead of leaving
+     *       it executing.
+     *   <li><b>About a message that never became a command</b> (malformed, or a payload hash that does not cover
+     *       its own members): there is no operation id to answer about, so nothing is sent. It is filed as a
+     *       protocol rejection instead, which is what keeps it visible to an operator rather than a WARN line
+     *       that rotates away. This service genuinely cannot tell the case anything it could correlate.
+     * </ul>
+     */
+    private RefundRejectedException refuse(RefundRejectedException refused, JsonNode envelope, String rawMessage) {
+        if (refused.command() == null) {
+            reject(EventVerifier.Refusal.MALFORMED, refused, envelope, rawMessage);
+            return refused;
+        }
+        String eventId = answers.record(refused.command(), refused.error());
+        LOG.warn(
+                "refused a core event by the domain: {} ({}); the case was answered with result {}",
+                refused.error(),
+                refused.getMessage(),
+                eventId);
+        return refused;
     }
 
     private JsonNode parse(String rawMessage) {

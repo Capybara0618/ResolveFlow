@@ -1,5 +1,7 @@
 package com.resolveflow.commerce.messaging;
 
+import com.resolveflow.commerce.refund.RefundCommand;
+import com.resolveflow.commerce.refund.RefundError;
 import com.resolveflow.commerce.refund.RefundOperationRepository;
 import com.resolveflow.shared.core.CoreEnvelope;
 import java.security.PrivateKey;
@@ -107,6 +109,63 @@ public class ResultEventOutbox {
                 eventType,
                 envelope.path("schema_version").asInt(),
                 operation.merchantId(),
+                envelope.path("topic").asString(),
+                envelope.path("producer").asString(),
+                CoreEnvelope.canonical(envelope),
+                envelope.path("signature").asString(),
+                signingKeyId,
+                now);
+        return eventId;
+    }
+
+    /**
+     * Record the answer a refused command is owed: a {@code RefundFailed} that names why (C05.3b).
+     *
+     * <p>Until this existed, a command the domain refused left one WARN line behind. The consumer's transaction
+     * rolled back with the refusal and the transport acknowledged the delivery as terminal, so the command was
+     * gone while the case — which had already written a row saying it sent one and consumed the authorisation —
+     * waited in EXECUTING for an answer that could not come. The listener said so in a comment ("carrying the
+     * refusal back to the case is C05.2's result projection"); this method is what that projection reads.
+     *
+     * <p>What keeps the entry point narrow: it answers a command that arrived, so it can still not originate a
+     * message this service has no business signing. {@code operation_id}, {@code line_id} and
+     * {@code amount_minor} come from that command — the document the case itself recorded in
+     * {@code case_execution_command} — so the case correlates the answer through something it already knows.
+     *
+     * <p>{@code aggregate_version} is 1 because there is no operation row to version: this is the only fact
+     * there will ever be about that operation id. A refusal is terminal, and trying again means a new command
+     * under a new operation id (the case's authorisation was consumed), so nothing later needs ordering against
+     * this.
+     */
+    @Transactional
+    public String writeRefusedCommand(RefundCommand command, RefundError error) {
+        String eventId = UUID.randomUUID().toString();
+        Instant now = Instant.now(clock);
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("operation_id", command.operationId());
+        payload.put("line_id", command.lineId());
+        payload.put("state", CoreEnvelope.FAILED);
+        payload.put("amount_minor", command.amountMinor());
+        // Explicit nulls, for the same reason the settled payload has them: "no provider was ever named" is a
+        // fact about this answer, and an omitted member would be a second, accidental contract.
+        payload.putNull("provider_ref");
+        payload.put("reason_code", error.name());
+        payload.put("aggregate_version", 1);
+        ObjectNode envelope = CoreEnvelope.sign(
+                eventId,
+                CoreEnvelope.REFUND_FAILED,
+                command.merchantId(),
+                now,
+                payload,
+                null,
+                null,
+                signingKeyId,
+                signingKey);
+        outbox.insert(
+                eventId,
+                CoreEnvelope.REFUND_FAILED,
+                envelope.path("schema_version").asInt(),
+                command.merchantId(),
                 envelope.path("topic").asString(),
                 envelope.path("producer").asString(),
                 CoreEnvelope.canonical(envelope),
