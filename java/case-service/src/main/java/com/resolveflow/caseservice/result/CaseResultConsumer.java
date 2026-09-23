@@ -53,6 +53,13 @@ public class CaseResultConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(CaseResultConsumer.class);
 
+    /**
+     * The contract's own upper bound for a result's amount — {@code AmountMinor} in
+     * contracts/core/event-envelope.schema.json, which is {@code minimum: 1, maximum: 1000000000} and the same
+     * range the table's CHECK constraint enforces.
+     */
+    private static final long MAX_RESULT_AMOUNT_MINOR = 1_000_000_000L;
+
     /** What one delivery was, once the transport has handed it to a consumer. */
     public enum Disposition {
         /** The result was new and is now durably recorded. */
@@ -150,6 +157,28 @@ public class CaseResultConsumer {
         }
         long amountMinor = requiredLong(payload, "amount_minor", verified, rawMessage);
         long aggregateVersion = requiredLong(payload, "aggregate_version", verified, rawMessage);
+        // The contract's bounds, checked here rather than left to the table's CHECK constraint (C05.3a's second
+        // finding, closed in C05.3c). A CHECK violation arrives as DataIntegrityViolationException: the
+        // transaction rolls back, *nothing* is written down, and the transport redelivers a message that can
+        // never be accepted. That is the same shape as the unknown-state hole above — the failure this consumer
+        // exists to make visible — and a range this service can check in one line is not worth discovering in
+        // SQL. Only the amount has a table constraint to mirror; the version bound is the contract's alone, and
+        // an unversioned fact would sort as stale forever and never move its case.
+        if (amountMinor < 1 || amountMinor > MAX_RESULT_AMOUNT_MINOR) {
+            refusal(
+                    CaseResultVerifier.Refusal.MALFORMED,
+                    "the result's amount_minor is outside the core range 1.." + MAX_RESULT_AMOUNT_MINOR + ": "
+                            + amountMinor,
+                    verified,
+                    rawMessage);
+        }
+        if (aggregateVersion < 1) {
+            refusal(
+                    CaseResultVerifier.Refusal.MALFORMED,
+                    "the result's aggregate_version must be at least 1: " + aggregateVersion,
+                    verified,
+                    rawMessage);
+        }
 
         // The case is resolved from this service's own record of the operation, never from the message.
         ExecutionCommandRepository.StoredCommand command = commandFor(operationId, verified, rawMessage);

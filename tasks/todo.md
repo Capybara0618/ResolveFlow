@@ -801,6 +801,38 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
     `…-e2e-refund-chain.txt`（报告本体）、`…-chain-test.txt`（测试输出）、`…-build.txt`、`…-provider.sqlite3`。
     这是驱动的一个已知报告瑕疵（固定名 vs 每轮一份），本步**记录而不改**：改名字要动 `start()` 的调用约定，
     收益是"旧日志还在"，成本是让 c-3 账本里引用的路径全部失效——留待需要时一起改。
+- C05.3c 完成（2026-09-23）：**③ 的其余待核项清完**（C05 复审收口到此全部完成）。
+  - **未知 `state` 的拒绝路径（洞一）——补上一直缺的那条测试**，并如实说明它**第一次跑就是绿的**：代码在
+    C05.2b-3a 的父级审查里已经修好（把 `CoreEnvelope.resultEventType(state)` 的异常包成 `MALFORMED` refusal），
+    账本当时写的就是"已修，但无测试"，缺的确实只是测试。这条测试必须**手工构造载荷**：`CoreEnvelope.resultPayload`
+    自己就拒绝契约外的 state（`CoreEnvelope.java:196`），而夹具辅助方法又是用 state 反推 event_type 的
+    （`resultEnvelope` → `resultEventType(state)`），所以"一个可信生产者发来本版本不认识的 state"这个文档
+    在既有夹具下**根本造不出来**——这正是它一直没被测的原因，不是漏写。新测试用真实 event type 手工拼 payload
+    并**正确签名**，断言 `MALFORMED` 拒签、不落事实行、留一条 `MALFORMED` 拒签记录：**"签名有效"不等于"读得懂"**，
+    这条钉的就是这句话。
+  - **`amount_minor` 缺前置校验（洞二）——先红后绿修掉**。红证据（`reports/c053-closeout/…-red-…txt`）：
+    `Check constraint 'chk_case_result_inbox_amount' is violated`。`requiredLong` 只校验"是个数字"，
+    于是 0（或超上限）直撞表 CHECK，抛 `DataIntegrityViolationException`：事务回滚、**什么也没记下**、
+    transport 无限重投一条永远不可能被接受的消息——与洞一**同一种形状**。修法：在 `CaseResultConsumer` 按契约
+    自己的边界校验 `amount_minor ∈ [1, 1000000000]`（`AmountMinor`，与表 CHECK 同范围），并**顺手校验
+    `aggregate_version >= 1`**（这条只有契约管、表上没有；负数版本号会被永远当成旧事实，工单永远不动）。
+    两条都走 `refusal(MALFORMED)` → 有拒签行、不再无限重投。新测试覆盖范围的**两端**（0 与 1000000001）。
+  - **`case_result_rejection` 表来源——核清：不是子代理凭空加的**。它与 inbox 同批在
+    `V13__case_result_inbox.sql:82-93` 创建，迁移注释自己写明"为什么必须在自己事务里写"；`CaseResultRejectionLog`
+    确实在用它（`REQUIRES_NEW`）；且是**新增迁移**（符合"迁移只追加"）。原来的疑虑是"这张表没有出处"，
+    实际有出处、有理由、有用例。
+  - **命令与结果**：`-Dtest=CaseResultConsumerApiTest` → 红 **1 条**（金额那条）/ 修后**绿 16 条**；
+    `-pl case-service -am test` → **182 条 0 失败 0 错误 4 skipped**（180+2）；`spotless:check` **exit 0**。
+    证据 `reports/c053-closeout/`。
+- **C05.3 复审收口总结（2026-09-23，①②③ 全部完成）**：① 逐行审查了 b-3a 的三块代码（核对通过 5 点，
+  发现 2 个真问题 + 1 个观察）；② 把"业务拒绝怎么回传 Case"定了契约并先红后绿实现，**真 broker 上 e2e 通过**
+  （`RESULT: PASSED (89.8s)`，工单从静默 `EXECUTING` 变成有理由的 `PENDING_REVIEW`）；
+  ③ 四个待核项全部核清（路由数量 28/27、未知 state 无测试、`case_result_rejection` 出处、`amount_minor` 前置校验）。
+  提交：`6f30f9a`（复审）、`601a8d1`（Commerce 半程）、`73c698c` + `64ce614`（e2e 半程与归档）。
+  **仍未做（不因收口而消失，留给后续）**：`CaseResultVerifier`/`EventVerifier` 两侧 `direction(...)` 仍靠
+  **报文文本**分类（要两边一起改，本步未做）；Case 侧**仍不比**结果里的 `amount_minor` 与本工单批准金额
+  是否一致（签名只证明"来自 Commerce"，不证明"与本次授权一致"——属契约决定）；为拒绝链**没有单独跑 e2e 红**
+  （修复已在位后跑的 e2e，红的一半只有单元级证据）；驱动的固定名进程日志仍会覆盖上一轮。
 
 ### C04 持久模拟退款与本地金额事务
 

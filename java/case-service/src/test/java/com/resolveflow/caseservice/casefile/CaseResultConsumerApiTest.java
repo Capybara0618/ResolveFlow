@@ -208,6 +208,79 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    @DisplayName("a result whose amount is outside the core range is refused and recorded, not retried forever")
+    void anAmountOutsideTheCoreRangeIsRefused() {
+        // C05.3a's second finding, closed here. The amount was only checked as "a number", so 0 — or anything
+        // above the contract's maximum of 1000000000 — travelled to the table's own CHECK constraint and came
+        // back as DataIntegrityViolationException. That is not a refusal: the transaction rolled back, nothing
+        // was written down, and the transport redelivered a message that could never be accepted. An operator
+        // had no row to find, which is the one outcome this consumer exists to prevent.
+        String belowMinimum = UUID.randomUUID().toString();
+        String aboveMaximum = UUID.randomUUID().toString();
+
+        assertThatThrownBy(() -> consumer.consume(resultEnvelope(
+                        belowMinimum,
+                        MERCHANT,
+                        CoreEnvelope.SUCCEEDED,
+                        0,
+                        "prv-range-test",
+                        null,
+                        3,
+                        "commerce-service-demo-key",
+                        producerKey())))
+                .as("0 is below the contract's minimum of 1")
+                .isInstanceOf(CaseResultVerifier.RefusedEventException.class)
+                .satisfies(error -> assertThat(((CaseResultVerifier.RefusedEventException) error).refusal())
+                        .isEqualTo(CaseResultVerifier.Refusal.MALFORMED));
+        assertThatThrownBy(() -> consumer.consume(resultEnvelope(
+                        aboveMaximum,
+                        MERCHANT,
+                        CoreEnvelope.SUCCEEDED,
+                        1_000_000_001L,
+                        "prv-range-test",
+                        null,
+                        3,
+                        "commerce-service-demo-key",
+                        producerKey())))
+                .as("and 1000000001 is above its maximum")
+                .isInstanceOf(CaseResultVerifier.RefusedEventException.class);
+
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, belowMinimum))
+                .as("a result this service cannot read is not a fact")
+                .isNull();
+        assertThat(inbox.rejections())
+                .as("both ends of the range are recorded, so the broken producer is visible")
+                .hasSize(2);
+        assertThat(inbox.rejections().get(0).reason()).isEqualTo("MALFORMED");
+    }
+
+    @Test
+    @DisplayName("a result whose state this version does not know is refused and recorded")
+    void anUnknownStateIsRefusedAndRecorded() {
+        // C05.3a's first finding: fixed in code then, never pinned by a test — the fixture helper derives the
+        // event type *from* the state (and CoreEnvelope.resultPayload refuses a state outside the contract), so
+        // no test could produce the document this path exists for. A trusted producer can still send one: a
+        // newer Commerce, or a bug. The shared helper's exception used to escape the refusal conversion, which
+        // rolled the transaction back without a rejection row and redelivered forever. This is that document,
+        // built by hand and signed properly, because "correctly signed" is not the same as "readable".
+        String eventId = UUID.randomUUID().toString();
+
+        assertThatThrownBy(() -> consumer.consume(aCorrectlySignedResultWithState(eventId, "CREATED", 2599, 3)))
+                .as("CREATED is a Commerce-local state, not a core result state")
+                .isInstanceOf(CaseResultVerifier.RefusedEventException.class)
+                .satisfies(error -> assertThat(((CaseResultVerifier.RefusedEventException) error).refusal())
+                        .isEqualTo(CaseResultVerifier.Refusal.MALFORMED));
+
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId))
+                .as("a result nobody can interpret is not a fact")
+                .isNull();
+        assertThat(inbox.rejections())
+                .as("and it is filed, so a state this version cannot read is visible rather than invisible")
+                .hasSize(1);
+        assertThat(inbox.rejections().get(0).reason()).isEqualTo("MALFORMED");
+    }
+
+    @Test
     @DisplayName("a result signed with a key this service does not trust is refused")
     void anUntrustedSigningKeyIsRefused() {
         String eventId = UUID.randomUUID().toString();
@@ -632,6 +705,37 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
                 aggregateVersion,
                 "commerce-service-demo-key",
                 producerKey());
+    }
+
+    /**
+     * A correctly signed result whose payload state is written by hand.
+     *
+     * <p>Needed only for {@link #anUnknownStateIsRefusedAndRecorded}: {@link CoreEnvelope#resultPayload} refuses
+     * a state outside the contract, so the shared helper cannot express the one document that path exists for.
+     * The event type is a real one, because the point is a signature that holds over an unreadable payload.
+     */
+    private String aCorrectlySignedResultWithState(
+            String eventId, String state, long amountMinor, long aggregateVersion) {
+        ObjectNode payload = MAPPER.createObjectNode();
+        payload.put("operation_id", operationId);
+        payload.put(
+                "line_id",
+                jdbc.queryForObject("SELECT line_id FROM aftersale_case WHERE case_id = ?", String.class, caseId));
+        payload.put("state", state);
+        payload.put("amount_minor", amountMinor);
+        payload.put("provider_ref", "prv-state-test");
+        payload.putNull("reason_code");
+        payload.put("aggregate_version", aggregateVersion);
+        return CoreEnvelope.canonical(CoreEnvelope.sign(
+                eventId,
+                CoreEnvelope.resultEventType(CoreEnvelope.SUCCEEDED),
+                MERCHANT,
+                Instant.now(),
+                payload,
+                null,
+                TRACEPARENT,
+                "commerce-service-demo-key",
+                producerKey()));
     }
 
     private String resultEnvelope(
