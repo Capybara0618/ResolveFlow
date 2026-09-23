@@ -454,6 +454,55 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **稳定性与记录缺口（如实说明）**：并发测试连续跑 **3 次、每次 14/14 绿**，但那个循环的输出只在会话里、没有单独落盘。落盘的证据是随后的全量绿日志与上面三份红日志；若要更强的稳定性证据，下一轮可以用 `-Dtest=…` 循环若干次并 tee 到 `reports/`。
   - **命令与结果**：全量 case-service **177 条，0 失败 0 错误 1 skipped**（`reports/c052b3b-projection/20260923-slice5-full-suite-177-green.txt`）、`spotless:check` **干净**。改动：`CaseResultConsumer`、`CaseRepository`、`CaseResultInboxRepository`、`CaseResultConsumerApiTest`。**C05.2b-3b 到此收尾：三种结局的投影 + 定序 + 并发安全，且未新增状态、kind、列或迁移。**下一步是 C05.2c（真实 broker 两段端到端，含 case 侧结果监听器接线）。
 
+- C05.2c 开工拆分（2026-09-23，用户选定为下一步；**尚未完成**）：按"大工作包先拆子步"拆成四片——
+  **c-1** case 侧结果监听器 → **c-2** Commerce 侧对账调度入口（C04.3 留下的"没有自动调度器"，
+  CF3 必须走到它上面）→ **c-3** 两段端到端驱动（建单→人工通过→命令→Commerce→provider→结果事件→
+  Case 关单）与两侧系统测试 → **c-4** CF3 定点（provider 成功但响应丢失）。每片各自提交。
+- C05.2c-1 完成（2026-09-23）：**case 侧结果监听器** —— 整条退款链最后一段缺口的接线。
+  - **它补的是什么**：b-3a/b-3b 之后本服务已能"验签→恰好一次认领→投影"，但**只有服务方法
+    `CaseResultConsumer.consume(String)`、没有任何监听器**，所以真实部署里结果不会自己到达，工单会
+    永远停在 `EXECUTING`，而 Commerce 那边的钱早已付掉（C05.2b-3a 的记录里就点名"接 RocketMQ 监听器
+    是 C05.2c 的事"）。
+  - **镜像而不是重新设计**：逐条对齐 Commerce 的 `RefundCommandListener`（那一套已在 C05.1b/C05.1c
+    的真实 broker 上验证过）——`SmartLifecycle` + `DefaultMQPushConsumer`、`CONSUME_FROM_LAST_OFFSET`、
+    订阅 `CoreTopicNames.brokerName(topic)`、启动失败**大声失败**（抛 `IllegalStateException`，不吞）。
+  - **ACK 判定与 C05.1b 是同一条**（这是本类唯一的决定）：`CaseResultVerifier.RefusedEventException`
+    → **ACK**，因为它永远不会变得有效（签名坏、密钥不在信任表、operation 不是本服务发过的、别人的
+    商家），而拒签行已经落在 `case_result_rejection` 且是 `REQUIRES_NEW`（消费者事务回滚擦不掉）；
+    其余任何 `RuntimeException`（库挂了、锁超时）→ `RECONSUME_LATER`，由 inbox 保证第二次安全。
+  - **一处必须纠正的交接事实**：`tasks/handoff-c052b3b.md:63` 写"case 侧结果监听器的 topic 是
+    `rf.case.core.v2`"，这与权威相反——结果事件由 Commerce 生产，topic 是
+    `CoreEnvelope.COMMERCE_TOPIC`（`rf.commerce.core.v2`）；`rf.case.core.v2` 是**命令**主题
+    （`CASE_TOPIC`），本文件"C05.2b"拆分条与 `CoreEnvelope` 常量都写着结果走 commerce topic。
+    **按代码与契约取 `rf.commerce.core.v2`**；订阅自己的命令主题会"看起来很健康却永远收不到结果"，
+    正是 `CoreTopicNames` 的 javadoc 警告的那种错。属性名 `resolveflow.events.topics.commerce`
+    （与 commerce 侧消费命令用 `...topics.case` 对称）。
+  - **消费组与开关**：默认组 `case-refund-result`，**等于**本服务 inbox 的消费者键
+    （`CaseResultTrustConfiguration.RESULT_CONSUMER`）——与 commerce 侧"组名 == inbox 键
+    `commerce-refund-command`"同一约定，且**没有复用** commerce 的组（交接文件明说不要复用，否则两个
+    方向会互相吃掉进度）。开关 `resolveflow.events.consumer.enabled`，与 commerce 侧消费者同名
+    （每个服务有自己的配置；项目规矩是同一个概念不各起一套名字），默认关闭。
+  - **命令与结果**：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am test` → **177 条，
+    0 失败 0 错误 1 skipped**、BUILD SUCCESS，**与交接文件给出的基线 177 逐字相同**——新监听器在默认
+    关闭下完全惰性、既有断言一条未动（日志 `tmp/c052c1-case-suite-run1.txt`，归档
+    `reports/c052c-listener/20260923-c052c1-case-suite-177-green.txt`）；`spotless:check` 先红后绿
+    （新文件被 spotless 重排了 `@Value` 的换行，`tmp/c052c1-spotless-check.txt` 是那次红跑）。
+  - **如实记录本片的证据边界**：监听器**没有** broker-free 单测——它的 `handle` 是私有方法且依赖
+    具体类 `CaseResultConsumer`，项目里没有 Mockito；而为它单独开一个接缝会让它与 commerce 的同形对象
+    不再同形（账本"未清的审查待办"第 2 条已经在抱怨两侧不对称）。这与 commerce 侧
+    `RefundCommandListener` 的处境**完全相同**（它同样没有单测）。所以本片只声称"编译、注入、默认关闭
+    不回归"，可执行证据留给 c-3 的真实 broker 端到端。
+  - **本会话的工作区事实（记账，因为账本已记过两次静默回退）**：本会话的 dsh workspace 是
+    `E:\Code\Agent+Backend`，它是一个**过期副本**（HEAD 停在 C05.1a `92405fd`，没有 C05.2a/b 的任何
+    提交，C05.1b 只是未提交文件，`docs/`、`reports/` 都停在 10:39）；C05.2 的全部代码、证据与账本都在
+    `E:\Code+Agent+Backend`——就是**本文件所在的那棵树**，也是 `handoff-c052b3b.md` 第 4 节命令里
+    `Set-Location` 指向的那棵树。本步起所有读写与命令都在后者进行，**没有**动前者。
+  - **未做（下一步 c-2）**：Commerce 侧的**对账调度入口**。`RefundDispatchService.reconcileDue(int)`
+    至今只有测试调用它（已在代码里核对：`java/commerce-service` 的 `src/main` 里没有任何
+    `@Scheduled` 调用 `reconcileDue`），所以"UNKNOWN 会被自动重试"这句话在**真实链路**上仍不成立——
+    C04.3 当年把入口留给"C05 或 C11"，而 C05.2c 的验收要求 CF3 走到这条对账路径上，因此这个入口属于
+    本任务范围。c-1 本身不碰它。
+
 ### C04 持久模拟退款与本地金额事务
 
 - [x] C04.1：SQLite provider-stub退款幂等、查询、丢响应/延迟可见与重启。
@@ -504,10 +553,12 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - [x] C05.1b：RocketMQ 发布器与消费端验签（真实 topic `rf.case.core.v2`）。
 - [x] C05.1c：真实 RocketMQ + MySQL 的系统级退款 e2e（CF1/CF2 定点，含 5 个真实发现）。
 - [ ] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
+  - [x] C05.2a 授权消费与命令写入方；C05.2b 结果 outbox/传输/Case inbox 与投影（b-1…b-3b 全部完成）。
+  - [ ] C05.2c 真实链路两段 e2e 与 CF3 定点：**c-1 case 侧结果监听器已完成**；c-2 Commerce 对账调度入口、c-3 两段 e2e、c-4 CF3 未做。
 - 依赖：C03,C04。文件：messaging、Case执行、Commerce消费者及集成测试。
 - 验收：重复/乱序/ACK丢失不重复业务；目标确认成功才关单；失败释放后再试须新授权。
 - 验证：真实RocketMQ+MySQL系统退款测试，CF1/CF2/CF3定点冒烟。
-- 实际记录：C05.1a（2026-09-22）与 C05.1b（2026-09-23）的完整记录在本文件 C04 工作包记录**之前**（紧随 C03.3c-2 之后）；C05.1c（2026-09-23）的记录紧随 C05.1b 之后；C05.2 未执行。
+- 实际记录：C05.1a（2026-09-22）与 C05.1b（2026-09-23）的完整记录在本文件 C04 工作包记录**之前**（紧随 C03.3c-2 之后）；C05.1c（2026-09-23）紧随 C05.1b 之后；C05.2a/C05.2b-1…b-3b（2026-09-23）在其后；**C05.2c-1 已完成、c-2…c-4 未执行**（记录见上）。
 
 ### C06 Agent控制面、MCP与能力冒烟
 
