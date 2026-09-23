@@ -23,6 +23,13 @@ C05.4 债务清理）。当前可复现的证据：case **187（4 skipped）** /
 （`reports/verify/20260923-181119-all-offline.txt`）、真实链路 `scripts/e2e_refund_chain.py`
 **RESULT: PASSED (111.5s)**。
 
+**家（唯一工作副本）**：`E:\Code\Agent+Backend`（在 `E:\Code\` 里面，名字是 `Agent+Backend`）。2026-09-23
+做过一次**工作区归一化**：项目最初就在这里，2026-09-22 第一次事故后为了不丢东西从 GitHub 重新克隆，克隆落到了
+只多一个 `+` 的 `E:\Code+Agent+Backend`，此后所有工作都在那边做——于是同一台机器上出现两个只差一个字符的
+仓库，2026-09-23 就有一次新会话开错目录、白问了三个早就做完的问题。现在工作副本已搬回这里：完整历史、
+`origin` 远端、`core.autocrlf=false`/`core.eol=lf` 一致；`agent/.venv` 与 `web/node_modules` 是重建的。
+原因、命令、结果与未做项见 `tasks/todo.md` 的 **C05.5**。
+
 **下一件事是 C06（Agent 控制面、MCP 与能力冒烟；依赖 C02，早已满足、无阻塞）**。开工读
 **`tasks/handoff-c06.md`**：那里有 Python 侧的真实起点（`api/app.py` 其实是 provider stub 的 HTTP 面，
 `tools/`/`runtime/`/`harness/` 还是空包）、C06 三片的验收原文，以及**会影响 C06 的新约束**
