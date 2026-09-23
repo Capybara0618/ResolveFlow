@@ -385,7 +385,8 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 ### C05 消息与退款端到端
 
 - [x] C05.1a：**带签名的 event outbox**（case-service 侧）——C05.1 的第一个子步。
-- [ ] C05.1b：RocketMQ 发布器与消费端验签（真实 topic `rf.case.core.v2`）。
+- [x] C05.1b：消费端 inbox、验签与拒绝记录；RocketMQ 生产/消费**已接线**（真实 broker 的系统级 e2e 尚未跑）。
+- [ ] C05.1c：真实 RocketMQ + MySQL 的系统级退款测试（broker 重投/重复/乱序）。
 - [ ] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
 - 依赖：C03,C04。文件：messaging、Case执行、Commerce消费者及集成测试。
 - 验收：重复/乱序/ACK丢失不重复业务；目标确认成功才关单；失败释放后再试须新授权。

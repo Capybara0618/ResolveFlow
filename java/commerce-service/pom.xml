@@ -28,6 +28,14 @@
       <artifactId>shared-kernel</artifactId>
     </dependency>
 
+    <!-- The core event transport. The classic remoting client rather than rocketmq-client-java, which needs a
+         deployed gRPC proxy; infra/versions.lock.yaml records that choice and its reason. The version is
+         managed by the Spring Cloud Alibaba BOM the root pom imports. -->
+    <dependency>
+      <groupId>org.apache.rocketmq</groupId>
+      <artifactId>rocketmq-client</artifactId>
+    </dependency>
+
     <!-- commerce_db belongs to this service: orders, order lines and the payment ledger
          (docs/architecture.md:11, docs/domain-model.md:40-41). Flyway applies the migrations and
          MyBatis reads them; both are T00-locked (infra/versions.lock.yaml). spring-boot-flyway is a
