@@ -103,6 +103,23 @@ public interface CaseResultInboxRepository {
             """)
     StoredResult find(@Param("consumer") String consumer, @Param("eventId") String eventId);
 
+    /**
+     * The highest Commerce version this service has already applied for an operation, or {@code null} when it has
+     * applied none yet (C05.2b-3b slice ④).
+     *
+     * <p>This is what lets an out-of-order delivery be recognised: the inbox already records the version every
+     * result arrived with, so ordering needs no new column and no new table. Only <em>applied</em> rows count — a
+     * row still waiting to be applied must not make a lower version look stale.
+     */
+    @Select("""
+            SELECT MAX(aggregate_version)
+              FROM case_result_inbox
+             WHERE consumer = #{consumer}
+               AND operation_id = #{operationId}
+               AND projected_at IS NOT NULL
+            """)
+    Integer highestAppliedVersion(@Param("consumer") String consumer, @Param("operationId") String operationId);
+
     /** Every result claimed for one case, oldest first: what a later projection would read. */
     @Select("""
             SELECT consumer          AS consumer,

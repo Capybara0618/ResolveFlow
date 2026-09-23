@@ -443,6 +443,52 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
                 .isNotNull();
     }
 
+    @Test
+    @DisplayName("C05.2b-3b: a late lower version moves nothing — and is not silently dropped either")
+    void aLateLowerVersionIsRecordedWithoutMovingTheCase() {
+        String firstEventId = UUID.randomUUID().toString();
+        String lateEventId = UUID.randomUUID().toString();
+
+        // The determined failure at Commerce version 4 arrives first and sends the case back to review.
+        assertThat(consumer.consume(failed(firstEventId, MERCHANT, 4, "PROVIDER_DECLINED")))
+                .isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+        String statusAfterTheNewerFact = caseStatus();
+        long versionAfterTheNewerFact =
+                jdbc.queryForObject("SELECT version FROM aftersale_case WHERE case_id = ?", Long.class, caseId);
+        int rowsAfterTheNewerFact =
+                jdbc.queryForObject("SELECT COUNT(*) FROM case_timeline WHERE case_id = ?", Integer.class, caseId);
+
+        // A different event carrying the same operation's *older* fact (version 3) arrives afterwards: the
+        // out-of-order delivery that at-least-once delivery is allowed to produce.
+        assertThat(consumer.consume(failed(lateEventId, MERCHANT, 3, "PROVIDER_DECLINED_EARLIER")))
+                .isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+
+        assertThat(caseStatus())
+                .as("the case already knows a newer fact about this operation, so an older one cannot move it")
+                .isEqualTo(statusAfterTheNewerFact);
+        assertThat(jdbc.queryForObject("SELECT version FROM aftersale_case WHERE case_id = ?", Long.class, caseId))
+                .as("nothing about the case moved, so its version must not have moved either")
+                .isEqualTo(versionAfterTheNewerFact);
+        assertThat(jdbc.queryForObject(
+                        "SELECT detail FROM case_timeline WHERE case_id = ? ORDER BY sequence DESC LIMIT 1",
+                        String.class,
+                        caseId))
+                .as("the older fact is still recorded: an operator has to be able to see that it arrived and was"
+                        + " ignored, otherwise a real ordering bug looks exactly like a delivery that never"
+                        + " happened")
+                .contains("\"ignored_as_stale\":true")
+                .contains("\"outcome\":\"FAILED\"")
+                .contains("PROVIDER_DECLINED_EARLIER");
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM case_timeline WHERE case_id = ?", Integer.class, caseId))
+                .as("the trace is one appended row, not a rewrite of the history behind it")
+                .isEqualTo(rowsAfterTheNewerFact + 1);
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, lateEventId)
+                        .projectedAt())
+                .as("and the row has been dealt with: projected_at means the case reflects the decision, which"
+                        + " here was to keep the newer fact")
+                .isNotNull();
+    }
+
     // ------------------------------------------------------------------ fixtures
 
     /** A signed result, as Commerce's C05.2b-1 outbox writes it. */

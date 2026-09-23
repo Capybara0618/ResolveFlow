@@ -440,6 +440,12 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **切片③ 实现完成（2026-09-23）**：`UNKNOWN → RECONCILING`——不关单、不释放（释放与否本来就不是 case 的事实，它只记录自己现在站在哪），timeline kind 由目标状态派生，所以**依然没有新增 kind**。同时把 `targetStatus` 的 javadoc 里那句已过时的"UNKNOWN 故意不在表里"改写成"`null` 不代表我们拒绝这个结果，而代表这一步还不投影它"，不留过时说明（这正是审查里记下的那类毛病）。
   - **这一片的四条断言**：状态是 `RECONCILING`；最新 timeline 行写明 `outcome=UNKNOWN` 与 Commerce 给的 `reason_code`；**没有任何 `CASE_CLOSED` 行**（"不知道"不许被包装成任何一种关单）；`acceptsNewInput()` 为假——钱还可能动，输入继续冻结（`docs/domain-model.md:36`）。
   - **命令与结果**：先红（`expected: "RECONCILING" but was: "EXECUTING"`，`reports/c052b3b-projection/20260923-slice3-red.txt`）→ 实现后 `CaseResultConsumerApiTest` **11/11**、全量 case-service **174 条，0 失败 0 错误 1 skipped**（`reports/c052b3b-projection/20260923-slice3-full-suite-174-green.txt`）、`spotless:check` **干净**。**至此三种结算结局（成功关单／确定失败回审／未知进对账）的投影都在，且全程没有新增状态、kind 或迁移。**剩下的④定序（迟到的低版本不改状态但必须留痕）与⑤幂等/同事务边界是下一片。
+  - **切片④ 实现完成（2026-09-23）**：按 `aggregate_version` 定序——**只有严格更高的版本能推进工单**（`aggregate_version <= 已应用的最高版本` 即判为陈旧）。
+  - **版本从哪里比**：用 inbox 自己回答，`SELECT MAX(aggregate_version) … WHERE consumer = ? AND operation_id = ? AND projected_at IS NOT NULL`——**没有新增列、没有新增表、没有迁移**。只算**已应用**的行（`projected_at IS NOT NULL`），否则一条还没应用的行会让更低的版本看起来陈旧。
+  - **陈旧的那条不是丢弃，而是留痕**：仍然追加一行 timeline（`EXECUTION_UPDATED`），detail 里写 `ignored_as_stale: true` 与 `superseded_by_version`；而且 `case_status` 记的是**工单保持的那个状态**（`recorded = stale ? row.status() : target`），不是目标状态——写目标状态就等于描述了一次**故意没有发生**的迁移。
+  - **`projected_at` 的含义在这一片明确下来并写进代码注释**：它表示"这一行**已经处理过**、工单状态反映了那个决定"；对陈旧行来说，决定就是"保留更新的那条事实"。此前"已应用"的说法容易读成"一定改变了状态"，现在两处不一致被消掉了。
+  - **红跑很有价值**：实现前，迟到的低版本**真的又把工单推进了一次**（`expected: 5L but was: 6L`，并且多写了一行会误导读者的轨迹）——这正是 at-least-once 下最典型的静默错误，而不是一个假想的边界。
+  - **命令与结果**：先红（`expected: 5L but was: 6L`，`reports/c052b3b-projection/20260923-slice4-red.txt`）→ 实现后 `CaseResultConsumerApiTest` **12/12**、全量 case-service **175 条，0 失败 0 错误 1 skipped**（`reports/c052b3b-projection/20260923-slice4-full-suite-175-green.txt`）、`spotless:check` **干净**。**余下⑤（幂等与同事务边界的补全）**，然后进 C05.2c。
 
 ### C04 持久模拟退款与本地金额事务
 

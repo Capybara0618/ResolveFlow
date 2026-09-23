@@ -217,7 +217,7 @@ public class CaseResultConsumer {
         // C05.2b-3b: applying the outcome is the second half of this same transaction
         // (docs/core-contracts.md:86), so the inbox row that claims the result and the case that changes because
         // of it cannot disagree — and a crash between them is not a state the database can hold.
-        if (applyToCase(row, payload, state, operationId, lineId, amountMinor, eventId)) {
+        if (applyToCase(row, payload, state, operationId, lineId, amountMinor, aggregateVersion, eventId)) {
             inbox.markProjected(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId, Instant.now(clock));
         }
 
@@ -254,6 +254,7 @@ public class CaseResultConsumer {
             String operationId,
             String lineId,
             long amountMinor,
+            long aggregateVersion,
             String eventId) {
         CaseStatus target = targetStatus(state);
         if (target == null) {
@@ -265,8 +266,20 @@ public class CaseResultConsumer {
                     row.caseId());
             return false;
         }
+        // C05.2b-3b slice ④: at-least-once delivery means an *older* fact about the same operation can arrive
+        // after a newer one. The newer fact wins, and the older one is not applied — but it is recorded below,
+        // because "we ignored an out-of-order delivery" and "that delivery never happened" must not look the same
+        // to whoever reads the trajectory. The comparison uses the highest version this service has already
+        // applied for this operation, which is what the inbox itself can answer: no new column, no new table.
+        Integer supersededVersion =
+                inbox.highestAppliedVersion(CaseResultTrustConfiguration.RESULT_CONSUMER, operationId);
+        boolean stale = supersededVersion != null && aggregateVersion <= supersededVersion;
+        // What the trajectory row names as the case's status: when the fact is stale, the case keeps the status it
+        // has, so that is the status the row has to report — claiming the target status would describe a move that
+        // deliberately did not happen.
+        CaseStatus recorded = stale ? row.status() : target;
         Instant now = Instant.now(clock);
-        if (cases.transition(row.caseId(), row.status().name(), target.name(), now) != 1) {
+        if (!stale && cases.transition(row.caseId(), row.status().name(), target.name(), now) != 1) {
             // The expected status is in the statement, so this means the case was not EXECUTING when the result
             // arrived. Which delivery may move it, and in what order, is exactly slice ④ (ordering by
             // aggregate_version); leaving the row unapplied keeps that decision open instead of guessing here.
@@ -282,7 +295,8 @@ public class CaseResultConsumer {
                 UUID.randomUUID().toString(),
                 cases.nextTimelineSequence(row.caseId()),
                 timelineKindFor(target),
-                outcomeDetail(row, payload, eventId, operationId, lineId, amountMinor, state, target),
+                outcomeDetail(
+                        row, payload, eventId, operationId, lineId, amountMinor, state, recorded, supersededVersion),
                 now,
                 row.inputRevision());
         return true;
@@ -339,7 +353,8 @@ public class CaseResultConsumer {
             String lineId,
             long amountMinor,
             String state,
-            CaseStatus target) {
+            CaseStatus target,
+            Integer supersededVersion) {
         ObjectNode detail = mapper.createObjectNode();
         detail.put("case_status", target.name());
         detail.put("outcome", state);
@@ -350,6 +365,12 @@ public class CaseResultConsumer {
         String reasonCode = optionalText(payload, "reason_code");
         if (reasonCode != null) {
             detail.put("reason_code", reasonCode);
+        }
+        if (supersededVersion != null) {
+            // Slice ④: the fact was older than one already applied, so it was kept out of the case state on
+            // purpose. Saying so here is the difference between a recorded decision and a silent drop.
+            detail.put("ignored_as_stale", true);
+            detail.put("superseded_by_version", supersededVersion);
         }
         detail.put("case_id", row.caseId());
         return detail.toString();
