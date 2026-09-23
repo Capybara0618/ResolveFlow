@@ -33,7 +33,7 @@
   - C00.2b 拆为三步（b-1 commerce / b-2 agent / b-3 case），本轮完成 b-1（2026-09-18）。修改文件：`contracts/core/openapi-commerce.yaml`（新建：4 条核心路由 + LineContext/ShipmentSnapshot/LineRefundStatus/RefundOperationView 及错误体）、`agent/tests/unit/test_contracts_core_routes.py`（新建：16 个测试，含从 `docs/core-contracts.md` 第3节解析路由表并钉住每类数量）、`contracts/core/README.md`（现状表与决策 5/6）。
   - 命令与结果：`pytest agent/tests/unit/test_contracts_core_routes.py -q` → 16 passed（中途 4 次失败全为测试自身缺陷：目录写成 `core`、正则缺 `re.MULTILINE`、`/health` 不属版本化前缀、路径重复拼接 `contracts`）；`pytest agent/tests/unit -q` → **243 passed**（此前 227 + 本步 16）；`ruff` All checks passed；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（1.5s / 8.8s / 5.5s）。
   - 报告路径：`reports/verify/20260918-180556-contracts.txt`。
-  - 关键结论：核心路由表的权威是文档而非测试内的副本——测试解析 `docs/core-contracts.md` 第3节并钉住 Case 18 / Commerce 4 / Agent 5（共 27 条），再与核心 OpenAPI 的 `paths` 逐项比对；commerce 文档已确认不含 entitlement/packing/reship/cancel-before-start 任何片段，也没有 `Action` 与 `EntitlementState*` 组件，`line_refund` 状态收窄为 FREE/RESERVED/CONSUMED（compat 的 `IN_USE` 仍在旧枚举里，有对照断言）；`ShipmentSnapshot.synthetic` 为必填常量 true；文档内每个 `$ref` 均可解析，7 个示例全部通过自身组件校验；核心错误体与 compat 错误体逐字段相同（`docs/core-contracts.md:15` 要求错误体不变）。
+  - 关键结论：核心路由表的权威是文档而非测试内的副本——测试解析 `docs/core-contracts.md` 第3节并钉住 Case 18 / Commerce 4 / Agent 5（共 27 条），再与核心 OpenAPI 的 `paths` 逐项比对；commerce 文档已确认不含 entitlement/packing/reship/cancel-before-start 任何片段，也没有 `Action` 与 `EntitlementState*` 组件，`line_refund` 状态收窄为 FREE/RESERVED/CONSUMED（compat 的 `IN_USE` 仍在旧枚举里，有对照断言）；`ShipmentSnapshot.synthetic` 为必填常量 true；文档内每个 `$ref` 均可解析，7 个示例全部通过自身组件校验；核心错误体与 compat 错误体逐字段相同（`docs/core-contracts.md:15` 要求错误体不变）。**（2026-09-23 C05.3a 核对：本条里的 "Commerce 4 / 共 27 条" 是 C00.2b 当日状态，已被 C01.2a 取代——权威现在是 Case 18 / Commerce 5 / Agent 5 = 28，多的是 `GET /internal/v1/order-lines`；本条作为历史记录保留不改写，证据见下方 C05.3a 记录。）**
   - C00.2b-2 完成（2026-09-18）。修改文件：`contracts/core/openapi-agent.yaml`（新建：5 条路由 + RunRequest/RunView/ObservationRecord 等组件）、`agent/tests/unit/test_contracts_core_routes.py`（改为按文档参数化，31 个测试，覆盖 commerce 与 agent 两文档）、`contracts/core/README.md`（现状表与决策 6/7/8）。
   - 命令与结果：`pytest agent/tests/unit/test_contracts_core_routes.py -q` → 31 passed（过程中 5 次失败均为真实信号或我自身缺陷：core agent 的 ApiError 描述未与 compat 逐字一致、`/health` 无业务规范可引（测试显式豁免）、ANALYZING 断言写法过宽、`domain-model.md` 正则漏 `_`、一行超 120 字符）；`pytest agent/tests/unit -q` → **258 passed**（此前 243 + 本步 15）；`ruff` All checks passed（修掉一处 E501）；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（1.4s / 10.5s / 5.2s）。
   - 报告路径：`reports/verify/20260918-181250-contracts.txt`。
@@ -41,7 +41,7 @@
   - C00.2b-3 完成，C00.2b 全部结束（2026-09-18）。修改文件：`contracts/core/openapi-case.yaml`（新建：18 条核心路由 + 62 个 schema 组件 + 34 个示例）、`agent/tests/unit/test_contracts_core_routes.py`（case 文档规格与 4 项 case 专属断言，45 个测试）、`contracts/core/README.md`（现状表与决策 9/10/11）。
   - 命令与结果：`pytest agent/tests/unit/test_contracts_core_routes.py -q` → 45 passed（过程中 2 次失败全为测试自身问题：登录接口本就不该要求 token、五条内部路由漏写 service token 覆盖）；`pytest agent/tests/unit -q` → **272 passed**（此前 258 + 本步 14）；`ruff` All checks passed；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（1.6s / 18.6s / 6.2s）。
   - 报告路径：`reports/verify/20260918-182754-contracts.txt`。
-  - 关键结论：核心 OpenAPI 三份文档齐备，路由逐项对应（Case 18 / Commerce 4 / Agent 5 = 27 条，数量由文档表格解析并钉住）。case 文档比 compat 少 3 条政策管理路由（`docs/core-contracts.md:53`，政策由受控脚本导入），动作词汇收窄为 REFUND 单值、`RecommendedAction` 去掉 RESHIP；新增 `CaseSnapshot.timeline`（`docs/core-scope.md:7` + `docs/domain-model.md:34` + `docs/core-contracts.md:67` 同事务要求）；回调 payload 由 compat 的自由对象改为按 kind 强类型并加 `if/then` 锚定（QUESTION 问题数上限 3）；`ProposalPayload` 与 `ProposalView` 拆分，C00.2c 需用测试守住二者一致。
+  - 关键结论：核心 OpenAPI 三份文档齐备，路由逐项对应（Case 18 / Commerce 4 / Agent 5 = 27 条，数量由文档表格解析并钉住）。**（2026-09-23 C05.3a 核对：此处 "Commerce 4 = 27" 是 C00.2b 当日状态；C01.2a 加 `GET /internal/v1/order-lines` 后权威为 Case 18 / Commerce 5 / Agent 5 = 28，本条保留为历史记录不改写，证据见下方 C05.3a 记录。）** case 文档比 compat 少 3 条政策管理路由（`docs/core-contracts.md:53`，政策由受控脚本导入），动作词汇收窄为 REFUND 单值、`RecommendedAction` 去掉 RESHIP；新增 `CaseSnapshot.timeline`（`docs/core-scope.md:7` + `docs/domain-model.md:34` + `docs/core-contracts.md:67` 同事务要求）；回调 payload 由 compat 的自由对象改为按 kind 强类型并加 `if/then` 锚定（QUESTION 问题数上限 3）；`ProposalPayload` 与 `ProposalView` 拆分，C00.2c 需用测试守住二者一致。
   - 过程记录（诚实项）：本轮曾把 case 文档的生成委派给后台子代理，它因通读 55 KB 旧文档耗尽上下文且**未产出任何文件**；随后由我按权威文档 + 精确读取 compat 组件分段自行完成。教训已记录：大文件移植任务应先切分读取范围再委派，或直接自己做。
   - C00.2c 拆为三步（c-1 提案 Schema / c-2 核心正反 fixture 与 corpus / c-3 Java+Pydantic 核心 DTO），本轮完成 c-1（2026-09-18）。修改文件：`contracts/core/agent-proposal.schema.json`（新建，`urn:resolveflow:core:agent-proposal:v2`）、`agent/src/resolveflow/contracts/_schemaio.py`（CORE_SCHEMA_FILES 增加该文件）、`agent/tests/unit/test_contracts_core_proposal.py`（新建，44 个测试）、`agent/tests/unit/test_contracts_core_schemas.py`（核心 `$id` 钉住集合显式扩为三个）、`contracts/core/openapi-case.yaml`（ProposalPayload/ProposalView 的 suggested_amount_minor 去掉 null、EvidenceRef.source_ref 加 URL 拒绝 pattern）、`contracts/core/openapi-agent.yaml`（ObservationRecord.source_ref 同一 pattern）、`contracts/core/README.md`（现状表与决策 12/13/14）。
   - 命令与结果：`pytest agent/tests/unit/test_contracts_core_proposal.py -q` → 44 passed（过程中 6 次失败：核心三个枚举缺 `type: string` 与 OpenAPI 组件不一致（4 项）、我的比较助手把 items 组件误当属性组件（已改为解引用比较）、以及负例 `https://example.com/x` 竟被接受——见下）；`pytest agent/tests/unit -q` → **316 passed**；`ruff` All checks passed（修掉 3 处 E501）；`pwsh -File scripts/verify.ps1 -Suite contracts` → **3/3 PASS**（1.5s / 19.2s / 4.7s）。
@@ -674,6 +674,68 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
     没有拒绝行）；`CaseResultVerifier.direction(...)` 靠报文文本分类；未知 `state` 的拒绝路径没有测试
     （fixture 从 state 反推 event_type）；`case_result_rejection` 表是子代理引入的待核；
     路由数量"Case 18 / Commerce 5 / Agent 5 = 28"与"Case 18 / Commerce 4 / Agent 5 = 27"两处记录仍矛盾。
+- C05.3a 复审记录（2026-09-23）：**把 C05.2b-3a 子代理留下的三块代码逐行读了**——这是账本 line 421 自己
+  记下的欠账（"不能因为测试绿了就当作审查过了"）。本片**只读不改**，为下一片定下要修什么。
+  - **核对通过（自述与代码一致，不是凭测试绿推断）**：
+    ① `CaseResultRejectionLog` 确实是独立 `@Service` bean + `@Transactional(propagation = REQUIRES_NEW)`，
+    且 javadoc 把理由说对了：**自调用会静默加入调用方事务、要留的证据会跟着回滚**，所以必须走代理
+    （`CaseResultRejectionLog.java:21-45`）——这条"为什么必须单独成 bean"不是装饰，是它唯一能工作的原因。
+    ② `CaseResultConsumer.consume` 的顺序与 javadoc 一致：parse → verify → 必需字段 → 方向校验 →
+    **用本服务自己的 `case_execution_command` 解析工单**（不采信消息里的 case）→ 商户/行范围校验 →
+    inbox claim（由主键定重复，重复时只改 `detail`）→ **同事务投影** → 只有真的移动了工单才 `markProjected`
+    （`CaseResultConsumer.java:94-238`）。
+    ③ claim 返回既不是 1 也不是 2 时抛 `IllegalStateException`，而不是当成"已认领"
+    （`:215-221`）——V14 之后这个判断是对的，静默接受会掩盖语句本身失效。
+    ④ 旧事实（stale）写成 `EXECUTION_UPDATED` 而**不是** `CASE_CLOSED`、投影与 timeline 同事务
+    （`:299-312`），与 slice④⑤ 的自述一致。
+    ⑤ `CaseResultVerifier` 的信任表查 key id 再验签、`CoreEnvelope.verify` 同时管"签名覆盖"与"事件类型属于
+    声明者"（`:83-105`），与 javadoc 一致。
+  - **发现 1（真缺陷，下一片修）：被 domain 拒绝的命令在 Commerce 侧只留一行 WARN 日志，Case 永远不知道，
+    工单静默停在 `EXECUTING`。** 证据链：`RefundCommandListener.java:110-119` 捕获
+    `RefundRejectedException` → `LOG.warn("core event {} refused by the domain: {}")` → ACK；
+    而 `EventRejectionLog` 只被**验签/解析类**拒绝调用（`RefundCommandConsumer.java:151-154`），
+    domain 拒绝根本走不到那里；`RefundAcceptanceService.accept` 在 `slotForUpdate` 抛 `LINE_NOT_FOUND` 时
+    **还没执行 `inbox.insert`**（`:89-93` 在 `:117` 之前），所以这次投递**既没被认领、库里也没有任何一行**。
+    **不是推演：c-3 的真实运行撞到过两次**（run3/run5，`no order line 9154932 in this service`），当时报告里
+    只能看到工单停在 `EXECUTING`。严重性：`case_execution_command` 已写了一行"我发过命令"、授权已被消费，
+    Case 既不会重试也无法自己判断——**这正是 C05.1c"发现 D"留下的问题**，账本 line 384 早写了
+    "结果事件正是它该走的通道"。
+  - **发现 2（脆弱点）：`CaseResultVerifier.direction(...)` 靠报文文本分类。**
+    `message.contains("does not come from") || message.contains("belongs on")`（`:109-113`）；
+    `CoreEnvelope.verify` 只要换一句话，`WRONG_DIRECTION` 就会静默变成 `BAD_SIGNATURE`（或反过来），
+    而拒绝行是操作员唯一能看的东西。commerce 侧 `EventVerifier.java:104-107` 是同一份代码的镜像，同类三处一起修。
+  - **发现 3（观察，本片不声称是缺陷）**：Case 侧**不校验结果里的 `amount_minor` 与本工单批准的金额是否一致**——
+    `requiredLong` 只校验"是个数字"（`:456-466`），随后金额被原样写入 inbox 与 timeline 并据此关单。
+    签名只证明"这份文档来自 Commerce"，不证明"金额与本次授权一致"（后者由 Commerce 自己的操作行保证）。
+    要不要在 Case 侧再比一次属契约决定，本片不动、也不假装已经安全。
+  - **契约决定（下一片 c-3b 按此实现）**：**被 domain 拒绝的命令，用现有的 `RefundFailed` 结果事件回传**，
+    `reason_code` 带拒绝原因（如 `LINE_NOT_FOUND`），`operation_id` 用**命令里那个**（Case 自己生成的、
+    且已写进 `case_execution_command`，所以消费者能解析回工单），`aggregate_version = 1`（该操作只有这一个事实）。
+    Case 侧**不需要改代码**：现有 `targetStatus` 已把 `FAILED` 投影为 `PENDING_REVIEW`
+    （`CaseResultConsumer.java:332-334`），工单从"静默卡住"变成"回到人手里"，而 `reason_code` 保留了
+    "从未开始"与"退款失败"的区别。**不选**新增 `RefundRefused` 事件类型的理由：那要同步改 `CoreEnvelope`、
+    schema、fixture 与两侧消费者，成本远大于收益，改 `docs/core-contracts.md` 的词汇属于另一个决定。
+- C05.3a 附带：**待核项"路由数量 28/27 矛盾"已核清（不是矛盾，是没回填的旧记录）**。
+  - **结论：28 是对的**（Case 18 / Commerce 5 / Agent 5）。**钉住它的测试确实存在**，不是裸数字：
+    `agent/tests/unit/test_contracts_core_routes.py:35` 写 `EXPECTED_ROUTE_COUNTS = {"Case": 18, "Commerce": 5,
+    "Agent": 5}`，`:162-167` 解析 `docs/core-contracts.md` 第3节表格后 `assert counts == EXPECTED_ROUTE_COUNTS`，
+    `:187-188` 还把三份 `openapi-*.yaml` 的 `paths` 与文档表格做**集合相等**断言（不只比数量）。
+    注意测试里没有字面量 27/28，总数由 `sum()` 推出，被钉住的是**分服务**数字。
+  - **27 那两处是 2026-09-18 的旧状态**：`tasks/todo.md:36`、`:44`（git 佐证：分别来自 `31809db`、`113b851`）。
+    C01.2a（`f1540dc`，09-19）补了 **`GET /internal/v1/order-lines`**（Commerce 4 → 5、27 → 28，
+    Case 的 `GET /api/v1/orders` 要按主体列行，而原 4 条都是按 id 的单点查询），但**没回填那两条旧结论**，
+    于是后面每一步的算术（28−13/14/15/17）与它们并存，看起来才像矛盾。已在 `:36`/`:44` 各加一条括注说明
+    并**保留原文不改写**（AGENTS.md：不改写历史；这也不是"删掉不方便的断言"）。
+  - 漏掉的那条路由真实存在：`docs/core-contracts.md:46`（权威表）、`contracts/core/openapi-commerce.yaml:34`、
+    实现 `java/commerce-service/src/main/java/com/resolveflow/commerce/internal/OrderLineController.java:35`+`:44`。
+  - **父级实测（不是只推理）**：`agent\.venv\Scripts\python.exe -m pytest agent/tests/unit/test_contracts_core_routes.py`
+    → **69 passed in 9.85s，exit 0**（`reports/c053-review/20260923-c053a-routes-69-green.txt`）；
+    再单独跑两条钉数字的：`test_route_table_matches_the_expected_core_surface` 与
+    `test_document_declares_exactly_the_routes_of_its_owner[agent|case|commerce]` → **4 passed, 65 deselected**
+    （`…-routes-named-green.txt`）。**子代理自己也独立复算过集合相等**（它没跑 pytest，只读解析），
+    父级这次是真的跑了命令，两者一致。
+  - 未确认（留给读者）：`GET /internal/v1/order-lines` **该不该算核心路由**本身就是 C01.2a 做过的契约决定；
+    按当前权威（`docs/core-contracts.md` + 测试）28 成立，27 只在它书写当天成立。
 
 ### C04 持久模拟退款与本地金额事务
 
