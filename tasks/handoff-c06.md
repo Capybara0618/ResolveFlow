@@ -127,7 +127,7 @@ Test-Path tasks\handoff-c06.md      # 必须是 True
 ## 6. 命令（照抄，环境已配好）
 
 ```powershell
-Set-Location "E:\Code+Agent+Backend"          # 注意：目录名里是加号，别写成 E:\Code\Agent+Backend
+Set-Location 'E:\Code\Agent+Backend'          # 唯一项目目录（2026-09-23 起；旧的多一个 + 的同名目录已删除）
 $env:JAVA_HOME="C:\Users\hjn\.jdks\jdk-21.0.12.1+1"
 
 java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am test      # case 全量（187 条，4 skipped）
@@ -142,8 +142,11 @@ pwsh -File scripts/verify.ps1 -Suite all-offline                     # 项目门
 
 ## 7. 会误导判断的环境事实
 
-- **`smoke-agent-service` 每轮 0.1s PASS 不是证据**：8090 长期被会话之外的进程占用（PID 会变）。
-  这一项不能当"agent 服务可启动"，报告里要注明。
+- **`smoke-agent-service` 现在是真证据了**（2026-09-23 起）：以前 8090 长期被一个会话之外的 provider stub
+  占着，所以那一步 0.1–0.2s 的 PASS 是**假通过**；该进程已停，门禁里这一步现在是 **1.1s 真启动**（报告里
+  能看到它真的执行 `uv run --project agent uvicorn resolveflow.api.app:app --port 8090` 再 GET `/health`，
+  `reports/verify/20260923-184350-smoke.txt`）。**如果哪天它又变回 0.1s，说明又有东西占着 8090，那一轮
+  的这一步就不算证据。**
 - `tmp/` 被 gitignore → 证据一律放 `reports/`。`git commit -m` 里避免中文引号（PowerShell 会当引号解析）。
 - `spotless:apply` 会重排代码：刚跑过 spotless 后再编辑**必须先重读文件**，否则报 "file changed since it was read"。
 - 可能仍有并行客户端在改同一仓库（AGENTS.md 开头的警告）→ 发现同文件并行编辑先确认交接，不覆盖别人的改动。
