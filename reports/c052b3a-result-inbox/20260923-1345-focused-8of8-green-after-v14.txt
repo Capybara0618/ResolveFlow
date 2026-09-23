@@ -1,0 +1,184 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] resolveflow-java                                                   [pom]
+[INFO] shared-kernel                                                      [jar]
+[INFO] case-service                                                       [jar]
+[INFO] 
+[INFO] ------------------< com.resolveflow:resolveflow-java >------------------
+[INFO] Building resolveflow-java 0.1.0-SNAPSHOT                           [1/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ resolveflow-java ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] -------------------< com.resolveflow:shared-kernel >--------------------
+[INFO] Building shared-kernel 0.1.0-SNAPSHOT                              [2/3]
+[INFO]   from shared-kernel\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ shared-kernel ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ shared-kernel ---
+[INFO] 
+[INFO] --------------------< com.resolveflow:case-service >--------------------
+[INFO] Building case-service 0.1.0-SNAPSHOT                               [3/3]
+[INFO]   from case-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] 1 problem was encountered while building the effective model for org.javassist:javassist:jar:3.21.0-GA during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ case-service ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ case-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 14 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ case-service ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 106 source files with javac [debug parameters release 21] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ case-service ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\case-service\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ case-service ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 28 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ case-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+13:48:42.329 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+13:48:42.391 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+13:48:42.394 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+13:48:42.427 [main] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+13:48:42.429 [main] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+13:48:42.467 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 2.0.5
+13:48:42.643 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Loaded org.testcontainers.dockerclient.NpipeSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+13:48:42.992 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with local Npipe socket (npipe:////./pipe/docker_engine)
+13:48:42.993 [main] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+13:48:43.014 [main] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.3.0
+  API Version: 1.54
+  Operating System: Docker Desktop
+  Total Memory: 7580 MB
+  Labels: 
+    com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+13:48:43.175 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Creating container for image: testcontainers/ryuk:0.14.0
+13:48:43.336 [main] INFO org.testcontainers.utility.RegistryAuthLocator -- Credential helper/store (docker-credential-desktop) does not have credentials for https://index.docker.io/v1/
+13:48:43.495 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 is starting: 6ba36ab3a03a497bf50e15be7697952c131a54af9a78bbfc729154451cbb3467
+13:48:43.934 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 started in PT0.7590027S
+13:48:43.941 [main] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+13:48:43.941 [main] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+13:48:43.942 [main] INFO org.testcontainers.DockerClientFactory -- ?? Docker server version should be at least 1.6.0
+13:48:43.942 [main] INFO tc.mysql:8.4 -- Creating container for image: mysql:8.4
+13:48:44.016 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 is starting: 47a13f62474e8192cdebae242a991142b4b9d8de3a08436fb1ab429d276f6def
+13:48:44.386 [main] INFO tc.mysql:8.4 -- Waiting for database connection to become available at jdbc:mysql://localhost:60662/case_db using query 'SELECT 1'
+13:48:53.586 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 started in PT9.6437517S
+13:48:53.586 [main] INFO tc.mysql:8.4 -- Container is started (JDBC URL: jdbc:mysql://localhost:60662/case_db)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T13:48:54.029+08:00  INFO 53228 --- [case-service] [           main] c.r.c.c.CaseResultConsumerApiTest        : Starting CaseResultConsumerApiTest using Java 21.0.12.1 with PID 53228 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T13:48:54.031+08:00  INFO 53228 --- [case-service] [           main] c.r.c.c.CaseResultConsumerApiTest        : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T13:48:55.793+08:00  INFO 53228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T13:48:55.808+08:00  INFO 53228 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T13:48:55.809+08:00  INFO 53228 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T13:48:55.924+08:00  INFO 53228 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1879 ms
+2026-09-23T13:48:56.502+08:00  INFO 53228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-23T13:48:56.529+08:00  INFO 53228 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3dcf6026
+2026-09-23T13:48:56.531+08:00  INFO 53228 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-23T13:48:56.578+08:00  INFO 53228 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:60662/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T13:48:56.672+08:00  WARN 53228 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T13:48:56.729+08:00  INFO 53228 --- [case-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `case_db`.`flyway_schema_history` does not exist yet
+2026-09-23T13:48:56.735+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.041s)
+2026-09-23T13:48:56.757+08:00  INFO 53228 --- [case-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `case_db`.`flyway_schema_history` ...
+2026-09-23T13:48:56.832+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: << Empty Schema >>
+2026-09-23T13:48:56.849+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "1 - case core tables"
+2026-09-23T13:48:56.991+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "2 - case timeline vocabulary"
+2026-09-23T13:48:57.209+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "3 - case evidence"
+2026-09-23T13:48:57.309+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "4 - policy bundles"
+2026-09-23T13:48:57.378+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "5 - case policy manifest"
+2026-09-23T13:48:57.446+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "6 - agent callback inbox"
+2026-09-23T13:48:57.544+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "7 - case proposal"
+2026-09-23T13:48:57.604+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "8 - reviewed evidence"
+2026-09-23T13:48:57.684+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "9 - case authorization"
+2026-09-23T13:48:57.743+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "10 - authorization decision"
+2026-09-23T13:48:57.865+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "11 - case proposal author"
+2026-09-23T13:48:57.940+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "12 - case event outbox"
+2026-09-23T13:48:58.022+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "13 - case result inbox"
+2026-09-23T13:48:58.103+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "14 - case result inbox deliveries"
+2026-09-23T13:48:58.180+08:00  INFO 53228 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 14 migrations to schema `case_db`, now at version v14 (execution time 00:00.978s)
+2026-09-23T13:48:59.168+08:00  INFO 53228 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T13:48:59.235+08:00  INFO 53228 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 60763 (http) with context path '/'
+2026-09-23T13:48:59.244+08:00  INFO 53228 --- [case-service] [           main] c.r.c.c.CaseResultConsumerApiTest        : Started CaseResultConsumerApiTest in 5.503 seconds (process running for 18.482)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (C:\Users\hjn\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-09-23T13:49:00.216+08:00  INFO 53228 --- [case-service] [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T13:49:00.217+08:00  INFO 53228 --- [case-service] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T13:49:00.218+08:00  INFO 53228 --- [case-service] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-09-23T13:49:00.556+08:00  WARN 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: BAD_SIGNATURE (core envelope signature does not cover this envelope)
+2026-09-23T13:49:00.829+08:00  WARN 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: UNTRUSTED_KEY (key some-other-key is not in this service's trust list)
+2026-09-23T13:49:01.081+08:00  INFO 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 49fb8abf-913f-4179-b4ac-5bce29bdb8cc for case 77d9cfde-9037-41c9-8a73-9695473f46d3 recorded: operation a12ca619-8f1f-463c-b96b-c37d62f473ff is SUCCEEDED at Commerce version 3
+2026-09-23T13:49:01.332+08:00  INFO 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result bb0aa536-79ba-4ff0-810f-12d668eef48f for case 31e5ed88-d911-4d36-b9ce-b6a773f92b49 recorded: operation a3440639-41e1-4e83-9d57-5908effcc8b1 is SUCCEEDED at Commerce version 3
+2026-09-23T13:49:01.344+08:00  INFO 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result bb0aa536-79ba-4ff0-810f-12d668eef48f for case 31e5ed88-d911-4d36-b9ce-b6a773f92b49 was delivered again; the first delivery stands
+2026-09-23T13:49:01.571+08:00  INFO 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result bd13d5ce-fad1-42f5-afa2-add950c54e56 for case 76d93930-c9ce-4fac-910d-9a60c9651f88 recorded: operation 770ed2a1-d859-4dfc-8f17-9e1f3980b039 is SUCCEEDED at Commerce version 3
+2026-09-23T13:49:01.583+08:00  INFO 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result bd13d5ce-fad1-42f5-afa2-add950c54e56 for case 76d93930-c9ce-4fac-910d-9a60c9651f88 was delivered again; the first delivery stands
+2026-09-23T13:49:01.597+08:00  INFO 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result bd13d5ce-fad1-42f5-afa2-add950c54e56 for case 76d93930-c9ce-4fac-910d-9a60c9651f88 was delivered again; the first delivery stands
+2026-09-23T13:49:01.838+08:00  WARN 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: WRONG_MERCHANT (the result is scoped to M-1002 but case c227146d-d883-422a-877d-131fb8dff062 belongs to M-1001)
+2026-09-23T13:49:02.082+08:00  WARN 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: UNKNOWN_OPERATION (operation 6fae6f0a-4514-48de-950a-9569084f8d9f was never issued a command by this service)
+2026-09-23T13:49:02.300+08:00  INFO 53228 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 368cb754-b0d0-4671-a663-b97690f341d1 for case 76f3e862-6b00-4776-a77e-70464d61a10a recorded: operation 61c15770-b4e1-47c7-9631-2d6497b12103 is SUCCEEDED at Commerce version 3
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 20.91 s -- in com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for resolveflow-java 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] resolveflow-java ................................... SUCCESS [  0.334 s]
+[INFO] shared-kernel ...................................... SUCCESS [  0.882 s]
+[INFO] case-service ....................................... SUCCESS [ 31.165 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  32.818 s
+[INFO] Finished at: 2026-09-23T13:49:02+08:00
+[INFO] ------------------------------------------------------------------------

@@ -15,14 +15,20 @@ import org.apache.ibatis.annotations.Update;
  * is the answer the caller needs: this consumer has to <em>report</em> a redelivery as a duplicate instead of
  * raising, because a duplicate is a normal outcome of an at-least-once transport rather than a failure. A plain
  * insert cannot both refuse to overwrite the claim and tell the caller that it did, so the statement is
- * {@code INSERT ... ON DUPLICATE KEY UPDATE} — MySQL reports 1 for the insert, 2 for the update it performs on
- * a duplicate, and never 0 here because the update always changes {@code detail} from NULL to the sentence.
- * The affected-row count is therefore the disposition, and it is decided by the database rather than by a
- * read-then-write check that two concurrent redeliveries could both pass (docs/domain-model.md:45).
+ * {@code INSERT ... ON DUPLICATE KEY UPDATE} — MySQL reports 1 for the insert and 2 for the update it performs
+ * on a duplicate, and the affected-row count is therefore the disposition, decided by the database rather than by
+ * a read-then-write check that two concurrent redeliveries could both pass (docs/domain-model.md:45).
  *
- * <p>Only {@code detail} is updated by a duplicate. Overwriting the payload columns would be the bug this table
- * exists to prevent: the same event id carrying different content is a broken producer, and the row must keep
- * what the first delivery claimed.
+ * <p><b>The duplicate branch has to change something (V14).</b> Reporting 2 depends on the update really
+ * updating: with {@code detail} alone only the <em>first</em> redelivery changes anything, and every later one
+ * reports 0 — or 1 under the driver's default {@code CLIENT_FOUND_ROWS}, which the caller reads as "a fresh
+ * claim" — so a third delivery was silently accepted instead of being reported as a duplicate. The statement
+ * therefore also does {@code deliveries = deliveries + 1}, which makes every redelivery change the row: the
+ * 1-versus-2 answer stays deterministic, and the count is a fact an operator can read.
+ *
+ * <p>Only {@code detail} and {@code deliveries} are updated by a duplicate. Overwriting the payload columns
+ * would be the bug this table exists to prevent: the same event id carrying different content is a broken
+ * producer, and the row must keep what the first delivery claimed.
  */
 @Mapper
 public interface CaseResultInboxRepository {
@@ -42,12 +48,13 @@ public interface CaseResultInboxRepository {
             INSERT INTO case_result_inbox (consumer, event_id, event_type, schema_version, merchant_id,
                                            case_id, operation_id, line_id, state, amount_minor, provider_ref,
                                            reason_code, aggregate_version, envelope, signature, signing_key_id,
-                                           disposition, detail, received_at, projected_at)
+                                           disposition, detail, deliveries, received_at, projected_at)
             VALUES (#{consumer}, #{eventId}, #{eventType}, #{schemaVersion}, #{merchantId},
                     #{caseId}, #{operationId}, #{lineId}, #{state}, #{amountMinor}, #{providerRef},
                     #{reasonCode}, #{aggregateVersion}, #{envelope}, #{signature}, #{signingKeyId},
-                    'ACCEPTED', NULL, #{receivedAt}, NULL)
-            ON DUPLICATE KEY UPDATE detail = 'duplicate delivery ignored'
+                    'ACCEPTED', NULL, 1, #{receivedAt}, NULL)
+            ON DUPLICATE KEY UPDATE detail = 'duplicate delivery ignored',
+                                    deliveries = deliveries + 1
             """)
     int claim(
             @Param("consumer") String consumer,
@@ -88,6 +95,7 @@ public interface CaseResultInboxRepository {
                    signing_key_id    AS signingKeyId,
                    disposition       AS disposition,
                    detail            AS detail,
+                   deliveries        AS deliveries,
                    received_at       AS receivedAt,
                    projected_at      AS projectedAt
               FROM case_result_inbox
@@ -115,6 +123,7 @@ public interface CaseResultInboxRepository {
                    signing_key_id    AS signingKeyId,
                    disposition       AS disposition,
                    detail            AS detail,
+                   deliveries        AS deliveries,
                    received_at       AS receivedAt,
                    projected_at      AS projectedAt
               FROM case_result_inbox
@@ -193,6 +202,7 @@ public interface CaseResultInboxRepository {
             String signingKeyId,
             String disposition,
             String detail,
+            int deliveries,
             Instant receivedAt,
             Instant projectedAt) {}
 

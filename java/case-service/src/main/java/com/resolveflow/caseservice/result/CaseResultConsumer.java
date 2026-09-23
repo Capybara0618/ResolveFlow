@@ -122,7 +122,21 @@ public class CaseResultConsumer {
         // The envelope's event type and the payload's state are two spellings of one fact; a document where
         // they disagree is a broken producer, and guessing which half is right is how a FAILED gets recorded as
         // a SUCCEEDED.
-        String expectedType = CoreEnvelope.resultEventType(state);
+        String expectedType;
+        try {
+            expectedType = CoreEnvelope.resultEventType(state);
+        } catch (CoreEnvelope.EnvelopeException notAState) {
+            // A trusted producer can still send a state this version does not know (a newer Commerce, or a bug).
+            // Letting the shared helper's exception escape would roll the transaction back *without* a rejection
+            // row, and a message that is retried forever with no operator-visible record is the one outcome this
+            // consumer is built to avoid.
+            refusal(
+                    CaseResultVerifier.Refusal.MALFORMED,
+                    "the payload's state is not a core refund result state: " + state,
+                    verified,
+                    rawMessage);
+            return null;
+        }
         if (!expectedType.equals(eventType)) {
             refusal(
                     CaseResultVerifier.Refusal.MALFORMED,
@@ -176,9 +190,10 @@ public class CaseResultConsumer {
                 optionalText(payload, "provider_ref"),
                 optionalText(payload, "reason_code"),
                 aggregateVersion,
-                // The signed bytes are stored exactly as they arrived, which is what makes the verification
-                // reproducible later; the signature column is the same value the envelope already carries, kept
-                // separately so an operator can see at a glance that a row is signed.
+                // The verified document, canonically serialised: not the transport's exact bytes (key order and
+                // whitespace are normalised), but a form whose signature still verifies, so the verification is
+                // reproducible later. V13's comment says "verbatim"; that wording is wrong and is left alone there
+                // because a migration's text is checksummed once applied — the correction lives here.
                 CoreEnvelope.canonical(verified),
                 requiredText(verified, "signature", verified, rawMessage),
                 requiredText(verified, "signing_key_id", verified, rawMessage),
@@ -188,9 +203,9 @@ public class CaseResultConsumer {
             return Disposition.DUPLICATE;
         }
         if (claimed != 1) {
-            // MySQL reports 0 only when the duplicate branch changed nothing, which cannot happen while the
-            // statement always writes the same duplicate sentence. Anything but 1 or 2 is therefore a surprise
-            // worth refusing rather than treating as a claim.
+            // 2 is the duplicate answer above. Anything else means the claim statement did not do what it says,
+            // which is worth refusing rather than treating as a claim: since V14 the duplicate branch always
+            // changes `deliveries`, so 0 can no longer happen either.
             throw new IllegalStateException("claiming result " + eventId + " affected " + claimed
                     + " rows, so it is neither claimed nor a duplicate");
         }

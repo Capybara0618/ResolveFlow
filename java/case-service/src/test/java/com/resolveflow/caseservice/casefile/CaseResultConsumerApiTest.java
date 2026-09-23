@@ -263,6 +263,32 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    @DisplayName("a third delivery of the same result is still a duplicate, not a fresh claim")
+    void aThirdDeliveryIsStillADuplicate() {
+        String eventId = UUID.randomUUID().toString();
+        String message = succeeded(eventId, MERCHANT, 3);
+
+        assertThat(consumer.consume(message)).isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+        assertThat(consumer.consume(message)).isEqualTo(CaseResultConsumer.Disposition.DUPLICATE);
+        // The claim statement's affected-row count is what answers this, and it can only tell "claimed" from
+        // "already claimed" while the duplicate branch actually changes the row. The *first* redelivery changes
+        // `detail` from NULL to the sentence; a later one changes nothing unless the statement keeps writing
+        // something new, and MySQL then reports 0 (or 1 under CLIENT_FOUND_ROWS) — never the 2 the caller reads
+        // as "duplicate". At-least-once makes a third delivery exactly as normal as a second.
+        assertThat(consumer.consume(message))
+                .as("a third delivery must not be mistaken for a fresh claim")
+                .isEqualTo(CaseResultConsumer.Disposition.DUPLICATE);
+
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM case_result_inbox WHERE case_id = ?", Integer.class, caseId))
+                .isEqualTo(1);
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId)
+                        .deliveries())
+                .as("every redelivery is counted, which is what makes the affected-row answer deterministic (V14)")
+                .isEqualTo(3);
+    }
+
+    @Test
     @DisplayName(
             "boundary of C05.2b-3a: an accepted RefundSucceeded leaves the case EXECUTING, because projection is C05.2b-3b")
     void anAcceptedResultIsNotProjectedYet() {
