@@ -1,0 +1,232 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] resolveflow-java                                                   [pom]
+[INFO] shared-kernel                                                      [jar]
+[INFO] case-service                                                       [jar]
+[INFO] 
+[INFO] ------------------< com.resolveflow:resolveflow-java >------------------
+[INFO] Building resolveflow-java 0.1.0-SNAPSHOT                           [1/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ resolveflow-java ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] -------------------< com.resolveflow:shared-kernel >--------------------
+[INFO] Building shared-kernel 0.1.0-SNAPSHOT                              [2/3]
+[INFO]   from shared-kernel\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ shared-kernel ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ shared-kernel ---
+[INFO] 
+[INFO] --------------------< com.resolveflow:case-service >--------------------
+[INFO] Building case-service 0.1.0-SNAPSHOT                               [3/3]
+[INFO]   from case-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] 1 problem was encountered while building the effective model for org.javassist:javassist:jar:3.21.0-GA during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ case-service ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ case-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 14 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ case-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ case-service ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\case-service\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ case-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ case-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+18:10:21.412 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+18:10:21.492 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+18:10:21.494 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+18:10:21.546 [main] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+18:10:21.549 [main] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+18:10:21.592 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 2.0.5
+18:10:21.825 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Loaded org.testcontainers.dockerclient.NpipeSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+18:10:22.323 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with local Npipe socket (npipe:////./pipe/docker_engine)
+18:10:22.342 [main] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+18:10:22.363 [main] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.3.0
+  API Version: 1.54
+  Operating System: Docker Desktop
+  Total Memory: 7580 MB
+  Labels: 
+    com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+18:10:22.523 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Creating container for image: testcontainers/ryuk:0.14.0
+18:10:22.690 [main] INFO org.testcontainers.utility.RegistryAuthLocator -- Credential helper/store (docker-credential-desktop) does not have credentials for https://index.docker.io/v1/
+18:10:22.840 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 is starting: 7733b0df17bfe238af3ef0bab06ff8e6bbfebd8d152d3f2105c2ba3218a9fa59
+18:10:23.443 [main] INFO tc.testcontainers/ryuk:0.14.0 -- Container testcontainers/ryuk:0.14.0 started in PT0.9199511S
+18:10:23.453 [main] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+18:10:23.453 [main] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+18:10:23.454 [main] INFO org.testcontainers.DockerClientFactory -- ?? Docker server version should be at least 1.6.0
+18:10:23.454 [main] INFO tc.mysql:8.4 -- Creating container for image: mysql:8.4
+18:10:23.569 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 is starting: d9b59522f2be93b2664eeeca4f640d7b4fd1d684415cf4a48267bb135647a19b
+18:10:24.041 [main] INFO tc.mysql:8.4 -- Waiting for database connection to become available at jdbc:mysql://localhost:54911/case_db using query 'SELECT 1'
+18:10:33.828 [main] INFO tc.mysql:8.4 -- Container mysql:8.4 started in PT10.3731329S
+18:10:33.828 [main] INFO tc.mysql:8.4 -- Container is started (JDBC URL: jdbc:mysql://localhost:54911/case_db)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T18:10:34.365+08:00  INFO 42460 --- [case-service] [           main] c.r.c.c.CaseResultConsumerApiTest        : Starting CaseResultConsumerApiTest using Java 21.0.12.1 with PID 42460 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T18:10:34.366+08:00  INFO 42460 --- [case-service] [           main] c.r.c.c.CaseResultConsumerApiTest        : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T18:10:35.779+08:00  INFO 42460 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T18:10:35.803+08:00  INFO 42460 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T18:10:35.804+08:00  INFO 42460 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T18:10:35.934+08:00  INFO 42460 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1546 ms
+2026-09-23T18:10:36.482+08:00  INFO 42460 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-23T18:10:36.503+08:00  INFO 42460 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7d76d72a
+2026-09-23T18:10:36.504+08:00  INFO 42460 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-23T18:10:36.546+08:00  INFO 42460 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:54911/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T18:10:36.643+08:00  WARN 42460 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T18:10:36.704+08:00  INFO 42460 --- [case-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `case_db`.`flyway_schema_history` does not exist yet
+2026-09-23T18:10:36.708+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.048s)
+2026-09-23T18:10:36.740+08:00  INFO 42460 --- [case-service] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `case_db`.`flyway_schema_history` ...
+2026-09-23T18:10:36.826+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: << Empty Schema >>
+2026-09-23T18:10:36.842+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "1 - case core tables"
+2026-09-23T18:10:36.996+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "2 - case timeline vocabulary"
+2026-09-23T18:10:37.115+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "3 - case evidence"
+2026-09-23T18:10:37.217+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "4 - policy bundles"
+2026-09-23T18:10:37.297+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "5 - case policy manifest"
+2026-09-23T18:10:37.368+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "6 - agent callback inbox"
+2026-09-23T18:10:37.466+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "7 - case proposal"
+2026-09-23T18:10:37.526+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "8 - reviewed evidence"
+2026-09-23T18:10:37.615+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "9 - case authorization"
+2026-09-23T18:10:37.678+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "10 - authorization decision"
+2026-09-23T18:10:37.833+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "11 - case proposal author"
+2026-09-23T18:10:37.918+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "12 - case event outbox"
+2026-09-23T18:10:38.012+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "13 - case result inbox"
+2026-09-23T18:10:38.107+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `case_db` to version "14 - case result inbox deliveries"
+2026-09-23T18:10:38.205+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 14 migrations to schema `case_db`, now at version v14 (execution time 00:00.974s)
+2026-09-23T18:10:39.124+08:00  INFO 42460 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T18:10:39.184+08:00  INFO 42460 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 50062 (http) with context path '/'
+2026-09-23T18:10:39.192+08:00  INFO 42460 --- [case-service] [           main] c.r.c.c.CaseResultConsumerApiTest        : Started CaseResultConsumerApiTest in 5.145 seconds (process running for 19.011)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (C:\Users\hjn\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-09-23T18:10:40.349+08:00  INFO 42460 --- [case-service] [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T18:10:40.349+08:00  INFO 42460 --- [case-service] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T18:10:40.350+08:00  INFO 42460 --- [case-service] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-09-23T18:10:40.760+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 4984e809-f152-4986-b448-10ebf4008f68 for case 389b96f7-7d63-4fa0-bd6e-315cb7860d96 recorded: operation 9d7ee8ef-1e91-40dc-803e-d7ca8a26c409 is SUCCEEDED at Commerce version 3
+2026-09-23T18:10:40.780+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 4984e809-f152-4986-b448-10ebf4008f68 for case 389b96f7-7d63-4fa0-bd6e-315cb7860d96 was delivered again; the first delivery stands
+2026-09-23T18:10:41.052+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: MALFORMED (the payload's state is not a core refund result state: CREATED)
+2026-09-23T18:10:41.334+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: MALFORMED (the result's amount_minor is outside the core range 1..1000000000: 0)
+2026-09-23T18:10:41.349+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: MALFORMED (the result's amount_minor is outside the core range 1..1000000000: 1000000001)
+2026-09-23T18:10:41.588+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: BAD_SIGNATURE (core envelope signature does not cover this envelope)
+2026-09-23T18:10:41.836+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: UNTRUSTED_KEY (key some-other-key is not in this service's trust list)
+2026-09-23T18:10:42.073+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 66b18f46-dc7e-48d6-a5da-2c6db7b58110 for case ac1d95da-ddae-4380-8b21-22b4f15422ac recorded: operation a676cb9b-079b-4db9-8ce8-24a7516f2eab is SUCCEEDED at Commerce version 3
+2026-09-23T18:10:42.300+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result b0500762-c5a0-4f2c-880c-d0c08d36fe65 for case 2e308104-54d4-4115-877d-93d4e8313dee recorded: operation 90c1c418-7438-4793-bb50-8d15853b1015 is FAILED at Commerce version 4
+2026-09-23T18:10:42.325+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result c7ff781f-afdb-4849-8c55-d2bbd463978b for case 2e308104-54d4-4115-877d-93d4e8313dee recorded: operation 90c1c418-7438-4793-bb50-8d15853b1015 is FAILED at Commerce version 3
+2026-09-23T18:10:42.559+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result f147c200-af6d-4786-a300-5b30815f677f for case a1bee36f-bd73-4e96-8f76-1ae44070bb3a recorded: operation 33fd8527-aa90-40d7-a53f-eea1618e92de is UNKNOWN at Commerce version 5
+2026-09-23T18:10:42.794+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: MALFORMED (this service speaks core schema_version 2)
+2026-09-23T18:10:43.052+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 97e4518a-bbb2-4928-8224-3be8bab10070 for case c0a0b4fd-48b7-43ba-83e9-1b51aee87e8f recorded: operation 67ab5110-bf51-4421-b069-92218bc74396 is SUCCEEDED at Commerce version 3
+2026-09-23T18:10:43.070+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 97e4518a-bbb2-4928-8224-3be8bab10070 for case c0a0b4fd-48b7-43ba-83e9-1b51aee87e8f was delivered again; the first delivery stands
+2026-09-23T18:10:43.299+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 1f55c906-e8a4-4fed-a849-76ba66153b9a for case 8bbb41da-dd3a-4e66-b02f-d7149dbd51c4 recorded: operation 8524df30-5a8b-449e-909c-c4f647808c02 is SUCCEEDED at Commerce version 3
+2026-09-23T18:10:43.312+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 1f55c906-e8a4-4fed-a849-76ba66153b9a for case 8bbb41da-dd3a-4e66-b02f-d7149dbd51c4 was delivered again; the first delivery stands
+2026-09-23T18:10:43.327+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result 1f55c906-e8a4-4fed-a849-76ba66153b9a for case 8bbb41da-dd3a-4e66-b02f-d7149dbd51c4 was delivered again; the first delivery stands
+2026-09-23T18:10:43.619+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: WRONG_MERCHANT (the result is scoped to M-1002 but case b34b4f4f-1e12-46d7-9cce-13be191a8a95 belongs to M-1001)
+2026-09-23T18:10:43.907+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: UNKNOWN_OPERATION (operation a76a6859-5c73-4e8b-8257-def711465150 was never issued a command by this service)
+2026-09-23T18:10:44.135+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result d3e20c8c-3698-44c6-a0a4-8f93edb7d61c for case b6834573-d8b5-49dd-be2b-3ee73d272fe1 recorded: operation 942b668c-15ec-45e2-a74a-5916c783579a is FAILED at Commerce version 4
+2026-09-23T18:10:44.368+08:00  INFO 42460 --- [case-service] [      Thread-41] c.r.c.result.CaseResultConsumer          : result 3c8b9b28-f157-4fd4-ab62-ba3f4324f786 for case f475e1e0-6ada-4468-b31a-563bcc295c87 recorded: operation 038145c6-25ad-4f89-859a-7649d1ed4c44 is SUCCEEDED at Commerce version 6
+2026-09-23T18:10:44.383+08:00  INFO 42460 --- [case-service] [      Thread-40] c.r.c.result.CaseResultConsumer          : result 5abac22e-a555-4c0d-8a22-2410d746efdd for case f475e1e0-6ada-4468-b31a-563bcc295c87 recorded: operation 038145c6-25ad-4f89-859a-7649d1ed4c44 is SUCCEEDED at Commerce version 6
+2026-09-23T18:10:44.611+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: WRONG_DIRECTION (RefundSucceeded belongs on rf.commerce.core.v2)
+2026-09-23T18:10:44.841+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: BAD_SIGNATURE (core envelope signature does not cover this envelope)
+2026-09-23T18:10:45.083+08:00  INFO 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : result bce7ad50-2f3f-4482-833e-b23c752ce3e0 for case 82a2c070-8da9-4b0a-970b-4ad7b039685e recorded: operation 6f344e00-2b32-4407-b178-9bd7af874f6c is SUCCEEDED at Commerce version 3
+2026-09-23T18:10:45.306+08:00  WARN 42460 --- [case-service] [           main] c.r.c.result.CaseResultConsumer          : refused a core result: AMOUNT_MISMATCH (the result reports 1 minor, but case 02cedd6a-eb17-4364-a354-c0ecdd25ee56 authorised 2599)
+[INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 24.32 s -- in com.resolveflow.caseservice.casefile.CaseResultConsumerApiTest
+[INFO] Running com.resolveflow.caseservice.casefile.InputMovesRetireApprovalApiTest
+2026-09-23T18:10:45.323+08:00  INFO 42460 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.InputMovesRetireApprovalApiTest
+2026-09-23T18:10:45.324+08:00  INFO 42460 --- [case-service] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.resolveflow.caseservice.CaseDatabaseTest]: CaseDatabaseTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23T18:10:45.326+08:00  INFO 42460 --- [case-service] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.casefile.InputMovesRetireApprovalApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T18:10:45.350+08:00  INFO 42460 --- [case-service] [           main] c.r.c.c.InputMovesRetireApprovalApiTest  : Starting InputMovesRetireApprovalApiTest using Java 21.0.12.1 with PID 42460 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T18:10:45.350+08:00  INFO 42460 --- [case-service] [           main] c.r.c.c.InputMovesRetireApprovalApiTest  : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T18:10:45.612+08:00  INFO 42460 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+2026-09-23T18:10:45.612+08:00  INFO 42460 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T18:10:45.612+08:00  INFO 42460 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T18:10:45.687+08:00  INFO 42460 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 335 ms
+2026-09-23T18:10:45.735+08:00  INFO 42460 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-09-23T18:10:45.746+08:00  INFO 42460 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@469f8de2
+2026-09-23T18:10:45.747+08:00  INFO 42460 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-09-23T18:10:45.753+08:00  INFO 42460 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:54911/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T18:10:45.764+08:00  WARN 42460 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T18:10:45.782+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.014s)
+2026-09-23T18:10:45.795+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T18:10:45.796+08:00  INFO 42460 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T18:10:45.925+08:00  INFO 42460 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T18:10:45.937+08:00  INFO 42460 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 50077 (http) with context path '/'
+2026-09-23T18:10:45.939+08:00  INFO 42460 --- [case-service] [           main] c.r.c.c.InputMovesRetireApprovalApiTest  : Started InputMovesRetireApprovalApiTest in 0.609 seconds (process running for 25.758)
+2026-09-23T18:10:46.005+08:00  INFO 42460 --- [case-service] [o-auto-2-exec-1] o.a.c.c.C.[Tomcat-1].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T18:10:46.005+08:00  INFO 42460 --- [case-service] [o-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T18:10:46.006+08:00  INFO 42460 --- [case-service] [o-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.539 s -- in com.resolveflow.caseservice.casefile.InputMovesRetireApprovalApiTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for resolveflow-java 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] resolveflow-java ................................... SUCCESS [  0.374 s]
+[INFO] shared-kernel ...................................... SUCCESS [  1.027 s]
+[INFO] case-service ....................................... SUCCESS [ 29.062 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  30.952 s
+[INFO] Finished at: 2026-09-23T18:10:47+08:00
+[INFO] ------------------------------------------------------------------------
