@@ -28,26 +28,34 @@
 "内容不一致"的样子报告一个纯行尾差异）。完整处置见 `docs/implementation-handoff.md` 的"开始步骤"第 5 条与
 `tasks/todo.md` 的 C03.3c-2 / C05.1b / C05.5 三条记录（最后一条是工作区归一化）。
 
-### 开工自检：确认你在对的目录（**孪生路径问题已于 2026-09-23 解决**）
+### 开工自检：确认你在对的目录（**孪生路径问题已于 2026-09-23 彻底解决**）
 
 ```
-家（唯一）：         E:\Code\Agent+Backend                      ← 本文件所在，在这里干活
-迁移前的旧工作副本： E:\Code+Agent+Backend                      ← 已停用，冷却期后删；别在它里面开工
-更早的事故残骸：     E:\Code\Agent+Backend-PRE-B-MOVE-20260923  ← 停在 C05.1a 的快照，已被 bundle 保全
+家（唯一，本文件所在）：E:\Code\Agent+Backend        ← 在这里干活
 ```
+
+**这台机器上与本项目相关的目录现在只有上面这一个**（2026-09-23 清理后）。以前有过两个只差一个字符的
+`Agent+Backend`，都已删除：旧工作副本 `E:\Code+Agent+Backend`（停在 `d85b7b7`）与事故残骸
+`E:\Code\Agent+Backend-PRE-B-MOVE-20260923`（停在 C05.1a）——**它们连同各自的 bundle 都没了**，
+现在如果还看到这些路径，只可能出现在历史日志（`reports/c051c-transport/*.log`）与账本叙述里。
 
 **为什么会冒出两个目录**（查清并记录在 `tasks/todo.md` 的 C05.5）：项目最初就在 `E:\Code\Agent+Backend`；
 2026-09-22 第一次事故把原目录毁掉后，为了不丢东西从 GitHub 重新克隆，克隆落在了 `E:\Code+Agent+Backend`
 （只多一个 `+`），此后所有工作都在里面做。于是同一台机器上有两个只差一个字符的仓库——**2026-09-23 有一个
-新会话开错到旧的那个，白问了三个早就做完的问题**。现在工作副本已经搬回最初的位置：完整历史、`origin`
-远端、行尾配置都一致，`git log -1` 与 `origin/main` 相同。
+新会话开错到旧的那个，白问了三个早就做完的问题**。当天把工作副本搬回最初的位置（完整历史、`origin`
+远端、行尾配置一致），随后删掉两个旧目录。
+
+**唯一留在项目外的相关文件**：`E:\ResolveFlow-archaeology-20260923.zip`（0.23 MB，清理时留下的工作树
+快照与说明；删了也不影响项目）。**项目之外的还有两处不是文件但要知道**：数据库数据在 Docker 命名卷
+（`mysql-data`/`postgres-data`）里，JDK 21 在 `C:\Users\hjn\.jdks\jdk-21.0.12.1+1`（PATH 上的 `java`
+是 17，跑 Maven 必须显式给 `JAVA_HOME`）。
 
 **开工第一条命令（离线可自证，不需要网络）**：
 
 ```powershell
-Set-Location 'E:\Code+Agent+Backend'
+Set-Location 'E:\Code\Agent+Backend'
 (Get-Location).Path                 # 必须是 E:\Code\Agent+Backend（E:\Code\ 里面、没有加号）
-git log --oneline -1                # 不早于 C05.4，且应与 origin/main 相同
+git log --oneline -1                # 不早于 C05.5，且应与 origin/main 相同
 Test-Path tasks\handoff-c06.md      # 必须是 True
 ```
 
