@@ -1,0 +1,54 @@
+# C05.2c ȫ��·�˵��ˣ����� �� �˹�ͨ�� �� ���� �� Commerce �� provider �� ����¼� �� Case �ص�
+run 20260923-155508  line None
+
+== environment
+  -- compose MySQL answers
+     PASS (0.2s)
+  -- RocketMQ name server listens on 9876
+     PASS (0.0s)
+     minted order 63a8a816-7ff5-4ef1-bb9a-3009d983a721 line 9155508 for 2599 minor (sku SKU-RED-M-DRV-9155508, category apparel)
+  -- minted a fresh line for this run: 9155508
+     PASS (0.6s)  paid 2599 minor, no case on it and none of the 7001 orphans touch it
+
+== build
+  -- mvnw package (skipTests)
+     PASS (5.9s)  log 20260923-155508-build.txt
+
+== three processes
+     provider: E:\Code+Agent+Backend\agent\.venv\Scripts\python.exe -m uvicorn resolveflow.api.app:app --host 127.0.0.1 --port 55262 --log-level warning  (log E:\Code+Agent+Backend\reports\c052c-chain\provider.log)
+     case-service: C:\Users\hjn\.jdks\jdk-21.0.12.1+1\bin\java -jar E:\Code+Agent+Backend\java\case-service\target\case-service-0.1.0-SNAPSHOT.jar --resolveflow.commerce.base-url=http://127.0.0.1:8081 --resolveflow.dispatch.enabled=true --resolveflow.dispatch.poll-interval-ms=500 --resolveflow.events.namesrv=127.0.0.1:9876 --resolveflow.events.publisher.enabled=true --resolveflow.events.outbox.delivery-enabled=true --resolveflow.events.outbox.poll-interval-ms=300 --resolveflow.events.consumer.enabled=true  (log E:\Code+Agent+Backend\reports\c052c-chain\case-service.log)
+     commerce-service: C:\Users\hjn\.jdks\jdk-21.0.12.1+1\bin\java -jar E:\Code+Agent+Backend\java\commerce-service\target\commerce-service-0.1.0-SNAPSHOT.jar --resolveflow.provider.base-url=http://127.0.0.1:55262 --resolveflow.events.namesrv=127.0.0.1:9876 --resolveflow.events.consumer.enabled=true --resolveflow.events.publisher.enabled=true --resolveflow.events.outbox.delivery-enabled=true --resolveflow.events.outbox.poll-interval-ms=300 --resolveflow.refund.dispatch-enabled=true --resolveflow.refund.reconcile-enabled=true --resolveflow.refund.poll-interval-ms=500  (log E:\Code+Agent+Backend\reports\c052c-chain\commerce-service.log)
+  -- the three processes are up
+     PASS (8.6s)  provider=True commerce=True case=True
+
+== the chain
+     $ mvnw -Dtest=RefundChainSystemTest with RESOLVEFLOW_E2E_CHAIN=true LINE=9155508
+  -- RefundChainSystemTest passes
+     FAIL (97.8s)  log 20260923-155508-chain-test.txt
+
+== what the databases hold
+     aftersale_case     [['e4575ad5-0c9d-40c2-97c8-27b6666dead0', 'EXECUTING', '4']]
+     refund_operation   [['83c3718e-2e0d-4a1a-babd-0c80afc61371', 'RECEIVED', '2599', '-']]
+     payment_ledger     [['0', '2599']]
+     line_refund        [['RESERVED', '83c3718e-2e0d-4a1a-babd-0c80afc61371']]
+     case_result_inbox  []
+     case_timeline      [['APPROVAL_REQUIRED', '1'], ['AUTHORIZATION_DECIDED', '1'], ['CASE_CREATED', '1'], ['EXECUTION_UPDATED', '1'], ['PROPOSAL_READY', '1']]
+     execution_command  [['1']]
+  -- the case is closed
+     FAIL  observed=EXECUTING  expected=CLOSED_SUCCESS
+  -- the provider settled it
+     FAIL  observed=RECEIVED  expected=SUCCEEDED
+  -- the refunded amount is the line's
+     PASS  observed=2599  expected=2599
+  -- nothing is left reserved
+     FAIL  observed=2599  expected=0
+  -- the ledger holds exactly one refund
+     FAIL  observed=0  expected=2599
+  -- the line can never be refunded again
+     FAIL  observed=RESERVED  expected=CONSUMED
+
+== background noise this run did not cause
+     orphaned operations on line 7001 (from earlier driver runs): [['RECEIVED', '4']]
+     with the dispatch loop enabled they are swept, refuse to settle (their line is held by another operation), and retry for as long as the service is up. That is the gap the ledger records for IN_PROGRESS rows, not a result of this run.
+
+RESULT: FAILED: RefundChainSystemTest passes; the case is closed; the provider settled it; nothing is left reserved; the ledger holds exactly one refund; the line can never be refunded again (114.6s)

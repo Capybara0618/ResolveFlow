@@ -579,6 +579,64 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **对 c-3 的影响（下一片必须据此写）**：驱动**不能**假定"打开两个开关后自己的 operation 一定会被处理"——
     它必须选一条不与孤儿相交的行（当前孤儿全在 `7001`，即订单 `…aa`），并把"孤儿被扫到后失败/卡住"
     作为**预期事实**写进报告，而不是当成驱动失败；断言只按**自己那条 `case_id`/`operation_id`** 收窄。
+- C05.2c-3 完成（2026-09-23）：**真实链路的系统级 e2e 跑通了**——建单 → 人工通过 → 命令 → Commerce →
+  provider → 结果事件 → Case 关单，整条链没有一处手工调用，全程 38.4 秒。
+  - **产出**：`scripts/e2e_refund_chain.py`（新驱动）+ `java/case-service/src/test/.../RefundChainSystemTest.java`
+    （新系统测试）。驱动负责环境：真的起三个进程——case-service(8083)、commerce-service(8081)、
+    C04.1 的 provider stub（自己挑空闲端口、自己的 SQLite、`RESOLVEFLOW_LAB_ROUTES=1`）——并显式打开
+    两侧所有默认关闭的开关；测试负责断言：用**真 HTTP** 走建单/回调/审批三个真实入口，再用 JDBC 读**两个**
+    schema。断言全部收窄到本轮的 `case_id`/`operation_id`。
+    *（偏离说明：账本原写"扩成 C05.1c 的 `e2e_transport_refund.py`"，实际新写了驱动，理由是保留 C05.1c
+    的可复现证据；C05.1c 的进程/MySQL/报告等管道是 `import` 复用的，没有抄第二份。）*
+  - **不变量与 CF1/CF2 都真的过了**：同行只有一次成功退款；订单"已退+预留 ≤ 支付额"；UNKNOWN 不释放/不换 ID
+    重付（本轮未触发，c-4 是它的定点）；`case_result_inbox` 恰好 1 行、`disposition=ACCEPTED`、
+    `state=SUCCEEDED`、`amount_minor=2599`、`projected_at` 非空、`aggregate_version≠0`、
+    `signing_key_id=commerce-service-demo-key`；`case_timeline` 的 `CASE_CLOSED` 恰好 1 行；
+    `case_execution_command` 恰好 1 行；`line_refund` 的 slot 持有人就是本轮 operation 且终态 `CONSUMED`。
+    **CF2（结果方向重复投递）**：把 commerce 结果 outbox 行改回 `PENDING`（**信封字节不动**）让真投递环
+    重新发同一份签名文档 → 重发后 `attempts=2`、信封与重发前逐字节相同、case 侧仍 **1 行 inbox**、
+    `deliveries=2`、`detail='duplicate delivery ignored'`、`CASE_CLOSED` 仍 **1 行**、工单仍 `CLOSED_SUCCESS`、
+    账面仍是 2599/0。"同一份字节被再投一次"是唯一能真正说明至少一次的地方，这里说了。
+  - **发现 A（本轮最重要，`src/main` 真缺陷）：`commerce-service` 从来没有 `@EnableScheduling`。**
+    于是它里面**三个** `@Scheduled` 循环一个都不会被调度——C05.2b-1 的 `ResultOutboxDeliveryLoop`、
+    C05.2c-2 的 `RefundDispatchLoop`/`RefundReconcileLoop`。它们作为 bean 存在、开关也生效、只是**永远不被调用**。
+    这正是"循环是薄壳、只测它调用的那个方法"这一约定的盲区：C05.2c-2 的 `dispatchDue` 有测试，
+    但没有任何测试问过"Spring 真的会按点调用它吗"。**是这次 e2e 抓到的**：run5 里开关全开、operation 在
+    `RECEIVED` 上停了 90 秒，commerce 日志里连一行循环输出都没有。修法：给
+    `CommerceServiceApplication` 加 `@EnableScheduling`（附 javadoc 说明与 case-service 同因）；加完
+    全量 commerce **70 条仍全绿**（默认关闭的循环不会打扰任何既有测试）。
+  - **发现 B：新铸的行必须同时有退款 slot 行，否则 commerce 报的是错的那张表。**
+    驱动给每轮铸一条自己的订单行（见发现 C），第一次只写了 `orders`/`order_line`/`payment_ledger`，
+    commerce 消费命令时抛 `LINE_NOT_FOUND: no order line 9154932 in this service`——而行**就在** `order_line` 里。
+    真因是 `RefundMoneyRepository.slotForUpdate` 是 `FROM line_refund r JOIN order_line l ...`：缺 slot 行就查不到，
+    报错却指 `order_line`。另外 `line_refund.updated_at` 无默认值、`live_marker` 是**生成列**（不能自己写）；
+    四条 INSERT 现在放在一个 `START TRANSACTION … COMMIT` 里，半铸的行比没铸更糟。
+  - **发现 C：种子 demo 行全都已有未关工单**，所以任何"用现成 demo 行"的链跑都会撞 `CASE_ALREADY_OPEN`
+    （这是对的）；第一次跑就是死在这里（run1）。驱动改为**每轮自己铸一条新行**（`line_id` 以 `9` 开头，
+    一眼能认出不是种子行；sku/category 从种子行复制，因为 category 是政策适用性写的对象，编一个可能落在所有
+    规则之外）。这也让 e2e 可重复：下一轮不必推理上一轮的残留。测试里也加了一条前置断言把
+    `CASE_ALREADY_OPEN` 说清楚，免得它看起来像链路失败。
+  - **发现 D（测试自身的错，但值得留档）：探"过渡态"是在和被测系统赛跑。** 第一版等的是
+    `line_refund.state='RESERVED'`；可 slot 只在 `RESERVED` 上**停一个 poll 间隔**（500ms）就被派发循环送去
+    provider，于是 250ms 的轮询可能整段错过它——run6 就是这样：链路在 90 秒窗口内**已经全部完成**
+    （关单、结算、账面都对），测试却在第一个 await 上耗满 90 秒然后超时。改为断言**持久**痕迹：
+    operation 行存在（预留与插行是同一个事务，所以"行在"就是"预留过"）+ slot 的持有人在终态仍指向本 operation。
+    改完 38.4 秒通过。
+  - **附带的真实结果（不是噪声）**：循环一开，`7001` 上四条残留 operation 会被扫到，其中**真正持有
+    `7001` slot 的那条结算成功**（provider ref `prv-…`），另外三条因为"行被别人持有"拒绝结算、停在
+    `IN_PROGRESS`（即 c-2b 记录的缺口）。前者是 C05.1c 遗留的、卡了很久的一笔预留被这个循环补完——
+    真钱动了；驱动把两种结果都写进报告，不当作自己失败。
+  - **命令与结果（含全部失败的运行，都留档）**：驱动 `python scripts/e2e_refund_chain.py` 共跑 **7 次**——
+    run1 `CASE_ALREADY_OPEN`（发现 C）；run2 命令发布成功但 commerce 说 `no order line`（发现 B 前半）；
+    run3 `updated_at` 无默认值；run4 `live_marker` 是生成列；run5 开关全开而 operation 停在 `RECEIVED`
+    90 秒（发现 A）；run6 链路已完成但测试探过渡态超时（发现 D）；**run7 `RESULT: PASSED (38.4s)`**。
+    另有 `-pl commerce-service -am test` **70 条 0 失败**（加 `@EnableScheduling` 之后复跑）、
+    `-pl case-service -am test` **178 条 0 失败 0 错误 2 skipped**（基线 177+1：新测试默认被 env 开关跳过）、
+    `spotless:check` **exit 0**。证据归档 `reports/c052c-chain/`（含 run7 报告、三个进程日志、
+    每轮 provider SQLite 与 chain-test 输出）。
+  - **没做的**：CF3 定点（provider 结算但响应丢失 → `UNKNOWN`/`RECONCILING` → 不释放、不换 ID →
+    对账收敛 → `SUCCEEDED` → 关单）仍是 c-4，**未运行**；上面"不变量与 CF1/CF2"里的 UNKNOWN 一条因此
+    在本轮只是静态成立、没有被这次运行证明。
 
 ### C04 持久模拟退款与本地金额事务
 
@@ -631,11 +689,11 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - [x] C05.1c：真实 RocketMQ + MySQL 的系统级退款 e2e（CF1/CF2 定点，含 5 个真实发现）。
 - [ ] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
   - [x] C05.2a 授权消费与命令写入方；C05.2b 结果 outbox/传输/Case inbox 与投影（b-1…b-3b 全部完成）。
-  - [ ] C05.2c 真实链路两段 e2e 与 CF3 定点：**c-1 case 侧结果监听器、c-2 Commerce 退款推进入口（派发+对账两个循环）已完成**；c-3 两段 e2e、c-4 CF3 未做。
+  - [ ] C05.2c 真实链路两段 e2e 与 CF3 定点：**c-1 case 侧结果监听器、c-2 Commerce 退款推进入口（派发+对账两个循环）、c-2b 单行不拖死整趟、c-3 两段 e2e（真实 broker，已 PASSED）均已完成**；c-4 CF3 未做。
 - 依赖：C03,C04。文件：messaging、Case执行、Commerce消费者及集成测试。
 - 验收：重复/乱序/ACK丢失不重复业务；目标确认成功才关单；失败释放后再试须新授权。
 - 验证：真实RocketMQ+MySQL系统退款测试，CF1/CF2/CF3定点冒烟。
-- 实际记录：C05.1a（2026-09-22）与 C05.1b（2026-09-23）的完整记录在本文件 C04 工作包记录**之前**（紧随 C03.3c-2 之后）；C05.1c（2026-09-23）紧随 C05.1b 之后；C05.2a/C05.2b-1…b-3b（2026-09-23）在其后；**C05.2c-1 已完成、c-2…c-4 未执行**（记录见上）。
+- 实际记录：C05.1a（2026-09-22）与 C05.1b（2026-09-23）的完整记录在本文件 C04 工作包记录**之前**（紧随 C03.3c-2 之后）；C05.1c（2026-09-23）紧随 C05.1b 之后；C05.2a/C05.2b-1…b-3b（2026-09-23）在其后；**C05.2c-1/c-2/c-2b/c-3 已完成、c-4 未执行**（记录见上）。
 
 ### C06 Agent控制面、MCP与能力冒烟
 

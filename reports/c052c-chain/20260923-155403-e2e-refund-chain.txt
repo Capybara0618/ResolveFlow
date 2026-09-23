@@ -1,0 +1,23 @@
+# C05.2c 全链路端到端：建单 → 人工通过 → 命令 → Commerce → provider → 结果事件 → Case 关单
+run 20260923-155403  line None
+
+== environment
+  -- compose MySQL answers
+     PASS (0.1s)
+  -- RocketMQ name server listens on 9876
+     PASS (0.0s)
+     the driver itself failed:
+Traceback (most recent call last):
+  File "E:\Code+Agent+Backend\scripts\e2e_refund_chain.py", line 237, in main
+    line, _merchant, _customer = create_demo_line(int(amount), report)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\Code+Agent+Backend\scripts\e2e_refund_chain.py", line 169, in create_demo_line
+    base.mysql_rows(
+  File "E:\Code+Agent+Backend\scripts\e2e_transport_refund.py", line 84, in mysql_rows
+    raise RuntimeError(f"mysql refused the statement: {proc.stderr.strip()}")
+RuntimeError: mysql refused the statement: mysql: [Warning] Using a password on the command line interface can be insecure.
+ERROR 1364 (HY000) at line 1: Field 'updated_at' doesn't have a default value
+
+
+RESULT: FAILED: mysql refused the statement: mysql: [Warning] Using a password on the command line interface can be insecure.
+ERROR 1364 (HY000) at line 1: Field 'updated_at' doesn't have a default value (1.4s)
