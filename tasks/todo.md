@@ -932,6 +932,10 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **红证据**（临时两处一行还原旧行为，跑完**已还原并 grep 核验**；日志 `reports/c054-debts/20260923-c054-cursor-red.txt`）：客户端层 `expected CommerceRejectedQueryException but was CommerceUnavailableException: commerce could not answer the order-line read`；接口层 `Status expected:<400 BAD_REQUEST> but was:<503 SERVICE_UNAVAILABLE>`（后者正是账本记了三次的那句话）。
   - 命令与结果：聚焦两类 9/8 绿；`-pl case-service -am test` → **187 条 0 失败（4 skipped）**（185+2）；`spotless:check` exit 0；契约 pytest `-k contract` **548 passed, 9 skipped**；证据 `reports/c054-debts/`。
   - **未改的相邻项**：`readLineContext`（`/internal/.../context`，无游标）仍只有 404→empty 与泛化→unavailable，本步**没动**——那条路由没有调用方可传坏的参数，要区分 4xx 应在有具体理由时一并做。
+- C05.4b 债务②③核对（2026-09-23，**只核不改**；照"先核代码再动手"）：
+  - **② `expires_at` 一律缺失——核实为"有意的范围决定"，不是漏做**。列、写入参数、读回映射与响应字段**都在**（`AuthorizationRepository:27/31/48/67/95/260`、`AuthorizationStateResponse:33/48`），只是**没有任何调用方给值**；`AuthorizationStateResponse:16` 的 javadoc 明写了原因：*"core-v1.2 has no expiry policy, and an authorisation stops being usable by being superseded, lapsed, revoked or consumed"*，并说明"缺省而不是 null"与工单视图说"没有方案/没有材料"是同一种表达。→ 从"欠债"改列为**已声明的范围边界**（`:330` 那句"一律缺失"事实正确，但读起来像缺陷）。
+  - **③ 服务令牌只校验 `aud`/`sub`——核实为真，但原话不够精确**：`JwtCodec.verifiedClaims`（`:167-209`）实际校验 alg 钉死 HS256、签名覆盖、**`aud`** 必须等于期望值、**`exp`** 必须存在且未过期、`nbf` 若在则未生效；`verifyAsService`（`:149-153`）再要求 **`sub`** 存在。**没有**校验 **`iss`**（`ISSUER` 常量只写不读），也**没有**核对 `sub` 是否为已知服务。→ 下一步就 `iss` 做一小步（契约里已写该 claim，一行、防御性）；`sub` 的可信服务清单属授权策略，本轮**不改**，如实记为设计边界。
+  - **仍待核（下一轮）**：④ 证据引用只记录不核对（`:330`，尚未对着代码核）；⑤ 命令只带一个 `policy_version`；⑥ CF2 的另一半（乱序消费 / 多实例争抢同一队列，`:364` 之后无记录）。
 
 ### C06 Agent控制面、MCP与能力冒烟
 
