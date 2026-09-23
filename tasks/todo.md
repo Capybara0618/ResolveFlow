@@ -935,7 +935,14 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - C05.4b 债务②③核对（2026-09-23，**只核不改**；照"先核代码再动手"）：
   - **② `expires_at` 一律缺失——核实为"有意的范围决定"，不是漏做**。列、写入参数、读回映射与响应字段**都在**（`AuthorizationRepository:27/31/48/67/95/260`、`AuthorizationStateResponse:33/48`），只是**没有任何调用方给值**；`AuthorizationStateResponse:16` 的 javadoc 明写了原因：*"core-v1.2 has no expiry policy, and an authorisation stops being usable by being superseded, lapsed, revoked or consumed"*，并说明"缺省而不是 null"与工单视图说"没有方案/没有材料"是同一种表达。→ 从"欠债"改列为**已声明的范围边界**（`:330` 那句"一律缺失"事实正确，但读起来像缺陷）。
   - **③ 服务令牌只校验 `aud`/`sub`——核实为真，但原话不够精确**：`JwtCodec.verifiedClaims`（`:167-209`）实际校验 alg 钉死 HS256、签名覆盖、**`aud`** 必须等于期望值、**`exp`** 必须存在且未过期、`nbf` 若在则未生效；`verifyAsService`（`:149-153`）再要求 **`sub`** 存在。**没有**校验 **`iss`**（`ISSUER` 常量只写不读），也**没有**核对 `sub` 是否为已知服务。→ 下一步就 `iss` 做一小步（契约里已写该 claim，一行、防御性）；`sub` 的可信服务清单属授权策略，本轮**不改**，如实记为设计边界。
-  - **仍待核（下一轮）**：④ 证据引用只记录不核对（`:330`，尚未对着代码核）；⑤ 命令只带一个 `policy_version`；⑥ CF2 的另一半（乱序消费 / 多实例争抢同一队列，`:364` 之后无记录）。
+  - C05.4c 还债③完成（2026-09-23）：**JWT 的 `iss` 从来没被校验过——这是契约违规，不只是加固缺项**（先红后绿）。
+  - **凭据**：`contracts/core/openapi-case.yaml:607` 写着 *"Issuer and audience are validated on every JWT (docs/core-contracts.md:15)"*。`JwtCodec.verifiedClaims` 实现了 aud 那一半，`iss` 那一半**从来没有**：`ISSUER` 常量被写进每一个签发的令牌（`issue`/`issueServiceToken`），**读的人一个也没有**，于是任何持有同一 secret 的其它签发者造的令牌都被当成"本服务自己的"。**（顺带如实记录一处文档不精确：它引用的 `docs/core-contracts.md:15` 只讲 aud/scope、没提 issuer——我只记录，没有顺手改。）**
+  - **先红——这次是真的先跑红，而且红抓到了我自己写错的夹具**：第一版测试的令牌**缺 `customer_id`**，而 `CUSTOMER` 角色要求它，于是它因为**别的原因**被拒（`expected message "issuer", found "customer_id"`）。补上之后重跑才得到干净的红：**`Expecting code to raise a throwable`**（异 issuer 的令牌被**接受**）。夹具现在与诚实令牌**只差 `iss` 这一处**。
+  - **顺带修掉四处夹具**：`JwtCodecTest` 里四个 `signRaw` 夹具（缺 merchant、未知 role、reviewer 带 customer、customer 无 customer）**自己也没有 `iss`**，新校验会让它们因为 issuer 而被拒、把它们真正要看的断言遮住。现在统一走 `withIssuer(...)`，**断言一个没改**。
+  - **实现**：`verifiedClaims` 要求 `iss == JwtCodec.ISSUER`，用户路径与服务路径共用同一道闸（一条测试同时钉住两条路径）。
+  - **核对过没有别的签发者会被误伤**：`signRaw` 的 javadoc 说"seeder 与测试用"，但全仓 grep 只有 `JwtCodec` 自己与 `JwtCodecTest` 在调用它；**Python 侧一处也不手写 JWT**（`agent/`、`scripts/` 里没有 `jwt.encode`/`hs256`/aud 相关代码），演示令牌都来自 `issue()` 或登录路由，都带 `iss`。
+  - 命令与结果：`JwtCodecTest` 13 条 0 失败；`mvn -f java/pom.xml -B -ntp test` → shared-kernel **59** / 5 / commerce **72** / 2 / case **187（4 skipped）**，全 0 失败；`spotless:check` exit 0；spotless 重排 shared-kernel 后**重跑** shared-kernel 59 条 0 失败（日志分开存两份，避免用"格式化前"的绿灯冒充格式化后的）。证据 `reports/c054-debts/`。
+- **仍待核（下一轮）**：④ 证据引用只记录不核对（`:330`，尚未对着代码核）；⑤ 命令只带一个 `policy_version`；⑥ CF2 的另一半（乱序消费 / 多实例争抢同一队列，`:364` 之后无记录）。（③ 已于 C05.4c 完成，② 已核实为设计边界，① 已于 C05.4a 完成。）
 
 ### C06 Agent控制面、MCP与能力冒烟
 

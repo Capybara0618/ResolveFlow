@@ -195,6 +195,15 @@ public final class JwtCodec {
             String found = audience == null ? "none" : audience.stringValue();
             throw new TokenException("audience must be " + expectedAudience + ", found " + found);
         }
+        // C05.4c, and it was a contract violation rather than missing hardening: the public contract says
+        // "Issuer and audience are validated on every JWT" (contracts/core/openapi-case.yaml:607), and only the
+        // audience half existed. ISSUER was written into every token this codec issues and read by nobody, so a
+        // token minted by anything else holding the same secret was accepted as this service's own.
+        JsonNode issuer = claims.get("iss");
+        if (issuer == null || !ISSUER.equals(issuer.stringValue())) {
+            String found = issuer == null ? "none" : issuer.stringValue();
+            throw new TokenException("issuer must be " + ISSUER + ", found " + found);
+        }
         JsonNode expiry = claims.get("exp");
         if (expiry == null || !expiry.isNumber()) {
             throw new TokenException("token has no exp");

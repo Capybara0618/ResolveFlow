@@ -28,6 +28,16 @@ class JwtCodecTest {
         return new JwtCodec(SECRET, Duration.ofHours(1));
     }
 
+    /**
+     * A claims object that carries the issuer every honest token has.
+     *
+     * <p>Used by the fixtures below that are deliberately missing one claim: without this they would be missing
+     * the issuer too, and the refusal they are written to inspect would be masked by the issuer check (C05.4c).
+     */
+    private static String withIssuer(String claimsJson) {
+        return "{\"iss\":\"" + JwtCodec.ISSUER + "\"," + claimsJson.substring(1);
+    }
+
     private static AuthenticatedPrincipal principal(String merchant, String customer, Role role) {
         return new AuthenticatedPrincipal("demo-customer", merchant, role, customer);
     }
@@ -149,8 +159,8 @@ class JwtCodecTest {
     @DisplayName("a token without the required claims is refused instead of defaulting")
     void missingClaimsAreRefused() {
         JwtCodec codec = codec();
-        String missingMerchant = codec.signRaw("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\",\"aud\":\""
-                + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}");
+        String missingMerchant = codec.signRaw(withIssuer("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\",\"aud\":\""
+                + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
 
         assertThatThrownBy(() -> codec.verifyAsUser(missingMerchant, NOW))
                 .isInstanceOf(JwtCodec.TokenException.class)
@@ -158,12 +168,39 @@ class JwtCodecTest {
     }
 
     @Test
+    @DisplayName("a token that names another issuer is refused, on both the user and the service path")
+    void anotherIssuerIsRefused() {
+        // C05.4c, and it is a contract violation rather than missing hardening: the public contract says
+        // "Issuer and audience are validated on every JWT" (contracts/core/openapi-case.yaml:607). The audience
+        // half was implemented; the issuer half was written into every token (JwtCodec.ISSUER) and read by
+        // nobody, so a token minted by anything else holding the same secret was accepted as this service's
+        // own. Both paths go through verifiedClaims, which is why one test can pin both.
+        JwtCodec codec = codec();
+        String foreignIssuer =
+                codec.signRaw("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\",\"merchant_id\":\"M-1001\","
+                        + "\"customer_id\":\"C-2002\",\"aud\":\"" + JwtCodec.USER_AUDIENCE
+                        + "\",\"iss\":\"some-other-identity\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}");
+
+        assertThatThrownBy(() -> codec.verifyAsUser(foreignIssuer, NOW))
+                .as("an audience this service accepts is not enough if another issuer minted it")
+                .isInstanceOf(JwtCodec.TokenException.class)
+                .hasMessageContaining("issuer");
+
+        String foreignServiceIssuer = codec.signRaw("{\"sub\":\"case-service\",\"aud\":\"" + JwtCodec.SERVICE_AUDIENCE
+                + "\",\"iss\":\"some-other-identity\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}");
+        assertThatThrownBy(() -> codec.verifyAsService(foreignServiceIssuer, NOW))
+                .as("the service-to-service path is the same gate")
+                .isInstanceOf(JwtCodec.TokenException.class)
+                .hasMessageContaining("issuer");
+    }
+
+    @Test
     @DisplayName("an unknown role is refused rather than mapped to a default")
     void unknownRoleIsRefused() {
         JwtCodec codec = codec();
-        String unknownRole =
-                codec.signRaw("{\"sub\":\"demo-customer\",\"role\":\"SUPERADMIN\",\"merchant_id\":\"M-1001\",\"aud\":\""
-                        + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}");
+        String unknownRole = codec.signRaw(
+                withIssuer("{\"sub\":\"demo-customer\",\"role\":\"SUPERADMIN\",\"merchant_id\":\"M-1001\",\"aud\":\""
+                        + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
 
         assertThatThrownBy(() -> codec.verifyAsUser(unknownRole, NOW))
                 .isInstanceOf(JwtCodec.TokenException.class)
@@ -201,16 +238,16 @@ class JwtCodecTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("customer_id");
 
-        String reviewerWithCustomer = codec.signRaw(
+        String reviewerWithCustomer = codec.signRaw(withIssuer(
                 "{\"sub\":\"demo-reviewer\",\"role\":\"REVIEWER\",\"merchant_id\":\"M-1001\",\"customer_id\":\"C-2002\",\"aud\":\""
-                        + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}");
+                        + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
         assertThatThrownBy(() -> codec.verifyAsUser(reviewerWithCustomer, NOW))
                 .isInstanceOf(JwtCodec.TokenException.class)
                 .hasMessageContaining("customer_id");
 
-        String customerWithoutCustomer =
-                codec.signRaw("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\",\"merchant_id\":\"M-1001\",\"aud\":\""
-                        + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}");
+        String customerWithoutCustomer = codec.signRaw(
+                withIssuer("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\",\"merchant_id\":\"M-1001\",\"aud\":\""
+                        + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
         assertThatThrownBy(() -> codec.verifyAsUser(customerWithoutCustomer, NOW))
                 .isInstanceOf(JwtCodec.TokenException.class)
                 .hasMessageContaining("customer_id");

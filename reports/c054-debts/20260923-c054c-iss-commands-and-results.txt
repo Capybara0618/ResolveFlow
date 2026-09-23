@@ -1,0 +1,20 @@
+C05.4c 还债③: the JWT issuer was never validated. Commands and results, 2026-09-23.
+Finding (contract violation, not missing hardening):
+  contracts/core/openapi-case.yaml:607 says "Issuer and audience are validated on every JWT
+  (docs/core-contracts.md:15)". The audience half was implemented in JwtCodec.verifiedClaims; the issuer half
+  was not - JwtCodec.ISSUER was written into every token and read by nobody, so a token minted by anything else
+  holding the same secret passed as this service's own. (The cross-reference is itself imprecise: the cited
+  docs/core-contracts.md line mentions aud/scope, not the issuer. Recorded, not silently fixed.)
+RED (before the check existed, clean):
+  Expecting code to raise a throwable.        -- the foreign-issuer token was accepted
+  A first attempt at this fixture was wrong and red caught it: the token had no customer_id, which a CUSTOMER
+  role requires, so it was refused for the wrong reason (message "issuer" expected, "customer_id" found).
+  The fixture now differs from an honest token in exactly one thing.
+FIXTURES: four signRaw fixtures in JwtCodecTest were themselves missing iss; they now go through withIssuer(...)
+  so each is missing only the one claim it is written to inspect (assertions unchanged).
+FIX: verifiedClaims requires iss == JwtCodec.ISSUER, on both the user and the service path.
+$ java\mvnw.cmd -f java/pom.xml -B -ntp -pl shared-kernel test -Dtest=JwtCodecTest   -> 13 tests, 0 failures
+$ java\mvnw.cmd -f java/pom.xml -B -ntp test     -> shared-kernel 59 / 5 / commerce 72 / 2 / case 187 (4 skipped), 0 failures
+$ java\mvnw.cmd -f java/pom.xml -B -ntp -q spotless:check   -> exit 0
+
+(after spotless:apply reformatted shared-kernel, re-ran it: see 20260923-c054c-shared-kernel-post-spotless.txt)
