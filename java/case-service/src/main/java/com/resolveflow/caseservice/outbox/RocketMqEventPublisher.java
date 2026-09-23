@@ -1,5 +1,6 @@
 package com.resolveflow.caseservice.outbox;
 
+import com.resolveflow.shared.core.CoreTopicNames;
 import java.nio.charset.StandardCharsets;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -63,7 +64,10 @@ public class RocketMqEventPublisher implements EventPublisher, SmartLifecycle {
             throw new PublishException("the outbox publisher is not running");
         }
         try {
-            Message message = new Message(topic, envelope.getBytes(StandardCharsets.UTF_8));
+            // The document's topic is the protocol's (rf.case.core.v2) and the signature covers it; the name
+            // handed to RocketMQ is derived from it, because the broker refuses dots outright (C05.1c,
+            // docs/compatibility-report.md 5.12). The two are related in exactly one place.
+            Message message = new Message(CoreTopicNames.brokerName(topic), envelope.getBytes(StandardCharsets.UTF_8));
             // The keys are the event id, so an operator can find one event in the broker's own tooling.
             message.setKeys(eventId);
             SendResult result = producer.send(message);

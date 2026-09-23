@@ -9,7 +9,14 @@ import com.resolveflow.shared.contract.CanonicalJson;
 import com.resolveflow.shared.core.CoreEnvelope;
 import java.security.PrivateKey;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -358,6 +365,58 @@ class RefundCommandConsumerApiTest extends CommerceDatabaseTest {
         assertThat(consumer.consume(changed)).isEqualTo(RefundCommandConsumer.Disposition.DUPLICATE);
         assertThat(reserved()).isEqualTo(2599);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM refund_operation", Integer.class))
+                .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("deliveries of one event that arrive at the same time reserve the money once")
+    void concurrentRedeliveriesApplyOnce() throws Exception {
+        // The broker fans one event out over several queues, so several deliveries of the same event id can be
+        // in flight at once — which is what the real run produced. What is asserted is the outcome that
+        // matters (one reservation, one inbox row), and that no delivery failed: a claim that deadlocks under
+        // concurrency makes the transport retry a duplicate, which converges but is not the same thing as
+        // handling it.
+        String operationId = UUID.randomUUID().toString();
+        String message = signedCommand(operationId, 2599);
+        int deliveries = 6;
+
+        ExecutorService pool = Executors.newFixedThreadPool(deliveries);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<RefundCommandConsumer.Disposition>> futures = new ArrayList<>();
+        try {
+            for (int i = 0; i < deliveries; i++) {
+                futures.add(pool.submit(() -> {
+                    start.await();
+                    return consumer.consume(message);
+                }));
+            }
+            start.countDown();
+
+            int accepted = 0;
+            int duplicates = 0;
+            for (Future<RefundCommandConsumer.Disposition> future : futures) {
+                // get() rethrows whatever a delivery threw, so a lock failure fails the test instead of
+                // looking like a duplicate.
+                if (future.get(60, TimeUnit.SECONDS) == RefundCommandConsumer.Disposition.ACCEPTED) {
+                    accepted++;
+                } else {
+                    duplicates++;
+                }
+            }
+
+            assertThat(accepted)
+                    .as("one refund for one event, whatever the transport does with it")
+                    .isEqualTo(1);
+            assertThat(duplicates).isEqualTo(deliveries - 1);
+        } finally {
+            pool.shutdownNow();
+        }
+
+        assertThat(reserved()).isEqualTo(2599);
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM refund_operation WHERE operation_id = ?", Integer.class, operationId))
+                .isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM event_inbox", Integer.class))
                 .isEqualTo(1);
     }
 

@@ -6,7 +6,6 @@ import java.time.Clock;
 import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
@@ -21,12 +20,16 @@ import tools.jackson.databind.ObjectMapper;
  *   <li><b>Parse.</b> A message that is not JSON is refused and recorded; there is nothing to verify.
  *   <li><b>Verify.</b> Signature and signer, before anything is trusted: the payload is only read as a
  *       command once it is known to have come from case-service.
- *   <li><b>Claim the event id.</b> The inbox insert is the claim. It happens before the effect and in the same
- *       transaction, so a redelivery that races the first one fails on the primary key and rolls back having
- *       changed nothing (docs/domain-model.md:45).
+ *   <li><b>Claim the event id.</b> The inbox claim happens before the effect and in the same transaction, so a
+ *       redelivery that races the first one is answered "already claimed" and rolls back having changed
+ *       nothing (docs/domain-model.md:45). The claim is one upsert rather than an insert that waits to be
+ *       refused, so a duplicate is an answer rather than an exception ({@link EventInboxRepository#claim}).
+ *       It does not remove the deadlock that concurrent deliveries of one event id can produce — see there.
  *   <li><b>Reserve.</b> The command goes through C04.2's acceptance path unchanged — the same payload-hash
  *       check, the same reservations. The consumer's job is to decide whether to call it, not to re-implement
- *       what it does.
+ *       what it does. A domain refusal (the line is held, the amount is not the line's) is deliberately *not*
+ *       filed as poison — C05.1b's decision — and the listener acknowledges it rather than retrying a decision
+ *       that cannot change (C05.1c, {@link RefundCommandListener}).
  * </ol>
  *
  * <p>A refusal is written to {@code event_rejection} and then reported to the transport as a failure. That
@@ -101,17 +104,19 @@ public class RefundCommandConsumer {
             throw notACommand;
         }
 
-        // The claim: one row per (consumer, event). A duplicate finds the existing row instead of inserting.
-        try {
-            inbox.claim(
-                    EventTrustConfiguration.REFUND_COMMAND_CONSUMER,
-                    eventId,
-                    eventType,
-                    producer,
-                    Disposition.ACCEPTED.name(),
-                    null,
-                    Instant.now(clock));
-        } catch (DataIntegrityViolationException duplicate) {
+        // The claim: one row per (consumer, event). The statement answers 1 when this delivery inserted the
+        // row and 2 when it was already there, so a duplicate is an answer rather than an exception to catch
+        // (the deadlock the exception-driven version produced under concurrent delivery, and the affected-row
+        // trap the first upsert fell into, are both in EventInboxRepository.claim).
+        if (inbox.claim(
+                        EventTrustConfiguration.REFUND_COMMAND_CONSUMER,
+                        eventId,
+                        eventType,
+                        producer,
+                        Disposition.ACCEPTED.name(),
+                        null,
+                        Instant.now(clock))
+                != 1) {
             return Disposition.DUPLICATE;
         }
 

@@ -1,0 +1,33 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T11:45:35.051+08:00  INFO 19516 --- [commerce-service] [           main] c.r.commerce.CommerceServiceApplication  : Starting CommerceServiceApplication v0.1.0-SNAPSHOT using Java 21.0.12.1 with PID 19516 (E:\Code+Agent+Backend\java\commerce-service\target\commerce-service-0.1.0-SNAPSHOT.jar started by hjn in E:\Code+Agent+Backend)
+2026-09-23T11:45:35.056+08:00  INFO 19516 --- [commerce-service] [           main] c.r.commerce.CommerceServiceApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T11:45:36.510+08:00  INFO 19516 --- [commerce-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-09-23T11:45:36.527+08:00  INFO 19516 --- [commerce-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T11:45:36.527+08:00  INFO 19516 --- [commerce-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T11:45:36.560+08:00  INFO 19516 --- [commerce-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1434 ms
+2026-09-23T11:45:37.265+08:00  INFO 19516 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-23T11:45:37.536+08:00  INFO 19516 --- [commerce-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3dfe59d7
+2026-09-23T11:45:37.539+08:00  INFO 19516 --- [commerce-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-23T11:45:37.606+08:00  INFO 19516 --- [commerce-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://127.0.0.1:3306/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T11:45:37.715+08:00  WARN 19516 --- [commerce-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T11:45:37.784+08:00  INFO 19516 --- [commerce-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.044s)
+2026-09-23T11:45:37.808+08:00  INFO 19516 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `commerce_db`: 4
+2026-09-23T11:45:37.813+08:00  INFO 19516 --- [commerce-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `commerce_db` is up to date. No migration necessary.
+2026-09-23T11:45:38.813+08:00  INFO 19516 --- [commerce-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T11:45:38.899+08:00  INFO 19516 --- [commerce-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-09-23T11:45:39.074+08:00  INFO 19516 --- [commerce-service] [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T11:45:39.074+08:00  INFO 19516 --- [commerce-service] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T11:45:39.077+08:00  INFO 19516 --- [commerce-service] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-09-23T11:45:39.935+08:00  INFO 19516 --- [commerce-service] [           main] c.r.c.messaging.RefundCommandListener    : listening on rf.case.core.v2 (broker topic rf-case-core-v2) for core events (group commerce-refund-command)
+2026-09-23T11:45:39.942+08:00  INFO 19516 --- [commerce-service] [           main] c.r.commerce.CommerceServiceApplication  : Started CommerceServiceApplication in 5.421 seconds (process running for 6.087)
+2026-09-23T11:45:55.203+08:00  WARN 19516 --- [commerce-service] [efund-command_4] c.r.c.messaging.RefundCommandConsumer    : refused a core event: BAD_SIGNATURE (core envelope signature does not cover this envelope)
+2026-09-23T11:45:55.206+08:00  WARN 19516 --- [commerce-service] [efund-command_4] c.r.c.messaging.RefundCommandListener    : core event 1E0A063EE5C06BC7C05473D231EB0003 refused: BAD_SIGNATURE

@@ -1,0 +1,62 @@
+ResolveFlow C05.1c — refund command over the real broker
+  date    : 2026-09-23T10:57:35
+  profile : core (real RocketMQ + real MySQL; no mocks, no Testcontainers)
+  line    : 7001   amount_minor: 2599   merchant: M-1001
+
+== infra
+     resolveflow-mysql-1: Up About an hour (healthy)
+     resolveflow-postgres-1: Up About an hour (healthy)
+     resolveflow-redis-1: Up About an hour (healthy)
+     resolveflow-rocketmq-broker-1: Up About an hour
+     resolveflow-rocketmq-namesrv-1: Up About an hour
+  -- infra-containers
+     PASS (0.3s)
+     $ tcp 127.0.0.1:9876 -> open
+  -- namesrv-reachable
+     PASS (0.0s)
+  -- commerce-port-free
+     PASS (0.1s)  8081 -> free
+
+== commerce-service (the consumer)
+     $ java\mvnw.cmd -f java/pom.xml -B -ntp -DskipTests -pl commerce-service -am package
+  -- build-commerce-service
+     PASS (6.0s)
+     $ java -jar commerce-service.jar --server.port=8081 --resolveflow.events.consumer.enabled=true --resolveflow.events.namesrv=127.0.0.1:9876
+     log: reports\c051c-transport\20260923-105735-commerce-service.log
+  -- commerce-service-healthy
+     PASS (6.4s)  GET http://127.0.0.1:8081/actuator/health
+
+== the demo line before the command
+     line 7001: state/operation/refunded/reserved = ['FREE', '-', '0', '0']
+  -- demo-line-ready
+     PASS (0.2s)
+
+== case-service (the writer, the outbox, the publisher)
+     $ java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am -Dtest=CoreEventTransportSystemTest test
+     log: reports\c051c-transport\20260923-105735-case-service-test.log
+  -- case-service-system-test
+     FAIL (4.0s)
+     the -am reactor build is what puts the current shared-kernel on the test classpath; a module-only run resolves whatever was last installed into ~/.m2 (found the hard way: ClassNotFoundException com.resolveflow.shared.security.JwtCodec)
+     last test lines:
+[INFO] 
+[INFO] resolveflow-java ................................... SUCCESS [  0.392 s]
+[INFO] shared-kernel ...................................... FAILURE [  0.848 s]
+[INFO] case-service ....................................... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.599 s
+[INFO] Finished at: 2026-09-23T10:57:52+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.6:test (default-test) on project shared-kernel: No tests matching pattern "CoreEventTransportSystemTest" were executed! (Set -Dsurefire.failIfNoSpecifiedTests=false to ignore this error.) -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :shared-kernel
+
+RESULT: FAILED: the case-service system test did not pass (16.9s)

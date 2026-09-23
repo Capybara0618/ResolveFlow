@@ -1,5 +1,7 @@
 package com.resolveflow.commerce.messaging;
 
+import com.resolveflow.commerce.refund.RefundRejectedException;
+import com.resolveflow.shared.core.CoreTopicNames;
 import java.nio.charset.StandardCharsets;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -31,6 +33,14 @@ import org.springframework.stereotype.Component;
  *       by an unknown key, or its signature is broken — so retrying it is a loop that never ends. The refusal is
  *       recorded in {@code event_rejection} instead, which is where an operator looks
  *       (docs/engineering.md:56 — 毒消息最终DLQ，需要操作台可追踪);
+ *   <li>a <em>domain</em> refusal (the line is held by another operation, the amount is not the line's) is
+ *       acknowledged as well, for the same reason: the answer cannot change between redeliveries. C05.1b's
+ *       decision that such a refusal is <em>not</em> poison and is not filed in {@code event_rejection} stands
+ *       — what changed is only that the broker is no longer asked to repeat a decision it already has. The
+ *       real broker showed what the old behaviour cost (C05.1c): sixteen redeliveries over hours, then the
+ *       dead-letter queue, and a backlog of them taking the line's lock again on every attempt, which
+ *       deadlocked a later valid command to the same line. Carrying the refusal back to the case is C05.2's
+ *       result projection, and until that exists this log line is the trace;
  *   <li>anything else — a database that is down, a lock timeout — is <em>not</em> acknowledged, so the broker
  *       redelivers. That is the at-least-once half of the contract, and the inbox is what makes it safe.
  * </ul>
@@ -67,7 +77,10 @@ public class RefundCommandListener implements SmartLifecycle {
         // own progress decides, and the inbox covers whatever it redelivers.
         candidate.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
         try {
-            candidate.subscribe(topic, "*");
+            // Subscribed under the broker's name for this core topic, not the protocol's: RocketMQ refuses the
+            // dots in rf.case.core.v2, and a consumer that subscribed to the refused name would look healthy
+            // while receiving nothing (C05.1c, docs/compatibility-report.md 5.12).
+            candidate.subscribe(CoreTopicNames.brokerName(topic), "*");
             candidate.registerMessageListener((MessageListenerConcurrently) (messages, context) -> handle(messages));
             candidate.start();
         } catch (MQClientException cannotStart) {
@@ -77,7 +90,11 @@ public class RefundCommandListener implements SmartLifecycle {
             throw new IllegalStateException("refund command listener did not start", cannotStart);
         }
         this.pushConsumer = candidate;
-        LOG.info("listening on {} for core events (group {})", topic, group);
+        LOG.info(
+                "listening on {} (broker topic {}) for core events (group {})",
+                topic,
+                CoreTopicNames.brokerName(topic),
+                group);
     }
 
     private ConsumeConcurrentlyStatus handle(java.util.List<MessageExt> messages) {
@@ -90,6 +107,16 @@ public class RefundCommandListener implements SmartLifecycle {
                 // Terminal, and already recorded. Acknowledging stops a broken message from blocking the queue;
                 // the rejection row is what keeps it visible.
                 LOG.warn("core event {} refused: {}", message.getMsgId(), refused.refusal());
+            } catch (RefundRejectedException refused) {
+                // Terminal too, and this is the case the real broker exposed (C05.1c). The domain refused it
+                // because the line is held by another operation, or because the amount is not the line's, or
+                // because that delivery id already carried other money — none of which changes by asking again.
+                // Left as "transient" it was redelivered with growing delays, and the redeliveries were not
+                // merely wasted: each one took the line's lock again, so a backlog of them deadlocked the
+                // transaction for a later, perfectly valid command to the same line. Acknowledging is a
+                // transport decision and is all this does — a business refusal is still not filed as poison
+                // (C05.1b), and carrying the refusal back to the case is C05.2's result projection.
+                LOG.warn("core event {} refused by the domain: {}", message.getMsgId(), refused.getMessage());
             } catch (RuntimeException transientFailure) {
                 // Not acknowledged: the broker redelivers, and the inbox makes the second attempt safe.
                 LOG.warn(

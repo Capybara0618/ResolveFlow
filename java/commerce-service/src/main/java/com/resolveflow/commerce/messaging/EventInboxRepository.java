@@ -10,18 +10,48 @@ import org.apache.ibatis.annotations.Select;
 /**
  * The consumer inbox and its rejection log (V4__commerce_event_inbox.sql).
  *
- * <p>{@link #claim} is a plain insert and is expected to fail on a duplicate: the primary key is the claim,
- * and letting the database refuse the second one is what keeps two concurrent redeliveries from both
- * applying. A read-then-write check would leave exactly the window this table exists to close.
+ * <p>{@link #claim} is one statement that either takes the event id or finds it taken — the database decides,
+ * and the caller learns which from the affected-row count. Two things follow, and both matter for money: two
+ * concurrent redeliveries cannot both apply (there is no read-then-write window to lose), and a duplicate is
+ * an ordinary answer rather than an error.
+ *
+ * <p><b>Why not "plain insert, catch the duplicate-key error".</b> That is how this started, and the real
+ * broker showed what it costs (C05.1c): one event delivered to several queues at once has several transactions
+ * inserting the same primary key simultaneously, and InnoDB answers some of them with
+ * {@code Deadlock found when trying to get lock} instead of a duplicate-key violation. Spring reports that as
+ * a lock failure, not as a {@code DataIntegrityViolationException}, so the consumer treated a duplicate as a
+ * transient fault and asked the broker to redeliver — which it did, into the same race. The run converged
+ * eventually (exactly one reservation, which is the property that counts), but it took eighteen redeliveries
+ * and three deadlocks. An upsert that says "insert, or do nothing if it is already there" removes the whole
+ * exception path.
  */
 @Mapper
 public interface EventInboxRepository {
 
+    /**
+     * Claim the event for this consumer.
+     *
+     * <p>The duplicate branch <b>changes a value</b> ({@code detail}) rather than writing an equal one, and that
+     * is load-bearing rather than cosmetic. Connector/J defaults to {@code CLIENT_FOUND_ROWS}, so an
+     * {@code ON DUPLICATE KEY UPDATE} that sets a column to the value it already had reports <b>1</b> —
+     * indistinguishable from a fresh insert, and a duplicate would then be treated as a claim and pushed into
+     * the acceptance path (observed immediately when this was written as {@code event_id = event_id}). MySQL's
+     * counts are 1 for an insert and 2 for an update that changed something, under either setting, so the
+     * duplicate branch has to actually write. What it writes is also the useful thing to keep: the row now says
+     * a duplicate delivery arrived, which is what an operator wants to know when one does.
+     *
+     * <p>A genuine integrity problem (a null, an oversized value) still throws, which is the difference from
+     * {@code INSERT IGNORE}: that would also swallow real errors, and a money path cannot afford to misread a
+     * broken write as a duplicate.
+     *
+     * @return 1 if this delivery claimed the event, 2 if it was already claimed
+     */
     @Insert("""
             INSERT INTO event_inbox (consumer, event_id, event_type, producer, disposition, detail, received_at)
             VALUES (#{consumer}, #{eventId}, #{eventType}, #{producer}, #{disposition}, #{detail}, #{receivedAt})
+            ON DUPLICATE KEY UPDATE detail = 'duplicate delivery ignored'
             """)
-    void claim(
+    int claim(
             @Param("consumer") String consumer,
             @Param("eventId") String eventId,
             @Param("eventType") String eventType,

@@ -1,0 +1,132 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] resolveflow-java                                                   [pom]
+[INFO] shared-kernel                                                      [jar]
+[INFO] case-service                                                       [jar]
+[INFO] 
+[INFO] ------------------< com.resolveflow:resolveflow-java >------------------
+[INFO] Building resolveflow-java 0.1.0-SNAPSHOT                           [1/3]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ resolveflow-java ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] -------------------< com.resolveflow:shared-kernel >--------------------
+[INFO] Building shared-kernel 0.1.0-SNAPSHOT                              [2/3]
+[INFO]   from shared-kernel\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ shared-kernel ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ shared-kernel ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\shared-kernel\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ shared-kernel ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ shared-kernel ---
+[INFO] 
+[INFO] --------------------< com.resolveflow:case-service >--------------------
+[INFO] Building case-service 0.1.0-SNAPSHOT                               [3/3]
+[INFO]   from case-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] 1 problem was encountered while building the effective model for org.javassist:javassist:jar:3.21.0-GA during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- enforcer:3.6.3:enforce (enforce-versions) @ case-service ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.RequireReleaseDeps passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.dependency.BannedDependencies passed
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ case-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 12 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ case-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ case-service ---
+[INFO] skip non existing resourceDirectory E:\Code+Agent+Backend\java\case-service\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ case-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ case-service ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.resolveflow.caseservice.outbox.CoreEventTransportSystemTest
+11:45:47.432 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.caseservice.outbox.CoreEventTransportSystemTest]: CoreEventTransportSystemTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+11:45:47.590 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.outbox.CoreEventTransportSystemTest
+11:45:47.674 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.resolveflow.caseservice.outbox.CoreEventTransportSystemTest]: CoreEventTransportSystemTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+11:45:47.675 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.resolveflow.caseservice.CaseServiceApplication for test class com.resolveflow.caseservice.outbox.CoreEventTransportSystemTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-09-23T11:45:48.234+08:00  INFO 58816 --- [case-service] [           main] c.r.c.o.CoreEventTransportSystemTest     : Starting CoreEventTransportSystemTest using Java 21.0.12.1 with PID 58816 (started by hjn in E:\Code+Agent+Backend\java\case-service)
+2026-09-23T11:45:48.236+08:00  INFO 58816 --- [case-service] [           main] c.r.c.o.CoreEventTransportSystemTest     : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T11:45:50.313+08:00  INFO 58816 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-23T11:45:50.566+08:00  INFO 58816 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@644b68ad
+2026-09-23T11:45:50.568+08:00  INFO 58816 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-23T11:45:50.638+08:00  INFO 58816 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://127.0.0.1:3306/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T11:45:50.747+08:00  WARN 58816 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T11:45:50.852+08:00  INFO 58816 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 12 migrations (execution time 00:00.079s)
+2026-09-23T11:45:50.874+08:00  INFO 58816 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 12
+2026-09-23T11:45:50.877+08:00  INFO 58816 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T11:45:52.937+08:00  INFO 58816 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T11:45:53.518+08:00  INFO 58816 --- [case-service] [           main] c.r.c.outbox.RocketMqEventPublisher      : publishing core events to 127.0.0.1:9876
+2026-09-23T11:45:53.528+08:00  INFO 58816 --- [case-service] [           main] c.r.c.o.CoreEventTransportSystemTest     : Started CoreEventTransportSystemTest in 5.64 seconds (process running for 7.112)
+2026-09-23T11:45:54.287+08:00  INFO 58816 --- [case-service] [           main] c.r.c.o.CoreEventTransportSystemTest     : C051C-WRITTEN event_id=f58c53bb-d808-4cc1-a789-7db877b4bb15 operation_id=a9fd7022-7ebb-4c4b-bad9-68d759737015
+2026-09-23T11:45:54.742+08:00  INFO 58816 --- [case-service] [   scheduling-1] c.r.c.outbox.OutboxDeliveryLoop          : outbox pass: 1 published, 0 failed, 0 dead
+2026-09-23T11:45:54.887+08:00  INFO 58816 --- [case-service] [           main] c.r.c.o.CoreEventTransportSystemTest     : C051C-PUBLISHED event_id=f58c53bb-d808-4cc1-a789-7db877b4bb15 attempts=1 at=2026-09-23T03:45:54.733780Z
+2026-09-23T11:45:54.899+08:00  INFO 58816 --- [case-service] [           main] c.r.c.o.CoreEventTransportSystemTest     : C051C-DUPLICATE event_id=f58c53bb-d808-4cc1-a789-7db877b4bb15 (identical bytes republished)
+2026-09-23T11:45:55.067+08:00  INFO 58816 --- [case-service] [   scheduling-1] c.r.c.outbox.OutboxDeliveryLoop          : outbox pass: 1 published, 0 failed, 0 dead
+2026-09-23T11:45:55.178+08:00  INFO 58816 --- [case-service] [           main] c.r.c.o.CoreEventTransportSystemTest     : C051C-REQUEUED event_id=f58c53bb-d808-4cc1-a789-7db877b4bb15 attempts=2
+2026-09-23T11:45:55.183+08:00  INFO 58816 --- [case-service] [           main] c.r.c.o.CoreEventTransportSystemTest     : C051C-POISON event_id=17cf1816-f474-4a90-83ab-068e047c171c (signature no longer covers the document)
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.972 s -- in com.resolveflow.caseservice.outbox.CoreEventTransportSystemTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for resolveflow-java 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] resolveflow-java ................................... SUCCESS [  0.304 s]
+[INFO] shared-kernel ...................................... SUCCESS [  0.934 s]
+[INFO] case-service ....................................... SUCCESS [ 10.913 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  12.597 s
+[INFO] Finished at: 2026-09-23T11:45:55+08:00
+[INFO] ------------------------------------------------------------------------
+
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (C:\Users\hjn\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release

@@ -149,6 +149,23 @@ CHECK 违规返回 SQLState `HY000` / error `3819`，Spring 翻译为 `Uncategor
 
 不设 `brokerIP1` 时 broker 广播容器内网 IP，宿主上的 Java 客户端连不上。spike 里固定为 `127.0.0.1`。
 
+### 5.12 RocketMQ 客户端拒绝带点的 topic 名（C05.1c 实测）
+
+核心协议把 topic 定为 `rf.case.core.v2`，而 RocketMQ classic 客户端的校验只允许 `^[%|a-zA-Z0-9_-]+$`：真实发送时 broker 路径直接失败，报 `The specified topic[rf.case.core.v2] contains illegal characters`（生产者侧同步抛错；消费者侧 `subscribe` 当时**没有**报错，只是订阅了一个 broker 不认的名字——看起来健康却收不到消息，比报错更危险）。
+
+处理：**信封里的 topic 不动**（它是签名覆盖的协议成员，改了就等于改协议），在传输边界派生 broker 名：`shared-kernel` 的 `CoreTopicNames.brokerName()` 把点换成连字符，且只接受两个核心 topic，其它名字直接抛错以免拼错时静默建出第二个 topic。生产端与消费端都只通过这一个函数取名。
+
+顺带收获：这次失败也第一次在真实 broker 上验证了 outbox 的失败语义——同一行连续 5 次投递失败（1/2/4/8s 退避）、`last_error` 记下原文、状态仍是 `PENDING`、没有被删除也没有变 `DEAD`。
+
+### 5.13 InnoDB 的 upsert 与 Connector/J 的 affected-rows（C05.1c 实测）
+
+两件事都只在并发与真实 MySQL 下才现形，且都会静默改变语义：
+
+- **`ON DUPLICATE KEY UPDATE` 的受影响行数不能按直觉读**。Connector/J 默认带 `CLIENT_FOUND_ROWS`，所以"匹配到但值没变"的重复行返回 **1**，和"真的插入了"完全一样——用行数判断"是不是我认领的"时，重复会被当成新认领。MySQL 的规则是插入=1、更新且值有变=2、更新但值未变=0（带 `CLIENT_FOUND_ROWS` 时 0 变 1）。因此重复分支必须**真的改一个值**：`event_inbox` 的认领现在写 `detail = 'duplicate delivery ignored'`，判定用 `!= 1`，两种连接设置下都无歧义，而且这一列顺便成了"重复确实到达过"的可查证据。
+- **并发插同一个唯一键时，InnoDB 可能给死锁而不是重复键错误**。一个事件被扇出到多个队列、同一 event id 的多笔事务同时插 `event_inbox` 的同一个主键，实测收到 `Deadlock found when trying to get lock`（Spring 侧是锁失败而非 `DataIntegrityViolationException`）。除键后仍有少量死锁（实测 2 次）：`INSERT ... ON DUPLICATE KEY UPDATE` 在重复分支先取共享锁再升级为排他锁，并发下可以成环，所以"改成 upsert 就不会死锁"是不成立的。当前按"暂时故障交 broker 重投、最终收敛"处理，准确数字与候选方案（`INSERT IGNORE`；按 event id 选队列＋顺序消费）记在 `tasks/todo.md` 的 C05.1c 条目里，不在本报告里下结论。
+
+另有一条与"锁"直接相关的实测：**确定性业务拒绝被重投会伤到无关命令**。业务拒绝（行被别人占/金额不是本行的）每次重投都要再拿一次该行的锁，一批积压足以把后来一条合法的命令死锁掉。结论与处理见 `tasks/todo.md` C05.1c 的发现 D。
+
 ## 6. 文档冲突与处理
 
 按 AGENTS.md 要求，实质冲突逐条列出位置、影响与处理，不自行绕开。

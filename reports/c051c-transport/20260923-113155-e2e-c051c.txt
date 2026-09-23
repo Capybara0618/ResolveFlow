@@ -1,0 +1,48 @@
+ResolveFlow C05.1c — refund command over the real broker
+  date    : 2026-09-23T11:31:55
+  profile : core (real RocketMQ + real MySQL; no mocks, no Testcontainers)
+  line    : chosen below   amount_minor: the line's   merchant: M-1001
+
+== infra
+     resolveflow-mysql-1: Up 2 hours (healthy)
+     resolveflow-postgres-1: Up 2 hours (healthy)
+     resolveflow-redis-1: Up 2 hours (healthy)
+     resolveflow-rocketmq-broker-1: Up 2 hours
+     resolveflow-rocketmq-namesrv-1: Up 2 hours
+  -- infra-containers
+     PASS (0.3s)
+     $ tcp 127.0.0.1:9876 -> open
+  -- namesrv-reachable
+     PASS (0.0s)
+  -- commerce-port-free
+     PASS (0.1s)  8081 -> free
+
+== commerce-service (the consumer)
+     $ java\mvnw.cmd -f java/pom.xml -B -ntp -DskipTests -pl commerce-service -am package
+  -- build-commerce-service
+     PASS (11.7s)
+     $ java -jar commerce-service.jar --server.port=8081 --resolveflow.events.consumer.enabled=true --resolveflow.events.namesrv=127.0.0.1:9876
+     log: reports\c051c-transport\20260923-113155-commerce-service.log
+  -- commerce-service-healthy
+     PASS (6.3s)  GET http://127.0.0.1:8081/actuator/health
+
+== the demo line before the command
+     7101 is free, paid 1299, and no undelivered command targets it
+     line 7101: state/operation/refunded/reserved = ['FREE', '-', '0', '0']
+  -- demo-line-ready
+     PASS (0.9s)
+
+== case-service (the writer, the outbox, the publisher)
+     $ java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am -Dtest=CoreEventTransportSystemTest test
+     log: reports\c051c-transport\20260923-113155-case-service-test.log
+  -- case-service-system-test
+     PASS (12.1s)
+     event_id=0cb72926-981d-4a78-81b6-c5f1668e0155 operation_id=3c05727c-e670-4a8a-969f-a53cbeab60aa poison_event_id=8f9bc5be-5b82-4777-b2fe-9137bab41252
+
+== the command crossing the broker
+  -- consume-delivered
+     FAIL (180.6s)  inbox rows for the event: 0
+     the line is held by: FREE / -
+     refusals filed for this event: 0
+
+RESULT: FAILED: commerce-service never filed the event (212.5s)
