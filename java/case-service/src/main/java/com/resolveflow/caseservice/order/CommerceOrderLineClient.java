@@ -48,6 +48,24 @@ public class CommerceOrderLineClient {
         }
     }
 
+    /**
+     * Raised when Commerce refuses the request itself (a 4xx).
+     *
+     * <p>Separate from {@link CommerceUnavailableException} because the two need opposite answers: an outage is
+     * this service's problem and is worth retrying, while a refused request is the caller's and never will be.
+     * The cursor on this route is the case that made it obvious — it is opaque and Commerce owns it
+     * (docs/core-contracts.md:26), so this service cannot check it before sending it, and Commerce is the only
+     * one that can say whether it is a page it ever issued (C05.4).
+     */
+    public static class CommerceRejectedQueryException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        public CommerceRejectedQueryException(String message) {
+            super(message);
+        }
+    }
+
     private final RestClient rest;
     private final JwtCodec codec;
     private final String serviceName;
@@ -161,12 +179,22 @@ public class CommerceOrderLineClient {
                     })
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken())
                     .retrieve()
+                    // A 4xx means Commerce refused the request — the caller has to change something, and no
+                    // amount of retrying will help (C05.4). 404 is deliberately excluded: Commerce answers an
+                    // empty page for a scope that does not match (docs/core-contracts.md:27), so a 404 on this
+                    // route is an anomaly rather than a caller error and stays an availability problem.
+                    .onStatus(status -> status.is4xxClientError() && status.value() != 404, (request, response) -> {
+                        throw new CommerceRejectedQueryException(
+                                "commerce refused the order-line read with " + response.getStatusCode());
+                    })
                     .body(OrderLinePage.class);
             if (page == null) {
                 throw new CommerceProtocolException("commerce returned an empty body");
             }
             return page;
         } catch (CommerceProtocolException error) {
+            throw error;
+        } catch (CommerceRejectedQueryException error) {
             throw error;
         } catch (RuntimeException error) {
             throw new CommerceUnavailableException("commerce could not answer the order-line read", error);

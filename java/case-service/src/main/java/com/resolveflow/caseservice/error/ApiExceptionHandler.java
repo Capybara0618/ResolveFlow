@@ -103,6 +103,22 @@ public class ApiExceptionHandler {
     }
 
     /**
+     * Commerce refused the request itself, so the caller is the one who has to change something (C05.4).
+     *
+     * <p>The cursor is why this exists: it is opaque and Commerce owns it, so this service cannot validate it
+     * before sending it and Commerce is the only one who can say it never issued that page. Reporting that as a
+     * 503 told the caller to retry a request that can never succeed, and hid the real problem behind "the order
+     * service is temporarily unavailable".
+     */
+    @ExceptionHandler(CommerceOrderLineClient.CommerceRejectedQueryException.class)
+    public ResponseEntity<ApiError> commerceRejectedQuery(
+            CommerceOrderLineClient.CommerceRejectedQueryException error, HttpServletRequest request) {
+        LOG.warn("commerce refused the query: {}", error.getMessage());
+        return error(
+                HttpStatus.BAD_REQUEST, "INVALID_ARGUMENT", "cursor is not a page this service issued", false, request);
+    }
+
+    /**
      * The input is closed: the case has been authorised and consumed, so material cannot be
      * appended and the case cannot be cancelled (docs/core-contracts.md:30).
      */

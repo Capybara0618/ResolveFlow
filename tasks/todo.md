@@ -189,8 +189,8 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 ### C03 政策、方案与审批
 
 - [x] C03.1：合成政策受控导入（C03.1a）、不可变版本、按支付时间选择并钉在工单上（C03.1b）；不做管理后台。
-- [ ] C03.2：Java方案校验/金额重算/风险路由与人工核验（C03.2a 重算所需的权威读取、C03.2b-1 回调收件箱与投递语义、C03.2b-2a 可引用规则 hash、C03.2b-2b PROPOSAL 重检/入库/读回、C03.2c-1 审核队列、C03.2c-2 人工核验追加与工单视图材料读回均已完成）。
-- [ ] C03.3：版本授权、审批/消费/取消事务边界；消费后拒绝材料变更，固定operation ID（C03.3a 授权记录与固定载荷已完成；C03.3b 人工决定已完成；C03.3c-1 人工方案已完成，模块测试绿但 all-offline/compose e2e 未跑；C03.3c-2 消费边界与新输入撤销授权未做）。
+- [x] C03.2：Java方案校验/金额重算/风险路由与人工核验（C03.2a 重算所需的权威读取、C03.2b-1 回调收件箱与投递语义、C03.2b-2a 可引用规则 hash、C03.2b-2b PROPOSAL 重检/入库/读回、C03.2c-1 审核队列、C03.2c-2 人工核验追加与工单视图材料读回均已完成）。
+- [x] C03.3：版本授权、审批/消费/取消事务边界；消费后拒绝材料变更，固定operation ID（C03.3a 授权记录与固定载荷已完成；C03.3b 人工决定已完成；C03.3c-1 人工方案已完成，模块测试绿但 all-offline/compose e2e 未跑；C03.3c-2 消费边界与新输入撤销授权未做）。**〔C05.4 对齐（2026-09-23）：这段括号是当时写的、已经过时，原文照旧保留不改——C03.3c-1 的 compose 真栈 e2e（含 compose 上第一次真正批准）见 :326（2026-09-22）；C03.3c-2 见 :320（同日完成，含合同改动、先红测试、实现与真栈 e2e）；授权的**消费**边界见 :329 的"未做"清单与 C05.2a（已实现）。〕**
 - 依赖：C02。文件：Case policy/decision/authorization及各自测试，分模块实施。
 - 验收：物流自动条件完整，损坏始终人工；旧授权/过期/越权拒绝，approve与consume竞态可解释。
 - 验证：规则表驱动、200元边界、revision/取消/消费并发测试。
@@ -912,13 +912,26 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - [x] C05.1a：**带签名的 event outbox**（case-service 侧）——C05.1 的第一个子步。
 - [x] C05.1b：RocketMQ 发布器与消费端验签（真实 topic `rf.case.core.v2`）。
 - [x] C05.1c：真实 RocketMQ + MySQL 的系统级退款 e2e（CF1/CF2 定点，含 5 个真实发现）。
-- [ ] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
+- [x] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
   - [x] C05.2a 授权消费与命令写入方；C05.2b 结果 outbox/传输/Case inbox 与投影（b-1…b-3b 全部完成）。
   - [x] C05.2c 真实链路两段 e2e 与 CF3 定点：**c-1 case 侧结果监听器、c-2 Commerce 退款推进入口（派发+对账两个循环）、c-2b 单行不拖死整趟、c-3 两段 e2e（真实 broker，PASSED）、c-4 CF3 定点（丢响应→UNKNOWN→对账收敛→关单，PASSED）全部完成**；全链 e2e `RESULT: PASSED (92.2s)`。
 - 依赖：C03,C04。文件：messaging、Case执行、Commerce消费者及集成测试。
 - 验收：重复/乱序/ACK丢失不重复业务；目标确认成功才关单；失败释放后再试须新授权。
 - 验证：真实RocketMQ+MySQL系统退款测试，CF1/CF2/CF3定点冒烟。
 - 实际记录：C05.1a（2026-09-22）与 C05.1b（2026-09-23）的完整记录在本文件 C04 工作包记录**之前**（紧随 C03.3c-2 之后）；C05.1c（2026-09-23）紧随 C05.1b 之后；C05.2a/C05.2b-1…b-3b（2026-09-23）在其后；**C05.2c-1/c-2/c-2b/c-3/c-4 全部完成**（记录见上）。
+
+- C05.4 债务核对与账本对齐（2026-09-23）：**把 C05 收口时列出的"前置债务"逐条对着账本和代码核了一遍，其中一条是我自己写错的，先纠正。**
+  - **我错在哪（必须记下来，因为它差点变成一次白干）**：回答"还剩哪些债"时，我只读了 `:193` 那句**过时摘要**（"C03.3c-2 消费边界与新输入撤销授权未做"）就宣布它是"唯一一个真缺口"；而 `:320` 明写着 **C03.3c-2 完成（2026-09-22）**——契约改动、真先红的契约测试、`LiveAuthorization` 实现、case-service 145 条绿、真栈 e2e（撤销 + 点名被撤授权 + `AUTHORIZED → PENDING_REVIEW`）全在。**教训：摘要行不是状态，状态看该工作包内最后一条完成记录。**如果照摘要开工，就会重做一遍已经做过的东西。
+  - **同样被摘要误导、实际已完成的**（`:317` 那四条"未做/下一步"后来全做了）：① all-offline（此后多次运行，最近 `reports/verify/20260923-173529-all-offline.txt` PASSED）；② C03.3c-1 的 compose 真栈 e2e（`:326`，2026-09-22 真跑：人工方案 → 批准 `AUTHORIZED` → 再提交展示取代 → 材料/核验各自撤销并点名，库内该工单 6 笔授权全 `REVOKED`、活授权 0）；③ 文档计数 16→17 与 §4 人工方案段落（`:328` 已同步 `contracts/core/README.md`、`docs/implementation-handoff.md`、`docs/core-contracts.md`）；④ C03.3c-2（见上）。
+  - **本步只做账本对齐**（不动任何历史文字）：`C03.2`、`C03.3`、`C05.2` 三处复选框补勾（子项各有完成记录）；`:193` 的过时括号加**〔C05.4 对齐〕**标注并指向真正的记录行。**没有改动任何代码。**
+  - **核对后仍然真实存在的债**（都是账本**最新**记录里还挂着、无后续记录关掉的）：① `GET /api/v1/orders` 坏游标仍把 Commerce 的 400 变成 503（`:305`/`:318`/`:330` 三次记录后无人认领）；② `expires_at` 一律缺失，授权过期从未被真正使用；③ 服务令牌只校验 `aud`/`sub`；④ 证据引用只记录、不核对；⑤ 命令只带一个 `policy_version`；⑥ CF2 的另一半——**乱序消费与多实例争抢同一队列**未验证（`:364` 之后无记录）。下一步逐条**先核代码再动手**，不再按摘要开工。
+  - **待核（本步未验）**：`:305`/`:318` 列过的"C03.3a 之前被接受的方案仍无授权且不回填"在最新那份 `:330` 清单里已经不再出现，但**我没有去核实它是被修掉了还是只是没再重述**，暂不计入上面的债。
+- C05.4a 还债①完成（2026-09-23）：**坏游标不再把 Commerce 的 400 变成 Case 的 503**（先红后绿）。
+  - **先核代码再动手**（按 C05.4 的教训）：`CommerceOrderLineClient.fetch`（`:137-174`）**一个 `.onStatus` 都没有**——同一个类里的 `readLineContext` 明确为 404 写了映射（`:110-112`），可见作者知道这个惯用法；但 `fetch` 把**所有** RuntimeException 都包成 `CommerceUnavailableException`（→ 503），于是"调用方的游标不合法"被说成"订单服务暂时不可用"。这是**双错**：给了错误建议（叫调用方重试一个永远不会成功的请求），还藏起了真正的问题。契约侧：`openapi-case.yaml` 的 `GET /api/v1/orders` 只声明 200/401/503、**没有 400**，而文档里**早就有一个** `InvalidArgument`（400 / `INVALID_ARGUMENT`）响应组件，它的示例消息恰好就是 `cursor is not a page this service issued`（`:1063-1073`）——**契约有词汇，这条路由没用上**。
+  - **修法**：① 新增 `CommerceRejectedQueryException`（刻意与 `CommerceUnavailableException` 分开：前者永不重试、后者该重试），`fetch` 用 `onStatus(is4xxClientError && != 404)` 映射，并在泛化 catch 之前原样重抛；**404 故意排除**——Commerce 对"不在你作用域内"的回答是**空页**（`docs/core-contracts.md:27`），所以这条路由上的 404 是异常而非调用方错误，仍按可用性处理。② `ApiExceptionHandler` 新增处理器 → **400 `INVALID_ARGUMENT`**（`retryable: false`），消息用契约示例里的原话。③ `openapi-case.yaml` 补 `'400': $ref InvalidArgument`，description 写明"游标不透明、由 Commerce 拥有，本服务只透传；Commerce 拒绝的游标是 400，不是 outage"。
+  - **红证据**（临时两处一行还原旧行为，跑完**已还原并 grep 核验**；日志 `reports/c054-debts/20260923-c054-cursor-red.txt`）：客户端层 `expected CommerceRejectedQueryException but was CommerceUnavailableException: commerce could not answer the order-line read`；接口层 `Status expected:<400 BAD_REQUEST> but was:<503 SERVICE_UNAVAILABLE>`（后者正是账本记了三次的那句话）。
+  - 命令与结果：聚焦两类 9/8 绿；`-pl case-service -am test` → **187 条 0 失败（4 skipped）**（185+2）；`spotless:check` exit 0；契约 pytest `-k contract` **548 passed, 9 skipped**；证据 `reports/c054-debts/`。
+  - **未改的相邻项**：`readLineContext`（`/internal/.../context`，无游标）仍只有 404→empty 与泛化→unavailable，本步**没动**——那条路由没有调用方可传坏的参数，要区分 4xx 应在有具体理由时一并做。
 
 ### C06 Agent控制面、MCP与能力冒烟
 

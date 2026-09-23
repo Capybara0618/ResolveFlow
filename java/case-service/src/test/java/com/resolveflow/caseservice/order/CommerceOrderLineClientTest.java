@@ -136,6 +136,25 @@ class CommerceOrderLineClientTest {
     }
 
     @Test
+    @DisplayName("a query Commerce refuses is the caller's problem, not an outage")
+    void aRefusedQueryIsNotAnOutage() {
+        // C05.4. The cursor is opaque and Commerce owns it, so this client cannot check it before sending it;
+        // Commerce answering 400 is the only way this service learns the page was never issued. Turning that
+        // into CommerceUnavailableException made the public API answer 503 — "try again later" for a request
+        // that can never succeed, and the caller never learns which part of their request was wrong.
+        AuthenticatedPrincipal customer =
+                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        server.expect(requestTo(
+                        COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002&cursor=not-a-page"))
+                .andRespond(org.springframework.test.web.client.response.MockRestResponseCreators.withStatus(
+                        org.springframework.http.HttpStatus.BAD_REQUEST));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> client.list(customer, null, "not-a-page", null))
+                .as("a refusal is not an outage: it must not be reported as retryable")
+                .isInstanceOf(CommerceOrderLineClient.CommerceRejectedQueryException.class);
+    }
+
+    @Test
     @DisplayName("the line context keeps the documented member names and reports what is left to refund")
     void theLineContextMatchesTheCoreContract() {
         server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7001/context"))

@@ -90,6 +90,9 @@ paths:
       description: |
         A customer sees only their own lines, a merchant only its own; the scope comes
         from the token, so a crafted query cannot widen it (docs/core-contracts.md:15).
+        The cursor is opaque and owned by Commerce, which is the only party that can
+        tell whether it issued that page: this service passes it through, and a cursor
+        Commerce refuses is a 400 (INVALID_ARGUMENT), not an outage.
       parameters:
         - $ref: '#/components/parameters/Cursor'
         - $ref: '#/components/parameters/Limit'
@@ -115,6 +118,8 @@ paths:
                 page:
                   limit: 20
                   next_cursor: null
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
         '401':
           $ref: '#/components/responses/Unauthenticated'
         '503':

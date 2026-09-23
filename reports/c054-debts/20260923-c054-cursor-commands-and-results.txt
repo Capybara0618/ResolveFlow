@@ -1,0 +1,19 @@
+C05.4a 还债①：bad cursor 400 was answered as 503. Commands and results, 2026-09-23.
+RED (old behaviour restored in two one-line edits, then reverted and grep-verified gone):
+  CommerceOrderLineClientTest.aRefusedQueryIsNotAnOutage
+    Expecting actual throwable to be an instance of:
+      CommerceOrderLineClient.CommerceRejectedQueryException
+    but was:
+      CommerceOrderLineClient$CommerceUnavailableException: commerce could not answer the order-line read
+  OrderApiTest.aRefusedQueryIsBadRequest
+    java.lang.AssertionError: Status expected:<400 BAD_REQUEST> but was:<503 SERVICE_UNAVAILABLE>
+$ java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am test "-Dtest=CommerceOrderLineClientTest,OrderApiTest"
+  Tests run: 9 (client) / 8 (api), 0 failures
+$ java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am test
+  Tests run: 187, Failures: 0, Errors: 0, Skipped: 4   BUILD SUCCESS
+$ java\mvnw.cmd -f java/pom.xml -B -ntp -q spotless:check      -> exit 0
+$ python -m pytest agent/tests/unit -q -k contract             -> 548 passed, 9 skipped
+What the code actually did before: CommerceOrderLineClient.fetch had no .onStatus at all (readLineContext maps
+404 explicitly three methods above), so every RuntimeException became CommerceUnavailableException -> 503.
+The contract already carried an InvalidArgument (400 / INVALID_ARGUMENT) response whose example message is
+literally "cursor is not a page this service issued" - the vocabulary existed, this route never declared it.

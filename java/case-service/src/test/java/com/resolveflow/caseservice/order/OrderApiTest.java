@@ -246,6 +246,32 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
     }
 
     @Test
+    @DisplayName("a query Commerce refuses is 400 not retryable, not a 503")
+    void aRefusedQueryIsBadRequest() {
+        // C05.4. The public surface used to answer 503 for this, which is the wrong advice twice over: the
+        // caller cannot fix it by retrying, and "the order service is temporarily unavailable" hides that their
+        // own cursor was the problem. The contract for this route now declares the 400 (openapi-case.yaml).
+        commerce.failure = new CommerceOrderLineClient.CommerceRejectedQueryException(
+                "commerce refused the order-line read with 400 BAD_REQUEST");
+
+        rest.get()
+                .uri("/api/v1/orders?cursor=not-a-page")
+                .header("Authorization", "Bearer " + customerToken())
+                .exchange()
+                .expectStatus()
+                .isEqualTo(400)
+                .expectBody(String.class)
+                .value(body -> {
+                    JsonNode json = MAPPER.readTree(body);
+                    assertThat(json.get("code").stringValue()).isEqualTo("INVALID_ARGUMENT");
+                    assertThat(json.get("retryable").asBoolean())
+                            .as("retrying a request the server refused cannot help")
+                            .isFalse();
+                });
+        commerce.failure = null;
+    }
+
+    @Test
     @DisplayName("the login route is unaffected: it still needs no token")
     void loginStaysOpen() {
         rest.post()
