@@ -338,6 +338,20 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **未做（下一步 C05.1b/C05.2）**：**没有真实 RocketMQ 发布器**——默认 publisher 故意抛错，所以事件现在会重试后变 DEAD，这是如实状态；消费端（Commerce 的 inbox + 验签 + 命令消费）未做；结果事件（`RefundSucceeded/Failed/Unknown`）的 outbox 未做；`RefundRequested` 的写入**尚未接进**批准/消费路径（本步只交付 outbox 本身与它的入口，谁在何时调用它是 C05.2）。
   - **已知缺口（未做、未声称）**：`case_execution_command` 的表建好了但**还没有写入方**；签名密钥默认取 contracts 里的 fixture 键（演示用，部署需自带并轮换），`signing_key_id` 目前只被记录、没有 trust list 校验；outbox 没有定时调度器（`deliverDue` 要被调用）；`case-service` 的 `Clock` 复用 identity 的 bean，outbox 与它共享"现在"。
 
+- C05.1b 完成（2026-09-23，**代码由上一会话的真实操作记录恢复后重新实测**）：消费端 inbox、验签与拒绝记录，加上 RocketMQ 的生产/消费接线（真实 topic `rf.case.core.v2`）。**真实 broker 上的系统级退款 e2e 未跑**，因此单列 C05.1c。
+  - **先记录第二次工作区事故与恢复**：本步代码原本由上一会话（"项目搭建2"）在 2026-09-23 09:31–09:53 写好并跑绿（commerce 61、全量 Java 绿、all-offline PASS），会话在写账本时上下文耗尽中断。此后 `E:\Code+Agent+Backend` 被**会话之外的进程**静默回退到 2026-09-22 16:36 的状态：HEAD 退回 `7aad127`（C03.3c-1），C03.3c-2…C05.1a 的 5 个提交、C05.1b 的未提交文件与上一会话写出的全部报告在本机消失（`.git` 的 reflog 最后一条仍是 16:14 的 C03.3c-1 提交，说明这份 `.git` 本身就是旧快照）；当时同类进程仍在跑：`codex`、`codex-windows-sandbox-service`、`node_repl`（上一会话记录过同一次事故，`docs/implementation-handoff.md` 的开工步骤已加"先确认工作区是真的"）。恢复三步：① 残留的本地状态（C03.3c-2 早期变体）保全为分支 `wip/20260922-stale-c033c2` 并导出到 `E:\ResolveFlow-local-state-20260923\`（不删不改，可事后比对）；② `git fetch ResolveFlow` 后 `git merge --ff-only ResolveFlow/main` 回到远端 `92405fd`（C05.1a，含 C03.3c-2…C05.1a），并重设 `core.autocrlf=false`/`core.eol=lf`（随快照回退的 local config 会让 freeze 测试假红）；③ 本步 13 个文件由会话记录 `~/.dsh/sessions/--E-Code-Agent…/session-e84bfc5c-…/session.v3.jsonl.zstd` 里的 write/edit 按 seq 顺序**重放**重建，再跑 spotless 与全套测试复验。
+  - **必须读清楚**：C05.1b 的代码**不是本轮新写的**，是从上一会话的真实工具调用记录恢复出来的；本轮提供的是"恢复后重新实测通过"，不是"重新实现"。恢复中三处需要判断并已处理：pwsh 的 `\r\n` 替换在 LF 检出上是空操作（真正的删除由 seq 3090 的 edit 完成）；commerce pom 有一次失败的整块 `<dependencies>` edit，被随后成功的 edit 取代；两个 pom 的初始内容取自当前提交（本步只在其上追加依赖）。
+  - **另一个未解释的现象（如实登记）**：本节验证期间，同一路径在不同命令里会看到不同内容——写入 `reports/verify/` 与 `tmp/` 的文件、以及本文件自己的编辑，会在若干分钟后"消失"又"回来"（10:27 那轮 all-offline 的报告先消失后重现；`git add` 曾把本文件的一个旧版本暂存，于是那一次提交只带上了清单勾选而没有带上下面的记录），恢复出来的源码与工作区外的副本一直稳定。取证方式因此改为"跑完立刻把报告复制到工作区外，并用 `git show :path` 核对暂存内容"。**结论：本机（含本文件所在的工作区）不是可靠存储，已验证的提交要尽快推到远端。**
+  - **`V4__commerce_event_inbox.sql`（commerce_db）**：`event_inbox` 以 **(consumer, event_id)** 为主键而不是 event_id 单列——同一个事件会被多个消费者读（结果事件既被 Commerce 对账、也被 Case 投影），单列主键会让第二个读者看到第一个读者的行而跳过自己的工作。`event_rejection` 保留每条被拒消息（reason/detail/raw_message）："这封信来过而我不肯执行"正是退款缺失时运维要的事实，只打日志等于把它扔掉。
+  - **`messaging/EventVerifier`（验签 ≠ "签名有效"）**：`signing_key_id` 在签名字节内，因此信任列表按 key id 查；顺序是"是不是 core 信封 → 这个 key 我信不信 → 签名是否覆盖本信封且 event type 属于声称的 producer"。第三问答不了就退化成"任何用自己的 key 签的都算"，所以 `CoreEnvelope.verify` 同时管签名与方向。只捕获信封异常会让坏签名以未处理错误逃出去、永远进不了拒绝记录，所以 `CoreEventSignature` 的 `IllegalArgumentException` 也一并转成 `BAD_SIGNATURE`。"这个事件该不该执行"留给业务规则，不塞进验签函数。
+  - **`messaging/RefundCommandConsumer`（顺序即设计）**：解析 → 验签 → **claim**（inbox 插入即认领，与业务效果同一事务；重投在主键上失败并整笔回滚）→ 走 C04.2 的接受路径（消费者只决定"要不要调用它"，不重新实现预留规则）。订阅错方向的类型（例如结果事件落到命令消费者）会被拒并记录——当成命令执行会为一封从未要求付款的信占住钱。
+  - **`messaging/EventRejectionLog` 必须是独立 bean**：消费者的事务正要失败，写在里面的记录会跟着回滚，而运维要的那一行恰好是消失的那一行。所以拒绝记录走 `REQUIRES_NEW`；自调用的 `REQUIRES_NEW` 只会静默加入调用者事务——这正是上一会话抽出 bean 的原因。
+  - **`messaging/RefundCommandListener`（何时 ACK 才是重点）**：只有"已应用"或"认出是重复"才 `CONSUME_SUCCESS`；**被拒的消息也 ACK**，因为它永远不会变合法（未知密钥/坏签名），重试是无终点的循环，证据在 `event_rejection` 里；数据库故障、锁超时等**不 ACK**，交 broker 重投，inbox 保证第二次安全。用 `CONSUME_FROM_LAST_OFFSET` 而不是 FIRST：每次重启重放整个 topic 的历史是无意义的重放。启动失败**大声失败**，因为不监听的消费者会让命令堆积而服务看起来健康。
+  - **`outbox/RocketMqEventPublisher`（成功的定义要窄）**：只有 broker 回 `SEND_OK` 才算送达，超时/队列满/`FLUSH_DISK_TIMEOUT` 都是 `PublishException`，outbox 保留该行下次再试；生产者是生命周期 bean 而不是构造期启动——否则"broker 暂时不在"会变成"服务起不来"，而它正确的表现应是事件在 outbox 里变老。`outbox/OutboxDeliveryLoop` 把"何时跑"与"投递逻辑"分开（`@Scheduled`，默认关闭，一轮抛错只记录不终止），`CaseServiceApplication` 因此加 `@EnableScheduling`。
+  - **两个 pom 追加 `org.apache.rocketmq:rocketmq-client`（不写版本号，由 SCA BOM 管理）**：与 `infra/versions.lock.yaml:115-123` 记的"classic remoting client、不用需要 gRPC proxy 的 rocketmq-client-java、且不存在 `spring-cloud-starter-alibaba-rocketmq`"一致。
+  - 命令与结果：`java\mvnw.cmd -f java/pom.xml -B -ntp -pl commerce-service -am test` → commerce-service **61**（0 失败；新增 `messaging/RefundCommandConsumerApiTest` **9** 条，真 MySQL + 真迁移 V4：签名命令经 C04.2 同一路径预留、重投第二次不再预留、未知密钥拒绝且留档、改了字节的签名即使 key id 可信也失败、结果事件落到命令消费者按错方向拒绝、非信封消息留档、世界拒绝命令时整笔回滚（供 broker 重试）、**协议性拒绝在消费者事务失败后仍然留档**、同 event id 换金额是重复而不是第二笔预留）；`spotless:apply` 后 `spotless:check` 干净；`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**（报告 `reports/verify/20260923-103423-all-offline.txt`；因上一条现象，同一份内容另存工作区外 `C:\c051b-recovered\all-offline-latest.txt`）。
+  - **未做 / 下一步（C05.1c 与 C05.2）**：**真实 broker 的系统级 e2e 未跑**——本轮证明的只是"开关默认关闭时服务照常启动"与"接线能编译、能注入"，没有在 compose 的 RocketMQ 上真的发过一封信，也没有验证 broker 重投/重复/乱序；`resolveflow.events.*`（`publisher.enabled`/`consumer.enabled`/`outbox.delivery-enabled`/`namesrv`/trust key）不在 `application.yml` 里，属部署时才给的值。命令**还没有写入方**：`case_execution_command` 有表无代码，"已批准的授权 → 落库并投递命令"是 C05.2；结果事件（`RefundSucceeded/Failed/Unknown`）的 outbox 与 Commerce→Case 投影也没做；`UNKNOWN` 仍无自动对账调度；服务令牌只校验 `aud`/`sub`。
+
 ### C04 持久模拟退款与本地金额事务
 
 - [x] C04.1：SQLite provider-stub退款幂等、查询、丢响应/延迟可见与重启。
@@ -385,13 +399,12 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 ### C05 消息与退款端到端
 
 - [x] C05.1a：**带签名的 event outbox**（case-service 侧）——C05.1 的第一个子步。
-- [x] C05.1b：消费端 inbox、验签与拒绝记录；RocketMQ 生产/消费**已接线**（真实 broker 的系统级 e2e 尚未跑）。
-- [ ] C05.1c：真实 RocketMQ + MySQL 的系统级退款测试（broker 重投/重复/乱序）。
+- [ ] C05.1b：RocketMQ 发布器与消费端验签（真实 topic `rf.case.core.v2`）。
 - [ ] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
 - 依赖：C03,C04。文件：messaging、Case执行、Commerce消费者及集成测试。
 - 验收：重复/乱序/ACK丢失不重复业务；目标确认成功才关单；失败释放后再试须新授权。
 - 验证：真实RocketMQ+MySQL系统退款测试，CF1/CF2/CF3定点冒烟。
-- 实际记录：未执行。
+- 实际记录：C05.1a（2026-09-22）与 C05.1b（2026-09-23）的完整记录在本文件 C04 工作包记录**之前**（紧随 C03.3c-2 之后）；C05.1c/C05.2 未执行。
 
 ### C06 Agent控制面、MCP与能力冒烟
 
