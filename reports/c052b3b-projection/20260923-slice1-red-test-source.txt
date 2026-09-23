@@ -1,0 +1,57 @@
+C05.2b-3b 切片① 的红测试源码（2026-09-23 归档）
+=================================================
+
+为什么归档一份源码：这个测试**故意没有提交**。它是"先红后绿"里的红——实现落地之前，
+把一条已知会失败的测试提交进 main 会让整套验证处于红的门禁状态（而本项目的门禁是
+`scripts/verify.ps1 -Suite all-offline` 必须 PASSED）。所以它留在工作树的
+`java/case-service/src/test/java/com/resolveflow/caseservice/casefile/CaseResultConsumerApiTest.java`
+里未提交，源码副本放在这里，防止工作区再次静默回退时丢掉这一步。
+
+红跑命令与结果（原文见同目录 20260923-c052b3b-slice1-red.txt）：
+
+    java\mvnw.cmd -f java/pom.xml -B -ntp -pl case-service -am test
+        "-Dtest=CaseResultConsumerApiTest#anAcceptedSuccessClosesTheCase"
+        "-Dsurefire.failIfNoSpecifiedTests=false"
+
+    Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+    expected: "CLOSED_SUCCESS"
+     but was: "EXECUTING"
+
+红得正确：测试只用现有 API（consumer.consume / caseStatus / jdbc / inbox.find），
+失败原因是投影尚未实现，而不是接口不存在。
+
+实现这一片时有一个必须同时处理的后果：b-3a 的边界测试
+`anAcceptedResultIsNotProjectedYet` 断言的是**相反**的事实（"接受了结果但工单仍是
+EXECUTING，因为投影是 C05.2b-3b 的事"）。b-3b 正是那个被指向的下一步，所以那个断言要被
+**改写成它承诺的下一个事实**（工单现在会动），而不是删掉——按 AGENTS.md 的约定，
+不为通过而删断言；这次是规格上正当的推翻，改写与理由都记在 tasks/todo.md。
+
+下附测试方法源码。
+
+-----------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("C05.2b-3b: an accepted RefundSucceeded closes the case and records it in the timeline")
+    void anAcceptedSuccessClosesTheCase() {
+        String eventId = UUID.randomUUID().toString();
+
+        assertThat(consumer.consume(succeeded(eventId, MERCHANT, 3)))
+                .isEqualTo(CaseResultConsumer.Disposition.ACCEPTED);
+
+        // docs/core-contracts.md:86 puts the inbox row, the projection and the local timeline in one
+        // transaction, so this is the same consume() call and not a later loop: the result that was accepted
+        // above is the result that closed the case.
+        assertThat(caseStatus())
+                .as("the money moved and the case heard about it")
+                .isEqualTo("CLOSED_SUCCESS");
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM case_timeline WHERE case_id = ? AND kind = 'CASE_CLOSED'",
+                        Integer.class,
+                        caseId))
+                .as("CASE_CLOSED is the vocabulary's existing kind for this; no new kind is invented")
+                .isEqualTo(1);
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId)
+                        .projectedAt())
+                .as("the inbox row says it has been applied, which is what makes a redelivery harmless")
+                .isNotNull();
+    }

@@ -426,6 +426,10 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **迁移入口唯一**：`CaseRepository.transition(...)`（@Update，期望前置状态写在 WHERE 里，与 C05.2a 同一形状）是状态迁移的唯一通道，投影必须走它，不得自己写 UPDATE。
   - **计划（先红后绿，每片一次提交）**：① 目标成功 → `CLOSED_SUCCESS` + `CASE_CLOSED` timeline + 标记 `projected_at`；② 确定失败（金额已释放）→ `PENDING_REVIEW` + `EXECUTION_UPDATED` + `projected_at`；③ `UNKNOWN` → `RECONCILING`（不释放、不关单）+ `projected_at`；④ **乱序与迟到**：按载荷 `aggregate_version` 只让更高的版本推进状态，迟到的低版本**不改变状态但必须留痕**；⑤ **幂等**：`markProjected` 的 `projected_at IS NULL` 条件保证同一 inbox 行只投影一次（这也是 b-3a 那个 bug 没波及投影的原因）；⑥ inbox 行、投影与 timeline **同一事务**（`docs/core-contracts.md:86`）。
   - **下一轮第一个动作**：写 ① 的失败测试（接受一条 `RefundSucceeded` 后工单应变为 `CLOSED_SUCCESS` 且 timeline 出现 `CASE_CLOSED`），跑红，再实现。
+  - **切片① 的红测试已写、已跑红（2026-09-23）**：`-Dtest=CaseResultConsumerApiTest#anAcceptedSuccessClosesTheCase` → `Tests run: 1, Failures: 1, Errors: 0`，`expected: "CLOSED_SUCCESS" but was: "EXECUTING"`（日志 `reports/c052b3b-projection/20260923-c052b3b-slice1-red.txt`）。红得正确：测试只用现有 API（`consume`/`caseStatus`/`jdbc`/`inbox.find`），失败原因是投影未实现，不是接口不存在。
+  - **这一步定下了一个设计要点**：`docs/core-contracts.md:86` 要求 inbox 行、投影与 timeline **同一事务**，所以投影**不是**另起一个扫描循环，而是 `CaseResultConsumer.consume` 那笔事务的后半段（认领→投影→`markProjected` 全在一起）。这既满足规范，也让"接受一条结果"与"工单因此改变"不可能分家；`projected_at` 则留作幂等标记与将来的补算入口。
+  - **一个必须同时处理的后果（不许悄悄删断言）**：b-3a 的边界测试 `anAcceptedResultIsNotProjectedYet` 断言的是**相反**的事实（接受了结果但工单仍是 `EXECUTING`，因为投影是 b-3b 的事）。b-3b 正是它指向的下一步，所以要把它**改写成它承诺的下一个事实**（工单现在会动），而不是删掉——按 AGENTS.md「不为通过而删断言」，这次是规格上正当的推翻，改写与理由记在账本。
+  - **红测试故意未提交**（提交一条已知失败的测试会让 `main` 处于红门禁状态），它留在工作树的 `CaseResultConsumerApiTest` 里；源码与红跑日志归档在 `reports/c052b3b-projection/`，以防工作区再次静默回退时丢掉这一步。**下一轮动作**：实现切片①（`EXECUTING → CLOSED_SUCCESS` + `CASE_CLOSED` timeline + `markProjected`，全部在 `consume` 的同一事务里），并把上面那条边界测试改写成新事实。
 
 ### C04 持久模拟退款与本地金额事务
 
