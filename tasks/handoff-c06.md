@@ -1,6 +1,6 @@
 # C06 交接（2026-09-23）
 
-给新会话读的一份自足交接。**先读 `tasks/todo.md` 的 C06 段（`:923-931`）与 C05.4 各条**（那里有逐条
+给新会话读的一份自足交接。**先读 `tasks/todo.md` 的 C06 段（`:977-985`）与 C05.4/C05.5 各条**（那里有逐条
 命令/结果/欠账），本文件只讲"现在站在哪、下一步做什么、哪些前提可以信任、哪些坑会误导判断"。
 
 ---
@@ -73,10 +73,12 @@ Test-Path tasks\handoff-c06.md      # 必须是 True
 - **套件**：shared-kernel **59** / commerce **72** / case **187（4 skipped）**（另两个模块 5 与 2）；
   `java\mvnw.cmd -f java/pom.xml -B -ntp -q spotless:check` → exit 0；契约 pytest **548 passed**；
   项目门禁 `pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**
-  （`reports/verify/20260923-181119-all-offline.txt`）。
+  （`reports/verify/20260923-183411-all-offline.txt`，这是**搬到现址之后在新家跑的**；`smoke` 单独有一份
+  `reports/verify/20260923-184350-smoke.txt`，其中 `smoke-agent-service` 是真启动）。
 - **真实链路仍然跑得通**，方式是照抄一条命令：`scripts/e2e_refund_chain.py`（真 MySQL + 真 RocketMQ +
-  自己起 provider），三条链测试 `RESULT: PASSED (111.5s)`。它每轮自己 mint 三条订单行，**不需要手动造数据**；
-  它还会启动自己的 provider（所以不要指望复用你手开的 8090）。
+  自己起 provider），**搬家之后在新家重跑过**：三条链测试 `RESULT: PASSED (97.6s)`
+  （`reports/c052c-chain/20260923-183911-e2e-refund-chain.txt`）。它每轮自己 mint 三条订单行，
+  **不需要手动造数据**；它还会启动自己的 provider（所以不要指望复用你手开的 8090）。
 - **Case 的 Agent 回调面已经实现并有测试**：`POST /internal/v1/cases/{case_id}/agent-callbacks`
   （`callback_id` 主键即"最多应用一次"、逐字重投 DUPLICATE、旧 revision 或人工接管后 STALE、同 id 换内容 409、
   STARTED/QUESTION/FAILED 各自的状态与轨迹后果；PROPOSAL 会被 Java 按**钉住的政策版本**核对引用并**重算金额**）。
@@ -96,7 +98,7 @@ Test-Path tasks\handoff-c06.md      # 必须是 True
 **所以今天 8090 上的"agent"不是 Agent Harness，是 provider stub。** 别把它误当成已有 harness；`tools/`、
 `runtime/` 是空的，MCP 工具一个都还不存在。
 
-## 4. C06 三片（原文取自 `tasks/todo.md:923-931`）
+## 4. C06 三片（原文取自 `tasks/todo.md:977-985`）
 
 1. **C06.1**：PG 持久 run 入口、Case HTTP outbox 与绑定，尚无模型也能可靠排队。
 2. **C06.2**：Commerce 模拟物流只读适配、**5 个 stdio MCP 工具**、scope 与错误 Observation。
@@ -181,8 +183,11 @@ fd936f3  C05.4d 证据引用四件齐（契约 required）
 88f5ab2  C05.4 债务清理收尾验证：门禁 PASSED 归档
 ```
 
-清单到此为止；其后是 **C06 交接文档自身**的几次提交（新增 `tasks/handoff-c06.md`、同步推送后的真实状态、
-去掉写死的 sha 与数字、修掉本文件里剩下的旧数字）。**最新的提交数与 sha 一律以 `git log` 为准。**
+清单到此为止。其后是两类提交：**C06 交接文档自身**的若干次（新增 `tasks/handoff-c06.md`、同步推送后的真实
+状态、去掉写死的 sha 与数字），以及 **C05.5 工作区归一化与清理**（`7d6beac` 搬回最初的位置 → `c8f4ab6`
+文档同步 → `e37bcff` 新家 e2e 通过 → `c48b810` 删旧目录、并让 `smoke-agent-service` 由假通过变真通过 →
+`4f5a2da` 外置产物全删 → `df86633`/`8abb6d9` 本文件的自检与活指令改对）。
+**最新的提交数与 sha 一律以 `git log` 为准。**
 
 ## 9. 未清（不阻塞 C06，别丢）
 
