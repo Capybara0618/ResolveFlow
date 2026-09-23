@@ -1,0 +1,73 @@
+# C05.2c ȫ��·�˵��ˣ����� �� �˹�ͨ�� �� ���� �� Commerce �� provider �� ����¼� �� Case �ص�
+run 20260923-161849  line None
+
+== environment
+  -- compose MySQL answers
+     PASS (0.2s)
+  -- RocketMQ name server listens on 9876
+     PASS (0.0s)
+     minted order 291171db-7934-41e4-8c06-7dd07464a414 line 9161850 for 2599 minor (sku SKU-RED-M-DRV-9161850, category apparel)
+  -- minted a fresh line for this run: 9161850
+     PASS (0.8s)  paid 2599 minor, no case on it and none of the 7001 orphans touch it
+     minted order d0974b2a-c352-4d53-ace3-1859a9a331ee line 91618501 for 2599 minor (sku SKU-RED-M-DRV-91618501, category apparel)
+  -- minted a second line for the CF3 run: 91618501
+     PASS (0.0s)  paid 2599 minor; the lost-response test must not share a slot with the happy path
+
+== build
+  -- mvnw package (skipTests)
+     PASS (12.6s)  log 20260923-161849-build.txt
+
+== three processes
+     provider: E:\Code+Agent+Backend\agent\.venv\Scripts\python.exe -m uvicorn resolveflow.api.app:app --host 127.0.0.1 --port 55854 --log-level warning  (log E:\Code+Agent+Backend\reports\c052c-chain\provider.log)
+     case-service: C:\Users\hjn\.jdks\jdk-21.0.12.1+1\bin\java -jar E:\Code+Agent+Backend\java\case-service\target\case-service-0.1.0-SNAPSHOT.jar --resolveflow.commerce.base-url=http://127.0.0.1:8081 --resolveflow.dispatch.enabled=true --resolveflow.dispatch.poll-interval-ms=500 --resolveflow.events.namesrv=127.0.0.1:9876 --resolveflow.events.publisher.enabled=true --resolveflow.events.outbox.delivery-enabled=true --resolveflow.events.outbox.poll-interval-ms=300 --resolveflow.events.consumer.enabled=true  (log E:\Code+Agent+Backend\reports\c052c-chain\case-service.log)
+     commerce-service: C:\Users\hjn\.jdks\jdk-21.0.12.1+1\bin\java -jar E:\Code+Agent+Backend\java\commerce-service\target\commerce-service-0.1.0-SNAPSHOT.jar --resolveflow.provider.base-url=http://127.0.0.1:55854 --resolveflow.events.namesrv=127.0.0.1:9876 --resolveflow.events.consumer.enabled=true --resolveflow.events.publisher.enabled=true --resolveflow.events.outbox.delivery-enabled=true --resolveflow.events.outbox.poll-interval-ms=300 --resolveflow.refund.dispatch-enabled=true --resolveflow.refund.reconcile-enabled=true --resolveflow.refund.poll-interval-ms=8000  (log E:\Code+Agent+Backend\reports\c052c-chain\commerce-service.log)
+  -- the three processes are up
+     PASS (9.3s)  provider=True commerce=True case=True
+
+== the chain
+     $ mvnw -Dtest=RefundChainSystemTest with RESOLVEFLOW_E2E_CHAIN=true LINE=9161850
+  -- RefundChainSystemTest passes
+     FAIL (24.7s)  log 20260923-161849-chain-test.txt
+
+== what the databases hold
+     aftersale_case     [['584fcbf4-9e4d-4c48-90f0-140aecb818c9', 'CLOSED_SUCCESS', '5']]
+     refund_operation   [['9f5a45a0-b51b-428b-b7cf-a29d9761f37b', 'SUCCEEDED', '2599', 'prv-4713a93e-d31f-4e22-92de-313c53b16834']]
+     payment_ledger     [['2599', '0']]
+     line_refund        [['CONSUMED', '9f5a45a0-b51b-428b-b7cf-a29d9761f37b']]
+     case_result_inbox  [['ACCEPTED', 'duplicate delivery ignored', '2', '2026-09-23 08:19:29.308458', 'SUCCEEDED', '2599']]
+     case_timeline      [['APPROVAL_REQUIRED', '1'], ['AUTHORIZATION_DECIDED', '1'], ['CASE_CLOSED', '1'], ['CASE_CREATED', '1'], ['EXECUTION_UPDATED', '1'], ['PROPOSAL_READY', '1']]
+     execution_command  [['1']]
+  -- the case is closed
+     PASS  observed=CLOSED_SUCCESS  expected=CLOSED_SUCCESS
+  -- the provider settled it
+     PASS  observed=SUCCEEDED  expected=SUCCEEDED
+  -- the refunded amount is the line's
+     PASS  observed=2599  expected=2599
+  -- nothing is left reserved
+     PASS  observed=0  expected=0
+  -- the ledger holds exactly one refund
+     PASS  observed=2599  expected=2599
+  -- the line can never be refunded again
+     PASS  observed=CONSUMED  expected=CONSUMED
+
+== CF3: the line whose answer was lost
+     aftersale_case     [['1dc46a70-3e5b-498f-a89f-42c722035018', 'RECONCILING']]
+     refund_operation   [['f9c72a42-19e8-49aa-b6cf-85e4b75dec56', 'UNKNOWN', '-']]
+     payment_ledger     [['0', '2599']]
+     line_refund        [['RESERVED', 'f9c72a42-19e8-49aa-b6cf-85e4b75dec56']]
+  -- the CF3 case is closed too
+     FAIL  observed=RECONCILING  expected=CLOSED_SUCCESS
+  -- the CF3 reservation became the refund
+     FAIL  observed=0  expected=2599
+  -- and is no longer reserved
+     FAIL  observed=2599  expected=0
+  -- the lost answer was reconciled, not re-sent
+     FAIL  observed=UNKNOWN  expected=SUCCEEDED
+     provider sqlite    operation=9f5a45a0-b51b-428b-b7cf-a29d9761f37b state=SUCCEEDED ref=prv-4713a93e-d31f-4e22-92de-313c53b16834 attempts=1
+     provider sqlite    operation=f9c72a42-19e8-49aa-b6cf-85e4b75dec56 state=SUCCEEDED ref=prv-57004152-2859-48ad-8e5f-9c8e6a3c979e attempts=1
+
+== background noise this run did not cause
+     operations left on line 7001 by earlier driver runs, by state: [['IN_PROGRESS', '3'], ['SUCCEEDED', '1']]
+     with the dispatch loop enabled these are swept on the first tick. The ones whose line is held by a different operation refuse to settle and stay IN_PROGRESS forever �� the gap the ledger records. The one that really did hold line 7001's slot settles: that is a reservation from C05.1c that had been stuck since, and this loop finishing it is money actually moving, not noise. Neither is caused by this run.
+
+RESULT: FAILED: RefundChainSystemTest passes; the CF3 case is closed too; the CF3 reservation became the refund; and is no longer reserved; the lost answer was reconciled, not re-sent (50.9s)

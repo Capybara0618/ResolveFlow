@@ -242,6 +242,15 @@ def main() -> int:
             report.finish("FAILED: no usable demo line")
             return 1
 
+        # CF3 needs a line of its own as well: it arms a fault for the operation id that line produces, and two
+        # tests sharing one line would be two tests sharing one refund slot.
+        cf3_line = ""
+        if args.line is None:
+            cf3_amount = base.scalar("SELECT line_paid_amount FROM commerce_db.order_line WHERE line_id = '7001'")
+            cf3_line, _m2, _c2 = create_demo_line(int(cf3_amount), report)
+            report.step(f"minted a second line for the CF3 run: {cf3_line}", True, 0.0,
+                        f"paid {cf3_amount} minor; the lost-response test must not share a slot with the happy path")
+
         report.section("build")
         started = time.time()
         built = base.run([MVNW, "-f", "java/pom.xml", "-B", "-ntp", "-DskipTests", "-pl",
@@ -296,7 +305,10 @@ def main() -> int:
              # dispatch(id). Without them the operation stays RECEIVED and no result is ever written.
              "--resolveflow.refund.dispatch-enabled=true",
              "--resolveflow.refund.reconcile-enabled=true",
-             "--resolveflow.refund.poll-interval-ms=500"],
+             # Deliberately slow. The CF3 run has to arm a fault for the operation the reservation creates, and
+             # with a half-second tick that is a race the test would sometimes lose (the dispatch is the very next
+             # tick). Eight seconds makes the window deterministic, and costs the happy path nothing but seconds.
+             "--resolveflow.refund.poll-interval-ms=8000"],
             base.child_env(), report, report_dir)
 
         started = time.time()
@@ -323,6 +335,8 @@ def main() -> int:
             env=base.child_env(
                 RESOLVEFLOW_E2E_CHAIN="true",
                 RESOLVEFLOW_E2E_LINE=line,
+                RESOLVEFLOW_E2E_LINE_UNKNOWN=cf3_line,
+                RESOLVEFLOW_E2E_PROVIDER_BASE=f"http://127.0.0.1:{provider_port}",
                 RESOLVEFLOW_E2E_CASE_BASE=f"http://127.0.0.1:{CASE_PORT}",
                 RESOLVEFLOW_E2E_MYSQL_HOST="127.0.0.1",
                 RESOLVEFLOW_E2E_MYSQL_ROOT_PASSWORD="root",
@@ -375,6 +389,55 @@ def main() -> int:
             report.check("the ledger holds exactly one refund", ledger[0][0], amount, ledger[0][0] == amount)
         if slot:
             report.check("the line can never be refunded again", slot[0][0], "CONSUMED", slot[0][0] == "CONSUMED")
+
+        report.section("CF3: the line whose answer was lost")
+        if cf3_line:
+            cf3_case = base.mysql_rows(
+                "SELECT case_id, status FROM case_db.aftersale_case "
+                f"WHERE line_id = '{cf3_line}' ORDER BY created_at DESC LIMIT 1")
+            cf3_operation = base.mysql_rows(
+                "SELECT operation_id, state, IFNULL(provider_ref, '-') FROM commerce_db.refund_operation "
+                f"WHERE line_id = '{cf3_line}' ORDER BY reserved_at DESC LIMIT 1")
+            cf3_ledger = base.mysql_rows(
+                "SELECT refunded_amount, reserved_refund_amount FROM commerce_db.payment_ledger WHERE order_id ="
+                f" (SELECT order_id FROM commerce_db.order_line WHERE line_id = '{cf3_line}')")
+            cf3_slot = base.mysql_rows(
+                f"SELECT state, IFNULL(operation_id, '-') FROM commerce_db.line_refund WHERE line_id = '{cf3_line}'")
+            cf3_inbox = base.mysql_rows(
+                "SELECT event_type, state, disposition, IFNULL(detail, '-'), deliveries"
+                " FROM case_db.case_result_inbox WHERE operation_id = (SELECT operation_id FROM"
+                f" commerce_db.refund_operation WHERE line_id = '{cf3_line}' ORDER BY reserved_at DESC LIMIT 1)")
+            report.note(f"case_result_inbox  {cf3_inbox}  (two facts: the unknown, then the recovered success)")
+            report.note(f"aftersale_case     {cf3_case}")
+            report.note(f"refund_operation   {cf3_operation}")
+            report.note(f"payment_ledger     {cf3_ledger}")
+            report.note(f"line_refund        {cf3_slot}")
+            if cf3_case:
+                report.check("the CF3 case is closed too", cf3_case[0][1], "CLOSED_SUCCESS",
+                             cf3_case[0][1] == "CLOSED_SUCCESS")
+            if cf3_ledger:
+                report.check("the CF3 reservation became the refund", cf3_ledger[0][0], str(cf3_amount),
+                             cf3_ledger[0][0] == str(cf3_amount))
+                report.check("and is no longer reserved", cf3_ledger[0][1], "0", cf3_ledger[0][1] == "0")
+            if cf3_operation:
+                report.check("the lost answer was reconciled, not re-sent", cf3_operation[0][1], "SUCCEEDED",
+                             cf3_operation[0][1] == "SUCCEEDED")
+
+            # The provider's own file, which is the only place that can say how many times it was asked. Read
+            # with the provider still running: SQLite in WAL mode allows a reader, and this is evidence rather
+            # than an assertion, so a failure to read is reported instead of failing the run.
+            provider_db = report_dir / f"{stamp}-provider.sqlite3"
+            try:
+                import sqlite3
+                with sqlite3.connect(str(provider_db)) as provider:
+                    for row in provider.execute(
+                            "SELECT r.operation_id, r.state, IFNULL(r.provider_ref, '-'),"
+                            " (SELECT COUNT(*) FROM request_attempt a WHERE a.operation_id = r.operation_id)"
+                            " FROM refund_request r ORDER BY requested_at"):
+                        report.note(f"provider sqlite    operation={row[0]} state={row[1]} ref={row[2]}"
+                                    f" attempts={row[3]}")
+            except Exception as unreadable:  # noqa: BLE001 - evidence, not a gate
+                report.note(f"could not read the provider sqlite file: {unreadable}")
 
         report.section("background noise this run did not cause")
         orphans = base.mysql_rows(

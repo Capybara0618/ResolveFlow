@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -71,6 +72,19 @@ class RefundChainSystemTest {
     private static final String LINE_ID = env("RESOLVEFLOW_E2E_LINE", "7101");
 
     /**
+     * The second line, which the CF3 run refunds. Blank when nobody started a provider for this test to arm a
+     * fault in, in which case that test skips rather than fails: the happy path above needs no provider of its
+     * own, and a test that quietly drove somebody else's provider would be worse than one that says it skipped.
+     */
+    private static final String LINE_UNKNOWN = env("RESOLVEFLOW_E2E_LINE_UNKNOWN", "");
+
+    /**
+     * Where the provider stub is. The driver starts one per run on a free port with its lab surface on, and
+     * passes it down; the default is the port the module tests and the README use.
+     */
+    private static final String PROVIDER_BASE = env("RESOLVEFLOW_E2E_PROVIDER_BASE", "http://127.0.0.1:8090");
+
+    /**
      * The demonstration identity secret, and the reason it is a default rather than a required environment
      * value: {@code case-service}'s own {@code application.yml} ships this exact local secret and says it is a
      * local default rather than a deployment key. Overridable so the test is not pinned to it.
@@ -80,58 +94,10 @@ class RefundChainSystemTest {
     @Test
     @DisplayName("an approved refund travels the whole chain and closes the case — then a duplicate changes nothing")
     void theApprovedRefundClosesTheCaseOverTheRealBroker() throws Exception {
-        // ---------------------------------------------------------------- the line, and a repeatable start
-        String merchant = scalar("commerce_db", "SELECT merchant_id FROM order_line WHERE line_id = '" + LINE_ID + "'");
-        String customer = scalar("commerce_db", "SELECT customer_id FROM order_line WHERE line_id = '" + LINE_ID + "'");
-        String orderId = scalar("commerce_db", "SELECT order_id FROM order_line WHERE line_id = '" + LINE_ID + "'");
-        long amount = Long.parseLong(
-                scalar("commerce_db", "SELECT line_paid_amount FROM order_line WHERE line_id = '" + LINE_ID + "'"));
-        assertThat(merchant)
-                .as("the demo line has to exist before anything can be driven")
-                .isNotNull();
-
-        // A line refund is per-order money: the driver reused this line before, and a run that started from
-        // whatever the last run left behind would fail for reasons that are not about the chain. The reset is
-        // the same one the module tests do in @BeforeEach, and it touches only this line and its order's ledger.
-        assertThat(scalar(
-                        "case_db",
-                        "SELECT COUNT(*) FROM event_outbox WHERE status <> 'PUBLISHED' AND envelope LIKE '%" + LINE_ID
-                                + "%'"))
-                .as("a command for this line that nobody delivered would reserve the slot before this run does,"
-                        + " and the run would then fail for the previous run's reason")
-                .isEqualTo("0");
-        update(
-                "commerce_db",
-                "UPDATE line_refund SET state = 'FREE', operation_id = NULL, version = 1 WHERE line_id = '" + LINE_ID
-                        + "'");
-        update(
-                "commerce_db",
-                "UPDATE payment_ledger SET refunded_amount = 0, reserved_refund_amount = 0, version = 1"
-                        + " WHERE order_id = '" + orderId + "'");
-        assertThat(scalar(
-                        "commerce_db", "SELECT refunded_amount FROM payment_ledger WHERE order_id = '" + orderId + "'"))
-                .isEqualTo("0");
-        assertThat(scalar(
-                        "case_db",
-                        "SELECT COUNT(*) FROM aftersale_case WHERE line_id = '" + LINE_ID + "' AND status NOT IN"
-                                + " ('CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED')"))
-                .as("this line has no case still open. Opening a second one is refused with CASE_ALREADY_OPEN —"
-                        + " correctly — so saying so here keeps that refusal from looking like a chain failure."
-                        + " Every seeded demo line already has an open case from the 2026-09-19 sessions, which"
-                        + " is why the driver mints a line of its own rather than refunding a fixture line")
-                .isEqualTo("0");
-
-        // ---------------------------------------------------------------- open, propose, approve (real entries)
-        String caseId = openCase(customer, merchant);
-        deliverProposal(caseId, merchant, amount);
-
-        String authorizationId =
-                scalar("case_db", "SELECT authorization_id FROM case_authorization WHERE case_id = '" + caseId + "'");
-        String caseVersion = scalar("case_db", "SELECT version FROM aftersale_case WHERE case_id = '" + caseId + "'");
-        assertThat(authorizationId)
-                .as("the proposal produced an authorisation for a reviewer to decide on")
-                .isNotNull();
-        approve(caseId, merchant, caseVersion, authorizationId);
+        ApprovedCase run = driveToApproval(LINE_ID);
+        String caseId = run.caseId();
+        String orderId = run.line().orderId();
+        long amount = run.line().amount();
 
         // ---------------------------------------------------------------- the chain, with nobody's help
         // Waiting on the slot's state='RESERVED' would race the very thing being waited for: the reservation is
@@ -281,16 +247,280 @@ class RefundChainSystemTest {
                 .isEqualTo(String.valueOf(amount));
     }
 
+    /**
+     * CF3: the provider settles the refund and the answer never arrives.
+     *
+     * <p>This is the case the whole reservation design exists for, and it is the only one where the two sides of
+     * the system genuinely disagree: Commerce knows nothing, the provider has already moved the money. Every
+     * cheap answer is wrong here — releasing the reservation loses a refund that happened, failing the operation
+     * does the same, and sending a new request under a new id pays twice. So the operation becomes
+     * {@code UNKNOWN}, the money stays reserved, and the only way out is to ask the provider what happened.
+     *
+     * <p>The fault is armed for <em>this operation id</em> after the reservation exists, never for "every
+     * operation": a fault armed globally would leak into the happy-path test in the same JVM, and the order two
+     * JUnit methods run in is not something to build a test on. Arming it late is only possible because the
+     * driver runs the dispatch loop on a long poll interval, which is what makes this deterministic instead of a
+     * race — the window is seconds wide, not milliseconds.
+     */
+    @Test
+    @DisplayName("a lost answer leaves UNKNOWN with the money reserved, and one reconciliation settles it — once")
+    void theUnknownFromALostResponseIsReconciledWithoutPayingTwice() throws Exception {
+        Assumptions.assumeTrue(
+                !LINE_UNKNOWN.isBlank(),
+                "the CF3 run needs its own line and a provider with its lab surface on (RESOLVEFLOW_E2E_LINE_UNKNOWN)");
+
+        ApprovedCase run = driveToApproval(LINE_UNKNOWN);
+        String caseId = run.caseId();
+        LineFacts line = run.line();
+
+        String operationId = await(
+                "Commerce accepts the command and writes the operation it owes",
+                () -> scalar(
+                        "commerce_db",
+                        "SELECT operation_id FROM refund_operation WHERE line_id = '" + line.lineId()
+                                + "' ORDER BY reserved_at DESC LIMIT 1"),
+                CHAIN_TIMEOUT);
+        assertThat(armFault("LOST_RESPONSE", operationId))
+                .as("the provider's lab surface took the fault. A lab tool that silently did nothing would let"
+                        + " this test pass without any fault armed at all")
+                .isTrue();
+
+        await(
+                "Commerce records the missing answer as UNKNOWN, releasing nothing",
+                () -> "UNKNOWN".equals(operationState(operationId)) ? "unknown" : null,
+                CHAIN_TIMEOUT);
+
+        // CF3 stated in the databases, which is the only place it counts.
+        assertThat(scalar(
+                        "commerce_db",
+                        "SELECT refunded_amount FROM payment_ledger WHERE order_id = '" + line.orderId() + "'"))
+                .as("UNKNOWN is not a refund: nothing is settled")
+                .isEqualTo("0");
+        assertThat(scalar(
+                        "commerce_db",
+                        "SELECT reserved_refund_amount FROM payment_ledger WHERE order_id = '" + line.orderId() + "'"))
+                .as("and it is not a release either — the reservation is what the retry will spend")
+                .isEqualTo(String.valueOf(line.amount()));
+        assertThat(scalar("commerce_db", "SELECT state FROM line_refund WHERE line_id = '" + line.lineId() + "'"))
+                .as("the line stays held by the operation nobody has an answer for")
+                .isEqualTo("RESERVED");
+        // The case's own reaction is a further two hops away (commerce outbox → broker → case listener → projection),
+        // so it is awaited rather than asserted. Asserting it right after Commerce goes UNKNOWN is the same
+        // mistake as probing the reserved slot, one level down — and it failed the same way (C05.2c-4).
+        await(
+                "the case is told the outcome is not final",
+                () -> "RECONCILING".equals(caseStatus(caseId)) ? "reconciling" : null,
+                CHAIN_TIMEOUT);
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT event_type FROM case_result_inbox WHERE operation_id = '" + operationId + "'"))
+                .as("the case IS told about the unknown — leaving it in the dark would leave an operator with no"
+                        + " trace of a refund that is neither done nor not done")
+                .isEqualTo("RefundUnknown");
+        assertThat(scalar("case_db", "SELECT state FROM case_result_inbox WHERE operation_id = '" + operationId + "'"))
+                .isEqualTo("UNKNOWN");
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT projected_at IS NOT NULL FROM case_result_inbox WHERE operation_id = '" + operationId
+                                + "'"))
+                .as("and it was consumed by the projection rather than parked")
+                .isEqualTo("1");
+        assertThat(caseStatus(caseId))
+                .as("the case now waits: RECONCILING is the state that says an outcome exists and is not final")
+                .isEqualTo("RECONCILING");
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT COUNT(*) FROM case_timeline WHERE case_id = '" + caseId + "' AND kind = 'CASE_CLOSED'"))
+                .as("and it is certainly not closed on an unknown")
+                .isEqualTo("0");
+
+        // The divergence itself: Commerce does not know, and the provider has already settled. That gap is the
+        // lost response, and it is why "just ask again" is the only correct move. (`responded` is deliberately
+        // not asserted here: the query is answered *now*, so the provider reports responded=true — only the
+        // reply that was lost was unanswered, and that reply is gone.)
+        JsonNode providerView = providerRefund(operationId);
+        assertThat(providerView.get("state").stringValue())
+                .as("the provider settled this refund and recorded it; only the answer went missing")
+                .isEqualTo("SUCCEEDED");
+        String providerRef = providerView.get("provider_ref").stringValue();
+
+        assertThat(clearFaults())
+                .as("the fault is cleared so the retry gets a real answer")
+                .isTrue();
+
+        // Nobody calls reconcile(id) here: the loop waits out the domain's own backoff, asks the provider what
+        // happened, and settles on the answer it gets.
+        await(
+                "the reconciliation resolves the unknown without a second request",
+                () -> "SUCCEEDED".equals(operationState(operationId)) ? "settled" : null,
+                CHAIN_TIMEOUT);
+        await(
+                "the case hears the recovered outcome and closes itself",
+                () -> "CLOSED_SUCCESS".equals(caseStatus(caseId)) ? "closed" : null,
+                CHAIN_TIMEOUT);
+
+        assertThat(scalar(
+                        "commerce_db",
+                        "SELECT provider_ref FROM refund_operation WHERE operation_id = '" + operationId + "'"))
+                .as("the operation adopted the provider's own reference: the retry asked about the same refund"
+                        + " rather than buying a second one")
+                .isEqualTo(providerRef);
+        assertThat(scalar(
+                        "commerce_db", "SELECT COUNT(*) FROM refund_operation WHERE line_id = '" + line.lineId() + "'"))
+                .as("one reservation, one operation: UNKNOWN never means a new id and a new payment")
+                .isEqualTo("1");
+        assertThat(scalar(
+                        "commerce_db",
+                        "SELECT refunded_amount FROM payment_ledger WHERE order_id = '" + line.orderId() + "'"))
+                .isEqualTo(String.valueOf(line.amount()));
+        assertThat(scalar(
+                        "commerce_db",
+                        "SELECT reserved_refund_amount FROM payment_ledger WHERE order_id = '" + line.orderId() + "'"))
+                .as("the reservation became the refund")
+                .isEqualTo("0");
+        assertThat(scalar("commerce_db", "SELECT state FROM line_refund WHERE line_id = '" + line.lineId() + "'"))
+                .isEqualTo("CONSUMED");
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT COUNT(*) FROM case_result_inbox WHERE operation_id = '" + operationId
+                                + "' AND state = 'SUCCEEDED' AND disposition = 'ACCEPTED'"))
+                .as("the recovered success reached the case as an accepted fact")
+                .isEqualTo("1");
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT COUNT(*) FROM case_result_inbox WHERE operation_id = '" + operationId
+                                + "' AND detail = 'duplicate delivery ignored'"))
+                .as("and nothing in this run was a duplicate: the unknown and the recovered success are two"
+                        + " different facts, delivered once each")
+                .isEqualTo("0");
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT COUNT(*) FROM case_timeline WHERE case_id = '" + caseId + "' AND kind = 'CASE_CLOSED'"))
+                .isEqualTo("1");
+    }
+
+    // ------------------------------------------------------------------ the provider's lab surface
+
+    /** Arm one fault for one operation. The provider refuses an unknown fault name, which is why this is checked. */
+    private boolean armFault(String fault, String operationId) throws Exception {
+        ObjectNode body = MAPPER.createObjectNode();
+        body.put("fault", fault);
+        body.put("operation_id", operationId);
+        HttpResponse<String> response = HTTP.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(PROVIDER_BASE + "/provider/v1/_lab/faults"))
+                        .timeout(Duration.ofSeconds(10))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString());
+        return response.statusCode() == 204;
+    }
+
+    private boolean clearFaults() throws Exception {
+        HttpResponse<String> response = HTTP.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(PROVIDER_BASE + "/provider/v1/_lab/faults"))
+                        .timeout(Duration.ofSeconds(10))
+                        .DELETE()
+                        .build(),
+                HttpResponse.BodyHandlers.ofString());
+        return response.statusCode() == 204;
+    }
+
+    /** What the provider believes about one refund — the other side of the divergence. */
+    private JsonNode providerRefund(String operationId) throws Exception {
+        HttpResponse<String> response = HTTP.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(PROVIDER_BASE + "/provider/v1/refunds/" + operationId))
+                        .timeout(Duration.ofSeconds(10))
+                        .GET()
+                        .build(),
+                HttpResponse.BodyHandlers.ofString());
+        assertThat(response.statusCode())
+                .as("the provider has a record of this refund: " + response.body())
+                .isEqualTo(200);
+        return MAPPER.readTree(response.body());
+    }
+
     // ------------------------------------------------------------------ the three real entries
 
-    private String openCase(String customerId, String merchant) throws Exception {
+    /** One demo line's facts, read from the database rather than assumed. */
+    private record LineFacts(String lineId, String merchant, String customer, String orderId, long amount) {}
+
+    /** A case driven through all three entries up to the approval, with the line it was opened on. */
+    private record ApprovedCase(LineFacts line, String caseId) {}
+
+    /**
+     * Read a line's facts, reset what a previous run may have left on it, and drive the three real entries.
+     *
+     * <p>Shared by both tests on purpose: "opened a case, delivered a proposal, got it approved" is not what
+     * either of them is about, and a second copy of it would be a second place for the demo identities, the
+     * citation or the reset to drift.
+     */
+    private ApprovedCase driveToApproval(String lineId) throws Exception {
+        String merchant = scalar("commerce_db", "SELECT merchant_id FROM order_line WHERE line_id = '" + lineId + "'");
+        String customer = scalar("commerce_db", "SELECT customer_id FROM order_line WHERE line_id = '" + lineId + "'");
+        String orderId = scalar("commerce_db", "SELECT order_id FROM order_line WHERE line_id = '" + lineId + "'");
+        long amount = Long.parseLong(
+                scalar("commerce_db", "SELECT line_paid_amount FROM order_line WHERE line_id = '" + lineId + "'"));
+        assertThat(merchant)
+                .as("the demo line has to exist before anything can be driven")
+                .isNotNull();
+        LineFacts line = new LineFacts(lineId, merchant, customer, orderId, amount);
+
+        // A line refund is per-order money: the driver reused this line before, and a run that started from
+        // whatever the last run left behind would fail for reasons that are not about the chain. The reset is
+        // the same one the module tests do in @BeforeEach, and it touches only this line and its order's ledger.
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT COUNT(*) FROM event_outbox WHERE status <> 'PUBLISHED' AND envelope LIKE '%" + lineId
+                                + "%'"))
+                .as("a command for this line that nobody delivered would reserve the slot before this run does,"
+                        + " and the run would then fail for the previous run's reason")
+                .isEqualTo("0");
+        update(
+                "commerce_db",
+                "UPDATE line_refund SET state = 'FREE', operation_id = NULL, version = 1 WHERE line_id = '" + lineId
+                        + "'");
+        update(
+                "commerce_db",
+                "UPDATE payment_ledger SET refunded_amount = 0, reserved_refund_amount = 0, version = 1"
+                        + " WHERE order_id = '" + orderId + "'");
+        assertThat(scalar(
+                        "commerce_db", "SELECT refunded_amount FROM payment_ledger WHERE order_id = '" + orderId + "'"))
+                .isEqualTo("0");
+        assertThat(scalar(
+                        "case_db",
+                        "SELECT COUNT(*) FROM aftersale_case WHERE line_id = '" + lineId + "' AND status NOT IN"
+                                + " ('CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED')"))
+                .as("this line has no case still open. Opening a second one is refused with CASE_ALREADY_OPEN —"
+                        + " correctly — so saying so here keeps that refusal from looking like a chain failure."
+                        + " Every seeded demo line already has an open case from the 2026-09-19 sessions, which"
+                        + " is why the driver mints a line of its own rather than refunding a fixture line")
+                .isEqualTo("0");
+
+        String caseId = openCase(line);
+        deliverProposal(caseId, line);
+
+        String authorizationId =
+                scalar("case_db", "SELECT authorization_id FROM case_authorization WHERE case_id = '" + caseId + "'");
+        String caseVersion = scalar("case_db", "SELECT version FROM aftersale_case WHERE case_id = '" + caseId + "'");
+        assertThat(authorizationId)
+                .as("the proposal produced an authorisation for a reviewer to decide on")
+                .isNotNull();
+        approve(caseId, line.merchant(), caseVersion, authorizationId);
+        return new ApprovedCase(line, caseId);
+    }
+
+    private String openCase(LineFacts line) throws Exception {
         ObjectNode body = MAPPER.createObjectNode();
-        body.put("line_id", LINE_ID);
+        body.put("line_id", line.lineId());
         body.put("description", "承运商判定丢失，申请退款");
         body.putArray("requested_actions").add("REFUND");
         HttpResponse<String> response = post(
                 "/api/v1/cases",
-                token("demo-customer", merchant, Role.CUSTOMER, customerId),
+                token("demo-customer", line.merchant(), Role.CUSTOMER, line.customer()),
                 "chain-case-" + UUID.randomUUID(),
                 null,
                 body);
@@ -300,7 +530,7 @@ class RefundChainSystemTest {
         return MAPPER.readTree(response.body()).get("case_id").stringValue();
     }
 
-    private void deliverProposal(String caseId, String merchant, long amount) throws Exception {
+    private void deliverProposal(String caseId, LineFacts line) throws Exception {
         ObjectNode proposal = MAPPER.createObjectNode();
         proposal.put("schema_version", 2);
         proposal.put("proposal_id", UUID.randomUUID().toString());
@@ -310,9 +540,9 @@ class RefundChainSystemTest {
         proposal.put("case_type", "LOGISTICS");
         proposal.put("recommended_action", "REFUND");
         proposal.put("summary", "承运商判定丢失，按政策全额退款");
-        proposal.put("suggested_amount_minor", amount);
+        proposal.put("suggested_amount_minor", line.amount());
         proposal.putArray("reason_codes").add("CARRIER_LOST");
-        proposal.putArray("policy_refs").add(citation());
+        proposal.putArray("policy_refs").add(citation(line.lineId()));
 
         ObjectNode body = MAPPER.createObjectNode();
         body.put("callback_id", "chain-proposal-" + UUID.randomUUID());
@@ -356,12 +586,12 @@ class RefundChainSystemTest {
      * so a citation this test invented would be refused for the right reason and would prove nothing about the
      * chain. The bundle is chosen by the line's payment time, which is the same rule policy selection uses.
      */
-    private ObjectNode citation() {
+    private ObjectNode citation(String lineId) {
         String bundle = scalar(
                 "case_db",
                 "SELECT bundle_id FROM policy_bundle WHERE effective_from <= (SELECT paid_at FROM commerce_db.order_line"
-                        + " WHERE line_id = '" + LINE_ID + "') AND (effective_to IS NULL OR effective_to >"
-                        + " (SELECT paid_at FROM commerce_db.order_line WHERE line_id = '" + LINE_ID + "'))"
+                        + " WHERE line_id = '" + lineId + "') AND (effective_to IS NULL OR effective_to >"
+                        + " (SELECT paid_at FROM commerce_db.order_line WHERE line_id = '" + lineId + "'))"
                         + " ORDER BY effective_from DESC LIMIT 1");
         String version = scalar("case_db", "SELECT version FROM policy_bundle WHERE bundle_id = '" + bundle + "'");
         assertThat(bundle)

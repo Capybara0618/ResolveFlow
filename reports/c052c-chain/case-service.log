@@ -8,30 +8,35 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-09-23T16:05:35.394+08:00  INFO 52692 --- [case-service] [           main] c.r.caseservice.CaseServiceApplication   : Starting CaseServiceApplication v0.1.0-SNAPSHOT using Java 21.0.12.1 with PID 52692 (E:\Code+Agent+Backend\java\case-service\target\case-service-0.1.0-SNAPSHOT.jar started by hjn in E:\Code+Agent+Backend)
-2026-09-23T16:05:35.401+08:00  INFO 52692 --- [case-service] [           main] c.r.caseservice.CaseServiceApplication   : No active profile set, falling back to 1 default profile: "default"
-2026-09-23T16:05:37.790+08:00  INFO 52692 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8083 (http)
-2026-09-23T16:05:37.813+08:00  INFO 52692 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-09-23T16:05:37.814+08:00  INFO 52692 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
-2026-09-23T16:05:37.862+08:00  INFO 52692 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2374 ms
-2026-09-23T16:05:38.974+08:00  INFO 52692 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-09-23T16:05:39.260+08:00  INFO 52692 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@485c84d7
-2026-09-23T16:05:39.263+08:00  INFO 52692 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-09-23T16:05:39.357+08:00  INFO 52692 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://127.0.0.1:3306/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
-2026-09-23T16:05:39.474+08:00  WARN 52692 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
-2026-09-23T16:05:39.551+08:00  INFO 52692 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.055s)
-2026-09-23T16:05:39.578+08:00  INFO 52692 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
-2026-09-23T16:05:39.583+08:00  INFO 52692 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
-2026-09-23T16:05:41.158+08:00  INFO 52692 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
-2026-09-23T16:05:41.251+08:00  INFO 52692 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8083 (http) with context path '/'
-2026-09-23T16:05:41.880+08:00  INFO 52692 --- [case-service] [           main] c.r.c.outbox.RocketMqEventPublisher      : publishing core events to 127.0.0.1:9876
-2026-09-23T16:05:42.263+08:00  INFO 52692 --- [case-service] [           main] c.r.c.result.RocketMqResultListener      : listening on rf.commerce.core.v2 (broker topic rf-commerce-core-v2) for core results (group case-refund-result)
-2026-09-23T16:05:42.278+08:00  INFO 52692 --- [case-service] [           main] c.r.caseservice.CaseServiceApplication   : Started CaseServiceApplication in 7.506 seconds (process running for 8.736)
-2026-09-23T16:05:42.522+08:00  INFO 52692 --- [case-service] [nio-8083-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-09-23T16:05:42.522+08:00  INFO 52692 --- [case-service] [nio-8083-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-09-23T16:05:42.523+08:00  INFO 52692 --- [case-service] [nio-8083-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2026-09-23T16:05:54.687+08:00  INFO 52692 --- [case-service] [   scheduling-1] c.r.c.casefile.ExecutionDispatchLoop     : authorisation d3e7f214-5196-49b5-9b0a-4a216a6a4d43 consumed: case 9cd4f386-130c-407a-a910-b2cce3769c76 is executing, operation 652d1bd2-9f23-4ba4-8cf3-ca4372e059b6, event 26c86659-ff5a-4038-846d-5d79b7f76362
-2026-09-23T16:05:54.687+08:00  INFO 52692 --- [case-service] [   scheduling-1] c.r.c.casefile.ExecutionDispatchLoop     : dispatch pass: 1 consumed, 0 not applicable, 0 failed
-2026-09-23T16:05:54.878+08:00  INFO 52692 --- [case-service] [   scheduling-1] c.r.c.outbox.OutboxDeliveryLoop          : outbox pass: 1 published, 0 failed, 0 dead
-2026-09-23T16:05:55.329+08:00  INFO 52692 --- [case-service] [refund-result_1] c.r.c.result.CaseResultConsumer          : result 76cf9a0e-254b-4814-9867-c3ce8fd24e66 for case 9cd4f386-130c-407a-a910-b2cce3769c76 recorded: operation 652d1bd2-9f23-4ba4-8cf3-ca4372e059b6 is SUCCEEDED at Commerce version 3
-2026-09-23T16:05:55.920+08:00  INFO 52692 --- [case-service] [refund-result_2] c.r.c.result.CaseResultConsumer          : result 76cf9a0e-254b-4814-9867-c3ce8fd24e66 for case 9cd4f386-130c-407a-a910-b2cce3769c76 was delivered again; the first delivery stands
+2026-09-23T16:28:24.893+08:00  INFO 11604 --- [case-service] [           main] c.r.caseservice.CaseServiceApplication   : Starting CaseServiceApplication v0.1.0-SNAPSHOT using Java 21.0.12.1 with PID 11604 (E:\Code+Agent+Backend\java\case-service\target\case-service-0.1.0-SNAPSHOT.jar started by hjn in E:\Code+Agent+Backend)
+2026-09-23T16:28:24.920+08:00  INFO 11604 --- [case-service] [           main] c.r.caseservice.CaseServiceApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T16:28:34.797+08:00  INFO 11604 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8083 (http)
+2026-09-23T16:28:34.935+08:00  INFO 11604 --- [case-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T16:28:34.938+08:00  INFO 11604 --- [case-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-23T16:28:35.232+08:00  INFO 11604 --- [case-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 9930 ms
+2026-09-23T16:28:37.003+08:00  INFO 11604 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-23T16:28:37.281+08:00  INFO 11604 --- [case-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@485c84d7
+2026-09-23T16:28:37.284+08:00  INFO 11604 --- [case-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-23T16:28:37.355+08:00  INFO 11604 --- [case-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://127.0.0.1:3306/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false (MySQL 8.4)
+2026-09-23T16:28:37.470+08:00  WARN 11604 --- [case-service] [           main] o.f.c.internal.database.base.Database    : Using MySQL 8.4 which is newer than the version Flyway has been verified with. The latest verified version of MySQL is 8.1.
+2026-09-23T16:28:37.583+08:00  INFO 11604 --- [case-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 14 migrations (execution time 00:00.085s)
+2026-09-23T16:28:37.639+08:00  INFO 11604 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `case_db`: 14
+2026-09-23T16:28:37.648+08:00  INFO 11604 --- [case-service] [           main] o.f.core.internal.command.DbMigrate      : Schema `case_db` is up to date. No migration necessary.
+2026-09-23T16:28:39.422+08:00  INFO 11604 --- [case-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-09-23T16:28:39.515+08:00  INFO 11604 --- [case-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8083 (http) with context path '/'
+2026-09-23T16:28:40.211+08:00  INFO 11604 --- [case-service] [           main] c.r.c.outbox.RocketMqEventPublisher      : publishing core events to 127.0.0.1:9876
+2026-09-23T16:28:40.547+08:00  INFO 11604 --- [case-service] [           main] c.r.c.result.RocketMqResultListener      : listening on rf.commerce.core.v2 (broker topic rf-commerce-core-v2) for core results (group case-refund-result)
+2026-09-23T16:28:40.557+08:00  INFO 11604 --- [case-service] [           main] c.r.caseservice.CaseServiceApplication   : Started CaseServiceApplication in 17.123 seconds (process running for 21.459)
+2026-09-23T16:28:41.065+08:00  INFO 11604 --- [case-service] [nio-8083-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-23T16:28:41.066+08:00  INFO 11604 --- [case-service] [nio-8083-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-23T16:28:41.067+08:00  INFO 11604 --- [case-service] [nio-8083-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-09-23T16:28:48.836+08:00  INFO 11604 --- [case-service] [   scheduling-1] c.r.c.casefile.ExecutionDispatchLoop     : authorisation dc4e2745-4e5d-49d3-8939-c5dc971bf704 consumed: case 0683bdf5-64e3-4676-8110-6177b270c9a3 is executing, operation 5b28c286-f19e-41c7-bd33-1b3af8deb16d, event 8b6c39ec-e40d-481d-945c-b88c120165a0
+2026-09-23T16:28:48.837+08:00  INFO 11604 --- [case-service] [   scheduling-1] c.r.c.casefile.ExecutionDispatchLoop     : dispatch pass: 1 consumed, 0 not applicable, 0 failed
+2026-09-23T16:28:49.030+08:00  INFO 11604 --- [case-service] [   scheduling-1] c.r.c.outbox.OutboxDeliveryLoop          : outbox pass: 1 published, 0 failed, 0 dead
+2026-09-23T16:28:56.746+08:00  INFO 11604 --- [case-service] [refund-result_1] c.r.c.result.CaseResultConsumer          : result ac7e02bf-1b4a-4140-9788-8b410ba7c26e for case 0683bdf5-64e3-4676-8110-6177b270c9a3 recorded: operation 5b28c286-f19e-41c7-bd33-1b3af8deb16d is SUCCEEDED at Commerce version 3
+2026-09-23T16:28:57.358+08:00  INFO 11604 --- [case-service] [refund-result_2] c.r.c.result.CaseResultConsumer          : result ac7e02bf-1b4a-4140-9788-8b410ba7c26e for case 0683bdf5-64e3-4676-8110-6177b270c9a3 was delivered again; the first delivery stands
+2026-09-23T16:28:58.064+08:00  INFO 11604 --- [case-service] [   scheduling-1] c.r.c.casefile.ExecutionDispatchLoop     : authorisation 4d54b39a-96b9-414f-87bf-80d04c445083 consumed: case baf9bea1-7a1c-41e7-878b-33ea00986301 is executing, operation 45153f2c-3b48-4153-8fd7-d7b0b6e6d2d2, event ec3c36b3-005b-462b-826b-e7ca04629872
+2026-09-23T16:28:58.064+08:00  INFO 11604 --- [case-service] [   scheduling-1] c.r.c.casefile.ExecutionDispatchLoop     : dispatch pass: 1 consumed, 0 not applicable, 0 failed
+2026-09-23T16:28:58.345+08:00  INFO 11604 --- [case-service] [   scheduling-1] c.r.c.outbox.OutboxDeliveryLoop          : outbox pass: 1 published, 0 failed, 0 dead
+2026-09-23T16:29:04.827+08:00  INFO 11604 --- [case-service] [refund-result_3] c.r.c.result.CaseResultConsumer          : result 1b6bd2a6-95ef-4106-9252-53899783e430 for case baf9bea1-7a1c-41e7-878b-33ea00986301 recorded: operation 45153f2c-3b48-4153-8fd7-d7b0b6e6d2d2 is UNKNOWN at Commerce version 3
+2026-09-23T16:29:37.085+08:00  INFO 11604 --- [case-service] [refund-result_4] c.r.c.result.CaseResultConsumer          : result 4edebba9-4726-4bb0-8c3e-f984e19155a3 for case baf9bea1-7a1c-41e7-878b-33ea00986301 recorded: operation 45153f2c-3b48-4153-8fd7-d7b0b6e6d2d2 is SUCCEEDED at Commerce version 4

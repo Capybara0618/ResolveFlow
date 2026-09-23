@@ -637,6 +637,43 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   - **没做的**：CF3 定点（provider 结算但响应丢失 → `UNKNOWN`/`RECONCILING` → 不释放、不换 ID →
     对账收敛 → `SUCCEEDED` → 关单）仍是 c-4，**未运行**；上面"不变量与 CF1/CF2"里的 UNKNOWN 一条因此
     在本轮只是静态成立、没有被这次运行证明。
+- C05.2c-4 完成（2026-09-23）：**CF3 定点通过**——provider 结算成功但响应丢失，`UNKNOWN` 不释放、不换 ID，
+  由对账收敛后关单。**这是 C04.3 的对账面第一次在真实链路上被触发**（e2e 全绿 `RESULT: PASSED (92.2s)`）。
+  - **做法**：系统测试新增 `theUnknownFromALostResponseIsReconciledWithoutPayingTwice`，用 provider stub 的
+    lab 面（`POST /provider/v1/_lab/faults`，本就被 C04.1 设计成"给一个 operation 或给所有 operation 布故障"）
+    对**本轮那条 operation 的 id** 布 `LOST_RESPONSE`，绝不布"对所有 operation"——全局故障会漏进同一个 JVM 里的
+    另一条 happy path 测试，而 JUnit 方法顺序不是可以拿来做测试前提的东西。驱动为此给 CF3 **单独铸第二条行**，
+    并把派发循环的 poll 间隔从 500ms 调到 **8000ms**：布故障要在"预留已存在、命令还没被发出"之间插进去，
+    半秒一跳那是在赌，8 秒是确定性的窗口（这是实验配置，不是产品默认值，已在驱动里写明）。
+  - **真实得到的事实（CF3 的正确形状，比原先的预期更完整）**：`LOST_RESPONSE` 之后
+    `refund_operation.state='UNKNOWN'`、`payment_ledger` 仍是 `refunded=0 / reserved=2599`（**不释放**）、
+    `line_refund` 仍 `RESERVED` 且持有人是同一个 operation（**不换 ID**）；同时 provider 的 SQLite 里那条
+    已经是 `state=SUCCEEDED` 且 `attempts=1`——**两边真的不一致，这就是"丢失的响应"本身**。
+    Case 侧收到的是 `RefundUnknown` 事实（`case_result_inbox` 一行、`state=UNKNOWN`、已被投影消费），
+    工单进入 **`RECONCILING`** 且没有 `CASE_CLOSED`——**原先我以为 UNKNOWN 不会回传 Case，是错的**：
+    投影会把"还没有定论"如实告诉工单，否则工单会永远停在 `EXECUTING` 而操作员看不到任何痕迹。
+    清掉故障后，**对账循环自己**等到领域自己的退避时间、去问 provider、按答案结算：
+    operation → `SUCCEEDED`，且 `provider_ref` **等于 provider 自己记的那个 ref**；账面 `2599/0`、
+    slot `CONSUMED`；`case_result_inbox` 变成**两条不同的事实**（`RefundUnknown` 然后 `RefundSucceeded`，
+    各 1 次投递、无重复）；`CASE_CLOSED` 恰好 1 行；工单 `CLOSED_SUCCESS`。
+    **"没有付第二次"这件事由 provider 自己的文件说话**：`attempts=1`（驱动把 provider SQLite 读进报告）。
+  - **两处我自己的预期是错的，都留档**：① 断言"UNKNOWN 时 Case 什么都没收到"——实际 Case 收到了
+    `RefundUnknown` 并进 `RECONCILING`（run1 红）；② **又犯了一次同类错**：等到了 commerce 的 `UNKNOWN` 就
+    直接断言 Case 的反应，可 Case 的反应还隔着"commerce outbox → broker → case 监听器 → 投影"两跳，
+    断言必然抢在事实之前（run2 红，`expected: "RefundUnknown" but was: null`）。改成**等 Case 的反应**
+    （probe `RECONCILING`）后再断言它，run3 绿。同一个教训（**探/断言过渡态就是在和被测系统赛跑，
+    要等系统自己的影子**）在 c-3 的 RESERVED 上出现过一次，这里在下一层又出现一次——已写进本节。
+  - **命令与结果（含失败）**：驱动 `python scripts/e2e_refund_chain.py` 跑 4 次——run1 断言过早期望错
+    （`20260923-c052c4-run1-cf3-inbox-red.txt`）；run2 抢在 Case 反应之前（`…run2-cf3-reaction-race-red.txt`）；
+    **run3 `RESULT: PASSED (82.1s)`**；`spotless:apply` 后 **run4 `RESULT: PASSED (92.2s)`**（保证证据对应的
+    就是提交的那份文本）。`-pl case-service -am test` **179 条 0 失败 0 错误 3 skipped**（基线 177+2 条 env
+    开关默认跳过的链测试）、`spotless:check` **exit 0**、commerce 侧未再改动（上一片 70 条绿）。
+    证据归档 `reports/c052c-chain/`。
+  - **C05.2c 到此全部完成**：c-1 监听器、c-2 派发/对账入口、c-2b 单行不拖死、c-3 两段 e2e、c-4 CF3 定点，
+    五个子步都有真实命令与结果。**仍未做/仍未核**（不因完成而消失）：`amount_minor` 缺前置校验（只有 DB CHECK，
+    没有拒绝行）；`CaseResultVerifier.direction(...)` 靠报文文本分类；未知 `state` 的拒绝路径没有测试
+    （fixture 从 state 反推 event_type）；`case_result_rejection` 表是子代理引入的待核；
+    路由数量"Case 18 / Commerce 5 / Agent 5 = 28"与"Case 18 / Commerce 4 / Agent 5 = 27"两处记录仍矛盾。
 
 ### C04 持久模拟退款与本地金额事务
 
@@ -689,11 +726,11 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - [x] C05.1c：真实 RocketMQ + MySQL 的系统级退款 e2e（CF1/CF2 定点，含 5 个真实发现）。
 - [ ] C05.2：Case消费授权同事务发命令，Commerce结果投影/权威查询，连通人工方案到退款。
   - [x] C05.2a 授权消费与命令写入方；C05.2b 结果 outbox/传输/Case inbox 与投影（b-1…b-3b 全部完成）。
-  - [ ] C05.2c 真实链路两段 e2e 与 CF3 定点：**c-1 case 侧结果监听器、c-2 Commerce 退款推进入口（派发+对账两个循环）、c-2b 单行不拖死整趟、c-3 两段 e2e（真实 broker，已 PASSED）均已完成**；c-4 CF3 未做。
+  - [x] C05.2c 真实链路两段 e2e 与 CF3 定点：**c-1 case 侧结果监听器、c-2 Commerce 退款推进入口（派发+对账两个循环）、c-2b 单行不拖死整趟、c-3 两段 e2e（真实 broker，PASSED）、c-4 CF3 定点（丢响应→UNKNOWN→对账收敛→关单，PASSED）全部完成**；全链 e2e `RESULT: PASSED (92.2s)`。
 - 依赖：C03,C04。文件：messaging、Case执行、Commerce消费者及集成测试。
 - 验收：重复/乱序/ACK丢失不重复业务；目标确认成功才关单；失败释放后再试须新授权。
 - 验证：真实RocketMQ+MySQL系统退款测试，CF1/CF2/CF3定点冒烟。
-- 实际记录：C05.1a（2026-09-22）与 C05.1b（2026-09-23）的完整记录在本文件 C04 工作包记录**之前**（紧随 C03.3c-2 之后）；C05.1c（2026-09-23）紧随 C05.1b 之后；C05.2a/C05.2b-1…b-3b（2026-09-23）在其后；**C05.2c-1/c-2/c-2b/c-3 已完成、c-4 未执行**（记录见上）。
+- 实际记录：C05.1a（2026-09-22）与 C05.1b（2026-09-23）的完整记录在本文件 C04 工作包记录**之前**（紧随 C03.3c-2 之后）；C05.1c（2026-09-23）紧随 C05.1b 之后；C05.2a/C05.2b-1…b-3b（2026-09-23）在其后；**C05.2c-1/c-2/c-2b/c-3/c-4 全部完成**（记录见上）。
 
 ### C06 Agent控制面、MCP与能力冒烟
 
