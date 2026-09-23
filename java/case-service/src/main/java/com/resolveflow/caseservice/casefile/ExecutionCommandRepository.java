@@ -52,6 +52,27 @@ public interface ExecutionCommandRepository {
             """)
     StoredCommand findByAuthorizationId(@Param("authorizationId") String authorizationId);
 
+    /**
+     * The command this service issued for one operation, or {@code null} when it issued none.
+     *
+     * <p>This is how the result consumer (C05.2b-3a) resolves which case a signed result belongs to: the result
+     * payload names an operation and deliberately carries no {@code case_id}
+     * (contracts/core/event-envelope.schema.json, {@code refundResult}), so the operation-to-case mapping has to
+     * come from this service's own record of what it sent. The unique key on {@code operation_id} is what makes
+     * "the case for an operation" a single answer rather than a lookup that might find two.
+     */
+    @Select("""
+            SELECT authorization_id AS authorizationId,
+                   case_id          AS caseId,
+                   operation_id     AS operationId,
+                   event_id         AS eventId,
+                   input_revision   AS inputRevision,
+                   created_at       AS createdAt
+              FROM case_execution_command
+             WHERE operation_id = #{operationId}
+            """)
+    StoredCommand findByOperationId(@Param("operationId") String operationId);
+
     /** A stored command row, exactly as the table holds it. */
     record StoredCommand(
             String authorizationId,

@@ -84,6 +84,12 @@ public abstract class CaseDatabaseTest {
                 // The command table and the outbox are cleaned here because consuming an authorisation writes
                 // both (C05.2a), and the command row holds foreign keys into them: a case cannot be deleted
                 // while a command still names it.
+                // The result inbox points at the case too (C05.2b-3a), so it goes before aftersale_case. A
+                // rejected result does not point at a case, but it is cleared with the inbox because the two
+                // are one record of what arrived; leaving it behind would let one test's refusal look like the
+                // next test's.
+                "case_result_inbox",
+                "case_result_rejection",
                 "case_execution_command",
                 "event_outbox",
                 "agent_callback",
