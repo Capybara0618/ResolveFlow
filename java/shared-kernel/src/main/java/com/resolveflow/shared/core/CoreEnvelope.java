@@ -58,8 +58,34 @@ public final class CoreEnvelope {
 
         private static final long serialVersionUID = 1L;
 
+        /**
+         * What kind of problem refused the document.
+         *
+         * <p>It exists because a consumer has to file the refusal under its own name, and it used to work that
+         * out by reading {@link #getMessage()} for phrases like "does not come from". Reword one sentence here
+         * and a routing problem silently becomes a bad signature in another service's rejection log — the one
+         * place an operator looks. Callers switch on this instead; adding a reason makes every caller decide.
+         */
+        public enum Reason {
+            /** Not a usable core envelope: missing, blank, or speaking a schema version this service does not. */
+            MALFORMED,
+            /** Well formed, but addressed elsewhere — the wrong producer for the event type, or the wrong topic. */
+            WRONG_ROUTE
+        }
+
+        private final Reason reason;
+
         public EnvelopeException(String message) {
+            this(Reason.MALFORMED, message);
+        }
+
+        public EnvelopeException(Reason reason, String message) {
             super(message);
+            this.reason = reason;
+        }
+
+        public Reason reason() {
+            return reason;
         }
     }
 
@@ -235,13 +261,16 @@ public final class CoreEnvelope {
         String expectedProducer = producerOf(eventType.stringValue());
         JsonNode producer = envelope.get("producer");
         if (producer == null || !producer.isString() || !expectedProducer.equals(producer.stringValue())) {
-            throw new EnvelopeException(eventType.stringValue() + " does not come from "
-                    + (producer == null ? "anyone" : producer.stringValue()));
+            throw new EnvelopeException(
+                    EnvelopeException.Reason.WRONG_ROUTE,
+                    eventType.stringValue() + " does not come from "
+                            + (producer == null ? "anyone" : producer.stringValue()));
         }
         String expectedTopic = topicFor(eventType.stringValue(), expectedProducer);
         JsonNode topic = envelope.get("topic");
         if (topic == null || !topic.isString() || !expectedTopic.equals(topic.stringValue())) {
-            throw new EnvelopeException(eventType.stringValue() + " belongs on " + expectedTopic);
+            throw new EnvelopeException(
+                    EnvelopeException.Reason.WRONG_ROUTE, eventType.stringValue() + " belongs on " + expectedTopic);
         }
         if (envelope.path("schema_version").asInt(0) != 2) {
             throw new EnvelopeException("this service speaks core schema_version 2");

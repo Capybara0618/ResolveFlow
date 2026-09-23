@@ -1,5 +1,7 @@
 package com.resolveflow.caseservice.result;
 
+import com.resolveflow.caseservice.casefile.AuthorizationRepository;
+import com.resolveflow.caseservice.casefile.AuthorizationRepository.StoredAuthorization;
 import com.resolveflow.caseservice.casefile.CaseRepository;
 import com.resolveflow.caseservice.casefile.CaseRow;
 import com.resolveflow.caseservice.casefile.CaseStatus;
@@ -73,6 +75,10 @@ public class CaseResultConsumer {
     private final CaseResultRejectionLog rejections;
     private final ExecutionCommandRepository commands;
     private final CaseRepository cases;
+
+    /** Where the amount this case actually authorised is read from (C05.3d). */
+    private final AuthorizationRepository authorizations;
+
     private final Clock clock;
     private final ObjectMapper mapper;
 
@@ -82,6 +88,7 @@ public class CaseResultConsumer {
             CaseResultRejectionLog rejections,
             ExecutionCommandRepository commands,
             CaseRepository cases,
+            AuthorizationRepository authorizations,
             Clock clock,
             ObjectMapper mapper) {
         this.inbox = inbox;
@@ -89,6 +96,7 @@ public class CaseResultConsumer {
         this.rejections = rejections;
         this.commands = commands;
         this.cases = cases;
+        this.authorizations = authorizations;
         this.clock = clock;
         this.mapper = mapper;
     }
@@ -208,6 +216,32 @@ public class CaseResultConsumer {
             refusal(
                     CaseResultVerifier.Refusal.LINE_MISMATCH,
                     "the result names line " + lineId + " but case " + row.caseId() + " covers " + row.lineId(),
+                    verified,
+                    rawMessage);
+        }
+        // The money, checked against what this case actually authorised (C05.3d). A signature proves the
+        // document came from Commerce; it says nothing about the amount being the one this case agreed to, and
+        // until now the number in the message became the number in the case — recorded, shown to a person, and
+        // used to decide it was closed. This service owns the amount (the authorisation is its own record of
+        // it), so a result reporting different money is not a fact about this case, exactly like a wrong
+        // merchant or a wrong line.
+        StoredAuthorization authorization = authorizations.findByAuthorizationId(command.authorizationId());
+        if (authorization == null) {
+            // The command's authorisation is gone, so there is nothing left to check the money against. That is
+            // the same "cannot file this" case as a missing case row, and it is refused rather than compared
+            // against a number this service cannot vouch for.
+            refusal(
+                    CaseResultVerifier.Refusal.UNKNOWN_OPERATION,
+                    "operation " + operationId + " names authorisation " + command.authorizationId()
+                            + ", which no longer exists",
+                    verified,
+                    rawMessage);
+        }
+        if (authorization.amountMinor() != amountMinor) {
+            refusal(
+                    CaseResultVerifier.Refusal.AMOUNT_MISMATCH,
+                    "the result reports " + amountMinor + " minor, but case " + row.caseId() + " authorised "
+                            + authorization.amountMinor(),
                     verified,
                     rawMessage);
         }

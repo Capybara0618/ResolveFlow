@@ -39,7 +39,8 @@ public class CaseResultVerifier {
         WRONG_DIRECTION("the event type does not belong to the producer that claims it"),
         UNKNOWN_OPERATION("the result names an operation this service never issued a command for"),
         WRONG_MERCHANT("the result is scoped to a merchant that does not own the case"),
-        LINE_MISMATCH("the result names a line the case does not cover");
+        LINE_MISMATCH("the result names a line the case does not cover"),
+        AMOUNT_MISMATCH("the result reports money this case never authorised");
 
         private final String description;
 
@@ -96,7 +97,7 @@ public class CaseResultVerifier {
         try {
             return CoreEnvelope.verify(envelope, key);
         } catch (CoreEnvelope.EnvelopeException envelopeProblem) {
-            throw new RefusedEventException(direction(envelopeProblem), envelopeProblem.getMessage());
+            throw new RefusedEventException(refusalFor(envelopeProblem.reason()), envelopeProblem.getMessage());
         } catch (IllegalArgumentException signatureProblem) {
             // CoreEventSignature.CoreSignatureException extends IllegalArgumentException, and it is what a
             // tampered document raises. Catching only the envelope type would let a bad signature escape as an
@@ -105,10 +106,19 @@ public class CaseResultVerifier {
         }
     }
 
-    /** A wrong direction and a broken signature are different problems; the log has to say which. */
-    private static Refusal direction(CoreEnvelope.EnvelopeException problem) {
-        String message = problem.getMessage() == null ? "" : problem.getMessage();
-        boolean routing = message.contains("does not come from") || message.contains("belongs on");
-        return routing ? Refusal.WRONG_DIRECTION : Refusal.BAD_SIGNATURE;
+    /**
+     * This service's name for the shared kernel's reason.
+     *
+     * <p>A switch rather than a text match on purpose (C05.3d): the previous version decided by looking for
+     * phrases in the exception's message, which made the refusal code depend on another module's wording — and
+     * it defaulted everything unrecognised to {@code BAD_SIGNATURE}, so a wrong {@code schema_version} was
+     * filed as a tampered document. Both services make the same mapping, and the compiler now asks both of them
+     * for an answer whenever a reason is added.
+     */
+    private static Refusal refusalFor(CoreEnvelope.EnvelopeException.Reason reason) {
+        return switch (reason) {
+            case WRONG_ROUTE -> Refusal.WRONG_DIRECTION;
+            case MALFORMED -> Refusal.MALFORMED;
+        };
     }
 }

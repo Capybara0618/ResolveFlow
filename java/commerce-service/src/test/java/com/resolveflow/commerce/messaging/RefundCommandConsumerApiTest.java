@@ -358,6 +358,33 @@ class RefundCommandConsumerApiTest extends CommerceDatabaseTest {
     }
 
     @Test
+    @DisplayName("a protocol problem is filed under its own name, not as a bad signature")
+    void aProtocolProblemIsNotFiledAsABadSignature() throws Exception {
+        // C05.3d, mirroring Case's CaseResultConsumerApiTest: both verifiers now take the shared kernel's reason
+        // instead of searching its message for phrases. A schema_version this service does not speak is refused
+        // before the signature is checked, so calling it BAD_SIGNATURE sent an operator after a tampered
+        // document that does not exist.
+        String message = signedCommand(UUID.randomUUID().toString(), 2599);
+        String wrongVersion = message.replace("\"schema_version\":2", "\"schema_version\":1");
+        assertThat(wrongVersion)
+                .as("the tamper has to actually change the document")
+                .isNotEqualTo(message);
+        String eventId = MAPPER.readTree(wrongVersion).get("event_id").stringValue();
+
+        assertThatThrownBy(() -> consumer.consume(wrongVersion))
+                .isInstanceOf(EventVerifier.RefusedEventException.class)
+                .satisfies(error -> assertThat(((EventVerifier.RefusedEventException) error).refusal())
+                        .isEqualTo(EventVerifier.Refusal.MALFORMED));
+
+        assertThat(inbox.find(EventTrustConfiguration.REFUND_COMMAND_CONSUMER, eventId))
+                .isNull();
+        assertThat(inbox.rejections()).hasSize(1);
+        assertThat(inbox.rejections().get(0).reason())
+                .as("the rejection row is the one place an operator looks, so it has to name the real problem")
+                .isEqualTo("MALFORMED");
+    }
+
+    @Test
     @DisplayName("a protocol refusal is filed even though the consumer's transaction fails")
     void aProtocolRefusalSurvivesTheFailedTransaction() {
         // This is the case the separate rejection transaction exists for: the consumer is about to fail, and a

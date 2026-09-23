@@ -91,7 +91,7 @@ public class EventVerifier {
         try {
             return CoreEnvelope.verify(envelope, key);
         } catch (CoreEnvelope.EnvelopeException envelopeProblem) {
-            throw new RefusedEventException(direction(envelopeProblem), envelopeProblem.getMessage());
+            throw new RefusedEventException(refusalFor(envelopeProblem.reason()), envelopeProblem.getMessage());
         } catch (IllegalArgumentException signatureProblem) {
             // CoreEventSignature.CoreSignatureException extends IllegalArgumentException, and it is what a
             // tampered document raises. Catching only the envelope type would let a bad signature escape as an
@@ -100,10 +100,18 @@ public class EventVerifier {
         }
     }
 
-    /** A wrong direction and a broken signature are different problems; the log has to say which. */
-    private static Refusal direction(CoreEnvelope.EnvelopeException problem) {
-        String message = problem.getMessage() == null ? "" : problem.getMessage();
-        boolean routing = message.contains("does not come from") || message.contains("belongs on");
-        return routing ? Refusal.WRONG_DIRECTION : Refusal.BAD_SIGNATURE;
+    /**
+     * This service's name for the shared kernel's reason.
+     *
+     * <p>A switch rather than a text match on purpose (C05.3d), mirroring Case's {@code CaseResultVerifier}:
+     * deciding by phrases in another module's message made the refusal code depend on its wording, and the
+     * unrecognised default was {@code BAD_SIGNATURE} — so a wrong {@code schema_version} was filed as a tampered
+     * document. Both services make this mapping, and adding a reason makes the compiler ask both of them.
+     */
+    private static Refusal refusalFor(CoreEnvelope.EnvelopeException.Reason reason) {
+        return switch (reason) {
+            case WRONG_ROUTE -> Refusal.WRONG_DIRECTION;
+            case MALFORMED -> Refusal.MALFORMED;
+        };
     }
 }

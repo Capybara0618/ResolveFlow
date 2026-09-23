@@ -281,6 +281,84 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    @DisplayName("a refusal is filed under what went wrong, not under the signature's name")
+    void aDocumentProblemIsNotFiledAsABadSignature() {
+        // C05.3d. The refusal code used to be decided by searching the exception's message for two phrases, with
+        // everything unrecognised defaulting to BAD_SIGNATURE. A schema_version this service does not speak is
+        // not a bad signature — the version is refused *before* the signature is ever checked — so the row an
+        // operator read sent them looking for a tampered document instead of a producer on another protocol.
+        String eventId = UUID.randomUUID().toString();
+        String message = succeeded(eventId, MERCHANT, 3);
+        String wrongVersion = message.replace("\"schema_version\":2", "\"schema_version\":1");
+        assertThat(wrongVersion)
+                .as("the tamper has to actually change the document")
+                .isNotEqualTo(message);
+
+        assertThatThrownBy(() -> consumer.consume(wrongVersion))
+                .isInstanceOf(CaseResultVerifier.RefusedEventException.class)
+                .satisfies(error -> assertThat(((CaseResultVerifier.RefusedEventException) error).refusal())
+                        .isEqualTo(CaseResultVerifier.Refusal.MALFORMED));
+
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId))
+                .isNull();
+        assertThat(inbox.rejections()).hasSize(1);
+        assertThat(inbox.rejections().get(0).reason())
+                .as("a version problem is a malformed document, and the log has to say so")
+                .isEqualTo("MALFORMED");
+    }
+
+    @Test
+    @DisplayName("a result addressed to the other topic is refused as the wrong direction")
+    void aResultOnTheWrongTopicIsRefused() {
+        // The routing half of the same classification: the shared kernel now names the reason, so neither
+        // service depends on the wording of its message.
+        String eventId = UUID.randomUUID().toString();
+        String message = succeeded(eventId, MERCHANT, 3);
+        String wrongTopic = message.replace(CoreEnvelope.COMMERCE_TOPIC, CoreEnvelope.CASE_TOPIC);
+        assertThat(wrongTopic)
+                .as("the tamper has to actually change the document")
+                .isNotEqualTo(message);
+
+        assertThatThrownBy(() -> consumer.consume(wrongTopic))
+                .isInstanceOf(CaseResultVerifier.RefusedEventException.class)
+                .satisfies(error -> assertThat(((CaseResultVerifier.RefusedEventException) error).refusal())
+                        .isEqualTo(CaseResultVerifier.Refusal.WRONG_DIRECTION));
+
+        assertThat(inbox.rejections()).hasSize(1);
+        assertThat(inbox.rejections().get(0).reason()).isEqualTo("WRONG_DIRECTION");
+    }
+
+    @Test
+    @DisplayName("a correctly signed result for different money than the case authorised is refused")
+    void aResultForOtherMoneyThanAuthorisedIsRefused() {
+        // C05.3d. The signature proves the document came from Commerce; it says nothing about the amount being
+        // the one this case agreed to. Until this check existed, that number became the case's number: recorded,
+        // shown to a person, and the basis for closing the case — so a wrong amount would have closed it as a
+        // success. The fixture authorises 2599, which is why a result claiming 1 is the document to refuse.
+        String eventId = UUID.randomUUID().toString();
+
+        assertThatThrownBy(() -> consumer.consume(resultEnvelope(
+                        eventId,
+                        MERCHANT,
+                        CoreEnvelope.SUCCEEDED,
+                        1,
+                        "prv-amount-test",
+                        null,
+                        3,
+                        "commerce-service-demo-key",
+                        producerKey())))
+                .isInstanceOf(CaseResultVerifier.RefusedEventException.class)
+                .satisfies(error -> assertThat(((CaseResultVerifier.RefusedEventException) error).refusal())
+                        .isEqualTo(CaseResultVerifier.Refusal.AMOUNT_MISMATCH));
+
+        assertThat(inbox.find(CaseResultTrustConfiguration.RESULT_CONSUMER, eventId))
+                .as("money this case never authorised is not a fact about this case")
+                .isNull();
+        assertThat(inbox.rejections()).hasSize(1);
+        assertThat(inbox.rejections().get(0).reason()).isEqualTo("AMOUNT_MISMATCH");
+    }
+
+    @Test
     @DisplayName("a result signed with a key this service does not trust is refused")
     void anUntrustedSigningKeyIsRefused() {
         String eventId = UUID.randomUUID().toString();

@@ -833,6 +833,35 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
   **报文文本**分类（要两边一起改，本步未做）；Case 侧**仍不比**结果里的 `amount_minor` 与本工单批准金额
   是否一致（签名只证明"来自 Commerce"，不证明"与本次授权一致"——属契约决定）；为拒绝链**没有单独跑 e2e 红**
   （修复已在位后跑的 e2e，红的一半只有单元级证据）；驱动的固定名进程日志仍会覆盖上一轮。
+- C05.3d 完成（2026-09-23）：**把上面两个"已记录的脆弱点"一起收掉**（用户指定的那一小步）。
+  - **① 拒绝分类不再读报文文本**。共享内核 `CoreEnvelope.EnvelopeException` 新增类型化的 `Reason`
+    （`MALFORMED` / `WRONG_ROUTE`），`verify` 里"生产者不对""主题不对"两处标成 `WRONG_ROUTE`；两侧验证器都换成
+    `refusalFor(reason)` 的 **switch**，`EventVerifier`（commerce）与 `CaseResultVerifier`（case）**同批镜像改**，
+    两个类里的 `direction(...)` 文本匹配各删一份。**新增 reason 时编译器会同时问两边**——"必须两边一起改"
+    这条从注释里的叮嘱变成了机制。
+    - **顺带修掉同源的一个真错分类**：旧代码把不认识的 reason 一律默认成 `BAD_SIGNATURE`，于是
+      **`schema_version` 不对**（还有未签名、信封没有 event_type）被记成"签名被篡改"——而版本检查发生在
+      **验签之前**，那个签名**根本没被验过**。操作员照 `BAD_SIGNATURE` 去查被篡改的文档，实际是生产者
+      用了别的协议版本。现归入 `MALFORMED`。
+  - **② Case 侧现在校验"结果金额 = 本工单授权的金额"**（新增 `Refusal.AMOUNT_MISMATCH`）。消费者用命令里的
+    `authorization_id` 读**本服务自己**的 `case_authorization.amount_minor`（注入 `AuthorizationRepository`），
+    不等即拒；授权行不在了也拒（`UNKNOWN_OPERATION`，与"工单行不在了"同类：无从核对就不当事实）。代码注释
+    写明理由：**签名只证明"这份文档来自 Commerce"，不证明"金额是本次授权同意的那个"**；而在这一步之前，
+    那个数字会**变成工单自己的数字**——被记录、被人看到、并作为关单依据，一个错误金额会以"成功"关单。
+  - **红证据（真先红后绿，不是同批落地就算过）**：把两处逻辑临时还原成旧行为（两行改动）后单跑，然后
+    **还原并 grep 核验无残留**。日志 `reports/c053d-fragilities/20260923-c053d-red-old-logic-restored.txt`：
+    `aDocumentProblemIsNotFiledAsABadSignature` → `expected: MALFORMED but was: BAD_SIGNATURE`；
+    `aResultForOtherMoneyThanAuthorisedIsRefused` → **`Expecting code to raise a throwable`**（旧代码根本不拒，
+    直接接受——正是这句话想证明的事）。**如实标注**：第三条 `aResultOnTheWrongTopicIsRefused` 在旧代码下
+    **也是绿**（文本匹配恰好命中 "belongs on"），它是钉意图的 characterization，不冒充抓 bug 的红。
+  - 改动文件：`CoreEnvelope`、`CaseResultVerifier`、`EventVerifier`、`CaseResultConsumer`、
+    `CaseResultConsumerApiTest`(+3)、`RefundCommandConsumerApiTest`(+1)。
+  - **命令与结果**：聚焦两类 12/19 绿；`-pl case-service,commerce-service -am test` → shared-kernel **58** /
+    commerce **72** / case **185（4 skipped）**，全 0 失败；`spotless:check` **exit 0**；全链 e2e
+    **`RESULT: PASSED (111.5s)`**（三条链测试全过，确认金额校验不误伤真实链路）。证据 `reports/c053d-fragilities/`。
+  - **仍未做**：结果金额与**宿主机实际退款事实**的一致性 Case 侧无法独立核实（只有 Commerce 的操作行是权威），
+    已在注释里说明这一边界；`case_proposal` 与 `case_authorization` 之间的金额一致性另有 `ProposalReCheck` 守，
+    本步未动。
 
 ### C04 持久模拟退款与本地金额事务
 
