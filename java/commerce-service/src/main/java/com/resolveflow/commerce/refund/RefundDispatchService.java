@@ -135,11 +135,13 @@ public class RefundDispatchService {
         if (isTerminal(operation.state())) {
             return operation;
         }
-        operations.markUnknown(
+        // Through the settlement service rather than the repository directly, so the transition and the result
+        // event it owes the case share one transaction (C05.2b): a lost response the case never hears about is
+        // a case that keeps waiting for an answer this service already recorded as absent.
+        return settlements.settleUnknown(
                 operationId,
                 answer.reasonCode() == null ? reasonFor(answer) : answer.reasonCode(),
                 Instant.now().plus(RETRY_BACKOFF));
-        return require(operationId);
     }
 
     /**

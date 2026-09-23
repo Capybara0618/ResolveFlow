@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.resolveflow.commerce.CommerceDatabaseTest;
 import com.resolveflow.shared.contract.CanonicalJson;
+import com.resolveflow.shared.core.CoreEnvelope;
+import com.resolveflow.shared.core.CoreFixtures;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +21,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -37,6 +41,10 @@ import tools.jackson.databind.node.ObjectNode;
  *       the order accounting for more than it was paid.
  *   <li><b>Settlement is idempotent.</b> Settling the same operation twice moves the money once, which is
  *       the whole reason the state transition carries its expected state in the {@code WHERE}.
+ *   <li><b>The result the case is owed is written with the settlement</b> (C05.2b). Success, determined
+ *       failure and unknown each write their signed event in the transaction that moved the operation, its
+ *       payload is the contract's own shape (compared against `contracts/core/fixtures/expected.json`), and a
+ *       repeat writes nothing: the case can only learn what actually happened.
  * </ul>
  *
  * <p>These run on real MySQL through the real migrations: every guarantee here is a database guarantee
@@ -52,6 +60,9 @@ class RefundAcceptanceApiTest extends CommerceDatabaseTest {
     private static final String LINE_7001 = "7001";
 
     private static final String LINE_7002 = "7002";
+
+    /** The envelope's two optional members, absent here rather than null (event-envelope.schema.json). */
+    private static final java.util.List<String> CORRELATION_MEMBERS = java.util.List.of("causation_id", "traceparent");
 
     @Autowired
     RefundAcceptanceService acceptance;
@@ -71,6 +82,9 @@ class RefundAcceptanceApiTest extends CommerceDatabaseTest {
         // these tests are about, and deleting them would delete the world under test.
         jdbc.execute("DELETE FROM refund_request_inbox");
         jdbc.execute("DELETE FROM refund_operation");
+        // The result outbox too (C05.2b): a settlement now writes the event it owes, and these tests ask "what
+        // did this settlement send" — a row left by the previous test would answer for it.
+        jdbc.execute("DELETE FROM event_outbox");
         jdbc.execute("UPDATE line_refund SET state = 'FREE', operation_id = NULL, version = 1");
         jdbc.execute("UPDATE payment_ledger SET refunded_amount = 0, reserved_refund_amount = 0, version = 1");
     }
@@ -117,6 +131,165 @@ class RefundAcceptanceApiTest extends CommerceDatabaseTest {
 
     private ObjectNode fullLineCommand(String operationId) {
         return command(operationId, LINE_7001, 2599, 2, MERCHANT);
+    }
+
+    @Test
+    @DisplayName("a success writes the signed result the case is owed, in the settlement's own transaction")
+    void aSuccessWritesTheResultTheCaseIsOwed() {
+        acceptance.accept("req-1", fullLineCommand("op-1"));
+        settlement.settleSucceeded("op-1", "prv-1111");
+
+        JsonNode envelope = theOnlyResultEvent();
+        JsonNode example = contractExample("refund_succeeded");
+
+        assertThat(memberNames(envelope))
+                .as("the envelope is the contract's shape, member for member (event-envelope.schema.json)")
+                .isEqualTo(storedEnvelopeMembers(memberNames(example)));
+        assertThat(envelope.has("traceparent"))
+                .as("absent rather than null: the schema types it as a string, so null is not a second way to"
+                        + " say \"no trace\", and the contract's own result examples carry none")
+                .isFalse();
+        assertThat(envelope.has("causation_id"))
+                .as("Commerce does not record the command event id on the operation, so any value here would be"
+                        + " invented (documented gap, ResultEventOutbox)")
+                .isFalse();
+        assertThat(memberNames(envelope.get("payload")))
+                .as("and so is the result payload")
+                .isEqualTo(memberNames(example.get("payload")));
+        assertThat(envelope.get("event_type").stringValue()).isEqualTo("RefundSucceeded");
+        assertThat(envelope.get("topic").stringValue()).isEqualTo("rf.commerce.core.v2");
+        assertThat(envelope.get("producer").stringValue())
+                .as("a result is produced by the service that moved the money")
+                .isEqualTo("commerce-service");
+        assertThat(envelope.get("schema_version").asInt()).isEqualTo(2);
+        assertThat(envelope.get("merchant_id").stringValue()).isEqualTo(MERCHANT);
+
+        JsonNode payload = envelope.get("payload");
+        assertThat(payload.get("operation_id").stringValue()).isEqualTo("op-1");
+        assertThat(payload.get("line_id").stringValue()).isEqualTo(LINE_7001);
+        assertThat(payload.get("state").stringValue()).isEqualTo("SUCCEEDED");
+        assertThat(payload.get("amount_minor").asLong()).isEqualTo(2599);
+        assertThat(payload.get("provider_ref").stringValue()).isEqualTo("prv-1111");
+        assertThat(payload.get("reason_code").isNull())
+                .as("nothing refused it, and the member says so instead of being absent")
+                .isTrue();
+        assertThat(payload.get("aggregate_version").asLong())
+                .as("the version the contract points at is this operation row's own version")
+                .isEqualTo(operationVersion("op-1"));
+
+        // The case verifies exactly this document (C05.2b-2 will); verifying it here is what makes "signed" a
+        // claim about the stored bytes rather than about a non-empty column.
+        CoreEnvelope.verify(envelope, CoreEnvelope.publicKeyFromSpkiBase64(CoreFixtures.publicKeySpkiBase64()));
+    }
+
+    @Test
+    @DisplayName("a determined failure reports the refund that did not happen, and the money it released")
+    void aDeterminedFailureIsReported() {
+        acceptance.accept("req-1", fullLineCommand("op-1"));
+        settlement.settleFailed("op-1", "DECLINED");
+
+        JsonNode envelope = theOnlyResultEvent();
+        JsonNode example = contractExample("refund_failed");
+
+        assertThat(envelope.get("event_type").stringValue()).isEqualTo("RefundFailed");
+        assertThat(memberNames(envelope.get("payload"))).isEqualTo(memberNames(example.get("payload")));
+        JsonNode payload = envelope.get("payload");
+        assertThat(payload.get("state").stringValue()).isEqualTo("FAILED");
+        assertThat(payload.get("reason_code").stringValue())
+                .as("the case needs a reason it can act on, and it is the code, not a sentence")
+                .isEqualTo("DECLINED");
+        assertThat(payload.get("provider_ref").isNull()).isTrue();
+        assertThat(payload.get("aggregate_version").asLong()).isEqualTo(operationVersion("op-1"));
+        assertThat(reserved(orderIdOf(LINE_7001)))
+                .as("the event reports a release that really happened")
+                .isZero();
+        CoreEnvelope.verify(envelope, CoreEnvelope.publicKeyFromSpkiBase64(CoreFixtures.publicKeySpkiBase64()));
+    }
+
+    @Test
+    @DisplayName("an unknown answer is reported once, and a later outcome is still reported")
+    void anUnknownAnswerIsReportedOnce() {
+        acceptance.accept("req-1", fullLineCommand("op-1"));
+
+        settlement.settleUnknown("op-1", "PROVIDER_TIMEOUT", Instant.now().plusSeconds(60));
+        assertThat(resultEvents()).hasSize(1);
+        assertThat(theOnlyResultEvent().get("event_type").stringValue()).isEqualTo("RefundUnknown");
+        assertThat(reserved(orderIdOf(LINE_7001)))
+                .as("no answer releases nothing (docs/domain-model.md:15)")
+                .isEqualTo(2599);
+
+        settlement.settleUnknown("op-1", "PROVIDER_TIMEOUT", Instant.now().plusSeconds(60));
+        assertThat(resultEvents())
+                .as("a repeat moves no fact, so it announces none: the version did not move")
+                .hasSize(1);
+
+        settlement.settleSucceeded("op-1", "prv-1111");
+        java.util.List<JsonNode> events = resultEvents();
+        assertThat(events).hasSize(2);
+        assertThat(events.get(0).get("payload").get("aggregate_version").asLong())
+                .as("the outcome that follows the unknown carries the higher version, which is what lets the"
+                        + " case order them instead of believing whichever arrived last")
+                .isLessThan(
+                        events.get(1).get("payload").get("aggregate_version").asLong());
+        assertThat(memberNames(events.get(0)))
+                .isEqualTo(storedEnvelopeMembers(memberNames(contractExample("refund_unknown"))));
+    }
+
+    /**
+     * The contract's frozen envelope for one result (expected.json → signing_inputs), as a tree.
+     *
+     * <p>{@code signing_inputs} is the section to compare against: it holds the exact canonical bytes each
+     * frozen signature covers, which is the closest thing the corpus has to "the document the contract means".
+     */
+    private static JsonNode contractExample(String key) {
+        return MAPPER.readTree(
+                CoreFixtures.expected().get("signing_inputs").get(key).stringValue());
+    }
+
+    /**
+     * The members a stored envelope must have: the fixture's, minus the two correlation members this producer
+     * does not carry, plus {@code signature}.
+     *
+     * <p>{@code signing_inputs} is the document the signature <em>covers</em>, so it has no {@code signature}
+     * member by construction; what this service stores and publishes is that document plus the signature. The
+     * corpus writes the correlation members as explicit {@code null}s (they are byte records, not documents to
+     * imitate), while the schema types both as plain strings — so the only shape a producer may send for
+     * "absent" is omission.
+     */
+    private static java.util.List<String> storedEnvelopeMembers(java.util.List<String> fixtureMembers) {
+        java.util.List<String> members = new java.util.ArrayList<>(fixtureMembers);
+        members.removeIf(CORRELATION_MEMBERS::contains);
+        members.add("signature");
+        java.util.Collections.sort(members);
+        return members;
+    }
+
+    /** Member names, sorted: the comparison is about the shape, not the order inside the document. */
+    private static java.util.List<String> memberNames(JsonNode node) {
+        return node.properties().stream()
+                .map(java.util.Map.Entry::getKey)
+                .sorted()
+                .toList();
+    }
+
+    private JsonNode theOnlyResultEvent() {
+        java.util.List<JsonNode> events = resultEvents();
+        assertThat(events).as("exactly one result event").hasSize(1);
+        return events.get(0);
+    }
+
+    /** The result events written so far, in the order they were written. */
+    private java.util.List<JsonNode> resultEvents() {
+        return jdbc
+                .queryForList("SELECT envelope FROM event_outbox ORDER BY created_at, event_id", String.class)
+                .stream()
+                .map(MAPPER::readTree)
+                .toList();
+    }
+
+    private long operationVersion(String operationId) {
+        return jdbc.queryForObject(
+                "SELECT version FROM refund_operation WHERE operation_id = ?", Long.class, operationId);
     }
 
     private long refunded(String orderId) {
