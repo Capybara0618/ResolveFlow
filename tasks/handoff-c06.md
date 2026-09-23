@@ -27,6 +27,29 @@
 不一致"的样子报告一个纯行尾差异）。完整处置见 `docs/implementation-handoff.md` 的"开始步骤"第 5 条与
 `tasks/todo.md` 的 C03.3c-2 / C05.1b 两条事故记录。
 
+### 开工自检：先确认你在对的目录（**有两个孪生路径，已经踩过一次**）
+
+```
+真仓库（本文件所在）：E:\Code+Agent+Backend     ← E:\ 根目录下，整个名字就是 "Code+Agent+Backend"
+旧快照（不要用）：     E:\Code\Agent+Backend     ← E:\Code\ 里面，名字是 "Agent+Backend"
+```
+
+两者只差**一个 `+` 和一层目录**。旧快照停在 **C05.1a（`92405fd`）**，还带着 C05.1b 的未提交文件（那正是账本里
+"只能靠回放会话记录重建"的那批），所以它的账本会说"下一项在 C05.1c 与 C05.2 之间选"、`case_execution_command`
+无写入方、结果事件无 outbox——**这些在真仓库里早已不成立**（C05.2a/C05.2c 都已完成并在真 broker 上跑通）。
+2026-09-23 有一次新会话就开在旧快照里，于是白问了三个早就做完的问题。
+
+**开工第一条命令（离线可自证，不需要网络）**：
+
+```powershell
+Set-Location 'E:\Code+Agent+Backend'
+git log --oneline -1                # 必须不早于 C05.4（例如 f37266c 或它的后继）
+Test-Path tasks\handoff-c06.md      # 必须是 True
+```
+
+两条任一不满足 → **停下并报告，不要在错的目录里改任何东西**。（新会话里 `git ls-remote` 可能因沙箱无网络而
+失败，那不是判断依据。）
+
 ## 1. 一句话位置
 
 **C05 全部完成**（C05.1 消息与 outbox、C05.2 端到端、C05.3 复审收口、C05.4 债务清理），**已全部推送到 `origin/main`**，
