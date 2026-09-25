@@ -115,8 +115,10 @@ cd ..    ; pwsh -File scripts/verify.ps1 -Suite all-offline
 ```
 
 **本次实测（C08.1 收口时）**：`pytest tests` → **910 passed, 9 skipped**；ruff All checks passed；
-strict mypy **9 errors = 基线，零新增**。**`all-offline` 与 Java 全量本次未跑**（只改了 Python），
-新会话若要宣称整体绿，需要补跑这两条。
+strict mypy **9 errors = 基线，零新增**；`all-offline` → **PASSED**
+（`reports/verify/20260925-230443-all-offline.txt`）。**Java 全量本次未跑**——本轮只改了 Python，
+Java 最后一次全量是 C07.1 收口时的 **BUILD SUCCESS**（385 例 0 失败、4 skipped，那 4 个是"没跑"）。
+Java 未跑这件事在新会话里仍成立，除非它自己跑过。
 
 ## 7. 规矩（照旧）
 
