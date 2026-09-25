@@ -48,9 +48,11 @@ __all__ = [
 #: the Java tests mint theirs as ``agent-service`` (AgentCallbackApiTest:76), so the two ends agree.
 AGENT_SERVICE = "agent-service"
 
-#: What the callback surface accepts. Case's ``ServiceTokenFilter`` requires a service token and checks no
-#: scope (``verifyAsService`` reads only ``sub``), so the Agent presents one without a scope claim.
-CALLBACK_SCOPE = ""
+# The callback token is minted with ``scope=None`` (see ``deliver_due``): Case's callback route requires no
+# scope — that is a decision recorded in ``ServiceTokenFilter.requiredScope``, not an absence of one — so the
+# Agent names none rather than naming a scope it would not be checked against. A `CALLBACK_SCOPE = ""` constant
+# used to sit here saying the same thing while being referenced nowhere and reading as "the callback scope is
+# the empty string"; deleted rather than left as an unused second answer to the same question.
 
 DEFAULT_TIMEOUT_SECONDS = 5.0
 

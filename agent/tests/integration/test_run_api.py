@@ -184,6 +184,34 @@ def test_a_scope_that_is_not_run_dispatch_cannot_dispatch_a_run(client: Any) -> 
     assert refused.status_code == 403
 
 
+def test_a_multi_scope_tool_credential_cannot_dispatch_a_run(client: Any) -> None:
+    """AS02.3's Python half, at the HTTP level: the run routes ask for the *dispatch* scope.
+
+    The run's tool credential carries `commerce:read policy:read` and names the Agent as its subject, so this
+    route refuses it — on the missing dispatch scope, before the subject is even consulted
+    (``service_token_of`` runs before ``_dispatch_refusal``). Both facts are 403; this asserts the status, and
+    the scope rule specifically is pinned by the unit tests, where the distinction is legible.
+    """
+    token = mint_service_token("agent-service", SECRET, scope="commerce:read policy:read")
+
+    assert post_run(client, token, a_body()).status_code == 403
+
+
+def test_the_run_routes_ask_for_the_dispatch_scope_and_say_which_scope_is_missing(client: Any) -> None:
+    """The requirement is now visible at the route, and the refusal names it.
+
+    Before this step a single construction-time scope described one route while one verifier served them all, so
+    "which scope does this route need?" could not be answered from the route. The message is also part of the
+    contract's 403 answer (contracts/core/openapi-agent.yaml:262), so it is asserted rather than assumed.
+    """
+    token = mint_service_token("case-service", SECRET, scope="policy:read")
+
+    refused = post_run(client, token, a_body())
+
+    assert refused.status_code == 403
+    assert RUN_DISPATCH_SCOPE in refused.json()["detail"]
+
+
 def test_a_missing_or_broken_token_is_401(client: Any) -> None:
     assert client.post("/internal/v1/runs", json=a_body()).status_code == 401
     broken = client.post(

@@ -43,8 +43,17 @@ ISSUER = "resolveflow-demo-identity"
 SERVICE_AUDIENCE = "resolveflow-service"
 
 #: The scope a run-dispatch token must carry. The contract names it in the 403 example
-#: (contracts/core/openapi-agent.yaml:262) and it is the only scope this surface accepts.
+#: (contracts/core/openapi-agent.yaml:262).
 RUN_DISPATCH_SCOPE: Final = "run:dispatch"
+
+#: The scope Case mints onto a run's tool credential for reading Commerce's authoritative data
+#: (Java: ``ServiceScopes.COMMERCE_READ``). The Java filters already enforce it; these constants exist here so
+#: the Python side spells the same vocabulary rather than inventing a second one.
+COMMERCE_READ_SCOPE: Final = "commerce:read"
+
+#: The scope a run's tool credential carries for reading the policy a case is pinned to
+#: (Java: ``ServiceScopes.POLICY_READ``).
+POLICY_READ_SCOPE: Final = "policy:read"
 
 #: The service that dispatches runs. Named rather than inferred: "some service" is not an identity.
 CASE_SERVICE: Final = "case-service"
@@ -52,6 +61,11 @@ CASE_SERVICE: Final = "case-service"
 _ALGORITHM = "HS256"
 _MAC_ALGORITHM = "sha256"
 _MIN_SECRET_LENGTH = 16
+
+#: Sentinel meaning "this call did not say", which is not the same as "this call said no scope is needed".
+#: Public because ``app.py``'s ``service_token_of`` forwards it: a route that says nothing must reach the same
+#: default a direct ``verify`` call would, and re-deciding the default in the wrapper is how the two drift.
+UNSET_SCOPE: Final = object()
 
 
 class TokenRefusedError(Exception):
@@ -72,8 +86,9 @@ class VerifiedServiceToken:
 
     The body-agreement facts (``merchant_id``/``customer_id``) are carried through rather than dropped:
     docs/core-contracts.md:60 makes the body agree with the token, and it cannot agree with a token that
-    forgot what it was minted for. ``scope`` is permissive here (``run:dispatch`` when the claim is absent)
-    because a token that reached this point already had to be minted by the case dispatcher to get here.
+    forgot what it was minted for. ``scope`` is the raw claim (``None`` when the token named none) and what it
+    *permits* is decided per call by ``verify``'s ``required_scope`` — a token that reached this point either
+    carried the required scope, named scopes one of which was required, or named none at all.
     """
 
     subject: str
@@ -93,7 +108,14 @@ def content_hash_of(claims: dict[str, Any]) -> str:
 
 
 class ServiceTokenVerifier:
-    """The one place that turns a presented bearer token into a verified service identity."""
+    """The one place that turns a presented bearer token into a verified service identity.
+
+    **The required scope is a per-call argument, not a construction-time one.** It used to be baked in at
+    construction (defaulting to :data:`RUN_DISPATCH_SCOPE`), which was wrong in a way that hid the rule: one
+    verifier lives in ``app.state`` and serves every route, so a single construction-time scope described *one*
+    route and silently mis-described the others. It also meant a route's requirement could not be read from the
+    route. Requiring it per call puts the rule where the route is.
+    """
 
     def __init__(
         self,
@@ -101,7 +123,6 @@ class ServiceTokenVerifier:
         *,
         issuer: str = ISSUER,
         audience: str = SERVICE_AUDIENCE,
-        required_scope: str = RUN_DISPATCH_SCOPE,
     ) -> None:
         if not secret or len(secret) < _MIN_SECRET_LENGTH:
             # The same floor as the Java codec: a short demonstration secret is a mistake, not a choice.
@@ -109,10 +130,25 @@ class ServiceTokenVerifier:
         self._secret = secret.encode("utf-8")
         self._issuer = issuer
         self._audience = audience
-        self._required_scope = required_scope
 
-    def verify(self, authorization_header: str | None, *, now: int | None = None) -> VerifiedServiceToken:
-        """Verify an ``Authorization`` header value, or say which rule refused it."""
+    def verify(
+        self,
+        authorization_header: str | None,
+        *,
+        required_scope: str | None | object = UNSET_SCOPE,
+        now: int | None = None,
+    ) -> VerifiedServiceToken:
+        """Verify an ``Authorization`` header value, or say which rule refused it.
+
+        ``required_scope`` is what *this route* needs: a scope name, or ``None`` for a route that deliberately
+        requires none. Omitting it means :data:`RUN_DISPATCH_SCOPE`, which keeps the common case — a service
+        route reached by the dispatcher — reading the same as before, while making an unscoped route state its
+        decision out loud rather than by leaving an argument off.
+        """
+        if required_scope is UNSET_SCOPE:
+            required_scope = RUN_DISPATCH_SCOPE
+        if required_scope is not None and not isinstance(required_scope, str):
+            raise TypeError("required_scope must be a scope name or None")
         if authorization_header is None or not authorization_header.startswith("Bearer "):
             raise TokenRefusedError("Authorization must be 'Bearer <jwt>'")
         token = authorization_header[len("Bearer ") :].strip()
@@ -157,10 +193,14 @@ class ServiceTokenVerifier:
         subject = _required_text(claims, "sub")
 
         scope = _optional_text(claims, "scope")
-        if scope is not None and scope != self._required_scope:
-            # A token that names a scope must name this one. A token that names none is still scoped by
-            # the audience and the subject, so it is accepted (see VerifiedServiceToken).
-            raise TokenScopeError(f"the caller scope does not include {self._required_scope}")
+        if required_scope is not None and scope is not None and required_scope not in scope.split():
+            # A token that names scopes must name *this* one. Membership of the whitespace-split claim, not an
+            # equality against the whole string: the credential Case mints carries `commerce:read policy:read`
+            # in one claim, and comparing the whole string against one scope made such a token satisfy nothing.
+            #
+            # A token that names no scope is still scoped by the audience and the subject, so it is accepted
+            # (see VerifiedServiceToken); a present-but-empty claim is refused earlier by `_optional_text`.
+            raise TokenScopeError(f"the caller scope does not include {required_scope}")
 
         return VerifiedServiceToken(
             subject=subject,

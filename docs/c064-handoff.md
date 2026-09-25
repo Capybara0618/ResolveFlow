@@ -53,7 +53,7 @@
 
 - **⑤ 真端到端**：见上。
 - **Agent 没有 run 侧 worker**：`HarnessRunner` 是可被调用的类，没人从 PG 队列里取 run 来跑。"派发 → run 被跑 → 回调"这条线断在 Agent 侧。
-- **工具凭据的 scope：Java 侧已强制（2026-09-25 AS02.3 安全子步），Python 侧未改**：原先 `ToolCredentialService` 铸造了 `commerce:read policy:read`，但 Java 的 `ServiceTokenFilter` 只校验 aud/签名、**不校验 scope**，凭据只对 Java 的 `/internal` 路由有意义而 Java 侧没有逐路由检查——**"凭据已实现" ≠ "权限已执行"**。现在 Java 侧逐路由强制（Commerce 内部读要 `commerce:read`；Case 的 `policy-manifest` 与 `/internal/v1/policies` 要 `policy:read`，403 `FORBIDDEN_SCOPE`，词汇统一在 `shared-kernel` 的 `ServiceScopes`）。**仍未关闭的一半**：Python `ServiceTokenVerifier` 的 `required_scope` 默认仍是 `run:dispatch`，会把工具凭据当"scope 不符"拒绝。
+- **工具凭据的 scope：Java 与 Python 两侧都已强制（2026-09-25 AS02.3 安全子步）**：原先 `ToolCredentialService` 铸造了 `commerce:read policy:read`，但 Java 的 `ServiceTokenFilter` 只校验 aud/签名、**不校验 scope**，凭据只对 Java 的 `/internal` 路由有意义而 Java 侧没有逐路由检查——**"凭据已实现" ≠ "权限已执行"**。现在 Java 侧逐路由强制（Commerce 内部读要 `commerce:read`；Case 的 `policy-manifest` 与 `/internal/v1/policies` 要 `policy:read`，403 `FORBIDDEN_SCOPE`，词汇统一在 `shared-kernel` 的 `ServiceScopes`）。Python 侧 `ServiceTokenVerifier` 原先用**整个 claim 串**与单个 scope 做相等比较，于是多 scope 的凭据（`commerce:read policy:read`）对任何单 scope 要求都不成立；现改为逐 scope 成员判定，并把 scope 变成**按路由**的 per-call 参数。**仍未做的**：Python 侧目前**还没有任何路由**要求这两个 scope（工具凭据打 Python `/internal` 路由尚未成为真实路径），随 C07/C08 落地。
 - **`credential_source` 没有被生产代码组合**：只有测试显式装它。
 - 错误响应体仍是 FastAPI 的 `{"detail": …}`；`429 OVERLOADED` 无容量检查；`READ_OBSERVATION` 只做"读回本 run 已持有的观测"，**原文受限持久化未做**；Observation 落库未做。
 - strict replay 属 C10，未做。

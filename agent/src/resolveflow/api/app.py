@@ -32,6 +32,7 @@ from resolveflow.api.identity import (
     CASE_SERVICE,
     ISSUER,
     SERVICE_AUDIENCE,
+    UNSET_SCOPE,
     ServiceTokenVerifier,
     TokenRefusedError,
     TokenScopeError,
@@ -354,15 +355,22 @@ def run_store_of(source: FastAPI | Request) -> RunStore:
     return holder.require()
 
 
-def service_token_of(request: Request) -> VerifiedServiceToken:
+def service_token_of(
+    request: Request, *, required_scope: str | None | object = UNSET_SCOPE
+) -> VerifiedServiceToken:
     """Verify the presented service token, mapping each refusal to the status the contract declares.
 
     A missing or invalid token is 401; a valid token that was not minted for dispatching runs is 403 —
     the same split the case-service filter makes between "who are you" and "you may not".
+
+    ``required_scope`` is what *this route* needs and defaults to the dispatch scope, so the run routes read the
+    same as before while a route that requires something else (or nothing) says so at its own call site. It is a
+    per-call argument rather than a property of the shared verifier because one verifier serves every route: a
+    single construction-time scope described one route and silently mis-described the rest.
     """
     verifier: ServiceTokenVerifier = request.app.state.token_verifier
     try:
-        return verifier.verify(request.headers.get("authorization"))
+        return verifier.verify(request.headers.get("authorization"), required_scope=required_scope)
     except TokenScopeError as refusal:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(refusal)) from refusal
     except TokenRefusedError as refusal:

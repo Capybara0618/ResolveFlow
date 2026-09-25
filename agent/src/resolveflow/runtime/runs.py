@@ -122,28 +122,23 @@ class RunNotFoundError(LookupError):
 class VerifiedCaller:
     """The identity behind a verified service token, as the run store needs it.
 
-    The API layer builds this from the token; the store never sees the raw token. ``scope`` is carried
-    because "may this caller dispatch a run at all" is part of the contract (403 FORBIDDEN_SCOPE), and
-    ``merchant_id``/``customer_id`` are what docs/core-contracts.md:60 means by "the body must agree with
-    the service token": a dispatch may only name the subjects its own token was minted for.
+    The API layer builds this from the token; the store never sees the raw token. ``scope`` is carried as the
+    raw claim for the record, and ``merchant_id``/``customer_id`` are what docs/core-contracts.md:60 means by
+    "the body must agree with the service token": a dispatch may only name the subjects its own token was
+    minted for.
+
+    **Where the scope is enforced.** Not here. A ``require_run_scope`` method used to sit on this dataclass
+    comparing ``self.scope != required`` — the same whole-string equality that AS02.3 fixed in
+    ``ServiceTokenVerifier``, and wrong for the same reason (a claim carrying two scopes would satisfy
+    nothing). Rather than repair it in a second place, it and the ``RunScopeError`` it raised are deleted:
+    the check belongs where the token is verified (``ServiceTokenVerifier``, asked per route), and two
+    implementations of one rule is how the two ends drift. Nothing called it, so nothing replaces it.
     """
 
     service: str
     scope: str | None = None
     merchant_id: str | None = None
     customer_id: str | None = None
-
-    def require_run_scope(self, required: str) -> None:
-        if self.scope != required:
-            raise RunScopeError(f"the caller scope does not include {required}")
-
-
-class RunScopeError(RuntimeError):
-    """The service token is valid but was not minted for dispatching runs. A 403."""
-
-    status_code = 403
-    reason_code = "FORBIDDEN_SCOPE"
-
 
 @dataclass(frozen=True, slots=True)
 class RunRequest:

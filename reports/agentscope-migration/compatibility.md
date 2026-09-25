@@ -199,7 +199,21 @@ uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q --
 | 强制力的证明 | 反例而不是正例：8 个 Commerce 例中有 `policy:read` 单持被拒、`commerce:read` 单独被拒、用户令牌被拒、伪造签名 401；Case 侧 7 例同构。**变异验证**：把 `requiredScope` 改成不匹配后 `CaseScopeEnforcementTest` 立刻 2 例转红（`expected 403 but was 200`），证明护栏可红而非恒绿 |
 | 第一版测试的 bug（值得记住） | `@AutoConfigureRestTestClient` 单独使用**不换掉** `@SpringBootTest` 的 MOCK 环境，而 MOCK **不建容器、不跑 servlet filter**，请求直接进 controller。首轮 4 个反例（含**伪造签名**）全部返回 `200`，即当时根本没在测 scope。加 `webEnvironment = RANDOM_PORT` 后才真的在测。**若只写正例，这个错误会以全绿交付。** |
 | 真实端到端 | `20260925-161114-e2e-harness-java-tools.txt`：凭据读到 manifest（200），同路由只带 `commerce:read` 的同形令牌拿到 `403 FORBIDDEN_SCOPE`，`message='this route requires the policy:read scope'`（未回显已持有 scope）；五个工具在强制开启后仍全部成功。**原 driver 用无 scope 的部署令牌读 manifest —— 它本身就在依赖这个缺口**，已改为"先取凭据、再用凭据读" |
-| 仍未关闭 | **Python `ServiceTokenVerifier` 的 `required_scope` 默认仍是 `run:dispatch`**，工具凭据打 Python 自己的 `/internal` 路由仍会 scope 不符——本步只做 Java 侧 |
+| 仍未关闭 | **无**（两侧均已关闭）。**但 Python 侧目前还没有任何路由要求这两个 scope**——本步修的是"当路由提出要求时判定是否正确"，不是"已经有一条这样的路由"；真实消费方随 C07/C08 落地，届时按路由传 `required_scope` 即可 |
+
+### 8ter. AS02.3 安全子步 · Python 侧：scope 是集合，按路由提问（已完成）
+
+Java 的过滤器强制路由的 scope；`ServiceTokenVerifier` 是这条规则在 Python 的一端，而它错在**没有任何东西会发现**的地方：`scope != self._required_scope` 把**整个 claim 串**与一个 scope 做相等比较。工具凭据的 claim 是 `commerce:read policy:read`（RFC 6749 的空格分隔），所以 Python 侧一旦有路由要求其中任一 scope，这个凭据**永远不可能满足任何要求**——多带一个 scope 反而让 token 对所有单 scope 要求失效。
+
+| 项 | 内容 |
+| --- | --- |
+| 判定 | `required_scope in scope.split()`：空格分隔后的**逐 scope 精确成员**判定（与 Java `ServiceIdentity.hasScope` 同规则，`commerce:read:all` 不满足 `commerce:read`）；present-but-empty 的 claim 仍按畸形拒绝，不读成"没声明 scope" |
+| 接口 | scope 从**构造期属性**改为**按调用的参数**。原先 `app.state.token_verifier` 是全 app 共享的一个实例，却带着"某一个路由的要求"，其余路由的要求**无法从路由本身读出**。构造期参数**删除**而非保留——留着会让人以为它还在生效 |
+| 省略与显式 | 省略 `required_scope` = `run:dispatch`（保持原常用语义）；`None` = 该路由**有意**不要求 scope（回调路由） |
+| 先写失败测试 | 12 例，其中 9 例在接口存在前以 `TypeError` 失败，确认裂缝真实存在 |
+| 强制力的证明 | 变异：把判定改回 `scope != required_scope` → **恰好 3 例转红**；改回即绿 |
+| 顺带清掉的两处遗留 | ① `runtime/runs.py` 的 `VerifiedCaller.require_run_scope` 用**一模一样**的错误比较，且**零调用**、其 `RunScopeError` **从未被 raise**——不与它修成第二份实现，而是删除并写明"检查属于 token 验证处"；② `runtime/delivery.py` 注释称"Case 的过滤器不校验 scope（`verifyAsService` 只读 `sub`）"——本轮之后**这句是假的**，连同零引用的 `CALLBACK_SCOPE = ""` 一并改掉 |
+| 结果 | `pytest tests` → **791 passed, 9 skipped**（基线 779，+12 例，无退化）；ruff clean；strict mypy 仍是既有 9 个错误；`-Suite all-offline` PASSED |
 
 ## 8. 给审阅者的建议
 

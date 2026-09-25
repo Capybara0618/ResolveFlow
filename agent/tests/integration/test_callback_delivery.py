@@ -380,8 +380,10 @@ def test_the_token_presented_is_a_service_token_for_the_agent() -> None:
 
     post_delivery(CASE_BASE, Row(), secret=SECRET, ttl_seconds=300, timeout=2.0, transport=transport)
 
-    verifier = ServiceTokenVerifier(SECRET, required_scope="")  # the callback surface requires no scope
-    verified = verifier.verify(sent["token"])
+    verifier = ServiceTokenVerifier(SECRET)
+    # `required_scope=None`: the callback surface requires no scope. The scope is asked for at the call rather
+    # than at construction, because one verifier serves every route of the app (see identity.py).
+    verified = verifier.verify(sent["token"], required_scope=None)
     assert verified.subject == "agent-service"
     assert verified.audience == SERVICE_AUDIENCE
     assert verified.issuer == ISSUER

@@ -155,6 +155,88 @@ def test_a_token_that_names_no_scope_is_accepted_and_says_so() -> None:
     assert verifier().verify(header(token)).scope is None
 
 
+# ── the claim is a set of scopes, and a route asks for one of them ────────────────────────────────
+#
+# These are the Python half of AS02.3's security sub-step. Java's filters enforce their routes' scopes; this
+# verifier is the Python side of the same rule, and it was wrong in a way nothing caught: it compared the
+# *whole* claim against one scope, so a token carrying more than one scope could never satisfy any single
+# requirement. The credential Case mints for a run carries `commerce:read policy:read`, so the moment a
+# Python route asked for one of those scopes, the credential would have been refused.
+
+
+def test_a_token_whose_scopes_include_the_required_one_is_accepted() -> None:
+    """The shape Case actually mints: two scopes, one space-delimited claim (RFC 6749).
+
+    This is the case the old whole-string comparison could not express at all.
+    """
+    token = mint_service_token("agent-service", SECRET, scope="commerce:read policy:read")
+
+    claims = verifier().verify(header(token), required_scope="policy:read")
+
+    assert claims.scope == "commerce:read policy:read"
+
+
+def test_either_scope_of_a_multi_scope_credential_satisfies_its_own_requirement() -> None:
+    token = mint_service_token("agent-service", SECRET, scope="commerce:read policy:read")
+
+    assert verifier().verify(header(token), required_scope="commerce:read").subject == "agent-service"
+    assert verifier().verify(header(token), required_scope="policy:read").subject == "agent-service"
+
+
+def test_a_token_that_holds_the_other_half_is_refused() -> None:
+    """Carrying *a* scope is not carrying *this* scope — the refusal that keeps the check from being decorative."""
+    token = mint_service_token("agent-service", SECRET, scope="commerce:read")
+
+    with pytest.raises(TokenScopeError, match="policy:read"):
+        verifier().verify(header(token), required_scope="policy:read")
+
+
+@pytest.mark.parametrize("scope", ["commerce:read:all", "commerce", "read", "commerce:readx"])
+def test_a_scope_is_matched_exactly_never_as_a_substring(scope: str) -> None:
+    """``commerce:read:all`` must not satisfy ``commerce:read``.
+
+    Java's ``ServiceIdentity.hasScope`` says the same thing; a prefix or substring match is the classic way a
+    scope check becomes decorative, because every widening of a scope name then silently grants the narrower one.
+    """
+    token = mint_service_token("agent-service", SECRET, scope=scope)
+
+    with pytest.raises(TokenScopeError):
+        verifier().verify(header(token), required_scope="commerce:read")
+
+
+def test_extra_whitespace_does_not_hide_or_invent_a_scope() -> None:
+    """``split()`` collapses runs of whitespace, so "a  b" is two scopes and "" is none — same as Java's."""
+    token = mint_service_token("agent-service", SECRET, scope="  commerce:read   policy:read  ")
+
+    assert verifier().verify(header(token), required_scope="policy:read").subject == "agent-service"
+    with pytest.raises(TokenScopeError):
+        verifier().verify(header(token), required_scope="read")
+
+
+def test_an_empty_scope_claim_is_refused_as_malformed_rather_than_read_as_no_scope() -> None:
+    """Java refuses a present-but-empty member ("a claim to have a subject and no subject at the same time").
+
+    The two ends must agree here: if Python read ``""`` as "no scope named" it would accept a token the Java
+    filter would refuse, and the disagreement would only show up at runtime.
+    """
+    token = mint_service_token("case-service", SECRET, scope="")
+
+    with pytest.raises(TokenRefusedError, match="empty"):
+        verifier().verify(header(token))
+
+
+def test_a_route_that_requires_no_scope_still_accepts_a_scoped_credential() -> None:
+    """The callback route asks for nothing, which is a decision rather than an accident.
+
+    ``required_scope=None`` is how a route says so; the constructor no longer names one, because a verifier is
+    shared by every route in the app and a single construction-time scope is exactly the bug that made the
+    run routes' requirement invisible.
+    """
+    token = mint_service_token("agent-service", SECRET, scope="commerce:read policy:read")
+
+    assert verifier().verify(header(token), required_scope=None).subject == "agent-service"
+
+
 @pytest.mark.parametrize(
     "presented",
     [None, "", "Bearer", "Bearer ", "not-a-token", "a.b", "a.b.c", "Bearer a.b.c.d"],
