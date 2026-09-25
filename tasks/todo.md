@@ -1070,6 +1070,12 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
        - `docs/agent-harness.md`/`docs/agent-spec.md`/`docs/engineering.md` **未补充**本步新引入的东西：`RESOLVEFLOW_TOOL_TRACE_PAGES`、`McpToolExecutor` 每次调用一个子进程的取舍、以及工具凭据"铸造了但未被强制"这条现状。
        - Java 有 4 个 skipped（`CoreEventTransportSystemTest` 等），**仍然不是绿的，是没跑**。
      - **下一步**：⑤ 把 Harness 接进真实链路——最小诚实做法是让 `scripts/e2e_refund_chain.py` 起工具 server 与一个使用 `McpToolExecutor` 的调查步骤，让五个工具真的去读运行中的 Java（而不是桩）；随后把 run 侧 worker 与回调闭环留给 C08/C09。
+   - 提交与推送（2026-09-25，同一会话，用户指出后的返工）：**C06 从 1a 到 C06.4④b 此前一次都没提交过**——全部产出积攒在工作区（交接文件 `docs/c06-handoff.md:11` 记的"59 项未提交"到本会话末的 79 项，其中 52 个是新源码文件）。我原先只按 `AGENTS.md:44` 的"不擅自推送"行事，**把"不擅自推送"读成了"不要提交"**，于是停在最危险的状态：本仓库在 2026-09-22/23 两次被会话之外的进程静默回退，未提交的内容会真的消失。
+     - **仓库里其实写着正确做法，是我漏读了**：`tasks/handoff-c06.md:23-24` ——"**验证过的提交要尽快推到远端**；但**不擅自推送**，推送前需要用户点头"；`tasks/handoff-c052b3b.md:93` ——"工作区不可靠（本轮发生过两次静默回退）→ 验证过的提交要推送，证据放 `reports/`"。也就是说**"尽快提交推送"与"推送前问一次"是同一句话的两半**，而我只执行了后半句。`AGENTS.md` 本身**没有被改过**（`git diff HEAD -- AGENTS.md` 为空），这条规矩一直在。
+     - **处置**：`git add -A` 前先核对暂存内容——`.gitignore` 已覆盖 `target/`、`.venv/`、`.uv-cache/`、`test/`、`tmp/` 等，本次新增且需要忽略的只有 `.pytest-tmp/`（本机沙箱迫使门命令用 `--basetemp` 指到工作区），已补进 `.gitignore`；暂存后逐项确认里面**没有**本地产物，并按历史惯例把 `reports/c06-runs/` 的 67 份证据纳入（`reports/` 历史上就受版本控制，320 个文件）。提交 `51666d2`：**150 files changed, 28460 insertions(+), 39 deletions(-)**，工作树随后 clean。
+     - **结果**：`git push origin main` → `54b4eec..51666d2  main -> main`，exit 0（本次没有遇到交接文档记的 schannel 偶发失败）；推送后 `git fetch` 复核 **HEAD = origin/main = `51666d2d08b9b42c79050f6124672f0568190ed1`**，未推送提交 0、远端领先 0、工作树 clean，且 `git ls-tree -r origin/main` 里能看到 `harness/runner.py`、`harness/mcp_client.py`、`tools/credential.py`、`ToolCredentialService.java`、`docs/c064-handoff.md` 确实在远端。
+     - **教训（已写进 `docs/c064-handoff.md` 第 5 节陷阱 0）**：跑绿门之后**先提交**，再问用户能否推送；"没提交"不是保守，是把整包工作暴露在本仓库已经发生过两次的静默回退之下。
+
 
 
 

@@ -9,8 +9,8 @@
 | 项 | 值 |
 | --- | --- |
 | 工作副本 | `E:\Code\Agent+Backend`（**`Code` 与 `Agent` 之间是反斜杠**；书写路径时用正斜杠 `E:/Code/Agent+Backend`） |
-| HEAD | `54b4eec`（`main`，= `origin/main`） |
-| 未提交改动 | 78 项（C06 与 C06.4 的全部工作都在工作区，**未提交、未推送**） |
+| HEAD | `51666d2`（`main`，**= `origin/main`，已推送**） |
+| 未提交改动 | **0**（工作树干净）。C06 整包（1a→C06.4④b）此前一直积攒在工作区、一次都没提交，已于 2026-09-25 作为 `51666d2` 一次提交并推送（150 文件 / +28460） |
 | 容器 | `resolveflow-postgres-1`（`127.0.0.1:55432`）、`resolveflow-mysql-1`（`127.0.0.1:3306`）均 healthy |
 | `JAVA_HOME` | `C:\Users\hjn\.jdks\jdk-21.0.12.1+1` |
 
@@ -80,7 +80,14 @@ cd java; .\mvnw.cmd -B -pl case-service -am test "-Dtest=ToolCredentialApiTest" 
 
 ## 5. 已知陷阱（C06.4 新增的三条 + 沿用）
 
-1. **新增：pytest 必须有可写的 basetemp。** 本机沙箱下 `C:\Users\hjn\AppData\Local\Temp\pytest-of-hjn` 可能不可写（`PermissionError: [WinError 5]`，55 个 error），加 `--basetemp='E:/Code/Agent+Backend/.pytest-tmp'` 即可。**这不是仓库问题，别去改 conftest。**
+0. **最重要的一条，不是技术陷阱而是流程陷阱：验证过的提交要提交并推送，推送前问一次。**
+   `tasks/handoff-c06.md:23-24` 写的是"**验证过的提交要尽快推到远端**；但**不擅自推送**，推送前需要用户点头"，
+   `tasks/handoff-c052b3b.md:93` 写的是"工作区不可靠（本轮发生过两次静默回退）→ 验证过的提交要推送"。
+   **C06.4 会话把这两句读成了"不要推送"，结果连提交都没做**，把 79 项（52 个新源码文件）全留在工作区——
+   而本仓库在 2026-09-22/23 两次被会话之外的进程静默回退过，未提交的内容会真的消失。正确做法是：
+   **做完并跑绿门之后先提交，然后问用户是否可以推送**；不要停在"没提交"这一步。
+
+1. **pytest 必须有可写的 basetemp。** 本机沙箱下 `C:\Users\hjn\AppData\Local\Temp\pytest-of-hjn` 可能不可写（`PermissionError: [WinError 5]`，55 个 error），加 `--basetemp='E:/Code/Agent+Backend/.pytest-tmp'` 即可（`.pytest-tmp/` 已进 `.gitignore`）。**这不是仓库问题，别去改 conftest。**
 2. **新增：`mvnw` 要在 `java/` 里跑**（`cd java; .\mvnw.cmd …`）。从仓库根跑会找不到该文件。
 3. **新增：改为每次 `call_tool` 起一个工具 server 子进程后，任何"per run"的计数都不能留在那个进程里。** `tools/server.py` 的翻页计数靠 `RESOLVEFLOW_TOOL_TRACE_PAGES` 由 `McpToolExecutor` 传进去；新增同类状态时要走同一条路。
 4. **沿用：strict mypy 必须在 `agent/` 里跑**，从仓库根跑不加载 `agent/pyproject.toml`，会报假的 Success。（本次已复查：`cd agent` 下 9 个既有错误。）
