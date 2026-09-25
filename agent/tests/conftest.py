@@ -9,6 +9,7 @@ suite (scripts/verify.ps1).
 
 from __future__ import annotations
 
+import json
 import math
 import os
 import uuid
@@ -93,3 +94,42 @@ class StubEmbedder:
 @pytest.fixture()
 def stub_embedder() -> StubEmbedder:
     return StubEmbedder()
+
+
+def input_text_of(client: object, turn: int = -1) -> str:
+    """Everything a scripted model was handed on one turn, from **either** loop input shape.
+
+    Two shapes reach the model while they coexist (C08.1): the C06.4 evidence packet, which travels as one JSON
+    message, and the P0–P4 context packet, which travels as several rendered turns. A loop test's claim — "the
+    observation reached the next model call" — is about neither shape, so it asks this instead of reaching into one.
+
+    Both are returned as text, which is what makes it a *reading* rather than an assertion about a shape: a test
+    that needs the rendered layers looks for ``P2·fact``, and one that needs a field looks for ``key=value`` (both
+    appear in either shape, since the facts are rendered as ``key=value``). The first version assumed
+    ``conversations[turn]`` was a single message; it is a **list** of them, and the resulting
+    ``AttributeError`` is why two tests failed while this was being written.
+    """
+    packets = getattr(client, "packets", [])
+    if packets:
+        # The C06.4 shape: the whole input is the JSON mapping the mock parsed out of the last message.
+        return json.dumps(packets[turn], ensure_ascii=False, default=str)
+    conversations = getattr(client, "conversations", [])
+    if not conversations:
+        return ""
+    return "\n".join(
+        block.text
+        for message in conversations[turn]
+        for block in message.get_content_blocks()
+        if hasattr(block, "text")
+    )
+
+
+def packet_of(client: object, turn: int = -1) -> dict[str, object]:
+    """The structured packet the C06.4 loop hands the model, or an empty mapping for the context-builder shape.
+
+    The context builder does not hand over a mapping (it renders prose, which is the point), so a test that needs the
+    *structure* asks :func:`input_text_of` and looks at the rendered layers. Kept as a separate name so a caller is
+    explicit about which it wants.
+    """
+    packets = getattr(client, "packets", [])
+    return {} if not packets else dict(packets[turn])

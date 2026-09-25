@@ -46,6 +46,7 @@ from resolveflow.harness.model import MockModelClient, ModelReply, ModelUsage
 from resolveflow.harness.sdk_adapter import messenger_message
 from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import REASON_COMPLETED, RunFacts
+from tests.conftest import input_text_of
 
 RUN_ID = "5f2b1c3d-0000-4000-8000-000000000001"
 CASE_ID = "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -234,12 +235,14 @@ def test_the_observation_reaches_the_next_model_call() -> None:
 
     # What the model chose is what ran, arguments and all.
     assert tools.calls == [("get_shipment_trace", {"limit": 3})]
-    # And the tool's answer is in the input of the model's next call.
-    second = model.packets[1]
-    observed = [entry for entry in second["observations"] if entry.get("tool_name") == "get_shipment_trace"]
-    assert observed, f"the second model call did not carry the first call's observation: {second}"
-    assert observed[0]["source_version"] == "3"
-    assert second["step"] == 2
+    # And the tool's answer is in the input of the model's next call. Read through `input_text_of` rather than
+    # `model.packets`, because the loop's input shape can be the evidence packet or the P0–P4 context packet and this
+    # claim is about neither of them: what matters is that the shipment conclusion the tool returned is visible to the
+    # second call. (Reaching into `packets` is what made this test fail when the default flipped; the claim was fine,
+    # the access path was not.) That the same fact *also* reaches the model as a rendered `key=value` P2 line is the
+    # other shape's business, and `tests/integration/test_context_wiring.py` asserts it with the builder on.
+    second = input_text_of(model, 1)
+    assert "IN_TRANSIT" in second, f"the second model call did not carry the first call's observation: {second}"
 
 
 def test_a_proposal_ends_the_run_without_another_model_call() -> None:
@@ -268,8 +271,10 @@ def test_a_failed_read_is_handed_back_to_the_model_as_an_observation() -> None:
 
     assert result.completed is True
     assert model.calls == 2
-    handed_back = model.packets[1]["observations"]
-    assert handed_back and handed_back[0]["error"]["code"] == "NOT_FOUND"
+    # The failure is visible to the next call, as an error observation — read through the shared accessor so the
+    # claim does not depend on which input shape the loop is using.
+    handed_back = input_text_of(model, 1)
+    assert "NOT_FOUND" in handed_back, f"the failed read was not handed back: {handed_back}"
     # A failure is still an attempt: the budget that bounds the loop counts it.
     assert result.spend.tool_attempts == 1
 

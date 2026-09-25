@@ -86,9 +86,27 @@ class ModelClient(Protocol):
     ``messages`` are provider-agnostic turns (``role``/``content``); the client renders them for whatever
     provider it speaks to. The first message is always the harness's JSON packet, which is what
     ``docs/agent-harness.md:22`` saves as the exact input.
+
+    ``context`` is the second input, and it is separate from ``messages`` because the two answer different
+    questions (C08.1): ``messages`` is *what to send to a provider* — prose, bounded, hashed — while ``context`` is
+    the run's own structured view (observations, budget, step) which a **scripted** client reads to decide what to
+    do next. A script needs the cursor a previous page answered with, and it is not in the rendered prose; a
+    provider must not receive a second copy of the same facts in a different shape. ``None`` means the caller has
+    no structured view to offer.
+
+    ``sent_context`` is the rendered context packet itself, when the caller assembled one. It is passed for the
+    same reason ``context`` is: the two are genuinely different objects, and a caller that conflated them would
+    either send a provider the run's internal bookkeeping or leave a script without the cursor it needs.
     """
 
-    def decide(self, *, system: str, messages: list[Message]) -> ModelReply: ...
+    def decide(
+        self,
+        *,
+        system: str,
+        messages: list[Message],
+        context: dict[str, Any] | None = None,
+        sent_context: Any = None,
+    ) -> ModelReply: ...
 
 
 @dataclass(slots=True)
@@ -114,6 +132,16 @@ class MockModelClient:
     model_alias: str | None = "mock-scripted"
     #: Every packet handed to :meth:`decide`, in order, parsed from the last message.
     packets: list[dict[str, Any]] = field(default_factory=list)
+    #: Every **structured context** handed to :meth:`decide`, in order (C08.1). Separate from ``packets`` because
+    #: the two are different inputs: ``packets`` is what a test parses out of the rendered messages, while this is
+    #: the run's own view (observations, budget, step) that a *script* reads to choose its next action. A test that
+    #: wants to know what the model was *shown* reads ``conversations``; one that wants the view a script decided
+    #: from reads this.
+    contexts: list[dict[str, Any] | None] = field(default_factory=list)
+    #: The **rendered context packet** handed to :meth:`decide`, in order — the prose request the model received
+    #: when the context builder is on, and ``None`` when it is not. This is what "the model's input is a P0–P4
+    #: packet" is asserted against.
+    sent_contexts: list[Any] = field(default_factory=list)
     #: Every message list handed to :meth:`decide`, in order, for a test that needs the raw turns. AgentScope
     #: messages, because the SDK owns the conversation once the loop is its own (AS02).
     conversations: list[list[Message]] = field(default_factory=list)
@@ -136,14 +164,27 @@ class MockModelClient:
             raise ValueError("a scripted model needs at least one decision")
         return cls(script=list(decisions), repeat_last=True)
 
-    def decide(self, *, system: str, messages: list[Message]) -> ModelReply:
+    def decide(
+        self,
+        *,
+        system: str,
+        messages: list[Message],
+        context: dict[str, Any] | None = None,
+        sent_context: Any = None,
+    ) -> ModelReply:
         self.calls += 1
         self.conversations.append(messages)
+        self.contexts.append(context)
+        self.sent_contexts.append(sent_context)
         # The system prompt is recorded **with** the conversation rather than beside it: the packet a test reads
         # back is then the whole input the client was given, and a script that wanted to answer differently for a
         # different system prompt can see it. AS02's adapter passes the loop's own prompt through, so this is the
         # same string the SDK sent.
-        packet = _packet_of(messages)
+        #
+        # The packet a **script** is handed is the structured view when the caller offered one, and otherwise the
+        # mapping parsed out of the messages. That order is deliberate: a continuation script needs the cursor a
+        # previous page answered with, and the rendered prose does not carry it.
+        packet = context if context is not None else _packet_of(messages)
         if system:
             packet = {"system": system, **packet}
         self.packets.append(packet)

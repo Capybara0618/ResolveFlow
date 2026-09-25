@@ -163,12 +163,25 @@ class AgentScopeModelAdapter(ChatModelBase):
         messages: list[Msg],
         tools: list[dict[str, Any]] | None = None,
         tool_choice: Any = None,
+        context: dict[str, Any] | None = None,
+        sent_context: Any = None,
         **kwargs: Any,
     ) -> ChatResponse:
-        """Ask the harness's client once, and render its answer as AgentScope blocks."""
+        """Ask the harness's client once, and render its answer as AgentScope blocks.
+
+        The SDK hands this hook the conversation it built (``messages``); the loop's own structured view arrives as
+        ``context``, and the assembled context packet — when one was assembled — as ``sent_context``. All three are
+        forwarded because the client is what decides which of them a model or a script receives (C08.1), and an
+        adapter that dropped one would silently make that choice itself.
+        """
         # The SDK's messages go through **untouched**: the client protocol speaks AgentScope messages (see
         # `model.py`), so there is no translation here to get wrong and no second rendering of the conversation.
-        reply = self._client.decide(system=self._system, messages=list(messages))
+        reply = self._client.decide(
+            system=self._system,
+            messages=list(messages),
+            context=context,
+            sent_context=sent_context,
+        )
         self.replies.append(reply)
         self.modes.append(reply.mode)
         # Settle what the provider actually produced, if the caller wants the cumulative output meter to move.

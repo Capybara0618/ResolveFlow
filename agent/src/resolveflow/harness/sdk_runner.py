@@ -680,7 +680,14 @@ class _GateAwareClient:
             cumulative_remaining=max(0, budget.input_tokens - spent.input_tokens),
         )
 
-    def decide(self, *, system: str, messages: list[Msg]) -> Any:
+    def decide(
+        self,
+        *,
+        system: str,
+        messages: list[Msg],
+        context: dict[str, Any] | None = None,
+        sent_context: Any = None,
+    ) -> Any:
         if self._gate.stop_reason is not None:
             # The run has already stopped, so the model is **not asked again**. Without this the SDK kept
             # reasoning-acting after a budget refusal and the run ended on whichever bound fired next, naming the
@@ -699,16 +706,24 @@ class _GateAwareClient:
             )
         if self._runner.use_context_builder and self._view is not None:
             packet = self.prepare_packet(messages)
-            # The packet's own messages are what goes to the model, so the SDK's conversation is **not** forwarded
-            # with them: `docs/context-engineering.md:5` requires the final input to be the assembled one, and
-            # appending a transcript would be a second, unbounded input nobody measured or hashed.
-            reply = self._runner.model.decide(system=system, messages=_messages_of_packet(packet, messages))
+            # Two inputs, deliberately different (C08.1):
+            #  * the **model** is sent the assembled packet's own messages — prose, bounded, hashed — and *not* the
+            #    SDK's conversation, because `docs/context-engineering.md:5` requires the final input to be the
+            #    assembled one and an appended transcript would be a second, unbounded input nobody measured;
+            #  * a **script** is handed the run's structured view, which is where the cursor of a previous page and
+            #    the budget position live. Those are facts about the run rather than prose for a provider, and the
+            #    C06.4 packet is their existing rendering.
+            reply = self._runner.model.decide(
+                system=system,
+                messages=_messages_of_packet(packet, messages),
+                context=_packet_of(self._runner, self._guard, self.observations, self.turns),
+                sent_context=packet,
+            )
         else:
-            repeat = self.turns
             reply = self._runner.model.decide(
                 system=system,
                 messages=_with_current_packet(
-                    messages, self._runner, self._guard, self.observations, repeat
+                    messages, self._runner, self._guard, self.observations, self.turns
                 ),
             )
         decision = self._gate.check(reply.decision)
