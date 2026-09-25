@@ -35,6 +35,8 @@ from agentscope.middleware import MiddlewareBase
 # The project's own guards, imported rather than reimplemented. `tests/conftest.py` puts `agent/src` on the path;
 # a spike with its own copy of the budget rules would pass while the production rules changed.
 from resolveflow.harness.budget import (
+    REASON_BUDGET_INPUT_TOKENS,
+    REASON_BUDGET_OUTPUT_TOKENS,
     REASON_BUDGET_STEP_TOKENS,
     BudgetExhaustedError,
     BudgetGuard,
@@ -46,6 +48,7 @@ __all__ = [
     "DENY",
     "BudgetMiddleware",
     "CountingMiddleware",
+    "RecoveryAllowance",
     "RefusingPermissionMiddleware",
     "ToolNames",
 ]
@@ -245,6 +248,131 @@ class CountingMiddleware(MiddlewareBase):
 def budget_guard(budget: RunBudget | None = None) -> BudgetGuard:
     """A guard over the spec's budget, or a smaller one for a test that wants to reach the cap quickly."""
     return BudgetGuard(budget or RunBudget())
+
+
+# ------------------------------------------------------------------ recovery budget (user decision, 2026-09-25)
+
+
+class RecoveryAllowance:
+    """Budget set aside so a crashed run can pay for the reasoning turn recovery needs.
+
+    **The decision this implements.** `docs/agentscope-migration.md:50` requires every model request to be
+    checked and budgeted before it goes out, and AS01.2's probe found that resuming a parked reply costs one
+    further reasoning turn (the loop's next step after a tool result arrives — the interrupted call is *not*
+    re-issued). That turn has to be paid for, and the run's ordinary budget is exactly what may already be spent
+    when a crash happens, because a crash is most likely *because* the run was at its limit. So the run reserves
+    an allowance up front; the user's decision (2026-09-25) is to **reserve an allowance and still pre-charge the
+    turn, marked `RECOVERY_TURN`** — rather than exempting recovery from accounting.
+
+    **Why charging it is the point.** An allowance that were simply "free" would make the ledger disagree with
+    what the provider was asked for: the recorded spend would understate the run, and any later reconciliation
+    (or a strict replay of the trajectory) would compare a record against a cost that never appeared. Marking the
+    turn is what keeps `agent-spec.md:40`'s claim — every attempt counts against the run — true while still
+    letting a crashed run finish.
+
+    **What it is not.** It is not a reset: the run's ordinary budget is untouched and does not grow, and the
+    allowance is finite and consumed once. A run that crashes repeatedly does not get an unbounded recovery
+    budget; it gets ``recovery_model_calls`` turns in total, after which nothing more can be resumed and the run
+    has to be failed or escalated by its owner.
+    """
+
+    #: The ledger marker for a turn spent on recovery. Recorded per call, so a trajectory can tell a recovery
+    #: turn from an ordinary one without inferring it from timestamps.
+    RECOVERY_TURN: Final = "RECOVERY_TURN"
+
+    def __init__(self, guard: BudgetGuard, *, recovery_model_calls: int = 2) -> None:
+        if recovery_model_calls < 0:
+            raise ValueError("a recovery allowance cannot be negative")
+        self.guard = guard
+        self.recovery_model_calls = recovery_model_calls
+        self.recovery_turns_spent = 0
+        #: Every reservation decision this allowance made, in order, for a ledger and a test to read.
+        self.ledger: list[dict[str, Any]] = []
+
+    @property
+    def remaining(self) -> int:
+        return self.recovery_model_calls - self.recovery_turns_spent
+
+    def note_recovery_turn(self, *, input_tokens: int, output_tokens: int, reason: str) -> bool:
+        """Charge one recovery turn against the allowance, and say whether it was allowed.
+
+        **Why this does not call `reserve_model_call`.** The first version did, and it could never succeed: a run
+        is at its model-call cap *by definition* when recovery matters, so the ordinary reservation refused the
+        very turn the allowance exists to pay for. The test
+        ``test_a_recovery_turn_is_allowed_after_the_ordinary_budget_is_spent`` caught exactly that.
+
+        So the allowance bypasses the **model-call** cap while still enforcing every other cap, and still charges
+        the spend. That distinction is the decision: a run may exceed its ordinary call count by the reserved
+        allowance and by nothing else — per-step token caps, cumulative token caps and the deadline all still
+        apply — and the turn appears in the spend so the ledger matches what the provider was asked for.
+
+        Returns a bool rather than raising so the caller decides what an exhausted allowance means for the run
+        (stop, fail, escalate) — the allowance answers the budget question, it does not choose the run's fate.
+        """
+        if self.remaining <= 0:
+            self.ledger.append(
+                {
+                    "kind": self.RECOVERY_TURN,
+                    "allowed": False,
+                    "reason": reason,
+                    "detail": "the recovery allowance is exhausted",
+                }
+            )
+            return False
+        try:
+            self._reserve_recovery_call(input_tokens=input_tokens, output_tokens=output_tokens)
+        except BudgetExhaustedError as exhausted:
+            self.ledger.append(
+                {
+                    "kind": self.RECOVERY_TURN,
+                    "allowed": False,
+                    "reason": reason,
+                    "detail": f"the run refused it: {exhausted.reason_code}",
+                }
+            )
+            return False
+        self.recovery_turns_spent += 1
+        self.ledger.append(
+            {"kind": self.RECOVERY_TURN, "allowed": True, "reason": reason, "turn": self.recovery_turns_spent}
+        )
+        return True
+
+    def _reserve_recovery_call(self, *, input_tokens: int, output_tokens: int) -> None:
+        """The reservation a recovery turn makes: every cap **except** the model-call cap.
+
+        The caps are re-checked here rather than delegated, because the one that has to be skipped is the one
+        `reserve_model_call` checks first. Repeating three checks is the price of not weakening the production
+        guard for a spike-only decision; if AS02 adopts this, the parameter belongs on `BudgetGuard` itself, where
+        it can be tested as part of the run's budget instead of beside it.
+        """
+        if input_tokens < 0 or output_tokens < 0:
+            raise ValueError("token counts cannot be negative")
+        self.guard.check_deadline()
+        if input_tokens > self.guard.budget.step_input_tokens or input_tokens > self.guard.budget.input_tokens:
+            raise BudgetExhaustedError(
+                REASON_BUDGET_STEP_TOKENS,
+                f"a recovery turn asking for {input_tokens} input tokens exceeds the run's per-step or cumulative "
+                "input cap",
+            )
+        if output_tokens > self.guard.budget.step_output_tokens or output_tokens > self.guard.budget.output_tokens:
+            raise BudgetExhaustedError(
+                REASON_BUDGET_STEP_TOKENS,
+                f"a recovery turn asking for {output_tokens} output tokens exceeds the run's per-step or "
+                "cumulative output cap",
+            )
+        if self.guard.spend.input_tokens + input_tokens > self.guard.budget.input_tokens:
+            raise BudgetExhaustedError(
+                REASON_BUDGET_INPUT_TOKENS, "the run has no input tokens left for a recovery turn"
+            )
+        if self.guard.spend.output_tokens + output_tokens > self.guard.budget.output_tokens:
+            raise BudgetExhaustedError(
+                REASON_BUDGET_OUTPUT_TOKENS, "the run has no output tokens left for a recovery turn"
+            )
+        # Counted, not hidden: the spend is what the run reports, and a recovery turn the provider was asked for
+        # has to appear in it (docs/agentscope-migration.md:50, docs/agent-spec.md:40).
+        self.guard.spend.model_calls += 1
+        self.guard.spend.input_tokens += input_tokens
+        self.guard.spend.output_tokens += output_tokens
 
 
 #: The reason code a step-cap refusal carries, re-exported so a test does not have to import two modules.

@@ -18,6 +18,7 @@ import anyio
 from agentscope.agent import Agent, ReActConfig
 from agentscope.message import Msg
 from agentscope.model import ChatModelBase, ChatResponse
+from agentscope.state import AgentState
 from agentscope.tool import ToolBase, Toolkit
 
 # `ToolResultState` is the state a `ToolChunk` carries. AgentScope 2.0.8 does not list it in
@@ -26,7 +27,12 @@ from agentscope.tool import ToolBase, Toolkit
 # scattered through the tests.
 from agentscope.tool._response import ToolResultState  # type: ignore[attr-defined]
 
-from resolveflow_spike.adapter import BudgetMiddleware, RefusingPermissionMiddleware, ToolNames
+from resolveflow_spike.adapter import (
+    BudgetMiddleware,
+    RefusingPermissionMiddleware,
+    ToolNames,
+    budget_guard,
+)
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 ACTIONS_PY = REPO_ROOT / "agent" / "src" / "resolveflow" / "harness" / "actions.py"
@@ -181,9 +187,10 @@ def agent_with(
     model: ChatModelBase,
     tools: list[ToolBase],
     *,
-    permission: RefusingPermissionMiddleware,
-    budget: BudgetMiddleware,
+    permission: RefusingPermissionMiddleware | None = None,
+    budget: BudgetMiddleware | None = None,
     max_iters: int = 10,
+    state: AgentState | None = None,
 ) -> Agent:
     # ``Toolkit.add_tool`` is a **coroutine**, which is easy to miss: an un-awaited call leaves the toolkit
     # empty, and the loop then does not fail -- it quietly produces a final text reply as though the model had
@@ -201,7 +208,8 @@ def agent_with(
         system_prompt="You investigate one order line. Use only the tools you are given.",
         model=model,
         toolkit=toolkit,
-        middlewares=[permission, budget],
+        state=state,
+        middlewares=[permission or RefusingPermissionMiddleware(WHITELIST), budget or BudgetMiddleware(budget_guard())],
         react_config=ReActConfig(max_iters=max_iters),
     )
 

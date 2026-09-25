@@ -127,6 +127,35 @@ uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q --
 2. **继续 AS01.2 的真实 PG 部分**：把上面 6.3 第 2 条的五项做成真 PG/跨进程探针。这是规格原文要求的收尾，也是进入 AS02 的前置。
 3. **向上游确认**（可选）：`ExternalExecutionResultEvent` 是否是官方推荐的恢复入口，以及是否支持"零额外推理调用"的续接。若不是，第 1 条就是最终形态。
 
+## 6bis. 用户决定（2026-09-25）与实现
+
+两条决定已落进 spike 代码并有测试，不再是建议：
+
+**决定 1：恢复预留额度，并把恢复轮**显式记 `RECOVERY_TURN` 照常预占**。** 实现 `spikes/agentscope/src/resolveflow_spike/adapter.py::RecoveryAllowance`，测试 `tests/test_recovery_budget.py`（6 例）。
+
+- 语义：run 保留 `recovery_model_calls`（默认 2）的额度。普通预算**不增长**；恢复轮**跳过 model-call 上限**（因为 run 到恢复时按定义已在该上限上），但**仍然强制**单步 token 上限、累计 token 上限与 deadline，**并且计入 run 自己的 spend**——所以台账与 provider 实际被请求的次数一致（`agent-spec.md:40`）。
+- **实现时被自己的测试抓到一个设计错误**：第一版让 `note_recovery_turn` 直接调 `reserve_model_call`，于是它**永远不可能成功**——普通预算已耗尽正是需要恢复的前提。测试 `test_a_recovery_turn_is_allowed_after_the_ordinary_budget_is_spent` 立刻红了。改为"跳过 model-call 上限、其余照查"后转绿。
+- 额度**有限且不是重置**：用完即拒并记录原因，是否 fail/escalate 由 run 的属主决定（`agent-migration.md:69` 禁止静默续期）。
+
+**决定 2：MCP 走本项目自带的 mcp 2.2.0 客户端。** 测试 `test_the_projects_own_mcp_client_is_the_path_agentscope_uses` 钉住这个边界：AgentScope 只拿"已经是普通 Python 对象"的工具，spike 的适配层源码里**不出现 `agentscope.mcp`**。理由见 §3 的 4 处 camelCase 缺口 + `agent-migration.md:30` 要求保留官方 stdio 路径（`harness/mcp_client.py` 本就是那条路，且有真 MCP 测试）。AS02 因此不需要等上游修复。
+
+## 6quater. AS01.2 真实 PG 关卡结果（已完成）
+
+实现：`spikes/agentscope/src/resolveflow_spike/recovery_store.py`（fence 保护的 run 快照 + 稳定调用账，真 PostgreSQL，spike 自己的临时 schema）；测试 `tests/test_recovery.py`（8 例）。**未改 `agent/` 生产代码或依赖锁。**
+
+| 要求 | 探针 | 结果 |
+| --- | --- | --- |
+| 结果已落库而快照未推进 → 复用且不重复计费 | `test_a_saved_response_is_reused_and_not_charged_twice` | 通过：`record_response` 后不 `advance_snapshot`，新 worker 读回**逐字相同**的响应；恢复前后 `spend` 不变 |
+| 未落库窗口记 UNKNOWN、可重试、成本保留 | `test_a_call_without_a_saved_response_is_unknown_and_retryable` | 通过：`record_request` 落 `UNKNOWN` 且 `response IS NULL`；`recorded_response` 返回 `None`（**不伪造答案**）；重试**复用同一 `call_id`**（行数仍为 1）后转 `SAVED` |
+| 旧 fence 写快照/终局被拒 | `test_a_superseded_worker_cannot_advance_the_run` | 通过：旧的 fence 写 snapshot / spend / response **三者都抛 `StaleFenceError`**，且什么都没落；当前 fence 仍可推进（证明拒绝的是"所有权"而非"run 坏了"） |
+| 预算/deadline 不重置 | `test_a_resume_does_not_reset_the_budget_or_the_deadline`、`test_the_run_budget_still_bounds_the_model_calls_after_a_resume` | 通过：新 claim 即使传不同 budget 与 `None` deadline，读回仍是**原 deadline 与原 budget**，`spend` 保持；用记录的 budget 重建 guard 恰好允许 12 次 |
+| **跨连接/跨进程**恢复 | `test_the_snapshot_is_readable_from_a_separate_process` | 通过：**子进程**用自己的连接读同一 schema 的快照，`AgentState.model_validate` 成功且上下文长度一致 |
+| 从持久状态重建 Agent | `test_a_rebuilt_agent_continues_from_the_persisted_state` | 通过：重建**不调用模型**（`model.calls == 0`），上下文与服务端一致 |
+
+**一处我自己写错并当场修掉的实现缺陷**：第一版 `_require_fence` 自己开一个连接查 fence，然后**另一个连接**写快照——这正是 `agent-migration.md:66` 点名的禁止做法（"不能先查fence再另开连接写"）。已改为把 fence 检查放进**每个写事务内部**、作为第一条语句，并 `SELECT … FOR UPDATE` 取行锁。
+
+**仍然未做**：AS01.3 禁网络回放；`ExternalExecutionResultEvent` 的 `reply_id` 与快照不一致时的行为；放弃/取消后迟到结果的隔离（属 C09）；生产 `RunStore`/worker 接入（属 C09，本步只证明形状与要求可满足）。
+
 ## 7. 未验证 / 未运行（不得读成通过）
 
 - **AS01.2、AS01.3 未执行**：无真实 PG 恢复探针、无禁网络回放探针。
