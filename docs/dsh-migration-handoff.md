@@ -1,18 +1,20 @@
-# Claude Code → DeepSeek Harness 迁移交接
+# DeepSeek Harness交接 · v1.3 AgentScope迁移
 
-更新时间：2026-09-18（v1.2范围修订后）。本文件只保存跨客户端继续工作所需的索引与迁移边界；项目事实、实现状态和验证证据仍以各自权威文件为准。
+更新时间：2026-09-25。本文件保存DSH开工索引和跨客户端边界；项目事实、实现状态和验证证据仍以任务账本与代码为准。旧Claude Code迁移档案保留，不作为当前实施计划。
 
-## v1.2优先交接
+## v1.3优先交接
 
-用户已确认个人项目瘦身。当前范围以docs/core-scope.md为准，目标协议见docs/core-contracts.md，执行账本改为C00–C13。T00–T02已有完成记录，下一项C00，不再继续旧T03–T39；代码尚未完成v1.2迁移。先保存当前进度并检查是否有其他客户端同时编辑，再继续，不删除旧代码、测试或原始会话档案。
+用户已确认个人项目范围保持不变，仅将LangGraph替换为AgentScope 2.x Python SDK。当前从AS00接管→AS01隔离验证→审阅→AS02生产切换，再回C07–C13；C00–C05已有完成记录，不重做。完整规格和可复制提示词见[agentscope-migration.md](agentscope-migration.md)。代码与依赖锁尚未迁移，不把目标当成果。
+
+先保存当前进度并检查其他客户端是否同时编辑；本轮文档修改前已有8项未提交代码/测试/脚本改动，按实时git状态接管，不能覆盖或丢弃。可收口已有C06.4⑤联调，但停止继续扩展旧循环/LangGraph方案。`docs/c064-handoff.md`仅供迁移前基线与欠账核对。
 
 下方“迁移时的工作断点”只描述此前客户端迁移瞬间，不能覆盖新任务账本。旧contract文档仍供T02兼容测试解析，核心协议要独立迁移，不能直接删除接口/断言来瘦身。
 
 ## 继续工作时的读取顺序
 
 1. 根目录 `AGENTS.md`：长期实施约束与不可变规则。
-2. `tasks/todo.md`：唯一进度账本、已完成项、验证结果和下一任务。
-3. `docs/implementation-handoff.md` 与 `tasks/plan.md`：实施路径和依赖关系。
+2. `README.md`、`docs/core-scope.md`、`docs/agentscope-migration.md`：范围、替换边界与技术门禁。
+3. `tasks/todo.md`顶部/AS区块、`docs/implementation-handoff.md`顶部与`tasks/plan.md`：当前进度、下一任务和依赖；原C06历史按需检索。
 4. 当前任务涉及的专题规格、契约、源码和测试；不要用旧聊天覆盖工作区现状。
 5. 只有在上述资料无法解释某项历史决定时，才查阅下方 Claude Code 原始档案。
 

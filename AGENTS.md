@@ -2,22 +2,22 @@
 
 ## 当前目标
 
-框架v1.2，2026-09-18。用户已确认：这是展示个人能力的简历项目，不做公司级平台。保留领域Agent Harness和可靠退款的深度，减少业务宽度与平台配套。T00–T02有完成记录，v1.2代码迁移尚未执行；任务账本优先于旧聊天。
+框架文档v1.3，2026-09-25：用户批准AgentScope 2.x Python SDK替代LangGraph，保持v1.2个人项目范围和验收深度，不做公司级平台。C00–C05已有完成记录、C06正在推进；本轮只改文档，AgentScope代码迁移未执行。任务账本优先于旧聊天。
 
 ## 开始工作
 
-1. 读README.md、docs/core-scope.md、docs/implementation-handoff.md、docs/dsh-migration-handoff.md、tasks/plan.md、tasks/todo.md。
+1. 读README.md、docs/core-scope.md、docs/agentscope-migration.md、docs/implementation-handoff.md、docs/dsh-migration-handoff.md、tasks/plan.md及tasks/todo.md顶部/AS区块；历史记录按当前任务定位。
 2. 检查工作区现状与当前实际记录，再读当前任务相关规格/源码/测试；不加载整个旧聊天。
-3. 当前从C00开始，复用T00版本锁与T01/T02骨架/契约，不按旧T03–T39推进。
+3. 当前从AS00接管开始，AS01验证通过并经用户审阅后做AS02，再接回C07–C13；不重做C00，不按旧T03–T39推进。非Agent框架依赖沿用原锁。
 4. 已有客户端可能仍在执行旧计划，发现同文件并行编辑先确认交接，不能覆盖别人的改动。
 
 ## 规范权威
 
-范围以docs/core-scope.md为准，业务以product-spec、状态/不变量以domain-model、Agent以agent-harness及agent-spec/context-engineering/trajectory-replay为准。
+范围以docs/core-scope.md为准，业务以product-spec、状态/不变量以domain-model、Agent以agent-harness及agent-spec/context-engineering/trajectory-replay为准；本次框架替换与技术门禁以docs/agentscope-migration.md为准。AgentScope只负责主循环，领域Harness仍负责硬约束；运行快照/fence须重新实测，不能继承T00的LangGraph通过结论。
 
 docs/core-contracts.md是当前目标协议；docs/contracts.md与现有根目录Schema/OpenAPI是T02旧兼容基线。C00创建contracts/core、对应类型/fixture与核心路由覆盖，旧测试保留。不把旧Schema允许的RESHIP当核心可执行权限，也不删除断言来通过迁移。
 
-tasks/todo.md中的C00–C13是当前计划；tasks/archive与旧审阅记录仅为历史，旧T35–T39“全部必做”已撤销，核心部分纳入新任务。规范冲突应指出并解决，不任选方便版本。
+tasks/todo.md中的AS00–AS02为框架迁移插入段，C00–C13仍为核心交付计划；tasks/archive与旧交接/审阅记录仅为历史，旧T35–T39“全部必做”已撤销。规范冲突应指出并解决，不任选方便版本。
 
 ## 固定范围与不变量
 
@@ -37,7 +37,8 @@ tasks/todo.md中的C00–C13是当前计划；tasks/archive与旧审阅记录仅
 ## 实施方式
 
 - 按纵向小步，单次通常3–5核心文件；大工作包先拆子步，先关键失败测试再实现。
-- 复用Java21/Spring/MyBatis与Python/FastAPI/LangGraph现有锁；不再做无证据的主版本重选。
+- 复用Java21/Spring/MyBatis与Python/FastAPI/MCP/PG现有锁；仅Agent框架获准迁移AgentScope 2.x，先隔离spike再锁正式发布版本，不混1.x/dev API，不全栈重选。
+- 唯一生产Agent循环由AgentScope驱动；不将原HarnessRunner完整循环套进SDK。预算/权限拦截覆盖所有模型/工具调用，SDK会话保存不等于受fence保护的恢复。
 - 风格/命令见docs/engineering.md；已有verify入口可用，但未来suite/profile未实现不可零步骤报成功。
 - 契约、类型、fixture、生产者/消费者同步；迁移只追加，不改已执行迁移。
 - 每完成项记录日期、文件、实际命令、测试/报告、失败与未运行；不得只勾任务。

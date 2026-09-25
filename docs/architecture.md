@@ -1,6 +1,6 @@
-# 系统架构 · v1.2核心版
+# 系统架构 · v1.3 AgentScope目标版
 
-按[核心范围](core-scope.md)收缩部署与业务，不更换T00实测版本。
+按[核心范围](core-scope.md)保留v1.2部署与业务；仅Agent框架按[迁移规格](agentscope-migration.md)替换，其他T00实测版本不重选。本页是目标架构，不代表AgentScope代码已实现。
 
 ## 1. 部署单元
 
@@ -9,7 +9,7 @@
 | gateway :8080 | 入口路由、JWT验证、入口限流；无业务库 |
 | case-service :8083 | case_db：工单、材料、政策、方案、审批、授权、进度、Java→Python任务outbox |
 | commerce-service :8081 | commerce_db：订单、支付账、退款操作/预留、模拟物流快照、退款provider适配 |
-| agent-service :8090 | agent_db：run、LangGraph checkpoint、模型/工具记录、上下文、政策索引 |
+| agent-service :8090 | AgentScope单Agent；agent_db：run、领域运行快照、模型/工具调用账、上下文、政策索引 |
 | provider-stub | 独立持久模拟退款通道，用于丢响应/重启实验；非核心业务微服务 |
 
 Java按api/application/domain/infrastructure分包；共享库不共享Mapper或业务实体，禁止跨库join。Python API与worker共镜像，可分进程运行；同run单执行者。
@@ -36,7 +36,7 @@ Case完成授权消费并在同事务建立固定operation_id与RefundRequested 
 
 v1.2替代旧ADR01/04及涉及履约的编排设计：三个Java进程+Python；单退款本地金额预留；以真实消息重复/未知结果展示可靠性。保留领域Harness、结构化规则与检索分离、版本授权、mock/live分开。
 
-不构建通用Harness平台。LangGraph承担图执行/checkpoint，自有代码仅实现本场景上下文、预算、受控工具、证据验证与记录。完整反事实回放退出核心。
+v1.3替换Agent运行实现：AgentScope SDK承担唯一推理—行动循环；自有领域Harness通过受控适配/中间件实现上下文、预算、工具、证据验证与终止，PG RunStore和薄恢复适配承担快照/调用账/fence。SDK状态持久化不能自动替代项目事务语义，AS01须验证公开接口可接入，生产恢复归C09。不套双重循环、不部署AgentScope整套Agent Service，也不构建通用Harness/图平台。完整反事实回放仍退出核心。
 
 ## 5. 资源与发布
 

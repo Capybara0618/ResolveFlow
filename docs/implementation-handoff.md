@@ -1,8 +1,20 @@
-# 实现模型交接 · v1.2
+# 实现模型交接 · v1.3 AgentScope迁移
 
-目标是个人技术展示，不是公司级平台。用户已批准瘦身；请从[核心范围](core-scope.md)、[新任务账本](../tasks/todo.md)继续，不按旧40项计划推进。
+目标是个人技术展示，不是公司级平台。用户已批准AgentScope 2.x SDK替换LangGraph，v1.2业务范围和验收保持不变；请从[迁移规格与DSH指令](agentscope-migration.md)、[核心范围](core-scope.md)、[任务账本](../tasks/todo.md)继续，不按旧40项计划推进。
 
-## 当前事实
+## 当前开始步骤（2026-09-25，优先于下方历史快照）
+
+1. 读AGENTS、README、core-scope、agentscope-migration、dsh-migration-handoff、tasks/plan，以及todo顶部/AS区块；C06记录按需查阅，不整体加载旧聊天。
+2. 核对实时git status与HEAD，接管现有8项代码/测试/脚本改动线索，确认没有其他客户端同时改文件。旧交接写“工作树干净”不构成当前事实。
+3. 当前从AS00开始，C00–C05已有完成记录；C06已有run/回调/MCP/Harness原型，C06.4⑤真实Java联调待现场核实。不能再照旧文档重建空包或从C00开始。
+4. AS01在隔离spike证明依赖、唯一SDK循环、硬拦截、PG恢复及strict可行；提交报告审阅后再AS02改生产锁与循环。C07–C13继续保留，AS探针不等于生产恢复/回放已完成。
+5. 不修改Java业务语义、不删旧测试/迁移/数据库；不启用多Agent或平台。不擅自推送、付费调用或公网部署。发现工作区异常先停止冲突写入并报告，不自行reset/覆盖。
+
+当前LangGraph只有依赖锁/历史spike接入，Agent正式循环仍是自写原型，具体模型为mock；这轮文档不代表AgentScope已安装。最新已记录基线和欠账见todo及docs/c064-handoff.md；后者是迁移前历史快照，不是新开工指令。
+
+## 历史实现快照（2026-09-23，保留追溯，不作当前起点）
+
+### 当时事实
 
 T00–T02有已完成证据，包含锁、骨架、旧协议与测试。C00（核心协议与启动范围迁移）已完成：`contracts/core` 下已有 profile、三个 v2 Schema、三份核心 OpenAPI、正反 fixture 与冻结期望值，Python/Java 两侧核心 DTO 与跨语言字节级一致测试，启动/smoke 已按 core profile 选择。旧资料见tasks/archive，不要重新生成全部项目或删除已有测试。
 
@@ -41,7 +53,7 @@ C05.4 债务清理）。当前可复现的证据：case **187（4 skipped）** /
 开工先核对 HEAD；本仓库曾被会话之外的进程静默回退过两次，若发现 HEAD 明显落后、或文件在批量消失，
 按下面"开始步骤"第 5 条处置。
 
-## 开始步骤
+## 历史开始步骤（已被顶部v1.3入口替代）
 
 1. 读AGENTS.md、README.md、core-scope、dsh-migration-handoff、tasks/plan和todo。
 2. 检查git status与当前实现；并行客户端如仍在改同一文件，先停止冲突编辑并确认交接，不覆盖其工作。
@@ -67,4 +79,4 @@ C05.2b-3"已经过时——C05.2b-3、C05.2c、C05.3（复审收口）与 C05.4�
 
 ## 可直接给DSH的指令
 
-> 项目已调整为v1.2个人项目核心版。请先停止按旧T03–T39清单扩展，保存当前进度，不删除现有代码。阅读AGENTS.md、docs/core-scope.md、docs/core-contracts.md、docs/implementation-handoff.md和tasks/todo.md，检查工作区后从C00开始。复用T00–T02成果，保持旧兼容测试，并新增核心协议/profile，不实现延期功能。每次交付一个可验证小步骤，执行相关测试、更新实际记录；不要把目标规格当成已有实现，不启动未经确认的收费评测。
+使用[AgentScope迁移规格第8节](agentscope-migration.md#8-给dsh的首轮提示词)的完整首轮提示词。首轮只做AS00+AS01.1，不直接迁移全部代码；AS01恢复/回放门禁经审阅后才进入AS02，再接回原核心任务。不要从C00重做。

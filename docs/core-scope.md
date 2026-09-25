@@ -1,6 +1,6 @@
-# ResolveFlow v1.2：个人项目核心版
+# ResolveFlow：个人项目核心范围（v1.3文档，业务沿用v1.2）
 
-2026-09-18。用户已确认：目标是展示个人技术能力，不做公司级平台。本文件规定当前范围，优先于v1.1的必做清单。技术正确性不降级，但不追求商业流量、完整售后系统或通用Agent平台。
+2026-09-25修订。用户已确认：目标是展示个人技术能力，不做公司级平台。本文件规定当前范围，优先于v1.1的必做清单。v1.3仅批准AgentScope替换LangGraph，详见[迁移规格](agentscope-migration.md)；v1.2业务、预算与核心实验规模不变。技术正确性不降级，但不追求商业流量、完整售后系统或通用Agent平台。
 
 ## 1. 唯一主链路
 
@@ -25,21 +25,21 @@
 
 ## 3. 部署与已有资产
 
-目标为Gateway + Case + Commerce三个Java进程与一个Python Agent服务。Case/Commerce各自MySQL库，Agent用PG/checkpointer/pgvector，Redis用于非权威缓存或入口限流，RocketMQ用于退款命令/结果。继续使用已实测的版本锁，不重开T00版本选型。
+目标为Gateway + Case + Commerce三个Java进程与一个Python Agent服务。Case/Commerce各自MySQL库，Agent用AgentScope 2.x Python SDK、PG领域运行快照/调用账及pgvector，Redis用于非权威缓存或入口限流，RocketMQ用于退款命令/结果。非Agent框架继续使用已实测版本锁；仅AgentScope及必要适配由AS01先验证、AS02再锁定，不重开整个T00。
 
 物流作为Commerce内明确标识的模拟外部数据适配模块，不冒充真实承运商接口；不再维护独立履约数据库。退款provider-stub仍需持久化和可注入故障，但不计核心微服务。
 
 Nacos、Sentinel及完整OTel/Prometheus/Grafana/Tempo不是核心交付门槛；保留已验证依赖，默认核心运行可用Compose DNS/显式服务地址，不依赖这些配套。不能为瘦身全量重搭脚手架。
 
-已有fulfillment骨架、v1协议、fixture及测试保留为兼容资产，默认不部署，不据此宣传完成该能力。文档更新不等于代码已迁移。迁移由C00实施。
+已有fulfillment骨架、v1协议、fixture及测试保留为兼容资产，默认不部署，不据此宣传完成该能力。核心profile迁移C00已有完成记录；本次AgentScope迁移另走AS00–AS02，文档更新不等于代码已迁移。
 
 ## 4. 当前事实与规范优先级
 
-任务账本记录T00–T02完成；本轮未重做其测试或宣称完成业务功能。README等早期“从未实现”的说法不再适用。新任务C00起均待实施。
+任务账本已有T00–T02、C00–C05完成记录，C06已实现部分控制面/工具面/Harness原型，C07–C13未完成。当前先执行AS00接管与AS01兼容性验证；本轮未重跑业务测试，未安装AgentScope，不把历史LangGraph测试认作新框架通过。
 
 当前范围以本文件为准；业务/状态/Agent细节以当前专题文件为准。新协议目标见[核心契约](core-contracts.md)，现有[旧协议基线](contracts.md)和contracts根目录旧Schema是T02兼容基线，不代表当前所有端点都必须实现。C00先建立可机读的核心协议和选择清单，不允许靠关闭旧测试解决冲突。
 
-[新任务账本](../tasks/todo.md)取代旧T03–T39必做顺序；旧记录保存在[todo归档](../tasks/archive/v1.1-todo.md)，仅用于追溯，不自动加入当前任务。
+[新任务账本](../tasks/todo.md)取代旧T03–T39必做顺序；AS00–AS02是本次框架替换的插入段，不增加业务范围。旧记录保存在[todo归档](../tasks/archive/v1.1-todo.md)，仅用于追溯，不自动加入当前任务。
 
 ## 5. 核心完成标准
 

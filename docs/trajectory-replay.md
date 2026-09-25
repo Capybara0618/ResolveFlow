@@ -2,6 +2,8 @@
 
 仅实现strict离线回放选定完整合成案例。counterfactual-recorded、counterfactual-world及新策略分支覆盖平台退出核心，不在C10验收。
 
+v1.3框架接入见[迁移规格](agentscope-migration.md)：回放必须运行同版本AgentScope与同一领域Harness逻辑，替换模型/工具/Clock/存储/回调边界为离线适配，不保留LangGraph作为第二回放引擎。AS01的小型可行性探针不等于C10交付。
+
 ## 1. 范围
 
 运行记录包含run input、不可变manifest、实际ContextPacket、显式模型响应、工具参数/Observation、usage与终止原因。使用现有记录表导出ReplayPack，不强制完整session_event体系或事件溯源。
@@ -22,7 +24,7 @@ pack包括文件hash清单、source_run_id、schema版本、scope及版本、逻
 
 evaluation_run_id隔离存储；原run ID仅作为非授权数据匹配。不加载业务凭证，不连接原库、Java、MQ或模型endpoint；工具adapter只读pack，CallbackSink只写本地结果。
 
-strict在禁网络进程/容器中运行，用内存或独立临时回放存储，不使用生产checkpointer连接。测试确实拦住网络和业务写入，不只检查配置布尔值。
+strict在禁网络进程/容器中运行，用内存或独立临时回放存储，不使用生产RunStore/SDK持久化连接。关闭SDK遥测、自动下载和回源；测试确实拦住网络和业务写入，不只检查配置布尔值。
 
 ## 4. 验收与报告
 

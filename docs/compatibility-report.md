@@ -1,5 +1,7 @@
 # T00 依赖兼容与版本锁 · 实测报告
 
+> 历史实测证据保留。2026-09-25起Agent框架目标改为AgentScope，见[迁移规格](agentscope-migration.md)；下方LangGraph/checkpointer测试只证明当时版本组合，不证明新SDK兼容或新恢复实现通过。AS01报告另存，不改写本报告历史结论。
+
 日期：2026-09-15。执行环境：Windows 11、Docker Desktop 29.3.0。
 本报告只记录**本机实际运行过**的命令与结果。未运行的项在 §6 明确列出。
 

@@ -1,6 +1,6 @@
-# 工程与命令 · v1.2核心
+# 工程与命令 · v1.3（保留v1.2核心）
 
-复用T00–T02已完成骨架和锁；不因为瘦身重建整个仓库。当前代码还未完成v1.2迁移，C00调整核心profile和契约选择；旧能力与目标能力分别说明。
+复用已有骨架与非Agent框架版本锁，不重建仓库。C00核心profile已落地、C06正在推进；本次AgentScope迁移尚未实施。先按[迁移规格](agentscope-migration.md)在独立spike验证，再调整生产依赖；旧能力与目标能力分别说明。
 
 ## 1. 目录与风格
 
@@ -54,6 +54,14 @@ public RefundOperation accept(RefundCommand command) {
 | 查询性能 | pwsh -File scripts/verify.ps1 -Suite performance -Seed 42 | C11/C12 |
 
 默认未实现suite退出2、未知suite退出64，不得零步骤成功。-Case支持按case过滤由归属任务实现；不存在脚本/容器时不放空stub凑启动。旧harness-eval、反事实命令标DEFERRED，不是核心交付门槛。
+
+### AgentScope迁移命令边界
+
+AS01计划新增`spikes/agentscope`，当前未创建，不能先执行其冻结命令并声称通过。创建最小项目后用`uv lock --project spikes/agentscope`生成独立锁，再执行`uv sync --project spikes/agentscope --frozen`及`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q`；详细聚焦命令见任务账本。AS01不改`agent/uv.lock`。
+
+生产依赖在AS02更新后用`uv sync --project agent --frozen --all-extras`验证。Python lint为`uv run --project agent --frozen ruff check agent/src agent/tests`；mypy必须切到`agent/`运行`uv run --project . --frozen mypy`，不能从根目录误报空检查成功。Java wrapper在`java/`目录执行`.\mvnw.cmd -B test`及`.\mvnw.cmd -B spotless:check`。相关命令只在对应任务实际运行后登记结果。
+
+旧LangGraph兼容试验保留独立依赖环境，不要求生产agent安装旧框架来运行历史spike。schema/协议测试仍保留；全套门禁不得通过跳过迁移后失败用例变绿。已有mypy欠账与新回归分开记录，未解决前不能宣称全绿。
 
 ## 4. 常驻循环与开关（C06.3 补记）
 

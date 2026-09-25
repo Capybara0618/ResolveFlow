@@ -1,6 +1,6 @@
 # 框架审阅记录
 
-当前框架v1.2（2026-09-18）。下文v1.0/v1.1是2026-09-15的历史检查，旧范围/任务数量/“尚未实现”只描述当时，不作为当前进度。当前范围见core-scope，当前进度见tasks/todo；v1.2检查另列于末尾。
+当前框架文档v1.3（2026-09-25），业务范围沿用v1.2。下文各版本检查是对应日期的历史记录，旧范围/任务数量/“尚未实现”不作为当前进度。当前范围见core-scope，当前进度见tasks/todo；v1.3检查另列于末尾。
 
 ## v1.0已执行检查（历史记录）
 
@@ -66,3 +66,18 @@ T00实测锁定：框架补丁版本/镜像digest、客户端兼容、PG checkpo
 - Git变更范围检查仅含Markdown；历史任务归档没有删除原有实际记录。
 
 本轮未运行Java构建、Docker全栈smoke、业务故障/性能/live模型评测，因未改对应代码且核心实现尚未开始；不据Python通过宣称整个系统已正确。核心任务均仍待执行，未来简历指标仍须实际报告。
+
+## v1.3 AgentScope迁移文档检查（2026-09-25）
+
+用户批准框架替换，其他范围和技术深度不变。本轮新增agentscope-migration规格/DSH首轮提示词，同步入口、架构、Agent/恢复/上下文/回放约束、版本依据、AS任务及C07–C10承接。旧交接标明历史，修正README/AGENTS等“从C00开始”的过时入口；历史C00–C06记录保留。
+
+设计检查重点：唯一AgentScope循环；动作ABI/批次/终止映射；模型与工具调用前硬拦截；最终输入与输出预占；PG快照/fence/调用账事务；旧响应复用与UNKNOWN计费；manifest旧字段兼容；SDK与领域逻辑共同strict回放；不引入公司级平台。AS01先验证，用户审阅后AS02切换，不能把候选版本或历史LangGraph证据当作AgentScope已通过。
+
+实际验证（2026-09-25）：
+
+- 内联PowerShell文档检查：23份新增/修改Markdown、66个本地链接目标与代码围栏配对通过；按C00标题至C07标题提取内容，归一化换行后与HEAD比较，C00–C06历史记录完全一致。检查脚本首次因正则字符串引号拼接错误未执行，修正脚本后重跑通过，未因此修改业务文件。
+- `git diff --check`：通过。
+- `$migrationContractTests = @(rg --files agent/tests/unit -g 'test_contracts*.py'); & .\agent\.venv\Scripts\python.exe -m pytest @migrationContractTests -q`：549 passed、9 skipped，20.53秒；使用现有环境，未改锁。跳过项不视为通过。
+- 修订前记录的8个非文档未提交文件逐一`Get-FileHash -Algorithm SHA256`复核全部一致；其余本轮新增/修改均为Markdown。未改业务代码、依赖锁、Schema/fixture或数据库。
+
+未运行：AgentScope安装/AS01探针、Java构建、Docker全栈smoke、Agent业务故障/性能/live评测；这次是文档交付，不能据契约回归宣称框架迁移成功。不执行付费API、不提交或推送。AS00–AS02全部保持未完成。

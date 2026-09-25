@@ -1,0 +1,89 @@
+[project]
+name = "resolveflow-agentscope-spike"
+version = "0.0.0"
+description = "AS01: isolated compatibility spike for AgentScope 2.x as the ResolveFlow agent loop"
+requires-python = ">=3.12,<3.13"
+
+# AS01.1 (docs/agentscope-migration.md:89): resolve the released 2.x SDK against *our* versions before anything
+# in `agent/pyproject.toml` is touched. The interesting member of this list is `mcp`: AgentScope 2.0.8 declares
+# `mcp<2.0.0`, while `agent/` locks `mcp==2.2.0` and the five tools are served by a real 2.2.0 stdio server. That
+# is a declared conflict, not a guess, and the spike exists to find out what it actually costs.
+#
+# The rest are pinned to the versions `agent/uv.lock` already holds, so the spike answers "does AgentScope fit
+# *this* project" rather than "does AgentScope install on a clean machine".
+dependencies = [
+    "agentscope==2.0.8",
+    "mcp==2.2.0",
+    "pydantic==2.13.5",
+    "fastapi==0.141.1",
+    "httpx==0.28.1",
+    "psycopg[binary,pool]==3.3.5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/resolveflow_spike"]
+
+[tool.uv]
+# AS01.1: AgentScope 2.0.8 declares `mcp<2.0.0`; `agent/` locks `mcp==2.2.0` and the five tools are served by a
+# real 2.2.0 stdio server (C06.2b). Resolution fails outright without this, so the conflict is a declared fact
+# rather than a guess — `uv lock` says "your project's requirements are unsatisfiable".
+#
+# The override is the *isolated adapter* `docs/agentscope-migration.md:89` asks for, not a monkey patch: it
+# changes what the resolver installs, not what the library does at run time, and it is confined to this spike's
+# own lock. What it does **not** do is prove the combination works — that is what the tests below are for, and
+# they report which AgentScope surfaces actually touch `mcp`.
+#
+# The alternative — pinning `mcp<2` here — was rejected because it would answer a different question: our tools
+# would then be running against a client/server major version no part of this project uses, and `agent/` cannot
+# follow (the C06.2b server is written against 2.2.0's `MCPServer` API). If the tests show AgentScope genuinely
+# needs 1.x *and* our 2.2.0 path cannot supply it, the honest answer is a blocker report, not a downgrade.
+override-dependencies = ["mcp==2.2.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "S"]
+ignore = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+files = ["src", "tests"]
+# The spike imports the project's own guards rather than copying them, so mypy has to be told where that source
+# lives. Pointing at it keeps the cross-project import *checked* instead of silenced: an `ignore_missing_imports`
+# for `resolveflow.*` would make every one of those imports `Any`, and the middleware's types would stop meaning
+# anything. `tests/conftest.py` does the same at run time.
+mypy_path = "../../agent/src"
+
+[[tool.mypy.overrides]]
+module = ["agentscope.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# `ToolResultState` is the state a `ToolChunk` carries (SUCCESS/ERROR/RUNNING/…). AgentScope 2.0.8 does not list
+# it in `agentscope.tool.__all__`; `agentscope.tool._response` is its only home, so importing it is a private
+# reach. That is recorded rather than hidden: the spike needs it to build a ToolChunk, and AS02 will have to
+# decide whether to depend on the private path or work around it. Relaxed for the **test modules only**, so the
+# production-shaped source under `src/` stays fully checked.
+module = ["test_control", "test_mcp_compat"]
+disable_error_code = ["attr-defined"]

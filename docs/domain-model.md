@@ -1,4 +1,4 @@
-# 领域与状态 · v1.2核心版
+# 领域与状态 · v1.3（业务不变量沿用v1.2）
 
 金额为整数分，CNY；UTC存储；ID用UUID。version是乐观锁，input_revision是决策输入版本，两者不得混用。当前契约目标见[核心契约](core-contracts.md)。
 
@@ -61,7 +61,7 @@ Authorization沿用PENDING_REVIEW/APPROVED/REJECTED/EXPIRED/REVOKED/CONSUMED；P
 ## 5. agent_db
 
 - agent_run：run/case/revision、parent_run_id、status、manifest_id、deadline_at/active_deadline_at、lease_owner/lease_until/fence、usage账。
-- 官方LangGraph checkpoint表；写入必须与run fence校验在同一PG事务。
+- 领域运行快照：SDK续接必要状态、逻辑step/下一阶段、待执行动作/稳定call_id、已应用结果游标、context引用及state版本；可新增专表或结合现有run字段，先经AS01恢复探针验证。写入必须与run fence校验在同一PG事务，不再要求LangGraph专用表。已有表/迁移不删除或改写。
 - model_call：稳定call_id、step/attempt、context_id、请求/响应、provider_request_id、usage、UNKNOWN。
 - tool_observation：稳定call_id、工具/参数hash、scope、来源/版本/hash、原文、错误和时间。
 - context_snapshot：实际请求及hash、保留/省略引用、关键事实hash、估算方式。

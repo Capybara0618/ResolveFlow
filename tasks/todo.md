@@ -1,16 +1,98 @@
-# 核心版执行账本 · v1.2
+# 核心版执行账本 · v1.3 AgentScope迁移
 
-2026-09-18。当前唯一实施入口。旧40个T任务已退出当前必做顺序；完整原进度/命令/报告原样保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
+2026-09-25更新。当前唯一进度账本。用户批准AgentScope 2.x SDK替换LangGraph，业务与验收保持v1.2；[迁移规格与DSH指令](../docs/agentscope-migration.md)是本次技术入口。旧40个T任务已退出当前必做顺序；完整原进度/命令/报告保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
 ## 已有成果（历史记录，非本轮重测）
 
 - T00：任务记录完成，兼容与版本锁；报告见docs/compatibility-report.md及reports/t00-compatibility/。
 - T01：任务记录完成，工程与命令/基础CI。
 - T02：任务记录完成，4份旧OpenAPI、双语言hash/签名/fixture；2026-09-18记录all-offline 17/17，Python155、Java shared-kernel29。
-- v1.2 迁移进行中：C00.1 已完成（2026-09-18，核心 profile 与允许能力清单），下一子步 C00.2；不继续旧T03，不重新执行T00。
-- 本轮只修订文档；后续完成项必须填写真实记录，不能引用本表把C任务勾完成。
+- 当前：C00–C05已有完成记录；C06细分实现到C06.4④b有记录，C06.4⑤真实Java工具联调有未提交改动，需AS00接管核实，不据文件存在判通过。C07–C13尚未完成。
+- 本轮只修订文档，AgentScope未安装、代码/锁未迁移。下一项AS00，然后AS01；不重做C00/T00，不继续旧T03。历史LangGraph试验不是AgentScope兼容证明。
+- v1.3文档检查（2026-09-25）：23份Markdown链接/围栏、原C00–C06记录保留与8个既有代码改动hash检查通过；契约回归549 passed/9 skipped。实际命令、检查边界和未运行项见docs/framework-review.md末尾；不据此勾任何AS实现任务。
 
 每个C工作包分子步实施，单子步尽量3–5核心文件；需更多时先在该任务下继续拆，不一次生成整包。命令当前/目标可用性见docs/engineering.md。
+
+## AgentScope迁移插入段（2026-09-25，全部待实施）
+
+本段替代旧框架接入，不扩业务范围。任务均先关键失败测试，文件数含生产/测试不含必要账本更新；若超过5个核心文件再拆。下列spike/报告文件均为**拟创建**，不可因路径写在这里就声称存在。完成要填实际文件、日期、命令/报告、通过/失败/跳过/未运行、下一步。
+
+### AS00 接管与基线
+
+- [ ] AS00：核实HEAD/工作区/旧DSH是否仍写，接管C06.4⑤并记录当前可复现基线；已做部分不重写。
+- 依赖：当前C06实际实现；不要求C06整包勾完成。
+- 文件：本账本、`reports/agentscope-migration/baseline.md`；若收口现有C06.4⑤，另拆并列出其3–5文件子步。
+- 验收：区分用户改动与迁移新改动；真实Java联调与HTTP桩证据分开；明确scope守卫/worker/mypy欠账。
+- 验证：`git status --short`、`git log -1 --oneline`、迁移规格§7的现有聚焦测试；必要时复跑现有e2e，记录环境及未运行，不能删库造干净结果。
+- 实际记录：未执行；2026-09-25本轮仅观察到8个未提交代码/测试/脚本改动，未修改或代验收。
+  - 实际记录（AS00，2026-09-25，HEAD `b2b5444` = `origin/main`，未推送提交 0）：
+    - **现场核实**：工作区 31 项 = **7 项 C06.4⑤ 代码/测试/脚本** + **24 项 v1.3 文档重写**（含新增 `docs/agentscope-migration.md`）。代码文件最后写入 `09-25 12:34–12:37`，全部早于本轮接管；`git diff --stat` 的规模与交接一致 → **旧 DSH 未并行写，无冲突，可以接管**。迁移规格 §2 记的"8个未提交代码改动"与实际的 7 项代码 + 24 项文档有出入，**以实时 git 为准**（这正是它要求的）。
+    - **接管动作（迁移新改动，未覆盖用户改动）**：① 修好迁移前会话中断留下的 `test_tool_credential.py::test_the_credential_matches_the_run_id_case_derives`——它原是一个**自比自的恒真断言**，且 `scripts/e2e_harness_java_tools.py` 的同源派生用了 `uuid.NAMESPACE_DNS`（错的命名空间，会算出 Case 从未派生过的 v4/v5 id，症状是"凭据路由说 run 不存在"）。② 把 run id 派生移入生产代码 `resolveflow/runtime/runs.py::agent_run_id_for` + `RUN_NAMESPACE`（RFC 9562 v5，SHA-1 **取前 16 字节**、置版本/变体位）。③ 测试改为**从 `AgentRunId.java` 解析命名空间字面量**、在测试内独立重算、要求生产函数一致——两边任一侧漂移即红。④ e2e 驱动改为调用生产派生。
+    - **命令与结果（都真跑）**：接管前 `pytest agent/tests` → **748 passed, 9 skipped, 1 failed**（那 1 failed 即上述遗留）；迁移规格 §7 的聚焦测试 → **41 passed**。接管后 `pytest agent/tests` → **750 passed, 9 skipped, 0 failed**；聚焦测试仍 **41 passed**。`--basetemp` 用新建的 `tmp/pytest-basetemp-as00`（`tmp/` 已在 `.gitignore`，不把含用户文件的目录交给会清理目录的参数）。
+    - **真实失败与修复**：把 20 字节 SHA-1 全量传给 `uuid.UUID(bytes=...)` → `ValueError: bytes is not a 16-char string`（**测试抓到的，不是猜的**）；修正后做"故意弄红"验证——把 Python 命名空间改成 `NAMESPACE_DNS` → 该测试红且报 `Python and Java derive run ids under different namespaces`，还原后文件 SHA256 逐字节一致。
+    - **证据分级（写入 `reports/agentscope-migration/baseline.md`）**：C06.4①②③ 是**真 MCP 子进程 + HTTP 桩上游**（工具边界真、**Java 是桩**）；C06.4④ 与 C06.4⑤ 的 Java 路由是**真 Java**（`ToolCredentialApiTest` 10 例、`CaseEvidenceInternalApiTest` 5 例）；`scripts/e2e_harness_java_tools.py` **从未运行**，它的存在不是"真实 Java 工具联调已完成"。
+    - **欠账（不得借迁移写成已完成）**：工具凭据的 scope **没有任何一方在强制**（Java `ServiceTokenFilter` 只校验 aud/签名）；**run 侧 worker 不存在**（归 C09）；strict mypy 9 个既有错误（本会话新增代码零错误）；Java 4 个 skipped 是没跑不是绿的；C06.4⑤ 改动**仍未提交**。
+
+### AS01 AgentScope技术可行性（先spike，不改生产锁）
+
+- [ ] AS01.1：依赖、原生循环、动作ABI与硬拦截能力。
+  - 依赖：AS00。
+  - 文件：`spikes/agentscope/pyproject.toml`、独立`uv.lock`、最小适配模块、`tests/test_control.py`、`reports/agentscope-migration/compatibility.md`（3–5核心文件）。
+  - 验收：正式发布2.x与当前Python/MCP/FastAPI等依赖实解；用SDK原生mock模型边界驱动真实SDK循环；动作/终止/批次映射测试覆盖，非法工具动作对应的工具执行次数为0，预算耗尽后的新增模型/工具外部调用次数为0。
+  - 验证：先创建项目后`uv lock --project spikes/agentscope`，再`uv sync --project spikes/agentscope --frozen`与`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests/test_control.py -q`；故意触发重试/输出修复/最大迭代收尾，证明每次调用都可计数/拦截。
+  - 实际记录：未执行。v2.0.8只是已发布候选，尚未安装/锁定。
+  - 实际记录（AS01.1，2026-09-25，HEAD `b2b5444`，独立 spike 未改生产锁）：
+    - **完成内容**：新增 `spikes/agentscope/` 独立项目（`pyproject.toml`、`uv.lock`、`src/resolveflow_spike/{adapter,stub_upstream}.py`、`tests/{conftest,test_mcp_compat,test_control}.py`）与报告 `reports/agentscope-migration/compatibility.md`。**`agent/pyproject.toml` 与 `agent/uv.lock` 一行未改。**
+    - **版本核实**：PyPI JSON API 确认 `agentscope` 最新 = **2.0.8**，`requires_python >= 3.11`，2.x 已发布 11 个版本；实解 `agentscope 2.0.8 / pydantic 2.13.5 / httpx 0.28.1 / fastapi 0.141.1 / psycopg 3.3.5 / Python 3.12.13`。
+    - **依赖冲突（已确认，非猜测）**：`agentscope==2.0.8` 声明 `mcp<2.0.0`，本项目锁 `mcp==2.2.0` → `uv lock` **直接报 unsatisfiable**。处置：spike 的 `[tool.uv] override-dependencies = ["mcp==2.2.0"]`（只作用于 spike 的锁，不降级、不改 stdio 线协议）。
+    - **mcp 1.x/2.x 4 处不兼容，已定位到行**：`tool/_adapters.py:261` 读 `tool.inputSchema`（2.x 是 `input_schema`）→ 握手成功后在适配首个工具时 `AttributeError`；`:273-274` 读 `annotations.readOnlyHint`（2.x 是 `read_only_hint`）→ **静默**把每个工具当成非只读；`:354` 读 `result.isError`（2.x 是 `is_error`，且 `isError` 只是 pydantic 的**校验别名**、不是属性，无法赋值补）→ 调用工具时崩溃；`tool/_toolkit.py:343` 读 `mcp.shared.exceptions.McpError`（2.x 是 `MCPError`）→ 异常兜底路径崩溃。`workspace/_gateway_client.py:105,115` 是前两处的同源副本。
+    - **命令与结果（都真跑）**：`uv lock --project spikes/agentscope` → 无 override 失败、加 override 后 **Resolved 108 packages**；`uv sync --project spikes/agentscope --frozen` → exit 0；`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q` → **9 passed**；`cd spikes/agentscope; uv run --project . --frozen ruff check src tests` → **All checks passed**；`... mypy` → **Success: no issues found in 6 source files**（含跨项目 import `resolveflow.harness.budget`，用 `mypy_path` 指向 `agent/src` 而不是 `ignore_missing_imports` 静默）。
+    - **能力表（API → 拦截点 → 测试）**：预算硬拦截走 `MiddlewareBase.on_model_call`，输入计数用 `ChatModelBase.count_tokens(messages, tools)`（源码会把工具 JSON schema 计入）；权限硬拦截走 `on_check_permission`（`_agent.py:2393` 传 `tool_call`/`tool`/`tool_input`）。**验收达成**：非法工具动作 ⇒ 工具自计数为 0（`test_an_illegal_tool_action_never_reaches_the_tool_body` 等 3 例，白名单从项目 `harness/actions.py` 解析而非复述）；预算耗尽 ⇒ provider 调用次数停在预算值、`provider.calls == 0`（`step_input_tokens=1` 时单步超限也在网络调用前拒绝）。
+    - **过程中真实的失败与修复**：① spike 的测试**先按猜的构造函数写**（`MCPClient(config=…)`），pydantic 回三个必填字段，改为 `name/is_stateful/mcp_config`；② `RepoClient` 一族方法**全是协程**（`connect/list_tools/close`），同步写会得到"协程未被 await"而不是报错；③ `Toolkit.add_tool` **是协程**，漏 await 会让 toolkit 为空，而循环**不报错**、只是安静地输出一句终结文本——症状看起来像"中间件没生效"，实为漏 await（我的测试自己踩的）；④ `ChatModelBase` 的真实扩展点是 `_call_api`，覆写 `__call__` 会跳过包装（mypy 以 `Cannot instantiate abstract class ... '_call_api'` 抓到）；⑤ `ChatModelBase.__init__` 需要 `credential/model/parameters`，且**默认 `max_retries=3`**；⑥ `Msg.content` 2.x 是块列表而非字符串；`ToolCallBlock.type` 是 `tool_call`（1.x `tool_use`）且 `input` 是 JSON **字符串**；`ChatModelBase` 子类必须自带 `formatter`；⑦ 白名单读取最初只认普通赋值，而 `actions.py` 是 `AnnAssign`+`frozenset({...})`（`literal_eval` 拒绝 `Call`）——修好后还加了"解析出 5 个"的断言，**防止白名单读空让所有"非法动作被拒"断言空转**；⑧ 自身 ruff 5 条（未用 import/未用变量/硬编码 token 字面量/`!r`）与 mypy 4 条（`dict` 缺类型参数、`bytes|str` 的 `str-bytes-safe`）全部修掉，**没有用 noqa 掩盖真实问题**，只有 `ToolResultState` 的私有导入加了**带理由、只作用于测试模块**的 `attr-defined` override。
+    - **未做/未跑（不得读成通过）**：**AS01.2/AS01.3 未执行**（无真实 PG 恢复探针、无禁网络回放探针）；**全部为 mock 模型，无 live**，H1 自主性未验证；**六动作 ABI（READ_TOOL/SEARCH_POLICY/READ_OBSERVATION/ASK_CUSTOMER/PROPOSE/ESCALATE）到 AgentScope 的映射未做**（属 AS02）；**终止后是否自动补一次调用未测**——探针显示权限拒绝会被回喂给模型并多走一轮（2 次模型调用），若要求"拒绝即停"需用 `ReActConfig.stop_on_reject`；**`ContextConfig` 自动压缩（`trigger_ratio=0.8`/`compression_prompt`/`summary_template`）与 `InjectionConfig.tool_retries_limit=3` 未处置**，两者都与"不得生成式改写关键事实"和"工具重试 ≤2"冲突，AS02 必须显式关闭/改值；**`max_retries` 默认 3 会让 SDK 在预算钩子之下重试**（一次预占对应三次 provider 请求），本 spike 显式设 0 但生产未改；telemetry/OTLP 是否外发未验证；4 处 mcp 缺口只验证了 3 处的修正效果（`McpError` 未验证）。
+    - **给审阅者的两条建议（详见报告 §8）**：AS02 前先定 (a) MCP 走本项目自带的 mcp 2.2.0 客户端 + 普通函数工具（**推荐**，不依赖上游修复进度，且规格本就要求保留官方 stdio 路径），还是等上游修那 4 处；(b) 显式设 `max_retries=0`、关闭自动压缩、把 `tool_retries_limit` 改成本项目的 2。
+- [ ] AS01.2：真实PG恢复/旧fence最小探针。
+  - 依赖：AS01.1。
+  - 文件：spike最小状态适配、PG探针、`tests/test_recovery.py`、兼容报告（不修改生产迁移）。
+  - 验收：独立临时schema和跨进程/新连接恢复；响应已落库而快照未推进能复用且不重复计费；未落库窗口记UNKNOWN；旧fence写快照/终局拒绝，预算/deadline不重置。
+  - 验证：`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests/test_recovery.py -q`，记录PG版本、故障窗口、恢复前后call_id/请求次数/账本；必须用真实SDK和真实PG，不用另写toy循环证明SDK可恢复。
+  - 实际记录：未执行。无PG时标未运行；T00结果不能替代。
+- [ ] AS01.3：同一SDK/Harness逻辑的禁网络strict探针及技术门禁报告。
+  - 依赖：AS01.2。
+  - 文件：spike回放适配、1份合成记录、`tests/test_replay.py`、兼容报告（最多5核心文件）。
+  - 验收：一条完整顺序轨迹用记录模型/工具结果重跑且动作/预算一致；缺记录明确失败；网络与业务写被真实阻止，不连接生产库，不直接输出期望终态冒充回放。
+  - 验证：`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests/test_replay.py -q`和整个spike冻结测试；说明网络阻断方法/负向测试。
+  - 实际记录：未执行。全部技术关卡通过后提交用户审阅，再进入AS02；不能据探针勾C09/C10。
+
+### AS02 生产接入（门禁审阅后，仍按小步）
+
+- [ ] AS02.1：锁定正式依赖与薄SDK边界适配。
+  - 依赖：AS01.3通过且用户审阅确认。
+  - 文件：`agent/pyproject.toml`、`agent/uv.lock`、`infra/versions.lock.yaml`、SDK模型适配、对应测试；如超过5个拆开。
+  - 验收：采用AS01实测版本；非相关依赖不任意升级；生产环境不再直接依赖LangGraph/checkpointer，历史spike保持自己的锁/测试。原mock/live标记与输出记录不失真。
+  - 验证：`uv sync --project agent --frozen --all-extras`、SDK适配聚焦测试、原模型/契约回归；记录依赖变更与历史spike的运行边界。更新版本依据/兼容报告时不篡改T00历史。
+  - 实际记录：未执行。
+- [ ] AS02.2：用AgentScope唯一循环替换HarnessRunner驱动。
+  - 依赖：AS02.1。
+  - 文件：`harness/runner.py`、SDK运行适配、`harness/actions.py`/`budget.py`必要接点、`test_harness_loop.py`（超过5个再拆）。
+  - 验收：旧自主性/权限/预算/翻页/无进展测试语义全部保留并跑在新循环；无外层旧循环+内层SDK双循环；终止后无额外调用；实际请求全量输入及输出预占正确。
+  - 验证：迁移规格§7的聚焦pytest、Python全量、ruff、在agent目录下的mypy；区分旧错误与新增错误。mock通过不标live/H1通过。
+  - 实际记录：未执行。此步不实现通用恢复引擎；C09前不得宣传生产崩溃恢复。
+- [ ] AS02.3：新循环接真实MCP与Java的非回归收口。
+  - 依赖：AS02.2；AS00确认的C06.4⑤真实Java基线。
+  - 文件：`harness/mcp_client.py`必要适配、MCP集成测试、`scripts/e2e_harness_java_tools.py`、报告；如Java scope仍缺失另拆安全子步，不把缺口豁免。
+  - 验收：真实官方stdio与真实Java读接口；每次使用当前run凭据，取凭据失败不降级；错误Observation/分页计数与scope反例仍成立；不把新循环接通当作run worker/业务闭环已完成。
+  - 验证：Python集成、真实Java工具e2e、契约与`pwsh -File scripts/verify.ps1 -Suite all-offline`；改Java时跑对应测试及spotless；失败/跳过不算通过。
+  - 实际记录：未执行。通过后更新C06剩余验收与版本依据，继续C07/C08；不重复实现已存在的控制面/回调。
+
+### 迁移完成后的原任务承接
+
+- C07保留检索与确定性ContextBuilder，禁用SDK绕过该策略的自动摘要。
+- C08复用AS02循环，补manifest/引用验证、真实模型适配和PG待办→调查→callback组合；不另写循环，也不把AS02工具e2e当完整业务闭环。
+- C09把AS01.2探针落到生产RunStore/worker，完成H4/CF6；不是再部署额外调度平台。
+- C10把AS01.3探针扩成既定5包strict验收；C11–C13规模与证据要求不变。
+
+## 原C任务与历史执行记录（保留证据）
 
 ### C00 核心协议与启动范围迁移
 
@@ -1086,15 +1168,15 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 - [ ] C07.1：固定bundle索引、真实dense与BM25基线、版本/商家过滤、引用。
 - [ ] C07.2：ContextBuilder关键事实/来源/冲突保真、token上限、原文索引及scope读回。
-- 依赖：C03,C06。文件：agent/policies、harness/context、相应fixtures/tests。
+- 依赖：C03,C06核心前置,AS02.3。文件：agent/policies、harness/context、相应fixtures/tests。
 - 验收：索引未就绪不搜旧版本；关键字段不被摘要改写；超限明确终止，原文可按ref读回。
 - 验证：检索过滤/真实embedding冒烟、上下文七类fixture；无四组消融要求。
 - 实际记录：未执行。
 
 ### C08 动态Harness与业务接入
 
-- [ ] C08.1：固定manifest/动作ABI、动态循环、预算预占/重试、防无进展与候选引用验证。
-- [ ] C08.2：问题/方案/失败回调outbox，补证新run、旧结果STALE，Java复核后退款。
+- [ ] C08.1：复用AS02的AgentScope唯一循环，固定manifest/动作ABI、上下文与预算接点、防无进展及候选引用验证；补真实模型适配。
+- [ ] C08.2：组合PG待办调查worker与既有问题/方案/失败callback_outbox，补证新run、旧结果STALE，Java复核后退款；先单执行者闭环，不提前声称C09恢复通过。
 - 依赖：C05,C07。文件：agent/harness/runtime/callbacks、Case回调及端到端测试。
 - 验收：至少6组配对证据由模型决定不同合理行动；身份不由模型生成；预算/权限有界，闭环不是固定workflow。
 - 验证：H1/H2/H3、mock系统闭环、live小样本（需API预算）。
@@ -1102,9 +1184,9 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C09 持久恢复与版本保护
 
-- [ ] C09.1：checkpointer fence事务、租约/advisory lock与取消，复用T00已验证能力。
+- [ ] C09.1：将AS01.2已验证的AgentScope状态/领域快照适配落到生产，PG写快照与fence校验同事务，租约/advisory lock与取消；不使用T00的LangGraph试验替代验证。
 - [ ] C09.2：稳定call记录、已落库结果复用、UNKNOWN计费/预占、manifest不兼容拒绝。
-- 依赖：C08。文件：agent/runtime持久层、调用存储、故障测试。
+- 依赖：C08,AS01.2。文件：agent/runtime持久层、SDK恢复适配、调用存储、故障测试。
 - 验收：旧worker不能写checkpoint/有效回调；预算/deadline不重置；补证继续与同run故障恢复区分。
 - 验证：H4/CF6两类崩溃窗口、旧fence/旧revision/版本不匹配测试。
 - 实际记录：未执行。
@@ -1112,8 +1194,8 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 ### C10 选定轨迹的strict回放
 
 - [ ] C10.1：只读导出合成ReplayPack、实际输入/显式响应/观察/usage/Clock与hash。
-- [ ] C10.2：只支持strict、隔离adapter与CallbackSink、禁网络执行，5个完整golden packs。
-- 依赖：C09。文件：evals/replay、scripts/replay入口、隔离配置与回归测试。
+- [ ] C10.2：同一AgentScope/Harness逻辑只支持strict、隔离adapter与CallbackSink、禁网络执行，5个完整golden packs；复用AS01.3探针，不另造播放器/双引擎。
+- 依赖：C09,AS01.3。文件：evals/replay、scripts/replay入口、隔离配置与回归测试。
 - 验收：规范状态/动作/引用/预算一致；缺记录/篡改/不支持轨迹拒绝，无业务写；不实现反事实/world。
 - 验证：H5、strict正反fixture与真实网络阻断测试。
 - 实际记录：未执行。

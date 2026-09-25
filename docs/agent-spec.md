@@ -1,6 +1,6 @@
-# Agent业务与执行规格 · v1.2核心版
+# Agent业务与执行规格 · v1.3（业务沿用v1.2）
 
-主线见[Harness](agent-harness.md)。Python/FastAPI/LangGraph使用现有锁；单Agent按Observation选择下一行动，Java独立执行退款。核心不是固定workflow，也不是通用Agent产品。
+主线见[Harness](agent-harness.md)。Python/FastAPI保留现有锁，Agent框架目标改为AgentScope 2.x SDK，先按[迁移规格](agentscope-migration.md)验证后锁定；单Agent按Observation选择下一行动，Java独立执行退款。核心不是固定workflow，也不是通用Agent产品。
 
 ## 1. 状态与输入
 
@@ -10,7 +10,7 @@ run状态沿用QUEUED/RUNNING/CALLBACK_PENDING/WAITING_INPUT/COMPLETED/FAILED/CA
 
 ## 2. 决策
 
-固定外层为load→build_context→model_decide→validate→execute/read/propose→persist→next/end，具体业务工具顺序不固定。
+固定职责顺序为load→build_context→model_decide→validate→execute/read/propose→persist→next/end，具体业务工具顺序不固定。这是执行约束，不是要求另写一个循环包住SDK；AgentScope驱动唯一主循环，适配层将原生工具/结构化结果映射到下列领域动作，再统一校验。普通文本不是方案，终止动作后不得额外调用模型。
 
 - READ_TOOL：1–3个独立只读调用，参数由模型选。
 - SEARCH_POLICY：query/top_k<=5，绑定当前政策版本。
@@ -41,13 +41,13 @@ run状态沿用QUEUED/RUNNING/CALLBACK_PENDING/WAITING_INPUT/COMPLETED/FAILED/CA
 
 case提交控制面deadline默认10分钟；首次开始调查固化active_deadline=min(deadline,开始+120秒)。同run恢复不延期，停机/重试消耗窗口。落库方案的回调重试不受调查窗口限制，但仍查revision。
 
-预占请求预算并持久化，成功按usage结算；UNKNOWN保守保留估计，不在重启后清零。缺provider准确计数时标ESTIMATED，不承诺精确费用不超额。连续重复同动作且无新证据，两次反馈NO_PROGRESS，第三次停止；不同版本/下一页不误判。
+预占请求预算并持久化，成功按usage结算；UNKNOWN保守保留估计，不在重启后清零。输入包含最终system/messages/tool schema/provider包装，输出按请求上限预占，不只计算最新packet或预占0输出。SDK隐式修复/重试/总结不豁免计费，不启用绕过ContextBuilder的自动压缩。缺provider准确计数时标ESTIMATED，不承诺精确费用不超额。连续重复同动作且无新证据，两次反馈NO_PROGRESS，第三次停止；不同版本/下一页不误判。
 
 ## 5. 恢复与验证
 
-worker领取用PG租约/fence与同run advisory lock；checkpoint写入同事务锁run行校验fence，不能先查再另事务写。复用T00已验证能力，必要适配只服务这一边界。
+worker领取用PG租约/fence与同run advisory lock；checkpoint（领域运行快照，包含必要SDK续接状态）写入同事务锁run行校验fence，不能先查再另事务写。连接池与session级锁的生命周期必须明确。AgentScope接入由AS01重新验证，不能套用T00的LangGraph通过结论；生产实现归C09。
 
-已落库模型/工具结果用稳定call_id复用；外部模型返回但未落库可重复计费，明确UNKNOWN。图状态不是唯一结果记录，恢复补齐“结果保存而checkpoint未前进”。
+已落库模型/工具结果用稳定call_id复用；外部模型返回但未落库可重复计费，明确UNKNOWN。SDK会话不是唯一结果记录，恢复补齐“结果保存而checkpoint未前进”，不能重新请求已落库步骤或重复结算预算。最终run状态/方案/callback_outbox同事务且受fence保护。详见迁移规格的恢复窗口与技术门禁。
 
 模型输出Schema/引用可修复一次；ref必须实际可见，来源/版本/hash匹配。Java独立重算金额并核验事实、政策、授权。不得展示隐式思维链，仅存显式动作、短理由、输入快照和工具结果。
 

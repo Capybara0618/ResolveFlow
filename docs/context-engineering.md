@@ -2,6 +2,8 @@
 
 这是Harness内部能力，不是独立上下文平台。目标是让模型看到必要事实、来源和缺口，同时限制输入长度。
 
+v1.3接入AgentScope后本规格不降级：SDK历史/自动注入与工具Schema必须进入最终输入核算；关闭绕过本策略的自动压缩、LLM总结及长期记忆。框架适配按[迁移规格](agentscope-migration.md)，不能直接用默认memory替换事实视图。
+
 ## 1. 三类记录
 
 原始合成用户输入/工具Observation持久保留；结构化facts视图保存值、来源、source_version/hash与FRESH/STALE/CONFLICT/UNVERIFIED；ContextPacket保存本次实际模型请求。
