@@ -294,6 +294,12 @@ def main() -> int:
                 # The lab fault surface is on because this is the lab context, and C05.2c's CF3 (a provider
                 # that settles but loses the response) is armed through it. It is off in any deployed process.
                 RESOLVEFLOW_LAB_ROUTES="1",
+                # This process runs the Agent app, so C06.3b's callback delivery worker starts with it. The
+                # loop is off in no configuration (an outbox nobody drains is a callback that never
+                # arrives), so it must be told where Case is rather than left to guess: the default is the
+                # same address, and stating it here means a port change in this script cannot silently
+                # leave the worker delivering into nothing.
+                RESOLVEFLOW_CASE_BASE_URL=f"http://127.0.0.1:{CASE_PORT}",
             ),
             report, report_dir)
 

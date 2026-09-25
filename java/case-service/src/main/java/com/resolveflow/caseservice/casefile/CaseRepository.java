@@ -21,10 +21,10 @@ import org.apache.ibatis.annotations.Update;
 public interface CaseRepository {
 
     @Insert("""
-            INSERT INTO aftersale_case (case_id, merchant_id, customer_id, order_id, line_id, status,
-                                        input_revision, version, expires_at, created_at, updated_at)
-            VALUES (#{caseId}, #{merchantId}, #{customerId}, #{orderId}, #{lineId}, #{status},
-                    #{inputRevision}, #{version}, #{expiresAt}, #{createdAt}, #{updatedAt})
+            INSERT INTO aftersale_case (case_id, merchant_id, customer_id, order_id, line_id, description,
+                                        status, input_revision, version, expires_at, created_at, updated_at)
+            VALUES (#{caseId}, #{merchantId}, #{customerId}, #{orderId}, #{lineId}, #{description},
+                    #{status}, #{inputRevision}, #{version}, #{expiresAt}, #{createdAt}, #{updatedAt})
             """)
     void insertCase(
             @Param("caseId") String caseId,
@@ -32,6 +32,7 @@ public interface CaseRepository {
             @Param("customerId") String customerId,
             @Param("orderId") String orderId,
             @Param("lineId") String lineId,
+            @Param("description") String description,
             @Param("status") String status,
             @Param("inputRevision") int inputRevision,
             @Param("version") long version,
@@ -154,6 +155,7 @@ public interface CaseRepository {
                    customer_id    AS customerId,
                    order_id       AS orderId,
                    line_id        AS lineId,
+                   description    AS description,
                    status         AS status,
                    input_revision AS inputRevision,
                    version        AS version,
@@ -177,6 +179,7 @@ public interface CaseRepository {
                    merchant_id    AS merchantId,
                    customer_id    AS customerId,
                    line_id        AS lineId,
+                   description    AS description,
                    order_id       AS orderId,
                    status         AS status,
                    version        AS version,
@@ -356,6 +359,7 @@ public interface CaseRepository {
             SELECT case_id        AS caseId,
                    merchant_id    AS merchantId,
                    line_id        AS lineId,
+                   description    AS description,
                    status         AS status,
                    input_revision AS inputRevision,
                    version        AS version,

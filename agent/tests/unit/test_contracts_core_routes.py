@@ -372,6 +372,62 @@ def test_commerce_synthetic_marker_is_required_and_constant() -> None:
     assert synthetic["description"]
 
 
+def test_the_shipment_example_shows_the_marker_and_every_event_version() -> None:
+    """The shipment example is the only worked shape of the synthetic adapter (C06.2a).
+
+    Commerce now implements this route (V6__commerce_shipment_adapter.sql), and the example is what the
+    implementation was matched against, so the example has to keep doing its job: show the marker, and show
+    that each event carries its own ``source_version``. Without those two the example still validates — a
+    snapshot with no events satisfies the schema — while teaching a reader nothing about the one surface core
+    describes as simulated (docs/core-scope.md:30).
+    """
+    operation = document("commerce")["paths"]["/internal/v1/order-lines/{line_id}/shipment"]["get"]
+    example = operation["responses"]["200"]["content"]["application/json"]["example"]
+
+    assert example["synthetic"] is True
+    assert example["events"], "the example no longer shows any event"
+    for event in example["events"]:
+        assert "source_version" in event and event["source_version"] >= 1
+        assert event["code"] and event["occurred_at"]
+    # The snapshot's version is the newest event's, which is the property the implementation derives rather
+    # than stores: an example where the two disagree would teach the opposite of the contract's intent.
+    assert example["source_version"] == max(event["source_version"] for event in example["events"])
+
+
+def test_the_shipment_adapter_has_no_write_path() -> None:
+    """Core's logistics are read-only (docs/core-scope.md:30), and that is now a property of real code.
+
+    C06.2a added the adapter: the route, the service and the repository that read the simulated shipment. The
+    simulation is only honest while nothing moves it — a write statement (an UPDATE, an INSERT, a DELETE, or a
+    MyBatis write annotation) would turn "synthetic evidence to cite" into "state the Agent can influence".
+    Nothing else in the suite would notice: a write path that no test calls still compiles, still passes, and
+    is there for the next step to use.
+    """
+    shipment_dir = (
+        REPO_ROOT
+        / "java"
+        / "commerce-service"
+        / "src"
+        / "main"
+        / "java"
+        / "com"
+        / "resolveflow"
+        / "commerce"
+        / "shipment"
+    )
+    files = sorted(shipment_dir.glob("*.java"))
+    assert files, f"the shipment adapter is gone from {shipment_dir}"
+
+    write_annotations = ("@Insert", "@Update", "@Delete", "@Options")
+    for path in files:
+        text = path.read_text(encoding="utf-8")
+        for annotation in write_annotations:
+            assert annotation not in text, f"{path.name} declares a write statement ({annotation})"
+        # SQL verbs in the statements themselves. The seed migration owns the writes; these files never do.
+        for verb in ("INSERT INTO", "UPDATE ", "DELETE FROM"):
+            assert verb not in text, f"{path.name} contains a write ({verb})"
+
+
 @pytest.mark.parametrize("name", ["OrderLineSummary", "OrderLinePage", "PageMeta"])
 def test_the_internal_order_view_is_the_public_order_view(name: str) -> None:
     """Case's public order view and Commerce's internal one must be the same shape.

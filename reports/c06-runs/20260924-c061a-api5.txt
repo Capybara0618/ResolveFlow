@@ -1,0 +1,38 @@
+...............F                                                         [100%]
+================================== FAILURES ===================================
+________ test_the_run_routes_answer_503_when_the_database_is_not_there ________
+
+tmp_path = WindowsPath('C:/Users/hjn/AppData/Local/Temp/pytest-of-hjn/pytest-1326/test_the_run_routes_answer_5030')
+
+    def test_the_run_routes_answer_503_when_the_database_is_not_there(tmp_path: Any) -> None:
+        """An unavailable store is an availability problem, not a decision about a run.
+    
+        ``migrate=False`` plus an unreachable DSN is how this is asserted without stopping the compose database.
+        """
+        app = create_app(
+            provider_db=tmp_path / "provider.sqlite3",
+            agent_dsn="postgresql://agent:agent@127.0.0.1:1/agent_db",
+            jwt_secret=SECRET,
+            migrate=False,
+        )
+        with TestClient(app) as test_client:
+            response = test_client.post(
+                "/internal/v1/runs",
+                json=a_body(),
+                headers={"Authorization": f"Bearer {mint_service_token('case-service', SECRET)}"},
+            )
+    
+>       assert response.status_code == 503
+E       assert 422 == 503
+E        +  where 422 = <Response [422 Unprocessable Content]>.status_code
+
+agent\tests\integration\test_run_api.py:272: AssertionError
+============================== warnings summary ===============================
+agent\.venv\Lib\site-packages\starlette\testclient.py:53
+  E:\Code\Agent+Backend\agent\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED agent\tests\integration\test_run_api.py::test_the_run_routes_answer_503_when_the_database_is_not_there
+1 failed, 15 passed, 1 warning in 1.92s

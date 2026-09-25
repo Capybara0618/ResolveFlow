@@ -23,3 +23,8 @@ node_modules/
 
 # 临时目录：日志、下载物、一次性脚本
 tmp/
+
+# pytest 的临时根：本机沙箱下默认的 %TEMP%\pytest-of-<user> 不可写（WinError 5），
+# 门命令要用 --basetemp 指到工作区里，于是它成了每个测试的 tmp_path 根。
+# 那是运行产物而不是证据：真正的证据是 reports/ 下的报告，那些是要入库的。
+.pytest-tmp/

@@ -93,6 +93,10 @@ public abstract class CaseDatabaseTest {
                 "case_execution_command",
                 "event_outbox",
                 "agent_callback",
+                // The run binding points at the case (C06.1c), so it goes before aftersale_case. It is
+                // listed right after the callback table because the two are one story: a binding is the
+                // run a callback will be about.
+                "agent_binding",
                 "case_authorization",
                 "case_proposal",
                 "case_evidence",

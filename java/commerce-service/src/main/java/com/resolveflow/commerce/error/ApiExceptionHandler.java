@@ -2,6 +2,7 @@ package com.resolveflow.commerce.error;
 
 import com.resolveflow.commerce.internal.OrderLineController;
 import com.resolveflow.commerce.order.OrderLineCursor;
+import com.resolveflow.commerce.shipment.ShipmentController;
 import com.resolveflow.shared.error.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
@@ -27,6 +28,32 @@ public class ApiExceptionHandler {
     @ExceptionHandler(OrderLineController.LineNotFoundException.class)
     public ResponseEntity<ApiError> lineNotFound(
             OrderLineController.LineNotFoundException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));
+    }
+
+    /**
+     * A line that exists but has no shipment (C06.2a). The same 404 body, and deliberately the same shape: the
+     * caller must not be able to tell "no such line" from "no shipment for this line" by parsing the error, only
+     * by which route it called.
+     */
+    @ExceptionHandler(ShipmentController.ShipmentNotFoundException.class)
+    public ResponseEntity<ApiError> shipmentNotFound(
+            ShipmentController.ShipmentNotFoundException error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));
+    }
+
+    /**
+     * A line with no refund status (C06.2c). The same 404 body as the other two, for the same reason: the caller
+     * learns which route it called, not which of the two "not found" meanings it got.
+     */
+    @ExceptionHandler(com.resolveflow.commerce.refund.RefundStatusController.RefundStatusNotFoundException.class)
+    public ResponseEntity<ApiError> refundStatusNotFound(
+            com.resolveflow.commerce.refund.RefundStatusController.RefundStatusNotFoundException error,
+            HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .body(ApiError.of("NOT_FOUND", error.getMessage(), false, traceId(request)));

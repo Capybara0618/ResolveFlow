@@ -25,7 +25,7 @@
 - aftersale_case：merchant/customer/order/line、status、requested_actions=[REFUND]、input_revision、version、expires_at。
 - active_case_slot：(merchant_id,line_id)唯一活跃case；终态释放，Commerce仍阻止重复退款。
 - case_evidence：来源、ref、version、hash、revision、observed_at、内容；追加而非覆盖，人工核验另加记录。
-- agent_binding：(case_id,input_revision)唯一run。
+- agent_binding：(case_id,input_revision)唯一run；与case同事务写入，`dispatch_status`在事务外由投递循环推进（PENDING直到Agent 202）。
 - proposal：run/case/revision、payload_hash、状态、证据/政策ref；不可原地改载荷。
 - authorization：planned_operation_id、proposal_id、action=REFUND、金额/数量/line、payload_hash、policy_version、evidence_digest、expires_at、status、version。
 - approval：授权终局决定唯一；申请人/审核人、理由、授权版本。

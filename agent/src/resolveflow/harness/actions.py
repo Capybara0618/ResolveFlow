@@ -1,0 +1,319 @@
+"""The action ABI: what a model may ask for, and what the Harness refuses (C06.4①).
+
+``docs/agent-spec.md:2`` fixes the vocabulary — READ_TOOL, SEARCH_POLICY, READ_OBSERVATION, ASK_CUSTOMER,
+PROPOSE, ESCALATE — and ``docs/agent-spec.md:22`` fixes the refusals: 未知动作、身份字段、任意URL或写工具拒绝.
+
+**Why the refusal lives here rather than in the tool server.** The MCP server publishes exactly five tools
+(``docs/agent-spec.md:26-32``) and validates their arguments, so a caller cannot invoke a sixth. That is a
+statement about what a *client* can call. This module is a statement about what the *run* will ask for, and the
+two are not the same claim: a harness that forwarded whatever action the model produced and relied on the
+server to reject it would be trusting a deployment detail for a permission decision. Both checks exist and
+neither is redundant — the server's is the boundary, this one is the policy.
+
+**Why unknown members are forbidden rather than ignored.** ``ModelDecision`` is strict. The three refusals of
+``docs/agent-spec.md:22`` that are not about the *kind* — identity fields, arbitrary URLs, write tools — all
+arrive as unexpected members or unexpected tool names, so "ignore what you do not recognise" would silently
+accept every one of them. The model does not get to send ``line_id``; the run was told which line it is about
+(C06.1), and an action that names another one is an attempt to investigate someone else's order.
+
+**Why ``URL_MEMBERS`` is checked by name as well as by shape.** ``source_ref`` is a controlled
+``namespace:rest`` reference and never a requestable address (``docs/core-contracts.md:61``). A member named
+``url``/``uri``/``endpoint``/``host`` has no meaning in this ABI at all, so it is refused whether or not its
+value looks like one — a value check alone would accept ``{"url": "internal-thing"}`` and leave the door open
+for the next person who thinks a relative URL is fine.
+"""
+
+from __future__ import annotations
+
+from typing import Annotated, Any, Final, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+__all__ = [
+    "ASK_CUSTOMER",
+    "ESCALATE",
+    "MAX_ASK_QUESTIONS",
+    "MAX_POLICY_TOP_K",
+    "PROPOSE",
+    "READ_OBSERVATION",
+    "READ_TOOL",
+    "RECOMMENDED_ACTIONS",
+    "SEARCH_POLICY",
+    "TERMINAL_KINDS",
+    "WRITE_TOOL_NAMES",
+    "WHITELIST",
+    "ActionRefusedError",
+    "ModelDecision",
+    "validate_decision",
+]
+
+#: ``docs/agent-spec.md:2``, the outer vocabulary. These are the only kinds a model may produce.
+READ_TOOL: Final = "READ_TOOL"
+SEARCH_POLICY: Final = "SEARCH_POLICY"
+READ_OBSERVATION: Final = "READ_OBSERVATION"
+ASK_CUSTOMER: Final = "ASK_CUSTOMER"
+PROPOSE: Final = "PROPOSE"
+ESCALATE: Final = "ESCALATE"
+
+#: The kinds that end the run. A decision, not another turn: the loop stops here
+#: (``docs/agent-harness.md:25`` — PROPOSE 通过验证后持久最终方案与callback_outbox).
+TERMINAL_KINDS: Final[frozenset[str]] = frozenset({PROPOSE, ASK_CUSTOMER, ESCALATE})
+
+#: ``docs/agent-spec.md:18``: 最多3个聚合问题. ``docs/agent-spec.md:16``: top_k<=5.
+MAX_ASK_QUESTIONS: Final = 3
+MAX_POLICY_TOP_K: Final = 5
+
+#: ``docs/agent-spec.md:19``. The harness fills in the identity; the model chooses the action.
+RECOMMENDED_ACTIONS: Final[frozenset[str]] = frozenset(
+    {"REFUND", "REQUEST_INFO", "MANUAL_REVIEW", "REJECT"}
+)
+
+#: The five read-only tools of ``docs/agent-spec.md:26-32``, written out rather than imported from the MCP
+#: server: this is the run's policy, and reading it from the thing being policed would let a sixth tool appear
+#: in both places at once.
+WHITELIST: Final[frozenset[str]] = frozenset(
+    {
+        "get_order_context",
+        "get_shipment_trace",
+        "get_refund_status",
+        "get_case_evidence",
+        "get_policy_manifest",
+    }
+)
+
+#: Names a tool must never be able to call. Stated as a list rather than inferred from the whitelist, because
+#: "not in the whitelist" and "this is a refund" are different sentences in a refusal message, and the second
+#: one is the one an operator needs to see.
+WRITE_TOOL_NAMES: Final[frozenset[str]] = frozenset(
+    {
+        "issue_refund",
+        "request_refund",
+        "execute_refund",
+        "approve",
+        "approve_case",
+        "cancel_case",
+        "update_policy",
+        "modify_policy",
+        "write_evidence",
+    }
+)
+
+#: Member names that would name a requestable address. Refused by name, not only by value (see the module
+#: docstring): the ABI has no member that means "go and fetch this", so a member that looks like one is a
+#: mistake at best.
+URL_MEMBERS: Final[frozenset[str]] = frozenset({"url", "uri", "endpoint", "host", "hostname", "base_url", "href"})
+
+#: The run's own subject. The model cannot supply any of these: they come from the dispatch
+#: (``docs/core-scope.md`` — 模型不得指定身份).
+IDENTITY_MEMBERS: Final[frozenset[str]] = frozenset(
+    {
+        "run_id",
+        "case_id",
+        "input_revision",
+        "revision",
+        "line_id",
+        "order_id",
+        "merchant_id",
+        "customer_id",
+        "tenant",
+        "tenant_id",
+        "principal",
+        "subject",
+        "authorization",
+        "credentials",
+        "credential",
+        "token",
+    }
+)
+
+
+class ActionRefusedError(Exception):
+    """An action the harness will not execute. Carries the reason code the outcome reports.
+
+    A raised refusal rather than a sanitised decision: the action was not adjusted into something allowed. A
+    harness that dropped ``line_id`` and ran the read anyway would have investigated a subject the model chose
+    while telling the record it was the run's.
+    """
+
+    #: The stable code the run outcome reports (``docs/agent-harness.md:45`` wants a stable reason_code).
+    reason_code = "ACTION_REFUSED"
+
+    def __init__(self, message: str, *, reason_code: str | None = None) -> None:
+        super().__init__(message)
+        if reason_code is not None:
+            self.reason_code = reason_code
+
+
+class AskQuestion(BaseModel):
+    """One aggregated question (``docs/agent-spec.md:18``).
+
+    ``question_id`` is stable so a new revision can inherit the问答 without the customer's answer having to be
+    matched to a sentence (``docs/agent-spec.md:9``).
+    """
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    question_id: Annotated[str, Field(min_length=1, max_length=64)]
+    prompt: Annotated[str, Field(min_length=1, max_length=500)]
+
+
+class ModelDecision(BaseModel):
+    """One validated action from the model.
+
+    ``extra="forbid"`` is load-bearing: it is what turns "the model sent a ``line_id``" into a refusal instead
+    of a member nobody reads. ``arguments`` is a free-form object only because the five tools have three
+    different argument shapes; the whitelist check keeps it from being free-form in effect.
+    """
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    #: The one-line of reasoning the trajectory keeps (``docs/agent-spec.md:52`` — only explicit action, short
+    #: reason, input snapshot and tool results; never hidden chain of thought).
+    reasoning: Annotated[str, Field(max_length=1000)] = ""
+    reason_codes: Annotated[list[str], Field(max_length=16)] = []
+
+    kind: str
+    tool_name: str | None = None
+    arguments: dict[str, Any] = {}
+    cursor: str | None = None
+    query: str | None = None
+    observation_id: str | None = None
+    questions: list[AskQuestion] = []
+    recommended_action: str | None = None
+    summary: Annotated[str, Field(max_length=2000)] | None = None
+
+    @model_validator(mode="after")
+    def check_kind_and_its_members(self) -> ModelDecision:
+        """Each kind carries exactly the members it needs, and no member of a kind it is not.
+
+        A ``READ_TOOL`` carrying ``recommended_action`` is not a harmless extra: it is a decision smuggled in
+        through a read, and the run would execute a refund-shaped action without the proposal path's checks.
+        """
+        if self.kind not in {READ_TOOL, SEARCH_POLICY, READ_OBSERVATION, ASK_CUSTOMER, PROPOSE, ESCALATE}:
+            raise ValueError(f"{self.kind!r} is not one of the six action kinds of docs/agent-spec.md:2")
+        if self.kind not in TERMINAL_KINDS and self.recommended_action is not None:
+            raise ValueError(f"a {self.kind} action may not carry a recommended_action; that is a PROPOSE")
+        if self.kind == PROPOSE and self.recommended_action is None:
+            raise ValueError("a PROPOSE must name a recommended_action")
+        if self.kind == PROPOSE and not self.reason_codes:
+            raise ValueError("a PROPOSE must carry at least one reason code")
+        if self.kind != ASK_CUSTOMER and self.questions:
+            raise ValueError(f"a {self.kind} action may not carry questions")
+        return self
+
+
+def validate_decision(raw: dict[str, Any]) -> ModelDecision:
+    """Validate one model reply, or raise :class:`ActionRefusedError` saying which rule refused it.
+
+    Two stages, deliberately: the model's own shape, then the harness's policy. Reporting both through one
+    exception type is what lets the runner treat "the model sent PROPOSE with no action" and "the model asked
+    for a tool that does not exist" the same way — the run stops and the reason is recorded — without losing
+    which one happened, because the message says.
+    """
+    try:
+        decision = ModelDecision.model_validate(raw)
+    except Exception as refusal:
+        raise ActionRefusedError(f"the model's action is not one this ABI accepts: {refusal}") from refusal
+
+    if decision.kind == READ_TOOL:
+        _check_tool(decision)
+    if decision.kind == ASK_CUSTOMER:
+        _check_questions(decision)
+    if decision.kind == SEARCH_POLICY:
+        _check_policy_search(decision)
+    if decision.kind == PROPOSE:
+        if decision.recommended_action not in RECOMMENDED_ACTIONS:
+            raise ActionRefusedError(
+                f"{decision.recommended_action!r} is not a core proposal action; "
+                f"docs/agent-spec.md:19 allows {sorted(RECOMMENDED_ACTIONS)}"
+            )
+        _check_arguments(decision.arguments, what="a PROPOSE")
+    if decision.kind == ESCALATE and decision.recommended_action is not None:
+        # ESCALATE produces a MANUAL_REVIEW proposal or a failure callback and never invents a citation
+        # (docs/agent-spec.md:20). The action it recommends is therefore fixed here rather than chosen.
+        raise ActionRefusedError("an ESCALATE does not choose its own recommended action")
+    return decision
+
+
+def _check_tool(decision: ModelDecision) -> None:
+    name = decision.tool_name
+    if not name:
+        raise ActionRefusedError("a READ_TOOL must name a tool")
+    if name in WRITE_TOOL_NAMES:
+        raise ActionRefusedError(
+            f"{name!r} writes; the Agent has no write tools at all (docs/agent-spec.md:22, docs/core-scope.md)",
+            reason_code="WRITE_TOOL_REFUSED",
+        )
+    if name not in WHITELIST:
+        raise ActionRefusedError(
+            f"{name!r} is not one of the five whitelisted tools (docs/agent-spec.md:26-32)",
+            reason_code="UNKNOWN_TOOL",
+        )
+    _check_arguments(decision.arguments, what=f"a {name} call")
+
+
+def _check_arguments(arguments: dict[str, Any], *, what: str) -> None:
+    """Refuse identity members, requestable addresses, and nested versions of either.
+
+    Recursive, because ``{"arguments": {"source": {"url": ...}}}`` is the same mistake one level down, and a
+    shallow check would accept it.
+    """
+    _walk(arguments, what=what, depth=0)
+
+
+def _walk(node: Any, *, what: str, depth: int) -> None:
+    if depth > 8:
+        raise ActionRefusedError(f"{what} nests deeper than any tool argument should")
+    if isinstance(node, dict):
+        for key, value in node.items():
+            lowered = str(key).lower()
+            if lowered in URL_MEMBERS:
+                raise ActionRefusedError(
+                    f"{what} names a requestable address ({key!r}); a source is a controlled reference, "
+                    "never a URL (docs/core-contracts.md:61)",
+                    reason_code="ARBITRARY_URL_REFUSED",
+                )
+            if lowered in IDENTITY_MEMBERS:
+                raise ActionRefusedError(
+                    f"{what} names {key!r}, which is the run's own subject and not the model's to supply "
+                    "(docs/core-scope.md)",
+                    reason_code="IDENTITY_REFUSED",
+                )
+            if isinstance(value, str) and "://" in value:
+                raise ActionRefusedError(
+                    f"{what} carries a requestable address in {key!r}: {value[:60]!r}",
+                    reason_code="ARBITRARY_URL_REFUSED",
+                )
+            _walk(value, what=what, depth=depth + 1)
+    elif isinstance(node, list):
+        for item in node:
+            _walk(item, what=what, depth=depth + 1)
+
+
+def _check_questions(decision: ModelDecision) -> None:
+    if not decision.questions:
+        raise ActionRefusedError("an ASK_CUSTOMER must carry at least one question")
+    if len(decision.questions) > MAX_ASK_QUESTIONS:
+        raise ActionRefusedError(
+            f"an ASK_CUSTOMER carries at most {MAX_ASK_QUESTIONS} aggregated questions "
+            f"(docs/agent-spec.md:18); this one carries {len(decision.questions)}"
+        )
+    ids = [question.question_id for question in decision.questions]
+    if len(set(ids)) != len(ids):
+        raise ActionRefusedError("question ids must be distinct, or an answer cannot name which one it answers")
+
+
+def _check_policy_search(decision: ModelDecision) -> None:
+    if not decision.query:
+        raise ActionRefusedError("a SEARCH_POLICY must carry a query")
+    top_k = decision.arguments.get("top_k")
+    if top_k is not None:
+        if not isinstance(top_k, int) or isinstance(top_k, bool) or top_k < 1 or top_k > MAX_POLICY_TOP_K:
+            raise ActionRefusedError(f"a SEARCH_POLICY takes top_k at most {MAX_POLICY_TOP_K}")
+    _check_arguments(decision.arguments, what="a SEARCH_POLICY")
+
+
+#: The literal type of a decision kind, exported for a reader who wants the ABI in one place.
+DecisionKind = Literal[
+    "READ_TOOL", "SEARCH_POLICY", "READ_OBSERVATION", "ASK_CUSTOMER", "PROPOSE", "ESCALATE"
+]

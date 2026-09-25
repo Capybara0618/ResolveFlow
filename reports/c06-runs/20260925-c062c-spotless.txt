@@ -1,0 +1,72 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] resolveflow-java                                                   [pom]
+[INFO] shared-kernel                                                      [jar]
+[INFO] gateway                                                            [jar]
+[INFO] commerce-service                                                   [jar]
+[INFO] fulfillment-service                                                [jar]
+[INFO] case-service                                                       [jar]
+[INFO] 
+[INFO] ------------------< com.resolveflow:resolveflow-java >------------------
+[INFO] Building resolveflow-java 0.1.0-SNAPSHOT                           [1/6]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- spotless:3.10.2:check (default-cli) @ resolveflow-java ---
+[INFO] 
+[INFO] -------------------< com.resolveflow:shared-kernel >--------------------
+[INFO] Building shared-kernel 0.1.0-SNAPSHOT                              [2/6]
+[INFO]   from shared-kernel\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- spotless:3.10.2:check (default-cli) @ shared-kernel ---
+[INFO] Spotless.Java is keeping 21 files clean - 0 needs changes to be clean, 0 were already clean, 21 were skipped because caching determined they were already clean
+[INFO] 
+[INFO] ----------------------< com.resolveflow:gateway >-----------------------
+[INFO] Building gateway 0.1.0-SNAPSHOT                                    [3/6]
+[INFO]   from gateway\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- spotless:3.10.2:check (default-cli) @ gateway ---
+[INFO] Spotless.Java is keeping 4 files clean - 0 needs changes to be clean, 0 were already clean, 4 were skipped because caching determined they were already clean
+[INFO] 
+[INFO] ------------------< com.resolveflow:commerce-service >------------------
+[INFO] Building commerce-service 0.1.0-SNAPSHOT                           [4/6]
+[INFO]   from commerce-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- spotless:3.10.2:check (default-cli) @ commerce-service ---
+[INFO] Spotless.Java is keeping 55 files clean - 0 needs changes to be clean, 0 were already clean, 55 were skipped because caching determined they were already clean
+[INFO] 
+[INFO] ----------------< com.resolveflow:fulfillment-service >-----------------
+[INFO] Building fulfillment-service 0.1.0-SNAPSHOT                        [5/6]
+[INFO]   from fulfillment-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- spotless:3.10.2:check (default-cli) @ fulfillment-service ---
+[INFO] Spotless.Java is keeping 2 files clean - 0 needs changes to be clean, 0 were already clean, 2 were skipped because caching determined they were already clean
+[INFO] 
+[INFO] --------------------< com.resolveflow:case-service >--------------------
+[INFO] Building case-service 0.1.0-SNAPSHOT                               [6/6]
+[INFO]   from case-service\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- spotless:3.10.2:check (default-cli) @ case-service ---
+[INFO] Spotless.Java is keeping 145 files clean - 0 needs changes to be clean, 0 were already clean, 145 were skipped because caching determined they were already clean
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for resolveflow-java 0.1.0-SNAPSHOT:
+[INFO] 
+[INFO] resolveflow-java ................................... SUCCESS [  0.613 s]
+[INFO] shared-kernel ...................................... SUCCESS [  0.181 s]
+[INFO] gateway ............................................ SUCCESS [  0.054 s]
+[INFO] commerce-service ................................... SUCCESS [  0.066 s]
+[INFO] fulfillment-service ................................ SUCCESS [  0.050 s]
+[INFO] case-service ....................................... SUCCESS [  0.072 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.515 s
+[INFO] Finished at: 2026-09-25T11:09:16+08:00
+[INFO] ------------------------------------------------------------------------

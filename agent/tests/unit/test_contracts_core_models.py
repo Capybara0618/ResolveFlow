@@ -108,7 +108,7 @@ def test_dtos_are_explicitly_distinct_from_the_v1_types() -> None:
     """docs/core-contracts.md:71 requires the new DTOs to be distinguishable from the old."""
     from resolveflow.contracts import models as v1
 
-    assert len(CORE_DTO_NAMES) == 6
+    assert len(CORE_DTO_NAMES) == 7
     for core_name, v1_name in V1_COUNTERPARTS.items():
         core_type = globals()[core_name]
         v1_type = getattr(v1, v1_name)

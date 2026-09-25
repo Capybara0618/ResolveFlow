@@ -172,6 +172,7 @@ public class CaseService {
         try {
             return writer.writeCase(new CaseWriter.CaseWrite(
                     caseId,
+                    1,
                     principal.merchantId(),
                     principal.customerId(),
                     line.orderId(),

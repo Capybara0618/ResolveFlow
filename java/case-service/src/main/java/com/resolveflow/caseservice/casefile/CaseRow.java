@@ -14,6 +14,12 @@ public record CaseRow(
         String customerId,
         String orderId,
         String lineId,
+        /**
+         * The customer's own words (V16__case_description.sql). The run dispatch carries them to the
+         * Agent: the model is asked about the customer's problem, and a dispatch that left this blank
+         * would start an investigation of nothing.
+         */
+        String description,
         CaseStatus status,
         int inputRevision,
         long version,

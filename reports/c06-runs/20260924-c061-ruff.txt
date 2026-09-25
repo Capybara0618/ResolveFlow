@@ -1,0 +1,90 @@
+S105 Possible hardcoded password assigned to: "JWT_SECRET_ENV"
+  --> agent\src\resolveflow\api\app.py:63:18
+   |
+61 | DB_DSN_ENV = "RESOLVEFLOW_AGENT_DB"
+62 |
+63 | JWT_SECRET_ENV = "RESOLVEFLOW_JWT_SECRET"
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^
+64 |
+65 | #: The local demonstration secret, matching case-service's and commerce-service's ``application.yml``.
+   |
+
+S105 Possible hardcoded password assigned to: "DEFAULT_JWT_SECRET"
+  --> agent\src\resolveflow\api\app.py:67:22
+   |
+65 | #: The local demonstration secret, matching case-service's and commerce-service's ``application.yml``.
+66 | #: A deployment overrides it; the core profile is meant to be runnable and explainable.
+67 | DEFAULT_JWT_SECRET = "resolveflow-core-demo-identity-secret"
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+68 |
+69 | DEFAULT_PROVIDER_DB = "tmp/provider/refund-provider.sqlite3"
+   |
+
+E501 Line too long (121 > 120)
+   --> agent\src\resolveflow\api\identity.py:196:121
+    |
+194 |     """
+195 |     issued = int(time.time()) if now is None else now
+196 |     claims: dict[str, Any] = {"sub": subject, "aud": audience, "iss": issuer, "iat": issued, "exp": issued + ttl_seconds}
+    |                                                                                                                         ^
+197 |     if scope is not None:
+198 |         claims["scope"] = scope
+    |
+
+F401 [*] `uuid` imported but unused
+  --> agent\src\resolveflow\runtime\runs.py:35:8
+   |
+33 | import json
+34 | import re
+35 | import uuid
+   |        ^^^^
+36 | from dataclasses import dataclass
+37 | from typing import Any, Final
+   |
+help: Remove unused import: `uuid`
+   |
+34 | import re
+   - import uuid
+35 | from dataclasses import dataclass
+   |
+
+F401 [*] `psycopg.rows.dict_row` imported but unused
+  --> agent\tests\integration\test_run_api.py:18:26
+   |
+16 | import pytest
+17 | from fastapi.testclient import TestClient
+18 | from psycopg.rows import dict_row
+   |                          ^^^^^^^^
+19 |
+20 | from resolveflow.api.app import create_app
+   |
+help: Remove unused import: `psycopg.rows.dict_row`
+   |
+17 | from fastapi.testclient import TestClient
+   - from psycopg.rows import dict_row
+18 |
+   |
+
+E501 Line too long (127 > 120)
+   --> agent\tests\integration\test_run_api.py:130:117
+    |
+128 |     post_run(client, dispatcher_token, a_body())
+129 |
+130 |     conflict = post_run(client, dispatcher_token, a_body(request={"description": "换个说法", "requested_actions": ["REFUND"]}))
+    |                                                                                                                         ^^^^^^^
+131 |
+132 |     assert conflict.status_code == 409
+    |
+
+E501 Line too long (128 > 120)
+   --> agent\tests\integration\test_run_api.py:161:121
+    |
+160 | def test_another_service_cannot_dispatch_a_run(client: Any) -> None:
+161 |     token = mint_service_token("commerce-service", SECRET, scope=RUN_DISPATCH_SCOPE, merchant_id="M-1001", customer_id="C-2002")
+    |                                                                                                                         ^^^^^^^^
+162 |
+163 |     refused = post_run(client, token, a_body())
+    |
+
+Found 7 errors.
+[*] 2 fixable with the `--fix` option.

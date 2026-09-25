@@ -35,7 +35,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料：新记录引用被核验记录（`reviewed_evidence_id`）并带 `verification_result`，两条都在工单视图的 `EvidenceView` 里可读；客户角色 403，跨工单引用 422 |
 | Case | POST /api/v1/cases/{case_id}/manual-proposals | 新revision/方案，非直接付款 |
 | Case | POST /api/v1/operations/{operation_id}/reconcile | OPERATOR请求查状态，不再次付款 |
-| Agent | POST /internal/v1/runs | PG落库后202，同case/revision唯一 |
+| Agent | POST /internal/v1/runs | PG落库后202，同case/revision唯一；`run_id`由Case从`(case_id,input_revision)`派生（RFC 9562 v5），重试得到同一个id |
 | Agent | GET /internal/v1/runs/{run_id} | 受权运行摘要 |
 | Agent | GET /internal/v1/runs/{run_id}/observations/{observation_id} | 仅Case校验证据 |
 | Agent | POST /internal/v1/runs/{run_id}/cancel | 停后续调查，不承诺撤回已发LLM计费 |

@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -100,17 +101,114 @@ public final class JwtCodec {
 
     /** Issue a service token: same signature, different audience and no user identity. */
     public String issueServiceToken(String serviceName, Instant now) {
+        return issueServiceToken(serviceName, null, null, null, now);
+    }
+
+    /**
+     * Issue a service token that states a scope and the subjects it was minted for (C06.1c).
+     *
+     * <p>Run dispatch needs more than "some service is calling": the Agent's verifier requires the token to
+     * carry {@code scope=run:dispatch} and the {@code merchant_id}/{@code customer_id} the run is about, and
+     * it refuses a token that forgot them rather than skipping the check
+     * (agent/src/resolveflow/api/identity.py, docs/core-contracts.md:60 — body 必须与 service JWT、Case 绑定一致).
+     * That refusal is deliberate: a token without subjects would let a dispatch investigate a line it never
+     * named, which is the check that stops one merchant's run from reading another's order.
+     *
+     * <p>{@code scope} and the subjects are optional so the plain call sites keep working — Commerce's order
+     * reads need no scope, and adding a required parameter to them would be a change with no meaning. A null
+     * member is omitted rather than written as empty: an empty {@code sub} is a token that claims an identity
+     * it does not have, and the verifier refuses those anyway.
+     */
+    public String issueServiceToken(
+            String serviceName, String merchantId, String customerId, String scope, Instant now) {
         if (serviceName == null || serviceName.isBlank()) {
             throw new TokenException("a service token needs a service name");
         }
         var claims = MAPPER.createObjectNode();
         claims.put("sub", serviceName);
+        if (merchantId != null && !merchantId.isBlank()) {
+            claims.put("merchant_id", merchantId);
+        }
+        if (customerId != null && !customerId.isBlank()) {
+            claims.put("customer_id", customerId);
+        }
+        if (scope != null && !scope.isBlank()) {
+            claims.put("scope", scope);
+        }
         claims.put("aud", SERVICE_AUDIENCE);
         claims.put("iss", ISSUER);
         claims.put("iat", now.getEpochSecond());
         claims.put("exp", now.plus(timeToLive).getEpochSecond());
         return signRaw(claims.toString());
     }
+
+    /**
+     * Issue the scoped tool credential a run's tools present (C06.4④).
+     *
+     * <p>A separate method rather than more optional parameters on {@link #issueServiceToken}, because this
+     * token is a different thing: it is minted for one run and is worthless without the run context it was
+     * minted for. {@code docs/contracts.md:96} lists exactly the claims that make "which line may this token
+     * read" answerable — {@code case_id, run_id, input_revision, merchant_id, customer_id, line_id, aud, scopes,
+     * exp} — and {@code docs/core-contracts.md:74} adds the bound: the credential is bound to
+     * run/case/revision/merchant/customer/line/aud/scope, and only Case may renew it after confirming the
+     * revision is still valid.
+     *
+     * <p>Every member is written or omitted deliberately. The run context members are required: a credential
+     * without them would be a deployment-wide token wearing a run's name, which is precisely what this route
+     * exists to replace. Omitting a member rather than writing an empty string matters for the same reason it
+     * does in {@link #issueServiceToken} — an empty {@code line_id} is a claim to have a subject and no subject
+     * at all at the same time.
+     */
+    public String issueToolCredential(ToolCredential credential, Instant now) {
+        if (credential.serviceName() == null || credential.serviceName().isBlank()) {
+            throw new TokenException("a tool credential needs a service name");
+        }
+        for (String required : List.of(
+                credential.caseId(),
+                credential.runId(),
+                credential.merchantId(),
+                credential.customerId(),
+                credential.lineId())) {
+            if (required == null || required.isBlank()) {
+                throw new TokenException("a tool credential needs its whole run context");
+            }
+        }
+        if (credential.scopes() == null || credential.scopes().isEmpty()) {
+            throw new TokenException("a tool credential needs at least one scope");
+        }
+        var claims = MAPPER.createObjectNode();
+        claims.put("sub", credential.serviceName());
+        claims.put("aud", SERVICE_AUDIENCE);
+        claims.put("iss", ISSUER);
+        claims.put("iat", now.getEpochSecond());
+        claims.put("exp", now.plus(credential.timeToLive()).getEpochSecond());
+        claims.put("scope", String.join(" ", credential.scopes()));
+        claims.put("case_id", credential.caseId());
+        claims.put("run_id", credential.runId());
+        claims.put("input_revision", credential.inputRevision());
+        claims.put("merchant_id", credential.merchantId());
+        claims.put("customer_id", credential.customerId());
+        claims.put("line_id", credential.lineId());
+        return signRaw(claims.toString());
+    }
+
+    /**
+     * What one tool credential is minted for.
+     *
+     * <p>A record rather than a parameter list, because these members travel together: every one of them is part
+     * of "which run, for which subject, may read what", and a caller that supplied some of them positionally
+     * could swap two strings of the same type without the compiler noticing.
+     */
+    public record ToolCredential(
+            String serviceName,
+            String caseId,
+            String runId,
+            int inputRevision,
+            String merchantId,
+            String customerId,
+            String lineId,
+            List<String> scopes,
+            Duration timeToLive) {}
 
     /**
      * Sign an arbitrary claims object.

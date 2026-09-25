@@ -36,6 +36,10 @@ resolveflow:
     # Where Case reaches Commerce for the order view. The local default matches a JVM run of
     # commerce-service; compose overrides it with the in-cluster address.
     base-url: ${COMMERCE_BASE_URL:http://127.0.0.1:8081}
+  # Where Case hands a run to the Agent (C06.1c). The local default matches a JVM run of the Python
+  # service on its own port; compose overrides it with the in-cluster address.
+  agent:
+    base-url: ${AGENT_BASE_URL:http://127.0.0.1:8082}
   identity:
     jwt:
       secret: resolveflow-core-demo-identity-secret

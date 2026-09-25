@@ -6,6 +6,7 @@ import com.resolveflow.caseservice.casefile.CaseService;
 import com.resolveflow.caseservice.casefile.CaseStateConflictException;
 import com.resolveflow.caseservice.casefile.ReviewQueueCursor;
 import com.resolveflow.caseservice.casefile.ReviewQueueService;
+import com.resolveflow.caseservice.internal.ToolCredentialService;
 import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.caseservice.order.OrderController;
 import com.resolveflow.caseservice.order.RequestPrincipalResolver;
@@ -190,6 +191,47 @@ public class ApiExceptionHandler {
     @ExceptionHandler({ReviewQueueCursor.InvalidCursorException.class, ReviewQueueService.InvalidPageException.class})
     public ResponseEntity<ApiError> invalidPage(RuntimeException error, HttpServletRequest request) {
         return error(HttpStatus.BAD_REQUEST, "INVALID_ARGUMENT", error.getMessage(), false, request);
+    }
+
+    /**
+     * The run a credential was asked for is not a run this case revision has (C06.4④).
+     *
+     * <p>404 rather than 409: nothing is in conflict, the caller named a run that does not exist here. The
+     * distinction from {@link ToolCredentialService.RevisionNotCurrentException} is the one that matters — a
+     * superseded run is a real run and must not look like a typo.
+     */
+    @ExceptionHandler(ToolCredentialService.RunNotFoundException.class)
+    public ResponseEntity<ApiError> runNotFound(
+            ToolCredentialService.RunNotFoundException error, HttpServletRequest request) {
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
+    }
+
+    /**
+     * The credential was asked for a revision the case has left (C06.4④).
+     *
+     * <p>409, and not retryable: the next attempt asks the same question and the case will have moved no further
+     * back. A credential is authority to read the *current* material, so a run whose revision is no longer
+     * current has nothing to be given — renewing it would let a superseded run keep reading the case it no longer
+     * describes (which is C09's STALE boundary arriving one step early).
+     */
+    @ExceptionHandler(ToolCredentialService.RevisionNotCurrentException.class)
+    public ResponseEntity<ApiError> revisionNotCurrent(
+            ToolCredentialService.RevisionNotCurrentException error, HttpServletRequest request) {
+        return error(HttpStatus.CONFLICT, "STATE_CONFLICT", error.getMessage(), false, request);
+    }
+
+    /**
+     * The body and the path of a credential request name different runs (C06.4④).
+     *
+     * <p>422, because the request is not a credential request: its two halves describe two investigations. It is
+     * the same refusal the run intake makes when the body disagrees with the token
+     * (docs/core-contracts.md:60), and it is deliberately not a 404 — both runs may be real, and telling the
+     * caller "no such run" about a run they can see would send them to the wrong problem.
+     */
+    @ExceptionHandler(ToolCredentialService.RunMismatchException.class)
+    public ResponseEntity<ApiError> runMismatch(
+            ToolCredentialService.RunMismatchException error, HttpServletRequest request) {
+        return error(HttpStatus.UNPROCESSABLE_CONTENT, "SEMANTIC_INVALID", error.getMessage(), false, request);
     }
 
     /**

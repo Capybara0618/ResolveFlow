@@ -55,7 +55,50 @@ public RefundOperation accept(RefundCommand command) {
 
 默认未实现suite退出2、未知suite退出64，不得零步骤成功。-Case支持按case过滤由归属任务实现；不存在脚本/容器时不放空stub凑启动。旧harness-eval、反事实命令标DEFERRED，不是核心交付门槛。
 
-## 4. 核心资源与安全
+## 4. 常驻循环与开关（C06.3 补记）
+
+服务里有几件事**没有请求也会发生**。它们各自是一个独立 bean（Java）或一个守护线程（Python），都在自己的开关后面，**默认关闭**——唯一的例外是 Agent 的回调投递：outbox 没人 drain 就是回调永远不到，所以它默认开着，并且必须被告知 Case 在哪。
+
+| 循环 | 触发属性 | 默认 | 做什么 | 失败时 |
+| --- | --- | --- | --- | --- |
+| `OutboxDeliveryLoop`（case） | `resolveflow.events.outbox.delivery-enabled` | 关 | 把已签名事件投到 broker | 保留行、排下次重试 |
+| `ExecutionDispatchLoop`（case） | `resolveflow.dispatch.enabled` | 关 | 把已批准授权花掉，生成退款命令 | 记日志、下次 tick 再来 |
+| `AgentRunDispatchLoop`（case） | `resolveflow.dispatch.enabled` | 关 | 把待派发的 run 交给 Agent，直到 202 | 保持 `PENDING`、下次 tick 再来 |
+| `CallbackDeliveryLoop`（agent） | 无常驻开关（`delivery_loop=False` 仅供测试） | **开** | 把 callback outbox 投回 Case | 退避重排；永久拒绝记 DEAD |
+
+两个 run/callback 循环是**一条控制面闭环的两端**：Case 把 run 交给 Agent（`POST /internal/v1/runs`，等 202），Agent 把 run 的决定送回 Case（`POST /internal/v1/cases/{case_id}/agent-callbacks`）。两端都用 **at-least-once + 幂等键**（run 侧是 `run_id`，callback 侧是 `callback_id`），所以重投是安全的但不是免费的：Agent 的投递 worker 是进程内线程，**两个 Agent 副本会各自投递同一批行**，第二个只会被答 DUPLICATE。单副本是这个边界的部署前提，不是可以忽略的细节。
+
+读写这两个开关的位置：`java/case-service/src/main/resources/application.yml` 只放数据源与 identity，循环开关由**运行参数/环境**给出（`--resolveflow.dispatch.enabled=true`，见 `scripts/e2e_refund_chain.py`）；Agent 侧读 `RESOLVEFLOW_CASE_BASE_URL`（默认 `http://127.0.0.1:8083`，与 case-service 一致）。
+
+## 5. 五个只读工具（MCP stdio，C06.2b 补记）
+
+Agent 调查工单时能读的东西**只有五个**，白名单在 `docs/agent-spec.md:26-32`，实现在 `agent/src/resolveflow/tools/`。它们以**真实官方 MCP stdio** 提供（`docs/agent-spec.md:34`），启动方式：
+
+```
+python -m resolveflow.tools.server          # 由驱动方按 run 起，配置经环境变量
+```
+
+| 工具 | 参数 | 读什么 |
+| --- | --- | --- |
+| `get_order_context` | 无 | Commerce 当前行订单/支付事实（金额的权威） |
+| `get_shipment_trace` | `cursor` 可选、`limit<=20` | Commerce 模拟物流；**每 run 最多 2 页** |
+| `get_refund_status` | 无 | Commerce 行退款状态 |
+| `get_case_evidence` | `kind` 可选 | Case 当前 revision 的材料 |
+| `get_policy_manifest` | 无 | Case 绑定的政策版本（不可自选） |
+
+**五条来源都真的有人提供**（C06.2c 补记）：`order-lines/{id}/context`、`.../shipment`、`.../refund-status` 由 commerce-service 提供，`cases/{id}/evidence`、`cases/{id}/policy-manifest` 由 case-service 提供，路径逐字等于 `contracts/core` 里声明的路由——`source_ref` 就是请求路径本身，**引用可以直接 grep 回契约**。这不是自然形成的：`refund-status` 曾经是"契约声明了、工具在读、而 Java 一个字都没实现"，而已有的工具测试**全绿**，因为它们打的是桩，桩对什么都能回答。现在 `test_every_tool_reads_a_route_the_contract_declares` 断言每个工具的 `source_ref` 逐字命中契约路由**且**上游日志里确实出现过该路径；它能证明工具依赖的都是契约声明的东西，**不能**证明 Java 实现了它——那一半归 Java 控制器测试。
+
+配置：`RESOLVEFLOW_CASE_BASE_URL` / `RESOLVEFLOW_COMMERCE_BASE_URL`（默认 `127.0.0.1:8083` / `:8081`，与 `scripts/e2e_refund_chain.py` 声明的端口一致，并由 `agent/tests/unit/test_tool_defaults.py` 钉住）、`RESOLVEFLOW_TOOL_SERVICE_TOKEN`（令牌的**变量名**，不是令牌本身）、`RESOLVEFLOW_TOOL_LINE_ID`（必填，被测行的 id——工具读"当前行"，猜一个就等于替模型决定调查什么）、`RESOLVEFLOW_TOOL_RUN_ID` / `RESOLVEFLOW_TOOL_CASE_ID`。
+
+三条贯穿所有工具、也最容易做反的规则：
+
+- **失败是一次成功的调用。** 读不到时返回的是**带 `error` 的 Observation**（`is_error=false`），不是协议错误——`docs/agent-spec.md:36` 要错误在 Observation 里，好让 `docs/agent-harness.md:51` 把它交回模型；协议级失败会被模型读成"传输抖了该重试"，对 FORBIDDEN 恰好是错的教训。
+- **`NOT_FOUND` 不是否定事实，`FORBIDDEN` 不换 ID 重试。** 两者 `retryable=false`：再试一次答案不会变。`UPSTREAM_UNAVAILABLE` 才是 `retryable=true`。失败观察**不写 `source_version`/`content_hash`**——两项在 `CoreObservation` 里是"一起有或一起无"，因为只有版本查不出篡改、只有 hash 查不出过期，**任一个单独存在都比两个都没有更糟：它看起来可引用**。
+- **过大就拒，不截断。** 原始响应 >256KiB 明确报错（读取时按块掐断，不信 `Content-Length`），给模型的 excerpt ≤8KiB 且**标注 `truncated`**。截断后的文档算出的 hash 谁也复现不出来，建立在它上面的引用会自己通不过校验。
+
+每 run 的 trace 页预算记在**进程**上，不是记在 MCP session 上：mcp 2.2.0 每个请求给的是不同的 `ServerSession` 对象，挂 session 会导致计数器每次重置、上限形同不存在。stdio 下一个 server 进程就是一次会话，所以进程是对的；**将来若加多会话传输（streamable-http），这里必须改成按会话的键**（`server.py` 里 `_RUN_STATE` 的注释就是这条提醒）。
+
+## 6. 核心资源与安全
 
 MySQL的Case/Commerce独立schema/账号；PG Agent账户只访问agent_db；Redis不是授权事实。RocketMQ用核心v2 topics。core profile不依赖Nacos/Sentinel/完整观测容器；保留锁与可选配置，避免全量换栈。
 
@@ -76,7 +119,7 @@ provider-stub在C04落地轻量Python+SQLite持久模拟退款，含幂等/故�
 
 秘密不入库/日志/报告；.env不提交。故障路由仅lab且受控。数据库迁移只追加；旧履约库和卷不因停用被删除。关闭用compose stop保留卷，不授权清库、Git历史重写、推送、购买或公网发布。
 
-## 5. CI与完成定义
+## 7. CI与完成定义
 
 每子步先关键失败测试，再实现、验证、记录；通常3–5核心文件，过大先拆。CI覆盖现有兼容+核心契约、格式、单元、关键DB/MQ集成、mock闭环、strict小包、web build，不默认付费/重压测。
 

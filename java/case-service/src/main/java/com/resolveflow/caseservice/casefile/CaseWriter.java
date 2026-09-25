@@ -29,6 +29,11 @@ public class CaseWriter {
     /** The facts one create writes, gathered so the transaction has one input. */
     public record CaseWrite(
             String caseId,
+            /**
+             * The decision-input revision this write opens. It is always 1 for a new case, and it is passed
+             * in rather than assumed so the binding's key and the case's own revision cannot disagree.
+             */
+            int inputRevision,
             String merchantId,
             String customerId,
             String orderId,
@@ -42,11 +47,13 @@ public class CaseWriter {
 
     private final CaseRepository cases;
     private final PolicyManifestRepository manifests;
+    private final AgentRunBindingRepository bindings;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public CaseWriter(CaseRepository cases, PolicyManifestRepository manifests) {
+    public CaseWriter(CaseRepository cases, PolicyManifestRepository manifests, AgentRunBindingRepository bindings) {
         this.cases = cases;
         this.manifests = manifests;
+        this.bindings = bindings;
     }
 
     @Transactional
@@ -57,6 +64,7 @@ public class CaseWriter {
                 write.customerId(),
                 write.orderId(),
                 write.lineId(),
+                write.description(),
                 CaseStatus.QUEUED.name(),
                 1,
                 1L,
@@ -66,6 +74,17 @@ public class CaseWriter {
         for (RequestedAction action : write.actions()) {
             cases.insertRequestedAction(write.caseId(), action.name());
         }
+        // The run this revision is investigated by, recorded in the same transaction as the case (C06.1c).
+        // Not a dispatch: the Agent is called later, outside this transaction, because a network call does
+        // not belong inside one (docs/engineering.md:68). What is here is the *decision* that this case has
+        // a run, so a case without one cannot be committed — and no later reader has to guess whether a
+        // run was meant to exist. The id is derived from (case_id, input_revision) so a retry recomputes
+        // the same one (docs/domain-model.md:28).
+        bindings.insert(
+                write.caseId(),
+                write.inputRevision(),
+                AgentRunId.forRevision(write.caseId(), write.inputRevision()),
+                write.now());
         cases.insertSlot(write.merchantId(), write.lineId(), write.caseId(), write.now());
         // The policy the case is pinned to is written with the case: a case exists under a policy or it
         // does not exist, and a later import must not be able to change what an open case is decided by.

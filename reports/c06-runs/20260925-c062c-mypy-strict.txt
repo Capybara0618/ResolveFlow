@@ -1,0 +1,10 @@
+src\resolveflow\provider_stub\__init__.py:211: error: Returning Any from function declared to return "Row | None"  [no-any-return]
+src\resolveflow\provider_stub\__init__.py:386: error: Returning Any from function declared to return "Row | None"  [no-any-return]
+src\resolveflow\provider_stub\__init__.py:391: error: Returning Any from function declared to return "Row | None"  [no-any-return]
+src\resolveflow\contracts\_schemaio.py:121: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\contracts\fixtures.py:51: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\contracts\core_corpus.py:94: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\contracts\core_corpus.py:209: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\contracts\core_corpus.py:210: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\contracts\core_corpus.py:245: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+Found 9 errors in 4 files (checked 30 source files)
