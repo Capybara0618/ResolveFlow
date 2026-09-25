@@ -184,7 +184,22 @@ uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q --
 - **`mcp` 4 处缺口只验证了 3 处的修正效果**，#4（`McpError`）未验证。
 - **`agentscope.mcp` 的 `enable_tools`/`disable_tools` 未使用**：它是"SDK 侧也不放宽白名单"的可选加固点。
 - 本报告未运行 `scripts/verify.ps1`、未跑 Java 门；AS01.1 不改 Java 与生产依赖，无此需要。
-- C06.4⑤ 真实 Java 工具联调仍是**未提交、未跑**状态（见 `tasks/todo.md` AS00 记录），与本 spike 相互独立。
+- ~~C06.4⑤ 真实 Java 工具联调仍是**未提交、未跑**状态~~：**已过时**。C06.4⑤ 已于 AS00 接管并跑通（`reports/c064-e2e/20260925-155214-e2e-harness-java-tools.txt`），AS02.3 重跑于 `reports/c064-e2e/20260925-161114-e2e-harness-java-tools.txt`。保留此条只为不改写历史判断。
+
+## 8bis. AS02.3 安全子步：Java 侧强制 scope（2026-09-25，已完成）
+
+**这条不是 AS01 的一部分**，记在这里是因为它关闭的正是 §7 里那条"凭据已实现 ≠ 权限已执行"的欠账，而那条欠账最初就是在这份文档所描述的迁移过程中被发现的。
+
+| 项 | 内容 |
+| --- | --- |
+| 缺口 | `ToolCredentialService` 铸造 `commerce:read policy:read`，`docs/core-contracts.md:74` 把 scope 写进凭据绑定，而 Java 的 `ServiceTokenFilter` **只校验 aud/签名**、不读该 claim |
+| 危害（为什么值得单独一步） | 不是"少一个检查"，是**命名与事实错位**：任何读到"凭据已实现"的人都会合理地推断权限已执行 |
+| 处置 | 词汇提到 `shared-kernel` 的 `ServiceScopes`（跨进程词汇，先例 `CoreTopicNames`）；`ServiceIdentity` 真正带 `scope`（逐 scope **精确相等**，防 `commerce:read:all` 满足 `commerce:read`）；Commerce 内部读要 `commerce:read`；Case 的 `policy-manifest` 与 `/internal/v1/policies` 要 `policy:read`；403 `FORBIDDEN_SCOPE`，错误体**只报所需 scope、不回显已持有 scope** |
+| 为什么 Case 侧"按路径段"而不是前缀 | 三个 controller 同挂 `/internal/v1/cases`；前缀规则会把"读钉住的策略"和"读工单证据"变成同一权限。另三条路（取凭据、回调、证据读）**显式不加**并写明理由——取凭据是 run 获取权限的路，对它要求 scope 等于要求它还没有的东西 |
+| 强制力的证明 | 反例而不是正例：8 个 Commerce 例中有 `policy:read` 单持被拒、`commerce:read` 单独被拒、用户令牌被拒、伪造签名 401；Case 侧 7 例同构。**变异验证**：把 `requiredScope` 改成不匹配后 `CaseScopeEnforcementTest` 立刻 2 例转红（`expected 403 but was 200`），证明护栏可红而非恒绿 |
+| 第一版测试的 bug（值得记住） | `@AutoConfigureRestTestClient` 单独使用**不换掉** `@SpringBootTest` 的 MOCK 环境，而 MOCK **不建容器、不跑 servlet filter**，请求直接进 controller。首轮 4 个反例（含**伪造签名**）全部返回 `200`，即当时根本没在测 scope。加 `webEnvironment = RANDOM_PORT` 后才真的在测。**若只写正例，这个错误会以全绿交付。** |
+| 真实端到端 | `20260925-161114-e2e-harness-java-tools.txt`：凭据读到 manifest（200），同路由只带 `commerce:read` 的同形令牌拿到 `403 FORBIDDEN_SCOPE`，`message='this route requires the policy:read scope'`（未回显已持有 scope）；五个工具在强制开启后仍全部成功。**原 driver 用无 scope 的部署令牌读 manifest —— 它本身就在依赖这个缺口**，已改为"先取凭据、再用凭据读" |
+| 仍未关闭 | **Python `ServiceTokenVerifier` 的 `required_scope` 默认仍是 `run:dispatch`**，工具凭据打 Python 自己的 `/internal` 路由仍会 scope 不符——本步只做 Java 侧 |
 
 ## 8. 给审阅者的建议
 

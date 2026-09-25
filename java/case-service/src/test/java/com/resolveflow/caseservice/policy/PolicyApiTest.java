@@ -7,6 +7,7 @@ import com.resolveflow.shared.contract.ContractFixtures;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.JwtCodec;
 import com.resolveflow.shared.security.Role;
+import com.resolveflow.shared.security.ServiceScopes;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -74,7 +75,10 @@ class PolicyApiTest extends CaseDatabaseTest {
     }
 
     private String serviceToken() {
-        return new JwtCodec(secret, Duration.ofHours(1)).issueServiceToken("agent-service", Instant.now());
+        // `policy:read` is required on the policy routes as of AS02.3's security sub-step. The Agent presents the
+        // credential it mints for this scope (ToolCredentialService.TOOL_SCOPES), so the two must move together.
+        return new JwtCodec(secret, Duration.ofHours(1))
+                .issueServiceToken("agent-service", null, null, ServiceScopes.POLICY_READ, Instant.now());
     }
 
     private String userToken() {

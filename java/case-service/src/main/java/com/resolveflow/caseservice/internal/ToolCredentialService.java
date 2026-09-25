@@ -4,6 +4,7 @@ import com.resolveflow.caseservice.casefile.AgentRunBindingRepository;
 import com.resolveflow.caseservice.casefile.CaseRepository;
 import com.resolveflow.caseservice.casefile.CaseRow;
 import com.resolveflow.shared.security.JwtCodec;
+import com.resolveflow.shared.security.ServiceScopes;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -106,8 +107,13 @@ public class ToolCredentialService {
      *
      * <p>A caller cannot pass scopes in, which is what {@code docs/core-contracts.md:74} means by "Agent 不能自行
      * 扩大 scope": the set is a property of the route, not of the request.
+     *
+     * <p>The values come from {@link com.resolveflow.shared.security.ServiceScopes} — the same constants the
+     * services' own filters require. These were literals here until AS02.3's security sub-step made the claim
+     * enforceable, at which point a mint that spelled them itself could have drifted from the routes checking them
+     * without either side failing to compile.
      */
-    public static final List<String> TOOL_SCOPES = List.of("commerce:read", "policy:read");
+    public static final List<String> TOOL_SCOPES = ServiceScopes.TOOL_CREDENTIAL;
 
     /** The service name the credential names as its subject. */
     private static final String TOOL_SUBJECT = "agent-service";

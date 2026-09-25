@@ -7,6 +7,7 @@ import com.resolveflow.caseservice.policy.PolicyManifestRepository;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.JwtCodec;
 import com.resolveflow.shared.security.Role;
+import com.resolveflow.shared.security.ServiceScopes;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -108,7 +109,10 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
     }
 
     private String serviceToken() {
-        return new JwtCodec(secret, Duration.ofHours(1)).issueServiceToken("agent-service", Instant.now());
+        // `policy:read` is required on the manifest route as of AS02.3's security sub-step. The Agent presents the
+        // credential it mints for this scope (ToolCredentialService.TOOL_SCOPES), so the two must move together.
+        return new JwtCodec(secret, Duration.ofHours(1))
+                .issueServiceToken("agent-service", null, null, ServiceScopes.POLICY_READ, Instant.now());
     }
 
     private String userToken() {

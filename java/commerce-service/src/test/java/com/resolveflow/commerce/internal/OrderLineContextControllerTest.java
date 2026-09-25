@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.resolveflow.commerce.CommerceDatabaseTest;
 import com.resolveflow.shared.security.JwtCodec;
+import com.resolveflow.shared.security.ServiceScopes;
 import java.time.Duration;
 import java.time.Instant;
 import org.junit.jupiter.api.AfterEach;
@@ -22,8 +23,9 @@ import tools.jackson.databind.ObjectMapper;
  * {@code GET /internal/v1/order-lines/{line_id}/context} over HTTP (C03.2a).
  *
  * <p>This is the read Java recomputes a refund from, so the test is about the money being real: the amounts
- * come from {@code payment_ledger} rather than from a constant, the ownership is disclosed so the caller can
- * confirm it, and the route carries no scope of its own — which is only safe because it is service-only.
+ * come from {@code payment_ledger} rather than from a constant, and the ownership is disclosed so the caller can
+ * confirm it. The route is service-only and, since AS02.3's security sub-step, requires the {@code commerce:read}
+ * scope; that this test's calls now ask for it is the coupling that step introduced, not decoration.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
@@ -47,7 +49,11 @@ class OrderLineContextControllerTest extends CommerceDatabaseTest {
     }
 
     private String serviceToken() {
-        return new JwtCodec(secret, Duration.ofHours(1)).issueServiceToken("case-service", Instant.now());
+        // The scope is required as of AS02.3's security sub-step: this route now demands `commerce:read`, so a
+        // scopeless service token is refused before the controller runs. Case's real client asks for the same
+        // scope (CommerceOrderLineClient#serviceToken), and the two must move together.
+        return new JwtCodec(secret, Duration.ofHours(1))
+                .issueServiceToken("case-service", null, null, ServiceScopes.COMMERCE_READ, Instant.now());
     }
 
     private String userToken() {

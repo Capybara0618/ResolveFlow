@@ -3,6 +3,7 @@ package com.resolveflow.caseservice.order;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.JwtCodec;
 import com.resolveflow.shared.security.Role;
+import com.resolveflow.shared.security.ServiceScopes;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -202,7 +203,14 @@ public class CommerceOrderLineClient {
     }
 
     private String serviceToken() {
-        return codec.issueServiceToken(serviceName, Instant.now());
+        // `commerce:read`, because Commerce's internal order-line routes now require it (AS02.3's security
+        // sub-step added the check, and this is the caller that had to start asking). Before that step the token
+        // carried no scope and Commerce accepted it, so the scope claim on the *tool* credential was the only place
+        // the vocabulary appeared — a bound on the token that no route read.
+        //
+        // The string comes from ServiceScopes, which is also what Commerce's filter requires and what this service
+        // mints onto a run's tool credential: one vocabulary, three call sites that cannot disagree.
+        return codec.issueServiceToken(serviceName, null, null, ServiceScopes.COMMERCE_READ, Instant.now());
     }
 
     /**

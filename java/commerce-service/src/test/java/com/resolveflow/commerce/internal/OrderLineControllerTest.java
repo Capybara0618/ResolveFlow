@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.resolveflow.commerce.CommerceDatabaseTest;
 import com.resolveflow.shared.security.JwtCodec;
+import com.resolveflow.shared.security.ServiceScopes;
 import java.time.Duration;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
@@ -37,7 +38,10 @@ class OrderLineControllerTest extends CommerceDatabaseTest {
     String secret;
 
     private String serviceToken() {
-        return new JwtCodec(secret, Duration.ofHours(1)).issueServiceToken("case-service", Instant.now());
+        // `commerce:read` is required as of AS02.3's security sub-step; a scopeless service token is now refused
+        // on this service's internal read routes. See OrderLineContextControllerTest#serviceToken.
+        return new JwtCodec(secret, Duration.ofHours(1))
+                .issueServiceToken("case-service", null, null, ServiceScopes.COMMERCE_READ, Instant.now());
     }
 
     private String userToken() {

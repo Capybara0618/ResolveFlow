@@ -3,6 +3,7 @@ package com.resolveflow.caseservice.casefile;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.resolveflow.caseservice.CaseDatabaseTest;
+import com.resolveflow.caseservice.internal.ToolCredentialService;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.JwtCodec;
 import com.resolveflow.shared.security.Role;
@@ -347,6 +348,39 @@ class ToolCredentialApiTest extends CaseDatabaseTest {
                 .exchange()
                 .expectStatus()
                 .isNotFound();
+    }
+
+    @Test
+    @DisplayName("the credential's scopes are the ones the route publishes, not a caller's choice")
+    void theCredentialCarriesTheRoutesOwnScopes() {
+        String caseId = openCase();
+
+        JsonNode credential = credentialFor(caseId, 1);
+
+        // AS02.3's security sub-step: the scopes exist so that a *route* can require them. Until this step nothing
+        // read the claim, so the credential was bound to a run on paper and enforced nowhere — the gap the ledger
+        // recorded as "工具凭据的 scope 没有被任何一方强制".
+        assertThat(credential.get("scopes").size()).isEqualTo(ToolCredentialService.TOOL_SCOPES.size());
+        assertThat(credential.get("scopes").get(0).stringValue()).isEqualTo(ToolCredentialService.TOOL_SCOPES.get(0));
+    }
+
+    @Test
+    @DisplayName("a service token that names no scope is still accepted by the credential route itself")
+    void aScopelessServiceTokenMayStillAskForACredential() {
+        String caseId = openCase();
+
+        // The route that *mints* credentials is guarded by the subject and the run binding, not by a scope: the
+        // Agent has no credential yet, so requiring `commerce:read` of it would be requiring the thing it is
+        // asking for. This is asserted because a scope check added too broadly would lock the Agent out of its own
+        // credential and the failure would look like a broken Case.
+        rest.post()
+                .uri("/internal/v1/runs/" + AgentRunId.forRevision(caseId, 1) + "/tool-credential")
+                .header("Authorization", "Bearer " + toolIdentityToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("{\"case_id\":\"" + caseId + "\",\"input_revision\":1}")
+                .exchange()
+                .expectStatus()
+                .isOk();
     }
 
     @Test

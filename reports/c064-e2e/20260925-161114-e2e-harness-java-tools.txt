@@ -1,0 +1,123 @@
+# C06.4⑤ 真实 Java↔Python：Harness 经真实 MCP stdio 读运行中的 Case/Commerce
+run 20260925-161114
+
+== environment
+  -- compose MySQL answers
+     PASS (0.2s)
+
+== build
+  -- mvnw package (skipTests)
+     PASS (18.3s)  log 20260925-161114-build.txt
+
+== the two Java processes
+     case-service: C:\Users\hjn\.jdks\jdk-21.0.12.1+1\bin\java -jar E:\Code\Agent+Backend\java\case-service\target\case-service-0.1.0-SNAPSHOT.jar --resolveflow.commerce.base-url=http://127.0.0.1:8081 --resolveflow.dispatch.enabled=false  (log E:\Code\Agent+Backend\reports\c064-e2e\case-service.log)
+     commerce-service: C:\Users\hjn\.jdks\jdk-21.0.12.1+1\bin\java -jar E:\Code\Agent+Backend\java\commerce-service\target\commerce-service-0.1.0-SNAPSHOT.jar  (log E:\Code\Agent+Backend\reports\c064-e2e\commerce-service.log)
+  -- both services are up
+     PASS (6.9s)  case=True commerce=True
+
+== a real case, over real HTTP
+     minted order e8d5e913-c4b1-4e44-8a60-74909e341bc3 line 9161140 for 2599 minor (sku SKU-RED-M-H5-9161140, with a 4-event synthetic shipment whose source_version is 5 because the seed skips 3)
+     login: role=CUSTOMER merchant=M-1001 customer=C-2002
+  -- a case is opened on the minted line
+     PASS (1.2s)  201 
+     case 4d95e979-64be-4e47-b100-3352816c90e2 input_revision=1 version=1
+
+== the run's scoped tool credential (C06.4④)
+  -- Case issues the credential
+     PASS (0.0s)  200 
+     credential claims: sub=agent-service scope=commerce:read policy:read line_id=9161140 run_id=86273316-3ef7-5672-9767-69949feb585c input_revision=1 exp=1790324201
+  -- the credential is bound to this run
+     PASS  observed=86273316-3ef7-5672-9767-69949feb585c  expected=86273316-3ef7-5672-9767-69949feb585c
+  -- the credential is bound to this line
+     PASS  observed=9161140  expected=9161140
+  -- the credential names the run's revision
+     PASS  observed=1  expected=1
+
+== the credential's scopes are enforced by the routes it reads
+  -- the case has a pinned policy manifest, read with the run's own policy:read
+     PASS (0.1s)  200
+  -- policy:read is required, not decorative
+     PASS  observed=403 FORBIDDEN_SCOPE  expected=403
+     the wrong-scope refusal body: {'code': 'FORBIDDEN_SCOPE', 'message': 'this route requires the policy:read scope', 'retryable': False, 'trace_id': 'b9eb7b41-0edd-4e45-a677-7e271c012f23'}
+
+== the Harness drives the five tools against running Java
+     trajectory: {'action': 'get_order_context', 'outcome': 'OBSERVED', 'new_evidence': True, 'observation_id': 'obs-get_order_context-f8e6e363a5fbb962'}
+     trajectory: {'action': 'get_shipment_trace', 'outcome': 'OBSERVED', 'new_evidence': True, 'observation_id': 'obs-get_shipment_trace-f92c4f5cc87c23b3'}
+     trajectory: {'action': 'get_refund_status', 'outcome': 'OBSERVED', 'new_evidence': True, 'observation_id': 'obs-get_refund_status-416b33ce49a4ad5d'}
+     trajectory: {'action': 'get_case_evidence', 'outcome': 'OBSERVED', 'new_evidence': True, 'observation_id': 'obs-get_case_evidence-5d444c9ca2ea5d1e'}
+     trajectory: {'action': 'get_policy_manifest', 'outcome': 'OBSERVED', 'new_evidence': True, 'observation_id': 'obs-get_policy_manifest-a829d97133153bf2'}
+     trajectory: {'action': 'PROPOSE', 'outcome': 'DECIDED', 'detail': 'MANUAL_REVIEW'}
+  -- the Harness loop finished
+     PASS (6.5s)  reason=COMPLETED model_calls=6 tool_attempts=5
+     spend: {'model_calls': 6, 'tool_attempts': 5, 'local_reads': 0, 'input_tokens': 9294, 'output_tokens': 0, 'no_progress_rounds': 0}
+     modes: {'mock'}
+
+== what the databases say
+     order_line        [['2599', '1']]
+     line_refund       [['FREE', '1']]
+     case_evidence     [['0']] row(s)
+
+== the verdict
+  -- every read succeeded
+     PASS  observed=5  expected=5
+  -- the run reached a decision
+     PASS  observed=COMPLETED  expected=COMPLETED
+  -- the reads are the ones the model asked for
+     PASS  observed=5 tool attempts  expected=5
+  -- no read used the deployment token
+     PASS  observed=per-read credential  expected=per-read credential
+     get_order_context    version='1'                  hash=7dd3c88fca16 error=-
+     get_shipment_trace   version='5'                  hash=a3c693533115 error=-
+     get_refund_status    version='1'                  hash=fc49b9edbbe4 error=-
+     get_case_evidence    version='1'                  hash=5e86f964137a error=-
+     get_policy_manifest  version='2fe077a79570314e5ca8a0bc499667add647012317df47853f64bf19a8814748' hash=e1322826f1be error=-
+  -- the order context is about this run's line
+     PASS  observed=9161140  expected=9161140
+  -- the paid amount is the row's
+     PASS  observed=2599  expected=2599
+  -- the shipment trace has real events
+     PASS  observed=3  expected=3
+  -- the trace is marked synthetic
+     PASS  observed=True  expected=True
+  -- the refund status is about this run's line
+     PASS  observed=9161140  expected=9161140
+  -- a freshly minted line has never been refunded
+     PASS  observed=FREE  expected=FREE
+  -- the evidence route answered the case's revision
+     PASS  observed=1  expected=1
+  -- the evidence is about this run's case
+     PASS  observed=4d95e979-64be-4e47-b100-3352816c90e2  expected=4d95e979-64be-4e47-b100-3352816c90e2
+  -- the policy manifest hash was read from bundles[0]
+     PASS  observed=64 chars  expected=64 chars
+  -- get_order_context: cites a version
+     PASS  observed=True  expected=True
+  -- get_order_context: cites a hash
+     PASS  observed=64 chars  expected=64 chars
+  -- get_order_context: no URL in its reference
+     PASS  observed=True  expected=True
+  -- get_shipment_trace: cites a version
+     PASS  observed=True  expected=True
+  -- get_shipment_trace: cites a hash
+     PASS  observed=64 chars  expected=64 chars
+  -- get_shipment_trace: no URL in its reference
+     PASS  observed=True  expected=True
+  -- get_refund_status: cites a version
+     PASS  observed=True  expected=True
+  -- get_refund_status: cites a hash
+     PASS  observed=64 chars  expected=64 chars
+  -- get_refund_status: no URL in its reference
+     PASS  observed=True  expected=True
+  -- get_case_evidence: cites a version
+     PASS  observed=True  expected=True
+  -- get_case_evidence: cites a hash
+     PASS  observed=64 chars  expected=64 chars
+  -- get_case_evidence: no URL in its reference
+     PASS  observed=True  expected=True
+  -- get_policy_manifest: cites a version
+     PASS  observed=True  expected=True
+  -- get_policy_manifest: cites a hash
+     PASS  observed=64 chars  expected=64 chars
+  -- get_policy_manifest: no URL in its reference
+     PASS  observed=True  expected=True
+
+RESULT: PASSED (35.6s)

@@ -361,12 +361,6 @@ def main() -> int:
         # (AgentRunId.forRevision, RFC 9562 v5). Deriving it here rather than reading a dispatched row is the
         # honest state of this step: no dispatch loop is running, so the binding exists and nothing has consumed
         # it, which is exactly what the credential route needs (it looks the run up in agent_binding).
-        status, binding = request_json(
-            f"http://127.0.0.1:{CASE_PORT}/internal/v1/cases/{case_id}/policy-manifest",
-            token=mint_service_token("agent-service"))
-        report.step("the case has a pinned policy manifest", status == 200, 0.0,
-                    f"{status}" if status == 200 else f"{status} {binding}")
-
         run_id = agent_run_id_for(case_id, input_revision)
 
         # ── the run's own credential, from Case ────────────────────────────────────────────────────
@@ -391,6 +385,29 @@ def main() -> int:
                      claims.get("line_id") == line_id)
         report.check("the credential names the run's revision", str(claims.get("input_revision")),
                      str(input_revision), claims.get("input_revision") == input_revision)
+
+        # ── the scope the credential carries is the one Java enforces ──────────────────────────────
+        # AS02.3's security sub-step: Case's policy routes require `policy:read` and Commerce's internal reads
+        # require `commerce:read`. Both are asserted here as a pair, because the credential's scopes only mean
+        # something if a route actually reads them — before this step nothing did, so "凭据已实现" could be
+        # misread as "权限已执行".
+        report.section("the credential's scopes are enforced by the routes it reads")
+        status, manifest = request_json(
+            f"http://127.0.0.1:{CASE_PORT}/internal/v1/cases/{case_id}/policy-manifest",
+            token=credential["token"])
+        report.step("the case has a pinned policy manifest, read with the run's own policy:read", status == 200,
+                    time.time() - started, f"{status}" if status == 200 else f"{status} {manifest}")
+        if status != 200:
+            report.finish("FAILED: the credential could not read the policy it was minted to read")
+            return 1
+        # The negative half: the same route, and a token of the same shape holding only Commerce's half of the
+        # credential. A filter that ignored the claim would answer 200 here and this step would be decorative.
+        status, refused = request_json(
+            f"http://127.0.0.1:{CASE_PORT}/internal/v1/cases/{case_id}/policy-manifest",
+            token=mint_service_token("agent-service", extra_claims={"scope": "commerce:read"}))
+        report.check("policy:read is required, not decorative", "403 FORBIDDEN_SCOPE", str(status),
+                     status == 403)
+        report.note(f"the wrong-scope refusal body: {refused}")
 
         # ── the Harness, over real MCP stdio, against those services ───────────────────────────────
         report.section("the Harness drives the five tools against running Java")

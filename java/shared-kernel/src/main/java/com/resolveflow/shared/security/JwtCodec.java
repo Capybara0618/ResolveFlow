@@ -7,7 +7,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import tools.jackson.databind.JsonNode;
@@ -247,7 +246,16 @@ public final class JwtCodec {
     /** Verify a service token; a user token is not one, and vice versa. */
     public ServiceIdentity verifyAsService(String token, Instant now) {
         JsonNode claims = verifiedClaims(token, SERVICE_AUDIENCE, now);
-        return new ServiceIdentity(requiredText(claims, "sub"));
+        // The `scope` claim is carried through, and it is what a route enforces (AS02.3's security sub-step). It
+        // used to be dropped here, which meant no filter *could* check a scope even though C06.4④ mints a tool
+        // credential carrying `commerce:read policy:read`: the binding was on the token and read by nobody.
+        //
+        // Absent is null rather than "": a token that names no scope is not a token that named the empty scope, and
+        // a route may deliberately allow the former (Case's own internal calls present scope-less tokens) while
+        // never allowing the latter.
+        JsonNode scope = claims.get("scope");
+        String scopeText = scope == null || scope.isNull() ? null : scope.stringValue();
+        return new ServiceIdentity(requiredText(claims, "sub"), scopeText);
     }
 
     /** Read a principal straight from an {@code Authorization} header. */
@@ -346,8 +354,20 @@ public final class JwtCodec {
         }
     }
 
-    /** The identity a service token carries: no merchant, no role, no customer. */
-    public record ServiceIdentity(String subject) {
+    /**
+     * The identity a service token carries: no merchant, no role, no customer, and the scope it was minted with.
+     *
+     * <p>{@code scope} is the raw claim (a single space-delimited string, RFC 6749's spelling) and is {@code null}
+     * when the token named none. Both facts matter to a caller: a route that requires a scope must refuse a
+     * scope-less token, while a route that does not require one must keep accepting Case's own internal calls.
+     *
+     * <p>The old comment here said scopes "are carried by the audience" and that the demonstration has exactly two.
+     * That was wrong in a way worth recording: the audience says *what kind of token* this is, and it cannot
+     * distinguish a token that may read Commerce's order data from one that may not. C06.4④ already minted two
+     * scopes onto the tool credential, so the only thing missing was reading them. The {@code audiences()} accessor
+     * that spelled out the old claim has been deleted; nothing called it.
+     */
+    public record ServiceIdentity(String subject, String scope) {
 
         public ServiceIdentity {
             if (subject == null || subject.isBlank()) {
@@ -355,9 +375,25 @@ public final class JwtCodec {
             }
         }
 
-        /** Scopes are carried by the audience; the demonstration has exactly two. */
-        public Map<String, String> audiences() {
-            return Map.of("aud", SERVICE_AUDIENCE);
+        /** The scopes this token holds, split on whitespace; empty when it named none. */
+        public java.util.List<String> scopes() {
+            if (scope == null || scope.isBlank()) {
+                return java.util.List.of();
+            }
+            return java.util.Arrays.stream(scope.trim().split("\\s+"))
+                    .filter(part -> !part.isBlank())
+                    .toList();
+        }
+
+        /**
+         * Whether this token may act on a route requiring {@code required}.
+         *
+         * <p>Comparison is exact per scope. A prefix or substring match would let {@code commerce:read:all} satisfy
+         * {@code commerce:read}, which is the classic way a scope check becomes decorative — and the demonstration
+         * scopes are single words, so there is nothing a looser match would buy.
+         */
+        public boolean hasScope(String required) {
+            return scopes().contains(required);
         }
     }
 }
