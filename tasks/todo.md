@@ -7,7 +7,7 @@
 - T00：任务记录完成，兼容与版本锁；报告见docs/compatibility-report.md及reports/t00-compatibility/。
 - T01：任务记录完成，工程与命令/基础CI。
 - T02：任务记录完成，4份旧OpenAPI、双语言hash/签名/fixture；2026-09-18记录all-offline 17/17，Python155、Java shared-kernel29。
-- 当前（2026-09-25，AS02.3 安全子步两侧均完成之后）：C00–C05 已有完成记录；**C06 的 C06.4①–⑤ 全部完成并跑通真实 Java 工具 e2e**；**AS00–AS02.3 完成**（AgentScope 2.0.8 已是唯一生产循环；工具凭据的 scope **Java 与 Python 两侧都已强制**，`-Suite all-offline` PASSED）；**未关闭**：run 侧 worker 不存在（属 C09）、模型仍全为 mock（H1 未验证）。**C07–C13 尚未完成**。
+- 当前（2026-09-25，C07.2 完成之后）：C00–C05 已有完成记录；**C06 的 C06.4①–⑤ 全部完成并跑通真实 Java 工具 e2e**；**AS00–AS02.3 完成**（AgentScope 2.0.8 已是唯一生产循环；工具凭据的 scope **Java 与 Python 两侧都已强制**）；**C07.1 与 C07.2 完成**（政策索引 + 真实 embedding 检索；上下文 facts 视图/P0–P4 组装/裁剪与读回；`-Suite all-offline` PASSED）；**未关闭**：run 侧 worker 不存在（属 C09）、模型仍全为 mock（H1 未验证）、**`ContextBuilder` 尚未接进循环的每步报文（属 C08.1）**。**C08–C13 尚未完成**。
 - 历史：原第 10 行写"C06.4⑤ 有未提交改动，需 AS00 接管核实"，AS00 已核实并接管，该阶段已过。
 - v1.3文档检查（2026-09-25）：23份Markdown链接/围栏、原C00–C06记录保留与8个既有代码改动hash检查通过；契约回归549 passed/9 skipped。实际命令、检查边界和未运行项见docs/framework-review.md末尾；不据此勾任何AS实现任务。
 
@@ -1241,8 +1241,8 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C07 政策检索与上下文
 
-- [ ] C07.1：固定bundle索引、真实dense与BM25基线、版本/商家过滤、引用。
-- [ ] C07.2：ContextBuilder关键事实/来源/冲突保真、token上限、原文索引及scope读回。
+- [x] C07.1：固定bundle索引、真实dense与BM25基线、版本/商家过滤、引用。（2026-09-25 完成，见下方实际记录）
+- [x] C07.2：ContextBuilder关键事实/来源/冲突保真、token上限、原文索引及scope读回。（2026-09-25 完成，见下方实际记录；**边界：尚未接进循环每步报文，属 C08.1**）
 - 依赖：C03,C06核心前置,AS02.3（**均已满足，无阻塞**）。文件：agent/policies、harness/context、相应fixtures/tests。
 - 验收：索引未就绪不搜旧版本；关键字段不被摘要改写；超限明确终止，原文可按ref读回。
 - 验证：检索过滤/真实embedding冒烟、上下文七类fixture；无四组消融要求。
@@ -1314,9 +1314,56 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
     11. **评测的"家族分离"检查第一版太宽松**（剥掉 `_near_miss` 后比较），把 dev/test 共有的 4 个家族报成"没问题"；
         改成精确比较后**警告是真的**（按版本切分并不产生家族分离）。于是重写查询集：**dev=LOGISTICS、test=DAMAGE，
         家族零重叠**——而不是把检查放松到能通过。
-  - **未做/不声称**：C07.2（ContextBuilder / `READ_OBSERVATION` 执行体 / 七类 fixture）**未开始**；
-    **没有**做 hybrid/RRF/rerank（规格明确退出必做），也**没有**把 dense 说成更好；语料是合成 23 条，
-    **不写跨语料泛化结论**；`all-offline` 未在本步跑（见下一条门禁记录）；Java 4 个 skipped 仍未跑。
+  - **未做/不声称**：**没有**做 hybrid/RRF/rerank（规格明确退出必做），也**没有**把 dense 说成更好；语料是合成 23 条，
+    **不写跨语料泛化结论**；Java 4 个 skipped 仍未跑。（C07.2 的完成记录见下方 C07.2 段。）
+
+### C07.2 上下文与原文读回（2026-09-25，同一会话）
+
+- 交付（全部为本步新增）：
+  - `harness/facts.py`：三层记录里的 facts 视图。**来源权威由 `source_type` 派生**（与 Java 的
+    `EvidenceSourceType.isMachineRead` 同一刀：ORDER_LINE/SHIPMENT/… = AUTHORITY，
+    CUSTOMER_STATEMENT/REVIEWER_VERIFICATION = USER_CLAIM），**视图里没有任何"提升权威"的操作**——所以"用户陈述
+    因重复出现而升级为权威"在这套代码里没有路径。同源新读把旧行标 `STALE`（保留原记录）；同字段不同值两侧都标
+    `CONFLICT` 且**都**送给模型，视图不选赢家（两个 AUTHORITY 互相冲突也一样，按权威排序解决是同一个错误）。
+    事实值是 `(key, value)` 字段：key 必须是单个标识符、value 有长度上限——都为了让"把散文重写成字段"失败。
+  - `harness/context.py`：P0（system + 动作/工具 schema，**不可裁剪**）/P1（诉求、历史问答）/P2（精确字段+来源+
+    状态）/P3（**当前**观察，有界）/P4（**较早**观察的索引）。输入上限
+    `min(8192, provider容量-输出预留-256, 累计剩余输入)`；裁剪**最旧优先、P3 先于 P4、逐段**，每次丢弃记
+    `omitted_refs`（层/标签/ref/原因）；P0+P1+P2 放不下则 **`CONTEXT_REQUIRED_OVERFLOW` 明确终止**，报文点名最大的
+    那一层。`protected_fact_hash` 覆盖必保留值/来源/版本/冲突；`context_hash` 覆盖 system+messages。
+  - `harness/observation_read.py`：`ObservationStore` **按 run 隔离且没有 case 索引**（跨主体读取在形状上不可能，
+    不是靠一次检查）；`offset>=0`、`limit<=4000` **拒绝而非截断**；不存在的 ref（含"存在但不属于本 run"）
+    返回 `NOT_FOUND` 且不猜。
+  - `harness/local_reads.py`：两个本地读（`SEARCH_POLICY`、`READ_OBSERVATION`）**共用一个基类**——预算两处预占
+    （search/tool attempt + local read）、各自的 stop reason、trajectory、error chunk 都只有一份实现；
+    `READ_OBSERVATION` 接进 SDK 工具机制（不是第六个 MCP 工具），adapter 渲染成 tool call，gate 按名字放行。
+    两个 bridge 原先分居两处（C07.1 的 `PolicySearchBridge` 在 `sdk_runner` 里），合并是因为"同一组边界决策写两遍"
+    就是行为开始漂移的地方。
+  - 七类 fixture（`tests/unit/context_fixtures.py` + `test_context_scenarios.py`）：长物流、矛盾来源、缺引用、
+    超限、恶意正文、跨 scope 读回、合法 tool pair——**每类都断言它存在的那个性质**，不是"fixture 能建出包"。
+  - 裁剪前后演示（`test_context_trimming_demo.py`）：实测数字 **generous cap=585 无丢弃 / tight cap=584 丢
+    `index:0` / `protected_fact_hash` 两侧相等 / 8 条 P2 事实逐字保留**。
+- 过程中修掉的**真**问题（都不是我最初以为的那个）：
+  1. **本地读被拒时没有记 no-progress 轮次**：`pending_repeat` 不清理，第三次相同拒绝不被计数，run 一直烧到
+     `BUDGET_MODEL_CALLS`。修法与 MCP 路径同步（两条 refusal 路径都 `note_evidence(False)`）。
+  2. **模型调用钩子在 gate 已记 `stop_reason` 之后仍会预占调用**：它在 adapter 的 `decide` 之前跑，所以"已停止的 run"
+     报的是 `BUDGET_MODEL_CALLS` 而不是把它停下来的那条原因。钩子现在先看 stop reason 并具名抛出。
+  3. **P3/P4 一度是同一批观察各写一遍**（同一个 ref），去重规则于是把 P4 整个删掉——索引存在的意义就是"按需读回"，
+     而它从未被发出去。改为 **P3 = 最近 N 条带内容、P4 = 更早那些的索引**（`OBSERVATION_WINDOW`），
+     并把去重提到渲染**之前**：原先按 ref 丢渲染结果，会留下**后**一份内容却挂着**前**一份的 observation id——
+     报文把一次读取的内容归到另一次读取的引用下，比重复更糟。
+  4. **8 KiB 的截断是按字符切的**，既产生非法 provider 形状，又会被前面一个长 `raw` 字段把**结构化字段挤出**报文。
+     改为**按字段**有界（超长字段换成"用 READ_OBSERVATION 读 <id> 的 offset=N"的指针，offset 指到值的第一个字符），
+     整段 8 KiB 只作兜底。长物流 fixture 正是这么发现的。
+  5. **`Fact` 曾是 frozen dataclass**，`note()` 返回的对象随后被视图替换，调用方手里的引用永远读到 `FRESH`。
+     改为可变并让状态就地更新（身份即语义）；测试当场抓到。
+- **未做（明确留边界，不声称完成）**：**`ContextBuilder` 还没有接进 `sdk_runner` 的报文构建**——循环仍用它自己的
+  `_packet_of`（证据形状，不是 P0–P4 上下文包）。C07.2 交付的是一个**完整、被测的组件**（组装/裁剪/两套 hash/读回），
+  而"把它接到循环的每一步"属于 C08.1 的"上下文与预算接点"。**因此本次不声称"模型看到的输入已经是 ContextPacket"**。
+  另外：`MODEL_INFERENCE` 目前没有生产者（模型推断要等 C08 的真实模型适配），枚举与顺序已就位但无调用点。
+- 实测：`pytest tests` → **903 passed, 9 skipped**（C07.1 收口时 829）；`ruff check src tests` → All checks passed；
+  strict `mypy`（在 `agent/` 下）→ **9 errors in 4 files = 基线，零新增**。
+
   - **门禁（收口时实跑）**：`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**
     （`reports/verify/20260925-200835-all-offline.txt`）。**边界照旧**：它不跑 `agent/tests/integration`、不跑真实
     Java↔Python 联调，`python-mypy` 用的是 `agent/src` 而非 strict 全量——所以上面那份 Java/Python 全量与 e2e 结果

@@ -533,18 +533,33 @@ def _unique_observations(
     return kept, dropped
 
 
-def _observation_sections(observations: list[ToolObservation]) -> list[_Section]:
-    """P3: the **current** observations, each excerpted to ``docs/agent-spec.md:36``'s 8 KiB and cited.
+#: How large a single observation field may be before the excerpt replaces it with a pointer to the原文. The
+#: bound is per **field**, not per excerpt, so what the model receives stays well-formed data.
+MAX_FIELD_CHARS: Final = 2000
 
-    The excerpt is the observation's own ``result``, serialised, never rewritten: a tool result is the evidence a
-    citation points at, and a "cleaner" rendering here would mean the model read something the citation does not
-    name. Policy **text** arrives through the policy search observation, so it is here rather than in a layer of
-    its own — the layer's meaning is "bounded fragments with citations", not "things of a particular type".
+
+def _observation_sections(observations: list[ToolObservation]) -> list[_Section]:
+    """P3: the **current** observations, bounded and cited.
+
+    The excerpt bytes are bounded two ways, and the first version of this got the second one wrong:
+
+    1. **Per field**: a field longer than :data:`MAX_FIELD_CHARS` is replaced by a pointer to the observation, which
+       is what ``docs/context-engineering.md:29`` means by 用首末/异常/状态变化结构化提取，保留原文位置 — the
+       model gets the structure and the location, not a wall of text.
+    2. **Per excerpt**, as a last resort at ``docs/agent-spec.md:36``'s 8 KiB.
+
+    The first version bounded only the total and cut it by **character count**, which did two harmful things: it
+    produced a JSON fragment that is not valid JSON — the illegal provider shape ``:29`` forbids — and a long
+    ``raw`` field early in the object pushed the structured fields *out* of the excerpt entirely, so the model
+    would see a truncated blob instead of the conclusion it is deciding from. A fixture with a long tracking
+    history and a long raw body is what showed it.
     """
     sections: list[_Section] = []
     for observation in observations:
-        rendered = _render_observation(observation)
+        rendered = _render_excerpt(observation)
         if len(rendered) > MAX_EXCERPT_CHARS:
+            # The last resort, and by now rare: every field is bounded, so reaching this means the *number* of
+            # fields is what is large. The pointer still names the observation, so nothing is lost.
             rendered = rendered[:MAX_EXCERPT_CHARS] + f"…（截断，原文见 {observation.observation_id}）"
         sections.append(
             _Section(
@@ -555,6 +570,46 @@ def _observation_sections(observations: list[ToolObservation]) -> list[_Section]
             )
         )
     return sections
+
+
+def _excerpt_result(observation: ToolObservation) -> Any:
+    """The observation's result, with oversized fields replaced by a pointer rather than truncated.
+
+    Only top-level fields are considered, because a whole observation is what the tool layer bounded
+    (``docs/agent-spec.md:36``'s 256 KiB) and restructuring a nested payload here would be this module deciding what
+    a tool's result means.
+    """
+    result = observation.result
+    if not isinstance(result, dict):
+        return result
+    bounded: dict[str, Any] = {}
+    for key, value in result.items():
+        if isinstance(value, str) and len(value) > MAX_FIELD_CHARS:
+            offset = _field_offset(observation, key)
+            bounded[key] = (
+                f"<{len(value)} 字符，已省略；用 READ_OBSERVATION 读 "
+                f"{observation.observation_id} 的 offset={offset}>"
+            )
+        else:
+            bounded[key] = value
+    return bounded
+
+
+def _field_offset(observation: ToolObservation, key: str) -> int:
+    """Where a field's value starts inside the observation's **readable text**, so the pointer is usable.
+
+    Computed against :func:`_render_observation` — the same string ``READ_OBSERVATION`` serves — and not against the
+    bare JSON. The first version searched the JSON and returned the position within *it*, which is short by the
+    ``"<tool>: "`` prefix, so a model following the pointer landed a dozen characters early. A pointer the model
+    cannot follow is worse than no pointer, and a test that read the offset out of the packet and used it caught
+    the discrepancy.
+    """
+    text = _render_observation(observation)
+    marker = f'"{key}":'
+    found = text.find(marker)
+    # `+1` for the opening quote of the value: the pointer should land **on the value**, so a model that reads one
+    # window from it gets the field rather than a stray `"`. The first version landed one character early.
+    return found + len(marker) + 1 if found >= 0 else 0
 
 
 def _index_sections(observations: list[ToolObservation]) -> list[_Section]:
@@ -599,6 +654,18 @@ def observation_text(observation: ToolObservation) -> str:
     would make that consumer look like an accident.
     """
     return _render_observation(observation)
+
+
+def _render_excerpt(observation: ToolObservation) -> str:
+    """The bounded rendering for P3: the same shape, with oversized fields replaced by a pointer.
+
+    Kept beside :func:`_render_observation` because the two must describe the same observation: the excerpt is what
+    the model is shown, the full rendering is what it can read back, and the pointer in the excerpt names an offset
+    **into the full rendering**.
+    """
+    if observation.error is not None:
+        return _render_observation(observation)
+    return f"{observation.tool_name}: {_json(_excerpt_result(observation))}"
 
 
 def _render_tool_schema(schema: dict[str, Any]) -> str:

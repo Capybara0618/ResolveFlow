@@ -12,6 +12,8 @@ implementation gets wrong:
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from resolveflow.contracts.core_models import ToolObservation
@@ -268,15 +270,26 @@ def test_a_single_observation_is_p3_with_no_p4_entry() -> None:
 
 
 def test_a_long_observation_is_excerpted_and_says_where_the_rest_is() -> None:
-    """``docs/agent-spec.md:36`` gives the model <=8 KiB and requires the原文 to stay reachable."""
+    """``docs/agent-spec.md:36`` bounds what the model sees and requires the原文 to stay reachable.
+
+    The bound is applied **per field** rather than by cutting characters, and that is what this asserts: a long
+    field becomes a pointer naming the observation and the offset, so the excerpt stays well-formed JSON (the
+    illegal provider shape ``docs/context-engineering.md:29`` forbids) and the model is told how to follow it. The
+    first version of this test expected the word 截断 from a character cut, which also produced a broken JSON
+    fragment and could push the structured fields out of the excerpt entirely.
+    """
     big = observation(result={"blob": "字" * 20_000})
     packet = build(observations=[big])
 
     body = packet.messages[1]["content"]
-    assert "截断" in body
-    assert "obs-1" in body, "the truncation names the observation the rest can be read from"
+    assert "字" * 100 not in body, "the long field is not dumped into the prompt"
+    assert "已省略" in body and "READ_OBSERVATION" in body, "a pointer replaces it"
+    assert "obs-1" in body, "the pointer names the observation the rest can be read from"
+    assert "offset=" in body, "and where in that observation the field starts"
     assert len(body) < 20_000
-
+    # The excerpt is still parseable data, which a mid-JSON character cut would not be.
+    payload = body.split("get_order_context: ", 1)[1]
+    assert json.loads(payload)["blob"].startswith("<20000")
 
 def test_two_observations_with_the_same_id_are_one_entry_and_the_drop_is_recorded() -> None:
     """``:27``'s 去重复, with the omission recorded rather than silent."""

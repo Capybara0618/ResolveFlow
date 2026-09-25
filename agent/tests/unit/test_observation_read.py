@@ -18,7 +18,7 @@ import pytest
 
 from resolveflow.contracts.core_models import CoreToolError, ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
-from resolveflow.harness.context import MAX_EXCERPT_CHARS, ContextBuilder, extract_facts
+from resolveflow.harness.context import ContextBuilder, extract_facts
 from resolveflow.harness.facts import FactsView
 from resolveflow.harness.observation_read import (
     MAX_READ_LIMIT,
@@ -208,7 +208,7 @@ def test_reading_back_returns_the_same_text_the_packet_excerpted() -> None:
 
 
 def test_a_truncated_excerpt_is_recoverable_by_reading_the_rest() -> None:
-    """``:21`` 按需读回 — what the excerpt cut off is reachable, which is the whole reason the index exists."""
+    """``:21`` 按需读回 — what the excerpt left out is reachable, which is the whole reason the index exists."""
     item = observation(result={"blob": "字" * 20_000})
     store = store_with(item)
 
@@ -225,11 +225,14 @@ def test_a_truncated_excerpt_is_recoverable_by_reading_the_rest() -> None:
         tool_schema={"READ_TOOL": {}},
     )
     body = packet.messages[1]["content"]
-    assert "截断" in body, "the excerpt was truncated"
+    assert "已省略" in body, "the excerpt bounded the long field"
 
-    window = read_observation(store, observation_id="obs-1", offset=MAX_EXCERPT_CHARS, limit=MAX_READ_LIMIT)
-    assert window.total_length > MAX_EXCERPT_CHARS
-    assert window.text, "the text past the excerpt is readable"
+    # The whole text is still there, and the pointer the excerpt gave names a real position in it.
+    offset = int(body.split("offset=", 1)[1].split(">", 1)[0])
+    window = read_observation(store, observation_id="obs-1", offset=offset, limit=MAX_READ_LIMIT)
+    assert window.total_length > 20_000, "the full text is retained, not just the excerpt"
+    assert window.text.startswith("字"), "the pointer lands on the field's value"
+    assert len(window.text) == MAX_READ_LIMIT, "and the window is as large as was asked for"
 
 
 def test_extracted_facts_and_the_readable_text_come_from_one_observation() -> None:
