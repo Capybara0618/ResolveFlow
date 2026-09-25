@@ -10,7 +10,7 @@
 
 ```
 家：E:\Code\Agent+Backend        ← 就是本文件所在（E:\Code\ 里面，名字是 "Agent+Backend"，中间是反斜杠）
-交接快照：4ac5e71（AS02.3 安全子步 · Python 侧）
+交接快照：ae1325f（本文件自身的提交）—— 其前一个提交 4ac5e71 是本次最后一段代码工作（AS02.3 · Python 侧）
 ```
 
 **开工第一件事（状态一律以仓库为准，不要以本文件写的 sha 为准）**：
@@ -18,7 +18,7 @@
 ```powershell
 Set-Location 'E:\Code\Agent+Backend'
 (Get-Location).Path              # 必须是 E:\Code\Agent+Backend（没有加号）
-git log --oneline -1             # 应不早于 4ac5e71
+git log --oneline -1             # 应不早于 ae1325f
 git status --porcelain           # 应为空
 git rev-list --left-right --count origin/main...HEAD   # 应为 "0	0"
 Test-Path tasks\handoff-c07.md   # 必须是 True
