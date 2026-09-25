@@ -42,6 +42,8 @@ import json
 from dataclasses import dataclass, field
 from typing import Any, Final, Protocol
 
+from agentscope.message import Msg
+
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.harness.actions import (
     ASK_CUSTOMER,
@@ -63,6 +65,7 @@ from resolveflow.harness.budget import (
     RunSpend,
 )
 from resolveflow.harness.model import ModelClient, ModelReply
+from resolveflow.harness.sdk_adapter import messenger_message as MessengerMessage
 
 __all__ = [
     "REASON_ACTION_REFUSED",
@@ -213,7 +216,7 @@ class HarnessRunner:
         self._guard = BudgetGuard(self._budget, active_deadline=facts.deadline())
         #: The transcript handed to the provider, turn by turn. Not the source of truth for what the model
         #: sees — the packet is rebuilt from the observations every turn — but a provider needs it.
-        self._turns: list[dict[str, Any]] = []
+        self._turns: list[Msg] = []
         self._observations: list[ToolObservation] = []
         #: Content hashes already observed. ``docs/agent-spec.md:44``'s 无新证据 is decided against this: the
         #: same hash twice means the second read added nothing, whatever the model hoped would change.
@@ -251,7 +254,10 @@ class HarnessRunner:
     def _step(self) -> tuple[bool, str, str] | None:
         """One ask-execute-observe turn. Returns the stop reason, or ``None`` to keep going."""
         packet = self._packet()
-        turn = {"role": "user", "content": json.dumps(packet, ensure_ascii=False, sort_keys=True)}
+        # AgentScope messages: the client protocol speaks them (see `model.py`), and once AS02.2 replaces this loop
+        # with the SDK's own the conversation is the SDK's, so building a second dict shape here would be
+        # vocabulary that has to be thrown away.
+        turn = MessengerMessage(packet)
         self._turns.append(turn)
 
         # The reservation happens before the call (docs/agent-harness.md:22). The requested input size is
@@ -268,12 +274,7 @@ class HarnessRunner:
         reply = self._model.decide(system=self._system, messages=list(self._turns))
         self._record_output(reply)
         self._modes.append(reply.mode)
-        self._turns.append(
-            {
-                "role": "assistant",
-                "content": json.dumps(reply.decision, ensure_ascii=False, sort_keys=True),
-            }
-        )
+        self._turns.append(MessengerMessage(reply.decision, name="assistant", role="assistant"))
 
         try:
             decision = validate_decision(reply.decision)

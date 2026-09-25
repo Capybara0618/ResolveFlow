@@ -23,7 +23,7 @@ from typing import Any
 
 import pytest
 
-from resolveflow.runtime.runs import RUN_NAMESPACE, agent_run_id_for
+from resolveflow.runtime.runs import RUN_NAMESPACE, RunRefusedError, agent_run_id_for
 from resolveflow.tools.credential import (
     CREDENTIAL_ROUTE,
     CredentialUnavailableError,
@@ -129,7 +129,7 @@ def test_the_run_id_derivation_matches_the_javas_namespace_and_algorithm() -> No
         / "caseservice" / "casefile" / "AgentRunId.java"
     ).read_text(encoding="utf-8")
     match = regex.search(r'UUID\.fromString\("([0-9a-f-]{36})"\)', java_source)
-    assert match is not None, f"AgentRunId.java no longer declares its namespace in a form this test can read"
+    assert match is not None, "AgentRunId.java no longer declares its namespace in a form this test can read"
     java_namespace = match.group(1)
 
     # The two namespaces are one namespace: this is the assertion that would have caught NAMESPACE_DNS.
@@ -142,7 +142,11 @@ def test_the_run_id_derivation_matches_the_javas_namespace_and_algorithm() -> No
     def java_style_v5(namespace: str, revision: int) -> str:
         """RFC 9562 v5 over ``namespace:case_id:revision``, computed from first principles here."""
         # First 16 of the 20 SHA-1 bytes, as every RFC 9562 v5 implementation does.
-        digest = bytearray(hashlib.sha1(f"{namespace}:{case_id}:{revision}".encode()).digest()[:16])
+        digest = bytearray(
+            # `usedforsecurity=False`: this is a *derivation* (RFC 9562 names an id from a name), not a security
+            # hash, and saying so is what the parameter is for.
+            hashlib.sha1(f"{namespace}:{case_id}:{revision}".encode(), usedforsecurity=False).digest()[:16]
+        )
         digest[6] = (digest[6] & 0x0F) | 0x50
         digest[8] = (digest[8] & 0x3F) | 0x80
         return str(uuid_module.UUID(bytes=bytes(digest)))
@@ -164,10 +168,10 @@ def test_the_run_id_derivation_matches_the_javas_namespace_and_algorithm() -> No
 def test_deriving_a_run_id_refuses_inputs_case_could_not_have() -> None:
     """A blank case or a revision below 1 is refused rather than hashed into an id nobody holds."""
     for bad_case in ("", "   "):
-        with pytest.raises(Exception):
+        with pytest.raises(RunRefusedError):
             agent_run_id_for(bad_case, 1)
     for bad_revision in (0, -1):
-        with pytest.raises(Exception):
+        with pytest.raises(RunRefusedError):
             agent_run_id_for("9c858901-8a57-4791-81fe-4c455b099bc9", bad_revision)
 
 

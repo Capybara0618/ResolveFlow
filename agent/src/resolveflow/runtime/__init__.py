@@ -1,1 +1,1 @@
-"""Worker, lease handling and the LangGraph checkpointer wiring."""
+"""Worker, lease handling and the run snapshot wiring (C09)."""

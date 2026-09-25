@@ -21,7 +21,12 @@ many" into a passing test, because the extra call would get a plausible answer a
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Final, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Final, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    # Imported for typing only: the client protocol speaks AgentScope messages, and importing the SDK at module
+    # scope would make `harness.model` unimportable without it — including from tools that never touch a model.
+    from agentscope.message import Msg as Message
 
 __all__ = [
     "MODEL_MODE_LIVE",
@@ -83,7 +88,7 @@ class ModelClient(Protocol):
     ``docs/agent-harness.md:22`` saves as the exact input.
     """
 
-    def decide(self, *, system: str, messages: list[dict[str, Any]]) -> ModelReply: ...
+    def decide(self, *, system: str, messages: list[Message]) -> ModelReply: ...
 
 
 @dataclass(slots=True)
@@ -109,8 +114,9 @@ class MockModelClient:
     model_alias: str | None = "mock-scripted"
     #: Every packet handed to :meth:`decide`, in order, parsed from the last message.
     packets: list[dict[str, Any]] = field(default_factory=list)
-    #: Every message list handed to :meth:`decide`, in order, for a test that needs the raw turns.
-    conversations: list[list[dict[str, Any]]] = field(default_factory=list)
+    #: Every message list handed to :meth:`decide`, in order, for a test that needs the raw turns. AgentScope
+    #: messages, because the SDK owns the conversation once the loop is its own (AS02).
+    conversations: list[list[Message]] = field(default_factory=list)
     #: How many decisions were asked for. Equal to ``len(packets)``; kept separate so a test can state which
     #: one it means.
     calls: int = 0
@@ -130,10 +136,16 @@ class MockModelClient:
             raise ValueError("a scripted model needs at least one decision")
         return cls(script=list(decisions), repeat_last=True)
 
-    def decide(self, *, system: str, messages: list[dict[str, Any]]) -> ModelReply:
+    def decide(self, *, system: str, messages: list[Message]) -> ModelReply:
         self.calls += 1
         self.conversations.append(messages)
+        # The system prompt is recorded **with** the conversation rather than beside it: the packet a test reads
+        # back is then the whole input the client was given, and a script that wanted to answer differently for a
+        # different system prompt can see it. AS02's adapter passes the loop's own prompt through, so this is the
+        # same string the SDK sent.
         packet = _packet_of(messages)
+        if system:
+            packet = {"system": system, **packet}
         self.packets.append(packet)
         if not self.script:
             raise AssertionError("the scripted model was asked to decide but its script is empty")
@@ -154,29 +166,39 @@ class MockModelClient:
         return ModelReply(decision=dict(decision), usage=self.usage, mode=self.mode, model_alias=self.model_alias)
 
 
-def _packet_of(messages: list[dict[str, Any]]) -> dict[str, Any]:
-    """The packet the harness sent **for this turn**, read out of the last message.
+def _packet_of(messages: list[Message]) -> dict[str, Any]:
+    """The harness's packet, read back out of the last message **for this turn**.
 
-    The last one, not the first: the harness rebuilds the packet every turn and appends it to the transcript, so
-    ``messages[0]`` is only ever the *first* turn's packet. Reading index zero made every recorded packet a copy
-    of the opening one, which a test asserting "the observation reached the second call" caught immediately —
-    the packet it was shown had ``step: 1`` and no observations.
+    The last one, not the first: the harness rebuilds the packet every turn and appends it, so ``messages[0]`` is
+    only ever the *first* turn's packet — reading index zero made every recorded packet a copy of the opening one,
+    which a test asserting "the observation reached the second call" caught immediately.
 
-    The packet is the same text a live provider receives, so this is a decode rather than a second channel. A
-    transcript that does not end in a JSON object is a harness bug and says so here, where the reason is legible.
+    The packet travels as one JSON text block because that is literally the text a provider receives, so this is a
+    decode rather than a second channel. Messages may carry other blocks (AgentScope injects hints and tool
+    results), which is why the *text* blocks are searched rather than assuming the packet is the only content.
     """
     import json
 
+    from agentscope.message import TextBlock
+
+    # An empty conversation is recorded as an empty packet rather than raising: the adapter's job is to forward
+    # whatever the SDK built, and a caller driving the SDK directly has no harness packet to send. Raising here
+    # would make the adapter unusable outside the harness loop, which AS02.2 does not want.
     if not messages:
-        raise AssertionError("the harness called the model with no messages")
-    latest = messages[-1]
-    content = latest.get("content")
-    if not isinstance(content, str):
-        raise AssertionError(f"the harness's last message carries no text: {latest!r}")
-    try:
-        packet = json.loads(content)
-    except ValueError as error:
-        raise AssertionError(f"the harness's last message is not the JSON packet: {content[:200]!r}") from error
-    if not isinstance(packet, dict):
-        raise AssertionError(f"the harness's packet is {type(packet).__name__}, not an object")
-    return packet
+        return {}
+    # Only **user** turns are searched. AgentScope appends its own assistant turns, and it injects runtime-state
+    # hints as extra assistant/system messages (`HintBlock`); scanning every message found one of those first and
+    # reported "no message carries the packet" for a conversation that plainly did.
+    for message in reversed(messages):
+        if message.role != "user":
+            continue
+        for block in message.get_content_blocks():
+            if not isinstance(block, TextBlock):
+                continue
+            try:
+                packet = json.loads(block.text)
+            except ValueError:
+                continue
+            if isinstance(packet, dict) and "run" in packet:
+                return packet
+    return {}

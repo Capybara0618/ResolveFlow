@@ -48,6 +48,7 @@ from resolveflow.harness.runner import (
     HarnessRunner,
     RunFacts,
 )
+from resolveflow.harness.sdk_adapter import messenger_message
 
 RUN_ID = "5f2b1c3d-0000-4000-8000-000000000001"
 CASE_ID = "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -482,6 +483,9 @@ def test_the_scripted_model_is_asked_once_per_step_and_runs_out_loudly() -> None
     """
     model = MockModelClient([read("get_order_context")])
     model.packets.clear()
+    # The client protocol speaks AgentScope messages (AS02.1), so the turn is a real `Msg` carrying the packet as
+    # a JSON text block rather than a dict with the packet as its content.
+    turn = messenger_message({"run": {"run_id": "r"}, "step": 1, "observations": []})
     with pytest.raises(AssertionError):
-        model.decide(system="s", messages=[{"role": "user", "content": "{}"}])
-        model.decide(system="s", messages=[{"role": "user", "content": "{}"}])
+        model.decide(system="s", messages=[turn])
+        model.decide(system="s", messages=[turn])

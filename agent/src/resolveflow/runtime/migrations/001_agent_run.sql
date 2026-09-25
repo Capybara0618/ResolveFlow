@@ -1,8 +1,10 @@
 -- C06.1 — the Agent's durable run records (docs/domain-model.md:63, docs/core-contracts.md:38).
 --
--- Only the part of agent_db that C06.1 makes real is here. The LangGraph checkpoint tables are
--- created by LangGraph's own idempotent `setup()` (they belong to the graph library, not to this
--- repository), and model_call / tool_observation / context_snapshot / harness_manifest /
+-- Only the part of agent_db that C06.1 makes real is here. There are no framework-owned checkpoint
+-- tables in this schema: the agent framework is AgentScope 2.x (docs/agentscope-migration.md), whose
+-- loop exposes a *serializable* `AgentState` rather than creating tables of its own, and the
+-- recoverable run snapshot that wraps it is this project's own (AS01.2's probe fixed the shape; C09
+-- lands it). model_call / tool_observation / context_snapshot / harness_manifest /
 -- policy_generation arrive with the slices that write them. Columns that are deliberately ahead of
 -- their writers are called out below rather than left to look used.
 --

@@ -4,12 +4,15 @@ version = "0.1.0"
 description = "ResolveFlow Agent service: Harness-driven investigation over business evidence"
 requires-python = ">=3.12,<3.13"
 
-# Versions verified in T00 (see infra/versions.lock.yaml). The LangGraph +
-# checkpointer + psycopg triple was resolved and exercised against a real
-# PostgreSQL 16, so these ranges are not guesses.
+# The agent framework is AgentScope 2.x (docs/agentscope-migration.md, user-approved 2026-09-25). The version is
+# the one AS01 actually locked and tested in `spikes/agentscope/uv.lock`, not a range and not a dev build.
+#
+# LangGraph and its PostgreSQL checkpointer are **gone from production**: nothing in `src/` or `tests/` ever
+# imported them (they were T00's compatibility trial and a plan for the graph layer that the domain Harness
+# replaced), and `docs/agentscope-migration.md:55` requires production to stop depending on them directly. The T00
+# experiment itself is historical evidence and stays where it is.
 dependencies = [
-    "langgraph==1.2.11",
-    "langgraph-checkpoint-postgres==3.1.2",
+    "agentscope==2.0.8",
     "psycopg[binary,pool]==3.3.5",
     "mcp==2.2.0",
     "fastapi==0.141.1",
@@ -17,6 +20,22 @@ dependencies = [
     "pydantic==2.13.5",
     "httpx==0.28.1",
 ]
+
+[tool.uv]
+# AS02.1: `agentscope==2.0.8` declares `mcp<2.0.0`; this project serves its five whitelisted tools from a real
+# mcp 2.2.0 stdio server (C06.2b) and `harness/mcp_client.py` is written against that version's API. Without this
+# override resolution simply fails, so the conflict is a declared fact rather than a guess.
+#
+# The user decided (2026-09-25) that **MCP stays on this project's own mcp 2.2.0 client** rather than AgentScope's
+# MCP path, because AgentScope 2.0.8's adapter reads four mcp-1.x camelCase attributes (`inputSchema`,
+# `readOnlyHint`, `isError`, `McpError`) that mcp 2.x does not expose — measured, with the exact sites, in
+# `reports/agentscope-migration/compatibility.md` §3. So AgentScope receives tools that are already ordinary Python
+# objects and never touches its own MCP client; the override makes the resolver agree with that decision instead of
+# forcing a downgrade of a major version no part of this project uses.
+#
+# It is the same mechanism AS01 validated in `spikes/agentscope/pyproject.toml`, and the spike keeps its own
+# independent lock.
+override-dependencies = ["mcp==2.2.0"]
 
 [project.optional-dependencies]
 # Retrieval stack lands with T19 (policy index) and the evaluation runner with
@@ -79,6 +98,7 @@ warn_unreachable = true
 files = ["src"]
 
 [[tool.mypy.overrides]]
-# langgraph ships partial typing; loosen only where the dependency is at fault.
-module = ["langgraph.*"]
+# AgentScope 2.0.8 ships partial typing; loosen only where the dependency is at fault, so a mistake in this
+# project's own code is still an error.
+module = ["agentscope.*"]
 ignore_missing_imports = true
