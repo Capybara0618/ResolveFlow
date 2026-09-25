@@ -1,6 +1,6 @@
-# AgentScope 迁移兼容报告 · AS01.1 + AS01.2（部分）
+# AgentScope 迁移兼容报告 · AS01 全部（AS01.1 / AS01.2 / AS01.3）
 
-2026-09-25。本报告是 `docs/agentscope-migration.md:97` 要求的**技术门禁审阅材料**。**AS01.2 只完成了能力探针，未完成真实 PG 恢复关卡；AS01.3 未开始**，因此本报告不是 AS01 全部通过的结论，AS02 不得据此开工。
+2026-09-25。本报告是 `docs/agentscope-migration.md:97` 要求的**技术门禁审阅材料**。**AS01.1、AS01.2（含真实 PG 关卡）、AS01.3 均已完成**，技术门禁请见 §8；AS02 的开工前提是用户审阅本报告。
 
 代码位置：`spikes/agentscope/`（独立锁与独立 venv，未改 `agent/pyproject.toml`、未改 `agent/uv.lock`）。
 
@@ -155,6 +155,24 @@ uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q --
 **一处我自己写错并当场修掉的实现缺陷**：第一版 `_require_fence` 自己开一个连接查 fence，然后**另一个连接**写快照——这正是 `agent-migration.md:66` 点名的禁止做法（"不能先查fence再另开连接写"）。已改为把 fence 检查放进**每个写事务内部**、作为第一条语句，并 `SELECT … FOR UPDATE` 取行锁。
 
 **仍然未做**：AS01.3 禁网络回放；`ExternalExecutionResultEvent` 的 `reply_id` 与快照不一致时的行为；放弃/取消后迟到结果的隔离（属 C09）；生产 `RunStore`/worker 接入（属 C09，本步只证明形状与要求可满足）。
+
+## 6quinquies. AS01.3 禁网络 strict 回放探针（已完成）
+
+实现：`spikes/agentscope/src/resolveflow_spike/replay.py`（`ReplayPack` + `ReplayModel` + `block_network`）；测试 `tests/test_replay.py`（8 例）。**未改 `agent/` 生产代码或依赖锁。**
+
+| 要求（`agent-migration.md:78`） | 探针 | 结果 |
+| --- | --- | --- |
+| **同一** AgentScope+Harness 执行逻辑 | `test_a_recorded_trajectory_replays_with_the_same_actions`、`test_the_replay_uses_the_same_guards_as_the_live_loop` | 通过：回放跑的是**同一个 `Agent` 与同样两个中间件**，只有模型与工具被记录替换；断言的是**动作序列**（`replay_actions == recorded_actions`）而不是终态字符串。守卫在回放中照样生效：非法工具 `issue_refund` 仍被拒（工具执行 0 次），模型调用照样计入预算 |
+| **缺记录明确失败** | `test_a_missing_record_fails_explicitly`、`test_an_unknown_block_type_is_refused_rather_than_skipped` | 通过：空 pack 触发 `ReplayExhaustedError`（`holds 0 model responses`），且**没有任何工具被**执行；未知 block 类型**拒绝而不是跳过**（跳过会让回放悄悄丢掉轨迹的一段却仍报"一致"） |
+| **网络被真实阻止** | `test_the_network_is_blocked_at_the_process_level`、`test_a_replay_runs_with_the_network_blocked` | 通过：`socket.create_connection` 被替换为抛 `OSError`，**回放全程 attempts == []**（不只是"没连上"，而是**根本没尝试**） |
+| **业务写被真实阻止** | `test_a_replay_opens_no_database_and_writes_nothing` | 通过：回放模块**不 import** psycopg/urllib/httpx/requests/recovery_store（按 import 语句检查，不是子串——第一版用子串时被自己的 docstring 里的 "requests" 误伤）；pack 是唯一产物且在 `tmp_path` 内 |
+| 稳定 `call_id` 可配对 | `test_the_tool_call_ids_in_the_pack_are_the_ones_the_loop_used` | 通过：pack 按**工具调用 id** 键控观察结果，而不是位置（位置键是更弱的身份，增删/重排后会"配错答案"） |
+
+**过程中真实的失败**：① 我把 `socket.socket.connect` 也替换了，结果**把 asyncio 自己搞坏**——Windows 的 proactor 事件循环启动时要建 socket pair，回放还没开始就 `AttributeError: 'ProactorEventLoop' object has no attribute '_ssock'`。改为只封 `socket.create_connection`（客户端真正调用的那个）后正常，理由写进了函数注释。② 用子串检查"回放不许碰网络/数据库"时，被模块 docstring 里的 "the requests it was given" 误判；改为按 **import 语句**检查。③ 守卫测试的模型调用预算给了 1，而拒绝会被回喂给模型多走一轮（AS01.1 已记录的行为），导致该测试因预算而非因守卫失败；改为 2 并把原因写进注释。
+
+**命令与结果（都真跑）**：`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q` → **36 passed**；`ruff check src tests` → **All checks passed**；`mypy`（strict，**14 源文件**）→ **Success: no issues found**。
+
+**仍然未做**：5 个 golden packs 与全部 H5 属 **C10**（本步只验证一条完整顺序轨迹 + 缺记录反例可行，正如 `agent-migration.md:79` 所限定）；未据此勾 C10/H5；生产 `RunStore`/worker 接入属 C09。
 
 ## 7. 未验证 / 未运行（不得读成通过）
 

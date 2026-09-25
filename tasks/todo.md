@@ -82,6 +82,12 @@
   - 验收：一条完整顺序轨迹用记录模型/工具结果重跑且动作/预算一致；缺记录明确失败；网络与业务写被真实阻止，不连接生产库，不直接输出期望终态冒充回放。
   - 验证：`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests/test_replay.py -q`和整个spike冻结测试；说明网络阻断方法/负向测试。
   - 实际记录：未执行。全部技术关卡通过后提交用户审阅，再进入AS02；不能据探针勾C09/C10。
+  - 实际记录（AS01.3 禁网络 strict 回放探针，2026-09-25，**已完成；AS01 至此全部完成**）：实现 `spikes/agentscope/src/resolveflow_spike/replay.py`（`ReplayPack` + `ReplayModel` + `block_network`）与 `tests/test_replay.py`（8 例）。**未改 `agent/` 生产代码或依赖锁。**
+    - **逐条达成**：① **同一执行逻辑**——回放跑的是同一个 `Agent` 与同样两个中间件，只有模型与工具换成记录；断言的是**动作序列**（`replay_actions == recorded_actions`）而非终态字符串，且守卫在回放中照样生效（非法 `issue_refund` 仍被拒、工具执行 0 次；模型调用照样计入预算）。② **缺记录明确失败**——空 pack 抛 `ReplayExhaustedError`（`holds 0 model responses`）且**没有任何工具被执行**；未知 block 类型**拒绝而非跳过**（跳过＝悄悄丢一段轨迹却仍报"一致"）。③ **网络被真实阻止**——`socket.create_connection` 被替换为抛 `OSError`，回放全程 **`attempts == []`**（不是"没连上"，而是**根本没尝试**）。④ **业务写被真实阻止**——回放模块**不 import** psycopg/urllib/httpx/requests/recovery_store（按 **import 语句**检查），pack 是唯一产物且在 `tmp_path` 内。⑤ 稳定 `call_id`——pack 按**工具调用 id** 键控观察结果而非位置。
+    - **过程中真实的失败**：① 我把 `socket.socket.connect` 也替换了，**把 asyncio 自己搞坏**——Windows proactor 事件循环启动时要建 socket pair，回放还没开始就 `AttributeError: 'ProactorEventLoop' object has no attribute '_ssock'`；改为只封 `socket.create_connection`（客户端真正调用的那个），理由写进函数注释。② 用子串检查"回放不许碰网络/数据库"时被模块 docstring 里的 "the requests it was given" 误判，改为按 import 语句检查。③ 守卫测试的模型调用预算给 1，而拒绝会被回喂给模型多走一轮（AS01.1 已记录），导致该测试因预算而非因守卫失败；改为 2 并写明原因。
+    - **命令与结果（都真跑）**：`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q` → **36 passed**；`ruff check src tests` → **All checks passed**；`mypy`（strict，**14 源文件**）→ **Success: no issues found**。
+    - **未做/未跑（不得读成通过）**：**5 个 golden packs 与全部 H5 属 C10**（本步按 `agent-migration.md:79` 只验证一条完整顺序轨迹 + 缺记录反例）；未据此勾 C10/H5；生产 `RunStore`/worker 接入属 C09。
+    - **下一步（门禁）**：AS01 三关全部完成，按 `agent-migration.md:97` 提交兼容报告（`reports/agentscope-migration/compatibility.md`）给用户审阅，**审阅通过后再进入 AS02**。
 
 ### AS02 生产接入（门禁审阅后，仍按小步）
 
