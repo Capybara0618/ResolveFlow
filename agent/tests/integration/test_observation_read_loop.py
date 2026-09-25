@@ -196,13 +196,13 @@ def test_an_empty_store_refuses_and_does_not_offer_a_guess() -> None:
     assert result.reason_code == "NOT_FOUND"  # type: ignore[attr-defined]
 
 
-def test_a_run_without_a_store_never_reads_locally() -> None:
-    """With no store the tool is not registered, so the read cannot execute and nothing is observed.
+def test_a_run_always_has_a_store_and_an_empty_one_answers_not_found() -> None:
+    """C08.1: the run creates its own store, so ``READ_OBSERVATION`` is a capability every run has.
 
-    What it *does* assert is the part under this slice's control: no local read is spent, no observation appears,
-    and the trajectory has no ``read_observation`` entry — the run cannot read what it never stored. The exact
-    reason code is the SDK's business here (it reports a tool-not-found error to the model, which retries until a
-    bound fires), and asserting a code this layer does not choose would be testing the framework.
+    Before this slice, ``observation_store=None`` meant the tool was not registered at all and a model that asked
+    for a read got the SDK's tool-not-found error. Now the harness owns the store, so the honest answer to a read
+    before anything has been observed is ``NOT_FOUND`` — the same code an unknown id gets, because from the caller's
+    side "this run has read nothing" and "this run did not read that" are the same fact.
     """
     model = MockModelClient.always(read("obs-1"))
     runner = AgentScopeRunner(
@@ -216,9 +216,9 @@ def test_a_run_without_a_store_never_reads_locally() -> None:
     result = runner.run()
 
     assert result.completed is False  # type: ignore[attr-defined]
-    assert result.observations == ()  # type: ignore[attr-defined]
-    assert result.spend.local_reads == 0  # type: ignore[attr-defined]
-    assert not [entry for entry in result.trajectory if entry["action"] == "read_observation"]  # type: ignore[attr-defined]
+    assert result.reason_code == "NOT_FOUND"  # type: ignore[attr-defined]
+    assert result.observations == (), "nothing may be observed from a read that found nothing"  # type: ignore[attr-defined]
+    assert result.spend.local_reads == 1, "and the attempt is still counted"  # type: ignore[attr-defined]
 
 
 def test_paging_reaches_the_text_past_the_packet_excerpt(store: ObservationStore) -> None:

@@ -36,7 +36,7 @@ from resolveflow.harness.actions import (
 )
 from resolveflow.harness.model import ModelClient, ModelReply, ModelUsage
 
-__all__ = ["AgentScopeModelAdapter", "MessageRole", "messenger_message"]
+__all__ = ["AgentScopeModelAdapter", "MessageRole", "messenger_message", "raw_text_message"]
 
 #: The SDK's role vocabulary, spelled once so a caller cannot pass a role the SDK would refuse. A plain `str`
 #: needed a `type: ignore` at the construction site, which is worse than naming the three values.
@@ -61,6 +61,17 @@ def messenger_message(
         role=role,
         content=[TextBlock(type="text", text=json.dumps(packet, ensure_ascii=False, sort_keys=True))],
     )
+
+
+def raw_text_message(text: str, *, name: str = "harness", role: MessageRole = "user") -> Msg:
+    """A message carrying ``text`` **verbatim** as one text block.
+
+    The difference from :func:`messenger_message` is the point: that one serialises a mapping, so a caller holding
+    already-rendered prose (a context packet's body) would get it embedded as a JSON string — the model would read
+    ``{"content": "...P2·fact ..."}`` instead of the packet. A packet is prose the builder produced, and it goes over
+    as prose; the mapping form exists for the *packet structure* the C06.4 loop sends.
+    """
+    return Msg(name=name, role=role, content=[TextBlock(type="text", text=text)])
 
 
 class AgentScopeModelAdapter(ChatModelBase):

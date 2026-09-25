@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 import anyio
 from agentscope.agent import Agent, ReActConfig
@@ -46,9 +46,13 @@ from agentscope.middleware import MiddlewareBase
 from agentscope.tool import ToolBase, Toolkit
 
 from resolveflow.harness.actions import (
+    ASK_CUSTOMER,
+    ESCALATE,
     OBSERVATION_READ_TOOL_NAME,
     POLICY_SEARCH_TOOL_NAME,
+    PROPOSE,
     READ_OBSERVATION,
+    READ_TOOL,
     SEARCH_POLICY,
     WHITELIST,
     ActionRefusedError,
@@ -56,6 +60,13 @@ from resolveflow.harness.actions import (
     validate_decision,
 )
 from resolveflow.harness.budget import BudgetExhaustedError, BudgetGuard, RunBudget, RunSpend
+from resolveflow.harness.context import (
+    DEFAULT_INPUT_CAP,
+    DEFAULT_OUTPUT_RESERVE,
+    ContextBuilder,
+    OverflowRefusedError,
+    extract_facts,
+)
 from resolveflow.harness.control import (
     REASON_ACTION_REFUSED,
     REASON_COMPLETED,
@@ -63,12 +74,18 @@ from resolveflow.harness.control import (
     REASON_TOOL_FAILED,
     NoProgressTracker,
 )
+from resolveflow.harness.facts import FactsView
 
 # The two local-read executors live in their own module because they share every boundary decision: the budget
 # pair, the stop reason, the trajectory entry and the error chunk. Two copies is where behaviour drifts.
 from resolveflow.harness.local_reads import ObservationReadBridge, PolicySearchBridge
 from resolveflow.harness.model import ModelReply, ModelUsage
-from resolveflow.harness.sdk_adapter import AgentScopeModelAdapter, messenger_message
+from resolveflow.harness.observation_read import ObservationStore
+from resolveflow.harness.sdk_adapter import (
+    AgentScopeModelAdapter,
+    messenger_message,
+    raw_text_message,
+)
 from resolveflow.harness.vocabulary import HARNESS_SYSTEM_PROMPT, RunFacts, RunResult, ToolExecutor
 
 __all__ = ["AgentScopeRunner", "ActionGateMiddleware", "McpToolBridge"]
@@ -332,6 +349,11 @@ class McpToolBridge(ToolBase):
         fresh = self._adapter.record_observation(observation)
         self._client.note_observation(observation)
         self._gate.note_evidence(fresh)
+        # C08.1: the run learns from **every** observation, not only from the local reads. Before this the facts
+        # view and the store were reachable only from `PolicySearchBridge`, so the five MCP tools — which is where
+        # the amount, the shipment conclusion and the refund state come from — contributed no facts at all, and a
+        # run could not read its own tool evidence back. Both are the run's state, and the run is what records.
+        self._client.note_evidence(observation)
         self._adapter.trajectory.append(
             {
                 "action": self.name,
@@ -370,6 +392,23 @@ class AgentScopeRunner:
     #: Where ``READ_OBSERVATION`` reads from (C07.2): the text this run has already observed. ``None`` means the
     #: tool is not offered, which is honest — there is nothing to read back.
     observation_store: Any = None
+    #: The run's facts view (C08.1). ``None`` means this run builds its own on first use — the store and the view
+    #: are the run's state, not a caller's, and a caller that wants to inspect them afterwards passes its own.
+    facts_view: Any = None
+    #: Whether the model's input is assembled by :class:`~resolveflow.harness.context.ContextBuilder` (P0–P4) or by
+    #: the C06.4 evidence packet. Off by default while the two coexist: the packet builder is what every existing
+    #: loop test asserts against, and flipping the default in the same change would make those tests describe
+    #: neither shape. ``docs/context-engineering.md`` is the specification for the on-state.
+    use_context_builder: bool = False
+    #: What the provider can take, and what is held back for the answer. ``docs/context-engineering.md:27``'s
+    #: minimum subtracts the reserve and the wrapper allowance from the capacity, so these two are the provider
+    #: terms of that cap.
+    context_provider_capacity: int = DEFAULT_INPUT_CAP
+    context_output_reserve: int = DEFAULT_OUTPUT_RESERVE
+    #: The client this run built, kept so a caller can report the packet it sent (C08.1). Not part of the run's
+    #: semantics: it is the object the loop assembled, and a snapshot needs the packet rather than a way to
+    #: recompute it.
+    last_client: Any = None
 
     def run(self) -> RunResult:
         """Drive one reply to completion and report the outcome.
@@ -381,12 +420,26 @@ class AgentScopeRunner:
 
     async def _drive(self) -> RunResult:
         gate = ActionGateMiddleware()
+        # Two-phase construction, because the budget hook and the client each need the other: the hook reserves for
+        # the request *the client assembles*, and the client needs the hook's counters for the packet's budget
+        # section. The alternative — the hook reaching into the client's private field after the fact — is the same
+        # cycle hidden one step later.
         guard = _BudgetHook(self, gate)
         client = _GateAwareClient(self, gate, guard)
+        guard.attach_client(client)
+        self.last_client = client
         model = AgentScopeModelAdapter(client, system=self.system)
         # The adapter settles real output usage through this, so the cumulative output meter reflects what the
         # provider produced rather than the ceiling reserved before each call.
         model.note_output = guard.note_output_tokens  # type: ignore[attr-defined]
+        # C08.1: the run's own facts view and observation store. Created here when the caller did not supply them,
+        # so the loop always has somewhere to record what it learned — a bridge with a store but no view would
+        # observe without accumulating facts, which is the state C07.2 left behind.
+        store = self.observation_store if self.observation_store is not None else ObservationStore(
+            run_id=self.facts.run_id
+        )
+        view = self.facts_view if self.facts_view is not None else FactsView()
+        client.bind_context(view=view, store=store, guard=guard, system=self.system)
         toolkit = Toolkit()
         for name in sorted(WHITELIST):
             await toolkit.add_tool(McpToolBridge(name, self.tools, self.facts, gate, model, client, guard))
@@ -406,13 +459,12 @@ class AgentScopeRunner:
                     embedder=self.policy_embedder,
                 )
             )
-        # C07.2: the second local read, registered only when the run has somewhere to read *from*. Offering the
-        # tool without the store would let the model ask a question whose honest answer is `NOT_FOUND` — true, and
-        # useless to offer on purpose.
-        if self.observation_store is not None:
-            await toolkit.add_tool(
-                ObservationReadBridge(self.observation_store, self.facts, gate, model, client, guard)
-            )
+        # C07.2: the second local read. Registered whenever this run has a store — which, since ``_drive`` creates
+        # one above, is every run: ``READ_OBSERVATION`` is a local ability of the harness, not something a caller
+        # has to opt into. (An explicit ``observation_store=None`` no longer disables it, and that is deliberate:
+        # the tool with an empty store answers an honest ``NOT_FOUND``, while a run that could not read its own
+        # evidence back would be missing a documented capability.)
+        await toolkit.add_tool(ObservationReadBridge(store, self.facts, gate, model, client, guard))
 
         agent = Agent(
             name="resolveflow-agent",
@@ -427,6 +479,13 @@ class AgentScopeRunner:
             await agent.reply(messenger_message(_starting_packet(self, guard)))
         except BudgetExhaustedError as exhausted:
             return _outcome(exhausted.reason_code, gate, model, guard, completed=False)
+        except OverflowRefusedError as overflow:
+            # C08.1: the mandatory layers do not fit, so the run stops with the code the specification names rather
+            # than dropping a constraint (`docs/context-engineering.md:27`). It is caught separately from
+            # `BudgetExhaustedError` because it is a different fact: the run did not run out of anything, it was
+            # asked to send more than a request may carry.
+            gate.note_stop(overflow.reason_code)
+            return _outcome(overflow.reason_code, gate, model, guard, completed=False)
         except _ScriptExhausted:
             return _outcome(REASON_COMPLETED, gate, model, guard, completed=True)
 
@@ -444,7 +503,7 @@ class _ScriptExhausted(Exception):
 class _BudgetHook(MiddlewareBase):
     """`on_model_call`: reserve every request against the run's budget before it goes out."""
 
-    def __init__(self, runner: AgentScopeRunner, gate: ActionGateMiddleware | None = None) -> None:
+    def __init__(self, runner: AgentScopeRunner, gate: ActionGateMiddleware) -> None:
         self._runner = runner
         #: The gate, so a run that has **already stopped** does not reserve another model call. Without this the
         #: hook kept reserving after a refusal, and because it runs *before* the adapter's `decide` — which is what
@@ -452,10 +511,16 @@ class _BudgetHook(MiddlewareBase):
         #: Two tests expecting the refusal's own reason found it; a run that stopped must not be charged for
         #: stopping (`docs/agent-harness.md:45`).
         self._gate = gate
+        #: The client, attached by `attach_client` — see `_drive` for why the two are built in two phases.
+        self._client: Any = None
         self.guard = BudgetGuard(runner.budget, active_deadline=runner.facts.deadline())
         #: The same guard, under a name the packet builder can reach without a leading-underscore access from a
         #: module-level function. One object, two names, no second counter.
         self.budget_guard = self.guard
+
+    def attach_client(self, client: Any) -> None:
+        """Attach the client the hook builds the packet with. Called once, by `_drive`."""
+        self._client = client
 
     async def on_model_call(self, agent: Any, input_kwargs: dict[str, Any], next_handler: Any) -> Any:
         """Reserve one request, then let it through.
@@ -479,7 +544,14 @@ class _BudgetHook(MiddlewareBase):
                 self._gate.stop_reason,
                 f"the run has stopped: {self._gate.stop_reason}",
             )
-        estimated = _estimate_input_tokens(input_kwargs)
+        # C08.1: when the context builder is on, the packet is built **here**, before the reservation, so the
+        # reserved input size and the request the model receives are the same object. The alternative — estimating
+        # here and assembling later — would give the ledger and the provider two different numbers for one request,
+        # which is what `docs/agent-harness.md:37` asks to avoid. An `OverflowRefusedError` from this call is left
+        # to propagate: it is not a budget exhaustion, and it carries the reason code the outcome must report.
+        self._client.begin_turn()
+        packet = self._client.prepare_packet(input_kwargs.get("messages") or [])
+        estimated = int(packet.input_tokens) if packet is not None else _estimate_input_tokens(input_kwargs)
         # **The step cap is a ceiling, not a meter.** The first version reserved `step_output_tokens` through
         # `reserve_model_call`, which charges the *cumulative* output allowance — so the spec's 4000-token
         # allowance was consumed after four requests and every budget test stopped on `BUDGET_OUTPUT_TOKENS`
@@ -515,10 +587,98 @@ class _GateAwareClient:
         self.observations: list[Any] = []
         #: How many turns have been asked for, for the packet's `step`.
         self.turns = 0
+        #: The run's structured state (C08.1), bound by `_drive`: the facts view the model is shown and the store
+        #: it reads back from. `None` until bound, and never `None` during a real run.
+        self._view: Any = None
+        self._store: Any = None
+        #: This turn's assembled packet and the token count it reported, so the **budget** and the request agree.
+        #: The packet is built once per turn — by `prepare_packet`, which the budget hook calls *before* reserving —
+        #: and the adapter then sends the same one. Building it twice would give the model one request and the
+        #: ledger another, which is the pair this exists to keep together (`docs/agent-harness.md:37`).
+        self._packet: Any = None
+        self._packet_step: int | None = None
+        #: The last packet that was sent, for the outcome to report.
+        self.last_packet: Any = None
+
+    def bind_context(self, *, view: Any, store: Any, guard: Any, system: str) -> None:
+        """Attach the run's facts view, observation store and budget guard, before the loop starts."""
+        self._view = view
+        self._store = store
+        self._guard = guard
+        self._system = system
 
     def note_observation(self, observation: Any) -> None:
         """Record one tool observation; the bridge calls this as it produces them."""
         self.observations.append(observation)
+
+    def note_evidence(self, observation: Any) -> None:
+        """Turn one observation into facts and make its text readable back (C08.1).
+
+        This is the join C07.2 left open: ``extract_facts`` knows which fields a tool contributes, and
+        ``ObservationStore.remember`` is what makes the P4 index's pointers followable. Both are idempotent for a
+        repeated observation, so calling this on every observation — including re-reads — is safe and is the point:
+        a re-read that returns something new supersedes, and one that returns the same thing adds nothing.
+        """
+        if self._view is not None:
+            extract_facts(self._view, observation)
+        if self._store is not None:
+            self._store.remember(observation)
+
+    def begin_turn(self) -> int:
+        """Start a new model turn and return its number. Called by the budget hook, once per model call.
+
+        The turn counter is moved **here** rather than inside ``prepare_packet``, and that distinction cost two
+        debugging rounds: with the increment inside the rebuild branch, the first build latched ``turns=1`` and no
+        later call could ever see a different step, so every packet in the run was the opening one and the model was
+        never shown a fact it had learned. A turn boundary is what the hook knows and the builder does not.
+        """
+        self.turns += 1
+        return self.turns
+
+    def prepare_packet(self, messages: list[Msg]) -> Any:
+        """Build (once per turn) the request :class:`ContextBuilder` says this run may send.
+
+        Called by the budget hook before it reserves, and by the adapter when it renders — so the reserved input
+        size and the sent request are the **same object**. Returns ``None`` when the run is not using the context
+        builder, which is the C06.4 evidence packet's path.
+        """
+        if not self._runner.use_context_builder or self._view is None:
+            return None
+        # One build per turn: the hook runs first for a given turn, so the adapter reuses what it built rather
+        # than building a second packet that could differ (the facts view may have changed between the two calls
+        # only if an observation arrived, which happens on a later turn).
+        if self._packet is None or self._packet_step != self.turns:
+            self._packet = self._build_packet()
+            self._packet_step = self.turns
+            self.last_packet = self._packet
+        return self._packet
+
+    def _build_packet(self) -> Any:
+        """Assemble this step's request with :class:`ContextBuilder`.
+
+        The builder is constructed **per step** because the cap depends on what the run has already spent: the
+        third term of ``docs/context-engineering.md:27``'s minimum is 累计剩余输入, which changes between steps.
+        """
+        builder = ContextBuilder(
+            system_prompt=self._system,
+            provider_capacity=self._runner.context_provider_capacity,
+            output_reserve=self._runner.context_output_reserve,
+        )
+        budget = self._runner.budget
+        spent = self._guard.guard.spend
+        return builder.build(
+            run_id=self._runner.facts.run_id,
+            case_id=self._runner.facts.case_id,
+            step=self.turns,
+            input_revision=self._runner.facts.input_revision,
+            line_id=self._runner.facts.line_id,
+            description=self._runner.facts.description,
+            manifest_id=_manifest_id(self._runner.facts),
+            view=self._view,
+            observations=self.observations,
+            tool_schema=_tool_schema_document(self._runner),
+            cumulative_remaining=max(0, budget.input_tokens - spent.input_tokens),
+        )
 
     def decide(self, *, system: str, messages: list[Msg]) -> Any:
         if self._gate.stop_reason is not None:
@@ -537,13 +697,20 @@ class _GateAwareClient:
                 mode="harness",
                 model_alias=None,
             )
-        self.turns += 1
-        reply = self._runner.model.decide(
-            system=system,
-            messages=_with_current_packet(
-                messages, self._runner, self._guard, self.observations, self.turns
-            ),
-        )
+        if self._runner.use_context_builder and self._view is not None:
+            packet = self.prepare_packet(messages)
+            # The packet's own messages are what goes to the model, so the SDK's conversation is **not** forwarded
+            # with them: `docs/context-engineering.md:5` requires the final input to be the assembled one, and
+            # appending a transcript would be a second, unbounded input nobody measured or hashed.
+            reply = self._runner.model.decide(system=system, messages=_messages_of_packet(packet, messages))
+        else:
+            repeat = self.turns
+            reply = self._runner.model.decide(
+                system=system,
+                messages=_with_current_packet(
+                    messages, self._runner, self._guard, self.observations, repeat
+                ),
+            )
         decision = self._gate.check(reply.decision)
         if decision is None:
             # Refused: the run stops, and the adapter is given a terminal text so the SDK ends the reply rather
@@ -555,6 +722,68 @@ class _GateAwareClient:
                 model_alias=reply.model_alias,
             )
         return reply
+
+
+def _messages_of_packet(packet: Any, messages: list[Msg]) -> list[Msg]:
+    """The request the model receives: the packet's own turns, then the SDK's tool traffic.
+
+    Two parts, and both are needed:
+
+    * **the packet** — P0's system turn and the P0–P4 body, sent as *text* (``raw_text_message``) rather than as a
+      serialised mapping, because the builder already rendered prose and re-serialising it would leave the model
+      reading a JSON string that contains the packet. The system turn keeps its content but travels as a user message
+      named ``harness``: the adapter separately passes the run's system prompt, and two system turns would let a
+      reader attribute a line to the wrong one.
+    * **the conversation** — what the SDK has recorded for this reply, which is the assistant's tool calls and the
+      harness's tool results. Without it the model would see a fresh packet each turn and no record of what its own
+      last action returned, which is what a P4 index points *into*.
+
+    The opening packet the SDK was seeded with is dropped: the rebuilt one replaces it, and leaving both would show
+    the model two contradictory views of the run (the same rule ``_with_current_packet`` applies to the C06.4 path).
+    """
+    rebuilt = [
+        raw_text_message(message["content"], name="harness", role="user")
+        if message["role"] == "system"
+        else raw_text_message(message["content"], name="harness", role=cast("Any", message["role"]))
+        for message in packet.messages
+    ]
+    rest = [message for message in messages if not (message.name == "harness" and message.role == "user")]
+    return [*rebuilt, *rest]
+
+
+def _manifest_id(facts: RunFacts) -> str:
+    """The pinned manifest as one string, for the packet's ``manifest_id``.
+
+    ``bundle@hash``: the hash alone would not say *which* policy set it belongs to, and the bundle alone would not
+    say which version — ``docs/policy-rag.md:25`` requires a citation to carry both.
+    """
+    manifest = facts.policy_manifest or {}
+    bundles = [str(bundle) for bundle in (manifest.get("bundle_ids") or [])]
+    manifest_hash = str(manifest.get("manifest_hash") or "")
+    return f"{bundles[0] if bundles else 'unpinned'}@{manifest_hash[:16]}"
+
+
+def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
+    """The action/tool schema the model is offered, as P0 requires (``docs/context-engineering.md:17``).
+
+    Built from the runner's own configuration rather than from the SDK's tool objects: the SDK's schemas are one
+    rendering, and what P0 must carry is *which actions and tools this run makes available*, which is a fact about
+    the harness. The local reads appear only when the run can perform them, so the packet cannot advertise a tool
+    the gate would refuse.
+    """
+    tools = sorted(WHITELIST)
+    actions = [READ_TOOL, SEARCH_POLICY, READ_OBSERVATION, ASK_CUSTOMER, PROPOSE, ESCALATE]
+    document: dict[str, Any] = {
+        "actions": actions,
+        "tools": tools,
+        "read_only": True,
+        "identity_is_fixed_by_the_run": True,
+    }
+    if runner.policy_index is not None:
+        document["local_reads"] = [POLICY_SEARCH_TOOL_NAME, OBSERVATION_READ_TOOL_NAME]
+    else:
+        document["local_reads"] = [OBSERVATION_READ_TOOL_NAME]
+    return document
 
 
 def _starting_packet(runner: AgentScopeRunner, guard: _BudgetHook) -> dict[str, Any]:
