@@ -26,7 +26,14 @@ from agentscope.message import Msg, TextBlock, ToolCallBlock
 from agentscope.model import ChatModelBase, ChatResponse
 from agentscope.state import AgentState
 
-from resolveflow.harness.actions import POLICY_SEARCH_TOOL_NAME, PROPOSE, READ_TOOL, SEARCH_POLICY
+from resolveflow.harness.actions import (
+    OBSERVATION_READ_TOOL_NAME,
+    POLICY_SEARCH_TOOL_NAME,
+    PROPOSE,
+    READ_OBSERVATION,
+    READ_TOOL,
+    SEARCH_POLICY,
+)
 from resolveflow.harness.model import ModelClient, ModelReply, ModelUsage
 
 __all__ = ["AgentScopeModelAdapter", "MessageRole", "messenger_message"]
@@ -218,6 +225,26 @@ def _as_chat_response(reply: ModelReply) -> ChatResponse:
                     id=str(decision.get("tool_call_id") or f"call-{id(reply)}"),
                     name=POLICY_SEARCH_TOOL_NAME,
                     input=json.dumps(arguments, ensure_ascii=False),
+                )
+            ],
+            is_last=True,
+        )
+    if kind == READ_OBSERVATION:
+        # The same shape as the policy search, and for the same reason: a local read the SDK's loop performs so the
+        # permission gate sees it. `observation_id` is the model's choice (it comes from the P4 index), and
+        # `offset`/`limit` are its window — the store, not the model, decides whether that window exists.
+        window: dict[str, object] = {"observation_id": decision.get("observation_id")}
+        for member in ("offset", "limit"):
+            value = (decision.get("arguments") or {}).get(member)
+            if value is not None:
+                window[member] = value
+        return ChatResponse(
+            content=[
+                ToolCallBlock(
+                    type="tool_call",
+                    id=str(decision.get("tool_call_id") or f"call-{id(reply)}"),
+                    name=OBSERVATION_READ_TOOL_NAME,
+                    input=json.dumps(window, ensure_ascii=False),
                 )
             ],
             is_last=True,

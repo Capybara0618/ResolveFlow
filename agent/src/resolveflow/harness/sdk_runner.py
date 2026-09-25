@@ -35,7 +35,6 @@ this is not that storage.
 
 from __future__ import annotations
 
-import datetime as dt
 import json
 from dataclasses import dataclass, field
 from typing import Any
@@ -47,7 +46,6 @@ from agentscope.middleware import MiddlewareBase
 from agentscope.tool import ToolBase, Toolkit
 
 from resolveflow.harness.actions import (
-    MAX_POLICY_TOP_K,
     OBSERVATION_READ_TOOL_NAME,
     POLICY_SEARCH_TOOL_NAME,
     READ_OBSERVATION,
@@ -62,14 +60,16 @@ from resolveflow.harness.control import (
     REASON_ACTION_REFUSED,
     REASON_COMPLETED,
     REASON_NO_PROGRESS,
-    REASON_POLICY_INDEX_UNAVAILABLE,
     REASON_TOOL_FAILED,
     NoProgressTracker,
 )
+
+# The two local-read executors live in their own module because they share every boundary decision: the budget
+# pair, the stop reason, the trajectory entry and the error chunk. Two copies is where behaviour drifts.
+from resolveflow.harness.local_reads import ObservationReadBridge, PolicySearchBridge
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.harness.sdk_adapter import AgentScopeModelAdapter, messenger_message
 from resolveflow.harness.vocabulary import HARNESS_SYSTEM_PROMPT, RunFacts, RunResult, ToolExecutor
-from resolveflow.policies.index import PolicyIndexNotReadyError
 
 __all__ = ["AgentScopeRunner", "ActionGateMiddleware", "McpToolBridge"]
 
@@ -298,6 +298,11 @@ class McpToolBridge(ToolBase):
             self._guard.guard.reserve_tool_attempt()
         except BudgetExhaustedError as exhausted:
             self._gate.note_stop(exhausted.reason_code)
+            # A refused attempt produced no evidence, and saying so is what keeps the no-progress rule working:
+            # without it `pending_repeat` stays set, the third identical refusal is never counted, and the run burns
+            # its model-call budget instead of stopping on the refusal (docs/agent-spec.md:44). The local-read
+            # bridges were fixed for the same reason; this is the MCP path's copy of it.
+            self._gate.note_evidence(False)
             self._adapter.trajectory.append(
                 {"action": self.name, "outcome": "REFUSED", "detail": exhausted.reason_code}
             )
@@ -315,6 +320,7 @@ class McpToolBridge(ToolBase):
             )
         except Exception as failure:  # noqa: BLE001 - the executor's failure is the run's fact to record
             self._gate.note_stop(REASON_TOOL_FAILED)
+            self._gate.note_evidence(False)
             self._adapter.trajectory.append(
                 {"action": self.name, "outcome": "FAILED", "detail": str(failure)[:300]}
             )
@@ -340,275 +346,6 @@ class McpToolBridge(ToolBase):
         )
 
 
-class PolicySearchBridge(ToolBase):
-    """``SEARCH_POLICY``, executed against the run's own pinned policy index (C07.1).
-
-    This is the executor C07 was left needing: ``actions._check_policy_search`` validated the action's shape
-    from C06.4 onward, and ``budget.reserve_local_read`` existed with the comment "policy search and
-    READ_OBSERVATION, which are not MCP calls" — but nothing called either, so a validated ``SEARCH_POLICY`` had
-    no way to run and the local-read budget was unspendable.
-
-    Five things about it are decisions rather than plumbing:
-
-    * **It is not one of the five tools.** ``docs/agent-spec.md:34`` makes policy retrieval a local capability,
-      so it does not go through MCP and the tool server never learns it exists. It reaches the SDK as a tool
-      call because that is how the SDK's loop performs an action and how the permission gate sees it.
-    * **A search spends a *local read*, not a tool attempt.** ``docs/agent-spec.md:40`` budgets them separately
-      (16 external attempts, 8 local reads), and charging an MCP attempt for a local index read would make the
-      two numbers describe neither.
-    * **The identity comes from the run, never from the action.** Merchant, pinned bundles and manifest hash are
-      the run's facts; the model supplies only ``query`` and optionally ``top_k``.
-    * **The index's refusal is the run's stop reason, and it is its own code.** A run pinned to an unindexed
-      manifest must not search an older version (``docs/policy-rag.md:23``); it stops with
-      ``POLICY_INDEX_NOT_READY`` rather than reporting a tool failure, because "not ready yet" is a state that
-      resolves on its own and the caller may retry or escalate.
-    * **The hits are returned whole, with their hashes.** The model cites what it saw; a summary here would make
-      the citation unverifiable, which is the failure the whole slice is about.
-    """
-
-    def __init__(
-        self,
-        index: Any,
-        facts: RunFacts,
-        gate: ActionGateMiddleware,
-        adapter: AgentScopeModelAdapter,
-        client: Any,
-        guard: Any,
-        *,
-        embedder: Any = None,
-    ) -> None:
-        self.name = POLICY_SEARCH_TOOL_NAME
-        self.description = (
-            "Search the merchant policy this run is pinned to. Provide a natural-language query; the search is "
-            "restricted to the pinned bundles and version and returns whole rules with citable identifiers."
-        )
-        self.input_schema: dict[str, Any] = {
-            "type": "object",
-            "properties": {
-                "query": {"type": "string", "description": "what to look for, in the customer's words"},
-                "top_k": {"type": "integer", "minimum": 1, "maximum": MAX_POLICY_TOP_K},
-            },
-            "required": ["query"],
-        }
-        self.is_concurrency_safe = False
-        self.is_read_only = True
-        self.is_external_tool = False
-        self.is_state_injected = False
-        self.is_mcp = False
-        self.mcp_name: str | None = None
-        self.dangerous_files: list[str] = []
-        self.dangerous_directories: list[str] = []
-        self._index = index
-        self._facts = facts
-        self._gate = gate
-        self._adapter = adapter
-        self._client = client
-        self._guard = guard
-        #: The embedder the dense path ranks the query with. `None` makes the dense path refuse rather than fall
-        #: back to another ranking (`docs/policy-rag.md:23`).
-        self._embedder = embedder
-        #: Every search this bridge made, so a test can assert what was asked and what came back.
-        self.calls: list[dict[str, Any]] = []
-
-    def check_permissions(self, tool_input: dict[str, Any], context: Any) -> Any:
-        """Passthrough: the gate is the middleware, and two gates would make a refusal ambiguous."""
-        from agentscope.permission import PermissionBehavior, PermissionDecision
-
-        return PermissionDecision(behavior=PermissionBehavior.PASSTHROUGH, message="the action gate decides")
-
-    async def call(self, **kwargs: Any) -> Any:
-        from agentscope.tool import ToolChunk
-        from agentscope.tool._response import ToolResultState  # type: ignore[attr-defined]
-
-        query = str(kwargs.get("query") or "")
-        top_k = kwargs.get("top_k")
-        self.calls.append({"query": query, "top_k": top_k})
-
-        pinned = self._facts.policy_manifest
-        try:
-            # Two reservations, because `docs/agent-spec.md:40` counts this action in two budgets: it is a
-            # *search attempt* ("16次外部工具/检索attempt") and it is one of the 8 *local reads*
-            # (`budget.reserve_local_read`'s own docstring: "policy search and READ_OBSERVATION, which are not MCP
-            # calls"). Reserving neither was the C06→C07 gap; reserving only one would make the other bound
-            # unreachable and its report meaningless.
-            self._guard.guard.reserve_tool_attempt()
-            self._guard.guard.reserve_local_read()
-        except BudgetExhaustedError as exhausted:
-            self._gate.note_stop(exhausted.reason_code)
-            self._adapter.trajectory.append(
-                {"action": POLICY_SEARCH_TOOL_NAME, "outcome": "REFUSED", "detail": exhausted.reason_code}
-            )
-            return ToolChunk(
-                content=[TextBlock(type="text", text=f"{exhausted.reason_code}: {exhausted}")],
-                state=ToolResultState.ERROR,
-            )
-
-        try:
-            hits = self._index.search(
-                merchant_id=str(pinned.get("merchant_id") or self._facts.merchant_id or ""),
-                bundle_ids=[str(bundle) for bundle in (pinned.get("bundle_ids") or [])],
-                manifest_hash=str(pinned.get("manifest_hash") or ""),
-                query=query,
-                path="dense",
-                top_k=int(top_k) if isinstance(top_k, int) and not isinstance(top_k, bool) else MAX_POLICY_TOP_K,
-                embedder=self._embedder,
-            )
-        except PolicyIndexNotReadyError as not_ready:
-            self._gate.note_stop(REASON_POLICY_INDEX_UNAVAILABLE)
-            self._adapter.trajectory.append(
-                {
-                    "action": POLICY_SEARCH_TOOL_NAME,
-                    "outcome": "NOT_READY",
-                    "detail": str(not_ready)[:300],
-                    "hash_mismatch": not_ready.hash_mismatch,
-                }
-            )
-            return ToolChunk(
-                content=[
-                    TextBlock(
-                        type="text",
-                        text=(
-                            f"{REASON_POLICY_INDEX_UNAVAILABLE}: this run's policy index is not ready, so no "
-                            f"policy was searched. {not_ready}"
-                        ),
-                    )
-                ],
-                state=ToolResultState.ERROR,
-            )
-        except Exception as failure:  # noqa: BLE001 - the index's failure is the run's fact to record
-            self._gate.note_stop(REASON_TOOL_FAILED)
-            self._adapter.trajectory.append(
-                {"action": POLICY_SEARCH_TOOL_NAME, "outcome": "FAILED", "detail": str(failure)[:300]}
-            )
-            return ToolChunk(
-                content=[TextBlock(type="text", text=f"TOOL_FAILED: {failure}")],
-                state=ToolResultState.ERROR,
-            )
-
-        observation = _policy_observation(hits, self._facts, query, self._now())
-        fresh = self._adapter.record_observation(observation)
-        self._client.note_observation(observation)
-        self._gate.note_evidence(fresh)
-        self._adapter.trajectory.append(
-            {
-                "action": POLICY_SEARCH_TOOL_NAME,
-                "outcome": "OBSERVED",
-                "new_evidence": fresh,
-                "observation_id": observation.observation_id,
-                "hits": len(hits),
-                "path": "dense",
-            }
-        )
-        return ToolChunk(
-            content=[TextBlock(type="text", text=json.dumps(observation.model_dump(mode="json"), default=str))],
-            state=ToolResultState.SUCCESS,
-        )
-
-    @staticmethod
-    def _now() -> str:
-        return dt.datetime.now(dt.UTC).isoformat().replace("+00:00", "Z")
-
-
-def _policy_observation(hits: list[Any], facts: RunFacts, query: str, observed_at: str) -> Any:
-    """The search result as the run's own ``ToolObservation``, so it budgets and records like every other read.
-
-    ``source_ref`` is one reference per **hit** inside ``result`` and a bundle-level reference on the
-    observation itself: the observation is "the pinned policy set answered this query", while each hit carries
-    the ``policy:<bundle>/<chunk>`` reference and Java's ``content_hash`` that a citation will quote. Building
-    that here — rather than letting the model re-derive it — is what keeps ``docs/agent-spec.md:52``'s
-    "ref 必须实际可见" checkable: the reference names bytes this run really read.
-    """
-    from resolveflow.contracts.core_models import ToolObservation
-    from resolveflow.contracts.enums import EvidenceSourceType
-
-    pinned = facts.policy_manifest
-    bundle_ids = [str(bundle) for bundle in (pinned.get("bundle_ids") or [])]
-    manifest_hash = str(pinned.get("manifest_hash") or "")
-    digest = _search_digest(bundle_ids, manifest_hash, query)
-    empty = not hits
-    return ToolObservation(
-        observation_id=f"policy-search-{digest[:32]}",
-        tool_name=POLICY_SEARCH_TOOL_NAME,
-        source_type=EvidenceSourceType.POLICY_RULE,
-        source_ref=_policy_source_ref(bundle_ids),
-        source_version=_policy_version(bundle_ids, manifest_hash),
-        # Derived from what the search was *over*, so the same query against the same pinned policy is the same
-        # observation rather than a new one: a model that asks the same thing twice has learned nothing, and the
-        # no-progress rule needs to be able to see that (docs/agent-spec.md:44). A search that found nothing and
-        # one that found rules therefore differ, and both are stable.
-        content_hash=digest if not empty else _empty_answer_digest(bundle_ids, manifest_hash, query),
-        observed_at=observed_at,
-        result={
-            "query": query,
-            "hit_count": len(hits),
-            "hits": [
-                {
-                    "bundle_id": hit.bundle_id,
-                    "version": hit.version,
-                    "rule_id": hit.rule_id,
-                    "chunk_id": hit.chunk_id,
-                    "content_hash": hit.content_hash,
-                    "title": hit.title,
-                    "text": hit.text,
-                    "score": round(float(hit.score), 6),
-                    "source_ref": hit.source_ref,
-                }
-                for hit in hits
-            ],
-        },
-    )
-
-
-def _canonical_search(bundle_ids: list[str], manifest_hash: str, query: str, hits: int | None) -> str:
-    import hashlib
-
-    payload: dict[str, Any] = {
-        "bundles": sorted(bundle_ids),
-        "manifest_hash": manifest_hash,
-        "query": query,
-    }
-    if hits is not None:
-        payload["hits"] = hits
-    return hashlib.sha256(
-        json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()
-
-
-def _search_digest(bundle_ids: list[str], manifest_hash: str, query: str) -> str:
-    """Stable id and hash for a search that produced hits, computed from what it was over.
-
-    Derived rather than random so the same question against the same pinned policy is the same observation: a
-    model that asks the same thing twice has not learned anything, and the no-progress rule
-    (``docs/agent-spec.md:44``) needs to be able to see that.
-    """
-    return _canonical_search(bundle_ids, manifest_hash, query, None)
-
-
-def _empty_answer_digest(bundle_ids: list[str], manifest_hash: str, query: str) -> str:
-    """A distinct hash for "the policy is silent", so it can never collide with a real answer's hash.
-
-    A search that matched nothing is a *successful read with an empty answer*, not an error: the index was ready
-    and the policy genuinely does not mention the query. Reporting it as ``NOT_FOUND`` would make the model
-    treat "the policy is silent" as "the source was unreachable" and retry forever, and giving it the same hash
-    as a hits-bearing search would make an empty answer look like new evidence every time it was asked.
-    """
-    return _canonical_search(bundle_ids, manifest_hash, query, 0)
-
-
-def _policy_source_ref(bundle_ids: list[str]) -> str:
-    """``policy:<first bundle>``, a controlled reference and never a URL (``docs/core-contracts.md:61``)."""
-    return f"policy:{bundle_ids[0] if bundle_ids else 'unpinned'}"
-
-
-def _policy_version(bundle_ids: list[str], manifest_hash: str) -> str:
-    """A short, stable version string for the observation: the pin, abbreviated.
-
-    The full hash is in the observation's ``content_hash`` and in every hit; this is the ``source_version`` a
-    reader compares for staleness, and it is the manifest hash truncated because the member is capped at 64
-    characters and one bundle id plus the digest would overflow it.
-    """
-    return f"{bundle_ids[0] if bundle_ids else 'unpinned'}@{manifest_hash[:16]}"
-
 
 @dataclass(slots=True)
 class AgentScopeRunner:
@@ -630,6 +367,9 @@ class AgentScopeRunner:
     #: refusal rather than an ``AttributeError``.
     policy_index: Any = None
     policy_embedder: Any = None
+    #: Where ``READ_OBSERVATION`` reads from (C07.2): the text this run has already observed. ``None`` means the
+    #: tool is not offered, which is honest — there is nothing to read back.
+    observation_store: Any = None
 
     def run(self) -> RunResult:
         """Drive one reply to completion and report the outcome.
@@ -641,7 +381,7 @@ class AgentScopeRunner:
 
     async def _drive(self) -> RunResult:
         gate = ActionGateMiddleware()
-        guard = _BudgetHook(self)
+        guard = _BudgetHook(self, gate)
         client = _GateAwareClient(self, gate, guard)
         model = AgentScopeModelAdapter(client, system=self.system)
         # The adapter settles real output usage through this, so the cumulative output meter reflects what the
@@ -665,6 +405,13 @@ class AgentScopeRunner:
                     guard,
                     embedder=self.policy_embedder,
                 )
+            )
+        # C07.2: the second local read, registered only when the run has somewhere to read *from*. Offering the
+        # tool without the store would let the model ask a question whose honest answer is `NOT_FOUND` — true, and
+        # useless to offer on purpose.
+        if self.observation_store is not None:
+            await toolkit.add_tool(
+                ObservationReadBridge(self.observation_store, self.facts, gate, model, client, guard)
             )
 
         agent = Agent(
@@ -697,8 +444,14 @@ class _ScriptExhausted(Exception):
 class _BudgetHook(MiddlewareBase):
     """`on_model_call`: reserve every request against the run's budget before it goes out."""
 
-    def __init__(self, runner: AgentScopeRunner) -> None:
+    def __init__(self, runner: AgentScopeRunner, gate: ActionGateMiddleware | None = None) -> None:
         self._runner = runner
+        #: The gate, so a run that has **already stopped** does not reserve another model call. Without this the
+        #: hook kept reserving after a refusal, and because it runs *before* the adapter's `decide` — which is what
+        #: consults `stop_reason` — the run ended on `BUDGET_MODEL_CALLS` instead of on the refusal that stopped it.
+        #: Two tests expecting the refusal's own reason found it; a run that stopped must not be charged for
+        #: stopping (`docs/agent-harness.md:45`).
+        self._gate = gate
         self.guard = BudgetGuard(runner.budget, active_deadline=runner.facts.deadline())
         #: The same guard, under a name the packet builder can reach without a leading-underscore access from a
         #: module-level function. One object, two names, no second counter.
@@ -718,6 +471,14 @@ class _BudgetHook(MiddlewareBase):
         direction `docs/agent-harness.md:37` requires: an estimate that was too small would let a request past a
         cap that should have refused it.
         """
+        if self._gate is not None and self._gate.stop_reason is not None:
+            # The run already stopped, so this request must not be reserved or sent. `BudgetExhaustedError` is how
+            # the loop hears "no more calls", and the free-text message names the *real* reason so a reader is not
+            # told the budget ran out when what happened was a refusal.
+            raise BudgetExhaustedError(
+                self._gate.stop_reason,
+                f"the run has stopped: {self._gate.stop_reason}",
+            )
         estimated = _estimate_input_tokens(input_kwargs)
         # **The step cap is a ceiling, not a meter.** The first version reserved `step_output_tokens` through
         # `reserve_model_call`, which charges the *cumulative* output allowance — so the spec's 4000-token

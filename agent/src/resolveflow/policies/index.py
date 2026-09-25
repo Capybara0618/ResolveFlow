@@ -77,11 +77,25 @@ PolicySearchPath = Literal["dense", "bm25"]
 class PolicyIndexNotReadyError(RuntimeError):
     """A run asked for policy it is pinned to, and there is no READY generation at that hash.
 
-    Carries the reason in the message and, in :attr:`hash_mismatch`, whether a generation for the same bundle
-    exists at a *different* hash. That distinction is the one an operator needs: "nobody indexed this bundle"
-    is a deployment problem, while "indexed at a different hash" means the index is stale relative to the
-    policy the case was pinned to, and re-indexing fixes it.
+    Carries the reason in the message, the run's own ``reason_code``, and in :attr:`hash_mismatch` whether a
+    generation for the same bundle exists at a *different* hash. That distinction is the one an operator needs:
+    "nobody indexed this bundle" is a deployment problem, while "indexed at a different hash" means the index is
+    stale relative to the policy the case was pinned to, and re-indexing fixes it.
+
+    The code is a property of the exception — the spelling :class:`~resolveflow.harness.actions.ActionRefusedError`
+    already uses — so that every layer turning this refusal into a record reports the same one: the loop's stop
+    reason and the trajectory entry become the same fact instead of two spellings of it. The first version of the
+    shared local-read bridge defaulted the code to ``REFUSED`` and the two disagreed, which a test comparing them
+    caught.
     """
+
+    @property
+    def reason_code(self) -> str:
+        # Imported inside the property: `policies` is used by the ingestion script, which has no business importing
+        # the harness loop at module scope.
+        from resolveflow.harness.control import REASON_POLICY_INDEX_UNAVAILABLE
+
+        return REASON_POLICY_INDEX_UNAVAILABLE
 
     def __init__(self, message: str, *, hash_mismatch: bool = False) -> None:
         super().__init__(message)

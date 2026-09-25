@@ -205,7 +205,11 @@ def test_a_run_whose_policy_is_not_indexed_stops_with_its_own_reason(
     assert result.reason_code == REASON_POLICY_INDEX_UNAVAILABLE  # type: ignore[attr-defined]
     assert result.spend.local_reads == 1  # type: ignore[attr-defined]
     trajectory = [entry for entry in result.trajectory if entry["action"] == "search_policy"]  # type: ignore[attr-defined]
-    assert trajectory and trajectory[0]["outcome"] == "NOT_READY"
+    # `REFUSED` with the run's own reason code, rather than a distinct outcome label per refusal kind. The
+    # refactor that put both local reads on one base class unified the labels, and the reason code plus
+    # `hash_mismatch` carry the same information in a form that is consistent across the two actions.
+    assert trajectory and trajectory[0]["outcome"] == "REFUSED"
+    assert trajectory[0]["reason_code"] == REASON_POLICY_INDEX_UNAVAILABLE
     assert trajectory[0]["hash_mismatch"] is True
 
 
