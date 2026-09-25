@@ -1397,7 +1397,35 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - 依赖：C05,C07。文件：agent/harness/runtime/callbacks、Case回调及端到端测试。
 - 验收：至少6组配对证据由模型决定不同合理行动；身份不由模型生成；预算/权限有界，闭环不是固定workflow。
 - 验证：H1/H2/H3、mock系统闭环、live小样本（需API预算）。
-- 实际记录：未执行。
+- 实际记录（**C08.1 的"上下文与预算接点"已完成，2026-09-25**；C08.1 的其余部分与 C08.2 未做）：
+  - 交付：`AgentScopeRunner` 现在持有 run 自己的 `FactsView` 与 `ObservationStore`（调用方可传入以事后检查）；
+    run 记录**每一个** observation（`_GateAwareClient.note_evidence` → `extract_facts` + `remember`），
+    此前视图与 store 只有 `PolicySearchBridge` 能碰到，于是五个 MCP 工具（金额/物流结论/退款状态都从这里来）
+    一条事实都不贡献、原文也读不回来；报文在**预算预占之前**构建（`_BudgetHook` → `client.prepare_packet`），
+    adapter 复用同一对象，因此预占的输入规模与模型实收请求**是同一个数**（`docs/agent-harness.md:37`）；
+    `OverflowRefusedError` → run 以 `CONTEXT_REQUIRED_OVERFLOW` 停止且请求不到 provider；
+    新增 `sdk_adapter.raw_text_message`：P0–P4 报文按**文本**发，不再被 `messenger_message` 序列化成
+    `{"content": "..."}`（否则模型读到的是装着报文的 JSON 字符串）。
+  - **协议拆分**：`ModelClient.decide` 现在有 `context`（运行自己的结构化视图：observations/budget/step）与
+    `sent_context`（真正发出的 P0–P4 报文）。两者分开是因为**翻页脚本需要上一次的 cursor，而渲染成散文的
+    报文里没有它**；合成一个输入就只能二选一（provider 收到内部记账，或脚本拿不到要继续的东西）。
+    `AgentScopeModelAdapter._call_api` 两者都转发。
+  - 测试：`tests/integration/test_context_wiring.py`（7 例：报文是 P0–P4、工具观察变成事实且可读回、
+    第二次请求带 P2 事实、超限以规格的码停止、每 turn 只构建一次）；`tests/conftest.py` 的 `input_text_of`
+    一个入口读两种输入形状。
+  - **默认仍 `use_context_builder=False`（C06.4 证据包），且有一条测试断言这个默认没被偷改。**
+  - **翻转默认的实测（避免下次误判）**：适配器还没转发两个输入时测得 **5 个**测试红，据此以为是小改动；
+    修好适配器后重测 **58 个**红——一旦真走上下文报文，`model.packets` 不再承载证据，而 C06 的循环语义测试
+    大量依赖它。**第一次的 5 是被"协议不完整"掩盖的假数字：一个还没真正生效的开关，测出来的影响面必然偏小。**
+    翻转**没做**，留作下一个决策点（见 `tasks/handoff-c08-2.md` §2）。
+  - 过程中修掉的真问题：① turn 计数曾在"重建报文"分支里自增，于是第一次构建把 `turns` 锁在 1，
+    整轮 run 每一步都发第一份报文（模型永远看不到它学到的事实）——诊断脚本抓到的，
+    改为在模型调用边界由 `begin_turn()` 推进；② `_messages_of_packet` 曾把已渲染的报文再序列化一层；
+    ③ 测试 helper 曾把 `conversations[turn]`（列表）当成单条消息。
+  - 实测：`pytest tests` → **910 passed, 9 skipped**；`ruff check src tests` → All checks passed；
+    strict `mypy`（在 `agent/` 下）→ **9 errors = 基线，零新增**。
+  - **未做/不声称**：默认未翻转（模型在生产路径上仍收证据包，**所以"模型看到的是 ContextPacket"尚未成立**）；
+    C08.1 的"真实模型适配"与"候选引用验证"未做；C08.2 的 worker/闭环未开始；H1/H2/H3 未验证。
 
 ### C09 持久恢复与版本保护
 
