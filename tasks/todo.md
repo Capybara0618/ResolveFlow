@@ -1243,10 +1243,10 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 - [ ] C07.1：固定bundle索引、真实dense与BM25基线、版本/商家过滤、引用。
 - [ ] C07.2：ContextBuilder关键事实/来源/冲突保真、token上限、原文索引及scope读回。
-- 依赖：C03,C06核心前置,AS02.3。文件：agent/policies、harness/context、相应fixtures/tests。
+- 依赖：C03,C06核心前置,AS02.3（**均已满足，无阻塞**）。文件：agent/policies、harness/context、相应fixtures/tests。
 - 验收：索引未就绪不搜旧版本；关键字段不被摘要改写；超限明确终止，原文可按ref读回。
 - 验证：检索过滤/真实embedding冒烟、上下文七类fixture；无四组消融要求。
-- 实际记录：未执行。
+- 实际记录：未执行（**2026-09-25 交接给新会话**：起点、已核实前提、两个必须先做的判断、会误导判断的坑见 [`tasks/handoff-c07.md`](handoff-c07.md)；本段与 `docs/policy-rag.md`/`docs/context-engineering.md` 是规格）。
 
 ### C08 动态Harness与业务接入
 
