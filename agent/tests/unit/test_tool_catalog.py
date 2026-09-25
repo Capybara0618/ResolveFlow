@@ -189,3 +189,76 @@ def test_a_limit_over_the_cap_is_clamped_rather_than_trusted() -> None:
     )
     assert observation.result is not None
     assert len(observation.result["events"]) == catalog.TRACE_PAGE_LIMIT
+
+
+# --------------------------------------------------------------- the shapes the services really send
+#
+# C06.4⑤. These two cases exist because a stub answers whatever it is told to, so a tool can be "tested" against
+# a shape no service produces and look perfect. Both shapes below are copied from the Java responses the tools
+# actually read — `PolicyManifestController.PolicyManifestResponse` and
+# `CaseEvidenceInternalController.EvidenceListResponse` — and the assertions are about the two members a
+# *citation* needs. Getting either wrong does not fail loudly in a stub test; it produces an observation whose
+# `source_version` is empty or wrong, which is the one thing a later reference check cannot repair.
+
+
+def test_the_policy_manifest_reads_the_version_the_service_really_sends() -> None:
+    """Case's answer is ``bundles[0].manifest_hash``, not a top-level ``version``.
+
+    This was wrong until C06.4⑤: the tool looked for ``version``/``bundle_version`` at the top level, and the stub
+    answered exactly that — so tool and stub agreed with each other and disagreed with the service. Against the
+    real Case every read would have produced ``source_version == ""``, which the wire contract refuses
+    (``EvidenceRef.source_version`` is required, non-empty), turning a working manifest read into an unparseable
+    observation. Found by pointing the tool at the real service rather than at the stub.
+    """
+    # Character for character what PolicyManifestController returns.
+    real_answer = {
+        "bundles": [
+            {
+                "bundle_ids": ["bundle-logistics-v1"],
+                "manifest_hash": "a" * 64,
+                "safety_epoch": 3,
+            }
+        ],
+        "effective_from": "2026-09-01T00:00:00Z",
+    }
+    observation = catalog.get_policy_manifest(client_for(real_answer), context())
+
+    assert observation.error is None
+    # The hash is the version: it is what a policy citation is checked against, and it is the only member of the
+    # answer that identifies which policy decided this case.
+    assert observation.source_version == "a" * 64, f"the manifest hash was not read: {observation.source_version!r}"
+    assert observation.source_type == EvidenceSourceType.POLICY_RULE
+
+
+def test_the_evidence_route_reads_case_evidence_with_its_own_revisions() -> None:
+    """Case's answer is ``{case_id, input_revision, evidence:[EvidenceRef]}``, per record.
+
+    The tool reports the case's current revision as its own version, and each record keeps the revision it was
+    appended at inside the result. Reporting the current revision for every record would destroy the only thing a
+    citation can be checked against.
+    """
+    real_answer = {
+        "case_id": "case-1",
+        "input_revision": 3,
+        "evidence": [
+            {
+                "observation_id": "obs-1",
+                "source_ref": "case:customer_statement:x",
+                "source_version": "2",
+                "content_hash": "b" * 64,
+            },
+            {
+                "observation_id": "obs-2",
+                "source_ref": "case:reviewer_verification:y",
+                "source_version": "3",
+                "content_hash": "c" * 64,
+            },
+        ],
+    }
+    observation = catalog.get_case_evidence(client_for(real_answer), context())
+
+    assert observation.error is None
+    assert observation.source_version == "3", "the case's current revision is what the read's version means"
+    assert observation.result is not None
+    versions = [item["source_version"] for item in observation.result["evidence"]]
+    assert versions == ["2", "3"], "each record must keep its own revision"

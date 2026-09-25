@@ -32,6 +32,7 @@ import datetime as dt
 import hashlib
 import json
 import re
+import uuid
 from dataclasses import dataclass
 from typing import Any, Final
 
@@ -500,3 +501,46 @@ def _parse_instant(value: str) -> dt.datetime:
     if parsed.tzinfo is None:
         raise RunRefusedError("deadline_at must carry a UTC offset")
     return parsed
+
+
+#: The namespace run ids are derived under, character for character as ``AgentRunId.java`` declares it.
+#:
+#: It is written here rather than taken from :mod:`uuid`'s ``NAMESPACE_DNS``/``NAMESPACE_URL`` because the Java
+#: side mints its own, and the namespace literal is *part* of the derivation: two implementations that agreed on
+#: the algorithm but not on the namespace would produce two plausible v5 ids that never match. That is not a bug
+#: that announces itself — the credential route would answer 404 for a run Case really holds, and the symptom
+#: would read as "the run does not exist" rather than as "Python derived a different id".
+RUN_NAMESPACE = "6b3f2c1a-9d4e-5f60-8a71-2c3d4e5f6a7b"
+
+
+def agent_run_id_for(case_id: str, input_revision: int) -> str:
+    """The run id Case derives for one case revision (``AgentRunId.forRevision``).
+
+    Python has to be able to derive this for the two paths where Case's dispatch loop is not what produced the
+    run: a probe or driver that talks to the credential route directly, and C09's worker, which will read the run
+    id Case already wrote. Deriving rather than generating is the whole point — ``docs/core-contracts.md:38``
+    makes a redelivered dispatch the *same* run, and an id invented per attempt would open a second
+    investigation for one revision.
+
+    **This is the same function Case runs, not a second opinion about it.** It is RFC 9562 version 5 with the
+    version and variant bits set, over ``namespace:case_id:revision`` as UTF-8, using
+    :data:`RUN_NAMESPACE`. :func:`uuid.uuid5` is deliberately **not** used: it is the same algorithm but under a
+    namespace of the caller's choosing, and the obvious-looking ``uuid.NAMESPACE_DNS`` would produce an id Case
+    has never heard of. ``test_tool_credential.py`` pins this against the namespace literal parsed out of
+    ``AgentRunId.java``, so the two files cannot drift apart silently.
+    """
+    if not case_id or not case_id.strip():
+        raise RunRefusedError("a case id is required to derive a run id")
+    if not isinstance(input_revision, int) or isinstance(input_revision, bool) or input_revision < 1:
+        raise RunRefusedError(f"input_revision must be at least 1, got {input_revision!r}")
+    name = f"{RUN_NAMESPACE}:{case_id}:{input_revision}".encode()
+    # SHA-1 is 20 bytes and a UUID is 16, so the **first 16** bytes are kept — the same truncation
+    # ``UUID.nameUUIDFromBytes`` and ``uuid.uuid5`` perform. Taking all 20 is a real mistake and a loud one
+    # (``ValueError: bytes is not a 16-char string``), but taking the *last* 16 or a hash of the hash would be
+    # silent and would produce ids Case never derives.
+    digest = bytearray(hashlib.sha1(name, usedforsecurity=False).digest()[:16])
+    # The high 4 bits of octet 6 become the version (5) and the low 6 bits of octet 8 the variant (10 = RFC
+    # 9562), exactly as the Java side does it; the other 122 bits are the hash.
+    digest[6] = (digest[6] & 0x0F) | 0x50
+    digest[8] = (digest[8] & 0x3F) | 0x80
+    return str(uuid.UUID(bytes=bytes(digest)))

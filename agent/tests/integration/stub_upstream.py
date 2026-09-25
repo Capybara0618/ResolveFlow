@@ -187,9 +187,43 @@ class StubUpstream:
                 200,
             )
         if "/evidence" in path:
-            return ({"case_id": "case-1", "input_revision": 2, "items": []}, 200)
+            # The contract's EvidenceListResponse (C06.4⑤): `{case_id, input_revision, evidence:[EvidenceRef]}`.
+            # `source_version` is a per-record string, and the two records carry *different* ones — a stub that
+            # echoed the current revision for both would hide a tool that read the wrong member.
+            return (
+                {
+                    "case_id": "case-1",
+                    "input_revision": 2,
+                    "evidence": [
+                        {
+                            "observation_id": "obs-stub-1",
+                            "source_ref": "case:customer_statement:stub",
+                            "source_version": "1",
+                            "content_hash": "e" * 64,
+                        }
+                    ],
+                },
+                200,
+            )
         if path.endswith("/policy-manifest"):
-            return ({"case_id": "case-1", "bundle_id": "bundle-demo", "version": "1.2.0", "rules": []}, 200)
+            # The contract's PolicyManifestResponse, member for member — `bundles[0].manifest_hash`, not a
+            # top-level `version`. The stub used to answer `{"version": "1.2.0"}`, which no service produces:
+            # the tool read `version` too, so the two agreed with each other and disagreed with Case, and every
+            # read against the real service produced an empty `source_version` (C06.4⑤). A stub that invents its
+            # own shape is worse than no stub, because it makes the tool look tested.
+            return (
+                {
+                    "bundles": [
+                        {
+                            "bundle_ids": ["bundle-demo"],
+                            "manifest_hash": "d" * 64,
+                            "safety_epoch": 1,
+                        }
+                    ],
+                    "effective_from": "2026-09-01T00:00:00Z",
+                },
+                200,
+            )
         return {"code": "NOT_FOUND", "message": f"no stub route for {path}", "retryable": False}, 404
 
 

@@ -394,6 +394,16 @@ def get_policy_manifest(client: UpstreamClient, context: ToolContext) -> ToolObs
 
     Bound, not chosen: the run must not silently swap its manifest (``docs/core-scope.md`` invariants), so this
     reads the case's pinned manifest rather than letting a caller name a bundle.
+
+    **The version is ``bundles[0].manifest_hash``.** Case answers the contract's ``PolicyManifestResponse``:
+    ``{bundles: [{bundle_ids, manifest_hash, safety_epoch}], effective_from, effective_to}``. There is no
+    top-level ``version`` or ``bundle_version``. Until C06.4⑤ this read the latter two, and the *stub* answered
+    ``version`` — so the tool and the stub agreed with each other and disagreed with the service, and against the
+    real Case every read produced ``source_version == ""``. That is not a cosmetic bug: the core wire requires a
+    non-empty ``source_version``, so the observation could not even be constructed, and a run that read its policy
+    would have died at the DTO instead of deciding anything. The hash is the right member anyway — it is what a
+    ``CorePolicyRef`` is checked against, and the only member of the answer that identifies which policy decided
+    this case.
     """
     tool = "get_policy_manifest"
     source = EvidenceSourceType.POLICY_RULE
@@ -410,8 +420,28 @@ def get_policy_manifest(client: UpstreamClient, context: ToolContext) -> ToolObs
     if failure is not None:
         return failure
     body = answer.body
-    version = body.get("version", body.get("bundle_version", ""))
-    return _observed(tool, source, source_ref, str(version), answer.content_hash, body, context)
+    version = _manifest_hash_of(body, source_ref)
+    return _observed(tool, source, source_ref, version, answer.content_hash, body, context)
+
+
+def _manifest_hash_of(body: dict[str, Any], source_ref: str) -> str:
+    """The bound manifest's hash, or a refusal naming what was wrong with the answer.
+
+    A malformed answer is reported as an unavailable upstream rather than as an empty version. The service is
+    reachable and answered, but with something this tool cannot read, and the two available lies are worse: an
+    empty version makes an uncitable manifest look citable, and inventing one makes the citation check compare a
+    made-up hash against itself.
+    """
+    bundles = body.get("bundles")
+    if not isinstance(bundles, list) or not bundles:
+        raise UpstreamUnavailableError(f"{source_ref} answered no bundles, so there is no manifest to cite")
+    first = bundles[0]
+    if not isinstance(first, dict):
+        raise UpstreamUnavailableError(f"{source_ref} answered a bundle that is not an object")
+    manifest_hash = first.get("manifest_hash")
+    if not isinstance(manifest_hash, str) or not manifest_hash:
+        raise UpstreamUnavailableError(f"{source_ref} answered a bundle with no manifest_hash")
+    return manifest_hash
 
 
 # ------------------------------------------------------------------ cursors

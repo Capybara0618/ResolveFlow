@@ -6,6 +6,7 @@ import com.resolveflow.caseservice.casefile.CaseService;
 import com.resolveflow.caseservice.casefile.CaseStateConflictException;
 import com.resolveflow.caseservice.casefile.ReviewQueueCursor;
 import com.resolveflow.caseservice.casefile.ReviewQueueService;
+import com.resolveflow.caseservice.internal.CaseEvidenceInternalController;
 import com.resolveflow.caseservice.internal.ToolCredentialService;
 import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.caseservice.order.OrderController;
@@ -203,6 +204,20 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ToolCredentialService.RunNotFoundException.class)
     public ResponseEntity<ApiError> runNotFound(
             ToolCredentialService.RunNotFoundException error, HttpServletRequest request) {
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
+    }
+
+    /**
+     * The case whose evidence was read does not exist (C06.4⑤).
+     *
+     * <p>A case that exists and holds nothing is a 200 with an empty list, so this 404 means exactly "no such
+     * case" and nothing else — the two would otherwise be indistinguishable to the Agent, which would record the
+     * empty one as {@code NOT_FOUND} and, per {@code docs/agent-spec.md:36}, treat it as not-a-negative-fact it
+     * cannot act on.
+     */
+    @ExceptionHandler(CaseEvidenceInternalController.CaseEvidenceNotFoundException.class)
+    public ResponseEntity<ApiError> caseEvidenceNotFound(
+            CaseEvidenceInternalController.CaseEvidenceNotFoundException error, HttpServletRequest request) {
         return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
     }
 

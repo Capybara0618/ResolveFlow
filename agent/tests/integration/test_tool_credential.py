@@ -16,12 +16,14 @@ case has left — is ``ToolCredentialApiTest``. Neither file can prove the other
 
 from __future__ import annotations
 
+import hashlib
 import json
 import pathlib
 from typing import Any
 
 import pytest
 
+from resolveflow.runtime.runs import RUN_NAMESPACE, agent_run_id_for
 from resolveflow.tools.credential import (
     CREDENTIAL_ROUTE,
     CredentialUnavailableError,
@@ -102,6 +104,71 @@ def test_a_credential_without_its_expiry_or_scopes_is_refused(case: Any) -> None
         ToolCredential.from_response({"token": "t", "expires_at": "2026-09-25T00:00:00Z"})
     with pytest.raises(CredentialUnavailableError):
         ToolCredential.from_response({"expires_at": "2026-09-25T00:00:00Z", "scopes": ["commerce:read"]})
+
+
+def test_the_run_id_derivation_matches_the_javas_namespace_and_algorithm() -> None:
+    """The id Python derives for the credential route must be the id Case derives.
+
+    ``AgentRunId.forRevision`` is RFC 9562 v5 over ``namespace:case_id:revision``, and the **namespace literal is
+    part of the derivation**. ``uuid.uuid5`` is the same algorithm under a namespace of the caller's choosing, so
+    the obvious-looking ``uuid.NAMESPACE_DNS`` produces a perfectly valid v5 id that Case has never heard of —
+    and the symptom would be the credential route answering 404 for a run that really exists, which reads as
+    "your run does not exist" rather than as "Python derived a different id".
+
+    This test pins the two implementations together **structurally** rather than by a remembered constant: it
+    parses the namespace out of ``AgentRunId.java``, recomputes the id from it here, and requires the production
+    function to agree. A change to the Java literal therefore moves this test's expectation with it, and a change
+    to only one side is red. The expected value is additionally checked against the fixture case
+    ``AgentRunDispatchApiTest`` uses, so the test fails if the Java file moves somewhere this test cannot see.
+    """
+    import re as regex
+    import uuid as uuid_module
+
+    java_source = (
+        REPO_ROOT / "java" / "case-service" / "src" / "main" / "java" / "com" / "resolveflow"
+        / "caseservice" / "casefile" / "AgentRunId.java"
+    ).read_text(encoding="utf-8")
+    match = regex.search(r'UUID\.fromString\("([0-9a-f-]{36})"\)', java_source)
+    assert match is not None, f"AgentRunId.java no longer declares its namespace in a form this test can read"
+    java_namespace = match.group(1)
+
+    # The two namespaces are one namespace: this is the assertion that would have caught NAMESPACE_DNS.
+    assert java_namespace == RUN_NAMESPACE, (
+        "Python and Java derive run ids under different namespaces, so neither can recognise the other's ids"
+    )
+
+    case_id = "9c858901-8a57-4791-81fe-4c455b099bc9"
+
+    def java_style_v5(namespace: str, revision: int) -> str:
+        """RFC 9562 v5 over ``namespace:case_id:revision``, computed from first principles here."""
+        # First 16 of the 20 SHA-1 bytes, as every RFC 9562 v5 implementation does.
+        digest = bytearray(hashlib.sha1(f"{namespace}:{case_id}:{revision}".encode()).digest()[:16])
+        digest[6] = (digest[6] & 0x0F) | 0x50
+        digest[8] = (digest[8] & 0x3F) | 0x80
+        return str(uuid_module.UUID(bytes=bytes(digest)))
+
+    for revision in (1, 2, 7):
+        derived = agent_run_id_for(case_id, revision)
+        assert derived == java_style_v5(java_namespace, revision), (
+            f"revision {revision}: Python derived {derived}, Java's rule gives "
+            f"{java_style_v5(java_namespace, revision)}"
+        )
+        # A v5 id says how it was made, which is what makes the derivation checkable rather than conventional.
+        assert uuid_module.UUID(derived).version == 5
+
+    # Different inputs are different investigations: a revision of a case is not the revision before it.
+    assert agent_run_id_for(case_id, 1) != agent_run_id_for(case_id, 2)
+    assert agent_run_id_for(case_id, 1) != agent_run_id_for("0f5e6d7c-1111-4222-8333-444455556666", 1)
+
+
+def test_deriving_a_run_id_refuses_inputs_case_could_not_have() -> None:
+    """A blank case or a revision below 1 is refused rather than hashed into an id nobody holds."""
+    for bad_case in ("", "   "):
+        with pytest.raises(Exception):
+            agent_run_id_for(bad_case, 1)
+    for bad_revision in (0, -1):
+        with pytest.raises(Exception):
+            agent_run_id_for("9c858901-8a57-4791-81fe-4c455b099bc9", bad_revision)
 
 
 def test_case_being_unreachable_is_an_error_and_not_a_weaker_credential(case: Any) -> None:
