@@ -61,6 +61,7 @@ def a_request(**overrides: Any) -> RunRequest:
         "requested_actions": ["REFUND"],
         "evidence_refs": ["ev-1"],
         "policy_manifest": {
+            "merchant_id": "M-1001",
             "bundle_ids": ["policy-logistics-2026.09"],
             "manifest_hash": MANIFEST_HASH,
             "safety_epoch": 1,
@@ -165,8 +166,22 @@ def test_a_body_that_disagrees_with_the_token_identity_is_refused(agent_db: Data
     """
     store = RunStore(agent_db)
 
+    # Both spellings of "whose policy this is" move together: the run's context and the pinned manifest. Since
+    # C07.1 the two are required to agree with each other as well, so a body that changed only one of them
+    # would be refused for *that* reason and this test would stop being about the token identity.
     with pytest.raises(RunIdentityMismatchError) as refused:
-        store.queue(a_request(merchant_id="M-9999"), caller=CASE_DISPATCHER)
+        store.queue(
+            a_request(
+                merchant_id="M-9999",
+                policy_manifest={
+                    "merchant_id": "M-9999",
+                    "bundle_ids": ["policy-logistics-2026.09"],
+                    "manifest_hash": MANIFEST_HASH,
+                    "safety_epoch": 1,
+                },
+            ),
+            caller=CASE_DISPATCHER,
+        )
 
     assert refused.value.reason_code == REJECTED_IDENTITY_MISMATCH
     with agent_db.connection() as connection:
@@ -294,6 +309,7 @@ def test_two_spellings_of_one_request_are_one_request(agent_db: Database) -> Non
         policy_manifest={
             "safety_epoch": 1,
             "manifest_hash": MANIFEST_HASH,
+            "merchant_id": "M-1001",
             "bundle_ids": ["policy-logistics-2026.09"],
         },
     )
@@ -316,13 +332,31 @@ def test_a_run_for_another_case_is_its_own_row(agent_db: Database) -> None:
 
 
 def test_the_schema_is_where_the_tables_are(agent_db: Database, postgres_dsn: str) -> None:
-    """The isolation the fixture promises is real: nothing was written outside the test's schema."""
+    """The isolation the fixture promises is real: nothing was **written** outside the test's schema.
+
+    The property is about rows, not about the tables' existence, and the first version of this test asserted the
+    wrong one: it required ``public.agent_run`` not to exist at all. That held only while nothing ever migrated
+    the service's own schema, and C07.1 gave the project a legitimate reason to — ``scripts/policy_index_ingest.py``
+    and the e2e driver write the index into the service's schema, exactly as ``Database(default_dsn())`` means.
+    With the table legitimately present and empty, the old assertion reported a leak that had not happened.
+
+    So the count is taken **before and after** the write instead: that is unfalsifiable by a table's existence and
+    tests what the fixture actually promises — a run queued in the test's schema cannot appear in the service's.
+    """
+    def public_rows() -> int:
+        with psycopg.connect(postgres_dsn, row_factory=dict_row) as connection:
+            row = connection.execute(
+                "SELECT count(*) AS n FROM information_schema.tables "
+                "WHERE table_schema = 'public' AND table_name = 'agent_run'"
+            ).fetchone()
+            if row is None or row["n"] == 0:
+                # Nothing to leak into: the service's schema has never been migrated on this machine.
+                return 0
+            outer = connection.execute("SELECT count(*) AS n FROM public.agent_run").fetchone()
+        return int(outer["n"]) if outer else 0
+
+    before = public_rows()
     store = RunStore(agent_db)
     store.queue(a_request(), caller=CASE_DISPATCHER)
 
-    with psycopg.connect(postgres_dsn, row_factory=dict_row) as connection:
-        outside = connection.execute(
-            "SELECT count(*) AS n FROM information_schema.tables "
-            "WHERE table_schema = 'public' AND table_name = 'agent_run'"
-        ).fetchone()
-    assert outside is not None and outside["n"] == 0
+    assert public_rows() == before

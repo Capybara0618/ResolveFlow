@@ -613,12 +613,17 @@ class VersionRef(ContractModel):
 
 
 class PolicyManifestRef(ContractModel):
+    #: The merchant the pinned window was selected for (C07.1). Part of the pin rather than a second read:
+    #: retrieval hard-filters by merchant, and the run is told which merchant its policy set belongs to by
+    #: the same record that tells it which version it is bound to.
+    merchant_id: str = Field(min_length=1, max_length=64)
     bundle_ids: Annotated[list[str], Field(min_length=1, max_length=16)]
     manifest_hash: SHA256_HEX
     safety_epoch: Annotated[int, Field(ge=0, le=MAX_SAFE_INTEGER)]
 
 
 class PolicyManifestView(ContractModel):
+    merchant_id: str = Field(min_length=1, max_length=64)
     bundles: Annotated[list[PolicyManifestRef], Field(min_length=1, max_length=16)]
     effective_from: str
     effective_to: str | None = None

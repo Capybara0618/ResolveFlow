@@ -912,6 +912,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PolicyManifestResponse'
               example:
+                merchant_id: M-1001
                 bundles:
                   - bundle_ids: [policy-logistics-2026.09]
                     manifest_hash: '9999999999999999999999999999999999999999999999999999999999999999'
@@ -945,6 +946,7 @@ paths:
                 $ref: '#/components/schemas/PolicyBundle'
               example:
                 bundle_id: policy-logistics-2026.09
+                merchant_id: M-1001
                 version: '2026.09'
                 manifest_hash: '9999999999999999999999999999999999999999999999999999999999999999'
                 safety_epoch: 1
@@ -2284,8 +2286,18 @@ components:
     PolicyManifestResponse:
       type: object
       additionalProperties: false
-      required: [bundles, effective_from]
+      required: [merchant_id, bundles, effective_from]
+      description: |
+        The policy a case is pinned to.
+
+        merchant_id is the merchant the pinned window was selected for (C07.1). It is read
+        from the pin rather than from the case row: a run filters retrieval by the merchant
+        the manifest names, and this route is where a run learns it.
       properties:
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
         bundles:
           type: array
           minItems: 1
@@ -2383,13 +2395,23 @@ components:
     PolicyBundle:
       type: object
       additionalProperties: false
-      required: [bundle_id, version, manifest_hash, rules]
+      required: [bundle_id, merchant_id, version, manifest_hash, rules]
       description: |
         An immutable, versioned rule set (docs/policy-rag.md). Core has no route that
         publishes or revokes one; that happens through the controlled import script
         (docs/core-contracts.md:53).
+
+        merchant_id is part of the bundle's identity rather than metadata beside it: it is
+        covered by manifest_hash, so the same wording published by two merchants is two
+        different bundles, and a citation can say whose policy it cites. It is served
+        because C07.1's filter is "this run's merchant" and the Agent has to be able to
+        check the bundle it retrieved against the merchant the run was dispatched for.
       properties:
         bundle_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        merchant_id:
           type: string
           minLength: 1
           maxLength: 64

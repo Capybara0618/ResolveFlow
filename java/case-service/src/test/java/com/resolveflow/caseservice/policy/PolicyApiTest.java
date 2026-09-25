@@ -53,6 +53,7 @@ class PolicyApiTest extends CaseDatabaseTest {
 
     private static final String BUNDLE = """
             bundle_id: policy-logistics-2026.09
+            merchant_id: M-1001
             version: "2026.09"
             safety_epoch: 2
             effective_from: "2026-09-01T00:00:00Z"
@@ -102,8 +103,14 @@ class PolicyApiTest extends CaseDatabaseTest {
         JsonNode json = MAPPER.readTree(body);
         assertThat(json.properties().stream().map(java.util.Map.Entry::getKey))
                 .as("exactly the contract's members; the effective window is internal, not part of the response")
-                .containsExactlyInAnyOrder("bundle_id", "version", "manifest_hash", "safety_epoch", "rules");
+                .containsExactlyInAnyOrder(
+                        "bundle_id", "merchant_id", "version", "manifest_hash", "safety_epoch", "rules");
         assertThat(json.get("bundle_id").stringValue()).isEqualTo("policy-logistics-2026.09");
+        // C07.1: the bundle's owner is on the wire, and it is part of the manifest hash — the same wording
+        // published by two merchants is two different bundles.
+        assertThat(json.get("merchant_id").stringValue())
+                .as("the bundle says whose policy set it is, which is what a run filters retrieval by")
+                .isEqualTo("M-1001");
         assertThat(json.get("version").stringValue()).isEqualTo("2026.09");
         assertThat(json.get("safety_epoch").asInt()).isEqualTo(2);
         assertThat(json.get("manifest_hash").stringValue()).matches("[a-f0-9]{64}");

@@ -26,7 +26,7 @@ from agentscope.message import Msg, TextBlock, ToolCallBlock
 from agentscope.model import ChatModelBase, ChatResponse
 from agentscope.state import AgentState
 
-from resolveflow.harness.actions import PROPOSE, READ_TOOL
+from resolveflow.harness.actions import POLICY_SEARCH_TOOL_NAME, PROPOSE, READ_TOOL, SEARCH_POLICY
 from resolveflow.harness.model import ModelClient, ModelReply, ModelUsage
 
 __all__ = ["AgentScopeModelAdapter", "MessageRole", "messenger_message"]
@@ -182,6 +182,13 @@ def _as_chat_response(reply: ModelReply) -> ChatResponse:
     interception point AS01.1 validated. Every terminal decision becomes a text block carrying the decision JSON,
     which ends the loop: AgentScope stops when a turn produces no tool call, and a terminal action is by definition
     not a tool call (`actions.TERMINAL_KINDS`).
+
+    **`SEARCH_POLICY` also becomes a tool call, under a name that is not one of the five** (C07.1). It is a
+    local capability (`docs/agent-spec.md:34`), so it does not exist in the MCP tool server — but it has to
+    reach the SDK the same way a tool does, because that is what makes the SDK's loop execute it and what puts
+    it in front of `ActionGateMiddleware`. Two things follow, and both matter: the input carries the model's
+    `query`/`top_k` and **no identity**, and the name is a constant rather than anything the model sent, so a
+    decision cannot choose which mechanism reads policy.
     """
     decision = reply.decision
     kind = decision.get("kind")
@@ -193,6 +200,24 @@ def _as_chat_response(reply: ModelReply) -> ChatResponse:
                     id=str(decision.get("tool_call_id") or f"call-{id(reply)}"),
                     name=str(decision.get("tool_name")),
                     input=json.dumps(decision.get("arguments") or {}, ensure_ascii=False),
+                )
+            ],
+            is_last=True,
+        )
+    if kind == SEARCH_POLICY:
+        # Only the model's own two members travel. Re-sending the whole decision would put `reasoning` and
+        # whatever else the model emitted into the tool's input, where nothing validates it.
+        arguments: dict[str, object] = {"query": decision.get("query")}
+        top_k = (decision.get("arguments") or {}).get("top_k")
+        if top_k is not None:
+            arguments["top_k"] = top_k
+        return ChatResponse(
+            content=[
+                ToolCallBlock(
+                    type="tool_call",
+                    id=str(decision.get("tool_call_id") or f"call-{id(reply)}"),
+                    name=POLICY_SEARCH_TOOL_NAME,
+                    input=json.dumps(arguments, ensure_ascii=False),
                 )
             ],
             is_last=True,

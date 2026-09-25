@@ -1,0 +1,93 @@
+C07.1 embedding probe (measured before the model was written into the code)
+
+Why this file exists: docs/policy-rag.md:19 requires the embedding model's revision, dimension, licence
+and resource cost to be fixed and recorded, and docs/policy-rag.md:19 forbids faking an embedding. So the
+candidate was downloaded and measured on this machine first, and the numbers below are what the probe
+printed — including the query it gets wrong. The probe's own source and its venv live in tmp/ (gitignored,
+one-off); the result is here because a measurement nobody can read is not a record.
+
+corpus segments probed : 4
+queries probed         : 8
+
+model            : BAAI/bge-small-zh-v1.5
+revision (pinned) : 7999e1d3359715c523056ef9478215996d62a620
+licence           : mit
+dimension         : 512
+files in snapshot : 13
+weights on disk   : 192.3 MB
+download          : 226.7s (one HTTPS read timeout, resumed)
+load              : 0.2s
+encode corpus     : 0.05s
+encode queries    : 0.01s
+distinct vectors  : 4 of 4 segments
+top-1 on probe    : 7/8
+
+per query (cosine, all corpus segments):
+  MISS 包裹显示丢失了，可以退吗
+       expected R-LOST-001, top-1 R-SIGNED-001
+          0.6038  R-SIGNED-001
+          0.5916  R-LOST-001
+          0.5756  R-DELAY-001
+          0.5627  R-PARTIAL-001
+
+  ok   快递公司说件丢了
+       expected R-LOST-001, top-1 R-LOST-001
+          0.5275  R-LOST-001
+          0.4935  R-SIGNED-001
+          0.4127  R-DELAY-001
+          0.3790  R-PARTIAL-001
+
+  ok   客户说没收到但显示已签收
+       expected R-SIGNED-001, top-1 R-SIGNED-001
+          0.7167  R-SIGNED-001
+          0.5976  R-LOST-001
+          0.5529  R-DELAY-001
+          0.5340  R-PARTIAL-001
+
+  ok   签收记录有效吗
+       expected R-SIGNED-001, top-1 R-SIGNED-001
+          0.6461  R-SIGNED-001
+          0.6062  R-LOST-001
+          0.4593  R-DELAY-001
+          0.3572  R-PARTIAL-001
+
+  ok   运输超时七天了
+       expected R-DELAY-001, top-1 R-DELAY-001
+          0.5528  R-DELAY-001
+          0.4293  R-LOST-001
+          0.3628  R-SIGNED-001
+          0.3106  R-PARTIAL-001
+
+  ok   早就过了承诺时效还没到
+       expected R-DELAY-001, top-1 R-DELAY-001
+          0.6455  R-DELAY-001
+          0.5264  R-SIGNED-001
+          0.5155  R-LOST-001
+          0.4755  R-PARTIAL-001
+
+  ok   之前退过一部分还能退多少
+       expected R-PARTIAL-001, top-1 R-PARTIAL-001
+          0.6775  R-PARTIAL-001
+          0.5411  R-LOST-001
+          0.5304  R-DELAY-001
+          0.5280  R-SIGNED-001
+
+  ok   部分退款后剩余金额
+       expected R-PARTIAL-001, top-1 R-PARTIAL-001
+          0.6737  R-PARTIAL-001
+          0.6279  R-LOST-001
+          0.5804  R-SIGNED-001
+          0.5723  R-DELAY-001
+
+reading this probe:
+  * The one MISS is kept, not tuned away. A model chosen because it scored well on the queries that
+    survived is a model chosen by its own test set; the miss is recorded so a later reader knows what
+    this model does not separate well (a lost-parcel question whose phrasing leans on 签收).
+  * Pairwise ordering is what matters here, not the absolute cosine values: the probe asked whether the
+    correct rule outranks the others, which is the property retrieval depends on.
+  * The cosine spread on this corpus is narrow (roughly 0.31-0.72), which is why the evaluation reports
+    top-1 and MRR@5 rather than assuming a wide margin separates the rules.
+  * Dependency cost, measured separately in a throwaway venv: 811 MB of site-packages, 474 MB of which
+    is torch, plus the weights above. That is the real number behind the `retrieval` extra.
+  * This machine cannot create the symlinks huggingface_hub uses for its cache layout (WinError 1314),
+    so the snapshot is downloaded to a plain directory; that is a filesystem fact, not a model problem.

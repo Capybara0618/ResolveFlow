@@ -111,8 +111,17 @@ class RunRequestPayloadShape(BaseModel):
 
 
 class PolicyManifestShape(BaseModel):
-    """The pinned policy manifest the run will be decided under."""
+    """The pinned policy manifest the run will be decided under.
 
+    ``merchant_id`` is required (C07.1, ``contracts/core/openapi-agent.yaml`` 1.2.0). It is required rather
+    than defaulted from ``context.merchant_id`` — even though the two must agree — because the manifest is
+    the *pin*: "these rules, for this merchant" is one fact, and a dispatcher that omitted the merchant
+    would make the filter reconstructible only from a second member that nothing checks against the first.
+    A dispatch from an older Case is therefore refused rather than accepted with the filter silently taken
+    from elsewhere.
+    """
+
+    merchant_id: str = Field(min_length=1, max_length=64)
     bundle_ids: list[str] = Field(min_length=1, max_length=16)
     manifest_hash: str
     safety_epoch: int = Field(ge=0)
@@ -660,6 +669,7 @@ def _as_store_request(body: RunRequestShape) -> RunRequest:
         requested_actions=tuple(body.request.requested_actions),
         evidence_refs=tuple(body.request.evidence_refs),
         policy_manifest={
+            "merchant_id": body.policy_manifest.merchant_id,
             "bundle_ids": list(body.policy_manifest.bundle_ids),
             "manifest_hash": body.policy_manifest.manifest_hash,
             "safety_epoch": body.policy_manifest.safety_epoch,

@@ -34,6 +34,8 @@ __all__ = [
     "ESCALATE",
     "MAX_ASK_QUESTIONS",
     "MAX_POLICY_TOP_K",
+    "OBSERVATION_READ_TOOL_NAME",
+    "POLICY_SEARCH_TOOL_NAME",
     "PROPOSE",
     "READ_OBSERVATION",
     "READ_TOOL",
@@ -62,6 +64,18 @@ TERMINAL_KINDS: Final[frozenset[str]] = frozenset({PROPOSE, ASK_CUSTOMER, ESCALA
 #: ``docs/agent-spec.md:18``: 最多3个聚合问题. ``docs/agent-spec.md:16``: top_k<=5.
 MAX_ASK_QUESTIONS: Final = 3
 MAX_POLICY_TOP_K: Final = 5
+
+#: The name the SDK sees for a policy search (C07.1). A **local** capability, not one of the five MCP tools
+#: (``docs/agent-spec.md:34``: 政策检索和READ_OBSERVATION是本地能力，不包装成额外微服务), which is why it is not in
+#: :data:`WHITELIST` and why the tool server has never heard of it.
+#:
+#: It lives in the ABI rather than in the runner because two modules need to agree on it — the adapter renders the
+#: tool call and the gate decides whether to allow it — and a constant two modules each spell is a constant that
+#: will eventually be spelled differently in one of them.
+POLICY_SEARCH_TOOL_NAME: Final = "search_policy"
+
+#: The same, for reading back an observation's original text (C07.2's executor).
+OBSERVATION_READ_TOOL_NAME: Final = "read_observation"
 
 #: ``docs/agent-spec.md:19``. The harness fills in the identity; the model chooses the action.
 RECOMMENDED_ACTIONS: Final[frozenset[str]] = frozenset(

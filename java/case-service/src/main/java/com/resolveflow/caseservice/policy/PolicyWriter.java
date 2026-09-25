@@ -44,6 +44,7 @@ public class PolicyWriter {
         requireNoAmbiguity(draft);
         policies.insertBundle(
                 draft.bundleId(),
+                draft.merchantId(),
                 draft.version(),
                 manifestHash,
                 draft.safetyEpoch(),
@@ -76,9 +77,28 @@ public class PolicyWriter {
      *
      * <p>Read under a lock because the answer decides whether the insert happens: without it, two imports
      * running at once could each see a different set of windows and both insert.
+     *
+     * <p>Every rule is scoped to <b>the draft's own merchant</b> (C07.1). The rules are about how one
+     * merchant's policy set moves forward in time, so another merchant's versions are irrelevant to them.
      */
     private void requireNoAmbiguity(PolicySourceReader.Draft draft) {
         for (PolicyRepository.StoredWindow window : policies.listWindowsForUpdate()) {
+            // **Per merchant** (C07.1). Before this, two merchants publishing a version on the same date
+            // tripped every rule below: "two policies and no way to choose" was true only while one merchant's
+            // rules were the whole policy table. With the merchant part of the bundle's identity, the same
+            // instant for two merchants is two independent policy sets, and comparing across them would
+            // refuse a merchant's first bundle because an unrelated merchant published that day.
+            //
+            // A stored window with **no** merchant is skipped rather than compared, and that is a real state
+            // rather than defensive coding: V17 leaves ``merchant_id`` NULL on a bundle no case ever pinned,
+            // because an import installs versions nothing has selected yet. Such a row cannot make *this*
+            // draft ambiguous — nothing has said whose policy set it is — and treating it as "every merchant's"
+            // instead would refuse the first import after a fresh migration. Dropping the null on the floor was
+            // a live bug: the first version of this check threw NPE on exactly that row, which is how it was
+            // found (the service refused to boot with the import command enabled).
+            if (window.merchantId() == null || !window.merchantId().equals(draft.merchantId())) {
+                continue;
+            }
             if (draft.effectiveFrom().equals(window.effectiveFrom())) {
                 throw new PolicyImportService.ImportRefusedException(draft.bundleId() + " starts at "
                         + draft.effectiveFrom() + ", the same instant as " + window.bundleId()

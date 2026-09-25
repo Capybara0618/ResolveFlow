@@ -181,6 +181,10 @@ public class AgentRunDispatch {
         request.put("evidence_refs", List.of());
 
         Map<String, Object> policy = new LinkedHashMap<>();
+        // The merchant is dispatched with the manifest because it is what the run filters retrieval by
+        // (C07.1). It is read from the pin rather than from the case row: the run has to be able to check
+        // "the bundle I retrieved belongs to my merchant" against the same record it was opened under.
+        policy.put("merchant_id", manifest.merchantId());
         policy.put("bundle_ids", List.copyOf(bundleIds));
         policy.put("manifest_hash", manifest.manifestHash());
         policy.put("safety_epoch", manifest.safetyEpoch());

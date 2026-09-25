@@ -116,8 +116,12 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
     }
 
     private String userToken() {
+        return userToken("M-1001");
+    }
+
+    private String userToken(String merchantId) {
         return new JwtCodec(secret, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), Instant.now());
+                .issue(new AuthenticatedPrincipal("demo-customer", merchantId, Role.CUSTOMER, "C-2002"), Instant.now());
     }
 
     /** Opens a case and returns the response body, so a test can assert on what the caller was told. */
@@ -204,6 +208,7 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
             extra = java.nio.file.Files.createTempDirectory("policy-newer");
             java.nio.file.Files.writeString(extra.resolve("newer.yaml"), """
                     bundle_id: policy-logistics-2026.10
+                    merchant_id: M-1001
                     version: "2026.10"
                     safety_epoch: 3
                     effective_from: "2026-10-01T00:00:00Z"
@@ -228,8 +233,8 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
         }
 
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM policy_bundle", Integer.class))
-                .as("the newer version really is installed")
-                .isEqualTo(3);
+                .as("the newer version really is installed, alongside both merchants' fixtures (C07.1)")
+                .isEqualTo(5);
         assertThat(readManifest(caseId).toString())
                 .as("the case is decided under the policy it was opened under, forever")
                 .isEqualTo(before);
@@ -319,6 +324,44 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
                 .value(response -> assertThat(
                                 MAPPER.readTree(response).get("message").stringValue())
                         .isEqualTo("this case has no pinned policy manifest"));
+    }
+
+    @Test
+    @DisplayName("a second merchant's payment selects that merchant's policy set, not the other merchant's")
+    void selectionIsScopedToTheMerchant() {
+        // Both merchants publish a version starting 2026-09-01, and the same payment time is used for both.
+        // Before C07.1 the second merchant could not exist at all: the choice was over every bundle in the
+        // table, so a second merchant's September version would have decided the first merchant's payment.
+        commerce.lineMerchant = "M-2002";
+        commerce.lineCustomer = "C-2002";
+        commerce.paidAt = PAID_IN_SEPTEMBER;
+        String body = rest.post()
+                .uri("/api/v1/cases")
+                .header("Authorization", "Bearer " + userToken("M-2002"))
+                .header("Idempotency-Key", "manifest-second-merchant")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body("{\"line_id\":\"" + nextLine()
+                        + "\",\"description\":\"到货破损\",\"requested_actions\":[\"REFUND\"]}")
+                .exchange()
+                .expectStatus()
+                .isCreated()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+        String caseId = MAPPER.readTree(body).get("case_id").stringValue();
+
+        JsonNode manifest = readManifest(caseId);
+        assertThat(manifest.get("merchant_id").stringValue())
+                .as("the pin says whose policy set it is, so a run can filter retrieval by it")
+                .isEqualTo("M-2002");
+        assertThat(manifest.get("bundles").get(0).get("bundle_ids").get(0).stringValue())
+                .as("M-2002's September policy, not M-1001's")
+                .isEqualTo("policy-damage-2026.09");
+        assertThat(manifest.get("bundles").get(0).get("manifest_hash").stringValue())
+                .isEqualTo(storedHash("policy-damage-2026.09"));
+
+        // And the pin is what a run is dispatched with: the dispatch body carries the merchant it filters by.
+        assertThat(manifests.findManifest(caseId).merchantId()).isEqualTo("M-2002");
     }
 
     @Test

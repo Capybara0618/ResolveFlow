@@ -162,10 +162,12 @@ public class CaseService {
         // The scope is the token's, and Commerce answers with the order the line really belongs to.
         CommerceLineLookup.Line line = commerce.findLine(principal, lineId).orElseThrow(LineNotVisibleException::new);
 
-        // The version is chosen by the payment time, before the transaction: it is a read of this
-        // service's own database, and refusing here means a case no policy can decide is never opened
-        // at all rather than opened and left undecidable.
-        PolicyManifest manifest = policy.selectFor(line.paidAt());
+        // The version is chosen by the payment time **and the merchant**, before the transaction: it is a
+        // read of this service's own database, and refusing here means a case no policy can decide is never
+        // opened at all rather than opened and left undecidable. The merchant comes from the authenticated
+        // principal rather than from the request body (C07.1): which policy set applies is a fact about the
+        // caller's own order, so letting the request name it would let a caller pick another merchant's rules.
+        PolicyManifest manifest = policy.selectFor(principal.merchantId(), line.paidAt());
 
         Instant now = Instant.now(clock);
         String caseId = UUID.randomUUID().toString();

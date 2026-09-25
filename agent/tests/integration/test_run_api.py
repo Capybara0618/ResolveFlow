@@ -73,6 +73,7 @@ def a_body(**overrides: Any) -> dict[str, Any]:
             "evidence_refs": ["ev-1"],
         },
         "policy_manifest": {
+            "merchant_id": "M-1001",
             "bundle_ids": ["policy-logistics-2026.09"],
             "manifest_hash": MANIFEST_HASH,
             "safety_epoch": 1,
@@ -140,11 +141,33 @@ def test_a_body_naming_another_merchants_line_is_refused_with_422(client: Any, d
     """docs/core-contracts.md:60: the body must agree with the service token and the case binding."""
     body = a_body()
     body["context"]["merchant_id"] = "M-9999"
+    # The pinned manifest moves with it: since C07.1 a run may not be pinned to another merchant's policy set
+    # either, so leaving the manifest at M-1001 would be refused by *that* rule instead of the identity rule
+    # this test is about (see test_a_pin_for_another_merchant_is_refused).
+    body["policy_manifest"]["merchant_id"] = "M-9999"
 
     refused = post_run(client, dispatcher_token, body)
 
     assert refused.status_code == 422
     assert "M-9999" in refused.json()["detail"]
+
+
+def test_a_pin_for_another_merchant_is_refused_even_when_the_context_agrees(
+    client: Any, dispatcher_token: str
+) -> None:
+    """C07.1: the manifest's merchant and the run's merchant are one fact, and both are checked.
+
+    The dispatcher's token says M-1001 and the context agrees, so the context check passes. The *pin* names
+    someone else. Accepting it would open a run whose retrieval filters by M-1001 while its policy pin claims
+    M-9999 — a mismatch that would surface much later, as a citation nobody can re-check.
+    """
+    body = a_body()
+    body["policy_manifest"]["merchant_id"] = "M-9999"
+
+    refused = post_run(client, dispatcher_token, body)
+
+    assert refused.status_code == 422
+    assert "policy_manifest.merchant_id" in refused.json()["detail"]
 
 
 def test_a_token_that_forgot_its_context_cannot_dispatch(client: Any) -> None:

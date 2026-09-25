@@ -235,6 +235,11 @@ class AgentRunDispatchApiTest extends CaseDatabaseTest {
         assertThat(manifest.get("bundle_ids").size()).isGreaterThanOrEqualTo(1);
         assertThat(manifest.get("manifest_hash").stringValue()).hasSize(64);
         assertThat(manifest.get("safety_epoch").isNumber()).isTrue();
+        // C07.1: the run is dispatched with the merchant its pin was selected for, because that is what it
+        // hard-filters retrieval by before ranking anything (docs/policy-rag.md:15).
+        assertThat(manifest.get("merchant_id").stringValue())
+                .as("the pin names its merchant, and it is the line's own")
+                .isEqualTo(context.get("merchant_id").stringValue());
 
         // The deadline is the submission plus the control-plane window (docs/agent-spec.md:42), and it is
         // an instant the Agent can parse.
@@ -255,7 +260,8 @@ class AgentRunDispatchApiTest extends CaseDatabaseTest {
                         "traceparent");
         assertThat(context.propertyNames())
                 .containsExactlyInAnyOrder("merchant_id", "customer_id", "order_id", "line_id");
-        assertThat(manifest.propertyNames()).containsExactlyInAnyOrder("bundle_ids", "manifest_hash", "safety_epoch");
+        assertThat(manifest.propertyNames())
+                .containsExactlyInAnyOrder("merchant_id", "bundle_ids", "manifest_hash", "safety_epoch");
     }
 
     @Test

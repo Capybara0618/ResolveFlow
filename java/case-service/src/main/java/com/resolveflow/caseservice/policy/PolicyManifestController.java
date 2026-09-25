@@ -22,6 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
  * pinned manifest. The second one is a real state for cases opened before this table existed, and it is
  * answered rather than back-filled — the payment time a manifest would have to be chosen by is not stored
  * on the case, so any back-fill would be a guess about which policy decided it.
+ *
+ * <p><b>{@code merchant_id} is served</b> (C07.1, contract 1.2.0). It is the value the pin was selected
+ * for, so it is read from the manifest table rather than from the case row: a run's retrieval hard-filters
+ * by the merchant the manifest names, and a route that answered from anywhere else would make the filter
+ * depend on a fact the pin does not carry.
  */
 @RestController
 @RequestMapping("/internal/v1/cases")
@@ -38,6 +43,7 @@ public class PolicyManifestController {
     /** The contract's {@code PolicyManifestResponse}. */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record PolicyManifestResponse(
+            @JsonProperty("merchant_id") String merchantId,
             List<Bundle> bundles,
             @JsonProperty("effective_from") Instant effectiveFrom,
             @JsonProperty("effective_to") Instant effectiveTo) {}
@@ -59,6 +65,7 @@ public class PolicyManifestController {
             throw new PolicyManifestNotFoundException("this case has no pinned policy manifest");
         }
         return ResponseEntity.ok(new PolicyManifestResponse(
+                stored.merchantId(),
                 List.of(new Bundle(manifests.findBundleIds(caseId), stored.manifestHash(), stored.safetyEpoch())),
                 stored.effectiveFrom(),
                 stored.effectiveTo()));

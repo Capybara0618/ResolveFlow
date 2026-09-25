@@ -26,12 +26,19 @@ import org.yaml.snakeyaml.Yaml;
  *
  * <p>Unknown members are refused instead of ignored. A bundle that quietly drops a misspelled member is a
  * bundle with fewer rules than its author believes, and the rules are what a refund decision cites.
+ *
+ * <p><b>{@code merchant_id} is part of the bundle's identity, not metadata beside it (C07.1).</b> Before it,
+ * a bundle was implicitly whoever's payment selected it, and the policy set could only hold one merchant's
+ * rules: two merchants publishing on the same date would have made selection depend on row order, and a run
+ * could not tell whose rules it had retrieved. It is required rather than optional for the same reason the
+ * window is: a bundle that did not say whose policy it is would be a bundle whose merchant is inferred, and
+ * inference is what the retrieval filter must not depend on (docs/policy-rag.md:15).
  */
 @Component
 public class PolicySourceReader {
 
     private static final Set<String> BUNDLE_MEMBERS =
-            Set.of("bundle_id", "version", "safety_epoch", "effective_from", "effective_to", "rules");
+            Set.of("bundle_id", "merchant_id", "version", "safety_epoch", "effective_from", "effective_to", "rules");
     private static final Set<String> RULE_MEMBERS = Set.of("rule_id", "title", "text");
     private static final int MAX_RULES = 200;
 
@@ -48,6 +55,7 @@ public class PolicySourceReader {
     /** A bundle that is well formed but may still collide with what is already stored. */
     public record Draft(
             String bundleId,
+            String merchantId,
             String version,
             int safetyEpoch,
             Instant effectiveFrom,
@@ -115,6 +123,7 @@ public class PolicySourceReader {
         requireKnownMembers(source, members, BUNDLE_MEMBERS);
 
         String bundleId = requireString(source, members, "bundle_id");
+        String merchantId = requireString(source, members, "merchant_id");
         String version = requireString(source, members, "version");
         int safetyEpoch = requireEpoch(source, members);
         Instant effectiveFrom = requireInstant(source, members, "effective_from");
@@ -125,7 +134,7 @@ public class PolicySourceReader {
         }
         List<SourceRule> rules = readRules(source, members);
 
-        return new Draft(bundleId, version, safetyEpoch, effectiveFrom, effectiveTo, rules, source);
+        return new Draft(bundleId, merchantId, version, safetyEpoch, effectiveFrom, effectiveTo, rules, source);
     }
 
     private static List<SourceRule> readRules(String file, Map<String, Object> members) {

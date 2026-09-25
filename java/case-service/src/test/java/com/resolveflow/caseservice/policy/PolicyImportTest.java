@@ -49,8 +49,21 @@ class PolicyImportTest extends CaseDatabaseTest {
     }
 
     private static String source(String bundleId, String from, String to, int epoch, String... ruleIds) {
+        return source(bundleId, "M-1001", from, to, epoch, ruleIds);
+    }
+
+    /**
+     * One bundle source file.
+     *
+     * <p>{@code merchantId} is a parameter with a default rather than a constant, because after C07.1 two
+     * merchants publishing on the same date is the ordinary case: a test that could only write M-1001's
+     * bundles could not tell "the window check is per merchant" from "the check never fires".
+     */
+    private static String source(
+            String bundleId, String merchantId, String from, String to, int epoch, String... ruleIds) {
         StringBuilder text = new StringBuilder();
         text.append("bundle_id: ").append(bundleId).append('\n');
+        text.append("merchant_id: ").append(merchantId).append('\n');
         text.append("version: \"2026.09\"\n");
         text.append("safety_epoch: ").append(epoch).append('\n');
         text.append("effective_from: \"").append(from).append("\"\n");
@@ -101,6 +114,7 @@ class PolicyImportTest extends CaseDatabaseTest {
         assertThat(imports.hash(draft)).isEqualTo(stored.get("manifest_hash"));
         PolicySourceReader.Draft changed = new PolicySourceReader.Draft(
                 draft.bundleId(),
+                draft.merchantId(),
                 draft.version(),
                 draft.safetyEpoch(),
                 draft.effectiveFrom(),
@@ -154,6 +168,60 @@ class PolicyImportTest extends CaseDatabaseTest {
                         Integer.class,
                         "policy-logistics-2026.09"))
                 .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("two merchants may publish a version at the same instant; one merchant may not")
+    void theWindowRulesAreScopedToTheMerchant() throws IOException {
+        // Both merchants start a version on the same date. Before C07.1 this was refused as "two policies
+        // and no way to choose" - which was true only while the policy table held one merchant's rules.
+        bundle("a.yaml", source("policy-logistics-2026.09", "M-1001", "2026-09-01T00:00:00Z", null, 2, "R-1"));
+        bundle("b.yaml", source("policy-damage-2026.09", "M-2002", "2026-09-01T00:00:00Z", null, 2, "R-2"));
+
+        assertThat(imports.importDirectory(temp).imported())
+                .as("a second merchant is not a collision")
+                .hasSize(2);
+
+        // The same merchant publishing a second version at that instant still is one: a payment then would
+        // have two of *this merchant's* policies and no way to choose between them.
+        Files.delete(temp.resolve("b.yaml"));
+        bundle("c.yaml", source("policy-logistics-2026.09-bis", "M-1001", "2026-09-01T00:00:00Z", null, 2, "R-3"));
+        assertThatThrownBy(() -> imports.importDirectory(temp))
+                .isInstanceOf(PolicyImportService.ImportRefusedException.class)
+                .hasMessageContaining("no way to choose")
+                .hasMessageContaining("policy-logistics-2026.09");
+    }
+
+    @Test
+    @DisplayName("the merchant is part of the bundle's identity, and therefore of its hash")
+    void theMerchantIsPartOfTheHash() throws IOException {
+        Path file =
+                bundle("a.yaml", source("policy-logistics-2026.09", "M-1001", "2026-09-01T00:00:00Z", null, 2, "R-1"));
+        PolicySourceReader.Draft mine = reader.read(file);
+        PolicySourceReader.Draft theirs = new PolicySourceReader.Draft(
+                mine.bundleId(),
+                "M-2002",
+                mine.version(),
+                mine.safetyEpoch(),
+                mine.effectiveFrom(),
+                mine.effectiveTo(),
+                mine.rules(),
+                mine.sourcePath());
+
+        // Identical rules, two merchants: two manifests. If the hash ignored the merchant, a case could pin
+        // a hash that does not say whose rules it is, and "whose policy did this decision cite" would be
+        // unanswerable from the pin (docs/policy-rag.md:15).
+        assertThat(imports.hash(theirs)).isNotEqualTo(imports.hash(mine));
+
+        // And a source with no merchant is refused rather than attributed by default.
+        Files.delete(file);
+        bundle(
+                "d.yaml",
+                source("policy-logistics-2026.09", "2026-09-01T00:00:00Z", null, 2, "R-1")
+                        .replace("merchant_id: M-1001\n", ""));
+        assertThatThrownBy(() -> imports.importDirectory(temp))
+                .isInstanceOf(PolicySourceReader.InvalidBundleException.class)
+                .hasMessageContaining("merchant_id is required");
     }
 
     @Test

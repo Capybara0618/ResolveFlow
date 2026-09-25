@@ -577,7 +577,11 @@ def test_the_policy_read_route_serves_the_text_a_citation_is_checked_against() -
 
     bundle = document("case")["components"]["schemas"]["PolicyBundle"]
     assert bundle["additionalProperties"] is False
-    assert set(bundle["required"]) == {"bundle_id", "version", "manifest_hash", "rules"}
+    # `merchant_id` is required as of C07.1 and it is a *different* kind of member from the window: the
+    # window is how the version is chosen (absent here, because a reader of the rules does not need it),
+    # while the merchant is part of what the bundle *is* — it is covered by the manifest hash, and it is the
+    # filter a run applies before ranking (docs/policy-rag.md:15).
+    assert set(bundle["required"]) == {"bundle_id", "merchant_id", "version", "manifest_hash", "rules"}
     assert "effective_from" not in bundle["properties"], (
         "the window is how the version is chosen, not something the reader of the rules needs"
     )
@@ -728,10 +732,17 @@ def test_the_pinned_manifest_route_says_how_a_version_is_chosen() -> None:
 
     manifest = document("case")["components"]["schemas"]["PolicyManifestResponse"]
     assert manifest["additionalProperties"] is False
-    assert set(manifest["required"]) == {"bundles", "effective_from"}
+    # `merchant_id` is required as of C07.1: the pin names the merchant whose policy set it selected, which is
+    # what a run hard-filters its retrieval by (docs/policy-rag.md:15).
+    assert set(manifest["required"]) == {"merchant_id", "bundles", "effective_from"}
     bundle = manifest["properties"]["bundles"]["items"]
     assert set(bundle["required"]) == {"bundle_ids", "manifest_hash", "safety_epoch"}
     assert bundle["additionalProperties"] is False
+
+    # The run's own pin carries the merchant for the same reason, and this is where the two sides have to
+    # agree: Java dispatches what the Python request shape requires.
+    agent_pin = document("agent")["components"]["schemas"]["PolicyManifestRef"]
+    assert set(agent_pin["required"]) == {"merchant_id", "bundle_ids", "manifest_hash", "safety_epoch"}
 
 
 def test_case_question_callback_is_limited_to_three_questions() -> None:

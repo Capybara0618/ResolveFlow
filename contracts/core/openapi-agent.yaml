@@ -81,6 +81,7 @@ paths:
                 evidence_refs: [ev-1]
               policy_manifest:
                 bundle_ids: [policy-logistics-2026.09]
+                merchant_id: M-1001
                 manifest_hash: '9999999999999999999999999999999999999999999999999999999999999999'
                 safety_epoch: 1
               deadline_at: '2026-09-18T05:00:00Z'
@@ -426,8 +427,20 @@ components:
     PolicyManifestRef:
       type: object
       additionalProperties: false
-      required: [bundle_ids, manifest_hash, safety_epoch]
+      required: [merchant_id, bundle_ids, manifest_hash, safety_epoch]
+      description: |
+        The policy a run is pinned to, as Case selected it.
+
+        merchant_id is here because C07.1's retrieval hard-filters by merchant before it
+        ranks anything (docs/policy-rag.md:15), and the run has to be able to check that a
+        bundle it retrieved belongs to the merchant it was dispatched for. Without it the
+        filter would have to be taken from somewhere the pin does not cover, which is the
+        silent-switch shape docs/core-contracts.md:50 forbids for the version.
       properties:
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
         bundle_ids:
           type: array
           minItems: 1

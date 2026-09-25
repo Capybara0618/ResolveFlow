@@ -90,6 +90,7 @@ public class CaseWriter {
         // does not exist, and a later import must not be able to change what an open case is decided by.
         manifests.insertManifest(
                 write.caseId(),
+                write.manifest().merchantId(),
                 write.manifest().manifestHash(),
                 write.manifest().safetyEpoch(),
                 write.manifest().effectiveFrom(),

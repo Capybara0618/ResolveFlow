@@ -63,6 +63,7 @@ def a_run(**overrides: Any) -> RunRequest:
         "requested_actions": ["REFUND"],
         "evidence_refs": ["ev-1"],
         "policy_manifest": {
+            "merchant_id": "M-1001",
             "bundle_ids": ["policy-logistics-2026.09"],
             "manifest_hash": MANIFEST_HASH,
             "safety_epoch": 1,

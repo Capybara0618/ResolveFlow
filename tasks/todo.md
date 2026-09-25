@@ -1246,7 +1246,102 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - 依赖：C03,C06核心前置,AS02.3（**均已满足，无阻塞**）。文件：agent/policies、harness/context、相应fixtures/tests。
 - 验收：索引未就绪不搜旧版本；关键字段不被摘要改写；超限明确终止，原文可按ref读回。
 - 验证：检索过滤/真实embedding冒烟、上下文七类fixture；无四组消融要求。
-- 实际记录：未执行（**2026-09-25 交接给新会话**：起点、已核实前提、两个必须先做的判断、会误导判断的坑见 [`tasks/handoff-c07.md`](handoff-c07.md)；本段与 `docs/policy-rag.md`/`docs/context-engineering.md` 是规格）。
+- 实际记录（**C07.1 已完成，2026-09-25，接管会话**）：
+  - **两项先决取舍经用户点头后落地**（交接文件 §4 要求先判断、不跳步）：(1) 加 `sentence-transformers`（torch）并固定
+    `BAAI/bge-small-zh-v1.5`；(2) `merchant_id` 进 bundle 源与 Java manifest hash/选择逻辑，不用命名约定糊。
+  - **实测 embedding（先测后写代码）**：`BAAI/bge-small-zh-v1.5` @ `7999e1d3…`，512 维，MIT，权重 192.3 MB，
+    加载 0.2s，编码语料 0.05s；语义排序 7/8——**那 1 个 miss 如实留在报告里**（"包裹显示丢失了"被"已签收"挤到第 2），
+    因为"只留下它答对的查询"就是用自己的测试集选模型。依赖开销实测 **811 MB site-packages（torch 474 MB）**，
+    不是交接文件猜的"约 2GB"。证据 `reports/c071-policy-index/embedding-probe.txt`（由 `scripts/render_embedding_probe.py` 渲染）。
+  - **语料是主要工作量**：4 个 bundle、**2 商家**（M-1001 logistics / M-2002 damage）、各 2 历史版本、**23 条规则**
+    （原为 2 bundle/1 商家/8 条）。刻意保留"同一 rule_id 在两版里正文相同"与"规则自带例外条款"
+    （`R-LOST-EXC-001`），使版本过滤与"例外不被切掉"都有可证伪的对象。
+  - **正文来源按交接文件的核心设计点解决**：索引**不读** `fixtures/policies/`，而是由
+    `scripts/policy_index_ingest.py` 通过 `GET /internal/v1/policies/{bundle_id}`（`policy:read`；实测无该 scope 返回 403）
+    拉 Java 的正文，**原样带上 Java 的 manifest_hash**，并把 Python 自己重算的 `content_hash` 与 Java 的逐条比对
+    （23/23 一致）。否则引用校验会退化成用自己的 fixture 自证。
+  - Java 侧：`policy_bundle.merchant_id`（进 `manifest_hash`）、`case_policy_manifest.merchant_id`（钉子上记商家）、
+    `PolicySelectionService.selectFor(merchantId, paidAt)`（**按商家选版本**——此前全局选，第二个商家无法接入）、
+    导入歧义校验改为**按商家**比较、两个路由响应加 `merchant_id`、契约 `openapi-agent.yaml`/`openapi-case.yaml` 同步。
+    迁移 `V17__policy_bundle_merchant.sql`（只追加）。
+  - Python 侧：`policies/chunking.py`（规则即块，**不切例外**；hash 与 Java 同构造）、`policies/retrieval.py`
+    （两路：真实 embedding 与 BM25 离线基线，**无 hybrid/RRF/rerank**）、`policies/index.py`（分块/硬过滤/READY 门/引用）、
+    迁移 `004_policy_index.sql`（generation+chunk，**不建 HNSW**）。
+  - **接上了 C07 之前缺的两个执行体**（交接文件 §3 指出的真实缺口）：`SEARCH_POLICY` 此前只被校验、无人执行，
+    `reserve_local_read` 无人调用。现在 `PolicySearchBridge` 经 SDK 工具机制执行（**不是第六个 MCP 工具**，工具服务器
+    不知道它），同时计 search attempt 与 local read；本地读耗尽报 `BUDGET_LOCAL_READS`，索引未就绪报**自己的**
+    `POLICY_INDEX_NOT_READY`（可重试/转人工，不是 TOOL_FAILED）。`_outcome`/packet 的 tool_attempts 改为读 guard 计数
+    （原来从 observations 推导，会把本地读算成外部调用）。
+  - **实测命令与结果**：
+    - Python 全量 `pytest tests` → **822 passed, 9 skipped**（基线 791+9，+31）；`ruff check src tests` → All checks passed；
+      `mypy`（在 `agent/` 下）→ **9 errors in 4 files**，**与基线逐条相同、零新增**。
+    - Java 全量 `mvnw -B test` → **BUILD SUCCESS**（shared-kernel 59 / gateway 5 / commerce 93 / fulfillment 2 /
+      case-service 226，0 失败，**4 skipped 仍是"没跑"**）；`spotless:check` → BUILD SUCCESS。
+    - 端到端 `scripts/c071_policy_index_e2e.py --embed` → **RESULT: PASSED**（`reports/c071-policy-index/e2e.txt`）：
+      真 Java 起服务、受控导入 4 bundle、拉正文、23 条规则 hash 与 Java 逐条一致、建 READY 索引、
+      **未索引 manifest 被拒**（报文给出存储的 hash 与 `hash_mismatch=true`）、20 次检索 **0 条跨商家/跨版本命中**。
+  - **检索结果（40 条查询，20dev/20 冻结test，按语义家族分离）** `reports/c071-policy-index/retrieval-eval-both.txt`：
+    dense `recall@5=1.000 top1=0.750 mrr@5=0.858 median=11ms`；BM25 `recall@5=1.000 top1=0.775 mrr@5=0.863 median=3ms`；
+    **dense 不比 BM25 好**（top1 0.750 < 0.775 且慢约 3-4 倍），13 条查询两者互有胜负——按规格要求**如实报告**，
+    不写成"检索提升"。
+  - **过程中真实的失败与修复（每条都是跑出来的，没有一条靠放松断言过去）**：
+    1. **`PolicyChunkRow` 是 frozen dataclass 却要被排序写入 `score`** → `FrozenInstanceError`（6 例当场红）。改成可变，
+       并在 docstring 写明"排序是这一处唯一的工作中变更"。
+    2. **`_rank_dense` 自己 `make_embedder()` 而忽略传入的 embedder** → 测试无法注入、真实运行会二次加载模型。改成显式
+       参数，缺省时报 `EmbeddingUnavailableError` 而不是退回 BM25。
+    3. **我的测试写错了对象**：`LOGISTICS_AUGUST` 用了另一个 bundle_id，于是"索引未就绪不搜旧版本"被测成"这个 bundle
+       从没被索引"。改成同一 bundle 的不同 manifest_hash——那才是真实形态。
+    4. **迁移 V17 三连真错**（真库/真测试抓的）：① 相关子查询在本机 compose 库上 `Subquery returns more than 1 row`
+       （error 1242）——库里真有 **3 个 M-1002 工单钉在 M-1001 的 bundle 上**，这是 C07.1 之前的代码允许的状态；
+       ② 无 case 引用的 bundle 回填不到商家，`NOT NULL` 失败；③ MySQL 拒绝"读自己正在写的表"（error 1093）。
+       最终形态：派生表 GROUP BY（每 bundle 至多一行，构造上不可能失败）+ 第二个"仅当只有一个商家已装时才回填"的
+       UPDATE；**未归属的 bundle 保持 NULL**，三种备选（哨兵值、编造商家、让迁移失败）为什么更差写在大段注释里。
+    5. **`PolicyWriter.requireNoAmbiguity` 对未归属窗口 NPE** → 起真服务时 `NullPointerException` 把 web 服务打挂。
+       修法是把 NULL 商家明确**跳过**（它不属于任何商家，因此不可能与本次草稿歧义），并注释为什么这不是防御性代码。
+    6. **`CaseServiceApplicationTest` 连的是 compose MySQL（localhost:3306）而不是 Testcontainers**：我改坏 V17 后在
+       compose 库留下 failed 行，Flyway 校验失败，于是**与被测代码无关的测试红了三次**。靠逐条核查
+       `flyway_schema_history` 与 `information_schema` 才定位——教训：这个测试类不继承 `CaseDatabaseTest`，它的库是
+       compose 的。
+    7. **e2e 驱动用 PATH 上的 `java`（17）** → `UnsupportedClassVersionError`，看起来像 jar 坏了。改为按
+       `scripts/verify.ps1` 的 `Resolve-JavaHome` 顺序显式解析 JDK 21。
+    8. **fat jar 里的 `shared-kernel` 是陈旧的 3.7 KB 桩**（`~/.m2` 旧产物，没有 `JwtCodec`）→ `NoClassDefFoundError`。
+       改为 `mvnw install` 安装反应堆 + e2e 用 Maven 解析出的 classpath 直接跑主类；这也解释了 fixtures README 里的
+       jar 用法当时为什么跑不起来。
+    9. **`PolicyImportCommand` 以 `System.exit` 结束** → 把导入目录传给 web 服务，它会在 Tomcat 起来几秒后自杀。
+       改成两段式（一次性导入进程 + 独立 web 服务），与 fixtures README 一致。
+    10. **中文文本编码两处**：psycopg 按服务端默认（SQL_ASCII）解码出乱码 → 连接显式 `client_encoding=UTF8`；
+        控制台按 GBK 打印报告抛 `UnicodeEncodeError`（在**所有检查通过之后**）→ 驱动把 stdout 重配为 UTF-8。
+    11. **评测的"家族分离"检查第一版太宽松**（剥掉 `_near_miss` 后比较），把 dev/test 共有的 4 个家族报成"没问题"；
+        改成精确比较后**警告是真的**（按版本切分并不产生家族分离）。于是重写查询集：**dev=LOGISTICS、test=DAMAGE，
+        家族零重叠**——而不是把检查放松到能通过。
+  - **未做/不声称**：C07.2（ContextBuilder / `READ_OBSERVATION` 执行体 / 七类 fixture）**未开始**；
+    **没有**做 hybrid/RRF/rerank（规格明确退出必做），也**没有**把 dense 说成更好；语料是合成 23 条，
+    **不写跨语料泛化结论**；`all-offline` 未在本步跑（见下一条门禁记录）；Java 4 个 skipped 仍未跑。
+  - **门禁（收口时实跑）**：`pwsh -File scripts/verify.ps1 -Suite all-offline` → **PASSED**
+    （`reports/verify/20260925-200835-all-offline.txt`）。**边界照旧**：它不跑 `agent/tests/integration`、不跑真实
+    Java↔Python 联调，`python-mypy` 用的是 `agent/src` 而非 strict 全量——所以上面那份 Java/Python 全量与 e2e 结果
+    不是这条门禁给的。
+    - **本步修了这条门禁的一个真缺陷**：`python-mypy` 从仓库根跑，**不加载 `agent/pyproject.toml`**，因此那里为
+      `sentence_transformers/jieba/rank_bm25` 写的 `ignore_missing_imports` 对它无效——装了这个 extra 之后该步骤
+      反而变红（`import-untyped`：模块在，但没有 stub）。同时那条 override 让模块里的
+      `# type: ignore[import-untyped]` 变成 `unused-ignore`（strict 模式会报），**两个检查无法同时绿**。
+      处置：**删掉该 override**，改成 import 处具名 ignore——它在"从哪儿跑、装没装 extra"两种情形下都成立，
+      并且让 `sentence_transformers` 本身在装了的机器上**被严格检查**。修后 strict `mypy` → 9 errors（=基线），
+      门禁的 `mypy agent/src` → Success。
+    - 另有 1 个**测试前提**被本步的真实使用推翻：`test_the_schema_is_where_the_tables_are` 原本断言
+      `public` 里**不存在** `agent_run` 表——这只在"没有任何东西迁移过服务自己的 schema"时成立，而 C07.1 让
+      `scripts/policy_index_ingest.py`/e2e 驱动**合法地**迁移它（0 行的表）。改为比较写入**前后**的行数：
+      表的存在不再能伪造一次泄漏，测的仍是 fixture 承诺的那条性质。
+    - **额外核实"核心不依赖可选 extra"**（因为门禁 `uv run --frozen` 同步的是**不带 extras**的环境，而 e2e 往同一个
+      venv 装了 extras，所以"套件全绿"有可能只是在说"这个 venv 恰好有 torch"）：把 `jieba`/`rank_bm25`/
+      `sentence_transformers`/`torch` 在 `sys.modules` 里置为 `None` 后重跑全量 → **829 passed, 9 skipped**，
+      即核心与两个检索路径的**plumbing**测试不依赖可选 extra；dense 在缺栈时按设计报
+      `EmbeddingUnavailableError`（具名拒绝，不是退回 BM25）。**如实说明两处边界**：(1) 这条核实是"屏蔽模块"而不是
+      "干净 venv"——建第二个 venv 时网络超时（`attrs` 拿不下来），所以它证明的是代码分支而不是安装环境；
+      (2) 没有 jieba 时 BM25 退化为**按标点切分**，与 jieba 的分词不同，因此离线基线的数字在"装了 extra"与
+      "没装"两种环境下**不保证一致**——报告里的数字来自装了 jieba 的那次（e2e 驱动）。
+
+
 
 ### C08 动态Harness与业务接入
 

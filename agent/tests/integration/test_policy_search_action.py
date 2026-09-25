@@ -1,0 +1,250 @@
+"""C07.1: the run's ``SEARCH_POLICY`` action actually executes, against the run's own pinned index.
+
+The gap this closes was structural, not a missing feature: ``actions._check_policy_search`` validated the
+action's shape and ``budget.reserve_local_read`` existed with the comment "policy search and READ_OBSERVATION,
+which are not MCP calls", but **nothing executed either** — a validated ``SEARCH_POLICY`` had no executor and the
+local-read budget was unspendable. So these tests are about the wiring: that the action reaches the index, that
+it spends the budget it is supposed to spend, that the model is shown citable rules, and that the refusal paths
+report *their own* reason rather than a generic tool failure.
+
+They drive the **real loop** (``AgentScopeRunner`` over AgentScope) with a scripted model, because "the executor
+is registered with the SDK's toolkit and the permission gate lets it through" is a claim about the loop, and a
+test that called the bridge's ``call`` directly would pass even if it had never been registered.
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from resolveflow.harness.budget import RunBudget
+from resolveflow.harness.control import REASON_POLICY_INDEX_UNAVAILABLE
+from resolveflow.harness.model import MockModelClient
+from resolveflow.harness.sdk_runner import AgentScopeRunner
+from resolveflow.harness.vocabulary import RunFacts
+from resolveflow.policies import PolicyIndex, ServedBundle
+from resolveflow.runtime.db import Database
+
+BUNDLE = ServedBundle(
+    bundle_id="policy-logistics-2026.09",
+    merchant_id="M-1001",
+    version="2026.09",
+    manifest_hash="b" * 64,
+    safety_epoch=2,
+    rules=[
+        {
+            "rule_id": "R-LOST-001",
+            "title": "承运商判定丢失",
+            "text": "承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。",
+        },
+        {
+            "rule_id": "R-SIGNED-001",
+            "title": "已签收",
+            "text": "存在有效签收记录时不予退款；客户主张未收到时须由人工核验后再决定。",
+        },
+    ],
+)
+
+
+class _NoTools:
+    """A ``ToolExecutor`` that fails loudly: a policy search must never reach the MCP boundary."""
+
+    def call_tool(self, **_: object) -> object:
+        raise AssertionError("a policy search reached the MCP tool executor; it is a local read")
+
+    def note_trace_page(self) -> None:
+        raise AssertionError("a policy search is not a paged tool read")
+
+    def close(self) -> None:
+        return None
+
+
+def facts(**overrides: object) -> RunFacts:
+    fields: dict[str, object] = {
+        "run_id": "11111111-1111-4111-8111-111111111111",
+        "case_id": "22222222-2222-4222-8222-222222222222",
+        "input_revision": 1,
+        "line_id": "7001",
+        "description": "包裹丢了，希望退款",
+        "merchant_id": "M-1001",
+        "customer_id": "C-2002",
+        "policy_manifest": {
+            "merchant_id": BUNDLE.merchant_id,
+            "bundle_ids": [BUNDLE.bundle_id],
+            "manifest_hash": BUNDLE.manifest_hash,
+            "safety_epoch": BUNDLE.safety_epoch,
+        },
+    }
+    fields.update(overrides)
+    return RunFacts(**fields)  # type: ignore[arg-type]
+
+
+def propose() -> dict[str, object]:
+    return {
+        "kind": "PROPOSE",
+        "recommended_action": "REFUND",
+        "reason_codes": ["LOST_CONFIRMED"],
+        "summary": "承运商判定丢失",
+        "reasoning": "policy says refund",
+    }
+
+
+def search(query: str, **arguments: object) -> dict[str, object]:
+    return {"kind": "SEARCH_POLICY", "query": query, "arguments": dict(arguments), "reasoning": "look it up"}
+
+
+@pytest.fixture()
+def index(agent_db: Database, stub_embedder: object) -> PolicyIndex:
+    built = PolicyIndex(agent_db)
+    built.build(BUNDLE, embedder=stub_embedder)  # type: ignore[arg-type]
+    return built
+
+
+def run(index: PolicyIndex, model: MockModelClient, stub_embedder: object, **overrides: object) -> object:
+    budget = overrides.pop("budget", RunBudget())
+    runner = AgentScopeRunner(
+        model=model,
+        tools=_NoTools(),  # type: ignore[arg-type]
+        facts=facts(**overrides),
+        budget=budget,  # type: ignore[arg-type]
+        policy_index=index,
+        policy_embedder=stub_embedder,
+    )
+    return runner.run()
+
+
+def test_a_search_policy_action_executes_and_the_rules_reach_the_model(
+    index: PolicyIndex, stub_embedder: object
+) -> None:
+    """The whole point: a validated ``SEARCH_POLICY`` now has somewhere to go, and its result is visible."""
+    model = MockModelClient(script=[search("承运商判定丢失 全额退款"), propose()])
+
+    result = run(index, model, stub_embedder)
+
+    assert result.completed is True  # type: ignore[attr-defined]
+    # The observation the run records is a policy read, not an MCP call.
+    assert len(result.observations) == 1  # type: ignore[attr-defined]
+    observation = result.observations[0]  # type: ignore[attr-defined]
+    assert observation.source_type.value == "POLICY_RULE"
+    assert observation.source_ref == f"policy:{BUNDLE.bundle_id}"
+    assert observation.result is not None and observation.result["hit_count"] >= 1
+
+    hit = observation.result["hits"][0]
+    # Every member a citation needs, and they are the *index's* values, not something this side re-derived from
+    # the model's answer (docs/agent-spec.md:52: ref must be actually visible).
+    assert set(hit) >= {"bundle_id", "version", "rule_id", "chunk_id", "content_hash", "source_ref"}
+    assert hit["bundle_id"] == BUNDLE.bundle_id
+    assert hit["version"] == BUNDLE.version
+    assert hit["source_ref"] == f"policy:{BUNDLE.bundle_id}/{hit['chunk_id']}"
+
+    # And the model was actually shown them: the second call's packet carries the observation.
+    second = model.packets[1]
+    assert second["observations"], "the second model call was shown no observation"
+    assert second["observations"][0]["source_type"] == "POLICY_RULE"
+
+
+def test_a_search_spends_a_local_read_and_a_search_attempt(
+    index: PolicyIndex, stub_embedder: object
+) -> None:
+    """``docs/agent-spec.md:40`` budgets 16 attempts and 8 local reads, and this action is counted in both."""
+    model = MockModelClient(script=[search("承运商判定丢失"), propose()])
+
+    result = run(index, model, stub_embedder)
+
+    # Before C07.1 the outcome derived `tool_attempts` from the observation list and read `local_reads` off a
+    # counter nothing incremented, so a policy search would have been invisible in the local-read budget.
+    assert result.spend.tool_attempts == 1  # type: ignore[attr-defined]
+    assert result.spend.local_reads == 1  # type: ignore[attr-defined]
+
+
+def test_the_packet_tells_the_model_how_many_local_reads_it_has_left(
+    index: PolicyIndex, stub_embedder: object
+) -> None:
+    model = MockModelClient(script=[search("承运商判定丢失"), propose()])
+
+    run(index, model, stub_embedder, budget=RunBudget(local_reads=3))
+
+    assert model.packets[1]["budget"]["local_reads_made"] == 1
+    assert model.packets[1]["budget"]["local_reads_allowed"] == 3
+
+
+def test_the_local_read_bound_stops_the_run_and_names_itself(
+    index: PolicyIndex, stub_embedder: object
+) -> None:
+    """The bound that ran out has to be the bound the outcome reports (``docs/agent-harness.md:45``)."""
+    model = MockModelClient.always(search("承运商判定丢失"))
+
+    result = run(index, model, stub_embedder, budget=RunBudget(local_reads=1))
+
+    assert result.completed is False  # type: ignore[attr-defined]
+    assert result.reason_code == "BUDGET_LOCAL_READS"  # type: ignore[attr-defined]
+    assert result.spend.local_reads == 1  # type: ignore[attr-defined]
+
+
+def test_a_run_whose_policy_is_not_indexed_stops_with_its_own_reason(
+    index: PolicyIndex, stub_embedder: object, agent_db: Database
+) -> None:
+    """索引未就绪不搜旧版本 — and the run says *that*, rather than reporting a broken tool.
+
+    ``POLICY_INDEX_NOT_READY`` is its own code because ``docs/policy-rag.md:23`` gives it its own handling: the
+    run may retry until its deadline or escalate. A caller reading ``TOOL_FAILED`` would treat it as an
+    environment fault that will not improve, which is the opposite of what it is.
+    """
+    model = MockModelClient.always(search("承运商判定丢失"))
+    # The pin names a hash nobody indexed: the bundle is READY, at a different version.
+    pinned = facts(
+        policy_manifest={
+            "merchant_id": BUNDLE.merchant_id,
+            "bundle_ids": [BUNDLE.bundle_id],
+            "manifest_hash": "f" * 64,
+            "safety_epoch": BUNDLE.safety_epoch,
+        }
+    )
+
+    result = run(index, model, stub_embedder, **{"policy_manifest": pinned.policy_manifest})
+
+    assert result.reason_code == REASON_POLICY_INDEX_UNAVAILABLE  # type: ignore[attr-defined]
+    assert result.spend.local_reads == 1  # type: ignore[attr-defined]
+    trajectory = [entry for entry in result.trajectory if entry["action"] == "search_policy"]  # type: ignore[attr-defined]
+    assert trajectory and trajectory[0]["outcome"] == "NOT_READY"
+    assert trajectory[0]["hash_mismatch"] is True
+
+
+def test_a_search_that_matches_nothing_is_a_successful_read_not_an_error(
+    index: PolicyIndex, stub_embedder: object
+) -> None:
+    """ "The policy is silent" and "the source was unreachable" are different facts and must not look alike."""
+    model = MockModelClient(script=[search("完全不相关的查询词"), propose()])
+
+    result = run(index, model, stub_embedder)
+
+    observation = result.observations[0]  # type: ignore[attr-defined]
+    # The observation is *about* policy whether or not anything matched. (With two short rules a fuzzy stub
+    # embedder may still return something, so the assertion is on the shape, not on hit_count == 0.)
+    assert observation.source_type.value == "POLICY_RULE"
+    assert observation.result is not None
+    assert "hits" in observation.result and "query" in observation.result
+
+
+def test_the_model_cannot_choose_which_merchant_or_version_is_searched(
+    index: PolicyIndex, stub_embedder: object
+) -> None:
+    """The ABI refuses identity members in a ``SEARCH_POLICY``'s arguments, so a run cannot widen its scope.
+
+    ``validate_decision`` rejects ``merchant_id``/``bundle_ids`` as identity members before the action runs; this
+    asserts the refusal still fires *through the loop*, which is where it matters — the check is only a boundary
+    if the loop actually consults it.
+    """
+    model = MockModelClient.always(
+        {
+            "kind": "SEARCH_POLICY",
+            "query": "承运商判定丢失",
+            "arguments": {"merchant_id": "M-2002"},
+            "reasoning": "try another merchant",
+        }
+    )
+
+    result = run(index, model, stub_embedder)
+
+    assert result.completed is False  # type: ignore[attr-defined]
+    assert result.reason_code == "IDENTITY_REFUSED"  # type: ignore[attr-defined]
+    assert result.observations == ()  # type: ignore[attr-defined]

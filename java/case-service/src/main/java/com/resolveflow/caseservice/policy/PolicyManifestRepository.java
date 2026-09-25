@@ -18,13 +18,14 @@ import org.apache.ibatis.annotations.Select;
 public interface PolicyManifestRepository {
 
     @Insert("""
-            INSERT INTO case_policy_manifest (case_id, manifest_hash, safety_epoch, effective_from,
+            INSERT INTO case_policy_manifest (case_id, merchant_id, manifest_hash, safety_epoch, effective_from,
                                               effective_to, selected_by_paid_at, pinned_at)
-            VALUES (#{caseId}, #{manifestHash}, #{safetyEpoch}, #{effectiveFrom}, #{effectiveTo},
+            VALUES (#{caseId}, #{merchantId}, #{manifestHash}, #{safetyEpoch}, #{effectiveFrom}, #{effectiveTo},
                     #{selectedByPaidAt}, #{pinnedAt})
             """)
     void insertManifest(
             @Param("caseId") String caseId,
+            @Param("merchantId") String merchantId,
             @Param("manifestHash") String manifestHash,
             @Param("safetyEpoch") int safetyEpoch,
             @Param("effectiveFrom") Instant effectiveFrom,
@@ -39,7 +40,8 @@ public interface PolicyManifestRepository {
     void insertBundle(@Param("caseId") String caseId, @Param("bundleId") String bundleId);
 
     @Select("""
-            SELECT manifest_hash       AS manifestHash,
+            SELECT merchant_id         AS merchantId,
+                   manifest_hash       AS manifestHash,
                    safety_epoch        AS safetyEpoch,
                    effective_from      AS effectiveFrom,
                    effective_to        AS effectiveTo,
@@ -60,6 +62,7 @@ public interface PolicyManifestRepository {
 
     /** A pinned manifest without its bundle ids. */
     record StoredManifest(
+            String merchantId,
             String manifestHash,
             int safetyEpoch,
             Instant effectiveFrom,

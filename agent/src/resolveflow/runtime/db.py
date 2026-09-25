@@ -125,6 +125,11 @@ class Database:
             # serves a schema per caller needs.
             kwargs={
                 "options": f"-c search_path={self.schema}",
+                # Policy text is Chinese, and the client encoding is a property of the *connection* rather than of
+                # the database: with this image's server default (SQL_ASCII) psycopg decodes Chinese rule text into
+                # mojibake, which then fails to encode on the way to a report and looks like a policy-index bug.
+                # Setting it here means every caller of this pool gets text back as it was written.
+                "client_encoding": "UTF8",
                 "autocommit": True,
                 "row_factory": dict_row,
                 "prepare_threshold": None,
@@ -183,6 +188,16 @@ class Database:
             yield cast("psycopg.Connection[dict[str, Any]]", raw)
 
 
+def connect(dsn: str) -> psycopg.Connection[tuple[Any, ...]]:
+    """A bare connection with this project's text encoding already settled.
+
+    Used by the DDL helpers, so every connection in the project agrees about how policy text comes back. A caller
+    that needs a row factory or a pool passes what it needs to ``psycopg`` itself; what is fixed here is only the
+    part that is a property of the project rather than of the call site.
+    """
+    return psycopg.connect(dsn, autocommit=True, client_encoding="UTF8")
+
+
 def create_schema(dsn: str, schema: str, *, drop_first: bool = False) -> None:
     """Create an empty schema for a caller that wants the same tables to itself.
 
@@ -190,7 +205,7 @@ def create_schema(dsn: str, schema: str, *, drop_first: bool = False) -> None:
     isolated schema stays in one place with the DDL that fills it.
     """
     require_schema(schema)
-    with psycopg.connect(dsn, autocommit=True) as connection:
+    with connect(dsn) as connection:
         if drop_first:
             connection.execute(sql.SQL("DROP SCHEMA IF EXISTS {} CASCADE").format(sql.Identifier(schema)))
         connection.execute(sql.SQL("CREATE SCHEMA IF NOT EXISTS {}").format(sql.Identifier(schema)))
@@ -201,5 +216,5 @@ def drop_schema(dsn: str, schema: str) -> None:
     require_schema(schema)
     if schema == DEFAULT_SCHEMA:
         raise SchemaError("refusing to drop the service's own schema")
-    with psycopg.connect(dsn, autocommit=True) as connection:
+    with connect(dsn) as connection:
         connection.execute(sql.SQL("DROP SCHEMA IF EXISTS {} CASCADE").format(sql.Identifier(schema)))

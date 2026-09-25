@@ -38,11 +38,24 @@ dependencies = [
 override-dependencies = ["mcp==2.2.0"]
 
 [project.optional-dependencies]
-# Retrieval stack lands with T19 (policy index) and the evaluation runner with
-# T23/T24. They are intentionally NOT declared yet: pulling sentence-transformers
-# now would add roughly 2 GB of transitive torch to every sync for no T01 benefit.
-# uv sync --all-extras stays correct because it simply has nothing extra to add.
-retrieval = []
+# C07.1: the retrieval stack. It was an empty placeholder ("lands with T19") until the policy index needed
+# it, and the three entries are the three pieces of the measured design rather than a wish list:
+#
+#   * `jieba`                 — Chinese tokenisation for the BM25 baseline. Pure Python.
+#   * `rank_bm25`             — the BM25 implementation the baseline is measured with. Pure Python.
+#   * `sentence-transformers` — the dense path, and the only heavy one: it brings torch (measured on this
+#     machine: 811 MB of site-packages, 474 MB of which is torch) plus a 192 MB pinned model snapshot. The
+#     model is `BAAI/bge-small-zh-v1.5` at revision `7999e1d3…`, 512 dimensions, MIT — measured before it
+#     was written here, with the numbers and the one query it gets wrong in `reports/c071-policy-index/`.
+#     The library's English default model is not a candidate: the corpus is Chinese.
+#
+# `uv sync --all-extras` therefore installs torch. The pure-Python pieces are declared separately and first
+# so a reader can see which dependency costs what. `eval` stays empty: the experiment runner lands with C12.
+retrieval = [
+    "jieba==0.42.1",
+    "rank-bm25==0.2.2",
+    "sentence-transformers==5.1.2",
+]
 eval = []
 
 [dependency-groups]
@@ -102,3 +115,18 @@ files = ["src"]
 # project's own code is still an error.
 module = ["agentscope.*"]
 ignore_missing_imports = true
+
+# **No override for C07.1's retrieval stack**, and that is a decision rather than an omission. The first version
+# of this file had one for `sentence_transformers.*`/`jieba.*`/`rank_bm25.*`, and it made the project's own gate
+# wrong in two directions at once:
+#
+#   * `scripts/verify.ps1` runs `mypy agent/src` from the **repository root**, where this file is not loaded. So
+#     installing the extra flipped that step from "module not installed" (silently fine) to "installed, no stubs
+#     published" (`import-untyped`, a hard error) — the gate failed on a dependency it had just acquired, for a
+#     reason this override could not reach.
+#   * With the override in place, the inline `# type: ignore[import-untyped]` the modules need instead became
+#     *unused*, which strict mode reports as `unused-ignore`. So the two checks could not both be green.
+#
+# Naming the ignore at the import site is the form that holds wherever the checker runs and whether or not the
+# optional extra is installed, and it keeps `sentence_transformers` itself analysed strictly on a machine that
+# has it — which is the direction that can catch a mistake in this project's own use of it.

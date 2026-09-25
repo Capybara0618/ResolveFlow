@@ -34,6 +34,17 @@ class StubCommerce extends CommerceOrderLineClient {
     /** When true, the context says the line belongs to someone else, which the re-check has to notice. */
     volatile boolean lineOwnerMismatch = false;
 
+    /**
+     * Which merchant the line belongs to.
+     *
+     * <p>A knob rather than a constant because after C07.1 the merchant decides <em>which policy set</em> a
+     * case is pinned to (docs/policy-rag.md:15), so a test that wants the second merchant's bundle has to be
+     * able to say so; before, there was only one merchant and the question could not be asked.
+     */
+    volatile String lineMerchant = "M-1001";
+
+    volatile String lineCustomer = "C-2002";
+
     StubCommerce(RestClient.Builder builder, JwtCodec codec) {
         super(builder, codec, "http://commerce.stub", "case-service");
     }
@@ -50,6 +61,8 @@ class StubCommerce extends CommerceOrderLineClient {
         refundedAmount = 0;
         reservedRefundAmount = 0;
         lineOwnerMismatch = false;
+        lineMerchant = "M-1001";
+        lineCustomer = "C-2002";
     }
 
     @Override
@@ -79,8 +92,8 @@ class StubCommerce extends CommerceOrderLineClient {
         return java.util.Optional.of(new LineContext(
                 ORDER,
                 lineId,
-                lineOwnerMismatch ? "M-9999" : "M-1001",
-                lineOwnerMismatch ? "C-9999" : "C-2002",
+                lineOwnerMismatch ? "M-9999" : lineMerchant,
+                lineOwnerMismatch ? "C-9999" : lineCustomer,
                 "SKU-RED-M",
                 "apparel",
                 2,

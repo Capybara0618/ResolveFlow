@@ -30,6 +30,7 @@ __all__ = [
     "REASON_ACTION_REFUSED",
     "REASON_COMPLETED",
     "REASON_NO_PROGRESS",
+    "REASON_POLICY_INDEX_UNAVAILABLE",
     "REASON_TOOL_FAILED",
     "NoProgressTracker",
     "action_digest",
@@ -45,6 +46,15 @@ REASON_ACTION_REFUSED: Final = "ACTION_REFUSED"
 #: The tool layer itself failed: not "the source was unreadable" (that is an observation) but "the call could
 #: not be completed at all".
 REASON_TOOL_FAILED: Final = "TOOL_FAILED"
+
+#: The policy a run is pinned to has no READY index, so `SEARCH_POLICY` could not be answered (C07.1).
+#:
+#: Its own code rather than `TOOL_FAILED`, because `docs/policy-rag.md:23` gives it its own handling: the run
+#: **may retry until its deadline or escalate**, and it may *not* search another version. A caller reading
+#: `TOOL_FAILED` would treat this as an environment problem that will not improve by asking again; the fact is
+#: that it is a readiness state that changes on its own, and it is also the difference between "we could not
+#: read policy" and "there is no policy index yet".
+REASON_POLICY_INDEX_UNAVAILABLE: Final = "POLICY_INDEX_NOT_READY"
 
 #: `docs/agent-spec.md:44`: 连续重复同动作且无新证据，两次反馈NO_PROGRESS，第三次停止.
 REASON_NO_PROGRESS: Final = "NO_PROGRESS"

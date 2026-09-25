@@ -203,6 +203,18 @@ class RunRequest:
         manifest = self.policy_manifest
         if not isinstance(manifest, dict):
             raise RunRefusedError("policy_manifest must be an object")
+        # The merchant the pin was selected for (C07.1). Required, and deliberately **not** defaulted from
+        # ``self.merchant_id``: the record stores the pin as the dispatcher sent it, and a default would let
+        # a dispatch with no merchant be stored as one whose pin silently agrees with the context. The two
+        # must agree, so that is checked rather than assumed.
+        pinned_merchant = manifest.get("merchant_id")
+        if not isinstance(pinned_merchant, str) or not pinned_merchant or len(pinned_merchant) > 64:
+            raise RunRefusedError("policy_manifest.merchant_id must be 1-64 characters (C07.1)")
+        if pinned_merchant != self.merchant_id:
+            raise RunRefusedError(
+                "policy_manifest.merchant_id must be the run's own merchant: a run cannot be pinned to "
+                "another merchant's policy set"
+            )
         bundles = manifest.get("bundle_ids")
         if not isinstance(bundles, list) or not bundles or len(bundles) > 16:
             raise RunRefusedError("policy_manifest.bundle_ids must carry 1-16 bundle ids")
@@ -242,6 +254,7 @@ class RunRequest:
                     "evidence_refs": sorted(self.evidence_refs),
                 },
                 "policy_manifest": {
+                    "merchant_id": self.policy_manifest["merchant_id"],
                     "bundle_ids": sorted(self.policy_manifest["bundle_ids"]),
                     "manifest_hash": self.policy_manifest["manifest_hash"],
                     "safety_epoch": self.policy_manifest["safety_epoch"],

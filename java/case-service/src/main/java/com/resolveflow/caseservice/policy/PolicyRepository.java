@@ -18,13 +18,14 @@ import org.apache.ibatis.annotations.Select;
 public interface PolicyRepository {
 
     @Insert("""
-            INSERT INTO policy_bundle (bundle_id, version, manifest_hash, safety_epoch, effective_from,
+            INSERT INTO policy_bundle (bundle_id, merchant_id, version, manifest_hash, safety_epoch, effective_from,
                                        effective_to, imported_at, source_path)
-            VALUES (#{bundleId}, #{version}, #{manifestHash}, #{safetyEpoch}, #{effectiveFrom},
+            VALUES (#{bundleId}, #{merchantId}, #{version}, #{manifestHash}, #{safetyEpoch}, #{effectiveFrom},
                     #{effectiveTo}, #{importedAt}, #{sourcePath})
             """)
     void insertBundle(
             @Param("bundleId") String bundleId,
+            @Param("merchantId") String merchantId,
             @Param("version") String version,
             @Param("manifestHash") String manifestHash,
             @Param("safetyEpoch") int safetyEpoch,
@@ -46,6 +47,7 @@ public interface PolicyRepository {
 
     @Select("""
             SELECT bundle_id      AS bundleId,
+                   merchant_id    AS merchantId,
                    version        AS version,
                    manifest_hash  AS manifestHash,
                    safety_epoch   AS safetyEpoch,
@@ -82,14 +84,19 @@ public interface PolicyRepository {
     }
 
     /**
-     * Every stored window, locked, so an import can refuse one that would overlap an existing version.
+     * Every stored window, locked, so an import can refuse one that would make the choice ambiguous.
      *
      * <p>{@code FOR UPDATE} is what makes the refusal hold: the answer decides whether the caller inserts,
      * and two imports running at once must not both find the range free. It is only ever called inside the
      * import transaction.
+     *
+     * <p>The merchant is read because the ambiguity rules are now <b>per merchant</b> (C07.1): two merchants
+     * publishing a version on the same date is the ordinary case, not a collision, and a check that ignored
+     * the merchant would refuse the second merchant's policy set outright.
      */
     @Select("""
             SELECT bundle_id      AS bundleId,
+                   merchant_id    AS merchantId,
                    manifest_hash  AS manifestHash,
                    safety_epoch   AS safetyEpoch,
                    effective_from AS effectiveFrom,
@@ -110,6 +117,7 @@ public interface PolicyRepository {
      */
     @Select("""
             SELECT bundle_id      AS bundleId,
+                   merchant_id    AS merchantId,
                    manifest_hash  AS manifestHash,
                    safety_epoch   AS safetyEpoch,
                    effective_from AS effectiveFrom,
@@ -125,13 +133,19 @@ public interface PolicyRepository {
     /** A stored bundle header, without its rules. */
     record StoredBundle(
             String bundleId,
+            String merchantId,
             String version,
             String manifestHash,
             int safetyEpoch,
             Instant effectiveFrom,
             Instant effectiveTo) {}
 
-    /** A stored window, used for overlap checks and for choosing a version. */
+    /** A stored window, used for ambiguity checks and for choosing a version. */
     record StoredWindow(
-            String bundleId, String manifestHash, int safetyEpoch, Instant effectiveFrom, Instant effectiveTo) {}
+            String bundleId,
+            String merchantId,
+            String manifestHash,
+            int safetyEpoch,
+            Instant effectiveFrom,
+            Instant effectiveTo) {}
 }

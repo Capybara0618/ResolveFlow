@@ -85,15 +85,18 @@ public class PolicyImportService {
     }
 
     /**
-     * The hash of the bundle's content: identity, version, epoch and every rule in order.
+     * The hash of the bundle's content: identity, merchant, version, epoch and every rule in order.
      *
      * <p>Canonical JSON of exactly these members, so the hash is reproducible from the source and a change to
      * any rule changes it. The file path is not part of it: the same bundle copied to another directory is
-     * the same bundle.
+     * the same bundle. {@code merchant_id} **is** part of it (C07.1): two merchants may legitimately publish
+     * identical wording on the same date, and a hash that could not tell them apart would make "whose policy
+     * is this" unanswerable from the hash a case pinned.
      */
     public String hash(PolicySourceReader.Draft draft) {
         ObjectNode node = mapper.createObjectNode();
         node.put("bundle_id", draft.bundleId());
+        node.put("merchant_id", draft.merchantId());
         node.put("version", draft.version());
         node.put("safety_epoch", draft.safetyEpoch());
         node.put("effective_from", draft.effectiveFrom().toString());

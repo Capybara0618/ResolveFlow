@@ -211,10 +211,16 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     @Test
     @DisplayName("the queue is scoped by the token: another merchant's cases are not there")
     void theQueueIsScopedByTheToken() {
+        // The second merchant is M-2002 and not an arbitrary other id, because as of C07.1 opening a case needs a
+        // policy version **for that merchant** (PolicySelectionService). Before that, selection ignored the
+        // merchant, so this test could use any id and get M-1001's policy — which is also why a second merchant
+        // was impossible to onboard. M-2002 is the merchant the shipped fixtures carry a policy set for.
         String reviewerM1 = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String reviewerM2 = token("demo-reviewer-m2", "M-1002", Role.REVIEWER, null);
+        String reviewerM2 = token("demo-reviewer-m2", "M-2002", Role.REVIEWER, null);
+        commerce.lineMerchant = "M-1001";
         String mine = openCase(token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), "M-1001");
-        String other = openCase(token("demo-customer-m2", "M-1002", Role.CUSTOMER, "C-2004"), "M-1002");
+        commerce.lineMerchant = "M-2002";
+        String other = openCase(token("demo-customer-m2", "M-2002", Role.CUSTOMER, "C-2004"), "M-2002");
         handOver(mine);
         handOver(other);
 
@@ -223,7 +229,11 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
         assertThat(caseIds(page)).containsExactly(mine).doesNotContain(other);
         assertThat(jdbc.queryForObject("SELECT merchant_id FROM aftersale_case WHERE case_id = ?", String.class, other))
                 .as("the other case really is another merchant's, not a case that failed to be created")
-                .isEqualTo("M-1002");
+                .isEqualTo("M-2002");
+        assertThat(caseIds(queue(reviewerM2, null)))
+                .as("and the other merchant's reviewer sees theirs, not M-1001's")
+                .containsExactly(other)
+                .doesNotContain(mine);
     }
 
     @Test

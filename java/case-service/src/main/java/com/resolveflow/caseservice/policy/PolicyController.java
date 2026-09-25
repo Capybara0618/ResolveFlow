@@ -29,10 +29,11 @@ public class PolicyController {
         this.policies = policies;
     }
 
-    /** The contract's {@code PolicyBundle}: the stored version, its hash and its rules in source order. */
+    /** The contract's {@code PolicyBundle}: the stored version, whose it is, its hash and its rules in source order. */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record PolicyBundleResponse(
             @JsonProperty("bundle_id") String bundleId,
+            @JsonProperty("merchant_id") String merchantId,
             String version,
             @JsonProperty("manifest_hash") String manifestHash,
             @JsonProperty("safety_epoch") Integer safetyEpoch,
@@ -70,6 +71,7 @@ public class PolicyController {
         }
         return ResponseEntity.ok(new PolicyBundleResponse(
                 stored.bundleId(),
+                stored.merchantId(),
                 stored.version(),
                 stored.manifestHash(),
                 stored.safetyEpoch(),
