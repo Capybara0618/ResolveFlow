@@ -1,6 +1,6 @@
-# AgentScope 迁移兼容报告 · AS01.1
+# AgentScope 迁移兼容报告 · AS01.1 + AS01.2（部分）
 
-2026-09-25。本报告是 `docs/agentscope-migration.md:97` 要求的**技术门禁审阅材料**的 AS01.1 部分：版本与来源、实际 API 拦截表、动作映射依据、失败窗口，以及真实执行过的命令与结果。**AS01.2（真实 PG 恢复）与 AS01.3（禁网络回放）尚未执行**，因此本报告不是 AS01 全部通过的结论，AS02 不得据此开工。
+2026-09-25。本报告是 `docs/agentscope-migration.md:97` 要求的**技术门禁审阅材料**。**AS01.2 只完成了能力探针，未完成真实 PG 恢复关卡；AS01.3 未开始**，因此本报告不是 AS01 全部通过的结论，AS02 不得据此开工。
 
 代码位置：`spikes/agentscope/`（独立锁与独立 venv，未改 `agent/pyproject.toml`、未改 `agent/uv.lock`）。
 
@@ -87,10 +87,45 @@ uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q --
 
 **复用而非重写**：中间件调用的是项目自己的 `resolveflow.harness.budget`（`BudgetGuard`/`RunBudget`/`BudgetExhaustedError`），白名单从项目自己的 `harness/actions.py` 解析。`tests/conftest.py` 把 `agent/src` 放进 `sys.path`，因此本报告的结果**依赖当时的工作树**（`agent/src` 修订见 §7）。
 
-## 6. 失败窗口与快照形状（供 AS01.2 使用，本子步未验证）
+## 6. 失败窗口与快照形状（AS01.2 能力探针结果）
 
-- AgentScope 的循环是**异步**的，`Agent.reply()` 是协程且自己消费事件流；本项目的 `HarnessRunner`/`McpToolExecutor` 是同步的（后者用私有事件循环+工作线程桥接）。AS02 必须明确"哪一侧拥有事件循环"，否则会得到两个循环或死锁。
-- `AgentState` 是可传入的对象，`ContextConfig` 有 `summary_schema`，说明 SDK 侧确实有可序列化状态；但**"能存"不等于"受 fence 保护的恢复"**（`docs/agentscope-migration.md:58`）。AS01.2 要证明的是：响应已落库而快照未推进时按原 `call_id` 复用、未落库窗口记 UNKNOWN、旧 fence 写快照被拒、预算/deadline 不重置。**本报告不对这些作任何结论。**
+`docs/agentscope-migration.md:71` 把这一步的底线写得很清楚：未完成的 reply 必须能用**稳定调用账 + 已记录的模型/工具结果重建**，且"不能退化成从头重新调模型"；做不到就报最小复现，不许降低 H4。探针（`spikes/agentscope/tests/test_recovery_capability.py`，3 例）给出的结论是**混合的**：
+
+### 6.1 可用的部分
+
+| 能力 | 证据 |
+| --- | --- |
+| `AgentState` 可 JSON 往返 | `test_the_reply_state_is_serialisable_and_round_trips`：`model_dump_json()` → `model_validate` 后 `session_id`/`context`/`reply_context.cur_iter` 一致 |
+| 快照可交给**另一个** Agent 继续 | `test_a_saved_state_can_be_handed_to_a_fresh_agent`：新 Agent 用同一 state 构建，`model.calls == 0`，上下文长度一致 |
+| SDK 能识别"有未完成工具调用"的窗口 | `get_unfinished_tool_calls` / `get_awaiting_tool_calls` 在 `SUBMITTED` 无结果时返回该调用（探针断言非空） |
+| 工具**不会**被重复执行 | 恢复时写回的是**已记录**的结果，`executions == ["get_order_context"]` 不增 |
+| 工具结果存放在**助手消息内部** | `get_unfinished_tool_calls` 按 block id 在 `context[-1]` 内匹配，不是独立消息 |
+
+### 6.2 恢复的代价：一次**恢复推理轮**，而不是重发被中断的调用（**我先前判断错了一次，此处更正**）
+
+`test_resuming_an_interrupted_reply_costs_another_model_call` 断言的是**实际行为**：把已记录的工具结果写回 context 再 `reply(None)`，会多一次模型调用（2 → 3），且那第三次调用的输入里已含工具结果。
+
+我最初把这条读成"恢复退化成从头重新调模型"并写成阻塞点——**这个结论是错的**，探针自己的 docstring 也提示了要复验 API。复验结果：
+
+- `Agent.reply` 的文档说明输入可以是 `UserConfirmResultEvent` / `ExternalExecutionResultEvent`，语义是 *"continue from the outside interaction required by the previous reply"*；`None` 是 *"nothing new to feed in"*。所以**正确用法是传 `ExternalExecutionResultEvent`，不是 `None`**。
+- 用 `ExternalExecutionResultEvent(reply_id=…, execution_results=[已记录结果])` 复验：**仍然会多一次模型调用**（`RECOVERY-DIAG calls: first reply=2, after continuation=3`）。
+
+**为什么这不构成 6.2 原先声称的阻塞**：一次工具调用在 ReAct 里逻辑上就是"reason → act → reason"。工具结果回来之后那一轮推理**是循环的下一步**，不是重发被中断的那次调用。`docs/agentscope-migration.md:71` 禁止的是"从头重新调模型"（重发整个步骤），而探针显示：**工具没有被重新执行**，**已记录的结果被原样采用**，被中断的那次模型调用**没有被重发**。
+
+### 6.3 真正剩下的风险（比 6.2 原判断小，但不是没有）
+
+1. **恢复要花一次推理轮 = 一次计费调用**。若 run 已经用尽 12 次模型预算，恢复就无法完成——而崩溃前后正是预算最容易用尽的时刻。`docs/agentscope-migration.md:50` 要求每次调用先计费，所以这笔必须显式记账（例如标成 `RECOVERY_TURN`），而不是假装免费。**这是需要用户决定的取舍**：是否为恢复预留预算、或允许一次豁免（后者会轻微放宽 H4，我不建议擅自做）。
+2. **未验证**：`ExternalExecutionResultEvent` 的 `reply_id` 与快照里 `reply_context.reply_id` 不一致时 SDK 的行为；跨进程（真 PG、新连接）恢复；旧 fence 写快照/终局被拒；UNKNOWN 成本记账；`call_id` 复用不重复结算。**这些都没有探针，因此本子步只回答了"恢复路径存在且语义正确"，没有完成 AS01.2 的验收。**
+
+## 6bis. AS01.2 未完成的部分（不得读成通过）
+
+真实 PG 关卡**没有做完**：schema/跨进程与跨连接恢复、旧 fence 写快照与终局被拒、预算与 deadline 不重置、UNKNOWN 成本记账、`call_id` 复用不重复结算——**都还没有探针**。也没有据任何一条勾 C09/H4。
+
+## 6ter. 给审阅者的处置建议
+
+1. **接受"恢复 = 一次恢复推理轮"，并显式记账**（建议）：由调用账把该次标为恢复轮、照常预占预算；再决定是否为恢复预留额度，或让 AS01.2 证明"预算耗尽时仍能恢复"另有出路。
+2. **继续 AS01.2 的真实 PG 部分**：把上面 6.3 第 2 条的五项做成真 PG/跨进程探针。这是规格原文要求的收尾，也是进入 AS02 的前置。
+3. **向上游确认**（可选）：`ExternalExecutionResultEvent` 是否是官方推荐的恢复入口，以及是否支持"零额外推理调用"的续接。若不是，第 1 条就是最终形态。
 
 ## 7. 未验证 / 未运行（不得读成通过）
 

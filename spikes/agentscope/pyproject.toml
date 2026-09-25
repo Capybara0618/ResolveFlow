@@ -85,5 +85,5 @@ ignore_missing_imports = true
 # reach. That is recorded rather than hidden: the spike needs it to build a ToolChunk, and AS02 will have to
 # decide whether to depend on the private path or work around it. Relaxed for the **test modules only**, so the
 # production-shaped source under `src/` stays fully checked.
-module = ["test_control", "test_mcp_compat"]
+module = ["_helpers", "conftest", "test_control", "test_mcp_compat", "test_recovery_capability"]
 disable_error_code = ["attr-defined"]

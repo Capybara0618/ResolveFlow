@@ -59,6 +59,14 @@
   - 验收：独立临时schema和跨进程/新连接恢复；响应已落库而快照未推进能复用且不重复计费；未落库窗口记UNKNOWN；旧fence写快照/终局拒绝，预算/deadline不重置。
   - 验证：`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests/test_recovery.py -q`，记录PG版本、故障窗口、恢复前后call_id/请求次数/账本；必须用真实SDK和真实PG，不用另写toy循环证明SDK可恢复。
   - 实际记录：未执行。无PG时标未运行；T00结果不能替代。
+  - 实际记录（AS01.2 能力探针部分，2026-09-25；**真实 PG 关卡未完成**）：先回答"SDK 是否支持那条恢复路径"，再决定是否值得建账本——这是本次唯一做完的部分。
+    - **完成内容**：新增 `spikes/agentscope/tests/test_recovery_capability.py`（4 例）与共享假件 `spikes/agentscope/tests/_helpers.py`（把 `ScriptedModel`/`CountingTool`/`agent_with`/`run_agent`/`WHITELIST` 从 `test_control.py` 抽出，因为两个测试模块都要用）。**未改 `agent/` 生产代码或依赖锁。**
+    - **能力：可用的部分**：① `AgentState` 可 JSON 往返（`model_dump_json`→`model_validate`，`session_id`/`context`/`reply_context.cur_iter` 一致）；② 快照可交给**另一个** Agent 构建且 `model.calls == 0`；③ SDK 认识"有未完成工具调用"的窗口（`get_unfinished_tool_calls`/`get_awaiting_tool_calls` 在 `SUBMITTED` 无结果时返回该调用）；④ **工具不会被重复执行**（恢复时写回已记录结果，`executions` 不增）；⑤ 工具结果存在**助手消息内部**（`get_unfinished_tool_calls` 按 block id 在 `context[-1]` 内匹配，不是独立消息——这一点我第一版探针搞错了，用"截断 context"构造窗口，而截断会把整条助手消息连同工具调用一起丢掉）。
+    - **关键更正（我先前判断错了一次）**：`reply(None)` 恢复会多一次模型调用（2→3），我最初读成"退化从头重新调模型"并写成阻塞点。复验 `Agent.reply` 文档后发现**正确用法是传 `ExternalExecutionResultEvent`**（"continue from the outside interaction required by the previous reply"），不是 `None`。改用 `ExternalExecutionResultEvent(reply_id, execution_results=[已记录结果])` 后**仍然多一次调用**（`RECOVERY-DIAG calls: first reply=2, after continuation=3`），但**结论不同**：一次工具调用在 ReAct 里逻辑上就是 reason→act→reason，工具结果回来后的那一轮推理**是循环的下一步**；`agent-spec.md:71` 禁止的"重发整个步骤"没有发生——**工具没被重跑、已记录结果被原样采用、被中断的模型调用没被重发**。因此 6.2 原先的"阻塞"结论**撤回**（报告 §6.2 已改）。
+    - **真正剩下的风险**：恢复要花**一次恢复推理轮 = 一次计费调用**；若 12 次模型预算已耗尽则无法恢复，而崩溃前后正是预算最易耗尽的时刻。按 `agent-migration.md:50`"每次调用先计费"，这笔必须显式记账（如标 `RECOVERY_TURN`），**是否预留恢复预算或允许一次豁免需用户决定**（后者会轻微放宽 H4，未擅自做）。
+    - **未做/未跑（真实 PG 关卡全部未做，不得读成通过）**：schema 与**跨进程/跨连接**恢复、**旧 fence 写快照/终局被拒**、**预算/deadline 不重置**、**UNKNOWN 成本记账**、**`call_id` 复用不重复结算**——**五项都没有探针**；`ExternalExecutionResultEvent` 的 `reply_id` 与快照 `reply_context.reply_id` 不一致时的行为未验证；未据此勾 C09/H4。
+    - **过程中真实的失败**：① 用"截断 context"构造崩溃窗口 → `get_unfinished_tool_calls` 返回空（工具结果在助手消息内部，截断把调用一起丢了）；② `anyio.run` 在已运行的事件循环里调用 → `RuntimeError: Already running asyncio in this thread`，改为 async `_assemble_agent` + sync 包装；③ `Toolkit.get_tool` **也是协程**，直接传 coroutine → `'coroutine' object has no attribute 'name'`；④ 自己对 mypy 的两次误判（`disable_error_code` 在 mypy 2.3.1 的 override 里不生效、`type: ignore` 放错行导致 `unused-ignore`），最终用**逐行 ignore 并写明理由**解决，没有整体豁免。
+    - **命令与结果（都真跑）**：`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q` → **13 passed**；同项目 `ruff check src tests` → **All checks passed**；`mypy`（strict，9 源文件）→ **Success: no issues found**。
 - [ ] AS01.3：同一SDK/Harness逻辑的禁网络strict探针及技术门禁报告。
   - 依赖：AS01.2。
   - 文件：spike回放适配、1份合成记录、`tests/test_replay.py`、兼容报告（最多5核心文件）。

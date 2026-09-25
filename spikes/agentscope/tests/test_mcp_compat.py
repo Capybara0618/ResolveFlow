@@ -187,12 +187,15 @@ def test_a_two_attribute_fix_makes_agentscope_see_the_whitelist(monkeypatch: Any
         result = await self._session.call_tool(
             self._tool.name, arguments=kwargs, read_timeout_seconds=self._timeout
         )
+        # `attr-defined` is ignored on these two lines because `ToolResultState` is not in
+        # `agentscope.tool.__all__`; the private reach is recorded once in `tests/_helpers.py` and once here
+        # because this test deliberately reimplements `MCPTool.call`.
         return _response.ToolChunk(
             content=self._convert_mcp_content_to_blocks(result.content),
             state=(
-                _response.ToolResultState.ERROR
+                _response.ToolResultState.ERROR  # type: ignore[attr-defined]
                 if getattr(result, "is_error", False)
-                else _response.ToolResultState.RUNNING
+                else _response.ToolResultState.RUNNING  # type: ignore[attr-defined]
             ),
         )
     monkeypatch.setattr(_adapters.MCPTool, "__init__", patched_init, raising=True)
