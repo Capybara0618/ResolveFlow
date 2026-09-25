@@ -110,6 +110,14 @@
   - 验收：旧自主性/权限/预算/翻页/无进展测试语义全部保留并跑在新循环；无外层旧循环+内层SDK双循环；终止后无额外调用；实际请求全量输入及输出预占正确。
   - 验证：迁移规格§7的聚焦pytest、Python全量、ruff、在agent目录下的mypy；区分旧错误与新增错误。mock通过不标live/H1通过。
   - 实际记录：未执行。此步不实现通用恢复引擎；C09前不得宣传生产崩溃恢复。
+  - 实际记录（AS02.2 SDK 循环装配与语义双跑，2026-09-25，**大部分完成；生产切换未做**）：
+    - **完成内容**：新增 `agent/src/resolveflow/harness/control.py`（**循环无关**的停止原因常量、`action_digest`、`NoProgressTracker`——从旧 runner 提取成**单一来源**，避免新旧两套无进展实现漂移）、`harness/sdk_runner.py`（`AgentScopeRunner` + `ActionGateMiddleware` + `McpToolBridge` + `_BudgetHook`）、`agent/tests/unit/test_loop_semantics.py`（23 例）。`sdk_adapter.py` 增 `record_observation`（"新证据"判定）与 trajectory/decision 记录。
+    - **关键设计（`agent-migration.md:34/62`）**：不写第二个循环——`AgentScopeRunner` 把 SDK 的 `Agent` 接到项目**已有且已测**的守卫上，再把结果翻译回 `RunResult`。规则归属：模型选动作＝SDK 的 reasoning-acting 循环；每次模型请求在**发出前**按 run 预算预占＝`_BudgetHook`（`on_model_call`）；ABI 之外的动作**到不了工具**＝`ActionGateMiddleware`（`on_check_permission`，AS01.1 实测的执行前钩子）；无进展两次反馈第三次**执行前**拒绝＝同一个 middleware + `control.NoProgressTracker`；读不到就返回**错误 Observation**（不是抛异常）＝`McpToolBridge`；"是哪个上限结束了 run"＝`_outcome`。
+    - **验收达成**：**同一套断言在两个循环上跑**——11 条语义 × 2 驱动 + 1 条预算默认值守卫 = 23 例全绿，且**非法动作对应工具执行次数为 0**（断言在工具自己的调用列表上，而不是"返回了 deny"）、预算耗尽后模型调用次数停在预算值、终止动作后**无额外调用**、翻页不被误判为无进展。
+    - **过程中真实的失败与修复**：① **`is_external_tool = True` 让 SDK 把工具调用"挂起"**——回放报 `"I'm waiting for your permission or the external execution to finish."`，工具一次都没执行、模型只调了 1 次。`is_external_tool` 是"需要**人**在外面执行"的语义，而我们的五个读是循环应当自己发起的普通调用；改成 `False` 后正常。② 两个 middleware 必须继承 `MiddlewareBase`，否则 `AttributeError: '_BudgetHook' object has no attribute 'is_implemented'`。③ `_BudgetHook` 按规格**按请求预占输出上限**（而不是预占 0），于是默认 4000 输出额度会先于 model_calls 上限触发（12×1024=12288>4000）；这不是 bug 而是预占生效，测试因此显式调高输出额度并写明原因。
+    - **命令与结果（都真跑）**：`pytest agent/tests` → **779 passed, 9 skipped**（756→779，+23）；`ruff check src tests`（agent/）→ **All checks passed**；`mypy`（strict）→ **9 errors in 4 files (checked 39)**，**仍是那 9 个既有错误**（源文件 37→39），新增模块零错误。
+    - **未做/未跑（不得读成通过）**：**生产切换未做**——`harness/runner.py` 的 `HarnessRunner` **仍是生产驱动**，`AgentScopeRunner` 目前只有单测覆盖；因此账本原文的"无外层旧循环+内层SDK双循环"**尚未成立**（两个循环现在并存，只是各自有测试）。`scripts/verify.ps1`、Java 门未跑。**未接真实 MCP/Java**（属 AS02.3）；mock 全绿**不等于** live/H1。
+    - **下一步（AS02.2 收尾）**：把 `harness/runner.py` 改成装配/适配入口（委托给 `AgentScopeRunner`），使生产只剩一套循环；同时决定 `runner.py` 的 20 例旧测试是**改为跑新循环**还是保留为历史证据（规格要求前者：语义保留并跑在新循环）。
 - [ ] AS02.3：新循环接真实MCP与Java的非回归收口。
   - 依赖：AS02.2；AS00确认的C06.4⑤真实Java基线。
   - 文件：`harness/mcp_client.py`必要适配、MCP集成测试、`scripts/e2e_harness_java_tools.py`、报告；如Java scope仍缺失另拆安全子步，不把缺口豁免。

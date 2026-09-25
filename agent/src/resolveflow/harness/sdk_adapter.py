@@ -92,11 +92,39 @@ class AgentScopeModelAdapter(ChatModelBase):
         #: Every decision the client produced, in order, so a test can assert one call per step and inspect what
         #: the client was actually asked.
         self.replies: list[ModelReply] = []
+        #: The last terminal decision, which is the run's proposal/question/escalation. Recorded here rather than
+        #: re-parsed from the conversation, so the runner reports the decision object it validated.
+        self.decision: Any = None
+        #: The trajectory and the observations the tools produced, in order. The adapter owns them because it is
+        #: the only object that sees both the decision and the tool call the SDK made of it.
+        self.trajectory: list[dict[str, Any]] = []
+        self.observations: list[Any] = []
+        self.notices: list[str] = []
+        self.modes: list[str] = []
+        #: Content hashes already observed, so "new evidence" is decidable (docs/agent-spec.md:44).
+        self._seen_hashes: set[str] = set()
 
     @property
     def calls(self) -> int:
         """How many times the underlying client was asked. Must equal the loop's number of model turns."""
         return len(self.replies)
+
+    def record_observation(self, observation: Any) -> bool:
+        """Keep one tool observation and say whether it is **new evidence**.
+
+        The adapter owns this because it is the only object that sees both the decision and the tool call the SDK
+        made of it. The rule is `docs/agent-spec.md:44`'s 无新证据 made decidable: a failed observation (no hash) is
+        always new — "I could not read it" is a fresh fact each time — while a successful one is new only when its
+        content hash has not been seen before. That distinction is what stops a run being stopped for paging and
+        what stops an endlessly retried failure from counting as progress.
+        """
+        if observation.content_hash is None:
+            self.observations.append(observation)
+            return True
+        fresh = observation.content_hash not in self._seen_hashes
+        self._seen_hashes.add(observation.content_hash)
+        self.observations.append(observation)
+        return fresh
 
     async def _call_api(
         self,
@@ -111,6 +139,18 @@ class AgentScopeModelAdapter(ChatModelBase):
         # `model.py`), so there is no translation here to get wrong and no second rendering of the conversation.
         reply = self._client.decide(system=self._system, messages=list(messages))
         self.replies.append(reply)
+        self.modes.append(reply.mode)
+        # The trajectory entry is recorded here, from the decision the run validated, so the old loop's
+        # "one line per action" shape survives the driver change.
+        kind = reply.decision.get("kind")
+        entry: dict[str, Any] = {"action": reply.decision.get("tool_name") or kind}
+        if kind in ("PROPOSE", "ASK_CUSTOMER", "ESCALATE"):
+            entry["outcome"] = "DECIDED"
+            entry["detail"] = reply.decision.get("recommended_action") or kind
+            self.decision = reply.decision
+        else:
+            entry["outcome"] = "REQUESTED"
+        self.trajectory.append(entry)
         return _as_chat_response(reply)
 
 
