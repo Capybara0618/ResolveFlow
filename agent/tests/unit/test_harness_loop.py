@@ -1,4 +1,4 @@
-"""C06.4①: the HarnessRunner drives one investigation loop, over a scripted model.
+"""C06.4①: the AgentScopeRunner drives one investigation loop, over a scripted model.
 
 ``docs/agent-harness.md:9`` states the property this file exists to prove: **the action after an Observation
 comes from the model, not from a fixed route keyed on case_type**. So the tests below do not assert "the run
@@ -43,12 +43,9 @@ from resolveflow.harness.budget import (
     RunBudget,
 )
 from resolveflow.harness.model import MockModelClient, ModelReply, ModelUsage
-from resolveflow.harness.runner import (
-    REASON_COMPLETED,
-    HarnessRunner,
-    RunFacts,
-)
 from resolveflow.harness.sdk_adapter import messenger_message
+from resolveflow.harness.sdk_runner import AgentScopeRunner
+from resolveflow.harness.vocabulary import REASON_COMPLETED, RunFacts
 
 RUN_ID = "5f2b1c3d-0000-4000-8000-000000000001"
 CASE_ID = "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -63,6 +60,47 @@ FACTS = RunFacts(
     customer_id="C-2002",
     description="the parcel never arrived",
 )
+
+
+def _bound_under_test(**caps: Any) -> RunBudget:
+    """The spec's budget with only the named cap lowered, for a test about **one** bound.
+
+    The single SDK-driven loop reserves, for every request, the per-step token caps — which is what
+    ``docs/agent-harness.md:37`` asks for: the answer's length is unknowable beforehand, and reserving zero would
+    make the cumulative caps unenforceable. The consequence for a *test* is that a budget smaller than the
+    default can be exhausted on tokens before the bound the test names, so the assertion fails for a reason the
+    test is not about. Several earlier versions of these tests did exactly that and the failures looked like
+    budget bugs.
+
+    So every cap keeps the spec's default and the caller lowers the one it is testing. ``output_tokens`` and
+    ``input_tokens`` are popped rather than fixed so a caller can lower them deliberately.
+    """
+    base = RunBudget()
+    return RunBudget(
+        output_tokens=caps.pop("output_tokens", base.output_tokens),
+        input_tokens=caps.pop("input_tokens", base.input_tokens),
+        **caps,
+    )
+
+
+def varied_observation(index: int, tool_name: str = "get_order_context") -> ToolObservation:
+    """An observation whose content hash has not been seen before.
+
+    Needed by the budget tests: the no-progress rule stops a run whose reads keep returning the same bytes, so a
+    test about a *budget* bound must keep producing new evidence or it observes the no-progress bound instead.
+    The first version of these tests passed ``index`` into the result payload, which left the hash identical — the
+    hash is what "new evidence" is decided on, so the run stopped for the wrong reason.
+    """
+    return ToolObservation(
+        observation_id=f"obs-{tool_name}-{index:016d}",
+        tool_name=tool_name,
+        source_type=EvidenceSourceType.ORDER_LINE,
+        source_ref=f"commerce:/internal/v1/order-lines/{LINE_ID}/context",
+        source_version=str(index + 3),
+        content_hash=f"{index + 1:064x}",
+        observed_at="2026-09-25T00:00:00Z",
+        result={"line_paid_amount": 2599, "read": index},
+    )
 
 
 def observation(tool_name: str = "get_order_context", **result: Any) -> ToolObservation:
@@ -155,7 +193,7 @@ def propose(action: str = "REFUND", **extra: Any) -> dict[str, Any]:
 
 
 def run(model: MockModelClient, tools: StubTools, **kwargs: Any) -> Any:
-    return HarnessRunner(model=model, tools=tools, facts=FACTS, **kwargs).run()
+    return AgentScopeRunner(model=model, tools=tools, facts=FACTS, **kwargs).run()
 
 
 # ------------------------------------------------------------------ the loop itself
@@ -267,7 +305,10 @@ def test_the_tool_attempt_budget_stops_the_loop_and_says_which_budget_ran_out() 
     model = MockModelClient.always(read("get_order_context"))
     tools = StubTools(*[fresh_observation(index=index) for index in range(50)])
 
-    result = run(model, tools, budget=RunBudget(tool_attempts=3, model_calls=12))
+    # `model_calls=8`, not the default 12: one model call per tool attempt plus the turns the SDK takes around
+    # a refusal, so the cap is modest enough that the **tool-attempt** bound fires first. A larger cap would let
+    # the input estimate exhaust the 40000-token budget first.
+    result = run(model, tools, budget=_bound_under_test(tool_attempts=3, model_calls=8))
 
     assert result.completed is False
     assert result.reason_code == REASON_BUDGET_TOOL_ATTEMPTS
@@ -335,7 +376,7 @@ def test_two_identical_actions_without_new_evidence_are_reported_then_stopped() 
     model = MockModelClient.always(read("get_order_context"))
     tools = StubTools(*[observation() for _ in range(20)])
 
-    result = run(model, tools, budget=RunBudget(model_calls=12))
+    result = run(model, tools, budget=_bound_under_test(model_calls=12))
 
     assert result.completed is False
     assert result.reason_code == REASON_NO_PROGRESS

@@ -33,7 +33,8 @@ import pytest
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.harness.mcp_client import McpToolExecutor, ToolCallFailedError
 from resolveflow.harness.model import MockModelClient
-from resolveflow.harness.runner import REASON_COMPLETED, HarnessRunner, RunFacts
+from resolveflow.harness.sdk_runner import AgentScopeRunner
+from resolveflow.harness.vocabulary import REASON_COMPLETED, RunFacts
 from resolveflow.tools.credential import credential_source
 from tests.integration import stub_upstream
 
@@ -238,7 +239,7 @@ def test_the_runner_reads_through_mcp_and_decides(upstream: Any) -> None:
     tool = executor(url)
     model = MockModelClient([read("get_order_context"), propose()])
     try:
-        result = HarnessRunner(model=model, tools=tool, facts=facts()).run()
+        result = AgentScopeRunner(model=model, tools=tool, facts=facts()).run()
     finally:
         tool.close()
 
@@ -266,7 +267,7 @@ def test_a_tool_failure_does_not_stop_the_run(upstream: Any) -> None:
     tool = executor(url, line_id=NO_SHIPMENT_LINE)
     model = MockModelClient([read("get_shipment_trace", limit=5), propose("MANUAL_REVIEW")])
     try:
-        result = HarnessRunner(model=model, tools=tool, facts=facts(NO_SHIPMENT_LINE)).run()
+        result = AgentScopeRunner(model=model, tools=tool, facts=facts(NO_SHIPMENT_LINE)).run()
     finally:
         tool.close()
 
@@ -294,7 +295,7 @@ def test_the_runner_can_read_two_different_tools_in_one_run(upstream: Any) -> No
         ]
     )
     try:
-        result = HarnessRunner(model=model, tools=tool, facts=facts()).run()
+        result = AgentScopeRunner(model=model, tools=tool, facts=facts()).run()
     finally:
         tool.close()
 
@@ -424,7 +425,7 @@ def test_the_harness_counts_the_runs_pages_without_being_told_to(upstream: Any) 
 
     model = MockModelClient([read("get_shipment_trace", limit=2), continue_the_page, propose("MANUAL_REVIEW")])
     try:
-        result = HarnessRunner(model=model, tools=tool, facts=facts()).run()
+        result = AgentScopeRunner(model=model, tools=tool, facts=facts()).run()
     finally:
         tool.close()
 
@@ -461,7 +462,7 @@ def test_a_repeated_failing_read_is_not_progress(upstream: Any) -> None:
     # retryable at all, so a model that kept asking would be making the mistake the rule exists to stop.
     model = MockModelClient.always(read("get_shipment_trace", limit=5))
     try:
-        result = HarnessRunner(model=model, tools=tool, facts=facts(NO_SHIPMENT_LINE)).run()
+        result = AgentScopeRunner(model=model, tools=tool, facts=facts(NO_SHIPMENT_LINE)).run()
     finally:
         tool.close()
 
@@ -537,7 +538,7 @@ def test_a_run_credential_that_cannot_be_minted_stops_the_read(upstream: Any) ->
     )
     model = MockModelClient([read("get_order_context"), propose()])
     try:
-        result = HarnessRunner(model=model, tools=tool, facts=facts()).run()
+        result = AgentScopeRunner(model=model, tools=tool, facts=facts()).run()
     finally:
         tool.close()
 

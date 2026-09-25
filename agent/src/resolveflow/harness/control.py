@@ -92,28 +92,47 @@ class NoProgressTracker:
     last_digest: str | None = None
     #: Set when the previous action's evidence was new; the loop reports it rather than inferring it.
     latest_was_new: bool = False
+    #: Set when the action about to run repeated the previous one, so the evidence that follows decides whether it
+    #: was "no progress" or a legitimate re-read.
+    pending_repeat: bool = False
 
     def note_action(self, decision: ModelDecision) -> bool:
-        """Record the action about to run and return whether it is a repeat of the previous one."""
+        """Record the action about to run and return whether it is a repeat of the previous one.
+
+        Deliberately does **not** count a round. Whether a repeat was "no progress" depends on the evidence it
+        produced, which is not known until after it ran — and a version of this that counted here incremented the
+        streak for a repeat that returned *new* evidence, so a run paging or re-reading after a change was stopped
+        as if it had made no progress. The counted decision is made in :meth:`note_evidence`.
+        """
         digest = action_digest(decision)
         repeated = digest == self.last_digest
         self.last_digest = digest
         self.latest_was_new = False
+        self.pending_repeat = repeated
         return repeated
 
     @property
     def feedback_rounds_remaining(self) -> int:
         return max(0, MAX_NO_PROGRESS_ROUNDS - self.rounds)
 
-    def note_new_evidence(self) -> None:
-        """An action produced evidence the run had not seen: the repeat streak is over."""
-        self.latest_was_new = True
-        self.rounds = 0
-
-    def note_feedback(self) -> None:
-        """One repeat was fed back to the model, which is what the first two repeats are for."""
-        self.rounds += 1
-
     def should_stop_before_running(self) -> bool:
-        """True when this repeat is the third one, so it must be **refused before it runs**."""
-        return self.feedback_rounds_remaining == 0
+        """True when this repeat is the third one, so it must be **refused before it runs**.
+
+        Two repeat-without-evidence rounds are fed back (`docs/agent-spec.md:44`: 两次反馈NO_PROGRESS，第三次停止),
+        and the third repeat is refused rather than executed — executing it first would spend an attempt on the
+        action being refused.
+        """
+        return self.rounds >= MAX_NO_PROGRESS_ROUNDS
+
+    def note_evidence(self, fresh: bool) -> None:
+        """Record whether the action that just ran produced evidence the run had not seen.
+
+        **This is where a no-progress round is counted**, because this is the first moment it is knowable:
+        new evidence clears the streak, while a repeat that produced nothing new adds to it.
+        """
+        if fresh:
+            self.latest_was_new = True
+            self.rounds = 0
+        elif self.pending_repeat:
+            self.rounds += 1
+        self.pending_repeat = False

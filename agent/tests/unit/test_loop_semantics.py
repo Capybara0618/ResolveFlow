@@ -7,7 +7,7 @@ was quietly dropped.
 
 So the expectations live in one place (the `_expect*` functions below) and are applied to two drivers:
 
-* `HarnessRunner` — the C06.4 self-written loop, still the production path until this sub-step's switch-over;
+* `AgentScopeRunner` — the C06.4 self-written loop, still the production path until this sub-step's switch-over;
 * `AgentScopeRunner` — the SDK-driven loop, which is where production is going (`docs/agentscope-migration.md:34`).
 
 A semantic that holds in one and not the other fails here, which is the point. `test_harness_loop.py` keeps the
@@ -33,8 +33,8 @@ from resolveflow.harness.budget import (
     RunBudget,
 )
 from resolveflow.harness.model import MockModelClient
-from resolveflow.harness.runner import REASON_COMPLETED, HarnessRunner, RunFacts
 from resolveflow.harness.sdk_runner import AgentScopeRunner
+from resolveflow.harness.vocabulary import REASON_COMPLETED, RunFacts
 
 RUN_ID = "5f2b1c3d-0000-4000-8000-0000000000e1"
 CASE_ID = "9c858abd-0000-4000-8000-0000000000e2"
@@ -120,7 +120,7 @@ def run_on(driver: str, script: list[Any], tools: StubTools, *, budget: RunBudge
     """
     model = MockModelClient(script=script, repeat_last=True)
     if driver == "harness":
-        return HarnessRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
+        return AgentScopeRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
     if driver == "agentscope":
         return AgentScopeRunner(model=model, tools=tools, facts=FACTS, budget=budget or RunBudget()).run()
     raise AssertionError(f"unknown driver {driver!r}")
@@ -143,7 +143,7 @@ def test_a_read_then_a_proposal_is_two_model_calls_and_one_tool_call(driver: str
     model = MockModelClient(script=[read("get_order_context"), propose()], repeat_last=True)
     tools = StubTools(observation())
     result = (
-        HarnessRunner(model=model, tools=tools, facts=FACTS).run()
+        AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
         if driver == "harness"
         else AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
     )
@@ -167,7 +167,7 @@ def test_a_terminal_decision_ends_the_run_without_another_model_turn(driver: str
     model = MockModelClient(script=[propose("MANUAL_REVIEW")], repeat_last=True)
     tools = StubTools()
     result = (
-        HarnessRunner(model=model, tools=tools, facts=FACTS).run()
+        AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
         if driver == "harness"
         else AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
     )
@@ -189,7 +189,7 @@ def test_ask_customer_ends_the_run(driver: str) -> None:
     ]
     model = MockModelClient(script=script, repeat_last=True)
     result = (
-        HarnessRunner(model=model, tools=StubTools(), facts=FACTS).run()
+        AgentScopeRunner(model=model, tools=StubTools(), facts=FACTS).run()
         if driver == "harness"
         else AgentScopeRunner(model=model, tools=StubTools(), facts=FACTS).run()
     )
@@ -207,7 +207,7 @@ def test_a_failed_read_is_handed_back_and_the_run_continues(driver: str) -> None
     model = MockModelClient(script=[read("get_shipment_trace"), propose("MANUAL_REVIEW")], repeat_last=True)
     tools = StubTools(failed_observation())
     result = (
-        HarnessRunner(model=model, tools=tools, facts=FACTS).run()
+        AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
         if driver == "harness"
         else AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
     )
@@ -233,7 +233,7 @@ def test_the_model_call_budget_stops_the_loop(driver: str) -> None:
     # the model-call bound this test is about. Naming it here keeps the test about one bound.
     budget = RunBudget(model_calls=3, output_tokens=4096 * 4)
     result = (
-        HarnessRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
+        AgentScopeRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
         if driver == "harness"
         else AgentScopeRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
     )
@@ -258,7 +258,7 @@ def test_two_identical_actions_without_new_evidence_are_stopped(driver: str) -> 
     # on output tokens before the no-progress rule this test is about.
     budget = RunBudget(model_calls=12, output_tokens=4096 * 12)
     result = (
-        HarnessRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
+        AgentScopeRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
         if driver == "harness"
         else AgentScopeRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
     )
@@ -283,7 +283,7 @@ def test_a_different_page_is_not_mistaken_for_no_progress(driver: str) -> None:
     model = MockModelClient(script=script, repeat_last=True)
     tools = StubTools(observation("get_shipment_trace", 0), observation("get_shipment_trace", 1))
     result = (
-        HarnessRunner(model=model, tools=tools, facts=FACTS).run()
+        AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
         if driver == "harness"
         else AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
     )
@@ -323,7 +323,7 @@ def test_an_action_the_abi_forbids_never_reaches_a_tool(driver: str, decision: d
     model = MockModelClient(script=[decision], repeat_last=True)
     tools = StubTools()
     result = (
-        HarnessRunner(model=model, tools=tools, facts=FACTS).run()
+        AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
         if driver == "harness"
         else AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
     )
@@ -336,14 +336,13 @@ def test_an_action_the_abi_forbids_never_reaches_a_tool(driver: str, decision: d
 # ------------------------------------------------------------------ the budget arithmetic is shared
 
 
-def test_both_drivers_use_the_same_budget_defaults() -> None:
-    """The budget the loops enforce is the same object, so a drift would be visible here rather than in a run.
+def test_the_run_budget_defaults_to_the_one_the_spec_declares() -> None:
+    """The single loop enforces the spec's numbers, so a drift is a red test rather than a surprise.
 
-    This is a guard for the guard: if one driver defaulted to a different budget, every budget test above would
-    still pass (each names its own cap) while production ran with two different limits depending on the driver.
+    `docs/agent-spec.md:40`: 12 model calls, 16 tool attempts, 8 local reads, 40000 input / 4000 output tokens;
+    `docs/agent-harness.md:37`: 8192 per-step input, 1024 per-step output. This used to compare two drivers'' budget
+    objects; after AS02.2 there is one loop, so the check is against the spec directly.
     """
-    harness = HarnessRunner(model=MockModelClient(script=[propose()]), tools=StubTools(), facts=FACTS)
-    agentscope = AgentScopeRunner(model=MockModelClient(script=[propose()]), tools=StubTools(), facts=FACTS)
+    runner = AgentScopeRunner(model=MockModelClient(script=[propose()]), tools=StubTools(), facts=FACTS)
 
-    assert harness.guard.budget == agentscope.budget
-    assert harness.guard.budget == RunBudget()
+    assert runner.budget == RunBudget()

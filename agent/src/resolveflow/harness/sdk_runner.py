@@ -54,9 +54,9 @@ from resolveflow.harness.control import (
     REASON_TOOL_FAILED,
     NoProgressTracker,
 )
-from resolveflow.harness.model import ModelReply
-from resolveflow.harness.runner import RunFacts, RunResult, ToolExecutor
+from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.harness.sdk_adapter import AgentScopeModelAdapter, messenger_message
+from resolveflow.harness.vocabulary import HARNESS_SYSTEM_PROMPT, RunFacts, RunResult, ToolExecutor
 
 __all__ = ["AgentScopeRunner", "ActionGateMiddleware", "McpToolBridge"]
 
@@ -64,12 +64,7 @@ __all__ = ["AgentScopeRunner", "ActionGateMiddleware", "McpToolBridge"]
 #: terminal" is a fact about the run and not about the schema; `validate_decision` enforces the rest.
 _TERMINAL_KINDS = frozenset({"PROPOSE", "ASK_CUSTOMER", "ESCALATE"})
 
-SYSTEM_PROMPT = (
-    "You are investigating one after-sales case for one order line. Choose the next action from the ABI you "
-    "are given. Read only what you need; a read is evidence only if you can cite its source, version and hash. "
-    "Do not name a line, case, run, merchant or customer: the run already fixed those. When the evidence "
-    "supports a decision, PROPOSE it and cite what you saw."
-)
+
 
 
 class ActionGateMiddleware(MiddlewareBase):
@@ -129,21 +124,35 @@ class ActionGateMiddleware(MiddlewareBase):
             )
             self.stop_reason = REASON_NO_PROGRESS
             return None
-        if repeated:
-            # Fed back, not refused: the action already ran, and the useful response is to tell the model what came
-            # back (`docs/agent-spec.md:44`).
-            self.progress.note_feedback()
+        # A repeat is **not** counted here: whether it was "no progress" depends on the evidence it produces, which
+        # arrives after the tool runs. `note_evidence` below is what counts a round, and it is also what stops the
+        # third repeat — see `control.NoProgressTracker` for why the order matters.
+        self.accepted = payload
+        return decision
+
+    def note_stop(self, reason_code: str) -> None:
+        """Record why the run must stop, without overwriting a reason already recorded.
+
+        First refusal wins: if the ABI refused an action *and* a later attempt hit a budget, the earlier fact is
+        the one that explains the run, and overwriting it would report the symptom instead of the cause.
+        """
+        if self.stop_reason is None:
+            self.stop_reason = reason_code
+
+    def note_evidence(self, fresh: bool) -> None:
+        """Tell the gate whether the last action produced evidence the run had not already seen.
+
+        This is what decides a no-progress round, and it also produces the notice the model is owed: the first two
+        no-evidence repeats are **fed back** (`docs/agent-spec.md:44`), so the model has to be told, in the
+        conversation, that its attempt added nothing.
+        """
+        was_repeat = self.progress.pending_repeat
+        self.progress.note_evidence(fresh)
+        if was_repeat and not fresh:
             self.notices.append(
                 "NO_PROGRESS: that action produced nothing you had not already seen. Read something else or "
                 "decide with what you have."
             )
-        self.accepted = payload
-        return decision
-
-    def note_evidence(self, fresh: bool) -> None:
-        """Tell the gate whether the last action produced evidence the run had not already seen."""
-        if fresh:
-            self.progress.note_new_evidence()
 
     async def on_check_permission(self, agent: Any, input_kwargs: dict[str, Any], next_handler: Any) -> Any:
         """The SDK's pre-execution hook: allow the accepted action, deny anything else.
@@ -157,6 +166,14 @@ class ActionGateMiddleware(MiddlewareBase):
 
         tool = input_kwargs.get("tool")
         name = getattr(tool, "name", None)
+        if self.stop_reason is not None:
+            # A stop has already been recorded (a budget bound ran out, or a tool layer failed). Denying here is
+            # what makes the SDK **stop asking**: recording the reason alone left the loop reasoning-acting until
+            # the next bound fired, so a run out of tool attempts reported the model-call bound instead
+            # (`docs/agent-harness.md:45` requires the stop to name the bound that actually ran out).
+            return PermissionDecision(
+                behavior=PermissionBehavior.DENY, message=f"the run has stopped: {self.stop_reason}"
+            )
         accepted = self.accepted
         allowed_name = None
         if isinstance(accepted, dict) and accepted.get("kind") == "READ_TOOL":
@@ -195,6 +212,8 @@ class McpToolBridge(ToolBase):
         facts: RunFacts,
         gate: ActionGateMiddleware,
         adapter: AgentScopeModelAdapter,
+        client: Any,
+        guard: Any,
     ) -> None:
         self.name = name
         self.description = f"Read-only investigation tool {name}."
@@ -224,6 +243,12 @@ class McpToolBridge(ToolBase):
         self._facts = facts
         self._gate = gate
         self._adapter = adapter
+        self._client = client
+        #: The run's budget guard, so **every** tool attempt is reserved before it happens. Without this the
+        #: SDK loop enforced the model-call and token bounds but not the 16-attempt bound: a test with
+        #: `tool_attempts=3` observed four executions, which is a bound `docs/agent-spec.md:40` states and the
+        #: C06.4 loop enforced. The gap was found by running the old assertions on the new loop.
+        self._guard: Any = guard
         #: Every call this bridge made, so a test can assert what actually ran.
         self.calls: list[dict[str, Any]] = []
 
@@ -238,6 +263,27 @@ class McpToolBridge(ToolBase):
         from agentscope.tool._response import ToolResultState  # type: ignore[attr-defined]
 
         self.calls.append({"name": self.name, "arguments": dict(kwargs)})
+        # Reserved **before** the call (docs/agent-spec.md:40: 所有attempt计预算). A refusal is recorded as the
+        # run's stop reason and the chunk comes back as an error, which is what makes the *tool-attempt* bound the
+        # one reported: the first version returned an error chunk **without** recording the stop, so the SDK fed
+        # "no attempts left" back to the model, which asked again until the model-call bound fired — a run that ran
+        # out of tool attempts then named the wrong bound (`docs/agent-harness.md:45`).
+        #
+        # The refusal is not raised, and that is deliberate: raising it propagates out of `Toolkit.call_tool`,
+        # whose exception handler reads `mcp.shared.exceptions.McpError` — an mcp **1.x** name that mcp 2.2.0
+        # renamed, so the handler itself raises `AttributeError` and the budget reason is lost. That is finding #4
+        # in `reports/agentscope-migration/compatibility.md` §3, met live rather than in a probe.
+        try:
+            self._guard.guard.reserve_tool_attempt()
+        except BudgetExhaustedError as exhausted:
+            self._gate.note_stop(exhausted.reason_code)
+            self._adapter.trajectory.append(
+                {"action": self.name, "outcome": "REFUSED", "detail": exhausted.reason_code}
+            )
+            return ToolChunk(
+                content=[TextBlock(type="text", text=f"{exhausted.reason_code}: {exhausted}")],
+                state=ToolResultState.ERROR,
+            )
         try:
             # `to_thread` because the project's executor is synchronous by construction (it bridges a private
             # event loop for MCP stdio); calling it inline would block the SDK's loop.
@@ -247,7 +293,7 @@ class McpToolBridge(ToolBase):
                 )
             )
         except Exception as failure:  # noqa: BLE001 - the executor's failure is the run's fact to record
-            self._gate.stop_reason = REASON_TOOL_FAILED
+            self._gate.note_stop(REASON_TOOL_FAILED)
             self._adapter.trajectory.append(
                 {"action": self.name, "outcome": "FAILED", "detail": str(failure)[:300]}
             )
@@ -257,6 +303,7 @@ class McpToolBridge(ToolBase):
             )
 
         fresh = self._adapter.record_observation(observation)
+        self._client.note_observation(observation)
         self._gate.note_evidence(fresh)
         self._adapter.trajectory.append(
             {
@@ -285,7 +332,7 @@ class AgentScopeRunner:
     tools: ToolExecutor
     facts: RunFacts
     budget: RunBudget = field(default_factory=RunBudget)
-    system: str = SYSTEM_PROMPT
+    system: str = HARNESS_SYSTEM_PROMPT
     max_iters: int | None = None
 
     def run(self) -> RunResult:
@@ -299,10 +346,14 @@ class AgentScopeRunner:
     async def _drive(self) -> RunResult:
         gate = ActionGateMiddleware()
         guard = _BudgetHook(self)
-        model = AgentScopeModelAdapter(_GateAwareClient(self, gate), system=self.system)
+        client = _GateAwareClient(self, gate)
+        model = AgentScopeModelAdapter(client, system=self.system)
+        # The adapter settles real output usage through this, so the cumulative output meter reflects what the
+        # provider produced rather than the ceiling reserved before each call.
+        model.note_output = guard.note_output_tokens  # type: ignore[attr-defined]
         toolkit = Toolkit()
         for name in sorted(WHITELIST):
-            await toolkit.add_tool(McpToolBridge(name, self.tools, self.facts, gate, model))
+            await toolkit.add_tool(McpToolBridge(name, self.tools, self.facts, gate, model, client, guard))
 
         agent = Agent(
             name="resolveflow-agent",
@@ -320,6 +371,8 @@ class AgentScopeRunner:
         except _ScriptExhausted:
             return _outcome(REASON_COMPLETED, gate, model, guard, completed=True)
 
+        # A recorded stop ends the run. Without the loop's own check the model would be asked again after a budget
+        # refusal, and the run would stop on whichever bound happened to fire next.
         if gate.stop_reason is not None:
             return _outcome(gate.stop_reason, gate, model, guard, completed=False)
         return _outcome(REASON_COMPLETED, gate, model, guard, completed=True)
@@ -337,18 +390,33 @@ class _BudgetHook(MiddlewareBase):
         self.guard = BudgetGuard(runner.budget, active_deadline=runner.facts.deadline())
 
     async def on_model_call(self, agent: Any, input_kwargs: dict[str, Any], next_handler: Any) -> Any:
-        messages = input_kwargs.get("messages") or []
-        tools = input_kwargs.get("tools")
-        model = getattr(agent, "model", None)
-        estimated = 0
-        if model is not None and hasattr(model, "count_tokens"):
-            estimated = await model.count_tokens(messages, tools)
-        # Output is reserved at the per-step cap, not zero: the answer's length is unknowable beforehand, and
-        # reserving zero would make the cumulative output cap unenforceable (the C06.4① lesson, kept).
-        self.guard.reserve_model_call(
-            input_tokens=estimated, output_tokens=self.guard.budget.step_output_tokens
-        )
+        """Reserve one request, then let it through.
+
+        **``count_tokens`` must not be called from here.** The first version did, to size the reservation from the
+        real input, and the SDK's ``ChatModelBase.__call__`` calls ``count_tokens`` *before* ``_call_api`` — so the
+        hook ran again for the same request and every request was reserved **twice**. The symptom was a run hitting
+        ``BUDGET_OUTPUT_TOKENS`` at half the requests it should have been allowed: a budget that reports the wrong
+        bound and spends twice what it says.
+
+        The input size is measured from the messages and tools this hook was handed, which are the objects the
+        provider would receive. It is an estimate (characters over four) and a *conservative* one, which is the
+        direction `docs/agent-harness.md:37` requires: an estimate that was too small would let a request past a
+        cap that should have refused it.
+        """
+        estimated = _estimate_input_tokens(input_kwargs)
+        # **The step cap is a ceiling, not a meter.** The first version reserved `step_output_tokens` through
+        # `reserve_model_call`, which charges the *cumulative* output allowance — so the spec's 4000-token
+        # allowance was consumed after four requests and every budget test stopped on `BUDGET_OUTPUT_TOKENS`
+        # instead of the bound it named. The two are different things: the per-step cap bounds one request, while
+        # the cumulative cap meters what the provider actually produced. So one model call is reserved here, the
+        # input estimate is charged, and the **real** output usage is added after the answer arrives
+        # (`note_output_tokens`), which is also how `docs/agent-spec.md:44` describes it — 成功按usage结算.
+        self.guard.reserve_model_call_without_output(input_tokens=estimated)
         return await next_handler()
+
+    def note_output_tokens(self, tokens: int) -> None:
+        """Settle a request's **actual** output against the cumulative meter."""
+        self.guard.spend.output_tokens += max(0, tokens)
 
 
 class _GateAwareClient:
@@ -362,12 +430,37 @@ class _GateAwareClient:
     def __init__(self, runner: AgentScopeRunner, gate: ActionGateMiddleware) -> None:
         self._runner = runner
         self._gate = gate
-        #: How many decisions the script held, for the "script exhausted" end.
-        self.decisions = 0
+        #: Every observation this run has made, in order, so the packet can be built from what is *known*
+        #: rather than from how the conversation happened to go (`docs/agent-harness.md:22`).
+        self.observations: list[Any] = []
+        #: How many turns have been asked for, for the packet's `step`.
+        self.turns = 0
+
+    def note_observation(self, observation: Any) -> None:
+        """Record one tool observation; the bridge calls this as it produces them."""
+        self.observations.append(observation)
 
     def decide(self, *, system: str, messages: list[Msg]) -> Any:
-        reply = self._runner.model.decide(system=system, messages=messages)
-        self.decisions += 1
+        if self._gate.stop_reason is not None:
+            # The run has already stopped, so the model is **not asked again**. Without this the SDK kept
+            # reasoning-acting after a budget refusal and the run ended on whichever bound fired next, naming the
+            # wrong one (`docs/agent-harness.md:45`). Returning a terminal decision ends the reply without a
+            # provider call — and without inventing a decision, since the stop reason is already recorded.
+            return ModelReply(
+                decision={
+                    "kind": "ESCALATE",
+                    "reason_codes": ["STOPPED"],
+                    "summary": f"the run stopped: {self._gate.stop_reason}",
+                    "reasoning": "the harness stopped this run",
+                },
+                usage=ModelUsage(),
+                mode="harness",
+                model_alias=None,
+            )
+        self.turns += 1
+        reply = self._runner.model.decide(
+            system=system, messages=_with_current_packet(messages, self._runner, self.observations, self.turns)
+        )
         decision = self._gate.check(reply.decision)
         if decision is None:
             # Refused: the run stops, and the adapter is given a terminal text so the SDK ends the reply rather
@@ -401,6 +494,71 @@ def _starting_packet(runner: AgentScopeRunner) -> dict[str, Any]:
         },
         "observations": [],
     }
+
+
+def _estimate_input_tokens(input_kwargs: dict[str, Any]) -> int:
+    """A conservative estimate of one request's input, from the serialised messages and tool schemas.
+
+    Four characters per token is roughly right for English and pessimistic for JSON keys, and pessimism is the
+    direction that matters. Both parts are counted because `docs/agent-harness.md:37` requires the count to cover
+    the final system prompt, the messages **and** the tool schemas — the schemas are the part that grows as tools
+    are added, so counting only the messages would undercount exactly what changes.
+    """
+    import json
+
+    messages = input_kwargs.get("messages") or []
+    tools = input_kwargs.get("tools")
+    rendered = json.dumps(
+        [
+            {"role": getattr(message, "role", None), "content": [str(block) for block in message.get_content_blocks()]}
+            for message in messages
+        ],
+        ensure_ascii=False,
+        default=str,
+    )
+    if tools:
+        rendered += json.dumps(tools, ensure_ascii=False, default=str)
+    return max(1, len(rendered) // 4)
+
+
+def _with_current_packet(
+    messages: list[Msg], runner: AgentScopeRunner, observations: list[Any], turn: int
+) -> list[Msg]:
+    """The conversation with its harness packet replaced by one built from what is known now.
+
+    Rebuilt rather than appended: appending would make the prompt depend on the transcript''s history, so two paths
+    that observed the same things would send different inputs and a saved input hash would describe neither. The
+    packet goes **first**, where the opening one was, and the SDK''s own turns stay after it untouched.
+
+    This is the C06.4 rule that a run''s input is a function of the evidence. Without it the second turn''s input
+    carried no observations at all — ``test_the_observation_reaches_the_next_model_call`` failed on the first SDK
+    version — which is exactly the kind of semantic loss that running the old assertions on the new loop exists to
+    catch.
+    """
+    rebuilt = messenger_message(_packet_of(runner, observations, turn))
+    rest = [
+        message
+        for message in messages
+        # Drop the opening packet: the rebuilt one replaces it, and leaving both would show the model two
+        # contradictory views of the run.
+        if not (message.name == "harness" and message.role == "user")
+    ]
+    return [rebuilt, *rest]
+
+
+def _packet_of(runner: AgentScopeRunner, observations: list[Any], turn: int) -> dict[str, Any]:
+    """The packet for one turn: the run''s facts, the budget position, and every observation so far."""
+    packet = _starting_packet(runner)
+    packet["step"] = turn
+    packet["budget"] = {
+        "tool_attempts_made": len(observations),
+        "tool_attempts_allowed": runner.budget.tool_attempts,
+        "local_reads_made": 0,
+        "local_reads_allowed": runner.budget.local_reads,
+        "no_progress_rounds": 0,
+    }
+    packet["observations"] = [observation.model_dump(mode="json") for observation in observations]
+    return packet
 
 
 def _outcome(

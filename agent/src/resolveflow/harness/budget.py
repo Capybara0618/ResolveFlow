@@ -158,6 +158,11 @@ class BudgetGuard:
     def reserve_model_call(self, *, input_tokens: int, output_tokens: int) -> None:
         """Reserve one model call, checking every cap it is subject to before counting it.
 
+        ``output_tokens`` here is **settled output** -- what a provider actually produced. A caller that knows only
+        a per-request *ceiling* wants :meth:`reserve_model_call_without_output` and then
+        :meth:`note_output_tokens`; charging a ceiling as if it were usage is how a run stops on the output bound
+        after a few requests while having produced almost nothing.
+
         The order matters for the message rather than the outcome: the *per-step* cap is reported first because
         it is a fact about this request, while the cumulative caps are facts about the run. A caller told
         "step too large" can shrink the request; one told "run out of input tokens" cannot.
@@ -214,6 +219,56 @@ class BudgetGuard:
         self.spend.model_calls += 1
         self.spend.input_tokens += input_tokens
         self.spend.output_tokens += output_tokens
+
+    def reserve_model_call_without_output(self, *, input_tokens: int) -> None:
+        """Reserve one model call against the input and call caps, leaving output for settlement.
+
+        The distinction this exists for: a **per-step output cap is a ceiling on one request**, while the
+        cumulative output cap is a **meter of what was produced**. An SDK loop knows the ceiling before the call
+        and the real usage only after, so charging the ceiling to the meter spends the whole output allowance on
+        requests that may return nothing -- found when the SDK-driven loop reported ``BUDGET_OUTPUT_TOKENS`` for
+        runs whose scripted model produced no tokens at all.
+
+        The input caps are enforced here because the input is known before the call; :meth:`note_output_tokens`
+        settles what actually came back.
+        """
+        if input_tokens < 0:
+            raise ValueError("token counts cannot be negative")
+        self.check_deadline()
+        if input_tokens > self.budget.input_tokens:
+            raise BudgetExhaustedError(
+                REASON_BUDGET_STEP_TOKENS,
+                f"this step asks for {input_tokens} input tokens, over the whole run's "
+                f"{self.budget.input_tokens} (docs/agent-harness.md:37)",
+            )
+        if input_tokens > self.budget.step_input_tokens:
+            raise BudgetExhaustedError(
+                REASON_BUDGET_STEP_TOKENS,
+                f"this step asks for {input_tokens} input tokens, over the {self.budget.step_input_tokens} cap "
+                "for one step (docs/agent-harness.md:37)",
+            )
+        if self.spend.model_calls + 1 > self.budget.model_calls:
+            raise BudgetExhaustedError(
+                REASON_BUDGET_MODEL_CALLS,
+                f"the run has made {self.spend.model_calls} of its {self.budget.model_calls} model calls "
+                "(docs/agent-spec.md:40)",
+            )
+        if self.spend.input_tokens + input_tokens > self.budget.input_tokens:
+            raise BudgetExhaustedError(
+                REASON_BUDGET_INPUT_TOKENS,
+                f"the run has used {self.spend.input_tokens} of its {self.budget.input_tokens} input tokens and "
+                f"this step asks for {input_tokens} more",
+            )
+        self.spend.model_calls += 1
+        self.spend.input_tokens += input_tokens
+
+    def note_output_tokens(self, tokens: int) -> None:
+        """Settle a request's actual output against the cumulative meter.
+
+        Monotonic: usage that arrived is spent, and no later call can un-spend it
+        (``docs/agent-spec.md:44``: UNKNOWN 保守保留估计，不在重启后清零).
+        """
+        self.spend.output_tokens += max(0, tokens)
 
     def reserve_tool_attempt(self) -> None:
         """Reserve one external tool/search attempt. Every attempt counts, refusals and retries included."""
