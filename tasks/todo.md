@@ -132,6 +132,12 @@
   - 验收：真实官方stdio与真实Java读接口；每次使用当前run凭据，取凭据失败不降级；错误Observation/分页计数与scope反例仍成立；不把新循环接通当作run worker/业务闭环已完成。
   - 验证：Python集成、真实Java工具e2e、契约与`pwsh -File scripts/verify.ps1 -Suite all-offline`；改Java时跑对应测试及spotless；失败/跳过不算通过。
   - 实际记录：未执行。通过后更新C06剩余验收与版本依据，继续C07/C08；不重复实现已存在的控制面/回调。
+  - 实际记录（AS02.3 新循环接真实 MCP 与 Java，2026-09-25，**已完成；端到端真的跑通了**）：
+    - **完成内容**：`scripts/e2e_harness_java_tools.py` 改指向 `AgentScopeRunner`（词汇从 `vocabulary`）；修好三个让它**根本跑不起来**的驱动缺陷（见下）；`create_demo_line` 为本次铸的行补上 **shipment/shipment_event**。
+    - **真实端到端结果（PASSED 24.1s，报告 `reports/c064-e2e/20260925-155214-e2e-harness-java-tools.txt`）**：起真 case-service(8083)+commerce-service(8081)、真 MySQL；公开 API 建单拿到真 case/revision；从 Case 取**本次 run 的凭据**（`sub=agent-service scope=commerce:read policy:read line_id/run_id/input_revision` 全部与 run 一致）；**五个工具全部经真 MCP stdio 读真 Java**：`get_order_context`(amount=2599 与库一致)、`get_shipment_trace`(4 事件、`source_version=5` —— 是**最高版本**而非事件数 4，正是 C06.2a 种子里跳号要钉的性质)、`get_refund_status`(FREE)、`get_case_evidence`(case_id 与 revision 一致)、`get_policy_manifest`(**从 `bundles[0].manifest_hash` 读出 64 字符**——C06.4⑤ 修的那处形状错，现在在真 Java 上验证)。轨迹 5 次 OBSERVED + PROPOSE(MANUAL_REVIEW)，`reason=COMPLETED model_calls=6 tool_attempts=5`，`modes={'mock'}`。每条引用都有版本与 64 字符 hash、且都不是 URL。
+    - **过程中真实的失败与修复（三个都是驱动缺陷，不是被测代码的）**：① **报告打印把整轮跑废掉**：`Report.finish` 直接 `print` 含 `↔` 的文本，而本机控制台是 GBK → `UnicodeEncodeError`，在**报告已写完**之后抛栈并以非零退出。改为先落 UTF-8 文件、再按 stdout 编码以 `errors="replace"` 写字节。② **就绪等待撑不住"端口还没起"**：`wait_health` 让 `URLError` 直接冒泡，于是 case-service 还在启动时 driver 9 秒就死了，还被报成"driver 自己失败"。改为把"连不上"当作启动中的正常状态，并在超时时打印最后一次原因。③ **铸的行没有物流**：`V6` 的种子只覆盖 7001/7002/7101/7201，新铸的行 `get_shipment_trace` 返回 `NOT_FOUND`——那是**诚实**的答案（"这行没有轨迹"是真事实），但意味着五个工具只验了四个走成功路径。改为铸造时一并写入 4 事件（版本 1/2/4/5，**跳号**），于是 `limit=3` 读到 3 条并给出续页，run 级两页预算也因此可观测；成功路径全覆盖。
+    - **命令与结果（都真跑）**：`& 'agent\.venv\Scripts\python.exe' 'scripts\e2e_harness_java_tools.py'` → **RESULT: PASSED (24.1s)**；`pytest agent/tests` → **779 passed, 9 skipped**；`ruff`（agent/）→ **All checks passed**；`mypy`（strict）→ **9 errors (checked 40)**，仍是那 9 个既有错误。
+    - **未做/未跑（不得读成通过）**：**工具凭据的 scope 仍无人强制**——`ToolCredentialService` 铸造 `commerce:read policy:read`，但 Java 的 `ServiceTokenFilter` 只校验 aud/签名、**不校验 scope**，本步**没有**为此加反例探针（规格要求"如Java scope仍缺失另拆安全子步，不把缺口豁免"，因此这是本步之后**立刻**要开的安全子步，不是已解决项）；`scripts/verify.ps1 -Suite all-offline` 本次未跑；Java 门未跑（本步只改 Python 驱动与文档）；**模型仍是 mock**——`modes={'mock'}` 写进了报告，mock 全绿**不等于** live/H1；**run 侧 worker 与业务闭环仍未接**（本步证明的是"新循环经真 MCP 读真 Java"，不是"run 被自动跑起来并回调"）。
 
 ### 迁移完成后的原任务承接
 

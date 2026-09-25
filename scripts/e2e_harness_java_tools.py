@@ -22,7 +22,7 @@ for: it is the difference between "the tools work" and "the tools work against t
 **What is real here.** Two real Java processes (case-service on 8083, commerce-service on 8081) against the real
 MySQL, a real case opened through the public API, a real run binding, a real run-scoped tool credential fetched
 over `POST /internal/v1/runs/{run_id}/tool-credential`, a real MCP server subprocess per read, and the real
-`HarnessRunner` loop driving them. The only stand-in is the **model**, which is a script
+`AgentScopeRunner` loop driving them. The only stand-in is the **model**, which is a script
 (`MockModelClient`): choosing the actions by hand is what makes this a test of the plumbing rather than a test of
 a model, and `docs/agent-harness.md:9`'s autonomy claim is C08's subject, not this step's.
 
@@ -172,16 +172,34 @@ def start(name: str, args: list[Any], env: dict, report: "base.Report", log_dir:
 
 
 def wait_health(name: str, url: str, proc, report: "base.Report", timeout: float = 180.0) -> bool:
+    """Wait for a service to answer its health route, tolerating "not listening yet".
+
+    A service that has not finished binding its port refuses the connection, and `request_json` reports that as an
+    `URLError`. The first version let it propagate, so the driver died on the *first* probe — the run aborted nine
+    seconds in, before case-service had finished starting, and the exception was reported as "the driver itself
+    failed" rather than as "the service was slow". A readiness wait that cannot survive a closed port is not a
+    readiness wait.
+    """
     deadline = time.time() + timeout
+    last = ""
     while time.time() < deadline:
-        status, _ = request_json(url)
+        try:
+            status, _ = request_json(url)
+        except Exception as unreachable:  # noqa: BLE001 - "no port yet" is the expected state while starting
+            last = f"{type(unreachable).__name__}: {unreachable}"
+            if proc.poll() is not None:
+                report.note(f"{name} exited early with code {proc.returncode}; see its log")
+                return False
+            time.sleep(0.5)
+            continue
         if status == 200:
             return True
+        last = f"status {status}"
         if proc.poll() is not None:
             report.note(f"{name} exited early with code {proc.returncode}; see its log")
             return False
         time.sleep(0.5)
-    report.note(f"{name} did not answer {url} within {timeout:.0f}s")
+    report.note(f"{name} did not answer {url} within {timeout:.0f}s (last: {last})")
     return False
 
 
@@ -195,6 +213,13 @@ def create_demo_line(amount_minor: int, report: "base.Report") -> str:
     The ``line_refund`` row is not decoration: ``RefundStatusReadService`` reads
     ``line_refund JOIN order_line``, so a line without a slot row is reported as "no order line", which reads as
     a tool bug rather than as the missing row it is.
+
+    **The shipment rows too**, and they are the lesson of the first real run of this driver: ``V6``'s seed only
+    covers lines 7001/7002/7101/7201, so a freshly minted line has no shipment and ``get_shipment_trace`` answered
+    ``NOT_FOUND`` — honestly, since "this line has no trace" is a real answer, but it meant four of the five tools
+    were exercised and the fifth only on its failure path. So the mint brings the trace the tool reads, with four
+    events and a **gap in the version numbers** (1, 2, 4) so that ``source_version`` being the highest version
+    rather than the event count stays observable — the same property C06.2a's seed asserts.
     """
     order_id = str(uuid.uuid4())
     line_id = f"9{datetime.now().strftime('%H%M%S')}"
@@ -214,9 +239,22 @@ def create_demo_line(amount_minor: int, report: "base.Report") -> str:
         f" version) VALUES ('{order_id}', {amount_minor}, 0, 0, 1);"
         " INSERT INTO commerce_db.line_refund (line_id, state, operation_id, version, updated_at)"
         f" VALUES ('{line_id}', 'FREE', NULL, 1, '{now}');"
+        # A synthetic trace to read: LOST, **four** events with versions 1/2/4/5, so a `limit=3` read returns
+        # three and offers a continuation — which is what makes the run's two-page budget observable — and so the
+        # snapshot's `source_version` (5) is the highest version rather than the event count (4).
+        " INSERT INTO commerce_db.shipment (line_id, status, carrier_conclusion, source_version)"
+        f" VALUES ('{line_id}', 'LOST', 'LOST', 5);"
+        " INSERT INTO commerce_db.shipment_event (line_id, code, occurred_at, source_version) VALUES"
+        f" ('{line_id}', 'SHIPMENT_CREATED', '{now}', 1),"
+        f" ('{line_id}', 'IN_TRANSIT', '{now}', 2),"
+        f" ('{line_id}', 'EXCEPTION_DELAYED', '{now}', 4),"
+        f" ('{line_id}', 'NO_SCAN_7D', '{now}', 5);"
         "COMMIT;"
     )
-    report.note(f"minted order {order_id} line {line_id} for {amount_minor} minor (sku {sku}-H5-{line_id})")
+    report.note(
+        f"minted order {order_id} line {line_id} for {amount_minor} minor (sku {sku}-H5-{line_id},"
+        " with a 4-event synthetic shipment whose source_version is 5 because the seed skips 3)"
+    )
     LINE_IDS["line"] = line_id
     LINE_IDS["order"] = order_id
     return line_id
@@ -432,7 +470,7 @@ def agent_run_id_for(case_id: str, input_revision: int) -> str:
 
 def drive_harness(report: "base.Report", case_id: str, input_revision: int, run_id: str, line_id: str,
                   credential_token: str, amount: int):
-    """Run the real HarnessRunner over the real MCP tool server, pointed at the running Java.
+    """Run the real SDK-driven loop over the real MCP tool server, pointed at the running Java.
 
     Returns ``(RunResult, executor)``, or ``None`` if the loop never got going. Everything here is imported from
     the real package rather than reimplemented: the point is to exercise the shipped code, and a script that
@@ -441,7 +479,8 @@ def drive_harness(report: "base.Report", case_id: str, input_revision: int, run_
     sys.path.insert(0, str(AGENT_SRC))
     from resolveflow.harness.mcp_client import McpToolExecutor
     from resolveflow.harness.model import MockModelClient
-    from resolveflow.harness.runner import HarnessRunner, RunFacts
+    from resolveflow.harness.sdk_runner import AgentScopeRunner
+    from resolveflow.harness.vocabulary import RunFacts
     from resolveflow.tools.credential import credential_source
 
     def read(tool: str, **arguments: Any) -> dict[str, Any]:
@@ -494,7 +533,7 @@ def drive_harness(report: "base.Report", case_id: str, input_revision: int, run_
     )
     started = time.time()
     try:
-        result = HarnessRunner(model=model, tools=tool, facts=facts).run()
+        result = AgentScopeRunner(model=model, tools=tool, facts=facts).run()
     finally:
         tool.close()
 

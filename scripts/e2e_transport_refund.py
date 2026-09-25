@@ -219,8 +219,29 @@ class Report:
         self.lines.append("")
         self.lines.append(f"RESULT: {verdict} ({time.time() - self.started:.1f}s)")
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        # The file is the evidence and is always UTF-8, so a console that cannot render a character must not
+        # change what is recorded.
         self.path.write_text("\n".join(self.lines) + "\n", encoding="utf-8")
-        print("\n".join(self.lines))
+        # The console is a different story: this process may be attached to a GBK code page (the default on this
+        # machine), and printing a character it cannot encode raises `UnicodeEncodeError` — which aborted a run
+        # *after* everything had been written, turning a finished report into a traceback and a non-zero exit.
+        # Writing encoded bytes with `errors="replace"` keeps the run's exit status meaningful; the console may
+        # show `?` where the file holds the real character.
+        text = "\n".join(self.lines)
+        buffer = getattr(sys.stdout, "buffer", None)
+        if buffer is None:  # pragma: no cover - a replaced stdout (pytest capture) has no buffer
+            print(text)
+            return
+        for encoding in (getattr(sys.stdout, "encoding", None), "utf-8"):
+            if not encoding:
+                continue
+            try:
+                buffer.write(text.encode(encoding, errors="replace") + b"\n")
+                buffer.flush()
+                return
+            except (UnicodeEncodeError, LookupError, OSError):  # pragma: no cover - falls through
+                continue
+        print(text.encode("ascii", errors="replace").decode("ascii"))
 
 
 # --------------------------------------------------------------------------- the run
