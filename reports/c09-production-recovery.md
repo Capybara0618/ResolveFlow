@@ -11,3 +11,7 @@ RunLease保留独立pool checkout承载session advisory lock，领取与fence递
 ## 领域journal小步
 
 迁移009记录模型结算后spend和工具调用前后spend，工具结果/manifest绑定同事务校验run fence。重复已保存工具不重复计预算；未知工具保留占用并最多两次额外attempt。journal及已有预占/结果回归通过，具体命令 `pytest tests/integration/test_run_journal.py tests/integration/test_recovery_model_result.py tests/integration/test_recovery_budget_store.py -q -p no:cacheprovider --tb=short`；此处不代表SDK生产接入。SDK重建接线正在下一小步实施，未提交部分保留，不夹入本小步提交。
+
+## 同SDK重建小步
+
+现有AgentScopeRunner接入DurableRun；按稳定逻辑call_id重建已保存模型/工具回复、历史上下文和SDK控制状态，实际预算保留原PG账。每次发送前冻结精确请求，重建不一致拒绝；首个恢复新推理使用总12次内的恢复分区。SDK状态可校验但不声称直接load后续跑：本步使用规范允许的领域记录重建路径。三个故障窗口真实PG各5次通过，UNKNOWN原attempt不退且最多一次重试；已保存工具外部读取总计一次。相关SDK循环/检索76 passed；全量Ruff通过，新代码strict mypy通过。生产worker接入、跨进程和H4最终门禁仍待后续小步。

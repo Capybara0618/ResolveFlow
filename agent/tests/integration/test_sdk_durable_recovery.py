@@ -1,0 +1,41 @@
+from dataclasses import replace
+
+import pytest
+
+from resolveflow.harness.model import MockModelClient
+from resolveflow.harness.sdk_runner import AgentScopeRunner
+from resolveflow.runtime.db import Database
+from resolveflow.runtime.durable import DurableRun
+from tests.integration.test_recovery_budget_store import _store
+from tests.integration.test_run_store import RUN_ID
+from tests.unit.test_harness_loop import FACTS, StubTools, observation, propose
+
+
+class Crash(BaseException):
+    pass
+
+
+@pytest.mark.parametrize("window", ["before_model_saved", "after_model_saved", "after_tool_saved"])
+@pytest.mark.parametrize("repeat", range(5))
+def test_same_sdk_reconstruction_reuses_saved_calls(agent_db: Database, window: str, repeat: int) -> None:
+    _store(agent_db)
+    facts = replace(FACTS, run_id=RUN_ID, fence=1, lease_owner="test-worker")
+    script = [{"kind": "READ_TOOL", "tool_name": "get_order_context", "arguments": {}},
+              propose("MANUAL_REVIEW", summary="synthetic manual review")]
+    tools = StubTools(observation())
+
+    def crash(stage: str) -> None:
+        if stage == window:
+            raise Crash()
+
+    first = AgentScopeRunner(model=MockModelClient(script=script), tools=tools, facts=facts,
+                             durability=DurableRun(agent_db, facts, fault=crash))
+    with pytest.raises((Crash, BaseExceptionGroup)):
+        first.run()
+    resumed_tools = StubTools() if window == "after_tool_saved" else StubTools(observation())
+    resumed = AgentScopeRunner(model=MockModelClient(script=script), tools=resumed_tools, facts=facts,
+                               durability=DurableRun(agent_db, facts))
+    result = resumed.run()
+    assert result.completed and result.decision.recommended_action == "MANUAL_REVIEW"
+    assert len(tools.calls) + len(resumed_tools.calls) == 1
+    assert result.spend.model_calls == (3 if window == "before_model_saved" else 2)

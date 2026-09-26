@@ -119,6 +119,8 @@ class LocalReadBridge(ToolBase):
         # (`budget.reserve_local_read`'s own docstring names both actions). Reserving neither was the C06→C07 gap;
         # reserving only one would make the other bound unreachable and its report meaningless.
         try:
+            if self._client.durability is not None:
+                self._client.durability.before_tool(self.name, dict(kwargs), self._guard)
             self._guard.guard.reserve_tool_attempt()
             self._guard.guard.reserve_local_read()
         except BudgetExhaustedError as exhausted:
@@ -137,7 +139,11 @@ class LocalReadBridge(ToolBase):
             )
 
         try:
-            observation = self._read(**kwargs)
+            observation = (
+                self._client.durability.observe(self.name, dict(kwargs), lambda: self._read(**kwargs),
+                                                self._guard, local=True)
+                if self._client.durability is not None else self._read(**kwargs)
+            )
         except self.refusal_types() as refusal:
             return self._refuse(refusal, **kwargs)
         except Exception as failure:  # noqa: BLE001 - the failure is the run's fact to record

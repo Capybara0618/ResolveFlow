@@ -136,6 +136,7 @@ class MockModelClient:
     usage: ModelUsage = field(default_factory=ModelUsage)
     mode: str = MODEL_MODE_MOCK
     model_alias: str | None = "mock-scripted"
+    use_context_step: bool = False
     #: Every packet handed to :meth:`decide`, in order, parsed from the last message.
     packets: list[dict[str, Any]] = field(default_factory=list)
     #: Every **structured context** handed to :meth:`decide`, in order (C08.1). Separate from ``packets`` because
@@ -199,8 +200,9 @@ class MockModelClient:
         self.packets.append(packet)
         if not self.script:
             raise AssertionError("the scripted model was asked to decide but its script is empty")
-        if self.calls <= len(self.script):
-            entry = self.script[self.calls - 1]
+        position = int(packet.get("step", self.calls)) if self.use_context_step else self.calls
+        if position <= len(self.script):
+            entry = self.script[position - 1]
         elif self.repeat_last:
             entry = self.script[-1]
         else:

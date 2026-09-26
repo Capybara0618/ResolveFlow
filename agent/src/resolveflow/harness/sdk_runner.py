@@ -389,6 +389,8 @@ class McpToolBridge(ToolBase):
         # renamed, so the handler itself raises `AttributeError` and the budget reason is lost. That is finding #4
         # in `reports/agentscope-migration/compatibility.md` §3, met live rather than in a probe.
         try:
+            if self._client.durability is not None:
+                self._client.durability.before_tool(self.name, dict(kwargs), self._guard)
             self._guard.guard.reserve_tool_attempt()
         except BudgetExhaustedError as exhausted:
             self._gate.note_stop(exhausted.reason_code)
@@ -407,8 +409,12 @@ class McpToolBridge(ToolBase):
         try:
             # `to_thread` because the project's executor is synchronous by construction (it bridges a private
             # event loop for MCP stdio); calling it inline would block the SDK's loop.
+            def invoke() -> Any:
+                return self._executor.call_tool(run_id=self._facts.run_id, tool_name=self.name, arguments=dict(kwargs))
+
             observation = await anyio.to_thread.run_sync(
-                lambda: self._executor.call_tool(run_id=self._facts.run_id, tool_name=self.name, arguments=dict(kwargs))
+                lambda: self._client.durability.observe(self.name, dict(kwargs), invoke, self._guard, local=False)
+                if self._client.durability is not None else invoke()
             )
         except Exception as failure:  # noqa: BLE001 - the executor's failure is the run's fact to record
             self._gate.note_stop(REASON_TOOL_FAILED)
@@ -484,6 +490,7 @@ class AgentScopeRunner:
     #: semantics: it is the object the loop assembled, and a snapshot needs the packet rather than a way to
     #: recompute it.
     last_client: Any = None
+    durability: Any = None
     #: The run's frozen Harness manifest (C08.1b), built on first use and then reused for every step. Memoised
     #: rather than rebuilt per packet because "frozen" is the property that matters: ``docs/agent-harness.md:35``
     #: forbids silently changing the manifest on resume, and a manifest recomputed each step could differ from the
@@ -537,6 +544,8 @@ class AgentScopeRunner:
         return anyio.run(self._drive)
 
     async def _drive(self) -> RunResult:
+        if self.durability is not None:
+            self.durability.bind(self)
         gate = ActionGateMiddleware()
         # Two-phase construction, because the budget hook and the client each need the other: the hook reserves for
         # the request *the client assembles*, and the client needs the hook's counters for the packet's budget
@@ -667,6 +676,8 @@ class _BudgetHook(MiddlewareBase):
         # here and assembling later — would give the ledger and the provider two different numbers for one request,
         # which is what `docs/agent-harness.md:37` asks to avoid. An `OverflowRefusedError` from this call is left
         # to propagate: it is not a budget exhaustion, and it carries the reason code the outcome must report.
+        if self._runner.durability is not None:
+            self._runner.durability.before_model(agent, self)
         self._client.begin_turn()
         packet = self._client.prepare_packet(input_kwargs.get("messages") or [])
         if packet is not None:
@@ -697,6 +708,7 @@ class _GateAwareClient:
 
     def __init__(self, runner: AgentScopeRunner, gate: ActionGateMiddleware, guard: Any) -> None:
         self._runner = runner
+        self.durability = runner.durability
         self._gate = gate
         #: The run's budget guard, so the packet the model is shown reports the *same* counters the refusals and
         #: the outcome do. Passed in rather than read off the gate: the gate does not own the budget, and giving
@@ -864,7 +876,7 @@ class _GateAwareClient:
             #  * a **script** is handed the run's structured view, which is where the cursor of a previous page and
             #    the budget position live. Those are facts about the run rather than prose for a provider, and the
             #    C06.4 packet is their existing rendering.
-            reply = self._runner.model.decide(
+            request = dict(
                 system="",  # P0 already carries the system prompt and action schema.
                 messages=_messages_of_packet(packet),
                 context=_packet_of(self._runner, self._guard, self.observations, self.turns),
@@ -872,12 +884,18 @@ class _GateAwareClient:
                 max_output_tokens=self._guard.output_ceiling,
             )
         else:
-            reply = self._runner.model.decide(
+            request = dict(
                 system=system,
                 messages=self.legacy_messages,
                 max_output_tokens=self._guard.output_ceiling,
             )
+        reply = (
+            self._runner.durability.decide(self._runner.model, self._guard, request)
+            if self._runner.durability is not None else self._runner.model.decide(**request)
+        )
         self._guard.guard.settle_model_output(reply.usage.output_tokens, estimated=reply.usage.estimated)
+        if self._runner.durability is not None:
+            self._runner.durability.after_model(self._guard)
         decision = self._gate.check(reply.decision)
         if decision is None:
             if self._gate.repair_message is not None:
