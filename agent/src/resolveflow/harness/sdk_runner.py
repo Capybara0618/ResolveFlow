@@ -615,7 +615,7 @@ class AgentScopeRunner:
             await agent.reply(messenger_message(_starting_packet(self, guard)))
         except BudgetExhaustedError as exhausted:
             if self.durability is not None and self.durability.failure is not None:
-                raise self.durability.failure
+                raise self.durability.failure from None
             return _outcome(exhausted.reason_code, gate, model, guard, completed=False)
         except OverflowRefusedError as overflow:
             # C08.1: the mandatory layers do not fit, so the run stops with the code the specification names rather

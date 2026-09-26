@@ -35,3 +35,9 @@ HTTP服务显式启用常驻worker时默认走RunLease与DurableRun；旧注入�
 ## 工具入口迟到fence拒绝
 
 在已保存模型回复后、进入工具预占之前注入fence递增，RED1 failed复现AgentScope 2.0.8/MCP 2.2旧handler把StaleFenceError遮蔽成AttributeError。MCP/本地桥捕获领域拒绝并停止gate，SDK外传回原异常由worker处理，拒绝不触发外部工具且不写终局。模型保存前、后及工具入口三处均有迟到反例。聚焦60 passed（排除跨进程15项），补充调整后入口反例1 passed；全量Ruff通过。
+
+## 最后迁移竞争与全量基线
+
+源码ac28ee4全量 `pytest tests -q -p no:cacheprovider --tb=short` → **1137 passed / 9 skipped / 1 warning / 245.99s**。strict mypy 59源码仍4个既有文件9个no-any-return，新增代码未引入错误；Ruff抓到一次B904，补`raise ... from None`后重查通过。最后旧C08领取者不带fence、C09接管已增fence的反例RED1 failed（旧PROPOSAL仍能入outbox）→兼容终局分支仅允许数据库fence也为NULL，聚焦37 passed，Ruff通过。最终再跑包含此反例的全量并保存JUnit，不把前述全量当最后修复后结果。
+
+最新真实闭环20260926-232409 **PASSED / 57.3s**，Case acc36759-2b64-4541-9ad5-13379a9cc71d/run f5f25010-7ab6-5851-a1a4-2c557049c15b/line9232418；仍2599分、provider一次、预留0、两条ACCEPTED。之前运行PG读回确认fence1、state_schema_version2、model-0/1/2 SAVED、10+2持久分区普通3/恢复0。模型是显式mock，token零usage不冒充收费成本结果。

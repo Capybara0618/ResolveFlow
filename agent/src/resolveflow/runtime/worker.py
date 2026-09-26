@@ -183,7 +183,7 @@ class RunWorker:
                 UPDATE agent_run
                 SET status = %(status)s, updated_at = %(now)s, version = version + 1
                 WHERE run_id = %(run_id)s AND status = %(running)s AND cancelled_at IS NULL
-                  AND (%(fence)s::bigint IS NULL OR
+                  AND ((%(fence)s::bigint IS NULL AND fence IS NULL) OR
                        (fence=%(fence)s AND lease_owner=%(owner)s AND lease_until>clock_timestamp()))
                 RETURNING run_id
                 """,
