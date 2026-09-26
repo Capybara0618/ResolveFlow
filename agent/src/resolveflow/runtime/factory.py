@@ -24,15 +24,19 @@ which C08.1b-2 pinned).
 
 from __future__ import annotations
 
+import json
 import os
 from collections.abc import Callable, Mapping
+from copy import deepcopy
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Final
 
+from resolveflow.harness.actions import ActionRefusedError, validate_decision
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.live_model import LiveModelClient
 from resolveflow.harness.mcp_client import McpToolExecutor
-from resolveflow.harness.model import MODEL_MODE_LIVE, MODEL_MODE_MOCK, ModelClient
+from resolveflow.harness.model import MODEL_MODE_LIVE, MODEL_MODE_MOCK, MockModelClient, ModelClient
 from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import RunFacts, RunResult
 from resolveflow.policies.index import PolicyIndex
@@ -56,6 +60,7 @@ COMMERCE_BASE_URL_ENV: Final = "RESOLVEFLOW_COMMERCE_BASE_URL"
 TOOL_CREDENTIAL_ENV: Final = "RESOLVEFLOW_TOOL_SERVICE_TOKEN"  # noqa: S105
 POLICY_INDEX_ENV: Final = "RESOLVEFLOW_POLICY_INDEX"
 EMBEDDING_PATH_ENV: Final = "RESOLVEFLOW_EMBEDDING_PATH"
+MOCK_SCRIPT_ENV: Final = "RESOLVEFLOW_MOCK_SCRIPT"
 
 DEFAULT_CASE_BASE_URL: Final = "http://127.0.0.1:8083"
 DEFAULT_COMMERCE_BASE_URL: Final = "http://127.0.0.1:8081"
@@ -87,6 +92,7 @@ class DeploymentConfig:
     #: honestly rather than advertising a tool the gate would refuse (C07.1).
     policy_index: bool = False
     embedding_path: str | None = None
+    mock_script: str | None = None
 
     @classmethod
     def from_environ(cls, environ: Mapping[str, str] | None = None) -> DeploymentConfig:
@@ -121,6 +127,7 @@ class DeploymentConfig:
             service_token=env.get(TOOL_CREDENTIAL_ENV) or None,
             policy_index=(env.get(POLICY_INDEX_ENV) or "").strip() == "1",
             embedding_path=(env.get(EMBEDDING_PATH_ENV) or "").strip() or None,
+            mock_script=(env.get(MOCK_SCRIPT_ENV) or "").strip() or None,
         )
 
 
@@ -139,7 +146,10 @@ def build_investigation(
     callback — without a provider or an MCP subprocess. What is *not* injectable is the mode check: a mock
     deployment has to be told which model to use.
     """
-    _require_mode_is_usable(config, model=model)
+    script = None
+    if config.mode == MODEL_MODE_MOCK and model is None and config.mock_script is not None:
+        script = _mock_script(config.mock_script)
+    _require_mode_is_usable(config, model=model if script is None else MockModelClient(script=script))
 
     # Built once, because the index is a database-backed object; the *clients* below are built per run instead (see
     # the closure). The embedder is only needed when search is offered.
@@ -153,7 +163,11 @@ def build_investigation(
         # A client per run, deliberately: `LiveModelClient` records every request it sent, and a client shared
         # between runs would mix one run's audit trail into another's. It also keeps `calls` per run, which is what
         # the budget counts.
-        client = model if model is not None else _live_client(config)
+        client = (
+            MockModelClient(script=deepcopy(script), repeat_last=False)
+            if script is not None
+            else model if model is not None else _live_client(config)
+        )
         executor = tools if tools is not None else _mcp_executor(config, facts)
         try:
             runner = AgentScopeRunner(
@@ -169,6 +183,29 @@ def build_investigation(
             _close(executor)
 
     return investigate
+
+
+def _mock_script(path: str) -> list[dict[str, Any]]:
+    """Explicit synthetic decisions, bounded and loaded once; each run receives a fresh client/copy."""
+    try:
+        with Path(path).open("rb") as source:
+            raw = source.read(65537)
+        if len(raw) > 65536:
+            raise ValueError("script exceeds 64KiB")
+        value = json.loads(raw)
+        if (
+            not isinstance(value, list)
+            or not 1 <= len(value) <= 12
+            or any(not isinstance(item, dict) for item in value)
+        ):
+            raise ValueError("script must be 1-12 decision objects")
+        for item in value:
+            validate_decision(item)
+    except (OSError, ValueError, ActionRefusedError) as error:
+        raise DeploymentRefusedError(
+            "mock script must be a readable JSON array of 1-12 decisions, at most 64KiB"
+        ) from error
+    return value
 
 
 def _require_mode_is_usable(config: DeploymentConfig, *, model: ModelClient | None) -> None:

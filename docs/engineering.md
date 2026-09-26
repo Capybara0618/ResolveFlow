@@ -133,6 +133,21 @@ provider-stub在C04落地轻量Python+SQLite持久模拟退款，含幂等/故�
 
 每完成项记录实际命令/日期/文件/报告/失败与未运行。允许任务含多子步，但不能只生成所有代码最后才跑。核心完成标准以core-scope/evaluation为准，不被旧T任务清单重新扩大。
 
+### 常驻调查 worker（C08.2）
+
+入口仍为 `uvicorn resolveflow.api.app:app`，不增加部署进程。调查默认关闭；显式设置
+`RESOLVEFLOW_INVESTIGATION_ENABLED=1` 后，启动时打开/迁移Agent库并消费已有QUEUED记录。
+关闭时停止领取新run，等待在途调查，然后关闭自有连接池；135秒内未结束明确报错，不假装线程已停止。
+
+- `RESOLVEFLOW_MODEL_MODE=mock`：必须指定 `RESOLVEFLOW_MOCK_SCRIPT` 为UTF-8 JSON文件路径，内容是1–12个显式决策对象的数组，文件≤64KiB。
+  每run使用新mock客户端与脚本副本，不内置脚本、不循环补造决定；输出仍受原Harness校验。它只用于合成演示，不代表live自主性。
+- `RESOLVEFLOW_MODEL_MODE=live`：必须显式配置 `RESOLVEFLOW_MODEL_ENDPOINT` 和 `RESOLVEFLOW_MODEL_ID`；凭据用
+  `RESOLVEFLOW_MODEL_API_KEY`。沿用工厂的timeout、输出ceiling、MCP与政策配置。启动live消费队列会调用模型，须先确认API预算。
+- 未指定模式、mock缺脚本/文件不可读或畸形、live缺endpoint/model时启动拒绝。不开调查时保留原控制面与回调投递行为，不要求模型配置。
+
+本阶段单Agent副本、进程内单调查线程；意外异常停止调查线程并记录错误，RUNNING遗留由C09恢复工作处理。
+尚无生产租约/fence/崩溃恢复，不将本入口称为C09完成。操作员可通过线程状态与错误日志识别失败；现有`/health`仍仅表示HTTP进程存活。
+
 ## 8. 每小步提交并推送（2026-09-26用户授权）
 
 执行节奏：**独立小步实现 → 针对性验证 → 更新任务记录 → 审查暂存差异 → commit → push → 确认远端 → 下一小步**。适用于功能、修复、测试与文档，不等C08/C11整包完成，也不把未通过的小步伪装成完成。纯文档跑差异/链接/一致性检查；代码跑相关测试、构建/静态检查，既有失败基线与新增失败分开披露，不删除断言或跳过钩子来提交。

@@ -13,8 +13,8 @@
 - 未运行检查：本轮未跑Java测试/Spotless、all-offline、真实MCP/Java/数据库/MQ业务闭环、live模型、C09恢复及C10 strict门禁；Python结果按本步报告单独记录，不新增收费调用。
 - 未提交/未跟踪/已暂存：交接前已跟踪文件无差异、暂存区为空；仅 `reports/c052c-chain/20260925-232103-provider.sqlite3` 未跟踪，为既有退款链路数据库快照，保留原处、不提交、不删除，不影响已提交源码。无未完成源码改动需要整理。
 - 后台进程/作业：本轮未启动后台实施/测试任务；进程检查未发现 Java/Python 服务、worker或测试进程，未发现额外指向本仓库的 Node/PowerShell任务（除当前核验命令）。不据此证明其他客户端已退出。Docker仍运行 `resolveflow-postgres-1`、`resolveflow-mysql-1`、`resolveflow-redis-1`（healthy），`resolveflow-rocketmq-broker-1`、`resolveflow-rocketmq-namesrv-1`；共享基础设施可能继续写数据库/内部日志，保留运行，不修改仓库源码/测试/报告。需要停服务时对上述明确名称执行 `docker stop <容器名>`，保留卷；不终止其他客户端或Docker Desktop。
-- 常驻worker当前子步：线程生命周期已实现并聚焦验证（7 passed，Ruff通过，mypy既有9错），见[报告](../reports/c08-resident-investigation.md)；尚未装配API，不算常驻入口交付。
-- 下一具体动作：接 `runtime/factory.py::build_investigation` 与API lifespan，明确启用开关和mock脚本来源，缺配置启动拒绝；开启时读取已有QUEUED记录，关闭worker后才能关连接池。随后真实Java复核/审批→退款闭环独立验收。summary ABI强制另拆小步，当前由最终Schema校验拒绝。
+- 常驻worker当前子步：线程生命周期已提交并推送（`79c7bb7`）；API lifespan、显式mock脚本/模型配置、预存QUEUED消费、关闭顺序已实现并最终验证，待本小步提交推送。全量Python **1048 passed / 9 skipped**，Ruff通过，strict mypy既有9错；见[报告](../reports/c08-resident-investigation.md)。调查默认关闭，显式开启才消费队列；HTTP健康不等于worker健康，不勾C08整包或H1–H5。
+- 下一具体动作：用已装配入口跑真实Java/MCP/PG/MQ的mock业务闭环；先确认可复用的 `scripts/e2e_refund_chain.py`、`scripts/e2e_harness_java_tools.py` 覆盖边界，再补启动/派发/回调/审批/模拟退款的端到端失败用例并核查结果。summary ABI强制另拆小步，当前由最终Schema校验拒绝。
 - 已知失败/取舍：strict mypy既有9个错误；缺summary现在明确FAILED，不再投递畸形方案，ABI仍可省略该字段。常驻worker入口与Java复核/审批→退款仍待交付。C09前仍须解决总12次内预留/12+2预算冲突，不能静默扩额。交接仅同步Git，未跟踪数据库与本地环境不随push迁移。
 
 ## 已有成果（历史记录，非本轮重测）

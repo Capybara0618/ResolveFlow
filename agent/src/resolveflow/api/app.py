@@ -4,8 +4,8 @@ The process is the Python service of docs/engineering.md:8, and it hosts two unr
 
 - **The run control plane** (C06.1): ``POST /internal/v1/runs`` and its read/cancel siblings. These are
   case-service's routes, authenticated with a service token, and they are the durable entry to an
-  investigation (docs/core-contracts.md:38-41). Nothing here runs an investigation: C06.1 makes the record
-  real, so a run can be queued reliably before any worker or model client exists.
+  investigation (docs/core-contracts.md:38-41). C08.2 optionally starts one resident investigation thread;
+  the request itself only queues the durable run, never waits for the model.
 - **The refund provider stub** (C04.3): ``/provider/v1/*``. It is mounted in this process because the stub
   is a Python program (docs/engineering.md:75) and this is the Python service — not because the provider
   belongs to the Agent. Those routes carry no Agent identity, no scopes and no business data, and Commerce
@@ -15,6 +15,7 @@ The process is the Python service of docs/engineering.md:8, and it hosts two unr
 
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 import logging
 import os
@@ -47,6 +48,8 @@ from resolveflow.runtime.dispatch import (
     DEFAULT_INTERVAL_SECONDS,
     CallbackDeliveryLoop,
 )
+from resolveflow.runtime.factory import DeploymentConfig, build_investigation
+from resolveflow.runtime.investigation import InvestigationLoop
 from resolveflow.runtime.runs import (
     QUEUED,
     RunConflictError,
@@ -57,6 +60,7 @@ from resolveflow.runtime.runs import (
     RunStore,
     VerifiedCaller,
 )
+from resolveflow.runtime.worker import RunWorker
 
 SERVICE_NAME = "agent-service"
 
@@ -83,6 +87,7 @@ DEFAULT_PROVIDER_DB = "tmp/provider/refund-provider.sqlite3"
 CASE_BASE_URL_ENV = "RESOLVEFLOW_CASE_BASE_URL"
 
 DEFAULT_CASE_BASE_URL = "http://127.0.0.1:8083"
+INVESTIGATION_ENABLED_ENV = "RESOLVEFLOW_INVESTIGATION_ENABLED"
 
 
 class HealthResponse(BaseModel):
@@ -400,6 +405,8 @@ def create_app(
     case_base_url: str | None = None,
     delivery_interval_seconds: float = DEFAULT_INTERVAL_SECONDS,
     delivery_batch_size: int = DEFAULT_BATCH_SIZE,
+    worker_loop: bool | None = None,
+    worker_interval_seconds: float = 1.0,
 ) -> FastAPI:
     """Build the service app.
 
@@ -415,6 +422,10 @@ def create_app(
     worker's traffic either starts the loop against a real case service or calls
     ``CallbackDeliveryLoop.run_once``. ``case_base_url`` is where the case service is.
 
+    Investigation requires ``worker_loop=True`` or ``RESOLVEFLOW_INVESTIGATION_ENABLED=1`` and explicit model
+    configuration. Enabled startup opens the run store to consume preexisting QUEUED runs; disabled startup
+    stays lazy. Shutdown joins the investigator before closing this app's database pool.
+
     Building the app performs no database I/O: the store is opened by the first run request that needs it
     (see :class:`_RunStoreHolder`), so an offline test can construct the app without touching a database.
     The delivery loop does not change that: its first tick is what asks for a connection, and a tick that
@@ -424,6 +435,7 @@ def create_app(
     lab_enabled = lab_routes if lab_routes is not None else os.environ.get(LAB_ROUTES_ENV) == "1"
     secret = jwt_secret or os.environ.get(JWT_SECRET_ENV) or DEFAULT_JWT_SECRET
     delivery_loop_enabled = delivery_loop if delivery_loop is not None else True
+    worker_enabled = worker_loop if worker_loop is not None else os.environ.get(INVESTIGATION_ENABLED_ENV) == "1"
     case_url = case_base_url or os.environ.get(CASE_BASE_URL_ENV) or DEFAULT_CASE_BASE_URL
 
     @asynccontextmanager
@@ -449,11 +461,30 @@ def create_app(
                 interval_seconds=delivery_interval_seconds,
                 batch_size=delivery_batch_size,
             )
-            loop.start()
         app.state.delivery_loop = loop
+        investigation_loop: InvestigationLoop | None = None
+        app.state.investigation_loop = None
         try:
+            if worker_enabled:
+                if run_store is not None:
+                    worker_database = run_store.database
+                else:
+                    assert holder is not None
+                    worker_database = holder.database
+                investigate = build_investigation(database=worker_database, config=DeploymentConfig.from_environ())
+                # Enabling investigation explicitly opts into opening/migrating the store at startup, including
+                # QUEUED records from before this process started. Disabled apps retain lazy database access.
+                app.state.run_store.require()
+                worker = RunWorker(worker_database, investigate=investigate)
+                investigation_loop = InvestigationLoop(worker.run_once, interval_seconds=worker_interval_seconds)
+                app.state.investigation_loop = investigation_loop
+                investigation_loop.start()
+            if loop is not None:
+                loop.start()
             yield
         finally:
+            if investigation_loop is not None:
+                await asyncio.to_thread(investigation_loop.close)
             if loop is not None:
                 loop.close()
             if provider is None:
