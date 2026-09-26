@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import time
 import uuid
@@ -13,6 +14,7 @@ from resolveflow.runtime.callbacks import CallbackStore
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import MODE_ENV, DeploymentRefusedError
 from resolveflow.runtime.runs import RunStore
+from tests.integration import stub_upstream
 from tests.integration.test_deployment_factory import CASE_DISPATCHER, a_run, propose_json
 
 
@@ -127,3 +129,41 @@ def test_startup_consumes_existing_queue_and_uses_fresh_mock_per_run(
             ]
     assert not app.state.investigation_loop.running
     assert app.state.run_store.database._pool.closed
+
+
+def test_resident_worker_uses_a_fresh_deployment_identity_to_fetch_run_credentials(
+    agent_db: Database, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = RunStore(agent_db)
+    store.queue(a_run(line_id="7100"), caller=CASE_DISPATCHER)
+    server = stub_upstream.start(tmp_path / "requests.log")
+    script = tmp_path / "read-script.json"
+    script.write_text(json.dumps([
+        {"kind": "READ_TOOL", "tool_name": "get_shipment_trace", "arguments": {}},
+        json.loads(propose_json()),
+    ]), encoding="utf-8")
+    monkeypatch.setenv(MODE_ENV, "mock")
+    monkeypatch.setenv("RESOLVEFLOW_MOCK_SCRIPT", str(script))
+    monkeypatch.setenv("RESOLVEFLOW_CASE_BASE_URL", server.url)
+    monkeypatch.setenv("RESOLVEFLOW_COMMERCE_BASE_URL", server.url)
+    try:
+        app = create_app(
+            provider_db=tmp_path / "provider.db", run_store=store, delivery_loop=False,
+            worker_loop=True, worker_interval_seconds=0.01,
+        )
+        with TestClient(app):
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline and store.read(a_run().run_id).status != "CALLBACK_PENDING":
+                time.sleep(0.01)
+            assert store.read(a_run().run_id).status == "CALLBACK_PENDING"
+            assert not app.state.investigation_loop.failed
+    finally:
+        server.stop()
+    requests = [json.loads(line) for line in (tmp_path / "requests.log").read_text(encoding="utf-8").splitlines()]
+    assert len(requests) == 2
+    assert requests[0]["path"].endswith(f"/internal/v1/runs/{a_run().run_id}/tool-credential")
+    identity = requests[0]["authorization"].removeprefix("Bearer ")
+    encoded = identity.split(".")[1]
+    claims = json.loads(base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)))
+    assert claims["sub"] == "agent-service" and "scope" not in claims
+    assert requests[1]["authorization"] == f"Bearer token-for-{a_run().run_id}"

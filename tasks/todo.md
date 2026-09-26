@@ -2,20 +2,16 @@
 
 2026-09-26更新。当前唯一进度账本。AgentScope迁移约束见[迁移规格](../docs/agentscope-migration.md)，开工只使用[当前交接](handoff-current.md)。业务与验收保持v1.2；旧40个T任务已退出当前必做顺序，完整原记录保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
-## 最近交接快照（2026-09-26 13:38 +08:00，Asia/Shanghai）
+## 最近交接快照（2026-09-26 21:00 +08:00，Asia/Shanghai）
 
-- 方向：DSH → Codex；用户已明确确认 DSH 停止写入。
-- 执行者与状态：Codex 已完成只读核验与当前子步基线，已接管；从 C08.2-8 出站方案缺口继续，不重做框架迁移。
-- 工作区、分支、upstream：`E:/Code/Agent+Backend`；`main` → `origin/main`；远程 `https://github.com/Capybara0618/ResolveFlow.git`。
-- 最后已知业务实现提交：`c77f3f4`（C08.2-8出站引用/最终方案验证及worker显式事务），已推送并以 `git ls-remote origin refs/heads/main` 确认SHA一致；接管基线为 `42707d7`，接管记录为 `215b1f9`。每小步新提交及最终推送结果见执行回复，不为自身SHA循环提交。
-- 当前任务/子步：C08.2-8 已完成（`c77f3f4`，见[报告](../reports/c08-2-8-final-proposal-validation.md)）；随后通过型退款用例串起真实MCP stdio+PG政策检索+SDK+worker outbox，发现并修复P3实际messages缺引用元数据。当前全量Python **1030 passed / 9 skipped**；最终context策略版本聚焦 **40 passed**，Ruff通过，strict mypy仍为9个既有错误，见[报告](../reports/c08-refund-citation-pipeline.md)。HTTP上游/模型/embedding仍为测试桩/mock，不声称真实Java或live验收；C08.1/C08.2、H1–H5不勾选。
-- 关键验证：接管基线（源码 `42707d7`，工作目录 `agent/`）：`.\.venv\Scripts\python.exe -m pytest tests/unit/test_callback_payloads_match_the_case_contract.py tests/unit/test_proposal_verifier.py tests/integration/test_run_worker.py -q -p no:cacheprovider --tb=short` → **30 passed**（真实PG隔离测试schema，调查stub，无live模型）；Git状态、暂存区及相关源码核验一致。历史全量结果保留下方，不当作本轮重测；本次接管文档另跑差异/链接检查。
-- 未运行检查：本轮未跑Java测试/Spotless、all-offline、真实MCP/Java/数据库/MQ业务闭环、live模型、C09恢复及C10 strict门禁；Python结果按本步报告单独记录，不新增收费调用。
-- 未提交/未跟踪/已暂存：交接前已跟踪文件无差异、暂存区为空；仅 `reports/c052c-chain/20260925-232103-provider.sqlite3` 未跟踪，为既有退款链路数据库快照，保留原处、不提交、不删除，不影响已提交源码。无未完成源码改动需要整理。
-- 后台进程/作业：本轮未启动后台实施/测试任务；进程检查未发现 Java/Python 服务、worker或测试进程，未发现额外指向本仓库的 Node/PowerShell任务（除当前核验命令）。不据此证明其他客户端已退出。Docker仍运行 `resolveflow-postgres-1`、`resolveflow-mysql-1`、`resolveflow-redis-1`（healthy），`resolveflow-rocketmq-broker-1`、`resolveflow-rocketmq-namesrv-1`；共享基础设施可能继续写数据库/内部日志，保留运行，不修改仓库源码/测试/报告。需要停服务时对上述明确名称执行 `docker stop <容器名>`，保留卷；不终止其他客户端或Docker Desktop。
-- 常驻worker当前子步：线程生命周期已提交并推送（`79c7bb7`）；API lifespan、显式mock脚本/模型配置、预存QUEUED消费、关闭顺序已实现并最终验证，待本小步提交推送。全量Python **1048 passed / 9 skipped**，Ruff通过，strict mypy既有9错；见[报告](../reports/c08-resident-investigation.md)。调查默认关闭，显式开启才消费队列；HTTP健康不等于worker健康，不勾C08整包或H1–H5。
-- 下一具体动作：用已装配入口跑真实Java/MCP/PG/MQ的mock业务闭环；先确认可复用的 `scripts/e2e_refund_chain.py`、`scripts/e2e_harness_java_tools.py` 覆盖边界，再补启动/派发/回调/审批/模拟退款的端到端失败用例并核查结果。summary ABI强制另拆小步，当前由最终Schema校验拒绝。
-- 已知失败/取舍：strict mypy既有9个错误；缺summary现在明确FAILED，不再投递畸形方案，ABI仍可省略该字段。常驻worker入口与Java复核/审批→退款仍待交付。C09前仍须解决总12次内预留/12+2预算冲突，不能静默扩额。交接仅同步Git，未跟踪数据库与本地环境不随push迁移。
+- 方向与执行者：DSH已明确停止写入；Codex已只读核验并接管，同一工作区当前由Codex实施。工作区 `E:/Code/Agent+Backend`，`main` → `origin/main`。
+- 当前C08.2：出站方案验证/引用、通过型退款模拟链已完成；常驻调查线程 `79c7bb7`、服务装配 `e8c5eef` 均已提交推送并确认远端。常驻入口默认关闭，显式配置才处理预存QUEUED；HTTP健康不代表worker健康。见[常驻worker报告](../reports/c08-resident-investigation.md)。C08整包及H1–H5尚未验收。
+- 最新小步：修正工厂工具读取未获取Case颁发run凭证的问题；服务身份只用于申请凭证，MCP读取逐次使用run凭证且申请失败不回退。代码、测试和[本步报告](../reports/c08-resident-run-credential.md)已验证并按小步提交推送；测试桩覆盖HTTP凭证路由，尚非真实Java联调。
+- 本步验证：聚焦集成 **21 passed**，最终全量Python **1050 passed / 9 skipped / 1 warning**；Ruff与diff检查通过；strict mypy仍为4个既有文件9个 `no-any-return` 错误。真实PG已用既有 `resolveflow-postgres-1` 容器启动供隔离schema测试。详见[本步报告](../reports/c08-resident-run-credential.md)。
+- 下一具体动作：先把真实联调入口的端口占用处理改为明确拒绝、不终止未知进程，再开展真实Java派发→常驻Agent/MCP/PG→Case回调→审批/模拟退款闭环。`summary` ABI强制另拆小步，当前由最终Schema校验拒绝。
+- 未运行：Java测试/Spotless、all-offline、真实跨服务业务闭环、live模型及H1–H5、C09恢复、C10 strict。C09前仍须解决总12次内预留/12+2预算冲突，不静默扩额。
+- 未提交/后台：本步提交后仅既有未跟踪 `reports/c052c-chain/20260925-232103-provider.sqlite3` 留在本机，不提交或删除；无已知本地测试/业务服务进程仍运行。Docker当前仅 `resolveflow-postgres-1` 运行，其他既有容器退出，未删卷。
+- 取舍与失败：strict mypy既有9错；全量基线上一小步 **1048 passed / 9 skipped**，不能替代本步复测。缺summary时run明确FAILED；C09恢复与租约/fence未交付，不把现有worker当生产高可用。
 
 ## 已有成果（历史记录，非本轮重测）
 

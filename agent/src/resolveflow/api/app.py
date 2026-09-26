@@ -38,6 +38,7 @@ from resolveflow.api.identity import (
     TokenRefusedError,
     TokenScopeError,
     VerifiedServiceToken,
+    mint_service_token,
 )
 from resolveflow.provider_stub import NOT_FOUND, ProviderConflictError, RefundProviderStub, RefundResult
 from resolveflow.runtime.callbacks import CallbackStore
@@ -471,7 +472,11 @@ def create_app(
                 else:
                     assert holder is not None
                     worker_database = holder.database
-                investigate = build_investigation(database=worker_database, config=DeploymentConfig.from_environ())
+                investigate = build_investigation(
+                    database=worker_database,
+                    config=DeploymentConfig.from_environ(),
+                    service_identity_source=lambda: mint_service_token(SERVICE_NAME, secret, scope=None),
+                )
                 # Enabling investigation explicitly opts into opening/migrating the store at startup, including
                 # QUEUED records from before this process started. Disabled apps retain lazy database access.
                 app.state.run_store.require()

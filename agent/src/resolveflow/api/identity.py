@@ -228,9 +228,9 @@ def mint_service_token(
 ) -> str:
     """Mint a service token in the shape the Java codec issues.
 
-    Used by the tests and by a lab script; the deployed dispatcher is Java. The header is the same literal
-    bytes Java signs, because two ends that spell the header differently would produce tokens that only
-    one of them accepts — and that difference would look like a signature failure.
+    Used by tests, lab scripts, and the resident worker to obtain a fresh deployment identity per run.
+    The dispatcher remains Java. The header is the same literal bytes Java signs, because two ends that
+    spell the header differently would produce tokens that only one of them accepts.
     """
     issued = int(time.time()) if now is None else now
     claims: dict[str, Any] = {

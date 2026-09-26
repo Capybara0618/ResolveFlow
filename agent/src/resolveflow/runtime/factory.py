@@ -42,6 +42,7 @@ from resolveflow.harness.vocabulary import RunFacts, RunResult
 from resolveflow.policies.index import PolicyIndex
 from resolveflow.policies.retrieval import Embedder, embedder
 from resolveflow.runtime.db import Database
+from resolveflow.tools.credential import credential_source
 
 __all__ = ["DeploymentConfig", "DeploymentRefusedError", "build_investigation"]
 
@@ -139,6 +140,7 @@ def build_investigation(
     tools: Any = None,
     policy_embedder: Embedder | None = None,
     budget: RunBudget | None = None,
+    service_identity_source: Callable[[], str] | None = None,
 ) -> Callable[[RunFacts], RunResult]:
     """Build the callable a :class:`~resolveflow.runtime.worker.RunWorker` investigates with.
 
@@ -168,7 +170,10 @@ def build_investigation(
             if script is not None
             else model if model is not None else _live_client(config)
         )
-        executor = tools if tools is not None else _mcp_executor(config, facts)
+        executor = tools if tools is not None else _mcp_executor(
+            config, facts,
+            identity_token=service_identity_source() if service_identity_source is not None else config.service_token,
+        )
         try:
             runner = AgentScopeRunner(
                 model=client,
@@ -236,7 +241,7 @@ def _live_client(config: DeploymentConfig) -> LiveModelClient:
     )
 
 
-def _mcp_executor(config: DeploymentConfig, facts: RunFacts) -> McpToolExecutor:
+def _mcp_executor(config: DeploymentConfig, facts: RunFacts, *, identity_token: str | None = None) -> McpToolExecutor:
     """One executor per run: the tool server is told which line to read, and that is per-run state."""
     return McpToolExecutor(
         line_id=facts.line_id,
@@ -244,8 +249,18 @@ def _mcp_executor(config: DeploymentConfig, facts: RunFacts) -> McpToolExecutor:
         case_id=facts.case_id,
         case_base_url=config.case_base_url,
         commerce_base_url=config.commerce_base_url,
-        service_token=config.service_token,
+        # Only the credential fetcher holds the deployment identity. The MCP executor has no fallback token
+        # to present to Commerce/Case if the fetch fails.
+        service_token=None,
         input_revision=facts.input_revision,
+        credential_source=credential_source(
+            case_base_url=config.case_base_url,
+            run_id=facts.run_id,
+            case_id=facts.case_id,
+            input_revision=facts.input_revision,
+            service_token=identity_token or config.service_token,
+            static_token=None,
+        ),
     )
 
 

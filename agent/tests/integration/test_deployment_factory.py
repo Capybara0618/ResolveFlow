@@ -30,10 +30,12 @@ from resolveflow.runtime.factory import (
     MODEL_ID_ENV,
     DeploymentConfig,
     DeploymentRefusedError,
+    _mcp_executor,
     build_investigation,
 )
 from resolveflow.runtime.runs import RunRequest, RunStore, VerifiedCaller
 from resolveflow.runtime.worker import RunWorker
+from resolveflow.tools.credential import CredentialUnavailableError, HttpToolCredentialClient, ToolCredential
 from tests.conftest import StubEmbedder, input_text_of
 from tests.integration import stub_upstream
 
@@ -154,6 +156,37 @@ def test_a_mock_deployment_will_not_invent_the_script_it_runs(agent_db: Database
         build_investigation(database=agent_db, config=config)
 
     assert "scripted model" in str(refusal.value)
+
+
+def test_factory_tool_reads_fetch_the_run_credential_without_falling_back(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    facts = a_run()
+    from resolveflow.harness.vocabulary import RunFacts
+
+    run = RunFacts(
+        run_id=facts.run_id, case_id=facts.case_id, input_revision=facts.input_revision,
+        line_id=facts.line_id, description=facts.description,
+    )
+    executor = _mcp_executor(DeploymentConfig(mode="mock", service_token="deployment-identity"), run)
+    assert executor.credential_source is not None
+    assert executor.service_token is None
+    seen: list[tuple[str, str, int, str | None]] = []
+
+    def issue(self: HttpToolCredentialClient, *, run_id: str, case_id: str, input_revision: int) -> ToolCredential:
+        seen.append((run_id, case_id, input_revision, self.service_token))
+        return ToolCredential(token="run-token", expires_at="2026-09-26T14:00:00Z", scopes=("commerce:read",))
+
+    monkeypatch.setattr(HttpToolCredentialClient, "issue", issue)
+    assert executor.credential_source() == "run-token"
+    assert seen == [(run.run_id, run.case_id, 1, "deployment-identity")]
+
+    def unavailable(self: HttpToolCredentialClient, **_: Any) -> ToolCredential:
+        raise CredentialUnavailableError("Case unavailable")
+
+    monkeypatch.setattr(HttpToolCredentialClient, "issue", unavailable)
+    with pytest.raises(CredentialUnavailableError, match="Case unavailable"):
+        executor.credential_source()
 
 
 def test_settings_are_read_with_the_documented_names() -> None:
@@ -297,8 +330,11 @@ def test_refund_citations_survive_mcp_policy_search_sdk_and_worker(
         assert ref["content_hash"] in sent
         assert ref.get("observation_id", ref.get("rule_id")) in sent
     requests = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
-    assert len(requests) == 1
-    assert "/internal/v1/order-lines/7100/shipment" in requests[0]["path"]
+    assert len(requests) == 2
+    assert requests[0]["path"].endswith(f"/internal/v1/runs/{RUN_ID}/tool-credential")
+    assert requests[0]["authorization"] == "Bearer stub-service-token"
+    assert "/internal/v1/order-lines/7100/shipment" in requests[1]["path"]
+    assert requests[1]["authorization"] == f"Bearer token-for-{RUN_ID}"
     assert outcome.result.modes == ("mock", "mock", "mock")
 
 

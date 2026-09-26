@@ -139,6 +139,12 @@ provider-stub在C04落地轻量Python+SQLite持久模拟退款，含幂等/故�
 `RESOLVEFLOW_INVESTIGATION_ENABLED=1` 后，启动时打开/迁移Agent库并消费已有QUEUED记录。
 关闭时停止领取新run，等待在途调查，然后关闭自有连接池；135秒内未结束明确报错，不假装线程已停止。
 
+常驻worker每个run从Agent服务JWT密钥签发新的部署身份，再向Case的
+`POST /internal/v1/runs/{run_id}/tool-credential` 领取绑定run/case/revision的工具凭证。
+每次MCP工具读取都重新领取并使用run凭证；领取失败即该读取失败，不以部署身份向Case或Commerce读取。
+`RESOLVEFLOW_TOOL_SERVICE_TOKEN`仅供直接使用部署工厂的脚本/测试提供领取凭证的身份；API常驻入口自行签发。
+真实Java联调须使Agent与Case使用同一受控JWT密钥。
+
 - `RESOLVEFLOW_MODEL_MODE=mock`：必须指定 `RESOLVEFLOW_MOCK_SCRIPT` 为UTF-8 JSON文件路径，内容是1–12个显式决策对象的数组，文件≤64KiB。
   每run使用新mock客户端与脚本副本，不内置脚本、不循环补造决定；输出仍受原Harness校验。它只用于合成演示，不代表live自主性。
 - `RESOLVEFLOW_MODEL_MODE=live`：必须显式配置 `RESOLVEFLOW_MODEL_ENDPOINT` 和 `RESOLVEFLOW_MODEL_ID`；凭据用
