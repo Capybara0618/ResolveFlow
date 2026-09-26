@@ -3,11 +3,13 @@
 The store cannot claim runs or authorize an UNKNOWN retry. Its caller must already
 own a live lease. A repeated call_id returns the original reservation with
 new_reservation=False; it is a lookup, never permission to send another request.
-Response saving, retry-attempt charging and SDK integration are later C09 slices.
+Saved explicit replies and usage are committed once under the same fence. Retry
+attempt charging and SDK/checkpoint integration are later C09 slices.
 """
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -15,7 +17,15 @@ from typing import Any
 import psycopg
 from psycopg.types.json import Jsonb
 
-from resolveflow.harness.budget import BudgetGuard, RunBudget, RunSpend
+from resolveflow.harness.budget import (
+    REASON_BUDGET_INPUT_TOKENS,
+    REASON_BUDGET_OUTPUT_TOKENS,
+    BudgetExhaustedError,
+    BudgetGuard,
+    RunBudget,
+    RunSpend,
+)
+from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.recovery_budget import RecoveryCallBudget
 
@@ -34,6 +44,40 @@ class ModelReservation:
     output_ceiling: int
     state: str
     new_reservation: bool
+
+
+@dataclass(frozen=True, slots=True)
+class SavedModelResult:
+    reply: ModelReply
+    stop_reason: str | None
+    new_result: bool
+
+
+def _saved_result(row: dict[str, Any], *, new_result: bool = False) -> SavedModelResult:
+    body = row["response"]
+    if row["state"] != "SAVED" or not isinstance(body, dict):
+        raise RecoveryConflictError("saved call has no recoverable explicit response")
+    return SavedModelResult(
+        ModelReply(decision=body["decision"], usage=ModelUsage(**body["usage"]),
+                   mode=body["mode"], model_alias=body["model_alias"]),
+        row.get("run_stop_reason") or row["stop_reason"], new_result,
+    )
+
+
+def _response_document(reply: ModelReply) -> dict[str, Any]:
+    usage = reply.usage
+    if (
+        type(usage.input_tokens) is not int or usage.input_tokens < 0
+        or type(usage.output_tokens) is not int or usage.output_tokens < 0
+        or type(usage.estimated) is not bool or reply.mode not in ("live", "mock")
+        or not isinstance(reply.decision, dict)
+        or (reply.model_alias is not None and not isinstance(reply.model_alias, str))
+    ):
+        raise ValueError("invalid explicit reply or token usage")
+    body = asdict(reply)
+    if len(json.dumps(body, ensure_ascii=False, allow_nan=False).encode("utf-8")) > 65536:
+        raise ValueError("explicit model reply exceeds 64KiB")
+    return body
 
 
 def _locked_run(connection: psycopg.Connection[dict[str, Any]], run_id: str, *, fence: int,
@@ -92,6 +136,8 @@ class RecoveryBudgetStore:
                                         (run_id,)).fetchone()
             if frozen is None:
                 raise RecoveryConflictError("run budget is not initialized")
+            if frozen["stop_reason"] is not None:
+                raise BudgetExhaustedError(frozen["stop_reason"], "prior provider usage exceeded the run reservation")
             prior = connection.execute("SELECT * FROM agent_model_call WHERE run_id=%s AND call_id=%s",
                                        (run_id, call_id)).fetchone()
             if prior is not None:
@@ -118,3 +164,63 @@ class RecoveryBudgetStore:
             connection.execute("UPDATE agent_run SET budget_spent=%s,updated_at=now(),version=version+1 "
                                "WHERE run_id=%s", (Jsonb(spend.as_dict()), run_id))
             return ModelReservation(call_id, ceiling, "UNKNOWN", True)
+
+    def recorded_result(self, run_id: str, *, fence: int, owner: str,
+                        call_id: str) -> SavedModelResult | None:
+        """Read a saved result without charging or writing a checkpoint; UNKNOWN is never an answer."""
+        with self.database.connection() as connection, connection.transaction():
+            _locked_run(connection, run_id, fence=fence, owner=owner)
+            row = connection.execute(
+                "SELECT c.*,b.stop_reason AS run_stop_reason FROM agent_model_call c "
+                "JOIN agent_run_model_budget b ON b.run_id=c.run_id WHERE c.run_id=%s AND c.call_id=%s",
+                (run_id, call_id),
+            ).fetchone()
+            if row is None:
+                raise RecoveryConflictError("call has no reservation")
+            return None if row["state"] == "UNKNOWN" else _saved_result(row)
+
+    def save_result(self, run_id: str, *, fence: int, owner: str, call_id: str,
+                    reply: ModelReply) -> SavedModelResult:
+        """Commit response and actual/estimated usage once. Caller must stop before actions if stop_reason is set."""
+        body = _response_document(reply)
+        with self.database.connection() as connection, connection.transaction():
+            run = _locked_run(connection, run_id, fence=fence, owner=owner)
+            row = connection.execute(
+                "SELECT c.*,b.stop_reason AS run_stop_reason FROM agent_model_call c "
+                "JOIN agent_run_model_budget b ON b.run_id=c.run_id WHERE c.run_id=%s AND c.call_id=%s",
+                (run_id, call_id),
+            ).fetchone()
+            if row is None:
+                raise RecoveryConflictError("result has no prior call reservation")
+            if row["state"] == "SAVED":
+                if row["response"] != body:
+                    raise RecoveryConflictError("stable call already has a different saved result")
+                return _saved_result(row)
+            frozen = connection.execute("SELECT * FROM agent_run_model_budget WHERE run_id=%s",
+                                        (run_id,)).fetchone()
+            if frozen is None:
+                raise RecoveryConflictError("run budget is not initialized")
+            spend = RunSpend(**run["budget_spent"])
+            budget = RunBudget(**frozen["budget"])
+            usage = reply.usage
+            charged_input = max(row["reserved_input"], usage.input_tokens) if usage.estimated else usage.input_tokens
+            charged_output = (
+                max(row["reserved_output"], usage.output_tokens) if usage.estimated else usage.output_tokens
+            )
+            spend.input_tokens += charged_input - row["reserved_input"]
+            spend.output_tokens += charged_output - row["reserved_output"]
+            stop_reason = frozen["stop_reason"]
+            if charged_input > budget.step_input_tokens or spend.input_tokens > budget.input_tokens:
+                stop_reason = stop_reason or REASON_BUDGET_INPUT_TOKENS
+            if charged_output > row["reserved_output"] or spend.output_tokens > budget.output_tokens:
+                stop_reason = stop_reason or REASON_BUDGET_OUTPUT_TOKENS
+            connection.execute(
+                "UPDATE agent_model_call SET response=%s,state='SAVED',saved_at=now(),stop_reason=%s "
+                "WHERE run_id=%s AND call_id=%s", (Jsonb(body), stop_reason, run_id, call_id),
+            )
+            connection.execute("UPDATE agent_run SET budget_spent=%s,updated_at=now(),version=version+1 "
+                               "WHERE run_id=%s", (Jsonb(spend.as_dict()), run_id))
+            connection.execute("UPDATE agent_run_model_budget SET stop_reason=%s WHERE run_id=%s",
+                               (stop_reason, run_id))
+            # Returning a stop reason after commit preserves overage accounting instead of rolling it back.
+            return _saved_result({"response": body, "state": "SAVED", "stop_reason": stop_reason}, new_result=True)
