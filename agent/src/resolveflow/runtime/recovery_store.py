@@ -289,8 +289,8 @@ class RecoveryBudgetStore:
             if charged_output > attempt["reserved_output"] or spend.output_tokens > budget.output_tokens:
                 stop_reason = stop_reason or REASON_BUDGET_OUTPUT_TOKENS
             connection.execute(
-                "UPDATE agent_model_call SET response=%s,state='SAVED',saved_at=now(),stop_reason=%s "
-                "WHERE run_id=%s AND call_id=%s", (Jsonb(body), stop_reason, run_id, call_id),
+                "UPDATE agent_model_call SET response=%s,state='SAVED',saved_at=now(),stop_reason=%s,settled_spend=%s "
+                "WHERE run_id=%s AND call_id=%s", (Jsonb(body), stop_reason, Jsonb(spend.as_dict()), run_id, call_id),
             )
             connection.execute(
                 "UPDATE agent_model_attempt SET response=%s,state='SAVED',saved_at=now(),stop_reason=%s "

@@ -20,7 +20,8 @@
 - 最新C09 attempt账：迁移007、原attempt0/最多一次重试attempt1，逻辑call_id不变、原hash/输入/输出ceiling冻结；每次新重试再次预占同分区及token，旧UNKNOWN不退，迟到旧attempt不覆盖结果。并发/重复重试意图只一次新预占；旧数据回填不重扣、不伪造原fence。RED **6 failed**→相关 **60 passed**，最终全量 **1082 passed / 9 skipped**，Ruff通过、mypy仍既有9错。见[attempt报告](../reports/c09-pg-model-attempt.md)；未接生产worker/SDK，C09不勾。
 - C09整包继续：请求冻结与预占同事务、hash/输出ceiling不一致拒绝；RED2 failed→相关32 passed，见[生产恢复实施报告](../reports/c09-production-recovery.md)。尚未接SDK/worker，不勾C09。
 - C09租约小步：保留session advisory lock连接，领取递增fence/STARTED同事务，另一连接心跳续租；恢复不延长active_deadline、不重复STARTED。真实PG lease+worker22 passed，新增Ruff/mypy通过，见[实施报告](../reports/c09-production-recovery.md)。生产接入下一步完成，C09不勾。
-- 下一具体动作：接生产worker终局fence、领域快照与同SDK台账重建，完成C09/H4/CF6故障验收。H1另待隔离服务seed/捕获入口、Gold人工审查、模型与费用上限后live。`summary` ABI强制另拆小步，当前由最终Schema校验拒绝。
+- C09领域journal：manifest与工具结果受同事务fence保护，记录模型/工具历史spend以重建上下文；SDK重建接线已有未提交验证中改动，未夹入本步。见[实施报告](../reports/c09-production-recovery.md)，C09不勾。
+- 下一具体动作：完成同SDK重建接线，再接生产worker终局fence及故障验收。H1另待隔离服务seed/捕获入口、Gold人工审查、模型与费用上限后live。`summary` ABI强制另拆小步，当前由最终Schema校验拒绝。
 - 未运行：本步Java单测/Spotless、all-offline、live模型及H1–H5、C09恢复、C10 strict；UNKNOWN/丢响应链路由既有C05报告覆盖，非本次mock运行结论。
 - 未提交/后台：本步提交后仍有既有未跟踪SQLite快照与三次 `reports/c08-resident-java/` 原始联调日志留在本机；新闭环原始日志、脚本和provider SQLite在忽略的 `tmp/c08-resident-refund/`，均不提交或删除。无已知测试/Java/Agent子进程运行；既有PostgreSQL、MySQL、RocketMQ namesrv/broker容器运行，未删卷。
 - 取舍与失败：strict mypy全量既有9错（本步源码单独通过）；最新全量 **1082 passed / 9 skipped**。缺summary时run明确FAILED；C09恢复与租约/fence未交付，不把现有worker当生产高可用。

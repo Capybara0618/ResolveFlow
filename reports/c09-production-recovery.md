@@ -7,3 +7,7 @@
 ## 租约与session锁小步
 
 RunLease保留独立pool checkout承载session advisory lock，领取与fence递增/STARTED同事务；网络期间只保留session锁，不持行事务。另一pool连接心跳续租，退出释放锁和心跳；同run锁仍被持有时即使lease过期也不夺取。恢复保持原active_deadline，STARTED不重复。RED缺模块→lease+worker **22 passed**（真实PG）；新增Ruff/strict mypy通过。生产worker接入/终局fence下一步完成，本步不勾C09，未跑全量/Java/live。
+
+## 领域journal小步
+
+迁移009记录模型结算后spend和工具调用前后spend，工具结果/manifest绑定同事务校验run fence。重复已保存工具不重复计预算；未知工具保留占用并最多两次额外attempt。journal及已有预占/结果回归通过，具体命令 `pytest tests/integration/test_run_journal.py tests/integration/test_recovery_model_result.py tests/integration/test_recovery_budget_store.py -q -p no:cacheprovider --tb=short`；此处不代表SDK生产接入。SDK重建接线正在下一小步实施，未提交部分保留，不夹入本小步提交。
