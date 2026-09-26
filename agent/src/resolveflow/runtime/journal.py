@@ -23,6 +23,16 @@ class RunJournal(RecoveryBudgetStore):
             connection.execute("UPDATE agent_run_model_budget SET manifest=%s WHERE run_id=%s",
                                (Jsonb(manifest), run_id))
 
+    def remaining_seconds(self, run_id: str, *, fence: int, owner: str) -> float:
+        with self.database.connection() as connection, connection.transaction():
+            _locked_run(connection, run_id, fence=fence, owner=owner)
+            row = connection.execute(
+                "SELECT EXTRACT(EPOCH FROM active_deadline_at-clock_timestamp()) AS remaining "
+                "FROM agent_run WHERE run_id=%s", (run_id,),
+            ).fetchone()
+            assert row is not None
+            return float(row["remaining"])
+
     def trace_pages(self, run_id: str, *, fence: int, owner: str) -> int:
         with self.database.connection() as connection, connection.transaction():
             _locked_run(connection, run_id, fence=fence, owner=owner)

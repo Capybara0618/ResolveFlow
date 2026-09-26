@@ -410,7 +410,11 @@ class McpToolBridge(ToolBase):
             # `to_thread` because the project's executor is synchronous by construction (it bridges a private
             # event loop for MCP stdio); calling it inline would block the SDK's loop.
             def invoke() -> Any:
-                return self._executor.call_tool(run_id=self._facts.run_id, tool_name=self.name, arguments=dict(kwargs))
+                def read() -> Any:
+                    return self._executor.call_tool(run_id=self._facts.run_id, tool_name=self.name,
+                                                    arguments=dict(kwargs))
+                return self._client.durability.transmit(self._executor, read, self._guard) \
+                    if self._client.durability is not None else read()
 
             observation = await anyio.to_thread.run_sync(
                 lambda: self._client.durability.observe(self.name, dict(kwargs), invoke, self._guard, local=False)

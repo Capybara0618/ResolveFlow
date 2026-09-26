@@ -51,6 +51,19 @@ class DurableRun:
         if isinstance(runner.model, MockModelClient):
             runner.model.use_context_step = True
 
+    def transmit(self, target: Any, invoke: Callable[[], Any], guard: Any) -> Any:
+        remaining = self.journal.remaining_seconds(self.facts.run_id, **self.identity())
+        if remaining <= 0:
+            raise BudgetExhaustedError("BUDGET_DEADLINE", "original deadline expired before transmission")
+        if not hasattr(target, "timeout_seconds"):
+            return invoke()
+        original = target.timeout_seconds
+        target.timeout_seconds = min(original, guard.guard.budget.timeout_seconds, remaining)
+        try:
+            return invoke()
+        finally:
+            target.timeout_seconds = original
+
     def before_model(self, agent: Any, guard: Any) -> None:
         if self.tool_saved:
             self.tool_saved = False
@@ -109,7 +122,7 @@ class DurableRun:
                 )
             if not reservation.new_reservation:
                 raise RecoveryConflictError("UNKNOWN attempt already reserved; no duplicate transmission")
-            reply = model.decide(**kwargs)
+            reply = self.transmit(model, lambda: model.decide(**kwargs), guard)
             self.fault("before_model_saved")
             saved = self.journal.save_result(self.facts.run_id, **self.identity(), call_id=call_id,
                                             attempt_no=reservation.attempt_no, reply=reply)

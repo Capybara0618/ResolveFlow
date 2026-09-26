@@ -24,7 +24,8 @@
 - C09 SDK重建：三个崩溃窗口各5次真实PG重建，相关76 passed，全量Ruff通过；见生产恢复报告。
 - C09生产接线：常驻worker启用租约/fence、SDK持久重建和终局事务，RED4→26 passed，装配/SDK44 passed，Ruff及本步strict mypy通过。
 - C09故障验收：跨进程三个窗口各5次、旧fence/取消/旧revision、manifest和HTTP桩UNKNOWN重试，聚焦62 passed；真实Java/MCP mock退款联调PASSED。租约行锁等待与分页恢复反例已修复。
-- 下一具体动作：版本追溯核验和最终全量回归，完成C09验收记录。
+- C09最终边界：源码/lock指纹、四类manifest拒绝、本地读结果重建、PG剩余deadline限制调用timeout，聚焦37 passed，Ruff/mypy新代码通过。
+- 下一具体动作：最终全量回归和C09验收记录。
 - 未运行：本步Java单测/Spotless、all-offline、live模型及H1–H5、C09恢复、C10 strict；UNKNOWN/丢响应链路由既有C05报告覆盖，非本次mock运行结论。
 - 未提交/后台：本步提交后仍有既有未跟踪SQLite快照与三次 `reports/c08-resident-java/` 原始联调日志留在本机；新闭环原始日志、脚本和provider SQLite在忽略的 `tmp/c08-resident-refund/`，均不提交或删除。无已知测试/Java/Agent子进程运行；既有PostgreSQL、MySQL、RocketMQ namesrv/broker容器运行，未删卷。
 - 取舍与失败：strict mypy全量既有9错（本步源码单独通过）；最新全量 **1082 passed / 9 skipped**。缺summary时run明确FAILED；C09恢复与租约/fence未交付，不把现有worker当生产高可用。

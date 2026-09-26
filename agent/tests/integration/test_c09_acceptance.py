@@ -81,7 +81,8 @@ def test_late_worker_cannot_save_reply_or_callback(agent_db: Database, monkeypat
         assert row["n"] == 0
 
 
-def test_changed_manifest_fails_without_new_model_call(agent_db: Database, monkeypatch) -> None:
+@pytest.mark.parametrize("change", ["budget", "state", "code", "model"])
+def test_changed_manifest_fails_without_new_model_call(agent_db: Database, monkeypatch, change: str) -> None:
     queued(agent_db)
     model = MockModelClient(script=[propose("MANUAL_REVIEW", summary="synthetic")])
     investigate = build_investigation(database=agent_db, config=DeploymentConfig(mode="mock"), model=model,
@@ -95,8 +96,17 @@ def test_changed_manifest_fails_without_new_model_call(agent_db: Database, monke
     with agent_db.connection() as connection:
         connection.execute("UPDATE agent_run SET lease_until=now()-interval '1 second'")
     monkeypatch.setattr("resolveflow.runtime.factory.DurableRun", DurableRun)
+    budget = RunBudget()
+    if change == "budget":
+        budget = replace(budget, tool_attempts=15)
+    elif change == "state":
+        monkeypatch.setattr("resolveflow.harness.manifest.STATE_SCHEMA_VERSION", 999)
+    elif change == "code":
+        monkeypatch.setenv("RESOLVEFLOW_CODE_REVISION", "incompatible-build")
+    else:
+        model.model_alias = "different-model"
     changed = build_investigation(database=agent_db, config=DeploymentConfig(mode="mock"), model=model,
-                                 tools=StubTools(), budget=replace(RunBudget(), tool_attempts=15))
+                                 tools=StubTools(), budget=budget)
     result = RunWorker(agent_db, changed, recoverable=True).run_once()
     assert result.result.reason_code == "MIGRATION_REQUIRED"
     assert model.calls == 1
@@ -131,3 +141,21 @@ def test_provider_outage_is_retried_once_with_unknown_cost(agent_db: Database, s
         row = connection.execute("SELECT budget_spent FROM agent_run").fetchone()
         assert row["budget_spent"]["model_calls"] == 2
         assert row["budget_spent"]["output_tokens"] >= 1024
+
+
+def test_model_timeout_is_bounded_by_original_deadline(agent_db: Database) -> None:
+    from resolveflow.harness.live_model import LiveModelClient
+    from tests.unit.test_live_model_client import Recorder, ok
+
+    queued(agent_db)
+    with agent_db.connection() as connection:
+        connection.execute("UPDATE agent_run SET deadline_at=now()+interval '5 seconds'")
+    transport = Recorder(ok(json.dumps(propose("MANUAL_REVIEW", summary="synthetic")),
+                            {"prompt_tokens": 100, "completion_tokens": 30}))
+    model = LiveModelClient(endpoint="http://provider.test.invalid", model_id="test-model", transport=transport)
+    investigate = build_investigation(database=agent_db,
+                                     config=DeploymentConfig(mode="live", endpoint=model.endpoint,
+                                                             model_id=model.model_id), model=model, tools=StubTools())
+    assert RunWorker(agent_db, investigate, recoverable=True).run_once().callback_kind == "PROPOSAL"
+    assert 0 < transport.calls[0]["timeout"] <= 5
+    assert model.timeout_seconds == 30

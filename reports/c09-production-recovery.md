@@ -27,3 +27,7 @@ HTTP服务显式启用常驻worker时默认走RunLease与DurableRun；旧注入�
 增加行锁等待消耗lease的反例，RED1 failed（租约已过期仍PROPOSAL）→先锁row再读取DB时间修复。物流分页重建RED1 failed（trace_pages=0）→从保存的Observation恢复计数，新MCP无外部调用。live客户端HTTP桩503反例RED2 failed→worker留RUNNING可接管、最多原请求一次重试，二次UNKNOWN后MODEL_RETRY_EXHAUSTED，真实计费数据保守保留；不是收费live评测。合并测试第一次有一个子进程恰好在编辑源码期间启动而ImportError，停止并行编辑后完整62项通过。Ruff全量通过，本步三个源码strict mypy通过。
 
 真实Java/PG/MCP/MQ/mock退款闭环 `python scripts/e2e_resident_refund.py`，运行20260926-230859，**PASSED / 38.9s**；Case/run/line分别7799b0e7-c09e-40d6-9a2c-ee1fbb9af925/a264709d-cbb6-52cb-a961-d6691ed1c9b7/9230907；2599分退款、预留0、provider一次attempt、STARTED/PROPOSAL两条ACCEPTED。原始日志和provider SQLite保留忽略目录tmp/c08-resident-refund/20260926-230859，不提交敏感原始日志。不是自主live或生产可靠性保证。最终全量仍下一步运行。
+
+## 最终版本与deadline核验
+
+未设置构建戳时code_revision改为源码(.py/.sql)与uv.lock内容指纹；wheel无lock时使用实际安装依赖列表hash，部署可显式使用构建戳。RED缺模块→指纹变化测试通过，预算/state/code/model四类manifest变更全部拒绝且模型不新增调用。政策检索/本地Observation恢复各一项，缓存命中时禁止查询方法，local_reads/tool_attempts原计数保留；测试首次patch错局部导入路径失败，修正后通过。模型timeout反例RED1 failed（剩5秒仍传30）→发送前读PG时间，模型/MCP timeout取原配置、冻结预算timeout和原deadline剩余的最小值，发送后恢复client配置。聚焦37 passed（不含15个跨进程case，将随全量重跑），Ruff全量通过，五个相关源码strict mypy通过。

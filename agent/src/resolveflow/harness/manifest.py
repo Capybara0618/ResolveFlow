@@ -36,6 +36,7 @@ from __future__ import annotations
 import hashlib
 import os
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Any, Final
 
 from resolveflow.harness.budget import RunBudget
@@ -98,15 +99,15 @@ def _distribution_version(name: str) -> str:
 
 
 def code_revision() -> str:
-    """The revision the harness is running from.
+    """Use the deployment stamp, or fingerprint source and lock for an unstamped checkout.
 
-    ``RESOLVEFLOW_CODE_REVISION`` is the stamp a build pipeline sets; ``"unknown"`` is the honest answer in a
-    checkout nobody stamped. It is deliberately not derived from a git call at run time: a container has no
-    repository, and a manifest that silently degrades to "unknown" *and looks stamped* is worse than one that says
-    it does not know.
+    No git call or credential is needed. Wheels without the lock fingerprint actual installed distributions.
     """
+    from resolveflow.runtime.build_identity import source_identity
+
     stamp = os.environ.get("RESOLVEFLOW_CODE_REVISION", "")
-    return stamp or "unknown"
+    package = Path(__file__).resolve().parents[1]
+    return stamp or source_identity(package, package.parent.parent / "uv.lock")
 
 
 #: The exact AgentScope build the loop runs on. Read from the installed distribution rather than typed in, because

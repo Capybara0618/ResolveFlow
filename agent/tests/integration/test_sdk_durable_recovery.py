@@ -62,3 +62,46 @@ def test_reconstructed_mcp_keeps_trace_page_allowance(agent_db: Database) -> Non
     assert resumed.run().completed
     assert tools.trace_pages == 1
     assert tools.calls == []
+
+
+@pytest.mark.parametrize("local", ["policy", "observation"])
+def test_local_reads_reconstruct_without_query_or_budget_reset(agent_db: Database, stub_embedder,
+                                                               monkeypatch, local: str) -> None:
+    from resolveflow.policies import PolicyIndex
+    from tests.integration.test_policy_search_action import BUNDLE
+    from tests.integration.test_policy_search_action import facts as policy_facts
+
+    _store(agent_db)
+    facts = replace(policy_facts(), run_id=RUN_ID, fence=1, lease_owner="test-worker")
+    index = PolicyIndex(agent_db)
+    index.build(BUNDLE, embedder=stub_embedder)
+    obs = observation()
+    script = ([{"kind": "SEARCH_POLICY", "query": "承运商判定丢失 全额退款", "arguments": {}}]
+              if local == "policy" else [{"kind": "READ_TOOL", "tool_name": "get_order_context", "arguments": {}},
+                                         {"kind": "READ_OBSERVATION", "observation_id": obs.observation_id}])
+    script.append(propose("MANUAL_REVIEW", summary="synthetic"))
+    saved = 0
+    def crash(stage):
+        nonlocal saved
+        if stage == "after_tool_saved":
+            saved += 1
+            if saved == (1 if local == "policy" else 2):
+                raise Crash()
+    first = AgentScopeRunner(model=MockModelClient(script=script), tools=StubTools(obs), facts=facts,
+                             policy_index=index, policy_embedder=stub_embedder,
+                             durability=DurableRun(agent_db, facts, fault=crash))
+    with pytest.raises(Crash):
+        first.run()
+    def forbidden(*args, **kwargs):
+        raise AssertionError("saved local read must not query again")
+    if local == "policy":
+        monkeypatch.setattr(index, "search", forbidden)
+    else:
+        monkeypatch.setattr("resolveflow.harness.observation_read.read_observation", forbidden)
+    resumed = AgentScopeRunner(model=MockModelClient(script=script), tools=StubTools(), facts=facts,
+                               policy_index=index, policy_embedder=stub_embedder,
+                               durability=DurableRun(agent_db, facts))
+    result = resumed.run()
+    assert result.completed
+    assert result.spend.local_reads == 1
+    assert result.spend.tool_attempts == (1 if local == "policy" else 2)
