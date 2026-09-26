@@ -260,6 +260,15 @@ def create_demo_line(amount_minor: int, report: "base.Report") -> str:
     return line_id
 
 
+def java_ports_available(report: base.Report) -> bool:
+    for port in (CASE_PORT, COMMERCE_PORT):
+        owners = base.pids_on_port(port)
+        if owners:
+            report.note(f"port {port} is occupied by PID(s) {', '.join(owners)}; leaving them untouched")
+            return False
+    return True
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--keep-running", action="store_true",
@@ -284,10 +293,9 @@ def main() -> int:
             report.finish("FAILED: MySQL is not reachable")
             return 1
 
-        for port in (CASE_PORT, COMMERCE_PORT):
-            if base.pids_on_port(port):
-                report.note(f"port {port} was already in use; killing it so this run owns its services")
-                base.kill_port(port)
+        if not java_ports_available(report):
+            report.finish("FAILED: a Java service port is already in use")
+            return 1
 
         report.section("build")
         started = time.time()
@@ -465,9 +473,9 @@ def stop(proc, port: int) -> None:
             proc.wait(timeout=30)
         except subprocess.TimeoutExpired:
             proc.kill()
-    # The port is the evidence that it is really gone, not the exit of the handle we hold.
+    # An unrelated listener may have taken the port after our child exited. Observe it, but never kill it.
     if base.pids_on_port(port):
-        base.kill_port(port)
+        print(f"[driver] port {port} remains occupied after our child exited; owner left untouched")
 
 
 def agent_run_id_for(case_id: str, input_revision: int) -> str:

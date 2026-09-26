@@ -184,6 +184,15 @@ def create_demo_line(amount_minor: int, report: "base.Report", slot: bool = True
     return line_id, "M-1001", "C-2002"
 
 
+def java_ports_available(report: base.Report) -> bool:
+    for port in (CASE_PORT, COMMERCE_PORT):
+        owners = base.pids_on_port(port)
+        if owners:
+            report.note(f"port {port} is occupied by PID(s) {', '.join(owners)}; leaving them untouched")
+            return False
+    return True
+
+
 def stop(proc, port: int) -> None:
     if proc is not None and proc.poll() is None:
         proc.terminate()
@@ -191,9 +200,9 @@ def stop(proc, port: int) -> None:
             proc.wait(timeout=30)
         except subprocess.TimeoutExpired:
             proc.kill()
-    # The port is the evidence that it is really gone (C03.3b lesson), not the exit of the handle we hold.
+    # An unrelated listener may have taken the port after our child exited. Observe it, but never kill it.
     if base.pids_on_port(port):
-        base.kill_port(port)
+        print(f"[driver] port {port} remains occupied after our child exited; owner left untouched")
 
 
 def main() -> int:
@@ -231,10 +240,9 @@ def main() -> int:
             report.finish("FAILED: no broker; this test is meaningless without one")
             return 1
 
-        for port in (CASE_PORT, COMMERCE_PORT):
-            if base.pids_on_port(port):
-                report.note(f"port {port} was already in use; killing it so this run owns its services")
-                base.kill_port(port)
+        if not java_ports_available(report):
+            report.finish("FAILED: a Java service port is already in use")
+            return 1
 
         if args.line:
             line, amount, why = base.pick_line(args.line)
