@@ -1,29 +1,4 @@
-"""C08.2 — the single executor: claim a queued run, investigate it, and file its callback.
-
-Until this module there was a table of queued runs and **nobody consuming them**: `RunStore.queue` wrote a
-``QUEUED`` row and the outbox had a delivery loop, but nothing turned a run into an investigation. That is the gap
-``tasks/handoff-current.md`` refuses to postpone to C09, and this is the piece that closes it.
-
-What it does, per run, in three steps:
-
-1. **claim** — the oldest ``QUEUED`` run is taken with ``FOR UPDATE SKIP LOCKED`` and moved to ``RUNNING``, and the
-   ``STARTED`` callback is filed **in the same transaction** (``AGENTS.md``: 业务结果和本地事件同事务). Two workers
-   racing therefore cannot both claim one run and cannot leave a started run the case service was never told about.
-2. **investigate** — the harness runs, *outside* the claim's transaction: a model call is an external network call
-   and ``AGENTS.md`` forbids holding a long transaction across one.
-3. **finish** — the outcome callback and the run's new status are written in one transaction, and only while the run
-   is still ``RUNNING``. A run cancelled in the meantime keeps its cancellation: this worker refuses to write, which
-   is the only honest thing a single executor can do about the race (fencing it is C09's job).
-
-The window a claim grants is ``min(deadline_at, started + MAX_ACTIVE_DEADLINE_SECONDS)`` — ``docs/agent-spec.md:42``
-bounds how long a run may hold a case, and ``RunFacts.active_deadline_at`` is documented as *already* resolved that
-way by whoever started the run, so resolving it anywhere else would be a second answer to one question.
-
-**What this module deliberately is not.** No lease, no fence, no recovery of a crashed worker's runs, no retry
-schedule: ``docs/agentscope-migration.md:63`` and the handoff both put those in C09. A run whose investigation
-raises stays ``RUNNING``; that is stated here rather than papered over with a catch-all, because a worker that
-swallowed an unexpected exception would turn a harness bug into a ``FAILED`` callback that looks like a decision.
-"""
+"""Run ownership, fenced terminal status and transactional callbacks; SDK owns investigation."""
 
 from __future__ import annotations
 
@@ -85,6 +60,7 @@ class ClaimedRun:
     facts: RunFacts
     case_id: str
     traceparent: str | None
+    legacy: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,6 +85,7 @@ class RunWorker:
 
     database: Database
     investigate: Callable[[RunFacts], RunResult]
+    recoverable: bool = False
     callbacks: CallbackStore = field(init=False)
 
     def __post_init__(self) -> None:
@@ -202,10 +179,13 @@ class RunWorker:
                 """
                 UPDATE agent_run
                 SET status = %(status)s, updated_at = %(now)s, version = version + 1
-                WHERE run_id = %(run_id)s AND status = %(running)s
+                WHERE run_id = %(run_id)s AND status = %(running)s AND cancelled_at IS NULL
+                  AND (%(fence)s::bigint IS NULL OR
+                       (fence=%(fence)s AND lease_owner=%(owner)s AND lease_until>clock_timestamp()))
                 RETURNING run_id
                 """,
-                {"status": status, "now": finished, "run_id": claimed.facts.run_id, "running": RUNNING},
+                {"status": status, "now": finished, "run_id": claimed.facts.run_id, "running": RUNNING,
+                 "fence": claimed.facts.fence, "owner": claimed.facts.lease_owner},
             ).fetchone()
             if updated is None:
                 current = connection.execute(
@@ -227,10 +207,48 @@ class RunWorker:
 
     def run_once(self, *, now: dt.datetime | None = None) -> RunOutcome | None:
         """Claim one run, investigate it, and finish it. ``None`` means the queue was empty."""
+        if self.recoverable:
+            return self._recoverable_once()
         claimed = self.claim_one(now=now)
         if claimed is None:
             return None
         return self.finish(claimed, self.investigate(claimed.facts))
+
+    def _recoverable_once(self) -> RunOutcome | None:
+        # Local import avoids the lease's dependency on the claim vocabulary.
+        from resolveflow.harness.budget import BudgetExhaustedError, RunSpend
+        from resolveflow.runtime.leases import RunLease
+        from resolveflow.runtime.recovery_budget import RecoveryCallBudgetExhausted
+        from resolveflow.runtime.recovery_store import RecoveryConflictError, StaleFenceError
+
+        with RunLease(self.database).acquire() as claimed:
+            if claimed is None:
+                return None
+            reason = None
+            try:
+                if claimed.legacy:
+                    reason = "MIGRATION_REQUIRED"
+                elif dt.datetime.fromisoformat(claimed.facts.active_deadline_at or "") <= dt.datetime.now(dt.UTC):
+                    reason = "BUDGET_DEADLINE"
+                else:
+                    return self.finish(claimed, self.investigate(claimed.facts))
+            except RecoveryConflictError:
+                reason = "MIGRATION_REQUIRED"
+            except RecoveryCallBudgetExhausted:
+                reason = "BUDGET_MODEL_CALLS"
+            except BudgetExhaustedError as error:
+                reason = error.reason_code
+            except StaleFenceError:
+                # An expired deadline is terminal; a lost owner cannot publish a callback.
+                reason = "BUDGET_DEADLINE" if dt.datetime.fromisoformat(
+                    claimed.facts.active_deadline_at or ""
+                ) <= dt.datetime.now(dt.UTC) else "STALE_FENCE"
+            with self.database.connection() as connection:
+                row = connection.execute("SELECT budget_spent FROM agent_run WHERE run_id=%s",
+                                         (claimed.facts.run_id,)).fetchone()
+            result = RunResult(False, reason or "MIGRATION_REQUIRED", None, (),
+                               RunSpend(**row["budget_spent"]) if row else RunSpend())
+            return self.finish(claimed, result)
 
     def drain(self, *, limit: int = 1, now: dt.datetime | None = None) -> list[RunOutcome]:
         """Investigate up to ``limit`` runs. The loop is the SDK's per run and this is the one around it."""

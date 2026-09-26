@@ -480,7 +480,7 @@ def create_app(
                 # Enabling investigation explicitly opts into opening/migrating the store at startup, including
                 # QUEUED records from before this process started. Disabled apps retain lazy database access.
                 app.state.run_store.require()
-                worker = RunWorker(worker_database, investigate=investigate)
+                worker = RunWorker(worker_database, investigate=investigate, recoverable=True)
                 investigation_loop = InvestigationLoop(worker.run_once, interval_seconds=worker_interval_seconds)
                 app.state.investigation_loop = investigation_loop
                 investigation_loop.start()

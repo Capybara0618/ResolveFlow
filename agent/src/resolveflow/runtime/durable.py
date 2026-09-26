@@ -32,6 +32,7 @@ class DurableRun:
     sdk_state: dict[str, Any] = field(default_factory=dict)
     model_record: Any = None
     tool_record: Any = None
+    tool_saved: bool = False
 
     def __post_init__(self) -> None:
         self.journal = RunJournal(self.database)
@@ -45,6 +46,9 @@ class DurableRun:
             runner.model.use_context_step = True
 
     def before_model(self, agent: Any, guard: Any) -> None:
+        if self.tool_saved:
+            self.tool_saved = False
+            self.fault("after_tool_saved")
         self.model_record, spend = self.journal.read(self.facts.run_id, **self.identity(),
                                                    call_id=f"model-{self.model_step}")
         row = self.model_record
@@ -136,7 +140,7 @@ class DurableRun:
             observation = invoke()
             self.journal.save_tool(self.facts.run_id, **self.identity(), call_id=call_id,
                                    observation=observation.model_dump(mode="json"))
-            self.fault("after_tool_saved")
+            self.tool_saved = True
         guard.guard.spend = RunSpend(**spend)
         self.tool_step += 1
         return observation

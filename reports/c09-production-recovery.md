@@ -15,3 +15,7 @@ RunLease保留独立pool checkout承载session advisory lock，领取与fence递
 ## 同SDK重建小步
 
 现有AgentScopeRunner接入DurableRun；按稳定逻辑call_id重建已保存模型/工具回复、历史上下文和SDK控制状态，实际预算保留原PG账。每次发送前冻结精确请求，重建不一致拒绝；首个恢复新推理使用总12次内的恢复分区。SDK状态可校验但不声称直接load后续跑：本步使用规范允许的领域记录重建路径。三个故障窗口真实PG各5次通过，UNKNOWN原attempt不退且最多一次重试；已保存工具外部读取总计一次。相关SDK循环/检索76 passed；全量Ruff通过，新代码strict mypy通过。生产worker接入、跨进程和H4最终门禁仍待后续小步。
+
+## 生产worker接线小步
+
+HTTP服务显式启用常驻worker时默认走RunLease与DurableRun；旧注入测试仍可用兼容worker。终局UPDATE与outbox同事务检查fence/owner/有效lease/取消。旧RUNNING缺fence明确MIGRATION_REQUIRED；过期活动deadline直接FAILED且不调用模型。快照格式版本升到2。RED4 failed→租约/worker26 passed；factory/resident/manifest/SDK44 passed；Ruff通过，四个源码strict mypy通过。合并测试暴露SDK旧MCP异常handler在工具故障注入抛异常时遮蔽原错误，工具保存后的注入移至下一模型调用前（工具已保存、尚未推进新调用），重新15窗口全部通过。修正上个提交文档写入引入CRLF的格式噪声，未改历史记录。未运行全量/跨进程/Java/live，最终门禁继续。

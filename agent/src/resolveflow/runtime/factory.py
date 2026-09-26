@@ -42,6 +42,7 @@ from resolveflow.harness.vocabulary import RunFacts, RunResult
 from resolveflow.policies.index import PolicyIndex
 from resolveflow.policies.retrieval import Embedder, embedder
 from resolveflow.runtime.db import Database
+from resolveflow.runtime.durable import DurableRun
 from resolveflow.tools.credential import credential_source
 
 __all__ = ["DeploymentConfig", "DeploymentRefusedError", "build_investigation"]
@@ -182,6 +183,7 @@ def build_investigation(
                 budget=run_budget,
                 policy_index=index,
                 policy_embedder=embedder_for_run,
+                durability=DurableRun(database, facts) if facts.fence is not None else None,
             )
             return runner.run()
         finally:

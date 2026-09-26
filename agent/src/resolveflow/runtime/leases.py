@@ -44,7 +44,8 @@ class RunLease:
                 with connection.transaction():
                     row = connection.execute(
                         "SELECT * FROM agent_run WHERE cancelled_at IS NULL AND "
-                        "(status='QUEUED' OR (status='RUNNING' AND lease_until<clock_timestamp())) "
+                        "(status='QUEUED' OR (status='RUNNING' AND "
+                        "(lease_until IS NULL OR lease_until<clock_timestamp()))) "
                         "ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED",
                     ).fetchone()
                     claimed = None
@@ -78,6 +79,7 @@ class RunLease:
                                          customer_id=row["customer_id"], active_deadline_at=window.isoformat(),
                                          policy_manifest=row["policy_manifest"], fence=fence, lease_owner=self.owner),
                                 str(row["case_id"]), row["traceparent"],
+                                legacy=row["status"] == "RUNNING" and row["fence"] is None,
                             )
                 if claimed is not None:
                     facts = claimed.facts

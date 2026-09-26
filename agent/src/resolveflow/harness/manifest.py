@@ -65,7 +65,7 @@ CONTEXT_POLICY_VERSION: Final = "p0-p4-v2-citation-metadata"
 TOKEN_COUNTER_VERSION: Final = "utf8-bytes-v1"  # noqa: S105 - ruff reads "TOKEN" as a credential; this is a rule name
 
 #: The persisted run/snapshot shape this harness writes. C09's recovery distinguishes snapshots by this value.
-STATE_SCHEMA_VERSION: Final = 1
+STATE_SCHEMA_VERSION: Final = 2
 
 #: The Python-side proposal verifier that exists as of C08.1c: it checks the frozen schema, that every citation
 #: names bytes *this run* actually read, version/hash agreement, the missing-evidence rule and cross-scope policy
