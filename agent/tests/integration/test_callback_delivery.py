@@ -585,3 +585,19 @@ def test_a_started_acknowledgement_changes_no_status(agent_db: Database) -> None
 
     assert run_status(agent_db) == "RUNNING"
     assert callbacks.list_for_run(RUN_ID)[0].status == DELIVERED
+
+
+def test_a_persisted_callback_can_be_sent_with_its_original_traceparent(agent_db: Database) -> None:
+    """The real delivery loop reads an outbox record, not the test-only transport Row DTO."""
+    callbacks = queued(agent_db)
+    stored = callbacks.enqueue_for_run(RUN_ID, a_started())
+    seen: dict[str, Any] = {}
+
+    def transport(request: Any, timeout: float) -> Any:
+        seen.update(json.loads(request.data))
+        return FakeResponse(200, {"disposition": "ACCEPTED", "case_version": 2})
+
+    result = post_delivery(CASE_BASE, stored, secret=SECRET, ttl_seconds=300, timeout=2.0, transport=transport)
+
+    assert result.disposition == "ACCEPTED"
+    assert seen["traceparent"] == a_run().traceparent

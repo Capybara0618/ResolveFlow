@@ -124,6 +124,7 @@ class CallbackRecord:
     payload: dict[str, Any]
     status: str
     attempts: int
+    traceparent: str | None = None
     disposition: str | None = None
     last_error: str | None = None
     next_attempt_at: dt.datetime | None = None
@@ -403,6 +404,7 @@ def _as_record(row: dict[str, Any]) -> CallbackRecord:
         payload=dict(row["payload"]),
         status=str(row["status"]),
         attempts=int(row["attempts"]),
+        traceparent=row["traceparent"],
         disposition=row["disposition"],
         last_error=row["last_error"],
         next_attempt_at=row["next_attempt_at"],
