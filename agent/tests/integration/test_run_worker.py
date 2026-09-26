@@ -10,12 +10,15 @@ from __future__ import annotations
 
 import datetime as dt
 import uuid
+from dataclasses import replace
 from typing import Any
 
 import pytest
 
-from resolveflow.contracts.enums import CallbackKind
-from resolveflow.harness.actions import validate_decision
+from resolveflow.contracts._schemaio import CORE_SCHEMA_FILES, component_validator
+from resolveflow.contracts.core_models import ToolObservation
+from resolveflow.contracts.enums import CallbackKind, EvidenceSourceType
+from resolveflow.harness.actions import POLICY_SEARCH_TOOL_NAME, validate_decision
 from resolveflow.harness.manifest import MAX_ACTIVE_DEADLINE_SECONDS
 from resolveflow.harness.vocabulary import RunResult
 from resolveflow.runtime.callbacks import CallbackStore
@@ -81,6 +84,19 @@ def worker_for(agent_db: Database, result: RunResult | None = None) -> RunWorker
 
 
 def proposal_result() -> RunResult:
+    evidence = {
+        "observation_id": "shipment-observation",
+        "source_ref": "order:get_shipment_trace",
+        "source_version": "3",
+        "content_hash": "a" * 64,
+    }
+    policy = {
+        "bundle_id": "policy-logistics-2026.09",
+        "version": "2026.09.1",
+        "rule_id": "lost-refund",
+        "chunk_id": "chunk-1",
+        "content_hash": "b" * 64,
+    }
     return RunResult(
         completed=True,
         reason_code="COMPLETED",
@@ -91,9 +107,29 @@ def proposal_result() -> RunResult:
                 "recommended_action": "REFUND",
                 "reason_codes": ["LOST_CONFIRMED"],
                 "summary": "承运商判定丢失",
+                "evidence_refs": [evidence],
+                "policy_refs": [policy],
             }
         ),
-        observations=(),
+        observations=(
+            ToolObservation(
+                **evidence,
+                tool_name="get_shipment_trace",
+                source_type=EvidenceSourceType.ORDER_LINE,
+                observed_at=STARTED_AT.isoformat(),
+                result={"conclusion": "LOST"},
+            ),
+            ToolObservation(
+                observation_id="policy-search",
+                tool_name=POLICY_SEARCH_TOOL_NAME,
+                source_type=EvidenceSourceType.POLICY_RULE,
+                source_ref="policy:policy-logistics-2026.09",
+                source_version="1",
+                content_hash="c" * 64,
+                observed_at=STARTED_AT.isoformat(),
+                result={"hits": [policy]},
+            ),
+        ),
         spend=object(),
     )
 
@@ -201,8 +237,95 @@ def test_an_investigated_run_files_its_proposal_and_awaits_java(agent_db: Databa
     assert proposal[0].payload["case_id"] == CASE_ID
     assert proposal[0].payload["input_revision"] == 1
     assert proposal[0].payload["recommended_action"] == "REFUND"
+    assert proposal[0].payload["evidence_refs"][0]["observation_id"] == "shipment-observation"
+    assert proposal[0].payload["policy_refs"][0]["rule_id"] == "lost-refund"
+    validator = component_validator("case", "ProposalPayload", "contracts/core", CORE_SCHEMA_FILES)
+    assert list(validator.error_messages(proposal[0].payload)) == []
     # Nothing about the run is left claiming it is still being investigated.
     assert read_run(agent_db)["status"] != "RUNNING"
+
+
+@pytest.mark.parametrize(
+    ("defect", "reason"),
+    [
+        ("summary", "PROPOSAL_SCHEMA_REFUSED"),
+        ("no_citations", "REFUND_CITATION_REQUIRED"),
+        ("hash", "CITATION_HASH_MISMATCH"),
+        ("invisible", "CITATION_NOT_VISIBLE"),
+        ("scope", "CROSS_SCOPE_CITATION"),
+        ("missing_evidence", "PROPOSAL_SCHEMA_REFUSED"),
+    ],
+)
+def test_invalid_final_proposals_fail_without_filing_a_proposal(
+    agent_db: Database, defect: str, reason: str,
+) -> None:
+    queued(agent_db)
+    result = proposal_result()
+    decision = result.decision.model_dump()
+    if defect == "summary":
+        decision.pop("summary")
+    elif defect == "no_citations":
+        decision.update(evidence_refs=[], policy_refs=[])
+    elif defect == "hash":
+        decision["evidence_refs"][0]["content_hash"] = "d" * 64
+    elif defect == "scope":
+        decision["policy_refs"][0]["bundle_id"] = "other-merchant-policy"
+    elif defect == "missing_evidence":
+        decision["missing_evidence"] = ["carrier-confirmation"]
+    elif defect == "invisible":
+        result = replace(result, observations=())
+    result = replace(result, decision=validate_decision(decision))
+
+    outcome = worker_for(agent_db, result).run_once(now=STARTED_AT)
+
+    assert outcome is not None
+    assert (outcome.status, outcome.callback_kind) == ("FAILED", "FAILED")
+    assert outcome.result is not None and outcome.result.reason_code == reason
+    assert not outcome.result.completed
+    assert read_run(agent_db)["status"] == "FAILED"
+    records = CallbackStore(agent_db).list_for_run(RUN_ID)
+    assert [record.kind for record in records] == ["STARTED", "FAILED"]
+    assert records[-1].payload == {"reason_codes": [reason], "retryable": False}
+
+
+@pytest.mark.parametrize("valid", [True, False])
+def test_final_status_and_callback_roll_back_together_on_outbox_failure(
+    agent_db: Database, monkeypatch: pytest.MonkeyPatch, valid: bool,
+) -> None:
+    queued(agent_db)
+    worker = worker_for(agent_db)
+    claimed = worker.claim_one(now=STARTED_AT)
+    assert claimed is not None
+    result = proposal_result()
+    if not valid:
+        result = replace(result, observations=())
+
+    def fail_enqueue(*args: Any, **kwargs: Any) -> None:
+        raise RuntimeError("outbox write failed")
+
+    monkeypatch.setattr(CallbackStore, "enqueue_for_run", fail_enqueue)
+    with pytest.raises(RuntimeError, match="outbox write failed"):
+        worker.finish(claimed, result)
+
+    assert read_run(agent_db)["status"] == "RUNNING"
+    assert [record.kind for record in CallbackStore(agent_db).list_for_run(RUN_ID)] == ["STARTED"]
+
+
+def test_claim_and_started_callback_roll_back_together_on_outbox_failure(
+    agent_db: Database, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    queued(agent_db)
+
+    def fail_enqueue(*args: Any, **kwargs: Any) -> None:
+        raise RuntimeError("outbox write failed")
+
+    monkeypatch.setattr(CallbackStore, "enqueue_for_run", fail_enqueue)
+    with pytest.raises(RuntimeError, match="outbox write failed"):
+        worker_for(agent_db).claim_one(now=STARTED_AT)
+
+    assert read_run(agent_db)["status"] == "QUEUED"
+    assert read_run(agent_db)["active_deadline_at"] is None
+    assert CallbackStore(agent_db).list_for_run(RUN_ID) == []
 
 
 def test_a_question_is_filed_and_leaves_the_run_awaiting_receipt(agent_db: Database) -> None:

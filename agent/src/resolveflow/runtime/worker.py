@@ -30,11 +30,12 @@ from __future__ import annotations
 import datetime as dt
 import uuid
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Final
 
 from resolveflow.contracts.enums import CallbackKind
 from resolveflow.harness.manifest import MAX_ACTIVE_DEADLINE_SECONDS
+from resolveflow.harness.verifier import ProposalVerifier
 from resolveflow.harness.vocabulary import RunFacts, RunResult
 from resolveflow.runtime.callbacks import CallbackEnvelope, CallbackStore
 from resolveflow.runtime.db import Database
@@ -100,7 +101,7 @@ class RunOutcome:
 class RunWorker:
     """Claims queued runs and investigates them, one at a time.
 
-    ``investigate`` is the seam that keeps this module free of the harness: it takes the run's facts and returns how
+    ``investigate`` is the seam that keeps this module free of the agent loop: it takes the run's facts and returns how
     the investigation ended. The C08.2 factory (mock or live model, MCP tools, a policy index) is what a deployment
     passes here, and a test can pass a lambda — which is how the claim/status/callback rules are checked without a
     model in the loop.
@@ -121,7 +122,7 @@ class RunWorker:
         assumption: a second worker skips a locked row instead of blocking on it or claiming it twice.
         """
         started = now or dt.datetime.now(dt.UTC)
-        with self.database.connection() as connection:
+        with self.database.connection() as connection, connection.transaction():
             row = connection.execute(
                 """
                 SELECT run_id, case_id, input_revision, line_id, request_description, merchant_id, customer_id,
@@ -178,10 +179,25 @@ class RunWorker:
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
+        A proposal is checked in its final wire shape against the run's observations and pinned policies before
+        opening the write transaction. Refusal files FAILED instead; Python acceptance is not Java approval.
         """
         kind, status = _callback_of(result)
+        payload = callback_payload(kind, claimed, result)
+        if kind is CallbackKind.PROPOSAL:
+            verification = ProposalVerifier(
+                observations=result.observations,
+                pinned_bundle_ids=frozenset(
+                    str(bundle) for bundle in (claimed.facts.policy_manifest.get("bundle_ids") or [])
+                ),
+            ).verify_proposal(payload)
+            if not verification.ok:
+                # Keep the rejected candidate in the result, but never publish it as a proposal.
+                result = replace(result, completed=False, reason_code=verification.reason_codes[0])
+                kind, status = CallbackKind.FAILED, FAILED
+                payload = callback_payload(kind, claimed, result)
         finished = now or dt.datetime.now(dt.UTC)
-        with self.database.connection() as connection:
+        with self.database.connection() as connection, connection.transaction():
             updated = connection.execute(
                 """
                 UPDATE agent_run
@@ -204,7 +220,7 @@ class RunWorker:
                 )
             self.callbacks.enqueue_for_run(
                 claimed.facts.run_id,
-                CallbackEnvelope(kind=kind, payload=callback_payload(kind, claimed, result)),
+                CallbackEnvelope(kind=kind, payload=payload),
                 connection=connection,
             )
         return RunOutcome(run_id=claimed.facts.run_id, status=status, callback_kind=kind.value, result=result)
@@ -279,7 +295,7 @@ def callback_payload(kind: CallbackKind, claimed: ClaimedRun, result: RunResult)
     decision = result.decision
     facts = claimed.facts
     if kind is CallbackKind.PROPOSAL:
-        # Exactly `ProposalPayload`'s required members (contracts/core/openapi-case.yaml:1622), no more and no fewer:
+        # `ProposalPayload`'s runtime bindings plus the candidate's declared members:
         # the component is `additionalProperties: false`, and `run_id`/`case_id`/`input_revision` are carried so Java
         # can cross-check the body against the service token and the Case binding rather than trust a copy.
         payload: dict[str, Any] = {
@@ -298,6 +314,10 @@ def callback_payload(kind: CallbackKind, claimed: ClaimedRun, result: RunResult)
         missing = list(getattr(decision, "missing_evidence", []) or [])
         if missing:
             payload["missing_evidence"] = missing
+        for member in ("evidence_refs", "policy_refs"):
+            refs = getattr(decision, member, []) or []
+            if refs:
+                payload[member] = [ref.model_dump(mode="json") for ref in refs]
         return payload
     if kind is CallbackKind.QUESTION:
         # Exactly `QuestionPayload`: `question_id`, `questions` (each an `AgentQuestion`: `field` + `prompt`) and an
