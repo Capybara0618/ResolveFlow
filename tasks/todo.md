@@ -2,17 +2,16 @@
 
 2026-09-26更新。当前唯一进度账本。AgentScope迁移约束见[迁移规格](../docs/agentscope-migration.md)，开工只使用[当前交接](handoff-current.md)。业务与验收保持v1.2；旧40个T任务已退出当前必做顺序，完整原记录保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
-## 最近交接快照（2026-09-26 23:33 +08:00，Asia/Shanghai）
+## 最近交接快照（2026-09-27 00:09 +08:00，Asia/Shanghai）
 
-- 方向与执行者：DSH已明确停止写入，Codex完成本轮C09；唯一业务写入工作区 `E:/Code/Agent+Backend`，`main` → `origin/main`。所有实现小步已提交、正常推送并确认远端；最新代码 `070e68c`，本验收记录随最终文档提交推送核验。
-- 当前子步：**C09.1/C09.2完成，H4/CF6恢复门禁通过**。生产常驻worker接入PG租约/session advisory lock、fence、同SDK持久重建、稳定call/attempt和UNKNOWN计费；恢复保留manifest、总12内10+2预算、原deadline，旧fence/取消/旧revision/不兼容版本拒绝写结果和回调。见[生产恢复验收](../reports/c09-production-recovery.md)与[原始JUnit](../reports/c09-production-recovery.junit.xml)。
-- 最终验证：全量Python **1138 passed / 9 skipped / 1 warning / 232.96s**；9 skip为无citation契约样例。全量Ruff/diff通过；9个相关源码strict mypy通过，全量strict仍4个既有文件9个no-any-return。跨进程CF6三个窗口各5次（15/15成功、未决0）；同进程重建三个窗口各5次、政策/Observation缓存复用和分页计数均覆盖。
-- 业务回归：真实Java/PG/MCP/MQ+显式mock模拟退款两次通过，最新 `20260926-232409` PASSED（57.3s），2599分一次资金效果、预留0、STARTED/PROPOSAL两条ACCEPTED。C08自主性/live与H1仍未验收；六组配对seed/Gold准备保留，Gold未人工冻结、没有付费预算。
-- 剩余问题：C09无未完成实现项；全量mypy既有9错未夹带修复。恢复不承诺零重复计费，不支持历史版本自动迁移，升级前停止旧worker；本轮只验收H4，不自动勾H1/H2/H3/H5或生产高可用。
-- 下一具体动作：按C10读取 `docs/trajectory-replay.md`、核验现有生产SDK strict入口与Python层禁网的实际边界，先补缺记录失败/真实隔离的关键反例，再实施薄回放适配；不要重做C09，不重选架构。
-- 未运行：本次Java单测/Spotless、all-offline包装入口、收费live、H1/H2/H3/H5及C10 strict。当前C09对应测试已运行，不再标成“恢复尚未交付”。
-- 未提交保留：既有 `reports/c052c-chain/20260925-232103-provider.sqlite3` 数据库快照和 `reports/c08-resident-java/` 原始日志；忽略目录 `tmp/c08-resident-refund/` 保留本轮两次日志/provider SQLite及早期运行记录。不提交、不删除；没有未提交业务代码或未完成C09改动。
-- 后台：本轮测试、mypy和自启Java/Agent/lease心跳已退出；既有 `resolveflow-postgres-1`、`resolveflow-mysql-1`、`resolveflow-rocketmq-namesrv-1`、`resolveflow-rocketmq-broker-1` 继续运行，未删库/卷。推送有短暂schannel失败，有限普通重试后均已确认远端。
+- 方向与执行者：DSH已明确停止，Codex为唯一业务写入者；工作区 `E:/Code/Agent+Backend`，`main` → `origin/main`。C09最后确认提交 `f7c48bc`；C10整模块按用户新指令只在全部验收后一次提交/推送，本快照随C10提交，远端确认见本轮回执。
+- 当前子步：**C10.1/C10.2完成，H5选定严格回放门禁通过；下一模块C11**。从真实PG只读导出五个完整合成 ReplayPack；同一AgentScope/Harness循环、同一生产终局校验，经记录模型/工具/Clock/本地CallbackSink重放。五包在无网络、只读、非root容器均为 `MATCH`；缺记录/篡改/不兼容/不支持类型明确失败，实际SQL写入企图未达测试库。见[验收报告](../reports/c10-strict-replay.md)及[五包说明](../evals/replay/README.md)。只证明选定合成轨迹，不承诺任意历史或反事实。
+- 最终验证：全量Agent `pytest agent/tests -q --tb=short` **1154 passed / 9 skipped / 1 warning / 230.54s**；C10相关36 passed、C09跨进程复验26 passed、全量Ruff及C10相关8源码mypy通过。首轮全量在并行镜像构建负载下有一项C09时序失败（1148 passed/1 failed），随后单项及无并行负载全量均通过，详见报告。五包容器 5/5；坏/缺7/7拒绝、不支持1/1拒绝；容器业务写企图零副作用。
+- 剩余问题：C10范围无未完成项；全量mypy既有4文件9错未夹带修复。C08的付费live自主性/H1与C12真实模型对照仍未做，不能把mock严格回放写成live效果或高可用。
+- 下一具体动作：进入C11.1，先核对 `web/src/App.vue` 占位页与Case/Commerce现有建单、补证、审核、轨迹和SSE契约，按最小真实用户路径替换硬编码演示行；随后依C11.2a→e保留SQL基线并逐步接入Redis，C11.3完成core profile/CI。C11整模块验收后才提交推送，不提前推送中间子步。
+- 未运行：本轮Java单测/Spotless、all-offline包装入口、收费live、H1/H2/H3及C11/C12检查；这些不能计入C10通过项。
+- 未提交保留：既有 `reports/c052c-chain/20260925-232103-provider.sqlite3` 数据库快照、`reports/c08-resident-java/` 原始日志；忽略目录 `tmp/c08-resident-refund/` 保留原始日志/provider SQLite。不提交、不删除；C10源码/包/报告在本次模块提交内，无遗留半成品。
+- 后台：本轮测试、镜像构建和Python子进程已退出；既有数据库/MQ Docker 容器继续运行，未删库/卷。C10严格回放镜像为本地临时构建，未发布公网。
 
 ## 已有成果（历史记录，非本轮重测）
 
@@ -1635,12 +1634,12 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C10 选定轨迹的strict回放
 
-- [ ] C10.1：只读导出合成ReplayPack、实际输入/显式响应/观察/usage/Clock与hash。
-- [ ] C10.2：同一AgentScope/Harness逻辑只支持strict、隔离adapter与CallbackSink、禁网络执行，5个完整golden packs；复用AS01.3探针，不另造播放器/双引擎。
+- [x] C10.1：只读导出合成ReplayPack、实际输入/显式响应/观察/usage/Clock与hash。
+- [x] C10.2：同一AgentScope/Harness逻辑只支持strict、隔离adapter与CallbackSink、禁网络执行，5个完整golden packs；复用AS01.3探针，不另造播放器/双引擎。
 - 依赖：C09,AS01.3。文件：evals/replay、scripts/replay入口、隔离配置与回归测试。
 - 验收：规范状态/动作/引用/预算一致；缺记录/篡改/不支持轨迹拒绝，无业务写；不实现反事实/world。
 - 验证：H5、strict正反fixture与真实网络阻断测试。
-- 实际记录：未执行。
+- 实际记录：2026-09-26/27，代码 `agent/src/resolveflow/replay/`、`harness/sdk_runner.py`、`runtime/worker.py`、隔离镜像/脚本、五包、测试与报告见[此处](../reports/c10-strict-replay.md)。真实PG生成五包；相关36 passed、全量1154 passed/9 skipped、Ruff/相关mypy通过；五包无网络容器5/5 MATCH，网络与业务写反例通过。首轮全量一项C09时序失败已单项及全量复验通过。未跑Java/all-offline/live；不扩大C10主张。
 
 ### C11 轻量展示、核心启动与查询优化
 

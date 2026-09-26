@@ -159,20 +159,7 @@ class RunWorker:
         A proposal is checked in its final wire shape against the run's observations and pinned policies before
         opening the write transaction. Refusal files FAILED instead; Python acceptance is not Java approval.
         """
-        kind, status = _callback_of(result)
-        payload = callback_payload(kind, claimed, result)
-        if kind is CallbackKind.PROPOSAL:
-            verification = ProposalVerifier(
-                observations=result.observations,
-                pinned_bundle_ids=frozenset(
-                    str(bundle) for bundle in (claimed.facts.policy_manifest.get("bundle_ids") or [])
-                ),
-            ).verify_proposal(payload)
-            if not verification.ok:
-                # Keep the rejected candidate in the result, but never publish it as a proposal.
-                result = replace(result, completed=False, reason_code=verification.reason_codes[0])
-                kind, status = CallbackKind.FAILED, FAILED
-                payload = callback_payload(kind, claimed, result)
+        kind, status, payload, result = verified_callback(claimed, result)
         finished = now or dt.datetime.now(dt.UTC)
         with self.database.connection() as connection, connection.transaction():
             # Lock waiting consumes lease time: read the clock only after owning the row.
@@ -299,6 +286,24 @@ def _callback_of(result: RunResult) -> tuple[CallbackKind, str]:
     if kind == "ASK_CUSTOMER":
         return CallbackKind.QUESTION, CALLBACK_PENDING
     return CallbackKind.FAILED, FAILED
+
+
+def verified_callback(claimed: ClaimedRun, result: RunResult) -> tuple[CallbackKind, str, dict[str, Any], RunResult]:
+    """The production terminal rule, also used by strict replay's local sink."""
+    kind, status = _callback_of(result)
+    payload = callback_payload(kind, claimed, result)
+    if kind is CallbackKind.PROPOSAL:
+        verification = ProposalVerifier(
+            observations=result.observations,
+            pinned_bundle_ids=frozenset(
+                str(bundle) for bundle in (claimed.facts.policy_manifest.get("bundle_ids") or [])
+            ),
+        ).verify_proposal(payload)
+        if not verification.ok:
+            result = replace(result, completed=False, reason_code=verification.reason_codes[0])
+            kind, status = CallbackKind.FAILED, FAILED
+            payload = callback_payload(kind, claimed, result)
+    return kind, status, payload, result
 
 
 def _proposal_id(run_id: str) -> str:

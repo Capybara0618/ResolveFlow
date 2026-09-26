@@ -553,7 +553,12 @@ class AgentScopeRunner:
         The loop is the SDK's; what this does is build it, seed the conversation with the run's facts, and
         translate what happened back into the vocabulary the project records. Nothing here decides an action.
         """
-        return anyio.run(self._drive)
+        try:
+            return anyio.run(self._drive)
+        finally:
+            close = getattr(self.durability, "close", None)
+            if callable(close):
+                close()
 
     async def _drive(self) -> RunResult:
         if self.durability is not None:
