@@ -175,6 +175,9 @@ class RunWorker:
                 payload = callback_payload(kind, claimed, result)
         finished = now or dt.datetime.now(dt.UTC)
         with self.database.connection() as connection, connection.transaction():
+            # Lock waiting consumes lease time: read the clock only after owning the row.
+            connection.execute("SELECT run_id FROM agent_run WHERE run_id=%s FOR UPDATE",
+                               (claimed.facts.run_id,)).fetchone()
             updated = connection.execute(
                 """
                 UPDATE agent_run
@@ -217,6 +220,8 @@ class RunWorker:
     def _recoverable_once(self) -> RunOutcome | None:
         # Local import avoids the lease's dependency on the claim vocabulary.
         from resolveflow.harness.budget import BudgetExhaustedError, RunSpend
+        from resolveflow.harness.live_model import ModelRefusedError, ModelUnavailableError
+        from resolveflow.runtime.durable import ModelRetryExhaustedError
         from resolveflow.runtime.leases import RunLease
         from resolveflow.runtime.recovery_budget import RecoveryCallBudgetExhausted
         from resolveflow.runtime.recovery_store import RecoveryConflictError, StaleFenceError
@@ -232,6 +237,13 @@ class RunWorker:
                     reason = "BUDGET_DEADLINE"
                 else:
                     return self.finish(claimed, self.investigate(claimed.facts))
+            except ModelUnavailableError:
+                # Leave UNKNOWN charged and RUNNING reclaimable. The resident loop remains alive.
+                return RunOutcome(claimed.facts.run_id, RUNNING, None, None)
+            except ModelRefusedError:
+                reason = "MODEL_REFUSED"
+            except ModelRetryExhaustedError:
+                reason = "MODEL_RETRY_EXHAUSTED"
             except RecoveryConflictError:
                 reason = "MIGRATION_REQUIRED"
             except RecoveryCallBudgetExhausted:

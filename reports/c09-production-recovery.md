@@ -19,3 +19,11 @@ RunLease保留独立pool checkout承载session advisory lock，领取与fence递
 ## 生产worker接线小步
 
 HTTP服务显式启用常驻worker时默认走RunLease与DurableRun；旧注入测试仍可用兼容worker。终局UPDATE与outbox同事务检查fence/owner/有效lease/取消。旧RUNNING缺fence明确MIGRATION_REQUIRED；过期活动deadline直接FAILED且不调用模型。快照格式版本升到2。RED4 failed→租约/worker26 passed；factory/resident/manifest/SDK44 passed；Ruff通过，四个源码strict mypy通过。合并测试暴露SDK旧MCP异常handler在工具故障注入抛异常时遮蔽原错误，工具保存后的注入移至下一模型调用前（工具已保存、尚未推进新调用），重新15窗口全部通过。修正上个提交文档写入引入CRLF的格式噪声，未改历史记录。未运行全量/跨进程/Java/live，最终门禁继续。
+
+## 跨进程CF6/H4与边界修复
+
+`pytest tests/integration/test_sdk_durable_recovery.py tests/integration/test_recoverable_worker.py tests/integration/test_run_worker.py tests/integration/test_c09_acceptance.py -q -p no:cacheprovider --tb=short` → **62 passed / 79.32s**。CF6三个窗口各5次（15个真实PG双进程运行），首进程`os._exit(73)`、新进程实际重领fence2、重建同SDK：成功15/15、未决0、旧UNKNOWN成本保留、稳定model-0/model-1、仅一份终局。另同进程三个窗口各5次。每次原deadline不变、model累计2或3、工具实际读取一次。取消/新revision/旧fence在返回后保存前注入，旧响应不落SAVED、不发终局；预算manifest不一致无新增模型调用。
+
+增加行锁等待消耗lease的反例，RED1 failed（租约已过期仍PROPOSAL）→先锁row再读取DB时间修复。物流分页重建RED1 failed（trace_pages=0）→从保存的Observation恢复计数，新MCP无外部调用。live客户端HTTP桩503反例RED2 failed→worker留RUNNING可接管、最多原请求一次重试，二次UNKNOWN后MODEL_RETRY_EXHAUSTED，真实计费数据保守保留；不是收费live评测。合并测试第一次有一个子进程恰好在编辑源码期间启动而ImportError，停止并行编辑后完整62项通过。Ruff全量通过，本步三个源码strict mypy通过。
+
+真实Java/PG/MCP/MQ/mock退款闭环 `python scripts/e2e_resident_refund.py`，运行20260926-230859，**PASSED / 38.9s**；Case/run/line分别7799b0e7-c09e-40d6-9a2c-ee1fbb9af925/a264709d-cbb6-52cb-a961-d6691ed1c9b7/9230907；2599分退款、预留0、provider一次attempt、STARTED/PROPOSAL两条ACCEPTED。原始日志和provider SQLite保留忽略目录tmp/c08-resident-refund/20260926-230859，不提交敏感原始日志。不是自主live或生产可靠性保证。最终全量仍下一步运行。

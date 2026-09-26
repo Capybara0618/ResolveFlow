@@ -18,6 +18,10 @@ from resolveflow.runtime.journal import RunJournal
 from resolveflow.runtime.recovery_store import RecoveryConflictError
 
 
+class ModelRetryExhaustedError(RuntimeError):
+    """Both transmissions of one logical request remain UNKNOWN."""
+
+
 @dataclass
 class DurableRun:
     database: Database
@@ -42,6 +46,8 @@ class DurableRun:
 
     def bind(self, runner: Any) -> None:
         self.journal.bind(self.facts.run_id, **self.identity(), manifest=runner.manifest(), budget=runner.budget)
+        if hasattr(runner.tools, "trace_pages"):
+            runner.tools.trace_pages = self.journal.trace_pages(self.facts.run_id, **self.identity())
         if isinstance(runner.model, MockModelClient):
             runner.model.use_context_step = True
 
@@ -95,6 +101,8 @@ class DurableRun:
                 if kind == "RECOVERY_TURN":
                     self.recovery_turn_used = True
             else:
+                if row["current_attempt"] == 1:
+                    raise ModelRetryExhaustedError("original and one retry already consumed")
                 reservation = self.journal.reserve_retry(
                     self.facts.run_id, **self.identity(), call_id=call_id, request_hash=digest,
                     expected_attempt=row["current_attempt"],

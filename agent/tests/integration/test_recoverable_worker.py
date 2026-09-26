@@ -43,3 +43,19 @@ def test_expired_deadline_is_not_extended(agent_db: Database) -> None:
         raise AssertionError("expired run must not call model")
     outcome = RunWorker(agent_db, forbidden, recoverable=True).run_once()
     assert outcome.result.reason_code == "BUDGET_DEADLINE"
+
+
+def test_waiting_for_terminal_lock_consumes_lease(agent_db: Database) -> None:
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+
+    queued(agent_db)
+    worker = RunWorker(agent_db, lambda _: proposal_result())
+    with RunLease(agent_db).acquire() as claimed, ThreadPoolExecutor(max_workers=1) as threads:
+        with agent_db.connection() as connection:
+            connection.execute("UPDATE agent_run SET lease_until=clock_timestamp()+interval '0.2 seconds'")
+        with agent_db.connection() as connection, connection.transaction():
+            connection.execute("SELECT run_id FROM agent_run FOR UPDATE")
+            finishing = threads.submit(worker.finish, claimed, proposal_result())
+            time.sleep(0.3)
+        assert finishing.result(timeout=3).callback_kind is None

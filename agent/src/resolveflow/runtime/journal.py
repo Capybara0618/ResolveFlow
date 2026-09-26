@@ -23,6 +23,17 @@ class RunJournal(RecoveryBudgetStore):
             connection.execute("UPDATE agent_run_model_budget SET manifest=%s WHERE run_id=%s",
                                (Jsonb(manifest), run_id))
 
+    def trace_pages(self, run_id: str, *, fence: int, owner: str) -> int:
+        with self.database.connection() as connection, connection.transaction():
+            _locked_run(connection, run_id, fence=fence, owner=owner)
+            row = connection.execute(
+                "SELECT count(*) AS n FROM agent_tool_call WHERE run_id=%s "
+                "AND observation->>'tool_name'='get_shipment_trace' AND observation->>'error' IS NULL",
+                (run_id,),
+            ).fetchone()
+            assert row is not None
+            return int(row["n"])
+
     def read(self, run_id: str, *, fence: int, owner: str, call_id: str,
              tool: bool = False) -> tuple[dict[str, Any] | None, dict[str, Any]]:
         with self.database.connection() as connection, connection.transaction():

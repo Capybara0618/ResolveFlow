@@ -39,3 +39,26 @@ def test_same_sdk_reconstruction_reuses_saved_calls(agent_db: Database, window: 
     assert result.completed and result.decision.recommended_action == "MANUAL_REVIEW"
     assert len(tools.calls) + len(resumed_tools.calls) == 1
     assert result.spend.model_calls == (3 if window == "before_model_saved" else 2)
+
+
+def test_reconstructed_mcp_keeps_trace_page_allowance(agent_db: Database) -> None:
+    from resolveflow.harness.mcp_client import McpToolExecutor
+
+    _store(agent_db)
+    facts = replace(FACTS, run_id=RUN_ID, fence=1, lease_owner="test-worker")
+    script = [{"kind": "READ_TOOL", "tool_name": "get_shipment_trace", "arguments": {}},
+              propose("MANUAL_REVIEW", summary="synthetic")]
+    def crash(stage):
+        if stage == "after_tool_saved":
+            raise Crash()
+    first = AgentScopeRunner(model=MockModelClient(script=script),
+                             tools=StubTools(observation().model_copy(update={"tool_name": "get_shipment_trace"})),
+                             facts=facts, durability=DurableRun(agent_db, facts, fault=crash))
+    with pytest.raises(Crash):
+        first.run()
+    tools = McpToolExecutor(line_id=facts.line_id, run_id=facts.run_id, case_id=facts.case_id)
+    resumed = AgentScopeRunner(model=MockModelClient(script=script), tools=tools, facts=facts,
+                               durability=DurableRun(agent_db, facts))
+    assert resumed.run().completed
+    assert tools.trace_pages == 1
+    assert tools.calls == []
