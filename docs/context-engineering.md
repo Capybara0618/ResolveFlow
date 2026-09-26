@@ -38,6 +38,8 @@ protected_fact_hash覆盖必保留值/来源/版本/冲突，证明未被裁剪�
 
 ## 5. 完成标准
 
+2026-09-26补充验收：ContextPacket与实际ModelClient输入须逐消息一致，P0保留system角色且只发送一次；不得在裁剪后追加SDK hints/完整工具历史。计数包含最终渲染的层标签、分隔符、schema与包装预留。当前UTF-8字节估算标ESTIMATED，不宣称供应商精确token；C08真实适配还须验证最终HTTP载荷/参数/hash及供应商计数。退款P2字段直接对齐core契约的`reserved_refund_amount`，不虚构`refundable_amount`权威字段。
+
 至少覆盖长物流、矛盾来源、缺引用、超限、恶意正文、跨scope读回、合法tool pair七类fixture。提供一个裁剪前后演示，验证必保留字段一致。
 
 核心不要求C0/C1/C2全量live消融；若简历宣称“降低Token X%”，必须另做同数据/模型下的累计成本和质量对照，否则只描述实现及正确性证据。

@@ -1,6 +1,6 @@
 # 工程与命令 · v1.3（保留v1.2核心）
 
-复用已有骨架与非Agent框架版本锁，不重建仓库。C00核心profile已落地、C06正在推进；本次AgentScope迁移尚未实施。先按[迁移规格](agentscope-migration.md)在独立spike验证，再调整生产依赖；旧能力与目标能力分别说明。
+复用已有骨架与非Agent框架版本锁，不重建仓库。AgentScope 2.0.8已接入，当前任务见[当前交接](../tasks/handoff-current.md)和账本；本文区分已有命令与目标命令，不能把历史通过结论当作本轮验证。
 
 ## 1. 目录与风格
 
@@ -57,7 +57,7 @@ public RefundOperation accept(RefundCommand command) {
 
 ### AgentScope迁移命令边界
 
-AS01计划新增`spikes/agentscope`，当前未创建，不能先执行其冻结命令并声称通过。创建最小项目后用`uv lock --project spikes/agentscope`生成独立锁，再执行`uv sync --project spikes/agentscope --frozen`及`uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q`；详细聚焦命令见任务账本。AS01不改`agent/uv.lock`。
+`spikes/agentscope`与独立锁已存在。分别在`agent/`或`spikes/agentscope/`执行`uv run --frozen pytest tests -q`，避免两项目的同名tests包互相遮蔽；已同步venv也可用`.\.venv\Scripts\python.exe -m pytest tests -q`，无需每次重新解析依赖。详细聚焦命令与未运行项见任务账本。
 
 生产依赖在AS02更新后用`uv sync --project agent --frozen --all-extras`验证。Python lint为`uv run --project agent --frozen ruff check agent/src agent/tests`；mypy必须切到`agent/`运行`uv run --project . --frozen mypy`，不能从根目录误报空检查成功。Java wrapper在`java/`目录执行`.\mvnw.cmd -B test`及`.\mvnw.cmd -B spotless:check`。相关命令只在对应任务实际运行后登记结果。
 
@@ -125,10 +125,22 @@ MySQL的Case/Commerce独立schema/账号；PG Agent账户只访问agent_db；Red
 
 provider-stub在C04落地轻量Python+SQLite持久模拟退款，含幂等/故障注入，不实现物流写协议。物流只读适配内置Commerce；版本化合成资料可从fixtures加载。
 
-秘密不入库/日志/报告；.env不提交。故障路由仅lab且受控。数据库迁移只追加；旧履约库和卷不因停用被删除。关闭用compose stop保留卷，不授权清库、Git历史重写、推送、购买或公网发布。
+秘密不入库/日志/报告；.env不提交。故障路由仅lab且受控。数据库迁移只追加；旧履约库和卷不因停用被删除。关闭用compose stop保留卷，不授权清库、Git历史重写、购买或公网发布。正常Git推送已获用户授权，边界见第8节。
 
 ## 7. CI与完成定义
 
 每子步先关键失败测试，再实现、验证、记录；通常3–5核心文件，过大先拆。CI覆盖现有兼容+核心契约、格式、单元、关键DB/MQ集成、mock闭环、strict小包、web build，不默认付费/重压测。
 
 每完成项记录实际命令/日期/文件/报告/失败与未运行。允许任务含多子步，但不能只生成所有代码最后才跑。核心完成标准以core-scope/evaluation为准，不被旧T任务清单重新扩大。
+
+## 8. 每小步提交并推送（2026-09-26用户授权）
+
+执行节奏：**独立小步实现 → 针对性验证 → 更新任务记录 → 审查暂存差异 → commit → push → 确认远端 → 下一小步**。适用于功能、修复、测试与文档，不等C08/C11整包完成，也不把未通过的小步伪装成完成。纯文档跑差异/链接/一致性检查；代码跑相关测试、构建/静态检查，既有失败基线与新增失败分开披露，不删除断言或跳过钩子来提交。
+
+1. **核对目标和工作区**：开工读`git status --short`、`git diff`、`git diff --cached`、当前分支及upstream。授权目标为既有仓库`https://github.com/Capybara0618/ResolveFlow.git`；本次确认分支`main`跟踪`origin/main`，以后每次读取实际配置，不静默更换仓库/分支。没有upstream、detached HEAD、目标变化或同文件并行编辑时先确认。
+2. **核实历史积压**：本次授权不意味着把全部脏文件一次推上去。已有未提交成果先按功能和必要依赖归组、审阅并验证，分步提交；来源/边界无法确认则询问。push会携带该分支此前未推送的提交，须在fetch后检查整个待推送范围，不只看最后一个commit。不要提交包含依赖缺失的片段，也不能把依赖未提交文件才通过的工作区测试当作提交可复现的证明。
+3. **精确暂存与审查**：只暂存本步清单中的文件或改动块；检查`git diff --cached --stat`、`git diff --cached`及`git diff --cached --check`。不使用全仓`git add .`/`git add -A`扫入未验证改动，不清空/夹带他人的暂存区。排除`.env`、令牌、数据库文件/快照及含敏感数据的原始日志；只提交脱敏、必要的报告。
+4. **提交**：用任务号和行为描述，例如`fix(C08.2): validate proposal before callback`，代码、相关测试及本步任务记录一起提交。已有明确基线问题要披露，但本步不能新增失败。没有本步变化则不造空commit。禁止自动amend、rebase、reset或强制推送。
+5. **正常推送**：检查已确认远程的实际push目标，fetch后核对分支关系；执行显式目标的普通push。本次目标示例为`git push origin HEAD:refs/heads/main`，仅在当前分支/upstream仍与上述一致时使用。成功后通过`git ls-remote origin refs/heads/main`或重新fetch核实远端包含本次SHA；若远端已前进，核实祖先包含关系，不覆盖远端。
+6. **失败不隐藏**：网络短暂失败可有限重试；认证、分支保护、非快进或目标不明时保留本地commit，报告准确错误和未推送SHA，暂停新增功能直到同步问题解决。若响应不确定先核查远端，不盲目重复创建提交；不得自动force push、改变remote或绕过保护。无需为正常已授权push再次询问，但解决权限/冲突可能需要用户介入。
+7. **每步交接**：报告任务号、验证结果、commit SHA、远程/分支、推送成功/失败/未确认及剩余改动。记录测试后再提交；本次SHA和push结果在交接消息中给出或下一次正常任务记录追加，不为把自身SHA写回同一提交无限递归提交。直到确认远端包含提交，才称“已同步”，本地commit不能写成“已推送”。

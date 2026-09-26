@@ -1,6 +1,6 @@
 # AgentScope 迁移规格与 DSH 交接 · v1.3
 
-2026-09-25。用户批准：将 LangGraph 替换为 AgentScope 2.x Python SDK，其余业务范围和验收深度保持 v1.2。**本次仅更新文档，代码、依赖锁与数据库尚未迁移。** 实施账本为 [tasks/todo.md](../tasks/todo.md) 的 AS00–AS02；通过迁移关卡后接回 C07–C13，不重建项目。
+2026-09-26状态校正：AgentScope 2.0.8已完成生产循环接入，非Agent框架锁不变。本文保留框架约束与迁移历史，不作为当前开工清单；从[当前交接](../tasks/handoff-current.md)接续C08。生产恢复/strict仍归C09/C10，AS01的Python网络入口探针不等于OS级禁网；更正证据见[审查修复报告](../reports/c08-review-fixes.md)。
 
 ## 1. 目标与不做项
 
@@ -12,7 +12,7 @@
 - 不为换框架增加 Temporal/Celery/Redis 队列或自研通用图引擎。兼容性若只能靠大规模重写/私有 API monkey patch，先报告阻塞。
 - 不开放框架示例里的 shell、文件写入、浏览器、任意 URL 工具。框架内置自动压缩、自动总结和额外模型调用默认不启用；有无法关闭的路径须统一拦截计费，否则关卡失败。
 
-## 2. 开工事实与接管
+## 2. 迁移前开工事实与接管（2026-09-25历史）
 
 本轮核对：C00–C05已有完成记录；C06已有PG run入口、回调outbox/投递、真实MCP、run级凭据、`HarnessRunner`和`MockModelClient`。LangGraph已锁定且T00有兼容性试验，但正式Harness仍为自写循环；没有据此证明真实模型自主调查、完整run执行worker或持久恢复完成。
 
@@ -80,7 +80,7 @@ AS01.1产出“实际API → 拦截点 → 测试”的能力表。具体类/方
 
 ## 6. 版本与官方依据
 
-2026-09-25查到已发布候选 [AgentScope v2.0.8](https://github.com/agentscope-ai/agentscope/releases/tag/v2.0.8)，但**尚未在本项目安装/解析/验证，不是已锁版本**。AS01.1先以该正式版本验证；确有问题可比较同2.x已发布稳定补丁，记录原因，不自动换大版本或dev版本。
+2026-09-25选择的 [AgentScope v2.0.8](https://github.com/agentscope-ai/agentscope/releases/tag/v2.0.8)现已锁入spike和agent；MCP沿用2.2.0并走项目自带官方stdio客户端，AgentScope只接普通工具适配。保留已批准的依赖override，不重新选型或自动升级；实际API以锁定源码为准。
 
 - [官方仓库](https://github.com/agentscope-ai/agentscope)：SDK与Agent Service是不同层，本项目只选前者。
 - [2.x Agent说明](https://docs.agentscope.io/en/versions/2.0.9dev/building-blocks/agent/overview)、[中间件说明](https://docs.agentscope.io/en/versions/2.0.9dev/building-blocks/middleware)：只作能力线索，URL明确是开发版；实际API以选定release源码和最小测试为准。
@@ -88,7 +88,7 @@ AS01.1产出“实际API → 拦截点 → 测试”的能力表。具体类/方
 
 先在独立 `spikes/agentscope/` 验证与当前Python/FastAPI/Pydantic/psycopg/MCP精确版本的依赖交集，不污染现有agent锁。若MCP等不兼容，先尝试不改变stdio线协议的隔离适配；需要改既有共享主版本须报告冲突，不能顺手全栈升级。不得复制凭据或调用收费模型来验证安装。
 
-## 7. 顺序、验收与命令
+## 7. 迁移历史顺序、验收与可复跑命令
 
 顺序：AS00接管/基线 → AS01.1依赖与循环拦截 → AS01.2真实PG恢复探针 → AS01.3隔离回放探针 → **技术门禁审阅** → AS02.1依赖/适配 → AS02.2生产循环替换 → AS02.3真实MCP/Java回归 → C07 → C08 → C09 → C10及其余原计划。
 
@@ -110,16 +110,18 @@ pwsh -File scripts/verify.ps1 -Suite all-offline
 
 类型检查必须在 `agent/` 下执行 `uv run --project . --frozen mypy`。Java验证在 `java/` 下执行 `.\mvnw.cmd -B test` 与 `.\mvnw.cmd -B spotless:check`。遵循 [工程命令](engineering.md)；命令存在不代表本轮运行。完整离线集仍需Docker/数据库，未启动不能报绿。pytest临时目录若受权限限制，使用新建的任务专用临时目录，不把含用户文件的目录传给会清理目录的`--basetemp`。
 
-### 待AS01创建后才可用的命令（不是已有入口）
+### 已有隔离spike命令（执行不代表生产C09/C10通过）
 
 ```powershell
 uv sync --project spikes/agentscope --frozen
 uv run --project spikes/agentscope --frozen pytest spikes/agentscope/tests -q
 ```
 
-AS01.1先创建最小spike项目及测试，执行 `uv lock --project spikes/agentscope` 生成其独立锁，再用上述冻结命令复跑；报告记录真实命令和临时PG schema。缺Docker/PG只可继续独立mock子步，恢复关卡标未运行；没有API预算不做live。既有mypy错误单列基线，新增错误不得豁免，也不写全绿。
+上述项目和锁已存在，不重新创建/解析。测试优先在spike目录运行`uv run --frozen pytest tests -q`，与agent的同名tests包分开。报告记录真实命令和临时PG schema；缺Docker/PG的关卡标未运行，无API预算不做live。既有mypy错误单列基线，新增错误不得豁免，也不写全绿。
 
-## 8. 给DSH的首轮提示词
+## 8. 历史迁移首轮提示词（已失效，不再复制执行）
+
+当前提示词统一见[tasks/handoff-current.md](../tasks/handoff-current.md)。下方仅保留迁移决策追溯。
 
 ```text
 请在 E:/Code/Agent+Backend 接续 ResolveFlow。用户已批准仅将 Agent 框架改为 AgentScope 2.x Python SDK，保留 v1.2 的业务范围、Java/MCP 契约、领域 Harness 和全部核心验收；本轮文档 v1.3 已更新，但代码尚未迁移。

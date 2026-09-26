@@ -1,4 +1,6 @@
-# C08 交接（2026-09-25）· 动态 Harness 与业务接入
+# C08 历史交接（2026-09-25）
+
+> 已被[当前交接](handoff-current.md)取代。以下保留当时快照，不执行旧SHA/干净工作树/重复读取要求。当前状态以todo顶部为准。
 
 给新会话读的一份自足交接。**C07 已完成**（C07.1 + C07.2，两个提交在本地：`3b71fba`、`9c84f14`；推送前问用户）。
 本文件只讲"现在站在哪、下一步做什么、哪些前提可以信任、哪些坑会误导判断"。
@@ -7,10 +9,10 @@
 
 ```powershell
 Set-Location 'E:\Code\Agent+Backend'
-(Get-Location).Path              # 必须是 E:\Code\Agent+Backend（没有加号）
+(Get-Location).Path              # E:\Code\ 下的 Agent+Backend，不是 E:\Code+Agent+Backend
 git log --oneline -1             # 应能看到标题含 "C07.2 完成" 的那一条
 git status --porcelain           # 应为空
-git rev-list --left-right --count origin/main...HEAD   # 若为 "2  0"，说明本地领先、尚未推送
+git rev-list --left-right --count origin/main...HEAD   # 左远端领先，右本地领先；不代表已联网刷新
 Test-Path tasks/handoff-c07-2.md # True（C07.2 开工时的交接，含 10 条坑）
 ```
 

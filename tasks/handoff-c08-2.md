@@ -1,4 +1,6 @@
-# C08 交接（2026-09-25，第二轮）· 从这里继续
+# C08 历史交接（2026-09-25，第二轮）
+
+> 已被[当前交接](handoff-current.md)取代。以下是历史记录，不再要求追读前一份。原“预占计数=实收输入”结论已被2026-09-26审查推翻并修复；正式路径切换按当前交接执行，不重复询问旧A/B选择。旧SHA和工作树必须干净的停止条件失效。
 
 给新会话读的一份自足交接。**C07 全部完成；C08.1 的"上下文与预算接点"完成，其余未做。**
 本文件取代不了上一份：`tasks/handoff-c08.md` 仍要读（它有 C07 交付清单与 12 条坑），
@@ -8,10 +10,10 @@
 
 ```powershell
 Set-Location 'E:\Code\Agent+Backend'
-(Get-Location).Path              # 必须是 E:\Code\Agent+Backend（没有加号）
+(Get-Location).Path              # E:\Code\ 下的 Agent+Backend，不是 E:\Code+Agent+Backend
 git log --oneline -1             # 应能看到标题含 "C08.1（第二部分）" 的那一条
 git status --porcelain           # 应为空
-git rev-list --left-right --count origin/main...HEAD   # 若为 "2  0"，说明本地领先、**尚未推送**
+git rev-list --left-right --count origin/main...HEAD   # 左远端领先，右本地领先；不代表已联网刷新
 ```
 
 任一条不符 → 停下并报告。

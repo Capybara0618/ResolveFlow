@@ -1,6 +1,6 @@
 # ResolveFlow · 售后调查与退款Agent
 
-> 当前文档：v1.3 AgentScope迁移版，2026-09-25；业务范围仍为v1.2个人项目核心版。C00–C05已有完成记录，C06正在推进。AgentScope迁移已批准但尚未实施，依赖锁仍为原版本，不能把规格当成果。
+> 框架文档v1.3，业务范围仍为v1.2个人项目核心版。AgentScope 2.0.8已接入；当前进度以[账本顶部](tasks/todo.md)为准，下一步统一读[当前交接](tasks/handoff-current.md)。规格、组件测试、真实模型与端到端验收分别记录，不把目标当成果。
 
 面向Agent开发、AI应用开发与Java后端实习的个人技术展示项目。主链路：自主调查订单/物流与政策 → 补证或人工审批 → Java可靠执行模拟退款 → 查看轨迹及结果。
 
@@ -11,12 +11,13 @@
 | 文件 | 用途 |
 | --- | --- |
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
-| [AgentScope迁移与DSH提示词](docs/agentscope-migration.md) | 本次替换边界、技术门禁、恢复要求与首轮指令 |
+| [当前DSH交接](tasks/handoff-current.md) | 当前任务、验收顺序与可复制提示词 |
+| [AgentScope迁移规格](docs/agentscope-migration.md) | 框架边界、恢复要求及历史迁移过程 |
 | [执行账本](tasks/todo.md) | 历史成果、新C00–C13任务与实际进度 |
 | [实现交接](docs/implementation-handoff.md) | 模型如何继续、不能走哪些捷径 |
 | [DSH交接](docs/dsh-migration-handoff.md) | 跨客户端断点与旧会话边界 |
 
-下一项是AS00接管当前C06工作，再按AS01验证AgentScope，审阅后AS02切换，随后接回C07–C13；不重做C00，不继续旧T03–T39。旧任务记录在[归档](tasks/archive/v1.1-todo.md)，仅作历史。
+从当前账本接续C08业务闭环，再做C09恢复与C10回放；不重做已完成迁移，不继续旧T03–T39。旧任务记录在[归档](tasks/archive/v1.1-todo.md)，仅作历史。
 
 ## 设计索引
 

@@ -31,11 +31,11 @@
 
 Nacos、Sentinel及完整OTel/Prometheus/Grafana/Tempo不是核心交付门槛；保留已验证依赖，默认核心运行可用Compose DNS/显式服务地址，不依赖这些配套。不能为瘦身全量重搭脚手架。
 
-已有fulfillment骨架、v1协议、fixture及测试保留为兼容资产，默认不部署，不据此宣传完成该能力。核心profile迁移C00已有完成记录；本次AgentScope迁移另走AS00–AS02，文档更新不等于代码已迁移。
+已有fulfillment骨架、v1协议、fixture及测试保留为兼容资产，默认不部署，不据此宣传完成该能力。AS00–AS02保留为AgentScope迁移历史；是否完成某项能力以当前账本和验收证据为准，不因文档更新自动成立。
 
 ## 4. 当前事实与规范优先级
 
-任务账本已有T00–T02、C00–C05完成记录，C06已实现部分控制面/工具面/Harness原型，C07–C13未完成。当前先执行AS00接管与AS01兼容性验证；本轮未重跑业务测试，未安装AgentScope，不把历史LangGraph测试认作新框架通过。
+当前进度只在[任务账本顶部](../tasks/todo.md)维护，执行说明见[当前交接](../tasks/handoff-current.md)。本文件规定范围，不保存开工快照。此前“先执行AS00/AS01、未安装AgentScope”的文字属于2026-09-25迁移前状态，不再作为指令；历史LangGraph测试仍不能认作AgentScope验收通过。
 
 当前范围以本文件为准；业务/状态/Agent细节以当前专题文件为准。新协议目标见[核心契约](core-contracts.md)，现有[旧协议基线](contracts.md)和contracts根目录旧Schema是T02兼容基线，不代表当前所有端点都必须实现。C00先建立可机读的核心协议和选择清单，不允许靠关闭旧测试解决冲突。
 

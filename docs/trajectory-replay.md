@@ -26,6 +26,8 @@ evaluation_run_id隔离存储；原run ID仅作为非授权数据匹配。不加
 
 strict在禁网络进程/容器中运行，用内存或独立临时回放存储，不使用生产RunStore/SDK持久化连接。关闭SDK遥测、自动下载和回源；测试确实拦住网络和业务写入，不只检查配置布尔值。
 
+验收分层：AS01的可恢复Python guard应在事件循环初始化后开启，拒绝socket.create_connection/connect/connect_ex与asyncio连接，不能放行全部localhost来兼容Windows。它是回归守卫，不是OS安全沙箱；原生扩展、子进程、既有连接仍须由C10的无业务凭据/无网络进程或容器隔离验证。业务写反例要实际触发写入口且证明不可达/零副作用，检查源码没有某个import不算通过。
+
 ## 4. 验收与报告
 
 C10实现导出、strict命令、5个golden packs及缺记录/篡改/写入企图反例。报告包含manifest、支持范围、完整/损坏/不支持数量、规范终局是否一致、首个不同step。缺包不能从分母消失。

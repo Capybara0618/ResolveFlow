@@ -1,21 +1,26 @@
 # 核心版执行账本 · v1.3 AgentScope迁移
 
-2026-09-25更新。当前唯一进度账本。用户批准AgentScope 2.x SDK替换LangGraph，业务与验收保持v1.2；[迁移规格与DSH指令](../docs/agentscope-migration.md)是本次技术入口。旧40个T任务已退出当前必做顺序；完整原进度/命令/报告保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
+2026-09-26更新。当前唯一进度账本。AgentScope迁移约束见[迁移规格](../docs/agentscope-migration.md)，开工只使用[当前交接](handoff-current.md)。业务与验收保持v1.2；旧40个T任务已退出当前必做顺序，完整原记录保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
 ## 已有成果（历史记录，非本轮重测）
 
 - T00：任务记录完成，兼容与版本锁；报告见docs/compatibility-report.md及reports/t00-compatibility/。
 - T01：任务记录完成，工程与命令/基础CI。
 - T02：任务记录完成，4份旧OpenAPI、双语言hash/签名/fixture；2026-09-18记录all-offline 17/17，Python155、Java shared-kernel29。
-- 当前（2026-09-25，C07.2 完成之后）：C00–C05 已有完成记录；**C06 的 C06.4①–⑤ 全部完成并跑通真实 Java 工具 e2e**；**AS00–AS02.3 完成**（AgentScope 2.0.8 已是唯一生产循环；工具凭据的 scope **Java 与 Python 两侧都已强制**）；**C07.1 与 C07.2 完成**（政策索引 + 真实 embedding 检索；上下文 facts 视图/P0–P4 组装/裁剪与读回；`-Suite all-offline` PASSED）；**未关闭**：run 侧 worker 不存在（属 C09）、模型仍全为 mock（H1 未验证）、**`ContextBuilder` 尚未接进循环的每步报文（属 C08.1）**。**C08–C13 尚未完成**。
+- 当前（2026-09-26文档校正，源码检查+有限离线复验）：C00–C06及AS生产迁移已有完成记录；C07检索/上下文组件已有实现。C08已有默认ContextBuilder、manifest、live客户端离线适配、候选引用校验/一次修复、单执行者worker和显式mock/live装配工厂；补证使旧run失效、回调答复落run状态已有阶段记录。不是“尚无worker/工厂”，也不是完整业务闭环已验收。C08.1/C08.2保持未勾选，H1–H5不自动升级。
+- 本次源码比C08.2-7历史记录更靠前：`AskQuestion.field`已必填，PROPOSE缺`case_type`已拒绝；四种回调载荷有契约测试。实际复验：回调载荷/引用验证/manifest三个单元文件 **27 passed**，`test_harness_loop.py` **31 passed**（含缺字段拒绝）；均离线，无Java/数据库集成/live模型调用。本轮未复验全量fixture迁移、Ruff/mypy及端到端。原“可选字段、下一步打开强制”不能直接作为开工指令，先核实剩余测试。证据见[文档完善报告](../reports/resume-delivery-doc-update.md)。
+- 当前接续顺序：①收口C08 ABI/fixture剩余回归，保留拒绝与修复断言，不重复实现已有校验；②补C08正式run的最终方案校验、通过型证据用例、常驻worker入口及真实Java/MCP/数据库/MQ的业务闭环（模型mock/live分开）；③在批准的API预算内验收H1及C08相关门禁；④C09生产持久恢复→C10生产strict；C11依赖C08，C12依赖C09/C10/C11，最后C13审计。`verify_proposal()`尚未在runtime找到调用，常驻入口也未找到worker装配；这两个是本次静态检查的待接入项，不把局部测试通过当作已完成。
+- C11.2的SQL/Redis任务仅有规划，尚不能写成缓存优化成果；C09/C10与最终性能、live对照报告仍需独立验收。退款旧集成报告、AS恢复/禁网探针、已有all-offline都不是本轮重跑结果。C09开工前仍须解决“总12次内预留/12+2”预算冲突，不静默扩额。
 - 历史：原第 10 行写"C06.4⑤ 有未提交改动，需 AS00 接管核实"，AS00 已核实并接管，该阶段已过。
 - v1.3文档检查（2026-09-25）：23份Markdown链接/围栏、原C00–C06记录保留与8个既有代码改动hash检查通过；契约回归549 passed/9 skipped。实际命令、检查边界和未运行项见docs/framework-review.md末尾；不据此勾任何AS实现任务。
 
 每个C工作包分子步实施，单子步尽量3–5核心文件；需更多时先在该任务下继续拆，不一次生成整包。命令当前/目标可用性见docs/engineering.md。
 
-## AgentScope迁移插入段（2026-09-25；**AS00–AS02.3 已完成，本节保留为实施记录**）
+## AgentScope迁移插入段（2026-09-25历史实施记录）
 
-本段替代旧框架接入，不扩业务范围。任务均先关键失败测试，文件数含生产/测试不含必要账本更新；若超过5个核心文件再拆。下列spike/报告文件均为**拟创建**，不可因路径写在这里就声称存在。完成要填实际文件、日期、命令/报告、通过/失败/跳过/未运行、下一步。
+状态说明：下方保留最初未执行项及逐次追加记录，旧复选框不是当前待办列表；生产迁移不重做。2026-09-26撤回AS01.3“进程全面禁网/业务写已证明”的过强主张：当前仅验证Python连接入口拦截，OS隔离/业务写能力边界仍归C10，见本轮报告。C09恢复预算须先澄清12总额内预留还是12+2额外额度，不能把spike的例外静默搬入生产。
+
+本段替代旧框架接入，不扩业务范围。下列“拟创建/未执行”与后续完成记录按时间阅读，不作当前起点。实际文件和锁已存在；仍必须记录真实命令/报告、失败/跳过/未运行，spike通过不勾生产恢复或回放。
 
 ### AS00 接管与基线
 
@@ -1392,12 +1397,152 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C08 动态Harness与业务接入
 
+2026-09-26审查修复记录：详见[报告](../reports/c08-review-fixes.md)（文件、RED→GREEN、实际命令及未运行项）和[当前交接](handoff-current.md)。下方2026-09-25记录为历史，关于“完整实收请求计数一致”的主张在当时不成立，已在本轮修正；C08.1仍不勾完成。本轮没有开启默认ContextBuilder、实现live/worker、修改Java或迁移数据库。
+
 - [ ] C08.1：复用AS02的AgentScope唯一循环，固定manifest/动作ABI、上下文与预算接点、防无进展及候选引用验证；补真实模型适配。
 - [ ] C08.2：组合PG待办调查worker与既有问题/方案/失败callback_outbox，补证新run、旧结果STALE，Java复核后退款；先单执行者闭环，不提前声称C09恢复通过。
 - 依赖：C05,C07。文件：agent/harness/runtime/callbacks、Case回调及端到端测试。
 - 验收：至少6组配对证据由模型决定不同合理行动；身份不由模型生成；预算/权限有界，闭环不是固定workflow。
 - 验证：H1/H2/H3、mock系统闭环、live小样本（需API预算）。
+- 实际记录（**C08.1a「正式上下文路径收口」已完成，2026-09-26**；C08.1其余部分与C08.2未做）：
+  - 交付：`AgentScopeRunner.use_context_builder` 默认 `False → True`，**正式路径即 ContextBuilder(P0–P4)**；
+    C06.4证据包降为显式兼容路径（并有一条**真的跑循环**的用例覆盖它，旧版本只读开关不跑）。测试读取方式迁移到
+    模型**实际收到的messages**（`conftest.input_text_of` 先读 `conversations`，`packets` 只作无会话兜底），
+    不再让 mock 的隐藏结构化 `context` 满足"模型看到了X"的主张。补 P1「已确认动作」：`context.py` 新增
+    `CONFIRMED_ACTION_WINDOW=4`/`MAX_ACTION_ARGUMENT_CHARS=64`，runner 在 `gate.check()` 确认后记录，
+    报文体排除模型 `reasoning`/`summary`（P1不可裁剪，自由文本既无界也非证据）。
+  - **翻默认的实测（更正旧记录）**：旧交接的"适配器修好后58个红"在**当前工作树不复现**——只翻开关即
+    **928 passed / 0 failed**（新增用例后），迁移读取方式后 **930 passed**。原因：真正依赖 `packets` 的语义断言
+    极少，且读的是两种形状都会填充的结构化view。**教训**：旧数字对应的代码状态已过去，不能当现行事实引用。
+  - 两处旧主张重新划定边界（非删断言）：正式报文**不含** `content_hash`（P2只有source@version，P4索引无hash），
+    hash 保留在 run 记录；本地读预算在 ModelClient 的结构化 `context`、**不在** provider request（P0–P4无预算层，
+    与旧证据包把 `budget` 发给模型的行为不同）。
+  - 实际记录（**C08.1b-1「冻结HarnessManifest」已完成，2026-09-26**）：新增 `harness/manifest.py` + 8 例单测
+    （含用冻结 `contracts/harness-manifest.schema.json` 校验、`manifest_id` 排除自身的可复现性、budgets 取自 run 而非 schema 默认），
+    `sdk_runner` 改用 `runner.manifest()` 并在 `_build_packet` 取 canonical hash；**报文不再用 `bundle@hash[:16]` 冒充完整 manifest**
+    （旧值没有 pin harness/prompt/tool schema/budgets/model 任何一项）。`index_generation` 在 Python 侧解析
+    （READY 生成优先，否则 pin 的确定性 uuid5 并注明非行 id），**未改派发协议**，`agent_run` 也无 manifest_id 列，故无需消费者同步。
+    `verifier_version="unimplemented"`（C08.1c 替换）；`graph_version` 由 `importlib.metadata` 读实际 AgentScope 2.0.8。
+    实测：`pytest tests` → **939 passed, 9 skipped**；ruff 通过；strict mypy **9 = 基线（48 文件）**。
+    详见[报告](../reports/c08-1b-frozen-manifest.md)。**未做**：live ModelClient、候选引用验证、H1。
+  - 实际记录（**C08.1b-2「live ModelClient（离线请求捕获）」已完成，2026-09-26**）：新增 `harness/live_model.py`
+    （ceiling 必填且**最后写入**请求体，配置参数不能放宽预占；**恰好一次发送、无内部重试**，4xx=拒绝/5xx+timeout=不可用，
+    失败尝试也入账使 `calls == len(requests)`；缺 usage 按实际收发文本估算并标 `estimated=True`；记录只存 body + canonical hash，
+    不存任何 header 故天然无密钥）。13 例离线单测（transport 注入，不开 socket）+1 例集成（live 客户端跑完整循环，
+    `modes==("live",)`、PROPOSE 过闸门、`max_tokens` 抵达 provider body）。顺带把 `canonical_json`/`hash_document`
+    提为 `context.py` 公开助手，消除我在 C08.1b-1 引入的重复。实测 `pytest tests` → **953 passed, 9 skipped**；
+    ruff 通过；strict mypy **9=基线（49 文件）**。详见[报告](../reports/c08-1b-live-client.md)。
+    **未联网**；尚无从配置构造 live 客户端的工厂（C08.2 worker）；**已知缺口**：冻结 prompt/ABI 未规定答案必须为 JSON，
+    客户端只能宽松提取否则拒绝，修法在 prompt/ABI 层（会改 `prompt_hash`），故本轮报告而不擅自发明。
+  - 实际记录（**C08.1c-1「候选引用验证 ProposalVerifier」已完成，2026-09-26**）：起点是先修一个**不可达**问题——
+    `ModelDecision` 为 `extra="forbid"` 且无任何引用成员，模型**提交不了**引用；而冻结 v2 Schema 要求 REFUND 必须各
+    一条 `evidence_refs`/`policy_refs`。故本步先让 ABI 能表达引用（复用 `CoreEvidenceRef`/`CorePolicyRef`，只有 PROPOSE
+    可带），并把成员名写进 P0 `_tool_schema_document.proposal.citations`（模型猜不到的成员名不该被判错）。新增
+    `harness/verifier.py`：Schema（用**冻结** v2 而非更宽的本地形状）、可见引用（逐成员匹配本 run 真实 observation，
+    失败读无 version/hash 故不可引用）、版本/hash、缺证、跨 scope（`CROSS_SCOPE_CITATION` 独立于"不可见"）；
+    政策命中**从 `SEARCH_POLICY` observation 自己的 `result["hits"]` 读取**，不另立台账。拒绝接入 runner 终局路径，
+    引用不可校验即 `completed=False`、`decision is None`；`VerificationResult.note` 明载"Python通过不等于Java批准"。
+    `VERIFIER_VERSION`：`unimplemented`→`python-citations-v1`（故 `manifest_id` 变化，属正确行为）。实测
+    `pytest tests` → **970 passed（+17）, 9 skipped**；ruff 通过；strict mypy **9=基线（50 文件）**。
+    **未完成**：①`docs/agent-spec.md:52` 的"模型输出 Schema/引用可修复一次"未实现，当前为硬停止，**不声称满足该条**；
+    ②缺"真实工具 observation+真实政策命中"双来源 fixture 下的端到端通过型退款用例（通过性目前只在单测层证明）；
+    ③`verify_proposal()` 已实现但未接入 run 路径（`proposal_id`/`case_type` 由 C08.2 组装 callback 时补）。
+    详见[报告](../reports/c08-1c-proposal-verifier.md)。
+  - 实际记录（**C08.1c-2a「反馈通道」已完成，2026-09-26**）：为 `docs/agent-spec.md:52` 的"可修复一次"做前置时发现通道缺失——
+    `gate.notices` 只进 `RunResult.notices`、**从未送达模型**（`docs/agent-spec.md:44`「前两次重复会回传」实际未满足；
+    `sdk_adapter.py:118` 的 `self.notices` 无人使用），与 C08.1c-1 的引用缺口同类：模型无法依据没收到的信息行动。
+    修法：`ContextBuilder.build(notices=)` 渲染为 P1 的 `【P1·notice_N】[harness] …`（P1 强制/不可裁剪，故通知不会被裁掉；
+    数量有界：无进展≤2、将来修复≤1），`_packet_of` 增 `notices` 键覆盖 legacy 路径，`_BudgetHook` 增公开别名 `gate`。
+    两条路径**各一例**测试断言通知出现在**发出的 messages**（非 `result.notices`）；全仓 grep 确认 `[harness]` 产出者仅本处。
+    实测 `pytest tests` → **972 passed（+2）, 9 skipped**；ruff 通过；strict mypy **9=基线（50 文件）**。
+    **C08.1c-2「可修复一次」仍未实现、不宣称满足 `agent-spec.md:52`**；但机制已查证：AgentScope 对权限拒绝
+    （`_agent.py:2582-2590`，回传 `decision.message`）与未知工具（`:2509-2517`）**都继续循环**，故"第一次拒绝不终止、
+    原因作为工具结果回喂、第二次才停"可达；终止性 PROPOSE 的引用拒绝需另发一个会被拒的工具调用（**未验证**）。
+    详见[报告](../reports/c08-1c-2a-feedback-channel.md)。
+  - 实际记录（**C08.1c-2「可修复一次」已完成，2026-09-26**）：实现 `docs/agent-spec.md:52`。`MAX_REPAIRS=1`、
+    gate `repairs_used`/`repair_message`/`_refuse(reason, detail, repairable=)`、权限钩子**修复分支**、`_repair_probe()`。
+    非终止拒绝（READ_TOOL/SEARCH_POLICY/READ_OBSERVATION）原样交还 SDK：SDK 去执行→`on_check_permission` 因
+    `accepted is None` 拒绝→`decision.message`（即拒绝原因）作为工具结果回喂→循环继续。终止性 PROPOSE 的引用拒绝
+    在适配器里是文本块会直接结束循环，故换成一次白名单工具**探测调用**（`input_schema.required=[]` 可过 SDK 校验；
+    执行只在权限 ALLOW 之后，`accepted` 未设置故不可能 ALLOW，**不会执行**）。无进展停止标 `repairable=False`
+    （那是循环自身的界）。先写4例失败测试确认 RED 再实现；另有3例既有测试随语义更新（**未删断言**：如"未引用退款
+    永不成为决策"保留，另断言两次拒绝+`repairs_used==1`；"拒绝不得执行工具"保留 `tools.calls == []`）。
+    实测 `pytest tests` → **976 passed（+4）, 9 skipped**；ruff 通过；strict mypy **9=基线（50 文件）**。
+    **边界**：全部 mock 驱动，只证明 harness 对不合法输出的行为，**不等于真实模型会自我修正**，H1 不勾；
+    修复次数按 run 全局一次计；`verify_proposal()` 仍未接入 run 路径；仍缺双来源端到端通过型退款用例。
+    详见[报告](../reports/c08-1c-2-repair-once.md)。
+  - 实际记录（**C08.2-1「单执行者worker」已完成，2026-09-26**）：补上"没有任何东西消费 `QUEUED` run"的缺口。新增
+    `runtime/worker.py`：`claim_one`（`FOR UPDATE SKIP LOCKED`、`QUEUED`→`RUNNING`、授权窗口 `min(deadline_at, start+120s)`、
+    `STARTED` 回调**同事务**）→ 事务外 `investigate(facts)` → `finish`（`WHERE status='RUNNING'` 条件更新，取消者胜出且**不写回调**；
+    回调与终态同事务）。映射：`PROPOSE→PROPOSAL/CALLBACK_PENDING`、`ASK_CUSTOMER→QUESTION/WAITING_INPUT`、其余`FAILED/FAILED`
+    （带run自己的reason code、`retryable=False`）；id 由 run 派生故载荷亦幂等。`CallbackStore.enqueue_for_run` 增可选
+    `connection`（同事务落库；不传时行为不变）。状态常量经 `_status()` 取自 `RunStatusES`，import 时即校验。
+    11 例真实 PG 测试（`investigate` 为桩），含"取消中途到达则拒绝覆盖"与"崩溃不伪装成 FAILED（run 留 RUNNING）"。
+    实测 `pytest tests` → **987 passed（+11）, 9 skipped**；ruff 通过；strict mypy **9=基线（51文件）**。
+    **未完成**：Java复核/必要审批→模拟退款后半段、补证新run/旧结果STALE、mock/live客户端工厂、`verify_proposal()`接入、
+    `result_summary`脱敏规则；**新发现需决策**：v2 proposal 需 `case_type` 而派发体无此列（**未编造**，属契约变更）。
+    详见[报告](../reports/c08-2-run-worker.md)。
+  - 实际记录（**C08.2-2「部署装配缝」已完成，2026-09-26**）：新增 `runtime/factory.py`——`DeploymentConfig.from_environ`
+    （env 名由测试钉住）+ `build_investigation(database, config, model=, tools=, policy_embedder=, budget=)` 返回
+    `Callable[[RunFacts], RunResult]`。**三处刻意拒绝**：模式必须指名（**无默认值**：默认 mock 会产出非模型产出的方案，
+    默认 live 会在没人写过的配置上花钱）；mock 必须传入脚本化客户端（工厂替它写脚本=替它写决定）；live 缺 endpoint/model_id
+    在**构造期**拒绝（配错不会先发请求再发现；`policy_index=1` 而嵌入快照不可用时同理）。客户端与执行器**每 run 一个**
+    （审计痕迹与 `calls` 按 run 隔离；`line_id` 等是 run 级状态），退出关闭执行器，密钥只进 `Authorization` 头（有测试钉住
+    请求记录不含凭据）。**Python 侧"派发→调查→回调"闭环已通**：端到端一例走
+    `RunStore.queue`→worker领取→工厂→**真实 AgentScope 生产循环**→工具真的执行→出箱 `["STARTED","PROPOSAL"]`、
+    run=`CALLBACK_PENDING`、`modes==("mock","mock")`（模型脚本化/工具替身，无provider、无MCP子进程）。
+    实测 `pytest tests` → **994 passed（+7）, 9 skipped**；ruff 通过；strict mypy **9=基线（52文件）**。
+    详见[报告](../reports/c08-2-deployment-factory.md)。
+  - 实际记录（**C08.2-3「补证→旧run STALE」已完成，2026-09-26**）：按 `docs/agent-spec.md:9`（补证创建新revision/new run，
+    旧run STALE）与 `agentscope-migration.md:68`（run状态与callback_outbox同事务），`RunStore.queue()` 在插入新run的
+    **同一事务**内 `_supersede_older_revisions`：同case旧revision的**非终态**run置 `STALE`（`COMPLETED`/`FAILED`/`CANCELLED`
+    不动），并 `CallbackStore.void_pending_for_run`（**不累加 `attempts`**——这次投递从未发生；只动PENDING行，已投递行保留
+    Case给出的答复）同一事务关闭其未投递回调。US-C3"旧结果不会覆盖"有正面测试：调查中被补证 → `finish()` 条件更新拒绝、
+    run留STALE、出箱无PROPOSAL。实测 `pytest tests` → **1001 passed（+7）, 9 skipped**；ruff通过；mypy **9=基线（52文件）**。
+    **一处测试改动已披露**：`test_drain_...` 原fixture用同case revision 2，新逻辑下被正确supersede而失败——实现对付、
+    fixture不现实，改为两个不同case（断言未删，docstring写明）。详见[报告](../reports/c08-2-3-supersede-stale.md)。
+  - **新发现缺口（下一子步，两件必须同改）**：`agent-spec.md:9` 规定 `COMPLETED`=方案回调**被Case接收**、`QUESTION接收后WAITING_INPUT`，
+    但 `delivery.py:192` 只记录 `disposition`，**无人回写run状态**（`UPDATE agent_run` 全仓仅 `worker.py`/`runs.py`），
+    故ACCEPTED后run永远停在 `CALLBACK_PENDING`；C08.2-1 的 `ASK_CUSTOMER→WAITING_INPUT`（finish直接置位）亦不符规范
+    （应先CALLBACK_PENDING、接收后WAITING_INPUT）。只改后者会更差，故同步实现：`RunStore` 按答复落状态 + `deliver_one`
+    在同一事务内调用（`connection=` 缝）；届时 `test_a_question_moves_the_run_to_waiting_input` 按规范改写而非删除。
+  - 实际记录（**C08.2-4「答复决定run状态 + QUESTION语义纠正」已完成，2026-09-26**）：`Callbacks`/`Runs`/`Delivery` 三处改动。
+    新增 `db.reuse_or_open(database, connection)`（有事务就用、否则新开）与 `CallbackStore.transaction()`；`record_delivery` 增
+    `connection=` 缝（三处缝统一同一写法）。`deliver_one` **同一事务**内 `record_delivery` + `RunStore.apply_callback_disposition`：
+    PROPOSAL+ACCEPTED/DUPLICATE→`COMPLETED`、QUESTION→`WAITING_INPUT`、FAILED→`FAILED`、任意+STALE→`STALE`、STARTED→不变；
+    `DUPLICATE`≡`ACCEPTED`；条件更新排除终态/STALE，**已取消的run不被答复复活**。`worker.py` 的 `ASK_CUSTOMER` 终态改为
+    `CALLBACK_PENDING`（`agent-spec.md:9` 接收后才是WAITING_INPUT）。实测 `pytest tests` → **1010 passed（+9）, 9 skipped**；
+    ruff通过；mypy **9=基线（52文件）**。**一处断言改写已披露**（钉的是与规范相反的行为，换成规范断言且覆盖更多，
+    非删除）。详见[报告](../reports/c08-2-4-answer-decides-status.md)。
+  - **C08.2 剩余**：Java半段（`PENDING_REVIEW`→审批→执行派发→模拟退款；Java侧本轮未运行，C07.1 BUILD SUCCESS 非本轮证据）、
+    `verify_proposal()` 接入run路径、`result_summary` 脱敏规则、常驻调度入口、`case_type`（**需决策**）、`parent_run_id` 无人写。
+  - 契约核查（**C08.2-5，2026-09-26，仅核查未改码**）：纠正上一条——`case_type` **不需外部决策**，`openapi-case.yaml:1622`
+    要求它并写明"**the run classified the case**"，是**run自己的分类产出**。更严重的是：**worker 发出的四种回调载荷均不满足已发布契约**
+    （`additionalProperties:false` 下多 `schema_version`；QUESTION 的 `AgentQuestion` 要 `field`+`prompt`；
+    PROPOSAL 缺 `run_id`/`case_id`/`input_revision`/`case_type` 且 `proposal_id` 非UUID）→ 都会被Case服务拒绝。
+    根因：测试只对照 Python 自己的 `_REQUIRED_PAYLOAD_KEYS`，投递测试用 `ScriptedPoster` 绕过契约校验。
+    **故"C08.2 Python侧闭环已通"须收窄为"只在Python自身检查下通"**。修复小步见[报告](../reports/c08-2-5-callback-payload-contract-gap.md)：
+    先写契约校验失败测试 → PROPOSE 上引入 `case_type`（改 prompt_hash/manifest_id，须记录）→ `_payload` 逐kind对齐 → 再接 `verify_proposal()`。
+  - 实际记录（**C08.2-6「载荷对照已发布契约」已完成，2026-09-26**）：新增
+    `tests/unit/test_callback_payloads_match_the_case_contract.py`（用 `component_validator(...CORE_SCHEMA_FILES)` 校验**实际组装**的载荷；
+    为此 `worker.started_payload(...)` 独立成函数、`_payload` 更名 `callback_payload(...)`）。**STARTED、FAILED 已修并真通过**
+    （原先都多 `schema_version`，而两个组件都是 `additionalProperties:false`）。**PROPOSAL/QUESTION 仍 `pytest.skip`**
+    （缺 ABI 成员 `case_type`/`AgentQuestion.field`，断言体已留）。实测 `pytest tests` → **1012 passed, 11 skipped**；
+    ruff通过；mypy **9=基线**。**下一步**：加上述两个ABI成员 + `_tool_schema_document` 广告（**会改 prompt_hash/manifest_id**），去skip。
+  - 实际记录（**C08.2-7「ABI成员 + 载荷合法化」已完成，2026-09-26**）：`ModelDecision.case_type`（PROPOSE专用、限 `CASE_TYPES` 四个）、
+    `AskQuestion.field`、`_tool_schema_document` 广告二者（**packet/prompt_hash/manifest_id 已变**）、`callback_payload` 按契约重塑
+    （PROPOSAL 全必备成员 + `proposal_id` 为 uuid5；QUESTION 只发契约成员）。**4例契约校验全绿（两个skip已转真通过）**。
+    实测 `pytest tests` → **1014 passed, 9 skipped**；ruff通过；mypy **9=基线**。
+    **刻意保留**：新成员尚未**强制**（强制会让60个既有fixture用例失败，两个loop测试文件走 `propose()` 辅助函数未及），
+    故**模型漏填 `case_type` 时仍会组装出Case会拒的载荷**——下一步：补fixture → 打开强制 → 复验。详见[报告](../reports/c08-2-5-callback-payload-contract-gap.md) §8。
+    **C08.2 仍缺**：Java复核/必要审批→模拟退款（Java半段，Python不退款不审批）；补证新run/旧结果STALE（`STALE`与`parent_run_id`已在无人用）；
+    `verify_proposal()` 接入run路径；`case_type` 契约缺口**需决策**（未编造）；`result_summary` 脱敏规则；常驻调度循环入口。
+  - 实测：`pytest tests` → **930 passed, 9 skipped**；`ruff check src tests` → All checks passed；
+    strict `mypy`（`agent/`）→ **9 errors = 基线，零新增**。详见[报告](../reports/c08-1a-context-path.md)。
+  - **未运行/未做**：Java全量、all-offline、spikes测试、live模型均未跑；C08.1b（冻结manifest、live ModelClient、
+    候选引用验证、H1）与C08.2（worker/闭环）未开始；不声称真实模型自主性、C09恢复、C10隔离。
 - 实际记录（**C08.1 的"上下文与预算接点"已完成，2026-09-25**；C08.1 的其余部分与 C08.2 未做）：
+    C08.1c 候选引用验证（Python侧）已完成 2026-09-26；C08.2 单执行者业务闭环未开始。
   - 交付：`AgentScopeRunner` 现在持有 run 自己的 `FactsView` 与 `ObservationStore`（调用方可传入以事后检查）；
     run 记录**每一个** observation（`_GateAwareClient.note_evidence` → `extract_facts` + `remember`），
     此前视图与 store 只有 `PolicySearchBridge` 能碰到，于是五个 MCP 工具（金额/物流结论/退款状态都从这里来）
@@ -1449,10 +1594,17 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 - [ ] C11.1：简单建单/补证、审批、轨迹/结果视图，SSE权限与断线续读；不建运营后台。
 - [ ] C11.2：一条查询路径索引/非权威缓存优化与Redis有界回源，保留优化前基线。
+  - [ ] C11.2a 查询选择与基线：在已有订单摘要/工单列表中选一条真实访问路径，记录接口、SQL、调用方、权限过滤、分页/排序及更新频率；保存现有合理实现的EXPLAIN、数据生成seed和接口基线。不增加新业务制造热点，不删现有索引或加延时制造收益。
+  - [ ] C11.2b SQL与索引：依据执行计划判断是否需要联合索引/查询调整，变更用追加迁移。验证结果集合、稳定排序、分页和跨主体拒绝不变；记录前后计划。现有索引已合适则保留理由和测量，不为勾任务添加无效索引。
+  - [ ] C11.2c Redis非权威缓存：在同一读路径接入最小缓存。先写清缓存字段、Key的主体/资源/版本边界、TTL、更新/失效时机及可接受陈旧窗口；保留鉴权，不将缓存用于审批/退款金额或Agent权威证据判断。验证命中、未命中、过期、更新后可见性与主体隔离；容器存在不算接入完成。
+  - [ ] C11.2d 有界回源与故障：明确Redis超时、数据库回源并发/等待上限及超限响应，遵循现有接口契约。经真实Redis适配路径验证断连、慢响应/超时和同热点失效；故障可由受控夹具注入，记录拒绝/失败，禁止无限等待或无限回源。只选满足单机部署的一种简单并发控制方式，不自动加分布式锁或多级缓存平台。
+  - [ ] C11.2e 可复现性能对照：按evaluation第6节同数据/负载/资源比较基线与最终方案，区分SQL与缓存收益；保存成功RPS、p50/p95、错误率、数据库查询量和命中率口径，冷/热与故障结果分开。脚本校验返回内容/权限，不以错误响应变快宣称优化。小规模试跑在本步，冻结复验归C12，复用脚本和数据。
 - [ ] C11.3：core profile服务镜像/健康启动、有限日志指标、已有CI加入核心回归；不依赖Nacos/完整观测集群。
 - 依赖：C08。文件：web、Case SSE/query、infra/scripts/CI；三个子项分开迭代。
 - 验收：能操作核心闭环、看清UNKNOWN/人工/失败；查询优化不影响授权事实；一键启动不是空操作。
 - 验证：web test/build与浏览器核心交互、SQL EXPLAIN、core smoke、已实现all-offline。
+- C11.2子步依赖：a→b→c→d→e；每步通常3–5核心文件，超出先再拆。a涉及查询入口/Mapper、基线脚本/报告；b涉及查询/追加迁移/回归测试；c涉及缓存适配/配置/隔离测试；d涉及回源守卫/故障夹具/测试；e涉及测量脚本/原始结果/报告。每步先通过相关测试再继续，不一次改完整Java链路。
+- C11.2检查点：b后确认查询语义和权限不变；d后确认Redis故障不进入资金/授权决策且回源有界；e后确认命令可重跑、条件可比、不预设收益。允许记录无收益或回退无效优化，但不能用纯SQL报告冒充Redis接入。目标performance suite未实现时先交付入口再登记实际命令，零样本不得成功。
 - 实际记录：未执行。
 
 ### C12 核心实验与报告
@@ -1460,6 +1612,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - [ ] C12.1：80业务/20安全/40检索案例、冻结划分和至少20个人审记录；小样本先检验Gold正确性。
 - [ ] C12.2：B1/A真实模型对照及指定样例重复、RAG两组、CF1–CF6与一项性能实验。
 - [ ] C12.3：统计全部失败/成本/分母/资源、分析负面结果，不强求每项提升。
+- 证据要求：沿用evaluation既定样本/故障规模；Agent、RAG、退款故障和查询性能分别保留原始结果与统计入口。性能复用C11.2e；不扩大实验矩阵凑数字。把证据链接回resume-evidence对应候选方向。
 - 依赖：C09,C10,C11。文件：evals/datasets/runner/metrics、tests/faults/performance、reports；按一个实验一批。
 - 验收：evaluation核心范围全部有真实报告；非法执行0；缺API/预算标阻塞而非通过。
 - 验证：agent-eval live、rag-eval、faults、performance及报告输入hash/计算核对。
@@ -1469,6 +1622,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 - [ ] C13.1：5个可复现演示、启动/故障手册、个人技术取舍说明。
 - [ ] C13.2：按CI-01–10、US-C1–6、K1–K7检查代码/测试/报告，对照实际支持范围写简历候选条目。
+- C13.2交付形态：按resume-evidence六个展示方向筛选5–7条候选贡献，先讲业务与Java/Agent分工；每条附代码入口、关键测试、报告/演示、面试追问及限制。指标仅取自实测，缺证据则降级表述或不写；不得从目标稿倒推完成。实习经历不在本仓库编造或重复包装。
 - 依赖：C12。文件：docs/demo.md、docs/runbook.md、docs/interview-notes.md、reports/core-final-review.md、todo记录。
 - 验收：陌生使用者能复现核心演示；没有未实现补发/反事实/商用/高可用主张；延期项不阻塞完成。
 - 验证：最终相关all-offline、演示实跑、报告与简历证据核对；未运行明确列出。

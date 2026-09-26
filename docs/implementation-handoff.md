@@ -2,15 +2,15 @@
 
 目标是个人技术展示，不是公司级平台。用户已批准AgentScope 2.x SDK替换LangGraph，v1.2业务范围和验收保持不变；请从[迁移规格与DSH指令](agentscope-migration.md)、[核心范围](core-scope.md)、[任务账本](../tasks/todo.md)继续，不按旧40项计划推进。
 
-## 当前开始步骤（2026-09-25，优先于下方历史快照）
+## 当前开始步骤（2026-09-26，优先于下方历史快照）
 
-1. 读AGENTS、README、core-scope、agentscope-migration、dsh-migration-handoff、tasks/plan，以及todo顶部/AS区块；C06记录按需查阅，不整体加载旧聊天。
-2. 核对实时git status与HEAD，接管现有8项代码/测试/脚本改动线索，确认没有其他客户端同时改文件。旧交接写“工作树干净”不构成当前事实。
-3. 当前从AS00开始，C00–C05已有完成记录；C06已有run/回调/MCP/Harness原型，C06.4⑤真实Java联调待现场核实。不能再照旧文档重建空包或从C00开始。
-4. AS01在隔离spike证明依赖、唯一SDK循环、硬拦截、PG恢复及strict可行；提交报告审阅后再AS02改生产锁与循环。C07–C13继续保留，AS探针不等于生产恢复/回放已完成。
-5. 不修改Java业务语义、不删旧测试/迁移/数据库；不启用多Agent或平台。不擅自推送、付费调用或公网部署。发现工作区异常先停止冲突写入并报告，不自行reset/覆盖。
+1. 读AGENTS、README、core-scope、tasks/handoff-current.md、tasks/plan，以及todo顶部/当前任务；仅按需查历史。
+2. 核对实时git status与HEAD，识别已有改动。报告产物或正常新提交不构成停止理由；同文件并行编辑、批量丢失或来源不明的回退才暂停确认，不覆盖他人工作。
+3. AgentScope 2.0.8已接入，继续C08收口与单执行者业务闭环；不重做C00或AS迁移。
+4. AS探针不等于生产恢复/回放完成；2026-09-26已修正预算/上下文及Python网络入口拦截，实际证据见当前交接和审查修复报告。C09/C10仍独立验收。
+5. 不修改Java业务语义、不删旧测试/迁移/数据库；不启用多Agent或平台。2026-09-26用户已授权每个验证通过的小步commit并正常push，执行[工程约定第8节](engineering.md#8-每小步提交并推送2026-09-26用户授权)，无需逐次询问；付费调用或公网部署仍需授权。发现工作区异常先停止冲突写入并报告，不自行reset/覆盖。
 
-当前LangGraph只有依赖锁/历史spike接入，Agent正式循环仍是自写原型，具体模型为mock；这轮文档不代表AgentScope已安装。最新已记录基线和欠账见todo及docs/c064-handoff.md；后者是迁移前历史快照，不是新开工指令。
+当前进度唯一维护在todo顶部；本文件下方是历史快照。正式ModelClient仍需真实模型适配，不能用mock证明H1；run worker归C08.2，生产持久恢复归C09。
 
 ## 历史实现快照（2026-09-23，保留追溯，不作当前起点）
 
@@ -79,4 +79,4 @@ C05.2b-3"已经过时——C05.2b-3、C05.2c、C05.3（复审收口）与 C05.4�
 
 ## 可直接给DSH的指令
 
-使用[AgentScope迁移规格第8节](agentscope-migration.md#8-给dsh的首轮提示词)的完整首轮提示词。首轮只做AS00+AS01.1，不直接迁移全部代码；AS01恢复/回放门禁经审阅后才进入AS02，再接回原核心任务。不要从C00重做。
+使用[tasks/handoff-current.md](../tasks/handoff-current.md)中的当前提示词。迁移规格第8节仅保留历史首轮指令，禁止拿来重做已完成迁移。

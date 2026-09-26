@@ -1,6 +1,6 @@
 # 领域Agent Harness · v1.3 AgentScope目标
 
-范围见[core-scope](core-scope.md)，框架切换见[AgentScope迁移规格](agentscope-migration.md)。这里实现售后调查运行层，不研发通用图引擎或Agent平台。AgentScope SDK负责唯一推理—行动循环，模型负责下一业务行动，领域Harness负责硬约束，PG RunStore/恢复适配负责受fence保护的运行快照，Java负责权威事实与退款授权。当前代码仍是自写循环原型，目标集成尚未实施。
+范围见[core-scope](core-scope.md)，框架边界见[AgentScope迁移规格](agentscope-migration.md)。这里实现售后调查运行层，不研发通用图引擎或Agent平台。AgentScope SDK已接入唯一推理—行动循环；模型负责下一业务行动，领域Harness负责硬约束，PG RunStore/恢复适配的目标是受fence保护的运行快照，Java负责权威事实与退款授权。接入不等于持久恢复完成，实际进度见任务账本。
 
 ## 1. 核心模块
 
@@ -35,6 +35,8 @@
 同run恢复用原manifest，未支持版本返回FAILED/MIGRATION_REQUIRED并转人工；不实现自动迁移或滚动版本共存调度。新revision可以新manifest。模型别名漂移必须记录限制，不假定可重现供应商内部权重。
 
 预算跨字段检查：单步不能超过累计，输入+输出+256不能超过provider容量，timeout不超活动窗口。未知token/计费保守估计，超实际预占时记录超额并停后续调用，不伪称严格费用保证。
+
+输出验收：调用前预占`min(单步输出上限, 累计剩余输出)`并传给ModelClient；额度为0不得调用。已知usage退回未用部分，未知/估算usage不得把预占退为0；超预占响应真实记账且在任何工具/终局动作之前停止。至少覆盖额度耗尽后零新增调用、超额响应零工具执行、预占结算/UNKNOWN三个反例。内存实现不代替C09持久调用账。
 
 ## 4. 上下文、回放和停止
 
