@@ -25,6 +25,7 @@ from resolveflow.harness.budget import (
     RunBudget,
     RunSpend,
 )
+from resolveflow.harness.context import hash_document
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.recovery_budget import RecoveryCallBudget
@@ -124,13 +125,17 @@ class RecoveryBudgetStore:
             )
 
     def reserve(self, run_id: str, *, fence: int, owner: str, call_id: str, request_hash: str,
-                kind: str, input_tokens: int) -> ModelReservation:
+                kind: str, input_tokens: int, request_body: dict[str, Any] | None = None,
+                replay_spend: dict[str, Any] | None = None, sdk_state: dict[str, Any] | None = None,
+                ceiling_parameter: str = "max_tokens") -> ModelReservation:
         if not isinstance(call_id, str) or not 1 <= len(call_id) <= 200:
             raise ValueError("call_id must be 1-200 characters")
         if not re.fullmatch(r"[a-f0-9]{64}", request_hash):
             raise ValueError("request_hash must be canonical SHA-256")
         if type(input_tokens) is not int or input_tokens < 0:
             raise ValueError("input_tokens must be a non-negative integer")
+        if request_body is not None and hash_document(request_body) != request_hash:
+            raise RecoveryConflictError("provider request hash mismatch")
         with self.database.connection() as connection, connection.transaction():
             run = _locked_run(connection, run_id, fence=fence, owner=owner)
             frozen = connection.execute("SELECT * FROM agent_run_model_budget WHERE run_id=%s",
@@ -156,10 +161,17 @@ class RecoveryBudgetStore:
             guard = BudgetGuard(RunBudget(**frozen["budget"]), spend=spend,
                                 active_deadline=run["active_deadline_at"])
             ceiling = guard.reserve_model_request(input_tokens=input_tokens)
+            if request_body is not None and request_body.get(ceiling_parameter) != ceiling:
+                raise RecoveryConflictError("provider request output ceiling mismatch")
             connection.execute(
                 "INSERT INTO agent_model_call(run_id,call_id,kind,request_hash,reserved_input,reserved_output,"
                 "state,created_at) VALUES (%s,%s,%s,%s,%s,%s,'UNKNOWN',now())",
                 (run_id, call_id, kind, request_hash, input_tokens, ceiling),
+            )
+            connection.execute(
+                "UPDATE agent_model_call SET request_body=%s,replay_spend=%s,sdk_state=%s "
+                "WHERE run_id=%s AND call_id=%s",
+                (Jsonb(request_body), Jsonb(replay_spend), Jsonb(sdk_state), run_id, call_id),
             )
             connection.execute(
                 "INSERT INTO agent_model_attempt(run_id,call_id,attempt_no,reserved_fence,reserved_input,"

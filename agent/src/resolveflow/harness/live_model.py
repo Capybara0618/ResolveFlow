@@ -112,6 +112,10 @@ class LiveModelClient:
     #: calls did we spend" is the question a budget asks.
     calls: int = 0
 
+    def prepare_request(self, *, system: str, messages: list[Message], max_output_tokens: int) -> dict[str, Any]:
+        """Exact credential-free provider body, available before transmission for durable reservation."""
+        return self._body(system=system, messages=messages, max_output_tokens=max_output_tokens)
+
     def decide(
         self,
         *,
