@@ -6,12 +6,9 @@
   callback sink are all replaced by recorded/local isolated adapters;
 * it is **not** a separate player that prints the expected answer — a replayer that emitted the recorded final
   state would prove nothing about the code that would run for real;
-* telemetry, automatic downloads and network re-fetching are disabled, a missing record **fails explicitly**, and
-  the test blocks the network at the process level rather than promising not to use it.
-
-The last point is the one that makes this file worth having. Every other claim about replay can be satisfied by a
-replayer that happens not to call out; only a process that *cannot* call out shows the claim holds when the code
-changes underneath it.
+* missing records fail explicitly; Python socket/asyncio connection entries are blocked during the probe.
+  This is not OS isolation: native clients, subprocesses, existing connections and business-write capability
+  isolation still require the production C10 sandbox and adversarial tests.
 
 **The record format.** One pack is one run: the model's responses in order, and the observations its tool calls
 produced. Nothing else. It carries no expected final answer, deliberately — the replay re-derives the trajectory
@@ -22,6 +19,8 @@ contained "the answer" would let the test pass by printing it.
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, cast
@@ -35,6 +34,7 @@ __all__ = [
     "ReplayModel",
     "block_network",
 ]
+
 
 #: Raised when the replay needs a record that is not in the pack.
 #:
@@ -185,30 +185,31 @@ def _chat_response(record: dict[str, Any]) -> ChatResponse:
     return ChatResponse(content=blocks, is_last=True)
 
 
-def block_network() -> list[str]:
-    """Make outbound connections impossible **in this process**, and report what was attempted.
+@contextmanager
+def block_network() -> Iterator[list[str]]:
+    """Deny Python socket/asyncio egress during this isolated replay, then restore.
 
-    `docs/agentscope-migration.md:78` requires the network to be blocked by the test rather than avoided by
-    convention, and the difference matters when the code changes: a promise is not checked, a patched socket is.
-
-    **What is patched, and what deliberately is not.** Only ``socket.create_connection`` — the function an HTTP
-    client calls to open an outbound connection. Patching ``socket.socket.connect`` as well broke asyncio itself:
-    on Windows the proactor event loop creates a socket pair at startup, so the patch killed the loop before the
-    replay began, with ``AttributeError: 'ProactorEventLoop' object has no attribute '_ssock'``. Blocking the one
-    function a client library actually calls is what a replay needs, and it keeps the test's own runtime working.
-
-    The returned list fills with attempted destinations, so a test can assert *that nothing tried* rather than only
-    that nothing succeeded.
+    Enter AFTER the event loop has been initialized (Windows uses socketpair at startup).
+    This is a regression guard, not an OS sandbox: native extensions, subprocesses and
+    already-connected transports require C10's credential-free, network-isolated process.
     """
+    import asyncio
     import socket
+    from contextlib import ExitStack
+    from unittest.mock import patch
 
     attempts: list[str] = []
 
-    def refuse(address: Any, *args: Any, **kwargs: Any) -> Any:
-        attempts.append(repr(address))
-        raise OSError(
-            f"AS01.3 strict replay forbids network access: a connection to {address!r} was attempted"
-        )
+    def refuse(*args: Any, **kwargs: Any) -> Any:
+        attempts.append(repr((args, kwargs)))
+        raise OSError("AS01.3 strict replay forbids network access")
 
-    socket.create_connection = refuse
-    return attempts
+    with ExitStack() as stack:
+        for target, names in (
+            (socket, ("create_connection", "getaddrinfo")),
+            (socket.socket, ("connect", "connect_ex", "sendto")),
+            (asyncio.BaseEventLoop, ("create_connection", "sock_connect", "create_datagram_endpoint")),
+        ):
+            for name in names:
+                stack.enter_context(patch.object(target, name, refuse))
+        yield attempts

@@ -1,5 +1,7 @@
 # AgentScope 迁移兼容报告 · AS01 全部（AS01.1 / AS01.2 / AS01.3）
 
+> 2026-09-26勘误：本报告下方为迁移时逐次记录，不是当前全部能力证明。AS02生产接入已发生。原AS01.3仅patch create_connection，direct socket/asyncio实测可绕过；现已补齐Python入口回归与可恢复guard，但不构成OS/原生扩展/子进程隔离。源码import扫描也不证明“零业务写能力”。相关过强结论撤回，生产strict门禁留给C10；证据见[审查修复报告](../c08-review-fixes.md)。恢复额度的“12内预留”与spike“12+2”仍须在C09开始前解决规范冲突，不能静默放宽总预算。
+
 2026-09-25。本报告是 `docs/agentscope-migration.md:97` 要求的**技术门禁审阅材料**。**AS01.1、AS01.2（含真实 PG 关卡）、AS01.3 均已完成**，技术门禁请见 §8；AS02 的开工前提是用户审阅本报告。
 
 代码位置：`spikes/agentscope/`（独立锁与独立 venv，未改 `agent/pyproject.toml`、未改 `agent/uv.lock`）。

@@ -1,4 +1,4 @@
-"""AS01.3: strict replay of one complete trajectory, with the network blocked in the process.
+"""AS01.3: recorded replay with Python connection-entry guards (not an OS sandbox).
 
 The three requirements from `docs/agentscope-migration.md:78`, and how each is met here:
 
@@ -6,9 +6,8 @@ The three requirements from `docs/agentscope-migration.md:78`, and how each is m
    `test_control.py`; only the model, and the tool that answers, are replaced by records. If the loop or the guards
    changed, the replayed trajectory would change with them, which is the point of replaying rather than printing.
 2. **"缺记录明确失败"** — `ReplayExhaustedError`, asserted directly.
-3. **"网络与业务写被真实阻止"** — `block_network()` replaces `socket.socket.connect` and
-   `socket.create_connection` in-process, so an attempted connection raises instead of succeeding, and the attempts
-   are recorded so the test can assert that nothing even tried.
+3. Python socket/asyncio connection entries are intercepted and attempts recorded. This does not prove
+   OS-level isolation or zero business-write capability; those remain C10 acceptance requirements.
 
 **Why the recording is taken from a real run rather than hand-written.** A hand-written pack would encode what I
 *think* the loop does. Recording one from an actual run and then replaying it is what makes the comparison
@@ -245,7 +244,7 @@ def test_an_unknown_block_type_is_refused_rather_than_skipped() -> None:
 # ------------------------------------------------------------------ the network and the writes
 
 
-def test_the_network_is_blocked_at_the_process_level() -> None:
+def test_python_connection_entries_are_blocked_and_restored() -> None:
     """**网络被真实阻止.** Not by convention: an attempted connection raises, in this process.
 
     `docs/agentscope-migration.md:78` asks the test to block the network rather than to promise not to use it, and
@@ -255,15 +254,13 @@ def test_the_network_is_blocked_at_the_process_level() -> None:
     """
     import socket
 
-    original = socket.create_connection
-    attempts = block_network()
-    try:
+    original = socket.create_connection, socket.socket.connect, socket.socket.connect_ex
+    with block_network() as attempts:
         with pytest.raises(OSError, match="forbids network access"):
             socket.create_connection(("127.0.0.1", 80))
         with pytest.raises(OSError, match="forbids network access"):
             socket.create_connection(("example.invalid", 443))
-    finally:
-        socket.create_connection = original
+    assert (socket.create_connection, socket.socket.connect, socket.socket.connect_ex) == original
     assert len(attempts) == 2, f"the block did not record both attempts: {attempts}"
 
 
@@ -278,11 +275,7 @@ def test_a_replay_runs_with_the_network_blocked(tmp_path: pathlib.Path) -> None:
     pack_path = tmp_path / "network-blocked-pack.json"
     pack.save(pack_path)
 
-    import socket
-
-    original = socket.create_connection
-    attempts = block_network()
-    try:
+    async def replay_isolated() -> tuple[list[str], list[str]]:
         replay_actions: list[str] = []
 
         class RecordedTool(CountingTool):
@@ -297,9 +290,7 @@ def test_a_replay_runs_with_the_network_blocked(tmp_path: pathlib.Path) -> None:
                 from tests._helpers import ToolResultState
 
                 replay_actions.append(self.name)
-                observation = next(
-                    (o for o in pack.tool_observations.values() if o.get("tool") == self.name), None
-                )
+                observation = next((o for o in pack.tool_observations.values() if o.get("tool") == self.name), None)
                 if observation is None:
                     raise ReplayExhaustedError(f"no recorded observation for {self.name!r}")
                 return ToolChunk(
@@ -308,27 +299,39 @@ def test_a_replay_runs_with_the_network_blocked(tmp_path: pathlib.Path) -> None:
                 )
 
         model = ReplayModel(ReplayPack.load(pack_path))
-        agent = _agent_for(
-            model,
-            [RecordedTool("get_order_context", []), RecordedTool("get_refund_status", [])],
+        toolkit = Toolkit()
+        for tool in [RecordedTool("get_order_context", []), RecordedTool("get_refund_status", [])]:
+            await toolkit.add_tool(tool)
+        agent = Agent(
+            name="spike-agent",
+            system_prompt="Investigate one order line.",
+            model=model,
+            toolkit=toolkit,
+            middlewares=[RefusingPermissionMiddleware(WHITELIST), BudgetMiddleware(BudgetGuard(RunBudget()))],
+            react_config=ReActConfig(max_iters=10),
         )
-        run_agent(agent, "investigate one order line")
-    finally:
-        socket.create_connection = original
+        from agentscope.message import Msg
 
+        with block_network() as attempts:
+            await agent.reply(
+                Msg(name="spike-user", role="user", content=[TextBlock(type="text", text="investigate one order line")])
+            )
+        return replay_actions, attempts
+
+    replay_actions, attempts = anyio.run(replay_isolated)
     assert replay_actions == recorded_actions
     assert attempts == [], f"the replay attempted network access: {attempts}"
 
 
 def test_a_replay_opens_no_database_and_writes_nothing(tmp_path: pathlib.Path) -> None:
-    """**业务写被真实阻止**: the replay is given no store, and its only output is a local file.
+    """Static dependency smoke: no direct business-store import, and only a local pack output.
 
     `docs/agentscope-migration.md:78` requires the storage and the callback sink to be swapped for local, isolated
     adapters. Rather than assert a promise, this checks the shape: the replay's environment holds no DSN, and the
     only thing it writes is the pack file inside `tmp_path`.
 
-    The probe is deliberately blunt — it asserts that the replay path never imports the recovery store, so there is
-    no code path from a replay to a business write to disable in the first place.
+    This does NOT prove the absence of indirect imports or business writes. C10 must inject actual
+    write attempts in a credential-free, network-isolated execution environment and verify zero effects.
     """
     import inspect
 
