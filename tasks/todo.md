@@ -16,6 +16,11 @@
   spikes `pytest tests` → **40 passed** 且 ruff/mypy 通过；`.\java\mvnw.cmd -f java/pom.xml -B test`（JAVA_HOME=JDK 21）→ **226 tests, 0 failures, 4 skipped, BUILD SUCCESS**。
   仍**未做**：Java 复核/审批→模拟退款、`verify_proposal()` 接入 run 路径、常驻 worker 入口、C09/C10、live 模型与 H1–H5。
   刻意未提交 `reports/c052c-chain/20260925-232103-provider.sqlite3`（数据库快照）；原始 Java 输出中的一枚演示 `run:dispatch` JWT 已在提交前脱敏。
+- 2026-09-26 出站方案缺口核查（**仅核查未改码**，见[报告](../reports/c08-2-8-outbound-proposal-gap.md)）：`ProposalPayload` 要求 `summary` 而 `ModelDecision.summary` 可选，
+  故模型省略 summary 时 `worker.callback_payload` 组装出的 body 缺必填成员（复现 `"[]: 'summary' is a required property"`）→ Case 会拒而 run 停在 `CALLBACK_PENDING`；
+  出站 PROPOSE **不带** `evidence_refs`/`policy_refs`（契约允许），gate 验过的引用在出站时被丢掉，`verify_proposal(composed)` 对合法方案也给 `REFUND_CITATION_REQUIRED`；
+  `verify_proposal()` 在 `agent/src` 内确无 runtime 调用点。现有契约载荷测试全绿只覆盖"带 summary 的那一个 body"。
+  下一步小步：①出站带上已验引用；②`RunWorker.finish()` 入 outbox 前用 `verify_proposal` 复核，非法则不投递并按 run 理由码落 FAILED；③`summary` 是否在 ABI 强制单独一步。
 - 当前接续顺序：①收口C08 ABI/fixture剩余回归——**已完成并全量复验**（2026-09-26 提交批次内，1018 passed/9 skipped）；②补C08正式run的最终方案校验、通过型证据用例、常驻worker入口及真实Java/MCP/数据库/MQ的业务闭环（模型mock/live分开）；③在批准的API预算内验收H1及C08相关门禁；④C09生产持久恢复→C10生产strict；C11依赖C08，C12依赖C09/C10/C11，最后C13审计。`verify_proposal()`尚未在runtime找到调用，常驻入口也未找到worker装配；这两个是本次静态检查的待接入项，不把局部测试通过当作已完成。
 - C11.2的SQL/Redis任务仅有规划，尚不能写成缓存优化成果；C09/C10与最终性能、live对照报告仍需独立验收。退款旧集成报告、AS恢复/禁网探针、已有all-offline都不是本轮重跑结果。C09开工前仍须解决“总12次内预留/12+2”预算冲突，不静默扩额。
 - 历史：原第 10 行写"C06.4⑤ 有未提交改动，需 AS00 接管核实"，AS00 已核实并接管，该阶段已过。
@@ -1593,6 +1598,10 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
     live 模型、MCP 子进程、Java 退款半段、all-offline 本轮（复用 092245 结果）未重跑。
   - **仍待接入**：`verify_proposal()` 在 runtime 无调用点，`RunWorker`/`build_investigation` 无常驻装配入口；
     它们与 Java 复核/审批→模拟退款同属下一个子步。**C08.1/C08.2 仍不勾完成。**
+- 实际记录（**2026-09-26 出站方案缺口，仅核查未改码**）：见[报告](../reports/c08-2-8-outbound-proposal-gap.md)。用仓内 `component_validator("case","ProposalPayload",…)`
+  与 `ProposalVerifier.verify_proposal` 对**实际组装**的出站 body 复现出：模型省略 `summary` 时 body 缺 `ProposalPayload` 的必填成员（Java 会拒，run 停在 `CALLBACK_PENDING`）；
+  出站方案不带 `evidence_refs`/`policy_refs`，故 gate 已验的引用在出站时丢失，且 Case 无从复核引用；`verify_proposal()` 在 `agent/src` 内无调用点。
+  现有契约载荷测试之所以全绿，是它的 fixture 自带 `summary`——**测的是"这一个 body"，不是"所有能组装出的 body"**。
 
 ### C09 持久恢复与版本保护
 
