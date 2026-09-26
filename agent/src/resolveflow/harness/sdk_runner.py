@@ -406,6 +406,12 @@ class McpToolBridge(ToolBase):
                 content=[TextBlock(type="text", text=f"{exhausted.reason_code}: {exhausted}")],
                 state=ToolResultState.ERROR,
             )
+        except Exception as failure:  # noqa: BLE001 - preserve fenced refusal outside SDK's legacy MCP handler
+            code = self._client.durability.capture_error(failure) if self._client.durability is not None else None
+            if code is None:
+                raise
+            self._gate.note_stop(code)
+            return ToolChunk(content=[TextBlock(type="text", text=code)], state=ToolResultState.ERROR)
         try:
             # `to_thread` because the project's executor is synchronous by construction (it bridges a private
             # event loop for MCP stdio); calling it inline would block the SDK's loop.
@@ -421,6 +427,8 @@ class McpToolBridge(ToolBase):
                 if self._client.durability is not None else invoke()
             )
         except Exception as failure:  # noqa: BLE001 - the executor's failure is the run's fact to record
+            if self._client.durability is not None:
+                self._client.durability.capture_error(failure)
             self._gate.note_stop(REASON_TOOL_FAILED)
             self._gate.note_evidence(False)
             self._adapter.trajectory.append({"action": self.name, "outcome": "FAILED", "detail": str(failure)[:300]})
@@ -606,6 +614,8 @@ class AgentScopeRunner:
         try:
             await agent.reply(messenger_message(_starting_packet(self, guard)))
         except BudgetExhaustedError as exhausted:
+            if self.durability is not None and self.durability.failure is not None:
+                raise self.durability.failure
             return _outcome(exhausted.reason_code, gate, model, guard, completed=False)
         except OverflowRefusedError as overflow:
             # C08.1: the mandatory layers do not fit, so the run stops with the code the specification names rather
@@ -616,6 +626,9 @@ class AgentScopeRunner:
             return _outcome(overflow.reason_code, gate, model, guard, completed=False)
         except _ScriptExhausted:
             return _outcome(REASON_COMPLETED, gate, model, guard, completed=True)
+
+        if self.durability is not None and self.durability.failure is not None:
+            raise self.durability.failure
 
         # A recorded stop ends the run. Without the loop's own check the model would be asked again after a budget
         # refusal, and the run would stop on whichever bound happened to fire next.

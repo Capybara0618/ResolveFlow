@@ -138,6 +138,12 @@ class LocalReadBridge(ToolBase):
                 state=ToolResultState.ERROR,
             )
 
+        except Exception as failure:  # noqa: BLE001 - preserve fenced refusal outside SDK's legacy MCP handler
+            code = self._client.durability.capture_error(failure) if self._client.durability is not None else None
+            if code is None:
+                raise
+            self._gate.note_stop(code)
+            return ToolChunk(content=[TextBlock(type="text", text=code)], state=ToolResultState.ERROR)
         try:
             observation = (
                 self._client.durability.observe(self.name, dict(kwargs), lambda: self._read(**kwargs),
@@ -147,6 +153,8 @@ class LocalReadBridge(ToolBase):
         except self.refusal_types() as refusal:
             return self._refuse(refusal, **kwargs)
         except Exception as failure:  # noqa: BLE001 - the failure is the run's fact to record
+            if self._client.durability is not None:
+                self._client.durability.capture_error(failure)
             self._gate.note_stop(REASON_TOOL_FAILED)
             self._gate.note_evidence(False)
             self._adapter.trajectory.append(

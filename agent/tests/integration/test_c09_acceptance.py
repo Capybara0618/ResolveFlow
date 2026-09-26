@@ -159,3 +159,18 @@ def test_model_timeout_is_bounded_by_original_deadline(agent_db: Database) -> No
     assert RunWorker(agent_db, investigate, recoverable=True).run_once().callback_kind == "PROPOSAL"
     assert 0 < transport.calls[0]["timeout"] <= 5
     assert model.timeout_seconds == 30
+
+
+def test_old_fence_before_tool_stops_without_sdk_transport_error(agent_db: Database, monkeypatch) -> None:
+    queued(agent_db)
+    model = MockModelClient(script=[{"kind": "READ_TOOL", "tool_name": "get_order_context", "arguments": {}}])
+    tools = StubTools()
+    investigate = build_investigation(database=agent_db, config=DeploymentConfig(mode="mock"), model=model, tools=tools)
+    original = DurableRun.before_tool
+    def invalidate(durable, *args):
+        with agent_db.connection() as connection:
+            connection.execute("UPDATE agent_run SET fence=fence+1")
+        return original(durable, *args)
+    monkeypatch.setattr(DurableRun, "before_tool", invalidate)
+    assert RunWorker(agent_db, investigate, recoverable=True).run_once().callback_kind is None
+    assert tools.calls == []

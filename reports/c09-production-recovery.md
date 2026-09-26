@@ -31,3 +31,7 @@ HTTP服务显式启用常驻worker时默认走RunLease与DurableRun；旧注入�
 ## 最终版本与deadline核验
 
 未设置构建戳时code_revision改为源码(.py/.sql)与uv.lock内容指纹；wheel无lock时使用实际安装依赖列表hash，部署可显式使用构建戳。RED缺模块→指纹变化测试通过，预算/state/code/model四类manifest变更全部拒绝且模型不新增调用。政策检索/本地Observation恢复各一项，缓存命中时禁止查询方法，local_reads/tool_attempts原计数保留；测试首次patch错局部导入路径失败，修正后通过。模型timeout反例RED1 failed（剩5秒仍传30）→发送前读PG时间，模型/MCP timeout取原配置、冻结预算timeout和原deadline剩余的最小值，发送后恢复client配置。聚焦37 passed（不含15个跨进程case，将随全量重跑），Ruff全量通过，五个相关源码strict mypy通过。
+
+## 工具入口迟到fence拒绝
+
+在已保存模型回复后、进入工具预占之前注入fence递增，RED1 failed复现AgentScope 2.0.8/MCP 2.2旧handler把StaleFenceError遮蔽成AttributeError。MCP/本地桥捕获领域拒绝并停止gate，SDK外传回原异常由worker处理，拒绝不触发外部工具且不写终局。模型保存前、后及工具入口三处均有迟到反例。聚焦60 passed（排除跨进程15项），补充调整后入口反例1 passed；全量Ruff通过。

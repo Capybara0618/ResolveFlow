@@ -15,7 +15,7 @@ from resolveflow.harness.context import canonical_json, estimate_tokens, hash_do
 from resolveflow.harness.model import MockModelClient
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.journal import RunJournal
-from resolveflow.runtime.recovery_store import RecoveryConflictError
+from resolveflow.runtime.recovery_store import RecoveryConflictError, StaleFenceError
 
 
 class ModelRetryExhaustedError(RuntimeError):
@@ -37,6 +37,7 @@ class DurableRun:
     model_record: Any = None
     tool_record: Any = None
     tool_saved: bool = False
+    failure: Exception | None = None
 
     def __post_init__(self) -> None:
         self.journal = RunJournal(self.database)
@@ -50,6 +51,12 @@ class DurableRun:
             runner.tools.trace_pages = self.journal.trace_pages(self.facts.run_id, **self.identity())
         if isinstance(runner.model, MockModelClient):
             runner.model.use_context_step = True
+
+    def capture_error(self, error: Exception) -> str | None:
+        if isinstance(error, (StaleFenceError, RecoveryConflictError, BudgetExhaustedError)):
+            self.failure = error
+            return error.reason_code if isinstance(error, BudgetExhaustedError) else "RECOVERY_REFUSED"
+        return None
 
     def transmit(self, target: Any, invoke: Callable[[], Any], guard: Any) -> Any:
         remaining = self.journal.remaining_seconds(self.facts.run_id, **self.identity())
