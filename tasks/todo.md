@@ -2,7 +2,7 @@
 
 2026-09-26更新。当前唯一进度账本。AgentScope迁移约束见[迁移规格](../docs/agentscope-migration.md)，开工只使用[当前交接](handoff-current.md)。业务与验收保持v1.2；旧40个T任务已退出当前必做顺序，完整原记录保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
-## 最近交接快照（2026-09-26 21:38 +08:00，Asia/Shanghai）
+## 最近交接快照（2026-09-26 21:40 +08:00，Asia/Shanghai）
 
 - 方向与执行者：DSH已明确停止写入；Codex已只读核验并接管，同一工作区当前由Codex实施。工作区 `E:/Code/Agent+Backend`，`main` → `origin/main`。
 - 当前C08.2：出站方案验证/引用、通过型退款模拟链已完成；常驻调查线程 `79c7bb7`、服务装配 `e8c5eef` 均已提交推送并确认远端。常驻入口默认关闭，显式配置才处理预存QUEUED；HTTP健康不代表worker健康。见[常驻worker报告](../reports/c08-resident-investigation.md)。C08整包及H1–H5尚未验收。
@@ -13,8 +13,9 @@
 - 最新mock业务闭环：`scripts/e2e_resident_refund.py` 在真实Java/MCP/PG/MQ链路中以新订单行、真实物流观察和固定政策检索构造有引用方案；Case复核、人工审批、Commerce/模拟provider退款到关单均通过。最新运行 `20260926-212632` **PASSED**：退款2599分，账本已退2599/预留0，同行槽CONSUMED，provider同operation只尝试1次。见[报告](../reports/c08-resident-refund-chain.md)；模型动作由脚本固定，不算H1/live。
 - H1–H3接续核查：H2/H3聚焦 **160 passed**，6组配对合成案例设计、记录字段及12-run理论调用上限见[核查报告](../reports/c08-h1-h3-readiness.md)；尚未形成可执行冻结Gold，也没有live调用，H1–H3不勾。当前模型endpoint、ID、key均未配置，无用户确认的收费上限。
 - 最新离线H1准备：六组/12例输入、单独Gold和live运行记录结构已提交前验证，**3 passed**、Ruff/diff通过；Gold标记未人工审查，输入只可作为评测seed，不能直接送模型。见[配对fixture报告](../reports/c08-h1-paired-fixtures.md)，没有真实服务seed/runner、没有live结果，H1不勾。
-- 下一具体动作：给H1合成案例补隔离服务seed/捕获入口，保证Agent只收到诉求、工具返回权威事实且Gold绝不入上下文；有明确endpoint/model/费用上限后再做live小样本。若收费配置仍缺，先按总12次规范解决C09预算冲突并开展独立离线子步。`summary` ABI强制另拆小步，当前由最终Schema校验拒绝。
-- 未运行：本步Java单测/Spotless、all-offline、live模型及H1–H5、C09恢复、C10 strict；UNKNOWN/丢响应链路由既有C05报告覆盖，非本次mock运行结论。C09前仍须解决总12次内预留/12+2预算冲突，不静默扩额。
+- C09预算冲突已核对：规范上限是**每run总12次含恢复**；历史用户决定“预留且显式计费”按其中10次普通+2次恢复解释，AS01.2 spike 的12+2不可直接入生产。见[预算边界](../reports/c09-recovery-budget-boundary.md)；本步仅规范核查，未实现持久账。
+- 下一具体动作：先写C09总12次/10普通+2恢复/`RECOVERY_TURN`/重启不重置的失败测试，再做最小持久预算与稳定调用账；H1另待隔离服务seed/捕获入口、Gold人工审查、模型与费用上限后live。`summary` ABI强制另拆小步，当前由最终Schema校验拒绝。
+- 未运行：本步Java单测/Spotless、all-offline、live模型及H1–H5、C09恢复、C10 strict；UNKNOWN/丢响应链路由既有C05报告覆盖，非本次mock运行结论。
 - 未提交/后台：本步提交后仍有既有未跟踪SQLite快照与三次 `reports/c08-resident-java/` 原始联调日志留在本机；新闭环原始日志、脚本和provider SQLite在忽略的 `tmp/c08-resident-refund/`，均不提交或删除。无已知测试/Java/Agent子进程运行；既有PostgreSQL、MySQL、RocketMQ namesrv/broker容器运行，未删卷。
 - 取舍与失败：strict mypy既有9错；最新全量为本步 **1055 passed / 9 skipped**。缺summary时run明确FAILED；C09恢复与租约/fence未交付，不把现有worker当生产高可用。
 
