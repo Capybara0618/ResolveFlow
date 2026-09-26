@@ -2,7 +2,7 @@
 
 2026-09-26更新。当前唯一进度账本。AgentScope迁移约束见[迁移规格](../docs/agentscope-migration.md)，开工只使用[当前交接](handoff-current.md)。业务与验收保持v1.2；旧40个T任务已退出当前必做顺序，完整原记录保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
-## 最近交接快照（2026-09-26 21:17 +08:00，Asia/Shanghai）
+## 最近交接快照（2026-09-26 21:29 +08:00，Asia/Shanghai）
 
 - 方向与执行者：DSH已明确停止写入；Codex已只读核验并接管，同一工作区当前由Codex实施。工作区 `E:/Code/Agent+Backend`，`main` → `origin/main`。
 - 当前C08.2：出站方案验证/引用、通过型退款模拟链已完成；常驻调查线程 `79c7bb7`、服务装配 `e8c5eef` 均已提交推送并确认远端。常驻入口默认关闭，显式配置才处理预存QUEUED；HTTP健康不代表worker健康。见[常驻worker报告](../reports/c08-resident-investigation.md)。C08整包及H1–H5尚未验收。
@@ -10,9 +10,10 @@
 - 本步验证：聚焦集成 **21 passed**，最终全量Python **1050 passed / 9 skipped / 1 warning**；Ruff与diff检查通过；strict mypy仍为4个既有文件9个 `no-any-return` 错误。真实PG已用既有 `resolveflow-postgres-1` 容器启动供隔离schema测试。详见[本步报告](../reports/c08-resident-run-credential.md)。
 - 最新准备小步：两个C08相关真实联调脚本已改为端口占用时拒绝启动，退出时只停止自身子进程；RED 4 failed→GREEN 4 passed，新增测试Ruff和脚本编译通过。旧脚本整体Ruff仍有44个既有违规，不虚报通过。见[端口保护报告](../reports/c08-e2e-driver-port-ownership.md)。
 - 最新C08.2小步：真实Case派发→常驻Agent→Case回调已用mock模型跑通；首次真实运行发现出站持久记录缺 `traceparent`，RED测试复现后修复，相关回归 **48 passed**，全量Python **1055 passed / 9 skipped**，Ruff通过、strict mypy仍为9个既有错误。最终运行Case绑定 `DISPATCHED`，Agent `COMPLETED`，Case inbox两条 `ACCEPTED`，工单 `PENDING_REVIEW`；见[真实桥接报告](../reports/c08-resident-java-bridge.md)。这个结果不证明MCP工具读取成功、live自主性或退款已执行。
-- 下一具体动作：在可核查工具/政策证据的前提下产生有引用的退款方案，复用现有Case审批及C05的Commerce/模拟provider链路，从同一Agent派发run继续验证人工审批→退款。`summary` ABI强制另拆小步，当前由最终Schema校验拒绝。
-- 未运行：本步Java单测/Spotless、all-offline、审批→MQ→真实模拟退款、live模型及H1–H5、C09恢复、C10 strict。C09前仍须解决总12次内预留/12+2预算冲突，不静默扩额。
-- 未提交/后台：本步提交后仅既有未跟踪SQLite快照及三次原始联调日志保留本机，不提交或删除。全量pytest已退出，本步Java/Agent子进程均已退出；既有PostgreSQL、MySQL、RocketMQ namesrv/broker容器运行，未删卷。
+- 最新mock业务闭环：`scripts/e2e_resident_refund.py` 在真实Java/MCP/PG/MQ链路中以新订单行、真实物流观察和固定政策检索构造有引用方案；Case复核、人工审批、Commerce/模拟provider退款到关单均通过。最新运行 `20260926-212632` **PASSED**：退款2599分，账本已退2599/预留0，同行槽CONSUMED，provider同operation只尝试1次。见[报告](../reports/c08-resident-refund-chain.md)；模型动作由脚本固定，不算H1/live。
+- 下一具体动作：对照C08与H1–H3逐项审计剩余证据，优先确定真实模型小样本预算及工具结果可追溯缺口，再实施最小验证；不重复当前mock闭环，也不自动勾C08整包/H1–H5。`summary` ABI强制另拆小步，当前由最终Schema校验拒绝。
+- 未运行：本步Java单测/Spotless、all-offline、live模型及H1–H5、C09恢复、C10 strict；UNKNOWN/丢响应链路由既有C05报告覆盖，非本次mock运行结论。C09前仍须解决总12次内预留/12+2预算冲突，不静默扩额。
+- 未提交/后台：本步提交后仍有既有未跟踪SQLite快照与三次 `reports/c08-resident-java/` 原始联调日志留在本机；新闭环原始日志、脚本和provider SQLite在忽略的 `tmp/c08-resident-refund/`，均不提交或删除。Java/Agent子进程已退出；既有PostgreSQL、MySQL、RocketMQ namesrv/broker容器运行，未删卷。
 - 取舍与失败：strict mypy既有9错；最新全量为本步 **1055 passed / 9 skipped**。缺summary时run明确FAILED；C09恢复与租约/fence未交付，不把现有worker当生产高可用。
 
 ## 已有成果（历史记录，非本轮重测）

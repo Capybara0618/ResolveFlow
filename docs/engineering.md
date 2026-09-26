@@ -154,6 +154,13 @@ provider-stub在C04落地轻量Python+SQLite持久模拟退款，含幂等/故�
 本阶段单Agent副本、进程内单调查线程；意外异常停止调查线程并记录错误，RUNNING遗留由C09恢复工作处理。
 尚无生产租约/fence/崩溃恢复，不将本入口称为C09完成。操作员可通过线程状态与错误日志识别失败；现有`/health`仍仅表示HTTP进程存活。
 
+本地真实链路演示：启动已有MySQL、PostgreSQL、RocketMQ namesrv/broker容器后，从仓库根目录运行
+`agent/.venv/Scripts/python.exe scripts/e2e_resident_refund.py`。驱动自建演示订单行和LOST物流，
+先从真实Java MCP工具与PG政策索引取得本run可核查引用，再用显式mock模型驱动常驻Agent；
+Case负责复核，demo reviewer经真实API审批，Commerce经MQ向同一Python进程的模拟provider退款。
+每次使用新订单行，不清库；原始进程日志与provider SQLite留在忽略的`tmp/c08-resident-refund/`。
+mock决策只证明业务接线，不算live模型自主性/H1验收；参见`reports/c08-resident-refund-chain.md`。
+
 ## 8. 每小步提交并推送（2026-09-26用户授权）
 
 执行节奏：**独立小步实现 → 针对性验证 → 更新任务记录 → 审查暂存差异 → commit → push → 确认远端 → 下一小步**。适用于功能、修复、测试与文档，不等C08/C11整包完成，也不把未通过的小步伪装成完成。纯文档跑差异/链接/一致性检查；代码跑相关测试、构建/静态检查，既有失败基线与新增失败分开披露，不删除断言或跳过钩子来提交。
