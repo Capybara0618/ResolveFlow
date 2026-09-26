@@ -7,13 +7,13 @@
 - 方向：DSH → Codex；用户已明确确认 DSH 停止写入。
 - 执行者与状态：Codex 已完成只读核验与当前子步基线，已接管；从 C08.2-8 出站方案缺口继续，不重做框架迁移。
 - 工作区、分支、upstream：`E:/Code/Agent+Backend`；`main` → `origin/main`；远程 `https://github.com/Capybara0618/ResolveFlow.git`。
-- 最后已知业务实现提交：`2b5694e`（C08.2 runtime；后续另有修复/证据/文档提交）；接管 HEAD 与已确认远端均为 `42707d7257ccc2437084a3a11a69a3cca1e26819`。本轮 `git fetch origin` 后分支差异 `0/0`，`git ls-remote origin refs/heads/main` 核对一致（13:38 +08:00）；每小步新提交及最终推送结果见执行回复。
-- 当前任务/子步：C08.2-8 出站引用与最终方案验证已完成并验证；`callback_payload` 保留引用，`RunWorker.finish` 入outbox前验证，非法候选走FAILED。额外发现并修复claim/finish缺显式事务。当前全量Python **1027 passed / 9 skipped**；相关五文件 **53 passed**，Ruff通过，strict mypy仍为9个既有错误。C08.1/C08.2、H1–H5不因局部修复勾选；详细失败与验证见[本步报告](../reports/c08-2-8-final-proposal-validation.md)。
+- 最后已知业务实现提交：`c77f3f4`（C08.2-8出站引用/最终方案验证及worker显式事务），已推送并以 `git ls-remote origin refs/heads/main` 确认SHA一致；接管基线为 `42707d7`，接管记录为 `215b1f9`。每小步新提交及最终推送结果见执行回复，不为自身SHA循环提交。
+- 当前任务/子步：C08.2-8 已完成（`c77f3f4`，见[报告](../reports/c08-2-8-final-proposal-validation.md)）；随后通过型退款用例串起真实MCP stdio+PG政策检索+SDK+worker outbox，发现并修复P3实际messages缺引用元数据。当前全量Python **1030 passed / 9 skipped**；最终context策略版本聚焦 **40 passed**，Ruff通过，strict mypy仍为9个既有错误，见[报告](../reports/c08-refund-citation-pipeline.md)。HTTP上游/模型/embedding仍为测试桩/mock，不声称真实Java或live验收；C08.1/C08.2、H1–H5不勾选。
 - 关键验证：接管基线（源码 `42707d7`，工作目录 `agent/`）：`.\.venv\Scripts\python.exe -m pytest tests/unit/test_callback_payloads_match_the_case_contract.py tests/unit/test_proposal_verifier.py tests/integration/test_run_worker.py -q -p no:cacheprovider --tb=short` → **30 passed**（真实PG隔离测试schema，调查stub，无live模型）；Git状态、暂存区及相关源码核验一致。历史全量结果保留下方，不当作本轮重测；本次接管文档另跑差异/链接检查。
 - 未运行检查：本轮未跑Java测试/Spotless、all-offline、真实MCP/Java/数据库/MQ业务闭环、live模型、C09恢复及C10 strict门禁；Python结果按本步报告单独记录，不新增收费调用。
 - 未提交/未跟踪/已暂存：交接前已跟踪文件无差异、暂存区为空；仅 `reports/c052c-chain/20260925-232103-provider.sqlite3` 未跟踪，为既有退款链路数据库快照，保留原处、不提交、不删除，不影响已提交源码。无未完成源码改动需要整理。
 - 后台进程/作业：本轮未启动后台实施/测试任务；进程检查未发现 Java/Python 服务、worker或测试进程，未发现额外指向本仓库的 Node/PowerShell任务（除当前核验命令）。不据此证明其他客户端已退出。Docker仍运行 `resolveflow-postgres-1`、`resolveflow-mysql-1`、`resolveflow-redis-1`（healthy），`resolveflow-rocketmq-broker-1`、`resolveflow-rocketmq-namesrv-1`；共享基础设施可能继续写数据库/内部日志，保留运行，不修改仓库源码/测试/报告。需要停服务时对上述明确名称执行 `docker stop <容器名>`，保留卷；不终止其他客户端或Docker Desktop。
-- 下一具体动作：本步最终验证、提交并确认远端后，核验 `tests/integration/test_deployment_factory.py` 与 `test_harness_mcp.py`/`test_policy_search_action.py` 的通过型退款覆盖，补真实工具observation+政策检索命中经SDK到worker的成功用例；再拆常驻worker装配与真实Java业务闭环。summary ABI强制另拆小步，当前由最终Schema校验拒绝。
+- 下一具体动作：从 `runtime/factory.py::build_investigation` 与现有服务生命周期拆常驻worker装配入口小步；先核对显式mock/live模式、无配置启动拒绝、空队列等待、关闭worker/连接池，再补失败测试。随后真实Java复核/审批→退款闭环独立验收。summary ABI强制另拆小步，当前由最终Schema校验拒绝。
 - 已知失败/取舍：strict mypy既有9个错误；缺summary现在明确FAILED，不再投递畸形方案，ABI仍可省略该字段。常驻worker入口与Java复核/审批→退款仍待交付。C09前仍须解决总12次内预留/12+2预算冲突，不能静默扩额。交接仅同步Git，未跟踪数据库与本地环境不随push迁移。
 
 ## 已有成果（历史记录，非本轮重测）
@@ -35,7 +35,7 @@
   出站 PROPOSE **不带** `evidence_refs`/`policy_refs`（契约允许），gate 验过的引用在出站时被丢掉，`verify_proposal(composed)` 对合法方案也给 `REFUND_CITATION_REQUIRED`；
   `verify_proposal()` 在 `agent/src` 内确无 runtime 调用点。现有契约载荷测试全绿只覆盖"带 summary 的那一个 body"。
   下一步小步：①出站带上已验引用；②`RunWorker.finish()` 入 outbox 前用 `verify_proposal` 复核，非法则不投递并按 run 理由码落 FAILED；③`summary` 是否在 ABI 强制单独一步。
-- 当前接续顺序：①收口C08 ABI/fixture剩余回归——**已完成并全量复验**（2026-09-26 提交批次内，1018 passed/9 skipped）；②补C08正式run的最终方案校验、通过型证据用例、常驻worker入口及真实Java/MCP/数据库/MQ的业务闭环（模型mock/live分开）；③在批准的API预算内验收H1及C08相关门禁；④C09生产持久恢复→C10生产strict；C11依赖C08，C12依赖C09/C10/C11，最后C13审计。`verify_proposal()`尚未在runtime找到调用，常驻入口也未找到worker装配；这两个是本次静态检查的待接入项，不把局部测试通过当作已完成。
+- 当前接续顺序：①C08 ABI/fixture回归已有完成记录；②最终方案校验/出站引用与worker显式事务已完成（`c77f3f4`）；通过型退款用例补齐并发现P3缺引用元数据，修复及当前结果见[报告](../reports/c08-refund-citation-pipeline.md)。仍需常驻worker入口和真实Java/MCP/数据库/MQ业务闭环（模型mock/live分开）；③在批准的API预算内验收H1及C08相关门禁；④C09生产持久恢复→C10生产strict；C11依赖C08，C12依赖C09/C10/C11，最后C13审计。`verify_proposal()`已在runtime接入，不重复实现；常驻入口仍待交付，不把局部测试通过当作整包完成。
 - C11.2的SQL/Redis任务仅有规划，尚不能写成缓存优化成果；C09/C10与最终性能、live对照报告仍需独立验收。退款旧集成报告、AS恢复/禁网探针、已有all-offline都不是本轮重跑结果。C09开工前仍须解决“总12次内预留/12+2”预算冲突，不静默扩额。
 - 历史：原第 10 行写"C06.4⑤ 有未提交改动，需 AS00 接管核实"，AS00 已核实并接管，该阶段已过。
 - v1.3文档检查（2026-09-25）：23份Markdown链接/围栏、原C00–C06记录保留与8个既有代码改动hash检查通过；契约回归549 passed/9 skipped。实际命令、检查边界和未运行项见docs/framework-review.md末尾；不据此勾任何AS实现任务。

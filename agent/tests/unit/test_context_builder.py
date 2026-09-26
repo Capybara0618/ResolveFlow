@@ -272,6 +272,23 @@ def test_a_single_observation_is_p3_with_no_p4_entry() -> None:
     assert "【P4·index:0】" not in body
 
 
+def test_p3_carries_evidence_citation_members_in_actual_messages() -> None:
+    seen = observation(result={"content_hash": HASH_B, "source_version": "invented"})
+    body = build(observations=[seen]).messages[1]["content"]
+    header = body.split("引用元数据：", 1)[1].split("\n", 1)[0]
+    assert json.loads(header) == {
+        "observation_id": "obs-1", "source_ref": "order:7001",
+        "source_version": "3", "content_hash": HASH_A,
+    }
+
+
+def test_uncitable_p3_does_not_invent_version_or_hash() -> None:
+    seen = observation().model_copy(update={"source_version": None, "content_hash": None})
+    body = build(observations=[seen]).messages[1]["content"]
+    header = body.split("引用元数据：", 1)[1].split("\n", 1)[0]
+    assert json.loads(header) == {"observation_id": "obs-1", "source_ref": "order:7001"}
+
+
 def test_a_long_observation_is_excerpted_and_says_where_the_rest_is() -> None:
     """``docs/agent-spec.md:36`` bounds what the model sees and requires the原文 to stay reachable.
 

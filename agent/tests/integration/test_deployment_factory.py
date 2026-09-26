@@ -11,6 +11,7 @@ Two things are established here that no other test can:
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -19,6 +20,7 @@ from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
 from resolveflow.harness.live_model import HttpResponse
 from resolveflow.harness.model import MockModelClient
+from resolveflow.policies import PolicyIndex, ServedBundle
 from resolveflow.runtime.callbacks import CallbackStore
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import (
@@ -32,6 +34,8 @@ from resolveflow.runtime.factory import (
 )
 from resolveflow.runtime.runs import RunRequest, RunStore, VerifiedCaller
 from resolveflow.runtime.worker import RunWorker
+from tests.conftest import StubEmbedder, input_text_of
+from tests.integration import stub_upstream
 
 RUN_ID = "11111111-2222-4333-8444-555555555555"
 CASE_ID = "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -217,6 +221,85 @@ def test_the_whole_pipeline_files_a_proposal_from_a_real_investigation(agent_db:
     assert records[-1].payload["recommended_action"] == "MANUAL_REVIEW"
     # The record says which mode answered, so a mock run cannot be mistaken for live evidence.
     assert outcome.result.modes == ("mock", "mock")
+
+
+def test_refund_citations_survive_mcp_policy_search_sdk_and_worker(
+    agent_db: Database, stub_embedder: StubEmbedder, tmp_path: Path,
+) -> None:
+    """Real stdio MCP and PG retrieval, synthetic HTTP upstream and scripted model; no Java or live claim."""
+    bundle = ServedBundle(
+        bundle_id="policy-logistics-2026.09",
+        merchant_id="M-1001",
+        version="2026.09",
+        manifest_hash=MANIFEST_HASH,
+        safety_epoch=1,
+        rules=[{
+            "rule_id": "R-LOST-001",
+            "title": "承运商判定丢失",
+            "text": "承运商结论为 LOST 时，可按订单行支付金额全额退款。",
+        }],
+    )
+    PolicyIndex(agent_db).build(bundle, embedder=stub_embedder)
+    RunStore(agent_db).queue(a_run(line_id="7100"), caller=CASE_DISPATCHER)
+    log = tmp_path / "refund-upstream.log"
+    server = stub_upstream.start(log)
+
+    def cite_observations(packet: dict[str, Any]) -> dict[str, Any]:
+        observations = packet["observations"]
+        shipment = next(item for item in observations if item["tool_name"] == "get_shipment_trace")
+        search = next(item for item in observations if item["tool_name"] == "search_policy")
+        hit = search["result"]["hits"][0]
+        return {
+            "kind": "PROPOSE",
+            "case_type": "LOGISTICS",
+            "recommended_action": "REFUND",
+            "reason_codes": ["LOST_CONFIRMED"],
+            "summary": "已查阅物流证据与固定政策，提出全行退款候选",
+            "evidence_refs": [{key: shipment[key] for key in (
+                "observation_id", "source_ref", "source_version", "content_hash",
+            )}],
+            "policy_refs": [{key: hit[key] for key in (
+                "bundle_id", "version", "rule_id", "chunk_id", "content_hash",
+            )}],
+        }
+
+    model = MockModelClient(script=[
+        {"kind": "READ_TOOL", "tool_name": "get_shipment_trace", "arguments": {}},
+        {"kind": "SEARCH_POLICY", "query": "丢失 全额退款", "arguments": {"top_k": 1}},
+        cite_observations,
+    ])
+    try:
+        investigate = build_investigation(
+            database=agent_db,
+            config=DeploymentConfig(
+                mode="mock", policy_index=True, service_token="stub-service-token",
+                case_base_url=server.url, commerce_base_url=server.url,
+            ),
+            model=model,
+            policy_embedder=stub_embedder,
+        )
+        outcome = RunWorker(agent_db, investigate=investigate).run_once()
+    finally:
+        server.stop()
+
+    assert outcome is not None and outcome.result is not None
+    assert outcome.result.completed
+    assert (outcome.status, outcome.callback_kind) == ("CALLBACK_PENDING", "PROPOSAL")
+    records = CallbackStore(agent_db).list_for_run(RUN_ID)
+    assert [record.kind for record in records] == ["STARTED", "PROPOSAL"]
+    payload = records[-1].payload
+    assert payload["recommended_action"] == "REFUND"
+    decision = outcome.result.decision
+    assert payload["evidence_refs"] == [ref.model_dump(mode="json") for ref in decision.evidence_refs]
+    assert payload["policy_refs"] == [ref.model_dump(mode="json") for ref in decision.policy_refs]
+    sent = input_text_of(model, 2)
+    for ref in payload["evidence_refs"] + payload["policy_refs"]:
+        assert ref["content_hash"] in sent
+        assert ref.get("observation_id", ref.get("rule_id")) in sent
+    requests = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
+    assert len(requests) == 1
+    assert "/internal/v1/order-lines/7100/shipment" in requests[0]["path"]
+    assert outcome.result.modes == ("mock", "mock", "mock")
 
 
 def test_a_live_deployment_sends_the_configured_model_and_ceiling_and_records_no_key(

@@ -586,11 +586,20 @@ def _observation_sections(observations: list[ToolObservation]) -> list[_Section]
             # The last resort, and by now rare: every field is bounded, so reaching this means the *number* of
             # fields is what is large. The pointer still names the observation, so nothing is lost.
             rendered = rendered[:MAX_EXCERPT_CHARS] + f"…（截断，原文见 {observation.observation_id}）"
+        # Citation identity comes from the observation envelope, never its untrusted result. Keep it separate
+        # from the bounded result so READ_OBSERVATION offsets still address the original full rendering.
+        citation = {"observation_id": observation.observation_id, "source_ref": observation.source_ref}
+        if (
+            observation.error is None
+            and observation.source_version is not None
+            and observation.content_hash is not None
+        ):
+            citation.update(source_version=observation.source_version, content_hash=observation.content_hash)
         sections.append(
             _Section(
                 layer=Layer.P3,
                 label=f"observation:{observation.tool_name}",
-                text=rendered,
+                text=f"引用元数据：{_json(citation)}\n{rendered}",
                 ref=observation.observation_id,
             )
         )
