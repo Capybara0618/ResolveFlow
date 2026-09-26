@@ -2,33 +2,17 @@
 
 2026-09-26更新。当前唯一进度账本。AgentScope迁移约束见[迁移规格](../docs/agentscope-migration.md)，开工只使用[当前交接](handoff-current.md)。业务与验收保持v1.2；旧40个T任务已退出当前必做顺序，完整原记录保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
-## 最近交接快照（2026-09-26 22:42 +08:00，Asia/Shanghai）
+## 最近交接快照（2026-09-26 23:33 +08:00，Asia/Shanghai）
 
-- 方向与执行者：DSH已明确停止写入；Codex已只读核验并接管，同一工作区当前由Codex实施。工作区 `E:/Code/Agent+Backend`，`main` → `origin/main`。
-- 当前C08.2：出站方案验证/引用、通过型退款模拟链已完成；常驻调查线程 `79c7bb7`、服务装配 `e8c5eef` 均已提交推送并确认远端。常驻入口默认关闭，显式配置才处理预存QUEUED；HTTP健康不代表worker健康。见[常驻worker报告](../reports/c08-resident-investigation.md)。C08整包及H1–H5尚未验收。
-- 最新小步：修正工厂工具读取未获取Case颁发run凭证的问题；服务身份只用于申请凭证，MCP读取逐次使用run凭证且申请失败不回退。代码、测试和[本步报告](../reports/c08-resident-run-credential.md)已验证并按小步提交推送；测试桩覆盖HTTP凭证路由，尚非真实Java联调。
-- 本步验证：聚焦集成 **21 passed**，最终全量Python **1050 passed / 9 skipped / 1 warning**；Ruff与diff检查通过；strict mypy仍为4个既有文件9个 `no-any-return` 错误。真实PG已用既有 `resolveflow-postgres-1` 容器启动供隔离schema测试。详见[本步报告](../reports/c08-resident-run-credential.md)。
-- 最新准备小步：两个C08相关真实联调脚本已改为端口占用时拒绝启动，退出时只停止自身子进程；RED 4 failed→GREEN 4 passed，新增测试Ruff和脚本编译通过。旧脚本整体Ruff仍有44个既有违规，不虚报通过。见[端口保护报告](../reports/c08-e2e-driver-port-ownership.md)。
-- 最新C08.2小步：真实Case派发→常驻Agent→Case回调已用mock模型跑通；首次真实运行发现出站持久记录缺 `traceparent`，RED测试复现后修复，相关回归 **48 passed**，全量Python **1055 passed / 9 skipped**，Ruff通过、strict mypy仍为9个既有错误。最终运行Case绑定 `DISPATCHED`，Agent `COMPLETED`，Case inbox两条 `ACCEPTED`，工单 `PENDING_REVIEW`；见[真实桥接报告](../reports/c08-resident-java-bridge.md)。这个结果不证明MCP工具读取成功、live自主性或退款已执行。
-- 最新mock业务闭环：`scripts/e2e_resident_refund.py` 在真实Java/MCP/PG/MQ链路中以新订单行、真实物流观察和固定政策检索构造有引用方案；Case复核、人工审批、Commerce/模拟provider退款到关单均通过。最新运行 `20260926-212632` **PASSED**：退款2599分，账本已退2599/预留0，同行槽CONSUMED，provider同operation只尝试1次。见[报告](../reports/c08-resident-refund-chain.md)；模型动作由脚本固定，不算H1/live。
-- H1–H3接续核查：H2/H3聚焦 **160 passed**，6组配对合成案例设计、记录字段及12-run理论调用上限见[核查报告](../reports/c08-h1-h3-readiness.md)；尚未形成可执行冻结Gold，也没有live调用，H1–H3不勾。当前模型endpoint、ID、key均未配置，无用户确认的收费上限。
-- 最新离线H1准备：六组/12例输入、单独Gold和live运行记录结构已提交前验证，**3 passed**、Ruff/diff通过；Gold标记未人工审查，输入只可作为评测seed，不能直接送模型。见[配对fixture报告](../reports/c08-h1-paired-fixtures.md)，没有真实服务seed/runner、没有live结果，H1不勾。
-- C09预算冲突已核对：规范上限是**每run总12次含恢复**；历史用户决定“预留且显式计费”按其中10次普通+2次恢复解释，AS01.2 spike 的12+2不可直接入生产。见[预算边界](../reports/c09-recovery-budget-boundary.md)；本步仅规范核查，未实现持久账。
-- 最新C09前置：不可变调用预算分区对象已实现，默认10普通+2恢复，总12，持久形状重建保留计数；RED模块缺失→聚焦 **57 passed**，全量 **1061 passed / 9 skipped / 1 warning**，新增文件Ruff/strict mypy通过。见[分区报告](../reports/c09-call-budget-partition.md)。尚未接worker/PG，C09不勾。
-- 最新C09 PG预占：新增迁移005与存储层，锁run行后检查数据库时间/fence/owner/lease/状态，再同事务落稳定call_id、UNKNOWN保守token预占、10+2分区及spend；重复call只查原记录，不许可重发。真实PG新增 **4 passed**、相关 **43 passed**，全量 **1065 passed / 9 skipped**，全量Ruff通过、mypy仍9个既有错误。见[PG预占报告](../reports/c09-pg-model-reservation.md)；尚未接生产worker/SDK，C09不勾。
-- 最新C09结果台账：追加迁移006，显式模型回复与usage同事务受fence保存；已保存结果读回/重复保存不重算，相同并发结果仅一次结算，估算保留预占，超额先落真实消耗及run停止原因再阻止新调用；较早结果读回也带当前run停止原因。RED 5 failed及新增停止遗漏反例1 failed→相关 **53 passed**，最终全量 **1075 passed / 9 skipped**；Ruff通过，源码strict mypy通过，全量仍9个既有错误。见[结果保存报告](../reports/c09-pg-model-result.md)。未接生产SDK/worker，C09不勾。
-- 最新C09 attempt账：迁移007、原attempt0/最多一次重试attempt1，逻辑call_id不变、原hash/输入/输出ceiling冻结；每次新重试再次预占同分区及token，旧UNKNOWN不退，迟到旧attempt不覆盖结果。并发/重复重试意图只一次新预占；旧数据回填不重扣、不伪造原fence。RED **6 failed**→相关 **60 passed**，最终全量 **1082 passed / 9 skipped**，Ruff通过、mypy仍既有9错。见[attempt报告](../reports/c09-pg-model-attempt.md)；未接生产worker/SDK，C09不勾。
-- C09整包继续：请求冻结与预占同事务、hash/输出ceiling不一致拒绝；RED2 failed→相关32 passed，见[生产恢复实施报告](../reports/c09-production-recovery.md)。尚未接SDK/worker，不勾C09。
-- C09租约小步：保留session advisory lock连接，领取递增fence/STARTED同事务，另一连接心跳续租；恢复不延长active_deadline、不重复STARTED。真实PG lease+worker22 passed，新增Ruff/mypy通过，见[实施报告](../reports/c09-production-recovery.md)。生产接入下一步完成，C09不勾。
-- C09领域journal：manifest与工具结果受同事务fence保护，记录模型/工具历史spend以重建上下文；SDK重建接线已有未提交验证中改动，未夹入本步。见[实施报告](../reports/c09-production-recovery.md)，C09不勾。
-- C09 SDK重建：三个崩溃窗口各5次真实PG重建，相关76 passed，全量Ruff通过；见生产恢复报告。
-- C09生产接线：常驻worker启用租约/fence、SDK持久重建和终局事务，RED4→26 passed，装配/SDK44 passed，Ruff及本步strict mypy通过。
-- C09故障验收：跨进程三个窗口各5次、旧fence/取消/旧revision、manifest和HTTP桩UNKNOWN重试，聚焦62 passed；真实Java/MCP mock退款联调PASSED。租约行锁等待与分页恢复反例已修复。
-- C09最终边界：源码/lock指纹、四类manifest拒绝、本地读结果重建、PG剩余deadline限制调用timeout，聚焦37 passed，Ruff/mypy新代码通过。
-- 下一具体动作：最终全量回归和C09验收记录。
-- 未运行：本步Java单测/Spotless、all-offline、live模型及H1–H5、C09恢复、C10 strict；UNKNOWN/丢响应链路由既有C05报告覆盖，非本次mock运行结论。
-- 未提交/后台：本步提交后仍有既有未跟踪SQLite快照与三次 `reports/c08-resident-java/` 原始联调日志留在本机；新闭环原始日志、脚本和provider SQLite在忽略的 `tmp/c08-resident-refund/`，均不提交或删除。无已知测试/Java/Agent子进程运行；既有PostgreSQL、MySQL、RocketMQ namesrv/broker容器运行，未删卷。
-- 取舍与失败：strict mypy全量既有9错（本步源码单独通过）；最新全量 **1082 passed / 9 skipped**。缺summary时run明确FAILED；C09恢复与租约/fence未交付，不把现有worker当生产高可用。
+- 方向与执行者：DSH已明确停止写入，Codex完成本轮C09；唯一业务写入工作区 `E:/Code/Agent+Backend`，`main` → `origin/main`。所有实现小步已提交、正常推送并确认远端；最新代码 `070e68c`，本验收记录随最终文档提交推送核验。
+- 当前子步：**C09.1/C09.2完成，H4/CF6恢复门禁通过**。生产常驻worker接入PG租约/session advisory lock、fence、同SDK持久重建、稳定call/attempt和UNKNOWN计费；恢复保留manifest、总12内10+2预算、原deadline，旧fence/取消/旧revision/不兼容版本拒绝写结果和回调。见[生产恢复验收](../reports/c09-production-recovery.md)与[原始JUnit](../reports/c09-production-recovery.junit.xml)。
+- 最终验证：全量Python **1138 passed / 9 skipped / 1 warning / 232.96s**；9 skip为无citation契约样例。全量Ruff/diff通过；9个相关源码strict mypy通过，全量strict仍4个既有文件9个no-any-return。跨进程CF6三个窗口各5次（15/15成功、未决0）；同进程重建三个窗口各5次、政策/Observation缓存复用和分页计数均覆盖。
+- 业务回归：真实Java/PG/MCP/MQ+显式mock模拟退款两次通过，最新 `20260926-232409` PASSED（57.3s），2599分一次资金效果、预留0、STARTED/PROPOSAL两条ACCEPTED。C08自主性/live与H1仍未验收；六组配对seed/Gold准备保留，Gold未人工冻结、没有付费预算。
+- 剩余问题：C09无未完成实现项；全量mypy既有9错未夹带修复。恢复不承诺零重复计费，不支持历史版本自动迁移，升级前停止旧worker；本轮只验收H4，不自动勾H1/H2/H3/H5或生产高可用。
+- 下一具体动作：按C10读取 `docs/trajectory-replay.md`、核验现有生产SDK strict入口与Python层禁网的实际边界，先补缺记录失败/真实隔离的关键反例，再实施薄回放适配；不要重做C09，不重选架构。
+- 未运行：本次Java单测/Spotless、all-offline包装入口、收费live、H1/H2/H3/H5及C10 strict。当前C09对应测试已运行，不再标成“恢复尚未交付”。
+- 未提交保留：既有 `reports/c052c-chain/20260925-232103-provider.sqlite3` 数据库快照和 `reports/c08-resident-java/` 原始日志；忽略目录 `tmp/c08-resident-refund/` 保留本轮两次日志/provider SQLite及早期运行记录。不提交、不删除；没有未提交业务代码或未完成C09改动。
+- 后台：本轮测试、mypy和自启Java/Agent/lease心跳已退出；既有 `resolveflow-postgres-1`、`resolveflow-mysql-1`、`resolveflow-rocketmq-namesrv-1`、`resolveflow-rocketmq-broker-1` 继续运行，未删库/卷。推送有短暂schannel失败，有限普通重试后均已确认远端。
 
 ## 已有成果（历史记录，非本轮重测）
 
@@ -1633,8 +1617,8 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 
 ### C09 持久恢复与版本保护
 
-- [ ] C09.1：将AS01.2已验证的AgentScope状态/领域快照适配落到生产，PG写快照与fence校验同事务，租约/advisory lock与取消；不使用T00的LangGraph试验替代验证。
-- [ ] C09.2：稳定call记录、已落库结果复用、UNKNOWN计费/预占、manifest不兼容拒绝。
+- [x] C09.1：将AS01.2已验证的AgentScope状态/领域快照适配落到生产，PG写快照与fence校验同事务，租约/advisory lock与取消；不使用T00的LangGraph试验替代验证。
+- [x] C09.2：稳定call记录、已落库结果复用、UNKNOWN计费/预占、manifest不兼容拒绝。
 - 依赖：C08,AS01.2。文件：agent/runtime持久层、SDK恢复适配、调用存储、故障测试。
 - 验收：旧worker不能写checkpoint/有效回调；预算/deadline不重置；补证继续与同run故障恢复区分。
 - 验证：H4/CF6两类崩溃窗口、旧fence/旧revision/版本不匹配测试。
@@ -1642,6 +1626,12 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - 2026-09-26 PG预占小步：迁移005、fence保护的冻结预算与稳定call预占；UNKNOWN保留估计，重复ID不重扣且不授权重发。真实PG4 passed/相关43 passed/全量1065 passed与9 skipped，全量Ruff通过、strict mypy仍9个既有错误。见[报告](../reports/c09-pg-model-reservation.md)。未接worker/SDK/响应结算/checkpoint，H4/CF6未验收。
 - 2026-09-26 PG结果小步：迁移006、同事务fence保护的显式回复与恰一次usage结算，已保存结果可在checkpoint推进前读回；UNKNOWN/估算保留，实际超额持久停止，旧worker拒绝，较早结果带run停止状态。相关53 passed、最终全量1075 passed/9 skipped；Ruff通过，strict mypy既有9错。见[报告](../reports/c09-pg-model-result.md)。UNKNOWN重试attempt/SDK/worker/checkpoint仍未接入，不勾H4/CF6。
 - 2026-09-26 PG attempt小步：迁移007、一逻辑call最多原attempt+一次重试，逐attempt预占/结算且保留旧UNKNOWN，原hash/输出上限不变；迟到结果拒绝，旧记录幂等回填但不伪造fence。RED6 failed→相关60 passed/全量1082 passed与9 skipped，Ruff通过/mypy既有9错；见[报告](../reports/c09-pg-model-attempt.md)。尚未实际网络重试或接SDK/worker，H4/CF6不勾。
+
+- 2026-09-26 23:33 完成验收：C09.1/C09.2及H4/CF6通过，具体实现/RED失败/修复/全部命令及边界见[报告](../reports/c09-production-recovery.md)，原始[JUnit](../reports/c09-production-recovery.junit.xml)。
+  - 文件：runtime/leases.py、journal.py、durable.py、build_identity.py、worker.py、factory.py、recovery_store.py及迁移005–009；harness/sdk_runner.py、local_reads.py、manifest.py、model.py与api/app.py；新增lease/journal/SDK/跨进程/legacy-fence等测试，保留原测试与依赖锁。
+  - 最终实跑：agent目录 `pytest tests -q -p no:cacheprovider --tb=short --junitxml=../reports/c09-production-recovery.junit.xml` →1138 passed/9 skipped/1 warning；Ruff通过，相关9源码strict mypy通过，全量仍既有9错。CF6三窗口各5次成功、未决0；版本/fence/revision/取消等H4反例全部通过。
+  - 生产装配回归：`python scripts/e2e_resident_refund.py` 两次真实Java/MCP/PG/MQ、显式mock闭环PASSED；最新20260926-232409，2599分退款一次，预留0。模型为mock/HTTP桩而非付费live，不据此勾H1/H2/H3/H5。
+  - 代码最新070e68c已推送确认；未跑Java单测/Spotless/all-offline/live/C10。保留原始日志/DB快照；本轮进程已退出，Docker继续运行。下一任务C10，C09不留半成品。
 
 ### C10 选定轨迹的strict回放
 
