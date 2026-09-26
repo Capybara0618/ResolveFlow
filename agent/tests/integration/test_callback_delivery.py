@@ -473,3 +473,115 @@ class FakeResponse:
 
     def __exit__(self, *args: Any) -> None:
         return None
+
+
+def a_terminal(kind: CallbackKind) -> CallbackEnvelope:
+    """One terminal callback of each kind, in the shape ``contracts/core`` requires."""
+    payloads = {
+        CallbackKind.PROPOSAL: {
+            "schema_version": 2,
+            "proposal_id": "proposal-1",
+            "recommended_action": "REFUND",
+        },
+        CallbackKind.QUESTION: {
+            "schema_version": 2,
+            "question_id": "question-1",
+            "questions": [{"question_id": "q1", "field": "shipment_photo", "prompt": "包裹是否已收到？"}],
+            "reason_codes": ["NEEDS_EVIDENCE"],
+        },
+        CallbackKind.FAILED: {"schema_version": 2, "reason_codes": ["ACTION_REFUSED"], "retryable": False},
+    }
+    return CallbackEnvelope(kind=kind, payload=payloads[kind])
+
+
+def awaiting_receipt(agent_db: Database, kind: CallbackKind) -> CallbackStore:
+    """A run exactly as the worker leaves it: a terminal callback filed, the run waiting on the case service."""
+    callbacks = queued(agent_db)
+    callbacks.enqueue_for_run(RUN_ID, a_terminal(kind))
+    with agent_db.connection() as connection:
+        connection.execute(
+            "UPDATE agent_run SET status = 'CALLBACK_PENDING' WHERE run_id = %(run_id)s",
+            {"run_id": RUN_ID},
+        )
+    return callbacks
+
+
+def run_status(agent_db: Database) -> str:
+    with agent_db.connection() as connection:
+        row = connection.execute(
+            "SELECT status FROM agent_run WHERE run_id = %(run_id)s", {"run_id": RUN_ID}
+        ).fetchone()
+    assert row is not None
+    return str(row["status"])
+
+
+@pytest.mark.parametrize(
+    ("kind", "answer", "expected"),
+    [
+        (CallbackKind.PROPOSAL, "ACCEPTED", "COMPLETED"),
+        (CallbackKind.QUESTION, "ACCEPTED", "WAITING_INPUT"),
+        (CallbackKind.FAILED, "ACCEPTED", "FAILED"),
+        # DUPLICATE is the same statement as ACCEPTED: the case service applied this callback once and has it, so
+        # the run's status must not depend on how many times the network needed telling (contracts.md:80).
+        (CallbackKind.PROPOSAL, "DUPLICATE", "COMPLETED"),
+        (CallbackKind.QUESTION, "DUPLICATE", "WAITING_INPUT"),
+        # STALE: the answer says this message is about a revision that is no longer current, or that a human took
+        # the case over (core-contracts.md:62) — whatever the callback was, the run is now stale.
+        (CallbackKind.PROPOSAL, "STALE", "STALE"),
+        (CallbackKind.QUESTION, "STALE", "STALE"),
+    ],
+)
+def test_a_delivery_moves_the_run_to_the_status_its_answer_implies(
+    agent_db: Database, kind: CallbackKind, answer: str, expected: str
+) -> None:
+    """``docs/agent-spec.md:9``: COMPLETED表示方案回调被Case接收；QUESTION接收后WAITING_INPUT.
+
+    The receipt is the event, so the run's status is decided here and not when the callback was filed. This is the
+    half that was missing: the delivery loop recorded the case service's answer and nothing acted on it, which left
+    a proposal that had been accepted with a run still saying ``CALLBACK_PENDING``.
+    """
+    callbacks = awaiting_receipt(agent_db, kind)
+    poster = ScriptedPoster([DeliveryResult(disposition=answer, case_version=7)])
+
+    outcome = callback_delivery(callbacks, case_base_url=CASE_BASE, secret=SECRET, post=poster).deliver_due()[0]
+
+    assert outcome.disposition == answer
+    assert run_status(agent_db) == expected
+    assert callbacks.list_for_run(RUN_ID)[0].disposition == answer
+
+
+def test_an_answer_cannot_resurrect_a_cancelled_run(agent_db: Database) -> None:
+    """The run was cancelled; an answer arriving afterwards does not bring it back.
+
+    The outbox row still records what the case service said — that answer did happen — but the run's own status is
+    not rewritten, because a cancellation is the case's decision about this run and a delivery is not a reversal of
+    it. Written as a conditional update, so the two cannot race into a non-terminal state.
+    """
+    callbacks = awaiting_receipt(agent_db, CallbackKind.PROPOSAL)
+    RunStore(agent_db).cancel(RUN_ID)
+    poster = ScriptedPoster([DeliveryResult(disposition="ACCEPTED", case_version=7)])
+
+    callback_delivery(callbacks, case_base_url=CASE_BASE, secret=SECRET, post=poster).deliver_due()
+
+    assert run_status(agent_db) == "CANCELLED"
+    assert callbacks.list_for_run(RUN_ID)[0].disposition == "ACCEPTED"
+
+
+def test_a_started_acknowledgement_changes_no_status(agent_db: Database) -> None:
+    """``STARTED`` is the run announcing itself; the case service confirming it decides nothing new.
+
+    The run was already moved to ``RUNNING`` by the claim that filed the callback, so an answer to ``STARTED`` must
+    not write a second, later-looking status over it.
+    """
+    callbacks = queued(agent_db)
+    callbacks.enqueue_for_run(RUN_ID, a_started())
+    with agent_db.connection() as connection:
+        connection.execute(
+            "UPDATE agent_run SET status = 'RUNNING' WHERE run_id = %(run_id)s", {"run_id": RUN_ID}
+        )
+    poster = ScriptedPoster([DeliveryResult(disposition="ACCEPTED", case_version=7)])
+
+    callback_delivery(callbacks, case_base_url=CASE_BASE, secret=SECRET, post=poster).deliver_due()
+
+    assert run_status(agent_db) == "RUNNING"
+    assert callbacks.list_for_run(RUN_ID)[0].status == DELIVERED

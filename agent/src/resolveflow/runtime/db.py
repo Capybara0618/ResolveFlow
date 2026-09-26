@@ -188,6 +188,22 @@ class Database:
             yield cast("psycopg.Connection[dict[str, Any]]", raw)
 
 
+@contextmanager
+def reuse_or_open(database: Database, connection: Any) -> Iterator[psycopg.Connection[dict[str, Any]]]:
+    """The caller's transaction when it opened one, otherwise a fresh one from the pool.
+
+    This is how a store method takes part in a caller's transaction without knowing whether there is one, which is
+    what ``AGENTS.md``'s 业务结果和本地事件同事务 needs in practice: two stores writing two rows for one event
+    (a run's status and its callback, a delivery's answer and the status it implies). Passing a connection is always
+    an explicit opt-in; without one the method behaves exactly as it did before.
+    """
+    if connection is not None:
+        yield connection
+    else:
+        with database.connection() as opened:
+            yield opened
+
+
 def connect(dsn: str) -> psycopg.Connection[tuple[Any, ...]]:
     """A bare connection with this project's text encoding already settled.
 

@@ -36,7 +36,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Any, Final
 
-from resolveflow.runtime.db import Database
+from resolveflow.runtime.db import Database, reuse_or_open
 
 #: The run vocabulary, fixed by docs/agent-spec.md:9 and mirrored in
 #: ``contracts/core/openapi-agent.yaml``'s ``RunView.status``. ANALYZING is a *case* state and is
@@ -54,6 +54,10 @@ RUN_STATUSES: Final[tuple[str, ...]] = (
 
 #: The only status a newly accepted run can hold (``RunAccepted.status`` is ``const: QUEUED``).
 QUEUED: Final = "QUEUED"
+
+#: What an unfinished run becomes when a newer revision of its case is dispatched: its result can no longer be
+#: applied (``docs/agent-spec.md:9`` — 补证创建新revision/new run，旧run STALE).
+STALE: Final = "STALE"
 
 #: What ``CancelAck.status`` may say: the status the run actually holds afterwards
 #: (contracts/core/openapi-agent.yaml:528). Narrower than ``RUN_STATUSES`` on purpose — answering
@@ -360,7 +364,111 @@ class RunStore:
                     "now": dt.datetime.now(dt.UTC),
                 },
             )
+            self._supersede_older_revisions(connection, request, now=dt.datetime.now(dt.UTC))
         return RunAccepted(run_id=request.run_id, status=QUEUED)
+
+    def _supersede_older_revisions(
+        self, connection: Any, request: RunRequest, *, now: dt.datetime
+    ) -> list[str]:
+        """A newer revision of a case makes the older revision's unfinished run unapplicable.
+
+        ``docs/agent-spec.md:9``: 补证创建新revision/new run，旧run STALE. The new run is this dispatch, so this is
+        where that happens — and it happens **in the dispatch's own transaction**, because the invariant is "a case
+        has at most one run that can still produce a result". Doing it anywhere else would leave a window in which
+        two runs of one case could both believe they are current.
+
+        **Only non-terminal runs are superseded.** ``COMPLETED`` means the proposal callback was accepted
+        (``docs/agent-spec.md:9``: it does not mean the refund succeeded) — that acceptance already happened and
+        rewriting it to ``STALE`` would erase a fact. That the *proposal* is no longer applicable belongs to the
+        case service's own ``case_proposal`` row (``docs/domain-model.md:57``), not to the agent's record of what it
+        did. ``FAILED`` and ``CANCELLED`` runs are already finished for their own reasons, and a cancelled run must
+        not have its cancellation relabelled.
+
+        The superseded run's undelivered callbacks are closed in the same transaction: a question or proposal for a
+        revision the case has moved past must not be handed to the case service at all
+        (``docs/agentscope-migration.md:68`` — 终局方案、run状态和callback_outbox在同一事务提交).
+        """
+        # Imported here rather than at module scope: `callbacks` imports `_require_uuid` from this module, so a
+        # module-level import would be a cycle whose behaviour depends on which one is imported first.
+        from resolveflow.runtime.callbacks import CallbackStore
+
+        superseded = connection.execute(
+            """
+            UPDATE agent_run
+            SET status = %(stale)s, updated_at = %(now)s, version = version + 1
+            WHERE case_id = %(case_id)s
+              AND input_revision < %(revision)s
+              AND status <> ALL(%(terminal)s)
+              AND status <> %(stale)s
+            RETURNING run_id
+            """,
+            {
+                "stale": STALE,
+                "now": now,
+                "case_id": request.case_id,
+                "revision": request.input_revision,
+                "terminal": list(TERMINAL_STATUSES),
+            },
+        ).fetchall()
+        store = CallbackStore(self._database)
+        for row in superseded:
+            store.void_pending_for_run(
+                str(row["run_id"]),
+                reason=f"SUPERSEDED_BY_REVISION:{request.input_revision}",
+                connection=connection,
+            )
+        return [str(row["run_id"]) for row in superseded]
+
+    def apply_callback_disposition(
+        self, run_id: str, *, kind: str, disposition: str, connection: Any = None
+    ) -> str | None:
+        """The case service's answer decides what the run's own status becomes, and returns the status it left.
+
+        ``docs/agent-spec.md:9`` makes *receipt* the event, not filing: **COMPLETED表示方案回调被Case接收** and
+        **QUESTION接收后WAITING_INPUT**. A run whose terminal callback is merely filed is therefore
+        ``CALLBACK_PENDING``, and this is what moves it on:
+
+        ==========  ====================  ==================
+        callback    answer                run status
+        ==========  ====================  ==================
+        PROPOSAL    ACCEPTED / DUPLICATE  COMPLETED
+        QUESTION    ACCEPTED / DUPLICATE  WAITING_INPUT
+        FAILED      ACCEPTED / DUPLICATE  FAILED
+        any         STALE                 STALE
+        ==========  ====================  ==================
+
+        ``DUPLICATE`` means the same thing as ``ACCEPTED`` here: the case service applied this callback once and has
+        it (``docs/contracts.md:80``), so the run's status must not depend on how many times the network needed
+        telling. ``STALE`` is the case service saying the message is about a revision that is no longer current, or
+        that a human took the case over (``docs/core-contracts.md:62``): the run becomes ``STALE`` for the same
+        reason a superseding dispatch would have made it.
+
+        Written as a conditional update, so a run that is already terminal or cancelled is left alone — an answer
+        arriving after a cancellation cannot resurrect the run, and a redelivery cannot rewrite a status the run
+        already reached. ``None`` means this answer changed nothing; the status it left is read back only to say so.
+        """
+        target = _status_for_answer(kind, disposition)
+        if target is None:
+            return None
+        with reuse_or_open(self._database, connection) as opened:
+            row = opened.execute(
+                """
+                UPDATE agent_run
+                SET status = %(status)s, updated_at = %(now)s, version = version + 1
+                WHERE run_id = %(run_id)s
+                  AND status <> ALL(%(terminal)s)
+                  AND status <> %(stale)s
+                RETURNING status
+                """,
+                {
+                    "status": target,
+                    "now": dt.datetime.now(dt.UTC),
+                    "run_id": run_id,
+                    "terminal": list(TERMINAL_STATUSES),
+                    "stale": STALE,
+                },
+            ).fetchone()
+        return str(row["status"]) if row is not None else None
 
     def read(self, run_id: str) -> RunView:
         """The run as case-service reconciles it (docs/core-contracts.md:39)."""
@@ -487,6 +595,25 @@ def _require_body_agrees_with_caller(request: RunRequest, caller: VerifiedCaller
             raise RunIdentityMismatchError(
                 f"the body names {member} {presented}, but this token was minted for {claimed}"
             )
+
+
+def _status_for_answer(kind: str, disposition: str) -> str | None:
+    """What the case service's answer makes of the run, or ``None`` when it changes nothing.
+
+    A ``STARTED`` acknowledgement changes nothing: the run was moved to ``RUNNING`` by the claim that filed it, and
+    the answer only confirms what the worker already recorded.
+    """
+    if disposition == "STALE":
+        return STALE
+    if disposition not in ("ACCEPTED", "DUPLICATE"):
+        return None
+    if kind == "PROPOSAL":
+        return "COMPLETED"
+    if kind == "QUESTION":
+        return "WAITING_INPUT"
+    if kind == "FAILED":
+        return "FAILED"
+    return None
 
 
 def _require_uuid(member: str, value: object, *, not_found: bool = False) -> None:

@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from resolveflow.contracts.enums import CallbackKind
-from resolveflow.runtime.db import Database
+from resolveflow.runtime.db import Database, reuse_or_open
 from resolveflow.runtime.runs import _require_uuid
 
 __all__ = [
@@ -146,6 +146,15 @@ class CallbackStore:
     def database(self) -> Database:
         return self._database
 
+    def transaction(self) -> Any:
+        """One transaction, for a caller that must commit an outbox change together with its consequence.
+
+        ``AGENTS.md``: 业务结果和本地事件同事务. A delivery's answer and the run status that answer implies are one
+        such pair, and the delivery loop holds both — so it opens the transaction and passes the connection to each
+        store, rather than each store committing its own half of one event.
+        """
+        return self._database.connection()
+
     def pending(self, *, now: dt.datetime | None = None, limit: int = 50) -> list[CallbackRecord]:
         """The deliveries that are due, oldest first.
 
@@ -175,17 +184,22 @@ class CallbackStore:
             ).fetchall()
         return [_as_record(row) for row in rows]
 
-    def record_delivery(self, callback_id: str, *, disposition: str) -> CallbackRecord:
+    def record_delivery(
+        self, callback_id: str, *, disposition: str, connection: Any = None
+    ) -> CallbackRecord:
         """The case service answered: finish the callback with the answer it gave.
 
         Idempotent, and the *first* answer is the one kept. A retry after a lost acknowledgement arrives as
         ``DUPLICATE`` — the callback was already applied, so the delivery that was actually applied is the
         earlier one, and overwriting ``ACCEPTED`` with ``DUPLICATE`` would lose which attempt did the work.
+
+        ``connection`` is the opt-in seam that lets the answer and the run status it implies commit together
+        (``AGENTS.md``: 业务结果和本地事件同事务) — the delivery loop has both in hand and opens the transaction.
         """
         if disposition not in _DISPOSITIONS:
             raise ValueError(f"{disposition!r} is not a callback disposition: expected one of {_DISPOSITIONS}")
         now = dt.datetime.now(dt.UTC)
-        with self._database.connection() as connection:
+        with reuse_or_open(self._database, connection) as connection:
             row = connection.execute(
                 """
                 UPDATE agent_callback_outbox
@@ -245,55 +259,100 @@ class CallbackStore:
             raise UnknownCallbackError(f"no callback with id {callback_id}")
         return _as_record(row)
 
-    def enqueue_for_run(self, run_id: str, envelope: CallbackEnvelope) -> CallbackRecord:
+    def enqueue_for_run(
+        self, run_id: str, envelope: CallbackEnvelope, *, connection: Any = None
+    ) -> CallbackRecord:
         """Record a callback for one named run.
 
         The run is named explicitly rather than inferred, because two runs of the same case at different
         revisions both exist and a callback must belong to the one that reached the state.
+
+        ``connection`` lets a caller put this insert in **its own** transaction (C08.2's worker files a run's
+        status change and its callback together, which ``AGENTS.md`` requires of 业务结果和本地事件). Passing one is
+        an explicit opt-in: without it this opens a connection and commits on its own, exactly as before.
         """
+        with reuse_or_open(self._database, connection) as target:
+            return self._enqueue(target, run_id, envelope)
+
+    def _enqueue(self, connection: Any, run_id: str, envelope: CallbackEnvelope) -> CallbackRecord:
         _require_uuid("run_id", run_id)
-        with self._database.connection() as connection:
-            run = connection.execute(
-                "SELECT run_id, case_id, input_revision, traceparent FROM agent_run WHERE run_id = %(run_id)s",
-                {"run_id": run_id},
-            ).fetchone()
-            if run is None:
-                raise UnknownCallbackError(f"no run with id {run_id}")
-            callback_id = CallbackEnvelope.callback_id_for(
-                str(run["case_id"]), int(run["input_revision"]), envelope.kind
+        run = connection.execute(
+            "SELECT run_id, case_id, input_revision, traceparent FROM agent_run WHERE run_id = %(run_id)s",
+            {"run_id": run_id},
+        ).fetchone()
+        if run is None:
+            raise UnknownCallbackError(f"no run with id {run_id}")
+        callback_id = CallbackEnvelope.callback_id_for(
+            str(run["case_id"]), int(run["input_revision"]), envelope.kind
+        )
+        existing = connection.execute(
+            "SELECT * FROM agent_callback_outbox WHERE callback_id = %(callback_id)s",
+            {"callback_id": callback_id},
+        ).fetchone()
+        if existing is not None:
+            return _as_record(existing)
+        now = dt.datetime.now(dt.UTC)
+        row = connection.execute(
+            """
+            INSERT INTO agent_callback_outbox (
+                callback_id, run_id, case_id, input_revision, kind, payload, traceparent,
+                status, attempts, created_at, updated_at
+            ) VALUES (
+                %(callback_id)s, %(run_id)s, %(case_id)s, %(input_revision)s, %(kind)s, %(payload)s,
+                %(traceparent)s, %(status)s, 0, %(now)s, %(now)s
             )
-            existing = connection.execute(
-                "SELECT * FROM agent_callback_outbox WHERE callback_id = %(callback_id)s",
-                {"callback_id": callback_id},
-            ).fetchone()
-            if existing is not None:
-                return _as_record(existing)
-            now = dt.datetime.now(dt.UTC)
-            row = connection.execute(
-                """
-                INSERT INTO agent_callback_outbox (
-                    callback_id, run_id, case_id, input_revision, kind, payload, traceparent,
-                    status, attempts, created_at, updated_at
-                ) VALUES (
-                    %(callback_id)s, %(run_id)s, %(case_id)s, %(input_revision)s, %(kind)s, %(payload)s,
-                    %(traceparent)s, %(status)s, 0, %(now)s, %(now)s
-                )
-                RETURNING *
-                """,
-                {
-                    "callback_id": callback_id,
-                    "run_id": run["run_id"],
-                    "case_id": run["case_id"],
-                    "input_revision": run["input_revision"],
-                    "kind": envelope.kind.value,
-                    "payload": _json(envelope.payload),
-                    "traceparent": envelope.traceparent or run["traceparent"],
-                    "status": PENDING,
-                    "now": now,
-                },
-            ).fetchone()
+            RETURNING *
+            """,
+            {
+                "callback_id": callback_id,
+                "run_id": run["run_id"],
+                "case_id": run["case_id"],
+                "input_revision": run["input_revision"],
+                "kind": envelope.kind.value,
+                "payload": _json(envelope.payload),
+                "traceparent": envelope.traceparent or run["traceparent"],
+                "status": PENDING,
+                "now": now,
+            },
+        ).fetchone()
         assert row is not None
         return _as_record(row)
+
+
+    def void_pending_for_run(
+        self, run_id: str, *, reason: str, connection: Any = None
+    ) -> list[str]:
+        """Close every still-undelivered callback of a run, without counting an attempt.
+
+        This is what happens when the case moves on: a newer ``input_revision`` makes a run's question or proposal
+        unapplicable (``docs/agent-spec.md:9`` — 补证创建新revision/new run，旧run STALE), so a callback the case
+        service has not been given yet must stop being deliverable. ``record_dead`` is the wrong transition here
+        because it counts an attempt (``attempts + 1``), and this delivery was never attempted: ``attempts`` is the
+        number of times the case service was called, and inflating it would make a replayed request look like a
+        case service that answered badly.
+
+        Only ``PENDING`` rows are touched. A callback that was already delivered keeps its disposition — the case
+        service's answer to it is history, and rewriting history is exactly what this method exists to avoid doing
+        to the run.
+        """
+        now = dt.datetime.now(dt.UTC)
+        with reuse_or_open(self._database, connection) as target:
+            return self._void(target, run_id, reason=reason, now=now)
+
+    def _void(self, connection: Any, run_id: str, *, reason: str, now: dt.datetime) -> list[str]:
+        rows = connection.execute(
+            """
+            UPDATE agent_callback_outbox
+            SET status = %(status)s,
+                last_error = %(error)s,
+                next_attempt_at = NULL,
+                updated_at = %(now)s
+            WHERE run_id = %(run_id)s AND status = %(pending)s
+            RETURNING callback_id
+            """,
+            {"status": DEAD, "error": reason, "now": now, "run_id": run_id, "pending": PENDING},
+        ).fetchall()
+        return [str(row["callback_id"]) for row in rows]
 
 
     def record_dead(self, callback_id: str, *, error: str) -> CallbackRecord:

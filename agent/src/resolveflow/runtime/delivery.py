@@ -32,6 +32,7 @@ from typing import Any
 
 from resolveflow.api.identity import mint_service_token
 from resolveflow.runtime.callbacks import CallbackRecord, CallbackStore
+from resolveflow.runtime.runs import RunStore
 
 __all__ = [
     "AGENT_SERVICE",
@@ -189,7 +190,19 @@ class CallbackDelivery:
                 error=str(unavailable),
                 retry_at=failed.next_attempt_at,
             )
-        delivered = self._store.record_delivery(record.callback_id, disposition=result.disposition)
+        # The answer and the run status it implies commit together (AGENTS.md: 业务结果和本地事件同事务): a
+        # callback marked delivered while its run still says CALLBACK_PENDING is a run waiting for an answer that
+        # already arrived. The run is named by the callback's own row, never by a caller.
+        with self._store.transaction() as connection:
+            delivered = self._store.record_delivery(
+                record.callback_id, disposition=result.disposition, connection=connection
+            )
+            RunStore(self._store.database).apply_callback_disposition(
+                record.run_id,
+                kind=record.kind,
+                disposition=result.disposition,
+                connection=connection,
+            )
         return DeliveryOutcome(
             callback_id=record.callback_id,
             status=delivered.status,
