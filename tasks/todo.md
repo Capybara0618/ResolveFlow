@@ -2,7 +2,7 @@
 
 2026-09-26更新。当前唯一进度账本。AgentScope迁移约束见[迁移规格](../docs/agentscope-migration.md)，开工只使用[当前交接](handoff-current.md)。业务与验收保持v1.2；旧40个T任务已退出当前必做顺序，完整原记录保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
-## 最近交接快照（2026-09-26 21:58 +08:00，Asia/Shanghai）
+## 最近交接快照（2026-09-26 22:06 +08:00，Asia/Shanghai）
 
 - 方向与执行者：DSH已明确停止写入；Codex已只读核验并接管，同一工作区当前由Codex实施。工作区 `E:/Code/Agent+Backend`，`main` → `origin/main`。
 - 当前C08.2：出站方案验证/引用、通过型退款模拟链已完成；常驻调查线程 `79c7bb7`、服务装配 `e8c5eef` 均已提交推送并确认远端。常驻入口默认关闭，显式配置才处理预存QUEUED；HTTP健康不代表worker健康。见[常驻worker报告](../reports/c08-resident-investigation.md)。C08整包及H1–H5尚未验收。
@@ -15,10 +15,11 @@
 - 最新离线H1准备：六组/12例输入、单独Gold和live运行记录结构已提交前验证，**3 passed**、Ruff/diff通过；Gold标记未人工审查，输入只可作为评测seed，不能直接送模型。见[配对fixture报告](../reports/c08-h1-paired-fixtures.md)，没有真实服务seed/runner、没有live结果，H1不勾。
 - C09预算冲突已核对：规范上限是**每run总12次含恢复**；历史用户决定“预留且显式计费”按其中10次普通+2次恢复解释，AS01.2 spike 的12+2不可直接入生产。见[预算边界](../reports/c09-recovery-budget-boundary.md)；本步仅规范核查，未实现持久账。
 - 最新C09前置：不可变调用预算分区对象已实现，默认10普通+2恢复，总12，持久形状重建保留计数；RED模块缺失→聚焦 **57 passed**，全量 **1061 passed / 9 skipped / 1 warning**，新增文件Ruff/strict mypy通过。见[分区报告](../reports/c09-call-budget-partition.md)。尚未接worker/PG，C09不勾。
-- 下一具体动作：新增最小PG持久预算/稳定调用账，锁run行并同事务核验fence/有效状态；重建读取原计数而不清零。H1另待隔离服务seed/捕获入口、Gold人工审查、模型与费用上限后live。`summary` ABI强制另拆小步，当前由最终Schema校验拒绝。
+- 最新C09 PG预占：新增迁移005与存储层，锁run行后检查数据库时间/fence/owner/lease/状态，再同事务落稳定call_id、UNKNOWN保守token预占、10+2分区及spend；重复call只查原记录，不许可重发。真实PG新增 **4 passed**、相关 **43 passed**，全量 **1065 passed / 9 skipped**，全量Ruff通过、mypy仍9个既有错误。见[PG预占报告](../reports/c09-pg-model-reservation.md)；尚未接生产worker/SDK，C09不勾。
+- 下一具体动作：先补响应已保存但checkpoint未推进的结果复用/usage恰一次结算失败测试，实现受fence保护的响应保存；UNKNOWN重试另按attempt预占。H1另待隔离服务seed/捕获入口、Gold人工审查、模型与费用上限后live。`summary` ABI强制另拆小步，当前由最终Schema校验拒绝。
 - 未运行：本步Java单测/Spotless、all-offline、live模型及H1–H5、C09恢复、C10 strict；UNKNOWN/丢响应链路由既有C05报告覆盖，非本次mock运行结论。
 - 未提交/后台：本步提交后仍有既有未跟踪SQLite快照与三次 `reports/c08-resident-java/` 原始联调日志留在本机；新闭环原始日志、脚本和provider SQLite在忽略的 `tmp/c08-resident-refund/`，均不提交或删除。无已知测试/Java/Agent子进程运行；既有PostgreSQL、MySQL、RocketMQ namesrv/broker容器运行，未删卷。
-- 取舍与失败：strict mypy全量既有9错（本步新增文件单独通过）；最新全量 **1061 passed / 9 skipped**。缺summary时run明确FAILED；C09恢复与租约/fence未交付，不把现有worker当生产高可用。
+- 取舍与失败：strict mypy全量既有9错（本步新增文件单独通过）；最新全量 **1065 passed / 9 skipped**。缺summary时run明确FAILED；C09恢复与租约/fence未交付，不把现有worker当生产高可用。
 
 ## 已有成果（历史记录，非本轮重测）
 
@@ -1629,6 +1630,7 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
 - 验收：旧worker不能写checkpoint/有效回调；预算/deadline不重置；补证继续与同run故障恢复区分。
 - 验证：H4/CF6两类崩溃窗口、旧fence/旧revision/版本不匹配测试。
 - 2026-09-26前置小步：调用预算分区默认10普通+2恢复、总12，非法持久计数拒绝；尚未接PG/worker。聚焦57 passed、全量1061 passed/9 skipped，新增Ruff/strict mypy通过；见[报告](../reports/c09-call-budget-partition.md)，H4/CF6未运行，C09不勾。
+- 2026-09-26 PG预占小步：迁移005、fence保护的冻结预算与稳定call预占；UNKNOWN保留估计，重复ID不重扣且不授权重发。真实PG4 passed/相关43 passed/全量1065 passed与9 skipped，全量Ruff通过、strict mypy仍9个既有错误。见[报告](../reports/c09-pg-model-reservation.md)。未接worker/SDK/响应结算/checkpoint，H4/CF6未验收。
 
 ### C10 选定轨迹的strict回放
 
