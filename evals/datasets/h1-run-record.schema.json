@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "H1 paired live run evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "dataset_version", "source_commit", "mode", "model_id", "manifest_id", "request_hashes", "trajectory", "observations", "terminal_action", "case_validation", "model_calls", "input_tokens", "output_tokens", "elapsed_ms", "outcome"],
+  "properties": {
+    "case_id": {"type": "string", "pattern": "^H1-0[1-6]-[AB]$"},
+    "dataset_version": {"const": "h1-pairs-v1"},
+    "source_commit": {"type": "string", "minLength": 7},
+    "mode": {"const": "live"},
+    "model_id": {"type": "string", "minLength": 1},
+    "manifest_id": {"type": "string", "minLength": 1},
+    "request_hashes": {"type": "array", "items": {"type": "string"}},
+    "trajectory": {"type": "array", "items": {"type": "object"}},
+    "observations": {"type": "array", "items": {"type": "object", "required": ["source_ref", "source_version", "content_hash"], "properties": {"source_ref": {"type": "string"}, "source_version": {"type": "string"}, "content_hash": {"type": "string"}}}},
+    "terminal_action": {"type": ["string", "null"]},
+    "case_validation": {"type": ["string", "null"]},
+    "model_calls": {"type": "integer", "minimum": 0},
+    "input_tokens": {"type": "integer", "minimum": 0},
+    "output_tokens": {"type": "integer", "minimum": 0},
+    "elapsed_ms": {"type": "integer", "minimum": 0},
+    "outcome": {"enum": ["COMPLETED", "FAILED", "TIMED_OUT", "SKIPPED"]},
+    "failure_reason": {"type": ["string", "null"]}
+  }
+}
