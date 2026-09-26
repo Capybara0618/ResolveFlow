@@ -106,6 +106,7 @@ def read(tool_name: str, **arguments: Any) -> dict[str, Any]:
 def propose(action: str = "REFUND") -> dict[str, Any]:
     return {
         "kind": PROPOSE,
+        "case_type": "LOGISTICS",
         "recommended_action": action,
         "reason_codes": ["LOST_IN_TRANSIT"],
         "summary": "the trace shows the parcel was never delivered",
@@ -140,7 +141,7 @@ def test_a_read_then_a_proposal_is_two_model_calls_and_one_tool_call(driver: str
     Two model calls — one to choose the read, one to decide after seeing it. A driver that already knew the route
     would need one, and that difference is the whole claim of `docs/agent-harness.md:9`.
     """
-    model = MockModelClient(script=[read("get_order_context"), propose()], repeat_last=True)
+    model = MockModelClient(script=[read("get_order_context"), propose("MANUAL_REVIEW")], repeat_last=True)
     tools = StubTools(observation())
     result = (
         AgentScopeRunner(model=model, tools=tools, facts=FACTS).run()
@@ -151,7 +152,9 @@ def test_a_read_then_a_proposal_is_two_model_calls_and_one_tool_call(driver: str
     assert result.completed is True, f"{driver}: {result.reason_code} {result.notices}"
     assert result.reason_code == REASON_COMPLETED
     assert result.decision is not None
-    assert result.decision.recommended_action == "REFUND"
+    # Not a refund: since C08.1c one must cite a policy rule the run retrieved, and this run never searched policy
+    # (docs/agent-harness.md:13). What this test is about is the read/decide shape, which is unchanged.
+    assert result.decision.recommended_action == "MANUAL_REVIEW"
     assert model.calls == 2, f"{driver} asked the model {model.calls} times"
     assert tools.calls == [("get_order_context", {})], f"{driver}: {tools.calls}"
     assert len(result.observations) == 1
@@ -183,7 +186,7 @@ def test_ask_customer_ends_the_run(driver: str) -> None:
     script = [
         {
             "kind": ASK_CUSTOMER,
-            "questions": [{"question_id": "q1", "prompt": "which parcel?"}],
+            "questions": [{"question_id": "q1", "field": "shipment_photo", "prompt": "which parcel?"}],
             "reason_codes": ["NEEDS_EVIDENCE"],
         }
     ]

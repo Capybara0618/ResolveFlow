@@ -23,6 +23,7 @@ from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import RunFacts
 from resolveflow.policies import PolicyIndex, ServedBundle
 from resolveflow.runtime.db import Database
+from tests.conftest import input_text_of
 
 BUNDLE = ServedBundle(
     bundle_id="policy-logistics-2026.09",
@@ -79,9 +80,17 @@ def facts(**overrides: object) -> RunFacts:
 
 
 def propose() -> dict[str, object]:
+    """A terminal proposal for runs about *searching*, not about refunding.
+
+    ``MANUAL_REVIEW`` rather than ``REFUND`` since C08.1c: a refund must cite an evidence observation **and** a policy
+    rule, and this file's runs have no tools at all (``_NoTools``), so a refund here could only be refused. The
+    citation rules are checked in ``tests/unit/test_proposal_verifier.py``; what this file proves is that the rule a
+    search returned carries every member a citation needs, and that the model was shown them.
+    """
     return {
         "kind": "PROPOSE",
-        "recommended_action": "REFUND",
+        "case_type": "LOGISTICS",
+        "recommended_action": "MANUAL_REVIEW",
         "reason_codes": ["LOST_CONFIRMED"],
         "summary": "承运商判定丢失",
         "reasoning": "policy says refund",
@@ -136,10 +145,12 @@ def test_a_search_policy_action_executes_and_the_rules_reach_the_model(
     assert hit["version"] == BUNDLE.version
     assert hit["source_ref"] == f"policy:{BUNDLE.bundle_id}/{hit['chunk_id']}"
 
-    # And the model was actually shown them: the second call's packet carries the observation.
-    second = model.packets[1]
-    assert second["observations"], "the second model call was shown no observation"
-    assert second["observations"][0]["source_type"] == "POLICY_RULE"
+    # And the model was actually shown them — in the **request** it received, not only in the structured channel a
+    # script reads (C08.1a). These members travel inside the P3 excerpt because they are part of the tool's own
+    # result, not something this side re-derived from the model's answer.
+    sent = input_text_of(model, 1)
+    assert hit["rule_id"] in sent, f"the cited rule is not in the request the model received: {sent}"
+    assert hit["content_hash"] in sent, "a citation the model cannot see is not a citation it can make"
 
 
 def test_a_search_spends_a_local_read_and_a_search_attempt(
@@ -156,15 +167,30 @@ def test_a_search_spends_a_local_read_and_a_search_attempt(
     assert result.spend.local_reads == 1  # type: ignore[attr-defined]
 
 
-def test_the_packet_tells_the_model_how_many_local_reads_it_has_left(
+def test_the_budget_position_reaches_the_client_but_not_the_provider_request(
     index: PolicyIndex, stub_embedder: object
 ) -> None:
+    """Where the local-read position is visible, and where it deliberately is not (C08.1a).
+
+    The run's structured view — the ``context`` a :class:`~resolveflow.harness.model.ModelClient` is called with — is
+    the channel that exists for the run's own bookkeeping, so the position is asserted there. It is **not** in the
+    provider request, and that is the design rather than an omission: ``docs/context-engineering.md:15-21`` fixes the
+    request to P0–P4 (system/schema, request, facts, current observations, older index) and no layer carries a budget,
+    while the bound itself is the harness's to enforce — ``docs/agent-harness.md:3`` puts budget and termination in
+    the domain Harness rather than in the model.
+
+    Both halves are pinned so a future change to either is deliberate: the assertion kept its subject (the budget is
+    counted and visible) and gained the boundary that the model is not asked to police its own budget.
+    """
     model = MockModelClient(script=[search("承运商判定丢失"), propose()])
 
     run(index, model, stub_embedder, budget=RunBudget(local_reads=3))
 
-    assert model.packets[1]["budget"]["local_reads_made"] == 1
-    assert model.packets[1]["budget"]["local_reads_allowed"] == 3
+    context = model.contexts[1]
+    assert context is not None, "the run's structured view is what a client is handed"
+    assert context["budget"]["local_reads_made"] == 1
+    assert context["budget"]["local_reads_allowed"] == 3
+    assert "local_reads_allowed" not in input_text_of(model, 1), "the request is P0–P4, not the run's ledger"
 
 
 def test_the_local_read_bound_stops_the_run_and_names_itself(

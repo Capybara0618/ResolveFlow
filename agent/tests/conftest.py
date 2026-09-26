@@ -97,11 +97,19 @@ def stub_embedder() -> StubEmbedder:
 
 
 def input_text_of(client: object, turn: int = -1) -> str:
-    """Everything a scripted model was handed on one turn, from **either** loop input shape.
+    """Everything a scripted model was **actually sent** on one turn, from either loop input shape.
+
+    ``MockModelClient.conversations`` is the list handed to ``decide``, which *is* the request. ``packets`` is the
+    packet a **script** reads: under the formal ContextBuilder path that is the run's structured ``context``, which
+    the model never sees. Reading that first made a claim like "the observation reached the model" satisfiable by a
+    hidden channel, so it is now only a fallback for a caller that recorded no conversation at all.
+
+    What is deliberately *not* established here: that either shape is what a live provider receives. That is the
+    HTTP-level check C08 still owes.
 
     Two shapes reach the model while they coexist (C08.1): the C06.4 evidence packet, which travels as one JSON
     message, and the P0–P4 context packet, which travels as several rendered turns. A loop test's claim — "the
-    observation reached the next model call" — is about neither shape, so it asks this instead of reaching into one.
+    observation reached the next model call" — is about the request, so this reads the sent messages.
 
     Both are returned as text, which is what makes it a *reading* rather than an assertion about a shape: a test
     that needs the rendered layers looks for ``P2·fact``, and one that needs a field looks for ``key=value`` (both
@@ -109,27 +117,28 @@ def input_text_of(client: object, turn: int = -1) -> str:
     ``conversations[turn]`` was a single message; it is a **list** of them, and the resulting
     ``AttributeError`` is why two tests failed while this was being written.
     """
-    packets = getattr(client, "packets", [])
-    if packets:
-        # The C06.4 shape: the whole input is the JSON mapping the mock parsed out of the last message.
-        return json.dumps(packets[turn], ensure_ascii=False, default=str)
     conversations = getattr(client, "conversations", [])
-    if not conversations:
+    if conversations:
+        return "\n".join(
+            block.text
+            for message in conversations[turn]
+            for block in message.get_content_blocks()
+            if hasattr(block, "text")
+        )
+    packets = getattr(client, "packets", [])
+    if not packets:
         return ""
-    return "\n".join(
-        block.text
-        for message in conversations[turn]
-        for block in message.get_content_blocks()
-        if hasattr(block, "text")
-    )
+    # The C06.4 structured view, for a caller that recorded no conversation at all.
+    return json.dumps(packets[turn], ensure_ascii=False, default=str)
 
 
 def packet_of(client: object, turn: int = -1) -> dict[str, object]:
-    """The structured packet the C06.4 loop hands the model, or an empty mapping for the context-builder shape.
+    """The structured packet a **script** reads, or an empty mapping when the run sent a rendered packet instead.
 
-    The context builder does not hand over a mapping (it renders prose, which is the point), so a test that needs the
-    *structure* asks :func:`input_text_of` and looks at the rendered layers. Kept as a separate name so a caller is
-    explicit about which it wants.
+    This is not the model's input. Under the formal ContextBuilder path the request travels as rendered prose, which
+    is the point of the builder, and this returns the run's structured ``context``: the channel a script uses for the
+    cursor of a previous page or the budget position. A test asserting what the model *saw* wants
+    :func:`input_text_of`; this name exists so a caller that genuinely means the script's view says so.
     """
     packets = getattr(client, "packets", [])
     return {} if not packets else dict(packets[turn])

@@ -83,6 +83,11 @@ class ModelReply:
 class ModelClient(Protocol):
     """A decision call. One method, so a live client and a script are interchangeable by construction.
 
+    ``max_output_tokens`` is a hard ceiling reserved by the harness, not a prompt hint.
+    A live client must enforce it in the provider request, with no hidden retries; missing
+    usage must be marked estimated (never silently represented as exact zero).
+    An empty ``system`` means P0 already exists as a system message; do not inject another.
+
     ``messages`` are provider-agnostic turns (``role``/``content``); the client renders them for whatever
     provider it speaks to. The first message is always the harness's JSON packet, which is what
     ``docs/agent-harness.md:22`` saves as the exact input.
@@ -106,6 +111,7 @@ class ModelClient(Protocol):
         messages: list[Message],
         context: dict[str, Any] | None = None,
         sent_context: Any = None,
+        max_output_tokens: int | None = None,
     ) -> ModelReply: ...
 
 
@@ -145,6 +151,7 @@ class MockModelClient:
     #: Every message list handed to :meth:`decide`, in order, for a test that needs the raw turns. AgentScope
     #: messages, because the SDK owns the conversation once the loop is its own (AS02).
     conversations: list[list[Message]] = field(default_factory=list)
+    output_limits: list[int | None] = field(default_factory=list)
     #: How many decisions were asked for. Equal to ``len(packets)``; kept separate so a test can state which
     #: one it means.
     calls: int = 0
@@ -171,9 +178,11 @@ class MockModelClient:
         messages: list[Message],
         context: dict[str, Any] | None = None,
         sent_context: Any = None,
+        max_output_tokens: int | None = None,
     ) -> ModelReply:
         self.calls += 1
         self.conversations.append(messages)
+        self.output_limits.append(max_output_tokens)
         self.contexts.append(context)
         self.sent_contexts.append(sent_context)
         # The system prompt is recorded **with** the conversation rather than beside it: the packet a test reads

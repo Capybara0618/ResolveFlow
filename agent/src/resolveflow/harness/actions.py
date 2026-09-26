@@ -29,6 +29,9 @@ from typing import Annotated, Any, Final, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from resolveflow.contracts.core_models import CoreEvidenceRef, CorePolicyRef
+from resolveflow.contracts.enums import CaseType
+
 __all__ = [
     "ASK_CUSTOMER",
     "ESCALATE",
@@ -64,6 +67,11 @@ TERMINAL_KINDS: Final[frozenset[str]] = frozenset({PROPOSE, ASK_CUSTOMER, ESCALA
 #: ``docs/agent-spec.md:18``: 最多3个聚合问题. ``docs/agent-spec.md:16``: top_k<=5.
 MAX_ASK_QUESTIONS: Final = 3
 MAX_POLICY_TOP_K: Final = 5
+
+#: The case types the contract declares (``contracts/core/agent-proposal.schema.json``, ``openapi-case.yaml``
+#: ``CaseType``). A PROPOSE must name one, and one of **these** — the run classifies the case; it does not invent a
+#: category the case service would then refuse as a structural error (``docs/core-contracts.md:64``).
+CASE_TYPES: Final[frozenset[str]] = frozenset(member.value for member in CaseType)
 
 #: The name the SDK sees for a policy search (C07.1). A **local** capability, not one of the five MCP tools
 #: (``docs/agent-spec.md:34``: 政策检索和READ_OBSERVATION是本地能力，不包装成额外微服务), which is why it is not in
@@ -169,6 +177,14 @@ class AskQuestion(BaseModel):
 
     question_id: Annotated[str, Field(min_length=1, max_length=64)]
     prompt: Annotated[str, Field(min_length=1, max_length=500)]
+    #: Which member of the line the question is about. The case contract's own ``AgentQuestion`` requires ``field``
+    #: (`contracts/core/openapi-case.yaml:2146`), and it is the case service that has to route the answer back to
+    #: the right part of the case, so the run has to say which part it is asking about rather than leave it implied.
+    #:
+    #: **Required**: the case contract's ``AgentQuestion`` requires it (``additionalProperties: false`` is what makes a
+    #: missing member a refusal rather than a gap), and a question the case service cannot route an answer to is not a
+    #: question it can ask.
+    field: Annotated[str, Field(min_length=1, max_length=64)]
 
 
 class ModelDecision(BaseModel):
@@ -194,7 +210,26 @@ class ModelDecision(BaseModel):
     observation_id: str | None = None
     questions: list[AskQuestion] = []
     recommended_action: str | None = None
+    #: What the run decided the case *is*. The case contract is explicit that this is the run's own classification
+    #: (`contracts/core/openapi-case.yaml:1700-1706`: "the run classified the case and named its codes"), and
+    #: `ProposalPayload` requires it — so a proposal without one is not a proposal the case service accepts.
+    #: It classifies; it does **not** route: `docs/agent-harness.md:9` keeps the action path driven by the
+    #: observations, not by a case type.
+    #:
+    #: **Required on a PROPOSE**: every PROPOSE fixture and every model reply must name one, because
+    #: ``ProposalPayload`` requires it and a proposal the case service refuses structurally is not a proposal. A value
+    #: that is present is checked against the contract's own four, so the member cannot be used to invent a category.
+    case_type: str | None = None
     summary: Annotated[str, Field(max_length=2000)] | None = None
+    #: What the proposal cites (C08.1c). The reference shapes are the contract's own types rather than copies, so a
+    #: citation cannot satisfy a laxer local shape than Java will enforce — ``CoreEvidenceRef`` refuses a URL as a
+    #: ``source_ref`` and a short hash, which is what makes "must be visible" checkable at all.
+    #:
+    #: Only a PROPOSE may carry these. Before C08.1c nothing could: ``extra="forbid"`` refused the members, so a
+    #: refund proposal had no citations to verify and the proposal verifier would have had nothing to check.
+    evidence_refs: list[CoreEvidenceRef] = []
+    policy_refs: list[CorePolicyRef] = []
+    missing_evidence: Annotated[list[str], Field(max_length=10)] = []
 
     @model_validator(mode="after")
     def check_kind_and_its_members(self) -> ModelDecision:
@@ -211,8 +246,25 @@ class ModelDecision(BaseModel):
             raise ValueError("a PROPOSE must name a recommended_action")
         if self.kind == PROPOSE and not self.reason_codes:
             raise ValueError("a PROPOSE must carry at least one reason code")
+        if self.kind == PROPOSE and self.case_type is None:
+            raise ValueError(
+                "a PROPOSE must classify the case: ProposalPayload requires case_type and the run is who "
+                "classified it (contracts/core/openapi-case.yaml:1622)"
+            )
+        if self.case_type is not None and self.case_type not in CASE_TYPES:
+            raise ValueError(
+                f"{self.case_type!r} is not one of the contract's case types {sorted(CASE_TYPES)}; "
+                "the run classifies the case, it does not invent a category"
+            )
+        if self.kind != PROPOSE and self.case_type is not None:
+            raise ValueError(f"a {self.kind} action may not carry a case_type; that is a PROPOSE")
         if self.kind != ASK_CUSTOMER and self.questions:
             raise ValueError(f"a {self.kind} action may not carry questions")
+        # Citations belong to the proposal, and only to it. A read that carries one is a proposal smuggled through a
+        # read — the same mistake ``recommended_action`` above is refused for — and an ESCALATE must not invent
+        # citations it did not gather (docs/agent-spec.md:20).
+        if self.kind != PROPOSE and (self.evidence_refs or self.policy_refs or self.missing_evidence):
+            raise ValueError(f"a {self.kind} action may not carry citations; that is a PROPOSE")
         return self
 
 

@@ -47,9 +47,7 @@ MessageRole = Literal["user", "assistant", "system"]
 _TERMINAL_KINDS = frozenset({"PROPOSE", "ASK_CUSTOMER", "ESCALATE"})
 
 
-def messenger_message(
-    packet: dict[str, Any], *, name: str = "harness", role: MessageRole = "user"
-) -> Msg:
+def messenger_message(packet: dict[str, Any], *, name: str = "harness", role: MessageRole = "user") -> Msg:
     """The harness's packet as an AgentScope user message.
 
     The packet goes over as **one JSON text block**, unchanged. Two reasons: the bytes AgentScope sends are then
@@ -184,11 +182,7 @@ class AgentScopeModelAdapter(ChatModelBase):
         )
         self.replies.append(reply)
         self.modes.append(reply.mode)
-        # Settle what the provider actually produced, if the caller wants the cumulative output meter to move.
-        # Optional because the adapter must work without a budget (the strict replay has none).
-        settle = getattr(self, "note_output", None)
-        if callable(settle):
-            settle(reply.usage.output_tokens)
+        # The gated client settles before accepting the action, including on overproduction.
         # **One trajectory entry per action**, and for a read the entry belongs to the bridge that executed it,
         # not here. Recording it in both places produced two lines per read (`REQUESTED` then `OBSERVED`), which a
         # test comparing the trajectory against the recorded actions caught immediately. A terminal decision is

@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import Any, Final, cast
 
 import anyio
 from agentscope.agent import Agent, ReActConfig
@@ -45,6 +45,7 @@ from agentscope.message import Msg, TextBlock
 from agentscope.middleware import MiddlewareBase
 from agentscope.tool import ToolBase, Toolkit
 
+from resolveflow.contracts.enums import CaseType
 from resolveflow.harness.actions import (
     ASK_CUSTOMER,
     ESCALATE,
@@ -61,10 +62,14 @@ from resolveflow.harness.actions import (
 )
 from resolveflow.harness.budget import BudgetExhaustedError, BudgetGuard, RunBudget, RunSpend
 from resolveflow.harness.context import (
+    CONFIRMED_ACTION_WINDOW,
     DEFAULT_INPUT_CAP,
     DEFAULT_OUTPUT_RESERVE,
+    MAX_ACTION_ARGUMENT_CHARS,
+    PROVIDER_WRAPPER_ALLOWANCE,
     ContextBuilder,
     OverflowRefusedError,
+    estimate_tokens,
     extract_facts,
 )
 from resolveflow.harness.control import (
@@ -79,6 +84,7 @@ from resolveflow.harness.facts import FactsView
 # The two local-read executors live in their own module because they share every boundary decision: the budget
 # pair, the stop reason, the trajectory entry and the error chunk. Two copies is where behaviour drifts.
 from resolveflow.harness.local_reads import ObservationReadBridge, PolicySearchBridge
+from resolveflow.harness.manifest import build_manifest, model_block_for
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.harness.observation_read import ObservationStore
 from resolveflow.harness.sdk_adapter import (
@@ -86,6 +92,7 @@ from resolveflow.harness.sdk_adapter import (
     messenger_message,
     raw_text_message,
 )
+from resolveflow.harness.verifier import ProposalVerifier
 from resolveflow.harness.vocabulary import HARNESS_SYSTEM_PROMPT, RunFacts, RunResult, ToolExecutor
 
 __all__ = ["AgentScopeRunner", "ActionGateMiddleware", "McpToolBridge"]
@@ -94,7 +101,13 @@ __all__ = ["AgentScopeRunner", "ActionGateMiddleware", "McpToolBridge"]
 #: terminal" is a fact about the run and not about the schema; `validate_decision` enforces the rest.
 _TERMINAL_KINDS = frozenset({"PROPOSE", "ASK_CUSTOMER", "ESCALATE"})
 
+#: How many times a run feeds a refused decision back for repair. One, because ``docs/agent-spec.md:52`` says the
+#: model's Schema/citation output is repairable **once** — a second chance is a retry loop wearing a spec quote.
+MAX_REPAIRS: Final = 1
 
+#: The kinds the adapter renders as a **tool call**. A refused decision of one of these can be handed to the SDK
+#: unchanged for its denial; a refused terminal decision cannot, and needs a probe (see `_repair_probe`).
+_TOOL_CALL_KINDS = frozenset({READ_TOOL, SEARCH_POLICY, READ_OBSERVATION})
 
 
 class ActionGateMiddleware(MiddlewareBase):
@@ -123,6 +136,18 @@ class ActionGateMiddleware(MiddlewareBase):
         self.terminal: ModelDecision | None = None
         #: Notices fed back to the model (the two no-progress rounds).
         self.notices: list[str] = []
+        #: How many refusals have already been fed back as a repair opportunity (C08.1c-2). Exactly
+        #: :data:`MAX_REPAIRS` of them, because ``docs/agent-spec.md:52`` grants the model one chance to fix its own
+        #: output and no more — an unbounded repair is a retry loop, which is what the model-call budget forbids.
+        self.repairs_used = 0
+        #: The reason to hand back when the SDK next asks to execute a refused action, or ``None``. Set only while a
+        #: repair is available: it is what carries the refusal into the model's conversation, and it is consumed by
+        #: :meth:`on_check_permission`.
+        self.repair_message: str | None = None
+        #: The proposal verifier (C08.1c), attached by the run once the observation record exists. ``None`` means
+        #: citations are not checked — which is honest for a gate driven on its own in a unit test, and set for
+        #: every real run.
+        self.verifier: Any = None
 
     def check(self, payload: dict[str, Any]) -> ModelDecision | None:
         """Validate one decision: return it, or set the stop reason and return ``None``.
@@ -134,31 +159,75 @@ class ActionGateMiddleware(MiddlewareBase):
         try:
             decision = validate_decision(payload)
         except ActionRefusedError as refusal:
-            self.refusals.append({"reason": refusal.reason_code, "detail": str(refusal)})
-            self.stop_reason = refusal.reason_code or REASON_ACTION_REFUSED
+            self._refuse(refusal.reason_code or REASON_ACTION_REFUSED, str(refusal))
             return None
 
         if decision.kind in _TERMINAL_KINDS:
             # Terminal: it ends the run and is not executed, so it does not touch the no-progress tracker.
+            citation_refusal = self._verify_proposal(decision)
+            if citation_refusal is not None:
+                return None
             self.terminal = decision
             self.accepted = payload
             return decision
 
         repeated = self.progress.note_action(decision)
         if repeated and self.progress.should_stop_before_running():
-            self.refusals.append(
-                {
-                    "reason": REASON_NO_PROGRESS,
-                    "detail": "the same action repeated three times with no new evidence",
-                }
+            # Not repairable: this is the loop's own bound, not a mistake in the model's output, and the two rounds
+            # before it were already fed back (docs/agent-spec.md:44).
+            self._refuse(
+                REASON_NO_PROGRESS, "the same action repeated three times with no new evidence", repairable=False
             )
-            self.stop_reason = REASON_NO_PROGRESS
             return None
         # A repeat is **not** counted here: whether it was "no progress" depends on the evidence it produces, which
         # arrives after the tool runs. `note_evidence` below is what counts a round, and it is also what stops the
         # third repeat — see `control.NoProgressTracker` for why the order matters.
         self.accepted = payload
         return decision
+
+    def _verify_proposal(self, decision: ModelDecision) -> Any:
+        """Check a terminal proposal's citations, or record the refusal and return why.
+
+        Only a PROPOSE is verified: an ASK_CUSTOMER asks and an ESCALATE hands over, and neither cites anything
+        (``docs/agent-spec.md:20``). A refund proposal whose citations do not match what this run actually read stops
+        the run instead of becoming its outcome (``docs/agent-harness.md:13``), because a proposal is submitted to
+        Java and a citation nobody can check is worse than no proposal.
+
+        The verifier is attached by the run once the observation record exists and, crucially, holds *that same
+        list*: a verifier built with a copy would check citations against an empty run.
+        """
+        if decision.kind != "PROPOSE" or self.verifier is None:
+            return None
+        result = self.verifier.verify_citations(
+            recommended_action=decision.recommended_action or "",
+            evidence_refs=[ref.model_dump() for ref in decision.evidence_refs],
+            policy_refs=[ref.model_dump() for ref in decision.policy_refs],
+            missing_evidence=decision.missing_evidence,
+        )
+        if result.ok:
+            return None
+        self._refuse(result.reason_codes[0], result.detail())
+        return result
+
+    def _refuse(self, reason_code: str, detail: str, *, repairable: bool = True) -> None:
+        """Record a refusal, and give the model its one chance to repair it (``docs/agent-spec.md:52``).
+
+        The refusal is recorded either way, so the run's record says what was wrong even when the model fixed it.
+        What changes is whether the run **stops**: the first repairable refusal sets :attr:`repair_message` instead
+        of :attr:`stop_reason`, and the caller turns that into a turn the SDK will deny — the denial carries this
+        text back to the model. Only the *repairable* kinds qualify: a no-progress stop is the loop's own bound, not
+        a mistake in the model's output, and ``docs/agent-spec.md:44`` already feeds back its two warnings.
+        """
+        self.refusals.append({"reason": reason_code, "detail": detail})
+        if repairable and self.repairs_used < MAX_REPAIRS:
+            self.repairs_used += 1
+            message = f"REFUSED {reason_code}: {detail}. Fix it and reply again; this is your one repair."
+            # Both channels, one text: the notice is what the *next* request carries in P1 even if the model never
+            # reads the denial, and the message is what the SDK feeds back for the call it is about to refuse.
+            self.notices.append(message)
+            self.repair_message = message
+            return
+        self.stop_reason = self.stop_reason or reason_code
 
     def note_stop(self, reason_code: str) -> None:
         """Record why the run must stop, without overwriting a reason already recorded.
@@ -204,6 +273,16 @@ class ActionGateMiddleware(MiddlewareBase):
             return PermissionDecision(
                 behavior=PermissionBehavior.DENY, message=f"the run has stopped: {self.stop_reason}"
             )
+        if self.repair_message is not None:
+            # The repair turn (C08.1c-2): the model was refused, and the SDK is now trying to execute the very
+            # action that was refused — or, for a refused proposal, a probe the caller substituted for it. Denying
+            # with the refusal's own text is what puts the reason in the model's conversation as a tool result
+            # (`docs/agent-spec.md:52`: fix it once). Nothing executes, and this denial is *not* recorded as a
+            # second refusal: the refusal already happened, and recording the echo would make one mistake look like
+            # two and set the stop reason that the repair exists to avoid.
+            message = self.repair_message
+            self.repair_message = None
+            return PermissionDecision(behavior=PermissionBehavior.DENY, message=message)
         accepted = self.accepted
         allowed_name = None
         if isinstance(accepted, dict) and accepted.get("kind") == "READ_TOOL":
@@ -225,9 +304,7 @@ class ActionGateMiddleware(MiddlewareBase):
                 }
             )
             self.stop_reason = self.stop_reason or REASON_ACTION_REFUSED
-            return PermissionDecision(
-                behavior=PermissionBehavior.DENY, message=f"{name!r} was not the accepted action"
-            )
+            return PermissionDecision(behavior=PermissionBehavior.DENY, message=f"{name!r} was not the accepted action")
         return await next_handler()
 
 
@@ -331,16 +408,12 @@ class McpToolBridge(ToolBase):
             # `to_thread` because the project's executor is synchronous by construction (it bridges a private
             # event loop for MCP stdio); calling it inline would block the SDK's loop.
             observation = await anyio.to_thread.run_sync(
-                lambda: self._executor.call_tool(
-                    run_id=self._facts.run_id, tool_name=self.name, arguments=dict(kwargs)
-                )
+                lambda: self._executor.call_tool(run_id=self._facts.run_id, tool_name=self.name, arguments=dict(kwargs))
             )
         except Exception as failure:  # noqa: BLE001 - the executor's failure is the run's fact to record
             self._gate.note_stop(REASON_TOOL_FAILED)
             self._gate.note_evidence(False)
-            self._adapter.trajectory.append(
-                {"action": self.name, "outcome": "FAILED", "detail": str(failure)[:300]}
-            )
+            self._adapter.trajectory.append({"action": self.name, "outcome": "FAILED", "detail": str(failure)[:300]})
             return ToolChunk(
                 content=[TextBlock(type="text", text=f"TOOL_FAILED: {failure}")],
                 state=ToolResultState.ERROR,
@@ -366,7 +439,6 @@ class McpToolBridge(ToolBase):
             content=[TextBlock(type="text", text=json.dumps(observation.model_dump(mode="json"), default=str))],
             state=ToolResultState.SUCCESS,
         )
-
 
 
 @dataclass(slots=True)
@@ -396,10 +468,13 @@ class AgentScopeRunner:
     #: are the run's state, not a caller's, and a caller that wants to inspect them afterwards passes its own.
     facts_view: Any = None
     #: Whether the model's input is assembled by :class:`~resolveflow.harness.context.ContextBuilder` (P0–P4) or by
-    #: the C06.4 evidence packet. Off by default while the two coexist: the packet builder is what every existing
-    #: loop test asserts against, and flipping the default in the same change would make those tests describe
-    #: neither shape. ``docs/context-engineering.md`` is the specification for the on-state.
-    use_context_builder: bool = False
+    #: the C06.4 evidence packet. **On by default (C08.1a)**: ``docs/context-engineering.md`` is the specification,
+    #: so the specification is the path a run takes unless a caller explicitly asks for the older shape.
+    #:
+    #: The C06.4 blob is kept as an explicit compatibility path rather than deleted, because the two must be
+    #: comparable while the migration finishes — but it is no longer what a worker gets by default, and the evidence
+    #: it used to carry now travels through the bounded, hashed, counted packet.
+    use_context_builder: bool = True
     #: What the provider can take, and what is held back for the answer. ``docs/context-engineering.md:27``'s
     #: minimum subtracts the reserve and the wrapper allowance from the capacity, so these two are the provider
     #: terms of that cap.
@@ -409,6 +484,49 @@ class AgentScopeRunner:
     #: semantics: it is the object the loop assembled, and a snapshot needs the packet rather than a way to
     #: recompute it.
     last_client: Any = None
+    #: The run's frozen Harness manifest (C08.1b), built on first use and then reused for every step. Memoised
+    #: rather than rebuilt per packet because "frozen" is the property that matters: ``docs/agent-harness.md:35``
+    #: forbids silently changing the manifest on resume, and a manifest recomputed each step could differ from the
+    #: one a snapshot stored without anything noticing.
+    frozen_manifest: dict[str, Any] | None = field(default=None, init=False, repr=False)
+
+    def manifest(self) -> dict[str, Any]:
+        """The run's frozen manifest (``docs/agent-harness.md:33``), built once."""
+        if self.frozen_manifest is None:
+            self.frozen_manifest = build_manifest(
+                facts=self.facts,
+                system_prompt=self.system,
+                tool_schema=_tool_schema_document(self),
+                budget=self.budget,
+                model=model_block_for(self.model, context_window_tokens=self.context_provider_capacity),
+                index_generation=self.index_generation(),
+            )
+        return self.frozen_manifest
+
+    def index_generation(self) -> str:
+        """The ``index_generation`` the manifest pins.
+
+        The dispatch pins a policy *set* (``bundle_ids`` + ``manifest_hash``, C07.1); the rows that actually serve
+        retrieval carry their own ``generation_id``. When this run has a policy index and the pinned bundle has a
+        READY generation at that hash, that real id is what gets pinned — the index a read would have hit.
+
+        When it does not (a run assembled by hand, or one that never searches policy), the fallback is a
+        deterministic uuid5 of the pin itself. It is **not** a ``policy_index_generation`` row id and must not be
+        looked up as one: it is a stable name for "this pin", so the manifest stays reproducible instead of
+        borrowing an id the run never resolved.
+        """
+        import uuid
+
+        pinned = self.facts.policy_manifest or {}
+        bundles = sorted(bundle for bundle in (pinned.get("bundle_ids") or []) if isinstance(bundle, str))
+        manifest_hash = pinned.get("manifest_hash")
+        if self.policy_index is not None and bundles and isinstance(manifest_hash, str) and manifest_hash:
+            generation = self.policy_index.generation_for(bundles[0], manifest_hash)
+            if generation is not None:
+                return str(generation.generation_id)
+        pin_hash = manifest_hash if isinstance(manifest_hash, str) else ""
+        identity = f"resolveflow:policy-pin:{','.join(bundles)}:{pin_hash}"
+        return str(uuid.uuid5(uuid.NAMESPACE_URL, identity))
 
     def run(self) -> RunResult:
         """Drive one reply to completion and report the outcome.
@@ -429,14 +547,11 @@ class AgentScopeRunner:
         guard.attach_client(client)
         self.last_client = client
         model = AgentScopeModelAdapter(client, system=self.system)
-        # The adapter settles real output usage through this, so the cumulative output meter reflects what the
-        # provider produced rather than the ceiling reserved before each call.
-        model.note_output = guard.note_output_tokens  # type: ignore[attr-defined]
         # C08.1: the run's own facts view and observation store. Created here when the caller did not supply them,
         # so the loop always has somewhere to record what it learned — a bridge with a store but no view would
         # observe without accumulating facts, which is the state C07.2 left behind.
-        store = self.observation_store if self.observation_store is not None else ObservationStore(
-            run_id=self.facts.run_id
+        store = (
+            self.observation_store if self.observation_store is not None else ObservationStore(run_id=self.facts.run_id)
         )
         view = self.facts_view if self.facts_view is not None else FactsView()
         client.bind_context(view=view, store=store, guard=guard, system=self.system)
@@ -514,9 +629,14 @@ class _BudgetHook(MiddlewareBase):
         #: The client, attached by `attach_client` — see `_drive` for why the two are built in two phases.
         self._client: Any = None
         self.guard = BudgetGuard(runner.budget, active_deadline=runner.facts.deadline())
+        #: The same gate under a public name, for the same reason ``budget_guard`` is public: the module-level packet
+        #: builder has to read what the harness has told the model, and a leading-underscore reach across a module
+        #: boundary is how a second path to one field starts. Still one object.
+        self.gate = gate
         #: The same guard, under a name the packet builder can reach without a leading-underscore access from a
         #: module-level function. One object, two names, no second counter.
         self.budget_guard = self.guard
+        self.output_ceiling = 0
 
     def attach_client(self, client: Any) -> None:
         """Attach the client the hook builds the packet with. Called once, by `_drive`."""
@@ -531,10 +651,8 @@ class _BudgetHook(MiddlewareBase):
         ``BUDGET_OUTPUT_TOKENS`` at half the requests it should have been allowed: a budget that reports the wrong
         bound and spends twice what it says.
 
-        The input size is measured from the messages and tools this hook was handed, which are the objects the
-        provider would receive. It is an estimate (characters over four) and a *conservative* one, which is the
-        direction `docs/agent-harness.md:37` requires: an estimate that was too small would let a request past a
-        cap that should have refused it.
+        Assemble the actual ModelClient input first, then reserve. Token estimates use
+        UTF-8 bytes plus framing, not characters/4. Live provider serialization is C08 work.
         """
         if self._gate is not None and self._gate.stop_reason is not None:
             # The run already stopped, so this request must not be reserved or sent. `BudgetExhaustedError` is how
@@ -551,20 +669,22 @@ class _BudgetHook(MiddlewareBase):
         # to propagate: it is not a budget exhaustion, and it carries the reason code the outcome must report.
         self._client.begin_turn()
         packet = self._client.prepare_packet(input_kwargs.get("messages") or [])
-        estimated = int(packet.input_tokens) if packet is not None else _estimate_input_tokens(input_kwargs)
-        # **The step cap is a ceiling, not a meter.** The first version reserved `step_output_tokens` through
-        # `reserve_model_call`, which charges the *cumulative* output allowance — so the spec's 4000-token
-        # allowance was consumed after four requests and every budget test stopped on `BUDGET_OUTPUT_TOKENS`
-        # instead of the bound it named. The two are different things: the per-step cap bounds one request, while
-        # the cumulative cap meters what the provider actually produced. So one model call is reserved here, the
-        # input estimate is charged, and the **real** output usage is added after the answer arrives
-        # (`note_output_tokens`), which is also how `docs/agent-spec.md:44` describes it — 成功按usage结算.
-        self.guard.reserve_model_call_without_output(input_tokens=estimated)
+        if packet is not None:
+            estimated = int(packet.input_tokens)
+        else:
+            self._client.legacy_messages = _with_current_packet(
+                input_kwargs.get("messages") or [],
+                self._runner,
+                self,
+                self._client.observations,
+                self._client.turns,
+            )
+            estimated = _estimate_input_tokens(
+                {"system": self._runner.system, "messages": self._client.legacy_messages}
+            )
+        # Reserve the ceiling before the call; refund only known unused output afterwards.
+        self.output_ceiling = self.guard.reserve_model_request(input_tokens=estimated)
         return await next_handler()
-
-    def note_output_tokens(self, tokens: int) -> None:
-        """Settle a request's **actual** output against the cumulative meter."""
-        self.guard.spend.output_tokens += max(0, tokens)
 
 
 class _GateAwareClient:
@@ -585,6 +705,15 @@ class _GateAwareClient:
         #: Every observation this run has made, in order, so the packet can be built from what is *known*
         #: rather than from how the conversation happened to go (`docs/agent-harness.md:22`).
         self.observations: list[Any] = []
+        # The gate verifies a proposal's citations (C08.1c), and it must verify them against **this** list — the
+        # run's own record — not a copy taken now: the verifier is attached while the run is still learning, so a
+        # snapshot would check every citation against an empty run and refuse them all.
+        gate.verifier = ProposalVerifier(
+            observations=self.observations,
+            pinned_bundle_ids=frozenset(
+                str(bundle) for bundle in (runner.facts.policy_manifest.get("bundle_ids") or [])
+            ),
+        )
         #: How many turns have been asked for, for the packet's `step`.
         self.turns = 0
         #: The run's structured state (C08.1), bound by `_drive`: the facts view the model is shown and the store
@@ -599,6 +728,15 @@ class _GateAwareClient:
         self._packet_step: int | None = None
         #: The last packet that was sent, for the outcome to report.
         self.last_packet: Any = None
+        self.legacy_messages: list[Msg] = []
+        #: The actions the gate **confirmed**, newest last, as P1 history entries (C08.1a-3).
+        #:
+        #: Under C06.4 the model learned its own actions from the SDK transcript; the formal path sends only the
+        #: packet, so this is where they reappear. Bounded by the builder's window rather than by trimming: P1 is a
+        #: mandatory layer (`docs/context-engineering.md:18` keeps it, and only P3/P4 are trimmable), so what the run
+        #: puts there has to be bounded *by construction* — an untrimmable layer that grows with the run is a run that
+        #: ends in ``CONTEXT_REQUIRED_OVERFLOW`` instead of a decision.
+        self.confirmed_actions: list[dict[str, str]] = []
 
     def bind_context(self, *, view: Any, store: Any, guard: Any, system: str) -> None:
         """Attach the run's facts view, observation store and budget guard, before the loop starts."""
@@ -673,12 +811,24 @@ class _GateAwareClient:
             input_revision=self._runner.facts.input_revision,
             line_id=self._runner.facts.line_id,
             description=self._runner.facts.description,
-            manifest_id=_manifest_id(self._runner.facts),
+            manifest_id=self._runner.manifest()["manifest_id"],
             view=self._view,
             observations=self.observations,
             tool_schema=_tool_schema_document(self._runner),
             cumulative_remaining=max(0, budget.input_tokens - spent.input_tokens),
+            history=self.confirmed_actions[-CONFIRMED_ACTION_WINDOW:],
+            # What the harness has already told the model — a no-progress round, or a refusal it may repair. P1,
+            # so it cannot be trimmed away; see `ContextBuilder.build` for why that matters here.
+            notices=list(self._gate.notices),
         )
+
+    def note_confirmed_action(self, decision: Any) -> None:
+        """Record one action the gate confirmed, for the next packet's P1 (C08.1a-3).
+
+        Called after ``ActionGateMiddleware.check`` accepts a decision, which is the moment an action becomes a fact
+        about the run: an action that was refused is not recorded here, because it never happened.
+        """
+        self.confirmed_actions.append({"role": "assistant", "content": _confirmed_action_line(decision)})
 
     def decide(
         self,
@@ -687,6 +837,7 @@ class _GateAwareClient:
         messages: list[Msg],
         context: dict[str, Any] | None = None,
         sent_context: Any = None,
+        max_output_tokens: int | None = None,
     ) -> Any:
         if self._gate.stop_reason is not None:
             # The run has already stopped, so the model is **not asked again**. Without this the SDK kept
@@ -714,68 +865,104 @@ class _GateAwareClient:
             #    the budget position live. Those are facts about the run rather than prose for a provider, and the
             #    C06.4 packet is their existing rendering.
             reply = self._runner.model.decide(
-                system=system,
-                messages=_messages_of_packet(packet, messages),
+                system="",  # P0 already carries the system prompt and action schema.
+                messages=_messages_of_packet(packet),
                 context=_packet_of(self._runner, self._guard, self.observations, self.turns),
                 sent_context=packet,
+                max_output_tokens=self._guard.output_ceiling,
             )
         else:
             reply = self._runner.model.decide(
                 system=system,
-                messages=_with_current_packet(
-                    messages, self._runner, self._guard, self.observations, self.turns
-                ),
+                messages=self.legacy_messages,
+                max_output_tokens=self._guard.output_ceiling,
             )
+        self._guard.guard.settle_model_output(reply.usage.output_tokens, estimated=reply.usage.estimated)
         decision = self._gate.check(reply.decision)
         if decision is None:
-            # Refused: the run stops, and the adapter is given a terminal text so the SDK ends the reply rather
-            # than executing anything. The refusal is already recorded on the gate.
+            if self._gate.repair_message is not None:
+                # Refused, but repairable once (docs/agent-spec.md:52). The reply is *not* turned into a terminal
+                # text: that would end the SDK's loop and spend the one repair on a turn nobody sees. Instead the
+                # SDK is handed a call the permission hook denies, so the refusal travels back as a tool result and
+                # the loop asks the model again — one counted model call, which is the whole cost of a repair.
+                return ModelReply(
+                    decision=_repair_probe(reply.decision),
+                    usage=reply.usage,
+                    mode=reply.mode,
+                    model_alias=reply.model_alias,
+                )
+            # Refused for good: the run stops, and the adapter is given a terminal text so the SDK ends the reply
+            # rather than executing anything. The refusal is already recorded on the gate.
             return ModelReply(
                 decision={"kind": "ESCALATE", "reason_codes": ["REFUSED"], "summary": "the action was refused"},
                 usage=reply.usage,
                 mode=reply.mode,
                 model_alias=reply.model_alias,
             )
+        self.note_confirmed_action(decision)
         return reply
 
 
-def _messages_of_packet(packet: Any, messages: list[Msg]) -> list[Msg]:
-    """The request the model receives: the packet's own turns, then the SDK's tool traffic.
+def _repair_probe(decision: dict[str, Any]) -> dict[str, Any]:
+    """The decision to hand the SDK for a refused action, so the refusal reaches the model as a tool result.
 
-    Two parts, and both are needed:
+    A refused ``READ_TOOL``/``SEARCH_POLICY``/``READ_OBSERVATION`` already renders as a tool call, so it is passed
+    through: the SDK tries to execute exactly what the model asked for, and the permission hook denies it because no
+    decision was accepted. (A tool that does not exist at all is caught one step earlier by the SDK's own
+    "tool not available" path, which also feeds the error back and continues — both are verified in
+    ``agentscope/agent/_agent.py``.)
 
-    * **the packet** — P0's system turn and the P0–P4 body, sent as *text* (``raw_text_message``) rather than as a
-      serialised mapping, because the builder already rendered prose and re-serialising it would leave the model
-      reading a JSON string that contains the packet. The system turn keeps its content but travels as a user message
-      named ``harness``: the adapter separately passes the run's system prompt, and two system turns would let a
-      reader attribute a line to the wrong one.
-    * **the conversation** — what the SDK has recorded for this reply, which is the assistant's tool calls and the
-      harness's tool results. Without it the model would see a fresh packet each turn and no record of what its own
-      last action returned, which is what a P4 index points *into*.
-
-    The opening packet the SDK was seeded with is dropped: the rebuilt one replaces it, and leaving both would show
-    the model two contradictory views of the run (the same rule ``_with_current_packet`` applies to the C06.4 path).
+    A refused **terminal** decision is different: ``ADAPTER`` renders it as a text block, and a turn with no tool
+    call ends the SDK's loop — so handing it through would end the run and spend the repair on nothing. It is
+    replaced by a read of a whitelisted tool instead, which the gate denies. The probe cannot execute: the five
+    bridges accept an empty argument mapping (``required: []``), and execution only happens after the permission
+    hook returns ALLOW, which it cannot while no decision has been accepted.
     """
-    rebuilt = [
-        raw_text_message(message["content"], name="harness", role="user")
-        if message["role"] == "system"
-        else raw_text_message(message["content"], name="harness", role=cast("Any", message["role"]))
+    kind = str(decision.get("kind") or "")
+    if kind in _TOOL_CALL_KINDS:
+        return dict(decision)
+    probe: dict[str, Any] = {"kind": READ_TOOL, "tool_name": sorted(WHITELIST)[0], "arguments": {}}
+    return probe
+
+
+def _confirmed_action_line(decision: Any) -> str:
+    """One deterministic line naming an action the gate confirmed, for P1.
+
+    Readable rather than a digest: :func:`~resolveflow.harness.control.action_digest` answers "was this the same
+    request as last time", which the no-progress rule needs, while P1 answers "what has this run already done", which
+    a reader — a model, or someone reading a stored packet — has to be able to see.
+
+    The model's free text (``reasoning``, ``summary``) is deliberately **excluded**. P1 is untrimmable, so anything
+    admitted there must be bounded by construction, and a model's own explanation is neither bounded nor evidence:
+    ``docs/context-engineering.md:11`` refuses to let MODEL_INFERENCE become authority through repetition, and
+    putting prose in a layer that can never be trimmed is exactly how that would happen by accident.
+    """
+    parts = [str(getattr(decision, "kind", "") or "")]
+    for name in ("tool_name", "observation_id"):
+        value = getattr(decision, name, None)
+        if value:
+            parts.append(str(value))
+    arguments = getattr(decision, "arguments", None) or {}
+    if isinstance(arguments, dict):
+        for key in sorted(arguments):
+            value = arguments[key]
+            if isinstance(value, (str, int, float)) and not isinstance(value, bool):
+                # Bounded per value: an argument is model-supplied and could otherwise be arbitrarily long, which is
+                # the second way an untrimmable layer grows without limit.
+                parts.append(f"{key}={str(value)[:MAX_ACTION_ARGUMENT_CHARS]}")
+    return " ".join(part for part in parts if part)
+
+
+def _messages_of_packet(packet: Any) -> list[Msg]:
+    """Send only the bounded packet; observations/history must enter through the builder.
+
+    P0 retains its system role. SDK hints and raw tool transcripts are not appended after
+    trimming; doing so would bypass both the packet hash and the input reservation.
+    """
+    return [
+        raw_text_message(message["content"], name="harness", role=cast("Any", message["role"]))
         for message in packet.messages
     ]
-    rest = [message for message in messages if not (message.name == "harness" and message.role == "user")]
-    return [*rebuilt, *rest]
-
-
-def _manifest_id(facts: RunFacts) -> str:
-    """The pinned manifest as one string, for the packet's ``manifest_id``.
-
-    ``bundle@hash``: the hash alone would not say *which* policy set it belongs to, and the bundle alone would not
-    say which version — ``docs/policy-rag.md:25`` requires a citation to carry both.
-    """
-    manifest = facts.policy_manifest or {}
-    bundles = [str(bundle) for bundle in (manifest.get("bundle_ids") or [])]
-    manifest_hash = str(manifest.get("manifest_hash") or "")
-    return f"{bundles[0] if bundles else 'unpinned'}@{manifest_hash[:16]}"
 
 
 def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
@@ -793,6 +980,33 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
         "tools": tools,
         "read_only": True,
         "identity_is_fixed_by_the_run": True,
+        # What a PROPOSE may carry (C08.1c). Named here because a citation has to be *checkable* and the gate
+        # refuses one it cannot match against the run's own record: a model told only "cite what you saw" cannot
+        # know the member names or that a refund is refused without them. This is the ABI, not routing — it says
+        # which fields exist and what makes them checkable, never which case deserves which recommendation.
+        "proposal": {
+            # `case_type` is the run's own classification and the case contract requires it in `ProposalPayload`
+            # (contracts/core/openapi-case.yaml:1622, "the run classified the case"). It classifies and never routes:
+            # docs/agent-harness.md:9 keeps the action path driven by the observations, not by a case type.
+            "carries": ["recommended_action", "case_type", "reason_codes", "summary", "reasoning"],
+            "case_type": [member.value for member in CaseType],
+            "citations": {
+                "evidence_refs": ["observation_id", "source_ref", "source_version", "content_hash"],
+                "policy_refs": ["bundle_id", "version", "rule_id", "chunk_id", "content_hash"],
+                "missing_evidence": "use when the evidence is not enough; a refund may not also report it",
+            },
+            "rule": (
+                "copy these values from what you were shown, never invent them; a REFUND must cite at least one "
+                "evidence_ref and one policy_ref, and a citation this run cannot match is refused"
+            ),
+        },
+        # What an ASK_CUSTOMER may carry. `field` names the part of the line the question is about, because the case
+        # service routes the answer by it (contracts/core/openapi-case.yaml:2146).
+        "question": {
+            "carries": ["questions", "reason_codes"],
+            "questions": ["question_id", "field", "prompt"],
+            "rule": "at most three aggregated questions, each naming the field it is about",
+        },
     }
     if runner.policy_index is not None:
         document["local_reads"] = [POLICY_SEARCH_TOOL_NAME, OBSERVATION_READ_TOOL_NAME]
@@ -839,7 +1053,7 @@ def _estimate_input_tokens(input_kwargs: dict[str, Any]) -> int:
     )
     if tools:
         rendered += json.dumps(tools, ensure_ascii=False, default=str)
-    return max(1, len(rendered) // 4)
+    return estimate_tokens(str(input_kwargs.get("system") or "") + rendered) + PROVIDER_WRAPPER_ALLOWANCE
 
 
 def _with_current_packet(
@@ -868,12 +1082,12 @@ def _with_current_packet(
         # contradictory views of the run.
         if not (message.name == "harness" and message.role == "user")
     ]
-    return [rebuilt, *rest]
+    # SDK state mutates Msg objects in later turns. Freeze this request before counting
+    # so its saved input cannot acquire later tool blocks or hints after the reservation.
+    return [rebuilt, *(message.model_copy(deep=True) for message in rest)]
 
 
-def _packet_of(
-    runner: AgentScopeRunner, guard: _BudgetHook, observations: list[Any], turn: int
-) -> dict[str, Any]:
+def _packet_of(runner: AgentScopeRunner, guard: _BudgetHook, observations: list[Any], turn: int) -> dict[str, Any]:
     """The packet for one turn: the run's facts, the budget position, and every observation so far.
 
     The two counters come from the **guard**, not from the observation list. They used to be derived — "tool
@@ -884,6 +1098,10 @@ def _packet_of(
     packet = _starting_packet(runner, guard)
     packet["step"] = turn
     packet["budget"] = _budget_position(runner, guard)
+    # What the harness has told the model so far. Part of the *packet* rather than an appended SDK message, so the
+    # legacy path (which sends this packet as the request) delivers it and the structured view a script reads
+    # reports the same thing the model was given.
+    packet["notices"] = list(guard.gate.notices)
     packet["observations"] = [observation.model_dump(mode="json") for observation in observations]
     return packet
 

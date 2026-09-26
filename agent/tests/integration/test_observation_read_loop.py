@@ -22,6 +22,7 @@ from resolveflow.harness.model import MockModelClient
 from resolveflow.harness.observation_read import ObservationStore
 from resolveflow.harness.sdk_runner import ActionGateMiddleware, AgentScopeRunner
 from resolveflow.harness.vocabulary import RunFacts
+from tests.conftest import input_text_of
 
 RUN = "11111111-1111-4111-8111-111111111111"
 
@@ -67,9 +68,12 @@ def observation(observation_id: str = "obs-1", *, blob: int = 40) -> ToolObserva
 
 
 def propose() -> dict[str, object]:
+    """``MANUAL_REVIEW``, not ``REFUND``: since C08.1c a refund must cite a policy rule the run retrieved, and this
+    file is about reading observations back — not about citations (``docs/agent-harness.md:13``)."""
     return {
         "kind": "PROPOSE",
-        "recommended_action": "REFUND",
+        "case_type": "LOGISTICS",
+        "recommended_action": "MANUAL_REVIEW",
         "reason_codes": ["LOST_CONFIRMED"],
         "summary": "承运商判定丢失",
         "reasoning": "the shipment trace says LOST",
@@ -119,8 +123,11 @@ def test_a_read_observation_action_executes_and_the_text_reaches_the_model(store
     assert "LOST" in read_back.result["text"], "the text the run read is in the observation"
     assert read_back.result["total_length"] >= len(read_back.result["text"])
 
-    # And the model was shown it: the second call's packet carries the read-back.
-    assert model.packets[1]["observations"], "the second model call was shown no observation"
+    # And the model was shown it — in the request, not only in the structured channel a script reads. The read-back
+    # observation is the newest one, so its window is what the next packet's P3 excerpt carries (C08.1a).
+    sent = input_text_of(model, 1)
+    assert "read_observation" in sent, f"the second model call was shown no read-back: {sent}"
+    assert "LOST" in sent, f"the window the run read is not in the request the model received: {sent}"
 
 
 def test_a_read_spends_a_local_read_and_a_tool_attempt(store: ObservationStore) -> None:

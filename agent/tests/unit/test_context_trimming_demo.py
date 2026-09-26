@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
-from resolveflow.harness.context import ContextBuilder
+from resolveflow.harness.context import ContextBuilder, OverflowRefusedError
 from resolveflow.harness.facts import facts_hash
 from tests.unit.context_fixtures import MANIFEST, RUN, build_packet, load
 
@@ -89,7 +89,11 @@ def _smallest_cap_that_keeps_everything(scenario, view, observations) -> int:
     low, high = 1, 8192
     while low < high:
         middle = (low + high) // 2
-        packet = _build(scenario, view, observations, cap=middle)
+        try:
+            packet = _build(scenario, view, observations, cap=middle)
+        except OverflowRefusedError:
+            low = middle + 1
+            continue
         if packet.omitted_refs:
             low = middle + 1
         else:
@@ -172,7 +176,8 @@ def test_the_facts_view_is_a_pure_input_to_the_builder() -> None:
     snapshot = [fact.as_dict() for fact in view.facts]
     observations = [*scenario.observations, *_earlier_reads()]
 
-    for cap in (None, 700, 500):
+    mandatory = _build(scenario, view, [], cap=None).input_tokens
+    for cap in (None, mandatory + 100, mandatory):
         _build(scenario, view, observations, cap=cap)
 
     assert facts_hash(view) == before

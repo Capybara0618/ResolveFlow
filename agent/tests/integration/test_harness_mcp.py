@@ -36,6 +36,7 @@ from resolveflow.harness.model import MockModelClient
 from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import REASON_COMPLETED, RunFacts
 from resolveflow.tools.credential import credential_source
+from tests.conftest import input_text_of
 from tests.integration import stub_upstream
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -101,6 +102,7 @@ def read(tool_name: str, **arguments: Any) -> dict[str, Any]:
 def propose(action: str = "REFUND") -> dict[str, Any]:
     return {
         "kind": "PROPOSE",
+        "case_type": "LOGISTICS",
         "recommended_action": action,
         "reason_codes": ["LOST_IN_TRANSIT"],
         "summary": "the trace shows the parcel was never delivered",
@@ -237,7 +239,7 @@ def test_the_runner_reads_through_mcp_and_decides(upstream: Any) -> None:
     """
     url, log = upstream
     tool = executor(url)
-    model = MockModelClient([read("get_order_context"), propose()])
+    model = MockModelClient([read("get_order_context"), propose("MANUAL_REVIEW")])
     try:
         result = AgentScopeRunner(model=model, tools=tool, facts=facts()).run()
     finally:
@@ -248,13 +250,18 @@ def test_the_runner_reads_through_mcp_and_decides(upstream: Any) -> None:
     assert [entry["action"] for entry in result.trajectory] == ["get_order_context", "PROPOSE"]
     assert len(requests_to(log)) == 1
 
-    # The observation the tool produced is the one the model was shown, version and hash included: a harness
-    # that talked to MCP but handed the model something else would pass every other assertion here.
-    handed_back = model.packets[1]["observations"]
-    assert len(handed_back) == 1
-    assert handed_back[0]["tool_name"] == "get_order_context"
-    assert handed_back[0]["source_version"] == "3"
-    assert handed_back[0]["content_hash"] == result.observations[0].content_hash
+    # The observation the tool produced is the one the model was shown: a harness that talked to MCP but handed the
+    # model something else would pass every other assertion here. Read through the **request** the model received
+    # (C08.1a) rather than the structured `packets` channel, which under the formal builder path is the script's own
+    # view — a channel the model never sees cannot carry a claim about what it saw.
+    observation = result.observations[0]
+    sent = input_text_of(model, 1)
+    assert observation.tool_name in sent, f"the observation is not in the request the model received: {sent}"
+    assert observation.source_version in sent, f"its version is part of what makes it citable: {sent}"
+    # The identity a citation needs stays in the run's own record. The rendered packet carries source and version but
+    # no hash, so this asserts what the run kept — not something the model was supposedly shown.
+    assert len(result.observations) == 1
+    assert len(observation.content_hash) == 64
 
 
 def test_a_tool_failure_does_not_stop_the_run(upstream: Any) -> None:
@@ -274,8 +281,11 @@ def test_a_tool_failure_does_not_stop_the_run(upstream: Any) -> None:
     assert result.completed is True
     assert result.decision is not None and result.decision.recommended_action == "MANUAL_REVIEW"
     assert result.spend.tool_attempts == 1, "a failed read is still an attempt and is counted"
-    error = model.packets[1]["observations"][0]["error"]
-    assert error["code"] == "NOT_FOUND"
+    # `docs/agent-harness.md:51` is about what the *model* is handed, so the assertion reads the request. The error
+    # code has to survive into it: a code that only existed in the script's structured view would let this claim pass
+    # while the model was told nothing (C08.1a).
+    sent = input_text_of(model, 1)
+    assert "NOT_FOUND" in sent, f"the failed read was not handed back to the model: {sent}"
 
 
 def test_the_runner_can_read_two_different_tools_in_one_run(upstream: Any) -> None:
@@ -291,7 +301,7 @@ def test_the_runner_can_read_two_different_tools_in_one_run(upstream: Any) -> No
         [
             read("get_order_context"),
             read("get_refund_status"),
-            propose(),
+            propose("MANUAL_REVIEW"),
         ]
     )
     try:
@@ -536,7 +546,7 @@ def test_a_run_credential_that_cannot_be_minted_stops_the_read(upstream: Any) ->
         service_token="tool-service-token",
         static_token="stub-service-token",
     )
-    model = MockModelClient([read("get_order_context"), propose()])
+    model = MockModelClient([read("get_order_context"), propose("MANUAL_REVIEW")])
     try:
         result = AgentScopeRunner(model=model, tools=tool, facts=facts()).run()
     finally:

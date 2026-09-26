@@ -186,6 +186,7 @@ def read(tool_name: str, **arguments: Any) -> dict[str, Any]:
 def propose(action: str = "REFUND", **extra: Any) -> dict[str, Any]:
     return {
         "kind": PROPOSE,
+        "case_type": "LOGISTICS",
         "recommended_action": action,
         "reason_codes": ["LOST_IN_TRANSIT"],
         "summary": "the trace shows the parcel was never delivered",
@@ -206,7 +207,7 @@ def test_one_read_then_a_proposal_is_two_model_calls_and_one_tool_call() -> None
     Two model calls — one to choose the read, one to decide after seeing it. A harness that already knew the
     route would need one, and that difference is the whole claim.
     """
-    model = MockModelClient([read("get_order_context"), propose()])
+    model = MockModelClient([read("get_order_context"), propose("MANUAL_REVIEW")])
     tools = StubTools(observation())
 
     result = run(model, tools)
@@ -214,7 +215,9 @@ def test_one_read_then_a_proposal_is_two_model_calls_and_one_tool_call() -> None
     assert result.completed is True
     assert result.reason_code == REASON_COMPLETED
     assert result.decision is not None
-    assert result.decision.recommended_action == "REFUND"
+    # A non-refund proposal, because since C08.1c a refund must cite a policy rule the run retrieved and this run
+    # never searched policy (docs/agent-harness.md:13, contracts/core/agent-proposal.schema.json).
+    assert result.decision.recommended_action == "MANUAL_REVIEW"
     assert model.calls == 2
     assert tools.calls == [("get_order_context", {})]
     assert tools.runs == [RUN_ID]
@@ -228,19 +231,19 @@ def test_the_observation_reaches_the_next_model_call() -> None:
     tool's arguments must be the ones the *model* chose. Asserting only "a proposal came out" would pass for a
     harness that ignored the observation entirely.
     """
-    model = MockModelClient([read("get_shipment_trace", limit=3), propose()])
+    model = MockModelClient([read("get_shipment_trace", limit=3), propose("MANUAL_REVIEW")])
     tools = StubTools(observation("get_shipment_trace", carrier_conclusion="IN_TRANSIT"))
 
     run(model, tools)
 
     # What the model chose is what ran, arguments and all.
     assert tools.calls == [("get_shipment_trace", {"limit": 3})]
-    # And the tool's answer is in the input of the model's next call. Read through `input_text_of` rather than
-    # `model.packets`, because the loop's input shape can be the evidence packet or the P0–P4 context packet and this
-    # claim is about neither of them: what matters is that the shipment conclusion the tool returned is visible to the
-    # second call. (Reaching into `packets` is what made this test fail when the default flipped; the claim was fine,
-    # the access path was not.) That the same fact *also* reaches the model as a rendered `key=value` P2 line is the
-    # other shape's business, and `tests/integration/test_context_wiring.py` asserts it with the builder on.
+    # And the tool's answer is in the input of the model's next call. Read through `input_text_of`, which is the
+    # messages the model was actually sent: `model.packets` holds the packet a *script* reads, and under the formal
+    # ContextBuilder path that is the run's structured `context`, a channel the model never sees. A claim about what
+    # the model was shown has to read the request, or a hidden input could satisfy it. The claim itself is
+    # shape-independent — the evidence travels either as the C06.4 JSON packet or as a rendered P2/P3 line — and
+    # `tests/integration/test_context_wiring.py` pins the P0–P4 rendering specifically.
     second = input_text_of(model, 1)
     assert "IN_TRANSIT" in second, f"the second model call did not carry the first call's observation: {second}"
 
@@ -293,7 +296,9 @@ def test_the_model_call_budget_stops_the_loop_and_says_which_budget_ran_out() ->
     model = MockModelClient.always(read("get_order_context"))
     tools = StubTools(*[fresh_observation(index=index) for index in range(50)])
 
-    result = run(model, tools)
+    # Isolate the call-count bound. With honest UTF-8 input accounting the growing
+    # legacy transcript can hit its input cap first; that is a separate valid stop.
+    result = run(model, tools, budget=RunBudget(input_tokens=1_000_000, step_input_tokens=100_000))
 
     assert result.completed is False
     assert result.reason_code == REASON_BUDGET_MODEL_CALLS
@@ -397,6 +402,25 @@ def test_two_identical_actions_without_new_evidence_are_reported_then_stopped() 
     assert sum(1 for notice in result.notices if notice.startswith("NO_PROGRESS")) == 2
 
 
+def test_a_no_progress_notice_reaches_the_model_not_only_the_result() -> None:
+    """``docs/agent-spec.md:44``: the first two no-evidence repeats are **fed back**.
+
+    The assertion above says the harness *recorded* two notices; this says the model was **told**, which is the
+    claim the rule is actually about — a notice only the result carries is a stop the model never saw. Read from the
+    sent messages (C08.1a), so a mock that could have found the notice in a hidden structured channel would not
+    satisfy it, and asserted as part of P1 because that is the layer that cannot be trimmed away.
+    """
+    model = MockModelClient.always(read("get_order_context"))
+    tools = StubTools(*[observation() for _ in range(20)])
+
+    run(model, tools, budget=_bound_under_test(model_calls=12))
+
+    sent = input_text_of(model, -1)
+
+    assert sent.count("[harness] NO_PROGRESS") == 2, f"the model was not told twice: {sent}"
+    assert "【P1·notice_0】" in sent, f"the notice is not in the mandatory layer: {sent}"
+
+
 def test_a_different_page_is_not_mistaken_for_no_progress() -> None:
     """``docs/agent-spec.md:44``: 不同版本/下一页不误判.
 
@@ -444,8 +468,14 @@ def test_an_action_the_model_may_not_take_is_refused(decision: dict[str, Any]) -
 
 
 def test_a_refused_action_ends_the_run_instead_of_being_executed() -> None:
-    """A refusal must not reach the tool: the harness stops and records why."""
-    model = MockModelClient([{"kind": "EXECUTE_REFUND", "arguments": {"amount_minor": 2599}}])
+    """A refusal must not reach the tool: the harness feeds it back once, then stops and records why.
+
+    Since C08.1c-2 the *first* refusal is repairable (``docs/agent-spec.md:52``), so this model keeps emitting the
+    same forbidden action: it is refused, its repair turn is denied, and the refusal that ends the run is the
+    second. The claim that matters is unchanged and is the one asserted — **the tool never ran** — because a repair
+    that executed the action it was repairing would be the worst of both.
+    """
+    model = MockModelClient.always({"kind": "EXECUTE_REFUND", "arguments": {"amount_minor": 2599}})
     tools = StubTools()
 
     result = run(model, tools)
@@ -453,6 +483,7 @@ def test_a_refused_action_ends_the_run_instead_of_being_executed() -> None:
     assert tools.calls == []
     assert result.completed is False
     assert result.reason_code == "ACTION_REFUSED"
+    assert model.calls == 2, "one refused turn, one repair turn, then the stop"
 
 
 def test_the_whitelist_is_the_specs_five_tools() -> None:
@@ -483,7 +514,7 @@ def test_ask_customer_is_allowed_and_ends_the_run() -> None:
         [
             {
                 "kind": ASK_CUSTOMER,
-                "questions": [{"question_id": "q1", "prompt": "which parcel?"}],
+                "questions": [{"question_id": "q1", "field": "shipment_photo", "prompt": "which parcel?"}],
                 "reason_codes": ["NEEDS_EVIDENCE"],
             }
         ]
@@ -495,11 +526,61 @@ def test_ask_customer_is_allowed_and_ends_the_run() -> None:
     assert result.decision.kind == ASK_CUSTOMER
 
 
+def test_a_propose_that_does_not_classify_the_case_is_refused() -> None:
+    """The case contract types ``case_type`` as required, and **the run** is who classified the case.
+
+    ``contracts/core/openapi-case.yaml:1622`` requires it and explains why ("the run classified the case and named its
+    codes"). A proposal composed without one is a body the case service refuses structurally
+    (``docs/core-contracts.md:64``), so the ABI refuses it while it is still the model's to fix — which is what the
+    run's one repair is for — rather than filing a callback that can only ever fail.
+    """
+    with pytest.raises(ActionRefusedError, match="case_type"):
+        validate_decision(
+            {
+                "kind": PROPOSE,
+                "recommended_action": "REFUND",
+                "reason_codes": ["LOST_CONFIRMED"],
+                "summary": "承运商判定丢失",
+            }
+        )
+
+
+def test_a_case_type_the_contract_does_not_declare_is_refused() -> None:
+    """It classifies; it does not invent a category the case service would refuse as a structural error."""
+    with pytest.raises(ActionRefusedError, match="case type"):
+        validate_decision(
+            {
+                "kind": PROPOSE,
+                "recommended_action": "REFUND",
+                "reason_codes": ["LOST_CONFIRMED"],
+                "case_type": "WHATEVER",
+            }
+        )
+
+
+def test_a_read_may_not_carry_a_case_type() -> None:
+    """A classification smuggled through a read is a proposal's member on an action that is not a proposal."""
+    with pytest.raises(ActionRefusedError, match="case_type"):
+        validate_decision({"kind": READ_TOOL, "tool_name": "get_order_context", "case_type": "LOGISTICS"})
+
+
+def test_a_question_that_does_not_name_its_field_is_refused() -> None:
+    """``AgentQuestion`` requires ``field``, and the case service routes the answer by it."""
+    with pytest.raises(ActionRefusedError):
+        validate_decision(
+            {
+                "kind": ASK_CUSTOMER,
+                "questions": [{"question_id": "q1", "prompt": "包裹是否已收到？"}],
+                "reason_codes": ["NEEDS_EVIDENCE"],
+            }
+        )
+
+
 def test_more_than_three_questions_is_refused() -> None:
     """``docs/agent-spec.md:18``: ASK_CUSTOMER takes 最多3个聚合问题."""
     decision = {
         "kind": ASK_CUSTOMER,
-        "questions": [{"question_id": f"q{index}", "prompt": "?"} for index in range(4)],
+        "questions": [{"question_id": f"q{index}", "field": "shipment_photo", "prompt": "?"} for index in range(4)],
         "reason_codes": ["NEEDS_EVIDENCE"],
     }
     with pytest.raises(ActionRefusedError):

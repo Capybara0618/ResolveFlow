@@ -31,6 +31,11 @@ from resolveflow.harness.facts import FactsView, facts_hash
 HASH_A = "a" * 64
 HASH_B = "b" * 64
 
+
+def test_chinese_token_estimate_is_not_characters_divided_by_three() -> None:
+    assert estimate_tokens("退款金额与政策冲突") >= len("退款金额与政策冲突")
+
+
 SYSTEM = "You are investigating one after-sales case for one order line."
 TOOL_SCHEMA = {"READ_TOOL": {"tools": ["get_order_context", "get_shipment_trace"]}}
 
@@ -246,9 +251,7 @@ def test_the_recent_observations_are_p3_and_the_earlier_ones_are_p4_index_entrie
     P4 entirely: the index that exists to make prose reachable was never sent, and no test noticed because none
     asserted the two layers *differ*. This one builds three observations and asserts which layer each is in.
     """
-    observations = [
-        observation(observation_id=f"obs-{index}", source_ref=f"order:{index}") for index in range(3)
-    ]
+    observations = [observation(observation_id=f"obs-{index}", source_ref=f"order:{index}") for index in range(3)]
     packet = build(observations=observations)
     body = packet.messages[1]["content"]
 
@@ -291,6 +294,7 @@ def test_a_long_observation_is_excerpted_and_says_where_the_rest_is() -> None:
     payload = body.split("get_order_context: ", 1)[1]
     assert json.loads(payload)["blob"].startswith("<20000")
 
+
 def test_two_observations_with_the_same_id_are_one_entry_and_the_drop_is_recorded() -> None:
     """``:27``'s 去重复, with the omission recorded rather than silent."""
     packet = build(observations=[observation(), observation(result={"line_paid_amount": 1})])
@@ -312,22 +316,19 @@ def test_trimming_drops_the_oldest_sections_and_records_each_one() -> None:
     history survives longest. What must not happen is a half-sent section: an omission is a whole entry, and it
     says why.
     """
-    observations = [
-        observation(observation_id=f"obs-{index}", source_ref=f"order:{index}") for index in range(6)
-    ]
-    # Measured, not guessed: see the note in the cross-hash test below for the three caps that were wrong.
+    observations = [observation(observation_id=f"obs-{index}", source_ref=f"order:{index}") for index in range(6)]
+    # One token below the complete rendered request drops the oldest optional index.
+    cap = build(observations=observations).input_tokens - 1
     packet = build(
         observations=observations,
-        builder=ContextBuilder(system_prompt=SYSTEM, provider_capacity=400 + 512, output_reserve=256),
+        builder=ContextBuilder(system_prompt=SYSTEM, provider_capacity=cap + 512, output_reserve=256),
     )
 
     assert packet.omitted_refs, "something had to go at this cap"
     assert all(entry["reason"] for entry in packet.omitted_refs), "every omission says why"
     assert packet.input_tokens <= packet.input_cap
     # Oldest first: the kept index entries are the *later* ones.
-    kept_indexes = sorted(
-        section for section in packet.selected_refs if section.startswith("index:")
-    )
+    kept_indexes = sorted(section for section in packet.selected_refs if section.startswith("index:"))
     assert kept_indexes, "the newest index entries survive"
     assert "index:obs-0" not in packet.selected_refs, "the oldest index entry is the first to go"
     # And nothing half-sent: every kept P4 line is a whole line.
@@ -362,13 +363,10 @@ def test_trimming_does_not_change_the_protected_fact_hash() -> None:
     tight = build(
         view=view,
         observations=observations,
-        # The cap has to be genuinely tight for this comparison to mean anything, and three guesses were wrong
-        # before this was measured: the first caps still fitted every section, so both packets were byte-identical
-        # and the assertion below failed — correctly, in each case. Measured with `trace_trim.py`: P0+P1+P2 cost 87
-        # tokens, the framing allowance adds 256, and the optional P3/P4 entries cost 104 — so a cap below 447 is
-        # where trimming starts, and below 343 the *mandatory* layers stop fitting, which is the other test.
-        # 400 leaves ~57 tokens for P3/P4, so the newest content stays and the oldest index entries go.
-        builder=ContextBuilder(system_prompt=SYSTEM, provider_capacity=400 + 512, output_reserve=256),
+        # Keep every protected field, but force at least one optional section out.
+        builder=ContextBuilder(
+            system_prompt=SYSTEM, provider_capacity=generous.input_tokens - 1 + 512, output_reserve=256
+        ),
     )
 
     assert generous.protected_fact_hash == tight.protected_fact_hash

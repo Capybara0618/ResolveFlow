@@ -32,17 +32,21 @@ from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.harness.facts import Fact, FactStatus, FactsView, facts_hash
 
 __all__ = [
+    "CONFIRMED_ACTION_WINDOW",
     "CONTEXT_REQUIRED_OVERFLOW",
     "DEFAULT_INPUT_CAP",
     "DEFAULT_OUTPUT_RESERVE",
+    "MAX_ACTION_ARGUMENT_CHARS",
     "MAX_EXCERPT_CHARS",
     "PROVIDER_WRAPPER_ALLOWANCE",
     "ContextBuilder",
     "ContextPacket",
     "Layer",
     "OverflowRefusedError",
+    "canonical_json",
     "estimate_tokens",
     "extract_facts",
+    "hash_document",
 ]
 
 #: ``docs/context-engineering.md:27``: the absolute ceiling for one request's input.
@@ -71,6 +75,19 @@ MAX_EXCERPT_CHARS: Final = 8 * 1024
 #: what a decision is made from. A larger window pushes the index out of the budget; a smaller one puts the step's
 #: own evidence behind a read (``READ_OBSERVATION``) the model would have to know to make.
 OBSERVATION_WINDOW: Final = 2
+
+#: How many of the run's most recent **confirmed actions** P1 carries (C08.1a-3).
+#:
+#: P1 is a mandatory layer — only P3/P4 are trimmable — so this window exists for a different reason than
+#: :data:`OBSERVATION_WINDOW`: P3 can afford to be generous because the trim can take it back, while anything placed
+#: in P1 stays until the run ends. The run's own bounds make a small window sufficient: ``docs/agent-spec.md:40``
+#: allows 12 model calls and 16 tool attempts, and the newest few actions are what "what have I already tried" means
+#: for the next decision. The full sequence stays in the outcome's ``trajectory``.
+CONFIRMED_ACTION_WINDOW: Final = 4
+
+#: How much of one action argument P1 admits. An argument is model-supplied, so without a bound a single action could
+#: push an untrimmable layer past the cap.
+MAX_ACTION_ARGUMENT_CHARS: Final = 64
 
 #: The reason code ``docs/context-engineering.md:27`` names for "even after indexing, this does not fit".
 CONTEXT_REQUIRED_OVERFLOW: Final = "CONTEXT_REQUIRED_OVERFLOW"
@@ -111,16 +128,12 @@ TRIMMABLE_LAYERS: Final[frozenset[str]] = frozenset({Layer.P3, Layer.P4})
 
 
 def estimate_tokens(text: str) -> int:
-    """A conservative token estimate: characters over three, minimum one.
+    """UTF-8 byte allowance, not a provider tokenizer or a precise billing claim.
 
-    Over three rather than the four the budget hook uses, and the difference is deliberate: Chinese text is
-    roughly one token per character to one per two, so four-characters-per-token would *under*-count exactly the
-    corpus this project has, and under-counting is the direction that lets an over-long request through. The
-    estimate is still an estimate, which is why a packet records ``token_count_mode``.
+    Unlike characters/3 this does not undercount Chinese text. Provider-specific framing
+    and live tokenization must still be verified when the real model client lands.
     """
-    if not text:
-        return 0
-    return max(1, len(text) // 3)
+    return len(text.encode("utf-8"))
 
 
 #: The fields each tool contributes to P2, with the JSON path they live at in ``observation.result``.
@@ -139,8 +152,7 @@ EXTRACTED_FIELDS: Final[dict[str, dict[str, str]]] = {
     },
     "get_refund_status": {
         "line_refunded_amount_minor": "refunded_amount",
-        "line_reserved_amount_minor": "reserved_amount",
-        "line_refundable_amount_minor": "refundable_amount",
+        "line_reserved_amount_minor": "reserved_refund_amount",
         "line_refund_state": "state",
     },
     "get_shipment_trace": {
@@ -322,6 +334,7 @@ class ContextBuilder:
         tool_schema: dict[str, Any],
         cumulative_remaining: int | None = None,
         history: list[dict[str, str]] | None = None,
+        notices: list[str] | None = None,
         now: str | None = None,
     ) -> ContextPacket:
         """Build the packet, or raise :class:`OverflowRefusedError` naming what did not fit.
@@ -329,6 +342,13 @@ class ContextBuilder:
         ``history`` is the previous turns' questions and answers, which ``docs/context-engineering.md:19`` puts in
         P1. It arrives already rendered (the loop owns the conversation) and is trimmed from the **oldest** end
         when P1 does not fit, because the most recent exchange is what the current question depends on.
+
+        ``notices`` is what the harness has to tell the model that is neither a fact nor an observation: a
+        no-progress round (``docs/agent-spec.md:44``) or a refused action it may repair once
+        (``docs/agent-spec.md:52``). Rendered in P1 **after** history, because it is the most recent thing said to
+        the model and the thing it must act on next. P1 rather than a new layer on purpose: P1 is mandatory, so a
+        notice cannot be trimmed away and leave the model owing a correction it was never shown — which is exactly
+        what happened while these were recorded on the result and never sent.
         """
         cap = self.input_cap(cumulative_remaining=cumulative_remaining)
         sections: list[_Section] = []
@@ -336,19 +356,14 @@ class ContextBuilder:
 
         # P0 — the system prompt and the action/tool schema. Never trimmed: 不可裁剪.
         sections.append(_Section(layer=Layer.P0, label="system", text=self.system_prompt))
-        sections.append(
-            _Section(layer=Layer.P0, label="tool_schema", text=_render_tool_schema(tool_schema))
-        )
+        sections.append(_Section(layer=Layer.P0, label="tool_schema", text=_render_tool_schema(tool_schema)))
 
         # P1 — the request itself and what has already been asked and answered.
         sections.append(
             _Section(
                 layer=Layer.P1,
                 label="request",
-                text=(
-                    f"当前诉求：{description}\n"
-                    f"run={run_id} case={case_id} revision={input_revision} line={line_id}"
-                ),
+                text=(f"当前诉求：{description}\nrun={run_id} case={case_id} revision={input_revision} line={line_id}"),
             )
         )
         for index, turn in enumerate(history or []):
@@ -358,6 +373,15 @@ class ContextBuilder:
                     label=f"turn_{index}",
                     text=f"[{turn.get('role', 'user')}] {turn.get('content', '')}",
                     ref=f"turn:{index}",
+                )
+            )
+        for index, notice in enumerate(notices or []):
+            sections.append(
+                _Section(
+                    layer=Layer.P1,
+                    label=f"notice_{index}",
+                    text=f"[harness] {notice}",
+                    ref=f"notice:{index}",
                 )
             )
 
@@ -387,7 +411,7 @@ class ContextBuilder:
         mandatory = [section for section in sections if section.layer not in TRIMMABLE_LAYERS]
         optional = [section for section in sections if section.layer in TRIMMABLE_LAYERS]
 
-        mandatory_tokens = sum(section.tokens for section in mandatory) + self._framing_tokens
+        mandatory_tokens = self._rendered_tokens(mandatory)
         if mandatory_tokens > cap:
             # 转索引后仍超限 → 转人工 (docs/context-engineering.md:27). P0/P1/P2 are exactly the layers that may
             # not be dropped, so there is nothing left to index: the honest outcome is a refusal a human reads,
@@ -402,7 +426,6 @@ class ContextBuilder:
             )
 
         kept = list(mandatory)
-        remaining = cap - mandatory_tokens
         # **Oldest first** within the trimmable layers, and content before index.
         #
         # The first version dropped whole layers, so P4 was all-or-nothing: a cap that could not fit every index
@@ -412,9 +435,8 @@ class ContextBuilder:
         # P3 is ordered before P4 because an index entry is useless without the capability to read it back, while a
         # content-bearing excerpt is directly usable.
         for section in _trimmable_oldest_first(optional):
-            if section.tokens <= remaining:
+            if self._rendered_tokens([*kept, section]) <= cap:
                 kept.append(section)
-                remaining -= section.tokens
             else:
                 omitted.append(_omission(section, "would not fit the remaining input budget"))
 
@@ -433,12 +455,12 @@ class ContextBuilder:
             messages=messages,
             tool_schema_hash=_hash_json(tool_schema),
             token_count_mode=self.token_count_mode,
-            input_tokens=sum(section.tokens for section in kept) + self._framing_tokens,
+            input_tokens=self._rendered_tokens(kept),
             input_cap=cap,
             selected_refs=selected,
             omitted_refs=tuple(omitted),
             protected_fact_hash=protected,
-            context_hash=_hash_messages(messages, self.system_prompt),
+            context_hash=_hash_messages(messages, ""),
             facts=tuple(fact.as_dict() for fact in view.live()),
             layers=tuple(sorted({section.layer for section in kept})),
         )
@@ -453,6 +475,11 @@ class ContextBuilder:
         """
         return self.provider_wrapper_allowance
 
+    def _rendered_tokens(self, sections: list[_Section]) -> int:
+        # Include layer labels, separators and the schema exactly as rendered, not just
+        # section payloads. P0 already contains the system prompt; never count/send it twice.
+        return sum(estimate_tokens(message["content"]) for message in self._render(sections)) + self._framing_tokens
+
     def _render(self, sections: list[_Section]) -> tuple[dict[str, str], ...]:
         """The sections as provider turns: P0 becomes the system turns, everything else one user turn.
 
@@ -462,9 +489,7 @@ class ContextBuilder:
         """
         system_parts = [section.text for section in sections if section.layer == Layer.P0]
         body = "\n".join(
-            f"【{section.layer}·{section.label}】{section.text}"
-            for section in sections
-            if section.layer != Layer.P0
+            f"【{section.layer}·{section.label}】{section.text}" for section in sections if section.layer != Layer.P0
         )
         messages: list[dict[str, str]] = [
             {"role": "system", "content": "\n\n".join(system_parts)},
@@ -587,8 +612,7 @@ def _excerpt_result(observation: ToolObservation) -> Any:
         if isinstance(value, str) and len(value) > MAX_FIELD_CHARS:
             offset = _field_offset(observation, key)
             bounded[key] = (
-                f"<{len(value)} 字符，已省略；用 READ_OBSERVATION 读 "
-                f"{observation.observation_id} 的 offset={offset}>"
+                f"<{len(value)} 字符，已省略；用 READ_OBSERVATION 读 {observation.observation_id} 的 offset={offset}>"
             )
         else:
             bounded[key] = value
@@ -686,16 +710,31 @@ def _omission(section: _Section, reason: str) -> dict[str, str]:
     }
 
 
-def _json(value: Any) -> str:
+def canonical_json(value: Any) -> str:
+    """The project's canonical JSON for hashing: one document must hash the same in every module that records it.
+
+    Public because three things hash documents now — the assembled packet, the frozen Harness manifest, and a live
+    provider request — and a second copy of this convention is exactly how two records of "the same" request start
+    disagreeing.
+    """
     import json
 
     return json.dumps(value, ensure_ascii=False, sort_keys=True, default=str, separators=(",", ":"))
 
 
-def _hash_json(value: Any) -> str:
+def hash_document(value: Any) -> str:
+    """The canonical SHA-256 of a document, per :func:`canonical_json`."""
     import hashlib
 
-    return hashlib.sha256(_json(value).encode("utf-8")).hexdigest()
+    return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
+
+
+def _json(value: Any) -> str:
+    return canonical_json(value)
+
+
+def _hash_json(value: Any) -> str:
+    return hash_document(value)
 
 
 def _hash_messages(messages: tuple[dict[str, str], ...], system_prompt: str) -> str:
@@ -723,4 +762,3 @@ def _context_id(run_id: str, step: int, protected_fact_hash: str) -> str:
 
     payload = f"{run_id}:{step}:{protected_fact_hash}"
     return "ctx-" + hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
-
