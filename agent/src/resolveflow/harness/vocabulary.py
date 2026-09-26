@@ -98,6 +98,8 @@ class RunFacts:
     #: ``min(deadline, start + 120s)`` by whoever started it. ``None`` means no worker has fixed one yet.
     active_deadline_at: str | None = None
     policy_manifest: dict[str, Any] = field(default_factory=dict)
+    fence: int | None = None
+    lease_owner: str | None = None
 
     def deadline(self) -> dt.datetime | None:
         """The window as an instant, tolerating the wire's ``Z``."""
