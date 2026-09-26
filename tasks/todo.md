@@ -2,6 +2,20 @@
 
 2026-09-26更新。当前唯一进度账本。AgentScope迁移约束见[迁移规格](../docs/agentscope-migration.md)，开工只使用[当前交接](handoff-current.md)。业务与验收保持v1.2；旧40个T任务已退出当前必做顺序，完整原记录保存在[历史账本](archive/v1.1-todo.md)，不是删除已完成证据。
 
+## 最近交接快照（2026-09-26 13:36 +08:00，Asia/Shanghai）
+
+- 方向：按用户要求交给 Codex；本轮仅执行交出方收尾，不开始接管实施。
+- 执行者与状态：本轮收尾执行者 Codex，已到安全边界，交接文档提交推送后停止写入；不替其他客户端宣告已停止。
+- 工作区、分支、upstream：`E:/Code/Agent+Backend`；`main` → `origin/main`；远程 `https://github.com/Capybara0618/ResolveFlow.git`。
+- 最后已知业务实现提交：`2b5694e`（C08.2 runtime；后续另有修复/证据/文档提交）；当前交接前 HEAD 与已确认远端均为 `476aa4c2bcb7a3e95a26ae7901ade08687d4c021`。本轮 `git fetch origin` 后分支差异 `0/0`，`git ls-remote origin refs/heads/main` 核对一致（13:36 +08:00）；本次文档提交及最终推送结果见收尾回复。
+- 当前任务/子步：C08.2-8 出站方案缺口核查已完成、报告已提交（`ec504a6`）；修复尚未开始。已复现缺 summary 不符契约、出站丢引用、`verify_proposal()` 未接 runtime。C08.1/C08.2、H1–H5不因交接勾选。
+- 关键验证：本轮只读核验 Git 状态/暂存区、当前报告、worker/verifier 符号和进程/容器，未重跑业务测试。此前提交批次记录：agent `pytest tests` 1018 passed/9 skipped，Ruff通过，strict mypy 9个既有错误；spike 40 passed且Ruff/mypy通过；Java 226 tests/0 failures/4 skipped。对应报告与实际命令保留在下方历史记录；这些是历史结果，不是本轮复验。此次纯文档验证为差异/链接/快照一致性检查。
+- 未运行检查：本轮未跑 pytest、Ruff/mypy、Java测试/Spotless、all-offline、真实MCP/Java/数据库/MQ业务闭环、live模型、C09恢复及C10 strict门禁；不新增收费调用。
+- 未提交/未跟踪/已暂存：交接前已跟踪文件无差异、暂存区为空；仅 `reports/c052c-chain/20260925-232103-provider.sqlite3` 未跟踪，为既有退款链路数据库快照，保留原处、不提交、不删除，不影响已提交源码。无未完成源码改动需要整理。
+- 后台进程/作业：本轮未启动后台实施/测试任务；进程检查未发现 Java/Python 服务、worker或测试进程，未发现额外指向本仓库的 Node/PowerShell任务（除当前核验命令）。不据此证明其他客户端已退出。Docker仍运行 `resolveflow-postgres-1`、`resolveflow-mysql-1`、`resolveflow-redis-1`（healthy），`resolveflow-rocketmq-broker-1`、`resolveflow-rocketmq-namesrv-1`；共享基础设施可能继续写数据库/内部日志，保留运行，不修改仓库源码/测试/报告。需要停服务时对上述明确名称执行 `docker stop <容器名>`，保留卷；不终止其他客户端或Docker Desktop。
+- 下一具体动作：接手者先按handoff第5.2节确认原执行者停止并只读核验；在 `agent/` 跑现有 `tests/unit/test_callback_payloads_match_the_case_contract.py`、`tests/unit/test_proposal_verifier.py`、`tests/integration/test_run_worker.py` 最小基线。然后先补失败测试，再修改 `runtime/worker.py::callback_payload` 保留已验引用、`RunWorker.finish` 在outbox入库前调用 `ProposalVerifier.verify_proposal`；验收合法引用方案可投递、非法方案不入outbox且run落FAILED。summary ABI强制另拆小步，本轮不实现。
+- 已知失败/取舍：strict mypy既有9个错误；C08.2-8报告中的契约/引用缺口未修；常驻worker入口与Java复核/审批→退款仍待交付。C09前仍须解决总12次内预留/12+2预算冲突，不能静默扩额。交接仅同步Git，未跟踪数据库与本地环境不随push迁移。
+
 ## 已有成果（历史记录，非本轮重测）
 
 - T00：任务记录完成，兼容与版本锁；报告见docs/compatibility-report.md及reports/t00-compatibility/。
