@@ -9,7 +9,14 @@
 - T02：任务记录完成，4份旧OpenAPI、双语言hash/签名/fixture；2026-09-18记录all-offline 17/17，Python155、Java shared-kernel29。
 - 当前（2026-09-26文档校正，源码检查+有限离线复验）：C00–C06及AS生产迁移已有完成记录；C07检索/上下文组件已有实现。C08已有默认ContextBuilder、manifest、live客户端离线适配、候选引用校验/一次修复、单执行者worker和显式mock/live装配工厂；补证使旧run失效、回调答复落run状态已有阶段记录。不是“尚无worker/工厂”，也不是完整业务闭环已验收。C08.1/C08.2保持未勾选，H1–H5不自动升级。
 - 本次源码比C08.2-7历史记录更靠前：`AskQuestion.field`已必填，PROPOSE缺`case_type`已拒绝；四种回调载荷有契约测试。实际复验：回调载荷/引用验证/manifest三个单元文件 **27 passed**，`test_harness_loop.py` **31 passed**（含缺字段拒绝）；均离线，无Java/数据库集成/live模型调用。本轮未复验全量fixture迁移、Ruff/mypy及端到端。原“可选字段、下一步打开强制”不能直接作为开工指令，先核实剩余测试。证据见[文档完善报告](../reports/resume-delivery-doc-update.md)。
-- 当前接续顺序：①收口C08 ABI/fixture剩余回归，保留拒绝与修复断言，不重复实现已有校验；②补C08正式run的最终方案校验、通过型证据用例、常驻worker入口及真实Java/MCP/数据库/MQ的业务闭环（模型mock/live分开）；③在批准的API预算内验收H1及C08相关门禁；④C09生产持久恢复→C10生产strict；C11依赖C08，C12依赖C09/C10/C11，最后C13审计。`verify_proposal()`尚未在runtime找到调用，常驻入口也未找到worker装配；这两个是本次静态检查的待接入项，不把局部测试通过当作已完成。
+- 2026-09-26 提交推送批次（本轮接管）：此前未提交的 C08.1/C08.2 成果按功能分组审查后分 5 次提交并全部确认远端包含该 SHA——
+  `bf288ee` C08.1 harness（正式上下文路径、冻结manifest、live客户端、引用校验）、`2b5694e` C08.2 runtime（worker/工厂/答复决定run状态/补证STALE/载荷契约）、
+  `b4df39e` AS01.3 回放断网入口补齐、`e21ad6c` v1.3 文档与账本校正、`cbe0844` 证据（all-offline、C05.2c 全链路、Java 单元重跑）。
+  实测：`pytest tests` → **1018 passed, 9 skipped**；`ruff check src tests` → 通过；strict `mypy`（`agent/`）→ **9 errors = 既有基线**；
+  spikes `pytest tests` → **40 passed** 且 ruff/mypy 通过；`.\java\mvnw.cmd -f java/pom.xml -B test`（JAVA_HOME=JDK 21）→ **226 tests, 0 failures, 4 skipped, BUILD SUCCESS**。
+  仍**未做**：Java 复核/审批→模拟退款、`verify_proposal()` 接入 run 路径、常驻 worker 入口、C09/C10、live 模型与 H1–H5。
+  刻意未提交 `reports/c052c-chain/20260925-232103-provider.sqlite3`（数据库快照）；原始 Java 输出中的一枚演示 `run:dispatch` JWT 已在提交前脱敏。
+- 当前接续顺序：①收口C08 ABI/fixture剩余回归——**已完成并全量复验**（2026-09-26 提交批次内，1018 passed/9 skipped）；②补C08正式run的最终方案校验、通过型证据用例、常驻worker入口及真实Java/MCP/数据库/MQ的业务闭环（模型mock/live分开）；③在批准的API预算内验收H1及C08相关门禁；④C09生产持久恢复→C10生产strict；C11依赖C08，C12依赖C09/C10/C11，最后C13审计。`verify_proposal()`尚未在runtime找到调用，常驻入口也未找到worker装配；这两个是本次静态检查的待接入项，不把局部测试通过当作已完成。
 - C11.2的SQL/Redis任务仅有规划，尚不能写成缓存优化成果；C09/C10与最终性能、live对照报告仍需独立验收。退款旧集成报告、AS恢复/禁网探针、已有all-offline都不是本轮重跑结果。C09开工前仍须解决“总12次内预留/12+2”预算冲突，不静默扩额。
 - 历史：原第 10 行写"C06.4⑤ 有未提交改动，需 AS00 接管核实"，AS00 已核实并接管，该阶段已过。
 - v1.3文档检查（2026-09-25）：23份Markdown链接/围栏、原C00–C06记录保留与8个既有代码改动hash检查通过；契约回归549 passed/9 skipped。实际命令、检查边界和未运行项见docs/framework-review.md末尾；不据此勾任何AS实现任务。
@@ -1571,6 +1578,21 @@ a（契约实例）、c-1（提案 schema 与 OpenAPI 对齐）、c-2a/b（正�
     strict `mypy`（在 `agent/` 下）→ **9 errors = 基线，零新增**。
   - **未做/不声称**：默认未翻转（模型在生产路径上仍收证据包，**所以"模型看到的是 ContextPacket"尚未成立**）；
     C08.1 的"真实模型适配"与"候选引用验证"未做；C08.2 的 worker/闭环未开始；H1/H2/H3 未验证。
+
+- 实际记录（**2026-09-26 提交推送批次，本轮接管**）：C08.1/C08.2 的既有未提交成果先按功能分组审查，再各跑针对性验证，分 5 次提交并推送；不使用全仓 `git add`，不夹带他人改动。逐组结果：
+  - `bf288ee` **C08.1**：`harness/{actions,budget,context,model,sdk_adapter,sdk_runner}.py` + 新增 `{manifest,live_model,verifier}.py`
+    + 对应 unit/integration 测试与 7 份报告；本组针对性 **181 passed**。
+  - `2b5694e` **C08.2**：`runtime/{worker,factory,callbacks,db,delivery,runs}.py` + 4 个集成测试 + 载荷契约单元测试 + 5 份报告；本组针对性 **52 passed**。
+  - `b4df39e` **AS01.3**：spike `block_network` 改为可恢复 context manager，覆盖 socket/asyncio 连接入口并加 4 例子进程 localhost 探针；
+    spike 全量 **40 passed**、ruff/mypy 通过；兼容报告加勘误，撤回"全面禁网/零业务写已证明"的过强表述。
+  - `e21ad6c` **文档/账本校正**：18 份文档 103 个本地链接可解析、围栏配对、`git diff --check` 通过。
+  - `cbe0844` **证据**：all-offline 两次运行都保留（`20260926-091433` java-unit 红灯、`20260926-092245` PASSED）；
+    C05.2c 全链路 `RESULT: PASSED`；Java 单元本轮重跑 **226 tests / 0 failures / 4 skipped / BUILD SUCCESS**。
+  - **失败与未运行如实记录**：首跑 all-offline 的 java-unit 红灯在重跑中未复现（`java/` 无改动），红灯报告保留而不删除；
+    本轮第一次 Java 调用因 `JAVA_HOME` 指向 JDK 17 被 enforcer 拒绝（**环境问题，非代码失败**），改用 JDK 21 后成功；
+    live 模型、MCP 子进程、Java 退款半段、all-offline 本轮（复用 092245 结果）未重跑。
+  - **仍待接入**：`verify_proposal()` 在 runtime 无调用点，`RunWorker`/`build_investigation` 无常驻装配入口；
+    它们与 Java 复核/审批→模拟退款同属下一个子步。**C08.1/C08.2 仍不勾完成。**
 
 ### C09 持久恢复与版本保护
 
