@@ -20,6 +20,12 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      timeout: 100ms
+      connect-timeout: 100ms
 
 # Demonstration identity (C01.1) lives under resolveflow.identity below; the secret is a local
 # default, not a deployment key: the core profile is meant to be runnable and explainable, and a real
@@ -32,6 +38,8 @@ mybatis:
     arg-name-based-constructor-auto-mapping: true
 
 resolveflow:
+  review-cache:
+    enabled: ${REVIEW_CACHE_ENABLED:false}
   commerce:
     # Where Case reaches Commerce for the order view. The local default matches a JVM run of
     # commerce-service; compose overrides it with the in-cluster address.
@@ -46,10 +54,13 @@ resolveflow:
       ttl-seconds: 3600
 
 management:
+  health:
+    redis:
+      enabled: false
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
   endpoint:
     health:
       # Details stay hidden by default: the gateway is reachable from outside the

@@ -35,8 +35,8 @@ while [ $# -gt 0 ]; do
             cat <<'USAGE'
 usage: scripts/verify.sh [--suite <name>] [--mode mock|live] [--seed N] [--case <filter>]
 
-suites: doctor format unit contracts smoke all-offline
-        deferred: system faults performance agent-eval rag-eval harness harness-eval
+suites: doctor format unit contracts smoke all-offline performance
+        deferred: system faults agent-eval rag-eval harness harness-eval
 USAGE
             exit 0 ;;
         *) echo "unknown argument: $1" >&2; exit 64 ;;
@@ -57,7 +57,6 @@ not_implemented_owner() {
     case "$1" in
         system)       echo "T14 case执行编排与退款闭环" ;;
         faults)       echo "T29 故障实验完整矩阵" ;;
-        performance)  echo "T30 性能与RAG对照" ;;
         rag-eval)     echo "T30 性能与RAG对照" ;;
         agent-eval)   echo "T24/T31 基线与live评测" ;;
         harness)      echo "T38 隔离回放与GH验收" ;;
@@ -69,7 +68,7 @@ not_implemented_owner() {
 # Suites this script actually implements today.
 is_implemented_suite() {
     case "$1" in
-        doctor|format|unit|contracts|smoke|all-offline) return 0 ;;
+        doctor|format|unit|contracts|smoke|all-offline|performance) return 0 ;;
         *) return 1 ;;
     esac
 }
@@ -143,7 +142,7 @@ if ! is_known_suite "$SUITE"; then
     both ""
     both "UNKNOWN SUITE: '$SUITE' is not a suite this script implements."
     both "Known suites: doctor format unit contracts smoke all-offline"
-    both "Deferred to a later task: system faults performance agent-eval rag-eval harness harness-eval"
+    both "Deferred to a later task: system faults agent-eval rag-eval harness harness-eval"
     both "Refusing to report success for a suite that ran nothing."
     printf '%s\n' "${TRANSCRIPT[@]}" > "$REPORT_PATH"
     exit 64
@@ -256,6 +255,12 @@ if [ "$SUITE" = "smoke" ] || [ "$SUITE" = "all-offline" ]; then
     run_step "smoke-agent-service" \
         "uv run --project agent uvicorn resolveflow.api.app:app --port 8090  # then GET :8090/health" \
         smoke_agent_service || true
+fi
+
+if [ "$SUITE" = performance ]; then
+    head2 "performance"
+    run_step "c11-review-queue" "bash scripts/c11_review_benchmark.sh $SEED full" \
+        bash "$REPO_ROOT/scripts/c11_review_benchmark.sh" "$SEED" full || true
 fi
 
 both ""

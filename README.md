@@ -11,13 +11,17 @@
 | 文件 | 用途 |
 | --- | --- |
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
-| [当前DSH交接](tasks/handoff-current.md) | 当前任务、验收顺序与可复制提示词 |
+| [当前交接](tasks/handoff-current.md) | 当前任务、验收顺序与接管规则 |
 | [AgentScope迁移规格](docs/agentscope-migration.md) | 框架边界、恢复要求及历史迁移过程 |
 | [执行账本](tasks/todo.md) | 历史成果、新C00–C13任务与实际进度 |
 | [实现交接](docs/implementation-handoff.md) | 模型如何继续、不能走哪些捷径 |
 | [DSH交接](docs/dsh-migration-handoff.md) | 跨客户端断点与旧会话边界 |
 
-从当前账本接续C08业务闭环，再做C09恢复与C10回放；不重做已完成迁移，不继续旧T03–T39。旧任务记录在[归档](tasks/archive/v1.1-todo.md)，仅作历史。
+从当前账本顶部接续；C08–C10的已验证成果不重做，不继续旧T03–T39。旧任务记录在[归档](tasks/archive/v1.1-todo.md)，仅作历史。
+
+本地 core profile 先运行 `java/mvnw -f java/pom.xml -DskipTests package`，再运行 `docker compose -f infra/compose.yaml --profile core up --build -d mysql postgres redis agent commerce-service case-service gateway`，最后用 `python scripts/c11_core_smoke.py` 检查健康、认证及商家队列隔离。镜像包含公开的合成契约夹具用于本地演示；真实环境须覆盖演示密钥。该 profile 默认不开收费模型调查和 MQ 传输循环；功能链路验收以对应 C08 报告为准。`docker compose -f infra/compose.yaml --profile core stop gateway case-service commerce-service agent` 只停应用，不清数据卷。
+
+工作台另用 `pnpm --dir web install --frozen-lockfile`、`pnpm --dir web dev` 启动；Vite 将 `/api` 转到本机 Gateway。演示账号见[工程说明](docs/engineering.md)。
 
 ## 设计索引
 

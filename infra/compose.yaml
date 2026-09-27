@@ -1,12 +1,6 @@
 # ResolveFlow local infrastructure.
 #
-# Scope of T01: the datastores and message/registry middleware the services need.
-# Deliberately NOT here yet:
-#   - provider-stub  -> T12 (the persisted refund/carrier simulator)
-#   - app profile    -> arrives with the service Dockerfiles
-#   - observability  -> T26 (OTel Collector, Prometheus, Grafana, Tempo)
-# `docker compose --profile app up` therefore succeeds as a no-op rather than
-# pretending to start services that do not exist yet.
+# The default starts infrastructure; --profile core starts the four core processes.
 #
 # Compose profiles (v1.2):
 #   - default            core: mysql, postgres, redis, rocketmq
@@ -31,6 +25,96 @@
 name: resolveflow
 
 services:
+  gateway:
+    profiles: ["core"]
+    build:
+      context: ..
+      dockerfile: java/Dockerfile
+      args:
+        JAR_FILE: java/gateway/target/gateway-0.1.0-SNAPSHOT.jar
+    environment:
+      RESOLVEFLOW_CASE_BASE_URL: http://case-service:8083
+    ports:
+      - "127.0.0.1:${GATEWAY_PORT:-8080}:8080"
+    depends_on:
+      case-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  case-service:
+    profiles: ["core"]
+    build:
+      context: ..
+      dockerfile: java/Dockerfile
+      args:
+        JAR_FILE: java/case-service/target/case-service-0.1.0-SNAPSHOT.jar
+    environment:
+      CASE_DB_URL: jdbc:mysql://mysql:3306/case_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false
+      COMMERCE_BASE_URL: http://commerce-service:8081
+      AGENT_BASE_URL: http://agent:8082
+      REDIS_HOST: redis
+      REVIEW_CACHE_ENABLED: "true"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      commerce-service:
+        condition: service_healthy
+      agent:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8083/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  commerce-service:
+    profiles: ["core"]
+    build:
+      context: ..
+      dockerfile: java/Dockerfile
+      args:
+        JAR_FILE: java/commerce-service/target/commerce-service-0.1.0-SNAPSHOT.jar
+    environment:
+      COMMERCE_DB_URL: jdbc:mysql://mysql:3306/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false
+      REFUND_PROVIDER_URL: http://agent:8082
+    depends_on:
+      mysql:
+        condition: service_healthy
+      agent:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8081/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  agent:
+    profiles: ["core"]
+    build:
+      context: ..
+      dockerfile: agent/Dockerfile
+    environment:
+      RESOLVEFLOW_AGENT_DB: postgresql://agent:agent@postgres:5432/agent_db
+      RESOLVEFLOW_CASE_BASE_URL: http://case-service:8083
+      RESOLVEFLOW_PROVIDER_DB: /app/data/refund-provider.sqlite3
+      RESOLVEFLOW_INVESTIGATION_ENABLED: ${AGENT_INVESTIGATION_ENABLED:-0}
+    volumes:
+      - provider-data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8082/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
   mysql:
     image: mysql:8.4
     command:
@@ -139,3 +223,4 @@ volumes:
   # Clearing experimental data must be an explicit, named-volume operation.
   mysql-data:
   postgres-data:
+  provider-data:

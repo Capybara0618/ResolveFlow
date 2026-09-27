@@ -1,0 +1,10 @@
+.git
+.github
+reports
+tmp
+web/node_modules
+agent/.venv
+agent/.pytest_cache
+agent/.mypy_cache
+agent/.ruff_cache
+agent/**/__pycache__

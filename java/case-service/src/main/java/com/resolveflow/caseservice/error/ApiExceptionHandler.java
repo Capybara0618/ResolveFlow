@@ -104,6 +104,17 @@ public class ApiExceptionHandler {
                 request);
     }
 
+    @ExceptionHandler(ReviewQueueService.ReviewQueueBusyException.class)
+    public ResponseEntity<ApiError> reviewQueueBusy(
+            ReviewQueueService.ReviewQueueBusyException error, HttpServletRequest request) {
+        return error(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "SERVICE_UNAVAILABLE",
+                "review queue is temporarily busy",
+                true,
+                request);
+    }
+
     /**
      * Commerce refused the request itself, so the caller is the one who has to change something (C05.4).
      *

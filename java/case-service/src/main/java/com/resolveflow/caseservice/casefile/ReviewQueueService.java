@@ -1,10 +1,14 @@
 package com.resolveflow.caseservice.casefile;
 
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,9 +51,20 @@ public class ReviewQueueService {
             List<RequestedAction> requestedActions) {}
 
     private final CaseRepository cases;
+    private final ReviewQueueCache cache;
+    private final boolean cacheEnabled;
+    private final MeterRegistry metrics;
+    private final Semaphore databasePermits = new Semaphore(8, true);
 
-    public ReviewQueueService(CaseRepository cases) {
+    public ReviewQueueService(
+            CaseRepository cases,
+            ReviewQueueCache cache,
+            MeterRegistry metrics,
+            @Value("${resolveflow.review-cache.enabled:false}") boolean cacheEnabled) {
         this.cases = cases;
+        this.cache = cache;
+        this.cacheEnabled = cacheEnabled;
+        this.metrics = metrics;
     }
 
     public Page list(AuthenticatedPrincipal principal, String cursor, Integer requestedLimit) {
@@ -58,14 +73,65 @@ public class ReviewQueueService {
                 "the review queue belongs to a merchant's staff; a customer-scoped token has no queue" + " to read");
         int limit = normaliseLimit(requestedLimit);
         ReviewQueueCursor after = ReviewQueueCursor.decode(cursor);
+        if (cacheEnabled) {
+            try {
+                java.util.Optional<Page> cached = cache.find(principal.merchantId(), cursor, limit);
+                if (cached.isPresent()) {
+                    metrics.counter("resolveflow.review.cache", "outcome", "hit")
+                            .increment();
+                    return cached.get();
+                }
+                metrics.counter("resolveflow.review.cache", "outcome", "miss").increment();
+            } catch (RuntimeException ignored) {
+                metrics.counter("resolveflow.review.cache", "outcome", "error").increment();
+                // Redis is not the authority. A miss/outage only changes read performance.
+            }
+        }
+        boolean acquired = false;
+        if (cacheEnabled) {
+            try {
+                acquired = databasePermits.tryAcquire(100, TimeUnit.MILLISECONDS);
+                if (!acquired) {
+                    metrics.counter("resolveflow.review.fallback", "outcome", "rejected")
+                            .increment();
+                    throw new ReviewQueueBusyException();
+                }
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                metrics.counter("resolveflow.review.fallback", "outcome", "interrupted")
+                        .increment();
+                throw new ReviewQueueBusyException();
+            }
+        }
+        try {
+            return loadFromDatabase(principal.merchantId(), cursor, after, limit);
+        } finally {
+            if (acquired) {
+                databasePermits.release();
+            }
+        }
+    }
+
+    private Page loadFromDatabase(String merchantId, String cursor, ReviewQueueCursor after, int limit) {
+        metrics.counter("resolveflow.review.database.queries").increment();
         List<ReviewQueueRow> rows = cases.findReviewQueue(
-                principal.merchantId(),
-                after == null ? null : after.updatedAt(),
-                after == null ? null : after.caseId(),
-                limit + 1);
+                merchantId, after == null ? null : after.updatedAt(), after == null ? null : after.caseId(), limit + 1);
         boolean hasMore = rows.size() > limit;
         List<ReviewQueueRow> page = hasMore ? List.copyOf(rows.subList(0, limit)) : List.copyOf(rows);
-        return new Page(items(page), ReviewQueueCursor.after(page, hasMore), limit);
+        Page result = new Page(items(page), ReviewQueueCursor.after(page, hasMore), limit);
+        if (cacheEnabled) {
+            try {
+                cache.store(merchantId, cursor, limit, result);
+            } catch (RuntimeException ignored) {
+                // A failed cache write never changes the authoritative answer.
+            }
+        }
+        return result;
+    }
+
+    /** The bounded database fallback could not admit another request in time. */
+    public static class ReviewQueueBusyException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
     }
 
     private List<ReviewQueueItem> items(List<ReviewQueueRow> page) {
@@ -78,6 +144,7 @@ public class ReviewQueueService {
             caseIds.add(row.caseId());
             actions.put(row.caseId(), new ArrayList<>());
         }
+        metrics.counter("resolveflow.review.database.queries").increment();
         for (CaseRepository.RequestedActionRow requested : cases.findRequestedActionsFor(caseIds)) {
             actions.computeIfAbsent(requested.caseId(), key -> new ArrayList<>())
                     .add(RequestedAction.of(requested.action()));

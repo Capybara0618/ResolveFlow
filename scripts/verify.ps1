@@ -169,7 +169,6 @@ $env:JAVA_HOME = $javaHome
 $notImplemented = @{
     'system'       = 'T14 case执行编排与退款闭环'
     'faults'       = 'T29 故障实验完整矩阵'
-    'performance'  = 'T30 性能与RAG对照'
     'rag-eval'     = 'T30 性能与RAG对照'
     'agent-eval'   = 'T24/T31 基线与live评测'
     'harness'      = 'T38 隔离回放与GH验收'
@@ -184,7 +183,7 @@ Write-Both "  profile : $Profile"
 if ($Case) { Write-Both "  case  : $Case" }
 Write-Both "  report: $reportPath"
 
-$implementedSuites = @('doctor', 'format', 'unit', 'contracts', 'smoke', 'all-offline')
+$implementedSuites = @('doctor', 'format', 'unit', 'contracts', 'smoke', 'all-offline', 'performance')
 
 # An unrecognised suite must fail loudly: otherwise a typo would run zero steps
 # and still report PASSED, which is the "skip masquerading as pass" failure
@@ -359,6 +358,14 @@ if ($Suite -in @('smoke', 'all-offline')) {
             } finally {
                 if (-not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
             }
+        })
+}
+
+# --- Summary ----------------------------------------------------------------
+if ($Suite -eq 'performance') {
+    Write-Header 'performance'
+    [void](Invoke-Step -Name 'c11-review-queue' -Command "pwsh -File scripts/c11_review_benchmark.ps1 -Seed $Seed" -Action {
+            & (Join-Path $PSScriptRoot 'c11_review_benchmark.ps1') -Seed $Seed
         })
 }
 

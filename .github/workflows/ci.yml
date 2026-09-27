@@ -118,6 +118,12 @@ jobs:
       - name: Smoke (starts the stack and boots every service)
         run: bash scripts/verify.sh --suite smoke
 
+      - name: Core profile images and authenticated Gateway smoke
+        run: |
+          ./java/mvnw -f java/pom.xml -B -ntp -DskipTests package
+          docker compose -f infra/compose.yaml --profile core up --build -d mysql postgres redis agent commerce-service case-service gateway
+          python scripts/c11_core_smoke.py
+
       - name: Upload verification reports
         if: always()
         uses: actions/upload-artifact@v4

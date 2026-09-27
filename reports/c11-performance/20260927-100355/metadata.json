@@ -1,0 +1,16 @@
+{
+  "seed": 42,
+  "trial": true,
+  "rows": 20000,
+  "pending_review": 4000,
+  "jar_sha256": "104155B2C8609069547407691CC39262AB20D92936567A3CC713AC961368022F",
+  "script_sha256": "A01D80A76452587A6048EB405604A82278B8D236E74E3CFFF1D691E971244690",
+  "compose_sha256": "BE7489E0D93CF73A435C308C0B41F24CB53A289A11F4CCA1F574E926A052E438",
+  "docker_cpus": 32,
+  "docker_mem_bytes": 7948337152,
+  "modes": [
+    "baseline",
+    "indexed",
+    "cache"
+  ]
+}

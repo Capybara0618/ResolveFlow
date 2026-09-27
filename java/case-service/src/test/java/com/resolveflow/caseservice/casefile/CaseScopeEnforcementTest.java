@@ -218,7 +218,9 @@ class CaseScopeEnforcementTest extends CaseDatabaseTest {
                 .header("Authorization", "Bearer " + userToken())
                 .header("Idempotency-Key", "case-scope-" + System.nanoTime())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body("{\"line_id\":\"7" + (100 + (int) (System.nanoTime() % 800)) + "\","
+                // This class shares the module's MySQL container; a modulo-800 line id can collide with
+                // another test's still-open slot and turn a scope assertion into an unrelated 409.
+                .body("{\"line_id\":\"scope-" + java.util.UUID.randomUUID() + "\","
                         + "\"description\":\"退款诉求\",\"requested_actions\":[\"REFUND\"]}")
                 .exchange()
                 .expectStatus()
