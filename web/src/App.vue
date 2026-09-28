@@ -56,6 +56,16 @@ const actionLabels: Record<string, string> = {
 }
 const proposalAction = (proposal: Record<string, unknown>) =>
   actionLabels[String(proposal.recommended_action ?? '')] ?? '请人工核对方案'
+function proposalCitations(proposal: Record<string, unknown>) {
+  const evidence = Array.isArray(proposal.evidence_refs) ? proposal.evidence_refs : []
+  const policies = Array.isArray(proposal.policy_refs) ? proposal.policy_refs : []
+  return [
+    ...evidence.filter((ref): ref is Record<string, unknown> => !!ref && typeof ref === 'object')
+      .map(ref => ({ kind: '证据', detail: String(ref.source_ref ?? ref.observation_id ?? '未提供引用') })),
+    ...policies.filter((ref): ref is Record<string, unknown> => !!ref && typeof ref === 'object')
+      .map(ref => ({ kind: '政策', detail: `${String(ref.bundle_id ?? '未知政策')} · ${String(ref.rule_id ?? '未知条款')} · v${String(ref.version ?? '?')}` })),
+  ]
+}
 function headline(value?: string) {
   const text = value?.trim().replace(/\s+/g, ' ') || '退款申请'
   return text.length > 44 ? `${text.slice(0, 44)}…` : text
@@ -254,7 +264,7 @@ onUnmounted(stopStream)
           </section>
           <section v-if="isReviewer" id="queue-panel" class="panel list-panel" aria-label="审核队列">
             <div class="panel-heading"><h2>审核队列</h2><span class="count">{{ reviewItems.length }}</span></div>
-            <p class="muted">当前商家的待审授权</p>
+            <p class="muted">当前商家的待人工审核工单</p>
             <div v-if="reviewItems.length === 0" class="empty">暂无待审核项</div>
             <div class="scroll-list" aria-label="待审工单列表">
               <button v-for="item in reviewItems" :key="item.case_id" type="button" class="queue-row"
@@ -302,16 +312,20 @@ onUnmounted(stopStream)
                 </article>
                 <label v-if="isReviewer && snapshot.evidence.length">核验理由 <input v-model="verificationReason" placeholder="提交核验前填写理由" /></label>
               </section>
-              <section v-if="snapshot.proposal" class="detail-section proposal"><p class="eyebrow">调查结论</p><h3>Agent 建议：{{ proposalAction(snapshot.proposal) }}</h3>
-                <p v-if="typeof snapshot.proposal.summary === 'string'">{{ snapshot.proposal.summary }}</p>
-                <details><summary>查看完整方案与引用</summary><pre>{{ JSON.stringify(snapshot.proposal, null, 2) }}</pre></details>
-                <small>建议仅供参考，退款权限与金额以 Java 服务端校验为准。</small>
-              </section>
-              <section class="detail-section"><h3>工单轨迹</h3><p v-if="snapshot.timeline.length === 0" class="empty">暂无轨迹事件</p>
-                <ol v-else class="timeline"><li v-for="event in snapshot.timeline" :key="event.event_id">
-                  <time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong><p>{{ event.summary }}</p>
-                </li></ol>
-              </section>
+              <div class="analysis-grid" :class="{ 'without-proposal': !snapshot.proposal }">
+                <section v-if="snapshot.proposal" class="detail-section proposal"><p class="eyebrow">调查结论</p><h3>Agent 建议：{{ proposalAction(snapshot.proposal) }}</h3>
+                  <p v-if="typeof snapshot.proposal.summary === 'string'">{{ snapshot.proposal.summary }}</p>
+                  <div v-if="proposalCitations(snapshot.proposal).length" class="citation-list"><strong>方案引用</strong>
+                    <div v-for="(citation, index) in proposalCitations(snapshot.proposal)" :key="index"><span>{{ citation.kind }}</span>{{ citation.detail }}</div></div>
+                  <details><summary>查看完整方案</summary><pre>{{ JSON.stringify(snapshot.proposal, null, 2) }}</pre></details>
+                  <small>建议仅供参考，退款权限与金额以 Java 服务端校验为准。</small>
+                </section>
+                <section class="detail-section timeline-section"><h3>工单轨迹</h3><p v-if="snapshot.timeline.length === 0" class="empty">暂无轨迹事件</p>
+                  <ol v-else class="timeline"><li v-for="event in snapshot.timeline" :key="event.event_id">
+                    <time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong><p>{{ event.summary }}</p>
+                  </li></ol>
+                </section>
+              </div>
               <section v-if="isCustomer && !['EXECUTING', 'RECONCILING', 'CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(snapshot.case.status)" class="detail-section">
                 <h3>补充材料</h3><label>问题 ID（若在回答追问） <input v-model="questionId" /></label>
                 <label>材料文本 <textarea v-model="evidenceText" rows="3" /></label>
@@ -324,6 +338,9 @@ onUnmounted(stopStream)
                   <button type="button" class="secondary-button" :disabled="busy" @click="review('REQUEST_INFO')">请求补证</button>
                   <button type="button" class="danger-button" :disabled="busy" @click="review('REJECT')">拒绝</button></div>
               </section>
+              <section v-else-if="isReviewer && snapshot.case.status === 'PENDING_REVIEW'" class="detail-section review-unavailable" aria-label="审核暂不可用">
+                <h3>暂无可审核授权</h3><p>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p>
+              </section>
             </template>
           </section>
           <aside class="context-column" aria-label="工单上下文">
@@ -334,6 +351,8 @@ onUnmounted(stopStream)
                 <small>订单已付金额；退款金额由服务端决定</small></div>
                 <p v-else-if="!isReviewer && orderContextState === 'loading'" class="muted">正在读取订单信息…</p>
                 <p v-else-if="!isReviewer" class="muted">暂无可展示的订单明细</p>
+                <div v-if="isReviewer" class="context-status"><span>当前状态</span><strong>{{ statusLabel(snapshot.case.status) }}</strong>
+                  <small v-if="snapshot.timeline.length">最近事件：{{ formatTimestamp(snapshot.timeline[snapshot.timeline.length - 1].occurred_at) }}</small></div>
                 <details class="technical-details"><summary>查看工单与订单编号</summary><dl><dt>工单编号</dt><dd>{{ snapshot.case.case_id }}</dd><dt>订单编号</dt><dd>{{ snapshot.case.order_id || '未提供' }}</dd>
                   <dt>订单行编号</dt><dd>{{ snapshot.case.line_id }}</dd><dt>工单版本</dt><dd>{{ snapshot.case.version }}</dd>
                   <dt>输入修订</dt><dd>{{ snapshot.case.input_revision }}</dd></dl></details></template>
@@ -345,6 +364,8 @@ onUnmounted(stopStream)
               <dt>对应输入修订</dt><dd>{{ snapshot.authorization.input_revision }}</dd></dl></details>
               <p v-if="snapshot.authorization.input_revision !== snapshot.case.input_revision" class="context-warning">授权对应旧输入修订，需以服务端重新校验为准。</p>
             </section>
+            <section v-else-if="isReviewer && snapshot?.case.status === 'PENDING_REVIEW'" class="panel context-panel"><h2>授权状态</h2>
+              <p class="context-warning">暂无待审退款授权；Agent 建议不能直接执行退款。</p></section>
           </aside>
         </div>
       </main>
@@ -454,11 +475,20 @@ h3 { margin-bottom: 13px; font-size: 15px; }
 .evidence-id { margin-top: 8px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
 .evidence-id summary { color: #41618f; cursor: pointer; }
 .evidence .actions { margin-top: 13px; }
+.analysis-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(220px, .8fr); gap: 18px; padding: 22px 0; border-top: 1px solid var(--line); }
+.analysis-grid.without-proposal { grid-template-columns: minmax(0, 1fr); }
+.analysis-grid > .detail-section { min-width: 0; padding: 0; border: 0; }
 .proposal { padding: 20px; margin: 0 -4px 12px; border: 1px solid #c9dcff; border-radius: 12px; background: #f4f8ff; }
+.analysis-grid .proposal { padding: 18px; margin: 0; }
 .proposal h3 { margin: 6px 0 10px; color: #1e40af; font-size: 18px; }
 .proposal p { line-height: 1.7; }
 .proposal small { display: block; margin-top: 13px; color: #52647f; }
 .proposal summary { color: #1d4ed8; cursor: pointer; font-weight: 650; }
+.citation-list { padding: 10px 0; margin: 8px 0; border-top: 1px solid #d5e3fa; border-bottom: 1px solid #d5e3fa; font-size: 12px; overflow-wrap: anywhere; }
+.citation-list > strong { display: block; margin-bottom: 6px; }
+.citation-list > div { margin: 5px 0; color: #315b99; }
+.citation-list span { display: inline-block; margin-right: 8px; color: var(--muted); }
+.timeline-section { max-height: 360px; overflow-y: auto; }
 pre { max-height: 360px; overflow: auto; padding: 13px; background: #fff; border: 1px solid var(--line); border-radius: 8px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }
 .timeline { margin: 0; padding: 0 0 0 21px; border-left: 1px solid #cbd5e1; list-style: none; }
 .timeline li { position: relative; margin-bottom: 20px; }
@@ -466,8 +496,14 @@ pre { max-height: 360px; overflow: auto; padding: 13px; background: #fff; border
 .timeline time { display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; }
 .timeline p { margin: 5px 0 0; color: #475569; line-height: 1.55; }
 .review-section { padding: 20px; border: 1px solid #bfdbfe; border-radius: 11px; background: #f8fbff; }
+.review-unavailable { padding: 16px 18px; border: 1px solid #fed7aa; border-radius: 10px; background: #fffaf3; }
+.review-unavailable h3 { margin-bottom: 7px; color: #9a3412; }
+.review-unavailable p { margin: 0; color: #7c4a25; line-height: 1.6; }
 .context-column { display: grid; gap: 14px; }
 .context-panel h2 { padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.context-status { display: grid; gap: 7px; padding: 12px 0 4px; }
+.context-status span, .context-status small { color: var(--muted); font-size: 12px; }
+.context-status strong { color: #1d4ed8; }
 .order-summary { display: grid; gap: 7px; padding: 7px 0 12px; }
 .order-summary strong { font-size: 15px; overflow-wrap: anywhere; }
 .order-summary span, .order-summary small { color: var(--muted); font-size: 12px; }
@@ -496,6 +532,7 @@ button:disabled { opacity: .55; cursor: wait; }
 .login-panel button { width: 100%; margin-top: 12px; }
 .login-error { position: fixed; left: 50%; bottom: 24px; width: min(90vw, 430px); transform: translateX(-50%); box-shadow: 0 10px 30px #0f172a20; }
 @media (max-width: 1499px) { .columns { grid-template-columns: minmax(230px, 290px) minmax(0, 1fr); } .context-column { grid-column: 2; } .reviewer-columns { grid-template-columns: minmax(245px, 280px) minmax(0, 1fr); } .reviewer-columns > .case-panel { border-right: 0; } .reviewer-columns > .context-column { padding: 14px 22px; } }
+@media (max-width: 1050px) { .analysis-grid { grid-template-columns: minmax(0, 1fr); } .timeline-section { max-height: none; } }
 @media (max-width: 850px) { .app-shell { display: block; } .sidebar { flex-direction: row; align-items: center; gap: 8px; padding: 8px 16px; border-right: 0; border-bottom: 1px solid var(--line); } .sidebar-caption, .sidebar-note { display: none; } .workspace { padding: 24px 16px; } .reviewer-workspace { padding: 0; } .columns, .reviewer-columns { grid-template-columns: minmax(0, 1fr); } .context-column { grid-column: auto; } .reviewer-columns > .list-panel { border-right: 0; border-bottom: 1px solid var(--line); } .reviewer-columns .scroll-list { max-height: 280px; } .page-heading { align-items: start; } }
 @media (max-width: 600px) { .topbar { padding: 0 16px; } .brand { font-size: 16px; } .demo-tag, .merchant, .scope-note { display: none; } .page-heading { margin-bottom: 18px; } .case-panel { padding: 18px; } .reviewer-columns > .case-panel { padding: 18px 16px; } .case-order-content { align-items: start; flex-direction: column; } .case-order-amount { text-align: left; } .lookup { flex-wrap: wrap; } .lookup label { flex-basis: 100%; } .lookup button { width: 100%; } .review-section { padding: 16px; } }
 </style>

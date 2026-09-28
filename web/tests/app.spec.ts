@@ -26,6 +26,9 @@ describe('core workbench', () => {
           { observation_id: 'ev-2', evidence_kind: 'REVIEWER_VERIFICATION', content: '已检查充电记录',
             source_ref: 'reviewer:R-1', reviewed_evidence_id: 'ev-1', verification_result: 'CONFIRMED' },
         ],
+        proposal: { recommended_action: 'REFUND', summary: '建议退款',
+          evidence_refs: [{ observation_id: 'ev-1', source_ref: 'customer:C-9', source_version: '1' }],
+          policy_refs: [{ bundle_id: 'refund-v2', version: '2', rule_id: 'QUALITY_7D', chunk_id: 'c-1' }] },
         timeline: [],
       })))
       if (url === '/api/v1/orders/order-4') return Promise.resolve(new Response(JSON.stringify({
@@ -55,6 +58,9 @@ describe('core workbench', () => {
     expect(wrapper.get('.evidence').text()).toContain('customer:C-9')
     expect(wrapper.findAll('.evidence')[1].text()).toContain('确认')
     expect(wrapper.findAll('.evidence')[1].findAll('button')).toHaveLength(0)
+    expect(wrapper.get('.proposal').text()).toContain('customer:C-9')
+    expect(wrapper.get('.proposal').text()).toContain('QUALITY_7D')
+    expect(wrapper.find('.analysis-grid').exists()).toBe(true)
     expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('auth-2')
     expect(wrapper.text()).not.toContain('会员等级')
     wrapper.unmount()
@@ -108,6 +114,7 @@ describe('core workbench', () => {
     await flushPromises()
     expect(wrapper.get('.case-title h3').text()).toBe('包裹未收到')
     expect(wrapper.get('.case-order').text()).toContain('正在读取订单信息')
+    expect(wrapper.get('.review-unavailable').text()).toContain('暂无可审核授权')
     expect(wrapper.get('.list-actions button').attributes('disabled')).toBeUndefined()
     wrapper.unmount()
   })
