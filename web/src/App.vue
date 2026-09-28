@@ -137,7 +137,10 @@ function login() {
     password.value = ''
     orders.value = []; reviewItems.value = []; snapshot.value = null; selectedOrderLine.value = null
     if (session.role === 'CUSTOMER') await loadOrders()
-    else await loadReviewQueue()
+    else {
+      await loadReviewQueue()
+      if (reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
+    }
   })
 }
 function logout() {
@@ -216,18 +219,18 @@ onUnmounted(stopStream)
     <div v-else class="app-shell">
       <nav class="sidebar" aria-label="工作台导航">
         <p class="sidebar-caption">工作空间</p>
-        <a v-if="isCustomer" href="#order-panel" class="nav-link">我的订单行</a>
-        <a v-if="isReviewer" href="#queue-panel" class="nav-link">审核队列</a>
+        <a v-if="isCustomer" href="#order-panel" class="nav-link current">我的订单行</a>
+        <a v-if="isReviewer" href="#queue-panel" class="nav-link current">审核队列</a>
         <a href="#case-panel" class="nav-link">工单查询</a>
         <div class="sidebar-note">单订单行 · 全量模拟退款</div>
       </nav>
-      <main class="workspace">
-        <div class="page-heading"><div><p class="eyebrow">{{ isCustomer ? '客户视图' : '商家审核视图' }}</p>
-          <h1>{{ isCustomer ? '发起与跟踪售后工单' : '审核工作台' }}</h1></div>
-          <span class="scope-note">{{ isCustomer ? '只查看本人订单' : '只查看当前商家待审工单' }}</span></div>
+      <main class="workspace" :class="{ 'reviewer-workspace': isReviewer }">
+        <div v-if="isCustomer" class="page-heading"><div><p class="eyebrow">客户视图</p>
+          <h1>发起与跟踪售后工单</h1></div>
+          <span class="scope-note">只查看本人订单</span></div>
         <p v-if="error" class="message error" role="alert">{{ error }}</p>
         <p v-if="notice" class="message success" role="status">{{ notice }}</p>
-        <div class="columns" :class="{ 'customer-columns': isCustomer }">
+        <div class="columns" :class="{ 'customer-columns': isCustomer, 'reviewer-columns': isReviewer }">
           <section v-if="isCustomer" id="order-panel" class="panel list-panel" aria-label="我的订单行">
             <div class="panel-heading"><h2>我的订单行</h2><span class="count">{{ orders.length }}</span></div>
             <p class="muted">选择一条订单行，提交全额模拟退款诉求。</p>
@@ -256,7 +259,7 @@ onUnmounted(stopStream)
               <button type="button" class="text-button" :disabled="busy" @click="act(() => loadReviewQueue())">刷新队列</button></div>
           </section>
           <section id="case-panel" class="panel case-panel" aria-label="工单内容">
-            <div class="panel-heading"><div><p class="eyebrow">CASE FILE</p><h2>工单详情</h2></div>
+            <div class="panel-heading"><div><p class="eyebrow">{{ isReviewer ? '人工审核' : '工单记录' }}</p><h2>{{ isReviewer ? '退款工单' : '工单详情' }}</h2></div>
               <span v-if="snapshot" class="status-tag">{{ statusLabel(snapshot.case.status) }}</span></div>
             <details class="lookup-tools"><summary>按工单编号查询</summary><div class="lookup"><label>工单编号 <input v-model="lookupId" name="case-id" placeholder="输入已知工单编号" /></label>
               <button type="button" class="secondary-button" :disabled="busy || !lookupId.trim()" @click="act(() => openCase(lookupId))">查看工单</button></div></details>
@@ -335,7 +338,7 @@ onUnmounted(stopStream)
 <style scoped>
 .workbench { --surface: #fff; --canvas: #f8fafc; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0; --blue: #2563eb; min-height: 100vh; background: var(--canvas); color: var(--ink); font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; font-size: 14px; }
 .workbench * { box-sizing: border-box; }
-.topbar { height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 28px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar { height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 22px; background: var(--surface); border-bottom: 1px solid var(--line); }
 .brand, .session, .panel-heading, .queue-top, .actions, .list-actions, .case-title, .section-heading { display: flex; align-items: center; gap: 10px; }
 .brand { color: #102a56; font-size: 18px; font-weight: 750; letter-spacing: -.025em; white-space: nowrap; }
 .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; background: var(--blue); color: #fff; font-size: 17px; }
@@ -343,14 +346,17 @@ onUnmounted(stopStream)
 .demo-tag { padding: 4px 8px; background: #eff6ff; color: #1d4ed8; letter-spacing: 0; }
 .session { color: var(--muted); }
 .role-pill { padding: 5px 9px; background: #f1f5f9; color: #475569; }
-.app-shell { display: grid; grid-template-columns: 192px minmax(0, 1fr); min-height: calc(100vh - 68px); }
-.sidebar { display: flex; flex-direction: column; gap: 6px; padding: 30px 12px 20px; background: var(--surface); border-right: 1px solid var(--line); }
+.app-shell { display: grid; grid-template-columns: 196px minmax(0, 1fr); min-height: calc(100vh - 56px); }
+.sidebar { display: flex; flex-direction: column; gap: 6px; padding: 22px 12px 20px; background: var(--surface); border-right: 1px solid var(--line); }
 .sidebar-caption, .eyebrow { margin: 0; color: #8291a5; font-size: 11px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
 .sidebar-caption { padding: 0 12px 8px; }
 .nav-link { display: block; padding: 11px 13px; border-radius: 9px; color: #475569; font-weight: 650; text-decoration: none; }
 .nav-link:hover, .nav-link:focus-visible { background: #eff6ff; color: #1d4ed8; }
+.nav-link.current { position: relative; background: #edf4ff; color: #1552be; }
+.nav-link.current::before { position: absolute; top: 8px; bottom: 8px; left: -12px; width: 3px; border-radius: 0 3px 3px 0; background: var(--blue); content: ''; }
 .sidebar-note { margin: auto 8px 0; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.6; }
 .workspace { min-width: 0; padding: 30px clamp(18px, 2.5vw, 42px) 48px; }
+.reviewer-workspace { padding: 0; }
 .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 24px; }
 h1, h2, h3, p { margin-top: 0; }
 h1 { margin: 7px 0 0; font-size: clamp(24px, 2vw, 30px); letter-spacing: -.035em; }
@@ -358,15 +364,25 @@ h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.02em; }
 h3 { margin-bottom: 13px; font-size: 15px; }
 .scope-note { padding: 8px 11px; background: #eaf1ff; color: #2454a6; }
 .columns { display: grid; grid-template-columns: minmax(240px, 290px) minmax(350px, 1fr) minmax(230px, 280px); align-items: start; gap: 16px; }
+.reviewer-columns { grid-template-columns: minmax(260px, 290px) minmax(0, 1fr) minmax(270px, 315px); align-items: stretch; gap: 0; min-height: calc(100vh - 56px); }
 .panel { min-width: 0; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 6px 24px #0f172a06; }
+.reviewer-columns > .list-panel, .reviewer-columns > .case-panel { border: 0; border-right: 1px solid var(--line); border-radius: 0; box-shadow: none; }
+.reviewer-columns > .list-panel { padding: 22px 12px; }
+.reviewer-columns > .case-panel { padding: 22px 24px 40px; }
+.reviewer-columns > .context-column { align-content: start; padding: 14px; }
+.reviewer-columns .context-panel { padding: 16px; border-radius: 10px; box-shadow: none; }
 .panel-heading { justify-content: space-between; margin-bottom: 12px; }
 .count { min-width: 24px; justify-content: center; padding: 4px 8px; background: #f1f5f9; color: #475569; }
 .muted, .empty { color: var(--muted); line-height: 1.6; }
 .empty { padding: 22px 8px; text-align: center; background: #f8fafc; border-radius: 9px; }
 .list-panel > .muted { margin-bottom: 16px; font-size: 12px; }
 .scroll-list { max-height: 380px; padding-right: 4px; overflow-y: auto; scrollbar-color: #cbd5e1 transparent; }
+.reviewer-columns .scroll-list { max-height: calc(100vh - 190px); }
 .queue-row { display: block; width: 100%; margin: 0 0 8px; padding: 13px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); text-align: left; }
 .queue-row:hover, .queue-row.selected { border-color: #93b4ff; background: #f4f8ff; }
+.reviewer-columns .queue-row { position: relative; margin: 0; padding: 14px 10px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; }
+.reviewer-columns .queue-row:hover, .reviewer-columns .queue-row.selected { background: #eff5ff; }
+.reviewer-columns .queue-row.selected::before { position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--blue); content: ''; }
 .queue-row small, .order-copy small { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
 .queue-top { justify-content: space-between; gap: 6px; }
 .queue-top strong { min-width: 0; overflow-wrap: anywhere; }
@@ -387,7 +403,7 @@ h3 { margin-bottom: 13px; font-size: 15px; }
 .create-panel { padding-top: 28px; }
 .create-panel h3 { margin: 8px 0 10px; font-size: 19px; }
 .create-panel .muted { margin-bottom: 24px; }
-.case-empty { padding: 80px 12px; text-align: center; color: var(--muted); }
+.case-empty { padding: 60px 12px; text-align: center; color: var(--muted); }
 .case-empty strong { display: block; margin-bottom: 10px; color: #334155; font-size: 17px; }
 .case-title { justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 10px; padding: 21px 0; }
 .case-title h3 { margin-bottom: 7px; font-size: 20px; overflow-wrap: anywhere; }
@@ -441,12 +457,12 @@ button:disabled { opacity: .55; cursor: wait; }
 .actions { flex-wrap: wrap; }
 .message { margin: 0 0 16px; padding: 12px 14px; border-radius: 9px; }
 .error { background: #fef2f2; color: #991b1b; } .success { background: #ecfdf5; color: #166534; }
-.login-stage { display: grid; place-items: center; min-height: calc(100vh - 68px); padding: 24px; }
+.login-stage { display: grid; place-items: center; min-height: calc(100vh - 56px); padding: 24px; }
 .login-panel { width: min(100%, 430px); padding: 36px; }
 .login-panel h1 { margin-bottom: 9px; } .login-panel .muted { margin-bottom: 25px; }
 .login-panel button { width: 100%; margin-top: 12px; }
 .login-error { position: fixed; left: 50%; bottom: 24px; width: min(90vw, 430px); transform: translateX(-50%); box-shadow: 0 10px 30px #0f172a20; }
-@media (max-width: 1220px) { .columns { grid-template-columns: minmax(230px, 290px) minmax(360px, 1fr); } .context-column { grid-column: 2; } }
-@media (max-width: 850px) { .app-shell { display: block; } .sidebar { flex-direction: row; align-items: center; gap: 8px; padding: 8px 16px; border-right: 0; border-bottom: 1px solid var(--line); } .sidebar-caption, .sidebar-note { display: none; } .workspace { padding: 24px 16px; } .columns { grid-template-columns: 1fr; } .context-column { grid-column: auto; } .page-heading { align-items: start; } }
-@media (max-width: 600px) { .topbar { padding: 0 16px; } .brand { font-size: 16px; } .demo-tag, .merchant, .scope-note { display: none; } .page-heading { margin-bottom: 18px; } .case-panel { padding: 18px; } .lookup { flex-wrap: wrap; } .lookup label { flex-basis: 100%; } .lookup button { width: 100%; } .review-section { padding: 16px; } }
+@media (max-width: 1499px) { .columns { grid-template-columns: minmax(230px, 290px) minmax(0, 1fr); } .context-column { grid-column: 2; } .reviewer-columns { grid-template-columns: minmax(245px, 280px) minmax(0, 1fr); } .reviewer-columns > .case-panel { border-right: 0; } .reviewer-columns > .context-column { padding: 14px 22px; } }
+@media (max-width: 850px) { .app-shell { display: block; } .sidebar { flex-direction: row; align-items: center; gap: 8px; padding: 8px 16px; border-right: 0; border-bottom: 1px solid var(--line); } .sidebar-caption, .sidebar-note { display: none; } .workspace { padding: 24px 16px; } .reviewer-workspace { padding: 0; } .columns, .reviewer-columns { grid-template-columns: minmax(0, 1fr); } .context-column { grid-column: auto; } .reviewer-columns > .list-panel { border-right: 0; border-bottom: 1px solid var(--line); } .reviewer-columns .scroll-list { max-height: 280px; } .page-heading { align-items: start; } }
+@media (max-width: 600px) { .topbar { padding: 0 16px; } .brand { font-size: 16px; } .demo-tag, .merchant, .scope-note { display: none; } .page-heading { margin-bottom: 18px; } .case-panel { padding: 18px; } .reviewer-columns > .case-panel { padding: 18px 16px; } .lookup { flex-wrap: wrap; } .lookup label { flex-basis: 100%; } .lookup button { width: 100%; } .review-section { padding: 16px; } }
 </style>
