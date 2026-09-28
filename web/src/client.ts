@@ -96,8 +96,11 @@ export const coreApi = {
     jsonPost<{ case_id: string }>('/api/v1/cases', token, {
       line_id: lineId, description, requested_actions: ['REFUND'],
     }, { 'Idempotency-Key': key }),
-  case: (token: string, caseId: string) =>
-    apiRequest<CaseSnapshot>(`/api/v1/cases/${encodeURIComponent(caseId)}`, token),
+  case: async (token: string, caseId: string): Promise<CaseSnapshot> => {
+    const view = await apiRequest<CaseSnapshot>(`/api/v1/cases/${encodeURIComponent(caseId)}`, token)
+    // The core response omits empty collections; the workbench renders them as empty sections.
+    return { ...view, evidence: view.evidence ?? [], timeline: view.timeline ?? [] }
+  },
   appendEvidence: (token: string, caseId: string, text: string, questionId?: string) =>
     jsonPost<{ input_revision: number }>(`/api/v1/cases/${encodeURIComponent(caseId)}/evidence`, token, {
       question_id: questionId || null, text, evidence_kind: 'CUSTOMER_STATEMENT',

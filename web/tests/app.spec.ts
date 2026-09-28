@@ -7,6 +7,39 @@ vi.mock('../src/events', () => ({ watchCaseEvents: vi.fn().mockResolvedValue(und
 afterEach(() => vi.unstubAllGlobals())
 
 describe('core workbench', () => {
+  it('separates a reviewer queue, case detail, and server-backed context without inventing customer data', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
+        access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
+      })))
+      if (url.startsWith('/api/v1/review/cases')) return Promise.resolve(new Response(JSON.stringify({
+        items: [{ case_id: 'case-2', status: 'PENDING_REVIEW', version: 7, line_id: 'line-9',
+          updated_at: '2026-09-28T02:00:00Z' }], page: { limit: 20 },
+      })))
+      if (url === '/api/v1/cases/case-2') return Promise.resolve(new Response(JSON.stringify({
+        case: { case_id: 'case-2', status: 'PENDING_REVIEW', input_revision: 2, version: 7, line_id: 'line-9' },
+        authorization: { authorization_id: 'auth-2', authorization_version: 3, status: 'PENDING_REVIEW', input_revision: 2 },
+        timeline: [],
+      })))
+      throw new Error(`Unexpected URL ${url}`)
+    }))
+    const wrapper = mount(App)
+    await wrapper.get('[name="username"]').setValue('reviewer')
+    await wrapper.get('[name="password"]').setValue('password')
+    await wrapper.get('[data-test="login"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('nav[aria-label="工作台导航"]').exists()).toBe(true)
+    expect(wrapper.find('section[aria-label="审核队列"]').text()).toContain('case-2')
+    expect(wrapper.find('section[aria-label="审核队列"]').text()).not.toContain('2026-09-28T02:00:00Z')
+    await wrapper.get('.queue-row').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('section[aria-label="工单内容"]').text()).toContain('case-2')
+    expect(wrapper.find('section[aria-label="工单内容"]').text()).toContain('待人工审核')
+    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('auth-2')
+    expect(wrapper.text()).not.toContain('会员等级')
+    wrapper.unmount()
+  })
+
   it('starts with login and renders only scoped API order lines', async () => {
     const fetcher = vi.fn().mockImplementation((url: string) => {
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
@@ -118,6 +151,48 @@ describe('core workbench', () => {
     expect(JSON.parse(review[1].body)).toEqual({
       authorization_id: 'auth-2', authorization_version: 3, decision: 'APPROVE', reason: '材料和金额已核实',
     })
+    wrapper.unmount()
+  })
+
+  it('reloads a changed case after a stale review decision instead of reusing old versions', async () => {
+    let reads = 0
+    const fetcher = vi.fn().mockImplementation((url: string, options: RequestInit) => {
+      if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
+        access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
+      })))
+      if (url.startsWith('/api/v1/review/cases')) return Promise.resolve(new Response(JSON.stringify({
+        items: [{ case_id: 'case-3', status: 'PENDING_REVIEW', version: 7, line_id: 'line-9' }],
+        page: { limit: 20 },
+      })))
+      if (url === '/api/v1/cases/case-3') {
+        reads++
+        return Promise.resolve(new Response(JSON.stringify({
+          case: { case_id: 'case-3', status: 'PENDING_REVIEW', input_revision: 2, version: reads === 1 ? 7 : 8,
+            line_id: 'line-9' },
+          authorization: { authorization_id: 'auth-3', authorization_version: reads === 1 ? 3 : 4,
+            status: 'PENDING_REVIEW', input_revision: 2 },
+          timeline: [],
+        })))
+      }
+      if (url === '/api/v1/cases/case-3/reviews' && options.method === 'POST') {
+        return Promise.resolve(new Response(JSON.stringify({ code: 'STALE_VERSION', message: 'conflict' }), { status: 409 }))
+      }
+      throw new Error(`Unexpected URL ${url}`)
+    })
+    vi.stubGlobal('fetch', fetcher)
+    const wrapper = mount(App)
+    await wrapper.get('[name="username"]').setValue('reviewer')
+    await wrapper.get('[name="password"]').setValue('password')
+    await wrapper.get('[data-test="login"]').trigger('click')
+    await flushPromises()
+    await wrapper.get('.queue-row').trigger('click')
+    await flushPromises()
+    await wrapper.get('.case-panel textarea').setValue('原审核理由')
+    await wrapper.get('[data-test="approve"]').trigger('click')
+    await flushPromises()
+    expect(reads).toBe(2)
+    expect(wrapper.get('[role="alert"]').text()).toContain('重新加载')
+    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('4')
     wrapper.unmount()
   })
 })
