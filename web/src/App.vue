@@ -37,6 +37,11 @@ const caseStatusLabels: Record<string, string> = {
   CLOSED_REJECTED: '已拒绝', CANCELLED: '已取消',
 }
 const statusLabel = (status: string) => caseStatusLabels[status] ?? status
+const authorizationStatusLabels: Record<string, string> = {
+  PENDING_REVIEW: '待人工审核', APPROVED: '已批准', CONSUMED: '已消费（不可重审）',
+  REJECTED: '已拒绝', EXPIRED: '已失效', REVOKED: '已撤销',
+}
+const authorizationStatusLabel = (status: string) => authorizationStatusLabels[status] ?? status
 const categoryLabels: Record<string, string> = { apparel: '服饰商品', electronics: '电子产品', home: '家居商品', beauty: '美妆商品' }
 const evidenceLabels: Record<string, string> = {
   ORDER_LINE: '订单行记录', PAYMENT_LEDGER: '支付记录', SHIPMENT: '物流记录',
@@ -50,6 +55,8 @@ const timelineLabels: Record<string, string> = {
   CASE_CREATED: '工单已创建', AGENT_STARTED: 'Agent 开始调查', PROPOSAL_READY: '调查建议已生成',
   EVIDENCE_APPENDED: '客户补充材料', EVIDENCE_REVIEWED: '材料已核验', REVIEW_APPROVED: '审核已批准',
   REVIEW_REJECTED: '审核已拒绝', REVIEW_REQUESTED_INFO: '等待客户补证',
+  APPROVAL_REQUIRED: '等待人工审批', AUTHORIZATION_DECIDED: '人工审核决定',
+  EXECUTION_UPDATED: '退款执行更新', CASE_CLOSED: '工单已结束',
 }
 const actionLabels: Record<string, string> = {
   REFUND: '建议全额退款', REQUEST_INFO: '建议补充信息', REJECT: '建议拒绝', MANUAL_REVIEW: '建议人工复核',
@@ -339,7 +346,8 @@ onUnmounted(stopStream)
                   <button type="button" class="danger-button" :disabled="busy" @click="review('REJECT')">拒绝</button></div>
               </section>
               <section v-else-if="isReviewer && snapshot.case.status === 'PENDING_REVIEW'" class="detail-section review-unavailable" aria-label="审核暂不可用">
-                <h3>暂无可审核授权</h3><p>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p>
+                <h3>暂无可审核授权</h3><p v-if="snapshot.authorization">当前授权{{ authorizationStatusLabel(snapshot.authorization.status) }}，不能再次审核；请核对工单轨迹与当前结果。</p>
+                <p v-else>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p>
               </section>
             </template>
           </section>
@@ -358,7 +366,7 @@ onUnmounted(stopStream)
                   <dt>输入修订</dt><dd>{{ snapshot.case.input_revision }}</dd></dl></details></template>
               <p v-else class="empty">打开工单后显示服务端记录。</p>
             </section>
-            <section v-if="snapshot?.authorization" class="panel context-panel"><h2>审核授权</h2><p class="authorization-state">{{ statusLabel(snapshot.authorization.status) }}</p>
+            <section v-if="snapshot?.authorization" class="panel context-panel"><h2>审核授权</h2><p class="authorization-state">{{ authorizationStatusLabel(snapshot.authorization.status) }}</p>
               <details class="technical-details"><summary>查看授权编号与版本</summary><dl><dt>授权编号</dt><dd>{{ snapshot.authorization.authorization_id }}</dd>
               <dt>授权版本</dt><dd>{{ snapshot.authorization.authorization_version }}</dd>
               <dt>对应输入修订</dt><dd>{{ snapshot.authorization.input_revision }}</dd></dl></details>

@@ -119,6 +119,32 @@ describe('core workbench', () => {
     wrapper.unmount()
   })
 
+  it('explains that a consumed authorization cannot be approved again after a failed execution', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
+        access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
+      })))
+      if (url.startsWith('/api/v1/review/cases')) return Promise.resolve(new Response(JSON.stringify({
+        items: [{ case_id: 'case-failed', status: 'PENDING_REVIEW', line_id: 'line-9' }], page: { limit: 20 },
+      })))
+      if (url === '/api/v1/cases/case-failed') return Promise.resolve(new Response(JSON.stringify({
+        case: { case_id: 'case-failed', status: 'PENDING_REVIEW', input_revision: 1, version: 9, line_id: 'line-9' },
+        authorization: { authorization_id: 'auth-old', authorization_version: 4, status: 'CONSUMED', input_revision: 1 },
+        timeline: [{ event_id: 'event-1', type: 'EXECUTION_UPDATED', occurred_at: '2026-09-28T02:00:00Z', summary: '退款执行失败' }],
+      })))
+      throw new Error(`Unexpected URL ${url}`)
+    }))
+    const wrapper = mount(App)
+    await wrapper.get('[name="username"]').setValue('reviewer')
+    await wrapper.get('[name="password"]').setValue('password')
+    await wrapper.get('[data-test="login"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('.review-unavailable').text()).toContain('已消费')
+    expect(wrapper.find('[data-test="approve"]').exists()).toBe(false)
+    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('已消费')
+    wrapper.unmount()
+  })
+
   it('shows a server refusal instead of silently presenting a successful login', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
       code: 'INVALID_CREDENTIALS', message: 'wrong password',
