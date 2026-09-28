@@ -99,7 +99,9 @@ public class CaseReadService {
                 row.createdAt(),
                 row.updatedAt(),
                 actions,
-                row.lineId());
+                row.lineId(),
+                row.orderId(),
+                row.description());
     }
 
     private List<TimelineEventView> trajectory(String caseId) {

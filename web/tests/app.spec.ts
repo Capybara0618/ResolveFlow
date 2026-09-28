@@ -14,12 +14,17 @@ describe('core workbench', () => {
       })))
       if (url.startsWith('/api/v1/review/cases')) return Promise.resolve(new Response(JSON.stringify({
         items: [{ case_id: 'case-2', status: 'PENDING_REVIEW', version: 7, line_id: 'line-9',
-          updated_at: '2026-09-28T02:00:00Z' }], page: { limit: 20 },
+          description: '耳机充电后仍无法开机，申请退款', updated_at: '2026-09-28T02:00:00Z' }], page: { limit: 20 },
       })))
       if (url === '/api/v1/cases/case-2') return Promise.resolve(new Response(JSON.stringify({
-        case: { case_id: 'case-2', status: 'PENDING_REVIEW', input_revision: 2, version: 7, line_id: 'line-9' },
+        case: { case_id: 'case-2', status: 'PENDING_REVIEW', input_revision: 2, version: 7, line_id: 'line-9',
+          order_id: 'order-4', description: '耳机充电后仍无法开机，申请退款' },
         authorization: { authorization_id: 'auth-2', authorization_version: 3, status: 'PENDING_REVIEW', input_revision: 2 },
         timeline: [],
+      })))
+      if (url === '/api/v1/orders/order-4') return Promise.resolve(new Response(JSON.stringify({
+        items: [{ order_id: 'order-4', line_id: 'line-9', sku: 'HEADPHONE-PRO', category: 'electronics',
+          quantity: 1, line_paid_amount: 32900, currency: 'CNY', status: 'PAID' }], page: { limit: 20 },
       })))
       throw new Error(`Unexpected URL ${url}`)
     }))
@@ -29,12 +34,17 @@ describe('core workbench', () => {
     await wrapper.get('[data-test="login"]').trigger('click')
     await flushPromises()
     expect(wrapper.find('nav[aria-label="工作台导航"]').exists()).toBe(true)
-    expect(wrapper.find('section[aria-label="审核队列"]').text()).toContain('case-2')
+    expect(wrapper.get('.queue-row').text()).toContain('耳机充电后仍无法开机')
+    expect(wrapper.get('.queue-row').text()).not.toContain('case-2')
     expect(wrapper.find('section[aria-label="审核队列"]').text()).not.toContain('2026-09-28T02:00:00Z')
     await wrapper.get('.queue-row').trigger('click')
     await flushPromises()
-    expect(wrapper.find('section[aria-label="工单内容"]').text()).toContain('case-2')
+    expect(wrapper.get('.case-title h3').text()).toContain('耳机充电后仍无法开机')
     expect(wrapper.find('section[aria-label="工单内容"]').text()).toContain('待人工审核')
+    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('case-2')
+    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('电子产品')
+    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('329.00 CNY')
+    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('HEADPHONE-PRO')
     expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('auth-2')
     expect(wrapper.text()).not.toContain('会员等级')
     wrapper.unmount()
@@ -62,6 +72,35 @@ describe('core workbench', () => {
     expect(wrapper.text()).toContain('line-7')
     expect(wrapper.text()).toContain('25.99 CNY')
     expect(wrapper.text()).not.toContain('RESHIP')
+    wrapper.unmount()
+  })
+
+  it('keeps the case usable while optional order context is slow', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
+        access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
+      })))
+      if (url.startsWith('/api/v1/review/cases')) return Promise.resolve(new Response(JSON.stringify({
+        items: [{ case_id: 'case-slow', status: 'PENDING_REVIEW', version: 2, line_id: 'line-9',
+          description: '包裹未收到', updated_at: '2026-09-28T02:00:00Z' }], page: { limit: 20 },
+      })))
+      if (url === '/api/v1/cases/case-slow') return Promise.resolve(new Response(JSON.stringify({
+        case: { case_id: 'case-slow', status: 'PENDING_REVIEW', input_revision: 1, version: 2,
+          line_id: 'line-9', order_id: 'order-slow', description: '包裹未收到' }, timeline: [],
+      })))
+      if (url === '/api/v1/orders/order-slow') return new Promise<Response>(() => {})
+      throw new Error(`Unexpected URL ${url}`)
+    }))
+    const wrapper = mount(App)
+    await wrapper.get('[name="username"]').setValue('reviewer')
+    await wrapper.get('[name="password"]').setValue('password')
+    await wrapper.get('[data-test="login"]').trigger('click')
+    await flushPromises()
+    await wrapper.get('.queue-row').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('.case-title h3').text()).toBe('包裹未收到')
+    expect(wrapper.get('.context-panel').text()).toContain('正在读取订单信息')
+    expect(wrapper.get('.list-actions button').attributes('disabled')).toBeUndefined()
     wrapper.unmount()
   })
 

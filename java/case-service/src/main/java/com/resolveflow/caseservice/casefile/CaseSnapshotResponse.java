@@ -41,7 +41,9 @@ public record CaseSnapshotResponse(
             @JsonProperty("created_at") Instant createdAt,
             @JsonProperty("updated_at") Instant updatedAt,
             @JsonProperty("requested_actions") List<RequestedAction> requestedActions,
-            @JsonProperty("line_id") String lineId) {}
+            @JsonProperty("line_id") String lineId,
+            @JsonProperty("order_id") String orderId,
+            String description) {}
 
     /**
      * One piece of material as the case view serves it: where it came from, what it says, and — for a human

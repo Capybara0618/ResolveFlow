@@ -376,6 +376,8 @@ class CaseSummary(ContractModel):
     updated_at: str
     requested_actions: Annotated[list[RequestedAction], Field(min_length=1, max_length=3)]
     line_id: str = Field(min_length=1)
+    order_id: Uuid
+    description: str = Field(min_length=1, max_length=2000)
 
 
 class CaseSnapshot(ContractModel):
@@ -395,6 +397,7 @@ class ReviewQueueItem(ContractModel):
     version: Version
     updated_at: str
     line_id: str = Field(min_length=1)
+    description: str = Field(min_length=1, max_length=2000)
     requested_actions: Annotated[list[RequestedAction], Field(min_length=1, max_length=3)]
 
 

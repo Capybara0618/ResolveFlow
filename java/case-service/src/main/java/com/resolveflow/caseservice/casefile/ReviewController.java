@@ -95,6 +95,7 @@ public class ReviewController {
             long version,
             @JsonProperty("updated_at") Instant updatedAt,
             @JsonProperty("line_id") String lineId,
+            String description,
             @JsonProperty("requested_actions") List<RequestedAction> requestedActions) {
 
         static ReviewQueueItemResponse from(ReviewQueueService.ReviewQueueItem item) {
@@ -105,6 +106,7 @@ public class ReviewController {
                     item.version(),
                     item.updatedAt(),
                     item.lineId(),
+                    item.description(),
                     item.requestedActions());
         }
     }

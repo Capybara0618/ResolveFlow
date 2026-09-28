@@ -48,6 +48,7 @@ public class ReviewQueueService {
             long version,
             java.time.Instant updatedAt,
             String lineId,
+            String description,
             List<RequestedAction> requestedActions) {}
 
     private final CaseRepository cases;
@@ -158,6 +159,7 @@ public class ReviewQueueService {
                     row.version(),
                     row.updatedAt(),
                     row.lineId(),
+                    row.description(),
                     List.copyOf(actions.getOrDefault(row.caseId(), List.of()))));
         }
         return items;

@@ -193,8 +193,16 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
 
         assertThat(item.properties().stream().map(java.util.Map.Entry::getKey))
                 .containsExactlyInAnyOrder(
-                        "case_id", "status", "input_revision", "version", "updated_at", "line_id", "requested_actions");
+                        "case_id",
+                        "status",
+                        "input_revision",
+                        "version",
+                        "updated_at",
+                        "line_id",
+                        "description",
+                        "requested_actions");
         assertThat(item.get("case_id").stringValue()).isEqualTo(caseId);
+        assertThat(item.get("description").stringValue()).isEqualTo("退款诉求");
         assertThat(item.get("status").stringValue()).isEqualTo("PENDING_REVIEW");
         assertThat(item.get("input_revision").asInt()).isEqualTo(1);
         assertThat(item.get("version").asLong()).isGreaterThan(1L);

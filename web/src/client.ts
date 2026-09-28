@@ -46,6 +46,8 @@ export interface CaseSnapshot {
     input_revision: number
     version: number
     line_id: string
+    order_id?: string
+    description?: string
   }
   authorization?: {
     authorization_id: string
@@ -63,6 +65,7 @@ export interface ReviewItem {
   status: string
   version: number
   line_id: string
+  description?: string
   updated_at: string
 }
 
@@ -92,6 +95,8 @@ export const coreApi = {
     jsonPost<LoginResponse>('/api/v1/auth/login', null, { username, password }),
   orders: (token: string, cursor?: string) =>
     apiRequest<Page<OrderLine>>(`/api/v1/orders?limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, token),
+  order: (token: string, orderId: string) =>
+    apiRequest<Page<OrderLine>>(`/api/v1/orders/${encodeURIComponent(orderId)}`, token),
   createCase: (token: string, lineId: string, description: string, key: string) =>
     jsonPost<{ case_id: string }>('/api/v1/cases', token, {
       line_id: lineId, description, requested_actions: ['REFUND'],

@@ -122,10 +122,13 @@ class CaseReadApiTest extends CaseDatabaseTest {
                         "created_at",
                         "updated_at",
                         "requested_actions",
-                        "line_id");
+                        "line_id",
+                        "order_id",
+                        "description");
         assertThat(summary.get("case_id").stringValue()).isEqualTo(caseId);
         assertThat(summary.get("status").stringValue()).isEqualTo("QUEUED");
         assertThat(summary.get("line_id").stringValue()).isEqualTo(LINE);
+        assertThat(summary.get("description").stringValue()).isEqualTo("包裹疑似丢失");
         assertThat(summary.get("requested_actions").get(0).stringValue()).isEqualTo("REFUND");
         assertThat(summary.get("created_at").stringValue()).endsWith("Z");
 

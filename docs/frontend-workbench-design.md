@@ -42,8 +42,8 @@
 ### 审核员入口
 
 1. 左列只显示当前商家的 `PENDING_REVIEW` 队列；显示工单 ID、状态、订单行 ID、更新时间。游标加载更多、手动刷新、空状态均保留。
-2. 中列展示选中工单：状态和 revision、文本证据及核验结果、Agent 方案、时间线。默认先看结论与来源，原始结构化方案可展开查看。时间线不冒充完整的模型/工具逐步 trace。
-3. 右列展示真实可获得的上下文：订单行 ID、工单版本、授权 ID/版本/状态、授权对应的输入 revision 与当前 revision。缺少的金额、商品名和客户资料不填假值。
+2. 中列先展示客户原始问题描述，再展示状态、文本证据及核验结果、Agent 方案、时间线。原始结构化方案可展开查看。时间线不冒充完整的模型/工具逐步 trace。
+3. 右列通过已鉴权的订单详情读取选中订单行的 SKU、类别、数量和已付金额；金额不冒充批准退款额。工单和授权编号/版本可展开查看。商品营销名、图片和客户资料不填假值。
 4. 只有授权状态为 `PENDING_REVIEW` 时展示审批区。要求先填写理由，再提交批准、拒绝或请求补证；将「批准」文案说明为批准授权，后续执行仍有独立状态。发生 409 时提示页面已过期并重新读取工单，不盲目重试旧决定。
 5. 证据核验保留 `CONFIRMED`、`REFUTED`、`INCONCLUSIVE` 三种结果和必填理由；核验动作与退款审批分区，避免误以为确认一份证据就已批准退款。
 
@@ -54,14 +54,15 @@
 | 登录/角色 | `POST /api/v1/auth/login` | Bearer token 只进请求头 |
 | 客户订单行 | `GET /api/v1/orders` | 游标分页；仅当前主体 |
 | 创建工单 | `POST /api/v1/cases` | `Idempotency-Key`；请求仅 `REFUND` |
-| 工单详情 | `GET /api/v1/cases/{case_id}` | 当前 `web/src/client.ts` 映射 case、authorization、proposal、evidence、timeline |
+| 工单详情 | `GET /api/v1/cases/{case_id}` | case 增加已保存的客户描述和订单 ID；仍按原主体权限读取 |
+| 选中订单 | `GET /api/v1/orders/{order_id}` | 按主体权限取订单行，前端再按 case.line_id 选中；失败时不编造金额 |
 | 实时更新 | `GET /api/v1/cases/{case_id}/events` | 带鉴权和 `Last-Event-ID`；收到事件后重取快照 |
 | 追加材料 | `POST /api/v1/cases/{case_id}/evidence` | 文本材料；成功后旧 revision 决定失效 |
-| 审核队列 | `GET /api/v1/review/cases` | 仅待审，商家隔离，游标分页 |
+| 审核队列 | `GET /api/v1/review/cases` | 仅待审，商家隔离，游标分页；增加数据库已有的客户原始描述，不增加逐行查询 |
 | 证据核验 | `POST /api/v1/cases/{case_id}/reviewed-evidence` | 三态结果及理由 |
 | 人工决定 | `POST /api/v1/cases/{case_id}/reviews` | `If-Match` 工单版本 + 授权版本；409 需刷新 |
 
-尚无与概念图对应的「我的工单列表」、图片/视频上传预览、完整客户画像、商品详情聚合、独立 Agent run trace 查询和运营图表。它们不进入本轮前端实现。右侧信息如需显示支付额，先核对现有订单详情路由的实际响应及审核员权限，再决定是否接入；未核实前只展示已知字段。
+尚无与概念图对应的「我的工单列表」、图片/视频上传预览、完整客户画像、商品营销名称、独立 Agent run trace 查询和运营图表。它们不进入本轮前端实现。订单详情路由已核对为本人/商家权限内读取，右侧展示的是实际返回的订单行已付金额。
 
 ## 5. 交互与验收
 
@@ -79,7 +80,7 @@
 3. 重排审核队列/工单详情/证据核验/审批；验证版本冲突和批准后状态。
 4. 打磨窄屏、加载/空/错误/断流状态，浏览器走通双角色演示。
 
-沿用 Vue 3、TypeScript、Vite、Vitest 和现有 `web/src/client.ts` / `web/src/events.ts`，没有增加组件库或改动后端契约。验证入口为 `pnpm --dir web test`、`pnpm --dir web build` 与真实浏览器双角色流程；不得覆盖 C12 未提交改动。
+沿用 Vue 3、TypeScript、Vite、Vitest 和现有 `web/src/client.ts` / `web/src/events.ts`，没有增加组件库。为让真实描述与订单上下文进入页面，后续切片对核心只读契约做了追加字段；不得覆盖 C12 未提交改动。
 
 ## 7. 2026-09-28 实施与验证记录
 
@@ -88,3 +89,10 @@
 - 真实浏览器先发现 `GET /cases/{id}` 在无材料时省略 `evidence`，新模板读取其 `.length` 会报错；写失败回归后在客户端把省略的集合归一为空数组。又增加 409 审批冲突的失败测试，提交被拒后重新拉取工单并提示重新核对。
 - 命令与结果：基线 `pnpm --dir web test` **15/15**；改版后 `pnpm --dir web test` **17/17**，`pnpm --dir web build` 成功（含 vue-tsc）；`git diff --check` 通过。页面分区、空证据和 409 冲突测试均先见失败再修复。
 - 浏览器：本机 Vite `http://127.0.0.1:5173/`，真实 core profile；演示客户能看到订单行和中心建单表单；演示审核员能看商家待审队列并打开一条真实工单；390px 视口下单列布局且 `scrollWidth <= innerWidth`。未在浏览器真正提交退款审批或运行收费 Agent；不把图像模型的伪字段当作系统能力。当前演示样本的 `PENDING_REVIEW` 工单返回中没有 authorization，因而该样本不显示审批按钮，需在后续业务数据验收中核查。
+
+## 8. 2026-09-28 描述与订单上下文修正
+
+- 根因：Case 已存客户描述和订单 ID，队列 SQL 也读取了描述，但两个公开只读响应丢弃这些字段；前端只好以 UUID 和订单行号作为标题。
+- 变更：队列和详情增补原始描述，详情增补订单 ID，契约、Python 类型和 OpenAPI 示例同步。选中工单后按现有主体鉴权读取订单行，只展示真实 SKU、类别、数量与已付金额；金额明确不是批准退款额。队列/详情以问题描述为主，UUID 放入可展开技术信息；常见类别、时间线事件和方案动作显示中文标签，保留原始方案可展开。
+- 验证：`CaseReadApiTest` 与 `ReviewQueueApiTest` 共 11/11；`test_contracts_core_routes.py` 71/71；`pnpm --dir web test` 18/18（含订单接口迟迟不返回时工单仍可操作），`pnpm --dir web build`、Java Spotless 和 Python Ruff 通过。真实浏览器连本地 core profile，四条待审数据的客户描述正常显示；选中工单显示真实描述及 25.99 CNY 已付金额，订单金额来自 `GET /api/v1/orders/{order_id}`。未重复做退款审批、收费模型评测或完整性能压测。
+- 数据边界：订单接口只有类别和 SKU，没有营销商品名/图片；旧演示样本部分无授权，不展示审批操作。队列字段追加未增加逐项查询，C11 性能指标仍需按独立验收口径复测。

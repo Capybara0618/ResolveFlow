@@ -833,6 +833,7 @@ def test_the_review_queue_names_what_it_holds_and_refuses_a_page_it_did_not_issu
         "version",
         "updated_at",
         "line_id",
+        "description",
         "requested_actions",
     }, "the queue row is what a reviewer needs to pick a case, and nothing else"
     assert item["properties"]["status"]["$ref"].endswith("CaseStatus")

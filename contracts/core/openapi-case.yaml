@@ -251,6 +251,8 @@ paths:
                   updated_at: '2026-09-18T04:30:00Z'
                   requested_actions: [REFUND]
                   line_id: '7001'
+                  order_id: 00000000-0000-4000-8000-0000000000aa
+                  description: 包裹显示已揽收但7天无新物流，疑似丢失，希望退款
                 proposal:
                   origin: AGENT
                   schema_version: 2
@@ -527,6 +529,7 @@ paths:
                     version: 6
                     updated_at: '2026-09-18T04:30:00Z'
                     line_id: '7001'
+                    description: 包裹显示已揽收但7天无新物流，疑似丢失，希望退款
                     requested_actions: [REFUND]
                 page:
                   limit: 20
@@ -1892,7 +1895,7 @@ components:
     CaseSummary:
       type: object
       additionalProperties: false
-      required: [case_id, status, input_revision, version, created_at, updated_at, requested_actions, line_id]
+      required: [case_id, status, input_revision, version, created_at, updated_at, requested_actions, line_id, order_id, description]
       properties:
         case_id:
           $ref: '#/components/schemas/Uuid'
@@ -1918,6 +1921,12 @@ components:
           type: string
           minLength: 1
           maxLength: 64
+        order_id:
+          $ref: '#/components/schemas/Uuid'
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
     TimelineEvent:
       type: object
       additionalProperties: false
@@ -1981,7 +1990,7 @@ components:
     ReviewQueueItem:
       type: object
       additionalProperties: false
-      required: [case_id, status, input_revision, version, updated_at, line_id, requested_actions]
+      required: [case_id, status, input_revision, version, updated_at, line_id, description, requested_actions]
       properties:
         case_id:
           $ref: '#/components/schemas/Uuid'
@@ -1998,6 +2007,10 @@ components:
           type: string
           minLength: 1
           maxLength: 64
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
         requested_actions:
           type: array
           minItems: 1

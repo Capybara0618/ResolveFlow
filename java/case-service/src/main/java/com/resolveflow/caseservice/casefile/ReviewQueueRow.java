@@ -13,6 +13,7 @@ public record ReviewQueueRow(
         String caseId,
         String merchantId,
         String lineId,
+        String description,
         String status,
         int inputRevision,
         long version,
