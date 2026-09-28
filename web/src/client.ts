@@ -56,7 +56,10 @@ export interface CaseSnapshot {
     input_revision: number
   }
   proposal?: Record<string, unknown>
-  evidence: Array<{ observation_id: string; content: string; evidence_kind: string }>
+  evidence: Array<{
+    observation_id: string; content: string; evidence_kind: string; source_ref?: string
+    observed_at?: string; reviewed_evidence_id?: string; verification_result?: string
+  }>
   timeline: TimelineEvent[]
 }
 

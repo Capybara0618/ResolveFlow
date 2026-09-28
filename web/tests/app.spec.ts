@@ -20,6 +20,12 @@ describe('core workbench', () => {
         case: { case_id: 'case-2', status: 'PENDING_REVIEW', input_revision: 2, version: 7, line_id: 'line-9',
           order_id: 'order-4', description: '耳机充电后仍无法开机，申请退款' },
         authorization: { authorization_id: 'auth-2', authorization_version: 3, status: 'PENDING_REVIEW', input_revision: 2 },
+        evidence: [
+          { observation_id: 'ev-1', evidence_kind: 'CUSTOMER_STATEMENT', content: '充电两小时仍不开机',
+            source_ref: 'customer:C-9', observed_at: '2026-09-28T01:50:00Z' },
+          { observation_id: 'ev-2', evidence_kind: 'REVIEWER_VERIFICATION', content: '已检查充电记录',
+            source_ref: 'reviewer:R-1', reviewed_evidence_id: 'ev-1', verification_result: 'CONFIRMED' },
+        ],
         timeline: [],
       })))
       if (url === '/api/v1/orders/order-4') return Promise.resolve(new Response(JSON.stringify({
@@ -41,9 +47,14 @@ describe('core workbench', () => {
     expect(wrapper.get('.case-title h3').text()).toContain('耳机充电后仍无法开机')
     expect(wrapper.find('section[aria-label="工单内容"]').text()).toContain('待人工审核')
     expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('case-2')
-    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('电子产品')
-    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('329.00 CNY')
-    expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('HEADPHONE-PRO')
+    expect(wrapper.get('.case-order').text()).toContain('电子产品')
+    expect(wrapper.get('.case-order').text()).toContain('329.00 CNY')
+    expect(wrapper.get('.case-order').text()).toContain('HEADPHONE-PRO')
+    expect(wrapper.get('.case-order').text()).toContain('订单已付金额')
+    expect(wrapper.get('.evidence').text()).toContain('客户陈述')
+    expect(wrapper.get('.evidence').text()).toContain('customer:C-9')
+    expect(wrapper.findAll('.evidence')[1].text()).toContain('确认')
+    expect(wrapper.findAll('.evidence')[1].findAll('button')).toHaveLength(0)
     expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('auth-2')
     expect(wrapper.text()).not.toContain('会员等级')
     wrapper.unmount()
@@ -96,7 +107,7 @@ describe('core workbench', () => {
     await wrapper.get('[data-test="login"]').trigger('click')
     await flushPromises()
     expect(wrapper.get('.case-title h3').text()).toBe('包裹未收到')
-    expect(wrapper.get('.context-panel').text()).toContain('正在读取订单信息')
+    expect(wrapper.get('.case-order').text()).toContain('正在读取订单信息')
     expect(wrapper.get('.list-actions button').attributes('disabled')).toBeUndefined()
     wrapper.unmount()
   })

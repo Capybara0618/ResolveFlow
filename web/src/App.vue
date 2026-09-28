@@ -38,6 +38,14 @@ const caseStatusLabels: Record<string, string> = {
 }
 const statusLabel = (status: string) => caseStatusLabels[status] ?? status
 const categoryLabels: Record<string, string> = { apparel: '服饰商品', electronics: '电子产品', home: '家居商品', beauty: '美妆商品' }
+const evidenceLabels: Record<string, string> = {
+  ORDER_LINE: '订单行记录', PAYMENT_LEDGER: '支付记录', SHIPMENT: '物流记录',
+  SHIPMENT_TRACK: '物流轨迹', CUSTOMER_STATEMENT: '客户陈述',
+  REVIEWER_VERIFICATION: '人工核验', POLICY_RULE: '政策条款',
+}
+const verificationLabels: Record<string, string> = {
+  CONFIRMED: '确认', REFUTED: '驳回', INCONCLUSIVE: '无法判定',
+}
 const timelineLabels: Record<string, string> = {
   CASE_CREATED: '工单已创建', AGENT_STARTED: 'Agent 开始调查', PROPOSAL_READY: '调查建议已生成',
   EVIDENCE_APPENDED: '客户补充材料', EVIDENCE_REVIEWED: '材料已核验', REVIEW_APPROVED: '审核已批准',
@@ -271,12 +279,22 @@ onUnmounted(stopStream)
             <template v-else>
               <div class="case-title"><div><p class="eyebrow">客户诉求</p><h3>{{ headline(snapshot.case.description) }}</h3><p>退款申请 · {{ statusLabel(snapshot.case.status) }}</p></div>
                 <span class="stream-indicator">事件流：{{ streamStatus }}</span></div>
+              <section v-if="isReviewer" class="case-order" aria-label="订单行摘要"><h3>订单行</h3>
+                <div v-if="selectedOrderLine" class="case-order-content"><div><strong>{{ categoryLabels[selectedOrderLine.category] ?? '订单商品' }}</strong>
+                  <span>SKU {{ selectedOrderLine.sku }} · 数量 {{ selectedOrderLine.quantity }}</span></div>
+                  <div class="case-order-amount"><b>{{ formatMinorUnits(selectedOrderLine.line_paid_amount, selectedOrderLine.currency) }}</b><small>订单已付金额；退款金额由服务端决定</small></div></div>
+                <p v-else-if="orderContextState === 'loading'" class="muted">正在读取订单信息…</p>
+                <p v-else class="muted">暂无可展示的订单明细</p></section>
               <section v-if="snapshot.case.description" class="customer-issue"><h3>问题描述</h3><p>{{ snapshot.case.description }}</p></section>
               <section class="detail-section"><div class="section-heading"><h3>证据与材料</h3><span class="count">{{ snapshot.evidence.length }}</span></div>
-                <p v-if="snapshot.evidence.length === 0" class="empty">暂无可见证据</p>
+                <p v-if="snapshot.evidence.length === 0" class="evidence-empty">暂无可见材料；不能据此认定证据已核验。</p>
                 <article v-for="item in snapshot.evidence" :key="item.observation_id" class="evidence">
-                  <div class="evidence-meta"><strong>{{ item.evidence_kind }}</strong><small>{{ item.observation_id }}</small></div><p>{{ item.content }}</p>
-                  <div v-if="isReviewer" class="actions">
+                  <div class="evidence-meta"><strong>{{ evidenceLabels[item.evidence_kind] ?? item.evidence_kind }}</strong>
+                    <span v-if="item.verification_result" class="verification-tag" :class="item.verification_result.toLowerCase()">{{ verificationLabels[item.verification_result] ?? item.verification_result }}</span></div>
+                  <p>{{ item.content }}</p><small class="evidence-source">来源：{{ item.source_ref || '未提供' }}<span v-if="item.observed_at"> · {{ formatTimestamp(item.observed_at) }}</span>
+                    <span v-if="item.reviewed_evidence_id"> · 核验材料 {{ item.reviewed_evidence_id }}</span></small>
+                  <details class="evidence-id"><summary>查看材料编号</summary>{{ item.observation_id }}</details>
+                  <div v-if="isReviewer && !item.reviewed_evidence_id" class="actions">
                     <button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'CONFIRMED')">确认</button>
                     <button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'REFUTED')">驳回</button>
                     <button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'INCONCLUSIVE')">无法判定</button>
@@ -309,13 +327,13 @@ onUnmounted(stopStream)
             </template>
           </section>
           <aside class="context-column" aria-label="工单上下文">
-            <section class="panel context-panel"><h2>订单信息</h2>
-              <template v-if="snapshot"><div v-if="selectedOrderLine" class="order-summary">
+            <section class="panel context-panel"><h2>{{ isReviewer ? '工单记录' : '订单信息' }}</h2>
+              <template v-if="snapshot"><div v-if="!isReviewer && selectedOrderLine" class="order-summary">
                 <strong>{{ categoryLabels[selectedOrderLine.category] ?? '订单商品' }}</strong><span>数量 {{ selectedOrderLine.quantity }} · SKU {{ selectedOrderLine.sku }}</span>
                 <b>{{ formatMinorUnits(selectedOrderLine.line_paid_amount, selectedOrderLine.currency) }}</b>
                 <small>订单已付金额；退款金额由服务端决定</small></div>
-                <p v-else-if="orderContextState === 'loading'" class="muted">正在读取订单信息…</p>
-                <p v-else class="muted">暂无可展示的订单明细</p>
+                <p v-else-if="!isReviewer && orderContextState === 'loading'" class="muted">正在读取订单信息…</p>
+                <p v-else-if="!isReviewer" class="muted">暂无可展示的订单明细</p>
                 <details class="technical-details"><summary>查看工单与订单编号</summary><dl><dt>工单编号</dt><dd>{{ snapshot.case.case_id }}</dd><dt>订单编号</dt><dd>{{ snapshot.case.order_id || '未提供' }}</dd>
                   <dt>订单行编号</dt><dd>{{ snapshot.case.line_id }}</dd><dt>工单版本</dt><dd>{{ snapshot.case.version }}</dd>
                   <dt>输入修订</dt><dd>{{ snapshot.case.input_revision }}</dd></dl></details></template>
@@ -409,6 +427,14 @@ h3 { margin-bottom: 13px; font-size: 15px; }
 .case-title h3 { margin-bottom: 7px; font-size: 20px; overflow-wrap: anywhere; }
 .case-title .eyebrow { margin-bottom: 8px; }
 .case-title p { margin-bottom: 0; color: var(--muted); }
+.case-order { padding: 15px 17px; margin-bottom: 18px; border: 1px solid var(--line); border-radius: 10px; }
+.case-order h3 { margin-bottom: 10px; }
+.case-order .muted { margin-bottom: 0; }
+.case-order-content { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.case-order-content > div { display: grid; gap: 5px; min-width: 0; }
+.case-order-content span, .case-order-content small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.case-order-amount { text-align: right; }
+.case-order-amount b { color: #1d4ed8; font-size: 18px; white-space: nowrap; }
 .customer-issue { padding: 17px 18px; margin-bottom: 20px; border-radius: 10px; background: #f4f7fb; }
 .customer-issue h3 { margin-bottom: 8px; }
 .customer-issue p { margin-bottom: 0; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -420,6 +446,13 @@ h3 { margin-bottom: 13px; font-size: 15px; }
 .evidence-meta { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .evidence-meta small { color: var(--muted); overflow-wrap: anywhere; }
 .evidence p { margin: 12px 0 0; white-space: pre-wrap; line-height: 1.65; }
+.evidence-empty { margin: 0; padding: 12px 14px; border: 1px dashed #cbd5e1; border-radius: 8px; color: var(--muted); font-size: 12px; }
+.verification-tag { padding: 4px 8px; border-radius: 6px; background: #eaf7ef; color: #15803d; font-size: 12px; font-weight: 700; }
+.verification-tag.refuted { background: #fef2f2; color: #b91c1c; }
+.verification-tag.inconclusive { background: #fff7ed; color: #b45309; }
+.evidence-source { display: block; margin-top: 8px; color: var(--muted); overflow-wrap: anywhere; }
+.evidence-id { margin-top: 8px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.evidence-id summary { color: #41618f; cursor: pointer; }
 .evidence .actions { margin-top: 13px; }
 .proposal { padding: 20px; margin: 0 -4px 12px; border: 1px solid #c9dcff; border-radius: 12px; background: #f4f8ff; }
 .proposal h3 { margin: 6px 0 10px; color: #1e40af; font-size: 18px; }
@@ -464,5 +497,5 @@ button:disabled { opacity: .55; cursor: wait; }
 .login-error { position: fixed; left: 50%; bottom: 24px; width: min(90vw, 430px); transform: translateX(-50%); box-shadow: 0 10px 30px #0f172a20; }
 @media (max-width: 1499px) { .columns { grid-template-columns: minmax(230px, 290px) minmax(0, 1fr); } .context-column { grid-column: 2; } .reviewer-columns { grid-template-columns: minmax(245px, 280px) minmax(0, 1fr); } .reviewer-columns > .case-panel { border-right: 0; } .reviewer-columns > .context-column { padding: 14px 22px; } }
 @media (max-width: 850px) { .app-shell { display: block; } .sidebar { flex-direction: row; align-items: center; gap: 8px; padding: 8px 16px; border-right: 0; border-bottom: 1px solid var(--line); } .sidebar-caption, .sidebar-note { display: none; } .workspace { padding: 24px 16px; } .reviewer-workspace { padding: 0; } .columns, .reviewer-columns { grid-template-columns: minmax(0, 1fr); } .context-column { grid-column: auto; } .reviewer-columns > .list-panel { border-right: 0; border-bottom: 1px solid var(--line); } .reviewer-columns .scroll-list { max-height: 280px; } .page-heading { align-items: start; } }
-@media (max-width: 600px) { .topbar { padding: 0 16px; } .brand { font-size: 16px; } .demo-tag, .merchant, .scope-note { display: none; } .page-heading { margin-bottom: 18px; } .case-panel { padding: 18px; } .reviewer-columns > .case-panel { padding: 18px 16px; } .lookup { flex-wrap: wrap; } .lookup label { flex-basis: 100%; } .lookup button { width: 100%; } .review-section { padding: 16px; } }
+@media (max-width: 600px) { .topbar { padding: 0 16px; } .brand { font-size: 16px; } .demo-tag, .merchant, .scope-note { display: none; } .page-heading { margin-bottom: 18px; } .case-panel { padding: 18px; } .reviewer-columns > .case-panel { padding: 18px 16px; } .case-order-content { align-items: start; flex-direction: column; } .case-order-amount { text-align: left; } .lookup { flex-wrap: wrap; } .lookup label { flex-basis: 100%; } .lookup button { width: 100%; } .review-section { padding: 16px; } }
 </style>
