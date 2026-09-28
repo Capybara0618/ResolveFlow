@@ -51,6 +51,10 @@ const evidenceLabels: Record<string, string> = {
 const verificationLabels: Record<string, string> = {
   CONFIRMED: '确认', REFUTED: '驳回', INCONCLUSIVE: '无法判定',
 }
+const verifiedEvidence = computed(() => new Map(
+  snapshot.value?.evidence.filter(item => item.reviewed_evidence_id && item.verification_result)
+    .map(item => [item.reviewed_evidence_id!, item.verification_result!]) ?? [],
+))
 const timelineLabels: Record<string, string> = {
   CASE_CREATED: '工单已创建', AGENT_STARTED: 'Agent 开始调查', PROPOSAL_READY: '调查建议已生成',
   EVIDENCE_APPENDED: '客户补充材料', EVIDENCE_REVIEWED: '材料已核验', REVIEW_APPROVED: '审核已批准',
@@ -63,6 +67,13 @@ const actionLabels: Record<string, string> = {
 }
 const proposalAction = (proposal: Record<string, unknown>) =>
   actionLabels[String(proposal.recommended_action ?? '')] ?? '请人工核对方案'
+const proposalSourceLabel = (proposal: Record<string, unknown>) =>
+  proposal.origin === 'HUMAN' ? '人工方案' : proposal.origin === 'AGENT' ? 'Agent 建议' : '调查建议'
+function validatedRefundAmount(proposal?: Record<string, unknown>) {
+  const amount = proposal?.recomputed_amount_minor
+  return proposal?.status === 'VALIDATED' && typeof amount === 'number' && Number.isSafeInteger(amount) && amount > 0
+    ? amount : null
+}
 function proposalCitations(proposal: Record<string, unknown>) {
   const evidence = Array.isArray(proposal.evidence_refs) ? proposal.evidence_refs : []
   const policies = Array.isArray(proposal.policy_refs) ? proposal.policy_refs : []
@@ -75,7 +86,9 @@ function proposalCitations(proposal: Record<string, unknown>) {
 }
 function headline(value?: string) {
   const text = value?.trim().replace(/\s+/g, ' ') || '退款申请'
-  return text.length > 44 ? `${text.slice(0, 44)}…` : text
+  const firstThought = text.split(/[；。]/, 1)[0]
+  const title = firstThought.length >= 8 ? firstThought : text
+  return title.length > 36 ? `${title.slice(0, 36)}…` : title
 }
 function formatTimestamp(value: string) {
   const date = new Date(value)
@@ -305,22 +318,22 @@ onUnmounted(stopStream)
               <section v-if="snapshot.case.description" class="customer-issue"><h3>问题描述</h3><p>{{ snapshot.case.description }}</p></section>
               <section class="detail-section"><div class="section-heading"><h3>证据与材料</h3><span class="count">{{ snapshot.evidence.length }}</span></div>
                 <p v-if="snapshot.evidence.length === 0" class="evidence-empty">暂无可见材料；不能据此认定证据已核验。</p>
-                <article v-for="item in snapshot.evidence" :key="item.observation_id" class="evidence">
+                <div v-if="snapshot.evidence.length" class="evidence-list"><article v-for="item in snapshot.evidence" :key="item.observation_id" class="evidence">
                   <div class="evidence-meta"><strong>{{ evidenceLabels[item.evidence_kind] ?? item.evidence_kind }}</strong>
-                    <span v-if="item.verification_result" class="verification-tag" :class="item.verification_result.toLowerCase()">{{ verificationLabels[item.verification_result] ?? item.verification_result }}</span></div>
-                  <p>{{ item.content }}</p><small class="evidence-source">来源：{{ item.source_ref || '未提供' }}<span v-if="item.observed_at"> · {{ formatTimestamp(item.observed_at) }}</span>
-                    <span v-if="item.reviewed_evidence_id"> · 核验材料 {{ item.reviewed_evidence_id }}</span></small>
-                  <details class="evidence-id"><summary>查看材料编号</summary>{{ item.observation_id }}</details>
-                  <div v-if="isReviewer && !item.reviewed_evidence_id" class="actions">
+                    <span v-if="item.verification_result" class="verification-tag" :class="item.verification_result.toLowerCase()">{{ verificationLabels[item.verification_result] ?? item.verification_result }}</span>
+                    <span v-else-if="verifiedEvidence.get(item.observation_id)" class="verification-tag" :class="verifiedEvidence.get(item.observation_id)?.toLowerCase()">已核验：{{ verificationLabels[verifiedEvidence.get(item.observation_id)!] }}</span></div>
+                  <p>{{ item.content }}</p><small class="evidence-source">来源：{{ item.evidence_kind === 'REVIEWER_VERIFICATION' ? '审核员核验' : (item.source_ref || '未提供') }}<span v-if="item.observed_at"> · {{ formatTimestamp(item.observed_at) }}</span></small>
+                  <details class="evidence-id"><summary>查看材料来源与编号</summary><div>材料编号：{{ item.observation_id }}</div><div>来源引用：{{ item.source_ref || '未提供' }}</div><div v-if="item.reviewed_evidence_id">核验材料：{{ item.reviewed_evidence_id }}</div></details>
+                  <div v-if="isReviewer && !item.reviewed_evidence_id && !verifiedEvidence.has(item.observation_id)" class="actions">
                     <button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'CONFIRMED')">确认</button>
                     <button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'REFUTED')">驳回</button>
                     <button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'INCONCLUSIVE')">无法判定</button>
                   </div>
-                </article>
-                <label v-if="isReviewer && snapshot.evidence.length">核验理由 <input v-model="verificationReason" placeholder="提交核验前填写理由" /></label>
+                </article></div>
+                <label v-if="isReviewer && snapshot.evidence.some(item => !item.reviewed_evidence_id && !verifiedEvidence.has(item.observation_id))">核验理由 <input v-model="verificationReason" placeholder="提交核验前填写理由" /></label>
               </section>
               <div class="analysis-grid" :class="{ 'without-proposal': !snapshot.proposal }">
-                <section v-if="snapshot.proposal" class="detail-section proposal"><p class="eyebrow">调查结论</p><h3>Agent 建议：{{ proposalAction(snapshot.proposal) }}</h3>
+                <section v-if="snapshot.proposal" class="detail-section proposal"><p class="eyebrow">调查结论</p><h3>{{ proposalSourceLabel(snapshot.proposal) }}：{{ proposalAction(snapshot.proposal) }}</h3>
                   <p v-if="typeof snapshot.proposal.summary === 'string'">{{ snapshot.proposal.summary }}</p>
                   <div v-if="proposalCitations(snapshot.proposal).length" class="citation-list"><strong>方案引用</strong>
                     <div v-for="(citation, index) in proposalCitations(snapshot.proposal)" :key="index"><span>{{ citation.kind }}</span>{{ citation.detail }}</div></div>
@@ -367,6 +380,7 @@ onUnmounted(stopStream)
               <p v-else class="empty">打开工单后显示服务端记录。</p>
             </section>
             <section v-if="snapshot?.authorization" class="panel context-panel"><h2>审核授权</h2><p class="authorization-state">{{ authorizationStatusLabel(snapshot.authorization.status) }}</p>
+              <p v-if="selectedOrderLine && validatedRefundAmount(snapshot.proposal) !== null" class="validated-amount">待审退款额 <strong>{{ formatMinorUnits(validatedRefundAmount(snapshot.proposal)!, selectedOrderLine.currency) }}</strong><small>由 Case 服务端重算，尚未执行</small></p>
               <details class="technical-details"><summary>查看授权编号与版本</summary><dl><dt>授权编号</dt><dd>{{ snapshot.authorization.authorization_id }}</dd>
               <dt>授权版本</dt><dd>{{ snapshot.authorization.authorization_version }}</dd>
               <dt>对应输入修订</dt><dd>{{ snapshot.authorization.input_revision }}</dd></dl></details>
@@ -471,7 +485,8 @@ h3 { margin-bottom: 13px; font-size: 15px; }
 .detail-section { padding: 22px 0; border-top: 1px solid var(--line); }
 .detail-section:last-child { padding-bottom: 0; }
 .section-heading { justify-content: space-between; }
-.evidence { padding: 14px; margin-bottom: 10px; border: 1px solid var(--line); border-radius: 10px; }
+.evidence-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 10px; }
+.evidence { min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
 .evidence-meta { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .evidence-meta small { color: var(--muted); overflow-wrap: anywhere; }
 .evidence p { margin: 12px 0 0; white-space: pre-wrap; line-height: 1.65; }
@@ -519,6 +534,9 @@ pre { max-height: 360px; overflow: auto; padding: 13px; background: #fff; border
 .technical-details { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
 .technical-details dl { margin-top: 14px; }
 .authorization-state { margin: 14px 0 4px; color: #1d4ed8; font-weight: 700; }
+.validated-amount { display: grid; gap: 5px; padding: 10px 0; color: var(--muted); font-size: 12px; }
+.validated-amount strong { color: #1d4ed8; font-size: 18px; }
+.validated-amount small { color: var(--muted); }
 dl { display: grid; grid-template-columns: minmax(85px, auto) minmax(0, 1fr); gap: 14px 6px; margin-bottom: 0; font-size: 12px; }
 dt { color: var(--muted); } dd { margin: 0; text-align: right; overflow-wrap: anywhere; font-weight: 650; }
 .context-warning { margin: 16px 0 0; padding: 10px; border-radius: 8px; background: #fff7ed; color: #9a3412; line-height: 1.5; font-size: 12px; }

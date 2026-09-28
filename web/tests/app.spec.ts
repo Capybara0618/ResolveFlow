@@ -26,7 +26,8 @@ describe('core workbench', () => {
           { observation_id: 'ev-2', evidence_kind: 'REVIEWER_VERIFICATION', content: '已检查充电记录',
             source_ref: 'reviewer:R-1', reviewed_evidence_id: 'ev-1', verification_result: 'CONFIRMED' },
         ],
-        proposal: { recommended_action: 'REFUND', summary: '建议退款',
+        proposal: { origin: 'HUMAN', recommended_action: 'REFUND', summary: '建议退款',
+          status: 'VALIDATED', recomputed_amount_minor: 32900,
           evidence_refs: [{ observation_id: 'ev-1', source_ref: 'customer:C-9', source_version: '1' }],
           policy_refs: [{ bundle_id: 'refund-v2', version: '2', rule_id: 'QUALITY_7D', chunk_id: 'c-1' }] },
         timeline: [],
@@ -56,10 +57,14 @@ describe('core workbench', () => {
     expect(wrapper.get('.case-order').text()).toContain('订单已付金额')
     expect(wrapper.get('.evidence').text()).toContain('客户陈述')
     expect(wrapper.get('.evidence').text()).toContain('customer:C-9')
+    expect(wrapper.findAll('.evidence')[0].text()).toContain('已核验：确认')
+    expect(wrapper.findAll('.evidence')[0].findAll('button')).toHaveLength(0)
     expect(wrapper.findAll('.evidence')[1].text()).toContain('确认')
     expect(wrapper.findAll('.evidence')[1].findAll('button')).toHaveLength(0)
     expect(wrapper.get('.proposal').text()).toContain('customer:C-9')
     expect(wrapper.get('.proposal').text()).toContain('QUALITY_7D')
+    expect(wrapper.get('.proposal h3').text()).toContain('人工方案')
+    expect(wrapper.findAll('.context-panel')[1].text()).toContain('待审退款额')
     expect(wrapper.find('.analysis-grid').exists()).toBe(true)
     expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('auth-2')
     expect(wrapper.text()).not.toContain('会员等级')
