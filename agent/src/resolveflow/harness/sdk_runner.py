@@ -1028,7 +1028,13 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
             # `case_type` is the run's own classification and the case contract requires it in `ProposalPayload`
             # (contracts/core/openapi-case.yaml:1622, "the run classified the case"). It classifies and never routes:
             # docs/agent-harness.md:9 keeps the action path driven by the observations, not by a case type.
-            "carries": ["recommended_action", "case_type", "reason_codes", "summary", "reasoning"],
+            "carries": ["recommended_action", "case_type", "reason_codes", "summary", "reasoning", "review_findings"],
+            "review_findings": {
+                "max_items": 8,
+                "fields": {"kind": ["FACT", "INFERENCE", "CONFLICT"], "text": "1..400 characters",
+                           "observation_ids": "1..8 distinct IDs from evidence_refs; CONFLICT needs at least 2"},
+                "meaning": "model-authored source summary or interpretation, not a verified business fact",
+            },
             "case_type": [member.value for member in CaseType],
             "citations": {
                 "evidence_refs": ["observation_id", "source_ref", "source_version", "content_hash"],

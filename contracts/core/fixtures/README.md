@@ -7,6 +7,8 @@
 | `valid.json` | 正向语料：执行命令、四种事件信封、提案（可执行与追问各一条），以及被它们引用的共享组件与测试签名密钥 |
 | `reject.json` | 反向语料：每条都是「必须被拒绝」的实例，并写明为什么必须被拒 |
 | `expected.json` | 冻结的期望值：由 `scripts/contracts_core_freeze.py` 从 `valid.json` 重算生成，Java 与 Python 各自复现它 |
+| `reviewer-context.json` | 审核工作台上下文接口示例 |
+| `reviewer-findings.json` | 合成的来源陈述、判断及冲突示例；Python校验契约、Java共享类型校验往返 |
 
 ## 语料结构
 

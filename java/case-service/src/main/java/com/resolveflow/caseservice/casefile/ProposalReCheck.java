@@ -301,6 +301,7 @@ public class ProposalReCheck {
             }
         }
         requireEvidenceRefs(submission.evidence(), 0, ProposalSubmission.MAX_CITATIONS);
+        requireFindings(submission);
         if (submission.policies().size() > 10) {
             throw new CaseService.SemanticInvalidException("at most 10 policy references, found "
                     + submission.policies().size());
@@ -333,6 +334,35 @@ public class ProposalReCheck {
         if (value == null
                 || !value.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
             throw new CaseService.SemanticInvalidException(member + " must be a UUID, got " + value);
+        }
+    }
+
+    private static void requireFindings(ProposalSubmission submission) {
+        if (submission.reviewFindings() == null) return;
+        if (submission.reviewFindings().size() > 8) {
+            throw new CaseService.SemanticInvalidException("at most 8 review findings");
+        }
+        Set<String> available = submission.evidence().stream()
+                .map(EvidenceCitation::observationId)
+                .collect(java.util.stream.Collectors.toSet());
+        for (var finding : submission.reviewFindings()) {
+            if (finding == null
+                    || finding.kind() == null
+                    || !List.of("FACT", "INFERENCE", "CONFLICT").contains(finding.kind())
+                    || finding.text() == null
+                    || finding.text().isBlank()
+                    || finding.text().length() > 400
+                    || finding.observationIds() == null
+                    || finding.observationIds().isEmpty()
+                    || finding.observationIds().size() > 8
+                    || new HashSet<>(finding.observationIds()).size()
+                            != finding.observationIds().size()
+                    || !available.containsAll(finding.observationIds())
+                    || ("CONFLICT".equals(finding.kind())
+                            && finding.observationIds().size() < 2)) {
+                throw new CaseService.SemanticInvalidException(
+                        "review finding must name valid, distinct cited observations");
+            }
         }
     }
 }

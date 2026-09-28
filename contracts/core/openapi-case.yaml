@@ -1768,6 +1768,45 @@ components:
         docs/core-contracts.md:57 requires the body's subject to agree with the service
         JWT and the Case binding - a copy Java can cross-check, not a second truth.
       properties:
+        review_findings:
+          type: array
+          maxItems: 8
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - kind
+            - text
+            - observation_ids
+            properties:
+              kind:
+                type: string
+                enum:
+                - FACT
+                - INFERENCE
+                - CONFLICT
+              text:
+                type: string
+                minLength: 1
+                maxLength: 400
+              observation_ids:
+                type: array
+                minItems: 1
+                maxItems: 8
+                uniqueItems: true
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+            allOf:
+            - if:
+                properties:
+                  kind:
+                    const: CONFLICT
+              then:
+                properties:
+                  observation_ids:
+                    minItems: 2
         schema_version:
           const: 2
           description: Protocol version of the proposal payload (docs/core-contracts.md:9).
@@ -1843,6 +1882,45 @@ components:
         author's. A human proposal's `summary` is the reason its author wrote: there is no
         second free-text member saying the same thing.
       properties:
+        review_findings:
+          type: array
+          maxItems: 8
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - kind
+            - text
+            - observation_ids
+            properties:
+              kind:
+                type: string
+                enum:
+                - FACT
+                - INFERENCE
+                - CONFLICT
+              text:
+                type: string
+                minLength: 1
+                maxLength: 400
+              observation_ids:
+                type: array
+                minItems: 1
+                maxItems: 8
+                uniqueItems: true
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+            allOf:
+            - if:
+                properties:
+                  kind:
+                    const: CONFLICT
+              then:
+                properties:
+                  observation_ids:
+                    minItems: 2
         origin:
           $ref: '#/components/schemas/ProposalOrigin'
         authored_by:

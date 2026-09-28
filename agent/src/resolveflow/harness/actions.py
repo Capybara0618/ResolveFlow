@@ -29,7 +29,7 @@ from typing import Annotated, Any, Final, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from resolveflow.contracts.core_models import CoreEvidenceRef, CorePolicyRef
+from resolveflow.contracts.core_models import CoreEvidenceRef, CorePolicyRef, ReviewerFinding, validate_finding_sources
 from resolveflow.contracts.enums import CaseType
 
 __all__ = [
@@ -230,6 +230,7 @@ class ModelDecision(BaseModel):
     evidence_refs: list[CoreEvidenceRef] = []
     policy_refs: list[CorePolicyRef] = []
     missing_evidence: Annotated[list[str], Field(max_length=10)] = []
+    review_findings: Annotated[list[ReviewerFinding], Field(max_length=8)] = []
 
     @model_validator(mode="after")
     def check_kind_and_its_members(self) -> ModelDecision:
@@ -263,8 +264,11 @@ class ModelDecision(BaseModel):
         # Citations belong to the proposal, and only to it. A read that carries one is a proposal smuggled through a
         # read — the same mistake ``recommended_action`` above is refused for — and an ESCALATE must not invent
         # citations it did not gather (docs/agent-spec.md:20).
-        if self.kind != PROPOSE and (self.evidence_refs or self.policy_refs or self.missing_evidence):
+        if self.kind != PROPOSE and (
+            self.evidence_refs or self.policy_refs or self.missing_evidence or self.review_findings
+        ):
             raise ValueError(f"a {self.kind} action may not carry citations; that is a PROPOSE")
+        validate_finding_sources(self.review_findings, self.evidence_refs)
         return self
 
 

@@ -74,6 +74,33 @@ class ProposalReCheckApiTest extends CaseDatabaseTest {
 
     private long lineCounter = 7500;
 
+    @Test
+    void reviewerFindingsAreStoredButCannotNameUncitedObservations() {
+        String caseId = openCase();
+        ObjectNode payload = proposal(caseId, 1, "MANUAL_REVIEW");
+        payload.putArray("evidence_refs")
+                .addObject()
+                .put("observation_id", "obs-1")
+                .put("source_ref", "line:7501/shipment")
+                .put("source_version", "1")
+                .put("content_hash", "a".repeat(64));
+        var finding = payload.putArray("review_findings")
+                .addObject()
+                .put("kind", "FACT")
+                .put("text", "物流来源报告已签收");
+        finding.putArray("observation_ids").add("invented");
+        deliverExpecting("bad-finding", caseId, payload, 422);
+        finding.putArray("observation_ids").add("obs-1");
+        deliver("valid-finding", caseId, payload);
+        assertThat(view(caseId)
+                        .get("proposal")
+                        .get("review_findings")
+                        .get(0)
+                        .get("text")
+                        .stringValue())
+                .isEqualTo("物流来源报告已签收");
+    }
+
     @BeforeEach
     void prepare() {
         jdbc.execute("DELETE FROM case_policy_bundle");

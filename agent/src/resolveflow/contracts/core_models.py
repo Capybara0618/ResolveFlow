@@ -330,6 +330,30 @@ class ToolObservation(CoreObservation):
     error: CoreToolError | None = None
 
 
+class ReviewerFinding(CoreWireModel):
+    """A model-authored explanation, linked to already cited observations; not a verified fact."""
+
+    kind: Literal["FACT", "INFERENCE", "CONFLICT"]
+    text: Annotated[str, StringConstraints(min_length=1, max_length=400)]
+    observation_ids: Annotated[
+        list[Annotated[str, StringConstraints(min_length=1, max_length=64)]], Field(min_length=1, max_length=8)
+    ]
+
+    @model_validator(mode="after")
+    def distinct_sources(self) -> ReviewerFinding:
+        if len(set(self.observation_ids)) != len(self.observation_ids):
+            raise ValueError("finding observation_ids must be unique")
+        if self.kind == "CONFLICT" and len(self.observation_ids) < 2:
+            raise ValueError("a conflict must name at least two observed sources")
+        return self
+
+
+def validate_finding_sources(findings: list[ReviewerFinding], refs: list[CoreEvidenceRef]) -> None:
+    available = {ref.observation_id for ref in refs}
+    if any(not set(finding.observation_ids) <= available for finding in findings):
+        raise ValueError("review findings may only cite observations in evidence_refs")
+
+
 class CoreAgentProposal(CoreWireModel):
     """The proposal a run submits (docs/core-contracts.md:59).
 
@@ -356,9 +380,11 @@ class CoreAgentProposal(CoreWireModel):
     missing_evidence: Annotated[
         list[Annotated[str, StringConstraints(max_length=200)]], Field(max_length=10)
     ] = []
+    review_findings: Annotated[list[ReviewerFinding], Field(max_length=8)] = []
 
     @model_validator(mode="after")
     def check_actionable_proposal_cites_sources(self) -> CoreAgentProposal:
+        validate_finding_sources(self.review_findings, self.evidence_refs)
         if self.recommended_action != "REFUND":
             return self
         if not self.evidence_refs:

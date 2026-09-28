@@ -349,6 +349,9 @@ def callback_payload(kind: CallbackKind, claimed: ClaimedRun, result: RunResult)
         missing = list(getattr(decision, "missing_evidence", []) or [])
         if missing:
             payload["missing_evidence"] = missing
+        findings = getattr(decision, "review_findings", []) or []
+        if findings:
+            payload["review_findings"] = [finding.model_dump(mode="json") for finding in findings]
         for member in ("evidence_refs", "policy_refs"):
             refs = getattr(decision, member, []) or []
             if refs:

@@ -85,6 +85,12 @@ public final class CoreContract {
             @JsonProperty("chunk_id") String chunkId,
             @JsonProperty("content_hash") String contentHash) {}
 
+    /** A model-authored explanation linked to observations, never a verification result. */
+    public record CoreReviewFinding(
+            String kind,
+            String text,
+            @JsonProperty("observation_ids") List<String> observationIds) {}
+
     /**
      * The proposal a run submits (docs/core-contracts.md:59).
      *
@@ -106,5 +112,6 @@ public final class CoreContract {
             @JsonProperty("reason_codes") List<String> reasonCodes,
             @JsonProperty("evidence_refs") List<CoreEvidenceRef> evidenceRefs,
             @JsonProperty("policy_refs") List<CorePolicyRef> policyRefs,
-            @JsonProperty("missing_evidence") List<String> missingEvidence) {}
+            @JsonProperty("missing_evidence") List<String> missingEvidence,
+            @JsonProperty("review_findings") List<CoreReviewFinding> reviewFindings) {}
 }

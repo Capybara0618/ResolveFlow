@@ -123,6 +123,14 @@ class CoreContractTest {
         assertThat(leftovers).as("%s kept unresolved placeholder values", where).isEmpty();
     }
 
+    @Test
+    void reviewerFindingsFixtureSurvivesTheSharedRecord() {
+        JsonNode instance = ContractFixtures.load("contracts/core/fixtures/reviewer-findings.json");
+        var bound = MAPPER.readValue(instance.toString(), CoreContract.CoreAgentProposal.class);
+        assertThat(bound.reviewFindings()).hasSize(3);
+        assertThat(MAPPER.readTree(MAPPER.writeValueAsString(bound))).isEqualTo(instance);
+    }
+
     private static void collectPlaceholders(JsonNode node, String path, List<String> found) {
         if (CoreFixtures.isPlaceholder(node)) {
             found.add(path);

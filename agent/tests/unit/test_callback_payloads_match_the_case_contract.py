@@ -92,6 +92,19 @@ def test_the_started_body_is_a_started_payload(agent_db: Any = None) -> None:
     assert payload == {"started_at": STARTED_AT.isoformat()}
 
 
+def test_reviewer_findings_are_not_lost_in_the_outbound_callback() -> None:
+    raw = {
+        "kind": "PROPOSE", "case_type": "LOGISTICS", "recommended_action": "MANUAL_REVIEW",
+        "summary": "需要人工核对", "reason_codes": ["NEEDS_HUMAN"],
+        "evidence_refs": [{"observation_id": "obs-1", "source_ref": "line:7001/shipment",
+                           "source_version": "1", "content_hash": "a" * 64}],
+        "review_findings": [{"kind": "INFERENCE", "text": "现有资料仍需人工核对", "observation_ids": ["obs-1"]}],
+    }
+    payload = callback_payload(CallbackKind.PROPOSAL, claimed_run(), result_for(raw))
+    assert payload["review_findings"] == raw["review_findings"]
+    assert contract_errors("ProposalPayload", payload) == []
+
+
 def test_the_proposal_body_is_a_proposal_payload() -> None:
     """``ProposalPayload``: the six members this project was not sending, and a ``proposal_id`` that is a uuid.
 

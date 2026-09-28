@@ -51,7 +51,17 @@ public record ProposalSubmission(
         List<PolicyCitation> policyRefs,
 
         @com.fasterxml.jackson.annotation.JsonProperty("missing_evidence")
-        List<String> missingEvidence) {
+        List<String> missingEvidence,
+
+        @com.fasterxml.jackson.annotation.JsonProperty("review_findings")
+        List<ReviewFinding> reviewFindings) {
+
+    public record ReviewFinding(
+            String kind,
+            String text,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("observation_ids")
+            List<String> observationIds) {}
 
     /** The contract's protocol version for a proposal. */
     public static final int SCHEMA_VERSION = 2;
