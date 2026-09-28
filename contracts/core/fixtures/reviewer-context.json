@@ -1,0 +1,30 @@
+{
+  "case_version": 7,
+  "input_revision": 2,
+  "allowed_actions": [
+    "MANUAL_PROPOSAL",
+    "REJECT",
+    "REQUEST_INFO"
+  ],
+  "blocked_reason": "",
+  "policy_status": "PINNED",
+  "policy_rules": [
+    {
+      "bundle_id": "demo-policy",
+      "version": "2026.09",
+      "rule_id": "lost",
+      "title": "合成政策：物流丢失",
+      "text": "确认丢失后按规定审核退款。",
+      "chunk_id": "demo-policy:lost",
+      "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "review_history": [],
+  "execution": {
+    "case_status": "PENDING_REVIEW",
+    "operation_id": null,
+    "outcome": null,
+    "amount_minor": null,
+    "reason_code": null
+  }
+}

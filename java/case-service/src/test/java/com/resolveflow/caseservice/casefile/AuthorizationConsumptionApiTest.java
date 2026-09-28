@@ -88,6 +88,9 @@ class AuthorizationConsumptionApiTest extends CaseDatabaseTest {
     @Autowired
     ExecutionDispatchLoop dispatch;
 
+    @Autowired
+    CaseCancellationService cancellations;
+
     @Value("${resolveflow.identity.jwt.secret}")
     String secret;
 
@@ -246,6 +249,50 @@ class AuthorizationConsumptionApiTest extends CaseDatabaseTest {
         assertThat(jdbc.queryForObject(
                         "SELECT COUNT(*) FROM case_execution_command WHERE case_id = ?", Integer.class, caseId))
                 .isEqualTo(1);
+    }
+
+    @org.junit.jupiter.api.RepeatedTest(5)
+    @DisplayName("CF5 cancellation and consumption have one linearized winner")
+    void cancellationRacesConsumption() throws Exception {
+        JsonNode authorised = authorisedCase("cf5-race-" + java.util.UUID.randomUUID());
+        String caseId = authorised.get("case").get("case_id").stringValue();
+        String authorizationId =
+                authorised.get("authorization").get("authorization_id").stringValue();
+        long caseVersion = authorised.get("case").get("version").asLong();
+        decide(caseId, reviewer(), "\"" + caseVersion + "\"", authorizationId, 1, "APPROVE", "CF5合成审批");
+        var principal = new com.resolveflow.shared.security.AuthenticatedPrincipal(
+                "cf5-customer", MERCHANT, com.resolveflow.shared.security.Role.CUSTOMER, CUSTOMER);
+        var start = new java.util.concurrent.CountDownLatch(1);
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            var cancel = pool.submit(() -> {
+                start.await();
+                try {
+                    cancellations.cancel(principal, caseId, new ReasonRequest("CF5消费前撤销"));
+                    return true;
+                } catch (CaseStateConflictException conflict) {
+                    return false;
+                }
+            });
+            var consume = pool.submit(() -> {
+                start.await();
+                return dispatch.dispatchDue(50);
+            });
+            start.countDown();
+            boolean cancelled = cancel.get(30, java.util.concurrent.TimeUnit.SECONDS);
+            ExecutionDispatchLoop.Pass pass = consume.get(30, java.util.concurrent.TimeUnit.SECONDS);
+            assertThat(pass.failed()).isZero();
+            assertThat(caseStatus(caseId)).isEqualTo(cancelled ? "CANCELLED" : "EXECUTING");
+            assertThat(authorizationColumn(caseId, "status")).isEqualTo(cancelled ? "REVOKED" : "CONSUMED");
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM event_outbox", Integer.class))
+                    .isEqualTo(cancelled ? 0 : 1);
+            assertThat(jdbc.queryForObject(
+                            "SELECT COUNT(*) FROM case_execution_command WHERE case_id = ?", Integer.class, caseId))
+                    .isEqualTo(cancelled ? 0 : 1);
+            assertThat(pass.dispatched()).isEqualTo(cancelled ? 0 : 1);
+        } finally {
+            pool.shutdownNow();
+        }
     }
 
     @Test

@@ -62,6 +62,29 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
 
     private long lineCounter = 7600;
 
+    @Test
+    void workspaceFiltersHistoryAndSearchWithoutCrossMerchantLeakage() {
+        String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
+        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String waiting = openCase(customer, "M-1001");
+        String closed = openCase(customer, "M-1001");
+        jdbc.update(
+                "UPDATE aftersale_case SET status='WAITING_CUSTOMER',description='需要补充物流材料' WHERE case_id=?", waiting);
+        jdbc.update("UPDATE aftersale_case SET status='CLOSED_REJECTED' WHERE case_id=?", closed);
+        commerce.lineMerchant = "M-2002";
+        String other = openCase(token("other", "M-2002", Role.CUSTOMER, "C-2004"), "M-2002");
+        assertThat(caseIds(queue(reviewer, "view=WAITING"))).containsExactly(waiting);
+        assertThat(caseIds(queue(reviewer, "view=CLOSED"))).containsExactly(closed);
+        assertThat(caseIds(queue(reviewer, "view=ALL&query=" + closed))).containsExactly(closed);
+        assertThat(caseIds(queue(reviewer, "view=ALL")))
+                .contains(waiting, closed)
+                .doesNotContain(other);
+        JsonNode first = queue(reviewer, "view=ALL&limit=1");
+        String cursor = first.get("page").get("next_cursor").stringValue();
+        assertThat(caseIds(queue(reviewer, "view=ALL&limit=1&cursor=" + cursor)))
+                .doesNotContain(caseIds(first).getFirst());
+    }
+
     @BeforeEach
     void prepare() {
         deleteAllCaseData(jdbc);

@@ -82,6 +82,136 @@ class ManualProposalApiTest extends CaseDatabaseTest {
 
     private long lineCounter = 7800;
 
+    @Test
+    void reviewerContextExposesOnlyPinnedPolicyAndRejectsOtherPrincipals() {
+        String caseId = openCase();
+        String path = "/api/v1/cases/" + caseId + "/review-context";
+        String body = rest.get()
+                .uri(path)
+                .header("Authorization", "Bearer " + reviewer())
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+        JsonNode context = MAPPER.readTree(body);
+        assertThat(context.get("policy_rules").toString()).contains("R-LOST-001", BUNDLE, "content_hash");
+        assertThat(context.get("allowed_actions").toString()).contains("REJECT", "REQUEST_INFO");
+        rest.get()
+                .uri(path)
+                .header("Authorization", "Bearer " + customer())
+                .exchange()
+                .expectStatus()
+                .isForbidden();
+        String outsider = new JwtCodec(secret, Duration.ofHours(1))
+                .issue(new AuthenticatedPrincipal("other", "M-9999", Role.REVIEWER, null), Instant.now());
+        rest.get()
+                .uri(path)
+                .header("Authorization", "Bearer " + outsider)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    private int workspaceAction(String caseId, long version, String action, ObjectNode body) {
+        body.put("action", action);
+        return rest.post()
+                .uri("/api/v1/cases/" + caseId + "/review-actions")
+                .header("Authorization", "Bearer " + reviewer())
+                .header("If-Match", "\"" + version + "\"")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body.toString())
+                .exchange()
+                .returnResult(String.class)
+                .getStatus()
+                .value();
+    }
+
+    @Test
+    void reviewerCanRejectWithoutAuthorizationButCannotReplayAnOldDecision() {
+        String caseId = openCase();
+        long version = view(caseId, reviewer()).get("case").get("version").asLong();
+        ObjectNode body = MAPPER.createObjectNode().put("reason", "物流材料不支持本次申请");
+        assertThat(workspaceAction(caseId, version + 1, "REJECT", body)).isEqualTo(409);
+        assertThat(workspaceAction(caseId, version, "REJECT", body)).isEqualTo(200);
+        assertThat(view(caseId, reviewer()).get("case").get("status").stringValue())
+                .isEqualTo("CLOSED_REJECTED");
+        assertThat(count("active_case_slot", caseId)).isZero();
+        assertThat(workspaceAction(caseId, version, "REJECT", body)).isEqualTo(409);
+    }
+
+    @Test
+    void reviewerQuestionWithoutAuthorizationCreatesAQuestionAndPreventsRepeatedAsking() {
+        String caseId = openCase();
+        long version = view(caseId, reviewer()).get("case").get("version").asLong();
+        ObjectNode body = MAPPER.createObjectNode().put("reason", "请补充签收争议说明");
+        assertThat(workspaceAction(caseId, version, "REQUEST_INFO", body)).isEqualTo(200);
+        JsonNode after = view(caseId, reviewer());
+        assertThat(after.get("case").get("status").stringValue()).isEqualTo("WAITING_CUSTOMER");
+        assertThat(after.get("case").get("input_revision").asInt()).isEqualTo(2);
+        assertThat(jdbc.queryForObject(
+                        "SELECT detail FROM case_timeline WHERE case_id=? AND kind='QUESTION_REQUIRED'",
+                        String.class,
+                        caseId))
+                .contains("question_id", "请补充签收争议说明");
+        assertThat(workspaceAction(caseId, after.get("case").get("version").asLong(), "REQUEST_INFO", body))
+                .isEqualTo(409);
+    }
+
+    @Test
+    void workspaceManualProposalRejectsInventedEvidence() {
+        String caseId = openCase();
+        long version = view(caseId, reviewer()).get("case").get("version").asLong();
+        assertThat(workspaceAction(caseId, version, "MANUAL_PROPOSAL", request("REFUND", "核对后退款")))
+                .isEqualTo(422);
+        assertThat(count("case_authorization", caseId)).isZero();
+    }
+
+    @Test
+    void workspaceCreatesAReviewableProposalFromActualCaseEvidence() {
+        String caseId = openCase();
+        rest.post()
+                .uri("/api/v1/cases/" + caseId + "/evidence")
+                .header("Authorization", "Bearer " + customer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("{\"text\":\"包裹未收到，请核查物流\",\"evidence_kind\":\"CUSTOMER_STATEMENT\"}")
+                .exchange()
+                .expectStatus()
+                .isOk();
+        JsonNode before = view(caseId, reviewer());
+        JsonNode material = before.get("evidence").get(0);
+        ObjectNode body = request("REFUND", "人工核对物流和材料后建议退款");
+        ObjectNode citation = MAPPER.createObjectNode();
+        for (String field : List.of("observation_id", "source_ref", "source_version", "content_hash")) {
+            citation.put(field, material.get(field).stringValue());
+        }
+        body.putArray("evidence_refs").add(citation);
+        long version = before.get("case").get("version").asLong();
+        assertThat(workspaceAction(caseId, version, "MANUAL_PROPOSAL", body)).isEqualTo(200);
+        JsonNode after = view(caseId, reviewer());
+        assertThat(after.get("authorization").get("status").stringValue()).isEqualTo("PENDING_REVIEW");
+        assertThat(after.get("proposal").get("origin").stringValue()).isEqualTo("HUMAN");
+        assertThat(workspaceAction(caseId, version, "MANUAL_PROPOSAL", body)).isEqualTo(409);
+    }
+
+    @Test
+    void workspaceNeverReopensConsumedAuthorization() {
+        String caseId = openCase();
+        submit(caseId, reviewer(), request("REFUND", "人工核验"));
+        JsonNode authorization = view(caseId, reviewer()).get("authorization");
+        decide(
+                caseId,
+                authorization.get("authorization_id").stringValue(),
+                authorization.get("authorization_version").asLong(),
+                "APPROVE");
+        jdbc.update("UPDATE case_authorization SET status='CONSUMED' WHERE case_id=?", caseId);
+        long version = view(caseId, reviewer()).get("case").get("version").asLong();
+        assertThat(workspaceAction(
+                        caseId, version, "REJECT", MAPPER.createObjectNode().put("reason", "改为拒绝")))
+                .isEqualTo(409);
+    }
+
     @BeforeEach
     void prepare() {
         jdbc.execute("DELETE FROM case_policy_bundle");

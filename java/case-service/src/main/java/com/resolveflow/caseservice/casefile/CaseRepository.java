@@ -379,6 +379,29 @@ public interface CaseRepository {
             @Param("afterCaseId") String afterCaseId,
             @Param("limit") int limit);
 
+    @Select("""
+            <script>
+            SELECT case_id AS caseId, merchant_id AS merchantId, line_id AS lineId,
+                   description, status, input_revision AS inputRevision, version, updated_at AS updatedAt
+              FROM aftersale_case
+             WHERE merchant_id = #{merchantId}
+               AND status IN
+               <foreach item="status" collection="statuses" open="(" separator="," close=")">#{status}</foreach>
+               AND (#{query} = '' OR case_id = #{query} OR order_id = #{query}
+                    OR description LIKE CONCAT('%', #{query}, '%'))
+               AND (#{afterUpdatedAt} IS NULL OR updated_at &lt; #{afterUpdatedAt}
+                    OR (updated_at = #{afterUpdatedAt} AND case_id &lt; #{afterCaseId}))
+             ORDER BY updated_at DESC, case_id DESC LIMIT #{limit}
+            </script>
+            """)
+    List<ReviewQueueRow> findWorkspaceCases(
+            @Param("merchantId") String merchantId,
+            @Param("statuses") List<String> statuses,
+            @Param("query") String query,
+            @Param("afterUpdatedAt") Instant afterUpdatedAt,
+            @Param("afterCaseId") String afterCaseId,
+            @Param("limit") int limit);
+
     /**
      * The requested actions of several cases at once.
      *

@@ -54,9 +54,14 @@ public class ReviewController {
     public ResponseEntity<ReviewQueuePageResponse> list(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @RequestParam(name = "cursor", required = false) String cursor,
-            @RequestParam(name = "limit", required = false) Integer limit) {
+            @RequestParam(name = "limit", required = false) Integer limit,
+            @RequestParam(name = "view", required = false) String view,
+            @RequestParam(name = "query", required = false) String query) {
         AuthenticatedPrincipal principal = principals.resolve(authorization);
-        return ResponseEntity.ok(ReviewQueuePageResponse.from(queue.list(principal, cursor, limit)));
+        return ResponseEntity.ok(ReviewQueuePageResponse.from(
+                view == null && query == null
+                        ? queue.list(principal, cursor, limit)
+                        : queue.workspace(principal, cursor, limit, view, query)));
     }
 
     @PostMapping("/api/v1/cases/{case_id}/reviews")

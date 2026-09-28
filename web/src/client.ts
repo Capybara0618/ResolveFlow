@@ -58,9 +58,26 @@ export interface CaseSnapshot {
   proposal?: Record<string, unknown>
   evidence: Array<{
     observation_id: string; content: string; evidence_kind: string; source_ref?: string
+    source_version?: string; content_hash?: string; input_revision?: number; appended_by?: string
     observed_at?: string; reviewed_evidence_id?: string; verification_result?: string
   }>
   timeline: TimelineEvent[]
+}
+
+export interface PolicyText {
+  bundle_id: string; version: string; rule_id: string; title: string; text: string
+  chunk_id: string; content_hash: string
+}
+export interface ReviewContext {
+  case_version: number; input_revision: number; allowed_actions: string[]; blocked_reason: string
+  policy_rules: PolicyText[]; policy_status: 'PINNED' | 'UNAVAILABLE'
+  review_history?: Array<{ type: string; occurred_at: string; revision: number; actor: string | null; reason: string | null; question_id: string | null }>
+  execution?: { case_status: string; operation_id: string | null; outcome: string | null; amount_minor: number | null; reason_code: string | null }
+}
+export interface ReviewerAction {
+  action: 'MANUAL_PROPOSAL' | 'REJECT' | 'REQUEST_INFO'; reason: string
+  evidence_refs?: Array<{ observation_id: string; source_ref: string; source_version: string; content_hash: string }>
+  policy_refs?: Array<{ bundle_id: string; version: string; rule_id: string; chunk_id: string; content_hash: string }>
 }
 
 export interface ReviewItem {
@@ -94,6 +111,11 @@ function jsonPost<T>(path: string, token: string | null, body: unknown, headers:
 }
 
 export const coreApi = {
+  reviewContext: (token: string, caseId: string) =>
+    apiRequest<ReviewContext>(`/api/v1/cases/${encodeURIComponent(caseId)}/review-context`, token),
+  reviewerAction: (token: string, snapshot: CaseSnapshot, action: ReviewerAction) =>
+    jsonPost<CaseSnapshot>(`/api/v1/cases/${encodeURIComponent(snapshot.case.case_id)}/review-actions`, token,
+      action, { 'If-Match': `"${snapshot.case.version}"` }),
   login: (username: string, password: string) =>
     jsonPost<LoginResponse>('/api/v1/auth/login', null, { username, password }),
   orders: (token: string, cursor?: string) =>
@@ -118,8 +140,8 @@ export const coreApi = {
     jsonPost(`/api/v1/cases/${encodeURIComponent(caseId)}/reviewed-evidence`, token, {
       source_evidence_id: evidenceId, verification_result: verification, reason,
     }),
-  reviewQueue: (token: string, cursor?: string) =>
-    apiRequest<Page<ReviewItem>>(`/api/v1/review/cases?limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, token),
+  reviewQueue: (token: string, cursor?: string, view = 'REVIEW', query = '') =>
+    apiRequest<Page<ReviewItem>>(`/api/v1/review/cases?limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}${view !== 'REVIEW' || query ? `&view=${encodeURIComponent(view)}&query=${encodeURIComponent(query)}` : ''}`, token),
   review: (token: string, snapshot: CaseSnapshot, decision: 'APPROVE' | 'REJECT' | 'REQUEST_INFO', reason: string) => {
     if (!snapshot.authorization) throw new Error('No authorization to review')
     return jsonPost(`/api/v1/cases/${encodeURIComponent(snapshot.case.case_id)}/reviews`, token, {

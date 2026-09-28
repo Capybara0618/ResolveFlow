@@ -88,3 +88,11 @@ command仅action=REFUND、target_service=commerce-service；由Case签名，Comm
 ## 6. C00验收
 
 新Schema拒绝补发、负数/浮点、错target、伪造来源及未知字段；核心路由与核心OpenAPI逐项对应；旧兼容测试保持通过；新增与旧DTO显式区分。C00只建立协议/profile选择，不提前声称业务端点已经实现，未实现suite仍明确非零退出。
+
+## 审查员工作台扩展（2026-09-28）
+
+`GET /api/v1/cases/{case_id}/review-context` 仅商户人员可读，返回当前工单版本、允许动作、绑定政策原文、人工决定记录和当前授权对应的执行结果。无政策明确 UNAVAILABLE，不推断资格；跨商户与不存在同为404。
+
+`POST /api/v1/cases/{case_id}/review-actions` 必须携带 If-Match。MANUAL_PROPOSAL 只接受本工单可读材料的完整来源及绑定政策引用，金额仍由Java重算，形成授权后单独审批。REJECT/REQUEST_INFO用于没有有效待审授权的工单，不伪造授权；输入修订与状态同事务更新，使旧Agent结果失效。补证最多两轮、等待中不重复追问、已到期不再追问；已消费授权禁止全部输入修改。
+
+队列原参数行为保留；新增 view=REVIEW/WAITING/PROCESSING/ATTENTION/CLOSED/ALL 和 query（工单/订单精确ID或问题描述，最长100字符）。新视图按商户隔离并使用游标分页，过滤变化时前端重置游标；绕开仅服务旧待审列表的缓存。退款结果来自已持久事件并排除标记过期的事件，不将批准视为到账。契约见 core OpenAPI；样例见 `contracts/core/fixtures/reviewer-context.json`（仓库根目录相对路径）。

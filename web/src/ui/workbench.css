@@ -120,3 +120,10 @@
 @media (max-width: 550px) {
   .reviewer-columns .lookup-tools:not([open]) { position: static; margin: 5px 0 10px; }
 }
+
+.queue-filters { padding: 0 14px 14px; display: grid; gap: 10px; border-bottom: 1px solid #e6edf7; }
+.queue-filters label { color: #65748b; font-size: 12px; display: grid; gap: 6px; }
+.queue-filters select { padding: 8px; border: 1px solid #dce5f2; border-radius: 7px; color: #20324d; background: white; width: 100%; }
+.queue-search { display: flex; gap: 5px; }
+.queue-search input { width: 0; flex: 1; min-width: 0; font-size: 11px; }
+.queue-search button { padding: 7px; font-size: 12px; }

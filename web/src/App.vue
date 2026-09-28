@@ -5,6 +5,7 @@ import { watchCaseEvents } from './events'
 import { formatMinorUnits } from './money'
 import Icon from './ui/ReviewIcon.vue'
 import ReviewDialog from './ui/ReviewDialog.vue'
+import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
 import './ui/workbench.css'
 
 const username = ref('')
@@ -17,6 +18,8 @@ const orders = ref<OrderLine[]>([])
 const ordersCursor = ref<string | undefined>()
 const reviewItems = ref<ReviewItem[]>([])
 const reviewCursor = ref<string | undefined>()
+const reviewView = ref('REVIEW')
+const reviewQuery = ref('')
 const selectedLine = ref('')
 const description = ref('')
 const lookupId = ref('')
@@ -47,6 +50,9 @@ let pendingCreateKey: string | null = null
 
 const isCustomer = computed(() => account.value?.role === 'CUSTOMER')
 const isReviewer = computed(() => account.value?.role === 'REVIEWER' || account.value?.role === 'OPERATOR')
+const canVerifyEvidence = computed(() => isReviewer.value && !!snapshot.value
+  && !['EXECUTING', 'RECONCILING', 'CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(snapshot.value.case.status)
+  && snapshot.value.authorization?.status !== 'CONSUMED')
 const caseStatusLabels: Record<string, string> = {
   QUEUED: '等待调查', ANALYZING: '调查中', WAITING_CUSTOMER: '待客户补证',
   PENDING_REVIEW: '待人工审核', AUTHORIZED: '已批准待执行', EXECUTING: '退款执行中',
@@ -130,9 +136,16 @@ async function loadOrders(cursor?: string) {
   ordersCursor.value = page.page.next_cursor
 }
 async function loadReviewQueue(cursor?: string) {
-  const page = await coreApi.reviewQueue(token(), cursor)
+  const page = await coreApi.reviewQueue(token(), cursor, reviewView.value, reviewQuery.value.trim())
   reviewItems.value = cursor ? [...reviewItems.value, ...page.items] : page.items
   reviewCursor.value = page.page.next_cursor
+}
+function filterQueue() {
+  void act(async () => {
+    await loadReviewQueue()
+    if (reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
+    else { closeReview(); stopStream(); snapshot.value = null; selectedOrderLine.value = null }
+  })
 }
 function stopStream() {
   streamController?.abort()
@@ -232,7 +245,7 @@ function verifyEvidence(evidenceId: string, result: 'CONFIRMED' | 'REFUTED' | 'I
     await coreApi.reviewEvidence(token(), caseId, evidenceId, result, verificationReason.value.trim())
     verificationReason.value = ''
     await refreshCase(caseId)
-    notice.value = '核验结果已记录'
+    notice.value = '核验已记录，原方案和授权可能已失效。请查看新调查结果，或形成人工退款方案。'
   })
 }
 function review(decision: ReviewDecision) {
@@ -254,6 +267,10 @@ function review(decision: ReviewDecision) {
     await loadReviewQueue()
     notice.value = '审核决定已提交；批准不等于退款已执行'
   })
+}
+async function refreshWorkspace() {
+  if (!snapshot.value) return
+  await act(async () => { await refreshCase(snapshot.value!.case.case_id); await loadReviewQueue() })
 }
 onUnmounted(stopStream)
 </script>
@@ -301,11 +318,12 @@ onUnmounted(stopStream)
           </section>
           <section v-if="isReviewer" id="queue-panel" class="panel list-panel" aria-label="审核队列">
             <div class="panel-heading"><h2>审核队列 <span>（{{ reviewItems.length }}）</span></h2><span class="queue-scope">当前商家</span></div>
-            <div v-if="reviewItems.length === 0" class="empty"><Icon name="queue" :size="30" /><strong>当前队列已处理完</strong><p>新的待审工单会显示在这里</p></div>
+            <form class="queue-filters" @submit.prevent="filterQueue"><label>处理阶段<select v-model="reviewView" :disabled="busy" @change="filterQueue"><option value="REVIEW">待审核</option><option value="WAITING">待客户补证</option><option value="PROCESSING">调查与退款处理中</option><option value="ATTENTION">结果待确认</option><option value="CLOSED">已结束</option><option value="ALL">全部工单</option></select></label><div class="queue-search"><input v-model="reviewQuery" aria-label="搜索工单" maxlength="100" placeholder="工单号、订单号或问题描述" :disabled="busy" /><button type="submit" class="secondary-button" :disabled="busy">查询</button></div></form>
+            <div v-if="reviewItems.length === 0" class="empty"><Icon name="queue" :size="30" /><strong>没有符合条件的工单</strong><p>可切换处理阶段或修改查询条件</p></div>
             <div class="scroll-list" aria-label="待审工单列表">
               <button v-for="item in reviewItems" :key="item.case_id" type="button" class="queue-row" :aria-pressed="snapshot?.case.case_id === item.case_id"
                 :class="{ selected: snapshot?.case.case_id === item.case_id }" :disabled="busy" @click="act(() => openCase(item.case_id))">
-                <span class="queue-top"><span class="queue-category"><Icon name="file" :size="14" />退款申请</span><span class="status-tag waiting">待审核</span></span>
+                <span class="queue-top"><span class="queue-category"><Icon name="file" :size="14" />退款申请</span><span class="status-tag waiting">{{ statusLabel(item.status) }}</span></span>
                 <strong class="queue-title">{{ headline(item.description) }}</strong><small><Icon name="clock" :size="13" />更新于 {{ formatTimestamp(item.updated_at) }}</small>
               </button>
             </div>
@@ -327,9 +345,9 @@ onUnmounted(stopStream)
                 <div v-if="snapshot.evidence.length" class="evidence-list"><article v-for="item in snapshot.evidence" :key="item.observation_id" class="evidence">
                   <div class="evidence-head"><span class="material-icon"><Icon :name="item.reviewed_evidence_id ? 'shield' : 'file'" :size="22" /></span><div class="evidence-meta"><strong>{{ evidenceLabels[item.evidence_kind] ?? item.evidence_kind }}</strong><span v-if="item.verification_result" class="verification-tag" :class="item.verification_result.toLowerCase()">{{ verificationLabels[item.verification_result] ?? item.verification_result }}</span><span v-else-if="verifiedEvidence.get(item.observation_id)" class="verification-tag" :class="verifiedEvidence.get(item.observation_id)?.toLowerCase()">已核验：{{ verificationLabels[verifiedEvidence.get(item.observation_id)!] }}</span><span v-else class="subtle">待人工核验</span></div></div>
                   <p class="evidence-excerpt">{{ item.content }}</p><details class="evidence-id"><summary>查看材料来源与编号<Icon name="chevron" :size="12" /></summary><p class="full-evidence">{{ item.content }}</p><div>材料编号：{{ item.observation_id }}</div><div>来源引用：{{ item.source_ref || '未提供' }}</div><div v-if="item.observed_at">记录时间：{{ formatTimestamp(item.observed_at) }}</div><div v-if="item.reviewed_evidence_id">核验材料：{{ item.reviewed_evidence_id }}</div></details>
-                  <div v-if="isReviewer && !item.reviewed_evidence_id && !verifiedEvidence.has(item.observation_id)" class="actions verification-actions"><button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'CONFIRMED')">确认</button><button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'REFUTED')">驳回</button><button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'INCONCLUSIVE')">无法判定</button></div>
+                  <div v-if="canVerifyEvidence && !item.reviewed_evidence_id && !verifiedEvidence.has(item.observation_id)" class="actions verification-actions"><button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'CONFIRMED')">确认</button><button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'REFUTED')">驳回</button><button type="button" class="secondary-button" :disabled="busy" @click="verifyEvidence(item.observation_id, 'INCONCLUSIVE')">无法判定</button></div>
                 </article></div>
-                <label v-if="isReviewer && snapshot.evidence.some(item => !item.reviewed_evidence_id && !verifiedEvidence.has(item.observation_id))" class="verification-reason">核验理由 <input v-model="verificationReason" placeholder="提交核验前填写理由" /></label>
+                <label v-if="canVerifyEvidence && snapshot.evidence.some(item => !item.reviewed_evidence_id && !verifiedEvidence.has(item.observation_id))" class="verification-reason">核验理由 <input v-model="verificationReason" placeholder="提交核验前填写理由" /></label>
               </section>
               <div class="analysis-grid" :class="{ 'without-proposal': !snapshot.proposal }">
                 <section v-if="snapshot.proposal" class="detail-section proposal"><h3>{{ proposalSourceLabel(snapshot.proposal) }}<span class="advice-label">调查结论</span></h3><div class="recommendation"><span class="recommendation-icon"><Icon name="sparkle" :size="21" /></span><strong>{{ proposalAction(snapshot.proposal) }}</strong></div><p v-if="typeof snapshot.proposal.summary === 'string'" class="proposal-summary">{{ snapshot.proposal.summary }}</p>
@@ -340,6 +358,7 @@ onUnmounted(stopStream)
               <section v-if="isCustomer && !['EXECUTING', 'RECONCILING', 'CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(snapshot.case.status)" class="detail-section"><h3>补充材料</h3><label>问题 ID（若在回答追问） <input v-model="questionId" /></label><label>材料文本 <textarea v-model="evidenceText" rows="3" /></label><button data-test="append-evidence" type="button" :disabled="busy" @click="appendEvidence">提交材料</button></section>
               <section v-if="isReviewer && snapshot.authorization?.status === 'PENDING_REVIEW'" class="detail-section review-section"><div class="section-heading"><h3>审核决策</h3><span class="subtle">批准授权后仍需等待独立的退款执行结果</span></div><div class="actions"><button data-test="approve" type="button" :disabled="busy" @click="beginReview('APPROVE')"><Icon name="check" :size="19" />批准授权</button><button type="button" class="secondary-button" :disabled="busy" @click="beginReview('REQUEST_INFO')"><Icon name="file" :size="17" />请求补证</button><button type="button" class="danger-button" :disabled="busy" @click="beginReview('REJECT')"><Icon name="close" :size="19" />拒绝</button></div></section>
               <section v-else-if="isReviewer && snapshot.case.status === 'PENDING_REVIEW'" class="detail-section review-unavailable" aria-label="审核暂不可用"><Icon name="shield" :size="22" /><div><h3>暂无可审核授权</h3><p v-if="snapshot.authorization">当前授权{{ authorizationStatusLabel(snapshot.authorization.status) }}，不能再次审核；请核对工单轨迹与当前结果。</p><p v-else>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p></div></section>
+              <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" @changed="refreshWorkspace" @working="busy = $event" />
             </template>
           </section>
           <aside class="context-column" aria-label="工单上下文">

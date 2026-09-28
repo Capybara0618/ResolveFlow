@@ -512,6 +512,14 @@ paths:
         reviewer has nothing to do with it yet — and an authorisation decision on a case
         the customer must still answer would be a decision taken without their input.
       parameters:
+        - name: view
+          in: query
+          schema: {type: string, enum: [REVIEW, WAITING, PROCESSING, ATTENTION, CLOSED, ALL]}
+          description: Optional workspace view. Omission preserves the pending-review queue.
+        - name: query
+          in: query
+          schema: {type: string, maxLength: 100}
+          description: Exact case/order ID or matching issue description. Merchant scope always applies.
         - $ref: '#/components/parameters/Cursor'
         - $ref: '#/components/parameters/Limit'
       responses:
@@ -965,6 +973,58 @@ paths:
           $ref: '#/components/responses/ForbiddenScope'
         '404':
           $ref: '#/components/responses/NotFound'
+  /api/v1/cases/{case_id}/review-context:
+    get:
+      summary: Read scoped reviewer actions and pinned policy text
+      operationId: readReviewerContext
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Current version, allowed actions and policy text; actions remain subject to write-time validation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewerContext'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/cases/{case_id}/review-actions:
+    post:
+      summary: Form a manual proposal or decide a case without a pending authorization
+      operationId: submitReviewerAction
+      description: |
+        Staff only. If-Match is mandatory. MANUAL_PROPOSAL requires actual case evidence
+        with exact provenance and pinned policy citations; amount is recomputed by Java.
+        REJECT and REQUEST_INFO do not require a fabricated authorization and advance
+        input_revision to fence older investigation callbacks. Consumed input is frozen.
+        REQUEST_INFO is unavailable while waiting, after two question rounds, or after expiry.
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewerAction'
+      responses:
+        '200':
+          description: Updated case snapshot; a manual proposal still requires separate authorization review.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseSnapshot'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Stale case version or action unavailable in current state.
+        '422':
+          description: Invalid action, reason or citations.
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1161,6 +1221,78 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    ReviewerContext:
+      type: object
+      additionalProperties: false
+      required: [case_version, input_revision, allowed_actions, blocked_reason, policy_rules, policy_status]
+      properties:
+        case_version: {type: integer, minimum: 1}
+        input_revision: {type: integer, minimum: 1}
+        allowed_actions:
+          type: array
+          items: {type: string, enum: [MANUAL_PROPOSAL, REJECT, REQUEST_INFO, REVIEW_AUTHORIZATION]}
+        blocked_reason: {type: string}
+        policy_status: {type: string, enum: [PINNED, UNAVAILABLE]}
+        review_history:
+          type: array
+          items:
+            type: object
+            required: [type, occurred_at, revision, actor, reason, question_id]
+            properties:
+              type: {type: string}
+              occurred_at: {type: string, format: date-time}
+              revision: {type: integer}
+              actor: {type: [string, 'null']}
+              reason: {type: [string, 'null']}
+              question_id: {type: [string, 'null']}
+        execution:
+          type: object
+          required: [case_status, operation_id, outcome, amount_minor, reason_code]
+          properties:
+            case_status: {type: string}
+            operation_id: {type: [string, 'null']}
+            outcome: {type: [string, 'null'], enum: [SUCCEEDED, FAILED, UNKNOWN, null]}
+            amount_minor: {type: [integer, 'null']}
+            reason_code: {type: [string, 'null']}
+        policy_rules:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [bundle_id, version, rule_id, title, text, chunk_id, content_hash]
+            properties:
+              bundle_id: {type: string}
+              version: {type: string}
+              rule_id: {type: string}
+              title: {type: string}
+              text: {type: string}
+              chunk_id: {type: string}
+              content_hash: {type: string, pattern: '^[a-f0-9]{64}$'}
+    ReviewerAction:
+      type: object
+      additionalProperties: false
+      required: [action, reason]
+      properties:
+        action: {type: string, enum: [MANUAL_PROPOSAL, REJECT, REQUEST_INFO]}
+        reason: {type: string, minLength: 1, maxLength: 1000}
+        evidence_refs:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+        policy_refs:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/PolicyRef'
+      allOf:
+        - if:
+            properties:
+              action: {const: MANUAL_PROPOSAL}
+          then:
+            required: [evidence_refs, policy_refs]
     Uuid:
       type: string
       pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'

@@ -181,6 +181,38 @@ public class ReviewQueueService {
         return requestedLimit;
     }
 
+    public Page workspace(
+            AuthenticatedPrincipal principal, String cursor, Integer requestedLimit, String view, String query) {
+        CaseStaff.require(principal, "the review workspace belongs to merchant staff");
+        String term = query == null ? "" : query.trim();
+        if (term.length() > 100) throw new InvalidPageException("query must be at most 100 characters");
+        List<String> statuses =
+                switch (view == null ? "REVIEW" : view) {
+                    case "REVIEW" -> List.of("PENDING_REVIEW");
+                    case "WAITING" -> List.of("WAITING_CUSTOMER");
+                    case "PROCESSING" -> List.of("QUEUED", "ANALYZING", "AUTHORIZED", "EXECUTING");
+                    case "ATTENTION" -> List.of("RECONCILING");
+                    case "CLOSED" -> List.of("CLOSED_SUCCESS", "CLOSED_REJECTED", "CANCELLED");
+                    case "ALL" ->
+                        java.util.Arrays.stream(CaseStatus.values())
+                                .map(Enum::name)
+                                .toList();
+                    default -> throw new InvalidPageException("unknown workspace view");
+                };
+        int limit = normaliseLimit(requestedLimit);
+        ReviewQueueCursor after = ReviewQueueCursor.decode(cursor);
+        List<ReviewQueueRow> rows = cases.findWorkspaceCases(
+                principal.merchantId(),
+                statuses,
+                term,
+                after == null ? null : after.updatedAt(),
+                after == null ? null : after.caseId(),
+                limit + 1);
+        boolean more = rows.size() > limit;
+        List<ReviewQueueRow> page = more ? List.copyOf(rows.subList(0, limit)) : List.copyOf(rows);
+        return new Page(items(page), ReviewQueueCursor.after(page, more), limit);
+    }
+
     /** Raised for a limit outside the contract's range; the API layer answers 400. */
     public static class InvalidPageException extends RuntimeException {
 
