@@ -1,6 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App.vue'
+import { watchCaseEvents } from '../src/events'
 
 vi.mock('../src/events', () => ({ watchCaseEvents: vi.fn().mockResolvedValue(undefined) }))
 
@@ -41,7 +42,7 @@ describe('core workbench', () => {
     const wrapper = mount(App)
     await wrapper.get('[name="username"]').setValue('reviewer')
     await wrapper.get('[name="password"]').setValue('password')
-    await wrapper.get('[data-test="login"]').trigger('click')
+    await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
     expect(wrapper.find('nav[aria-label="工作台导航"]').exists()).toBe(true)
     expect(wrapper.get('.queue-row').text()).toContain('耳机充电后仍无法开机')
@@ -68,6 +69,11 @@ describe('core workbench', () => {
     expect(wrapper.find('.analysis-grid').exists()).toBe(true)
     expect(wrapper.find('aside[aria-label="工单上下文"]').text()).toContain('auth-2')
     expect(wrapper.text()).not.toContain('会员等级')
+    await wrapper.get('[data-test="approve"]').trigger('click')
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
+    await wrapper.get('[role="dialog"]').trigger('keydown', { key: 'Escape' })
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
+    expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).endsWith('/reviews'))).toBe(false)
     wrapper.unmount()
   })
 
@@ -88,7 +94,7 @@ describe('core workbench', () => {
     expect(wrapper.text()).not.toContain('c-9001')
     await wrapper.get('[name="username"]').setValue('customer')
     await wrapper.get('[name="password"]').setValue('password')
-    await wrapper.get('[data-test="login"]').trigger('click')
+    await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
     expect(wrapper.text()).toContain('line-7')
     expect(wrapper.text()).toContain('25.99 CNY')
@@ -115,7 +121,7 @@ describe('core workbench', () => {
     const wrapper = mount(App)
     await wrapper.get('[name="username"]').setValue('reviewer')
     await wrapper.get('[name="password"]').setValue('password')
-    await wrapper.get('[data-test="login"]').trigger('click')
+    await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
     expect(wrapper.get('.case-title h3').text()).toBe('包裹未收到')
     expect(wrapper.get('.case-order').text()).toContain('正在读取订单信息')
@@ -142,7 +148,7 @@ describe('core workbench', () => {
     const wrapper = mount(App)
     await wrapper.get('[name="username"]').setValue('reviewer')
     await wrapper.get('[name="password"]').setValue('password')
-    await wrapper.get('[data-test="login"]').trigger('click')
+    await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
     expect(wrapper.get('.review-unavailable').text()).toContain('已消费')
     expect(wrapper.find('[data-test="approve"]').exists()).toBe(false)
@@ -157,7 +163,7 @@ describe('core workbench', () => {
     const wrapper = mount(App)
     await wrapper.get('[name="username"]').setValue('customer')
     await wrapper.get('[name="password"]').setValue('bad')
-    await wrapper.get('[data-test="login"]').trigger('click')
+    await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
     expect(wrapper.text()).toContain('wrong password')
     expect(wrapper.text()).not.toContain('订单行')
@@ -187,7 +193,7 @@ describe('core workbench', () => {
     const wrapper = mount(App)
     await wrapper.get('[name="username"]').setValue('customer')
     await wrapper.get('[name="password"]').setValue('password')
-    await wrapper.get('[data-test="login"]').trigger('click')
+    await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
     await wrapper.get('[name="line"]').setValue('line-7')
     await wrapper.get('textarea').setValue('包裹未到')
@@ -202,7 +208,9 @@ describe('core workbench', () => {
     wrapper.unmount()
   })
 
-  it('submits reviewer decision with both case and authorization versions', async () => {
+  it.each([
+    ['批准授权', 'APPROVE'], ['请求补证', 'REQUEST_INFO'], ['拒绝', 'REJECT'],
+  ])('confirms %s using the versions reviewed before a live update', async (label, decision) => {
     const snapshot = {
       case: { case_id: 'case-2', status: 'PENDING_REVIEW', input_revision: 2, version: 7, line_id: 'line-9' },
       authorization: { authorization_id: 'auth-2', authorization_version: 3, status: 'PENDING_REVIEW', input_revision: 2 },
@@ -224,15 +232,22 @@ describe('core workbench', () => {
     const wrapper = mount(App)
     await wrapper.get('[name="username"]').setValue('reviewer')
     await wrapper.get('[name="password"]').setValue('password')
-    await wrapper.get('[data-test="login"]').trigger('click')
+    await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
-    await wrapper.get('.case-panel textarea').setValue('材料和金额已核实')
-    await wrapper.get('[data-test="approve"]').trigger('click')
+    await wrapper.findAll('.review-section button').find(button => button.text().includes(label))!.trigger('click')
+    expect(fetcher.mock.calls.some(([url]) => url.endsWith('/reviews'))).toBe(false)
+    expect(wrapper.get('[data-test="confirm-review"]').attributes('disabled')).toBeDefined()
+    snapshot.case.version = 8
+    snapshot.authorization.authorization_version = 4
+    vi.mocked(watchCaseEvents).mock.calls.at(-1)![2]({ id: 'event-2', event: 'case.updated', data: '{}' })
+    await flushPromises()
+    await wrapper.get('[role="dialog"] textarea').setValue('材料和金额已核实')
+    await wrapper.get('[data-test="confirm-review"]').trigger('click')
     await flushPromises()
     const review = fetcher.mock.calls.find(([url]) => url === '/api/v1/cases/case-2/reviews')!
     expect(new Headers(review[1].headers).get('If-Match')).toBe('"7"')
     expect(JSON.parse(review[1].body)).toEqual({
-      authorization_id: 'auth-2', authorization_version: 3, decision: 'APPROVE', reason: '材料和金额已核实',
+      authorization_id: 'auth-2', authorization_version: 3, decision, reason: '材料和金额已核实',
     })
     wrapper.unmount()
   })
@@ -266,10 +281,11 @@ describe('core workbench', () => {
     const wrapper = mount(App)
     await wrapper.get('[name="username"]').setValue('reviewer')
     await wrapper.get('[name="password"]').setValue('password')
-    await wrapper.get('[data-test="login"]').trigger('click')
+    await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
-    await wrapper.get('.case-panel textarea').setValue('原审核理由')
     await wrapper.get('[data-test="approve"]').trigger('click')
+    await wrapper.get('[role="dialog"] textarea').setValue('原审核理由')
+    await wrapper.get('[data-test="confirm-review"]').trigger('click')
     await flushPromises()
     expect(reads).toBe(2)
     expect(wrapper.get('[role="alert"]').text()).toContain('重新加载')

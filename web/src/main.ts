@@ -1,4 +1,8 @@
+import './ui/tokens.css'
 import { createApp } from 'vue'
-import App from './App.vue'
 
-createApp(App).mount('#app')
+const page = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'review'
+  ? import('./preview/ReviewPreview.vue')
+  : import('./App.vue')
+
+page.then(({ default: App }) => createApp(App).mount('#app'))

@@ -4,6 +4,7 @@
 
 ## 最近交接快照（2026-09-27 10:20 +08:00，Asia/Shanghai）
 
+- 2026-09-28 前端更新：按用户要求完成 V3 正式工作台接入并集中验收，26 项前端测试、构建、桌面/中屏/手机检查通过；真实 core 服务读取队列和客户订单、审核弹窗取消通过，未执行退款或付费模型。记录见 [V3报告](../reports/frontend-v3/README.md)。Vite 5173 与 core 七个容器保留运行；此前“后台已停止”是09-27历史状态。C12工作保持未提交，本轮仅提交前端及相关记录。
 - 方向与执行者：DSH已明确停止，Codex为唯一业务写入者；工作区 `E:/Code/Agent+Backend`，`main` → `origin/main`。C10已确认远端提交 `79e8396`。用户要求 C11、C12 各在**整模块完成后**一次提交推送；本快照随 C11 整模块提交。
 - 当前子步：**C11.1、C11.2a–e、C11.3 已完成；下一模块 C12**。工作台接真实鉴权、订单/工单/审核/轨迹及 SSE 续读；审核队列保留原索引基线，追加 V18 排序索引、2 秒非权威 Redis 页缓存与 8 并发/100ms 等待的有界回源；core Compose 镜像、健康启动和 CI 冒烟可运行。查询与试跑证据见[报告](../reports/c11-review-query.md)及[原始样本](../reports/c11-performance/20260927-100355/)；短时试跑不宣称稳定性能收益。
 - 本轮验证：Web `pnpm test` **15/15**、`pnpm build` 通过；Java reactor `mvnw.cmd -B -ntp test` 通过（Case 233 passed/4 skipped），新增真实 Redis 故障/热 Key 测试另跑 **6/6**；Spotless check、Compose config、Python 编译、Bash 语法、core 镜像健康启动和 `c11_core_smoke.py` 均通过。浏览器实测客户与审核员登录、主体视图、真实待审队列/工单轨迹/SSE 连接。性能小试三条件×10/30 并发×两轮，内容/权限校验均通过、错误率 0；正式 30/60 秒复验归 C12。

@@ -1,0 +1,25 @@
+:root {
+  font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  color: #14233e;
+  background: #f7faff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --rf-blue: #165dff;
+  --rf-ink: #14233e;
+  --rf-muted: #7b89a2;
+  --rf-line: #e5ebf4;
+  --rf-canvas: #f7faff;
+  --rf-radius: 8px;
+}
+body { margin: 0; }
+button, input, textarea { font: inherit; }
+button, a, summary { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .48; }
+button, a, input, textarea, summary { outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--rf-blue); }
+svg { flex-shrink: 0; vertical-align: middle; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+}
