@@ -69,6 +69,12 @@ def test_two_roles_may_not_share_one_port(tmp_path: Path) -> None:
     assert "distinct" in str(refusal.value)
 
 
+def test_the_browser_experience_has_an_isolated_desktop_url(tmp_path: Path) -> None:
+    settings = settings_for(tmp_path)
+    assert settings.frontend_url == "http://127.0.0.1:5174"
+    assert settings.ports["frontend"] not in demo.SHARED_PORTS
+
+
 def test_the_demo_compose_project_is_isolated_on_paper() -> None:
     """What the compose file promises, read from the file rather than from a report."""
     text = (demo.COMPOSE_FILE).read_text(encoding="utf-8")
@@ -136,6 +142,81 @@ def test_a_process_that_does_own_its_port_is_stopped_as_a_tree(tmp_path: Path, m
     assert stopped == ["agent(pid 4242, port 8182)"]
     assert any("/T" in call for call in calls), "the launcher's child holds the socket, so the tree is killed"
     assert demo.read_owned(settings) == []
+
+
+def test_readonly_agent_cannot_consume_runs_or_inherit_live_model_settings(tmp_path: Path, monkeypatch) -> None:
+    settings = settings_for(tmp_path)
+    captured: dict = {}
+    monkeypatch.setenv("RESOLVEFLOW_MODEL_API_KEY", "must-not-reach-child")
+    monkeypatch.setenv("RESOLVEFLOW_MODEL_ENDPOINT", "https://paid.invalid")
+    monkeypatch.setattr(demo, "owns_port", lambda *args: False)
+    monkeypatch.setattr(demo, "stop_owned", lambda *args, **kwargs: [])
+    monkeypatch.setattr(demo, "refuse_if_port_held", lambda *args: None)
+    monkeypatch.setattr(demo, "child_env", lambda **extra: {**dict(demo.os.environ), **extra})
+    monkeypatch.setattr(
+        demo,
+        "start_process",
+        lambda _settings, name, args, env, port: captured.update(name=name, args=args, env=env, port=port),
+    )
+    monkeypatch.setattr(demo, "wait_for", lambda *args, **kwargs: True)
+    monkeypatch.setattr(demo, "record_port_owner", lambda *args: "42")
+
+    demo.start_readonly_agent(settings, demo.Log())
+
+    assert captured["name"] == "agent-readonly"
+    assert captured["env"]["RESOLVEFLOW_INVESTIGATION_ENABLED"] == "0"
+    assert "RESOLVEFLOW_MODEL_API_KEY" not in captured["env"]
+    assert "RESOLVEFLOW_MODEL_ENDPOINT" not in captured["env"]
+    assert "RESOLVEFLOW_MOCK_SCRIPT" not in captured["env"]
+
+
+def test_frontend_is_bound_to_the_demo_gateway_and_fixed_port(tmp_path: Path, monkeypatch) -> None:
+    settings = settings_for(tmp_path)
+    captured: dict = {}
+    fake_root = tmp_path / "repo"
+    (fake_root / "web" / "node_modules").mkdir(parents=True)
+    monkeypatch.setattr(demo, "ROOT", fake_root)
+    monkeypatch.setattr(demo, "owns_port", lambda *args: False)
+    monkeypatch.setattr(demo, "stop_owned", lambda *args, **kwargs: [])
+    monkeypatch.setattr(demo, "refuse_if_port_held", lambda *args: None)
+    monkeypatch.setattr(demo.shutil, "which", lambda name: r"C:\tools\pnpm.cmd" if name == "pnpm.cmd" else None)
+    monkeypatch.setattr(demo, "child_env", lambda **extra: extra)
+    monkeypatch.setattr(
+        demo,
+        "start_process",
+        lambda _settings, name, args, env, port: captured.update(name=name, args=args, env=env, port=port),
+    )
+    monkeypatch.setattr(demo, "wait_for", lambda *args, **kwargs: True)
+    monkeypatch.setattr(demo, "record_port_owner", lambda *args: "43")
+
+    demo.start_frontend(settings, demo.Log())
+
+    assert captured["name"] == "frontend"
+    assert captured["port"] == 5174
+    assert captured["env"] == {"VITE_API_PROXY": "http://127.0.0.1:8180", "VITE_PORT": "5174"}
+    assert captured["args"][-2:] == ["--host", "127.0.0.1"]
+
+
+def test_status_is_useful_while_the_demo_is_stopped(tmp_path: Path, monkeypatch) -> None:
+    settings = settings_for(tmp_path)
+    document = demo.load_manifest(settings)
+    document["samples"] = [
+        {
+            "scenario": "lost-review",
+            "dataset_id": settings.dataset,
+            "case_id": "case-offline",
+            "line_id": "line-offline",
+            "status": "PENDING_REVIEW",
+        }
+    ]
+    demo.save_manifest(settings, document)
+    monkeypatch.setattr(demo, "container_health", lambda *args: "")
+    monkeypatch.setattr(demo, "case_state", lambda *args: pytest.fail("offline status must not query MySQL"))
+    monkeypatch.setattr(demo, "read_owned", lambda *args: [])
+    log = demo.Log()
+
+    assert demo.command_status(settings, log) == 0
+    assert any("live=offline" in line for line in log.lines)
 
 
 # --------------------------------------------------------------------------- manifest discipline

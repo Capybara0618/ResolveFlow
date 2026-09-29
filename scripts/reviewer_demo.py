@@ -9,7 +9,7 @@ one run.
 
 What it is careful about, and why:
 
-* **Isolation is checked, not assumed.** The demonstration owns host ports 8180-8183,
+* **Isolation is checked, not assumed.** The demonstration owns host ports 5174, 8180-8183,
   3307, 55433, 9877 and 10912, one compose project (``resolveflow-review-demo``) and its
   own named volumes. ``guard()`` refuses to run if any demo port collides with a port the
   shared ``resolveflow`` project uses, and every database statement goes through a
@@ -32,6 +32,7 @@ What it is careful about, and why:
 
 Commands::
 
+    agent/.venv/Scripts/python.exe scripts/reviewer_demo.py start
     agent/.venv/Scripts/python.exe scripts/reviewer_demo.py prepare
     agent/.venv/Scripts/python.exe scripts/reviewer_demo.py run --scenario lost-review
     agent/.venv/Scripts/python.exe scripts/reviewer_demo.py status
@@ -49,6 +50,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -56,6 +58,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
+import webbrowser
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -105,6 +108,7 @@ DEFAULT_PORTS: dict[str, int] = {
     "commerce": 8181,
     "agent": 8182,
     "case": 8183,
+    "frontend": 5174,
 }
 
 #: Ports the shared ``resolveflow`` project (or a host-run sibling) uses. A demo port
@@ -173,6 +177,10 @@ class Settings:
     @property
     def agent_url(self) -> str:
         return f"http://127.0.0.1:{self.ports['agent']}"
+
+    @property
+    def frontend_url(self) -> str:
+        return f"http://127.0.0.1:{self.ports['frontend']}"
 
     @property
     def case_dsn(self) -> str:
@@ -1512,6 +1520,17 @@ def container_health(role: str, settings: Settings) -> str:
     return inspect.stdout.strip()
 
 
+def owns_port(settings: Settings, name: str, port: int) -> bool:
+    """Whether a recorded process still owns the port assigned to it."""
+    entry = next((item for item in read_owned(settings) if item["name"] == name), None)
+    if entry is None:
+        return False
+    owners = set(pids_on_port(port))
+    return bool(owners) and (
+        str(entry["pid"]) in owners or str(entry.get("owner_pid") or "") in owners
+    )
+
+
 def healthy_and_owned(settings: Settings, name: str, port: int, url: str) -> bool:
     """Whether this driver already has a healthy process of its own on that port.
 
@@ -1520,13 +1539,7 @@ def healthy_and_owned(settings: Settings, name: str, port: int, url: str) -> boo
     loser. That is exactly how an earlier version left a case-service entry pointing at a process
     that was already gone.
     """
-    entry = next((item for item in read_owned(settings) if item["name"] == name), None)
-    if entry is None or not pids_on_port(port):
-        return False
-    owners = set(pids_on_port(port))
-    if str(entry["pid"]) not in owners and str(entry.get("owner_pid") or "") not in owners:
-        return False
-    return health(url)
+    return owns_port(settings, name, port) and health(url)
 
 
 def refuse_if_port_held(settings: Settings, name: str, port: int) -> None:
@@ -1658,7 +1671,8 @@ def start_agent(settings: Settings, scenario: Scenario, script_path: Path, log: 
     happily answer this run's dispatch, and the resulting proposal would look like a model
     decision while being a stale one.
     """
-    stopped = stop_owned(settings, "agent", log=log)
+    stopped = stop_owned(settings, "agent-readonly", log=log)
+    stopped += stop_owned(settings, "agent", log=log)
     if stopped:
         log.note("stopped the previous Agent: " + ", ".join(stopped))
     squatters = pids_on_port(settings.ports["agent"])
@@ -1726,6 +1740,111 @@ def start_agent(settings: Settings, scenario: Scenario, script_path: Path, log: 
 def agent_health(settings: Settings) -> bool:
     status, answer = http("GET", f"{settings.agent_url}/health", timeout=3)
     return status == 200 and isinstance(answer, dict) and answer.get("status") == "UP"
+
+
+def start_readonly_agent(settings: Settings, log: Log) -> None:
+    """Serve saved investigation records and the refund-provider stub without running Agent work.
+
+    The browser experience only reads decisions that the isolated demo already persisted. Keeping
+    the investigation loop disabled makes opening the page unable to consume queued runs or call a
+    model. Scenario runs replace this process explicitly before binding their own mock script.
+    """
+    if owns_port(settings, "agent-readonly", settings.ports["agent"]) and agent_health(settings):
+        log.step("read-only Agent API is already up under this driver", True, settings.agent_url)
+        return
+    stop_owned(settings, "agent-readonly", log=log)
+    stopped = stop_owned(settings, "agent", log=log)
+    if stopped:
+        log.note("stopped the scenario Agent before entering browser experience mode: " + ", ".join(stopped))
+    refuse_if_port_held(settings, "read-only Agent API", settings.ports["agent"])
+
+    provider_db = settings.runtime() / "refund-provider.sqlite3"
+    env = child_env(
+        RESOLVEFLOW_AGENT_DB=settings.agent_dsn,
+        RESOLVEFLOW_CASE_BASE_URL=settings.case_url,
+        RESOLVEFLOW_COMMERCE_BASE_URL=settings.commerce_url,
+        RESOLVEFLOW_PROVIDER_DB=str(provider_db),
+        RESOLVEFLOW_INVESTIGATION_ENABLED="0",
+        RESOLVEFLOW_LAB_ROUTES="1",
+    )
+    for name in (
+        "RESOLVEFLOW_MODEL_MODE",
+        "RESOLVEFLOW_MOCK_SCRIPT",
+        "RESOLVEFLOW_MODEL_ENDPOINT",
+        "RESOLVEFLOW_MODEL_ID",
+        "RESOLVEFLOW_MODEL_API_KEY",
+        "RESOLVEFLOW_MODEL_PROVIDER",
+        "RESOLVEFLOW_MODEL_CEILING_PARAMETER",
+    ):
+        env.pop(name, None)
+    start_process(
+        settings,
+        "agent-readonly",
+        [
+            str(AGENT_PYTHON),
+            "-m",
+            "uvicorn",
+            "resolveflow.api.app:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(settings.ports["agent"]),
+            "--log-level",
+            os.environ.get("REVIEWER_DEMO_AGENT_LOG_LEVEL", "info"),
+        ],
+        env,
+        settings.ports["agent"],
+    )
+    ready = wait_for("read-only Agent API", lambda: agent_health(settings), timeout=180.0)
+    log.step("read-only Agent API is healthy", ready, settings.agent_url)
+    if ready:
+        record_port_owner(settings, "agent-readonly")
+    else:
+        raise DemoRefused("the read-only Agent API never became healthy; check its process log")
+
+
+def frontend_health(settings: Settings) -> bool:
+    try:
+        request = urllib.request.Request(settings.frontend_url, method="GET")
+        with urllib.request.urlopen(request, timeout=3) as response:
+            body = response.read(64_000)
+            return response.status == 200 and b'id="app"' in body
+    except (OSError, urllib.error.URLError):
+        return False
+
+
+def start_frontend(settings: Settings, log: Log) -> None:
+    """Start the desktop Vite page against the isolated demo gateway."""
+    if owns_port(settings, "frontend", settings.ports["frontend"]) and frontend_health(settings):
+        log.step("desktop frontend is already up under this driver", True, settings.frontend_url)
+        return
+    stop_owned(settings, "frontend", log=log)
+    refuse_if_port_held(settings, "desktop frontend", settings.ports["frontend"])
+
+    pnpm = shutil.which("pnpm.cmd") or shutil.which("pnpm")
+    if pnpm is None:
+        raise DemoRefused("pnpm is not installed or is not on PATH; install the version pinned by web/package.json")
+    if not (ROOT / "web" / "node_modules").is_dir():
+        log.section("frontend dependencies")
+        installed = run(["cmd", "/c", pnpm, "--dir", "web", "install", "--frozen-lockfile"], timeout=900)
+        log.step("frontend dependencies installed from the lockfile", installed.returncode == 0)
+        if installed.returncode != 0:
+            raise DemoRefused(f"pnpm install failed: {(installed.stderr or installed.stdout)[-400:]}")
+
+    env = child_env(VITE_API_PROXY=settings.gateway_url, VITE_PORT=str(settings.ports["frontend"]))
+    start_process(
+        settings,
+        "frontend",
+        ["cmd", "/c", pnpm, "--dir", "web", "dev", "--", "--host", "127.0.0.1"],
+        env,
+        settings.ports["frontend"],
+    )
+    ready = wait_for("desktop frontend", lambda: frontend_health(settings), timeout=120.0)
+    log.step("desktop frontend is ready", ready, settings.frontend_url)
+    if ready:
+        record_port_owner(settings, "frontend")
+    else:
+        raise DemoRefused("the desktop frontend never became ready; check its process log")
 
 
 # --------------------------------------------------------------------------- sample state
@@ -2153,8 +2272,46 @@ def witness(settings: Settings) -> dict[str, str]:
     return observed
 
 
+def stage_ready(settings: Settings) -> bool:
+    """Whether a subsequent ``start`` can reuse the already prepared demo stage."""
+    try:
+        return (
+            container_health("mysql", settings) == "healthy"
+            and container_health("postgres", settings) == "healthy"
+            and tcp_open("127.0.0.1", settings.ports["namesrv"])
+            and healthy_and_owned(settings, "case-service", settings.ports["case"], settings.case_url)
+            and healthy_and_owned(settings, "commerce-service", settings.ports["commerce"], settings.commerce_url)
+            and healthy_and_owned(settings, "gateway", settings.ports["gateway"], settings.gateway_url)
+        )
+    except (DemoRefused, OSError, subprocess.SubprocessError):
+        return False
+
+
+def command_start(settings: Settings, log: Log, *, build: bool, open_browser: bool) -> int:
+    """Bring up the complete browser experience and return once it is ready."""
+    guard(settings)
+    if stage_ready(settings):
+        log.step("prepared demo backend is already running", True, settings.gateway_url)
+    else:
+        command_prepare(settings, log, build=build)
+
+    log.section("browser experience")
+    start_readonly_agent(settings, log)
+    start_frontend(settings, log)
+    if open_browser:
+        opened = webbrowser.open(settings.frontend_url, new=2)
+        log.step("opened the desktop page in the default browser", opened, settings.frontend_url)
+        if not opened:
+            log.note(f"open this address manually: {settings.frontend_url}")
+    else:
+        log.note(f"browser opening was disabled; open {settings.frontend_url}")
+    log.note("login: demo-reviewer / demo-pass-1003")
+    return 0
+
+
 def command_prepare(settings: Settings, log: Log, *, build: bool) -> int:
     guard(settings)
+    manifest_exists = settings.manifest_path.is_file()
     document = load_manifest(settings)
     baseline = settings.runtime() / "shared-witness.json"
     if not baseline.is_file():
@@ -2166,7 +2323,8 @@ def command_prepare(settings: Settings, log: Log, *, build: bool) -> int:
         log.note(f"recorded the shared environment's row counts in {baseline.name}")
     start_stage(settings, log, build=build)
     backfill_display_fields(settings, document, log)
-    save_manifest(settings, document)
+    if not manifest_exists:
+        save_manifest(settings, document)
     log.step("demo stage prepared", True, f"dataset={settings.dataset} manifest={settings.manifest_path.name}")
     log.note(
         "the Agent is started per scenario by `run`: one mock script is bound to one run, so there is no "
@@ -2177,15 +2335,29 @@ def command_prepare(settings: Settings, log: Log, *, build: bool) -> int:
 
 def command_status(settings: Settings, log: Log) -> int:
     document = load_manifest(settings)
+    database_ready = container_health("mysql", settings) == "healthy"
+    live_cases: dict[str, tuple[str, str | None]] = {}
+    case_ids = [sample["case_id"] for sample in document.get("samples", []) if sample.get("case_id")]
+    if database_ready and case_ids:
+        identifiers = ", ".join(_sql_text(case_id) for case_id in case_ids)
+        rows = mysql_rows(
+            "SELECT c.case_id, c.status, IFNULL(a.status, '')"
+            " FROM case_db.aftersale_case c"
+            " LEFT JOIN case_db.case_authorization a ON a.case_id = c.case_id"
+            f" WHERE c.case_id IN ({identifiers})",
+            settings,
+        )
+        live_cases = {case_id: (status, authorization or None) for case_id, status, authorization in rows}
     log.section(f"manifest {settings.manifest_path}")
     log.note(f"environment={document['environment']} dataset={document['dataset_id']} "
              f"samples={len(document.get('samples', []))}")
+    if not database_ready:
+        log.note("demo MySQL is stopped; live sample state is shown as offline")
     for sample in document.get("samples", []):
-        state = case_state(settings, sample["case_id"]) if sample.get("case_id") else {}
+        status, authorization = live_cases.get(sample.get("case_id", ""), ("offline", None))
         log.note(
             f"  {sample['scenario']:<16} case={sample.get('case_id')} line={sample.get('line_id')} "
-            f"recorded={sample.get('status')} live={state.get('status')} "
-            f"authorization={(state.get('authorization') or {}).get('status')}"
+            f"recorded={sample.get('status')} live={status} authorization={authorization}"
         )
     log.section("running demo processes")
     owned = read_owned(settings)
@@ -2193,9 +2365,10 @@ def command_status(settings: Settings, log: Log) -> int:
         log.note("none recorded; `run --scenario ...` starts the Agent for one scenario")
     for entry in owned:
         owners = pids_on_port(int(entry["port"]))
+        ours = {str(entry["pid"]), str(entry.get("owner_pid") or "")}
         log.note(
             f"  {entry['name']:<16} pid={entry['pid']} port={entry['port']} "
-            f"owner={'ours' if str(entry['pid']) in owners else ', '.join(owners) or 'nobody'}"
+            f"owner={'ours' if ours & set(owners) else ', '.join(owners) or 'nobody'}"
         )
     return 0
 
@@ -2548,6 +2721,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--skip-build", action="store_true", help="reuse the jars already on disk")
     sub = parser.add_subparsers(dest="command", required=True)
 
+    starter = sub.add_parser("start", help="start backend, read-only Agent API and desktop page")
+    starter.add_argument("--no-browser", action="store_true", help="start everything without opening a browser")
     sub.add_parser("prepare", help="bring up the demo stage and build the demo policy index")
     verify = sub.add_parser("verify", help="read-only checks of isolation and sample state")
     status = sub.add_parser("status", help="read-only view of the manifest and the demo processes")
@@ -2562,6 +2737,8 @@ def main(argv: list[str] | None = None) -> int:
     # sub-parser from resetting the top-level value when it is not repeated.
     runner.add_argument("--skip-build", action="store_true", default=argparse.SUPPRESS,
                         help="reuse the jars already on disk")
+    starter.add_argument("--skip-build", action="store_true", default=argparse.SUPPRESS,
+                         help="reuse the jars already on disk")
     for command in (verify, status, stop, runner, retired):
         command.add_argument("--json", action="store_true", help="accepted for symmetry; reports are text")
 
@@ -2588,7 +2765,9 @@ def main(argv: list[str] | None = None) -> int:
 
     log = Log(log_path(settings, args.command), title=f"reviewer demo · {args.command} · {settings.dataset}")
     try:
-        if args.command == "prepare":
+        if args.command == "start":
+            code = command_start(settings, log, build=not args.skip_build, open_browser=not args.no_browser)
+        elif args.command == "prepare":
             code = command_prepare(settings, log, build=not args.skip_build)
         elif args.command == "verify":
             code = command_verify(settings, log)

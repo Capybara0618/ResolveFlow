@@ -29,6 +29,7 @@
 | demo PostgreSQL | 55433 | demo commerce-service | 8181 |
 | demo RocketMQ namesrv | 9877 | demo Agent | 8182 |
 | demo RocketMQ broker | 10912 | demo case-service | 8183 |
+| desktop web | 5174 | — | — |
 
 - `guard()` 在每次写操作前拒绝：项目名不是 `resolveflow-review-demo`、任一 demo 端口落在共享端口集合、数据集前缀不是 `reviewer-demo`、embedding 快照缺失。
 - 数据库语句只经 compose 项目标签校验过的 demo 容器执行；`processes.json` 与 manifest 都记了 environment/project，读到别的环境的文件直接拒绝。
@@ -41,6 +42,13 @@
 工作目录 `E:/Code/Agent+Backend`，PowerShell。
 
 ```powershell
+# 日常体验入口：启动完整演示栈，并在默认浏览器打开桌面页面
+.\demo.ps1
+
+# 查看状态；停止时保留演示数据和Docker卷
+.\demo.ps1 status
+.\demo.ps1 stop
+
 # 准备/恢复：起基础设施、构建 jar、受控导入政策、建 demo 策略索引、起三个常驻服务
 agent/.venv/Scripts/python.exe scripts/reviewer_demo.py prepare
 
@@ -62,7 +70,7 @@ agent/.venv/Scripts/python.exe scripts/reviewer_demo.py retire --scenario <name>
 
 `--skip-build`（放在子命令前，或 `run` 之后）复用已有 jar。数据集可用 `--dataset` / `--new-dataset reviewer-demo-...` 指定；端口可用 `REVIEWER_DEMO_PORT_<ROLE>` 覆盖，JDK 可用 `REVIEWER_DEMO_JAVA_HOME` 指定（默认会解析 JDK 21，因为本机 `JAVA_HOME` 是 17）。
 
-登录用现有合成账号：`demo-reviewer / demo-pass-1003`（M-1001，审核员）、`demo-reviewer-m2 / demo-pass-2002`（M-1002）。前端在 5173 时请显式把代理指向 demo gateway `http://127.0.0.1:8180`；本驱动**不改** 5173 现有后端。
+日常入口使用固定演示前端 `http://127.0.0.1:5174`，代理到 demo gateway `http://127.0.0.1:8180`；它不会改动 5173 的共享前端。浏览器体验使用只读 Agent API，调查循环关闭，因此打开页面不会消费新 run 或调用模型。登录用现有合成账号：`demo-reviewer / demo-pass-1003`（M-1001，审核员）、`demo-reviewer-m2 / demo-pass-2002`（M-1002）。
 
 ## 4. 七个样本（`samples.json` 为准）
 
@@ -108,3 +116,22 @@ agent/.venv/Scripts/python.exe -m pytest agent/tests/integration/test_deployment
 6. **进程归属按端口判定**：Windows 上 `agent/.venv/Scripts/python.exe` 是启动器，真正持有套接字的是它的子进程。驱动同时记录两个 PID 并用 `taskkill /F /T` 终止进程树；端口已被非本驱动的进程占用时**拒绝启动**而不是静默换端口。
 7. **本机 Java 默认是 17**：驱动会解析 JDK 21（`~/.jdks`、Program Files、最后才是 `JAVA_HOME`），否则 Maven enforcer 会以"jars did not build"的形式报错。
 8. **未调用任何收费模型**：全程 `RESOLVEFLOW_MODEL_MODE=mock`，进程环境里显式移除了 `RESOLVEFLOW_MODEL_ENDPOINT/ID/API_KEY/PROVIDER`。真实模型质量验证仍未授权、未运行。
+
+## 7. 一键浏览器入口验证（2026-09-29）
+
+根目录新增`demo.ps1`，它复用本驱动的隔离、端口冲突和进程归属机制。默认`start`会准备后端、启动关闭调查循环的只读Agent API、启动固定5174端口的Vite前端并打开默认浏览器；`status`和`stop`由同一进程账本负责。只读Agent进程会移除所有live模型环境变量和mock脚本，因此页面浏览只能读取已持久化结果。
+
+实际验证：
+
+```powershell
+agent/.venv/Scripts/python.exe -m py_compile scripts/reviewer_demo.py
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_reviewer_demo_driver.py -q --basetemp .pytest-tmp/demo-start-unit
+pnpm --dir web test
+pnpm --dir web build
+.\demo.ps1 -NoBrowser
+.\demo.ps1 status
+.\demo.ps1 stop
+.\demo.ps1 -SkipBuild -NoBrowser
+```
+
+结果为驱动单测20 passed、前端68 passed、前端构建通过。运行态验证覆盖：热启动复用、重复启动幂等、5174经Vite代理登录为REVIEWER并读取3条待审工单、默认命令成功唤起系统浏览器、停止五个宿主进程及演示compose且保留数据、停止后的完整恢复路径，以及服务停止时`status`不访问数据库并显示offline。`-SkipBuild`冷启动依次通过MySQL/PG、RocketMQ、政策导入、Case/Commerce/Gateway、政策索引、只读Agent和桌面前端健康检查；Java源码未变，本次未重复Maven测试。

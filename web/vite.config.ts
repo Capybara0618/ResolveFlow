@@ -20,6 +20,7 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     port: devPort,
+    strictPort: true,
     proxy: { '/api': apiTarget },
   },
   build: {
