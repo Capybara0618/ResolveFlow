@@ -1,10 +1,10 @@
-# 当前执行说明：交给DSH执行剩余四批
+# 当前执行说明：审查员五批已完成
 
-2026-09-29用户决定将剩余四批交给DSH/DeepSeek执行。第一批“核验、补证后的调查闭环”已在928ec84完成，实现和验证见[闭环报告](../reports/reviewer-reinvestigation.md)，进度唯一来源仍为[todo顶部](todo.md)。
+2026-09-29审查员五批优化已经实施完毕，实际成果和限制以[todo顶部](todo.md)及各批交付报告为准。第一批“核验、补证后的调查闭环”见[闭环报告](../reports/reviewer-reinvestigation.md)，第二至第五批分别见演示链路、依据阅读、Agent/RAG诊断和视觉报告。
 
-新执行入口：[DSH总手册与开工提示词](dsh-reviewer/README.md)，按[第二批](dsh-reviewer/02-demo-chain.md)→[第三批](dsh-reviewer/03-readable-sources.md)→[第四批](dsh-reviewer/04-agent-rag.md)→[第五批](dsh-reviewer/05-fields-visual.md)执行。这是[原计划](plan.md)的具体化，不另起路线。先修5个已知契约失败，再完成隔离mock演示；第一批不重做。
+用户最新确认项目只需要桌面网页端，不做移动端产品。已有窄屏响应式代码保留为普通网页兼容兜底，不再安排移动端专项实现或验收。后续如继续改视觉，以参考图的桌面布局和真实业务行为为准。
 
-本次仅编写交接文档和保存用户参考图，没有启动剩余四批业务实施。以交接者最终回复“已停止写入”为接管点；接手先只读检查Git及并行进程，不覆盖不明改动。DS作为编码执行者不等于授权项目Agent收费live调用。
+DS作为编码执行者不等于项目Agent已完成收费live验证；真实模型质量仍是NOT_RUN。接手先只读检查Git及并行进程，不覆盖不明改动。
 
 设计见[优化方案](../docs/reviewer-optimization.md)。不重做V3前端、AgentScope迁移、工作台接口、调查分项、原始记录投影和本次调查闭环，不恢复C12。
 
