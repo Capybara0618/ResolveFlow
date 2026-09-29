@@ -41,16 +41,19 @@ public class AgentRunDispatch {
     private final AgentRunBindingRepository bindings;
     private final CaseRepository cases;
     private final PolicyManifestRepository manifests;
+    private final EvidenceRepository evidence;
     private final AgentRunClient client;
 
     public AgentRunDispatch(
             AgentRunBindingRepository bindings,
             CaseRepository cases,
             PolicyManifestRepository manifests,
+            EvidenceRepository evidence,
             AgentRunClient client) {
         this.bindings = bindings;
         this.cases = cases;
         this.manifests = manifests;
+        this.evidence = evidence;
         this.client = client;
     }
 
@@ -175,10 +178,12 @@ public class AgentRunDispatch {
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("description", row.description() == null ? "" : row.description());
         request.put("requested_actions", List.copyOf(actions));
-        // No evidence exists at dispatch time: a case is opened from a description and an order line. An
-        // empty list is the true answer, not a placeholder, and the contract allows it
-        // (contracts/core/openapi-agent.yaml:81).
-        request.put("evidence_refs", List.of());
+        // A later revision carries the ids of material that existed by that revision. The Agent reads the
+        // authoritative records through the scoped tool; ids here are routing hints, not trusted content.
+        request.put(
+                "evidence_refs",
+                List.copyOf(evidence.findIdsAtRevision(
+                        row.caseId(), binding.inputRevision(), CaseEvidenceService.MAX_RECORDS)));
 
         Map<String, Object> policy = new LinkedHashMap<>();
         // The merchant is dispatched with the manifest because it is what the run filters retrieval by
@@ -196,7 +201,9 @@ public class AgentRunDispatch {
         body.put("context", context);
         body.put("request", request);
         body.put("policy_manifest", policy);
-        body.put("deadline_at", row.createdAt().plus(DISPATCH_WINDOW).toString());
+        // Each revision gets its own control-plane window. Reusing case.created_at would make a fresh run
+        // on an older case expire before the Agent accepted it.
+        body.put("deadline_at", binding.createdAt().plus(DISPATCH_WINDOW).toString());
         // A fresh trace id per dispatch, in the contract's own format. The Agent carries it into its logs,
         // and it is the only correlation available until this service reports spans of its own.
         body.put(

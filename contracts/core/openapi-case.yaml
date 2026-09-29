@@ -363,9 +363,9 @@ paths:
       operationId: appendEvidence
       summary: Append customer material to a case
       description: |
-        Appending bumps input_revision, which invalidates the in-flight run rather than
-        silently changing what it is investigating (docs/domain-model.md:55). After the
-        authorisation is consumed the input is closed and this is 409
+        Appending bumps input_revision, retires the in-flight run, returns the case to
+        QUEUED and creates the durable binding for one fresh run of the new revision
+        (docs/domain-model.md:55). After the authorisation is consumed the input is closed and this is 409
         (docs/core-contracts.md:30).
 
         New input also retires the case's live authorisation: it is fixed to the revision
@@ -373,9 +373,9 @@ paths:
         describes input the case no longer has. That authorisation becomes REVOKED —
         nobody decided it, and the recorded reason names the revision that retired it —
         and the response names it, so a caller that submitted material learns which
-        approval it moved. The case then returns to PENDING_REVIEW if it had been
-        AUTHORIZED: an approval was never a payment, so retiring one costs nothing and
-        leaves no operation behind.
+        approval it moved. The case returns to QUEUED even if it had been AUTHORIZED:
+        an approval was never a payment, so retiring one costs nothing and the changed
+        input must be investigated before another approval can be formed.
 
         Material is appended, never overwritten: each submission is its own record with its
         own id, so an earlier statement stays readable next to the one that corrected it
@@ -389,6 +389,10 @@ paths:
         (ORDER_LINE, PAYMENT_LEDGER, SHIPMENT, SHIPMENT_TRACK, POLICY_RULE) are facts read from
         Commerce or from policy, never something a client asserts about itself, so they are 403
         here and arrive through the investigation instead.
+
+        When the case is WAITING_CUSTOMER because a recorded question is open,
+        question_id must equal that question's stable id. This preserves the question-answer
+        link; a missing or different id is 422 and does not advance the revision.
       parameters:
         - $ref: '#/components/parameters/CaseId'
       requestBody:
@@ -573,7 +577,7 @@ paths:
     post:
       tags: [review]
       operationId: submitReview
-      summary: Approve or reject the case authorisation
+      summary: Approve, reject, or request information for the case authorisation
       description: |
         The reviewer acts on the version they saw: If-Match carries the case version that was
         read and the body carries the authorization_version, and neither a stale case version
@@ -583,7 +587,9 @@ paths:
         service can recompute, and the line has to still be payable. Only a human decision can
         move an authorisation to APPROVED; model confidence is not authorisation (AGENTS.md).
         A refusal that can never become applicable expires the authorisation it refused, and
-        says so in the trajectory.
+        says so in the trajectory. REQUEST_INFO expires the pending authorisation, records a
+        stable question_id and uses the same two-round, waiting-state and case-expiry guards as
+        the reviewer action route.
       parameters:
         - $ref: '#/components/parameters/CaseId'
         - $ref: '#/components/parameters/IfMatch'
@@ -1828,6 +1834,7 @@ components:
         question_id:
           type: [string, 'null']
           maxLength: 64
+          description: Required and matched to the open question when the case is waiting for customer input.
         text:
           type: string
           minLength: 1

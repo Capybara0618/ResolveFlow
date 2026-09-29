@@ -22,8 +22,8 @@ public interface AgentRunBindingRepository {
     /**
      * Record the run a case revision will be investigated by.
      *
-     * <p>Called inside the transaction that opens the case, so a case cannot exist without its binding
-     * (docs/domain-model.md:45). PENDING means "the Agent has not accepted it yet"; the dispatch is what
+     * <p>Called inside the transaction that opens a case or advances it with material, so every
+     * investigation revision has its binding (docs/domain-model.md:45). PENDING means "the Agent has not accepted it yet"; the dispatch is what
      * turns it into DISPATCHED, and it happens outside the transaction because it is a network call.
      */
     @Insert("""

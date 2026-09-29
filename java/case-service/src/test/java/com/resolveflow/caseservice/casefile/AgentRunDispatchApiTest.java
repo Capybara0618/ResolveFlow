@@ -265,6 +265,38 @@ class AgentRunDispatchApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    @DisplayName("a later revision is dispatched with its evidence and a fresh control-plane window")
+    void laterRevisionUsesItsOwnInputAndDeadline() {
+        String caseId = openCase();
+        jdbc.update(
+                "UPDATE aftersale_case SET created_at = DATE_SUB(created_at, INTERVAL 1 DAY) WHERE case_id = ?",
+                caseId);
+        rest.post()
+                .uri("/api/v1/cases/" + caseId + "/evidence")
+                .header("Authorization", "Bearer " + userToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("{\"text\":\"承运商证明已补充\",\"evidence_kind\":\"CUSTOMER_STATEMENT\"}")
+                .exchange()
+                .expectStatus()
+                .isOk();
+        String evidenceId =
+                jdbc.queryForObject("SELECT evidence_id FROM case_evidence WHERE case_id = ?", String.class, caseId);
+
+        AgentRunDispatch.Pass pass = dispatch.dispatchDue(10);
+
+        assertThat(pass.dispatched()).isEqualTo(2);
+        JsonNode revised = agent.dispatched.stream()
+                .filter(item -> item.get("input_revision").asInt() == 2)
+                .findFirst()
+                .orElseThrow();
+        assertThat(revised.get("run_id").stringValue()).isEqualTo(AgentRunId.forRevision(caseId, 2));
+        assertThat(revised.get("request").get("evidence_refs").get(0).stringValue())
+                .isEqualTo(evidenceId);
+        assertThat(Instant.parse(revised.get("deadline_at").stringValue()))
+                .isAfter(Instant.now().plus(Duration.ofMinutes(8)));
+    }
+
+    @Test
     @DisplayName("a dispatched binding is not dispatched again")
     void aDispatchedBindingIsNotSentTwice() {
         String caseId = openCase();

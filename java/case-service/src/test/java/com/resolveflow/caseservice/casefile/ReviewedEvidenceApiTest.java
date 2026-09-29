@@ -228,6 +228,20 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
                 .as("the trajectory states the conclusion instead of only that something was recorded")
                 .contains("人工核验：已确认该材料");
         assertThat(evidenceRows(caseId, "REVIEWER_VERIFICATION")).isEqualTo(1);
+        Map<String, Object> current =
+                jdbc.queryForMap("SELECT status, input_revision FROM aftersale_case WHERE case_id = ?", caseId);
+        assertThat(current.get("status"))
+                .as("new verification hands the new revision back to investigation")
+                .isEqualTo("QUEUED");
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM agent_binding WHERE case_id = ? AND input_revision = ?"
+                                + " AND run_id = ? AND dispatch_status = 'PENDING'",
+                        Integer.class,
+                        caseId,
+                        current.get("input_revision"),
+                        AgentRunId.forRevision(caseId, (Integer) current.get("input_revision"))))
+                .as("the revision move durably schedules one fresh run")
+                .isEqualTo(1);
     }
 
     @Test

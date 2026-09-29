@@ -211,11 +211,19 @@ class AgentCallbackApiTest extends CaseDatabaseTest {
 
     /** The customer answering, which is what moves the revision and lets a run resume. */
     private void appendEvidence(String caseId) {
+        appendEvidence(caseId, null);
+    }
+
+    private void appendEvidence(String caseId, String questionId) {
+        ObjectNode body = MAPPER.createObjectNode();
+        body.put("text", "运单号 SF123456789");
+        body.put("evidence_kind", "CUSTOMER_STATEMENT");
+        if (questionId != null) body.put("question_id", questionId);
         rest.post()
                 .uri("/api/v1/cases/" + caseId + "/evidence")
                 .header("Authorization", "Bearer " + userToken())
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                .body("{\"text\":\"运单号 SF123456789\",\"evidence_kind\":\"CUSTOMER_STATEMENT\"}")
+                .body(body)
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -287,7 +295,7 @@ class AgentCallbackApiTest extends CaseDatabaseTest {
         assertThat(stale.get("disposition").stringValue()).isEqualTo("STALE");
         assertThat(stale.has("case_version")).isFalse();
         assertThat(version(caseId)).isEqualTo(afterEvidence);
-        assertThat(status(caseId)).isEqualTo("ANALYZING");
+        assertThat(status(caseId)).isEqualTo("QUEUED");
         assertThat(timelineCount(caseId, "AGENT_FAILED")).isZero();
         assertThat(inboxDisposition("cb-old-revision"))
                 .as("arrived and did not apply is exactly the fact the record is for")
@@ -336,7 +344,7 @@ class AgentCallbackApiTest extends CaseDatabaseTest {
     void theCustomerAnsweringLetsTheRunResume() {
         String caseId = openCase();
         deliver(caseId, envelope("cb-question-3", 1, "QUESTION", questionPayload("q-3")));
-        appendEvidence(caseId);
+        appendEvidence(caseId, "q-3");
         assertThat(status(caseId))
                 .as("an answer re-queues the case, which is the documented edge out of WAITING_CUSTOMER"
                         + " (docs/domain-model.md:55), so the run has something to resume into")

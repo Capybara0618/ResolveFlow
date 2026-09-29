@@ -51,6 +51,7 @@ public class ReviewDecisionService {
 
     private final CaseRepository cases;
     private final AuthorizationRepository authorizations;
+    private final ReviewQuestionService questions;
     private final CommerceOrderLineClient commerce;
     private final Clock clock;
     private final ObjectMapper mapper;
@@ -58,11 +59,13 @@ public class ReviewDecisionService {
     public ReviewDecisionService(
             CaseRepository cases,
             AuthorizationRepository authorizations,
+            ReviewQuestionService questions,
             CommerceOrderLineClient commerce,
             Clock clock,
             ObjectMapper mapper) {
         this.cases = cases;
         this.authorizations = authorizations;
+        this.questions = questions;
         this.commerce = commerce;
         this.clock = clock;
         this.mapper = mapper;
@@ -197,6 +200,7 @@ public class ReviewDecisionService {
             AuthenticatedPrincipal principal,
             String reason,
             Instant now) {
+        questions.requireAllowed(row);
         record(stored, AuthorizationStatus.EXPIRED, principal, reason, now);
         if (cases.transition(row.caseId(), row.status().name(), CaseStatus.WAITING_CUSTOMER.name(), now) != 1) {
             throw new CaseStateConflictException("this case is no longer in " + row.status() + "; nothing was asked");
@@ -209,6 +213,7 @@ public class ReviewDecisionService {
                 decisionDetail(row, stored, ReviewDecision.REQUEST_INFO, principal, reason),
                 now,
                 row.inputRevision());
+        questions.record(row, row.inputRevision(), principal, reason, "HUMAN_AUTHORIZATION", now);
         return AuthorizationStatus.EXPIRED;
     }
 

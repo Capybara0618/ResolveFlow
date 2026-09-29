@@ -27,12 +27,12 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | GET /api/v1/orders/{order_id} | 本人/商家授权订单 |
 | Case | POST /api/v1/cases | line_id/description/requested_actions=[REFUND] |
 | Case | GET /api/v1/cases/{case_id} | 状态、客户原始问题描述、订单 ID 与公开证据；按现有主体权限读取 |
-| Case | POST /api/v1/cases/{case_id}/evidence | 追加材料并增revision，消费后409 |
+| Case | POST /api/v1/cases/{case_id}/evidence | 追加材料并增revision、回到QUEUED且创建新run绑定；回答追问须关联当前question_id；消费后409 |
 | Case | POST /api/v1/cases/{case_id}/cancel | 仅授权消费前可取消 |
 | Case | GET /api/v1/cases/{case_id}/events | SSE，Last-Event-ID，鉴权不放URL |
 | Case | GET /api/v1/review/cases | 商家内审核队列：仅 PENDING_REVIEW，携带客户原始问题描述，按 updated_at 倒序，keyset 游标分页；客户角色 403，坏游标/坏 limit 400 |
 | Case | POST /api/v1/cases/{case_id}/reviews | 人工决定当前授权；`If-Match`为工单版本、body带授权自己的版本，任一过期409；批准前重新校验；客户角色403 |
-| Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料：新记录引用被核验记录（`reviewed_evidence_id`）并带 `verification_result`，两条都在工单视图的 `EvidenceView` 里可读；客户角色 403，跨工单引用 422 |
+| Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料：新记录引用被核验记录（`reviewed_evidence_id`）并带 `verification_result`，推进revision、回到QUEUED并创建新run绑定；客户角色 403，跨工单引用 422 |
 | Case | POST /api/v1/cases/{case_id}/manual-proposals | 新revision/方案，非直接付款 |
 | Case | POST /api/v1/operations/{operation_id}/reconcile | OPERATOR请求查状态，不再次付款 |
 | Agent | POST /internal/v1/runs | PG落库后202，同case/revision唯一；`run_id`由Case从`(case_id,input_revision)`派生（RFC 9562 v5），重试得到同一个id |
@@ -65,7 +65,7 @@ PROPOSAL的接受分两类：结构或绑定错误（`schema_version`、`case_id
 
 人工核验（`reviewed-evidence`）与客户材料一样是**追加**：新记录用`reviewed_evidence_id`引用被核验的那一条、用`verification_result`记下CONFIRMED/REFUTED/INCONCLUSIVE，被核验记录的正文与hash一律不动（表内没有update/delete语句，引用是`(case_id, evidence_id)`外键，跨工单引用在库层面不可能）。核验对象必须是本工单的**材料**而不是别人核验的结论（核验的核验会让"核的是什么"退化成链条），客户角色不能记录核验（403）。`EvidenceView`是工单视图里材料的样子：引用形状+正文+谁在哪个revision追加的；核验结论因此是结构化事实而不是要人去解析的句子，而`EvidenceRef`（方案引用与内部复读用）仍然**不含正文**——引用不能变成夹带未核验文本的通道。核验结论本身不撤销授权：**撤销它的是输入revision被推进**（见下一段），CONFIRMED与REFUTED在这件事上效果相同——把失效归因于结论会让读者以为"确认过的材料就不会让批准失效"。`revoked_authorization_id`缺失的含义是"本来就没有活授权可撤"，不是"没人检查过"。
 
-**任何新输入都让该工单的活授权不再算数**（C03.3c）：授权固定在它创建时的`input_revision`上、`payload_hash`也是按那份输入算的，所以revision一旦前进，这笔批准描述的就是工单已经没有的输入。三条写新输入的路由——追加材料、人工核验、人工方案——因此都在**写入的同一个事务里**把活授权置`REVOKED`（不是`EXPIRED`：有人做了动作撤掉它），`decision_reason`写明是哪次动作与推进到哪个revision（从哪个revision来不写进句子，授权行自己的`input_revision`列已经说了），响应里的`revoked_authorization_id`点名被撤的那一笔。`AUTHORIZED`的工单随之回到`PENDING_REVIEW`：状态不能比它命名的事实活得更久，否则工单会声称"可以执行"却没有任何活授权。留下的空窗由下一次方案（run的或人的）填补，撤销本身不会替它造一笔新授权。这不是批准路径的兜底检查——把失效留到有人点"批准"时才发生，工单视图会在一段时间里显示一笔对不上输入的批准，而轨迹里没有任何东西说明它为什么还在。
+**任何新输入都让该工单的活授权不再算数**（C03.3c）：授权固定在它创建时的`input_revision`上、`payload_hash`也是按那份输入算的，所以revision一旦前进，这笔批准描述的就是工单已经没有的输入。三条写新输入的路由——追加材料、人工核验、人工方案——因此都在**写入的同一个事务里**把活授权置`REVOKED`（不是`EXPIRED`：有人做了动作撤掉它），`decision_reason`写明是哪次动作与推进到哪个revision。追加材料和人工核验把工单置`QUEUED`并创建新revision的持久run绑定；旧proposal读作`STALE`，旧revision回调也只能得到`STALE`。人工方案已经给出了新revision的方案，所以直接进入`PENDING_REVIEW`并形成新授权。状态因此始终对应实际下一步，不会出现“旧授权失效但没有重新调查”的空窗。
 
 **人工方案**（`POST /api/v1/cases/{case_id}/manual-proposals`）是"没有run跑出方案时人怎么给出一个可执行方案"：请求只带作者看过的依据（`action`/`evidence_refs`/`policy_refs`/`reason`），**没有金额成员**——金额仍由本服务从Commerce行上下文重算（`docs/product-spec.md:25`），存下来的方案文档由服务自己拼（作者的`reason`就是`summary`，`recommended_action`是那条命令的动作），`origin`/`authored_by`/`authored_role`走**列**而不是写进载荷：人是作者这件事是工单的事实，不是方案文档的成员。它复用与run方案完全相同的内容校验（引用必须落在钉住版本上、hash可重算、REFUND至少一条政策引用），因此"人工方案也要核验"不是对另一份实现的承诺；差别只在被拒之后：人的提交**先检查后记录**，被拒就什么都不写（人还在线，能改），而run的投递是持久事件、说什么都得记下来。提交**推进输入revision**（人的引用集是新决策输入，不是对run方案的评论），所以上一个revision的方案与授权随之作废，`AUTHORIZED`的工单回到`PENDING_REVIEW`——这正是上一段那条规则在三条路由上的同一次应用。作者是谁只决定谁能提交：客户角色403（材料引用是商家的论点，不是当事人的诉求），跨商家404。
 
@@ -93,7 +93,7 @@ command仅action=REFUND、target_service=commerce-service；由Case签名，Comm
 
 `GET /api/v1/cases/{case_id}/review-context` 仅商户人员可读，返回当前工单版本、允许动作、绑定政策原文、人工决定记录和当前授权对应的执行结果。无政策明确 UNAVAILABLE，不推断资格；跨商户与不存在同为404。
 
-`POST /api/v1/cases/{case_id}/review-actions` 必须携带 If-Match。MANUAL_PROPOSAL 只接受本工单可读材料的完整来源及绑定政策引用，金额仍由Java重算，形成授权后单独审批。REJECT/REQUEST_INFO用于没有有效待审授权的工单，不伪造授权；输入修订与状态同事务更新，使旧Agent结果失效。补证最多两轮、等待中不重复追问、已到期不再追问；已消费授权禁止全部输入修改。
+`POST /api/v1/cases/{case_id}/review-actions` 必须携带 If-Match。MANUAL_PROPOSAL 只接受本工单可读材料的完整来源及绑定政策引用，金额仍由Java重算，形成授权后单独审批。REJECT/REQUEST_INFO用于没有有效待审授权的工单，不伪造授权；输入修订与状态同事务更新，使旧Agent结果失效。有授权与无授权的REQUEST_INFO共用同一规则：写稳定`question_id`与问题正文，最多两轮，等待中不重复追问，已到期不再追问；客户回答必须带当前`question_id`，回答推进revision并创建新run绑定。已消费授权禁止全部输入修改。
 
 队列原参数行为保留；新增 view=REVIEW/WAITING/PROCESSING/ATTENTION/CLOSED/ALL 和 query（工单/订单精确ID或问题描述，最长100字符）。新视图按商户隔离并使用游标分页，过滤变化时前端重置游标；绕开仅服务旧待审列表的缓存。退款结果来自已持久事件并排除标记过期的事件，不将批准视为到账。契约见 core OpenAPI；样例见 `contracts/core/fixtures/reviewer-context.json`（仓库根目录相对路径）。
 ## 审核调查分项输出（2026-09-28增量）

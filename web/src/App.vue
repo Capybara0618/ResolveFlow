@@ -93,6 +93,13 @@ const proposalAction = (proposal: Record<string, unknown>) =>
   actionLabels[String(proposal.recommended_action ?? '')] ?? '请人工核对方案'
 const proposalSourceLabel = (proposal: Record<string, unknown>) =>
   proposal.origin === 'HUMAN' ? '人工方案' : proposal.origin === 'AGENT' ? 'Agent 建议' : '调查建议'
+function proposalRevisionLabel(proposal: Record<string, unknown>) {
+  const revision = typeof proposal.input_revision === 'number' ? proposal.input_revision : null
+  if (!snapshot.value || revision === null) return ''
+  return revision < snapshot.value.case.input_revision
+    ? `第 ${revision} 版 · 旧版已失效`
+    : `第 ${revision} 版 · 当前建议`
+}
 function validatedRefundAmount(proposal?: Record<string, unknown>) {
   const amount = proposal?.recomputed_amount_minor
   return proposal?.status === 'VALIDATED' && typeof amount === 'number' && Number.isSafeInteger(amount) && amount > 0
@@ -351,7 +358,7 @@ onUnmounted(stopStream)
                 <label v-if="canVerifyEvidence && snapshot.evidence.some(item => !item.reviewed_evidence_id && !verifiedEvidence.has(item.observation_id))" class="verification-reason">核验理由 <input v-model="verificationReason" placeholder="提交核验前填写理由" /></label>
               </section>
               <div class="analysis-grid" :class="{ 'without-proposal': !snapshot.proposal }">
-                <section v-if="snapshot.proposal" class="detail-section proposal"><h3>{{ proposalSourceLabel(snapshot.proposal) }}<span class="advice-label">调查结论</span></h3><div class="recommendation"><span class="recommendation-icon"><Icon name="sparkle" :size="21" /></span><strong>{{ proposalAction(snapshot.proposal) }}</strong></div><p v-if="typeof snapshot.proposal.summary === 'string'" class="proposal-summary">{{ snapshot.proposal.summary }}</p>
+                <section v-if="snapshot.proposal" class="detail-section proposal"><h3>{{ proposalSourceLabel(snapshot.proposal) }}<span class="advice-label">{{ proposalRevisionLabel(snapshot.proposal) || '调查结论' }}</span></h3><div class="recommendation"><span class="recommendation-icon"><Icon name="sparkle" :size="21" /></span><strong>{{ proposalAction(snapshot.proposal) }}</strong></div><p v-if="typeof snapshot.proposal.summary === 'string'" class="proposal-summary">{{ snapshot.proposal.summary }}</p>
                   <div v-if="proposalCitations(snapshot.proposal).length" class="citation-list"><strong>引用的政策与证据</strong><div v-for="(citation, index) in proposalCitations(snapshot.proposal).slice(0, 3)" :key="index"><Icon :name="citation.kind === '政策' ? 'file' : 'shield'" :size="15" /><span>{{ citation.kind }}</span><span class="citation-text" :title="citation.detail">{{ citation.detail }}</span></div></div><details class="proposal-details"><summary>查看完整方案与全部引用</summary><pre>{{ JSON.stringify(snapshot.proposal, null, 2) }}</pre></details><small>建议供审核参考，批准授权后进入模拟退款执行。</small>
                 </section>
                 <section class="detail-section timeline-section"><h3>工单轨迹</h3><p v-if="snapshot.timeline.length === 0" class="empty">暂无轨迹事件</p><ol v-else class="timeline"><li v-for="event in snapshot.timeline.slice(-4)" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong></li></ol><details v-if="snapshot.timeline.length" class="timeline-more"><summary>查看全部 {{ snapshot.timeline.length }} 条事件</summary><ol class="timeline"><li v-for="event in snapshot.timeline" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong><p>{{ event.summary }}</p></li></ol></details></section>

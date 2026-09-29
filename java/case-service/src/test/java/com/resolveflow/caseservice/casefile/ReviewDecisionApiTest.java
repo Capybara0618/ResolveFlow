@@ -10,6 +10,7 @@ import com.resolveflow.shared.security.JwtCodec;
 import com.resolveflow.shared.security.Role;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,6 @@ import tools.jackson.databind.node.ObjectNode;
 class ReviewDecisionApiTest extends CaseDatabaseTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final String RUN = "d9d9d9d9-6666-4777-8888-dddddddddddd";
     private static final String BUNDLE = "policy-logistics-2026.09";
     private static final String VERSION = "2026.09";
     private static final String MERCHANT = "M-1001";
@@ -76,6 +76,9 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
 
     @Autowired
     PolicyImportService policies;
+
+    @Autowired
+    CaseRepository cases;
 
     @Value("${resolveflow.identity.jwt.secret}")
     String secret;
@@ -166,12 +169,18 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
     /** Open a case and deliver a proposal the re-check validates, so an authorisation exists. */
     private JsonNode authorisedCase(String callbackId) {
         String caseId = openCase();
+        deliverProposal(caseId, 1, callbackId);
+        return view(caseId, reviewer());
+    }
+
+    private JsonNode deliverProposal(String caseId, int inputRevision, String callbackId) {
+        String runId = AgentRunId.forRevision(caseId, inputRevision);
         ObjectNode proposal = MAPPER.createObjectNode();
         proposal.put("schema_version", 2);
         proposal.put("proposal_id", java.util.UUID.randomUUID().toString());
-        proposal.put("run_id", RUN);
+        proposal.put("run_id", runId);
         proposal.put("case_id", caseId);
-        proposal.put("input_revision", 1);
+        proposal.put("input_revision", inputRevision);
         proposal.put("case_type", "LOGISTICS");
         proposal.put("recommended_action", "REFUND");
         proposal.put("summary", "承运商判定丢失，按 2026.09 政策全额退款");
@@ -181,21 +190,23 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
 
         ObjectNode body = MAPPER.createObjectNode();
         body.put("callback_id", callbackId);
-        body.put("run_id", RUN);
-        body.put("input_revision", 1);
+        body.put("run_id", runId);
+        body.put("input_revision", inputRevision);
         body.put("kind", "PROPOSAL");
         body.set("payload", proposal);
         body.put("traceparent", "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01");
-        rest.post()
+        String response = rest.post()
                 .uri("/internal/v1/cases/" + caseId + "/agent-callbacks")
                 .header("Authorization", "Bearer " + serviceToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body.toString())
                 .exchange()
                 .expectStatus()
-                .isOk();
-
-        return view(caseId, reviewer());
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+        return MAPPER.readTree(response);
     }
 
     private JsonNode view(String caseId, String token) {
@@ -423,13 +434,39 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
         assertThat(after.get("decided_by").stringValue())
                 .as("the person who asked is part of the record, even though nobody refused anything")
                 .isEqualTo("demo-reviewer");
+        String questionDetail = jdbc.queryForObject(
+                "SELECT detail FROM case_timeline WHERE case_id = ? AND kind = 'QUESTION_REQUIRED'",
+                String.class,
+                caseId);
+        JsonNode question = MAPPER.readTree(questionDetail);
+        String questionId = question.get("question_id").stringValue();
+        assertThat(questionId).isNotBlank();
+        assertThat(question.get("questions").get(0).get("prompt").stringValue()).isEqualTo("请提供承运商的书面丢失证明");
+
+        rest.post()
+                .uri("/api/v1/cases/" + caseId + "/evidence")
+                .header("Authorization", "Bearer " + customer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of(
+                        "question_id", "another-question",
+                        "text", "答非所问",
+                        "evidence_kind", "CUSTOMER_STATEMENT"))
+                .exchange()
+                .expectStatus()
+                .isEqualTo(422);
+        assertThat(jdbc.queryForObject(
+                        "SELECT input_revision FROM aftersale_case WHERE case_id = ?", Integer.class, caseId))
+                .isEqualTo(1);
 
         // The customer answers: the revision moves, and the case is the run's again.
         rest.post()
                 .uri("/api/v1/cases/" + caseId + "/evidence")
                 .header("Authorization", "Bearer " + customer())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body("{\"text\":\"承运商书面证明已上传\",\"evidence_kind\":\"CUSTOMER_STATEMENT\"}")
+                .body(Map.of(
+                        "question_id", questionId,
+                        "text", "承运商书面证明已上传",
+                        "evidence_kind", "CUSTOMER_STATEMENT"))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -438,6 +475,123 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
         assertThat(answered.get("case").get("status").stringValue())
                 .as("answering a question puts the case back in the run's hands")
                 .isEqualTo("QUEUED");
+        assertThat(jdbc.queryForObject(
+                        "SELECT question_id FROM case_evidence WHERE case_id = ? AND input_revision = 2",
+                        String.class,
+                        caseId))
+                .isEqualTo(questionId);
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM agent_binding WHERE case_id = ? AND input_revision = 2",
+                        Integer.class,
+                        caseId))
+                .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("the authorization route shares the two-round and expiry guards")
+    void requestInfoUsesTheSharedRoundAndExpiryGuards() {
+        JsonNode atRoundLimit = authorisedCase("decision-question-limit");
+        String limitedCase = atRoundLimit.get("case").get("case_id").stringValue();
+        CaseRow limited = cases.findCase(limitedCase);
+        for (int round = 1; round <= 2; round++) {
+            cases.insertTimeline(
+                    limitedCase,
+                    java.util.UUID.randomUUID().toString(),
+                    cases.nextTimelineSequence(limitedCase),
+                    TimelineEventType.QUESTION_REQUIRED.name(),
+                    "{\"question_id\":\"prior-" + round + "\"}",
+                    Instant.now(),
+                    limited.inputRevision());
+        }
+        assertThat(decideStatus(
+                        limitedCase,
+                        reviewer(),
+                        "\"" + atRoundLimit.get("case").get("version").asLong() + "\"",
+                        atRoundLimit
+                                .get("authorization")
+                                .get("authorization_id")
+                                .stringValue(),
+                        1,
+                        "REQUEST_INFO",
+                        "再补一轮"))
+                .isEqualTo(409);
+        assertThat(authorizationColumn(limitedCase, "status")).isEqualTo("PENDING_REVIEW");
+
+        JsonNode expired = authorisedCase("decision-question-expired");
+        String expiredCase = expired.get("case").get("case_id").stringValue();
+        jdbc.update(
+                "UPDATE aftersale_case SET expires_at = DATE_SUB(NOW(6), INTERVAL 1 SECOND) WHERE case_id = ?",
+                expiredCase);
+        assertThat(decideStatus(
+                        expiredCase,
+                        reviewer(),
+                        "\"" + expired.get("case").get("version").asLong() + "\"",
+                        expired.get("authorization").get("authorization_id").stringValue(),
+                        1,
+                        "REQUEST_INFO",
+                        "超时后补件"))
+                .isEqualTo(409);
+        assertThat(authorizationColumn(expiredCase, "status")).isEqualTo("PENDING_REVIEW");
+    }
+
+    @Test
+    @DisplayName("verification creates a new investigation whose proposal replaces the stale one")
+    void verificationReinvestigationProducesACurrentProposal() {
+        JsonNode original = authorisedCase("decision-reinvestigate-original");
+        String caseId = original.get("case").get("case_id").stringValue();
+        String oldAuthorization =
+                original.get("authorization").get("authorization_id").stringValue();
+
+        rest.post()
+                .uri("/api/v1/cases/" + caseId + "/evidence")
+                .header("Authorization", "Bearer " + customer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("text", "承运商证明包裹未送达", "evidence_kind", "CUSTOMER_STATEMENT"))
+                .exchange()
+                .expectStatus()
+                .isOk();
+        String evidenceId = jdbc.queryForObject(
+                "SELECT evidence_id FROM case_evidence WHERE case_id = ? AND input_revision = 2", String.class, caseId);
+        rest.post()
+                .uri("/api/v1/cases/" + caseId + "/reviewed-evidence")
+                .header("Authorization", "Bearer " + reviewer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of(
+                        "source_evidence_id", evidenceId,
+                        "verification_result", "CONFIRMED",
+                        "reason", "已向承运商复核，记录一致"))
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        JsonNode waiting = view(caseId, reviewer());
+        assertThat(waiting.get("case").get("input_revision").asInt()).isEqualTo(3);
+        assertThat(waiting.get("case").get("status").stringValue()).isEqualTo("QUEUED");
+        assertThat(waiting.get("proposal").get("status").stringValue()).isEqualTo("STALE");
+        assertThat(decideStatus(
+                        caseId,
+                        reviewer(),
+                        "\"" + waiting.get("case").get("version").asLong() + "\"",
+                        oldAuthorization,
+                        1,
+                        "APPROVE",
+                        "沿用旧审批"))
+                .isEqualTo(409);
+
+        JsonNode late = deliverProposal(caseId, 2, "decision-reinvestigate-late");
+        assertThat(late.get("disposition").stringValue()).isEqualTo("STALE");
+        assertThat(view(caseId, reviewer()).get("case").get("status").stringValue())
+                .isEqualTo("QUEUED");
+
+        JsonNode current = deliverProposal(caseId, 3, "decision-reinvestigate-current");
+        assertThat(current.get("disposition").stringValue()).isEqualTo("ACCEPTED");
+        JsonNode refreshed = view(caseId, reviewer());
+        assertThat(refreshed.get("case").get("status").stringValue()).isEqualTo("PENDING_REVIEW");
+        assertThat(refreshed.get("proposal").get("input_revision").asInt()).isEqualTo(3);
+        assertThat(refreshed.get("proposal").get("status").stringValue()).isEqualTo("VALIDATED");
+        assertThat(refreshed.get("authorization").get("input_revision").asInt()).isEqualTo(3);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM case_proposal WHERE case_id = ?", Integer.class, caseId))
+                .isEqualTo(2);
     }
 
     @Test
@@ -465,8 +619,8 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
                 .as("the withdrawal already happened, and a decision on a withdrawn authorisation loses")
                 .isEqualTo(409);
         assertThat(caseStatus(caseId))
-                .as("a case whose authorisation was retired stays with a person rather than becoming approved")
-                .isEqualTo("PENDING_REVIEW");
+                .as("a case whose input moved returns to investigation rather than becoming approved")
+                .isEqualTo("QUEUED");
         assertThat(authorizationColumn(caseId, "status")).isEqualTo("REVOKED");
         assertThat(authorizationColumn(caseId, "decision_reason"))
                 .as("the row says which act retired it, so the next reader is not left guessing")

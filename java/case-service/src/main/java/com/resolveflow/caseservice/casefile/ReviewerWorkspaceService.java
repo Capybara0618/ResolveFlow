@@ -23,6 +23,7 @@ public class ReviewerWorkspaceService {
     private final PolicyManifestRepository manifests;
     private final PolicyRepository policies;
     private final ManualProposalService proposals;
+    private final ReviewQuestionService questions;
     private final LiveAuthorization live;
     private final CaseReadService reads;
     private final Clock clock;
@@ -35,6 +36,7 @@ public class ReviewerWorkspaceService {
             PolicyManifestRepository manifests,
             PolicyRepository policies,
             ManualProposalService proposals,
+            ReviewQuestionService questions,
             LiveAuthorization live,
             CaseReadService reads,
             Clock clock,
@@ -45,6 +47,7 @@ public class ReviewerWorkspaceService {
         this.manifests = manifests;
         this.policies = policies;
         this.proposals = proposals;
+        this.questions = questions;
         this.live = live;
         this.reads = reads;
         this.clock = clock;
@@ -183,12 +186,7 @@ public class ReviewerWorkspaceService {
             actions.add("REVIEW_AUTHORIZATION");
         } else {
             actions.add("REJECT");
-            long questions = cases.findTimeline(row.caseId()).stream()
-                    .filter(event -> event.kind() == TimelineEventType.QUESTION_REQUIRED)
-                    .count();
-            if (row.status() != CaseStatus.WAITING_CUSTOMER
-                    && questions < 2
-                    && (row.expiresAt() == null || Instant.now(clock).isBefore(row.expiresAt()))) {
+            if (questions.isAllowed(row)) {
                 actions.add("REQUEST_INFO");
             }
         }
@@ -254,6 +252,7 @@ public class ReviewerWorkspaceService {
         Instant now = Instant.now(clock);
         boolean reject = "REJECT".equals(request.action());
         CaseStatus next = reject ? CaseStatus.CLOSED_REJECTED : CaseStatus.WAITING_CUSTOMER;
+        if (!reject) questions.requireAllowed(row);
         // Advance the revision as well as state: in-flight Agent callbacks must not overwrite a human handoff.
         if (cases.advanceRevision(row.caseId(), row.inputRevision(), row.inputRevision() + 1, next.name(), now) != 1) {
             throw new CaseStateConflictException("工单已更新，未记录本次决定");
@@ -268,21 +267,18 @@ public class ReviewerWorkspaceService {
         detail.put("status", next.name());
         if (reject) {
             cases.releaseActiveSlot(row.merchantId(), row.lineId());
+            cases.insertTimeline(
+                    row.caseId(),
+                    UUID.randomUUID().toString(),
+                    cases.nextTimelineSequence(row.caseId()),
+                    TimelineEventType.CASE_CLOSED.name(),
+                    detail.toString(),
+                    now,
+                    row.inputRevision() + 1);
         } else {
-            detail.put("question_id", UUID.randomUUID().toString());
-            detail.putArray("questions")
-                    .addObject()
-                    .put("field", "additional_evidence")
-                    .put("prompt", request.reason().trim());
+            questions.record(
+                    row, row.inputRevision() + 1, principal, request.reason().trim(), "HUMAN_WORKSPACE", now);
         }
-        cases.insertTimeline(
-                row.caseId(),
-                UUID.randomUUID().toString(),
-                cases.nextTimelineSequence(row.caseId()),
-                (reject ? TimelineEventType.CASE_CLOSED : TimelineEventType.QUESTION_REQUIRED).name(),
-                detail.toString(),
-                now,
-                row.inputRevision() + 1);
     }
 
     private static void requireStaff(AuthenticatedPrincipal principal) {

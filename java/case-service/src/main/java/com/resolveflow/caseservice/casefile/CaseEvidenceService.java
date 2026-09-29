@@ -5,6 +5,7 @@ import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.Role;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,14 +48,20 @@ public class CaseEvidenceService {
 
     private final CaseRepository cases;
     private final EvidenceRepository evidence;
+    private final AgentRunBindingRepository bindings;
     private final LiveAuthorization liveAuthorisations;
     private final Clock clock;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public CaseEvidenceService(
-            CaseRepository cases, EvidenceRepository evidence, LiveAuthorization liveAuthorisations, Clock clock) {
+            CaseRepository cases,
+            EvidenceRepository evidence,
+            AgentRunBindingRepository bindings,
+            LiveAuthorization liveAuthorisations,
+            Clock clock) {
         this.cases = cases;
         this.evidence = evidence;
+        this.bindings = bindings;
         this.liveAuthorisations = liveAuthorisations;
         this.clock = clock;
     }
@@ -75,6 +82,7 @@ public class CaseEvidenceService {
         requireOpenInput(row);
         requireProvenance(principal, kind);
         requireRoom(caseId);
+        requireQuestionAssociation(row, questionId);
 
         Instant now = Instant.now(clock);
         int revision = row.inputRevision() + 1;
@@ -229,6 +237,7 @@ public class CaseEvidenceService {
                 principal.role().name(),
                 now);
         evidence.bumpRevision(row.caseId(), now);
+        bindings.insert(row.caseId(), revision, AgentRunId.forRevision(row.caseId(), revision), now);
         String revoked = liveAuthorisations.revoke(row.caseId(), retirementReason, now);
         cases.insertTimeline(
                 row.caseId(),
@@ -239,6 +248,27 @@ public class CaseEvidenceService {
                 now,
                 revision);
         return new Written(evidenceId, revision, row.version() + 1, revoked);
+    }
+
+    /** A response to a recorded question must name that question so the round remains traceable. */
+    private void requireQuestionAssociation(CaseRow row, String questionId) {
+        if (row.status() != CaseStatus.WAITING_CUSTOMER) return;
+        String expected = null;
+        List<TimelineEventRow> timeline = cases.findTimeline(row.caseId());
+        for (int index = timeline.size() - 1; index >= 0; index--) {
+            TimelineEventRow event = timeline.get(index);
+            if (event.kind() == TimelineEventType.QUESTION_REQUIRED) {
+                expected = JsonField.of(event.detail(), "question_id");
+                break;
+            }
+        }
+        // Legacy/test rows may have been put into WAITING_CUSTOMER without a question event. There is no
+        // identifier to require in that case; real question flows always record one.
+        if (expected == null) return;
+        if (!expected.equals(questionId)) {
+            throw new CaseService.SemanticInvalidException(
+                    "question_id must name the question currently awaiting an answer: " + expected);
+        }
     }
 
     private CaseRow lockedVisibleCase(AuthenticatedPrincipal principal, String caseId) {

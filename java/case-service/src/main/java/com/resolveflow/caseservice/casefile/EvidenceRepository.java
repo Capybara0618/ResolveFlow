@@ -113,26 +113,36 @@ public interface EvidenceRepository {
             """)
     int countForCase(@Param("caseId") String caseId);
 
+    /** Evidence identifiers that existed at one revision, oldest first, for an Agent dispatch. */
+    @Select("""
+            SELECT evidence_id
+              FROM case_evidence
+             WHERE case_id = #{caseId}
+               AND input_revision <= #{inputRevision}
+             ORDER BY input_revision, created_at, evidence_id
+             LIMIT #{limit}
+            """)
+    List<String> findIdsAtRevision(
+            @Param("caseId") String caseId, @Param("inputRevision") int inputRevision, @Param("limit") int limit);
+
     /**
      * Bump the case's input revision and its version together, under the row lock the caller holds.
      *
      * <p>Both move in one statement so a reader can never see a revision without the version that goes
-     * with it. Material that arrives while a proposal is under review bumps the revision without pretending
-     * the case went back to the queue, and material that answers a question follows the documented edge
-     * ({@code 补证从 WAITING_CUSTOMER 增 revision→QUEUED}, docs/domain-model.md:55).
+     * with it. Every accepted material change creates a new investigation input, so mutable states return
+     * to QUEUED. The old run and proposal remain readable but cannot own the new revision.
      *
      * <p>An {@code AUTHORIZED} case is the third case, and the one this statement used to get wrong
      * (C03.3c-2): its approval is retired by the same transaction, so leaving it {@code AUTHORIZED} would
      * claim the case can be executed while it holds nothing approved — the status outliving the fact it
-     * names. It goes back to {@code PENDING_REVIEW}, which is where a case waiting for a decision belongs.
+     * names. It returns to {@code QUEUED}, because the new revision must be investigated before another
+     * approval can be formed.
      */
     @Update("""
             UPDATE aftersale_case
                SET input_revision = input_revision + 1,
                    version = version + 1,
-                   status = CASE WHEN status = 'AUTHORIZED' THEN 'PENDING_REVIEW'
-                                 WHEN status = 'WAITING_CUSTOMER' THEN 'QUEUED'
-                                 ELSE status END,
+                   status = 'QUEUED',
                    updated_at = #{updatedAt}
              WHERE case_id = #{caseId}
             """)

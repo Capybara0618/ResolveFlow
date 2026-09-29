@@ -150,13 +150,34 @@ class ManualProposalApiTest extends CaseDatabaseTest {
         JsonNode after = view(caseId, reviewer());
         assertThat(after.get("case").get("status").stringValue()).isEqualTo("WAITING_CUSTOMER");
         assertThat(after.get("case").get("input_revision").asInt()).isEqualTo(2);
-        assertThat(jdbc.queryForObject(
-                        "SELECT detail FROM case_timeline WHERE case_id=? AND kind='QUESTION_REQUIRED'",
-                        String.class,
-                        caseId))
-                .contains("question_id", "请补充签收争议说明");
+        String detail = jdbc.queryForObject(
+                "SELECT detail FROM case_timeline WHERE case_id=? AND kind='QUESTION_REQUIRED'", String.class, caseId);
+        assertThat(detail).contains("question_id", "请补充签收争议说明");
         assertThat(workspaceAction(caseId, after.get("case").get("version").asLong(), "REQUEST_INFO", body))
                 .isEqualTo(409);
+
+        String questionId = MAPPER.readTree(detail).get("question_id").stringValue();
+        rest.post()
+                .uri("/api/v1/cases/" + caseId + "/evidence")
+                .header("Authorization", "Bearer " + customer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(MAPPER.createObjectNode()
+                        .put("question_id", questionId)
+                        .put("text", "补充签收争议说明")
+                        .put("evidence_kind", "CUSTOMER_STATEMENT"))
+                .exchange()
+                .expectStatus()
+                .isOk();
+        assertThat(jdbc.queryForObject(
+                        "SELECT question_id FROM case_evidence WHERE case_id=? AND input_revision=3",
+                        String.class,
+                        caseId))
+                .isEqualTo(questionId);
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM agent_binding WHERE case_id=? AND input_revision=3",
+                        Integer.class,
+                        caseId))
+                .isEqualTo(1);
     }
 
     @Test

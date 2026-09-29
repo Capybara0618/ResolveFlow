@@ -71,4 +71,19 @@ describe('reviewer handoff', () => {
     expect(wrapper.text()).toContain('工单已变化')
     wrapper.unmount()
   })
+  it('marks the old proposal stale and states the next step after evidence advances the revision', async () => {
+    vi.spyOn(coreApi, 'reviewContext').mockResolvedValue({ ...context, case_version: 8, input_revision: 3 })
+    const revised: CaseSnapshot = {
+      ...snapshot,
+      case: { ...snapshot.case, status: 'QUEUED', input_revision: 3, version: 8 },
+      proposal: { input_revision: 2, status: 'STALE', origin: 'AGENT' },
+    }
+    const wrapper = mount(ReviewerWorkspace, { props: { token: 't', snapshot: revised, busy: false } })
+    await flushPromises()
+    const progress = wrapper.get('[data-test="revision-progress"]')
+    expect(progress.text()).toContain('旧版建议（第 2 版）已失效')
+    expect(progress.text()).toContain('第 3 版')
+    expect(progress.text()).toContain('新调查已排队')
+    wrapper.unmount()
+  })
 })

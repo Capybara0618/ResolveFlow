@@ -21,6 +21,33 @@ const executionLabels: Record<string, string> = { AUTHORIZED: '已批准，等�
 const outcomeLabels: Record<string, string> = { SUCCEEDED: '模拟退款成功', FAILED: '退款明确失败', UNKNOWN: '退款结果待确认' }
 const labels = { MANUAL_PROPOSAL: '提交人工退款方案', REJECT: '拒绝申请', REQUEST_INFO: '要求补充材料' }
 const availableEvidence = computed(() => target.value?.evidence.filter(item => item.source_ref && item.source_version && item.content_hash) ?? [])
+const revisionProgress = computed(() => {
+  const current = props.snapshot.case.input_revision
+  const proposal = props.snapshot.proposal
+  const proposalRevision = typeof proposal?.input_revision === 'number' ? proposal.input_revision : null
+  if (proposalRevision !== null && proposalRevision < current) return {
+    title: `旧版建议（第 ${proposalRevision} 版）已失效`,
+    detail: props.snapshot.case.status === 'WAITING_CUSTOMER'
+      ? `当前为第 ${current} 版，正在等待客户回答补证问题。`
+      : props.snapshot.case.status === 'ANALYZING'
+        ? `当前为第 ${current} 版，Agent 正在基于新增材料重新调查。`
+        : `当前为第 ${current} 版，新调查已排队；生成新建议前不能沿用旧审批。`,
+    stale: true,
+  }
+  if (props.snapshot.case.status === 'QUEUED') return {
+    title: `第 ${current} 版调查已排队`, detail: '等待 Agent 接收当前修订；也可继续人工核对并形成人工方案。', stale: false,
+  }
+  if (props.snapshot.case.status === 'ANALYZING') return {
+    title: `正在调查第 ${current} 版材料`, detail: '新结果到达后会形成当前修订的建议，再进入审批。', stale: false,
+  }
+  if (props.snapshot.case.status === 'WAITING_CUSTOMER') return {
+    title: `第 ${current} 版正在等待补证`, detail: '客户回答当前问题后会产生新修订并自动重新调查。', stale: false,
+  }
+  if (proposalRevision === current) return {
+    title: `当前建议对应第 ${current} 版`, detail: '请结合原始记录、人工核验和绑定政策后再决定。', stale: false,
+  }
+  return null
+})
 const key = (rule: ReviewContext['policy_rules'][number]) => `${rule.bundle_id}/${rule.rule_id}`
 let generation = 0
 async function reload() {
@@ -81,6 +108,9 @@ async function submit() {
 <template>
   <section class="detail-section reviewer-workspace" aria-label="人工接管与政策依据">
     <div class="section-heading"><h3>人工接管与政策依据</h3><button class="secondary-button" type="button" :disabled="loading || busy" @click="reload">刷新依据</button></div>
+    <div v-if="revisionProgress" class="revision-progress" :class="{ stale: revisionProgress.stale }" data-test="revision-progress">
+      <strong>{{ revisionProgress.title }}</strong><span>{{ revisionProgress.detail }}</span>
+    </div>
     <p v-if="loading" class="muted">正在读取当前可用操作与绑定政策…</p>
     <p v-if="error && !action" role="alert" class="message error">{{ error }}</p>
     <p v-if="message" role="status" class="message">{{ message }}</p>
@@ -131,6 +161,9 @@ async function submit() {
 
 <style scoped>
 .handoff-actions { flex-wrap: wrap; margin: 12px 0; }
+.revision-progress { display: grid; gap: 4px; margin: 12px 0; padding: 12px 14px; border: 1px solid #cfe0fb; border-radius: 8px; background: #f3f7ff; color: #24456f; }
+.revision-progress.stale { border-color: #f1cf91; background: #fff8e9; color: #704d13; }
+.revision-progress span { font-size: 13px; line-height: 1.55; }
 .bound-policies { border-top: 1px solid var(--border, #e3eaf4); padding-top: 12px; }
 .bound-policies summary { cursor: pointer; color: #125bed; font-weight: 600; }
 .policy-text { padding: 12px 0; border-bottom: 1px solid #e8edf5; }

@@ -307,14 +307,13 @@ class EvidenceApiTest extends CaseDatabaseTest {
         assertThat(jdbc.queryForObject("SELECT status FROM aftersale_case WHERE case_id = ?", String.class, caseId))
                 .isEqualTo("QUEUED");
 
-        // Material that arrives while a proposal is under review bumps the revision without pretending
-        // the case went back to the queue.
+        // Material that arrives while a proposal is under review is a new investigation input.
         String other = openCase("7002");
         jdbc.update("UPDATE aftersale_case SET status = 'PENDING_REVIEW' WHERE case_id = ?", other);
         append(other, customer(), statement("又想起一件事")).expectStatus().isOk();
         Map<String, Object> row =
                 jdbc.queryForMap("SELECT status, input_revision FROM aftersale_case WHERE case_id = ?", other);
-        assertThat(row.get("status")).isEqualTo("PENDING_REVIEW");
+        assertThat(row.get("status")).isEqualTo("QUEUED");
         assertThat(row.get("input_revision")).isEqualTo(2);
     }
 
