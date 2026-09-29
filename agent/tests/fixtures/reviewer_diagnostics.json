@@ -1,0 +1,523 @@
+{
+  "schema_version": 1,
+  "kind": "reviewer-diagnostics",
+  "created_at": "2026-09-29",
+  "note": [
+    "A diagnostic set, not a frozen benchmark and not a claim about model quality. Each case is a",
+    "situation a reviewer meets, the sources a run would hold in that situation, and the properties",
+    "the harness must keep. `tests/integration/test_reviewer_diagnostics.py` reads this file and",
+    "asserts them against the real facts view, the real context builder and the real retrieval",
+    "filter; the `observed` block records what the offline run actually showed.",
+    "A scripted model proves data, structure, limits and the saving path. It cannot prove that a",
+    "model recognises a conflict on its own - that is the live half, and it is NOT_RUN."
+  ],
+  "cases": [
+    {
+      "name": "signed_conflict",
+      "title": "客户称未收到，物流有有效签收",
+      "situation": "客户主张未收到；物流有有效签收记录；没有丢失确认。",
+      "given": {
+        "line_id": "90929043202",
+        "description": "包裹显示已签收，但我本人没有收到，也没有人通知我代收。",
+        "policy": {
+          "bundle_id": "policy-logistics-2026.09",
+          "version": "2026.09",
+          "manifest_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "rules": [
+            {
+              "rule_id": "R-LOST-001",
+              "title": "承运商判定丢失",
+              "text": "承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。"
+            },
+            {
+              "rule_id": "R-SIGNED-001",
+              "title": "已签收",
+              "text": "存在有效签收记录时不予退款；客户主张未收到时须由人工核验后再决定。"
+            }
+          ]
+        },
+        "observations": [
+          {
+            "observation_id": "obs-get_shipment_trace-signed",
+            "tool_name": "get_shipment_trace",
+            "source_type": "SHIPMENT",
+            "source_ref": "commerce:/internal/v1/order-lines/90929043202/shipment",
+            "source_version": "3",
+            "content_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+            "result": {
+              "line_id": "90929043202",
+              "status": "DELIVERED",
+              "carrier_conclusion": "DELIVERED",
+              "synthetic": true,
+              "source_version": 3,
+              "last_scan_at": "2026-09-13T16:20:00Z",
+              "scan_count": 3,
+              "updated_at": "2026-09-13T16:20:00Z",
+              "next_cursor": null,
+              "events": [
+                {
+                  "code": "SHIPMENT_CREATED",
+                  "occurred_at": "2026-09-11T14:00:00Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "IN_TRANSIT",
+                  "occurred_at": "2026-09-12T08:00:00Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "DELIVERED",
+                  "occurred_at": "2026-09-13T16:20:00Z",
+                  "source_version": 3
+                }
+              ]
+            }
+          },
+          {
+            "observation_id": "obs-get_case_evidence-signed",
+            "tool_name": "get_case_evidence",
+            "source_type": "CUSTOMER_STATEMENT",
+            "source_ref": "case:/internal/v1/cases/0bfc2497-1121-4583-abbb-604f5c8bd585/evidence",
+            "source_version": "2",
+            "content_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+            "result": {
+              "case_id": "0bfc2497-1121-4583-abbb-604f5c8bd585",
+              "input_revision": 2,
+              "evidence": [
+                {
+                  "observation_id": "7e97365c-0cb5-4f62-827c-bc34bd2f4c4e",
+                  "source_ref": "customer:C-2003",
+                  "source_version": "2",
+                  "content_hash": "3333333333333333333333333333333333333333333333333333333333333333"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "packet_contains": [
+        "shipment_carrier_conclusion=DELIVERED",
+        "包裹显示已签收",
+        "DELIVERED",
+        "commerce:/internal/v1/order-lines/90929043202/shipment@3",
+        "R-SIGNED-001"
+      ],
+      "packet_excludes": [
+        "shipment_carrier_conclusion=LOST",
+        "\"carrier_conclusion\": \"LOST\"",
+        "承运商确认丢失"
+      ],
+      "facts_present": [
+        {
+          "key": "shipment_carrier_conclusion",
+          "value": "DELIVERED",
+          "source_version": "3"
+        }
+      ],
+      "retrieval": {
+        "query": "已签收 客户未收到 人工核验",
+        "top_k": 5,
+        "must_include_rules": [
+          "R-SIGNED-001"
+        ],
+        "must_not_return_bundles": [
+          "policy-damage-2026.09"
+        ]
+      },
+      "allowed_actions": [
+        "MANUAL_REVIEW",
+        "REQUEST_INFO"
+      ],
+      "forbidden": [
+        "把客户陈述写成承运商确认丢失",
+        "按丢失规则执行退款"
+      ],
+      "expected_retained_sources": [
+        "observation_id",
+        "source_ref",
+        "source_version",
+        "content_hash"
+      ],
+      "observed": {
+        "status": "PASS",
+        "evidence": [
+          "packet carries shipment_carrier_conclusion=DELIVERED with its source_ref@3 and the run's own description",
+          "no source in this case reports a loss: the packet's fact line is shipment_carrier_conclusion=DELIVERED and the shipment excerpt carries no LOST conclusion (the token LOST still appears later, inside retrieved policy text, which is why the check is about claims rather than tokens)",
+          "R-SIGNED-001 is retrievable from the pinned bundle and carries all five citation members",
+          "retrieval is filtered to the pinned bundle: no policy-damage-* rule is returned"
+        ],
+        "not_provable_offline": [
+          "that a real model notices the contradiction and routes it to a human rather than proposing the lost rule"
+        ]
+      },
+      "packet_excludes_note": "The word LOST legitimately appears in policy text (R-LOST-EXC-001, R-NOSCAN-7D), so the check is about a loss *claim from a source in this case*, not about a token."
+    },
+    {
+      "name": "unilateral_damage",
+      "title": "客户主张到货破损，尚无人核验",
+      "situation": "只有客户描述损坏，没有任何人工核验记录。",
+      "given": {
+        "line_id": "90929045104",
+        "description": "收到的商品外包装破损，内部商品有裂痕，申请全额退款。",
+        "policy": {
+          "bundle_id": "policy-logistics-2026.09",
+          "version": "2026.09",
+          "manifest_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "rules": [
+            {
+              "rule_id": "R-LOST-001",
+              "title": "承运商判定丢失",
+              "text": "承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。"
+            }
+          ]
+        },
+        "observations": [
+          {
+            "observation_id": "obs-get_case_evidence-damage",
+            "tool_name": "get_case_evidence",
+            "source_type": "CUSTOMER_STATEMENT",
+            "source_ref": "case:/internal/v1/cases/cc5f5a15-631c-4b86-b115-24e39381e2e8/evidence",
+            "source_version": "2",
+            "content_hash": "4444444444444444444444444444444444444444444444444444444444444444",
+            "result": {
+              "case_id": "cc5f5a15-631c-4b86-b115-24e39381e2e8",
+              "input_revision": 2,
+              "evidence": [
+                {
+                  "observation_id": "ev-damage-1",
+                  "source_ref": "customer:C-2003",
+                  "source_version": "2",
+                  "content_hash": "5555555555555555555555555555555555555555555555555555555555555555"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "packet_contains": [
+        "收到的商品外包装破损",
+        "ev-damage-1"
+      ],
+      "packet_excludes": [
+        "已核验",
+        "CONFIRMED",
+        "真实性已验证",
+        "核验通过"
+      ],
+      "facts_absent": [
+        "damage_verified",
+        "evidence_verification_result"
+      ],
+      "allowed_actions": [
+        "REQUEST_INFO",
+        "MANUAL_REVIEW"
+      ],
+      "targeted_question": {
+        "field": "damage_evidence",
+        "question_id": "q-damage-photo-and-package",
+        "reason": "缺一件能判断破损事实的材料"
+      },
+      "forbidden": [
+        "虚构图片鉴定或核验人",
+        "把客户描述写成已确认的破损事实",
+        "自动确认真实性"
+      ],
+      "expected_retained_sources": [
+        "observation_id",
+        "source_ref",
+        "source_version",
+        "content_hash"
+      ],
+      "observed": {
+        "status": "PASS",
+        "evidence": [
+          "the packet carries the customer's claim through the run description and the material citation",
+          "no fact or observation in the packet asserts that the damage was verified",
+          "get_case_evidence returns the four citation members and no text, so there is no material body to over-trust"
+        ],
+        "documented_limit": [
+          "the run is not told whether a reviewer has verified the material, because the evidence tool carries no verification_result; today the model can neither over-trust it nor rely on it"
+        ]
+      }
+    },
+    {
+      "name": "no_applicable_policy",
+      "title": "当前钉住政策没有适用规则，或索引未就绪",
+      "situation": "本商家钉住的 bundle 里没有能支持该诉求的规则；另一种情形是索引尚未 READY。",
+      "given": {
+        "line_id": "90929045104",
+        "description": "商品到货后功能异常，申请退款。",
+        "policy": {
+          "bundle_id": "policy-logistics-2026.09",
+          "version": "2026.09",
+          "manifest_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "rules": [
+            {
+              "rule_id": "R-LOST-001",
+              "title": "承运商判定丢失",
+              "text": "承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。"
+            }
+          ]
+        }
+      },
+      "retrieval": {
+        "query": "商品功能异常 退款",
+        "top_k": 5,
+        "must_not_return_bundles": [
+          "policy-damage-2026.09",
+          "policy-damage-2026.08",
+          "policy-logistics-2026.08"
+        ]
+      },
+      "index_not_ready": {
+        "reason_code": "POLICY_INDEX_NOT_READY"
+      },
+      "forbidden": [
+        "换商家或换最新 bundle 检索",
+        "随便引用得分最高的一条条款作为依据"
+      ],
+      "expected_retained_sources": [
+        "observation_id",
+        "source_ref",
+        "source_version",
+        "content_hash"
+      ],
+      "observed": {
+        "status": "PASS",
+        "evidence": [
+          "retrieval is filtered by bundle_ids and manifest_hash, so a rule from another bundle or version is not returned",
+          "a query with no match is a successful read with zero hits, which the loop records as a gap rather than as an error",
+          "an unindexed pin stops the run with POLICY_INDEX_NOT_READY, its own code, instead of TOOL_FAILED"
+        ]
+      }
+    },
+    {
+      "name": "policy_exception",
+      "title": "政策例外必须随条款一起进入上下文",
+      "situation": "政策为“LOST 且无有效签收才可退款”，并带一条“高价值行不得自动退款”的例外；材料正好触发例外。",
+      "given": {
+        "line_id": "90929045999",
+        "description": "承运商确认包裹丢失，申请全行退款。",
+        "policy": {
+          "bundle_id": "policy-logistics-2026.09",
+          "version": "2026.09",
+          "manifest_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "rules": [
+            {
+              "rule_id": "R-LOST-001",
+              "title": "承运商判定丢失",
+              "text": "承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。"
+            },
+            {
+              "rule_id": "R-LOST-EXC-001",
+              "title": "丢失规则的例外：高价值行",
+              "text": "例外：本规则不适用于支付金额超过 500000 分的订单行，此类行即使结论为 LOST 也不得自动退款，必须转人工。"
+            }
+          ]
+        },
+        "observations": [
+          {
+            "observation_id": "obs-get_order_context-highvalue",
+            "tool_name": "get_order_context",
+            "source_type": "ORDER_LINE",
+            "source_ref": "commerce:/internal/v1/order-lines/90929045999/context",
+            "source_version": "1",
+            "content_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+            "result": {
+              "order_id": "77777777-7777-4777-8777-777777777777",
+              "line_id": "90929045999",
+              "merchant_id": "M-1001",
+              "customer_id": "C-2002",
+              "sku": "SKU-RED-M-DEMO",
+              "category": "electronics",
+              "quantity": 1,
+              "line_paid_amount": 600000,
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "paid_at": "2026-09-20T10:00:00Z",
+              "order_status": "PAID",
+              "version": 1
+            }
+          },
+          {
+            "observation_id": "obs-get_shipment_trace-highvalue",
+            "tool_name": "get_shipment_trace",
+            "source_type": "SHIPMENT",
+            "source_ref": "commerce:/internal/v1/order-lines/90929045999/shipment",
+            "source_version": "2",
+            "content_hash": "8888888888888888888888888888888888888888888888888888888888888888",
+            "result": {
+              "line_id": "90929045999",
+              "status": "LOST",
+              "carrier_conclusion": "LOST",
+              "synthetic": true,
+              "source_version": 2,
+              "next_cursor": null,
+              "events": [
+                {
+                  "code": "CARRIER_LOST",
+                  "occurred_at": "2026-09-22T07:30:00Z",
+                  "source_version": 2
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "packet_contains": [
+        "shipment_carrier_conclusion=LOST",
+        "order_paid_amount_minor=600000",
+        "R-LOST-EXPECTED-EXCEPTION-IN-PACKET"
+      ],
+      "retrieval": {
+        "query": "物流丢失 全额退款",
+        "top_k": 5,
+        "must_include_rules": [
+          "R-LOST-001",
+          "R-LOST-EXC-001"
+        ]
+      },
+      "chunk_text_intact": [
+        "R-LOST-EXC-001"
+      ],
+      "forbidden": [
+        "把“可退款”截出来当成充分依据",
+        "丢掉例外的条件"
+      ],
+      "expected_retained_sources": [
+        "observation_id",
+        "source_ref",
+        "source_version",
+        "content_hash"
+      ],
+      "observed": {
+        "status": "PASS",
+        "evidence": [
+          "chunking keeps each rule whole: the chunk text for R-LOST-EXC-001 is the stored text, condition and all",
+          "the exception rule is retrievable for the same query that returns the base rule",
+          "the packet shows the paid amount (600000 minor) and the LOST conclusion with their sources, so a reader has what the exception turns on"
+        ],
+        "action_used": "the run ends with MANUAL_REVIEW: the diagnostic is about what the request carries, and a REFUND would have to cite the exception rule and an observation, which the scripted model cannot build from a static script"
+      }
+    },
+    {
+      "name": "targeted_question",
+      "title": "缺一项关键材料时的针对性追问",
+      "situation": "部分问题已答；仍缺一项影响判断的材料。",
+      "given": {
+        "line_id": "90929045003",
+        "description": "包裹一直没有更新物流，也没有送达。",
+        "policy": {
+          "bundle_id": "policy-logistics-2026.09",
+          "version": "2026.09",
+          "manifest_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "rules": [
+            {
+              "rule_id": "R-NOSCAN-7D",
+              "title": "七天无扫描",
+              "text": "承运商无有效签收且连续 7 天无扫描记录时，视同丢失，可按该订单行支付金额全额退款。"
+            }
+          ]
+        },
+        "history": [
+          {
+            "question_id": "q-waiting-info-carrier",
+            "field": "logistics_evidence",
+            "prompt": "请提供承运商对这次运输异常的书面结论，或最近的物流查询截图。",
+            "answer": "已经问过客服，他们说还在查。"
+          }
+        ]
+      },
+      "question_rules": {
+        "max_questions_per_decision": 3,
+        "required_members": [
+          "question_id",
+          "field",
+          "prompt"
+        ],
+        "accepted": {
+          "kind": "ASK_CUSTOMER",
+          "reason_codes": [
+            "NEED_CARRIER_STATEMENT"
+          ],
+          "questions": [
+            {
+              "question_id": "q-carrier-written-statement",
+              "field": "carrier_conclusion",
+              "prompt": "请提供承运商给出的书面结论（丢失/延误/退回），这是判断能否退款的关键材料。"
+            }
+          ]
+        },
+        "refused": [
+          {
+            "decision": {
+              "kind": "ASK_CUSTOMER",
+              "reason_codes": [
+                "NEED_MORE"
+              ],
+              "questions": [
+                {
+                  "question_id": "q1",
+                  "field": "a",
+                  "prompt": "请补充更多信息。"
+                },
+                {
+                  "question_id": "q2",
+                  "field": "b",
+                  "prompt": "请补充更多信息。"
+                },
+                {
+                  "question_id": "q3",
+                  "field": "c",
+                  "prompt": "请补充更多信息。"
+                },
+                {
+                  "question_id": "q4",
+                  "field": "d",
+                  "prompt": "请补充更多信息。"
+                }
+              ]
+            },
+            "reason_contains": "at most 3"
+          },
+          {
+            "decision": {
+              "kind": "ASK_CUSTOMER",
+              "reason_codes": [
+                "NEED_MORE"
+              ],
+              "questions": [
+                {
+                  "question_id": "q1",
+                  "prompt": "请补充更多信息。"
+                }
+              ]
+            },
+            "reason_contains": "field"
+          }
+        ]
+      },
+      "forbidden": [
+        "泛泛要求补充更多信息",
+        "无穷追问",
+        "改写客户已经给出的回答"
+      ],
+      "expected_retained_sources": [
+        "question_id",
+        "field"
+      ],
+      "observed": {
+        "status": "PARTIAL",
+        "evidence": [
+          "a question must name a field and a stable question_id, and at most three may be asked in one decision",
+          "the case service owns the two-round, waiting and expiry rules, so an endless ask loop is bounded outside the Agent"
+        ],
+        "gap": [
+          "an answered question is not carried into the next run: the run request holds the case description, the requested actions and evidence ids, and the internal evidence route returns the four citation members without question_id, so a new run cannot tell which gap was already filled. Avoid re-asking is therefore not enforceable at the Agent level today.",
+          "fixing it needs a contract addition (the previous question and the customer's answer as provenance on the run request, or question_id on the evidence reference) with the core OpenAPI, the Java producer, the Python consumer, the fixtures and the request hash all synchronised. It is reported rather than half-done."
+        ]
+      }
+    }
+  ]
+}
