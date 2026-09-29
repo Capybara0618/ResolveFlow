@@ -1,5 +1,7 @@
 # DeepSeek Harness交接 · v1.3 AgentScope迁移
 
+> 历史文档，不作为开工指令。2026-09-29审查员优化的新DSH入口是[tasks/handoff-current.md](../tasks/handoff-current.md)和[详细执行手册](../tasks/dsh-reviewer/README.md)。下文“继续C08”等只描述迁移当时，不恢复旧任务。
+
 更新时间：2026-09-26。本文件仅保存跨客户端边界与历史索引；当前执行入口与提示词统一为[tasks/handoff-current.md](../tasks/handoff-current.md)，进度以任务账本和代码为准。
 
 ## v1.3优先交接

@@ -9,6 +9,6 @@
 - 已补齐旧接口的已消费输入保护：工单退回待审也不允许新材料、核验、人工方案和取消。Java相关51项通过，新增4项回归先失败后通过；见[边界修复记录](../reports/reviewer-consumed-input.md)。
 - 已完成当前修订调查原始记录投影、引用全匹配、mock标签和缺记录说明，见[原始记录交付](../reports/reviewer-sources/README.md)。Java21项、Python控制面与新增投影、87项OpenAPI、前端34项及build通过；Docker/Gateway/浏览器只读联调通过。未新增退款、未调用收费模型。
 - 已完成[计划](plan.md)第一批“核验、补证后的调查闭环”：材料变化会排队新修订并建立新run binding；新run拥有独立deadline并携带已有证据；两条补证路径统一question_id、两轮、等待态和超时约束；页面标识旧版失效与真实下一步。Java 83项、OpenAPI 87项、前端35项及build通过，见[闭环报告](../reports/reviewer-reinvestigation.md)。下一批从稳定mock演示样本开始。
-- 用户2026-09-29要求交给GPT 5.6 Sol；模型切换与第一批接管现已完成，后续按[计划](plan.md)第二批继续；执行边界见[handoff](handoff-current.md)。
+- 2026-09-29用户决定将剩余四批交给DSH/DeepSeek执行；已编制[总约束与四批详细手册](dsh-reviewer/README.md)，保存用户参考图，更新[handoff](handoff-current.md)与计划入口。本次仅文档交接，剩余四批尚未实施；5个已知契约失败列为第二批前置修复。实际通过Python脚本核查11份文档的70个本地链接、所列Python测试路径与Maven测试类；`Get-FileHash`确认参考图与原附件一致，`git diff --check`通过；未重复运行业务测试。
 - 集中验证：Java 47 passed，前端30 passed，构建、OpenAPI/fixture与差异检查通过；未调用收费模型。C12专属报告也已删除，空目录可忽略。
 - 既有前端成果见 [V3报告](../reports/frontend-v3/README.md)；旧任务进度从 Git 历史查看，不作为实施指令。

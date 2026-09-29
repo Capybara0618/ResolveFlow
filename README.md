@@ -17,7 +17,7 @@
 | [AgentScope迁移规格](docs/agentscope-migration.md) | 框架边界、恢复要求及历史迁移过程 |
 | [执行账本](tasks/todo.md) | 历史成果、新C00–C13任务与实际进度 |
 | [实现交接](docs/implementation-handoff.md) | 模型如何继续、不能走哪些捷径 |
-| [DSH交接](docs/dsh-migration-handoff.md) | 跨客户端断点与旧会话边界 |
+| [DSH执行手册](tasks/dsh-reviewer/README.md) | 审查员剩余四批的详细步骤、验收与跨客户端边界 |
 
 从当前账本顶部接续；C08–C10的已验证成果不重做，不继续旧T03–T39。旧任务记录在[归档](tasks/archive/v1.1-todo.md)，仅作历史。
 
