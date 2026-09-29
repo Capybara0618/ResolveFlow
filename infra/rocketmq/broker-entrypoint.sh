@@ -9,6 +9,12 @@
 #
 # Without this, the broker advertises its container-internal IP and every client
 # outside the compose network fails to connect (docs/compatibility-report.md 5.11).
+#
+# BROKER_LISTEN_PORT / BROKER_HA_LISTEN_PORT are opt-in and unset by default, so the
+# shared stack keeps 10911/10909 exactly as before. The isolated reviewer demo
+# (infra/compose.reviewer-demo.yaml) sets them so its broker can run beside the shared
+# one: a broker registers <BROKER_IP1>:<listenPort> with the name server, so a client
+# that reaches a remapped host port needs the advertised port to be that same port.
 set -euo pipefail
 
 BROKER_IP1="${BROKER_IP1:-127.0.0.1}"
@@ -20,6 +26,12 @@ cp /home/rocketmq/broker.conf.base /home/rocketmq/broker.conf
 # otherwise concatenate this onto the previous line, and the broker would silently
 # fall back to advertising its container-internal IP.
 printf '\nbrokerIP1 = %s\n' "${BROKER_IP1}" >> /home/rocketmq/broker.conf
+if [[ -n "${BROKER_LISTEN_PORT:-}" ]]; then
+  printf 'listenPort = %s\n' "${BROKER_LISTEN_PORT}" >> /home/rocketmq/broker.conf
+fi
+if [[ -n "${BROKER_HA_LISTEN_PORT:-}" ]]; then
+  printf 'haListenPort = %s\n' "${BROKER_HA_LISTEN_PORT}" >> /home/rocketmq/broker.conf
+fi
 
-echo "starting broker: brokerIP1=${BROKER_IP1} namesrv=${NAMESRV_ADDR}"
+echo "starting broker: brokerIP1=${BROKER_IP1} namesrv=${NAMESRV_ADDR} listenPort=${BROKER_LISTEN_PORT:-default}"
 exec "${ROCKETMQ_HOME_DIR}/bin/mqbroker" -c /home/rocketmq/broker.conf -n "${NAMESRV_ADDR}"

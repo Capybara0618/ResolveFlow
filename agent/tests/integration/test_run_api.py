@@ -20,6 +20,7 @@ from resolveflow.api.app import create_app
 from resolveflow.api.identity import RUN_DISPATCH_SCOPE, mint_service_token
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.runs import RunStore
+from tests.integration import future_deadline
 
 SECRET = "resolveflow-core-demo-identity-secret"
 
@@ -55,6 +56,11 @@ def client(agent_db: Database, tmp_path: Any) -> Any:
         yield test_client
 
 
+#: One deadline for every request this module builds, computed once for the same reason a real
+#: dispatch carries one instant: two dispatches of one run must be the same body.
+REQUEST_DEADLINE = future_deadline()
+
+
 def a_body(**overrides: Any) -> dict[str, Any]:
     """One well-formed dispatch body, exactly as the contract spells it (openapi-agent.yaml:53)."""
     body: dict[str, Any] = {
@@ -78,7 +84,7 @@ def a_body(**overrides: Any) -> dict[str, Any]:
             "manifest_hash": MANIFEST_HASH,
             "safety_epoch": 1,
         },
-        "deadline_at": "2026-09-28T05:00:00Z",
+        "deadline_at": REQUEST_DEADLINE,
         "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
     }
     body.update(overrides)

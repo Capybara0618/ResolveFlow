@@ -36,6 +36,7 @@ from resolveflow.runtime.db import Database, drop_schema
 from resolveflow.runtime.delivery import CallbackDelivery, DeliveryResult, DeliveryUnavailableError
 from resolveflow.runtime.dispatch import CallbackDeliveryLoop
 from resolveflow.runtime.runs import RunRequest, RunStore, VerifiedCaller
+from tests.integration import future_deadline
 
 RUN_ID = "11111111-2222-4333-8444-555555555555"
 CASE_ID = "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -70,7 +71,7 @@ def a_run() -> RunRequest:
             "manifest_hash": MANIFEST_HASH,
             "safety_epoch": 1,
         },
-        deadline_at="2026-09-28T05:00:00Z",
+        deadline_at=future_deadline(),
         traceparent="00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
     )
 

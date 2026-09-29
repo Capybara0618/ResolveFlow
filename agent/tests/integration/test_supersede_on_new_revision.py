@@ -19,6 +19,7 @@ from resolveflow.harness.vocabulary import RunResult
 from resolveflow.runtime.callbacks import CallbackStore
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.runs import RunRequest, RunStore, VerifiedCaller
+from tests.integration import future_deadline
 from resolveflow.runtime.worker import RunWorker
 
 RUN_ID = "11111111-2222-4333-8444-555555555555"
@@ -53,7 +54,7 @@ def a_run(**overrides: Any) -> RunRequest:
             "manifest_hash": "9" * 64,
             "safety_epoch": 1,
         },
-        "deadline_at": "2026-09-28T05:00:00Z",
+        "deadline_at": future_deadline(),
         "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
     }
     fields.update(overrides)

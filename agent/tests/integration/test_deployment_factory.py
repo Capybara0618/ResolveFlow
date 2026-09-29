@@ -37,7 +37,7 @@ from resolveflow.runtime.runs import RunRequest, RunStore, VerifiedCaller
 from resolveflow.runtime.worker import RunWorker
 from resolveflow.tools.credential import CredentialUnavailableError, HttpToolCredentialClient, ToolCredential
 from tests.conftest import StubEmbedder, input_text_of
-from tests.integration import stub_upstream
+from tests.integration import future_deadline, stub_upstream
 
 RUN_ID = "11111111-2222-4333-8444-555555555555"
 CASE_ID = "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -69,7 +69,7 @@ def a_run(**overrides: Any) -> RunRequest:
             "manifest_hash": MANIFEST_HASH,
             "safety_epoch": 1,
         },
-        "deadline_at": "2026-09-28T05:00:00Z",
+        "deadline_at": future_deadline(),
         "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
     }
     fields.update(overrides)

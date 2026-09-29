@@ -43,12 +43,13 @@ from resolveflow.runtime.delivery import (
     retry_delay_seconds,
 )
 from resolveflow.runtime.runs import RunRequest, RunStore, VerifiedCaller
+from tests.integration import future_deadline
 
 RUN_ID = "11111111-2222-4333-8444-555555555555"
 CASE_ID = "9c858901-8a57-4791-81fe-4c455b099bc9"
 ORDER_ID = "00000000-0000-4000-8000-0000000000aa"
 MANIFEST_HASH = "9" * 64
-DEADLINE = "2026-09-28T05:00:00Z"
+DEADLINE = future_deadline()
 CASE_BASE = "http://127.0.0.1:8081"
 SECRET = "resolveflow-core-demo-identity-secret"
 

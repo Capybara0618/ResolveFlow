@@ -24,6 +24,7 @@ from resolveflow.harness.vocabulary import RunResult
 from resolveflow.runtime.callbacks import CallbackStore
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.runs import RunRequest, RunStore, VerifiedCaller
+from tests.integration import future_deadline
 from resolveflow.runtime.worker import RunWorker
 
 RUN_ID = "11111111-2222-4333-8444-555555555555"
@@ -38,7 +39,7 @@ CASE_DISPATCHER = VerifiedCaller(
 
 STARTED_AT = dt.datetime(2026, 9, 26, 10, 0, tzinfo=dt.UTC)
 #: Well beyond the 120s ceiling, so the granted window is the ceiling rather than the queued deadline.
-DEADLINE = "2026-09-28T05:00:00Z"
+DEADLINE = future_deadline()
 
 
 def a_run(**overrides: Any) -> RunRequest:

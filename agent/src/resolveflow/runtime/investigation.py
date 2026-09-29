@@ -48,7 +48,13 @@ class InvestigationLoop:
                 self._run_once()
                 self._stop.wait(self._interval)
         except Exception:  # noqa: BLE001 - surface a thread failure without fabricating a FAILED decision
+            # `exc_info=True` because without it this line says a run needs recovery and nothing
+            # about why: an operator reading the log could not tell a provider outage from a
+            # journal conflict, and the two need different answers. The thread failure is still
+            # not turned into a model decision - the traceback goes to the log, not to the run.
             self.failed = True
-            LOG.error("investigation worker stopped unexpectedly; RUNNING runs require recovery")
+            LOG.error(
+                "investigation worker stopped unexpectedly; RUNNING runs require recovery", exc_info=True
+            )
         finally:
             self.stopped.set()
