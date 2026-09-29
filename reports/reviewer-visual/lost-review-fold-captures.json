@@ -1,0 +1,20 @@
+{
+  "proxy": "http://127.0.0.1:8180",
+  "port": 5174,
+  "label": "lost-review-fold",
+  "captures": [
+    {
+      "file": "lost-review-fold-1280x900.png",
+      "viewport": "1280x900",
+      "scrollWidth": 1265,
+      "clientWidth": 1265,
+      "scrollHeight": 948,
+      "title": "ResolveFlow 工单工作台",
+      "status": "待人工审核",
+      "agent": "合成物流记录显示承运商结论为 LOST 且无有效签收，按钉住的丢失条款建议全行退款。",
+      "horizontal_overflow": false
+    }
+  ],
+  "case_id": "406a0ef1-1c16-4442-b077-14641c971f65",
+  "clicked": []
+}

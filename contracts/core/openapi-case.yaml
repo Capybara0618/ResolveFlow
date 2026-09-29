@@ -1661,6 +1661,15 @@ components:
           type: string
           minLength: 1
           maxLength: 64
+        # Optional presentation members, identical to Commerce's own definition because this is
+        # the same payload reached through a different route (tasks/dsh-reviewer/05-fields-visual.md
+        # section 2). Optional so a historical line keeps answering exactly as it did.
+        product_name:
+          type: [string, 'null']
+          maxLength: 200
+        variant_text:
+          type: [string, 'null']
+          maxLength: 200
         category:
           type: string
           minLength: 1

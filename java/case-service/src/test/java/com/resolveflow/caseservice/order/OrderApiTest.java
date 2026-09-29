@@ -69,6 +69,8 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
                             ORDER,
                             lineId,
                             "SKU-RED-M",
+                            "演示商品 · 无线耳机",
+                            "深空灰",
                             "apparel",
                             2,
                             2599,

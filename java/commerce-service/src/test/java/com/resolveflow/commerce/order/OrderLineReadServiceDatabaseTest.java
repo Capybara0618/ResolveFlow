@@ -31,6 +31,33 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
     JdbcTemplate jdbc;
 
     @Test
+    @DisplayName("the presentation columns are optional: a historical row answers null, a named row answers both")
+    void theDisplayColumnsAreOptionalAndNeverEnterTheRefundRead() {
+        // The seed predates V7, so both members are null — not empty strings and not a default,
+        // because "not provided" is what a reviewer has to be able to see.
+        OrderLineRow seeded = service.list("M-1001", "C-2002", null, null).items().get(0);
+        assertThat(seeded.productName()).isNull();
+        assertThat(seeded.variantText()).isNull();
+
+        jdbc.update(
+                "UPDATE order_line SET product_name = ?, variant_text = ? WHERE line_id = ?",
+                "演示商品 · 降噪耳机",
+                "深空灰 · 标准版",
+                "7002");
+
+        OrderLineRow named = service.list("M-1001", "C-2002", null, null).items().get(0);
+        assertThat(named.productName()).isEqualTo("演示商品 · 降噪耳机");
+        assertThat(named.variantText()).isEqualTo("深空灰 · 标准版");
+        // The refund re-check reads LineContext, which deliberately does not carry them: a display
+        // field must not be able to move an amount or change an evidence hash.
+        LineContextRow context = service.readContext("7002").orElseThrow();
+        assertThat(context.sku()).isEqualTo("SKU-BLUE-L");
+        assertThat(context.linePaidAmount()).isEqualTo(1999);
+
+        jdbc.update("UPDATE order_line SET product_name = NULL, variant_text = NULL WHERE line_id = ?", "7002");
+    }
+
+    @Test
     @DisplayName("a customer sees their own lines, newest first, exactly as seeded")
     void aCustomerSeesTheirOwnLines() {
         OrderLineReadService.Page page = service.list("M-1001", "C-2002", null, null);

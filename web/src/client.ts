@@ -19,10 +19,21 @@ export interface OrderLine {
   order_id: string
   line_id: string
   sku: string
+  /**
+   * Optional presentation members (core OpenAPI `OrderLineSummary`).
+   *
+   * Both are absent for lines that predate them, and `null` when the merchant recorded nothing —
+   * a page must render the SKU rather than fill either in. They are display data: the review
+   * re-check recomputes amounts from the server's line context, which does not carry them.
+   */
+  product_name?: string | null
+  variant_text?: string | null
   category: string
   quantity: number
   line_paid_amount: number
   currency: string
+  /** Already on the wire; declared so the page can show the payment time without a second read. */
+  paid_at?: string
   status: string
 }
 

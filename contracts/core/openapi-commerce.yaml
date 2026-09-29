@@ -378,6 +378,17 @@ components:
           type: string
           minLength: 1
           maxLength: 64
+        # Two optional presentation members (tasks/dsh-reviewer/05-fields-visual.md section 2).
+        # They are absent or null for every row that predates them, which is why they are not
+        # required: a historical response must not become "missing a required field". They are
+        # display data only - not part of the line context a refund is recomputed from - and a
+        # reader that has none falls back to the sku.
+        product_name:
+          type: [string, 'null']
+          maxLength: 200
+        variant_text:
+          type: [string, 'null']
+          maxLength: 200
         category:
           type: string
           minLength: 1

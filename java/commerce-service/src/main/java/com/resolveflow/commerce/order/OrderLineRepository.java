@@ -31,6 +31,8 @@ public interface OrderLineRepository {
             SELECT l.line_id           AS lineId,
                    l.order_id          AS orderId,
                    l.sku               AS sku,
+                   l.product_name      AS productName,
+                   l.variant_text      AS variantText,
                    l.category          AS category,
                    l.quantity          AS quantity,
                    l.line_paid_amount  AS linePaidAmount,

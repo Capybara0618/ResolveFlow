@@ -62,6 +62,16 @@ class CommerceOrderLineClientTest {
                """.formatted(ORDER, lineId);
     }
 
+    /** The same page for a line whose merchant did record a product name and a variant. */
+    private static String namedPageJson(String lineId) {
+        return """
+               {"items":[{"order_id":"%s","line_id":"%s","sku":"SKU-RED-M","product_name":"演示商品 · 耳机",
+                 "variant_text":"深空灰","category":"apparel","quantity":2,"line_paid_amount":2599,
+                 "currency":"CNY","paid_at":"2026-09-10T08:15:00Z","status":"PAID","version":3}],
+                "page":{"limit":20}}
+               """.formatted(ORDER, lineId);
+    }
+
     @Test
     @DisplayName("a customer's token decides the scope, and the user token is never forwarded")
     void theScopeComesFromTheTokenAndTheServiceTokenIsUsed() {
@@ -226,5 +236,32 @@ class CommerceOrderLineClientTest {
                         "version");
         assertThat(json.get("items").get(0).get("paid_at").stringValue()).isEqualTo("2026-09-10T08:15:00Z");
         assertThat(json.get("page").get("limit").asInt()).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("a named line carries the display members, and an unnamed one omits them")
+    void theDisplayMembersFollowTheLineRatherThanThePage() throws Exception {
+        AuthenticatedPrincipal customer =
+                new AuthenticatedPrincipal("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+
+        // Historical line: the two optional members are absent, not null, so the public view
+        // answers exactly as it did before V7 and the member set above stays true.
+        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002"))
+                .andRespond(withSuccess(pageJson("7001"), MediaType.APPLICATION_JSON));
+        JsonNode unnamed = MAPPER.readTree(MAPPER.writeValueAsString(
+                OrderController.OrderLinePageResponse.from(client.list(customer, null, null, null))));
+        assertThat(unnamed.get("items").get(0).has("product_name")).isFalse();
+        assertThat(unnamed.get("items").get(0).has("variant_text")).isFalse();
+
+        server.reset();
+        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002"))
+                .andRespond(withSuccess(namedPageJson("7001"), MediaType.APPLICATION_JSON));
+        JsonNode named = MAPPER.readTree(MAPPER.writeValueAsString(
+                OrderController.OrderLinePageResponse.from(client.list(customer, null, null, null))));
+        assertThat(named.get("items").get(0).get("product_name").stringValue()).isEqualTo("演示商品 · 耳机");
+        assertThat(named.get("items").get(0).get("variant_text").stringValue()).isEqualTo("深空灰");
+        // The identifiers, amount and payment instant are untouched by the display members.
+        assertThat(named.get("items").get(0).get("line_paid_amount").asLong()).isEqualTo(2599);
+        assertThat(named.get("items").get(0).get("paid_at").stringValue()).isEqualTo("2026-09-10T08:15:00Z");
     }
 }

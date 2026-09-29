@@ -125,6 +125,11 @@ public class OrderLineController {
             @JsonProperty("order_id") String orderId,
             @JsonProperty("line_id") String lineId,
             String sku,
+            // The two presentation members are optional in the contract and omitted when the line
+            // has none, which is what non-null inclusion does everywhere else in this service. An
+            // old row therefore answers exactly as it did before V7.
+            @JsonProperty("product_name") String productName,
+            @JsonProperty("variant_text") String variantText,
             String category,
             int quantity,
             @JsonProperty("line_paid_amount") long linePaidAmount,
@@ -138,6 +143,8 @@ public class OrderLineController {
                     row.orderId(),
                     row.lineId(),
                     row.sku(),
+                    row.productName(),
+                    row.variantText(),
                     row.category(),
                     row.quantity(),
                     row.linePaidAmount(),

@@ -803,6 +803,10 @@ class Scenario:
     verification: tuple[str, str] | None
     expected_status: str
     expected_authorization: str | None
+    #: Synthetic display values for the demo order line (V7's two optional columns). Written only
+    #: by the seed, only for lines this driver mints, and never used by any amount computation.
+    product_name: str = "演示商品"
+    variant_text: str | None = None
     #: Which extra steps this scenario takes after the run settles.
     advance: str = "none"
 
@@ -810,6 +814,8 @@ class Scenario:
 SCENARIOS: dict[str, Scenario] = {
     "lost-review": Scenario(
         name="lost-review",
+        product_name="演示商品 · 降噪蓝牙耳机",
+        variant_text="深空灰 · 标准版",
         title="承运商确认丢失，等待人工审批",
         merchant_id="M-1001",
         customer_username="demo-customer",
@@ -832,6 +838,8 @@ SCENARIOS: dict[str, Scenario] = {
     ),
     "signed-conflict": Scenario(
         name="signed-conflict",
+        product_name="演示商品 · 机械键盘",
+        variant_text="茶轴 · 87 键",
         title="客户称未收到，物流已有有效签收",
         merchant_id="M-1001",
         customer_username="demo-customer-2",
@@ -851,6 +859,8 @@ SCENARIOS: dict[str, Scenario] = {
     ),
     "damage-review": Scenario(
         name="damage-review",
+        product_name="演示商品 · 陶瓷马克杯",
+        variant_text="白色 · 单只",
         title="客户主张到货破损，尚无人工核验",
         # The pinned bundle this merchant holds has no damage rule, and that is the honest
         # state of the demonstration: `fixtures/policies/bundles/policy-damage-*.yaml` belongs
@@ -876,6 +886,7 @@ SCENARIOS: dict[str, Scenario] = {
     ),
     "waiting-info": Scenario(
         name="waiting-info",
+        product_name="演示商品 · 便携充电宝",
         title="调查缺少一件关键材料，已向客户追问",
         merchant_id="M-1001",
         customer_username="demo-customer",
@@ -895,6 +906,8 @@ SCENARIOS: dict[str, Scenario] = {
     ),
     "unknown-refund": Scenario(
         name="unknown-refund",
+        product_name="演示商品 · 运动手环",
+        variant_text="黑色 · 标准表带",
         title="审批后 provider 未给出回答，保持 UNKNOWN 占用",
         merchant_id="M-1001",
         customer_username="demo-customer",
@@ -917,6 +930,7 @@ SCENARIOS: dict[str, Scenario] = {
     ),
     "unknown-recovery": Scenario(
         name="unknown-recovery",
+        product_name="演示商品 · 桌面音箱",
         title="丢响应的一次性样本：同 operation 查询后恢复成功",
         merchant_id="M-1001",
         customer_username="demo-customer-2",
@@ -936,6 +950,8 @@ SCENARIOS: dict[str, Scenario] = {
     ),
     "success-refund": Scenario(
         name="success-refund",
+        product_name="演示商品 · 保温杯",
+        variant_text="雾蓝 · 500ml",
         title="人工审批后完成全行模拟退款",
         merchant_id="M-1001",
         customer_username="demo-customer",
@@ -1039,6 +1055,13 @@ def mint_service_token(subject: str, *, scope: str | None = None, seconds: int =
 # --------------------------------------------------------------------------- seeding
 
 
+def _sql_text(value: str | None) -> str:
+    """A SQL string literal, or NULL. The seed's only quote is escaped rather than interpolated."""
+    if value is None:
+        return "NULL"
+    return "'" + value.replace("'", "''") + "'"
+
+
 def mint_line_id(settings: Settings, index: int) -> str:
     """A fresh numeric line id, marked as this driver's own by its leading 9.
 
@@ -1074,9 +1097,10 @@ def seed_line(settings: Settings, scenario: Scenario, index: int) -> str:
         "INSERT INTO commerce_db.orders (order_id, merchant_id, customer_id, order_status, currency, paid_at,"
         f" created_at) VALUES ('{order_id}', '{scenario.merchant_id}', '{customer_id}', 'PAID', 'CNY', '{now}',"
         f" '{now}')",
-        "INSERT INTO commerce_db.order_line (line_id, order_id, merchant_id, customer_id, sku, category, quantity,"
-        " line_paid_amount, currency, paid_at, order_status, version) VALUES"
+        "INSERT INTO commerce_db.order_line (line_id, order_id, merchant_id, customer_id, sku, product_name,"
+        " variant_text, category, quantity, line_paid_amount, currency, paid_at, order_status, version) VALUES"
         f" ('{line_id}', '{order_id}', '{scenario.merchant_id}', '{customer_id}', '{sku}-DEMO-{line_id}',"
+        f" {_sql_text(scenario.product_name)}, {_sql_text(scenario.variant_text)},"
         f" '{category}', 1, {scenario.amount_minor}, 'CNY', '{now}', 'PAID', 1)",
         "INSERT INTO commerce_db.payment_ledger (order_id, paid_amount, refunded_amount,"
         f" reserved_refund_amount, version) VALUES ('{order_id}', {scenario.amount_minor}, 0, 0, 1)",
@@ -1127,6 +1151,40 @@ def discard_seeded_line(settings: Settings, line_id: str, order_id: str) -> bool
         settings,
     )
     return True
+
+
+def backfill_display_fields(settings: Settings, document: dict[str, Any], log: Log) -> None:
+    """Give the recorded demo lines their synthetic product name and variant.
+
+    Only the lines this dataset's manifest owns, and only those two columns: the amounts, times,
+    statuses, revisions and every referenced original stay exactly as they were, so no citation and
+    no evidence hash can move. The shared fixture lines (7001 and friends) are deliberately not
+    touched — a review of *them* should show what the seed actually says. Repeatable: the same
+    values are written again on every `prepare`.
+    """
+    updated: list[str] = []
+    for sample in document.get("samples", []):
+        scenario = SCENARIOS.get(sample.get("scenario", ""))
+        if scenario is None or not sample.get("line_id"):
+            continue
+        rows = mysql_rows(
+            f"SELECT product_name, variant_text FROM commerce_db.order_line WHERE line_id = '{sample['line_id']}'",
+            settings,
+        )
+        if not rows:
+            continue
+        if rows[0][0] == scenario.product_name and (rows[0][1] or None) == scenario.variant_text:
+            continue
+        mysql_rows(
+            "UPDATE commerce_db.order_line"
+            f" SET product_name = {_sql_text(scenario.product_name)},"
+            f" variant_text = {_sql_text(scenario.variant_text)}"
+            f" WHERE line_id = '{sample['line_id']}'",
+            settings,
+        )
+        updated.append(sample["line_id"])
+    if updated:
+        log.note("display fields set on this dataset's own lines: " + ", ".join(updated))
 
 
 def pinned_bundle(settings: Settings, case_id: str) -> tuple[str, str]:
@@ -2107,6 +2165,7 @@ def command_prepare(settings: Settings, log: Log, *, build: bool) -> int:
         )
         log.note(f"recorded the shared environment's row counts in {baseline.name}")
     start_stage(settings, log, build=build)
+    backfill_display_fields(settings, document, log)
     save_manifest(settings, document)
     log.step("demo stage prepared", True, f"dataset={settings.dataset} manifest={settings.manifest_path.name}")
     log.note(

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { ApiError, coreApi, type CaseSnapshot, type LoginResponse, type OrderLine, type ReviewContext, type ReviewItem } from './client'
 import { watchCaseEvents } from './events'
 import { formatMinorUnits } from './money'
@@ -8,6 +8,7 @@ import ReviewDialog from './ui/ReviewDialog.vue'
 import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
 import InvestigationSources from './ui/InvestigationSources.vue'
 import PolicyCitations from './ui/PolicyCitations.vue'
+import { paidAtOf, productNameMissing, productTitle, variantOf } from './ui/order-line-format'
 import './ui/workbench.css'
 
 const username = ref('')
@@ -42,6 +43,40 @@ const reviewContextError = ref('')
 const focusedPolicy = ref<string | null>(null)
 const focusNonce = ref(0)
 const queryOpen = ref(false)
+
+/**
+ * Whether the right-hand context column is folded into the detail column.
+ *
+ * The breakpoint matches the CSS: below 1300px the three-column reviewer grid no longer leaves the
+ * detail at least ~620px, so the order/authorisation/payment facts move below it and become a
+ * disclosure the reviewer opens when they want them. Markup rather than a CSS override of
+ * `<details>` on purpose — a closed `<details>` cannot be reopened by CSS, and an always-open one
+ * cannot be collapsed.
+ */
+const contextFolded = ref(false)
+/** The fold's own state, so opening it once keeps it open across re-renders. */
+const contextOpen = ref(false)
+/** Below the stacking breakpoint the queue and the detail share one column, so a case needs a way
+ * back to the list; above it both are on screen and the control would be noise. */
+const narrowScreen = ref(false)
+let contextQuery: MediaQueryList | null = null
+let narrowQuery: MediaQueryList | null = null
+function backToList() {
+  document.getElementById(isReviewer.value ? 'queue-panel' : 'order-panel')?.scrollIntoView?.({ block: 'start' })
+}
+onMounted(() => {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+  contextQuery = window.matchMedia('(max-width: 1299px)')
+  contextFolded.value = contextQuery.matches
+  contextQuery.addEventListener('change', event => { contextFolded.value = event.matches })
+  narrowQuery = window.matchMedia('(max-width: 850px)')
+  narrowScreen.value = narrowQuery.matches
+  narrowQuery.addEventListener('change', event => { narrowScreen.value = event.matches })
+})
+onUnmounted(() => {
+  contextQuery?.removeEventListener('change', () => undefined)
+  narrowQuery?.removeEventListener('change', () => undefined)
+})
 const decisionLabels = { APPROVE: '批准退款授权', REJECT: '拒绝退款申请', REQUEST_INFO: '要求补充信息' }
 function beginReview(decision: ReviewDecision) {
   if (!snapshot.value || snapshot.value.authorization?.status !== 'PENDING_REVIEW') return
@@ -363,7 +398,7 @@ onUnmounted(stopStream)
             <p class="muted">选择一条订单行，提交全额模拟退款诉求。</p>
             <div v-if="orders.length === 0" class="empty"><Icon name="box" :size="30" /><p>暂无可见订单行</p></div>
             <div class="scroll-list" aria-label="可选订单行"><label v-for="line in orders" :key="line.line_id" class="order-row">
-              <input v-model="selectedLine" type="radio" name="line" :value="line.line_id" /><span class="order-copy"><strong>{{ line.sku }}</strong><small>{{ line.line_id }} · {{ line.status }}</small><b>{{ formatMinorUnits(line.line_paid_amount, line.currency) }}</b></span>
+              <input v-model="selectedLine" type="radio" name="line" :value="line.line_id" /><span class="order-copy"><strong :class="{ 'name-missing': productNameMissing(line) }" data-test="order-product">{{ productTitle(line) }}</strong><small v-if="variantOf(line)" data-test="order-variant">{{ variantOf(line) }}</small><small class="order-sku">{{ productNameMissing(line) ? line.status : `${line.sku} · ${line.status}` }}</small><small v-if="paidAtOf(line)" data-test="order-paid-at">支付于 {{ formatTimestamp(paidAtOf(line)!) }}</small><b>{{ formatMinorUnits(line.line_paid_amount, line.currency) }}</b></span>
             </label></div>
             <button v-if="ordersCursor" type="button" class="secondary-button" :disabled="busy" @click="act(() => loadOrders(ordersCursor))">加载更多订单</button>
           </section>
@@ -386,9 +421,10 @@ onUnmounted(stopStream)
             <div v-if="isCustomer && !snapshot" class="create-panel"><span class="feature-icon"><Icon name="file" :size="26" /></span><p class="eyebrow">新建售后工单</p><h3>发起全额模拟退款</h3><p class="muted">{{ selectedLine ? `已选择订单行 ${selectedLine}` : '先在左侧选择一条订单行' }}</p><label>情况说明 <textarea v-model="description" rows="5" placeholder="描述物流异常或商品损坏情况" /></label><button data-test="create-case" type="button" :disabled="busy" @click="createCase">创建工单<Icon name="arrow" :size="16" /></button></div>
             <div v-else-if="!snapshot" class="case-empty"><Icon name="queue" :size="42" /><strong>{{ busy ? '正在读取工单…' : '选择一条工单，开始审核' }}</strong><p>订单、证据与调查建议将在这里汇集。</p></div>
             <template v-else>
+              <button v-if="narrowScreen" type="button" class="secondary-button back-to-list" data-test="back-to-list" @click="backToList">← 返回队列</button>
               <div class="case-title"><h3>{{ headline(snapshot.case.description) }}</h3><span class="stream-indicator"><i :class="{ disconnected: streamStatus === '连接失败' }" />{{ streamStatus === '未连接' ? '静态快照' : streamStatus }}</span></div>
               <section v-if="isReviewer" class="case-order" aria-label="订单行摘要"><div class="section-heading"><h3>订单信息</h3><span v-if="snapshot.case.order_id" class="subtle-id" :title="snapshot.case.order_id">订单号：{{ snapshot.case.order_id }}</span></div>
-                <div v-if="selectedOrderLine" class="case-order-content"><span class="product-placeholder"><Icon name="box" :size="32" /></span><div class="product-copy"><strong>{{ categoryLabels[selectedOrderLine.category] ?? '订单商品' }}</strong><span>{{ selectedOrderLine.sku }}</span><small>数量 × {{ selectedOrderLine.quantity }}</small></div><div class="case-order-amount"><small>订单已付金额</small><b>{{ formatMinorUnits(selectedOrderLine.line_paid_amount, selectedOrderLine.currency) }}</b></div><div v-if="validatedRefundAmount(snapshot.proposal) !== null" class="case-order-amount refund-amount"><small>{{ snapshot.authorization?.status === 'PENDING_REVIEW' ? '待审退款额' : '方案退款额' }}</small><b>{{ formatMinorUnits(validatedRefundAmount(snapshot.proposal)!, selectedOrderLine.currency) }}</b><small>服务端已校验 · 全额退款</small></div></div>
+                <div v-if="selectedOrderLine" class="case-order-content"><span class="product-placeholder"><Icon name="box" :size="32" /></span><div class="product-copy"><strong :class="{ 'name-missing': productNameMissing(selectedOrderLine) }" data-test="case-product">{{ productTitle(selectedOrderLine) }}</strong><span v-if="variantOf(selectedOrderLine)" data-test="case-variant">{{ variantOf(selectedOrderLine) }}</span><span class="product-sku">{{ productNameMissing(selectedOrderLine) ? (categoryLabels[selectedOrderLine.category] ?? selectedOrderLine.category) : `${selectedOrderLine.sku} · ${categoryLabels[selectedOrderLine.category] ?? selectedOrderLine.category}` }}</span><small>数量 × {{ selectedOrderLine.quantity }}<template v-if="paidAtOf(selectedOrderLine)"> · 支付于 {{ formatTimestamp(paidAtOf(selectedOrderLine)!) }}</template></small></div><div class="case-order-amount"><small>订单已付金额</small><b>{{ formatMinorUnits(selectedOrderLine.line_paid_amount, selectedOrderLine.currency) }}</b></div><div v-if="validatedRefundAmount(snapshot.proposal) !== null" class="case-order-amount refund-amount"><small>{{ snapshot.authorization?.status === 'PENDING_REVIEW' ? '待审退款额' : '方案退款额' }}</small><b>{{ formatMinorUnits(validatedRefundAmount(snapshot.proposal)!, selectedOrderLine.currency) }}</b><small>服务端已校验 · 全额退款</small></div></div>
                 <p v-else-if="orderContextState === 'loading'" class="muted skeleton-line">正在读取订单信息…</p><p v-else class="muted">暂无可展示的订单明细</p></section>
               <section v-if="snapshot.case.description" class="customer-issue"><h3>客户问题描述</h3><p>{{ snapshot.case.description }}</p></section>
               <section class="detail-section evidence-section"><div class="section-heading"><h3>证据与材料 <span class="section-count">（{{ snapshot.evidence.length }}）</span></h3><span class="subtle">展开查看完整内容</span></div>
@@ -413,13 +449,14 @@ onUnmounted(stopStream)
               <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" />
             </template>
           </section>
-          <aside class="context-column" aria-label="工单上下文">
-            <section class="panel context-panel"><h2>{{ isReviewer ? '工单与订单信息' : '订单信息' }}</h2><template v-if="snapshot"><div class="context-status"><span>当前状态</span><strong>{{ statusLabel(snapshot.case.status) }}</strong></div><dl><dt>商品类别</dt><dd>{{ selectedOrderLine ? (categoryLabels[selectedOrderLine.category] ?? selectedOrderLine.category) : '暂未提供' }}</dd><dt>订单行</dt><dd>{{ snapshot.case.line_id }}</dd><dt>商品数量</dt><dd>{{ selectedOrderLine?.quantity ?? '暂未提供' }}</dd><dt>最近事件</dt><dd>{{ snapshot.timeline.length ? formatTimestamp(snapshot.timeline.at(-1)!.occurred_at) : '暂无事件' }}</dd></dl><details class="technical-details"><summary>查看工单与订单编号</summary><dl><dt>工单编号</dt><dd>{{ snapshot.case.case_id }}</dd><dt>订单编号</dt><dd>{{ snapshot.case.order_id || '未提供' }}</dd><dt>工单版本</dt><dd>{{ snapshot.case.version }}</dd><dt>输入修订</dt><dd>{{ snapshot.case.input_revision }}</dd></dl></details></template><p v-else class="empty">打开工单后显示服务端记录。</p></section>
+          <component :is="contextFolded ? 'details' : 'aside'" class="context-column" :class="{ 'context-fold': contextFolded }" :open="contextFolded ? contextOpen : undefined" aria-label="工单上下文" @toggle="contextOpen = ($event.target as HTMLDetailsElement).open">
+            <summary v-if="contextFolded" class="context-fold-summary" data-test="context-fold">订单与执行信息<Icon name="chevron" :size="14" /></summary>
+            <section class="panel context-panel"><h2>{{ isReviewer ? '工单与订单信息' : '订单信息' }}</h2><template v-if="snapshot"><div class="context-status"><span>当前状态</span><strong>{{ statusLabel(snapshot.case.status) }}</strong></div><dl><dt>商品名称</dt><dd :class="{ 'name-missing': selectedOrderLine && productNameMissing(selectedOrderLine) }">{{ selectedOrderLine ? productTitle(selectedOrderLine) : '暂未提供' }}</dd><dt v-if="selectedOrderLine && variantOf(selectedOrderLine)">商品规格</dt><dd v-if="selectedOrderLine && variantOf(selectedOrderLine)">{{ variantOf(selectedOrderLine) }}</dd><dt>商品类别</dt><dd>{{ selectedOrderLine ? (categoryLabels[selectedOrderLine.category] ?? selectedOrderLine.category) : '暂未提供' }}</dd><dt>订单行</dt><dd>{{ snapshot.case.line_id }}</dd><dt>商品数量</dt><dd>{{ selectedOrderLine?.quantity ?? '暂未提供' }}</dd><dt v-if="selectedOrderLine && paidAtOf(selectedOrderLine)">支付时间</dt><dd v-if="selectedOrderLine && paidAtOf(selectedOrderLine)">{{ formatTimestamp(paidAtOf(selectedOrderLine)!) }}</dd><dt>最近事件</dt><dd>{{ snapshot.timeline.length ? formatTimestamp(snapshot.timeline.at(-1)!.occurred_at) : '暂无事件' }}</dd></dl><details class="technical-details"><summary>查看工单与订单编号</summary><dl><dt>工单编号</dt><dd>{{ snapshot.case.case_id }}</dd><dt>订单编号</dt><dd>{{ snapshot.case.order_id || '未提供' }}</dd><dt>工单版本</dt><dd>{{ snapshot.case.version }}</dd><dt>输入修订</dt><dd>{{ snapshot.case.input_revision }}</dd></dl></details></template><p v-else class="empty">打开工单后显示服务端记录。</p></section>
             <section v-if="snapshot?.authorization" class="panel context-panel authorization-panel"><h2>审核授权</h2><div class="auth-summary"><span class="feature-icon"><Icon name="shield" :size="22" /></span><div><p class="authorization-state">{{ authorizationStatusLabel(snapshot.authorization.status) }}</p><small class="subtle">由服务端管理授权与执行状态</small></div></div><p v-if="selectedOrderLine && validatedRefundAmount(snapshot.proposal) !== null" class="validated-amount">{{ snapshot.authorization.status === 'PENDING_REVIEW' ? '待审退款额' : '方案退款额' }} <strong>{{ formatMinorUnits(validatedRefundAmount(snapshot.proposal)!, selectedOrderLine.currency) }}</strong><small>服务端校验金额；到账以执行结果为准</small></p><details class="technical-details"><summary>查看授权编号与版本</summary><dl><dt>授权编号</dt><dd>{{ snapshot.authorization.authorization_id }}</dd><dt>授权版本</dt><dd>{{ snapshot.authorization.authorization_version }}</dd><dt>对应输入修订</dt><dd>{{ snapshot.authorization.input_revision }}</dd></dl></details><p v-if="snapshot.authorization.input_revision !== snapshot.case.input_revision" class="context-warning">授权对应旧输入修订，需以服务端重新校验为准。</p></section>
             <section v-else-if="isReviewer && snapshot?.case.status === 'PENDING_REVIEW'" class="panel context-panel authorization-panel"><h2>授权状态</h2><p class="context-warning">暂无待审退款授权；Agent 建议不能直接执行退款。</p></section>
             <section v-if="snapshot && selectedOrderLine" class="panel context-panel payment-panel"><h2>金额信息</h2><dl><dt>订单已付金额</dt><dd>{{ formatMinorUnits(selectedOrderLine.line_paid_amount, selectedOrderLine.currency) }}</dd><dt>退款范围</dt><dd>单订单行 · 全量</dd><dt>交易模式</dt><dd>模拟退款</dd></dl><p class="context-footnote">支付渠道与交易流水暂未提供</p></section>
             <section v-if="snapshot" class="panel context-panel checks-panel"><h2>审核依据</h2><ul class="fact-checks"><li><Icon name="file" /><span>可见材料</span><strong>{{ snapshot.evidence.length }} 项</strong></li><li><Icon name="shield" /><span>具有关联核验的材料</span><strong>{{ verifiedEvidence.size }} 项</strong></li><li><Icon name="check" /><span>方案校验</span><strong>{{ snapshot.proposal?.status === 'VALIDATED' ? '服务端已校验' : '尚未确认' }}</strong></li><li><Icon name="clock" /><span>输入修订</span><strong>第 {{ snapshot.case.input_revision }} 版</strong></li></ul><p class="context-footnote">材料核验与退款授权分别判断</p></section>
-          </aside>
+          </component>
         </div>
       </main>
     </div>

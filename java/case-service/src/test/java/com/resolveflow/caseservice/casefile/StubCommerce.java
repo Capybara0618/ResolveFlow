@@ -73,7 +73,10 @@ class StubCommerce extends CommerceOrderLineClient {
             return new OrderLinePage(List.of(), new PageMeta(null, 1));
         }
         return new OrderLinePage(
-                List.of(new OrderLineSummary(ORDER, lineId, "SKU-RED-M", "apparel", 2, 2599, "CNY", paidAt, "PAID", 3)),
+                // No product name or variant: this stub stands for a line that predates the
+                // display columns, and the page must render it from the SKU rather than invent one.
+                List.of(new OrderLineSummary(
+                        ORDER, lineId, "SKU-RED-M", null, null, "apparel", 2, 2599, "CNY", paidAt, "PAID", 3)),
                 new PageMeta(null, 1));
     }
 

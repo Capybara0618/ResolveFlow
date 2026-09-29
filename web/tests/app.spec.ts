@@ -83,8 +83,14 @@ describe('core workbench', () => {
         access_token: 'token', role: 'CUSTOMER', merchant_id: 'M-1001', customer_id: 'C-2002', expires_in: 3600,
       })))
       if (url.startsWith('/api/v1/orders')) return Promise.resolve(new Response(JSON.stringify({
-        items: [{ order_id: 'order-1', line_id: 'line-7', sku: 'demo', category: 'other', quantity: 1,
-          line_paid_amount: 2599, currency: 'CNY', status: 'PAID' }], page: { limit: 20 },
+        items: [
+          { order_id: 'order-1', line_id: 'line-7', sku: 'demo', product_name: '演示商品 · 保温杯',
+            variant_text: '雾蓝 · 500ml', category: 'other', quantity: 1, line_paid_amount: 2599,
+            currency: 'CNY', paid_at: '2026-09-20T02:30:00Z', status: 'PAID' },
+          // A line that predates the display columns: absent members, not empty ones.
+          { order_id: 'order-1', line_id: 'line-8', sku: 'SKU-ONLY-8', category: 'other', quantity: 1,
+            line_paid_amount: 1299, currency: 'CNY', status: 'PAID' },
+        ], page: { limit: 20 },
       })))
       throw new Error(`Unexpected URL ${url}`)
     })
@@ -96,8 +102,19 @@ describe('core workbench', () => {
     await wrapper.get('[name="password"]').setValue('password')
     await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
-    expect(wrapper.text()).toContain('line-7')
-    expect(wrapper.text()).toContain('25.99 CNY')
+    // The product name is the heading, the variant is the second line, and the SKU stays visible
+    // as the merchant's own identifier.
+    const rows = wrapper.findAll('.order-row')
+    expect(rows[0].get('[data-test="order-product"]').text()).toBe('演示商品 · 保温杯')
+    expect(rows[0].get('[data-test="order-variant"]').text()).toBe('雾蓝 · 500ml')
+    expect(rows[0].text()).toContain('demo')
+    expect(rows[0].text()).toContain('25.99 CNY')
+    expect(rows[0].get('[data-test="order-paid-at"]').text()).toContain('支付于')
+    // A line with no product name says so and still shows its SKU; it never invents a name.
+    expect(rows[1].get('[data-test="order-product"]').text()).toBe('SKU-ONLY-8')
+    expect(rows[1].get('[data-test="order-product"]').classes()).toContain('name-missing')
+    expect(rows[1].find('[data-test="order-variant"]').exists()).toBe(false)
+    expect(rows[1].find('[data-test="order-paid-at"]').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('RESHIP')
     wrapper.unmount()
   })

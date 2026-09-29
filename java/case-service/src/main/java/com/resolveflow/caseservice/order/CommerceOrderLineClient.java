@@ -229,6 +229,24 @@ public class CommerceOrderLineClient {
             String lineId,
 
             String sku,
+
+            // Optional presentation members (core OpenAPI OrderLineSummary). Nullable rather than
+            // defaulted: a historical line has no product name, and a client that filled one in
+            // would be inventing a product. Unknown members are still refused by this service's
+            // Jackson configuration, so Commerce cannot add a third one silently.
+            //
+            // NON_NULL on these two **only**: an absent display field is omitted, the way
+            // `next_cursor` is, so the public order view answers exactly as it did before V7. A
+            // service-wide NON_NULL would also hide a null in a required member, which is a
+            // protocol violation this service should pass on loudly rather than swallow.
+            @com.fasterxml.jackson.annotation.JsonProperty("product_name")
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            String productName,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("variant_text")
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            String variantText,
+
             String category,
             int quantity,
 
