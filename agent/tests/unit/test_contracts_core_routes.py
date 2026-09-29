@@ -32,7 +32,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 18, "Commerce": 5, "Agent": 5}
+EXPECTED_ROUTE_COUNTS = {"Case": 21, "Commerce": 5, "Agent": 6}
 
 #: Routes the compat baseline has and core must not expose (docs/core-contracts.md:53).
 DEFERRED_PATH_FRAGMENTS = (
@@ -820,9 +820,33 @@ def test_the_review_queue_names_what_it_holds_and_refuses_a_page_it_did_not_issu
     assert "PENDING_REVIEW" in description, "the queue says which status it holds"
     assert "updated_at" in description, "and how it is ordered, so paging is not left to chance"
 
-    parameters = [parameter.get("$ref", "").rsplit("/", 1)[-1] for parameter in route.get("parameters", [])]
-    assert parameters == ["Cursor", "Limit"], (
-        "the queue takes paging and nothing else: a merchant_id parameter would be scope from the client"
+    parameters = route.get("parameters", [])
+    declared = [
+        parameter.get("$ref", "").rsplit("/", 1)[-1] or parameter.get("name", "")
+        for parameter in parameters
+    ]
+    assert declared == ["view", "query", "Cursor", "Limit"], (
+        "the queue takes its workspace view, a search term and paging, and nothing that names "
+        "a subject: the merchant comes from the token, so merchant_id/customer_id stay out"
+    )
+    for parameter in parameters:
+        name = parameter.get("name") or parameter.get("$ref", "").rsplit("/", 1)[-1]
+        assert name not in {"merchant_id", "customer_id"}, (
+            f"{name} would be client-supplied scope; the queue is scoped by the principal"
+        )
+    view = next(parameter for parameter in parameters if parameter.get("name") == "view")
+    assert set(view["schema"]["enum"]) == {
+        "REVIEW",
+        "WAITING",
+        "PROCESSING",
+        "ATTENTION",
+        "CLOSED",
+        "ALL",
+    }, "the workspace views are a closed set, so a typo is a 400 rather than an empty page"
+    query = next(parameter for parameter in parameters if parameter.get("name") == "query")
+    assert query["schema"]["maxLength"] == 100, (
+        "the search term is bounded (docs/core-contracts.md:98), so one caller cannot ask the "
+        "queue to scan arbitrary text"
     )
 
     item = document("case")["components"]["schemas"]["ReviewQueueItem"]

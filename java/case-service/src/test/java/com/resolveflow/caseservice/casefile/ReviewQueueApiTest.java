@@ -345,4 +345,31 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
                 .as("a refused page reads nothing and changes nothing")
                 .isZero();
     }
+
+    @Test
+    @DisplayName("an unknown view or an over-long search term is a client error, never a silently different page")
+    void aBadWorkspaceFilterIsAClientError() {
+        String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
+
+        // A typo in the view and a search term past the declared bound answer 400 rather than being
+        // treated as "no filter": quietly serving the default view would look exactly like a view whose
+        // cases happen to be empty, and the caller could not tell the two apart.
+        for (String query :
+                java.util.List.of("view=NOT_A_VIEW", "query=" + "x".repeat(101), "view=ALL&query=" + "x".repeat(101))) {
+            String body = rest.get()
+                    .uri("/api/v1/review/cases?" + query)
+                    .header("Authorization", "Bearer " + reviewer)
+                    .exchange()
+                    .expectStatus()
+                    .isEqualTo(400)
+                    .expectBody(String.class)
+                    .returnResult()
+                    .getResponseBody();
+            JsonNode error = MAPPER.readTree(body);
+            assertThat(error.get("code").stringValue()).isEqualTo("INVALID_ARGUMENT");
+            assertThat(error.get("message").stringValue())
+                    .as("the caller has to learn what was wrong with the filter it asked for")
+                    .isNotBlank();
+        }
+    }
 }

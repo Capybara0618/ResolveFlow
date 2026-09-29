@@ -47,8 +47,12 @@ paths:
     get:
       operationId: readReviewerInvestigation
       summary: Read persisted investigation tool results without running tools or models
-      description: Merchant staff only; uses the current case revision binding. Remote
-        failure is UNAVAILABLE, missing binding is NOT_SCHEDULED.
+      description: |
+        Merchant staff only; uses the current case revision binding. Remote failure is
+        UNAVAILABLE, missing binding is NOT_SCHEDULED. Read-only projection of the
+        persisted tool results: it never re-runs a model or a tool, never writes, and
+        never substitutes current business values for the recorded ones
+        (docs/core-contracts.md:107).
       parameters:
       - $ref: '#/components/parameters/CaseId'
       responses:
@@ -1004,6 +1008,12 @@ paths:
     get:
       summary: Read scoped reviewer actions and pinned policy text
       operationId: readReviewerContext
+      description: |
+        Merchant staff only; cross-merchant and unknown are both 404. Returns the current case
+        version, the actions that are actually allowed now, the pinned policy text of the
+        bundle the case was opened with, the recorded human decisions and the execution result
+        of the current authorization. Absent policy is UNAVAILABLE rather than an inferred
+        eligibility (docs/core-contracts.md:94).
       parameters:
         - $ref: '#/components/parameters/CaseId'
       responses:
@@ -1027,6 +1037,9 @@ paths:
         REJECT and REQUEST_INFO do not require a fabricated authorization and advance
         input_revision to fence older investigation callbacks. Consumed input is frozen.
         REQUEST_INFO is unavailable while waiting, after two question rounds, or after expiry.
+        The amount is never taken from the body: a manual proposal is a proposal, not a
+        payment, and the executable authorization is created only if the citations still
+        verify against this service's own records (docs/core-contracts.md:96).
       parameters:
         - $ref: '#/components/parameters/CaseId'
         - $ref: '#/components/parameters/IfMatch'

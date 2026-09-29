@@ -34,10 +34,14 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/cases/{case_id}/reviews | 人工决定当前授权；`If-Match`为工单版本、body带授权自己的版本，任一过期409；批准前重新校验；客户角色403 |
 | Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料：新记录引用被核验记录（`reviewed_evidence_id`）并带 `verification_result`，推进revision、回到QUEUED并创建新run绑定；客户角色 403，跨工单引用 422 |
 | Case | POST /api/v1/cases/{case_id}/manual-proposals | 新revision/方案，非直接付款 |
+| Case | GET /api/v1/cases/{case_id}/review-context | 商户人员读取当前工单版本、实际允许动作、绑定政策原文、人工决定与当前授权的执行结果；无政策为UNAVAILABLE，跨商户/不存在同为404 |
+| Case | POST /api/v1/cases/{case_id}/review-actions | 带If-Match的审核动作：MANUAL_PROPOSAL（金额仍由Java重算）/REJECT/REQUEST_INFO；不伪造授权，输入修订与状态同事务推进使旧调查失效；已消费输入冻结 |
+| Case | GET /api/v1/cases/{case_id}/investigation | 商户人员只读当前修订绑定的调查原始记录；无绑定NOT_SCHEDULED，下游故障或历史缺失UNAVAILABLE；不重跑模型/工具 |
 | Case | POST /api/v1/operations/{operation_id}/reconcile | OPERATOR请求查状态，不再次付款 |
 | Agent | POST /internal/v1/runs | PG落库后202，同case/revision唯一；`run_id`由Case从`(case_id,input_revision)`派生（RFC 9562 v5），重试得到同一个id |
 | Agent | GET /internal/v1/runs/{run_id} | 受权运行摘要 |
 | Agent | GET /internal/v1/runs/{run_id}/observations/{observation_id} | 仅Case校验证据 |
+| Agent | GET /internal/v1/runs/{run_id}/review-sources | case-service身份+run:review scope，与持久run的case/revision完全匹配；只读已保存工具结果，最多40条，超32768字节正文省略；不返回SDK对话、请求体或凭证 |
 | Agent | POST /internal/v1/runs/{run_id}/cancel | 停后续调查，不承诺撤回已发LLM计费 |
 | Agent | GET /health | 健康 |
 | Case | POST /internal/v1/cases/{case_id}/agent-callbacks | callback_id幂等，ACCEPTED/DUPLICATE/STALE |

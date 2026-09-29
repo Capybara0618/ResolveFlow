@@ -36,9 +36,12 @@ paths:
     get:
       operationId: readReviewerSources
       summary: Read persisted investigation tool results without running tools or models
-      description: Requires case-service subject and run:review scope, merchant/customer
-        claims and exact case/revision match. Returns at most 40 saved observations.
-        Bodies over 32768 UTF-8 bytes are omitted explicitly.
+      description: |
+        Requires case-service subject and run:review scope, merchant/customer claims and exact
+        case/revision match. Returns at most 40 saved observations. Bodies over 32768 UTF-8
+        bytes are omitted explicitly. It reads only what was persisted: no SDK conversation,
+        no request bodies, no model reasoning and no service credentials
+        (docs/core-contracts.md:109).
       parameters:
       - name: run_id
         in: path
