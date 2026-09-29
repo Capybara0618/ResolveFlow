@@ -21,6 +21,9 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface AuthorizationRepository {
 
+    @Select("SELECT EXISTS(SELECT 1 FROM case_authorization WHERE case_id=#{caseId} AND status='CONSUMED')")
+    boolean hasConsumed(@Param("caseId") String caseId);
+
     @Insert("""
             INSERT INTO case_authorization (authorization_id, case_id, authorization_version, status, action,
                                             input_revision, proposal_id, planned_operation_id, payload_hash,

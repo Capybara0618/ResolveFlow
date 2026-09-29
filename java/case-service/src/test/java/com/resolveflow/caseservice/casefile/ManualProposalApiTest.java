@@ -212,6 +212,50 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                 .isEqualTo(409);
     }
 
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(
+            strings = {"manual-proposals", "evidence", "reviewed-evidence", "cancel"})
+    void consumedInputStaysFrozenWhenTheCaseReturnsToReview(String route) {
+        String caseId = openCase();
+        submit(caseId, reviewer(), request("REFUND", "人工核验"));
+        JsonNode authorization = view(caseId, reviewer()).get("authorization");
+        decide(
+                caseId,
+                authorization.get("authorization_id").stringValue(),
+                authorization.get("authorization_version").asLong(),
+                "APPROVE");
+        jdbc.update("UPDATE case_authorization SET status='CONSUMED' WHERE case_id=?", caseId);
+        jdbc.update("UPDATE aftersale_case SET status='PENDING_REVIEW' WHERE case_id=?", caseId);
+        long version = view(caseId, reviewer()).get("case").get("version").asLong();
+        String revision = column("aftersale_case", "input_revision", caseId);
+        ObjectNode body =
+                switch (route) {
+                    case "manual-proposals" -> request("REFUND", "不能再次形成方案");
+                    case "evidence" ->
+                        MAPPER.createObjectNode()
+                                .put("evidence_kind", "REVIEWER_VERIFICATION")
+                                .put("text", "不能改动已消费输入");
+                    case "reviewed-evidence" ->
+                        MAPPER.createObjectNode()
+                                .put("source_evidence_id", UUID.randomUUID().toString())
+                                .put("verification_result", "CONFIRMED")
+                                .put("reason", "不能再核验");
+                    default -> MAPPER.createObjectNode().put("reason", "不能取消已消费工单");
+                };
+        rest.post()
+                .uri("/api/v1/cases/" + caseId + "/" + route)
+                .header("Authorization", "Bearer " + reviewer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body.toString())
+                .exchange()
+                .expectStatus()
+                .isEqualTo(409);
+        assertThat(column("aftersale_case", "input_revision", caseId)).isEqualTo(revision);
+        assertThat(view(caseId, reviewer()).get("case").get("version").asLong()).isEqualTo(version);
+        assertThat(count("case_proposal", caseId)).isEqualTo(1);
+        assertThat(column("case_authorization", "status", caseId)).isEqualTo("CONSUMED");
+    }
+
     @BeforeEach
     void prepare() {
         jdbc.execute("DELETE FROM case_policy_bundle");

@@ -32,6 +32,13 @@ public class LiveAuthorization {
         this.authorisations = authorisations;
     }
 
+    /** Call while holding the case row lock, including after a failed refund returns it to review. */
+    public void requireUnconsumed(String caseId) {
+        if (authorisations.hasConsumed(caseId)) {
+            throw new CaseStateConflictException("this case has consumed its authorization; its input remains frozen");
+        }
+    }
+
     /**
      * Withdraw the case's live authorisation, if it has one, and name it.
      *

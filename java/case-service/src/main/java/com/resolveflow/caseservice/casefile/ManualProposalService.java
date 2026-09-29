@@ -80,6 +80,7 @@ public class ManualProposalService {
         if (row == null || !row.visibleTo(principal)) {
             throw new CaseReadService.CaseNotVisibleException();
         }
+        liveAuthorisations.requireUnconsumed(row.caseId());
         if (!row.status().acceptsNewInput()) {
             throw new CaseStateConflictException("this case is " + row.status()
                     + ": its input is frozen, so a new revision cannot be started (docs/domain-model.md:36)");

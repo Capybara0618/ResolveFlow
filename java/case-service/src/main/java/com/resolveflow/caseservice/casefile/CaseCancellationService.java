@@ -52,6 +52,7 @@ public class CaseCancellationService {
             throw new CaseReadService.CaseNotVisibleException();
         }
         requireCancellable(row);
+        liveAuthorizations.requireUnconsumed(row.caseId());
 
         Instant now = Instant.now(clock);
         // The expected status is part of the UPDATE, so the transition is conditional in the database

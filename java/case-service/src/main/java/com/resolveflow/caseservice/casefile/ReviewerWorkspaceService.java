@@ -167,10 +167,9 @@ public class ReviewerWorkspaceService {
     }
 
     private boolean consumed(CaseRow row) {
-        var auth = authorizations.findLatest(row.caseId());
         return row.status() == CaseStatus.EXECUTING
                 || row.status() == CaseStatus.RECONCILING
-                || (auth != null && auth.authorizationStatus() == AuthorizationStatus.CONSUMED);
+                || authorizations.hasConsumed(row.caseId());
     }
 
     private List<String> allowed(CaseRow row) {

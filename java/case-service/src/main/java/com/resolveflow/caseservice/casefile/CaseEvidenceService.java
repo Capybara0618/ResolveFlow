@@ -33,10 +33,7 @@ import tools.jackson.databind.node.ObjectNode;
  *       material and name it in the response (C03.3c, {@link LiveAuthorization}).
  * </ol>
  *
- * <p>The state check is written against the case status, because the authorisation that consumption
- * belongs to arrives in C03. {@code EXECUTING} and {@code RECONCILING} are reachable only after
- * consumption (docs/domain-model.md:55), so the guard is already correct for those states; C03 will add
- * the authorisation-level check (a consumed authorisation on a case that has not moved yet).
+ * <p>The authorization check remains in force when a failed refund returns the case to review.
  */
 @Service
 public class CaseEvidenceService {
@@ -268,7 +265,8 @@ public class CaseEvidenceService {
         }
     }
 
-    private static void requireOpenInput(CaseRow row) {
+    private void requireOpenInput(CaseRow row) {
+        liveAuthorisations.requireUnconsumed(row.caseId());
         // A terminal case and a consumed case both refuse material, and they are not the same thing: one
         // has ended, the other is running. Saying "already executing" about a cancelled case would be a
         // false statement about the case in the one message a client will read.
