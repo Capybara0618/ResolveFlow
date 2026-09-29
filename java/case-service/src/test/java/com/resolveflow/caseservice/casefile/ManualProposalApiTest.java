@@ -267,6 +267,36 @@ class ManualProposalApiTest extends CaseDatabaseTest {
         commerce.reset();
     }
 
+    @Test
+    void investigationEndpointEnforcesStaffAndMerchantScope() {
+        String caseId = openCase();
+        String path = "/api/v1/cases/" + caseId + "/investigation";
+        rest.get()
+                .uri(path)
+                .header("Authorization", "Bearer " + customer())
+                .exchange()
+                .expectStatus()
+                .isForbidden();
+        String other = new JwtCodec(secret, Duration.ofHours(1))
+                .issue(new AuthenticatedPrincipal("other-reviewer", "M-2002", Role.REVIEWER, null), Instant.now());
+        rest.get()
+                .uri(path)
+                .header("Authorization", "Bearer " + other)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+        String response = rest.get()
+                .uri(path)
+                .header("Authorization", "Bearer " + reviewer())
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+        assertThat(MAPPER.readTree(response).get("availability").asText()).isIn("NOT_SCHEDULED", "UNAVAILABLE");
+    }
+
     private static java.nio.file.Path fixtureDirectory() {
         java.nio.file.Path candidate = java.nio.file.Path.of("").toAbsolutePath();
         for (int level = 0; level < 5 && candidate != null; level++) {

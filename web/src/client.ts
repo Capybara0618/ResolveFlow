@@ -64,6 +64,17 @@ export interface CaseSnapshot {
   timeline: TimelineEvent[]
 }
 
+export interface InvestigationObservation {
+  call_id: string; observation_id: string; tool_name: string; source_type: string; source_ref: string
+  source_version: string | null; content_hash: string | null; observed_at: string
+  result: Record<string, unknown> | null; body_omitted: boolean; error_code: string | null
+}
+export interface InvestigationView {
+  case_version: number; input_revision: number; availability: 'AVAILABLE' | 'NOT_SCHEDULED' | 'UNAVAILABLE'
+  investigation: { run_id: string; case_id: string; input_revision: number; status: string
+    model_provider: string | null; model_id: string | null; observations: InvestigationObservation[]; truncated: boolean } | null
+}
+
 export interface PolicyText {
   bundle_id: string; version: string; rule_id: string; title: string; text: string
   chunk_id: string; content_hash: string
@@ -111,6 +122,8 @@ function jsonPost<T>(path: string, token: string | null, body: unknown, headers:
 }
 
 export const coreApi = {
+  investigation: (token: string, caseId: string) =>
+    apiRequest<InvestigationView>(`/api/v1/cases/${encodeURIComponent(caseId)}/investigation`, token),
   reviewContext: (token: string, caseId: string) =>
     apiRequest<ReviewContext>(`/api/v1/cases/${encodeURIComponent(caseId)}/review-context`, token),
   reviewerAction: (token: string, snapshot: CaseSnapshot, action: ReviewerAction) =>

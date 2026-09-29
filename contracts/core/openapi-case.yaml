@@ -43,6 +43,27 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /api/v1/cases/{case_id}/investigation:
+    get:
+      operationId: readReviewerInvestigation
+      summary: Read persisted investigation tool results without running tools or models
+      description: Merchant staff only; uses the current case revision binding. Remote
+        failure is UNAVAILABLE, missing binding is NOT_SCHEDULED.
+      parameters:
+      - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Read-only recorded sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewerInvestigation'
+        '401':
+          description: Authentication required
+        '403':
+          description: Wrong identity or scope
+        '404':
+          description: Subject binding not visible
   /api/v1/auth/login:
     post:
       tags: [auth]
@@ -1221,6 +1242,94 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    ReviewerSources:
+      type: object
+      additionalProperties: false
+      required:
+      - run_id
+      - case_id
+      - input_revision
+      - status
+      - model_provider
+      - model_id
+      - truncated
+      - observations
+      properties:
+        run_id:
+          type: string
+        case_id:
+          type: string
+        input_revision:
+          type: integer
+          minimum: 1
+        status:
+          type: string
+        model_provider: &id001
+          type:
+          - string
+          - 'null'
+        model_id: *id001
+        truncated:
+          type: boolean
+        observations:
+          type: array
+          maxItems: 40
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - observation_id
+            - tool_name
+            - source_type
+            - source_ref
+            - source_version
+            - content_hash
+            - observed_at
+            - error_code
+            - call_id
+            - result
+            - body_omitted
+            properties:
+              observation_id: *id001
+              tool_name: *id001
+              source_type: *id001
+              source_ref: *id001
+              source_version: *id001
+              content_hash: *id001
+              observed_at: *id001
+              error_code: *id001
+              call_id:
+                type: string
+              result:
+                type:
+                - object
+                - 'null'
+              body_omitted:
+                type: boolean
+    ReviewerInvestigation:
+      type: object
+      additionalProperties: false
+      required:
+      - case_version
+      - input_revision
+      - availability
+      - investigation
+      properties:
+        case_version:
+          type: integer
+          minimum: 1
+        input_revision:
+          type: integer
+          minimum: 1
+        availability:
+          enum:
+          - AVAILABLE
+          - NOT_SCHEDULED
+          - UNAVAILABLE
+        investigation:
+          anyOf:
+          - $ref: '#/components/schemas/ReviewerSources'
+          - type: 'null'
     ReviewerContext:
       type: object
       additionalProperties: false

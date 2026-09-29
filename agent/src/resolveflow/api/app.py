@@ -51,6 +51,7 @@ from resolveflow.runtime.dispatch import (
 )
 from resolveflow.runtime.factory import DeploymentConfig, build_investigation
 from resolveflow.runtime.investigation import InvestigationLoop
+from resolveflow.runtime.reviewer import review_sources
 from resolveflow.runtime.runs import (
     QUEUED,
     RunConflictError,
@@ -556,6 +557,18 @@ def create_app(
             callback_ids=list(view.callback_ids),
             result_summary=view.result_summary,
         )
+
+    @app.get("/internal/v1/runs/{run_id}/review-sources")
+    async def read_review_sources(run_id: str, case_id: str, input_revision: int, request: Request) -> dict:
+        token = service_token_of(request, required_scope="run:review")
+        if token.subject != CASE_SERVICE or not token.merchant_id or not token.customer_id:
+            raise HTTPException(status_code=403, detail="scoped case-service identity required")
+        try:
+            return review_sources(run_store_of(request).database, run_id, case_id=case_id,
+                                  input_revision=input_revision, merchant_id=token.merchant_id,
+                                  customer_id=token.customer_id)
+        except RunNotFoundError as missing:
+            raise HTTPException(status_code=404, detail=str(missing)) from missing
 
     @app.post("/internal/v1/runs/{run_id}/cancel", response_model=CancelAckBody)
     async def cancel_run(run_id: str, request: Request) -> CancelAckBody:

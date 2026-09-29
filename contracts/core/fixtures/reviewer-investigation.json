@@ -1,0 +1,31 @@
+{
+  "case_version": 3,
+  "input_revision": 1,
+  "availability": "AVAILABLE",
+  "investigation": {
+    "run_id": "22222222-2222-4222-8222-222222222222",
+    "case_id": "33333333-3333-4333-8333-333333333333",
+    "input_revision": 1,
+    "status": "COMPLETED",
+    "model_provider": "mock",
+    "model_id": "scripted-fixture",
+    "truncated": false,
+    "observations": [
+      {
+        "call_id": "tool-1",
+        "observation_id": "shipment",
+        "tool_name": "get_shipment_trace",
+        "source_type": "SHIPMENT_TRACKING",
+        "source_ref": "line:fixture/shipment",
+        "source_version": "1",
+        "content_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "observed_at": "2026-09-29T01:00:00Z",
+        "result": {
+          "conclusion": "SIGNED"
+        },
+        "body_omitted": false,
+        "error_code": null
+      }
+    ]
+  }
+}

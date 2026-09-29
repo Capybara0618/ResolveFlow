@@ -96,8 +96,16 @@ command仅action=REFUND、target_service=commerce-service；由Case签名，Comm
 `POST /api/v1/cases/{case_id}/review-actions` 必须携带 If-Match。MANUAL_PROPOSAL 只接受本工单可读材料的完整来源及绑定政策引用，金额仍由Java重算，形成授权后单独审批。REJECT/REQUEST_INFO用于没有有效待审授权的工单，不伪造授权；输入修订与状态同事务更新，使旧Agent结果失效。补证最多两轮、等待中不重复追问、已到期不再追问；已消费授权禁止全部输入修改。
 
 队列原参数行为保留；新增 view=REVIEW/WAITING/PROCESSING/ATTENTION/CLOSED/ALL 和 query（工单/订单精确ID或问题描述，最长100字符）。新视图按商户隔离并使用游标分页，过滤变化时前端重置游标；绕开仅服务旧待审列表的缓存。退款结果来自已持久事件并排除标记过期的事件，不将批准视为到账。契约见 core OpenAPI；样例见 `contracts/core/fixtures/reviewer-context.json`（仓库根目录相对路径）。
-# 审核调查分项输出（2026-09-28增量）
+## 审核调查分项输出（2026-09-28增量）
 
 Agent Proposal 可选 `review_findings`（最多8条）：`kind` 为 FACT / INFERENCE / CONFLICT，`text` 为1–400字符，`observation_ids` 为1–8个不重复观察ID。每个ID必须出现在本方案 `evidence_refs` 中，CONFLICT至少引用两个不同观察；Python模型决策与Java接收均校验。事实支持性仍由既有Observation/Harness校验负责，ID匹配本身不证明语义正确。
 
 FACT在审核界面标为“来源陈述 · Agent 整理”，不能覆盖原材料或人工核验记录。引用能匹配工单材料时展示原文；工具观察正文未进入审核视图时明确提示未提供，不以模型摘要补造正文。历史方案允许省略此字段；缺失不伪造分项。`missing_evidence`、过期和复核拒绝原因同时展示。该字段不产生授权或改变金额。
+
+## 审核调查原始记录（2026-09-29增量）
+
+公开 `GET /api/v1/cases/{case_id}/investigation` 仅商户工作人员可读。Case根据当前工单修订查绑定run，随后在事务外读取Agent；返回case_version/input_revision，前端丢弃不同工单或版本的迟到响应。无绑定是NOT_SCHEDULED；下游故障/历史数据缺失是UNAVAILABLE，不表示未进行调查。
+
+内部 `GET /internal/v1/runs/{run_id}/review-sources?case_id=...&input_revision=...` 要求case-service身份、run:review scope、商户/客户claims，并与持久run的case/revision完全匹配。只读取agent_tool_call已保存结果，最多40条；单正文大于32768个UTF-8字节则省略并标记body_omitted，超出条数标记truncated。只输出来源/版本/hash/读取时间/结果/错误码和已保存模型提供方，不返回SDK对话、请求体、模型内部推理或服务凭证。不重新执行模型或工具，不修改原记录。
+
+Case复核响应的run/case/revision后白名单投影；读连接/响应超时分别为3秒/5秒。页面分项仅在观察ID、来源、版本和hash全匹配时关联工具正文，展示当时保存的结果，不追写当前业务值。当前无历史修订切换器；只有当前绑定的可用记录可展开。

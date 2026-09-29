@@ -61,6 +61,7 @@ public class AgentRunClient {
     }
 
     private final RestClient rest;
+    private final RestClient reviewRest;
     private final JwtCodec codec;
     private final String serviceName;
 
@@ -70,6 +71,11 @@ public class AgentRunClient {
             @Value("${resolveflow.agent.base-url}") String baseUrl,
             @Value("${resolveflow.identity.service-name:case-service}") String serviceName) {
         this.rest = builder.baseUrl(baseUrl).build();
+        var reviewTransport = new org.springframework.http.client.SimpleClientHttpRequestFactory();
+        reviewTransport.setConnectTimeout(java.time.Duration.ofSeconds(3));
+        reviewTransport.setReadTimeout(java.time.Duration.ofSeconds(5));
+        this.reviewRest =
+                builder.clone().baseUrl(baseUrl).requestFactory(reviewTransport).build();
         this.codec = jwtCodec;
         this.serviceName = serviceName;
     }
@@ -115,5 +121,23 @@ public class AgentRunClient {
     /** The service token a dispatch presents. Minted per attempt by {@link #dispatch}. */
     public String mintDispatchToken(String merchantId, String customerId) {
         return codec.issueServiceToken(serviceName, merchantId, customerId, "run:dispatch", Instant.now());
+    }
+
+    public tools.jackson.databind.JsonNode reviewSources(CaseRow row, String runId) {
+        String token =
+                codec.issueServiceToken(serviceName, row.merchantId(), row.customerId(), "run:review", Instant.now());
+        try {
+            return reviewRest
+                    .get()
+                    .uri(builder -> builder.path("/internal/v1/runs/{run}/review-sources")
+                            .queryParam("case_id", row.caseId())
+                            .queryParam("input_revision", row.inputRevision())
+                            .build(runId))
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .retrieve()
+                    .body(tools.jackson.databind.JsonNode.class);
+        } catch (RuntimeException failure) {
+            throw new AgentUnavailableException("recorded investigation sources unavailable", failure);
+        }
     }
 }

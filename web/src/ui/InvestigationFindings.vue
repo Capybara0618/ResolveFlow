@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CaseSnapshot } from '../client'
-const props = defineProps<{ snapshot: CaseSnapshot }>()
+import type { CaseSnapshot, InvestigationObservation } from '../client'
+const props = defineProps<{ snapshot: CaseSnapshot; observations?: InvestigationObservation[] }>()
 type Finding = { kind: 'FACT' | 'INFERENCE' | 'CONFLICT'; text: string; observation_ids: string[] }
 const labels = { FACT: '来源陈述 · Agent 整理', INFERENCE: '模型判断', CONFLICT: '信息冲突' }
 const findings = computed(() => {
@@ -20,6 +20,10 @@ function source(id: string) {
     verification: material.verification_result, available: true }
   const refs = props.snapshot.proposal?.evidence_refs
   const citation = Array.isArray(refs) ? refs.find(item => item?.observation_id === id) : null
+  const recorded = props.observations?.find(item => item.observation_id === id && item.result !== null && !item.body_omitted && !item.error_code
+    && item.source_ref === citation?.source_ref && item.source_version === citation?.source_version && item.content_hash === citation?.content_hash)
+  if (recorded) return { text: JSON.stringify(recorded.result, null, 2), ref: recorded.source_ref,
+    version: recorded.source_version, available: true, verification: undefined }
   return { text: '此观察的原始正文尚未提供给审核页面，请勿仅凭摘要认定事实。', ref: citation?.source_ref,
     version: citation?.source_version, available: false, verification: undefined }
 }

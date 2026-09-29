@@ -9,6 +9,7 @@
 | `expected.json` | 冻结的期望值：由 `scripts/contracts_core_freeze.py` 从 `valid.json` 重算生成，Java 与 Python 各自复现它 |
 | `reviewer-context.json` | 审核工作台上下文接口示例 |
 | `reviewer-findings.json` | 合成的来源陈述、判断及冲突示例；Python校验契约、Java共享类型校验往返 |
+| `reviewer-investigation.json` | 审核员原始工具记录投影；内部Agent和公开Case协议共同验证 |
 
 ## 语料结构
 

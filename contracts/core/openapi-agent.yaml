@@ -32,6 +32,45 @@ tags:
   - name: observations
     description: The tool records Java re-reads to verify an Agent citation.
 paths:
+  /internal/v1/runs/{run_id}/review-sources:
+    get:
+      operationId: readReviewerSources
+      summary: Read persisted investigation tool results without running tools or models
+      description: Requires case-service subject and run:review scope, merchant/customer
+        claims and exact case/revision match. Returns at most 40 saved observations.
+        Bodies over 32768 UTF-8 bytes are omitted explicitly.
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: case_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: input_revision
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Read-only recorded sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewerSources'
+        '401':
+          description: Authentication required
+        '403':
+          description: Wrong identity or scope
+        '404':
+          description: Subject binding not visible
   /health:
     get:
       tags: [runs]
@@ -308,6 +347,70 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    ReviewerSources:
+      type: object
+      additionalProperties: false
+      required:
+      - run_id
+      - case_id
+      - input_revision
+      - status
+      - model_provider
+      - model_id
+      - truncated
+      - observations
+      properties:
+        run_id:
+          type: string
+        case_id:
+          type: string
+        input_revision:
+          type: integer
+          minimum: 1
+        status:
+          type: string
+        model_provider: &id001
+          type:
+          - string
+          - 'null'
+        model_id: *id001
+        truncated:
+          type: boolean
+        observations:
+          type: array
+          maxItems: 40
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - observation_id
+            - tool_name
+            - source_type
+            - source_ref
+            - source_version
+            - content_hash
+            - observed_at
+            - error_code
+            - call_id
+            - result
+            - body_omitted
+            properties:
+              observation_id: *id001
+              tool_name: *id001
+              source_type: *id001
+              source_ref: *id001
+              source_version: *id001
+              content_hash: *id001
+              observed_at: *id001
+              error_code: *id001
+              call_id:
+                type: string
+              result:
+                type:
+                - object
+                - 'null'
+              body_omitted:
+                type: boolean
     Uuid:
       type: string
       pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'

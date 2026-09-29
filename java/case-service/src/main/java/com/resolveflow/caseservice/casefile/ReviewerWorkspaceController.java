@@ -13,10 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewerWorkspaceController {
     private final ReviewerWorkspaceService workspace;
     private final RequestPrincipalResolver principals;
+    private final ReviewerInvestigationService investigations;
 
-    public ReviewerWorkspaceController(ReviewerWorkspaceService workspace, RequestPrincipalResolver principals) {
+    public ReviewerWorkspaceController(
+            ReviewerWorkspaceService workspace,
+            RequestPrincipalResolver principals,
+            ReviewerInvestigationService investigations) {
         this.workspace = workspace;
         this.principals = principals;
+        this.investigations = investigations;
+    }
+
+    @GetMapping("/api/v1/cases/{case_id}/investigation")
+    public ReviewerInvestigationService.View investigation(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable("case_id") String caseId) {
+        return investigations.read(principals.resolve(authorization), caseId);
     }
 
     @GetMapping("/api/v1/cases/{case_id}/review-context")

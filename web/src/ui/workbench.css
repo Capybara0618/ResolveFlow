@@ -54,6 +54,7 @@
 .queue-row small { display: flex; align-items: center; gap: 6px; color: #8190a8; font-size: 11px; margin-top: 9px; }
 .status-tag { display: inline-flex; align-items: center; padding: 2px 8px; border: 1px solid #e1e9f5; border-radius: 5px; color: #5b7196; background: #f2f6fc; font-size: 12px; white-space: nowrap; font-weight: 500; }
 .status-tag.waiting { color: #eb4064; border-color: #ffd4de; background: #fff0f4; }
+.status-tag.success { color: #218057; border-color: #c5ebd7; background: #ecfaf3; }
 .list-actions { display: flex; justify-content: space-between; align-items: center; margin: 13px 8px; }
 .reviewer-columns > .case-panel { position: relative; min-height: calc(100dvh - 52px); padding: 16px 20px 0; border-width: 0 1px 0 0; border-radius: 0; }
 .case-heading { justify-content: flex-start; gap: 14px; }.case-heading h2 { font-size: 22px; letter-spacing: -.5px; }
