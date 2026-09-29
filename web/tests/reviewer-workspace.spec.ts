@@ -13,19 +13,20 @@ const context: ReviewContext = {
   policy_status: 'PINNED', policy_rules: [{ bundle_id: 'policy-1', version: '2026.09', rule_id: 'lost',
     title: '物流丢失退款', text: '必须确认丢失；签收争议需人工判断。', chunk_id: 'chunk-1', content_hash: 'b'.repeat(64) }],
 }
+const mountWorkspace = (overrides: Partial<InstanceType<typeof ReviewerWorkspace>['$props']> = {}) =>
+  mount(ReviewerWorkspace, { props: { token: 't', snapshot, busy: false, context, ...overrides } })
+
 afterEach(() => vi.restoreAllMocks())
 describe('reviewer handoff', () => {
   it('requires explicit evidence and policy selection and submits the version the reviewer read', async () => {
-    vi.spyOn(coreApi, 'reviewContext').mockResolvedValue(context)
     const submit = vi.spyOn(coreApi, 'reviewerAction').mockResolvedValue(snapshot)
-    const wrapper = mount(ReviewerWorkspace, { props: { token: 't', snapshot, busy: false } })
+    const wrapper = mountWorkspace()
     await flushPromises()
     expect(wrapper.text()).toContain('签收争议需人工判断')
     await wrapper.get('[data-test="manual-proposal"]').trigger('click')
     expect(wrapper.get('[data-test="submit-handoff"]').attributes('disabled')).toBeDefined()
     await wrapper.get('textarea').setValue('结合材料与条款申请全额退款')
     for (const input of wrapper.findAll('input[type="checkbox"]')) await input.setValue(true)
-    vi.mocked(coreApi.reviewContext).mockResolvedValue({ ...context, case_version: 8 })
     await wrapper.setProps({ snapshot: { ...snapshot, case: { ...snapshot.case, version: 8 } } })
     await flushPromises()
     await wrapper.get('[data-test="submit-handoff"]').trigger('click')
@@ -40,9 +41,8 @@ describe('reviewer handoff', () => {
     wrapper.unmount()
   })
   it('refreshes after a conflicting decision without keeping an old form open', async () => {
-    vi.spyOn(coreApi, 'reviewContext').mockResolvedValue(context)
     vi.spyOn(coreApi, 'reviewerAction').mockRejectedValue(new ApiError(409, 'CONFLICT', 'stale'))
-    const wrapper = mount(ReviewerWorkspace, { props: { token: 't', snapshot, busy: false } })
+    const wrapper = mountWorkspace()
     await flushPromises()
     await wrapper.get('[data-test="handoff-reject"]').trigger('click')
     await wrapper.get('textarea').setValue('材料不支持退款')
@@ -54,8 +54,7 @@ describe('reviewer handoff', () => {
     wrapper.unmount()
   })
   it('shows a frozen case as read-only with policy text still available', async () => {
-    vi.spyOn(coreApi, 'reviewContext').mockResolvedValue({ ...context, allowed_actions: [], blocked_reason: '退款授权已消费，输入已冻结' })
-    const wrapper = mount(ReviewerWorkspace, { props: { token: 't', snapshot, busy: false } })
+    const wrapper = mountWorkspace({ context: { ...context, allowed_actions: [], blocked_reason: '退款授权已消费，输入已冻结' } })
     await flushPromises()
     expect(wrapper.find('[data-test="manual-proposal"]').exists()).toBe(false)
     expect(wrapper.find('[data-test="handoff-reject"]').exists()).toBe(false)
@@ -63,27 +62,82 @@ describe('reviewer handoff', () => {
     expect(wrapper.text()).toContain('物流丢失退款')
     wrapper.unmount()
   })
-  it('does not enable actions when context is from a different version', async () => {
-    vi.spyOn(coreApi, 'reviewContext').mockResolvedValue({ ...context, case_version: 8 })
-    const wrapper = mount(ReviewerWorkspace, { props: { token: 't', snapshot, busy: false } })
+  it('does not enable actions when the parent could not load a context for this version', async () => {
+    const wrapper = mountWorkspace({ context: null, contextError: '工单已变化，请刷新后查看当前操作。' })
     await flushPromises()
     expect(wrapper.find('[data-test="manual-proposal"]').exists()).toBe(false)
     expect(wrapper.text()).toContain('工单已变化')
     wrapper.unmount()
   })
   it('marks the old proposal stale and states the next step after evidence advances the revision', async () => {
-    vi.spyOn(coreApi, 'reviewContext').mockResolvedValue({ ...context, case_version: 8, input_revision: 3 })
     const revised: CaseSnapshot = {
       ...snapshot,
       case: { ...snapshot.case, status: 'QUEUED', input_revision: 3, version: 8 },
       proposal: { input_revision: 2, status: 'STALE', origin: 'AGENT' },
     }
-    const wrapper = mount(ReviewerWorkspace, { props: { token: 't', snapshot: revised, busy: false } })
+    const wrapper = mountWorkspace({ snapshot: revised, context: { ...context, case_version: 8, input_revision: 3 } })
     await flushPromises()
     const progress = wrapper.get('[data-test="revision-progress"]')
     expect(progress.text()).toContain('旧版建议（第 2 版）已失效')
     expect(progress.text()).toContain('第 3 版')
     expect(progress.text()).toContain('新调查已排队')
+    wrapper.unmount()
+  })
+})
+
+describe('bound policy clauses', () => {
+  const rules: ReviewContext['policy_rules'] = [
+    { bundle_id: 'policy-logistics-2026.09', version: '2026.09', rule_id: 'R-LOST-001', title: '承运商判定丢失',
+      text: '承运商结论为 LOST 且无有效签收记录时，可按该订单行支付金额全额退款。', chunk_id: 'c-01', content_hash: 'c'.repeat(64) },
+    { bundle_id: 'policy-logistics-2026.09', version: '2026.09', rule_id: 'R-LOST-EXC-001', title: '丢失规则的例外：高价值行',
+      text: '例外：本规则不适用于支付金额超过 500000 分的订单行，此类行即使结论为 LOST 也不得自动退款，必须转人工。',
+      chunk_id: 'c-07', content_hash: 'd'.repeat(64) },
+  ]
+
+  it('separates the stored clause, the model reading and the service re-check', async () => {
+    const withProposal: CaseSnapshot = {
+      ...snapshot,
+      proposal: { origin: 'AGENT', status: 'VALIDATED', input_revision: 2, summary: '合成物流显示已丢失，建议全行退款。' },
+    }
+    const wrapper = mountWorkspace({ snapshot: withProposal, context: { ...context, policy_rules: rules } })
+    await flushPromises()
+    expect(wrapper.get('[data-test="agent-reading"]').text()).toContain('合成物流显示已丢失')
+    expect(wrapper.text()).toContain('① 原始条款（权威文本）')
+    expect(wrapper.text()).toContain('② Agent 解释与适用判断')
+    expect(wrapper.text()).toContain('③ 服务端复核结果')
+    expect(wrapper.get('[data-test="server-recheck"]').text()).toContain('VALIDATED')
+    expect(wrapper.text()).toContain('本页不计算退款资格')
+    wrapper.unmount()
+  })
+
+  it('marks the sentences that carry limiting phrasing in the stored text only', async () => {
+    const wrapper = mountWorkspace({ context: { ...context, policy_rules: rules } })
+    await flushPromises()
+    const marked = wrapper.findAll('[data-limiting="true"]')
+    expect(marked).toHaveLength(1)
+    expect(marked[0].text()).toContain('不得自动退款')
+    expect(marked[0].text()).toContain('必须转人工')
+    expect(wrapper.text()).toContain('已按原文标出；是否适用由人判断')
+    wrapper.unmount()
+  })
+
+  it('marks the clause a proposal cites and opens it when a citation asks for it', async () => {
+    const cited: CaseSnapshot = {
+      ...snapshot,
+      proposal: {
+        origin: 'AGENT', status: 'VALIDATED', input_revision: 2,
+        policy_refs: [{ bundle_id: 'policy-logistics-2026.09', version: '2026.09', rule_id: 'R-LOST-EXC-001',
+          chunk_id: 'c-07', content_hash: 'd'.repeat(64) }],
+      },
+    }
+    const wrapper = mountWorkspace({ snapshot: cited, context: { ...context, policy_rules: rules } })
+    await flushPromises()
+    const citedTags = wrapper.findAll('[data-test="policy-cited"]')
+    expect(citedTags).toHaveLength(1)
+    expect(citedTags[0].element.closest('[data-test="bound-policy"]')?.textContent).toContain('丢失规则的例外')
+    await wrapper.setProps({ focusKey: `policy-logistics-2026.09\u00002026.09\u0000R-LOST-EXC-001\u0000c-07\u0000${'d'.repeat(64)}`, focusNonce: 1 })
+    await flushPromises()
+    expect(wrapper.get('.bound-policies').attributes('open')).toBeDefined()
     wrapper.unmount()
   })
 })

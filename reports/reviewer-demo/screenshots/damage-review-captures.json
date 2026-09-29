@@ -1,0 +1,20 @@
+{
+  "proxy": "http://127.0.0.1:8180",
+  "port": 5174,
+  "label": "damage-review",
+  "captures": [
+    {
+      "file": "damage-review-1680x960.png",
+      "viewport": "1680x960",
+      "scrollWidth": 1680,
+      "clientWidth": 1680,
+      "scrollHeight": 960,
+      "title": "ResolveFlow 工单工作台",
+      "status": "待人工审核",
+      "agent": "客户主张到货破损，但材料里没有任何人工核验结论；按破损条款要求先补齐可核验的破损证据，不把客户描述写成已验证事实。",
+      "horizontal_overflow": false
+    }
+  ],
+  "case_id": "cc5f5a15-631c-4b86-b115-24e39381e2e8",
+  "clicked": []
+}

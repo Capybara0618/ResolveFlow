@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from 'vue'
-import { ApiError, coreApi, type CaseSnapshot, type LoginResponse, type OrderLine, type ReviewItem } from './client'
+import { ApiError, coreApi, type CaseSnapshot, type LoginResponse, type OrderLine, type ReviewContext, type ReviewItem } from './client'
 import { watchCaseEvents } from './events'
 import { formatMinorUnits } from './money'
 import Icon from './ui/ReviewIcon.vue'
 import ReviewDialog from './ui/ReviewDialog.vue'
 import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
 import InvestigationSources from './ui/InvestigationSources.vue'
+import PolicyCitations from './ui/PolicyCitations.vue'
 import './ui/workbench.css'
 
 const username = ref('')
@@ -33,6 +34,13 @@ const decisionReason = ref('')
 type ReviewDecision = 'APPROVE' | 'REJECT' | 'REQUEST_INFO'
 const reviewDecision = ref<ReviewDecision | null>(null)
 const reviewTarget = ref<CaseSnapshot | null>(null)
+/** The review context, loaded once per case and shared with everything that reads it. */
+const reviewContext = ref<ReviewContext | null>(null)
+const reviewContextLoading = ref(false)
+const reviewContextError = ref('')
+/** The clause a citation asked to open, plus a nonce so the same clause can be re-opened. */
+const focusedPolicy = ref<string | null>(null)
+const focusNonce = ref(0)
 const queryOpen = ref(false)
 const decisionLabels = { APPROVE: '批准退款授权', REJECT: '拒绝退款申请', REQUEST_INFO: '要求补充信息' }
 function beginReview(decision: ReviewDecision) {
@@ -105,15 +113,45 @@ function validatedRefundAmount(proposal?: Record<string, unknown>) {
   return proposal?.status === 'VALIDATED' && typeof amount === 'number' && Number.isSafeInteger(amount) && amount > 0
     ? amount : null
 }
-function proposalCitations(proposal: Record<string, unknown>) {
-  const evidence = Array.isArray(proposal.evidence_refs) ? proposal.evidence_refs : []
-  const policies = Array.isArray(proposal.policy_refs) ? proposal.policy_refs : []
-  return [
-    ...evidence.filter((ref): ref is Record<string, unknown> => !!ref && typeof ref === 'object')
-      .map(ref => ({ kind: '证据', detail: String(ref.source_ref ?? ref.observation_id ?? '未提供引用') })),
-    ...policies.filter((ref): ref is Record<string, unknown> => !!ref && typeof ref === 'object')
-      .map(ref => ({ kind: '政策', detail: `${String(ref.bundle_id ?? '未知政策')} · ${String(ref.rule_id ?? '未知条款')} · v${String(ref.version ?? '?')}` })),
-  ]
+const proposalEvidenceRefs = computed(() => {
+  const refs = snapshot.value?.proposal?.evidence_refs
+  return Array.isArray(refs) ? refs : []
+})
+const proposalPolicyRefs = computed(() => {
+  const refs = snapshot.value?.proposal?.policy_refs
+  return Array.isArray(refs) ? refs : []
+})
+const proposalCitationCount = computed(() => proposalEvidenceRefs.value.length + proposalPolicyRefs.value.length)
+/** Ask the bound-policy list to open the clause a citation named, on its full identity. */
+function focusPolicy(key: string) {
+  if (!key) return
+  focusedPolicy.value = key
+  focusNonce.value += 1
+}
+async function loadReviewContext(view: CaseSnapshot | null) {
+  reviewContext.value = null
+  reviewContextError.value = ''
+  if (!view || !isReviewer.value) return
+  const sessionToken = token()
+  const caseId = view.case.case_id
+  reviewContextLoading.value = true
+  try {
+    const result = await coreApi.reviewContext(sessionToken, caseId)
+    if (token() !== sessionToken || lookupId.value !== caseId) return
+    if (result.case_version !== view.case.version) {
+      // The context the reviewer would read belongs to a newer case version; enabling actions
+      // from it would submit against a page they never saw.
+      reviewContextError.value = '工单已变化，请刷新后查看当前操作。'
+      return
+    }
+    reviewContext.value = result
+  } catch (cause) {
+    if (token() === sessionToken && lookupId.value === caseId) {
+      reviewContextError.value = cause instanceof Error ? cause.message : '无法读取审核依据'
+    }
+  } finally {
+    if (token() === sessionToken && lookupId.value === caseId) reviewContextLoading.value = false
+  }
 }
 function headline(value?: string) {
   const text = value?.trim().replace(/\s+/g, ' ') || '退款申请'
@@ -192,6 +230,7 @@ async function openCase(caseId: string) {
   const current = await coreApi.case(sessionToken, requestedId)
   if (token() !== sessionToken || lookupId.value !== requestedId) return
   snapshot.value = current
+  void loadReviewContext(current)
   if (current.case.order_id) {
     orderContextState.value = 'loading'
     void loadOrderContext(current, sessionToken)
@@ -278,7 +317,11 @@ function review(decision: ReviewDecision) {
 }
 async function refreshWorkspace() {
   if (!snapshot.value) return
-  await act(async () => { await refreshCase(snapshot.value!.case.case_id); await loadReviewQueue() })
+  await act(async () => {
+    await refreshCase(snapshot.value!.case.case_id)
+    await loadReviewContext(snapshot.value)
+    await loadReviewQueue()
+  })
 }
 onUnmounted(stopStream)
 </script>
@@ -287,7 +330,7 @@ onUnmounted(stopStream)
   <div class="workbench">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
-      <span class="demo-tag">本地演示 · 模拟退款</span>
+      <span class="demo-tag">本地演示 · 合成数据 · mock 决策 · 模拟退款</span>
       <div v-if="account" class="session"><span class="avatar">{{ isReviewer ? '审' : '客' }}</span><span class="session-copy"><strong>{{ isReviewer ? '售后审核员' : '客户工作台' }}</strong><small>{{ account.merchant_id }}</small></span>
         <button type="button" class="text-button logout-button" @click="logout">退出<Icon name="arrow" :size="15" /></button></div>
     </header>
@@ -359,7 +402,7 @@ onUnmounted(stopStream)
               </section>
               <div class="analysis-grid" :class="{ 'without-proposal': !snapshot.proposal }">
                 <section v-if="snapshot.proposal" class="detail-section proposal"><h3>{{ proposalSourceLabel(snapshot.proposal) }}<span class="advice-label">{{ proposalRevisionLabel(snapshot.proposal) || '调查结论' }}</span></h3><div class="recommendation"><span class="recommendation-icon"><Icon name="sparkle" :size="21" /></span><strong>{{ proposalAction(snapshot.proposal) }}</strong></div><p v-if="typeof snapshot.proposal.summary === 'string'" class="proposal-summary">{{ snapshot.proposal.summary }}</p>
-                  <div v-if="proposalCitations(snapshot.proposal).length" class="citation-list"><strong>引用的政策与证据</strong><div v-for="(citation, index) in proposalCitations(snapshot.proposal).slice(0, 3)" :key="index"><Icon :name="citation.kind === '政策' ? 'file' : 'shield'" :size="15" /><span>{{ citation.kind }}</span><span class="citation-text" :title="citation.detail">{{ citation.detail }}</span></div></div><details class="proposal-details"><summary>查看完整方案与全部引用</summary><pre>{{ JSON.stringify(snapshot.proposal, null, 2) }}</pre></details><small>建议供审核参考，批准授权后进入模拟退款执行。</small>
+                  <PolicyCitations v-if="proposalCitationCount" :evidence-refs="proposalEvidenceRefs" :policy-refs="proposalPolicyRefs" :policy-rules="reviewContext?.policy_rules ?? []" :policy-status="reviewContext?.policy_status ?? null" @focus="focusPolicy" /><details class="proposal-details"><summary>查看完整方案与全部引用</summary><pre>{{ JSON.stringify(snapshot.proposal, null, 2) }}</pre></details><small>建议供审核参考，批准授权后进入模拟退款执行。</small>
                 </section>
                 <section class="detail-section timeline-section"><h3>工单轨迹</h3><p v-if="snapshot.timeline.length === 0" class="empty">暂无轨迹事件</p><ol v-else class="timeline"><li v-for="event in snapshot.timeline.slice(-4)" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong></li></ol><details v-if="snapshot.timeline.length" class="timeline-more"><summary>查看全部 {{ snapshot.timeline.length }} 条事件</summary><ol class="timeline"><li v-for="event in snapshot.timeline" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong><p>{{ event.summary }}</p></li></ol></details></section>
               </div>
@@ -367,7 +410,7 @@ onUnmounted(stopStream)
               <section v-if="isCustomer && !['EXECUTING', 'RECONCILING', 'CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(snapshot.case.status)" class="detail-section"><h3>补充材料</h3><label>问题 ID（若在回答追问） <input v-model="questionId" /></label><label>材料文本 <textarea v-model="evidenceText" rows="3" /></label><button data-test="append-evidence" type="button" :disabled="busy" @click="appendEvidence">提交材料</button></section>
               <section v-if="isReviewer && snapshot.authorization?.status === 'PENDING_REVIEW'" class="detail-section review-section"><div class="section-heading"><h3>审核决策</h3><span class="subtle">批准授权后仍需等待独立的退款执行结果</span></div><div class="actions"><button data-test="approve" type="button" :disabled="busy" @click="beginReview('APPROVE')"><Icon name="check" :size="19" />批准授权</button><button type="button" class="secondary-button" :disabled="busy" @click="beginReview('REQUEST_INFO')"><Icon name="file" :size="17" />请求补证</button><button type="button" class="danger-button" :disabled="busy" @click="beginReview('REJECT')"><Icon name="close" :size="19" />拒绝</button></div></section>
               <section v-else-if="isReviewer && snapshot.case.status === 'PENDING_REVIEW'" class="detail-section review-unavailable" aria-label="审核暂不可用"><Icon name="shield" :size="22" /><div><h3>暂无可审核授权</h3><p v-if="snapshot.authorization">当前授权{{ authorizationStatusLabel(snapshot.authorization.status) }}，不能再次审核；请核对工单轨迹与当前结果。</p><p v-else>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p></div></section>
-              <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" @changed="refreshWorkspace" @working="busy = $event" />
+              <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" />
             </template>
           </section>
           <aside class="context-column" aria-label="工单上下文">
