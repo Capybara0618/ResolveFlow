@@ -29,6 +29,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from resolveflow import __version__
+from resolveflow.contracts.reviewer_input import ReviewerInput
 from resolveflow.api.identity import (
     CASE_SERVICE,
     ISSUER,
@@ -115,6 +116,7 @@ class RunRequestPayloadShape(BaseModel):
     description: str = Field(min_length=1, max_length=4000)
     requested_actions: list[str] = Field(min_length=1, max_length=3)
     evidence_refs: list[str] = Field(default_factory=list, max_length=64)
+    review_context: ReviewerInput | None = None
 
 
 class PolicyManifestShape(BaseModel):
@@ -717,6 +719,7 @@ def _as_store_request(body: RunRequestShape) -> RunRequest:
         description=body.request.description,
         requested_actions=tuple(body.request.requested_actions),
         evidence_refs=tuple(body.request.evidence_refs),
+        review_context=body.request.review_context.snapshot() if body.request.review_context is not None else {},
         policy_manifest={
             "merchant_id": body.policy_manifest.merchant_id,
             "bundle_ids": list(body.policy_manifest.bundle_ids),

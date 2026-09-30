@@ -508,14 +508,13 @@
         "field"
       ],
       "observed": {
-        "status": "PARTIAL",
+        "status": "FIXED_INPUT",
         "evidence": [
           "a question must name a field and a stable question_id, and at most three may be asked in one decision",
           "the case service owns the two-round, waiting and expiry rules, so an endless ask loop is bounded outside the Agent"
         ],
         "gap": [
-          "an answered question is not carried into the next run: the run request holds the case description, the requested actions and evidence ids, and the internal evidence route returns the four citation members without question_id, so a new run cannot tell which gap was already filled. Avoid re-asking is therefore not enforceable at the Agent level today.",
-          "fixing it needs a contract addition (the previous question and the customer's answer as provenance on the run request, or question_id on the evidence reference) with the core OpenAPI, the Java producer, the Python consumer, the fixtures and the request hash all synchronised. It is reported rather than half-done."
+          "2026-09-30: the input gap is fixed by optional request.review_context. Questions, answers linked by question_id, material identities and human verification are snapshotted, hashed, persisted and retained in the model's mandatory input layer. Citation identities remain unchanged. Live behaviour is verified separately."
         ]
       }
     }

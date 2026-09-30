@@ -103,7 +103,7 @@ class RunWorker:
             row = connection.execute(
                 """
                 SELECT run_id, case_id, input_revision, line_id, request_description, merchant_id, customer_id,
-                       policy_manifest, deadline_at, traceparent
+                       policy_manifest, review_context, deadline_at, traceparent
                 FROM agent_run
                 WHERE status = %(queued)s AND cancelled_at IS NULL
                 ORDER BY created_at
@@ -145,6 +145,7 @@ class RunWorker:
                 customer_id=row["customer_id"],
                 active_deadline_at=window.isoformat(),
                 policy_manifest=dict(row["policy_manifest"] or {}),
+                review_context=dict(row["review_context"] or {}),
             ),
             case_id=str(row["case_id"]),
             traceparent=row["traceparent"],

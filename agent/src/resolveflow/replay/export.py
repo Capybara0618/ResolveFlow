@@ -70,6 +70,7 @@ def export_run(database: Database, run_id: str, destination: Path) -> None:
             "description": run["request_description"], "merchant_id": run["merchant_id"],
             "customer_id": run["customer_id"], "active_deadline_at": run["active_deadline_at"].isoformat(),
             "policy_manifest": run["policy_manifest"],
+            **({"review_context": run["review_context"]} if run["review_context"] else {}),
         },
         "manifest": frozen["manifest"], "budget": frozen["budget"],
         "model_calls": [

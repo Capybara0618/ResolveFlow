@@ -413,24 +413,13 @@ def test_a_targeted_question_must_name_its_field_and_a_decision_may_not_ask_four
     assert len(rules["accepted"]["questions"]) <= rules["max_questions_per_decision"]
 
 
-def test_an_answered_question_is_not_carried_into_the_next_run_and_that_is_a_known_gap() -> None:
-    """A confirmed gap, pinned so that fixing it flips this test.
-
-    ``request.question_context`` does not exist, and the internal evidence route returns the four
-    citation members without ``question_id``, so a new run cannot tell which gap the customer has
-    already filled: "do not re-ask" is not enforceable at the Agent level today. The case service
-    still bounds the damage — two rounds, a waiting state and an expiry — so the failure mode is a
-    redundant question, not an endless one. The fix needs a contract addition with the OpenAPI, the
-    Java producer, the Python consumer and the fixtures synchronised together.
-    """
+def test_the_dispatch_can_carry_revision_bound_answers_without_changing_citation_identity() -> None:
+    """The diagnosed gap now has a bounded optional snapshot; integration tests assert the real packet."""
     case = CASES["targeted_question"]
-    assert case["observed"]["gap"], "the diagnostic case must keep recording this gap"
+    assert case["observed"]["status"] == "FIXED_INPUT"
 
     fields = {field.name for field in dataclass_fields(RunRequest)}
-    assert not any("question" in name for name in fields), (
-        "a question member now exists on the run request; update this diagnostic and the case's "
-        "observed.gap rather than deleting the check"
-    )
+    assert "review_context" in fields
     # What *does* travel, so the gap is stated precisely rather than as "no context at all".
     assert {"description", "requested_actions", "evidence_refs"} <= fields
 

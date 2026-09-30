@@ -106,6 +106,7 @@ class RunFacts:
     policy_manifest: dict[str, Any] = field(default_factory=dict)
     fence: int | None = None
     lease_owner: str | None = None
+    review_context: dict[str, Any] = field(default_factory=dict)
 
     def deadline(self) -> dt.datetime | None:
         """The window as an instant, tolerating the wire's ``Z``."""

@@ -33,10 +33,11 @@ import hashlib
 import json
 import re
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Final
 
 from resolveflow.runtime.db import Database, reuse_or_open
+from resolveflow.contracts.reviewer_input import ReviewerInput
 
 #: The run vocabulary, fixed by docs/agent-spec.md:9 and mirrored in
 #: ``contracts/core/openapi-agent.yaml``'s ``RunView.status``. ANALYZING is a *case* state and is
@@ -166,6 +167,7 @@ class RunRequest:
     policy_manifest: dict[str, Any]
     deadline_at: str
     traceparent: str | None = None
+    review_context: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         _require_uuid("run_id", self.run_id)
@@ -202,6 +204,12 @@ class RunRequest:
         _parse_instant(self.deadline_at)
         if self.traceparent is not None and not _TRACEPARENT_PATTERN.match(self.traceparent):
             raise RunRefusedError("traceparent is not a W3C traceparent")
+        if self.review_context:
+            snapshot = ReviewerInput.model_validate(self.review_context)
+            if any(item.input_revision > self.input_revision for item in [*snapshot.materials, *snapshot.questions]):
+                raise RunRefusedError("review_context must not include a future revision")
+            if any(item.evidence_id not in self.evidence_refs for item in snapshot.materials):
+                raise RunRefusedError("review_context materials must belong to this dispatch's evidence_refs")
 
     def _check_manifest(self) -> None:
         manifest = self.policy_manifest
@@ -256,6 +264,7 @@ class RunRequest:
                     "description": self.description,
                     "requested_actions": sorted(self.requested_actions),
                     "evidence_refs": sorted(self.evidence_refs),
+                    **({"review_context": self.review_context} if self.review_context else {}),
                 },
                 "policy_manifest": {
                     "merchant_id": self.policy_manifest["merchant_id"],
@@ -337,11 +346,11 @@ class RunStore:
                 INSERT INTO agent_run (
                     run_id, case_id, input_revision, merchant_id, customer_id, order_id, line_id,
                     request_hash, request_description, requested_actions, evidence_refs,
-                    policy_manifest, traceparent, status, version, deadline_at, created_at, updated_at
+                    policy_manifest, review_context, traceparent, status, version, deadline_at, created_at, updated_at
                 ) VALUES (
                     %(run_id)s, %(case_id)s, %(input_revision)s, %(merchant_id)s, %(customer_id)s,
                     %(order_id)s, %(line_id)s, %(request_hash)s, %(description)s, %(actions)s,
-                    %(evidence_refs)s, %(policy_manifest)s::jsonb, %(traceparent)s, %(status)s, 1,
+                    %(evidence_refs)s, %(policy_manifest)s::jsonb, %(review_context)s::jsonb, %(traceparent)s, %(status)s, 1,
                     %(deadline_at)s, %(now)s, %(now)s
                 )
                 """,
@@ -358,6 +367,7 @@ class RunStore:
                     "actions": list(request.requested_actions),
                     "evidence_refs": list(request.evidence_refs),
                     "policy_manifest": json.dumps(request.policy_manifest, sort_keys=True),
+                    "review_context": json.dumps(request.review_context, sort_keys=True, ensure_ascii=False),
                     "traceparent": request.traceparent,
                     "status": QUEUED,
                     "deadline_at": _parse_instant(request.deadline_at),

@@ -184,6 +184,9 @@ public class AgentRunDispatch {
                 "evidence_refs",
                 List.copyOf(evidence.findIdsAtRevision(
                         row.caseId(), binding.inputRevision(), CaseEvidenceService.MAX_RECORDS)));
+        Map<String, Object> reviewContext =
+                ReviewerRunInput.snapshot(cases, evidence, row.caseId(), binding.inputRevision());
+        if (!reviewContext.isEmpty()) request.put("review_context", reviewContext);
 
         Map<String, Object> policy = new LinkedHashMap<>();
         // The merchant is dispatched with the manifest because it is what the run filters retrieval by

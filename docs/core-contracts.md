@@ -113,3 +113,9 @@ FACT在审核界面标为“来源陈述 · Agent 整理”，不能覆盖原材
 内部 `GET /internal/v1/runs/{run_id}/review-sources?case_id=...&input_revision=...` 要求case-service身份、run:review scope、商户/客户claims，并与持久run的case/revision完全匹配。只读取agent_tool_call已保存结果，最多40条；单正文大于32768个UTF-8字节则省略并标记body_omitted，超出条数标记truncated。只输出来源/版本/hash/读取时间/结果/错误码和已保存模型提供方，不返回SDK对话、请求体、模型内部推理或服务凭证。不重新执行模型或工具，不修改原记录。
 
 Case复核响应的run/case/revision后白名单投影；读连接/响应超时分别为3秒/5秒。页面分项仅在观察ID、来源、版本和hash全匹配时关联工具正文，展示当时保存的结果，不追写当前业务值。当前无历史修订切换器；只有当前绑定的可用记录可展开。
+
+## 调查修订输入（2026-09-30增量）
+
+`RunRequest.request.review_context`是可选的Case快照，包含该工单在input_revision及之前的materials和最多两轮questions。材料保留来源/版本/hash、原文、question_id及人工核验结论；问题保留question_id/field/prompt与提问修订。客户陈述不成为已确认事实，人工核验只表示人已记录的结论。该快照不改变四项EvidenceRef身份，不代替工具观察、政策资格或资金授权。
+
+Agent拒绝未来修订或不在本次evidence_refs中的材料。非空快照纳入请求hash并持久化，恢复时使用原快照，修改同run输入返回409。旧请求未携带快照时保持原hash。模型P1保留此输入，不静默裁剪问答；必需输入超限明确转人工。核心OpenAPI定义界限，旧v1兼容模型保留原协议。
