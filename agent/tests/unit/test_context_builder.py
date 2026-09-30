@@ -259,8 +259,11 @@ def test_the_recent_observations_are_p3_and_the_earlier_ones_are_p4_index_entrie
     assert "【P3·observation:get_order_context】" in body
     assert "【P4·index:0】" in body
     assert "obs-0" in body, "the earlier observation is present as a reference"
-    # The oldest is *not* rendered as content: its index line is the only mention of it.
-    assert body.count("obs-0") == 1
+    # The oldest body is not repeated. Its protected citation and read-back index both survive.
+    assert body.count("obs-0") == 2
+    assert '"observation_id":"obs-0","source_ref":"order:0","source_version":"3"' in body
+    for section in body.split("【P3·")[1:]:
+        assert "obs-0" not in section.split("【P4·")[0]
     assert "obs-1" in packet.selected_refs and "index:obs-0" in packet.selected_refs
 
 

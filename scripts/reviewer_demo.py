@@ -1093,7 +1093,7 @@ def seed_line(settings: Settings, scenario: Scenario, index: int) -> str:
     order_id = str(uuid.uuid4())
     line_id = mint_line_id(settings, index)
     sku, category = mysql_rows("SELECT sku, category FROM commerce_db.order_line WHERE line_id = '7001'", settings)[0]
-    now = datetime.now(UTC).astimezone().strftime("%Y-%m-%d %H:%M:%S.%f")
+    now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S.%f")
     # The customer the seeded line belongs to matches the demo account that will open the case.
     customer_id = {
         "demo-customer": "C-2002",
@@ -1672,6 +1672,7 @@ def start_agent(settings: Settings, scenario: Scenario, script_path: Path, log: 
     decision while being a stale one.
     """
     stopped = stop_owned(settings, "agent-readonly", log=log)
+    stopped += stop_owned(settings, "agent-live", log=log)
     stopped += stop_owned(settings, "agent", log=log)
     if stopped:
         log.note("stopped the previous Agent: " + ", ".join(stopped))
@@ -1705,6 +1706,7 @@ def start_agent(settings: Settings, scenario: Scenario, script_path: Path, log: 
         "RESOLVEFLOW_MODEL_API_KEY",
         "RESOLVEFLOW_MODEL_PROVIDER",
         "RESOLVEFLOW_MODEL_CEILING_PARAMETER",
+        "RESOLVEFLOW_MODEL_CONTEXT_WINDOW_TOKENS",
     ):
         env.pop(name, None)
     start_process(
@@ -1742,17 +1744,20 @@ def agent_health(settings: Settings) -> bool:
     return status == 200 and isinstance(answer, dict) and answer.get("status") == "UP"
 
 
-def start_readonly_agent(settings: Settings, log: Log) -> None:
-    """Serve saved investigation records and the refund-provider stub without running Agent work.
+def start_readonly_agent(settings: Settings, log: Log, *, live: bool = False) -> None:
+    """Serve the browser API; explicitly opt into live investigation with the user's key.
 
-    The browser experience only reads decisions that the isolated demo already persisted. Keeping
-    the investigation loop disabled makes opening the page unable to consume queued runs or call a
-    model. Scenario runs replace this process explicitly before binding their own mock script.
+    The default only reads persisted records. Live mode uses the fixed official DeepSeek endpoint,
+    while scenario commands replace either process before binding their isolated mock script.
     """
-    if owns_port(settings, "agent-readonly", settings.ports["agent"]) and agent_health(settings):
-        log.step("read-only Agent API is already up under this driver", True, settings.agent_url)
+    process_name = "agent-live" if live else "agent-readonly"
+    if live and not os.environ.get("RESOLVEFLOW_MODEL_API_KEY"):
+        raise DemoRefused("DeepSeek key is missing; set Deepseek_API_KEY in your user environment and run demo.ps1 -Live")
+    if owns_port(settings, process_name, settings.ports["agent"]) and agent_health(settings):
+        log.step(f"{process_name} is already up under this driver", True, settings.agent_url)
         return
     stop_owned(settings, "agent-readonly", log=log)
+    stop_owned(settings, "agent-live", log=log)
     stopped = stop_owned(settings, "agent", log=log)
     if stopped:
         log.note("stopped the scenario Agent before entering browser experience mode: " + ", ".join(stopped))
@@ -1764,7 +1769,7 @@ def start_readonly_agent(settings: Settings, log: Log) -> None:
         RESOLVEFLOW_CASE_BASE_URL=settings.case_url,
         RESOLVEFLOW_COMMERCE_BASE_URL=settings.commerce_url,
         RESOLVEFLOW_PROVIDER_DB=str(provider_db),
-        RESOLVEFLOW_INVESTIGATION_ENABLED="0",
+        RESOLVEFLOW_INVESTIGATION_ENABLED="1" if live else "0",
         RESOLVEFLOW_LAB_ROUTES="1",
     )
     for name in (
@@ -1775,11 +1780,23 @@ def start_readonly_agent(settings: Settings, log: Log) -> None:
         "RESOLVEFLOW_MODEL_API_KEY",
         "RESOLVEFLOW_MODEL_PROVIDER",
         "RESOLVEFLOW_MODEL_CEILING_PARAMETER",
+        "RESOLVEFLOW_MODEL_CONTEXT_WINDOW_TOKENS",
     ):
         env.pop(name, None)
+    if live:
+        env.update(
+            RESOLVEFLOW_MODEL_MODE="live",
+            RESOLVEFLOW_MODEL_PROVIDER="deepseek",
+            RESOLVEFLOW_MODEL_ENDPOINT="https://api.deepseek.com/chat/completions",
+            RESOLVEFLOW_MODEL_ID="deepseek-flash",
+            RESOLVEFLOW_MODEL_CONTEXT_WINDOW_TOKENS="32768",
+            RESOLVEFLOW_MODEL_API_KEY=os.environ["RESOLVEFLOW_MODEL_API_KEY"],
+            RESOLVEFLOW_POLICY_INDEX="1",
+            RESOLVEFLOW_EMBEDDING_PATH=str(EMBEDDING_PATH),
+        )
     start_process(
         settings,
-        "agent-readonly",
+        process_name,
         [
             str(AGENT_PYTHON),
             "-m",
@@ -1795,12 +1812,12 @@ def start_readonly_agent(settings: Settings, log: Log) -> None:
         env,
         settings.ports["agent"],
     )
-    ready = wait_for("read-only Agent API", lambda: agent_health(settings), timeout=180.0)
-    log.step("read-only Agent API is healthy", ready, settings.agent_url)
+    ready = wait_for(process_name, lambda: agent_health(settings), timeout=180.0)
+    log.step(f"{process_name} is healthy", ready, settings.agent_url)
     if ready:
-        record_port_owner(settings, "agent-readonly")
+        record_port_owner(settings, process_name)
     else:
-        raise DemoRefused("the read-only Agent API never became healthy; check its process log")
+        raise DemoRefused(f"{process_name} never became healthy; check its process log")
 
 
 def frontend_health(settings: Settings) -> bool:
@@ -2043,6 +2060,8 @@ def run_scenario(settings: Settings, log: Log, scenario_name: str, *, index: int
         # The Agent is stopped before the case exists, so it cannot answer this run with the
         # previous scenario's script.
         stop_owned(settings, "agent")
+        stop_owned(settings, "agent-readonly")
+        stop_owned(settings, "agent-live")
 
         customer = login(settings, scenario.customer_username, scenario.customer_password)
         try:
@@ -2287,7 +2306,7 @@ def stage_ready(settings: Settings) -> bool:
         return False
 
 
-def command_start(settings: Settings, log: Log, *, build: bool, open_browser: bool) -> int:
+def command_start(settings: Settings, log: Log, *, build: bool, open_browser: bool, live: bool = False) -> int:
     """Bring up the complete browser experience and return once it is ready."""
     guard(settings)
     if stage_ready(settings):
@@ -2296,7 +2315,7 @@ def command_start(settings: Settings, log: Log, *, build: bool, open_browser: bo
         command_prepare(settings, log, build=build)
 
     log.section("browser experience")
-    start_readonly_agent(settings, log)
+    start_readonly_agent(settings, log, live=live)
     start_frontend(settings, log)
     if open_browser:
         opened = webbrowser.open(settings.frontend_url, new=2)
@@ -2723,6 +2742,7 @@ def main(argv: list[str] | None = None) -> int:
 
     starter = sub.add_parser("start", help="start backend, read-only Agent API and desktop page")
     starter.add_argument("--no-browser", action="store_true", help="start everything without opening a browser")
+    starter.add_argument("--live", action="store_true", help="enable DeepSeek V4.1 Flash investigations (uses API credits)")
     sub.add_parser("prepare", help="bring up the demo stage and build the demo policy index")
     verify = sub.add_parser("verify", help="read-only checks of isolation and sample state")
     status = sub.add_parser("status", help="read-only view of the manifest and the demo processes")
@@ -2766,7 +2786,7 @@ def main(argv: list[str] | None = None) -> int:
     log = Log(log_path(settings, args.command), title=f"reviewer demo · {args.command} · {settings.dataset}")
     try:
         if args.command == "start":
-            code = command_start(settings, log, build=not args.skip_build, open_browser=not args.no_browser)
+            code = command_start(settings, log, build=not args.skip_build, open_browser=not args.no_browser, live=args.live)
         elif args.command == "prepare":
             code = command_prepare(settings, log, build=not args.skip_build)
         elif args.command == "verify":

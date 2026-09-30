@@ -8,6 +8,41 @@ vi.mock('../src/events', () => ({ watchCaseEvents: vi.fn().mockResolvedValue(und
 afterEach(() => vi.unstubAllGlobals())
 
 describe('core workbench', () => {
+  it('refreshes reviewer permissions and execution details when SSE advances the case', async () => {
+    let version = 1
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      let body: unknown
+      if (url.endsWith('/auth/login')) body = { access_token: 't', role: 'REVIEWER', merchant_id: 'M-1' }
+      else if (url.startsWith('/api/v1/review/cases')) body = { items: [{ case_id: 'case-sse', line_id: 'l' }], page: {} }
+      else if (url === '/api/v1/cases/case-sse') body = {
+        case: { case_id: 'case-sse', line_id: 'l', input_revision: 1, version,
+          status: version === 1 ? 'PENDING_REVIEW' : 'CLOSED_SUCCESS' }, evidence: [], timeline: [],
+      }
+      else if (url.endsWith('/review-context')) body = {
+        case_version: version, input_revision: 1, allowed_actions: version === 1 ? ['MANUAL_PROPOSAL'] : [],
+        blocked_reason: version === 1 ? '' : '工单已结束，仅可查看记录', policy_rules: [], policy_status: 'PINNED',
+        execution: { case_status: version === 1 ? 'PENDING_REVIEW' : 'CLOSED_SUCCESS', operation_id: 'op',
+          outcome: version === 1 ? null : 'SUCCEEDED', amount_minor: 32900, reason_code: null },
+      }
+      else if (url.endsWith('/investigation')) body = { case_id: 'case-sse', input_revision: 1, availability: 'NOT_SCHEDULED' }
+      else throw new Error(`Unexpected URL ${url}`)
+      return Promise.resolve(new Response(JSON.stringify(body)))
+    }))
+    const wrapper = mount(App)
+    await wrapper.get('[name="username"]').setValue('reviewer')
+    await wrapper.get('[name="password"]').setValue('password')
+    await wrapper.get('.login-panel').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('[data-test="manual-proposal"]').exists()).toBe(true)
+    version = 2
+    vi.mocked(watchCaseEvents).mock.calls.at(-1)![2]({ id: 'event-final', event: 'case.updated', data: '{}' })
+    await flushPromises()
+    expect(wrapper.find('[data-test="manual-proposal"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('工单已结束，仅可查看记录')
+    expect(wrapper.find('[aria-label="退款执行结果"]').text()).toContain('模拟退款成功')
+    wrapper.unmount()
+  })
+
   it('separates a reviewer queue, case detail, and server-backed context without inventing customer data', async () => {
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({

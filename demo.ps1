@@ -3,7 +3,8 @@ param(
     [ValidateSet('start', 'stop', 'status', 'verify')]
     [string]$Command = 'start',
     [switch]$SkipBuild,
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+    [switch]$Live
 )
 
 $repoRoot = $PSScriptRoot
@@ -20,6 +21,17 @@ $driverArgs += $Command
 if ($Command -eq 'start' -and $NoBrowser) {
     $driverArgs += '--no-browser'
 }
+if ($Live -and $Command -ne 'start') {
+    throw '-Live is supported only with start.'
+}
+$previousKey = $env:RESOLVEFLOW_MODEL_API_KEY
+if ($Live) {
+    $deepseekKey = [Environment]::GetEnvironmentVariable('Deepseek_API_KEY', 'User')
+    if (-not $deepseekKey) { $deepseekKey = $env:Deepseek_API_KEY }
+    if (-not $deepseekKey) { throw 'Missing Deepseek_API_KEY in the user environment.' }
+    $env:RESOLVEFLOW_MODEL_API_KEY = $deepseekKey
+    $driverArgs += '--live'
+}
 
 Push-Location $repoRoot
 try {
@@ -27,6 +39,7 @@ try {
     $exitCode = $LASTEXITCODE
 }
 finally {
+    $env:RESOLVEFLOW_MODEL_API_KEY = $previousKey
     Pop-Location
 }
 exit $exitCode

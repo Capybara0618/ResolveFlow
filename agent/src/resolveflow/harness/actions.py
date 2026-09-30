@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any, Final, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from resolveflow.contracts.core_models import CoreEvidenceRef, CorePolicyRef, ReviewerFinding, validate_finding_sources
 from resolveflow.contracts.enums import CaseType
@@ -282,6 +282,14 @@ def validate_decision(raw: dict[str, Any]) -> ModelDecision:
     """
     try:
         decision = ModelDecision.model_validate(raw)
+    except ValidationError as refusal:
+        # A repair needs field names and constraints, not Pydantic's echoed model payload.
+        # Keep the mandatory repair notice bounded so a large proposal cannot crowd it out.
+        details = "; ".join(
+            (".".join(str(part) for part in error["loc"]) + ": " + error["msg"])[:160]
+            for error in refusal.errors(include_input=False, include_url=False)[:4]
+        )
+        raise ActionRefusedError(f"the model's action is not one this ABI accepts: {details}") from refusal
     except Exception as refusal:
         raise ActionRefusedError(f"the model's action is not one this ABI accepts: {refusal}") from refusal
 

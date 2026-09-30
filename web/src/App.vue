@@ -35,10 +35,11 @@ const decisionReason = ref('')
 type ReviewDecision = 'APPROVE' | 'REJECT' | 'REQUEST_INFO'
 const reviewDecision = ref<ReviewDecision | null>(null)
 const reviewTarget = ref<CaseSnapshot | null>(null)
-/** The review context, loaded once per case and shared with everything that reads it. */
+/** Review permissions and execution data belong to the current case version. */
 const reviewContext = ref<ReviewContext | null>(null)
 const reviewContextLoading = ref(false)
 const reviewContextError = ref('')
+let reviewContextGeneration = 0
 /** The clause a citation asked to open, plus a nonce so the same clause can be re-opened. */
 const focusedPolicy = ref<string | null>(null)
 const focusNonce = ref(0)
@@ -124,10 +125,12 @@ const verifiedEvidence = computed(() => new Map(
 ))
 const timelineLabels: Record<string, string> = {
   CASE_CREATED: '工单已创建', AGENT_STARTED: 'Agent 开始调查', PROPOSAL_READY: '调查建议已生成',
-  EVIDENCE_APPENDED: '客户补充材料', EVIDENCE_REVIEWED: '材料已核验', REVIEW_APPROVED: '审核已批准',
+  EVIDENCE_APPENDED: '工单材料已更新', EVIDENCE_REVIEWED: '材料已核验', REVIEW_APPROVED: '审核已批准',
   REVIEW_REJECTED: '审核已拒绝', REVIEW_REQUESTED_INFO: '等待客户补证',
   APPROVAL_REQUIRED: '等待人工审批', AUTHORIZATION_DECIDED: '人工审核决定',
   EXECUTION_UPDATED: '退款执行更新', CASE_CLOSED: '工单已结束',
+  AGENT_FAILED: '调查失败，已转人工复核', QUESTION_REQUIRED: '等待客户回答补证问题',
+  REVIEWER_ACTION: '人工处理已记录',
 }
 const actionLabels: Record<string, string> = {
   REFUND: '建议全额退款', REQUEST_INFO: '建议补充信息', REJECT: '建议拒绝', MANUAL_REVIEW: '建议人工复核',
@@ -164,6 +167,7 @@ function focusPolicy(key: string) {
   focusNonce.value += 1
 }
 async function loadReviewContext(view: CaseSnapshot | null) {
+  const request = ++reviewContextGeneration
   reviewContext.value = null
   reviewContextError.value = ''
   if (!view || !isReviewer.value) return
@@ -172,7 +176,8 @@ async function loadReviewContext(view: CaseSnapshot | null) {
   reviewContextLoading.value = true
   try {
     const result = await coreApi.reviewContext(sessionToken, caseId)
-    if (token() !== sessionToken || lookupId.value !== caseId) return
+    if (request !== reviewContextGeneration || token() !== sessionToken || lookupId.value !== caseId
+      || snapshot.value?.case.version !== view.case.version) return
     if (result.case_version !== view.case.version) {
       // The context the reviewer would read belongs to a newer case version; enabling actions
       // from it would submit against a page they never saw.
@@ -181,11 +186,11 @@ async function loadReviewContext(view: CaseSnapshot | null) {
     }
     reviewContext.value = result
   } catch (cause) {
-    if (token() === sessionToken && lookupId.value === caseId) {
+    if (request === reviewContextGeneration && token() === sessionToken && lookupId.value === caseId) {
       reviewContextError.value = cause instanceof Error ? cause.message : '无法读取审核依据'
     }
   } finally {
-    if (token() === sessionToken && lookupId.value === caseId) reviewContextLoading.value = false
+    if (request === reviewContextGeneration && token() === sessionToken && lookupId.value === caseId) reviewContextLoading.value = false
   }
 }
 function headline(value?: string) {
@@ -237,8 +242,11 @@ async function refreshCase(caseId: string) {
   const sessionToken = token()
   const next = await coreApi.case(sessionToken, caseId)
   if (lookupId.value === caseId && token() === sessionToken) {
+    if (snapshot.value?.case.case_id === caseId && snapshot.value.case.version > next.case.version) return
+    const changed = snapshot.value?.case.version !== next.case.version
     snapshot.value = next
     if (['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(next.case.status)) stopStream()
+    if (changed) void loadReviewContext(next)
   }
 }
 async function loadOrderContext(view: CaseSnapshot, sessionToken: string) {
@@ -365,7 +373,7 @@ onUnmounted(stopStream)
   <div class="workbench">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
-      <span class="demo-tag">本地演示 · 合成数据 · mock 决策 · 模拟退款</span>
+      <span class="demo-tag">本地演示 · 合成数据 · 模型模式见调查记录 · 模拟退款</span>
       <div v-if="account" class="session"><span class="avatar">{{ isReviewer ? '审' : '客' }}</span><span class="session-copy"><strong>{{ isReviewer ? '售后审核员' : '客户工作台' }}</strong><small>{{ account.merchant_id }}</small></span>
         <button type="button" class="text-button logout-button" @click="logout">退出<Icon name="arrow" :size="15" /></button></div>
     </header>

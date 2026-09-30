@@ -26,19 +26,22 @@
 启动 Docker Desktop 后，在项目根目录打开 PowerShell，输入一条命令：
 
 ```powershell
-.\demo.ps1
+.\demo.ps1 -Live
 ```
 
-脚本会启动隔离的演示数据库和消息设施、三个 Java 服务、只读 Agent API、桌面前端，并在默认浏览器打开 `http://127.0.0.1:5174`。登录账号是 `demo-reviewer`，密码是 `demo-pass-1003`。第一次启动需要构建服务，耗时会长一些；保持服务运行时再次执行会直接复用并打开页面。
+脚本会启动隔离的演示数据库和消息设施、三个 Java 服务、DeepSeek 调查服务和桌面前端，并在默认浏览器打开 `http://127.0.0.1:5174`。登录账号是 `demo-reviewer`，密码是 `demo-pass-1003`。第一次启动需要构建服务，耗时会长一些；保持服务运行时再次执行会直接复用并打开页面。
+
+`-Live` 使用用户环境变量 `Deepseek_API_KEY`，固定连接官方 `https://api.deepseek.com/chat/completions`，模型 ID 为 `deepseek-flash`（V4.1 Flash）。密钥不写入项目文件。新增材料、核验或补证回答会触发真实调查并产生模型用量；审批后执行的是模拟退款。仅浏览历史数据可用 `.\demo.ps1`，此模式关闭新调查，仍可查看已有记录和退款执行结果。
 
 ```powershell
 .\demo.ps1 status       # 查看状态
 .\demo.ps1 stop         # 停止演示服务，保留演示数据
-.\demo.ps1 -SkipBuild   # 服务停止后复用已有 jar，快速重启
-.\demo.ps1 -NoBrowser   # 只启动，不自动打开浏览器
+.\demo.ps1 -Live -SkipBuild   # 服务停止后复用已有 jar，快速重启
+.\demo.ps1 -Live -NoBrowser   # 只启动，不自动打开浏览器
 ```
 
 完整隔离方式、演示样本与验收结果见[审查员演示说明](reports/reviewer-demo/README.md)。
+审查侧真实模型与浏览器验收见[收尾记录](reports/reviewer-completion.md)，包含成功和失败记录，以及可直接查询的工单编号。
 
 本地 core profile 先运行 `java/mvnw -f java/pom.xml -DskipTests package`，再运行 `docker compose -f infra/compose.yaml --profile core up --build -d mysql postgres redis agent commerce-service case-service gateway`，最后用 `python scripts/c11_core_smoke.py` 检查健康、认证及商家队列隔离。镜像包含公开的合成契约夹具用于本地演示；真实环境须覆盖演示密钥。该 profile 默认不开收费模型调查和 MQ 传输循环；功能链路验收以对应 C08 报告为准。`docker compose -f infra/compose.yaml --profile core stop gateway case-service commerce-service agent` 只停应用，不清数据卷。
 

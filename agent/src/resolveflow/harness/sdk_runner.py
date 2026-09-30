@@ -54,6 +54,7 @@ from resolveflow.harness.actions import (
     PROPOSE,
     READ_OBSERVATION,
     READ_TOOL,
+    RECOMMENDED_ACTIONS,
     SEARCH_POLICY,
     WHITELIST,
     ActionRefusedError,
@@ -1015,44 +1016,39 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
     the gate would refuse.
     """
     tools = sorted(WHITELIST)
-    actions = [READ_TOOL, SEARCH_POLICY, READ_OBSERVATION, ASK_CUSTOMER, PROPOSE, ESCALATE]
     document: dict[str, Any] = {
-        "actions": actions,
-        "tools": tools,
-        "read_only": True,
-        "identity_is_fixed_by_the_run": True,
-        # What a PROPOSE may carry (C08.1c). Named here because a citation has to be *checkable* and the gate
-        # refuses one it cannot match against the run's own record: a model told only "cite what you saw" cannot
-        # know the member names or that a refund is refused without them. This is the ABI, not routing — it says
-        # which fields exist and what makes them checkable, never which case deserves which recommendation.
-        "proposal": {
-            # `case_type` is the run's own classification and the case contract requires it in `ProposalPayload`
-            # (contracts/core/openapi-case.yaml:1622, "the run classified the case"). It classifies and never routes:
-            # docs/agent-harness.md:9 keeps the action path driven by the observations, not by a case type.
-            "carries": ["recommended_action", "case_type", "reason_codes", "summary", "reasoning", "review_findings"],
-            "review_findings": {
-                "max_items": 8,
-                "fields": {"kind": ["FACT", "INFERENCE", "CONFLICT"], "text": "1..400 characters",
-                           "observation_ids": "1..8 distinct IDs from evidence_refs; CONFLICT needs at least 2"},
-                "meaning": "model-authored source summary or interpretation, not a verified business fact",
-            },
-            "case_type": [member.value for member in CaseType],
-            "citations": {
-                "evidence_refs": ["observation_id", "source_ref", "source_version", "content_hash"],
-                "policy_refs": ["bundle_id", "version", "rule_id", "chunk_id", "content_hash"],
-                "missing_evidence": "use when the evidence is not enough; a refund may not also report it",
-            },
-            "rule": (
-                "copy these values from what you were shown, never invent them; a REFUND must cite at least one "
-                "evidence_ref and one policy_ref, and a citation this run cannot match is refused"
-            ),
+        "tools": {name: {"get_case_evidence": "customer words/human verification",
+                         "get_order_context": "order/payment only, no customer words",
+                         "get_shipment_trace": "carrier events; DELIVERED != customer acknowledgment"}.get(name, "read-only")
+                  for name in tools},
+        "wire_format": "Emit one flat JSON object with required root kind (PROPOSE needs kind=PROPOSE). "
+                       "Keys are exactly those listed for the selected kind, "
+                       "plus optional reasoning/reason_codes. Schema documentation is not output data.",
+        "syntax_examples_only": [
+            {"kind": READ_TOOL, "tool_name": "get_case_evidence", "arguments": {}},
+        ],
+        "action_fields": {
+            READ_TOOL: "tool_name, arguments={}",
+            SEARCH_POLICY: "query, arguments={top_k:1..5}; use 2 for focused queries",
+            READ_OBSERVATION: "observation_id, optional cursor",
+            ASK_CUSTOMER: "questions=[{question_id,field,prompt}], max 3; reason_codes",
+            PROPOSE: "case_type, recommended_action, nonempty reason_codes; optional summary, reasoning, "
+                     "evidence_refs, policy_refs, missing_evidence, review_findings",
+            ESCALATE: "reason_codes, reasoning; no recommended_action",
         },
-        # What an ASK_CUSTOMER may carry. `field` names the part of the line the question is about, because the case
-        # service routes the answer by it (contracts/core/openapi-case.yaml:2146).
-        "question": {
-            "carries": ["questions", "reason_codes"],
-            "questions": ["question_id", "field", "prompt"],
-            "rule": "at most three aggregated questions, each naming the field it is about",
+        "tool_arguments": "None except evidence(kind) and shipment(cursor,limit<=20), all optional.",
+        "proposal": {
+            "case_type": [member.value for member in CaseType],
+            "recommended_action": sorted(RECOMMENDED_ACTIONS),
+            "evidence_refs": "Array of objects: [{observation_id:string,source_ref:string,"
+                             "source_version:string,content_hash:64-hex-string}]. Include every finding's source.",
+            "policy_refs": "Array of objects: [{bundle_id:string,version:string,rule_id:string,"
+                           "chunk_id:string,content_hash:64-hex-string}].",
+            "review_findings": "max8 [{kind:FACT|INFERENCE|CONFLICT,text<=400,observation_ids:1..8 cited IDs}]; CONFLICT>=2",
+            "rule": "Copy only outer tool observation refs from protected citations. Nested evidence IDs and "
+                    "review_context material IDs are not registered observations: cite their get_case_evidence "
+                    "outer observation instead. Findings use these same outer IDs. REFUND requires "
+                    "evidence_refs and policy_refs; no missing_evidence.",
         },
     }
     if runner.policy_index is not None:

@@ -197,6 +197,41 @@ def test_frontend_is_bound_to_the_demo_gateway_and_fixed_port(tmp_path: Path, mo
     assert captured["args"][-2:] == ["--host", "127.0.0.1"]
 
 
+def test_live_agent_uses_official_deepseek_only_and_never_places_the_key_in_arguments(tmp_path, monkeypatch):
+    settings = settings_for(tmp_path)
+    captured = {}
+    stopped = []
+    monkeypatch.setenv("RESOLVEFLOW_MODEL_API_KEY", "synthetic-key")
+    monkeypatch.setenv("RESOLVEFLOW_MODEL_ENDPOINT", "https://unrelated.invalid")
+    monkeypatch.setenv("RESOLVEFLOW_MOCK_SCRIPT", "old-script.json")
+    monkeypatch.setattr(demo, "owns_port", lambda *args: False)
+    monkeypatch.setattr(demo, "stop_owned", lambda _settings, name, **kwargs: stopped.append(name) or [])
+    monkeypatch.setattr(demo, "refuse_if_port_held", lambda *args: None)
+    monkeypatch.setattr(demo, "child_env", lambda **extra: {**dict(demo.os.environ), **extra})
+    monkeypatch.setattr(demo, "start_process", lambda _settings, name, args, env, port:
+                        captured.update(name=name, args=args, env=env))
+    monkeypatch.setattr(demo, "wait_for", lambda *args, **kwargs: True)
+    monkeypatch.setattr(demo, "record_port_owner", lambda *args: "42")
+    demo.start_readonly_agent(settings, demo.Log(), live=True)
+    assert captured["name"] == "agent-live"
+    env = captured["env"]
+    assert env["RESOLVEFLOW_INVESTIGATION_ENABLED"] == "1"
+    assert env["RESOLVEFLOW_MODEL_MODE"] == "live"
+    assert env["RESOLVEFLOW_MODEL_ID"] == "deepseek-flash"
+    assert env["RESOLVEFLOW_MODEL_ENDPOINT"] == "https://api.deepseek.com/chat/completions"
+    assert env["RESOLVEFLOW_MODEL_API_KEY"] == "synthetic-key"
+    assert "RESOLVEFLOW_MOCK_SCRIPT" not in env
+    assert "synthetic-key" not in " ".join(captured["args"])
+    assert set(stopped) == {"agent-readonly", "agent-live", "agent"}
+
+
+def test_live_agent_without_key_refuses_before_starting_any_process(tmp_path, monkeypatch):
+    monkeypatch.delenv("RESOLVEFLOW_MODEL_API_KEY", raising=False)
+    monkeypatch.setattr(demo, "stop_owned", lambda *args, **kwargs: pytest.fail("must refuse before stopping"))
+    with pytest.raises(demo.DemoRefused, match="key is missing"):
+        demo.start_readonly_agent(settings_for(tmp_path), demo.Log(), live=True)
+
+
 def test_status_is_useful_while_the_demo_is_stopped(tmp_path: Path, monkeypatch) -> None:
     settings = settings_for(tmp_path)
     document = demo.load_manifest(settings)

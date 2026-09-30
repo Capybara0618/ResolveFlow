@@ -20,6 +20,8 @@ cap and the mandatory layers are cheaper than they look.
 
 from __future__ import annotations
 
+import pytest
+
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
 from resolveflow.harness.context import ContextBuilder, OverflowRefusedError
@@ -178,7 +180,16 @@ def test_the_facts_view_is_a_pure_input_to_the_builder() -> None:
 
     mandatory = _build(scenario, view, [], cap=None).input_tokens
     for cap in (None, mandatory + 100, mandatory):
-        _build(scenario, view, observations, cap=cap)
+        if cap is None:
+            _build(scenario, view, observations, cap=cap)
+        else:
+            # The earlier reads now add protected citation identities. A capacity measured
+            # without those reads must refuse, rather than silently dropping their sources.
+            with pytest.raises(OverflowRefusedError) as caught:
+                _build(scenario, view, observations, cap=cap)
+            assert caught.value.mandatory_tokens > cap
+        assert facts_hash(view) == before
+        assert [fact.as_dict() for fact in view.facts] == snapshot
 
     assert facts_hash(view) == before
     assert [fact.as_dict() for fact in view.facts] == snapshot

@@ -42,7 +42,10 @@
 工作目录 `E:/Code/Agent+Backend`，PowerShell。
 
 ```powershell
-# 日常体验入口：启动完整演示栈，并在默认浏览器打开桌面页面
+# 日常体验：真实 DeepSeek 调查 + 模拟退款，密钥读取用户环境变量
+.\demo.ps1 -Live
+
+# 仅查看已有调查；关闭新模型调用
 .\demo.ps1
 
 # 查看状态；停止时保留演示数据和Docker卷
@@ -70,7 +73,9 @@ agent/.venv/Scripts/python.exe scripts/reviewer_demo.py retire --scenario <name>
 
 `--skip-build`（放在子命令前，或 `run` 之后）复用已有 jar。数据集可用 `--dataset` / `--new-dataset reviewer-demo-...` 指定；端口可用 `REVIEWER_DEMO_PORT_<ROLE>` 覆盖，JDK 可用 `REVIEWER_DEMO_JAVA_HOME` 指定（默认会解析 JDK 21，因为本机 `JAVA_HOME` 是 17）。
 
-日常入口使用固定演示前端 `http://127.0.0.1:5174`，代理到 demo gateway `http://127.0.0.1:8180`；它不会改动 5173 的共享前端。浏览器体验使用只读 Agent API，调查循环关闭，因此打开页面不会消费新 run 或调用模型。登录用现有合成账号：`demo-reviewer / demo-pass-1003`（M-1001，审核员）、`demo-reviewer-m2 / demo-pass-2002`（M-1002）。
+日常入口使用固定演示前端 `http://127.0.0.1:5174`，代理到 demo gateway `http://127.0.0.1:8180`；它不会改动 5173 的共享前端。默认使用只读 Agent API，调查循环关闭；加 `-Live` 后启用官方 `deepseek-flash`，从用户环境变量 `Deepseek_API_KEY` 读取密钥，新工单及新修订自动调查。两种模式都启用演示 MQ/模拟退款执行，批准授权后仍须查看实际执行结果。登录用现有合成账号：`demo-reviewer / demo-pass-1003`（M-1001，审核员）、`demo-reviewer-m2 / demo-pass-2002`（M-1002）。
+
+上表七个固定样本属于2026-09-29的mock验收，不因启用live而改写历史来源。2026-09-30新增真实模型样本及失败记录见[审查侧收尾记录](../reviewer-completion.md)。切换live/只读模式只替换本驱动拥有的Agent进程，保留运行记录和数据卷；`-Live`不会把旧失败run重置成新run。
 
 ## 4. 七个样本（`samples.json` 为准）
 

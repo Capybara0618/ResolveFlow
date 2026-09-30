@@ -2,7 +2,8 @@
 
 ## 当前快照（2026-09-30）
 
-- 用户授权继续完成审查侧并使用用户环境变量中的DeepSeek V4.1 Flash；先完成审查侧再开展用户侧。已修复第四批发现的输入缺口：可选review_context携带按修订固定的原问题、答案关联和人工核验结论，纳入请求hash、PG持久化、fenced恢复、P1模型输入与合成strict导出。Python92项、Java9项及当前JAR构建通过，见[收尾记录](../reports/reviewer-completion.md)。继续真实模型质量及浏览器关键动作集中验收。
+- 审查侧本轮收尾完成：补证问题/回答/人工核验按修订进入真实Agent输入；DeepSeek官方deepseek-flash常驻调查、RAG来源及政策例外保护、格式修复、实际请求预算计数已接通。浏览器实测批准→模拟退款成功、要求补证→回答后重新调查、人工拒绝→终态只读；保留一例真实建议待审批供体验。修复SSE后审批上下文不刷新、旧响应覆盖和已结束工单误报排队。最终相关Python235 passed、前端73 passed及build；本轮Java9 passed和三个JAR构建通过。真实迭代保存57个成功响应（输入92173/输出15884 tokens），另2次HTTP400；失败保留，不宣称固定版本成功率或全仓全绿。详见[收尾记录](../reports/reviewer-completion.md)及[合成实测结果](../reports/reviewer-completion/live-acceptance.json)。先前NOT_RUN/待实施描述均是历史时点，不再作为当前待办。
+- 日常完整体验执行`.\demo.ps1 -Live`，用户Deepseek_API_KEY仅从环境读取；默认不带-Live仍为只读Agent，不启动新调查。两种模式均运行Java/MQ模拟退款；5174网页账号demo-reviewer / demo-pass-1003，stop保留数据。已验证常驻Live自动领取新修订；不重复消耗模型测同样案例。当前只交付桌面审查侧，用户侧后续内容由用户另行确定。
 
 - 已新增根目录浏览器体验入口 `.\demo.ps1`：默认启动/复用隔离演示基础设施、Java后端、只读Agent API和5174桌面前端并打开系统浏览器；支持`status`、`stop`、`-SkipBuild`、`-NoBrowser`。只读Agent关闭调查循环并清除模型配置，页面浏览不会消费run或调用收费模型；停止保留数据卷。驱动单测20、前端68及build通过，热启动/幂等/浏览器唤起/登录队列/完整停止/`-SkipBuild`冷启动均实测，见[演示说明](../reports/reviewer-demo/README.md)。
 - 用户最新确认：项目只需要桌面网页端，不做移动端产品。现有768/390响应式实现保留为浏览器缩窄兼容，不再安排移动端专项功能、测试或截图；今后视觉验收以桌面网页为准。

@@ -141,6 +141,7 @@ def drive(
     *,
     index: PolicyIndex | None = None,
     stub_embedder: object | None = None,
+    context_provider_capacity: int = 32768,
     **overrides: Any,
 ) -> tuple[Any, MockModelClient, CaseTools]:
     model = MockModelClient(script=script)
@@ -150,6 +151,7 @@ def drive(
         tools=tools,  # type: ignore[arg-type]
         facts=facts_of(case, **overrides),
         budget=RunBudget(),
+        context_provider_capacity=context_provider_capacity,
         policy_index=index,
         policy_embedder=stub_embedder,  # type: ignore[arg-type]
     )
@@ -377,7 +379,8 @@ def test_the_exception_survives_chunking_retrieval_and_the_request(
         # diagnostic is about what the request carries, which is the same either way.
         propose("MANUAL_REVIEW"),
     ]
-    result, model, _tools = drive(case, script, index=index, stub_embedder=stub_embedder)
+    result, model, _tools = drive(case, script, index=index, stub_embedder=stub_embedder,
+                                 context_provider_capacity=32768)
 
     hits = {hit["rule_id"]: hit for hit in result.observations[2].result["hits"]}  # type: ignore[attr-defined]
     for rule_id in case["retrieval"]["must_include_rules"]:

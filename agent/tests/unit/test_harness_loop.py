@@ -296,9 +296,12 @@ def test_the_model_call_budget_stops_the_loop_and_says_which_budget_ran_out() ->
     model = MockModelClient.always(read("get_order_context"))
     tools = StubTools(*[fresh_observation(index=index) for index in range(50)])
 
-    # Isolate the call-count bound. With honest UTF-8 input accounting the growing
-    # legacy transcript can hit its input cap first; that is a separate valid stop.
-    result = run(model, tools, budget=RunBudget(input_tokens=1_000_000, step_input_tokens=100_000))
+    # Isolate the call-count gate. Twelve fresh observations now carry mandatory
+    # source identities and can correctly overflow the production context first.
+    # Context preservation/overflow is exercised separately; this test-only legacy
+    # packet keeps the same SDK loop, permissions and model-call reservation hooks.
+    result = run(model, tools, budget=RunBudget(input_tokens=1_000_000, step_input_tokens=100_000),
+                 use_context_builder=False)
 
     assert result.completed is False
     assert result.reason_code == REASON_BUDGET_MODEL_CALLS

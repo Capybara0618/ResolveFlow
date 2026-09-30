@@ -55,6 +55,7 @@ PROVIDER_ENV: Final = "RESOLVEFLOW_MODEL_PROVIDER"
 #: ruff reads "API_KEY" as a credential. It is the *name* of the variable that holds one.
 API_KEY_ENV: Final = "RESOLVEFLOW_MODEL_API_KEY"  # noqa: S105
 TIMEOUT_ENV: Final = "RESOLVEFLOW_MODEL_TIMEOUT_SECONDS"
+CONTEXT_WINDOW_ENV: Final = "RESOLVEFLOW_MODEL_CONTEXT_WINDOW_TOKENS"
 CEILING_PARAMETER_ENV: Final = "RESOLVEFLOW_MODEL_CEILING_PARAMETER"
 CASE_BASE_URL_ENV: Final = "RESOLVEFLOW_CASE_BASE_URL"
 COMMERCE_BASE_URL_ENV: Final = "RESOLVEFLOW_COMMERCE_BASE_URL"
@@ -86,6 +87,7 @@ class DeploymentConfig:
     model_id: str | None = None
     api_key: str = ""
     timeout_seconds: float = DEFAULT_MODEL_TIMEOUT_SECONDS
+    context_window_tokens: int = 8192
     ceiling_parameter: str = "max_tokens"
     case_base_url: str = DEFAULT_CASE_BASE_URL
     commerce_base_url: str = DEFAULT_COMMERCE_BASE_URL
@@ -116,6 +118,12 @@ class DeploymentConfig:
             timeout = float(timeout_raw) if timeout_raw else DEFAULT_MODEL_TIMEOUT_SECONDS
         except ValueError as refusal:
             raise DeploymentRefusedError(f"{TIMEOUT_ENV} is not a number: {timeout_raw!r}") from refusal
+        try:
+            context_window = int(env.get(CONTEXT_WINDOW_ENV) or "8192")
+            if context_window <= 0:
+                raise ValueError("not positive")
+        except ValueError as refusal:
+            raise DeploymentRefusedError(f"{CONTEXT_WINDOW_ENV} must be a positive integer") from refusal
         return cls(
             mode=mode,
             provider=(env.get(PROVIDER_ENV) or "").strip() or "openai-compatible",
@@ -123,6 +131,7 @@ class DeploymentConfig:
             model_id=(env.get(MODEL_ID_ENV) or "").strip() or None,
             api_key=env.get(API_KEY_ENV) or "",
             timeout_seconds=timeout,
+            context_window_tokens=context_window,
             ceiling_parameter=(env.get(CEILING_PARAMETER_ENV) or "").strip() or "max_tokens",
             case_base_url=(env.get(CASE_BASE_URL_ENV) or "").strip() or DEFAULT_CASE_BASE_URL,
             commerce_base_url=(env.get(COMMERCE_BASE_URL_ENV) or "").strip() or DEFAULT_COMMERCE_BASE_URL,
@@ -181,6 +190,7 @@ def build_investigation(
                 tools=executor,
                 facts=facts,
                 budget=run_budget,
+                context_provider_capacity=config.context_window_tokens,
                 policy_index=index,
                 policy_embedder=embedder_for_run,
                 durability=DurableRun(database, facts) if facts.fence is not None else None,
@@ -234,6 +244,10 @@ def _require_mode_is_usable(config: DeploymentConfig, *, model: ModelClient | No
 def _live_client(config: DeploymentConfig) -> LiveModelClient:
     """The provider client. The key reaches the ``Authorization`` header and nothing else."""
     return LiveModelClient(
+        parameters=(
+            {"thinking": {"type": "disabled"}, "response_format": {"type": "json_object"}, "temperature": 0}
+            if config.provider == "deepseek" else {}
+        ),
         endpoint=str(config.endpoint),
         model_id=str(config.model_id),
         provider=config.provider,

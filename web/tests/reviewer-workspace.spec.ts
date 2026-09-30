@@ -18,6 +18,28 @@ const mountWorkspace = (overrides: Partial<InstanceType<typeof ReviewerWorkspace
 
 afterEach(() => vi.restoreAllMocks())
 describe('reviewer handoff', () => {
+  it.each(['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'] as const)(
+    'keeps %s terminal when a manual decision advanced the revision', async (status) => {
+      const wrapper = mountWorkspace({
+        snapshot: { ...snapshot, case: { ...snapshot.case, status, input_revision: 3 },
+          proposal: { input_revision: 2, status: 'STALE' } },
+        context: { ...context, allowed_actions: [], blocked_reason: '工单已结束，仅可查看记录' },
+      })
+      await flushPromises()
+      expect(wrapper.get('[data-test="revision-progress"]').text()).toContain('工单已结束')
+      expect(wrapper.text()).not.toContain('新调查已排队')
+      expect(wrapper.find('[data-test="handoff-reject"]').exists()).toBe(false)
+      wrapper.unmount()
+    },
+  )
+  it('does not invent a queued investigation for an older proposal in manual review', async () => {
+    const wrapper = mountWorkspace({ snapshot: { ...snapshot,
+      case: { ...snapshot.case, input_revision: 3 }, proposal: { input_revision: 2, status: 'STALE' } } })
+    await flushPromises()
+    expect(wrapper.get('[data-test="revision-progress"]').text()).toContain('请查看当前处理状态')
+    expect(wrapper.text()).not.toContain('新调查已排队')
+    wrapper.unmount()
+  })
   it('requires explicit evidence and policy selection and submits the version the reviewer read', async () => {
     const submit = vi.spyOn(coreApi, 'reviewerAction').mockResolvedValue(snapshot)
     const wrapper = mountWorkspace()

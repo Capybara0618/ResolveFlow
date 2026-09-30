@@ -101,7 +101,8 @@ def test_context_packet_is_the_entire_model_input_not_a_prefix() -> None:
         document = {"system": "", "messages": actual}
         payload = json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         assert packet.context_hash == hashlib.sha256(payload.encode()).hexdigest()
-        assert packet.input_tokens == sum(estimate_tokens(m["content"]) for m in actual) + PROVIDER_WRAPPER_ALLOWANCE
+        serialized = json.dumps({"messages": actual}, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        assert packet.input_tokens == estimate_tokens(serialized) + PROVIDER_WRAPPER_ALLOWANCE
     assert result.spend.input_tokens == sum(p.input_tokens for p in model.sent_contexts)
 
 
@@ -318,7 +319,9 @@ def test_the_legacy_packet_carries_the_notice_the_model_was_given() -> None:
     than inferred from the one the default happens to use.
     """
     model = MockModelClient.always(read_tool())
-    result, _ = run(model, use_context_builder=False, max_iters=6)
+    # Isolate notice delivery from the intentionally untrimmed compatibility transcript.
+    result, _ = run(model, use_context_builder=False, max_iters=6,
+                    budget=RunBudget(input_tokens=100_000, step_input_tokens=30_000))
 
     sent = input_text_of(model, -1)
 

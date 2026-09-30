@@ -32,7 +32,15 @@
             "temperature": {"type": "number", "minimum": 0, "maximum": 2},
             "top_p": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
             "seed": {"type": "integer", "minimum": 0, "maximum": 2147483647},
-            "reasoning_effort": {"$ref": "#/$defs/version"}
+            "reasoning_effort": {"$ref": "#/$defs/version"},
+            "thinking": {
+              "type": "object", "additionalProperties": false, "required": ["type"],
+              "properties": {"type": {"enum": ["enabled", "disabled"]}}
+            },
+            "response_format": {
+              "type": "object", "additionalProperties": false, "required": ["type"],
+              "properties": {"type": {"enum": ["json_object", "text"]}}
+            }
           }
         }
       }

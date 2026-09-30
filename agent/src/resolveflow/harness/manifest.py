@@ -58,12 +58,12 @@ __all__ = [
 
 #: The P0-P4 policy in :mod:`resolveflow.harness.context` and ``docs/context-engineering.md``. Named so a snapshot
 #: taken under a later layering cannot be read as if it were assembled by this one.
-CONTEXT_POLICY_VERSION: Final = "p0-p4-v2-citation-metadata"
+CONTEXT_POLICY_VERSION: Final = "p0-p4-v3-protected-citations"
 
 #: The counter actually applied to model input. :func:`~resolveflow.harness.context.estimate_tokens` is a UTF-8 byte
 #: allowance marked ESTIMATED — deliberately not the retired characters/3 (which undercounted Chinese) and not the
 #: frozen fixture's ``chars-div-4``, neither of which is in use.
-TOKEN_COUNTER_VERSION: Final = "utf8-bytes-v1"  # noqa: S105 - ruff reads "TOKEN" as a credential; this is a rule name
+TOKEN_COUNTER_VERSION: Final = "utf8-json-bytes-v2"  # noqa: S105 - this is a counting rule, not a credential
 
 #: The persisted run/snapshot shape this harness writes. C09's recovery distinguishes snapshots by this value.
 STATE_SCHEMA_VERSION: Final = 2
@@ -81,7 +81,7 @@ VERIFIER_VERSION: Final = "python-citations-v1"
 MAX_ACTIVE_DEADLINE_SECONDS: Final = 120
 
 #: The only ``model.parameters`` the frozen schema admits (``additionalProperties: false``).
-_DECLARED_PARAMETERS: Final = ("temperature", "top_p", "seed", "reasoning_effort")
+_DECLARED_PARAMETERS: Final = ("temperature", "top_p", "seed", "reasoning_effort", "thinking", "response_format")
 
 
 def _distribution_version(name: str) -> str:

@@ -96,6 +96,7 @@ class ObservationWindow:
     offset: int
     limit: int
     total_length: int
+    citation: dict[str, str] = field(default_factory=dict)
 
     @property
     def next_offset(self) -> int | None:
@@ -112,6 +113,7 @@ class ObservationWindow:
             "returned": len(self.text),
             "next_offset": self.next_offset,
             "text": self.text,
+            "citation": self.citation,
         }
 
 
@@ -179,6 +181,9 @@ class ObservationStore:
             offset=offset,
             limit=limit,
             total_length=len(text),
+            citation={"observation_id": observation.observation_id, "source_ref": observation.source_ref,
+                      **({"source_version": observation.source_version, "content_hash": observation.content_hash}
+                         if observation.error is None and observation.source_version and observation.content_hash else {})},
         )
 
 

@@ -57,13 +57,19 @@ const agentReading = computed(() => (typeof proposal.value?.summary === 'string'
 const revisionProgress = computed(() => {
   const current = props.snapshot.case.input_revision
   const revision = proposalRevision.value
+  if (['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(props.snapshot.case.status)) return {
+    title: '工单已结束', detail: `第 ${current} 版已结束；历史建议仅供追溯，不会继续调查或审批。`,
+    stale: revision !== null && revision < current,
+  }
   if (revision !== null && revision < current) return {
     title: `旧版建议（第 ${revision} 版）已失效`,
     detail: props.snapshot.case.status === 'WAITING_CUSTOMER'
       ? `当前为第 ${current} 版，正在等待客户回答补证问题。`
       : props.snapshot.case.status === 'ANALYZING'
         ? `当前为第 ${current} 版，Agent 正在基于新增材料重新调查。`
-        : `当前为第 ${current} 版，新调查已排队；生成新建议前不能沿用旧审批。`,
+        : props.snapshot.case.status === 'QUEUED'
+          ? `当前为第 ${current} 版，新调查已排队；生成新建议前不能沿用旧审批。`
+          : `当前为第 ${current} 版，请查看当前处理状态；不能沿用旧版建议审批。`,
     stale: true,
   }
   if (props.snapshot.case.status === 'QUEUED') return {
