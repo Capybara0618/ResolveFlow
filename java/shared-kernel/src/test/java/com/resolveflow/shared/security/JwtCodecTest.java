@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  * The demonstration JWT verifier's rules, including the ways a token is expected to be refused.
  *
  * <p>Scope is deliberately small (docs/domain-model.md:24: no full IAM): one symmetric algorithm,
- * one user audience, no JWKS, no refresh, no revocation. The negative cases are the point — an
+ * one user audience, no JWKS, no refresh. Case checks persisted identity versions. The negative cases are the point — an
  * "algorithm confusion" token, a service token presented as a user token, a tampered payload and an
  * expired token must each fail for a stated reason rather than being accepted because the signature
  * happened to verify.
@@ -40,6 +40,31 @@ class JwtCodecTest {
 
     private static AuthenticatedPrincipal principal(String merchant, String customer, Role role) {
         return new AuthenticatedPrincipal("demo-customer", merchant, role, customer);
+    }
+
+    @Test
+    void identityVersionRoundTripsAndLegacyTokensUseZero() {
+        var codec = codec();
+        var account = principal("M-1001", "C-2002", Role.CUSTOMER);
+        assertThat(codec.identityVersionFromAuthorizationHeader("Bearer " + codec.issue(account, 7, NOW), NOW))
+                .isEqualTo(7);
+        String legacy = codec.signRaw(withIssuer("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\","
+                + "\"merchant_id\":\"M-1001\",\"customer_id\":\"C-2002\",\"aud\":\"" + JwtCodec.USER_AUDIENCE
+                + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
+        assertThat(codec.identityVersionFromAuthorizationHeader("Bearer " + legacy, NOW))
+                .isZero();
+        assertThatThrownBy(() -> codec.issue(account, -1, NOW)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void malformedIdentityVersionsAreRefused() {
+        for (String version : new String[] {"-1", "1.5", "\"7\"", "true", "9223372036854775808"}) {
+            String token = codec().signRaw(withIssuer("{\"sub\":\"demo-customer\",\"role\":\"CUSTOMER\","
+                    + "\"merchant_id\":\"M-1001\",\"customer_id\":\"C-2002\",\"identity_version\":" + version
+                    + ",\"aud\":\"" + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}"));
+            assertThatThrownBy(() -> codec().identityVersionFromAuthorizationHeader("Bearer " + token, NOW))
+                    .isInstanceOf(JwtCodec.TokenException.class);
+        }
     }
 
     @Test

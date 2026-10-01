@@ -8,6 +8,39 @@ vi.mock('../src/events', () => ({ watchCaseEvents: vi.fn().mockResolvedValue(und
 afterEach(() => vi.unstubAllGlobals())
 
 describe('core workbench', () => {
+  it('shows persisted admin identity and keeps the workspace read-only before takeover', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      const body = url.endsWith('/auth/login')
+        ? { access_token: 'admin-token', role: 'MERCHANT_ADMIN', merchant_id: 'M-1002',
+          display_name: '商家二管理员', merchant_name: '演示商家二' }
+        : url.startsWith('/api/v1/review/cases')
+          ? { items: [{ case_id: 'admin-case', line_id: '7301' }], page: {} }
+          : url.endsWith('/review-context')
+            ? { case_version: 1, input_revision: 1, allowed_actions: [],
+              blocked_reason: '管理员当前可查看记录；审核接管将在多人协作功能开放',
+              policy_rules: [], policy_status: 'UNAVAILABLE', review_history: [], execution: {} }
+            : url.endsWith('/investigation')
+              ? { case_id: 'admin-case', input_revision: 1, availability: 'NOT_SCHEDULED' }
+              : { case: { case_id: 'admin-case', line_id: '7301', version: 1, input_revision: 1, status: 'PENDING_REVIEW' },
+                authorization: { status: 'PENDING_REVIEW' },
+                evidence: [{ observation_id: 'e1', evidence_kind: 'CUSTOMER_STATEMENT', content: '包裹丢失' }], timeline: [] }
+      return Promise.resolve(new Response(JSON.stringify(body)))
+    }))
+    const wrapper = mount(App)
+    await wrapper.get('[name="username"]').setValue('demo-admin-m2')
+    await wrapper.get('[name="password"]').setValue('demo-pass-2100')
+    await wrapper.get('.login-panel').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('#queue-panel').exists()).toBe(true)
+    expect(wrapper.text()).toContain('商家二管理员')
+    expect(wrapper.text()).toContain('演示商家二')
+    expect(wrapper.text()).toContain('审核接管将在多人协作功能开放')
+    expect(wrapper.find('[data-test="approve"]').exists()).toBe(false)
+    expect(wrapper.find('[data-test="manual-proposal"]').exists()).toBe(false)
+    expect(wrapper.find('.verification-actions').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('refreshes reviewer permissions and execution details when SSE advances the case', async () => {
     let version = 1
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {

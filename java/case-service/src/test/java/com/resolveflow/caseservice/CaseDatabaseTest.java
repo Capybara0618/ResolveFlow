@@ -127,6 +127,19 @@ public abstract class CaseDatabaseTest {
         policies.importDirectory(policyFixtures());
     }
 
+    /** Explicit test-only identities for historical merchant fixtures, never a production JWT bypass. */
+    protected void registerTestAccount(String username, String merchant, String role, String customer) {
+        jdbc.update(
+                "INSERT IGNORE INTO identity_merchant (merchant_id,display_name,enabled) VALUES (?, ?, TRUE)",
+                merchant,
+                "测试商家 " + merchant);
+        jdbc.update("""
+                INSERT IGNORE INTO identity_account
+                    (username,merchant_id,role,customer_id,display_name,password_hash,enabled,identity_version)
+                SELECT ?,?,?,?,? ,password_hash,TRUE,0 FROM identity_account WHERE username='demo-reviewer'
+                """, username, merchant, role, customer, username);
+    }
+
     /**
      * The repository's {@code fixtures/policies/bundles}, found from wherever the test JVM started.
      *

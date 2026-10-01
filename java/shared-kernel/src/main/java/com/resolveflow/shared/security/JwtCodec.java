@@ -84,10 +84,17 @@ public final class JwtCodec {
 
     /** Issue a user token for a verified principal. */
     public String issue(AuthenticatedPrincipal principal, Instant now) {
+        return issue(principal, 0, now);
+    }
+
+    /** Persisted accounts pin the session to their current identity revision. */
+    public String issue(AuthenticatedPrincipal principal, long identityVersion, Instant now) {
+        if (identityVersion < 0) throw new IllegalArgumentException("identity version must be nonnegative");
         var claims = MAPPER.createObjectNode();
         claims.put("sub", principal.subject());
         claims.put("merchant_id", principal.merchantId());
         claims.put("role", principal.role().name());
+        claims.put("identity_version", identityVersion);
         if (principal.customerId() != null) {
             claims.put("customer_id", principal.customerId());
         }
@@ -268,6 +275,17 @@ public final class JwtCodec {
             throw new TokenException("Authorization must be 'Bearer <jwt>'");
         }
         return verifyAsUser(token, now);
+    }
+
+    /** Old seeded tokens are revision zero; after any identity change they cannot become valid again. */
+    public long identityVersionFromAuthorizationHeader(String header, Instant now) {
+        if (header == null || !header.startsWith("Bearer ")) throw new TokenException("user token required");
+        JsonNode value =
+                verifiedClaims(header.substring(7).trim(), USER_AUDIENCE, now).get("identity_version");
+        if (value == null) return 0;
+        if (!value.isIntegralNumber() || !value.canConvertToLong() || value.asLong() < 0)
+            throw new TokenException("identity_version must be a nonnegative integer");
+        return value.asLong();
     }
 
     private JsonNode verifiedClaims(String token, String expectedAudience, Instant now) {

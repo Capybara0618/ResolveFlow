@@ -20,9 +20,12 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 
 ## 3. 核心路由
 
+用户角色来自Case持久账号。MERCHANT_ADMIN可读取本商家工作人员视图；多人协作的显式接管尚未实施前，审批、核验、人工方案、工作台动作及工作人员取消都拒绝该角色。REVIEWER/原OPERATOR保留原人工作业，客户仅能操作本人范围。会话与追加迁移说明见[持久身份](persistent-identity.md)。
+
 | 所属 | 方法与路由 | 行为 |
 | --- | --- | --- |
-| Case | POST /api/v1/auth/login | 合成账号登录 |
+| Case | POST /api/v1/auth/login | 持久化本地账号登录；商家/角色/客户归属来自账号，启用状态及identity_version控制会话 |
+| Case | GET /api/v1/auth/me | 当前有效会话资料；每个用户接口重新校验持久账号启用状态、归属、角色及身份版本，不返回密码hash |
 | Case | GET /api/v1/orders | 当前主体订单视图；内部请求Commerce |
 | Case | GET /api/v1/orders/{order_id} | 本人/商家授权订单 |
 | Case | POST /api/v1/cases | line_id/description/requested_actions=[REFUND] |

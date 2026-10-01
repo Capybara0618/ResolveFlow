@@ -18,7 +18,9 @@ public record LoginResponse(
         @JsonProperty("expires_in") long expiresIn,
         Role role,
         @JsonProperty("merchant_id") String merchantId,
-        @JsonProperty("customer_id") String customerId) {
+        @JsonProperty("customer_id") String customerId,
+        @JsonProperty("display_name") String displayName,
+        @JsonProperty("merchant_name") String merchantName) {
 
     public static LoginResponse from(com.resolveflow.shared.security.DemoAccounts.Login login) {
         return new LoginResponse(
@@ -27,6 +29,8 @@ public record LoginResponse(
                 login.expiresIn(),
                 login.role(),
                 login.merchantId(),
-                login.customerId());
+                login.customerId(),
+                null,
+                null);
     }
 }

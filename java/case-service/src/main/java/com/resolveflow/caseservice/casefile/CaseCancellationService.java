@@ -45,6 +45,9 @@ public class CaseCancellationService {
 
     @Transactional
     public CaseCancelResponse cancel(AuthenticatedPrincipal principal, String caseId, ReasonRequest request) {
+        if (principal.role().isMerchantStaff()) {
+            CaseStaff.requireReviewer(principal, "cancelling as staff requires a reviewer");
+        }
         String reason = requireReason(request);
 
         CaseRow row = cases.findCaseForUpdate(caseId);

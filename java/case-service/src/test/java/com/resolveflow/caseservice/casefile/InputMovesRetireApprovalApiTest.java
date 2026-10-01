@@ -255,8 +255,8 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
                 .contains("new customer material")
                 .contains("revision " + response.get("input_revision").asInt());
         assertThat(column("aftersale_case", "status", caseId))
-                .as("the case goes back to waiting for a reviewer: approving was never paying")
-                .isEqualTo("PENDING_REVIEW");
+                .as("new material queues a new investigation before another human approval")
+                .isEqualTo("QUEUED");
         assertThat(liveAuthorisations(caseId))
                 .as("and nothing is left alive in its place, because no proposal has been made for this revision")
                 .isZero();

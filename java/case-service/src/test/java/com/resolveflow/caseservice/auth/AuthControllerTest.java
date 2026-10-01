@@ -58,7 +58,14 @@ class AuthControllerTest extends com.resolveflow.caseservice.CaseDatabaseTest {
         assertThat(json.properties().stream().map(Map.Entry::getKey))
                 .as("no extra members: the schema is additionalProperties: false")
                 .containsExactlyInAnyOrder(
-                        "access_token", "token_type", "expires_in", "role", "merchant_id", "customer_id");
+                        "access_token",
+                        "token_type",
+                        "expires_in",
+                        "role",
+                        "merchant_id",
+                        "customer_id",
+                        "display_name",
+                        "merchant_name");
     }
 
     @Test

@@ -99,12 +99,16 @@ public class ReviewerWorkspaceService {
         requireStaff(principal);
         CaseRow row = visible(principal, cases.findCase(caseId));
         List<PolicyText> rules = policyText(row);
-        List<String> actions = allowed(row);
-        String reason = row.status().isTerminal()
-                ? "工单已结束，仅可查看记录"
-                : consumed(row)
-                        ? "退款授权已消费，输入已冻结；请查看执行结果"
-                        : row.status() == CaseStatus.AUTHORIZED ? "已批准，等待退款执行" : actions.isEmpty() ? "当前状态不允许人工修改" : "";
+        List<String> actions = CaseStaff.canReview(principal) ? allowed(row) : List.of();
+        String reason = !CaseStaff.canReview(principal)
+                ? "管理员当前可查看记录；审核接管将在多人协作功能开放"
+                : row.status().isTerminal()
+                        ? "工单已结束，仅可查看记录"
+                        : consumed(row)
+                                ? "退款授权已消费，输入已冻结；请查看执行结果"
+                                : row.status() == CaseStatus.AUTHORIZED
+                                        ? "已批准，等待退款执行"
+                                        : actions.isEmpty() ? "当前状态不允许人工修改" : "";
         return new Context(
                 row.version(),
                 row.inputRevision(),
@@ -195,7 +199,7 @@ public class ReviewerWorkspaceService {
 
     @Transactional
     public CaseSnapshotResponse act(AuthenticatedPrincipal principal, String caseId, String ifMatch, Action request) {
-        requireStaff(principal);
+        CaseStaff.requireReviewer(principal, "human actions require a reviewer");
         if (ifMatch == null || !ifMatch.matches("\"[1-9][0-9]{0,15}\"")) {
             throw new CaseService.SemanticInvalidException("If-Match must contain the quoted case version");
         }

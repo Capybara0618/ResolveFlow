@@ -1,5 +1,6 @@
 package com.resolveflow.caseservice.order;
 
+import com.resolveflow.caseservice.auth.PersistentAccounts;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.JwtCodec;
 import java.time.Clock;
@@ -28,18 +29,33 @@ public class RequestPrincipalResolver {
 
     private final JwtCodec codec;
     private final Clock clock;
+    private final PersistentAccounts accounts;
 
-    public RequestPrincipalResolver(JwtCodec jwtCodec, Clock clock) {
+    public RequestPrincipalResolver(JwtCodec jwtCodec, Clock clock, PersistentAccounts accounts) {
         this.codec = jwtCodec;
         this.clock = clock;
+        this.accounts = accounts;
     }
 
     public AuthenticatedPrincipal resolve(String authorizationHeader) {
         try {
-            return codec.principalFromAuthorizationHeader(authorizationHeader, Instant.now(clock));
+            Instant now = Instant.now(clock);
+            var principal = codec.principalFromAuthorizationHeader(authorizationHeader, now);
+            accounts.requireCurrent(principal, codec.identityVersionFromAuthorizationHeader(authorizationHeader, now));
+            return principal;
         } catch (JwtCodec.TokenException error) {
             // The reason is logged by the codec's message but not echoed to the caller: telling a
             // client which rule its token failed helps only someone probing tokens.
+            throw new UnauthenticatedException("a valid user token is required");
+        }
+    }
+
+    public PersistentAccounts.Profile profile(String authorizationHeader) {
+        try {
+            return accounts.requireCurrent(
+                    resolve(authorizationHeader),
+                    codec.identityVersionFromAuthorizationHeader(authorizationHeader, Instant.now(clock)));
+        } catch (JwtCodec.TokenException error) {
             throw new UnauthenticatedException("a valid user token is required");
         }
     }

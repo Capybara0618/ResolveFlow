@@ -999,6 +999,8 @@ POLICY_BUNDLES = (
     "policy-logistics-2026.09",
     "policy-damage-2026.08",
     "policy-damage-2026.09",
+    "policy-demo-m1002-logistics-2026.08",
+    "policy-demo-m1002-logistics-2026.09",
 )
 
 #: The two demo service tokens this driver mints. The secret is the local demo identity

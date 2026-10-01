@@ -83,6 +83,7 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
 
     @BeforeEach
     void prepare() {
+        registerTestAccount("test-customer-m2002", "M-2002", "CUSTOMER", "C-2002");
         // The two shipped versions, with their windows, are what selection is about; a test that left the
         // bundle set to something else would be testing a different question.
         jdbc.execute("DELETE FROM case_policy_bundle");
@@ -120,8 +121,9 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
     }
 
     private String userToken(String merchantId) {
+        String username = merchantId.equals("M-2002") ? "test-customer-m2002" : "demo-customer";
         return new JwtCodec(secret, Duration.ofHours(1))
-                .issue(new AuthenticatedPrincipal("demo-customer", merchantId, Role.CUSTOMER, "C-2002"), Instant.now());
+                .issue(new AuthenticatedPrincipal(username, merchantId, Role.CUSTOMER, "C-2002"), Instant.now());
     }
 
     /** Opens a case and returns the response body, so a test can assert on what the caller was told. */
@@ -234,7 +236,7 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
 
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM policy_bundle", Integer.class))
                 .as("the newer version really is installed, alongside both merchants' fixtures (C07.1)")
-                .isEqualTo(5);
+                .isEqualTo(7);
         assertThat(readManifest(caseId).toString())
                 .as("the case is decided under the policy it was opened under, forever")
                 .isEqualTo(before);

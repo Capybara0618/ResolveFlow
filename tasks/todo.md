@@ -2,7 +2,9 @@
 
 ## 当前快照（2026-10-01）
 
-- 用户要求先审查完整产品需要补齐的模块；已编制[双端与多人协作补齐方案（待审查）](../docs/product-completion-review.md)，包含六个模块、角色/租户/负责人关系、五个拟议批次、完整网页验收及八项业务决定。更新本账本、handoff及plan入口。当前仅文档交付，尚未批准业务实施；不重做审查侧成果、不恢复CXX/C12。实际验证：`agent/.venv/Scripts/python.exe -`执行本次四份文档的本地链接/结构核查，50个链接均存在，六模块/八决定及待审查状态检查通过；`git diff --check`通过。未运行业务测试、未启动服务、未创建申请/退款、未调用模型；无本次检查失败。
+- 用户已批准[双端与多人协作补齐方案](../docs/product-completion-review.md)八项推荐决定。新第一批“身份与租户数据”完成：Case持久账号/商家、JWT身份版本与每个用户请求当前账号校验、MERCHANT_ADMIN读取/写入边界、两商家各2客户/2审核员/1管理员；追加Case V19与Commerce V8，M-1002独立政策及C-2005/7301订单，保留旧账号、工单、订单与退款。核心契约新增auth/me并同步类型/角色、演示导入与展示。文件和兼容见[持久身份](../docs/persistent-identity.md)，证据见[第一批报告](../reports/product-identity/README.md)与[合成API记录](../reports/product-identity/api-acceptance.json)。实际命令：Maven `-pl case-service -am test`共享62＋Case265 passed/4 skipped；Commerce指定5类37 passed；Python核心路由/schema/corpus/驱动187 passed；前端74 passed＋build；本批Spotless与diff检查通过。`.\demo.ps1 -NoBrowser`三个JAR构建、保留数据升级和只读启动通过；11账号/资料、4客户订单、伪造身份头隔离及管理员403通过，新合成工单钉住正确政策并由本人取消。初始表缺失RED、旧JWT测试身份/fixture数量、旧状态/启动DB断言、误写命令与构建测试重叠均保留说明并修复复跑；未把无效轮当通过。模型调用0，未批准退款；未运行4个显式可选系统用例或正式浏览器全产品验收。下一步按新第二批“用户完整申请”，后四批尚未开始；不重做已有审查侧/Agent，不夹带历史未提交脚本、资金测试及日志。
+
+- 草案交付时点：已编制[双端与多人协作补齐方案](../docs/product-completion-review.md)，包含六模块与八项业务决定。当时仅文档交付；Python本地链接/结构核查50个链接及`git diff --check`通过，未运行业务测试或调用模型。该等待审查状态已被上述用户批准取代。
 
 - 审查侧本轮收尾完成：补证问题/回答/人工核验按修订进入真实Agent输入；DeepSeek官方deepseek-flash常驻调查、RAG来源及政策例外保护、格式修复、实际请求预算计数已接通。浏览器实测批准→模拟退款成功、要求补证→回答后重新调查、人工拒绝→终态只读；保留一例真实建议待审批供体验。修复SSE后审批上下文不刷新、旧响应覆盖和已结束工单误报排队。最终相关Python235 passed、前端73 passed及build；本轮Java9 passed和三个JAR构建通过。真实迭代保存57个成功响应（输入92173/输出15884 tokens），另2次HTTP400；失败保留，不宣称固定版本成功率或全仓全绿。详见[收尾记录](../reports/reviewer-completion.md)及[合成实测结果](../reports/reviewer-completion/live-acceptance.json)。先前NOT_RUN/待实施描述均是历史时点，不再作为当前待办。
 - 日常完整体验执行`.\demo.ps1 -Live`，用户Deepseek_API_KEY仅从环境读取；默认不带-Live仍为只读Agent，不启动新调查。两种模式均运行Java/MQ模拟退款；5174网页账号demo-reviewer / demo-pass-1003，stop保留数据。已验证常驻Live自动领取新修订；不重复消耗模型测同样案例。当前只交付桌面审查侧，用户侧后续内容由用户另行确定。

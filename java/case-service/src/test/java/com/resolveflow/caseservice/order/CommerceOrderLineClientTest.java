@@ -12,10 +12,8 @@ import com.resolveflow.caseservice.order.CommerceOrderLineClient.CommerceUnavail
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.JwtCodec;
 import com.resolveflow.shared.security.Role;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -219,7 +217,7 @@ class CommerceOrderLineClientTest {
         CommerceOrderLineClient.OrderLinePage page = client.list(customer, null, null, null);
 
         OrderController controller =
-                new OrderController(client, new RequestPrincipalResolver(codec, Clock.fixed(now, ZoneOffset.UTC)));
+                new OrderController(client, org.mockito.Mockito.mock(RequestPrincipalResolver.class));
         JsonNode json = MAPPER.readTree(MAPPER.writeValueAsString(OrderController.OrderLinePageResponse.from(page)));
 
         assertThat(json.get("items").get(0).properties().stream().map(java.util.Map.Entry::getKey))

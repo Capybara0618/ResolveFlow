@@ -1,0 +1,146 @@
+{
+  "date": "2026-10-01",
+  "environment": "resolveflow-review-demo",
+  "data": "synthetic",
+  "agent_mode": "readonly",
+  "accounts": 11,
+  "checks": [
+    {
+      "username": "demo-customer",
+      "merchant_id": "M-1001",
+      "role": "CUSTOMER",
+      "login_and_profile": "PASS",
+      "orders_visible": 15
+    },
+    {
+      "username": "demo-customer-2",
+      "merchant_id": "M-1001",
+      "role": "CUSTOMER",
+      "login_and_profile": "PASS",
+      "orders_visible": 10
+    },
+    {
+      "username": "demo-reviewer",
+      "merchant_id": "M-1001",
+      "role": "REVIEWER",
+      "login_and_profile": "PASS",
+      "orders_visible": 20
+    },
+    {
+      "username": "demo-reviewer-2",
+      "merchant_id": "M-1001",
+      "role": "REVIEWER",
+      "login_and_profile": "PASS",
+      "orders_visible": 20
+    },
+    {
+      "username": "demo-admin",
+      "merchant_id": "M-1001",
+      "role": "MERCHANT_ADMIN",
+      "login_and_profile": "PASS",
+      "orders_visible": 20
+    },
+    {
+      "username": "demo-customer-m2",
+      "merchant_id": "M-1002",
+      "role": "CUSTOMER",
+      "login_and_profile": "PASS",
+      "orders_visible": 1
+    },
+    {
+      "username": "demo-customer-m2-2",
+      "merchant_id": "M-1002",
+      "role": "CUSTOMER",
+      "login_and_profile": "PASS",
+      "orders_visible": 1
+    },
+    {
+      "username": "demo-reviewer-m2",
+      "merchant_id": "M-1002",
+      "role": "REVIEWER",
+      "login_and_profile": "PASS",
+      "orders_visible": 2
+    },
+    {
+      "username": "demo-reviewer-m2-2",
+      "merchant_id": "M-1002",
+      "role": "REVIEWER",
+      "login_and_profile": "PASS",
+      "orders_visible": 2
+    },
+    {
+      "username": "demo-admin-m2",
+      "merchant_id": "M-1002",
+      "role": "MERCHANT_ADMIN",
+      "login_and_profile": "PASS",
+      "orders_visible": 2
+    },
+    {
+      "username": "demo-operator",
+      "merchant_id": "M-1001",
+      "role": "OPERATOR",
+      "login_and_profile": "PASS",
+      "orders_visible": 20
+    },
+    {
+      "check": "customer_and_merchant_isolation_with_forged_headers",
+      "username": "demo-customer-m2-2",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "check": "customer_and_merchant_isolation_with_forged_headers",
+      "username": "demo-customer-m2",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "check": "customer_and_merchant_isolation_with_forged_headers",
+      "username": "demo-customer",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "check": "customer_and_merchant_isolation_with_forged_headers",
+      "username": "demo-reviewer",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "check": "customer_and_merchant_isolation_with_forged_headers",
+      "username": "demo-reviewer-m2",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "check": "admin_no_implicit_approval",
+      "username": "demo-admin",
+      "result": "PASS",
+      "status": 403
+    },
+    {
+      "check": "admin_no_implicit_approval",
+      "username": "demo-admin-m2",
+      "result": "PASS",
+      "status": 403
+    }
+  ],
+  "anonymous_profile": "401 PASS",
+  "new_cases_created": 1,
+  "new_approvals": 0,
+  "live_model_calls": 0,
+  "new_cases_cancelled": 1,
+  "policy_case": {
+    "case_id": "42827d8a-f768-4e98-998b-9d28c606279d",
+    "line_id": "7301",
+    "merchant_id": "M-1002",
+    "customer_id": "C-2005",
+    "pinned_bundle_ids": [
+      "policy-demo-m1002-logistics-2026.09"
+    ],
+    "cross_merchant_read": 404,
+    "final_state": "CANCELLED",
+    "refund_approved": false,
+    "data": "synthetic"
+  }
+}

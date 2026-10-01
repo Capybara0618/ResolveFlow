@@ -14,8 +14,10 @@
 | --- | --- |
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
 | [当前交接](tasks/handoff-current.md) | 当前任务、验收顺序与接管规则 |
+| [双端与多人协作方案](docs/product-completion-review.md) | 用户已批准的新五批产品补齐路线 |
+| [持久账号与双商家](docs/persistent-identity.md) | 本地演示账号、身份校验与数据兼容 |
 | [AgentScope迁移规格](docs/agentscope-migration.md) | 框架边界、恢复要求及历史迁移过程 |
-| [执行账本](tasks/todo.md) | 历史成果、新C00–C13任务与实际进度 |
+| [执行账本](tasks/todo.md) | 用户最新路线、实际进度及历史成果 |
 | [实现交接](docs/implementation-handoff.md) | 模型如何继续、不能走哪些捷径 |
 | [DSH执行手册](tasks/dsh-reviewer/README.md) | 审查员剩余四批的详细步骤、验收与跨客户端边界 |
 

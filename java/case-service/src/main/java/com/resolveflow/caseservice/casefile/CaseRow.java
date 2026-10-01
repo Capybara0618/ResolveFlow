@@ -40,7 +40,6 @@ public record CaseRow(
         if (!merchantId.equals(principal.merchantId())) {
             return false;
         }
-        return principal.role() != com.resolveflow.shared.security.Role.CUSTOMER
-                || customerId.equals(principal.customerId());
+        return principal.role().isMerchantStaff() || customerId.equals(principal.customerId());
     }
 }

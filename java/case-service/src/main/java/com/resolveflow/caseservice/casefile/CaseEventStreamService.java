@@ -1,7 +1,6 @@
 package com.resolveflow.caseservice.casefile;
 
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
-import com.resolveflow.shared.security.Role;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -84,7 +83,7 @@ public class CaseEventStreamService {
         if (!row.merchantId().equals(principal.merchantId())) {
             return false;
         }
-        return principal.role() != Role.CUSTOMER || row.customerId().equals(principal.customerId());
+        return principal.role().isMerchantStaff() || row.customerId().equals(principal.customerId());
     }
 
     /**

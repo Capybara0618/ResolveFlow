@@ -296,7 +296,7 @@ public class ReviewDecisionService {
     }
 
     private void requireStaff(AuthenticatedPrincipal principal) {
-        CaseStaff.require(
+        CaseStaff.requireReviewer(
                 principal,
                 "a CUSTOMER may not decide an authorisation; the case's customer is the party the"
                         + " decision is about");

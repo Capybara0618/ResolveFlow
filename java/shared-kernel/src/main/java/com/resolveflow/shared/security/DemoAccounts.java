@@ -151,7 +151,7 @@ public final class DemoAccounts {
     }
 
     /** Verify a stored {@code pbkdf2-sha256$iterations$salt$hash} value in constant time. */
-    static boolean verify(String password, String stored) {
+    public static boolean verify(String password, String stored) {
         if (password == null || stored == null) {
             return false;
         }

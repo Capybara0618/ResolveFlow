@@ -9,10 +9,12 @@ export class ApiError extends Error {
 
 export interface LoginResponse {
   access_token: string
-  role: 'CUSTOMER' | 'REVIEWER' | 'OPERATOR'
+  role: 'CUSTOMER' | 'REVIEWER' | 'MERCHANT_ADMIN' | 'OPERATOR'
   merchant_id: string
   customer_id?: string
   expires_in: number
+  display_name?: string
+  merchant_name?: string
 }
 
 export interface OrderLine {

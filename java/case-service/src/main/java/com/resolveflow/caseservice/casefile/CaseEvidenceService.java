@@ -318,7 +318,7 @@ public class CaseEvidenceService {
         boolean customerSubmittingAStatement =
                 principal.role() == Role.CUSTOMER && kind == EvidenceSourceType.CUSTOMER_STATEMENT;
         boolean staffRecordingAVerification =
-                principal.role() != Role.CUSTOMER && kind == EvidenceSourceType.REVIEWER_VERIFICATION;
+                CaseStaff.canReview(principal) && kind == EvidenceSourceType.REVIEWER_VERIFICATION;
         if (!customerSubmittingAStatement && !staffRecordingAVerification) {
             throw new CaseService.ForbiddenScopeException(
                     "a " + principal.role() + " may not submit " + kind + " as its own material");

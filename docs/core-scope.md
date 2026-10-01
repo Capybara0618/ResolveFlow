@@ -27,6 +27,8 @@
 
 ## 3. 部署与已有资产
 
+2026-10-01用户批准[双端与多人协作补齐方案](product-completion-review.md)：在个人项目范围内增加两逻辑商家持久账号、客户申请工作台、领取/转交/接管与最小商家人员管理、站内待办。上述最小双端能力取代表中“多角色完整管理后台”的笼统延期描述；仍不做公司级IAM、公开入驻、租户计费或商业运营平台。本次网页体验统一人工最终审批，Agent只提供建议；不据旧自动路径完成标准增加新的自动审批。资金不变量、进程与模拟外部系统范围不变。
+
 目标为Gateway + Case + Commerce三个Java进程与一个Python Agent服务。Case/Commerce各自MySQL库，Agent用AgentScope 2.x Python SDK、PG领域运行快照/调用账及pgvector，Redis用于非权威缓存或入口限流，RocketMQ用于退款命令/结果。非Agent框架继续使用已实测版本锁；仅AgentScope及必要适配由AS01先验证、AS02再锁定，不重开整个T00。
 
 物流作为Commerce内明确标识的模拟外部数据适配模块，不冒充真实承运商接口；不再维护独立履约数据库。退款provider-stub仍需持久化和可注入故障，但不计核心微服务。

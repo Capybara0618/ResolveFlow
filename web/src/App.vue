@@ -94,8 +94,9 @@ let streamController: AbortController | null = null
 let pendingCreateKey: string | null = null
 
 const isCustomer = computed(() => account.value?.role === 'CUSTOMER')
-const isReviewer = computed(() => account.value?.role === 'REVIEWER' || account.value?.role === 'OPERATOR')
-const canVerifyEvidence = computed(() => isReviewer.value && !!snapshot.value
+const isReviewer = computed(() => ['REVIEWER', 'MERCHANT_ADMIN', 'OPERATOR'].includes(account.value?.role ?? ''))
+const canHumanReview = computed(() => ['REVIEWER', 'OPERATOR'].includes(account.value?.role ?? ''))
+const canVerifyEvidence = computed(() => canHumanReview.value && !!snapshot.value
   && !['EXECUTING', 'RECONCILING', 'CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(snapshot.value.case.status)
   && snapshot.value.authorization?.status !== 'CONSUMED')
 const caseStatusLabels: Record<string, string> = {
@@ -374,7 +375,7 @@ onUnmounted(stopStream)
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
       <span class="demo-tag">本地演示 · 合成数据 · 模型模式见调查记录 · 模拟退款</span>
-      <div v-if="account" class="session"><span class="avatar">{{ isReviewer ? '审' : '客' }}</span><span class="session-copy"><strong>{{ isReviewer ? '售后审核员' : '客户工作台' }}</strong><small>{{ account.merchant_id }}</small></span>
+      <div v-if="account" class="session"><span class="avatar">{{ isReviewer ? '审' : '客' }}</span><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后审核员' : '客户工作台') }}</strong><small>{{ account.merchant_name || account.merchant_id }} · {{ account.role === 'MERCHANT_ADMIN' ? '商家管理员' : isReviewer ? '工作人员' : '客户' }}</small></span>
         <button type="button" class="text-button logout-button" @click="logout">退出<Icon name="arrow" :size="15" /></button></div>
     </header>
     <main v-if="!account" class="login-stage">
@@ -452,7 +453,7 @@ onUnmounted(stopStream)
               </div>
               <InvestigationSources v-if="isReviewer" :token="token()" :snapshot="snapshot" />
               <section v-if="isCustomer && !['EXECUTING', 'RECONCILING', 'CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(snapshot.case.status)" class="detail-section"><h3>补充材料</h3><label>问题 ID（若在回答追问） <input v-model="questionId" /></label><label>材料文本 <textarea v-model="evidenceText" rows="3" /></label><button data-test="append-evidence" type="button" :disabled="busy" @click="appendEvidence">提交材料</button></section>
-              <section v-if="isReviewer && snapshot.authorization?.status === 'PENDING_REVIEW'" class="detail-section review-section"><div class="section-heading"><h3>审核决策</h3><span class="subtle">批准授权后仍需等待独立的退款执行结果</span></div><div class="actions"><button data-test="approve" type="button" :disabled="busy" @click="beginReview('APPROVE')"><Icon name="check" :size="19" />批准授权</button><button type="button" class="secondary-button" :disabled="busy" @click="beginReview('REQUEST_INFO')"><Icon name="file" :size="17" />请求补证</button><button type="button" class="danger-button" :disabled="busy" @click="beginReview('REJECT')"><Icon name="close" :size="19" />拒绝</button></div></section>
+              <section v-if="canHumanReview && snapshot.authorization?.status === 'PENDING_REVIEW'" class="detail-section review-section"><div class="section-heading"><h3>审核决策</h3><span class="subtle">批准授权后仍需等待独立的退款执行结果</span></div><div class="actions"><button data-test="approve" type="button" :disabled="busy" @click="beginReview('APPROVE')"><Icon name="check" :size="19" />批准授权</button><button type="button" class="secondary-button" :disabled="busy" @click="beginReview('REQUEST_INFO')"><Icon name="file" :size="17" />请求补证</button><button type="button" class="danger-button" :disabled="busy" @click="beginReview('REJECT')"><Icon name="close" :size="19" />拒绝</button></div></section>
               <section v-else-if="isReviewer && snapshot.case.status === 'PENDING_REVIEW'" class="detail-section review-unavailable" aria-label="审核暂不可用"><Icon name="shield" :size="22" /><div><h3>暂无可审核授权</h3><p v-if="snapshot.authorization">当前授权{{ authorizationStatusLabel(snapshot.authorization.status) }}，不能再次审核；请核对工单轨迹与当前结果。</p><p v-else>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p></div></section>
               <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" />
             </template>

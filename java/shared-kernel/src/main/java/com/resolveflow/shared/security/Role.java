@@ -10,10 +10,15 @@ package com.resolveflow.shared.security;
 public enum Role {
     CUSTOMER,
     REVIEWER,
+    MERCHANT_ADMIN,
     OPERATOR;
 
     /** True when the role acts as one customer within a merchant rather than for the merchant. */
     public boolean isCustomerScoped() {
         return this == CUSTOMER;
+    }
+
+    public boolean isMerchantStaff() {
+        return this == REVIEWER || this == MERCHANT_ADMIN || this == OPERATOR;
     }
 }

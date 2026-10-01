@@ -1,6 +1,5 @@
 package com.resolveflow.caseservice.auth;
 
-import com.resolveflow.shared.security.DemoAccounts;
 import com.resolveflow.shared.security.JwtCodec;
 import java.time.Clock;
 import java.time.Duration;
@@ -25,11 +24,6 @@ public class IdentityConfiguration {
             @Value("${resolveflow.identity.jwt.secret}") String secret,
             @Value("${resolveflow.identity.jwt.ttl-seconds:3600}") long ttlSeconds) {
         return new JwtCodec(secret, Duration.ofSeconds(ttlSeconds));
-    }
-
-    @Bean
-    DemoAccounts demoAccounts(JwtCodec jwtCodec) {
-        return new DemoAccounts(jwtCodec);
     }
 
     /** The clock is a bean so tests can move time without touching the codec. */

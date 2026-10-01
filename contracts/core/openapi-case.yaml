@@ -31,7 +31,7 @@ servers:
       Internal routes are reachable in-cluster only, never through this URL.
 tags:
   - name: auth
-    description: Demonstration login. Synthetic seeded accounts only.
+    description: Persisted local accounts and current session identity.
   - name: orders
     description: Read-only order views scoped to the authenticated principal.
   - name: cases
@@ -74,7 +74,9 @@ paths:
       operationId: login
       summary: Exchange a synthetic account for a user JWT
       description: |
-        Seeded demonstration accounts only; there is no registration or password reset.
+        Persisted local accounts; there is no public registration. Disabled accounts and
+        disabled merchants cannot log in. User sessions carry identity_version; Case
+        checks account state, binding, role and revision on every public request.
         The token carries the principal, and the merchant it belongs to is taken from the
         account rather than from the request body (docs/core-contracts.md:15).
       security: []
@@ -107,6 +109,30 @@ paths:
           $ref: '#/components/responses/SemanticInvalid'
         '429':
           $ref: '#/components/responses/RateLimited'
+  /api/v1/auth/me:
+    get:
+      tags: [auth]
+      operationId: readCurrentIdentity
+      summary: Read the currently enabled persisted user identity
+      description: |
+        Validates the JWT and current account/merchant state, identity_version, role
+        and customer binding. Direct Case access performs the same checks as Gateway
+        access (docs/core-contracts.md:15). No passwords or service credentials returned.
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+              example:
+                username: demo-reviewer
+                role: REVIEWER
+                merchant_id: M-1001
+                display_name: 审核员 · demo-reviewer
+                merchant_name: ResolveFlow 演示商家一
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
   /api/v1/orders:
     get:
       tags: [orders]
@@ -1639,13 +1665,32 @@ components:
           maximum: 86400
         role:
           type: string
-          minLength: 1
-          description: Customer, merchant reviewer or operator; the token's role decides.
+          enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]
+          description: Persisted account role; merchant admins have read access until explicit takeover is implemented.
         merchant_id:
           type: string
           minLength: 1
         customer_id:
           type: [string, 'null']
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        merchant_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+    UserProfile:
+      type: object
+      additionalProperties: false
+      required: [username, merchant_id, role, display_name, merchant_name]
+      properties:
+        username: {type: string, minLength: 1, maxLength: 120}
+        merchant_id: {type: string, minLength: 1}
+        role: {type: string, enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
+        customer_id: {type: string, minLength: 1}
+        display_name: {type: string, minLength: 1, maxLength: 120}
+        merchant_name: {type: string, minLength: 1, maxLength: 120}
     OrderLineSummary:
       type: object
       additionalProperties: false
@@ -1811,7 +1856,7 @@ components:
           maxLength: 64
         appended_role:
           type: string
-          enum: [CUSTOMER, REVIEWER, OPERATOR]
+          enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]
         reviewed_evidence_id:
           oneOf:
             - $ref: '#/components/schemas/Uuid'
@@ -2183,7 +2228,7 @@ components:
             sentence; the sentence quotes the same reason for the person reading it.
         decided_role:
           type: string
-          enum: [CUSTOMER, REVIEWER, OPERATOR]
+          enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]
           description: |
             The role the decision was made in, absent while nobody has decided. The same
             vocabulary the material carries (EvidenceView.appended_role), because both answer

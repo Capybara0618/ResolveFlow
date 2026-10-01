@@ -32,7 +32,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 21, "Commerce": 5, "Agent": 6}
+EXPECTED_ROUTE_COUNTS = {"Case": 22, "Commerce": 5, "Agent": 6}
 
 #: Routes the compat baseline has and core must not expose (docs/core-contracts.md:53).
 DEFERRED_PATH_FRAGMENTS = (

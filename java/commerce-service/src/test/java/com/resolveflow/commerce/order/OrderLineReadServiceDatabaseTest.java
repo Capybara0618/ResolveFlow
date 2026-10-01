@@ -31,11 +31,31 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
     JdbcTemplate jdbc;
 
     @Test
+    void theSecondMerchantSecondCustomerHasAnIsolatedUsableOrder() {
+        var own = service.list("M-1002", "C-2005", null, null).items();
+        assertThat(own).extracting(OrderLineRow::lineId).containsExactly("7301");
+        assertThat(own.getFirst().linePaidAmount()).isEqualTo(22900);
+        assertThat(own.getFirst().productName()).isEqualTo("合成演示 · 轻便运动鞋");
+        assertThat(service.list("M-1001", "C-2005", null, null).items()).isEmpty();
+        assertThat(service.list("M-1002", "C-2004", null, null).items())
+                .extracting(OrderLineRow::lineId)
+                .doesNotContain("7301");
+        assertThat(jdbc.queryForObject(
+                        "SELECT paid_amount FROM payment_ledger WHERE order_id=?",
+                        Long.class,
+                        own.getFirst().orderId()))
+                .isEqualTo(22900);
+        assertThat(jdbc.queryForObject("SELECT carrier_conclusion FROM shipment WHERE line_id='7301'", String.class))
+                .isEqualTo("LOST");
+    }
+
+    @Test
     @DisplayName("the presentation columns are optional: a historical row answers null, a named row answers both")
     void theDisplayColumnsAreOptionalAndNeverEnterTheRefundRead() {
         // The seed predates V7, so both members are null — not empty strings and not a default,
         // because "not provided" is what a reviewer has to be able to see.
-        OrderLineRow seeded = service.list("M-1001", "C-2002", null, null).items().get(0);
+        OrderLineRow seeded =
+                service.list("M-1001", "C-2002", null, null).items().get(0);
         assertThat(seeded.productName()).isNull();
         assertThat(seeded.variantText()).isNull();
 
@@ -45,7 +65,8 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
                 "深空灰 · 标准版",
                 "7002");
 
-        OrderLineRow named = service.list("M-1001", "C-2002", null, null).items().get(0);
+        OrderLineRow named =
+                service.list("M-1001", "C-2002", null, null).items().get(0);
         assertThat(named.productName()).isEqualTo("演示商品 · 降噪耳机");
         assertThat(named.variantText()).isEqualTo("深空灰 · 标准版");
         // The refund re-check reads LineContext, which deliberately does not carry them: a display

@@ -72,7 +72,7 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
                 "UPDATE aftersale_case SET status='WAITING_CUSTOMER',description='需要补充物流材料' WHERE case_id=?", waiting);
         jdbc.update("UPDATE aftersale_case SET status='CLOSED_REJECTED' WHERE case_id=?", closed);
         commerce.lineMerchant = "M-2002";
-        String other = openCase(token("other", "M-2002", Role.CUSTOMER, "C-2004"), "M-2002");
+        String other = openCase(token("test-customer-m2002-queue", "M-2002", Role.CUSTOMER, "C-2004"), "M-2002");
         assertThat(caseIds(queue(reviewer, "view=WAITING"))).containsExactly(waiting);
         assertThat(caseIds(queue(reviewer, "view=CLOSED"))).containsExactly(closed);
         assertThat(caseIds(queue(reviewer, "view=ALL&query=" + closed))).containsExactly(closed);
@@ -87,6 +87,8 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
 
     @BeforeEach
     void prepare() {
+        registerTestAccount("test-reviewer-m2002", "M-2002", "REVIEWER", null);
+        registerTestAccount("test-customer-m2002-queue", "M-2002", "CUSTOMER", "C-2004");
         deleteAllCaseData(jdbc);
         commerce.reset();
     }
@@ -247,11 +249,11 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
         // merchant, so this test could use any id and get M-1001's policy — which is also why a second merchant
         // was impossible to onboard. M-2002 is the merchant the shipped fixtures carry a policy set for.
         String reviewerM1 = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
-        String reviewerM2 = token("demo-reviewer-m2", "M-2002", Role.REVIEWER, null);
+        String reviewerM2 = token("test-reviewer-m2002", "M-2002", Role.REVIEWER, null);
         commerce.lineMerchant = "M-1001";
         String mine = openCase(token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002"), "M-1001");
         commerce.lineMerchant = "M-2002";
-        String other = openCase(token("demo-customer-m2", "M-2002", Role.CUSTOMER, "C-2004"), "M-2002");
+        String other = openCase(token("test-customer-m2002-queue", "M-2002", Role.CUSTOMER, "C-2004"), "M-2002");
         handOver(mine);
         handOver(other);
 

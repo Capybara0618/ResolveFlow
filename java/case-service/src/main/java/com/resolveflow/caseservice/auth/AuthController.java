@@ -1,11 +1,13 @@
 package com.resolveflow.caseservice.auth;
 
-import com.resolveflow.shared.security.DemoAccounts;
+import com.resolveflow.caseservice.order.RequestPrincipalResolver;
 import java.time.Clock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,18 +23,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final DemoAccounts accounts;
+    private final PersistentAccounts accounts;
     private final Clock clock;
+    private final RequestPrincipalResolver principals;
 
-    public AuthController(DemoAccounts accounts, Clock clock) {
+    public AuthController(PersistentAccounts accounts, Clock clock, RequestPrincipalResolver principals) {
         this.accounts = accounts;
         this.clock = clock;
+        this.principals = principals;
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        DemoAccounts.Login login =
-                accounts.login(request.username(), request.password(), IdentityConfiguration.now(clock));
-        return ResponseEntity.status(HttpStatus.OK).body(LoginResponse.from(login));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accounts.login(request.username(), request.password(), IdentityConfiguration.now(clock)));
+    }
+
+    @GetMapping("/me")
+    public PersistentAccounts.Profile me(
+            @RequestHeader(name = "Authorization", required = false) String authorization) {
+        return principals.profile(authorization);
     }
 }

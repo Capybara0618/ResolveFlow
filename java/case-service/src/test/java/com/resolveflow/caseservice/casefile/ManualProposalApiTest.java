@@ -279,6 +279,8 @@ class ManualProposalApiTest extends CaseDatabaseTest {
 
     @BeforeEach
     void prepare() {
+        registerTestAccount("other", "M-9999", "REVIEWER", null);
+        registerTestAccount("other-reviewer", "M-2002", "REVIEWER", null);
         jdbc.execute("DELETE FROM case_policy_bundle");
         jdbc.execute("DELETE FROM case_policy_manifest");
         jdbc.execute("DELETE FROM policy_rule");

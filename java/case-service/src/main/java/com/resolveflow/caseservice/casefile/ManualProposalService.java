@@ -67,7 +67,7 @@ public class ManualProposalService {
     @Transactional
     public ManualProposalResponse submit(
             AuthenticatedPrincipal principal, String caseId, ManualProposalRequest request) {
-        CaseStaff.require(
+        CaseStaff.requireReviewer(
                 principal,
                 "a manual proposal is merchant staff's account of the case; a customer-scoped token"
                         + " may not submit one");
