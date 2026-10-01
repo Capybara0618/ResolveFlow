@@ -1,0 +1,125 @@
+{
+  "final_images": 16,
+  "local_links_checked": 72,
+  "png_crc_and_decompression": "PASS",
+  "visual_review": "16 original screens inspected; 11 targeted corrected selections reviewed. Remaining small text/layout differences explicitly listed in README.",
+  "browser_preview": "Local HTML launch requested via Start-Process; Vite @fs outside web root returned403; browser functional acceptance NOT_RUN.",
+  "business_tests": "NOT_RUN - design artifacts only",
+  "generation_count": 16,
+  "edit_count": 11,
+  "images": [
+    {
+      "file": "images/01-login.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1105418,
+      "sha256": "9b5a368f51d401f140239fd7d3cdc6d71a8e00ef4d3a857b61e1777d71ada030"
+    },
+    {
+      "file": "images/02-customer-orders-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1229731,
+      "sha256": "93e1945f26696e3c9290e40df4d062c0aee70d3aa13f1775c914828280f5f459"
+    },
+    {
+      "file": "images/03-customer-apply-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1278256,
+      "sha256": "c3ff0544df157785f11461eea442fa041587cd71a78e873785406d9fcd9a9015"
+    },
+    {
+      "file": "images/04-customer-applications-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1276307,
+      "sha256": "27f7b1913bfd31ee5ac90a1451815c4b98b106feb0a5b19d0082d842eceea2d5"
+    },
+    {
+      "file": "images/05-customer-detail-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1336409,
+      "sha256": "7bbd35290a8d3912e0ad24c5f27cf91c889b5f86edd22efa369a553292d3e3c9"
+    },
+    {
+      "file": "images/06-customer-results-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1340337,
+      "sha256": "9ea62df637520e782a9e15bb30c9a168c5922011de487600287f382c89144156"
+    },
+    {
+      "file": "images/07-merchant-queue-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1306192,
+      "sha256": "c6a892c7faba73b4a0e026cb868eb9a77f432855978ad1297116d05a09ccf9d5"
+    },
+    {
+      "file": "images/08-merchant-detail-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1395307,
+      "sha256": "e52856e6341a57e82c8a540536fbd018bf6b6178b689ea9881be8c604b81a1e8"
+    },
+    {
+      "file": "images/09-merchant-actions-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1265637,
+      "sha256": "4e4aad71f47e3d1495bbd7d0e5d63af8ccc6cf7e1b1a8b932906b6bba8c6c4c5"
+    },
+    {
+      "file": "images/10-admin-overview-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1320149,
+      "sha256": "68db96c90c727e756a497223c7b0687a3d3f9bd8e4cea5e7f735b3e4c73d9450"
+    },
+    {
+      "file": "images/11-admin-people.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 997552,
+      "sha256": "df2e15ed0df06de3788dbbeb2ce1414ca852d04d8539835afc40ce2ff889d335"
+    },
+    {
+      "file": "images/12-admin-policy.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1110168,
+      "sha256": "91896273a3db70bf3ac2c4a24de95f7f0f960c1b47435ce5d68ee64e1fefe42c"
+    },
+    {
+      "file": "images/13-system-states.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1007167,
+      "sha256": "96598531369310dd20e34add38a64f1816bb9cece722628c1221cbe94784ceea"
+    },
+    {
+      "file": "images/14-merchant-workviews-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1394044,
+      "sha256": "d893ddbd0297d61dda65e331b906233eebb2925c025ea1d984b62f5a4ad50644"
+    },
+    {
+      "file": "images/15-merchant-sources-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1379298,
+      "sha256": "f915aad42351778897174451543919d32d5807786d3bfb1ded85fb9144ea314b"
+    },
+    {
+      "file": "images/16-account-and-exit-actions.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1285165,
+      "sha256": "815b6ff2444c0c3becbdea0145573db6e1b7fea5e35c10579aef3e55c41e9bea"
+    }
+  ],
+  "diff_check": "Initial staged check failed on CRLF JSON lines; normalized design JSON to LF, staged and reran both diff checks successfully."
+}

@@ -1,0 +1,89 @@
+{
+  "mode": "built-in image_gen",
+  "model_version": "Not exposed by tool; GPT Image 2 not independently confirmed",
+  "date": "2026-10-01",
+  "base": "Use case: ui-mockup. Generate one high-fidelity desktop browser screen for ResolveFlow, Chinese after-sales refund application. Front-on flat screenshot, wide landscape 16:10, crisp legible simplified Chinese typography, fully visible uncropped UI, no device mockup. Consistent calm polished light theme: white surfaces, very pale blue-gray background #f6f8fc, cobalt #0b5cff primary buttons, navy headings, restrained gray body, fine #e4eaf3 borders, 10px card corners, spacious 8px spacing, subtle shadows, slim outline icons. Brand ResolveFlow blue four-square mark. Header height 60, sidebar width 180 except login. A small top badge says '目标设计 · 合成演示'. This is a realistic modest merchant refund workspace, not ecommerce marketplace or enterprise platform. Customer, 售后专员 and 商家管理员 use same design language. No cross-merchant selector, no media uploads, no memberships, coupon eligibility, fake payment transaction IDs, approval quota, or unsupported reship. Only full single-order-line CNY simulated refunds, final human approval, Agent advice not authority. Prefer a few short readable labels over dense paragraphs. Use consistent sample date 2026-10-01, merchant 松间数码, product 无线降噪耳机 Pro / 深空灰, quantity 1, paid ¥329.00. Customer 周雨, specialist 林晓云, administrator 陈经理. Never imply actual real-world refund.  STRICT NAVIGATION: Customer sidebar contains EXACTLY two items '我的订单' and '我的申请', nothing else. No 首页, 个人中心, 个人资料, 我的消息, 设置, 售后服务. Customer final audit is by 商家工作人员, not admin exclusively. Sample product tiles are illustrative placeholders, not factual images.",
+  "pages": [
+    {
+      "id": "01-login",
+      "title": "登录",
+      "prompt": "Shared login page. Left 55% airy brand panel with tasteful small abstract blue connected order-document shapes and headline '让每一次售后，都有清晰的结果', subheading '申请、调查、审核，连成一个完整流程'. Right white card '登录 ResolveFlow', username labeled '用户名', password labeled '密码', checkbox absent, primary '登录', secondary note '登录后根据账号权限进入对应工作台'. Footer '演示环境 · 合成订单 · 模拟退款'. No public registration, role-switch buttons, OAuth, forgotten-email password link or tenant selector. Tiny visual pathway '客户申请 → Agent辅助调查 → 商家人工审核'."
+    },
+    {
+      "id": "02-customer-orders",
+      "title": "客户 · 我的订单",
+      "prompt": "Customer page, header 松间数码 / 周雨 · 客户. Sidebar 我的订单 selected, 我的申请 with orange small 1 badge. Main title '我的订单', subtitle '选择订单中的商品，发起售后申请'. Search 商品名称或订单号, paginated large clean order cards. First order 2026-09-28 wireless headphones gray minimalist product tile, ¥329.00, 已支付, primary '申请退款'. Second order portable keyboard ¥199.00 tag '申请处理中', link '查看当前申请'. Third mouse ¥89.00 tag '已退款', secondary '查看结果'. Only first actionable refund. Column product/实付金额/售后状态/操作. No shopping/cart/buy button. Footer '共3笔订单' and pagination. Clean welcoming task-oriented page."
+    },
+    {
+      "id": "03-customer-apply",
+      "title": "客户 · 申请退款",
+      "prompt": "Customer sidebar 我的订单 selected. Breadcrumb '我的订单 / 申请退款', title '申请退款'. Left wide form card; right narrow summary card. Fixed product/order ¥329.00 quantity1, fixed full amount pale blue block '申请退款金额 ¥329.00' small '本次退还该商品全部实付金额，金额不可修改'. Main textarea '情况说明' filled short '收到耳机后右耳持续有电流声，重置后仍无法正常使用。'; optional textarea '补充材料（文本）' filled '已尝试更换设备，问题仍然存在。'; note '请如实描述，可在后续补充说明'. Bottom primary '提交申请', secondary '返回订单'. Right '申请后会发生什么' vertical step list '提交成功 / 商家与Agent调查 / 必要时补充说明 / 人工审核 / 查看结果'. State fixed amount, no reason-as-verified claim, no photo/video upload, no partial refund."
+    },
+    {
+      "id": "04-customer-applications",
+      "title": "客户 · 我的申请",
+      "prompt": "Customer sidebar 我的申请 selected orange1. Title '我的退款申请', subtitle '查看处理进度，及时回答商家的问题'. Status tabs '全部 4', '待补充 1', '处理中 1', '待审核 1', '已结束 1'; search订单或申请编号. Four crisp full-width rows show headphones 329 orange '待补充说明' action '去回答'; keyboard199 blue '调查中' action '查看进度'; lamp159 purple '待人工审核' action '查看详情'; mouse89 green '模拟退款成功' action '查看结果'. Each row short human-readable display reference RF-20261001-001 (not UUID), request description, time. A subdued top reminder '你有1条问题需要回答'. No internal reviewer names or model confidence."
+    },
+    {
+      "id": "05-customer-detail",
+      "title": "客户 · 申请详情与补证",
+      "prompt": "Customer sidebar 我的申请 selected. Breadcrumb 我的申请 / 申请详情. Title '退款申请' orange '待补充说明', display ref RF-20261001-001. Wide central column and narrow right summary. Top process rail '已提交 → 调查中 → 待补充 → 人工审核 → 处理结果', current待补充. Prominent orange bordered question card '商家需要你补充说明', question '请说明重置耳机后，是否仍在不同设备上出现电流声？', deadline '请在2026-10-04 14:22前回答', multiline textarea answer '已在手机和电脑上分别测试，右耳都有电流声。', primary '提交回答', note '提交后会根据新材料继续调查'. Below '原始申请' and '已提交材料' text cards; short history '10-01 14:22 申请已提交 / 14:28 商家要求补充说明'. Right order summary amount329 plus subdued '撤销申请' and note '开始执行后不可撤销'. No raw question ID, Agent recommendations, staff identity, tool logs visible."
+    },
+    {
+      "id": "06-customer-results",
+      "title": "客户 · 结果与等待状态",
+      "prompt": "One polished UI state sheet, landscape, consistent customer申请详情 shell as small topstrip, then three equally spaced large customer result cards across canvas. Heading '客户如何看懂处理结果'. Card1 green check '模拟退款成功', '¥329.00', '商家已批准全额退款，模拟退款已完成', small final timeline, '返回我的申请'. Card2 red soft icon '申请未通过', public reason '现有材料不足以支持本次退款申请', '本次未执行退款', '返回我的申请'. Card3 amber clock '退款结果待确认', '系统正在核对本次执行结果，请等待更新', '暂不可撤销或再次发起退款', muted timeline '已批准 / 执行结果待确认', action '刷新进度'. Bottom two slim states '申请已撤销：本次申请已结束，未执行退款' and '补证期限已过：等待商家进一步处理'. Top badge '目标设计 · 合成演示'. No retry-pay buttons, no claim actual bank refund. Each is detail-page variant not separate fake app."
+    },
+    {
+      "id": "07-merchant-queue",
+      "title": "商家 · 工单队列",
+      "prompt": "Same app merchant workspace header 松间数码 / 林晓云 · 售后专员. Sidebar '公共队列' active, '我的工单', '需关注', '历史查询'. Main title '工单队列'. Scope pill controls 未领取 / 我的工单 / 全部工单; status tabs 待审核 / 待补证 / 调查中 / 需关注 / 已结束; search 商品、申请编号或客户. Clean table columns 申请/客户/金额/状态/当前负责人/更新时间/操作. 5 synthetic rows diverse statuses. First RF001 周雨329待审核未领取 primary '领取并查看'; second RF002 刘宁199待审核林晓云 '继续处理'; third RF003 王禾159待补证赵清 '只读查看'; fourth RF004 陈星89调查中未领取 '查看'; fifth RF005 李乐459需关注林晓云 '处理异常'. Top compact reminder '新增2张工单' with刷新列表. Only publicqueue no personnel/policy adminnav forspecialist, no charts, allsame merchant. Small foot '领取后方可执行审核操作'."
+    },
+    {
+      "id": "08-merchant-detail",
+      "title": "商家 · 工单详情与Agent建议",
+      "prompt": "Hero main reviewer screen close to original reference 4-column layout: slim sidebar 160, queue 260, central detail800, right context300. Header ResolveFlow 松间数码 林晓云·售后专员. Selected queueRF001 '商品异常，申请全额退款', amount329. Central title '退款工单' tag '待人工审核', current '负责人 林晓云' with low-emphasis '转交'. Order card wirelessheadphones329. '客户原始描述' short electrostatic-noise statement. '提交材料' two textmaterial tiles badges '客户陈述' and '人工核验：待核验', no fake pictures. Large refined pale blue 'Agent 调查建议' card: '建议先核验，再决定退款', badge '辅助建议 · 当前材料版本', sections '已确认事实：订单实付329元' / '客户主张：右耳持续电流声' / '缺失信息：商品异常尚未经人工核验'. RAG compact citation row '引用政策：售后政策 / 质量问题条款 / 2026.09' with '查看原文'. Thin timeline on card right shows读取订单、检索政策、生成建议, no unsupported authenticity. Right cards '订单与客户' / '处理权限：你是当前负责人' / '执行状态：尚未执行'. Sticky bottom buttons '批准退款' disabled with reason '尚需核验商品问题', active neutral '要求补充说明', lightred '拒绝申请'; subtle link '人工方案'. Thin top subtitle 'Agent不能代替人工决定'. Balanced layout readable not overloaded."
+    },
+    {
+      "id": "09-merchant-actions",
+      "title": "商家 · 核验、补证与审批交互",
+      "prompt": "A UI design sheet of four distinct centered modal/drawer panels in 2x2 layout, matching same merchant shell, heading '售后处理的关键操作'. Panel1 '人工核验材料', original '客户称右耳有电流声', radio '确认属实 / 无法确认 / 与事实不符', required textarea '核验依据与说明', info '保存后重新调查，旧建议失效', button '保存核验'. Panel2 '要求补充说明', '本次为第1轮，最多2轮', textarea exact question '重置后是否在其他设备上仍出现电流声？', waiting期限72小时, '发送问题'. Panel3 '批准全额退款', product and fixed¥329.00, textarea '审核理由', summary '当前材料和方案版本已确认', note '确认后进入模拟退款执行', '确认批准'. Panel4 '拒绝申请', required '向客户说明理由', filled '现有材料不足以支持本次退款申请', note '拒绝后本次申请结束', '确认拒绝'. Every panel has取消 and x. Small undercard '人工方案：Agent不可用时，由负责人填写依据，经服务端复核后审批'. No paymentautoconfirm or unsupported editamount."
+    },
+    {
+      "id": "10-admin-overview",
+      "title": "商家管理员 · 概览与协作",
+      "prompt": "Same merchantworkspace admin 陈经理·商家管理员. Sidebar 工单概览 selected, 公共队列, 我的工单, 需关注, 历史查询, divider, 人员管理, 政策资料. Main '商家工单概览', subtitle '优先处理无人负责和需要关注的工单'. Three modest summary counts 未领取3 / 我的待办2 / 需关注1 all labeled '演示样例'. Table '需要协调的工单' rows unclaimed待审 with分配/查看, disabled-owner待补充 with转交, Unknown执行待确认 with仅查看 button. Right slim staff card 2 active specialists 林晓云 / 赵清, links管理人员. No revenue/GMV/performance charts. Lower two adjacent compact operation dialog examples '转交工单' target enabledsame merchant赵清, mandatoryreason,button确认转交; '接管工单' existingowner赵清 mandatoryreason, warning '接管后原负责人不能继续操作',button确认接管. Adminmusttakeoverbeforeapproval, UNKNOWNrowcannotretakepayment, rolesamebusinessworkspace."
+    },
+    {
+      "id": "11-admin-people",
+      "title": "商家管理员 · 人员管理",
+      "prompt": "Admin sameheader 陈经理, sidebar人员管理selected. Main title '人员管理', subtitle '管理本商家账号与使用权限'. Toolbar search用户名或姓名, rolefilter全部角色, statusfilter启用, primary新增账号. Table username/name/role/status/action: merchant-admin 陈经理商家管理员启用 '维护'; demo-reviewer 林晓云售后专员启用 '维护'; demo-reviewer-2 赵清售后专员启用 '维护'; demo-customer 周雨客户启用 '维护'; reviewer-old 吴冬售后专员已停用 '启用'. Right open drawer '维护账号': username readonlydemo-reviewer-2, displayname赵清 editable, role dropdown售后专员, fixed商家松间数码, enabledtoggle, secondarybutton '重置密码', note '停用或变更权限后，旧会话失效', savebutton. Lower smallinline alert '必须保留至少一个启用的商家管理员'. No roleplatformadmin, no deletecustomerorders, no plaintext passworddisplay."
+    },
+    {
+      "id": "12-admin-policy",
+      "title": "商家管理员 · 政策只读与依据阅读",
+      "prompt": "Adminsameheader 陈经理 sidebar政策资料selected. Main title '政策资料' subtlebadge '只读'. Two-column split left260 versionlist, right large document. List售后政策2026.09 index已就绪 active effective2026-09-01; older2026.08 已归档; explanatory '历史工单沿用申请时绑定的政策'. Right title售后政策2026.09, metadata松间数码 / 生效日期2026-09-01 / 索引已就绪, small示例政策badge. Section '质量问题退款' short originalparagraph '经人工核验确认商品存在质量问题时，可申请该订单行全额退款。' and paleamber '适用条件与例外：客户单方陈述不能直接视为已核验事实。'. Lower separated card 'Agent解释（辅助）' and '服务端复核（约束）', original clearly distinct frominterpretation. '查看条款来源' detail link. No onlineedit/publish or model policymodification buttons, no silentlysubstituteboundversion. Footer '政策通过受控导入更新，页面仅供查阅'."
+    },
+    {
+      "id": "13-system-states",
+      "title": "公共 · 空态与异常",
+      "prompt": "UI design sheet with six readable small panels in 2x3 grid, heading '页面异常与空态', same ResolveFlow pale-blue desktop style. Panels: '暂无退款申请' button '查看我的订单'; '正在加载' subtle skeletons; '登录已过期' button '重新登录' note '重新登录后回到原页面'; '账号已停用' note '请联系所属商家管理员' button '返回登录'; '页面不可访问' note '申请不存在或你没有访问权限' button '返回工作台'; '内容已更新' note '其他操作已改变工单，请刷新后重新确认' button '刷新详情'. Tiny bottom inline variant '网络连接中断：已保留当前填写内容，可重试读取'. No public password recovery, no automatic dangerous retry of refund."
+    },
+    {
+      "id": "14-merchant-workviews",
+      "title": "商家 · 我的工单、需关注与历史",
+      "prompt": "Design sheet with three compact desktop merchant page variants stacked vertically, each same ResolveFlow sidebar, primarily mainlist, no enormous header repetition. Overall title '商家工作台的三个工作视图'. Top '我的工单' badges待审核2/待补证1/调查中1, two rows currentowner林晓云, action继续处理 and释放 (reasonrequired). Middle '需关注' rows 'Agent调查未完成：可人工接管调查' / '负责人已停用：等待管理员转交' / '退款结果待确认：仅查看与对账等待'; no retry payment. Bottom '历史查询' search订单或申请编号, closedrows模拟退款成功329 and拒绝199 and客户已撤销89; readonly查看结果. Modest top perview提醒 '新增待办，刷新列表'. No performancescore, crossmerchant, assigning unknownrefund, fake physicalpayments."
+    },
+    {
+      "id": "15-merchant-sources",
+      "title": "商家 · 调查依据与人工方案",
+      "prompt": "Polished design sheet showing two large side-by-side drawer panels on faint same merchant detail shell. Left drawer '调查依据', top badges '当前材料版本' '模型来源：演示样例', three tabs '订单与物流 / 政策原文 / 调查记录'. Selected政策原文 shows linked '售后政策2026.09 / 质量问题条款', highlighted original '经人工核验确认商品存在质量问题时，可申请该订单行全额退款。', warning '客户单方陈述不能直接视为已核验事实'. Below 'Agent解释' clearly separate '建议先核验商品异常', sourcecard '订单实付329元', gray unavailablecard '物流原始记录未提供', expandbutton '查看已保存的工具记录'. Right drawer '人工处理方案', banner 'Agent调查未完成，可由当前负责人继续处理', fixed金额329, fields '处理建议' dropdown全额退款 / 拒绝, required '事实与依据' textarea, '引用政策' version2026.09 readonlyselectionbound policy, note '保存后由服务端复核，方案通过后再进行人工审批', button '保存并复核',取消. No arbitraryamount, no guaranteed pass, no restore oldadvice, no rawprompts exposedtocustomer."
+    },
+    {
+      "id": "16-account-and-exit-actions",
+      "title": "公共 · 账号与结束操作",
+      "prompt": "Generate a landscape 2x2 UI modal design sheet WITHOUT ANY SIDEBAR, header only ResolveFlow and badge目标设计·合成演示, pageheading '账号与结束操作'. Match white/pale-blue/cobaltChinese desktop UI. Four panels: Top-left '新增账号' subtitle仅本商家管理员, fields用户名（全局唯一）,显示姓名,角色 dropdown售后专员 (available客户/售后专员/商家管理员),所属商家松间数码 read-only,初始密码 masked bullets,取消/创建账号. Top-right '重置密码' subtitle账号demo-reviewer-2, newpassword andconfirmation masked, note重置后该账号旧会话失效,取消/确认重置. Bottom-left '撤销退款申请' subtitle客户本人操作, orderheadphones ¥329.00, required撤销理由textarea, note仅开始执行前可撤销，撤销后本次申请结束,取消/确认撤销. Bottom-right '释放工单' subtitle当前负责人操作, displayRF001, required释放理由textarea, note工单回到未领取，业务状态和调查材料保持不变,取消/确认释放. Requiredstarfields, allsyntheticpasswords masked, no plain secrets. These are four independent modalvariants, no newnavigation or fakebusinessprivileges."
+    }
+  ],
+  "note": "Exact generation bases and all corrections are recorded in generation-record.json. Page16 used its page prompt without base."
+}
