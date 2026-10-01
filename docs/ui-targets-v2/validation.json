@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-01",
+  "final_images": 19,
+  "new_final_assets": 17,
+  "reused_assets": 2,
+  "local_links_checked": 95,
+  "png_crc_decompression_dimensions": "PASS",
+  "gallery_manifest_roles": "PASS",
+  "v1_images_unchanged": 16,
+  "visual_review": "19 final designs inspected; 8 corrections inspected; literal differences documented in review.md",
+  "browser_business_acceptance": "NOT_RUN - static design artifacts only",
+  "business_tests_and_deepseek": "NOT_RUN - no runtime changes",
+  "images": [
+    {
+      "id": "01-login",
+      "file": "../ui-targets-v1/images/01-login.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1105418,
+      "sha256": "9b5a368f51d401f140239fd7d3cdc6d71a8e00ef4d3a857b61e1777d71ada030"
+    },
+    {
+      "id": "02-customer-orders",
+      "file": "images/02-customer-orders.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1182073,
+      "sha256": "15fc323db02fa145d6991efeefddb1281ed1c41cbd29b4233666a3f4cfc58c1e"
+    },
+    {
+      "id": "03-customer-apply",
+      "file": "images/03-customer-apply.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1292542,
+      "sha256": "ac2f01bda27d4fdc85233df48285027435b78883288ba97ca24f5630f2d1f926"
+    },
+    {
+      "id": "04-customer-applications",
+      "file": "images/04-customer-applications.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1226017,
+      "sha256": "c794a8d875362f17459495e82a8f6974191ecd0f6e6c7201f428f2fa95cdefd2"
+    },
+    {
+      "id": "05-customer-detail",
+      "file": "images/05-customer-detail.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1350656,
+      "sha256": "cf7b43ed9b4ec1ce0b9fb581b49e59d53047f4e428fd53c4c579c58723438ec0"
+    },
+    {
+      "id": "06-customer-results",
+      "file": "../ui-targets-v1/images/06-customer-results-v2.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1340337,
+      "sha256": "9ea62df637520e782a9e15bb30c9a168c5922011de487600287f382c89144156"
+    },
+    {
+      "id": "07-merchant-queue",
+      "file": "images/07-merchant-queue.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1127167,
+      "sha256": "c26c8a3c4d5752b71e1fe95a8e69d55eb84a850302e00d2c44a573a3524d97f5"
+    },
+    {
+      "id": "08-merchant-detail",
+      "file": "images/08-merchant-detail.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1428214,
+      "sha256": "6f8ea2eb85b0904b1873dbb6cb64e90734917bad82757b86db499b57757234ca"
+    },
+    {
+      "id": "09-merchant-actions",
+      "file": "images/09-merchant-actions.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1317181,
+      "sha256": "e9e2b68e38f69bd5b7737e1bb6dfc6a4f604ff20a9148f8040a97f74231df6a9"
+    },
+    {
+      "id": "10-admin-overview",
+      "file": "images/10-admin-overview.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1098696,
+      "sha256": "fd34e11b10f38bea77cfc9d9615dcae3ecc4bc5f64969e58e3ed799c4bf81173"
+    },
+    {
+      "id": "11-admin-people",
+      "file": "images/11-admin-people.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1050095,
+      "sha256": "021db6310bb78cc1918dcbc52f729e65d6d0fbfa38099d1183118ec78aff0c10"
+    },
+    {
+      "id": "12-admin-policy",
+      "file": "images/12-admin-policy.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1419768,
+      "sha256": "3232695931377373c8544c21aabb950fe2e06c85fd0f6e231f449e3b35158f56"
+    },
+    {
+      "id": "13-system-states",
+      "file": "images/13-system-states.png",
+      "width": 1585,
+      "height": 992,
+      "bytes": 1058336,
+      "sha256": "24f46355a848ba64abe9382773d94cbc7da50b4eaaadaf8448020eef56180850"
+    },
+    {
+      "id": "14-merchant-workviews",
+      "file": "images/14-merchant-workviews.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1330775,
+      "sha256": "d55594d7a814e528430ebbdffabe283febefef7101e722645963a69243bb98a7"
+    },
+    {
+      "id": "15-merchant-sources",
+      "file": "images/15-merchant-sources.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1259884,
+      "sha256": "41145824230849ffb8752912c3f1dc9e89d35ba0d58991b7c9a49379aad3eb0c"
+    },
+    {
+      "id": "16-account-and-exit-actions",
+      "file": "images/16-account-and-exit-actions.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1247014,
+      "sha256": "a74060e3469829351ce721a9b1b0e45cd7b021c0f6a8c452cd0267f09cdb9e21"
+    },
+    {
+      "id": "17-customer-transitions",
+      "file": "images/17-customer-transitions.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1411476,
+      "sha256": "3267c93d3acc7db5205d3dda7cefe1abffb11b4faaec4a4b7b942a0fc51531e1"
+    },
+    {
+      "id": "18-merchant-transitions",
+      "file": "images/18-merchant-transitions.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1556470,
+      "sha256": "e7dde3253e1ed74cc13ea847356c5c475efbece03f0ddc2cdf600b9d5d588259"
+    },
+    {
+      "id": "19-merchant-execution",
+      "file": "images/19-merchant-execution.png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 1434696,
+      "sha256": "846db806d1e189392acabe33af7f13e2f8fd1eaaf0c7d7f12d3c5768359800e7"
+    }
+  ]
+}

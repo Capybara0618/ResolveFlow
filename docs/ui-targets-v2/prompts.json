@@ -1,0 +1,161 @@
+{
+  "date": "2026-10-01",
+  "mode": "built-in image_gen",
+  "model_version": "Not exposed by built-in image_gen",
+  "style": "Use case: ui-mockup. High-fidelity flat desktop ResolveFlow screenshot, same white/pale-blue/cobalt style as referenced screen. Keep original proportions, 16:10 landscape, crisp simplified Chinese, thin borders, subtle rounded cards, compact readable text. This is target UI, synthetic sample data and simulated refunds, never live business. Preserve visual layout unless specified. Do not add any page or feature absent from this request. Use navy headers, #0b5cff primary, grey disabled controls. ",
+  "sample": " Canonical main sample: 商家 松间数码, 客户 周雨, 售后专员 林晓云, 管理员 陈经理; 无线降噪耳机 Pro / 深空灰 / quantity1 / ¥329.00; order OD202609280001, paid2026-09-28 10:15; application RF20261001001 submitted2026-10-01 14:22. Short RF001 permitted only in compact queue, same applicant and329. Other rows may be explicitly different cases; NEVER use329headphonesimageforotheramounts/products. Product images are illustrative sample tiles. Header badge '目标设计 v2 · 合成演示'. Customer nav exactly 我的订单/我的申请. Specialist nav exactly 公共队列/我的工单/需关注/历史查询. Admin SAME businessnav plus 工单概览/人员管理/政策资料 (7 items, current selected). Static merchant name, no tenant dropdown. Header identity shows name/role plus dropdown containing only '账号身份' and '退出登录' (menu can be collapsed); no decorative bell. No personal center, shop, upload, realpay, coupons, confidence-as-permission. Form limits use placeholder '按实际规则校验', not fake counters. Footer fixed '合成数据 · 模拟退款'.",
+  "assets": [
+    {
+      "id": "01-login",
+      "title": "登录",
+      "role": "common",
+      "source": null,
+      "prompt": null,
+      "reuse": "../ui-targets-v1/images/01-login.png"
+    },
+    {
+      "id": "02-customer-orders",
+      "title": "客户 · 我的订单",
+      "role": "customer",
+      "source": "02-customer-orders-v2.png",
+      "prompt": "Edit only these details: first row 售后状态 已支付 becomes 可申请退款 (order paid fact can stay above row separately). Remove decorative bell. Normalize first order number and paid time to canonical sample. Keep other two clearly distinct keyboard199 and mouse89. Header name 周雨·客户; sidebar exactly twoitems. Show pagination '共3条 / 第1页'. Preserve original main layout and buttons.",
+      "reuse": null
+    },
+    {
+      "id": "03-customer-apply",
+      "title": "客户 · 申请退款",
+      "role": "customer",
+      "source": "03-customer-apply-v2.png",
+      "prompt": "Normalize fixed order summary to canonical sample; replace 收货人 with 申请人 周雨. Remove bell. Add accurate subtle inline design-state annotation under initial text materials: '工单已创建但材料未保存时：进入详情，仅重试未保存材料'. Form default cannot show this error as occurred; mark as '失败状态示例'. Remove fabricated character counters. Keep amountfixed329, original layout and two navitems. Main form has short generic description about right-earnoise and optionalplaintext; button提交申请/返回订单. No guarantee速率/realrefund.",
+      "reuse": null
+    },
+    {
+      "id": "04-customer-applications",
+      "title": "客户 · 我的申请",
+      "role": "customer",
+      "source": "04-customer-applications-v2.png",
+      "prompt": "Preserve list layout but normalize first row RF20261001001 / headphones329 / 周雨 / submitted14:22. Other three cases distinct keyboard199/lamp159/mouse89 with separateIDs RF002,RF003,RF004. Footer '共4条 · 第1页' and previous/next disabled onepage. Remove bell and X dismiss on pending-question reminder (dismiss must not mean answered). Two-itemsidebar, selectedblue 我的申请. Header 周雨·客户. Keep ALLselected and counts 4/1/1/1/1 reflecting four stages. No fake unseen pagination/search promises.",
+      "reuse": null
+    },
+    {
+      "id": "05-customer-detail",
+      "title": "客户 · 申请详情、材料与问答历史",
+      "role": "customer",
+      "source": "05-customer-detail-v2.png",
+      "prompt": "Substantially revise this detail while retaining two-column layout and blue-white style. REMOVE one-way5step progressrail; replace with current stage line '当前：等待你的回答' and compact event history noting '回答后会重新调查'. Canonical order/ref/amount. Current question card '第2轮（最多2轮）', question '在不同设备上测试后，电流声是否仍然存在？', issued2026-10-01 15:00, deadline2026-10-04 15:00, short answertextarea blank, 提交回答. Add explicit foldout '问答历史' first round answered:14:28商家问重置后是否仍异常;14:35客户回答重置后仍有电流声;14:36重新调查. Add below ownmaterials block '补充材料（文本）' with collapsed disabled button and explanation '当前请通过上方问题回答补充；其他允许状态可追加文本'. Do not bypass WAITINGquestionassociation. Right shows currentorder and enabled 撤销申请 only '以系统允许操作为准，系统已开始处理退款后不可撤销'. No staff identity, no AI rawproposals. Header 周雨·客户, no bell, two-itemnav. Ensure history and questionbothvisible, concise notcropped.",
+      "reuse": null
+    },
+    {
+      "id": "06-customer-results",
+      "title": "客户 · 成功、拒绝、待确认等结果变体",
+      "role": "customer",
+      "source": null,
+      "prompt": null,
+      "reuse": "../ui-targets-v1/images/06-customer-results-v2.png"
+    },
+    {
+      "id": "07-merchant-queue",
+      "title": "商家 · 公共队列",
+      "role": "merchant",
+      "source": "07-merchant-queue-v2.png",
+      "prompt": "Keep table and four-itemstaffnav. Header 林晓云·售后专员, removebell. Selectscope 全部工单 andstatus全部. Normalize first row canonicalRF001周雨32914:22. Otherrows must correctly labeled differentproducts: keyboard199, lamp159, mouse89, speaker459 with matching minimalist illustration or neutralplaceholder, notsameheadphonesallrows. Personcolumns onlynames (no arbitrarydates). Add footer pagination '共5条 · 第1页' disablednext. Keep actions领取并查看/currentowner继续处理/otherowner只读查看/调查查看/UNKNOWN仅查看, not genericred异常paymentaction. BadgeUNKNOWN display退款结果待确认. No retry-pay.",
+      "reuse": null
+    },
+    {
+      "id": "08-merchant-detail",
+      "title": "商家 · 当前材料、核验入口与调查建议",
+      "role": "merchant",
+      "source": "08-merchant-detail-v2.png",
+      "prompt": "Revise central and context content, preserving original 4-columnreference layout. Normalize main order/applicant/ref/time. Header 林晓云·售后专员, no bell. Owner林晓云 with 转交/释放 smallbuttons. Materialcard '客户文本材料' tag '客户陈述 · 待核验', explicit visible linkbutton '查看并核验' opening核验modal. Agency blue panel 'Agent调查建议' metadata '模型：mock（离线） · 数据：合成', '建议版本：v1 · 与当前材料一致'. Advice '先核验商品异常，再决定退款'. Separate已确认事实（订单实付329）、客户主张（右耳电流声）、缺失（尚无人工核验结论）. Bound policyline '售后政策2026.09 / 质量问题条款' button查看绑定原文; secondary查看调查依据. No policy interpretationinvented asbusinessfacts. Timeline readorder/searchpolicy/suggestion occurs AFTER application14:22. Right permission '你是当前负责人', execution '尚未消费授权'. Bottom approve DISABLED text '待核验并重新调查', supplement/refuse/manualscheme enabled ONLY as server-approved action example no hiddenauthority. Banner '核验保存后旧建议失效，需等待当前版本结果'. No customeremail/phone/authquota.",
+      "reuse": null
+    },
+    {
+      "id": "09-merchant-actions",
+      "title": "商家 · 核验、补证与审批弹窗",
+      "role": "merchant",
+      "source": "09-merchant-actions-v2.png",
+      "prompt": "Retain 2x2 four modaldesignboard, explicitlyheading '独立弹窗示例 · 实际一次只打开一个'. Everypanel show source '入口：材料卡/要求补证/批准/拒绝' and outcomes terse. Artificialverification radios all UNSELECTED, emptyrequiredreason; 保存核验 disableduntil selection+reason. Banner 保存后重新调查，旧建议失效. Requestinfo blankquestionrequired, 本轮第1轮/最多2轮, deadline72小时受工单期限约束, 发送问题 disableduntiledit. Approve330? NO fixed329 canonical, textareaemptyrequired 审核理由, 当前方案有效 metadataonly, 确认批准 disableduntilreason. Refuse blankrequired公开理由,buttondisableduntilreason. Remove repeatedartificialschemefooter fromeachcard. Remove arbitrary counters andbell. Fouritemstaffnav. Clear validationhelp lines, keep compositions.",
+      "reuse": null
+    },
+    {
+      "id": "10-admin-overview",
+      "title": "管理员 · 概览、转交与显式接管",
+      "role": "admin",
+      "source": "10-admin-overview-v2.png",
+      "prompt": "Fix overview using consistentcases and personnel: activepersonlist ONLY 林晓云 and赵清 both启用; second tablecase RF002 is ownedby 吴冬（已停用）, rather than林晓云. First RF001周雨329未领取; secondRF002刘宁199待补证吴冬停用; thirdRF005李乐459退款结果待确认林晓云仅查看. Correctproductnames/amounts(earphones329/key199/speaker459) use neutraltiles ifneeded. Countcards label '未领取1 / 我的待办0 / 需关注2' reflecting displayed3 coordinationexamples. Transfer ANDtakeover independentmodalexamples both caseRF002199 currentowner吴冬; transfer target赵清启用; takeovernewowner陈经理, reasonrequired; bothbuttonsdisableduntilreason. Explain 接管后原负责人旧操作失效. Header 陈经理·商家管理员, no bell, SAME seven-itemadminsidebar. No online presence or extra metrics.",
+      "reuse": null
+    },
+    {
+      "id": "11-admin-people",
+      "title": "管理员 · 人员与账号维护",
+      "role": "admin",
+      "source": "11-admin-people.png",
+      "prompt": "Keep personnel table and maintenance drawer. Statusfilter '全部状态' not启用, so disabled吴冬rowcanremain. Use full seven-itemsharedadminnav, 人员管理 selected. Header 陈经理·商家管理员, static松间数码, no bell. List active陈经理/林晓云/赵清/周雨, disabled吴冬. No dates. Drawer账号demo-reviewer-2赵清 samefieldsfixedmerchant andresetpassword, save onlyactionedit. Highlight最后启用管理员不能停用/降级 as factualconstraintnothidden privileges. Add tablefooter 共5个账号/第1页. Add smallinline '受限操作示例：最后一个管理员不能停用' separately labeled notpresentfailure. Keep exact enabledstatusfilterlogic.",
+      "reuse": null
+    },
+    {
+      "id": "12-admin-policy",
+      "title": "管理员 · 政策原文与索引状态（只读）",
+      "role": "admin",
+      "source": "12-admin-policy.png",
+      "prompt": "Policy library page has NO individualcase/run. REMOVE Agent解释 and服务端复核 cards completely. Replace with normal readable policysections '原文条款' and '适用条件与例外（原文）', '版本信息' (2026.09 effective2026-09-01; previous2026.08历史版本), '索引状态：已就绪（合成样例）'. Explicitnote '这里只查阅政策，不判断某张工单是否可退款；工单建议与复核见详情'. Preserve two-column policylist/document. Existingexamplequalityparagraphmustlabel示例原文; no guessedglobaleligibility. Leftversionstatus previous历史版本 NOT归档 ifunsupported. Seven-itemsharedadminsidebar政策资料selected; header陈经理·商家管理员/staticmerchant/no bell. Boundhistoricalpolicyremainsunchanged. No edit/publishbuttons.",
+      "reuse": null
+    },
+    {
+      "id": "13-system-states",
+      "title": "公共 · 异常、账号菜单与草稿边界",
+      "role": "common",
+      "source": "13-system-states.png",
+      "prompt": "Replace misleading administrator shell with NEUTRAL brand header only ResolveFlow/目标设计v2/合成演示, no useridentity, merchantpickerorleftsidebar. Preserve 6 independenterrorstatecards, eachlabel applicable角色: customerempty '暂无申请/查看我的订单', genericloading, generic登录已失效/重新登录, generic账号停用联系本商家管理员, generic不可访问, generic版本已变更/刷新并重新确认. Footer draftnote precise '当前登录会话内保留草稿；退出或切换账号清除草稿。写入结果未确认时先读取状态，不自动重提审批或退款'. A small neutral mini menu demonstration top right boxed '账号身份 / 退出登录' explicitly labeled 登录后账号菜单示例. No persistent saveguarantee acrossauth ordevice, no decorativebell.",
+      "reuse": null
+    },
+    {
+      "id": "14-merchant-workviews",
+      "title": "商家 · 我的工单、需关注与历史",
+      "role": "merchant",
+      "source": "14-merchant-workviews-v2.png",
+      "prompt": "Keep three stacked independentview designs labeled独立视图示例. Header 林晓云·售后专员 withstaticmerchant/no bell. Allmini sidebars same4items. Mycases scope全部selected, two rows owner林晓云: RF001耳机329 andRF002键盘199, statuses待审核/待补证. Datesno unnecessaryifcrowding. Needattention3rows unread:Agent失败允许人工方案/owner吴冬停用管理员转交(no staff generic去处理 ifnotallowed)/UNKNOWN结果待确认仅查看. History rows distinctRF010耳机329模拟退款成功, RF011键盘199已拒绝, RF012鼠标89客户已撤销. Remove unsupported date-rangefilter andsimilarlyneverbulkselection. Add eachviewfooter共2/3/3条 第1页. Precisely legible status '模拟退款成功', avoidrepeatedunclear小字. Simplercolumns申请/客户/商品/金额/状态/负责人/操作 only.",
+      "reuse": null
+    },
+    {
+      "id": "15-merchant-sources",
+      "title": "商家 · 绑定来源与人工方案",
+      "role": "merchant",
+      "source": "15-merchant-sources-v2.png",
+      "prompt": "Keep two independentdrawers sidebyside as designboard, label '独立抽屉示例 · 实际一次只打开一个'. Leftdetail sources current v1matchesmaterial, modelmock离线 + 合成数据 separatebadges. Policyoriginal frombound2026.09 qualityrule, sourcechecked separatefromAgentexplanation, expandable来源标识(not rawhash inmain). Show缺记录/未提供 card truthfully andbutton查看已保存记录; noinvented success. Right manualproposal canonical329readonlyandorderdate20260928/appdate10011422 correct. Requiredfacts/evidence blank, allowedaction selectorfullrefund/reject; 保存并复核 disableduntiledit. Add orange labeled '失败状态示例：复核未通过，保留草稿，请修改依据；不可直接批准'. Four-itemstaffnav,林晓云·售后专员/no bell. Sources andfailureboardseparateexamplesdontshowpolicypasscontradictions.",
+      "reuse": null
+    },
+    {
+      "id": "16-account-and-exit-actions",
+      "title": "公共 · 账号、撤销与释放确认",
+      "role": "common",
+      "source": "16-account-and-exit-actions.png",
+      "prompt": "Keep4independentmodalboard; no sidebar. Normalize roletext 售后专员 everywhere, fixedmerchant, usernamesynthetic, passwords masked. Required emptyfields -> correspondingcreate/reset/cancel/release buttonsdisableduntilinputvalid. Forcancel note replace仅开始执行前可撤销 with '仅系统允许时可撤销；系统已开始处理退款后不可撤销', canonicalproduct无线降噪耳机Pro329 applicationRF20261001001. ForreleaseRF001 note回未领取不改业务状态和材料, reasonemptyrequired. Remove allfakecharactercounters. Initial/repeatpasswordrequired, account-onlyminadministratorrestriction localnote '受限操作会就地提示'. Declaredmodalentrances:人员管理新增/重置;客户详情撤销;负责人详情释放. Shortcorrectlabels.",
+      "reuse": null
+    },
+    {
+      "id": "17-customer-transitions",
+      "title": "客户 · 补证后调查、追加材料与局部失败",
+      "role": "customer",
+      "source": null,
+      "prompt": "Create a UI STATE DESIGN BOARD notonepage: 4 roomy cards2x2 onneutralResolveFlowwhiteblueheader, no sidebar, badge目标设计v2/合成演示. AllsamecanonicalRF001周雨329. Card1 '回答已保存，正在重新调查' timeline第1轮已答14:35/重新调查14:36, no editablecurrentquestion; keepbutton查看已保存回答. Card2 '追加文本材料（允许时）' textareaempty,保存材料disableduntiltext, note材料仍是客户陈述，保存后继续调查. Card3 '工单已创建，初始材料未保存' note申请仍存在，请仅重试未保存材料, buttons查看申请/重试材料 afterstateconfirmed, never重复创建. Card4 '补证限制' independentmini states第2轮已答：不能再发起第三轮 / 期限已过：等待商家处理，不允许提交过期回答. Footerstate strip '系统已开始处理本次退款：材料只读，不可撤销'; note是否允许追加或撤销以服务端为准. No staffidentities, Agentrawadvice, caseIDsinput orpaymentretry. Markcardsdifferentstatesneverallcurrentatonce.",
+      "reuse": null
+    },
+    {
+      "id": "18-merchant-transitions",
+      "title": "商家 · 领取、只读、旧建议与调查失败",
+      "role": "merchant",
+      "source": null,
+      "prompt": "UI STATE DESIGN BOARD, sixcards2x3 with crispChinese shorttext, neutralResolveFlowheader/no sidebar, samewhiteblue. Heading '同一工单详情的六种状态 · 独立示例'. Eachcard small canonicalRF001329. 1 '未领取' owner无人, primary领取工单 onlynoapproval. 2 '他人负责，只读' owner赵清, plain工作人员只读, adminonly outlined接管工单 (需理由，接管成功再操作), noapprove/refuse. 3 '新材料已保存，旧建议失效' currentv2/oldv1 gray,正在重新调查; allapprovaldisabled; metadata模型mock（离线）/合成数据. 4 '等待客户回答' owner林晓云保留,第1轮deadline10041428, currentquestionreadonly, no重复提问/approval; 查看问答. 5 'Agent调查失败' no validresult,当前负责人可提交人工方案 whenserverallows,button填写人工方案; notmodel succeeded. 6 '人工方案复核未通过' orange explanation引用或材料不符合规则,方案草稿保留,button修改方案,approve disabled. Footer '迟到旧结果不覆盖当前修订；领取、释放、转交不触发新调查'. No newfacts or realpay. Keep blockslegible all sixcards uncropped.",
+      "reuse": null
+    },
+    {
+      "id": "19-merchant-execution",
+      "title": "商家 · 有效审批、消费冻结与执行结果",
+      "role": "merchant",
+      "source": null,
+      "prompt": "UI STATE DESIGN BOARD sixcards2x3, neutralResolveFlowheader/no sidebar, samewhiteblue/cobalt. Heading '审核与模拟执行的状态 · 独立示例'. SameRF001329, owner林晓云, allsynthetic. Card1 '当前方案可审核' metadata当前材料v2/建议v2,订单329/人工核验已确认/绑定政策已匹配/服务端复核通过 (explicit合成状态示例), modelmock离线 advice辅助; active批准退款/要求补证/拒绝 onlyasallowedserver,note最终由人决定. Card2 '已批准，待执行' fixed329, show可撤销仅在系统允许时, no newapprovebutton, waitingoriginalexecution. Card3 '已消费授权，模拟执行中' prominently输入冻结，不能修改材料或撤销; no approve/refuse/verifybuttons. Card4 '退款结果待确认' orangeUNKNOWN,原操作仍在对账，禁止新操作重付,only刷新状态. Card5 '模拟退款成功' green329,结果已保存/只读. Card6 '模拟执行明确失败' redreason示例模拟通道明确拒绝,本次执行已确认失败/只读,无再次付款按钮. Footer '执行状态由实际保存结果驱动；未知不是失败，失败不是成功'. Honest distinctioncard1 verifiedscenarioisafterearlier核验notinitialassertion.",
+      "reuse": null
+    }
+  ]
+}

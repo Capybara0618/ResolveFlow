@@ -1,0 +1,199 @@
+{
+  "date": "2026-10-01",
+  "tool": "built-in image_gen",
+  "model_version": "Not exposed by built-in image_gen",
+  "initialCalls": 17,
+  "correctionCalls": 8,
+  "reusedAssets": 2,
+  "all_calls_completed": true,
+  "configuration": "prompts.json",
+  "note": "Primary calls use shared style and canonical sample with per-screen role/board constraints; corrections below preserve unaffected areas. Cache originals remain in place; final project assets are listed in manifest.json.",
+  "assets": [
+    {
+      "id": "01-login",
+      "kind": "reuse",
+      "image": "../ui-targets-v1/images/01-login.png"
+    },
+    {
+      "id": "02-customer-orders",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/02-customer-orders-v2.png",
+      "final": "images/02-customer-orders.png",
+      "toolOutputFilename": "exec-5118f860-ef06-4b33-8ea9-9bbfebfd9b0a.png",
+      "corrections": []
+    },
+    {
+      "id": "03-customer-apply",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/03-customer-apply-v2.png",
+      "final": "images/03-customer-apply.png",
+      "toolOutputFilename": "exec-13810608-440a-4b45-bd87-553c46f57804.png",
+      "corrections": [
+        {
+          "prompt": "Use case: ui-mockup. Precise local correction to attached desktop ResolveFlow design. Keep style, sizing, all unaffected areas and readable Chinese. Only edit the fifth step in the right column: replace the sentence promising 站内通知 with '在我的申请中查看处理结果。' No message or notification product exists. Keep the entire rest unchanged.",
+          "toolOutputFilename": "exec-13810608-440a-4b45-bd87-553c46f57804.png"
+        }
+      ]
+    },
+    {
+      "id": "04-customer-applications",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/04-customer-applications-v2.png",
+      "final": "images/04-customer-applications.png",
+      "toolOutputFilename": "exec-6451c780-c17c-4c00-8001-829e4e8a78e1.png",
+      "corrections": []
+    },
+    {
+      "id": "05-customer-detail",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/05-customer-detail-v2.png",
+      "final": "images/05-customer-detail.png",
+      "toolOutputFilename": "exec-99b62623-8848-45e6-a23b-687b35257441.png",
+      "corrections": [
+        {
+          "prompt": "Use case: ui-mockup. Precise local correction to attached desktop ResolveFlow design. Keep style, sizing, all unaffected areas and readable Chinese. Preserve this customer detail layout, question, history, canonical order and two-item customer navigation. Add one compact clearly visible section BEFORE the question box titled '原始申请与已提交材料', containing '原始说明：右耳持续电流声，影响正常使用。' and '已提交文本材料 · 查看展开'. It is accessible even during waiting. Fit by shortening whitespace or compressing history, do not delete question or history. The answer textarea is currently EMPTY: make 提交回答 button GREY DISABLED until required answer entered. No other changes.",
+          "toolOutputFilename": "exec-99b62623-8848-45e6-a23b-687b35257441.png"
+        }
+      ]
+    },
+    {
+      "id": "06-customer-results",
+      "kind": "reuse",
+      "image": "../ui-targets-v1/images/06-customer-results-v2.png"
+    },
+    {
+      "id": "07-merchant-queue",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/07-merchant-queue-v2.png",
+      "final": "images/07-merchant-queue.png",
+      "toolOutputFilename": "exec-236e89c3-90b0-49e3-9403-8bbb9d782ed3.png",
+      "corrections": []
+    },
+    {
+      "id": "08-merchant-detail",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/08-merchant-detail-v2.png",
+      "final": "images/08-merchant-detail.png",
+      "toolOutputFilename": "exec-2080ae36-43da-4629-9ac1-c939b8575474.png",
+      "corrections": [
+        {
+          "prompt": "Use case: ui-mockup. Precise local correction to attached desktop ResolveFlow design. Keep style, sizing, all unaffected areas and readable Chinese. Preserve central original information, materials, explicit 查看并核验 buttons, agent sources and timeline. Only fix the left queue and approval button. Second queue card = RF002 机械键盘 / ¥199 / 刘宁 / 待补充. Third = RF003 台灯 / ¥159 / 王禾 / 待审核. Neutral illustrative tile matching product, not headphone. Bottom blue approval control is disabled because current unverified case: grey disabled button label MUST be '批准退款'; next to or below it explain '待核验并重新调查'. Keep other allowed action buttons. No other changes.",
+          "toolOutputFilename": "exec-2080ae36-43da-4629-9ac1-c939b8575474.png"
+        }
+      ]
+    },
+    {
+      "id": "09-merchant-actions",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/09-merchant-actions-v2.png",
+      "final": "images/09-merchant-actions.png",
+      "toolOutputFilename": "exec-f2ad63d2-9b1d-472b-a7a1-67fac35c1219.png",
+      "corrections": []
+    },
+    {
+      "id": "10-admin-overview",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/10-admin-overview-v2.png",
+      "final": "images/10-admin-overview.png",
+      "toolOutputFilename": "exec-110ed360-f7f6-4bfc-90af-542b1b78cfa0.png",
+      "corrections": []
+    },
+    {
+      "id": "11-admin-people",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/11-admin-people.png",
+      "final": "images/11-admin-people.png",
+      "toolOutputFilename": "exec-3fed0b15-eb33-4a2d-a2e0-5ddc2e2edf7d.png",
+      "corrections": []
+    },
+    {
+      "id": "12-admin-policy",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/12-admin-policy.png",
+      "final": "images/12-admin-policy.png",
+      "toolOutputFilename": "exec-70779b72-8029-4b0e-9bc6-a783ccbf6e46.png",
+      "corrections": [
+        {
+          "prompt": "Use case: ui-mockup. Precise local correction to attached desktop ResolveFlow design. Keep style, sizing, all unaffected areas and readable Chinese. Only replace entire left sidebar with exactly seven entries in this exact order: 公共队列, 我的工单, 需关注, 历史查询, 工单概览, 人员管理, 政策资料. Highlight 政策资料. DELETE 我的订单 and 我的申请 entirely; these belong to customers. Keep all policy original text and versions, and the readonly informational banner unchanged. No extra menu and no Agent section.",
+          "toolOutputFilename": "exec-70779b72-8029-4b0e-9bc6-a783ccbf6e46.png"
+        }
+      ]
+    },
+    {
+      "id": "13-system-states",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/13-system-states.png",
+      "final": "images/13-system-states.png",
+      "toolOutputFilename": "exec-b43c0fe1-316a-4bbd-89f4-b75f415e72be.png",
+      "corrections": []
+    },
+    {
+      "id": "14-merchant-workviews",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/14-merchant-workviews-v2.png",
+      "final": "images/14-merchant-workviews.png",
+      "toolOutputFilename": "exec-08f28d64-4ce1-4f6b-b4de-14ab6457b7fb.png",
+      "corrections": [
+        {
+          "prompt": "Use case: ui-mockup. Precise local correction to attached desktop ResolveFlow design. Keep style, sizing, all unaffected areas and readable Chinese. Keep the three independent work views and four-entry staff sidebar. Correct ONLY the 需关注 middle table ownership/operations: row1 Agent调查失败 => current owner 林晓云, button '填写人工方案'. row2 负责人已停用 => owner 吴冬（已停用）, reason '等待管理员转交', button '只读查看' (no 去处理 action for this specialist). row3 UNKNOWN => owner 林晓云, button '查看详情' only. Never show admin operations to this specialist. All other areas unchanged.",
+          "toolOutputFilename": "exec-08f28d64-4ce1-4f6b-b4de-14ab6457b7fb.png"
+        }
+      ]
+    },
+    {
+      "id": "15-merchant-sources",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/15-merchant-sources-v2.png",
+      "final": "images/15-merchant-sources.png",
+      "toolOutputFilename": "exec-3409783c-e9ea-4e92-967a-9ab9e180d2c8.png",
+      "corrections": []
+    },
+    {
+      "id": "16-account-and-exit-actions",
+      "kind": "edit-v1",
+      "source": "../ui-targets-v1/images/16-account-and-exit-actions.png",
+      "final": "images/16-account-and-exit-actions.png",
+      "toolOutputFilename": "exec-176d8c0a-0956-45a4-9cfc-ef342eb3bb74.png",
+      "corrections": [
+        {
+          "prompt": "Use case: ui-mockup. Precise local correction to attached desktop ResolveFlow design. Keep style, sizing, all unaffected areas and readable Chinese. Keep this four-card independent modal design board and white-blue style. Remove ALL business links from TOP BAR (我的订单 through政策资料); replace with plain label '四个独立弹窗示例 · 非同时打开'. Keep logo. Remove admin identity from top bar and instead display neutral '公共交互'. Each modal retains its own audience subtitle: 新增账号/重置密码 only本商家管理员, 撤销 only客户本人, 释放 only当前负责人. In customer撤销 card DELETE 处理专员 field entirely. In release card change status badge to '已领取' while owner林晓云, not待领取. Do not add any other navigation or new fields.",
+          "toolOutputFilename": "exec-176d8c0a-0956-45a4-9cfc-ef342eb3bb74.png"
+        }
+      ]
+    },
+    {
+      "id": "17-customer-transitions",
+      "kind": "new-state-board",
+      "source": null,
+      "final": "images/17-customer-transitions.png",
+      "toolOutputFilename": "exec-b06e0a07-4b90-4d33-a132-f129afae0067.png",
+      "corrections": [
+        {
+          "prompt": "Use case: ui-mockup. Precise local correction to attached desktop ResolveFlow design. Keep style, sizing, all unaffected areas and readable Chinese. Change ONLY the bottom-right 补证限制 card wording. EXACT title inside first notice: '最多两轮问题，不能发起第三轮追问'. EXACT body: '第2轮回答保存后仍可重新调查，但不得再向客户发起第3轮问题。' Keep expired answer limit as separate notice. Remove the 0/500 counter under the append text input and use '按实际规则校验' instead. Everything else unchanged; no new fields or nav.",
+          "toolOutputFilename": "exec-b06e0a07-4b90-4d33-a132-f129afae0067.png"
+        }
+      ]
+    },
+    {
+      "id": "18-merchant-transitions",
+      "kind": "new-state-board",
+      "source": null,
+      "final": "images/18-merchant-transitions.png",
+      "toolOutputFilename": "exec-efb7cc6b-5a89-4b51-b563-e5a4155963c8.png",
+      "corrections": [
+        {
+          "prompt": "Use case: ui-mockup. Precise local correction to attached desktop ResolveFlow design. Keep style, sizing, all unaffected areas and readable Chinese. Keep this six-state independent board and all card layouts. Required local fixes ONLY: 1) Top bar remove 帮助中心 and消息 links completely, plain '目标设计v2 · 合成演示'. 2) Replace every RF001329 or RF001 with canonical application RF20261001001 (same case alternate snapshots). 3) In current/old version comparison use old v1 2026-10-01 14:26 and new v2 2026-10-01 14:36; current v2 investigating, old v1 invalid. No future October3 dates. 4) In waiting customer card question MUST be text-only: '请说明在不同设备测试后，电流声是否仍然存在？' DELETE all requests for照片/视频 because no media uploads. 5) Card2 接管按钮 mark '仅管理员可用' directly beneath it. Keep no sidebar, no new menus and all other fields unchanged.",
+          "toolOutputFilename": "exec-efb7cc6b-5a89-4b51-b563-e5a4155963c8.png"
+        }
+      ]
+    },
+    {
+      "id": "19-merchant-execution",
+      "kind": "new-state-board",
+      "source": null,
+      "final": "images/19-merchant-execution.png",
+      "toolOutputFilename": "exec-198e560e-1612-496f-8152-ce7c3e945724.png",
+      "corrections": []
+    }
+  ]
+}
