@@ -1,6 +1,7 @@
 package com.resolveflow.caseservice.casefile;
 
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
+import com.resolveflow.shared.security.Role;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -10,6 +11,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The reviewer's queue (docs/core-contracts.md:33).
@@ -33,7 +36,21 @@ public class ReviewQueueService {
     public static final int MAX_LIMIT = 100;
 
     /** One page of the queue, with the cursor that continues it and the limit actually applied. */
-    public record Page(List<ReviewQueueItem> items, String nextCursor, int limit) {}
+    public record Page(List<ReviewQueueItem> items, String nextCursor, int limit, Counts counts) {
+        public Page(List<ReviewQueueItem> items, String nextCursor, int limit) {
+            this(items, nextCursor, limit, null);
+        }
+    }
+
+    public record Counts(
+            long total,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("public")
+            long publicCount,
+
+            long mine,
+            long unclaimed,
+            Map<String, Long> stages) {}
 
     /**
      * One row as the API serves it: the case facts plus the actions its customer asked for.
@@ -49,7 +66,21 @@ public class ReviewQueueService {
             java.time.Instant updatedAt,
             String lineId,
             String description,
-            List<RequestedAction> requestedActions) {}
+            List<RequestedAction> requestedActions,
+            CaseCollaborationService.Owner owner,
+            Long collaborationVersion) {
+        public ReviewQueueItem(
+                String caseId,
+                CaseStatus status,
+                int inputRevision,
+                long version,
+                java.time.Instant updatedAt,
+                String lineId,
+                String description,
+                List<RequestedAction> requestedActions) {
+            this(caseId, status, inputRevision, version, updatedAt, lineId, description, requestedActions, null, null);
+        }
+    }
 
     private final CaseRepository cases;
     private final ReviewQueueCache cache;
@@ -181,36 +212,116 @@ public class ReviewQueueService {
         return requestedLimit;
     }
 
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Page workspace(
-            AuthenticatedPrincipal principal, String cursor, Integer requestedLimit, String view, String query) {
+            AuthenticatedPrincipal principal,
+            String cursor,
+            Integer requestedLimit,
+            String view,
+            String query,
+            String scope) {
         CaseStaff.require(principal, "the review workspace belongs to merchant staff");
         String term = query == null ? "" : query.trim();
         if (term.length() > 100) throw new InvalidPageException("query must be at most 100 characters");
-        List<String> statuses =
-                switch (view == null ? "REVIEW" : view) {
-                    case "REVIEW" -> List.of("PENDING_REVIEW");
-                    case "WAITING" -> List.of("WAITING_CUSTOMER");
-                    case "PROCESSING" -> List.of("QUEUED", "ANALYZING", "AUTHORIZED", "EXECUTING");
-                    case "ATTENTION" -> List.of("RECONCILING");
-                    case "CLOSED" -> List.of("CLOSED_SUCCESS", "CLOSED_REJECTED", "CANCELLED");
-                    case "ALL" ->
-                        java.util.Arrays.stream(CaseStatus.values())
-                                .map(Enum::name)
-                                .toList();
-                    default -> throw new InvalidPageException("unknown workspace view");
-                };
+        String stage = view == null ? "REVIEW" : view;
+        String ownership = scope == null ? "PUBLIC" : scope;
+        if (!List.of("PUBLIC", "MINE", "UNCLAIMED").contains(ownership))
+            throw new InvalidPageException("unknown ownership scope");
+        List<String> statuses = statuses(stage);
         int limit = normaliseLimit(requestedLimit);
-        ReviewQueueCursor after = ReviewQueueCursor.decode(cursor);
-        List<ReviewQueueRow> rows = cases.findWorkspaceCases(
+        String context = org.springframework.util.DigestUtils.md5DigestAsHex(
+                (principal.merchantId() + "\n" + principal.subject() + "\n" + stage + "\n" + ownership + "\n" + term)
+                        .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        ReviewQueueCursor after = ReviewQueueCursor.decodeWorkspace(cursor, context);
+        List<CaseRepository.WorkspaceCountRow> counts =
+                cases.countWorkspaceCases(principal.merchantId(), principal.subject(), term);
+        List<CaseRepository.WorkspaceQueueRow> rows = cases.findOwnedWorkspaceCases(
                 principal.merchantId(),
+                principal.subject(),
                 statuses,
+                ownership,
                 term,
                 after == null ? null : after.updatedAt(),
                 after == null ? null : after.caseId(),
                 limit + 1);
         boolean more = rows.size() > limit;
-        List<ReviewQueueRow> page = more ? List.copyOf(rows.subList(0, limit)) : List.copyOf(rows);
-        return new Page(items(page), ReviewQueueCursor.after(page, more), limit);
+        List<CaseRepository.WorkspaceQueueRow> page = more ? List.copyOf(rows.subList(0, limit)) : List.copyOf(rows);
+        List<ReviewQueueRow> facts = page.stream()
+                .map(row -> new ReviewQueueRow(
+                        row.caseId(),
+                        principal.merchantId(),
+                        row.lineId(),
+                        row.description(),
+                        row.status(),
+                        row.inputRevision(),
+                        row.version(),
+                        row.updatedAt()))
+                .toList();
+        List<ReviewQueueItem> items = items(facts);
+        List<ReviewQueueItem> ownedItems = new ArrayList<>();
+        for (int i = 0; i < page.size(); i++) {
+            var row = page.get(i);
+            var item = items.get(i);
+            var owner = row.ownerUsername() == null
+                    ? null
+                    : new CaseCollaborationService.Owner(
+                            row.ownerUsername(),
+                            row.ownerDisplayName(),
+                            Role.valueOf(row.ownerRole()),
+                            Boolean.TRUE.equals(row.ownerEnabled()));
+            ownedItems.add(new ReviewQueueItem(
+                    item.caseId(),
+                    item.status(),
+                    item.inputRevision(),
+                    item.version(),
+                    item.updatedAt(),
+                    item.lineId(),
+                    item.description(),
+                    item.requestedActions(),
+                    owner,
+                    row.collaborationVersion()));
+        }
+        Map<String, Long> stages = new LinkedHashMap<>();
+        for (String name : List.of("REVIEW", "WAITING", "PROCESSING", "ATTENTION", "CLOSED", "ALL"))
+            stages.put(
+                    name,
+                    counts.stream()
+                            .filter(row -> statuses(name).contains(row.status()))
+                            .mapToLong(row -> row.forScope(ownership))
+                            .sum());
+        List<CaseRepository.WorkspaceCountRow> selected =
+                counts.stream().filter(row -> statuses.contains(row.status())).toList();
+        Counts totals = new Counts(
+                stages.get(stage),
+                selected.stream()
+                        .mapToLong(CaseRepository.WorkspaceCountRow::total)
+                        .sum(),
+                selected.stream()
+                        .mapToLong(CaseRepository.WorkspaceCountRow::mine)
+                        .sum(),
+                selected.stream()
+                        .mapToLong(CaseRepository.WorkspaceCountRow::unclaimed)
+                        .sum(),
+                stages);
+        String next = !more || page.isEmpty()
+                ? null
+                : new ReviewQueueCursor(
+                                page.getLast().updatedAt(), page.getLast().caseId())
+                        .encodeWorkspace(context);
+        return new Page(List.copyOf(ownedItems), next, limit, totals);
+    }
+
+    private static List<String> statuses(String stage) {
+        return switch (stage) {
+            case "REVIEW" -> List.of("PENDING_REVIEW");
+            case "WAITING" -> List.of("WAITING_CUSTOMER");
+            case "PROCESSING" -> List.of("QUEUED", "ANALYZING", "AUTHORIZED", "EXECUTING");
+            case "ATTENTION" -> List.of("RECONCILING");
+            case "CLOSED" -> List.of("CLOSED_SUCCESS", "CLOSED_REJECTED", "CANCELLED");
+            case "ALL" ->
+                java.util.Arrays.stream(CaseStatus.values()).map(Enum::name).toList();
+            default -> throw new InvalidPageException("unknown workspace view");
+        };
     }
 
     /** Raised for a limit outside the contract's range; the API layer answers 400. */

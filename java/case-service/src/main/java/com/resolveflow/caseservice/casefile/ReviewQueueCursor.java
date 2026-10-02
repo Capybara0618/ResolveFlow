@@ -15,13 +15,34 @@ import java.util.List;
  * {@code case_id} is the tie-breaker, not decoration: two cases can share {@code updated_at} down to the
  * microsecond when one request opens several, and without it the page boundary would be a coin toss.
  *
- * <p>Opaque to the caller but not secret, and it carries no scope: the merchant always comes from the
- * verified principal, so a cursor cannot be turned into a way to read another merchant's queue.
+ * <p>Opaque but not secret: legacy cursors carry only the keyset; workspace cursors also bind the
+ * principal and filters. Neither grants scope; SQL always uses the verified principal's merchant.
  */
 public record ReviewQueueCursor(Instant updatedAt, String caseId) {
 
     private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
     private static final Base64.Decoder DECODER = Base64.getUrlDecoder();
+
+    /** Workspace cursors bind every filter and principal and retain MySQL microseconds. */
+    public String encodeWorkspace(String context) {
+        return ENCODER.encodeToString(
+                (context + "|" + updatedAt + "|" + caseId).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    public static ReviewQueueCursor decodeWorkspace(String encoded, String context) {
+        if (encoded == null || encoded.isBlank()) return null;
+        try {
+            String[] parts =
+                    new String(DECODER.decode(encoded), java.nio.charset.StandardCharsets.UTF_8).split("\\|", -1);
+            if (parts.length != 3 || !parts[0].equals(context))
+                throw new InvalidCursorException(
+                        "cursor belongs to a different workspace; restart from the first page");
+            java.util.UUID.fromString(parts[2]);
+            return new ReviewQueueCursor(Instant.parse(parts[1]), parts[2]);
+        } catch (IllegalArgumentException | java.time.DateTimeException error) {
+            throw new InvalidCursorException("invalid workspace cursor", error);
+        }
+    }
 
     /**
      * Raised for a cursor this service did not issue.

@@ -8,7 +8,7 @@
 
 接续入口为[协作协议](../docs/case-collaboration.md)、CaseCollaborationService/Controller及[人工归属保护报告](../reports/reviewer-ownership.md)，完成状态仅看todo顶部。人工入口已有当前负责人、独立协作版本、原业务版本和锁内签名身份检查；管理员显式接管后可人工处理，V22兼容旧角色CHECK与actor宽度。App/ReviewerWorkspace/CaseAssignment已接真实归属、目录、操作与旧弹窗保护，不重做这些成果。
 
-下一子步接公共/我的/未领取筛选、每行真实负责人和服务器计数，再接最小人员管理及管理员菜单。当前reviewQueue仍是旧阶段列表，review/staff仅只读转交目录，不等同管理模块；不能把当前页length说成商家全部待办总数。复用identity_account、独立协作版本和case→merchant→有序account锁约定；人员管理只锁本商家/账号、不反向锁工单，保护最后启用管理员，禁用/重置/角色变更使旧会话失效。补证期间保留负责人，不允许管理员隐式代批，不把归属变化写入Agent输入。新版只读demo已加载V21/V22与人工保护，先status核对，不为验证开启Live；本次35011cca-4940-4cd1-a4ae-25398a793dda合成工单已人工拒绝终态，不重置。
+下一子步为最小人员管理及管理员菜单，参考[双端方案模块五](../docs/product-completion-review.md)与[持久身份](../docs/persistent-identity.md)：本商家账号分页、新增工作人员、显示名/角色/启停、初始/重置密码与审计；不得改商家/客户绑定，不增加平台超级管理员。复用identity_account、独立协作版本和case→merchant→有序account锁约定；管理操作只锁本商家/账号、不反向锁工单，保护最后启用管理员，锁内复核入口签名身份，禁用/重置/角色变更使旧会话失效。已交付的归属筛选/负责人/真实计数沿用[队列规格](../docs/case-collaboration.md)与[本步报告](../reports/reviewer-queue.md)，不重新实施。review/staff仍仅是只读转交目录，不等同管理模块。补证期间保留负责人，不允许管理员隐式代批，不把人员/归属变化写入Agent输入。先status核对只读demo，不为验证开启Live；35011cca-4940-4cd1-a4ae-25398a793dda合成工单已人工拒绝终态，后续只读验收未改变既有工单，不重置。
 
 2026-10-01用户已批准[双端与多人协作补齐方案](../docs/product-completion-review.md)，八项推荐决定均采用，并要求开始。按[plan](plan.md)新五批顺序实施；当前接续点看[todo顶部](todo.md)。批准涵盖两逻辑商家、种子/管理员账号、人工最终审批、领取制、补证保留负责人、管理员显式接管、文本材料及单商家账号；不扩大为企业平台或媒体上传。按功能批次集中验证和汇报，不逐按钮要求用户验收。
 

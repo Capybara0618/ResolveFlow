@@ -40,7 +40,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/cases/{case_id}/evidence | 追加材料并增revision、回到QUEUED且创建新run绑定；回答追问须关联当前question_id；消费后409 |
 | Case | POST /api/v1/cases/{case_id}/cancel | 仅授权消费前可取消 |
 | Case | GET /api/v1/cases/{case_id}/events | SSE，Last-Event-ID，鉴权不放URL |
-| Case | GET /api/v1/review/cases | 商家内审核队列：仅 PENDING_REVIEW，携带客户原始问题描述，按 updated_at 倒序，keyset 游标分页；客户角色 403，坏游标/坏 limit 400 |
+| Case | GET /api/v1/review/cases | 本商家队列：view阶段＋scope PUBLIC/MINE/UNCLAIMED＋query；真实负责人/协作版、全量匹配计数、绑定账号与筛选的精确keyset游标；无三参数保持旧待审缓存页；客户403、非法/错筛选游标400 |
 | Case | POST /api/v1/cases/{case_id}/reviews | 人工决定当前授权；`If-Match`为工单版本、body带授权自己的版本，任一过期409；批准前重新校验；客户角色403 |
 | Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料：新记录引用被核验记录（`reviewed_evidence_id`）并带 `verification_result`，推进revision、回到QUEUED并创建新run绑定；客户角色 403，跨工单引用 422 |
 | Case | POST /api/v1/cases/{case_id}/manual-proposals | 新revision/方案，非直接付款 |

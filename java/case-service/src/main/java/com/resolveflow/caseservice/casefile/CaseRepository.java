@@ -402,6 +402,75 @@ public interface CaseRepository {
             @Param("afterCaseId") String afterCaseId,
             @Param("limit") int limit);
 
+    String WORKSPACE_SEARCH = """
+             WHERE c.merchant_id = #{merchantId}
+               AND (#{query} = '' OR c.case_id = #{query} OR c.order_id = #{query}
+                    OR LOCATE(#{query}, c.description) > 0)
+            """;
+
+    @Select("""
+            <script>
+            SELECT c.case_id AS caseId, c.line_id AS lineId, c.description, c.status,
+                   c.input_revision AS inputRevision, c.version, c.updated_at AS updatedAt,
+                   COALESCE(a.version,0) AS collaborationVersion,
+                   u.username AS ownerUsername, u.display_name AS ownerDisplayName,
+                   u.role AS ownerRole, u.enabled AS ownerEnabled
+              FROM aftersale_case c
+              LEFT JOIN case_collaboration a ON a.case_id=c.case_id
+              LEFT JOIN identity_account u ON u.username=a.owner_username AND u.merchant_id=c.merchant_id
+            """ + WORKSPACE_SEARCH + """
+               AND c.status IN
+               <foreach item="status" collection="statuses" open="(" separator="," close=")">#{status}</foreach>
+               AND (#{scope}='PUBLIC' OR (#{scope}='MINE' AND a.owner_username=#{username})
+                    OR (#{scope}='UNCLAIMED' AND a.owner_username IS NULL))
+               AND (#{afterUpdatedAt} IS NULL OR c.updated_at &lt; #{afterUpdatedAt}
+                    OR (c.updated_at = #{afterUpdatedAt} AND c.case_id &lt; #{afterCaseId}))
+             ORDER BY c.updated_at DESC, c.case_id DESC LIMIT #{limit}
+            </script>
+            """)
+    List<WorkspaceQueueRow> findOwnedWorkspaceCases(
+            @Param("merchantId") String merchantId,
+            @Param("username") String username,
+            @Param("statuses") List<String> statuses,
+            @Param("scope") String scope,
+            @Param("query") String query,
+            @Param("afterUpdatedAt") Instant afterUpdatedAt,
+            @Param("afterCaseId") String afterCaseId,
+            @Param("limit") int limit);
+
+    @Select("""
+            SELECT c.status, COUNT(*) AS total,
+                   SUM(CASE WHEN a.owner_username=#{username} THEN 1 ELSE 0 END) AS mine,
+                   SUM(CASE WHEN a.owner_username IS NULL THEN 1 ELSE 0 END) AS unclaimed
+              FROM aftersale_case c LEFT JOIN case_collaboration a ON a.case_id=c.case_id
+            """ + WORKSPACE_SEARCH + " GROUP BY c.status")
+    List<WorkspaceCountRow> countWorkspaceCases(
+            @Param("merchantId") String merchantId, @Param("username") String username, @Param("query") String query);
+
+    record WorkspaceQueueRow(
+            String caseId,
+            String lineId,
+            String description,
+            String status,
+            int inputRevision,
+            long version,
+            Instant updatedAt,
+            long collaborationVersion,
+            String ownerUsername,
+            String ownerDisplayName,
+            String ownerRole,
+            Boolean ownerEnabled) {}
+
+    record WorkspaceCountRow(String status, long total, long mine, long unclaimed) {
+        long forScope(String scope) {
+            return switch (scope) {
+                case "MINE" -> mine;
+                case "UNCLAIMED" -> unclaimed;
+                default -> total;
+            };
+        }
+    }
+
     /**
      * The requested actions of several cases at once.
      *

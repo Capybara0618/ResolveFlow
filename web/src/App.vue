@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type LoginResponse, type OrderLine, type ReviewContext, type ReviewItem } from './client'
+import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type LoginResponse, type OrderLine, type ReviewContext, type ReviewItem, type ReviewQueueCounts, type ReviewScope } from './client'
 import { watchCaseEvents } from './events'
 import { formatMinorUnits } from './money'
 import Icon from './ui/ReviewIcon.vue'
@@ -23,6 +23,14 @@ const reviewItems = ref<ReviewItem[]>([])
 const reviewCursor = ref<string | undefined>()
 const reviewView = ref('REVIEW')
 const reviewQuery = ref('')
+const reviewSearch = ref('')
+const reviewScope = ref<ReviewScope>('PUBLIC')
+const reviewCounts = ref<ReviewQueueCounts | null>(null)
+const queueScopes = [{ key: 'PUBLIC' as const, label: '公共', count: 'public' as const },
+  { key: 'MINE' as const, label: '我的', count: 'mine' as const },
+  { key: 'UNCLAIMED' as const, label: '未领取', count: 'unclaimed' as const }]
+let queueGeneration = 0
+let actionGeneration = 0
 const lookupId = ref('')
 const snapshot = ref<CaseSnapshot | null>(null)
 const selectedOrderLine = ref<OrderLine | null>(null)
@@ -213,23 +221,42 @@ const token = () => account.value?.access_token ?? ''
 const fail = (cause: unknown) => { error.value = cause instanceof Error ? cause.message : String(cause) }
 
 async function act(work: () => Promise<void>) {
+  const generation = ++actionGeneration
   busy.value = true
   error.value = ''
   notice.value = ''
-  try { await work() } catch (cause) { fail(cause) } finally { busy.value = false }
+  try { await work() } catch (cause) { if (generation === actionGeneration) fail(cause) }
+  finally { if (generation === actionGeneration) busy.value = false }
 }
 async function loadReviewQueue(cursor?: string) {
-  const page = await coreApi.reviewQueue(token(), cursor, reviewView.value, reviewQuery.value.trim())
-  reviewItems.value = cursor ? [...reviewItems.value, ...page.items] : page.items
+  const generation = ++queueGeneration
+  const sessionToken = token()
+  const stage = reviewView.value, query = reviewSearch.value, scope = reviewScope.value
+  let page
+  try { page = await coreApi.reviewQueue(sessionToken, cursor, stage, query, scope) }
+  catch (cause) {
+    if (generation !== queueGeneration || account.value?.access_token !== sessionToken) return false
+    throw cause
+  }
+  if (generation !== queueGeneration || account.value?.access_token !== sessionToken ||
+      reviewView.value !== stage || reviewScope.value !== scope || reviewSearch.value !== query) return false
+  // Cases can move while paginating. A stable loaded ID must not render twice.
+  reviewItems.value = cursor ? [...new Map([...reviewItems.value, ...page.items].map(item => [item.case_id, item])).values()] : page.items
   reviewCursor.value = page.page.next_cursor ?? undefined
+  reviewCounts.value = page.counts ?? null
+  return true
 }
 function filterQueue() {
+  reviewSearch.value = reviewQuery.value.trim()
+  reviewItems.value = []; reviewCursor.value = undefined; reviewCounts.value = null
+  queryOpen.value = false
   void act(async () => {
-    await loadReviewQueue()
+    if (!await loadReviewQueue()) return
     if (reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
     else { closeReview(); stopStream(); snapshot.value = null; selectedOrderLine.value = null }
   })
 }
+function chooseScope(scope: ReviewScope) { reviewScope.value = scope; filterQueue() }
 function stopStream() {
   streamController?.abort()
   streamController = null
@@ -292,16 +319,20 @@ function login() {
     const session = await coreApi.login(username.value, password.value)
     account.value = session
     password.value = ''
-    reviewItems.value = []; snapshot.value = null; selectedOrderLine.value = null
+    reviewItems.value = []; reviewCounts.value = null; reviewCursor.value = undefined
+    reviewScope.value = 'PUBLIC'; reviewView.value = 'REVIEW'; reviewQuery.value = ''; reviewSearch.value = ''
+    snapshot.value = null; selectedOrderLine.value = null
     if (session.role !== 'CUSTOMER') {
-      await loadReviewQueue()
+      if (!await loadReviewQueue()) return
       if (reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
     }
   })
 }
 function logout() {
   closeReview(); stopStream(); account.value = null; snapshot.value = null; selectedOrderLine.value = null
-  reviewItems.value = []; collaboration.value = null; error.value = ''
+  ++queueGeneration
+  ++actionGeneration; busy.value = false
+  reviewItems.value = []; reviewCursor.value = undefined; reviewCounts.value = null; collaboration.value = null; error.value = ''
 }
 function verifyEvidence(evidenceId: string, result: 'CONFIRMED' | 'REFUTED' | 'INCONCLUSIVE') {
   void act(async () => {
@@ -377,7 +408,7 @@ onUnmounted(stopStream)
     <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <div v-else class="app-shell">
       <nav class="sidebar" aria-label="工作台导航">
-        <a v-if="isReviewer" href="#queue-panel" class="nav-link" :class="{ current: !queryOpen }" @click="queryOpen = false"><Icon name="queue" />审核队列<span class="nav-count">{{ reviewItems.length }}</span></a>
+        <a v-if="isReviewer" href="#queue-panel" class="nav-link" :class="{ current: !queryOpen }" @click="queryOpen = false"><Icon name="queue" />审核队列<span v-if="reviewCounts" class="nav-count">{{ reviewCounts.stages.REVIEW }}</span></a>
         <a href="#case-panel" class="nav-link" :class="{ current: queryOpen }" @click="queryOpen = true"><Icon name="search" />工单查询</a>
         <div class="sidebar-note"><p>让售后更简单<br />让每一次服务都有结果</p><small>单订单行 · 全量模拟退款</small><span>© 2026 ResolveFlow</span></div>
       </nav>
@@ -386,7 +417,8 @@ onUnmounted(stopStream)
         <p v-if="notice" class="message success workspace-message" role="status"><Icon name="check" />{{ notice }}</p>
         <div class="columns" :class="{ 'customer-columns': isCustomer, 'reviewer-columns': isReviewer }">
           <section v-if="isReviewer" id="queue-panel" class="panel list-panel" aria-label="审核队列">
-            <div class="panel-heading"><h2>审核队列 <span>（{{ reviewItems.length }}）</span></h2><span class="queue-scope">当前商家</span></div>
+            <div class="panel-heading"><h2>审核队列 <span v-if="reviewCounts">（{{ reviewCounts.total }}）</span></h2><span class="queue-scope">当前商家</span></div>
+            <div class="queue-ownership" role="group" aria-label="工单归属范围"><button v-for="scope in queueScopes" :key="scope.key" type="button" :data-scope="scope.key" :aria-pressed="reviewScope === scope.key" :disabled="busy" @click="chooseScope(scope.key)">{{ scope.label }}<span v-if="reviewCounts">{{ reviewCounts[scope.count] }}</span></button></div>
             <form class="queue-filters" @submit.prevent="filterQueue"><label>处理阶段<select v-model="reviewView" :disabled="busy" @change="filterQueue"><option value="REVIEW">待审核</option><option value="WAITING">待客户补证</option><option value="PROCESSING">调查与退款处理中</option><option value="ATTENTION">结果待确认</option><option value="CLOSED">已结束</option><option value="ALL">全部工单</option></select></label><div class="queue-search"><input v-model="reviewQuery" aria-label="搜索工单" maxlength="100" placeholder="工单号、订单号或问题描述" :disabled="busy" /><button type="submit" class="secondary-button" :disabled="busy">查询</button></div></form>
             <div v-if="reviewItems.length === 0" class="empty"><Icon name="queue" :size="30" /><strong>没有符合条件的工单</strong><p>可切换处理阶段或修改查询条件</p></div>
             <div class="scroll-list" aria-label="工单列表">
@@ -394,9 +426,11 @@ onUnmounted(stopStream)
                 :class="{ selected: snapshot?.case.case_id === item.case_id }" :disabled="busy" @click="act(() => openCase(item.case_id))">
                 <span class="queue-top"><span class="queue-category"><Icon name="file" :size="14" />退款申请</span><span class="status-tag" :class="{ waiting: item.status === 'PENDING_REVIEW', success: item.status === 'CLOSED_SUCCESS' }">{{ statusLabel(item.status) }}</span></span>
                 <strong class="queue-title">{{ headline(item.description) }}</strong><small><Icon name="clock" :size="13" />更新于 {{ formatTimestamp(item.updated_at) }}</small>
+                <span class="queue-owner"><Icon name="user" :size="13" />{{ item.owner === undefined ? '归属信息待刷新' : item.owner ? `${item.owner.display_name || item.owner.username}${item.owner.enabled ? '' : '（已停用）'}` : '未领取' }}</span>
               </button>
             </div>
-            <div class="list-actions"><button v-if="reviewCursor" type="button" class="secondary-button" :disabled="busy" @click="act(() => loadReviewQueue(reviewCursor))">加载更多</button><button type="button" class="text-button" :disabled="busy" @click="act(() => loadReviewQueue())">刷新队列</button></div>
+            <p v-if="reviewCounts" class="queue-summary">已显示 {{ reviewItems.length }} / {{ reviewCounts.total }} 条 · 数量按已应用的筛选统计<template v-if="reviewSearch"><br />搜索：{{ reviewSearch }}</template></p>
+            <div class="list-actions"><button v-if="reviewCursor" type="button" class="secondary-button" :disabled="busy" @click="act(async () => { await loadReviewQueue(reviewCursor) })">加载更多</button><button type="button" class="text-button" :disabled="busy" @click="act(async () => { await loadReviewQueue() })">刷新队列</button></div>
           </section>
           <section id="case-panel" class="panel case-panel" aria-label="工单内容" :aria-busy="busy">
             <div class="panel-heading case-heading"><h2>{{ isReviewer ? '退款工单' : '工单详情' }}</h2><span v-if="snapshot" class="status-tag" :class="{ waiting: snapshot.case.status === 'PENDING_REVIEW', success: snapshot.case.status === 'CLOSED_SUCCESS' }">{{ statusLabel(snapshot.case.status) }}</span></div>

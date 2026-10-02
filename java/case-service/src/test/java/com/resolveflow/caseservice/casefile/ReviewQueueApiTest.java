@@ -63,6 +63,78 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
     private long lineCounter = 7600;
 
     @Test
+    void ownershipScopesAndCountsCoverAllMatchesRatherThanTheLoadedPage() {
+        String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
+        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        String mine = openCase(customer, "M-1001");
+        String others = openCase(customer, "M-1001");
+        String unclaimed = openCase(customer, "M-1001");
+        String waiting = openCase(customer, "M-1001");
+        for (String id : java.util.List.of(mine, others, unclaimed)) handOver(id);
+        claimTestCase(mine, "demo-reviewer");
+        claimTestCase(others, "demo-reviewer-2");
+        claimTestCase(waiting, "demo-reviewer");
+        jdbc.update("UPDATE aftersale_case SET status='WAITING_CUSTOMER' WHERE case_id=?", waiting);
+        // A disabled owner is retained, not silently reclassified as unclaimed.
+        jdbc.update("UPDATE identity_account SET enabled=0 WHERE username='demo-reviewer-2'");
+        try {
+            JsonNode all = queue(reviewer, "scope=PUBLIC&view=REVIEW&limit=1");
+            assertThat(all.get("items").size()).isEqualTo(1);
+            assertThat(all.at("/counts/total").longValue()).isEqualTo(3);
+            assertThat(all.at("/counts/public").longValue()).isEqualTo(3);
+            assertThat(all.at("/counts/mine").longValue()).isEqualTo(1);
+            assertThat(all.at("/counts/unclaimed").longValue()).isEqualTo(1);
+            JsonNode my = queue(reviewer, "scope=MINE&view=ALL");
+            assertThat(caseIds(my)).containsExactlyInAnyOrder(mine, waiting);
+            assertThat(my.at("/counts/stages/WAITING").longValue()).isEqualTo(1);
+            assertThat(my.at("/items/0/owner/username").stringValue()).isEqualTo("demo-reviewer");
+            assertThat(caseIds(queue(reviewer, "scope=UNCLAIMED&view=ALL"))).containsExactly(unclaimed);
+            JsonNode disabled = queue(reviewer, "scope=PUBLIC&view=ALL&query=" + others);
+            assertThat(disabled.at("/items/0/owner/enabled").booleanValue()).isFalse();
+            assertThat(disabled.at("/counts/total").longValue()).isEqualTo(1);
+            assertThat(disabled.at("/items/0/collaboration_version").longValue())
+                    .isEqualTo(1);
+        } finally {
+            jdbc.update("UPDATE identity_account SET enabled=1 WHERE username='demo-reviewer-2'");
+        }
+    }
+
+    @Test
+    void workspaceCursorCannotBeReusedAfterChangingOwnerStageSearchOrAccount() {
+        String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
+        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        for (int i = 0; i < 2; i++) handOver(openCase(customer, "M-1001"));
+        String cursor = queue(reviewer, "scope=PUBLIC&view=ALL&limit=1")
+                .at("/page/next_cursor")
+                .stringValue();
+        assertThat(caseIds(queue(reviewer, "scope=PUBLIC&view=ALL&limit=1&cursor=" + cursor)))
+                .hasSize(1);
+        for (String params : java.util.List.of(
+                "scope=MINE&view=ALL",
+                "scope=PUBLIC&view=REVIEW",
+                "scope=PUBLIC&view=ALL&query=missing",
+                "scope=INVALID&view=ALL")) {
+            rest.get()
+                    .uri("/api/v1/review/cases?" + params + "&cursor=" + cursor)
+                    .header("Authorization", "Bearer " + reviewer)
+                    .exchange()
+                    .expectStatus()
+                    .isBadRequest();
+        }
+        for (String account : java.util.List.of("demo-reviewer-2", "demo-reviewer-m2")) {
+            rest.get()
+                    .uri("/api/v1/review/cases?scope=PUBLIC&view=ALL&cursor=" + cursor)
+                    .header(
+                            "Authorization",
+                            "Bearer "
+                                    + token(account, account.endsWith("m2") ? "M-1002" : "M-1001", Role.REVIEWER, null))
+                    .exchange()
+                    .expectStatus()
+                    .isBadRequest();
+        }
+    }
+
+    @Test
     void workspaceFiltersHistoryAndSearchWithoutCrossMerchantLeakage() {
         String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
         String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
@@ -79,10 +151,45 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
         assertThat(caseIds(queue(reviewer, "view=ALL")))
                 .contains(waiting, closed)
                 .doesNotContain(other);
+        assertThat(queue(reviewer, "scope=PUBLIC&view=ALL").at("/counts/total").longValue())
+                .isEqualTo(2);
         JsonNode first = queue(reviewer, "view=ALL&limit=1");
         String cursor = first.get("page").get("next_cursor").stringValue();
         assertThat(caseIds(queue(reviewer, "view=ALL&limit=1&cursor=" + cursor)))
                 .doesNotContain(caseIds(first).getFirst());
+    }
+
+    @Test
+    void workspacePagingRetainsMicrosecondsAndUsesLiteralSearchText() {
+        String reviewer = token("demo-reviewer", "M-1001", Role.REVIEWER, null);
+        String customer = token("demo-customer", "M-1001", Role.CUSTOMER, "C-2002");
+        java.util.List<String> ids = new java.util.ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            String id = openCase(customer, "M-1001");
+            ids.add(id);
+            jdbc.update(
+                    "UPDATE aftersale_case SET updated_at=?, description='资料_待补' WHERE case_id=?",
+                    java.sql.Timestamp.from(Instant.parse("2026-09-19T01:00:00.12300" + i + "Z")),
+                    id);
+        }
+        java.util.List<String> walked = new java.util.ArrayList<>();
+        String cursor = null;
+        do {
+            JsonNode page =
+                    queue(reviewer, "scope=PUBLIC&view=ALL&limit=1" + (cursor == null ? "" : "&cursor=" + cursor));
+            walked.addAll(caseIds(page));
+            assertThat(page.at("/counts/total").longValue()).isEqualTo(3);
+            cursor = page.get("page").has("next_cursor")
+                    ? page.at("/page/next_cursor").stringValue()
+                    : null;
+        } while (cursor != null && walked.size() < 5);
+        assertThat(walked).containsExactly(ids.get(2), ids.get(1), ids.get(0));
+        assertThat(caseIds(queue(reviewer, "scope=PUBLIC&view=ALL&query=_"))).hasSize(3);
+        jdbc.update("UPDATE aftersale_case SET description='没有下划线' WHERE case_id=?", ids.getFirst());
+        assertThat(queue(reviewer, "scope=PUBLIC&view=ALL&query=_")
+                        .at("/counts/total")
+                        .longValue())
+                .isEqualTo(2);
     }
 
     @BeforeEach
@@ -225,7 +332,10 @@ class ReviewQueueApiTest extends CaseDatabaseTest {
                         "updated_at",
                         "line_id",
                         "description",
-                        "requested_actions");
+                        "requested_actions",
+                        "owner");
+        assertThat(item.get("owner").isNull()).isTrue();
+        assertThat(item.has("collaboration_version")).isFalse();
         assertThat(item.get("case_id").stringValue()).isEqualTo(caseId);
         assertThat(item.get("description").stringValue()).isEqualTo("退款诉求");
         assertThat(item.get("status").stringValue()).isEqualTo("PENDING_REVIEW");

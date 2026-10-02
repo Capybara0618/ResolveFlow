@@ -945,18 +945,27 @@ paths:
       operationId: listReviewQueue
       summary: Reviewer queue for the caller's merchant
       description: |
-        Cases waiting on a human decision for this merchant only
-        (docs/core-contracts.md:33). The queue is a filter over case state, not a second
-        source of truth: it holds the cases in PENDING_REVIEW for the caller's merchant,
-        newest first by updated_at, paged with an opaque keyset cursor over
-        (updated_at, case_id). A case waiting on the customer is not in the queue — the
-        reviewer has nothing to do with it yet — and an authorisation decision on a case
-        the customer must still answer would be a decision taken without their input.
+        Merchant-scoped state/ownership projection (docs/case-collaboration.md and docs/core-contracts.md),
+        newest first by updated_at and case_id; REVIEW selects PENDING_REVIEW.
+        With no view/query/scope parameters, preserve the legacy cached pending-review page;
+        legacy rows do not provide collaboration_version or authoritative ownership/counts.
+        Supplying any of those parameters selects the uncached workspace (default REVIEW/PUBLIC).
+        Workspace owner and collaboration_version come from persisted assignment; disabled owners
+        remain assigned. Counts cover all search matches, not the loaded page: public/mine/unclaimed
+        apply to the selected stage, stages apply to the selected ownership scope, total applies to both.
+        PUBLIC includes all merchant matches, MINE uses the signed subject, UNCLAIMED means no owner
+        (not permission to claim terminal/consumed cases). Counts/items use one database read snapshot.
+        Workspace cursors bind merchant, subject, stage, scope and normalized query; changing filters
+        requires restarting pagination (400 on mismatch). No money, case revision or Agent writes.
       parameters:
+        - name: scope
+          in: query
+          schema: {type: string, enum: [PUBLIC, MINE, UNCLAIMED], default: PUBLIC}
+          description: Ownership filter, independent of processing stage. MINE uses the authenticated subject.
         - name: view
           in: query
           schema: {type: string, enum: [REVIEW, WAITING, PROCESSING, ATTENTION, CLOSED, ALL]}
-          description: Optional workspace view. Omission preserves the pending-review queue.
+          description: Processing stage. With no workspace parameters, omission preserves the legacy pending-review queue.
         - name: query
           in: query
           schema: {type: string, maxLength: 100}
@@ -2813,6 +2822,15 @@ components:
       additionalProperties: false
       required: [case_id, status, input_revision, version, updated_at, line_id, description, requested_actions]
       properties:
+        owner:
+          anyOf:
+            - $ref: '#/components/schemas/CaseCollaborationOwner'
+            - type: 'null'
+          description: Workspace current owner; null means unclaimed. Legacy pages do not supply authoritative ownership.
+        collaboration_version:
+          type: integer
+          minimum: 0
+          description: Independent assignment version, present on workspace rows only.
         case_id:
           $ref: '#/components/schemas/Uuid'
         status:
@@ -2843,12 +2861,34 @@ components:
       additionalProperties: false
       required: [items, page]
       properties:
+        counts:
+          $ref: '#/components/schemas/ReviewQueueCounts'
         items:
           type: array
           items:
             $ref: '#/components/schemas/ReviewQueueItem'
         page:
           $ref: '#/components/schemas/PageMeta'
+    ReviewQueueCounts:
+      type: object
+      additionalProperties: false
+      required: [total, public, mine, unclaimed, stages]
+      properties:
+        total: {type: integer, minimum: 0}
+        public: {type: integer, minimum: 0}
+        mine: {type: integer, minimum: 0}
+        unclaimed: {type: integer, minimum: 0}
+        stages:
+          type: object
+          additionalProperties: false
+          required: [REVIEW, WAITING, PROCESSING, ATTENTION, CLOSED, ALL]
+          properties:
+            REVIEW: {type: integer, minimum: 0}
+            WAITING: {type: integer, minimum: 0}
+            PROCESSING: {type: integer, minimum: 0}
+            ATTENTION: {type: integer, minimum: 0}
+            CLOSED: {type: integer, minimum: 0}
+            ALL: {type: integer, minimum: 0}
     ReviewRequest:
       type: object
       additionalProperties: false

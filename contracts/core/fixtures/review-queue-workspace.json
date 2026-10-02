@@ -1,0 +1,21 @@
+{
+  "items": [
+    {
+      "case_id": "0f9a2f4c-6b1d-4c8e-8f2a-1d3b5c7e9a02",
+      "status": "WAITING_CUSTOMER",
+      "input_revision": 2,
+      "version": 7,
+      "updated_at": "2026-10-02T04:00:00.123456Z",
+      "line_id": "7001",
+      "description": "合成契约样本：等待客户回答，负责人保留",
+      "requested_actions": ["REFUND"],
+      "owner": {"username": "demo-reviewer", "display_name": "售后专员", "role": "REVIEWER", "enabled": true},
+      "collaboration_version": 3
+    }
+  ],
+  "page": {"limit": 20},
+  "counts": {
+    "total": 1, "public": 2, "mine": 1, "unclaimed": 1,
+    "stages": {"REVIEW": 0, "WAITING": 1, "PROCESSING": 0, "ATTENTION": 0, "CLOSED": 0, "ALL": 1}
+  }
+}

@@ -14,6 +14,65 @@ vi.mock('../src/events', () => ({ watchCaseEvents: vi.fn().mockResolvedValue(und
 afterEach(() => { vi.unstubAllGlobals(); window.history.replaceState(null, '', '/') })
 
 describe('core workbench', () => {
+  it('drops a delayed queue after logout and lets the next account load its own counts', async () => {
+    let respond: (value: Response) => void = () => undefined
+    let logins = 0
+    const fetcher = vi.fn().mockImplementation((url: string, options: RequestInit) => {
+      if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
+        access_token: ++logins === 1 ? 'old' : 'new', role: 'REVIEWER', merchant_id: logins === 1 ? 'M-1' : 'M-2',
+      })))
+      if (url.startsWith('/api/v1/review/cases') && new Headers(options.headers).get('Authorization') === 'Bearer old')
+        return new Promise<Response>(resolve => { respond = resolve })
+      if (url.startsWith('/api/v1/review/cases')) return Promise.resolve(new Response(JSON.stringify({ items: [], page: {},
+        counts: { total: 0, public: 0, mine: 0, unclaimed: 0, stages: { REVIEW: 0 } },
+      })))
+      throw new Error('The stale queue must not open an old case')
+    })
+    vi.stubGlobal('fetch', fetcher)
+    const wrapper = mount(App)
+    await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
+    await wrapper.get('.logout-button').trigger('click')
+    expect(wrapper.get('[data-test="login"]').attributes('disabled')).toBeUndefined()
+    await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
+    respond(new Response(JSON.stringify({ items: [{ case_id: 'private-old', description: '旧商家材料' }], page: {}, counts: { total: 99 } })))
+    await flushPromises()
+    expect(wrapper.get('#queue-panel .panel-heading').text()).toContain('0')
+    expect(wrapper.text()).not.toContain('旧商家材料')
+    expect(fetcher.mock.calls.some(([url]) => url.includes('private-old'))).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('uses server totals, displays retained owners and sends independent ownership/stage filters', async () => {
+    const fetcher = vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({ access_token: 't', role: 'REVIEWER', merchant_id: 'M-1' })))
+      if (url.startsWith('/api/v1/review/cases')) return Promise.resolve(new Response(JSON.stringify({
+        items: url.includes('scope=MINE') ? [] : [{ case_id: 'owned', status: 'PENDING_REVIEW', updated_at: '',
+          owner: { username: 'other', display_name: '林专员', role: 'REVIEWER', enabled: false }, collaboration_version: 3 }],
+        counts: { total: url.includes('scope=MINE') ? 0 : 45, public: 45, mine: 0, unclaimed: 8,
+          stages: { REVIEW: 45, WAITING: 2, PROCESSING: 3, ATTENTION: 1, CLOSED: 7, ALL: 58 } }, page: { limit: 20, next_cursor: 'continue' },
+      })))
+      if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('owned', false))))
+      if (url.endsWith('/review-context')) return Promise.resolve(new Response(JSON.stringify({ allowed_actions: [], policy_rules: [], execution: {} })))
+      if (url.endsWith('/investigation')) return Promise.resolve(new Response(JSON.stringify({ availability: 'NOT_SCHEDULED' })))
+      return Promise.resolve(new Response(JSON.stringify({ case: { case_id: 'owned', version: 1, input_revision: 1, status: 'PENDING_REVIEW' }, evidence: [], timeline: [] })))
+    })
+    vi.stubGlobal('fetch', fetcher)
+    const wrapper = mount(App)
+    await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
+    expect(wrapper.get('#queue-panel .panel-heading').text()).toContain('45')
+    expect(wrapper.get('.queue-owner').text()).toContain('林专员（已停用）')
+    await wrapper.get('[aria-label="搜索工单"]').setValue('unsubmitted draft')
+    await wrapper.get('.list-actions .secondary-button').trigger('click'); await flushPromises()
+    const nextPage = fetcher.mock.calls.find(([url]) => url.includes('cursor=continue'))![0]
+    expect(nextPage).not.toContain('unsubmitted')
+    expect(wrapper.findAll('.queue-row')).toHaveLength(1)
+    await wrapper.get('[data-scope="MINE"]').trigger('click'); await flushPromises()
+    expect(fetcher.mock.calls.some(([url]) => url.includes('scope=MINE') && url.includes('view=REVIEW'))).toBe(true)
+    expect(wrapper.get('#queue-panel .empty').text()).toContain('没有符合条件的工单')
+    expect(wrapper.get('#queue-panel .panel-heading').text()).toContain('0')
+    wrapper.unmount()
+  })
+
   it('shows persisted admin identity and keeps the workspace read-only before takeover', async () => {
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
       if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('admin-case', false))))

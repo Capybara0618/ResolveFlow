@@ -65,12 +65,13 @@ public class ReviewController {
             @RequestParam(name = "cursor", required = false) String cursor,
             @RequestParam(name = "limit", required = false) Integer limit,
             @RequestParam(name = "view", required = false) String view,
-            @RequestParam(name = "query", required = false) String query) {
+            @RequestParam(name = "query", required = false) String query,
+            @RequestParam(name = "scope", required = false) String scope) {
         AuthenticatedPrincipal principal = principals.resolve(authorization);
         return ResponseEntity.ok(ReviewQueuePageResponse.from(
-                view == null && query == null
+                view == null && query == null && scope == null
                         ? queue.list(principal, cursor, limit)
-                        : queue.workspace(principal, cursor, limit, view, query)));
+                        : queue.workspace(principal, cursor, limit, view, query, scope)));
     }
 
     @PostMapping("/api/v1/cases/{case_id}/reviews")
@@ -104,12 +105,15 @@ public class ReviewController {
                 CaseCollaborationService.WritePermit.from(session, ifMatch, collaborationMatch)));
     }
 
-    public record ReviewQueuePageResponse(List<ReviewQueueItemResponse> items, PageMeta page) {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record ReviewQueuePageResponse(
+            List<ReviewQueueItemResponse> items, PageMeta page, ReviewQueueService.Counts counts) {
 
         static ReviewQueuePageResponse from(ReviewQueueService.Page page) {
             return new ReviewQueuePageResponse(
                     page.items().stream().map(ReviewQueueItemResponse::from).toList(),
-                    new PageMeta(page.nextCursor(), page.limit()));
+                    new PageMeta(page.nextCursor(), page.limit()),
+                    page.counts());
         }
     }
 
@@ -122,7 +126,11 @@ public class ReviewController {
             @JsonProperty("updated_at") Instant updatedAt,
             @JsonProperty("line_id") String lineId,
             String description,
-            @JsonProperty("requested_actions") List<RequestedAction> requestedActions) {
+            @JsonProperty("requested_actions") List<RequestedAction> requestedActions,
+            CaseCollaborationService.Owner owner,
+
+            @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("collaboration_version")
+            Long collaborationVersion) {
 
         static ReviewQueueItemResponse from(ReviewQueueService.ReviewQueueItem item) {
             return new ReviewQueueItemResponse(
@@ -133,7 +141,9 @@ public class ReviewController {
                     item.updatedAt(),
                     item.lineId(),
                     item.description(),
-                    item.requestedActions());
+                    item.requestedActions(),
+                    item.owner(),
+                    item.collaborationVersion());
         }
     }
 

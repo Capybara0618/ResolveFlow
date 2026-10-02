@@ -143,7 +143,16 @@ export interface ReviewItem {
   line_id: string
   description?: string
   updated_at: string
+  owner?: CaseCollaboration['owner']
+  collaboration_version?: number | null
 }
+
+export type ReviewScope = 'PUBLIC' | 'MINE' | 'UNCLAIMED'
+export interface ReviewQueueCounts {
+  total: number; public: number; mine: number; unclaimed: number
+  stages: Record<string, number>
+}
+export interface ReviewQueuePage extends Page<ReviewItem> { counts?: ReviewQueueCounts }
 
 export async function apiRequest<T>(path: string, token: string | null, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
@@ -219,8 +228,8 @@ export const coreApi = {
       source_evidence_id: evidenceId, verification_result: verification, reason,
     }, { ...(snapshot ? { 'If-Match': `"${snapshot.case.version}"` } : {}),
       ...(collaboration ? { 'If-Collaboration-Match': `"${collaboration.version}"` } : {}) }),
-  reviewQueue: (token: string, cursor?: string, view = 'REVIEW', query = '') =>
-    apiRequest<Page<ReviewItem>>(`/api/v1/review/cases?limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}${view !== 'REVIEW' || query ? `&view=${encodeURIComponent(view)}&query=${encodeURIComponent(query)}` : ''}`, token),
+  reviewQueue: (token: string, cursor?: string, view = 'REVIEW', query = '', scope: ReviewScope = 'PUBLIC') =>
+    apiRequest<ReviewQueuePage>(`/api/v1/review/cases?limit=20&scope=${scope}&view=${encodeURIComponent(view)}&query=${encodeURIComponent(query)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, token),
   review: (token: string, snapshot: CaseSnapshot, decision: 'APPROVE' | 'REJECT' | 'REQUEST_INFO', reason: string,
     collaboration?: CaseCollaboration | null) => {
     if (!snapshot.authorization) throw new Error('No authorization to review')

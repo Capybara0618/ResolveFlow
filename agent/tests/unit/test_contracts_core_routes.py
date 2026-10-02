@@ -12,6 +12,7 @@ shrink unnoticed while it is still missing.
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 from typing import Any, NamedTuple
@@ -190,6 +191,27 @@ def test_customer_projection_refuses_staff_records_and_versions_answers() -> Non
     assert validator.accepts(example), validator.error_messages(example)
     for field in ("proposal", "authorization", "policy_refs", "run_id", "merchant_id", "actor"):
         assert not validator.accepts({**example, field: "private"}), field
+
+
+def test_review_workspace_contract_exposes_real_ownership_and_bounded_counts() -> None:
+    doc = document("case")
+    operation = doc["paths"]["/api/v1/review/cases"]["get"]
+    scope = next(p for p in operation["parameters"] if p.get("name") == "scope")
+    assert scope["schema"]["enum"] == ["PUBLIC", "MINE", "UNCLAIMED"]
+    fixture = REPO_ROOT / CORE_DIR / "fixtures" / "review-queue-workspace.json"
+    example = json.loads(fixture.read_text(encoding="utf-8"))
+    validator = component_validator("case", "ReviewQueuePage", CORE_DIR)
+    assert validator.accepts(example), validator.error_messages(example)
+    invalid = copy.deepcopy(example)
+    invalid["counts"]["total"] = -1
+    assert not validator.accepts(invalid)
+    invalid = copy.deepcopy(example)
+    invalid["items"][0]["owner"]["password_hash"] = "must not leak"
+    assert not validator.accepts(invalid)
+    invalid = copy.deepcopy(example)
+    invalid["items"][0]["owner"] = None
+    invalid["items"][0]["collaboration_version"] = 0
+    assert validator.accepts(invalid)
 
 
 def test_collaboration_contract_keeps_ownership_separate_and_validates_actions() -> None:
@@ -881,8 +903,8 @@ def test_the_review_queue_names_what_it_holds_and_refuses_a_page_it_did_not_issu
         parameter.get("$ref", "").rsplit("/", 1)[-1] or parameter.get("name", "")
         for parameter in parameters
     ]
-    assert declared == ["view", "query", "Cursor", "Limit"], (
-        "the queue takes its workspace view, a search term and paging, and nothing that names "
+    assert declared == ["scope", "view", "query", "Cursor", "Limit"], (
+        "the queue takes its ownership scope, workspace view, a search term and paging, and nothing that names "
         "a subject: the merchant comes from the token, so merchant_id/customer_id stay out"
     )
     for parameter in parameters:
