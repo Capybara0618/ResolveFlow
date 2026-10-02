@@ -16,10 +16,21 @@ const loadingStaff = ref(false)
 const submitting = ref(false)
 let active = true
 let generation = 0
+let feedbackCase = props.current?.case_id
+let feedbackToken = props.token
 const labels: Record<CollaborationAction, string> = { CLAIM: '领取工单', RELEASE: '释放工单', TRANSFER: '转交工单', TAKEOVER: '管理员接管' }
 const candidates = computed(() => staff.value.filter(item => item.username !== captured.value?.owner?.username))
 function close() { action.value = null; captured.value = null; reason.value = ''; target.value = ''; generation++ }
-watch(() => `${props.token}:${props.current?.case_id}:${props.current?.version}`, () => { close(); message.value = ''; error.value = '' })
+watch(() => `${props.token}:${props.current?.case_id}:${props.current?.version}`, () => {
+  close()
+  // A refresh temporarily clears current. Keep the outcome for this case, but never
+  // carry it to another case/account or leave an old form open at the new version.
+  if (props.token !== feedbackToken || (props.current && props.current.case_id !== feedbackCase)) {
+    message.value = ''; error.value = ''
+  }
+  feedbackToken = props.token
+  if (props.current) feedbackCase = props.current.case_id
+})
 onUnmounted(() => { active = false; generation++ })
 async function open(next: CollaborationAction) {
   if (props.busy || !props.current?.allowed_actions.includes(next)) return
@@ -61,7 +72,7 @@ async function submit() {
     <div class="assignment-heading"><div><h3>工单负责人</h3><p v-if="loading">正在读取负责人…</p><p v-else-if="current?.owner"><strong>{{ current.owner.display_name }}</strong><span v-if="!current.owner.enabled"> · 账号已禁用</span><span>{{ current.is_owner ? ' · 我负责' : ' · 当前仅可查看' }}</span></p><p v-else-if="current">{{ current.allowed_actions.includes('CLAIM') ? '未领取 · 请先领取，再执行人工审核' : '未分配负责人 · 当前仅可查看' }}</p><p v-else>负责人信息未加载，暂不开放人工操作</p></div><button type="button" class="secondary-button" :disabled="busy || loading" @click="emit('changed')">刷新归属</button></div>
     <div v-if="current && !loading" class="assignment-actions"><button v-for="next in current.allowed_actions" :key="next" type="button" :class="next === 'CLAIM' ? '' : 'secondary-button'" :disabled="busy" @click="open(next)">{{ labels[next] }}</button></div>
     <p v-if="current && !current.allowed_actions.length" class="subtle">当前身份没有可用的归属操作，可查看负责人和协作记录。</p>
-    <p v-if="error && !action" role="alert" class="message error">{{ error }}</p><p v-if="message" role="status" class="message">{{ message }}</p>
+    <p v-if="current && error && !action" role="alert" class="message error">{{ error }}</p><p v-if="current && message" role="status" class="message">{{ message }}</p>
     <details v-if="current?.history.length" class="assignment-history"><summary>协作记录（{{ current.history.length }}）</summary><ol><li v-for="item in current.history" :key="item.version"><strong>{{ labels[item.action] }}</strong> · {{ item.actor_username }}<p>{{ item.reason }}</p><small>{{ item.from_username || '未领取' }} → {{ item.to_username || '未领取' }} · {{ new Date(item.occurred_at).toLocaleString('zh-CN') }}</small></li></ol></details>
     <ReviewDialog v-if="action && captured" :title="labels[action]" :busy="submitting" @close="close">
       <p>当前负责人：{{ captured.owner?.display_name || '未领取' }}</p><p v-if="action === 'TAKEOVER'" class="subtle">接管会将负责人改为你，之后仍需核对材料并单独审批。</p>

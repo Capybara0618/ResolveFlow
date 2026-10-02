@@ -26,6 +26,14 @@ describe('case ownership controls', () => {
     expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
     expect(wrapper.text()).toContain('请刷新后重新操作')
     expect(wrapper.emitted('changed')).toHaveLength(1)
+    // The parent refreshes through null before returning the new owner/version.
+    await wrapper.setProps({ current: null, loading: true })
+    await wrapper.setProps({ current: { ...current, version: 3 }, loading: false })
+    expect(wrapper.text()).toContain('请刷新后重新操作')
+    await wrapper.setProps({ token: 'other-session' })
+    expect(wrapper.text()).not.toContain('请刷新后重新操作')
+    await wrapper.setProps({ current: { ...current, case_id: 'case-b' } })
+    expect(wrapper.text()).not.toContain('请刷新后重新操作')
     wrapper.unmount()
   })
 
