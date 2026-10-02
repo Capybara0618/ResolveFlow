@@ -3,6 +3,28 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App.vue'
 import { watchCaseEvents } from '../src/events'
 
+it('shows personnel management only to merchant administrators and restores the shared review workspace', async () => {
+  let role = 'MERCHANT_ADMIN'
+  const fetcher = vi.fn().mockImplementation((url: string) => {
+    if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({ access_token: 't', role, merchant_id: 'M-1', expires_in: 3600 })))
+    if (url.startsWith('/api/v1/admin/accounts')) return Promise.resolve(new Response(JSON.stringify({ items: [], page: { limit: 20 }, total: 0, enabled_admins: 1, current_username: 'admin' })))
+    return Promise.resolve(new Response(JSON.stringify({ items: [], page: { limit: 20 }, counts: { total: 0, public: 0, mine: 0, unclaimed: 0, stages: { REVIEW: 0 } } })))
+  })
+  vi.stubGlobal('fetch', fetcher)
+  const wrapper = mount(App)
+  await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
+  await wrapper.findAll('.nav-link').find(link => link.text() === '人员管理')!.trigger('click'); await flushPromises()
+  expect(wrapper.find('[aria-label="人员管理"]').exists()).toBe(true)
+  expect(wrapper.find('#queue-panel').exists()).toBe(false)
+  await wrapper.findAll('.nav-link').find(link => link.text().startsWith('审核队列'))!.trigger('click'); await flushPromises()
+  expect(wrapper.find('#queue-panel').exists()).toBe(true)
+  await wrapper.get('.logout-button').trigger('click')
+  role = 'REVIEWER'
+  await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
+  expect(wrapper.findAll('.nav-link').map(link => link.text())).not.toContain('人员管理')
+  wrapper.unmount()
+})
+
 function ownership(caseId: string, isOwner = true, version = 2) {
   return { case_id: caseId, version, is_owner: isOwner, owner: { username: 'reviewer',
     display_name: '售后专员', role: 'REVIEWER', enabled: true },

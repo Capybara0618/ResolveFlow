@@ -17,7 +17,7 @@ onBeforeUnmount(() => {
 })
 function trap(event: KeyboardEvent) {
   if (event.key !== 'Tab') return
-  const items = Array.from(panel.value?.querySelectorAll<HTMLElement>('button:not(:disabled), input, textarea, a[href], summary') ?? [])
+  const items = Array.from(panel.value?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href], summary') ?? [])
   const first = items[0], last = items.at(-1)
   if (!first) { event.preventDefault(); return }
   if (event.shiftKey && (document.activeElement === first || document.activeElement === panel.value)) {

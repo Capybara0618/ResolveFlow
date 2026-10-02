@@ -6,7 +6,7 @@
 
 | 接口 | 合同 |
 | --- | --- |
-| GET /api/v1/admin/accounts | query（username/显示名包含文本≤100）、role（ALL/CUSTOMER/REVIEWER/MERCHANT_ADMIN/OPERATOR）、status（ALL/ENABLED/DISABLED）、limit（1–100，默认20）、cursor；返回items/page/total/enabled_admins/current_username。total按全部筛选统计；enabled_admins为本商家全量启用管理员数。游标绑定商家、当前账号和筛选 |
+| GET /api/v1/admin/accounts | query（username/显示名包含文本≤100）、role（ALL/CUSTOMER/REVIEWER/MERCHANT_ADMIN/OPERATOR）、status（ALL/ENABLED/DISABLED）、limit（1–100，默认20）、cursor；返回items/page/total/enabled_admins/current_username。total按全部筛选统计；enabled_admins为本商家全量启用管理员数。游标≤256字符，绑定商家、当前账号和筛选 |
 | POST /api/v1/admin/accounts | username（全局唯一，1–120位字母数字及`.`/`_`/`-`，首位字母数字）、display_name（1–120）、role（REVIEWER/MERCHANT_ADMIN）、password（8–200且不全为空白）、reason（1–1000）。201返回account/session_invalidated=false；重名409且不透露归属；客户和OPERATOR沿用种子，不通过本入口新增 |
 | POST /api/v1/admin/accounts/{username} | display_name/role/enabled/reason，If-Match为打开维护时的account.version。只允许REVIEWER↔MERCHANT_ADMIN，CUSTOMER/OPERATOR只能保留原角色；显示名/启停可维护。真实修改推进account.version；无变化不写审计。最后一个启用管理员不可禁用/降级409 |
 | POST /api/v1/admin/accounts/{username}/password | password/reason及原If-Match。每次成功使用随机盐PBKDF2-SHA256/120000轮，推进account.version与identity_version；不回读或记录密码/哈希。旧版本409，缺版本409，格式错误422 |

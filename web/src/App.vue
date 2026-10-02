@@ -8,6 +8,7 @@ import ReviewDialog from './ui/ReviewDialog.vue'
 import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
 import CaseAssignment from './ui/CaseAssignment.vue'
 import CustomerWorkspace from './ui/CustomerWorkspace.vue'
+import AdminPeople from './ui/AdminPeople.vue'
 import InvestigationSources from './ui/InvestigationSources.vue'
 import PolicyCitations from './ui/PolicyCitations.vue'
 import { paidAtOf, productNameMissing, productTitle, variantOf } from './ui/order-line-format'
@@ -50,6 +51,14 @@ let reviewContextGeneration = 0
 const focusedPolicy = ref<string | null>(null)
 const focusNonce = ref(0)
 const queryOpen = ref(false)
+const merchantPage = ref<'review' | 'people'>('review')
+function changeMerchantPage(page: 'review' | 'people', query = false) {
+  if (busy.value) return
+  const returning = merchantPage.value === 'people' && page === 'review'
+  closeReview(); merchantPage.value = page; queryOpen.value = query
+  if (page === 'people') stopStream()
+  if (returning) void act(async () => { if (!await loadReviewQueue()) return; if (snapshot.value) await openCase(snapshot.value.case.case_id) })
+}
 
 /**
  * Whether the right-hand context column is folded into the detail column.
@@ -333,6 +342,7 @@ function logout() {
   ++queueGeneration
   ++actionGeneration; busy.value = false
   reviewItems.value = []; reviewCursor.value = undefined; reviewCounts.value = null; collaboration.value = null; error.value = ''
+  merchantPage.value = 'review'; notice.value = ''
 }
 function verifyEvidence(evidenceId: string, result: 'CONFIRMED' | 'REFUTED' | 'INCONCLUSIVE') {
   void act(async () => {
@@ -408,11 +418,13 @@ onUnmounted(stopStream)
     <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <div v-else class="app-shell">
       <nav class="sidebar" aria-label="工作台导航">
-        <a v-if="isReviewer" href="#queue-panel" class="nav-link" :class="{ current: !queryOpen }" @click="queryOpen = false"><Icon name="queue" />审核队列<span v-if="reviewCounts" class="nav-count">{{ reviewCounts.stages.REVIEW }}</span></a>
-        <a href="#case-panel" class="nav-link" :class="{ current: queryOpen }" @click="queryOpen = true"><Icon name="search" />工单查询</a>
+        <a v-if="isReviewer" href="#queue-panel" class="nav-link" :class="{ current: merchantPage === 'review' && !queryOpen }" :aria-disabled="busy" @click.prevent="changeMerchantPage('review')"><Icon name="queue" />审核队列<span v-if="reviewCounts" class="nav-count">{{ reviewCounts.stages.REVIEW }}</span></a>
+        <a href="#case-panel" class="nav-link" :class="{ current: merchantPage === 'review' && queryOpen }" :aria-disabled="busy" @click.prevent="changeMerchantPage('review', true)"><Icon name="search" />工单查询</a>
+        <a v-if="account.role === 'MERCHANT_ADMIN'" href="#people" class="nav-link" :class="{ current: merchantPage === 'people' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('people')"><Icon name="user" />人员管理</a>
         <div class="sidebar-note"><p>让售后更简单<br />让每一次服务都有结果</p><small>单订单行 · 全量模拟退款</small><span>© 2026 ResolveFlow</span></div>
       </nav>
-      <main class="workspace" :class="{ 'reviewer-workspace': isReviewer }">
+      <AdminPeople v-if="merchantPage === 'people' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '账号状态或权限已变化，请重新登录。'" @renamed="account.display_name = $event" />
+      <main v-else class="workspace" :class="{ 'reviewer-workspace': isReviewer }">
         <p v-if="error && !reviewDecision" class="message error workspace-message" role="alert">{{ error }}</p>
         <p v-if="notice" class="message success workspace-message" role="status"><Icon name="check" />{{ notice }}</p>
         <div class="columns" :class="{ 'customer-columns': isCustomer, 'reviewer-columns': isReviewer }">

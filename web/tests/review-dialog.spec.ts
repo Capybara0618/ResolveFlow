@@ -3,6 +3,17 @@ import { describe, expect, it } from 'vitest'
 import ReviewDialog from '../src/ui/ReviewDialog.vue'
 
 describe('review dialog keyboard access', () => {
+  it('includes selects in keyboard containment and excludes disabled fields', async () => {
+    const wrapper = mount(ReviewDialog, { attachTo: document.body, props: { title: '新增工作人员' },
+      slots: { default: '<input disabled><textarea disabled></textarea><select id="last-select"><option>售后专员</option></select>' } })
+    await flushPromises()
+    const dialog = wrapper.get('[role="dialog"]')
+    await dialog.trigger('keydown', { key: 'Tab', shiftKey: true })
+    expect(document.activeElement?.id).toBe('last-select')
+    await dialog.trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement?.getAttribute('aria-label')).toBe('关闭弹窗')
+    wrapper.unmount()
+  })
   it('contains keyboard focus and restores focus and scrolling on close', async () => {
     const opener = document.createElement('button')
     document.body.append(opener)

@@ -68,6 +68,8 @@ def test_staff_update_and_reset_use_original_account_version() -> None:
         assert re.fullmatch(version["schema"]["pattern"], '"12"')
         assert not re.fullmatch(version["schema"]["pattern"], "12")
         assert "409" in operation["responses"]
+    cursor = document("case")["components"]["parameters"]["AccountCursor"]
+    assert cursor["schema"]["maxLength"] == 256  # 120-character usernames produce 204-character cursors.
 
 #: Routes the compat baseline has and core must not expose (docs/core-contracts.md:53).
 DEFERRED_PATH_FRAGMENTS = (

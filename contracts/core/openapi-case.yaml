@@ -1514,7 +1514,7 @@ paths:
         old tokens. Account maintenance does not change case ownership or Agent inputs.'
       parameters:
       - &staffPath003
-        $ref: '#/components/parameters/Cursor'
+        $ref: '#/components/parameters/AccountCursor'
       - &staffPath004
         $ref: '#/components/parameters/Limit'
       - name: query
@@ -1764,6 +1764,14 @@ components:
         type: string
         minLength: 1
         maxLength: 64
+    AccountCursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 256
     Cursor:
       name: cursor
       in: query

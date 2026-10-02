@@ -17,6 +17,24 @@ export interface LoginResponse {
   merchant_name?: string
 }
 
+export interface AdminAccount {
+  username: string; display_name: string; role: LoginResponse['role']; enabled: boolean
+  version: number; created_at: string; updated_at: string
+}
+export interface AccountFilter { query: string; role: string; status: string }
+export interface AdminAccountPage extends Page<AdminAccount> {
+  total: number; enabled_admins: number; current_username: string
+}
+export interface AccountMutation { account: AdminAccount; session_invalidated: boolean }
+export interface AccountUpdate { display_name: string; role: LoginResponse['role']; enabled: boolean; reason: string }
+export interface AccountCreate { username: string; display_name: string; role: 'REVIEWER' | 'MERCHANT_ADMIN'; password: string; reason: string }
+export interface AccountAudit {
+  id: string; action: 'CREATED' | 'UPDATED' | 'PASSWORD_RESET'; actor_username: string
+  account_version: number; reason: string; occurred_at: string
+  before: Omit<AccountUpdate, 'reason'> | null; after: Omit<AccountUpdate, 'reason'>
+}
+export interface AccountAuditPage extends Page<AccountAudit> { total: number }
+
 export interface OrderLine {
   order_id: string
   line_id: string
@@ -176,6 +194,17 @@ function jsonPost<T>(path: string, token: string | null, body: unknown, headers:
 }
 
 export const coreApi = {
+  adminAccounts: (token: string, filter: AccountFilter, cursor?: string) => {
+    const params = new URLSearchParams({ ...filter, limit: '20', ...(cursor ? { cursor } : {}) })
+    return apiRequest<AdminAccountPage>(`/api/v1/admin/accounts?${params}`, token)
+  },
+  createStaff: (token: string, body: AccountCreate) => jsonPost<AccountMutation>('/api/v1/admin/accounts', token, body),
+  updateAccount: (token: string, original: AdminAccount, body: AccountUpdate) =>
+    jsonPost<AccountMutation>(`/api/v1/admin/accounts/${encodeURIComponent(original.username)}`, token, body, { 'If-Match': `"${original.version}"` }),
+  resetAccountPassword: (token: string, original: AdminAccount, password: string, reason: string) =>
+    jsonPost<AccountMutation>(`/api/v1/admin/accounts/${encodeURIComponent(original.username)}/password`, token, { password, reason }, { 'If-Match': `"${original.version}"` }),
+  accountHistory: (token: string, username: string, cursor?: string) =>
+    apiRequest<AccountAuditPage>(`/api/v1/admin/accounts/${encodeURIComponent(username)}/history?limit=10${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, token),
   reviewStaff: (token: string) => apiRequest<NonNullable<CaseCollaboration['owner']>[]>('/api/v1/review/staff', token),
   collaboration: (token: string, caseId: string) =>
     apiRequest<CaseCollaboration>(`/api/v1/cases/${encodeURIComponent(caseId)}/collaboration`, token),

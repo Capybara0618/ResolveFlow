@@ -169,6 +169,42 @@ class StaffAdminApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void longestUsernamesRemainPageableWithBoundedCursors() {
+        String admin = token("personnel-admin"), prefix = "a".repeat(100);
+        for (String suffix : new String[] {"01", "02"}) {
+            post(
+                    admin,
+                    "",
+                    null,
+                    Map.of(
+                            "username",
+                            prefix + "b".repeat(18) + suffix,
+                            "display_name",
+                            "长账号验收",
+                            "role",
+                            "REVIEWER",
+                            "password",
+                            "synthetic-pass",
+                            "reason",
+                            "最大长度游标验收"),
+                    201);
+        }
+        JsonNode first = read(admin, "?limit=1&query=" + prefix);
+        String cursor = first.at("/page/next_cursor").stringValue();
+        assertThat(cursor.length()).isGreaterThan(200).isLessThanOrEqualTo(256);
+        assertThat(read(admin, "?limit=1&query=" + prefix + "&cursor=" + cursor)
+                        .get("items")
+                        .size())
+                .isEqualTo(1);
+        rest.get()
+                .uri("/api/v1/admin/accounts?cursor=" + "a".repeat(257))
+                .header("Authorization", "Bearer " + admin)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
+
+    @Test
     void newStaffCanLoginClaimAndHasAnAuditWithoutPlaintextPasswords() {
         String admin = token("personnel-admin");
         JsonNode created = post(

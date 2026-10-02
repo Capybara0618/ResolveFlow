@@ -334,6 +334,7 @@ public class StaffAdminService {
 
     private static String after(String cursor, String context) {
         if (cursor == null || cursor.isBlank()) return "";
+        if (cursor.length() > 256) throw new InvalidPageException("账号游标过长，请重新读取首页");
         try {
             String[] parts = new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8).split("\n", -1);
             if (parts.length != 2 || !parts[0].equals(context) || parts[1].isEmpty())
