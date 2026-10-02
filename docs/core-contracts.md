@@ -26,6 +26,9 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | --- | --- | --- |
 | Case | POST /api/v1/auth/login | 持久化本地账号登录；商家/角色/客户归属来自账号，启用状态及identity_version控制会话 |
 | Case | GET /api/v1/auth/me | 当前有效会话资料；每个用户接口重新校验持久账号启用状态、归属、角色及身份版本，不返回密码hash |
+| Case | GET /api/v1/admin/overview | docs/merchant-workspace.md；本商家真实协调汇总，只读 |
+| Case | GET /api/v1/admin/policies | docs/merchant-workspace.md；管理员本商家政策只读列表 |
+| Case | GET /api/v1/admin/policies/{bundle_id} | docs/merchant-workspace.md；原文及精确hash索引状态，历史钉住版本不变 |
 | Case | GET /api/v1/admin/accounts | docs/staff-management.md；仅本商家管理员，独立账号版本/身份失效与审计，保护最后启用管理员 |
 | Case | POST /api/v1/admin/accounts | docs/staff-management.md；仅本商家管理员，独立账号版本/身份失效与审计，保护最后启用管理员 |
 | Case | POST /api/v1/admin/accounts/{username} | docs/staff-management.md；仅本商家管理员，独立账号版本/身份失效与审计，保护最后启用管理员 |
@@ -56,6 +59,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Agent | POST /internal/v1/runs | PG落库后202，同case/revision唯一；`run_id`由Case从`(case_id,input_revision)`派生（RFC 9562 v5），重试得到同一个id |
 | Agent | GET /internal/v1/runs/{run_id} | 受权运行摘要 |
 | Agent | GET /internal/v1/runs/{run_id}/observations/{observation_id} | 仅Case校验证据 |
+| Agent | GET /internal/v1/policies/{bundle_id}/index-status | docs/merchant-workspace.md；case-service + policy:read + merchant，精确hash只读持久索引 |
 | Agent | GET /internal/v1/runs/{run_id}/review-sources | case-service身份+run:review scope，与持久run的case/revision完全匹配；只读已保存工具结果，最多40条，超32768字节正文省略；不返回SDK对话、请求体或凭证 |
 | Agent | POST /internal/v1/runs/{run_id}/cancel | 停后续调查，不承诺撤回已发LLM计费 |
 | Agent | GET /health | 健康 |

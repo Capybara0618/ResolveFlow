@@ -43,6 +43,71 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /api/v1/admin/overview:
+    get:
+      operationId: readMerchantOverview
+      summary: readMerchantOverview
+      description: 'Current merchant administrator only. Authority: docs/merchant-workspace.md.
+        Read-only; no models, policy writes or approvals.'
+      parameters: []
+      responses:
+        '200':
+          description: Read-only persisted projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantOverview'
+        '401':
+          description: Missing or invalid identity
+        '403':
+          description: Wrong role, subject or scope
+        '404':
+          description: Unknown or other merchant policy
+  /api/v1/admin/policies:
+    get:
+      operationId: listAdminPolicies
+      summary: listAdminPolicies
+      description: 'Current merchant administrator only. Authority: docs/merchant-workspace.md.
+        Read-only; no models, policy writes or approvals.'
+      parameters: []
+      responses:
+        '200':
+          description: Read-only persisted projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminPolicyList'
+        '401':
+          description: Missing or invalid identity
+        '403':
+          description: Wrong role, subject or scope
+        '404':
+          description: Unknown or other merchant policy
+  /api/v1/admin/policies/{bundle_id}:
+    get:
+      operationId: readAdminPolicy
+      summary: readAdminPolicy
+      description: 'Current merchant administrator only. Authority: docs/merchant-workspace.md.
+        Read-only; no models, policy writes or approvals.'
+      parameters:
+      - name: bundle_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Read-only persisted projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminPolicyDetail'
+        '401':
+          description: Missing or invalid identity
+        '403':
+          description: Wrong role, subject or scope
+        '404':
+          description: Unknown or other merchant policy
   /api/v1/review/staff:
     get:
       operationId: listReviewStaff
@@ -1942,6 +2007,199 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    MerchantCoordinationItem:
+      type: object
+      additionalProperties: false
+      required:
+      - case_id
+      - status
+      - description
+      - owner_name
+      - owner_username
+      - updated_at
+      - reasons
+      properties:
+        case_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        description:
+          type:
+          - string
+          - 'null'
+        owner_name:
+          type:
+          - string
+          - 'null'
+        owner_username:
+          type:
+          - string
+          - 'null'
+        updated_at:
+          type: string
+          format: date-time
+        reasons:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            type: string
+            enum:
+            - UNCLAIMED
+            - RESULT_UNKNOWN
+            - OWNER_UNAVAILABLE
+            - INVESTIGATION_FAILED
+    MerchantOverview:
+      type: object
+      additionalProperties: false
+      required:
+      - unclaimed
+      - mine
+      - attention
+      - enabled_staff
+      - coordination_total
+      - items
+      - observed_at
+      properties:
+        unclaimed:
+          type: integer
+          minimum: 0
+        mine:
+          type: integer
+          minimum: 0
+        attention:
+          type: integer
+          minimum: 0
+        enabled_staff:
+          type: integer
+          minimum: 0
+        coordination_total:
+          type: integer
+          minimum: 0
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MerchantCoordinationItem'
+          maxItems: 20
+        observed_at:
+          type: string
+          format: date-time
+    AdminPolicy:
+      type: object
+      additionalProperties: false
+      required:
+      - bundle_id
+      - version
+      - manifest_hash
+      - safety_epoch
+      - effective_from
+      - effective_to
+      - imported_at
+      - rule_count
+      properties:
+        bundle_id:
+          type: string
+        version:
+          type: string
+        manifest_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+        safety_epoch:
+          type: integer
+          minimum: 0
+        effective_from:
+          type: string
+          format: date-time
+        effective_to:
+          type:
+          - string
+          - 'null'
+        imported_at:
+          type: string
+          format: date-time
+        rule_count:
+          type: integer
+          minimum: 0
+    AdminPolicyList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - truncated
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminPolicy'
+          maxItems: 100
+        truncated:
+          type: boolean
+    AdminPolicyRule:
+      type: object
+      additionalProperties: false
+      required:
+      - rule_id
+      - title
+      - text
+      - chunk_id
+      - content_hash
+      properties:
+        rule_id:
+          type: string
+        title:
+          type: string
+        text:
+          type: string
+        chunk_id:
+          type: string
+        content_hash:
+          $ref: '#/components/schemas/Sha256Hex'
+    PolicyIndexStatus:
+      type: object
+      additionalProperties: false
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - READY
+          - BUILDING
+          - FAILED
+          - MISSING
+          - UNAVAILABLE
+        bundle_id:
+          type: string
+        manifest_hash:
+          type: string
+        generation_id:
+          type:
+          - string
+          - 'null'
+        chunk_count:
+          type:
+          - integer
+          - 'null'
+        built_at:
+          type:
+          - string
+          - 'null'
+    AdminPolicyDetail:
+      type: object
+      additionalProperties: false
+      required:
+      - policy
+      - rules
+      - index
+      properties:
+        policy:
+          $ref: '#/components/schemas/AdminPolicy'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminPolicyRule'
+        index:
+          $ref: '#/components/schemas/PolicyIndexStatus'
     ReviewerSources:
       type: object
       additionalProperties: false

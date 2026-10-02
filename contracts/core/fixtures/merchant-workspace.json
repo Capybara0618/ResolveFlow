@@ -1,0 +1,58 @@
+{
+  "overview": {
+    "unclaimed": 0,
+    "mine": 0,
+    "attention": 0,
+    "enabled_staff": 1,
+    "coordination_total": 0,
+    "items": [],
+    "observed_at": "2026-10-02T00:00:00Z"
+  },
+  "policies": {
+    "items": [
+      {
+        "bundle_id": "synthetic-policy",
+        "version": "v1",
+        "manifest_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "safety_epoch": 1,
+        "effective_from": "2026-01-01T00:00:00Z",
+        "effective_to": null,
+        "imported_at": "2026-10-02T00:00:00Z",
+        "rule_count": 1
+      }
+    ],
+    "truncated": false
+  },
+  "policy": {
+    "policy": {
+      "bundle_id": "synthetic-policy",
+      "version": "v1",
+      "manifest_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "safety_epoch": 1,
+      "effective_from": "2026-01-01T00:00:00Z",
+      "effective_to": null,
+      "imported_at": "2026-10-02T00:00:00Z",
+      "rule_count": 1
+    },
+    "rules": [
+      {
+        "rule_id": "R1",
+        "title": "合成条款",
+        "text": "合成原文",
+        "chunk_id": "synthetic-policy:0",
+        "content_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "index": {
+      "status": "UNAVAILABLE"
+    }
+  },
+  "index": {
+    "status": "MISSING",
+    "bundle_id": "synthetic-policy",
+    "manifest_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "generation_id": null,
+    "chunk_count": null,
+    "built_at": null
+  }
+}

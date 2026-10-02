@@ -24,7 +24,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import psycopg
-from fastapi import FastAPI, HTTPException, Request, Response, status
+from fastapi import FastAPI, HTTPException, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -571,6 +571,20 @@ def create_app(
                                   customer_id=token.customer_id)
         except RunNotFoundError as missing:
             raise HTTPException(status_code=404, detail=str(missing)) from missing
+
+    @app.get("/internal/v1/policies/{bundle_id}/index-status")
+    def read_policy_index(bundle_id: str, request: Request,
+                          manifest_hash: str = Query(pattern="^[a-f0-9]{64}$")) -> dict:
+        """Persisted metadata only; authority: docs/merchant-workspace.md."""
+        token = service_token_of(request, required_scope="policy:read")
+        if token.subject != CASE_SERVICE or not token.merchant_id or "policy:read" not in (token.scope or "").split():
+            raise HTTPException(status_code=403, detail="scoped case-service identity required")
+        from resolveflow.policies.status import policy_index_status
+
+        try:
+            return policy_index_status(run_store_of(request).database, token.merchant_id, bundle_id, manifest_hash)
+        except psycopg.Error as unavailable:
+            raise HTTPException(status_code=503, detail="policy index metadata unavailable") from unavailable
 
     @app.post("/internal/v1/runs/{run_id}/cancel", response_model=CancelAckBody)
     async def cancel_run(run_id: str, request: Request) -> CancelAckBody:

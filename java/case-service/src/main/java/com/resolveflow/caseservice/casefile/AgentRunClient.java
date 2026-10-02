@@ -123,6 +123,29 @@ public class AgentRunClient {
         return codec.issueServiceToken(serviceName, merchantId, customerId, "run:dispatch", Instant.now());
     }
 
+    public tools.jackson.databind.JsonNode policyIndex(String merchantId, String bundleId, String hash) {
+        String token = codec.issueServiceToken(serviceName, merchantId, null, "policy:read", Instant.now());
+        try {
+            var result = reviewRest
+                    .get()
+                    .uri(builder -> builder.path("/internal/v1/policies/{bundle}/index-status")
+                            .queryParam("manifest_hash", hash)
+                            .build(bundleId))
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .retrieve()
+                    .body(tools.jackson.databind.JsonNode.class);
+            if (result == null
+                    || !bundleId.equals(result.path("bundle_id").asText())
+                    || !hash.equals(result.path("manifest_hash").asText())
+                    || !java.util.Set.of("READY", "BUILDING", "FAILED", "MISSING")
+                            .contains(result.path("status").asText()))
+                throw new AgentUnavailableException("policy index metadata mismatch");
+            return result;
+        } catch (RuntimeException failure) {
+            throw new AgentUnavailableException("policy index metadata unavailable", failure);
+        }
+    }
+
     public tools.jackson.databind.JsonNode reviewSources(CaseRow row, String runId) {
         String token =
                 codec.issueServiceToken(serviceName, row.merchantId(), row.customerId(), "run:review", Instant.now());

@@ -34,7 +34,18 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 34, "Commerce": 5, "Agent": 6}
+EXPECTED_ROUTE_COUNTS = {"Case": 37, "Commerce": 5, "Agent": 7}
+
+
+def test_merchant_workspace_projection_fixtures_and_read_only_routes() -> None:
+    fixtures = json.loads((REPO_ROOT / CORE_DIR / "fixtures/merchant-workspace.json").read_text(encoding="utf-8"))
+    for owner, schema, key in [("case", "MerchantOverview", "overview"), ("case", "AdminPolicyList", "policies"),
+                               ("case", "AdminPolicyDetail", "policy"), ("agent", "PolicyIndexStatus", "index")]:
+        validator = component_validator(owner, schema, CORE_DIR)
+        assert not list(validator.validator.iter_errors(fixtures[key]))
+        assert list(validator.validator.iter_errors({**fixtures[key], "source_path": "private"}))
+    for path in ("/api/v1/admin/overview", "/api/v1/admin/policies", "/api/v1/admin/policies/{bundle_id}"):
+        assert set(document("case")["paths"][path]) == {"get"}
 
 
 def test_staff_administration_public_fixtures_cannot_leak_credentials() -> None:

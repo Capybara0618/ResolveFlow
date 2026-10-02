@@ -17,6 +17,28 @@ export interface LoginResponse {
   merchant_name?: string
 }
 
+export interface MerchantCoordinationItem {
+  case_id: string; status: string; description: string | null; owner_name: string | null
+  owner_username: string | null; updated_at: string
+  reasons: Array<'UNCLAIMED' | 'RESULT_UNKNOWN' | 'OWNER_UNAVAILABLE' | 'INVESTIGATION_FAILED'>
+}
+export interface MerchantOverview {
+  unclaimed: number; mine: number; attention: number; enabled_staff: number
+  coordination_total: number; items: MerchantCoordinationItem[]; observed_at: string
+}
+export interface AdminPolicy {
+  bundle_id: string; version: string; manifest_hash: string; safety_epoch: number
+  effective_from: string; effective_to: string | null; imported_at: string; rule_count: number
+}
+export interface PolicyIndexStatus {
+  status: 'READY' | 'BUILDING' | 'FAILED' | 'MISSING' | 'UNAVAILABLE'; generation_id?: string | null
+  bundle_id?: string; manifest_hash?: string; chunk_count?: number | null; built_at?: string | null
+}
+export interface AdminPolicyDetail {
+  policy: AdminPolicy; rules: Array<{ rule_id: string; title: string; text: string; chunk_id: string; content_hash: string }>
+  index: PolicyIndexStatus
+}
+
 export interface AdminAccount {
   username: string; display_name: string; role: LoginResponse['role']; enabled: boolean
   version: number; created_at: string; updated_at: string
@@ -194,6 +216,9 @@ function jsonPost<T>(path: string, token: string | null, body: unknown, headers:
 }
 
 export const coreApi = {
+  merchantOverview: (token: string) => apiRequest<MerchantOverview>('/api/v1/admin/overview', token),
+  adminPolicies: (token: string) => apiRequest<{ items: AdminPolicy[]; truncated: boolean }>('/api/v1/admin/policies', token),
+  adminPolicy: (token: string, bundle: string) => apiRequest<AdminPolicyDetail>(`/api/v1/admin/policies/${encodeURIComponent(bundle)}`, token),
   adminAccounts: (token: string, filter: AccountFilter, cursor?: string) => {
     const params = new URLSearchParams({ ...filter, limit: '20', ...(cursor ? { cursor } : {}) })
     return apiRequest<AdminAccountPage>(`/api/v1/admin/accounts?${params}`, token)

@@ -32,6 +32,37 @@ tags:
   - name: observations
     description: The tool records Java re-reads to verify an Agent citation.
 paths:
+  /internal/v1/policies/{bundle_id}/index-status:
+    get:
+      operationId: readPolicyIndexStatus
+      summary: readPolicyIndexStatus
+      description: 'Case-service policy:read scoped metadata only. Authority: docs/merchant-workspace.md.
+        Read-only; no models, policy writes or approvals.'
+      parameters:
+      - name: bundle_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: manifest_hash
+        in: query
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      responses:
+        '200':
+          description: Read-only persisted projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyIndexStatus'
+        '401':
+          description: Missing or invalid identity
+        '403':
+          description: Wrong role, subject or scope
+        '503':
+          description: Index storage unavailable
   /internal/v1/runs/{run_id}/review-sources:
     get:
       operationId: readReviewerSources
@@ -350,6 +381,40 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    PolicyIndexStatus:
+      type: object
+      additionalProperties: false
+      required:
+      - status
+      - bundle_id
+      - manifest_hash
+      - generation_id
+      - chunk_count
+      - built_at
+      properties:
+        status:
+          type: string
+          enum:
+          - READY
+          - BUILDING
+          - FAILED
+          - MISSING
+        bundle_id:
+          type: string
+        manifest_hash:
+          type: string
+        generation_id:
+          type:
+          - string
+          - 'null'
+        chunk_count:
+          type:
+          - integer
+          - 'null'
+        built_at:
+          type:
+          - string
+          - 'null'
     ReviewerSources:
       type: object
       additionalProperties: false
