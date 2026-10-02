@@ -43,6 +43,26 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /api/v1/review/staff:
+    get:
+      operationId: listReviewStaff
+      summary: Read enabled staff available for transfer in the current merchant
+      description: |
+        Staff only; scope comes from persisted identity (docs/case-collaboration.md).
+        Returns display identity only, with no passwords, customer identities or other merchants.
+      responses:
+        '200':
+          description: Enabled merchant staff
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CaseCollaborationOwner'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
   /api/v1/cases/{case_id}/collaboration:
     get:
       operationId: readCaseCollaboration
@@ -63,6 +83,7 @@ paths:
                 case_id: '0f9a2f4c-6b1d-4c8e-8f2a-1d3b5c7e9a02'
                 version: 0
                 owner: null
+                is_owner: false
                 allowed_actions: [CLAIM]
                 history: []
         '401':
@@ -79,7 +100,7 @@ paths:
         (docs/case-collaboration.md). TAKEOVER requires MERCHANT_ADMIN. Same-owner CLAIM replay is
         idempotent; other stale submissions conflict. No change to input_revision, case version,
         authorizations, policy, money or Agent runs. Consumed input and approved/executing/terminal
-        cases retain their last owner. Other existing human write routes are a separate integration.
+        cases retain their last owner. Human writes additionally check current ownership and both versions.
       parameters:
       - $ref: '#/components/parameters/CaseId'
       - name: If-Collaboration-Match
@@ -779,8 +800,13 @@ paths:
         When the case is WAITING_CUSTOMER because a recorded question is open,
         question_id must equal that question's stable id. This preserves the question-answer
         link; a missing or different id is 422 and does not advance the revision.
+        Staff writes require current ownership, If-Match and If-Collaboration-Match; missing
+        or stale collaboration credentials return 409. Invalid input or If-Match may return 422.
+        Identity is rechecked in the case-locked transaction.
       parameters:
         - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/StaffCollaborationMatch'
+        - $ref: '#/components/parameters/StaffCaseMatch'
       requestBody:
         required: true
         content:
@@ -828,11 +854,15 @@ paths:
         idempotent: a case that is already terminal does not accept another transition, and a
         second cancel answers 409 rather than pretending a second cancellation happened.
 
-        Anyone who can see the case may cancel it — the customer, or the merchant that owns the
-        line. There is no separate permission for it, and a case the principal cannot see is 404
-        rather than 403, for the same reason as the case view.
+        Customers may cancel their own visible case. Staff must own the case and supply both
+        current versions. A case outside the caller scope remains 404.
+        Staff writes require current ownership, If-Match and If-Collaboration-Match; missing
+        or stale collaboration credentials return 409. Invalid input or If-Match may return 422.
+        Identity is rechecked in the case-locked transaction.
       parameters:
         - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/StaffCollaborationMatch'
+        - $ref: '#/components/parameters/StaffCaseMatch'
       requestBody:
         required: true
         content:
@@ -976,8 +1006,12 @@ paths:
         says so in the trajectory. REQUEST_INFO expires the pending authorisation, records a
         stable question_id and uses the same two-round, waiting-state and case-expiry guards as
         the reviewer action route.
+        Staff writes require current ownership, If-Match and If-Collaboration-Match; missing
+        or stale collaboration credentials return 409. Invalid input or If-Match may return 422.
+        Identity is rechecked in the case-locked transaction.
       parameters:
         - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IfCollaborationMatch'
         - $ref: '#/components/parameters/IfMatch'
       requestBody:
         required: true
@@ -1035,8 +1069,13 @@ paths:
         instead of a sentence to parse. Merchant staff record verifications and a customer
         may not (403), for the same reason a customer may not submit a carrier fact as its
         own.
+        Staff writes require current ownership, If-Match and If-Collaboration-Match; missing
+        or stale collaboration credentials return 409. Invalid input or If-Match may return 422.
+        Identity is rechecked in the case-locked transaction.
       parameters:
         - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IfCollaborationMatch'
+        - $ref: '#/components/parameters/IfMatch'
       requestBody:
         required: true
         content:
@@ -1094,8 +1133,13 @@ paths:
         consumption. Once the case is executing or terminal its input is frozen and this
         route answers 409 rather than starting a new revision
         (docs/domain-model.md:36).
+        Staff writes require current ownership, If-Match and If-Collaboration-Match; missing
+        or stale collaboration credentials return 409. Invalid input or If-Match may return 422.
+        Identity is rechecked in the case-locked transaction.
       parameters:
         - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IfCollaborationMatch'
+        - $ref: '#/components/parameters/IfMatch'
       requestBody:
         required: true
         content:
@@ -1422,8 +1466,12 @@ paths:
         The amount is never taken from the body: a manual proposal is a proposal, not a
         payment, and the executable authorization is created only if the citations still
         verify against this service's own records (docs/core-contracts.md:96).
+        Staff writes require current ownership, If-Match and If-Collaboration-Match; missing
+        or stale collaboration credentials return 409. Invalid input or If-Match may return 422.
+        Identity is rechecked in the case-locked transaction.
       parameters:
         - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IfCollaborationMatch'
         - $ref: '#/components/parameters/IfMatch'
       requestBody:
         required: true
@@ -1536,6 +1584,30 @@ components:
         the reading the decision was made from. A request that read version N and arrives after
         something else moved the case to N+1 is refused rather than applied to a state nobody
         looked at.
+    IfCollaborationMatch:
+      name: If-Collaboration-Match
+      in: header
+      required: true
+      description: Quoted collaboration version from the reading; missing or stale version returns 409.
+      schema:
+        type: string
+        pattern: '^"(?:0|[1-9][0-9]{0,14})"$'
+    StaffCollaborationMatch:
+      name: If-Collaboration-Match
+      in: header
+      required: false
+      description: Required for staff writes (409 when missing); customer writes do not use ownership.
+      schema:
+        type: string
+        pattern: '^"(?:0|[1-9][0-9]{0,14})"$'
+    StaffCaseMatch:
+      name: If-Match
+      in: header
+      required: false
+      description: Required for staff writes (409 when missing); customer legacy writes retain their contract.
+      schema:
+        type: string
+        pattern: '^"[1-9][0-9]{0,15}"$'
   headers:
     Location:
       description: Canonical URL of the created resource
@@ -2469,7 +2541,7 @@ components:
           description: The staff subject who submitted it; present exactly when origin is HUMAN.
         authored_role:
           type: string
-          enum: [REVIEWER, OPERATOR]
+          enum: [REVIEWER, MERCHANT_ADMIN, OPERATOR]
         schema_version:
           const: 2
         case_id:
@@ -3464,13 +3536,16 @@ components:
     CaseCollaboration:
       type: object
       additionalProperties: false
-      required: [case_id, version, owner, allowed_actions, history]
+      required: [case_id, version, owner, is_owner, allowed_actions, history]
       properties:
         case_id:
           $ref: '#/components/schemas/Uuid'
         version:
           type: integer
           minimum: 0
+        is_owner:
+          type: boolean
+          description: Current authenticated subject owns the case; roles alone do not grant writes.
         owner:
           anyOf:
           - $ref: '#/components/schemas/CaseCollaborationOwner'

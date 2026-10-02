@@ -35,16 +35,31 @@ public class CaseCancellationService {
     private final CaseRepository cases;
     private final LiveAuthorization liveAuthorizations;
     private final Clock clock;
+    private final CaseCollaborationService collaboration;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public CaseCancellationService(CaseRepository cases, LiveAuthorization liveAuthorizations, Clock clock) {
+    public CaseCancellationService(
+            CaseRepository cases,
+            LiveAuthorization liveAuthorizations,
+            Clock clock,
+            CaseCollaborationService collaboration) {
         this.cases = cases;
         this.liveAuthorizations = liveAuthorizations;
         this.clock = clock;
+        this.collaboration = collaboration;
     }
 
     @Transactional
     public CaseCancelResponse cancel(AuthenticatedPrincipal principal, String caseId, ReasonRequest request) {
+        return cancel(principal, caseId, request, null);
+    }
+
+    @Transactional
+    public CaseCancelResponse cancel(
+            AuthenticatedPrincipal principal,
+            String caseId,
+            ReasonRequest request,
+            CaseCollaborationService.WritePermit permit) {
         if (principal.role().isMerchantStaff()) {
             CaseStaff.requireReviewer(principal, "cancelling as staff requires a reviewer");
         }
@@ -54,6 +69,7 @@ public class CaseCancellationService {
         if (row == null || !row.visibleTo(principal)) {
             throw new CaseReadService.CaseNotVisibleException();
         }
+        if (principal.role().isMerchantStaff()) collaboration.requireOwner(principal, row, permit);
         requireCancellable(row);
         liveAuthorizations.requireUnconsumed(row.caseId());
 

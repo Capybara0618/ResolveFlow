@@ -33,7 +33,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 28, "Commerce": 5, "Agent": 6}
+EXPECTED_ROUTE_COUNTS = {"Case": 29, "Commerce": 5, "Agent": 6}
 
 #: Routes the compat baseline has and core must not expose (docs/core-contracts.md:53).
 DEFERRED_PATH_FRAGMENTS = (
@@ -211,6 +211,21 @@ def test_collaboration_contract_keeps_ownership_separate_and_validates_actions()
     assert not action.accepts({"action": "CLAIM", "reason": "领取", "target_username": "demo-reviewer-2"})
     assert not action.accepts({"action": "APPROVE", "reason": "绕过审批"})
     assert not action.accepts({"action": "CLAIM", "reason": " "})
+
+
+def test_human_writes_require_both_read_versions_without_changing_customer_routes() -> None:
+    doc = document("case")
+    for route in ("reviews", "review-actions", "reviewed-evidence", "manual-proposals", "evidence", "cancel"):
+        params = doc["paths"][f"/api/v1/cases/{{case_id}}/{route}"]["post"]["parameters"]
+        resolved = [doc["components"]["parameters"][p["$ref"].rsplit("/", 1)[-1]] for p in params]
+        headers = {p["name"]: p for p in resolved if p["in"] == "header"}
+        assert set(headers) == {"If-Match", "If-Collaboration-Match"}
+        staff_only = route not in {"evidence", "cancel"}
+        assert all(p["required"] is staff_only for p in headers.values())
+    directory = doc["paths"]["/api/v1/review/staff"]["get"]
+    assert directory["responses"]["200"]["content"]["application/json"]["schema"]["items"]["$ref"].endswith(
+        "/CaseCollaborationOwner"
+    )
 
 
 def test_every_route_is_under_a_versioned_http_prefix() -> None:

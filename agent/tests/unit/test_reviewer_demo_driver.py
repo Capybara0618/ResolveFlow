@@ -36,6 +36,35 @@ def settings_for(tmp_path: Path, **overrides) -> demo.Settings:
 # --------------------------------------------------------------------------- isolation
 
 
+def test_synthetic_claim_refuses_another_owner_without_stealing(tmp_path: Path, monkeypatch) -> None:
+    calls = []
+
+    def respond(settings, path, **kwargs):
+        calls.append(kwargs)
+        return {"version": 4, "owner": {"username": "other"}, "is_owner": False}
+
+    monkeypatch.setattr(demo, "api", respond)
+    with pytest.raises(RuntimeError, match="another owner"):
+        demo.synthetic_owner_headers(settings_for(tmp_path), "synthetic-case", "token", 7)
+    assert len(calls) == 1
+    assert "body" not in calls[0]
+
+
+def test_synthetic_claim_preserves_business_reading_and_uses_committed_assignment(tmp_path: Path, monkeypatch) -> None:
+    calls = []
+
+    def respond(settings, path, **kwargs):
+        calls.append(kwargs)
+        return ({"version": 0, "owner": None, "is_owner": False} if len(calls) == 1
+                else {"version": 1, "owner": {"username": "reviewer"}, "is_owner": True})
+
+    monkeypatch.setattr(demo, "api", respond)
+    headers = demo.synthetic_owner_headers(settings_for(tmp_path), "synthetic-case", "token", 7)
+    assert calls[1]["body"]["action"] == "CLAIM"
+    assert calls[1]["headers"] == {"If-Collaboration-Match": '"0"'}
+    assert headers == {"If-Match": '"7"', "If-Collaboration-Match": '"1"'}
+
+
 def test_a_demo_port_that_is_a_shared_port_is_refused(tmp_path: Path) -> None:
     ports = dict(demo.DEFAULT_PORTS)
     ports["gateway"] = 8080

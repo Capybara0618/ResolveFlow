@@ -100,7 +100,9 @@ class EvidenceApiTest extends CaseDatabaseTest {
                 .expectBody(String.class)
                 .returnResult()
                 .getResponseBody();
-        return MAPPER.readTree(body).get("case_id").stringValue();
+        String openedCase = MAPPER.readTree(body).get("case_id").stringValue();
+        claimTestCase(openedCase);
+        return openedCase;
     }
 
     private RestTestClient.ResponseSpec append(String caseId, String token, Map<String, Object> body) {
@@ -111,7 +113,7 @@ class EvidenceApiTest extends CaseDatabaseTest {
         if (token != null) {
             request = request.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         }
-        return request.exchange();
+        return request.headers(h -> addReviewHeaders(h, caseId)).exchange();
     }
 
     private static Map<String, Object> statement(String text) {

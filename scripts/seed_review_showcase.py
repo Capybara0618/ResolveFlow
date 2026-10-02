@@ -58,6 +58,17 @@ def api(path: str, *, token: str | None = None, body: dict | None = None,
     return result
 
 
+def synthetic_headers(case_id: str, token: str, version: int) -> dict[str, str]:
+    ownership = api(f"/api/v1/cases/{case_id}/collaboration", token=token)
+    if ownership["owner"] is None:
+        ownership = api(f"/api/v1/cases/{case_id}/collaboration", token=token,
+                        headers={"If-Collaboration-Match": f'"{ownership["version"]}"'},
+                        body={"action": "CLAIM", "reason": "合成展示：领取本次工单"})
+    if not ownership["is_owner"]:
+        raise RuntimeError("showcase case belongs to another staff member; transfer explicitly")
+    return {"If-Match": f'"{version}"', "If-Collaboration-Match": f'"{ownership["version"]}"'}
+
+
 def citation(record: dict) -> dict[str, str]:
     return {key: record[key] for key in
             ("observation_id", "source_ref", "source_version", "content_hash")}
@@ -136,6 +147,7 @@ def main() -> int:
         view = api(f"/api/v1/cases/{case_id}", token=reviewer)
         statement = next(item for item in view["evidence"] if item["evidence_kind"] == "CUSTOMER_STATEMENT")
         api(f"/api/v1/cases/{case_id}/reviewed-evidence", token=reviewer,
+            headers=synthetic_headers(case_id, reviewer, view["case"]["version"]),
             body={"source_evidence_id": statement["observation_id"],
                   "verification_result": "CONFIRMED", "reason": VERIFICATION})
     view = api(f"/api/v1/cases/{case_id}", token=reviewer)
@@ -144,6 +156,7 @@ def main() -> int:
                         if item["evidence_kind"] == "REVIEWER_VERIFICATION")
     policy = pinned_lost_policy(case_id)
     api(f"/api/v1/cases/{case_id}/manual-proposals", token=reviewer,
+        headers=synthetic_headers(case_id, reviewer, view["case"]["version"]),
         body={"action": "REFUND", "reason": PROPOSAL_REASON,
               "evidence_refs": [citation(statement), citation(verification)],
               "policy_refs": [policy]})

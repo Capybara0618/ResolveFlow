@@ -76,6 +76,7 @@ def prepare(settings, name):
         view = demo.api(settings, f"/api/v1/cases/{case_id}", token=reviewer)
         source = next(item for item in view["evidence"] if item["evidence_kind"] == "CUSTOMER_STATEMENT")
         demo.api(settings, f"/api/v1/cases/{case_id}/reviewed-evidence", token=reviewer,
+                 headers=demo.synthetic_owner_headers(settings, case_id, reviewer, view["case"]["version"]),
                  body={"source_evidence_id": source["observation_id"],
                        "verification_result": scenario.verification[0], "reason": scenario.verification[1]})
     view = demo.api(settings, f"/api/v1/cases/{case_id}", token=reviewer)

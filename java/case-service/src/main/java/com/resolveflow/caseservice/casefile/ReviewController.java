@@ -38,16 +38,25 @@ public class ReviewController {
     private final ReviewDecisionService decisions;
     private final ManualProposalService manualProposals;
     private final RequestPrincipalResolver principals;
+    private final CaseCollaborationService collaboration;
 
     public ReviewController(
             ReviewQueueService queue,
             ReviewDecisionService decisions,
             ManualProposalService manualProposals,
-            RequestPrincipalResolver principals) {
+            RequestPrincipalResolver principals,
+            CaseCollaborationService collaboration) {
         this.queue = queue;
         this.decisions = decisions;
         this.manualProposals = manualProposals;
         this.principals = principals;
+        this.collaboration = collaboration;
+    }
+
+    @GetMapping("/api/v1/review/staff")
+    public List<CaseCollaborationService.Owner> staff(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
+        return collaboration.staff(principals.resolve(authorization));
     }
 
     @GetMapping("/api/v1/review/cases")
@@ -68,19 +77,31 @@ public class ReviewController {
     public ResponseEntity<ReviewResponse> decide(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @RequestHeader(name = "If-Match", required = false) String ifMatch,
+            @RequestHeader(name = "If-Collaboration-Match", required = false) String collaborationMatch,
             @PathVariable("case_id") String caseId,
             @RequestBody ReviewRequest request) {
-        AuthenticatedPrincipal principal = principals.resolve(authorization);
-        return ResponseEntity.ok(decisions.decide(principal, caseId, ifMatch, request));
+        var session = principals.session(authorization);
+        return ResponseEntity.ok(decisions.decide(
+                session.principal(),
+                caseId,
+                ifMatch,
+                request,
+                CaseCollaborationService.WritePermit.from(session, ifMatch, collaborationMatch)));
     }
 
     @PostMapping("/api/v1/cases/{case_id}/manual-proposals")
     public ResponseEntity<ManualProposalResponse> submitManualProposal(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @RequestHeader(name = "If-Match", required = false) String ifMatch,
+            @RequestHeader(name = "If-Collaboration-Match", required = false) String collaborationMatch,
             @PathVariable("case_id") String caseId,
             @RequestBody ManualProposalRequest request) {
-        AuthenticatedPrincipal principal = principals.resolve(authorization);
-        return ResponseEntity.ok(manualProposals.submit(principal, caseId, request));
+        var session = principals.session(authorization);
+        return ResponseEntity.ok(manualProposals.submit(
+                session.principal(),
+                caseId,
+                request,
+                CaseCollaborationService.WritePermit.from(session, ifMatch, collaborationMatch)));
     }
 
     public record ReviewQueuePageResponse(List<ReviewQueueItemResponse> items, PageMeta page) {

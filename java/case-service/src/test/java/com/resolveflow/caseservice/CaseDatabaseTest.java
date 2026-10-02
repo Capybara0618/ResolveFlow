@@ -34,6 +34,56 @@ public abstract class CaseDatabaseTest {
     @Autowired
     protected com.resolveflow.caseservice.policy.PolicyImportService policies;
 
+    @Autowired
+    protected com.resolveflow.caseservice.casefile.CaseCollaborationService collaborations;
+
+    /** Explicit fixture setup: executes the production claim transaction, never an auto-claim on writes. */
+    protected void claimTestCase(String caseId) {
+        String merchant =
+                jdbc.queryForObject("SELECT merchant_id FROM aftersale_case WHERE case_id=?", String.class, caseId);
+        String username = jdbc.queryForObject(
+                "SELECT username FROM identity_account WHERE merchant_id=? AND role='REVIEWER' AND enabled=TRUE ORDER BY username LIMIT 1",
+                String.class,
+                merchant);
+        claimTestCase(caseId, username);
+    }
+
+    protected void claimTestCase(String caseId, String username) {
+        var principal = jdbc.queryForObject(
+                "SELECT merchant_id,role,identity_version FROM identity_account WHERE username=?",
+                (rs, n) -> new com.resolveflow.caseservice.order.RequestPrincipalResolver.Session(
+                        new com.resolveflow.shared.security.AuthenticatedPrincipal(
+                                username,
+                                rs.getString(1),
+                                com.resolveflow.shared.security.Role.valueOf(rs.getString(2)),
+                                null),
+                        rs.getLong(3)),
+                username);
+        long version = collaborations.read(principal.principal(), caseId).version();
+        collaborations.act(
+                principal.principal(),
+                principal.identityVersion(),
+                caseId,
+                "\"" + version + "\"",
+                new com.resolveflow.caseservice.casefile.CaseCollaborationService.Action("CLAIM", null, "测试夹具显式领取"));
+    }
+
+    /** Preserve deliberately stale If-Match assertions; supply only headers absent from the old fixture. */
+    protected void addReviewHeaders(org.springframework.http.HttpHeaders headers, String caseId) {
+        if (headers.getFirst("If-Match") == null) {
+            var versions =
+                    jdbc.query("SELECT version FROM aftersale_case WHERE case_id=?", (rs, n) -> rs.getLong(1), caseId);
+            headers.set("If-Match", "\"" + (versions.isEmpty() ? 1 : versions.getFirst()) + "\"");
+        }
+        addCollaborationHeader(headers, caseId);
+    }
+
+    protected void addCollaborationHeader(org.springframework.http.HttpHeaders headers, String caseId) {
+        var versions =
+                jdbc.query("SELECT version FROM case_collaboration WHERE case_id=?", (rs, n) -> rs.getLong(1), caseId);
+        headers.set("If-Collaboration-Match", "\"" + (versions.isEmpty() ? 0 : versions.getFirst()) + "\"");
+    }
+
     static final MySQLContainer MYSQL = new MySQLContainer("mysql:8.4")
             .withDatabaseName("case_db")
             .withUsername("case_svc")

@@ -11,7 +11,7 @@
  * instead of one per citation.
  */
 import { computed, nextTick, ref, watch } from 'vue'
-import { ApiError, coreApi, type CaseSnapshot, type ReviewContext, type ReviewerAction } from '../client'
+import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type ReviewContext, type ReviewerAction } from '../client'
 import ReviewDialog from './ReviewDialog.vue'
 import { formatMinorUnits } from '../money'
 import { policyKey, splitPolicySpans } from './investigation-format'
@@ -21,6 +21,7 @@ const props = defineProps<{
   snapshot: CaseSnapshot
   busy: boolean
   context: ReviewContext | null
+  collaboration?: CaseCollaboration | null
   contextLoading?: boolean
   contextError?: string
   /** The five-member identity of a clause a citation asked to open. */
@@ -33,6 +34,7 @@ const message = ref('')
 const error = ref('')
 const target = ref<CaseSnapshot | null>(null)
 const targetContext = ref<ReviewContext | null>(null)
+const targetCollaboration = ref<CaseCollaboration | null>(null)
 const action = ref<ReviewerAction['action'] | null>(null)
 const reason = ref('')
 const evidenceIds = ref<string[]>([])
@@ -106,10 +108,10 @@ watch(() => props.focusNonce, async () => {
 watch(() => [props.token, props.snapshot.case.case_id, props.snapshot.case.version], (next, previous) => {
   if (previous && (next[0] !== previous[0] || next[1] !== previous[1])) { close(); message.value = '' }
 })
-function close() { action.value = null; target.value = null; targetContext.value = null }
+function close() { action.value = null; target.value = null; targetContext.value = null; targetCollaboration.value = null }
 function begin(kind: ReviewerAction['action']) {
   if (!props.context?.allowed_actions.includes(kind)) return
-  target.value = props.snapshot; targetContext.value = props.context
+  target.value = props.snapshot; targetContext.value = props.context; targetCollaboration.value = props.collaboration ?? null
   action.value = kind; reason.value = ''; evidenceIds.value = []; policyIds.value = []; error.value = ''
 }
 const canSubmit = computed(() => !!reason.value.trim() && (action.value !== 'MANUAL_PROPOSAL'
@@ -128,7 +130,7 @@ async function submit() {
   submitting.value = true; emit('working', true); error.value = ''; message.value = ''
   let refresh = false
   try {
-    await coreApi.reviewerAction(props.token, target.value, body)
+    await coreApi.reviewerAction(props.token, target.value, body, targetCollaboration.value)
     message.value = body.action === 'MANUAL_PROPOSAL' ? '人工方案已提交。请核对服务端生成的待审授权，再作审批决定。'
       : body.action === 'REQUEST_INFO' ? '补证要求已记录，工单等待客户补充材料。' : '已记录拒绝理由，工单已结束。'
     close(); refresh = true

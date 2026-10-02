@@ -96,7 +96,9 @@ class CaseCancelApiTest extends CaseDatabaseTest {
                 .expectBody(String.class)
                 .returnResult()
                 .getResponseBody();
-        return MAPPER.readTree(body).get("case_id").stringValue();
+        String openedCase = MAPPER.readTree(body).get("case_id").stringValue();
+        claimTestCase(openedCase);
+        return openedCase;
     }
 
     private String openCase() {
@@ -111,7 +113,7 @@ class CaseCancelApiTest extends CaseDatabaseTest {
         if (token != null) {
             request = request.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         }
-        return request.exchange();
+        return request.headers(h -> addReviewHeaders(h, caseId)).exchange();
     }
 
     private Map<String, Object> caseRow(String caseId) {
@@ -294,6 +296,7 @@ class CaseCancelApiTest extends CaseDatabaseTest {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + customer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("text", "取消之后再补一句", "evidence_kind", "CUSTOMER_STATEMENT"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isEqualTo(409)

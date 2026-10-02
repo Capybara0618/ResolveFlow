@@ -67,7 +67,7 @@ class PersistentIdentityApiTest extends CaseDatabaseTest {
     }
 
     @Test
-    void administratorCannotPerformHumanWritesBeforeTakeoverIsAvailable() {
+    void administratorCannotBypassMissingCaseVisibilityOrInvalidProposal() {
         String token = login("demo-admin", "demo-pass-1100");
         rest.get()
                 .uri("/api/v1/review/cases")
@@ -76,7 +76,8 @@ class PersistentIdentityApiTest extends CaseDatabaseTest {
                 .expectStatus()
                 .isOk();
         String caseId = "00000000-0000-4000-8000-00000000eeee";
-        // Guards precede lookup: no invalid evidence or missing case may mask the role boundary.
+        // Admin is a staff role; missing cases remain invisible. Real owner/takeover is covered in
+        // ReviewerOwnershipApiTest.
         for (String endpoint : new String[] {"review-actions", "cancel", "reviewed-evidence"}) {
             Map<String, Object> body = endpoint.equals("reviewed-evidence")
                     ? Map.of("source_evidence_id", caseId, "verification_result", "CONFIRMED", "reason", "核验")
@@ -91,7 +92,7 @@ class PersistentIdentityApiTest extends CaseDatabaseTest {
                     .body(body)
                     .exchange()
                     .expectStatus()
-                    .isForbidden();
+                    .isNotFound();
         }
         rest.post()
                 .uri("/api/v1/cases/" + caseId + "/reviews")
@@ -102,7 +103,7 @@ class PersistentIdentityApiTest extends CaseDatabaseTest {
                         "authorization_id", caseId, "authorization_version", 1, "decision", "APPROVE", "reason", "批准"))
                 .exchange()
                 .expectStatus()
-                .isForbidden();
+                .isNotFound();
         rest.post()
                 .uri("/api/v1/cases/" + caseId + "/manual-proposals")
                 .header("Authorization", "Bearer " + token)
@@ -118,7 +119,7 @@ class PersistentIdentityApiTest extends CaseDatabaseTest {
                         "人工方案"))
                 .exchange()
                 .expectStatus()
-                .isForbidden();
+                .isEqualTo(422);
     }
 
     @Test

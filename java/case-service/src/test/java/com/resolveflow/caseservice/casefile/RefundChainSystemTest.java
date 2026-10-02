@@ -625,17 +625,37 @@ class RefundChainSystemTest {
     }
 
     private void approve(String caseId, String merchant, String caseVersion, String authorizationId) throws Exception {
+        String reviewerToken = token("demo-reviewer", merchant, Role.REVIEWER, null);
+        HttpResponse<String> claimed = HTTP.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(CASE_BASE + "/api/v1/cases/" + caseId + "/collaboration"))
+                        .header("Authorization", "Bearer " + reviewerToken)
+                        .header("Content-Type", "application/json")
+                        .header("If-Collaboration-Match", "\"0\"")
+                        .POST(HttpRequest.BodyPublishers.ofString("{\"action\":\"CLAIM\",\"reason\":\"合成链路：领取新建工单\"}"))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString());
+        assertThat(claimed.statusCode())
+                .as("claim fresh chain case: " + claimed.body())
+                .isEqualTo(200);
+        long collaborationVersion =
+                MAPPER.readTree(claimed.body()).get("version").longValue();
         ObjectNode body = MAPPER.createObjectNode();
         body.put("authorization_id", authorizationId);
         body.put("authorization_version", 1);
         body.put("decision", "APPROVE");
         body.put("reason", "物流结论与政策一致，证据充分");
-        HttpResponse<String> response = post(
-                "/api/v1/cases/" + caseId + "/reviews",
-                token("demo-reviewer", merchant, Role.REVIEWER, null),
-                null,
-                "\"" + caseVersion + "\"",
-                body);
+        HttpResponse<String> response = HTTP.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(CASE_BASE + "/api/v1/cases/" + caseId + "/reviews"))
+                        .timeout(Duration.ofSeconds(30))
+                        .header("Authorization", "Bearer " + reviewerToken)
+                        .header("Content-Type", "application/json")
+                        .header("If-Match", "\"" + caseVersion + "\"")
+                        .header("If-Collaboration-Match", "\"" + collaborationVersion + "\"")
+                        .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString());
         assertThat(response.statusCode())
                 .as("a reviewer approving: " + response.body())
                 .isEqualTo(200);

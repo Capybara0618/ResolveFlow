@@ -42,8 +42,15 @@ public class ReviewerWorkspaceController {
     public CaseSnapshotResponse act(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @RequestHeader(name = "If-Match", required = false) String ifMatch,
+            @RequestHeader(name = "If-Collaboration-Match", required = false) String collaborationMatch,
             @PathVariable("case_id") String caseId,
             @RequestBody ReviewerWorkspaceService.Action request) {
-        return workspace.act(principals.resolve(authorization), caseId, ifMatch, request);
+        var session = principals.session(authorization);
+        return workspace.act(
+                session.principal(),
+                caseId,
+                ifMatch,
+                request,
+                CaseCollaborationService.WritePermit.from(session, ifMatch, collaborationMatch));
     }
 }

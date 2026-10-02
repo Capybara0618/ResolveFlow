@@ -498,6 +498,18 @@ def login(settings: Settings, username: str, password: str, *, base_url: str | N
     return answer["access_token"]
 
 
+def synthetic_owner_headers(settings: Settings, case_id: str, token: str, case_version: int) -> dict[str, str]:
+    """Explicitly claim this driver's synthetic case; never take another owner's work."""
+    view = api(settings, f"/api/v1/cases/{case_id}/collaboration", token=token)
+    if view["owner"] is None:
+        view = api(settings, f"/api/v1/cases/{case_id}/collaboration", token=token,
+                   headers={"If-Collaboration-Match": f'"{view["version"]}"'},
+                   body={"action": "CLAIM", "reason": "合成演示：领取本次样本工单"})
+    if not view["is_owner"]:
+        raise RuntimeError("synthetic case has another owner; transfer it explicitly before continuing")
+    return {"If-Match": f'"{case_version}"', "If-Collaboration-Match": f'"{view["version"]}"'}
+
+
 # --------------------------------------------------------------------------- logging
 
 
@@ -1980,7 +1992,7 @@ def advance_approve(
         settings,
         f"/api/v1/cases/{case_id}/reviews",
         token=reviewer,
-        headers={"If-Match": f'"{state["version"]}"'},
+        headers=synthetic_owner_headers(settings, case_id, reviewer, state["version"]),
         body={
             "authorization_id": authorization["authorization_id"],
             "authorization_version": authorization["authorization_version"],
@@ -2104,6 +2116,7 @@ def run_scenario(settings: Settings, log: Log, scenario_name: str, *, index: int
                 settings,
                 f"/api/v1/cases/{case_id}/reviewed-evidence",
                 token=viewer,
+                headers=synthetic_owner_headers(settings, case_id, viewer, view["case"]["version"]),
                 body={
                     "source_evidence_id": statement["observation_id"],
                     "verification_result": scenario.verification[0],
@@ -2481,7 +2494,7 @@ def command_retire(settings: Settings, log: Log, scenario_name: str, reason: str
             settings,
             f"/api/v1/cases/{sample['case_id']}/review-actions",
             token=viewer,
-            headers={"If-Match": f'"{state["version"]}"'},
+            headers=synthetic_owner_headers(settings, sample["case_id"], viewer, state["version"]),
             body={"action": "REJECT", "reason": reason},
             expect=(200,),
         )

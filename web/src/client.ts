@@ -46,7 +46,7 @@ export interface Page<T> {
 
 export type CollaborationAction = 'CLAIM' | 'RELEASE' | 'TRANSFER' | 'TAKEOVER'
 export interface CaseCollaboration {
-  case_id: string; version: number
+  case_id: string; version: number; is_owner: boolean
   owner: { username: string; display_name: string; role: LoginResponse['role']; enabled: boolean } | null
   allowed_actions: CollaborationAction[]
   history: Array<{ version: number; action: CollaborationAction; actor_username: string
@@ -167,6 +167,7 @@ function jsonPost<T>(path: string, token: string | null, body: unknown, headers:
 }
 
 export const coreApi = {
+  reviewStaff: (token: string) => apiRequest<NonNullable<CaseCollaboration['owner']>[]>('/api/v1/review/staff', token),
   collaboration: (token: string, caseId: string) =>
     apiRequest<CaseCollaboration>(`/api/v1/cases/${encodeURIComponent(caseId)}/collaboration`, token),
   changeCollaboration: (token: string, current: CaseCollaboration, action: CollaborationAction,
@@ -189,9 +190,9 @@ export const coreApi = {
     apiRequest<InvestigationView>(`/api/v1/cases/${encodeURIComponent(caseId)}/investigation`, token),
   reviewContext: (token: string, caseId: string) =>
     apiRequest<ReviewContext>(`/api/v1/cases/${encodeURIComponent(caseId)}/review-context`, token),
-  reviewerAction: (token: string, snapshot: CaseSnapshot, action: ReviewerAction) =>
+  reviewerAction: (token: string, snapshot: CaseSnapshot, action: ReviewerAction, collaboration?: CaseCollaboration | null) =>
     jsonPost<CaseSnapshot>(`/api/v1/cases/${encodeURIComponent(snapshot.case.case_id)}/review-actions`, token,
-      action, { 'If-Match': `"${snapshot.case.version}"` }),
+      action, { 'If-Match': `"${snapshot.case.version}"`, ...(collaboration ? { 'If-Collaboration-Match': `"${collaboration.version}"` } : {}) }),
   login: (username: string, password: string) =>
     jsonPost<LoginResponse>('/api/v1/auth/login', null, { username, password }),
   orders: (token: string, cursor?: string) =>
@@ -212,18 +213,21 @@ export const coreApi = {
       question_id: questionId || null, text, evidence_kind: 'CUSTOMER_STATEMENT',
     }),
   reviewEvidence: (token: string, caseId: string, evidenceId: string,
-    verification: 'CONFIRMED' | 'REFUTED' | 'INCONCLUSIVE', reason: string) =>
+    verification: 'CONFIRMED' | 'REFUTED' | 'INCONCLUSIVE', reason: string,
+    snapshot?: CaseSnapshot | null, collaboration?: CaseCollaboration | null) =>
     jsonPost(`/api/v1/cases/${encodeURIComponent(caseId)}/reviewed-evidence`, token, {
       source_evidence_id: evidenceId, verification_result: verification, reason,
-    }),
+    }, { ...(snapshot ? { 'If-Match': `"${snapshot.case.version}"` } : {}),
+      ...(collaboration ? { 'If-Collaboration-Match': `"${collaboration.version}"` } : {}) }),
   reviewQueue: (token: string, cursor?: string, view = 'REVIEW', query = '') =>
     apiRequest<Page<ReviewItem>>(`/api/v1/review/cases?limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}${view !== 'REVIEW' || query ? `&view=${encodeURIComponent(view)}&query=${encodeURIComponent(query)}` : ''}`, token),
-  review: (token: string, snapshot: CaseSnapshot, decision: 'APPROVE' | 'REJECT' | 'REQUEST_INFO', reason: string) => {
+  review: (token: string, snapshot: CaseSnapshot, decision: 'APPROVE' | 'REJECT' | 'REQUEST_INFO', reason: string,
+    collaboration?: CaseCollaboration | null) => {
     if (!snapshot.authorization) throw new Error('No authorization to review')
     return jsonPost(`/api/v1/cases/${encodeURIComponent(snapshot.case.case_id)}/reviews`, token, {
       authorization_id: snapshot.authorization.authorization_id,
       authorization_version: snapshot.authorization.authorization_version,
       decision, reason,
-    }, { 'If-Match': `"${snapshot.case.version}"` })
+    }, { 'If-Match': `"${snapshot.case.version}"`, ...(collaboration ? { 'If-Collaboration-Match': `"${collaboration.version}"` } : {}) })
   },
 }

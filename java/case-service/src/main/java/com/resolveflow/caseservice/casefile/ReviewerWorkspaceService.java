@@ -18,6 +18,7 @@ import tools.jackson.databind.ObjectMapper;
 @Service
 public class ReviewerWorkspaceService {
     private final CaseRepository cases;
+    private final CaseCollaborationService collaboration;
     private final AuthorizationRepository authorizations;
     private final EvidenceRepository evidence;
     private final PolicyManifestRepository manifests;
@@ -40,8 +41,10 @@ public class ReviewerWorkspaceService {
             LiveAuthorization live,
             CaseReadService reads,
             Clock clock,
-            ObjectMapper mapper) {
+            ObjectMapper mapper,
+            CaseCollaborationService collaboration) {
         this.cases = cases;
+        this.collaboration = collaboration;
         this.authorizations = authorizations;
         this.evidence = evidence;
         this.manifests = manifests;
@@ -99,9 +102,10 @@ public class ReviewerWorkspaceService {
         requireStaff(principal);
         CaseRow row = visible(principal, cases.findCase(caseId));
         List<PolicyText> rules = policyText(row);
-        List<String> actions = CaseStaff.canReview(principal) ? allowed(row) : List.of();
-        String reason = !CaseStaff.canReview(principal)
-                ? "管理员当前可查看记录；审核接管将在多人协作功能开放"
+        boolean owns = collaboration.owns(principal, caseId);
+        List<String> actions = owns ? allowed(row) : List.of();
+        String reason = !owns
+                ? "工单尚未领取或由其他工作人员负责，当前仅可查看"
                 : row.status().isTerminal()
                         ? "工单已结束，仅可查看记录"
                         : consumed(row)
@@ -197,29 +201,28 @@ public class ReviewerWorkspaceService {
         return List.copyOf(actions);
     }
 
-    @Transactional
     public CaseSnapshotResponse act(AuthenticatedPrincipal principal, String caseId, String ifMatch, Action request) {
-        CaseStaff.requireReviewer(principal, "human actions require a reviewer");
-        if (ifMatch == null || !ifMatch.matches("\"[1-9][0-9]{0,15}\"")) {
+        return act(principal, caseId, ifMatch, request, null);
+    }
+
+    public CaseSnapshotResponse act(
+            AuthenticatedPrincipal principal,
+            String caseId,
+            String ifMatch,
+            Action request,
+            CaseCollaborationService.WritePermit permit) {
+        CaseStaff.requireReviewer(principal, "human actions require merchant staff");
+        if (ifMatch == null || !ifMatch.matches("\"[1-9][0-9]{0,15}\""))
             throw new CaseService.SemanticInvalidException("If-Match must contain the quoted case version");
-        }
-        CaseRow row = visible(principal, cases.findCaseForUpdate(caseId));
-        if (row.version() != Long.parseLong(ifMatch.substring(1, ifMatch.length() - 1))) {
-            throw new CaseStateConflictException("工单已更新，请重新核对材料后提交");
-        }
-        if (!List.of("MANUAL_PROPOSAL", "REJECT", "REQUEST_INFO")
-                .contains(request.action() == null ? "" : request.action())) {
+        if (!List.of("MANUAL_PROPOSAL", "REJECT", "REQUEST_INFO").contains(Objects.toString(request.action(), "")))
             throw new CaseService.SemanticInvalidException("unsupported reviewer action");
-        }
-        if (!allowed(row).contains(request.action())) {
-            throw new CaseStateConflictException("当前状态不允许该操作，请刷新工单查看最新进度");
-        }
         if (request.reason() == null
                 || request.reason().isBlank()
-                || request.reason().length() > 1000) {
+                || request.reason().length() > 1000)
             throw new CaseService.SemanticInvalidException("reason must contain 1–1000 characters");
-        }
+        CaseRow row = collaboration.prepareWrite(principal, caseId, permit);
         if ("MANUAL_PROPOSAL".equals(request.action())) {
+            requireActionAllowed(row, request);
             requireActualEvidence(row, request.evidenceRefs());
             proposals.submit(
                     principal,
@@ -228,11 +231,20 @@ public class ReviewerWorkspaceService {
                             "REFUND",
                             request.evidenceRefs(),
                             request.policyRefs(),
-                            request.reason().trim()));
+                            request.reason().trim()),
+                    permit);
         } else {
-            decideWithoutAuthorization(principal, row, request);
+            collaboration.writeOwned(principal, caseId, permit, locked -> {
+                requireActionAllowed(locked, request);
+                decideWithoutAuthorization(principal, locked, request);
+                return null;
+            });
         }
         return reads.read(principal, caseId);
+    }
+
+    private void requireActionAllowed(CaseRow row, Action request) {
+        if (!allowed(row).contains(request.action())) throw new CaseStateConflictException("当前状态不允许此操作，请刷新工单查看最新进度");
     }
 
     private void requireActualEvidence(CaseRow row, List<EvidenceCitation> refs) {

@@ -71,28 +71,46 @@ public class CaseController {
     @PostMapping("/{case_id}/evidence")
     public ResponseEntity<EvidenceSubmissionResponse> appendEvidence(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @RequestHeader(name = "If-Match", required = false) String ifMatch,
+            @RequestHeader(name = "If-Collaboration-Match", required = false) String collaborationMatch,
             @PathVariable("case_id") String caseId,
             @RequestBody EvidenceAppendRequest request) {
-        AuthenticatedPrincipal principal = principals.resolve(authorization);
-        return ResponseEntity.ok(evidence.append(principal, caseId, request));
+        var session = principals.session(authorization);
+        return ResponseEntity.ok(evidence.append(
+                session.principal(),
+                caseId,
+                request,
+                CaseCollaborationService.WritePermit.from(session, ifMatch, collaborationMatch)));
     }
 
     @PostMapping("/{case_id}/reviewed-evidence")
     public ResponseEntity<ReviewedEvidenceResponse> reviewEvidence(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @RequestHeader(name = "If-Match", required = false) String ifMatch,
+            @RequestHeader(name = "If-Collaboration-Match", required = false) String collaborationMatch,
             @PathVariable("case_id") String caseId,
             @RequestBody ReviewedEvidenceRequest request) {
-        AuthenticatedPrincipal principal = principals.resolve(authorization);
-        return ResponseEntity.ok(evidence.review(principal, caseId, request));
+        var session = principals.session(authorization);
+        return ResponseEntity.ok(evidence.review(
+                session.principal(),
+                caseId,
+                request,
+                CaseCollaborationService.WritePermit.from(session, ifMatch, collaborationMatch)));
     }
 
     @PostMapping("/{case_id}/cancel")
     public ResponseEntity<CaseCancelResponse> cancel(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @RequestHeader(name = "If-Match", required = false) String ifMatch,
+            @RequestHeader(name = "If-Collaboration-Match", required = false) String collaborationMatch,
             @PathVariable("case_id") String caseId,
             @RequestBody ReasonRequest request) {
-        AuthenticatedPrincipal principal = principals.resolve(authorization);
-        return ResponseEntity.ok(cancellations.cancel(principal, caseId, request));
+        var session = principals.session(authorization);
+        return ResponseEntity.ok(cancellations.cancel(
+                session.principal(),
+                caseId,
+                request,
+                CaseCollaborationService.WritePermit.from(session, ifMatch, collaborationMatch)));
     }
 
     /**

@@ -916,7 +916,9 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
                 .expectBody(String.class)
                 .returnResult()
                 .getResponseBody();
-        return MAPPER.readTree(body).get("case_id").stringValue();
+        String openedCase = MAPPER.readTree(body).get("case_id").stringValue();
+        claimTestCase(openedCase);
+        return openedCase;
     }
 
     private void deliverProposal(String caseId) {
@@ -962,6 +964,7 @@ class CaseResultConsumerApiTest extends CaseDatabaseTest {
                 .header("If-Match", "\"" + caseVersion + "\"")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body.toString())
+                .headers(h -> addCollaborationHeader(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();

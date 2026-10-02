@@ -140,7 +140,9 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
                 .expectBody(String.class)
                 .returnResult()
                 .getResponseBody();
-        return MAPPER.readTree(body).get("case_id").stringValue();
+        String openedCase = MAPPER.readTree(body).get("case_id").stringValue();
+        claimTestCase(openedCase);
+        return openedCase;
     }
 
     private ObjectNode citation() {
@@ -243,6 +245,7 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
             request = request.header("If-Match", ifMatch);
         }
         return MAPPER.readTree(request.body(body.toString())
+                .headers(h -> addCollaborationHeader(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -272,6 +275,7 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
             request = request.header("If-Match", ifMatch);
         }
         return request.body(body.toString())
+                .headers(h -> addCollaborationHeader(h, caseId))
                 .exchange()
                 .returnResult(String.class)
                 .getStatus()
@@ -451,6 +455,7 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
                         "question_id", "another-question",
                         "text", "答非所问",
                         "evidence_kind", "CUSTOMER_STATEMENT"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isEqualTo(422);
@@ -467,6 +472,7 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
                         "question_id", questionId,
                         "text", "承运商书面证明已上传",
                         "evidence_kind", "CUSTOMER_STATEMENT"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -547,6 +553,7 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
                 .header("Authorization", "Bearer " + customer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("text", "承运商证明包裹未送达", "evidence_kind", "CUSTOMER_STATEMENT"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -560,6 +567,7 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
                         "source_evidence_id", evidenceId,
                         "verification_result", "CONFIRMED",
                         "reason", "已向承运商复核，记录一致"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -607,6 +615,7 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
                 .header("Authorization", "Bearer " + customer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body("{\"text\":\"补充说明\",\"evidence_kind\":\"CUSTOMER_STATEMENT\"}")
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();

@@ -1,0 +1,244 @@
+{
+  "date": "2026-10-02",
+  "synthetic": true,
+  "case_id": "35011cca-4940-4cd1-a4ae-25398a793dda",
+  "collaboration": {
+    "case_id": "35011cca-4940-4cd1-a4ae-25398a793dda",
+    "version": 5,
+    "owner": {
+      "username": "demo-admin",
+      "display_name": "商家管理员 · demo-admin",
+      "role": "MERCHANT_ADMIN",
+      "enabled": true
+    },
+    "is_owner": true,
+    "allowed_actions": [
+      "RELEASE",
+      "TRANSFER"
+    ],
+    "history": [
+      {
+        "version": 1,
+        "action": "CLAIM",
+        "actor_username": "demo-reviewer",
+        "from_username": null,
+        "to_username": "demo-reviewer",
+        "reason": "合成验收：由专员一开始处理",
+        "occurred_at": "2026-10-02T03:58:01.357790Z"
+      },
+      {
+        "version": 2,
+        "action": "TRANSFER",
+        "actor_username": "demo-admin",
+        "from_username": "demo-reviewer",
+        "to_username": "demo-reviewer-2",
+        "reason": "合成验收：转交给专员二继续处理",
+        "occurred_at": "2026-10-02T03:59:33.445616Z"
+      },
+      {
+        "version": 3,
+        "action": "TAKEOVER",
+        "actor_username": "demo-admin",
+        "from_username": "demo-reviewer-2",
+        "to_username": "demo-admin",
+        "reason": "合成验收：管理员显式接管后继续核验",
+        "occurred_at": "2026-10-02T04:00:06.906996Z"
+      },
+      {
+        "version": 4,
+        "action": "RELEASE",
+        "actor_username": "demo-admin",
+        "from_username": "demo-admin",
+        "to_username": null,
+        "reason": "合成验收：释放后回到未领取状态",
+        "occurred_at": "2026-10-02T04:00:07.487846Z"
+      },
+      {
+        "version": 5,
+        "action": "CLAIM",
+        "actor_username": "demo-admin",
+        "from_username": null,
+        "to_username": "demo-admin",
+        "reason": "合成验收：管理员重新领取并处理",
+        "occurred_at": "2026-10-02T04:00:55.721827Z"
+      }
+    ]
+  },
+  "after_customer_answer": {
+    "case_id": "35011cca-4940-4cd1-a4ae-25398a793dda",
+    "status": "QUEUED",
+    "input_revision": 5,
+    "version": 5,
+    "created_at": "2026-10-02T03:56:31.666485Z",
+    "updated_at": "2026-10-02T04:04:11.334868Z",
+    "requested_actions": [
+      "REFUND"
+    ],
+    "line_id": "91002015682",
+    "order_id": "08fc9939-98eb-4297-a0bc-af9e6a46d12c",
+    "description": "多人审核合成验收：包裹未收到，请核对材料后处理。"
+  },
+  "verification": {
+    "observation_id": "a0c53bed-4b8c-463d-9b0a-64ef82d08add",
+    "source_ref": "evidence:1c79b23c-0471-4ee4-a29b-2f85f0a3a583",
+    "source_version": "2",
+    "content_hash": "447eb0dce1eebbafc25b8cf3805a6bcdb7446a1c0afcfc319b42f02f6c50c921",
+    "evidence_kind": "REVIEWER_VERIFICATION",
+    "content": "合成验收：已核对原始材料；保留客户陈述，另记人工结论。",
+    "input_revision": 3,
+    "observed_at": "2026-10-02T04:00:56.028284Z",
+    "appended_by": "demo-admin",
+    "appended_role": "MERCHANT_ADMIN",
+    "reviewed_evidence_id": "1c79b23c-0471-4ee4-a29b-2f85f0a3a583",
+    "verification_result": "CONFIRMED"
+  },
+  "old_cases_unchanged": 26,
+  "historical_runs_unchanged": 62,
+  "model_calls": 0,
+  "refund_executed": false,
+  "ui_stale_owner_rejected": true,
+  "final_case": {
+    "case_id": "35011cca-4940-4cd1-a4ae-25398a793dda",
+    "status": "CLOSED_REJECTED",
+    "input_revision": 6,
+    "version": 6,
+    "created_at": "2026-10-02T03:56:31.666485Z",
+    "updated_at": "2026-10-02T04:05:55.984535Z",
+    "requested_actions": [
+      "REFUND"
+    ],
+    "line_id": "91002015682",
+    "order_id": "08fc9939-98eb-4297-a0bc-af9e6a46d12c",
+    "description": "多人审核合成验收：包裹未收到，请核对材料后处理。"
+  },
+  "final_collaboration": {
+    "case_id": "35011cca-4940-4cd1-a4ae-25398a793dda",
+    "version": 5,
+    "owner": {
+      "username": "demo-admin",
+      "display_name": "商家管理员 · demo-admin",
+      "role": "MERCHANT_ADMIN",
+      "enabled": true
+    },
+    "is_owner": true,
+    "allowed_actions": [],
+    "history": [
+      {
+        "version": 1,
+        "action": "CLAIM",
+        "actor_username": "demo-reviewer",
+        "from_username": null,
+        "to_username": "demo-reviewer",
+        "reason": "合成验收：由专员一开始处理",
+        "occurred_at": "2026-10-02T03:58:01.357790Z"
+      },
+      {
+        "version": 2,
+        "action": "TRANSFER",
+        "actor_username": "demo-admin",
+        "from_username": "demo-reviewer",
+        "to_username": "demo-reviewer-2",
+        "reason": "合成验收：转交给专员二继续处理",
+        "occurred_at": "2026-10-02T03:59:33.445616Z"
+      },
+      {
+        "version": 3,
+        "action": "TAKEOVER",
+        "actor_username": "demo-admin",
+        "from_username": "demo-reviewer-2",
+        "to_username": "demo-admin",
+        "reason": "合成验收：管理员显式接管后继续核验",
+        "occurred_at": "2026-10-02T04:00:06.906996Z"
+      },
+      {
+        "version": 4,
+        "action": "RELEASE",
+        "actor_username": "demo-admin",
+        "from_username": "demo-admin",
+        "to_username": null,
+        "reason": "合成验收：释放后回到未领取状态",
+        "occurred_at": "2026-10-02T04:00:07.487846Z"
+      },
+      {
+        "version": 5,
+        "action": "CLAIM",
+        "actor_username": "demo-admin",
+        "from_username": null,
+        "to_username": "demo-admin",
+        "reason": "合成验收：管理员重新领取并处理",
+        "occurred_at": "2026-10-02T04:00:55.721827Z"
+      }
+    ]
+  },
+  "customer_result": {
+    "status": "CLOSED_REJECTED",
+    "message": "申请未获批准",
+    "amount_minor": null,
+    "currency": "CNY",
+    "public_reason": "合成验收结束：仅验证多人处理和版本保护，不执行模拟付款。"
+  },
+  "questions": [
+    {
+      "question_id": "62521b95-289c-48f7-9979-347b7d6c3f03",
+      "prompts": [
+        "合成验收：请补充承运商最新回复，确认是否已经签收。"
+      ],
+      "status": "ANSWERED",
+      "asked_at": "2026-10-02T04:01:10.487380Z",
+      "expires_at": "2026-10-05T04:01:10.487380Z",
+      "answers": [
+        {
+          "id": "ee87f7d1-ec59-4a2c-9d80-d53dbd26412a",
+          "text": "合成验收回答：承运商回复尚未签收，请继续核对。",
+          "submitted_at": "2026-10-02T04:04:11.334868Z",
+          "question_id": "62521b95-289c-48f7-9979-347b7d6c3f03",
+          "verification_result": null
+        }
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "event_id": "06a738cc-6ae7-4b94-a1a3-2de943e25184",
+      "type": "CASE_CREATED",
+      "occurred_at": "2026-10-02T03:56:31.666485Z",
+      "summary": "客户提交退款诉求（line_id=91002015682）",
+      "revision": 1
+    },
+    {
+      "event_id": "8e58b582-3802-460e-b454-8acfb4bdc01e",
+      "type": "EVIDENCE_APPENDED",
+      "occurred_at": "2026-10-02T03:56:31.812665Z",
+      "summary": "客户补充了材料",
+      "revision": 2
+    },
+    {
+      "event_id": "55f4fcc7-40da-4131-93db-4130ace84924",
+      "type": "EVIDENCE_APPENDED",
+      "occurred_at": "2026-10-02T04:00:56.028284Z",
+      "summary": "人工核验：已确认该材料",
+      "revision": 3
+    },
+    {
+      "event_id": "ba3a5be5-d878-4e5a-ac52-6efc016062ca",
+      "type": "QUESTION_REQUIRED",
+      "occurred_at": "2026-10-02T04:01:10.487380Z",
+      "summary": "需要客户补充说明",
+      "revision": 4
+    },
+    {
+      "event_id": "932bfb02-0bae-45e2-b55b-19d27905d240",
+      "type": "EVIDENCE_APPENDED",
+      "occurred_at": "2026-10-02T04:04:11.334868Z",
+      "summary": "客户补充了材料",
+      "revision": 5
+    },
+    {
+      "event_id": "3f97d163-484d-4c38-b67d-c88d92d26acc",
+      "type": "CASE_CLOSED",
+      "occurred_at": "2026-10-02T04:05:55.984535Z",
+      "summary": "工单已关闭",
+      "revision": 6
+    }
+  ]
+}

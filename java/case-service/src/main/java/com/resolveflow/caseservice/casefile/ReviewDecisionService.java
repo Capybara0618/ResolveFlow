@@ -7,7 +7,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -50,6 +49,7 @@ public class ReviewDecisionService {
     }
 
     private final CaseRepository cases;
+    private final CaseCollaborationService collaboration;
     private final AuthorizationRepository authorizations;
     private final ReviewQuestionService questions;
     private final CommerceOrderLineClient commerce;
@@ -62,8 +62,10 @@ public class ReviewDecisionService {
             ReviewQuestionService questions,
             CommerceOrderLineClient commerce,
             Clock clock,
-            ObjectMapper mapper) {
+            ObjectMapper mapper,
+            CaseCollaborationService collaboration) {
         this.cases = cases;
+        this.collaboration = collaboration;
         this.authorizations = authorizations;
         this.questions = questions;
         this.commerce = commerce;
@@ -71,9 +73,17 @@ public class ReviewDecisionService {
         this.mapper = mapper;
     }
 
-    @Transactional(noRollbackFor = AuthorizationLapsedException.class)
     public ReviewResponse decide(
             AuthenticatedPrincipal principal, String caseId, String ifMatch, ReviewRequest request) {
+        return decide(principal, caseId, ifMatch, request, null);
+    }
+
+    public ReviewResponse decide(
+            AuthenticatedPrincipal principal,
+            String caseId,
+            String ifMatch,
+            ReviewRequest request,
+            CaseCollaborationService.WritePermit permit) {
         String authorizationId = requireUuid(request.authorizationId());
         long expectedVersion = requireVersion(request.authorizationVersion(), "authorization_version");
         ReviewDecision decision = ReviewDecision.of(request.decision());
@@ -81,10 +91,7 @@ public class ReviewDecisionService {
         long seenCaseVersion = requireIfMatch(ifMatch);
         requireStaff(principal);
 
-        CaseRow row = cases.findCaseForUpdate(caseId);
-        if (row == null || !row.visibleTo(principal)) {
-            throw new CaseReadService.CaseNotVisibleException();
-        }
+        CaseRow row = collaboration.prepareWrite(principal, caseId, permit);
         if (row.status().isTerminal()) {
             throw new CaseStateConflictException(
                     "this case already ended as " + row.status() + "; there is nothing left to decide");
@@ -99,15 +106,37 @@ public class ReviewDecisionService {
         requireCurrentVersion(stored, expectedVersion);
         requireWaiting(stored);
 
+        // No case/account locks are held while Commerce is contacted. A changed input or owner
+        // is rejected below; Commerce still enforces the authoritative amount during execution.
+        var context = decision == ReviewDecision.APPROVE && localRevalidationFailure(row, stored) == null
+                ? commerce.readLineContext(row.lineId())
+                : java.util.Optional.<CommerceOrderLineClient.LineContext>empty();
+        return collaboration.writeOwned(principal, caseId, permit, locked -> {
+            var current = authorizations.findByAuthorizationId(authorizationId);
+            requireCurrentReading(locked, seenCaseVersion);
+            requireCurrentVersion(current, expectedVersion);
+            requireWaiting(current);
+            return recordDecision(principal, locked, current, decision, reason, context);
+        });
+    }
+
+    private ReviewResponse recordDecision(
+            AuthenticatedPrincipal principal,
+            CaseRow row,
+            AuthorizationRepository.StoredAuthorization stored,
+            ReviewDecision decision,
+            String reason,
+            java.util.Optional<CommerceOrderLineClient.LineContext> context) {
         Instant now = Instant.now(clock);
         AuthorizationStatus outcome =
                 switch (decision) {
-                    case APPROVE -> approve(row, stored, principal, reason, now);
+                    case APPROVE -> approve(row, stored, principal, reason, now, context);
                     case REJECT -> decideAndClose(row, stored, principal, reason, now);
                     case REQUEST_INFO -> lapseAndAsk(row, stored, principal, reason, now);
                 };
-        CaseRow after = cases.findCase(caseId);
-        return new ReviewResponse(caseId, authorizationId, stored.authorizationVersion() + 1, outcome, after.version());
+        CaseRow after = cases.findCase(row.caseId());
+        return new ReviewResponse(
+                row.caseId(), stored.authorizationId(), stored.authorizationVersion() + 1, outcome, after.version());
     }
 
     /**
@@ -122,8 +151,9 @@ public class ReviewDecisionService {
             AuthorizationRepository.StoredAuthorization stored,
             AuthenticatedPrincipal principal,
             String reason,
-            Instant now) {
-        String failure = revalidationFailure(row, stored);
+            Instant now,
+            java.util.Optional<CommerceOrderLineClient.LineContext> context) {
+        String failure = revalidationFailure(row, stored, context);
         if (failure != null) {
             lapse(stored, failure, now);
             throw new AuthorizationLapsedException(failure);
@@ -227,7 +257,7 @@ public class ReviewDecisionService {
      * reserved the money today may pay tomorrow, and turning that into a dead authorisation would be this
      * service inventing a decision.
      */
-    private String revalidationFailure(CaseRow row, AuthorizationRepository.StoredAuthorization stored) {
+    private String localRevalidationFailure(CaseRow row, AuthorizationRepository.StoredAuthorization stored) {
         if (stored.inputRevision() != row.inputRevision()) {
             return "this authorisation fixed its payload for input revision " + stored.inputRevision()
                     + " but the case is at revision " + row.inputRevision()
@@ -240,7 +270,15 @@ public class ReviewDecisionService {
             return "the payload hash of this authorisation cannot be recomputed from its own row, so what it"
                     + " would execute is not what was approved";
         }
-        var context = commerce.readLineContext(row.lineId());
+        return null;
+    }
+
+    private String revalidationFailure(
+            CaseRow row,
+            AuthorizationRepository.StoredAuthorization stored,
+            java.util.Optional<CommerceOrderLineClient.LineContext> context) {
+        String local = localRevalidationFailure(row, stored);
+        if (local != null) return local;
         if (context.isEmpty()) {
             throw new CaseStateConflictException("Commerce no longer has line " + row.lineId()
                     + ", so the payment this authorisation fixed cannot be made from the record it names");

@@ -122,6 +122,7 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                 .header("If-Match", "\"" + version + "\"")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body.toString())
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .returnResult(String.class)
                 .getStatus()
@@ -165,6 +166,7 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                         .put("question_id", questionId)
                         .put("text", "补充签收争议说明")
                         .put("evidence_kind", "CUSTOMER_STATEMENT"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -197,6 +199,7 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                 .header("Authorization", "Bearer " + customer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body("{\"text\":\"包裹未收到，请核查物流\",\"evidence_kind\":\"CUSTOMER_STATEMENT\"}")
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -360,7 +363,9 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                 .expectBody(String.class)
                 .returnResult()
                 .getResponseBody();
-        return MAPPER.readTree(body).get("case_id").stringValue();
+        String openedCase = MAPPER.readTree(body).get("case_id").stringValue();
+        claimTestCase(openedCase);
+        return openedCase;
     }
 
     /** The rule this case's refund leans on, cited the way the fixture hashes it. */
@@ -413,6 +418,7 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body.toString())
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .returnResult(String.class)
                 .getStatus()
@@ -425,6 +431,7 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body.toString())
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -460,6 +467,7 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                 .header("If-Match", "\"" + caseVersion + "\"")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body.toString())
+                .headers(h -> addCollaborationHeader(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -636,6 +644,7 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                         .header("If-Match", "\"" + caseVersion + "\"")
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(body.toString())
+                        .headers(h -> addCollaborationHeader(h, caseId))
                         .exchange()
                         .returnResult(String.class)
                         .getStatus()
@@ -749,6 +758,7 @@ class ManualProposalApiTest extends CaseDatabaseTest {
                 .header("Authorization", "Bearer " + customer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body("{\"reason\":\"客户撤回诉求\"}")
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();

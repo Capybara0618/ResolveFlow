@@ -220,9 +220,15 @@ def main() -> int:
             body={"username": "demo-reviewer", "password": REVIEWER_PASSWORD})
         if status != 200:
             raise RuntimeError(f"reviewer login returned {status}")
+        status, ownership = tools_driver.request_json(
+            f"{case_url}/api/v1/cases/{case_id}/collaboration", method="POST", token=reviewer["access_token"],
+            headers={"If-Collaboration-Match": '"0"'},
+            body={"action": "CLAIM", "reason": "合成链路：领取本次新建工单"})
+        if status != 200 or not ownership.get("is_owner"):
+            raise RuntimeError(f"synthetic case claim failed: {status}")
         status, decision = tools_driver.request_json(
             f"{case_url}/api/v1/cases/{case_id}/reviews", method="POST", token=reviewer["access_token"],
-            headers={"If-Match": f'"{case_version}"'},
+            headers={"If-Match": f'"{case_version}"', "If-Collaboration-Match": f'"{ownership["version"]}"'},
             body={"authorization_id": authorization[0][0], "authorization_version": int(authorization[0][1]),
                   "decision": "APPROVE", "reason": "物流证据与固定政策一致，同意全行退款"})
         report.step("human reviewer approved", status == 200, 0, str(status) if status == 200 else f"{status} {decision}")

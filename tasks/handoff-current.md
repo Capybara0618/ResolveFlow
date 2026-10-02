@@ -1,12 +1,14 @@
 # 当前执行说明：按v2预期图接续多人审核
 
-2026-10-02用户已要求开始按v2实施。当前批次验收与记录以[todo顶部](todo.md)为准，证据见[客户批次报告](../reports/customer-workspace.md)。接手点为[plan](plan.md)新第三批“多人审核”，继续[实施对应说明](../docs/ui-implementation.md)的依赖顺序；不重做身份、客户工作台或既有审查/Agent。当前执行者在本批精确提交/正常推送和记录收尾后停止业务写入，接手先只读核对Git、账本及进程归属，不假定其他客户端已停。
+2026-10-02用户已要求开始按v2实施。当前批次验收与记录以[todo顶部](todo.md)为准，本子步证据见[人工归属保护报告](../reports/reviewer-ownership.md)，客户成果见[客户批次报告](../reports/customer-workspace.md)。接手点为[plan](plan.md)新第三批“多人审核”，继续[实施对应说明](../docs/ui-implementation.md)的依赖顺序；不重做身份、客户工作台或既有审查/Agent。当前执行者在本批精确提交/正常推送和记录收尾后停止业务写入，接手先只读核对Git、账本及进程归属，不假定其他客户端已停。
 
 当前设计入口为[v2图册](../docs/ui-targets-v2/index.html)、[实施合同](../docs/ui-targets-v2/README.md)和[复查记录](../docs/ui-targets-v2/review.md)。客户端＋共用商家端，审核员对外称售后专员，管理员增加管理权限，不另建平台超级管理员。按角色、原始信息/核验/补证、新旧调查、人工方案及授权消费/UNKNOWN理解图片；状态板不是新路由，位图检查不代表业务验收。初版及此前“先画图、业务暂停”的说明为历史背景，不再阻止已认可方向的范围内接续。
 
 第三批先核对公共队列与所有人工写入口（核验、补证、人工方案、审批、撤销授权）的当前版本检查，再增加原子领取/释放/转交、负责人协作版本和管理员显式接管；补证保留负责人。人员管理限本商家，复用identity_account及身份版本，禁用/重置须拒绝旧会话并保护最后管理员。对应v2的07/10/11/14/16/18/19，不能先画可点击却无服务端权限的管理按钮。契约/类型/fixture同步，按功能批次集中验证，沿用旧锁/追加迁移/单行模拟退款约束。
 
-接续入口为[协作协议](../docs/case-collaboration.md)、CaseCollaborationService/Controller、V21及[子步证据](../reports/case-collaboration.md)，完成状态仅看todo顶部。下一步统一覆盖全部旧人工写入口，复用RequestPrincipalResolver.Session携带签名身份版本，在同一工单锁事务内校验负责人、协作版本和原业务版本；旧客户端缺领取/协作版本要明确409，不自动抢占。新协作接口不等同于旧入口已受保护，MERCHANT_ADMIN人工写禁令在安全接入前继续保留。追加迁移修正旧核验/方案/审批role CHECK、actor宽度及对应契约；核对Commerce复核与事务边界。然后接公共/我的/未领取筛选、真实计数、人员管理和桌面界面；客户回答/回调/执行结果不要求负责人凭证。当前demo尚未加载这个子步的JAR，先status，不为验证开启Live。
+接续入口为[协作协议](../docs/case-collaboration.md)、CaseCollaborationService/Controller及[人工归属保护报告](../reports/reviewer-ownership.md)，完成状态仅看todo顶部。人工入口已有当前负责人、独立协作版本、原业务版本和锁内签名身份检查；管理员显式接管后可人工处理，V22兼容旧角色CHECK与actor宽度。App/ReviewerWorkspace/CaseAssignment已接真实归属、目录、操作与旧弹窗保护，不重做这些成果。
+
+下一子步接公共/我的/未领取筛选、每行真实负责人和服务器计数，再接最小人员管理及管理员菜单。当前reviewQueue仍是旧阶段列表，review/staff仅只读转交目录，不等同管理模块；不能把当前页length说成商家全部待办总数。复用identity_account、独立协作版本和case→merchant→有序account锁约定；人员管理只锁本商家/账号、不反向锁工单，保护最后启用管理员，禁用/重置/角色变更使旧会话失效。补证期间保留负责人，不允许管理员隐式代批，不把归属变化写入Agent输入。新版只读demo已加载V21/V22与人工保护，先status核对，不为验证开启Live；本次35011cca-4940-4cd1-a4ae-25398a793dda合成工单已人工拒绝终态，不重置。
 
 2026-10-01用户已批准[双端与多人协作补齐方案](../docs/product-completion-review.md)，八项推荐决定均采用，并要求开始。按[plan](plan.md)新五批顺序实施；当前接续点看[todo顶部](todo.md)。批准涵盖两逻辑商家、种子/管理员账号、人工最终审批、领取制、补证保留负责人、管理员显式接管、文本材料及单商家账号；不扩大为企业平台或媒体上传。按功能批次集中验证和汇报，不逐按钮要求用户验收。
 

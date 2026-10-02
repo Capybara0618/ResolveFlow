@@ -45,6 +45,7 @@ public class CaseCollaborationService {
             @JsonProperty("case_id") String caseId,
             long version,
             Owner owner,
+            @JsonProperty("is_owner") boolean isOwner,
             @JsonProperty("allowed_actions") List<String> allowedActions,
             List<Event> history) {}
 
@@ -54,6 +55,58 @@ public class CaseCollaborationService {
     private record Assignment(String owner, long version) {}
 
     private record Account(String merchant, Role role, String customer, boolean enabled, long version) {}
+
+    public record WritePermit(long identityVersion, String caseMatch, String collaborationMatch) {
+        public static WritePermit from(
+                RequestPrincipalResolver.Session session, String caseMatch, String collaborationMatch) {
+            return new WritePermit(session.identityVersion(), caseMatch, collaborationMatch);
+        }
+    }
+
+    /** An optimistic preflight for network checks; authoritative validation is repeated under the case lock. */
+    public CaseRow prepareWrite(AuthenticatedPrincipal principal, String caseId, WritePermit permit) {
+        CaseStaff.requireReviewer(principal, "人工操作需要本商家工作人员身份");
+        CaseRow row = visible(principal, cases.findCase(caseId));
+        requireOwnReading(principal, row, permit);
+        return row;
+    }
+
+    public void requireOwner(AuthenticatedPrincipal principal, CaseRow lockedRow, WritePermit permit) {
+        if (!org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive())
+            throw new IllegalStateException("owner validation requires the case write transaction");
+        requireOwnReading(principal, lockedRow, permit);
+        lockCurrentIdentity(principal, permit.identityVersion(), null);
+    }
+
+    @Transactional(noRollbackFor = ReviewDecisionService.AuthorizationLapsedException.class)
+    public <T> T writeOwned(
+            AuthenticatedPrincipal principal,
+            String caseId,
+            WritePermit permit,
+            java.util.function.Function<CaseRow, T> command) {
+        CaseRow row = visible(principal, cases.findCaseForUpdate(caseId));
+        requireOwner(principal, row, permit);
+        return command.apply(row);
+    }
+
+    public boolean owns(AuthenticatedPrincipal principal, String caseId) {
+        return principal.subject().equals(assignment(caseId).owner());
+    }
+
+    private void requireOwnReading(AuthenticatedPrincipal principal, CaseRow row, WritePermit permit) {
+        CaseStaff.requireReviewer(principal, "人工操作需要工作人员身份");
+        if (row.status().isTerminal() || authorizations.hasConsumed(row.caseId()))
+            throw conflict("工单状态为 " + row.status() + "；已结束或授权已消费，人工输入已冻结");
+        if (permit == null || permit.collaborationMatch() == null) throw conflict("请先领取工单并刷新协作版本");
+        Assignment current = assignment(row.caseId());
+        long expected = version(permit.collaborationMatch());
+        if (current.version() != expected || !principal.subject().equals(current.owner()))
+            throw conflict("工单负责人已变化或尚未领取，请刷新后操作");
+        if (permit.caseMatch() == null) throw conflict("缺少工单版本，请刷新后操作");
+        if (!permit.caseMatch().matches("\"[1-9][0-9]{0,15}\"")) throw invalid("If-Match需要带引号的工单版本");
+        if (Long.parseLong(permit.caseMatch().substring(1, permit.caseMatch().length() - 1)) != row.version())
+            throw conflict("工单已更新，请重新核对材料后提交");
+    }
 
     @Transactional(readOnly = true)
     public View read(AuthenticatedPrincipal principal, String caseId) {
@@ -216,7 +269,25 @@ public class CaseCollaborationService {
                         rs.getString(6),
                         rs.getTimestamp(7).toInstant()),
                 row.caseId());
-        return new View(row.caseId(), assignment.version(), owner, actions, history);
+        return new View(
+                row.caseId(),
+                assignment.version(),
+                owner,
+                principal.subject().equals(assignment.owner()),
+                actions,
+                history);
+    }
+
+    public List<Owner> staff(AuthenticatedPrincipal principal) {
+        CaseStaff.require(principal, "工作人员列表仅向本商家工作人员开放");
+        return jdbc.query(
+                """
+                SELECT username,display_name,role,enabled FROM identity_account
+                 WHERE merchant_id=? AND enabled=TRUE AND role IN ('REVIEWER','MERCHANT_ADMIN','OPERATOR')
+                 ORDER BY display_name,username
+                """,
+                (rs, n) -> new Owner(rs.getString(1), rs.getString(2), Role.valueOf(rs.getString(3)), rs.getBoolean(4)),
+                principal.merchantId());
     }
 
     private boolean assignable(CaseRow row) {

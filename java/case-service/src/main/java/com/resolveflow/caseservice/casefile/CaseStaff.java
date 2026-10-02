@@ -3,7 +3,7 @@ package com.resolveflow.caseservice.casefile;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.Role;
 
-/** Merchant staff may read; human writes require a reviewer. Admin takeover arrives with collaboration. */
+/** Human writes additionally require a current owner permit; admin role alone grants no write access. */
 final class CaseStaff {
 
     private CaseStaff() {}
@@ -13,7 +13,9 @@ final class CaseStaff {
     }
 
     static boolean canReview(AuthenticatedPrincipal principal) {
-        return principal.role() == Role.REVIEWER || principal.role() == Role.OPERATOR;
+        return principal.role() == Role.REVIEWER
+                || principal.role() == Role.OPERATOR
+                || principal.role() == Role.MERCHANT_ADMIN;
     }
 
     static void requireReviewer(AuthenticatedPrincipal principal, String refusal) {

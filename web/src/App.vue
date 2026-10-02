@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { ApiError, coreApi, type CaseSnapshot, type LoginResponse, type OrderLine, type ReviewContext, type ReviewItem } from './client'
+import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type LoginResponse, type OrderLine, type ReviewContext, type ReviewItem } from './client'
 import { watchCaseEvents } from './events'
 import { formatMinorUnits } from './money'
 import Icon from './ui/ReviewIcon.vue'
 import ReviewDialog from './ui/ReviewDialog.vue'
 import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
+import CaseAssignment from './ui/CaseAssignment.vue'
 import CustomerWorkspace from './ui/CustomerWorkspace.vue'
 import InvestigationSources from './ui/InvestigationSources.vue'
 import PolicyCitations from './ui/PolicyCitations.vue'
@@ -30,6 +31,8 @@ const decisionReason = ref('')
 type ReviewDecision = 'APPROVE' | 'REJECT' | 'REQUEST_INFO'
 const reviewDecision = ref<ReviewDecision | null>(null)
 const reviewTarget = ref<CaseSnapshot | null>(null)
+const collaboration = ref<CaseCollaboration | null>(null)
+const reviewCollaborationTarget = ref<CaseCollaboration | null>(null)
 /** Review permissions and execution data belong to the current case version. */
 const reviewContext = ref<ReviewContext | null>(null)
 const reviewContextLoading = ref(false)
@@ -75,13 +78,14 @@ onUnmounted(() => {
 })
 const decisionLabels = { APPROVE: '批准退款授权', REJECT: '拒绝退款申请', REQUEST_INFO: '要求补充信息' }
 function beginReview(decision: ReviewDecision) {
-  if (!snapshot.value || snapshot.value.authorization?.status !== 'PENDING_REVIEW') return
+  if (!snapshot.value || !collaboration.value?.is_owner || snapshot.value.authorization?.status !== 'PENDING_REVIEW') return
   reviewTarget.value = snapshot.value
+  reviewCollaborationTarget.value = collaboration.value
   reviewDecision.value = decision
   decisionReason.value = ''
   error.value = ''
 }
-function closeReview() { reviewDecision.value = null; reviewTarget.value = null; decisionReason.value = '' }
+function closeReview() { reviewDecision.value = null; reviewTarget.value = null; reviewCollaborationTarget.value = null; decisionReason.value = '' }
 
 const verificationReason = ref('')
 const streamStatus = ref('未连接')
@@ -89,7 +93,7 @@ let streamController: AbortController | null = null
 
 const isCustomer = computed(() => account.value?.role === 'CUSTOMER')
 const isReviewer = computed(() => ['REVIEWER', 'MERCHANT_ADMIN', 'OPERATOR'].includes(account.value?.role ?? ''))
-const canHumanReview = computed(() => ['REVIEWER', 'OPERATOR'].includes(account.value?.role ?? ''))
+const canHumanReview = computed(() => isReviewer.value && collaboration.value?.is_owner === true && !reviewContextLoading.value)
 const canVerifyEvidence = computed(() => canHumanReview.value && !!snapshot.value
   && !['EXECUTING', 'RECONCILING', 'CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(snapshot.value.case.status)
   && snapshot.value.authorization?.status !== 'CONSUMED')
@@ -164,13 +168,14 @@ function focusPolicy(key: string) {
 async function loadReviewContext(view: CaseSnapshot | null) {
   const request = ++reviewContextGeneration
   reviewContext.value = null
+  collaboration.value = null
   reviewContextError.value = ''
   if (!view || !isReviewer.value) return
   const sessionToken = token()
   const caseId = view.case.case_id
   reviewContextLoading.value = true
   try {
-    const result = await coreApi.reviewContext(sessionToken, caseId)
+    const [result, ownership] = await Promise.all([coreApi.reviewContext(sessionToken, caseId), coreApi.collaboration(sessionToken, caseId)])
     if (request !== reviewContextGeneration || token() !== sessionToken || lookupId.value !== caseId
       || snapshot.value?.case.version !== view.case.version) return
     if (result.case_version !== view.case.version) {
@@ -180,6 +185,8 @@ async function loadReviewContext(view: CaseSnapshot | null) {
       return
     }
     reviewContext.value = result
+    if (ownership.case_id !== caseId) throw new Error('负责人信息与当前工单不一致，请刷新后重试。')
+    collaboration.value = ownership
   } catch (cause) {
     if (request === reviewContextGeneration && token() === sessionToken && lookupId.value === caseId) {
       reviewContextError.value = cause instanceof Error ? cause.message : '无法读取审核依据'
@@ -294,13 +301,22 @@ function login() {
 }
 function logout() {
   closeReview(); stopStream(); account.value = null; snapshot.value = null; selectedOrderLine.value = null
-  reviewItems.value = []; error.value = ''
+  reviewItems.value = []; collaboration.value = null; error.value = ''
 }
 function verifyEvidence(evidenceId: string, result: 'CONFIRMED' | 'REFUTED' | 'INCONCLUSIVE') {
   void act(async () => {
     if (!snapshot.value || !verificationReason.value.trim()) throw new Error('请填写核验理由')
     const caseId = snapshot.value.case.case_id
-    await coreApi.reviewEvidence(token(), caseId, evidenceId, result, verificationReason.value.trim())
+    try {
+      await coreApi.reviewEvidence(token(), caseId, evidenceId, result, verificationReason.value.trim(), snapshot.value, collaboration.value)
+    } catch (cause) {
+      if (cause instanceof ApiError && cause.status === 409) {
+        await refreshCase(caseId)
+        if (snapshot.value?.case.case_id === caseId) await loadReviewContext(snapshot.value)
+        throw new Error('工单或负责人已变化，页面已重新加载，请核对后再核验。')
+      }
+      throw cause
+    }
     verificationReason.value = ''
     await refreshCase(caseId)
     notice.value = '核验已记录，原方案和授权可能已失效。请查看新调查结果，或形成人工退款方案。'
@@ -311,10 +327,11 @@ function review(decision: ReviewDecision) {
     if (!reviewTarget.value || !decisionReason.value.trim()) throw new Error('请填写审核理由')
     const current = reviewTarget.value
     try {
-      await coreApi.review(token(), current, decision, decisionReason.value.trim())
+      await coreApi.review(token(), current, decision, decisionReason.value.trim(), reviewCollaborationTarget.value)
     } catch (cause) {
       if (cause instanceof ApiError && cause.status === 409) {
         await refreshCase(current.case.case_id)
+        if (snapshot.value?.case.case_id === current.case.case_id) await loadReviewContext(snapshot.value)
         closeReview()
         throw new Error('工单或授权已变化，页面已重新加载，请核对后再决定')
       }
@@ -388,6 +405,7 @@ onUnmounted(stopStream)
             <template v-else>
               <button v-if="narrowScreen" type="button" class="secondary-button back-to-list" data-test="back-to-list" @click="backToList">← 返回队列</button>
               <div class="case-title"><h3>{{ headline(snapshot.case.description) }}</h3><span class="stream-indicator"><i :class="{ disconnected: streamStatus === '连接失败' }" />{{ streamStatus === '未连接' ? '静态快照' : streamStatus }}</span></div>
+              <CaseAssignment v-if="isReviewer" :token="token()" :current="collaboration" :loading="reviewContextLoading" :busy="busy" @changed="refreshWorkspace" @working="busy = $event" @expired="logout" />
               <section v-if="isReviewer" class="case-order" aria-label="订单行摘要"><div class="section-heading"><h3>订单信息</h3><span v-if="snapshot.case.order_id" class="subtle-id" :title="snapshot.case.order_id">订单号：{{ snapshot.case.order_id }}</span></div>
                 <div v-if="selectedOrderLine" class="case-order-content"><span class="product-placeholder"><Icon name="box" :size="32" /></span><div class="product-copy"><strong :class="{ 'name-missing': productNameMissing(selectedOrderLine) }" data-test="case-product">{{ productTitle(selectedOrderLine) }}</strong><span v-if="variantOf(selectedOrderLine)" data-test="case-variant">{{ variantOf(selectedOrderLine) }}</span><span class="product-sku">{{ productNameMissing(selectedOrderLine) ? (categoryLabels[selectedOrderLine.category] ?? selectedOrderLine.category) : `${selectedOrderLine.sku} · ${categoryLabels[selectedOrderLine.category] ?? selectedOrderLine.category}` }}</span><small>数量 × {{ selectedOrderLine.quantity }}<template v-if="paidAtOf(selectedOrderLine)"> · 支付于 {{ formatTimestamp(paidAtOf(selectedOrderLine)!) }}</template></small></div><div class="case-order-amount"><small>订单已付金额</small><b>{{ formatMinorUnits(selectedOrderLine.line_paid_amount, selectedOrderLine.currency) }}</b></div><div v-if="validatedRefundAmount(snapshot.proposal) !== null" class="case-order-amount refund-amount"><small>{{ snapshot.authorization?.status === 'PENDING_REVIEW' ? '待审退款额' : '方案退款额' }}</small><b>{{ formatMinorUnits(validatedRefundAmount(snapshot.proposal)!, selectedOrderLine.currency) }}</b><small>服务端已校验 · 全额退款</small></div></div>
                 <p v-else-if="orderContextState === 'loading'" class="muted skeleton-line">正在读取订单信息…</p><p v-else class="muted">暂无可展示的订单明细</p></section>
@@ -410,7 +428,7 @@ onUnmounted(stopStream)
               <InvestigationSources v-if="isReviewer" :token="token()" :snapshot="snapshot" />
               <section v-if="canHumanReview && snapshot.authorization?.status === 'PENDING_REVIEW'" class="detail-section review-section"><div class="section-heading"><h3>审核决策</h3><span class="subtle">批准授权后仍需等待独立的退款执行结果</span></div><div class="actions"><button data-test="approve" type="button" :disabled="busy" @click="beginReview('APPROVE')"><Icon name="check" :size="19" />批准授权</button><button type="button" class="secondary-button" :disabled="busy" @click="beginReview('REQUEST_INFO')"><Icon name="file" :size="17" />请求补证</button><button type="button" class="danger-button" :disabled="busy" @click="beginReview('REJECT')"><Icon name="close" :size="19" />拒绝</button></div></section>
               <section v-else-if="isReviewer && snapshot.case.status === 'PENDING_REVIEW'" class="detail-section review-unavailable" aria-label="审核暂不可用"><Icon name="shield" :size="22" /><div><h3>暂无可审核授权</h3><p v-if="snapshot.authorization">当前授权{{ authorizationStatusLabel(snapshot.authorization.status) }}，不能再次审核；请核对工单轨迹与当前结果。</p><p v-else>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p></div></section>
-              <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" />
+              <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :collaboration="collaboration" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" />
             </template>
           </section>
           <component :is="contextFolded ? 'details' : 'aside'" class="context-column" :class="{ 'context-fold': contextFolded }" :open="contextFolded ? contextOpen : undefined" aria-label="工单上下文" @toggle="contextOpen = ($event.target as HTMLDetailsElement).open">

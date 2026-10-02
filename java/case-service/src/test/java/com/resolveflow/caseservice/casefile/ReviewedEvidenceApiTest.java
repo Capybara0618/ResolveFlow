@@ -96,7 +96,9 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
                 .expectBody(String.class)
                 .returnResult()
                 .getResponseBody();
-        return MAPPER.readTree(body).get("case_id").stringValue();
+        String openedCase = MAPPER.readTree(body).get("case_id").stringValue();
+        claimTestCase(openedCase);
+        return openedCase;
     }
 
     /** The customer's own material, appended through the contract route. */
@@ -106,6 +108,7 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("text", text, "evidence_kind", "CUSTOMER_STATEMENT"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -136,7 +139,7 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
         if (token != null) {
             request = request.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         }
-        return request.exchange();
+        return request.headers(h -> addReviewHeaders(h, caseId)).exchange();
     }
 
     private static Map<String, Object> verification(String sourceId, String result, String reason) {
@@ -385,6 +388,7 @@ class ReviewedEvidenceApiTest extends CaseDatabaseTest {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + customerToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("reason", "不需要了"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();

@@ -108,7 +108,9 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
                 .expectBody(String.class)
                 .returnResult()
                 .getResponseBody();
-        return MAPPER.readTree(body).get("case_id").stringValue();
+        String openedCase = MAPPER.readTree(body).get("case_id").stringValue();
+        claimTestCase(openedCase);
+        return openedCase;
     }
 
     /** A policy citation whose hash is the one this service recomputes from its own stored bundle. */
@@ -166,6 +168,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + reviewer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body.toString())
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -184,6 +187,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
                         "\"" + caseView(caseId).get("case").get("version").asLong() + "\"")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(decision.toString())
+                .headers(h -> addCollaborationHeader(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -236,6 +240,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + customer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("text", "包裹其实昨天到了驿站", "evidence_kind", "CUSTOMER_STATEMENT"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -283,6 +288,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
                             "source_evidence_id", sourceId,
                             "verification_result", verdict,
                             "reason", "承运商系统复核后的结论：" + verdict))
+                    .headers(h -> addReviewHeaders(h, caseId))
                     .exchange()
                     .expectStatus()
                     .isOk()
@@ -312,6 +318,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
                         "source_evidence_id", sourceId,
                         "verification_result", "CONFIRMED",
                         "reason", "承运商系统确认该件仍在运输中"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -334,6 +341,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + customer())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("text", text, "evidence_kind", "CUSTOMER_STATEMENT"))
+                .headers(h -> addReviewHeaders(h, caseId))
                 .exchange()
                 .expectStatus()
                 .isOk();

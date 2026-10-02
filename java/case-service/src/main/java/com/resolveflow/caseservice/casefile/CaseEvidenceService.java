@@ -51,6 +51,7 @@ public class CaseEvidenceService {
     private final AgentRunBindingRepository bindings;
     private final LiveAuthorization liveAuthorisations;
     private final Clock clock;
+    private final CaseCollaborationService collaboration;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public CaseEvidenceService(
@@ -58,12 +59,14 @@ public class CaseEvidenceService {
             EvidenceRepository evidence,
             AgentRunBindingRepository bindings,
             LiveAuthorization liveAuthorisations,
-            Clock clock) {
+            Clock clock,
+            CaseCollaborationService collaboration) {
         this.cases = cases;
         this.evidence = evidence;
         this.bindings = bindings;
         this.liveAuthorisations = liveAuthorisations;
         this.clock = clock;
+        this.collaboration = collaboration;
     }
 
     // One transaction for the whole append: the row lock, the material, the revision bump and the
@@ -72,6 +75,15 @@ public class CaseEvidenceService {
     @Transactional
     public EvidenceSubmissionResponse append(
             AuthenticatedPrincipal principal, String caseId, EvidenceAppendRequest request) {
+        return append(principal, caseId, request, null);
+    }
+
+    @Transactional
+    public EvidenceSubmissionResponse append(
+            AuthenticatedPrincipal principal,
+            String caseId,
+            EvidenceAppendRequest request,
+            CaseCollaborationService.WritePermit permit) {
         EvidenceSourceType kind = parseKind(request);
         String text = requireText(request);
         String questionId = normaliseQuestionId(request);
@@ -79,6 +91,7 @@ public class CaseEvidenceService {
         // The case row is locked for the whole append, so the revision the material records is the
         // revision the case is at when the row is written (docs/domain-model.md:36: 锁case行并校验).
         CaseRow row = lockedVisibleCase(principal, caseId);
+        if (principal.role().isMerchantStaff()) collaboration.requireOwner(principal, row, permit);
         requireOpenInput(row);
         requireProvenance(principal, kind);
         requireRoom(caseId);
@@ -124,6 +137,15 @@ public class CaseEvidenceService {
     @Transactional
     public ReviewedEvidenceResponse review(
             AuthenticatedPrincipal principal, String caseId, ReviewedEvidenceRequest request) {
+        return review(principal, caseId, request, null);
+    }
+
+    @Transactional
+    public ReviewedEvidenceResponse review(
+            AuthenticatedPrincipal principal,
+            String caseId,
+            ReviewedEvidenceRequest request,
+            CaseCollaborationService.WritePermit permit) {
         EvidenceSourceType kind = EvidenceSourceType.REVIEWER_VERIFICATION;
         requireProvenance(principal, kind);
         String sourceEvidenceId = requireUuid(request.sourceEvidenceId(), "source_evidence_id");
@@ -131,6 +153,7 @@ public class CaseEvidenceService {
         String reason = requireReason(request);
 
         CaseRow row = lockedVisibleCase(principal, caseId);
+        collaboration.requireOwner(principal, row, permit);
         requireOpenInput(row);
         requireRoom(caseId);
 

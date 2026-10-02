@@ -26,6 +26,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | --- | --- | --- |
 | Case | POST /api/v1/auth/login | 持久化本地账号登录；商家/角色/客户归属来自账号，启用状态及identity_version控制会话 |
 | Case | GET /api/v1/auth/me | 当前有效会话资料；每个用户接口重新校验持久账号启用状态、归属、角色及身份版本，不返回密码hash |
+| Case | GET /api/v1/review/staff | 本商家启用工作人员的只读显示身份，供转交选择；不返回客户、口令或其他商家账号 |
 | Case | GET /api/v1/cases/{case_id}/collaboration | 本商家工作人员读取独立负责人、协作版本和操作历史；历史未领取为版本0，不修改工单/Agent |
 | Case | POST /api/v1/cases/{case_id}/collaboration | 带If-Collaboration-Match原子领取/释放/转交/管理员显式接管；账号锁内复核签名身份版本，消费/已批准/执行/终态冻结，详见docs/case-collaboration.md |
 | Case | GET /api/v1/customer/cases | 本人分页申请列表，view/line_id筛选、微秒游标；只从有效身份取merchant/customer |
@@ -128,3 +129,5 @@ Case复核响应的run/case/revision后白名单投影；读连接/响应超时�
 `RunRequest.request.review_context`是可选的Case快照，包含该工单在input_revision及之前的materials和最多两轮questions。材料保留来源/版本/hash、原文、question_id及人工核验结论；问题保留question_id/field/prompt与提问修订。客户陈述不成为已确认事实，人工核验只表示人已记录的结论。该快照不改变四项EvidenceRef身份，不代替工具观察、政策资格或资金授权。
 
 Agent拒绝未来修订或不在本次evidence_refs中的材料。非空快照纳入请求hash并持久化，恢复时使用原快照，修改同run输入返回409。旧请求未携带快照时保持原hash。模型P1保留此输入，不静默裁剪问答；必需输入超限明确转人工。核心OpenAPI定义界限，旧v1兼容模型保留原协议。
+
+人工写入口（2026-10-02）：工作人员核验、材料追加、取消、人工方案、review-actions与reviews均要求当前负责人和原始读取的`If-Match`/`If-Collaboration-Match`。管理员必须先显式接管；角色本身不允许代批。客户材料/取消不要求协作凭证。订单复核在写事务外，随后工单锁内重查业务/协作/签名身份版本，变化即409，不记录过期方案或审批。

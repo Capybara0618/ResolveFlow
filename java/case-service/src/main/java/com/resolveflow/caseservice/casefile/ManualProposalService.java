@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -40,6 +39,7 @@ import tools.jackson.databind.node.ObjectNode;
 public class ManualProposalService {
 
     private final CaseRepository cases;
+    private final CaseCollaborationService collaboration;
     private final ProposalService proposals;
     private final ProposalReCheck reCheck;
     private final LiveAuthorization liveAuthorisations;
@@ -54,8 +54,10 @@ public class ManualProposalService {
             LiveAuthorization liveAuthorisations,
             AuthorizationService authorizationService,
             Clock clock,
-            ObjectMapper mapper) {
+            ObjectMapper mapper,
+            CaseCollaborationService collaboration) {
         this.cases = cases;
+        this.collaboration = collaboration;
         this.proposals = proposals;
         this.reCheck = reCheck;
         this.liveAuthorisations = liveAuthorisations;
@@ -64,9 +66,16 @@ public class ManualProposalService {
         this.mapper = mapper;
     }
 
-    @Transactional
     public ManualProposalResponse submit(
             AuthenticatedPrincipal principal, String caseId, ManualProposalRequest request) {
+        return submit(principal, caseId, request, null);
+    }
+
+    public ManualProposalResponse submit(
+            AuthenticatedPrincipal principal,
+            String caseId,
+            ManualProposalRequest request,
+            CaseCollaborationService.WritePermit permit) {
         CaseStaff.requireReviewer(
                 principal,
                 "a manual proposal is merchant staff's account of the case; a customer-scoped token"
@@ -76,10 +85,7 @@ public class ManualProposalService {
         reCheck.requireEvidenceRefs(request.evidenceRefs(), 1, MAX_EVIDENCE_REFS);
         requirePolicyRefs(request.policyRefs());
 
-        CaseRow row = cases.findCaseForUpdate(caseId);
-        if (row == null || !row.visibleTo(principal)) {
-            throw new CaseReadService.CaseNotVisibleException();
-        }
+        CaseRow row = collaboration.prepareWrite(principal, caseId, permit);
         liveAuthorisations.requireUnconsumed(row.caseId());
         if (!row.status().acceptsNewInput()) {
             throw new CaseStateConflictException("this case is " + row.status()
@@ -91,6 +97,22 @@ public class ManualProposalService {
             throw refusal(outcome);
         }
 
+        return collaboration.writeOwned(
+                principal,
+                caseId,
+                permit,
+                locked -> recordChecked(principal, locked, request, action, reason, outcome));
+    }
+
+    private ManualProposalResponse recordChecked(
+            AuthenticatedPrincipal principal,
+            CaseRow row,
+            ManualProposalRequest request,
+            String action,
+            String reason,
+            ProposalReCheck.Outcome outcome) {
+        liveAuthorisations.requireUnconsumed(row.caseId());
+        if (!row.status().acceptsNewInput()) throw new CaseStateConflictException("工单输入已冻结");
         Instant now = Instant.now(clock);
         int revision = row.inputRevision() + 1;
         if (cases.advanceRevision(row.caseId(), row.inputRevision(), revision, CaseStatus.PENDING_REVIEW.name(), now)

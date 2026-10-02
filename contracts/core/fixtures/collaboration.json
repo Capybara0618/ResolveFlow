@@ -7,7 +7,10 @@
     "role": "REVIEWER",
     "enabled": true
   },
-  "allowed_actions": ["RELEASE", "TRANSFER"],
+  "allowed_actions": [
+    "RELEASE",
+    "TRANSFER"
+  ],
   "history": [
     {
       "version": 1,
@@ -27,5 +30,6 @@
       "reason": "合成演示：转交申请",
       "occurred_at": "2026-10-02T02:41:00Z"
     }
-  ]
+  ],
+  "is_owner": true
 }

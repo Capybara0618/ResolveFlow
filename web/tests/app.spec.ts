@@ -3,6 +3,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App.vue'
 import { watchCaseEvents } from '../src/events'
 
+function ownership(caseId: string, isOwner = true, version = 2) {
+  return { case_id: caseId, version, is_owner: isOwner, owner: { username: 'reviewer',
+    display_name: '售后专员', role: 'REVIEWER', enabled: true },
+    allowed_actions: isOwner ? ['RELEASE', 'TRANSFER'] : ['TAKEOVER'], history: [] }
+}
+
 vi.mock('../src/events', () => ({ watchCaseEvents: vi.fn().mockResolvedValue(undefined) }))
 
 afterEach(() => { vi.unstubAllGlobals(); window.history.replaceState(null, '', '/') })
@@ -10,6 +16,7 @@ afterEach(() => { vi.unstubAllGlobals(); window.history.replaceState(null, '', '
 describe('core workbench', () => {
   it('shows persisted admin identity and keeps the workspace read-only before takeover', async () => {
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('admin-case', false))))
       const body = url.endsWith('/auth/login')
         ? { access_token: 'admin-token', role: 'MERCHANT_ADMIN', merchant_id: 'M-1002',
           display_name: '商家二管理员', merchant_name: '演示商家二' }
@@ -17,7 +24,7 @@ describe('core workbench', () => {
           ? { items: [{ case_id: 'admin-case', line_id: '7301' }], page: {} }
           : url.endsWith('/review-context')
             ? { case_version: 1, input_revision: 1, allowed_actions: [],
-              blocked_reason: '管理员当前可查看记录；审核接管将在多人协作功能开放',
+              blocked_reason: '工单尚未领取或由其他工作人员负责，当前仅可查看',
               policy_rules: [], policy_status: 'UNAVAILABLE', review_history: [], execution: {} }
             : url.endsWith('/investigation')
               ? { case_id: 'admin-case', input_revision: 1, availability: 'NOT_SCHEDULED' }
@@ -34,7 +41,8 @@ describe('core workbench', () => {
     expect(wrapper.find('#queue-panel').exists()).toBe(true)
     expect(wrapper.text()).toContain('商家二管理员')
     expect(wrapper.text()).toContain('演示商家二')
-    expect(wrapper.text()).toContain('审核接管将在多人协作功能开放')
+    expect(wrapper.text()).toContain('管理员接管')
+    expect(wrapper.text()).toContain('当前仅可查看')
     expect(wrapper.find('[data-test="approve"]').exists()).toBe(false)
     expect(wrapper.find('[data-test="manual-proposal"]').exists()).toBe(false)
     expect(wrapper.find('.verification-actions').exists()).toBe(false)
@@ -44,6 +52,7 @@ describe('core workbench', () => {
   it('refreshes reviewer permissions and execution details when SSE advances the case', async () => {
     let version = 1
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('case-sse'))))
       let body: unknown
       if (url.endsWith('/auth/login')) body = { access_token: 't', role: 'REVIEWER', merchant_id: 'M-1' }
       else if (url.startsWith('/api/v1/review/cases')) body = { items: [{ case_id: 'case-sse', line_id: 'l' }], page: {} }
@@ -78,6 +87,8 @@ describe('core workbench', () => {
 
   it('separates a reviewer queue, case detail, and server-backed context without inventing customer data', async () => {
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/review-context')) return Promise.resolve(new Response(JSON.stringify({ case_version: 7, input_revision: 2, allowed_actions: [], blocked_reason: '', policy_rules: [], policy_status: 'UNAVAILABLE' })))
+      if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('case-2'))))
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
         access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
       })))
@@ -192,6 +203,7 @@ describe('core workbench', () => {
 
   it('keeps the case usable while optional order context is slow', async () => {
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('case-slow'))))
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
         access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
       })))
@@ -220,6 +232,7 @@ describe('core workbench', () => {
 
   it('explains that a consumed authorization cannot be approved again after a failed execution', async () => {
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('case-failed'))))
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
         access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
       })))
@@ -310,7 +323,10 @@ describe('core workbench', () => {
       authorization: { authorization_id: 'auth-2', authorization_version: 3, status: 'PENDING_REVIEW', input_revision: 2 },
       evidence: [], timeline: [],
     }
+    let ownershipVersion = 2
     const fetcher = vi.fn().mockImplementation((url: string, options: RequestInit) => {
+      if (url.endsWith('/review-context')) return Promise.resolve(new Response(JSON.stringify({ case_version: 7, input_revision: 2, allowed_actions: [], blocked_reason: '', policy_rules: [], policy_status: 'UNAVAILABLE' })))
+      if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('case-2', ownershipVersion === 2, ownershipVersion))))
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
         access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
       })))
@@ -331,6 +347,7 @@ describe('core workbench', () => {
     await wrapper.findAll('.review-section button').find(button => button.text().includes(label))!.trigger('click')
     expect(fetcher.mock.calls.some(([url]) => url.endsWith('/reviews'))).toBe(false)
     expect(wrapper.get('[data-test="confirm-review"]').attributes('disabled')).toBeDefined()
+    ownershipVersion = 3
     snapshot.case.version = 8
     snapshot.authorization.authorization_version = 4
     vi.mocked(watchCaseEvents).mock.calls.at(-1)![2]({ id: 'event-2', event: 'case.updated', data: '{}' })
@@ -340,6 +357,7 @@ describe('core workbench', () => {
     await flushPromises()
     const review = fetcher.mock.calls.find(([url]) => url === '/api/v1/cases/case-2/reviews')!
     expect(new Headers(review[1].headers).get('If-Match')).toBe('"7"')
+    expect(new Headers(review[1].headers).get('If-Collaboration-Match')).toBe('"2"')
     expect(JSON.parse(review[1].body)).toEqual({
       authorization_id: 'auth-2', authorization_version: 3, decision, reason: '材料和金额已核实',
     })
@@ -349,6 +367,8 @@ describe('core workbench', () => {
   it('reloads a changed case after a stale review decision instead of reusing old versions', async () => {
     let reads = 0
     const fetcher = vi.fn().mockImplementation((url: string, options: RequestInit) => {
+      if (url.endsWith('/review-context')) return Promise.resolve(new Response(JSON.stringify({ case_version: 7, input_revision: 2, allowed_actions: [], blocked_reason: '', policy_rules: [], policy_status: 'UNAVAILABLE' })))
+      if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('case-3'))))
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
         access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
       })))

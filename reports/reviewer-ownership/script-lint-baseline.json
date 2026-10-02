@@ -1,0 +1,26 @@
+[
+  {
+    "file": "scripts/reviewer_demo.py",
+    "baseline": 19,
+    "current": 19,
+    "new": 0
+  },
+  {
+    "file": "scripts/reviewer_live_check.py",
+    "baseline": 1,
+    "current": 1,
+    "new": 0
+  },
+  {
+    "file": "scripts/seed_review_showcase.py",
+    "baseline": 3,
+    "current": 3,
+    "new": 0
+  },
+  {
+    "file": "scripts/e2e_resident_refund.py",
+    "baseline": 0,
+    "current": 0,
+    "new": 0
+  }
+]

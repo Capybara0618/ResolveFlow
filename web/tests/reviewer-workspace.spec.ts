@@ -1,7 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import ReviewerWorkspace from '../src/ui/ReviewerWorkspace.vue'
-import { ApiError, coreApi, type CaseSnapshot, type ReviewContext } from '../src/client'
+import { ApiError, coreApi, type CaseSnapshot, type CaseCollaboration, type ReviewContext } from '../src/client'
 
 const snapshot: CaseSnapshot = {
   case: { case_id: 'case-handoff', status: 'PENDING_REVIEW', input_revision: 2, version: 7, line_id: 'line-1' },
@@ -13,8 +13,11 @@ const context: ReviewContext = {
   policy_status: 'PINNED', policy_rules: [{ bundle_id: 'policy-1', version: '2026.09', rule_id: 'lost',
     title: '物流丢失退款', text: '必须确认丢失；签收争议需人工判断。', chunk_id: 'chunk-1', content_hash: 'b'.repeat(64) }],
 }
+const collaboration: CaseCollaboration = { case_id: snapshot.case.case_id, version: 3, is_owner: true,
+  owner: { username: 'reviewer', display_name: '专员', role: 'REVIEWER', enabled: true },
+  allowed_actions: ['RELEASE', 'TRANSFER'], history: [] }
 const mountWorkspace = (overrides: Partial<InstanceType<typeof ReviewerWorkspace>['$props']> = {}) =>
-  mount(ReviewerWorkspace, { props: { token: 't', snapshot, busy: false, context, ...overrides } })
+  mount(ReviewerWorkspace, { props: { token: 't', snapshot, busy: false, context, collaboration, ...overrides } })
 
 afterEach(() => vi.restoreAllMocks())
 describe('reviewer handoff', () => {
@@ -49,7 +52,8 @@ describe('reviewer handoff', () => {
     expect(wrapper.get('[data-test="submit-handoff"]').attributes('disabled')).toBeDefined()
     await wrapper.get('textarea').setValue('结合材料与条款申请全额退款')
     for (const input of wrapper.findAll('input[type="checkbox"]')) await input.setValue(true)
-    await wrapper.setProps({ snapshot: { ...snapshot, case: { ...snapshot.case, version: 8 } } })
+    await wrapper.setProps({ snapshot: { ...snapshot, case: { ...snapshot.case, version: 8 } },
+      collaboration: { ...collaboration, version: 4, is_owner: false } })
     await flushPromises()
     await wrapper.get('[data-test="submit-handoff"]').trigger('click')
     await flushPromises()
@@ -57,7 +61,7 @@ describe('reviewer handoff', () => {
       action: 'MANUAL_PROPOSAL', reason: '结合材料与条款申请全额退款',
       evidence_refs: [{ observation_id: 'ev-1', source_ref: snapshot.evidence[0].source_ref, source_version: '1', content_hash: 'a'.repeat(64) }],
       policy_refs: [{ bundle_id: 'policy-1', version: '2026.09', rule_id: 'lost', chunk_id: 'chunk-1', content_hash: 'b'.repeat(64) }],
-    })
+    }, collaboration)
     expect(wrapper.emitted('changed')).toHaveLength(1)
     expect(wrapper.text()).toContain('仍需单独审批')
     wrapper.unmount()
