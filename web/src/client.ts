@@ -41,7 +41,30 @@ export interface OrderLine {
 
 export interface Page<T> {
   items: T[]
-  page: { next_cursor?: string; limit: number }
+  page: { next_cursor?: string | null; limit: number }
+}
+
+export type CustomerView = 'ALL' | 'WAITING' | 'PROCESSING' | 'REVIEW' | 'CLOSED'
+export interface CustomerCaseSummary {
+  case_id: string; status: string; line_id: string; order_id: string | null; description: string | null
+  version: number; created_at: string; updated_at: string
+}
+export interface CustomerMaterial {
+  id: string; text: string | null; submitted_at: string; question_id: string | null
+  verification_result: 'CONFIRMED' | 'REFUTED' | 'INCONCLUSIVE' | null
+}
+export interface CustomerQuestion {
+  question_id: string | null; prompts: string[]; status: 'PENDING' | 'ANSWERED' | 'CLOSED' | 'EXPIRED' | 'UNAVAILABLE'
+  asked_at: string; expires_at: string; answers: CustomerMaterial[]
+}
+export interface CustomerCaseDetail {
+  case: CustomerCaseSummary; input_revision: number; allowed_actions: string[]; blocked_reason: string
+  materials: CustomerMaterial[]; questions: CustomerQuestion[]
+  result: { status: string; message: string; amount_minor: number | null; currency: string; public_reason: string | null }
+  timeline: Array<{ type: string; occurred_at: string; summary: string }>
+}
+export interface CustomerOrderLine {
+  order_line: OrderLine; application: CustomerCaseSummary | null; can_apply: boolean; blocked_reason: string
 }
 
 export interface TimelineEvent {
@@ -135,6 +158,17 @@ function jsonPost<T>(path: string, token: string | null, body: unknown, headers:
 }
 
 export const coreApi = {
+  customerCases: (token: string, view: CustomerView = 'ALL', cursor?: string) =>
+    apiRequest<Page<CustomerCaseSummary>>(`/api/v1/customer/cases?view=${view}&limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, token),
+  customerCase: (token: string, caseId: string) =>
+    apiRequest<CustomerCaseDetail>(`/api/v1/customer/cases/${encodeURIComponent(caseId)}`, token),
+  customerOrderLine: (token: string, lineId: string) =>
+    apiRequest<CustomerOrderLine>(`/api/v1/customer/order-lines/${encodeURIComponent(lineId)}`, token),
+  answerQuestion: (token: string, detail: CustomerCaseDetail, questionId: string, text: string) =>
+    jsonPost<CustomerCaseDetail>(`/api/v1/customer/cases/${encodeURIComponent(detail.case.case_id)}/answers`, token,
+      { question_id: questionId, text }, { 'If-Match': `"${detail.case.version}"` }),
+  cancelCase: (token: string, caseId: string, reason: string) =>
+    jsonPost(`/api/v1/cases/${encodeURIComponent(caseId)}/cancel`, token, { reason }),
   investigation: (token: string, caseId: string) =>
     apiRequest<InvestigationView>(`/api/v1/cases/${encodeURIComponent(caseId)}/investigation`, token),
   reviewContext: (token: string, caseId: string) =>

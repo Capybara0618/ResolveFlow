@@ -35,7 +35,8 @@ class RunLease:
             return row is not None
 
     @contextmanager
-    def acquire(self) -> Iterator[ClaimedRun | None]:
+    def acquire(self, *, run_id: str | None = None) -> Iterator[ClaimedRun | None]:
+        """Keep ordinary queue order; an explicit diagnostic target never falls back to another run."""
         lock_key = None
         stopped = threading.Event()
         heartbeat = None
@@ -43,10 +44,12 @@ class RunLease:
             try:
                 with connection.transaction():
                     row = connection.execute(
-                        "SELECT * FROM agent_run WHERE cancelled_at IS NULL AND "
+                        "SELECT * FROM agent_run WHERE (%s::uuid IS NULL OR run_id=%s::uuid) "
+                        "AND cancelled_at IS NULL AND "
                         "(status='QUEUED' OR (status='RUNNING' AND "
                         "(lease_until IS NULL OR lease_until<clock_timestamp()))) "
                         "ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED",
+                        (run_id, run_id),
                     ).fetchone()
                     claimed = None
                     if row is not None:

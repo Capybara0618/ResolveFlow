@@ -154,6 +154,29 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void currentSecondQuestionDoesNotDisplayAnEarlierDecisionReason() {
+        String id = row("M-1001", "C-2002", "WAITING_CUSTOMER", Instant.now());
+        cases.insertTimeline(
+                id,
+                UUID.randomUUID().toString(),
+                1,
+                "AUTHORIZATION_DECIDED",
+                "{\"reason\":\"第一轮旧问题\"}",
+                Instant.now().minusSeconds(2),
+                1);
+        cases.insertTimeline(
+                id,
+                UUID.randomUUID().toString(),
+                2,
+                "QUESTION_REQUIRED",
+                "{\"question_id\":\"q-second\",\"questions\":[{\"prompt\":\"请补充反馈日期\"}]}",
+                Instant.now(),
+                1);
+        var detail = json.readTree(read("/api/v1/customer/cases/" + id, own()));
+        assertThat(detail.get("result").get("public_reason").stringValue()).isEqualTo("请补充反馈日期");
+    }
+
+    @Test
     void directAnswerIsVersionedAndAssociatesCurrentQuestion() {
         String id = row("M-1001", "C-2002", "WAITING_CUSTOMER", Instant.now());
         String q = UUID.randomUUID().toString();

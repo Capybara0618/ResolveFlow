@@ -36,6 +36,36 @@ def test_chinese_token_estimate_is_not_characters_divided_by_three() -> None:
     assert estimate_tokens("退款金额与政策冲突") >= len("退款金额与政策冲突")
 
 
+def test_repeated_material_headers_are_compacted_without_losing_sources_or_answers() -> None:
+    import copy
+    materials = [{"evidence_id": f"e-{i}", "source_type": "CUSTOMER_STATEMENT",
+                  "source_ref": f"customer:case-1:e-{i}", "source_version": str(i),
+                  "content_hash": "a" * 64, "input_revision": i, "content": f"原始材料 {i}"}
+                 for i in range(6)]
+    materials[4]["question_id"] = "q-1"
+    materials[5].update(question_id="q-2", verification_result=None, future_metadata={"retained": True})
+    snapshot = {"materials": materials, "questions": [{"question_id": "q-1", "questions": ["问题原文"]}],
+                "future_field": {"unchanged": True}}
+    before = copy.deepcopy(snapshot)
+    packet = build(review_context=snapshot)
+    text = "\n".join(message["content"] for message in packet.messages)
+    assert "material_tables" in text
+    document = json.JSONDecoder().raw_decode(text[text.index('{"future_field"'):])[0]
+    restored = [dict(zip(table["fields"], row, strict=True)) for table in document.pop("material_tables")
+                for row in table["rows"]]
+    document["materials"] = restored
+    assert document == before
+    assert snapshot == before
+
+
+def test_material_tables_do_not_truncate_oversized_customer_text() -> None:
+    materials = [{"content": "长材料原文" * 2000, "source_ref": "customer:a", "content_hash": HASH_A},
+                 {"content": "第二份原文", "source_ref": "customer:b", "content_hash": HASH_B}]
+    with pytest.raises(OverflowRefusedError):
+        build(review_context={"materials": materials})
+    assert materials[0]["content"] == "长材料原文" * 2000
+
+
 SYSTEM = "You are investigating one after-sales case for one order line."
 TOOL_SCHEMA = {"READ_TOOL": {"tools": ["get_order_context", "get_shipment_trace"]}}
 

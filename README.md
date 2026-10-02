@@ -16,6 +16,7 @@
 | [当前交接](tasks/handoff-current.md) | 当前任务、验收顺序与接管规则 |
 | [双端与多人协作方案](docs/product-completion-review.md) | 用户已批准的新五批产品补齐路线 |
 | [持久账号与双商家](docs/persistent-identity.md) | 本地演示账号、身份校验与数据兼容 |
+| [客户申请工作台](docs/customer-workspace.md) | 本人订单/申请、两轮补证、撤销与公开结果 |
 | [AgentScope迁移规格](docs/agentscope-migration.md) | 框架边界、恢复要求及历史迁移过程 |
 | [执行账本](tasks/todo.md) | 用户最新路线、实际进度及历史成果 |
 | [实现交接](docs/implementation-handoff.md) | 模型如何继续、不能走哪些捷径 |
@@ -32,6 +33,8 @@
 ```
 
 脚本会启动隔离的演示数据库和消息设施、三个 Java 服务、DeepSeek 调查服务和桌面前端，并在默认浏览器打开 `http://127.0.0.1:5174`。登录账号是 `demo-reviewer`，密码是 `demo-pass-1003`。第一次启动需要构建服务，耗时会长一些；保持服务运行时再次执行会直接复用并打开页面。
+
+客户工作台使用 `demo-customer` / `demo-pass-1001`，从“我的订单”发起申请，在“我的申请”查看进度、回答当前问题或撤销。客户和专员可分别登录两个浏览器标签页，模拟申请与审核；各标签的会话相互独立，刷新后需重新登录。已有3条新合成闭环及桌面截图见[客户验收记录](reports/customer-workspace.md)，更多不同商家/客户账号见上方持久账号说明。
 
 `-Live` 使用用户环境变量 `Deepseek_API_KEY`，固定连接官方 `https://api.deepseek.com/chat/completions`，模型 ID 为 `deepseek-flash`（V4.1 Flash）。密钥不写入项目文件。新增材料、核验或补证回答会触发真实调查并产生模型用量；审批后执行的是模拟退款。仅浏览历史数据可用 `.\demo.ps1`，此模式关闭新调查，仍可查看已有记录和退款执行结果。
 

@@ -5,7 +5,7 @@ import { watchCaseEvents } from '../src/events'
 
 vi.mock('../src/events', () => ({ watchCaseEvents: vi.fn().mockResolvedValue(undefined) }))
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => { vi.unstubAllGlobals(); window.history.replaceState(null, '', '/') })
 
 describe('core workbench', () => {
   it('shows persisted admin identity and keeps the workspace read-only before takeover', async () => {
@@ -150,6 +150,9 @@ describe('core workbench', () => {
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
         access_token: 'token', role: 'CUSTOMER', merchant_id: 'M-1001', customer_id: 'C-2002', expires_in: 3600,
       })))
+      if (url.startsWith('/api/v1/customer/order-lines/')) return Promise.resolve(new Response(JSON.stringify({
+        order_line: {}, application: null, can_apply: true, blocked_reason: '',
+      })))
       if (url.startsWith('/api/v1/orders')) return Promise.resolve(new Response(JSON.stringify({
         items: [
           { order_id: 'order-1', line_id: 'line-7', sku: 'demo', product_name: '演示商品 · 保温杯',
@@ -174,7 +177,7 @@ describe('core workbench', () => {
     // as the merchant's own identifier.
     const rows = wrapper.findAll('.order-row')
     expect(rows[0].get('[data-test="order-product"]').text()).toBe('演示商品 · 保温杯')
-    expect(rows[0].get('[data-test="order-variant"]').text()).toBe('雾蓝 · 500ml')
+    expect(rows[0].get('[data-test="order-variant"]').text()).toBe('雾蓝 · 500ml · 数量 × 1')
     expect(rows[0].text()).toContain('demo')
     expect(rows[0].text()).toContain('25.99 CNY')
     expect(rows[0].get('[data-test="order-paid-at"]').text()).toContain('支付于')
@@ -261,6 +264,10 @@ describe('core workbench', () => {
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
         access_token: 'token', role: 'CUSTOMER', merchant_id: 'M-1', expires_in: 3600,
       })))
+      if (url.startsWith('/api/v1/customer/order-lines/')) return Promise.resolve(new Response(JSON.stringify({
+        order_line: { order_id: 'o-1', line_id: 'line-7', sku: 'demo', quantity: 1, line_paid_amount: 2599,
+          currency: 'CNY', status: 'PAID' }, application: null, can_apply: true, blocked_reason: '',
+      })))
       if (url.startsWith('/api/v1/orders')) return Promise.resolve(new Response(JSON.stringify({
         items: [{ order_id: 'o-1', line_id: 'line-7', sku: 'demo', line_paid_amount: 2599, currency: 'CNY',
           status: 'PAID' }], page: { limit: 20 },
@@ -268,9 +275,10 @@ describe('core workbench', () => {
       if (url === '/api/v1/cases' && options.method === 'POST') return Promise.resolve(new Response(JSON.stringify({
         case_id: 'case-1',
       }), { status: 201 }))
-      if (url === '/api/v1/cases/case-1') return Promise.resolve(new Response(JSON.stringify({
+      if (url === '/api/v1/customer/cases/case-1') return Promise.resolve(new Response(JSON.stringify({
         case: { case_id: 'case-1', status: 'CLOSED_REJECTED', input_revision: 1, version: 2, line_id: 'line-7' },
-        evidence: [], timeline: [],
+        input_revision: 1, allowed_actions: [], blocked_reason: '申请已结束', materials: [], questions: [], timeline: [],
+        result: { status: 'CLOSED_REJECTED', message: '申请未获批准', amount_minor: null, currency: 'CNY', public_reason: null },
       })))
       throw new Error(`Unexpected URL ${url}`)
     })
@@ -280,9 +288,10 @@ describe('core workbench', () => {
     await wrapper.get('[name="password"]').setValue('password')
     await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
-    await wrapper.get('[name="line"]').setValue('line-7')
+    await wrapper.get('[data-test="apply-line-7"]').trigger('click')
+    await flushPromises()
     await wrapper.get('textarea').setValue('包裹未到')
-    await wrapper.get('[data-test="create-case"]').trigger('click')
+    await wrapper.get('form').trigger('submit')
     await flushPromises()
     const create = fetcher.mock.calls.find(([url, options]) => url === '/api/v1/cases' && options.method === 'POST')!
     expect(JSON.parse(create[1].body)).toEqual({

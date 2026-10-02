@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onBeforeUnmount, ref } from 'vue'
 import Icon from './ReviewIcon.vue'
-defineProps<{ title: string; busy?: boolean }>()
+withDefaults(defineProps<{ title: string; busy?: boolean; workspace?: string }>(), { workspace: '审核工作台' })
 const emit = defineEmits<{ close: [] }>()
 const panel = ref<HTMLElement | null>(null)
 const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
@@ -31,7 +31,7 @@ function trap(event: KeyboardEvent) {
 <template>
   <div class="rf-dialog-backdrop" @click.self="!busy && emit('close')" @keydown.esc.prevent="!busy && emit('close')">
     <section ref="panel" class="rf-dialog" role="dialog" aria-modal="true" :aria-label="title" tabindex="-1" @keydown="trap">
-      <header><div><small>ResolveFlow · 审核工作台</small><h2>{{ title }}</h2></div>
+      <header><div><small>ResolveFlow · {{ workspace }}</small><h2>{{ title }}</h2></div>
         <button class="rf-dialog-close" type="button" aria-label="关闭弹窗" :disabled="busy" @click="emit('close')"><Icon name="close" :size="20" /></button>
       </header>
       <div class="rf-dialog-content"><slot /></div>

@@ -297,6 +297,13 @@ public class CustomerCaseService {
             if ((e.kind() == TimelineEventType.AUTHORIZATION_DECIDED || e.kind() == TimelineEventType.CASE_CLOSED)
                     && JsonField.of(e.detail(), "reason") != null) reason = JsonField.of(e.detail(), "reason");
         }
+        if (row.status() == CaseStatus.WAITING_CUSTOMER) {
+            reason = questions.isEmpty()
+                    ? null
+                    : String.join("；", questions.getLast().prompts());
+        } else if (!row.status().isTerminal() && !consumed && row.status() != CaseStatus.AUTHORIZED) {
+            reason = null;
+        }
         String message = resultMessage(row.status());
         if (consumed && row.status() == CaseStatus.PENDING_REVIEW && auth != null) {
             var execution = events.stream()

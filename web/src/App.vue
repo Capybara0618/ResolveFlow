@@ -6,6 +6,7 @@ import { formatMinorUnits } from './money'
 import Icon from './ui/ReviewIcon.vue'
 import ReviewDialog from './ui/ReviewDialog.vue'
 import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
+import CustomerWorkspace from './ui/CustomerWorkspace.vue'
 import InvestigationSources from './ui/InvestigationSources.vue'
 import PolicyCitations from './ui/PolicyCitations.vue'
 import { paidAtOf, productNameMissing, productTitle, variantOf } from './ui/order-line-format'
@@ -17,20 +18,14 @@ const account = ref<LoginResponse | null>(null)
 const error = ref('')
 const notice = ref('')
 const busy = ref(false)
-const orders = ref<OrderLine[]>([])
-const ordersCursor = ref<string | undefined>()
 const reviewItems = ref<ReviewItem[]>([])
 const reviewCursor = ref<string | undefined>()
 const reviewView = ref('REVIEW')
 const reviewQuery = ref('')
-const selectedLine = ref('')
-const description = ref('')
 const lookupId = ref('')
 const snapshot = ref<CaseSnapshot | null>(null)
 const selectedOrderLine = ref<OrderLine | null>(null)
 const orderContextState = ref<'idle' | 'loading' | 'unavailable'>('idle')
-const evidenceText = ref('')
-const questionId = ref('')
 const decisionReason = ref('')
 type ReviewDecision = 'APPROVE' | 'REJECT' | 'REQUEST_INFO'
 const reviewDecision = ref<ReviewDecision | null>(null)
@@ -91,7 +86,6 @@ function closeReview() { reviewDecision.value = null; reviewTarget.value = null;
 const verificationReason = ref('')
 const streamStatus = ref('未连接')
 let streamController: AbortController | null = null
-let pendingCreateKey: string | null = null
 
 const isCustomer = computed(() => account.value?.role === 'CUSTOMER')
 const isReviewer = computed(() => ['REVIEWER', 'MERCHANT_ADMIN', 'OPERATOR'].includes(account.value?.role ?? ''))
@@ -217,15 +211,10 @@ async function act(work: () => Promise<void>) {
   notice.value = ''
   try { await work() } catch (cause) { fail(cause) } finally { busy.value = false }
 }
-async function loadOrders(cursor?: string) {
-  const page = await coreApi.orders(token(), cursor)
-  orders.value = cursor ? [...orders.value, ...page.items] : page.items
-  ordersCursor.value = page.page.next_cursor
-}
 async function loadReviewQueue(cursor?: string) {
   const page = await coreApi.reviewQueue(token(), cursor, reviewView.value, reviewQuery.value.trim())
   reviewItems.value = cursor ? [...reviewItems.value, ...page.items] : page.items
-  reviewCursor.value = page.page.next_cursor
+  reviewCursor.value = page.page.next_cursor ?? undefined
 }
 function filterQueue() {
   void act(async () => {
@@ -296,9 +285,8 @@ function login() {
     const session = await coreApi.login(username.value, password.value)
     account.value = session
     password.value = ''
-    orders.value = []; reviewItems.value = []; snapshot.value = null; selectedOrderLine.value = null
-    if (session.role === 'CUSTOMER') await loadOrders()
-    else {
+    reviewItems.value = []; snapshot.value = null; selectedOrderLine.value = null
+    if (session.role !== 'CUSTOMER') {
       await loadReviewQueue()
       if (reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
     }
@@ -306,28 +294,7 @@ function login() {
 }
 function logout() {
   closeReview(); stopStream(); account.value = null; snapshot.value = null; selectedOrderLine.value = null
-  orders.value = []; reviewItems.value = []; error.value = ''
-}
-function createCase() {
-  void act(async () => {
-    if (!selectedLine.value || !description.value.trim()) throw new Error('请选择订单行并填写说明')
-    pendingCreateKey ??= crypto.randomUUID()
-    const created = await coreApi.createCase(token(), selectedLine.value, description.value.trim(), pendingCreateKey)
-    pendingCreateKey = null
-    description.value = ''
-    await openCase(created.case_id)
-    notice.value = '工单已创建'
-  })
-}
-function appendEvidence() {
-  void act(async () => {
-    if (!snapshot.value || !evidenceText.value.trim()) throw new Error('请输入补充材料')
-    const caseId = snapshot.value.case.case_id
-    await coreApi.appendEvidence(token(), caseId, evidenceText.value.trim(), questionId.value.trim() || undefined)
-    evidenceText.value = ''; questionId.value = ''
-    await refreshCase(caseId)
-    notice.value = '材料已提交，旧版本的决定不可继续使用'
-  })
+  reviewItems.value = []; error.value = ''
 }
 function verifyEvidence(evidenceId: string, result: 'CONFIRMED' | 'REFUTED' | 'INCONCLUSIVE') {
   void act(async () => {
@@ -390,27 +357,17 @@ onUnmounted(stopStream)
         <small class="login-note"><Icon name="shield" :size="14" />数据与操作范围由账户身份决定</small>
       </form>
     </main>
+    <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <div v-else class="app-shell">
       <nav class="sidebar" aria-label="工作台导航">
-        <a v-if="isCustomer" href="#order-panel" class="nav-link current"><Icon name="box" />我的订单行</a>
         <a v-if="isReviewer" href="#queue-panel" class="nav-link" :class="{ current: !queryOpen }" @click="queryOpen = false"><Icon name="queue" />审核队列<span class="nav-count">{{ reviewItems.length }}</span></a>
         <a href="#case-panel" class="nav-link" :class="{ current: queryOpen }" @click="queryOpen = true"><Icon name="search" />工单查询</a>
         <div class="sidebar-note"><p>让售后更简单<br />让每一次服务都有结果</p><small>单订单行 · 全量模拟退款</small><span>© 2026 ResolveFlow</span></div>
       </nav>
       <main class="workspace" :class="{ 'reviewer-workspace': isReviewer }">
-        <div v-if="isCustomer" class="page-heading"><div><p class="eyebrow">客户视图</p><h1>发起与跟踪售后工单</h1></div><span class="scope-note">只查看本人订单</span></div>
         <p v-if="error && !reviewDecision" class="message error workspace-message" role="alert">{{ error }}</p>
         <p v-if="notice" class="message success workspace-message" role="status"><Icon name="check" />{{ notice }}</p>
         <div class="columns" :class="{ 'customer-columns': isCustomer, 'reviewer-columns': isReviewer }">
-          <section v-if="isCustomer" id="order-panel" class="panel list-panel" aria-label="我的订单行">
-            <div class="panel-heading"><h2>我的订单行</h2><span class="count">{{ orders.length }}</span></div>
-            <p class="muted">选择一条订单行，提交全额模拟退款诉求。</p>
-            <div v-if="orders.length === 0" class="empty"><Icon name="box" :size="30" /><p>暂无可见订单行</p></div>
-            <div class="scroll-list" aria-label="可选订单行"><label v-for="line in orders" :key="line.line_id" class="order-row">
-              <input v-model="selectedLine" type="radio" name="line" :value="line.line_id" /><span class="order-copy"><strong :class="{ 'name-missing': productNameMissing(line) }" data-test="order-product">{{ productTitle(line) }}</strong><small v-if="variantOf(line)" data-test="order-variant">{{ variantOf(line) }}</small><small class="order-sku">{{ productNameMissing(line) ? line.status : `${line.sku} · ${line.status}` }}</small><small v-if="paidAtOf(line)" data-test="order-paid-at">支付于 {{ formatTimestamp(paidAtOf(line)!) }}</small><b>{{ formatMinorUnits(line.line_paid_amount, line.currency) }}</b></span>
-            </label></div>
-            <button v-if="ordersCursor" type="button" class="secondary-button" :disabled="busy" @click="act(() => loadOrders(ordersCursor))">加载更多订单</button>
-          </section>
           <section v-if="isReviewer" id="queue-panel" class="panel list-panel" aria-label="审核队列">
             <div class="panel-heading"><h2>审核队列 <span>（{{ reviewItems.length }}）</span></h2><span class="queue-scope">当前商家</span></div>
             <form class="queue-filters" @submit.prevent="filterQueue"><label>处理阶段<select v-model="reviewView" :disabled="busy" @change="filterQueue"><option value="REVIEW">待审核</option><option value="WAITING">待客户补证</option><option value="PROCESSING">调查与退款处理中</option><option value="ATTENTION">结果待确认</option><option value="CLOSED">已结束</option><option value="ALL">全部工单</option></select></label><div class="queue-search"><input v-model="reviewQuery" aria-label="搜索工单" maxlength="100" placeholder="工单号、订单号或问题描述" :disabled="busy" /><button type="submit" class="secondary-button" :disabled="busy">查询</button></div></form>
@@ -427,8 +384,7 @@ onUnmounted(stopStream)
           <section id="case-panel" class="panel case-panel" aria-label="工单内容" :aria-busy="busy">
             <div class="panel-heading case-heading"><h2>{{ isReviewer ? '退款工单' : '工单详情' }}</h2><span v-if="snapshot" class="status-tag" :class="{ waiting: snapshot.case.status === 'PENDING_REVIEW', success: snapshot.case.status === 'CLOSED_SUCCESS' }">{{ statusLabel(snapshot.case.status) }}</span></div>
             <details class="lookup-tools" :open="queryOpen"><summary @click.prevent="queryOpen = !queryOpen"><Icon name="search" :size="13" />按工单编号查询</summary><div class="lookup"><label>工单编号 <input v-model="lookupId" name="case-id" placeholder="输入已知工单编号" /></label><button type="button" class="secondary-button" :disabled="busy || !lookupId.trim()" @click="act(() => openCase(lookupId))">查看工单</button></div></details>
-            <div v-if="isCustomer && !snapshot" class="create-panel"><span class="feature-icon"><Icon name="file" :size="26" /></span><p class="eyebrow">新建售后工单</p><h3>发起全额模拟退款</h3><p class="muted">{{ selectedLine ? `已选择订单行 ${selectedLine}` : '先在左侧选择一条订单行' }}</p><label>情况说明 <textarea v-model="description" rows="5" placeholder="描述物流异常或商品损坏情况" /></label><button data-test="create-case" type="button" :disabled="busy" @click="createCase">创建工单<Icon name="arrow" :size="16" /></button></div>
-            <div v-else-if="!snapshot" class="case-empty"><Icon name="queue" :size="42" /><strong>{{ busy ? '正在读取工单…' : '选择一条工单，开始审核' }}</strong><p>订单、证据与调查建议将在这里汇集。</p></div>
+            <div v-if="!snapshot" class="case-empty"><Icon name="queue" :size="42" /><strong>{{ busy ? '正在读取工单…' : '选择一条工单，开始审核' }}</strong><p>订单、证据与调查建议将在这里汇集。</p></div>
             <template v-else>
               <button v-if="narrowScreen" type="button" class="secondary-button back-to-list" data-test="back-to-list" @click="backToList">← 返回队列</button>
               <div class="case-title"><h3>{{ headline(snapshot.case.description) }}</h3><span class="stream-indicator"><i :class="{ disconnected: streamStatus === '连接失败' }" />{{ streamStatus === '未连接' ? '静态快照' : streamStatus }}</span></div>
@@ -452,7 +408,6 @@ onUnmounted(stopStream)
                 <section class="detail-section timeline-section"><h3>工单轨迹</h3><p v-if="snapshot.timeline.length === 0" class="empty">暂无轨迹事件</p><ol v-else class="timeline"><li v-for="event in snapshot.timeline.slice(-4)" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong></li></ol><details v-if="snapshot.timeline.length" class="timeline-more"><summary>查看全部 {{ snapshot.timeline.length }} 条事件</summary><ol class="timeline"><li v-for="event in snapshot.timeline" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong><p>{{ event.summary }}</p></li></ol></details></section>
               </div>
               <InvestigationSources v-if="isReviewer" :token="token()" :snapshot="snapshot" />
-              <section v-if="isCustomer && !['EXECUTING', 'RECONCILING', 'CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(snapshot.case.status)" class="detail-section"><h3>补充材料</h3><label>问题 ID（若在回答追问） <input v-model="questionId" /></label><label>材料文本 <textarea v-model="evidenceText" rows="3" /></label><button data-test="append-evidence" type="button" :disabled="busy" @click="appendEvidence">提交材料</button></section>
               <section v-if="canHumanReview && snapshot.authorization?.status === 'PENDING_REVIEW'" class="detail-section review-section"><div class="section-heading"><h3>审核决策</h3><span class="subtle">批准授权后仍需等待独立的退款执行结果</span></div><div class="actions"><button data-test="approve" type="button" :disabled="busy" @click="beginReview('APPROVE')"><Icon name="check" :size="19" />批准授权</button><button type="button" class="secondary-button" :disabled="busy" @click="beginReview('REQUEST_INFO')"><Icon name="file" :size="17" />请求补证</button><button type="button" class="danger-button" :disabled="busy" @click="beginReview('REJECT')"><Icon name="close" :size="19" />拒绝</button></div></section>
               <section v-else-if="isReviewer && snapshot.case.status === 'PENDING_REVIEW'" class="detail-section review-unavailable" aria-label="审核暂不可用"><Icon name="shield" :size="22" /><div><h3>暂无可审核授权</h3><p v-if="snapshot.authorization">当前授权{{ authorizationStatusLabel(snapshot.authorization.status) }}，不能再次审核；请核对工单轨迹与当前结果。</p><p v-else>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p></div></section>
               <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" />

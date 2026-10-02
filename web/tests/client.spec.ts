@@ -1,9 +1,23 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { apiRequest, ApiError } from '../src/client'
+import { apiRequest, ApiError, coreApi, type CustomerCaseDetail } from '../src/client'
 
 afterEach(() => vi.unstubAllGlobals())
 
 describe('authenticated API client', () => {
+  it('uses the private customer projection and versions a question answer', async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response('{}'))
+    vi.stubGlobal('fetch', fetcher)
+    await coreApi.customerCases('private-token', 'WAITING', 'a+b/c')
+    await coreApi.customerCase('private-token', 'case/a')
+    await coreApi.answerQuestion('private-token', { case: { case_id: 'case/a', version: 7 } } as CustomerCaseDetail, 'q-1', '承运商回复')
+    expect(fetcher.mock.calls[0][0]).toBe('/api/v1/customer/cases?view=WAITING&limit=20&cursor=a%2Bb%2Fc')
+    expect(fetcher.mock.calls[1][0]).toBe('/api/v1/customer/cases/case%2Fa')
+    const [url, options] = fetcher.mock.calls[2]
+    expect(url).toBe('/api/v1/customer/cases/case%2Fa/answers')
+    expect(new Headers(options.headers).get('If-Match')).toBe('"7"')
+    expect(JSON.parse(options.body)).toEqual({ question_id: 'q-1', text: '承运商回复' })
+    expect(fetcher.mock.calls.every(([path]) => !path.includes('private-token'))).toBe(true)
+  })
   it('sends the token in a header and never in the URL', async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({ items: [] }), { status: 200 }))
     vi.stubGlobal('fetch', fetcher)

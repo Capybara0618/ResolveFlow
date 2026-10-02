@@ -2,7 +2,7 @@
 
 ## 当前快照（2026-10-02）
 
-- 新第二批已恢复实施：客户4接口原型收口，创建幂等重放增加原客户归属检查，问题期限同时约束新回答和旧材料入口，已消费失败返回待审时客户依然只读且有明确公开说明；V20只加索引。实际Java相关5类50 passed、Python核心路由/schema121 passed、定点Spotless8文件及diff检查通过；有效权限RED与无效fixture/命令/校验API失败均记录在[本批报告](../reports/customer-workspace.md)。客户工作台正在接线，尚未完成正式浏览器闭环，不能记整批完成；原型将和契约/回归精确提交，不夹带历史脚本、Commerce测试或日志。收费模型调用0，演示历史数据未变动。
+- 新第二批“客户完整申请”集中验收完成：客户4接口/幂等归属/期限/消费冻结已提交并推送a6c8160；正式CustomerWorkspace接通订单申请、本人筛选分页、原始材料、自动关联两轮回答、追加/撤销/公开结果及失败草稿。修复第二轮问题显示旧理由、桌面盒模型/表格覆盖和迟到响应。实际首轮Java50 passed，补充真实3类28 passed；核心协议121 passed、上下文42 passed、lease/SDK恢复26 passed、前端83 passed＋build、定点Spotless/Ruff/diff检查通过。浏览器3条新合成申请分别CLOSED_SUCCESS（32900分，调查失败后人工方案兜底）、CLOSED_REJECTED（两轮回答各产生新SDK mock建议）、CANCELLED；12项跨客户/商家404、62条历史run状态/version/fence不变，1280/1440/1680桌面无横向溢出。收费调用0，保留数据重启新版只读demo，失败与未运行项见[本批报告](../reports/customer-workspace.md)，记录/截图见[合成验收](../reports/customer-workspace/acceptance.json)。无损字段表降低重复材料键的上下文占用，但第9版累计7份材料仍触发8K保护，保留失败并经人工完成，不宣称长上下文/live质量已完成。当前实施者本批记录/精确提交推送后停止业务写入；接续新第三批“多人审核”，复用本批和既有身份/审查成果，不重做第一、第二批。不夹带历史verify脚本、Commerce测试或日志。
 
 - 本轮实施文档核查：实际`agent/.venv/Scripts/python.exe tmp/check-ui-implementation.py`通过34个当前文档链接与依赖归属检查，引用来自已跟踪文件或本批新文档，不依赖尚未提交的原型文件；`git diff --check`通过。只验证文档/源码对应关系，不把历史测试结果记成本轮业务通过。
 

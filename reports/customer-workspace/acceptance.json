@@ -1,0 +1,1155 @@
+{
+  "environment": "reviewer-demo-2026-09",
+  "date": "2026-10-02T01:56:53.126743+00:00",
+  "model_mode": "mock",
+  "synthetic": true,
+  "orders": [
+    {
+      "line_id": "91002015680",
+      "purpose": "answer-approve",
+      "case_id": "a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+      "detail": {
+        "case": {
+          "case_id": "a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+          "status": "CLOSED_SUCCESS",
+          "line_id": "91002015680",
+          "order_id": "c1749f1b-22c5-43f5-9fb4-3207ac7f2b89",
+          "description": "客户闭环验收：包裹未收到，请商家核对承运商丢失记录。",
+          "version": 27,
+          "created_at": "2026-10-02T01:58:07.474095Z",
+          "updated_at": "2026-10-02T02:24:16.277469Z"
+        },
+        "input_revision": 10,
+        "allowed_actions": [],
+        "blocked_reason": "退款已进入执行阶段，不能撤销或修改材料",
+        "materials": [
+          {
+            "id": "23d5f824-b016-4ee5-ac92-aec4d422ed16",
+            "text": "初始说明：已与承运商联系，等待补充书面反馈。",
+            "submitted_at": "2026-10-02T01:58:07.639286Z",
+            "question_id": null,
+            "verification_result": null
+          },
+          {
+            "id": "e21bb59c-6bfc-466c-9ba6-5807d3027415",
+            "text": "追加运输说明：承运商已登记包裹丢失，申请重新核对。",
+            "submitted_at": "2026-10-02T02:05:15.324898Z",
+            "question_id": null,
+            "verification_result": null
+          },
+          {
+            "id": "190bdbb3-0042-4b09-91e2-014ad859a2a3",
+            "text": "第一轮回答：承运商书面反馈已确认包裹丢失，反馈编号 DEMO-CARRIER-01。",
+            "submitted_at": "2026-10-02T02:06:10.435385Z",
+            "question_id": "f3f86c91-0ea2-42d2-bb0b-a2b5894819b5",
+            "verification_result": null
+          },
+          {
+            "id": "7f607d35-5d0d-433a-b728-eaf323c2c6ff",
+            "text": "第二轮回答：承运商于2026年10月2日反馈丢失；本人未收到包裹或任何代收通知。",
+            "submitted_at": "2026-10-02T02:08:38.229927Z",
+            "question_id": "bf27cdb8-4940-49a1-8ad6-1011d1bc7b52",
+            "verification_result": null
+          },
+          {
+            "id": "8b09e609-7bc3-4de8-b594-7d9acd46b41d",
+            "text": "追加确认：上述两轮运输反馈属同一订单，承运商丢失结论未发生变化。",
+            "submitted_at": "2026-10-02T02:12:21.724467Z",
+            "question_id": null,
+            "verification_result": null
+          },
+          {
+            "id": "8a0ac139-516f-476d-bcb5-c9b8c686c8bb",
+            "text": "最终补充：请核对已保存的丢失结论，本人申请该订单行全额退款。",
+            "submitted_at": "2026-10-02T02:15:05.968649Z",
+            "question_id": null,
+            "verification_result": null
+          },
+          {
+            "id": "d8a880a5-c81f-4fb3-b871-f9f3def5d494",
+            "text": "核对补充：反馈编号和日期均已在前两轮回答中提交。",
+            "submitted_at": "2026-10-02T02:19:57.900269Z",
+            "question_id": null,
+            "verification_result": null
+          }
+        ],
+        "questions": [
+          {
+            "question_id": "f3f86c91-0ea2-42d2-bb0b-a2b5894819b5",
+            "prompts": [
+              "请补充承运商关于包裹丢失的书面反馈。"
+            ],
+            "status": "ANSWERED",
+            "asked_at": "2026-10-02T02:06:01.327492Z",
+            "expires_at": "2026-10-05T02:06:01.327492Z",
+            "answers": [
+              {
+                "id": "190bdbb3-0042-4b09-91e2-014ad859a2a3",
+                "text": "第一轮回答：承运商书面反馈已确认包裹丢失，反馈编号 DEMO-CARRIER-01。",
+                "submitted_at": "2026-10-02T02:06:10.435385Z",
+                "question_id": "f3f86c91-0ea2-42d2-bb0b-a2b5894819b5",
+                "verification_result": null
+              }
+            ]
+          },
+          {
+            "question_id": "bf27cdb8-4940-49a1-8ad6-1011d1bc7b52",
+            "prompts": [
+              "请补充承运商反馈日期，并说明是否收到代收通知。"
+            ],
+            "status": "ANSWERED",
+            "asked_at": "2026-10-02T02:08:25.020480Z",
+            "expires_at": "2026-10-05T02:08:25.020480Z",
+            "answers": [
+              {
+                "id": "7f607d35-5d0d-433a-b728-eaf323c2c6ff",
+                "text": "第二轮回答：承运商于2026年10月2日反馈丢失；本人未收到包裹或任何代收通知。",
+                "submitted_at": "2026-10-02T02:08:38.229927Z",
+                "question_id": "bf27cdb8-4940-49a1-8ad6-1011d1bc7b52",
+                "verification_result": null
+              }
+            ]
+          }
+        ],
+        "result": {
+          "status": "CLOSED_SUCCESS",
+          "message": "模拟退款已完成",
+          "amount_minor": 32900,
+          "currency": "CNY",
+          "public_reason": "合成验收：已核对当前人工方案、两轮回答和绑定政策，批准单行329元全额模拟退款。"
+        },
+        "timeline": [
+          {
+            "type": "CASE_CREATED",
+            "occurred_at": "2026-10-02T01:58:07.474095Z",
+            "summary": "退款申请已提交"
+          },
+          {
+            "type": "EVIDENCE_APPENDED",
+            "occurred_at": "2026-10-02T01:58:07.639286Z",
+            "summary": "提交材料或核验记录已更新"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:03:49.277300Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "AGENT_FAILED",
+            "occurred_at": "2026-10-02T02:03:50.327183Z",
+            "summary": "调查暂未完成，由商家继续处理"
+          },
+          {
+            "type": "EVIDENCE_APPENDED",
+            "occurred_at": "2026-10-02T02:05:15.324898Z",
+            "summary": "提交材料或核验记录已更新"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:05:40.238321Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "PROPOSAL_READY",
+            "occurred_at": "2026-10-02T02:05:41.279890Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "APPROVAL_REQUIRED",
+            "occurred_at": "2026-10-02T02:05:41.279890Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "AUTHORIZATION_DECIDED",
+            "occurred_at": "2026-10-02T02:06:01.327492Z",
+            "summary": "商家审核决定已记录"
+          },
+          {
+            "type": "QUESTION_REQUIRED",
+            "occurred_at": "2026-10-02T02:06:01.327492Z",
+            "summary": "需要补充说明"
+          },
+          {
+            "type": "EVIDENCE_APPENDED",
+            "occurred_at": "2026-10-02T02:06:10.435385Z",
+            "summary": "提交材料或核验记录已更新"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:06:32.803740Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "AGENT_FAILED",
+            "occurred_at": "2026-10-02T02:06:34.837908Z",
+            "summary": "调查暂未完成，由商家继续处理"
+          },
+          {
+            "type": "QUESTION_REQUIRED",
+            "occurred_at": "2026-10-02T02:08:25.020480Z",
+            "summary": "需要补充说明"
+          },
+          {
+            "type": "EVIDENCE_APPENDED",
+            "occurred_at": "2026-10-02T02:08:38.229927Z",
+            "summary": "提交材料或核验记录已更新"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:09:01.963365Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "EVIDENCE_APPENDED",
+            "occurred_at": "2026-10-02T02:12:21.724467Z",
+            "summary": "提交材料或核验记录已更新"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:13:10.897024Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "AGENT_FAILED",
+            "occurred_at": "2026-10-02T02:13:13.957650Z",
+            "summary": "调查暂未完成，由商家继续处理"
+          },
+          {
+            "type": "EVIDENCE_APPENDED",
+            "occurred_at": "2026-10-02T02:15:05.968649Z",
+            "summary": "提交材料或核验记录已更新"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:15:30.116833Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "AGENT_FAILED",
+            "occurred_at": "2026-10-02T02:15:31.143119Z",
+            "summary": "调查暂未完成，由商家继续处理"
+          },
+          {
+            "type": "EVIDENCE_APPENDED",
+            "occurred_at": "2026-10-02T02:19:57.900269Z",
+            "summary": "提交材料或核验记录已更新"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:20:24.507672Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "AGENT_FAILED",
+            "occurred_at": "2026-10-02T02:20:25.535331Z",
+            "summary": "调查暂未完成，由商家继续处理"
+          },
+          {
+            "type": "PROPOSAL_READY",
+            "occurred_at": "2026-10-02T02:24:04.320326Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "APPROVAL_REQUIRED",
+            "occurred_at": "2026-10-02T02:24:04.320326Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "AUTHORIZATION_DECIDED",
+            "occurred_at": "2026-10-02T02:24:14.953335Z",
+            "summary": "商家审核决定已记录"
+          },
+          {
+            "type": "EXECUTION_UPDATED",
+            "occurred_at": "2026-10-02T02:24:15.473073Z",
+            "summary": "模拟退款执行状态已更新"
+          },
+          {
+            "type": "CASE_CLOSED",
+            "occurred_at": "2026-10-02T02:24:16.277469Z",
+            "summary": "申请处理已结束"
+          }
+        ]
+      }
+    },
+    {
+      "line_id": "91002015681",
+      "purpose": "reject",
+      "case_id": "f28bb098-63f9-48eb-8382-17da3caf83f2",
+      "detail": {
+        "case": {
+          "case_id": "f28bb098-63f9-48eb-8382-17da3caf83f2",
+          "status": "CLOSED_REJECTED",
+          "line_id": "91002015681",
+          "order_id": "f7d1d0a8-416f-4463-8689-e646d5e933c8",
+          "description": "客户双轮调查验收：包裹未收到，申请商家核对并告知处理结果。",
+          "version": 12,
+          "created_at": "2026-10-02T02:24:55.313882Z",
+          "updated_at": "2026-10-02T02:29:02.440248Z"
+        },
+        "input_revision": 3,
+        "allowed_actions": [],
+        "blocked_reason": "申请已结束，仅可查看记录",
+        "materials": [
+          {
+            "id": "0a670d0b-3288-4dde-a00c-252236c7d7db",
+            "text": "承运商反馈包裹丢失。",
+            "submitted_at": "2026-10-02T02:26:30.906507Z",
+            "question_id": "a904354f-e06b-48af-b738-c33510b91659",
+            "verification_result": null
+          },
+          {
+            "id": "288e66e0-61f7-4f5f-a764-7413f1d6010a",
+            "text": "本人未收到包裹，也没有收到代收通知。",
+            "submitted_at": "2026-10-02T02:27:38.058363Z",
+            "question_id": "16497dea-9dfe-4868-8c1c-660fa72f306b",
+            "verification_result": null
+          }
+        ],
+        "questions": [
+          {
+            "question_id": "a904354f-e06b-48af-b738-c33510b91659",
+            "prompts": [
+              "请说明承运商反馈结论。"
+            ],
+            "status": "ANSWERED",
+            "asked_at": "2026-10-02T02:26:30.196553Z",
+            "expires_at": "2026-10-05T02:26:30.196553Z",
+            "answers": [
+              {
+                "id": "0a670d0b-3288-4dde-a00c-252236c7d7db",
+                "text": "承运商反馈包裹丢失。",
+                "submitted_at": "2026-10-02T02:26:30.906507Z",
+                "question_id": "a904354f-e06b-48af-b738-c33510b91659",
+                "verification_result": null
+              }
+            ]
+          },
+          {
+            "question_id": "16497dea-9dfe-4868-8c1c-660fa72f306b",
+            "prompts": [
+              "请说明是否收到包裹或代收通知。"
+            ],
+            "status": "ANSWERED",
+            "asked_at": "2026-10-02T02:27:37.347587Z",
+            "expires_at": "2026-10-05T02:27:37.347587Z",
+            "answers": [
+              {
+                "id": "288e66e0-61f7-4f5f-a764-7413f1d6010a",
+                "text": "本人未收到包裹，也没有收到代收通知。",
+                "submitted_at": "2026-10-02T02:27:38.058363Z",
+                "question_id": "16497dea-9dfe-4868-8c1c-660fa72f306b",
+                "verification_result": null
+              }
+            ]
+          }
+        ],
+        "result": {
+          "status": "CLOSED_REJECTED",
+          "message": "申请未获批准",
+          "amount_minor": null,
+          "currency": "CNY",
+          "public_reason": "合成拒绝场景验收：人工最终决定拒绝本申请，保留两轮问答与调查建议供追溯。"
+        },
+        "timeline": [
+          {
+            "type": "CASE_CREATED",
+            "occurred_at": "2026-10-02T02:24:55.313882Z",
+            "summary": "退款申请已提交"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:25:17.982785Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "PROPOSAL_READY",
+            "occurred_at": "2026-10-02T02:25:19.012205Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "APPROVAL_REQUIRED",
+            "occurred_at": "2026-10-02T02:25:19.012205Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "AUTHORIZATION_DECIDED",
+            "occurred_at": "2026-10-02T02:26:30.196553Z",
+            "summary": "商家审核决定已记录"
+          },
+          {
+            "type": "QUESTION_REQUIRED",
+            "occurred_at": "2026-10-02T02:26:30.196553Z",
+            "summary": "需要补充说明"
+          },
+          {
+            "type": "EVIDENCE_APPENDED",
+            "occurred_at": "2026-10-02T02:26:30.906507Z",
+            "summary": "提交材料或核验记录已更新"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:26:55.807387Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "PROPOSAL_READY",
+            "occurred_at": "2026-10-02T02:26:57.841683Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "APPROVAL_REQUIRED",
+            "occurred_at": "2026-10-02T02:26:57.841683Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "AUTHORIZATION_DECIDED",
+            "occurred_at": "2026-10-02T02:27:37.347587Z",
+            "summary": "商家审核决定已记录"
+          },
+          {
+            "type": "QUESTION_REQUIRED",
+            "occurred_at": "2026-10-02T02:27:37.347587Z",
+            "summary": "需要补充说明"
+          },
+          {
+            "type": "EVIDENCE_APPENDED",
+            "occurred_at": "2026-10-02T02:27:38.058363Z",
+            "summary": "提交材料或核验记录已更新"
+          },
+          {
+            "type": "AGENT_STARTED",
+            "occurred_at": "2026-10-02T02:28:07.386658Z",
+            "summary": "开始调查"
+          },
+          {
+            "type": "PROPOSAL_READY",
+            "occurred_at": "2026-10-02T02:28:09.436489Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "APPROVAL_REQUIRED",
+            "occurred_at": "2026-10-02T02:28:09.436489Z",
+            "summary": "调查完成，等待商家核对"
+          },
+          {
+            "type": "AUTHORIZATION_DECIDED",
+            "occurred_at": "2026-10-02T02:29:02.440248Z",
+            "summary": "商家审核决定已记录"
+          },
+          {
+            "type": "CASE_CLOSED",
+            "occurred_at": "2026-10-02T02:29:02.440248Z",
+            "summary": "申请处理已结束"
+          }
+        ]
+      }
+    },
+    {
+      "line_id": "91002015682",
+      "purpose": "cancel",
+      "case_id": "8b11901d-c05c-4178-a2e0-03f7a06dffd7",
+      "detail": {
+        "case": {
+          "case_id": "8b11901d-c05c-4178-a2e0-03f7a06dffd7",
+          "status": "CANCELLED",
+          "line_id": "91002015682",
+          "order_id": "08fc9939-98eb-4297-a0bc-af9e6a46d12c",
+          "description": "客户撤销验收：申请核对未收到的包裹。",
+          "version": 2,
+          "created_at": "2026-10-02T02:29:17.973473Z",
+          "updated_at": "2026-10-02T02:29:30.044765Z"
+        },
+        "input_revision": 1,
+        "allowed_actions": [],
+        "blocked_reason": "申请已结束，仅可查看记录",
+        "materials": [],
+        "questions": [],
+        "result": {
+          "status": "CANCELLED",
+          "message": "申请已撤销",
+          "amount_minor": null,
+          "currency": "CNY",
+          "public_reason": "合成验收：客户已确认不再需要本次申请。"
+        },
+        "timeline": [
+          {
+            "type": "CASE_CREATED",
+            "occurred_at": "2026-10-02T02:29:17.973473Z",
+            "summary": "退款申请已提交"
+          },
+          {
+            "type": "CASE_CLOSED",
+            "occurred_at": "2026-10-02T02:29:30.044765Z",
+            "summary": "申请处理已结束"
+          }
+        ]
+      }
+    }
+  ],
+  "investigations": [
+    {
+      "case_id": "a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+      "run_id": "c323cdb6-775b-567a-b79f-2fe839eb19cc",
+      "input_revision": 2,
+      "callback_kind": "FAILED",
+      "status": "FAILED",
+      "reason_code": "CONTEXT_REQUIRED_OVERFLOW",
+      "model_mode": "mock"
+    },
+    {
+      "case_id": "a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+      "run_id": "c6809c28-2130-5a2f-b4fd-0f164302f887",
+      "input_revision": 3,
+      "callback_kind": "PROPOSAL",
+      "status": "CALLBACK_PENDING",
+      "reason_code": "COMPLETED",
+      "model_mode": "mock"
+    },
+    {
+      "case_id": "a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+      "run_id": "e217c29b-5576-5122-9722-bff27df07d3d",
+      "input_revision": 4,
+      "callback_kind": "FAILED",
+      "status": "FAILED",
+      "reason_code": "CONTEXT_REQUIRED_OVERFLOW",
+      "model_mode": "mock"
+    },
+    {
+      "case_id": "a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+      "run_id": "073b8f06-aa10-5ad4-9622-eb1b692a328c",
+      "input_revision": 7,
+      "callback_kind": "FAILED",
+      "status": "FAILED",
+      "reason_code": "CONTEXT_REQUIRED_OVERFLOW",
+      "model_mode": "mock"
+    },
+    {
+      "case_id": "a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+      "run_id": "dc535ced-1c61-5645-8561-19ff0efc0edd",
+      "input_revision": 8,
+      "callback_kind": "FAILED",
+      "status": "FAILED",
+      "reason_code": "CONTEXT_REQUIRED_OVERFLOW",
+      "model_mode": "mock"
+    },
+    {
+      "case_id": "a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+      "run_id": "d8e0540b-8f7d-5bcb-9b18-797129c01d4c",
+      "input_revision": 9,
+      "callback_kind": "FAILED",
+      "status": "FAILED",
+      "reason_code": "CONTEXT_REQUIRED_OVERFLOW",
+      "model_mode": "mock"
+    },
+    {
+      "case_id": "f28bb098-63f9-48eb-8382-17da3caf83f2",
+      "run_id": "80019954-b1eb-5d50-8690-4900ad958737",
+      "input_revision": 1,
+      "callback_kind": "PROPOSAL",
+      "status": "CALLBACK_PENDING",
+      "reason_code": "COMPLETED",
+      "model_mode": "mock"
+    },
+    {
+      "case_id": "f28bb098-63f9-48eb-8382-17da3caf83f2",
+      "run_id": "b21f9118-073e-544c-b145-16e44ddad233",
+      "input_revision": 2,
+      "callback_kind": "PROPOSAL",
+      "status": "CALLBACK_PENDING",
+      "reason_code": "COMPLETED",
+      "model_mode": "mock"
+    },
+    {
+      "case_id": "f28bb098-63f9-48eb-8382-17da3caf83f2",
+      "run_id": "535b1cf1-2344-590c-88d1-36cda80ad2fb",
+      "input_revision": 3,
+      "callback_kind": "PROPOSAL",
+      "status": "CALLBACK_PENDING",
+      "reason_code": "COMPLETED",
+      "model_mode": "mock"
+    }
+  ],
+  "protected_runs": [
+    {
+      "run_id": "01d2641f-06f6-597f-94ff-03658eef94a2",
+      "status": "FAILED",
+      "version": 5,
+      "fence": 1
+    },
+    {
+      "run_id": "0994db34-3887-5c2f-a1a7-bf20dcc49d1a",
+      "status": "COMPLETED",
+      "version": 14,
+      "fence": 1
+    },
+    {
+      "run_id": "0c668090-1371-5be6-9a14-1ac7a4b6a306",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "0d16f5db-7cd6-5cd5-be48-609100409f18",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "10362ce0-0194-516d-a97a-4f022eb47add",
+      "status": "FAILED",
+      "version": 9,
+      "fence": 1
+    },
+    {
+      "run_id": "127a903a-1f76-5e39-9219-25f51171af6d",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "1940cfc4-1d34-524f-8f38-adadaf964d78",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "196dc59f-4b6c-53c8-abce-129872af9213",
+      "status": "COMPLETED",
+      "version": 10,
+      "fence": 1
+    },
+    {
+      "run_id": "1db06083-18b1-5b2a-a8ef-9724e4785c09",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "2027dd94-811c-5181-b2a1-765986d0792b",
+      "status": "FAILED",
+      "version": 7,
+      "fence": 1
+    },
+    {
+      "run_id": "22912d35-b738-538f-be87-603a6642573f",
+      "status": "COMPLETED",
+      "version": 10,
+      "fence": 1
+    },
+    {
+      "run_id": "24e958a8-2778-5df3-b31b-7394376fa218",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "2a0515bc-6570-54a6-87cb-1a5ca86f0d9c",
+      "status": "COMPLETED",
+      "version": 10,
+      "fence": 1
+    },
+    {
+      "run_id": "2afd5013-18cb-58bc-ae53-4214e4e83efa",
+      "status": "FAILED",
+      "version": 11,
+      "fence": 1
+    },
+    {
+      "run_id": "383b6e86-7f4b-5473-9c1f-7c2922771e2f",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "3c5d42df-0fc1-5943-8f15-685b1935bb37",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "47533892-5bf3-5552-b009-eea3cf2d0aeb",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "4b8e5b21-1019-5219-b3c9-e713c5f12e86",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "5b297fd9-4637-5d00-a4d0-bbe19f7c1319",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "64b36ccd-7b40-5a1b-81c3-5689f6f6fe1c",
+      "status": "COMPLETED",
+      "version": 12,
+      "fence": 1
+    },
+    {
+      "run_id": "662771cc-bec1-5a3d-b81b-bf047a46e57a",
+      "status": "FAILED",
+      "version": 9,
+      "fence": 1
+    },
+    {
+      "run_id": "6aad2850-1334-523a-a384-8f533724e12d",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "6ba18135-146b-5b52-a9e0-f05d0d615ac9",
+      "status": "FAILED",
+      "version": 11,
+      "fence": 1
+    },
+    {
+      "run_id": "6d983281-7e08-5b55-9287-9ab3cadd0e99",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "738bab60-d462-5235-a2ec-ec4347411b42",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "742bb4ba-e4ba-51c0-9314-dc56aab6c427",
+      "status": "COMPLETED",
+      "version": 12,
+      "fence": 1
+    },
+    {
+      "run_id": "7c335a60-9e46-5d32-a162-19bf1f7fde6f",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "7c6ac3f4-336d-5f20-8687-4669e0ad1c0d",
+      "status": "FAILED",
+      "version": 15,
+      "fence": 5
+    },
+    {
+      "run_id": "7d2e688d-d18f-578a-b82a-2ec0b533687b",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "84cefa5a-6148-5868-a9da-9b528cc7cb0e",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "8b344e03-7bbe-5f8e-a6e3-92ddcc2cca69",
+      "status": "FAILED",
+      "version": 17,
+      "fence": 1
+    },
+    {
+      "run_id": "8be27fb9-cc0a-52b5-8228-1880a0c6eb20",
+      "status": "FAILED",
+      "version": 13,
+      "fence": 2
+    },
+    {
+      "run_id": "965ce524-3021-5acc-a18f-0ea8c39d3e5b",
+      "status": "COMPLETED",
+      "version": 10,
+      "fence": 1
+    },
+    {
+      "run_id": "980b3f1a-bd5e-5a1e-818a-618b025b5d65",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "9a88bdfc-8ce4-593e-82d1-ecf6f666b356",
+      "status": "COMPLETED",
+      "version": 10,
+      "fence": 1
+    },
+    {
+      "run_id": "9b0d319f-5532-5a5e-baed-d8eaedd09ea4",
+      "status": "FAILED",
+      "version": 7,
+      "fence": 1
+    },
+    {
+      "run_id": "9bfd74eb-3f63-5ca8-9fc2-abd596df973e",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "9d590e80-2b76-582f-8154-7d38fa755f8e",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "a2380920-f1d2-5c90-9c35-d65cf0276519",
+      "status": "COMPLETED",
+      "version": 10,
+      "fence": 1
+    },
+    {
+      "run_id": "a73b98ef-8eae-5016-8643-3b0b2ba69a45",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "a7681e93-01c2-5891-9b27-8cfcd4235644",
+      "status": "COMPLETED",
+      "version": 8,
+      "fence": 1
+    },
+    {
+      "run_id": "a8aa3e7f-a9ac-52ec-a0d0-1c91ef0a1079",
+      "status": "FAILED",
+      "version": 15,
+      "fence": 3
+    },
+    {
+      "run_id": "a8c3f0a2-ecea-5821-a7a3-cc4d01d1a7cf",
+      "status": "FAILED",
+      "version": 7,
+      "fence": 1
+    },
+    {
+      "run_id": "a922b96b-c4f6-58a1-b2ba-841e4152ce03",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "ad59946c-7247-53b6-9588-551c3fbb7a0a",
+      "status": "FAILED",
+      "version": 7,
+      "fence": 1
+    },
+    {
+      "run_id": "b24b3ac7-a4d9-5f49-ab1c-b981c3d253c6",
+      "status": "COMPLETED",
+      "version": 8,
+      "fence": 1
+    },
+    {
+      "run_id": "bc85e90f-f6d2-5d6c-891e-77ae58c614d3",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "c0b2aa0a-0dc5-508b-885e-03cbbba53796",
+      "status": "FAILED",
+      "version": 11,
+      "fence": 1
+    },
+    {
+      "run_id": "c3efc2db-6546-5067-8e1f-89385a81941c",
+      "status": "WAITING_INPUT",
+      "version": 8,
+      "fence": 1
+    },
+    {
+      "run_id": "cc5ba594-1fd1-5ee0-85e5-5e9c465a5977",
+      "status": "FAILED",
+      "version": 4,
+      "fence": 1
+    },
+    {
+      "run_id": "ce063499-71d9-52f4-b14b-54786959ffa4",
+      "status": "WAITING_INPUT",
+      "version": 8,
+      "fence": 1
+    },
+    {
+      "run_id": "d55f63f2-844e-54bf-913e-74219a4aa8d9",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "d5b3e05a-291a-5236-977d-9fd99ab8ef31",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "dc16d4d7-b82b-5c2d-a886-1e938b5388cd",
+      "status": "COMPLETED",
+      "version": 8,
+      "fence": 1
+    },
+    {
+      "run_id": "e79626f9-e85a-5ada-86b1-d6dd8376bf92",
+      "status": "COMPLETED",
+      "version": 10,
+      "fence": 1
+    },
+    {
+      "run_id": "e9c4995c-2c5b-534e-bbe1-55feafcf068e",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "ec1b1272-1f87-5f1b-a524-278da211b61a",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "ef5eddfe-cd34-545f-89d9-7bcc305d1322",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "f2770cff-9605-5ffc-a208-bd51c1a6fb19",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "f8f5debd-bf6c-509e-b846-1e8ad71b039c",
+      "status": "QUEUED",
+      "version": 1,
+      "fence": null
+    },
+    {
+      "run_id": "f9b05b0c-38d6-5427-86c9-3cdbd42971ff",
+      "status": "STALE",
+      "version": 2,
+      "fence": null
+    },
+    {
+      "run_id": "fb6a6664-2598-5ba0-a538-8bdcb6bac88a",
+      "status": "FAILED",
+      "version": 9,
+      "fence": 1
+    }
+  ],
+  "unrelated_runs_unchanged": true,
+  "ownership_checks": [
+    {
+      "account": "demo-customer-2",
+      "path": "/api/v1/customer/cases/a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-2",
+      "path": "/api/v1/customer/order-lines/91002015680",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-2",
+      "path": "/api/v1/customer/cases/f28bb098-63f9-48eb-8382-17da3caf83f2",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-2",
+      "path": "/api/v1/customer/order-lines/91002015681",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-2",
+      "path": "/api/v1/customer/cases/8b11901d-c05c-4178-a2e0-03f7a06dffd7",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-2",
+      "path": "/api/v1/customer/order-lines/91002015682",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-m2",
+      "path": "/api/v1/customer/cases/a0e7cbdd-b0e7-4b5b-a5cb-61327f02709a",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-m2",
+      "path": "/api/v1/customer/order-lines/91002015680",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-m2",
+      "path": "/api/v1/customer/cases/f28bb098-63f9-48eb-8382-17da3caf83f2",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-m2",
+      "path": "/api/v1/customer/order-lines/91002015681",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-m2",
+      "path": "/api/v1/customer/cases/8b11901d-c05c-4178-a2e0-03f7a06dffd7",
+      "status": 404
+    },
+    {
+      "account": "demo-customer-m2",
+      "path": "/api/v1/customer/order-lines/91002015682",
+      "status": 404
+    }
+  ],
+  "outcomes_verified": true,
+  "run_audit": [
+    {
+      "run_id": "85e374f4-3b2f-563f-8b41-b94216700642",
+      "input_revision": 1,
+      "status": "QUEUED",
+      "budget_spent": {}
+    },
+    {
+      "run_id": "7a914935-c2e3-5ad5-b50a-4593357eb5c8",
+      "input_revision": 1,
+      "status": "STALE",
+      "budget_spent": {}
+    },
+    {
+      "run_id": "c323cdb6-775b-567a-b79f-2fe839eb19cc",
+      "input_revision": 2,
+      "status": "FAILED",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 2,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    },
+    {
+      "run_id": "c6809c28-2130-5a2f-b4fd-0f164302f887",
+      "input_revision": 3,
+      "status": "COMPLETED",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 3,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    },
+    {
+      "run_id": "e217c29b-5576-5122-9722-bff27df07d3d",
+      "input_revision": 4,
+      "status": "FAILED",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 2,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    },
+    {
+      "run_id": "59c559e9-1f51-5abb-87bd-340232675f0b",
+      "input_revision": 6,
+      "status": "STALE",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 4,
+        "input_tokens": 7712,
+        "output_tokens": 1024,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    },
+    {
+      "run_id": "073b8f06-aa10-5ad4-9622-eb1b692a328c",
+      "input_revision": 7,
+      "status": "FAILED",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 2,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    },
+    {
+      "run_id": "dc535ced-1c61-5645-8561-19ff0efc0edd",
+      "input_revision": 8,
+      "status": "FAILED",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 2,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    },
+    {
+      "run_id": "d8e0540b-8f7d-5bcb-9b18-797129c01d4c",
+      "input_revision": 9,
+      "status": "FAILED",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 2,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    },
+    {
+      "run_id": "80019954-b1eb-5d50-8690-4900ad958737",
+      "input_revision": 1,
+      "status": "COMPLETED",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 3,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    },
+    {
+      "run_id": "b21f9118-073e-544c-b145-16e44ddad233",
+      "input_revision": 2,
+      "status": "COMPLETED",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 3,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    },
+    {
+      "run_id": "535b1cf1-2344-590c-88d1-36cda80ad2fb",
+      "input_revision": 3,
+      "status": "COMPLETED",
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 3,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "tool_attempts": 2,
+        "no_progress_rounds": 0
+      }
+    }
+  ]
+}
