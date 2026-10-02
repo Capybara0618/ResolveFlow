@@ -156,7 +156,7 @@ public class CaseService {
 
         CaseRepository.StoredResponse stored = cases.findIdempotency(principal.merchantId(), idempotencyKey);
         if (stored != null) {
-            return replay(stored, requestHash);
+            return replay(principal, stored, requestHash);
         }
 
         // The scope is the token's, and Commerce answers with the order the line really belongs to.
@@ -188,21 +188,23 @@ public class CaseService {
         } catch (DuplicateKeyException error) {
             // Two unique keys can collide here, and they mean different things.
             CaseRepository.StoredResponse raced = cases.findIdempotency(principal.merchantId(), idempotencyKey);
-            if (raced != null && raced.requestHash().equals(requestHash)) {
-                return replay(raced, requestHash);
-            }
             if (raced != null) {
-                throw new IdempotencyConflictException();
+                return replay(principal, raced, requestHash);
             }
             throw new CaseAlreadyOpenException();
         }
     }
 
-    private Created replay(CaseRepository.StoredResponse stored, String requestHash) {
+    private Created replay(AuthenticatedPrincipal principal, CaseRepository.StoredResponse stored, String requestHash) {
+        CaseCreatedResponse response = readBack(stored.responseBody());
+        CaseRow owner = cases.findCase(response.caseId());
+        if (owner == null || !owner.visibleTo(principal)) {
+            throw new CaseReadService.CaseNotVisibleException();
+        }
         if (!stored.requestHash().equals(requestHash)) {
             throw new IdempotencyConflictException();
         }
-        return new Created(readBack(stored.responseBody()), true);
+        return new Created(response, true);
     }
 
     private CaseCreatedResponse readBack(String responseBody) {

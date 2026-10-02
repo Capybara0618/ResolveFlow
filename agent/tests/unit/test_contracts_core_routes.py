@@ -32,7 +32,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 22, "Commerce": 5, "Agent": 6}
+EXPECTED_ROUTE_COUNTS = {"Case": 26, "Commerce": 5, "Agent": 6}
 
 #: Routes the compat baseline has and core must not expose (docs/core-contracts.md:53).
 DEFERRED_PATH_FRAGMENTS = (
@@ -90,6 +90,10 @@ DOCUMENTS: dict[str, DocumentSpec] = {
                 "ToolCredentialResponse",
                 "EvidenceListResponse",
                 "PolicyManifestResponse",
+                "CustomerCasePage",
+                "CustomerCaseDetail",
+                "CustomerOrderLine",
+                "CustomerAnswer",
             }
         ),
     ),
@@ -170,6 +174,20 @@ def test_route_table_matches_the_expected_core_surface() -> None:
 def test_route_table_has_no_duplicate_route() -> None:
     routes = [(route.owner, route.method, route.path) for route in route_table()]
     assert len(routes) == len(set(routes))
+
+
+def test_customer_projection_refuses_staff_records_and_versions_answers() -> None:
+    doc = document("case")
+    operation = doc["paths"]["/api/v1/customer/cases/{case_id}/answers"]["post"]
+    match = next(p for p in operation["parameters"] if p["name"] == "If-Match")
+    assert match["required"] is True
+    assert re.fullmatch(match["schema"]["pattern"], '"12"')
+    assert not re.fullmatch(match["schema"]["pattern"], "12")
+    example = doc["paths"]["/api/v1/customer/cases/{case_id}"]["get"]["responses"]["200"]["content"]["application/json"]["example"]
+    validator = component_validator("case", "CustomerCaseDetail", CORE_DIR)
+    assert validator.accepts(example), validator.error_messages(example)
+    for field in ("proposal", "authorization", "policy_refs", "run_id", "merchant_id", "actor"):
+        assert not validator.accepts({**example, field: "private"}), field
 
 
 def test_every_route_is_under_a_versioned_http_prefix() -> None:

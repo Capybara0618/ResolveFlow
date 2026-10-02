@@ -1,0 +1,22 @@
+# 客户申请工作台契约
+
+新双端方案第二批。只面向当前CUSTOMER的merchant/customer，不接受请求身份替代JWT；工作人员访问这些客户接口403，其他客户/商家与不存在详情同为404。现有工作人员接口继续复用。
+
+| 方法/路径 | 行为 |
+| --- | --- |
+| GET /api/v1/customer/cases | 本人申请分页，view=ALL/WAITING/PROCESSING/REVIEW/CLOSED；可按line_id查询，limit默认20、1–100；cursor绑定筛选且保留微秒排序精度 |
+| GET /api/v1/customer/cases/{case_id} | 最小详情：原始申请、本人提交材料与核验结论、问题/回答、允许动作、公开理由、执行阶段和公共进度；不返回工作人员actor、模型方案/请求、工具原文、policy_refs、授权/operation/fence |
+| GET /api/v1/customer/order-lines/{line_id} | 先通过Commerce按本人范围查订单行，再检查本地活跃/成功申请和权威行金额；给出order_line、application、can_apply与阻塞原因。展示资格是当前预检，提交仍受原事务约束 |
+| POST /api/v1/customer/cases/{case_id}/answers | body={question_id,text}，If-Match是引号包围的case.version；锁工单校验本人、版本、当前问题/等待态与期限，再走现有材料追加。重复/旧问题/旧版本409，新修订回QUEUED |
+
+建单、普通追加材料及撤销沿用POST /api/v1/cases、/{case_id}/evidence、/{case_id}/cancel；新页面只读取客户专用详情，问题ID自动关联，不展示手输编号。文本材料仍是客户主张，核验结论只来自已有人工记录。
+
+分页固定updated_at DESC、case_id DESC，追加与该查询对应的索引；变动中的列表可刷新，游标不承诺不可变快照。不同筛选不可复用游标。列表查询始终绑定merchant/customer，即使伪造游标也不能扩大范围。
+
+补证期限从问题事件时间起72小时，且不超过已有case.expires_at；不因刷新延长。超期不能回答，页面如实提示等待人工处理，不把过期伪装成退款失败。普通材料入口也不能用当前过期问题绕开等待约束。历史问题缺ID/正文不猜测、不启用回答；两轮限制沿用现有问题写入规则。
+
+退款金额只从已有授权/匹配执行结果读取；批准仍显示待执行，UNKNOWN显示结果待确认，只有CLOSED_SUCCESS显示模拟退款完成。公开理由取人工决定或结束事件的reason，不泄露自动复核/模型失败细节。
+
+已消费后明确执行失败、返回PENDING_REVIEW的申请仍冻结输入；公开文案从与原授权operation匹配且非陈旧的持久执行事件判断，不把它写成普通待审核或允许再次退款。创建幂等结果在比较请求体之前核对原工单所属客户；同商家其他客户借旧键重放同体或异体均404，不暴露原申请号。
+
+客户页面以“我的订单 / 我的申请 / 申请详情”组织；刷新后重新登录仍能查到持久申请。URL可保存case_id，不保存token；此批不持久保存登录会话。组件按会话和请求代次丢弃旧响应，401提示重新登录，409刷新后核对，不把失败操作显示成功。正常申请固定全额，无金额输入、媒体假上传或内部ID输入。

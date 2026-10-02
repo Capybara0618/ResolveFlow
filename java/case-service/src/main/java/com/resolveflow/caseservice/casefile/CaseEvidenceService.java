@@ -258,6 +258,10 @@ public class CaseEvidenceService {
         for (int index = timeline.size() - 1; index >= 0; index--) {
             TimelineEventRow event = timeline.get(index);
             if (event.kind() == TimelineEventType.QUESTION_REQUIRED) {
+                if (!Instant.now(clock).isBefore(ReviewQuestionService.answerDeadline(row, event))) {
+                    throw new CaseStateConflictException(
+                            "the question's answer deadline has passed; merchant review is required");
+                }
                 expected = JsonField.of(event.detail(), "question_id");
                 break;
             }

@@ -26,6 +26,10 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | --- | --- | --- |
 | Case | POST /api/v1/auth/login | 持久化本地账号登录；商家/角色/客户归属来自账号，启用状态及identity_version控制会话 |
 | Case | GET /api/v1/auth/me | 当前有效会话资料；每个用户接口重新校验持久账号启用状态、归属、角色及身份版本，不返回密码hash |
+| Case | GET /api/v1/customer/cases | 本人分页申请列表，view/line_id筛选、微秒游标；只从有效身份取merchant/customer |
+| Case | GET /api/v1/customer/cases/{case_id} | 客户专用最小详情、问题/回答、允许动作及公开结果；不返回工作人员投影 |
+| Case | GET /api/v1/customer/order-lines/{line_id} | 本人订单行与当前申请/全额预检，真实金额由Commerce提供 |
+| Case | POST /api/v1/customer/cases/{case_id}/answers | 当前问题文本回答，If-Match＋question_id在工单锁内校验；追加材料、新修订调查与旧授权失效复用原路径 |
 | Case | GET /api/v1/orders | 当前主体订单视图；内部请求Commerce |
 | Case | GET /api/v1/orders/{order_id} | 本人/商家授权订单 |
 | Case | POST /api/v1/cases | line_id/description/requested_actions=[REFUND] |

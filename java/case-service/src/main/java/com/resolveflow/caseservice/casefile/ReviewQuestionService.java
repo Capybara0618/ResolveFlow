@@ -15,6 +15,11 @@ public class ReviewQuestionService {
 
     private static final int MAX_ROUNDS = 2;
 
+    static Instant answerDeadline(CaseRow row, TimelineEventRow question) {
+        Instant deadline = question.occurredAt().plus(java.time.Duration.ofHours(72));
+        return row.expiresAt() != null && row.expiresAt().isBefore(deadline) ? row.expiresAt() : deadline;
+    }
+
     private final CaseRepository cases;
     private final Clock clock;
     private final ObjectMapper mapper;

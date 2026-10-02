@@ -191,6 +191,26 @@ class CaseApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void anotherCustomerCannotReplayAnExistingCreationKey() {
+        String created = post(customerToken(), "key-private-replay", body(LINE, "原客户的申请"))
+                .expectStatus()
+                .isCreated()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+        String other = jwtCodec.issue(
+                new AuthenticatedPrincipal("demo-customer-2", "M-1001", Role.CUSTOMER, "C-2003"), Instant.now());
+        post(other, "key-private-replay", body(LINE, "原客户的申请"))
+                .expectStatus()
+                .isNotFound()
+                .expectBody(String.class)
+                .value(response -> assertThat(response)
+                        .doesNotContain(json(created).get("case_id").stringValue()));
+        post(other, "key-private-replay", body(LINE, "换一个描述")).expectStatus().isNotFound();
+        assertThat(countCases()).isEqualTo(1);
+    }
+
+    @Test
     @DisplayName("a second case for the same line is 409 CASE_ALREADY_OPEN, a different code from the key conflict")
     void oneActiveCasePerLine() {
         post(customerToken(), "key-line-1", body(LINE, "第一次")).expectStatus().isCreated();

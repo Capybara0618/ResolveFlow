@@ -133,6 +133,290 @@ paths:
                 merchant_name: ResolveFlow 演示商家一
         '401':
           $ref: '#/components/responses/Unauthenticated'
+  /api/v1/customer/cases:
+    get:
+      tags:
+      - cases
+      summary: listCustomerApplications
+      operationId: listCustomerApplications
+      description: Customer-only projection and actions; persisted merchant/customer
+        scope and versions are enforced (docs/customer-workspace.md:7).
+      parameters:
+      - name: view
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - ALL
+          - WAITING
+          - PROCESSING
+          - REVIEW
+          - CLOSED
+          default: ALL
+      - name: line_id
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 2048
+      responses:
+        '200':
+          description: Current customer view
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerCasePage'
+              example:
+                items:
+                - &customer_example_summary
+                  case_id: 00000000-0000-4000-8000-000000000001
+                  status: QUEUED
+                  line_id: '7001'
+                  order_id: 00000000-0000-4000-8000-0000000000aa
+                  description: 包裹丢失，申请退款
+                  version: 1
+                  created_at: '2026-10-01T10:00:00Z'
+                  updated_at: '2026-10-01T10:00:00Z'
+                page:
+                  next_cursor: null
+                  limit: 20
+        '400':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/customer/cases/{case_id}:
+    get:
+      tags:
+      - cases
+      summary: readCustomerApplication
+      operationId: readCustomerApplication
+      description: Customer-only projection and actions; persisted merchant/customer
+        scope and versions are enforced (docs/customer-workspace.md:7).
+      parameters:
+      - name: case_id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+      responses:
+        '200':
+          description: Current customer view
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerCaseDetail'
+              example: &customer_example_detail
+                case: *customer_example_summary
+                input_revision: 1
+                allowed_actions:
+                - CANCEL
+                - APPEND_EVIDENCE
+                blocked_reason: ''
+                materials: []
+                questions: []
+                result:
+                  status: QUEUED
+                  message: 申请已收到，等待调查
+                  amount_minor: null
+                  currency: CNY
+                  public_reason: null
+                timeline: []
+        '400':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/customer/order-lines/{line_id}:
+    get:
+      tags:
+      - cases
+      summary: readCustomerOrderEligibility
+      operationId: readCustomerOrderEligibility
+      description: Customer-only projection and actions; persisted merchant/customer
+        scope and versions are enforced (docs/customer-workspace.md:7).
+      parameters:
+      - name: line_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      responses:
+        '200':
+          description: Current customer view
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerOrderLine'
+              example:
+                order_line:
+                  order_id: 00000000-0000-4000-8000-0000000000aa
+                  line_id: '7001'
+                  sku: SKU-RED-M
+                  category: apparel
+                  quantity: 2
+                  line_paid_amount: 2599
+                  currency: CNY
+                  paid_at: '2026-09-10T08:15:00Z'
+                  status: PAID
+                  version: 3
+                application: null
+                can_apply: true
+                blocked_reason: ''
+        '400':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/customer/cases/{case_id}/answers:
+    post:
+      tags:
+      - cases
+      summary: answerCustomerQuestion
+      operationId: answerCustomerQuestion
+      description: Customer-only projection and actions; persisted merchant/customer
+        scope and versions are enforced (docs/customer-workspace.md:7).
+      parameters:
+      - name: case_id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Uuid'
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^"[1-9][0-9]{0,15}"$
+      responses:
+        '200':
+          description: Current customer view
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerCaseDetail'
+              example: *customer_example_detail
+        '400':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Request refused according to the customer workspace contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerAnswer'
+            example:
+              question_id: 00000000-0000-4000-8000-000000000002
+              text: 已联系承运商，反馈包裹丢失。
   /api/v1/orders:
     get:
       tags: [orders]
@@ -2837,5 +3121,247 @@ components:
           maxItems: 200
           items:
             $ref: '#/components/schemas/PolicyRule'
+    CustomerCaseSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - case_id
+      - status
+      - line_id
+      - order_id
+      - description
+      - version
+      - created_at
+      - updated_at
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          $ref: '#/components/schemas/CaseStatus'
+        line_id: &customer_text
+          type: string
+          minLength: 1
+        order_id:
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+        version:
+          type: integer
+          minimum: 1
+        created_at: &customer_date
+          type: string
+          format: date-time
+        updated_at: *customer_date
+    CustomerMaterial:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - text
+      - submitted_at
+      - question_id
+      - verification_result
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        text:
+          type:
+          - string
+          - 'null'
+        submitted_at: *customer_date
+        question_id:
+          type:
+          - string
+          - 'null'
+        verification_result:
+          type:
+          - string
+          - 'null'
+          enum:
+          - CONFIRMED
+          - REFUTED
+          - INCONCLUSIVE
+          - null
+    CustomerQuestion:
+      type: object
+      additionalProperties: false
+      required:
+      - question_id
+      - prompts
+      - status
+      - asked_at
+      - expires_at
+      - answers
+      properties:
+        question_id:
+          type:
+          - string
+          - 'null'
+        prompts:
+          type: array
+          maxItems: 20
+          items: *customer_text
+        status:
+          type: string
+          enum:
+          - PENDING
+          - ANSWERED
+          - CLOSED
+          - EXPIRED
+          - UNAVAILABLE
+        asked_at: *customer_date
+        expires_at: *customer_date
+        answers:
+          type: array
+          maxItems: 64
+          items:
+            $ref: '#/components/schemas/CustomerMaterial'
+    CustomerResult:
+      type: object
+      additionalProperties: false
+      required:
+      - status
+      - message
+      - amount_minor
+      - currency
+      - public_reason
+      properties:
+        status:
+          $ref: '#/components/schemas/CaseStatus'
+        message: *customer_text
+        amount_minor:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        currency:
+          type: string
+          const: CNY
+        public_reason:
+          type:
+          - string
+          - 'null'
+    CustomerProgress:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - occurred_at
+      - summary
+      properties:
+        type:
+          $ref: '#/components/schemas/TimelineEventType'
+        occurred_at: *customer_date
+        summary: *customer_text
+    CustomerCaseDetail:
+      type: object
+      additionalProperties: false
+      required:
+      - case
+      - input_revision
+      - allowed_actions
+      - blocked_reason
+      - materials
+      - questions
+      - result
+      - timeline
+      properties:
+        case:
+          $ref: '#/components/schemas/CustomerCaseSummary'
+        input_revision:
+          type: integer
+          minimum: 1
+        allowed_actions:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+            enum:
+            - CANCEL
+            - ANSWER
+            - APPEND_EVIDENCE
+        blocked_reason:
+          type: string
+        materials:
+          type: array
+          maxItems: 64
+          items:
+            $ref: '#/components/schemas/CustomerMaterial'
+        questions:
+          type: array
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/CustomerQuestion'
+        result:
+          $ref: '#/components/schemas/CustomerResult'
+        timeline:
+          type: array
+          maxItems: 10000
+          items:
+            $ref: '#/components/schemas/CustomerProgress'
+    CustomerCasePage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/CustomerCaseSummary'
+        page:
+          type: object
+          additionalProperties: false
+          required:
+          - next_cursor
+          - limit
+          properties:
+            next_cursor:
+              type:
+              - string
+              - 'null'
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+    CustomerOrderLine:
+      type: object
+      additionalProperties: false
+      required:
+      - order_line
+      - application
+      - can_apply
+      - blocked_reason
+      properties:
+        order_line:
+          $ref: '#/components/schemas/OrderLineSummary'
+        application:
+          anyOf:
+          - $ref: '#/components/schemas/CustomerCaseSummary'
+          - type: 'null'
+        can_apply:
+          type: boolean
+        blocked_reason:
+          type: string
+    CustomerAnswer:
+      type: object
+      additionalProperties: false
+      required:
+      - question_id
+      - text
+      properties:
+        question_id:
+          $ref: '#/components/schemas/Uuid'
+        text:
+          type: string
+          minLength: 1
+          maxLength: 8000
+
 security:
   - bearerAuth: []
