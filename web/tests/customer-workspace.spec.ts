@@ -27,6 +27,20 @@ beforeEach(() => {
 afterEach(() => { wrappers.splice(0).forEach(w => w.unmount()); vi.restoreAllMocks(); vi.unstubAllGlobals() })
 
 describe('customer application workspace', () => {
+  it('discovers updated application status without clearing the local search', async () => {
+    vi.useFakeTimers()
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(false)
+    window.history.replaceState(null, '', '/#/customer/applications')
+    const w = open(); await flushPromises()
+    const search = w.get('[aria-label="查找已加载申请"]')
+    await search.setValue('包裹')
+    const next = { ...detail().case, status: 'CLOSED_SUCCESS', version: 8 }
+    vi.mocked(coreApi.customerCases).mockResolvedValue({ items: [next], page: { limit: 20 } })
+    try {
+      await vi.advanceTimersByTimeAsync(15000); await flushPromises()
+      expect(w.text()).toContain('退款已完成'); expect((search.element as HTMLInputElement).value).toBe('包裹')
+    } finally { w.unmount(); hidden.mockRestore(); vi.useRealTimers() }
+  })
   it('answers the server question with the reviewed version and preserves the original request', async () => {
     window.history.replaceState(null, '', '/#/customer/applications/case-1')
     const answered = detail(); answered.case.status = 'QUEUED'; answered.case.version = 8

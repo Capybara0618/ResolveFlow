@@ -16,13 +16,44 @@ it('shows personnel management only to merchant administrators and restores the 
   await wrapper.findAll('.nav-link').find(link => link.text() === '人员管理')!.trigger('click'); await flushPromises()
   expect(wrapper.find('[aria-label="人员管理"]').exists()).toBe(true)
   expect(wrapper.find('#queue-panel').exists()).toBe(false)
-  await wrapper.findAll('.nav-link').find(link => link.text().startsWith('审核队列'))!.trigger('click'); await flushPromises()
+  await wrapper.findAll('.nav-link').find(link => link.text().startsWith('公共队列'))!.trigger('click'); await flushPromises()
   expect(wrapper.find('#queue-panel').exists()).toBe(true)
+  await wrapper.findAll('.nav-link').find(link => link.text() === '工单查询')!.trigger('click')
+  await wrapper.get('[name="case-id"]').setValue('old-merchant-private-case')
   await wrapper.get('.logout-button').trigger('click')
   role = 'REVIEWER'
   await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
   expect(wrapper.findAll('.nav-link').map(link => link.text())).not.toContain('人员管理')
+  expect((wrapper.get('[name="case-id"]').element as HTMLInputElement).value).toBe('')
+  expect(wrapper.get('.lookup-tools').attributes('open')).toBeUndefined()
   wrapper.unmount()
+})
+
+it('discovers new queue cases without opening them, preserves search drafts and expires a revoked session', async () => {
+  vi.useFakeTimers()
+  const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(false)
+  let reads = 0, revoked = false
+  const fetcher = vi.fn().mockImplementation((url: string) => {
+    if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({ access_token: 't', role: 'REVIEWER', merchant_id: 'M-1' })))
+    if (url.startsWith('/api/v1/review/cases')) {
+      if (revoked) return Promise.resolve(new Response(JSON.stringify({ code: 'UNAUTHENTICATED', message: 'expired' }), { status: 401 }))
+      return Promise.resolve(new Response(JSON.stringify({ items: ++reads > 1 ? [{ case_id: 'new-case', status: 'PENDING_REVIEW', description: '新申请待领取' }] : [], page: { limit: 20 }, counts: { total: reads > 1 ? 1 : 0, public: 1, mine: 0, unclaimed: 1, stages: { REVIEW: 1 } } })))
+    }
+    throw new Error('Polling must not automatically open or write a case')
+  })
+  vi.stubGlobal('fetch', fetcher)
+  const w = mount(App)
+  try {
+    await w.get('.login-panel').trigger('submit'); await flushPromises()
+    await w.get('[aria-label="搜索工单"]').setValue('尚未提交的搜索')
+    await vi.advanceTimersByTimeAsync(30000); await flushPromises()
+    expect(w.text()).toContain('新申请待领取')
+    expect((w.get('[aria-label="搜索工单"]').element as HTMLInputElement).value).toBe('尚未提交的搜索')
+    expect(fetcher.mock.calls.some(([url]) => url.includes('/cases/new-case'))).toBe(false)
+    revoked = true; await vi.advanceTimersByTimeAsync(30000); await flushPromises()
+    expect(w.find('.login-panel').exists()).toBe(true); expect(w.text()).toContain('登录已失效')
+    expect(w.text()).not.toContain('新申请待领取')
+  } finally { w.unmount(); hidden.mockRestore(); vi.useRealTimers() }
 })
 
 function ownership(caseId: string, isOwner = true, version = 2) {

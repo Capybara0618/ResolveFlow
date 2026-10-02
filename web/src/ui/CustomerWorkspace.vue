@@ -15,6 +15,8 @@ const screen = ref<Screen>('orders'), loading = ref(false), writing = ref(false)
 const error = ref(''), notice = ref(''), filter = ref<CustomerView>('ALL')
 const orders = ref<OrderLine[]>([]), applications = ref<CustomerCaseSummary[]>([])
 const orderCursor = ref<string | null>(), applicationCursor = ref<string | null>()
+const applicationUpdate = ref('')
+let applicationExpanded = false
 const eligibility = ref<Record<string, CustomerOrderLine | null>>({})
 const eligibilityErrors = ref<Record<string, string>>({})
 const selectedLine = ref<CustomerOrderLine | null>(null), detail = ref<CustomerCaseDetail | null>(null)
@@ -112,6 +114,7 @@ async function loadApplications(cursor?: string) {
     const page = await coreApi.customerCases(token, view, cursor)
     if (!valid(g, token) || filter.value !== view) return
     applications.value = cursor ? [...applications.value, ...page.items] : page.items; applicationCursor.value = page.page.next_cursor
+    applicationExpanded = !!cursor; applicationUpdate.value = ''
   } catch (cause) { if (valid(g, token)) failure(cause) }
 }
 async function readDetail() {
@@ -130,6 +133,19 @@ async function readDetail() {
       }).catch(() => { /* The application remains readable when Commerce is temporarily unavailable. */ })
     }
   } catch (cause) { if (valid(g, token)) failure(cause) }
+}
+async function pollApplications() {
+  const g = generation, token = props.account.access_token, view = filter.value
+  loading.value = true
+  try {
+    const page = await coreApi.customerCases(token, view)
+    if (!valid(g, token) || screen.value !== 'applications' || view !== filter.value) return
+    if (applicationExpanded) {
+      if (JSON.stringify(applications.value.slice(0, page.items.length)) !== JSON.stringify(page.items))
+        applicationUpdate.value = '申请进展有更新；点击刷新查看，已展开记录保持不变。'
+    } else { applications.value = page.items; applicationCursor.value = page.page.next_cursor; applicationUpdate.value = '' }
+  } catch (cause) { if (valid(g, token)) failure(cause) }
+  finally { if (valid(g, token)) loading.value = false }
 }
 async function refresh() {
   if (writing.value || loading.value) return
@@ -247,6 +263,7 @@ onMounted(() => {
   timer = setInterval(() => {
     now.value = Date.now()
     if (!writing.value && !loading.value && !document.hidden && screen.value === 'detail' && detail.value && !terminal(detail.value.case.status)) void readDetail()
+    if (!writing.value && !loading.value && !document.hidden && screen.value === 'applications') void pollApplications()
   }, 15000)
 })
 onBeforeUnmount(() => {
@@ -280,7 +297,8 @@ onBeforeUnmount(() => {
         <p v-if="filter === 'WAITING'" class="customer-info"><Icon name="file" />请打开申请详情，查看并回答当前问题。</p>
         <div v-if="!filteredApplications.length" class="customer-empty"><Icon name="file" :size="36" /><h3>{{ loading ? '正在读取申请…' : '暂无符合条件的申请' }}</h3><p>可以切换处理阶段、加载更多，或从我的订单发起申请。</p><button type="button" class="secondary-button" @click="navigate('orders')">查看我的订单</button></div>
         <table v-else class="customer-table"><thead><tr><th>申请 / 情况说明</th><th>订单</th><th>当前状态</th><th>更新时间</th><th>操作</th></tr></thead><tbody><tr v-for="item in filteredApplications" :key="item.case_id"><td><strong>{{ item.description || '退款申请' }}</strong><small class="customer-id">{{ item.case_id }}</small></td><td><span class="customer-id">{{ item.order_id || '订单编号未提供' }}</span><small class="customer-inline-note">订单行 {{ item.line_id }}</small></td><td><span class="status-tag" :class="{ waiting: item.status === 'WAITING_CUSTOMER', success: item.status === 'CLOSED_SUCCESS' }">{{ status(item.status) }}</span></td><td>{{ formatTime(item.updated_at) }}</td><td><button type="button" class="text-button" @click="navigate('detail', item.case_id)">{{ item.status === 'WAITING_CUSTOMER' ? '查看问题并回答' : '查看详情' }}<Icon name="chevron" :size="14" /></button></td></tr></tbody></table>
-        <div class="customer-pagination"><span>已加载 {{ applications.length }} 条 · 筛选由服务器执行，文本查找仅限已加载记录</span><button v-if="applicationCursor" type="button" class="secondary-button" :disabled="loading" @click="more('applications')">加载更多申请</button></div>
+        <p v-if="applicationUpdate" class="admin-note" role="status">{{ applicationUpdate }}</p>
+        <div class="customer-pagination"><span>已加载 {{ applications.length }} 条 · 可见列表每15秒更新 · 文本查找仅限已加载记录</span><button v-if="applicationCursor" type="button" class="secondary-button" :disabled="loading" @click="more('applications')">加载更多申请</button></div>
       </section>
       <form v-else-if="screen === 'apply' && selectedLine" class="panel customer-apply" @submit.prevent="create">
         <button class="text-button" type="button" :disabled="writing || createUncertain" @click="navigate('orders')">← 返回我的订单</button>

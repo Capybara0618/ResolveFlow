@@ -1,0 +1,62 @@
+[
+  {
+    "documentWidth": 1265,
+    "metrics": 3,
+    "page": "overview",
+    "sideNavigation": true,
+    "width": 1280
+  },
+  {
+    "documentWidth": 1425,
+    "metrics": 3,
+    "page": "overview",
+    "sideNavigation": true,
+    "width": 1440
+  },
+  {
+    "documentWidth": 1665,
+    "metrics": 3,
+    "page": "overview",
+    "sideNavigation": true,
+    "width": 1680
+  },
+  {
+    "documentWidth": 1265,
+    "page": "policies",
+    "rules": 7,
+    "versions": 2,
+    "width": 1280
+  },
+  {
+    "documentWidth": 1425,
+    "page": "policies",
+    "rules": 7,
+    "versions": 2,
+    "width": 1440
+  },
+  {
+    "documentWidth": 1665,
+    "page": "policies",
+    "rules": 7,
+    "versions": 2,
+    "width": 1680
+  },
+  {
+    "documentWidth": 1425,
+    "page": "customer-applications",
+    "rows": 17,
+    "width": 1440
+  },
+  {
+    "documentWidth": 1665,
+    "page": "customer-applications",
+    "rows": 17,
+    "width": 1680
+  },
+  {
+    "documentWidth": 1265,
+    "page": "customer-applications",
+    "rows": 17,
+    "width": 1280
+  }
+]

@@ -21,6 +21,30 @@ const mountWorkspace = (overrides: Partial<InstanceType<typeof ReviewerWorkspace
 
 afterEach(() => vi.restoreAllMocks())
 describe('reviewer handoff', () => {
+  it('makes consumed UNKNOWN explicit even when an unclaimed owner masks the server blocked reason', async () => {
+    const w = mountWorkspace({ snapshot: { ...snapshot, case: { ...snapshot.case, status: 'RECONCILING' },
+      authorization: { authorization_id: 'auth', authorization_version: 3, status: 'CONSUMED', input_revision: 2 } },
+      context: { ...context, allowed_actions: [], blocked_reason: '当前仅可查看' }, collaboration: { ...collaboration, is_owner: false } })
+    await flushPromises()
+    expect(w.get('[data-test="revision-progress"]').text()).toContain('输入与人工操作已冻结')
+    expect(w.text()).toContain('不要重新发起退款'); expect(w.find('[data-test="handoff-reject"]').exists()).toBe(false)
+    w.unmount()
+  })
+  it('expires a live session and ignores a late refusal after leaving the workspace', async () => {
+    const submit = vi.spyOn(coreApi, 'reviewerAction').mockRejectedValue(new ApiError(401, 'UNAUTHENTICATED', 'expired'))
+    const first = mountWorkspace(); await flushPromises()
+    await first.get('[data-test="handoff-reject"]').trigger('click'); await first.get('textarea').setValue('合成说明')
+    await first.get('[data-test="submit-handoff"]').trigger('click'); await flushPromises()
+    expect(first.emitted('expired')).toHaveLength(1); expect(first.find('[data-test="submit-handoff"]').exists()).toBe(false)
+    first.unmount()
+    let reject!: (cause: unknown) => void
+    submit.mockReturnValue(new Promise((_resolve, r) => { reject = r }))
+    const second = mountWorkspace(); await flushPromises()
+    await second.get('[data-test="handoff-reject"]').trigger('click'); await second.get('textarea').setValue('合成旧请求')
+    await second.get('[data-test="submit-handoff"]').trigger('click')
+    second.unmount(); reject(new ApiError(401, 'UNAUTHENTICATED', 'expired')); await flushPromises()
+    expect(second.emitted('expired')).toBeUndefined(); expect(second.emitted('changed')).toBeUndefined()
+  })
   it.each(['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'] as const)(
     'keeps %s terminal when a manual decision advanced the revision', async (status) => {
       const wrapper = mountWorkspace({

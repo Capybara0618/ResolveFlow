@@ -9,10 +9,13 @@ import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
 import CaseAssignment from './ui/CaseAssignment.vue'
 import CustomerWorkspace from './ui/CustomerWorkspace.vue'
 import AdminPeople from './ui/AdminPeople.vue'
+import AdminOverview from './ui/AdminOverview.vue'
+import AdminPolicies from './ui/AdminPolicies.vue'
 import InvestigationSources from './ui/InvestigationSources.vue'
 import PolicyCitations from './ui/PolicyCitations.vue'
 import { paidAtOf, productNameMissing, productTitle, variantOf } from './ui/order-line-format'
 import './ui/workbench.css'
+import './ui/admin-workspace.css'
 
 const username = ref('')
 const password = ref('')
@@ -32,6 +35,8 @@ const queueScopes = [{ key: 'PUBLIC' as const, label: '公共', count: 'public' 
   { key: 'UNCLAIMED' as const, label: '未领取', count: 'unclaimed' as const }]
 let queueGeneration = 0
 let actionGeneration = 0
+const queueUpdate = ref('')
+let queueExpanded = false, pollingQueue = false, queueTimer: ReturnType<typeof setInterval> | undefined
 const lookupId = ref('')
 const snapshot = ref<CaseSnapshot | null>(null)
 const selectedOrderLine = ref<OrderLine | null>(null)
@@ -51,13 +56,32 @@ let reviewContextGeneration = 0
 const focusedPolicy = ref<string | null>(null)
 const focusNonce = ref(0)
 const queryOpen = ref(false)
-const merchantPage = ref<'review' | 'people'>('review')
-function changeMerchantPage(page: 'review' | 'people', query = false) {
+type MerchantPage = 'review' | 'people' | 'overview' | 'policies'
+const merchantPage = ref<MerchantPage>('review')
+function changeMerchantPage(page: MerchantPage, query = false) {
   if (busy.value) return
-  const returning = merchantPage.value === 'people' && page === 'review'
+  const returning = merchantPage.value !== 'review' && page === 'review'
   closeReview(); merchantPage.value = page; queryOpen.value = query
-  if (page === 'people') stopStream()
+  if (page !== 'review') stopStream()
   if (returning) void act(async () => { if (!await loadReviewQueue()) return; if (snapshot.value) await openCase(snapshot.value.case.case_id) })
+}
+
+function quickQueue(view: string, scope: ReviewScope) {
+  if (busy.value) return
+  closeReview()
+  merchantPage.value = 'review'; reviewView.value = view; reviewScope.value = scope
+  reviewQuery.value = ''; filterQueue()
+}
+function overviewCase(id: string) {
+  if (busy.value) return
+  merchantPage.value = 'review'; queryOpen.value = true
+  void act(async () => { await loadReviewQueue(); await openCase(id) })
+}
+async function pollQueue() {
+  if (!isReviewer.value || merchantPage.value !== 'review' || busy.value || pollingQueue || document.hidden) return
+  pollingQueue = true
+  try { await loadReviewQueue(undefined, true) } catch (cause) { fail(cause) }
+  finally { pollingQueue = false }
 }
 
 /**
@@ -81,6 +105,7 @@ function backToList() {
   document.getElementById(isReviewer.value ? 'queue-panel' : 'order-panel')?.scrollIntoView?.({ block: 'start' })
 }
 onMounted(() => {
+  queueTimer = setInterval(() => { void pollQueue() }, 30000)
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
   contextQuery = window.matchMedia('(max-width: 1299px)')
   contextFolded.value = contextQuery.matches
@@ -90,6 +115,7 @@ onMounted(() => {
   narrowQuery.addEventListener('change', event => { narrowScreen.value = event.matches })
 })
 onUnmounted(() => {
+  clearInterval(queueTimer)
   contextQuery?.removeEventListener('change', () => undefined)
   narrowQuery?.removeEventListener('change', () => undefined)
 })
@@ -206,6 +232,7 @@ async function loadReviewContext(view: CaseSnapshot | null) {
     collaboration.value = ownership
   } catch (cause) {
     if (request === reviewContextGeneration && token() === sessionToken && lookupId.value === caseId) {
+      if (cause instanceof ApiError && cause.status === 401) { fail(cause); return }
       reviewContextError.value = cause instanceof Error ? cause.message : '无法读取审核依据'
     }
   } finally {
@@ -227,7 +254,10 @@ function formatTimestamp(value: string) {
   }).format(date)
 }
 const token = () => account.value?.access_token ?? ''
-const fail = (cause: unknown) => { error.value = cause instanceof Error ? cause.message : String(cause) }
+const fail = (cause: unknown) => {
+  if (cause instanceof ApiError && cause.status === 401 && account.value) { logout(); error.value = '登录已失效，请重新登录。'; return }
+  error.value = cause instanceof Error ? cause.message : String(cause)
+}
 
 async function act(work: () => Promise<void>) {
   const generation = ++actionGeneration
@@ -237,7 +267,7 @@ async function act(work: () => Promise<void>) {
   try { await work() } catch (cause) { if (generation === actionGeneration) fail(cause) }
   finally { if (generation === actionGeneration) busy.value = false }
 }
-async function loadReviewQueue(cursor?: string) {
+async function loadReviewQueue(cursor?: string, background = false) {
   const generation = ++queueGeneration
   const sessionToken = token()
   const stage = reviewView.value, query = reviewSearch.value, scope = reviewScope.value
@@ -249,10 +279,16 @@ async function loadReviewQueue(cursor?: string) {
   }
   if (generation !== queueGeneration || account.value?.access_token !== sessionToken ||
       reviewView.value !== stage || reviewScope.value !== scope || reviewSearch.value !== query) return false
-  // Cases can move while paginating. A stable loaded ID must not render twice.
+  reviewCounts.value = page.counts ?? null
+  if (background && queueExpanded) {
+    if (JSON.stringify(reviewItems.value.slice(0, page.items.length)) !== JSON.stringify(page.items))
+      queueUpdate.value = '队列有更新；点击刷新查看最新列表，已展开记录保持不变。'
+    return true
+  }
+  // Polling updates the list only. It never opens another case or clears form drafts.
   reviewItems.value = cursor ? [...new Map([...reviewItems.value, ...page.items].map(item => [item.case_id, item])).values()] : page.items
   reviewCursor.value = page.page.next_cursor ?? undefined
-  reviewCounts.value = page.counts ?? null
+  queueExpanded = !!cursor; queueUpdate.value = ''
   return true
 }
 function filterQueue() {
@@ -340,9 +376,11 @@ function login() {
 function logout() {
   closeReview(); stopStream(); account.value = null; snapshot.value = null; selectedOrderLine.value = null
   ++queueGeneration
+  ++reviewContextGeneration; reviewContext.value = null; reviewContextLoading.value = false; reviewContextError.value = ''
+  lookupId.value = ''; queryOpen.value = false; verificationReason.value = ''; focusedPolicy.value = null
   ++actionGeneration; busy.value = false
   reviewItems.value = []; reviewCursor.value = undefined; reviewCounts.value = null; collaboration.value = null; error.value = ''
-  merchantPage.value = 'review'; notice.value = ''
+  merchantPage.value = 'review'; notice.value = ''; queueExpanded = false; queueUpdate.value = ''
 }
 function verifyEvidence(evidenceId: string, result: 'CONFIRMED' | 'REFUTED' | 'INCONCLUSIVE') {
   void act(async () => {
@@ -400,7 +438,7 @@ onUnmounted(stopStream)
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
       <span class="demo-tag">本地演示 · 合成数据 · 模型模式见调查记录 · 模拟退款</span>
-      <div v-if="account" class="session"><span class="avatar">{{ isReviewer ? '审' : '客' }}</span><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后审核员' : '客户工作台') }}</strong><small>{{ account.merchant_name || account.merchant_id }} · {{ account.role === 'MERCHANT_ADMIN' ? '商家管理员' : isReviewer ? '工作人员' : '客户' }}</small></span>
+      <div v-if="account" class="session"><span class="avatar">{{ account.display_name?.trim().slice(0, 1) || (isReviewer ? '审' : '客') }}</span><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后专员' : '客户工作台') }}</strong><small>{{ account.merchant_name || account.merchant_id }} · {{ account.role === 'MERCHANT_ADMIN' ? '商家管理员' : account.role === 'REVIEWER' ? '售后专员' : account.role === 'OPERATOR' ? '兼容运维账号' : '客户' }}</small></span>
         <button type="button" class="text-button logout-button" @click="logout">退出<Icon name="arrow" :size="15" /></button></div>
     </header>
     <main v-if="!account" class="login-stage">
@@ -418,18 +456,27 @@ onUnmounted(stopStream)
     <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <div v-else class="app-shell">
       <nav class="sidebar" aria-label="工作台导航">
-        <a v-if="isReviewer" href="#queue-panel" class="nav-link" :class="{ current: merchantPage === 'review' && !queryOpen }" :aria-disabled="busy" @click.prevent="changeMerchantPage('review')"><Icon name="queue" />审核队列<span v-if="reviewCounts" class="nav-count">{{ reviewCounts.stages.REVIEW }}</span></a>
+        <a v-if="isReviewer" href="#queue-panel" class="nav-link" :class="{ current: merchantPage === 'review' && !queryOpen && reviewScope === 'PUBLIC' && !['ATTENTION','CLOSED'].includes(reviewView) }" :aria-disabled="busy" @click.prevent="quickQueue('REVIEW','PUBLIC')"><Icon name="queue" />公共队列</a>
+        <a v-if="isReviewer" href="#mine" class="nav-link" :class="{ current: merchantPage === 'review' && !queryOpen && reviewScope === 'MINE' }" :aria-disabled="busy" @click.prevent="quickQueue('ALL','MINE')"><Icon name="user" />我的工单</a>
+        <a v-if="isReviewer" href="#attention" class="nav-link" :class="{ current: merchantPage === 'review' && !queryOpen && reviewScope === 'PUBLIC' && reviewView === 'ATTENTION' }" :aria-disabled="busy" @click.prevent="quickQueue('ATTENTION','PUBLIC')"><Icon name="shield" />结果待确认</a>
+        <a v-if="isReviewer" href="#history" class="nav-link" :class="{ current: merchantPage === 'review' && !queryOpen && reviewScope === 'PUBLIC' && reviewView === 'CLOSED' }" :aria-disabled="busy" @click.prevent="quickQueue('CLOSED','PUBLIC')"><Icon name="clock" />历史工单</a>
         <a href="#case-panel" class="nav-link" :class="{ current: merchantPage === 'review' && queryOpen }" :aria-disabled="busy" @click.prevent="changeMerchantPage('review', true)"><Icon name="search" />工单查询</a>
+        <a v-if="account.role === 'MERCHANT_ADMIN'" href="#overview" class="nav-link" :class="{ current: merchantPage === 'overview' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('overview')"><Icon name="box" />商家概览</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#people" class="nav-link" :class="{ current: merchantPage === 'people' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('people')"><Icon name="user" />人员管理</a>
+        <a v-if="account.role === 'MERCHANT_ADMIN'" href="#policies" class="nav-link" :class="{ current: merchantPage === 'policies' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('policies')"><Icon name="file" />政策与版本</a>
         <div class="sidebar-note"><p>让售后更简单<br />让每一次服务都有结果</p><small>单订单行 · 全量模拟退款</small><span>© 2026 ResolveFlow</span></div>
       </nav>
       <AdminPeople v-if="merchantPage === 'people' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '账号状态或权限已变化，请重新登录。'" @renamed="account.display_name = $event" />
+      <AdminOverview v-else-if="merchantPage === 'overview' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" @queue="quickQueue" @open="overviewCase" @people="changeMerchantPage('people')" />
+      <AdminPolicies v-else-if="merchantPage === 'policies' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <main v-else class="workspace" :class="{ 'reviewer-workspace': isReviewer }">
         <p v-if="error && !reviewDecision" class="message error workspace-message" role="alert">{{ error }}</p>
         <p v-if="notice" class="message success workspace-message" role="status"><Icon name="check" />{{ notice }}</p>
         <div class="columns" :class="{ 'customer-columns': isCustomer, 'reviewer-columns': isReviewer }">
           <section v-if="isReviewer" id="queue-panel" class="panel list-panel" aria-label="审核队列">
             <div class="panel-heading"><h2>审核队列 <span v-if="reviewCounts">（{{ reviewCounts.total }}）</span></h2><span class="queue-scope">当前商家</span></div>
+            <p v-if="queueUpdate" class="queue-summary" role="status">{{ queueUpdate }}</p>
+            <p class="queue-summary">可见且空闲时每30秒更新；刷新列表不会切换当前工单。</p>
             <div class="queue-ownership" role="group" aria-label="工单归属范围"><button v-for="scope in queueScopes" :key="scope.key" type="button" :data-scope="scope.key" :aria-pressed="reviewScope === scope.key" :disabled="busy" @click="chooseScope(scope.key)">{{ scope.label }}<span v-if="reviewCounts">{{ reviewCounts[scope.count] }}</span></button></div>
             <form class="queue-filters" @submit.prevent="filterQueue"><label>处理阶段<select v-model="reviewView" :disabled="busy" @change="filterQueue"><option value="REVIEW">待审核</option><option value="WAITING">待客户补证</option><option value="PROCESSING">调查与退款处理中</option><option value="ATTENTION">结果待确认</option><option value="CLOSED">已结束</option><option value="ALL">全部工单</option></select></label><div class="queue-search"><input v-model="reviewQuery" aria-label="搜索工单" maxlength="100" placeholder="工单号、订单号或问题描述" :disabled="busy" /><button type="submit" class="secondary-button" :disabled="busy">查询</button></div></form>
             <div v-if="reviewItems.length === 0" class="empty"><Icon name="queue" :size="30" /><strong>没有符合条件的工单</strong><p>可切换处理阶段或修改查询条件</p></div>
@@ -474,7 +521,7 @@ onUnmounted(stopStream)
               <InvestigationSources v-if="isReviewer" :token="token()" :snapshot="snapshot" />
               <section v-if="canHumanReview && snapshot.authorization?.status === 'PENDING_REVIEW'" class="detail-section review-section"><div class="section-heading"><h3>审核决策</h3><span class="subtle">批准授权后仍需等待独立的退款执行结果</span></div><div class="actions"><button data-test="approve" type="button" :disabled="busy" @click="beginReview('APPROVE')"><Icon name="check" :size="19" />批准授权</button><button type="button" class="secondary-button" :disabled="busy" @click="beginReview('REQUEST_INFO')"><Icon name="file" :size="17" />请求补证</button><button type="button" class="danger-button" :disabled="busy" @click="beginReview('REJECT')"><Icon name="close" :size="19" />拒绝</button></div></section>
               <section v-else-if="isReviewer && snapshot.case.status === 'PENDING_REVIEW'" class="detail-section review-unavailable" aria-label="审核暂不可用"><Icon name="shield" :size="22" /><div><h3>暂无可审核授权</h3><p v-if="snapshot.authorization">当前授权{{ authorizationStatusLabel(snapshot.authorization.status) }}，不能再次审核；请核对工单轨迹与当前结果。</p><p v-else>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p></div></section>
-              <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :collaboration="collaboration" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" />
+              <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :collaboration="collaboration" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
             </template>
           </section>
           <component :is="contextFolded ? 'details' : 'aside'" class="context-column" :class="{ 'context-fold': contextFolded }" :open="contextFolded ? contextOpen : undefined" aria-label="工单上下文" @toggle="contextOpen = ($event.target as HTMLDetailsElement).open">

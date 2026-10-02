@@ -10,7 +10,7 @@
  * context: it is loaded once by the parent and passed down, so one request serves the page
  * instead of one per citation.
  */
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type ReviewContext, type ReviewerAction } from '../client'
 import ReviewDialog from './ReviewDialog.vue'
 import { formatMinorUnits } from '../money'
@@ -29,9 +29,11 @@ const props = defineProps<{
   /** Bumped on every request so the same clause can be re-opened. */
   focusNonce?: number
 }>()
-const emit = defineEmits<{ changed: []; working: [value: boolean] }>()
+const emit = defineEmits<{ changed: []; working: [value: boolean]; expired: [] }>()
 const message = ref('')
 const error = ref('')
+let alive = true, submitGeneration = 0
+onBeforeUnmount(() => { alive = false; ++submitGeneration })
 const target = ref<CaseSnapshot | null>(null)
 const targetContext = ref<ReviewContext | null>(null)
 const targetCollaboration = ref<CaseCollaboration | null>(null)
@@ -57,6 +59,9 @@ const proposalRevision = computed(() => (typeof proposal.value?.input_revision =
 const currentProposal = computed(() => proposalRevision.value !== null && proposalRevision.value === props.snapshot.case.input_revision)
 const agentReading = computed(() => (typeof proposal.value?.summary === 'string' ? proposal.value.summary : null))
 const revisionProgress = computed(() => {
+  if (['EXECUTING', 'RECONCILING'].includes(props.snapshot.case.status)
+    || (props.snapshot.authorization?.status === 'CONSUMED' && !['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(props.snapshot.case.status)))
+    return { stale: false, title: '退款已进入执行，输入与人工操作已冻结', detail: '当前仅可查看并跟踪原退款操作。结果待确认时不要重新发起退款。' }
   const current = props.snapshot.case.input_revision
   const revision = proposalRevision.value
   if (['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(props.snapshot.case.status)) return {
@@ -106,7 +111,7 @@ watch(() => props.focusNonce, async () => {
 }, { immediate: true })
 
 watch(() => [props.token, props.snapshot.case.case_id, props.snapshot.case.version], (next, previous) => {
-  if (previous && (next[0] !== previous[0] || next[1] !== previous[1])) { close(); message.value = '' }
+  if (previous && (next[0] !== previous[0] || next[1] !== previous[1])) { ++submitGeneration; close(); message.value = ''; submitting.value = false }
 })
 function close() { action.value = null; target.value = null; targetContext.value = null; targetCollaboration.value = null }
 function begin(kind: ReviewerAction['action']) {
@@ -128,17 +133,21 @@ async function submit() {
     }))
   }
   submitting.value = true; emit('working', true); error.value = ''; message.value = ''
+  const generation = ++submitGeneration
   let refresh = false
   try {
     await coreApi.reviewerAction(props.token, target.value, body, targetCollaboration.value)
+    if (!alive || generation !== submitGeneration) return
     message.value = body.action === 'MANUAL_PROPOSAL' ? '人工方案已提交。请核对服务端生成的待审授权，再作审批决定。'
       : body.action === 'REQUEST_INFO' ? '补证要求已记录，工单等待客户补充材料。' : '已记录拒绝理由，工单已结束。'
     close(); refresh = true
   } catch (cause) {
-    if (cause instanceof ApiError && cause.status === 409) {
+    if (!alive || generation !== submitGeneration) return
+    if (cause instanceof ApiError && cause.status === 401) { close(); emit('expired') }
+    else if (cause instanceof ApiError && cause.status === 409) {
       close(); refresh = true; error.value = '工单已变化或该操作已不可用，已请求刷新。请重新核对后提交。'
     } else error.value = cause instanceof Error ? cause.message : '提交失败'
-  } finally { submitting.value = false; emit('working', false); if (refresh) emit('changed') }
+  } finally { if (alive && generation === submitGeneration) { submitting.value = false; emit('working', false); if (refresh) emit('changed') } }
 }
 </script>
 

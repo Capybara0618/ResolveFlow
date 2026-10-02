@@ -1,0 +1,250 @@
+{
+  "date": "2026-10-02",
+  "mode": "read-only; synthetic demo data",
+  "checks": [
+    {
+      "account": "demo-admin",
+      "overview": {
+        "unclaimed": 13,
+        "mine": 0,
+        "attention": 7,
+        "enabled_staff": 4,
+        "coordination_total": 14,
+        "items": [
+          {
+            "case_id": "ce263102-965d-4dee-974f-351c9800b5cb",
+            "status": "RECONCILING",
+            "description": "承运商确认包裹丢失，申请全行退款。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-29T04:52:43.936903Z",
+            "reasons": [
+              "RESULT_UNKNOWN"
+            ]
+          },
+          {
+            "case_id": "c66e683d-dd69-449b-a771-190fe38d94c0",
+            "status": "PENDING_REVIEW",
+            "description": "【真实模型验收·合成】包裹发货后多日未送达，物流一直没有签收记录；承运商现已确认丢失。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-30T10:23:06.855071Z",
+            "reasons": [
+              "UNCLAIMED",
+              "INVESTIGATION_FAILED"
+            ]
+          },
+          {
+            "case_id": "b3411458-399a-4ed3-a0fa-e827215c9215",
+            "status": "PENDING_REVIEW",
+            "description": "【真实模型验收·合成】包裹发货后多日未送达，物流一直没有签收记录；承运商现已确认丢失。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-30T10:25:58.196441Z",
+            "reasons": [
+              "UNCLAIMED",
+              "INVESTIGATION_FAILED"
+            ]
+          },
+          {
+            "case_id": "7859efed-7c32-4b2a-9b02-e1d5aed920d6",
+            "status": "PENDING_REVIEW",
+            "description": "【真实模型验收·合成】包裹发货后多日未送达，物流一直没有签收记录；承运商现已确认丢失。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-30T10:31:38.039011Z",
+            "reasons": [
+              "UNCLAIMED",
+              "INVESTIGATION_FAILED"
+            ]
+          },
+          {
+            "case_id": "32328e81-3b4d-4c04-ab5b-5e35ac9e9cf2",
+            "status": "PENDING_REVIEW",
+            "description": "【真实模型验收·合成】包裹发货后多日未送达，物流一直没有签收记录；承运商现已确认丢失。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-30T10:33:21.893057Z",
+            "reasons": [
+              "UNCLAIMED",
+              "INVESTIGATION_FAILED"
+            ]
+          },
+          {
+            "case_id": "1d1b0d06-5d60-4304-90cb-4e35b672f74e",
+            "status": "PENDING_REVIEW",
+            "description": "【真实模型验收·合成】包裹显示已签收，但我本人没有收到，也没有人通知我代收。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-30T13:38:14.317854Z",
+            "reasons": [
+              "UNCLAIMED",
+              "INVESTIGATION_FAILED"
+            ]
+          },
+          {
+            "case_id": "e7660d56-fe5d-4783-a662-97d8936a18ac",
+            "status": "PENDING_REVIEW",
+            "description": "【真实模型验收·合成】收到的商品外包装破损，内部商品有裂痕，申请全额退款。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-30T13:49:42.289743Z",
+            "reasons": [
+              "UNCLAIMED",
+              "INVESTIGATION_FAILED"
+            ]
+          },
+          {
+            "case_id": "0bfc2497-1121-4583-abbb-604f5c8bd585",
+            "status": "PENDING_REVIEW",
+            "description": "包裹显示已签收，但我本人没有收到，也没有人通知我代收。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-29T04:32:52.553625Z",
+            "reasons": [
+              "UNCLAIMED"
+            ]
+          },
+          {
+            "case_id": "fb489d60-006c-4b29-bc99-703927df87b6",
+            "status": "WAITING_CUSTOMER",
+            "description": "包裹一直没有更新物流，也没有送达。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-29T04:50:39.017283Z",
+            "reasons": [
+              "UNCLAIMED"
+            ]
+          },
+          {
+            "case_id": "69e85d85-ebab-4215-b0c9-f9e8286b4e3f",
+            "status": "WAITING_CUSTOMER",
+            "description": "包裹一直没有更新物流，也没有送达。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-29T04:50:41.150551Z",
+            "reasons": [
+              "UNCLAIMED"
+            ]
+          },
+          {
+            "case_id": "cc5f5a15-631c-4b86-b115-24e39381e2e8",
+            "status": "PENDING_REVIEW",
+            "description": "收到的商品外包装破损，内部商品有裂痕，申请全额退款。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-29T04:51:21.592042Z",
+            "reasons": [
+              "UNCLAIMED"
+            ]
+          },
+          {
+            "case_id": "bcaa700e-8088-4917-81d3-be812dc049ce",
+            "status": "PENDING_REVIEW",
+            "description": "【真实模型验收·合成】包裹发货后多日未送达，物流一直没有签收记录；承运商现已确认丢失。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-30T14:08:38.364639Z",
+            "reasons": [
+              "UNCLAIMED"
+            ]
+          },
+          {
+            "case_id": "aa108d9b-e0c7-497c-a0fd-ba8dbf5b6a33",
+            "status": "PENDING_REVIEW",
+            "description": "【真实模型验收·合成】包裹显示已签收，但我本人没有收到，也没有人通知我代收。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-30T14:21:09.812318Z",
+            "reasons": [
+              "UNCLAIMED"
+            ]
+          },
+          {
+            "case_id": "d97285fb-dc2e-4514-bfde-17c422d191b4",
+            "status": "PENDING_REVIEW",
+            "description": "【真实模型验收·合成】收到的商品外包装破损，内部商品有裂痕，申请全额退款。",
+            "owner_name": null,
+            "owner_username": null,
+            "updated_at": "2026-09-30T14:24:31.228750Z",
+            "reasons": [
+              "UNCLAIMED"
+            ]
+          }
+        ],
+        "observed_at": "2026-10-02T11:21:29.169077800Z"
+      },
+      "policies": [
+        {
+          "bundle_id": "policy-logistics-2026.09",
+          "rule_count": 7,
+          "index_status": "READY"
+        },
+        {
+          "bundle_id": "policy-logistics-2026.08",
+          "rule_count": 5,
+          "index_status": "READY"
+        }
+      ]
+    },
+    {
+      "account": "demo-admin-m2",
+      "overview": {
+        "unclaimed": 0,
+        "mine": 0,
+        "attention": 0,
+        "enabled_staff": 3,
+        "coordination_total": 0,
+        "items": [],
+        "observed_at": "2026-10-02T11:21:29.338715600Z"
+      },
+      "policies": [
+        {
+          "bundle_id": "policy-demo-m1002-logistics-2026.09",
+          "rule_count": 7,
+          "index_status": "READY"
+        },
+        {
+          "bundle_id": "policy-demo-m1002-logistics-2026.08",
+          "rule_count": 5,
+          "index_status": "READY"
+        }
+      ]
+    }
+  ],
+  "permission_reads": 7,
+  "preserved": {
+    "cases": {
+      "rows": 27,
+      "sha256": "2def25843251f47cfbf17c122598158a1c7309dba21cd3d0d1276d293007f957",
+      "unchanged": true
+    },
+    "owners": {
+      "rows": 1,
+      "sha256": "edfc0ea57f1f20796bf22aaf3042f5d3067d10457db4c2a74583de386219b838",
+      "unchanged": true
+    },
+    "policy_pins": {
+      "rows": 27,
+      "sha256": "95efe97505fd1247c20e9776169b4e3b392deb499a62ccace7c62bbff2144e3e",
+      "unchanged": true
+    },
+    "bundles": {
+      "rows": 6,
+      "sha256": "95cf0533c3e4d63bea7c4dbc44d3185b96bc6afac14ce360a10b50ecd34da545",
+      "unchanged": true
+    },
+    "authorizations": {
+      "rows": 11,
+      "sha256": "5df0efe4301ae8ef473ec77299ad2e874a8c11a550588ad297765ef12aed3f0a",
+      "unchanged": true
+    },
+    "runs": {
+      "rows": 78,
+      "sha256": "18bce0d749d38658cd64e2685dbe60bbb0b23b28e83f37ce481474221de04b53",
+      "unchanged": true
+    }
+  },
+  "new_model_calls": 0,
+  "new_refund_operations": 0
+}
