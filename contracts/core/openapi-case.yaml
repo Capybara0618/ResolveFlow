@@ -43,6 +43,78 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /api/v1/cases/{case_id}/collaboration:
+    get:
+      operationId: readCaseCollaboration
+      summary: Read the current owner and independent collaboration history
+      description: |
+        Merchant staff only, scoped by current persisted identity (docs/case-collaboration.md).
+        Historical cases start with no owner and version zero. No investigation or business writes.
+      parameters:
+      - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Current collaboration projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseCollaboration'
+              example:
+                case_id: '0f9a2f4c-6b1d-4c8e-8f2a-1d3b5c7e9a02'
+                version: 0
+                owner: null
+                allowed_actions: [CLAIM]
+                history: []
+        '401':
+          description: Missing or invalidated user session
+        '403':
+          description: Customer identity is not merchant staff
+        '404':
+          description: Case not visible to this merchant
+    post:
+      operationId: changeCaseCollaboration
+      summary: Atomically claim, release, transfer or explicitly take over a case
+      description: |
+        A short case-locked transaction checks signed identity and collaboration versions
+        (docs/case-collaboration.md). TAKEOVER requires MERCHANT_ADMIN. Same-owner CLAIM replay is
+        idempotent; other stale submissions conflict. No change to input_revision, case version,
+        authorizations, policy, money or Agent runs. Consumed input and approved/executing/terminal
+        cases retain their last owner. Other existing human write routes are a separate integration.
+      parameters:
+      - $ref: '#/components/parameters/CaseId'
+      - name: If-Collaboration-Match
+        in: header
+        required: true
+        description: Quoted collaboration version; missing legacy header returns 409.
+        schema:
+          type: string
+          pattern: '^"(?:0|[1-9][0-9]{0,14})"$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseCollaborationAction'
+            example:
+              action: CLAIM
+              reason: 合成演示：开始处理该申请
+      responses:
+        '200':
+          description: Current ownership and committed history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseCollaboration'
+        '401':
+          description: Invalidated session, including a race during transaction entry
+        '403':
+          description: Wrong role, including non-admin takeover
+        '404':
+          description: Case not visible to this merchant
+        '409':
+          description: Missing/stale version, occupied case or frozen collaboration
+        '422':
+          description: Invalid version header, reason, action or transfer target
   /api/v1/cases/{case_id}/investigation:
     get:
       operationId: readReviewerInvestigation
@@ -3349,6 +3421,97 @@ components:
           type: boolean
         blocked_reason:
           type: string
+    CaseCollaborationOwner:
+      type: object
+      additionalProperties: false
+      required: [username, display_name, role, enabled]
+      properties:
+        username:
+          type: string
+          maxLength: 120
+        display_name:
+          type: string
+          maxLength: 120
+        role:
+          type: string
+          enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]
+        enabled:
+          type: boolean
+    CaseCollaborationEvent:
+      type: object
+      additionalProperties: false
+      required: [version, action, actor_username, from_username, to_username, reason, occurred_at]
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        action:
+          type: string
+          enum: [CLAIM, RELEASE, TRANSFER, TAKEOVER]
+        actor_username:
+          type: string
+        from_username:
+          type: [string, 'null']
+        to_username:
+          type: [string, 'null']
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        occurred_at:
+          type: string
+          format: date-time
+    CaseCollaboration:
+      type: object
+      additionalProperties: false
+      required: [case_id, version, owner, allowed_actions, history]
+      properties:
+        case_id:
+          $ref: '#/components/schemas/Uuid'
+        version:
+          type: integer
+          minimum: 0
+        owner:
+          anyOf:
+          - $ref: '#/components/schemas/CaseCollaborationOwner'
+          - type: 'null'
+        allowed_actions:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            enum: [CLAIM, RELEASE, TRANSFER, TAKEOVER]
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/CaseCollaborationEvent'
+    CaseCollaborationAction:
+      type: object
+      additionalProperties: false
+      required: [action, reason]
+      properties:
+        action:
+          type: string
+          enum: [CLAIM, RELEASE, TRANSFER, TAKEOVER]
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: '\S'
+        target_username:
+          type: string
+          minLength: 1
+          maxLength: 120
+      oneOf:
+      - properties:
+          action:
+            const: TRANSFER
+        required: [target_username]
+      - properties:
+          action:
+            enum: [CLAIM, RELEASE, TAKEOVER]
+        not:
+          required: [target_username]
     CustomerAnswer:
       type: object
       additionalProperties: false

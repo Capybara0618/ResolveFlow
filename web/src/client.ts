@@ -44,6 +44,15 @@ export interface Page<T> {
   page: { next_cursor?: string | null; limit: number }
 }
 
+export type CollaborationAction = 'CLAIM' | 'RELEASE' | 'TRANSFER' | 'TAKEOVER'
+export interface CaseCollaboration {
+  case_id: string; version: number
+  owner: { username: string; display_name: string; role: LoginResponse['role']; enabled: boolean } | null
+  allowed_actions: CollaborationAction[]
+  history: Array<{ version: number; action: CollaborationAction; actor_username: string
+    from_username: string | null; to_username: string | null; reason: string; occurred_at: string }>
+}
+
 export type CustomerView = 'ALL' | 'WAITING' | 'PROCESSING' | 'REVIEW' | 'CLOSED'
 export interface CustomerCaseSummary {
   case_id: string; status: string; line_id: string; order_id: string | null; description: string | null
@@ -158,6 +167,13 @@ function jsonPost<T>(path: string, token: string | null, body: unknown, headers:
 }
 
 export const coreApi = {
+  collaboration: (token: string, caseId: string) =>
+    apiRequest<CaseCollaboration>(`/api/v1/cases/${encodeURIComponent(caseId)}/collaboration`, token),
+  changeCollaboration: (token: string, current: CaseCollaboration, action: CollaborationAction,
+    reason: string, targetUsername?: string) =>
+    jsonPost<CaseCollaboration>(`/api/v1/cases/${encodeURIComponent(current.case_id)}/collaboration`, token,
+      { action, reason, ...(targetUsername !== undefined ? { target_username: targetUsername } : {}) },
+      { 'If-Collaboration-Match': `"${current.version}"` }),
   customerCases: (token: string, view: CustomerView = 'ALL', cursor?: string) =>
     apiRequest<Page<CustomerCaseSummary>>(`/api/v1/customer/cases?view=${view}&limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, token),
   customerCase: (token: string, caseId: string) =>

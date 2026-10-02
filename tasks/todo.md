@@ -2,6 +2,8 @@
 
 ## 当前快照（2026-10-02）
 
+- 新第三批“多人审核”的协作基础已实现并验证：Case V21独立负责人/协作版本/历史，GET/POST collaboration原子领取、释放、转交与管理员显式接管；本商家/启用工作人员校验，锁内复核入口签名身份版本，重复领取幂等、并发一胜一409、转交回来旧版本仍409、消费冻结。OpenAPI/路由表28条/fixture/前端类型和API方法同步。实际Java相关3类27 passed，新增非负责人持当前版本回归后协作11 passed；协议3文件176 passed，格式后routes73 passed；前端83 passed＋build，4文件Spotless及Ruff/diff通过。有效RED9失败；编译Event列数错误、消费夹具缺决定及格式/路径/补丁失误已纠正，见[验证报告](../reports/case-collaboration.md)。本步只验证协作API，旧人工写入口尚无统一负责人限制，管理员接管后仍不能旧入口审批；队列范围/计数、人员管理和正式桌面交互仍待实施。接续时先接全部人工写入口，追加修正V3/V10/V11旧角色CHECK与actor宽度/相关契约，再接队列和页面，不能重做身份/客户或宣称整批完成。只读demo现状已核对，未重启部署新JAR、改演示数据或调用模型。当前执行者本独立子步精确提交推送收尾后停止业务写入，下一执行者按handoff只读核对后接管；保留历史verify/Commerce测试/日志。
+
 - 新第二批“客户完整申请”集中验收完成：客户4接口/幂等归属/期限/消费冻结已提交并推送a6c8160；正式CustomerWorkspace接通订单申请、本人筛选分页、原始材料、自动关联两轮回答、追加/撤销/公开结果及失败草稿。修复第二轮问题显示旧理由、桌面盒模型/表格覆盖和迟到响应。实际首轮Java50 passed，补充真实3类28 passed；核心协议121 passed、上下文42 passed、lease/SDK恢复26 passed、前端83 passed＋build、定点Spotless/Ruff/diff检查通过。浏览器3条新合成申请分别CLOSED_SUCCESS（32900分，调查失败后人工方案兜底）、CLOSED_REJECTED（两轮回答各产生新SDK mock建议）、CANCELLED；12项跨客户/商家404、62条历史run状态/version/fence不变，1280/1440/1680桌面无横向溢出。收费调用0，保留数据重启新版只读demo，失败与未运行项见[本批报告](../reports/customer-workspace.md)，记录/截图见[合成验收](../reports/customer-workspace/acceptance.json)。无损字段表降低重复材料键的上下文占用，但第9版累计7份材料仍触发8K保护，保留失败并经人工完成，不宣称长上下文/live质量已完成。当前实施者本批记录/精确提交推送后停止业务写入；接续新第三批“多人审核”，复用本批和既有身份/审查成果，不重做第一、第二批。不夹带历史verify脚本、Commerce测试或日志。
 
 - 本轮实施文档核查：实际`agent/.venv/Scripts/python.exe tmp/check-ui-implementation.py`通过34个当前文档链接与依赖归属检查，引用来自已跟踪文件或本批新文档，不依赖尚未提交的原型文件；`git diff --check`通过。只验证文档/源码对应关系，不把历史测试结果记成本轮业务通过。

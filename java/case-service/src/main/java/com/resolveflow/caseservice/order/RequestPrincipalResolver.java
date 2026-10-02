@@ -38,11 +38,19 @@ public class RequestPrincipalResolver {
     }
 
     public AuthenticatedPrincipal resolve(String authorizationHeader) {
+        return session(authorizationHeader).principal();
+    }
+
+    /** Carries the signed version into short write transactions so reset/disable races cannot pass. */
+    public record Session(AuthenticatedPrincipal principal, long identityVersion) {}
+
+    public Session session(String authorizationHeader) {
         try {
             Instant now = Instant.now(clock);
             var principal = codec.principalFromAuthorizationHeader(authorizationHeader, now);
-            accounts.requireCurrent(principal, codec.identityVersionFromAuthorizationHeader(authorizationHeader, now));
-            return principal;
+            long version = codec.identityVersionFromAuthorizationHeader(authorizationHeader, now);
+            accounts.requireCurrent(principal, version);
+            return new Session(principal, version);
         } catch (JwtCodec.TokenException error) {
             // The reason is logged by the codec's message but not echoed to the caller: telling a
             // client which rule its token failed helps only someone probing tokens.

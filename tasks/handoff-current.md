@@ -6,6 +6,8 @@
 
 第三批先核对公共队列与所有人工写入口（核验、补证、人工方案、审批、撤销授权）的当前版本检查，再增加原子领取/释放/转交、负责人协作版本和管理员显式接管；补证保留负责人。人员管理限本商家，复用identity_account及身份版本，禁用/重置须拒绝旧会话并保护最后管理员。对应v2的07/10/11/14/16/18/19，不能先画可点击却无服务端权限的管理按钮。契约/类型/fixture同步，按功能批次集中验证，沿用旧锁/追加迁移/单行模拟退款约束。
 
+接续入口为[协作协议](../docs/case-collaboration.md)、CaseCollaborationService/Controller、V21及[子步证据](../reports/case-collaboration.md)，完成状态仅看todo顶部。下一步统一覆盖全部旧人工写入口，复用RequestPrincipalResolver.Session携带签名身份版本，在同一工单锁事务内校验负责人、协作版本和原业务版本；旧客户端缺领取/协作版本要明确409，不自动抢占。新协作接口不等同于旧入口已受保护，MERCHANT_ADMIN人工写禁令在安全接入前继续保留。追加迁移修正旧核验/方案/审批role CHECK、actor宽度及对应契约；核对Commerce复核与事务边界。然后接公共/我的/未领取筛选、真实计数、人员管理和桌面界面；客户回答/回调/执行结果不要求负责人凭证。当前demo尚未加载这个子步的JAR，先status，不为验证开启Live。
+
 2026-10-01用户已批准[双端与多人协作补齐方案](../docs/product-completion-review.md)，八项推荐决定均采用，并要求开始。按[plan](plan.md)新五批顺序实施；当前接续点看[todo顶部](todo.md)。批准涵盖两逻辑商家、种子/管理员账号、人工最终审批、领取制、补证保留负责人、管理员显式接管、文本材料及单商家账号；不扩大为企业平台或媒体上传。按功能批次集中验证和汇报，不逐按钮要求用户验收。
 
 客户侧实现入口为[CustomerWorkspace](../web/src/ui/CustomerWorkspace.vue)、[专用契约](../docs/customer-workspace.md)与CustomerCaseService，继续保持专用投影、服务器范围过滤、版本回答、消费冻结及UNKNOWN不重付。scripts/customer_workspace_acceptance.py只对已保存manifest内新工单定点mock调查，不消耗其他排队run；当前3条样本已终态，不重置或重复退款。Agent上下文无损字段表已有回归，累计多材料仍可超8K并转人工；这项限制在报告保留，不声称已验收live质量，也不通过删约束/增预算处理。当前5174只读demo保留数据，先status核对，不为截图启动-Live。

@@ -1,0 +1,31 @@
+{
+  "case_id": "0f9a2f4c-6b1d-4c8e-8f2a-1d3b5c7e9a02",
+  "version": 2,
+  "owner": {
+    "username": "demo-reviewer-2",
+    "display_name": "售后专员二",
+    "role": "REVIEWER",
+    "enabled": true
+  },
+  "allowed_actions": ["RELEASE", "TRANSFER"],
+  "history": [
+    {
+      "version": 1,
+      "action": "CLAIM",
+      "actor_username": "demo-reviewer",
+      "from_username": null,
+      "to_username": "demo-reviewer",
+      "reason": "合成演示：领取申请",
+      "occurred_at": "2026-10-02T02:40:00Z"
+    },
+    {
+      "version": 2,
+      "action": "TRANSFER",
+      "actor_username": "demo-reviewer",
+      "from_username": "demo-reviewer",
+      "to_username": "demo-reviewer-2",
+      "reason": "合成演示：转交申请",
+      "occurred_at": "2026-10-02T02:41:00Z"
+    }
+  ]
+}

@@ -12,6 +12,7 @@ shrink unnoticed while it is still missing.
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any, NamedTuple
 
@@ -32,7 +33,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 26, "Commerce": 5, "Agent": 6}
+EXPECTED_ROUTE_COUNTS = {"Case": 28, "Commerce": 5, "Agent": 6}
 
 #: Routes the compat baseline has and core must not expose (docs/core-contracts.md:53).
 DEFERRED_PATH_FRAGMENTS = (
@@ -183,11 +184,33 @@ def test_customer_projection_refuses_staff_records_and_versions_answers() -> Non
     assert match["required"] is True
     assert re.fullmatch(match["schema"]["pattern"], '"12"')
     assert not re.fullmatch(match["schema"]["pattern"], "12")
-    example = doc["paths"]["/api/v1/customer/cases/{case_id}"]["get"]["responses"]["200"]["content"]["application/json"]["example"]
+    detail = doc["paths"]["/api/v1/customer/cases/{case_id}"]["get"]
+    example = detail["responses"]["200"]["content"]["application/json"]["example"]
     validator = component_validator("case", "CustomerCaseDetail", CORE_DIR)
     assert validator.accepts(example), validator.error_messages(example)
     for field in ("proposal", "authorization", "policy_refs", "run_id", "merchant_id", "actor"):
         assert not validator.accepts({**example, field: "private"}), field
+
+
+def test_collaboration_contract_keeps_ownership_separate_and_validates_actions() -> None:
+    operation = document("case")["paths"]["/api/v1/cases/{case_id}/collaboration"]
+    header = next(p for p in operation["post"]["parameters"] if p.get("name") == "If-Collaboration-Match")
+    assert header["required"] is True
+    assert re.fullmatch(header["schema"]["pattern"], '"0"')
+    assert not re.fullmatch(header["schema"]["pattern"], "0")
+    view = component_validator("case", "CaseCollaboration", CORE_DIR)
+    fixture = json.loads((REPO_ROOT / "contracts/core/fixtures/collaboration.json").read_text(encoding="utf-8"))
+    assert view.accepts(fixture), view.error_messages(fixture)
+    for field in ("input_revision", "authorization", "run_id", "password_hash"):
+        assert not view.accepts({**fixture, field: "unrelated"}), field
+    empty = operation["get"]["responses"]["200"]["content"]["application/json"]["example"]
+    assert view.accepts(empty), view.error_messages(empty)
+    action = component_validator("case", "CaseCollaborationAction", CORE_DIR)
+    assert action.accepts({"action": "TRANSFER", "reason": "转交处理", "target_username": "demo-reviewer-2"})
+    assert not action.accepts({"action": "TRANSFER", "reason": "转交处理"})
+    assert not action.accepts({"action": "CLAIM", "reason": "领取", "target_username": "demo-reviewer-2"})
+    assert not action.accepts({"action": "APPROVE", "reason": "绕过审批"})
+    assert not action.accepts({"action": "CLAIM", "reason": " "})
 
 
 def test_every_route_is_under_a_versioned_http_prefix() -> None:
