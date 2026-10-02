@@ -20,7 +20,9 @@ it('shows personnel management only to merchant administrators and restores the 
   expect(wrapper.find('#queue-panel').exists()).toBe(true)
   await wrapper.findAll('.nav-link').find(link => link.text() === '工单查询')!.trigger('click')
   await wrapper.get('[name="case-id"]').setValue('old-merchant-private-case')
+  window.history.replaceState(null, '', '#/customer/applications/old-private-case')
   await wrapper.get('.logout-button').trigger('click')
+  expect(window.location.hash).toBe('')
   role = 'REVIEWER'
   await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
   expect(wrapper.findAll('.nav-link').map(link => link.text())).not.toContain('人员管理')

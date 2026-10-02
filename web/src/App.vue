@@ -374,6 +374,8 @@ function login() {
   })
 }
 function logout() {
+  // An explicit account boundary must not reopen the previous customer's private route.
+  window.history.replaceState(null, '', window.location.pathname + window.location.search)
   closeReview(); stopStream(); account.value = null; snapshot.value = null; selectedOrderLine.value = null
   ++queueGeneration
   ++reviewContextGeneration; reviewContext.value = null; reviewContextLoading.value = false; reviewContextError.value = ''
