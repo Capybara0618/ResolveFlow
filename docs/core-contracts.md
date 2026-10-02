@@ -20,12 +20,17 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 
 ## 3. 核心路由
 
-用户角色来自Case持久账号。MERCHANT_ADMIN可读取本商家工作人员视图；多人协作的显式接管尚未实施前，审批、核验、人工方案、工作台动作及工作人员取消都拒绝该角色。REVIEWER/原OPERATOR保留原人工作业，客户仅能操作本人范围。会话与追加迁移说明见[持久身份](persistent-identity.md)。
+用户角色来自Case持久账号。REVIEWER/MERCHANT_ADMIN/原OPERATOR读取本商家工单；人工写入必须是当前负责人并携带原业务及协作版本，管理员须显式接管。客户仅能操作本人范围；仅MERCHANT_ADMIN可维护本商家账号。见[持久身份](persistent-identity.md)、[协作](case-collaboration.md)及[人员管理](staff-management.md)。
 
 | 所属 | 方法与路由 | 行为 |
 | --- | --- | --- |
 | Case | POST /api/v1/auth/login | 持久化本地账号登录；商家/角色/客户归属来自账号，启用状态及identity_version控制会话 |
 | Case | GET /api/v1/auth/me | 当前有效会话资料；每个用户接口重新校验持久账号启用状态、归属、角色及身份版本，不返回密码hash |
+| Case | GET /api/v1/admin/accounts | docs/staff-management.md；仅本商家管理员，独立账号版本/身份失效与审计，保护最后启用管理员 |
+| Case | POST /api/v1/admin/accounts | docs/staff-management.md；仅本商家管理员，独立账号版本/身份失效与审计，保护最后启用管理员 |
+| Case | POST /api/v1/admin/accounts/{username} | docs/staff-management.md；仅本商家管理员，独立账号版本/身份失效与审计，保护最后启用管理员 |
+| Case | POST /api/v1/admin/accounts/{username}/password | docs/staff-management.md；仅本商家管理员，独立账号版本/身份失效与审计，保护最后启用管理员 |
+| Case | GET /api/v1/admin/accounts/{username}/history | docs/staff-management.md；仅本商家管理员，独立账号版本/身份失效与审计，保护最后启用管理员 |
 | Case | GET /api/v1/review/staff | 本商家启用工作人员的只读显示身份，供转交选择；不返回客户、口令或其他商家账号 |
 | Case | GET /api/v1/cases/{case_id}/collaboration | 本商家工作人员读取独立负责人、协作版本和操作历史；历史未领取为版本0，不修改工单/Agent |
 | Case | POST /api/v1/cases/{case_id}/collaboration | 带If-Collaboration-Match原子领取/释放/转交/管理员显式接管；账号锁内复核签名身份版本，消费/已批准/执行/终态冻结，详见docs/case-collaboration.md |

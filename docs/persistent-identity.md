@@ -4,7 +4,7 @@
 
 ## 账号与权限
 
-Case的`identity_merchant`、`identity_account`是用户身份权威，登录不再查询Java固定账号列表。稳定username继续作为JWT subject和历史actor，merchant/customer绑定保持原值。新增账号只需持久化到这两表，不需修改Java常量；管理员创建、禁用和重置账号的正式网页/API属于第三批。
+Case的`identity_merchant`、`identity_account`是用户身份权威，登录不再查询Java固定账号列表。稳定username继续作为JWT subject和历史actor，merchant/customer绑定保持原值。新增账号只需持久化到这两表，不需修改Java常量；第三批已接通管理员创建、禁用、角色和重置账号API，正式网页与批次验收见[人员管理](staff-management.md)及[实际记录](../reports/staff-management.md)。
 
 密码保存PBKDF2-SHA256 hash，沿用120000轮的现有格式。未知账号、错误密码、账号或商家禁用统一返回401；登录与`GET /api/v1/auth/me`只返回公开身份字段，不返回hash。username不是可随意修改的展示名。
 

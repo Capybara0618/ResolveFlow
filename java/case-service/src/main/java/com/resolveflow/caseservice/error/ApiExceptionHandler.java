@@ -42,6 +42,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(com.resolveflow.caseservice.auth.StaffAdminService.AccountNotVisibleException.class)
+    public ResponseEntity<ApiError> accountNotVisible(
+            com.resolveflow.caseservice.auth.StaffAdminService.AccountNotVisibleException error,
+            HttpServletRequest request) {
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", error.getMessage(), false, request);
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionHandler.class);
 

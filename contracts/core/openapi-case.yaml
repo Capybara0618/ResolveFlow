@@ -1504,6 +1504,216 @@ paths:
         '422':
           description: Invalid action, reason or citations.
 
+  /api/v1/admin/accounts:
+    get:
+      operationId: listMerchantAccounts
+      summary: List own merchant accounts
+      description: 'docs/staff-management.md: MERCHANT_ADMIN only, own merchant from signed current session;
+        immutable username/merchant/customer binding. Merchant then ordered account locks, last enabled
+        administrator protected. Public state/audit never expose credentials; security changes invalidate
+        old tokens. Account maintenance does not change case ownership or Agent inputs.'
+      parameters:
+      - &staffPath003
+        $ref: '#/components/parameters/Cursor'
+      - &staffPath004
+        $ref: '#/components/parameters/Limit'
+      - name: query
+        in: query
+        schema:
+          type: string
+          maxLength: 100
+      - name: role
+        in: query
+        schema:
+          type: string
+          enum:
+          - ALL
+          - CUSTOMER
+          - REVIEWER
+          - MERCHANT_ADMIN
+          - OPERATOR
+          default: ALL
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - ALL
+          - ENABLED
+          - DISABLED
+          default: ALL
+      responses:
+        '200':
+          description: Authoritative account administration result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccountPage'
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+    post:
+      operationId: createMerchantStaff
+      summary: Create a staff account
+      description: 'docs/staff-management.md: MERCHANT_ADMIN only, own merchant from signed current session;
+        immutable username/merchant/customer binding. Merchant then ordered account locks, last enabled
+        administrator protected. Public state/audit never expose credentials; security changes invalidate
+        old tokens. Account maintenance does not change case ownership or Agent inputs.'
+      parameters: []
+      responses:
+        '201':
+          description: Authoritative account administration result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccountMutation'
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAccountCreate'
+  /api/v1/admin/accounts/{username}:
+    post:
+      operationId: updateMerchantAccount
+      summary: Maintain account public state
+      description: 'docs/staff-management.md: MERCHANT_ADMIN only, own merchant from signed current session;
+        immutable username/merchant/customer binding. Merchant then ordered account locks, last enabled
+        administrator protected. Public state/audit never expose credentials; security changes invalidate
+        old tokens. Account maintenance does not change case ownership or Agent inputs.'
+      parameters:
+      - &staffPath001
+        name: username
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+      - &staffPath002
+        name: If-Match
+        in: header
+        required: true
+        description: Original account.version when maintenance was opened; missing/stale 409, malformed
+          422.
+        schema:
+          type: string
+          pattern: ^"[1-9][0-9]{0,18}"$
+      responses:
+        '200':
+          description: Authoritative account administration result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccountMutation'
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAccountUpdate'
+  /api/v1/admin/accounts/{username}/password:
+    post:
+      operationId: resetMerchantAccountPassword
+      summary: Reset account password
+      description: 'docs/staff-management.md: MERCHANT_ADMIN only, own merchant from signed current session;
+        immutable username/merchant/customer binding. Merchant then ordered account locks, last enabled
+        administrator protected. Public state/audit never expose credentials; security changes invalidate
+        old tokens. Account maintenance does not change case ownership or Agent inputs.'
+      parameters:
+      - *staffPath001
+      - *staffPath002
+      responses:
+        '200':
+          description: Authoritative account administration result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccountMutation'
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAccountPassword'
+  /api/v1/admin/accounts/{username}/history:
+    get:
+      operationId: merchantAccountAudit
+      summary: Read account maintenance history
+      description: 'docs/staff-management.md: MERCHANT_ADMIN only, own merchant from signed current session;
+        immutable username/merchant/customer binding. Merchant then ordered account locks, last enabled
+        administrator protected. Public state/audit never expose credentials; security changes invalidate
+        old tokens. Account maintenance does not change case ownership or Agent inputs.'
+      parameters:
+      - *staffPath001
+      - *staffPath003
+      - *staffPath004
+      responses:
+        '200':
+          description: Authoritative account administration result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccountAuditPage'
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '422':
+          $ref: '#/components/responses/SemanticInvalid'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -3640,6 +3850,231 @@ components:
           type: string
           minLength: 1
           maxLength: 8000
+
+    AdminAccount:
+      type: object
+      additionalProperties: false
+      required:
+      - username
+      - display_name
+      - role
+      - enabled
+      - version
+      - created_at
+      - updated_at
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+        role: &staffSchema001
+          type: string
+          enum:
+          - CUSTOMER
+          - REVIEWER
+          - MERCHANT_ADMIN
+          - OPERATOR
+        enabled:
+          type: boolean
+        version:
+          type: integer
+          minimum: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    AdminAccountState:
+      type: object
+      additionalProperties: false
+      required:
+      - display_name
+      - role
+      - enabled
+      properties:
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+        role: *staffSchema001
+        enabled:
+          type: boolean
+    AdminAccountCreate:
+      type: object
+      additionalProperties: false
+      required:
+      - username
+      - display_name
+      - role
+      - password
+      - reason
+      properties:
+        username:
+          type: string
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+        role:
+          type: string
+          enum:
+          - REVIEWER
+          - MERCHANT_ADMIN
+        password: &staffSchema002
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: \S
+          writeOnly: true
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: \S
+    AdminAccountUpdate:
+      type: object
+      additionalProperties: false
+      required:
+      - display_name
+      - role
+      - enabled
+      - reason
+      properties:
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+        role: *staffSchema001
+        enabled:
+          type: boolean
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: \S
+    AdminAccountPassword:
+      type: object
+      additionalProperties: false
+      required:
+      - password
+      - reason
+      properties:
+        password: *staffSchema002
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: \S
+    AdminAccountMutation:
+      type: object
+      additionalProperties: false
+      required:
+      - account
+      - session_invalidated
+      properties:
+        account:
+          $ref: '#/components/schemas/AdminAccount'
+        session_invalidated:
+          type: boolean
+    AdminAccountPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - total
+      - enabled_admins
+      - current_username
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminAccount'
+        page:
+          $ref: '#/components/schemas/PageMeta'
+        total:
+          type: integer
+          minimum: 0
+        enabled_admins:
+          type: integer
+          minimum: 1
+        current_username:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+    AdminAccountAudit:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - action
+      - actor_username
+      - account_version
+      - reason
+      - occurred_at
+      - before
+      - after
+      properties:
+        id:
+          type: string
+          pattern: ^[1-9][0-9]*$
+        action:
+          type: string
+          enum:
+          - CREATED
+          - UPDATED
+          - PASSWORD_RESET
+        actor_username:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+        account_version:
+          type: integer
+          minimum: 1
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: \S
+        occurred_at:
+          type: string
+          format: date-time
+        before:
+          anyOf:
+          - $ref: '#/components/schemas/AdminAccountState'
+          - type: 'null'
+        after:
+          $ref: '#/components/schemas/AdminAccountState'
+    AdminAccountAuditPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminAccountAudit'
+        page:
+          $ref: '#/components/schemas/PageMeta'
+        total:
+          type: integer
+          minimum: 0
 
 security:
   - bearerAuth: []

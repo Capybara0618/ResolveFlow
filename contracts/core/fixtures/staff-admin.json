@@ -1,0 +1,43 @@
+{
+  "AdminAccountPage": {
+    "items": [
+      {
+        "username": "synthetic-worker",
+        "display_name": "合成售后专员",
+        "role": "REVIEWER",
+        "enabled": true,
+        "version": 1,
+        "created_at": "2026-10-02T05:00:00Z",
+        "updated_at": "2026-10-02T05:00:00Z"
+      }
+    ],
+    "page": {
+      "limit": 20
+    },
+    "total": 1,
+    "enabled_admins": 1,
+    "current_username": "synthetic-admin"
+  },
+  "AdminAccountAuditPage": {
+    "items": [
+      {
+        "id": "1",
+        "action": "CREATED",
+        "actor_username": "synthetic-admin",
+        "account_version": 1,
+        "reason": "新增合成售后专员",
+        "occurred_at": "2026-10-02T05:00:00Z",
+        "before": null,
+        "after": {
+          "display_name": "合成售后专员",
+          "role": "REVIEWER",
+          "enabled": true
+        }
+      }
+    ],
+    "page": {
+      "limit": 20
+    },
+    "total": 1
+  }
+}

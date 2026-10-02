@@ -34,7 +34,40 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 29, "Commerce": 5, "Agent": 6}
+EXPECTED_ROUTE_COUNTS = {"Case": 34, "Commerce": 5, "Agent": 6}
+
+
+def test_staff_administration_public_fixtures_cannot_leak_credentials() -> None:
+    fixtures = json.loads((REPO_ROOT / CORE_DIR / "fixtures/staff-admin.json").read_text(encoding="utf-8"))
+    for name, value in fixtures.items():
+        validator = component_validator("case", name, CORE_DIR)
+        assert not list(validator.validator.iter_errors(value))
+        leaked = copy.deepcopy(value)
+        leaked["items"][0]["password_hash"] = "forbidden"
+        assert list(validator.validator.iter_errors(leaked))
+
+
+def test_staff_create_has_fixed_binding_and_only_two_staff_roles() -> None:
+    validator = component_validator("case", "AdminAccountCreate", CORE_DIR)
+    body = {"username": "synthetic-worker", "display_name": "合成售后", "role": "REVIEWER",
+            "password": "synthetic-pass", "reason": "合成验收"}
+    assert not list(validator.validator.iter_errors(body))
+    for field in ("merchant_id", "customer_id"):
+        assert list(validator.validator.iter_errors({**body, field: "foreign"}))
+    for role in ("CUSTOMER", "OPERATOR"):
+        assert list(validator.validator.iter_errors({**body, "role": role}))
+    assert list(validator.validator.iter_errors({**body, "password": "short"}))
+
+
+def test_staff_update_and_reset_use_original_account_version() -> None:
+    paths = document("case")["paths"]
+    for suffix in ("", "/password"):
+        operation = paths["/api/v1/admin/accounts/{username}" + suffix]["post"]
+        version = next(p for p in operation["parameters"] if p.get("name") == "If-Match")
+        assert version["required"] is True
+        assert re.fullmatch(version["schema"]["pattern"], '"12"')
+        assert not re.fullmatch(version["schema"]["pattern"], "12")
+        assert "409" in operation["responses"]
 
 #: Routes the compat baseline has and core must not expose (docs/core-contracts.md:53).
 DEFERRED_PATH_FRAGMENTS = (
