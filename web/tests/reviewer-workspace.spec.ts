@@ -160,6 +160,16 @@ describe('bound policy clauses', () => {
     wrapper.unmount()
   })
 
+  it('labels a human proposal explanation without attributing it to the model', async () => {
+    const wrapper = mountWorkspace({ snapshot: { ...snapshot,
+      proposal: { origin: 'HUMAN', status: 'VALIDATED', input_revision: 2, summary: '人工核对丢失政策后提出方案。' } } })
+    await flushPromises()
+    expect(wrapper.text()).toContain('② 人工方案理由与适用判断')
+    expect(wrapper.text()).not.toContain('② Agent 解释与适用判断')
+    expect(wrapper.get('[data-test="agent-reading"]').text()).toContain('人工核对丢失政策')
+    wrapper.unmount()
+  })
+
   it('marks the sentences that carry limiting phrasing in the stored text only', async () => {
     const wrapper = mountWorkspace({ context: { ...context, policy_rules: rules } })
     await flushPromises()

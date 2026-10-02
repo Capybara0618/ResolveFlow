@@ -175,7 +175,7 @@ async function submit() {
           <p class="muted">以下是本工单绑定版本的政策原文；标出的是原文本身含限制性表述的句子，不是解释。</p>
         </div>
         <div class="policy-layer">
-          <h4>② Agent 解释与适用判断</h4>
+          <h4>{{ proposal?.origin === 'HUMAN' ? '② 人工方案理由与适用判断' : '② Agent 解释与适用判断' }}</h4>
           <p v-if="agentReading && currentProposal" class="policy-agent" data-test="agent-reading">{{ agentReading }}</p>
           <p v-else-if="agentReading" class="policy-agent stale" data-test="agent-reading">旧版建议（第 {{ proposalRevision }} 版）的解释：{{ agentReading }}——已失效，仅供比对。</p>
           <p v-else class="muted">本工单当前没有 Agent 方案，因此没有模型解释；人工方案的理由在提交记录中。</p>
