@@ -1,0 +1,209 @@
+{
+  "checks": [
+    {
+      "facts": [
+        {
+          "font": "22px",
+          "text": "退款工单"
+        },
+        {
+          "font": "13px",
+          "text": "第六批合成验收：台灯付款后尚未发货，申请本行全额退款129元"
+        },
+        {
+          "font": "15px",
+          "text": "工单负责人"
+        },
+        {
+          "font": "15px",
+          "text": "订单信息"
+        },
+        {
+          "font": "15px",
+          "text": "客户问题描述"
+        },
+        {
+          "font": "15px",
+          "text": "证据与材料 （3）"
+        },
+        {
+          "font": "16px",
+          "text": "Agent 建议第 4 版 · 当前建议"
+        },
+        {
+          "font": "13px",
+          "text": "工单轨迹"
+        },
+        {
+          "font": "15px",
+          "text": "调查原始记录"
+        },
+        {
+          "font": "15px",
+          "text": "人工接管与政策依据"
+        }
+      ],
+      "page": "staff-case",
+      "scrollWidth": 1265,
+      "width": 1280
+    },
+    {
+      "facts": [
+        {
+          "font": "22px",
+          "text": "退款工单"
+        },
+        {
+          "font": "13px",
+          "text": "第六批合成验收：台灯付款后尚未发货，申请本行全额退款129元"
+        },
+        {
+          "font": "15px",
+          "text": "工单负责人"
+        },
+        {
+          "font": "15px",
+          "text": "订单信息"
+        },
+        {
+          "font": "15px",
+          "text": "客户问题描述"
+        },
+        {
+          "font": "15px",
+          "text": "证据与材料 （3）"
+        },
+        {
+          "font": "16px",
+          "text": "Agent 建议第 4 版 · 当前建议"
+        },
+        {
+          "font": "13px",
+          "text": "工单轨迹"
+        },
+        {
+          "font": "15px",
+          "text": "调查原始记录"
+        },
+        {
+          "font": "15px",
+          "text": "人工接管与政策依据"
+        }
+      ],
+      "page": "staff-case",
+      "scrollWidth": 1425,
+      "width": 1440
+    },
+    {
+      "facts": [
+        {
+          "font": "22px",
+          "text": "退款工单"
+        },
+        {
+          "font": "13px",
+          "text": "第六批合成验收：台灯付款后尚未发货，申请本行全额退款129元"
+        },
+        {
+          "font": "15px",
+          "text": "工单负责人"
+        },
+        {
+          "font": "15px",
+          "text": "订单信息"
+        },
+        {
+          "font": "15px",
+          "text": "客户问题描述"
+        },
+        {
+          "font": "15px",
+          "text": "证据与材料 （3）"
+        },
+        {
+          "font": "16px",
+          "text": "Agent 建议第 4 版 · 当前建议"
+        },
+        {
+          "font": "13px",
+          "text": "工单轨迹"
+        },
+        {
+          "font": "15px",
+          "text": "调查原始记录"
+        },
+        {
+          "font": "15px",
+          "text": "人工接管与政策依据"
+        }
+      ],
+      "page": "staff-case",
+      "scrollWidth": 1665,
+      "width": 1680
+    },
+    {
+      "facts": [
+        {
+          "font": "36px",
+          "text": "订单详情"
+        },
+        {
+          "font": "28px",
+          "text": "已付款"
+        },
+        {
+          "font": "32px",
+          "text": "¥ 727.00"
+        },
+        {
+          "font": "23px",
+          "text": "订单商品"
+        },
+        {
+          "font": "22px",
+          "text": "无线降噪耳机"
+        },
+        {
+          "font": "25px",
+          "text": "¥ 329.00"
+        },
+        {
+          "font": "22px",
+          "text": "机械键盘"
+        },
+        {
+          "font": "25px",
+          "text": "¥ 398.00"
+        },
+        {
+          "font": "22px",
+          "text": "订单履约"
+        },
+        {
+          "font": "16px",
+          "text": "付款完成，等待发货"
+        },
+        {
+          "font": "16px",
+          "text": "付款完成，等待发货"
+        },
+        {
+          "font": "23px",
+          "text": "付款与售后"
+        },
+        {
+          "font": "20px",
+          "text": "无线降噪耳机"
+        },
+        {
+          "font": "20px",
+          "text": "机械键盘"
+        }
+      ],
+      "page": "buyer-order",
+      "scrollWidth": 1265,
+      "width": 1280
+    }
+  ],
+  "notes": "Staff tab: actual 1280/1440/1680. Buyer tab stayed 1280; no wider buyer claim. Existing staff section titles 13/15px; no claim all text >=16px."
+}

@@ -45,6 +45,7 @@
 .purchase-aftercare { border-top: 1px solid #e5ebf4; margin-top: 22px; padding-top: 22px; }
 .marketplace .purchase-aftercare strong { font-size: 20px; }
 .purchase-aftercare p, .purchase-times p { color: #62728a; font-size: 17px; }
+.purchase-aftercare .shop-secondary { margin: 0 12px 10px 0; }
 .purchase-times details { font-size: 16px; overflow-wrap: anywhere; }
 .marketplace .purchase-times summary { font-size: 16px; }
 .purchase-notice { background: #ecf9f1; color: #12834e; padding: 16px 22px; border-radius: 8px; }
