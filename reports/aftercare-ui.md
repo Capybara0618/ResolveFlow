@@ -13,3 +13,9 @@
 - `agent/.venv/Scripts/ruff.exe check agent/tests/unit/test_contracts_core_routes.py`、`git diff --check`通过。定点Spotless apply成功；最初glob被当正则及含管道正则被cmd拆开两次失败，改成逐文件正则列表成功，未全仓格式化。
 
 日志为忽略的tmp/project-startup/aftercare-{red,data-tests,contract-tests,format}.log。此批尚未重启运行JAR，真实HTTP/网页运行验证在双端UI完成后的集中批次进行；不以单元桩证明部署已更新。
+
+## 买家售后批次
+
+共享AftercareProduct展示真实下单插画/名称/规格/数量/本行实付；缺图明确缺失。独立商品缓存按line_id精确匹配、最多四路并发、跨会话迟到响应丢弃、故障可重试且申请继续可读。商城导航类名恢复并高亮售后，平台买家取消重复侧栏。买家列表改商品卡片，申请左右表单/金额，详情状态/商品/原申请/当前问题直接可见，历史问答/全部轨迹/编号折叠。保留写入幂等冻结、补证期限、UNKNOWN只读、材料待核对与撤销门禁。
+
+`pnpm --dir web test -- tests/aftercare-products.spec.ts tests/customer-workspace.spec.ts tests/marketplace.spec.ts`：21 passed；`pnpm --dir web build`通过。新增缓存并发/身份隔离/错误商品/重试测试，原10项申请/补证/撤销回归未删断言。运行浏览器和各桌面尺寸仍待双端集中验证。上批新JSON fixture首次cached diff因Windows CRLF报尾随空白，但当时shell未停止仍提交；本批已统一LF，重新diff check通过，无协议内容更改；后续提交门禁失败立即停止。

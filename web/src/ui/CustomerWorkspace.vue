@@ -3,13 +3,17 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ApiError, coreApi, type CustomerCaseDetail, type CustomerCaseSummary, type CustomerOrderLine,
   type CustomerView, type LoginResponse, type OrderLine } from '../client'
 import { formatMinorUnits } from '../money'
-import { paidAtOf, productNameMissing, productTitle, variantOf } from './order-line-format'
 import Icon from './ReviewIcon.vue'
 import ReviewDialog from './ReviewDialog.vue'
+import AftercareProduct from './AftercareProduct.vue'
+import { useAftercareProducts } from './aftercare-products'
 import './customer-workspace.css'
 
 const props = defineProps<{ account: LoginResponse }>()
 const emit = defineEmits<{ expired: [] }>()
+const products = useAftercareProducts(() => props.account.access_token)
+const productLines = products.lines, productStates = products.states
+const previousQuestions = computed(() => detail.value?.questions.filter(q => q !== currentQuestion.value) ?? [])
 type Screen = 'orders' | 'applications' | 'apply' | 'detail'
 const screen = ref<Screen>('orders'), loading = ref(false), writing = ref(false)
 const error = ref(''), notice = ref(''), filter = ref<CustomerView>('ALL')
@@ -42,7 +46,7 @@ const canAppend = computed(() => detail.value?.allowed_actions.includes('APPEND_
 const sourceMaterial = computed(() => detail.value?.materials.filter(m => !m.question_id) ?? [])
 const query = ref('')
 const filteredApplications = computed(() => applications.value.filter(item =>
-  `${item.case_id} ${item.order_id ?? ''} ${item.description ?? ''}`.toLowerCase().includes(query.value.trim().toLowerCase())))
+  `${item.case_id} ${item.order_id ?? ''} ${item.description ?? ''} ${productLines.value[item.line_id]?.product_name ?? ''} ${productLines.value[item.line_id]?.merchant_name ?? ''}`.toLowerCase().includes(query.value.trim().toLowerCase())))
 function valid(g: number, token: string) { return alive && g === generation && props.account.access_token === token }
 function failure(cause: unknown) {
   if (cause instanceof ApiError) {
@@ -124,6 +128,7 @@ async function loadApplications(cursor?: string) {
     if (!valid(g, token) || filter.value !== view) return
     applications.value = cursor ? [...applications.value, ...page.items] : page.items; applicationCursor.value = page.page.next_cursor
     applicationExpanded = !!cursor; applicationUpdate.value = ''
+    void products.readMany(page.items.map(item => item.line_id), true)
   } catch (cause) { if (valid(g, token)) failure(cause) }
 }
 async function readDetail() {
@@ -152,7 +157,7 @@ async function pollApplications() {
     if (applicationExpanded) {
       if (JSON.stringify(applications.value.slice(0, page.items.length)) !== JSON.stringify(page.items))
         applicationUpdate.value = '申请进展有更新；点击刷新查看，已展开记录保持不变。'
-    } else { applications.value = page.items; applicationCursor.value = page.page.next_cursor; applicationUpdate.value = '' }
+    } else { applications.value = page.items; applicationCursor.value = page.page.next_cursor; applicationUpdate.value = ''; void products.readMany(page.items.map(item => item.line_id)) }
   } catch (cause) { if (valid(g, token)) failure(cause) }
   finally { if (valid(g, token)) loading.value = false }
 }
@@ -276,69 +281,75 @@ onMounted(() => {
   }, 15000)
 })
 onBeforeUnmount(() => {
-  alive = false; ++generation; clearInterval(timer); drafts.clear(); pendingCreate = null
+  alive = false; ++generation; products.reset(); clearInterval(timer); drafts.clear(); pendingCreate = null
   window.removeEventListener('popstate', browserNavigation); window.removeEventListener('hashchange', browserNavigation)
 })
 </script>
 
 <template>
-  <div class="app-shell customer-shell">
-    <nav class="sidebar" aria-label="客户工作台导航">
+  <div class="app-shell customer-shell" :class="{ 'customer-buyer': account.buyer_id }">
+    <nav v-if="!account.buyer_id" class="sidebar" aria-label="客户工作台导航">
       <a href="#/customer/orders" data-test="nav-orders" class="nav-link" :class="{ current: ['orders', 'apply'].includes(screen) }" @click.prevent="navigate('orders')"><Icon name="box" />我的订单</a>
       <a href="#/customer/applications" data-test="nav-applications" class="nav-link" :class="{ current: ['applications', 'detail'].includes(screen) }" @click.prevent="navigate('applications')"><Icon name="file" />我的申请</a>
-      <div class="sidebar-note"><p>让售后更简单<br />让每一次服务都有结果</p><small>单订单行 · 全量模拟退款</small><span>© 2026 ResolveFlow</span></div>
     </nav>
     <main class="customer-main" :aria-busy="loading || writing">
-      <header class="customer-heading"><div><p class="eyebrow">{{ account.buyer_id ? '跨店售后服务' : `${account.merchant_name || account.merchant_id} · 客户服务` }}</p><h1>{{ screen === 'orders' ? '我的订单' : screen === 'applications' ? '我的申请' : screen === 'apply' ? '申请退款' : '申请详情' }}</h1><p class="muted">{{ screen === 'orders' ? '查看本人订单，发起与跟踪售后申请' : screen === 'applications' ? '查看申请进展，及时回答商家的补充问题' : '原始信息、补充说明和处理进展都在这里' }}</p></div><button v-if="screen !== 'apply'" class="secondary-button" type="button" :disabled="writing || loading" @click="refresh"><Icon name="clock" :size="16" />刷新</button></header>
+      <header class="customer-heading"><div><h1>{{ screen === 'orders' ? '我的订单' : screen === 'applications' ? '我的售后' : screen === 'apply' ? '申请退款' : '售后详情' }}</h1><p class="muted">{{ account.buyer_id ? '跨店售后服务' : `${account.merchant_name || account.merchant_id} · 客户服务` }}</p></div><button v-if="screen !== 'apply'" class="secondary-button" type="button" :disabled="writing || loading" @click="refresh"><Icon name="clock" :size="18" />刷新</button></header>
       <p v-if="error" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status"><Icon name="check" />{{ notice }}</p>
-      <section v-if="screen === 'orders'" class="panel customer-table-panel" aria-label="我的订单">
-        <div class="customer-section-heading"><h2>订单记录</h2><span class="muted">已加载 {{ orders.length }} 条订单行</span></div>
-        <div v-if="!orders.length" class="customer-empty"><Icon name="box" :size="36" /><h3>{{ loading ? '正在读取订单…' : '暂无订单' }}</h3><p>当前账号还没有可查看的订单行。</p></div>
-        <table v-else class="customer-table"><thead><tr><th>商品 / 订单</th><th>实付金额</th><th>付款状态</th><th>售后状态</th><th>操作</th></tr></thead><tbody>
-          <tr v-for="line in orders" :key="line.line_id" class="order-row"><td><div class="customer-product"><span class="customer-product-placeholder" aria-label="商品图片未提供"><Icon name="box" :size="27" /></span><div><span v-if="line.merchant_name" class="customer-store" data-test="order-store">{{ line.merchant_name }}</span><strong data-test="order-product" :class="{ 'name-missing': productNameMissing(line) }">{{ productTitle(line) }}</strong><small v-if="variantOf(line)" data-test="order-variant">{{ variantOf(line) }} · 数量 × {{ line.quantity }}</small><small>{{ line.sku }} · 订单 {{ line.order_id }}</small><small v-if="paidAtOf(line)" data-test="order-paid-at">支付于 {{ formatTime(paidAtOf(line)!) }}</small></div></div></td>
-            <td><b>{{ formatMinorUnits(line.line_paid_amount, line.currency) }}</b></td><td>{{ line.status === 'PAID' ? '已支付' : line.status }}</td><td><span v-if="eligibility[line.line_id]?.application" class="status-tag" :class="{ success: eligibility[line.line_id]?.application?.status === 'CLOSED_SUCCESS' }">{{ status(eligibility[line.line_id]!.application!.status) }}</span><span v-else class="muted">{{ eligibilityErrors[line.line_id] || (eligibility[line.line_id] ? '暂无申请' : '正在核对…') }}</span><small v-if="eligibility[line.line_id]?.blocked_reason" class="customer-inline-note">{{ eligibility[line.line_id]?.blocked_reason }}</small></td>
-            <td><button v-if="eligibility[line.line_id]?.application && !eligibility[line.line_id]?.can_apply" type="button" class="text-button" @click="navigate('detail', eligibility[line.line_id]!.application!.case_id)">查看申请<Icon name="chevron" :size="14" /></button><button v-else-if="eligibility[line.line_id]?.can_apply" :data-test="`apply-${line.line_id}`" type="button" class="secondary-button" :disabled="writing || loading" @click="apply(line.line_id)">申请退款</button><button v-else-if="eligibilityErrors[line.line_id]" type="button" class="text-button" @click="readEligibility(line.line_id)">重试读取</button><span v-else class="muted">{{ eligibility[line.line_id] ? '暂不可申请' : '读取中' }}</span><button v-if="eligibility[line.line_id]?.application && eligibility[line.line_id]?.can_apply" type="button" class="text-button" @click="navigate('detail', eligibility[line.line_id]!.application!.case_id)">查看上次申请</button></td>
-          </tr>
-        </tbody></table><div class="customer-pagination"><span>仅本人订单 · 金额以订单记录为准</span><button v-if="orderCursor" type="button" class="secondary-button" :disabled="loading || writing" @click="more('orders')">加载更多订单</button></div>
+      <section v-if="screen === 'orders'" aria-label="我的订单">
+        <div v-if="!orders.length" class="panel customer-empty"><Icon name="box" :size="36" /><h3>{{ loading ? '正在读取订单…' : '暂无订单' }}</h3><p>当前账号还没有可查看的订单。</p></div>
+        <div v-else class="customer-card-list">
+          <article v-for="line in orders" :key="line.line_id" class="panel customer-list-card">
+            <AftercareProduct :line="line" />
+            <div class="customer-list-status"><span v-if="eligibility[line.line_id]?.application" class="status-tag" :class="{ success: eligibility[line.line_id]?.application?.status === 'CLOSED_SUCCESS' }">{{ status(eligibility[line.line_id]!.application!.status) }}</span><span v-else class="muted">{{ eligibilityErrors[line.line_id] || (eligibility[line.line_id] ? '暂无申请' : '正在核对…') }}</span><p v-if="eligibility[line.line_id]?.blocked_reason">{{ eligibility[line.line_id]?.blocked_reason }}</p></div>
+            <div class="customer-list-actions"><button v-if="eligibility[line.line_id]?.application && !eligibility[line.line_id]?.can_apply" type="button" class="secondary-button" @click="navigate('detail', eligibility[line.line_id]!.application!.case_id)">查看申请</button><button v-else-if="eligibility[line.line_id]?.can_apply" :data-test="`apply-${line.line_id}`" type="button" :disabled="writing || loading" @click="apply(line.line_id)">申请退款</button><button v-else-if="eligibilityErrors[line.line_id]" type="button" class="text-button" @click="readEligibility(line.line_id)">重试读取</button><button v-if="eligibility[line.line_id]?.application && eligibility[line.line_id]?.can_apply" type="button" class="text-button" @click="navigate('detail', eligibility[line.line_id]!.application!.case_id)">查看上次申请</button></div>
+          </article>
+        </div>
+        <div v-if="orderCursor" class="customer-pagination"><button type="button" class="secondary-button" :disabled="loading || writing" @click="more('orders')">加载更多订单</button></div>
       </section>
-      <section v-else-if="screen === 'applications'" data-test="applications-list" class="panel customer-table-panel" aria-label="我的申请">
-        <div class="customer-filters"><label>处理阶段<select v-model="filter" :disabled="loading" @change="changeFilter"><option value="ALL">全部申请</option><option value="WAITING">待补充说明</option><option value="PROCESSING">调查与退款处理中</option><option value="REVIEW">等待商家审核</option><option value="CLOSED">已结束</option></select></label><label>当前已加载记录<input v-model="query" aria-label="查找已加载申请" placeholder="申请号、订单号或情况说明" /></label></div>
-        <p v-if="filter === 'WAITING'" class="customer-info"><Icon name="file" />请打开申请详情，查看并回答当前问题。</p>
-        <div v-if="!filteredApplications.length" class="customer-empty"><Icon name="file" :size="36" /><h3>{{ loading ? '正在读取申请…' : '暂无符合条件的申请' }}</h3><p>可以切换处理阶段、加载更多，或从我的订单发起申请。</p><button type="button" class="secondary-button" @click="navigate('orders')">查看我的订单</button></div>
-        <table v-else class="customer-table"><thead><tr><th>申请 / 情况说明</th><th>订单</th><th>当前状态</th><th>更新时间</th><th>操作</th></tr></thead><tbody><tr v-for="item in filteredApplications" :key="item.case_id"><td><span v-if="item.merchant_id" class="customer-store" data-test="application-store">{{ item.merchant_id }}</span><strong>{{ item.description || '退款申请' }}</strong><small class="customer-id">{{ item.case_id }}</small></td><td><span class="customer-id">{{ item.order_id || '订单编号未提供' }}</span><small class="customer-inline-note">订单行 {{ item.line_id }}</small></td><td><span class="status-tag" :class="{ waiting: item.status === 'WAITING_CUSTOMER', success: item.status === 'CLOSED_SUCCESS' }">{{ status(item.status) }}</span></td><td>{{ formatTime(item.updated_at) }}</td><td><button type="button" class="text-button" @click="navigate('detail', item.case_id)">{{ item.status === 'WAITING_CUSTOMER' ? '查看问题并回答' : '查看详情' }}<Icon name="chevron" :size="14" /></button></td></tr></tbody></table>
+      <section v-else-if="screen === 'applications'" data-test="applications-list" aria-label="我的申请">
+        <div class="customer-filters"><select v-model="filter" aria-label="处理阶段" :disabled="loading" @change="changeFilter"><option value="ALL">全部申请</option><option value="WAITING">待补充说明</option><option value="PROCESSING">调查与退款处理中</option><option value="REVIEW">等待商家审核</option><option value="CLOSED">已结束</option></select><input v-model="query" aria-label="查找已加载申请" placeholder="搜索已加载商品或申请" /></div>
+        <div v-if="!filteredApplications.length" class="panel customer-empty"><Icon name="file" :size="36" /><h3>{{ loading ? '正在读取申请…' : '暂无符合条件的申请' }}</h3><button type="button" class="secondary-button" @click="navigate('orders')">查看我的订单</button></div>
+        <div v-else class="customer-card-list">
+          <article v-for="item in filteredApplications" :key="item.case_id" class="panel customer-list-card">
+            <div class="customer-list-product"><AftercareProduct :line="productLines[item.line_id]" :loading="productStates[item.line_id] === 'loading'" :unavailable="productStates[item.line_id] === 'unavailable'" /><p class="customer-list-description">{{ item.description || '退款申请' }}</p><button v-if="productStates[item.line_id] === 'unavailable'" type="button" class="text-button" @click="products.read(item.line_id, true)">重试商品资料</button></div>
+            <div class="customer-list-status"><span class="status-tag" :class="{ waiting: item.status === 'WAITING_CUSTOMER', success: item.status === 'CLOSED_SUCCESS' }">{{ status(item.status) }}</span><time>{{ formatTime(item.updated_at) }}</time></div>
+            <button type="button" class="secondary-button" @click="navigate('detail', item.case_id)">{{ item.status === 'WAITING_CUSTOMER' ? '补充说明' : '查看详情' }}</button>
+          </article>
+        </div>
         <p v-if="applicationUpdate" class="admin-note" role="status">{{ applicationUpdate }}</p>
-        <div class="customer-pagination"><span>已加载 {{ applications.length }} 条 · 可见列表每15秒更新 · 文本查找仅限已加载记录</span><button v-if="applicationCursor" type="button" class="secondary-button" :disabled="loading" @click="more('applications')">加载更多申请</button></div>
+        <div v-if="applicationCursor" class="customer-pagination"><button type="button" class="secondary-button" :disabled="loading" @click="more('applications')">加载更多申请</button></div>
       </section>
-      <form v-else-if="screen === 'apply' && selectedLine" class="panel customer-apply" @submit.prevent="create">
-        <button class="text-button" type="button" :disabled="writing || createUncertain" @click="navigate('orders')">← 返回我的订单</button>
-        <h2>确认申请订单</h2><div class="customer-product customer-order-summary"><span class="customer-product-placeholder" aria-label="商品图片未提供"><Icon name="box" :size="30" /></span><div><strong>{{ productTitle(selectedLine.order_line) }}</strong><small>{{ variantOf(selectedLine.order_line) }} · 数量 × {{ selectedLine.order_line.quantity }}</small><small>订单 {{ selectedLine.order_line.order_id }}</small></div><b>{{ formatMinorUnits(selectedLine.order_line.line_paid_amount, selectedLine.order_line.currency) }}</b></div>
-        <div class="customer-info"><Icon name="shield" /><span>申请单个订单行全额模拟退款。实际结果由商家审核和模拟执行确认。</span></div>
-        <label>情况说明 <span class="customer-required">必填</span><textarea v-model="description" data-test="application-description" rows="5" maxlength="4000" :readonly="writing || createUncertain" placeholder="请说明退款原因，例如已付款未发货、商品损坏或物流异常，以及已尝试的处理方式" /></label><small class="customer-inline-note">{{ description.length }} / 4000</small>
-        <label>初始文本材料 <span class="muted">可选</span><textarea v-model="initialMaterial" data-test="initial-material" rows="3" maxlength="8000" :readonly="writing || createUncertain" placeholder="可粘贴物流反馈或其他文字说明。本项目暂不支持图片、视频上传" /></label>
-        <div class="customer-form-footer"><span>申请金额 <b>{{ formatMinorUnits(selectedLine.order_line.line_paid_amount, selectedLine.order_line.currency) }}</b></span><button data-test="create-case" type="submit" :disabled="writing || !description.trim()">{{ writing ? '正在提交…' : createUncertain ? '确认提交结果' : '提交退款申请' }}<Icon name="arrow" :size="17" /></button></div>
+      <form v-else-if="screen === 'apply' && selectedLine" class="customer-apply" @submit.prevent="create">
+        <button class="text-button customer-back" type="button" :disabled="writing || createUncertain" @click="navigate('orders')">← 返回我的订单</button>
+        <div class="customer-detail-grid">
+          <section class="panel"><h2>申请商品</h2><AftercareProduct :line="selectedLine.order_line" :show-amount="false" />
+            <label>情况说明 <span class="customer-required">必填</span><textarea v-model="description" data-test="application-description" rows="5" maxlength="4000" :readonly="writing || createUncertain" placeholder="请说明退款原因和已经尝试的处理方式" /></label>
+            <label>文本材料 <span class="muted">可选</span><textarea v-model="initialMaterial" data-test="initial-material" rows="3" maxlength="8000" :readonly="writing || createUncertain" placeholder="可粘贴物流反馈或其他文字说明" /></label>
+          </section>
+          <aside class="panel customer-apply-summary"><h2>退款金额</h2><strong class="customer-amount">{{ formatMinorUnits(selectedLine.order_line.line_paid_amount, selectedLine.order_line.currency) }}</strong><p>单个订单行全额模拟退款，由商家审核。</p><button data-test="create-case" type="submit" :disabled="writing || !description.trim()">{{ writing ? '正在提交…' : createUncertain ? '确认提交结果' : '提交退款申请' }}</button></aside>
+        </div>
       </form>
       <template v-else-if="screen === 'detail'">
-        <button type="button" class="text-button customer-back" :disabled="writing" @click="navigate('applications')">← 返回我的申请</button>
-        <div v-if="!detail" class="panel customer-empty"><Icon name="file" :size="36" /><h3>{{ loading ? '正在读取申请…' : '暂时无法查看申请' }}</h3><p>请确认账号和访问权限，或点击刷新重试。</p></div>
+        <button type="button" class="text-button customer-back" :disabled="writing" @click="navigate('applications')">← 返回我的售后</button>
+        <div v-if="!detail" class="panel customer-empty"><h3>{{ loading ? '正在读取申请…' : '暂时无法查看申请' }}</h3><p>请点击刷新重试。</p></div>
         <div v-else data-test="application-detail" class="customer-detail-grid">
           <div class="customer-detail-content">
-            <section class="panel customer-result" aria-label="申请当前进展"><span class="customer-result-icon"><Icon :name="detail.case.status === 'CLOSED_SUCCESS' ? 'check' : terminal(detail.case.status) ? 'file' : 'clock'" :size="25" /></span><div><span class="status-tag" :class="{ success: detail.case.status === 'CLOSED_SUCCESS', waiting: detail.case.status === 'WAITING_CUSTOMER' }">{{ status(detail.case.status) }}</span><h2>{{ detail.result.message }}</h2><p v-if="detail.result.public_reason">处理说明：{{ detail.result.public_reason }}</p><p v-if="detail.result.amount_minor !== null">{{ detail.case.status === 'CLOSED_SUCCESS' ? '模拟退款金额' : '本次批准金额' }}：<b>{{ formatMinorUnits(detail.result.amount_minor, detail.result.currency) }}</b></p><p class="muted">模拟退款演示，不涉及真实资金。处理可能因新材料重新调查。</p><p v-if="detail.blocked_reason" class="customer-inline-note">{{ detail.blocked_reason }}</p></div></section>
-            <section class="panel" aria-label="原始申请"><div class="customer-section-heading"><h2>原始申请</h2><time class="muted">{{ formatTime(detail.case.created_at) }}</time></div><p class="customer-text-block">{{ detail.case.description || '原始说明未提供' }}</p><div class="customer-meta"><span>申请号 {{ detail.case.case_id }}</span><span>订单 {{ detail.case.order_id || '编号未提供' }}</span></div></section>
-            <section v-if="detail.questions.length" class="panel customer-questions" aria-label="补证问题与回答历史">
-              <div class="customer-section-heading"><h2>补充问题与回答</h2><span class="muted">已发出 {{ detail.questions.length }} / 2 轮问题</span></div>
-              <article v-for="(question, index) in detail.questions" :key="question.question_id || index" class="customer-question" :class="{ pending: question === currentQuestion }"><div class="customer-section-heading"><h3>第 {{ index + 1 }} 轮补充说明</h3><span class="muted">{{ question.status === 'ANSWERED' ? '已回答' : question.status === 'PENDING' && !questionExpired ? '待回答' : question.status === 'EXPIRED' || (question === currentQuestion && questionExpired) ? '已过期' : question.status === 'UNAVAILABLE' ? '问题记录不完整' : '已结束' }}</span></div><p v-for="(prompt, i) in question.prompts" :key="i" class="customer-text-block">{{ prompt }}</p><p v-if="!question.prompts.length" class="muted">历史问题正文未提供，当前无法回答。</p><small class="customer-inline-note">提出于 {{ formatTime(question.asked_at) }} · 回答截止 {{ formatTime(question.expires_at) }}</small><div v-for="material in question.answers" :key="material.id" class="customer-answer"><strong>我的回答</strong><p class="customer-text-block">{{ material.text }}</p><small>{{ formatTime(material.submitted_at) }}</small></div></article>
-              <form v-if="canAnswer" @submit.prevent="answer"><label>回答当前问题<textarea v-model="answerText" data-test="answer-text" rows="4" maxlength="8000" :disabled="writing" placeholder="请针对上方当前问题补充说明" /></label><div class="customer-form-footer"><span class="muted">提交后重新调查，原始记录保留</span><button type="submit" data-test="submit-answer" :disabled="writing || !answerText.trim()">{{ writing ? '正在保存…' : '提交回答' }}</button></div></form>
-              <p v-else-if="questionExpired || detail.questions.some(q => q.status === 'EXPIRED')" class="customer-info">补证期限已过，请等待商家继续处理。</p>
+            <section class="panel customer-result" aria-label="申请当前进展"><span class="customer-result-icon"><Icon :name="detail.case.status === 'CLOSED_SUCCESS' ? 'check' : terminal(detail.case.status) ? 'file' : 'clock'" :size="25" /></span><div><span class="status-tag" :class="{ success: detail.case.status === 'CLOSED_SUCCESS', waiting: detail.case.status === 'WAITING_CUSTOMER' }">{{ status(detail.case.status) }}</span><h2>{{ detail.result.message }}</h2><p v-if="detail.result.public_reason">{{ detail.result.public_reason }}</p><p v-if="detail.result.amount_minor !== null">{{ detail.case.status === 'CLOSED_SUCCESS' ? '模拟退款金额' : '本次批准金额' }}：<b>{{ formatMinorUnits(detail.result.amount_minor, detail.result.currency) }}</b></p><p v-if="detail.blocked_reason" class="customer-inline-note">{{ detail.blocked_reason }}</p></div></section>
+            <section class="panel" aria-label="申请商品"><AftercareProduct :line="detailLine" :loading="!detailLine && loading" :unavailable="!detailLine && !loading" /><button v-if="!detailLine && !loading" class="text-button" type="button" @click="readDetail">重试商品资料</button></section>
+            <section class="panel" aria-label="原始申请"><div class="customer-section-heading"><h2>原始申请</h2></div><p class="customer-text-block">{{ detail.case.description || '原始说明未提供' }}</p></section>
+            <section v-if="currentQuestion" class="panel customer-questions" aria-label="当前补证问题">
+              <h2>需要您补充说明</h2><p v-for="(prompt, i) in currentQuestion.prompts" :key="i" class="customer-text-block">{{ prompt }}</p><p v-if="!currentQuestion.prompts.length" class="muted">问题正文未提供，当前无法回答。</p><p class="customer-inline-note">回答截止 {{ formatTime(currentQuestion.expires_at) }}</p>
+              <form v-if="canAnswer" @submit.prevent="answer"><label>您的回答<textarea v-model="answerText" data-test="answer-text" rows="4" maxlength="8000" :disabled="writing" placeholder="请针对当前问题补充说明" /></label><div class="customer-form-footer"><button type="submit" data-test="submit-answer" :disabled="writing || !answerText.trim()">{{ writing ? '正在保存…' : '提交回答' }}</button></div></form>
+              <p v-else-if="questionExpired" class="customer-info">补证期限已过，请等待商家继续处理。</p>
             </section>
-            <section class="panel" aria-label="我的文本材料"><div class="customer-section-heading"><h2>已提交文本材料</h2><span class="muted">{{ sourceMaterial.length }} 条</span></div><p v-if="!sourceMaterial.length" class="muted">尚未单独提交文本材料，原始情况说明仍保留在上方。</p><details v-for="material in sourceMaterial" :key="material.id" class="customer-material"><summary><Icon name="file" /><span>{{ material.text?.slice(0, 70) || '文本材料' }}</span><span class="muted">{{ material.verification_result === 'CONFIRMED' ? '人工核验：确认' : material.verification_result === 'REFUTED' ? '人工核验：不成立' : material.verification_result === 'INCONCLUSIVE' ? '人工核验：无法判定' : '客户陈述 · 尚未核验' }}</span></summary><p class="customer-text-block">{{ material.text }}</p><small class="muted">提交于 {{ formatTime(material.submitted_at) }}</small></details>
-              <form v-if="canAppend" class="customer-material-form" @submit.prevent="saveMaterial()"><label>追加文本材料<textarea v-model="materialText" data-test="material-text" rows="3" maxlength="8000" :disabled="writing || uncertainMaterial" placeholder="补充新的文字说明，保存后将重新调查" /></label><p v-if="uncertainMaterial" class="customer-info">保存结果待确认，请刷新核对已提交记录。当前禁止再次提交同一文本。</p><div class="customer-form-footer"><span class="muted">文本属于客户陈述，核验结论由商家记录</span><button data-test="append-evidence" type="submit" :disabled="writing || uncertainMaterial || !materialText.trim()">{{ writing ? '正在保存…' : '提交材料' }}</button></div></form>
-              <p v-else-if="materialText" class="customer-info">未保存的文本仍在本登录会话保留；当前状态不允许追加。</p>
+            <details v-if="previousQuestions.length" class="panel customer-history"><summary>历史补充问题与回答（{{ previousQuestions.length }}）</summary><article v-for="(question, index) in previousQuestions" :key="question.question_id || index" class="customer-question"><h3>{{ question.status === 'ANSWERED' ? '已回答' : question.status === 'EXPIRED' ? '已过期' : '已结束' }}</h3><p v-for="(prompt, i) in question.prompts" :key="i" class="customer-text-block">{{ prompt }}</p><p v-if="question.status === 'EXPIRED'" class="customer-info">补证期限已过，请等待商家继续处理。</p><p class="customer-inline-note">提出于 {{ formatTime(question.asked_at) }}</p><div v-for="material in question.answers" :key="material.id" class="customer-answer"><strong>我的回答</strong><p class="customer-text-block">{{ material.text }}</p></div></article></details>
+            <section v-if="sourceMaterial.length || canAppend || materialText" class="panel" aria-label="我的文本材料"><h2>文本材料</h2><details v-for="material in sourceMaterial" :key="material.id" class="customer-material"><summary><Icon name="file" /><span>{{ material.text?.slice(0, 70) || '文本材料' }}</span></summary><p class="customer-text-block">{{ material.text }}</p><p class="muted">{{ material.verification_result === 'CONFIRMED' ? '人工核验：确认' : material.verification_result === 'REFUTED' ? '人工核验：不成立' : material.verification_result === 'INCONCLUSIVE' ? '人工核验：无法判定' : '客户陈述 · 尚未核验' }} · {{ formatTime(material.submitted_at) }}</p></details>
+              <form v-if="canAppend" class="customer-material-form" @submit.prevent="saveMaterial()"><label>追加文本材料<textarea v-model="materialText" data-test="material-text" rows="3" maxlength="8000" :disabled="writing || uncertainMaterial" placeholder="补充新的文字说明，保存后重新调查" /></label><p v-if="uncertainMaterial" class="customer-info">保存结果待确认，请刷新核对已提交记录。当前禁止再次提交同一文本。</p><div class="customer-form-footer"><button data-test="append-evidence" type="submit" :disabled="writing || uncertainMaterial || !materialText.trim()">{{ writing ? '正在保存…' : '提交材料' }}</button></div></form><p v-else-if="materialText" class="customer-info">未保存的文本仍在本登录会话保留；当前状态不允许追加。</p>
             </section>
           </div>
           <aside class="customer-detail-aside">
-            <section class="panel" aria-label="申请订单"><h2>订单信息</h2><div v-if="detailLine" class="customer-product customer-detail-product"><span class="customer-product-placeholder" aria-label="商品图片未提供"><Icon name="box" :size="28" /></span><div><strong>{{ productTitle(detailLine) }}</strong><small>{{ variantOf(detailLine) }} · 数量 × {{ detailLine.quantity }}</small><small>{{ detailLine.sku }}</small></div></div><p v-else class="muted">订单展示资料暂不可用，申请记录仍可查看。</p><dl v-if="detailLine" class="customer-facts"><dt>本行实付</dt><dd>{{ formatMinorUnits(detailLine.line_paid_amount, detailLine.currency) }}</dd><dt>支付时间</dt><dd>{{ detailLine.paid_at ? formatTime(detailLine.paid_at) : '未提供' }}</dd></dl></section>
-            <section class="panel" aria-label="公开处理进度"><h2>处理进度</h2><p v-if="!detail.timeline.length" class="muted">暂无进度记录。</p><ol class="customer-timeline"><li v-for="(event, index) in detail.timeline" :key="index"><strong>{{ event.summary }}</strong><time>{{ formatTime(event.occurred_at) }}</time></li></ol><p class="muted">可点击刷新查看最新进展。</p></section>
-            <section v-if="detail.allowed_actions.includes('CANCEL')" class="panel"><h2>申请操作</h2><p class="muted">撤销前请确认不再需要本次申请；开始退款执行后无法撤销。</p><button data-test="cancel-case" class="danger-button" type="button" :disabled="writing" @click="cancelOpen = true; cancelReason = ''">撤销申请</button></section>
+            <section class="panel" aria-label="公开处理进度"><h2>处理进度</h2><p v-if="!detail.timeline.length" class="muted">暂无进度记录。</p><ol class="customer-timeline"><li v-for="(event, index) in detail.timeline.slice(-3)" :key="index"><strong>{{ event.summary }}</strong><time>{{ formatTime(event.occurred_at) }}</time></li></ol><details v-if="detail.timeline.length > 3" class="customer-history"><summary>全部处理记录</summary><ol class="customer-timeline"><li v-for="(event, index) in detail.timeline" :key="index"><strong>{{ event.summary }}</strong><time>{{ formatTime(event.occurred_at) }}</time></li></ol></details></section>
+            <section class="panel"><h2>申请操作</h2><a class="text-button" href="#/shop/orders">查看我的订单 →</a><button v-if="detail.allowed_actions.includes('CANCEL')" data-test="cancel-case" class="danger-button" type="button" :disabled="writing" @click="cancelOpen = true; cancelReason = ''">撤销申请</button><details class="customer-history customer-identifiers"><summary>申请与订单编号</summary><dl class="customer-facts"><dt>申请号</dt><dd>{{ detail.case.case_id }}</dd><dt>订单号</dt><dd>{{ detail.case.order_id || '未提供' }}</dd><dt>提交时间</dt><dd>{{ formatTime(detail.case.created_at) }}</dd><dt v-if="detailLine?.paid_at">支付时间</dt><dd v-if="detailLine?.paid_at">{{ formatTime(detailLine.paid_at) }}</dd></dl></details></section>
           </aside>
         </div>
       </template>

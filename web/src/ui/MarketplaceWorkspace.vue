@@ -139,12 +139,12 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
 </script>
 
 <template>
-  <div :class="screen === 'customer' ? 'buyer-aftercare' : 'marketplace'">
+  <div class="marketplace" :class="{ 'buyer-aftercare': screen === 'customer' }">
     <nav class="shop-nav" aria-label="买家导航">
       <a href="#/shop" :class="{ current: screen !== 'customer' && screen !== 'orders' && screen !== 'cart' }" @click.prevent="go('#/shop')">商城</a>
       <a v-if="account" href="#/shop/cart" :class="{ current: screen === 'cart' }" @click.prevent="go('#/shop/cart')">购物车</a>
       <a v-if="account" href="#/shop/orders" :class="{ current: screen === 'orders' }" @click.prevent="go('#/shop/orders')">我的订单</a>
-      <a v-if="account" href="#/customer/applications" @click.prevent="go('#/customer/applications')">我的售后</a>
+      <a v-if="account" href="#/customer/applications" :class="{ current: screen === 'customer' }" @click.prevent="go('#/customer/applications')">我的售后</a>
       <button v-if="!account" class="shop-login" @click="emit('login')">登录</button>
     </nav>
     <p v-if="error" class="shop-error shop-global-error" role="alert">{{ error }}</p>

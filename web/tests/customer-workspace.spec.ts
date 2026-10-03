@@ -19,6 +19,7 @@ const wrappers: VueWrapper[] = []
 function open() { const w = mount(CustomerWorkspace, { props: { account } }); wrappers.push(w); return w }
 beforeEach(() => {
   window.history.replaceState(null, '', '/#/customer/orders')
+  vi.spyOn(coreApi, 'orderLine').mockResolvedValue(line)
   vi.spyOn(coreApi, 'orders').mockResolvedValue({ items: [line], page: { limit: 20 } })
   vi.spyOn(coreApi, 'customerCases').mockResolvedValue({ items: [detail().case], page: { limit: 20 } })
   vi.spyOn(coreApi, 'customerOrderLine').mockResolvedValue({ order_line: line, application: null, can_apply: true, blocked_reason: '' })
