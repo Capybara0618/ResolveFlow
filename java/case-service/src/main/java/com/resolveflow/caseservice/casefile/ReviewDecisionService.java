@@ -53,6 +53,7 @@ public class ReviewDecisionService {
     private final AuthorizationRepository authorizations;
     private final ReviewQuestionService questions;
     private final CommerceOrderLineClient commerce;
+    private final UnshippedRefundCheck unshipped;
     private final Clock clock;
     private final ObjectMapper mapper;
 
@@ -63,12 +64,14 @@ public class ReviewDecisionService {
             CommerceOrderLineClient commerce,
             Clock clock,
             ObjectMapper mapper,
-            CaseCollaborationService collaboration) {
+            CaseCollaborationService collaboration,
+            UnshippedRefundCheck unshipped) {
         this.cases = cases;
         this.collaboration = collaboration;
         this.authorizations = authorizations;
         this.questions = questions;
         this.commerce = commerce;
+        this.unshipped = unshipped;
         this.clock = clock;
         this.mapper = mapper;
     }
@@ -111,6 +114,10 @@ public class ReviewDecisionService {
         var context = decision == ReviewDecision.APPROVE && localRevalidationFailure(row, stored) == null
                 ? commerce.readLineContext(row.lineId())
                 : java.util.Optional.<CommerceOrderLineClient.LineContext>empty();
+        if (decision == ReviewDecision.APPROVE && localRevalidationFailure(row, stored) == null) {
+            String shipmentFailure = unshipped.failure(row, stored);
+            if (shipmentFailure != null) throw new CaseStateConflictException(shipmentFailure);
+        }
         return collaboration.writeOwned(principal, caseId, permit, locked -> {
             var current = authorizations.findByAuthorizationId(authorizationId);
             requireCurrentReading(locked, seenCaseVersion);

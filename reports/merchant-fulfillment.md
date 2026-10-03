@@ -45,3 +45,26 @@ git diff --check
 首轮Java九类56 passed/0 skipped，追加客户端第七项后7 passed；共57个不同测试。严格版本补强后接口与客户端14项复测通过。Commerce临时MySQL真实付款/发货与安全过滤、Case真实持久登录和模拟私有依赖、客户端真实HTTP序列化分别验证，不冒充正式网页链路。覆盖管理员可信绑定、异店/异买家拒绝、非管理员禁止、原键恢复、无效版本/自报字段拒绝、依赖503，以及全部新RPC的令牌subject/scope和类型。Python首轮115 passed/2 failed因两条本人履约路由缺少规格Authority文本；补齐来源描述，保留旧deferred guards仅排除已实现的两条精确路径，最终117 passed。定点Spotless、Ruff和差异检查通过。
 
 未运行：尚未部署V14/接口到保留数据演示，未改M09/M10/M11，未追加/导入购物政策与索引、未做未发货建议的当前事实复核或新购物退款网页闭环。演示仍第四批版本，原数据/预算未触碰，无新付款/发货/工单/退款/模型调用。下一步同一第五批先购物政策与复核，再网页接线及集中验收；第六批仍待执行。
+
+## 两商家购物政策与未发货建议复核子步
+
+2026-10-03，接口7e99b6f已推送。仅追加policy-logistics-2026.10与policy-demo-m1002-logistics-2026.10，2026-10-01T00Z起/safety_epoch3，覆盖未发货、丢失、签收争议、损坏/质量核验、普通在途及单行全额/资金/人工决定六条规则。六个旧bundle、历史钉住与正文hash不修改；按支付日期和商家选择版本。新不可变源的manifest_hash分别为b1d94c4da51e65a457119d101448ebc38d5a0aade7e93802c13db7b55ea40faa和87a0c051eebdf5045865f4bd795fe2ad0daf12e06a0e0632630b9b58df3e07d1。既有启动驱动仅在原索引bundle清单追加两ID，沿用从Java读取存储manifest/hash的导入入口，不在生产检索时解析YAML。
+
+UnshippedRefundCheck在REFUND建议引用R-UNSHIPPED-001时复核当前可信订单/商家/本人/目标行，要求持久NOT_SHIPPED头与行/version1、UNKNOWN承运商结论、唯一ORDER_PAID付款事件。缺失物流/未知/在途/签收不能当未发货；缺失404为建议拒绝，依赖故障503。人工批准按授权固定proposal_id读取原建议，当前状态变化409，不写决定/资金；网络读取在既有Case写锁外，随后原revision/负责人/身份/授权CAS仍在锁内复核。旧规则不新增购物依赖。按既有字段语义区分AGENT的回调信封hash与HUMAN的文档hash，保留原回调验证；不改变原哈希协议。
+
+实际命令：
+
+```powershell
+./java/mvnw.cmd -f java/pom.xml -pl case-service -am '-Dtest=UnshippedRefundCheckTest,ProposalReCheckApiTest,ReviewDecisionApiTest,PolicyImportTest,PolicyManifestApiTest,ManualProposalApiTest,AuthorizationApiTest,AuthorizationConsumptionApiTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+./java/mvnw.cmd -f java/pom.xml '"-DspotlessFiles=.*(UnshippedRefundCheck|UnshippedRefundCheckTest|ProposalReCheck|ProposalReCheckApiTest|ReviewDecisionService|ReviewDecisionApiTest|PolicyImportTest|PolicyManifestApiTest)\.java"' spotless:apply
+$env:RESOLVEFLOW_AGENT_DB='postgresql://agent:agent@127.0.0.1:55433/agent_db'
+agent/.venv/Scripts/python.exe -m pytest agent/tests/integration/test_shopping_policy_index.py agent/tests/integration/test_policy_index.py agent/tests/unit/test_policy_chunking.py agent/tests/unit/test_reviewer_demo_driver.py -q
+agent/.venv/Scripts/python.exe -m ruff check agent/tests/integration/test_shopping_policy_index.py
+git diff --check
+```
+
+最终Java八类88 passed/0 skipped，临时真实MySQL：新旧日期/两商家选择、六旧bundle逐字段不变、新hash与跨语言c-01 hash、重导8跳过/改版拒绝、原钉住保持；未发货提交通过而在途/未知存REJECTED不建授权；提交后发货阻止批准、依赖503不写审批；原人工/授权/消费回归保留。Python四文件56 passed/0 skipped，其中两个新真实PG测试在随机独立schema索引两商家，精确hash门禁、异店拒绝、c-01引用hash及完整限制原文通过；旧索引/分块/启动驱动回归保留。BM25真实检索通过，dense测试使用现有合成embedder，不宣称新模型召回质量；未调用Live。
+
+失败与修复：Java首轮72项70通过/1失败/1错误，错误是Mockito重新when时执行此前抛错stub，改doThrow/doReturn；审批失败暴露AGENT记录的payload_hash实际为回调信封hash，不能直接与建议文档hash比较，按既有AGENT/HUMAN语义修正后73项通过，补强跨语言hash与授权/消费回归最终88通过。Python首轮因chunk_of不在包导出而收集失败，改从既有chunking模块导入；第二轮54通过/2失败为测试误用位置1，依据已有零基位置规范改位置0验证c-01，最终56通过。新Python文件Ruff通过、定点Spotless/diff通过；同时检查旧scripts/reviewer_demo.py全文件Ruff失败19条，与HEAD旧文件相同code/message的19条诊断已核对，不修无关旧代码、不宣称全仓lint通过。
+
+未运行与边界：保留数据演示尚未部署V14/API/新政策/正式索引，网页M09/M10/M11未修改；新索引只在隔离测试schema验证，不能宣称演示RAG已READY。未做新购物退款网页闭环、未启Live/dense收费评测，无原演示订单/资金/工单/run或预算写入。当前复核是跨服务当前事实读取，不是分布式原子锁；只有Commerce已建立退款占用才由相同账本/槽锁阻止发货，Case消费到异步送达之间不作更强承诺。第五批仍未完成，接续正式网页与保留数据集中验证后才进入第六批全链验收。

@@ -209,11 +209,11 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
         try {
             extra = java.nio.file.Files.createTempDirectory("policy-newer");
             java.nio.file.Files.writeString(extra.resolve("newer.yaml"), """
-                    bundle_id: policy-logistics-2026.10
+                    bundle_id: policy-logistics-test-2026.11
                     merchant_id: M-1001
-                    version: "2026.10"
+                    version: "2026.11"
                     safety_epoch: 3
-                    effective_from: "2026-10-01T00:00:00Z"
+                    effective_from: "2026-11-01T00:00:00Z"
                     effective_to: null
                     rules:
                       - rule_id: R-LOST-001
@@ -236,7 +236,7 @@ class PolicyManifestApiTest extends CaseDatabaseTest {
 
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM policy_bundle", Integer.class))
                 .as("the newer version really is installed, alongside both merchants' fixtures (C07.1)")
-                .isEqualTo(7);
+                .isEqualTo(9);
         assertThat(readManifest(caseId).toString())
                 .as("the case is decided under the policy it was opened under, forever")
                 .isEqualTo(before);

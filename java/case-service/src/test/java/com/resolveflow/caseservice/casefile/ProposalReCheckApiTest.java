@@ -72,7 +72,45 @@ class ProposalReCheckApiTest extends CaseDatabaseTest {
     @Value("${resolveflow.identity.jwt.secret}")
     String secret;
 
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    com.resolveflow.caseservice.shopping.CommerceShoppingClient shopping;
+
     private long lineCounter = 7500;
+
+    @Test
+    void octoberUnshippedRuleNeedsCurrentExplicitFactsBeforeAProposalIsExecutable() {
+        commerce.paidAt = Instant.parse("2026-10-03T08:00:00Z");
+        for (String state : java.util.List.of("NOT_SHIPPED", "IN_TRANSIT", "UNKNOWN")) {
+            String caseId = openCase();
+            String lineId =
+                    jdbc.queryForObject("SELECT line_id FROM aftersale_case WHERE case_id = ?", String.class, caseId);
+            var time = commerce.paidAt;
+            var fact = new com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment(
+                    StubCommerce.ORDER,
+                    state,
+                    true,
+                    state.equals("NOT_SHIPPED") ? 1L : 2L,
+                    time,
+                    java.util.List.of(new com.resolveflow.shared.shopping.FulfillmentWire.Tracking(
+                            lineId,
+                            state,
+                            "UNKNOWN",
+                            1L,
+                            java.util.List.of(new com.resolveflow.shared.shopping.FulfillmentWire.Event(
+                                    "ORDER_PAID", time, 1)))));
+            org.mockito.Mockito.when(shopping.fulfillment(StubCommerce.ORDER, "M-1001", "C-2002"))
+                    .thenReturn(fact);
+            ObjectNode payload = proposal(caseId, 1, "REFUND");
+            var citation = citationFor("policy-logistics-2026.10", "R-UNSHIPPED-001");
+            citation.put("version", "2026.10");
+            payload.putArray("policy_refs").add(citation);
+            deliver("unshipped-" + state, caseId, payload);
+            assertThat(storedStatus(caseId)).isEqualTo(state.equals("NOT_SHIPPED") ? "VALIDATED" : "REJECTED");
+            assertThat(jdbc.queryForObject(
+                            "SELECT COUNT(*) FROM case_authorization WHERE case_id = ?", Integer.class, caseId))
+                    .isEqualTo(state.equals("NOT_SHIPPED") ? 1 : 0);
+        }
+    }
 
     @Test
     void reviewerFindingsAreStoredButCannotNameUncitedObservations() {

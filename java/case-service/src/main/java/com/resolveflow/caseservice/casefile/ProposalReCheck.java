@@ -92,12 +92,17 @@ public class ProposalReCheck {
     private final PolicyRepository policies;
     private final PolicyManifestRepository manifests;
     private final CommerceOrderLineClient commerce;
+    private final UnshippedRefundCheck unshipped;
 
     public ProposalReCheck(
-            PolicyRepository policies, PolicyManifestRepository manifests, CommerceOrderLineClient commerce) {
+            PolicyRepository policies,
+            PolicyManifestRepository manifests,
+            CommerceOrderLineClient commerce,
+            UnshippedRefundCheck unshipped) {
         this.policies = policies;
         this.manifests = manifests;
         this.commerce = commerce;
+        this.unshipped = unshipped;
     }
 
     /**
@@ -174,6 +179,8 @@ public class ProposalReCheck {
                     "line " + row.lineId() + " belongs to another merchant or customer, so it is"
                             + " not this case's line to refund");
         }
+        String shipmentFailure = unshipped.failure(row, citedPolicies);
+        if (shipmentFailure != null) return Outcome.refused(Outcome.RefusalKind.WORLD, shipmentFailure);
         long refundable = line.refundableAmountMinor();
         if (refundable <= 0) {
             return Outcome.refused(

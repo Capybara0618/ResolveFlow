@@ -55,6 +55,51 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
     private static final String CUSTOMER = "C-2002";
     private static final long AMOUNT = 2599L;
 
+    @Test
+    void shipmentChangedAfterSuggestionCannotBeApprovedAndDependencyOutageDoesNotWrite() {
+        commerce.paidAt = Instant.parse("2026-10-03T08:00:00Z");
+        String caseId = openCase();
+        String lineId =
+                jdbc.queryForObject("SELECT line_id FROM aftersale_case WHERE case_id = ?", String.class, caseId);
+        var time = commerce.paidAt;
+        var original = new com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment(
+                StubCommerce.ORDER,
+                "NOT_SHIPPED",
+                true,
+                1L,
+                time,
+                java.util.List.of(new com.resolveflow.shared.shopping.FulfillmentWire.Tracking(
+                        lineId,
+                        "NOT_SHIPPED",
+                        "UNKNOWN",
+                        1L,
+                        java.util.List.of(
+                                new com.resolveflow.shared.shopping.FulfillmentWire.Event("ORDER_PAID", time, 1)))));
+        org.mockito.Mockito.doReturn(original).when(shopping).fulfillment(StubCommerce.ORDER, "M-1001", "C-2002");
+        deliverProposal(caseId, 1, "unshipped-approval");
+        var view = view(caseId, reviewer());
+        String authorizationId =
+                view.get("authorization").get("authorization_id").stringValue();
+        String match = "\"" + view.get("case").get("version").asLong() + "\"";
+        org.mockito.Mockito.when(shopping.fulfillment(StubCommerce.ORDER, "M-1001", "C-2002"))
+                .thenReturn(new com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment(
+                        StubCommerce.ORDER, "IN_TRANSIT", true, 2L, time, original.lines()));
+        assertThat(decideStatus(caseId, reviewer(), match, authorizationId, 1, "APPROVE", "核验未发货退款"))
+                .isEqualTo(409);
+        assertThat(authorizationColumn(caseId, "status")).isEqualTo("PENDING_REVIEW");
+        org.mockito.Mockito.when(shopping.fulfillment(StubCommerce.ORDER, "M-1001", "C-2002"))
+                .thenThrow(new com.resolveflow.caseservice.order.CommerceOrderLineClient.CommerceUnavailableException(
+                        "offline", null));
+        assertThat(decideStatus(caseId, reviewer(), match, authorizationId, 1, "APPROVE", "核验未发货退款"))
+                .isEqualTo(503);
+        assertThat(timelineCount(caseId, "AUTHORIZATION_DECIDED")).isZero();
+        org.mockito.Mockito.doReturn(original).when(shopping).fulfillment(StubCommerce.ORDER, "M-1001", "C-2002");
+        assertThat(decide(caseId, reviewer(), match, authorizationId, 1, "APPROVE", "核验未发货退款")
+                        .get("status")
+                        .stringValue())
+                .isEqualTo("APPROVED");
+    }
+
     @TestConfiguration
     static class StubCommerceConfiguration {
 
@@ -82,6 +127,9 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
 
     @Value("${resolveflow.identity.jwt.secret}")
     String secret;
+
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    com.resolveflow.caseservice.shopping.CommerceShoppingClient shopping;
 
     private long lineCounter = 7700;
 
@@ -146,26 +194,29 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
     }
 
     private ObjectNode citation() {
+        String bundle =
+                commerce.paidAt.isBefore(Instant.parse("2026-10-01T00:00:00Z")) ? BUNDLE : "policy-logistics-2026.10";
+        String ruleId = bundle.equals(BUNDLE) ? "R-LOST-001" : "R-UNSHIPPED-001";
         return jdbc.query(
                 "SELECT position, rule_id, title, text FROM policy_rule WHERE bundle_id = ? AND rule_id = ?",
                 resultSet -> {
                     assertThat(resultSet.next()).isTrue();
                     PolicyRule rule = PolicyRule.from(
-                            BUNDLE,
+                            bundle,
                             resultSet.getInt("position"),
                             resultSet.getString("rule_id"),
                             resultSet.getString("title"),
                             resultSet.getString("text"));
                     ObjectNode node = MAPPER.createObjectNode();
-                    node.put("bundle_id", BUNDLE);
-                    node.put("version", VERSION);
-                    node.put("rule_id", "R-LOST-001");
+                    node.put("bundle_id", bundle);
+                    node.put("version", bundle.equals(BUNDLE) ? VERSION : "2026.10");
+                    node.put("rule_id", ruleId);
                     node.put("chunk_id", rule.chunkId());
                     node.put("content_hash", rule.contentHash());
                     return node;
                 },
-                BUNDLE,
-                "R-LOST-001");
+                bundle,
+                ruleId);
     }
 
     /** Open a case and deliver a proposal the re-check validates, so an authorisation exists. */

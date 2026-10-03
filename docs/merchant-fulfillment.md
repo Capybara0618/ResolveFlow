@@ -8,7 +8,7 @@
 
 NOT_SHIPPED只表示本地订单未执行模拟发货，不代表外部承运商结论；carrier_conclusion=UNKNOWN。首次发货生成各行SIMULATED_SHIPPED事件、IN_TRANSIT/version=2，时间取服务器Clock，synthetic恒true。不生成签收/丢失、真实运单或任意模板选择。全部行与履约头同事务，部分失败全部回滚；事件只追加。已发布不能改模板、改原事件或再次发货。
 
-写锁序：本订单payment_ledger→order_fulfillment→按line_id排序所有line_refund。只允许总账refunded=reserved=0且各行FREE；任何REFUNDED/RESERVED/UNKNOWN或不完整槽拒绝。与现有退款接受共用账本锁，退款占用先赢则发货拒绝；发货先赢则后续退款调查看到新物流版本，不放宽退款资格或自动审批。尚未消费的申请可以存在，物流变化须由既有证据复核/新调查处理；消费后退款占用阻止发货。发货不改Case输入revision/旧政策钉住/资金金额。
+写锁序：本订单payment_ledger→order_fulfillment→按line_id排序所有line_refund。只允许总账refunded=reserved=0且各行FREE；任何REFUNDED/RESERVED/UNKNOWN或不完整槽拒绝。与现有退款接受共用账本锁，退款占用先赢则发货拒绝；发货先赢则后续退款调查看到新物流版本，不放宽退款资格或自动审批。尚未消费的申请可以存在，物流变化须由既有证据复核/新调查处理；Commerce实际建立退款占用后阻止发货；Case授权消费与异步送达Commerce之间不宣称存在分布式原子履约锁。发货不改Case输入revision/旧政策钉住/资金金额。
 
 请求expected_version必须为正整数，Idempotency-Key为1–128字母数字下划线连字符。同订单原key+actor+expected_version重放原成功回执；同key异载荷或新key再次发货409。原响应丢失只查询/重试原请求，不能换key。事务内再次核验商家归属；跨店/不存在统一404。商家停用及账号身份版本由Case现有身份解析拒绝。Agent没有该范围的任何读写权限。
 
@@ -25,6 +25,9 @@ NOT_SHIPPED只表示本地订单未执行模拟发货，不代表外部承运商
 追加两商家购物政策不可变版本，覆盖2026-10-01起的支付时间，effective_to=null。不改六个历史bundle正文、hash、时间或已钉住manifest；旧订单按paid_at选择原版本。新版本包含：未发货整行全额退款需当前持久NOT_SHIPPED事实；发货后仍按物流异常/人工核验损坏规则，不把所有在途无条件退款。每次只退该行全部数量/实付；同行一次、整单已退+预留上限、UNKNOWN原占用继续有效。不同理由不改变主体或金额权限。
 
 RAG索引通过既有导入/index入口使用新精确manifest/hash，不以改名旧索引冒充完成；新调查读NOT_SHIPPED/ORDER_PAID事实并引用钉住政策。人工审批仍是唯一产品最终退款决定。新增未发货诉求在公开表单使用明确文字，Agent建议须有来源，模型confidence不是授权。政策引用与实际状态/版本变化要复核；不能把原404物流缺失当退款依据。
+
+实现入口为UnshippedRefundCheck：REFUND建议引用R-UNSHIPPED-001时，在已有行归属/金额检查后读取Case专用本人履约接口，以订单ID、商家、客户和目标行限定，要求当前头/行NOT_SHIPPED/version1、UNKNOWN承运商结论及唯一ORDER_PAID事件。物流404拒绝建议，故障503不伪造缺失。人工批准按授权固定的proposal_id重读原建议，再读取当前事实；变更409且不写审批，依赖故障503，不持有Case/账号写锁跨网络调用。旧物流规则不增加购物依赖。当前事实复核不是分布式事务，也不保证跨服务读取后外部事实永远不变化；最终资金仍由Commerce账本/槽锁守住。新政策的Agent建议仍须有效钉住引用，人工建议同样复核。
+
 
 ## 页面及集中验收
 

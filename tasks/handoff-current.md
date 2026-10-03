@@ -1,6 +1,6 @@
 # 当前执行说明：接续第五批模拟履约与售后政策
 
-本批履约领域与Case/Commerce交易/本人履约接口已完成，切勿重做V14、付款未发货事实、首次发货事务或八条新接口。当前只看todo顶部；领域33项Java/97项Python及接口57个不同Java/117项Python证据见[第五批报告](../reports/merchant-fulfillment.md)，正式[协议](../docs/merchant-fulfillment.md)。领域9fea0ec/b8887b6已推送，接口精确提交推送后继续两商家2026.10不可变购物政策/精确索引与未发货当前事实复核→M09/M10/M11→保留数据集中验收；这些尚未完成，演示仍第四批版本未部署V14。若换执行者，先只读核对Git/账本/进程及未提交归属，确认唯一业务写入者后接管，不覆盖他人文件。下文第五批安排仅在未完成部分适用。
+本批履约领域、Case/Commerce交易与本人履约接口、两商家2026.10不可变购物政策及未发货建议/审批复核已完成，切勿重做V14、八条接口、两新政策或UnshippedRefundCheck。当前只看todo顶部；领域33项Java/97项Python、接口57个不同Java/117项Python、政策88项Java/56项Python证据与失败/限制见[第五批报告](../reports/merchant-fulfillment.md)，正式[协议](../docs/merchant-fulfillment.md)。领域9fea0ec/b8887b6及接口7e99b6f已推送，本政策子步精确commit/正常push收口后停止业务写入。接手先只读核对Git/账本/进程及未提交归属，确认唯一写入者后接M09/M10/M11网页及原请求会话恢复，再保留数据部署V14/API/新政策与精确索引，新增独立样本集中验收；演示仍第四批版本，网页及正式新索引尚未接，不宣称第五批完成。当前事实读取不是分布式原子锁，实际Commerce占用才阻止发货；第六批全链仍待实施。下文第五批安排仅在尚未完成部分适用。
 
 第四批已集中完成，实际进度唯一看todo顶部，协议与证据见[购物车规格](../docs/cart-multiline-checkout.md)、[第四批报告](../reports/cart-checkout.md)。沿用74df827/fbd5c73/c97685e及本次网页最终提交；本执行者精确commit/正常push并确认远端后停止业务写入。接手先只读核对Git/账本、未提交文件归属及demo.ps1 status，再接原[六批实施对应](../docs/marketplace-implementation.md)第五批M09/M10/M11，不重做第四批或另行规划。
 

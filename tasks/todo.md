@@ -1,5 +1,11 @@
 # 当前改进进度
 
+## 当前快照（2026-10-03，第五批购物政策与未发货复核子步）
+
+- 领域9fea0ec/b8887b6及接口7e99b6f已推送；本步仅追加两商家2026.10不可变购物政策与原启动索引清单，UnshippedRefundCheck按可信当前履约/唯一ORDER_PAID复核未发货建议及授权固定的原proposal，已发货409不能批准，故障503无决定，旧物流规则不新增购物依赖。Java八类88 passed/0 skipped、Python四文件56 passed/0 skipped（新真实PG隔离索引2项）、定点Spotless/新文件Ruff/diff通过。旧驱动全文件Ruff19条与HEAD基线完全相同，未清理无关代码；首次信封hash语义/Mock重设及chunk位置测试失败修复与实际命令见[第五批报告](../reports/merchant-fulfillment.md)。本子步精确提交正常push，SHA/远端确认见交接消息。
+- 第五批尚未完成：接续正式M10/M11管理员交易/原请求恢复和M09本人履约，再保留数据部署V14/API/两新政策与精确索引、新增专用样本集中验证。演示当前5174/8180仍第四批只读版，正式索引未部署；本步无原演示业务写入/资金/工单/模型。当前事实复核不宣称分布式原子锁，Commerce实际占用阻止发货；第六批购物退款全链网页仍待实施。不重做领域/接口/政策/前四批，不夹带历史工程/verify/Commerce退款测试/草图/日志。
+
+
 ## 当前快照（2026-10-03，第五批交易与履约接口子步）
 
 - 领域9fea0ec及LF修复b8887b6已推送，新增Case/Commerce各四条接口，core Case57/Commerce25/Agent7。管理员本商家交易分页/详情/观察版本原键首次发货，平台买家本人已付履约；持久身份绑定主体，Case专用fulfillment范围拒绝Agent/专员/客户和伪造主体。严格版本拒绝小数/字符串/溢出，依赖故障503。九类57个不同Java测试/0 skipped、严格版本14项复测、Python117、定点Spotless/Ruff/diff通过；实际命令、Authority首轮两失败与修复、未运行见[第五批报告](../reports/merchant-fulfillment.md)。本接口子步精确commit/正常push，SHA及远端确认见交接消息。

@@ -1004,8 +1004,7 @@ DISPLAY_SCENARIOS = (
     "success-refund",
 )
 
-#: Every bundle the controlled import installs; the same four the C07.1 driver names, so a
-#: fixture that stopped being importable is a missing-name failure rather than a shorter run.
+#: Every immutable bundle installed by the controlled import, including both shopping versions.
 POLICY_BUNDLES = (
     "policy-logistics-2026.08",
     "policy-logistics-2026.09",
@@ -1013,6 +1012,8 @@ POLICY_BUNDLES = (
     "policy-damage-2026.09",
     "policy-demo-m1002-logistics-2026.08",
     "policy-demo-m1002-logistics-2026.09",
+    "policy-logistics-2026.10",
+    "policy-demo-m1002-logistics-2026.10",
 )
 
 #: The two demo service tokens this driver mints. The secret is the local demo identity

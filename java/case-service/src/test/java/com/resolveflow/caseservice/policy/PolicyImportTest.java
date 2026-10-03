@@ -85,6 +85,71 @@ class PolicyImportTest extends CaseDatabaseTest {
                 bundleId);
     }
 
+    @Autowired
+    PolicySelectionService selection;
+
+    @Test
+    void shoppingVersionsAppendWithoutChangingSixLegacyBundlesAndRemainMerchantScoped() throws IOException {
+        Path root = Path.of("").toAbsolutePath();
+        while (root != null && !Files.isDirectory(root.resolve("fixtures/policies/bundles"))) root = root.getParent();
+        assertThat(root).isNotNull();
+        Path sources = root.resolve("fixtures/policies/bundles");
+        try (var files = Files.list(sources)) {
+            for (var file : files.filter(f -> !f.getFileName().toString().contains("2026.10"))
+                    .toList()) Files.copy(file, temp.resolve(file.getFileName()));
+        }
+        assertThat(imports.importDirectory(temp).imported()).hasSize(6);
+        var legacy = jdbc.queryForList("SELECT * FROM policy_bundle ORDER BY bundle_id");
+        for (String id : List.of("policy-logistics-2026.10", "policy-demo-m1002-logistics-2026.10"))
+            Files.copy(sources.resolve(id + ".yaml"), temp.resolve(id + ".yaml"));
+        assertThat(imports.importDirectory(temp).imported()).hasSize(2);
+        assertThat(imports.importDirectory(temp).skipped()).hasSize(8);
+        assertThat(jdbc.queryForList("SELECT * FROM policy_bundle WHERE version <> '2026.10' ORDER BY bundle_id"))
+                .isEqualTo(legacy);
+        for (String merchant : List.of("M-1001", "M-1002")) {
+            String expected =
+                    merchant.equals("M-1001") ? "policy-logistics-2026.10" : "policy-demo-m1002-logistics-2026.10";
+            assertThat(selection
+                            .selectFor(merchant, java.time.Instant.parse("2026-10-01T00:00:00Z"))
+                            .bundleIds())
+                    .containsExactly(expected);
+            assertThat(selection
+                            .selectFor(merchant, java.time.Instant.parse("2026-09-30T23:59:59Z"))
+                            .bundleIds())
+                    .allMatch(id -> id.endsWith("2026.09"));
+            var draft = reader.read(sources.resolve(expected + ".yaml"));
+            assertThat(storedBundle(expected).get("manifest_hash")).isEqualTo(imports.hash(draft));
+            String manifestHash = merchant.equals("M-1001")
+                    ? "b1d94c4da51e65a457119d101448ebc38d5a0aade7e93802c13db7b55ea40faa"
+                    : "87a0c051eebdf5045865f4bd795fe2ad0daf12e06a0e0632630b9b58df3e07d1";
+            assertThat(imports.hash(draft)).isEqualTo(manifestHash);
+            var rule = draft.rules().get(0);
+            assertThat(PolicyRule.from(expected, 0, rule.ruleId(), rule.title(), rule.text())
+                            .contentHash())
+                    .isEqualTo(
+                            merchant.equals("M-1001")
+                                    ? "8be58dbf703806964c1a588d36d1af0e257e3133acd930a1173507b163d9da32"
+                                    : "94595529a8a68bf67b8392accce45aabf0e8682ec9812f94f0247c8dd906d500");
+            assertThat(jdbc.queryForList(
+                            "SELECT rule_id FROM policy_rule WHERE bundle_id = ? ORDER BY position",
+                            String.class,
+                            expected))
+                    .containsExactly(
+                            "R-UNSHIPPED-001",
+                            "R-LOST-001",
+                            "R-SIGNED-001",
+                            "R-DMG-001",
+                            "R-INTRANSIT-001",
+                            "R-MONEY-001");
+        }
+        Path newSource = temp.resolve("policy-logistics-2026.10.yaml");
+        Files.writeString(newSource, Files.readString(newSource).replace("已付款未发货", "篡改标题"));
+        assertThatThrownBy(() -> imports.importDirectory(temp))
+                .isInstanceOf(PolicyImportService.ImportRefusedException.class);
+        assertThat(jdbc.queryForList("SELECT * FROM policy_bundle WHERE version <> '2026.10' ORDER BY bundle_id"))
+                .isEqualTo(legacy);
+    }
+
     @Test
     @DisplayName("a bundle is stored with a hash of its content, and its rules in source order")
     void aBundleIsStoredWithItsHash() throws IOException {
