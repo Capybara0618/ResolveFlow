@@ -5,12 +5,14 @@ import { shopApi, type ShopProduct, type ShopStore, type ShopQuote, type ShopDra
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
 import CustomerWorkspace from './CustomerWorkspace.vue'
+import BuyerOrders from './BuyerOrders.vue'
 import './marketplace.css'
 
 const props = defineProps<{ account: LoginResponse | null }>()
 const emit = defineEmits<{ expired: []; login: [] }>()
-type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'draft' | 'customer'
+type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer'
 const screen = ref<Screen>('home'), query = ref(''), category = ref(''), stores = ref<ShopStore[]>([])
+const ordersRoute = ref('')
 const products = ref<ShopProduct[]>([]), store = ref<ShopStore | null>(null), product = ref<ShopProduct | null>(null)
 const sku = ref(''), quantity = ref(1), quote = ref<ShopQuote | null>(null), draft = ref<ShopDraft | null>(null)
 const loading = ref(false), writing = ref(false), uncertain = ref(false), error = ref(''), next = ref<string | null>(null)
@@ -37,11 +39,11 @@ async function route() {
   if (hash.startsWith('#/customer/')) { screen.value = 'customer'; loading.value = false; return }
   loading.value = true
   try {
-    if (/^#\/shop\/drafts\//.test(hash)) {
-      screen.value = 'draft'
+    if (hash.startsWith('#/shop/orders') || /^#\/shop\/drafts\//.test(hash)) {
+      screen.value = 'orders'
+      ordersRoute.value = hash
       if (!props.account) { emit('login'); return }
-      const result = await shopApi.readDraft(props.account.access_token, decodeURIComponent(hash.slice('#/shop/drafts/'.length)))
-      if (alive && g === generation) draft.value = result
+      loading.value = false
     } else if (/^#\/shop\/products\//.test(hash)) {
       screen.value = 'product'
       const result = await shopApi.product(decodeURIComponent(hash.slice('#/shop/products/'.length)))
@@ -83,8 +85,9 @@ async function submit() {
   try {
     const result = await shopApi.draft(props.account.access_token, request.request, request.key)
     if (!alive) return
-    uncertain.value = false; draft.value = result; screen.value = 'draft'; pending = null
-    window.history.pushState(null, '', `#/shop/drafts/${encodeURIComponent(result.draft_id)}`)
+    uncertain.value = false; draft.value = result; pending = null
+    ordersRoute.value = `#/shop/drafts/${encodeURIComponent(result.draft_id)}`
+    window.history.pushState(null, '', ordersRoute.value); screen.value = 'orders'
   } catch (cause) {
     if (!alive) return
     if (!(cause instanceof ApiError) || cause.status >= 500) { uncertain.value = true; error.value = '提交结果尚未确认，请用原请求重试确认。' }
@@ -100,12 +103,13 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
 <template>
   <div :class="screen === 'customer' ? 'buyer-aftercare' : 'marketplace'">
     <nav class="shop-nav" aria-label="买家导航">
-      <a href="#/shop" :class="{ current: screen !== 'customer' }" @click.prevent="go('#/shop')">商城</a>
-      <a v-if="account" href="#/customer/orders" @click.prevent="go('#/customer/orders')">我的订单</a>
+      <a href="#/shop" :class="{ current: screen !== 'customer' && screen !== 'orders' }" @click.prevent="go('#/shop')">商城</a>
+      <a v-if="account" href="#/shop/orders" :class="{ current: screen === 'orders' }" @click.prevent="go('#/shop/orders')">我的订单</a>
       <a v-if="account" href="#/customer/applications" @click.prevent="go('#/customer/applications')">我的售后</a>
       <button v-if="!account" class="shop-login" @click="emit('login')">登录</button>
     </nav>
     <CustomerWorkspace v-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
+    <BuyerOrders v-else-if="screen === 'orders' && account" :key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
     <main v-else class="shop-content">
       <p v-if="error" class="shop-error" role="alert">{{ error }}</p>
       <form v-if="['home','search','store'].includes(screen)" class="shop-search" @submit.prevent="search"><input v-model="query" aria-label="搜索商品" placeholder="搜索商品，发现喜欢的好物" maxlength="80" /><button type="submit">搜索</button></form>
@@ -131,10 +135,6 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
         <button class="shop-back" :disabled="writing || uncertain" @click="screen = 'product'; quote = null">← 修改规格与数量</button><h1>确认订单</h1>
         <section class="checkout-address"><h2>演示收货信息</h2><p>演示买家 · 杭州市演示路 100 号</p></section>
         <section class="checkout-panel"><h2>{{ quote.product.store_name }}</h2><div class="checkout-line"><ProductArt :asset="quote.product.asset_key" :name="quote.product.name" /><div><h2>{{ quote.product.name }}</h2><p>{{ quote.sku.variant }}</p></div><div><p>单价</p><strong>{{ money(quote.sku.unit_amount) }}</strong></div><div><p>数量</p><strong>{{ quote.quantity }}</strong></div><div><p>小计</p><strong>{{ money(quote.total_amount) }}</strong></div></div><div class="checkout-total"><span>应付合计</span><strong>{{ money(quote.total_amount) }}</strong></div><button class="shop-primary" :disabled="writing" @click="submit">{{ writing ? '正在确认…' : uncertain ? '用原请求确认结果' : '提交订单' }}</button></section>
-      </template>
-      <template v-else-if="screen === 'draft'">
-        <p v-if="loading" class="shop-empty" role="status">正在读取订单…</p>
-        <section v-if="draft" class="draft-result"><span class="draft-symbol">{{ draft.status === 'EXPIRED' ? '◷' : '✓' }}</span><h1>{{ draft.status === 'EXPIRED' ? '待支付订单已到期' : '订单已提交，等待付款' }}</h1><p>{{ draft.status === 'EXPIRED' ? '请返回商品页重新确认购买。' : '模拟付款将在下一批开放，本次尚未付款。' }}</p><div class="draft-product"><ProductArt :asset="draft.asset_key" :name="draft.product_name" /><div><h2>{{ draft.product_name }}</h2><p>{{ draft.store_name }} · {{ draft.variant }} × {{ draft.quantity }}</p><strong>{{ money(draft.total_amount) }}</strong></div></div><p>付款截止：{{ new Date(draft.expires_at).toLocaleString('zh-CN', { hour12: false }) }}</p><div class="draft-actions"><button class="shop-primary" @click="go(`#/shop/products/${draft.product_id}`)">返回商品</button><button class="shop-secondary" @click="route">刷新状态</button></div><details><summary>查看订单编号</summary><p>{{ draft.draft_id }}</p></details></section>
       </template>
     </main>
   </div>

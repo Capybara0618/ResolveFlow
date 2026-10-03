@@ -60,6 +60,8 @@ function resetPage() {
   materialText.value = ''; answerText.value = ''; uncertainMaterial.value = false; uncertainMaterialIds.value = []
 }
 function routeHash() {
+  const line = window.location.hash.match(/^#\/customer\/apply\/([^/]+)$/)
+  if (line) { try { return { screen: 'apply' as Screen, id: decodeURIComponent(line[1]) } } catch { /* Invalid path falls back to owned list. */ } }
   const match = window.location.hash.match(/^#\/customer\/applications\/([^/]+)$/)
   if (match) { try { return { screen: 'detail' as Screen, id: decodeURIComponent(match[1]) } } catch { /* Invalid path falls back to owned list. */ } }
   return { screen: window.location.hash === '#/customer/applications' ? 'applications' as Screen : 'orders' as Screen, id: '' }
@@ -81,6 +83,13 @@ async function show(target: Screen, id = '') {
     if (target === 'detail') { detailId.value = id; const draft = drafts.get(id)
       if (draft) { materialText.value = draft.material; answerText.value = draft.answer; uncertainMaterial.value = draft.uncertain; uncertainMaterialIds.value = draft.ids }
       await readDetail()
+    } else if (target === 'apply') {
+      const token = props.account.access_token; await readEligibility(id, g)
+      if (!valid(g, token)) return
+      const context = eligibility.value[id]
+      if (context?.can_apply) { selectedLine.value = context; description.value = ''; initialMaterial.value = ''; pendingCreate = null }
+      else if (context?.application) navigate('detail', context.application.case_id)
+      else { screen.value = 'orders'; error.value = context?.blocked_reason || '当前订单行不能申请售后，请重新读取资格。' }
     } else if (target === 'applications') await loadApplications()
     else if (target === 'orders') await loadOrders()
   } finally { if (alive && g === generation) loading.value = false }

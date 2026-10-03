@@ -1,0 +1,172 @@
+{
+  "date": "2026-10-03",
+  "desktop_only": true,
+  "records": [
+    {
+      "view": "orders",
+      "facts": 67,
+      "minFontSize": 16,
+      "scrollWidth": 1265,
+      "state": "我的订单",
+      "width": 1280
+    },
+    {
+      "view": "waiting",
+      "facts": 18,
+      "minFontSize": 16,
+      "scrollWidth": 1265,
+      "state": "待付款",
+      "width": 1280
+    },
+    {
+      "view": "success",
+      "facts": 20,
+      "minFontSize": 16,
+      "scrollWidth": 1265,
+      "state": "已付款",
+      "width": 1280
+    },
+    {
+      "view": "detail",
+      "facts": 22,
+      "minFontSize": 16,
+      "scrollWidth": 1265,
+      "state": "已付款",
+      "width": 1280
+    },
+    {
+      "view": "cancelled",
+      "facts": 15,
+      "minFontSize": 16,
+      "scrollWidth": 1265,
+      "state": "已取消",
+      "width": 1280
+    },
+    {
+      "view": "expired",
+      "facts": 17,
+      "minFontSize": 16,
+      "scrollWidth": 1265,
+      "state": "已到期",
+      "width": 1280
+    },
+    {
+      "view": "orders",
+      "facts": 67,
+      "minFontSize": 16,
+      "scrollWidth": 1425,
+      "state": "我的订单",
+      "width": 1440
+    },
+    {
+      "view": "waiting",
+      "facts": 18,
+      "minFontSize": 16,
+      "scrollWidth": 1425,
+      "state": "待付款",
+      "width": 1440
+    },
+    {
+      "view": "success",
+      "facts": 20,
+      "minFontSize": 16,
+      "scrollWidth": 1425,
+      "state": "已付款",
+      "width": 1440
+    },
+    {
+      "view": "detail",
+      "facts": 22,
+      "minFontSize": 16,
+      "scrollWidth": 1425,
+      "state": "已付款",
+      "width": 1440
+    },
+    {
+      "view": "cancelled",
+      "facts": 15,
+      "minFontSize": 16,
+      "scrollWidth": 1425,
+      "state": "已取消",
+      "width": 1440
+    },
+    {
+      "view": "expired",
+      "facts": 17,
+      "minFontSize": 16,
+      "scrollWidth": 1425,
+      "state": "已到期",
+      "width": 1440
+    },
+    {
+      "view": "orders",
+      "facts": 67,
+      "minFontSize": 16,
+      "scrollWidth": 1665,
+      "state": "我的订单",
+      "width": 1680
+    },
+    {
+      "view": "waiting",
+      "facts": 18,
+      "minFontSize": 16,
+      "scrollWidth": 1665,
+      "state": "待付款",
+      "width": 1680
+    },
+    {
+      "view": "success",
+      "facts": 20,
+      "minFontSize": 16,
+      "scrollWidth": 1665,
+      "state": "已付款",
+      "width": 1680
+    },
+    {
+      "view": "detail",
+      "facts": 22,
+      "minFontSize": 16,
+      "scrollWidth": 1665,
+      "state": "已付款",
+      "width": 1680
+    },
+    {
+      "view": "cancelled",
+      "facts": 15,
+      "minFontSize": 16,
+      "scrollWidth": 1665,
+      "state": "已取消",
+      "width": 1680
+    },
+    {
+      "view": "expired",
+      "facts": 17,
+      "minFontSize": 16,
+      "scrollWidth": 1665,
+      "state": "已到期",
+      "width": 1680
+    },
+    {
+      "view": "empty",
+      "empty": "当前筛选下没有订单。",
+      "minFontSize": 17,
+      "scrollWidth": 1280,
+      "width": 1280
+    },
+    {
+      "view": "empty",
+      "empty": "当前筛选下没有订单。",
+      "minFontSize": 17,
+      "scrollWidth": 1440,
+      "width": 1440
+    },
+    {
+      "view": "empty",
+      "empty": "当前筛选下没有订单。",
+      "minFontSize": 17,
+      "scrollWidth": 1680,
+      "width": 1680
+    }
+  ],
+  "passed": true
+}

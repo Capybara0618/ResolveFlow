@@ -1,0 +1,399 @@
+{
+  "date": "2026-10-03",
+  "synthetic": true,
+  "model_calls": 0,
+  "checks": [
+    {
+      "check": "no session private list",
+      "status": 401,
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "check": "demo-customer is not a platform buyer",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "demo-admin is not a platform buyer",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "personal mixed new and old purchases",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "invalid limit",
+      "status": 400,
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "check": "invalid state",
+      "status": 400,
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "check": "invalid cursor",
+      "status": 400,
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "check": "client customer query cannot change ownership",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "paid-electronics own detail",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "paid-electronics original attempt lookup",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "terminal original payment replay M-1001",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "paid draft new key refused M-1001",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "paid cannot cancel M-1001",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "published line in original order API M-1001",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "foreign composite draft M-1001",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "paid-home own detail",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "paid-home original attempt lookup",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "terminal original payment replay M-1002",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "paid draft new key refused M-1002",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "paid cannot cancel M-1002",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "published line in original order API M-1002",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "foreign composite draft M-1002",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "cancelled-home own detail",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "cancelled-home original attempt lookup",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "cancelled draft cannot pay",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "cancellation replay",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "foreign composite draft M-1002",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "waiting-home own detail",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "waiting-home original attempt lookup",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "public payment cannot supply money",
+      "status": 400,
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "check": "foreign composite draft M-1002",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "old draft remains expired",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "old expired draft cannot pay",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "old draft remains expired",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "old expired draft cannot pay",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "unknown purchase is 404",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "agent-service commerce:read policy:read cannot read private transactions",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "agent-service commerce:checkout cannot read private transactions",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "case-service commerce:read cannot read private transactions",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "real one-item merged page 1",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "real one-item merged page 2",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "real one-item merged page 3",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "real one-item merged page 4",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "real one-item merged page 5",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "real one-item merged page 6",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "real one-item merged page 7",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "real one-item merged page 8",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "cursor cannot change store filter",
+      "status": 400,
+      "expected": 400,
+      "passed": true
+    }
+  ],
+  "samples": [
+    {
+      "purpose": "paid-electronics",
+      "draft_id": "7885d5b5-c26d-42f1-95cb-889f2b437888",
+      "store_id": "M-1001",
+      "status": "PAID",
+      "amount_minor": 65800,
+      "order_id": "c9f97312-e26d-4e9e-aea1-3606b9f47b2e",
+      "line_id": "SHOP-96a91652-dc8e-4b3b-be7e-c7c4174853a0"
+    },
+    {
+      "purpose": "paid-home",
+      "draft_id": "df8d46e6-463e-49af-b2f7-7ae48e55716a",
+      "store_id": "M-1002",
+      "status": "PAID",
+      "amount_minor": 12900,
+      "order_id": "2324b782-b31c-4220-871a-3e54b72c248e",
+      "line_id": "SHOP-32c7ee67-932d-4d3e-906f-c251d922d358"
+    },
+    {
+      "purpose": "cancelled-home",
+      "draft_id": "c57ce51f-5fd0-407e-b07d-863c7e6fc971",
+      "store_id": "M-1002",
+      "status": "CANCELLED",
+      "amount_minor": 8900,
+      "order_id": null,
+      "line_id": null
+    },
+    {
+      "purpose": "waiting-home",
+      "draft_id": "57db3c68-695c-45c5-86bc-0c265065a99c",
+      "store_id": "M-1002",
+      "status": "WAITING_PAYMENT",
+      "amount_minor": 5900,
+      "order_id": null,
+      "line_id": null
+    }
+  ],
+  "protected_originals": {
+    "cases": {
+      "rows": 34,
+      "unchanged": true,
+      "sha256": "f4c6d3de154f7a0d3886170738a385320b2a525a3f8b4001c92facabc6893694"
+    },
+    "owners": {
+      "rows": 5,
+      "unchanged": true,
+      "sha256": "6b43e5fea757b6a190d0926c63166b5a60bbd2ba4e7757980e78767b78383671"
+    },
+    "pins": {
+      "rows": 34,
+      "unchanged": true,
+      "sha256": "c98284f923a0c8f5a90293476ea7b1f7366b0939760209ca297619dff2256af7"
+    },
+    "policies": {
+      "rows": 6,
+      "unchanged": true,
+      "sha256": "dfb9941db3f4e5d3373317d71e5f8621211e5da9b61d56d1155af35332082d78"
+    },
+    "authorizations": {
+      "rows": 17,
+      "unchanged": true,
+      "sha256": "4c7d28ac43f3a405e6982de0c7d058865047e25cefa42eb282db31a788db473f"
+    },
+    "operations": {
+      "rows": 9,
+      "unchanged": true,
+      "sha256": "2055a9ac91a592b5c894d318667588efb3c5508107c045f13438f8466ffeb69a"
+    },
+    "payments": {
+      "rows": 36,
+      "unchanged": true,
+      "sha256": "9b2029a92ab788bec064cecc23c6c793cf4b83ae28200e68f5d89f5b10140665"
+    },
+    "runs": {
+      "rows": 92,
+      "unchanged": true,
+      "sha256": "587ecfe1c2d17278be49012c42800d77717be3a1a68dccf8132fa305332a1ca2"
+    },
+    "accounts": {
+      "rows": 14,
+      "unchanged": true,
+      "sha256": "a7cd1bb16fbbc2f8da5913880dcc292ac0299fa7056c51e98f297a0dd7567876"
+    },
+    "orders": {
+      "rows": 36,
+      "unchanged": true,
+      "sha256": "151a16b7c9fed5fa4fa4f75419e01dbf9b1a68b4cffb949880a851dfcd9d6c7a"
+    },
+    "drafts": {
+      "rows": 2,
+      "unchanged": true,
+      "sha256": "fb46084c9cf16d6431f15dbf58ee03122bccb0efa768f9a95b499ab32eb6b467"
+    },
+    "run_spend": {
+      "rows": 92,
+      "unchanged": true,
+      "sha256": "859a566fa60630d24363a603988ccc14692386a591c4e7ecf3d833c40fd7dcb5"
+    }
+  },
+  "new_paid_orders": 2,
+  "new_drafts": 4,
+  "new_refund_operations": 0,
+  "unknown_and_fault_injection": "isolated Java database tests only; not injected into preserved demo"
+}

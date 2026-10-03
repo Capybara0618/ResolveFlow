@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "model_calls": 0,
+  "samples": [
+    {
+      "purpose": "paid-electronics",
+      "url": "http://127.0.0.1:5174/#/shop/drafts/7885d5b5-c26d-42f1-95cb-889f2b437888"
+    },
+    {
+      "purpose": "paid-home",
+      "url": "http://127.0.0.1:5174/#/shop/drafts/df8d46e6-463e-49af-b2f7-7ae48e55716a"
+    },
+    {
+      "purpose": "cancelled-home",
+      "url": "http://127.0.0.1:5174/#/shop/drafts/c57ce51f-5fd0-407e-b07d-863c7e6fc971"
+    },
+    {
+      "purpose": "waiting-home",
+      "url": "http://127.0.0.1:5174/#/shop/drafts/57db3c68-695c-45c5-86bc-0c265065a99c"
+    }
+  ]
+}

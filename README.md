@@ -21,7 +21,8 @@
 | [第五批整体验收](reports/product-flow.md) | 正式网页双商家/多人闭环、退款账本、失败及未运行项 |
 | [多商家购物设计审查](docs/marketplace-design-review.md) | 平台买家购买多店、商城参照取舍、身份与售后连接；实现按下方新路线推进 |
 | [多商家实施对应](docs/marketplace-implementation.md) | 沿目标图册按身份、商品、支付、购物车/多行、履约和整体验收推进 |
-| [商品目录与直接购买](docs/catalog-checkout.md) | 公共两店目录、规格/数量、服务端报价、独立待支付草稿；模拟付款接续下一批 |
+| [商品目录与直接购买](docs/catalog-checkout.md) | 公共两店目录、规格/数量、服务端报价及独立待付款草稿 |
+| [模拟付款与本人订单](docs/simulated-checkout-payment.md) | 原尝试恢复、取消/到期、新旧跨店本人订单与售后入口；验证见[第三批报告](reports/checkout-payment.md) |
 | [平台买家](docs/platform-buyer.md) | 同一登录的跨店本人订单/申请与原有售后，旧客户及商家权限保留 |
 | [多商家购物预期图册](docs/ui-marketplace-v1/index.html) | 11个页面视图与2张状态板，可切换/放大；配套图文合同，非当前运行截图 |
 | [本商家人员管理](docs/staff-management.md) | 管理员新增、维护、启停、角色及密码重置与审计 |
@@ -59,6 +60,8 @@
 
 完整隔离方式、演示样本与验收结果见[审查员演示说明](reports/reviewer-demo/README.md)。
 审查侧真实模型与浏览器验收见[收尾记录](reports/reviewer-completion.md)，包含成功和失败记录，以及可直接查询的工单编号。
+
+商城体验用 `.\demo.ps1` 即可，打开 [商城](http://127.0.0.1:5174/#/shop)，登录 `demo-buyer` / `demo-pass-4001`：浏览两家店 → 选择规格和数量 → 确认报价并提交订单 → 确认模拟付款 → 在“我的订单”按店铺或状态查看。待付款支持取消及到期限制，付款结果不确定时保持原尝试恢复；已付款详情可进入原售后申请。当前是单商品规格购买，购物车/多商品、商家模拟发货与未发货退款政策按后续三批接续，不能把当前新购物入口当作完整退款闭环。商城和模拟付款无需模型调用；需要新 Agent 调查时才使用 `-Live`。
 
 本地 core profile 先运行 `java/mvnw -f java/pom.xml -DskipTests package`，再运行 `docker compose -f infra/compose.yaml --profile core up --build -d mysql postgres redis agent commerce-service case-service gateway`，最后用 `python scripts/c11_core_smoke.py` 检查健康、认证及商家队列隔离。镜像包含公开的合成契约夹具用于本地演示；真实环境须覆盖演示密钥。该 profile 默认不开收费模型调查和 MQ 传输循环；功能链路验收以对应 C08 报告为准。`docker compose -f infra/compose.yaml --profile core stop gateway case-service commerce-service agent` 只停应用，不清数据卷。
 
