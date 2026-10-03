@@ -299,7 +299,7 @@ onBeforeUnmount(() => {
         <div v-if="!orders.length" class="panel customer-empty"><Icon name="box" :size="36" /><h3>{{ loading ? '正在读取订单…' : '暂无订单' }}</h3><p>当前账号还没有可查看的订单。</p></div>
         <div v-else class="customer-card-list">
           <article v-for="line in orders" :key="line.line_id" class="panel customer-list-card">
-            <AftercareProduct :line="line" />
+            <div><AftercareProduct :line="line" /><details class="customer-order-record"><summary>订单记录</summary><p>{{ line.sku }} · {{ line.order_id }}</p><time v-if="line.paid_at" data-test="order-paid-at">支付于 {{ formatTime(line.paid_at) }}</time></details></div>
             <div class="customer-list-status"><span v-if="eligibility[line.line_id]?.application" class="status-tag" :class="{ success: eligibility[line.line_id]?.application?.status === 'CLOSED_SUCCESS' }">{{ status(eligibility[line.line_id]!.application!.status) }}</span><span v-else class="muted">{{ eligibilityErrors[line.line_id] || (eligibility[line.line_id] ? '暂无申请' : '正在核对…') }}</span><p v-if="eligibility[line.line_id]?.blocked_reason">{{ eligibility[line.line_id]?.blocked_reason }}</p></div>
             <div class="customer-list-actions"><button v-if="eligibility[line.line_id]?.application && !eligibility[line.line_id]?.can_apply" type="button" class="secondary-button" @click="navigate('detail', eligibility[line.line_id]!.application!.case_id)">查看申请</button><button v-else-if="eligibility[line.line_id]?.can_apply" :data-test="`apply-${line.line_id}`" type="button" :disabled="writing || loading" @click="apply(line.line_id)">申请退款</button><button v-else-if="eligibilityErrors[line.line_id]" type="button" class="text-button" @click="readEligibility(line.line_id)">重试读取</button><button v-if="eligibility[line.line_id]?.application && eligibility[line.line_id]?.can_apply" type="button" class="text-button" @click="navigate('detail', eligibility[line.line_id]!.application!.case_id)">查看上次申请</button></div>
           </article>
@@ -322,7 +322,7 @@ onBeforeUnmount(() => {
       <form v-else-if="screen === 'apply' && selectedLine" class="customer-apply" @submit.prevent="create">
         <button class="text-button customer-back" type="button" :disabled="writing || createUncertain" @click="navigate('orders')">← 返回我的订单</button>
         <div class="customer-detail-grid">
-          <section class="panel"><h2>申请商品</h2><AftercareProduct :line="selectedLine.order_line" :show-amount="false" />
+          <section class="panel"><h2>确认申请订单</h2><AftercareProduct :line="selectedLine.order_line" :show-amount="false" />
             <label>情况说明 <span class="customer-required">必填</span><textarea v-model="description" data-test="application-description" rows="5" maxlength="4000" :readonly="writing || createUncertain" placeholder="请说明退款原因和已经尝试的处理方式" /></label>
             <label>文本材料 <span class="muted">可选</span><textarea v-model="initialMaterial" data-test="initial-material" rows="3" maxlength="8000" :readonly="writing || createUncertain" placeholder="可粘贴物流反馈或其他文字说明" /></label>
           </section>

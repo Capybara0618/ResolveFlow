@@ -69,6 +69,45 @@ vi.mock('../src/events', () => ({ watchCaseEvents: vi.fn().mockResolvedValue(und
 afterEach(() => { vi.unstubAllGlobals(); window.history.replaceState(null, '', '/') })
 
 describe('core workbench', () => {
+  it('separates merchant list and detail and discards an old optional product read after returning', async () => {
+    let complete!: (response: Response) => void
+    const product = (id: string) => ({ line_id: `line-${id}`, order_id: `order-${id}`, sku: id,
+      product_name: `商品${id}`, variant_text: '黑色', asset_key: 'headphones', quantity: 1,
+      line_paid_amount: 32900, currency: 'CNY', status: 'PAID' })
+    const fetcher = vi.fn().mockImplementation((url: string) => {
+      const response = (value: unknown) => Promise.resolve(new Response(JSON.stringify(value)))
+      if (url.endsWith('/auth/login')) return response({ access_token: 'merchant', role: 'MERCHANT_ADMIN', single_operator: true, merchant_id: 'M-1' })
+      if (url.endsWith('/admin/overview')) return response({ mine: 2, attention: 0, items: [] })
+      if (url.startsWith('/api/v1/review/cases')) return response({ items: ['a', 'b'].map(id => ({ case_id: id, line_id: `line-${id}`, status: 'CLOSED_SUCCESS', description: `申请${id}` })), page: {} })
+      if (url.startsWith('/api/v1/orders/lines/')) return response(product(url.endsWith('line-a') ? 'a' : 'b'))
+      if (url.endsWith('/review-context')) return response({ allowed_actions: [], policy_rules: [], blocked_reason: '已结束', execution: { case_status: 'CLOSED_SUCCESS', amount_minor: 32900 } })
+      if (url.endsWith('/collaboration')) return response(ownership(url.includes('/a/') ? 'a' : 'b'))
+      if (url === '/api/v1/orders/order-a') return new Promise<Response>(resolve => { complete = resolve })
+      if (url === '/api/v1/orders/order-b') return response({ items: [product('b')], page: {} })
+      if (url === '/api/v1/cases/a' || url === '/api/v1/cases/b') {
+        const id = url.endsWith('/a') ? 'a' : 'b'
+        return response({ case: { case_id: id, line_id: `line-${id}`, order_id: `order-${id}`, status: 'CLOSED_SUCCESS', version: 8, input_revision: 1, description: `申请${id}` }, evidence: [], timeline: [] })
+      }
+      throw new Error('Optional unavailable read')
+    })
+    vi.stubGlobal('fetch', fetcher)
+    const w = mount(App)
+    try {
+      await w.get('.login-panel').trigger('submit'); await flushPromises()
+      expect(fetcher.mock.calls.some(([url]) => url === '/api/v1/cases/a')).toBe(false)
+      await w.findAll('.nav-link').find(link => link.text() === '售后工单')!.trigger('click'); await flushPromises()
+      expect(w.find('#case-panel').exists()).toBe(false); expect(w.text()).toContain('商品a')
+      await w.findAll('.queue-open')[0].trigger('click'); await flushPromises()
+      expect(w.find('#queue-panel').exists()).toBe(false)
+      await w.get('[data-test="back-to-list"]').trigger('click'); await flushPromises()
+      expect(w.find('#case-panel').exists()).toBe(false)
+      await w.findAll('.queue-open')[1].trigger('click'); await flushPromises()
+      complete(new Response(JSON.stringify({ items: [product('a')], page: {} }))); await flushPromises()
+      expect(w.get('#case-panel').text()).toContain('商品b'); expect(w.get('#case-panel').text()).not.toContain('商品a')
+      expect(w.find('[data-test="approve"]').exists()).toBe(false)
+      expect(w.get('.merchant-identifiers').attributes('open')).toBeUndefined()
+    } finally { w.unmount() }
+  })
   it('drops a delayed queue after logout and lets the next account load its own counts', async () => {
     let respond: (value: Response) => void = () => undefined
     let logins = 0
@@ -299,8 +338,8 @@ describe('core workbench', () => {
     await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
     // The product name is the heading, the variant is the second line, and the SKU stays visible
-    // as the merchant's own identifier.
-    const rows = wrapper.findAll('.order-row')
+    // inside the expandable order record as the merchant's own identifier.
+    const rows = wrapper.findAll('.customer-list-card')
     expect(rows[0].get('[data-test="order-product"]').text()).toBe('演示商品 · 保温杯')
     expect(rows[0].get('[data-test="order-variant"]').text()).toBe('雾蓝 · 500ml · 数量 × 1')
     expect(rows[0].text()).toContain('demo')
@@ -462,6 +501,9 @@ describe('core workbench', () => {
     await flushPromises()
     if (singleMerchant) {
       await wrapper.findAll('.nav-link').find(link => link.text() === '售后工单')!.trigger('click'); await flushPromises()
+      expect(wrapper.find('#case-panel').exists()).toBe(false)
+      await wrapper.get('.queue-open').trigger('click'); await flushPromises()
+      expect(wrapper.find('#queue-panel').exists()).toBe(false)
       expect(wrapper.find('[aria-label="工单归属范围"]').exists()).toBe(false)
       expect(wrapper.find('[aria-label="工单负责人"]').exists()).toBe(false)
     }

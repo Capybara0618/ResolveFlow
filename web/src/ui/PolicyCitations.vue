@@ -20,6 +20,7 @@ import {
 import Icon from './ReviewIcon.vue'
 
 const props = defineProps<{
+  compact?: boolean
   evidenceRefs?: unknown
   policyRefs?: unknown
   policyRules?: readonly unknown[]
@@ -73,15 +74,16 @@ function focus(key: string | null) {
   <div class="citation-block">
     <div v-if="policies.length" class="citation-group">
       <strong>引用的政策条款</strong>
-      <p class="citation-hint">点击条款名可展开下方绑定政策原文，并按五项身份定位到同一版本。</p>
+      <p v-if="!compact" class="citation-hint">点击条款名可展开下方绑定政策原文，并按五项身份定位到同一版本。</p>
       <ul class="citation-rows">
         <li v-for="row in policyRows" :key="row.key ?? describeReference(row.reference)">
           <template v-if="row.match.state === 'MATCHED'">
             <button type="button" class="citation-button" data-test="policy-citation" @click="focus(row.key)">
               <Icon name="file" :size="15" />
               <span class="citation-name">{{ String(row.match.rule.title ?? row.match.rule.rule_id ?? '未命名条款') }}</span>
-              <span class="citation-meta">{{ describeRule(row.match.rule) }}</span>
+              <span v-if="!compact" class="citation-meta">{{ describeRule(row.match.rule) }}</span>
             </button>
+            <details v-if="compact"><summary>查看引用版本</summary><span class="citation-meta">{{ describeRule(row.match.rule) }}</span></details>
           </template>
           <template v-else-if="row.match.state === 'INCOMPLETE'">
             <p class="citation-warning" data-test="policy-citation-incomplete">
@@ -105,9 +107,9 @@ function focus(key: string | null) {
       </p>
     </div>
 
-    <div v-if="evidence.length" class="citation-group">
-      <strong>引用的证据与材料</strong>
-      <p class="citation-hint">证据引用需 observation_id、来源、版本与内容摘要四项齐全才算完整引用。</p>
+    <component v-if="evidence.length" :is="compact ? 'details' : 'div'" class="citation-group"><summary v-if="compact">查看引用的证据与材料（{{ evidence.length }}）</summary>
+      <strong v-if="!compact">引用的证据与材料</strong>
+      <p v-if="!compact" class="citation-hint">证据引用需 observation_id、来源、版本与内容摘要四项齐全才算完整引用。</p>
       <ul class="citation-rows">
         <li v-for="(row, index) in evidenceRows" :key="index">
           <template v-if="row.missing.length">
@@ -118,7 +120,7 @@ function focus(key: string | null) {
           <span class="citation-meta">{{ row.ref ?? '来源未提供' }} · 版本 {{ row.version ?? '未提供' }}</span>
         </li>
       </ul>
-    </div>
+    </component>
   </div>
 </template>
 

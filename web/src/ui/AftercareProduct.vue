@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { OrderLine } from '../client'
 import { formatMinorUnits } from '../money'
-import { productTitle, variantOf } from './order-line-format'
+import { productTitle, variantOf, productNameMissing } from './order-line-format'
 import ProductArt from './ProductArt.vue'
 import Icon from './ReviewIcon.vue'
 
-defineProps<{ line?: OrderLine | null; loading?: boolean; unavailable?: boolean; store?: string; showAmount?: boolean }>()
+withDefaults(defineProps<{ line?: OrderLine | null; loading?: boolean; unavailable?: boolean; store?: string; showAmount?: boolean }>(), { showAmount: true })
 </script>
 
 <template>
@@ -16,8 +16,8 @@ defineProps<{ line?: OrderLine | null; loading?: boolean; unavailable?: boolean;
     </div>
     <div class="aftercare-product-copy">
       <span v-if="line?.merchant_name || store" class="aftercare-product-store" data-test="order-store">{{ line?.merchant_name || store }}</span>
-      <strong data-test="order-product">{{ line ? productTitle(line) : loading ? '正在读取商品…' : '商品资料暂不可用' }}</strong>
-      <span v-if="line" class="aftercare-product-variant" data-test="order-variant">{{ variantOf(line) || '规格未提供' }} · 数量 × {{ line.quantity }}</span>
+      <strong data-test="order-product" :class="{ 'name-missing': line && productNameMissing(line) }">{{ line ? productTitle(line) : loading ? '正在读取商品…' : '商品资料暂不可用' }}</strong>
+      <span v-if="line" class="aftercare-product-variant" :data-test="variantOf(line) ? 'order-variant' : undefined">{{ variantOf(line) || '规格未提供' }} · 数量 × {{ line.quantity }}</span>
       <span v-else-if="unavailable" class="aftercare-product-variant">申请记录仍可查看</span>
       <span v-if="line && showAmount !== false" class="aftercare-product-amount">本行实付 <b>{{ formatMinorUnits(line.line_paid_amount, line.currency) }}</b></span>
     </div>

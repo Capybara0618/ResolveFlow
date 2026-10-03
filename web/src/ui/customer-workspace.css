@@ -63,3 +63,5 @@
 .customer-detail-aside .danger-button { display: block; margin-top: 22px; width: 100%; }
 .customer-identifiers { border-top: 1px solid #e5ebf4; margin-top: 24px; padding-top: 22px; }
 @media (max-width: 1350px) { .customer-main { padding: 28px 24px 40px; }.customer-list-card { grid-template-columns: minmax(0, 1fr) 200px 125px; gap: 18px; }.customer-detail-grid { grid-template-columns: minmax(0, 1fr) 285px; gap: 20px; } }
+
+.customer-shell .customer-order-record { margin: 18px 0 0 138px; color: #61738c; }

@@ -18,6 +18,7 @@ import { policyKey, splitPolicySpans } from './investigation-format'
 
 const props = defineProps<{
   token: string
+  compact?: boolean
   snapshot: CaseSnapshot
   busy: boolean
   context: ReviewContext | null
@@ -169,7 +170,7 @@ async function submit() {
         <button v-if="context.allowed_actions.includes('REJECT')" type="button" class="danger-button" :disabled="busy" data-test="handoff-reject" @click="begin('REJECT')">拒绝申请</button>
       </div>
 
-      <div class="policy-layers" aria-label="政策依据的三个层次">
+      <component :is="compact ? 'details' : 'div'" class="policy-layer-details"><summary v-if="compact">政策解释与服务端复核</summary><div class="policy-layers" aria-label="政策依据的三个层次">
         <div class="policy-layer">
           <h4>① 原始条款（权威文本）</h4>
           <p class="muted">以下是本工单绑定版本的政策原文；标出的是原文本身含限制性表述的句子，不是解释。</p>
@@ -186,7 +187,7 @@ async function submit() {
           <p v-else class="muted">服务端尚无方案复核结果。</p>
           <p class="muted">资格与金额由服务端判定；本页不计算退款资格。</p>
         </div>
-      </div>
+      </div></component>
 
       <details class="bound-policies" :open="policiesOpen" @toggle="policiesOpen = ($event.target as HTMLDetailsElement).open">
         <summary>查看绑定政策原文（{{ rules.length }} 条）</summary>
@@ -212,7 +213,7 @@ async function submit() {
         <p v-if="context.execution.case_status === 'RECONCILING' || context.execution.outcome === 'UNKNOWN'">尚未确认最终结果，系统继续核对同一笔退款，请勿重复发起。</p>
         <p v-if="context.execution.amount_minor !== null">退款金额：{{ formatMinorUnits(context.execution.amount_minor, 'CNY') }}</p>
         <p v-if="context.execution.reason_code">原因：{{ context.execution.reason_code }}</p>
-        <small v-if="context.execution.operation_id">执行编号：{{ context.execution.operation_id }}</small>
+        <details v-if="context.execution.operation_id"><summary>查看执行编号</summary><p>{{ context.execution.operation_id }}</p></details>
       </div>
       <details v-if="context.review_history?.length" class="bound-policies"><summary>人工决定与补证记录（{{ context.review_history.length }}）</summary>
         <article v-for="(event, index) in context.review_history" :key="index" class="policy-text"><strong>{{ event.reason || '调查需要补充信息，原记录未提供问题正文' }}</strong><small>{{ event.actor || '系统调查' }} · 第 {{ event.revision }} 版 · {{ new Date(event.occurred_at).toLocaleString('zh-CN') }}</small><small v-if="event.question_id">补证问题编号：{{ event.question_id }}</small></article>

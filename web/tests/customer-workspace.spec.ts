@@ -28,6 +28,17 @@ beforeEach(() => {
 afterEach(() => { wrappers.splice(0).forEach(w => w.unmount()); vi.restoreAllMocks(); vi.unstubAllGlobals() })
 
 describe('customer application workspace', () => {
+  it('keeps the buyer application readable when its independent product lookup fails', async () => {
+    window.history.replaceState(null, '', '/#/customer/applications')
+    vi.mocked(coreApi.orderLine).mockRejectedValueOnce(new Error('Commerce offline')).mockResolvedValueOnce({ ...line, asset_key: 'cup' })
+    const buyer = { ...account, buyer_id: 'buyer-1' }
+    const w = mount(CustomerWorkspace, { props: { account: buyer } }); wrappers.push(w); await flushPromises()
+    expect(w.find('.sidebar').exists()).toBe(false)
+    expect(w.text()).toContain('包裹未收到'); expect(w.text()).toContain('待补充说明')
+    await w.findAll('button').find(button => button.text() === '重试商品资料')!.trigger('click'); await flushPromises()
+    expect(w.get('[role="img"]').attributes('aria-label')).toBe('保温杯商品插画')
+    expect(w.text()).toContain('25.99 CNY')
+  })
   it('shows both stores for a platform buyer while retaining the same customer routes', async () => {
     const buyer: LoginResponse = { access_token: 'buyer-token', role: 'CUSTOMER', buyer_id: 'B-3001',
       expires_in: 3600, display_name: '演示买家' }

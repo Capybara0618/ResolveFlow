@@ -16,7 +16,7 @@ import { coreApi, type CaseSnapshot, type InvestigationView } from '../client'
 import { evidenceKey, summarizeObservation, toolLabel } from './investigation-format'
 import InvestigationFindings from './InvestigationFindings.vue'
 
-const props = defineProps<{ token: string; snapshot: CaseSnapshot }>()
+const props = defineProps<{ token: string; snapshot: CaseSnapshot; compact?: boolean }>()
 const view = ref<InvestigationView | null>(null)
 const loading = ref(false)
 const error = ref('')
@@ -51,6 +51,9 @@ function facts(item: NonNullable<InvestigationView['investigation']>['observatio
 <template>
   <section class="investigation-sources" aria-label="调查原始记录">
     <InvestigationFindings :snapshot="snapshot" :observations="view?.investigation?.observations ?? []" />
+    <p v-if="compact && view?.investigation" class="saved-model-mode">调查模型：{{ view.investigation.model_provider === 'mock' ? 'mock 合成决策' : view.investigation.model_provider || '来源未记录' }} · {{ statusLabels[view.investigation.status] || view.investigation.status }}</p>
+    <p v-if="compact && error" role="status">{{ error }}</p>
+    <component :is="compact ? 'details' : 'div'" class="raw-investigation"><summary v-if="compact">查看调查原始记录</summary>
     <div class="sources-heading"><h3>调查原始记录</h3><button type="button" :disabled="loading" @click="reload">刷新记录</button></div>
     <p v-if="loading">正在读取已保存的调查记录…</p>
     <p v-else-if="error" role="status">{{ error }}</p>
@@ -79,6 +82,7 @@ function facts(item: NonNullable<InvestigationView['investigation']>['observatio
       </details>
       <p v-if="view.investigation.truncated">仅展示前 40 条已保存记录，后续记录未显示。</p>
     </template>
+    </component>
   </section>
 </template>
 

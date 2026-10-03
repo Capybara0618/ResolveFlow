@@ -20,10 +20,19 @@ import PolicyCitations from './ui/PolicyCitations.vue'
 import { paidAtOf, productNameMissing, productTitle, variantOf } from './ui/order-line-format'
 import './ui/workbench.css'
 import './ui/admin-workspace.css'
+import './ui/aftercare.css'
+import AftercareProduct from './ui/AftercareProduct.vue'
+import { useAftercareProducts } from './ui/aftercare-products'
+import { fulfillmentApi, fulfillmentLabels, type MerchantTrade } from './fulfillment-client'
 
 const username = ref('')
 const password = ref('')
 const account = ref<LoginResponse | null>(null)
+const products = useAftercareProducts(() => account.value?.access_token)
+const productLines = products.lines, productStates = products.states
+const merchantCaseOpen = ref(false)
+const merchantTrade = ref<MerchantTrade | null>(null)
+const tradeReadState = ref<'idle' | 'loading' | 'unavailable'>('idle')
 const shopVisitor = ref(window.location.hash.startsWith('#/shop'))
 const shopReturn = ref('')
 function updateShopVisitor() { shopVisitor.value = window.location.hash.startsWith('#/shop') }
@@ -71,13 +80,15 @@ const merchantPage = ref<MerchantPage>('review')
 function changeMerchantPage(page: MerchantPage, query = false) {
   if (busy.value || (isSingleMerchant.value && page === 'people')) return
   const returning = merchantPage.value !== 'review' && page === 'review'
+  if (isSingleMerchant.value) closeMerchantCase()
   closeReview(); merchantPage.value = page; queryOpen.value = query
   if (page !== 'review') stopStream()
-  if (returning) void act(async () => { if (!await loadReviewQueue()) return; if (snapshot.value) await openCase(snapshot.value.case.case_id) })
+  if (returning) void act(async () => { if (!await loadReviewQueue()) return; if (!isSingleMerchant.value && snapshot.value) await openCase(snapshot.value.case.case_id) })
 }
 
 function quickQueue(view: string, scope: ReviewScope) {
   if (busy.value) return
+  if (isSingleMerchant.value) closeMerchantCase()
   closeReview()
   merchantPage.value = 'review'; reviewView.value = view; reviewScope.value = scope
   reviewQuery.value = ''; filterQueue()
@@ -117,7 +128,13 @@ const contextOpen = ref(false)
 const narrowScreen = ref(false)
 let contextQuery: MediaQueryList | null = null
 let narrowQuery: MediaQueryList | null = null
+function closeMerchantCase() {
+  closeReview(); stopStream(); merchantCaseOpen.value = false; lookupId.value = ''; snapshot.value = null
+  selectedOrderLine.value = null; merchantTrade.value = null; tradeReadState.value = 'idle'
+  ++reviewContextGeneration; reviewContext.value = null; collaboration.value = null; reviewContextLoading.value = false; reviewContextError.value = ''
+}
 function backToList() {
+  if (isSingleMerchant.value) { if (!busy.value) closeMerchantCase(); return }
   document.getElementById(isReviewer.value ? 'queue-panel' : 'order-panel')?.scrollIntoView?.({ block: 'start' })
 }
 onMounted(() => {
@@ -306,15 +323,17 @@ async function loadReviewQueue(cursor?: string, background = false) {
   reviewItems.value = cursor ? [...new Map([...reviewItems.value, ...page.items].map(item => [item.case_id, item])).values()] : page.items
   reviewCursor.value = page.page.next_cursor ?? undefined
   queueExpanded = !!cursor; queueUpdate.value = ''
+  if (isSingleMerchant.value) void products.readMany(page.items.map(item => item.line_id), !background)
   return true
 }
 function filterQueue() {
+  if (isSingleMerchant.value) closeMerchantCase()
   reviewSearch.value = reviewQuery.value.trim()
   reviewItems.value = []; reviewCursor.value = undefined; reviewCounts.value = null
   queryOpen.value = false
   void act(async () => {
     if (!await loadReviewQueue()) return
-    if (reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
+    if (!isSingleMerchant.value && reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
     else { closeReview(); stopStream(); snapshot.value = null; selectedOrderLine.value = null }
   })
 }
@@ -347,7 +366,18 @@ async function loadOrderContext(view: CaseSnapshot, sessionToken: string) {
     orderContextState.value = 'unavailable'
   }
 }
+async function loadTrade(view: CaseSnapshot, sessionToken: string) {
+  if (!view.case.order_id) return
+  tradeReadState.value = 'loading'; merchantTrade.value = null
+  try {
+    const result = await fulfillmentApi.order(sessionToken, view.case.order_id)
+    if (token() !== sessionToken || lookupId.value !== view.case.case_id) return
+    if (!result.purchase.lines.some(line => line.line_id === view.case.line_id)) throw new Error('订单行不匹配')
+    merchantTrade.value = result; tradeReadState.value = 'idle'
+  } catch { if (token() === sessionToken && lookupId.value === view.case.case_id) tradeReadState.value = 'unavailable' }
+}
 async function openCase(caseId: string) {
+  merchantCaseOpen.value = isSingleMerchant.value; merchantTrade.value = null; tradeReadState.value = 'idle'; contextOpen.value = false
   closeReview()
   stopStream()
   lookupId.value = caseId.trim()
@@ -359,6 +389,7 @@ async function openCase(caseId: string) {
   const current = await coreApi.case(sessionToken, requestedId)
   if (token() !== sessionToken || lookupId.value !== requestedId) return
   snapshot.value = current
+  if (isSingleMerchant.value) void loadTrade(current, sessionToken)
   void loadReviewContext(current)
   if (current.case.order_id) {
     orderContextState.value = 'loading'
@@ -379,6 +410,7 @@ function login() {
   void act(async () => {
     stopStream()
     const session = await coreApi.login(username.value, password.value)
+    products.reset(); merchantCaseOpen.value = false; merchantTrade.value = null
     account.value = session
     if (session.single_operator) merchantPage.value = 'overview'
     if (session.buyer_id && !window.location.hash.startsWith('#/shop') && !window.location.hash.startsWith('#/customer/')) window.history.replaceState(null, '', shopReturn.value.startsWith('#/shop') ? shopReturn.value : '#/shop')
@@ -389,13 +421,14 @@ function login() {
     snapshot.value = null; selectedOrderLine.value = null
     if (['REVIEWER', 'MERCHANT_ADMIN', 'OPERATOR'].includes(session.role)) {
       if (!await loadReviewQueue()) return
-      if (reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
+      if (!isSingleMerchant.value && reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
     }
   })
 }
 function logout() {
   // An explicit account boundary must not reopen the previous customer's private route.
   window.history.replaceState(null, '', window.location.pathname + window.location.search)
+  products.reset(); merchantCaseOpen.value = false; merchantTrade.value = null
   closeReview(); stopStream(); account.value = null; snapshot.value = null; selectedOrderLine.value = null
   ++queueGeneration
   ++reviewContextGeneration; reviewContext.value = null; reviewContextLoading.value = false; reviewContextError.value = ''
@@ -454,14 +487,14 @@ async function refreshWorkspace() {
     await loadReviewQueue()
   })
 }
-onUnmounted(stopStream)
+onUnmounted(() => { stopStream(); products.reset() })
 </script>
 
 <template>
-  <div class="workbench" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor }">
+  <div class="workbench" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor, 'aftercare-workbench': isSingleMerchant }">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
-      <span class="demo-tag">{{ account?.buyer_id || shopVisitor ? '本地演示 · 合成商品与模拟交易' : '本地演示 · 合成数据 · 模型模式见调查记录 · 模拟退款' }}</span>
+      <span class="demo-tag">{{ account?.buyer_id || shopVisitor ? '本地演示 · 合成商品与模拟交易' : '合成数据 · 模拟退款' }}</span>
       <div v-if="account" class="session"><span class="avatar">{{ account.display_name?.trim().slice(0, 1) || (isReviewer ? '审' : '客') }}</span><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后专员' : '客户工作台') }}</strong><small>{{ account.role === 'PLATFORM_ADMIN' ? '平台管理员' : account.buyer_id ? '平台买家' : `${account.merchant_name || account.merchant_id} · ${account.role === 'MERCHANT_ADMIN' ? (isSingleMerchant ? '商家' : '商家管理员') : account.role === 'REVIEWER' ? '售后专员' : account.role === 'OPERATOR' ? '兼容运维账号' : '客户'}` }}</small></span>
         <button type="button" class="text-button logout-button" @click="logout">退出<Icon name="arrow" :size="15" /></button></div>
     </header>
@@ -507,15 +540,22 @@ onUnmounted(stopStream)
       <main v-else class="workspace" :class="{ 'reviewer-workspace': isReviewer }">
         <p v-if="error && !reviewDecision" class="message error workspace-message" role="alert">{{ error }}</p>
         <p v-if="notice" class="message success workspace-message" role="status"><Icon name="check" />{{ notice }}</p>
-        <div class="columns" :class="{ 'customer-columns': isCustomer, 'reviewer-columns': isReviewer }">
-          <section v-if="isReviewer" id="queue-panel" class="panel list-panel" aria-label="审核队列">
+        <div class="columns" :class="{ 'customer-columns': isCustomer, 'reviewer-columns': isReviewer, 'merchant-aftercare': isSingleMerchant, 'merchant-case-view': isSingleMerchant && merchantCaseOpen }">
+          <section v-if="isReviewer && (!isSingleMerchant || !merchantCaseOpen)" id="queue-panel" class="panel list-panel" aria-label="审核队列">
             <div class="panel-heading"><h2>{{ isSingleMerchant ? '售后工单' : '审核队列' }} <span v-if="reviewCounts">（{{ reviewCounts.total }}）</span></h2><span class="queue-scope">当前商家</span></div>
             <p v-if="queueUpdate" class="queue-summary" role="status">{{ queueUpdate }}</p>
-            <p class="queue-summary">可见且空闲时每30秒更新；刷新列表不会切换当前工单。</p>
+            <p v-if="!isSingleMerchant" class="queue-summary">可见且空闲时每30秒更新；刷新列表不会切换当前工单。</p>
             <div v-if="!isSingleMerchant" class="queue-ownership" role="group" aria-label="工单归属范围"><button v-for="scope in queueScopes" :key="scope.key" type="button" :data-scope="scope.key" :aria-pressed="reviewScope === scope.key" :disabled="busy" @click="chooseScope(scope.key)">{{ scope.label }}<span v-if="reviewCounts">{{ reviewCounts[scope.count] }}</span></button></div>
             <form class="queue-filters" @submit.prevent="filterQueue"><label>处理阶段<select v-model="reviewView" :disabled="busy" @change="filterQueue"><option value="REVIEW">待审核</option><option value="WAITING">待客户补证</option><option value="PROCESSING">调查与退款处理中</option><option value="ATTENTION">结果待确认</option><option value="CLOSED">已结束</option><option value="ALL">全部工单</option></select></label><div class="queue-search"><input v-model="reviewQuery" aria-label="搜索工单" maxlength="100" placeholder="工单号、订单号或问题描述" :disabled="busy" /><button type="submit" class="secondary-button" :disabled="busy">查询</button></div></form>
             <div v-if="reviewItems.length === 0" class="empty"><Icon name="queue" :size="30" /><strong>没有符合条件的工单</strong><p>可切换处理阶段或修改查询条件</p></div>
-            <div class="scroll-list" aria-label="工单列表">
+            <div v-if="isSingleMerchant" class="merchant-case-list" aria-label="工单列表">
+              <article v-for="item in reviewItems" :key="item.case_id" class="merchant-case-card">
+                <div><AftercareProduct :line="productLines[item.line_id]" :loading="productStates[item.line_id] === 'loading'" :unavailable="productStates[item.line_id] === 'unavailable'" /><p class="merchant-case-description">{{ headline(item.description) }}</p><button v-if="productStates[item.line_id] === 'unavailable'" class="text-button" type="button" @click="products.read(item.line_id, true)">重试商品资料</button></div>
+                <div class="merchant-case-status"><span class="status-tag" :class="{ waiting: item.status === 'PENDING_REVIEW', success: item.status === 'CLOSED_SUCCESS' }">{{ statusLabel(item.status) }}</span><time>{{ formatTimestamp(item.updated_at) }}</time></div>
+                <button type="button" class="secondary-button queue-open" :disabled="busy" @click="act(() => openCase(item.case_id))">查看工单</button>
+              </article>
+            </div>
+            <div v-else class="scroll-list" aria-label="工单列表">
               <button v-for="item in reviewItems" :key="item.case_id" type="button" class="queue-row" :aria-pressed="snapshot?.case.case_id === item.case_id"
                 :class="{ selected: snapshot?.case.case_id === item.case_id }" :disabled="busy" @click="act(() => openCase(item.case_id))">
                 <span class="queue-top"><span class="queue-category"><Icon name="file" :size="14" />退款申请</span><span class="status-tag" :class="{ waiting: item.status === 'PENDING_REVIEW', success: item.status === 'CLOSED_SUCCESS' }">{{ statusLabel(item.status) }}</span></span>
@@ -523,18 +563,19 @@ onUnmounted(stopStream)
                 <span v-if="!isSingleMerchant" class="queue-owner"><Icon name="user" :size="13" />{{ item.owner === undefined ? '归属信息待刷新' : item.owner ? `${item.owner.display_name || item.owner.username}${item.owner.enabled ? '' : '（已停用）'}` : '未领取' }}</span>
               </button>
             </div>
-            <p v-if="reviewCounts" class="queue-summary">已显示 {{ reviewItems.length }} / {{ reviewCounts.total }} 条 · 数量按已应用的筛选统计<template v-if="reviewSearch"><br />搜索：{{ reviewSearch }}</template></p>
+            <p v-if="reviewCounts && !isSingleMerchant" class="queue-summary">已显示 {{ reviewItems.length }} / {{ reviewCounts.total }} 条 · 数量按已应用的筛选统计<template v-if="reviewSearch"><br />搜索：{{ reviewSearch }}</template></p>
             <div class="list-actions"><button v-if="reviewCursor" type="button" class="secondary-button" :disabled="busy" @click="act(async () => { await loadReviewQueue(reviewCursor) })">加载更多</button><button type="button" class="text-button" :disabled="busy" @click="act(async () => { await loadReviewQueue() })">刷新队列</button></div>
           </section>
-          <section id="case-panel" class="panel case-panel" aria-label="工单内容" :aria-busy="busy">
+          <section v-if="!isSingleMerchant || merchantCaseOpen" id="case-panel" class="panel case-panel" aria-label="工单内容" :aria-busy="busy">
             <div class="panel-heading case-heading"><h2>{{ isReviewer ? '退款工单' : '工单详情' }}</h2><span v-if="snapshot" class="status-tag" :class="{ waiting: snapshot.case.status === 'PENDING_REVIEW', success: snapshot.case.status === 'CLOSED_SUCCESS' }">{{ statusLabel(snapshot.case.status) }}</span></div>
-            <details class="lookup-tools" :open="queryOpen"><summary @click.prevent="queryOpen = !queryOpen"><Icon name="search" :size="13" />按工单编号查询</summary><div class="lookup"><label>工单编号 <input v-model="lookupId" name="case-id" placeholder="输入已知工单编号" /></label><button type="button" class="secondary-button" :disabled="busy || !lookupId.trim()" @click="act(() => openCase(lookupId))">查看工单</button></div></details>
+            <details v-if="!isSingleMerchant" class="lookup-tools" :open="queryOpen"><summary @click.prevent="queryOpen = !queryOpen"><Icon name="search" :size="13" />按工单编号查询</summary><div class="lookup"><label>工单编号 <input v-model="lookupId" name="case-id" placeholder="输入已知工单编号" /></label><button type="button" class="secondary-button" :disabled="busy || !lookupId.trim()" @click="act(() => openCase(lookupId))">查看工单</button></div></details>
             <div v-if="!snapshot" class="case-empty"><Icon name="queue" :size="42" /><strong>{{ busy ? '正在读取工单…' : '选择一条工单，开始审核' }}</strong><p>订单、证据与调查建议将在这里汇集。</p></div>
             <template v-else>
-              <button v-if="narrowScreen" type="button" class="secondary-button back-to-list" data-test="back-to-list" @click="backToList">← 返回队列</button>
-              <div class="case-title"><h3>{{ headline(snapshot.case.description) }}</h3><span class="stream-indicator"><i :class="{ disconnected: streamStatus === '连接失败' }" />{{ streamStatus === '未连接' ? '静态快照' : streamStatus }}</span></div>
+              <button v-if="narrowScreen || isSingleMerchant" :disabled="busy" type="button" class="secondary-button back-to-list" data-test="back-to-list" @click="backToList">← 返回队列</button>
+              <div v-if="!isSingleMerchant" class="case-title"><h3>{{ headline(snapshot.case.description) }}</h3><span class="stream-indicator"><i :class="{ disconnected: streamStatus === '连接失败' }" />{{ streamStatus === '未连接' ? '静态快照' : streamStatus }}</span></div>
               <CaseAssignment v-if="isReviewer && !isSingleMerchant" :token="token()" :current="collaboration" :loading="reviewContextLoading" :busy="busy" @changed="refreshWorkspace" @working="busy = $event" @expired="logout" />
-              <section v-if="isReviewer" class="case-order" aria-label="订单行摘要"><div class="section-heading"><h3>订单信息</h3><span v-if="snapshot.case.order_id" class="subtle-id" :title="snapshot.case.order_id">订单号：{{ snapshot.case.order_id }}</span></div>
+              <section v-if="isSingleMerchant" class="case-order" aria-label="申请商品"><AftercareProduct :line="selectedOrderLine" :loading="orderContextState === 'loading'" :unavailable="orderContextState === 'unavailable'" /><button v-if="orderContextState === 'unavailable'" type="button" class="text-button" @click="loadOrderContext(snapshot, token())">重试商品资料</button></section>
+              <section v-else-if="isReviewer" class="case-order" aria-label="订单行摘要"><div class="section-heading"><h3>订单信息</h3><span v-if="snapshot.case.order_id" class="subtle-id" :title="snapshot.case.order_id">订单号：{{ snapshot.case.order_id }}</span></div>
                 <div v-if="selectedOrderLine" class="case-order-content"><span class="product-placeholder"><Icon name="box" :size="32" /></span><div class="product-copy"><strong :class="{ 'name-missing': productNameMissing(selectedOrderLine) }" data-test="case-product">{{ productTitle(selectedOrderLine) }}</strong><span v-if="variantOf(selectedOrderLine)" data-test="case-variant">{{ variantOf(selectedOrderLine) }}</span><span class="product-sku">{{ productNameMissing(selectedOrderLine) ? (categoryLabels[selectedOrderLine.category] ?? selectedOrderLine.category) : `${selectedOrderLine.sku} · ${categoryLabels[selectedOrderLine.category] ?? selectedOrderLine.category}` }}</span><small>数量 × {{ selectedOrderLine.quantity }}<template v-if="paidAtOf(selectedOrderLine)"> · 支付于 {{ formatTimestamp(paidAtOf(selectedOrderLine)!) }}</template></small></div><div class="case-order-amount"><small>本行实付</small><b>{{ formatMinorUnits(selectedOrderLine.line_paid_amount, selectedOrderLine.currency) }}</b></div><div v-if="validatedRefundAmount(snapshot.proposal) !== null" class="case-order-amount refund-amount"><small>{{ snapshot.authorization?.status === 'PENDING_REVIEW' ? '待审退款额' : '方案退款额' }}</small><b>{{ formatMinorUnits(validatedRefundAmount(snapshot.proposal)!, selectedOrderLine.currency) }}</b><small>服务端已校验 · 全额退款</small></div></div>
                 <p v-else-if="orderContextState === 'loading'" class="muted skeleton-line">正在读取订单信息…</p><p v-else class="muted">暂无可展示的订单明细</p></section>
               <section v-if="snapshot.case.description" class="customer-issue"><h3>客户问题描述</h3><p>{{ snapshot.case.description }}</p></section>
@@ -549,17 +590,21 @@ onUnmounted(stopStream)
               </section>
               <div class="analysis-grid" :class="{ 'without-proposal': !snapshot.proposal }">
                 <section v-if="snapshot.proposal" class="detail-section proposal"><h3>{{ proposalSourceLabel(snapshot.proposal) }}<span class="advice-label">{{ proposalRevisionLabel(snapshot.proposal) || '调查结论' }}</span></h3><div class="recommendation"><span class="recommendation-icon"><Icon name="sparkle" :size="21" /></span><strong>{{ proposalAction(snapshot.proposal) }}</strong></div><p v-if="typeof snapshot.proposal.summary === 'string'" class="proposal-summary">{{ snapshot.proposal.summary }}</p>
-                  <PolicyCitations v-if="proposalCitationCount" :evidence-refs="proposalEvidenceRefs" :policy-refs="proposalPolicyRefs" :policy-rules="reviewContext?.policy_rules ?? []" :policy-status="reviewContext?.policy_status ?? null" @focus="focusPolicy" /><details class="proposal-details"><summary>查看完整方案与全部引用</summary><pre>{{ JSON.stringify(snapshot.proposal, null, 2) }}</pre></details><small>建议供审核参考，批准授权后进入模拟退款执行。</small>
+                  <PolicyCitations v-if="proposalCitationCount" :compact="isSingleMerchant" :evidence-refs="proposalEvidenceRefs" :policy-refs="proposalPolicyRefs" :policy-rules="reviewContext?.policy_rules ?? []" :policy-status="reviewContext?.policy_status ?? null" @focus="focusPolicy" /><details class="proposal-details"><summary>查看完整方案与全部引用</summary><pre>{{ JSON.stringify(snapshot.proposal, null, 2) }}</pre></details><small>建议供审核参考，批准授权后进入模拟退款执行。</small>
                 </section>
-                <section class="detail-section timeline-section"><h3>工单轨迹</h3><p v-if="snapshot.timeline.length === 0" class="empty">暂无轨迹事件</p><ol v-else class="timeline"><li v-for="event in snapshot.timeline.slice(-4)" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong></li></ol><details v-if="snapshot.timeline.length" class="timeline-more"><summary>查看全部 {{ snapshot.timeline.length }} 条事件</summary><ol class="timeline"><li v-for="event in snapshot.timeline" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong><p>{{ event.summary }}</p></li></ol></details></section>
+                <component :is="isSingleMerchant ? 'details' : 'section'" class="detail-section timeline-section"><summary v-if="isSingleMerchant">查看完整工单轨迹（{{ snapshot.timeline.length }}）</summary><h3>工单轨迹</h3><p v-if="snapshot.timeline.length === 0" class="empty">暂无轨迹事件</p><ol v-else class="timeline"><li v-for="event in snapshot.timeline.slice(-4)" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong></li></ol><details v-if="snapshot.timeline.length" class="timeline-more"><summary>查看全部 {{ snapshot.timeline.length }} 条事件</summary><ol class="timeline"><li v-for="event in snapshot.timeline" :key="event.event_id"><time>{{ formatTimestamp(event.occurred_at) }}</time><strong>{{ timelineLabels[event.type] ?? event.type }}</strong><p>{{ event.summary }}</p></li></ol></details></component>
               </div>
-              <InvestigationSources v-if="isReviewer" :token="token()" :snapshot="snapshot" />
+              <InvestigationSources v-if="isReviewer" :compact="isSingleMerchant" :token="token()" :snapshot="snapshot" />
               <section v-if="canHumanReview && snapshot.authorization?.status === 'PENDING_REVIEW'" class="detail-section review-section"><div class="section-heading"><h3>审核决策</h3><span class="subtle">批准授权后仍需等待独立的退款执行结果</span></div><div class="actions"><button data-test="approve" type="button" :disabled="busy" @click="beginReview('APPROVE')"><Icon name="check" :size="19" />批准授权</button><button type="button" class="secondary-button" :disabled="busy" @click="beginReview('REQUEST_INFO')"><Icon name="file" :size="17" />请求补证</button><button type="button" class="danger-button" :disabled="busy" @click="beginReview('REJECT')"><Icon name="close" :size="19" />拒绝</button></div></section>
               <section v-else-if="isReviewer && snapshot.case.status === 'PENDING_REVIEW'" class="detail-section review-unavailable" aria-label="审核暂不可用"><Icon name="shield" :size="22" /><div><h3>{{ snapshot.authorization?.status === 'PENDING_REVIEW' ? '审核操作暂不可用' : '暂无可审核授权' }}</h3><p v-if="snapshot.authorization?.status === 'PENDING_REVIEW'">{{ collaboration?.is_owner ? '正在核对审核上下文，请刷新后继续。' : isSingleMerchant ? '本店工单处理身份尚未就绪，请刷新后继续。' : '请先领取工单；仅当前负责人可审核待审授权。' }}</p><p v-else-if="snapshot.authorization">当前授权{{ authorizationStatusLabel(snapshot.authorization.status) }}，不能再次审核；请核对工单轨迹与当前结果。</p><p v-else>此工单正在等待人工复核，但服务端尚无待审退款授权。请核对方案与材料；当前不能批准退款。</p></div></section>
-              <ReviewerWorkspace v-if="isReviewer" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :collaboration="collaboration" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
+              <ReviewerWorkspace v-if="isReviewer" :compact="isSingleMerchant" :token="token()" :snapshot="snapshot" :busy="busy" :context="reviewContext" :collaboration="collaboration" :context-loading="reviewContextLoading" :context-error="reviewContextError" :focus-key="focusedPolicy" :focus-nonce="focusNonce" @changed="refreshWorkspace" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
             </template>
           </section>
-          <component :is="contextFolded ? 'details' : 'aside'" class="context-column" :class="{ 'context-fold': contextFolded }" :open="contextFolded ? contextOpen : undefined" aria-label="工单上下文" @toggle="contextOpen = ($event.target as HTMLDetailsElement).open">
+          <aside v-if="isSingleMerchant && snapshot && merchantCaseOpen" class="merchant-case-aside">
+            <section class="panel"><h2>订单与处理</h2><dl><dt>本行实付</dt><dd>{{ selectedOrderLine ? formatMinorUnits(selectedOrderLine.line_paid_amount, selectedOrderLine.currency) : '暂未读取' }}</dd><dt>履约状态</dt><dd>{{ merchantTrade ? fulfillmentLabels[merchantTrade.fulfillment.lines.find(line => line.line_id === snapshot!.case.line_id)?.status ?? 'UNKNOWN'] : tradeReadState === 'loading' ? '正在读取…' : '暂未读取' }}</dd><dt>授权状态</dt><dd>{{ snapshot.authorization ? authorizationStatusLabel(snapshot.authorization.status) : '尚无退款授权' }}</dd></dl><button v-if="tradeReadState === 'unavailable'" class="text-button" type="button" @click="loadTrade(snapshot, token())">重试履约资料</button><p v-if="snapshot.authorization && snapshot.authorization.input_revision !== snapshot.case.input_revision" class="context-warning">授权对应旧输入，需重新校验。</p><p v-if="reviewContext?.execution?.outcome === 'UNKNOWN' || snapshot.case.status === 'RECONCILING'" class="context-warning">退款结果待确认，请勿重复发起。</p><p v-if="selectedOrderLine && validatedRefundAmount(snapshot.proposal) !== null" class="merchant-refund-amount">{{ snapshot.authorization?.status === 'PENDING_REVIEW' ? '待审退款额' : '方案退款额' }}<strong>{{ formatMinorUnits(validatedRefundAmount(snapshot.proposal)!, selectedOrderLine.currency) }}</strong></p><p>批准授权后仍需等待模拟退款执行结果。</p><button type="button" class="text-button" :disabled="busy" @click="changeMerchantPage('orders')">查看交易订单 →</button></section>
+            <details class="panel merchant-identifiers"><summary>更多订单与执行信息</summary><dl><dt>工单编号</dt><dd>{{ snapshot.case.case_id }}</dd><dt>订单编号</dt><dd>{{ snapshot.case.order_id || '未提供' }}</dd><dt>订单行</dt><dd>{{ snapshot.case.line_id }}</dd><dt>工单版本</dt><dd>{{ snapshot.case.version }}</dd><dt>输入版本</dt><dd>{{ snapshot.case.input_revision }}</dd><dt v-if="snapshot.authorization">授权编号</dt><dd v-if="snapshot.authorization">{{ snapshot.authorization.authorization_id }}</dd><dt v-if="reviewContext?.execution?.operation_id">执行编号</dt><dd v-if="reviewContext?.execution?.operation_id">{{ reviewContext.execution.operation_id }}</dd></dl></details>
+          </aside>
+          <component v-if="!isSingleMerchant" :is="contextFolded ? 'details' : 'aside'" class="context-column" :class="{ 'context-fold': contextFolded }" :open="contextFolded ? contextOpen : undefined" aria-label="工单上下文" @toggle="contextOpen = ($event.target as HTMLDetailsElement).open">
             <summary v-if="contextFolded" class="context-fold-summary" data-test="context-fold">订单与执行信息<Icon name="chevron" :size="14" /></summary>
             <section class="panel context-panel"><h2>{{ isReviewer ? '工单与订单信息' : '订单信息' }}</h2><template v-if="snapshot"><div class="context-status"><span>当前状态</span><strong>{{ statusLabel(snapshot.case.status) }}</strong></div><dl><dt>商品名称</dt><dd :class="{ 'name-missing': selectedOrderLine && productNameMissing(selectedOrderLine) }">{{ selectedOrderLine ? productTitle(selectedOrderLine) : '暂未提供' }}</dd><dt v-if="selectedOrderLine && variantOf(selectedOrderLine)">商品规格</dt><dd v-if="selectedOrderLine && variantOf(selectedOrderLine)">{{ variantOf(selectedOrderLine) }}</dd><dt>商品类别</dt><dd>{{ selectedOrderLine ? (categoryLabels[selectedOrderLine.category] ?? selectedOrderLine.category) : '暂未提供' }}</dd><dt>订单行</dt><dd>{{ snapshot.case.line_id }}</dd><dt>商品数量</dt><dd>{{ selectedOrderLine?.quantity ?? '暂未提供' }}</dd><dt v-if="selectedOrderLine && paidAtOf(selectedOrderLine)">支付时间</dt><dd v-if="selectedOrderLine && paidAtOf(selectedOrderLine)">{{ formatTimestamp(paidAtOf(selectedOrderLine)!) }}</dd><dt>最近事件</dt><dd>{{ snapshot.timeline.length ? formatTimestamp(snapshot.timeline.at(-1)!.occurred_at) : '暂无事件' }}</dd></dl><details class="technical-details"><summary>查看工单与订单编号</summary><dl><dt>工单编号</dt><dd>{{ snapshot.case.case_id }}</dd><dt>订单编号</dt><dd>{{ snapshot.case.order_id || '未提供' }}</dd><dt>工单版本</dt><dd>{{ snapshot.case.version }}</dd><dt>输入修订</dt><dd>{{ snapshot.case.input_revision }}</dd></dl></details></template><p v-else class="empty">打开工单后显示服务端记录。</p></section>
             <section v-if="snapshot?.authorization" class="panel context-panel authorization-panel"><h2>审核授权</h2><div class="auth-summary"><span class="feature-icon"><Icon name="shield" :size="22" /></span><div><p class="authorization-state">{{ authorizationStatusLabel(snapshot.authorization.status) }}</p><small class="subtle">由服务端管理授权与执行状态</small></div></div><p v-if="selectedOrderLine && validatedRefundAmount(snapshot.proposal) !== null" class="validated-amount">{{ snapshot.authorization.status === 'PENDING_REVIEW' ? '待审退款额' : '方案退款额' }} <strong>{{ formatMinorUnits(validatedRefundAmount(snapshot.proposal)!, selectedOrderLine.currency) }}</strong><small>服务端校验金额；到账以执行结果为准</small></p><details class="technical-details"><summary>查看授权编号与版本</summary><dl><dt>授权编号</dt><dd>{{ snapshot.authorization.authorization_id }}</dd><dt>授权版本</dt><dd>{{ snapshot.authorization.authorization_version }}</dd><dt>对应输入修订</dt><dd>{{ snapshot.authorization.input_revision }}</dd></dl></details><p v-if="snapshot.authorization.input_revision !== snapshot.case.input_revision" class="context-warning">授权对应旧输入修订，需以服务端重新校验为准。</p></section>
