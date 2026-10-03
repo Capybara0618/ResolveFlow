@@ -19,6 +19,7 @@
 | [客户申请工作台](docs/customer-workspace.md) | 本人订单/申请、两轮补证、撤销与公开结果 |
 | [浏览器体验指南](docs/browser-experience.md) | 一条命令启动、跨角色操作顺序与可直接查看的结果 |
 | [第五批整体验收](reports/product-flow.md) | 正式网页双商家/多人闭环、退款账本、失败及未运行项 |
+| [轻量交易上游接入草案](docs/upstream-commerce-plan.md) | 待审查的商城入口、订单/模拟支付/物流连接方案及预期图清单；尚未实现 |
 | [本商家人员管理](docs/staff-management.md) | 管理员新增、维护、启停、角色及密码重置与审计 |
 | [AgentScope迁移规格](docs/agentscope-migration.md) | 框架边界、恢复要求及历史迁移过程 |
 | [执行账本](tasks/todo.md) | 用户最新路线、实际进度及历史成果 |
