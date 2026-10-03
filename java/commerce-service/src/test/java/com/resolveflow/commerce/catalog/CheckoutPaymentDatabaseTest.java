@@ -54,6 +54,11 @@ class CheckoutPaymentDatabaseTest extends CommerceDatabaseTest {
         }
         for (var id : orders) {
             jdbc.update(
+                    "DELETE FROM shipment_event WHERE line_id IN (SELECT line_id FROM order_line WHERE order_id=?)",
+                    id);
+            jdbc.update("DELETE FROM shipment WHERE line_id IN (SELECT line_id FROM order_line WHERE order_id=?)", id);
+            jdbc.update("DELETE FROM order_fulfillment WHERE order_id=?", id);
+            jdbc.update(
                     "DELETE FROM line_refund WHERE line_id IN (SELECT line_id FROM order_line WHERE order_id=?)", id);
             jdbc.update("DELETE FROM order_line WHERE order_id=?", id);
             jdbc.update("DELETE FROM payment_ledger WHERE order_id=?", id);
@@ -123,8 +128,13 @@ class CheckoutPaymentDatabaseTest extends CommerceDatabaseTest {
                 .containsEntry("order_status", "PAID");
         assertThat(jdbc.queryForObject("SELECT state FROM line_refund WHERE line_id=?", String.class, p.lineId()))
                 .isEqualTo("FREE");
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM shipment WHERE line_id=?", Integer.class, p.lineId()))
-                .isZero();
+        assertThat(jdbc.queryForMap(
+                        "SELECT status,carrier_conclusion,source_version FROM shipment WHERE line_id=?", p.lineId()))
+                .containsEntry("status", "NOT_SHIPPED")
+                .containsEntry("carrier_conclusion", "UNKNOWN")
+                .containsEntry("source_version", 1L);
+        assertThat(jdbc.queryForObject("SELECT code FROM shipment_event WHERE line_id=?", String.class, p.lineId()))
+                .isEqualTo("ORDER_PAID");
         assertThat(jdbc.queryForObject("SELECT paid_at FROM orders WHERE order_id=?", Timestamp.class, p.orderId())
                         .toInstant())
                 .isEqualTo(p.paidAt());

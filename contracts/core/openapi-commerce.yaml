@@ -2604,5 +2604,177 @@ components:
             Same row version the result event reports as aggregate_version
             (docs/core-contracts.md:67); this REST view keeps the domain-model column
             name from docs/domain-model.md:43.
+    FulfillmentEvent:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - occurred_at
+      - source_version
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        occurred_at:
+          type: string
+          format: date-time
+        source_version:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+    FulfillmentTracking:
+      type: object
+      additionalProperties: false
+      required:
+      - line_id
+      - status
+      - carrier_conclusion
+      - source_version
+      - events
+      properties:
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        status:
+          type: string
+          minLength: 1
+          maxLength: 64
+        carrier_conclusion:
+          type: string
+          enum:
+          - UNKNOWN
+          - IN_TRANSIT
+          - LOST
+          - DELIVERED
+        source_version:
+          anyOf:
+          - type: integer
+            minimum: 1
+            maximum: 9223372036854775807
+          - type: 'null'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/FulfillmentEvent'
+          maxItems: 200
+    OrderFulfillment:
+      type: object
+      additionalProperties: false
+      required:
+      - order_id
+      - status
+      - synthetic
+      - version
+      - updated_at
+      - lines
+      properties:
+        order_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - NOT_SHIPPED
+          - IN_TRANSIT
+          - DELIVERED
+          - LOST
+          - UNKNOWN
+        synthetic:
+          type: boolean
+          const: true
+        version:
+          anyOf:
+          - type: integer
+            minimum: 1
+            maximum: 9223372036854775807
+          - type: 'null'
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/FulfillmentTracking'
+          maxItems: 200
+    MerchantTrade:
+      type: object
+      additionalProperties: false
+      required:
+      - purchase
+      - fulfillment
+      - can_ship
+      - blocked_reason
+      properties:
+        purchase:
+          $ref: '#/components/schemas/CheckoutPurchase'
+        fulfillment:
+          $ref: '#/components/schemas/OrderFulfillment'
+        can_ship:
+          type: boolean
+        blocked_reason:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 1000
+          - type: 'null'
+    MerchantTrades:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - next_cursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MerchantTrade'
+          maxItems: 48
+        next_cursor:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 512
+          - type: 'null'
+    SimulatedShipmentRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_version
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+    SimulatedShipmentCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - actor
+      - idempotency_key
+      - expected_version
+      properties:
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        actor:
+          type: string
+          minLength: 1
+          maxLength: 128
+        idempotency_key:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[A-Za-z0-9_-]+$
+        expected_version:
+          type: integer
+          minimum: 1
+          maximum: 9223372036854775807
+
 security:
   - serviceToken: []

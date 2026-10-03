@@ -1,0 +1,182 @@
+{
+  "FulfillmentEvent": {
+    "code": "ORDER_PAID",
+    "occurred_at": "2026-10-03T04:00:02.000002Z",
+    "source_version": 1
+  },
+  "FulfillmentTracking": {
+    "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+    "status": "NOT_SHIPPED",
+    "carrier_conclusion": "UNKNOWN",
+    "source_version": 1,
+    "events": [
+      {
+        "code": "ORDER_PAID",
+        "occurred_at": "2026-10-03T04:00:02.000002Z",
+        "source_version": 1
+      }
+    ]
+  },
+  "OrderFulfillment": {
+    "order_id": "00000000-0000-4000-8000-000000006001",
+    "status": "NOT_SHIPPED",
+    "synthetic": true,
+    "version": 1,
+    "updated_at": "2026-10-03T04:00:02.000002Z",
+    "lines": [
+      {
+        "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+        "status": "NOT_SHIPPED",
+        "carrier_conclusion": "UNKNOWN",
+        "source_version": 1,
+        "events": [
+          {
+            "code": "ORDER_PAID",
+            "occurred_at": "2026-10-03T04:00:02.000002Z",
+            "source_version": 1
+          }
+        ]
+      }
+    ]
+  },
+  "MerchantTrade": {
+    "purchase": {
+      "purchase_id": "draft:00000000-0000-4000-8000-000000004001",
+      "draft_id": "00000000-0000-4000-8000-000000004001",
+      "store_id": "M-1001",
+      "store_name": "松间数码",
+      "status": "PAID",
+      "total_amount": 65800,
+      "currency": "CNY",
+      "created_at": "2026-10-03T04:00:00.000001Z",
+      "expires_at": "2026-10-03T04:15:00.000001Z",
+      "paid_at": "2026-10-03T04:00:02.000002Z",
+      "order_id": "00000000-0000-4000-8000-000000006001",
+      "lines": [
+        {
+          "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+          "sku": "SKU-1001-BLACK",
+          "product_name": "无线降噪耳机",
+          "variant": "黑色",
+          "asset_key": "headphones",
+          "quantity": 2,
+          "unit_amount": 32900,
+          "line_amount": 65800
+        }
+      ],
+      "payment": {
+        "attempt_id": "00000000-0000-4000-8000-000000005001",
+        "draft_id": "00000000-0000-4000-8000-000000004001",
+        "status": "SUCCEEDED",
+        "total_amount": 65800,
+        "currency": "CNY",
+        "created_at": "2026-10-03T04:00:01.000001Z",
+        "finished_at": "2026-10-03T04:00:02.000001Z",
+        "order_id": "00000000-0000-4000-8000-000000006001",
+        "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+        "paid_at": "2026-10-03T04:00:02.000002Z"
+      }
+    },
+    "fulfillment": {
+      "order_id": "00000000-0000-4000-8000-000000006001",
+      "status": "NOT_SHIPPED",
+      "synthetic": true,
+      "version": 1,
+      "updated_at": "2026-10-03T04:00:02.000002Z",
+      "lines": [
+        {
+          "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+          "status": "NOT_SHIPPED",
+          "carrier_conclusion": "UNKNOWN",
+          "source_version": 1,
+          "events": [
+            {
+              "code": "ORDER_PAID",
+              "occurred_at": "2026-10-03T04:00:02.000002Z",
+              "source_version": 1
+            }
+          ]
+        }
+      ]
+    },
+    "can_ship": true,
+    "blocked_reason": null
+  },
+  "MerchantTrades": {
+    "items": [
+      {
+        "purchase": {
+          "purchase_id": "draft:00000000-0000-4000-8000-000000004001",
+          "draft_id": "00000000-0000-4000-8000-000000004001",
+          "store_id": "M-1001",
+          "store_name": "松间数码",
+          "status": "PAID",
+          "total_amount": 65800,
+          "currency": "CNY",
+          "created_at": "2026-10-03T04:00:00.000001Z",
+          "expires_at": "2026-10-03T04:15:00.000001Z",
+          "paid_at": "2026-10-03T04:00:02.000002Z",
+          "order_id": "00000000-0000-4000-8000-000000006001",
+          "lines": [
+            {
+              "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+              "sku": "SKU-1001-BLACK",
+              "product_name": "无线降噪耳机",
+              "variant": "黑色",
+              "asset_key": "headphones",
+              "quantity": 2,
+              "unit_amount": 32900,
+              "line_amount": 65800
+            }
+          ],
+          "payment": {
+            "attempt_id": "00000000-0000-4000-8000-000000005001",
+            "draft_id": "00000000-0000-4000-8000-000000004001",
+            "status": "SUCCEEDED",
+            "total_amount": 65800,
+            "currency": "CNY",
+            "created_at": "2026-10-03T04:00:01.000001Z",
+            "finished_at": "2026-10-03T04:00:02.000001Z",
+            "order_id": "00000000-0000-4000-8000-000000006001",
+            "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+            "paid_at": "2026-10-03T04:00:02.000002Z"
+          }
+        },
+        "fulfillment": {
+          "order_id": "00000000-0000-4000-8000-000000006001",
+          "status": "NOT_SHIPPED",
+          "synthetic": true,
+          "version": 1,
+          "updated_at": "2026-10-03T04:00:02.000002Z",
+          "lines": [
+            {
+              "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+              "status": "NOT_SHIPPED",
+              "carrier_conclusion": "UNKNOWN",
+              "source_version": 1,
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-03T04:00:02.000002Z",
+                  "source_version": 1
+                }
+              ]
+            }
+          ]
+        },
+        "can_ship": true,
+        "blocked_reason": null
+      }
+    ],
+    "next_cursor": null
+  },
+  "SimulatedShipmentRequest": {
+    "expected_version": 1
+  },
+  "SimulatedShipmentCommand": {
+    "merchant_id": "M-1001",
+    "actor": "demo-admin",
+    "idempotency_key": "synthetic-ship",
+    "expected_version": 1
+  }
+}

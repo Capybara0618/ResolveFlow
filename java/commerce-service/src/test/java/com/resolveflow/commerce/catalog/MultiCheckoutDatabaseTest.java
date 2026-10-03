@@ -121,6 +121,11 @@ class MultiCheckoutDatabaseTest extends CommerceDatabaseTest {
         }
         for (var id : jdbc.queryForList("SELECT order_id FROM orders WHERE customer_id=?", String.class, BUYER)) {
             jdbc.update(
+                    "DELETE FROM shipment_event WHERE line_id IN (SELECT line_id FROM order_line WHERE order_id=?)",
+                    id);
+            jdbc.update("DELETE FROM shipment WHERE line_id IN (SELECT line_id FROM order_line WHERE order_id=?)", id);
+            jdbc.update("DELETE FROM order_fulfillment WHERE order_id=?", id);
+            jdbc.update(
                     "DELETE FROM line_refund WHERE line_id IN (SELECT line_id FROM order_line WHERE order_id=?)", id);
             jdbc.update("DELETE FROM order_line WHERE order_id=?", id);
             jdbc.update("DELETE FROM payment_ledger WHERE order_id=?", id);

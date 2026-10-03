@@ -216,11 +216,22 @@ public class CheckoutPayments {
                             "INSERT INTO line_refund(line_id,state,operation_id,version,updated_at) VALUES(?,'FREE',NULL,1,?)",
                             lineId,
                             paid);
+                    jdbc.update(
+                            "INSERT INTO shipment(line_id,status,carrier_conclusion,source_version) VALUES(?,'NOT_SHIPPED','UNKNOWN',1)",
+                            lineId);
+                    jdbc.update(
+                            "INSERT INTO shipment_event(line_id,code,occurred_at,source_version) VALUES(?,'ORDER_PAID',?,1)",
+                            lineId,
+                            paid);
                 }
                 jdbc.update(
                         "INSERT INTO payment_ledger(order_id,paid_amount,refunded_amount,reserved_refund_amount,version) VALUES(?,?,0,0,1)",
                         order,
                         d.get("total_amount"));
+                jdbc.update(
+                        "INSERT INTO order_fulfillment(order_id,status,version,updated_at) VALUES(?,'NOT_SHIPPED',1,?)",
+                        order,
+                        paid);
                 jdbc.update(
                         "UPDATE checkout_draft SET status='PAID',order_id=?,line_id=?,paid_at=? WHERE draft_id=?",
                         order,
