@@ -97,4 +97,12 @@ public class BuyerOrderService {
     private static CommerceOrderLineClient.CommerceRejectedQueryException invalid() {
         return new CommerceOrderLineClient.CommerceRejectedQueryException("订单分页参数无效或不属于当前买家归属");
     }
+
+    public CommerceOrderLineClient.OrderLineSummary readLine(AuthenticatedPrincipal buyer, String lineId) {
+        for (var binding : scopes.list(buyer)) {
+            var lines = commerce.listByLine(binding.principal(buyer), lineId).items();
+            if (lines.size() == 1) return lines.getFirst().withMerchant(binding.merchantId(), binding.merchantName());
+        }
+        throw new OrderController.OrderNotVisibleException();
+    }
 }

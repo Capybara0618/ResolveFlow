@@ -134,6 +134,7 @@ public class OrderLineController {
             // old row therefore answers exactly as it did before V7.
             @JsonProperty("product_name") String productName,
             @JsonProperty("variant_text") String variantText,
+            @JsonProperty("asset_key") String assetKey,
             String category,
             int quantity,
             @JsonProperty("line_paid_amount") long linePaidAmount,
@@ -149,6 +150,7 @@ public class OrderLineController {
                     row.sku(),
                     row.productName(),
                     row.variantText(),
+                    row.assetKey(),
                     row.category(),
                     row.quantity(),
                     row.linePaidAmount(),

@@ -84,6 +84,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | GET /api/v1/customer/order-lines/{line_id} | 本人订单行与当前申请/全额预检，真实金额由Commerce提供 |
 | Case | POST /api/v1/customer/cases/{case_id}/answers | 当前问题文本回答，If-Match＋question_id在工单锁内校验；追加材料、新修订调查与旧授权失效复用原路径 |
 | Case | GET /api/v1/orders | 当前主体订单视图；内部请求Commerce |
+| Case | GET /api/v1/orders/lines/{line_id} | 本人/本商家商品行与不可变购物图片；越界404，无写入 |
 | Case | GET /api/v1/orders/{order_id} | 本人/商家授权订单 |
 | Case | POST /api/v1/cases | line_id/description/requested_actions=[REFUND] |
 | Case | GET /api/v1/cases/{case_id} | 状态、客户原始问题描述、订单 ID 与公开证据；按现有主体权限读取 |

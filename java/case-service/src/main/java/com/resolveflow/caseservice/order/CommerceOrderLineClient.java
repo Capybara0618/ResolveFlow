@@ -270,7 +270,11 @@ public class CommerceOrderLineClient {
 
             @com.fasterxml.jackson.annotation.JsonProperty("merchant_name")
             @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
-            String merchantName) {
+            String merchantName,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("asset_key")
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            String assetKey) {
         public OrderLineSummary(
                 String orderId,
                 String lineId,
@@ -298,6 +302,7 @@ public class CommerceOrderLineClient {
                     status,
                     version,
                     null,
+                    null,
                     null);
         }
 
@@ -316,7 +321,8 @@ public class CommerceOrderLineClient {
                     status,
                     version,
                     merchantId,
-                    merchantName);
+                    merchantName,
+                    assetKey);
         }
     }
 

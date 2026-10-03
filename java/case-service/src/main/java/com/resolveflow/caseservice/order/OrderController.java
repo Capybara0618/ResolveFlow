@@ -76,6 +76,19 @@ public class OrderController {
         return ResponseEntity.ok(OrderLinePageResponse.from(page));
     }
 
+    @GetMapping("/lines/{line_id}")
+    public ResponseEntity<CommerceOrderLineClient.OrderLineSummary> readLine(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable("line_id") String lineId) {
+        if (lineId.isBlank() || lineId.length() > 64)
+            throw new CommerceOrderLineClient.CommerceRejectedQueryException("商品行编号无效");
+        var principal = principals.resolve(authorization);
+        if (principal.isPlatformBuyer()) return ResponseEntity.ok(buyers.readLine(principal, lineId));
+        var rows = commerce.listByLine(principal, lineId).items();
+        if (rows == null || rows.size() != 1) throw new OrderNotVisibleException();
+        return ResponseEntity.ok(rows.getFirst());
+    }
+
     /** The public payload: the same members Commerce returned, in the documented order and spelling. */
     public record OrderLinePageResponse(List<CommerceOrderLineClient.OrderLineSummary> items, PageMetaResponse page) {
 

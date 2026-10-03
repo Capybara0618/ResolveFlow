@@ -34,7 +34,23 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 68, "Commerce": 30, "Agent": 7}
+EXPECTED_ROUTE_COUNTS = {"Case": 69, "Commerce": 30, "Agent": 7}
+
+
+def test_aftercare_product_is_optional_paid_snapshot_display_and_scoped_read_only() -> None:
+    fixtures = json.loads((REPO_ROOT / CORE_DIR / "fixtures/aftercare-product.json").read_text(encoding="utf-8"))
+    for owner, schema, keys in [("commerce", "OrderLineSummary", ("with_art", "historical")),
+                                ("case", "OrderLineSummary", ("with_art", "historical")),
+                                ("case", "BuyerOrderLineSummary", ("buyer",))]:
+        validator = component_validator(owner, schema, CORE_DIR)
+        for key in keys:
+            assert not list(validator.validator.iter_errors(fixtures[key]))
+            assert list(validator.validator.iter_errors({**fixtures[key], "asset_key": "x" * 33}))
+    route = document("case")["paths"]["/api/v1/orders/lines/{line_id}"]
+    assert set(route) == {"get"}
+    assert [p["name"] for p in route["get"]["parameters"]] == ["line_id"]
+    assert {"401", "403", "404", "503"} <= route["get"]["responses"].keys()
+    assert "asset_key" not in document("commerce")["components"]["schemas"]["LineContext"]["properties"]
 
 
 def test_merchant_workspace_projection_fixtures_and_read_only_routes() -> None:

@@ -25,6 +25,7 @@ public record OrderLineRow(
         String sku,
         String productName,
         String variantText,
+        String assetKey,
         String category,
         int quantity,
         long linePaidAmount,

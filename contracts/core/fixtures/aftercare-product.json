@@ -1,0 +1,48 @@
+{
+  "with_art": {
+    "order_id": "00000000-0000-4000-8000-0000000000aa",
+    "line_id": "7002",
+    "sku": "SKU-BLUE-L",
+    "product_name": "历史耳机",
+    "variant_text": "深空灰",
+    "asset_key": "headphones",
+    "category": "electronics",
+    "quantity": 1,
+    "line_paid_amount": 1999,
+    "currency": "CNY",
+    "paid_at": "2026-09-10T08:15:00Z",
+    "status": "PAID",
+    "version": 1
+  },
+  "historical": {
+    "order_id": "00000000-0000-4000-8000-0000000000aa",
+    "line_id": "7002",
+    "sku": "SKU-BLUE-L",
+    "product_name": "历史耳机",
+    "variant_text": "深空灰",
+    "category": "electronics",
+    "quantity": 1,
+    "line_paid_amount": 1999,
+    "currency": "CNY",
+    "paid_at": "2026-09-10T08:15:00Z",
+    "status": "PAID",
+    "version": 1
+  },
+  "buyer": {
+    "order_id": "00000000-0000-4000-8000-0000000000aa",
+    "line_id": "7002",
+    "sku": "SKU-BLUE-L",
+    "product_name": "历史耳机",
+    "variant_text": "深空灰",
+    "asset_key": "headphones",
+    "category": "electronics",
+    "quantity": 1,
+    "line_paid_amount": 1999,
+    "currency": "CNY",
+    "paid_at": "2026-09-10T08:15:00Z",
+    "status": "PAID",
+    "version": 1,
+    "merchant_id": "M-1001",
+    "merchant_name": "历史店铺"
+  }
+}

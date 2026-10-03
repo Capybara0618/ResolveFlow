@@ -2696,6 +2696,10 @@ components:
         variant_text:
           type: [string, 'null']
           maxLength: 200
+        asset_key:
+          type: [string, 'null']
+          maxLength: 32
+          description: Optional product art from the exact paid checkout snapshot; never inferred from the current catalog.
         category:
           type: string
           minLength: 1

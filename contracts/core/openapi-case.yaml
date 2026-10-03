@@ -1222,6 +1222,38 @@ paths:
           $ref: '#/components/responses/Unauthenticated'
         '503':
           $ref: '#/components/responses/ServiceUnavailable'
+  /api/v1/orders/lines/{line_id}:
+    get:
+      operationId: readOrderLine
+      summary: Read a scoped product line with optional immutable art
+      description: docs/ui-aftercare-v3/README.md and docs/core-contracts.md. Read one visible product line. Identity and store/customer scope come from the authenticated principal, never query parameters.
+      parameters:
+      - name: line_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      responses:
+        '200':
+          description: Product line with optional paid-snapshot art
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/OrderLineSummary'
+                - $ref: '#/components/schemas/BuyerOrderLineSummary'
+        '400':
+          $ref: '#/components/responses/InvalidArgument'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /api/v1/orders/{order_id}:
     get:
       tags: [orders]
@@ -5105,6 +5137,10 @@ components:
         variant_text:
           type: [string, 'null']
           maxLength: 200
+        asset_key:
+          type: [string, 'null']
+          maxLength: 32
+          description: Optional product art from the exact paid checkout snapshot; never inferred from the current catalog.
         category:
           type: string
           minLength: 1
@@ -5153,6 +5189,10 @@ components:
         variant_text:
           type: [string, 'null']
           maxLength: 200
+        asset_key:
+          type: [string, 'null']
+          maxLength: 32
+          description: Optional product art from the exact paid checkout snapshot; never inferred from the current catalog.
         category:
           type: string
           minLength: 1

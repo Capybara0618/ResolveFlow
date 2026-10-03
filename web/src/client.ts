@@ -74,6 +74,8 @@ export interface OrderLine {
    */
   product_name?: string | null
   variant_text?: string | null
+  /** Immutable paid checkout snapshot art; absent for historical lines without a snapshot. */
+  asset_key?: string | null
   category: string
   quantity: number
   line_paid_amount: number
@@ -265,6 +267,8 @@ export const coreApi = {
     jsonPost<LoginResponse>('/api/v1/auth/login', null, { username, password }),
   orders: (token: string, cursor?: string) =>
     apiRequest<Page<OrderLine>>(`/api/v1/orders?limit=20${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, token),
+  orderLine: (token: string, line: string) =>
+    apiRequest<OrderLine>(`/api/v1/orders/lines/${encodeURIComponent(line)}`, token),
   order: (token: string, orderId: string) =>
     apiRequest<Page<OrderLine>>(`/api/v1/orders/${encodeURIComponent(orderId)}`, token),
   createCase: (token: string, lineId: string, description: string, key: string) =>

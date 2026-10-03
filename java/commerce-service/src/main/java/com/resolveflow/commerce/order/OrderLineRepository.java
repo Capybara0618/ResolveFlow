@@ -33,6 +33,13 @@ public interface OrderLineRepository {
                    l.sku               AS sku,
                    l.product_name      AS productName,
                    l.variant_text      AS variantText,
+                   (SELECT CASE WHEN d.kind = 'SINGLE' THEN d.asset_key ELSE dl.asset_key END
+                      FROM checkout_draft d
+                      LEFT JOIN checkout_draft_line dl ON dl.draft_id = d.draft_id AND dl.sku_id = l.sku
+                     WHERE d.order_id = l.order_id AND d.status = 'PAID'
+                       AND d.merchant_id = l.merchant_id AND d.customer_id = l.customer_id
+                       AND ((d.kind = 'SINGLE' AND d.sku_id = l.sku)
+                            OR (d.kind = 'MULTI' AND dl.sku_id = l.sku))) AS assetKey,
                    l.category          AS category,
                    l.quantity          AS quantity,
                    l.line_paid_amount  AS linePaidAmount,

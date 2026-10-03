@@ -64,7 +64,7 @@ class CommerceOrderLineClientTest {
     private static String namedPageJson(String lineId) {
         return """
                {"items":[{"order_id":"%s","line_id":"%s","sku":"SKU-RED-M","product_name":"演示商品 · 耳机",
-                 "variant_text":"深空灰","category":"apparel","quantity":2,"line_paid_amount":2599,
+                 "variant_text":"深空灰","asset_key":"headphones","category":"apparel","quantity":2,"line_paid_amount":2599,
                  "currency":"CNY","paid_at":"2026-09-10T08:15:00Z","status":"PAID","version":3}],
                 "page":{"limit":20}}
                """.formatted(ORDER, lineId);
@@ -290,6 +290,7 @@ class CommerceOrderLineClientTest {
                 OrderController.OrderLinePageResponse.from(client.list(customer, null, null, null))));
         assertThat(unnamed.get("items").get(0).has("product_name")).isFalse();
         assertThat(unnamed.get("items").get(0).has("variant_text")).isFalse();
+        assertThat(unnamed.get("items").get(0).has("asset_key")).isFalse();
 
         server.reset();
         server.expect(requestTo(COMMERCE + "/internal/v1/order-lines?merchant_id=M-1001&customer_id=C-2002"))
@@ -298,6 +299,7 @@ class CommerceOrderLineClientTest {
                 OrderController.OrderLinePageResponse.from(client.list(customer, null, null, null))));
         assertThat(named.get("items").get(0).get("product_name").stringValue()).isEqualTo("演示商品 · 耳机");
         assertThat(named.get("items").get(0).get("variant_text").stringValue()).isEqualTo("深空灰");
+        assertThat(named.get("items").get(0).get("asset_key").stringValue()).isEqualTo("headphones");
         // The identifiers, amount and payment instant are untouched by the display members.
         assertThat(named.get("items").get(0).get("line_paid_amount").asLong()).isEqualTo(2599);
         assertThat(named.get("items").get(0).get("paid_at").stringValue()).isEqualTo("2026-09-10T08:15:00Z");

@@ -95,6 +95,12 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
             return answer();
         }
 
+        @Override
+        public CommerceOrderLineClient.OrderLinePage listByLine(AuthenticatedPrincipal principal, String lineId) {
+            record(principal, lineId);
+            return answer();
+        }
+
         private void record(AuthenticatedPrincipal principal, String orderId) {
             lastPrincipal.set(principal);
             lastOrderId.set(orderId);
@@ -126,6 +132,21 @@ class OrderApiTest extends com.resolveflow.caseservice.CaseDatabaseTest {
     private String reviewerToken() {
         return jwtCodec.issue(
                 new AuthenticatedPrincipal("demo-reviewer", "M-1001", Role.REVIEWER, null), Instant.now());
+    }
+
+    @Test
+    void aScopedProductLineCanBeReadWithoutLoadingTheWholeOrder() {
+        commerce.next = StubCommerce.page("7001");
+        rest.get().uri("/api/v1/orders/lines/7001?merchant_id=M-1002&customer_id=C-2004")
+                .header("Authorization", "Bearer " + reviewerToken())
+                .exchange().expectStatus().isOk();
+        assertThat(commerce.lastPrincipal.get().merchantId()).isEqualTo("M-1001");
+        assertThat(commerce.lastPrincipal.get().customerId()).isNull();
+        assertThat(commerce.lastOrderId.get()).isEqualTo("7001");
+        commerce.next = StubCommerce.page();
+        rest.get().uri("/api/v1/orders/lines/hidden")
+                .header("Authorization", "Bearer " + customerToken())
+                .exchange().expectStatus().isNotFound();
     }
 
     @Test
