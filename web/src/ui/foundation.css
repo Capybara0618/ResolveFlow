@@ -42,3 +42,4 @@
 .foundation-product-name { display: flex; align-items: center; gap: 20px; }
 .foundation-product-name svg { width: 80px; height: 60px; background: #f5f7fc; border-radius: 6px; }
 @media (max-width: 1350px) { .foundation-main { padding: 26px; } .foundation-store-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .foundation-sku-row { grid-template-columns: 2fr 1fr 1fr auto; } }
+.single-merchant-workspace .overview-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.single-merchant-workspace .overview-metric small,.single-merchant-workspace .admin-heading p,.single-merchant-workspace .admin-eyebrow{font-size:16px}.single-merchant-workspace .admin-card + .admin-card{margin-top:16px}

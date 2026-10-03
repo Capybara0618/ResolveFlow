@@ -1,0 +1,50 @@
+{
+  "observed_at": "2026-10-03T12:18:05Z",
+  "stores": 3,
+  "accounts": 14,
+  "products": 30,
+  "skus": 45,
+  "orders": 3,
+  "cases": 3,
+  "cases_by_store": [
+    [
+      "M-1001",
+      "CLOSED_SUCCESS",
+      "admin01",
+      "1",
+      "AUTO_ASSIGN"
+    ],
+    [
+      "M-1002",
+      "CLOSED_SUCCESS",
+      "admin02",
+      "1",
+      "AUTO_ASSIGN"
+    ],
+    [
+      "M-1003",
+      "CLOSED_SUCCESS",
+      "admin03",
+      "1",
+      "AUTO_ASSIGN"
+    ]
+  ],
+  "refunds": [
+    [
+      "12900",
+      "12900",
+      "0"
+    ],
+    [
+      "16900",
+      "16900",
+      "0"
+    ],
+    [
+      "32900",
+      "32900",
+      "0"
+    ]
+  ],
+  "ready_indexes": 3
+}

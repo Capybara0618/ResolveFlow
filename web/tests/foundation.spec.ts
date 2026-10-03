@@ -25,7 +25,8 @@ describe('foundation management', () => {
       expect(wrapper.findAll('.nav-link').map(link => link.text())).toEqual(['商家概览', '交易订单', '商品管理', '售后工单', '售后政策'])
       await wrapper.findAll('.nav-link').find(link => link.text() === '售后工单')!.trigger('click'); await flushPromises()
       expect(wrapper.find('#queue-panel').exists()).toBe(true)
-      expect(wrapper.find('.ownership-group').exists()).toBe(false)
+      expect(wrapper.find('[aria-label="工单归属范围"]').exists()).toBe(false)
+      expect((wrapper.get('.queue-filters select').element as HTMLSelectElement).value).toBe('ALL')
       expect(wrapper.text()).not.toContain('领取')
       expect(fetcher.mock.calls.some(([url]) => url.includes('/admin/accounts'))).toBe(false)
     } finally { wrapper.unmount() }

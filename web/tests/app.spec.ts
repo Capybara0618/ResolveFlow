@@ -430,8 +430,9 @@ describe('core workbench', () => {
   })
 
   it.each([
-    ['批准授权', 'APPROVE'], ['请求补证', 'REQUEST_INFO'], ['拒绝', 'REJECT'],
-  ])('confirms %s using the versions reviewed before a live update', async (label, decision) => {
+    ['批准授权', 'APPROVE', false], ['请求补证', 'REQUEST_INFO', false], ['拒绝', 'REJECT', false],
+    ['批准授权', 'APPROVE', true], ['请求补证', 'REQUEST_INFO', true], ['拒绝', 'REJECT', true],
+  ])('confirms %s using the versions reviewed before a live update', async (label, decision, singleMerchant) => {
     const snapshot = {
       case: { case_id: 'case-2', status: 'PENDING_REVIEW', input_revision: 2, version: 7, line_id: 'line-9' },
       authorization: { authorization_id: 'auth-2', authorization_version: 3, status: 'PENDING_REVIEW', input_revision: 2 },
@@ -439,10 +440,11 @@ describe('core workbench', () => {
     }
     let ownershipVersion = 2
     const fetcher = vi.fn().mockImplementation((url: string, options: RequestInit) => {
+      if (url.endsWith('/admin/overview')) return Promise.resolve(new Response(JSON.stringify({ mine: 1, attention: 0, items: [] })))
       if (url.endsWith('/review-context')) return Promise.resolve(new Response(JSON.stringify({ case_version: 7, input_revision: 2, allowed_actions: [], blocked_reason: '', policy_rules: [], policy_status: 'UNAVAILABLE' })))
       if (url.endsWith('/collaboration')) return Promise.resolve(new Response(JSON.stringify(ownership('case-2', ownershipVersion === 2, ownershipVersion))))
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({
-        access_token: 'reviewer-token', role: 'REVIEWER', merchant_id: 'M-1', expires_in: 3600,
+        access_token: 'reviewer-token', role: singleMerchant ? 'MERCHANT_ADMIN' : 'REVIEWER', single_operator: singleMerchant || undefined, merchant_id: 'M-1', expires_in: 3600,
       })))
       if (url.startsWith('/api/v1/review/cases')) return Promise.resolve(new Response(JSON.stringify({
         items: [{ case_id: 'case-2', status: 'PENDING_REVIEW', version: 7, line_id: 'line-9' }],
@@ -458,6 +460,11 @@ describe('core workbench', () => {
     await wrapper.get('[name="password"]').setValue('password')
     await wrapper.get('.login-panel').trigger('submit')
     await flushPromises()
+    if (singleMerchant) {
+      await wrapper.findAll('.nav-link').find(link => link.text() === '售后工单')!.trigger('click'); await flushPromises()
+      expect(wrapper.find('[aria-label="工单归属范围"]').exists()).toBe(false)
+      expect(wrapper.find('[aria-label="工单负责人"]').exists()).toBe(false)
+    }
     await wrapper.findAll('.review-section button').find(button => button.text().includes(label))!.trigger('click')
     expect(fetcher.mock.calls.some(([url]) => url.endsWith('/reviews'))).toBe(false)
     expect(wrapper.get('[data-test="confirm-review"]').attributes('disabled')).toBeDefined()

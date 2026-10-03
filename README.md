@@ -14,8 +14,9 @@
 | --- | --- |
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
 | [当前交接](tasks/handoff-current.md) | 当前任务、验收顺序与接管规则 |
-| [双端与多人协作方案](docs/product-completion-review.md) | 用户已批准的新五批产品补齐路线 |
-| [干净演示基础管理](docs/demo-foundation.md) | 三店/30商品/45SKU/20账号与平台、商品管理 |
+| [三角色商家工作台](docs/merchant-role-merge.md) | 当前14账号、统一商家工作台与自动归属 |
+| [双端与多人协作方案](docs/product-completion-review.md) | 历史五批路线；当前角色以三角色规格为准 |
+| [干净演示基础管理](docs/demo-foundation.md) | 三店/30商品/45SKU基础管理；当前14账号见三角色规格 |
 | [当前体验指南](docs/clean-demo-experience.md) | 新账号、从购物到退款、基础管理及重建 |
 | [持久账号与双商家](docs/persistent-identity.md) | 历史身份实施与数据兼容 |
 | [客户申请工作台](docs/customer-workspace.md) | 本人订单/申请、两轮补证、撤销与公开结果 |
@@ -29,7 +30,7 @@
 | [商城到售后整体验收](reports/marketplace-flow.md) | 六批范围已贯通；同一买家两店购物、逐行独立退款、补证核验后新建议与撤销，67项HTTP/151项前端；mock与Live边界分开 |
 | [平台买家](docs/platform-buyer.md) | 同一登录的跨店本人订单/申请与原有售后，旧客户及商家权限保留 |
 | [多商家购物预期图册](docs/ui-marketplace-v1/index.html) | 11个页面视图与2张状态板，可切换/放大；配套图文合同，非当前运行截图 |
-| [本商家人员管理](docs/staff-management.md) | 管理员新增、维护、启停、角色及密码重置与审计 |
+| [本商家人员管理](docs/staff-management.md) | 历史多人兼容；当前单账号商家不开放此入口 |
 | [AgentScope迁移规格](docs/agentscope-migration.md) | 框架边界、恢复要求及历史迁移过程 |
 | [执行账本](tasks/todo.md) | 用户最新路线、实际进度及历史成果 |
 | [实现交接](docs/implementation-handoff.md) | 模型如何继续、不能走哪些捷径 |
@@ -47,9 +48,9 @@
 
 脚本启动隔离演示设施、三个Java服务、DeepSeek调查服务和桌面前端，打开[浏览器商城](http://127.0.0.1:5174/#/shop)。首次构建较慢；普通启动保留数据，不重复初始化。
 
-当前基础环境为三家店、30种商品、45个SKU、20个账号。演示密码统一 **123456**：买家`buyer01`–`buyer10`，商家管理员`admin01`–`admin03`，专员`staff01`–`staff06`，平台管理员`platform`。松间数码使用admin01/staff01–02，拾光家居使用admin02/staff03–04，轻行户外使用admin03/staff05–06。
+当前基础环境为三家店、30种商品、45个SKU、14个账号。演示密码统一 **123456**：买家`buyer01`–`buyer10`，商家`admin01`–`admin03`，平台管理员`platform`。松间数码使用admin01，拾光家居使用admin02，轻行户外使用admin03。同一商家账号管理商品、订单及人工售后审批，新申请自动归属；staff01–staff06已取消。角色转换保留数据，当前有三笔明确标注的退款验收记录，详见[三角色规格](docs/merchant-role-merge.md)与[报告](reports/merchant-role-merge.md)。
 
-用buyer01购物、按店结算并模拟付款，从本人订单行申请退款；另开标签用对应商家的专员领取，阅读原始信息、Agent建议和政策后人工审批。管理员有商品、人员和交易工作台；platform负责商家开通/启停和买家维护，没有业务审批权限。三店政策已导入并建立索引，新店政策需受控准备。
+用buyer01购物、按店结算并模拟付款，从本人订单行申请退款；另开标签用对应商家的账号进入“售后工单”，阅读原始信息、Agent建议和政策后直接人工审批。商家使用同一账号管理商品、订单和售后；platform负责商家开通/启停和买家维护，没有业务审批权限。三店政策已导入并建立索引，新店政策需受控准备。
 
 `-Live`使用用户环境变量`Deepseek_API_KEY`，沿用项目当前DeepSeek配置，新增申请/材料会产生真实模型调用。仅体验购物和基础管理用`.\demo.ps1`即可，此模式的新调查排队。此次基础能力集中验收使用mock决策与真实HTTP/数据库/政策检索，未启收费Live。模拟付款、发货和退款均无真实资金。
 

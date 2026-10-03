@@ -10,7 +10,32 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
 import demo_foundation as foundation
 import foundation_data
+import merge_merchant_accounts as merge
 import reviewer_demo as demo
+
+
+def test_merge_without_apply_never_stops_or_writes():
+    with patch.object(foundation, "checked_settings") as checked:
+        with pytest.raises(demo.DemoRefused, match="requires --apply"):
+            merge.upgrade(apply=False)
+        checked.assert_not_called()
+
+
+def test_merge_backup_failure_never_converts_or_rebuilds():
+    with (
+        patch.object(foundation, "checked_settings", return_value=demo.Settings()),
+        patch.object(merge, "validate_foundation", return_value={}),
+        patch.object(demo, "stop_owned"),
+        patch.object(demo, "read_owned", return_value=[]),
+        patch.object(demo, "tcp_open", return_value=False),
+        patch.object(foundation, "backup", side_effect=demo.DemoRefused("backup failed")),
+        patch.object(merge, "convert") as convert,
+        patch.object(demo, "run") as run,
+    ):
+        with pytest.raises(demo.DemoRefused, match="backup failed"):
+            merge.upgrade(apply=True)
+        convert.assert_not_called()
+        run.assert_not_called()
 
 
 def test_baseline_counts_and_independent_store_accounts():
@@ -19,11 +44,11 @@ def test_baseline_counts_and_independent_store_accounts():
     assert len({s["sku_id"] for s in data["skus"]}) == 45
     assert len({p["product_id"] for p in data["products"]}) == 30
     rows = foundation_data.accounts()
-    assert len(rows) == len({a["username"] for a in rows}) == 20
+    assert len(rows) == len({a["username"] for a in rows}) == 14
     assert sum(a["role"] == "CUSTOMER" for a in rows) == 10
     for store in data["stores"]:
         owned = [a for a in rows if a["merchant_id"] == store["store_id"]]
-        assert sorted(a["role"] for a in owned) == ["MERCHANT_ADMIN", "REVIEWER", "REVIEWER"]
+        assert sorted(a["role"] for a in owned) == ["MERCHANT_ADMIN"]
         assert sum(p["store_id"] == store["store_id"] for p in data["products"]) == 10
 
 

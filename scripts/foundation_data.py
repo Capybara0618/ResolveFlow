@@ -104,20 +104,10 @@ def accounts() -> list[dict]:
         rows.append(
             {
                 "username": f"admin{i:02d}",
-                "display_name": f"{name}管理员",
+                "display_name": f"{name}商家",
                 "role": "MERCHANT_ADMIN",
                 "merchant_id": merchant,
                 "buyer_id": None,
             }
-        )
-        rows.extend(
-            {
-                "username": f"staff{n:02d}",
-                "display_name": f"{name}专员{slot}",
-                "role": "REVIEWER",
-                "merchant_id": merchant,
-                "buyer_id": None,
-            }
-            for slot, n in enumerate((i * 2 - 1, i * 2), 1)
         )
     return rows

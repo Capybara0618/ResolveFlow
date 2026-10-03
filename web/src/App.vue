@@ -385,7 +385,7 @@ function login() {
     shopReturn.value = ''
     password.value = ''
     reviewItems.value = []; reviewCounts.value = null; reviewCursor.value = undefined
-    reviewScope.value = 'PUBLIC'; reviewView.value = 'REVIEW'; reviewQuery.value = ''; reviewSearch.value = ''
+    reviewScope.value = 'PUBLIC'; reviewView.value = session.single_operator ? 'ALL' : 'REVIEW'; reviewQuery.value = ''; reviewSearch.value = ''
     snapshot.value = null; selectedOrderLine.value = null
     if (['REVIEWER', 'MERCHANT_ADMIN', 'OPERATOR'].includes(session.role)) {
       if (!await loadReviewQueue()) return

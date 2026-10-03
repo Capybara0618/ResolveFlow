@@ -1,0 +1,424 @@
+{
+  "verified_at": "2026-10-03T12:06:48Z",
+  "http_checks": 77,
+  "checks": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/stores",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/products?limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/products?category=outdoor&limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/review/cases",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/platform/merchants",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/platform/merchants",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products?limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products?limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products?limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products/P-2001",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/drafts/9314e1b4-d70f-4841-bc68-2aaec2dc3b8c",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts/9314e1b4-d70f-4841-bc68-2aaec2dc3b8c/payment",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/a6be635b-867c-461a-94cf-1c10836797d2",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/a6be635b-867c-461a-94cf-1c10836797d2/collaboration",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/a6be635b-867c-461a-94cf-1c10836797d2",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/a6be635b-867c-461a-94cf-1c10836797d2/collaboration",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/accounts",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/a6be635b-867c-461a-94cf-1c10836797d2",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/a6be635b-867c-461a-94cf-1c10836797d2/reviews",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/a6be635b-867c-461a-94cf-1c10836797d2/reviews",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/a6be635b-867c-461a-94cf-1c10836797d2/reviews",
+      "status": 409
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/a6be635b-867c-461a-94cf-1c10836797d2/reviews",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/a6be635b-867c-461a-94cf-1c10836797d2",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/drafts/df53d658-fc77-4b84-a20b-b12787f25784",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts/df53d658-fc77-4b84-a20b-b12787f25784/payment",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6/collaboration",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6/collaboration",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/accounts",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6/reviews",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6/reviews",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6/reviews",
+      "status": 409
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6/reviews",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/drafts/b659a4f9-3ddf-47cf-8456-cd9d0da6b4e3",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts/b659a4f9-3ddf-47cf-8456-cd9d0da6b4e3/payment",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86/collaboration",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86/collaboration",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/accounts",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86/reviews",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86/reviews",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86/reviews",
+      "status": 409
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86/reviews",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86",
+      "status": 200
+    }
+  ],
+  "flows": [
+    {
+      "merchant_id": "M-1001",
+      "case_id": "a6be635b-867c-461a-94cf-1c10836797d2",
+      "run_id": "a9ed1768-c198-50ad-858d-0621dae71041",
+      "status": "CLOSED_SUCCESS",
+      "amount_minor": 32900,
+      "reserved_minor": 0,
+      "model_mode": "mock"
+    },
+    {
+      "merchant_id": "M-1002",
+      "case_id": "2af1e537-6a1a-43c6-a982-ba6cfbac3fd6",
+      "run_id": "b500b594-8d16-5466-b00d-7569c59ed642",
+      "status": "CLOSED_SUCCESS",
+      "amount_minor": 12900,
+      "reserved_minor": 0,
+      "model_mode": "mock"
+    },
+    {
+      "merchant_id": "M-1003",
+      "case_id": "d1212ff9-3c49-4e88-a0bd-43b11ac96d86",
+      "run_id": "e2a1a9de-2549-5632-b409-5c5325607a3e",
+      "status": "CLOSED_SUCCESS",
+      "amount_minor": 16900,
+      "reserved_minor": 0,
+      "model_mode": "mock"
+    }
+  ],
+  "model_mode": "mock",
+  "model_calls": 12,
+  "tool_observations": 9,
+  "live_calls": 0
+}

@@ -1,5 +1,7 @@
 # 核心版协议目标 · v1.2
 
+2026-10-03：单账号商家登录/本人身份可选`single_operator: true`（仅MERCHANT_ADMIN）。工单创建事务记录AUTO_ASSIGN/SYSTEM、负责人版本1；该动作只用于历史事件，不允许客户端请求。单账号商家拒绝人员变更和领取/释放/转交/接管；人工写入口继续校验身份/负责人/工单版本/协作版本，路由数不变。旧多人兼容保留，产品角色见[当前规格](merchant-role-merge.md)。
+
 这是C00要落地的协议目标，不表示目标Schema/OpenAPI已实现。[contracts.md](contracts.md)及现有根目录Schema/OpenAPI继续作为T02已验证的旧基线。不要直接改其语义后沿用旧版本号。
 
 ## 1. 迁移方式

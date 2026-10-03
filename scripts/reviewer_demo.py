@@ -2344,7 +2344,7 @@ def command_start(settings: Settings, log: Log, *, build: bool, open_browser: bo
             log.note(f"open this address manually: {settings.frontend_url}")
     else:
         log.note(f"browser opening was disabled; open {settings.frontend_url}")
-    log.note("login: buyer01 / 123456; admin01 / 123456; staff01 / 123456; platform / 123456"
+    log.note("login: buyer01 / 123456; admin01 / 123456; platform / 123456"
              if (RUNTIME_ROOT / "foundation.json").is_file() else "login: demo-reviewer / demo-pass-1003")
     return 0
 
@@ -2365,7 +2365,7 @@ def command_prepare(settings: Settings, log: Log, *, build: bool) -> int:
     backfill_display_fields(settings, document, log)
     if not manifest_exists:
         save_manifest(settings, document)
-    detail = ("foundation-v1: 3 stores / 30 products / 20 accounts"
+    detail = ("foundation-v1: 3 stores / 30 products / 14 accounts"
               if (RUNTIME_ROOT / "foundation.json").is_file()
               else f"dataset={settings.dataset} manifest={settings.manifest_path.name}")
     log.step("demo stage prepared", True, detail)

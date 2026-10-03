@@ -216,7 +216,7 @@ def seed(settings: demo.Settings) -> None:
     for s in data["stores"]:
         values = ",".join(literal(s[k]) for k in ("store_id", "name", "description"))
         statements.append(
-            f"INSERT INTO case_db.identity_merchant(merchant_id,display_name,description) VALUES ({values})"
+            f"INSERT INTO case_db.identity_merchant(merchant_id,display_name,description,single_operator) VALUES ({values},TRUE)"
         )
         statements.append(
             f"INSERT INTO commerce_db.catalog_store(store_id,name,description) VALUES ({values})"
@@ -277,7 +277,7 @@ def seed(settings: demo.Settings) -> None:
 def verify(settings: demo.Settings) -> dict:
     expected = {
         "case_db.identity_merchant": 3,
-        "case_db.identity_account": 20,
+        "case_db.identity_account": 14,
         "case_db.platform_buyer": 10,
         "case_db.buyer_customer_binding": 30,
         "commerce_db.catalog_store": 3,
@@ -427,6 +427,7 @@ def reset(*, authorized: bool, build: bool = True) -> dict:
         raise demo.DemoRefused(f"empty broker recreation failed; restore from {folder}")
     marker = {
         "profile": "foundation-v1",
+        "role_profile": "merchant-single-v1",
         "backup": str(folder),
         "policy_dir": str(POLICY_DIR),
         "bundles": [f"policy-foundation-m100{i}-2026.10" for i in range(1, 4)],
