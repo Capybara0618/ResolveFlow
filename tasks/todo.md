@@ -1,5 +1,10 @@
 # 当前改进进度
 
+## 当前快照（2026-10-03，第四批购物车后端）
+
+- 资金前置74df827已推送并部署，未重做。按原规格追加V12持久购物车：两店本人隔离、空车版本保留、绝对数量CAS、原键幂等回执、20SKU限制、改价/下架/停用条目真实保留可删除；Case持久绑定，私有Commerce购物车读写均仅Case checkout身份，Agent禁止。core协议/共享wire/6份fixture同步，路由Case51/Commerce19/Agent7。真实MySQL Java8类32 passed，补充客户端后5项复测，共33项；Python五文件116 passed、定点Spotless/Ruff/diff通过。实际命令、YAML anchor冲突与旧资金断言修复见[第四批报告](../reports/cart-checkout.md)。本子步精确提交正常push后继续多行结算，SHA由交接消息给出。
+- 本子步未迁移演示库/改前端/调用模型；第四批未完成，下一步单店多SKU报价与不可变快照、按观察版本只移除本店选行、原支付尝试原子发布全部行/槽、M05/M06集中验证。保留数据demo5174仍上一资金版本。历史工程/verify/Commerce退款测试及草图/日志保持，不夹带。
+
 ## 当前快照（2026-10-03，第四批多行资金前置）
 
 - 第三批网页最终24d0741已确认推送origin/main。本次继续第四批，正式[购物车/多行规格](../docs/cart-multiline-checkout.md)与资金前置已完成：Case统一本行FREE+整单余额计算，原金额字段保留整单含义；资格/方案复核/人工审批一致，UNKNOWN原占用与其他行资金分开；Commerce接受/结算统一账本优先，锁定当前原操作后重复结算不扣款/不重复事件；Agent事实区分本行和整单，新字段缺失不借用其他行金额。core OpenAPI/五份fixture/类型同步，旧兼容模型保留、无迁移。实际Java9类90 passed/0 skipped、Python协议/上下文六文件152 passed、定点Spotless/Ruff通过；补强缺整单事实后Case51/Python152复测通过。保留数据stop/NoBrowser重建3JAR，12项真实HTTP只读核验通过，原34工单/38账本/38订单/6草稿/38槽/92run与预算/14账号等完整快照不变；新付款/退款/工单/模型调用0。实际命令、RED并发异常及失败修复/未运行见[资金前置报告](../reports/multiline-refunds.md)。本子步精确提交正常push，SHA/远端确认见交接消息，不递归改自身提交。

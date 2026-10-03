@@ -34,7 +34,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 49, "Commerce": 17, "Agent": 7}
+EXPECTED_ROUTE_COUNTS = {"Case": 51, "Commerce": 19, "Agent": 7}
 
 
 def test_merchant_workspace_projection_fixtures_and_read_only_routes() -> None:
@@ -845,9 +845,10 @@ def test_the_line_context_is_where_the_amount_is_recomputed_from() -> None:
         "order_status",
         "version",
     }
-    assert set(context["properties"]) == set(context["required"]), (
-        "every member is required: a recomputation cannot guess a missing one"
+    assert set(context["properties"]) == set(context["required"]) | {"order_paid_amount", "line_refund_state"}, (
+        "legacy facts stay required; only the documented multiline extension is optional"
     )
+    assert context["dependentRequired"] == {"line_refund_state": ["order_paid_amount"]}
 
     listing_item = commerce["components"]["schemas"]["OrderLineSummary"]
     for withheld in ("merchant_id", "customer_id", "refunded_amount", "reserved_refund_amount"):

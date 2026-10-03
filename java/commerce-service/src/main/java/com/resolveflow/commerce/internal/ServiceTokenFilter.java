@@ -78,8 +78,9 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
      */
     private static String requiredScope(HttpServletRequest request) {
         String path = request.getRequestURI();
-        if (path.startsWith("/internal/v1/shop/drafts") || path.startsWith("/internal/v1/shop/purchases"))
-            return ServiceScopes.COMMERCE_CHECKOUT;
+        if (path.startsWith("/internal/v1/shop/drafts")
+                || path.startsWith("/internal/v1/shop/purchases")
+                || path.startsWith("/internal/v1/shop/cart")) return ServiceScopes.COMMERCE_CHECKOUT;
         if (path.startsWith("/internal/v1/shop/")) return COMMERCE_READ;
         if (path.startsWith("/internal/v1/order-lines") || path.startsWith("/internal/v1/operations")) {
             return COMMERCE_READ;

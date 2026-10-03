@@ -41,6 +41,38 @@ class CommerceShoppingClientTest {
     }
 
     @Test
+    void cartUsesOnlyCheckoutScopeAndRoundTripsPublicFacts() throws Exception {
+        var all = json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/cart.json")));
+        server.expect(requestTo("http://commerce.test/internal/v1/shop/cart/M-1001?customer_id=trusted"))
+                .andExpect(req -> assertThat(codec.verifyAsService(
+                                        req.getHeaders()
+                                                .getFirst("Authorization")
+                                                .substring(7),
+                                        Instant.now())
+                                .scopes())
+                        .containsExactly("commerce:checkout"))
+                .andRespond(withSuccess(all.get("CartGroup").toString(), MediaType.APPLICATION_JSON));
+        server.expect(requestTo("http://commerce.test/internal/v1/shop/cart/M-1001/items"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(
+                        content()
+                                .json(
+                                        "{\"merchant_id\":\"M-1001\",\"customer_id\":\"trusted\",\"idempotency_key\":\"original\",\"request\":{\"sku_id\":\"SKU-1001-BLACK\",\"quantity\":1,\"expected_revision\":0,\"expected_sku_version\":1}}"))
+                .andRespond(withSuccess(all.get("CartReceipt").toString(), MediaType.APPLICATION_JSON));
+        assertThat(json.readTree(json.writeValueAsString(client.cart("M-1001", "trusted"))))
+                .isEqualTo(all.get("CartGroup"));
+        assertThat(json.readTree(json.writeValueAsString(client.cartWrite(
+                        "M-1001",
+                        new com.resolveflow.shared.shopping.CartWire.Command(
+                                "M-1001",
+                                "trusted",
+                                "original",
+                                new com.resolveflow.shared.shopping.CartWire.Request("SKU-1001-BLACK", 1, 0L, 1L))))))
+                .isEqualTo(all.get("CartReceipt"));
+        server.verify();
+    }
+
+    @Test
     void paymentAndPersonalPurchaseUseCheckoutScopeAndSharedFixtureRoundTrips() throws Exception {
         var all = json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/checkout-payment.json")));
         for (String name : new String[] {"CheckoutPayment", "CheckoutPurchase", "CheckoutPaymentLookup"}) {

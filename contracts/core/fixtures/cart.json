@@ -1,0 +1,85 @@
+{
+  "CartRequest": {
+    "sku_id": "SKU-1001-BLACK",
+    "quantity": 1,
+    "expected_revision": 0,
+    "expected_sku_version": 1
+  },
+  "CartReceipt": {
+    "store_id": "M-1001",
+    "revision": 1
+  },
+  "CartItem": {
+    "sku_id": "SKU-1001-BLACK",
+    "product_id": "P-1001",
+    "product_name": "无线降噪耳机",
+    "variant": "黑色",
+    "asset_key": "headphones",
+    "quantity": 1,
+    "unit_amount": 32900,
+    "total_amount": 32900,
+    "max_quantity": 10,
+    "sku_version": 1,
+    "price_changed": false,
+    "availability": "AVAILABLE"
+  },
+  "CartCommand": {
+    "merchant_id": "M-1001",
+    "customer_id": "C-B3001-M1001",
+    "idempotency_key": "cart-demo",
+    "request": {
+      "sku_id": "SKU-1001-BLACK",
+      "quantity": 1,
+      "expected_revision": 0,
+      "expected_sku_version": 1
+    }
+  },
+  "CartGroup": {
+    "store_id": "M-1001",
+    "store_name": "松间数码",
+    "revision": 1,
+    "currency": "CNY",
+    "items": [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "product_id": "P-1001",
+        "product_name": "无线降噪耳机",
+        "variant": "黑色",
+        "asset_key": "headphones",
+        "quantity": 1,
+        "unit_amount": 32900,
+        "total_amount": 32900,
+        "max_quantity": 10,
+        "sku_version": 1,
+        "price_changed": false,
+        "availability": "AVAILABLE"
+      }
+    ]
+  },
+  "Cart": {
+    "stores": [
+      {
+        "store_id": "M-1001",
+        "store_name": "松间数码",
+        "revision": 1,
+        "currency": "CNY",
+        "items": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "asset_key": "headphones",
+            "quantity": 1,
+            "unit_amount": 32900,
+            "total_amount": 32900,
+            "max_quantity": 10,
+            "sku_version": 1,
+            "price_changed": false,
+            "availability": "AVAILABLE"
+          }
+        ]
+      }
+    ]
+  }
+}

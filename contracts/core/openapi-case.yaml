@@ -43,6 +43,107 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /api/v1/shop/cart:
+    get:
+      operationId: caseCartGet
+      summary: Cart
+      description: 'Authority: docs/cart-multiline-checkout.md. Cart ownership from
+        trusted Case buyer bindings. Read and write require private commerce:checkout
+        scope; Agent has no access. Absolute quantities, immutable request receipts
+        and cart revision CAS.'
+      parameters: []
+      responses:
+        '200':
+          description: Scoped persistent cart projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+              example:
+                stores:
+                - store_id: M-1001
+                  store_name: 松间数码
+                  revision: 1
+                  currency: CNY
+                  items:
+                  - sku_id: SKU-1001-BLACK
+                    product_id: P-1001
+                    product_name: 无线降噪耳机
+                    variant: 黑色
+                    asset_key: headphones
+                    quantity: 1
+                    unit_amount: 32900
+                    total_amount: 32900
+                    max_quantity: 10
+                    sku_version: 1
+                    price_changed: false
+                    availability: AVAILABLE
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Only buyer / case-service checkout identity
+        '404':
+          description: Not visible
+        '409':
+          description: Cart, price or idempotency conflict
+        '503':
+          description: Unavailable; retry original request
+  /api/v1/shop/cart/{store_id}/items:
+    post:
+      operationId: caseCartPost
+      summary: CartReceipt
+      description: 'Authority: docs/cart-multiline-checkout.md. Cart ownership from
+        trusted Case buyer bindings. Read and write require private commerce:checkout
+        scope; Agent has no access. Absolute quantities, immutable request receipts
+        and cart revision CAS.'
+      parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: Scoped persistent cart projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartReceipt'
+              example:
+                store_id: M-1001
+                revision: 1
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Only buyer / case-service checkout identity
+        '404':
+          description: Not visible
+        '409':
+          description: Cart, price or idempotency conflict
+        '503':
+          description: Unavailable; retry original request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartRequest'
+            example:
+              sku_id: SKU-1001-BLACK
+              quantity: 1
+              expected_revision: 0
+              expected_sku_version: 1
   /api/v1/shop/stores:
     get:
       operationId: caseShoppingGet_stores
@@ -2708,6 +2809,181 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    CartRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - sku_id
+      - quantity
+      - expected_revision
+      - expected_sku_version
+      properties:
+        sku_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        quantity:
+          type: integer
+          minimum: 0
+          maximum: 100
+        expected_revision:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740990
+        expected_sku_version:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          maximum: 9007199254740991
+      allOf:
+      - if:
+          properties:
+            quantity:
+              const: 0
+        then:
+          properties:
+            expected_sku_version:
+              type: 'null'
+        else:
+          properties:
+            expected_sku_version:
+              type: integer
+              minimum: 1
+              maximum: 9007199254740991
+    CartCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - customer_id
+      - idempotency_key
+      - request
+      properties:
+        merchant_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        customer_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        idempotency_key:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+        request:
+          $ref: '#/components/schemas/CartRequest'
+    CartReceipt:
+      type: object
+      additionalProperties: false
+      required:
+      - store_id
+      - revision
+      properties:
+        store_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        revision:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    CartItem:
+      type: object
+      additionalProperties: false
+      required:
+      - sku_id
+      - product_id
+      - product_name
+      - variant
+      - asset_key
+      - quantity
+      - unit_amount
+      - total_amount
+      - max_quantity
+      - sku_version
+      - price_changed
+      - availability
+      properties:
+        sku_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        product_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        product_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        variant:
+          type: string
+          maxLength: 120
+        asset_key:
+          type: string
+          maxLength: 32
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        unit_amount:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        total_amount:
+          type: integer
+          minimum: 1
+          maximum: 10000000000
+        max_quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        sku_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        price_changed:
+          type: boolean
+        availability:
+          type: string
+          enum:
+          - AVAILABLE
+          - DELISTED
+          - STORE_DISABLED
+          - QUANTITY_EXCEEDED
+    CartGroup:
+      type: object
+      additionalProperties: false
+      required:
+      - store_id
+      - store_name
+      - revision
+      - currency
+      - items
+      properties:
+        store_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        store_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        revision:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        currency:
+          const: CNY
+        items:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/CartItem'
+    Cart:
+      type: object
+      additionalProperties: false
+      required:
+      - stores
+      properties:
+        stores:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartGroup'
     CheckoutEmptyRequest:
       type: object
       additionalProperties: false
