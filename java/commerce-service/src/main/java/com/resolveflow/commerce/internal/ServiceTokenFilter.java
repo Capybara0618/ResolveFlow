@@ -78,6 +78,8 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
      */
     private static String requiredScope(HttpServletRequest request) {
         String path = request.getRequestURI();
+        if (path.startsWith("/internal/v1/shop/drafts")) return ServiceScopes.COMMERCE_CHECKOUT;
+        if (path.startsWith("/internal/v1/shop/")) return COMMERCE_READ;
         if (path.startsWith("/internal/v1/order-lines") || path.startsWith("/internal/v1/operations")) {
             return COMMERCE_READ;
         }
@@ -118,6 +120,10 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
             return;
         }
         String required = requiredScope(request);
+        if (ServiceScopes.COMMERCE_CHECKOUT.equals(required) && !"case-service".equals(identity.subject())) {
+            refuse(response, request, HttpStatus.FORBIDDEN, "FORBIDDEN_SCOPE", "checkout requires the Case facade");
+            return;
+        }
         if (required != null && !identity.hasScope(required)) {
             // 403 FORBIDDEN_SCOPE, the same refusal the audience check produces: the caller is authenticated as a
             // service and is not allowed to do *this*, which is a different thing from not being a service at all.

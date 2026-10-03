@@ -18,14 +18,16 @@ import java.util.List;
  * neither could enforce anything. The ledger refused to let that be read as "权限已执行", which is why this
  * sub-step exists.
  *
- * <p><b>What is deliberately not here.</b> There is no write scope. The Agent has no write tools
- * ({@code docs/core-scope.md}), so a scope that could authorize one would be a permission nothing should be able
- * to ask for — the same reason {@code ToolCredentialService} mints only reads.
+ * <p>The buyer checkout facade has a separate deployment scope. The Agent still has no write tools
+ * and ToolCredentialService continues to mint only the two read scopes.
  */
 public final class ServiceScopes {
 
     /** Read Commerce's authoritative order, shipment and refund data. */
     public static final String COMMERCE_READ = "commerce:read";
+
+    /** Buyer checkout facade only; never included in run tool credentials. */
+    public static final String COMMERCE_CHECKOUT = "commerce:checkout";
 
     /** Read Case's material and the policy version a case is pinned to. */
     public static final String POLICY_READ = "policy:read";

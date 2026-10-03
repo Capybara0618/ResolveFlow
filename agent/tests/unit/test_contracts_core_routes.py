@@ -34,7 +34,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 37, "Commerce": 5, "Agent": 7}
+EXPECTED_ROUTE_COUNTS = {"Case": 44, "Commerce": 12, "Agent": 7}
 
 
 def test_merchant_workspace_projection_fixtures_and_read_only_routes() -> None:
@@ -665,8 +665,9 @@ def test_case_internal_routes_require_the_service_token() -> None:
             if path.startswith("/internal/"):
                 declared = operation.get("security")
                 assert declared == [{"serviceToken": []}], f"{method} {path} must not accept a user token"
-            elif path == "/api/v1/auth/login":
-                assert operation.get("security") == [], "login cannot require the token it hands out"
+            elif path in {"/api/v1/auth/login", "/api/v1/shop/stores", "/api/v1/shop/stores/{store_id}",
+                          "/api/v1/shop/products", "/api/v1/shop/products/{product_id}", "/api/v1/shop/quote"}:
+                assert operation.get("security") == [], "login and the approved public catalog are anonymous"
             else:
                 declared = operation.get("security", [{"bearerAuth": []}])
                 assert declared == [{"bearerAuth": []}], f"{method} {path} must accept the user token"

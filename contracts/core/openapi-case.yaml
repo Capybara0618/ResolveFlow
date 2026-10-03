@@ -43,6 +43,361 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /api/v1/shop/stores:
+    get:
+      operationId: caseShoppingGet_stores
+      summary: ShopStores
+      description: 'Authority: docs/catalog-checkout.md. Public catalog or trusted buyer
+        checkout; no payment publication. Draft routes require commerce:checkout and
+        case-service deployment identity internally.'
+      parameters: []
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopStores'
+              example:
+              - store_id: M-1001
+                name: 松间数码
+                description: 日常工作与聆听的数码用品
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+  /api/v1/shop/stores/{store_id}:
+    get:
+      operationId: caseShoppingGet_stores_store_id
+      summary: ShopStore
+      description: 'Authority: docs/catalog-checkout.md. Public catalog or trusted buyer
+        checkout; no payment publication. Draft routes require commerce:checkout and
+        case-service deployment identity internally.'
+      parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopStore'
+              example:
+                store_id: M-1001
+                name: 松间数码
+                description: 日常工作与聆听的数码用品
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+  /api/v1/shop/products:
+    get:
+      operationId: caseShoppingGet_products
+      summary: ShopProducts
+      description: 'Authority: docs/catalog-checkout.md. Public catalog or trusted buyer
+        checkout; no payment publication. Draft routes require commerce:checkout and
+        case-service deployment identity internally.'
+      parameters:
+      - name: query
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 80
+      - name: category
+        in: query
+        required: false
+        schema:
+          enum:
+          - electronics
+          - home
+      - name: store_id
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+      - name: after
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 48
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopProducts'
+              example:
+                items:
+                - product_id: P-1001
+                  store_id: M-1001
+                  store_name: 松间数码
+                  name: 无线降噪耳机
+                  description: 包耳式设计，适合通勤与专注工作。
+                  category: electronics
+                  asset_key: headphones
+                  from_amount: 32900
+                  currency: CNY
+                  skus:
+                  - sku_id: SKU-1001-BLACK
+                    variant: 黑色
+                    unit_amount: 32900
+                    max_quantity: 10
+                    version: 1
+                next_after: null
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+  /api/v1/shop/products/{product_id}:
+    get:
+      operationId: caseShoppingGet_products_product_id
+      summary: ShopProduct
+      description: 'Authority: docs/catalog-checkout.md. Public catalog or trusted buyer
+        checkout; no payment publication. Draft routes require commerce:checkout and
+        case-service deployment identity internally.'
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopProduct'
+              example:
+                product_id: P-1001
+                store_id: M-1001
+                store_name: 松间数码
+                name: 无线降噪耳机
+                description: 包耳式设计，适合通勤与专注工作。
+                category: electronics
+                asset_key: headphones
+                from_amount: 32900
+                currency: CNY
+                skus:
+                - sku_id: SKU-1001-BLACK
+                  variant: 黑色
+                  unit_amount: 32900
+                  max_quantity: 10
+                  version: 1
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+  /api/v1/shop/quote:
+    post:
+      operationId: caseShoppingPost_quote
+      summary: ShopQuote
+      description: 'Authority: docs/catalog-checkout.md. Public catalog or trusted buyer
+        checkout; no payment publication. Draft routes require commerce:checkout and
+        case-service deployment identity internally.'
+      parameters: []
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopQuote'
+              example:
+                product:
+                  product_id: P-1001
+                  store_id: M-1001
+                  store_name: 松间数码
+                  name: 无线降噪耳机
+                  description: 包耳式设计，适合通勤与专注工作。
+                  category: electronics
+                  asset_key: headphones
+                  from_amount: 32900
+                  currency: CNY
+                  skus:
+                  - sku_id: SKU-1001-BLACK
+                    variant: 黑色
+                    unit_amount: 32900
+                    max_quantity: 10
+                    version: 1
+                sku:
+                  sku_id: SKU-1001-BLACK
+                  variant: 黑色
+                  unit_amount: 32900
+                  max_quantity: 10
+                  version: 1
+                quantity: 2
+                total_amount: 65800
+                currency: CNY
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopQuoteRequest'
+            example:
+              sku_id: SKU-1001-BLACK
+              quantity: 2
+  /api/v1/shop/drafts:
+    post:
+      operationId: caseShoppingPost_drafts
+      summary: ShopDraft
+      description: 'Authority: docs/catalog-checkout.md. Public catalog or trusted buyer
+        checkout; no payment publication. Draft routes require commerce:checkout and
+        case-service deployment identity internally.'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[A-Za-z0-9_-]+$
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopDraft'
+              example:
+                draft_id: 00000000-0000-4000-8000-000000004001
+                store_id: M-1001
+                store_name: 松间数码
+                product_id: P-1001
+                product_name: 无线降噪耳机
+                asset_key: headphones
+                sku_id: SKU-1001-BLACK
+                variant: 黑色
+                quantity: 2
+                unit_amount: 32900
+                total_amount: 65800
+                currency: CNY
+                status: WAITING_PAYMENT
+                created_at: '2026-10-03T04:00:00Z'
+                expires_at: '2026-10-03T04:15:00Z'
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+        '401':
+          description: Missing or invalid current identity
+        '403':
+          description: Wrong role or service scope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopDraftRequest'
+            example:
+              sku_id: SKU-1001-BLACK
+              quantity: 2
+              expected_sku_version: 1
+  /api/v1/shop/drafts/{draft_id}:
+    get:
+      operationId: caseShoppingGet_drafts_draft_id
+      summary: ShopDraft
+      description: 'Authority: docs/catalog-checkout.md. Public catalog or trusted buyer
+        checkout; no payment publication. Draft routes require commerce:checkout and
+        case-service deployment identity internally.'
+      parameters:
+      - name: draft_id
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      responses:
+        '200':
+          description: Persisted or public projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopDraft'
+              example:
+                draft_id: 00000000-0000-4000-8000-000000004001
+                store_id: M-1001
+                store_name: 松间数码
+                product_id: P-1001
+                product_name: 无线降噪耳机
+                asset_key: headphones
+                sku_id: SKU-1001-BLACK
+                variant: 黑色
+                quantity: 2
+                unit_amount: 32900
+                total_amount: 65800
+                currency: CNY
+                status: WAITING_PAYMENT
+                created_at: '2026-10-03T04:00:00Z'
+                expires_at: '2026-10-03T04:15:00Z'
+        '400':
+          description: Invalid documented input
+        '404':
+          description: Missing or not visible
+        '409':
+          description: Price changed or idempotency conflict
+        '503':
+          description: Unavailable; retry the same request/key
+        '401':
+          description: Missing or invalid current identity
+        '403':
+          description: Wrong role or service scope
   /api/v1/admin/overview:
     get:
       operationId: readMerchantOverview
@@ -2030,6 +2385,307 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    ShopStore:
+      type: object
+      additionalProperties: false
+      required:
+      - store_id
+      - name
+      - description
+      properties:
+        store_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+    ShopStores:
+      type: array
+      items:
+        $ref: '#/components/schemas/ShopStore'
+    ShopSku:
+      type: object
+      additionalProperties: false
+      required:
+      - sku_id
+      - variant
+      - unit_amount
+      - max_quantity
+      - version
+      properties:
+        sku_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        variant:
+          type: string
+          minLength: 1
+          maxLength: 120
+        unit_amount:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        max_quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    ShopProduct:
+      type: object
+      additionalProperties: false
+      required:
+      - product_id
+      - store_id
+      - store_name
+      - name
+      - description
+      - category
+      - asset_key
+      - from_amount
+      - currency
+      - skus
+      properties:
+        product_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        store_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        store_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        category:
+          enum:
+          - electronics
+          - home
+        asset_key:
+          enum:
+          - headphones
+          - keyboard
+          - mouse
+          - lamp
+          - cup
+          - pillow
+        from_amount:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        currency:
+          type: string
+          const: CNY
+        skus:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ShopSku'
+    ShopProducts:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - next_after
+      properties:
+        items:
+          type: array
+          maxItems: 48
+          items:
+            $ref: '#/components/schemas/ShopProduct'
+        next_after:
+          type:
+          - string
+          - 'null'
+          maxLength: 64
+    ShopQuoteRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - sku_id
+      - quantity
+      properties:
+        sku_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+    ShopDraftRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - sku_id
+      - quantity
+      - expected_sku_version
+      properties:
+        sku_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        expected_sku_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    ShopQuote:
+      type: object
+      additionalProperties: false
+      required:
+      - product
+      - sku
+      - quantity
+      - total_amount
+      - currency
+      properties:
+        product:
+          $ref: '#/components/schemas/ShopProduct'
+        sku:
+          $ref: '#/components/schemas/ShopSku'
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total_amount:
+          type: integer
+          minimum: 1
+          maximum: 10000000000
+        currency:
+          type: string
+          const: CNY
+    ShopDraft:
+      type: object
+      additionalProperties: false
+      required:
+      - draft_id
+      - store_id
+      - store_name
+      - product_id
+      - product_name
+      - asset_key
+      - sku_id
+      - variant
+      - quantity
+      - unit_amount
+      - total_amount
+      - currency
+      - status
+      - created_at
+      - expires_at
+      properties:
+        draft_id:
+          type: string
+          format: uuid
+        store_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        store_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        product_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        product_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        asset_key:
+          type: string
+          minLength: 1
+          maxLength: 32
+        sku_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        variant:
+          type: string
+          minLength: 1
+          maxLength: 120
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        unit_amount:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        total_amount:
+          type: integer
+          minimum: 1
+          maximum: 10000000000
+        currency:
+          type: string
+          const: CNY
+        status:
+          enum:
+          - WAITING_PAYMENT
+          - EXPIRED
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+    ShopDraftCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - customer_id
+      - idempotency_key
+      - request
+      properties:
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        customer_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        idempotency_key:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[A-Za-z0-9_-]+$
+        request:
+          $ref: '#/components/schemas/ShopDraftRequest'
     MerchantCoordinationItem:
       type: object
       additionalProperties: false

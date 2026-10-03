@@ -24,6 +24,20 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 
 | 所属 | 方法与路由 | 行为 |
 | --- | --- | --- |
+| Case | GET /api/v1/shop/stores | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Case | GET /api/v1/shop/stores/{store_id} | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Case | GET /api/v1/shop/products | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Case | GET /api/v1/shop/products/{product_id} | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Case | POST /api/v1/shop/quote | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Case | POST /api/v1/shop/drafts | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Case | GET /api/v1/shop/drafts/{draft_id} | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Commerce | GET /internal/v1/shop/stores | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Commerce | GET /internal/v1/shop/stores/{store_id} | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Commerce | GET /internal/v1/shop/products | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Commerce | GET /internal/v1/shop/products/{product_id} | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Commerce | POST /internal/v1/shop/quote | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Commerce | POST /internal/v1/shop/drafts | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Commerce | GET /internal/v1/shop/drafts/{draft_id} | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
 | Case | POST /api/v1/auth/login | 持久化本地账号登录；商家/角色/客户归属来自账号，启用状态及identity_version控制会话 |
 | Case | GET /api/v1/auth/me | 当前有效会话资料；每个用户接口重新校验持久账号启用状态、归属、角色及身份版本，不返回密码hash |
 | Case | GET /api/v1/admin/overview | docs/merchant-workspace.md；本商家真实协调汇总，只读 |
