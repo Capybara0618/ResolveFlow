@@ -1,5 +1,10 @@
 # 当前改进进度
 
+## 当前快照（2026-10-03，第四批多行结算后端）
+
+- 购物车fbd5c73和资金前置74df827已推送。继续同批追加V13：本店选行报价、SKU规范化原键/版本复核、不可变全部行快照和选行删除同事务，其他店/未选保留；MULTI原尝试提前保存全部行ID，UNKNOWN/失败沿原尝试恢复，一个总账及所有订单行/FREE槽原子发布，旧SINGLE兼容。本人订单读取全部行，独立refund_status账本投影，PAID保持付款事实。Java10类60 passed/0 skipped，补充多行失败重试11项复测，共61项；Python六文件125 passed、Spotless/Ruff/diff通过，Case53/Commerce21/Agent7 core协议/wire/fixture同步。命令、编译/注入故障失败和修复见[第四批报告](../reports/cart-checkout.md)。本后端子步精确提交正常push后继续网页收口，SHA由交接消息给出。
+- 工作区网页已接加入购物车、M05分店选行、M06完整报价/提交、未知结果会话原键恢复及退款汇总，前端138/build通过，尚未正式浏览器验收/提交。演示库未迁移V12/V13、仍上一资金版，接下来保留数据部署再集中验证A店727元/B店218元及未选保留；第四批未完成。没有模型/新工单/原演示资金写入，不夹带历史工程/verify/Commerce退款测试/草图/日志。
+
 ## 当前快照（2026-10-03，第四批购物车后端）
 
 - 资金前置74df827已推送并部署，未重做。按原规格追加V12持久购物车：两店本人隔离、空车版本保留、绝对数量CAS、原键幂等回执、20SKU限制、改价/下架/停用条目真实保留可删除；Case持久绑定，私有Commerce购物车读写均仅Case checkout身份，Agent禁止。core协议/共享wire/6份fixture同步，路由Case51/Commerce19/Agent7。真实MySQL Java8类32 passed，补充客户端后5项复测，共33项；Python五文件116 passed、定点Spotless/Ruff/diff通过。实际命令、YAML anchor冲突与旧资金断言修复见[第四批报告](../reports/cart-checkout.md)。本子步精确提交正常push后继续多行结算，SHA由交接消息给出。

@@ -40,6 +40,15 @@ class CartApiTest extends CommerceDatabaseTest {
                     .exchange()
                     .expectStatus()
                     .isForbidden();
+            for (var suffix : java.util.List.of("quote", "drafts"))
+                rest.post()
+                        .uri("/internal/v1/shop/cart/M-1001/" + suffix)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .body("{}")
+                        .exchange()
+                        .expectStatus()
+                        .isForbidden();
         }
         String caseToken = codec.issueServiceToken("case-service", null, null, "commerce:checkout", Instant.now());
         rest.get()

@@ -21,6 +21,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class CheckoutPayments {
     private final JdbcTemplate jdbc;
     private final ShoppingService shop;
+    private final DraftLines lines;
     private final SimulatedCheckoutProvider provider;
     private final Clock clock;
     private final TransactionTemplate tx;
@@ -28,11 +29,13 @@ public class CheckoutPayments {
     public CheckoutPayments(
             JdbcTemplate jdbc,
             ShoppingService shop,
+            DraftLines lines,
             SimulatedCheckoutProvider provider,
             Clock clock,
             PlatformTransactionManager manager) {
         this.jdbc = jdbc;
         this.shop = shop;
+        this.lines = lines;
         this.provider = provider;
         this.clock = clock;
         tx = new TransactionTemplate(manager);
@@ -114,6 +117,8 @@ public class CheckoutPayments {
                     Integer.class,
                     id);
             String attempt = UUID.randomUUID().toString();
+            var snapshots = lines.read(d);
+            String firstLine = "SHOP-" + UUID.randomUUID();
             jdbc.update(
                     "INSERT INTO checkout_payment_attempt(attempt_id,draft_id,sequence_no,idempotency_key,total_amount,currency,status,order_id,line_id,created_at) VALUES(?,?,?,?,?,'CNY','UNKNOWN',?,?,?)",
                     attempt,
@@ -122,8 +127,16 @@ public class CheckoutPayments {
                     c.idempotencyKey(),
                     d.get("total_amount"),
                     UUID.randomUUID().toString(),
-                    "SHOP-" + UUID.randomUUID(),
+                    firstLine,
                     Timestamp.from(now()));
+            if ("MULTI".equals(d.get("kind"))) {
+                for (int i = 0; i < snapshots.size(); i++)
+                    jdbc.update(
+                            "INSERT INTO checkout_payment_line VALUES(?,?,?)",
+                            attempt,
+                            snapshots.get(i).skuId(),
+                            i == 0 ? firstLine : "SHOP-" + UUID.randomUUID());
+            }
             jdbc.update("UPDATE checkout_draft SET status='PAYMENT_PENDING' WHERE draft_id=?", id);
             return latest(id);
         });
@@ -184,27 +197,30 @@ public class CheckoutPayments {
                         customer,
                         paid,
                         d.get("created_at"));
-                jdbc.update(
-                        "INSERT INTO order_line(line_id,order_id,merchant_id,customer_id,sku,product_name,variant_text,category,quantity,line_paid_amount,currency,paid_at,order_status,version) VALUES(?,?,?,?,?,?,?,?,?,?,'CNY',?,'PAID',1)",
-                        line,
-                        order,
-                        merchant,
-                        customer,
-                        d.get("sku_id"),
-                        d.get("product_name"),
-                        d.get("variant"),
-                        d.get("category"),
-                        d.get("quantity"),
-                        d.get("total_amount"),
-                        paid);
+                for (var snapshot : lines.read(d)) {
+                    String lineId = lines.publishedId(d, receipt.attemptId(), snapshot.skuId(), line);
+                    jdbc.update(
+                            "INSERT INTO order_line(line_id,order_id,merchant_id,customer_id,sku,product_name,variant_text,category,quantity,line_paid_amount,currency,paid_at,order_status,version) VALUES(?,?,?,?,?,?,?,?,?,?,'CNY',?,'PAID',1)",
+                            lineId,
+                            order,
+                            merchant,
+                            customer,
+                            snapshot.skuId(),
+                            snapshot.productName(),
+                            snapshot.variant(),
+                            snapshot.category(),
+                            snapshot.quantity(),
+                            snapshot.lineAmount(),
+                            paid);
+                    jdbc.update(
+                            "INSERT INTO line_refund(line_id,state,operation_id,version,updated_at) VALUES(?,'FREE',NULL,1,?)",
+                            lineId,
+                            paid);
+                }
                 jdbc.update(
                         "INSERT INTO payment_ledger(order_id,paid_amount,refunded_amount,reserved_refund_amount,version) VALUES(?,?,0,0,1)",
                         order,
                         d.get("total_amount"));
-                jdbc.update(
-                        "INSERT INTO line_refund(line_id,state,operation_id,version,updated_at) VALUES(?,'FREE',NULL,1,?)",
-                        line,
-                        paid);
                 jdbc.update(
                         "UPDATE checkout_draft SET status='PAID',order_id=?,line_id=?,paid_at=? WHERE draft_id=?",
                         order,

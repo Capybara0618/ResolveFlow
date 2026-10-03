@@ -71,6 +71,21 @@ public class CommerceShoppingClient {
         return call(rest.get().uri("/internal/v1/shop/stores"), false, new ParameterizedTypeReference<>() {});
     }
 
+    public com.resolveflow.shared.shopping.MultiCheckoutWire.Quote cartQuote(
+            String store, com.resolveflow.shared.shopping.MultiCheckoutWire.QuoteCommand command) {
+        return call(
+                rest.post().uri("/internal/v1/shop/cart/{store}/quote", store).body(command),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public Purchase cartDraft(String store, com.resolveflow.shared.shopping.MultiCheckoutWire.Command command) {
+        return call(
+                rest.post().uri("/internal/v1/shop/cart/{store}/drafts", store).body(command),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
     public com.resolveflow.shared.shopping.CartWire.Group cart(String store, String customer) {
         return call(
                 rest.get()

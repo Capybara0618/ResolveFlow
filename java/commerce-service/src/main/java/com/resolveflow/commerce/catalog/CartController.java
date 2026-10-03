@@ -9,9 +9,27 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/internal/v1/shop/cart")
 public class CartController {
     private final CartService cart;
+    private final MultiCheckoutService multi;
 
-    public CartController(CartService cart) {
+    public CartController(CartService cart, MultiCheckoutService multi) {
         this.cart = cart;
+        this.multi = multi;
+    }
+
+    @PostMapping("/{store_id}/quote")
+    public com.resolveflow.shared.shopping.MultiCheckoutWire.Quote quote(
+            @PathVariable("store_id") String store,
+            @RequestBody com.resolveflow.shared.shopping.MultiCheckoutWire.QuoteCommand command) {
+        if (command == null || !store.equals(command.merchantId())) throw new IllegalArgumentException("购物车归属不一致");
+        return multi.quote(command);
+    }
+
+    @PostMapping("/{store_id}/drafts")
+    public com.resolveflow.shared.shopping.CheckoutWire.Purchase create(
+            @PathVariable("store_id") String store,
+            @RequestBody com.resolveflow.shared.shopping.MultiCheckoutWire.Command command) {
+        if (command == null || !store.equals(command.merchantId())) throw new IllegalArgumentException("购物车归属不一致");
+        return multi.create(command);
     }
 
     @GetMapping("/{store_id}")

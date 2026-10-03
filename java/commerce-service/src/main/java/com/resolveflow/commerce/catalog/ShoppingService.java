@@ -142,7 +142,7 @@ public class ShoppingService {
         return new Quote(p, sku, request.quantity(), Math.multiplyExact(sku.unitAmount(), request.quantity()), "CNY");
     }
 
-    private record Saved(Draft draft, long version) {}
+    private record Saved(Draft draft, long version, boolean multiline) {}
 
     private Saved saved(ResultSet rs) throws SQLException {
         Instant created = rs.getTimestamp("created_at").toInstant(),
@@ -167,7 +167,8 @@ public class ShoppingService {
                                 : rs.getString("status"),
                         created,
                         expires),
-                rs.getLong("sku_version"));
+                rs.getLong("sku_version"),
+                "MULTI".equals(rs.getString("kind")));
     }
 
     public Draft read(String id, String merchant, String customer) {
@@ -182,7 +183,8 @@ public class ShoppingService {
     }
 
     private Draft replay(Saved s, DraftRequest r) {
-        if (!s.draft().skuId().equals(r.skuId())
+        if (s.multiline()
+                || !s.draft().skuId().equals(r.skuId())
                 || s.draft().quantity() != r.quantity()
                 || s.version() != r.expectedSkuVersion())
             throw new Refused(409, "IDEMPOTENCY_CONFLICT", "请求标识已用于另一份订单，请查阅原草稿");

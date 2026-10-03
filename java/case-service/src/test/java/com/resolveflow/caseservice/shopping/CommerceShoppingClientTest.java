@@ -73,6 +73,35 @@ class CommerceShoppingClientTest {
     }
 
     @Test
+    void multilineQuoteAndDraftUseCheckoutScopeAndSharedWire() throws Exception {
+        var all = json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/cart-checkout.json")));
+        var purchase = json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/checkout-payment.json")))
+                .get("CheckoutPurchase");
+        for (var suffix : new String[] {"quote", "drafts"})
+            server.expect(requestTo("http://commerce.test/internal/v1/shop/cart/M-1001/" + suffix))
+                    .andExpect(method(HttpMethod.POST))
+                    .andExpect(req -> assertThat(codec.verifyAsService(
+                                            req.getHeaders()
+                                                    .getFirst("Authorization")
+                                                    .substring(7),
+                                            Instant.now())
+                                    .scopes())
+                            .containsExactly("commerce:checkout"))
+                    .andRespond(withSuccess(
+                            (suffix.equals("quote") ? all.get("CartQuote") : purchase).toString(),
+                            MediaType.APPLICATION_JSON));
+        var quote = json.treeToValue(
+                all.get("CartQuoteCommand"), com.resolveflow.shared.shopping.MultiCheckoutWire.QuoteCommand.class);
+        var draft = json.treeToValue(
+                all.get("CartDraftCommand"), com.resolveflow.shared.shopping.MultiCheckoutWire.Command.class);
+        assertThat(json.readTree(json.writeValueAsString(client.cartQuote("M-1001", quote))))
+                .isEqualTo(all.get("CartQuote"));
+        assertThat(json.readTree(json.writeValueAsString(client.cartDraft("M-1001", draft))))
+                .isEqualTo(purchase);
+        server.verify();
+    }
+
+    @Test
     void paymentAndPersonalPurchaseUseCheckoutScopeAndSharedFixtureRoundTrips() throws Exception {
         var all = json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/checkout-payment.json")));
         for (String name : new String[] {"CheckoutPayment", "CheckoutPurchase", "CheckoutPaymentLookup"}) {

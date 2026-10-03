@@ -170,4 +170,101 @@ class CartBuyerApiTest extends CaseDatabaseTest {
                 .expectStatus()
                 .isEqualTo(503);
     }
+
+    @Test
+    void quoteAndMultilineDraftUseTrustedBindingsAndOnlyBuyerRole() throws Exception {
+        var json = new ObjectMapper();
+        var fixtures = json.readTree(java.nio.file.Files.readString(
+                java.nio.file.Path.of("../../contracts/core/fixtures/cart-checkout.json")));
+        var request = json.treeToValue(
+                fixtures.get("CartQuoteRequest"), com.resolveflow.shared.shopping.MultiCheckoutWire.QuoteRequest.class);
+        var q = json.treeToValue(
+                fixtures.get("CartQuote"), com.resolveflow.shared.shopping.MultiCheckoutWire.Quote.class);
+        when(commerce.cartQuote(anyString(), any())).thenReturn(q);
+        var t = login("demo-buyer", "demo-pass-4001");
+        rest.post()
+                .uri("/api/v1/shop/cart/M-1001/quote?customer_id=foreign")
+                .header("Authorization", "Bearer " + t)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fixtures.get("CartQuoteRequest").toString())
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.lines.length()")
+                .isEqualTo(2);
+        verify(commerce)
+                .cartQuote(
+                        "M-1001",
+                        new com.resolveflow.shared.shopping.MultiCheckoutWire.QuoteCommand(
+                                "M-1001", "C-B3001-M1001", request));
+        for (var pair : List.of(
+                new String[] {"demo-customer", "demo-pass-1001"}, new String[] {"demo-admin", "demo-pass-1100"})) {
+            var actor = login(pair[0], pair[1]);
+            for (var suffix : List.of("quote", "drafts"))
+                rest.post()
+                        .uri("/api/v1/shop/cart/M-1001/" + suffix)
+                        .header("Authorization", "Bearer " + actor)
+                        .header("Idempotency-Key", "original")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(fixtures.get(suffix.equals("quote") ? "CartQuoteRequest" : "CartDraftRequest")
+                                .toString())
+                        .exchange()
+                        .expectStatus()
+                        .isForbidden();
+        }
+        var purchaseFixtures = json.readTree(java.nio.file.Files.readString(
+                java.nio.file.Path.of("../../contracts/core/fixtures/checkout-payment.json")));
+        when(commerce.cartDraft(anyString(), any()))
+                .thenReturn(json.treeToValue(
+                        purchaseFixtures.get("CheckoutPurchase"),
+                        com.resolveflow.shared.shopping.CheckoutWire.Purchase.class));
+        var body = fixtures.get("CartDraftRequest").toString();
+        rest.post()
+                .uri("/api/v1/shop/cart/M-1001/drafts")
+                .header("Authorization", "Bearer " + t)
+                .header("Idempotency-Key", "original")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .exchange()
+                .expectStatus()
+                .isOk();
+        verify(commerce)
+                .cartDraft(
+                        "M-1001",
+                        new com.resolveflow.shared.shopping.MultiCheckoutWire.Command(
+                                "M-1001",
+                                "C-B3001-M1001",
+                                "original",
+                                json.treeToValue(
+                                        fixtures.get("CartDraftRequest"),
+                                        com.resolveflow.shared.shopping.MultiCheckoutWire.Request.class)));
+        rest.post()
+                .uri("/api/v1/shop/cart/M-1001/drafts")
+                .header("Authorization", "Bearer " + t)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+        rest.post()
+                .uri("/api/v1/shop/cart/M-evil/drafts")
+                .header("Authorization", "Bearer " + t)
+                .header("Idempotency-Key", "original")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+        rest.post()
+                .uri("/api/v1/shop/cart/M-1001/drafts")
+                .header("Authorization", "Bearer " + t)
+                .header("Idempotency-Key", "original")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body.substring(0, body.length() - 1) + ",\"total_amount\":1}")
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+        verify(commerce, times(1)).cartDraft(anyString(), any());
+    }
 }

@@ -1,0 +1,100 @@
+{
+  "CartQuoteLine": {
+    "sku_id": "SKU-1001-BLACK",
+    "product_id": "P-1001",
+    "product_name": "无线降噪耳机",
+    "variant": "黑色",
+    "asset_key": "headphones",
+    "quantity": 1,
+    "unit_amount": 32900,
+    "sku_version": 1,
+    "category": "electronics",
+    "line_amount": 32900
+  },
+  "CartQuoteRequest": {
+    "expected_revision": 2,
+    "sku_ids": [
+      "SKU-1001-BLACK",
+      "SKU-1002-WHITE"
+    ]
+  },
+  "CartQuote": {
+    "store_id": "M-1001",
+    "store_name": "松间数码",
+    "revision": 2,
+    "currency": "CNY",
+    "lines": [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "product_id": "P-1001",
+        "product_name": "无线降噪耳机",
+        "variant": "黑色",
+        "asset_key": "headphones",
+        "quantity": 1,
+        "unit_amount": 32900,
+        "sku_version": 1,
+        "category": "electronics",
+        "line_amount": 32900
+      },
+      {
+        "sku_id": "SKU-1002-WHITE",
+        "product_id": "P-1002",
+        "product_name": "机械键盘",
+        "variant": "白色",
+        "asset_key": "keyboard",
+        "quantity": 2,
+        "unit_amount": 19900,
+        "sku_version": 1,
+        "category": "electronics",
+        "line_amount": 39800
+      }
+    ],
+    "total_amount": 72700
+  },
+  "CartDraftRequest": {
+    "expected_revision": 2,
+    "lines": [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 1,
+        "expected_sku_version": 1
+      },
+      {
+        "sku_id": "SKU-1002-WHITE",
+        "quantity": 2,
+        "expected_sku_version": 1
+      }
+    ]
+  },
+  "CartQuoteCommand": {
+    "merchant_id": "M-1001",
+    "customer_id": "C-B3001-M1001",
+    "request": {
+      "expected_revision": 2,
+      "sku_ids": [
+        "SKU-1001-BLACK",
+        "SKU-1002-WHITE"
+      ]
+    }
+  },
+  "CartDraftCommand": {
+    "merchant_id": "M-1001",
+    "customer_id": "C-B3001-M1001",
+    "idempotency_key": "cart-draft-demo",
+    "request": {
+      "expected_revision": 2,
+      "lines": [
+        {
+          "sku_id": "SKU-1001-BLACK",
+          "quantity": 1,
+          "expected_sku_version": 1
+        },
+        {
+          "sku_id": "SKU-1002-WHITE",
+          "quantity": 2,
+          "expected_sku_version": 1
+        }
+      ]
+    }
+  }
+}

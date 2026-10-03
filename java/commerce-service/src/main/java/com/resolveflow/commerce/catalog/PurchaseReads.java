@@ -19,12 +19,15 @@ public class PurchaseReads {
     private final ShoppingService shop;
     private final CheckoutPayments payments;
     private final Clock clock;
+    private final DraftLines lines;
 
-    public PurchaseReads(JdbcTemplate jdbc, ShoppingService shop, CheckoutPayments payments, Clock clock) {
+    public PurchaseReads(
+            JdbcTemplate jdbc, ShoppingService shop, CheckoutPayments payments, Clock clock, DraftLines lines) {
         this.jdbc = jdbc;
         this.shop = shop;
         this.payments = payments;
         this.clock = clock;
+        this.lines = lines;
     }
 
     public static String cursor(Purchase item) {
@@ -103,6 +106,12 @@ public class PurchaseReads {
             var d = shop.read(draftId, merchant, customer);
             var p = payments.snapshot(draftId, merchant, customer);
             String order = p != null && p.status().equals("SUCCEEDED") ? p.orderId() : null;
+            var snapshot = jdbc.queryForList(
+                            "SELECT * FROM checkout_draft WHERE draft_id=? AND merchant_id=? AND customer_id=?",
+                            draftId,
+                            merchant,
+                            customer)
+                    .getFirst();
             return new Purchase(
                     id,
                     draftId,
@@ -115,16 +124,21 @@ public class PurchaseReads {
                     d.expiresAt(),
                     p == null ? null : p.paidAt(),
                     order,
-                    List.of(new Line(
-                            order == null ? null : p.lineId(),
-                            d.skuId(),
-                            d.productName(),
-                            d.variant(),
-                            d.assetKey(),
-                            d.quantity(),
-                            d.unitAmount(),
-                            d.totalAmount())),
-                    p);
+                    lines.read(snapshot).stream()
+                            .map(item -> new Line(
+                                    order == null
+                                            ? null
+                                            : lines.publishedId(snapshot, p.attemptId(), item.skuId(), p.lineId()),
+                                    item.skuId(),
+                                    item.productName(),
+                                    item.variant(),
+                                    item.assetKey(),
+                                    item.quantity(),
+                                    item.unitAmount(),
+                                    item.lineAmount()))
+                            .toList(),
+                    p,
+                    order == null ? null : refundStatus(order, merchant, customer));
         }
         if (id == null || !id.startsWith("order:")) throw missing();
         String orderId = id.substring(6);
@@ -163,7 +177,26 @@ public class PurchaseReads {
                 order.paidAt(),
                 orderId,
                 lines,
-                null);
+                null,
+                refundStatus(orderId, merchant, customer));
+    }
+
+    private String refundStatus(String id, String merchant, String customer) {
+        var rows = jdbc.queryForList(
+                "SELECT g.paid_amount,g.refunded_amount,g.reserved_refund_amount FROM payment_ledger g JOIN orders o ON o.order_id=g.order_id WHERE g.order_id=? AND o.merchant_id=? AND o.customer_id=?",
+                id,
+                merchant,
+                customer);
+        if (rows.size() != 1) throw new IllegalStateException("paid purchase ledger is missing");
+        var row = rows.getFirst();
+        long paid = ((Number) row.get("paid_amount")).longValue(),
+                refunded = ((Number) row.get("refunded_amount")).longValue(),
+                reserved = ((Number) row.get("reserved_refund_amount")).longValue();
+        if (paid <= 0 || refunded < 0 || reserved < 0 || refunded > paid || reserved > paid - refunded)
+            throw new IllegalStateException("paid purchase ledger is inconsistent");
+        return refunded == paid
+                ? "REFUNDED"
+                : reserved > 0 ? "IN_PROGRESS" : refunded > 0 ? "PARTIALLY_REFUNDED" : "NONE";
     }
 
     private static Purchase paid(ResultSet rs, String id) throws SQLException {

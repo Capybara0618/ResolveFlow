@@ -56,7 +56,42 @@ public final class CheckoutWire {
             @JsonProperty("paid_at") Instant paidAt,
             @JsonProperty("order_id") String orderId,
             List<Line> lines,
-            Payment payment) {}
+            Payment payment,
+
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            @JsonProperty("refund_status")
+            String refundStatus) {
+        public Purchase(
+                String purchaseId,
+                String draftId,
+                String storeId,
+                String storeName,
+                String status,
+                long totalAmount,
+                String currency,
+                Instant createdAt,
+                Instant expiresAt,
+                Instant paidAt,
+                String orderId,
+                List<Line> lines,
+                Payment payment) {
+            this(
+                    purchaseId,
+                    draftId,
+                    storeId,
+                    storeName,
+                    status,
+                    totalAmount,
+                    currency,
+                    createdAt,
+                    expiresAt,
+                    paidAt,
+                    orderId,
+                    lines,
+                    payment,
+                    null);
+        }
+    }
 
     public record Purchases(
             List<Purchase> items,

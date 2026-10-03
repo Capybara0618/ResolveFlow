@@ -52,6 +52,40 @@ public class CartController {
         return commerce.cartWrite(store, new Command(s.merchantId(), s.customerId(), key, request));
     }
 
+    private BuyerScopes.Scope store(String authorization, String store) {
+        return scopes.list(buyer(authorization)).stream()
+                .filter(s -> s.merchantId().equals(store))
+                .findFirst()
+                .orElseThrow(() -> new CommerceShoppingClient.Refused(404, "NOT_FOUND", "店铺不存在"));
+    }
+
+    @PostMapping("/{store_id}/quote")
+    public com.resolveflow.shared.shopping.MultiCheckoutWire.Quote quote(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable("store_id") String store,
+            @RequestBody com.resolveflow.shared.shopping.MultiCheckoutWire.QuoteRequest request) {
+        var s = store(authorization, store);
+        return commerce.cartQuote(
+                store,
+                new com.resolveflow.shared.shopping.MultiCheckoutWire.QuoteCommand(
+                        s.merchantId(), s.customerId(), request));
+    }
+
+    @PostMapping("/{store_id}/drafts")
+    public com.resolveflow.shared.shopping.CheckoutWire.Purchase create(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @RequestHeader(name = "Idempotency-Key", required = false) String key,
+            @PathVariable("store_id") String store,
+            @RequestBody com.resolveflow.shared.shopping.MultiCheckoutWire.Request request) {
+        var s = store(authorization, store);
+        if (key == null || !key.matches("[A-Za-z0-9_-]{1,128}"))
+            throw new CommerceShoppingClient.Refused(400, "INVALID_ARGUMENT", "缺少有效请求标识");
+        return commerce.cartDraft(
+                store,
+                new com.resolveflow.shared.shopping.MultiCheckoutWire.Command(
+                        s.merchantId(), s.customerId(), key, request));
+    }
+
     @ExceptionHandler(CommerceShoppingClient.Refused.class)
     public ResponseEntity<ApiError> refused(CommerceShoppingClient.Refused e) {
         return ResponseEntity.status(e.status)

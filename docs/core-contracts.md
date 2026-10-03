@@ -97,14 +97,18 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | GET /internal/v1/cases/{case_id}/evidence | 当前case材料及来源 |
 | Case | GET /internal/v1/cases/{case_id}/policy-manifest | 绑定bundle/version/hash |
 | Case | GET /internal/v1/policies/{bundle_id} | 授权政策正文/规则 |
-
-核心不开放旧entitlements、packing、cancel-before-start或补发端点。政策由受控脚本导入校验，不做管理HTTP全集。版本按订单行**支付时间**选择：取生效起点最晚且未被显式结束的版本，因此无结束日期的版本会被后继版本取代，而历史订单不会被新政策套用；选中的版本与hash在开单事务中钉在工单上，之后导入新版本不改变已开工单。Order API的公共归属仍为Case，以复用现有协议模式；不暗改网关到数据库。
-
-政策路由同时发布每条规则的`chunk_id`与`content_hash`，因为方案引用的`PolicyRef`要求这两个成员：只有这条路由发布规则，run能引用的hash只能从这里抄。两者都由**已存正文派生**（chunk按规则在bundle中的位置编号，hash取bundle_id/chunk_id/title/text的规范JSON），不存库、不读导入文件，与bundle自身manifest hash同一构造；跨语言固定值在`contracts/fixtures`中冻结，Java与Python各自重算同一digest，否则引用核对不可验证。
 | Case | GET /api/v1/shop/cart | 平台买家本人按店持久购物车；故障不返回部分空车 |
 | Case | POST /api/v1/shop/cart/{store_id}/items | 可信绑定、绝对数量、购物车版本及原键幂等 |
 | Commerce | GET /internal/v1/shop/cart/{store_id} | 仅Case checkout身份，本店本人含不可售条目 |
 | Commerce | POST /internal/v1/shop/cart/{store_id}/items | 持久CAS和幂等回执，不发布订单或资金 |
+| Case | POST /api/v1/shop/cart/{store_id}/quote | 本人本店选行，当前数量/价格/版本，总额上限 |
+| Case | POST /api/v1/shop/cart/{store_id}/drafts | 原键不可变多行草稿与同事务选行移除，其他店保留 |
+| Commerce | POST /internal/v1/shop/cart/{store_id}/quote | 仅Case checkout，可信主体及购物车版本 |
+| Commerce | POST /internal/v1/shop/cart/{store_id}/drafts | 价格锁/行快照/幂等，多行付款发布复用原尝试 |
+
+核心不开放旧entitlements、packing、cancel-before-start或补发端点。政策由受控脚本导入校验，不做管理HTTP全集。版本按订单行**支付时间**选择：取生效起点最晚且未被显式结束的版本，因此无结束日期的版本会被后继版本取代，而历史订单不会被新政策套用；选中的版本与hash在开单事务中钉在工单上，之后导入新版本不改变已开工单。Order API的公共归属仍为Case，以复用现有协议模式；不暗改网关到数据库。
+
+政策路由同时发布每条规则的`chunk_id`与`content_hash`，因为方案引用的`PolicyRef`要求这两个成员：只有这条路由发布规则，run能引用的hash只能从这里抄。两者都由**已存正文派生**（chunk按规则在bundle中的位置编号，hash取bundle_id/chunk_id/title/text的规范JSON），不存库、不读导入文件，与bundle自身manifest hash同一构造；跨语言固定值在`contracts/fixtures`中冻结，Java与Python各自重算同一digest，否则引用核对不可验证。
 
 ## 4. 运行与回调
 

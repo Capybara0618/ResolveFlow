@@ -31,6 +31,134 @@ tags:
   - name: refund
     description: Refund operation state and the reconciliation answer.
 paths:
+  /internal/v1/shop/cart/{store_id}/quote:
+    post:
+      operationId: commerceCartQuote
+      summary: CartQuote
+      description: 'Authority: docs/cart-multiline-checkout.md. Single-store selected
+        cart lines, canonical SKU order, immutable request key, cart version and current
+        price revalidation. Other store and unselected rows retained; replay never deletes
+        readded rows. Private commerce:checkout only for case-service.'
+      parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      responses:
+        '200':
+          description: Authoritative quote or immutable purchase snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartQuote'
+              example:
+                store_id: M-1001
+                store_name: 松间数码
+                revision: 2
+                currency: CNY
+                lines:
+                - sku_id: SKU-1001-BLACK
+                  product_id: P-1001
+                  product_name: 无线降噪耳机
+                  variant: 黑色
+                  asset_key: headphones
+                  quantity: 1
+                  unit_amount: 32900
+                  sku_version: 1
+                  category: electronics
+                  line_amount: 32900
+                - sku_id: SKU-1002-WHITE
+                  product_id: P-1002
+                  product_name: 机械键盘
+                  variant: 白色
+                  asset_key: keyboard
+                  quantity: 2
+                  unit_amount: 19900
+                  sku_version: 1
+                  category: electronics
+                  line_amount: 39800
+                total_amount: 72700
+        '400':
+          description: Invalid lines or amount
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Only buyer / case-service checkout identity
+        '404':
+          description: Not visible or delisted
+        '409':
+          description: Cart, price or request changed
+        '503':
+          description: Unavailable; retry same original request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartQuoteCommand'
+            example:
+              merchant_id: M-1001
+              customer_id: C-B3001-M1001
+              request:
+                expected_revision: 2
+                sku_ids:
+                - SKU-1001-BLACK
+                - SKU-1002-WHITE
+  /internal/v1/shop/cart/{store_id}/drafts:
+    post:
+      operationId: commerceCartDrafts
+      summary: CheckoutPurchase
+      description: 'Authority: docs/cart-multiline-checkout.md. Single-store selected
+        cart lines, canonical SKU order, immutable request key, cart version and current
+        price revalidation. Other store and unselected rows retained; replay never deletes
+        readded rows. Private commerce:checkout only for case-service.'
+      parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      responses:
+        '200':
+          description: Authoritative quote or immutable purchase snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPurchase'
+        '400':
+          description: Invalid lines or amount
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Only buyer / case-service checkout identity
+        '404':
+          description: Not visible or delisted
+        '409':
+          description: Cart, price or request changed
+        '503':
+          description: Unavailable; retry same original request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartDraftCommand'
+            example:
+              merchant_id: M-1001
+              customer_id: C-B3001-M1001
+              idempotency_key: cart-draft-demo
+              request:
+                expected_revision: 2
+                lines:
+                - sku_id: SKU-1001-BLACK
+                  quantity: 1
+                  expected_sku_version: 1
+                - sku_id: SKU-1002-WHITE
+                  quantity: 2
+                  expected_sku_version: 1
   /internal/v1/shop/cart/{store_id}:
     get:
       operationId: commerceCartGet
@@ -1190,6 +1318,164 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    CartQuoteRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_revision
+      - sku_ids
+      properties:
+        expected_revision:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740990
+        sku_ids:
+          type: array
+          minItems: 1
+          maxItems: 20
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{1,64}$
+    CartDraftRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_revision
+      - lines
+      properties:
+        expected_revision:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740990
+        lines:
+          type: array
+          minItems: 1
+          maxItems: 20
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/ShopDraftRequest'
+    CartQuoteLine:
+      type: object
+      additionalProperties: false
+      required:
+      - sku_id
+      - product_id
+      - product_name
+      - variant
+      - asset_key
+      - category
+      - quantity
+      - unit_amount
+      - line_amount
+      - sku_version
+      properties:
+        sku_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        product_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        product_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        variant:
+          type: string
+          maxLength: 120
+        asset_key:
+          type: string
+          maxLength: 32
+        category:
+          enum:
+          - electronics
+          - home
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        unit_amount:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        line_amount:
+          type: integer
+          minimum: 1
+          maximum: 1000000000
+        sku_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    CartQuote:
+      type: object
+      additionalProperties: false
+      required:
+      - store_id
+      - store_name
+      - revision
+      - currency
+      - lines
+      - total_amount
+      properties:
+        store_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        store_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        revision:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740990
+        currency:
+          const: CNY
+        lines:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/CartQuoteLine'
+        total_amount:
+          type: integer
+          minimum: 1
+          maximum: 1000000000
+    CartQuoteCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - customer_id
+      - request
+      properties:
+        merchant_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        customer_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        request:
+          $ref: '#/components/schemas/CartQuoteRequest'
+    CartDraftCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - customer_id
+      - idempotency_key
+      - request
+      properties:
+        merchant_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        customer_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        idempotency_key:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+        request:
+          $ref: '#/components/schemas/CartDraftRequest'
     CartRequest:
       type: object
       additionalProperties: false
@@ -1585,7 +1871,16 @@ components:
       - order_id
       - lines
       - payment
+      dependentSchemas:
+        refund_status:
+          properties:
+            status:
+              const: PAID
       properties:
+        refund_status:
+          type: string
+          enum: [NONE, IN_PROGRESS, PARTIALLY_REFUNDED, REFUNDED]
+          description: Optional paid order ledger projection; independent of PAID payment fact.
         purchase_id:
           type: string
           pattern: ^(draft|order):[0-9a-fA-F-]{36}$
