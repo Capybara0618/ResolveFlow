@@ -1472,6 +1472,10 @@ def start_stage(settings: Settings, log: Log, *, build: bool) -> None:
         if not ok:
             raise DemoRefused("the Java jars did not build")
 
+    foundation_marker = RUNTIME_ROOT / "foundation.json"
+    foundation = json.loads(foundation_marker.read_text(encoding="utf-8")) if foundation_marker.is_file() else None
+    policy_dir = ROOT / "fixtures" / "demo-foundation" / "policies" if foundation else ROOT / "fixtures" / "policies" / "bundles"
+    policy_bundles = tuple(foundation["bundles"]) if foundation else POLICY_BUNDLES
     # The controlled policy import: the same operator command the C07.1 driver runs, pointed at
     # the demo database. It is a one-shot process because it ends with System.exit.
     log.section("policies into the demo case database")
@@ -1481,7 +1485,7 @@ def start_stage(settings: Settings, log: Log, *, build: bool) -> None:
             "-jar",
             str(CASE_JAR),
             "--spring.main.web-application-type=none",
-            "--resolveflow.policy.import-dir=fixtures/policies/bundles",
+            f"--resolveflow.policy.import-dir={policy_dir}",
         ],
         timeout=300,
         env=child_env(CASE_DB_URL=settings.case_dsn, CASE_DB_USER="case_svc", CASE_DB_PASSWORD="case_svc"),
@@ -1507,7 +1511,7 @@ def start_stage(settings: Settings, log: Log, *, build: bool) -> None:
             "--dsn",
             settings.agent_dsn,
             "--replace",
-            *[item for bundle in POLICY_BUNDLES for item in ("--bundle", bundle)],
+            *[item for bundle in policy_bundles for item in ("--bundle", bundle)],
         ],
         timeout=900,
         env=child_env(RESOLVEFLOW_EMBEDDING_PATH=str(EMBEDDING_PATH)),
@@ -2340,7 +2344,8 @@ def command_start(settings: Settings, log: Log, *, build: bool, open_browser: bo
             log.note(f"open this address manually: {settings.frontend_url}")
     else:
         log.note(f"browser opening was disabled; open {settings.frontend_url}")
-    log.note("login: demo-reviewer / demo-pass-1003")
+    log.note("login: buyer01 / 123456; admin01 / 123456; staff01 / 123456; platform / 123456"
+             if (RUNTIME_ROOT / "foundation.json").is_file() else "login: demo-reviewer / demo-pass-1003")
     return 0
 
 
@@ -2360,7 +2365,10 @@ def command_prepare(settings: Settings, log: Log, *, build: bool) -> int:
     backfill_display_fields(settings, document, log)
     if not manifest_exists:
         save_manifest(settings, document)
-    log.step("demo stage prepared", True, f"dataset={settings.dataset} manifest={settings.manifest_path.name}")
+    detail = ("foundation-v1: 3 stores / 30 products / 20 accounts"
+              if (RUNTIME_ROOT / "foundation.json").is_file()
+              else f"dataset={settings.dataset} manifest={settings.manifest_path.name}")
+    log.step("demo stage prepared", True, detail)
     log.note(
         "the Agent is started per scenario by `run`: one mock script is bound to one run, so there is no "
         "always-on mock process to mistake for a model"
@@ -2369,7 +2377,9 @@ def command_prepare(settings: Settings, log: Log, *, build: bool) -> int:
 
 
 def command_status(settings: Settings, log: Log) -> int:
-    document = load_manifest(settings)
+    foundation = (settings.runtime_root / "foundation.json").is_file()
+    document = ({"environment": settings.project, "dataset_id": "foundation-v1", "samples": []}
+                if foundation else load_manifest(settings))
     database_ready = container_health("mysql", settings) == "healthy"
     live_cases: dict[str, tuple[str, str | None]] = {}
     case_ids = [sample["case_id"] for sample in document.get("samples", []) if sample.get("case_id")]
@@ -2383,9 +2393,20 @@ def command_status(settings: Settings, log: Log) -> int:
             settings,
         )
         live_cases = {case_id: (status, authorization or None) for case_id, status, authorization in rows}
-    log.section(f"manifest {settings.manifest_path}")
+    log.section("foundation live data" if foundation else f"manifest {settings.manifest_path}")
     log.note(f"environment={document['environment']} dataset={document['dataset_id']} "
              f"samples={len(document.get('samples', []))}")
+    if foundation and database_ready:
+        rows = mysql_rows(
+            "SELECT (SELECT COUNT(*) FROM case_db.identity_merchant),"
+            "(SELECT COUNT(*) FROM case_db.identity_account),"
+            "(SELECT COUNT(*) FROM commerce_db.catalog_product),"
+            "(SELECT COUNT(*) FROM commerce_db.catalog_sku),"
+            "(SELECT COUNT(*) FROM commerce_db.payment_ledger),"
+            "(SELECT COUNT(*) FROM case_db.aftersale_case)", settings,
+        )
+        if rows:
+            log.note("live stores/accounts/products/skus/orders/cases=" + "/".join(rows[0]))
     if not database_ready:
         log.note("demo MySQL is stopped; live sample state is shown as offline")
     for sample in document.get("samples", []):

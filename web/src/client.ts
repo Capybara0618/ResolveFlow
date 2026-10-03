@@ -9,7 +9,7 @@ export class ApiError extends Error {
 
 export interface LoginResponse {
   access_token: string
-  role: 'CUSTOMER' | 'REVIEWER' | 'MERCHANT_ADMIN' | 'OPERATOR'
+  role: 'CUSTOMER' | 'REVIEWER' | 'MERCHANT_ADMIN' | 'OPERATOR' | 'PLATFORM_ADMIN'
   merchant_id?: string
   buyer_id?: string
   customer_id?: string

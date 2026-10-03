@@ -1,0 +1,31 @@
+{
+  "counts": {
+    "case_db.identity_merchant": 3,
+    "case_db.identity_account": 20,
+    "case_db.platform_buyer": 10,
+    "case_db.buyer_customer_binding": 30,
+    "commerce_db.catalog_store": 3,
+    "commerce_db.catalog_product": 30,
+    "commerce_db.catalog_sku": 45,
+    "case_db.aftersale_case": 0,
+    "case_db.case_authorization": 0,
+    "commerce_db.order_line": 0,
+    "commerce_db.payment_ledger": 0,
+    "commerce_db.refund_operation": 0,
+    "commerce_db.checkout_draft": 0,
+    "commerce_db.shopping_cart": 0,
+    "commerce_db.shopping_cart_item": 0,
+    "agent.agent_run": 0,
+    "agent.agent_model_call": 0,
+    "agent.agent_tool_call": 0,
+    "agent.agent_callback_outbox": 0
+  },
+  "ready_policy_indexes": 3,
+  "verified_at": "2026-10-03T11:15:25Z",
+  "login_checks": 20,
+  "provider_empty_counts": {
+    "refund_request": 0,
+    "request_attempt": 0,
+    "injected_fault": 0
+  }
+}

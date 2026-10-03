@@ -1,10 +1,11 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('start', 'stop', 'status', 'verify')]
+    [ValidateSet('start', 'stop', 'status', 'verify', 'reset')]
     [string]$Command = 'start',
     [switch]$SkipBuild,
     [switch]$NoBrowser,
-    [switch]$Live
+    [switch]$Live,
+    [switch]$ClearDemoData
 )
 
 $repoRoot = $PSScriptRoot
@@ -14,10 +15,20 @@ if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
 }
 
 $driverArgs = @('scripts/reviewer_demo.py')
+if ($Command -eq 'reset') {
+    if (-not $ClearDemoData) { throw 'reset requires -ClearDemoData: removes local demo transactions and accounts after backup.' }
+    if ($Live) { throw 'reset does not start paid model investigations.' }
+    $driverArgs = @('scripts/demo_foundation.py')
+}
+elseif ($ClearDemoData) { throw '-ClearDemoData is supported only with reset.' }
+elseif ($Command -eq 'verify' -and (Test-Path -LiteralPath (Join-Path $repoRoot 'tmp/reviewer-demo/foundation.json'))) {
+    $driverArgs = @('scripts/demo_foundation.py')
+}
 if ($SkipBuild) {
     $driverArgs += '--skip-build'
 }
 $driverArgs += $Command
+if ($ClearDemoData) { $driverArgs += '--clear-demo-data' }
 if ($Command -eq 'start' -and $NoBrowser) {
     $driverArgs += '--no-browser'
 }

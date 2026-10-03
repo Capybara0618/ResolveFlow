@@ -15,7 +15,9 @@
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
 | [当前交接](tasks/handoff-current.md) | 当前任务、验收顺序与接管规则 |
 | [双端与多人协作方案](docs/product-completion-review.md) | 用户已批准的新五批产品补齐路线 |
-| [持久账号与双商家](docs/persistent-identity.md) | 本地演示账号、身份校验与数据兼容 |
+| [干净演示基础管理](docs/demo-foundation.md) | 三店/30商品/45SKU/20账号与平台、商品管理 |
+| [当前体验指南](docs/clean-demo-experience.md) | 新账号、从购物到退款、基础管理及重建 |
+| [持久账号与双商家](docs/persistent-identity.md) | 历史身份实施与数据兼容 |
 | [客户申请工作台](docs/customer-workspace.md) | 本人订单/申请、两轮补证、撤销与公开结果 |
 | [浏览器体验指南](docs/browser-experience.md) | 一条命令启动、跨角色操作顺序与可直接查看的结果 |
 | [第五批整体验收](reports/product-flow.md) | 正式网页双商家/多人闭环、退款账本、失败及未运行项 |
@@ -43,29 +45,22 @@
 .\demo.ps1 -Live
 ```
 
-脚本会启动隔离的演示数据库和消息设施、三个 Java 服务、DeepSeek 调查服务和桌面前端，并在默认浏览器打开 `http://127.0.0.1:5174`。登录账号是 `demo-reviewer`，密码是 `demo-pass-1003`。第一次启动需要构建服务，耗时会长一些；保持服务运行时再次执行会直接复用并打开页面。
+脚本启动隔离演示设施、三个Java服务、DeepSeek调查服务和桌面前端，打开[浏览器商城](http://127.0.0.1:5174/#/shop)。首次构建较慢；普通启动保留数据，不重复初始化。
 
-从购物开始用`demo-buyer` / `demo-pass-4001`打开[商城](http://127.0.0.1:5174/#/shop)，跨店加购物车、按店结算模拟付款，从订单具体商品申请退款。另开专员标签领取、补证/核验、阅读当前建议和政策后人工审批；买家可查看逐行及整单退款结果。完整操作及本机已完成样本见[体验指南](docs/browser-experience.md)，本次集中验证使用mock决策与真实业务/政策检索，未启收费Live。
+当前基础环境为三家店、30种商品、45个SKU、20个账号。演示密码统一 **123456**：买家`buyer01`–`buyer10`，商家管理员`admin01`–`admin03`，专员`staff01`–`staff06`，平台管理员`platform`。松间数码使用admin01/staff01–02，拾光家居使用admin02/staff03–04，轻行户外使用admin03/staff05–06。
 
-商家管理员使用 `demo-admin` / `demo-pass-1100`，在“商家概览”查看本商家真实待办与异常，进入工单协调；“人员管理”维护账号，“政策与版本”只读已导入原文、有效区间和真实索引状态。人员维护不会自动转移工单，转交或接管在工单中明确操作。管理员只能管理自己的商家，并且不能停用或降级最后一个启用管理员。仅查看已有结果可用`.\demo.ps1`，不加`-Live`时不启动新模型调查。
+用buyer01购物、按店结算并模拟付款，从本人订单行申请退款；另开标签用对应商家的专员领取，阅读原始信息、Agent建议和政策后人工审批。管理员有商品、人员和交易工作台；platform负责商家开通/启停和买家维护，没有业务审批权限。三店政策已导入并建立索引，新店政策需受控准备。
 
-客户工作台使用 `demo-customer` / `demo-pass-1001`，从“我的订单”发起申请，在“我的申请”查看进度、回答当前问题或撤销。客户和专员可分别登录两个浏览器标签页，模拟申请与审核；各标签的会话相互独立，刷新后需重新登录。已有3条新合成闭环及桌面截图见[客户验收记录](reports/customer-workspace.md)，更多不同商家/客户账号见上方持久账号说明。
-
-专员使用公共队列、我的工单、结果待确认与历史工单入口；可见且空闲的队列每30秒更新，客户申请列表每15秒更新。已展开多页的列表保留原记录并提示刷新，更新不会切换当前工单或清除填写中的材料。第四批界面与只读验收见[商家工作台报告](reports/merchant-workspace.md)；第五批已完成正式网页双商家/多人、补证核验、冲突及人工审批闭环：三笔329元模拟退款、一拒绝、一撤销，见[整体验收](reports/product-flow.md)。从启动到跨角色操作的详细步骤见[浏览器指南](docs/browser-experience.md)。
-
-`-Live` 使用用户环境变量 `Deepseek_API_KEY`，固定连接官方 `https://api.deepseek.com/chat/completions`，模型 ID 为 `deepseek-flash`（V4.1 Flash）。密钥不写入项目文件。新增材料、核验或补证回答会触发真实调查并产生模型用量；审批后执行的是模拟退款。仅浏览历史数据可用 `.\demo.ps1`，此模式关闭新调查，仍可查看已有记录和退款执行结果。
+`-Live`使用用户环境变量`Deepseek_API_KEY`，沿用项目当前DeepSeek配置，新增申请/材料会产生真实模型调用。仅体验购物和基础管理用`.\demo.ps1`即可，此模式的新调查排队。此次基础能力集中验收使用mock决策与真实HTTP/数据库/政策检索，未启收费Live。模拟付款、发货和退款均无真实资金。
 
 ```powershell
-.\demo.ps1 status       # 查看状态
-.\demo.ps1 stop         # 停止演示服务，保留演示数据
-.\demo.ps1 -Live -SkipBuild   # 服务停止后复用已有 jar，快速重启
-.\demo.ps1 -Live -NoBrowser   # 只启动，不自动打开浏览器
+.\demo.ps1 status
+.\demo.ps1 stop                       # 停服务，保留数据
+.\demo.ps1 -Live -SkipBuild            # 已构建且Java源码未变
+.\demo.ps1 reset -ClearDemoData        # 明确放弃本地演示数据时才用；先备份
 ```
 
-完整隔离方式、演示样本与验收结果见[审查员演示说明](reports/reviewer-demo/README.md)。
-审查侧真实模型与浏览器验收见[收尾记录](reports/reviewer-completion.md)，包含成功和失败记录，以及可直接查询的工单编号。
-
-商城体验用 `.\demo.ps1` 即可，打开 [商城](http://127.0.0.1:5174/#/shop)，登录 `demo-buyer` / `demo-pass-4001`：浏览两家店 → 选择规格和数量加入购物车 → 按店选中商品并确认服务器报价 → 提交订单、确认模拟付款 → 在“我的订单”查看全部商品及真实履约。直接购买仍可用；购物车按本人持久保存，结算只移除本店选中商品。待付款支持取消及到期限制，结果不确定时保持原请求恢复；已付款详情可进入原售后申请。第五批已完成本商家管理员交易列表/详情、首次整单模拟发货和原请求恢复，两商家未发货/当前日期政策及索引已部署，见[履约报告](reports/merchant-fulfillment.md)。管理员从工作台“交易订单”体验，买家订单详情同步显示轨迹。第六批购物退款完整网页闭环仍待集中验收，不能宣称商城全链已经完成。商城、模拟付款/发货无需模型调用；需要新 Agent 调查时才使用 `-Live`。
+完整账号、购买到退款步骤、基础管理与重建说明见[干净环境体验指南](docs/clean-demo-experience.md)，当前规格见[基础管理](docs/demo-foundation.md)。2026-10-03用户授权清除隔离演示记录并重建基础数据；旧demo-*账号、旧报告订单和工单ID不属于当前环境。共享开发库、Git和历史验收报告保留；历史真实模型与页面证据见[审查侧报告](reports/reviewer-completion.md)和[商城到售后报告](reports/marketplace-flow.md)。
 
 本地 core profile 先运行 `java/mvnw -f java/pom.xml -DskipTests package`，再运行 `docker compose -f infra/compose.yaml --profile core up --build -d mysql postgres redis agent commerce-service case-service gateway`，最后用 `python scripts/c11_core_smoke.py` 检查健康、认证及商家队列隔离。镜像包含公开的合成契约夹具用于本地演示；真实环境须覆盖演示密钥。该 profile 默认不开收费模型调查和 MQ 传输循环；功能链路验收以对应 C08 报告为准。`docker compose -f infra/compose.yaml --profile core stop gateway case-service commerce-service agent` 只停应用，不清数据卷。
 

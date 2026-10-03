@@ -1,0 +1,449 @@
+{
+  "verified_at": "2026-10-03T11:10:39Z",
+  "http_checks": 82,
+  "checks": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/stores",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/products?limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/products?category=outdoor&limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/review/cases",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/platform/merchants",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/platform/merchants",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/platform/merchants",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products?limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products?limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products?limit=48",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products/P-2001",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/platform/buyers",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/platform/buyers/checkbuyer",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/platform/buyers/checkbuyer",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/platform/merchants",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/platform/merchants",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/merchant/products",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/products/P-ceb60985-4d5f-4064-a827-8b842fac6f9b",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/platform/merchants/M-VERIFY",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/products/P-ceb60985-4d5f-4064-a827-8b842fac6f9b",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/drafts/d45a526f-09ab-4e22-b3cd-8dff1f275ae4",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/merchant/products/P-1001",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/merchant/products/P-1001",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts",
+      "status": 409
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/drafts/d45a526f-09ab-4e22-b3cd-8dff1f275ae4",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts/d45a526f-09ab-4e22-b3cd-8dff1f275ae4/payment",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/075da509-a516-4e0e-ae29-de62fc64c130",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/075da509-a516-4e0e-ae29-de62fc64c130/collaboration",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/075da509-a516-4e0e-ae29-de62fc64c130/collaboration",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/075da509-a516-4e0e-ae29-de62fc64c130",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/075da509-a516-4e0e-ae29-de62fc64c130/reviews",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/075da509-a516-4e0e-ae29-de62fc64c130",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/drafts/6b94a9c9-d73e-43db-96db-f1a5f5199586",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts/6b94a9c9-d73e-43db-96db-f1a5f5199586/payment",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/30df4ece-9a93-458f-883d-04bd09271afb",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/30df4ece-9a93-458f-883d-04bd09271afb/collaboration",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/30df4ece-9a93-458f-883d-04bd09271afb/collaboration",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/30df4ece-9a93-458f-883d-04bd09271afb",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/30df4ece-9a93-458f-883d-04bd09271afb/reviews",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/30df4ece-9a93-458f-883d-04bd09271afb",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/drafts/0c800333-1a90-4689-8e2e-2d5643fc770d",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/shop/drafts/0c800333-1a90-4689-8e2e-2d5643fc770d/payment",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/6bd8ca43-ce84-406c-b902-0bace3b639ab",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/6bd8ca43-ce84-406c-b902-0bace3b639ab/collaboration",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/6bd8ca43-ce84-406c-b902-0bace3b639ab/collaboration",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cases/6bd8ca43-ce84-406c-b902-0bace3b639ab",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cases/6bd8ca43-ce84-406c-b902-0bace3b639ab/reviews",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/customer/cases/6bd8ca43-ce84-406c-b902-0bace3b639ab",
+      "status": 200
+    }
+  ],
+  "flows": [
+    {
+      "merchant_id": "M-1001",
+      "case_id": "075da509-a516-4e0e-ae29-de62fc64c130",
+      "run_id": "a9bac092-7012-5581-85fe-6d1503fc45d7",
+      "status": "CLOSED_SUCCESS",
+      "amount_minor": 32900,
+      "reserved_minor": 0,
+      "model_mode": "mock"
+    },
+    {
+      "merchant_id": "M-1002",
+      "case_id": "30df4ece-9a93-458f-883d-04bd09271afb",
+      "run_id": "a268753d-8b47-515e-bdeb-d51116623b15",
+      "status": "CLOSED_SUCCESS",
+      "amount_minor": 12900,
+      "reserved_minor": 0,
+      "model_mode": "mock"
+    },
+    {
+      "merchant_id": "M-1003",
+      "case_id": "6bd8ca43-ce84-406c-b902-0bace3b639ab",
+      "run_id": "bc9e21b0-11c6-5128-9741-00e87ef418eb",
+      "status": "CLOSED_SUCCESS",
+      "amount_minor": 16900,
+      "reserved_minor": 0,
+      "model_mode": "mock"
+    }
+  ],
+  "model_mode": "mock",
+  "model_calls": 12,
+  "tool_observations": 9,
+  "live_calls": 0
+}

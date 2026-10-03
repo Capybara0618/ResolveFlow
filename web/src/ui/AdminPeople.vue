@@ -16,10 +16,10 @@ const enabled = ref(true), reason = ref(''), stale = ref(false)
 const history = ref<AccountAudit[]>([]), historyCursor = ref<string>(), historyTotal = ref(0), historyLoading = ref(false), historyError = ref('')
 const dialog = ref<'create' | 'password' | null>(null), newUsername = ref(''), newName = ref('')
 const newRole = ref<'REVIEWER' | 'MERCHANT_ADMIN'>('REVIEWER'), secret = ref(''), dialogReason = ref('')
-const labels: Record<LoginResponse['role'], string> = { CUSTOMER: '客户', REVIEWER: '售后专员', MERCHANT_ADMIN: '商家管理员', OPERATOR: '兼容运维账号' }
+const labels: Record<LoginResponse['role'], string> = { CUSTOMER: '客户', REVIEWER: '售后专员', MERCHANT_ADMIN: '商家管理员', OPERATOR: '兼容运维账号', PLATFORM_ADMIN: '平台管理员' }
 const fixedRole = computed(() => !!selected.value && ['CUSTOMER', 'OPERATOR'].includes(selected.value.role))
 const lastAdmin = computed(() => selected.value?.role === 'MERCHANT_ADMIN' && selected.value.enabled && enabledAdmins.value <= 1)
-const validPassword = computed(() => secret.value.length >= 8 && secret.value.length <= 200 && !!secret.value.trim())
+const validPassword = computed(() => secret.value.length >= 6 && secret.value.length <= 200 && !!secret.value.trim())
 const canSave = computed(() => !!selected.value && !busy.value && !loading.value && !stale.value && !!name.value.trim() && !!reason.value.trim())
 const date = (value: string) => new Date(value).toLocaleString('zh-CN', { hour12: false })
 
@@ -138,7 +138,7 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
       <form class="people-maintenance" @submit.prevent="mutate(dialog === 'create' ? 'create' : 'password')">
         <p class="people-note">所属商家：{{ account.merchant_name ?? account.merchant_id }}。{{ dialog === 'create' ? '仅新增本商家工作人员，用户名创建后固定。' : `目标账号：${selected?.username}。成功后该账号的旧会话立即失效。` }}</p>
         <template v-if="dialog === 'create'"><label>用户名<input v-model="newUsername" autocomplete="off" maxlength="120" pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,119}" required :disabled="busy" /></label><label>工作人员姓名<input v-model="newName" maxlength="120" required :disabled="busy" /></label><label>工作人员角色<select v-model="newRole" :disabled="busy"><option value="REVIEWER">售后专员</option><option value="MERCHANT_ADMIN">商家管理员</option></select></label></template>
-        <label>{{ dialog === 'create' ? '初始密码' : '新密码' }}<input v-model="secret" type="password" autocomplete="new-password" minlength="8" maxlength="200" required :disabled="busy" /></label><small class="muted">8–200位；提交后清空，不会回显或保存在浏览器。</small>
+        <label>{{ dialog === 'create' ? '初始密码' : '新密码' }}<input v-model="secret" type="password" autocomplete="new-password" minlength="6" maxlength="200" required :disabled="busy" /></label><small class="muted">6–200位；提交后清空，不会回显或保存在浏览器。</small>
         <label>操作理由<textarea v-model="dialogReason" rows="3" maxlength="1000" required :disabled="busy || stale && dialog === 'password'" /></label>
         <p v-if="error" class="message error" role="alert">{{ error }}</p>
         <div class="people-actions"><button type="button" class="secondary-button" :disabled="busy" @click="closeDialog">取消</button><button type="submit" :disabled="busy || !validPassword || !dialogReason.trim() || dialog === 'password' && stale || dialog === 'create' && (!newUsername.trim() || !newName.trim())">{{ busy ? '正在提交…' : dialog === 'create' ? '创建账号' : '确认重置' }}</button></div>

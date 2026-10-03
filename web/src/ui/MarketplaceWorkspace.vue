@@ -154,10 +154,10 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
     <main v-else class="shop-content">
 
       <form v-if="['home','search','store'].includes(screen)" class="shop-search" @submit.prevent="search"><input v-model="query" aria-label="搜索商品" placeholder="搜索商品，发现喜欢的好物" maxlength="80" /><button type="submit">搜索</button></form>
-      <div v-if="screen === 'home'" class="shop-hero"><div><p>数码与家居</p><h1>选喜欢的好物，<br />让日常更舒适。</h1><p>逛逛不同店铺，从这里开始。</p><button @click="category = 'electronics'; search()">浏览数码商品 →</button></div><div class="hero-art"><ProductArt asset="headphones" name="无线降噪耳机" /><ProductArt asset="lamp" name="桌面台灯" /></div></div>
+      <div v-if="screen === 'home'" class="shop-hero"><div><p>数码 · 家居 · 户外</p><h1>选喜欢的好物，<br />让日常更舒适。</h1><p>逛逛不同店铺，从这里开始。</p><button @click="category = 'electronics'; search()">浏览数码商品 →</button></div><div class="hero-art"><ProductArt asset="headphones" name="无线降噪耳机" /><ProductArt asset="lamp" name="桌面台灯" /></div></div>
       <template v-if="['home','search','store'].includes(screen)">
         <section v-if="store" class="shop-store-banner"><span class="store-symbol">{{ store.name.slice(0,1) }}</span><div><h1>{{ store.name }}</h1><p>{{ store.description }}</p></div><a href="#/shop" @click.prevent="go('#/shop')">返回全站商城 →</a></section>
-        <div class="shop-section-title"><h1 v-if="screen === 'search'">{{ query ? `“${query}”的搜索结果` : '商品分类' }}</h1><h2 v-else>{{ store ? '店铺商品' : '发现好物' }}</h2><div class="shop-categories"><button v-for="c in [{ id: '', name: '全部' }, { id: 'electronics', name: '数码' }, { id: 'home', name: '家居' }]" :key="c.id" :class="{ current: category === c.id }" @click="category = c.id; search()">{{ c.name }}</button></div></div>
+        <div class="shop-section-title"><h1 v-if="screen === 'search'">{{ query ? `“${query}”的搜索结果` : '商品分类' }}</h1><h2 v-else>{{ store ? '店铺商品' : '发现好物' }}</h2><div class="shop-categories"><button v-for="c in [{ id: '', name: '全部' }, { id: 'electronics', name: '数码' }, { id: 'home', name: '家居' }, { id: 'outdoor', name: '户外' }]" :key="c.id" :class="{ current: category === c.id }" @click="category = c.id; search()">{{ c.name }}</button></div></div>
         <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
         <p v-else-if="!products.length && !error" class="shop-empty">没有找到商品，请换个关键词或分类。</p>
         <div v-else class="shop-grid"><article v-for="p in products" :key="p.product_id" class="product-card">
