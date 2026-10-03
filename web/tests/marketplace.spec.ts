@@ -10,6 +10,7 @@ const draft: ShopDraft = { draft_id: 'draft-1', store_id: 'M-1001', store_name: 
 const purchase: Purchase = { purchase_id: 'draft:draft-1', draft_id: draft.draft_id, store_id: draft.store_id, store_name: draft.store_name, status: draft.status, total_amount: draft.total_amount, currency: 'CNY', created_at: draft.created_at, expires_at: draft.expires_at, paid_at: null, order_id: null, payment: null, lines: [{ line_id: null, sku: draft.sku_id, product_name: draft.product_name, variant: draft.variant, asset_key: draft.asset_key, quantity: draft.quantity, unit_amount: draft.unit_amount, line_amount: draft.total_amount }] }
 let w: VueWrapper
 beforeEach(() => {
+  sessionStorage.clear()
   window.history.replaceState(null, '', '/#/shop/products/P-1001')
   vi.spyOn(shopApi, 'product').mockResolvedValue(product)
   vi.spyOn(shopApi, 'products').mockResolvedValue({ items: [product], next_after: null })
@@ -17,6 +18,22 @@ beforeEach(() => {
   vi.spyOn(shopApi, 'quote').mockResolvedValue({ product, sku: product.skus[0], quantity: 2, total_amount: 65800, currency: 'CNY' })
   vi.spyOn(shopApi, 'draft').mockResolvedValue(draft)
   vi.spyOn(shopApi, 'purchase').mockResolvedValue(purchase)
+})
+it('adds selected quantity to the current cart through an absolute versioned request', async () => {
+  vi.spyOn(shopApi, 'cart').mockResolvedValue({ stores: [{ store_id: 'M-1001', store_name: '松间数码', revision: 7, currency: 'CNY', items: [{ sku_id: 'black', product_id: 'P-1001', product_name: product.name, variant: '黑色', asset_key: 'headphones', quantity: 1, unit_amount: 32900, total_amount: 32900, max_quantity: 10, sku_version: 1, price_changed: false, availability: 'AVAILABLE' }] }] })
+  vi.spyOn(shopApi, 'cartWrite').mockResolvedValue({ store_id: 'M-1001', revision: 8 })
+  await open(); await w.get('[aria-label="购买数量"]').setValue(2); await w.get('.cart-add').trigger('click'); await flushPromises()
+  expect(shopApi.cartWrite).toHaveBeenCalledWith('buyer-token', 'M-1001', { sku_id: 'black', quantity: 3, expected_revision: 7, expected_sku_version: 1 }, expect.any(String))
+  expect(w.text()).toContain('已加入购物车')
+})
+it('retries unknown add with frozen request instead of reading and incrementing again', async () => {
+  vi.spyOn(shopApi, 'cart').mockResolvedValue({ stores: [{ store_id: 'M-1001', store_name: '松间数码', revision: 0, currency: 'CNY', items: [] }] })
+  vi.spyOn(shopApi, 'cartWrite').mockRejectedValueOnce(new TypeError('lost')).mockResolvedValueOnce({ store_id: 'M-1001', revision: 1 })
+  await open(); await w.get('.cart-add').trigger('click'); await flushPromises()
+  expect(w.get('.buy-button').attributes('disabled')).toBeDefined()
+  await w.get('.cart-add').trigger('click'); await flushPromises()
+  expect(vi.mocked(shopApi.cartWrite).mock.calls[0]).toEqual(vi.mocked(shopApi.cartWrite).mock.calls[1])
+  expect(shopApi.cart).toHaveBeenCalledTimes(1)
 })
 afterEach(() => { w?.unmount(); vi.restoreAllMocks() })
 async function open() { w = mount(MarketplaceWorkspace, { props: { account: buyer } }); await flushPromises() }

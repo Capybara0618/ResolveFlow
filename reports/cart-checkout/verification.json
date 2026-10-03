@@ -1,0 +1,250 @@
+{
+  "date": "2026-10-03",
+  "synthetic": true,
+  "model_calls": 0,
+  "checks": [
+    {
+      "check": "anonymous cart denied",
+      "status": 401,
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "check": "demo-admin cannot read buyer cart",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "demo-customer cannot read buyer cart",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "foreign composite cart is independent",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "current buyer cart survives both store checkouts",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "agent even with checkout scope cannot read cart",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "own multi-item purchase",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "all published lines available to original order API",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "original successful payment lookup",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "terminal original payment replay",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "line has own amount and total order ledger",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "line has own amount and total order ledger",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "foreign composite cannot read multi-item purchase",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "foreign composite cannot read payment",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "paid multi-item purchase cannot be cancelled",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "own multi-item purchase",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "all published lines available to original order API",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "original successful payment lookup",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "terminal original payment replay",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "line has own amount and total order ledger",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "line has own amount and total order ledger",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "foreign composite cannot read multi-item purchase",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "foreign composite cannot read payment",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "paid multi-item purchase cannot be cancelled",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    }
+  ],
+  "samples": [
+    {
+      "draft_id": "b516db9e-349e-42c2-979e-fe4435be8361",
+      "order_id": "927b833f-3da3-4331-a5fa-6846d04ace8e",
+      "store_id": "M-1001",
+      "total_amount": 72700,
+      "status": "PAID",
+      "line_ids": [
+        "SHOP-b4fb6df0-3787-44e8-bb5b-d9c6a6ca0f8d",
+        "SHOP-420ebf38-b7c3-4426-8437-380a9110ecde"
+      ],
+      "all_slots_free": true
+    },
+    {
+      "draft_id": "551a3749-752f-4f3f-9bd0-90bb93b8947a",
+      "order_id": "68c8aa16-e4c2-4f91-b0ef-0213e53f9534",
+      "store_id": "M-1002",
+      "total_amount": 21800,
+      "status": "PAID",
+      "line_ids": [
+        "SHOP-a4e05de1-91b4-4ece-bf0d-629765d20e6d",
+        "SHOP-1d97071f-4b1f-46d4-81b9-86156b9f01ae"
+      ],
+      "all_slots_free": true
+    }
+  ],
+  "protected_originals": {
+    "cases": {
+      "rows": 34,
+      "unchanged": true,
+      "sha256": "9013347bd8c74ca8423c9266dc23367db8c9db701e24a228d0fc540fd0c1b945"
+    },
+    "owners": {
+      "rows": 5,
+      "unchanged": true,
+      "sha256": "152f79cdff1c9ff98dfef2c6b1bd0e5bd5613d3648abb5fd00d813e9fb4d6f3f"
+    },
+    "pins": {
+      "rows": 34,
+      "unchanged": true,
+      "sha256": "44ed6c246c2b061b2ff836ec626de757ce88e95e0289ee7218237e2b55c9396c"
+    },
+    "policies": {
+      "rows": 6,
+      "unchanged": true,
+      "sha256": "95cf0533c3e4d63bea7c4dbc44d3185b96bc6afac14ce360a10b50ecd34da545"
+    },
+    "authorizations": {
+      "rows": 17,
+      "unchanged": true,
+      "sha256": "1a72c7b9309bbaa6d41365492abf4f0c308b8e0743ebcf2c0b58739fc06281c9"
+    },
+    "operations": {
+      "rows": 9,
+      "unchanged": true,
+      "sha256": "030290efb54938876ae2add55da36d4d315947451c575a1337e9aff818d1319a"
+    },
+    "payments": {
+      "rows": 38,
+      "unchanged": true,
+      "sha256": "ea6f60a99eecf82e8c567203b8b15236fec46019f3ae3bf9bc56e31f8cf350ae"
+    },
+    "runs": {
+      "rows": 92,
+      "unchanged": true,
+      "sha256": "91df90f14e9deca7cf1c032b923cb5f4f2490e4de26fd09b62cfb162f378679c"
+    },
+    "accounts": {
+      "rows": 14,
+      "unchanged": true,
+      "sha256": "06d5968a9029123e22fa4a9a05b8620aa0aa376df0a8a769d400f1a92d97e826"
+    },
+    "orders": {
+      "rows": 38,
+      "unchanged": true,
+      "sha256": "b6369294bd279cc4f1788f030a32474e005a3c41ab121ce4cdc8cd470eaca972"
+    },
+    "drafts": {
+      "rows": 6,
+      "unchanged": true,
+      "sha256": "fb21355c8efa62a26273e30805158d77d188abebc71f4cca54196d8ab4980ff3"
+    },
+    "run_spend": {
+      "rows": 92,
+      "unchanged": true,
+      "sha256": "fd552ff051d28da1d7664ddc73202cbeee5f5668fa778c793a3981dbea596d0a"
+    },
+    "line_slots": {
+      "rows": 38,
+      "unchanged": true,
+      "sha256": "0519688367dd5d54048174365aad07a7bbc64814d0ef371ee1749a0fe8bf5860"
+    }
+  },
+  "new_paid_orders": 2,
+  "new_lines": 4,
+  "new_drafts": 2,
+  "new_refund_operations": 0,
+  "remaining_cart": "M-1001 mouse quantity 1; M-1002 empty",
+  "unknown_and_faults": "isolated real MySQL tests only; no faults injected into preserved demo"
+}

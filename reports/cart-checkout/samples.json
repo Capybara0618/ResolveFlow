@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-03",
+  "synthetic": true,
+  "samples": [
+    {
+      "purpose": "paid-multi-M1001",
+      "url": "http://127.0.0.1:5174/#/shop/drafts/b516db9e-349e-42c2-979e-fe4435be8361"
+    },
+    {
+      "purpose": "paid-multi-M1002",
+      "url": "http://127.0.0.1:5174/#/shop/drafts/551a3749-752f-4f3f-9bd0-90bb93b8947a"
+    }
+  ]
+}

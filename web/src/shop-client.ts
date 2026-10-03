@@ -17,11 +17,24 @@ export interface PurchaseLine { line_id: string | null; sku: string; product_nam
   asset_key: string | null; quantity: number; unit_amount: number | null; line_amount: number }
 export interface Purchase { purchase_id: string; draft_id: string | null; store_id: string; store_name: string; status: PurchaseStatus
   total_amount: number; currency: 'CNY'; created_at: string; expires_at: string | null; paid_at: string | null
-  order_id: string | null; lines: PurchaseLine[]; payment: CheckoutPayment | null }
+  order_id: string | null; lines: PurchaseLine[]; payment: CheckoutPayment | null; refund_status?: 'NONE' | 'IN_PROGRESS' | 'PARTIALLY_REFUNDED' | 'REFUNDED' }
+export interface CartItem { sku_id: string; product_id: string; product_name: string; variant: string; asset_key: string
+  quantity: number; unit_amount: number; total_amount: number; max_quantity: number; sku_version: number
+  price_changed: boolean; availability: 'AVAILABLE' | 'DELISTED' | 'STORE_DISABLED' | 'QUANTITY_EXCEEDED' }
+export interface CartGroup { store_id: string; store_name: string; revision: number; currency: 'CNY'; items: CartItem[] }
+export interface CartRequest { sku_id: string; quantity: number; expected_revision: number; expected_sku_version: number | null }
+export interface CartQuoteLine { sku_id: string; product_id: string; product_name: string; variant: string; asset_key: string
+  category: string; quantity: number; unit_amount: number; line_amount: number; sku_version: number }
+export interface CartQuote { store_id: string; store_name: string; revision: number; currency: 'CNY'; lines: CartQuoteLine[]; total_amount: number }
+export interface CartDraftRequest { expected_revision: number; lines: ShopDraftRequest[] }
 function post<T>(path: string, token: string | null, body: unknown, key?: string) {
   return apiRequest<T>(path, token, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(key ? { 'Idempotency-Key': key } : {}) }, body: JSON.stringify(body) })
 }
 export const shopApi = {
+  cart: (token: string) => apiRequest<{ stores: CartGroup[] }>('/api/v1/shop/cart', token),
+  cartWrite: (token: string, store: string, body: CartRequest, key: string) => post<{ store_id: string; revision: number }>(`/api/v1/shop/cart/${encodeURIComponent(store)}/items`, token, body, key),
+  cartQuote: (token: string, store: string, revision: number, skus: string[]) => post<CartQuote>(`/api/v1/shop/cart/${encodeURIComponent(store)}/quote`, token, { expected_revision: revision, sku_ids: skus }),
+  cartDraft: (token: string, store: string, body: CartDraftRequest, key: string) => post<Purchase>(`/api/v1/shop/cart/${encodeURIComponent(store)}/drafts`, token, body, key),
   stores: () => apiRequest<ShopStore[]>('/api/v1/shop/stores', null),
   store: (id: string) => apiRequest<ShopStore>(`/api/v1/shop/stores/${encodeURIComponent(id)}`, null),
   products: (filter: { query?: string; category?: string; store_id?: string; after?: string } = {}) => {

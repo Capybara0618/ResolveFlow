@@ -6,13 +6,16 @@ import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
 import CustomerWorkspace from './CustomerWorkspace.vue'
 import BuyerOrders from './BuyerOrders.vue'
+import CartWorkspace from './CartWorkspace.vue'
+import { readCartPending, saveCartPending, clearCartPending, type CartPending } from '../cart-pending'
 import './marketplace.css'
 
 const props = defineProps<{ account: LoginResponse | null }>()
 const emit = defineEmits<{ expired: []; login: [] }>()
-type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer'
+type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart'
 const screen = ref<Screen>('home'), query = ref(''), category = ref(''), stores = ref<ShopStore[]>([])
-const ordersRoute = ref('')
+const ordersRoute = ref(''), cartBusy = ref(false), added = ref(false)
+let pendingAdd: Extract<CartPending, { kind: 'mutation' }> | null = null
 const products = ref<ShopProduct[]>([]), store = ref<ShopStore | null>(null), product = ref<ShopProduct | null>(null)
 const sku = ref(''), quantity = ref(1), quote = ref<ShopQuote | null>(null), draft = ref<ShopDraft | null>(null)
 const loading = ref(false), writing = ref(false), uncertain = ref(false), error = ref(''), next = ref<string | null>(null)
@@ -26,20 +29,26 @@ function failure(cause: unknown) {
     : cause instanceof ApiError ? cause.message : '连接暂时中断，请重试。'
 }
 function go(hash: string) {
-  if (writing.value || uncertain.value) { error.value = '请先确认本次订单提交结果。'; return }
+  if (writing.value || uncertain.value || cartBusy.value) { error.value = '请先确认本次订单提交结果。'; return }
   window.history.pushState(null, '', hash); void route()
 }
 function search() { go(`${store.value ? `#/shop/stores/${encodeURIComponent(store.value.store_id)}` : '#/shop/search'}?${new URLSearchParams({ ...(query.value.trim() ? { query: query.value.trim() } : {}), ...(category.value ? { category: category.value } : {}) })}`) }
 async function route() {
-  if (writing.value || uncertain.value) return
+  if (writing.value || uncertain.value || cartBusy.value) return
   const g = ++generation; ++quoteGeneration
-  error.value = ''; quote.value = null; draft.value = null; store.value = null; product.value = null; pending = null
+  error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; pending = null
   products.value = []; next.value = null
-  const hash = window.location.hash
+  let hash = window.location.hash
   if (hash.startsWith('#/customer/')) { screen.value = 'customer'; loading.value = false; return }
   loading.value = true
   try {
-    if (hash.startsWith('#/shop/orders') || /^#\/shop\/drafts\//.test(hash)) {
+    if (props.account?.buyer_id && readCartPending(props.account.buyer_id) && hash !== '#/shop/cart') {
+      hash = '#/shop/cart'; window.history.replaceState(null, '', hash)
+    }
+    if (hash === '#/shop/cart') {
+      screen.value = 'cart'; loading.value = false
+      if (!props.account) emit('login')
+    } else if (hash.startsWith('#/shop/orders') || /^#\/shop\/drafts\//.test(hash)) {
       screen.value = 'orders'
       ordersRoute.value = hash
       if (!props.account) { emit('login'); return }
@@ -96,6 +105,35 @@ async function submit() {
     }
   } finally { if (alive) writing.value = false }
 }
+async function addCart() {
+  if (!props.account) { emit('login'); return }
+  if (!selectedSku.value || !product.value || writing.value || loading.value) return
+  if (!Number.isInteger(quantity.value) || quantity.value < 1 || quantity.value > selectedSku.value.max_quantity) { error.value = '请选择有效规格与数量。'; return }
+  const token = props.account.access_token, buyer = props.account.buyer_id!, g = generation
+  writing.value = true; error.value = ''; added.value = false
+  try {
+    if (!pendingAdd) {
+      if (readCartPending(buyer)) { writing.value = false; go('#/shop/cart'); return }
+      const cart = await shopApi.cart(token)
+      if (!alive || g !== generation) return
+      const group = cart.stores.find(s => s.store_id === product.value!.store_id)
+      if (!group) { error.value = '当前账号无法购买这家店铺的商品。'; return }
+      const desired = (group.items.find(i => i.sku_id === sku.value)?.quantity ?? 0) + quantity.value
+      if (desired > selectedSku.value.max_quantity) { error.value = `购物车中的数量超过上限 ${selectedSku.value.max_quantity}，请先调整购物车。`; return }
+      const nextRequest: Extract<CartPending, { kind: 'mutation' }> = { kind: 'mutation', store: group.store_id, key: crypto.randomUUID(), request: { sku_id: sku.value, quantity: desired, expected_revision: group.revision, expected_sku_version: selectedSku.value.version } }
+      saveCartPending(buyer, nextRequest); pendingAdd = nextRequest
+    }
+    const p = pendingAdd
+    await shopApi.cartWrite(token, p.store, p.request, p.key)
+    clearCartPending(buyer, p.key)
+    if (!alive || g !== generation) return
+    pendingAdd = null; uncertain.value = false; added.value = true
+  } catch (cause) {
+    if (!alive || g !== generation) return
+    if (pendingAdd && (!(cause instanceof ApiError) || cause.status >= 500)) { uncertain.value = true; error.value = '加入结果尚未确认，请使用原请求确认结果。' }
+    else { if (pendingAdd && cause instanceof ApiError && cause.status !== 401) { clearCartPending(buyer, pendingAdd.key); pendingAdd = null; uncertain.value = false } failure(cause) }
+  } finally { if (alive) writing.value = false }
+}
 onMounted(() => { void route(); window.addEventListener('hashchange', route); window.addEventListener('popstate', route) })
 onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.removeEventListener('hashchange', route); window.removeEventListener('popstate', route) })
 </script>
@@ -103,15 +141,18 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
 <template>
   <div :class="screen === 'customer' ? 'buyer-aftercare' : 'marketplace'">
     <nav class="shop-nav" aria-label="买家导航">
-      <a href="#/shop" :class="{ current: screen !== 'customer' && screen !== 'orders' }" @click.prevent="go('#/shop')">商城</a>
+      <a href="#/shop" :class="{ current: screen !== 'customer' && screen !== 'orders' && screen !== 'cart' }" @click.prevent="go('#/shop')">商城</a>
+      <a v-if="account" href="#/shop/cart" :class="{ current: screen === 'cart' }" @click.prevent="go('#/shop/cart')">购物车</a>
       <a v-if="account" href="#/shop/orders" :class="{ current: screen === 'orders' }" @click.prevent="go('#/shop/orders')">我的订单</a>
       <a v-if="account" href="#/customer/applications" @click.prevent="go('#/customer/applications')">我的售后</a>
       <button v-if="!account" class="shop-login" @click="emit('login')">登录</button>
     </nav>
-    <CustomerWorkspace v-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
+    <p v-if="error" class="shop-error shop-global-error" role="alert">{{ error }}</p>
+    <CartWorkspace v-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
+    <CustomerWorkspace v-else-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
     <BuyerOrders v-else-if="screen === 'orders' && account" :key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
     <main v-else class="shop-content">
-      <p v-if="error" class="shop-error" role="alert">{{ error }}</p>
+
       <form v-if="['home','search','store'].includes(screen)" class="shop-search" @submit.prevent="search"><input v-model="query" aria-label="搜索商品" placeholder="搜索商品，发现喜欢的好物" maxlength="80" /><button type="submit">搜索</button></form>
       <div v-if="screen === 'home'" class="shop-hero"><div><p>数码与家居</p><h1>选喜欢的好物，<br />让日常更舒适。</h1><p>逛逛不同店铺，从这里开始。</p><button @click="category = 'electronics'; search()">浏览数码商品 →</button></div><div class="hero-art"><ProductArt asset="headphones" name="无线降噪耳机" /><ProductArt asset="lamp" name="桌面台灯" /></div></div>
       <template v-if="['home','search','store'].includes(screen)">
@@ -129,7 +170,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
       <template v-else-if="screen === 'product'">
         <button class="shop-back" @click="go('#/shop')">← 返回商城</button>
         <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
-        <section v-if="product" class="shop-product-detail"><div class="detail-image"><ProductArt :asset="product.asset_key" :name="product.name" /></div><div class="detail-copy"><a :href="`#/shop/stores/${product.store_id}`" @click.prevent="go(`#/shop/stores/${product.store_id}`)">{{ product.store_name }} →</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :disabled="loading" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading" /></label><button class="shop-primary buy-button" :disabled="loading" @click="buy">确认购买</button><button v-if="error" class="shop-secondary" @click="route">重新读取商品</button></div></section>
+        <section v-if="product" class="shop-product-detail"><div class="detail-image"><ProductArt :asset="product.asset_key" :name="product.name" /></div><div class="detail-copy"><a :href="`#/shop/stores/${product.store_id}`" @click.prevent="go(`#/shop/stores/${product.store_id}`)">{{ product.store_name }} →</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><p>已加入购物车</p><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车 →</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route">重新读取商品</button></div></section>
       </template>
       <template v-else-if="screen === 'checkout' && quote">
         <button class="shop-back" :disabled="writing || uncertain" @click="screen = 'product'; quote = null">← 修改规格与数量</button><h1>确认订单</h1>
