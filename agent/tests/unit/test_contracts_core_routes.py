@@ -132,6 +132,7 @@ DOCUMENTS: dict[str, DocumentSpec] = {
             {
                 "LoginResponse",
                 "OrderLinePage",
+                "BuyerOrderLinePage",
                 "CaseSnapshot",
                 "AgentCallbackRequest",
                 "AgentCallbackResponse",
@@ -413,9 +414,25 @@ def operation_examples(service: str) -> list[tuple[str, str, Any]]:
     collected: list[tuple[str, str, Any]] = []
 
     def from_media(where: str, media: dict[str, Any]) -> None:
-        reference = media.get("schema", {}).get("$ref", "")
-        if "example" in media and reference.startswith("#/components/schemas/"):
-            collected.append((reference.rsplit("/", 1)[-1], where, media["example"]))
+        schema = media.get("schema", {})
+        choices = schema.get("oneOf", schema.get("anyOf", [schema]))
+        examples = [media["example"]] if "example" in media else []
+        examples.extend(item["value"] for item in media.get("examples", {}).values())
+        for example in examples:
+            references = [item.get("$ref", "") for item in choices]
+            candidates = [reference.rsplit("/", 1)[-1] for reference in references
+                          if reference.startswith("#/components/schemas/")]
+            if not candidates:
+                continue
+            if "oneOf" in schema or "anyOf" in schema:
+                matches = [name for name in candidates
+                           if not component_validator(service, name, CORE_DIR).error_messages(example)]
+                assert matches, f"{where}: example must match a declared component"
+                if "oneOf" in schema:
+                    assert len(matches) == 1, f"{where}: example must match exactly one declared component"
+                collected.extend((name, where, example) for name in matches)
+            else:
+                collected.append((candidates[0], where, example))
 
     for path, item in document_["paths"].items():
         for method, operation in item.items():

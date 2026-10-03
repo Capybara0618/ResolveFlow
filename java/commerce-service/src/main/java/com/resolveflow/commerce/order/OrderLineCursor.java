@@ -36,30 +36,18 @@ public record OrderLineCursor(Instant paidAt, String lineId) {
     }
 
     public String encode() {
-        return ENCODER.encodeToString(
-                (paidAt.toEpochMilli() + ":" + lineId).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        return new com.resolveflow.shared.pagination.OrderReadCursor(paidAt, lineId).encode();
     }
 
     public static OrderLineCursor decode(String encoded) {
         if (encoded == null) {
             return null;
         }
-        String decoded;
         try {
-            decoded = new String(DECODER.decode(encoded), java.nio.charset.StandardCharsets.UTF_8);
-        } catch (IllegalArgumentException error) {
-            throw new InvalidCursorException("cursor is not valid base64url", error);
-        }
-        int separator = decoded.indexOf(':');
-        if (separator <= 0 || separator == decoded.length() - 1) {
-            throw new InvalidCursorException("cursor is not a paid_at:line_id pair");
-        }
-        try {
-            return new OrderLineCursor(
-                    Instant.ofEpochMilli(Long.parseLong(decoded.substring(0, separator))),
-                    decoded.substring(separator + 1));
-        } catch (NumberFormatException error) {
-            throw new InvalidCursorException("cursor does not carry a paid_at", error);
+            var cursor = com.resolveflow.shared.pagination.OrderReadCursor.decode(encoded);
+            return new OrderLineCursor(cursor.paidAt(), cursor.lineId());
+        } catch (RuntimeException error) {
+            throw new InvalidCursorException("cursor was not issued by this service", error);
         }
     }
 

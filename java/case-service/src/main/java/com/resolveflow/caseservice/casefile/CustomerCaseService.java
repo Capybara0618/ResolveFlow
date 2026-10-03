@@ -54,7 +54,11 @@ public class CustomerCaseService {
             String description,
             long version,
             @JsonProperty("created_at") Instant createdAt,
-            @JsonProperty("updated_at") Instant updatedAt) {}
+            @JsonProperty("updated_at") Instant updatedAt,
+
+            @JsonProperty("merchant_id")
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            String merchantId) {}
 
     public record PageMeta(@JsonProperty("next_cursor") String nextCursor, int limit) {}
 
@@ -104,6 +108,10 @@ public class CustomerCaseService {
     public record Answer(@JsonProperty("question_id") String questionId, String text) {}
 
     private Summary summary(CaseRow row) {
+        return summary(row, false);
+    }
+
+    private Summary summary(CaseRow row, boolean includeMerchant) {
         return new Summary(
                 row.caseId(),
                 row.status(),
@@ -112,7 +120,8 @@ public class CustomerCaseService {
                 row.description(),
                 row.version(),
                 row.createdAt(),
-                row.updatedAt());
+                row.updatedAt(),
+                includeMerchant ? row.merchantId() : null);
     }
 
     static void requireCustomer(AuthenticatedPrincipal p) {
@@ -143,6 +152,8 @@ public class CustomerCaseService {
             try {
                 if (cursor.isBlank() || cursor.length() > 2048) throw new IllegalArgumentException();
                 var node = json.readTree(new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8));
+                if (p.isPlatformBuyer()
+                        && !p.buyerId().equals(node.path("buyer_id").asString())) throw new IllegalArgumentException();
                 if (!view.equals(node.get("view").stringValue())
                         || !java.util.Objects.equals(
                                 line,
@@ -156,12 +167,15 @@ public class CustomerCaseService {
                 throw invalid("cursor is invalid or belongs to another filter");
             }
         }
-        var rows = lists.list(p.merchantId(), p.customerId(), view, line, before, id, limit + 1);
+        var rows = p.isPlatformBuyer()
+                ? lists.listBuyer(p.buyerId(), view, line, before, id, limit + 1)
+                : lists.list(p.merchantId(), p.customerId(), view, line, before, id, limit + 1);
         var page = rows.stream().limit(limit).toList();
         String next = null;
         if (rows.size() > limit) {
             var last = page.getLast();
             var node = json.createObjectNode();
+            if (p.isPlatformBuyer()) node.put("buyer_id", p.buyerId());
             node.put("view", view);
             node.put("line", line);
             node.put("time", last.updatedAt().toString());
@@ -170,7 +184,8 @@ public class CustomerCaseService {
                     .withoutPadding()
                     .encodeToString(node.toString().getBytes(StandardCharsets.UTF_8));
         }
-        return new Page(page.stream().map(this::summary).toList(), new PageMeta(next, limit));
+        return new Page(
+                page.stream().map(row -> summary(row, p.isPlatformBuyer())).toList(), new PageMeta(next, limit));
     }
 
     public Line line(AuthenticatedPrincipal p, String lineId) {

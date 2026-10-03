@@ -92,7 +92,8 @@ public final class JwtCodec {
         if (identityVersion < 0) throw new IllegalArgumentException("identity version must be nonnegative");
         var claims = MAPPER.createObjectNode();
         claims.put("sub", principal.subject());
-        claims.put("merchant_id", principal.merchantId());
+        if (principal.isPlatformBuyer()) claims.put("buyer_id", principal.buyerId());
+        else claims.put("merchant_id", principal.merchantId());
         claims.put("role", principal.role().name());
         claims.put("identity_version", identityVersion);
         if (principal.customerId() != null) {
@@ -233,7 +234,12 @@ public final class JwtCodec {
     public AuthenticatedPrincipal verifyAsUser(String token, Instant now) {
         JsonNode claims = verifiedClaims(token, USER_AUDIENCE, now);
         String subject = requiredText(claims, "sub");
-        String merchant = requiredText(claims, "merchant_id");
+        boolean platformBuyer = claims.has("buyer_id");
+        String buyerId = platformBuyer ? requiredText(claims, "buyer_id") : null;
+        if (platformBuyer && (claims.has("merchant_id") || claims.has("customer_id"))) {
+            throw new TokenException("buyer_id cannot be combined with merchant/customer claims");
+        }
+        String merchant = platformBuyer ? null : requiredText(claims, "merchant_id");
         String roleText = requiredText(claims, "role");
         Role role;
         try {
@@ -244,7 +250,7 @@ public final class JwtCodec {
         JsonNode customer = claims.get("customer_id");
         String customerId = customer == null || customer.isNull() ? null : customer.stringValue();
         try {
-            return new AuthenticatedPrincipal(subject, merchant, role, customerId);
+            return new AuthenticatedPrincipal(subject, merchant, role, customerId, buyerId);
         } catch (IllegalArgumentException error) {
             throw new TokenException("customer_id does not match the role: " + error.getMessage());
         }

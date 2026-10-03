@@ -216,8 +216,10 @@ class CommerceOrderLineClientTest {
                 .andRespond(withSuccess(pageJson("7001"), MediaType.APPLICATION_JSON));
         CommerceOrderLineClient.OrderLinePage page = client.list(customer, null, null, null);
 
-        OrderController controller =
-                new OrderController(client, org.mockito.Mockito.mock(RequestPrincipalResolver.class));
+        OrderController controller = new OrderController(
+                client,
+                org.mockito.Mockito.mock(RequestPrincipalResolver.class),
+                org.mockito.Mockito.mock(BuyerOrderService.class));
         JsonNode json = MAPPER.readTree(MAPPER.writeValueAsString(OrderController.OrderLinePageResponse.from(page)));
 
         assertThat(json.get("items").get(0).properties().stream().map(java.util.Map.Entry::getKey))

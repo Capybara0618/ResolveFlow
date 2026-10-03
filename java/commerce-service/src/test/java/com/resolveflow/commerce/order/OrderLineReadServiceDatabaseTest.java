@@ -115,7 +115,9 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
     void aMerchantScopeSeesItsOwnLines() {
         OrderLineReadService.Page page = service.list("M-1001", null, null, null);
 
-        assertThat(page.items()).extracting(OrderLineRow::lineId).containsExactly("7101", "7002", "7001");
+        assertThat(page.items())
+                .extracting(OrderLineRow::lineId)
+                .containsExactly("BUYER-3001-A", "7101", "7002", "7001");
         assertThat(page.items()).extracting(OrderLineRow::orderId).doesNotContain(ORDER_C);
     }
 
@@ -133,7 +135,7 @@ class OrderLineReadServiceDatabaseTest extends CommerceDatabaseTest {
             }
         }
 
-        assertThat(seen).containsExactly("7101", "7002", "7001");
+        assertThat(seen).containsExactly("BUYER-3001-A", "7101", "7002", "7001");
     }
 
     @Test

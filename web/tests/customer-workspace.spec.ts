@@ -27,6 +27,20 @@ beforeEach(() => {
 afterEach(() => { wrappers.splice(0).forEach(w => w.unmount()); vi.restoreAllMocks(); vi.unstubAllGlobals() })
 
 describe('customer application workspace', () => {
+  it('shows both stores for a platform buyer while retaining the same customer routes', async () => {
+    const buyer: LoginResponse = { access_token: 'buyer-token', role: 'CUSTOMER', buyer_id: 'B-3001',
+      expires_in: 3600, display_name: '演示买家' }
+    vi.mocked(coreApi.orders).mockResolvedValue({ items: [
+      { ...line, merchant_id: 'M-1001', merchant_name: '商家一' },
+      { ...line, line_id: 'B-line', merchant_id: 'M-1002', merchant_name: '商家二' },
+    ], page: { limit: 20 } })
+    const w = mount(CustomerWorkspace, { props: { account: buyer } }); wrappers.push(w)
+    await flushPromises()
+    expect(w.text()).toContain('跨店售后服务')
+    expect(w.findAll('[data-test="order-store"]').map(el => el.text())).toEqual(['商家一', '商家二'])
+    expect(coreApi.orders).toHaveBeenCalledWith('buyer-token', undefined)
+    expect(coreApi.customerOrderLine).toHaveBeenCalledWith('buyer-token', 'B-line')
+  })
   it('discovers updated application status without clearing the local search', async () => {
     vi.useFakeTimers()
     const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(false)

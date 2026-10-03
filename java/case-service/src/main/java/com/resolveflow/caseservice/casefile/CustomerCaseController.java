@@ -27,13 +27,13 @@ public class CustomerCaseController {
     @GetMapping("/cases/{case_id}")
     public CustomerCaseService.Detail read(
             @RequestHeader(name = "Authorization", required = false) String auth, @PathVariable("case_id") String id) {
-        return customers.read(principals.resolve(auth), id);
+        return customers.read(principals.forCase(auth, id), id);
     }
 
     @GetMapping("/order-lines/{line_id}")
     public CustomerCaseService.Line line(
             @RequestHeader(name = "Authorization", required = false) String auth, @PathVariable("line_id") String id) {
-        return customers.line(principals.resolve(auth), id);
+        return customers.line(principals.forLine(auth, id), id);
     }
 
     @PostMapping("/cases/{case_id}/answers")
@@ -42,6 +42,6 @@ public class CustomerCaseController {
             @PathVariable("case_id") String id,
             @RequestHeader(name = "If-Match", required = false) String version,
             @RequestBody CustomerCaseService.Answer body) {
-        return customers.answer(principals.resolve(auth), id, version, body);
+        return customers.answer(principals.forCase(auth, id), id, version, body);
     }
 }

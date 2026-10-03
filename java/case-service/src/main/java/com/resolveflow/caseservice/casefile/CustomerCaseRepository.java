@@ -13,6 +13,26 @@ public interface CustomerCaseRepository {
             + "version,expires_at AS expiresAt,created_at AS createdAt,updated_at AS updatedAt";
 
     @Select("<script>SELECT " + COLUMNS
+            + " FROM aftersale_case WHERE EXISTS (SELECT 1 FROM buyer_customer_binding b "
+            + "JOIN identity_merchant m ON m.merchant_id=b.merchant_id AND m.enabled=TRUE "
+            + "WHERE b.buyer_id=#{buyer} AND b.merchant_id=aftersale_case.merchant_id "
+            + "AND b.customer_id=aftersale_case.customer_id) "
+            + "<if test='line != null'>AND line_id=#{line} </if>"
+            + "<if test='view == \"WAITING\"'>AND status='WAITING_CUSTOMER' </if>"
+            + "<if test='view == \"REVIEW\"'>AND status='PENDING_REVIEW' </if>"
+            + "<if test='view == \"PROCESSING\"'>AND status IN ('QUEUED','ANALYZING','AUTHORIZED','EXECUTING','RECONCILING') </if>"
+            + "<if test='view == \"CLOSED\"'>AND status IN ('CLOSED_SUCCESS','CLOSED_REJECTED','CANCELLED') </if>"
+            + "<if test='before != null'>AND (updated_at &lt; #{before} OR (updated_at=#{before} AND case_id &lt; #{id})) </if>"
+            + "ORDER BY updated_at DESC,case_id DESC LIMIT #{limit}</script>")
+    List<CaseRow> listBuyer(
+            @Param("buyer") String buyer,
+            @Param("view") String view,
+            @Param("line") String line,
+            @Param("before") Instant before,
+            @Param("id") String id,
+            @Param("limit") int limit);
+
+    @Select("<script>SELECT " + COLUMNS
             + " FROM aftersale_case WHERE merchant_id=#{merchant} AND customer_id=#{customer} "
             + "<if test='line != null'>AND line_id=#{line} </if>"
             + "<if test='view == \"WAITING\"'>AND status='WAITING_CUSTOMER' </if>"

@@ -8,8 +8,8 @@ import com.resolveflow.shared.security.Role;
  * The login response body (core OpenAPI {@code LoginResponse}).
  *
  * <p>Required by the schema: {@code access_token}, {@code token_type}, {@code expires_in},
- * {@code role}, {@code merchant_id}; {@code customer_id} is present exactly for a customer-scoped
- * account and is omitted otherwise, so "not a customer" has one representation instead of two.
+ * {@code role}; the exclusive identity is either merchant/customer for legacy customers,
+ * merchant for staff, or buyer_id for platform customers. Null identity members are omitted.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record LoginResponse(
@@ -20,7 +20,20 @@ public record LoginResponse(
         @JsonProperty("merchant_id") String merchantId,
         @JsonProperty("customer_id") String customerId,
         @JsonProperty("display_name") String displayName,
-        @JsonProperty("merchant_name") String merchantName) {
+        @JsonProperty("merchant_name") String merchantName,
+        @JsonProperty("buyer_id") String buyerId) {
+
+    public LoginResponse(
+            String accessToken,
+            String tokenType,
+            long expiresIn,
+            Role role,
+            String merchantId,
+            String customerId,
+            String displayName,
+            String merchantName) {
+        this(accessToken, tokenType, expiresIn, role, merchantId, customerId, displayName, merchantName, null);
+    }
 
     public static LoginResponse from(com.resolveflow.shared.security.DemoAccounts.Login login) {
         return new LoginResponse(

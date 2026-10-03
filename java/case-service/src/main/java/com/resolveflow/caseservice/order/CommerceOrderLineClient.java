@@ -155,6 +155,9 @@ public class CommerceOrderLineClient {
 
     private OrderLinePage fetch(
             AuthenticatedPrincipal principal, String orderId, String lineId, String cursor, Integer limit) {
+        if (principal.isPlatformBuyer()) {
+            throw new IllegalArgumentException("Commerce reads require a trusted merchant/customer binding");
+        }
         try {
             OrderLinePage page = rest.get()
                     .uri(uriBuilder -> {
@@ -259,7 +262,63 @@ public class CommerceOrderLineClient {
             Instant paidAt,
 
             String status,
-            long version) {}
+            long version,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("merchant_id")
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            String merchantId,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("merchant_name")
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            String merchantName) {
+        public OrderLineSummary(
+                String orderId,
+                String lineId,
+                String sku,
+                String productName,
+                String variantText,
+                String category,
+                int quantity,
+                long linePaidAmount,
+                String currency,
+                Instant paidAt,
+                String status,
+                long version) {
+            this(
+                    orderId,
+                    lineId,
+                    sku,
+                    productName,
+                    variantText,
+                    category,
+                    quantity,
+                    linePaidAmount,
+                    currency,
+                    paidAt,
+                    status,
+                    version,
+                    null,
+                    null);
+        }
+
+        public OrderLineSummary withMerchant(String merchantId, String merchantName) {
+            return new OrderLineSummary(
+                    orderId,
+                    lineId,
+                    sku,
+                    productName,
+                    variantText,
+                    category,
+                    quantity,
+                    linePaidAmount,
+                    currency,
+                    paidAt,
+                    status,
+                    version,
+                    merchantId,
+                    merchantName);
+        }
+    }
 
     /**
      * Commerce's authoritative line context: the paid amount, what has already been refunded or reserved,

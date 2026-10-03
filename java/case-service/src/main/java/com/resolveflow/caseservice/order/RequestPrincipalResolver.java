@@ -30,15 +30,34 @@ public class RequestPrincipalResolver {
     private final JwtCodec codec;
     private final Clock clock;
     private final PersistentAccounts accounts;
+    private final com.resolveflow.caseservice.auth.BuyerScopes buyers;
 
-    public RequestPrincipalResolver(JwtCodec jwtCodec, Clock clock, PersistentAccounts accounts) {
+    public RequestPrincipalResolver(
+            JwtCodec jwtCodec,
+            Clock clock,
+            PersistentAccounts accounts,
+            com.resolveflow.caseservice.auth.BuyerScopes buyers) {
         this.codec = jwtCodec;
         this.clock = clock;
         this.accounts = accounts;
+        this.buyers = buyers;
     }
 
     public AuthenticatedPrincipal resolve(String authorizationHeader) {
         return session(authorizationHeader).principal();
+    }
+
+    public AuthenticatedPrincipal forLine(String authorizationHeader, String lineId) {
+        return buyers.forLine(resolve(authorizationHeader), lineId);
+    }
+
+    public AuthenticatedPrincipal forCase(String authorizationHeader, String caseId) {
+        return buyers.forCase(resolve(authorizationHeader), caseId);
+    }
+
+    public Session sessionForCase(String authorizationHeader, String caseId) {
+        var session = session(authorizationHeader);
+        return new Session(buyers.forCase(session.principal(), caseId), session.identityVersion());
     }
 
     /** Carries the signed version into short write transactions so reset/disable races cannot pass. */

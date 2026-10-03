@@ -1,0 +1,29 @@
+[
+  {
+    "overflow": false,
+    "scrollWidth": 1280,
+    "storeFonts": [
+      "16px",
+      "16px"
+    ],
+    "width": 1280
+  },
+  {
+    "overflow": false,
+    "scrollWidth": 1440,
+    "storeFonts": [
+      "16px",
+      "16px"
+    ],
+    "width": 1440
+  },
+  {
+    "overflow": false,
+    "scrollWidth": 1680,
+    "storeFonts": [
+      "16px",
+      "16px"
+    ],
+    "width": 1680
+  }
+]

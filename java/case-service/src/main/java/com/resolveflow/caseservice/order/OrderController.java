@@ -42,10 +42,13 @@ public class OrderController {
 
     private final CommerceOrderLineClient commerce;
     private final RequestPrincipalResolver principals;
+    private final BuyerOrderService buyers;
 
-    public OrderController(CommerceOrderLineClient commerce, RequestPrincipalResolver principals) {
+    public OrderController(
+            CommerceOrderLineClient commerce, RequestPrincipalResolver principals, BuyerOrderService buyers) {
         this.commerce = commerce;
         this.principals = principals;
+        this.buyers = buyers;
     }
 
     @GetMapping
@@ -54,7 +57,10 @@ public class OrderController {
             @RequestParam(name = "cursor", required = false) String cursor,
             @RequestParam(name = "limit", required = false) Integer limit) {
         AuthenticatedPrincipal principal = principals.resolve(authorization);
-        return ResponseEntity.ok(OrderLinePageResponse.from(commerce.list(principal, null, cursor, limit)));
+        return ResponseEntity.ok(OrderLinePageResponse.from(
+                principal.isPlatformBuyer()
+                        ? buyers.list(principal, cursor, limit)
+                        : commerce.list(principal, null, cursor, limit)));
     }
 
     @GetMapping("/{order_id}")
@@ -62,7 +68,8 @@ public class OrderController {
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @PathVariable("order_id") String orderId) {
         AuthenticatedPrincipal principal = principals.resolve(authorization);
-        CommerceOrderLineClient.OrderLinePage page = commerce.readOrder(principal, orderId);
+        CommerceOrderLineClient.OrderLinePage page =
+                principal.isPlatformBuyer() ? buyers.read(principal, orderId) : commerce.readOrder(principal, orderId);
         if (page.items() == null || page.items().isEmpty()) {
             throw new OrderNotVisibleException();
         }

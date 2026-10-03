@@ -100,7 +100,7 @@ class OrderLineControllerTest extends CommerceDatabaseTest {
     void merchantScopeIsHonoured() {
         JsonNode json = MAPPER.readTree(body(serviceToken(), "merchant_id=M-1001"));
 
-        assertThat(json.get("items")).hasSize(3);
+        assertThat(json.get("items")).hasSize(4);
         assertThat(json.get("items").toString()).doesNotContain("7201").doesNotContain("M-1002");
     }
 

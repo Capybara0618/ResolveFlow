@@ -43,6 +43,27 @@ class JwtCodecTest {
     }
 
     @Test
+    void platformBuyerUsesAnExclusiveIdentityInsteadOfAWildcardMerchant() {
+        String claims = withIssuer("{\"sub\":\"demo-buyer\",\"role\":\"CUSTOMER\",\"buyer_id\":\"B-3001\","
+                + "\"aud\":\"" + JwtCodec.USER_AUDIENCE + "\",\"exp\":" + (NOW.getEpochSecond() + 600) + "}");
+        var buyer = codec().verifyAsUser(codec().signRaw(claims), NOW);
+        assertThat(buyer.subject()).isEqualTo("demo-buyer");
+        assertThat(buyer.merchantId()).isNull();
+        assertThat(buyer.customerId()).isNull();
+        assertThat(codec().verifyAsUser(codec().issue(buyer, NOW), NOW)).isEqualTo(buyer);
+        for (String extra :
+                new String[] {"\"merchant_id\":\"M-1001\",", "\"customer_id\":\"C-2002\",", "\"merchant_id\":null,"}) {
+            String hybrid = "{" + extra + claims.substring(1);
+            assertThatThrownBy(() -> codec().verifyAsUser(codec().signRaw(hybrid), NOW))
+                    .isInstanceOf(JwtCodec.TokenException.class);
+        }
+        assertThatThrownBy(() -> codec().verifyAsUser(codec().signRaw(claims.replace("CUSTOMER", "REVIEWER")), NOW))
+                .isInstanceOf(JwtCodec.TokenException.class);
+        assertThatThrownBy(() -> codec().verifyAsUser(codec().signRaw(claims.replace("\"B-3001\"", "123")), NOW))
+                .isInstanceOf(JwtCodec.TokenException.class);
+    }
+
+    @Test
     void identityVersionRoundTripsAndLegacyTokensUseZero() {
         var codec = codec();
         var account = principal("M-1001", "C-2002", Role.CUSTOMER);

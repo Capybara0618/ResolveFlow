@@ -53,7 +53,7 @@ public class CaseController {
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey,
             @RequestBody CaseCreateRequest request) {
-        AuthenticatedPrincipal principal = principals.resolve(authorization);
+        AuthenticatedPrincipal principal = principals.forLine(authorization, request.lineId());
         CaseService.Created created = cases.create(principal, idempotencyKey, request);
         return ResponseEntity.created(
                         URI.create("/api/v1/cases/" + created.body().caseId()))
@@ -64,7 +64,7 @@ public class CaseController {
     public ResponseEntity<CaseSnapshotResponse> read(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @PathVariable("case_id") String caseId) {
-        AuthenticatedPrincipal principal = principals.resolve(authorization);
+        AuthenticatedPrincipal principal = principals.forCase(authorization, caseId);
         return ResponseEntity.ok(reads.read(principal, caseId));
     }
 
@@ -75,7 +75,7 @@ public class CaseController {
             @RequestHeader(name = "If-Collaboration-Match", required = false) String collaborationMatch,
             @PathVariable("case_id") String caseId,
             @RequestBody EvidenceAppendRequest request) {
-        var session = principals.session(authorization);
+        var session = principals.sessionForCase(authorization, caseId);
         return ResponseEntity.ok(evidence.append(
                 session.principal(),
                 caseId,
@@ -90,7 +90,7 @@ public class CaseController {
             @RequestHeader(name = "If-Collaboration-Match", required = false) String collaborationMatch,
             @PathVariable("case_id") String caseId,
             @RequestBody ReviewedEvidenceRequest request) {
-        var session = principals.session(authorization);
+        var session = principals.sessionForCase(authorization, caseId);
         return ResponseEntity.ok(evidence.review(
                 session.principal(),
                 caseId,
@@ -105,7 +105,7 @@ public class CaseController {
             @RequestHeader(name = "If-Collaboration-Match", required = false) String collaborationMatch,
             @PathVariable("case_id") String caseId,
             @RequestBody ReasonRequest request) {
-        var session = principals.session(authorization);
+        var session = principals.sessionForCase(authorization, caseId);
         return ResponseEntity.ok(cancellations.cancel(
                 session.principal(),
                 caseId,
@@ -124,7 +124,7 @@ public class CaseController {
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @RequestHeader(name = "Last-Event-ID", required = false) String lastEventId,
             @PathVariable("case_id") String caseId) {
-        AuthenticatedPrincipal principal = principals.resolve(authorization);
+        AuthenticatedPrincipal principal = principals.forCase(authorization, caseId);
         return streams.stream(principal, caseId, lastEventId);
     }
 }

@@ -1,0 +1,6 @@
+{
+  "LoginResponse": {"access_token":"signed-demo-token","token_type":"Bearer","expires_in":3600,"role":"CUSTOMER","buyer_id":"B-3001","display_name":"演示买家"},
+  "UserProfile": {"username":"demo-buyer","role":"CUSTOMER","buyer_id":"B-3001","display_name":"演示买家"},
+  "BuyerOrderLinePage": {"items":[{"order_id":"00000000-0000-4000-8000-000000003001","line_id":"BUYER-3001-A","sku":"M1-HEADPHONE","category":"electronics","quantity":1,"line_paid_amount":32900,"currency":"CNY","paid_at":"2026-09-20T08:00:00.123456Z","status":"PAID","version":1,"merchant_id":"M-1001","merchant_name":"ResolveFlow 演示商家一"}],"page":{"limit":20}},
+  "CustomerCasePage": {"items":[{"case_id":"00000000-0000-4000-8000-000000003003","line_id":"BUYER-3001-A","order_id":"00000000-0000-4000-8000-000000003001","description":"物流丢失","status":"QUEUED","version":1,"created_at":"2026-10-03T02:00:00Z","updated_at":"2026-10-03T02:00:00Z","merchant_id":"M-1001"}],"page":{"limit":20,"next_cursor":null}}
+}

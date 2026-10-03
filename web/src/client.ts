@@ -10,7 +10,8 @@ export class ApiError extends Error {
 export interface LoginResponse {
   access_token: string
   role: 'CUSTOMER' | 'REVIEWER' | 'MERCHANT_ADMIN' | 'OPERATOR'
-  merchant_id: string
+  merchant_id?: string
+  buyer_id?: string
   customer_id?: string
   expires_in: number
   display_name?: string
@@ -58,6 +59,8 @@ export interface AccountAudit {
 export interface AccountAuditPage extends Page<AccountAudit> { total: number }
 
 export interface OrderLine {
+  merchant_id?: string
+  merchant_name?: string
   order_id: string
   line_id: string
   sku: string
@@ -95,6 +98,7 @@ export interface CaseCollaboration {
 
 export type CustomerView = 'ALL' | 'WAITING' | 'PROCESSING' | 'REVIEW' | 'CLOSED'
 export interface CustomerCaseSummary {
+  merchant_id?: string
   case_id: string; status: string; line_id: string; order_id: string | null; description: string | null
   version: number; created_at: string; updated_at: string
 }

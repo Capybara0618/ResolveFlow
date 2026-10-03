@@ -20,7 +20,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 
 ## 3. 核心路由
 
-用户角色来自Case持久账号。REVIEWER/MERCHANT_ADMIN/原OPERATOR读取本商家工单；人工写入必须是当前负责人并携带原业务及协作版本，管理员须显式接管。客户仅能操作本人范围；仅MERCHANT_ADMIN可维护本商家账号。见[持久身份](persistent-identity.md)、[协作](case-collaboration.md)及[人员管理](staff-management.md)。
+用户角色来自Case持久账号。REVIEWER/MERCHANT_ADMIN/原OPERATOR读取本商家工单；人工写入必须是当前负责人并携带原业务及协作版本，管理员须显式接管。CUSTOMER分旧商家客户和平台买家两种互斥身份，后者只携带buyer_id，经可信(merchant,customer)映射汇总本人订单/申请及限定实际资源的售后操作；客户不能修改映射、扩大工作人员或Agent范围。仅MERCHANT_ADMIN可维护本商家账号，平台买家不属于商家管理员维护范围。内部订单keyset由共享v2游标保留微秒，兼容旧毫秒编码；平台外层游标绑定买家和启用归属。见[平台买家](platform-buyer.md)、[持久身份](persistent-identity.md)、[协作](case-collaboration.md)及[人员管理](staff-management.md)。
 
 | 所属 | 方法与路由 | 行为 |
 | --- | --- | --- |
