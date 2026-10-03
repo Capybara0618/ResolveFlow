@@ -23,7 +23,7 @@
 .aftercare-workbench .merchant-case-status { display: grid; gap: 16px; justify-items: start; }
 .aftercare-workbench .merchant-case-status time { color: #61738c; }
 .aftercare-workbench .merchant-case-status .status-tag { padding: 7px 12px; white-space: normal; }
-.aftercare-workbench .merchant-aftercare > .case-panel { border: 1px solid #e3eaf3; border-radius: 14px; padding: 28px; min-height: 0; }
+.aftercare-workbench .merchant-aftercare > .case-panel { border: 1px solid #e3eaf3; border-radius: 14px; padding: 28px; min-height: 0; height: auto; overflow: visible; }
 .aftercare-workbench .case-heading { margin-bottom: 22px; }
 .aftercare-workbench .case-heading h2 { font-size: 26px; }
 .aftercare-workbench .case-heading .status-tag { padding: 7px 12px; }
@@ -78,6 +78,7 @@
 .aftercare-workbench .investigation-sources p, .aftercare-workbench .investigation-sources small, .aftercare-workbench .investigation-sources summary, .aftercare-workbench .investigation-sources pre, .aftercare-workbench .investigation-sources .source-facts { font-size: 16px; }
 .aftercare-workbench .investigation-sources .raw-investigation { margin: 22px 0; padding: 18px; }
 .aftercare-workbench .investigation-sources .saved-model-mode { margin-bottom: 22px; }
+.aftercare-workbench .investigation-sources :is(h3, h4) { font-size: 16px; }
 .aftercare-workbench .investigation-findings :is(p, span, strong, summary, dt, dd, small, label, button) { font-size: 16px; }
 .aftercare-workbench .rf-dialog :is(p, span, small, label, button, textarea, summary, legend) { font-size: 16px; }
 .aftercare-workbench .rf-dialog h2 { font-size: 24px; }

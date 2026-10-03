@@ -1,0 +1,397 @@
+{
+  "date": "2026-10-03",
+  "business_tables": 46,
+  "changed_tables": [],
+  "before": {
+    "tables": {
+      "case_db.active_case_slot": {
+        "rows": 3,
+        "sha256": "fe706d6fb554a1435f633b5c2102b1d900edc7aa59c914032dc08062cc53bb37"
+      },
+      "case_db.aftersale_case": {
+        "rows": 3,
+        "sha256": "af298082b0286f48de0f1838eb7d989d71f2a0e5245e91dcc9b78fc41f6b0874"
+      },
+      "case_db.agent_binding": {
+        "rows": 3,
+        "sha256": "32b0f50af2b9ac4d276e7993bb17c6f310a699d5220019a0553676b5d18195e0"
+      },
+      "case_db.agent_callback": {
+        "rows": 6,
+        "sha256": "0b76a31d6b0eaf113048d24df015c7fe8a390a58c4322ae38f552bbada15f973"
+      },
+      "case_db.buyer_customer_binding": {
+        "rows": 30,
+        "sha256": "1cab0d3c354f638cd162860adc8c3f53b3d1b8d6a038be39ad47e2370045722c"
+      },
+      "case_db.case_authorization": {
+        "rows": 3,
+        "sha256": "7059d39b5ca94e99a017fec0af16f9f7ee10a16add012cd32ab0ebd3c9fb9f02"
+      },
+      "case_db.case_evidence": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "case_db.case_execution_command": {
+        "rows": 3,
+        "sha256": "fd25ace103a3b855423988005f2610debdf8b8ecca1232fb513bded33ba8cdbf"
+      },
+      "case_db.case_policy_bundle": {
+        "rows": 3,
+        "sha256": "26e279fb1c2dce211a6e911c6bcef7f77829776eb9d986d863c1aea0f5c3801d"
+      },
+      "case_db.case_policy_manifest": {
+        "rows": 3,
+        "sha256": "ea2cd525dc37921ebebd9a143f07cd6f1a6b048d7e13ef046203c1f0b1ae3a9f"
+      },
+      "case_db.case_proposal": {
+        "rows": 3,
+        "sha256": "5c152599b911b985db8072a5cfe6771c1ab291c9dcb0a0497f58cb2929e9f066"
+      },
+      "case_db.case_requested_action": {
+        "rows": 3,
+        "sha256": "8dcb565261ab018221061a8a64eb6adae023537e9b30ce7c76031d50fc0caf49"
+      },
+      "case_db.case_result_inbox": {
+        "rows": 3,
+        "sha256": "4b0d249141107206c83f53bdf24bb16d2fb30c4027ac64562aee41ee8559172b"
+      },
+      "case_db.case_result_rejection": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "case_db.case_timeline": {
+        "rows": 21,
+        "sha256": "740829fc20b864b442bb3c38ec5a83d5d2f2c229a73cf90aaecca7799de73ff4"
+      },
+      "case_db.event_outbox": {
+        "rows": 3,
+        "sha256": "4dc826c82da593ca6d1c35c7d7e0a684f0a72a54fe2c6f1b607f182ac20d6c58"
+      },
+      "case_db.identity_account_audit": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "case_db.platform_buyer": {
+        "rows": 10,
+        "sha256": "d5e43cf69e9f08bb153349b01a1df76ea4f99fe2dbc42fc7f3ba3336ed9782de"
+      },
+      "case_db.platform_management_audit": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "case_db.policy_bundle": {
+        "rows": 3,
+        "sha256": "a2c9a78da04902708bd8ebf45cb7ad3ed2770e2616158d81c80f3cdb1dbf32fa"
+      },
+      "case_db.policy_rule": {
+        "rows": 18,
+        "sha256": "07a7b45881e775920bcc721912c08a3d4320f729117766578d8f18d36f2b44e4"
+      },
+      "case_db.request_idempotency": {
+        "rows": 3,
+        "sha256": "48bc37c7de34c1d0a3b137f4422541343f8b22168e195053b224f4ecc43c95f1"
+      },
+      "commerce_db.catalog_management_audit": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.catalog_product": {
+        "rows": 30,
+        "sha256": "874b8262b7e2c5f8466444d39bc1b78a56f532a644dc33b37d35334e1d2073ef"
+      },
+      "commerce_db.catalog_sku": {
+        "rows": 45,
+        "sha256": "1dac61768e47b1cf4933d0355d7129a5aef2a510fdf45550ce9872cf7a6ffc7c"
+      },
+      "commerce_db.catalog_store": {
+        "rows": 3,
+        "sha256": "01a1eb573854331a27309a53cb2f66c222d78d5e7bae218391b0dc749aa2f04f"
+      },
+      "commerce_db.checkout_draft": {
+        "rows": 3,
+        "sha256": "afe15154f79530052a8a91e8089836cc0bbdd1316a1c6b36b791fec92cf55826"
+      },
+      "commerce_db.checkout_draft_line": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.checkout_payment_attempt": {
+        "rows": 3,
+        "sha256": "e5213d391ab13897394a2816c5de0b9d9826ef7d0cdc8a072a1b44be1b33f727"
+      },
+      "commerce_db.checkout_payment_line": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.event_inbox": {
+        "rows": 3,
+        "sha256": "605f2361718bf2b7cc377f5f810afd6f659029e0d7cbff4dd9466a490558b0d0"
+      },
+      "commerce_db.event_outbox": {
+        "rows": 3,
+        "sha256": "631247ff3b1c5e075d87e69a7ce672095d72980659e745b1ee633e164623e30e"
+      },
+      "commerce_db.event_rejection": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.line_refund": {
+        "rows": 3,
+        "sha256": "1a7c8a22fd7cede3972d446c45972a48e46a4d0850e06e2d390cc3ff696018ba"
+      },
+      "commerce_db.order_fulfillment": {
+        "rows": 3,
+        "sha256": "808afa213c5e973aac1e69e589b9a7ee9e64369e3545f9259be413fceeff2c4a"
+      },
+      "commerce_db.order_line": {
+        "rows": 3,
+        "sha256": "7e79a1c34022a360feb9682e54d3ba06c4d15a8af86f7c6d4227190baef80bf2"
+      },
+      "commerce_db.orders": {
+        "rows": 3,
+        "sha256": "0103145b5ac40e8ca5e85e379947f5134a2a00fb42e8321541459e621810fcf9"
+      },
+      "commerce_db.payment_ledger": {
+        "rows": 3,
+        "sha256": "f94bbb708597949bbada537d7fec6146da051c2b9017dce228719cd34eb8fd7a"
+      },
+      "commerce_db.refund_operation": {
+        "rows": 3,
+        "sha256": "1501767a019e589dfa1fdf8e31b23c2c3be60f15bb4b27b91313caa4f53250eb"
+      },
+      "commerce_db.refund_request_inbox": {
+        "rows": 3,
+        "sha256": "ee5c25a8b56c8b5ff7783bff9004922f5da34868efb8c32d8f62f0e8349696ad"
+      },
+      "commerce_db.shipment": {
+        "rows": 3,
+        "sha256": "aa354ae8ab59f755b6c08fd5da4bc083d2e897c6da0d755667a99423582fd653"
+      },
+      "commerce_db.shipment_event": {
+        "rows": 3,
+        "sha256": "147c3f7a72dfbce15a309629001b800624179773713042b90a19ca1f3af657d5"
+      },
+      "commerce_db.shopping_cart": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.shopping_cart_item": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.shopping_cart_request": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.simulated_checkout_receipt": {
+        "rows": 3,
+        "sha256": "046f5e82df569667f9e6c2f48f7748866782ac2651ec8c7785729647b7b5ad3c"
+      }
+    },
+    "agent_counts": {
+      "agent_run": "3",
+      "agent_model_call": "12",
+      "agent_tool_call": "9",
+      "agent_callback_outbox": "6"
+    },
+    "run_status": "COMPLETED:3"
+  },
+  "after": {
+    "tables": {
+      "case_db.active_case_slot": {
+        "rows": 3,
+        "sha256": "fe706d6fb554a1435f633b5c2102b1d900edc7aa59c914032dc08062cc53bb37"
+      },
+      "case_db.aftersale_case": {
+        "rows": 3,
+        "sha256": "af298082b0286f48de0f1838eb7d989d71f2a0e5245e91dcc9b78fc41f6b0874"
+      },
+      "case_db.agent_binding": {
+        "rows": 3,
+        "sha256": "32b0f50af2b9ac4d276e7993bb17c6f310a699d5220019a0553676b5d18195e0"
+      },
+      "case_db.agent_callback": {
+        "rows": 6,
+        "sha256": "0b76a31d6b0eaf113048d24df015c7fe8a390a58c4322ae38f552bbada15f973"
+      },
+      "case_db.buyer_customer_binding": {
+        "rows": 30,
+        "sha256": "1cab0d3c354f638cd162860adc8c3f53b3d1b8d6a038be39ad47e2370045722c"
+      },
+      "case_db.case_authorization": {
+        "rows": 3,
+        "sha256": "7059d39b5ca94e99a017fec0af16f9f7ee10a16add012cd32ab0ebd3c9fb9f02"
+      },
+      "case_db.case_evidence": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "case_db.case_execution_command": {
+        "rows": 3,
+        "sha256": "fd25ace103a3b855423988005f2610debdf8b8ecca1232fb513bded33ba8cdbf"
+      },
+      "case_db.case_policy_bundle": {
+        "rows": 3,
+        "sha256": "26e279fb1c2dce211a6e911c6bcef7f77829776eb9d986d863c1aea0f5c3801d"
+      },
+      "case_db.case_policy_manifest": {
+        "rows": 3,
+        "sha256": "ea2cd525dc37921ebebd9a143f07cd6f1a6b048d7e13ef046203c1f0b1ae3a9f"
+      },
+      "case_db.case_proposal": {
+        "rows": 3,
+        "sha256": "5c152599b911b985db8072a5cfe6771c1ab291c9dcb0a0497f58cb2929e9f066"
+      },
+      "case_db.case_requested_action": {
+        "rows": 3,
+        "sha256": "8dcb565261ab018221061a8a64eb6adae023537e9b30ce7c76031d50fc0caf49"
+      },
+      "case_db.case_result_inbox": {
+        "rows": 3,
+        "sha256": "4b0d249141107206c83f53bdf24bb16d2fb30c4027ac64562aee41ee8559172b"
+      },
+      "case_db.case_result_rejection": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "case_db.case_timeline": {
+        "rows": 21,
+        "sha256": "740829fc20b864b442bb3c38ec5a83d5d2f2c229a73cf90aaecca7799de73ff4"
+      },
+      "case_db.event_outbox": {
+        "rows": 3,
+        "sha256": "4dc826c82da593ca6d1c35c7d7e0a684f0a72a54fe2c6f1b607f182ac20d6c58"
+      },
+      "case_db.identity_account_audit": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "case_db.platform_buyer": {
+        "rows": 10,
+        "sha256": "d5e43cf69e9f08bb153349b01a1df76ea4f99fe2dbc42fc7f3ba3336ed9782de"
+      },
+      "case_db.platform_management_audit": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "case_db.policy_bundle": {
+        "rows": 3,
+        "sha256": "a2c9a78da04902708bd8ebf45cb7ad3ed2770e2616158d81c80f3cdb1dbf32fa"
+      },
+      "case_db.policy_rule": {
+        "rows": 18,
+        "sha256": "07a7b45881e775920bcc721912c08a3d4320f729117766578d8f18d36f2b44e4"
+      },
+      "case_db.request_idempotency": {
+        "rows": 3,
+        "sha256": "48bc37c7de34c1d0a3b137f4422541343f8b22168e195053b224f4ecc43c95f1"
+      },
+      "commerce_db.catalog_management_audit": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.catalog_product": {
+        "rows": 30,
+        "sha256": "874b8262b7e2c5f8466444d39bc1b78a56f532a644dc33b37d35334e1d2073ef"
+      },
+      "commerce_db.catalog_sku": {
+        "rows": 45,
+        "sha256": "1dac61768e47b1cf4933d0355d7129a5aef2a510fdf45550ce9872cf7a6ffc7c"
+      },
+      "commerce_db.catalog_store": {
+        "rows": 3,
+        "sha256": "01a1eb573854331a27309a53cb2f66c222d78d5e7bae218391b0dc749aa2f04f"
+      },
+      "commerce_db.checkout_draft": {
+        "rows": 3,
+        "sha256": "afe15154f79530052a8a91e8089836cc0bbdd1316a1c6b36b791fec92cf55826"
+      },
+      "commerce_db.checkout_draft_line": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.checkout_payment_attempt": {
+        "rows": 3,
+        "sha256": "e5213d391ab13897394a2816c5de0b9d9826ef7d0cdc8a072a1b44be1b33f727"
+      },
+      "commerce_db.checkout_payment_line": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.event_inbox": {
+        "rows": 3,
+        "sha256": "605f2361718bf2b7cc377f5f810afd6f659029e0d7cbff4dd9466a490558b0d0"
+      },
+      "commerce_db.event_outbox": {
+        "rows": 3,
+        "sha256": "631247ff3b1c5e075d87e69a7ce672095d72980659e745b1ee633e164623e30e"
+      },
+      "commerce_db.event_rejection": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.line_refund": {
+        "rows": 3,
+        "sha256": "1a7c8a22fd7cede3972d446c45972a48e46a4d0850e06e2d390cc3ff696018ba"
+      },
+      "commerce_db.order_fulfillment": {
+        "rows": 3,
+        "sha256": "808afa213c5e973aac1e69e589b9a7ee9e64369e3545f9259be413fceeff2c4a"
+      },
+      "commerce_db.order_line": {
+        "rows": 3,
+        "sha256": "7e79a1c34022a360feb9682e54d3ba06c4d15a8af86f7c6d4227190baef80bf2"
+      },
+      "commerce_db.orders": {
+        "rows": 3,
+        "sha256": "0103145b5ac40e8ca5e85e379947f5134a2a00fb42e8321541459e621810fcf9"
+      },
+      "commerce_db.payment_ledger": {
+        "rows": 3,
+        "sha256": "f94bbb708597949bbada537d7fec6146da051c2b9017dce228719cd34eb8fd7a"
+      },
+      "commerce_db.refund_operation": {
+        "rows": 3,
+        "sha256": "1501767a019e589dfa1fdf8e31b23c2c3be60f15bb4b27b91313caa4f53250eb"
+      },
+      "commerce_db.refund_request_inbox": {
+        "rows": 3,
+        "sha256": "ee5c25a8b56c8b5ff7783bff9004922f5da34868efb8c32d8f62f0e8349696ad"
+      },
+      "commerce_db.shipment": {
+        "rows": 3,
+        "sha256": "aa354ae8ab59f755b6c08fd5da4bc083d2e897c6da0d755667a99423582fd653"
+      },
+      "commerce_db.shipment_event": {
+        "rows": 3,
+        "sha256": "147c3f7a72dfbce15a309629001b800624179773713042b90a19ca1f3af657d5"
+      },
+      "commerce_db.shopping_cart": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.shopping_cart_item": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.shopping_cart_request": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "commerce_db.simulated_checkout_receipt": {
+        "rows": 3,
+        "sha256": "046f5e82df569667f9e6c2f48f7748866782ac2651ec8c7785729647b7b5ad3c"
+      }
+    },
+    "agent_counts": {
+      "agent_run": "3",
+      "agent_model_call": "12",
+      "agent_tool_call": "9",
+      "agent_callback_outbox": "6"
+    },
+    "run_status": "COMPLETED:3"
+  },
+  "preserved": true,
+  "note": "46 business tables; identity/assignment/flyway excluded. Read-only UI/API verification created no transactions or Agent runs."
+}

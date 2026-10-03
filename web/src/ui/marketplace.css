@@ -33,7 +33,7 @@
 .cart-recovery p { margin: 0; }
 .marketplace * { box-sizing: border-box; }
 .marketplace a { color: inherit; text-decoration: none; }
-.shopping-workbench .marketplace button { border: 0; border-radius: 8px; padding: 12px 22px; font-size: 17px; background: white; color: #1b2b44; }
+.shopping-workbench .marketplace:not(.buyer-aftercare) button { border: 0; border-radius: 8px; padding: 12px 22px; font-size: 17px; background: white; color: #1b2b44; }
 .shop-nav { display: flex; gap: 42px; padding: 0 max(36px, calc((100vw - 1400px) / 2)); align-items: center; background: white; border-bottom: 1px solid #e6ebf3; min-height: 66px; font-size: 17px; }
 .shop-nav a { padding: 22px 0; border-bottom: 3px solid transparent; font-weight: 600; }
 .shop-nav a.current { color: #165dff; border-color: #165dff; }

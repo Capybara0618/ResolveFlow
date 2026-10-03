@@ -131,6 +131,7 @@ let narrowQuery: MediaQueryList | null = null
 function closeMerchantCase() {
   closeReview(); stopStream(); merchantCaseOpen.value = false; lookupId.value = ''; snapshot.value = null
   selectedOrderLine.value = null; merchantTrade.value = null; tradeReadState.value = 'idle'
+  focusedPolicy.value = null
   ++reviewContextGeneration; reviewContext.value = null; collaboration.value = null; reviewContextLoading.value = false; reviewContextError.value = ''
 }
 function backToList() {

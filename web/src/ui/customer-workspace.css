@@ -65,3 +65,12 @@
 @media (max-width: 1350px) { .customer-main { padding: 28px 24px 40px; }.customer-list-card { grid-template-columns: minmax(0, 1fr) 200px 125px; gap: 18px; }.customer-detail-grid { grid-template-columns: minmax(0, 1fr) 285px; gap: 20px; } }
 
 .customer-shell .customer-order-record { margin: 18px 0 0 138px; color: #61738c; }
+
+.workbench .customer-shell .customer-filters input { width: 360px; margin: 0; }
+.workbench .customer-shell .customer-filters select { margin: 0; }
+.workbench .customer-shell h2 { font-size: 22px; }
+.workbench .customer-shell .secondary-button { font-size: 16px; background: #f1f6ff; border: 1px solid #c6d8ff; color: #23426e; }
+.workbench .customer-shell .text-button { font-size: 16px; }
+.workbench .customer-shell summary { font-size: 16px; }
+.workbench .customer-shell :is(input, select, textarea) { font-size: 16px; }
+.workbench .customer-shell .rf-dialog :is(p, label, span, small, button, textarea) { font-size: 16px; }

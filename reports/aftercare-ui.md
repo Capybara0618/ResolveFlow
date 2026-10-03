@@ -27,3 +27,19 @@
 `pnpm --dir web test`最终22文件162 passed；`pnpm --dir web build`通过。新增买家商品读取失败独立重试、商家列表/详情和旧响应隔离；六种三角色审批仍验证冻结时的工单/授权/协作版本，不删除原安全断言。集中初轮158/160通过，旧表格选择器和申请标题与新布局不一致；更新卡片选择器、恢复申请标题/可展开旧订单记录后159/160通过，发现Vue布尔props省略时默认false导致实付隐藏，显式默认true修复后160/160，再加入两个场景至162/162。未以仅build冒充回归通过。
 
 部署前保存tmp/project-startup/aftercare-before.json：46业务表hash/计数，Agent3COMPLETED、12历史mock模型/9工具/6回调，下一集中部署/只读验证保留这些记录。
+
+## 部署与集中验证收口（2026-10-04）
+
+`./stop.ps1`、`./start.ps1 -NoBrowser`成功重建并启动当前3个Java服务、真实调查配置Agent和网页；已有三店政策精确索引READY。没有清库、删除卷、重建样本或触发Live调查。`./status.ps1`最终9项健康通过，密钥没有输出到证据。
+
+- `agent/.venv/Scripts/python.exe scripts/aftercare_ui_acceptance.py`：33项真实只读HTTP检查通过，[机器证据](aftercare-ui/http-verification.json)。现有buyer01三店工单的商品图片/名称/规格/数量/实付与本商家一致；其他买家/其他店铺（含伪造query）404、平台403、匿名/服务令牌401。已成功退款仍不能再申请；履约精确包含原工单行。本驱动只登录和读取，要求当前固定基础数据的三笔已结束申请，不是通用线上健康探针。
+- 最终CSS及返回队列清理政策定位修复后，`pnpm --dir web test -- tests/app.spec.ts tests/customer-workspace.spec.ts tests/marketplace.spec.ts`：3文件39 passed；`pnpm --dir web build`成功。此前完整回归22文件162 passed；此次没有重跑未改的Java/Python测试，没有把39项说成重新跑过162项。新驱动Ruff check/format check、精确提交diff检查通过。
+- [数据保留证据](aftercare-ui/data-preservation.json)：46业务表行数和全表hash与部署前一致，Agent仍3COMPLETED/12历史mock模型/9工具/6回调。identity、协作分派、Flyway表不在这46表hash范围内；本轮未修改账号或分派，没有新订单、申请、退款或模型调用。
+
+实际浏览器截图：买家[列表](aftercare-ui/buyer-list.jpg)/[已完成详情](aftercare-ui/buyer-detail.jpg)，商家[列表](aftercare-ui/merchant-list.jpg)/[详情](aftercare-ui/merchant-detail.jpg)。商品插画沿用商城实际asset_key，UUID和原始日志默认收起；政策引用仍能打开绑定版本并将焦点移至所引条款，已结束工单没有审批按钮。浏览器发现并修正折叠入口12px、调查标题15px、空输入框13px及父样式覆盖按钮颜色的问题；取消商家详情嵌套滚动，返回列表清除上次政策定位。
+
+现有三笔业务申请都已完成，为保留数据且不制造收费调查，申请/补证页使用真实CustomerWorkspace组件的临时合成状态预览，顶部明确标注“不写入业务”；所有HTTP请求被预览入口拒绝，没有生产认证绕过。[申请页](aftercare-ui/buyer-apply-preview.jpg)/[补证详情](aftercare-ui/buyer-waiting-preview.jpg)仅证明前端呈现，不能冒充新端到端业务操作。临时入口已删除，源夹具保留为[HTML](aftercare-ui/preview-fixture.html)/[TS](aftercare-ui/preview-fixture.ts)，复现时分别复制到web/tmp/aftercare-visual.html与aftercare-visual.ts，仅用于本地Vite；勿用于生产构建。
+
+[浏览器原始测量](aftercare-ui/browser-verification.json)保留初轮失败及最终结果：初轮四个实际视图在1280/1440/1680无横向溢出；修正后申请/补证预览在三宽度及所有实际视图在1440检查了渲染叶节点与空表单控件字号，均无小于16px。创建临时标签后viewport能力绑定失效，后续请求1280/1680时实际业务标签仍1440，因此这些重复1440记录不算三宽度通过；最终实际业务页1280/1680的全字号复查未完成，不能宣称所有状态、所有宽度都已视觉通过。未测移动端；历史资料缺图明确“图片未提供”。此次不评估DeepSeek回答质量，运行样例的旧mock来源保持可见。
+
+启动未就绪时第一个标签连接失败，另开成功业务标签继续；失败标签的data错误页受浏览器URL策略限制，未绕过。浏览器只读DOM不支持TreeWalker/parseFloat，改用元素集合和computed style测量；测量只对渲染叶节点和表单控件负责，不是逐字符排版证明。日志保留在忽略的tmp/project-startup/aftercare-{stop,start,final-web-tests,final-build}.log。

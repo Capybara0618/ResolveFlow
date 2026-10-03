@@ -1,0 +1,140 @@
+{
+  "observed_at": "2026-10-03T15:41:39Z",
+  "read_only": true,
+  "checks": [
+    {
+      "path": "/api/v1/customer/cases?view=ALL&limit=20",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/shop/products?limit=48",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-b1fc354d-1b78-4256-a2c0-a6b9d755f89c",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-b1fc354d-1b78-4256-a2c0-a6b9d755f89c",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-b1fc354d-1b78-4256-a2c0-a6b9d755f89c",
+      "status": 404
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-b1fc354d-1b78-4256-a2c0-a6b9d755f89c?merchant_id=M-1003",
+      "status": 404
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-b1fc354d-1b78-4256-a2c0-a6b9d755f89c",
+      "status": 403
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-b1fc354d-1b78-4256-a2c0-a6b9d755f89c",
+      "status": 401
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-b1fc354d-1b78-4256-a2c0-a6b9d755f89c",
+      "status": 401
+    },
+    {
+      "path": "/api/v1/customer/cases/d1212ff9-3c49-4e88-a0bd-43b11ac96d86",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/customer/order-lines/SHOP-b1fc354d-1b78-4256-a2c0-a6b9d755f89c",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/merchant/orders/5e0e5fce-b1eb-4440-a3e9-56c9d4bdb94e",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-09c67d01-714c-43e0-b763-eceb7d448a75",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-09c67d01-714c-43e0-b763-eceb7d448a75",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-09c67d01-714c-43e0-b763-eceb7d448a75",
+      "status": 404
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-09c67d01-714c-43e0-b763-eceb7d448a75?merchant_id=M-1002",
+      "status": 404
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-09c67d01-714c-43e0-b763-eceb7d448a75",
+      "status": 403
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-09c67d01-714c-43e0-b763-eceb7d448a75",
+      "status": 401
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-09c67d01-714c-43e0-b763-eceb7d448a75",
+      "status": 401
+    },
+    {
+      "path": "/api/v1/customer/cases/2af1e537-6a1a-43c6-a982-ba6cfbac3fd6",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/customer/order-lines/SHOP-09c67d01-714c-43e0-b763-eceb7d448a75",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/merchant/orders/dbd5a454-eeab-431d-97b4-025b9d826347",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-5eafeffc-e17d-4090-a133-c5c6f1356a26",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-5eafeffc-e17d-4090-a133-c5c6f1356a26",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-5eafeffc-e17d-4090-a133-c5c6f1356a26",
+      "status": 404
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-5eafeffc-e17d-4090-a133-c5c6f1356a26?merchant_id=M-1001",
+      "status": 404
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-5eafeffc-e17d-4090-a133-c5c6f1356a26",
+      "status": 403
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-5eafeffc-e17d-4090-a133-c5c6f1356a26",
+      "status": 401
+    },
+    {
+      "path": "/api/v1/orders/lines/SHOP-5eafeffc-e17d-4090-a133-c5c6f1356a26",
+      "status": 401
+    },
+    {
+      "path": "/api/v1/customer/cases/a6be635b-867c-461a-94cf-1c10836797d2",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/customer/order-lines/SHOP-5eafeffc-e17d-4090-a133-c5c6f1356a26",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/merchant/orders/4745a409-d52b-40b4-b888-123570ea8c0a",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/orders/lines/missing",
+      "status": 404
+    }
+  ],
+  "model_calls_started": 0,
+  "orders_or_cases_created": 0
+}
