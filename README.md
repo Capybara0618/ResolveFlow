@@ -20,6 +20,7 @@
 | [浏览器体验指南](docs/browser-experience.md) | 一条命令启动、跨角色操作顺序与可直接查看的结果 |
 | [第五批整体验收](reports/product-flow.md) | 正式网页双商家/多人闭环、退款账本、失败及未运行项 |
 | [多商家购物设计审查](docs/marketplace-design-review.md) | 平台买家购买多店、商城参照取舍、身份与售后连接及重画清单；新上游尚未实现 |
+| [多商家购物预期图册](docs/ui-marketplace-v1/index.html) | 11个页面视图与2张状态板，可切换/放大；配套图文合同，非当前运行截图 |
 | [本商家人员管理](docs/staff-management.md) | 管理员新增、维护、启停、角色及密码重置与审计 |
 | [AgentScope迁移规格](docs/agentscope-migration.md) | 框架边界、恢复要求及历史迁移过程 |
 | [执行账本](tasks/todo.md) | 用户最新路线、实际进度及历史成果 |

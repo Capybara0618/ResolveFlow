@@ -1,0 +1,87 @@
+{
+  "mode": "builtin-image_gen",
+  "model_version": "not exposed by tool",
+  "date": "2026-10-03",
+  "use_case": "ui-mockup",
+  "common_prompt": "Use case: ui-mockup. Generate ONE polished, realistic Chinese DESKTOP web UI screenshot, 1536x1024 landscape, front-facing flat full-page, no browser chrome, no device frame. ResolveFlow brand: a small blue four-square icon and word ResolveFlow top left. White cards on very light cool gray #F5F7FB, dark navy #122341 text, primary royal blue #165DFF, restrained green success and amber warnings, thin light borders, 12px rounded corners, very subtle shadows, generous spacing. Professional familiar Chinese marketplace structure but clean restrained white-blue style. Header height 88px, horizontal shared navigation, ample 48px outer margins. LARGE readable simplified Chinese sans-serif: body and labels 24px, secondary minimum22px, titles36px, prices32px. No tiny corner text, no footer, no legal copy, no fake review counts/sales/stock, no promotion badges, no coupons, no bell, no notification counter, no marketing slogan, no technical IDs/hash/revision/debug text. Only requested text. Use short labels, short sentences, uncluttered whitespace. Show realistic consistent product photos on neutral backgrounds.\nExact shared buyer header: ResolveFlow, search field \"搜索商品\", links \"商城\" \"购物车\" \"我的订单\" \"我的售后\", profile \"林晓\". One readable environment pill \"模拟商城\" near brand, not a tiny disclaimer. Buyers browse all merchants; no tenant switch, no fixed merchant buyer identity. Customer shopping screens do NOT have administrative sidebar.\nCanonical product data; NEVER rename or reprice: 松间数码: 黑色\"无线降噪耳机\" ¥329, 白色\"机械键盘\" ¥199, 灰色\"无线鼠标\" ¥89. 拾光家居: 米白色\"桌面台灯\" ¥129, 银色\"保温杯\" ¥89, 米色\"棉麻靠枕\" ¥59. Line totals: headphones1=329, keyboards2=398, Astore total727; lamp1=129+cup1=89 Bstore total218. Show merchant names clearly. Payment/shipping are simulated. No actual implementation badges or invented live system metrics.",
+  "pages": [
+    {
+      "id": "M01",
+      "file": "01-marketplace.png",
+      "title": "多商家商城首页",
+      "brief": "Marketplace HOME. Header above. Main title \"逛逛商城\", category pill row \"全部\" \"数码\" \"家居\". Six large product cards in 3 columns x2 rows, no hero advertisement. Each card image occupies most area, name, exact price and seller beneath; products and seller pairing match canonical data. Row1 headphones329/keyboard199/lamp129, row2 mouse89/cup89/pillow59. Full-width search is prominent. Clearly both merchants together; no buyer sidebar. Cards spacious, no extra microcopy."
+    },
+    {
+      "id": "M02",
+      "file": "02-search.png",
+      "title": "商品搜索与分类",
+      "brief": "SEARCH RESULTS. Shared buyer header search value \"数码\". Content title \"数码商品\", horizontal category tabs \"全部\" \"数码\" \"家居\"; filter row \"综合\" \"价格从低到高\", merchant dropdown \"全部店铺\". Three spacious large cards on one row for canonical mouse89, keyboard199, headphones329, all 松间数码. No invented result counts. Results use same cards as home with big photos, explicit seller, accurate prices. Clean empty whitespace below, no sidebar, no marketing."
+    },
+    {
+      "id": "M03",
+      "file": "03-store.png",
+      "title": "商家店铺",
+      "brief": "SINGLE SELLER STOREFRONT inside multi-merchant marketplace. Shared buyer header stays. Breadcrumb \"商城 / 松间数码\". Store banner restrained white-blue, title \"松间数码\", short line \"数码与桌面用品\", blue-outline button \"返回商城\". Category pills \"全部商品\" \"耳机\" \"键盘\" \"鼠标\". Three large cards headphones329, keyboard199, mouse89 with canonical photos. Not a buyer account tenant switch; global shopping header visible. No seller score or sales count."
+    },
+    {
+      "id": "M04",
+      "file": "04-product.png",
+      "title": "商品详情",
+      "brief": "PRODUCT DETAIL headphones. Shared header. Breadcrumb \"商城 / 松间数码 / 商品详情\". Left large charcoal black over-ear headphone photo, 2 small thumbnails without text. Right title \"无线降噪耳机\", seller row \"松间数码\" and link \"进入店铺\", large ¥329. Specification \"颜色\" selected pill \"黑色\"; quantity row \"数量\" minus 1 plus, operable looking. Two large main buttons \"加入购物车\" outline blue and \"立即购买\" solid blue. Beneath a simple accordion row \"退款政策\" with chevron; no invented policy details. Bottom one simple detail card title \"商品介绍\", sentence \"无线连接，适合日常聆听。\". No stock/reviews/promos."
+    },
+    {
+      "id": "M05",
+      "file": "05-cart.png",
+      "title": "多店购物车",
+      "brief": "MULTI-MERCHANT CART. Shared header. Title \"购物车\", readable subtitle \"按店铺分别结算\". Two large seller-group cards. 松间数码 card: headphone photo/name, unit \"¥329\", quantity minus 1 plus, line subtotal \"¥329\", action \"移除\"; keyboard photo/name unit \"¥199\", quantity minus 2 plus, line subtotal \"¥398\", remove. Group bottom \"店铺合计 ¥727\" and single button \"结算松间数码\". 拾光家居 card: lamp¥129 qty1 subtotal129; cup¥89 qty1 subtotal89, removes; bottom \"店铺合计 ¥218\" and button \"结算拾光家居\". One seller has blue primary button other outline. NO global select-all checkout, no grand-total payment, no single cross-store checkout. Four product rows and large exact totals fit, all typography22px minimum."
+    },
+    {
+      "id": "M06",
+      "file": "06-checkout.png",
+      "title": "确认订单",
+      "brief": "CHECKOUT ONE SELLER, shared buyer header. Title \"确认订单\". Content two-column: left~950px main stack, right~360px white total card. Left address card heading \"收货信息\", main content \"林晓 · 演示收货地址\", clear pill \"合成信息\", no real phone/address. Seller product card title \"松间数码\", 2 rows: headphones \"¥329 × 1\" subtotal\"¥329\"; keyboard \"¥199 × 2\" subtotal\"¥398\". Right summary title \"订单合计\", line \"商品金额 ¥727\", total\"应付 ¥727\", big blue button \"提交订单\", outline \"返回购物车\". Readable sentence \"仅结算松间数码商品\" near summary. No 拾光家居 order charged, no coupon/freight invented, no fixed qty1 assumption."
+    },
+    {
+      "id": "M07",
+      "file": "07-payment.png",
+      "title": "模拟支付与结果",
+      "brief": "PAYMENT UI design showing TWO clearly labelled state views side by side, same order not two separate simultaneous payments. Shared buyer header. Main title \"模拟支付\", small readable subheading \"待支付与成功结果\". Left card label \"待支付\": order\"SF1001\", store\"松间数码\", items text \"无线降噪耳机 × 1\" and \"机械键盘 × 2\", big \"应付 ¥727\", bluebutton\"确认模拟付款\", outline\"取消订单\". No bogus date/deadline. Right card lightgreen success icon label \"支付成功\", same order\"SF1001\", seller\"松间数码\", big\"已付 ¥727\", status\"待发货\", bluebutton\"查看订单\". Clearly state examples in distinct frames, no second charge button in success. No actual external provider logo, tiny footnotes or auto-success claims."
+    },
+    {
+      "id": "M08",
+      "file": "08-orders.png",
+      "title": "跨店个人订单中心",
+      "brief": "PERSONAL ORDER CENTER. Shared buyer header. Optional narrow account sidebar only two entries \"我的订单\" selected and \"我的售后\"; shopping header stays. Main title \"我的订单\", filters \"全部\" \"待支付\" \"待发货\" \"已发货\", store filter \"全部店铺\". Three spacious order cards: first SF1001 松间数码, status \"已签收（模拟）\", product photos headphone+keyboard, names \"无线降噪耳机 × 1\" \"机械键盘 × 2\", paid\"实付 ¥727\", blue-outline\"查看订单\", link\"申请退款\". Second SF1002 拾光家居 status\"待发货\", photos lamp+cup, names\"桌面台灯 × 1\" \"保温杯 × 1\", paid\"实付 ¥218\", buttons\"查看订单\" \"申请退款\". Third D1003 松间数码 explicitly \"待支付\", mouse1, \"应付 ¥89\", blue\"去支付\", outline\"取消订单\". Same buyer sees both merchants, no extra login."
+    },
+    {
+      "id": "M09",
+      "file": "09-order-detail.png",
+      "title": "订单详情与售后衔接",
+      "brief": "ORDER DETAIL shared buyer header, narrow customer account sidebar allowed. Breadcrumb\"我的订单 / 订单详情\", title\"订单 SF1001\", seller\"松间数码\". Three clear summary cards near top: \"支付 已付 ¥727\", \"物流 已签收（模拟）\", \"售后 1项处理中\". Main left card title\"订单商品\", headphone row\"无线降噪耳机 × 1\" \"¥329\" amber\"退款审核中\" blue-outline\"查看售后\"; keyboard row\"机械键盘 × 2\" \"¥398\" neutral\"未申请\" blue-outline\"申请退款\". Right logistics card title\"物流进度\" timeline\"已付款\" \"已发货\" \"已签收\", label\"模拟物流\". Bottom compact wide card title\"退款进度\", text\"无线降噪耳机 · 待核验\", sentence\"商家正在核对申请材料。\", link\"查看申请\". No internal Agent recommendation/confidence/authorization leaked to buyer. Aggregate order remains paid, not entire order refunded."
+    },
+    {
+      "id": "M10",
+      "file": "10-merchant-orders.png",
+      "title": "商家交易订单",
+      "brief": "MERCHANT ADMIN WORKSPACE. Use white-blue ResolveFlow header, seller \"松间数码\", role \"商家管理员\", name\"林晓云\", environment pill\"模拟商城\"; remove buyer search/cart links. Left sidebar width210 with \"交易订单\" selected, \"售后工单\", \"工单概览\", \"人员管理\", \"政策资料\". Main title\"交易订单\", tabrow\"全部\" \"待发货\" \"已发货\", simple search\"搜索订单\". Large airy table columns\"订单\" \"买家\" \"商品\" \"实付\" \"履约\" \"操作\". 3 rows: SF1003/林晓/无线降噪耳机×1/¥329/待发货/blue\"查看并发货\"; SF1001/林晓/耳机×1、键盘×2/¥727/已签收（模拟）/outline\"查看详情\"; SF1004/陈晨/无线鼠标×1/¥89/配送中（模拟）/outline\"查看详情\". ONLY 松间数码 orders, never show 拾光家居 private orders. No fake dashboard counts, no bulk refund/approve controls."
+    },
+    {
+      "id": "M11",
+      "file": "11-merchant-detail.png",
+      "title": "商家订单详情与模拟发货",
+      "brief": "MERCHANT TRADE DETAIL. Same admin header/nav as M10, sidebar selected\"交易订单\". Main breadcrumb\"交易订单 / 订单详情\", title\"订单 SF1003\", seller\"松间数码\", status pill\"待发货\". Main two-column. Left productcard blackheadphones thumbnail \"无线降噪耳机 × 1\", buyer\"林晓\", \"实付 ¥329\". Below wide payment read-only card title\"资金信息\" three large values\"已付 ¥329\" \"已退 ¥0\" \"预留 ¥0\". Right actioncard title\"模拟发货\", dropdownlabel\"物流场景\" value\"配送中\", clear short sentence\"发货后场景不可修改\", bigbluebutton\"确认模拟发货\". Below card title\"售后记录\", text\"暂无申请\", link\"查看售后工单\". No refund button on trading page, no arbitrary logistics edit after publication, no changing buyer data."
+    },
+    {
+      "id": "M12",
+      "file": "12-trade-states.png",
+      "title": "交易异常状态板",
+      "brief": "DESIGN STATE BOARD, NOT operational admin dashboard. Simple ResolveFlow brand top, title\"交易异常状态\", subtitle\"独立状态示例\". Six roomy white cards 2columns x3rows on graybackground. Each shows simple icon, 32px title, ONE short 24px sentence, appropriate actionbutton. Cards: 1\"商品已下架\" / \"此商品暂时无法购买。\" / \"返回商城\"; 2\"价格已更新\" / \"请重新确认当前价格。\" / \"重新确认\"; 3\"支付失败\" / \"本次模拟付款未成功。\" / \"重新付款\"; 4\"订单已到期\" / \"待支付订单已失效。\" / \"重新购买\"; 5\"付款结果待确认\" / \"正在查询原付款结果。\" / \"查询结果\"; 6\"订单已取消\" / \"该订单无法继续付款。\" / \"返回订单\". Do not put retry-pay action in unknown card. No giant systemmetrics, microtext, extra panels, illustrated people. Full legible layout not miniature screenshot grid."
+    },
+    {
+      "id": "M13",
+      "file": "13-aftercare-states.png",
+      "title": "归属与售后状态板",
+      "brief": "DESIGN STATE BOARD not live app. ResolveFlow brand top, title\"订单与售后状态\", subtitle\"独立状态示例\". Six roomy cards 2columns x3rows, titles32 body24. 1\"暂无订单\" / \"购买后可在这里查看。\" / \"去逛商城\"; 2\"无法查看订单\" / \"该订单不在当前账号范围内。\" / \"返回订单\"; 3\"待发货退款\" / \"提交后由商家处理。\" / \"申请退款\"; 4\"退款审核中\" / \"查看进度并及时补充材料。\" / \"查看售后\"; 5\"退款成功\" / \"该商品已完成模拟退款。\" / \"查看结果\"; 6\"退款结果待确认\" / \"请等待原退款结果确认。\" / \"查看进度\". Unknown cannot offer new refund/payment. All short readable, no confidence/internalID, no notes in corners. States not claims current implementation. No refund-entire-order implication."
+    }
+  ]
+}

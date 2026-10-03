@@ -1,0 +1,19 @@
+[
+  {
+    "id": "M09",
+    "file": "09-order-detail-v2.png",
+    "refs": [
+      "E:/Code/Agent+Backend/docs/ui-marketplace-v1/images/09-order-detail.png"
+    ],
+    "prompt": "Use case: precise-object-edit, UI navigation correction only. EDIT this exact screenshot. Keep all main content, product rows, prices329/398/727, order SF1001, seller 松间数码, refund states, logistics, layout and typography unchanged. Replace LEFT SIDEBAR with EXACTLY TWO menu items: \"我的订单\" (selected) and \"我的售后\". Remove \"首页\", \"购物车\", \"个人中心\" from sidebar and leave clean whitespace below. Header keeps marketplace/search/cart/order/aftercare navigation, buyer 林晓; replace photographic portrait with simple light-blue circle person icon matching other mockups. Do not add any menu, text, feature, footer or tiny annotation. Maintain1536x1024 flat desktop image."
+  },
+  {
+    "id": "M11",
+    "file": "11-merchant-detail-v2.png",
+    "refs": [
+      "E:/Code/Agent+Backend/docs/ui-marketplace-v1/images/11-merchant-detail.png",
+      "E:/Code/Agent+Backend/docs/ui-marketplace-v1/images/10-merchant-orders.png"
+    ],
+    "prompt": "Use case: precise-object-edit, UI role/navigation correction. Image1 is EDIT TARGET, Image2 is supporting admin navigation STYLE reference. Correct ONLY header and left sidebar of Image1 to merchant administrator role matching Image2. Header: ResolveFlow, readable \"模拟商城\", profile \"林晓云\" with generic blue circle person icon; DELETE customer search field, \"商城\",\"购物车\",\"我的订单\",\"我的售后\" and buyer 林晓 FROM HEADER. Sidebar top: \"松间数码\", \"商家管理员\"; EXACT menu items \"交易订单\" selected, \"售后工单\", \"工单概览\", \"人员管理\", \"政策资料\". REMOVE existing 首页/商品管理/售后管理/数据中心. Keep the entire main content of Image1 unchanged: order SF1003, seller松间数码,待发货, buyer林晓 in product card, headphones1 ¥329, paid329/refunded0/reserved0, simulated shipping dropdown配送中 and immutable scene sentence, shipping button, no refund button, aftercare暂无申请. Keep main geometry, product photo, font size, white-blue design. No new feature, footer or tiny labels. Flat1536x1024 screenshot."
+  }
+]
