@@ -31,6 +31,9 @@ class StubCommerce extends CommerceOrderLineClient {
 
     volatile long reservedRefundAmount = 0;
 
+    volatile Long orderPaidAmount;
+    volatile String lineRefundState;
+
     /** When true, the context says the line belongs to someone else, which the re-check has to notice. */
     volatile boolean lineOwnerMismatch = false;
 
@@ -60,6 +63,8 @@ class StubCommerce extends CommerceOrderLineClient {
         lineVisible = true;
         refundedAmount = 0;
         reservedRefundAmount = 0;
+        orderPaidAmount = null;
+        lineRefundState = null;
         lineOwnerMismatch = false;
         lineMerchant = "M-1001";
         lineCustomer = "C-2002";
@@ -106,6 +111,8 @@ class StubCommerce extends CommerceOrderLineClient {
                 "CNY",
                 paidAt,
                 "PAID",
-                3));
+                3,
+                orderPaidAmount,
+                lineRefundState));
     }
 }

@@ -45,7 +45,10 @@ public interface LineRefundStatusRepository {
                    l.currency                         AS currency,
                    r.state                            AS state,
                    r.operation_id                     AS operationId,
-                   COALESCE(r.version, l.version)     AS version
+                   COALESCE(r.version, l.version)     AS version,
+                   COALESCE(g.paid_amount, 0)         AS orderPaidAmount,
+                   CASE WHEN r.state='CONSUMED' THEN l.line_paid_amount ELSE 0 END AS lineRefundedAmount,
+                   CASE WHEN r.state='RESERVED' THEN l.line_paid_amount ELSE 0 END AS lineReservedRefundAmount
               FROM order_line l
               LEFT JOIN payment_ledger g ON g.order_id = l.order_id
               LEFT JOIN line_refund r ON r.line_id = l.line_id
@@ -70,5 +73,8 @@ public interface LineRefundStatusRepository {
             String currency,
             String state,
             String operationId,
-            long version) {}
+            long version,
+            long orderPaidAmount,
+            long lineRefundedAmount,
+            long lineReservedRefundAmount) {}
 }

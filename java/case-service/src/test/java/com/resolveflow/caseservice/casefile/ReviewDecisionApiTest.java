@@ -328,6 +328,43 @@ class ReviewDecisionApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void anotherLinesCompletedRefundDoesNotPreventApprovalOfThisFreeWholeLine() {
+        JsonNode view = authorisedCase("multiline-approval");
+        commerce.orderPaidAmount = AMOUNT + 32900;
+        commerce.refundedAmount = 32900;
+        commerce.lineRefundState = "FREE";
+        String id = view.get("case").get("case_id").stringValue();
+        var response = decide(
+                id,
+                reviewer(),
+                "\"" + view.get("case").get("version").asLong() + "\"",
+                view.get("authorization").get("authorization_id").stringValue(),
+                1,
+                "APPROVE",
+                "本行未退，整单余款足够");
+        assertThat(response.get("status").stringValue()).isEqualTo("APPROVED");
+    }
+
+    @Test
+    void approvalStillRefusesAHeldLineAndCannotConsumeItsPendingAuthorization() {
+        JsonNode view = authorisedCase("multiline-held-approval");
+        commerce.orderPaidAmount = AMOUNT + 32900;
+        commerce.lineRefundState = "RESERVED";
+        String id = view.get("case").get("case_id").stringValue();
+        assertThat(decideStatus(
+                        id,
+                        reviewer(),
+                        "\"" + view.get("case").get("version").asLong() + "\"",
+                        view.get("authorization").get("authorization_id").stringValue(),
+                        1,
+                        "APPROVE",
+                        "旧审批拒绝"))
+                .isEqualTo(409);
+        assertThat(authorizationColumn(id, "status")).isEqualTo("PENDING_REVIEW");
+        assertThat(timelineCount(id, "AUTHORIZATION_DECIDED")).isZero();
+    }
+
+    @Test
     @DisplayName("the trajectory says who decided what, in the reviewer's own words")
     void theTrajectorySaysWhoDecidedWhat() {
         JsonNode view = authorisedCase("decision-trajectory");

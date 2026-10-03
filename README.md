@@ -23,6 +23,7 @@
 | [多商家实施对应](docs/marketplace-implementation.md) | 沿目标图册按身份、商品、支付、购物车/多行、履约和整体验收推进 |
 | [商品目录与直接购买](docs/catalog-checkout.md) | 公共两店目录、规格/数量、服务端报价及独立待付款草稿 |
 | [模拟付款与本人订单](docs/simulated-checkout-payment.md) | 原尝试恢复、取消/到期、新旧跨店本人订单与售后入口；验证见[第三批报告](reports/checkout-payment.md) |
+| [购物车与多行结算规格](docs/cart-multiline-checkout.md) | 第四批按店分组/报价/草稿/发布约束；[资金前置报告](reports/multiline-refunds.md)，购物车尚待实施 |
 | [平台买家](docs/platform-buyer.md) | 同一登录的跨店本人订单/申请与原有售后，旧客户及商家权限保留 |
 | [多商家购物预期图册](docs/ui-marketplace-v1/index.html) | 11个页面视图与2张状态板，可切换/放大；配套图文合同，非当前运行截图 |
 | [本商家人员管理](docs/staff-management.md) | 管理员新增、维护、启停、角色及密码重置与审计 |

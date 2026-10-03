@@ -71,6 +71,9 @@ public interface RefundOperationRepository {
             """)
     StoredOperation find(@Param("operationId") String operationId);
 
+    @Select("SELECT * FROM refund_operation WHERE operation_id=#{operationId} FOR UPDATE")
+    StoredOperation findForUpdate(@Param("operationId") String operationId);
+
     /**
      * The order an operation's line belongs to.
      *

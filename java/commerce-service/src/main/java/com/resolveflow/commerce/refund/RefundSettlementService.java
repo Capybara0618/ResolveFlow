@@ -59,7 +59,7 @@ public class RefundSettlementService {
      */
     @Transactional
     public RefundOperationRepository.StoredOperation settleSucceeded(String operationId, String providerRef) {
-        RefundOperationRepository.StoredOperation operation = require(operationId);
+        RefundOperationRepository.StoredOperation operation = lockedOperation(operationId);
         if (isTerminal(operation.state())) {
             return operation;
         }
@@ -89,7 +89,7 @@ public class RefundSettlementService {
      */
     @Transactional
     public RefundOperationRepository.StoredOperation settleFailed(String operationId, String reasonCode) {
-        RefundOperationRepository.StoredOperation operation = require(operationId);
+        RefundOperationRepository.StoredOperation operation = lockedOperation(operationId);
         if (isTerminal(operation.state())) {
             return operation;
         }
@@ -124,7 +124,7 @@ public class RefundSettlementService {
     @Transactional
     public RefundOperationRepository.StoredOperation settleUnknown(
             String operationId, String reasonCode, Instant retryAt) {
-        RefundOperationRepository.StoredOperation operation = require(operationId);
+        RefundOperationRepository.StoredOperation operation = lockedOperation(operationId);
         if (isTerminal(operation.state())) {
             return operation;
         }
@@ -152,6 +152,17 @@ public class RefundSettlementService {
             throw new IllegalArgumentException("no refund operation " + operationId);
         }
         return operation;
+    }
+
+    private RefundOperationRepository.StoredOperation lockedOperation(String id) {
+        var observed = require(id);
+        if (isTerminal(observed.state())) return observed;
+        if (money.lockLedger(orderId(observed)) == null) throw new IllegalStateException("missing refund ledger");
+        // A locking current read, not the earlier REPEATABLE READ snapshot: another settlement may
+        // have committed while this transaction waited for the shared order ledger.
+        var current = operations.findForUpdate(id);
+        if (current == null) throw new IllegalStateException("missing refund operation");
+        return current;
     }
 
     private static boolean isTerminal(String state) {

@@ -15,10 +15,8 @@ import java.time.Instant;
  * case's own merchant and customer before using any of it. A listing that echoed the scope would let a
  * caller confirm whose row it just read; here the caller is a service that must know.
  *
- * <p>The ledger is per order and the member is per line. For the core flow they coincide: only whole,
- * unrefunded, single-line-being-refunded orders enter it, and adding up the order's refunds can only
- * overstate a line's, never understate it — the safe direction for a gate that decides whether money may
- * still be refunded.
+ * <p>Order amounts remain order amounts. The current order paid total and this line's slot let Case
+ * distinguish another line's refund from this line's entitlement without splitting the ledger.
  */
 public record LineContextRow(
         String orderId,
@@ -34,4 +32,6 @@ public record LineContextRow(
         String currency,
         Instant paidAt,
         String orderStatus,
-        long version) {}
+        long version,
+        long orderPaidAmount,
+        String lineRefundState) {}

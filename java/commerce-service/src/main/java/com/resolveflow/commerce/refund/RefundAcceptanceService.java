@@ -97,6 +97,14 @@ public class RefundAcceptanceService {
         // insert that follows is part of it.
         requireUnusedDeliveryId(requestId, command);
 
+        String orderId = money.findLineOrderId(command.lineId());
+        if (orderId == null) {
+            throw new RefundRejectedException(RefundError.LINE_NOT_FOUND, "no order line " + command.lineId());
+        }
+        RefundMoneyRepository.LedgerRow ledger = money.lockLedger(orderId);
+        if (ledger == null) {
+            throw new RefundRejectedException(RefundError.AMOUNT_MISMATCH, "the order has no payment ledger");
+        }
         RefundMoneyRepository.RefundSlot slot = money.slotForUpdate(command.lineId());
         if (slot == null) {
             throw new RefundRejectedException(
@@ -127,7 +135,6 @@ public class RefundAcceptanceService {
         // never reaches here (the operation lookup answers it above), so a row here means a first delivery.
         inbox.insert(requestId, command.operationId(), command.payloadHash(), now);
 
-        RefundMoneyRepository.LedgerRow ledger = money.lockLedger(slot.orderId());
         if (money.reserveInLedger(ledger.orderId(), command.amountMinor()) != 1) {
             // The ledger refused: the order's paid amount is already accounted for by another line's refund
             // (or by a reservation this transaction did not make). That is a state of the world, not a fault

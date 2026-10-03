@@ -1887,14 +1887,16 @@ components:
     LineContext:
       type: object
       additionalProperties: false
+      dependentRequired:
+        line_refund_state: [order_paid_amount]
       required:
         [order_id, line_id, merchant_id, customer_id, sku, category, quantity,
          line_paid_amount, refunded_amount, reserved_refund_amount, currency, paid_at,
          order_status, version]
       description: |
-        Carried over from the compat document unchanged: docs/domain-model.md:40-41 fixes
-        these columns, and restating them differently for core would move the money
-        contract for no reason.
+        Existing refund/reservation members are order ledger aggregates. Current Commerce
+        adds order_paid_amount and this line's slot; Case caps a FREE line by the order
+        balance. Missing current facts remain conservative and never imply FREE.
       properties:
         order_id:
           $ref: '#/components/schemas/Uuid'
@@ -1926,7 +1928,7 @@ components:
           $ref: '#/components/schemas/AmountMinor'
         refunded_amount:
           $ref: '#/components/schemas/AmountMinor'
-          description: INV-01 term. refunded + reserved must never exceed line_paid_amount.
+          description: Order aggregate; refunded + reserved must not exceed order_paid_amount when supplied.
         reserved_refund_amount:
           $ref: '#/components/schemas/AmountMinor'
         currency:
@@ -1939,11 +1941,20 @@ components:
           type: string
           minLength: 1
           maxLength: 64
+        order_paid_amount:
+          $ref: '#/components/schemas/AmountMinor'
+          description: Actual order ledger paid total, zero if the ledger is absent.
+        line_refund_state:
+          $ref: '#/components/schemas/LineRefundState'
+          description: This line's actual slot; omitted if absent, never default FREE.
         version:
           $ref: '#/components/schemas/Version'
     LineRefundStatus:
       type: object
       additionalProperties: false
+      dependentRequired:
+        line_refunded_amount: [order_paid_amount, line_reserved_refund_amount]
+        line_reserved_refund_amount: [order_paid_amount, line_refunded_amount]
       required:
         [line_id, merchant_id, line_paid_amount, refunded_amount, reserved_refund_amount,
          currency, state, version]
@@ -1971,6 +1982,15 @@ components:
           oneOf:
             - $ref: '#/components/schemas/Uuid'
             - type: 'null'
+        order_paid_amount:
+          $ref: '#/components/schemas/AmountMinor'
+          description: Actual order ledger paid total; old monetary fields remain order aggregates.
+        line_refunded_amount:
+          $ref: '#/components/schemas/AmountMinor'
+          description: This whole line's consumed amount, zero unless its slot is CONSUMED.
+        line_reserved_refund_amount:
+          $ref: '#/components/schemas/AmountMinor'
+          description: This whole line's held amount, zero unless its slot is RESERVED.
         version:
           $ref: '#/components/schemas/Version'
     RefundOperationView:

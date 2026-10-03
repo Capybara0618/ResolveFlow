@@ -1,0 +1,98 @@
+[
+  {
+    "name": "another-line-refunded-context",
+    "schema": "LineContext",
+    "value": {
+      "order_id": "00000000-0000-4000-8000-000000000901",
+      "line_id": "line-b",
+      "merchant_id": "M-1001",
+      "customer_id": "C-B3001-M1001",
+      "sku": "keyboard-white",
+      "category": "electronics",
+      "quantity": 2,
+      "line_paid_amount": 39800,
+      "refunded_amount": 32900,
+      "reserved_refund_amount": 0,
+      "currency": "CNY",
+      "paid_at": "2026-10-03T04:00:00Z",
+      "order_status": "PAID",
+      "version": 1,
+      "order_paid_amount": 72700,
+      "line_refund_state": "FREE"
+    }
+  },
+  {
+    "name": "another-line-refunded-status",
+    "schema": "LineRefundStatus",
+    "value": {
+      "line_id": "line-b",
+      "merchant_id": "M-1001",
+      "line_paid_amount": 39800,
+      "refunded_amount": 32900,
+      "reserved_refund_amount": 0,
+      "currency": "CNY",
+      "version": 1,
+      "order_paid_amount": 72700,
+      "state": "FREE",
+      "line_refunded_amount": 0,
+      "line_reserved_refund_amount": 0
+    }
+  },
+  {
+    "name": "this-line-reserved",
+    "schema": "LineRefundStatus",
+    "value": {
+      "line_id": "line-b",
+      "merchant_id": "M-1001",
+      "line_paid_amount": 39800,
+      "refunded_amount": 32900,
+      "reserved_refund_amount": 39800,
+      "currency": "CNY",
+      "version": 1,
+      "order_paid_amount": 72700,
+      "state": "RESERVED",
+      "line_refunded_amount": 0,
+      "line_reserved_refund_amount": 39800,
+      "operation_id": "00000000-0000-4000-8000-000000000902"
+    }
+  },
+  {
+    "name": "this-line-consumed",
+    "schema": "LineRefundStatus",
+    "value": {
+      "line_id": "line-b",
+      "merchant_id": "M-1001",
+      "line_paid_amount": 39800,
+      "refunded_amount": 72700,
+      "reserved_refund_amount": 0,
+      "currency": "CNY",
+      "version": 1,
+      "order_paid_amount": 72700,
+      "state": "CONSUMED",
+      "line_refunded_amount": 39800,
+      "line_reserved_refund_amount": 0,
+      "operation_id": "00000000-0000-4000-8000-000000000902"
+    }
+  },
+  {
+    "name": "missing-current-slot",
+    "schema": "LineContext",
+    "value": {
+      "order_id": "00000000-0000-4000-8000-000000000901",
+      "line_id": "line-b",
+      "merchant_id": "M-1001",
+      "customer_id": "C-B3001-M1001",
+      "sku": "keyboard-white",
+      "category": "electronics",
+      "quantity": 2,
+      "line_paid_amount": 39800,
+      "refunded_amount": 32900,
+      "reserved_refund_amount": 0,
+      "currency": "CNY",
+      "paid_at": "2026-10-03T04:00:00Z",
+      "order_status": "PAID",
+      "version": 1,
+      "order_paid_amount": 72700
+    }
+  }
+]

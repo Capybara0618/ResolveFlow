@@ -96,12 +96,16 @@ class OrderLineContextControllerTest extends CommerceDatabaseTest {
                         "currency",
                         "paid_at",
                         "order_status",
-                        "version");
+                        "version",
+                        "order_paid_amount",
+                        "line_refund_state");
         assertThat(json.get("merchant_id").stringValue())
                 .as("a service re-checking a case needs to confirm the line belongs to that case")
                 .isEqualTo("M-1001");
         assertThat(json.get("customer_id").stringValue()).isEqualTo("C-2002");
         assertThat(json.get("line_paid_amount").asLong()).isEqualTo(2599);
+        assertThat(json.get("order_paid_amount").asLong()).isEqualTo(4598);
+        assertThat(json.get("line_refund_state").stringValue()).isEqualTo("FREE");
         assertThat(json.get("refunded_amount").asLong()).isZero();
         assertThat(json.get("reserved_refund_amount").asLong()).isZero();
         assertThat(json.get("currency").stringValue()).isEqualTo("CNY");

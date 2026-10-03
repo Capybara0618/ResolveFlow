@@ -91,9 +91,12 @@ public interface OrderLineRepository {
                    l.currency               AS currency,
                    l.paid_at                AS paidAt,
                    l.order_status           AS orderStatus,
-                   l.version                AS version
+                   l.version                AS version,
+                   COALESCE(g.paid_amount, 0) AS orderPaidAmount,
+                   r.state                  AS lineRefundState
               FROM order_line l
               LEFT JOIN payment_ledger g ON g.order_id = l.order_id
+              LEFT JOIN line_refund r ON r.line_id = l.line_id
              WHERE l.line_id = #{lineId}
             """)
     LineContextRow findContext(@Param("lineId") String lineId);

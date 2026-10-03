@@ -88,7 +88,9 @@ public class OrderLineController {
             String currency,
             @JsonProperty("paid_at") Instant paidAt,
             @JsonProperty("order_status") String orderStatus,
-            long version) {
+            long version,
+            @JsonProperty("order_paid_amount") long orderPaidAmount,
+            @JsonProperty("line_refund_state") String lineRefundState) {
 
         static LineContextResponse from(LineContextRow row) {
             return new LineContextResponse(
@@ -105,7 +107,9 @@ public class OrderLineController {
                     row.currency(),
                     row.paidAt(),
                     row.orderStatus(),
-                    row.version());
+                    row.version(),
+                    row.orderPaidAmount(),
+                    row.lineRefundState());
         }
     }
 

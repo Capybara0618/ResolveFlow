@@ -89,7 +89,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Agent | GET /health | 健康 |
 | Case | POST /internal/v1/cases/{case_id}/agent-callbacks | callback_id幂等，ACCEPTED/DUPLICATE/STALE |
 | Case | POST /internal/v1/runs/{run_id}/tool-credential | 当前revision受限工具凭证 |
-| Commerce | GET /internal/v1/order-lines/{line_id}/context | 权威订单/支付/行金额 |
+| Commerce | GET /internal/v1/order-lines/{line_id}/context | 权威订单/支付/行金额；core追加order_paid_amount与line_refund_state，原金额成员仍是整单合计；本行FREE按整单余款复核，见cart-multiline-checkout.md |
 | Commerce | GET /internal/v1/order-lines | 按主体列出订单行，供Case构建公共订单视图 |
 | Commerce | GET /internal/v1/order-lines/{line_id}/shipment | 明确标synthetic的版本化物流数据 |
 | Commerce | GET /internal/v1/order-lines/{line_id}/refund-status | 已退/预留/当前退款状态 |

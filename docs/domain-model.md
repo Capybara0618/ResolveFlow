@@ -37,7 +37,7 @@
 
 ## 3. commerce_db
 
-- orders/order_line：归属、支付时间、原始行金额/数量/品类；核心不接入已有部分退款的订单。
+- orders/order_line：归属、支付时间、原始行金额/数量/品类；不迁入已有历史混合退款。2026-10-03批准的新购物多行订单，各行仍整行全额退款，本行槽+整单账本复核；部分行已退不阻止另一FREE行，见[多行规格](cart-multiline-checkout.md)。
 - payment_ledger(order_id PK,paid_amount,refunded_amount,reserved_refund_amount,version)。
 - line_refund(line_id PK,state FREE/RESERVED/CONSUMED,operation_id,version)。
 - refund_operation(operation_id PK,authorization_id UNIQUE,merchant_id,line_id,payload_hash,amount_minor,state,provider_key UNIQUE,provider_ref,retry_at,version)。

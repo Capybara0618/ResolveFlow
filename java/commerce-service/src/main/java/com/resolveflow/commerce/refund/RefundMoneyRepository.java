@@ -22,6 +22,10 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface RefundMoneyRepository {
 
+    /** Immutable line ownership lookup before taking the order-wide lock. */
+    @Select("SELECT order_id FROM order_line WHERE line_id=#{lineId}")
+    String findLineOrderId(@Param("lineId") String lineId);
+
     /**
      * Lock the order's ledger row for the rest of the transaction.
      *

@@ -361,18 +361,63 @@ public class CommerceOrderLineClient {
             @com.fasterxml.jackson.annotation.JsonProperty("order_status")
             String orderStatus,
 
-            long version) {
+            long version,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("order_paid_amount")
+            Long orderPaidAmount,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("line_refund_state")
+            String lineRefundState) {
+
+        public LineContext(
+                String orderId,
+                String lineId,
+                String merchantId,
+                String customerId,
+                String sku,
+                String category,
+                int quantity,
+                long linePaidAmount,
+                long refundedAmount,
+                long reservedRefundAmount,
+                String currency,
+                Instant paidAt,
+                String orderStatus,
+                long version) {
+            this(
+                    orderId,
+                    lineId,
+                    merchantId,
+                    customerId,
+                    sku,
+                    category,
+                    quantity,
+                    linePaidAmount,
+                    refundedAmount,
+                    reservedRefundAmount,
+                    currency,
+                    paidAt,
+                    orderStatus,
+                    version,
+                    null,
+                    null);
+        }
 
         /**
-         * What this line can still refund, as a floor rather than a promise.
-         *
-         * <p>{@code refunded_amount} and {@code reserved_refund_amount} are the <b>order's</b> ledger
-         * (docs/domain-model.md: the ledger is per order), so a refund elsewhere in the order makes this
-         * line look smaller than its own entitlement. That direction is deliberate: the re-check may refuse
-         * a refund it could have granted, never grant one it could not, and a floor never exceeds what the
-         * order can actually pay out. Never negative.
+         * A FREE line's whole entitlement, capped by its order's remaining money.
+         * Missing new facts use the conservative legacy floor; a missing slot on a new response is blocked.
          */
         public long refundableAmountMinor() {
+            if (orderPaidAmount != null || lineRefundState != null) {
+                if (orderPaidAmount == null
+                        || !"FREE".equals(lineRefundState)
+                        || orderPaidAmount < 0
+                        || refundedAmount < 0
+                        || reservedRefundAmount < 0
+                        || refundedAmount > orderPaidAmount
+                        || reservedRefundAmount > orderPaidAmount - refundedAmount) return 0;
+                return Math.max(0L, Math.min(linePaidAmount, orderPaidAmount - refundedAmount - reservedRefundAmount));
+            }
             return Math.max(0L, linePaidAmount - refundedAmount - reservedRefundAmount);
         }
     }

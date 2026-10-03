@@ -54,7 +54,10 @@ public class RefundStatusController {
             String currency,
             String state,
             @JsonProperty("operation_id") String operationId,
-            long version) {
+            long version,
+            @JsonProperty("order_paid_amount") long orderPaidAmount,
+            @JsonProperty("line_refunded_amount") long lineRefundedAmount,
+            @JsonProperty("line_reserved_refund_amount") long lineReservedRefundAmount) {
 
         static LineRefundStatusResponse from(LineRefundStatusRepository.LineRefundStatusRow row) {
             return new LineRefundStatusResponse(
@@ -67,7 +70,10 @@ public class RefundStatusController {
                     row.state(),
                     // Null on a free line, and NON_NULL drops it: the member is absent rather than null.
                     row.operationId(),
-                    row.version());
+                    row.version(),
+                    row.orderPaidAmount(),
+                    row.lineRefundedAmount(),
+                    row.lineReservedRefundAmount());
         }
     }
 

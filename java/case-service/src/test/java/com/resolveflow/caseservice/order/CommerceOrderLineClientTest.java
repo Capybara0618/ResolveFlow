@@ -188,6 +188,44 @@ class CommerceOrderLineClientTest {
     }
 
     @Test
+    void multiLineContextSeparatesTheFreeLineFromItsOrdersRefundsAndReservations() {
+        for (String state : java.util.List.of("FREE", "RESERVED", "CONSUMED")) {
+            server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7002/context"))
+                    .andRespond(withSuccess("""
+                        {"order_id":"%s","line_id":"7002","merchant_id":"M-1001","customer_id":"C-2002",
+                         "sku":"SKU","category":"electronics","quantity":1,"line_paid_amount":39800,
+                         "refunded_amount":32900,"reserved_refund_amount":0,"currency":"CNY",
+                         "paid_at":"2026-10-03T04:00:00Z","order_status":"PAID","version":1,
+                         "order_paid_amount":72700,"line_refund_state":"%s"}
+                        """.formatted(ORDER, state), MediaType.APPLICATION_JSON));
+            assertThat(client.readLineContext("7002").orElseThrow().refundableAmountMinor())
+                    .isEqualTo(state.equals("FREE") ? 39800L : 0L);
+            server.verify();
+            server.reset();
+        }
+    }
+
+    @Test
+    void multiLineContextCannotGrantMoreThanTheOrderHasLeftOrInventAMissingSlot() {
+        for (String extra : java.util.List.of(
+                "\"order_paid_amount\":40000,\"line_refund_state\":\"FREE\"",
+                "\"order_paid_amount\":72700",
+                "\"line_refund_state\":\"RESERVED\"")) {
+            server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7002/context"))
+                    .andRespond(withSuccess("""
+                        {"order_id":"%s","line_id":"7002","merchant_id":"M-1001","customer_id":"C-2002",
+                         "sku":"SKU","category":"electronics","quantity":1,"line_paid_amount":39800,
+                         "refunded_amount":32900,"reserved_refund_amount":0,"currency":"CNY",
+                         "paid_at":"2026-10-03T04:00:00Z","order_status":"PAID","version":1,%s}
+                        """.formatted(ORDER, extra), MediaType.APPLICATION_JSON));
+            assertThat(client.readLineContext("7002").orElseThrow().refundableAmountMinor())
+                    .isEqualTo(extra.contains("40000") ? 7100L : 0L);
+            server.verify();
+            server.reset();
+        }
+    }
+
+    @Test
     @DisplayName("a line Commerce does not have is empty, and a Commerce failure is not")
     void aMissingLineIsEmptyAndAFailureIsNot() {
         server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7001/context"))

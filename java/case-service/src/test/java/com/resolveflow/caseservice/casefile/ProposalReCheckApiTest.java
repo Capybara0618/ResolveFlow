@@ -311,6 +311,46 @@ class ProposalReCheckApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void aFreeLineRemainsEligibleAndTheProposalRecheckUsesItsWholeAmountAfterAnotherLineRefund() {
+        commerce.orderPaidAmount = 35499L;
+        commerce.refundedAmount = 32900;
+        commerce.lineRefundState = "FREE";
+        var body = rest.get()
+                .uri("/api/v1/customer/order-lines/multiline-eligibility")
+                .header("Authorization", "Bearer " + userToken())
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+        assertThat(MAPPER.readTree(body).get("can_apply").asBoolean()).isTrue();
+        String caseId = openCase();
+        deliver("multiline-proposal", caseId, refundProposal(caseId, 1, 2599L));
+        assertThat(storedStatus(caseId)).isEqualTo("VALIDATED");
+        assertThat(view(caseId).get("proposal").get("recomputed_amount_minor").asLong())
+                .isEqualTo(2599);
+    }
+
+    @Test
+    void customerCannotApplyToAHeldOrConsumedLineEvenIfItsOrderStillHasEnoughMoney() {
+        commerce.orderPaidAmount = 35499L;
+        for (String state : java.util.List.of("RESERVED", "CONSUMED")) {
+            commerce.lineRefundState = state;
+            var body = rest.get()
+                    .uri("/api/v1/customer/order-lines/multiline-held")
+                    .header("Authorization", "Bearer " + userToken())
+                    .exchange()
+                    .expectStatus()
+                    .isOk()
+                    .expectBody(String.class)
+                    .returnResult()
+                    .getResponseBody();
+            assertThat(MAPPER.readTree(body).get("can_apply").asBoolean()).isFalse();
+        }
+    }
+
+    @Test
     @DisplayName("a case with no pinned version cannot have its citations checked, and that is a refusal")
     void aCaseWithNoPinnedVersionCannotBeChecked() {
         String caseId = openCase();

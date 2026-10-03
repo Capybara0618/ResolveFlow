@@ -214,6 +214,20 @@ def extract_facts(view: FactsView, observation: ToolObservation) -> list[Fact]:
     if not fields:
         return []
 
+    if observation.tool_name == "get_refund_status" and any(
+        key in result for key in ("order_paid_amount", "line_refunded_amount", "line_reserved_refund_amount")
+    ):
+        # Current Commerce keeps legacy monetary members as order aggregates. Never label another
+        # line's refund as this line's. Missing current line fields contribute no positive fact.
+        fields = {
+            "line_refunded_amount_minor": "line_refunded_amount",
+            "line_reserved_amount_minor": "line_reserved_refund_amount",
+            "line_refund_state": "state",
+            "payment_order_paid_amount_minor": "order_paid_amount",
+            "order_refunded_amount_minor": "refunded_amount",
+            "order_reserved_amount_minor": "reserved_refund_amount",
+        }
+
     contributed: list[Fact] = []
     for key, path in fields.items():
         value = _scalar(result.get(path))
