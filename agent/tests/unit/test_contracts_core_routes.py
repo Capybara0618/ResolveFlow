@@ -34,7 +34,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 44, "Commerce": 12, "Agent": 7}
+EXPECTED_ROUTE_COUNTS = {"Case": 49, "Commerce": 17, "Agent": 7}
 
 
 def test_merchant_workspace_projection_fixtures_and_read_only_routes() -> None:

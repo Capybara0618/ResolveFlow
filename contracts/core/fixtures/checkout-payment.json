@@ -1,0 +1,127 @@
+{
+  "CheckoutEmptyRequest": {},
+  "CheckoutScopeCommand": {
+    "merchant_id": "M-1001",
+    "customer_id": "trusted-buyer"
+  },
+  "CheckoutPayCommand": {
+    "merchant_id": "M-1001",
+    "customer_id": "trusted-buyer",
+    "idempotency_key": "synthetic-payment"
+  },
+  "CheckoutPayment": {
+    "attempt_id": "00000000-0000-4000-8000-000000005001",
+    "draft_id": "00000000-0000-4000-8000-000000004001",
+    "status": "SUCCEEDED",
+    "total_amount": 65800,
+    "currency": "CNY",
+    "created_at": "2026-10-03T04:00:01.000001Z",
+    "finished_at": "2026-10-03T04:00:02.000001Z",
+    "order_id": "00000000-0000-4000-8000-000000006001",
+    "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+    "paid_at": "2026-10-03T04:00:02.000002Z"
+  },
+  "CheckoutPaymentLookup": {
+    "payment": {
+      "attempt_id": "00000000-0000-4000-8000-000000005001",
+      "draft_id": "00000000-0000-4000-8000-000000004001",
+      "status": "SUCCEEDED",
+      "total_amount": 65800,
+      "currency": "CNY",
+      "created_at": "2026-10-03T04:00:01.000001Z",
+      "finished_at": "2026-10-03T04:00:02.000001Z",
+      "order_id": "00000000-0000-4000-8000-000000006001",
+      "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+      "paid_at": "2026-10-03T04:00:02.000002Z"
+    }
+  },
+  "CheckoutLine": {
+    "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+    "sku": "SKU-1001-BLACK",
+    "product_name": "无线降噪耳机",
+    "variant": "黑色",
+    "asset_key": "headphones",
+    "quantity": 2,
+    "unit_amount": 32900,
+    "line_amount": 65800
+  },
+  "CheckoutPurchase": {
+    "purchase_id": "draft:00000000-0000-4000-8000-000000004001",
+    "draft_id": "00000000-0000-4000-8000-000000004001",
+    "store_id": "M-1001",
+    "store_name": "松间数码",
+    "status": "PAID",
+    "total_amount": 65800,
+    "currency": "CNY",
+    "created_at": "2026-10-03T04:00:00.000001Z",
+    "expires_at": "2026-10-03T04:15:00.000001Z",
+    "paid_at": "2026-10-03T04:00:02.000002Z",
+    "order_id": "00000000-0000-4000-8000-000000006001",
+    "lines": [
+      {
+        "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+        "sku": "SKU-1001-BLACK",
+        "product_name": "无线降噪耳机",
+        "variant": "黑色",
+        "asset_key": "headphones",
+        "quantity": 2,
+        "unit_amount": 32900,
+        "line_amount": 65800
+      }
+    ],
+    "payment": {
+      "attempt_id": "00000000-0000-4000-8000-000000005001",
+      "draft_id": "00000000-0000-4000-8000-000000004001",
+      "status": "SUCCEEDED",
+      "total_amount": 65800,
+      "currency": "CNY",
+      "created_at": "2026-10-03T04:00:01.000001Z",
+      "finished_at": "2026-10-03T04:00:02.000001Z",
+      "order_id": "00000000-0000-4000-8000-000000006001",
+      "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+      "paid_at": "2026-10-03T04:00:02.000002Z"
+    }
+  },
+  "CheckoutPurchases": {
+    "items": [
+      {
+        "purchase_id": "draft:00000000-0000-4000-8000-000000004001",
+        "draft_id": "00000000-0000-4000-8000-000000004001",
+        "store_id": "M-1001",
+        "store_name": "松间数码",
+        "status": "PAID",
+        "total_amount": 65800,
+        "currency": "CNY",
+        "created_at": "2026-10-03T04:00:00.000001Z",
+        "expires_at": "2026-10-03T04:15:00.000001Z",
+        "paid_at": "2026-10-03T04:00:02.000002Z",
+        "order_id": "00000000-0000-4000-8000-000000006001",
+        "lines": [
+          {
+            "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+            "sku": "SKU-1001-BLACK",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "asset_key": "headphones",
+            "quantity": 2,
+            "unit_amount": 32900,
+            "line_amount": 65800
+          }
+        ],
+        "payment": {
+          "attempt_id": "00000000-0000-4000-8000-000000005001",
+          "draft_id": "00000000-0000-4000-8000-000000004001",
+          "status": "SUCCEEDED",
+          "total_amount": 65800,
+          "currency": "CNY",
+          "created_at": "2026-10-03T04:00:01.000001Z",
+          "finished_at": "2026-10-03T04:00:02.000001Z",
+          "order_id": "00000000-0000-4000-8000-000000006001",
+          "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+          "paid_at": "2026-10-03T04:00:02.000002Z"
+        }
+      }
+    ],
+    "next_cursor": null
+  }
+}

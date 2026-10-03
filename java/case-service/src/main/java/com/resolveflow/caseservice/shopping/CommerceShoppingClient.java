@@ -4,6 +4,7 @@ import com.resolveflow.caseservice.order.CommerceOrderLineClient.CommerceUnavail
 import com.resolveflow.shared.error.ApiError;
 import com.resolveflow.shared.security.JwtCodec;
 import com.resolveflow.shared.security.ServiceScopes;
+import com.resolveflow.shared.shopping.CheckoutWire.*;
 import com.resolveflow.shared.shopping.ShoppingWire.*;
 import java.time.Instant;
 import java.util.List;
@@ -111,6 +112,57 @@ public class CommerceShoppingClient {
                                 .queryParam("merchant_id", merchant)
                                 .queryParam("customer_id", customer)
                                 .build(id)),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public Payment pay(String id, PayCommand command) {
+        return call(
+                rest.post().uri("/internal/v1/shop/drafts/{id}/payment", id).body(command),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public Lookup payment(String id, String merchant, String customer) {
+        return call(
+                rest.get()
+                        .uri(u -> u.path("/internal/v1/shop/drafts/{id}/payment")
+                                .queryParam("merchant_id", merchant)
+                                .queryParam("customer_id", customer)
+                                .build(id)),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public Draft cancel(String id, ScopeCommand command) {
+        return call(
+                rest.post().uri("/internal/v1/shop/drafts/{id}/cancel", id).body(command),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public Purchase purchase(String id, String merchant, String customer) {
+        return call(
+                rest.get()
+                        .uri(u -> u.path("/internal/v1/shop/purchases/{id}")
+                                .queryParam("merchant_id", merchant)
+                                .queryParam("customer_id", customer)
+                                .build(id)),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public Purchases purchases(String merchant, String customer, String status, String cursor, int limit) {
+        return call(
+                rest.get().uri(u -> {
+                    var b = u.path("/internal/v1/shop/purchases")
+                            .queryParam("merchant_id", merchant)
+                            .queryParam("customer_id", customer)
+                            .queryParam("limit", limit);
+                    if (status != null) b.queryParam("status", status);
+                    if (cursor != null) b.queryParam("cursor", cursor);
+                    return b.build();
+                }),
                 true,
                 new ParameterizedTypeReference<>() {});
     }

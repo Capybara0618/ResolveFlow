@@ -16,7 +16,7 @@
 
 新增Case `/api/v1/shop`：GET purchases（store_id/status/cursor/limit）、GET purchases/{purchase_id}、POST drafts/{draft_id}/payment（Idempotency-Key及严格空对象）、GET drafts/{draft_id}/payment、POST drafts/{draft_id}/cancel（严格空对象）。仅当前平台买家；旧客户/工作人员403，缺会话401，他人/未知404。Case从持久绑定派生merchant/customer，公共查询不能自选customer。Commerce对应内部路由需要commerce:checkout及case-service部署主体，Agent无权读取私有交易或写付款。
 
-交易列表将新草稿与原本人已支付订单合并，已发布草稿只出现一次。以创建时间和purchase_id降序按店分页，再由Case按可信店铺合并；cursor绑定当前buyer/归属/筛选，不能跨账号或换筛选复用。草稿purchase_id为draft_id，历史订单为order_id；响应不含customer或请求键。详情返回真实支付尝试、支付订单/行及原金额；历史未提供的名称/插画/单价保持null，不补造。
+交易列表将新草稿与原本人已支付订单合并，已发布草稿只出现一次。以创建时间和purchase_id降序按店分页，再由Case按可信店铺合并；cursor绑定当前buyer/归属/筛选，不能跨账号或换筛选复用。草稿purchase_id为draft:前缀加draft_id，历史订单为order:前缀加order_id（防止两表ID歧义）；响应不含customer或请求键。详情返回真实支付尝试、支付订单/行及原金额；历史未提供的名称/插画/单价保持null，不补造。
 
 第三批页面：付款页明确待付金额/截止时间及模拟付款；结果不确定时只查原尝试或重试原请求。我的订单包含待付款、结果待确认、已付款、已取消、已到期及本人历史订单，并可按店筛选、加载更多、打开详情。已付订单行可进入原售后资格/申请流程，资格仍由现有服务端计算；当前未发货与当日支付政策留第五批补齐，本批不宣称新购物已完整支持退款。
 

@@ -2157,6 +2157,329 @@ paths:
         '422':
           $ref: '#/components/responses/SemanticInvalid'
 
+  /api/v1/shop/drafts/{draft_id}/payment:
+    post:
+      operationId: caseCheckoutOperation1
+      summary: CheckoutPayment
+      description: 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。
+      parameters:
+      - name: draft_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPayment'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutEmptyRequest'
+    get:
+      operationId: caseCheckoutOperation2
+      summary: CheckoutPaymentLookup
+      description: 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。
+      parameters:
+      - name: draft_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPaymentLookup'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/shop/drafts/{draft_id}/cancel:
+    post:
+      operationId: caseCheckoutOperation3
+      summary: ShopDraft
+      description: 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。
+      parameters:
+      - name: draft_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopDraft'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutEmptyRequest'
+  /api/v1/shop/purchases:
+    get:
+      operationId: caseCheckoutOperation4
+      summary: CheckoutPurchases
+      description: 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。
+      parameters:
+      - name: store_id
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - WAITING_PAYMENT
+          - PAYMENT_PENDING
+          - PAID
+          - CANCELLED
+          - EXPIRED
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 16384
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 48
+          default: 24
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPurchases'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/v1/shop/purchases/{purchase_id}:
+    get:
+      operationId: caseCheckoutOperation5
+      summary: CheckoutPurchase
+      description: 模拟付款/本人交易，见docs/simulated-checkout-payment.md；当前平台买家，归属仅从持久绑定派生。
+      parameters:
+      - name: purchase_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+      responses:
+        '200':
+          description: Scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutPurchase'
+        '400':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: 明确拒绝或暂不可用；UNKNOWN不换尝试
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
 components:
   securitySchemes:
     bearerAuth:
@@ -2385,6 +2708,322 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    CheckoutEmptyRequest:
+      type: object
+      additionalProperties: false
+      required: []
+      properties: {}
+    CheckoutScopeCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - customer_id
+      properties:
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        customer_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+    CheckoutPayCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - customer_id
+      - idempotency_key
+      properties:
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        customer_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        idempotency_key:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+    CheckoutPayment:
+      type: object
+      additionalProperties: false
+      required:
+      - attempt_id
+      - draft_id
+      - status
+      - total_amount
+      - currency
+      - created_at
+      - finished_at
+      - order_id
+      - line_id
+      - paid_at
+      properties:
+        attempt_id:
+          type: string
+          format: uuid
+        draft_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - UNKNOWN
+          - SUCCEEDED
+          - FAILED
+        total_amount:
+          type: integer
+          minimum: 1
+          maximum: 10000000000
+        currency:
+          type: string
+          const: CNY
+        created_at:
+          type: string
+          format: date-time
+        finished_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+        order_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        line_id:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 64
+          - type: 'null'
+        paid_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+      allOf:
+      - if:
+          properties:
+            status:
+              const: SUCCEEDED
+        then:
+          properties:
+            order_id:
+              type: string
+              format: uuid
+            line_id:
+              type: string
+              minLength: 1
+              maxLength: 64
+            paid_at:
+              type: string
+              format: date-time
+            finished_at:
+              type: string
+              format: date-time
+        else:
+          properties:
+            order_id:
+              type: 'null'
+            line_id:
+              type: 'null'
+            paid_at:
+              type: 'null'
+      - if:
+          properties:
+            status:
+              const: UNKNOWN
+        then:
+          properties:
+            finished_at:
+              type: 'null'
+        else:
+          properties:
+            finished_at:
+              type: string
+              format: date-time
+    CheckoutPaymentLookup:
+      type: object
+      additionalProperties: false
+      required:
+      - payment
+      properties:
+        payment:
+          anyOf:
+          - $ref: '#/components/schemas/CheckoutPayment'
+          - type: 'null'
+    CheckoutLine:
+      type: object
+      additionalProperties: false
+      required:
+      - line_id
+      - sku
+      - product_name
+      - variant
+      - asset_key
+      - quantity
+      - unit_amount
+      - line_amount
+      properties:
+        line_id:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 64
+          - type: 'null'
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 64
+        product_name:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 200
+          - type: 'null'
+        variant:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 200
+          - type: 'null'
+        asset_key:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 32
+          - type: 'null'
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        unit_amount:
+          anyOf:
+          - type: integer
+            minimum: 1
+            maximum: 10000000000
+          - type: 'null'
+        line_amount:
+          type: integer
+          minimum: 0
+          maximum: 10000000000
+    CheckoutPurchase:
+      type: object
+      additionalProperties: false
+      required:
+      - purchase_id
+      - draft_id
+      - store_id
+      - store_name
+      - status
+      - total_amount
+      - currency
+      - created_at
+      - expires_at
+      - paid_at
+      - order_id
+      - lines
+      - payment
+      properties:
+        purchase_id:
+          type: string
+          pattern: ^(draft|order):[0-9a-fA-F-]{36}$
+        draft_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        store_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        store_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        status:
+          type: string
+          enum:
+          - WAITING_PAYMENT
+          - PAYMENT_PENDING
+          - PAID
+          - CANCELLED
+          - EXPIRED
+        total_amount:
+          type: integer
+          minimum: 0
+          maximum: 10000000000
+        currency:
+          type: string
+          const: CNY
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+        paid_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+        order_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        lines:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CheckoutLine'
+        payment:
+          anyOf:
+          - $ref: '#/components/schemas/CheckoutPayment'
+          - type: 'null'
+      allOf:
+      - if:
+          properties:
+            status:
+              const: PAID
+        then:
+          properties:
+            order_id:
+              type: string
+              format: uuid
+            paid_at:
+              type: string
+              format: date-time
+        else:
+          properties:
+            order_id:
+              type: 'null'
+            paid_at:
+              type: 'null'
+    CheckoutPurchases:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - next_cursor
+      properties:
+        items:
+          type: array
+          maxItems: 48
+          items:
+            $ref: '#/components/schemas/CheckoutPurchase'
+        next_cursor:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 16384
+          - type: 'null'
     ShopStore:
       type: object
       additionalProperties: false
@@ -2653,6 +3292,9 @@ components:
         status:
           enum:
           - WAITING_PAYMENT
+          - PAYMENT_PENDING
+          - PAID
+          - CANCELLED
           - EXPIRED
         created_at:
           type: string

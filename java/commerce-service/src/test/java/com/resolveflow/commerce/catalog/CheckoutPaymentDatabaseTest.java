@@ -26,6 +26,9 @@ class CheckoutPaymentDatabaseTest extends CommerceDatabaseTest {
     @Autowired
     JdbcTemplate jdbc;
 
+    @Autowired
+    PurchaseReads purchases;
+
     @MockitoSpyBean
     SimulatedCheckoutProvider provider;
 
@@ -243,6 +246,37 @@ class CheckoutPaymentDatabaseTest extends CommerceDatabaseTest {
                 .isInstanceOf(ShoppingService.Refused.class);
         assertThat(shop.read(d.draftId(), MERCHANT, CUSTOMER).status()).isEqualTo("PAYMENT_PENDING");
         assertThat(published(d.draftId())).isZero();
+    }
+
+    @Test
+    void personalPurchasesMergePaidAndUnpaidWithoutDuplicatingPublishedOrders() {
+        var paid = draft();
+        var unpaid = draft();
+        var payment = payments.pay(paid.draftId(), pay("list-payment"));
+        var page = purchases.list(MERCHANT, CUSTOMER, null, null, 1);
+        assertThat(page.items()).hasSize(1);
+        assertThat(page.nextCursor()).isNotNull();
+        var second = purchases.list(MERCHANT, CUSTOMER, null, page.nextCursor(), 1);
+        assertThat(second.items()).hasSize(1);
+        assertThat(second.nextCursor()).isNull();
+        assertThat(java.util.List.of(
+                        page.items().getFirst().purchaseId(),
+                        second.items().getFirst().purchaseId()))
+                .containsExactlyInAnyOrder("draft:" + paid.draftId(), "draft:" + unpaid.draftId());
+        var detail = purchases.read("draft:" + paid.draftId(), MERCHANT, CUSTOMER);
+        assertThat(detail.orderId()).isEqualTo(payment.orderId());
+        assertThat(detail.lines().getFirst().lineId()).isEqualTo(payment.lineId());
+        assertThat(purchases.list(MERCHANT, CUSTOMER, "PAID", null, 24).items()).hasSize(1);
+        assertThatThrownBy(() -> purchases.read("order:" + payment.orderId(), MERCHANT, CUSTOMER))
+                .isInstanceOf(ShoppingService.Refused.class);
+        assertThatThrownBy(() -> purchases.read("draft:" + paid.draftId(), MERCHANT, "OTHER"))
+                .isInstanceOf(ShoppingService.Refused.class);
+        var legacy = purchases.read("order:00000000-0000-4000-8000-000000003001", MERCHANT, "C-B3001-M1001");
+        assertThat(legacy.draftId()).isNull();
+        assertThat(legacy.payment()).isNull();
+        assertThat(legacy.lines().getFirst().unitAmount()).isNull();
+        assertThat(legacy.lines().getFirst().assetKey()).isNull();
+        assertThat(legacy.totalAmount()).isEqualTo(32900);
     }
 
     @Test

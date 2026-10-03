@@ -1,8 +1,8 @@
-# 当前执行说明：接续第三批模拟支付与本人订单
+# 当前执行说明：第三批付款网页与集中验收
 
-用户已批准按多商家目标图实施并要求继续。第二批已集中完成，正式规格[商品与草稿](../docs/catalog-checkout.md)，验证[第二批报告](../reports/catalog-checkout.md)；下一步[六批对应](../docs/marketplace-implementation.md)第三批M07–M09：先补支付/取消/到期/未知结果与原子发布专题合同及失败回归，再接模拟支付和本人订单中的草稿/已付展示。复用当前平台买家/目录/草稿/原售后，不重做第一二批，不启动购物车/多行/履约政策。checkout_draft仍只有WAITING_PAYMENT，过期是读取投影；orders/line的paid_at不可伪造或改可空。付款成功必须同一Commerce事务发布订单/行/账本/FREE槽一次；原退款UNKNOWN保持原operation与预留。
+第二批已收口并推送1a7d87d/e7ecf82；第三批领域d924627已推送，当前[付款协议](../docs/simulated-checkout-payment.md)和[报告](../reports/checkout-payment.md)是实施入口，实际进度只看todo顶部。领域与5+5买家/内部路由、共享wire/fixture及新旧本人交易投影已验证；当前接未提交BuyerOrders/Marketplace与原售后直接入口，集中浏览器验证后再收口。不要重做前两批或继续旧任务。V11追加，草稿持久WAITING_PAYMENT/PAYMENT_PENDING/PAID/CANCELLED，EXPIRED只投影；UNKNOWN不能取消/换key，新GET只查原收据并原子结算；付款前中断可原POST同key继续。只有成功同时发布订单/行/账本/FREE槽；单SKU/全部数量，不造物流、不改paid_at可空。
 
-接手只读核对Git/当前ledger及demo.ps1 status。本轮后端已普通push 1a7d87d，页面/报告收尾后停止本批写入；用户明确继续则同一执行者接第三批。demo-buyer/demo-pass-4001可信两店归属；真实两份新草稿金额65800/12900，原34工单/36账本/92run/14账号/36订单逐条不变。不能重置样本/吞掉QUEUED run，Agent只读模式不收费；5174业务，5190静态图册。第三批未知付款只查原尝试，不能为截图启动Live/消耗整队列。历史工程/verify/Commerce退款测试/未定稿图片与敏感日志保留且不夹带。
+下一步先只读核对Git及demo.ps1 status；同一执行者继续保留数据stop/NoBrowser重启并在独立新样本做真实付款/取消与本人隔离，Agent只读、模型0，不为截图调用Live或消费旧QUEUED。原34工单/36账本/92run/14账号/36订单及旧两草稿须保留；新付款会新增订单/账本，按原ID逐条核验而非要求总数不变。5174业务、5190静态图册。未发货/当前付款政策待第五批，不能宣称新购物退款已经闭环；第四批购物车/多行资格仍未开始。历史工程/verify/Commerce退款测试/未定稿图/日志不夹带。业务切换先确认原实施者停止写入；无需逐按钮请用户验收。
 
 下列图册设计阶段及旧售后说明仅作历史，不再阻止已授权的上游实施。
 

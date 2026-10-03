@@ -31,6 +31,16 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/shop/quote | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
 | Case | POST /api/v1/shop/drafts | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
 | Case | GET /api/v1/shop/drafts/{draft_id} | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
+| Case | POST /api/v1/shop/drafts/{draft_id}/payment | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Case | GET /api/v1/shop/drafts/{draft_id}/payment | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Case | POST /api/v1/shop/drafts/{draft_id}/cancel | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Case | GET /api/v1/shop/purchases | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Case | GET /api/v1/shop/purchases/{purchase_id} | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Commerce | POST /internal/v1/shop/drafts/{draft_id}/payment | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Commerce | GET /internal/v1/shop/drafts/{draft_id}/payment | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Commerce | POST /internal/v1/shop/drafts/{draft_id}/cancel | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Commerce | GET /internal/v1/shop/purchases | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Commerce | GET /internal/v1/shop/purchases/{purchase_id} | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
 | Commerce | GET /internal/v1/shop/stores | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
 | Commerce | GET /internal/v1/shop/stores/{store_id} | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
 | Commerce | GET /internal/v1/shop/products | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |

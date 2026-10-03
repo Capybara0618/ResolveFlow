@@ -1,5 +1,9 @@
 # 当前改进进度
 
+## 当前快照（2026-10-03，第三批付款接口子步）
+
+- 领域d924627已普通推送；付款/查询原尝试/取消、跨店本人新旧交易列表/详情已接线，Case49/Commerce17/Agent7核心路由，共享wire/OpenAPI/fixture与strict权限同步。真实MySQL Java9类51 passed/0 skipped、协议四文件108 passed、定点Spotless/diff通过；分页绑buyer/归属/筛选、店故障拒绝整页、发布去重与旧数据缺失null，失败与未运行见[第三批报告](../reports/checkout-payment.md)。本子步未重启/修改演示库，无模型；同批网页已有付款/恢复/状态/订单详情与原售后直接入口，前端126/build通过但尚未集中浏览器验收，未提交页面继续收口。收尾精确commit/正常push后保留数据重启验证第三批，不启第四五批，不夹带历史改动。
+
 ## 当前快照（2026-10-03，第三批付款领域子步）
 
 - 第二批页面与集中报告已普通推送e7ecf82（后端1a7d87d）。第三批正式[支付协议](../docs/simulated-checkout-payment.md)及Commerce领域子步完成：追加V11、三个短事务/本地持久收据、原尝试UNKNOWN恢复、付款取消竞争与成功原子订单/行/账本/FREE槽；无新HTTP/交易列表/页面，整批未完成。实库Java33 passed/0 skipped、定点Spotless/diff通过；RED、时间类型与测试夹具污染修复、未运行见[报告](../reports/checkout-payment.md)。未重启/修改演示库，无收费模型。收尾精确commit/push后继续Case/Commerce五条新入口、共享协议/fixture、本人跨店交易投影及正式网页，不重做前两批、不启购物车/多行/履约，不夹带历史改动。

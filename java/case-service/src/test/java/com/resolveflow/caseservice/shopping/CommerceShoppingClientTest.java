@@ -6,6 +6,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import com.resolveflow.caseservice.order.CommerceOrderLineClient.CommerceUnavailableException;
 import com.resolveflow.shared.security.JwtCodec;
+import com.resolveflow.shared.shopping.CheckoutWire.*;
 import com.resolveflow.shared.shopping.ShoppingWire.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +38,35 @@ class CommerceShoppingClientTest {
         return json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/shopping.json")))
                 .get(name)
                 .toString();
+    }
+
+    @Test
+    void paymentAndPersonalPurchaseUseCheckoutScopeAndSharedFixtureRoundTrips() throws Exception {
+        var all = json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/checkout-payment.json")));
+        for (String name : new String[] {"CheckoutPayment", "CheckoutPurchase", "CheckoutPaymentLookup"}) {
+            String uri = name.equals("CheckoutPayment")
+                    ? "/drafts/owned/payment"
+                    : name.equals("CheckoutPurchase")
+                            ? "/purchases/draft%3A00000000-0000-4000-8000-000000004001?merchant_id=M-1001&customer_id=trusted"
+                            : "/drafts/owned/payment?merchant_id=M-1001&customer_id=trusted";
+            server.expect(requestTo("http://commerce.test/internal/v1/shop" + uri))
+                    .andExpect(req -> {
+                        var identity = codec.verifyAsService(
+                                req.getHeaders().getFirst("Authorization").substring(7), Instant.now());
+                        assertThat(identity.subject()).isEqualTo("case-service");
+                        assertThat(identity.scopes()).containsExactly("commerce:checkout");
+                    })
+                    .andRespond(withSuccess(all.get(name).toString(), MediaType.APPLICATION_JSON));
+        }
+        assertThat(json.readTree(
+                        json.writeValueAsString(client.pay("owned", new PayCommand("M-1001", "trusted", "original")))))
+                .isEqualTo(all.get("CheckoutPayment"));
+        assertThat(json.readTree(json.writeValueAsString(
+                        client.purchase("draft:00000000-0000-4000-8000-000000004001", "M-1001", "trusted"))))
+                .isEqualTo(all.get("CheckoutPurchase"));
+        assertThat(json.readTree(json.writeValueAsString(client.payment("owned", "M-1001", "trusted"))))
+                .isEqualTo(all.get("CheckoutPaymentLookup"));
+        server.verify();
     }
 
     @Test

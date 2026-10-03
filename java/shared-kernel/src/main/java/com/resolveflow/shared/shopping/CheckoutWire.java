@@ -10,6 +10,8 @@ public final class CheckoutWire {
 
     public record EmptyRequest() {}
 
+    public record Lookup(Payment payment) {}
+
     public record ScopeCommand(
             @JsonProperty("merchant_id") String merchantId,
             @JsonProperty("customer_id") String customerId) {}

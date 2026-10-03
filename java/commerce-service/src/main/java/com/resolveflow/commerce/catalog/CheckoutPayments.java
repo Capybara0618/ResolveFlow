@@ -156,6 +156,11 @@ public class CheckoutPayments {
         return receipt == null ? p : settle(id, merchant, customer, receipt);
     }
 
+    public Payment snapshot(String id, String merchant, String customer) {
+        draft(id, merchant, customer, false);
+        return latest(id);
+    }
+
     private Payment settle(String id, String merchant, String customer, SimulatedCheckoutProvider.Receipt receipt) {
         return tx.execute(status -> {
             var d = draft(id, merchant, customer, true);

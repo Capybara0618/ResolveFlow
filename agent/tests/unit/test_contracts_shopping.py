@@ -29,7 +29,7 @@ def test_money_scope_and_draft_state_cannot_be_forged() -> None:
     for field in ["paid_at", "customer_id", "idempotency_key"]:
         assert not draft.accepts({**FIXTURES["ShopDraft"], field: "private"})
     invalid = copy.deepcopy(FIXTURES["ShopDraft"])
-    invalid["status"] = "PAID"
+    invalid["status"] = "SHIPPED"
     assert not draft.accepts(invalid)
 
 
