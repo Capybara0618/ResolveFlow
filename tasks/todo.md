@@ -1,5 +1,11 @@
 # 当前改进进度
 
+## 当前快照（2026-10-03，正式启动入口完成）
+
+- 用户要求一条正式命令启动全部功能。新增根目录start.ps1/stop.ps1/status.ps1，共享project.ps1/project_runtime.py复用原归属守卫和固定资源。默认真实DeepSeek Agent调查与RAG，自动读用户密钥，缺密钥失败；基础数据/三角色/精确政策与全部组件就绪门禁，拒绝静默只读或自动清库。旧demo仅维护/合成验收/显式重建，容器/卷/端口不迁移。说明见[本机运行](../docs/local-runtime.md)。
+- 集中三个Python文件最终45 passed/0 skipped、Ruff、两版PowerShell四脚本语法和diff通过；实际stop0→停止status1→默认构建冷start0→就绪status0→无参数start自动浏览器/服务复用0→最终全部组件门禁start0。九项全部健康，五进程重复启动PID不变，当前agent-live/网页5174/三Java/数据库和消息服务运行。[报告](../reports/project-startup.md)/[机器证据](../reports/project-startup/verification.json)记录命令、预期非零和未运行。
+- 46业务表hash/计数、14账号身份启用、3商家和原3笔合成退款保持；Agent仍3COMPLETED/12历史mock模型/9工具/6回调，新模型调用0。未重跑退款/造样本/清库或收费评测，用户后续申请会自主真实调查。原备份20261003-104641-179070与20261003-120206-290778保持；共享环境和原工程/verify/Commerce测试/草图/历史日志不夹带。精确提交正常push并确认远端后停止写入，下一需求由用户主导，不重做旧计划。
+
 ## 当前快照（2026-10-03，商家角色合并完成）
 
 - 按用户批准[三角色规格](../docs/merchant-role-merge.md)完成：10买家buyer01–10、3商家admin01–03、1平台platform，共14启用账号，密码123456；取消staff01–06。同一商家账号维护商品/交易/售后/政策，新申请创建事务内自动归属、AUTO_ASSIGN/SYSTEM与协作版本1。前后端取消人员/领取/转交/释放入口，退款人工审批、身份/负责人/版本及商家隔离仍保护；旧多人协议仅兼容。

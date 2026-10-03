@@ -8,15 +8,15 @@
 
 ```powershell
 cd 'E:\Code\Agent+Backend'
-.\demo.ps1 -Live
+.\start.ps1
 ```
 
-浏览器打开 http://127.0.0.1:5174 。商城入口为 http://127.0.0.1:5174/#/shop 。`-Live`沿用用户环境变量中的DeepSeek密钥，启动新申请的真实调查，会产生模型用量；商城、模拟付款和发货本身不需要模型。只体验购物和管理可用`.\demo.ps1`，此时新调查排队，不能期待自动出现新建议。
+浏览器打开 http://127.0.0.1:5174 。商城入口为 http://127.0.0.1:5174/#/shop 。启动默认读取用户环境变量 `Deepseek_API_KEY`，包括新申请的真实 Agent 调查和政策检索，不需要选择运行模式；缺密钥明确失败。新调查会产生模型用量，商城、模拟付款和发货本身不需要模型。正式启动/停止/状态与首次配置见[本机运行说明](local-runtime.md)。
 
 ```powershell
-.\demo.ps1 status
-.\demo.ps1 stop
-.\demo.ps1 -Live -SkipBuild   # Java源码未变且已构建时
+.\status.ps1
+.\stop.ps1
+.\start.ps1 -SkipBuild   # Java源码未变且已构建时
 ```
 
 首次构建较慢。停止后再启动保留账号、商品、购物车、订单和工单，不自动重复初始化。不同角色各开一个浏览器标签，标签会话独立；刷新后重新登录。
@@ -61,7 +61,7 @@ cd 'E:\Code\Agent+Backend'
 .\demo.ps1 reset -ClearDemoData
 ```
 
-命令停止所属应用，检查固定隔离项目，备份后重建基础环境并以不调用收费模型的模式启动。随后需要真实调查时先`.\demo.ps1 stop`，再`.\demo.ps1 -Live -SkipBuild`。
+命令停止所属应用，检查固定隔离项目，备份后重建基础环境并以不调用收费模型的模式启动。重建属于维护操作；完成后先`.\stop.ps1`，再`.\start.ps1`，恢复全部功能。
 
 备份保存在`tmp/reviewer-demo/backups/<时间>/`，含数据库、旧消息和运行资料、校验清单及恢复说明；不提交Git。正常`start`不清空。`verify`在新基础环境用于核验**初始空白基准**，手动产生交易后不再满足空白条件，日常查看服务用`status`。
 

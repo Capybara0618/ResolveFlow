@@ -1,0 +1,48 @@
+{
+  "observed_at": "2026-10-03T12:50:21.932847+00:00",
+  "checks": {
+    "tables": true,
+    "account_identities": true,
+    "merchant_ids": true,
+    "agent_counts": true,
+    "run_status": true,
+    "repeat_start_reuses_processes": true
+  },
+  "preserved_business_tables": 46,
+  "enabled_accounts": 14,
+  "merchant_count": 3,
+  "agent_counts_before": {
+    "agent_run": "3",
+    "agent_model_call": "12",
+    "agent_tool_call": "9",
+    "agent_callback_outbox": "6"
+  },
+  "agent_counts_after": {
+    "agent_run": "3",
+    "agent_model_call": "12",
+    "agent_tool_call": "9",
+    "agent_callback_outbox": "6"
+  },
+  "run_status": "COMPLETED:3",
+  "owned_process_names": [
+    "case-service",
+    "commerce-service",
+    "gateway",
+    "agent-live",
+    "frontend"
+  ],
+  "live_model_requests_added": 0,
+  "lifecycle_exit_codes": {
+    "stop": 0,
+    "status_after_stop": 1,
+    "start_cold_default_build": 0,
+    "status_ready": 0,
+    "start_repeat": 0,
+    "start_default_browser": 0
+  },
+  "unit_tests": 45,
+  "powershell_parse": [
+    "PowerShell 7.6.5",
+    "Windows PowerShell 5.1"
+  ]
+}
