@@ -161,7 +161,10 @@ public class ShoppingService {
                         rs.getLong("unit_amount"),
                         rs.getLong("total_amount"),
                         "CNY",
-                        Instant.now(clock).isBefore(expires) ? "WAITING_PAYMENT" : "EXPIRED",
+                        rs.getString("status").equals("WAITING_PAYMENT")
+                                        && !Instant.now(clock).isBefore(expires)
+                                ? "EXPIRED"
+                                : rs.getString("status"),
                         created,
                         expires),
                 rs.getLong("sku_version"));
@@ -221,8 +224,8 @@ public class ShoppingService {
         Instant now = Instant.now(clock).truncatedTo(ChronoUnit.MICROS), expires = now.plusSeconds(900);
         jdbc.update(
                 """
-            INSERT INTO checkout_draft(draft_id,merchant_id,customer_id,idempotency_key,product_id,product_name,store_name,asset_key,sku_id,variant,quantity,unit_amount,total_amount,sku_version,created_at,expires_at)
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE draft_id=draft_id
+            INSERT INTO checkout_draft(draft_id,merchant_id,customer_id,idempotency_key,product_id,product_name,store_name,asset_key,sku_id,variant,quantity,unit_amount,total_amount,sku_version,created_at,expires_at,category)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE draft_id=draft_id
             """,
                 UUID.randomUUID().toString(),
                 command.merchantId(),
@@ -239,7 +242,8 @@ public class ShoppingService {
                 q.totalAmount(),
                 q.sku().version(),
                 Timestamp.from(now),
-                Timestamp.from(expires));
+                Timestamp.from(expires),
+                q.product().category());
         var finalRow = jdbc.query(
                         "SELECT * FROM checkout_draft WHERE merchant_id=? AND customer_id=? AND idempotency_key=? FOR UPDATE",
                         (rs, n) -> saved(rs),
