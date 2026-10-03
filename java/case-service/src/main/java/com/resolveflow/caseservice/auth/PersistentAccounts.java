@@ -34,13 +34,15 @@ public class PersistentAccounts {
             String merchantName,
             String passwordHash,
             boolean enabled,
-            long identityVersion) {
+            long identityVersion,
+            Boolean singleOperator) {
         AuthenticatedPrincipal principal() {
             return new AuthenticatedPrincipal(username, merchantId, role, customerId, buyerId);
         }
 
         Profile profile() {
-            return new Profile(username, merchantId, role, customerId, displayName, merchantName, buyerId);
+            return new Profile(
+                    username, merchantId, role, customerId, displayName, merchantName, buyerId, singleOperator);
         }
     }
 
@@ -52,14 +54,16 @@ public class PersistentAccounts {
             @JsonProperty("customer_id") String customerId,
             @JsonProperty("display_name") String displayName,
             @JsonProperty("merchant_name") String merchantName,
-            @JsonProperty("buyer_id") String buyerId) {}
+            @JsonProperty("buyer_id") String buyerId,
+            @JsonProperty("single_operator") Boolean singleOperator) {}
 
     private Account find(String username) {
         var rows = jdbc.query(
                 """
                 SELECT a.username,a.merchant_id,a.role,a.customer_id,a.buyer_id,a.display_name,a.password_hash,
-                       a.identity_version,(a.enabled AND (a.role='PLATFORM_ADMIN' OR a.buyer_id IS NOT NULL OR m.enabled)) AS enabled,
-                       m.display_name AS merchant_name
+                       a.identity_version,(a.enabled AND (a.role='PLATFORM_ADMIN' OR a.buyer_id IS NOT NULL OR m.enabled)
+                       AND (a.role IN ('CUSTOMER','MERCHANT_ADMIN','PLATFORM_ADMIN') OR NOT m.single_operator)) AS enabled,
+                       m.display_name AS merchant_name, IF(a.role='MERCHANT_ADMIN' AND m.single_operator,TRUE,NULL) AS single_operator
                   FROM identity_account a LEFT JOIN identity_merchant m ON m.merchant_id=a.merchant_id
                  WHERE a.username=?
                 """,
@@ -73,7 +77,8 @@ public class PersistentAccounts {
                         rs.getString("merchant_name"),
                         rs.getString("password_hash"),
                         rs.getBoolean("enabled"),
-                        rs.getLong("identity_version")),
+                        rs.getLong("identity_version"),
+                        rs.getObject("single_operator") == null ? null : rs.getBoolean("single_operator")),
                 username);
         return rows.isEmpty() ? null : rows.getFirst();
     }
@@ -92,7 +97,8 @@ public class PersistentAccounts {
                 account.customerId(),
                 account.displayName(),
                 account.merchantName(),
-                account.buyerId());
+                account.buyerId(),
+                account.singleOperator());
     }
 
     public Profile requireCurrent(AuthenticatedPrincipal principal, long identityVersion) {

@@ -5007,6 +5007,11 @@ components:
           properties:
             role: {enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
           not: {required: [buyer_id]}
+      allOf:
+        - if: {required: [single_operator]}
+          then:
+            properties:
+              role: {const: MERCHANT_ADMIN}
       properties:
         access_token:
           type: string
@@ -5021,7 +5026,8 @@ components:
         role:
           type: string
           enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR, PLATFORM_ADMIN]
-          description: Persisted account role; merchant admins have read access until explicit takeover is implemented.
+          description: Persisted role; single-operator merchants own new cases automatically and decide human approvals.
+        single_operator: {type: boolean, const: true}
         buyer_id: {type: string, minLength: 1, maxLength: 64}
         merchant_id:
           type: string
@@ -5061,8 +5067,14 @@ components:
           properties:
             role: {enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
           not: {required: [buyer_id]}
+      allOf:
+        - if: {required: [single_operator]}
+          then:
+            properties:
+              role: {const: MERCHANT_ADMIN}
       properties:
         username: {type: string, minLength: 1, maxLength: 120}
+        single_operator: {type: boolean, const: true}
         buyer_id: {type: string, minLength: 1, maxLength: 64}
         merchant_id: {type: string, minLength: 1}
         role: {type: string, enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR, PLATFORM_ADMIN]}
@@ -6560,7 +6572,7 @@ components:
           minimum: 1
         action:
           type: string
-          enum: [CLAIM, RELEASE, TRANSFER, TAKEOVER]
+          enum: [CLAIM, RELEASE, TRANSFER, TAKEOVER, AUTO_ASSIGN]
         actor_username:
           type: string
         from_username:

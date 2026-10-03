@@ -133,8 +133,11 @@ public class StaffAdminService {
 
     private Account lockCurrent(Session session, String target) {
         var merchants = jdbc.query(
-                "SELECT enabled FROM identity_merchant WHERE merchant_id=? FOR UPDATE",
-                (rs, n) -> rs.getBoolean(1),
+                "SELECT enabled,single_operator FROM identity_merchant WHERE merchant_id=? FOR UPDATE",
+                (rs, n) -> {
+                    if (rs.getBoolean(2)) throw new CaseService.ForbiddenScopeException("本店使用统一商家账号，不提供人员变更");
+                    return rs.getBoolean(1);
+                },
                 session.principal().merchantId());
         if (merchants.isEmpty() || !merchants.getFirst()) throw inactive();
         Account selected = target == null ? null : visible(session, target);

@@ -34,5 +34,22 @@
         "version": 1
       }
     ]
+  },
+  "SingleMerchantProfile": {
+    "username": "admin01",
+    "role": "MERCHANT_ADMIN",
+    "display_name": "商家",
+    "merchant_id": "M-1001",
+    "merchant_name": "数码商家",
+    "single_operator": true
+  },
+  "AutomaticAssignment": {
+    "version": 1,
+    "action": "AUTO_ASSIGN",
+    "actor_username": "SYSTEM",
+    "from_username": null,
+    "to_username": "admin01",
+    "reason": "新申请自动归属本店商家",
+    "occurred_at": "2026-10-03T10:00:00Z"
   }
 }

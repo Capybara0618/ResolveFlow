@@ -4,7 +4,7 @@ import { ApiError, coreApi, type LoginResponse, type MerchantOverview, type Revi
 import Icon from './ReviewIcon.vue'
 
 const props = defineProps<{ account: LoginResponse }>()
-const emit = defineEmits<{ expired: []; queue: [view: string, scope: ReviewScope]; open: [id: string]; people: [] }>()
+const emit = defineEmits<{ expired: []; queue: [view: string, scope: ReviewScope]; open: [id: string]; people: []; navigate: [page: 'products' | 'orders' | 'policies'] }>()
 const data = ref<MerchantOverview | null>(null), loading = ref(false), error = ref('')
 let alive = true, generation = 0, timer: ReturnType<typeof setInterval> | undefined
 const reasons: Record<string, string> = { UNCLAIMED: '待领取', RESULT_UNKNOWN: '退款结果待确认', OWNER_UNAVAILABLE: '负责人不可用', INVESTIGATION_FAILED: '调查失败待人工处理' }
@@ -30,7 +30,18 @@ onBeforeUnmount(() => { alive = false; ++generation; clearInterval(timer) })
 </script>
 
 <template>
-  <main class="admin-workspace" aria-label="商家工单概览">
+  <main v-if="account.single_operator" class="admin-workspace" aria-label="商家工作台">
+    <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name }}</span><h1>商家工作台</h1><p>在这里管理商品、订单和售后。</p></div><button type="button" class="secondary-button" :disabled="loading" @click="load">刷新概览</button></header>
+    <p v-if="error" class="message error" role="alert">{{ error }}</p>
+    <p v-if="loading && !data" role="status">正在读取本店售后…</p>
+    <div class="overview-metrics">
+      <button class="overview-metric" :disabled="!data" @click="emit('queue','ALL','PUBLIC')"><span class="metric-icon"><Icon name="queue" :size="22" /></span><span><small>未结束售后</small><strong>{{ data?.mine ?? '—' }}</strong><span>新申请自动归属本店商家</span></span><Icon name="chevron" /></button>
+      <button class="overview-metric attention-metric" :disabled="!data" @click="focusCoordination"><span class="metric-icon"><Icon name="shield" :size="22" /></span><span><small>需要关注</small><strong>{{ data?.attention ?? '—' }}</strong><span>退款结果或调查存在异常</span></span><Icon name="chevron" /></button>
+    </div>
+    <section class="panel admin-card"><h2>日常经营</h2><div class="foundation-actions"><button class="secondary-button" @click="emit('navigate','products')">管理商品</button><button class="secondary-button" @click="emit('navigate','orders')">处理订单</button><button class="secondary-button" @click="emit('queue','ALL','PUBLIC')">处理售后</button><button class="secondary-button" @click="emit('navigate','policies')">查看售后政策</button></div></section>
+    <section id="coordination-list" class="panel admin-card"><h2>售后关注事项</h2><article v-for="item in data?.items ?? []" :key="item.case_id" class="merchant-attention"><strong>{{ item.description || '售后申请' }}</strong><p>{{ item.reasons.map(r => r === 'OWNER_UNAVAILABLE' || r === 'UNCLAIMED' ? '商家处理身份需核对' : reasons[r]).join(' · ') }}</p><button class="secondary-button" @click="emit('open',item.case_id)">查看售后</button></article><p v-if="data && data.items.length === 0">暂无异常，进入售后工单查看申请进展。</p></section>
+  </main>
+  <main v-else class="admin-workspace" aria-label="商家工单概览">
     <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name ?? account.merchant_id }} · 商家管理</span><h1>商家工单概览</h1><p>先关注未领取和异常工单，再进入详情核对与协调。</p></div><button type="button" class="secondary-button" :disabled="loading" @click="load"><Icon name="clock" />{{ loading ? '更新中…' : '刷新概览' }}</button></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p>
     <p v-if="loading && !data" class="admin-loading" role="status">正在读取本商家工单…</p>

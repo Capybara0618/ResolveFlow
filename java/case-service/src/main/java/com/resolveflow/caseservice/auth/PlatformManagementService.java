@@ -264,7 +264,7 @@ public class PlatformManagementService {
             if (!jdbc.queryForList("SELECT username FROM identity_account WHERE username=?", String.class, r.username())
                     .isEmpty()) throw conflict();
             jdbc.update(
-                    "INSERT INTO identity_merchant(merchant_id,display_name,description,enabled,desired_enabled,sync_state) VALUES (?,?,?,FALSE,TRUE,'PENDING')",
+                    "INSERT INTO identity_merchant(merchant_id,display_name,description,enabled,desired_enabled,sync_state,single_operator) VALUES (?,?,?,FALSE,TRUE,'PENDING',TRUE)",
                     r.merchant_id(),
                     r.name().trim(),
                     r.description().trim());

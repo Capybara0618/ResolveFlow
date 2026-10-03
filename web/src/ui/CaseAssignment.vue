@@ -18,7 +18,7 @@ let active = true
 let generation = 0
 let feedbackCase = props.current?.case_id
 let feedbackToken = props.token
-const labels: Record<CollaborationAction, string> = { CLAIM: '领取工单', RELEASE: '释放工单', TRANSFER: '转交工单', TAKEOVER: '管理员接管' }
+const labels: Record<CollaborationAction | 'AUTO_ASSIGN', string> = { CLAIM: '领取工单', RELEASE: '释放工单', TRANSFER: '转交工单', TAKEOVER: '管理员接管', AUTO_ASSIGN: '自动归属商家' }
 const candidates = computed(() => staff.value.filter(item => item.username !== captured.value?.owner?.username))
 function close() { action.value = null; captured.value = null; reason.value = ''; target.value = ''; generation++ }
 watch(() => `${props.token}:${props.current?.case_id}:${props.current?.version}`, () => {

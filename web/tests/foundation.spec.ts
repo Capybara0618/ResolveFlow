@@ -4,12 +4,32 @@ import { ApiError, type LoginResponse } from '../src/client'
 import { managementApi, type ManagedProduct } from '../src/management-client'
 import PlatformWorkspace from '../src/ui/PlatformWorkspace.vue'
 import AdminProducts from '../src/ui/AdminProducts.vue'
+import App from '../src/App.vue'
 
 const platform: LoginResponse = { access_token: 't', role: 'PLATFORM_ADMIN', expires_in: 3600 }
 const merchant: LoginResponse = { access_token: 't', role: 'MERCHANT_ADMIN', merchant_id: 'M-1001', expires_in: 3600 }
-afterEach(() => { vi.restoreAllMocks() })
+afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); window.history.replaceState(null, '', '/') })
 
 describe('foundation management', () => {
+  it('opens one merchant workspace and enters aftercare without personnel or claiming', async () => {
+    const fetcher = vi.fn().mockImplementation((url: string) => {
+      if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({ ...merchant, single_operator: true })))
+      if (url.endsWith('/admin/overview')) return Promise.resolve(new Response(JSON.stringify({ mine: 0, attention: 0, items: [] })))
+      return Promise.resolve(new Response(JSON.stringify({ items: [], page: { limit: 20 }, counts: { total: 0, public: 0, mine: 0, unclaimed: 0, stages: {} } })))
+    })
+    vi.stubGlobal('fetch', fetcher)
+    const wrapper = mount(App)
+    try {
+      await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
+      expect(wrapper.find('[aria-label="商家工作台"]').exists()).toBe(true)
+      expect(wrapper.findAll('.nav-link').map(link => link.text())).toEqual(['商家概览', '交易订单', '商品管理', '售后工单', '售后政策'])
+      await wrapper.findAll('.nav-link').find(link => link.text() === '售后工单')!.trigger('click'); await flushPromises()
+      expect(wrapper.find('#queue-panel').exists()).toBe(true)
+      expect(wrapper.find('.ownership-group').exists()).toBe(false)
+      expect(wrapper.text()).not.toContain('领取')
+      expect(fetcher.mock.calls.some(([url]) => url.includes('/admin/accounts'))).toBe(false)
+    } finally { wrapper.unmount() }
+  })
   it('shows pending merchant sync and retries the original identity', async () => {
     vi.spyOn(managementApi, 'merchants').mockResolvedValue({ items: [{ merchant_id: 'M-4', name: '新商家', description: '介绍', enabled: false, desired_enabled: true, version: 1, sync_state: 'PENDING', policy_ready: false }] })
     vi.spyOn(managementApi, 'buyers').mockResolvedValue({ items: [] })

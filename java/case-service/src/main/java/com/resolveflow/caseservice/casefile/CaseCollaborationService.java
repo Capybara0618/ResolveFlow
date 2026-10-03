@@ -54,6 +54,43 @@ public class CaseCollaborationService {
 
     private record Assignment(String owner, long version) {}
 
+    private boolean singleOperator(String merchantId) {
+        var modes = jdbc.queryForList(
+                "SELECT single_operator FROM identity_merchant WHERE merchant_id=?", Boolean.class, merchantId);
+        return !modes.isEmpty() && Boolean.TRUE.equals(modes.getFirst());
+    }
+
+    /** Part of case creation: case row -> merchant -> account locks, without a network call. */
+    public void initializeMerchantOwner(String caseId, String merchantId, Instant now) {
+        if (!org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive())
+            throw new IllegalStateException("automatic assignment requires the case creation transaction");
+        var modes = jdbc.query(
+                "SELECT single_operator,enabled FROM identity_merchant WHERE merchant_id=? FOR SHARE",
+                (rs, n) -> {
+                    if (rs.getBoolean(1) && !rs.getBoolean(2))
+                        throw new CaseService.ForbiddenScopeException("本店已停用，不能创建新的售后申请");
+                    return rs.getBoolean(1);
+                },
+                merchantId);
+        if (modes.isEmpty() || !Boolean.TRUE.equals(modes.getFirst())) return;
+        var owners = jdbc.queryForList(
+                "SELECT username FROM identity_account WHERE merchant_id=? AND role='MERCHANT_ADMIN' AND enabled=TRUE ORDER BY username FOR SHARE",
+                String.class,
+                merchantId);
+        if (owners.size() != 1) throw conflict("本店商家账号尚未准备好，请联系平台管理员");
+        String owner = owners.getFirst();
+        jdbc.update(
+                "INSERT INTO case_collaboration(case_id,owner_username,version,updated_at) VALUES (?,?,1,?)",
+                caseId,
+                owner,
+                java.sql.Timestamp.from(now));
+        jdbc.update(
+                "INSERT INTO case_collaboration_event(case_id,version,action,actor_username,to_username,reason,occurred_at) VALUES (?,1,'AUTO_ASSIGN','SYSTEM',?,'新申请自动归属本店商家',?)",
+                caseId,
+                owner,
+                java.sql.Timestamp.from(now));
+    }
+
     private record Account(String merchant, Role role, String customer, boolean enabled, long version) {}
 
     public record WritePermit(long identityVersion, String caseMatch, String collaborationMatch) {
@@ -136,6 +173,7 @@ public class CaseCollaborationService {
         if (target != null) target = target.trim();
         else if (request.targetUsername() != null) throw invalid("该操作不接受转交目标");
         lockCurrentIdentity(principal, identityVersion, target);
+        if (singleOperator(row.merchantId())) throw new CaseService.ForbiddenScopeException("本店由商家账号直接处理，不提供领取或转交");
         Assignment current = assignment(caseId);
         if ("CLAIM".equals(request.action()) && principal.subject().equals(current.owner()))
             return view(principal, row, current);
@@ -249,7 +287,7 @@ public class CaseCollaborationService {
                     assignment.owner());
         }
         List<String> actions = List.of();
-        if (assignable(row)) {
+        if (assignable(row) && !singleOperator(row.merchantId())) {
             boolean admin = principal.role() == Role.MERCHANT_ADMIN;
             if (owner == null) actions = admin ? List.of("CLAIM", "TAKEOVER") : List.of("CLAIM");
             else if (owner.username().equals(principal.subject())) actions = List.of("RELEASE", "TRANSFER");

@@ -49,13 +49,13 @@ onMounted(() => { void act(load) })
       <button class="nav-link" :class="{ current: page === 'buyers' }" :disabled="busy" @click="page = 'buyers'; form = null"><Icon name="user" />买家账号</button>
     </nav>
     <main class="foundation-main">
-      <header class="foundation-heading"><div><h1>{{ page === 'merchants' ? '商家管理' : '买家账号' }}</h1><p>{{ page === 'merchants' ? '管理店铺与初始管理员' : '管理可以跨店购物的平台买家' }}</p></div><div class="foundation-actions"><button :disabled="busy" @click="act(load)">刷新</button><button class="primary-button" :disabled="busy" @click="open(page === 'merchants' ? 'merchant' : 'buyer')">{{ page === 'merchants' ? '创建商家' : '创建买家' }}</button></div></header>
+      <header class="foundation-heading"><div><h1>{{ page === 'merchants' ? '商家管理' : '买家账号' }}</h1><p>{{ page === 'merchants' ? '管理店铺与商家账号' : '管理可以跨店购物的平台买家' }}</p></div><div class="foundation-actions"><button :disabled="busy" @click="act(load)">刷新</button><button class="primary-button" :disabled="busy" @click="open(page === 'merchants' ? 'merchant' : 'buyer')">{{ page === 'merchants' ? '创建商家' : '创建买家' }}</button></div></header>
       <p v-if="error" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
       <form v-if="form" class="foundation-editor" @submit.prevent="submit">
-        <h2>{{ form === 'merchant' ? '创建商家与管理员' : form === 'buyer' ? '创建买家' : `重置 ${selectedBuyer?.username} 的密码` }}</h2>
+        <h2>{{ form === 'merchant' ? '创建店铺与商家账号' : form === 'buyer' ? '创建买家' : `重置 ${selectedBuyer?.username} 的密码` }}</h2>
         <div class="foundation-fields">
           <template v-if="form === 'merchant'"><label>商家标识<input v-model="merchantId" required maxlength="64" placeholder="例如 M-1004" /></label><label>店铺名称<input v-model="name" required maxlength="120" /></label><label class="span-two">店铺介绍<textarea v-model="description" required maxlength="500" /></label></template>
-          <template v-if="form !== 'password'"><label>{{ form === 'merchant' ? '管理员账号' : '买家账号' }}<input v-model="username" required minlength="3" maxlength="60" autocomplete="off" /></label><label>显示姓名<input v-model="displayName" required maxlength="120" /></label></template>
+          <template v-if="form !== 'password'"><label>{{ form === 'merchant' ? '商家账号' : '买家账号' }}<input v-model="username" required minlength="3" maxlength="60" autocomplete="off" /></label><label>显示姓名<input v-model="displayName" required maxlength="120" /></label></template>
           <label>密码<input v-model="password" required type="password" minlength="6" maxlength="200" autocomplete="new-password" /></label>
           <label v-if="form !== 'password'">创建理由<input v-model="reason" required maxlength="1000" /></label>
         </div><div class="foundation-actions"><button type="submit" class="primary-button" :disabled="busy">{{ busy ? '正在保存…' : '保存' }}</button><button type="button" :disabled="busy" @click="form = null; password = ''">取消</button></div>

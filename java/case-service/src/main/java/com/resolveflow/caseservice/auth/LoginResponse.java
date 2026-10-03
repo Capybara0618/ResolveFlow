@@ -21,7 +21,21 @@ public record LoginResponse(
         @JsonProperty("customer_id") String customerId,
         @JsonProperty("display_name") String displayName,
         @JsonProperty("merchant_name") String merchantName,
-        @JsonProperty("buyer_id") String buyerId) {
+        @JsonProperty("buyer_id") String buyerId,
+        @JsonProperty("single_operator") Boolean singleOperator) {
+
+    public LoginResponse(
+            String accessToken,
+            String tokenType,
+            long expiresIn,
+            Role role,
+            String merchantId,
+            String customerId,
+            String displayName,
+            String merchantName,
+            String buyerId) {
+        this(accessToken, tokenType, expiresIn, role, merchantId, customerId, displayName, merchantName, buyerId, null);
+    }
 
     public LoginResponse(
             String accessToken,

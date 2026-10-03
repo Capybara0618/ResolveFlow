@@ -48,12 +48,18 @@ public class CaseWriter {
     private final CaseRepository cases;
     private final PolicyManifestRepository manifests;
     private final AgentRunBindingRepository bindings;
+    private final CaseCollaborationService collaboration;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public CaseWriter(CaseRepository cases, PolicyManifestRepository manifests, AgentRunBindingRepository bindings) {
+    public CaseWriter(
+            CaseRepository cases,
+            PolicyManifestRepository manifests,
+            AgentRunBindingRepository bindings,
+            CaseCollaborationService collaboration) {
         this.cases = cases;
         this.manifests = manifests;
         this.bindings = bindings;
+        this.collaboration = collaboration;
     }
 
     @Transactional
@@ -71,6 +77,7 @@ public class CaseWriter {
                 null,
                 write.now(),
                 write.now());
+        collaboration.initializeMerchantOwner(write.caseId(), write.merchantId(), write.now());
         for (RequestedAction action : write.actions()) {
             cases.insertRequestedAction(write.caseId(), action.name());
         }

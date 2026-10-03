@@ -16,6 +16,7 @@ export interface LoginResponse {
   expires_in: number
   display_name?: string
   merchant_name?: string
+  single_operator?: boolean
 }
 
 export interface MerchantCoordinationItem {
@@ -92,7 +93,7 @@ export interface CaseCollaboration {
   case_id: string; version: number; is_owner: boolean
   owner: { username: string; display_name: string; role: LoginResponse['role']; enabled: boolean } | null
   allowed_actions: CollaborationAction[]
-  history: Array<{ version: number; action: CollaborationAction; actor_username: string
+  history: Array<{ version: number; action: CollaborationAction | 'AUTO_ASSIGN'; actor_username: string
     from_username: string | null; to_username: string | null; reason: string; occurred_at: string }>
 }
 

@@ -9,6 +9,21 @@ from jsonschema import ValidationError
 from resolveflow.contracts._schemaio import REPO_ROOT, component_validator, load_openapi
 
 
+def test_automatic_ownership_is_audit_only_and_single_profile_is_merchant_only():
+    fixtures = json.loads((REPO_ROOT / "contracts/core/fixtures/foundation.json").read_text(encoding="utf-8"))
+    profile = fixtures["SingleMerchantProfile"]
+    validator = component_validator("case", "UserProfile", "contracts/core").validator
+    validator.validate(profile)
+    for role in ("REVIEWER", "PLATFORM_ADMIN", "CUSTOMER"):
+        with pytest.raises(ValidationError):
+            validator.validate({**profile, "role": role})
+    component_validator("case", "CaseCollaborationEvent", "contracts/core").validator.validate(fixtures["AutomaticAssignment"])
+    with pytest.raises(ValidationError):
+        component_validator("case", "CaseCollaborationAction", "contracts/core").validator.validate(
+            {"action": "AUTO_ASSIGN", "reason": "不能由客户端指定自动分配"}
+        )
+
+
 @pytest.mark.parametrize("name", ["PlatformMerchant", "PlatformBuyer", "ManagedProduct"])
 def test_management_fixture_matches_both_services(name):
     fixture = json.loads((REPO_ROOT / "contracts/core/fixtures/foundation.json").read_text(encoding="utf-8"))[name]
