@@ -99,6 +99,25 @@ it('expired session emits logout and never shows a fake successful payment', asy
   expect(w.emitted('expired')).toHaveLength(1); expect(w.text()).not.toContain('模拟付款完成于')
 })
 
+it('cancelled aftercare keeps its history and allows a new application when the server permits it', async () => {
+  vi.mocked(shopApi.purchase).mockResolvedValue(paid)
+  vi.mocked(coreApi.customerOrderLine).mockResolvedValue({ ...context, application: { case_id: 'cancelled-case', status: 'CANCELLED', line_id: 'line-one', order_id: 'order-one', description: 'previous', version: 2, created_at: item.created_at, updated_at: item.created_at } })
+  await open()
+  expect(w.text()).toContain('查看上次售后申请')
+  await w.findAll('button').find(b => b.text() === '申请售后')!.trigger('click')
+  expect(w.emitted('navigate')).toEqual([['#/customer/apply/line-one']])
+  expect(shopApi.pay).not.toHaveBeenCalled()
+})
+
+it('consumed aftercare offers only the original application and cannot apply again', async () => {
+  vi.mocked(shopApi.purchase).mockResolvedValue(paid)
+  vi.mocked(coreApi.customerOrderLine).mockResolvedValue({ ...context, can_apply: false, application: { case_id: 'refunded-case', status: 'CLOSED_SUCCESS', line_id: 'line-one', order_id: 'order-one', description: 'refunded', version: 4, created_at: item.created_at, updated_at: item.created_at }, blocked_reason: '已退款' })
+  await open()
+  expect(w.findAll('button').some(b => b.text() === '申请售后')).toBe(false)
+  await w.findAll('button').find(b => b.text() === '查看售后申请')!.trigger('click')
+  expect(w.emitted('navigate')).toEqual([['#/customer/applications/refunded-case']])
+})
+
 it('paid order displays authoritative unshipped facts and never guesses a missing shipment', async () => {
   vi.mocked(shopApi.purchase).mockResolvedValue(paid); await open()
   expect(fulfillmentApi.buyer).toHaveBeenCalledWith('buyer-token', paid.purchase_id)
