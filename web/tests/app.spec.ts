@@ -248,7 +248,7 @@ describe('core workbench', () => {
     expect(wrapper.get('.case-order').text()).toContain('电子产品')
     expect(wrapper.get('.case-order').text()).toContain('329.00 CNY')
     expect(wrapper.get('.case-order').text()).toContain('HEADPHONE-PRO')
-    expect(wrapper.get('.case-order').text()).toContain('订单已付金额')
+    expect(wrapper.get('.case-order').text()).toContain('本行实付')
     expect(wrapper.get('.evidence').text()).toContain('客户陈述')
     expect(wrapper.get('.evidence').text()).toContain('customer:C-9')
     expect(wrapper.findAll('.evidence')[0].text()).toContain('已核验：确认')
