@@ -8,6 +8,7 @@ import ReviewDialog from './ui/ReviewDialog.vue'
 import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
 import CaseAssignment from './ui/CaseAssignment.vue'
 import CustomerWorkspace from './ui/CustomerWorkspace.vue'
+import MarketplaceWorkspace from './ui/MarketplaceWorkspace.vue'
 import AdminPeople from './ui/AdminPeople.vue'
 import AdminOverview from './ui/AdminOverview.vue'
 import AdminPolicies from './ui/AdminPolicies.vue'
@@ -20,6 +21,12 @@ import './ui/admin-workspace.css'
 const username = ref('')
 const password = ref('')
 const account = ref<LoginResponse | null>(null)
+const shopVisitor = ref(window.location.hash.startsWith('#/shop'))
+const shopReturn = ref('')
+function updateShopVisitor() { shopVisitor.value = window.location.hash.startsWith('#/shop') }
+function shopLogin() { shopReturn.value = window.location.hash; window.history.pushState(null, '', '#/login'); shopVisitor.value = false }
+onMounted(() => { window.addEventListener('hashchange', updateShopVisitor); window.addEventListener('popstate', updateShopVisitor) })
+onUnmounted(() => { window.removeEventListener('hashchange', updateShopVisitor); window.removeEventListener('popstate', updateShopVisitor) })
 const error = ref('')
 const notice = ref('')
 const busy = ref(false)
@@ -363,6 +370,8 @@ function login() {
     stopStream()
     const session = await coreApi.login(username.value, password.value)
     account.value = session
+    if (session.buyer_id && !window.location.hash.startsWith('#/shop') && !window.location.hash.startsWith('#/customer/')) window.history.replaceState(null, '', shopReturn.value.startsWith('#/shop') ? shopReturn.value : '#/shop')
+    shopReturn.value = ''
     password.value = ''
     reviewItems.value = []; reviewCounts.value = null; reviewCursor.value = undefined
     reviewScope.value = 'PUBLIC'; reviewView.value = 'REVIEW'; reviewQuery.value = ''; reviewSearch.value = ''
@@ -383,6 +392,8 @@ function logout() {
   ++actionGeneration; busy.value = false
   reviewItems.value = []; reviewCursor.value = undefined; reviewCounts.value = null; collaboration.value = null; error.value = ''
   merchantPage.value = 'review'; notice.value = ''; queueExpanded = false; queueUpdate.value = ''
+  shopVisitor.value = false
+  shopReturn.value = ''
 }
 function verifyEvidence(evidenceId: string, result: 'CONFIRMED' | 'REFUTED' | 'INCONCLUSIVE') {
   void act(async () => {
@@ -436,14 +447,15 @@ onUnmounted(stopStream)
 </script>
 
 <template>
-  <div class="workbench">
+  <div class="workbench" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor }">
     <header class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
-      <span class="demo-tag">本地演示 · 合成数据 · 模型模式见调查记录 · 模拟退款</span>
+      <span class="demo-tag">{{ account?.buyer_id || shopVisitor ? '本地演示 · 合成商品与模拟交易' : '本地演示 · 合成数据 · 模型模式见调查记录 · 模拟退款' }}</span>
       <div v-if="account" class="session"><span class="avatar">{{ account.display_name?.trim().slice(0, 1) || (isReviewer ? '审' : '客') }}</span><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后专员' : '客户工作台') }}</strong><small>{{ account.buyer_id ? '平台买家' : `${account.merchant_name || account.merchant_id} · ${account.role === 'MERCHANT_ADMIN' ? '商家管理员' : account.role === 'REVIEWER' ? '售后专员' : account.role === 'OPERATOR' ? '兼容运维账号' : '客户'}` }}</small></span>
         <button type="button" class="text-button logout-button" @click="logout">退出<Icon name="arrow" :size="15" /></button></div>
     </header>
-    <main v-if="!account" class="login-stage">
+    <MarketplaceWorkspace v-if="!account && shopVisitor" :account="null" @login="shopLogin" />
+    <main v-else-if="!account" class="login-stage">
       <div class="login-intro"><span class="login-symbol"><Icon name="shield" :size="38" /></span><p class="eyebrow">RESOLVE WITH CONFIDENCE</p><h1>每一次售后，<br />都有据可循。</h1><p>从客户诉求到调查建议，<br />让证据、判断与处理进展清晰可见。</p><div class="login-features"><span><Icon name="file" />证据可追溯</span><span><Icon name="shield" />人工审核</span><span><Icon name="clock" />进展可查看</span></div></div>
       <form class="panel login-panel" @submit.prevent="login">
         <p class="eyebrow">欢迎使用 ResolveFlow</p><h2>登录工作台</h2>
@@ -453,8 +465,10 @@ onUnmounted(stopStream)
         <button data-test="login" type="submit" :disabled="busy">{{ busy ? '正在登录…' : '登录工作台' }}<Icon name="arrow" :size="17" /></button>
         <p v-if="error" class="message error" role="alert">{{ error }}</p>
         <small class="login-note"><Icon name="shield" :size="14" />数据与操作范围由账户身份决定</small>
+        <a href="#/shop">先逛逛商城 →</a>
       </form>
     </main>
+    <MarketplaceWorkspace v-else-if="account.buyer_id" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <div v-else class="app-shell">
       <nav class="sidebar" aria-label="工作台导航">

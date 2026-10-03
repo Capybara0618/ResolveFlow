@@ -1,0 +1,209 @@
+{
+  "date": "2026-10-03",
+  "synthetic": true,
+  "model_calls": 0,
+  "checks": [
+    {
+      "check": "anonymous two-store catalog",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "anonymous stores",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "category home",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "literal search percent",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "invalid limit",
+      "status": 400,
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "check": "unknown product",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "silver variant server quote",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "out of bound quantity",
+      "status": 400,
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "check": "no checkout session",
+      "status": 401,
+      "expected": 401,
+      "passed": true
+    },
+    {
+      "check": "demo-customer cannot buy",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "demo-admin cannot buy",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "client cannot set money",
+      "status": 400,
+      "expected": 400,
+      "passed": true
+    },
+    {
+      "check": "old quote refused",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "own draft M-1001",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "same request replay M-1001",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "different payload conflict M-1001",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "internal other customer M-1001",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "own draft M-1002",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "same request replay M-1002",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "different payload conflict M-1002",
+      "status": 409,
+      "expected": 409,
+      "passed": true
+    },
+    {
+      "check": "internal other customer M-1002",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "unknown draft",
+      "status": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "agent read cannot write",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "agent cannot impersonate checkout deployment",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "case read is not checkout",
+      "status": 403,
+      "expected": 403,
+      "passed": true
+    },
+    {
+      "check": "original own paid orders",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "check": "original own cancelled cases",
+      "status": 200,
+      "expected": 200,
+      "passed": true
+    }
+  ],
+  "old_rows_unchanged": {
+    "cases": true,
+    "owners": true,
+    "pins": true,
+    "policies": true,
+    "authorizations": true,
+    "operations": true,
+    "payments": true,
+    "runs": true,
+    "accounts": true,
+    "orders": true
+  },
+  "old_counts": {
+    "cases": 34,
+    "owners": 5,
+    "pins": 34,
+    "policies": 6,
+    "authorizations": 17,
+    "operations": 9,
+    "payments": 36,
+    "runs": 92,
+    "accounts": 14,
+    "orders": 36
+  },
+  "new_drafts": [
+    {
+      "draft_id": "d56d047e-198b-43d2-a146-e588bc19cb6b",
+      "store_id": "M-1001",
+      "quantity": 2,
+      "total_amount": 65800
+    },
+    {
+      "draft_id": "ce7a0754-9ef7-4117-a026-5418de0d6933",
+      "store_id": "M-1002",
+      "quantity": 1,
+      "total_amount": 12900
+    }
+  ],
+  "new_paid_orders": 0,
+  "new_refund_operations": 0
+}
