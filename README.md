@@ -14,6 +14,7 @@
 | --- | --- |
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
 | [当前交接](tasks/handoff-current.md) | 当前任务、验收顺序与接管规则 |
+| [售后简约预期图与合同](docs/ui-aftercare-v3/README.md) | 双端五页目标、商品卡片与字号、实施顺序 |
 | [本机运行说明](docs/local-runtime.md) | 正式start/stop/status、全部功能默认启动及保留数据 |
 | [三角色商家工作台](docs/merchant-role-merge.md) | 当前14账号、统一商家工作台与自动归属 |
 | [双端与多人协作方案](docs/product-completion-review.md) | 历史五批路线；当前角色以三角色规格为准 |
