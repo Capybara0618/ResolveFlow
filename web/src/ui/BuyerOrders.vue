@@ -6,14 +6,18 @@ import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
 import ReviewDialog from './ReviewDialog.vue'
 import './buyer-orders.css'
+import FulfillmentPanel from './FulfillmentPanel.vue'
+import { fulfillmentApi, type OrderFulfillment } from '../fulfillment-client'
 
 const props = defineProps<{ account: LoginResponse }>()
 const emit = defineEmits<{ expired: []; navigate: [hash: string] }>()
+const fulfillment = ref<OrderFulfillment | null>(null), fulfillmentLoading = ref(false), fulfillmentError = ref('')
 const items = ref<Purchase[]>([]), detail = ref<Purchase | null>(null), stores = ref<ShopStore[]>([])
 const store = ref(''), status = ref<PurchaseStatus | ''>(''), next = ref<string | null>(null)
 const loading = ref(false), writing = ref(false), uncertain = ref(false), cancelUnknown = ref(false), cancelOpen = ref(false)
 const error = ref(''), notice = ref(''), mode = ref<'list' | 'detail' | 'payment'>('list'), now = ref(Date.now())
 const eligibility = ref<Record<string, CustomerOrderLine | null>>({}), eligibilityErrors = ref<Record<string, boolean>>({})
+let fulfillmentGeneration = 0
 let generation = 0, alive = true, timer: ReturnType<typeof setInterval> | undefined, memoryKey = ''
 const labels: Record<PurchaseStatus, string> = { WAITING_PAYMENT: '待付款', PAYMENT_PENDING: '付款结果待确认', PAID: '已付款', CANCELLED: '已取消', EXPIRED: '已到期' }
 const refundLabels = { NONE: '无退款', IN_PROGRESS: '退款处理中', PARTIALLY_REFUNDED: '部分商品已退款', REFUNDED: '已全部退款' }
@@ -32,12 +36,22 @@ async function readEligibility(line: string, g = generation) {
   try { const value = await coreApi.customerOrderLine(props.account.access_token, line); if (valid(g)) { eligibility.value[line] = value; delete eligibilityErrors.value[line] } }
   catch (cause) { if (valid(g)) { eligibility.value[line] = null; eligibilityErrors.value[line] = true; if (cause instanceof ApiError && cause.status === 401) failure(cause) } }
 }
+async function readFulfillment(g = generation) {
+  if (detail.value?.status !== 'PAID') return
+  const f = ++fulfillmentGeneration
+  const current = () => valid(g) && f === fulfillmentGeneration
+  fulfillmentLoading.value = true; fulfillmentError.value = ''; fulfillment.value = null
+  try { const result = await fulfillmentApi.buyer(props.account.access_token, detail.value.purchase_id); if (current()) fulfillment.value = result }
+  catch (cause) { if (current()) { fulfillmentError.value = '暂时无法确认物流，请重新读取；未读取成功不表示未发货。'; if (cause instanceof ApiError && cause.status === 401) failure(cause) } }
+  finally { if (current()) fulfillmentLoading.value = false }
+}
 async function readDetail(id: string, g = generation) {
   const result = await shopApi.purchase(props.account.access_token, id)
   if (!valid(g)) return
   detail.value = result
   if (['PAID', 'CANCELLED', 'EXPIRED'].includes(result.status)) { saveKey(''); uncertain.value = false; cancelUnknown.value = false }
   if (result.payment?.status === 'FAILED') { saveKey(''); uncertain.value = false }
+  if (result.status === 'PAID') void readFulfillment(g)
   if (result.status === 'PAID') for (let i = 0; i < result.lines.length && valid(g); i += 4)
     await Promise.all(result.lines.slice(i, i + 4).filter(l => l.line_id).map(l => readEligibility(l.line_id!, g)))
 }
@@ -49,6 +63,7 @@ async function load(cursor?: string) {
 async function route() {
   if (writing.value) return
   const g = ++generation; detail.value = null; memoryKey = ''; items.value = []; next.value = null
+  ++fulfillmentGeneration; fulfillment.value = null; fulfillmentError.value = ''; fulfillmentLoading.value = false
   eligibility.value = {}; eligibilityErrors.value = {}; uncertain.value = false; cancelUnknown.value = false; cancelOpen.value = false; error.value = ''; notice.value = ''; loading.value = true
   try {
     const hash = window.location.hash
@@ -110,6 +125,7 @@ onBeforeUnmount(() => { alive = false; ++generation; if (timer) clearInterval(ti
         <section class="purchase-summary" :class="detail.status.toLowerCase()"><span class="purchase-symbol">{{ detail.status === 'PAID' ? '✓' : '◷' }}</span><div><h2>{{ unknown ? '付款结果待确认' : deadlinePassed ? '付款期限已过' : labels[detail.status] }}</h2><p>{{ detail.store_name }}</p></div><div class="purchase-sum"><span>{{ detail.status === 'PAID' ? '原实付' : '订单合计' }}</span><strong>{{ money(detail.total_amount) }}</strong></div></section>
         <section class="purchase-detail-panel"><h2>订单商品</h2><div v-for="line in detail.lines" :key="line.sku" class="purchase-detail-line"><ProductArt v-if="line.asset_key" :asset="line.asset_key" :name="line.product_name || line.sku" /><span v-else class="purchase-no-art" aria-label="商品图片未提供">▢</span><div class="purchase-line-copy"><h2>{{ line.product_name || line.sku }}</h2><p>{{ line.variant }} · 数量 × {{ line.quantity }}</p><p v-if="line.unit_amount !== null">单价 {{ money(line.unit_amount) }}</p></div><strong>{{ money(line.line_amount) }}</strong></div></section>
         <section v-if="detail.status === 'WAITING_PAYMENT' || unknown" class="purchase-payment-panel"><h2>本地模拟付款</h2><p v-if="detail.expires_at && !unknown">付款截止 {{ time(detail.expires_at) }}</p><p v-if="unknown">只查询原付款尝试，确认后再进行下一步。</p><div class="purchase-actions"><button v-if="canPay" class="shop-primary" data-test="pay" :disabled="writing || loading" @click="pay">{{ writing ? '正在确认…' : unknown || key() ? '重试原付款请求' : '确认模拟付款' }}</button><button v-if="unknown" class="shop-secondary" :disabled="writing || loading" @click="refresh">查询原付款结果</button><button v-if="detail.status === 'WAITING_PAYMENT' && !unknown && !deadlinePassed && !cancelUnknown" class="shop-secondary" :disabled="writing || loading" @click="cancelOpen = true">取消订单</button></div></section>
+        <FulfillmentPanel v-if="detail.status === 'PAID'" :fact="fulfillment" :lines="detail.lines" :loading="fulfillmentLoading" :error="fulfillmentError" @retry="readFulfillment()" />
         <section v-if="detail.status === 'PAID'" class="purchase-detail-panel"><h2>付款与售后</h2><p v-if="detail.refund_status && detail.refund_status !== 'NONE'">{{ refundLabels[detail.refund_status] }}</p><p v-if="detail.paid_at">{{ detail.draft_id ? '模拟付款完成于' : '原订单支付于' }} {{ time(detail.paid_at) }}</p><div v-for="line in detail.lines.filter(l => l.line_id)" :key="line.line_id!" class="purchase-aftercare"><strong>{{ line.product_name || line.sku }}</strong><template v-if="eligibility[line.line_id!]"> <p>{{ eligibility[line.line_id!]!.blocked_reason || '可提交整行全额退款申请，需商家审核。' }}</p><button v-if="eligibility[line.line_id!]!.application" class="shop-secondary" @click="navigate(`#/customer/applications/${eligibility[line.line_id!]!.application!.case_id}`)">查看售后申请</button><button v-else-if="eligibility[line.line_id!]!.can_apply" class="shop-secondary" @click="navigate(`#/customer/apply/${encodeURIComponent(line.line_id!)}`)">申请售后</button></template><button v-else class="shop-secondary" :disabled="loading || writing" @click="readEligibility(line.line_id!)">{{ eligibilityErrors[line.line_id!] ? '重新读取售后资格' : '读取售后资格' }}</button></div></section>
         <section class="purchase-detail-panel purchase-times"><p>提交于 {{ time(detail.created_at) }}</p><p v-if="['CANCELLED','EXPIRED'].includes(detail.status)">本订单没有付款，可回到商城重新购买。</p><details><summary>查看交易编号</summary><p>订单 {{ detail.order_id || detail.draft_id }}</p><p v-if="detail.payment">付款尝试 {{ detail.payment.attempt_id }} · {{ detail.payment.status }}</p></details></section>
       </template>

@@ -1,6 +1,6 @@
 # 第五批：商家模拟履约与购物政策验证
 
-2026-10-03，依据[第五批规格](../docs/merchant-fulfillment.md)，复用第四批5884d80/fbd5c73/c97685e及资金74df827。本文记录证据，当前进度只看tasks/todo.md顶部；第五批尚未整批完成。
+2026-10-03，依据[第五批规格](../docs/merchant-fulfillment.md)，复用第四批5884d80/fbd5c73/c97685e及资金74df827。第五批已集中完成，正式网页与保留数据部署证据见末节；第六批完整购物退款网页闭环尚未验收。本文早期子步的“未实现/未部署”均为当时历史，当前进度只看tasks/todo.md顶部。
 
 ## 履约领域子步
 
@@ -68,3 +68,52 @@ git diff --check
 失败与修复：Java首轮72项70通过/1失败/1错误，错误是Mockito重新when时执行此前抛错stub，改doThrow/doReturn；审批失败暴露AGENT记录的payload_hash实际为回调信封hash，不能直接与建议文档hash比较，按既有AGENT/HUMAN语义修正后73项通过，补强跨语言hash与授权/消费回归最终88通过。Python首轮因chunk_of不在包导出而收集失败，改从既有chunking模块导入；第二轮54通过/2失败为测试误用位置1，依据已有零基位置规范改位置0验证c-01，最终56通过。新Python文件Ruff通过、定点Spotless/diff通过；同时检查旧scripts/reviewer_demo.py全文件Ruff失败19条，与HEAD旧文件相同code/message的19条诊断已核对，不修无关旧代码、不宣称全仓lint通过。
 
 未运行与边界：保留数据演示尚未部署V14/API/新政策/正式索引，网页M09/M10/M11未修改；新索引只在隔离测试schema验证，不能宣称演示RAG已READY。未做新购物退款网页闭环、未启Live/dense收费评测，无原演示订单/资金/工单/run或预算写入。当前复核是跨服务当前事实读取，不是分布式原子锁；只有Commerce已建立退款占用才由相同账本/槽锁阻止发货，Case消费到异步送达之间不作更强承诺。第五批仍未完成，接续正式网页与保留数据集中验证后才进入第六批全链验收。
+
+## 正式网页、逐行售后投影与保留数据集中验收
+
+2026-10-03，本节为第五批最终状态，前述未部署/未接网页说明是历史。复用已推送b404e9b政策与所有原接口，接M10本商家管理员交易筛选/分页、M11不可变全部商品/原金额/逐行退款占用/首次整单模拟发货及确认弹窗，M09本人真实履约/轨迹和独立读取故障。App权限菜单及原队列连接已接；长订单号收起，主事实16px以上，保留既有人员/政策/审核导航。
+
+本批必要协议补充：MerchantTrade增加必填line_aftercare，Commerce按订单真实槽投影FREE/RESERVED/CONSUMED/MISSING及行金额；缺槽为null，不将整单汇总分摊给每行。shared wire、两份core OpenAPI、fixture、网页类型与实库测试同步，未增路由/迁移。新增实库第九项验证一行预留不影响另一行、缺槽不伪造零占用。订单售后按钮按order_id搜索原队列全部阶段，没有创建工单；只支持订单号的搜索不能误传line_id。
+
+发货先保存当前商家/管理员隔离的原key+expected_version+order到sessionStorage，响应丢失后重开页面只读原订单，显式重试原请求。401保留；确定409拒绝后需刷新；存储失败/损坏阻止新写且不抹掉恢复信息。成功后续GET故障仍保留已确认履约，不能反转为未知。独立买家履约读取故障不隐藏付款/售后资格、不假定未发货。没有跨浏览器/关闭会话后的持久恢复承诺。
+
+实际验证命令（Java21/Python沿用原锁）：
+
+```powershell
+./java/mvnw.cmd -f java/pom.xml -pl commerce-service,case-service -am '-Dtest=MerchantTradeApiTest,FulfillmentDatabaseTest,CommerceShoppingClientTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+./java/mvnw.cmd -f java/pom.xml '"-DspotlessFiles=.*(FulfillmentWire|MerchantTradeService|FulfillmentDatabaseTest)\.java"' spotless:apply
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_contracts_fulfillment.py agent/tests/unit/test_contracts_core_routes.py -q
+# 以下两条在web目录
+pnpm test -- --run
+pnpm build
+# 以下在根目录，原始证据/原请求仅保存在忽略目录tmp
+agent/.venv/Scripts/python.exe -m ruff format scripts/merchant_fulfillment_acceptance.py
+agent/.venv/Scripts/python.exe -m ruff check scripts/merchant_fulfillment_acceptance.py
+$env:PYTHONPATH='agent/src'
+agent/.venv/Scripts/python.exe scripts/merchant_fulfillment_acceptance.py snapshot
+.\demo.ps1 stop
+.\demo.ps1 -NoBrowser
+agent/.venv/Scripts/python.exe scripts/merchant_fulfillment_acceptance.py prepare
+# 仅专用M-1001新增订单在正式浏览器点击确认模拟发货
+agent/.venv/Scripts/python.exe scripts/merchant_fulfillment_acceptance.py verify
+git diff --check
+```
+
+结果：Java四类23 passed/0 skipped（Commerce履约9/接口2、Case客户端7/接口5），Python两个文件90 passed/0 skipped；全前端20文件149 passed，vue-tsc/Vite构建通过，定点Spotless/新驱动Ruff通过。十项新管理员组件测试覆盖全行/订单查询连接、显式版本+原key、未知响应重开原请求不自动写、已确认后读故障、409、401、损坏/写失败存储、筛选/游标、跨账号恢复隔离；买家新增未发货和履约503回归。已有人员/售后/购物测试保留，未跳过断言。
+
+保留数据stop/NoBrowser重新构建三JAR，Case已V24、Commerce追加V14；只读Agent8182、Gateway8180、前端5174健康。政策导入新增2/旧6跳过，原启动入口八bundle精确manifest索引READY。真实HTTP/索引20项通过，见[脱敏机器报告](merchant-fulfillment/verification.json)：两商家管理员各自订单/过滤、买家同一履约、匿名401、买家/专员/旧客户403、异店详情/发货404、网页原成功key重放同一回执、新key再次发货409。实际本地缓存dense编码器检索两新政策R-UNSHIPPED-001，引用hash与Java存储原规则严格相同；未调用Live大模型，不能据此宣称模型推荐质量已验证。
+
+正式浏览器：M-1001管理员查看新增329元订单，展开编号核对目标后确认一次模拟发货，观察运输中/version2及两个原追加事件。原727元双行订单只读，两行329/398元完整，进入订单号927b833f-3da3-4331-a5fa-6846d04ace8e队列得到0条，未创建申请。平台买家看到同一329元运输中/同轨迹；第二店新129元订单仍为NOT_SHIPPED/version1/唯一ORDER_PAID。管理员详情1280/1440/1680和买家履约三个桌面尺寸无横向溢出，主要事实至少16px；viewport已恢复默认。截图如下：
+
+- [管理员已确认发货1440](merchant-fulfillment/admin-shipped-1440.png)
+- [管理员原双行订单1440](merchant-fulfillment/admin-multiline-1440.png)
+- [买家相同运输事实1440](merchant-fulfillment/buyer-shipped-1440.png)
+- [买家第二店待发货1440](merchant-fulfillment/buyer-unshipped-1440.png)
+
+专用新增M-1001订单0b184fa2-2a44-4130-9e6a-b40fdf7ce395，商品行SHOP-6ee803c8-f94e-466d-8728-8c89daf6cf49；M-1002订单a9515483-be69-47db-a3fd-93187bbc4f42，行SHOP-4d1af28b-b50d-4c7d-b192-5220ceaf8c0b。公开报告保存合成ID与聚合/哈希，不含令牌、原请求key或原始DB快照。原始样本/keys及baseline仅tmp。
+
+原34工单/5负责人/34钉住、6旧政策/17授权/9退款操作、40账本/40订单/8草稿/42槽、92run及预算、14账号、37原物流/76原轨迹、2购物车头/1条目/5请求，按原ID与所选字段逐条不变；只新增2草稿、2成功付款/订单及2行/槽、2政策，一次专用网页模拟发货；新工单/退款/模型调用0。V14对原已付checkout缺物流样本追加的新事实不计为改写旧物流。启动沿用原显示字段回填与索引replace流程，验证不涵盖全部DB列或索引generation，不宣称全库逐字节不变。
+
+失败与处理：首次单SKU测试错误预期两行，改为正确单行断言并另加多行隔离测试，最终23通过。快照启动首轮临时生成脚本换行转义错误，修正后在V14/政策导入前重新采集，确认仍旧6政策/无SHOP物流；不伪造首次成功。样本驱动错误期待草稿201（实际200）留下一个新未付草稿，核对唯一新增ID、原key及无付款尝试后恢复这笔原草稿，未删除或另建替代；驱动现已先落盘原键/ID，可恢复同一请求。verify第一次查询错误列shipment_expected_version，按真实expected_version修正再跑20通过，未改变数据库。浏览器字体只读测量不支持parseFloat，改直接读取computed fontSize；开发HMR重挂导致首次只读定位仍为329元，刷新状态重新定位727元后完成验证，无重复发货。所有失败没有改变原资金/工单/run，也没有绕过断言。
+
+尚未运行：第六批新购物→申请→Agent/RAG→负责人核验/补证→人工审批→原退款账本→买家终态的正式网页集中链路；未启动收费Live、未消费原QUEUED历史队列、未验证外部真实支付/物流或移动端。第五批基础已部署完成，第六批复用本成果；未发货复核仍不是分布式原子锁，只有Commerce实际退款占用才阻止发货。

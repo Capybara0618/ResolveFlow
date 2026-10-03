@@ -1,5 +1,6 @@
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { beforeEach, afterEach, it, expect, vi } from 'vitest'
+import { fulfillmentApi } from '../src/fulfillment-client'
 import BuyerOrders from '../src/ui/BuyerOrders.vue'
 import MarketplaceWorkspace from '../src/ui/MarketplaceWorkspace.vue'
 import CustomerWorkspace from '../src/ui/CustomerWorkspace.vue'
@@ -14,6 +15,7 @@ const context: CustomerOrderLine = { order_line: { order_id: 'order-one', line_i
 let w: VueWrapper
 beforeEach(() => {
   window.sessionStorage.clear(); window.history.replaceState(null, '', '/#/shop/drafts/one')
+  vi.spyOn(fulfillmentApi, 'buyer').mockResolvedValue({ order_id: 'order-one', status: 'NOT_SHIPPED', synthetic: true, version: 1, updated_at: paid.paid_at, lines: [{ line_id: 'line-one', status: 'NOT_SHIPPED', carrier_conclusion: 'UNKNOWN', source_version: 1, events: [{ code: 'ORDER_PAID', occurred_at: paid.paid_at!, source_version: 1 }] }] })
   vi.spyOn(shopApi, 'purchase').mockResolvedValue(item)
   vi.spyOn(shopApi, 'purchases').mockResolvedValue({ items: [item], next_cursor: null })
   vi.spyOn(shopApi, 'stores').mockResolvedValue([{ store_id: 'M-1001', name: '松间数码', description: '数码' }])
@@ -95,4 +97,14 @@ it('direct aftercare route re-reads authoritative line eligibility before displa
 it('expired session emits logout and never shows a fake successful payment', async () => {
   vi.mocked(shopApi.purchase).mockRejectedValue(new ApiError(401, 'UNAUTHENTICATED', 'disabled')); await open()
   expect(w.emitted('expired')).toHaveLength(1); expect(w.text()).not.toContain('模拟付款完成于')
+})
+
+it('paid order displays authoritative unshipped facts and never guesses a missing shipment', async () => {
+  vi.mocked(shopApi.purchase).mockResolvedValue(paid); await open()
+  expect(fulfillmentApi.buyer).toHaveBeenCalledWith('buyer-token', paid.purchase_id)
+  expect(w.get('[aria-label="订单履约"]').text()).toContain('商家尚未发货')
+  vi.mocked(fulfillmentApi.buyer).mockRejectedValue(new ApiError(503, 'UNAVAILABLE', 'offline'))
+  await w.findAll('button').find(b => b.text() === '刷新状态')!.trigger('click'); await flushPromises()
+  expect(w.get('[aria-label="订单履约"]').text()).toContain('未读取成功不表示未发货')
+  expect(w.get('[aria-label="订单履约"]').text()).not.toContain('商家尚未发货')
 })

@@ -27,9 +27,16 @@ public final class FulfillmentWire {
             @JsonProperty("updated_at") Instant updatedAt,
             List<Tracking> lines) {}
 
+    public record LineAftercare(
+            @JsonProperty("line_id") String lineId,
+            String state,
+            @JsonProperty("refunded_amount") Long refundedAmount,
+            @JsonProperty("reserved_amount") Long reservedAmount) {}
+
     public record Trade(
             CheckoutWire.Purchase purchase,
             Fulfillment fulfillment,
+            @JsonProperty("line_aftercare") List<LineAftercare> lineAftercare,
             @JsonProperty("can_ship") boolean canShip,
             @JsonProperty("blocked_reason") String blockedReason) {}
 

@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-03",
+  "admin": [
+    {
+      "width": 1440,
+      "overflow": false,
+      "panelFont": "16px"
+    },
+    {
+      "factFonts": [
+        "16px",
+        "26px",
+        "19px",
+        "16px",
+        "20px",
+        "16px",
+        "16px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "overflow": false,
+      "width": 1280
+    },
+    {
+      "factFonts": [
+        "16px",
+        "26px",
+        "19px",
+        "16px",
+        "20px",
+        "16px",
+        "16px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "overflow": false,
+      "width": 1680
+    }
+  ],
+  "buyer": [
+    {
+      "factFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "overflow": false,
+      "width": 1280
+    },
+    {
+      "factFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "overflow": false,
+      "width": 1440
+    },
+    {
+      "factFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "overflow": false,
+      "width": 1680
+    }
+  ],
+  "viewportReset": true
+}

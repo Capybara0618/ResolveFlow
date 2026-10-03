@@ -62,7 +62,7 @@
 完整隔离方式、演示样本与验收结果见[审查员演示说明](reports/reviewer-demo/README.md)。
 审查侧真实模型与浏览器验收见[收尾记录](reports/reviewer-completion.md)，包含成功和失败记录，以及可直接查询的工单编号。
 
-商城体验用 `.\demo.ps1` 即可，打开 [商城](http://127.0.0.1:5174/#/shop)，登录 `demo-buyer` / `demo-pass-4001`：浏览两家店 → 选择规格和数量加入购物车 → 按店选中商品并确认服务器报价 → 提交订单、确认模拟付款 → 在“我的订单”查看全部商品。直接购买仍可用；购物车按本人持久保存，结算只移除本店选中商品。待付款支持取消及到期限制，结果不确定时保持原请求恢复；已付款详情可进入原售后申请。第五批商家模拟发货与未发货/当前日期政策、第六批购物退款集中验收仍待完成，不能把当前新购物入口当作完整退款闭环。商城和模拟付款无需模型调用；需要新 Agent 调查时才使用 `-Live`。
+商城体验用 `.\demo.ps1` 即可，打开 [商城](http://127.0.0.1:5174/#/shop)，登录 `demo-buyer` / `demo-pass-4001`：浏览两家店 → 选择规格和数量加入购物车 → 按店选中商品并确认服务器报价 → 提交订单、确认模拟付款 → 在“我的订单”查看全部商品及真实履约。直接购买仍可用；购物车按本人持久保存，结算只移除本店选中商品。待付款支持取消及到期限制，结果不确定时保持原请求恢复；已付款详情可进入原售后申请。第五批已完成本商家管理员交易列表/详情、首次整单模拟发货和原请求恢复，两商家未发货/当前日期政策及索引已部署，见[履约报告](reports/merchant-fulfillment.md)。管理员从工作台“交易订单”体验，买家订单详情同步显示轨迹。第六批购物退款完整网页闭环仍待集中验收，不能宣称商城全链已经完成。商城、模拟付款/发货无需模型调用；需要新 Agent 调查时才使用 `-Live`。
 
 本地 core profile 先运行 `java/mvnw -f java/pom.xml -DskipTests package`，再运行 `docker compose -f infra/compose.yaml --profile core up --build -d mysql postgres redis agent commerce-service case-service gateway`，最后用 `python scripts/c11_core_smoke.py` 检查健康、认证及商家队列隔离。镜像包含公开的合成契约夹具用于本地演示；真实环境须覆盖演示密钥。该 profile 默认不开收费模型调查和 MQ 传输循环；功能链路验收以对应 C08 报告为准。`docker compose -f infra/compose.yaml --profile core stop gateway case-service commerce-service agent` 只停应用，不清数据卷。
 

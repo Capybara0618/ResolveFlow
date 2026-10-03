@@ -135,6 +135,18 @@ public class MerchantTradeService {
         return new Trade(
                 purchases.read((String) o.get("purchase_id"), merchant, (String) o.get("customer_id")),
                 f,
+                jdbc.query(
+                        "SELECT l.line_id,l.line_paid_amount,r.state FROM order_line l LEFT JOIN line_refund r ON r.line_id=l.line_id WHERE l.order_id=? ORDER BY l.line_id",
+                        (rs, index) -> {
+                            String state = rs.getString("state");
+                            long paid = rs.getLong("line_paid_amount");
+                            return new LineAftercare(
+                                    rs.getString("line_id"),
+                                    state == null ? "MISSING" : state,
+                                    state == null ? null : "CONSUMED".equals(state) ? paid : 0L,
+                                    state == null ? null : "RESERVED".equals(state) ? paid : 0L);
+                        },
+                        id),
                 reason == null,
                 reason);
     }

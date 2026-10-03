@@ -80,6 +80,11 @@ class FulfillmentDatabaseTest extends CommerceDatabaseTest {
         var before = trades.read(id, "M-1001");
         assertThat(before.fulfillment().status()).isEqualTo("NOT_SHIPPED");
         assertThat(before.canShip()).isTrue();
+        assertThat(before.lineAftercare()).hasSize(1).allSatisfy(line -> {
+            assertThat(line.state()).isEqualTo("FREE");
+            assertThat(line.refundedAmount()).isZero();
+            assertThat(line.reservedAmount()).isZero();
+        });
         assertThat(before.fulfillment().lines().getFirst().events().getFirst().code())
                 .isEqualTo("ORDER_PAID");
         var command = new ShipCommand("M-1001", "admin-test", key(), 1L);
@@ -92,6 +97,42 @@ class FulfillmentDatabaseTest extends CommerceDatabaseTest {
                 .isInstanceOf(ShoppingService.Refused.class);
         assertThatThrownBy(() -> trades.ship(id, new ShipCommand("M-1001", "another", command.idempotencyKey(), 1L)))
                 .isInstanceOf(ShoppingService.Refused.class);
+    }
+
+    @Test
+    void multiLineAftercareDoesNotAssignOneLinesReservationToAnotherLine() {
+        String id = multiPaid();
+        var original = trades.read(id, "M-1001").lineAftercare();
+        assertThat(original).hasSize(2);
+        String target = original.getFirst().lineId();
+        jdbc.update(
+                "UPDATE line_refund SET state='RESERVED',operation_id=?,version=version+1 WHERE line_id=?",
+                key(),
+                target);
+        var facts = trades.read(id, "M-1001").lineAftercare();
+        assertThat(facts)
+                .filteredOn(f -> f.lineId().equals(target))
+                .singleElement()
+                .satisfies(f -> {
+                    assertThat(f.state()).isEqualTo("RESERVED");
+                    assertThat(f.reservedAmount()).isPositive();
+                    assertThat(f.refundedAmount()).isZero();
+                });
+        assertThat(facts)
+                .filteredOn(f -> !f.lineId().equals(target))
+                .singleElement()
+                .satisfies(f -> {
+                    assertThat(f.state()).isEqualTo("FREE");
+                    assertThat(f.reservedAmount()).isZero();
+                });
+        jdbc.update("DELETE FROM line_refund WHERE line_id=?", target);
+        assertThat(trades.read(id, "M-1001").lineAftercare())
+                .filteredOn(f -> f.lineId().equals(target))
+                .singleElement()
+                .satisfies(f -> {
+                    assertThat(f.state()).isEqualTo("MISSING");
+                    assertThat(f.reservedAmount()).isNull();
+                });
     }
 
     @Test

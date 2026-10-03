@@ -100,7 +100,15 @@
       ]
     },
     "can_ship": true,
-    "blocked_reason": null
+    "blocked_reason": null,
+    "line_aftercare": [
+      {
+        "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_amount": 0
+      }
+    ]
   },
   "MerchantTrades": {
     "items": [
@@ -165,7 +173,15 @@
           ]
         },
         "can_ship": true,
-        "blocked_reason": null
+        "blocked_reason": null,
+        "line_aftercare": [
+          {
+            "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+            "state": "FREE",
+            "refunded_amount": 0,
+            "reserved_amount": 0
+          }
+        ]
       }
     ],
     "next_cursor": null
@@ -178,5 +194,11 @@
     "actor": "demo-admin",
     "idempotency_key": "synthetic-ship",
     "expected_version": 1
+  },
+  "MerchantLineAftercare": {
+    "line_id": "SHOP-00000000-0000-4000-8000-000000006002",
+    "state": "FREE",
+    "refunded_amount": 0,
+    "reserved_amount": 0
   }
 }

@@ -18,7 +18,7 @@ NOT_SHIPPED只表示本地订单未执行模拟发货，不代表外部承运商
 - Commerce私有同路径前缀/internal/v1/merchant/orders，由case-service且commerce:fulfillment调用。列表/详情带可信merchant_id；发货command含merchant_id/actor/idempotency_key/expected_version，不向公众暴露请求key。
 - 本人买家GET /api/v1/shop/purchases/{purchase_id}/fulfillment；Case核验本人Purchase再读取Commerce按merchant/customer/order_id限定的/private shop订单履约。已付款才存在，其他主体404；旧客户端协议不增必填成员。
 - Fulfillment：order_id、status、synthetic=true、version（历史非可写null）、updated_at（无事实null）、lines[各行line_id/status/carrier_conclusion/source_version/events]。NOT_SHIPPED/IN_TRANSIT/DELIVERED/LOST/UNKNOWN分开；多行历史不一致汇总UNKNOWN，保留逐行事实。未发现物流不造事件。
-- MerchantTrade：purchase（既有CheckoutPurchase全部不可变行/退款汇总）、fulfillment、can_ship、blocked_reason。列表items/next_cursor；仅真实已付订单，待付款草稿不混成可发货订单。可按NOT_SHIPPED/IN_TRANSIT/DELIVERED/LOST/UNKNOWN筛选，1–48，游标绑定商家与筛选，任一依赖故障不装作空列表。
+- MerchantTrade：purchase（既有CheckoutPurchase全部不可变行/退款汇总）、fulfillment、line_aftercare、can_ship、blocked_reason。line_aftercare按本订单每行真实line_refund投影FREE/RESERVED/CONSUMED/MISSING与refunded_amount/reserved_amount；缺槽为MISSING/null金额，不能装作无占用。同行只能全量退款，RESERVED表示金额占用，不代表已退款。列表items/next_cursor；仅真实已付订单，待付款草稿不混成可发货订单。可按NOT_SHIPPED/IN_TRANSIT/DELIVERED/LOST/UNKNOWN筛选，1–48，游标绑定商家与筛选，任一依赖故障不装作空列表。
 
 ## 政策与申请
 
@@ -32,5 +32,9 @@ RAG索引通过既有导入/index入口使用新精确manifest/hash，不以改�
 ## 页面及集中验收
 
 M10管理员“交易订单”，保持已有商家/队列/人员/政策导航，不提供私有跨店切换。M11全部商品、原实付、履约、逐行售后及明确首次模拟发货确认，长编号展开。买家M09显示真实物流、待发货说明与已有逐行申请；主事实≥16px，1280/1440/1680桌面无横向溢出。未知写响应保留原请求，不自动第二次发货。未做库存、真实支付/物流、模拟签收、移动端、平台超级管理员。
+
+AdminTrades在请求发送前，将order_id、原key、expected_version保存至当前浏览器sessionStorage，按商家和账号sub隔离（解码仅用于本地隔离，权限始终服务端核验）。重开页面只读取原订单，管理员显式重试同键同载荷；401保留原请求，确定拒绝则清除被拒绝请求并要求刷新，成功后的后续GET失败不反转为未知发货。无法保存或原记录损坏时阻止新写；关闭浏览器会话可能丢失本地恢复信息，不承诺跨设备恢复。订单状态由服务器再核验，不能据本地记录生成履约事实。
+
+“查看此订单的售后工单”按order_id进入已有本商家公共队列全部阶段查询，未申请时显示空结果；不把商品行ID传给只支持订单号的旧搜索，也不将退款槽状态冒充工单处理进度。买家履约独立读取，故障可重试而不隐藏付款或售后资格；旧请求受页面/读取代次保护，不覆盖新订单。公开申请表用明确退款原因文字覆盖已付款未发货，不增设自动审批理由菜单。
 
 先隔离实库失败回归归属、重复/不同键、版本、占用/已退、全部行回滚及竞争；再接协议/fixture/Case及网页，功能批次集中验证。保留数据部署，新增专用样本发货和只读原历史核验，不重置已付/退款订单；本批不为截图启动Live，第六批才集中购物→申请→Agent/RAG→人工→退款网页闭环。报告分别记录实际通过、失败与未运行。

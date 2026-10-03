@@ -6584,6 +6584,36 @@ components:
           items:
             $ref: '#/components/schemas/FulfillmentTracking'
           maxItems: 200
+    MerchantLineAftercare:
+      type: object
+      additionalProperties: false
+      required:
+      - line_id
+      - state
+      - refunded_amount
+      - reserved_amount
+      properties:
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+        state:
+          type: string
+          enum:
+          - FREE
+          - RESERVED
+          - CONSUMED
+          - MISSING
+        refunded_amount:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+        reserved_amount:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
     MerchantTrade:
       type: object
       additionalProperties: false
@@ -6592,6 +6622,7 @@ components:
       - fulfillment
       - can_ship
       - blocked_reason
+      - line_aftercare
       properties:
         purchase:
           $ref: '#/components/schemas/CheckoutPurchase'
@@ -6605,6 +6636,11 @@ components:
             minLength: 1
             maxLength: 1000
           - type: 'null'
+        line_aftercare:
+          type: array
+          maxItems: 200
+          items:
+            $ref: '#/components/schemas/MerchantLineAftercare'
     MerchantTrades:
       type: object
       additionalProperties: false

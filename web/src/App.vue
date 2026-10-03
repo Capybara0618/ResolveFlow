@@ -12,6 +12,7 @@ import MarketplaceWorkspace from './ui/MarketplaceWorkspace.vue'
 import AdminPeople from './ui/AdminPeople.vue'
 import AdminOverview from './ui/AdminOverview.vue'
 import AdminPolicies from './ui/AdminPolicies.vue'
+import AdminTrades from './ui/AdminTrades.vue'
 import InvestigationSources from './ui/InvestigationSources.vue'
 import PolicyCitations from './ui/PolicyCitations.vue'
 import { paidAtOf, productNameMissing, productTitle, variantOf } from './ui/order-line-format'
@@ -63,7 +64,7 @@ let reviewContextGeneration = 0
 const focusedPolicy = ref<string | null>(null)
 const focusNonce = ref(0)
 const queryOpen = ref(false)
-type MerchantPage = 'review' | 'people' | 'overview' | 'policies'
+type MerchantPage = 'review' | 'people' | 'overview' | 'policies' | 'orders'
 const merchantPage = ref<MerchantPage>('review')
 function changeMerchantPage(page: MerchantPage, query = false) {
   if (busy.value) return
@@ -79,6 +80,12 @@ function quickQueue(view: string, scope: ReviewScope) {
   merchantPage.value = 'review'; reviewView.value = view; reviewScope.value = scope
   reviewQuery.value = ''; filterQueue()
 }
+function tradeAftercare(order: string) {
+  if (busy.value) return
+  changeMerchantPage('review'); queryOpen.value = false; reviewView.value = 'ALL'; reviewScope.value = 'PUBLIC'; reviewQuery.value = order
+  filterQueue()
+}
+
 function overviewCase(id: string) {
   if (busy.value) return
   merchantPage.value = 'review'; queryOpen.value = true
@@ -478,11 +485,13 @@ onUnmounted(stopStream)
         <a v-if="isReviewer" href="#history" class="nav-link" :class="{ current: merchantPage === 'review' && !queryOpen && reviewScope === 'PUBLIC' && reviewView === 'CLOSED' }" :aria-disabled="busy" @click.prevent="quickQueue('CLOSED','PUBLIC')"><Icon name="clock" />历史工单</a>
         <a href="#case-panel" class="nav-link" :class="{ current: merchantPage === 'review' && queryOpen }" :aria-disabled="busy" @click.prevent="changeMerchantPage('review', true)"><Icon name="search" />工单查询</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#overview" class="nav-link" :class="{ current: merchantPage === 'overview' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('overview')"><Icon name="box" />商家概览</a>
+        <a v-if="account.role === 'MERCHANT_ADMIN'" href="#orders" class="nav-link" :class="{ current: merchantPage === 'orders' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('orders')"><Icon name="box" />交易订单</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#people" class="nav-link" :class="{ current: merchantPage === 'people' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('people')"><Icon name="user" />人员管理</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#policies" class="nav-link" :class="{ current: merchantPage === 'policies' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('policies')"><Icon name="file" />政策与版本</a>
         <div class="sidebar-note"><p>让售后更简单<br />让每一次服务都有结果</p><small>单订单行 · 全量模拟退款</small><span>© 2026 ResolveFlow</span></div>
       </nav>
-      <AdminPeople v-if="merchantPage === 'people' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '账号状态或权限已变化，请重新登录。'" @renamed="account.display_name = $event" />
+      <AdminTrades v-if="merchantPage === 'orders' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" @aftercare="tradeAftercare" />
+      <AdminPeople v-else-if="merchantPage === 'people' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '账号状态或权限已变化，请重新登录。'" @renamed="account.display_name = $event" />
       <AdminOverview v-else-if="merchantPage === 'overview' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" @queue="quickQueue" @open="overviewCase" @people="changeMerchantPage('people')" />
       <AdminPolicies v-else-if="merchantPage === 'policies' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <main v-else class="workspace" :class="{ 'reviewer-workspace': isReviewer }">
