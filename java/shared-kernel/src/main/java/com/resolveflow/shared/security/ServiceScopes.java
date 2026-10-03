@@ -29,6 +29,9 @@ public final class ServiceScopes {
     /** Buyer checkout facade only; never included in run tool credentials. */
     public static final String COMMERCE_CHECKOUT = "commerce:checkout";
 
+    /** Merchant fulfillment facade only; never part of Agent tool credentials. */
+    public static final String COMMERCE_FULFILLMENT = "commerce:fulfillment";
+
     /** Read Case's material and the policy version a case is pinned to. */
     public static final String POLICY_READ = "policy:read";
 

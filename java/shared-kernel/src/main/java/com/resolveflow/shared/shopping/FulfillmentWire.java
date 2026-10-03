@@ -37,11 +37,27 @@ public final class FulfillmentWire {
             List<Trade> items, @JsonProperty("next_cursor") String nextCursor) {}
 
     public record ShipRequest(
-            @JsonProperty("expected_version") Long expectedVersion) {}
+            @JsonProperty("expected_version")
+            @tools.jackson.databind.annotation.JsonDeserialize(using = StrictVersion.class)
+            Long expectedVersion) {}
 
     public record ShipCommand(
             @JsonProperty("merchant_id") String merchantId,
             String actor,
             @JsonProperty("idempotency_key") String idempotencyKey,
-            @JsonProperty("expected_version") Long expectedVersion) {}
+
+            @JsonProperty("expected_version")
+            @tools.jackson.databind.annotation.JsonDeserialize(using = StrictVersion.class)
+            Long expectedVersion) {}
+
+    /** CAS versions are integer tokens; coercing decimals or strings could target another version. */
+    public static class StrictVersion extends tools.jackson.databind.ValueDeserializer<Long> {
+        @Override
+        public Long deserialize(
+                tools.jackson.core.JsonParser parser, tools.jackson.databind.DeserializationContext context) {
+            if (parser.currentToken() != tools.jackson.core.JsonToken.VALUE_NUMBER_INT)
+                throw new IllegalArgumentException("expected_version must be an integer");
+            return parser.getLongValue();
+        }
+    }
 }

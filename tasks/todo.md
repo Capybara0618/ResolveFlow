@@ -1,5 +1,11 @@
 # 当前改进进度
 
+## 当前快照（2026-10-03，第五批交易与履约接口子步）
+
+- 领域9fea0ec及LF修复b8887b6已推送，新增Case/Commerce各四条接口，core Case57/Commerce25/Agent7。管理员本商家交易分页/详情/观察版本原键首次发货，平台买家本人已付履约；持久身份绑定主体，Case专用fulfillment范围拒绝Agent/专员/客户和伪造主体。严格版本拒绝小数/字符串/溢出，依赖故障503。九类57个不同Java测试/0 skipped、严格版本14项复测、Python117、定点Spotless/Ruff/diff通过；实际命令、Authority首轮两失败与修复、未运行见[第五批报告](../reports/merchant-fulfillment.md)。本接口子步精确commit/正常push，SHA及远端确认见交接消息。
+- 第五批未完成：接下来追加两商家2026.10不可变购物政策及精确索引/未发货当前事实复核，再接M09/M10/M11与保留数据集中验收，第六批全链网页尚待实施。未部署V14/新接口，当前5174/8180仍第四批只读版本；本步无演示写入/新资金/工单/模型。领域/第四批不重做；历史工程/verify/Commerce退款测试/草图/日志不夹带。
+
+
 ## 当前快照（2026-10-03，第五批履约领域子步）
 
 - 第四批5884d80已确认推送。本批已写[履约/政策规格](../docs/merchant-fulfillment.md)，追加V14真实未发货事实，付款成功同事务创建全部行ORDER_PAID；MerchantTradeService本商家全行/过滤分页、本人读取、首次模拟发货与原键恢复，账本→履约→槽锁阻止占用/已退发货，第二事件失败全回滚，READ_COMMITTED修复原回执/预留可见性。七个共享wire/core Schema/fixture已同步，路由未新增。Java三类33 passed/0 skipped、Python三文件97 passed、定点Spotless/Ruff/diff通过；命令、RED/外键清理/时间类型/RR并发失败与修复见[第五批报告](../reports/merchant-fulfillment.md)。本领域小步独立精确commit/正常push后继续，SHA由交接消息给出。原演示库尚未追加V14，未重启/写资金/新工单/模型。

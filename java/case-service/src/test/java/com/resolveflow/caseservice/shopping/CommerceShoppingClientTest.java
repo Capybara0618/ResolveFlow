@@ -188,4 +188,46 @@ class CommerceShoppingClientTest {
         assertThatThrownBy(() -> client.product("p")).isInstanceOf(CommerceUnavailableException.class);
         server.verify();
     }
+
+    @Test
+    void fulfillmentWireUsesDistinctMerchantAndBuyerScopesAndPreservesOriginalCommand() throws Exception {
+        var all = json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/fulfillment.json")));
+        var scopes = new String[] {
+            "commerce:fulfillment", "commerce:fulfillment", "commerce:fulfillment", "commerce:checkout"
+        };
+        var urls = new String[] {
+            "/merchant/orders?merchant_id=M-1001&status=NOT_SHIPPED&limit=1",
+            "/merchant/orders/order?merchant_id=M-1001",
+            "/merchant/orders/order/simulated-shipment",
+            "/shop/orders/order/fulfillment?merchant_id=M-1001&customer_id=trusted"
+        };
+        var results = new String[] {"MerchantTrades", "MerchantTrade", "OrderFulfillment", "OrderFulfillment"};
+        for (int i = 0; i < urls.length; i++) {
+            String scope = scopes[i];
+            var expectation = server.expect(requestTo("http://commerce.test/internal/v1" + urls[i]))
+                    .andExpect(req -> {
+                        var identity = codec.verifyAsService(
+                                req.getHeaders().getFirst("Authorization").substring(7), Instant.now());
+                        assertThat(identity.subject()).isEqualTo("case-service");
+                        assertThat(identity.scopes()).containsExactly(scope);
+                    });
+            if (i == 2)
+                expectation
+                        .andExpect(method(HttpMethod.POST))
+                        .andExpect(content()
+                                .json(all.get("SimulatedShipmentCommand").toString()));
+            expectation.andRespond(withSuccess(all.get(results[i]).toString(), MediaType.APPLICATION_JSON));
+        }
+        assertThat(json.readTree(json.writeValueAsString(client.merchantOrders("M-1001", "NOT_SHIPPED", null, 1))))
+                .isEqualTo(all.get("MerchantTrades"));
+        assertThat(json.readTree(json.writeValueAsString(client.merchantOrder("order", "M-1001"))))
+                .isEqualTo(all.get("MerchantTrade"));
+        var command = json.treeToValue(
+                all.get("SimulatedShipmentCommand"), com.resolveflow.shared.shopping.FulfillmentWire.ShipCommand.class);
+        assertThat(json.readTree(json.writeValueAsString(client.ship("order", command))))
+                .isEqualTo(all.get("OrderFulfillment"));
+        assertThat(json.readTree(json.writeValueAsString(client.fulfillment("order", "M-1001", "trusted"))))
+                .isEqualTo(all.get("OrderFulfillment"));
+        server.verify();
+    }
 }

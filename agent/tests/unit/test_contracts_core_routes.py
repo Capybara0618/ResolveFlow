@@ -34,7 +34,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 53, "Commerce": 21, "Agent": 7}
+EXPECTED_ROUTE_COUNTS = {"Case": 57, "Commerce": 25, "Agent": 7}
 
 
 def test_merchant_workspace_projection_fixtures_and_read_only_routes() -> None:
@@ -323,7 +323,11 @@ def test_document_marks_the_core_profile(service: str) -> None:
 
 @pytest.mark.parametrize("service", sorted(DOCUMENTS))
 def test_document_does_not_expose_the_deferred_surface(service: str) -> None:
-    paths = " ".join(document(service)["paths"])
+    # Approved personal-project order tracking is not the old separate Fulfillment
+    # service. Exempt only the two owned read routes; every other old surface stays banned.
+    owned_reads = {"/api/v1/shop/purchases/{purchase_id}/fulfillment",
+                   "/internal/v1/shop/orders/{order_id}/fulfillment"}
+    paths = " ".join(path for path in document(service)["paths"] if path not in owned_reads)
     for fragment in DEFERRED_PATH_FRAGMENTS:
         assert fragment not in paths, f"{fragment} must stay out of contracts/core/openapi-{service}.yaml"
     schemas = document(service)["components"]["schemas"]

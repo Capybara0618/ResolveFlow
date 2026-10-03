@@ -39,16 +39,14 @@ public class CommerceShoppingClient {
     }
 
     private <T> T call(RestClient.RequestHeadersSpec<?> request, boolean checkout, ParameterizedTypeReference<T> type) {
+        return call(request, checkout ? ServiceScopes.COMMERCE_CHECKOUT : ServiceScopes.COMMERCE_READ, type);
+    }
+
+    private <T> T call(RestClient.RequestHeadersSpec<?> request, String scope, ParameterizedTypeReference<T> type) {
         try {
             T body = request.header(
                             HttpHeaders.AUTHORIZATION,
-                            "Bearer "
-                                    + codec.issueServiceToken(
-                                            "case-service",
-                                            null,
-                                            null,
-                                            checkout ? ServiceScopes.COMMERCE_CHECKOUT : ServiceScopes.COMMERCE_READ,
-                                            Instant.now()))
+                            "Bearer " + codec.issueServiceToken("case-service", null, null, scope, Instant.now()))
                     .retrieve()
                     .onStatus(s -> s.is4xxClientError(), (req, res) -> {
                         int status = res.getStatusCode().value();
@@ -69,6 +67,52 @@ public class CommerceShoppingClient {
 
     public List<Store> stores() {
         return call(rest.get().uri("/internal/v1/shop/stores"), false, new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.FulfillmentWire.Trades merchantOrders(
+            String merchant, String status, String cursor, Integer limit) {
+        return call(
+                rest.get().uri(u -> {
+                    var b = u.path("/internal/v1/merchant/orders").queryParam("merchant_id", merchant);
+                    if (status != null) b.queryParam("status", status);
+                    if (cursor != null) b.queryParam("cursor", cursor);
+                    if (limit != null) b.queryParam("limit", limit);
+                    return b.build();
+                }),
+                ServiceScopes.COMMERCE_FULFILLMENT,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.FulfillmentWire.Trade merchantOrder(String id, String merchant) {
+        return call(
+                rest.get()
+                        .uri(u -> u.path("/internal/v1/merchant/orders/{id}")
+                                .queryParam("merchant_id", merchant)
+                                .build(id)),
+                ServiceScopes.COMMERCE_FULFILLMENT,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment ship(
+            String id, com.resolveflow.shared.shopping.FulfillmentWire.ShipCommand command) {
+        return call(
+                rest.post()
+                        .uri("/internal/v1/merchant/orders/{id}/simulated-shipment", id)
+                        .body(command),
+                ServiceScopes.COMMERCE_FULFILLMENT,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment fulfillment(
+            String id, String merchant, String customer) {
+        return call(
+                rest.get()
+                        .uri(u -> u.path("/internal/v1/shop/orders/{id}/fulfillment")
+                                .queryParam("merchant_id", merchant)
+                                .queryParam("customer_id", customer)
+                                .build(id)),
+                true,
+                new ParameterizedTypeReference<>() {});
     }
 
     public com.resolveflow.shared.shopping.MultiCheckoutWire.Quote cartQuote(

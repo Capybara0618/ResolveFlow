@@ -25,3 +25,23 @@ git diff --check
 首次暂存检查还揭示新fulfillment.json在Windows写出CRLF，git将其报为尾部空白；9fea0ec之后单独规范为LF并正常修复提交，不amend/重写历史。公开JSON内容不变，diff检查通过后才一同正常push。
 
 未运行/尚未实施：本子步未接Case/Commerce新增管理员/本人HTTP、网页M09–M11、购物政策导入/索引及新调查规则，未部署V14到演示库、无浏览器发货/新购买/退款/工单/模型调用。仍保留上一批5174只读演示。领域验证后独立精确commit/正常push，再继续本批接口与政策、网页、保留数据集中验收；旧工程/verify/Commerce退款测试/草图/历史日志不夹带。
+
+## 管理员交易与本人履约接口子步
+
+2026-10-03，领域9fea0ec及LF修复b8887b6已正常推送。新增Case四条公共接口与Commerce四条私有接口，core路由Case57/Commerce25/Agent7。商家管理员可按状态分页、读完整订单、按观察版本与原键首次整单模拟发货；平台买家只读本人已付交易履约。持久身份决定merchant/customer/actor，不能以请求自报主体跨店。专员、旧客户和Agent均不能使用管理员发货接口；新增commerce:fulfillment只给Case，Agent原tool credential保持两个只读scope。本人履约使用Case checkout范围，服务故障503，未找到404而非空结果。共享wire严格拒绝小数、字符串及溢出版本号，不修改全局Jackson设置。
+
+实际命令（Java21）：
+
+```powershell
+./java/mvnw.cmd -f java/pom.xml -pl commerce-service,case-service -am '-Dtest=MerchantTradeApiTest,FulfillmentDatabaseTest,CheckoutPaymentDatabaseTest,MultiCheckoutDatabaseTest,CartApiTest,CartBuyerApiTest,CheckoutBuyerApiTest,CommerceShoppingClientTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+./java/mvnw.cmd -f java/pom.xml -pl case-service -am '-Dtest=CommerceShoppingClientTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+./java/mvnw.cmd -f java/pom.xml -pl commerce-service,case-service -am '-Dtest=MerchantTradeApiTest,CommerceShoppingClientTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+./java/mvnw.cmd -f java/pom.xml '"-DspotlessFiles=.*(MerchantTradeController|MerchantTradeApiTest|CommerceShoppingClient|CommerceShoppingClientTest|ServiceTokenFilter|ServiceScopes|FulfillmentWire)\.java"' spotless:apply
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_contracts_fulfillment.py agent/tests/unit/test_contracts_cart_checkout.py agent/tests/unit/test_contracts_cart.py agent/tests/unit/test_contracts_core_routes.py agent/tests/unit/test_contracts_checkout_payment.py -q
+agent/.venv/Scripts/python.exe -m ruff check agent/tests/unit/test_contracts_fulfillment.py agent/tests/unit/test_contracts_core_routes.py
+git diff --check
+```
+
+首轮Java九类56 passed/0 skipped，追加客户端第七项后7 passed；共57个不同测试。严格版本补强后接口与客户端14项复测通过。Commerce临时MySQL真实付款/发货与安全过滤、Case真实持久登录和模拟私有依赖、客户端真实HTTP序列化分别验证，不冒充正式网页链路。覆盖管理员可信绑定、异店/异买家拒绝、非管理员禁止、原键恢复、无效版本/自报字段拒绝、依赖503，以及全部新RPC的令牌subject/scope和类型。Python首轮115 passed/2 failed因两条本人履约路由缺少规格Authority文本；补齐来源描述，保留旧deferred guards仅排除已实现的两条精确路径，最终117 passed。定点Spotless、Ruff和差异检查通过。
+
+未运行：尚未部署V14/接口到保留数据演示，未改M09/M10/M11，未追加/导入购物政策与索引、未做未发货建议的当前事实复核或新购物退款网页闭环。演示仍第四批版本，原数据/预算未触碰，无新付款/发货/工单/退款/模型调用。下一步同一第五批先购物政策与复核，再网页接线及集中验收；第六批仍待执行。

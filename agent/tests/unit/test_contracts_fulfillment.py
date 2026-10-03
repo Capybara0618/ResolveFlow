@@ -42,3 +42,17 @@ def test_public_shipment_only_accepts_observed_version():
         assert not v.accepts({'expected_version': 1, extra: 'forged'})
     for version in [0, -1, None, 1.5, 9223372036854775808]:
         assert not v.accepts({'expected_version': version})
+
+
+def test_new_shipping_routes_require_admin_or_trusted_case_and_original_key():
+    for owner, prefix in [('case', '/api/v1'), ('commerce', '/internal/v1')]:
+        doc = load_openapi(owner, 'contracts/core')
+        for suffix in ['', '/{order_id}', '/{order_id}/simulated-shipment']:
+            operations = doc['paths'][prefix + '/merchant/orders' + suffix]
+            operation = operations['post' if suffix.endswith('simulated-shipment') else 'get']
+            assert operation['security']
+            assert {'401', '403', '404', '503'} <= set(operation['responses'])
+        ship = doc['paths'][prefix + '/merchant/orders/{order_id}/simulated-shipment']['post']
+        assert '409' in ship['responses']
+        if owner == 'case':
+            assert any(p['name'] == 'Idempotency-Key' and p['required'] for p in ship['parameters'])

@@ -2708,6 +2708,177 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
+  /api/v1/merchant/orders:
+    get:
+      operationId: caseMerchantMerchantTradesget
+      summary: 本商家交易或首次模拟发货
+      description: 'Authority: docs/merchant-fulfillment.md. Administrator merchant/actor
+        are derived by Case. Internally requires case-service and commerce:fulfillment;
+        Agent forbidden. No carrier delivery is generated.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - NOT_SHIPPED
+          - IN_TRANSIT
+          - DELIVERED
+          - LOST
+          - UNKNOWN
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 512
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 48
+      responses:
+        '200':
+          description: MerchantTrades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantTrades'
+        '400':
+          description: Invalid observed version/input/cursor
+        '401':
+          description: Missing/current identity invalid
+        '403':
+          description: Wrong role, subject or scope
+        '404':
+          description: Missing or foreign order
+        '503':
+          description: Unavailable; do not replace uncertain request
+  /api/v1/merchant/orders/{order_id}:
+    get:
+      operationId: caseMerchantMerchantTradeget
+      summary: 本商家交易或首次模拟发货
+      description: 'Authority: docs/merchant-fulfillment.md. Administrator merchant/actor
+        are derived by Case. Internally requires case-service and commerce:fulfillment;
+        Agent forbidden. No carrier delivery is generated.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          format: uuid
+      responses:
+        '200':
+          description: MerchantTrade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantTrade'
+        '400':
+          description: Invalid observed version/input/cursor
+        '401':
+          description: Missing/current identity invalid
+        '403':
+          description: Wrong role, subject or scope
+        '404':
+          description: Missing or foreign order
+        '503':
+          description: Unavailable; do not replace uncertain request
+  /api/v1/merchant/orders/{order_id}/simulated-shipment:
+    post:
+      operationId: caseMerchantOrderFulfillmentpost
+      summary: 本商家交易或首次模拟发货
+      description: 'Authority: docs/merchant-fulfillment.md. Administrator merchant/actor
+        are derived by Case. Internally requires case-service and commerce:fulfillment;
+        Agent forbidden. No carrier delivery is generated.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          format: uuid
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: OrderFulfillment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderFulfillment'
+        '400':
+          description: Invalid observed version/input/cursor
+        '401':
+          description: Missing/current identity invalid
+        '403':
+          description: Wrong role, subject or scope
+        '404':
+          description: Missing or foreign order
+        '503':
+          description: Unavailable; do not replace uncertain request
+        '409':
+          description: Old version, occupied refund, replay conflict or already shipped
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulatedShipmentRequest'
+  /api/v1/shop/purchases/{purchase_id}/fulfillment:
+    get:
+      operationId: caseBuyerOrderFulfillment
+      summary: 本人已付款订单履约
+      description: 'Authority: docs/merchant-fulfillment.md. Case verifies owned paid purchase first. Internally requires case-service
+        and commerce:checkout. Missing historic carrier records remain UNKNOWN, not
+        unshipped.'
+      parameters:
+      - name: purchase_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OrderFulfillment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderFulfillment'
+        '400':
+          description: Invalid input
+        '401':
+          description: Invalid identity
+        '403':
+          description: Wrong role/subject/scope
+        '404':
+          description: Not owned or unpaid
+        '503':
+          description: Unavailable
+
 components:
   securitySchemes:
     bearerAuth:

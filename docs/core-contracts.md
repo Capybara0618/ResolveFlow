@@ -106,6 +106,15 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Commerce | POST /internal/v1/shop/cart/{store_id}/quote | 仅Case checkout，可信主体及购物车版本 |
 | Commerce | POST /internal/v1/shop/cart/{store_id}/drafts | 价格锁/行快照/幂等，多行付款发布复用原尝试 |
 
+| Case | GET /api/v1/merchant/orders | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
+| Case | GET /api/v1/merchant/orders/{order_id} | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
+| Case | POST /api/v1/merchant/orders/{order_id}/simulated-shipment | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
+| Case | GET /api/v1/shop/purchases/{purchase_id}/fulfillment | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
+| Commerce | GET /internal/v1/merchant/orders | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
+| Commerce | GET /internal/v1/merchant/orders/{order_id} | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
+| Commerce | POST /internal/v1/merchant/orders/{order_id}/simulated-shipment | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
+| Commerce | GET /internal/v1/shop/orders/{order_id}/fulfillment | 第五批本商家/本人范围、首次模拟发货及原键版本保护 |
+
 核心不开放旧entitlements、packing、cancel-before-start或补发端点。政策由受控脚本导入校验，不做管理HTTP全集。版本按订单行**支付时间**选择：取生效起点最晚且未被显式结束的版本，因此无结束日期的版本会被后继版本取代，而历史订单不会被新政策套用；选中的版本与hash在开单事务中钉在工单上，之后导入新版本不改变已开工单。Order API的公共归属仍为Case，以复用现有协议模式；不暗改网关到数据库。
 
 政策路由同时发布每条规则的`chunk_id`与`content_hash`，因为方案引用的`PolicyRef`要求这两个成员：只有这条路由发布规则，run能引用的hash只能从这里抄。两者都由**已存正文派生**（chunk按规则在bundle中的位置编号，hash取bundle_id/chunk_id/title/text的规范JSON），不存库、不读导入文件，与bundle自身manifest hash同一构造；跨语言固定值在`contracts/fixtures`中冻结，Java与Python各自重算同一digest，否则引用核对不可验证。
