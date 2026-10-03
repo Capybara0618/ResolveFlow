@@ -1,0 +1,38 @@
+{
+  "PlatformMerchant": {
+    "merchant_id": "M-1003",
+    "name": "轻行户外",
+    "description": "轻装出行",
+    "enabled": true,
+    "desired_enabled": true,
+    "version": 1,
+    "sync_state": "READY",
+    "policy_ready": true
+  },
+  "PlatformBuyer": {
+    "username": "buyer01",
+    "display_name": "买家01",
+    "enabled": true,
+    "version": 1
+  },
+  "ManagedProduct": {
+    "product_id": "P-3001",
+    "store_id": "M-1003",
+    "name": "轻量双肩包",
+    "description": "轻装出行",
+    "category": "outdoor",
+    "asset_key": "backpack",
+    "listed": true,
+    "version": 1,
+    "skus": [
+      {
+        "sku_id": "SKU-3001-01",
+        "variant": "深蓝色",
+        "unit_amount": 16900,
+        "max_quantity": 10,
+        "listed": true,
+        "version": 1
+      }
+    ]
+  }
+}

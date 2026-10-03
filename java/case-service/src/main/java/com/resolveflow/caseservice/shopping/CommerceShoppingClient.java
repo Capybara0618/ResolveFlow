@@ -69,6 +69,50 @@ public class CommerceShoppingClient {
         return call(rest.get().uri("/internal/v1/shop/stores"), false, new ParameterizedTypeReference<>() {});
     }
 
+    public com.resolveflow.shared.shopping.ManagementWire.StoreSync syncStore(
+            com.resolveflow.shared.shopping.ManagementWire.StoreSync request) {
+        return call(
+                rest.post().uri("/internal/v1/catalog-management/stores").body(request),
+                ServiceScopes.COMMERCE_CATALOG,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.ManagementWire.Products managedProducts(
+            String merchant, String after, Integer limit) {
+        return call(
+                rest.get().uri(u -> {
+                    var b = u.path("/internal/v1/catalog-management/products").queryParam("merchant_id", merchant);
+                    if (after != null) b.queryParam("after", after);
+                    if (limit != null) b.queryParam("limit", limit);
+                    return b.build();
+                }),
+                ServiceScopes.COMMERCE_CATALOG,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.ManagementWire.Product managedProduct(String merchant, String id) {
+        return call(
+                rest.get()
+                        .uri(u -> u.path("/internal/v1/catalog-management/products/{id}")
+                                .queryParam("merchant_id", merchant)
+                                .build(id)),
+                ServiceScopes.COMMERCE_CATALOG,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.ManagementWire.Product saveProduct(
+            String id, com.resolveflow.shared.shopping.ManagementWire.ProductCommand request) {
+        return call(
+                rest.post()
+                        .uri(
+                                id == null
+                                        ? "/internal/v1/catalog-management/products"
+                                        : "/internal/v1/catalog-management/products/" + id)
+                        .body(request),
+                ServiceScopes.COMMERCE_CATALOG,
+                new ParameterizedTypeReference<>() {});
+    }
+
     public com.resolveflow.shared.shopping.FulfillmentWire.Trades merchantOrders(
             String merchant, String status, String cursor, Integer limit) {
         return call(

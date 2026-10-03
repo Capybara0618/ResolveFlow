@@ -37,6 +37,10 @@ public record AuthenticatedPrincipal(String subject, String merchantId, Role rol
                     || customerId != null) {
                 throw new IllegalArgumentException("a platform buyer has only buyer_id and CUSTOMER role");
             }
+        } else if (role == Role.PLATFORM_ADMIN) {
+            if (merchantId != null || customerId != null) {
+                throw new IllegalArgumentException("a platform admin has no tenant binding");
+            }
         } else if (merchantId == null || merchantId.isBlank()) {
             throw new IllegalArgumentException("a principal needs a merchant_id");
         }

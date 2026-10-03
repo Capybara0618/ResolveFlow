@@ -11,6 +11,7 @@ public enum Role {
     CUSTOMER,
     REVIEWER,
     MERCHANT_ADMIN,
+    PLATFORM_ADMIN,
     OPERATOR;
 
     /** True when the role acts as one customer within a merchant rather than for the merchant. */

@@ -58,7 +58,7 @@ public class PersistentAccounts {
         var rows = jdbc.query(
                 """
                 SELECT a.username,a.merchant_id,a.role,a.customer_id,a.buyer_id,a.display_name,a.password_hash,
-                       a.identity_version,(a.enabled AND (a.buyer_id IS NOT NULL OR m.enabled)) AS enabled,
+                       a.identity_version,(a.enabled AND (a.role='PLATFORM_ADMIN' OR a.buyer_id IS NOT NULL OR m.enabled)) AS enabled,
                        m.display_name AS merchant_name
                   FROM identity_account a LEFT JOIN identity_merchant m ON m.merchant_id=a.merchant_id
                  WHERE a.username=?

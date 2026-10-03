@@ -181,8 +181,8 @@ public class StaffAdminService {
     }
 
     private static void password(String value) {
-        if (value == null || value.isBlank() || value.length() < 8 || value.length() > 200)
-            throw invalid("密码需8–200位且不能全为空白");
+        if (value == null || value.isBlank() || value.length() < 6 || value.length() > 200)
+            throw invalid("密码需6–200位且不能全为空白");
     }
 
     private static String hash(String password) {

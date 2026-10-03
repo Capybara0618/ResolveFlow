@@ -24,6 +24,17 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 
 | 所属 | 方法与路由 | 行为 |
 | --- | --- | --- |
+| Case | GET /api/v1/platform/merchants | docs/demo-foundation.md；仅平台管理员维护基础身份，不进入交易与审批 |
+| Case | POST /api/v1/platform/merchants | docs/demo-foundation.md；仅平台管理员维护基础身份，不进入交易与审批 |
+| Case | POST /api/v1/platform/merchants/{id} | docs/demo-foundation.md；仅平台管理员维护基础身份，不进入交易与审批 |
+| Case | GET /api/v1/platform/buyers | docs/demo-foundation.md；仅平台管理员维护基础身份，不进入交易与审批 |
+| Case | POST /api/v1/platform/buyers | docs/demo-foundation.md；仅平台管理员维护基础身份，不进入交易与审批 |
+| Case | POST /api/v1/platform/buyers/{id} | docs/demo-foundation.md；仅平台管理员维护基础身份，不进入交易与审批 |
+| Case | POST /api/v1/platform/merchants/{id}/sync | docs/demo-foundation.md；原商家版本恢复目录同步 |
+| Case | GET /api/v1/merchant/products | docs/demo-foundation.md；本商家管理员商品管理与版本冲突检查 |
+| Case | POST /api/v1/merchant/products | docs/demo-foundation.md；本商家管理员商品管理与版本冲突检查 |
+| Case | GET /api/v1/merchant/products/{id} | docs/demo-foundation.md；本商家管理员商品管理与版本冲突检查 |
+| Case | POST /api/v1/merchant/products/{id} | docs/demo-foundation.md；本商家管理员商品管理与版本冲突检查 |
 | Case | GET /api/v1/shop/stores | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
 | Case | GET /api/v1/shop/stores/{store_id} | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
 | Case | GET /api/v1/shop/products | docs/catalog-checkout.md；公开目录或受可信归属约束的独立待支付草稿 |
@@ -36,6 +47,11 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/shop/drafts/{draft_id}/cancel | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
 | Case | GET /api/v1/shop/purchases | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
 | Case | GET /api/v1/shop/purchases/{purchase_id} | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
+| Commerce | POST /internal/v1/catalog-management/stores | docs/demo-foundation.md；仅case-service的commerce:catalog凭证 |
+| Commerce | GET /internal/v1/catalog-management/products | docs/demo-foundation.md；仅case-service的commerce:catalog凭证 |
+| Commerce | POST /internal/v1/catalog-management/products | docs/demo-foundation.md；仅case-service的commerce:catalog凭证 |
+| Commerce | GET /internal/v1/catalog-management/products/{id} | docs/demo-foundation.md；仅case-service的commerce:catalog凭证 |
+| Commerce | POST /internal/v1/catalog-management/products/{id} | docs/demo-foundation.md；仅case-service的commerce:catalog凭证 |
 | Commerce | POST /internal/v1/shop/drafts/{draft_id}/payment | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
 | Commerce | GET /internal/v1/shop/drafts/{draft_id}/payment | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |
 | Commerce | POST /internal/v1/shop/drafts/{draft_id}/cancel | docs/simulated-checkout-payment.md；本人复合归属、原尝试模拟付款及交易投影 |

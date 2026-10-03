@@ -354,6 +354,7 @@ paths:
           enum:
           - electronics
           - home
+          - outdoor
       - name: store_id
         in: query
         required: false
@@ -2879,6 +2880,362 @@ paths:
         '503':
           description: Unavailable
 
+  /api/v1/platform/merchants:
+    get:
+      operationId: caseFoundationGetApiV1PlatformMerchants
+      summary: PlatformMerchants
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformMerchants'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+    post:
+      operationId: caseFoundationPostApiV1PlatformMerchants
+      summary: PlatformMerchant
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformMerchant'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformMerchantCreate'
+  /api/v1/platform/merchants/{id}:
+    post:
+      operationId: caseFoundationPostApiV1PlatformMerchantsId
+      summary: PlatformMerchant
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformMerchant'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformMerchantUpdate'
+  /api/v1/platform/buyers:
+    get:
+      operationId: caseFoundationGetApiV1PlatformBuyers
+      summary: PlatformBuyers
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformBuyers'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+    post:
+      operationId: caseFoundationPostApiV1PlatformBuyers
+      summary: PlatformBuyer
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformBuyer'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformBuyerCreate'
+  /api/v1/platform/buyers/{id}:
+    post:
+      operationId: caseFoundationPostApiV1PlatformBuyersId
+      summary: PlatformBuyer
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformBuyer'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformBuyerUpdate'
+  /api/v1/platform/merchants/{id}/sync:
+    post:
+      operationId: caseFoundationPostApiV1PlatformMerchantsIdSync
+      summary: PlatformMerchant
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformMerchant'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+  /api/v1/merchant/products:
+    get:
+      operationId: caseFoundationGetApiV1MerchantProducts
+      summary: ManagedProducts
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedProducts'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      parameters:
+      - name: after
+        in: query
+        required: false
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 48
+    post:
+      operationId: caseFoundationPostApiV1MerchantProducts
+      summary: ManagedProduct
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedProduct'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagedProductWrite'
+  /api/v1/merchant/products/{id}:
+    get:
+      operationId: caseFoundationGetApiV1MerchantProductsId
+      summary: ManagedProduct
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedProduct'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+    post:
+      operationId: caseFoundationPostApiV1MerchantProductsId
+      summary: ManagedProduct
+      description: 'Authority: docs/demo-foundation.md. Role and current session checked;
+        no Agent access or financial authority.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedProduct'
+        '400':
+          description: Refused or unavailable
+        '401':
+          description: Refused or unavailable
+        '403':
+          description: Refused or unavailable
+        '404':
+          description: Refused or unavailable
+        '409':
+          description: Refused or unavailable
+        '503':
+          description: Refused or unavailable
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagedProductWrite'
 components:
   securitySchemes:
     bearerAuth:
@@ -3179,6 +3536,7 @@ components:
           enum:
           - electronics
           - home
+          - outdoor
         quantity:
           type: integer
           minimum: 1
@@ -3862,6 +4220,7 @@ components:
           enum:
           - electronics
           - home
+          - outdoor
         asset_key:
           enum:
           - headphones
@@ -4628,6 +4987,14 @@ components:
       additionalProperties: false
       required: [access_token, token_type, expires_in, role]
       oneOf:
+        - properties:
+            role: {const: PLATFORM_ADMIN}
+          not:
+            anyOf:
+              - required: [merchant_id]
+              - required: [customer_id]
+              - required: [buyer_id]
+              - required: [merchant_name]
         - required: [buyer_id]
           properties:
             role: {const: CUSTOMER}
@@ -4637,6 +5004,8 @@ components:
               - required: [customer_id]
               - required: [merchant_name]
         - required: [merchant_id]
+          properties:
+            role: {enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
           not: {required: [buyer_id]}
       properties:
         access_token:
@@ -4651,7 +5020,7 @@ components:
           maximum: 86400
         role:
           type: string
-          enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]
+          enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR, PLATFORM_ADMIN]
           description: Persisted account role; merchant admins have read access until explicit takeover is implemented.
         buyer_id: {type: string, minLength: 1, maxLength: 64}
         merchant_id:
@@ -4672,6 +5041,14 @@ components:
       additionalProperties: false
       required: [username, role, display_name]
       oneOf:
+        - properties:
+            role: {const: PLATFORM_ADMIN}
+          not:
+            anyOf:
+              - required: [merchant_id]
+              - required: [customer_id]
+              - required: [buyer_id]
+              - required: [merchant_name]
         - required: [buyer_id]
           properties:
             role: {const: CUSTOMER}
@@ -4681,12 +5058,14 @@ components:
               - required: [customer_id]
               - required: [merchant_name]
         - required: [merchant_id, merchant_name]
+          properties:
+            role: {enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
           not: {required: [buyer_id]}
       properties:
         username: {type: string, minLength: 1, maxLength: 120}
         buyer_id: {type: string, minLength: 1, maxLength: 64}
         merchant_id: {type: string, minLength: 1}
-        role: {type: string, enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR]}
+        role: {type: string, enum: [CUSTOMER, REVIEWER, MERCHANT_ADMIN, OPERATOR, PLATFORM_ADMIN]}
         customer_id: {type: string, minLength: 1}
         display_name: {type: string, minLength: 1, maxLength: 120}
         merchant_name: {type: string, minLength: 1, maxLength: 120}
@@ -6696,5 +7075,416 @@ components:
           minimum: 1
           maximum: 9223372036854775807
 
+    PlatformMerchant:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - name
+      - description
+      - enabled
+      - desired_enabled
+      - version
+      - sync_state
+      - policy_ready
+      properties:
+        merchant_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 500
+        enabled:
+          type: boolean
+        desired_enabled:
+          type: boolean
+        version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        sync_state:
+          enum:
+          - READY
+          - PENDING
+        policy_ready:
+          type: boolean
+    PlatformBuyer:
+      type: object
+      additionalProperties: false
+      required:
+      - username
+      - display_name
+      - enabled
+      - version
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 120
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        enabled:
+          type: boolean
+        version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    PlatformMerchantCreate:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - name
+      - description
+      - username
+      - display_name
+      - password
+      - reason
+      properties:
+        merchant_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        username:
+          type: string
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9_-]{2,59}$
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        password:
+          type: string
+          minLength: 6
+          maxLength: 200
+          writeOnly: true
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    PlatformBuyerCreate:
+      type: object
+      additionalProperties: false
+      required:
+      - username
+      - display_name
+      - password
+      - reason
+      properties:
+        username:
+          type: string
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9_-]{2,59}$
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        password:
+          type: string
+          minLength: 6
+          maxLength: 200
+          writeOnly: true
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    PlatformMerchantUpdate:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - description
+      - enabled
+      - expected_version
+      - reason
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        enabled:
+          type: boolean
+        expected_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    PlatformBuyerUpdate:
+      type: object
+      additionalProperties: false
+      required:
+      - display_name
+      - enabled
+      - expected_version
+      - reason
+      properties:
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        enabled:
+          type: boolean
+        password:
+          type:
+          - string
+          - 'null'
+          minLength: 6
+          maxLength: 200
+          writeOnly: true
+        expected_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    CatalogStoreSync:
+      type: object
+      additionalProperties: false
+      required:
+      - store_id
+      - name
+      - description
+      - enabled
+      - version
+      properties:
+        store_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        enabled:
+          type: boolean
+        version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    ManagedSku:
+      type: object
+      additionalProperties: false
+      required:
+      - sku_id
+      - variant
+      - unit_amount
+      - max_quantity
+      - listed
+      - version
+      properties:
+        sku_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        variant:
+          type: string
+          minLength: 1
+          maxLength: 120
+        unit_amount:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        max_quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        listed:
+          type: boolean
+        version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    ManagedSkuWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - variant
+      - unit_amount
+      - max_quantity
+      - listed
+      properties:
+        sku_id:
+          type:
+          - string
+          - 'null'
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        variant:
+          type: string
+          minLength: 1
+          maxLength: 120
+        unit_amount:
+          type: integer
+          minimum: 1
+          maximum: 100000000
+        max_quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        listed:
+          type: boolean
+    ManagedProduct:
+      type: object
+      additionalProperties: false
+      required:
+      - product_id
+      - store_id
+      - name
+      - description
+      - category
+      - asset_key
+      - listed
+      - version
+      - skus
+      properties:
+        product_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        store_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        category:
+          enum:
+          - electronics
+          - home
+          - outdoor
+          - outdoor
+        asset_key:
+          type: string
+          pattern: ^[a-z][a-z0-9_-]{0,31}$
+        listed:
+          type: boolean
+        version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagedSku'
+    ManagedProductWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - description
+      - category
+      - asset_key
+      - listed
+      - skus
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        category:
+          enum:
+          - electronics
+          - home
+          - outdoor
+          - outdoor
+        asset_key:
+          type: string
+          pattern: ^[a-z][a-z0-9_-]{0,31}$
+        listed:
+          type: boolean
+        expected_version:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          maximum: 9007199254740991
+        skus:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagedSkuWrite'
+          minItems: 1
+          maxItems: 20
+    ManagedProductCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - actor
+      - product
+      properties:
+        merchant_id:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        actor:
+          type: string
+          minLength: 1
+          maxLength: 120
+        product:
+          $ref: '#/components/schemas/ManagedProductWrite'
+    ManagedProducts:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - next_after
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagedProduct'
+        next_after:
+          type:
+          - string
+          - 'null'
+          maxLength: 64
+    PlatformMerchants:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformMerchant'
+    PlatformBuyers:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformBuyer'
 security:
   - bearerAuth: []

@@ -44,7 +44,14 @@ public class RequestPrincipalResolver {
     }
 
     public AuthenticatedPrincipal resolve(String authorizationHeader) {
-        return session(authorizationHeader).principal();
+        var principal = session(authorizationHeader).principal();
+        requireBusinessPrincipal(principal);
+        return principal;
+    }
+
+    private static void requireBusinessPrincipal(AuthenticatedPrincipal principal) {
+        if (principal.role() == com.resolveflow.shared.security.Role.PLATFORM_ADMIN)
+            throw new com.resolveflow.caseservice.casefile.CaseService.ForbiddenScopeException("平台管理员无交易或售后操作权限");
     }
 
     public AuthenticatedPrincipal forLine(String authorizationHeader, String lineId) {
@@ -57,6 +64,7 @@ public class RequestPrincipalResolver {
 
     public Session sessionForCase(String authorizationHeader, String caseId) {
         var session = session(authorizationHeader);
+        requireBusinessPrincipal(session.principal());
         return new Session(buyers.forCase(session.principal(), caseId), session.identityVersion());
     }
 
@@ -80,7 +88,7 @@ public class RequestPrincipalResolver {
     public PersistentAccounts.Profile profile(String authorizationHeader) {
         try {
             return accounts.requireCurrent(
-                    resolve(authorizationHeader),
+                    session(authorizationHeader).principal(),
                     codec.identityVersionFromAuthorizationHeader(authorizationHeader, Instant.now(clock)));
         } catch (JwtCodec.TokenException error) {
             throw new UnauthenticatedException("a valid user token is required");

@@ -78,6 +78,7 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
      */
     private static String requiredScope(HttpServletRequest request) {
         String path = request.getRequestURI();
+        if (path.startsWith("/internal/v1/catalog-management")) return ServiceScopes.COMMERCE_CATALOG;
         if (path.startsWith("/internal/v1/merchant/orders")) return ServiceScopes.COMMERCE_FULFILLMENT;
         if (path.startsWith("/internal/v1/shop/drafts")
                 || path.startsWith("/internal/v1/shop/purchases")
@@ -124,7 +125,9 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
             return;
         }
         String required = requiredScope(request);
-        if ((ServiceScopes.COMMERCE_CHECKOUT.equals(required) || ServiceScopes.COMMERCE_FULFILLMENT.equals(required))
+        if ((ServiceScopes.COMMERCE_CHECKOUT.equals(required)
+                        || ServiceScopes.COMMERCE_FULFILLMENT.equals(required)
+                        || ServiceScopes.COMMERCE_CATALOG.equals(required))
                 && !"case-service".equals(identity.subject())) {
             refuse(
                     response,

@@ -57,7 +57,7 @@ public class ShoppingService {
                 || query != null && query.length() > 80
                 || after != null && after.length() > 64
                 || store != null && store.length() > 64) throw new IllegalArgumentException("查询或分页参数超出范围");
-        if (category != null && !List.of("electronics", "home").contains(category))
+        if (category != null && !List.of("electronics", "home", "outdoor").contains(category))
             throw new IllegalArgumentException("分类无效");
         String sql =
                 "SELECT p.product_id FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id WHERE p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)";

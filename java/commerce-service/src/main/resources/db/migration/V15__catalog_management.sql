@@ -1,0 +1,11 @@
+ALTER TABLE catalog_store ADD COLUMN version BIGINT NOT NULL DEFAULT 1;
+ALTER TABLE catalog_product ADD COLUMN version BIGINT NOT NULL DEFAULT 1;
+CREATE TABLE catalog_management_audit (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    store_id VARCHAR(64) NOT NULL,
+    product_id VARCHAR(64) NULL,
+    actor VARCHAR(120) NOT NULL,
+    action VARCHAR(32) NOT NULL,
+    version BIGINT NOT NULL,
+    occurred_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+);

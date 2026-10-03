@@ -93,7 +93,7 @@ public final class JwtCodec {
         var claims = MAPPER.createObjectNode();
         claims.put("sub", principal.subject());
         if (principal.isPlatformBuyer()) claims.put("buyer_id", principal.buyerId());
-        else claims.put("merchant_id", principal.merchantId());
+        else if (principal.merchantId() != null) claims.put("merchant_id", principal.merchantId());
         claims.put("role", principal.role().name());
         claims.put("identity_version", identityVersion);
         if (principal.customerId() != null) {
@@ -239,8 +239,11 @@ public final class JwtCodec {
         if (platformBuyer && (claims.has("merchant_id") || claims.has("customer_id"))) {
             throw new TokenException("buyer_id cannot be combined with merchant/customer claims");
         }
-        String merchant = platformBuyer ? null : requiredText(claims, "merchant_id");
         String roleText = requiredText(claims, "role");
+        boolean platformAdmin = "PLATFORM_ADMIN".equals(roleText);
+        if (platformAdmin && (claims.has("merchant_id") || claims.has("customer_id") || platformBuyer))
+            throw new TokenException("platform admin must not carry tenant claims");
+        String merchant = platformBuyer || platformAdmin ? null : requiredText(claims, "merchant_id");
         Role role;
         try {
             role = Role.valueOf(roleText);

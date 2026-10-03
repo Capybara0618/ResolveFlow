@@ -32,6 +32,8 @@ public final class ServiceScopes {
     /** Merchant fulfillment facade only; never part of Agent tool credentials. */
     public static final String COMMERCE_FULFILLMENT = "commerce:fulfillment";
 
+    public static final String COMMERCE_CATALOG = "commerce:catalog";
+
     /** Read Case's material and the policy version a case is pinned to. */
     public static final String POLICY_READ = "policy:read";
 
