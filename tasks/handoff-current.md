@@ -1,6 +1,6 @@
 # 当前执行说明：正式启动入口与三角色接手规则
 
-2026-10-04 用户批准 Agent 上下文与建议质量第一批，按 [本批方案](../docs/agent-context-quality.md) 接续，进度仅在 todo 顶部。改前输入已冻结；先消除重复并保护必要事实，再补拒绝建议依据检查，按批集中验证。旧 run 不换 manifest、原始 Observation 与数据库记录不改；不按历史交接重做页面或退款。
+2026-10-04 用户批准 Agent 上下文与建议质量第一批，按 [本批方案](../docs/agent-context-quality.md)，进度仅在 todo 顶部，实际证据看 [集中报告](../reports/agent-context-quality.md)。不重做已交付去重复与拒绝依据检查；下一批先核实并接入商城可信履约事实，再按场景补终止检查和RAG新基线。物流NOT_FOUND不能当未发货；没有新Live质量结果。旧 run 不換 manifest、原始 Observation/交易记录不改、不重算完成建议。收尾精确push确认后停止写入；接手先只读核对状态和未提交归属，不覆盖原四个历史脏文件。
 
 当前三个商家处理弹窗按用户批准的[简化合同](../docs/merchant-decision-dialogs.md)，新增服务端未发货人工方案准备，仍须独立批准；当前进度只看todo顶部。不能重新做v4或把准备结果当审批权限，也不恢复旧专员角色。
 
