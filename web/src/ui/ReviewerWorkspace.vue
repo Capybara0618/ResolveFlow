@@ -19,6 +19,7 @@ import { policyKey, splitPolicySpans } from './investigation-format'
 const props = defineProps<{
   token: string
   compact?: boolean
+  mode?: 'full' | 'actions' | 'details'
   snapshot: CaseSnapshot
   busy: boolean
   context: ReviewContext | null
@@ -154,22 +155,23 @@ async function submit() {
 
 <template>
   <section class="detail-section reviewer-workspace" aria-label="人工接管与政策依据">
-    <div class="section-heading"><h3>人工接管与政策依据</h3></div>
-    <div v-if="revisionProgress" class="revision-progress" :class="{ stale: revisionProgress.stale }" data-test="revision-progress">
+    <div v-if="!mode || mode === 'full'" class="section-heading"><h3>人工接管与政策依据</h3></div>
+    <div v-if="(!mode || mode === 'full') && revisionProgress" class="revision-progress" :class="{ stale: revisionProgress.stale }" data-test="revision-progress">
       <strong>{{ revisionProgress.title }}</strong><span>{{ revisionProgress.detail }}</span>
     </div>
     <p v-if="contextLoading" class="muted">正在读取当前可用操作与绑定政策…</p>
     <p v-if="(contextError || error) && !action" role="alert" class="message error">{{ contextError || error }}</p>
     <p v-if="message" role="status" class="message">{{ message }}</p>
     <template v-if="context">
-      <p v-if="context.blocked_reason" class="muted">{{ context.blocked_reason }}</p>
-      <p v-else class="muted">可根据原始材料和政策形成人工方案。提交方案后仍需单独审批，退款金额由服务端确定。</p>
-      <div class="actions handoff-actions">
+      <p v-if="mode !== 'details' && context.blocked_reason && (mode !== 'actions' || context.allowed_actions.length)" class="muted">{{ context.blocked_reason }}</p>
+      <p v-else-if="!mode || mode === 'full'" class="muted">可根据原始材料和政策形成人工方案。提交方案后仍需单独审批，退款金额由服务端确定。</p>
+      <div v-if="mode !== 'details'" class="actions handoff-actions">
         <button v-if="context.allowed_actions.includes('MANUAL_PROPOSAL')" type="button" class="secondary-button" :disabled="busy" data-test="manual-proposal" @click="begin('MANUAL_PROPOSAL')">形成人工退款方案</button>
         <button v-if="context.allowed_actions.includes('REQUEST_INFO')" type="button" class="secondary-button" :disabled="busy" data-test="handoff-info" @click="begin('REQUEST_INFO')">要求补充材料</button>
         <button v-if="context.allowed_actions.includes('REJECT')" type="button" class="danger-button" :disabled="busy" data-test="handoff-reject" @click="begin('REJECT')">拒绝申请</button>
       </div>
 
+      <template v-if="mode !== 'actions'">
       <component :is="compact ? 'details' : 'div'" class="policy-layer-details"><summary v-if="compact">政策解释与服务端复核</summary><div class="policy-layers" aria-label="政策依据的三个层次">
         <div class="policy-layer">
           <h4>① 原始条款（权威文本）</h4>
@@ -218,6 +220,7 @@ async function submit() {
       <details v-if="context.review_history?.length" class="bound-policies"><summary>人工决定与补证记录（{{ context.review_history.length }}）</summary>
         <article v-for="(event, index) in context.review_history" :key="index" class="policy-text"><strong>{{ event.reason || '调查需要补充信息，原记录未提供问题正文' }}</strong><small>{{ event.actor || '系统调查' }} · 第 {{ event.revision }} 版 · {{ new Date(event.occurred_at).toLocaleString('zh-CN') }}</small><small v-if="event.question_id">补证问题编号：{{ event.question_id }}</small></article>
       </details>
+      </template>
     </template>
     <ReviewDialog v-if="action && target" :title="labels[action]" :busy="submitting" @close="close">
       <p class="subtle">工单 {{ target.case.case_id }} · 第 {{ target.case.input_revision }} 版材料</p>

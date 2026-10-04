@@ -105,7 +105,8 @@ describe('core workbench', () => {
       complete(new Response(JSON.stringify({ items: [product('a')], page: {} }))); await flushPromises()
       expect(w.get('#case-panel').text()).toContain('商品b'); expect(w.get('#case-panel').text()).not.toContain('商品a')
       expect(w.find('[data-test="approve"]').exists()).toBe(false)
-      expect(w.get('.merchant-identifiers').attributes('open')).toBeUndefined()
+      expect(w.get('.merchant-details-link').attributes('aria-expanded')).toBe('false')
+      expect(w.find('[aria-label="详细依据"]').exists()).toBe(false)
     } finally { w.unmount() }
   })
   it('drops a delayed queue after logout and lets the next account load its own counts', async () => {
@@ -507,7 +508,8 @@ describe('core workbench', () => {
       expect(wrapper.find('[aria-label="工单归属范围"]').exists()).toBe(false)
       expect(wrapper.find('[aria-label="工单负责人"]').exists()).toBe(false)
     }
-    await wrapper.findAll('.review-section button').find(button => button.text().includes(label))!.trigger('click')
+    const displayedLabel = singleMerchant ? ({ APPROVE: '批准退款', REQUEST_INFO: '要求补充说明', REJECT: '拒绝申请' } as const)[decision as 'APPROVE' | 'REQUEST_INFO' | 'REJECT'] : label
+    await wrapper.findAll('.review-section button').find(button => button.text().includes(displayedLabel))!.trigger('click')
     expect(fetcher.mock.calls.some(([url]) => url.endsWith('/reviews'))).toBe(false)
     expect(wrapper.get('[data-test="confirm-review"]').attributes('disabled')).toBeDefined()
     ownershipVersion = 3

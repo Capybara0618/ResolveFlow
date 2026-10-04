@@ -11,6 +11,18 @@ const packet: InvestigationView = { case_version: 3, input_revision: 1, availabi
   observations: [{ call_id: 'tool-1', observation_id: 'obs', tool_name: 'get_shipment_trace', source_type: 'CARRIER', source_ref: 'line:1/shipment', source_version: '1', content_hash: 'hash', observed_at: '2026-09-29', result: { conclusion: 'LOST' }, error_code: null, body_omitted: false }] } }
 afterEach(() => vi.restoreAllMocks())
 describe('recorded investigation sources', () => {
+  it('keeps mock provenance and incomplete reads visible in the concise view', async () => {
+    const incomplete = structuredClone(packet)
+    incomplete.investigation!.observations[0].body_omitted = true
+    vi.spyOn(coreApi, 'investigation').mockResolvedValue(incomplete)
+    const view = mount(InvestigationSources, { props: { token: 'fixture', snapshot, summaryOnly: true } })
+    await flushPromises()
+    expect(view.text()).toContain('mock 合成建议')
+    expect(view.text()).toContain('调查记录有缺失或读取失败')
+    expect(view.text()).not.toContain('真实模型建议')
+    expect(view.text()).not.toContain('物流报告丢失')
+    view.unmount()
+  })
   it('shows original tool results, labels mock and matches citation version/hash', async () => {
     vi.spyOn(coreApi, 'investigation').mockResolvedValue(structuredClone(packet))
     const view = mount(InvestigationSources, { props: { token: 'fixture', snapshot } })

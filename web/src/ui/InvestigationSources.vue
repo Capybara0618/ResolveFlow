@@ -16,7 +16,7 @@ import { coreApi, type CaseSnapshot, type InvestigationView } from '../client'
 import { evidenceKey, summarizeObservation, toolLabel } from './investigation-format'
 import InvestigationFindings from './InvestigationFindings.vue'
 
-const props = defineProps<{ token: string; snapshot: CaseSnapshot; compact?: boolean }>()
+const props = defineProps<{ token: string; snapshot: CaseSnapshot; compact?: boolean; summaryOnly?: boolean }>()
 const view = ref<InvestigationView | null>(null)
 const loading = ref(false)
 const error = ref('')
@@ -50,6 +50,17 @@ function facts(item: NonNullable<InvestigationView['investigation']>['observatio
 
 <template>
   <section class="investigation-sources" aria-label="调查原始记录">
+    <template v-if="summaryOnly">
+      <p v-if="loading">正在读取调查来源…</p>
+      <p v-else-if="error" role="status">{{ error }}<button type="button" @click="reload">重试</button></p>
+      <p v-else-if="view?.availability === 'NOT_SCHEDULED'">当前材料没有关联调查记录。</p>
+      <p v-else-if="view?.availability === 'UNAVAILABLE'">调查记录暂不可用，请结合原始材料核对。</p>
+      <template v-else-if="view?.investigation">
+        <p>{{ view.investigation.model_provider === 'mock' ? 'mock 合成建议' : view.investigation.model_provider ? '真实模型建议' : '模型来源未记录' }} · {{ statusLabels[view.investigation.status] || view.investigation.status }}</p>
+        <p v-if="view.investigation.truncated || view.investigation.observations.some(item => item.error_code || item.body_omitted)">调查记录有缺失或读取失败，请核对详细依据。</p>
+      </template>
+    </template>
+    <template v-else>
     <InvestigationFindings :snapshot="snapshot" :observations="view?.investigation?.observations ?? []" />
     <p v-if="compact && view?.investigation" class="saved-model-mode">调查模型：{{ view.investigation.model_provider === 'mock' ? 'mock 合成决策' : view.investigation.model_provider || '来源未记录' }} · {{ statusLabels[view.investigation.status] || view.investigation.status }}</p>
     <p v-if="compact && error" role="status">{{ error }}</p>
@@ -83,6 +94,7 @@ function facts(item: NonNullable<InvestigationView['investigation']>['observatio
       <p v-if="view.investigation.truncated">仅展示前 40 条已保存记录，后续记录未显示。</p>
     </template>
     </component>
+    </template>
   </section>
 </template>
 
