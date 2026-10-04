@@ -44,6 +44,8 @@ agent/.venv/Scripts/python.exe scripts/agent_context_audit.py --output tmp/agent
 
 ## 运行与未运行
 
-部署前status九项健康；50个业务表摘要和Agent4COMPLETED/15模型/10工具/8回调已保存忽略tmp。当前代码尚待重建部署和部署后只读核对；不能把代码测试当已更新运行服务。
+代码2149f50已普通push到origin/main并核实远端SHA。实际`.\stop.ps1`和`.\start.ps1 -NoBrowser`均返回0，重建当前三个Java JAR并加载新Agent，九项健康；政策import0/同hash跳过3，索引READY，网页5174。未用SkipBuild复用旧JAR。
+
+忽略tmp/agent_facts_snapshot.py经受控demo容器只读逐表摘要，部署前后50业务表行数/hash全部一致；Agent仍4COMPLETED/15模型/10工具/8回调，无新模型/退款/交易。tmp/agent_facts_runtime_read.py以真实内部HTTP调用工具核对现有4行：新增三字段与数据库版本/主体一致，core schema与P2事实全部通过，商城公共GET200。两驱动不提交原数据/凭据；提交的[机器报告](agent-commerce-facts-runtime.json)只有脱敏结果。旧服务的初始status九项健康也返回0。
 
 没有真实DeepSeek效果评测、当前商城RAG召回标注基线、网页视觉重验、全仓Java/前端回归。页面未改，RAG排序未改，旧建议不重新调查。下一步按当前政策和场景建立离线召回基线，再决定检索优化与有限Live验证。

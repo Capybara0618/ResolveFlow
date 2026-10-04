@@ -1,9 +1,9 @@
 # 当前改进进度
 
-## 当前快照（2026-10-04，商城事实与Agent场景门禁已验证，待部署）
+## 当前快照（2026-10-04，商城事实与Agent场景门禁完成）
 
 - 用户批准接续第一批，按[本批规格](../docs/agent-commerce-facts.md)接入实际付款账本版本/明确履约主记录，修正order_status映射，core契约/Java消费/fixture同步；复用五只读工具，引用版本覆盖三来源、原文hash保留。未发货退款检查当前付款/履约/整行资格，旧读取/失败刷新/冲突占用不能隐瞒；未发货条款不适用不能直接拒绝整个申请。新manifest，不清库、不重算旧建议、无新权限。
-- 最终Java Commerce13/Case84、独立分页12通过；Python25文件314通过/5既有旧golden版本失败，另MCP/凭据42通过，SDK/PG脚本两场景通过；定点格式/Ruff/diff通过。失败、实际命令与未运行见[报告](../reports/agent-commerce-facts.md)。部署前九项健康、50业务表hash与Agent4COMPLETED/15模型/10工具/8回调已留tmp。当前下一步仅重建部署/只读核对、记录并精确push，尚不能声称当前服务已加载新代码；后续RAG基线未运行。原四历史脏文件及草图/日志保留不夹带。
+- 最终Java Commerce13/Case84、独立分页12通过；Python25文件314通过/5既有旧golden版本失败，另MCP/凭据42、新订单定向22通过，SDK/PG脚本两场景通过；定点格式/Ruff/diff通过。失败、实际命令与未运行见[报告](../reports/agent-commerce-facts.md)。代码2149f50已推送并核实远端；实际stop/start -NoBrowser均0，当前JAR重建/新Agent九项健康，4订单真实内部工具/core/P2核对及商城GET200通过。部署前后50业务表hash完全一致，Agent仍4COMPLETED/15模型/10工具/8回调，[机器核对](../reports/agent-commerce-facts-runtime.json)；无新收费模型/交易/退款、旧建议未重算。后续先建立当前商城政策的RAG标注召回基线，再决定检索优化与有限Live；本批未宣称模型准确率提升。收尾记录精确push确认后停止写入，原四历史脏文件及草图/日志保留不夹带。
 
 ## 当前快照（2026-10-04，Agent 上下文与结论质量第一批完成）
 
