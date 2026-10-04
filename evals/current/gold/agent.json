@@ -1,0 +1,506 @@
+{
+  "A01A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [
+      "R-UNSHIPPED-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A01B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A02A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [
+      "R-UNSHIPPED-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A02B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A03A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [
+      "R-UNSHIPPED-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A03B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A04A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [
+      "R-UNSHIPPED-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A04B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A05A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A05B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A06A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A06B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A07A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A07B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A08A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A08B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A09A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A09B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A10A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A10B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A11A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A11B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A12A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A12B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A13A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-DMG-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A13B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A14A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-DMG-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A14B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A15A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-DMG-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A15B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  },
+  "A16A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-DMG-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。"
+  },
+  "A16B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。"
+  }
+}

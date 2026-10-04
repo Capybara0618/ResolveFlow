@@ -1,0 +1,21 @@
+{
+  "version": "resolveflow-evaluation-v1",
+  "created": "2026-10-04",
+  "source": "SYNTHETIC",
+  "review_status": "policy_checked_by_codex_not_human",
+  "files": {
+    "agent/cases.json": "9e97a0e44e3ae754323360cc3c608f3d2f07cbca6dcfd67237b96bb28da701e0",
+    "gold/agent.json": "0c8d90a6b99cf6cac20a4ddf55eebe2ea4aaa3bf30d63a6f57f2f3e0908cde64",
+    "gold/rag.json": "118164607bb43bb699dc7bacafcd5aded7262dfd4d2a6f9ad9e2d595cfe0003b",
+    "harness/checks.json": "983e322b16ae2f08a609856ebfef3eadd1e495d34e94ae966f2a2c8fef38fa47",
+    "harness/context.json": "4ddc090e2501c31197815e382a5d0eafa083bc0146d9ae8036ff4306fd9c0ca7",
+    "policies/bundles.json": "85497e6b3308b8130ba58c0757e10e96975cd32d9911cc065a5f73fa4a0ffbc7",
+    "rag/queries.json": "09074bf78e2228845a9e427892ceeedfb6befecaf7eaf7290c38dda3801cc479"
+  },
+  "split_note": "主场景/查询意图家族隔离，配对不跨组；小样本不是随机真实业务分布。",
+  "live_limits": {
+    "total_requests": 96,
+    "per_case_calls": 6,
+    "max_output_tokens": 1024
+  }
+}

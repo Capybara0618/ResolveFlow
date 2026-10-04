@@ -1,0 +1,2196 @@
+[
+  {
+    "id": "A01A",
+    "pair_id": "P01",
+    "family": "unshipped",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-1"
+    },
+    "description": "买错尺寸，希望把这件商品全部退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-1",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "NOT_SHIPPED",
+        "fulfillment_version": 1
+      },
+      "shipment": {
+        "line_id": "eval-line-1",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 1,
+        "materials": [
+          {
+            "evidence_id": "statement-1",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "买错尺寸，希望把这件商品全部退款。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-1",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A01B",
+    "pair_id": "P01",
+    "family": "unshipped",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-1"
+    },
+    "description": "买错尺寸，希望把这件商品全部退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-1",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "IN_TRANSIT",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-1",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 1,
+        "materials": [
+          {
+            "evidence_id": "statement-1",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "买错尺寸，希望把这件商品全部退款。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-1",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A02A",
+    "pair_id": "P02",
+    "family": "unshipped",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1002",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-2"
+    },
+    "description": "重复下单，希望撤回这行购买并全额退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-2",
+        "merchant_id": "M-1002",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "NOT_SHIPPED",
+        "fulfillment_version": 1
+      },
+      "shipment": {
+        "line_id": "eval-line-2",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 1,
+        "materials": [
+          {
+            "evidence_id": "statement-2",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "重复下单，希望撤回这行购买并全额退款。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-2",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "A02B",
+    "pair_id": "P02",
+    "family": "unshipped",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1002",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-2"
+    },
+    "description": "重复下单，希望撤回这行购买并全额退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-2",
+        "merchant_id": "M-1002",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1
+      },
+      "shipment": {
+        "line_id": "eval-line-2",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 1,
+        "materials": [
+          {
+            "evidence_id": "statement-2",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "重复下单，希望撤回这行购买并全额退款。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-2",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "A03A",
+    "pair_id": "P03",
+    "family": "unshipped",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1003",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-3"
+    },
+    "description": "购买计划变了，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-3",
+        "merchant_id": "M-1003",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "NOT_SHIPPED",
+        "fulfillment_version": 1
+      },
+      "shipment": {
+        "line_id": "eval-line-3",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 1,
+        "materials": [
+          {
+            "evidence_id": "statement-3",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "购买计划变了，希望退款。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-3",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "A03B",
+    "pair_id": "P03",
+    "family": "unshipped",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1003",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-3"
+    },
+    "description": "购买计划变了，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-3",
+        "merchant_id": "M-1003",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 32900,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "UNKNOWN",
+        "payment_version": 1,
+        "fulfillment_status": "NOT_SHIPPED",
+        "fulfillment_version": 1
+      },
+      "shipment": {
+        "line_id": "eval-line-3",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 1,
+        "materials": [
+          {
+            "evidence_id": "statement-3",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "购买计划变了，希望退款。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-3",
+        "state": "UNKNOWN",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 32900,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "A04A",
+    "pair_id": "P04",
+    "family": "unshipped",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-4"
+    },
+    "description": "买错颜色，希望整行退款重新购买。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-4",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "NOT_SHIPPED",
+        "fulfillment_version": 1
+      },
+      "shipment": {
+        "line_id": "eval-line-4",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 1,
+        "materials": [
+          {
+            "evidence_id": "statement-4",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "买错颜色，希望整行退款重新购买。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-4",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A04B",
+    "pair_id": "P04",
+    "family": "unshipped",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-4"
+    },
+    "description": "买错颜色，希望整行退款重新购买。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-4",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": null,
+        "order_status": "UNPAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": null,
+        "fulfillment_status": "NOT_SHIPPED",
+        "fulfillment_version": 1
+      },
+      "shipment": {
+        "line_id": "eval-line-4",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 1,
+        "materials": [
+          {
+            "evidence_id": "statement-4",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "买错颜色，希望整行退款重新购买。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-4",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A05A",
+    "pair_id": "P05",
+    "family": "lost",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-5"
+    },
+    "description": "包裹一直没到，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-5",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "LOST",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-5",
+        "synthetic": true,
+        "status": "LOST",
+        "carrier_conclusion": "LOST",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-5",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "包裹一直没到，希望退款。"
+          },
+          {
+            "evidence_id": "verification-5",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：运输丢失，无有效签收。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-5",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A05B",
+    "pair_id": "P05",
+    "family": "lost",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-5"
+    },
+    "description": "包裹一直没到，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-5",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "IN_TRANSIT",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-5",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-5",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "包裹一直没到，希望退款。"
+          },
+          {
+            "evidence_id": "verification-5",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "尚不能确认运输丢失。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-5",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A06A",
+    "pair_id": "P06",
+    "family": "lost",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1002",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-6"
+    },
+    "description": "快递找不到我的包裹，希望退全部的钱。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-6",
+        "merchant_id": "M-1002",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "LOST",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-6",
+        "synthetic": true,
+        "status": "LOST",
+        "carrier_conclusion": "LOST",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-6",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "快递找不到我的包裹，希望退全部的钱。"
+          },
+          {
+            "evidence_id": "verification-6",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：运输丢失，无有效签收。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-6",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "A06B",
+    "pair_id": "P06",
+    "family": "lost",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1002",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-6"
+    },
+    "description": "快递找不到我的包裹，希望退全部的钱。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-6",
+        "merchant_id": "M-1002",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-6",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-6",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "快递找不到我的包裹，希望退全部的钱。"
+          },
+          {
+            "evidence_id": "verification-6",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "尚不能确认运输丢失。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-6",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "A07A",
+    "pair_id": "P07",
+    "family": "lost",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1003",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-7"
+    },
+    "description": "物流没有送到，我要退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-7",
+        "merchant_id": "M-1003",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "LOST",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-7",
+        "synthetic": true,
+        "status": "LOST",
+        "carrier_conclusion": "LOST",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-7",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "物流没有送到，我要退款。"
+          },
+          {
+            "evidence_id": "verification-7",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：运输丢失，无有效签收。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-7",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "A07B",
+    "pair_id": "P07",
+    "family": "lost",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1003",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-7"
+    },
+    "description": "物流没有送到，我要退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-7",
+        "merchant_id": "M-1003",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 32900,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "UNKNOWN",
+        "payment_version": 1,
+        "fulfillment_status": "IN_TRANSIT",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-7",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-7",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "物流没有送到，我要退款。"
+          },
+          {
+            "evidence_id": "verification-7",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "尚不能确认运输丢失。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-7",
+        "state": "UNKNOWN",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 32900,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "A08A",
+    "pair_id": "P08",
+    "family": "lost",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-8"
+    },
+    "description": "商品运输出了问题，没有收到，希望全额退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-8",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "LOST",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-8",
+        "synthetic": true,
+        "status": "LOST",
+        "carrier_conclusion": "LOST",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-8",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "商品运输出了问题，没有收到，希望全额退款。"
+          },
+          {
+            "evidence_id": "verification-8",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：运输丢失，无有效签收。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-8",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A08B",
+    "pair_id": "P08",
+    "family": "lost",
+    "split": "dev",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-8"
+    },
+    "description": "商品运输出了问题，没有收到，希望全额退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-8",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "IN_TRANSIT",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-8",
+        "synthetic": true,
+        "status": "IN_TRANSIT",
+        "carrier_conclusion": "IN_TRANSIT",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-8",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "商品运输出了问题，没有收到，希望全额退款。"
+          },
+          {
+            "evidence_id": "verification-8",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "尚不能确认运输丢失。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-8",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {
+        "get_shipment_trace": 503
+      }
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A09A",
+    "pair_id": "P09",
+    "family": "signed",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-9"
+    },
+    "description": "显示签收了，但我没收到，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-9",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "LOST",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-9",
+        "synthetic": true,
+        "status": "LOST",
+        "carrier_conclusion": "LOST",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-9",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "显示签收了，但我没收到，希望退款。"
+          },
+          {
+            "evidence_id": "verification-9",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：运输丢失，无有效签收。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-9",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A09B",
+    "pair_id": "P09",
+    "family": "signed",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-9"
+    },
+    "description": "显示签收了，但我没收到，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-9",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-9",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-9",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "显示签收了，但我没收到，希望退款。"
+          },
+          {
+            "evidence_id": "verification-9",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "有效签收存在，但实际收货人尚待核验。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-9",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A10A",
+    "pair_id": "P10",
+    "family": "signed",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1002",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-10"
+    },
+    "description": "不是我签收的，商品没有拿到，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-10",
+        "merchant_id": "M-1002",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "LOST",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-10",
+        "synthetic": true,
+        "status": "LOST",
+        "carrier_conclusion": "LOST",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-10",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "不是我签收的，商品没有拿到，希望退款。"
+          },
+          {
+            "evidence_id": "verification-10",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：运输丢失，无有效签收。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-10",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "A10B",
+    "pair_id": "P10",
+    "family": "signed",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1002",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-10"
+    },
+    "description": "不是我签收的，商品没有拿到，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-10",
+        "merchant_id": "M-1002",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-10",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-10",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "不是我签收的，商品没有拿到，希望退款。"
+          },
+          {
+            "evidence_id": "verification-10",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "有效签收存在，但实际收货人尚待核验。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-10",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "A11A",
+    "pair_id": "P11",
+    "family": "signed",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1003",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-11"
+    },
+    "description": "别人签了我的包裹，我没有收到，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-11",
+        "merchant_id": "M-1003",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "LOST",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-11",
+        "synthetic": true,
+        "status": "LOST",
+        "carrier_conclusion": "LOST",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-11",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "别人签了我的包裹，我没有收到，希望退款。"
+          },
+          {
+            "evidence_id": "verification-11",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：运输丢失，无有效签收。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-11",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "A11B",
+    "pair_id": "P11",
+    "family": "signed",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1003",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-11"
+    },
+    "description": "别人签了我的包裹，我没有收到，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-11",
+        "merchant_id": "M-1003",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-11",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 3,
+        "materials": [
+          {
+            "evidence_id": "statement-11",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "别人签了我的包裹，我没有收到，希望退款。"
+          },
+          {
+            "evidence_id": "verification-11",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "有效签收存在，但实际收货人尚待核验。"
+          },
+          {
+            "evidence_id": "customer-followup",
+            "source_type": "CUSTOMER_ANSWER",
+            "question_id": "receiver",
+            "content": "家人也没有收到。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-11",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "A12A",
+    "pair_id": "P12",
+    "family": "signed",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-12"
+    },
+    "description": "配送显示送达，但没有找到商品，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-12",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "LOST",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-12",
+        "synthetic": true,
+        "status": "LOST",
+        "carrier_conclusion": "LOST",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-12",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "配送显示送达，但没有找到商品，希望退款。"
+          },
+          {
+            "evidence_id": "verification-12",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：运输丢失，无有效签收。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-12",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A12B",
+    "pair_id": "P12",
+    "family": "signed",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-12"
+    },
+    "description": "配送显示送达，但没有找到商品，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-12",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-12",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-12",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "配送显示送达，但没有找到商品，希望退款。"
+          },
+          {
+            "evidence_id": "verification-12",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "有效签收存在，但实际收货人尚待核验。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-12",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {
+        "get_case_evidence": 503
+      }
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A13A",
+    "pair_id": "P13",
+    "family": "quality",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-13"
+    },
+    "description": "收到商品无法正常使用，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-13",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-13",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-13",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "收到商品无法正常使用，希望退款。"
+          },
+          {
+            "evidence_id": "verification-13",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：商品质量问题属实且符合售后条件。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-13",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A13B",
+    "pair_id": "P13",
+    "family": "quality",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-13"
+    },
+    "description": "收到商品无法正常使用，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-13",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-13",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-13",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "收到商品无法正常使用，希望退款。"
+          },
+          {
+            "evidence_id": "verification-13",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "人工尚未确认质量问题。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-13",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A14A",
+    "pair_id": "P14",
+    "family": "quality",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1002",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-14"
+    },
+    "description": "到货时商品破损，希望退全部的钱。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-14",
+        "merchant_id": "M-1002",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-14",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-14",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "到货时商品破损，希望退全部的钱。"
+          },
+          {
+            "evidence_id": "verification-14",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：商品质量问题属实且符合售后条件。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-14",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "A14B",
+    "pair_id": "P14",
+    "family": "quality",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1002",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-14"
+    },
+    "description": "到货时商品破损，希望退全部的钱。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-14",
+        "merchant_id": "M-1002",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-14",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 1,
+        "materials": [
+          {
+            "evidence_id": "statement-14",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "到货时商品破损，希望退全部的钱。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-14",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "A15A",
+    "pair_id": "P15",
+    "family": "quality",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1003",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-15"
+    },
+    "description": "商品有明显质量问题，希望全额退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-15",
+        "merchant_id": "M-1003",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-15",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-15",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "商品有明显质量问题，希望全额退款。"
+          },
+          {
+            "evidence_id": "verification-15",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：商品质量问题属实且符合售后条件。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-15",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "A15B",
+    "pair_id": "P15",
+    "family": "quality",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1003",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-15"
+    },
+    "description": "商品有明显质量问题，希望全额退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-15",
+        "merchant_id": "M-1003",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-15",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-15",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "商品有明显质量问题，希望全额退款。"
+          },
+          {
+            "evidence_id": "verification-15",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "REFUTED",
+            "content": "本次核验未发现客户所说的故障，其他理由仍待调查。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-15",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "A16A",
+    "pair_id": "P16",
+    "family": "quality",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-16"
+    },
+    "description": "商品发生故障，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-16",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "FREE",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-16",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-16",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "商品发生故障，希望退款。"
+          },
+          {
+            "evidence_id": "verification-16",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "CONFIRMED",
+            "content": "商家已核验：商品质量问题属实且符合售后条件。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-16",
+        "state": "FREE",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 0,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "A16B",
+    "pair_id": "P16",
+    "family": "quality",
+    "split": "test",
+    "scope": {
+      "merchant_id": "M-1001",
+      "customer_id": "EVAL-BUYER",
+      "line_id": "eval-line-16"
+    },
+    "description": "商品发生故障，希望退款。",
+    "backend": {
+      "order": {
+        "order_id": "00000000-0000-4000-8000-000000000901",
+        "line_id": "eval-line-16",
+        "merchant_id": "M-1001",
+        "customer_id": "EVAL-BUYER",
+        "sku": "test",
+        "category": "electronics",
+        "quantity": 1,
+        "line_paid_amount": 32900,
+        "refunded_amount": 0,
+        "reserved_refund_amount": 32900,
+        "currency": "CNY",
+        "paid_at": "2026-10-03T04:00:00Z",
+        "order_status": "PAID",
+        "version": 1,
+        "order_paid_amount": 32900,
+        "line_refund_state": "PENDING",
+        "payment_version": 1,
+        "fulfillment_status": "DELIVERED",
+        "fulfillment_version": 2
+      },
+      "shipment": {
+        "line_id": "eval-line-16",
+        "synthetic": true,
+        "status": "DELIVERED",
+        "carrier_conclusion": "SIGNED",
+        "source_version": 1,
+        "events": [],
+        "updated_at": "2026-10-04T00:00:00Z"
+      },
+      "evidence": {
+        "input_revision": 1,
+        "count": 2,
+        "materials": [
+          {
+            "evidence_id": "statement-16",
+            "source_type": "CUSTOMER_STATEMENT",
+            "content": "商品发生故障，希望退款。"
+          },
+          {
+            "evidence_id": "verification-16",
+            "source_type": "REVIEWER_VERIFICATION",
+            "verification_result": "INCONCLUSIVE",
+            "content": "人工尚未确认质量问题。"
+          }
+        ]
+      },
+      "refund": {
+        "line_id": "eval-line-16",
+        "state": "PENDING",
+        "refunded_amount": 0,
+        "reserved_refund_amount": 32900,
+        "version": 1
+      },
+      "errors": {}
+    },
+    "bundle_id": "eval-m-1001-v2"
+  }
+]

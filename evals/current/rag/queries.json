@@ -1,0 +1,482 @@
+[
+  {
+    "id": "Q01",
+    "family": "unshipped",
+    "split": "dev",
+    "query": "刚付款买错规格，卖家还没发货，能全额退吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q02",
+    "family": "unshipped",
+    "split": "dev",
+    "query": "付款之后改变主意了，订单还没有发出。",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q03",
+    "family": "unshipped",
+    "split": "dev",
+    "query": "同一个商品买了两次，第二笔尚未发货，希望整行退款。",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q04",
+    "family": "unshipped",
+    "split": "dev",
+    "query": "我买错颜色，商家确认还未出库，怎么处理？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q05",
+    "family": "unshipped",
+    "split": "dev",
+    "query": "已经付钱，当前明确没发货，撤回购买需要什么条件？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q06",
+    "family": "unshipped",
+    "split": "dev",
+    "query": "店铺尚未寄出商品，我不想买了，申请全部退款。",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  },
+  {
+    "id": "Q07",
+    "family": "lost",
+    "split": "dev",
+    "query": "承运商确认件丢了，商家核验过，没有签收，怎么办？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q08",
+    "family": "lost",
+    "split": "dev",
+    "query": "包裹找不到，快递和店铺都确认丢失，可以退款吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q09",
+    "family": "lost",
+    "split": "dev",
+    "query": "运输记录是丢失，且没有有效签收，退款依据是什么？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q10",
+    "family": "lost",
+    "split": "dev",
+    "query": "物流认定遗失，人工调查已确认，希望退实付金额。",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q11",
+    "family": "lost",
+    "split": "dev",
+    "query": "配送公司确定包裹丢失，商家也确认了，能退这一件的钱吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q12",
+    "family": "lost",
+    "split": "dev",
+    "query": "已核验运输丢件，没有人签收，希望全额退款。",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  },
+  {
+    "id": "Q13",
+    "family": "unknown",
+    "split": "dev",
+    "query": "没有物流记录，能当成还没发货吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q14",
+    "family": "unknown",
+    "split": "dev",
+    "query": "订单状态查不到，不能确认是否寄出，怎么处理退款？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q15",
+    "family": "unknown",
+    "split": "dev",
+    "query": "付款记录读取失败，是否可以直接同意退款？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q16",
+    "family": "unknown",
+    "split": "dev",
+    "query": "发货状态未知，是不是就该拒绝申请？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q17",
+    "family": "unknown",
+    "split": "dev",
+    "query": "系统无法读取订单，需要如何调查？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q18",
+    "family": "unknown",
+    "split": "dev",
+    "query": "客户说未发货但平台无法确认，这种情况应该怎么处理？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  },
+  {
+    "id": "Q19",
+    "family": "scope",
+    "split": "dev",
+    "query": "同一商品行已经退款成功，还能再退一遍吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q20",
+    "family": "scope",
+    "split": "dev",
+    "query": "上次退款结果尚不明确，能再开一个退款吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q21",
+    "family": "scope",
+    "split": "dev",
+    "query": "两个商品只想退其中一行，系统支持什么范围？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q22",
+    "family": "scope",
+    "split": "dev",
+    "query": "同一行买了三件只退一件，可以吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q23",
+    "family": "scope",
+    "split": "dev",
+    "query": "想申请补发而不是退款，系统能办理吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q24",
+    "family": "scope",
+    "split": "dev",
+    "query": "退款处理中，这时能重复申请支付退款吗？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  },
+  {
+    "id": "Q25",
+    "family": "answered",
+    "split": "dev",
+    "query": "客户已经回答故障发生步骤，还要重复问吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q26",
+    "family": "answered",
+    "split": "dev",
+    "query": "补证时应该问哪些问题，如何避免重复？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q27",
+    "family": "answered",
+    "split": "dev",
+    "query": "客户材料空白，是否应直接拒绝？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q28",
+    "family": "answered",
+    "split": "dev",
+    "query": "已有回答不够完整，应该如何提出下一步补充说明？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q29",
+    "family": "answered",
+    "split": "dev",
+    "query": "客户给了现有材料但仍有矛盾，要怎么处理？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q30",
+    "family": "answered",
+    "split": "dev",
+    "query": "只能追问影响退款判断的信息吗？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  },
+  {
+    "id": "Q31",
+    "family": "signed",
+    "split": "test",
+    "query": "物流签收了但我没有收到，应该怎么办？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q32",
+    "family": "signed",
+    "split": "test",
+    "query": "有人代签，我不认识签收人，可以直接退吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q33",
+    "family": "signed",
+    "split": "test",
+    "query": "配送显示送到，买家说东西没拿到，需要核对什么？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q34",
+    "family": "signed",
+    "split": "test",
+    "query": "签收记录有效，但客户坚持未收货，能直接退款吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q35",
+    "family": "signed",
+    "split": "test",
+    "query": "包裹显示已签收，是否证明买家实际收到？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q36",
+    "family": "signed",
+    "split": "test",
+    "query": "系统显示签收，客户否认，怎么解决争议？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  },
+  {
+    "id": "Q37",
+    "family": "quality",
+    "split": "test",
+    "query": "商品有问题，上传图片以后就可以自动退款吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q38",
+    "family": "quality",
+    "split": "test",
+    "query": "商家人工核验已经确认质量故障，退款条件是什么？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q39",
+    "family": "quality",
+    "split": "test",
+    "query": "收到货发现坏了，目前只有客户描述，要怎么处理？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q40",
+    "family": "quality",
+    "split": "test",
+    "query": "人工无法确定破损原因，是同意退款还是继续核验？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q41",
+    "family": "quality",
+    "split": "test",
+    "query": "核验记录与客户材料矛盾，质量退款如何判断？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q42",
+    "family": "quality",
+    "split": "test",
+    "query": "人工否认这个故障，是否可以拒绝所有其他退款理由？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  },
+  {
+    "id": "Q43",
+    "family": "intransit",
+    "split": "test",
+    "query": "快递走得很慢，但没有异常结论，能当作丢件退吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q44",
+    "family": "intransit",
+    "split": "test",
+    "query": "商品运输中，可以按没发货政策退款吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q45",
+    "family": "intransit",
+    "split": "test",
+    "query": "包裹在路上，客户想退款，应该继续查什么？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q46",
+    "family": "intransit",
+    "split": "test",
+    "query": "物流状态正常运输，是否已经满足丢失退款？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q47",
+    "family": "intransit",
+    "split": "test",
+    "query": "只有配送延迟，没有认定丢失，怎么处理？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q48",
+    "family": "intransit",
+    "split": "test",
+    "query": "商家发货了还未签收，能直接用未发货条款吗？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  },
+  {
+    "id": "Q49",
+    "family": "materials",
+    "split": "test",
+    "query": "商品质量核验要补哪些材料，能否直接认定问题属实？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q50",
+    "family": "materials",
+    "split": "test",
+    "query": "这家店需要怎样的商品问题说明，质量退款谁核验？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q51",
+    "family": "materials",
+    "split": "test",
+    "query": "收到商品有问题，应该提供哪些内容支持人工核验？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q52",
+    "family": "materials",
+    "split": "test",
+    "query": "我想提交商品故障材料，店铺有什么要求？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q53",
+    "family": "materials",
+    "split": "test",
+    "query": "商品破损需要补充什么材料，上传后可以直接退款吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q54",
+    "family": "materials",
+    "split": "test",
+    "query": "如何准备规格和质量争议的核验说明？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  },
+  {
+    "id": "Q55",
+    "family": "outside_policy",
+    "split": "test",
+    "query": "这家店的会员积分如何兑换？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q56",
+    "family": "outside_policy",
+    "split": "test",
+    "query": "商品能不能开增值税发票？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q57",
+    "family": "outside_policy",
+    "split": "test",
+    "query": "请告诉我新品上架时间。",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "Q58",
+    "family": "outside_policy",
+    "split": "test",
+    "query": "店铺春节营业时间是什么？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "Q59",
+    "family": "outside_policy",
+    "split": "test",
+    "query": "想修改注册邮箱，应该怎么办？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "Q60",
+    "family": "outside_policy",
+    "split": "test",
+    "query": "你能推荐附近的线下餐厅吗？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v1"
+  }
+]
