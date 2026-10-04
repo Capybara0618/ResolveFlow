@@ -1,5 +1,7 @@
 # 当前执行说明：正式启动入口与三角色接手规则
 
+当前三个商家处理弹窗按用户批准的[简化合同](../docs/merchant-decision-dialogs.md)，新增服务端未发货人工方案准备，仍须独立批准；当前进度只看todo顶部。不能重新做v4或把准备结果当审批权限，也不恢复旧专员角色。
+
 当前商家工单详情按用户已批准的[售后v4合同](../docs/ui-aftercare-v4/README.md)，其余售后页面继续沿用[v3合同](../docs/ui-aftercare-v3/README.md)，实际进度只看todo顶部。用户已授权预期图后实施，不等待逐步审批；只核验当前文件归属，保留已有业务与Live配置，不按历史交接重做或清库。
 
 实际进度只读[todo顶部](todo.md)，当前角色以[三角色规格](../docs/merchant-role-merge.md)为准，证据见[集中报告](../reports/merchant-role-merge.md)，日常入口见[体验指南](../docs/clean-demo-experience.md)。当前实施者完成精确提交、正常推送和远端确认后停止写入；下一位先只读核对Git/未提交归属/status.ps1，再接用户新要求。

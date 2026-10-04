@@ -179,8 +179,13 @@ export interface ReviewContext {
 }
 export interface ReviewerAction {
   action: 'MANUAL_PROPOSAL' | 'REJECT' | 'REQUEST_INFO'; reason: string
+  use_order_facts?: boolean
   evidence_refs?: Array<{ observation_id: string; source_ref: string; source_version: string; content_hash: string }>
   policy_refs?: Array<{ bundle_id: string; version: string; rule_id: string; chunk_id: string; content_hash: string }>
+}
+export interface ManualRefundContext {
+  case_version: number; input_revision: number; status: 'READY' | 'BLOCKED'; message: string
+  amount_minor: number | null; policy_title: string | null; checks: string[]
 }
 
 export interface ReviewItem {
@@ -260,6 +265,8 @@ export const coreApi = {
     apiRequest<InvestigationView>(`/api/v1/cases/${encodeURIComponent(caseId)}/investigation`, token),
   reviewContext: (token: string, caseId: string) =>
     apiRequest<ReviewContext>(`/api/v1/cases/${encodeURIComponent(caseId)}/review-context`, token),
+  manualRefundContext: (token: string, caseId: string) =>
+    apiRequest<ManualRefundContext>(`/api/v1/cases/${encodeURIComponent(caseId)}/manual-refund-context`, token),
   reviewerAction: (token: string, snapshot: CaseSnapshot, action: ReviewerAction, collaboration?: CaseCollaboration | null) =>
     jsonPost<CaseSnapshot>(`/api/v1/cases/${encodeURIComponent(snapshot.case.case_id)}/review-actions`, token,
       action, { 'If-Match': `"${snapshot.case.version}"`, ...(collaboration ? { 'If-Collaboration-Match': `"${collaboration.version}"` } : {}) }),

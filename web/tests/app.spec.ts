@@ -508,7 +508,7 @@ describe('core workbench', () => {
       expect(wrapper.find('[aria-label="工单归属范围"]').exists()).toBe(false)
       expect(wrapper.find('[aria-label="工单负责人"]').exists()).toBe(false)
     }
-    const displayedLabel = singleMerchant ? ({ APPROVE: '批准退款', REQUEST_INFO: '要求补充说明', REJECT: '拒绝申请' } as const)[decision as 'APPROVE' | 'REQUEST_INFO' | 'REJECT'] : label
+    const displayedLabel = singleMerchant ? ({ APPROVE: '批准退款', REQUEST_INFO: '请客户补充说明', REJECT: '拒绝申请' } as const)[decision as 'APPROVE' | 'REQUEST_INFO' | 'REJECT'] : label
     await wrapper.findAll('.review-section button').find(button => button.text().includes(displayedLabel))!.trigger('click')
     expect(fetcher.mock.calls.some(([url]) => url.endsWith('/reviews'))).toBe(false)
     expect(wrapper.get('[data-test="confirm-review"]').attributes('disabled')).toBeDefined()

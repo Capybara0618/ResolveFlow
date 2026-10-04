@@ -2166,6 +2166,35 @@ paths:
           $ref: '#/components/responses/ForbiddenScope'
         '404':
           $ref: '#/components/responses/NotFound'
+  /api/v1/cases/{case_id}/manual-refund-context:
+    get:
+      summary: Prepare read-only order facts for an unshipped manual refund
+      operationId: readManualRefundContext
+      description: |
+        Current staff owner only. Does not append evidence, advance input, authorize or pay.
+        READY requires exact scoped paid line, explicit NOT_SHIPPED fulfillment, pinned
+        R-UNSHIPPED-001 and Java full-line amount recheck. POST rechecks independently;
+        this preview is not authority. Shipped, missing or ambiguous facts return BLOCKED.
+        See docs/merchant-decision-dialogs.md and docs/core-contracts.md for scope and fences.
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Current version and actual preparation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManualRefundContext'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StateConflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /api/v1/cases/{case_id}/review-actions:
     post:
       summary: Form a manual proposal or decide a case without a pending authorization
@@ -2173,6 +2202,9 @@ paths:
       description: |
         Staff only. If-Match is mandatory. MANUAL_PROPOSAL requires actual case evidence
         with exact provenance and pinned policy citations; amount is recomputed by Java.
+        Alternatively use_order_facts=true requests fresh server-owned R-UNSHIPPED-001
+        preparation; client citations are forbidden. Source facts, human proposal and pending
+        authorization are saved atomically. The preview cannot authorize this write.
         REJECT and REQUEST_INFO do not require a fabricated authorization and advance
         input_revision to fence older investigation callbacks. Consumed input is frozen.
         REQUEST_INFO is unavailable while waiting, after two question rounds, or after expiry.
@@ -4788,6 +4820,18 @@ components:
               text: {type: string}
               chunk_id: {type: string}
               content_hash: {type: string, pattern: '^[a-f0-9]{64}$'}
+    ManualRefundContext:
+      type: object
+      additionalProperties: false
+      required: [case_version, input_revision, status, message, amount_minor, policy_title, checks]
+      properties:
+        case_version: {$ref: '#/components/schemas/Version'}
+        input_revision: {$ref: '#/components/schemas/InputRevision'}
+        status: {type: string, enum: [READY, BLOCKED]}
+        message: {type: string}
+        amount_minor: {type: [integer, 'null'], minimum: 0, maximum: 1000000000}
+        policy_title: {type: [string, 'null']}
+        checks: {type: array, items: {type: string}}
     ReviewerAction:
       type: object
       additionalProperties: false
@@ -4795,6 +4839,7 @@ components:
       properties:
         action: {type: string, enum: [MANUAL_PROPOSAL, REJECT, REQUEST_INFO]}
         reason: {type: string, minLength: 1, maxLength: 1000}
+        use_order_facts: {type: boolean, description: Server-owned unshipped refund preparation, only for MANUAL_PROPOSAL.}
         evidence_refs:
           type: array
           minItems: 1
@@ -4811,8 +4856,23 @@ components:
         - if:
             properties:
               action: {const: MANUAL_PROPOSAL}
+            not:
+              required: [use_order_facts]
+              properties:
+                use_order_facts: {const: true}
           then:
             required: [evidence_refs, policy_refs]
+        - if:
+            required: [use_order_facts]
+            properties:
+              use_order_facts: {const: true}
+          then:
+            properties:
+              action: {const: MANUAL_PROPOSAL}
+            not:
+              anyOf:
+                - required: [evidence_refs]
+                - required: [policy_refs]
     Uuid:
       type: string
       pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'

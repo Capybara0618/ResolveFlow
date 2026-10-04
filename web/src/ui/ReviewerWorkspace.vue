@@ -11,8 +11,9 @@
  * instead of one per citation.
  */
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
-import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type ReviewContext, type ReviewerAction } from '../client'
+import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type ReviewContext, type ReviewerAction, type OrderLine, type ManualRefundContext } from '../client'
 import ReviewDialog from './ReviewDialog.vue'
+import MerchantDecisionForm from './MerchantDecisionForm.vue'
 import { formatMinorUnits } from '../money'
 import { policyKey, splitPolicySpans } from './investigation-format'
 
@@ -20,6 +21,7 @@ const props = defineProps<{
   token: string
   compact?: boolean
   mode?: 'full' | 'actions' | 'details'
+  line?: OrderLine | null
   snapshot: CaseSnapshot
   busy: boolean
   context: ReviewContext | null
@@ -39,6 +41,13 @@ onBeforeUnmount(() => { alive = false; ++submitGeneration })
 const target = ref<CaseSnapshot | null>(null)
 const targetContext = ref<ReviewContext | null>(null)
 const targetCollaboration = ref<CaseCollaboration | null>(null)
+const targetLine = ref<OrderLine | null>(null)
+const refundContext = ref<ManualRefundContext | null>(null)
+const preparationLoading = ref(false)
+const preparationError = ref('')
+const manualSelection = ref(false)
+let preparationGeneration = 0
+const simple = computed(() => props.mode === 'actions')
 const action = ref<ReviewerAction['action'] | null>(null)
 const reason = ref('')
 const evidenceIds = ref<string[]>([])
@@ -48,7 +57,8 @@ const policiesOpen = ref(false)
 const policyNodes = ref<HTMLElement[]>([])
 const executionLabels: Record<string, string> = { AUTHORIZED: '已批准，等待执行', EXECUTING: '退款执行中', RECONCILING: '退款结果待确认', CLOSED_SUCCESS: '模拟退款成功' }
 const outcomeLabels: Record<string, string> = { SUCCEEDED: '模拟退款成功', FAILED: '退款明确失败', UNKNOWN: '退款结果待确认' }
-const labels = { MANUAL_PROPOSAL: '提交人工退款方案', REJECT: '拒绝申请', REQUEST_INFO: '要求补充材料' }
+const labels = { MANUAL_PROPOSAL: '生成退款方案', REJECT: '拒绝申请', REQUEST_INFO: '请客户补充说明' }
+const submitLabels = { MANUAL_PROPOSAL: '生成退款方案', REJECT: '确认拒绝', REQUEST_INFO: '发送问题' }
 const availableEvidence = computed(() => target.value?.evidence.filter(item => item.source_ref && item.source_version && item.content_hash) ?? [])
 const rules = computed(() => props.context?.policy_rules ?? [])
 const citedKeys = computed(() => new Set(
@@ -115,24 +125,47 @@ watch(() => props.focusNonce, async () => {
 watch(() => [props.token, props.snapshot.case.case_id, props.snapshot.case.version], (next, previous) => {
   if (previous && (next[0] !== previous[0] || next[1] !== previous[1])) { ++submitGeneration; close(); message.value = ''; submitting.value = false }
 })
-function close() { action.value = null; target.value = null; targetContext.value = null; targetCollaboration.value = null }
+function close() { ++preparationGeneration; preparationLoading.value = false; action.value = null; target.value = null; targetContext.value = null; targetCollaboration.value = null; targetLine.value = null }
 function begin(kind: ReviewerAction['action']) {
   if (!props.context?.allowed_actions.includes(kind)) return
   target.value = props.snapshot; targetContext.value = props.context; targetCollaboration.value = props.collaboration ?? null
+  targetLine.value = props.line ?? null; refundContext.value = null; preparationError.value = ''; manualSelection.value = false
   action.value = kind; reason.value = ''; evidenceIds.value = []; policyIds.value = []; error.value = ''
+  if (simple.value && kind === 'MANUAL_PROPOSAL') void prepareRefund()
 }
-const canSubmit = computed(() => !!reason.value.trim() && (action.value !== 'MANUAL_PROPOSAL'
-  || (evidenceIds.value.length > 0 && evidenceIds.value.length <= 20 && policyIds.value.length > 0 && policyIds.value.length <= 10)))
+async function prepareRefund() {
+  if (!target.value) return
+  const frozen = target.value, token = props.token, generation = ++preparationGeneration
+  preparationLoading.value = true; preparationError.value = ''; refundContext.value = null
+  try {
+    const result = await coreApi.manualRefundContext(token, frozen.case.case_id)
+    if (!alive || generation !== preparationGeneration) return
+    if (result.case_version !== frozen.case.version || result.input_revision !== frozen.case.input_revision) {
+      preparationError.value = '申请已更新，请关闭弹窗，刷新后重新核对。'; return
+    }
+    refundContext.value = result
+  } catch (cause) {
+    if (!alive || generation !== preparationGeneration) return
+    if (cause instanceof ApiError && cause.status === 401) { close(); emit('expired'); return }
+    preparationError.value = cause instanceof Error ? cause.message : '订单依据读取失败，请重试。'
+  } finally { if (alive && generation === preparationGeneration) preparationLoading.value = false }
+}
+const usingOrderFacts = computed(() => simple.value && !manualSelection.value && refundContext.value?.status === 'READY')
+const canSubmit = computed(() => !!reason.value.trim() && reason.value.trim().length <= 1000 && (action.value !== 'MANUAL_PROPOSAL'
+  || (!preparationLoading.value && (usingOrderFacts.value || ((!simple.value || manualSelection.value) && evidenceIds.value.length > 0 && evidenceIds.value.length <= 20 && policyIds.value.length > 0 && policyIds.value.length <= 10)))))
 async function submit() {
   if (!target.value || !action.value || !canSubmit.value || submitting.value) return
   const body: ReviewerAction = { action: action.value, reason: reason.value.trim() }
   if (body.action === 'MANUAL_PROPOSAL') {
+    if (usingOrderFacts.value) body.use_order_facts = true
+    else {
     body.evidence_refs = availableEvidence.value.filter(item => evidenceIds.value.includes(item.observation_id)).map(item => ({
       observation_id: item.observation_id, source_ref: item.source_ref!, source_version: item.source_version!, content_hash: item.content_hash!,
     }))
     body.policy_refs = targetContext.value!.policy_rules.filter(rule => policyIds.value.includes(key(rule)!)).map(rule => ({
       bundle_id: rule.bundle_id, version: rule.version, rule_id: rule.rule_id, chunk_id: rule.chunk_id, content_hash: rule.content_hash,
     }))
+    }
   }
   submitting.value = true; emit('working', true); error.value = ''; message.value = ''
   const generation = ++submitGeneration
@@ -167,7 +200,7 @@ async function submit() {
       <p v-else-if="!mode || mode === 'full'" class="muted">可根据原始材料和政策形成人工方案。提交方案后仍需单独审批，退款金额由服务端确定。</p>
       <div v-if="mode !== 'details'" class="actions handoff-actions">
         <button v-if="context.allowed_actions.includes('MANUAL_PROPOSAL')" type="button" class="secondary-button" :disabled="busy" data-test="manual-proposal" @click="begin('MANUAL_PROPOSAL')">形成人工退款方案</button>
-        <button v-if="context.allowed_actions.includes('REQUEST_INFO')" type="button" class="secondary-button" :disabled="busy" data-test="handoff-info" @click="begin('REQUEST_INFO')">要求补充材料</button>
+        <button v-if="context.allowed_actions.includes('REQUEST_INFO')" type="button" class="secondary-button" :disabled="busy" data-test="handoff-info" @click="begin('REQUEST_INFO')">{{ simple ? '请客户补充说明' : '要求补充材料' }}</button>
         <button v-if="context.allowed_actions.includes('REJECT')" type="button" class="danger-button" :disabled="busy" data-test="handoff-reject" @click="begin('REJECT')">拒绝申请</button>
       </div>
 
@@ -222,9 +255,20 @@ async function submit() {
       </details>
       </template>
     </template>
-    <ReviewDialog v-if="action && target" :title="labels[action]" :busy="submitting" @close="close">
-      <p class="subtle">工单 {{ target.case.case_id }} · 第 {{ target.case.input_revision }} 版材料</p>
-      <template v-if="action === 'MANUAL_PROPOSAL'">
+    <ReviewDialog v-if="action && target" :title="labels[action]" :merchant="simple" :busy="submitting" @close="close">
+      <MerchantDecisionForm v-if="simple" v-model="reason" :kind="action" :line="targetLine">
+        <template v-if="action === 'MANUAL_PROPOSAL'">
+          <p v-if="preparationLoading" role="status">正在核对订单与退款条件…</p>
+          <div v-else-if="preparationError" class="refund-blocked" role="alert"><p>{{ preparationError }}</p><button type="button" class="secondary-button" @click="prepareRefund">重新读取</button></div>
+          <div v-else-if="refundContext?.status === 'READY'" class="refund-checks" data-test="refund-ready"><div class="refund-amount">退款金额<strong>{{ formatMinorUnits(refundContext.amount_minor!, 'CNY') }}</strong></div><ul><li v-for="check in refundContext.checks" :key="check">✓ {{ check }}</li></ul><p>适用政策：{{ refundContext.policy_title }}</p></div>
+          <div v-else-if="refundContext" class="refund-blocked" role="status"><p>{{ refundContext.message }}</p><p v-if="!availableEvidence.length">暂不能生成方案。可返回处理区核对记录<span v-if="targetContext?.allowed_actions.includes('REQUEST_INFO')">，或向客户询问具体问题</span>。</p></div>
+          <details v-if="availableEvidence.length && targetContext?.policy_rules.length" class="manual-basis"><summary>自行选择其他退款依据</summary><label class="manual-switch"><input v-model="manualSelection" type="checkbox" />使用我选择的材料与政策</label>
+            <template v-if="manualSelection"><fieldset><legend>材料</legend><label v-for="item in availableEvidence" :key="item.observation_id"><input v-model="evidenceIds" type="checkbox" :value="item.observation_id" /><span>{{ item.content }}</span></label></fieldset><fieldset><legend>政策</legend><div v-for="rule in targetContext.policy_rules" :key="key(rule)!"><label><input v-model="policyIds" type="checkbox" :value="key(rule)" />{{ rule.title }}</label><details><summary>查看条款</summary><p>{{ rule.text }}</p></details></div></fieldset></template>
+          </details>
+        </template>
+      </MerchantDecisionForm>
+      <p v-else class="subtle">工单 {{ target.case.case_id }} · 第 {{ target.case.input_revision }} 版材料</p>
+      <template v-if="!simple && action === 'MANUAL_PROPOSAL'">
         <fieldset class="citation-picker"><legend>选择材料依据</legend>
           <p v-if="!availableEvidence.length" class="context-warning">当前没有包含完整来源信息的材料，请先核对或补充证据。</p>
           <label v-for="item in availableEvidence" :key="item.observation_id"><input v-model="evidenceIds" type="checkbox" :value="item.observation_id" /><span>{{ item.reviewed_evidence_id ? '人工核验' : '原始材料' }}：{{ item.content }}</span></label>
@@ -234,9 +278,9 @@ async function submit() {
           <label v-for="(rule, index) in (targetContext?.policy_rules ?? [])" :key="key(rule) ?? index"><input v-model="policyIds" type="checkbox" :value="key(rule)" /><span><strong>{{ rule.title }}</strong><small>{{ rule.text }}</small></span></label>
         </fieldset>
       </template>
-      <label>{{ action === 'REQUEST_INFO' ? '需要补充的材料与原因' : '决定依据与理由' }}<textarea v-model="reason" maxlength="1000" rows="4" /></label>
+      <label v-if="!simple">{{ action === 'REQUEST_INFO' ? '需要补充的材料与原因' : '决定依据与理由' }}<textarea v-model="reason" maxlength="1000" rows="4" /></label>
       <p v-if="error" role="alert" class="message error">{{ error }}</p>
-      <div class="dialog-actions"><button class="secondary-button" type="button" :disabled="submitting" @click="close">取消</button><button type="button" data-test="submit-handoff" :disabled="!canSubmit || submitting" @click="submit">{{ submitting ? '正在提交…' : '确认提交' }}</button></div>
+      <div class="dialog-actions"><button class="secondary-button" type="button" :disabled="submitting" @click="close">取消</button><button type="button" data-test="submit-handoff" :disabled="!canSubmit || submitting" @click="submit">{{ submitting ? '正在提交…' : simple ? submitLabels[action] : '确认提交' }}</button></div>
     </ReviewDialog>
   </section>
 </template>
@@ -268,4 +312,16 @@ async function submit() {
 .citation-picker { margin: 14px 0; padding: 12px; border: 1px solid #dce5f2; border-radius: 8px; max-height: 230px; overflow: auto; }
 .citation-picker label { display: flex; flex-direction: row; align-items: flex-start; gap: 9px; margin: 10px 0; }
 .citation-picker input { width: 16px; min-width: 16px; margin-top: 3px; }
+.refund-checks { padding: 18px; border-radius: 12px; background: #f0f7ff; font-size: 18px; }
+.refund-amount { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.refund-amount strong { font-size: 28px; }
+.refund-checks ul { list-style: none; padding: 0; margin: 14px 0; color: #25714c; }
+.refund-checks p, .refund-blocked p { margin: 8px 0 0; }
+.refund-blocked { padding: 16px; border-radius: 10px; background: #fff8ed; color: #805625; }
+.manual-basis { border-top: 1px solid #e3eaf4; padding-top: 14px; }
+.manual-basis summary { cursor: pointer; color: #285ea5; }
+.manual-basis label { display: flex; flex-direction: row; align-items: start; gap: 10px; font-size: 18px; }
+.manual-basis input { width: 20px; flex: 0 0 20px; }
+.manual-basis fieldset { border: 1px solid #e3eaf4; border-radius: 10px; margin-top: 14px; }
+.manual-basis p, .manual-basis span { overflow-wrap: anywhere; }
 </style>

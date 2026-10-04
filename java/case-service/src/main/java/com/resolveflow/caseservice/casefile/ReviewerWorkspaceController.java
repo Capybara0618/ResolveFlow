@@ -38,6 +38,13 @@ public class ReviewerWorkspaceController {
         return workspace.read(principals.resolve(authorization), caseId);
     }
 
+    @GetMapping("/api/v1/cases/{case_id}/manual-refund-context")
+    public ManualRefundFacts.Preview manualRefundContext(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable("case_id") String caseId) {
+        return workspace.manualRefundContext(principals.resolve(authorization), caseId);
+    }
+
     @PostMapping("/api/v1/cases/{case_id}/review-actions")
     public CaseSnapshotResponse act(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,

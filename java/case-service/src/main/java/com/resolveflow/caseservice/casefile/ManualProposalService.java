@@ -46,6 +46,7 @@ public class ManualProposalService {
     private final AuthorizationService authorizationService;
     private final Clock clock;
     private final ObjectMapper mapper;
+    private final EvidenceRepository evidence;
 
     public ManualProposalService(
             CaseRepository cases,
@@ -55,7 +56,8 @@ public class ManualProposalService {
             AuthorizationService authorizationService,
             Clock clock,
             ObjectMapper mapper,
-            CaseCollaborationService collaboration) {
+            CaseCollaborationService collaboration,
+            EvidenceRepository evidence) {
         this.cases = cases;
         this.collaboration = collaboration;
         this.proposals = proposals;
@@ -64,6 +66,7 @@ public class ManualProposalService {
         this.authorizationService = authorizationService;
         this.clock = clock;
         this.mapper = mapper;
+        this.evidence = evidence;
     }
 
     public ManualProposalResponse submit(
@@ -76,6 +79,15 @@ public class ManualProposalService {
             String caseId,
             ManualProposalRequest request,
             CaseCollaborationService.WritePermit permit) {
+        return submit(principal, caseId, request, permit, null);
+    }
+
+    ManualProposalResponse submit(
+            AuthenticatedPrincipal principal,
+            String caseId,
+            ManualProposalRequest request,
+            CaseCollaborationService.WritePermit permit,
+            ManualRefundFacts.Prepared prepared) {
         CaseStaff.requireReviewer(
                 principal,
                 "a manual proposal is merchant staff's account of the case; a customer-scoped token"
@@ -96,12 +108,17 @@ public class ManualProposalService {
         if (!outcome.isExecutable()) {
             throw refusal(outcome);
         }
+        if (prepared != null
+                && !java.util.Objects.equals(
+                        outcome.recomputedAmountMinor(), prepared.preview().amountMinor())) {
+            throw new CaseStateConflictException("退款金额在核对期间已变化，请刷新重新核对");
+        }
 
         return collaboration.writeOwned(
                 principal,
                 caseId,
                 permit,
-                locked -> recordChecked(principal, locked, request, action, reason, outcome));
+                locked -> recordChecked(principal, locked, request, action, reason, outcome, prepared));
     }
 
     private ManualProposalResponse recordChecked(
@@ -110,7 +127,8 @@ public class ManualProposalService {
             ManualProposalRequest request,
             String action,
             String reason,
-            ProposalReCheck.Outcome outcome) {
+            ProposalReCheck.Outcome outcome,
+            ManualRefundFacts.Prepared prepared) {
         liveAuthorisations.requireUnconsumed(row.caseId());
         if (!row.status().acceptsNewInput()) throw new CaseStateConflictException("工单输入已冻结");
         Instant now = Instant.now(clock);
@@ -121,6 +139,25 @@ public class ManualProposalService {
                     "this case moved while the proposal was being checked;" + " nothing was recorded");
         }
         CaseRow advanced = cases.findCase(row.caseId());
+        if (prepared != null) {
+            var ref = prepared.citation();
+            evidence.insertEvidence(
+                    advanced.caseId(),
+                    ref.observationId(),
+                    "ORDER_LINE",
+                    ref.sourceRef(),
+                    ref.sourceVersion(),
+                    ref.contentHash(),
+                    advanced.inputRevision(),
+                    now,
+                    prepared.content(),
+                    null,
+                    null,
+                    null,
+                    principal.subject(),
+                    principal.role().name(),
+                    now);
+        }
         String proposalId = UUID.randomUUID().toString();
         proposals.recordManual(
                 advanced, proposalId, document(advanced, proposalId, action, reason, request), outcome, principal, now);

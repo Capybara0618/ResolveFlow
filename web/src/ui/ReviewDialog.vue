@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onBeforeUnmount, ref } from 'vue'
 import Icon from './ReviewIcon.vue'
-withDefaults(defineProps<{ title: string; busy?: boolean; workspace?: string }>(), { workspace: '审核工作台' })
+withDefaults(defineProps<{ title: string; busy?: boolean; workspace?: string; merchant?: boolean }>(), { workspace: '审核工作台' })
 const emit = defineEmits<{ close: [] }>()
 const panel = ref<HTMLElement | null>(null)
 const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
@@ -30,8 +30,8 @@ function trap(event: KeyboardEvent) {
 
 <template>
   <div class="rf-dialog-backdrop" @click.self="!busy && emit('close')" @keydown.esc.prevent="!busy && emit('close')">
-    <section ref="panel" class="rf-dialog" role="dialog" aria-modal="true" :aria-label="title" tabindex="-1" @keydown="trap">
-      <header><div><small>ResolveFlow · {{ workspace }}</small><h2>{{ title }}</h2></div>
+    <section ref="panel" class="rf-dialog" :class="{ 'merchant-dialog': merchant }" role="dialog" aria-modal="true" :aria-label="title" tabindex="-1" @keydown="trap">
+      <header><div><small v-if="!merchant">ResolveFlow · {{ workspace }}</small><h2>{{ title }}</h2></div>
         <button class="rf-dialog-close" type="button" aria-label="关闭弹窗" :disabled="busy" @click="emit('close')"><Icon name="close" :size="20" /></button>
       </header>
       <div class="rf-dialog-content"><slot /></div>
@@ -47,4 +47,11 @@ header small { color: #7b89a2; font-size: 12px; }
 header h2 { margin: 8px 0 0; font-size: 21px; }
 .rf-dialog-close { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 8px; background: #f1f5fb; color: #64748b; }
 .rf-dialog-content { padding: 24px; }
+.merchant-dialog { width: min(660px, 100%); font-size: 18px; }
+.merchant-dialog header h2 { font-size: 26px; margin: 0; }
+.merchant-dialog :deep(.dialog-actions) { gap: 14px; margin-top: 24px; }
+.merchant-dialog :deep(.dialog-actions button) { font-size: 18px; padding: 12px 22px; }
+.merchant-dialog :deep(.message) { font-size: 18px; }
+.merchant-dialog :deep(.dialog-refund-amount) { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px; background: #f0f7ff; border-radius: 12px; }
+.merchant-dialog :deep(.dialog-refund-amount strong) { font-size: 28px; }
 </style>

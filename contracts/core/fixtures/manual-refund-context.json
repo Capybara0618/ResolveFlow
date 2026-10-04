@@ -1,0 +1,4 @@
+{
+  "ready": {"case_version": 7, "input_revision": 2, "status": "READY", "message": "系统已整理订单与付款依据", "amount_minor": 69900, "policy_title": "已付款未发货", "checks": ["订单已付款", "商品尚未发货", "当前整行金额可退款"]},
+  "blocked": {"case_version": 7, "input_revision": 2, "status": "BLOCKED", "message": "订单未满足未发货退款条件，请核对发货状态与原始材料。", "amount_minor": null, "policy_title": null, "checks": []}
+}

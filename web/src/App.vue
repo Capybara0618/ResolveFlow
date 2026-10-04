@@ -5,6 +5,7 @@ import { watchCaseEvents } from './events'
 import { formatMinorUnits } from './money'
 import Icon from './ui/ReviewIcon.vue'
 import ReviewDialog from './ui/ReviewDialog.vue'
+import MerchantDecisionForm from './ui/MerchantDecisionForm.vue'
 import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
 import CaseAssignment from './ui/CaseAssignment.vue'
 import CustomerWorkspace from './ui/CustomerWorkspace.vue'
@@ -65,6 +66,8 @@ const decisionReason = ref('')
 type ReviewDecision = 'APPROVE' | 'REJECT' | 'REQUEST_INFO'
 const reviewDecision = ref<ReviewDecision | null>(null)
 const reviewTarget = ref<CaseSnapshot | null>(null)
+const reviewLine = ref<OrderLine | null>(null)
+const reviewAmount = computed(() => typeof reviewTarget.value?.proposal?.recomputed_amount_minor === 'number' ? reviewTarget.value.proposal.recomputed_amount_minor : null)
 const collaboration = ref<CaseCollaboration | null>(null)
 const reviewCollaborationTarget = ref<CaseCollaboration | null>(null)
 /** Review permissions and execution data belong to the current case version. */
@@ -154,16 +157,18 @@ onUnmounted(() => {
   contextQuery?.removeEventListener('change', () => undefined)
   narrowQuery?.removeEventListener('change', () => undefined)
 })
-const decisionLabels = { APPROVE: '批准退款授权', REJECT: '拒绝退款申请', REQUEST_INFO: '要求补充信息' }
+const decisionLabels = { APPROVE: '批准退款', REJECT: '拒绝申请', REQUEST_INFO: '请客户补充说明' }
+const reviewSubmitLabels = { APPROVE: '确认批准', REJECT: '确认拒绝', REQUEST_INFO: '发送问题' }
 function beginReview(decision: ReviewDecision) {
   if (!snapshot.value || !collaboration.value?.is_owner || snapshot.value.authorization?.status !== 'PENDING_REVIEW') return
   reviewTarget.value = snapshot.value
+  reviewLine.value = selectedOrderLine.value
   reviewCollaborationTarget.value = collaboration.value
   reviewDecision.value = decision
   decisionReason.value = ''
   error.value = ''
 }
-function closeReview() { reviewDecision.value = null; reviewTarget.value = null; reviewCollaborationTarget.value = null; decisionReason.value = '' }
+function closeReview() { reviewDecision.value = null; reviewTarget.value = null; reviewLine.value = null; reviewCollaborationTarget.value = null; decisionReason.value = '' }
 
 const verificationReason = ref('')
 const streamStatus = ref('未连接')
@@ -626,8 +631,8 @@ onUnmounted(() => { stopStream(); products.reset() })
         </div>
       </main>
     </div>
-    <ReviewDialog v-if="reviewDecision && reviewTarget" :title="decisionLabels[reviewDecision]" :busy="busy" @close="closeReview">
-      <p class="dialog-case">{{ headline(reviewTarget.case.description) }}</p><p class="subtle">工单 {{ reviewTarget.case.case_id }}</p><label>{{ reviewDecision === 'REQUEST_INFO' ? '需要补充的内容与理由' : '审核理由' }} <textarea v-model="decisionReason" rows="4" placeholder="请写明审核依据或需要补充的材料…" /></label><p class="dialog-notice"><Icon name="shield" :size="16" />本操作提交人工审核决定。批准授权不等于退款到账。</p><p v-if="error" class="message error" role="alert">{{ error }}</p><div class="dialog-actions"><button type="button" class="secondary-button" :disabled="busy" @click="closeReview">取消</button><button type="button" data-test="confirm-review" :disabled="busy || !decisionReason.trim()" @click="review(reviewDecision)">{{ busy ? '正在提交…' : '确认提交' }}</button></div>
+    <ReviewDialog v-if="reviewDecision && reviewTarget" :title="decisionLabels[reviewDecision]" :merchant="true" :busy="busy" @close="closeReview">
+      <MerchantDecisionForm v-model="decisionReason" :kind="reviewDecision" :line="reviewLine"><div v-if="reviewDecision === 'APPROVE'" class="dialog-refund-amount">退款金额 <strong>{{ reviewAmount !== null ? formatMinorUnits(reviewAmount, 'CNY') : '金额待核对' }}</strong></div></MerchantDecisionForm><p v-if="error" class="message error" role="alert">{{ error }}</p><div class="dialog-actions"><button type="button" class="secondary-button" :disabled="busy" @click="closeReview">取消</button><button type="button" data-test="confirm-review" :disabled="busy || !decisionReason.trim() || decisionReason.trim().length > 1000" @click="review(reviewDecision)">{{ busy ? '正在提交…' : reviewSubmitLabels[reviewDecision] }}</button></div>
     </ReviewDialog>
   </div>
 </template>

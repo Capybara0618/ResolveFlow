@@ -29,6 +29,7 @@ public class ReviewerWorkspaceService {
     private final CaseReadService reads;
     private final Clock clock;
     private final ObjectMapper mapper;
+    private final ManualRefundFacts refundFacts;
 
     public ReviewerWorkspaceService(
             CaseRepository cases,
@@ -42,7 +43,8 @@ public class ReviewerWorkspaceService {
             CaseReadService reads,
             Clock clock,
             ObjectMapper mapper,
-            CaseCollaborationService collaboration) {
+            CaseCollaborationService collaboration,
+            ManualRefundFacts refundFacts) {
         this.cases = cases;
         this.collaboration = collaboration;
         this.authorizations = authorizations;
@@ -55,6 +57,7 @@ public class ReviewerWorkspaceService {
         this.reads = reads;
         this.clock = clock;
         this.mapper = mapper;
+        this.refundFacts = refundFacts;
     }
 
     public record PolicyText(
@@ -95,7 +98,21 @@ public class ReviewerWorkspaceService {
             String action,
             String reason,
             @JsonProperty("evidence_refs") List<EvidenceCitation> evidenceRefs,
-            @JsonProperty("policy_refs") List<PolicyCitation> policyRefs) {}
+            @JsonProperty("policy_refs") List<PolicyCitation> policyRefs,
+            @JsonProperty("use_order_facts") Boolean useOrderFacts) {
+        public Action(
+                String action, String reason, List<EvidenceCitation> evidenceRefs, List<PolicyCitation> policyRefs) {
+            this(action, reason, evidenceRefs, policyRefs, null);
+        }
+    }
+
+    public ManualRefundFacts.Preview manualRefundContext(AuthenticatedPrincipal principal, String caseId) {
+        requireStaff(principal);
+        CaseRow row = visible(principal, cases.findCase(caseId));
+        if (!collaboration.owns(principal, caseId) || !allowed(row).contains("MANUAL_PROPOSAL"))
+            throw new CaseStateConflictException("当前不能准备退款方案，请刷新查看当前可用操作");
+        return refundFacts.prepare(row).preview();
+    }
 
     @Transactional(readOnly = true)
     public Context read(AuthenticatedPrincipal principal, String caseId) {
@@ -223,6 +240,24 @@ public class ReviewerWorkspaceService {
         CaseRow row = collaboration.prepareWrite(principal, caseId, permit);
         if ("MANUAL_PROPOSAL".equals(request.action())) {
             requireActionAllowed(row, request);
+            if (Boolean.TRUE.equals(request.useOrderFacts())) {
+                if (request.evidenceRefs() != null || request.policyRefs() != null)
+                    throw new CaseService.SemanticInvalidException("系统整理模式不接受客户端材料或政策引用");
+                var prepared = refundFacts.prepare(row);
+                if (!"READY".equals(prepared.preview().status()))
+                    throw new CaseStateConflictException(prepared.preview().message());
+                proposals.submit(
+                        principal,
+                        caseId,
+                        new ManualProposalRequest(
+                                "REFUND",
+                                List.of(prepared.citation()),
+                                prepared.policies(),
+                                request.reason().trim()),
+                        permit,
+                        prepared);
+                return reads.read(principal, caseId);
+            }
             requireActualEvidence(row, request.evidenceRefs());
             proposals.submit(
                     principal,
@@ -234,6 +269,8 @@ public class ReviewerWorkspaceService {
                             request.reason().trim()),
                     permit);
         } else {
+            if (Boolean.TRUE.equals(request.useOrderFacts()))
+                throw new CaseService.SemanticInvalidException("仅退款方案可以整理订单依据");
             collaboration.writeOwned(principal, caseId, permit, locked -> {
                 requireActionAllowed(locked, request);
                 decideWithoutAuthorization(principal, locked, request);

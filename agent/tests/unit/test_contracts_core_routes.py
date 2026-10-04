@@ -34,7 +34,22 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 69, "Commerce": 30, "Agent": 7}
+EXPECTED_ROUTE_COUNTS = {"Case": 70, "Commerce": 30, "Agent": 7}
+
+
+def test_manual_refund_preparation_and_server_owned_action_contracts() -> None:
+    fixtures = json.loads((REPO_ROOT / CORE_DIR / "fixtures/manual-refund-context.json").read_text(encoding="utf-8"))
+    validator = component_validator("case", "ManualRefundContext", CORE_DIR)
+    for item in fixtures.values():
+        assert not list(validator.validator.iter_errors(item))
+    action = component_validator("case", "ReviewerAction", CORE_DIR)
+    body = {"action": "MANUAL_PROPOSAL", "reason": "客户买错，未发货", "use_order_facts": True}
+    assert not list(action.validator.iter_errors(body))
+    assert list(action.validator.iter_errors({**body, "evidence_refs": []}))
+    assert list(action.validator.iter_errors({**body, "policy_refs": []}))
+    assert list(action.validator.iter_errors({**body, "action": "REJECT"}))
+    assert list(action.validator.iter_errors({**body, "use_order_facts": False}))
+    assert set(document("case")["paths"]["/api/v1/cases/{case_id}/manual-refund-context"]) == {"get"}
 
 
 def test_aftercare_product_is_optional_paid_snapshot_display_and_scoped_read_only() -> None:

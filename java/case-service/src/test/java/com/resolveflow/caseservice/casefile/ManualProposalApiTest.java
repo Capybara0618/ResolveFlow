@@ -74,6 +74,12 @@ class ManualProposalApiTest extends CaseDatabaseTest {
     @Autowired
     StubCommerce commerce;
 
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    com.resolveflow.caseservice.shopping.CommerceShoppingClient shopping;
+
+    @org.springframework.test.context.bean.override.mockito.MockitoSpyBean
+    ProposalReCheck recheck;
+
     @Autowired
     PolicyImportService policies;
 
@@ -81,6 +87,197 @@ class ManualProposalApiTest extends CaseDatabaseTest {
     String secret;
 
     private long lineCounter = 7800;
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"before_recheck", "after_prepare"})
+    void moneyChangingDuringPreparationNeverWritesAPartialRefund(String changeAt) {
+        commerce.paidAt = Instant.parse("2026-10-03T08:00:00Z");
+        String caseId = openCase();
+        fulfillment(caseId, "NOT_SHIPPED");
+        assertThat(manualContext(caseId).get("status").asText()).isEqualTo("READY");
+        long version = view(caseId, reviewer()).get("case").get("version").asLong();
+        org.mockito.Mockito.doAnswer(invocation -> {
+                    if (changeAt.equals("before_recheck")) commerce.reservedRefundAmount = 1;
+                    Object result = invocation.callRealMethod();
+                    if (changeAt.equals("after_prepare")) commerce.reservedRefundAmount = 1;
+                    return result;
+                })
+                .when(recheck)
+                .checkContent(
+                        org.mockito.ArgumentMatchers.any(),
+                        org.mockito.ArgumentMatchers.anyList(),
+                        org.mockito.ArgumentMatchers.eq("REFUND"),
+                        org.mockito.ArgumentMatchers.isNull());
+        var body = MAPPER.createObjectNode().put("reason", "只申请整行退款").put("use_order_facts", true);
+        assertThat(workspaceAction(caseId, version, "MANUAL_PROPOSAL", body)).isEqualTo(409);
+        assertThat(view(caseId, reviewer()).get("case").get("version").asLong()).isEqualTo(version);
+        assertThat(count("case_evidence", caseId)).isZero();
+        assertThat(count("case_proposal", caseId)).isZero();
+        assertThat(count("case_authorization", caseId)).isZero();
+    }
+
+    private void fulfillment(String caseId, String state) {
+        String lineId = jdbc.queryForObject("SELECT line_id FROM aftersale_case WHERE case_id=?", String.class, caseId);
+        var now = commerce.paidAt;
+        var snapshot = new com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment(
+                StubCommerce.ORDER,
+                state,
+                true,
+                state.equals("NOT_SHIPPED") ? 1L : 2L,
+                now,
+                List.of(new com.resolveflow.shared.shopping.FulfillmentWire.Tracking(
+                        lineId,
+                        state,
+                        "UNKNOWN",
+                        1L,
+                        List.of(new com.resolveflow.shared.shopping.FulfillmentWire.Event("ORDER_PAID", now, 1)))));
+        org.mockito.Mockito.when(shopping.fulfillment(StubCommerce.ORDER, "M-1001", CUSTOMER))
+                .thenReturn(snapshot);
+    }
+
+    private JsonNode manualContext(String caseId) {
+        return MAPPER.readTree(rest.get()
+                .uri("/api/v1/cases/" + caseId + "/manual-refund-context")
+                .header("Authorization", "Bearer " + reviewer())
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody());
+    }
+
+    @Test
+    void orderFactsAreReadOnlyUntilAHumanSubmitsAndStillNeedSeparateApproval() {
+        commerce.paidAt = Instant.parse("2026-10-03T08:00:00Z");
+        String caseId = openCase();
+        fulfillment(caseId, "NOT_SHIPPED");
+        long version = view(caseId, reviewer()).get("case").get("version").asLong();
+        assertThat(manualContext(caseId).get("status").asText()).isEqualTo("READY");
+        assertThat(manualContext(caseId).get("amount_minor").asLong()).isEqualTo(AMOUNT);
+        assertThat(count("case_evidence", caseId)).isZero();
+        assertThat(count("case_authorization", caseId)).isZero();
+        var body = MAPPER.createObjectNode().put("reason", "客户买错，未发货，同意退款").put("use_order_facts", true);
+        assertThat(workspaceAction(caseId, version, "MANUAL_PROPOSAL", body)).isEqualTo(200);
+        JsonNode after = view(caseId, reviewer());
+        assertThat(after.get("case").get("input_revision").asInt()).isEqualTo(2);
+        assertThat(after.get("case").get("status").asText()).isEqualTo("PENDING_REVIEW");
+        assertThat(after.get("authorization").get("status").asText()).isEqualTo("PENDING_REVIEW");
+        assertThat(after.get("proposal").get("origin").asText()).isEqualTo("HUMAN");
+        assertThat(after.get("proposal").get("recomputed_amount_minor").asLong())
+                .isEqualTo(AMOUNT);
+        JsonNode evidence = after.get("evidence").get(0);
+        JsonNode content = MAPPER.readTree(evidence.get("content").asText());
+        assertThat(evidence.get("evidence_kind").asText()).isEqualTo("ORDER_LINE");
+        assertThat(evidence.get("content_hash").asText())
+                .isEqualTo(com.resolveflow.shared.contract.CanonicalJson.contentHash(content));
+        assertThat(content.get("order_payment")).isNotNull();
+        assertThat(content.get("fulfillment").get("status").asText()).isEqualTo("NOT_SHIPPED");
+        assertThat(after.get("proposal")
+                        .get("evidence_refs")
+                        .get(0)
+                        .get("observation_id")
+                        .asText())
+                .isEqualTo(evidence.get("observation_id").asText());
+        assertThat(workspaceAction(caseId, version, "MANUAL_PROPOSAL", body)).isEqualTo(409);
+        assertThat(count("case_evidence", caseId)).isEqualTo(1);
+        String authId = after.get("authorization").get("authorization_id").asText();
+        fulfillment(caseId, "IN_TRANSIT");
+        var approval = MAPPER.createObjectNode()
+                .put("authorization_id", authId)
+                .put("authorization_version", 1)
+                .put("decision", "APPROVE")
+                .put("reason", "尝试批准");
+        rest.post()
+                .uri("/api/v1/cases/" + caseId + "/reviews")
+                .header("Authorization", "Bearer " + reviewer())
+                .headers(h -> addReviewHeaders(h, caseId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(approval.toString())
+                .exchange()
+                .expectStatus()
+                .isEqualTo(409);
+        assertThat(view(caseId, reviewer()).get("authorization").get("status").asText())
+                .isEqualTo("PENDING_REVIEW");
+    }
+
+    @Test
+    void preparedFactsCannotMixClientCitationsOrApplyToOtherActions() {
+        commerce.paidAt = Instant.parse("2026-10-03T08:00:00Z");
+        String caseId = openCase();
+        fulfillment(caseId, "NOT_SHIPPED");
+        long version = view(caseId, reviewer()).get("case").get("version").asLong();
+        var mixed = MAPPER.createObjectNode().put("reason", "合成说明").put("use_order_facts", true);
+        mixed.putArray("policy_refs");
+        assertThat(workspaceAction(caseId, version, "MANUAL_PROPOSAL", mixed)).isEqualTo(422);
+        var body = MAPPER.createObjectNode().put("reason", "合成说明").put("use_order_facts", true);
+        assertThat(workspaceAction(caseId, version, "REQUEST_INFO", body)).isEqualTo(422);
+        assertThat(count("case_evidence", caseId)).isZero();
+        assertThat(count("case_authorization", caseId)).isZero();
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(
+            strings = {"IN_TRANSIT", "UNKNOWN", "REFUNDED", "missing", "reserved", "foreign", "unpinned"})
+    void unavailableFactsCannotBeTurnedIntoARefundByTheClient(String failure) {
+        commerce.paidAt = Instant.parse("2026-10-03T08:00:00Z");
+        String caseId = openCase();
+        fulfillment(caseId, "NOT_SHIPPED");
+        assertThat(manualContext(caseId).get("status").asText()).isEqualTo("READY");
+        long version = view(caseId, reviewer()).get("case").get("version").asLong();
+        switch (failure) {
+            case "reserved" -> commerce.reservedRefundAmount = 1;
+            case "foreign" -> commerce.lineOwnerMismatch = true;
+            case "unpinned" -> jdbc.update("DELETE FROM case_policy_bundle WHERE case_id=?", caseId);
+            case "missing" ->
+                org.mockito.Mockito.when(shopping.fulfillment(StubCommerce.ORDER, "M-1001", CUSTOMER))
+                        .thenThrow(new com.resolveflow.caseservice.shopping.CommerceShoppingClient.Refused(
+                                404, "NOT_FOUND", "missing"));
+            default -> fulfillment(caseId, failure);
+        }
+        assertThat(manualContext(caseId).get("status").asText()).isEqualTo("BLOCKED");
+        var body = MAPPER.createObjectNode().put("reason", "客户端仍试图退款").put("use_order_facts", true);
+        assertThat(workspaceAction(caseId, version, "MANUAL_PROPOSAL", body)).isEqualTo(409);
+        assertThat(view(caseId, reviewer()).get("case").get("version").asLong()).isEqualTo(version);
+        assertThat(count("case_evidence", caseId)).isZero();
+        assertThat(count("case_proposal", caseId)).isZero();
+        assertThat(count("case_authorization", caseId)).isZero();
+    }
+
+    @Test
+    void manualContextRequiresStaffScopeOwnershipAndUnfrozenInput() {
+        String caseId = openCase();
+        String path = "/api/v1/cases/" + caseId + "/manual-refund-context";
+        rest.get()
+                .uri(path)
+                .header("Authorization", "Bearer " + customer())
+                .exchange()
+                .expectStatus()
+                .isForbidden();
+        String other = new JwtCodec(secret, Duration.ofHours(1))
+                .issue(new AuthenticatedPrincipal("other", "M-9999", Role.REVIEWER, null), Instant.now());
+        rest.get()
+                .uri(path)
+                .header("Authorization", "Bearer " + other)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+        jdbc.update("UPDATE aftersale_case SET status='RECONCILING' WHERE case_id=?", caseId);
+        rest.get()
+                .uri(path)
+                .header("Authorization", "Bearer " + reviewer())
+                .exchange()
+                .expectStatus()
+                .isEqualTo(409);
+        var body = MAPPER.createObjectNode().put("reason", "未知结果不能重新退款").put("use_order_facts", true);
+        assertThat(workspaceAction(
+                        caseId,
+                        view(caseId, reviewer()).get("case").get("version").asLong(),
+                        "MANUAL_PROPOSAL",
+                        body))
+                .isEqualTo(409);
+        assertThat(count("case_evidence", caseId)).isZero();
+    }
 
     @Test
     void reviewerContextExposesOnlyPinnedPolicyAndRejectsOtherPrincipals() {

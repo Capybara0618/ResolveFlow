@@ -53,6 +53,10 @@ public class UnshippedRefundCheck {
             if (error.status != 404) throw error;
             return "未发货退款依据不存在：不能把缺失物流视为未发货";
         }
+        return snapshotFailure(row, snapshot);
+    }
+
+    static String snapshotFailure(CaseRow row, com.resolveflow.shared.shopping.FulfillmentWire.Fulfillment snapshot) {
         if (snapshot == null
                 || !row.orderId().equals(snapshot.orderId())
                 || !snapshot.synthetic()

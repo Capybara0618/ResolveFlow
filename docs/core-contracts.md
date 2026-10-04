@@ -96,6 +96,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/cases/{case_id}/reviewed-evidence | 人工核验追加，不改原材料：新记录引用被核验记录（`reviewed_evidence_id`）并带 `verification_result`，推进revision、回到QUEUED并创建新run绑定；客户角色 403，跨工单引用 422 |
 | Case | POST /api/v1/cases/{case_id}/manual-proposals | 新revision/方案，非直接付款 |
 | Case | GET /api/v1/cases/{case_id}/review-context | 商户人员读取当前工单版本、实际允许动作、绑定政策原文、人工决定与当前授权的执行结果；无政策为UNAVAILABLE，跨商户/不存在同为404 |
+| Case | GET /api/v1/cases/{case_id}/manual-refund-context | 当前负责商户人员只读准备未发货退款依据；返回版本与READY/BLOCKED，不落材料/方案/授权，不执行退款；提交时重新核对 |
 | Case | POST /api/v1/cases/{case_id}/review-actions | 带If-Match的审核动作：MANUAL_PROPOSAL（金额仍由Java重算）/REJECT/REQUEST_INFO；不伪造授权，输入修订与状态同事务推进使旧调查失效；已消费输入冻结 |
 | Case | GET /api/v1/cases/{case_id}/investigation | 商户人员只读当前修订绑定的调查原始记录；无绑定NOT_SCHEDULED，下游故障或历史缺失UNAVAILABLE；不重跑模型/工具 |
 | Case | POST /api/v1/operations/{operation_id}/reconcile | OPERATOR请求查状态，不再次付款 |
@@ -176,7 +177,7 @@ command仅action=REFUND、target_service=commerce-service；由Case签名，Comm
 
 `GET /api/v1/cases/{case_id}/review-context` 仅商户人员可读，返回当前工单版本、允许动作、绑定政策原文、人工决定记录和当前授权对应的执行结果。无政策明确 UNAVAILABLE，不推断资格；跨商户与不存在同为404。
 
-`POST /api/v1/cases/{case_id}/review-actions` 必须携带 If-Match。MANUAL_PROPOSAL 只接受本工单可读材料的完整来源及绑定政策引用，金额仍由Java重算，形成授权后单独审批。REJECT/REQUEST_INFO用于没有有效待审授权的工单，不伪造授权；输入修订与状态同事务更新，使旧Agent结果失效。有授权与无授权的REQUEST_INFO共用同一规则：写稳定`question_id`与问题正文，最多两轮，等待中不重复追问，已到期不再追问；客户回答必须带当前`question_id`，回答推进revision并创建新run绑定。已消费授权禁止全部输入修改。
+`POST /api/v1/cases/{case_id}/review-actions` 必须携带 If-Match。MANUAL_PROPOSAL 接受本工单可读材料的完整来源及绑定政策引用；也可用 `use_order_facts=true`，由服务端重新读取本订单行付款与履约事实、绑定的唯一 `R-UNSHIPPED-001` 并复核全量金额，此模式不得携带客户端引用。原始事实及来源/版本/hash、人工方案、新修订和待审授权同事务写入，只读准备结果不作为提交凭证。其他场景仍人工选择真实材料及政策；金额仍由Java重算，形成授权后单独审批，详见 [处理弹窗合同](merchant-decision-dialogs.md)。REJECT/REQUEST_INFO用于没有有效待审授权的工单，不伪造授权；输入修订与状态同事务更新，使旧Agent结果失效。有授权与无授权的REQUEST_INFO共用同一规则：写稳定`question_id`与问题正文，最多两轮，等待中不重复追问，已到期不再追问；客户回答必须带当前`question_id`，回答推进revision并创建新run绑定。已消费授权禁止全部输入修改。
 
 队列原参数行为保留；新增 view=REVIEW/WAITING/PROCESSING/ATTENTION/CLOSED/ALL 和 query（工单/订单精确ID或问题描述，最长100字符）。新视图按商户隔离并使用游标分页，过滤变化时前端重置游标；绕开仅服务旧待审列表的缓存。退款结果来自已持久事件并排除标记过期的事件，不将批准视为到账。契约见 core OpenAPI；样例见 `contracts/core/fixtures/reviewer-context.json`（仓库根目录相对路径）。
 ## 审核调查分项输出（2026-09-28增量）

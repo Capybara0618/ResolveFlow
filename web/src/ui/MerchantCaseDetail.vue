@@ -112,12 +112,12 @@ function focusPolicy(key: string) { focusKey.value = key; focusNonce.value++ }
         <section v-if="canReview" class="review-section" aria-label="审核操作">
           <div class="actions">
             <button data-test="approve" type="button" :disabled="busy" @click="emit('review', 'APPROVE')">批准退款</button>
-            <button type="button" class="secondary-button" :disabled="busy" @click="emit('review', 'REQUEST_INFO')">要求补充说明</button>
+            <button type="button" class="secondary-button" :disabled="busy" @click="emit('review', 'REQUEST_INFO')">请客户补充说明</button>
             <button type="button" class="danger-button" :disabled="busy" @click="emit('review', 'REJECT')">拒绝申请</button>
           </div><p class="muted">批准后执行模拟退款</p>
         </section>
         <p v-else-if="!executionText && !contextLoading && !contextError" class="review-unavailable muted">{{ snapshot.authorization?.status === 'CONSUMED' ? '退款已处理，不能再次审批。' : '当前不能直接批准退款，请核对材料与政策。' }}</p>
-        <ReviewerWorkspace mode="actions" :token="token" :snapshot="snapshot" :context="context" :collaboration="collaboration" :busy="busy || !actionsAvailable" @changed="emit('refresh')" @working="emit('working', $event)" @expired="emit('expired')" />
+        <ReviewerWorkspace mode="actions" :line="line" :token="token" :snapshot="snapshot" :context="context" :collaboration="collaboration" :busy="busy || !actionsAvailable" @changed="emit('refresh')" @working="emit('working', $event)" @expired="emit('expired')" />
       </aside>
     </div>
     <section v-if="detailsOpen" id="merchant-detail-evidence" class="merchant-detail-card merchant-detail-evidence" aria-label="详细依据">

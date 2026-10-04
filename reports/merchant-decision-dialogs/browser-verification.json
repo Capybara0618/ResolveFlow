@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-04",
+  "writes": false,
+  "checks": [
+    {
+      "horizontal": false,
+      "kind": "拒绝申请",
+      "scrolling": [
+        729,
+        729
+      ],
+      "small": [],
+      "viewport": [
+        1280,
+        900
+      ]
+    },
+    {
+      "horizontal": false,
+      "kind": "请客户补充说明",
+      "scrolling": [
+        701,
+        701
+      ],
+      "small": [],
+      "viewport": [
+        1280,
+        900
+      ]
+    },
+    {
+      "horizontal": false,
+      "kind": "生成退款方案",
+      "scrolling": [
+        830,
+        830
+      ],
+      "small": [],
+      "viewport": [
+        1280,
+        900
+      ]
+    },
+    {
+      "horizontal": false,
+      "kind": "生成退款方案",
+      "scrolling": [
+        830,
+        830
+      ],
+      "small": [],
+      "viewport": [
+        1680,
+        900
+      ]
+    },
+    {
+      "horizontal": false,
+      "kind": "生成退款方案",
+      "scrolling": [
+        830,
+        830
+      ],
+      "small": [],
+      "viewport": [
+        1440,
+        900
+      ]
+    }
+  ]
+}
