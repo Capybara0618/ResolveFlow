@@ -52,6 +52,26 @@ class CommerceOrderLineClientTest {
         client = new CommerceOrderLineClient(builder, codec, COMMERCE, "case-service");
     }
 
+    @Test
+    void currentPaymentAndFulfillmentFieldsReachTheTypedConsumer() {
+        server.expect(requestTo(COMMERCE + "/internal/v1/order-lines/7001/context"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                    {"order_id":"00000000-0000-4000-8000-0000000000aa","line_id":"7001",
+                     "merchant_id":"M-1001","customer_id":"C-2002","sku":"SKU-RED-M","category":"apparel",
+                     "quantity":2,"line_paid_amount":2599,"refunded_amount":0,"reserved_refund_amount":0,
+                     "currency":"CNY","paid_at":"2026-09-10T08:15:00Z","order_status":"PAID","version":3,
+                     "order_paid_amount":2599,"line_refund_state":"FREE","payment_version":2,
+                     "fulfillment_status":"NOT_SHIPPED","fulfillment_version":1}
+                    """, MediaType.APPLICATION_JSON));
+        var line = client.readLineContext("7001").orElseThrow();
+        assertThat(line.paymentVersion()).isEqualTo(2L);
+        assertThat(line.fulfillmentStatus()).isEqualTo("NOT_SHIPPED");
+        assertThat(line.fulfillmentVersion()).isEqualTo(1L);
+        assertThat(line.refundableAmountMinor()).isEqualTo(2599);
+        server.verify();
+    }
+
     private static String pageJson(String lineId) {
         return """
                {"items":[{"order_id":"%s","line_id":"%s","sku":"SKU-RED-M","category":"apparel",

@@ -90,7 +90,10 @@ public class OrderLineController {
             @JsonProperty("order_status") String orderStatus,
             long version,
             @JsonProperty("order_paid_amount") long orderPaidAmount,
-            @JsonProperty("line_refund_state") String lineRefundState) {
+            @JsonProperty("line_refund_state") String lineRefundState,
+            @JsonProperty("payment_version") Long paymentVersion,
+            @JsonProperty("fulfillment_status") String fulfillmentStatus,
+            @JsonProperty("fulfillment_version") Long fulfillmentVersion) {
 
         static LineContextResponse from(LineContextRow row) {
             return new LineContextResponse(
@@ -109,7 +112,10 @@ public class OrderLineController {
                     row.orderStatus(),
                     row.version(),
                     row.orderPaidAmount(),
-                    row.lineRefundState());
+                    row.lineRefundState(),
+                    row.paymentVersion(),
+                    row.fulfillmentStatus(),
+                    row.fulfillmentVersion());
         }
     }
 

@@ -206,7 +206,8 @@ def build_server() -> MCPServer:
     @server.tool(
         name="get_order_context",
         description=(
-            "Read the order line under investigation and its payment facts from Commerce: the amounts Java "
+            "Read the order line, payment and explicit simulated fulfillment facts with their versions from Commerce: "
+            "the amounts Java "
             "recomputes a refund from. Takes no arguments."
         ),
     )

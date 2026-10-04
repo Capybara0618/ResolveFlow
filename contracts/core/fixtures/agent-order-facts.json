@@ -1,0 +1,27 @@
+[
+  {
+    "name": "paid-explicit-not-shipped",
+    "schema": "LineContext",
+    "value": {
+      "order_id": "00000000-0000-4000-8000-000000000901",
+      "line_id": "7001",
+      "merchant_id": "M-1001",
+      "customer_id": "C-2002",
+      "sku": "test",
+      "category": "electronics",
+      "quantity": 1,
+      "line_paid_amount": 32900,
+      "refunded_amount": 0,
+      "reserved_refund_amount": 0,
+      "currency": "CNY",
+      "paid_at": "2026-10-03T04:00:00Z",
+      "order_status": "PAID",
+      "version": 1,
+      "order_paid_amount": 32900,
+      "line_refund_state": "FREE",
+      "payment_version": 1,
+      "fulfillment_status": "NOT_SHIPPED",
+      "fulfillment_version": 1
+    }
+  }
+]

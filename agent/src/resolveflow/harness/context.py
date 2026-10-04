@@ -149,6 +149,13 @@ EXTRACTED_FIELDS: Final[dict[str, dict[str, str]]] = {
         "order_paid_at": "paid_at",
         "order_quantity": "quantity",
         "order_status": "status",
+        "order_payment_version": "payment_version",
+        "order_fulfillment_status": "fulfillment_status",
+        "order_fulfillment_version": "fulfillment_version",
+        "payment_order_paid_amount_minor": "order_paid_amount",
+        "order_refunded_amount_minor": "refunded_amount",
+        "order_reserved_amount_minor": "reserved_refund_amount",
+        "line_refund_state": "line_refund_state",
     },
     "get_refund_status": {
         "line_refunded_amount_minor": "refunded_amount",
@@ -213,6 +220,10 @@ def extract_facts(view: FactsView, observation: ToolObservation) -> list[Fact]:
     fields = EXTRACTED_FIELDS.get(observation.tool_name)
     if not fields:
         return []
+
+    if observation.tool_name == "get_order_context" and "order_status" in result:
+        # Real Commerce uses order_status; status is retained only for historical observations.
+        fields = {**fields, "order_status": "order_status"}
 
     if observation.tool_name == "get_refund_status" and any(
         key in result for key in ("order_paid_amount", "line_refunded_amount", "line_reserved_refund_amount")
@@ -818,7 +829,8 @@ def _render_excerpt(observation: ToolObservation, view: FactsView | None = None)
                          and fact.source_version == observation.source_version
                          and fact.content_hash == observation.content_hash}
             removed = [key for key, value in result.items()
-                       if (key in EXTRACTED_FIELDS.get(observation.tool_name, {}).values()
+                       if ((key in EXTRACTED_FIELDS.get(observation.tool_name, {}).values()
+                            or (observation.tool_name == "get_order_context" and key == "order_status"))
                            and any((fact.key, fact.value) in protected and fact.value == _scalar(value)
                                    for fact in extracted.facts))]
             for key in removed:

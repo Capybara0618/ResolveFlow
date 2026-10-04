@@ -61,6 +61,7 @@ REFUND_CITATION_REQUIRED: Final = "REFUND_CITATION_REQUIRED"
 
 REJECT_CITATION_REQUIRED: Final = "REJECT_CITATION_REQUIRED"
 REJECT_FACTS_REQUIRED: Final = "REJECT_FACTS_REQUIRED"
+UNSHIPPED_FACTS_REQUIRED: Final = "UNSHIPPED_FACTS_REQUIRED"
 
 #: A refund that also says it is missing evidence is asking and proposing at once.
 MISSING_EVIDENCE_ON_REFUND: Final = "MISSING_EVIDENCE_ON_REFUND"
@@ -165,25 +166,52 @@ class ProposalVerifier:
 
         refusals.extend(self._check_evidence(evidence_refs))
         refusals.extend(self._check_policy(policy_refs))
+        cited = {str(ref.get("observation_id", "")) for ref in evidence_refs}
+        latest = {item.source_ref: item for item in self.observations
+                  if item.tool_name in ("get_order_context", "get_shipment_trace", "get_refund_status")}
+        successful = [item for item in self.observations if item.observation_id in cited and _is_citable(item)
+                      and latest.get(item.source_ref, item).observation_id == item.observation_id]
+        orders = [item.result for item in successful
+                  if item.tool_name == "get_order_context" and isinstance(item.result, Mapping)]
+        unshipped = any(ref.get("rule_id") == "R-UNSHIPPED-001" for ref in policy_refs)
+        if unshipped and recommended_action == "REFUND":
+            explicit = any(_paid_order(body) and body.get("fulfillment_status") == "NOT_SHIPPED"
+                           and _positive_int(body.get("fulfillment_version")) and body.get("fulfillment_version") == 1
+                           and body.get("line_refund_state") == "FREE"
+                           and _whole_line_available(body) for body in orders)
+            # A newly read conflicting/failed trace or occupied refund slot cannot be hidden by citing only order.
+            conflicting = any(
+                (item.tool_name == "get_shipment_trace"
+                 and (not _is_citable(item) or not isinstance(item.result, Mapping)
+                      or item.result.get("status") != "NOT_SHIPPED"))
+                or (item.tool_name == "get_refund_status"
+                    and (not _is_citable(item) or not isinstance(item.result, Mapping)
+                         or item.result.get("state") != "FREE"))
+                for item in latest.values())
+            if not explicit or conflicting:
+                refusals.append(CitationRefusal(
+                    UNSHIPPED_FACTS_REQUIRED,
+                    "未发货退款须引用当前已付款、明确未发货版本及整行可退事实；缺失/未知/冲突或占用需补查或转人工",
+                ))
         if recommended_action == "REJECT":
             if not evidence_refs or not policy_refs:
                 refusals.append(CitationRefusal(
                     REJECT_CITATION_REQUIRED,
                     "拒绝须引用真实事实及检索过的政策；空材料、无候选或读取失败不足以拒绝，可继续调查或转人工",
                 ))
-            cited = {str(ref.get("observation_id", "")) for ref in evidence_refs}
-            successful = [item for item in self.observations if item.observation_id in cited and _is_citable(item)]
-            order = any(item.tool_name == "get_order_context" and isinstance(item.result, Mapping)
-                        and item.result.get("status") and item.result.get("line_paid_amount") is not None
-                        for item in successful)
+            order = any(body.get("order_status", body.get("status"))
+                        and body.get("line_paid_amount") is not None for body in orders)
             shipment = any(item.tool_name == "get_shipment_trace" and isinstance(item.result, Mapping)
                            and item.result.get("status") not in (None, "", "UNKNOWN")
                            and item.result.get("carrier_conclusion") not in (None, "", "UNKNOWN")
                            for item in successful)
-            if not order or not shipment or missing_evidence:
+            # This narrow positive entitlement never establishes denial of the entire application.
+            # Shipment only rules this clause out; another applicable clause or human review is needed.
+            sufficient = not unshipped and order and shipment
+            if not sufficient or missing_evidence:
                 refusals.append(CitationRefusal(
                     REJECT_FACTS_REQUIRED,
-                    "拒绝前须读取并引用订单付款和物流事实；NOT_FOUND不代表未发货，未知条件需补查或转人工",
+                    "未发货条款不适用不能拒绝整个申请；拒绝须有其他适用政策及当前订单/已知物流，未知需补查或转人工",
                 ))
         return VerificationResult(refusals=tuple(refusals))
 
@@ -312,6 +340,22 @@ def _is_citable(observation: ToolObservation) -> bool:
     if isinstance(error, CoreToolError) or error is not None:
         return False
     return bool(observation.source_version) and bool(observation.content_hash)
+
+
+def _positive_int(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+
+def _paid_order(body: Mapping[str, Any]) -> bool:
+    return (body.get("order_status") == "PAID" and bool(body.get("paid_at")) and body.get("currency") == "CNY"
+            and _positive_int(body.get("line_paid_amount")) and _positive_int(body.get("payment_version")))
+
+
+def _whole_line_available(body: Mapping[str, Any]) -> bool:
+    values = [body.get(key) for key in ("order_paid_amount", "refunded_amount", "reserved_refund_amount")]
+    if any(not isinstance(value, int) or isinstance(value, bool) or value < 0 for value in values):
+        return False
+    return values[0] - values[1] - values[2] >= body["line_paid_amount"]
 
 
 def _sequence_of(value: Any) -> list[Mapping[str, Any]]:

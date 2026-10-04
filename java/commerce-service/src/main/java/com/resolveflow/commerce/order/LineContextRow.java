@@ -34,4 +34,49 @@ public record LineContextRow(
         String orderStatus,
         long version,
         long orderPaidAmount,
-        String lineRefundState) {}
+        String lineRefundState,
+        Long paymentVersion,
+        String fulfillmentStatus,
+        Long fulfillmentVersion) {
+    @org.apache.ibatis.annotations.AutomapConstructor
+    public LineContextRow {}
+
+    public LineContextRow(
+            String orderId,
+            String lineId,
+            String merchantId,
+            String customerId,
+            String sku,
+            String category,
+            int quantity,
+            long linePaidAmount,
+            long refundedAmount,
+            long reservedRefundAmount,
+            String currency,
+            Instant paidAt,
+            String orderStatus,
+            long version,
+            long orderPaidAmount,
+            String lineRefundState) {
+        this(
+                orderId,
+                lineId,
+                merchantId,
+                customerId,
+                sku,
+                category,
+                quantity,
+                linePaidAmount,
+                refundedAmount,
+                reservedRefundAmount,
+                currency,
+                paidAt,
+                orderStatus,
+                version,
+                orderPaidAmount,
+                lineRefundState,
+                null,
+                null,
+                null);
+    }
+}

@@ -98,7 +98,10 @@ class OrderLineContextControllerTest extends CommerceDatabaseTest {
                         "order_status",
                         "version",
                         "order_paid_amount",
-                        "line_refund_state");
+                        "line_refund_state",
+                        "payment_version");
+        assertThat(json.get("payment_version").asLong()).isEqualTo(1);
+        assertThat(json.has("fulfillment_status")).isFalse();
         assertThat(json.get("merchant_id").stringValue())
                 .as("a service re-checking a case needs to confirm the line belongs to that case")
                 .isEqualTo("M-1001");
@@ -127,6 +130,7 @@ class OrderLineContextControllerTest extends CommerceDatabaseTest {
                 .as("this is the number a recomputation refuses a second refund with")
                 .isEqualTo(500);
         assertThat(json.get("reserved_refund_amount").asLong()).isEqualTo(100);
+        assertThat(json.get("payment_version").asLong()).isEqualTo(2);
 
         // And the listing is a different view of the same line: it carries no money that has moved.
         JsonNode listing = MAPPER.readTree(rest.get()

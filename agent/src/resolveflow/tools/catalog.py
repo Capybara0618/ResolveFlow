@@ -204,6 +204,15 @@ def _read_or_fail(
 # ------------------------------------------------------------------ the five tools
 
 
+def _order_source_version(body: dict[str, Any]) -> str:
+    if not any(key in body for key in ("payment_version", "fulfillment_version", "fulfillment_status")):
+        return str(body.get("version", ""))
+    version = (f"order-{body.get('version', '')}:payment-{body.get('payment_version', 'missing')}:"
+               f"fulfillment-{body.get('fulfillment_version', 'missing')}")
+    # Preserve all component versions in result/P2; the citation identity itself is capped at 64 characters.
+    return version if len(version) <= 64 else hashlib.sha256(version.encode()).hexdigest()
+
+
 def get_order_context(client: UpstreamClient, context: ToolContext) -> ToolObservation:
     """The current line's order and payment facts (``docs/agent-spec.md:28``).
 
@@ -228,7 +237,7 @@ def get_order_context(client: UpstreamClient, context: ToolContext) -> ToolObser
         tool,
         source,
         source_ref,
-        str(body.get("version", "")),
+        _order_source_version(body),
         answer.content_hash,
         body,
         context,

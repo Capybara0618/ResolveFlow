@@ -2846,6 +2846,8 @@ components:
       additionalProperties: false
       dependentRequired:
         line_refund_state: [order_paid_amount]
+        fulfillment_status: [fulfillment_version]
+        fulfillment_version: [fulfillment_status]
       required:
         [order_id, line_id, merchant_id, customer_id, sku, category, quantity,
          line_paid_amount, refunded_amount, reserved_refund_amount, currency, paid_at,
@@ -2904,6 +2906,15 @@ components:
         line_refund_state:
           $ref: '#/components/schemas/LineRefundState'
           description: This line's actual slot; omitted if absent, never default FREE.
+        payment_version:
+          $ref: '#/components/schemas/Version'
+          description: Actual payment ledger version; omitted when no ledger exists.
+        fulfillment_status:
+          type: string
+          enum: [NOT_SHIPPED, IN_TRANSIT, DELIVERED, LOST, UNKNOWN]
+          description: Explicit order_fulfillment head only, not inferred from missing shipment. Simulation.
+        fulfillment_version:
+          $ref: '#/components/schemas/Version'
         version:
           $ref: '#/components/schemas/Version'
     LineRefundStatus:

@@ -373,7 +373,55 @@ public class CommerceOrderLineClient {
             Long orderPaidAmount,
 
             @com.fasterxml.jackson.annotation.JsonProperty("line_refund_state")
-            String lineRefundState) {
+            String lineRefundState,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("payment_version")
+            Long paymentVersion,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("fulfillment_status")
+            String fulfillmentStatus,
+
+            @com.fasterxml.jackson.annotation.JsonProperty("fulfillment_version")
+            Long fulfillmentVersion) {
+
+        public LineContext(
+                String orderId,
+                String lineId,
+                String merchantId,
+                String customerId,
+                String sku,
+                String category,
+                int quantity,
+                long linePaidAmount,
+                long refundedAmount,
+                long reservedRefundAmount,
+                String currency,
+                Instant paidAt,
+                String orderStatus,
+                long version,
+                Long orderPaidAmount,
+                String lineRefundState) {
+            this(
+                    orderId,
+                    lineId,
+                    merchantId,
+                    customerId,
+                    sku,
+                    category,
+                    quantity,
+                    linePaidAmount,
+                    refundedAmount,
+                    reservedRefundAmount,
+                    currency,
+                    paidAt,
+                    orderStatus,
+                    version,
+                    orderPaidAmount,
+                    lineRefundState,
+                    null,
+                    null,
+                    null);
+        }
 
         public LineContext(
                 String orderId,

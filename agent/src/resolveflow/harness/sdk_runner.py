@@ -1018,7 +1018,7 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
     tools = sorted(WHITELIST)
     document: dict[str, Any] = {
         "tools": {name: {"get_case_evidence": "customer words/human verification",
-                         "get_order_context": "order/payment only, no customer words",
+                         "get_order_context": "order/payment/explicit fulfillment + versions, no customer words",
                          "get_shipment_trace": "carrier events; DELIVERED != customer acknowledgment"}
                   .get(name, "read-only")
                   for name in tools},
@@ -1051,7 +1051,7 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
                     "review_context material IDs are not registered observations: cite their get_case_evidence "
                     "outer observation instead. Findings use these same outer IDs. REFUND requires "
                     "evidence_refs and policy_refs; no missing_evidence. REJECT requires policy_refs and "
-                    "evidence_refs citing successful order and shipment reads; missing sources permit MANUAL_REVIEW.",
+                    "evidence_refs citing current policy-relevant facts; missing sources permit MANUAL_REVIEW.",
         },
     }
     if runner.policy_index is not None:
