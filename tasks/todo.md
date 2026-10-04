@@ -1,5 +1,10 @@
 # 当前改进进度
 
+## 当前快照（2026-10-04，Agent 上下文与结论质量第一批实施中）
+
+- 用户批准按“精简必要上下文、补齐结论依据检查”开始实施。[本批方案](../docs/agent-context-quality.md)限定单 Agent 现有循环，保留事实/冲突/条件例外、原文和资金权限；不清库、不消费历史队列、不恢复 CXX。工作区原四个工程/verify/Commerce 测试改动及草图/日志来源已核对，未夹带。
+- 已保存八个固定合成输入的改前真实 ContextPacket：[基线](../reports/agent-context-quality/before.json)，合计 ESTIMATED 输入 39816（八个独立 packet，非模型累计账单）。重复检索正文可出现四次；无引用拒绝通过旧校验。原关联单元测试67通过，新关键失败用例5失败/3通过符合改前预期。命令：`agent/.venv/Scripts/python.exe scripts/agent_context_audit.py --output reports/agent-context-quality/before.json`；`pytest` 四个原相关文件与新增 `test_context_quality.py`。未调用模型、未修改业务库或启动配置；接续实现同一批，最终报告区分离线工程与真实质量。
+
 ## 当前快照（2026-10-04，商家处理弹窗与未发货人工方案完成）
 
 - 按用户批准统一简化退款方案/补充说明/拒绝，商品图文、18px表单、明确按钮及客户预览；待审授权也复用共享表单，原版本/身份/协作冻结保留。[本批合同](../docs/merchant-decision-dialogs.md)限定服务端仅整理现有未发货全量退款事实，其余场景仍显式选择真实材料与政策。新只读准备不写入，提交 fresh 复核后事实/来源版本hash/新修订/人工方案/待审授权同事务；仍需单独批准，金额变化/已发货/UNKNOWN等不绕过。

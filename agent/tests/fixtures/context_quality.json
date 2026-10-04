@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "mode": "synthetic-context-and-verifier",
+  "cases": [
+    {"id":"unshipped-wording","description":"尺寸买错了，需要重新买","state":"PAID","carrier":"UNKNOWN","searches":1,"action":"REJECT","citations":false},
+    {"id":"lost-refund","description":"物流已经确认丢失，申请退款","state":"PAID","carrier":"LOST","searches":1,"action":"REFUND","citations":true},
+    {"id":"signed-conflict","description":"我没收到，但物流显示签收","state":"PAID","carrier":"DELIVERED","searches":2,"action":"MANUAL_REVIEW","citations":true},
+    {"id":"damage-unverified","description":"商品损坏，只有我自己的说明","state":"PAID","carrier":"DELIVERED","searches":1,"action":"REJECT","citations":false},
+    {"id":"policy-exception","description":"贵重商品丢失，超过政策人工核验阈值","state":"PAID","carrier":"LOST","amount":600000,"searches":1,"action":"MANUAL_REVIEW","citations":true},
+    {"id":"repeated-search","description":"请核对退款条件及例外","state":"PAID","carrier":"LOST","searches":3,"action":"REFUND","citations":true},
+    {"id":"no-policy-match","description":"需要处理不在当前规则内的售后事项","state":"PAID","carrier":"UNKNOWN","searches":1,"no_hits":true,"action":"REJECT","citations":false},
+    {"id":"read-failed","description":"查询失败，仍希望查清退款条件","state":"PAID","carrier":"UNKNOWN","searches":1,"read_failed":true,"action":"REJECT","citations":true}
+  ]
+}
