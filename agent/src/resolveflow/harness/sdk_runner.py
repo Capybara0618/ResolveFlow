@@ -1019,7 +1019,8 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
     document: dict[str, Any] = {
         "tools": {name: {"get_case_evidence": "customer words/human verification",
                          "get_order_context": "order/payment only, no customer words",
-                         "get_shipment_trace": "carrier events; DELIVERED != customer acknowledgment"}.get(name, "read-only")
+                         "get_shipment_trace": "carrier events; DELIVERED != customer acknowledgment"}
+                  .get(name, "read-only")
                   for name in tools},
         "wire_format": "Emit one flat JSON object with required root kind (PROPOSE needs kind=PROPOSE). "
                        "Keys are exactly those listed for the selected kind, "
@@ -1044,11 +1045,13 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
                              "source_version:string,content_hash:64-hex-string}]. Include every finding's source.",
             "policy_refs": "Array of objects: [{bundle_id:string,version:string,rule_id:string,"
                            "chunk_id:string,content_hash:64-hex-string}].",
-            "review_findings": "max8 [{kind:FACT|INFERENCE|CONFLICT,text<=400,observation_ids:1..8 cited IDs}]; CONFLICT>=2",
+            "review_findings": "max8 [{kind:FACT|INFERENCE|CONFLICT,text<=400,observation_ids:1..8 cited IDs}]; "
+                               "CONFLICT>=2",
             "rule": "Copy only outer tool observation refs from protected citations. Nested evidence IDs and "
                     "review_context material IDs are not registered observations: cite their get_case_evidence "
                     "outer observation instead. Findings use these same outer IDs. REFUND requires "
-                    "evidence_refs and policy_refs; no missing_evidence.",
+                    "evidence_refs and policy_refs; no missing_evidence. REJECT requires policy_refs and "
+                    "evidence_refs citing successful order and shipment reads; missing sources permit MANUAL_REVIEW.",
         },
     }
     if runner.policy_index is not None:

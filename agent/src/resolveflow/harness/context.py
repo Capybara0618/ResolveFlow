@@ -378,7 +378,7 @@ class ContextBuilder:
             _Section(
                 layer=Layer.P1,
                 label="request",
-                text=(f"当前诉求：{description}\nrun={run_id} case={case_id} revision={input_revision} line={line_id}"),
+                text=(f"当前诉求：{description}\nrevision={input_revision}"),
             )
         )
         if review_context:
@@ -413,6 +413,7 @@ class ContextBuilder:
             )
 
         # P2 — the exact fields a decision is checked against, each with its source and status.
+        sections.append(_Section(layer=Layer.P1, label="reads", text=_investigation_progress(observations)))
         for line in _render_facts(view):
             sections.append(_Section(layer=Layer.P2, label="fact", text=line))
 
@@ -432,10 +433,10 @@ class ContextBuilder:
         omitted.extend(duplicates)
         # Source identities and policy conditions are decision constraints. Optional P3 excerpts may
         # disappear, but neither their hashes nor an exception may become a model's guess.
-        sections.extend(_citation_sections(unique))
+        sections.extend(_citation_sections(unique, view))
         recent = unique[-OBSERVATION_WINDOW:] if unique else []
         earlier = unique[: max(0, len(unique) - OBSERVATION_WINDOW)]
-        sections.extend(_observation_sections(recent))
+        sections.extend(_observation_sections(recent, view))
         sections.extend(_index_sections(earlier))
 
         mandatory = [section for section in sections if section.layer not in TRIMMABLE_LAYERS]
@@ -554,7 +555,7 @@ def _render_facts(view: FactsView) -> list[str]:
     point of keeping both.
     """
     lines: list[str] = []
-    for fact in view.facts:
+    for fact in view.live():
         marker = "" if fact.status is FactStatus.FRESH else f" status={fact.status}"
         note = f" ({fact.note})" if fact.note and fact.status is not FactStatus.FRESH else ""
         version = f"@{fact.source_version}" if fact.source_version else ""
@@ -594,9 +595,41 @@ def _unique_observations(
 #: bound is per **field**, not per excerpt, so what the model receives stays well-formed data.
 MAX_FIELD_CHARS: Final = 2000
 
+POLICY_PROTECTED_FIELDS: Final = ("bundle_id", "version", "rule_id", "chunk_id", "content_hash", "text")
 
-def _citation_sections(observations: list[ToolObservation]) -> list[_Section]:
+
+def _protected_policy(hit: Any) -> dict[str, str] | None:
+    if not isinstance(hit, dict):
+        return None
+    if any(not isinstance(hit.get(key), str) or not hit[key] for key in POLICY_PROTECTED_FIELDS):
+        return None
+    return {key: hit[key] for key in POLICY_PROTECTED_FIELDS}
+
+
+def _investigation_progress(observations: list[ToolObservation]) -> str:
+    """A mechanical coverage view, never a policy verdict or a prescribed tool path."""
+    latest = {item.tool_name: item for item in observations}
+    states = []
+    for tool, label in (("get_order_context", "订单"), ("get_shipment_trace", "物流"),
+                        ("get_refund_status", "退款"), ("get_case_evidence", "材料"),
+                        ("search_policy", "政策")):
+        item = latest.get(tool)
+        if item is None:
+            state = "未读"
+        elif item.error is not None:
+            state = f"失败:{item.error.code}"
+        elif tool == "search_policy":
+            hits = (item.result or {}).get("hits")
+            state = f"候选{len(hits)}" if isinstance(hits, list) and hits else "无候选"
+        else:
+            state = "已读"
+        states.append(f"{label}={state}")
+    return "调查进展：" + ";".join(states)
+
+
+def _citation_sections(observations: list[ToolObservation], view: FactsView | None = None) -> list[_Section]:
     sections: list[_Section] = []
+    seen_policies: set[str] = set()
     for observation in observations:
         if observation.error is not None or not observation.source_version or not observation.content_hash:
             continue
@@ -605,14 +638,20 @@ def _citation_sections(observations: list[ToolObservation]) -> list[_Section]:
         if observation.tool_name == "search_policy":
             hits = (observation.result or {}).get("hits", [])
             for index, hit in enumerate(hits if isinstance(hits, list) else []):
-                if not isinstance(hit, dict):
+                protected = _protected_policy(hit)
+                if protected is None:
                     continue
-                fields = ("bundle_id", "version", "rule_id", "chunk_id", "content_hash", "text")
-                if any(not isinstance(hit.get(key), str) or not hit[key] for key in fields):
+                identity = _json(protected)
+                if identity in seen_policies:
                     continue
+                seen_policies.add(identity)
                 sections.append(_Section(layer=Layer.P2, label=f"policy:{observation.observation_id}:{index}",
-                                         text=_json({key: hit[key] for key in fields})))
+                                         text=identity))
         else:
+            extracted = ([fact for fact in view.facts if fact.observation_id == observation.observation_id]
+                         if view else [])
+            if extracted and all(fact.status is FactStatus.STALE for fact in extracted):
+                continue  # Superseded sources stay in the original store and history index.
             sections.append(_Section(layer=Layer.P2, label="source_citation", text=_json({
                 "observation_id": observation.observation_id, "source_ref": observation.source_ref,
                 "source_version": observation.source_version, "content_hash": observation.content_hash,
@@ -620,7 +659,7 @@ def _citation_sections(observations: list[ToolObservation]) -> list[_Section]:
     return sections
 
 
-def _observation_sections(observations: list[ToolObservation]) -> list[_Section]:
+def _observation_sections(observations: list[ToolObservation], view: FactsView | None = None) -> list[_Section]:
     """P3: the **current** observations, bounded and cited.
 
     The excerpt bytes are bounded two ways, and the first version of this got the second one wrong:
@@ -638,7 +677,7 @@ def _observation_sections(observations: list[ToolObservation]) -> list[_Section]
     """
     sections: list[_Section] = []
     for observation in observations:
-        rendered = _render_excerpt(observation)
+        rendered = _render_excerpt(observation, view)
         if len(rendered) > MAX_EXCERPT_CHARS:
             # The last resort, and by now rare: every field is bounded, so reaching this means the *number* of
             # fields is what is large. The pointer still names the observation, so nothing is lost.
@@ -746,7 +785,7 @@ def observation_text(observation: ToolObservation) -> str:
     return _render_observation(observation)
 
 
-def _render_excerpt(observation: ToolObservation) -> str:
+def _render_excerpt(observation: ToolObservation, view: FactsView | None = None) -> str:
     """The bounded rendering for P3: the same shape, with oversized fields replaced by a pointer.
 
     Kept beside :func:`_render_observation` because the two must describe the same observation: the excerpt is what
@@ -755,7 +794,38 @@ def _render_excerpt(observation: ToolObservation) -> str:
     """
     if observation.error is not None:
         return _render_observation(observation)
-    return f"{observation.tool_name}: {_json(_excerpt_result(observation))}"
+    result = _excerpt_result(observation)
+    notes: list[str] = []
+    if isinstance(result, dict):
+        result = dict(result)
+        # Whole policy conditions and identities already live in mandatory P2. Only remove
+        # fully protected hits; malformed hits and unknown metadata remain visible in P3.
+        hits = result.get("hits")
+        if (observation.tool_name == "search_policy" and observation.source_version and observation.content_hash
+                and isinstance(hits, list) and hits and all(_protected_policy(hit) is not None for hit in hits)):
+            result["hits"] = [{key: value for key, value in hit.items()
+                               if key not in POLICY_PROTECTED_FIELDS or key in ("rule_id", "version")}
+                              for hit in hits]
+            notes.append("完整条款、例外与引用在P2；原始排序可用READ_OBSERVATION读回")
+        if view is not None:
+            # Remove only exact scalar fields that P2 renders from THIS observation. A
+            # missing extraction, different version, conflict or new field is never guessed away.
+            extracted = FactsView()
+            extract_facts(extracted, observation)
+            protected = {(fact.key, fact.value) for fact in view.live()
+                         if fact.observation_id == observation.observation_id
+                         and fact.source_ref == observation.source_ref
+                         and fact.source_version == observation.source_version
+                         and fact.content_hash == observation.content_hash}
+            removed = [key for key, value in result.items()
+                       if (key in EXTRACTED_FIELDS.get(observation.tool_name, {}).values()
+                           and any((fact.key, fact.value) in protected and fact.value == _scalar(value)
+                                   for fact in extracted.facts))]
+            for key in removed:
+                result.pop(key)
+            if removed:
+                notes.append("字段 " + ",".join(removed) + " 已在P2；原文可按此Observation编号读回")
+    return f"{observation.tool_name}: {_json(result)}" + ("\n" + "；".join(notes) if notes else "")
 
 
 def _render_tool_schema(schema: dict[str, Any]) -> str:

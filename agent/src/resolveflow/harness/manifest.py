@@ -58,7 +58,7 @@ __all__ = [
 
 #: The P0-P4 policy in :mod:`resolveflow.harness.context` and ``docs/context-engineering.md``. Named so a snapshot
 #: taken under a later layering cannot be read as if it were assembled by this one.
-CONTEXT_POLICY_VERSION: Final = "p0-p4-v3-protected-citations"
+CONTEXT_POLICY_VERSION: Final = "p0-p4-v4-precision-progress"
 
 #: The counter actually applied to model input. :func:`~resolveflow.harness.context.estimate_tokens` is a UTF-8 byte
 #: allowance marked ESTIMATED — deliberately not the retired characters/3 (which undercounted Chinese) and not the
@@ -73,7 +73,7 @@ STATE_SCHEMA_VERSION: Final = 2
 #: refs. The name says **Python-side** on purpose — ``docs/agent-harness.md:13`` has Java re-read the sources and
 #: approve the proposal, and that half is not this value's to claim. A run whose proposal was never verified, or
 #: one judged by a different rule set, therefore cannot share a ``manifest_id`` with one that was.
-VERIFIER_VERSION: Final = "python-citations-v1"
+VERIFIER_VERSION: Final = "python-citations-v2-rejection-evidence"
 
 #: ``docs/agent-spec.md:42``'s ceiling on how long a run may hold a case. The manifest records the **configured
 #: ceiling**, not ``deadline_at - now``: a remaining-time value would change every second and make the manifest id

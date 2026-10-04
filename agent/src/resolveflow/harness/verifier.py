@@ -40,6 +40,8 @@ __all__ = [
     "MISSING_EVIDENCE_ON_REFUND",
     "PROPOSAL_SCHEMA_REFUSED",
     "REFUND_CITATION_REQUIRED",
+    "REJECT_CITATION_REQUIRED",
+    "REJECT_FACTS_REQUIRED",
     "CitationRefusal",
     "ProposalVerifier",
     "VerificationResult",
@@ -57,6 +59,9 @@ CROSS_SCOPE_CITATION: Final = "CROSS_SCOPE_CITATION"
 #: An actionable proposal with nothing to check it against.
 REFUND_CITATION_REQUIRED: Final = "REFUND_CITATION_REQUIRED"
 
+REJECT_CITATION_REQUIRED: Final = "REJECT_CITATION_REQUIRED"
+REJECT_FACTS_REQUIRED: Final = "REJECT_FACTS_REQUIRED"
+
 #: A refund that also says it is missing evidence is asking and proposing at once.
 MISSING_EVIDENCE_ON_REFUND: Final = "MISSING_EVIDENCE_ON_REFUND"
 
@@ -66,7 +71,7 @@ PROPOSAL_SCHEMA_REFUSED: Final = "PROPOSAL_SCHEMA_REFUSED"
 #: The frozen wire schema for a proposal (``contracts/core/agent-proposal.schema.json``).
 PROPOSAL_SCHEMA_ID: Final = "urn:resolveflow:core:agent-proposal:v2"
 
-#: The only action that needs citations; the others either ask, escalate, or read.
+#: Refund-specific requirements; rejection has its own evidence floor below.
 _ACTIONABLE: Final = "REFUND"
 
 #: Stated on every result, because a caller that only reads ``ok`` would otherwise mistake this for approval.
@@ -160,6 +165,26 @@ class ProposalVerifier:
 
         refusals.extend(self._check_evidence(evidence_refs))
         refusals.extend(self._check_policy(policy_refs))
+        if recommended_action == "REJECT":
+            if not evidence_refs or not policy_refs:
+                refusals.append(CitationRefusal(
+                    REJECT_CITATION_REQUIRED,
+                    "拒绝须引用真实事实及检索过的政策；空材料、无候选或读取失败不足以拒绝，可继续调查或转人工",
+                ))
+            cited = {str(ref.get("observation_id", "")) for ref in evidence_refs}
+            successful = [item for item in self.observations if item.observation_id in cited and _is_citable(item)]
+            order = any(item.tool_name == "get_order_context" and isinstance(item.result, Mapping)
+                        and item.result.get("status") and item.result.get("line_paid_amount") is not None
+                        for item in successful)
+            shipment = any(item.tool_name == "get_shipment_trace" and isinstance(item.result, Mapping)
+                           and item.result.get("status") not in (None, "", "UNKNOWN")
+                           and item.result.get("carrier_conclusion") not in (None, "", "UNKNOWN")
+                           for item in successful)
+            if not order or not shipment or missing_evidence:
+                refusals.append(CitationRefusal(
+                    REJECT_FACTS_REQUIRED,
+                    "拒绝前须读取并引用订单付款和物流事实；NOT_FOUND不代表未发货，未知条件需补查或转人工",
+                ))
         return VerificationResult(refusals=tuple(refusals))
 
     def verify_proposal(self, proposal: Mapping[str, Any]) -> VerificationResult:

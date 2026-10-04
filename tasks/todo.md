@@ -1,9 +1,10 @@
 # 当前改进进度
 
-## 当前快照（2026-10-04，Agent 上下文与结论质量第一批实施中）
+## 当前快照（2026-10-04，Agent 上下文与结论质量第一批代码验证完成）
 
 - 用户批准按“精简必要上下文、补齐结论依据检查”开始实施。[本批方案](../docs/agent-context-quality.md)限定单 Agent 现有循环，保留事实/冲突/条件例外、原文和资金权限；不清库、不消费历史队列、不恢复 CXX。工作区原四个工程/verify/Commerce 测试改动及草图/日志来源已核对，未夹带。
-- 已保存八个固定合成输入的改前真实 ContextPacket：[基线](../reports/agent-context-quality/before.json)，合计 ESTIMATED 输入 39816（八个独立 packet，非模型累计账单）。重复检索正文可出现四次；无引用拒绝通过旧校验。原关联单元测试67通过，新关键失败用例5失败/3通过符合改前预期。命令：`agent/.venv/Scripts/python.exe scripts/agent_context_audit.py --output reports/agent-context-quality/before.json`；`pytest` 四个原相关文件与新增 `test_context_quality.py`。未调用模型、未修改业务库或启动配置；接续实现同一批，最终报告区分离线工程与真实质量。
+- 改前八个固定合成 ContextPacket 在 a933674 保存并隔离重跑完全一致；改后同 fixture ESTIMATED 合计39816→34217，政策正文2–5份→1份，八例必保留事实hash一致，四个缺证/无政策/读取失败拒绝被拦截；这不是生产计费或模型正确率。实现当前事实/P3投影、完整政策去重复、读取进展、短prompt及REJECT引用/订单/已知物流/缺证门禁；新manifest版本，原文/例外/冲突和人工退路保留。
+- 20文件209 passed/5既有旧golden失败/0 skipped；新增16项、恢复/新轨迹strict/实际请求预算通过，a933674隔离复测同五旧包失败，未删断言/改包。Ruff/diff通过；初轮失败、命令和范围见[集中报告](../reports/agent-context-quality.md)。业务Agent仍4COMPLETED/15模型/10工具/8回调，无新模型、工单或资金操作。应用五进程首次status未运行，接续本批部署核对；依赖与索引就绪。后续先接可信商城履约事实，再场景化条件和新RAG基线/有限Live；不能把NOT_FOUND当未发货。精确提交正常推送，原四个历史脏文件保留。
 
 ## 当前快照（2026-10-04，商家处理弹窗与未发货人工方案完成）
 
