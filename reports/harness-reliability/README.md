@@ -1,5 +1,24 @@
 # Harness 可靠性修复结果（2026-10-05）
 
+本批工程修复及集中验收完成，当前context v12 / verifier v6 / strict harness-v10。没有改变AgentScope唯一循环、一次修正、单工单12次调用/120秒、Java审批/资金权限或RAG排名；旧数据、Gold和回放均保留。
+
+| 验证 | 实际结果 | 证据与限制 |
+| --- | --- | --- |
+| 集中Python回归 | **750 passed，0 failed/errors/skipped** | tests.xml、pytest.txt；实际模块/命令见commands.json。含SDK、PG、MCP、恢复/fence、上下文、回调、计量及新失败场景；1个既有AnyIO弃用警告 |
+| 独立Harness | **28/28** | harness.json，不是模型建议准确率 |
+| 新严格回放 | **14/14** | replay.json；新增交替循环终止，全部脚本模型/UTF-8计量，不称真实Flash故障轨迹已全回放 |
+| calibrated-v3脚本调查 | **32/32联合正确，150脚本调用** | mock.json；实际PG/MCP/embedding＋脚本模型，不是LLM准确率 |
+| 当前与历史冻结资产 | v1/v2/v3校验通过；8个旧/新回放配置全部字节hash匹配 | validate*.txt、state-after.json；商家3/政策版本6/案例32/16对/检索题60不变 |
+| 改动Ruff/差异 | 通过 | ruff.txt、暂存差异核验 |
+| 全项目mypy | **未通过：9文件16既有错误，73源码** | mypy.txt，无本批新增诊断，不宣称类型门禁全通过 |
+| 真实模型、部署和业务整链 | **未运行** | 没有新增付费请求、重启常驻worker、日常调查/退款、Java整链或网页验收 |
+
+日常public保持4 COMPLETED /15模型调用/10工具调用/8回调；ledger used=316、limit=null、历史费用预留不变，无临时schema/usage锁。state-after.json相对第六批结束快照核对，不把历史费用预留当本次账单。
+
+下一步：先将评测入口 `scripts/agent_eval.py` 中既有的每例6次调用参数化（旧默认及报告保留），明确记录生产12次配置，再按固定A01B/A02B/A03B及正向控制做真实复测/整体基线。检索仍需独立逐query Gold与语义人审；不因工程通过宣称Agent质量/RAG全部完成，不自动加hybrid/reranker。具体字段反馈当前优先覆盖已观察到的未发货退款条件；有限事实模板和提示注入防护并非全能语义验证。
+
+前四个独立小步0c86215、9e060b3、56678e2、3f23501均已核实普通push到origin/main。下列各步保留先失败、首轮修复与实际命令；集中收口提交SHA和远端结果见本轮回复。原四历史脏文件及草图日志保持原归属。本实施者完成收口推送核实后停止写入；新代码和011追加迁移下次正常启动加载，旧run不能静默换manifest恢复。
+
 ## 第一步：具体字段纠错
 
 按[规格](../../docs/harness-reliability.md)实现未发货退款拒绝的字段反馈：列出当前绑定来源的占用、付款、履约版本及整数分余额条件；不会把失败条件直接转换成拒绝，也不将客户文本插入纠错指令。一次修正及资金门禁保留。verifier v6；后续源码变更需新独立回放。
@@ -42,4 +61,4 @@ agent/.venv/Scripts/python.exe -m pytest agent/tests/integration/test_model_rate
 agent/.venv/Scripts/python.exe -m mypy agent/src --config-file agent/pyproject.toml
 ```
 
-第一步0c86215、第二步9e060b3、第三步A56678e2已核实正常push到origin/main。本批集中PG/MCP/strict新配置待收口。未真实模型复测、Java整链、网页或收费调用/常驻服务重启，不宣称建议质量提升。
+本步3f23501已核实正常push到origin/main。集中收口结果见本文顶部；未真实模型复测、Java整链、网页或收费调用/常驻服务重启，不宣称建议质量提升。

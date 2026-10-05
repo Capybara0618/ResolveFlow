@@ -1,5 +1,6 @@
 # Preserve frozen byte hashes across checkouts. Copied v2 lineage uses CRLF.
 /evals/calibrated-v3/** -text whitespace=cr-at-eol
 /evals/replay/calibration-v9/** -text whitespace=cr-at-eol
+/evals/replay/harness-v10/** -text whitespace=cr-at-eol
 /reports/agent-calibration-batch6/** -text whitespace=cr-at-eol
 /agent/src/resolveflow/assets/deepseek-v41/tokenizer.json.gz -text

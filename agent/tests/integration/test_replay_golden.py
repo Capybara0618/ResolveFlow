@@ -1,4 +1,4 @@
-"""Five independently persisted synthetic outcomes, replayed through the production SDK."""
+"""Independently persisted synthetic outcomes, replayed through the production SDK."""
 
 from __future__ import annotations
 
@@ -53,13 +53,16 @@ CASES: dict[str, tuple[list[dict[str, Any]], tuple[Any, ...], str]] = {
     "malformed_tool_handover": ([read("get_order_context"),
                                 propose("MANUAL_REVIEW", summary="订单数据异常，请人工检查。")],
                                (failed_observation(code="TOOL_RESULT_INVALID"),), "PROPOSAL"),
+    "alternating_no_progress": ([read(name) for name in ["get_order_context", "get_refund_status",
+        "get_order_context", "get_refund_status", "get_order_context"]],
+        (observation(), observation("get_refund_status"), observation(), observation("get_refund_status")), "FAILED"),
 }
 
 
 @pytest.mark.parametrize("name", CASES)
 def test_committed_golden_pack(name: str) -> None:
     root = Path(__file__).resolve().parents[3]
-    directory = root / "evals" / "replay" / "calibration-v9" / name
+    directory = root / "evals" / "replay" / "harness-v10" / name
     assert strict_replay(directory)["status"] == "MATCH"
 
 

@@ -1,9 +1,9 @@
-## 当前快照（2026-10-05，Harness可靠性修复进行中）
+## 当前快照（2026-10-05，Harness可靠性工程修复完成）
 
-- 用户批准先修复Harness，按[规格](../docs/harness-reliability.md)接续，不修改RAG排序/数据/Gold或Java资金权限。第一步完成未发货拒绝的具体字段/余额反馈，当前verifier v6；一次修正/绑定主体/fence保留。[报告](../reports/harness-reliability/README.md)：7项先失败，字段/引用/来源/纠错82项通过，改动Ruff通过。
-- 第二步完成交替重复动作检测、policy候选集合去重与来源/版本判新，context v12/verifier v6。102项/0 skipped通过，含隔离PG崩溃恢复；先失败和初轮缺失import/来源区分问题保留。第一步0c86215已核实正常push；第二步按授权精确提交推送后继续429有界恢复及集中PG/MCP/SDK/strict新配置验证。
-- 第三步完成429分类及持久冷却，追加011迁移，领取与预留双重防提前重试，短事务不sleep/不延长deadline，第二次429终止且无第三次请求；67项/0 skipped通过。先失败/首轮问题保留，三个旧worker fixture修正为真实RunSpend，断言保留。配置式mypy仍16既有错误/9文件/73源码，无新增诊断；改动Ruff通过。第三步A56678e2已核实push，本小步推送后进入集中PG/MCP/SDK/strict新配置收口。
-- 未新增收费调用、重启/消费日常run或退款，真实质量不能沿用旧报告称提升。旧包不覆盖；原四历史脏文件及草图日志不夹带。现有12次调用/120秒、一次修正、资金权限保持；没有增加模型长期记忆或RAG算法。
+- 用户批准先修复Harness，按[规格](../docs/harness-reliability.md)完成未发货拒绝具体字段/整数分余额反馈、交替重复动作/旧政策候选判新、429分类与持久冷却。领取与预留双重防提前重试、原请求复用、最多一次重试、不延长deadline；追加011迁移。当前context v12/verifier v6，唯一AgentScope循环、一次修正/资金权限不变。
+- 集中**750 passed/0 skipped**、Harness28/28、strict **harness-v10十四包14/14**、脚本32/32（150调用），改动Ruff/diff与v1/v2/v3冻结校验通过。[报告](../reports/harness-reliability/README.md)含各步先失败/首轮失败/实际命令/新worker冷却/直接预留防绕过/旧fence和崩溃恢复；三个旧worker fixture换真实RunSpend，断言保留。全项目mypy仍16既有错误/9文件/73源码，无新增诊断但类型门禁未通过。
+- public保持4 COMPLETED/15模型/10工具/8回调，ledger316/limit=null，无临时schema/usage锁；8个旧/新回放hash匹配。付费调用0，未重启worker/部署、消费日常run/退款、Java整链/网页/新真实建议复测，不宣称LLM质量提升。旧数据/Gold/RAG排名不改，原四历史脏文件及草图日志不夹带。四小步0c86215/9e060b3/56678e2/3f23501已核实正常push；最终收口SHA/远端结果在本轮回复，核实后停止写入。
+- 后续先将评测入口硬编码6次参数化并明确生产12次配置，固定A01B/A02B/A03B及正向控制真实复测/整体基线；再独立逐query Gold/语义人审与受控RAG优化。不要重做已有迁移/评测或自动收费、部署、加hybrid/reranker。新源码/011迁移下次正常启动加载，旧run不静默更换manifest；有限规则/无进展检测不等于全面幻觉与注入证明。
 
 ## 前批快照（2026-10-05，第六批输入/计量与修正反馈完成）
 

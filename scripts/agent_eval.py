@@ -358,9 +358,9 @@ def main(argv=None):
         "--dataset",
         type=Path,
         default=ROOT / "evals/calibrated-v3",
-        help="frozen version directory; default aligned-v2, v1 remains available",
+        help="frozen version directory; default calibrated-v3, earlier versions remain available",
     )
-    parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/calibration-v9",
+    parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/harness-v10",
                         help="current code replay profile; frozen dataset/Gold are independent")
     parser.add_argument("--case", action="append", default=[])
     parser.add_argument("--output", type=Path)
@@ -435,7 +435,8 @@ def main(argv=None):
         expected = {"resolveflow-replay-context-v4": 6, "resolveflow-replay-investigation-v5": 7,
                     "resolveflow-replay-usage-v6": 7, "resolveflow-replay-correction-v7": 13,
                     "resolveflow-replay-rag-v8": 13,
-                    "resolveflow-replay-calibration-v9": 13}.get(
+                    "resolveflow-replay-calibration-v9": 13,
+                    "resolveflow-replay-harness-v10": 14}.get(
             profile.get("profile_version"), 5)
         if len(directories) != expected:
             raise ValueError(f"Expected {expected} replay packs; zero or incomplete steps cannot pass")

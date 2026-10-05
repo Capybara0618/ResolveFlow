@@ -1,5 +1,7 @@
 # 多商家上游与既有售后实施计划
 
+2026-10-05 用户批准[Harness可靠性修复](../docs/harness-reliability.md)：具体字段反馈→交替循环/检索结果判新→429持久冷却→集中工程回归与新独立回放。当前结果只看[todo顶部](todo.md)与[报告](../reports/harness-reliability/README.md)，后续固定配置整体真实基线、独立RAG逐query Gold，再作受控RAG优化；不先加hybrid/reranker或扩大平台范围。下方为历史计划，不重新启动旧批。
+
 2026-10-05 用户批准[第六批输入/计量与修正反馈](../docs/agent-calibration-batch6.md)，实际进度仅看[todo顶部](todo.md)，[报告](../reports/agent-calibration-batch6/README.md)。当前calibrated-v3/context v11/verifier v5/calibration-v9十三包；工程710/28/13及脚本32通过，真实13例10联合正确/3未完成（64调用），ledger316/limit=null。后续先针对RESERVED等具体失败字段改善修正反馈，并明确按生产12次配置复测A01B/A02B/A03B；再独立Gold/人审。旧资产及四历史脏文件保留，不重做旧批或自动部署/付费续跑/hybrid。提交推送核实后本实施者停止写入；下方描述均为历史。
 
 2026-10-05用户批准接续[第五批](../docs/agent-quality-batch5.md)：固定当前生产/全部32真实调查→保存query和11外部FAQ来源→隔离探针/审计→待人审和失败归因→集中验证。状态仅[todo顶部](todo.md)，[报告](../reports/agent-quality-batch5/README.md)显示质量未全通过。后续先新profile校准四输入契约反例、计量与必保上下文，再独立逐query Gold，不因旧合成分数/未标注探针启动hybrid或reranker。生产/冻结v1/v2/旧Gold不变，真实调用已获本次继续要求授权且实际执行，下方“第五批未启动/96额度满”只作历史。

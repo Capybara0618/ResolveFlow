@@ -1,5 +1,7 @@
 # 当前执行说明：正式启动入口与三角色接手规则
 
+2026-10-05 用户批准[Harness可靠性修复](../docs/harness-reliability.md)。具体字段纠错、交替重复/旧政策结果判新、429持久冷却及有界恢复已实施；唯一状态仍看[todo顶部](todo.md)，实际命令、失败及未运行见[报告](../reports/harness-reliability/README.md)。当前context v12/verifier v6，新增独立harness-v10回放，旧包/输入/Gold保留。后续先明确生产12次配置做固定真实建议基线及独立逐query标注，再按证据优化RAG；不自动收费/部署、重做旧批或换检索算法。收口提交推送核实后停止写入，下方均为历史执行说明。
+
 2026-10-05 用户批准[第六批输入/计量与修正反馈](../docs/agent-calibration-batch6.md)，实际进度仅看[todo顶部](todo.md)，[报告](../reports/agent-calibration-batch6/README.md)。当前calibrated-v3/context v11/verifier v5/calibration-v9十三包；工程710/28/13及脚本32通过，真实13例10联合正确/3未完成（64调用），ledger316/limit=null。后续先针对RESERVED等具体失败字段改善修正反馈，并明确按生产12次配置复测A01B/A02B/A03B；再独立Gold/人审。旧资产及四历史脏文件保留，不重做旧批或自动部署/付费续跑/hybrid。提交推送核实后本实施者停止写入；下方描述均为历史。
 
 2026-10-05用户批准接续[第五批](../docs/agent-quality-batch5.md)，无自写样本；状态只看[todo顶部](todo.md)、[全部结果与失败](../reports/agent-quality-batch5/README.md)。生产a073f32/context v10/verifier v5/正文dense/rag-v8不变。真实32例联合22/32、7未完成（156调用）；11外部FAQ不是客服日志、66逐query未标注/32建议未人审。后续先新profile输入契约校准/保守字节计量，再独立Gold；不把缺终局引用当RAG漏召回。当前基线不刷分/改Gold或自动加重排；ledger252/limit=null不清零，四历史脏文件/草图日志不夹带。正常提交推送核实后本实施者停止写入，下方“第五批未启动”均是历史状态。
