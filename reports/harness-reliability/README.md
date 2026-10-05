@@ -25,4 +25,10 @@ $env:RESOLVEFLOW_AGENT_DB='postgresql://agent:agent@127.0.0.1:55433/agent_db'
 agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_loop_reliability.py agent/tests/unit/test_harness_loop.py agent/tests/unit/test_loop_semantics.py agent/tests/unit/test_sdk_adapter.py agent/tests/unit/test_correction_loop.py agent/tests/integration/test_loop_reliability_recovery.py agent/tests/integration/test_correction_recovery.py -q --tb=short --junitxml=reports/harness-reliability/loops.xml
 ```
 
-第一步0c86215已核实正常push到origin/main。429恢复尚在实施；本批全量集中PG/MCP/strict和mypy待收口。未真实模型复测、Java整链、网页或收费调用/常驻服务重启，不宣称建议质量提升。已有全项目mypy16个错误基线保留。
+## 第三步A：429分类与等待信息
+
+429单独作为ModelUnavailableError子类，返回有界Retry-After（秒数或HTTP-date，非法值默认5秒，最少1秒，最大一天；运行期限在持久层另行约束）。400/401/402/403不自动重试，transport每调用仍只发送一次。headers不写入模型请求日志，429只使用固定错误文案，不把供应商正文变成模型纠错指令。
+
+先失败9项/原4项通过（rate-before.txt）；修复后模型客户端/SDK32项通过（rate.xml/txt），改动Ruff通过。实际命令为 `agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_model_rate_limit.py agent/tests/unit/test_live_model_client.py agent/tests/unit/test_sdk_adapter.py -q --tb=short --junitxml=reports/harness-reliability/rate.xml`。
+
+第一步0c86215、第二步9e060b3已核实正常push到origin/main。429持久冷却仍在实施，不能将分类完成称为完整退避恢复；本批集中PG/MCP/strict和mypy待收口。未真实模型复测、Java整链、网页或收费调用/常驻服务重启，不宣称建议质量提升。已有全项目mypy16个错误基线保留。

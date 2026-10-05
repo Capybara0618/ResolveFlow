@@ -30,10 +30,13 @@ agreement (``tasks/handoff-current.md`` §2), so the offline capture tests are w
 from __future__ import annotations
 
 import json
+import math
+import time
 import urllib.error
 import urllib.request
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
+from email.utils import parsedate_to_datetime
 from typing import TYPE_CHECKING, Any, TypeGuard
 
 from resolveflow.harness.context import canonical_json, estimate_tokens, hash_document
@@ -46,6 +49,7 @@ __all__ = [
     "HttpResponse",
     "LiveModelClient",
     "ModelRefusedError",
+    "ModelRateLimitedError",
     "ModelUnavailableError",
     "Transport",
 ]
@@ -66,12 +70,35 @@ class ModelUnavailableError(Exception):
     """
 
 
+class ModelRateLimitedError(ModelUnavailableError):
+    """A single rejected transmission. Only the fenced recovery layer may retry it."""
+
+    def __init__(self, retry_after_seconds: float = 5.0):
+        super().__init__("provider temporarily rate limited the request (429)")
+        self.retry_after_seconds = retry_after_seconds
+
+
+def _retry_delay(headers: Mapping[str, str]) -> float:
+    header = next((value for key, value in headers.items() if key.lower() == "retry-after"), "")
+    try:
+        seconds = float(header)
+    except ValueError:
+        try:
+            seconds = parsedate_to_datetime(header).timestamp() - time.time()
+        except (ValueError, TypeError, OverflowError):
+            return 5.0
+    if not math.isfinite(seconds) or seconds < 0:
+        return 5.0
+    return max(1.0, min(86400.0, seconds))
+
+
 @dataclass(frozen=True, slots=True)
 class HttpResponse:
     """What a transport hands back: a status and a body, nothing provider-specific."""
 
     status: int
     body: bytes
+    headers: Mapping[str, str] = field(default_factory=dict)
 
 
 #: The whole network surface, injectable so a test can capture a request without opening a socket.
@@ -144,6 +171,8 @@ class LiveModelClient:
             raise
         self._record(body=body, status=response.status)
 
+        if response.status == 429:
+            raise ModelRateLimitedError(_retry_delay(response.headers))
         if 400 <= response.status < 500:
             raise ModelRefusedError(
                 f"the provider refused the request ({response.status}): {_snippet(response.body)}"
@@ -226,11 +255,12 @@ def _urllib_transport(url: str, body: bytes, headers: dict[str, str], timeout: f
     try:
         response = _default_transport(request, timeout)
         try:
-            return HttpResponse(status=int(response.status), body=response.read())
+            return HttpResponse(status=int(response.status), body=response.read(),
+                                headers=dict(getattr(response, "headers", {}) or {}))
         finally:
             response.close()
     except urllib.error.HTTPError as error:
-        return HttpResponse(status=int(error.code), body=error.read())
+        return HttpResponse(status=int(error.code), body=error.read(), headers=dict(error.headers or {}))
 
 
 def _text_of(message: Message) -> str:
