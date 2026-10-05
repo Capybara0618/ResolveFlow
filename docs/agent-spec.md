@@ -2,6 +2,8 @@
 
 主线见[Harness](agent-harness.md)。Python/FastAPI保留现有锁，Agent框架目标改为AgentScope 2.x SDK，先按[迁移规格](agentscope-migration.md)验证后锁定；单Agent按Observation选择下一行动，Java独立执行退款。核心不是固定workflow，也不是通用Agent产品。
 
+2026-10-05当前调查/终止约束见[第三批规格](agent-investigation-batch3.md)：扁平模型动作/一次修复不变，ASK客户前拒绝六类已绑定编号字段；命名丢失/质量条款的退款建议必须引用对应当前来源和关联人工核验。来源检查不等于全部自然语言条件判定或Java授权。当前context v8/verifier v4，版本不兼容仍不静默迁移；实际质量限制见本批报告。
+
 ## 1. 状态与输入
 
 输入为case/run/input_revision、认证绑定的merchant/customer/line、用户诉求、可用政策manifest、deadline。状态保留facts及来源/冲突、观察ref、已问问题、下一动作、预算/调用账、manifest_id和checkpoint；长原文单独存储。

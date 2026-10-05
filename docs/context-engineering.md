@@ -54,8 +54,16 @@ protected_fact_hash覆盖必保留值/来源/版本/冲突，证明未被裁剪�
 
 ## 7. 2026-10-05 常驻规则与短引用
 
-当前生产上下文策略为 `p0-p4-v7-run-short-refs`，见[规则/工具/引用规格](agent-context-protocol.md)。五 MCP 工具始终直接可用；常驻规则压缩，相关材料/订单/物流/政策解释随已提供或已读的对应来源出现，不增加工具发现轮次。最终建议协议仍常驻。
+该批上下文策略为 `p0-p4-v7-run-short-refs`，见[规则/工具/引用规格](agent-context-protocol.md)。五 MCP 工具始终直接可用；常驻规则压缩，相关材料/订单/物流/政策解释随已提供或已读的对应来源出现，不增加工具发现轮次。最终建议协议仍常驻。
 
 模型视图中，事实组用 O 编号、工具、来源类型/authority、版本表达来源，政策用 P 编号保留 bundle/版本/规则/全文。完整身份不再要求模型复制，而是保留在原始 Observation 及当前包引用映射；事实值/状态/冲突/note 与 `protected_fact_hash` 不变。这是来源呈现变化，不是删除来源/哈希校验。泛用或旧 schema 的 ContextBuilder 仍保留完整引用呈现，正式 SDK 通过 `reference_format=run-short-v1` 显式选择短编号。
 
 建议和 review_findings 的编号在严格 ABI/原引用验证前展开，未知/错类型拒绝；只有强制 P2 的引用可通过编号提交。原文读取编号只映射当前 run 已知记录，材料/失败/窗口不因编号成为可引用权威。持久原始响应、原工具记录和 manifest 支持同版本重建，无新数据库或模型调用；当前 strict 包另冻于 context-v4，旧包不改。
+
+## 8. 第三批调查/终止的表达边界
+
+当前策略 `p0-p4-v8-investigation-stop`，详见[规格](agent-investigation-batch3.md)。真实模型曾把JSON说明中的type/action_fields/bounds当输出字段，现将说明用普通文字呈现，仅动作示例是独立扁平JSON。示例非业务路线/事实，引用依然只能取当前P2；动作解析不宽松化。
+
+常驻规则明确系统事实用工具、条件足够即给建议、审批不同于缺证调查。查询用中文聚焦已知事实；核验条件按实际召回条款显示，不把丢失/质量的人审条件套到未发货，也不显示没召回的条款条件。无需全读五工具，不增加自动LLM总结/摘要。事实、来源、问答、原文、政策条件和原cap保留，超限仍明确失败。
+
+来源检查由verifier v4执行，不靠多写提示词代替；当前回放investigation-v5七条。实际真实评测与最终工程收口的版本/限制见[报告](../reports/agent-investigation-batch3/README.md)，不能把脚本通过或历史manifest当最终LLM准确率。

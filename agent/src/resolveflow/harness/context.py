@@ -688,13 +688,22 @@ def _domain_guidance(observations: list[ToolObservation], snapshot: dict[str, An
     tools = {item.tool_name for item in observations}
     rules = []
     if (snapshot and snapshot.get("materials")) or "get_case_evidence" in tools:
-        rules.append("诉求/回答非权威；人工核验INCONCLUSIVE=未知。相关发现引用get_case_evidence外层证据，勿引本地窗口。")
+        rules.append("核验/回答引用须读get_case_evidence，订单不能证明核验；INCONCLUSIVE=未知。")
     if "get_order_context" in tools:
-        rules.append("未发货退款需成功付款及明确履约/版本，未知状态不能替代未发货。")
+        rules.append("订单履约不替代承运结论。未发货需付款及明确履约/版本，未知≠未发货。")
     if "get_shipment_trace" in tools:
         rules.append("物流NOT_FOUND≠未发货；DELIVERED≠客户确认。")
     if "search_policy" in tools:
         rules.append("无候选≠无退款权；条款不适用≠拒绝申请。说明适用条件和例外。")
+        rule_ids = {hit.get("rule_id") for item in observations if item.tool_name == "search_policy"
+                    for hit in (item.result or {}).get("hits", []) if isinstance(hit, dict)}
+        if rule_ids & {"R-LOST-001", "R-DMG-001"}:
+            conditions = []
+            if "R-LOST-001" in rule_ids:
+                conditions.append("R-LOST-001:承运LOST+材料CONFIRMED")
+            if "R-DMG-001" in rule_ids:
+                conditions.append("R-DMG-001:送达+材料CONFIRMED")
+            rules.append("按适用条款:" + ";".join(conditions) + "。这些核验条件不套用于未发货。")
     return "\n".join(rules)
 
 
@@ -912,11 +921,17 @@ def _render_excerpt(observation: ToolObservation, view: FactsView | None = None)
 
 
 def _render_tool_schema(schema: dict[str, Any]) -> str:
-    """The action/tool schema, as the model receives it. ``docs/context-engineering.md:17`` makes this P0.
-
-    Sorted keys because the packet's hash covers it: an unstable rendering would make two runs with the same
-    schema hash differently, and the hash is what a snapshot uses to say which tools the model was offered.
-    """
+    """Render prose documentation separately from executable JSON action examples."""
+    if schema.get("reference_format") == "run-short-v1" and "syntax_examples_only" in schema:
+        # Metadata keys in a JSON schema were copied into real provider answers. Render the
+        # documentation as prose and reserve JSON objects for actual action syntax.
+        protocol_lines = [str(schema["wire_format"]), "工具：" + _json(schema["tools"]),
+                 "工具参数：" + str(schema["tool_arguments"]), str(schema["bounds"]),
+                 "理由用reasoning；SEARCH_POLICY:query在根部，用中文聚焦事实；arguments只放top_k。独立语法示例："]
+        protocol_lines.extend(_json(example) for example in schema["syntax_examples_only"])
+        protocol_lines.append("建议字段约束：" + _json(schema["proposal"]))
+        protocol_lines.append("本地能力：" + ",".join(schema.get("local_reads", [])))
+        return "动作/工具 schema：\n" + "\n".join(protocol_lines)
     if "wire_format" not in schema or "action_fields" not in schema:
         return "动作/工具 schema：" + _json(schema)
 

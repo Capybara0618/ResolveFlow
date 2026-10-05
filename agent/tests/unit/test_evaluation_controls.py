@@ -5,6 +5,7 @@ import sys
 from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
 from agentscope.message import Msg, TextBlock
@@ -18,18 +19,47 @@ from scripts.evaluation.models import CaptureModel, live_guard  # noqa: E402
 from scripts.evaluation.reporting import compare_reports, describe  # noqa: E402
 
 
-@pytest.mark.parametrize("count", [0, 5])
-def test_current_replay_profile_cannot_pass_with_missing_trajectories(tmp_path, count):
+def test_report_replace_retries_local_sharing_violation_without_rewriting_payload(tmp_path):
+    output = tmp_path / "result.json"
+    replace = Path.replace
+    attempts = []
+
+    def transient(source, target):
+        attempts.append(source.read_bytes())
+        if len(attempts) < 3:
+            raise PermissionError("sharing violation")
+        return replace(source, target)
+
+    with patch.object(Path, "replace", transient), patch("scripts.agent_eval.time.sleep") as sleep:
+        persist(output, {"status": "saved"})
+    assert json.loads(output.read_text()) == {"status": "saved"}
+    assert len(set(attempts)) == 1 and len(attempts) == 3
+    assert sleep.call_count == 2
+
+
+def test_report_replace_permanent_denial_is_explicit_and_keeps_partial(tmp_path):
+    output = tmp_path / "result.json"
+    with patch.object(Path, "replace", side_effect=PermissionError("denied")) as replace, \
+            patch("scripts.agent_eval.time.sleep"), pytest.raises(PermissionError):
+        persist(output, {"status": "saved"})
+    assert replace.call_count == 4 and not output.exists()
+    assert json.loads(output.with_suffix(".partial").read_text()) == {"status": "saved"}
+
+
+@pytest.mark.parametrize("profile,expected,count", [("resolveflow-replay-context-v4", 6, 0),
+    ("resolveflow-replay-context-v4", 6, 5), ("resolveflow-replay-investigation-v5", 7, 0),
+    ("resolveflow-replay-investigation-v5", 7, 6)])
+def test_current_replay_profile_cannot_pass_with_missing_trajectories(tmp_path, profile, expected, count):
     root = tmp_path / "replay"
     root.mkdir()
-    (root / "manifest.json").write_text(json.dumps({"profile_version": "resolveflow-replay-context-v4"}),
+    (root / "manifest.json").write_text(json.dumps({"profile_version": profile}),
                                         encoding="utf-8")
     for index in range(count):
         directory = root / str(index)
         directory.mkdir()
         (directory / "pack.json").write_text("{}", encoding="utf-8")
     output = tmp_path / "report.json"
-    with pytest.raises(ValueError, match="Expected 6 replay packs"):
+    with pytest.raises(ValueError, match=f"Expected {expected} replay packs"):
         main(["replay", "--replay-dir", str(root), "--output", str(output)])
     assert not output.exists()
 

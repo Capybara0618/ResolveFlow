@@ -1,0 +1,40 @@
+{
+  "report_sha256": "c16875c4977a2741ecc00cc82de861af235acf6f984d19c9847a804b377a1e1d",
+  "requests": 148,
+  "max_input_estimate": 7168,
+  "all_within_caps": true,
+  "estimator": "UTF8 bytes plus wrapper, not provider tokenizer",
+  "only_subsequent_harness_change": "local variable rename; output identical",
+  "manifest_current": {
+    "budgets": {
+      "active_deadline_seconds": 120,
+      "max_external_calls": 16,
+      "max_local_reads": 8,
+      "max_model_calls": 12,
+      "max_output_tokens": 1024,
+      "max_prompt_tokens": 8192,
+      "max_total_input_tokens": 40000,
+      "max_total_output_tokens": 4000,
+      "model_timeout_seconds": 30
+    },
+    "code_revision": "source:f980e3c458a331713efdce6de277bc0857dfb1eab26efae24122eb5d64b383f7;lock:0fedd60f93948c7c4a4e9ac9d434133348dc88a9bae3ffd888c6c97b4dbbccf2",
+    "context_policy_version": "p0-p4-v8-investigation-stop",
+    "graph_version": "agentscope@2.0.8+resolveflow@0.1.0",
+    "harness_version": "resolveflow-harness-0.1.0",
+    "index_generation": "e9ac8e78-6a07-501b-b014-eea1e5172a0a",
+    "manifest_id": "a9d7d37c7743fd3ebe8b9abbc7879b43d2477bcdcad89db973a447bfecae10ab",
+    "model": {
+      "context_window_tokens": 8192,
+      "model_id": "mock-scripted",
+      "parameters": {},
+      "provider": "mock",
+      "token_counter_version": "utf8-json-bytes-v3-single-wrapper"
+    },
+    "policy_manifest_hash": "9999999999999999999999999999999999999999999999999999999999999999",
+    "prompt_hash": "a9b1dcedaaf7529fb49a132332e2c6ebc1b92d8cee71e9f24e8dd15f2f22ccbd",
+    "schema_version": 1,
+    "state_schema_version": 2,
+    "tool_schema_hash": "0786b204e17556aa6210f3e1ba12a36e18210e9dcca4b98dce00bf912fba2573",
+    "verifier_version": "python-citations-v4-investigation-sources"
+  }
+}

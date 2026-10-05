@@ -31,13 +31,17 @@ CASES: dict[str, tuple[list[dict[str, Any]], tuple[Any, ...], str]] = {
     "read_then_question": ([read("get_order_context"), {"kind": "ASK_CUSTOMER", "questions": [
         {"question_id": "q1", "field": "package_photo", "prompt": "Please send the package photo"}],
         "reason_codes": ["NEEDS_EVIDENCE"]}], (observation(),), "QUESTION"),
+    "bound_question_repair": ([{"kind": "ASK_CUSTOMER", "questions": [
+        {"question_id": "q1", "field": "order_id", "prompt": "Please provide order id"}],
+        "reason_codes": ["NEEDS_EVIDENCE"]}, read("get_order_context"), propose("MANUAL_REVIEW")],
+        (observation(),), "PROPOSAL"),
 }
 
 
 @pytest.mark.parametrize("name", CASES)
 def test_committed_golden_pack(name: str) -> None:
     root = Path(__file__).resolve().parents[3]
-    directory = root / "evals" / "replay" / "context-v4" / name
+    directory = root / "evals" / "replay" / "investigation-v5" / name
     assert strict_replay(directory)["status"] == "MATCH"
 
 

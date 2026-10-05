@@ -26,7 +26,7 @@ record as visible evidence.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Final
 
 from resolveflow.contracts._schemaio import CORE_SCHEMA_FILES, validator_bundle
@@ -62,6 +62,7 @@ REFUND_CITATION_REQUIRED: Final = "REFUND_CITATION_REQUIRED"
 REJECT_CITATION_REQUIRED: Final = "REJECT_CITATION_REQUIRED"
 REJECT_FACTS_REQUIRED: Final = "REJECT_FACTS_REQUIRED"
 UNSHIPPED_FACTS_REQUIRED: Final = "UNSHIPPED_FACTS_REQUIRED"
+INVESTIGATION_FACTS_REQUIRED: Final = "INVESTIGATION_FACTS_REQUIRED"
 
 #: A refund that also says it is missing evidence is asking and proposing at once.
 MISSING_EVIDENCE_ON_REFUND: Final = "MISSING_EVIDENCE_ON_REFUND"
@@ -124,6 +125,9 @@ class ProposalVerifier:
 
     observations: Sequence[ToolObservation]
     pinned_bundle_ids: frozenset[str]
+    review_context: Mapping[str, Any] = field(default_factory=dict)
+    case_id: str | None = None
+    input_revision: int | None = None
 
     def verify_citations(
         self,
@@ -168,7 +172,8 @@ class ProposalVerifier:
         refusals.extend(self._check_policy(policy_refs))
         cited = {str(ref.get("observation_id", "")) for ref in evidence_refs}
         latest = {item.source_ref: item for item in self.observations
-                  if item.tool_name in ("get_order_context", "get_shipment_trace", "get_refund_status")}
+                  if item.tool_name in ("get_order_context", "get_shipment_trace", "get_refund_status",
+                                        "get_case_evidence")}
         successful = [item for item in self.observations if item.observation_id in cited and _is_citable(item)
                       and latest.get(item.source_ref, item).observation_id == item.observation_id]
         orders = [item.result for item in successful
@@ -193,6 +198,41 @@ class ProposalVerifier:
                     UNSHIPPED_FACTS_REQUIRED,
                     "未发货退款须引用当前已付款、明确未发货版本及整行可退事实；缺失/未知/冲突或占用需补查或转人工",
                 ))
+        rules = {ref.get("rule_id") for ref in policy_refs}
+        if recommended_action == "REFUND" and rules and rules <= {
+            "R-MONEY-001", "R-SIGNED-001", "R-INTRANSIT-001",
+        }:
+            refusals.append(CitationRefusal(
+                INVESTIGATION_FACTS_REQUIRED,
+                "资金限制/普通在途/签收争议条款本身不建立退款资格；需检索并引用实际适用的退款条款或转人工",
+            ))
+        if recommended_action == "REFUND" and rules & {"R-LOST-001", "R-DMG-001"}:
+            # A source-kind floor for the existing named policies, not a generated entitlement
+            # verdict. Order fulfillment never establishes a carrier conclusion or human check.
+            paid = any(_paid_order(body) and body.get("line_refund_state") == "FREE"
+                       and _whole_line_available(body) for body in orders)
+            bodies = [item.result for item in successful
+                      if item.tool_name == "get_shipment_trace" and isinstance(item.result, Mapping)]
+            lost = any(body.get("status") == "LOST" and body.get("carrier_conclusion") == "LOST"
+                       and not any(event.get("code") in {"SIGNED", "DELIVERED"}
+                                   for event in _sequence_of(body.get("events"))) for body in bodies)
+            delivered = (any(body.get("fulfillment_status") == "DELIVERED" for body in orders)
+                         or any(body.get("status") == "DELIVERED" for body in bodies))
+            occupied = any(item.tool_name == "get_refund_status"
+                           and (not _is_citable(item) or (item.result or {}).get("state") != "FREE")
+                           for item in latest.values())
+            conflicting_delivery = ("R-DMG-001" in rules and any(
+                item.tool_name == "get_shipment_trace" and (
+                    not _is_citable(item) or (item.result or {}).get("status") != "DELIVERED")
+                for item in latest.values()))
+            confirmed = self._confirmed_material(successful)
+            if (not paid or not confirmed or occupied or conflicting_delivery or ("R-LOST-001" in rules and not lost)
+                    or ("R-DMG-001" in rules and not delivered)):
+                refusals.append(CitationRefusal(
+                    INVESTIGATION_FACTS_REQUIRED,
+                    "退款须引用当前已付可退订单及get_case_evidence外层核验；丢失另需承运LOST，质量需送达。"
+                    "核验须关联本案客户材料并为CONFIRMED；缺口补查或转人工",
+                ))
         if recommended_action == "REJECT":
             if not evidence_refs or not policy_refs:
                 refusals.append(CitationRefusal(
@@ -214,6 +254,40 @@ class ProposalVerifier:
                     "未发货条款不适用不能拒绝整个申请；拒绝须有其他适用政策及当前订单/已知物流，未知需补查或转人工",
                 ))
         return VerificationResult(refusals=tuple(refusals))
+
+    def _confirmed_material(self, cited: Sequence[ToolObservation]) -> bool:
+        """Match the revision snapshot's latest check and target to registered material identities.
+
+        A CONFIRMED word in a model finding, order or unrelated material is insufficient.
+        Equal-revision contradictory checks fail closed; this is provenance, not text semantics.
+        """
+        materials = _sequence_of(self.review_context.get("materials"))
+        targets = {m.get("evidence_id"): m for m in materials
+                   if m.get("source_type") == "CUSTOMER_STATEMENT"}
+        checks = [m for m in materials if m.get("source_type") == "REVIEWER_VERIFICATION"
+                  and m.get("reviewed_evidence_id") in targets]
+        for item in cited:
+            body = item.result
+            if (item.tool_name != "get_case_evidence" or not isinstance(body, Mapping)
+                    or self.case_id is None or self.input_revision is None
+                    or body.get("case_id") != self.case_id or body.get("input_revision") != self.input_revision):
+                continue
+            registered = {r.get("observation_id"): r for r in _sequence_of(body.get("evidence"))}
+            for target_id, target in targets.items():
+                related = [m for m in checks if m.get("reviewed_evidence_id") == target_id]
+                if not related:
+                    continue
+                revision = max(m.get("input_revision", 0) for m in related)
+                current = [m for m in related if m.get("input_revision") == revision]
+                if (revision > self.input_revision
+                        or any(m.get("verification_result") != "CONFIRMED" for m in current)):
+                    continue
+                required = [target, *current]
+                if all(m.get("evidence_id") in registered
+                       and all(m.get(k) == registered[m["evidence_id"]].get(k)
+                               for k in ("source_ref", "source_version", "content_hash")) for m in required):
+                    return True
+        return False
 
     def verify_proposal(self, proposal: Mapping[str, Any]) -> VerificationResult:
         """Check the composed wire proposal: the frozen schema first, then its citations.

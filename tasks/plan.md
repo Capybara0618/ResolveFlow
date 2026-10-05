@@ -1,5 +1,7 @@
 # 多商家上游与既有售后实施计划
 
+2026-10-05用户批准[第三批调查与终止](../docs/agent-investigation-batch3.md)并提前允许真实DeepSeek，按既定顺序完成调查表达/终止依据及来源门槛；状态仅todo顶部，[全部真实失败/工程验证](../reports/agent-investigation-batch3/README.md)。后续第四批继续RAG召回/排序，第五批做固定版本充分真实对照和独立语义复核；本批有限真实结果不替代第五批。不要重建评测/改Gold，勿将英语查询错召回或预算中断隐藏成成功。累计原Live额度已满，后续按用户明确指示和新评测费用边界准备正式配额，先给最终反例验证留足调用；不自动清零/加量、部署或接旧CXX。
+
 2026-10-05用户新增批准五MCP直接可用，精简常驻规则、动作协议与来源表达；[常驻规则/短引用](../docs/agent-context-protocol.md)完成，结果见[报告](../reports/agent-context-protocol/README.md)，进度仅todo顶部。该改进接续第二批，不增加工具发现平台或改变调查路线，当前回放context-v4六条、输入/Gold仍aligned-v2。调查/终止、RAG召回、有限Live仍未启动，由用户另行指示，不自动收费/部署。
 
 2026-10-05最新授权完成[第二批上下文工程](../docs/agent-context-batch2.md)，见[集中结果](../reports/agent-context-batch2/README.md)，状态只维护todo顶部。固定路线的第一批校准和第二批表达/计量已完成；后续调查/终止、RAG召回、同版本有限Live尚未实施，等待用户指示，不自动收费或部署。不重建现有评测，不覆盖v1/v2冻结资产；当前回放独立context-v3，原始信息、来源/冲突/政策条件和资金权限沿用。

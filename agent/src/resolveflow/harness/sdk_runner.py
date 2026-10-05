@@ -170,6 +170,14 @@ class ActionGateMiddleware(MiddlewareBase):
 
         if decision.kind in _TERMINAL_KINDS:
             # Terminal: it ends the run and is not executed, so it does not touch the no-progress tracker.
+            if decision.kind == ASK_CUSTOMER and any(
+                question.field.strip().lower() in {
+                    "order_id", "line_id", "case_id", "run_id", "merchant_id", "customer_id",
+                } for question in decision.questions
+            ):
+                self._refuse("QUESTION_ALREADY_BOUND",
+                             "订单行/工单/用户/商家已绑定，勿向客户索要身份编号；系统事实可用只读工具获取")
+                return None
             citation_refusal = self._verify_proposal(decision)
             if citation_refusal is not None:
                 return None
@@ -755,6 +763,9 @@ class _GateAwareClient:
         # snapshot would check every citation against an empty run and refuse them all.
         gate.verifier = ProposalVerifier(
             observations=self.observations,
+            review_context=runner.facts.review_context,
+            case_id=runner.facts.case_id,
+            input_revision=runner.facts.input_revision,
             pinned_bundle_ids=frozenset(
                 str(bundle) for bundle in (runner.facts.policy_manifest.get("bundle_ids") or [])
             ),
@@ -1038,18 +1049,22 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
     assert tools.keys() == WHITELIST
     document: dict[str, Any] = {
         "tools": tools,
-        "wire_format": "Flat JSON; kind required, reasoning optional; listed fields only.",
+        "wire_format": "输出一个扁平JSON,kind在根部;禁type/action_fields包装;示例非路线/事实,引用用当前P2编号。",
         "reference_format": "run-short-v1",
         "tool_arguments": "{} by default; evidence:kind?; shipment:cursor?,limit?<=20",
-        "action_fields": {
-            READ_TOOL: "tool_name, arguments={}",
-            SEARCH_POLICY: "query, arguments={top_k:1..5}",
-            READ_OBSERVATION: "observation_id=O-number or material:ID, arguments={offset>=0,limit:1..4000 chars}",
-            ASK_CUSTOMER: "questions=[{question_id,field,prompt}], max 3; reason_codes",
-            PROPOSE: "case_type, recommended_action, nonempty reason_codes; optional summary, "
-                     "evidence_refs, policy_refs, missing_evidence, review_findings",
-            ESCALATE: "reason_codes; optional reasoning/summary",
-        },
+        "syntax_examples_only": [
+            {"kind": READ_TOOL, "tool_name": "get_order_context", "arguments": {}},
+            {"kind": SEARCH_POLICY, "query": "terms", "arguments": {"top_k": 2}},
+            {"kind": READ_OBSERVATION, "observation_id": "O1", "arguments": {"offset": 0, "limit": 1000}},
+            {"kind": ASK_CUSTOMER, "questions": [
+                {"question_id": "q1", "field": "package_photo", "prompt": "..."}],
+             "reason_codes": ["NEEDS_EVIDENCE"]},
+            {"kind": PROPOSE, "case_type": "LOGISTICS", "recommended_action": "REFUND",
+             "reason_codes": ["POLICY_CONDITIONS_MET"], "summary": "...",
+             "evidence_refs": ["O1"], "policy_refs": ["P1"]},
+            {"kind": ESCALATE, "reason_codes": ["NEEDS_HUMAN_VERIFICATION"]},
+        ],
+        "bounds": "top_k:1..5;read:material:ID或O#,limit:1..4000字符;ASK<=3;PROPOSE可加missing_evidence。",
         "proposal": {
             "case_type": [member.value for member in CaseType],
             "recommended_action": sorted(RECOMMENDED_ACTIONS),

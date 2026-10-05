@@ -1,5 +1,9 @@
 # 当前执行说明：正式启动入口与三角色接手规则
 
+2026-10-05用户批准第三批调查/终止及真实模型，执行结果和唯一进度见todo顶部；[规格](../docs/agent-investigation-batch3.md)、[报告](../reports/agent-investigation-batch3/README.md)。不重做前两批或五MCP/短引用，输入和Gold仍aligned-v2；当前context v8/verifier v4，新回放investigation-v5七条，旧已提交包保留。SDK/最终回调共用来源检查，Java授权/资金不变量不变。真实调用的原累计预算已用完，质量缺证反例未出终局；不能清零预算或据成功三例宣称全面优化完成。最终工程收口未再收费复测，报告注明实际版本。
+
+本实施者精确commit/普通push核实后停止写入。接手先只读核对状态/归属，再按用户新指示接第四批RAG；不默认重启worker/消费日常run/部署或新增收费。原四个历史脏文件和草图日志不夹带，下方不自动付费等说明仅是对应历史授权边界，不覆盖本次用户已批准的有限真实调用。
+
 2026-10-05最新用户授权五MCP直接可用并精简规则/协议/来源。[本批规格](../docs/agent-context-protocol.md)和[报告](../reports/agent-context-protocol/README.md)已完成，实际进度只看todo顶部。接手不重做第二批或本批；输入/Gold仍aligned-v2，当前回放context-v4六条，旧context-v3保留且不静默迁移。原始Observation/模型编号响应保留，引用在ABI前展开，Java契约/权限/资金/审批不变。不自动启动调查/RAG/付费Live或部署，不重算日常run；原四个工程/verify/Commerce测试和历史草图日志不夹带。本执行者精确commit/普通push确认后停止写入，接手先只读核对状态/归属。下方第二批及旧体系说明为历史决定。
 
 2026-10-05最新用户授权“做好context engineering，处理多轮压缩”。已完成[第二批紧凑上下文](../docs/agent-context-batch2.md)，实际进度仅见[todo顶部](todo.md)，证据为[本批报告](../reports/agent-context-batch2/README.md)。输入/Gold仍为evals/aligned-v2，当前回放独立evals/replay/context-v3；旧v1/v2资产保留，旧manifest不自动迁移。多轮由Harness每轮确定性重建与本地原文读回，没有额外LLM摘要。仅完成本批，不自动接调查策略、RAG算法或付费Live；未部署/重算日常run。原四个工程/verify/Commerce测试文件和草图日志归属不变；本执行者精确提交、正常推送核实后停止写入，接手先只读核对状态/归属。下方第一批/仅构建体系为历史决定，不覆盖最新用户授权。

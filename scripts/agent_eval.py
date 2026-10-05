@@ -84,8 +84,18 @@ def metadata(mode, dataset=DATA):
 def persist(path, report):
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(".partial")
-    temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
-    temporary.replace(path)
+    temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8",
+                         newline="\n")
+    # Windows readers/indexers may briefly hold the destination without delete-sharing.
+    # Retry only this local atomic rename, never a provider call or the investigation.
+    for attempt in range(4):
+        try:
+            temporary.replace(path)
+            return
+        except PermissionError:
+            if attempt == 3:
+                raise
+            time.sleep(0.05 * (2 ** attempt))
 
 
 def rag(report, index, encoder, pins, *, split, bm25_only=False, dataset=DATA):
@@ -346,7 +356,7 @@ def main(argv=None):
         default=ALIGNED_DATA,
         help="frozen version directory; default aligned-v2, v1 remains available",
     )
-    parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/context-v4",
+    parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/investigation-v5",
                         help="current code replay profile; frozen dataset/Gold are independent")
     parser.add_argument("--case", action="append", default=[])
     parser.add_argument("--output", type=Path)
@@ -416,7 +426,8 @@ def main(argv=None):
         directories = sorted(args.replay_dir.glob("*/pack.json"))
         profile_path = args.replay_dir / "manifest.json"
         profile = json.loads(profile_path.read_text(encoding="utf-8")) if profile_path.is_file() else {}
-        expected = 6 if profile.get("profile_version") == "resolveflow-replay-context-v4" else 5
+        expected = {"resolveflow-replay-context-v4": 6, "resolveflow-replay-investigation-v5": 7}.get(
+            profile.get("profile_version"), 5)
         if len(directories) != expected:
             raise ValueError(f"Expected {expected} replay packs; zero or incomplete steps cannot pass")
         for pack in directories:

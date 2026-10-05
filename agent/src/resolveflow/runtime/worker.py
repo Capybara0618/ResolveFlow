@@ -296,6 +296,9 @@ def verified_callback(claimed: ClaimedRun, result: RunResult) -> tuple[CallbackK
     if kind is CallbackKind.PROPOSAL:
         verification = ProposalVerifier(
             observations=result.observations,
+            review_context=claimed.facts.review_context,
+            case_id=claimed.facts.case_id,
+            input_revision=claimed.facts.input_revision,
             pinned_bundle_ids=frozenset(
                 str(bundle) for bundle in (claimed.facts.policy_manifest.get("bundle_ids") or [])
             ),
