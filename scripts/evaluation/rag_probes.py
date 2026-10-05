@@ -21,10 +21,12 @@ from scripts.evaluation.environment import environment  # noqa: E402
 EXTERNAL = ROOT / "evals/external-faq-v1"
 
 
-def external_queries(directory=EXTERNAL):
+def external_queries(directory=EXTERNAL, *, dataset=ALIGNED_DATA):
     manifest = read("manifest.json", directory)
     if manifest["base_manifest_sha256"] != digest(ALIGNED_DATA / "manifest.json"):
         raise ValueError("External corpus base differs")
+    if digest(dataset / "policies/bundles.json") != digest(ALIGNED_DATA / "policies/bundles.json"):
+        raise ValueError("External questions cannot silently change policy corpus")
     if set(manifest["files"]) != {"sources.json", "queries.json"}:
         raise ValueError("External corpus must freeze sources and questions")
     for name, expected in manifest["files"].items():
@@ -63,10 +65,10 @@ def external_queries(directory=EXTERNAL):
     return queries, sources
 
 
-def current_live_queries(path):
+def current_live_queries(path, *, dataset=ALIGNED_DATA):
     report = json.loads(path.read_text(encoding="utf-8"))
     if (report.get("mode") != "live" or report.get("synthetic") is not True
-            or report.get("manifest_hash") != digest(ALIGNED_DATA / "manifest.json")
+            or report.get("manifest_hash") != digest(dataset / "manifest.json")
             or report.get("state") != "FINISHED"):
         raise ValueError("Expected finished live report on this frozen corpus")
     production = {name: sha for name, sha in report.get("code_hashes", {}).items()
@@ -76,7 +78,7 @@ def current_live_queries(path):
                 for p in (ROOT / "agent/src/resolveflow" / area).glob("*.py")}
     if set(production) != expected or any(digest(ROOT / name) != sha for name, sha in production.items()):
         raise ValueError("Live production code fingerprint differs")
-    cases = {c["id"]: c for c in read("agent/cases.json", ALIGNED_DATA)}
+    cases = {c["id"]: c for c in read("agent/cases.json", dataset)}
     entries = report["results"]
     if not entries or len({e["id"] for e in entries}) != len(entries):
         raise ValueError("Live report empty or duplicate cases")
@@ -119,16 +121,19 @@ def main(argv=None):
     parser.add_argument("--live-report", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--review-output", type=Path, required=True)
+    parser.add_argument("--dataset", type=Path, default=ALIGNED_DATA)
     args = parser.parse_args(argv)
     if args.output.resolve() == args.review_output.resolve() or any(
             p.exists() for p in (args.output, args.review_output)):
         parser.error("Report and review must have distinct new paths")
-    validate(ALIGNED_DATA)
-    external, sources = external_queries()
-    queries = external + current_live_queries(args.live_report)
-    bundles = {b["bundle_id"]: b for b in read("policies/bundles.json", ALIGNED_DATA)}
+    validate(args.dataset)
+    external, sources = external_queries(dataset=args.dataset)
+    queries = external + current_live_queries(args.live_report, dataset=args.dataset)
+    bundles = {b["bundle_id"]: b for b in read("policies/bundles.json", args.dataset)}
     report = {"mode": "unlabelled_query_diagnostic", "scored": False,
-        "manifest_hash": digest(ALIGNED_DATA / "manifest.json"),
+        "manifest_hash": digest(args.dataset / "manifest.json"),
+        "dataset_version": read("manifest.json", args.dataset)["version"],
+        "policy_corpus_sha256": digest(args.dataset / "policies/bundles.json"),
         "external_manifest_sha256": digest(EXTERNAL / "manifest.json"),
         "live_report_sha256": digest(args.live_report), "script_sha256": digest(Path(__file__)),
         "sources": sources, "unique_external_questions": len(sources),
@@ -138,7 +143,7 @@ def main(argv=None):
                    "Offline top5 differs from original top_k; no intermediate query Gold is inferred.",
                    "Similarity and returned candidates do not imply applicability or refund authorization."],
         "results": []}
-    with environment(dataset=ALIGNED_DATA) as (_, index, encoder, pins):
+    with environment(dataset=args.dataset) as (_, index, encoder, pins):
         report["embedding"] = {"model": encoder.model, "revision": encoder.revision, "dimension": encoder.dimension}
         for query in queries:
             pin, bundle = pins[query["bundle_id"]], bundles[query["bundle_id"]]

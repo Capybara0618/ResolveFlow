@@ -54,6 +54,27 @@ def test_live_probe_retains_exact_query_scope_turn_hash_and_top_k(tmp_path):
     assert "must_rules" not in queries[0]
 
 
+def test_calibrated_probe_keeps_new_report_identity_and_unchanged_external_policy(tmp_path):
+    dataset = probes.ROOT / "evals/calibrated-v3"
+    report = report_with_search()
+    report["manifest_hash"] = probes.digest(dataset / "manifest.json")
+    path = tmp_path / "calibrated.json"
+    path.write_text(json.dumps(report), encoding="utf-8")
+    queries = probes.current_live_queries(path, dataset=dataset)
+    external, _ = probes.external_queries(dataset=dataset)
+    assert len(external) == 33 and queries[0]["source_sha256"] == probes.digest(path)
+    with pytest.raises(ValueError, match="frozen corpus"):
+        probes.current_live_queries(path)
+
+
+def test_external_questions_cannot_be_rebound_to_changed_policy(tmp_path):
+    dataset = tmp_path / "different"
+    (dataset / "policies").mkdir(parents=True)
+    (dataset / "policies/bundles.json").write_text("[]", encoding="utf-8")
+    with pytest.raises(ValueError, match="policy corpus"):
+        probes.external_queries(dataset=dataset)
+
+
 @pytest.mark.parametrize("changes", [
     {"mode": "mock"}, {"state": "RUNNING"}, {"manifest_hash": "a" * 64},
     {"code_hashes": {}}, {"results": []},
