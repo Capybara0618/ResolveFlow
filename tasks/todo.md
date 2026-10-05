@@ -1,5 +1,11 @@
 # 当前改进进度
 
+## 当前快照（2026-10-05，第五批真实基线与外部问法完成，质量未全通过）
+
+- 用户批准接续RAG且无自写/匿名原话；按[规格](../docs/agent-quality-batch5.md)固定a073f32生产/context v10/verifier v5/正文dense，一次跑aligned-v2全部32真实DeepSeek案例。自动动作25/32、联合22/32、25终局/7未完成、0被接受禁止终局、21拒绝通知；156真实请求（供应商输入252623/输出18031 token）。6本地上下文估计超限、1引用/协议修复失败；3个UNKNOWN slot及1个null付款输入违反core契约，原Gold/分母不改，不把安全交接的评分缺口全部归咎模型。[全部结果](../reports/agent-quality-batch5/README.md)。
+- 固定11外部京东FAQ原话/来源/hash，跨3商家33范围诊断＋本轮33模型query，dense/BM25共132候选0错误/0主体版本违规；未标注、准确率null，FAQ不是客服日志、终局Gold不是每轮Gold。66逐query/32建议待独立复核、0人审通过，JDDC需申请未获得。13模块223＋审计6=229不同项/0 skipped，Harness28/28、strict13/13、v1/v2/Ruff通过；全项目mypy未重跑，前批16既有错误/9文件保留。
+- 生产全量前后hash/旧冻结/回放/Gold/public4COMPLETED/15模型/10工具/8回调不变，无隔离schema/锁残留。原ledger96→252/limit=null，不清零、不更新历史费用预留；未重启部署/Java整链/网页/日常队列。后续优先新profile输入契约校准与字节估计/必保上下文，再独立逐query Gold，不先加混合检索/重排。原四历史脏文件/草图日志不夹带；精确commit/正常push核实后停止写入，SHA/远端结果见本轮回复。
+
 ## 当前快照（2026-10-05，RAG第四批工程与诊断完成）
 
 - 用户要求先做好RAG并审查合成问答/BM25偏差；按[规格](../docs/rag-optimization-batch4.md)明确生产query由模型SEARCH_POLICY生成、固定60题/脚本mock/已保存live-query分开。保留正文dense及BM25离线对照，新增24条预固定口语诊断/独立Gold文件/manifest和可运行实验，仍明确同作者合成、非盲测/待独立Gold复核；8条已有live-query无逐查询标注不计准确率。标题正文dev前2全依据29→27、门槛失败，未部署；正文诊断dense23/24与BM2517/24，不宣称真实用户效果或全RAG完成。

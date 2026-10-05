@@ -1,5 +1,7 @@
 # Agent / RAG 评测使用指南
 
+2026-10-05接续[第五批真实基线与外部问法](agent-quality-batch5.md)：现有32例真实模型一次性联合22/32、7未完成；11公开FAQ（不是客服日志）及本轮33模型query的dense/BM25探针不设伪Gold，准确率null。[全部结果与归因](../reports/agent-quality-batch5/README.md)、[外部问法入口](../evals/external-faq-v1/README.md)。新只读脚本quality_audit.py审计完整真实报告，rag_probes.py拒绝mock/旧源码/错范围/空查询并生成逐query待审；语义/逐query独立复核未完成。生产源码与默认rag-v8/context v10/verifier v5、冻结v1/v2保留；下一步优先输入契约校准及字节计量，不把安全拦截/终局缺引用混作检索准确率。
+
 2026-10-05完成[RAG第四批](rag-optimization-batch4.md)，当前默认严格回放为 `evals/replay/rag-v8` 十三包（源码版本更新，context v10/verifier v5保留）；旧correction-v7保留。生产仍正文dense，标题正文dev退化未部署。[24条口语诊断](../evals/rag-challenge-v1/README.md)与8已有真实模型query可运行 `agent/.venv/Scripts/python.exe scripts/evaluation/rag_experiments.py --output tmp/rag-new.json`。前者仍同作者合成，后者无逐query Gold，均非真实用户/盲测；[报告](../reports/rag-batch4/README.md)分开显示，标准 `eval.ps1 -Mode rag` 仍评冻结60题。
 
 2026-10-05已补齐[Harness纠错闭环](harness-correction-loop.md)，当前context v10/verifier v5，CLI默认回放为 `evals/replay/correction-v7` 十三条，涵盖原路径与非JSON、临时工具错误、事实错误、坏工具数据及恢复。旧usage-v6和更早包供历史检视；输入/Gold仍aligned-v2、v1保留。新增失败/恢复测试及验证边界见[集中报告](../reports/harness-correction/README.md)，本批未调用真实模型，不作为建议准确率或RAG提升证据。

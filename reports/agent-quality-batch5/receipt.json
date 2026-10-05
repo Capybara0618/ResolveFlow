@@ -1,0 +1,67 @@
+{
+  "case_ids": [
+    "A01A",
+    "A01B",
+    "A02A",
+    "A02B",
+    "A03A",
+    "A03B",
+    "A04A",
+    "A04B",
+    "A05A",
+    "A05B",
+    "A06A",
+    "A06B",
+    "A07A",
+    "A07B",
+    "A08A",
+    "A08B",
+    "A09A",
+    "A09B",
+    "A10A",
+    "A10B",
+    "A11A",
+    "A11B",
+    "A12A",
+    "A12B",
+    "A13A",
+    "A13B",
+    "A14A",
+    "A14B",
+    "A15A",
+    "A15B",
+    "A16A",
+    "A16B"
+  ],
+  "state": "FINISHED",
+  "production_source_unchanged": true,
+  "frozen_assets_unchanged": true,
+  "public_rows_unchanged": true,
+  "temporary_schemas": [],
+  "usage_delta": 156,
+  "ledger_lock_remaining": false,
+  "per_family": {
+    "unshipped": {
+      "n": 8,
+      "completed": 5,
+      "joint_correct": 4
+    },
+    "lost": {
+      "n": 8,
+      "completed": 6,
+      "joint_correct": 5
+    },
+    "signed": {
+      "n": 8,
+      "completed": 6,
+      "joint_correct": 6
+    },
+    "quality": {
+      "n": 8,
+      "completed": 8,
+      "joint_correct": 7
+    }
+  },
+  "provider_snapshot_pinned": false,
+  "whole_project_mypy": "NOT_RERUN; prior 16 known errors in 9 files; production code unchanged"
+}

@@ -1,0 +1,106 @@
+[
+  {
+    "name": "pytest",
+    "argv": [
+      "agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "pytest",
+      "agent/tests/unit/test_rag_probes.py",
+      "agent/tests/unit/test_rag_diagnostics.py",
+      "agent/tests/unit/test_evaluation_controls.py",
+      "agent/tests/unit/test_evaluation_scoring.py",
+      "agent/tests/unit/test_evaluation_review.py",
+      "agent/tests/unit/test_evaluation_alignment.py",
+      "agent/tests/unit/test_current_evaluation_dataset.py",
+      "agent/tests/unit/test_correction_loop.py",
+      "agent/tests/unit/test_tool_result_validation.py",
+      "agent/tests/unit/test_investigation_termination.py",
+      "agent/tests/unit/test_investigation_sources.py",
+      "agent/tests/integration/test_rag_index_integrity.py",
+      "agent/tests/integration/test_current_evaluation_mcp.py",
+      "-q",
+      "--junitxml=reports/agent-quality-batch5/tests.xml"
+    ],
+    "exit_code": 0,
+    "env": {
+      "RESOLVEFLOW_AGENT_DB": "postgresql://agent:agent@127.0.0.1:55433/agent_db",
+      "PYTHONIOENCODING": "utf-8"
+    }
+  },
+  {
+    "name": "ruff",
+    "argv": [
+      "agent\\.venv\\Scripts\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "agent/pyproject.toml",
+      "scripts/evaluation/rag_probes.py",
+      "agent/tests/unit/test_rag_probes.py"
+    ],
+    "exit_code": 0,
+    "env": {
+      "RESOLVEFLOW_AGENT_DB": "postgresql://agent:agent@127.0.0.1:55433/agent_db",
+      "PYTHONIOENCODING": "utf-8"
+    }
+  },
+  {
+    "name": "validate",
+    "argv": [
+      "agent\\.venv\\Scripts\\python.exe",
+      "scripts/agent_eval.py",
+      "validate"
+    ],
+    "exit_code": 0,
+    "env": {
+      "RESOLVEFLOW_AGENT_DB": "postgresql://agent:agent@127.0.0.1:55433/agent_db",
+      "PYTHONIOENCODING": "utf-8"
+    }
+  },
+  {
+    "name": "validate-v1",
+    "argv": [
+      "agent\\.venv\\Scripts\\python.exe",
+      "scripts/agent_eval.py",
+      "validate",
+      "--dataset",
+      "evals/current"
+    ],
+    "exit_code": 0,
+    "env": {
+      "RESOLVEFLOW_AGENT_DB": "postgresql://agent:agent@127.0.0.1:55433/agent_db",
+      "PYTHONIOENCODING": "utf-8"
+    }
+  },
+  {
+    "name": "harness",
+    "argv": [
+      "agent\\.venv\\Scripts\\python.exe",
+      "scripts/agent_eval.py",
+      "harness",
+      "--output",
+      "reports/agent-quality-batch5/harness.json"
+    ],
+    "exit_code": 0,
+    "env": {
+      "RESOLVEFLOW_AGENT_DB": "postgresql://agent:agent@127.0.0.1:55433/agent_db",
+      "PYTHONIOENCODING": "utf-8"
+    }
+  },
+  {
+    "name": "replay",
+    "argv": [
+      "agent\\.venv\\Scripts\\python.exe",
+      "scripts/agent_eval.py",
+      "replay",
+      "--output",
+      "reports/agent-quality-batch5/replay.json"
+    ],
+    "exit_code": 0,
+    "env": {
+      "RESOLVEFLOW_AGENT_DB": "postgresql://agent:agent@127.0.0.1:55433/agent_db",
+      "PYTHONIOENCODING": "utf-8"
+    }
+  }
+]

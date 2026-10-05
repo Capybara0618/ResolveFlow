@@ -1,5 +1,7 @@
 # 当前执行说明：正式启动入口与三角色接手规则
 
+2026-10-05用户批准接续[第五批](../docs/agent-quality-batch5.md)，无自写样本；状态只看[todo顶部](todo.md)、[全部结果与失败](../reports/agent-quality-batch5/README.md)。生产a073f32/context v10/verifier v5/正文dense/rag-v8不变。真实32例联合22/32、7未完成（156调用）；11外部FAQ不是客服日志、66逐query未标注/32建议未人审。后续先新profile输入契约校准/保守字节计量，再独立Gold；不把缺终局引用当RAG漏召回。当前基线不刷分/改Gold或自动加重排；ledger252/limit=null不清零，四历史脏文件/草图日志不夹带。正常提交推送核实后本实施者停止写入，下方“第五批未启动”均是历史状态。
+
 2026-10-05最新用户要求先做好[RAG第四批](../docs/rag-optimization-batch4.md)，进度只看[todo顶部](todo.md)，证据见[报告](../reports/rag-batch4/README.md)。当前生产仍正文dense、BM25离线比较；标题正文未过dev门槛，不部署。索引完整性/模型匹配已加强，24合成口语诊断与8未标注live-query不能称真实数据/盲测。默认当前回放rag-v8十三包，context v10/verifier v5保留，旧包/Gold不改。正常提交/推送核实后停止写入；后续按用户新指示，不自动重启/收费/真实质量对照；原四历史脏文件和草图日志不夹带。
 
 2026-10-05最新用户要求补齐[Harness纠错闭环](../docs/harness-correction-loop.md)。当前执行结果与唯一快照只看[todo顶部](todo.md)，集中证据见[报告](../reports/harness-correction/README.md)。当前context v10/verifier v5，默认strict为correction-v7十三包；下方v9/v8与旧回放仅作历史记录。有限关键断言检查不等于全能幻觉检测；不重建输入/Gold、不重做前批、不改变Java权限/资金。新代码下次正常启动加载，旧run不静默迁移。精确提交/普通push核实后本实施者停止写入；接手先只读核验现状与归属，后续按用户新指示，不自动启动RAG/收费评测/部署。原四历史脏文件及草图日志不夹带。

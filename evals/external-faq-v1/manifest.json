@@ -1,0 +1,19 @@
+{
+  "version": "external-faq-v1",
+  "base_manifest_sha256": "0c14513c9cf58bc9b797fa7f4abb7f1d15c0c625751bb74e3205bfc831ef2964",
+  "unique_questions": 11,
+  "scoped_query_count": 33,
+  "scope_bundle_ids": [
+    "eval-m-1001-v2",
+    "eval-m-1002-v2",
+    "eval-m-1003-v2"
+  ],
+  "query_origin": "independent_official_faq_questions_not_customer_logs",
+  "policy_origin": "unchanged_aligned_v2_synthetic",
+  "review_status": "UNLABELLED_PENDING_INDEPENDENT_REVIEW",
+  "sampling": "11 manually selected FAQ pages before ranking; diagnostic convenience sample, not random or blind",
+  "files": {
+    "sources.json": "0417c622b13735510ff76de87d48cda9be520f7addec67f0acf4a36a66b741e5",
+    "queries.json": "7a6406c4c3394cbdae2677ac6540514403910f1eb0c7463d858e04ccaabc7068"
+  }
+}

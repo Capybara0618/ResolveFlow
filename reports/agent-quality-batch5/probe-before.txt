@@ -1,0 +1,48 @@
+.............FF                                                          [100%]
+================================== FAILURES ===================================
+______ test_external_dropped_scope_cannot_shrink_the_frozen_denominator _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000185E8743950>
+
+    def test_external_dropped_scope_cannot_shrink_the_frozen_denominator(monkeypatch):
+        original = probes.read
+
+        def missing(name, directory):
+            value = original(name, directory)
+            return value[:-1] if name == "queries.json" else value
+
+        monkeypatch.setattr(probes, "read", missing)
+>       with pytest.raises(ValueError, match="denominator"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+agent\tests\unit\test_rag_probes.py:87: Failed
+___ test_external_repeated_question_cannot_be_counted_as_independent_source ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000185E8741520>
+
+    def test_external_repeated_question_cannot_be_counted_as_independent_source(monkeypatch):
+        original = probes.read
+        sources = original("sources.json", probes.EXTERNAL)
+        repeated = {**sources[0], "id": sources[1]["id"]}
+
+        def duplicate(name, directory):
+            value = deepcopy(original(name, directory))
+            if name == "sources.json":
+                value[1] = repeated
+            if name == "queries.json":
+                for q in value:
+                    if q["source_id"] == repeated["id"]:
+                        q["query"] = repeated["question"]
+            return value
+
+        monkeypatch.setattr(probes, "read", duplicate)
+>       with pytest.raises(ValueError, match="independent"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+agent\tests\unit\test_rag_probes.py:107: Failed
+=========================== short test summary info ===========================
+FAILED agent\tests\unit\test_rag_probes.py::test_external_dropped_scope_cannot_shrink_the_frozen_denominator
+FAILED agent\tests\unit\test_rag_probes.py::test_external_repeated_question_cannot_be_counted_as_independent_source
+2 failed, 13 passed in 1.58s

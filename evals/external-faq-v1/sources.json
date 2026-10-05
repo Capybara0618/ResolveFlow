@@ -1,0 +1,101 @@
+[
+  {
+    "id": "JD01",
+    "url": "https://help.jd.com/user/issue/108-385.html",
+    "question": "为何物流显示签收，却没有收到？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "01e088ebaf5eda1f7a34b084778d36821a8ce96560f27865d9290c4dd35dae3a"
+  },
+  {
+    "id": "JD02",
+    "url": "https://help.jd.com/user/issue/212-641.html",
+    "question": "为什么支付总是失败？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "244fbc6035c404126ac065459d028508d408d902d2950bd5d95123cfbd6a0eb4"
+  },
+  {
+    "id": "JD03",
+    "url": "https://help.jd.com/user/issue/215-644.html",
+    "question": "订单重复支付怎么办？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "0498af2eb5b79736a607e61c509808f5334ee0be003bc10d5637d1d66a4a916f"
+  },
+  {
+    "id": "JD04",
+    "url": "https://help.jd.com/user/issue/123-268.html",
+    "question": "退货/换货申请在哪里查看进度？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "19eb8acc7ffc0c9814725398f13692676961d9824bed2691f0262880a033c3b3"
+  },
+  {
+    "id": "JD05",
+    "url": "https://help.jd.com/user/issue/122-467.html",
+    "question": "为什么售后服务单没有审核通过？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "9edce7a5f807ae45d7641544a04a3e3a1cb8669d5111db93c0ea7b9123014aa9"
+  },
+  {
+    "id": "JD06",
+    "url": "https://help.jd.com/user/issue/64-113.html",
+    "question": "订单取消后还能恢复吗？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "44d1c6027b65657613650f376a1a8920e7c6e090e5c7f0841120bf2436bb35b5"
+  },
+  {
+    "id": "JD07",
+    "url": "https://help.jd.com/user/issue/489-3343.html",
+    "question": "预售商品售后政策是？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "ca48129e57107971edcaa96d454acdae576596ada2436e73fd665e70dfb2bafd"
+  },
+  {
+    "id": "JD08",
+    "url": "https://help.jd.com/user/issue/126-412.html",
+    "question": "申请退换货或保修，没有发票可以申请吗？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "5ba6a92bc4afc53cc4eaf27025905630c7a59fcbc03f34fc23b7968bc8fae04f"
+  },
+  {
+    "id": "JD09",
+    "url": "https://help.jd.com/user/issue/127-456.html",
+    "question": "京东发错货，该怎么办？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "7a9f67d768a841a8a525116ca65b2a0baceb430cc722dc4f8ed0bc9d057f4a5a"
+  },
+  {
+    "id": "JD10",
+    "url": "https://help.jd.com/user/issue/127-782.html",
+    "question": "为什么我不能退换货？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "2a517b873957f65f3cf6181ace37bb5628efcdc8b562ab00f53b980cb54b9e72"
+  },
+  {
+    "id": "JD11",
+    "url": "https://help.jd.com/user/issue/127-792.html",
+    "question": "提交了的服务单，什么时候审核完？",
+    "kind": "OFFICIAL_FAQ",
+    "quotation": "exact_question_only",
+    "retrieved_at": "2026-10-05",
+    "question_sha256": "a9a5b1a2ec78e67c2746722ee19670a25f8f749146dd49f4fd4bd90f9af0dfb0"
+  }
+]
