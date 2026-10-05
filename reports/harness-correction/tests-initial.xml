@@ -3,11 +3,11 @@
     def test_an_investigated_run_files_its_proposal_and_awaits_java(agent_db: Database) -&gt; None:
         """``PROPOSE`` → a ``PROPOSAL`` callback and ``CALLBACK_PENDING``: the run is waiting on Java's review."""
         queued(agent_db)
-    
+
 &gt;       outcome = worker_for(agent_db, proposal_result()).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:224: 
+agent\tests\integration\test_run_worker.py:224:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -21,7 +21,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -86,11 +86,11 @@ defect = 'summary', reason = 'PROPOSAL_SCHEMA_REFUSED'
         elif defect == "invisible":
             result = replace(result, observations=())
         result = replace(result, decision=validate_decision(decision))
-    
+
 &gt;       outcome = worker_for(agent_db, result).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:280: 
+agent\tests\integration\test_run_worker.py:280:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -104,7 +104,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -169,11 +169,11 @@ defect = 'no_citations', reason = 'REFUND_CITATION_REQUIRED'
         elif defect == "invisible":
             result = replace(result, observations=())
         result = replace(result, decision=validate_decision(decision))
-    
+
 &gt;       outcome = worker_for(agent_db, result).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:280: 
+agent\tests\integration\test_run_worker.py:280:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -187,7 +187,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -252,11 +252,11 @@ defect = 'hash', reason = 'CITATION_HASH_MISMATCH'
         elif defect == "invisible":
             result = replace(result, observations=())
         result = replace(result, decision=validate_decision(decision))
-    
+
 &gt;       outcome = worker_for(agent_db, result).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:280: 
+agent\tests\integration\test_run_worker.py:280:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -270,7 +270,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -335,11 +335,11 @@ defect = 'invisible', reason = 'CITATION_NOT_VISIBLE'
         elif defect == "invisible":
             result = replace(result, observations=())
         result = replace(result, decision=validate_decision(decision))
-    
+
 &gt;       outcome = worker_for(agent_db, result).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:280: 
+agent\tests\integration\test_run_worker.py:280:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -353,7 +353,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -418,11 +418,11 @@ defect = 'scope', reason = 'CROSS_SCOPE_CITATION'
         elif defect == "invisible":
             result = replace(result, observations=())
         result = replace(result, decision=validate_decision(decision))
-    
+
 &gt;       outcome = worker_for(agent_db, result).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:280: 
+agent\tests\integration\test_run_worker.py:280:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -436,7 +436,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -501,11 +501,11 @@ defect = 'missing_evidence', reason = 'PROPOSAL_SCHEMA_REFUSED'
         elif defect == "invisible":
             result = replace(result, observations=())
         result = replace(result, decision=validate_decision(decision))
-    
+
 &gt;       outcome = worker_for(agent_db, result).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:280: 
+agent\tests\integration\test_run_worker.py:280:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -519,7 +519,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -566,15 +566,15 @@ valid = True
         result = proposal_result()
         if not valid:
             result = replace(result, observations=())
-    
+
         def fail_enqueue(*args: Any, **kwargs: Any) -&gt; None:
             raise RuntimeError("outbox write failed")
-    
+
         monkeypatch.setattr(CallbackStore, "enqueue_for_run", fail_enqueue)
         with pytest.raises(RuntimeError, match="outbox write failed"):
 &gt;           worker.finish(claimed, result)
 
-agent\tests\integration\test_run_worker.py:309: 
+agent\tests\integration\test_run_worker.py:309:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = RunWorker(database=&lt;resolveflow.runtime.db.Database object at 0x00000297CA703860&gt;, investigate=&lt;function worker_for.&lt;l...0297CA4E6160&gt;, recoverable=False, callbacks=&lt;resolveflow.runtime.callbacks.CallbackStore object at 0x00000297CA67A000&gt;)
@@ -584,7 +584,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -631,15 +631,15 @@ valid = False
         result = proposal_result()
         if not valid:
             result = replace(result, observations=())
-    
+
         def fail_enqueue(*args: Any, **kwargs: Any) -&gt; None:
             raise RuntimeError("outbox write failed")
-    
+
         monkeypatch.setattr(CallbackStore, "enqueue_for_run", fail_enqueue)
         with pytest.raises(RuntimeError, match="outbox write failed"):
 &gt;           worker.finish(claimed, result)
 
-agent\tests\integration\test_run_worker.py:309: 
+agent\tests\integration\test_run_worker.py:309:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = RunWorker(database=&lt;resolveflow.runtime.db.Database object at 0x00000297CA67A330&gt;, investigate=&lt;function worker_for.&lt;l...0297CA4E6F20&gt;, recoverable=False, callbacks=&lt;resolveflow.runtime.callbacks.CallbackStore object at 0x00000297CA67AB70&gt;)
@@ -649,7 +649,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -685,18 +685,18 @@ agent\src\resolveflow\runtime\worker.py:183: AttributeError</failure></testcase>
 
     def test_a_question_is_filed_and_leaves_the_run_awaiting_receipt(agent_db: Database) -&gt; None:
         """``ASK_CUSTOMER`` files a QUESTION callback; the run waits for the case service to take it.
-    
+
         ``docs/agent-spec.md:9``: QUESTION**接收后**WAITING_INPUT — the receipt is the event, so a question that has
         only been filed leaves the run ``CALLBACK_PENDING``, exactly like a proposal. What moves it to
         ``WAITING_INPUT`` is ``RunStore.apply_callback_disposition``, driven by the delivery loop
         (``test_a_delivery_moves_the_run_to_the_status_its_answer_implies`` in ``test_callback_delivery.py``).
         """
         queued(agent_db)
-    
+
 &gt;       outcome = worker_for(agent_db, question_result()).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:342: 
+agent\tests\integration\test_run_worker.py:342:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -710,7 +710,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -747,11 +747,11 @@ agent\src\resolveflow\runtime\worker.py:183: AttributeError</failure></testcase>
     def test_a_stopped_run_is_reported_failed_with_its_own_reason_code(agent_db: Database) -&gt; None:
         """A run that produced no proposal and no question has nothing to act on, and says why."""
         queued(agent_db)
-    
+
 &gt;       outcome = worker_for(agent_db, stopped_result()).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:358: 
+agent\tests\integration\test_run_worker.py:358:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -765,7 +765,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -801,7 +801,7 @@ agent\src\resolveflow\runtime\worker.py:183: AttributeError</failure></testcase>
 
     def test_a_cancellation_during_the_investigation_is_not_overwritten(agent_db: Database) -&gt; None:
         """The race a single executor can still lose, stated honestly: the worker refuses to write.
-    
+
         The run is cancelled after the claim and before the outcome is filed. Writing ``CALLBACK_PENDING`` over a
         cancellation would resurrect work the case service has already withdrawn, and filing a proposal for it would be
         worse — so the conditional update is what decides, and no callback is filed. Fencing the worker properly is C09's
@@ -812,11 +812,11 @@ agent\src\resolveflow\runtime\worker.py:183: AttributeError</failure></testcase>
         claimed = worker.claim_one(now=STARTED_AT)
         assert claimed is not None
         store.cancel(RUN_ID)
-    
+
 &gt;       outcome = worker.finish(claimed, proposal_result(), now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:395: 
+agent\tests\integration\test_run_worker.py:395:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = RunWorker(database=&lt;resolveflow.runtime.db.Database object at 0x00000297CA486240&gt;, investigate=&lt;function worker_for.&lt;l...0297CA4A42C0&gt;, recoverable=False, callbacks=&lt;resolveflow.runtime.callbacks.CallbackStore object at 0x00000297CA485F10&gt;)
@@ -826,7 +826,7 @@ now = datetime.datetime(2026, 9, 26, 10, 0, tzinfo=datetime.timezone.utc)
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -862,7 +862,7 @@ agent\src\resolveflow\runtime\worker.py:183: AttributeError</failure></testcase>
 
     def test_drain_investigates_every_queued_run_at_most_once(agent_db: Database) -&gt; None:
         """A backlog is drained in order, and the limit is a limit.
-    
+
         The two runs are for **two different cases**: one case and revision is one run, and a second revision of the
         same case would supersede the first rather than queue beside it (``docs/agent-spec.md:9``, pinned in
         ``test_supersede_on_new_revision.py``). What is being checked here is the drain, so the fixture is two
@@ -873,11 +873,11 @@ agent\src\resolveflow\runtime\worker.py:183: AttributeError</failure></testcase>
         store.queue(
             a_run(run_id=second_run, case_id="44444444-5555-4666-8777-888888888888"), caller=CASE_DISPATCHER
         )
-    
+
 &gt;       outcomes = worker_for(agent_db, proposal_result()).drain(limit=5, now=STARTED_AT)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:426: 
+agent\tests\integration\test_run_worker.py:426:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:261: in drain
     outcome = self.run_once(now=now)
@@ -894,7 +894,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -930,21 +930,21 @@ agent\src\resolveflow\runtime\worker.py:183: AttributeError</failure></testcase>
 
     def test_the_worker_never_asks_the_model_itself(agent_db: Database) -&gt; None:
         """The worker's boundary: it owns the queue, the status and the outbox — not the investigation.
-    
+
         Stated as a test because the temptation to let the worker start making decisions is how a second agent loop
         appears. The only thing it may do with a run is call the injected investigation and file what came back.
         """
         queued(agent_db)
         seen: list[str] = []
-    
+
         def investigate(facts: Any) -&gt; RunResult:
             seen.append(facts.run_id)
             return proposal_result()
-    
+
 &gt;       outcome = RunWorker(agent_db, investigate=investigate).run_once(now=STARTED_AT)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_run_worker.py:446: 
+agent\tests\integration\test_run_worker.py:446:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\runtime\worker.py:210: in run_once
     return self.finish(claimed, self.investigate(claimed.facts))
@@ -958,7 +958,7 @@ now = None
 
     def finish(self, claimed: ClaimedRun, result: RunResult, *, now: dt.datetime | None = None) -&gt; RunOutcome:
         """Close a claimed run: file its outcome callback and move it to the status that callback implies.
-    
+
         Refuses to write when the run is no longer ``RUNNING`` — a cancellation that arrived mid-investigation wins,
         and no callback is filed for a run this worker no longer owns. ``None`` from the conditional update is what
         detects that; reading the row back is only for the honest status in the outcome.
@@ -995,7 +995,7 @@ agent\src\resolveflow\runtime\worker.py:183: AttributeError</failure></testcase>
 &gt;       result, _ = run(model, budget=RunBudget(output_tokens=3, step_output_tokens=2))
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_context_wiring.py:82: 
+agent\tests\integration\test_context_wiring.py:82:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -1103,14 +1103,14 @@ E           AssertionError: the scripted model holds 2 decisions but was asked f
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_context_packet_is_the_entire_model_input_not_a_prefix" time="0.025"><failure message="AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run">def test_context_packet_is_the_entire_model_input_not_a_prefix() -&gt; None:
         import hashlib
         import json
-    
+
         from resolveflow.harness.context import PROVIDER_WRAPPER_ALLOWANCE, estimate_tokens
-    
+
         model = MockModelClient(script=[read_tool(), propose()])
 &gt;       result, _ = run(model)
                     ^^^^^^^^^^
 
-agent\tests\integration\test_context_wiring.py:94: 
+agent\tests\integration\test_context_wiring.py:94:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -1217,9 +1217,9 @@ E           AssertionError: the scripted model holds 2 decisions but was asked f
 
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_real_refund_contract_field_reaches_protected_facts" time="0.197"><failure message="AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run">def test_real_refund_contract_field_reaches_protected_facts() -&gt; None:
         from pathlib import Path
-    
+
         import yaml
-    
+
         contract = yaml.safe_load(
             (Path(__file__).resolve().parents[3] / "contracts/core/openapi-commerce.yaml").read_text(encoding="utf-8")
         )
@@ -1239,7 +1239,7 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
         model = MockModelClient(script=[read_tool("get_refund_status"), propose()])
 &gt;       run(model, view=view, tools=_FakeTools({"get_refund_status": body}))
 
-agent\tests\integration\test_context_wiring.py:131: 
+agent\tests\integration\test_context_wiring.py:131:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -1346,12 +1346,12 @@ E           AssertionError: the scripted model holds 2 decisions but was asked f
 
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_legacy_input_reservation_covers_the_rebuilt_request" time="0.007"><failure message="AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run">def test_legacy_input_reservation_covers_the_rebuilt_request() -&gt; None:
         from resolveflow.harness.sdk_runner import _estimate_input_tokens
-    
+
         model = MockModelClient(script=[read_tool(), propose()])
 &gt;       result, runner = run(model, use_context_builder=False)
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_context_wiring.py:140: 
+agent\tests\integration\test_context_wiring.py:140:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -1456,15 +1456,15 @@ E           AssertionError: the scripted model holds 2 decisions but was asked f
 
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_input_cap_blocks_before_the_model_is_called[False]" time="0.004" /><testcase classname="tests.integration.test_context_wiring" name="test_input_cap_blocks_before_the_model_is_called[True]" time="0.020" /><testcase classname="tests.integration.test_context_wiring" name="test_estimated_usage_does_not_refund_output_reservation" time="0.022" /><testcase classname="tests.integration.test_context_wiring" name="test_the_legacy_packet_carries_the_notice_the_model_was_given" time="0.008" /><testcase classname="tests.integration.test_context_wiring" name="test_a_refused_action_is_fed_back_once_and_the_run_recovers" time="0.022"><failure message="AssertionError: FACT_CLAIM_UNSUPPORTED: (&quot;REFUSED UNKNOWN_TOOL [ACTION]: 'no_such_tool' is not one of the five whitelisted tools (docs/agent-spec.md:26-32). Fix the named constraint using the published protocol, or hand over. repair_remaining=1&quot;,)&#10;assert False is True&#10; +  where False = RunResult(completed=False, reason_code='FACT_CLAIM_UNSUPPORTED', decision=None, observations=(), spend=RunSpend(model_...the named constraint using the published protocol, or hand over. repair_remaining=1&quot;,), modes=('mock', 'mock', 'mock')).completed">def test_a_refused_action_is_fed_back_once_and_the_run_recovers() -&gt; None:
         """``docs/agent-spec.md:52``: 模型输出 Schema/引用**可修复一次** — a refused action is not the end of the run.
-    
+
         The run gets one more turn, with the refusal's own reason in the request, and a corrected decision then runs to
         completion. Asserted on the **sent** messages, because "the model was told what was wrong" is the whole repair
         and a reason the model never received would make the second turn a guess.
         """
         model = MockModelClient(script=[read_tool("no_such_tool"), read_tool(), propose()])
-    
+
         result, _ = run(model, tools=_FakeTools())
-    
+
 &gt;       assert result.completed is True, f"{result.reason_code}: {result.notices}"
 E       AssertionError: FACT_CLAIM_UNSUPPORTED: ("REFUSED UNKNOWN_TOOL [ACTION]: 'no_such_tool' is not one of the five whitelisted tools (docs/agent-spec.md:26-32). Fix the named constraint using the published protocol, or hand over. repair_remaining=1",)
 E       assert False is True
@@ -1472,14 +1472,14 @@ E        +  where False = RunResult(completed=False, reason_code='FACT_CLAIM_UNS
 
 agent\tests\integration\test_context_wiring.py:344: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_only_one_repair_is_granted_and_the_second_refusal_stops_the_run" time="0.021" /><testcase classname="tests.integration.test_context_wiring" name="test_a_refused_refund_is_repaired_into_a_decision_the_run_can_submit" time="0.023"><failure message="AssertionError: FACT_CLAIM_UNSUPPORTED: ('REFUSED REFUND_CITATION_REQUIRED [SOURCE]: REFUND_CITATION_REQUIRED: a refund proposal must cite at least one observation this run made; REFUND_CITATION_REQUIRED: a refund proposal must cite at least one policy rule this run retrieved. Use current observed sources; investigate missing facts or hand over. repair_remaining=1',)&#10;assert False is True&#10; +  where False = RunResult(completed=False, reason_code='FACT_CLAIM_UNSUPPORTED', decision=None, observations=(ToolObservation(observat...urrent observed sources; investigate missing facts or hand over. repair_remaining=1',), modes=('mock', 'mock', 'mock')).completed">def test_a_refused_refund_is_repaired_into_a_decision_the_run_can_submit() -&gt; None:
         """The case C08.1c is actually about: an uncited refund is refused, fed back, and then corrected.
-    
+
         A terminal decision is a text block in the adapter, which would end the loop — so the repair turn has to be a
         call the permission hook denies, carrying the reason. That mechanism is what this test pins.
         """
         model = MockModelClient(script=[read_tool(), propose_refund(), propose()])
-    
+
         result, _ = run(model, tools=_FakeTools())
-    
+
 &gt;       assert result.completed is True, f"{result.reason_code}: {result.notices}"
 E       AssertionError: FACT_CLAIM_UNSUPPORTED: ('REFUSED REFUND_CITATION_REQUIRED [SOURCE]: REFUND_CITATION_REQUIRED: a refund proposal must cite at least one observation this run made; REFUND_CITATION_REQUIRED: a refund proposal must cite at least one policy rule this run retrieved. Use current observed sources; investigate missing facts or hand over. repair_remaining=1',)
 E       assert False is True
@@ -1487,7 +1487,7 @@ E        +  where False = RunResult(completed=False, reason_code='FACT_CLAIM_UNS
 
 agent\tests\integration\test_context_wiring.py:377: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_the_repair_turn_is_counted_against_the_model_budget" time="0.023" /><testcase classname="tests.integration.test_context_wiring" name="test_the_formal_runner_defaults_to_the_bounded_builder" time="0.000" /><testcase classname="tests.integration.test_context_wiring" name="test_the_legacy_evidence_packet_is_still_an_explicit_compatibility_path" time="0.005"><failure message="AssertionError: the scripted model holds 1 decisions but was asked for 2; a mock that invented one would let a harness bug look like a passing run">def test_the_legacy_evidence_packet_is_still_an_explicit_compatibility_path() -&gt; None:
         """The demoted path must still *run* when a caller asks for it, or it is not a compatibility path.
-    
+
         Asserted by running the loop rather than by reading the flag back: a fallback that no longer executes is a
         fallback that no longer exists, and the previous version of this test never ran one.
         """
@@ -1495,7 +1495,7 @@ agent\tests\integration\test_context_wiring.py:377: AssertionError</failure></te
 &gt;       result, runner = run(model, use_context_builder=False)
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_context_wiring.py:441: 
+agent\tests\integration\test_context_wiring.py:441:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -1604,7 +1604,7 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
 &gt;       result, _runner = run(model)
                           ^^^^^^^^^^
 
-agent\tests\integration\test_context_wiring.py:452: 
+agent\tests\integration\test_context_wiring.py:452:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -1711,7 +1711,7 @@ E           AssertionError: the scripted model holds 1 decisions but was asked f
 
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_a_tool_observation_becomes_facts_and_becomes_readable" time="0.026"><failure message="AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run">def test_a_tool_observation_becomes_facts_and_becomes_readable() -&gt; None:
         """C08.1's core: every observation — not just the local reads — feeds the view and the store.
-    
+
         Before this, the facts view and the store were reachable only from the policy-search bridge, so the five MCP
         tools (where the amount and the shipment conclusion come from) contributed no facts and their text could not be
         read back.
@@ -1719,11 +1719,11 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
         model = MockModelClient(script=[read_tool("get_order_context"), propose()])
         tools = _FakeTools({"get_order_context": {"line_paid_amount": 2599, "currency": "CNY"}})
         view, store = FactsView(), ObservationStore(run_id=RUN)
-    
+
 &gt;       result, _runner = run(model, view=view, store=store, tools=tools)
                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_context_wiring.py:478: 
+agent\tests\integration\test_context_wiring.py:478:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -1832,10 +1832,10 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
         """A fact learned in turn one is in the packet for turn two — the point of a *facts* view over a transcript."""
         model = MockModelClient(script=[read_tool("get_order_context"), propose()])
         view, store = FactsView(), ObservationStore(run_id=RUN)
-    
+
 &gt;       run(model, view=view, store=store)
 
-agent\tests\integration\test_context_wiring.py:497: 
+agent\tests\integration\test_context_wiring.py:497:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -1945,7 +1945,7 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
     @pytest.mark.parametrize("builder", [False, True])
     def test_the_tool_result_and_its_cursor_reach_the_messages_the_model_is_sent(builder: bool) -&gt; None:
         """``handoff-current`` §2 C08.1a: tool results and the paging cursor travel in the real request.
-    
+
         Read through :func:`sent_text_of` — the messages actually handed to the model — and not through
         ``model.packets``, because under the formal path that field is the *script's* structured view. A continuation
         cursor the model cannot see is a page it cannot ask for, so this is the difference between a paged tool and an
@@ -1953,10 +1953,10 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
         """
         model = MockModelClient(script=[read_tool("get_shipment_trace"), propose()])
         tools = _FakeTools({"get_shipment_trace": {"carrier_conclusion": "IN_TRANSIT", "next_cursor": "page-2"}})
-    
+
 &gt;       run(model, tools=tools, use_context_builder=builder)
 
-agent\tests\integration\test_context_wiring.py:527: 
+agent\tests\integration\test_context_wiring.py:527:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -2064,7 +2064,7 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
     @pytest.mark.parametrize("builder", [False, True])
     def test_the_tool_result_and_its_cursor_reach_the_messages_the_model_is_sent(builder: bool) -&gt; None:
         """``handoff-current`` §2 C08.1a: tool results and the paging cursor travel in the real request.
-    
+
         Read through :func:`sent_text_of` — the messages actually handed to the model — and not through
         ``model.packets``, because under the formal path that field is the *script's* structured view. A continuation
         cursor the model cannot see is a page it cannot ask for, so this is the difference between a paged tool and an
@@ -2072,10 +2072,10 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
         """
         model = MockModelClient(script=[read_tool("get_shipment_trace"), propose()])
         tools = _FakeTools({"get_shipment_trace": {"carrier_conclusion": "IN_TRANSIT", "next_cursor": "page-2"}})
-    
+
 &gt;       run(model, tools=tools, use_context_builder=builder)
 
-agent\tests\integration\test_context_wiring.py:527: 
+agent\tests\integration\test_context_wiring.py:527:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -2185,16 +2185,16 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
     @pytest.mark.parametrize("builder", [False, True])
     def test_a_failed_read_reaches_the_messages_the_model_is_sent(builder: bool) -&gt; None:
         """``docs/agent-harness.md:51``: an error observation goes back to the model — in its request.
-    
+
         The same trap as above: an error that exists only in the structured ``context`` would let a "the model was told
         the read failed" claim pass while the model was actually shown nothing.
         """
         model = MockModelClient(script=[read_tool("get_shipment_trace"), propose()])
         tools = _FakeTools(errors={"get_shipment_trace": "NOT_FOUND"})
-    
+
 &gt;       run(model, tools=tools, use_context_builder=builder)
 
-agent\tests\integration\test_context_wiring.py:544: 
+agent\tests\integration\test_context_wiring.py:544:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -2302,16 +2302,16 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
     @pytest.mark.parametrize("builder", [False, True])
     def test_a_failed_read_reaches_the_messages_the_model_is_sent(builder: bool) -&gt; None:
         """``docs/agent-harness.md:51``: an error observation goes back to the model — in its request.
-    
+
         The same trap as above: an error that exists only in the structured ``context`` would let a "the model was told
         the read failed" claim pass while the model was actually shown nothing.
         """
         model = MockModelClient(script=[read_tool("get_shipment_trace"), propose()])
         tools = _FakeTools(errors={"get_shipment_trace": "NOT_FOUND"})
-    
+
 &gt;       run(model, tools=tools, use_context_builder=builder)
 
-agent\tests\integration\test_context_wiring.py:544: 
+agent\tests\integration\test_context_wiring.py:544:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -2418,11 +2418,11 @@ E           AssertionError: the scripted model holds 2 decisions but was asked f
 
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_a_confirmed_action_is_named_in_p1_of_the_next_request" time="0.025"><failure message="AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run">def test_a_confirmed_action_is_named_in_p1_of_the_next_request() -&gt; None:
         """``docs/context-engineering.md:18``: P1 carries 已确认动作, so the run must name them.
-    
+
         Under C06.4 the model learned its own actions from the SDK transcript. The formal path sends only the packet — that
         transcript was removed because appending it after trimming bypassed both the packet hash and the input
         reservation — so P1 is the channel that has to carry them, and the spec says so explicitly.
-    
+
         Two halves, because P1 is a **mandatory** (untrimmable) layer: the action is named, and the model's own free-text
         reasoning is **not** admitted. Prose from the model is unbounded by construction and is not evidence
         (``docs/context-engineering.md:11``: MODEL_INFERENCE does not become authority by repetition).
@@ -2438,10 +2438,10 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
                 propose(),
             ]
         )
-    
+
 &gt;       run(model, tools=_FakeTools())
 
-agent\tests\integration\test_context_wiring.py:573: 
+agent\tests\integration\test_context_wiring.py:573:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -2548,20 +2548,20 @@ E           AssertionError: the scripted model holds 2 decisions but was asked f
 
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_the_confirmed_action_window_keeps_an_untrimmable_layer_bounded" time="0.034"><failure message="AssertionError: the scripted model holds 7 decisions but was asked for 8; a mock that invented one would let a harness bug look like a passing run">def test_the_confirmed_action_window_keeps_an_untrimmable_layer_bounded() -&gt; None:
         """P1 cannot be trimmed, so the run has to bound it by construction.
-    
+
         This is the failure the window exists to prevent: a layer that grows with every action and can never be trimmed
         turns a long run into ``CONTEXT_REQUIRED_OVERFLOW`` instead of a decision. The oldest actions leave P1 while the
         newest stay, and the whole sequence remains in the outcome's ``trajectory``.
         """
         from resolveflow.harness.context import CONFIRMED_ACTION_WINDOW
-    
+
         class _VariedTools(_FakeTools):
             """Distinct evidence per call, so the run is not stopped by the no-progress rule before the window fills."""
-    
+
             def __init__(self) -&gt; None:
                 super().__init__()
                 self._made = 0
-    
+
             def call_tool(self, *, run_id: str, tool_name: str, arguments: dict[str, object]) -&gt; ToolObservation:
                 self._made += 1
                 fresh = super().call_tool(run_id=run_id, tool_name=tool_name, arguments=arguments)
@@ -2572,18 +2572,18 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
                         "source_version": str(self._made + 3),
                     }
                 )
-    
+
         reads = [
             {"kind": "READ_TOOL", "tool_name": "get_order_context", "arguments": {"limit": step}, "reasoning": "look"}
             for step in range(1, 7)
         ]
         model = MockModelClient(script=[*reads, propose()])
-    
+
         # `max_iters` raised deliberately: the default the helper uses (4) stops the loop before the window can fill,
         # which would make this test assert the bound without ever reaching it.
 &gt;       run(model, tools=_VariedTools(), max_iters=12)
 
-agent\tests\integration\test_context_wiring.py:615: 
+agent\tests\integration\test_context_wiring.py:615:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -2690,19 +2690,19 @@ E           AssertionError: the scripted model holds 7 decisions but was asked f
 
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_the_packet_pins_a_real_frozen_manifest_not_a_policy_reference" time="0.025"><failure message="AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run">def test_the_packet_pins_a_real_frozen_manifest_not_a_policy_reference() -&gt; None:
         """``docs/agent-harness.md:33``: the run records the manifest it is pinned to, and the id *is* its hash.
-    
+
         Until C08.1b this field carried ``&lt;bundle-id&gt;@&lt;manifest_hash[:16]&gt;`` — a policy reference with a truncated
         digest, pins nothing about the harness, prompt, tool schema, budgets or model, and is not a sha-256 at all. The
         three claims here are what makes the replacement checkable: the id is the canonical hash of the frozen manifest,
         it is a well-formed digest, and it does not change between steps of one run (frozen, not rebuilt).
         """
         from resolveflow.harness.manifest import canonical_manifest_id
-    
+
         model = MockModelClient(script=[read_tool(), propose()])
 &gt;       _, runner = run(model, tools=_FakeTools())
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_context_wiring.py:634: 
+agent\tests\integration\test_context_wiring.py:634:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -2809,13 +2809,13 @@ E           AssertionError: the scripted model holds 2 decisions but was asked f
 
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_a_live_client_drives_the_same_loop_and_stays_distinguishable_from_mock" time="0.023"><failure message="AssertionError: a live answer must not be recorded as a mock one&#10;assert ('live', 'live') == ('live',)&#10;  &#10;  Left contains one more item: 'live'&#10;  Use -v to get more diff">def test_a_live_client_drives_the_same_loop_and_stays_distinguishable_from_mock() -&gt; None:
         """C08.1b-2: the loop takes a live client, and the mode is recorded rather than implied.
-    
+
         ``docs/core-scope.md`` keeps mock and live results distinguishable after the fact, so a run answered by a real
         provider must say so. The transport is injected, so this exercises the whole path — packet, action gate, budget,
         outcome — without a socket or an API budget.
         """
         sent: list[dict[str, Any]] = []
-    
+
         def transport(url: str, body: bytes, headers: dict[str, str], timeout: float) -&gt; HttpResponse:
             sent.append(json.loads(body))
             answer = json.dumps(
@@ -2825,26 +2825,26 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
                 }
             )
             return HttpResponse(status=200, body=answer.encode("utf-8"))
-    
+
         live = LiveModelClient(
             endpoint="https://model.example.invalid/v1/chat/completions",
             model_id="some-model-v2",
             api_key="sk-not-a-real-key",
             transport=transport,
         )
-    
+
         result, runner = run(live, tools=_FakeTools())
-    
+
 &gt;       assert result.modes == ("live",), "a live answer must not be recorded as a mock one"
 E       AssertionError: a live answer must not be recorded as a mock one
 E       assert ('live', 'live') == ('live',)
-E         
+E
 E         Left contains one more item: 'live'
 E         Use -v to get more diff
 
 agent\tests\integration\test_context_wiring.py:677: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_the_citation_members_the_gate_checks_are_in_the_request_the_model_receives" time="0.024"><failure message="AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run">def test_the_citation_members_the_gate_checks_are_in_the_request_the_model_receives() -&gt; None:
         """C08.1c: a model can only cite what it is told it may cite (``docs/context-engineering.md:17``).
-    
+
         Asserted against the **sent** messages rather than the schema document the harness built: the document is right
         by construction, and the claim worth pinning is that it reaches the request. A gate that refused citations the
         prompt never described would be a harness that fails models for not guessing.
@@ -2852,7 +2852,7 @@ agent\tests\integration\test_context_wiring.py:677: AssertionError</failure></te
         model = MockModelClient(script=[read_tool(), propose()])
 &gt;       run(model, tools=_FakeTools())
 
-agent\tests\integration\test_context_wiring.py:693: 
+agent\tests\integration\test_context_wiring.py:693:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -2959,18 +2959,18 @@ E           AssertionError: the scripted model holds 2 decisions but was asked f
 
 agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><testcase classname="tests.integration.test_context_wiring" name="test_a_refund_that_cites_nothing_never_becomes_the_run_s_decision" time="0.025" /><testcase classname="tests.integration.test_context_wiring" name="test_the_budget_reserves_the_packet_s_own_token_count" time="0.024"><failure message="AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run">def test_the_budget_reserves_the_packet_s_own_token_count() -&gt; None:
         """``docs/agent-harness.md:37``: the counted input is the final one, not a second estimate of it.
-    
+
         The reservation and the request have to be the same number, so the outcome's ``input_tokens`` must include the
         packet's own count for the step. Asserted as a bound rather than an equality: the run's meter is cumulative over
         turns, and pinning it to one step's count would break as soon as a turn is added.
         """
         model = MockModelClient(script=[read_tool("get_order_context"), propose()])
         view, store = FactsView(), ObservationStore(run_id=RUN)
-    
+
 &gt;       result, runner = run(model, view=view, store=store)
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_context_wiring.py:744: 
+agent\tests\integration\test_context_wiring.py:744:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -3082,7 +3082,7 @@ agent\src\resolveflow\harness\model.py:209: AssertionError</failure></testcase><
 &gt;       _result, runner = run(model, view=view, store=store)
                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_context_wiring.py:784: 
+agent\tests\integration\test_context_wiring.py:784:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\tests\integration\test_context_wiring.py:311: in run
     return runner.run(), runner
@@ -3213,7 +3213,7 @@ agent\tests\integration\test_current_evaluation_mcp.py:64: AssertionError</failu
 &gt;       assert strict_replay(directory)["status"] == "MATCH"
                ^^^^^^^^^^^^^^^^^^^^^^^^
 
-agent\tests\integration\test_short_reference_recovery.py:82: 
+agent\tests\integration\test_short_reference_recovery.py:82:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 agent\src\resolveflow\replay\strict.py:174: in strict_replay
     result = runner.run()

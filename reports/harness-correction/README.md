@@ -45,3 +45,5 @@ agent/.venv/Scripts/python.exe -m mypy agent/src/resolveflow --config-file agent
 Golden 生成及 Ruff 的准确参数另存 commands.json。validate 子命令只输出stdout，曾传入的 --output 未生成文件，收尾重新运行并保存输出JSON，未将缺文件当已有证据。测试中的 LiveModelClient 使用注入 HTTP 响应，虽按 live transport 路径运行，**不是外部 DeepSeek 结果**。
 
 未运行真实 DeepSeek/质量对照、RAG实验/专家盲审、Java全链/网页验收、生产服务重启/部署或历史队列消费。新调查在下次正常服务启动加载当前代码；旧 manifest 不静默更换。其他作者的四个历史脏文件、草图和日志保持未暂存。
+
+收尾报告格式检查首次因部分诊断txt使用Windows编码而失败；代码批次已生成本地提交，随后将本批报告统一UTF-8/LF并单独提交格式修正，保留全部失败内容，不重写已有提交。最终差异检查以修正后为准。

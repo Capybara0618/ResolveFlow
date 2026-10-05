@@ -20,7 +20,7 @@ name = 'transient_tool_exhausted'
         directory = Path(output_root) / name if output_root else tmp_path / name
 >       export_run(agent_db, RUN_ID, directory)
 
-agent\tests\integration\test_replay_golden.py:78: 
+agent\tests\integration\test_replay_golden.py:78:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 database = <resolveflow.runtime.db.Database object at 0x000002339F7E0BC0>
