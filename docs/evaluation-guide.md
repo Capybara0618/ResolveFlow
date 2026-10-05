@@ -1,6 +1,6 @@
 # Agent / RAG 评测使用指南
 
-2026-10-05 第二批 Context Engineering 已完成，见[规格](agent-context-batch2.md)及[集中结果](../reports/agent-context-batch2/README.md)。输入/Gold仍用 aligned-v2；当前回放独立使用 evals/replay/context-v3，未覆盖历史 v1/v2。脚本32/32只证明工程链路，不代表真实LLM质量；首轮字节估计变化不等于计费下降。`-ReplayDir 路径`可显式选择其他回放包目录，旧代码版本在当前严格模式下会明确拒绝。
+2026-10-05 常驻规则与短引用已完成，见[规格](agent-context-protocol.md)及[集中结果](../reports/agent-context-protocol/README.md)。五MCP工具直接可用，无发现轮次；输入/Gold仍用 aligned-v2，当前回放独立 evals/replay/context-v4 六条轨迹，旧v1/v2/context-v3保留。脚本32/32只证明工程链路，不代表真实LLM质量；字节估计变化不等于计费下降。`-ReplayDir 路径`可显式选择其他回放包目录，旧代码版本在当前严格模式下会明确拒绝。
 
 第一批历史结果（2026-10-05）：五批评测体系交付后，用户授权完成[第一批输入/评分校准](agent-evaluation-alignment.md)。默认冻结数据为 `evals/aligned-v2`，原 `evals/current` v1 和报告保留。[第一批结果与溢出诊断](../reports/agent-alignment-batch1/README.md)记录全部失败，本批不修改提示词或检索算法、不新增付费调用；此前体系证据见[原实施报告](../reports/agent-evaluation-rebuild.md)。
 
@@ -12,7 +12,7 @@
 | Agent | 32案例、16配对 | 相同诉求换成不同事实，能否给出有依据的不同建议？ |
 | Harness | 20检查 | 越权、假引用、过期事实、占用、预算及无进展是否被挡住？ |
 | 上下文 | 8检查 | 事实、例外、版本、冲突、失败和原文能否保留/读回？ |
-| 回放 | 5当前版本持久轨迹 | 能否离线重现调用和终态；缺记录/篡改是否报错？ |
+| 回放 | 6当前版本持久轨迹 | 能否离线重现调用和终态；缺记录/篡改是否报错？ |
 | 人工复核 | 每次运行可生成逐例表 | 建议是否合理、解释是否编造、问题是否有用？ |
 
 商家政策全部为专门编写的合成评测资料，尚未经过你或独立专家审查；不是商家真实制度。三店足以测当前权限/版本隔离，不能代表广泛商业场景。材料使用文字及人工核验记录，不测图像识别。
@@ -28,7 +28,7 @@
 .\eval.ps1 -Mode rag          # 60查询，真实dense + BM25
 .\eval.ps1 -Mode rag -Bm25Only # 显式只跑BM25，不宣称dense通过
 .\eval.ps1 -Mode mock         # 32案例，脚本模型测试真实循环/工具接线
-.\eval.ps1 -Mode replay       # 5轨迹严格离线回放
+.\eval.ps1 -Mode replay       # 6轨迹严格离线回放
 ```
 
 每次默认生成带时间的独立 JSON，位于 `reports/current-evaluation/`。可用 `-Split dev/test` 分组，`mock` 可用 `-Case A01A,A01B` 选案例，用 `-Output 路径` 明确报告名；已有报告拒绝覆写。相同名称再次运行会失败，应选择新名字。
@@ -93,6 +93,6 @@ RAG正例54、无适用条款负例6。覆盖@k是必需规则集合中被找到
 
 运行创建随机 `eval_*` schema，正常退出清理，只向临时localhost合成源发GET。真实MCP/AgentScope/生产上下文与检索代码被复用；没有Java工单创建、审批、退款及业务回调。v2 首轮注入 revision 绑定的 `review_context`，材料查询返回 Java 协议的引用列表；v1 仍是正文放在材料查询中的历史合成协议，不能混作当前业务输入。两版都不是完整 Java 业务链验收。上下文八检查使用简化测试system，不能说明真实生产prompt在所有场景都装得下。
 
-处理历史 `reports/current-evaluation` 的 v1 Agent 报告时，`rescore` 必须加 `-Dataset evals/current`；处理本批报告使用默认 v2。输入协议与 Gold 改变后，两版分数不能用作算法提升对照。旧 v1 回放包的源码 manifest 与新代码不同，保留用于历史检视，输入/Gold默认 v2，当前回放独立使用 context-v3 的五包，不放宽 strict 校验。
+处理历史 `reports/current-evaluation` 的 v1 Agent 报告时，`rescore` 必须加 `-Dataset evals/current`；处理本批报告使用默认 v2。输入协议与 Gold 改变后，两版分数不能用作算法提升对照。旧 v1 回放包的源码 manifest 与新代码不同，保留用于历史检视，输入/Gold默认 v2，当前回放独立使用 context-v4 的六包，不放宽 strict 校验。
 
 旧H1、40条检索查询、过期5回放包共15文件已备份后移除，清单见 `reports/current-evaluation/cleanup.json`。日常商城政策、兼容fixture、业务数据库、历史报告和其他作者工作区改动保留。本轮不清空商品/账户/订单，也不为评测消费日常队列。

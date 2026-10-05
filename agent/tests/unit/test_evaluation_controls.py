@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from copy import deepcopy
 from pathlib import Path
@@ -15,6 +16,22 @@ sys.path.insert(0, str(ROOT))
 from scripts.agent_eval import allowance, main, persist, rescore  # noqa: E402
 from scripts.evaluation.models import CaptureModel, live_guard  # noqa: E402
 from scripts.evaluation.reporting import compare_reports, describe  # noqa: E402
+
+
+@pytest.mark.parametrize("count", [0, 5])
+def test_current_replay_profile_cannot_pass_with_missing_trajectories(tmp_path, count):
+    root = tmp_path / "replay"
+    root.mkdir()
+    (root / "manifest.json").write_text(json.dumps({"profile_version": "resolveflow-replay-context-v4"}),
+                                        encoding="utf-8")
+    for index in range(count):
+        directory = root / str(index)
+        directory.mkdir()
+        (directory / "pack.json").write_text("{}", encoding="utf-8")
+    output = tmp_path / "report.json"
+    with pytest.raises(ValueError, match="Expected 6 replay packs"):
+        main(["replay", "--replay-dir", str(root), "--output", str(output)])
+    assert not output.exists()
 
 
 def test_total_cap_prevents_transmission():

@@ -51,3 +51,11 @@ protected_fact_hash覆盖必保留值/来源/版本/冲突，证明未被裁剪�
 材料正文超过600字符时，展示首240/尾120字符、总字符长度和material:材料ID读回索引；身份、版本/hash、核验/问答关系保留。该中段索引进入omitted_refs。READ_OBSERVATION用observation_id=material:ID和arguments.offset/limit分页，仅绑定当前run派发revision；恢复从原持久快照重建，无额外网络。读回source_type保持CUSTOMER_STATEMENT/REVIEWER_VERIFICATION，citation为空，不能用读回窗口代替get_case_evidence外层引用。
 
 每轮可选近期Observation片段和旧索引仍按预算裁剪，原文完整保留。过大的材料元数据、问题或不可裁剪条件仍会明确超限；不使用LLM摘要，不承诺任意长输入都能完成。
+
+## 7. 2026-10-05 常驻规则与短引用
+
+当前生产上下文策略为 `p0-p4-v7-run-short-refs`，见[规则/工具/引用规格](agent-context-protocol.md)。五 MCP 工具始终直接可用；常驻规则压缩，相关材料/订单/物流/政策解释随已提供或已读的对应来源出现，不增加工具发现轮次。最终建议协议仍常驻。
+
+模型视图中，事实组用 O 编号、工具、来源类型/authority、版本表达来源，政策用 P 编号保留 bundle/版本/规则/全文。完整身份不再要求模型复制，而是保留在原始 Observation 及当前包引用映射；事实值/状态/冲突/note 与 `protected_fact_hash` 不变。这是来源呈现变化，不是删除来源/哈希校验。泛用或旧 schema 的 ContextBuilder 仍保留完整引用呈现，正式 SDK 通过 `reference_format=run-short-v1` 显式选择短编号。
+
+建议和 review_findings 的编号在严格 ABI/原引用验证前展开，未知/错类型拒绝；只有强制 P2 的引用可通过编号提交。原文读取编号只映射当前 run 已知记录，材料/失败/窗口不因编号成为可引用权威。持久原始响应、原工具记录和 manifest 支持同版本重建，无新数据库或模型调用；当前 strict 包另冻于 context-v4，旧包不改。

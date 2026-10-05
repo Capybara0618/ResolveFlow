@@ -89,6 +89,7 @@ from resolveflow.harness.local_reads import ObservationReadBridge, PolicySearchB
 from resolveflow.harness.manifest import build_manifest, model_block_for
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.harness.observation_read import ObservationStore
+from resolveflow.harness.references import expand_references
 from resolveflow.harness.sdk_adapter import (
     AgentScopeModelAdapter,
     messenger_message,
@@ -150,6 +151,8 @@ class ActionGateMiddleware(MiddlewareBase):
         #: citations are not checked — which is honest for a gate driven on its own in a unit test, and set for
         #: every real run.
         self.verifier: Any = None
+        self.references: dict[str, dict[str, Any]] = {}
+        self.read_ids: dict[str, str] = {}
 
     def check(self, payload: dict[str, Any]) -> ModelDecision | None:
         """Validate one decision: return it, or set the stop reason and return ``None``.
@@ -159,6 +162,7 @@ class ActionGateMiddleware(MiddlewareBase):
         without every rule test needing a model.
         """
         try:
+            payload = expand_references(payload, self.references, self.read_ids)
             decision = validate_decision(payload)
         except ActionRefusedError as refusal:
             self._refuse(refusal.reason_code or REASON_ACTION_REFUSED, str(refusal))
@@ -830,6 +834,8 @@ class _GateAwareClient:
             self._packet = self._build_packet()
             self._packet_step = self.turns
             self.last_packet = self._packet
+            self._gate.references = self._packet.references
+            self._gate.read_ids = self._packet.read_ids
         return self._packet
 
     def _build_packet(self) -> Any:
@@ -948,7 +954,8 @@ class _GateAwareClient:
                 model_alias=reply.model_alias,
             )
         self.note_confirmed_action(decision)
-        return reply
+        return ModelReply(decision=self._gate.accepted or reply.decision, usage=reply.usage,
+                          mode=reply.mode, model_alias=reply.model_alias)
 
 
 def _repair_probe(decision: dict[str, Any]) -> dict[str, Any]:
@@ -1021,27 +1028,34 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
     the harness. The local reads appear only when the run can perform them, so the packet cannot advertise a tool
     the gate would refuse.
     """
-    tools = sorted(WHITELIST)
+    tools = {
+        "get_order_context": "paid amount/payment/fulfillment",
+        "get_shipment_trace": "carrier status/events",
+        "get_refund_status": "refund state/amount",
+        "get_case_evidence": "customer/reviewer materials",
+        "get_policy_manifest": "pinned policy version/index",
+    }
+    assert tools.keys() == WHITELIST
     document: dict[str, Any] = {
         "tools": tools,
-        "wire_format": "Listed fields only; reasoning/reason_codes optional.",
+        "wire_format": "Flat JSON; kind required, reasoning optional; listed fields only.",
+        "reference_format": "run-short-v1",
+        "tool_arguments": "{} by default; evidence:kind?; shipment:cursor?,limit?<=20",
         "action_fields": {
             READ_TOOL: "tool_name, arguments={}",
             SEARCH_POLICY: "query, arguments={top_k:1..5}",
-            READ_OBSERVATION: "observation_id (material:ID allowed), arguments={offset>=0,limit:1..4000 chars}",
+            READ_OBSERVATION: "observation_id=O-number or material:ID, arguments={offset>=0,limit:1..4000 chars}",
             ASK_CUSTOMER: "questions=[{question_id,field,prompt}], max 3; reason_codes",
-            PROPOSE: "case_type, recommended_action, nonempty reason_codes; optional summary, reasoning, "
+            PROPOSE: "case_type, recommended_action, nonempty reason_codes; optional summary, "
                      "evidence_refs, policy_refs, missing_evidence, review_findings",
             ESCALATE: "reason_codes; optional reasoning/summary",
         },
-        "tool_arguments": "None except evidence(kind) and shipment(cursor,limit<=20), all optional.",
         "proposal": {
             "case_type": [member.value for member in CaseType],
             "recommended_action": sorted(RECOMMENDED_ACTIONS),
-            "evidence_refs": "array<object{observation_id,source_ref,source_version,content_hash}>",
-            "policy_refs": "array<object{bundle_id,version,rule_id,chunk_id,content_hash}>",
-            "ref_types": "Ref fields are strings; content_hash=64hex; use observed identities.",
-            "review_findings": "max8 [{kind:FACT|INFERENCE|CONFLICT,text<=400,observation_ids:1..8 cited IDs}]; "
+            "evidence_refs": "[O-number,...] from P2",
+            "policy_refs": "[P-number,...] from P2",
+            "review_findings": "max8 [{kind:FACT|INFERENCE|CONFLICT,text<=400,observation_ids:1..8 cited O-numbers}]; "
                                "CONFLICT>=2",
             "rule": "REFUND: both refs, no missing_evidence. REJECT: both refs/current facts. "
                     "Material windows cannot be cited.",
@@ -1074,8 +1088,8 @@ def _starting_packet(runner: AgentScopeRunner, guard: _BudgetHook) -> dict[str, 
 def _estimate_input_tokens(input_kwargs: dict[str, Any]) -> int:
     """A conservative estimate of one request's input, from the serialised messages and tool schemas.
 
-    Four characters per token is roughly right for English and pessimistic for JSON keys, and pessimism is the
-    direction that matters. Both parts are counted because `docs/agent-harness.md:37` requires the count to cover
+    UTF-8 bytes are a conservative allowance, not the provider tokenizer. Both parts are counted because
+    `docs/agent-harness.md:37` requires the count to cover
     the final system prompt, the messages **and** the tool schemas — the schemas are the part that grows as tools
     are added, so counting only the messages would undercount exactly what changes.
     """

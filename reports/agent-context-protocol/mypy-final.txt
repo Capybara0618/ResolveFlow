@@ -1,0 +1,18 @@
+src\resolveflow\provider_stub\__init__.py:211: error: Returning Any from function declared to return "Row | None"  [no-any-return]
+src\resolveflow\provider_stub\__init__.py:386: error: Returning Any from function declared to return "Row | None"  [no-any-return]
+src\resolveflow\provider_stub\__init__.py:391: error: Returning Any from function declared to return "Row | None"  [no-any-return]
+src\resolveflow\contracts\reviewer_input.py:44: error: Missing type arguments for generic type "dict"  [type-arg]
+src\resolveflow\contracts\_schemaio.py:121: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\contracts\fixtures.py:51: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\harness\verifier.py:360: error: Returning Any from function declared to return "bool"  [no-any-return]
+src\resolveflow\harness\verifier.py:360: error: Unsupported left operand type for - ("None")  [operator]
+src\resolveflow\harness\verifier.py:360: note: Both left and right operands are unions
+src\resolveflow\contracts\core_corpus.py:94: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\contracts\core_corpus.py:209: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\contracts\core_corpus.py:210: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\contracts\core_corpus.py:245: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src\resolveflow\runtime\runs.py:209: error: "BaseModel" has no attribute "input_revision"  [attr-defined]
+src\resolveflow\policies\status.py:6: error: Missing type arguments for generic type "dict"  [type-arg]
+src\resolveflow\api\app.py:564: error: Missing type arguments for generic type "dict"  [type-arg]
+src\resolveflow\api\app.py:577: error: Missing type arguments for generic type "dict"  [type-arg]
+Found 16 errors in 9 files (checked 69 source files)

@@ -11,7 +11,8 @@ and the model could not tell which of them a refund is checked against. So each 
 written once, and a key the tool does not carry simply produces no fact.
 
 **Assembly** puts the layers together under the input cap. The cap is
-``min(8192, provider capacity − output reserve − 256, cumulative input remaining)`` (``:27``), and the order the
+``min(8192, provider capacity − output reserve, cumulative input remaining)`` (``:27``), with one wrapper
+allowance included in the estimate. The order the
 layers go in is the specification's, with one consequence that is the whole reason this is not a sorting
 function: **P0 is never trimmed**, so if P0 plus P1 plus P2 do not fit, the run does not get a shorter
 constraint list — it gets ``CONTEXT_REQUIRED_OVERFLOW`` and a human (``:27`` 转索引后仍超限则
@@ -30,6 +31,7 @@ from typing import Any, Final
 
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.harness.facts import Fact, FactStatus, FactsView, facts_hash
+from resolveflow.harness.references import ReferenceCatalog
 
 __all__ = [
     "CONFIRMED_ACTION_WINDOW",
@@ -279,6 +281,9 @@ class ContextPacket:
     facts: tuple[dict[str, Any], ...] = ()
     #: Layers that were present before trimming, so a reader can see that P4 was dropped rather than never built.
     layers: tuple[str, ...] = field(default=())
+    #: Audit metadata only, not an extra provider channel. Rebuilt from the same original observations.
+    references: dict[str, dict[str, Any]] = field(default_factory=dict)
+    read_ids: dict[str, str] = field(default_factory=dict)
 
     @property
     def as_messages(self) -> list[dict[str, str]]:
@@ -380,6 +385,7 @@ class ContextBuilder:
         what happened while these were recorded on the result and never sent.
         """
         cap = self.input_cap(cumulative_remaining=cumulative_remaining)
+        catalog = ReferenceCatalog(observations) if tool_schema.get("reference_format") == "run-short-v1" else None
         sections: list[_Section] = []
         omitted: list[dict[str, str]] = []
 
@@ -431,7 +437,11 @@ class ContextBuilder:
 
         # P2 — the exact fields a decision is checked against, each with its source and status.
         sections.append(_Section(layer=Layer.P1, label="reads", text=_investigation_progress(observations)))
-        for line in _render_facts(view):
+        if catalog is not None:
+            guidance = _domain_guidance(observations, review_context)
+            if guidance:
+                sections.append(_Section(layer=Layer.P1, label="guidance", text=guidance))
+        for line in _render_facts(view, catalog):
             sections.append(_Section(layer=Layer.P2, label="fact", text=line))
 
         # P3 — the current observations, bounded and cited; P4 — everything earlier, identity only.
@@ -450,11 +460,11 @@ class ContextBuilder:
         omitted.extend(duplicates)
         # Source identities and policy conditions are decision constraints. Optional P3 excerpts may
         # disappear, but neither their hashes nor an exception may become a model's guess.
-        sections.extend(_citation_sections(unique, view))
+        sections.extend(_citation_sections(unique, view, catalog))
         recent = unique[-OBSERVATION_WINDOW:] if unique else []
         earlier = unique[: max(0, len(unique) - OBSERVATION_WINDOW)]
-        sections.extend(_observation_sections(recent, view))
-        sections.extend(_index_sections(earlier))
+        sections.extend(_observation_sections(recent, view, catalog))
+        sections.extend(_index_sections(earlier, catalog))
 
         mandatory = [section for section in sections if section.layer not in TRIMMABLE_LAYERS]
         optional = [section for section in sections if section.layer in TRIMMABLE_LAYERS]
@@ -529,6 +539,8 @@ class ContextBuilder:
             context_hash=_hash_messages(messages, ""),
             facts=tuple(fact.as_dict() for fact in view.live()),
             layers=tuple(sorted({section.layer for section in kept})),
+            references=catalog.references if catalog else {},
+            read_ids=catalog.read_ids if catalog else {},
         )
 
     @property
@@ -581,7 +593,7 @@ def _trimmable_oldest_first(sections: list[_Section]) -> list[_Section]:
     ]
 
 
-def _render_facts(view: FactsView) -> list[str]:
+def _render_facts(view: FactsView, catalog: ReferenceCatalog | None = None) -> list[str]:
     """P2 as one line per fact, source and status included.
 
     ``docs/context-engineering.md:19`` forbids a generative rewrite of these fields, so the rendering is
@@ -595,11 +607,13 @@ def _render_facts(view: FactsView) -> list[str]:
         note = f" ({fact.note})" if fact.note and fact.status is not FactStatus.FRESH else ""
         identity = (fact.observation_id, fact.source_ref, fact.source_version, fact.content_hash, str(fact.authority))
         groups.setdefault(identity, []).append(f"{fact.key}={fact.value}{marker}{note}")
-    return [
-        _json(dict(zip(("observation_id", "source_ref", "source_version", "content_hash", "authority"), identity,
-                       strict=True))) + "\n" + "; ".join(values)
-        for identity, values in groups.items()
-    ]
+    rendered = []
+    for identity, values in groups.items():
+        header = dict(zip((*EVIDENCE_IDENTITY_FIELDS, "authority"), identity, strict=True))
+        if catalog is not None:
+            header = catalog.evidence(header, authority=str(header["authority"])) or header
+        rendered.append(_json(header) + "\n" + "; ".join(values))
+    return rendered
 
 
 def _unique_observations(
@@ -666,7 +680,26 @@ def _investigation_progress(observations: list[ToolObservation]) -> str:
     return "调查进展：" + ";".join(states)
 
 
-def _citation_sections(observations: list[ToolObservation], view: FactsView | None = None) -> list[_Section]:
+EVIDENCE_IDENTITY_FIELDS: Final = ("observation_id", "source_ref", "source_version", "content_hash")
+
+
+def _domain_guidance(observations: list[ToolObservation], snapshot: dict[str, Any] | None) -> str:
+    """Relevant interpretation rules, not an investigation route or a generated summary."""
+    tools = {item.tool_name for item in observations}
+    rules = []
+    if (snapshot and snapshot.get("materials")) or "get_case_evidence" in tools:
+        rules.append("诉求/回答非权威；人工核验INCONCLUSIVE=未知。相关发现引用get_case_evidence外层证据，勿引本地窗口。")
+    if "get_order_context" in tools:
+        rules.append("未发货退款需成功付款及明确履约/版本，未知状态不能替代未发货。")
+    if "get_shipment_trace" in tools:
+        rules.append("物流NOT_FOUND≠未发货；DELIVERED≠客户确认。")
+    if "search_policy" in tools:
+        rules.append("无候选≠无退款权；条款不适用≠拒绝申请。说明适用条件和例外。")
+    return "\n".join(rules)
+
+
+def _citation_sections(observations: list[ToolObservation], view: FactsView | None = None,
+                       catalog: ReferenceCatalog | None = None) -> list[_Section]:
     sections: list[_Section] = []
     seen_policies: set[str] = set()
     for observation in observations:
@@ -685,7 +718,7 @@ def _citation_sections(observations: list[ToolObservation], view: FactsView | No
                     continue
                 seen_policies.add(identity)
                 sections.append(_Section(layer=Layer.P2, label=f"policy:{len(seen_policies)}",
-                                         text=identity))
+                                         text=_json(catalog.policy(protected)) if catalog else identity))
         else:
             extracted = ([fact for fact in view.facts if fact.observation_id == observation.observation_id]
                          if view else [])
@@ -695,14 +728,17 @@ def _citation_sections(observations: list[ToolObservation], view: FactsView | No
                    and fact.source_version == observation.source_version
                    and fact.content_hash == observation.content_hash for fact in extracted):
                 continue  # The complete citation already appears once in the protected fact group.
-            sections.append(_Section(layer=Layer.P2, label="source_citation", text=_json({
+            ref = {
                 "observation_id": observation.observation_id, "source_ref": observation.source_ref,
                 "source_version": observation.source_version, "content_hash": observation.content_hash,
-            })))
+            }
+            sections.append(_Section(layer=Layer.P2, label="source_citation",
+                                     text=_json((catalog.evidence(ref) or ref) if catalog else ref)))
     return sections
 
 
-def _observation_sections(observations: list[ToolObservation], view: FactsView | None = None) -> list[_Section]:
+def _observation_sections(observations: list[ToolObservation], view: FactsView | None = None,
+                          catalog: ReferenceCatalog | None = None) -> list[_Section]:
     """P3: the **current** observations, bounded and cited.
 
     The excerpt bytes are bounded two ways, and the first version of this got the second one wrong:
@@ -734,6 +770,8 @@ def _observation_sections(observations: list[ToolObservation], view: FactsView |
             and observation.content_hash is not None
         ):
             citation.update(source_version=observation.source_version, content_hash=observation.content_hash)
+        if catalog is not None:
+            citation = {"read_ref": catalog.read_alias(observation.observation_id)}
         sections.append(
             _Section(
                 layer=Layer.P3,
@@ -784,7 +822,7 @@ def _field_offset(observation: ToolObservation, key: str) -> int:
     return found + len(marker) + 1 if found >= 0 else 0
 
 
-def _index_sections(observations: list[ToolObservation]) -> list[_Section]:
+def _index_sections(observations: list[ToolObservation], catalog: ReferenceCatalog | None = None) -> list[_Section]:
     """P4: identity-only lines for the **earlier** observations, so their prose can be read back on demand.
 
     This is ``docs/context-engineering.md:21``'s 确定性提取: the run's own record of what it read before the current
@@ -796,7 +834,8 @@ def _index_sections(observations: list[ToolObservation]) -> list[_Section]:
         _Section(
             layer=Layer.P4,
             label=f"index:{index}",
-            text=f"{index}. {observation.tool_name} {observation.observation_id} ({observation.source_ref})",
+            text=(f"{catalog.read_alias(observation.observation_id)} {observation.tool_name}" if catalog else
+                  f"{index}. {observation.tool_name} {observation.observation_id} ({observation.source_ref})"),
             # A distinct ref namespace from P3's, because these are *references to* observations rather than the
             # observations themselves: sharing a ref made the duplicate rule treat the index as a second copy of
             # the content and drop it, which is how P4 came to be empty in the first version.

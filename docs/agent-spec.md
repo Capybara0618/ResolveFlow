@@ -21,6 +21,8 @@ run状态沿用QUEUED/RUNNING/CALLBACK_PENDING/WAITING_INPUT/COMPLETED/FAILED/CA
 
 损坏/签收争议即使模型建议退款也必须Java人工路由。未知动作、身份字段、任意URL或写工具拒绝。
 
+2026-10-05模型输入协议增加当前run的O/P短引用，见[规则与引用规格](agent-context-protocol.md)。五MCP直接可用，动作/建议字段仍常驻；短引用在严格ABI验证前确定性展开为原有完整契约对象，模型账保留原始响应，SDK/最终回调使用完整身份。事实、版本、冲突、政策条件和后台hash校验不删，不允许模型创建映射；旧完整对象兼容，旧run不静默换manifest。
+
 ## 3. MCP白名单
 
 | 工具 | 参数 | 所有者 |

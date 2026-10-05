@@ -1,0 +1,18 @@
+{
+  "public_counts": {
+    "agent_run": 4,
+    "agent_model_call": 15,
+    "agent_tool_call": 10,
+    "agent_callback_outbox": 8
+  },
+  "run_status": [
+    [
+      "COMPLETED",
+      4
+    ]
+  ],
+  "temporary_schemas": [],
+  "business_writes": false,
+  "paid_calls": 0,
+  "worker_restarted": false
+}

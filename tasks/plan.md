@@ -1,5 +1,7 @@
 # 多商家上游与既有售后实施计划
 
+2026-10-05用户新增批准五MCP直接可用，精简常驻规则、动作协议与来源表达；[常驻规则/短引用](../docs/agent-context-protocol.md)完成，结果见[报告](../reports/agent-context-protocol/README.md)，进度仅todo顶部。该改进接续第二批，不增加工具发现平台或改变调查路线，当前回放context-v4六条、输入/Gold仍aligned-v2。调查/终止、RAG召回、有限Live仍未启动，由用户另行指示，不自动收费/部署。
+
 2026-10-05最新授权完成[第二批上下文工程](../docs/agent-context-batch2.md)，见[集中结果](../reports/agent-context-batch2/README.md)，状态只维护todo顶部。固定路线的第一批校准和第二批表达/计量已完成；后续调查/终止、RAG召回、同版本有限Live尚未实施，等待用户指示，不自动收费或部署。不重建现有评测，不覆盖v1/v2冻结资产；当前回放独立context-v3，原始信息、来源/冲突/政策条件和资金权限沿用。
 
 2026-10-05用户随后授权优化第一批：[输入/评分校准与溢出诊断](../docs/agent-evaluation-alignment.md)已完成，结果见[本批报告](../reports/agent-alignment-batch1/README.md)。不重新规划或重建五批评测体系。依赖顺序为：本批校准 → 上下文表达与计量 → 调查/终止 → RAG召回 → 同版本有限Live对照；后四批尚未实施，下一批按用户新指示启动。当前进度仍只维护todo顶部，禁止把v1/v2跨协议分数作为提升。

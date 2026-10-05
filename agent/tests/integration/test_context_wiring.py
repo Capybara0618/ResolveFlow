@@ -697,9 +697,11 @@ def test_the_citation_members_the_gate_checks_are_in_the_request_the_model_recei
     assert "evidence_refs" in sent
     assert "policy_refs" in sent
     assert "missing_evidence" in sent
-    # The shape each reference needs, since the gate matches on every member and not just the id.
+    # The model supplies P2 aliases; the gate expands the complete identity before validating.
     assert "observation_id" in sent
-    assert "content_hash" in sent
+    assert "[O-number" in sent and "[P-number" in sent
+    assert "content_hash" not in sent
+    assert model.sent_contexts[1].references["O1"]["ref"]["content_hash"] == "a" * 64
 
 
 def test_a_refund_that_cites_nothing_never_becomes_the_run_s_decision() -> None:
