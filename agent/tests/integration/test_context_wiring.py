@@ -503,7 +503,7 @@ def test_the_second_request_carries_the_first_observation_as_p2_facts() -> None:
         if hasattr(block, "text")
     )
     assert "order_paid_amount_minor=2599" in second, "the fact is in P2 of the next packet"
-    assert "[AUTHORITY" in second, "with its source and authority"
+    assert '"authority":"AUTHORITY"' in second, "with its source and authority"
     # And the observation the fact came from is still in the request, in P3. Its **id** is not on the P3 line —
     # that is the layering: P3 carries content, P4 carries the handles, and an observation inside the window is
     # shown as content. So the check is that the evidence is there, and that reading it back is possible (which the

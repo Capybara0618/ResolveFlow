@@ -24,7 +24,7 @@ v1.3接入AgentScope后本规格不降级：SDK历史/自动注入与工具Schem
 
 ## 3. 裁剪与读回
 
-输入上限=min(8192,provider容量-输出预留-256,累计剩余输入)，计入system/tool schema/provider包装。先放P0/P1/P2，转索引后仍超限则CONTEXT_REQUIRED_OVERFLOW转人工，不删约束。随后加入P3/P4，超限去重复和最旧非关键段，记录omitted_refs及原因。
+输入上限=min(8192,provider容量-输出预留,累计剩余输入)，计入system/tool schema/provider包装。最终估计值包含256包装预留，cap不再重复扣减包装；默认provider容量8192/输出1024时cap=7168。先放P0/P1/P2，转索引后仍超限则CONTEXT_REQUIRED_OVERFLOW转人工，不删约束。随后加入P3/P4，超限去重复和最旧非关键段，记录omitted_refs及原因。
 
 工具给模型片段<=8KiB，原始接收上限256KiB。tool_call/result成对保留或一起转成历史证据消息，不留下非法provider格式。物流长轨迹用首末/异常/状态变化结构化提取，保留原文位置。
 
@@ -43,3 +43,11 @@ protected_fact_hash覆盖必保留值/来源/版本/冲突，证明未被裁剪�
 至少覆盖长物流、矛盾来源、缺引用、超限、恶意正文、跨scope读回、合法tool pair七类fixture。提供一个裁剪前后演示，验证必保留字段一致。
 
 核心不要求C0/C1/C2全量live消融；若简历宣称“降低Token X%”，必须另做同数据/模型下的累计成本和质量对照，否则只描述实现及正确性证据。
+
+## 6. 2026-10-05 第二批紧凑呈现
+
+上下文策略p0-p4-v6-compact-material-index、计量utf8-json-bytes-v3-single-wrapper。每轮重建，不追加SDK完整历史；同来源事实共享一次完整四字段引用和authority，各值/状态/冲突仍精确保留。既有原文、facts、实际消息和模型轨迹不改写。
+
+材料正文超过600字符时，展示首240/尾120字符、总字符长度和material:材料ID读回索引；身份、版本/hash、核验/问答关系保留。该中段索引进入omitted_refs。READ_OBSERVATION用observation_id=material:ID和arguments.offset/limit分页，仅绑定当前run派发revision；恢复从原持久快照重建，无额外网络。读回source_type保持CUSTOMER_STATEMENT/REVIEWER_VERIFICATION，citation为空，不能用读回窗口代替get_case_evidence外层引用。
+
+每轮可选近期Observation片段和旧索引仍按预算裁剪，原文完整保留。过大的材料元数据、问题或不可裁剪条件仍会明确超限；不使用LLM摘要，不承诺任意长输入都能完成。

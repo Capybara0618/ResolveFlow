@@ -31,10 +31,12 @@ with its own reason code, exactly like the policy search.
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Final
 
 from resolveflow.contracts.core_models import ToolObservation
+from resolveflow.contracts.reviewer_input import ReviewerInput
 
 __all__ = [
     "MAX_READ_LIMIT",
@@ -97,6 +99,7 @@ class ObservationWindow:
     limit: int
     total_length: int
     citation: dict[str, str] = field(default_factory=dict)
+    material: dict[str, Any] | None = None
 
     @property
     def next_offset(self) -> int | None:
@@ -114,6 +117,7 @@ class ObservationWindow:
             "next_offset": self.next_offset,
             "text": self.text,
             "citation": self.citation,
+            **({"kind": "MATERIAL", "material": self.material} if self.material is not None else {}),
         }
 
 
@@ -130,6 +134,23 @@ class ObservationStore:
     #: id → the observation as it was read. The whole observation, not just the text, because the window has to
     #: report the ``source_ref`` a citation will quote.
     _by_id: dict[str, ToolObservation] = field(default_factory=dict)
+    _materials: dict[str, dict[str, Any]] = field(default_factory=dict)
+    _material_scope: tuple[str, int, dict[str, Any]] | None = None
+
+    def bind_materials(self, snapshot: dict[str, Any], *, case_id: str, input_revision: int) -> None:
+        """Bind the persisted dispatch snapshot once; no database, network or cross-case lookup."""
+        validated = ReviewerInput.model_validate(snapshot).snapshot()
+        if any(item["input_revision"] > input_revision
+               for item in (*validated["materials"], *validated["questions"])):
+            raise ValueError("future material/question revision is outside this run")
+        scope = (case_id, input_revision, validated)
+        if self._material_scope is not None and self._material_scope != scope:
+            raise ValueError("material archive cannot change case, revision or snapshot")
+        rows = {"material:" + row["evidence_id"]: row for row in validated["materials"]}
+        if len(rows) != len(validated["materials"]):
+            raise ValueError("duplicate material evidence_id")
+        self._material_scope = deepcopy(scope)
+        self._materials = deepcopy(rows)
 
     def remember(self, observation: ToolObservation) -> None:
         """Keep one observation. Re-remembering the same id **replaces** it with the same object's content.
@@ -142,11 +163,11 @@ class ObservationStore:
         self._by_id[observation.observation_id] = observation
 
     def __contains__(self, observation_id: object) -> bool:
-        return observation_id in self._by_id
+        return observation_id in self._by_id or observation_id in self._materials
 
     def ids(self) -> list[str]:
         """The ids this run can read, in insertion order — what the model may ask for."""
-        return list(self._by_id)
+        return [*self._by_id, *self._materials]
 
     def read(self, observation_id: str, *, offset: int = 0, limit: int = MAX_READ_LIMIT) -> ObservationWindow:
         """One window of one observation's text, or a refusal naming the bound.
@@ -162,18 +183,30 @@ class ObservationStore:
                 f"limit must be 1..{MAX_READ_LIMIT} characters, got {limit} (docs/context-engineering.md:31)"
             )
         observation = self._by_id.get(observation_id)
-        if observation is None:
+        material = self._materials.get(observation_id)
+        if observation is None and material is None:
             raise ObservationNotFoundError(
                 f"{observation_id!r} is not an observation this run read; there is nothing to read back and "
                 "nothing is guessed from a similar id or another case",
                 observation_id=observation_id,
             )
-        text = _readable_text(observation)
+        if material is not None:
+            text = str(material["content"])
+        else:
+            assert observation is not None
+            text = _readable_text(observation)
         if offset > len(text):
             raise ObservationReadRefusedError(
                 f"offset {offset} is past the end of {observation_id} ({len(text)} characters)"
             )
         window = text[offset : offset + limit]
+        if material is not None:
+            return ObservationWindow(
+                observation_id=observation_id, source_ref=material["source_ref"], text=window,
+                offset=offset, limit=limit, total_length=len(text),
+                material=deepcopy({key: value for key, value in material.items() if key != "content"}),
+            )
+        assert observation is not None
         return ObservationWindow(
             observation_id=observation_id,
             source_ref=observation.source_ref,
@@ -183,7 +216,8 @@ class ObservationStore:
             total_length=len(text),
             citation={"observation_id": observation.observation_id, "source_ref": observation.source_ref,
                       **({"source_version": observation.source_version, "content_hash": observation.content_hash}
-                         if observation.error is None and observation.source_version and observation.content_hash else {})},
+                         if observation.error is None and observation.source_version and observation.content_hash
+                         else {})},
         )
 
 

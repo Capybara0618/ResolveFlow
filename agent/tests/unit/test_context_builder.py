@@ -15,7 +15,6 @@ from __future__ import annotations
 import json
 
 import pytest
-
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
 from resolveflow.harness.context import (
@@ -131,8 +130,8 @@ def test_the_input_cap_is_the_minimum_of_the_three_terms() -> None:
     pass a test that checked a single case.
     """
     builder = ContextBuilder(system_prompt=SYSTEM, provider_capacity=4096, output_reserve=1024)
-    # provider capacity - reserve - wrapper = 4096 - 1024 - 256 = 2816, below the 8192 ceiling.
-    assert builder.input_cap() == 2816
+    # The packet estimate already includes the wrapper; reserve it once, not twice.
+    assert builder.input_cap() == 3072
     # A cumulative remaining below that wins.
     assert builder.input_cap(cumulative_remaining=1000) == 1000
     # And the 8192 ceiling wins when the provider is generous.
@@ -213,7 +212,9 @@ def test_p2_facts_are_exact_fields_with_their_source_and_status() -> None:
     body = packet.messages[1]["content"]
     assert "order_paid_amount_minor=2599" in body
     assert "order_currency=CNY" in body
-    assert "[AUTHORITY order:7001@3]" in body
+    assert '"authority":"AUTHORITY"' in body
+    assert '"source_ref":"order:7001"' in body and '"source_version":"3"' in body
+    assert HASH_A in body and '"observation_id":"obs-1"' in body
     assert "元" not in body, "the value is not converted or explained"
 
 
@@ -371,7 +372,7 @@ def test_trimming_drops_the_oldest_sections_and_records_each_one() -> None:
     cap = build(observations=observations).input_tokens - 1
     packet = build(
         observations=observations,
-        builder=ContextBuilder(system_prompt=SYSTEM, provider_capacity=cap + 512, output_reserve=256),
+        builder=ContextBuilder(system_prompt=SYSTEM, provider_capacity=cap + 256, output_reserve=256),
     )
 
     assert packet.omitted_refs, "something had to go at this cap"
@@ -415,7 +416,7 @@ def test_trimming_does_not_change_the_protected_fact_hash() -> None:
         observations=observations,
         # Keep every protected field, but force at least one optional section out.
         builder=ContextBuilder(
-            system_prompt=SYSTEM, provider_capacity=generous.input_tokens - 1 + 512, output_reserve=256
+            system_prompt=SYSTEM, provider_capacity=generous.input_tokens - 1 + 256, output_reserve=256
         ),
     )
 
@@ -473,7 +474,7 @@ def test_the_context_id_is_stable_for_a_run_step_and_its_facts() -> None:
 def test_the_packet_records_how_its_tokens_were_counted() -> None:
     """``docs/agent-spec.md:44`` 缺provider准确计数时标ESTIMATED — the mark travels with the number."""
     packet = build()
-    assert packet.token_count_mode == "ESTIMATED"
+    assert packet.token_count_mode == "ESTIMATED"  # noqa: S105 - measurement mode, not a credential
     assert packet.input_tokens > 0
     # An empty view produces an empty facts list, which is the packet being honest about what it rendered rather
     # than a claim that facts are optional. (The first version of this test asserted `packet.facts` was non-empty

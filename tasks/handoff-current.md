@@ -1,6 +1,6 @@
 # 当前执行说明：正式启动入口与三角色接手规则
 
-2026-10-05最新用户授权“先做第一批”。已完成[输入/评分校准与诊断](../docs/agent-evaluation-alignment.md)，实际进度仅见[todo顶部](todo.md)，证据为[本批报告](../reports/agent-alignment-batch1/README.md)。默认评测使用evals/aligned-v2，旧v1数据/报告/回放保留；旧v1报告重判显式指定Dataset。生产仅修正候选记录和增加溢出大小诊断，不改变提示词/检索算法/预算权限、不部署或重算日常run。下一批才压缩上下文表达，当前不自动执行。原四个工程/verify/Commerce测试文件和草图日志归属不变；本执行者精确提交、正常推送核实后停止写入，接手先只读核对状态/归属。下方“仅构建体系”的文字属于本次授权之前，不覆盖用户最新指示。
+2026-10-05最新用户授权“做好context engineering，处理多轮压缩”。已完成[第二批紧凑上下文](../docs/agent-context-batch2.md)，实际进度仅见[todo顶部](todo.md)，证据为[本批报告](../reports/agent-context-batch2/README.md)。输入/Gold仍为evals/aligned-v2，当前回放独立evals/replay/context-v3；旧v1/v2资产保留，旧manifest不自动迁移。多轮由Harness每轮确定性重建与本地原文读回，没有额外LLM摘要。仅完成本批，不自动接调查策略、RAG算法或付费Live；未部署/重算日常run。原四个工程/verify/Commerce测试文件和草图日志归属不变；本执行者精确提交、正常推送核实后停止写入，接手先只读核对状态/归属。下方第一批/仅构建体系为历史决定，不覆盖最新用户授权。
 
 2026-10-05当前用户要求只构建评测体系，五批工程已完成，实际进度只看[todo顶部](todo.md)，使用[评测指南](../docs/evaluation-guide.md)，证据见[集中报告](../reports/agent-evaluation-rebuild.md)。不改生产Agent/上下文/RAG、不自动付费调优，历史下方“先建立RAG基线/有限Live”不再作为开工指令。已知脚本32例全部溢出、有限Live联合0/8，保留失败而非调整Gold；人工复核/Gold独立人审待用户主导，没有默认下一任务。旧eval资产有15文件备份/清单，新数据只在evals/current；日常数据/public Agent和旧工单政策保留。原四个工程/verify/Commerce测试文件和草图日志不夹带。本执行者精确commit、普通push核实后停止写入；接手先只读核对状态/归属，不重建已交付数据、不重算日常run、不将人审待填算通过。
 

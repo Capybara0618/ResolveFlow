@@ -1,5 +1,11 @@
 # 当前改进进度
 
+## 当前快照（2026-10-05，Context Engineering 第二批完成）
+
+- 用户最新授权做好上下文工程并处理多轮压缩；按[本批规格](../docs/agent-context-batch2.md)实现单次包装预留、紧凑协议、完整来源分组、长材料索引/分页读回、当前run/revision绑定、引用拒绝及同快照恢复。每轮确定性重建，原始材料/工具/实际请求完整保留，不新增LLM摘要；事实/冲突/政策条件/权限不裁剪。订单事实映射沿用第一批，未重做迁移。新context/计量版本，旧run/五旧包不静默换manifest；当前回放另冻于evals/replay/context-v3。
+- 最终27模块320 passed/0 skipped，独立Harness28/28、strict5/5、冻结v1/v2校验、改动Ruff/PowerShell解析/staged diff通过。[集中报告](../reports/agent-context-batch2/README.md)记录实际命令、初轮失败和未运行项。真实SDK/隔离PG/MCP/embedding脚本32/32完成、148调用、0溢出/异常/禁止动作；评测器DAMAGE拼写另修正为合法DAMAGED，Gold/政策/召回算法未改，不能称LLM准确率提升。首轮UTF-8估计172159→124639（-27.6%），完整调查累计估计升高，未宣称真实费用下降。
+- 新付费调用0；未部署worker/重算日常run/Java整链/专家人审/Live语义评测。public Agent仍4COMPLETED/15模型/10工具/8回调，无隔离schema遗留；原四个工程/verify/Commerce测试脏文件及草图日志不夹带。全项目mypy仍68源码、9文件16原有错误；本批无新增类型诊断，但该全项目门禁未通过。按授权精确commit、正常push核实后停止写入，提交SHA/远端结果见本轮收口；不自动启动调查策略/RAG/付费对照。
+
 ## 当前快照（2026-10-05，Agent / RAG 优化第一批完成）
 
 - 用户最新授权先做第一批校准与定位，按[规格](../docs/agent-evaluation-alignment.md)对齐首轮 review_context / Java 引用列表，建立 aligned-v2，质量场景允许等价送达事实；新增事实/主体/人工来源评分，修复实际检索 hits 计数，溢出诊断保留层级/大小/cap。v1资产、允许动作、政策/RAG Gold和旧报告不改；五新持久包独立冻结，不给旧run换manifest。[集中证据](../reports/agent-alignment-batch1/README.md)、[使用指南](../docs/evaluation-guide.md)。

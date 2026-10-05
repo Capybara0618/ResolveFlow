@@ -39,8 +39,9 @@ def export_run(database: Database, run_id: str, destination: Path) -> None:
     if any(row["state"] != "SAVED" or row["response"] is None or row["request_body"] is None
            or row["sdk_state"] is None or row["settled_spend"] is None for row in models):
         raise UnsupportedRecord("UNSUPPORTED_RECORD: UNKNOWN or incomplete model call")
-    if any(row["observation"] is None or row["local_read"] for row in tools):
-        raise UnsupportedRecord("UNSUPPORTED_RECORD: missing/local tool observation")
+    if any(row["observation"] is None or (row["local_read"]
+           and row["observation"].get("tool_name") != "read_observation") for row in tools):
+        raise UnsupportedRecord("UNSUPPORTED_RECORD: missing/unsupported local tool observation")
     if [row["call_id"] for row in models] != [f"model-{i}" for i in range(len(models))]:
         raise UnsupportedRecord("UNSUPPORTED_RECORD: nonsequential model calls")
     if [row["call_id"] for row in tools] != [f"tool-{i}" for i in range(len(tools))]:
@@ -50,13 +51,20 @@ def export_run(database: Database, run_id: str, destination: Path) -> None:
     # C09 persists each tool's canonical request hash but not the request body. For the
     # selected sequential subset, the preceding saved model action carries the exact
     # tool name/arguments; require that it reproduces every durable tool hash.
-    tool_requests = [
-        {"name": decision["tool_name"], "arguments": decision["arguments"]}
-        for row in models
-        if (decision := row["response"]["decision"]).get("kind") == "READ_TOOL"
-    ]
+    tool_requests = []
+    for row in models:
+        decision = row["response"]["decision"]
+        if decision.get("kind") == "READ_TOOL":
+            tool_requests.append({"name": decision["tool_name"], "arguments": decision["arguments"]})
+        elif decision.get("kind") == "READ_OBSERVATION":
+            arguments = {"observation_id": decision["observation_id"],
+                         **{key: value for key, value in (decision.get("arguments") or {}).items()
+                            if key in {"offset", "limit"} and value is not None}}
+            tool_requests.append({"name": "read_observation", "arguments": arguments})
     if len(tool_requests) != len(tools) or any(
-        hash_document(request) != row["request_hash"] for request, row in zip(tool_requests, tools, strict=True)
+        hash_document(request) != row["request_hash"]
+        or bool(row["local_read"]) != (request["name"] == "read_observation")
+        for request, row in zip(tool_requests, tools, strict=True)
     ):
         raise UnsupportedRecord("UNSUPPORTED_RECORD: tool parameters cannot be reconstructed from saved actions")
     document: dict[str, Any] = {

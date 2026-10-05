@@ -581,6 +581,10 @@ class AgentScopeRunner:
         store = (
             self.observation_store if self.observation_store is not None else ObservationStore(run_id=self.facts.run_id)
         )
+        if store.run_id != self.facts.run_id:
+            raise ValueError("observation store belongs to another run")
+        store.bind_materials(self.facts.review_context or {}, case_id=self.facts.case_id,
+                             input_revision=self.facts.input_revision)
         view = self.facts_view if self.facts_view is not None else FactsView()
         client.bind_context(view=view, store=store, guard=guard, system=self.system)
         toolkit = Toolkit()
@@ -1019,41 +1023,28 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
     """
     tools = sorted(WHITELIST)
     document: dict[str, Any] = {
-        "tools": {name: {"get_case_evidence": "customer words/human verification",
-                         "get_order_context": "order/payment/explicit fulfillment + versions, no customer words",
-                         "get_shipment_trace": "carrier events; DELIVERED != customer acknowledgment"}
-                  .get(name, "read-only")
-                  for name in tools},
-        "wire_format": "Emit one flat JSON object with required root kind (PROPOSE needs kind=PROPOSE). "
-                       "Keys are exactly those listed for the selected kind, "
-                       "plus optional reasoning/reason_codes. Schema documentation is not output data.",
-        "syntax_examples_only": [
-            {"kind": READ_TOOL, "tool_name": "get_case_evidence", "arguments": {}},
-        ],
+        "tools": tools,
+        "wire_format": "Listed fields only; reasoning/reason_codes optional.",
         "action_fields": {
             READ_TOOL: "tool_name, arguments={}",
-            SEARCH_POLICY: "query, arguments={top_k:1..5}; use 2 for focused queries",
-            READ_OBSERVATION: "observation_id, optional cursor",
+            SEARCH_POLICY: "query, arguments={top_k:1..5}",
+            READ_OBSERVATION: "observation_id (material:ID allowed), arguments={offset>=0,limit:1..4000 chars}",
             ASK_CUSTOMER: "questions=[{question_id,field,prompt}], max 3; reason_codes",
             PROPOSE: "case_type, recommended_action, nonempty reason_codes; optional summary, reasoning, "
                      "evidence_refs, policy_refs, missing_evidence, review_findings",
-            ESCALATE: "reason_codes, reasoning; no recommended_action",
+            ESCALATE: "reason_codes; optional reasoning/summary",
         },
         "tool_arguments": "None except evidence(kind) and shipment(cursor,limit<=20), all optional.",
         "proposal": {
             "case_type": [member.value for member in CaseType],
             "recommended_action": sorted(RECOMMENDED_ACTIONS),
-            "evidence_refs": "Array of objects: [{observation_id:string,source_ref:string,"
-                             "source_version:string,content_hash:64-hex-string}]. Include every finding's source.",
-            "policy_refs": "Array of objects: [{bundle_id:string,version:string,rule_id:string,"
-                           "chunk_id:string,content_hash:64-hex-string}].",
+            "evidence_refs": "array<object{observation_id,source_ref,source_version,content_hash}>",
+            "policy_refs": "array<object{bundle_id,version,rule_id,chunk_id,content_hash}>",
+            "ref_types": "Ref fields are strings; content_hash=64hex; use observed identities.",
             "review_findings": "max8 [{kind:FACT|INFERENCE|CONFLICT,text<=400,observation_ids:1..8 cited IDs}]; "
                                "CONFLICT>=2",
-            "rule": "Copy only outer tool observation refs from protected citations. Nested evidence IDs and "
-                    "review_context material IDs are not registered observations: cite their get_case_evidence "
-                    "outer observation instead. Findings use these same outer IDs. REFUND requires "
-                    "evidence_refs and policy_refs; no missing_evidence. REJECT requires policy_refs and "
-                    "evidence_refs citing current policy-relevant facts; missing sources permit MANUAL_REVIEW.",
+            "rule": "REFUND: both refs, no missing_evidence. REJECT: both refs/current facts. "
+                    "Material windows cannot be cited.",
         },
     }
     if runner.policy_index is not None:

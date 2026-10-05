@@ -346,6 +346,8 @@ def main(argv=None):
         default=ALIGNED_DATA,
         help="frozen version directory; default aligned-v2, v1 remains available",
     )
+    parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/context-v3",
+                        help="current code replay profile; frozen dataset/Gold are independent")
     parser.add_argument("--case", action="append", default=[])
     parser.add_argument("--output", type=Path)
     parser.add_argument("--live-budget", type=Path)
@@ -410,7 +412,8 @@ def main(argv=None):
     if args.mode == "replay":
         from resolveflow.replay.strict import strict_replay
 
-        directories = sorted((args.dataset / "replay/golden").glob("*/pack.json"))
+        report["replay_profile"] = str(args.replay_dir)
+        directories = sorted(args.replay_dir.glob("*/pack.json"))
         if len(directories) != 5:
             raise ValueError("Expected five current replay packs; zero steps cannot pass")
         for pack in directories:

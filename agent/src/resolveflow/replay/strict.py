@@ -129,7 +129,8 @@ class RecordedCalls:
         if self.tool_step >= len(rows):
             raise ReplayMiss(f"REPLAY_MISS: tool-{self.tool_step} absent")
         row = rows[self.tool_step]
-        if row["call_id"] != f"tool-{self.tool_step}" or row["local_read"]:
+        if (row["call_id"] != f"tool-{self.tool_step}"
+                or (row["local_read"] and name != "read_observation")):
             raise UnsupportedRecord("UNSUPPORTED_RECORD: nonsequential/local tool")
         request = {"name": name, "arguments": arguments}
         if row["request_hash"] != hash_document(request) or row["request_body"] != request:
@@ -139,11 +140,11 @@ class RecordedCalls:
 
     def observe(self, name: str, arguments: dict[str, Any], invoke: Any, guard: Any,
                 *, local: bool) -> ToolObservation:
-        del name, arguments, invoke
-        if local:
-            raise UnsupportedRecord("UNSUPPORTED_RECORD: local read")
+        del arguments, invoke
         row = self.tool_row
         assert row is not None
+        if bool(row["local_read"]) != local or (local and name != "read_observation"):
+            raise UnsupportedRecord("UNSUPPORTED_RECORD: local tool differs")
         observation = ToolObservation.model_validate_json(json.dumps(row["observation"]))
         guard.guard.spend = RunSpend(**row["after_spend"])
         self.tool_step += 1

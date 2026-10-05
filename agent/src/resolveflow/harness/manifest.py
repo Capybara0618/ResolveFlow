@@ -58,12 +58,12 @@ __all__ = [
 
 #: The P0-P4 policy in :mod:`resolveflow.harness.context` and ``docs/context-engineering.md``. Named so a snapshot
 #: taken under a later layering cannot be read as if it were assembled by this one.
-CONTEXT_POLICY_VERSION: Final = "p0-p4-v5-commerce-facts"
+CONTEXT_POLICY_VERSION: Final = "p0-p4-v6-compact-material-index"
 
 #: The counter actually applied to model input. :func:`~resolveflow.harness.context.estimate_tokens` is a UTF-8 byte
 #: allowance marked ESTIMATED — deliberately not the retired characters/3 (which undercounted Chinese) and not the
 #: frozen fixture's ``chars-div-4``, neither of which is in use.
-TOKEN_COUNTER_VERSION: Final = "utf8-json-bytes-v2"  # noqa: S105 - this is a counting rule, not a credential
+TOKEN_COUNTER_VERSION: Final = "utf8-json-bytes-v3-single-wrapper"  # noqa: S105 - this is a counting rule, not a credential
 
 #: The persisted run/snapshot shape this harness writes. C09's recovery distinguishes snapshots by this value.
 STATE_SCHEMA_VERSION: Final = 2

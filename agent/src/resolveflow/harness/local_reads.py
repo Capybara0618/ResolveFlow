@@ -388,7 +388,8 @@ class ObservationReadBridge(LocalReadBridge):
         return ToolObservation(
             observation_id=f"read:{window.observation_id}@{window.offset}",
             tool_name=OBSERVATION_READ_TOOL_NAME,
-            source_type=EvidenceSourceType.POLICY_RULE
+            source_type=EvidenceSourceType(window.material["source_type"]) if window.material is not None
+            else EvidenceSourceType.POLICY_RULE
             if self._underlying_is_policy(window.observation_id)
             else EvidenceSourceType.ORDER_LINE,
             source_ref=f"observation:{window.observation_id}",

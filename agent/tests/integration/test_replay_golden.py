@@ -37,7 +37,7 @@ CASES: dict[str, tuple[list[dict[str, Any]], tuple[Any, ...], str]] = {
 @pytest.mark.parametrize("name", CASES)
 def test_committed_golden_pack(name: str) -> None:
     root = Path(__file__).resolve().parents[3]
-    directory = root / "evals" / "aligned-v2" / "replay" / "golden" / name
+    directory = root / "evals" / "replay" / "context-v3" / name
     assert strict_replay(directory)["status"] == "MATCH"
 
 

@@ -160,7 +160,7 @@ class FixtureModel:
                 ]
                 decision = {
                     "kind": "PROPOSE",
-                    "case_type": "DAMAGE" if rid == "R-DMG-001" else "LOGISTICS",
+                    "case_type": "DAMAGED" if rid == "R-DMG-001" else "LOGISTICS",
                     "recommended_action": "REFUND" if eligible else "MANUAL_REVIEW",
                     "reason_codes": ["SYNTHETIC_PROBE"],
                     "summary": "合成流程核对，最终仍须商家审批。",

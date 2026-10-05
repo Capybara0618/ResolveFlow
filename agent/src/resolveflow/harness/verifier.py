@@ -251,7 +251,9 @@ class ProposalVerifier:
         for ref in refs:
             observation_id = str(ref.get("observation_id", ""))
             seen = visible.get(observation_id)
-            if seen is None or not _is_citable(seen):
+            if (seen is None or not _is_citable(seen)
+                    or (seen.tool_name == "read_observation" and (seen.result or {}).get("kind") == "MATERIAL")
+                    or observation_id.startswith("material:")):
                 refusals.append(
                     CitationRefusal(
                         CITATION_NOT_VISIBLE,

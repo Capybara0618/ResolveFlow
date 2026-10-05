@@ -11,7 +11,8 @@ param(
     [string]$Baseline,
     [switch]$Bm25Only,
     [string]$Review,
-    [string]$Dataset
+    [string]$Dataset,
+    [string]$ReplayDir
 )
 $ErrorActionPreference = 'Stop'
 $python = Join-Path $PSScriptRoot 'agent/.venv/Scripts/python.exe'
@@ -27,6 +28,7 @@ if ($Baseline) { $taskArgs += @('--baseline', $Baseline) }
 if ($Bm25Only) { $taskArgs += '--bm25-only' }
 if ($Review) { $taskArgs += @('--review', $Review) }
 if ($Dataset) { $taskArgs += @('--dataset', $Dataset) }
+if ($ReplayDir) { $taskArgs += @('--replay-dir', $ReplayDir) }
 $previousKey = $env:RESOLVEFLOW_MODEL_API_KEY
 try {
     if ($Mode -eq 'live') {
