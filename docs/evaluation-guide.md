@@ -1,5 +1,7 @@
 # Agent / RAG 评测使用指南
 
+2026-10-05用户取消项目消费上限，当前执行[用量规则](model-usage-policy.md)：不再按累计96次/.50美元拦截，新运行无累计token额度。历史报告及冻结manifest中的live_limits保留当时记录，不控制新评测。单工单终止约束和请求大小仍有效；本次修改未新增真实调用。
+
 2026-10-05 常驻规则与短引用已完成，见[规格](agent-context-protocol.md)及[集中结果](../reports/agent-context-protocol/README.md)。五MCP工具直接可用，无发现轮次；输入/Gold仍用 aligned-v2，当前回放独立 evals/replay/context-v4 六条轨迹，旧v1/v2/context-v3保留。脚本32/32只证明工程链路，不代表真实LLM质量；字节估计变化不等于计费下降。`-ReplayDir 路径`可显式选择其他回放包目录，旧代码版本在当前严格模式下会明确拒绝。
 
 第一批历史结果（2026-10-05）：五批评测体系交付后，用户授权完成[第一批输入/评分校准](agent-evaluation-alignment.md)。默认冻结数据为 `evals/aligned-v2`，原 `evals/current` v1 和报告保留。[第一批结果与溢出诊断](../reports/agent-alignment-batch1/README.md)记录全部失败，本批不修改提示词或检索算法、不新增付费调用；此前体系证据见[原实施报告](../reports/agent-evaluation-rebuild.md)。
@@ -86,10 +88,10 @@ RAG正例54、无适用条款负例6。覆盖@k是必需规则集合中被找到
 本轮在你收敛为“只构建体系”之前已产生8个开发案例、21次真实DeepSeek调用；之后没有新增付费调用。已有记录作为当前失败基线保留，完整32例Live和测试集Live未运行。本节命令仅供以后你自行明确选择运行：
 
 ```powershell
-.\eval.ps1 -Mode live -Split dev -Case A01A,A01B -LiveBudget tmp/evaluation-live-budget.json
+.\eval.ps1 -Mode live -Split dev -Case A01A,A01B
 ```
 
-读取用户环境变量 `Deepseek_API_KEY`，没有密钥就失败；不会切mock。必须显式选case及共享预算文件；每case最多6次、单次输出1024、共享文件最多96次传输，未知网络结果也占次数。共享文件有进程锁；崩溃遗留锁需先确认进程已停，不能删除预算来重置用量。还有USD0.50保守预留上限和输入/输出界限；预留按价格/字节估算，是本实验保险，不能当实际账单或账户总额限制。历史21次占用见本机已有共享预算文件。
+读取用户环境变量 `Deepseek_API_KEY`，没有密钥就失败；不会切mock。必须显式选case，默认使用原`tmp/evaluation-live-budget.json`记录累计传输；也可用`-LiveUsage`指定，旧`-LiveBudget`兼容。累计调用和费用没有项目上限，未知网络结果仍记录次数，实际token usage在逐次报告中保存。共享文件有进程锁；崩溃遗留锁需先确认进程已停，不能删除记录重置用量。每case最多6轮、单次输出1024用于运行终止和控制响应长度；新运行无累计token额度。旧reserved_usd为历史预留，只保留不再增加，不是实际账单。
 
 运行创建随机 `eval_*` schema，正常退出清理，只向临时localhost合成源发GET。真实MCP/AgentScope/生产上下文与检索代码被复用；没有Java工单创建、审批、退款及业务回调。v2 首轮注入 revision 绑定的 `review_context`，材料查询返回 Java 协议的引用列表；v1 仍是正文放在材料查询中的历史合成协议，不能混作当前业务输入。两版都不是完整 Java 业务链验收。上下文八检查使用简化测试system，不能说明真实生产prompt在所有场景都装得下。
 

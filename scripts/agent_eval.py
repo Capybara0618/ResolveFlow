@@ -147,18 +147,20 @@ def rag(report, index, encoder, pins, *, split, bm25_only=False, dataset=DATA):
 
 
 def allowance(path):
-    limit = read("manifest.json")["live_limits"]["total_requests"]
-    value = json.loads(path.read_text()) if path.exists() else {"used": 0, "limit": limit, "reserved_usd": 0}
-    if value["limit"] != limit:
-        raise ValueError("Live cap cannot silently change")
-    if type(value.get("used")) is not int or not 0 <= value["used"] <= limit:
+    """Read a usage ledger, including legacy budget files, without enforcing expense limits."""
+    value = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"used": 0}
+    if type(value.get("used")) is not int or value["used"] < 0:
         raise ValueError("Invalid persisted live request count")
     reserved = value.get("reserved_usd", 0)
-    if not isinstance(reserved, (float, int)) or not math.isfinite(reserved) or not 0 <= reserved <= 0.50:
+    if type(reserved) not in (float, int) or not math.isfinite(reserved) or reserved < 0:
         raise ValueError("Invalid persisted monetary reservation")
+    if value.get("limit") is not None:
+        value.setdefault("historical_limit", value["limit"])
+    value["limit"] = None
+    value["accounting_policy"] = "usage-only-v1"
 
     def save():
-        persist(path, {"used": value["used"], "limit": value["limit"], "reserved_usd": value.get("reserved_usd", 0)})
+        persist(path, {key: item for key, item in value.items() if key != "save"})
 
     value["save"] = save
     return value
@@ -178,7 +180,7 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
     cap = None
     if mode == "live":
         if not selected or live_budget is None:
-            raise ValueError("Live requires explicit --case selections and --live-budget file")
+            raise ValueError("Live requires explicit --case selections and a usage ledger")
         key = os.environ.get("RESOLVEFLOW_MODEL_API_KEY") or os.environ.get("Deepseek_API_KEY")
         if not key:
             raise ValueError("Live API key missing; no mock fallback")
@@ -194,7 +196,8 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
             "per_case_calls": 6,
             "total_transmission_cap": cap["limit"],
             "max_output_tokens": 1024,
-            "reservation_cap_usd": 0.50,
+            "reservation_cap_usd": None,
+            "accounting_policy": "usage-only-v1",
         }
     report["results"] = [
         {
@@ -281,10 +284,11 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
             "model_calls": sum(e["model_calls"] for e in report["results"]),
         }
         if cap:
-            report["live_budget"] = {
+            report["live_usage"] = {
                 "used": cap["used"],
                 "limit": cap["limit"],
                 "reserved_usd": cap.get("reserved_usd", 0),
+                "reservation_kind": "historical_only_not_updated",
             }
         persist(output, report)
         print(
@@ -360,7 +364,9 @@ def main(argv=None):
                         help="current code replay profile; frozen dataset/Gold are independent")
     parser.add_argument("--case", action="append", default=[])
     parser.add_argument("--output", type=Path)
-    parser.add_argument("--live-budget", type=Path)
+    parser.add_argument("--live-usage", "--live-budget", dest="live_budget", type=Path,
+                        default=ROOT / "tmp/evaluation-live-budget.json",
+                        help="usage ledger only, no expense cap; --live-budget is a compatibility alias")
     parser.add_argument("--bm25-only", action="store_true", help="rag only, explicitly do not run dense")
     parser.add_argument("--input-report", type=Path)
     parser.add_argument("--baseline", type=Path)
@@ -368,8 +374,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.bm25_only and args.mode != "rag":
         parser.error("--bm25-only is available only in rag mode")
-    if args.mode == "live" and (not args.case or args.live_budget is None):
-        parser.error("live requires explicit --case selections and --live-budget; no automatic paid sweep")
+    if args.mode == "live" and not args.case:
+        parser.error("live requires explicit --case selections; no automatic paid sweep")
     counts = validate(args.dataset)
     if args.mode == "validate":
         print(json.dumps(counts))

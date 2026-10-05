@@ -6,7 +6,8 @@ param(
     [string]$Split = 'all',
     [string[]]$Case = @(),
     [string]$Output,
-    [string]$LiveBudget,
+    [Alias('LiveBudget')]
+    [string]$LiveUsage,
     [string]$InputReport,
     [string]$Baseline,
     [switch]$Bm25Only,
@@ -22,7 +23,7 @@ if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
 $taskArgs = @('scripts/agent_eval.py', $Mode, '--split', $Split)
 foreach ($caseId in $Case) { $taskArgs += @('--case', $caseId) }
 if ($Output) { $taskArgs += @('--output', $Output) }
-if ($LiveBudget) { $taskArgs += @('--live-budget', $LiveBudget) }
+if ($LiveUsage) { $taskArgs += @('--live-usage', $LiveUsage) }
 if ($InputReport) { $taskArgs += @('--input-report', $InputReport) }
 if ($Baseline) { $taskArgs += @('--baseline', $Baseline) }
 if ($Bm25Only) { $taskArgs += '--bm25-only' }

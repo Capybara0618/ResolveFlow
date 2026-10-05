@@ -1,4 +1,4 @@
-"""Capture actual requests and bound the combined live experiment, without storing credentials."""
+"""Capture requests and count live transmissions without a spending cap or credentials."""
 
 from __future__ import annotations
 
@@ -6,19 +6,18 @@ import os
 from contextlib import contextmanager
 from dataclasses import asdict
 
-from resolveflow.harness.live_model import ModelRefusedError
 from resolveflow.harness.model import MODEL_MODE_MOCK, ModelReply, ModelUsage
 
 
 @contextmanager
 def live_guard(path):
-    """One live process per shared budget; crashes leave a visible lock, never reset spend."""
+    """One writer per usage ledger; crashes leave a visible lock, never reset counts."""
     lock = path.with_name(path.name + ".lock")
     lock.parent.mkdir(parents=True, exist_ok=True)
     try:
         descriptor = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     except FileExistsError as error:
-        raise ValueError("Live budget is locked; confirm its process stopped before removing the lock") from error
+        raise ValueError("Live usage ledger is locked; confirm its process stopped before removing the lock") from error
     try:
         os.write(descriptor, str(os.getpid()).encode())
         yield
@@ -39,23 +38,7 @@ class CaptureModel:
 
     def decide(self, **kwargs):
         if self.allowance is not None:
-            if self.allowance["used"] >= self.allowance["limit"]:
-                raise ModelRefusedError("Evaluation total transmission cap reached")
-            rendered_bytes = sum(
-                len(block.text.encode())
-                for message in kwargs["messages"]
-                for block in message.get_content_blocks()
-                if hasattr(block, "text")
-            )
-            if kwargs["max_output_tokens"] > 1024 or rendered_bytes > 11000:
-                raise ModelRefusedError("Evaluation monetary reservation input/output bound exceeded")
-            # Peak non-cache prices verified on official docs 2026-10-04. UTF8 bytes plus 1K wrapper
-            # is a conservative input-token estimate, not the provider's invoice or tokenizer guarantee.
-            reserved = ((rendered_bytes + 1024) * 0.30 + kwargs["max_output_tokens"] * 1.20) / 1_000_000
-            if self.allowance.get("reserved_usd", 0) + reserved > 0.50:
-                raise ModelRefusedError("Evaluation USD 0.50 conservative reservation cap reached")
             self.allowance["used"] += 1
-            self.allowance["reserved_usd"] = self.allowance.get("reserved_usd", 0) + reserved
             if "save" in self.allowance:
                 self.allowance["save"]()
         messages = [

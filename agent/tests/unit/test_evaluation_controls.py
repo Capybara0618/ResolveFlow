@@ -9,7 +9,6 @@ from unittest.mock import patch
 
 import pytest
 from agentscope.message import Msg, TextBlock
-from resolveflow.harness.live_model import ModelRefusedError
 from resolveflow.harness.model import ModelReply, ModelUsage
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -64,12 +63,21 @@ def test_current_replay_profile_cannot_pass_with_missing_trajectories(tmp_path, 
     assert not output.exists()
 
 
-def test_total_cap_prevents_transmission():
-    client = SimpleNamespace(decide=lambda **_: pytest.fail("Must not transmit"))
-    model = CaptureModel(client, {"used": 1, "limit": 1})
-    with pytest.raises(ModelRefusedError, match="cap reached"):
-        model.decide()
-    assert model.records == []
+def test_old_total_cap_no_longer_prevents_transmission(tmp_path):
+    path = tmp_path / "usage.json"
+    persist(path, {"used": 96, "limit": 96, "reserved_usd": 0.50})
+    client = SimpleNamespace(decide=lambda **_: ModelReply(
+        decision={"kind": "ESCALATE"}, usage=ModelUsage(7, 3), mode="mock"))
+    model = CaptureModel(client, allowance(path))
+    model.decide(
+        system="system",
+        messages=[Msg(name="user", content=[TextBlock(type="text", text="request")], role="user")],
+        max_output_tokens=1024,
+    )
+    saved = json.loads(path.read_text())
+    assert saved["used"] == 97 and saved["limit"] is None
+    assert saved["historical_limit"] == 96 and saved["reserved_usd"] == 0.50
+    assert model.records[0]["usage"]["output_tokens"] == 3
 
 
 def test_parallel_live_process_cannot_share_an_unlocked_budget(tmp_path):
@@ -97,7 +105,7 @@ def test_budget_and_failed_attempt_are_persisted_before_unknown_response(tmp_pat
             messages=[Msg(name="user", content=[TextBlock(type="text", text="synthetic request")], role="user")],
             max_output_tokens=1024,
         )
-    assert allowance(path)["reserved_usd"] > 0
+    assert allowance(path)["used"] == 1
     assert events[-1][-1]["error"] == "TimeoutError: unknown outcome"
 
 
@@ -123,32 +131,31 @@ def test_capture_records_usage_without_client_credentials():
         ("messages", [Msg(name="user", content=[TextBlock(type="text", text="x" * 11001)], role="user")]),
     ],
 )
-def test_monetary_input_and_output_bounds_refuse(field, value):
-    model = CaptureModel(SimpleNamespace(decide=lambda **_: pytest.fail("Must not transmit")), {"used": 0, "limit": 96})
+def test_capture_has_no_monetary_input_or_output_bounds(field, value):
+    model = CaptureModel(SimpleNamespace(decide=lambda **_: ModelReply(
+        decision={"kind": "ESCALATE"}, usage=ModelUsage(7, 3), mode="mock")), {"used": 0, "limit": 96})
     kwargs = {
+        "system": "system",
         "messages": [Msg(name="user", content=[TextBlock(type="text", text="short")], role="user")],
         "max_output_tokens": 1024,
     }
     kwargs[field] = value
-    with pytest.raises(ModelRefusedError, match="bound exceeded"):
-        model.decide(**kwargs)
+    model.decide(**kwargs)
+    assert model.allowance["used"] == 1 and len(model.records) == 1
 
 
-def test_reservation_cap_cannot_be_reset(tmp_path):
+def test_usage_ledger_preserves_history_above_old_limits(tmp_path):
     path = tmp_path / "cap.json"
-    persist(path, {"used": 0, "limit": 96, "reserved_usd": 0.50})
-    model = CaptureModel(SimpleNamespace(decide=lambda **_: pytest.fail("Must not transmit")), allowance(path))
-    with pytest.raises(ModelRefusedError, match="reservation cap"):
-        model.decide(
-            messages=[Msg(name="user", content=[TextBlock(type="text", text="request")], role="user")],
-            max_output_tokens=1024,
-        )
-    persist(path, {"used": 0, "limit": 97})
-    with pytest.raises(ValueError, match="silently change"):
-        allowance(path)
+    persist(path, {"used": 120, "limit": 96, "reserved_usd": 1.50, "note": "history"})
+    ledger = allowance(path)
+    ledger["save"]()
+    again = allowance(path)
+    assert again["used"] == 120 and again["reserved_usd"] == 1.50
+    assert again["limit"] is None and again["historical_limit"] == 96
+    assert again["note"] == "history"
 
 
-@pytest.mark.parametrize("used,reserved", [(-1, 0), (97, 0), (False, 0), (0, -0.1), (0, float("nan"))])
+@pytest.mark.parametrize("used,reserved", [(-1, 0), (False, 0), (0, -0.1), (0, float("nan"))])
 def test_invalid_persisted_allowance_refused(tmp_path, used, reserved):
     path = tmp_path / "cap.json"
     persist(path, {"used": used, "limit": 96, "reserved_usd": reserved})
