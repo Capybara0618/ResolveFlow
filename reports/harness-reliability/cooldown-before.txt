@@ -1,0 +1,49 @@
+FFF.F                                                                    [100%]
+================================== FAILURES ===================================
+______ test_429_wait_survives_new_worker_and_retry_reuses_exact_request _______
+agent\tests\integration\test_model_rate_limit_recovery.py:38: in test_429_wait_survives_new_worker_and_retry_reuses_exact_request
+    row = connection.execute("SELECT model_retry_after,active_deadline_at FROM agent_run").fetchone()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\psycopg\connection.py:300: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.UndefinedColumn: column "model_retry_after" does not exist
+E   LINE 1: SELECT model_retry_after,active_deadline_at FROM agent_run
+E                  ^
+---------------------------- Captured stderr call -----------------------------
+2026-10-05 21:06:33,567 | WARNING | _agent:_call_model:3383 - Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+------------------------------ Captured log call ------------------------------
+WARNING  as:_agent.py:3383 Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+______ test_repeated_429_exhausts_only_one_retry_without_a_third_request ______
+agent\tests\integration\test_model_rate_limit_recovery.py:54: in test_repeated_429_exhausts_only_one_retry_without_a_third_request
+    end_cooldown(agent_db)
+agent\tests\integration\test_model_rate_limit_recovery.py:29: in end_cooldown
+    connection.execute("UPDATE agent_run SET model_retry_after=clock_timestamp()-interval '1 second'")
+agent\.venv\Lib\site-packages\psycopg\connection.py:300: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.UndefinedColumn: column "model_retry_after" of relation "agent_run" does not exist
+E   LINE 1: UPDATE agent_run SET model_retry_after=clock_timestamp()-int...
+E                                ^
+---------------------------- Captured stderr call -----------------------------
+2026-10-05 21:06:34,513 | WARNING | _agent:_call_model:3383 - Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+------------------------------ Captured log call ------------------------------
+WARNING  as:_agent.py:3383 Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+______ test_expired_deadline_finishes_even_during_long_provider_cooldown ______
+agent\tests\integration\test_model_rate_limit_recovery.py:68: in test_expired_deadline_finishes_even_during_long_provider_cooldown
+    assert result.result.reason_code == "BUDGET_DEADLINE" and live.calls == 1
+           ^^^^^^^^^^^^^
+E   AttributeError: 'NoneType' object has no attribute 'result'
+---------------------------- Captured stderr call -----------------------------
+2026-10-05 21:06:34,800 | WARNING | _agent:_call_model:3383 - Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+------------------------------ Captured log call ------------------------------
+WARNING  as:_agent.py:3383 Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+_________________ test_stale_fence_cannot_set_retry_cooldown __________________
+agent\tests\integration\test_model_rate_limit_recovery.py:86: in test_stale_fence_cannot_set_retry_cooldown
+    RunJournal(agent_db).defer_model_retry(RUN_ID, fence=1, owner="test-worker", call_id="step-0", seconds=5)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'RunJournal' object has no attribute 'defer_model_retry'
+=========================== short test summary info ===========================
+FAILED agent\tests\integration\test_model_rate_limit_recovery.py::test_429_wait_survives_new_worker_and_retry_reuses_exact_request
+FAILED agent\tests\integration\test_model_rate_limit_recovery.py::test_repeated_429_exhausts_only_one_retry_without_a_third_request
+FAILED agent\tests\integration\test_model_rate_limit_recovery.py::test_expired_deadline_finishes_even_during_long_provider_cooldown
+FAILED agent\tests\integration\test_model_rate_limit_recovery.py::test_stale_fence_cannot_set_retry_cooldown
+4 failed, 1 passed in 4.39s

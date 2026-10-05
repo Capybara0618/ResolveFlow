@@ -31,4 +31,15 @@ agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_loop_reliability.
 
 先失败9项/原4项通过（rate-before.txt）；修复后模型客户端/SDK32项通过（rate.xml/txt），改动Ruff通过。实际命令为 `agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_model_rate_limit.py agent/tests/unit/test_live_model_client.py agent/tests/unit/test_sdk_adapter.py -q --tb=short --junitxml=reports/harness-reliability/rate.xml`。
 
-第一步0c86215、第二步9e060b3已核实正常push到origin/main。429持久冷却仍在实施，不能将分类完成称为完整退避恢复；本批集中PG/MCP/strict和mypy待收口。未真实模型复测、Java整链、网页或收费调用/常驻服务重启，不宣称建议质量提升。已有全项目mypy16个错误基线保留。
+## 第三步B：持久冷却与有界恢复
+
+追加011迁移保存run冷却时间及attempt失败码/等待时间。DurableRun在429后先以当前fence记录冷却，再交由原worker恢复；领取及reserve_retry都检查冷却，不能提前发送或再次计数。释放冷却run的旧lease并保留调度时间，其他工单可继续；等待不超过原active deadline，原请求hash/预算/manifest不变。第二次429记录失败后立即进入既有重试耗尽终止，不会发送第三次请求。响应到冷却记录之间崩溃仍有未知窗口，不承诺零重复调用/计费。
+
+首次测试引用错fixture引发收集错误（cooldown-collection.txt），修正后4失败/1通过（cooldown-before.txt）。实现初轮6失败/40通过（cooldown-initial.txt）：冷却run仍持有旧lease，以及历史worker模拟结果使用object替代RunSpend；已修正冷却lease释放，并将三个fixture换成真实RunSpend，不删除断言或放宽生产校验。新增直接预留防绕过后67项/0 skipped通过（cooldown.xml/txt），包括等待期、新worker原请求复用、两次429终止、过期停止、其他工单进展、旧fence拒绝与原持久恢复。改动Ruff通过。配置式全项目mypy仍16既有错误/9文件/73源码（mypy.txt），无新增诊断，类型门禁仍未通过。
+
+```powershell
+agent/.venv/Scripts/python.exe -m pytest agent/tests/integration/test_model_rate_limit_recovery.py agent/tests/integration/test_recoverable_worker.py agent/tests/integration/test_sdk_durable_recovery.py agent/tests/integration/test_recovery_model_attempt.py agent/tests/integration/test_recovery_model_result.py agent/tests/integration/test_run_worker.py -q --tb=short --junitxml=reports/harness-reliability/cooldown.xml
+agent/.venv/Scripts/python.exe -m mypy agent/src --config-file agent/pyproject.toml
+```
+
+第一步0c86215、第二步9e060b3、第三步A56678e2已核实正常push到origin/main。本批集中PG/MCP/strict新配置待收口。未真实模型复测、Java整链、网页或收费调用/常驻服务重启，不宣称建议质量提升。

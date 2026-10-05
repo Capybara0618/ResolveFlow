@@ -12,6 +12,7 @@ from agentscope.state import AgentState
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.harness.budget import BudgetExhaustedError, RunSpend
 from resolveflow.harness.context import hash_document
+from resolveflow.harness.live_model import ModelRateLimitedError
 from resolveflow.harness.model import MockModelClient
 from resolveflow.harness.token_counting import counter_for
 from resolveflow.runtime.db import Database
@@ -130,7 +131,12 @@ class DurableRun:
                 )
             if not reservation.new_reservation:
                 raise RecoveryConflictError("UNKNOWN attempt already reserved; no duplicate transmission")
-            reply = self.transmit(model, lambda: model.decide(**kwargs), guard)
+            try:
+                reply = self.transmit(model, lambda: model.decide(**kwargs), guard)
+            except ModelRateLimitedError as error:
+                self.journal.defer_model_retry(self.facts.run_id, **self.identity(), call_id=call_id,
+                                               seconds=error.retry_after_seconds)
+                raise
             self.fault("before_model_saved")
             saved = self.journal.save_result(self.facts.run_id, **self.identity(), call_id=call_id,
                                             attempt_no=reservation.attempt_no, reply=reply)

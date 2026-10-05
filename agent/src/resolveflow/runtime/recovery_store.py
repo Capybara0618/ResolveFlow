@@ -26,6 +26,7 @@ from resolveflow.harness.budget import (
     RunSpend,
 )
 from resolveflow.harness.context import hash_document
+from resolveflow.harness.live_model import ModelUnavailableError
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.recovery_budget import RecoveryCallBudget
@@ -207,6 +208,11 @@ class RecoveryBudgetStore:
                 raise RecoveryConflictError("model retry allowance exhausted")
             if row["current_attempt"] == 1:
                 return ModelReservation(call_id, int(row["reserved_output"]), "UNKNOWN", False, 1)
+            if run["model_retry_after"] is not None:
+                clock = connection.execute("SELECT clock_timestamp() AS now").fetchone()
+                assert clock is not None
+                if run["model_retry_after"] > clock["now"]:
+                    raise ModelUnavailableError("persisted model retry cooldown has not elapsed")
             partition = RecoveryCallBudget.from_dict(frozen["call_partition"])
             spend = RunSpend(**run["budget_spent"])
             if partition.total_spent != spend.model_calls:

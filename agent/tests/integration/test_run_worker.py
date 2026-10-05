@@ -14,18 +14,19 @@ from dataclasses import replace
 from typing import Any
 
 import pytest
-
 from resolveflow.contracts._schemaio import CORE_SCHEMA_FILES, component_validator
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.contracts.enums import CallbackKind, EvidenceSourceType
 from resolveflow.harness.actions import POLICY_SEARCH_TOOL_NAME, validate_decision
+from resolveflow.harness.budget import RunSpend
 from resolveflow.harness.manifest import MAX_ACTIVE_DEADLINE_SECONDS
 from resolveflow.harness.vocabulary import RunResult
 from resolveflow.runtime.callbacks import CallbackStore
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.runs import RunRequest, RunStore, VerifiedCaller
-from tests.integration import future_deadline
 from resolveflow.runtime.worker import RunWorker
+
+from tests.integration import future_deadline
 
 RUN_ID = "11111111-2222-4333-8444-555555555555"
 CASE_ID = "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -131,7 +132,7 @@ def proposal_result() -> RunResult:
                 result={"hits": [policy]},
             ),
         ),
-        spend=object(),
+        spend=RunSpend(),
     )
 
 
@@ -147,7 +148,7 @@ def question_result() -> RunResult:
             }
         ),
         observations=(),
-        spend=object(),
+        spend=RunSpend(),
     )
 
 
@@ -157,7 +158,7 @@ def stopped_result() -> RunResult:
         reason_code="ACTION_REFUSED",
         decision=validate_decision({"kind": "ESCALATE", "reason_codes": ["NEEDS_HUMAN"], "summary": "转人工"}),
         observations=(),
-        spend=object(),
+        spend=RunSpend(),
     )
 
 

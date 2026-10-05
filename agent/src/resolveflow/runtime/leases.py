@@ -46,6 +46,8 @@ class RunLease:
                     row = connection.execute(
                         "SELECT * FROM agent_run WHERE (%s::uuid IS NULL OR run_id=%s::uuid) "
                         "AND cancelled_at IS NULL AND "
+                        "(model_retry_after IS NULL OR model_retry_after<=clock_timestamp() "
+                        "OR active_deadline_at<=clock_timestamp() OR deadline_at<=clock_timestamp()) AND "
                         "(status='QUEUED' OR (status='RUNNING' AND "
                         "(lease_until IS NULL OR lease_until<clock_timestamp()))) "
                         "ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED",
@@ -101,4 +103,13 @@ class RunLease:
                 if heartbeat is not None:
                     heartbeat.join(timeout=self.seconds)
                 if lock_key is not None:
+                    # A persisted cooldown is the scheduling authority after a 429. Release this worker's
+                    # lease before its advisory lock, so a 5-second cooldown does not also wait a 30-second lease.
+                    if claimed is not None:
+                        connection.execute(
+                            "UPDATE agent_run SET lease_until=clock_timestamp()-interval '1 microsecond' "
+                            "WHERE run_id=%s AND fence=%s AND lease_owner=%s AND status='RUNNING' "
+                            "AND model_retry_after IS NOT NULL",
+                            (claimed.facts.run_id, claimed.facts.fence, self.owner),
+                        )
                     connection.execute("SELECT pg_advisory_unlock(hashtextextended(%s,0))", (lock_key,))
