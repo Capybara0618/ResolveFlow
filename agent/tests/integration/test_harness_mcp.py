@@ -29,13 +29,13 @@ import sys
 from typing import Any
 
 import pytest
-
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.harness.mcp_client import McpToolExecutor, ToolCallFailedError
 from resolveflow.harness.model import MockModelClient
 from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import REASON_COMPLETED, RunFacts
 from resolveflow.tools.credential import credential_source
+
 from tests.conftest import input_text_of
 from tests.integration import stub_upstream
 
@@ -72,7 +72,7 @@ def executor(upstream_url: str, line_id: str = LINE_ID) -> McpToolExecutor:
         python=sys.executable,
         case_base_url=upstream_url,
         commerce_base_url=upstream_url,
-        service_token="stub-service-token",
+        service_token="stub-service-token",  # noqa: S106 - synthetic test credential
         line_id=line_id,
         run_id=RUN_ID,
         case_id=CASE_ID,
@@ -477,11 +477,10 @@ def test_a_repeated_failing_read_is_not_progress(upstream: Any) -> None:
         tool.close()
 
     assert result.completed is False
-    assert result.reason_code == "NO_PROGRESS", f"stopped for the wrong reason: {result.reason_code}"
-    # Three reads reached the upstream: the first, the two the spec feeds back, and then the refusal. A fourth
-    # would mean the run spent an attempt on the action it had already been told was not working.
-    assert len(requests_to(log)) == 3, f"the third repeat should be refused before it runs: {requests_to(log)}"
-    assert result.spend.tool_attempts == 3
+    assert result.reason_code == "TOOL_NOT_RETRYABLE", f"stopped for the wrong reason: {result.reason_code}"
+    # NOT_FOUND is nonretryable: the new correction gate refuses its very first repeat.
+    assert len(requests_to(log)) == 1, f"a permanent failure was repeated: {requests_to(log)}"
+    assert result.spend.tool_attempts == 1
 
 
 # ------------------------------------------------------------------ the run's credential (C06.4④)
@@ -506,7 +505,7 @@ def test_a_read_presents_the_runs_own_credential(upstream: Any) -> None:
         run_id=RUN_ID,
         case_id=CASE_ID,
         input_revision=1,
-        service_token="tool-service-token",
+        service_token="tool-service-token",  # noqa: S106 - synthetic test credential
         static_token=None,
     )
     try:
@@ -543,8 +542,8 @@ def test_a_run_credential_that_cannot_be_minted_stops_the_read(upstream: Any) ->
         run_id=RUN_ID,
         case_id=CASE_ID,
         input_revision=1,
-        service_token="tool-service-token",
-        static_token="stub-service-token",
+        service_token="tool-service-token",  # noqa: S106 - synthetic test credential
+        static_token="stub-service-token",  # noqa: S106 - synthetic test credential
     )
     model = MockModelClient([read("get_order_context"), propose("MANUAL_REVIEW")])
     try:

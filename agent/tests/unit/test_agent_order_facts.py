@@ -2,12 +2,12 @@
 import json
 
 import pytest
-
 from resolveflow.contracts._schemaio import REPO_ROOT, component_validator
 from resolveflow.harness.context import extract_facts
 from resolveflow.harness.facts import FactsView
 from resolveflow.harness.verifier import ProposalVerifier
-from resolveflow.tools.catalog import get_order_context
+from resolveflow.tools.catalog import _order_source_version, get_order_context
+
 from tests.unit.test_context_builder import build, observation
 from tests.unit.test_context_quality import cited, text_of
 from tests.unit.test_proposal_verifier import POLICY, search
@@ -41,8 +41,11 @@ def test_order_source_version_and_hash_cover_payment_and_fulfillment_changes():
     assert first.result == order_body()
     large = order(version=9223372036854775807, payment_version=9223372036854775807,
                   fulfillment_version=9223372036854775807)
-    assert len(large.source_version) == 64
-    assert large.result["fulfillment_version"] == 9223372036854775807
+    assert large.error.code == "TOOL_RESULT_INVALID"
+    assert large.source_version is None
+    # The defensive identity cap still holds, but oversized versions cannot enter facts.
+    assert len(_order_source_version(order_body(version=9223372036854775807,
+                payment_version=9223372036854775807, fulfillment_version=9223372036854775807))) == 64
 
 
 def test_real_order_status_and_fulfillment_are_protected_once_and_history_remains():

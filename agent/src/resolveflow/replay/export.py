@@ -54,9 +54,20 @@ def export_run(database: Database, run_id: str, destination: Path) -> None:
     tool_requests = []
     from resolveflow.contracts.core_models import ToolObservation
     from resolveflow.harness.references import ReferenceCatalog, expand_references
+    from resolveflow.harness.sdk_runner import ActionGateMiddleware
     observed: list[ToolObservation] = []
+    gate = ActionGateMiddleware()
+    seen: set[tuple[str, str, str]] = set()
     for row in models:
         decision = row["response"]["decision"]
+        if decision.get("kind") not in {"READ_TOOL", "READ_OBSERVATION"}:
+            continue
+        decision = expand_references(decision, {}, ReferenceCatalog(observed).read_ids)
+        # A saved model request is not evidence of tool execution. Reconstruct the
+        # production read gate, so its refused retry does not invent a tool row.
+        if gate.check(decision) is None:
+            gate.repair_message = None
+            continue
         if decision.get("kind") == "READ_TOOL":
             tool_requests.append({"name": decision["tool_name"], "arguments": decision["arguments"]})
         elif decision.get("kind") == "READ_OBSERVATION":
@@ -66,8 +77,13 @@ def export_run(database: Database, run_id: str, destination: Path) -> None:
                             if key in {"offset", "limit"} and value is not None}}
             tool_requests.append({"name": "read_observation", "arguments": arguments})
         if decision.get("kind") in {"READ_TOOL", "READ_OBSERVATION"} and len(tool_requests) <= len(tools):
-            observed.append(ToolObservation.model_validate_json(
-                canonical_json(tools[len(tool_requests) - 1]["observation"])))
+            observation = ToolObservation.model_validate_json(
+                canonical_json(tools[len(tool_requests) - 1]["observation"]))
+            observed.append(observation)
+            key = (observation.source_ref, observation.source_version or "", observation.content_hash or "")
+            gate.note_evidence(observation.error is None and key not in seen)
+            seen.add(key)
+            gate.note_tool_result(observation)
     if len(tool_requests) != len(tools) or any(
         hash_document(request) != row["request_hash"]
         or bool(row["local_read"]) != (request["name"] == "read_observation")

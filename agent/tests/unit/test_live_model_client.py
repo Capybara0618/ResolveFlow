@@ -19,7 +19,6 @@ import json
 from typing import Any
 
 import pytest
-
 from resolveflow.harness.live_model import (
     HttpResponse,
     LiveModelClient,
@@ -29,7 +28,7 @@ from resolveflow.harness.live_model import (
 from resolveflow.harness.model import MODEL_MODE_LIVE, MODEL_MODE_MOCK
 from resolveflow.harness.sdk_adapter import raw_text_message
 
-SECRET = "sk-not-a-real-key-0123456789"
+SECRET = "sk-not-a-real-key-0123456789"  # noqa: S105 - synthetic test credential
 ENDPOINT = "https://model.example.invalid/v1/chat/completions"
 
 PROPOSAL = {
@@ -212,8 +211,10 @@ def test_an_answer_that_is_not_a_decision_is_refused_rather_than_guessed() -> No
     """A provider that answers prose must not be interpreted into an action the model did not choose."""
     transport = Recorder(ok("I think you should probably refund this one."))
 
-    with pytest.raises(ModelRefusedError, match="JSON"):
-        client(transport).decide(system="s", messages=messages(), max_output_tokens=256)
+    reply = client(transport).decide(system="s", messages=messages(), max_output_tokens=256)
+    assert reply.decision == {"kind": "__INVALID_MODEL_JSON__",
+                              "raw_output": "I think you should probably refund this one."}
+    assert reply.usage.output_tokens > 0
 
 
 def test_the_answer_may_arrive_in_a_fenced_block() -> None:

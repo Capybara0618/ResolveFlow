@@ -81,6 +81,7 @@ def business_tools(case, pin, *, run_id, case_id):
     token = secrets.token_urlsafe(24)
     line = case["scope"]["line_id"]
     backend = case["backend"]
+    policy = next(item for item in read("policies/bundles.json") if item["bundle_id"] == case["bundle_id"])
     routes = {
         f"/internal/v1/order-lines/{line}/context": ("get_order_context", "order"),
         f"/internal/v1/order-lines/{line}/shipment": ("get_shipment_trace", "shipment"),
@@ -107,7 +108,16 @@ def business_tools(case, pin, *, run_id, case_id):
                 if status != 200:
                     self.answer(status, {"error": "synthetic unavailable source"})
                 elif source == "manifest":
-                    self.answer(200, {"bundles": [pin]})
+                    self.answer(200, {"merchant_id": pin["merchant_id"],
+                        "bundles": [{k: pin[k] for k in ("bundle_ids", "manifest_hash", "safety_epoch")}],
+                        "effective_from": policy["effective_from"] + "T00:00:00Z",
+                        "effective_to": policy["effective_to"] + "T00:00:00Z" if policy["effective_to"] else None})
+                elif source == "refund":
+                    # Frozen fixtures store only changing slot fields. Project
+                    # required stable fields from this same synthetic order;
+                    # never change Gold/input files or add a production fallback.
+                    self.answer(200, {**{k: backend["order"][k] for k in
+                                         ("merchant_id", "line_paid_amount", "currency")}, **backend[source]})
                 else:
                     self.answer(200, backend[source])
 
@@ -128,6 +138,8 @@ def business_tools(case, pin, *, run_id, case_id):
         run_id=run_id,
         case_id=case_id,
         input_revision=case.get("input_revision", 1),
+        merchant_id=case["scope"]["merchant_id"],
+        customer_id=case["scope"]["customer_id"],
         case_base_url=url,
         commerce_base_url=url,
         credential_source=lambda: token,

@@ -269,6 +269,8 @@ def _mcp_executor(config: DeploymentConfig, facts: RunFacts, *, identity_token: 
         # to present to Commerce/Case if the fetch fails.
         service_token=None,
         input_revision=facts.input_revision,
+        merchant_id=facts.merchant_id,
+        customer_id=facts.customer_id,
         credential_source=credential_source(
             case_base_url=config.case_base_url,
             run_id=facts.run_id,

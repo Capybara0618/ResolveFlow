@@ -32,6 +32,7 @@ from typing import Any, Final
 from resolveflow.contracts._schemaio import CORE_SCHEMA_FILES, validator_bundle
 from resolveflow.contracts.core_models import CoreToolError, ToolObservation
 from resolveflow.harness.actions import POLICY_SEARCH_TOOL_NAME
+from resolveflow.harness.claim_checks import unsupported_claims
 
 __all__ = [
     "CITATION_HASH_MISMATCH",
@@ -289,6 +290,12 @@ class ProposalVerifier:
                     return True
         return False
 
+    def verify_content(self, *, summary: str, review_findings: Sequence[Mapping[str, Any]],
+                       evidence_refs: Sequence[Mapping[str, Any]]) -> VerificationResult:
+        return VerificationResult(refusals=tuple(CitationRefusal("FACT_CLAIM_UNSUPPORTED", detail)
+            for detail in unsupported_claims(summary=summary, findings=review_findings,
+                                            evidence_refs=evidence_refs, observations=self.observations)))
+
     def verify_proposal(self, proposal: Mapping[str, Any]) -> VerificationResult:
         """Check the composed wire proposal: the frozen schema first, then its citations.
 
@@ -317,6 +324,9 @@ class ProposalVerifier:
                 missing_evidence=[str(item) for item in _sequence_of(proposal.get("missing_evidence"))],
             ).refusals
         )
+        refusals.extend(self.verify_content(summary=str(proposal.get("summary", "")),
+                        review_findings=_sequence_of(proposal.get("review_findings")),
+                        evidence_refs=_sequence_of(proposal.get("evidence_refs"))).refusals)
         return VerificationResult(refusals=tuple(refusals))
 
     def _check_evidence(self, refs: Sequence[Mapping[str, Any]]) -> list[CitationRefusal]:

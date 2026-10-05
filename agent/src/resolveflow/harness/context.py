@@ -916,7 +916,7 @@ def _render_excerpt(observation: ToolObservation, view: FactsView | None = None)
             for key in removed:
                 result.pop(key)
             if removed:
-                notes.append("字段 " + ",".join(removed) + " 已在P2；原文可按此Observation编号读回")
+                notes.append("字段 " + ",".join(sorted(removed)) + " 已在P2；原文可按此Observation编号读回")
     return f"{observation.tool_name}: {_json(result)}" + ("\n" + "；".join(notes) if notes else "")
 
 

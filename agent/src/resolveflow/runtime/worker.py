@@ -169,14 +169,18 @@ class RunWorker:
             updated = connection.execute(
                 """
                 UPDATE agent_run
-                SET status = %(status)s, updated_at = %(now)s, version = version + 1
+                SET status = %(status)s, updated_at = %(now)s, version = version + 1,
+                    budget_spent = CASE WHEN %(fence)s::bigint IS NOT NULL THEN
+                        jsonb_set(budget_spent, '{no_progress_rounds}', to_jsonb(%(no_progress)s::int))
+                        ELSE budget_spent END
                 WHERE run_id = %(run_id)s AND status = %(running)s AND cancelled_at IS NULL
                   AND ((%(fence)s::bigint IS NULL AND fence IS NULL) OR
                        (fence=%(fence)s AND lease_owner=%(owner)s AND lease_until>clock_timestamp()))
                 RETURNING run_id
                 """,
                 {"status": status, "now": finished, "run_id": claimed.facts.run_id, "running": RUNNING,
-                 "fence": claimed.facts.fence, "owner": claimed.facts.lease_owner},
+                 "fence": claimed.facts.fence, "owner": claimed.facts.lease_owner,
+                 "no_progress": result.spend.no_progress_rounds if claimed.facts.fence is not None else 0},
             ).fetchone()
             if updated is None:
                 current = connection.execute(

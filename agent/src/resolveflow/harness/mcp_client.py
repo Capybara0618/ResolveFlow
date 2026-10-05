@@ -49,6 +49,8 @@ from mcp.client.stdio import stdio_client
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
 from resolveflow.tools.catalog import MAX_TRACE_PAGES
+from resolveflow.tools.credential import CredentialUnavailableError
+from resolveflow.tools.result_validation import InvalidToolResult, validate_result
 
 __all__ = [
     "DEFAULT_CALL_TIMEOUT_SECONDS",
@@ -72,6 +74,11 @@ class ToolCallFailedError(Exception):
     is no observation to hand back — a tool name the server does not serve, arguments its schema rejects, or a
     server that never started — and turning those into observations would invent evidence.
     """
+
+    def __init__(self, message: str, *, code: str = "MCP_PROTOCOL_FAILED", retryable: bool = False):
+        super().__init__(message)
+        self.code = code
+        self.retryable = retryable
 
 
 def server_environment(
@@ -143,6 +150,8 @@ class McpToolExecutor:
     #: The revision the run's credential is issued for. ``docs/contracts.md:96`` binds the credential to one, so
     #: a renewal that named no revision would not be a renewal of anything.
     input_revision: int = 1
+    merchant_id: str | None = None
+    customer_id: str | None = None
     #: Every call this executor made, in order: the evidence that the tools were reached over MCP rather than
     #: through an import. Kept because a test asserting "the read happened" needs to see the call, not infer it.
     calls: list[tuple[str, dict[str, Any]]] = field(default_factory=list)
@@ -162,19 +171,41 @@ class McpToolExecutor:
         if self._closed:
             raise ToolCallFailedError("this executor was closed")
         if run_id != self.run_id:
-            raise ToolCallFailedError(
-                f"this executor serves run {self.run_id} but was asked to act for {run_id}"
-            )
+            raise ToolCallFailedError("executor run binding mismatch", code="SOURCE_MISMATCH")
         self.calls.append((tool_name, dict(arguments)))
         try:
             outcome: Any = _run_sync(self._call(tool_name, arguments), timeout=self.timeout_seconds)
         except ToolCallFailedError:
             raise
-        except Exception as failure:  # noqa: BLE001 - any transport failure is this module's to report
-            raise ToolCallFailedError(f"{tool_name} could not be called over MCP: {failure}") from failure
+        except CredentialUnavailableError:
+            raise  # No credential fallback, repair or read.
+        except (TimeoutError, ConnectionError, OSError) as failure:
+            raise ToolCallFailedError(f"{tool_name} transport unavailable", code="TOOL_TRANSIENT",
+                                      retryable=True) from failure
+        except Exception as failure:  # noqa: BLE001 - unknown protocol failures never become retryable
+            raise ToolCallFailedError(f"{tool_name} MCP protocol failed") from failure
         observation: ToolObservation = outcome[0]
+        payload = observation.result or {}
+        suffixes = {"get_order_context": "context", "get_shipment_trace": "shipment",
+                    "get_refund_status": "refund-status", "get_case_evidence": "evidence",
+                    "get_policy_manifest": "policy-manifest"}
+        owner = (f"case:/internal/v1/cases/{self.case_id}" if tool_name in
+                 {"get_case_evidence", "get_policy_manifest"} else
+                 f"commerce:/internal/v1/order-lines/{self.line_id}")
+        mismatched = observation.source_ref != f"{owner}/{suffixes[tool_name]}" or any(
+            expected is not None and key in payload and payload[key] != expected
+            for key, expected in (("line_id", self.line_id), ("case_id", self.case_id),
+                                  ("merchant_id", self.merchant_id), ("customer_id", self.customer_id)))
+        evidence_revision = (observation.source_version if payload.get("truncated") is True
+                             else str(payload.get("input_revision")))
+        if (mismatched or (observation.error is None and tool_name == "get_case_evidence"
+                           and evidence_revision != str(self.input_revision))):
+            from resolveflow.contracts.core_models import CoreToolError
+            observation = observation.model_copy(update={"result": None, "source_version": None,
+                "content_hash": None, "error": CoreToolError(code="SOURCE_MISMATCH",
+                    message="result subject/revision differs from the bound run", retryable=False)})
         kind = outcome[1]
-        if kind == "page":
+        if kind == "page" and observation.error is None:
             # The run read a page of the trace, so the run's page budget is one smaller. Counting here rather
             # than asking the caller to remember is the point of C06.4③: a budget a caller has to update is not
             # a bound, and a page the tool *refused* for being over budget did not consume one.
@@ -298,11 +329,36 @@ def _observation_of(result: Any, tool_name: str) -> ToolObservation:
                 "contain"
             ) from failure
     try:
-        return ToolObservation.model_validate(decoded)
+        observation = ToolObservation.model_validate(decoded)
     except Exception as failure:  # noqa: BLE001 - a malformed observation is a bug at the tool boundary
         raise ToolCallFailedError(
             f"{tool_name} answered with something that is not a core observation: {failure}"
         ) from failure
+    if observation.tool_name != tool_name:
+        raise ToolCallFailedError("MCP result tool binding mismatch", code="SOURCE_MISMATCH")
+    expected_type = {"get_order_context": EvidenceSourceType.ORDER_LINE,
+                     "get_refund_status": EvidenceSourceType.PAYMENT_LEDGER,
+                     "get_shipment_trace": EvidenceSourceType.SHIPMENT_TRACK,
+                     "get_case_evidence": EvidenceSourceType.CUSTOMER_STATEMENT,
+                     "get_policy_manifest": EvidenceSourceType.POLICY_RULE}.get(tool_name)
+    if observation.source_type != expected_type:
+        raise ToolCallFailedError("MCP result source type mismatch", code="SOURCE_MISMATCH")
+    if observation.error is None:
+        body = dict(observation.result or {})
+        if body.get("truncated") is True:
+            if (set(body) != {"truncated", "note", "members"} or not isinstance(body.get("note"), str)
+                    or not isinstance(body.get("members"), list)
+                    or any(not isinstance(k, str) for k in body["members"])):
+                raise ToolCallFailedError("malformed excerpt cannot contain business facts", code="TOOL_RESULT_INVALID")
+        else:
+            if tool_name == "get_shipment_trace":
+                for key in ("page", "next_cursor"):
+                    body.pop(key, None)
+            try:
+                validate_result(tool_name, body, line_id=body.get("line_id"), case_id=body.get("case_id"))
+            except InvalidToolResult as failure:
+                raise ToolCallFailedError(str(failure), code=failure.code) from failure
+    return observation
 
 
 def _text_of(result: Any) -> str:
@@ -340,7 +396,8 @@ def _run_sync(coroutine: Any, *, timeout: float) -> Any:
     thread.start()
     thread.join(timeout + 30.0)
     if thread.is_alive():
-        raise ToolCallFailedError(f"the MCP call did not finish within {timeout + 30.0:.0f}s")
+        raise ToolCallFailedError(f"the MCP call did not finish within {timeout + 30.0:.0f}s",
+                                  code="TOOL_TRANSIENT", retryable=True)
     if "error" in outcome:
         raise outcome["error"]
     if "value" not in outcome:  # pragma: no cover - the thread always sets one of the two

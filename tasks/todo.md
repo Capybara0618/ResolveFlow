@@ -1,5 +1,11 @@
 # 当前改进进度
 
+## 当前快照（2026-10-05，Harness 纠错闭环完成）
+
+- 用户要求补齐 Harness 纠错闭环，按[本批规格](../docs/harness-correction-loop.md)实现：模型非JSON/动作/引用/关键文字事实错误给定向反馈，全run共享一次修正；五MCP按core契约校验类型/来源/主体/revision，坏数据不能引用；临时读失败允许两次连续失败，第三次同工具请求不执行，非临时错误不盲重读，越权/来源混用立即安全停止。summary/findings与最终回调共用有限关键断言检查，不宣称任意幻觉均能识别，不自动生成长期规则。Java审批/金额、AgentScope唯一循环、原权限/fence保留。
+- 集中44模块616 passed/0 skipped、独立Harness28/28、最终strict13/13、冻结v1/v2校验、配置式定点Ruff/diff通过；[报告](../reports/harness-correction/README.md)保存实际命令、初轮失败与未运行。context v10 / verifier v5、独立correction-v7十三包，旧资产/Gold不改。恢复保留纠错/重试状态及请求hash；错误Observation省略null，P3提示排序，拒绝的读不误作执行，终态no_progress受fence持久。配置式mypy仍16既有错误/9文件/72源码，无新增诊断，但全项目类型门禁未通过。
+- 付费调用0，未重启/部署/消费日常队列/Java整链/网页/RAG算法或真实模型质量对照；public仍4COMPLETED/15模型/10工具/8回调，无测试schema遗留，用量仍96/limit=null/历史预留$0.2855712。新调查下次正常启动加载，旧run不静默更换manifest。原四历史脏文件、草图及日志保留不夹带；本批精确commit/正常push核实后停止写入，提交与远端结果见本轮收口。后续RAG与真实质量对照由用户指示，不自动接旧任务或收费。
+
 ## 当前快照（2026-10-05，取消模型消费上限）
 
 - 用户明确要求取消API/token花销上限；按[用量规则](../docs/model-usage-policy.md)完成：评测累计96次/.50美元及费用估算输入/输出拦截移除，新run累计token默认null，SDK上下文和持久结算同步支持。旧数值预算仍兼容恢复，调用/usage继续记录，单工单终止/窗口/长度/权限/资金/fence保留。第一步5b689d3已正常push核实；本机原用量仍96次/$0.2855712历史预留，现limit=null、historical_limit=96，不清零。

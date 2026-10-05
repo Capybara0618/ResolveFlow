@@ -45,6 +45,7 @@ from agentscope.message import Msg, TextBlock
 from agentscope.middleware import MiddlewareBase
 from agentscope.tool import ToolBase, Toolkit
 
+from resolveflow.contracts.core_models import CoreToolError
 from resolveflow.contracts.enums import CaseType
 from resolveflow.harness.actions import (
     ASK_CUSTOMER,
@@ -81,12 +82,14 @@ from resolveflow.harness.control import (
     REASON_TOOL_FAILED,
     NoProgressTracker,
 )
+from resolveflow.harness.correction import SECURITY_ERRORS, feedback, notice
 from resolveflow.harness.facts import FactsView
 
 # The two local-read executors live in their own module because they share every boundary decision: the budget
 # pair, the stop reason, the trajectory entry and the error chunk. Two copies is where behaviour drifts.
 from resolveflow.harness.local_reads import ObservationReadBridge, PolicySearchBridge
 from resolveflow.harness.manifest import build_manifest, model_block_for
+from resolveflow.harness.mcp_client import ToolCallFailedError
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.harness.observation_read import ObservationStore
 from resolveflow.harness.references import expand_references
@@ -97,6 +100,7 @@ from resolveflow.harness.sdk_adapter import (
 )
 from resolveflow.harness.verifier import ProposalVerifier
 from resolveflow.harness.vocabulary import HARNESS_SYSTEM_PROMPT, RunFacts, RunResult, ToolExecutor
+from resolveflow.tools.catalog import ToolContext, _failed
 
 __all__ = ["AgentScopeRunner", "ActionGateMiddleware", "McpToolBridge"]
 
@@ -153,6 +157,8 @@ class ActionGateMiddleware(MiddlewareBase):
         self.verifier: Any = None
         self.references: dict[str, dict[str, Any]] = {}
         self.read_ids: dict[str, str] = {}
+        self.tool_failures: dict[str, int] = {}
+        self.blocked_tools: set[str] = set()
 
     def check(self, payload: dict[str, Any]) -> ModelDecision | None:
         """Validate one decision: return it, or set the stop reason and return ``None``.
@@ -161,6 +167,9 @@ class ActionGateMiddleware(MiddlewareBase):
         :meth:`on_check_permission`, which is thin. That split is what lets the *same* rules run on the SDK loop
         without every rule test needing a model.
         """
+        if payload.get("kind") == "__INVALID_MODEL_JSON__":
+            self._refuse("MODEL_JSON_INVALID", "response is not a JSON decision object")
+            return None
         try:
             payload = expand_references(payload, self.references, self.read_ids)
             decision = validate_decision(payload)
@@ -185,6 +194,11 @@ class ActionGateMiddleware(MiddlewareBase):
             self.accepted = payload
             return decision
 
+        if decision.kind == READ_TOOL and decision.tool_name in self.blocked_tools:
+            code = ("TOOL_RETRIES_EXHAUSTED" if self.tool_failures.get(decision.tool_name, 0) >= 2
+                    else "TOOL_NOT_RETRYABLE")
+            self._refuse(code, "this bound read cannot be repeated; use another source or hand over", repairable=False)
+            return None
         repeated = self.progress.note_action(decision)
         if repeated and self.progress.should_stop_before_running():
             # Not repairable: this is the loop's own bound, not a mistake in the model's output, and the two rounds
@@ -219,9 +233,13 @@ class ActionGateMiddleware(MiddlewareBase):
             missing_evidence=decision.missing_evidence,
         )
         if result.ok:
-            return None
-        self._refuse(result.reason_codes[0], result.detail())
-        return result
+            result = self.verifier.verify_content(summary=decision.summary or "",
+                        review_findings=[f.model_dump() for f in decision.review_findings],
+                        evidence_refs=[ref.model_dump() for ref in decision.evidence_refs])
+        if not result.ok:
+            self._refuse(result.reason_codes[0], result.detail())
+            return result
+        return None
 
     def _refuse(self, reason_code: str, detail: str, *, repairable: bool = True) -> None:
         """Record a refusal, and give the model its one chance to repair it (``docs/agent-spec.md:52``).
@@ -232,16 +250,51 @@ class ActionGateMiddleware(MiddlewareBase):
         text back to the model. Only the *repairable* kinds qualify: a no-progress stop is the loop's own bound, not
         a mistake in the model's output, and ``docs/agent-spec.md:44`` already feeds back its two warnings.
         """
-        self.refusals.append({"reason": reason_code, "detail": detail})
-        if repairable and self.repairs_used < MAX_REPAIRS:
+        repairable = repairable and reason_code not in SECURITY_ERRORS
+        can_repair = repairable and self.repairs_used < MAX_REPAIRS
+        record = feedback(reason_code, detail, repair=can_repair)
+        self.refusals.append(record)
+        if can_repair:
             self.repairs_used += 1
-            message = f"REFUSED {reason_code}: {detail}. Fix it and reply again; this is your one repair."
+            message = notice(record)
             # Both channels, one text: the notice is what the *next* request carries in P1 even if the model never
             # reads the denial, and the message is what the SDK feeds back for the call it is about to refuse.
             self.notices.append(message)
             self.repair_message = message
             return
         self.stop_reason = self.stop_reason or reason_code
+
+    def note_tool_result(self, observation: Any) -> None:
+        tool = observation.tool_name
+        error = observation.error
+        if error is None:
+            self.tool_failures.pop(tool, None)
+            return
+        if error.code in SECURITY_ERRORS:
+            self._refuse(error.code, "tool read violated the bound permission/source", repairable=False)
+            return
+        if error.code == "INVALID_CURSOR":
+            # The tool already executed and supplied a denial. Give its argument
+            # error the same single model-repair allowance without a second probe.
+            if self.repairs_used >= MAX_REPAIRS:
+                self._refuse(error.code, "cursor correction allowance exhausted", repairable=False)
+                return
+            self.repairs_used += 1
+            record = feedback(error.code, "use the issued cursor or omit it for the first page", repair=True)
+            self.refusals.append(record)
+            self.notices.append(notice(record))
+            return
+        if error.retryable:
+            self.tool_failures[tool] = self.tool_failures.get(tool, 0) + 1
+            if self.tool_failures[tool] >= 2:
+                self.blocked_tools.add(tool)
+        else:
+            self.blocked_tools.add(tool)
+        record = feedback(error.code, f"{tool}: failed read is not evidence")
+        record["repair_remaining"] = MAX_REPAIRS - self.repairs_used
+        if tool in self.blocked_tools:
+            record["next_step"] = "Do not repeat this tool; use another source or hand over."
+        self.notices.append(notice(record))
 
     def note_stop(self, reason_code: str) -> None:
         """Record why the run must stop, without overwriting a reason already recorded.
@@ -431,8 +484,27 @@ class McpToolBridge(ToolBase):
             # event loop for MCP stdio); calling it inline would block the SDK's loop.
             def invoke() -> Any:
                 def read() -> Any:
-                    return self._executor.call_tool(run_id=self._facts.run_id, tool_name=self.name,
-                                                    arguments=dict(kwargs))
+                    try:
+                        return self._executor.call_tool(run_id=self._facts.run_id, tool_name=self.name,
+                                                        arguments=dict(kwargs))
+                    except (TimeoutError, ConnectionError, ToolCallFailedError) as failure:
+                        # Convert only known boundary failures, before journal.save_tool.
+                        # Fence/budget/programming errors still propagate and stop the run.
+                        from resolveflow.contracts.enums import EvidenceSourceType
+                        source = {"get_order_context": EvidenceSourceType.ORDER_LINE,
+                                  "get_refund_status": EvidenceSourceType.PAYMENT_LEDGER,
+                                  "get_shipment_trace": EvidenceSourceType.SHIPMENT_TRACK,
+                                  "get_case_evidence": EvidenceSourceType.CUSTOMER_STATEMENT,
+                                  "get_policy_manifest": EvidenceSourceType.POLICY_RULE}[self.name]
+                        context = ToolContext(line_id=self._facts.line_id, run_id=self._facts.run_id,
+                            case_id=self._facts.case_id,
+                            tool_call_id=f"{self._facts.run_id}:tool-{len(self._client.observations)}")
+                        retryable = (isinstance(failure, (TimeoutError, ConnectionError))
+                                     or getattr(failure, "retryable", False))
+                        code = getattr(failure, "code", "TOOL_TRANSIENT")
+                        return _failed(self.name, source, f"harness:{self.name}",
+                            CoreToolError(code=code, message="read boundary failed; no verified result",
+                                          retryable=retryable), context)
                 return self._client.durability.transmit(self._executor, read, self._guard) \
                     if self._client.durability is not None else read()
 
@@ -441,9 +513,8 @@ class McpToolBridge(ToolBase):
                 if self._client.durability is not None else invoke()
             )
         except Exception as failure:  # noqa: BLE001 - the executor's failure is the run's fact to record
-            if self._client.durability is not None:
-                self._client.durability.capture_error(failure)
-            self._gate.note_stop(REASON_TOOL_FAILED)
+            code = self._client.durability.capture_error(failure) if self._client.durability is not None else None
+            self._gate.note_stop(code or REASON_TOOL_FAILED)
             self._gate.note_evidence(False)
             self._adapter.trajectory.append({"action": self.name, "outcome": "FAILED", "detail": str(failure)[:300]})
             return ToolChunk(
@@ -459,6 +530,7 @@ class McpToolBridge(ToolBase):
         # the amount, the shipment conclusion and the refund state come from — contributed no facts at all, and a
         # run could not read its own tool evidence back. Both are the run's state, and the run is what records.
         self._client.note_evidence(observation)
+        self._gate.note_tool_result(observation)
         self._adapter.trajectory.append(
             {
                 "action": self.name,

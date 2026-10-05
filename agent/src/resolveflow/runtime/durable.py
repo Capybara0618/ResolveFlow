@@ -167,7 +167,7 @@ class DurableRun:
                                              local=local)
             observation = invoke()
             self.journal.save_tool(self.facts.run_id, **self.identity(), call_id=call_id,
-                                   observation=observation.model_dump(mode="json"))
+                                   observation=observation.model_dump(mode="json", exclude_none=True))
             self.tool_saved = True
         guard.guard.spend = RunSpend(**spend)
         self.tool_step += 1

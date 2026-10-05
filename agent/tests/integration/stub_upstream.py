@@ -192,7 +192,7 @@ class StubUpstream:
             # echoed the current revision for both would hide a tool that read the wrong member.
             return (
                 {
-                    "case_id": "case-1",
+                    "case_id": path.split("/")[4],
                     "input_revision": 2,
                     "evidence": [
                         {
@@ -213,6 +213,7 @@ class StubUpstream:
             # own shape is worse than no stub, because it makes the tool look tested.
             return (
                 {
+                    "merchant_id": "M-1001",
                     "bundles": [
                         {
                             "bundle_ids": ["bundle-demo"],

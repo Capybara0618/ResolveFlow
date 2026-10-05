@@ -19,11 +19,9 @@ Four rules are enforced here rather than left to a provider's goodwill:
 * **The credential is not recorded.** The key travels in a header; the record keeps the body, its canonical hash, the
   status, the usage and the mode — never the secret (``docs/agent-harness.md:33``: 不存密钥).
 
-**Known gap, deliberately not papered over here.** Neither the frozen system prompt nor the ABI states that the
-answer must be *JSON*; this client extracts a JSON object leniently (fenced or embedded) and refuses anything else
-rather than interpreting prose into an action. A live provider that answers in prose therefore stops the run. The
-fix belongs in the prompt/ABI (a harness decision that changes ``prompt_hash``), not in a transport that silently
-adds instructions the manifest cannot see — so it is reported rather than invented here.
+Non-JSON assistant text is retained in an inert response record, not interpreted
+into an action. Usage is settled normally. The domain action gate owns the single
+correction opportunity and its persisted reconstruction (docs/harness-correction-loop.md).
 
 Not yet part of this: a test that talks to a real provider. Any such sample spends money and needs the user's
 agreement (``tasks/handoff-current.md`` §2), so the offline capture tests are what this slice delivers.
@@ -56,8 +54,7 @@ __all__ = [
 class ModelRefusedError(Exception):
     """The provider refused this request and would refuse it again.
 
-    A 4xx, or an answer that is not a decision. Retrying is not the answer to either, and a run that guessed a
-    decision out of prose would be inventing one.
+    A 4xx cannot be corrected by changing the model's JSON output.
     """
 
 
@@ -279,17 +276,17 @@ def _decision_of(text: str) -> dict[str, Any]:
     """The decision object, extracted leniently about packaging and strictly about content.
 
     A provider habitually wraps JSON in a code fence or a sentence, so the packaging is tolerated. Anything that is
-    not a JSON object is refused: interpreting prose would produce an action the model did not choose, and the ABI's
-    own validation happens later in the action gate rather than being duplicated here.
+    not a JSON object becomes an inert durable record: no action is guessed from prose.
+    The action gate supplies bounded correction feedback after usage is settled.
     """
     candidate = _unfenced(text)
     parsed = _loads(candidate)
     if parsed is None:
         parsed = _first_object(candidate)
     if not isinstance(parsed, dict):
-        raise ModelRefusedError(
-            "the provider's answer is not a JSON decision object, and guessing one from prose would invent a decision"
-        )
+        # Inert, durable transport record. The action gate rejects it and owns the
+        # single correction opportunity. No action is guessed from the raw text.
+        return {"kind": "__INVALID_MODEL_JSON__", "raw_output": text}
     return parsed
 
 

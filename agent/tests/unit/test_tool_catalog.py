@@ -14,12 +14,10 @@ import json
 from typing import Any
 
 import pytest
-
 from resolveflow.contracts.enums import EvidenceSourceType
 from resolveflow.tools import catalog
 from resolveflow.tools.catalog import MAX_TRACE_PAGES, ToolContext
 from resolveflow.tools.upstream import (
-    MAX_EXCERPT_BYTES,
     MAX_RAW_BYTES,
     UpstreamClient,
     UpstreamRefusedError,
@@ -30,7 +28,8 @@ SOURCE_REF = "commerce:/internal/v1/order-lines/7001/context"
 
 
 def context(call_id: str = "call-1") -> ToolContext:
-    return ToolContext(line_id="7001", run_id="run-1", tool_call_id=call_id, case_id="case-1")
+    return ToolContext(line_id="7001", run_id="run-1", tool_call_id=call_id,
+                       case_id="00000000-0000-4000-8000-000000000001")
 
 
 def client_for(payload: Any, *, raw: bytes | None = None) -> UpstreamClient:
@@ -41,7 +40,7 @@ def client_for(payload: Any, *, raw: bytes | None = None) -> UpstreamClient:
         return 200, body
 
     return UpstreamClient(
-        case_base_url="http://case", commerce_base_url="http://commerce", service_token="t", _get=transport
+        case_base_url="http://case", commerce_base_url="http://commerce", service_token="t", _get=transport  # noqa: S106 - synthetic test credential
     )
 
 
@@ -50,7 +49,7 @@ def failing_client(error: Exception) -> UpstreamClient:
         raise error
 
     return UpstreamClient(
-        case_base_url="http://case", commerce_base_url="http://commerce", service_token="t", _get=transport
+        case_base_url="http://case", commerce_base_url="http://commerce", service_token="t", _get=transport  # noqa: S106 - synthetic test credential
     )
 
 
@@ -66,13 +65,15 @@ def test_an_excerpt_over_8kib_is_stated_rather_than_silently_cut() -> None:
     """
     # A payload well over the excerpt limit but under the raw limit: the tool layer must not refuse it, only
     # excerpt it.
-    huge = {"line_id": "7001", "note": "x" * (MAX_EXCERPT_BYTES * 2), "version": 3}
-    observation = catalog.get_order_context(client_for(huge), context())
+    huge = {"case_id": context().case_id, "input_revision": 1, "evidence": [
+        {"observation_id": f"obs-{i}", "source_ref": "case:" + "x" * 100,
+         "source_version": "1", "content_hash": "a" * 64} for i in range(64)]}
+    observation = catalog.get_case_evidence(client_for(huge), context())
 
     assert observation.error is None
     assert observation.result is not None
     assert observation.result["truncated"] is True
-    assert "note" in observation.result["members"] or "line_id" in observation.result["members"]
+    assert "evidence" in observation.result["members"]
     # The hash still covers the bytes that were read, not the excerpt: a citation is checked against the source.
     assert observation.content_hash is not None and len(observation.content_hash) == 64
 
@@ -103,20 +104,22 @@ def test_the_same_tool_call_yields_the_same_observation_id() -> None:
     Retrying one call must not mint a second observation id: two ids for one attempt is how a stored result gets
     overwritten by its own replay, and how a reader sees two pieces of evidence where there was one.
     """
-    client = client_for({"line_id": "7001", "version": 3})
+    client = client_for(valid_order())
     first = catalog.get_order_context(client, context("call-7"))
     again = catalog.get_order_context(client, context("call-7"))
     other = catalog.get_order_context(client, context("call-8"))
 
+    assert first.error is None and again.error is None and other.error is None
     assert first.observation_id == again.observation_id
     assert first.observation_id != other.observation_id
 
 
 def test_two_tools_treat_the_same_call_id_as_two_observations() -> None:
     """The id names a (call, tool) pair, not a call: one id shared by two tools would collide in the ledger."""
-    client = client_for({"line_id": "7001", "version": 3})
+    client = client_for(valid_order())
     order = catalog.get_order_context(client, context("call-1"))
-    refund = catalog.get_refund_status(client, context("call-1"))
+    refund = catalog.get_refund_status(client_for(valid_refund()), context("call-1"))
+    assert order.error is None and refund.error is None
     assert order.observation_id != refund.observation_id
 
 
@@ -185,7 +188,9 @@ def test_a_limit_over_the_cap_is_clamped_rather_than_trusted() -> None:
     """
     events = [{"code": f"E{i}", "occurred_at": "2026-09-10T00:00:00Z", "source_version": i} for i in range(1, 51)]
     observation = catalog.get_shipment_trace(
-        client_for({"line_id": "7001", "events": events, "source_version": 50}), context(), limit=1000
+        client_for({"line_id": "7001", "synthetic": True, "status": "IN_TRANSIT",
+                    "carrier_conclusion": "IN_TRANSIT", "updated_at": "2026-09-10T00:00:00Z",
+                    "events": events, "source_version": 50}), context(), limit=1000
     )
     assert observation.result is not None
     assert len(observation.result["events"]) == catalog.TRACE_PAGE_LIMIT
@@ -212,6 +217,7 @@ def test_the_policy_manifest_reads_the_version_the_service_really_sends() -> Non
     """
     # Character for character what PolicyManifestController returns.
     real_answer = {
+        "merchant_id": "M-1001",
         "bundles": [
             {
                 "bundle_ids": ["bundle-logistics-v1"],
@@ -238,7 +244,7 @@ def test_the_evidence_route_reads_case_evidence_with_its_own_revisions() -> None
     citation can be checked against.
     """
     real_answer = {
-        "case_id": "case-1",
+        "case_id": "00000000-0000-4000-8000-000000000001",
         "input_revision": 3,
         "evidence": [
             {
@@ -262,3 +268,15 @@ def test_the_evidence_route_reads_case_evidence_with_its_own_revisions() -> None
     assert observation.result is not None
     versions = [item["source_version"] for item in observation.result["evidence"]]
     assert versions == ["2", "3"], "each record must keep its own revision"
+
+def valid_order():
+    return {"order_id": "00000000-0000-4000-8000-000000000001", "line_id": "7001",
+            "merchant_id": "M-1001", "customer_id": "C-2002", "sku": "test",
+            "category": "electronics", "quantity": 1, "line_paid_amount": 32900,
+            "refunded_amount": 0, "reserved_refund_amount": 0, "currency": "CNY",
+            "paid_at": "2026-10-03T04:00:00Z", "order_status": "PAID", "version": 3}
+
+
+def valid_refund():
+    return {k: v for k, v in valid_order().items() if k in {"line_id", "merchant_id",
+            "line_paid_amount", "refunded_amount", "reserved_refund_amount", "currency", "version"}} | {"state": "FREE"}

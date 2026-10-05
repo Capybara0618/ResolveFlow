@@ -266,7 +266,7 @@ def propose() -> dict[str, object]:
         "case_type": "LOGISTICS",
         "recommended_action": "MANUAL_REVIEW",
         "reason_codes": ["LOST_CONFIRMED"],
-        "summary": "承运商判定丢失",
+        "summary": "根据已引用资料建议商家复核",
         "reasoning": "the evidence supports it",
     }
 
@@ -278,7 +278,7 @@ def propose_refund(**extra: object) -> dict[str, object]:
         "case_type": "LOGISTICS",
         "recommended_action": "REFUND",
         "reason_codes": ["LOST_CONFIRMED"],
-        "summary": "承运商判定丢失",
+        "summary": "根据已引用资料建议商家复核",
         "reasoning": "the evidence supports it",
     }
     proposal.update(extra)

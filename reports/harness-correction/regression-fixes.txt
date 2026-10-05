@@ -1,0 +1,48 @@
+........................................................F.               [100%]
+================================== FAILURES ===================================
+_____________ test_all_five_scoped_reads_and_out_of_scope_refusal _____________
+
+    def test_all_five_scoped_reads_and_out_of_scope_refusal():
+        case = export_case("A05A", ALIGNED_DATA)
+        pin = {
+            "merchant_id": case["scope"]["merchant_id"],
+            "bundle_ids": [case["bundle_id"]],
+            "manifest_hash": "a" * 64,
+            "safety_epoch": 2,
+        }
+        with business_tools(case, pin, run_id="eval-run", case_id=case["case_id"]) as (tools, requests):
+            for name in (
+                "get_order_context",
+                "get_shipment_trace",
+                "get_case_evidence",
+                "get_policy_manifest",
+                "get_refund_status",
+            ):
+                observation = tools.call_tool(run_id="eval-run", tool_name=name, arguments={})
+>               assert observation.error is None and observation.source_version and observation.content_hash
+E               AssertionError: assert (CoreToolError(code='UPSTREAM_UNAVAILABLE', message='could not read /internal/v1/cases/cdc9bac1-748a-54d4-ae49-dee78100...t response', retryable=True, source_ref='case:/internal/v1/cases/cdc9bac1-748a-54d4-ae49-dee78100eb5b/policy-manifest') is None)
+E                +  where CoreToolError(code='UPSTREAM_UNAVAILABLE', message='could not read /internal/v1/cases/cdc9bac1-748a-54d4-ae49-dee78100...t response', retryable=True, source_ref='case:/internal/v1/cases/cdc9bac1-748a-54d4-ae49-dee78100eb5b/policy-manifest') = ToolObservation(observation_id='obs-get_policy_manifest-a829d97133153bf2', tool_name='get_policy_manifest', source_typ... response', retryable=True, source_ref='case:/internal/v1/cases/cdc9bac1-748a-54d4-ae49-dee78100eb5b/policy-manifest')).error
+
+agent\tests\integration\test_current_evaluation_mcp.py:64: AssertionError
+---------------------------- Captured stderr call -----------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 63314)
+Traceback (most recent call last):
+  File "C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+  File "C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+  File "C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\http\server.py", line 440, in handle
+    self.handle_one_request()
+  File "C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\http\server.py", line 428, in handle_one_request
+    method()
+  File "E:\Code\Agent+Backend\scripts\evaluation\environment.py", line 114, in do_GET
+    "effective_to": policy["effective_to"] + "T00:00:00Z"})
+                    ~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'
+----------------------------------------
+=========================== short test summary info ===========================
+FAILED agent\tests\integration\test_current_evaluation_mcp.py::test_all_five_scoped_reads_and_out_of_scope_refusal
+1 failed, 57 passed in 16.34s

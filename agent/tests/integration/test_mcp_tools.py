@@ -56,7 +56,7 @@ NO_SHIPMENT_LINE = "7001"
 REFUSED_LINE = "7002"
 ORDINARY_LINE = "7100"
 #: The case the tools are told they are working on; the contract's route table spells it {case_id}.
-CASE_ID = "case-demo"
+CASE_ID = "00000000-0000-4000-8000-000000000001"
 
 
 def server_parameters(upstream_url: str, line_id: str) -> StdioServerParameters:
@@ -66,9 +66,9 @@ def server_parameters(upstream_url: str, line_id: str) -> StdioServerParameters:
     env["RESOLVEFLOW_COMMERCE_BASE_URL"] = upstream_url
     env["RESOLVEFLOW_TOOL_LINE_ID"] = line_id
     env["RESOLVEFLOW_TOOL_RUN_ID"] = "5f2b1c3d-0000-4000-8000-000000000001"
-    env["RESOLVEFLOW_TOOL_CASE_ID"] = "case-demo"
+    env["RESOLVEFLOW_TOOL_CASE_ID"] = CASE_ID
     # The five tools each call an internal route, which wants a service token.
-    env["RESOLVEFLOW_TOOL_SERVICE_TOKEN"] = "stub-service-token"
+    env["RESOLVEFLOW_TOOL_SERVICE_TOKEN"] = "stub-service-token"  # noqa: S105 - synthetic test credential
     env["PYTHONPATH"] = str(AGENT_SRC) + os.pathsep + env.get("PYTHONPATH", "")
     return StdioServerParameters(command=sys.executable, args=["-m", "resolveflow.tools.server"], env=env)
 

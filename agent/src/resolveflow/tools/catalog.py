@@ -27,6 +27,7 @@ from typing import Any, Final
 
 from resolveflow.contracts.core_models import CoreToolError, ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
+from resolveflow.tools.result_validation import InvalidToolResult, validate_result
 from resolveflow.tools.upstream import (
     MAX_EXCERPT_BYTES,
     UpstreamClient,
@@ -189,7 +190,13 @@ def _read_or_fail(
     one.
     """
     try:
-        return read(), None
+        answer = read()
+        validate_result(tool_name, answer.body, line_id=context.line_id, case_id=context.case_id)
+        return answer, None
+    except InvalidToolResult as error:
+        return None, _failed(tool_name, source_type, source_ref,
+                            CoreToolError(code=error.code, message=str(error), retryable=False,
+                                          source_ref=source_ref), context)
     except (UpstreamRefusedError, UpstreamUnavailableError) as error:
         code, retryable = _code_for(error)
         return None, _failed(

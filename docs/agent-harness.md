@@ -1,5 +1,7 @@
 # 领域Agent Harness · v1.3 AgentScope目标
 
+当前纠错协议见[Harness纠错闭环](harness-correction-loop.md)：结构/来源/有限关键事实检查、共享一次修正、临时读故障有界重试与受fence保护的恢复。AgentScope驱动唯一循环，Harness给短反馈和硬门禁；最终建议仍需Java与商家审批。真实模型质量与任意自然语言幻觉不由这些有限检查保证。
+
 范围见[core-scope](core-scope.md)，框架边界见[AgentScope迁移规格](agentscope-migration.md)。这里实现售后调查运行层，不研发通用图引擎或Agent平台。AgentScope SDK已接入唯一推理—行动循环；模型负责下一业务行动，领域Harness负责硬约束，PG RunStore/恢复适配的目标是受fence保护的运行快照，Java负责权威事实与退款授权。接入不等于持久恢复完成，实际进度见任务账本。
 
 ## 1. 核心模块
