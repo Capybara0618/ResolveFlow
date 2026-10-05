@@ -79,3 +79,23 @@ def test_frozen_hash_tampering_fails(tmp_path):
         output.write(" ")
     with pytest.raises(ValueError, match="Frozen file"):
         validate(directory)
+
+
+def test_manifest_cannot_drop_gold_integrity_guard(tmp_path):
+    directory = _copy(tmp_path)
+    manifest = read("manifest.json", directory)
+    manifest["files"].pop("gold/agent.json")
+    (directory / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ValueError, match="omits"):
+        validate(directory)
+
+
+@pytest.mark.parametrize("target", ["agent", "rag"])
+def test_policy_scope_is_checked_before_evaluation(tmp_path, target):
+    directory = _copy(tmp_path)
+    name = "agent/cases.json" if target == "agent" else "rag/queries.json"
+    cases = read(name, directory)
+    cases[0]["bundle_id"] = "eval-m-1002-v2"
+    _change(directory, name, cases)
+    with pytest.raises(ValueError, match="subject differs"):
+        validate(directory)

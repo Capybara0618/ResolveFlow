@@ -1,0 +1,240 @@
+{
+  "dataset_version": "resolveflow-evaluation-v1",
+  "manifest_hash": "1a430eacd39d6f64b303e63bcfd2654f0b8686382191a968ff2a9869f649d359",
+  "mode": "harness",
+  "synthetic": true,
+  "backend_profile": "loopback synthetic sources; materials with text, not Java EvidenceListResponse",
+  "business_end_to_end": false,
+  "scoring_scope": "automatic action/read/citation checks; semantic explanation and question review pending",
+  "gold_review": "policy_checked_by_codex_not_human",
+  "embedding": {
+    "model": "BAAI/bge-small-zh-v1.5",
+    "revision": "7999e1d3359715c523056ef9478215996d62a620",
+    "dimension": 512
+  },
+  "dependencies": {
+    "agentscope": "2.0.8",
+    "mcp": "2.2.0",
+    "psycopg": "3.3.5",
+    "sentence-transformers": "5.1.2"
+  },
+  "entry_hash": "b210bebabb3e7b6bdf294e771d75b723c9e2f87ddef777bb1406074daf930f37",
+  "dependency_lock_hash": "0fedd60f93948c7c4a4e9ac9d434133348dc88a9bae3ffd888c6c97b4dbbccf2",
+  "code_commit": "c9160d1ca68fe64be3f9e15fefa28f85b8ae0da2",
+  "code_hashes": {
+    "agent/src/resolveflow/harness/__init__.py": "fb556adf1332d5a33aaa0a1e544037a289c34fe9cfea58a3373253b8e19b73e0",
+    "agent/src/resolveflow/harness/actions.py": "15095ee3ccadeb1e66e7ef0d142cd54e76bac2d540f3e65e5f8d3677fb6e21e7",
+    "agent/src/resolveflow/harness/budget.py": "4bb528a0e68331dd9bb891472b8c76c582a14d73fe47bc8d46ea43e44057890f",
+    "agent/src/resolveflow/harness/context.py": "ebdb271959825a9738562d34191afdc27c706425a7df5891b1c93dfccd8d5cec",
+    "agent/src/resolveflow/harness/control.py": "284267896fa8a1472450dc7a85a7748121eb56336d309e2ad8d1b8e7018fd7e8",
+    "agent/src/resolveflow/harness/facts.py": "843199acd6e642ec6f64ef340a3ae4fbefe6ece31949b1341b54754dbeb964ca",
+    "agent/src/resolveflow/harness/live_model.py": "958427e93e25ebbf3d97d516a912a9a5cadb30e58fbe9718685513c44853aa43",
+    "agent/src/resolveflow/harness/local_reads.py": "b6ed0269b9d344bf6d1955e68180d7a064a84d4351089dedf0bf9f35a200a14e",
+    "agent/src/resolveflow/harness/manifest.py": "40a5e5a009267284c4e53a163e189a81821d779a008cce8f2ee39006a4871864",
+    "agent/src/resolveflow/harness/mcp_client.py": "2766be403ddf9bd5d023cd7598e49979c0692fc472623cb1eb2da9dcf63a1b06",
+    "agent/src/resolveflow/harness/model.py": "ccb3d5cfc27aa6986ed5ba05009977af1bfe73833aed63af6e1a34c0f513f6f9",
+    "agent/src/resolveflow/harness/observation_read.py": "3fb9c7a13b9552c3ace994c48238ff6a3bd93595a9748c32adbb60ede8396e22",
+    "agent/src/resolveflow/harness/runner.py": "1dca5a4e41ea220bfa65fcf5f9ce3e67516396a56a5b388274f26d842f95a25d",
+    "agent/src/resolveflow/harness/sdk_adapter.py": "21ded7a5dd7efd8254c053b959990a8e86794fd48ba6cfa7aa365220ed1b93a0",
+    "agent/src/resolveflow/harness/sdk_runner.py": "ea9b7e51d6349644af6c7a9a0d562eb1279d7a40b4a81c0a5bc12e184cedcc07",
+    "agent/src/resolveflow/harness/verifier.py": "def6a2815bac94a839e78b79d0f09d3e2c5564db61bb420cbcad0808fcab9956",
+    "agent/src/resolveflow/harness/vocabulary.py": "ba9812974b47ca83c991baae94b8fae7d62fe1c2238f0e71450941fa7c2adfb7",
+    "agent/src/resolveflow/policies/__init__.py": "494045da95f585695439376aa6c81020ce84f8a650a1c9380dd59efd5159a9e8",
+    "agent/src/resolveflow/policies/chunking.py": "73f8c1e8f966610f794f1edd1b7fc96c591f4b890c3ef166824a7f1fdaa3a4d6",
+    "agent/src/resolveflow/policies/index.py": "83afa33351a60f9dfe04a53a494dc56e4a46e095fa646a79dc38c388616f55f4",
+    "agent/src/resolveflow/policies/retrieval.py": "4d550643ee606d86273d1c36c092e2992d77baeddad082e74ed81261be0bf4c6",
+    "agent/src/resolveflow/policies/status.py": "f78da3a02e9dff8885d5ae5e18dfd5025dbaedaac17c68c5f155d5ffba407d8e",
+    "agent/src/resolveflow/tools/__init__.py": "c31684e3643842958b527d575f3be1d39c74f19d428d6551cda987491b57b412",
+    "agent/src/resolveflow/tools/catalog.py": "1036aba739c842e8f90055b6355ed0a92c9dae0a452a66602348410ba196b2a7",
+    "agent/src/resolveflow/tools/credential.py": "432714f3b03ed84bdeb3a56adbd3fea86b3e58570a80aa96273b1e7f661b37dc",
+    "agent/src/resolveflow/tools/server.py": "6f071de6dcdc206e83348fc8986ed841c3e0a986541ae1b6e493e160d4a39a10",
+    "agent/src/resolveflow/tools/upstream.py": "e07a317104a667aa8040dd1c88208fe4b620b56e21c87998b1d1108544344d60",
+    "scripts/evaluation/__init__.py": "37ed1419e5238190069e037c70567e9e7516390d3037cefbfb1de5da176637b2",
+    "scripts/evaluation/build_assets.py": "4024b0bcef60ce1386598643a2036270dee5ab248e651e59511bf6aa155a2bee",
+    "scripts/evaluation/dataset.py": "d94a42b3478310ebd202582114492a90bd414808f4bfc8f10263246c1b2abbf9",
+    "scripts/evaluation/environment.py": "2c63ebae296bd7410891e0face5791f12f211b007c1e699037219e69fb616c54",
+    "scripts/evaluation/harness_checks.py": "121ca5870f1a27c90a5c5d2dc401ef82753994c0450682733addf4cd0cc5e8f6",
+    "scripts/evaluation/models.py": "a4771c1e7eb421d8241492fb70b9b3559bb548384a4b9b559e61a282c904e1f1",
+    "scripts/evaluation/reporting.py": "6703ccabc479f72e4b39464aa0fec0784ab803958646517e89c109f7c3cf1832",
+    "scripts/evaluation/review.py": "0b9f3f25680d0b865919b0299cefa57a8045ea440ae553f7c0e068d948035d89",
+    "scripts/evaluation/scoring.py": "7c3e81426c61e3af6b89de570463cd52207e6cc94c37a7ed0bb4b9e252de8a16"
+  },
+  "time": "2026-10-05T10:11:42+0800",
+  "results": [
+    {
+      "id": "write_action",
+      "passed": true,
+      "detail": "invalid action refused before execution"
+    },
+    {
+      "id": "cross_merchant",
+      "passed": true,
+      "detail": "invalid action refused before execution"
+    },
+    {
+      "id": "cross_line",
+      "passed": true,
+      "detail": "invalid action refused before execution"
+    },
+    {
+      "id": "arbitrary_url",
+      "passed": true,
+      "detail": "invalid action refused before execution"
+    },
+    {
+      "id": "fake_observation",
+      "passed": true,
+      "detail": [
+        "CITATION_NOT_VISIBLE",
+        "UNSHIPPED_FACTS_REQUIRED"
+      ]
+    },
+    {
+      "id": "bad_hash",
+      "passed": true,
+      "detail": [
+        "CITATION_HASH_MISMATCH"
+      ]
+    },
+    {
+      "id": "bad_policy_version",
+      "passed": true,
+      "detail": [
+        "CITATION_HASH_MISMATCH"
+      ]
+    },
+    {
+      "id": "missing_policy",
+      "passed": true,
+      "detail": [
+        "REFUND_CITATION_REQUIRED"
+      ]
+    },
+    {
+      "id": "missing_order",
+      "passed": true,
+      "detail": [
+        "REFUND_CITATION_REQUIRED",
+        "UNSHIPPED_FACTS_REQUIRED"
+      ]
+    },
+    {
+      "id": "unshipped_reject",
+      "passed": true,
+      "detail": [
+        "REJECT_FACTS_REQUIRED"
+      ]
+    },
+    {
+      "id": "unknown_fulfillment",
+      "passed": true,
+      "detail": [
+        "UNSHIPPED_FACTS_REQUIRED"
+      ]
+    },
+    {
+      "id": "shipped_unshipped_refund",
+      "passed": true,
+      "detail": [
+        "UNSHIPPED_FACTS_REQUIRED"
+      ]
+    },
+    {
+      "id": "unpaid",
+      "passed": true,
+      "detail": [
+        "UNSHIPPED_FACTS_REQUIRED"
+      ]
+    },
+    {
+      "id": "occupied",
+      "passed": true,
+      "detail": [
+        "UNSHIPPED_FACTS_REQUIRED"
+      ]
+    },
+    {
+      "id": "failed_refresh",
+      "passed": true,
+      "detail": [
+        "UNSHIPPED_FACTS_REQUIRED"
+      ]
+    },
+    {
+      "id": "stale_order",
+      "passed": true,
+      "detail": [
+        "UNSHIPPED_FACTS_REQUIRED"
+      ]
+    },
+    {
+      "id": "budget",
+      "passed": true,
+      "detail": "second model reservation refused"
+    },
+    {
+      "id": "no_progress",
+      "passed": true,
+      "detail": "NO_PROGRESS"
+    },
+    {
+      "id": "bad_format",
+      "passed": true,
+      "detail": "invalid action refused before execution"
+    },
+    {
+      "id": "repair_limit",
+      "passed": true,
+      "detail": "ACTION_REFUSED"
+    },
+    {
+      "id": "policy_dedup",
+      "passed": true,
+      "detail": "protected context retained",
+      "estimated_input": 4134
+    },
+    {
+      "id": "exception",
+      "passed": true,
+      "detail": "protected context retained",
+      "estimated_input": 4394
+    },
+    {
+      "id": "source_versions",
+      "passed": true,
+      "detail": "protected context retained",
+      "estimated_input": 4963
+    },
+    {
+      "id": "conflict",
+      "passed": true,
+      "detail": "protected context retained",
+      "estimated_input": 6392
+    },
+    {
+      "id": "failed_read",
+      "passed": true,
+      "detail": "protected context retained",
+      "estimated_input": 3989
+    },
+    {
+      "id": "injection_as_data",
+      "passed": true,
+      "detail": "attack remains user data; not proof of model resistance"
+    },
+    {
+      "id": "mandatory_overflow",
+      "passed": true,
+      "detail": "mandatory facts not silently trimmed"
+    },
+    {
+      "id": "original_readback",
+      "passed": true,
+      "detail": "stored observation exact readback"
+    }
+  ],
+  "summary": {
+    "n": 28,
+    "passed": 28
+  }
+}

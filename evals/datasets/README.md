@@ -1,9 +1,5 @@
-# 评测数据集
+# 旧评测入口已退役
 
-当前核心规格是80个合成业务案例（40 dev / 40冻结 test），另有20个独立安全样例、40条RAG查询；见 `docs/evaluation.md`。旧T23的240案例方案不是现行验收量。
+2026-10-05。旧H1的12个输入、Gold、记录schema及作者脚本已按用户授权先备份再移除，不再作为活动评测输入。备份/sha256清单见[清理记录](../../reports/current-evaluation/cleanup.json)。
 
-`h1-pairs-input.json` 是首批12个**合成** H1 配对案例输入，全部预分配到test；同组A/B的诉求和主体相同，权威事实不同。`h1-pairs-gold.json` 单独保存允许/禁止的终局动作、必须观察字段和引用要求。Gold目前标记为 `draft-not-human-reviewed`，提交后按版本冻结，人工审查与真实服务seed仍待完成。不能用这12例调Prompt后又作为未触碰的test统计。
-
-离线校验：`python evals/datasets/h1_pairs.py`。导出单例：`python evals/datasets/h1_pairs.py --export-case H1-01-A`。导出的是**评测执行器的seed输入**（包括模拟权威事实），不得直接作为Agent的模型消息；执行器应在隔离数据域把事实写入Case/Commerce/政策工具，再仅以原诉求创建run。Gold绝不可进入run、工具返回或模型上下文。`h1-run-record.schema.json` 是后续live运行的最小记录结构，失败/超时/跳过也留样本。当前没有H1服务seed/runner、没有live结果、没有人工Gold审查，不据此勾H1。
-
-2026-09-28：用户取消 C12，专属未提交样本已删除。保留历史 H1 资产供按需参考，不作为当前任务。
+当前唯一评测数据在[evals/current](../current/README.md)：32个案例/16对、60查询、六政策版本和独立Gold。根目录使用 `./eval.ps1`，具体见[指南](../../docs/evaluation-guide.md)。旧测试的泄漏/主体/配对区分安全要求已迁入新数据校验测试；兼容业务fixture及旧验收报告保留，不据旧成绩宣称当前效果。

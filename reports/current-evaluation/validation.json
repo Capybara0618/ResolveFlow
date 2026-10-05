@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-05",
+  "scope": "evaluation infrastructure only",
+  "test_groups": [
+    {
+      "group": "current dataset/scoring/controls/review/MCP",
+      "passed": 84,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "group": "replay/durable recovery/fence/worker/policy index",
+      "passed": 60,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "unique_targeted_tests": 144,
+  "harness_checks": {
+    "passed": 28,
+    "total": 28
+  },
+  "strict_replay": {
+    "matched": 5,
+    "total": 5
+  },
+  "ruff": "PASS",
+  "powershell_parse": "PASS",
+  "new_doc_links": "PASS",
+  "json_parse": "PASS",
+  "legacy_backup_hashes_verified": 15,
+  "staged_scope": "production agent/src/java/web/infra and inherited files excluded",
+  "whitespace_check": "PASS with Windows cr-at-eol; immutable report bytes retained",
+  "public_agent_counts": {
+    "COMPLETED": 4,
+    "model_calls": 15,
+    "tool_calls": 10,
+    "callback_outbox": 8
+  },
+  "remaining_eval_schemas": 0,
+  "new_paid_requests_after_scope_narrowed": 0,
+  "human_gold_review": "NOT_RUN",
+  "human_semantic_review": {
+    "reviewed": 0,
+    "pending": 8
+  },
+  "full_live": "NOT_RUN",
+  "java_business_chain": "NOT_RUN",
+  "behavior_improvement_claim": false
+}

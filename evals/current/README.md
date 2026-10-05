@@ -4,4 +4,4 @@
 
 输入与答案分离，`manifest.json`记录文件hash。配对及查询意图家族不跨dev/test；Agent主场景dev为未发货/丢失，test为签收争议/质量核验，不能宣称同分布随机测试。政策正文包含条件和例外，金额/权限由程序控制。
 
-维护者通过`build_assets.py`创建数据版本；评测时只读取和校验，不能重新生成Gold。正常运行入口见`docs/agent-evaluation-rebuild.md`及后续实际验证报告。不是商城日常数据初始化入口。
+维护者通过`build_assets.py`创建数据版本；评测时只读取和校验，不能重新生成Gold。正常运行入口见[评测指南](../../docs/evaluation-guide.md)与[实际报告](../../reports/agent-evaluation-rebuild.md)。`replay/golden`另存五个当前SDK合成持久轨迹，包自身files.json校验内容完整性；不是商城日常数据初始化入口。

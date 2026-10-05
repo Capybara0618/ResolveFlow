@@ -46,6 +46,17 @@ def digest(path: Path) -> str:
 
 def validate(directory: Path = DATA) -> dict[str, int]:
     manifest = read("manifest.json", directory)
+    required_files = {
+        "agent/cases.json",
+        "gold/agent.json",
+        "gold/rag.json",
+        "policies/bundles.json",
+        "rag/queries.json",
+        "harness/checks.json",
+        "harness/context.json",
+    }
+    if not required_files <= set(manifest["files"]):
+        raise ValueError("Frozen manifest omits required inputs/Gold")
     for name, expected in manifest["files"].items():
         path = (directory / name).resolve()
         if not path.is_relative_to(directory.resolve()) or not path.is_file() or digest(path) != expected:
@@ -95,12 +106,48 @@ def validate(directory: Path = DATA) -> dict[str, int]:
     check_input(queries)
     families = {}
     policies = read("policies/bundles.json", directory)
+    bundles = {p["bundle_id"]: p for p in policies}
+    if len(bundles) != 6 or len({p["merchant_id"] for p in policies}) != 3:
+        raise ValueError("Expected three merchants with six unique bundles")
     known = {p["bundle_id"]: {r["rule_id"] for r in p["rules"]} for p in policies}
+    for bundle in policies:
+        if len(known[bundle["bundle_id"]]) != 9 or not all(r["text"].strip() for r in bundle["rules"]):
+            raise ValueError("Expected nine unique nonempty policy rules per bundle")
+    for case in cases:
+        bundle = bundles.get(case["bundle_id"])
+        if bundle is None or bundle["merchant_id"] != case["scope"]["merchant_id"]:
+            raise ValueError("Agent policy subject differs from case")
+        answer = gold[case["id"]]
+        if not set(answer["must_rules"]) <= known[bundle["bundle_id"]]:
+            raise ValueError("Agent Gold refers to absent policy")
+        if not set(answer["allowed_actions"] + answer["forbidden_actions"]) <= {
+            "REFUND",
+            "REJECT",
+            "REQUEST_INFO",
+            "MANUAL_REVIEW",
+        }:
+            raise ValueError("Unknown Gold action")
+        if not set(answer["must_tools"]) <= {
+            "get_order_context",
+            "get_shipment_trace",
+            "get_case_evidence",
+            "get_policy_manifest",
+            "get_refund_status",
+        }:
+            raise ValueError("Unknown Gold read tool")
     for query in queries:
+        if query["split"] not in {"dev", "test"}:
+            raise ValueError("Unknown RAG split")
         if families.setdefault(query["family"], query["split"]) != query["split"]:
             raise ValueError("RAG semantic family crosses split")
         if query["bundle_id"] not in known or not set(rag_gold[query["id"]]["must_rules"]) <= known[query["bundle_id"]]:
             raise ValueError("RAG Gold refers to absent policy")
+        if bundles[query["bundle_id"]]["merchant_id"] != query["merchant_id"]:
+            raise ValueError("RAG policy subject differs from query")
+    for filename, expected in (("harness/checks.json", 20), ("harness/context.json", 8)):
+        checks = read(filename, directory)
+        if len(checks) != expected or len({c["id"] for c in checks}) != expected:
+            raise ValueError("Incomplete or duplicate executable check list")
     return {
         "merchants": len({p["merchant_id"] for p in policies}),
         "bundles": len(policies),

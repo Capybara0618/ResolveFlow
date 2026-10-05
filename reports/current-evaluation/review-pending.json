@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "report_sha256": "3b50663aaf583efca8da60fdcca613ce7024e6660cea7b3676c51bc2c2808906",
+  "manifest_hash": "1a430eacd39d6f64b303e63bcfd2654f0b8686382191a968ff2a9869f649d359",
+  "reviewer": "",
+  "reviewer_kind": "HUMAN",
+  "reviewed_at": "",
+  "rubric": {
+    "decision_supported": "动作是否符合原始事实和适用政策；材料不足不得退款/直接拒绝。",
+    "no_unsupported_claims": "说明中的事实、来源、核验和条款是否真实存在；无编造或用户陈述变事实。",
+    "question_relevant": "ASK_CUSTOMER问题是否针对缺口、客户能回答、没有重复已答内容；其他动作留null。"
+  },
+  "results": [
+    {
+      "id": "A01A",
+      "decision_supported": null,
+      "no_unsupported_claims": null,
+      "question_relevant": null,
+      "notes": ""
+    },
+    {
+      "id": "A01B",
+      "decision_supported": null,
+      "no_unsupported_claims": null,
+      "question_relevant": null,
+      "notes": ""
+    },
+    {
+      "id": "A02A",
+      "decision_supported": null,
+      "no_unsupported_claims": null,
+      "question_relevant": null,
+      "notes": ""
+    },
+    {
+      "id": "A02B",
+      "decision_supported": null,
+      "no_unsupported_claims": null,
+      "question_relevant": null,
+      "notes": ""
+    },
+    {
+      "id": "A05A",
+      "decision_supported": null,
+      "no_unsupported_claims": null,
+      "question_relevant": null,
+      "notes": ""
+    },
+    {
+      "id": "A05B",
+      "decision_supported": null,
+      "no_unsupported_claims": null,
+      "question_relevant": null,
+      "notes": ""
+    },
+    {
+      "id": "A06A",
+      "decision_supported": null,
+      "no_unsupported_claims": null,
+      "question_relevant": null,
+      "notes": ""
+    },
+    {
+      "id": "A06B",
+      "decision_supported": null,
+      "no_unsupported_claims": null,
+      "question_relevant": null,
+      "notes": ""
+    }
+  ]
+}
