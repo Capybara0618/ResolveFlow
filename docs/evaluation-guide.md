@@ -1,5 +1,7 @@
 # Agent / RAG 评测使用指南
 
+2026-10-05完成[RAG第四批](rag-optimization-batch4.md)，当前默认严格回放为 `evals/replay/rag-v8` 十三包（源码版本更新，context v10/verifier v5保留）；旧correction-v7保留。生产仍正文dense，标题正文dev退化未部署。[24条口语诊断](../evals/rag-challenge-v1/README.md)与8已有真实模型query可运行 `agent/.venv/Scripts/python.exe scripts/evaluation/rag_experiments.py --output tmp/rag-new.json`。前者仍同作者合成，后者无逐query Gold，均非真实用户/盲测；[报告](../reports/rag-batch4/README.md)分开显示，标准 `eval.ps1 -Mode rag` 仍评冻结60题。
+
 2026-10-05已补齐[Harness纠错闭环](harness-correction-loop.md)，当前context v10/verifier v5，CLI默认回放为 `evals/replay/correction-v7` 十三条，涵盖原路径与非JSON、临时工具错误、事实错误、坏工具数据及恢复。旧usage-v6和更早包供历史检视；输入/Gold仍aligned-v2、v1保留。新增失败/恢复测试及验证边界见[集中报告](../reports/harness-correction/README.md)，本批未调用真实模型，不作为建议准确率或RAG提升证据。
 
 2026-10-05用户取消项目消费上限，已完成[用量规则](model-usage-policy.md)：不再按累计96次/.50美元拦截，新运行无累计token额度。当前context v9，默认回放usage-v6七条，旧版本供历史检视；下方旧六条/32例失败属于当时记录。历史报告及冻结manifest中的live_limits保留当时记录，不控制新评测。单工单终止约束和请求大小仍有效；本次修改未新增真实调用。

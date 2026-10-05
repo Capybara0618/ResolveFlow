@@ -1,5 +1,7 @@
 # 政策检索 · v1.2核心
 
+2026-10-05用户批准[RAG第四批](rag-optimization-batch4.md)。生产保留正文dense，BM25继续离线对照；“标题＋正文”未通过开发集门槛，不部署。检索只读选中generation，逐一核对商家及embedding模型/revision/维度/向量/条款完整性。新[口语诊断集](../evals/rag-challenge-v1/README.md)和已保存live-query探针仍来自合成业务，不称真实用户或独立盲测；证据见[报告](../reports/rag-batch4/README.md)。
+
 目标是可靠定位适用政策并给出可验证引用，不是比较所有RAG组件。Java结构化规则负责资格/授权；检索相似度不决定是否退款。
 
 ## 1. 政策

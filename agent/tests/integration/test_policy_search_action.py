@@ -14,6 +14,8 @@ test that called the bridge's ``call`` directly would pass even if it had never 
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.control import REASON_POLICY_INDEX_UNAVAILABLE
@@ -92,7 +94,7 @@ def propose() -> dict[str, object]:
         "case_type": "LOGISTICS",
         "recommended_action": "MANUAL_REVIEW",
         "reason_codes": ["LOST_CONFIRMED"],
-        "summary": "承运商判定丢失",
+        "summary": "根据检索条款建议商家复核现有材料",
         "reasoning": "policy says refund",
     }
 
@@ -147,12 +149,16 @@ def test_a_search_policy_action_executes_and_the_rules_reach_the_model(
     assert hit["version"] == BUNDLE.version
     assert hit["source_ref"] == f"policy:{BUNDLE.bundle_id}/{hit['chunk_id']}"
 
-    # And the model was actually shown them — in the **request** it received, not only in the structured channel a
-    # script reads (C08.1a). These members travel inside the P3 excerpt because they are part of the tool's own
-    # result, not something this side re-derived from the model's answer.
+    # Mandatory P2 renders a run-local P# alias; its expansion must bind every
+    # original citation member. Full hashes are retained, not repeated in prompts.
     sent = input_text_of(model, 1)
     assert hit["rule_id"] in sent, f"the cited rule is not in the request the model received: {sent}"
-    assert hit["content_hash"] in sent, "a citation the model cannot see is not a citation it can make"
+    aliases = model.sent_contexts[1].references
+    alias = next(key for key, value in aliases.items()
+                 if value["kind"] == "policy" and value["ref"]["rule_id"] == hit["rule_id"])
+    assert f'"ref":"{alias}"' in sent, "a citation alias must be visible in the actual request"
+    assert aliases[alias]["ref"] == {key: hit[key] for key in
+                                    ("bundle_id", "version", "rule_id", "chunk_id", "content_hash")}
 
 
 def test_a_search_spends_a_local_read_and_a_search_attempt(
@@ -280,3 +286,12 @@ def test_the_model_cannot_choose_which_merchant_or_version_is_searched(
     assert result.completed is False  # type: ignore[attr-defined]
     assert result.reason_code == "IDENTITY_REFUSED"  # type: ignore[attr-defined]
     assert result.observations == ()  # type: ignore[attr-defined]
+
+
+def test_encoder_mismatch_becomes_named_safe_handover(index, stub_embedder):
+    model = MockModelClient(script=[search("物流没送到")])
+    result = run(index, model, replace(stub_embedder, revision="mismatched-query-model"))
+    assert result.completed is False
+    assert result.reason_code == REASON_POLICY_INDEX_UNAVAILABLE
+    assert model.calls == 1
+    assert not result.observations

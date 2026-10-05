@@ -360,7 +360,7 @@ def main(argv=None):
         default=ALIGNED_DATA,
         help="frozen version directory; default aligned-v2, v1 remains available",
     )
-    parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/correction-v7",
+    parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/rag-v8",
                         help="current code replay profile; frozen dataset/Gold are independent")
     parser.add_argument("--case", action="append", default=[])
     parser.add_argument("--output", type=Path)
@@ -433,7 +433,8 @@ def main(argv=None):
         profile_path = args.replay_dir / "manifest.json"
         profile = json.loads(profile_path.read_text(encoding="utf-8")) if profile_path.is_file() else {}
         expected = {"resolveflow-replay-context-v4": 6, "resolveflow-replay-investigation-v5": 7,
-                    "resolveflow-replay-usage-v6": 7, "resolveflow-replay-correction-v7": 13}.get(
+                    "resolveflow-replay-usage-v6": 7, "resolveflow-replay-correction-v7": 13,
+                    "resolveflow-replay-rag-v8": 13}.get(
             profile.get("profile_version"), 5)
         if len(directories) != expected:
             raise ValueError(f"Expected {expected} replay packs; zero or incomplete steps cannot pass")

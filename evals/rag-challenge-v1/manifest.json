@@ -1,0 +1,12 @@
+{
+  "version": "rag-challenge-v1",
+  "synthetic": true,
+  "blind": false,
+  "gold_review": "PENDING_INDEPENDENT_REVIEW",
+  "purpose": "pre-fixed diagnostic questions, not real user evidence or selection holdout",
+  "base_manifest_sha256": "0c14513c9cf58bc9b797fa7f4abb7f1d15c0c625751bb74e3205bfc831ef2964",
+  "files": {
+    "queries.json": "37d893eb5e345360190aecd126bc2be6c5bbfbd39dd337efccbba3b718007c2f",
+    "gold.json": "438a2218882c64e3b202dde43332ae918928df00cd542d388ce4d04d00fecd90"
+  }
+}

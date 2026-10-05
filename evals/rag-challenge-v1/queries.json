@@ -1,0 +1,194 @@
+[
+  {
+    "id": "D01-unshipped",
+    "family": "unshipped",
+    "split": "diagnostic",
+    "query": "手滑拍错了一个，钱已经扣了，店里说还没打包，我想撤掉。",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "D02-unshipped",
+    "family": "unshipped",
+    "split": "diagnostic",
+    "query": "同款点了两遍，第二份还在仓库没交快递，能把第二份的钱退回来吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "D03-unshipped",
+    "family": "unshipped",
+    "split": "diagnostic",
+    "query": "这会儿不想要了，卖家答复今天还没往外寄，怎么办？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "D01-lost",
+    "family": "lost",
+    "split": "diagnostic",
+    "query": "快递站和卖家查过，都说这件找不到了，也没有谁领走，我的钱怎么办？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "D02-lost",
+    "family": "lost",
+    "split": "diagnostic",
+    "query": "包裹中途弄没了，配送方已确认，店里查实了，整件能退吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "D03-lost",
+    "family": "lost",
+    "split": "diagnostic",
+    "query": "店铺和运输方都认定遗失，没有收件凭证，希望退掉这件。",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "D01-signed",
+    "family": "signed",
+    "split": "diagnostic",
+    "query": "页面写着别人代领，我从来没拿到东西，不能只看页面就说我收到了吧？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "D02-signed",
+    "family": "signed",
+    "split": "diagnostic",
+    "query": "快递显示妥投，我家里人却都没见过这个包裹，接下来查什么？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "D03-signed",
+    "family": "signed",
+    "split": "diagnostic",
+    "query": "有个签名但不是我的，我也不知道是谁拿走的，应该怎么办？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "D01-damage",
+    "family": "damage",
+    "split": "diagnostic",
+    "query": "刚拆开试了就用不了，我发了一段录像，能直接说东西一定有毛病吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "D02-damage",
+    "family": "damage",
+    "split": "diagnostic",
+    "query": "收到就发现断了一角，我只有自己的说法，还没让店家查过，怎么处理？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "D03-damage",
+    "family": "damage",
+    "split": "diagnostic",
+    "query": "我说坏了，商家检查后却说没问题，这一种理由不成立就什么都不能申请了吗？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "D01-intransit",
+    "family": "intransit",
+    "split": "diagnostic",
+    "query": "已经交给快递了，只是路上堵了好几天，不能算根本没寄吧？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "D02-intransit",
+    "family": "intransit",
+    "split": "diagnostic",
+    "query": "轨迹还在往我这里走，晚到是否等于包裹已经弄丢？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "D03-intransit",
+    "family": "intransit",
+    "split": "diagnostic",
+    "query": "卖家说已寄出，还没送到我手里，是否能照没出库的方式退？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "D01-unknown",
+    "family": "unknown",
+    "split": "diagnostic",
+    "query": "系统这会儿查不出快递消息，这能证明货还在仓库吗？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "D02-unknown",
+    "family": "unknown",
+    "split": "diagnostic",
+    "query": "付款页面打不开，钱有没有扣也不清楚，先同意退掉合适吗？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "D03-unknown",
+    "family": "unknown",
+    "split": "diagnostic",
+    "query": "订单服务坏了，店家不知道寄没寄，能据此说我不能申请吗？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "D01-money",
+    "family": "money",
+    "split": "diagnostic",
+    "query": "这一件上次已经把钱退回来了，能不能再走一次？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "D02-money",
+    "family": "money",
+    "split": "diagnostic",
+    "query": "有一笔正在退，迟迟没结果，换一个号再付给我行不行？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "D03-money",
+    "family": "money",
+    "split": "diagnostic",
+    "query": "三件同款只想退一件，剩下两件留下，这里可以这样办吗？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  },
+  {
+    "id": "D01-materials",
+    "family": "materials",
+    "split": "diagnostic",
+    "query": "耳机连上以后右边时有时无，店里要查原因，我应该描述哪些东西？",
+    "merchant_id": "M-1001",
+    "bundle_id": "eval-m-1001-v2"
+  },
+  {
+    "id": "D02-materials",
+    "family": "materials",
+    "split": "diagnostic",
+    "query": "桌子开箱后腿上有裂口，要拍局部还是连纸箱一起拍，谁来认定？",
+    "merchant_id": "M-1002",
+    "bundle_id": "eval-m-1002-v2"
+  },
+  {
+    "id": "D03-materials",
+    "family": "materials",
+    "split": "diagnostic",
+    "query": "帐篷标牌和我下单的规格不一样，要交代哪些信息才能让店里区分选错和产品问题？",
+    "merchant_id": "M-1003",
+    "bundle_id": "eval-m-1003-v2"
+  }
+]

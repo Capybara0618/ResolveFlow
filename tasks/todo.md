@@ -1,5 +1,11 @@
 # 当前改进进度
 
+## 当前快照（2026-10-05，RAG第四批工程与诊断完成）
+
+- 用户要求先做好RAG并审查合成问答/BM25偏差；按[规格](../docs/rag-optimization-batch4.md)明确生产query由模型SEARCH_POLICY生成、固定60题/脚本mock/已保存live-query分开。保留正文dense及BM25离线对照，新增24条预固定口语诊断/独立Gold文件/manifest和可运行实验，仍明确同作者合成、非盲测/待独立Gold复核；8条已有live-query无逐查询标注不计准确率。标题正文dev前2全依据29→27、门槛失败，未部署；正文诊断dense23/24与BM2517/24，不宣称真实用户效果或全RAG完成。
+- 生产索引限定选中generation、不混同manifest多代；全部商家绑定、encoder model/revision/dimension、向量数量/维度/有限非零及READY条款计数校验，SDK模型错配安全交接。集中51模块680 passed/0 skipped（1依赖弃用警告），追加诊断计分/版本泄漏10项通过（新增4不同项，合计684不同项）；Harness28/28、strict13/13、冻结校验/定点Ruff/diff通过，配置式mypy仍16既有错误/9文件/72源码，全项目类型门禁未通过。独立rag-v8十三包，context v10/verifier v5保留、旧包/政策/Gold不覆盖。[报告](../reports/rag-batch4/README.md)保存候选退化、前轮失败、命令与未运行。
+- 新付费0、未重启/部署/Java整链/网页/日常队列/生产索引重建；public仍4COMPLETED/15模型/10工具/8回调，用量仍96/limit=null/历史预留$0.2855712，隔离schema清理后核实。当前排名未改变，健康旧索引无需重建；新run下次正常启动加载，旧manifest不静默换。原四历史脏文件/草图日志保留不夹带。精确commit/正常push核实后停止写入；后续独立问法/Gold及真实Agent建议对照由用户指示，不自动加混合检索/重排或收费。
+
 ## 当前快照（2026-10-05，Harness 纠错闭环完成）
 
 - 用户要求补齐 Harness 纠错闭环，按[本批规格](../docs/harness-correction-loop.md)实现：模型非JSON/动作/引用/关键文字事实错误给定向反馈，全run共享一次修正；五MCP按core契约校验类型/来源/主体/revision，坏数据不能引用；临时读失败允许两次连续失败，第三次同工具请求不执行，非临时错误不盲重读，越权/来源混用立即安全停止。summary/findings与最终回调共用有限关键断言检查，不宣称任意幻觉均能识别，不自动生成长期规则。Java审批/金额、AgentScope唯一循环、原权限/fence保留。

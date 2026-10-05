@@ -1,5 +1,7 @@
 # 当前执行说明：正式启动入口与三角色接手规则
 
+2026-10-05最新用户要求先做好[RAG第四批](../docs/rag-optimization-batch4.md)，进度只看[todo顶部](todo.md)，证据见[报告](../reports/rag-batch4/README.md)。当前生产仍正文dense、BM25离线比较；标题正文未过dev门槛，不部署。索引完整性/模型匹配已加强，24合成口语诊断与8未标注live-query不能称真实数据/盲测。默认当前回放rag-v8十三包，context v10/verifier v5保留，旧包/Gold不改。正常提交/推送核实后停止写入；后续按用户新指示，不自动重启/收费/真实质量对照；原四历史脏文件和草图日志不夹带。
+
 2026-10-05最新用户要求补齐[Harness纠错闭环](../docs/harness-correction-loop.md)。当前执行结果与唯一快照只看[todo顶部](todo.md)，集中证据见[报告](../reports/harness-correction/README.md)。当前context v10/verifier v5，默认strict为correction-v7十三包；下方v9/v8与旧回放仅作历史记录。有限关键断言检查不等于全能幻觉检测；不重建输入/Gold、不重做前批、不改变Java权限/资金。新代码下次正常启动加载，旧run不静默迁移。精确提交/普通push核实后本实施者停止写入；接手先只读核验现状与归属，后续按用户新指示，不自动启动RAG/收费评测/部署。原四历史脏文件及草图日志不夹带。
 
 2026-10-05最新用户明确要求取消API/token花销上限，已完成[用量规则](../docs/model-usage-policy.md)，状态只看todo顶部，证据见[报告](../reports/model-usage-policy.md)。此授权覆盖下方原96次/.50美元及累计token限制说明；历史计数/报告/Gold不清零或修改。单工单终止/超时、请求窗口/长度、权限/资金/fence保留，已持久run不静默换manifest或预算。当前context v9、strict usage-v6七包，旧investigation-v5只供历史检视。没有新增真实模型请求或重启服务，新生产默认下次启动加载；不自动续跑收费评测。

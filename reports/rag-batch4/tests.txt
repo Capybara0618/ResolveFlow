@@ -1,0 +1,39 @@
+........................................................................ [ 10%]
+F....................................................................... [ 21%]
+........................................................................ [ 31%]
+........................................................................ [ 42%]
+........................................................................ [ 52%]
+........................................................................ [ 63%]
+........................................................................ [ 74%]
+........................................................................ [ 84%]
+........................................................................ [ 95%]
+................................                                         [100%]
+================================== FAILURES ===================================
+______________ test_encoder_mismatch_becomes_named_safe_handover ______________
+
+index = <resolveflow.policies.index.PolicyIndex object at 0x000001F595250D10>
+stub_embedder = StubEmbedder(dimension=8, model='stub-embedder', revision='stub-revision-1')
+
+    def test_encoder_mismatch_becomes_named_safe_handover(index, stub_embedder):
+>       stub_embedder.revision = "mismatched-query-model"
+        ^^^^^^^^^^^^^^^^^^^^^^
+
+agent\tests\integration\test_policy_search_action.py:290:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = StubEmbedder(dimension=8, model='stub-embedder', revision='stub-revision-1')
+name = 'revision', value = 'mismatched-query-model'
+
+>   ???
+E   dataclasses.FrozenInstanceError: cannot assign to field 'revision'
+
+<string>:4: FrozenInstanceError
+============================== warnings summary ===============================
+agent\.venv\Lib\site-packages\starlette\testclient.py:53
+  E:\Code\Agent+Backend\agent\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED agent\tests\integration\test_policy_search_action.py::test_encoder_mismatch_becomes_named_safe_handover
+1 failed, 679 passed, 1 warning in 114.59s (0:01:54)

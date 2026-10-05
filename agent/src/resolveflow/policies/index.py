@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import datetime as dt
 import hashlib
+import math
 import uuid
 from dataclasses import dataclass
 from typing import Any, Final, Literal
@@ -72,6 +73,13 @@ MAX_TOP_K: Final = 5
 
 #: The two paths, named rather than booleans, because a report has to say which one produced a number.
 PolicySearchPath = Literal["dense", "bm25"]
+
+
+def _validate_vector(vector: list[float], dimension: int) -> None:
+    """Malformed embeddings are an index/encoder failure, never a policy miss."""
+    if (len(vector) != dimension or not vector or any(not math.isfinite(v) for v in vector)
+            or not any(v != 0 for v in vector)):
+        raise ValueError("embedding vector must have the declared dimension, finite values and nonzero norm")
 
 
 class PolicyIndexNotReadyError(RuntimeError):
@@ -297,6 +305,7 @@ class PolicyIndex:
                         f"{'nothing' if vector is None else len(vector)}; the generation records a dimension, "
                         "so a mismatch has to stop here"
                     )
+                _validate_vector(vector, embedder.dimension)
             vectors = embedded
             dimension = embedder.dimension
             model = embedder.model
@@ -481,16 +490,24 @@ class PolicyIndex:
             raise ValueError(f"top_k must be 1..{MAX_TOP_K} (docs/agent-spec.md:16)")
         ready = self.require_ready(bundle_ids, manifest_hash)
         by_bundle = {generation.bundle_id: generation for generation in ready}
-        if merchant_id not in {generation.merchant_id for generation in ready}:
+        if any(generation.merchant_id != merchant_id for generation in ready):
             raise PolicyIndexNotReadyError(
                 f"the run's merchant {merchant_id} does not match any pinned bundle's merchant "
                 f"({sorted({generation.merchant_id for generation in ready})}); a run may not retrieve "
                 "another merchant's policy (docs/policy-rag.md:15)"
             )
 
-        rows = self._chunks_for(list(by_bundle), manifest_hash)
-        if not rows:
-            return []
+        if path == "dense" and any(g.embedding_model is None for g in ready):
+            raise PolicyIndexNotReadyError("selected generation has no embedding; build a dense index first")
+        if path == "dense" and embedder is not None and any(
+            (g.embedding_model, g.embedding_revision, g.embedding_dimension)
+            != (embedder.model, embedder.revision, embedder.dimension) for g in ready
+        ):
+            raise PolicyIndexNotReadyError("query embedding model/revision/dimension differs from the selected index")
+        rows = self._chunks_for(list(by_bundle), manifest_hash,
+                                generation_ids=[g.generation_id for g in ready])
+        if any(sum(row.bundle_id == g.bundle_id for row in rows) != g.chunk_count for g in ready):
+            raise PolicyIndexNotReadyError("selected index chunk count differs from READY metadata")
         if path == "dense":
             scored = self._rank_dense(rows, query, embedder)
         else:
@@ -537,9 +554,17 @@ class PolicyIndex:
                 f"(generation was built without one); the dense path refuses rather than falling back to a "
                 "different ranking (docs/policy-rag.md:23)"
             )
-        query_vector = embedder.embed([query])[0]
+        query_vectors = embedder.embed([query])
+        if len(query_vectors) != 1:
+            raise ValueError("query encoder must return exactly one vector")
+        query_vector = query_vectors[0]
+        _validate_vector(query_vector, embedder.dimension)
         for row in rows:
             assert row.embedding is not None  # checked above; asserted for the type checker
+            try:
+                _validate_vector(row.embedding, embedder.dimension)
+            except ValueError as failure:
+                raise PolicyIndexNotReadyError("stored embedding vector is invalid; rebuild the index") from failure
             row.score = cosine_similarity(query_vector, row.embedding)
         return rows
 
@@ -552,7 +577,9 @@ class PolicyIndex:
 
     # ------------------------------------------------------------------ internals
 
-    def _chunks_for(self, bundle_ids: list[str], manifest_hash: str) -> list[PolicyChunkRow]:
+    def _chunks_for(
+        self, bundle_ids: list[str], manifest_hash: str, *, generation_ids: list[str],
+    ) -> list[PolicyChunkRow]:
         with self._database.connection() as connection:
             rows = connection.execute(
                 """
@@ -564,9 +591,10 @@ class PolicyIndex:
                  WHERE c.bundle_id = ANY(%s)
                    AND g.manifest_hash = %s
                    AND g.status = %s
+                   AND g.generation_id = ANY(%s)
                  ORDER BY c.bundle_id, c.position
                 """,
-                (bundle_ids, manifest_hash, GENERATION_READY),
+                (bundle_ids, manifest_hash, GENERATION_READY, generation_ids),
             ).fetchall()
         return [
             PolicyChunkRow(
@@ -590,7 +618,7 @@ class PolicyIndex:
             """
             SELECT * FROM policy_index_generation
              WHERE bundle_id = %s AND manifest_hash = %s AND status = %s
-             ORDER BY built_at DESC
+             ORDER BY built_at DESC, generation_id
              LIMIT 1
             """,
             (bundle_id, manifest_hash, GENERATION_READY),

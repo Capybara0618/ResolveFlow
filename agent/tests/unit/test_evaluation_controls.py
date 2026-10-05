@@ -49,7 +49,8 @@ def test_report_replace_permanent_denial_is_explicit_and_keeps_partial(tmp_path)
     ("resolveflow-replay-context-v4", 6, 5), ("resolveflow-replay-investigation-v5", 7, 0),
     ("resolveflow-replay-investigation-v5", 7, 6), ("resolveflow-replay-usage-v6", 7, 0),
     ("resolveflow-replay-usage-v6", 7, 6), ("resolveflow-replay-correction-v7", 13, 0),
-    ("resolveflow-replay-correction-v7", 13, 12)])
+    ("resolveflow-replay-correction-v7", 13, 12), ("resolveflow-replay-rag-v8", 13, 0),
+    ("resolveflow-replay-rag-v8", 13, 12)])
 def test_current_replay_profile_cannot_pass_with_missing_trajectories(tmp_path, profile, expected, count):
     root = tmp_path / "replay"
     root.mkdir()

@@ -1,0 +1,530 @@
+.........................F.......FFF..F.............                     [100%]
+================================== FAILURES ===================================
+_______ test_a_bundle_built_without_an_embedder_refuses_the_dense_path ________
+
+index = <resolveflow.policies.index.PolicyIndex object at 0x00000235F1EE94F0>
+
+    def test_a_bundle_built_without_an_embedder_refuses_the_dense_path(index: PolicyIndex) -> None:
+        """No silent BM25 behind a dense request: that would make every dense number in a report unfalsifiable."""
+        index.build(LOGISTICS_SEPTEMBER)  # no embedder
+
+>       with pytest.raises(PolicyIndexNotReadyError, match="no embedding"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'no embedding'
+E         Actual message: 'query embedding model/revision/dimension differs from the selected index'
+
+agent\tests\integration\test_policy_index.py:311: AssertionError
+_____ test_a_search_policy_action_executes_and_the_rules_reach_the_model ______
+
+index = <resolveflow.policies.index.PolicyIndex object at 0x00000235F5B59BE0>
+stub_embedder = StubEmbedder(dimension=8, model='stub-embedder', revision='stub-revision-1')
+
+    def test_a_search_policy_action_executes_and_the_rules_reach_the_model(
+        index: PolicyIndex, stub_embedder: object
+    ) -> None:
+        """The whole point: a validated ``SEARCH_POLICY`` now has somewhere to go, and its result is visible."""
+        model = MockModelClient(script=[search("承运商判定丢失 全额退款"), propose()])
+
+>       result = run(index, model, stub_embedder)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+agent\tests\integration\test_policy_search_action.py:130:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+agent\tests\integration\test_policy_search_action.py:121: in run
+    return runner.run()
+           ^^^^^^^^^^^^
+agent\src\resolveflow\harness\sdk_runner.py:643: in run
+    return anyio.run(self._drive)
+           ^^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:2548: in run
+    return runner.run(wrapper())
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:2531: in wrapper
+    return await func(*args)
+           ^^^^^^^^^^^^^^^^^
+agent\src\resolveflow\harness\sdk_runner.py:710: in _drive
+    await agent.reply(messenger_message(_starting_packet(self, guard)))
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:371: in reply
+    async for evt_or_msg in self._reply(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:945: in _reply
+    async for item in agen:
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1175: in _reply_impl
+    async for evt in self._reasoning(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1657: in _reasoning
+    async for item in self._reasoning_impl(tool_choice=tool_choice):
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1724: in _reasoning_impl
+    res = await self._call_model(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3392: in _call_model
+    raise last_exception from None
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3366: in _call_model
+    return await execute_chain()
+           ^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3360: in execute_chain
+    return await mw.on_model_call(
+agent\src\resolveflow\harness\sdk_runner.py:811: in on_model_call
+    return await next_handler()
+           ^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3355: in next_handler
+    return await execute_chain(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3334: in execute_chain
+    return await current_model(
+agent\.venv\Lib\site-packages\agentscope\model\_base.py:211: in __call__
+    res = await self._call_api(
+agent\src\resolveflow\harness\sdk_adapter.py:177: in _call_api
+    reply = self._client.decide(
+agent\src\resolveflow\harness\sdk_runner.py:1014: in decide
+    if self._runner.durability is not None else self._runner.model.decide(**request)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = MockModelClient(script=[{'kind': 'SEARCH_POLICY', 'query': '承运商判定丢失 全额退款', 'arguments': {}, 'reasoning': 'look it up'}...ished_reason=None, structured_output=None, error=None)]], output_limits=[1024, 1024, 1024], calls=3, repeat_last=False)
+system = ''
+messages = [Msg(name='harness', content=[TextBlock(type='text', text='只读售后助手，建议由商家审批。主体已绑定，勿索编号或指定身份/地址。按证据补缺口，系统事实用工具获取；不必读遍工具。依...='2026-10-05T16:42:39.986659', usage=None, finished_at=None, finished_reason=None, structured_output=None, error=None)]
+context = {'run': {'run_id': '11111111-1111-4111-8111-111111111111', 'case_id': '22222222-2222-4222-8222-222222222222', 'input_r...tool_name': 'search_policy', 'source_type': 'POLICY_RULE', 'source_ref': 'policy:policy-logistics-2026.09', ...}], ...}
+sent_context = ContextPacket(context_id='ctx-d00b1cab9cfe5ad1aa6b7ff5cd850727', run_id='11111111-1111-4111-8111-111111111111', step=3...82c36180c6ada74646f1df23e7f7112aaa1318e9338ceca'}}}, read_ids={'O1': 'policy-search-71c908e607a695d9ad578cb5122c83e9'})
+max_output_tokens = 1024
+
+    def decide(
+        self,
+        *,
+        system: str,
+        messages: list[Message],
+        context: dict[str, Any] | None = None,
+        sent_context: Any = None,
+        max_output_tokens: int | None = None,
+    ) -> ModelReply:
+        self.calls += 1
+        self.conversations.append(messages)
+        self.output_limits.append(max_output_tokens)
+        self.contexts.append(context)
+        self.sent_contexts.append(sent_context)
+        # The system prompt is recorded **with** the conversation rather than beside it: the packet a test reads
+        # back is then the whole input the client was given, and a script that wanted to answer differently for a
+        # different system prompt can see it. AS02's adapter passes the loop's own prompt through, so this is the
+        # same string the SDK sent.
+        #
+        # The packet a **script** is handed is the structured view when the caller offered one, and otherwise the
+        # mapping parsed out of the messages. That order is deliberate: a continuation script needs the cursor a
+        # previous page answered with, and the rendered prose does not carry it.
+        packet = context if context is not None else _packet_of(messages)
+        if system:
+            packet = {"system": system, **packet}
+        self.packets.append(packet)
+        if not self.script:
+            raise AssertionError("the scripted model was asked to decide but its script is empty")
+        position = int(packet.get("step", self.calls)) if self.use_context_step else self.calls
+        if position <= len(self.script):
+            entry = self.script[position - 1]
+        elif self.repeat_last:
+            entry = self.script[-1]
+        else:
+>           raise AssertionError(
+                f"the scripted model holds {len(self.script)} decisions but was asked for {self.calls}; "
+                "a mock that invented one would let a harness bug look like a passing run"
+            )
+E           AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run
+
+agent\src\resolveflow\harness\model.py:209: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-05 16:42:39,987 | WARNING | _agent:_call_model:3383 - Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+------------------------------ Captured log call ------------------------------
+WARNING  as:_agent.py:3383 Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+___________ test_a_search_spends_a_local_read_and_a_search_attempt ____________
+
+index = <resolveflow.policies.index.PolicyIndex object at 0x00000235BFA856A0>
+stub_embedder = StubEmbedder(dimension=8, model='stub-embedder', revision='stub-revision-1')
+
+    def test_a_search_spends_a_local_read_and_a_search_attempt(
+        index: PolicyIndex, stub_embedder: object
+    ) -> None:
+        """``docs/agent-spec.md:40`` budgets 16 attempts and 8 local reads, and this action is counted in both."""
+        model = MockModelClient(script=[search("承运商判定丢失"), propose()])
+
+>       result = run(index, model, stub_embedder)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+agent\tests\integration\test_policy_search_action.py:164:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+agent\tests\integration\test_policy_search_action.py:121: in run
+    return runner.run()
+           ^^^^^^^^^^^^
+agent\src\resolveflow\harness\sdk_runner.py:643: in run
+    return anyio.run(self._drive)
+           ^^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:2548: in run
+    return runner.run(wrapper())
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:2531: in wrapper
+    return await func(*args)
+           ^^^^^^^^^^^^^^^^^
+agent\src\resolveflow\harness\sdk_runner.py:710: in _drive
+    await agent.reply(messenger_message(_starting_packet(self, guard)))
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:371: in reply
+    async for evt_or_msg in self._reply(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:945: in _reply
+    async for item in agen:
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1175: in _reply_impl
+    async for evt in self._reasoning(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1657: in _reasoning
+    async for item in self._reasoning_impl(tool_choice=tool_choice):
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1724: in _reasoning_impl
+    res = await self._call_model(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3392: in _call_model
+    raise last_exception from None
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3366: in _call_model
+    return await execute_chain()
+           ^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3360: in execute_chain
+    return await mw.on_model_call(
+agent\src\resolveflow\harness\sdk_runner.py:811: in on_model_call
+    return await next_handler()
+           ^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3355: in next_handler
+    return await execute_chain(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3334: in execute_chain
+    return await current_model(
+agent\.venv\Lib\site-packages\agentscope\model\_base.py:211: in __call__
+    res = await self._call_api(
+agent\src\resolveflow\harness\sdk_adapter.py:177: in _call_api
+    reply = self._client.decide(
+agent\src\resolveflow\harness\sdk_runner.py:1014: in decide
+    if self._runner.durability is not None else self._runner.model.decide(**request)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = MockModelClient(script=[{'kind': 'SEARCH_POLICY', 'query': '承运商判定丢失', 'arguments': {}, 'reasoning': 'look it up'}, {'k...ished_reason=None, structured_output=None, error=None)]], output_limits=[1024, 1024, 1024], calls=3, repeat_last=False)
+system = ''
+messages = [Msg(name='harness', content=[TextBlock(type='text', text='只读售后助手，建议由商家审批。主体已绑定，勿索编号或指定身份/地址。按证据补缺口，系统事实用工具获取；不必读遍工具。依...='2026-10-05T16:42:40.612818', usage=None, finished_at=None, finished_reason=None, structured_output=None, error=None)]
+context = {'run': {'run_id': '11111111-1111-4111-8111-111111111111', 'case_id': '22222222-2222-4222-8222-222222222222', 'input_r...tool_name': 'search_policy', 'source_type': 'POLICY_RULE', 'source_ref': 'policy:policy-logistics-2026.09', ...}], ...}
+sent_context = ContextPacket(context_id='ctx-d00b1cab9cfe5ad1aa6b7ff5cd850727', run_id='11111111-1111-4111-8111-111111111111', step=3...82c36180c6ada74646f1df23e7f7112aaa1318e9338ceca'}}}, read_ids={'O1': 'policy-search-50bb5cd1c47b7ad22c99917163d43c5a'})
+max_output_tokens = 1024
+
+    def decide(
+        self,
+        *,
+        system: str,
+        messages: list[Message],
+        context: dict[str, Any] | None = None,
+        sent_context: Any = None,
+        max_output_tokens: int | None = None,
+    ) -> ModelReply:
+        self.calls += 1
+        self.conversations.append(messages)
+        self.output_limits.append(max_output_tokens)
+        self.contexts.append(context)
+        self.sent_contexts.append(sent_context)
+        # The system prompt is recorded **with** the conversation rather than beside it: the packet a test reads
+        # back is then the whole input the client was given, and a script that wanted to answer differently for a
+        # different system prompt can see it. AS02's adapter passes the loop's own prompt through, so this is the
+        # same string the SDK sent.
+        #
+        # The packet a **script** is handed is the structured view when the caller offered one, and otherwise the
+        # mapping parsed out of the messages. That order is deliberate: a continuation script needs the cursor a
+        # previous page answered with, and the rendered prose does not carry it.
+        packet = context if context is not None else _packet_of(messages)
+        if system:
+            packet = {"system": system, **packet}
+        self.packets.append(packet)
+        if not self.script:
+            raise AssertionError("the scripted model was asked to decide but its script is empty")
+        position = int(packet.get("step", self.calls)) if self.use_context_step else self.calls
+        if position <= len(self.script):
+            entry = self.script[position - 1]
+        elif self.repeat_last:
+            entry = self.script[-1]
+        else:
+>           raise AssertionError(
+                f"the scripted model holds {len(self.script)} decisions but was asked for {self.calls}; "
+                "a mock that invented one would let a harness bug look like a passing run"
+            )
+E           AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run
+
+agent\src\resolveflow\harness\model.py:209: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-05 16:42:40,613 | WARNING | _agent:_call_model:3383 - Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+------------------------------ Captured log call ------------------------------
+WARNING  as:_agent.py:3383 Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+__ test_the_budget_position_reaches_the_client_but_not_the_provider_request ___
+
+index = <resolveflow.policies.index.PolicyIndex object at 0x00000235F5C31670>
+stub_embedder = StubEmbedder(dimension=8, model='stub-embedder', revision='stub-revision-1')
+
+    def test_the_budget_position_reaches_the_client_but_not_the_provider_request(
+        index: PolicyIndex, stub_embedder: object
+    ) -> None:
+        """Where the local-read position is visible, and where it deliberately is not (C08.1a).
+
+        The run's structured view — the ``context`` a :class:`~resolveflow.harness.model.ModelClient` is called with — is
+        the channel that exists for the run's own bookkeeping, so the position is asserted there. It is **not** in the
+        provider request, and that is the design rather than an omission: ``docs/context-engineering.md:15-21`` fixes the
+        request to P0–P4 (system/schema, request, facts, current observations, older index) and no layer carries a budget,
+        while the bound itself is the harness's to enforce — ``docs/agent-harness.md:3`` puts budget and termination in
+        the domain Harness rather than in the model.
+
+        Both halves are pinned so a future change to either is deliberate: the assertion kept its subject (the budget is
+        counted and visible) and gained the boundary that the model is not asked to police its own budget.
+        """
+        model = MockModelClient(script=[search("承运商判定丢失"), propose()])
+
+>       run(index, model, stub_embedder, budget=RunBudget(local_reads=3))
+
+agent\tests\integration\test_policy_search_action.py:189:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+agent\tests\integration\test_policy_search_action.py:121: in run
+    return runner.run()
+           ^^^^^^^^^^^^
+agent\src\resolveflow\harness\sdk_runner.py:643: in run
+    return anyio.run(self._drive)
+           ^^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:2548: in run
+    return runner.run(wrapper())
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:2531: in wrapper
+    return await func(*args)
+           ^^^^^^^^^^^^^^^^^
+agent\src\resolveflow\harness\sdk_runner.py:710: in _drive
+    await agent.reply(messenger_message(_starting_packet(self, guard)))
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:371: in reply
+    async for evt_or_msg in self._reply(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:945: in _reply
+    async for item in agen:
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1175: in _reply_impl
+    async for evt in self._reasoning(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1657: in _reasoning
+    async for item in self._reasoning_impl(tool_choice=tool_choice):
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1724: in _reasoning_impl
+    res = await self._call_model(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3392: in _call_model
+    raise last_exception from None
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3366: in _call_model
+    return await execute_chain()
+           ^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3360: in execute_chain
+    return await mw.on_model_call(
+agent\src\resolveflow\harness\sdk_runner.py:811: in on_model_call
+    return await next_handler()
+           ^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3355: in next_handler
+    return await execute_chain(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3334: in execute_chain
+    return await current_model(
+agent\.venv\Lib\site-packages\agentscope\model\_base.py:211: in __call__
+    res = await self._call_api(
+agent\src\resolveflow\harness\sdk_adapter.py:177: in _call_api
+    reply = self._client.decide(
+agent\src\resolveflow\harness\sdk_runner.py:1014: in decide
+    if self._runner.durability is not None else self._runner.model.decide(**request)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = MockModelClient(script=[{'kind': 'SEARCH_POLICY', 'query': '承运商判定丢失', 'arguments': {}, 'reasoning': 'look it up'}, {'k...ished_reason=None, structured_output=None, error=None)]], output_limits=[1024, 1024, 1024], calls=3, repeat_last=False)
+system = ''
+messages = [Msg(name='harness', content=[TextBlock(type='text', text='只读售后助手，建议由商家审批。主体已绑定，勿索编号或指定身份/地址。按证据补缺口，系统事实用工具获取；不必读遍工具。依...='2026-10-05T16:42:41.118504', usage=None, finished_at=None, finished_reason=None, structured_output=None, error=None)]
+context = {'run': {'run_id': '11111111-1111-4111-8111-111111111111', 'case_id': '22222222-2222-4222-8222-222222222222', 'input_r...tool_name': 'search_policy', 'source_type': 'POLICY_RULE', 'source_ref': 'policy:policy-logistics-2026.09', ...}], ...}
+sent_context = ContextPacket(context_id='ctx-d00b1cab9cfe5ad1aa6b7ff5cd850727', run_id='11111111-1111-4111-8111-111111111111', step=3...82c36180c6ada74646f1df23e7f7112aaa1318e9338ceca'}}}, read_ids={'O1': 'policy-search-50bb5cd1c47b7ad22c99917163d43c5a'})
+max_output_tokens = 1024
+
+    def decide(
+        self,
+        *,
+        system: str,
+        messages: list[Message],
+        context: dict[str, Any] | None = None,
+        sent_context: Any = None,
+        max_output_tokens: int | None = None,
+    ) -> ModelReply:
+        self.calls += 1
+        self.conversations.append(messages)
+        self.output_limits.append(max_output_tokens)
+        self.contexts.append(context)
+        self.sent_contexts.append(sent_context)
+        # The system prompt is recorded **with** the conversation rather than beside it: the packet a test reads
+        # back is then the whole input the client was given, and a script that wanted to answer differently for a
+        # different system prompt can see it. AS02's adapter passes the loop's own prompt through, so this is the
+        # same string the SDK sent.
+        #
+        # The packet a **script** is handed is the structured view when the caller offered one, and otherwise the
+        # mapping parsed out of the messages. That order is deliberate: a continuation script needs the cursor a
+        # previous page answered with, and the rendered prose does not carry it.
+        packet = context if context is not None else _packet_of(messages)
+        if system:
+            packet = {"system": system, **packet}
+        self.packets.append(packet)
+        if not self.script:
+            raise AssertionError("the scripted model was asked to decide but its script is empty")
+        position = int(packet.get("step", self.calls)) if self.use_context_step else self.calls
+        if position <= len(self.script):
+            entry = self.script[position - 1]
+        elif self.repeat_last:
+            entry = self.script[-1]
+        else:
+>           raise AssertionError(
+                f"the scripted model holds {len(self.script)} decisions but was asked for {self.calls}; "
+                "a mock that invented one would let a harness bug look like a passing run"
+            )
+E           AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run
+
+agent\src\resolveflow\harness\model.py:209: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-05 16:42:41,118 | WARNING | _agent:_call_model:3383 - Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+------------------------------ Captured log call ------------------------------
+WARNING  as:_agent.py:3383 Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+____ test_a_search_that_matches_nothing_is_a_successful_read_not_an_error _____
+
+index = <resolveflow.policies.index.PolicyIndex object at 0x00000235F5CA77D0>
+stub_embedder = StubEmbedder(dimension=8, model='stub-embedder', revision='stub-revision-1')
+
+    def test_a_search_that_matches_nothing_is_a_successful_read_not_an_error(
+        index: PolicyIndex, stub_embedder: object
+    ) -> None:
+        """ "The policy is silent" and "the source was unreachable" are different facts and must not look alike."""
+        model = MockModelClient(script=[search("完全不相关的查询词"), propose()])
+
+>       result = run(index, model, stub_embedder)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+agent\tests\integration\test_policy_search_action.py:250:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+agent\tests\integration\test_policy_search_action.py:121: in run
+    return runner.run()
+           ^^^^^^^^^^^^
+agent\src\resolveflow\harness\sdk_runner.py:643: in run
+    return anyio.run(self._drive)
+           ^^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:2548: in run
+    return runner.run(wrapper())
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\hjn\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:2531: in wrapper
+    return await func(*args)
+           ^^^^^^^^^^^^^^^^^
+agent\src\resolveflow\harness\sdk_runner.py:710: in _drive
+    await agent.reply(messenger_message(_starting_packet(self, guard)))
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:371: in reply
+    async for evt_or_msg in self._reply(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:945: in _reply
+    async for item in agen:
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1175: in _reply_impl
+    async for evt in self._reasoning(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1657: in _reasoning
+    async for item in self._reasoning_impl(tool_choice=tool_choice):
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:1724: in _reasoning_impl
+    res = await self._call_model(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3392: in _call_model
+    raise last_exception from None
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3366: in _call_model
+    return await execute_chain()
+           ^^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3360: in execute_chain
+    return await mw.on_model_call(
+agent\src\resolveflow\harness\sdk_runner.py:811: in on_model_call
+    return await next_handler()
+           ^^^^^^^^^^^^^^^^^^^^
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3355: in next_handler
+    return await execute_chain(
+agent\.venv\Lib\site-packages\agentscope\agent\_agent.py:3334: in execute_chain
+    return await current_model(
+agent\.venv\Lib\site-packages\agentscope\model\_base.py:211: in __call__
+    res = await self._call_api(
+agent\src\resolveflow\harness\sdk_adapter.py:177: in _call_api
+    reply = self._client.decide(
+agent\src\resolveflow\harness\sdk_runner.py:1014: in decide
+    if self._runner.durability is not None else self._runner.model.decide(**request)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = MockModelClient(script=[{'kind': 'SEARCH_POLICY', 'query': '完全不相关的查询词', 'arguments': {}, 'reasoning': 'look it up'}, {...ished_reason=None, structured_output=None, error=None)]], output_limits=[1024, 1024, 1024], calls=3, repeat_last=False)
+system = ''
+messages = [Msg(name='harness', content=[TextBlock(type='text', text='只读售后助手，建议由商家审批。主体已绑定，勿索编号或指定身份/地址。按证据补缺口，系统事实用工具获取；不必读遍工具。依...='2026-10-05T16:42:41.971002', usage=None, finished_at=None, finished_reason=None, structured_output=None, error=None)]
+context = {'run': {'run_id': '11111111-1111-4111-8111-111111111111', 'case_id': '22222222-2222-4222-8222-222222222222', 'input_r...tool_name': 'search_policy', 'source_type': 'POLICY_RULE', 'source_ref': 'policy:policy-logistics-2026.09', ...}], ...}
+sent_context = ContextPacket(context_id='ctx-d00b1cab9cfe5ad1aa6b7ff5cd850727', run_id='11111111-1111-4111-8111-111111111111', step=3...82c36180c6ada74646f1df23e7f7112aaa1318e9338ceca'}}}, read_ids={'O1': 'policy-search-44463b01a8ded93d1f623e752674acc0'})
+max_output_tokens = 1024
+
+    def decide(
+        self,
+        *,
+        system: str,
+        messages: list[Message],
+        context: dict[str, Any] | None = None,
+        sent_context: Any = None,
+        max_output_tokens: int | None = None,
+    ) -> ModelReply:
+        self.calls += 1
+        self.conversations.append(messages)
+        self.output_limits.append(max_output_tokens)
+        self.contexts.append(context)
+        self.sent_contexts.append(sent_context)
+        # The system prompt is recorded **with** the conversation rather than beside it: the packet a test reads
+        # back is then the whole input the client was given, and a script that wanted to answer differently for a
+        # different system prompt can see it. AS02's adapter passes the loop's own prompt through, so this is the
+        # same string the SDK sent.
+        #
+        # The packet a **script** is handed is the structured view when the caller offered one, and otherwise the
+        # mapping parsed out of the messages. That order is deliberate: a continuation script needs the cursor a
+        # previous page answered with, and the rendered prose does not carry it.
+        packet = context if context is not None else _packet_of(messages)
+        if system:
+            packet = {"system": system, **packet}
+        self.packets.append(packet)
+        if not self.script:
+            raise AssertionError("the scripted model was asked to decide but its script is empty")
+        position = int(packet.get("step", self.calls)) if self.use_context_step else self.calls
+        if position <= len(self.script):
+            entry = self.script[position - 1]
+        elif self.repeat_last:
+            entry = self.script[-1]
+        else:
+>           raise AssertionError(
+                f"the scripted model holds {len(self.script)} decisions but was asked for {self.calls}; "
+                "a mock that invented one would let a harness bug look like a passing run"
+            )
+E           AssertionError: the scripted model holds 2 decisions but was asked for 3; a mock that invented one would let a harness bug look like a passing run
+
+agent\src\resolveflow\harness\model.py:209: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-05 16:42:41,971 | WARNING | _agent:_call_model:3383 - Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+------------------------------ Captured log call ------------------------------
+WARNING  as:_agent.py:3383 Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-agent.
+=========================== short test summary info ===========================
+FAILED agent\tests\integration\test_policy_index.py::test_a_bundle_built_without_an_embedder_refuses_the_dense_path
+FAILED agent\tests\integration\test_policy_search_action.py::test_a_search_policy_action_executes_and_the_rules_reach_the_model
+FAILED agent\tests\integration\test_policy_search_action.py::test_a_search_spends_a_local_read_and_a_search_attempt
+FAILED agent\tests\integration\test_policy_search_action.py::test_the_budget_position_reaches_the_client_but_not_the_provider_request
+FAILED agent\tests\integration\test_policy_search_action.py::test_a_search_that_matches_nothing_is_a_successful_read_not_an_error
+5 failed, 47 passed in 12.37s

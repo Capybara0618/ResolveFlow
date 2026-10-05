@@ -1,0 +1,278 @@
+FFFFFFFFFFF.F                                                            [100%]
+================================== FAILURES ===================================
+________________ test_only_selected_latest_generation_is_read _________________
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002086F5C74A0>
+
+    def test_only_selected_latest_generation_is_read(agent_db):
+        index = PolicyIndex(agent_db)
+        index.build(LOGISTICS_SEPTEMBER, generation_id="old", now=dt.datetime(2026, 1, 1, tzinfo=dt.UTC))
+        changed = replace(LOGISTICS_SEPTEMBER, rules=[{"rule_id": "NEW", "title": "新索引", "text": "包裹找不到"}])
+        index.build(changed, generation_id="new", now=dt.datetime(2026, 1, 2, tzinfo=dt.UTC))
+        hits = lookup(index)
+>       assert [h.rule_id for h in hits] == ["NEW"]
+E       AssertionError: assert ['NEW', 'R-LO...'R-NOSCAN-7D'] == ['NEW']
+E
+E         Left contains 2 more items, first extra item: 'R-LOST-001'
+E         Use -v to get more diff
+
+agent\tests\integration\test_rag_index_integrity.py:24: AssertionError
+---------------------------- Captured stderr call -----------------------------
+Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\hjn\AppData\Local\Temp\jieba.cache
+Loading model cost 0.572 seconds.
+Prefix dict has been built successfully.
+------------------------------ Captured log call ------------------------------
+DEBUG    jieba:__init__.py:113 Building prefix dict from the default dictionary ...
+DEBUG    jieba:__init__.py:132 Loading model from cache C:\Users\hjn\AppData\Local\Temp\jieba.cache
+DEBUG    jieba:__init__.py:164 Loading model cost 0.572 seconds.
+DEBUG    jieba:__init__.py:166 Prefix dict has been built successfully.
+________ test_mixed_merchant_pins_refuse_even_if_one_merchant_matches _________
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002086F5C7740>
+
+    def test_mixed_merchant_pins_refuse_even_if_one_merchant_matches(agent_db):
+        index = PolicyIndex(agent_db)
+        other = replace(LOGISTICS_SEPTEMBER, bundle_id="other", merchant_id="M-2002")
+        index.build(LOGISTICS_SEPTEMBER)
+        index.build(other)
+>       with pytest.raises(PolicyIndexNotReadyError, match="merchant"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE PolicyIndexNotReadyError
+
+agent\tests\integration\test_rag_index_integrity.py:32: Failed
+_____ test_query_encoder_identity_must_match_generation[model-different] ______
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002086F5C7AD0>
+field = 'model', value = 'different'
+
+    @pytest.mark.parametrize("field,value", [("model", "different"), ("revision", "different"), ("dimension", 7)])
+    def test_query_encoder_identity_must_match_generation(agent_db, field, value):
+        index = PolicyIndex(agent_db)
+        index.build(LOGISTICS_SEPTEMBER, embedder=_StubForDense())
+        encoder = _StubForDense()
+        setattr(encoder, field, value)
+>       with pytest.raises(PolicyIndexNotReadyError, match="embedding"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE PolicyIndexNotReadyError
+
+agent\tests\integration\test_rag_index_integrity.py:44: Failed
+____ test_query_encoder_identity_must_match_generation[revision-different] ____
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002087F5237A0>
+field = 'revision', value = 'different'
+
+    @pytest.mark.parametrize("field,value", [("model", "different"), ("revision", "different"), ("dimension", 7)])
+    def test_query_encoder_identity_must_match_generation(agent_db, field, value):
+        index = PolicyIndex(agent_db)
+        index.build(LOGISTICS_SEPTEMBER, embedder=_StubForDense())
+        encoder = _StubForDense()
+        setattr(encoder, field, value)
+>       with pytest.raises(PolicyIndexNotReadyError, match="embedding"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE PolicyIndexNotReadyError
+
+agent\tests\integration\test_rag_index_integrity.py:44: Failed
+_______ test_query_encoder_identity_must_match_generation[dimension-7] ________
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002087F522AB0>
+field = 'dimension', value = 7
+
+    @pytest.mark.parametrize("field,value", [("model", "different"), ("revision", "different"), ("dimension", 7)])
+    def test_query_encoder_identity_must_match_generation(agent_db, field, value):
+        index = PolicyIndex(agent_db)
+        index.build(LOGISTICS_SEPTEMBER, embedder=_StubForDense())
+        encoder = _StubForDense()
+        setattr(encoder, field, value)
+>       with pytest.raises(PolicyIndexNotReadyError, match="embedding"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE PolicyIndexNotReadyError
+
+agent\tests\integration\test_rag_index_integrity.py:44: Failed
+__________ test_invalid_vectors_do_not_create_ready_generation[nan] ___________
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002087F522D20>
+value = nan
+
+    @pytest.mark.parametrize("value", [float("nan"), float("inf"), 0.0])
+    def test_invalid_vectors_do_not_create_ready_generation(agent_db, value):
+        encoder = _StubForDense()
+        encoder.embed = lambda texts: [[value] * encoder.dimension for _ in texts]
+        index = PolicyIndex(agent_db)
+>       with pytest.raises(ValueError, match="vector"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+agent\tests\integration\test_rag_index_integrity.py:53: Failed
+__________ test_invalid_vectors_do_not_create_ready_generation[inf] ___________
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002087F523EF0>
+value = inf
+
+    @pytest.mark.parametrize("value", [float("nan"), float("inf"), 0.0])
+    def test_invalid_vectors_do_not_create_ready_generation(agent_db, value):
+        encoder = _StubForDense()
+        encoder.embed = lambda texts: [[value] * encoder.dimension for _ in texts]
+        index = PolicyIndex(agent_db)
+>       with pytest.raises(ValueError, match="vector"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+agent\tests\integration\test_rag_index_integrity.py:53: Failed
+__________ test_invalid_vectors_do_not_create_ready_generation[0.0] ___________
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002087F522A50>
+value = 0.0
+
+    @pytest.mark.parametrize("value", [float("nan"), float("inf"), 0.0])
+    def test_invalid_vectors_do_not_create_ready_generation(agent_db, value):
+        encoder = _StubForDense()
+        encoder.embed = lambda texts: [[value] * encoder.dimension for _ in texts]
+        index = PolicyIndex(agent_db)
+>       with pytest.raises(ValueError, match="vector"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+agent\tests\integration\test_rag_index_integrity.py:53: Failed
+_ test_invalid_query_vector_refuses_instead_of_empty_or_random_ranking[vectors0] _
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002087F5237D0>
+vectors = []
+
+    @pytest.mark.parametrize("vectors", [[], [[0.0] * 8], [[float("nan")] * 8], [[1.0] * 7]])
+    def test_invalid_query_vector_refuses_instead_of_empty_or_random_ranking(agent_db, vectors):
+        index = PolicyIndex(agent_db)
+        encoder = _StubForDense()
+        index.build(LOGISTICS_SEPTEMBER, embedder=encoder)
+        encoder.embed = lambda texts: vectors
+        with pytest.raises(ValueError, match="vector"):
+>           lookup(index, encoder=encoder)
+
+agent\tests\integration\test_rag_index_integrity.py:65:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+agent\tests\integration\test_rag_index_integrity.py:13: in lookup
+    return index.search(merchant_id=bundle.merchant_id, bundle_ids=[bundle.bundle_id],
+agent\src\resolveflow\policies\index.py:495: in search
+    scored = self._rank_dense(rows, query, embedder)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <resolveflow.policies.index.PolicyIndex object at 0x000002086F5C68D0>
+rows = [PolicyChunkRow(bundle_id='policy-logistics-2026.09', merchant_id='M-1001', version='2026.09', manifest_hash='bbbbbbbb...3dc6f8882067259649d4f1dc1809416ad5c7385086e455e727b36', embedding=[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5], score=0.0)]
+query = '包裹找不到了'
+embedder = <tests.integration.test_policy_index._StubForDense object at 0x000002086F5C7B90>
+
+    def _rank_dense(
+        self, rows: list[PolicyChunkRow], query: str, embedder: Embedder | None
+    ) -> list[PolicyChunkRow]:
+        """Cosine over real embeddings, or a refusal — never a silent BM25.
+
+        The vectors come back from the database, not from an in-process cache: the stored vector is what the
+        generation recorded, and re-embedding at query time would make a report's numbers depend on the model
+        being loadable rather than on what was indexed. The **query** is embedded here, so the embedder must
+        be the same one the generation was built with — which is why the generation records its model and
+        revision, and why a mismatch is refused below rather than ranked.
+        """
+        if embedder is None:
+            raise EmbeddingUnavailableError(
+                "a dense search needs an embedder; pass the one the generation was built with. There is no "
+                "default here on purpose: a query embedded by a different model than the corpus would rank "
+                "meaninglessly while looking like a real result (docs/policy-rag.md:19)"
+            )
+        missing = [row for row in rows if row.embedding is None]
+        if missing:
+            raise PolicyIndexNotReadyError(
+                f"{len(missing)} of {len(rows)} indexed chunks have no embedding "
+                f"(generation was built without one); the dense path refuses rather than falling back to a "
+                "different ranking (docs/policy-rag.md:23)"
+            )
+>       query_vector = embedder.embed([query])[0]
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+agent\src\resolveflow\policies\index.py:540: IndexError
+_ test_invalid_query_vector_refuses_instead_of_empty_or_random_ranking[vectors1] _
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002087F5235F0>
+vectors = [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...]]
+
+    @pytest.mark.parametrize("vectors", [[], [[0.0] * 8], [[float("nan")] * 8], [[1.0] * 7]])
+    def test_invalid_query_vector_refuses_instead_of_empty_or_random_ranking(agent_db, vectors):
+        index = PolicyIndex(agent_db)
+        encoder = _StubForDense()
+        index.build(LOGISTICS_SEPTEMBER, embedder=encoder)
+        encoder.embed = lambda texts: vectors
+>       with pytest.raises(ValueError, match="vector"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+agent\tests\integration\test_rag_index_integrity.py:64: Failed
+_ test_invalid_query_vector_refuses_instead_of_empty_or_random_ranking[vectors2] _
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002087F599DF0>
+vectors = [[nan, nan, nan, nan, nan, nan, ...]]
+
+    @pytest.mark.parametrize("vectors", [[], [[0.0] * 8], [[float("nan")] * 8], [[1.0] * 7]])
+    def test_invalid_query_vector_refuses_instead_of_empty_or_random_ranking(agent_db, vectors):
+        index = PolicyIndex(agent_db)
+        encoder = _StubForDense()
+        index.build(LOGISTICS_SEPTEMBER, embedder=encoder)
+        encoder.embed = lambda texts: vectors
+>       with pytest.raises(ValueError, match="vector"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+agent\tests\integration\test_rag_index_integrity.py:64: Failed
+_______________ test_corrupt_stored_vector_is_not_a_policy_miss _______________
+
+agent_db = <resolveflow.runtime.db.Database object at 0x000002087F59A900>
+
+    def test_corrupt_stored_vector_is_not_a_policy_miss(agent_db):
+        index = PolicyIndex(agent_db)
+        encoder = _StubForDense()
+        index.build(LOGISTICS_SEPTEMBER, embedder=encoder)
+        with agent_db.connection() as connection:
+            connection.execute("UPDATE policy_index_chunk SET embedding=ARRAY[0.0]::real[]")
+        with pytest.raises(PolicyIndexNotReadyError, match="vector"):
+>           lookup(index, encoder=encoder)
+
+agent\tests\integration\test_rag_index_integrity.py:75:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+agent\tests\integration\test_rag_index_integrity.py:13: in lookup
+    return index.search(merchant_id=bundle.merchant_id, bundle_ids=[bundle.bundle_id],
+agent\src\resolveflow\policies\index.py:495: in search
+    scored = self._rank_dense(rows, query, embedder)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+agent\src\resolveflow\policies\index.py:543: in _rank_dense
+    row.score = cosine_similarity(query_vector, row.embedding)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+left = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, ...], right = [0.0]
+
+    def cosine_similarity(left: list[float], right: list[float]) -> float:
+        """Cosine similarity of two vectors, tolerant of vectors that were stored without normalisation.
+
+        Normalised on both sides rather than assuming the caller normalised: vectors read back from the database
+        arrive as plain ``real[]``, and a stored vector that lost its normalisation would otherwise make the
+        ranking depend on magnitude.
+        """
+        if len(left) != len(right):
+>           raise ValueError(f"cannot compare a {len(left)}-dimensional vector with a {len(right)}-dimensional one")
+E           ValueError: cannot compare a 8-dimensional vector with a 1-dimensional one
+
+agent\src\resolveflow\policies\retrieval.py:167: ValueError
+=========================== short test summary info ===========================
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_only_selected_latest_generation_is_read
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_mixed_merchant_pins_refuse_even_if_one_merchant_matches
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_query_encoder_identity_must_match_generation[model-different]
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_query_encoder_identity_must_match_generation[revision-different]
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_query_encoder_identity_must_match_generation[dimension-7]
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_invalid_vectors_do_not_create_ready_generation[nan]
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_invalid_vectors_do_not_create_ready_generation[inf]
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_invalid_vectors_do_not_create_ready_generation[0.0]
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_invalid_query_vector_refuses_instead_of_empty_or_random_ranking[vectors0]
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_invalid_query_vector_refuses_instead_of_empty_or_random_ranking[vectors1]
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_invalid_query_vector_refuses_instead_of_empty_or_random_ranking[vectors2]
+FAILED agent\tests\integration\test_rag_index_integrity.py::test_corrupt_stored_vector_is_not_a_policy_miss
+12 failed, 1 passed in 4.53s
