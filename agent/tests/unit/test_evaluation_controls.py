@@ -13,7 +13,7 @@ from resolveflow.harness.model import ModelReply, ModelUsage
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
-from scripts.agent_eval import allowance, main, persist, rescore  # noqa: E402
+from scripts.agent_eval import agents, allowance, main, persist, rescore  # noqa: E402
 from scripts.evaluation.models import CaptureModel, live_guard  # noqa: E402
 from scripts.evaluation.reporting import compare_reports, describe  # noqa: E402
 
@@ -189,12 +189,13 @@ def report():
         "duplicate",
         "embedding",
         "backend_profile",
+        "evaluation_config",
         "alias",
     ],
 )
 def test_incomparable_reports_refused(change):
     before, after = report(), report()
-    if change in {"mode", "manifest_hash", "provider", "embedding", "backend_profile"}:
+    if change in {"mode", "manifest_hash", "provider", "embedding", "backend_profile", "evaluation_config"}:
         after[change] = "changed"
     elif change == "scorer":
         after["code_hashes"]["scripts/evaluation/scoring.py"] = "changed"
@@ -223,6 +224,33 @@ def test_live_default_refused_before_environment_or_key_access():
     with pytest.raises(SystemExit) as error:
         main(["live"])
     assert error.value.code == 2
+
+
+@pytest.mark.parametrize("calls", [0, 13])
+def test_model_call_selection_invalid_before_environment(tmp_path, calls):
+    with patch("scripts.agent_eval.environment") as environment, pytest.raises(SystemExit) as error:
+        main(["mock", "--model-calls", str(calls), "--output", str(tmp_path / "invalid.json")])
+    assert error.value.code == 2
+    environment.assert_not_called()
+
+
+@pytest.mark.parametrize("calls", [None, 12])
+def test_eval_passes_selected_calls_to_actual_runner_budget(tmp_path, calls):
+    from contextlib import nullcontext
+
+    from scripts.evaluation.dataset import read
+
+    case = next(c for c in read("agent/cases.json", ROOT / "evals/calibrated-v3") if c["id"] == "A01A")
+    report = {}
+    kwargs = {} if calls is None else {"model_calls": calls}
+    with patch("scripts.agent_eval.business_tools", return_value=nullcontext(({}, []))), \
+            patch("scripts.agent_eval.dispatch_facts", return_value={}), \
+            patch("scripts.agent_eval.AgentScopeRunner", side_effect=RuntimeError("test stops before run")) as runner:
+        agents(report, None, None, {case["bundle_id"]: object()}, mode="mock", split="all",
+               selected=["A01A"], output=tmp_path / "selected.json", live_budget=None,
+               dataset=ROOT / "evals/calibrated-v3", **kwargs)
+    assert runner.call_args.kwargs["budget"].model_calls == (calls or 6)
+    assert report["evaluation_config"]["model_calls"] == (calls or 6)
 
 
 def test_existing_report_is_not_overwritten(tmp_path):

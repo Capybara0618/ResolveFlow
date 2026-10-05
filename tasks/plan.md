@@ -1,3 +1,5 @@
+2026-10-05 接续 Harness：评测预算参数化并记录 → 生产12次固定失败/对照6例 → 其余26例整体真实基线 → 失败归因及独立逐query Gold待审包 → 集中核验/提交推送。[本批协议](../reports/agent-live-harness-baseline/README.md)，进度仅[todo顶部](todo.md)。保持正文dense与冻结Gold，不先加hybrid/rerank。
+
 # 多商家上游与既有售后实施计划
 
 2026-10-05 用户批准[Harness可靠性修复](../docs/harness-reliability.md)：具体字段反馈→交替循环/检索结果判新→429持久冷却→集中工程回归与新独立回放。当前结果只看[todo顶部](todo.md)与[报告](../reports/harness-reliability/README.md)，后续固定配置整体真实基线、独立RAG逐query Gold，再作受控RAG优化；不先加hybrid/reranker或扩大平台范围。下方为历史计划，不重新启动旧批。

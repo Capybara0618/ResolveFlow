@@ -166,7 +166,10 @@ def allowance(path):
     return value
 
 
-def agents(report, index, encoder, pins, *, mode, split, selected, output, live_budget, dataset=DATA):
+def agents(report, index, encoder, pins, *, mode, split, selected, output, live_budget, dataset=DATA, model_calls=6):
+    if type(model_calls) is not int or not 1 <= model_calls <= RunBudget().model_calls:
+        raise ValueError("model_calls must be between 1 and the production default (12)")
+    report["evaluation_config"] = asdict(RunBudget(model_calls=model_calls))
     gold = read("gold/agent.json", dataset)
     cases = [
         c
@@ -193,7 +196,7 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
                 "thinking": {"type": "disabled"},
                 "response_format": {"type": "json_object"},
             },
-            "per_case_calls": 6,
+            "per_case_calls": model_calls,
             "total_transmission_cap": cap["limit"],
             "max_output_tokens": 1024,
             "reservation_cap_usd": None,
@@ -247,7 +250,7 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
                     facts=facts,
                     policy_index=index,
                     policy_embedder=encoder,
-                    budget=RunBudget(model_calls=6),
+                    budget=RunBudget(model_calls=model_calls),
                 )
                 entry["harness_manifest"] = runner.manifest()
                 entry["budget_config"] = asdict(runner.budget)
@@ -363,6 +366,8 @@ def main(argv=None):
     parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/harness-v10",
                         help="current code replay profile; frozen dataset/Gold are independent")
     parser.add_argument("--case", action="append", default=[])
+    parser.add_argument("--model-calls", type=int, choices=range(1, RunBudget().model_calls + 1), default=6,
+                        help="per-case safety limit; historical default 6, production parity requires explicit 12")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--live-usage", "--live-budget", dest="live_budget", type=Path,
                         default=ROOT / "tmp/evaluation-live-budget.json",
@@ -469,6 +474,7 @@ def main(argv=None):
                 output=output,
                 live_budget=args.live_budget,
                 dataset=args.dataset,
+                model_calls=args.model_calls,
             )
     report["state"] = "FINISHED"
     persist(output, report)

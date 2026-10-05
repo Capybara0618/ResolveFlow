@@ -26,7 +26,7 @@ def compare_reports(before, after):
         for report in (before, after)
     ):
         raise ValueError("Unfinished report cannot be an effect comparison")
-    for key in ("manifest_hash", "mode", "provider", "embedding", "backend_profile"):
+    for key in ("manifest_hash", "mode", "provider", "embedding", "backend_profile", "evaluation_config"):
         if before.get(key) != after.get(key):
             raise ValueError("Incomparable reports: " + key)
     aliases = [

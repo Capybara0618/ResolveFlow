@@ -1,3 +1,5 @@
+2026-10-05 用户批准[Harness真实基线](../reports/agent-live-harness-baseline/README.md)，状态仅看[todo顶部](todo.md)。入口参数化完成，43测试/Ruff通过；按生产12次跑固定6例与剩余26例各一次，再独立RAG Gold待审包。不改生产/冻结数据、不将旧6次结果当受控对照；本轮执行者仍在执行，尚未交出写入权。下方均为历史。
+
 # 当前执行说明：正式启动入口与三角色接手规则
 
 2026-10-05 用户批准[Harness可靠性修复](../docs/harness-reliability.md)。具体字段纠错、交替重复/旧政策结果判新、429持久冷却及有界恢复已实施；唯一状态仍看[todo顶部](todo.md)，实际命令、失败及未运行见[报告](../reports/harness-reliability/README.md)。当前context v12/verifier v6，新增独立harness-v10回放，旧包/输入/Gold保留。后续先明确生产12次配置做固定真实建议基线及独立逐query标注，再按证据优化RAG；不自动收费/部署、重做旧批或换检索算法。收口提交推送核实后停止写入，下方均为历史执行说明。

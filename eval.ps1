@@ -5,6 +5,8 @@ param(
     [ValidateSet('all', 'dev', 'test')]
     [string]$Split = 'all',
     [string[]]$Case = @(),
+    [ValidateRange(1, 12)]
+    [int]$ModelCalls = 6,
     [string]$Output,
     [Alias('LiveBudget')]
     [string]$LiveUsage,
@@ -21,6 +23,7 @@ if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
     throw '缺少 agent/.venv，请先按项目运行说明安装锁定依赖。'
 }
 $taskArgs = @('scripts/agent_eval.py', $Mode, '--split', $Split)
+if ($Mode -in @('mock', 'live')) { $taskArgs += @('--model-calls', "$ModelCalls") }
 foreach ($caseId in $Case) { $taskArgs += @('--case', $caseId) }
 if ($Output) { $taskArgs += @('--output', $Output) }
 if ($LiveUsage) { $taskArgs += @('--live-usage', $LiveUsage) }
