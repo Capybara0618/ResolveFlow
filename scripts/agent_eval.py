@@ -26,10 +26,9 @@ from resolveflow.harness.actions import ModelDecision  # noqa: E402
 from resolveflow.harness.budget import RunBudget  # noqa: E402
 from resolveflow.harness.live_model import LiveModelClient  # noqa: E402
 from resolveflow.harness.sdk_runner import AgentScopeRunner  # noqa: E402
-from resolveflow.harness.vocabulary import RunFacts  # noqa: E402
 from resolveflow.policies import EMBEDDING_DIMENSION, EMBEDDING_MODEL, EMBEDDING_REVISION  # noqa: E402
-from scripts.evaluation.dataset import DATA, digest, read, validate  # noqa: E402
-from scripts.evaluation.environment import business_tools, environment  # noqa: E402
+from scripts.evaluation.dataset import ALIGNED_DATA, DATA, digest, read, validate  # noqa: E402
+from scripts.evaluation.environment import business_tools, dispatch_facts, environment  # noqa: E402
 from scripts.evaluation.models import CaptureModel, FixtureModel, live_guard  # noqa: E402
 from scripts.evaluation.reporting import compare_reports, describe, load_report  # noqa: E402
 from scripts.evaluation.review import make_review, score_review  # noqa: E402
@@ -46,16 +45,20 @@ def dependency_versions():
     return result
 
 
-def metadata(mode):
+def metadata(mode, dataset=DATA):
     return {
-        "dataset_version": read("manifest.json")["version"],
-        "manifest_hash": digest(DATA / "manifest.json"),
+        "dataset_version": read("manifest.json", dataset)["version"],
+        "manifest_hash": digest(dataset / "manifest.json"),
+        "replay_manifest_hash": digest(dataset / "replay/manifest.json")
+        if (dataset / "replay/manifest.json").is_file() else None,
         "mode": mode,
         "synthetic": True,
-        "backend_profile": "loopback synthetic sources; materials with text, not Java EvidenceListResponse",
+        "backend_profile": read("manifest.json", dataset).get(
+            "input_profile", "loopback synthetic sources; materials with text, not Java EvidenceListResponse"
+        ),
         "business_end_to_end": False,
         "scoring_scope": "automatic action/read/citation checks; semantic explanation and question review pending",
-        "gold_review": read("manifest.json")["review_status"],
+        "gold_review": read("manifest.json", dataset)["review_status"],
         "embedding": {"model": EMBEDDING_MODEL, "revision": EMBEDDING_REVISION, "dimension": EMBEDDING_DIMENSION},
         "dependencies": dependency_versions(),
         "entry_hash": digest(ROOT / "scripts/agent_eval.py"),
@@ -85,9 +88,9 @@ def persist(path, report):
     temporary.replace(path)
 
 
-def rag(report, index, encoder, pins, *, split, bm25_only=False):
-    gold = read("gold/rag.json")
-    for query in read("rag/queries.json"):
+def rag(report, index, encoder, pins, *, split, bm25_only=False, dataset=DATA):
+    gold = read("gold/rag.json", dataset)
+    for query in read("rag/queries.json", dataset):
         if split != "all" and query["split"] != split:
             continue
         for path in ("bm25",) if bm25_only else ("dense", "bm25"):
@@ -151,11 +154,11 @@ def allowance(path):
     return value
 
 
-def agents(report, index, encoder, pins, *, mode, split, selected, output, live_budget):
-    gold = read("gold/agent.json")
+def agents(report, index, encoder, pins, *, mode, split, selected, output, live_budget, dataset=DATA):
+    gold = read("gold/agent.json", dataset)
     cases = [
         c
-        for c in read("agent/cases.json")
+        for c in read("agent/cases.json", dataset)
         if (split == "all" or c["split"] == split) and (not selected or c["id"] in selected)
     ]
     if selected and set(selected) != {c["id"] for c in cases}:
@@ -202,7 +205,7 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
         started = time.perf_counter()
         entry["status"] = "RUNNING"
         run_id = str(uuid.uuid5(uuid.NAMESPACE_URL, "resolveflow-eval-run:" + case["id"]))
-        case_id = str(uuid.uuid5(uuid.NAMESPACE_URL, "resolveflow-eval-case:" + case["id"]))
+        case_id = case.get("case_id") or str(uuid.uuid5(uuid.NAMESPACE_URL, "resolveflow-eval-case:" + case["id"]))
         pin = pins[case["bundle_id"]]
         client = (
             FixtureModel()
@@ -224,14 +227,7 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
         model = CaptureModel(client, cap, on_record=checkpoint)
         try:
             with business_tools(case, pin, run_id=run_id, case_id=case_id) as (tools, http_reads):
-                facts = RunFacts(
-                    run_id=run_id,
-                    case_id=case_id,
-                    input_revision=1,
-                    description=case["description"],
-                    policy_manifest=pin,
-                    **case["scope"],
-                )
+                facts = dispatch_facts(case, pin, run_id=run_id, case_id=case_id)
                 runner = AgentScopeRunner(
                     model=model,
                     tools=tools,
@@ -243,7 +239,7 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
                 entry["harness_manifest"] = runner.manifest()
                 entry["budget_config"] = asdict(runner.budget)
                 result = runner.run()
-                entry.update(score_agent(result, gold[case["id"]]))
+                entry.update(score_agent(result, gold[case["id"]], case=case))
                 entry.update(
                     status="COMPLETED" if result.completed else "INCOMPLETE",
                     completed=result.completed,
@@ -252,6 +248,9 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
                     spend=asdict(result.spend),
                     trajectory=result.trajectory,
                     notices=result.notices,
+                    context_diagnostics=[
+                        json.loads(n.split("=", 1)[1]) for n in result.notices if n.startswith("CONTEXT_DIAGNOSTICS=")
+                    ],
                     observations=[o.model_dump(mode="json") for o in result.observations],
                     http_reads=http_reads,
                 )
@@ -293,10 +292,11 @@ def agents(report, index, encoder, pins, *, mode, split, selected, output, live_
         )
 
 
-def rescore(source, source_path):
-    if source["mode"] not in {"mock", "live"} or source["manifest_hash"] != digest(DATA / "manifest.json"):
+def rescore(source, source_path, dataset=DATA):
+    if source["mode"] not in {"mock", "live"} or source["manifest_hash"] != digest(dataset / "manifest.json"):
         raise ValueError("Only current frozen Agent reports can be rescored without rerunning")
-    gold = read("gold/agent.json")
+    gold = read("gold/agent.json", dataset)
+    cases = {c["id"]: c for c in read("agent/cases.json", dataset)}
     for entry in source["results"]:
         if entry["id"] not in gold:
             raise ValueError("Unknown saved case id")
@@ -309,7 +309,7 @@ def rescore(source, source_path):
                 ToolObservation.model_validate_json(json.dumps(item)) for item in entry.get("observations", [])
             ],
         )
-        entry.update(score_agent(result, gold[entry["id"]]))
+        entry.update(score_agent(result, gold[entry["id"]], case=cases[entry["id"]]))
     source["summary"]["joint_correct"] = sum(bool(e.get("joint_correct")) for e in source["results"])
     source["summary"]["action_correct"] = sum(bool(e.get("action_correct")) for e in source["results"])
     source["scoring_hashes"] = {
@@ -340,6 +340,12 @@ def main(argv=None):
         ),
     )
     parser.add_argument("--split", choices=("dev", "test", "all"), default="all")
+    parser.add_argument(
+        "--dataset",
+        type=Path,
+        default=ALIGNED_DATA,
+        help="frozen version directory; default aligned-v2, v1 remains available",
+    )
     parser.add_argument("--case", action="append", default=[])
     parser.add_argument("--output", type=Path)
     parser.add_argument("--live-budget", type=Path)
@@ -352,7 +358,7 @@ def main(argv=None):
         parser.error("--bm25-only is available only in rag mode")
     if args.mode == "live" and (not args.case or args.live_budget is None):
         parser.error("live requires explicit --case selections and --live-budget; no automatic paid sweep")
-    counts = validate()
+    counts = validate(args.dataset)
     if args.mode == "validate":
         print(json.dumps(counts))
         return 0
@@ -375,7 +381,7 @@ def main(argv=None):
             print(json.dumps({key: value for key, value in result.items() if key != "results"}, ensure_ascii=False))
             return int(result["status"] != "COMPLETE" or result["combined_pass"] != result["n"])
         if args.mode == "rescore":
-            persist(output, rescore(source, args.input_report))
+            persist(output, rescore(source, args.input_report, args.dataset))
             print(json.dumps({"n": len(source["results"]), "new_model_requests": 0}))
             return 0
         if args.mode == "compare":
@@ -392,7 +398,7 @@ def main(argv=None):
         output.write_text(describe(source), encoding="utf-8")
         print(str(output))
         return 0
-    report = metadata(args.mode)
+    report = metadata(args.mode, args.dataset)
     if args.mode == "harness":
         from scripts.evaluation.harness_checks import run_checks
 
@@ -404,7 +410,7 @@ def main(argv=None):
     if args.mode == "replay":
         from resolveflow.replay.strict import strict_replay
 
-        directories = sorted((DATA / "replay/golden").glob("*/pack.json"))
+        directories = sorted((args.dataset / "replay/golden").glob("*/pack.json"))
         if len(directories) != 5:
             raise ValueError("Expected five current replay packs; zero steps cannot pass")
         for pack in directories:
@@ -421,9 +427,9 @@ def main(argv=None):
         print(json.dumps(report["summary"]))
         return int(any("error" in e for e in report["results"]))
     guard = live_guard(args.live_budget) if args.mode == "live" else nullcontext()
-    with guard, environment(dense=not args.bm25_only) as (_, index, encoder, pins):
+    with guard, environment(dense=not args.bm25_only, dataset=args.dataset) as (_, index, encoder, pins):
         if args.mode == "rag":
-            rag(report, index, encoder, pins, split=args.split, bm25_only=args.bm25_only)
+            rag(report, index, encoder, pins, split=args.split, bm25_only=args.bm25_only, dataset=args.dataset)
         else:
             agents(
                 report,
@@ -435,6 +441,7 @@ def main(argv=None):
                 selected=args.case,
                 output=output,
                 live_budget=args.live_budget,
+                dataset=args.dataset,
             )
     report["state"] = "FINISHED"
     persist(output, report)

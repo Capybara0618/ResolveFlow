@@ -1,0 +1,1206 @@
+{
+  "A01A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [
+      "R-UNSHIPPED-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1001",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "not_shipped",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "fulfillment_status": "NOT_SHIPPED",
+              "fulfillment_version": 1
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A01B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A02A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [
+      "R-UNSHIPPED-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1002",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "not_shipped",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "fulfillment_status": "NOT_SHIPPED",
+              "fulfillment_version": 1
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A02B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A03A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [
+      "R-UNSHIPPED-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1003",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-3"
+            }
+          }
+        ]
+      },
+      {
+        "id": "not_shipped",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "fulfillment_status": "NOT_SHIPPED",
+              "fulfillment_version": 1
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A03B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A04A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [
+      "R-UNSHIPPED-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1001",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-4"
+            }
+          }
+        ]
+      },
+      {
+        "id": "not_shipped",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "fulfillment_status": "NOT_SHIPPED",
+              "fulfillment_version": 1
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A04B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A05A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1001",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-5"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "carrier_lost",
+        "any_of": [
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "LOST",
+              "carrier_conclusion": "LOST"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A05B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A06A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1002",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-6"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "carrier_lost",
+        "any_of": [
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "LOST",
+              "carrier_conclusion": "LOST"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A06B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A07A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1003",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-7"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "carrier_lost",
+        "any_of": [
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "LOST",
+              "carrier_conclusion": "LOST"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A07B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A08A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1001",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-8"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "carrier_lost",
+        "any_of": [
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "LOST",
+              "carrier_conclusion": "LOST"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A08B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A09A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1001",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-9"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "carrier_lost",
+        "any_of": [
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "LOST",
+              "carrier_conclusion": "LOST"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A09B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A10A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1002",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-10"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "carrier_lost",
+        "any_of": [
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "LOST",
+              "carrier_conclusion": "LOST"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A10B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A11A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1003",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-11"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "carrier_lost",
+        "any_of": [
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "LOST",
+              "carrier_conclusion": "LOST"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A11B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A12A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_shipment_trace",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-LOST-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1001",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-12"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "carrier_lost",
+        "any_of": [
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "LOST",
+              "carrier_conclusion": "LOST"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A12B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A13A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-DMG-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1001",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-13"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "delivered",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "fulfillment_status": "DELIVERED"
+            }
+          },
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "DELIVERED"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A13B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A14A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-DMG-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1002",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-14"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "delivered",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "fulfillment_status": "DELIVERED"
+            }
+          },
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "DELIVERED"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A14B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A15A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-DMG-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1003",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-15"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "delivered",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "fulfillment_status": "DELIVERED"
+            }
+          },
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "DELIVERED"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A15B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  },
+  "A16A": {
+    "allowed_actions": [
+      "REFUND"
+    ],
+    "forbidden_actions": [
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context",
+      "get_case_evidence"
+    ],
+    "must_rules": [
+      "R-DMG-001"
+    ],
+    "rationale": "政策条件及人工核验完整，建议退款仍需商家批准。",
+    "support_requirements": [
+      {
+        "id": "paid_free_line",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "order_status": "PAID",
+              "line_refund_state": "FREE",
+              "refunded_amount": 0,
+              "reserved_refund_amount": 0,
+              "currency": "CNY",
+              "line_paid_amount": 32900,
+              "paid_at": "2026-10-03T04:00:00Z",
+              "payment_version": 1,
+              "merchant_id": "M-1001",
+              "customer_id": "EVAL-BUYER",
+              "line_id": "eval-line-16"
+            }
+          }
+        ]
+      },
+      {
+        "id": "human_confirmed",
+        "any_of": [
+          {
+            "tool": "get_case_evidence",
+            "verification": "CONFIRMED"
+          }
+        ]
+      },
+      {
+        "id": "delivered",
+        "any_of": [
+          {
+            "tool": "get_order_context",
+            "fields": {
+              "fulfillment_status": "DELIVERED"
+            }
+          },
+          {
+            "tool": "get_shipment_trace",
+            "fields": {
+              "status": "DELIVERED"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "A16B": {
+    "allowed_actions": [
+      "REQUEST_INFO",
+      "MANUAL_REVIEW"
+    ],
+    "forbidden_actions": [
+      "REFUND",
+      "REJECT"
+    ],
+    "must_tools": [
+      "get_order_context"
+    ],
+    "must_rules": [],
+    "rationale": "决定性事实不足、相反或已有占用；不能据此拒绝整个申请。",
+    "support_requirements": []
+  }
+}

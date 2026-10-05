@@ -102,10 +102,13 @@ class OverflowRefusedError(RuntimeError):
 
     reason_code = CONTEXT_REQUIRED_OVERFLOW
 
-    def __init__(self, message: str, *, mandatory_tokens: int, cap: int) -> None:
+    def __init__(
+        self, message: str, *, mandatory_tokens: int, cap: int, diagnostics: dict[str, Any] | None = None
+    ) -> None:
         super().__init__(message)
         self.mandatory_tokens = mandatory_tokens
         self.cap = cap
+        self.diagnostics = diagnostics or {"mandatory_tokens": mandatory_tokens, "cap": cap}
 
 
 class Layer:
@@ -465,6 +468,24 @@ class ContextBuilder:
                 f"/{max(mandatory, key=lambda item: item.tokens).label}.",
                 mandatory_tokens=mandatory_tokens,
                 cap=cap,
+                diagnostics={
+                    "step": step,
+                    "token_count_mode": "ESTIMATED_UTF8_BYTES",
+                    "mandatory_tokens": mandatory_tokens,
+                    "cap": cap,
+                    "provider_capacity": self.provider_capacity,
+                    "output_reserve": self.output_reserve,
+                    "wrapper_allowance": self.provider_wrapper_allowance,
+                    "cumulative_remaining": cumulative_remaining,
+                    "layer_bytes": {
+                        layer: sum(s.tokens for s in mandatory if s.layer == layer)
+                        for layer in (Layer.P0, Layer.P1, Layer.P2)
+                    },
+                    "sections": [
+                        {"layer": s.layer, "label": s.label, "utf8_bytes": s.tokens}
+                        for s in mandatory
+                    ],
+                },
             )
 
         kept = list(mandatory)

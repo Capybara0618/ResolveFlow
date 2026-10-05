@@ -10,7 +10,8 @@ param(
     [string]$InputReport,
     [string]$Baseline,
     [switch]$Bm25Only,
-    [string]$Review
+    [string]$Review,
+    [string]$Dataset
 )
 $ErrorActionPreference = 'Stop'
 $python = Join-Path $PSScriptRoot 'agent/.venv/Scripts/python.exe'
@@ -25,6 +26,7 @@ if ($InputReport) { $taskArgs += @('--input-report', $InputReport) }
 if ($Baseline) { $taskArgs += @('--baseline', $Baseline) }
 if ($Bm25Only) { $taskArgs += '--bm25-only' }
 if ($Review) { $taskArgs += @('--review', $Review) }
+if ($Dataset) { $taskArgs += @('--dataset', $Dataset) }
 $previousKey = $env:RESOLVEFLOW_MODEL_API_KEY
 try {
     if ($Mode -eq 'live') {

@@ -1,0 +1,30 @@
+{
+  "version": "resolveflow-evaluation-aligned-v2",
+  "created": "2026-10-04",
+  "source": "SYNTHETIC",
+  "review_status": "policy_checked_by_codex_not_human",
+  "files": {
+    "agent/cases.json": "88d8ee23b8fe54372a43515566ad02edb936ed2da3e8256037b93f70f42f0d7d",
+    "gold/agent.json": "d772d32ac8ab7fca11e1402cf4a9fb0978229c79b3b35f78f1021269fd623f2d",
+    "gold/rag.json": "118164607bb43bb699dc7bacafcd5aded7262dfd4d2a6f9ad9e2d595cfe0003b",
+    "harness/checks.json": "983e322b16ae2f08a609856ebfef3eadd1e495d34e94ae966f2a2c8fef38fa47",
+    "harness/context.json": "4ddc090e2501c31197815e382a5d0eafa083bc0146d9ae8036ff4306fd9c0ca7",
+    "policies/bundles.json": "85497e6b3308b8130ba58c0757e10e96975cd32d9911cc065a5f73fa4a0ffbc7",
+    "rag/queries.json": "09074bf78e2228845a9e427892ceeedfb6befecaf7eaf7290c38dda3801cc479"
+  },
+  "split_note": "主场景/查询意图家族隔离，配对不跨组；小样本不是随机真实业务分布。",
+  "live_limits": {
+    "total_requests": 96,
+    "per_case_calls": 6,
+    "max_output_tokens": 1024
+  },
+  "parent_manifest_sha256": "1a430eacd39d6f64b303e63bcfd2654f0b8686382191a968ff2a9869f649d359",
+  "input_profile": "Java ReviewerRunInput + EvidenceListResponse; synthetic loopback sources",
+  "changes": [
+    "inject revision-bound review_context at dispatch",
+    "get_case_evidence returns references, never raw material text",
+    "quality delivery may be established by order projection or carrier trace",
+    "positive Gold additionally checks cited field values and anchored human verification"
+  ],
+  "unchanged": "32 case ids, pairs, splits, allowed/forbidden actions, policy texts, RAG queries and rule Gold"
+}

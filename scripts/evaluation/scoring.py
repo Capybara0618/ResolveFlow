@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 
-def score_agent(result, gold):
+def score_agent(result, gold, *, case=None):
     decision = result.decision
     action = getattr(decision, "recommended_action", None)
     if getattr(decision, "kind", None) == "ASK_CUSTOMER":
@@ -51,6 +51,12 @@ def score_agent(result, gold):
     missing_tools = sorted(set(gold["must_tools"]) - read_tools)
     missing_cited = sorted(set(gold["must_tools"]) - cited_tools) if action == "REFUND" else []
     missing_rules = sorted(set(gold["must_rules"]) - cited_rules)
+    supported = valid_evidence if action == "REFUND" else list(observations.values())
+    missing_support = [
+        criterion["id"]
+        for criterion in gold.get("support_requirements", [])
+        if not any(_supports(source, option, case) for option in criterion["any_of"] for source in supported)
+    ]
     action_ok = result.completed and action in gold["allowed_actions"]
     return {
         "action": action,
@@ -60,8 +66,44 @@ def score_agent(result, gold):
         "missing_cited_tools": missing_cited,
         "missing_rules": missing_rules,
         "citation_errors": citation_errors,
-        "joint_correct": action_ok and not (missing_tools or missing_cited or missing_rules or citation_errors),
+        "missing_support": missing_support,
+        "joint_correct": action_ok
+        and not (missing_tools or missing_cited or missing_rules or citation_errors or missing_support),
     }
+
+
+def _supports(source, option, case):
+    if source.error is not None or source.tool_name != option["tool"]:
+        return False
+    fields = source.result or {}
+    if not all(fields.get(key) == value for key, value in option.get("fields", {}).items()):
+        return False
+    if "verification" not in option:
+        return True
+    if (
+        case is None
+        or fields.get("case_id") != case["case_id"]
+        or fields.get("input_revision") != case["input_revision"]
+    ):
+        return False
+    materials = case["review_context"]["materials"]
+    refs = fields.get("evidence", [])
+    # Snapshot is the input; the tool observation must anchor its exact registered source.
+    checks = [m for m in materials if m["source_type"] == "REVIEWER_VERIFICATION"]
+    latest = {
+        m.get("reviewed_evidence_id"): m for m in sorted(checks, key=lambda m: (m["input_revision"], m["evidence_id"]))
+    }
+    targets = {m["evidence_id"] for m in materials if m["source_type"] == "CUSTOMER_STATEMENT"}
+    return any(
+        m.get("reviewed_evidence_id") in targets
+        and m.get("verification_result") == option["verification"]
+        and any(
+            ref.get("observation_id") == m["evidence_id"]
+            and all(ref.get(k) == m[k] for k in ("source_ref", "source_version", "content_hash"))
+            for ref in refs
+        )
+        for m in latest.values()
+    )
 
 
 def score_rag(hits, query, gold, pin):

@@ -20,7 +20,6 @@ import json
 from typing import Any
 
 import pytest
-
 from resolveflow.contracts.core_models import CoreToolError, ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
 from resolveflow.harness.budget import REASON_NO_PROGRESS, BudgetExhaustedError, BudgetGuard, RunBudget
@@ -31,6 +30,7 @@ from resolveflow.harness.model import MockModelClient, ModelClient
 from resolveflow.harness.observation_read import ObservationStore, read_observation
 from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import RunFacts
+
 from tests.conftest import input_text_of
 
 RUN = "11111111-1111-4111-8111-111111111111"
@@ -768,6 +768,11 @@ def test_an_overflowing_request_stops_the_run_with_the_specification_s_code() ->
     assert result.completed is False  # type: ignore[attr-defined]
     assert result.reason_code == CONTEXT_REQUIRED_OVERFLOW  # type: ignore[attr-defined]
     assert model.calls == 0, "an overflowing request must not reach the provider at all"
+    diagnostics = json.loads(next(n.split("=", 1)[1] for n in result.notices
+                                  if n.startswith("CONTEXT_DIAGNOSTICS=")))
+    assert diagnostics["mandatory_tokens"] > diagnostics["cap"]
+    assert diagnostics["layer_bytes"]["P1"] > 1000
+    assert "很长的诉求" not in str(diagnostics)
 
 
 def test_the_packet_is_built_once_per_turn_so_the_request_and_the_reservation_agree() -> None:
@@ -782,4 +787,4 @@ def test_the_packet_is_built_once_per_turn_so_the_request_and_the_reservation_ag
     # One model call per packet, and the packet's hashes are the ones a snapshot would keep.
     assert packet.context_id.startswith("ctx-")
     assert packet.protected_fact_hash and packet.context_hash
-    assert packet.token_count_mode == "ESTIMATED"
+    assert packet.token_count_mode == "ESTIMATED"  # noqa: S105

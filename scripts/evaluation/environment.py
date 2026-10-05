@@ -12,13 +12,43 @@ from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from resolveflow.harness.mcp_client import McpToolExecutor
+from resolveflow.harness.vocabulary import RunFacts
 from resolveflow.policies import PolicyIndex, ServedBundle, embedder
 from resolveflow.runtime.db import Database, create_schema, drop_schema
-from scripts.evaluation.dataset import read
+from resolveflow.runtime.runs import RunRequest
+from scripts.evaluation.dataset import DATA, read
+
+
+def dispatch_facts(case, pin, *, run_id, case_id):
+    revision = case.get("input_revision", 1)
+    snapshot = case.get("review_context", {})
+    if snapshot:
+        RunRequest(
+            run_id=run_id,
+            case_id=case_id,
+            input_revision=revision,
+            **case["scope"],
+            order_id=case["backend"]["order"]["order_id"],
+            description=case["description"],
+            requested_actions=("REFUND",),
+            evidence_refs=tuple(m["evidence_id"] for m in snapshot["materials"]),
+            policy_manifest=pin,
+            deadline_at="2099-01-01T00:00:00Z",
+            review_context=snapshot,
+        )
+    return RunFacts(
+        run_id=run_id,
+        case_id=case_id,
+        input_revision=revision,
+        description=case["description"],
+        policy_manifest=pin,
+        review_context=snapshot,
+        **case["scope"],
+    )
 
 
 @contextmanager
-def environment(*, dense=True):
+def environment(*, dense=True, dataset=DATA):
     dsn = os.environ.get("RESOLVEFLOW_AGENT_DB", "postgresql://agent:agent@127.0.0.1:55433/agent_db")
     schema = "eval_" + uuid.uuid4().hex[:16]
     create_schema(dsn, schema)
@@ -28,7 +58,7 @@ def environment(*, dense=True):
         index = PolicyIndex(database)
         encoder = embedder() if dense else None
         pins = {}
-        for document in read("policies/bundles.json"):
+        for document in read("policies/bundles.json", dataset):
             value = {key: document[key] for key in ("bundle_id", "merchant_id", "version", "rules")}
             digest = hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
             bundle = ServedBundle(**value, manifest_hash=digest, safety_epoch=2)
@@ -97,7 +127,7 @@ def business_tools(case, pin, *, run_id, case_id):
         line_id=line,
         run_id=run_id,
         case_id=case_id,
-        input_revision=1,
+        input_revision=case.get("input_revision", 1),
         case_base_url=url,
         commerce_base_url=url,
         credential_source=lambda: token,

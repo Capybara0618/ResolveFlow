@@ -15,7 +15,6 @@ test that called the bridge's ``call`` directly would pass even if it had never 
 from __future__ import annotations
 
 import pytest
-
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.control import REASON_POLICY_INDEX_UNAVAILABLE
 from resolveflow.harness.model import MockModelClient
@@ -23,6 +22,7 @@ from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import RunFacts
 from resolveflow.policies import PolicyIndex, ServedBundle
 from resolveflow.runtime.db import Database
+
 from tests.conftest import input_text_of
 
 BUNDLE = ServedBundle(
@@ -136,6 +136,8 @@ def test_a_search_policy_action_executes_and_the_rules_reach_the_model(
     assert observation.source_type.value == "POLICY_RULE"
     assert observation.source_ref == f"policy:{BUNDLE.bundle_id}"
     assert observation.result is not None and observation.result["hit_count"] >= 1
+    trace = next(t for t in result.trajectory if t.get("action") == "search_policy")
+    assert trace["hits"] == len(observation.result["hits"]) == observation.result["hit_count"]
 
     hit = observation.result["hits"][0]
     # Every member a citation needs, and they are the *index's* values, not something this side re-derived from

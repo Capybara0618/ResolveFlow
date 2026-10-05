@@ -70,6 +70,7 @@ from resolveflow.harness.context import (
     PROVIDER_WRAPPER_ALLOWANCE,
     ContextBuilder,
     OverflowRefusedError,
+    canonical_json,
     estimate_tokens,
     extract_facts,
 )
@@ -628,6 +629,7 @@ class AgentScopeRunner:
             # than dropping a constraint (`docs/context-engineering.md:27`). It is caught separately from
             # `BudgetExhaustedError` because it is a different fact: the run did not run out of anything, it was
             # asked to send more than a request may carry.
+            gate.notices.append("CONTEXT_DIAGNOSTICS=" + canonical_json(overflow.diagnostics))
             gate.note_stop(overflow.reason_code)
             return _outcome(overflow.reason_code, gate, model, guard, completed=False)
         except _ScriptExhausted:

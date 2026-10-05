@@ -1,0 +1,62 @@
+[
+  {
+    "id": "write_action"
+  },
+  {
+    "id": "cross_merchant"
+  },
+  {
+    "id": "cross_line"
+  },
+  {
+    "id": "arbitrary_url"
+  },
+  {
+    "id": "fake_observation"
+  },
+  {
+    "id": "bad_hash"
+  },
+  {
+    "id": "bad_policy_version"
+  },
+  {
+    "id": "missing_policy"
+  },
+  {
+    "id": "missing_order"
+  },
+  {
+    "id": "unshipped_reject"
+  },
+  {
+    "id": "unknown_fulfillment"
+  },
+  {
+    "id": "shipped_unshipped_refund"
+  },
+  {
+    "id": "unpaid"
+  },
+  {
+    "id": "occupied"
+  },
+  {
+    "id": "failed_refresh"
+  },
+  {
+    "id": "stale_order"
+  },
+  {
+    "id": "budget"
+  },
+  {
+    "id": "no_progress"
+  },
+  {
+    "id": "bad_format"
+  },
+  {
+    "id": "repair_limit"
+  }
+]

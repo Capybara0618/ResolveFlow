@@ -168,6 +168,7 @@ class LocalReadBridge(ToolBase):
         fresh = self._adapter.record_observation(observation)
         self._client.note_observation(observation)
         self._gate.note_evidence(fresh)
+        self._last_observation = observation
         self._adapter.trajectory.append(
             {
                 "action": self.name,
@@ -309,7 +310,9 @@ class PolicySearchBridge(LocalReadBridge):
         return _policy_observation(hits, self._facts, query, self._now())
 
     def trajectory_detail(self) -> dict[str, Any]:
-        return {"hits": len(getattr(self, "_last_hits", []))}
+        observation = getattr(self, "_last_observation", None)
+        hits = (observation.result or {}).get("hits", []) if observation is not None else []
+        return {"hits": len(hits) if isinstance(hits, list) else 0}
 
 
 class ObservationReadBridge(LocalReadBridge):

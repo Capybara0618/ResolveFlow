@@ -1,5 +1,12 @@
 # 当前改进进度
 
+## 当前快照（2026-10-05，Agent / RAG 优化第一批完成）
+
+- 用户最新授权先做第一批校准与定位，按[规格](../docs/agent-evaluation-alignment.md)对齐首轮 review_context / Java 引用列表，建立 aligned-v2，质量场景允许等价送达事实；新增事实/主体/人工来源评分，修复实际检索 hits 计数，溢出诊断保留层级/大小/cap。v1资产、允许动作、政策/RAG Gold和旧报告不改；五新持久包独立冻结，不给旧run换manifest。[集中证据](../reports/agent-alignment-batch1/README.md)、[使用指南](../docs/evaluation-guide.md)。
+- Python集中166 passed，追加3项来源检查通过（不同测试合计169）；Java现有快照/材料协议6 passed；独立Harness28/28、strict5/5、真实dense探针候选2/轨迹hits2、v1/v2校验及定点Ruff通过。32脚本仍全部本地上下文溢出、34次脚本调用、异常0；强制估算7014～8133超过cap6912，P0固定3558（schema2255）、P1为911～1939、P2为1747～2467字节。诊断不是真实provider token，不宣称建议质量提升。
+- 新付费调用0，未调提示词/检索算法、未跑全量Live/专家人审/Java全链/网页部署。public Agent仍4COMPLETED/15模型/10工具/8回调，无隔离schema遗留，原四个工程/verify/Commerce测试脏文件及草图日志不夹带。精确commit/正常push核实后停止写入；后续第二批才针对上下文表达体积实施，由用户继续授权，不自动接旧CXX或重做五批体系。
+- 全项目mypy检查68源码有16错误，全部位于本批未修改的9文件；本批3个生产文件无类型诊断。该全项目门禁未通过，已记录具体位置，不夹带其他模块类型清理或假称全绿。
+
 ## 当前快照（2026-10-05，干净评测体系五批构建完成）
 
 - 用户最新要求仅构建评测，不优化生产Agent/上下文/RAG。已交付三商家六合成政策版本/54规则、60查询、32案例/16对、独立Gold/hash、20Harness+8上下文、隔离PG+真实MCP与embedding、eval.ps1、调用/中断记录、评分/对照/离线重判、人审表、五当前版本持久回放。[指南](../docs/evaluation-guide.md)、[规格](../docs/agent-evaluation-rebuild.md)、[集中报告](../reports/agent-evaluation-rebuild.md)。旧15文件先备份清理，兼容fixture/日常数据和其他作者改动保留，生产agent/src未改。

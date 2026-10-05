@@ -66,6 +66,14 @@ class CaptureModel:
             for message in kwargs["messages"]
         ]
         record = {"messages": messages, "system": kwargs["system"], "max_output_tokens": kwargs["max_output_tokens"]}
+        packet = kwargs.get("sent_context")
+        if packet is not None:
+            record["context_measurement"] = {
+                "input_estimate": packet.input_tokens,
+                "cap": packet.input_cap,
+                "token_count_mode": "ESTIMATED_UTF8_BYTES",
+                "layers": packet.layers,
+            }
         self.records.append(record)
         if self.on_record:
             self.on_record(self.records)
@@ -120,7 +128,9 @@ class FixtureModel:
                 }
             else:
                 shipment = (by_tool.get("get_shipment_trace") or {}).get("result") or {}
-                materials = ((by_tool.get("get_case_evidence") or {}).get("result") or {}).get("materials", [])
+                materials = kwargs["context"]["run"].get("review_context", {}).get("materials")
+                if materials is None:  # Explicit legacy v1 fixture profile, not a live input channel.
+                    materials = ((by_tool.get("get_case_evidence") or {}).get("result") or {}).get("materials", [])
                 verified = any(
                     m.get("source_type") == "REVIEWER_VERIFICATION" and m.get("verification_result") == "CONFIRMED"
                     for m in materials

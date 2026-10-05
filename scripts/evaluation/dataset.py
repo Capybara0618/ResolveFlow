@@ -9,6 +9,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "evals/current"
+ALIGNED_DATA = ROOT / "evals/aligned-v2"
 GOLD_KEYS = frozenset(
     {
         "allowed_actions",
@@ -20,6 +21,7 @@ GOLD_KEYS = frozenset(
         "review_status",
         "allowed_terminal_actions",
         "must_cite",
+        "support_requirements",
     }
 )
 
@@ -61,6 +63,14 @@ def validate(directory: Path = DATA) -> dict[str, int]:
         path = (directory / name).resolve()
         if not path.is_relative_to(directory.resolve()) or not path.is_file() or digest(path) != expected:
             raise ValueError(f"Frozen file mismatch: {name}")
+    if manifest.get("input_profile"):
+        replay = read("replay/manifest.json", directory)
+        if replay["dataset_manifest_sha256"] != digest(directory / "manifest.json") or len(replay["files"]) != 10:
+            raise ValueError("Replay calibration manifest mismatch")
+        for name, expected in replay["files"].items():
+            path = (directory / name).resolve()
+            if not path.is_relative_to(directory.resolve()) or not path.is_file() or digest(path) != expected:
+                raise ValueError(f"Frozen replay mismatch: {name}")
     cases = read("agent/cases.json", directory)
     gold = read("gold/agent.json", directory)
     if len(cases) != 32 or len(gold) != len(cases):
@@ -84,6 +94,8 @@ def validate(directory: Path = DATA) -> dict[str, int]:
             raise ValueError("Empty allowed actions")
         if set(gold[case["id"]]["allowed_actions"]) & set(gold[case["id"]]["forbidden_actions"]):
             raise ValueError("Contradictory Gold")
+        if manifest.get("input_profile"):
+            _validate_aligned_case(case, gold[case["id"]])
     for members in pairs.values():
         if len(members) != 2:
             raise ValueError("Incomplete pair")
@@ -157,8 +169,55 @@ def validate(directory: Path = DATA) -> dict[str, int]:
     }
 
 
-def export_case(case_id: str) -> dict:
-    cases = read("agent/cases.json")
+def export_case(case_id: str, directory: Path = DATA) -> dict:
+    cases = read("agent/cases.json", directory)
     found = next(case for case in cases if case["id"] == case_id)
     check_input(found)
     return found
+
+
+def _validate_aligned_case(case, answer):
+    from resolveflow.contracts.reviewer_input import ReviewerInput
+
+    snapshot = ReviewerInput.model_validate(case["review_context"])
+    wire = case["backend"]["evidence"]
+    if (
+        set(wire) != {"case_id", "input_revision", "evidence"}
+        or wire["case_id"] != case["case_id"]
+        or wire["input_revision"] != case["input_revision"]
+    ):
+        raise ValueError("Evidence list differs from dispatch binding")
+    expected = [
+        {
+            "observation_id": m.evidence_id,
+            "source_ref": m.source_ref,
+            "source_version": m.source_version,
+            "content_hash": m.content_hash,
+        }
+        for m in snapshot.materials
+    ]
+    if wire["evidence"] != expected or len({m.evidence_id for m in snapshot.materials}) != len(snapshot.materials):
+        raise ValueError("Evidence references differ from snapshot")
+    for item in [*snapshot.materials, *snapshot.questions]:
+        if item.input_revision > case["input_revision"]:
+            raise ValueError("Future revision in dispatch snapshot")
+    for item in snapshot.materials:
+        if item.content_hash != hashlib.sha256(item.content.encode()).hexdigest():
+            raise ValueError("Synthetic material content hash mismatch")
+    requirements = answer.get("support_requirements", [])
+    if len({r["id"] for r in requirements}) != len(requirements):
+        raise ValueError("Duplicate support requirement")
+    for requirement in requirements:
+        if set(requirement) != {"id", "any_of"} or not requirement["any_of"]:
+            raise ValueError("Invalid support requirement")
+        for option in requirement["any_of"]:
+            if (
+                not set(option) <= {"tool", "fields", "verification"}
+                or option.get("tool") not in {"get_order_context", "get_shipment_trace", "get_case_evidence"}
+                or not (option.get("fields") or option.get("verification"))
+            ):
+                raise ValueError("Invalid support alternative")
+            if "verification" in option and (
+                option["tool"] != "get_case_evidence" or option["verification"] != "CONFIRMED"
+            ):
+                raise ValueError("Invalid verification support")

@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 from resolveflow.harness.model import MockModelClient
 from resolveflow.replay.export import export_run
 from resolveflow.replay.pack import ReplayMiss, UnsupportedRecord, read_pack, write_pack
@@ -16,6 +15,7 @@ from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import DeploymentConfig, build_investigation
 from resolveflow.runtime.runs import RunStore
 from resolveflow.runtime.worker import RunWorker
+
 from tests.integration.test_run_worker import CASE_DISPATCHER, RUN_ID, a_run
 from tests.unit.test_harness_loop import StubTools, observation, propose, read
 
@@ -37,7 +37,7 @@ CASES: dict[str, tuple[list[dict[str, Any]], tuple[Any, ...], str]] = {
 @pytest.mark.parametrize("name", CASES)
 def test_committed_golden_pack(name: str) -> None:
     root = Path(__file__).resolve().parents[3]
-    directory = root / "evals" / "current" / "replay" / "golden" / name
+    directory = root / "evals" / "aligned-v2" / "replay" / "golden" / name
     assert strict_replay(directory)["status"] == "MATCH"
 
 
