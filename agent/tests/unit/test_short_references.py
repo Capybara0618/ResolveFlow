@@ -87,7 +87,7 @@ def test_sdk_short_ref_and_readback_resolve_to_original_source():
 def test_other_run_cannot_resolve_a_missing_source():
     model = MockModelClient.always({**propose("MANUAL_REVIEW"), "evidence_refs": ["O1"]})
     result = AgentScopeRunner(model=model, tools=StubTools(), facts=replace(FACTS, run_id="another-run")).run()
-    assert not result.completed and result.reason_code == "ACTION_REFUSED"
+    assert not result.completed and result.reason_code == "ACTION_CITATION_INVALID"
 
 
 def test_five_tools_are_always_advertised_without_discovery_hop():
@@ -150,7 +150,7 @@ def test_local_read_alias_cannot_be_promoted_to_an_evidence_citation():
         {"kind": "READ_OBSERVATION", "observation_id": "O1", "arguments": {"limit": 30}},
         {**propose("MANUAL_REVIEW"), "evidence_refs": ["O2"]}], repeat_last=True)
     result = AgentScopeRunner(model=model, tools=StubTools(observation()), facts=FACTS).run()
-    assert not result.completed and result.reason_code == "ACTION_REFUSED"
+    assert not result.completed and result.reason_code == "ACTION_CITATION_INVALID"
     assert "O2" not in model.sent_contexts[2].references
 
 

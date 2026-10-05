@@ -789,4 +789,4 @@ def test_the_packet_is_built_once_per_turn_so_the_request_and_the_reservation_ag
     # One model call per packet, and the packet's hashes are the ones a snapshot would keep.
     assert packet.context_id.startswith("ctx-")
     assert packet.protected_fact_hash and packet.context_hash
-    assert packet.token_count_mode == "ESTIMATED"  # noqa: S105
+    assert packet.token_count_mode == "ESTIMATED_UTF8_BYTES"  # noqa: S105

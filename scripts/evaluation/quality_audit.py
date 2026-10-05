@@ -14,12 +14,12 @@ sys.path.insert(0, str(ROOT))
 from scripts.evaluation.dataset import ALIGNED_DATA, digest, read  # noqa: E402
 
 
-def audit(report):
+def audit(report, dataset=ALIGNED_DATA):
     if (report.get("mode") != "live" or report.get("synthetic") is not True
             or report.get("state") != "FINISHED"
-            or report.get("manifest_hash") != digest(ALIGNED_DATA / "manifest.json")):
-        raise ValueError("Expected finished live report on aligned-v2")
-    cases = {c["id"]: c for c in read("agent/cases.json", ALIGNED_DATA)}
+            or report.get("manifest_hash") != digest(dataset / "manifest.json")):
+        raise ValueError("Expected finished live report on selected dataset (default aligned-v2)")
+    cases = {c["id"]: c for c in read("agent/cases.json", dataset)}
     entries = report["results"]
     ids = [e["id"] for e in entries]
     if not entries or len(set(ids)) != len(ids) or set(ids) - set(cases):
@@ -31,7 +31,7 @@ def audit(report):
             raise ValueError("Recorded request count differs")
         usage = {"provider_input_tokens": 0, "provider_output_tokens": 0,
                  "provider_usage_requests": 0, "estimated_usage_requests": 0, "missing_usage_requests": 0}
-        searches, inputs, ratios = [], [], []
+        searches, inputs, ratios, modes, margins = [], [], [], [], []
         for turn, request in enumerate(requests, 1):
             value = request.get("usage")
             if value is None:
@@ -45,8 +45,10 @@ def audit(report):
             measurement = request.get("context_measurement")
             if measurement:
                 inputs.append(measurement["input_estimate"])
+                modes.append(measurement.get("token_count_mode"))
                 if value and value.get("estimated") is False and value["input_tokens"] > 0:
                     ratios.append(measurement["input_estimate"] / value["input_tokens"])
+                    margins.append(measurement["input_estimate"] - value["input_tokens"])
             decision = request.get("decision") or {}
             if decision.get("kind") == "SEARCH_POLICY":
                 searches.append({"turn": turn, "query": decision.get("query"),
@@ -59,13 +61,16 @@ def audit(report):
             "joint_correct": entry.get("joint_correct", False),
             "forbidden_action": entry.get("forbidden_action", False),
             "reason_code": entry.get("reason_code"), "error": entry.get("error"), "model_calls": len(requests),
-            "usage": usage, "max_sent_input_estimate_bytes": max(inputs) if inputs else None,
-            "mean_utf8_estimate_to_provider_token_ratio": round(sum(ratios) / len(ratios), 4) if ratios else None,
+            "usage": usage, "max_sent_input_estimate": max(inputs) if inputs else None,
+            "input_count_modes": sorted(set(modes)),
+            "minimum_estimate_headroom": min(margins) if margins else None,
+            "mean_estimate_to_provider_token_ratio": round(sum(ratios) / len(ratios), 4) if ratios else None,
             "search_decisions": searches,
             "refusal_notices": [n for n in notices if n.startswith("REFUSED ")],
             "overflow_diagnostics": [d for d in diagnostics if d.get("mandatory_tokens", 0) > d.get("cap", 0)],
             "automatic_support_gaps": {k: entry.get(k, []) for k in (
-                "missing_tools", "missing_cited_tools", "missing_rules", "citation_errors", "missing_support")},
+                "missing_tools", "missing_cited_tools", "missing_rules", "citation_errors", "missing_support",
+                "missing_read_errors")},
             "trajectory": entry.get("trajectory", [])})
     return {"n": len(rows), "automatic_action_correct": sum(r["action_correct"] for r in rows),
         "automatic_joint_correct": sum(r["joint_correct"] for r in rows),
@@ -83,11 +88,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-report", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--dataset", type=Path, default=ALIGNED_DATA)
     args = parser.parse_args(argv)
     if args.output.exists():
         parser.error("Existing audit is immutable; choose a new path")
     report = json.loads(args.input_report.read_text(encoding="utf-8"))
-    value = audit(report)
+    value = audit(report, args.dataset)
     value.update(source_report_sha256=digest(args.input_report), script_sha256=digest(Path(__file__)))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")

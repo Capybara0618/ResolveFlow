@@ -337,6 +337,7 @@ class ContextBuilder:
     #: credential. This member is the *label* for how the count was produced, and renaming it to dodge the rule
     #: would put a less accurate name in a snapshot a reader has to interpret.
     token_count_mode: str = "ESTIMATED"  # noqa: S105
+    counter: Any = None
 
     def input_cap(self, *, cumulative_remaining: int | None = None) -> int:
         """``min(8192, provider容量-输出预留-256, 累计剩余输入)`` — the three terms, in one place.
@@ -461,6 +462,7 @@ class ContextBuilder:
         # Source identities and policy conditions are decision constraints. Optional P3 excerpts may
         # disappear, but neither their hashes nor an exception may become a model's guess.
         sections.extend(_citation_sections(unique, view, catalog))
+        sections = _compact_policy_sections(sections)
         recent = unique[-OBSERVATION_WINDOW:] if unique else []
         earlier = unique[: max(0, len(unique) - OBSERVATION_WINDOW)]
         sections.extend(_observation_sections(recent, view, catalog))
@@ -483,7 +485,7 @@ class ContextBuilder:
                 cap=cap,
                 diagnostics={
                     "step": step,
-                    "token_count_mode": "ESTIMATED_UTF8_BYTES",
+                    "token_count_mode": self.counter.mode if self.counter else "ESTIMATED_UTF8_BYTES",
                     "mandatory_tokens": mandatory_tokens,
                     "cap": cap,
                     "provider_capacity": self.provider_capacity,
@@ -530,7 +532,7 @@ class ContextBuilder:
             manifest_id=manifest_id,
             messages=messages,
             tool_schema_hash=_hash_json(tool_schema),
-            token_count_mode=self.token_count_mode,
+            token_count_mode=self.counter.mode if self.counter else self.token_count_mode,
             input_tokens=self._rendered_tokens(kept),
             input_cap=cap,
             selected_refs=selected,
@@ -558,7 +560,9 @@ class ContextBuilder:
         # section payloads. P0 already contains the system prompt; never count/send it twice.
         # Durable reservations also count the serialized provider body. Include message framing and
         # JSON escaping here, so optional excerpts cannot fill a packet that the fenced ledger rejects.
-        return estimate_tokens(canonical_json({"messages": self._render(sections)})) + self._framing_tokens
+        body = {"messages": self._render(sections)}
+        counted = self.counter.count(body) if self.counter else estimate_tokens(canonical_json(body))
+        return counted + self._framing_tokens
 
     def _render(self, sections: list[_Section]) -> tuple[dict[str, str], ...]:
         """The sections as provider turns: P0 becomes the system turns, everything else one user turn.
@@ -744,6 +748,38 @@ def _citation_sections(observations: list[ToolObservation], view: FactsView | No
             sections.append(_Section(layer=Layer.P2, label="source_citation",
                                      text=_json((catalog.evidence(ref) or ref) if catalog else ref)))
     return sections
+
+
+def _compact_policy_sections(sections: list[_Section]) -> list[_Section]:
+    """A smaller lossless table per bundle/version; full text and exact ref maps survive."""
+    import json
+
+    groups: dict[tuple[str, str], list[tuple[_Section, dict[str, Any]]]] = {}
+    for section in sections:
+        if section.layer == Layer.P2 and section.label.startswith("policy:"):
+            row = json.loads(section.text)
+            groups.setdefault((row["bundle_id"], row["version"]), []).append((section, row))
+    replacements: dict[int, _Section | None] = {}
+    for (bundle, version), members in groups.items():
+        if len(members) < 2:
+            continue
+        fields = sorted(set(members[0][1]) - {"bundle_id", "version"})
+        if any(sorted(set(row) - {"bundle_id", "version"}) != fields for _, row in members):
+            continue
+        text = _json({"bundle_id": bundle, "version": version, "fields": fields,
+                      "rows": [[row[k] for k in fields] for _, row in members]})
+        text = "rows对应fields；bundle/version适用于全部行。\n" + text
+        if estimate_tokens(text) >= sum(estimate_tokens(section.text) for section, _ in members):
+            continue
+        replacements[id(members[0][0])] = _Section(layer=Layer.P2, label="policy_table", text=text)
+        for section, _ in members[1:]:
+            replacements[id(section)] = None
+    result = []
+    for section in sections:
+        replacement = replacements.get(id(section), section)
+        if replacement is not None:
+            result.append(replacement)
+    return result
 
 
 def _observation_sections(observations: list[ToolObservation], view: FactsView | None = None,

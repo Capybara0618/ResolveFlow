@@ -27,7 +27,7 @@ from resolveflow.harness.budget import RunBudget  # noqa: E402
 from resolveflow.harness.live_model import LiveModelClient  # noqa: E402
 from resolveflow.harness.sdk_runner import AgentScopeRunner  # noqa: E402
 from resolveflow.policies import EMBEDDING_DIMENSION, EMBEDDING_MODEL, EMBEDDING_REVISION  # noqa: E402
-from scripts.evaluation.dataset import ALIGNED_DATA, DATA, digest, read, validate  # noqa: E402
+from scripts.evaluation.dataset import DATA, digest, read, validate  # noqa: E402
 from scripts.evaluation.environment import business_tools, dispatch_facts, environment  # noqa: E402
 from scripts.evaluation.models import CaptureModel, FixtureModel, live_guard  # noqa: E402
 from scripts.evaluation.reporting import compare_reports, describe, load_report  # noqa: E402
@@ -357,10 +357,10 @@ def main(argv=None):
     parser.add_argument(
         "--dataset",
         type=Path,
-        default=ALIGNED_DATA,
+        default=ROOT / "evals/calibrated-v3",
         help="frozen version directory; default aligned-v2, v1 remains available",
     )
-    parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/rag-v8",
+    parser.add_argument("--replay-dir", type=Path, default=ROOT / "evals/replay/calibration-v9",
                         help="current code replay profile; frozen dataset/Gold are independent")
     parser.add_argument("--case", action="append", default=[])
     parser.add_argument("--output", type=Path)
@@ -434,7 +434,8 @@ def main(argv=None):
         profile = json.loads(profile_path.read_text(encoding="utf-8")) if profile_path.is_file() else {}
         expected = {"resolveflow-replay-context-v4": 6, "resolveflow-replay-investigation-v5": 7,
                     "resolveflow-replay-usage-v6": 7, "resolveflow-replay-correction-v7": 13,
-                    "resolveflow-replay-rag-v8": 13}.get(
+                    "resolveflow-replay-rag-v8": 13,
+                    "resolveflow-replay-calibration-v9": 13}.get(
             profile.get("profile_version"), 5)
         if len(directories) != expected:
             raise ValueError(f"Expected {expected} replay packs; zero or incomplete steps cannot pass")

@@ -1,3 +1,11 @@
+## 当前快照（2026-10-05，第六批输入/计量与修正反馈完成）
+
+- 用户批准接续第五批，按[本批规格](../docs/agent-calibration-batch6.md)完成calibrated-v3不可变分叉（31正常合成+1未支付草稿边界探针）、RESERVED/DELIVERED真实契约校准、16原非法案例负测、官方V4.1 tokenizer固定hash/模型绑定、无损政策表格、精确引用/扁平格式/失败读接管提示。context v11/verifier v5，当前strict calibration-v9十三包；旧v1/v2/Gold/报告/回放不改，资金/权限/同run/fence/一次修正沿用。
+- 集中710 passed/0 skipped，独立Harness28/28、strict13/13、脚本32/32（150脚本调用），改动Ruff/diff与三版本校验通过。[完整结果](../reports/agent-calibration-batch6/README.md)、[逐例](../reports/agent-calibration-batch6/cases.md)、实际命令/首轮失败均保留。全项目mypy仍9文件16既有错误/73源码，无新增诊断但全项目类型门禁失败。
+- 固定10个既有联合失败+3正向控制真实13例：10/13联合正确、3未完成、0接受禁止终局、0上下文溢出；64实际请求全部有非估算usage，输入106746/输出7951。计量最小余量376；官方tokenizer仍本地ESTIMATED，不能称在线精确计费。ledger252→316/limit=null/旧费用预留不更新，不清零。跨版本旧同13编号3/13不能当受控质量提升，独立人审0/13仍待填。
+- 剩余A01B/A02B触及沿用评测每例6次限制（生产默认12；非费用额度）；A03B两次把RESERVED误当可退，被Harness安全拦截停止。下一步按这些具体字段改善纠错反馈，显式按生产调用配置复测剩余三例；再独立逐query Gold与语义人审，不自动加hybrid/reranker。当前批次没有强行将失败转换为模型建议。
+- public仍4 COMPLETED/15模型/10工具/8回调，无临时schema/usage锁；未重启worker/部署/重算日常run/退款/Java整链/网页验收/完整32例Live。原四历史脏文件及草图日志不夹带。按授权精确commit/普通push核实后停止写入，SHA与远端状态见收口回复；下方为历史快照，不重做前批。
+
 # 当前改进进度
 
 ## 当前快照（2026-10-05，第五批真实基线与外部问法完成，质量未全通过）

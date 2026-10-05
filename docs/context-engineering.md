@@ -1,5 +1,7 @@
 # ContextBuilder · v1.2核心
 
+2026-10-05 第六批使用 `p0-p4-v11-calibrated-input`，见[输入/计量校准](agent-calibration-batch6.md)。DeepSeek provider + deepseek-flash 使用固定 hash 的官方 V4.1 tokenizer；其他模型仍用 UTF-8 字节上界。分别编码正文与完整 JSON，取较大值并加一次256包装预留，均为本地 ESTIMATED，不能叫 API 精确 token。计量版本进入实际模型 manifest，ContextPacket 与持久请求预留一致；资产损坏明确失败，旧 run 不静默换计量。政策表格只压缩重复键和同 bundle/version，完整条件、例外、引用映射不删减。下方历史版本只描述当时实现。
+
 这是Harness内部能力，不是独立上下文平台。目标是让模型看到必要事实、来源和缺口，同时限制输入长度。
 
 v1.3接入AgentScope后本规格不降级：SDK历史/自动注入与工具Schema必须进入最终输入核算；关闭绕过本策略的自动压缩、LLM总结及长期记忆。框架适配按[迁移规格](agentscope-migration.md)，不能直接用默认memory替换事实视图。

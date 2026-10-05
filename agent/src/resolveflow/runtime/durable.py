@@ -11,8 +11,9 @@ from agentscope.state import AgentState
 
 from resolveflow.contracts.core_models import ToolObservation
 from resolveflow.harness.budget import BudgetExhaustedError, RunSpend
-from resolveflow.harness.context import canonical_json, estimate_tokens, hash_document
+from resolveflow.harness.context import hash_document
 from resolveflow.harness.model import MockModelClient
+from resolveflow.harness.token_counting import counter_for
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.journal import RunJournal
 from resolveflow.runtime.recovery_store import RecoveryConflictError, StaleFenceError
@@ -113,7 +114,7 @@ class DurableRun:
                 kind = "RECOVERY_TURN" if self.recovering and not self.recovery_turn_used else "ORDINARY"
                 reservation = self.journal.reserve(
                     self.facts.run_id, **self.identity(), call_id=call_id, request_hash=digest, kind=kind,
-                    input_tokens=max(estimate_tokens(canonical_json(body)), guard.guard.spend.input_tokens -
+                    input_tokens=max(counter_for(model).count(body), guard.guard.spend.input_tokens -
                                      self.before_spend.get("input_tokens", 0)),
                     request_body=body, replay_spend=self.before_spend, sdk_state=self.sdk_state,
                     ceiling_parameter=getattr(model, "ceiling_parameter", "max_tokens"),

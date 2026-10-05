@@ -98,6 +98,7 @@ from resolveflow.harness.sdk_adapter import (
     messenger_message,
     raw_text_message,
 )
+from resolveflow.harness.token_counting import counter_for
 from resolveflow.harness.verifier import ProposalVerifier
 from resolveflow.harness.vocabulary import HARNESS_SYSTEM_PROMPT, RunFacts, RunResult, ToolExecutor
 from resolveflow.tools.catalog import ToolContext, _failed
@@ -293,7 +294,9 @@ class ActionGateMiddleware(MiddlewareBase):
         record = feedback(error.code, f"{tool}: failed read is not evidence")
         record["repair_remaining"] = MAX_REPAIRS - self.repairs_used
         if tool in self.blocked_tools:
-            record["next_step"] = "Do not repeat this tool; use another source or hand over."
+            record["next_step"] = ('Do not repeat this tool or ask for bound order/line/customer IDs. '
+                                   'Use another source or {"kind":"ESCALATE",'
+                                   '"reason_codes":["NEEDS_HUMAN_VERIFICATION"]}.')
         self.notices.append(notice(record))
 
     def note_stop(self, reason_code: str) -> None:
@@ -931,6 +934,7 @@ class _GateAwareClient:
             system_prompt=self._system,
             provider_capacity=self._runner.context_provider_capacity,
             output_reserve=self._runner.context_output_reserve,
+            counter=counter_for(self._runner.model),
         )
         budget = self._runner.budget
         spent = self._guard.guard.spend

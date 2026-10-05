@@ -42,6 +42,7 @@ from typing import Any, Final
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.context import hash_document
 from resolveflow.harness.model import MODEL_MODE_MOCK
+from resolveflow.harness.token_counting import counter_for
 from resolveflow.harness.vocabulary import RunFacts
 
 __all__ = [
@@ -58,7 +59,7 @@ __all__ = [
 
 #: The P0-P4 policy in :mod:`resolveflow.harness.context` and ``docs/context-engineering.md``. Named so a snapshot
 #: taken under a later layering cannot be read as if it were assembled by this one.
-CONTEXT_POLICY_VERSION: Final = "p0-p4-v10-correction"
+CONTEXT_POLICY_VERSION: Final = "p0-p4-v11-calibrated-input"
 
 #: The counter actually applied to model input. :func:`~resolveflow.harness.context.estimate_tokens` is a UTF-8 byte
 #: allowance marked ESTIMATED — deliberately not the retired characters/3 (which undercounted Chinese) and not the
@@ -165,7 +166,7 @@ def model_block_for(client: Any, *, context_window_tokens: int) -> dict[str, Any
         "provider": provider,
         "model_id": model_id,
         "context_window_tokens": int(context_window_tokens),
-        "token_counter_version": TOKEN_COUNTER_VERSION,
+        "token_counter_version": counter_for(client).version,
         "parameters": _declared_parameters(client),
     }
 

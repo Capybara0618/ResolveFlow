@@ -1,0 +1,11 @@
+{
+  "source_repository": "https://github.com/deepseek-ai/deepseek-recipe",
+  "revision": "8cadfede7063c896b944e7bae05daa3549ae97ea",
+  "source_path": "static/tokenizers/v41/tokenizer.json",
+  "tokenizer_sha256": "81f64d1248a68ce3663e07ab3ee48b851e5df0e32d27cb98e4c9a268151e8d99",
+  "gzip_sha256": "a06de40d7aa5f5f2486dea7d0d516420edfe07e1d946b5ad2c57e73851de3008",
+  "raw_bytes": 6367247,
+  "compressed_bytes": 1868506,
+  "counter_scope": "DeepSeek provider + deepseek-flash alias only; local estimate, API usage authoritative",
+  "license": "LICENSE"
+}

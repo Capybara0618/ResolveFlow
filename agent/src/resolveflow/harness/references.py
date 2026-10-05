@@ -74,7 +74,11 @@ def expand_references(payload: dict[str, Any], references: dict[str, dict[str, A
     def resolve(alias: str, kind: str) -> dict[str, Any]:
         entry = references.get(alias)
         if entry is None or entry["kind"] != kind:
-            raise ActionRefusedError(f"Unknown or wrong-kind {kind} reference {alias!r}; use P2 refs.")
+            available = [key for key, row in references.items() if row["kind"] == kind]
+            raise ActionRefusedError(
+                f"Unknown or wrong-kind {kind} reference {alias[:40]!r}; "
+                f"available {kind} aliases: {','.join(available[:24]) or '(none)'}. Use current P2 refs.",
+                reason_code="ACTION_CITATION_INVALID")
         return deepcopy(entry["ref"])
 
     for field, kind in (("evidence_refs", "evidence"), ("policy_refs", "policy")):

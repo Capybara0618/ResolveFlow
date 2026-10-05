@@ -1,0 +1,39 @@
+{
+  "version": "resolveflow-evaluation-calibrated-v3",
+  "created": "2026-10-05",
+  "source": "SYNTHETIC",
+  "review_status": "policy_checked_by_codex_not_human",
+  "files": {
+    "agent/cases.json": "74e7093b2f71426d1271f914f097e0a110979de6c604bf0cde90a95682908aa5",
+    "gold/agent.json": "5386c7cbcc56f3bcfad9f578972010aa56c1ff981bf4231524b4f7e2248073ba",
+    "gold/rag.json": "118164607bb43bb699dc7bacafcd5aded7262dfd4d2a6f9ad9e2d595cfe0003b",
+    "harness/checks.json": "983e322b16ae2f08a609856ebfef3eadd1e495d34e94ae966f2a2c8fef38fa47",
+    "harness/context.json": "4ddc090e2501c31197815e382a5d0eafa083bc0146d9ae8036ff4306fd9c0ca7",
+    "policies/bundles.json": "85497e6b3308b8130ba58c0757e10e96975cd32d9911cc065a5f73fa4a0ffbc7",
+    "rag/queries.json": "09074bf78e2228845a9e427892ceeedfb6befecaf7eaf7290c38dda3801cc479",
+    "harness/malformed-v2.json": "d52a8f908b7d45ce43c4b046ff4812b4897f932fb3a4892c4409feb04fcba0cd"
+  },
+  "split_note": "主场景/查询意图家族隔离，配对不跨组；小样本不是随机真实业务分布。",
+  "live_limits": {
+    "total_requests": 96,
+    "per_case_calls": 6,
+    "max_output_tokens": 1024
+  },
+  "parent_manifest_sha256": "0c14513c9cf58bc9b797fa7f4abb7f1d15c0c625751bb74e3205bfc831ef2964",
+  "input_profile": "Java ReviewerRunInput + EvidenceListResponse; synthetic loopback sources",
+  "changes": [
+    "three held slots use RESERVED, not operation status",
+    "SIGNED carrier conclusions use core DELIVERED, not a fictitious carrier enum",
+    "A04B is an unpaid draft source-missing boundary probe, all line reads 404",
+    "A04B Gold requires the observed NOT_FOUND, not an impossible successful line read",
+    "all original malformed sources retained as negative contract tests"
+  ],
+  "unchanged": "32 ids/pairs/splits, allowed/forbidden actions, other Gold, all policies/RAG queries",
+  "projection_profile": "core-java-read-projection-v1",
+  "case_population": {
+    "normal_synthetic_cases": 31,
+    "pre_java_boundary_probes": [
+      "A04B"
+    ]
+  }
+}

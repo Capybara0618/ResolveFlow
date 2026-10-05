@@ -12,6 +12,9 @@ def score_agent(result, gold, *, case=None):
         action = "MANUAL_REVIEW"
     observations = {item.observation_id: item for item in result.observations}
     read_tools = {item.tool_name for item in observations.values() if item.error is None}
+    missing_errors = [requirement for requirement in gold.get("must_read_errors", [])
+                      if not any(item.tool_name == requirement["tool"] and item.error is not None
+                                 and item.error.code == requirement["code"] for item in observations.values())]
     evidence = getattr(decision, "evidence_refs", [])
     citation_errors = []
     valid_evidence = []
@@ -67,8 +70,10 @@ def score_agent(result, gold, *, case=None):
         "missing_rules": missing_rules,
         "citation_errors": citation_errors,
         "missing_support": missing_support,
+        "missing_read_errors": missing_errors,
         "joint_correct": action_ok
-        and not (missing_tools or missing_cited or missing_rules or citation_errors or missing_support),
+        and not (missing_tools or missing_cited or missing_rules or citation_errors
+                 or missing_support or missing_errors),
     }
 
 

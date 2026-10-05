@@ -22,6 +22,7 @@ GOLD_KEYS = frozenset(
         "allowed_terminal_actions",
         "must_cite",
         "support_requirements",
+        "must_read_errors",
     }
 )
 
@@ -96,6 +97,9 @@ def validate(directory: Path = DATA) -> dict[str, int]:
             raise ValueError("Contradictory Gold")
         if manifest.get("input_profile"):
             _validate_aligned_case(case, gold[case["id"]])
+        if manifest.get("projection_profile") == "core-java-read-projection-v1":
+            from scripts.evaluation.build_calibration import validate_projection
+            validate_projection(case)
     for members in pairs.values():
         if len(members) != 2:
             raise ValueError("Incomplete pair")

@@ -1,0 +1,26 @@
+{
+  "public_run_status": [
+    {
+      "status": "COMPLETED",
+      "count": 4
+    }
+  ],
+  "counts": {
+    "agent_model_call": 15,
+    "agent_tool_call": 10,
+    "agent_callback_outbox": 8
+  },
+  "temporary_schemas": [],
+  "usage": {
+    "used": 252,
+    "limit": null,
+    "reserved_usd": 0.28557120000000014,
+    "historical_limit": 96,
+    "accounting_policy": "usage-only-v1"
+  },
+  "frozen_manifests": {
+    "evals/current/manifest.json": "1a430eacd39d6f64b303e63bcfd2654f0b8686382191a968ff2a9869f649d359",
+    "evals/aligned-v2/manifest.json": "0c14513c9cf58bc9b797fa7f4abb7f1d15c0c625751bb74e3205bfc831ef2964",
+    "evals/calibrated-v3/manifest.json": "087f709b3dbf764daec9c4eb25bc00059c012e4a44326557d3b8e8a2713e82de"
+  }
+}

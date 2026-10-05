@@ -1,5 +1,7 @@
 # 多商家上游与既有售后实施计划
 
+2026-10-05 用户批准[第六批输入/计量与修正反馈](../docs/agent-calibration-batch6.md)，实际进度仅看[todo顶部](todo.md)，[报告](../reports/agent-calibration-batch6/README.md)。当前calibrated-v3/context v11/verifier v5/calibration-v9十三包；工程710/28/13及脚本32通过，真实13例10联合正确/3未完成（64调用），ledger316/limit=null。后续先针对RESERVED等具体失败字段改善修正反馈，并明确按生产12次配置复测A01B/A02B/A03B；再独立Gold/人审。旧资产及四历史脏文件保留，不重做旧批或自动部署/付费续跑/hybrid。提交推送核实后本实施者停止写入；下方描述均为历史。
+
 2026-10-05用户批准接续[第五批](../docs/agent-quality-batch5.md)：固定当前生产/全部32真实调查→保存query和11外部FAQ来源→隔离探针/审计→待人审和失败归因→集中验证。状态仅[todo顶部](todo.md)，[报告](../reports/agent-quality-batch5/README.md)显示质量未全通过。后续先新profile校准四输入契约反例、计量与必保上下文，再独立逐query Gold，不因旧合成分数/未标注探针启动hybrid或reranker。生产/冻结v1/v2/旧Gold不变，真实调用已获本次继续要求授权且实际执行，下方“第五批未启动/96额度满”只作历史。
 
 2026-10-05用户进一步批准[RAG第四批](../docs/rag-optimization-batch4.md)：查询来源/数据偏差→固定语料对照与口语诊断→索引完整性/模型匹配→按dev证据选最小生产变更→集中验证。标题正文不达dev门槛，保留正文dense；不因已查看test改善而选方案，不默认混合召回/重排。状态仅todo顶部，[结果](../reports/rag-batch4/README.md)。后续真实建议质量对照与独立数据/Gold由用户指示，不能以更多同作者合成题宣称真实泛化。

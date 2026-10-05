@@ -54,7 +54,7 @@ class CaptureModel:
             record["context_measurement"] = {
                 "input_estimate": packet.input_tokens,
                 "cap": packet.input_cap,
-                "token_count_mode": "ESTIMATED_UTF8_BYTES",
+                "token_count_mode": packet.token_count_mode,
                 "layers": packet.layers,
             }
         self.records.append(record)

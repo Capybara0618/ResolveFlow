@@ -1,5 +1,7 @@
 # Agent / RAG 评测使用指南
 
+2026-10-05 第六批当前默认输入为 `evals/calibrated-v3`、strict 为 `evals/replay/calibration-v9` 十三包。见[校准规格](agent-calibration-batch6.md)与[结果](../reports/agent-calibration-batch6/README.md)。新版本校准 RESERVED 行槽/DELIVERED 承运枚举；A04B 为未支付草稿来源缺失边界探针，必须实际观察订单 NOT_FOUND，再补证或转人工，不能无读直接算通过。31普通合成例+1边界探针仍非真实分布；16份原非法响应保留为负向契约样本。旧v1/v2/Gold/报告/strict不变，跨版本分数不可当受控提升。`-Dataset evals/aligned-v2` 可显式保留旧校准基线，旧回放在新源码下应明确拒绝，不自动迁移。`quality_audit.py --dataset evals/calibrated-v3` 才审计新报告，默认依然保留历史v2审计行为。
+
 2026-10-05接续[第五批真实基线与外部问法](agent-quality-batch5.md)：现有32例真实模型一次性联合22/32、7未完成；11公开FAQ（不是客服日志）及本轮33模型query的dense/BM25探针不设伪Gold，准确率null。[全部结果与归因](../reports/agent-quality-batch5/README.md)、[外部问法入口](../evals/external-faq-v1/README.md)。新只读脚本quality_audit.py审计完整真实报告，rag_probes.py拒绝mock/旧源码/错范围/空查询并生成逐query待审；语义/逐query独立复核未完成。生产源码与默认rag-v8/context v10/verifier v5、冻结v1/v2保留；下一步优先输入契约校准及字节计量，不把安全拦截/终局缺引用混作检索准确率。
 
 2026-10-05完成[RAG第四批](rag-optimization-batch4.md)，当前默认严格回放为 `evals/replay/rag-v8` 十三包（源码版本更新，context v10/verifier v5保留）；旧correction-v7保留。生产仍正文dense，标题正文dev退化未部署。[24条口语诊断](../evals/rag-challenge-v1/README.md)与8已有真实模型query可运行 `agent/.venv/Scripts/python.exe scripts/evaluation/rag_experiments.py --output tmp/rag-new.json`。前者仍同作者合成，后者无逐query Gold，均非真实用户/盲测；[报告](../reports/rag-batch4/README.md)分开显示，标准 `eval.ps1 -Mode rag` 仍评冻结60题。

@@ -156,7 +156,15 @@ def test_a_search_policy_action_executes_and_the_rules_reach_the_model(
     aliases = model.sent_contexts[1].references
     alias = next(key for key, value in aliases.items()
                  if value["kind"] == "policy" and value["ref"]["rule_id"] == hit["rule_id"])
-    assert f'"ref":"{alias}"' in sent, "a citation alias must be visible in the actual request"
+    if "【P2·policy_table】" in sent:
+        import json
+        table = json.loads(sent.split("【P2·policy_table】", 1)[1].splitlines()[1])
+        rows = [dict(zip(table["fields"], row, strict=True)) for row in table["rows"]]
+        visible = next(row for row in rows if row["ref"] == alias)
+        assert visible["rule_id"] == hit["rule_id"] and visible["text"] == hit["text"]
+        assert table["bundle_id"] == hit["bundle_id"] and table["version"] == hit["version"]
+    else:
+        assert f'"ref":"{alias}"' in sent, "a citation alias must be visible in the actual request"
     assert aliases[alias]["ref"] == {key: hit[key] for key in
                                     ("bundle_id", "version", "rule_id", "chunk_id", "content_hash")}
 
