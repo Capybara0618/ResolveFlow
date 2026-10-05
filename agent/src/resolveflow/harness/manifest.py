@@ -58,7 +58,7 @@ __all__ = [
 
 #: The P0-P4 policy in :mod:`resolveflow.harness.context` and ``docs/context-engineering.md``. Named so a snapshot
 #: taken under a later layering cannot be read as if it were assembled by this one.
-CONTEXT_POLICY_VERSION: Final = "p0-p4-v8-investigation-stop"
+CONTEXT_POLICY_VERSION: Final = "p0-p4-v9-usage-only"
 
 #: The counter actually applied to model input. :func:`~resolveflow.harness.context.estimate_tokens` is a UTF-8 byte
 #: allowance marked ESTIMATED — deliberately not the retired characters/3 (which undercounted Chinese) and not the

@@ -284,9 +284,13 @@ class RecoveryBudgetStore:
             spend.input_tokens += charged_input - attempt["reserved_input"]
             spend.output_tokens += charged_output - attempt["reserved_output"]
             stop_reason = frozen["stop_reason"]
-            if charged_input > budget.step_input_tokens or spend.input_tokens > budget.input_tokens:
+            if charged_input > budget.step_input_tokens or (
+                budget.input_tokens is not None and spend.input_tokens > budget.input_tokens
+            ):
                 stop_reason = stop_reason or REASON_BUDGET_INPUT_TOKENS
-            if charged_output > attempt["reserved_output"] or spend.output_tokens > budget.output_tokens:
+            if charged_output > attempt["reserved_output"] or (
+                budget.output_tokens is not None and spend.output_tokens > budget.output_tokens
+            ):
                 stop_reason = stop_reason or REASON_BUDGET_OUTPUT_TOKENS
             connection.execute(
                 "UPDATE agent_model_call SET response=%s,state='SAVED',saved_at=now(),stop_reason=%s,settled_spend=%s "

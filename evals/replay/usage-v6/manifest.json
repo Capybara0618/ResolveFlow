@@ -1,0 +1,53 @@
+{
+  "profile_version": "resolveflow-replay-usage-v6",
+  "dataset_manifest_sha256": "0c14513c9cf58bc9b797fa7f4abb7f1d15c0c625751bb74e3205bfc831ef2964",
+  "lineage": "User-authorized usage-only accounting; frozen Gold and previous replay packs preserved.",
+  "harness_manifest": {
+    "budgets": {
+      "active_deadline_seconds": 120,
+      "max_external_calls": 16,
+      "max_local_reads": 8,
+      "max_model_calls": 12,
+      "max_output_tokens": 1024,
+      "max_prompt_tokens": 8192,
+      "max_total_input_tokens": null,
+      "max_total_output_tokens": null,
+      "model_timeout_seconds": 30
+    },
+    "code_revision": "source:46bf43eaa22b455f302bec6a2d6a3289862f7e40c6043921f7efc812faaf18ee;lock:0fedd60f93948c7c4a4e9ac9d434133348dc88a9bae3ffd888c6c97b4dbbccf2",
+    "context_policy_version": "p0-p4-v9-usage-only",
+    "graph_version": "agentscope@2.0.8+resolveflow@0.1.0",
+    "harness_version": "resolveflow-harness-0.1.0",
+    "index_generation": "e9ac8e78-6a07-501b-b014-eea1e5172a0a",
+    "manifest_id": "942367186f2f856299c1b1ae975ef87ec199132c059cf5c37aaba0817968b0cb",
+    "model": {
+      "context_window_tokens": 8192,
+      "model_id": "mock-scripted",
+      "parameters": {},
+      "provider": "mock",
+      "token_counter_version": "utf8-json-bytes-v3-single-wrapper"
+    },
+    "policy_manifest_hash": "9999999999999999999999999999999999999999999999999999999999999999",
+    "prompt_hash": "a9b1dcedaaf7529fb49a132332e2c6ebc1b92d8cee71e9f24e8dd15f2f22ccbd",
+    "schema_version": 1,
+    "state_schema_version": 2,
+    "tool_schema_hash": "0786b204e17556aa6210f3e1ba12a36e18210e9dcca4b98dce00bf912fba2573",
+    "verifier_version": "python-citations-v4-investigation-sources"
+  },
+  "files": {
+    "bound_question_repair/files.json": "e316130a5d440b191abaedf4d964817bee93a84a32ffc4c625541444ccaa5156",
+    "bound_question_repair/pack.json": "feca08d79086c5bb6e86c76b6ffc5488199bd461e2f2b0845a06497fe334cce2",
+    "escalation/files.json": "9c5255e5e651bc0703d6b1b7cdb6a2a74995210779611e42a4f479e04930864d",
+    "escalation/pack.json": "566ca1dd17f7db19a0d8effb144e2ec27a4f4272caade1cae64a51bc41f3b86c",
+    "manual_review/files.json": "c9c5a7d727394ac2e3a436283fc54a64436e3aa4840d315fe014ebe99558b2b0",
+    "manual_review/pack.json": "298b31765b3d6bf8d68ee70261932636dac2c3bd659bbeff25a081c389577403",
+    "question/files.json": "ce17a1574591f24f848469a0ea60b4eb501ed4c9193f55c389e4e4867bbc3dc9",
+    "question/pack.json": "81131172ac53808702a02a8f7a05d0f177d01683c773ec1bf7dfcb80dee1e6bd",
+    "read_then_question/files.json": "12cb6354a3a094e4eb39d273f0820ce70cf0df6f15a09a1514fbb1faf33a9923",
+    "read_then_question/pack.json": "296389819af396db206aa4e77e9ec1f7d36f4117a8fc27f2c5aa1286c287834b",
+    "read_then_review/files.json": "1245fbeddb677cb29789677c37827388639a7a2391a16991303ec0306c7fd778",
+    "read_then_review/pack.json": "f3cf6036805e316355c9edb35c7ef5f57a8e755cdace1b5ccb5847e7bc78d6f8",
+    "short_references/files.json": "978033d35f18d482d1327c298e3f0e1cffb233d70fcb9b0b60abe7e2b5cdd3d4",
+    "short_references/pack.json": "a2280e73c926aff00cb7877910fd0797e9d2a6db1792e1ceee78016d588f9cb3"
+  }
+}

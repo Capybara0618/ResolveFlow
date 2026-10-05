@@ -874,7 +874,8 @@ class _GateAwareClient:
             view=self._view,
             observations=self.observations,
             tool_schema=_tool_schema_document(self._runner),
-            cumulative_remaining=max(0, budget.input_tokens - spent.input_tokens),
+            cumulative_remaining=(None if budget.input_tokens is None
+                                  else max(0, budget.input_tokens - spent.input_tokens)),
             history=self.confirmed_actions[-CONFIRMED_ACTION_WINDOW:],
             # What the harness has already told the model — a no-progress round, or a refusal it may repair. P1,
             # so it cannot be trimmed away; see `ContextBuilder.build` for why that matters here.

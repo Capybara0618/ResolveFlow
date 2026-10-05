@@ -4,12 +4,12 @@ import datetime as dt
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
-
 from resolveflow.harness.budget import BudgetExhaustedError, RunBudget
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.recovery_budget import RecoveryCallBudgetExhausted
 from resolveflow.runtime.recovery_store import RecoveryBudgetStore, RecoveryConflictError, StaleFenceError
 from resolveflow.runtime.runs import RunStore
+
 from tests.integration.test_run_store import CASE_DISPATCHER, RUN_ID, a_request
 
 
@@ -76,7 +76,9 @@ def test_old_fence_cancel_and_expiry_leave_no_call(agent_db: Database) -> None:
 
 def test_unknown_output_stays_reserved_and_token_refusal_rolls_back_partition(agent_db: Database) -> None:
     store = _store(agent_db)
-    store.initialize(RUN_ID, fence=1, owner="test-worker", manifest_id="manifest-1", budget=RunBudget())
+    # Explicit old budget: recovery must keep frozen limits instead of using new unlimited defaults.
+    store.initialize(RUN_ID, fence=1, owner="test-worker", manifest_id="manifest-1",
+                     budget=RunBudget(input_tokens=40000, output_tokens=4000))
     for index, ceiling in enumerate((1024, 1024, 1024, 928)):
         result = store.reserve(RUN_ID, fence=1, owner="test-worker", call_id=f"step-{index}",
                                request_hash=f"{index:064x}", kind="ORDINARY", input_tokens=1)

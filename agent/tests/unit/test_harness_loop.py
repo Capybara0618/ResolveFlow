@@ -22,7 +22,6 @@ from typing import Any
 
 import pytest
 from pydantic import ValidationError
-
 from resolveflow.contracts.core_models import CoreToolError, ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
 from resolveflow.harness.actions import (
@@ -46,6 +45,7 @@ from resolveflow.harness.model import MockModelClient, ModelReply, ModelUsage
 from resolveflow.harness.sdk_adapter import messenger_message
 from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import REASON_COMPLETED, RunFacts
+
 from tests.conftest import input_text_of
 
 RUN_ID = "5f2b1c3d-0000-4000-8000-000000000001"
@@ -332,13 +332,21 @@ def test_the_tool_attempt_budget_stops_the_loop_and_says_which_budget_ran_out() 
 def test_the_default_budget_is_the_one_the_spec_declares() -> None:
     """The numbers are the spec's, stated in one place so a drift is a red test rather than a surprise.
 
-    ``docs/agent-spec.md:40``: 12 model calls, 16 tool attempts, 8 local reads, 40000 input / 4000 output
-    tokens; ``docs/agent-harness.md:37``: 8192 per-step input, 1024 per-step output.
+    ``docs/model-usage-policy.md``: no cumulative token caps; termination and request sizing remain bounded.
     """
     budget = RunBudget()
     assert (budget.model_calls, budget.tool_attempts, budget.local_reads) == (12, 16, 8)
-    assert (budget.input_tokens, budget.output_tokens) == (40000, 4000)
+    assert (budget.input_tokens, budget.output_tokens) == (None, None)
     assert (budget.step_input_tokens, budget.step_output_tokens) == (8192, 1024)
+
+
+def test_usage_above_former_cumulative_caps_does_not_stop_new_runs() -> None:
+    guard = BudgetGuard(RunBudget())
+    for _ in range(10):
+        assert guard.reserve_model_request(input_tokens=7000) == 1024
+        guard.settle_model_output(700)
+    assert guard.spend.input_tokens == 70000 and guard.spend.output_tokens == 7000
+    assert guard.spend.model_calls == 10
 
 
 def test_a_single_step_over_the_per_step_token_cap_is_refused() -> None:

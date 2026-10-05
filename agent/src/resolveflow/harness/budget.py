@@ -1,26 +1,9 @@
-"""The run's budget: the caps of ``docs/agent-spec.md:40`` and the arithmetic that enforces them (C06.4①).
+"""Run termination bounds and usage accounting; see ``docs/model-usage-policy.md``.
 
-``docs/agent-spec.md:40`` states one default budget: **12 model calls, 16 external tool/search attempts, 8 local
-reads, 40000 cumulative input / 4000 cumulative output tokens, 8192 per-step input / 1024 per-step output, a
-30-second model timeout**, plus "工具最多额外重试2次、模型1次，只有一层负责重试，所有attempt计预算". This module is
-the one place those numbers live, so a drift is a red test rather than a surprise discovered during a
-demonstration.
-
-**Why the guard reserves rather than records.** ``docs/agent-harness.md:22`` puts the reservation in the same
-transaction as the stable ``model_call_id`` and *before* the network call, precisely because the window in which
-a crash can lose the record is the window in which the call is already being paid for. This slice has no
-transaction yet (that is C09's fence work), so the guard is in-memory and the reservation/commit split is
-explicit: ``reserve_model_call`` decides and counts, and there is no path that spends without reserving. What
-the split buys even now is testability of the *decision* — the boundary cases below are asserted directly
-instead of being inferred from a loop's behaviour.
-
-**Why the per-step cap is checked separately from the cumulative one.** A run with only a cumulative cap can
-still send one 40000-token request, and a run with only a per-step cap can send twelve 8192-token requests
-through a 40000 budget. ``docs/agent-harness.md:37`` requires both checks, so both are here.
-
-**Fresh guard per run.** A resumed run must not be handed a fresh budget (``docs/core-scope.md``: 同run恢复不
-静默重置预算). That is why this is an object with explicit counters that the caller constructs and keeps,
-rather than module state that a new process would silently zero.
+New runs have no cumulative token spending limit. Iteration/read counts, deadline and request size remain
+bounded. Calls and usage are still counted before transmission and settled after known responses arrive.
+Explicit numeric cumulative limits are retained for frozen legacy runs and compatibility tests; recovery
+never silently replaces their manifest, counters or budget with new defaults.
 """
 
 from __future__ import annotations
@@ -47,9 +30,7 @@ __all__ = [
     "RunSpend",
 ]
 
-#: ``docs/agent-spec.md:40``: 累计输入40000/输出4000，单步输入8192/输出1024，单模型timeout30秒.
-DEFAULT_INPUT_TOKENS: Final = 40000
-DEFAULT_OUTPUT_TOKENS: Final = 4000
+#: Per-request sizing and timeout are independent of cumulative expense accounting.
 DEFAULT_STEP_INPUT_TOKENS: Final = 8192
 DEFAULT_STEP_OUTPUT_TOKENS: Final = 1024
 DEFAULT_TIMEOUT_SECONDS: Final = 30.0
@@ -89,8 +70,9 @@ class RunBudget:
     model_calls: int = 12
     tool_attempts: int = 16
     local_reads: int = 8
-    input_tokens: int = DEFAULT_INPUT_TOKENS
-    output_tokens: int = DEFAULT_OUTPUT_TOKENS
+    # None means accounting only. Numeric values retain explicitly frozen legacy run budgets.
+    input_tokens: int | None = None
+    output_tokens: int | None = None
     step_input_tokens: int = DEFAULT_STEP_INPUT_TOKENS
     step_output_tokens: int = DEFAULT_STEP_OUTPUT_TOKENS
     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS
@@ -100,14 +82,16 @@ class RunBudget:
             "model_calls",
             "tool_attempts",
             "local_reads",
-            "input_tokens",
-            "output_tokens",
             "step_input_tokens",
             "step_output_tokens",
         ):
             value = getattr(self, member)
             if not isinstance(value, int) or isinstance(value, bool) or value < 0:
                 raise ValueError(f"{member} must be a non-negative integer")
+        for member in ("input_tokens", "output_tokens"):
+            value = getattr(self, member)
+            if value is not None and (type(value) is not int or value < 0):
+                raise ValueError(f"{member} must be None or a non-negative integer")
         if not isinstance(self.timeout_seconds, (int, float)) or self.timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be positive")
 
@@ -173,13 +157,13 @@ class BudgetGuard:
         # because a *declared* per-step cap larger than the cumulative one is harmless — the cumulative check
         # below refuses first, so no request can ever exceed it. A test that shrinks one cap to isolate a rule
         # should not have to restate the other, and forbidding the combination would have made that impossible.
-        if input_tokens > self.budget.input_tokens:
+        if self.budget.input_tokens is not None and input_tokens > self.budget.input_tokens:
             raise BudgetExhaustedError(
                 REASON_BUDGET_STEP_TOKENS,
                 f"this step asks for {input_tokens} input tokens, over the whole run's "
                 f"{self.budget.input_tokens} (docs/agent-harness.md:37)",
             )
-        if output_tokens > self.budget.output_tokens:
+        if self.budget.output_tokens is not None and output_tokens > self.budget.output_tokens:
             raise BudgetExhaustedError(
                 REASON_BUDGET_STEP_TOKENS,
                 f"this step asks for {output_tokens} output tokens, over the whole run's "
@@ -203,13 +187,15 @@ class BudgetGuard:
                 f"the run has made {self.spend.model_calls} of its {self.budget.model_calls} model calls "
                 "(docs/agent-spec.md:40)",
             )
-        if self.spend.input_tokens + input_tokens > self.budget.input_tokens:
+        if self.budget.input_tokens is not None and self.spend.input_tokens + input_tokens > self.budget.input_tokens:
             raise BudgetExhaustedError(
                 REASON_BUDGET_INPUT_TOKENS,
                 f"the run has used {self.spend.input_tokens} of its {self.budget.input_tokens} input tokens and "
                 f"this step asks for {input_tokens} more",
             )
-        if self.spend.output_tokens + output_tokens > self.budget.output_tokens:
+        if self.budget.output_tokens is not None and (
+            self.spend.output_tokens + output_tokens > self.budget.output_tokens
+        ):
             raise BudgetExhaustedError(
                 REASON_BUDGET_OUTPUT_TOKENS,
                 f"the run has used {self.spend.output_tokens} of its {self.budget.output_tokens} output tokens and "
@@ -225,7 +211,9 @@ class BudgetGuard:
         A prior unsettled request keeps its full charge (UNKNOWN). This in-memory guard is
         sequential; stable call IDs, durable reservations and fencing remain C09 work.
         """
-        ceiling = min(self.budget.step_output_tokens, self.budget.output_tokens - self.spend.output_tokens)
+        ceiling = self.budget.step_output_tokens
+        if self.budget.output_tokens is not None:
+            ceiling = min(ceiling, self.budget.output_tokens - self.spend.output_tokens)
         if ceiling <= 0:
             raise BudgetExhaustedError(REASON_BUDGET_OUTPUT_TOKENS, "no output allowance remains")
         self.reserve_model_call(input_tokens=input_tokens, output_tokens=ceiling)

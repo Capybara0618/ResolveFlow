@@ -23,7 +23,6 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-
 from resolveflow.contracts.core_models import CoreToolError, ToolObservation
 from resolveflow.contracts.enums import EvidenceSourceType
 from resolveflow.harness.actions import ASK_CUSTOMER, PROPOSE, READ_TOOL
@@ -230,11 +229,8 @@ def test_the_model_call_budget_stops_the_loop(driver: str) -> None:
     """
     model = MockModelClient(script=[read("get_order_context")] * 50, repeat_last=True)
     tools = StubTools(*[observation(index=index) for index in range(50)])
-    # The output allowance is raised deliberately: the SDK-driven loop reserves the **per-step output cap** for
-    # every request (the answer's length is unknowable beforehand, so reserving zero would make the cumulative
-    # output cap unenforceable), and the default 4000-token allowance would stop this run on output tokens before
-    # the model-call bound this test is about. Naming it here keeps the test about one bound.
-    budget = RunBudget(model_calls=3, output_tokens=4096 * 4)
+    # Default token accounting is unlimited; the iteration bound still terminates this run.
+    budget = RunBudget(model_calls=3)
     result = (
         AgentScopeRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
         if driver == "harness"
@@ -256,10 +252,7 @@ def test_two_identical_actions_without_new_evidence_are_stopped(driver: str) -> 
     """
     model = MockModelClient(script=[read("get_order_context")] * 20, repeat_last=True)
     tools = StubTools(*[observation() for _ in range(20)])
-    # The output allowance is raised deliberately, for the same reason as in the model-call test above: the
-    # SDK-driven loop reserves the per-step output cap per request, so the default allowance would stop this run
-    # on output tokens before the no-progress rule this test is about.
-    budget = RunBudget(model_calls=12, output_tokens=4096 * 12)
+    budget = RunBudget(model_calls=12)
     result = (
         AgentScopeRunner(model=model, tools=tools, facts=FACTS, budget=budget).run()
         if driver == "harness"

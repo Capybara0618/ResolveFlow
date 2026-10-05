@@ -3,11 +3,11 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
-
 from resolveflow.harness.budget import BudgetExhaustedError, RunBudget
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.recovery_store import RecoveryBudgetStore, RecoveryConflictError, StaleFenceError
+
 from tests.integration.test_recovery_budget_store import _store
 from tests.integration.test_run_store import RUN_ID
 
@@ -25,6 +25,24 @@ def _spend(database: Database) -> dict:
         return connection.execute("SELECT budget_spent FROM agent_run WHERE run_id=%s", (RUN_ID,)).fetchone()[
             "budget_spent"
         ]
+
+
+def test_unlimited_cumulative_usage_survives_store_reconstruction(agent_db: Database) -> None:
+    store = _store(agent_db)
+    store.initialize(RUN_ID, fence=1, owner="test-worker", manifest_id="usage-only", budget=RunBudget())
+    for index in range(8):
+        store = RecoveryBudgetStore(agent_db)
+        store.initialize(RUN_ID, fence=1, owner="test-worker", manifest_id="usage-only", budget=RunBudget())
+        reservation = store.reserve(RUN_ID, fence=1, owner="test-worker", call_id=f"step-{index}",
+                                    request_hash=f"{index:064x}", kind="ORDINARY", input_tokens=7000)
+        assert reservation.output_ceiling == 1024
+        result = store.save_result(RUN_ID, fence=1, owner="test-worker", call_id=f"step-{index}",
+                                   reply=ModelReply(decision={"kind": "ESCALATE"}, usage=ModelUsage(7000, 800)))
+        assert result.stop_reason is None
+    assert _spend(agent_db)["input_tokens"] == 56000 and _spend(agent_db)["output_tokens"] == 6400
+    with agent_db.connection() as connection:
+        frozen = connection.execute("SELECT budget FROM agent_run_model_budget WHERE run_id=%s", (RUN_ID,)).fetchone()
+    assert frozen["budget"]["input_tokens"] is None and frozen["budget"]["output_tokens"] is None
 
 
 def test_saved_response_reused_without_checkpoint_or_second_settlement(agent_db: Database) -> None:

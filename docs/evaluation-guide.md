@@ -1,6 +1,6 @@
 # Agent / RAG 评测使用指南
 
-2026-10-05用户取消项目消费上限，当前执行[用量规则](model-usage-policy.md)：不再按累计96次/.50美元拦截，新运行无累计token额度。历史报告及冻结manifest中的live_limits保留当时记录，不控制新评测。单工单终止约束和请求大小仍有效；本次修改未新增真实调用。
+2026-10-05用户取消项目消费上限，已完成[用量规则](model-usage-policy.md)：不再按累计96次/.50美元拦截，新运行无累计token额度。当前context v9，默认回放usage-v6七条，旧版本供历史检视；下方旧六条/32例失败属于当时记录。历史报告及冻结manifest中的live_limits保留当时记录，不控制新评测。单工单终止约束和请求大小仍有效；本次修改未新增真实调用。
 
 2026-10-05 常驻规则与短引用已完成，见[规格](agent-context-protocol.md)及[集中结果](../reports/agent-context-protocol/README.md)。五MCP工具直接可用，无发现轮次；输入/Gold仍用 aligned-v2，当前回放独立 evals/replay/context-v4 六条轨迹，旧v1/v2/context-v3保留。脚本32/32只证明工程链路，不代表真实LLM质量；字节估计变化不等于计费下降。`-ReplayDir 路径`可显式选择其他回放包目录，旧代码版本在当前严格模式下会明确拒绝。
 

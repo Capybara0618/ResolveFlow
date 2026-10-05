@@ -41,7 +41,7 @@ run状态沿用QUEUED/RUNNING/CALLBACK_PENDING/WAITING_INPUT/COMPLETED/FAILED/CA
 
 ## 4. 预算
 
-默认每run最多12次模型调用（含修复/网络重试）、16次外部工具/检索attempt、8次本地读；累计输入40000/输出4000，单步输入8192/输出1024，单模型timeout30秒。工具最多额外重试2次、模型1次，只有一层负责重试，所有attempt计预算。
+默认每run最多12次模型调用（含修复/网络重试）、16次外部工具/检索attempt、8次本地读，用于终止和防循环；新run累计输入/输出token只记录、不设消费上限（2026-10-05用户授权，见[用量规则](model-usage-policy.md)）。单步输入8192/输出1024、单模型timeout30秒继续控制请求大小和时间。工具最多额外重试2次、模型1次，只有一层负责重试，所有attempt记录；旧run保留原冻结配置。
 
 case提交控制面deadline默认10分钟；首次开始调查固化active_deadline=min(deadline,开始+120秒)。同run恢复不延期，停机/重试消耗窗口。落库方案的回调重试不受调查窗口限制，但仍查revision。
 

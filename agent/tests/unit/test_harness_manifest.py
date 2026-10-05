@@ -79,6 +79,8 @@ def test_the_manifest_satisfies_the_frozen_schema() -> None:
 
     assert not errors, "\n".join(f"{list(error.path)}: {error.message}" for error in errors)
     assert bundle.name.endswith("harness-manifest.schema.json"), "the frozen schema is what was validated"
+    assert document["budgets"]["max_total_input_tokens"] is None
+    assert document["budgets"]["max_total_output_tokens"] is None
 
 
 def test_the_manifest_id_is_the_canonical_hash_of_the_manifest_itself() -> None:
@@ -121,7 +123,7 @@ def test_the_manifest_pins_the_agentscope_loop_and_the_real_token_counter() -> N
     assert "langgraph" not in document["graph_version"].lower()
     assert document["graph_version"] != "graph-1"
     assert document["model"]["token_counter_version"] == TOKEN_COUNTER_VERSION
-    assert document["model"]["token_counter_version"] != "chars-div-4"
+    assert document["model"]["token_counter_version"] != "chars-div-4"  # noqa: S105 - counter label, not a credential
     assert document["context_policy_version"] == CONTEXT_POLICY_VERSION
 
 

@@ -24,7 +24,7 @@ v1.3接入AgentScope后本规格不降级：SDK历史/自动注入与工具Schem
 
 ## 3. 裁剪与读回
 
-输入上限=min(8192,provider容量-输出预留,累计剩余输入)，计入system/tool schema/provider包装。最终估计值包含256包装预留，cap不再重复扣减包装；默认provider容量8192/输出1024时cap=7168。先放P0/P1/P2，转索引后仍超限则CONTEXT_REQUIRED_OVERFLOW转人工，不删约束。随后加入P3/P4，超限去重复和最旧非关键段，记录omitted_refs及原因。
+新run输入上限=min(8192,provider容量-输出预留)，累计token只记用量、不收缩上下文窗口；显式旧run恢复额外取累计剩余输入的最小值，见[用量规则](model-usage-policy.md)。计入system/tool schema/provider包装，最终估计值包含256包装预留，cap不再重复扣减包装；默认provider容量8192/输出1024时cap=7168。先放P0/P1/P2，转索引后仍超限则CONTEXT_REQUIRED_OVERFLOW转人工，不删约束。随后加入P3/P4，超限去重复和最旧非关键段，记录omitted_refs及原因。
 
 工具给模型片段<=8KiB，原始接收上限256KiB。tool_call/result成对保留或一起转成历史证据消息，不留下非法provider格式。物流长轨迹用首末/异常/状态变化结构化提取，保留原文位置。
 
