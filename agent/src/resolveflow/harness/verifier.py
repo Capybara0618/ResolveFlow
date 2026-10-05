@@ -197,7 +197,7 @@ class ProposalVerifier:
             if not explicit or conflicting:
                 refusals.append(CitationRefusal(
                     UNSHIPPED_FACTS_REQUIRED,
-                    "未发货退款须引用当前已付款、明确未发货版本及整行可退事实；缺失/未知/冲突或占用需补查或转人工",
+                    _unshipped_feedback(orders, latest),
                 ))
         rules = {ref.get("rule_id") for ref in policy_refs}
         if recommended_action == "REFUND" and rules and rules <= {
@@ -426,6 +426,52 @@ def _is_citable(observation: ToolObservation) -> bool:
     if isinstance(error, CoreToolError) or error is not None:
         return False
     return bool(observation.source_version) and bool(observation.content_hash)
+
+
+def _unshipped_feedback(orders: Sequence[Mapping[str, Any]],
+                       latest: Mapping[str, ToolObservation]) -> str:
+    """Explain failed hard conditions using bounded typed values, never raw customer text."""
+    gaps: list[str] = []
+    if not orders:
+        gaps.append("get_order_context: missing current cited successful source; read and cite it")
+    else:
+        body = orders[-1]
+        for key, expected in (("line_refund_state", "FREE"), ("order_status", "PAID"),
+                              ("currency", "CNY"), ("fulfillment_status", "NOT_SHIPPED"),
+                              ("fulfillment_version", 1)):
+            value = body.get(key)
+            if value != expected or (isinstance(expected, int) and isinstance(value, bool)):
+                gaps.append(f"get_order_context.{key}={_safe_fact(value)}; required {expected}")
+        for key in ("line_paid_amount", "payment_version"):
+            if not _positive_int(body.get(key)):
+                gaps.append(f"get_order_context.{key}={_safe_fact(body.get(key))}; required positive integer")
+        if not body.get("paid_at"):
+            gaps.append("get_order_context.paid_at: missing payment timestamp")
+        if not _paid_order(body) or not _whole_line_available(body):
+            amounts = ",".join(f"{key}={_safe_fact(body.get(key))}" for key in (
+                "order_paid_amount", "refunded_amount", "reserved_refund_amount", "line_paid_amount"))
+            gaps.append(f"balance (minor units): {amounts}; paid-refunded-reserved must cover line_paid_amount")
+    for item in latest.values():
+        if item.tool_name not in {"get_shipment_trace", "get_refund_status"}:
+            continue
+        key, expected = ("status", "NOT_SHIPPED") if item.tool_name == "get_shipment_trace" else ("state", "FREE")
+        if not _is_citable(item) or not isinstance(item.result, Mapping):
+            gaps.append(f"{item.tool_name}: latest read failed/unknown; failure is not a negative fact")
+        elif item.result.get(key) != expected:
+            gaps.append(f"{item.tool_name}.{key}={_safe_fact(item.result.get(key))}; required {expected}")
+    return ("; ".join(gaps)[:450] + "; 占用/未知/冲突不能建议REFUND，不得据此拒绝整个申请。"
+            "缺失可补查；占用/冲突需ESCALATE人工核对，不向客户索要绑定编号。")
+
+
+def _safe_fact(value: Any) -> str:
+    if value is None:
+        return "<missing>"
+    if isinstance(value, int) and not isinstance(value, bool):
+        return str(value)[:24]
+    if value in ("FREE", "RESERVED", "CONSUMED", "PAID", "CREATED", "CNY", "NOT_SHIPPED", "UNKNOWN",
+                 "IN_TRANSIT", "DELIVERED", "LOST", "CLOSED"):
+        return str(value)
+    return "<invalid>"
 
 
 def _positive_int(value: Any) -> bool:

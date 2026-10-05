@@ -1,4 +1,9 @@
-## 当前快照（2026-10-05，第六批输入/计量与修正反馈完成）
+## 当前快照（2026-10-05，Harness可靠性修复进行中）
+
+- 用户批准先修复Harness，按[规格](../docs/harness-reliability.md)接续，不修改RAG排序/数据/Gold或Java资金权限。第一步完成未发货拒绝的具体字段/余额反馈，当前verifier v6；一次修正/绑定主体/fence保留。[报告](../reports/harness-reliability/README.md)：7项先失败，字段/引用/来源/纠错82项通过，改动Ruff通过。
+- 下一步交替重复动作/改写query无新依据检测与429有界恢复；最后集中PG/MCP/SDK/strict新配置验证。未新增收费调用、重启/消费日常run或退款，真实质量不能沿用旧报告称提升。旧包不覆盖；原四历史脏文件及草图日志不夹带。按授权本独立小步精确commit/普通push，SHA/远端结果在本轮回复，之后继续本批。
+
+## 前批快照（2026-10-05，第六批输入/计量与修正反馈完成）
 
 - 用户批准接续第五批，按[本批规格](../docs/agent-calibration-batch6.md)完成calibrated-v3不可变分叉（31正常合成+1未支付草稿边界探针）、RESERVED/DELIVERED真实契约校准、16原非法案例负测、官方V4.1 tokenizer固定hash/模型绑定、无损政策表格、精确引用/扁平格式/失败读接管提示。context v11/verifier v5，当前strict calibration-v9十三包；旧v1/v2/Gold/报告/回放不改，资金/权限/同run/fence/一次修正沿用。
 - 集中710 passed/0 skipped，独立Harness28/28、strict13/13、脚本32/32（150脚本调用），改动Ruff/diff与三版本校验通过。[完整结果](../reports/agent-calibration-batch6/README.md)、[逐例](../reports/agent-calibration-batch6/cases.md)、实际命令/首轮失败均保留。全项目mypy仍9文件16既有错误/73源码，无新增诊断但全项目类型门禁失败。

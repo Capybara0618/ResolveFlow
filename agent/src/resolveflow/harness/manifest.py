@@ -74,7 +74,7 @@ STATE_SCHEMA_VERSION: Final = 2
 #: refs. The name says **Python-side** on purpose — ``docs/agent-harness.md:13`` has Java re-read the sources and
 #: approve the proposal, and that half is not this value's to claim. A run whose proposal was never verified, or
 #: one judged by a different rule set, therefore cannot share a ``manifest_id`` with one that was.
-VERIFIER_VERSION: Final = "python-citations-v5-critical-claims"
+VERIFIER_VERSION: Final = "python-citations-v6-field-feedback"
 
 #: ``docs/agent-spec.md:42``'s ceiling on how long a run may hold a case. The manifest records the **configured
 #: ceiling**, not ``deadline_at - now``: a remaining-time value would change every second and make the manifest id

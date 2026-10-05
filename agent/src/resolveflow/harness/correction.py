@@ -20,6 +20,10 @@ def feedback(code: str, detail: str, *, repair: bool = False) -> dict[str, Any]:
             'failed reads are not citations. Read another source or ESCALATE.')
     elif code == "FACT_CLAIM_UNSUPPORTED":
         category, next_step = "FACT", "Remove or correct unsupported assertions; read the source or hand over."
+    elif code == "UNSHIPPED_FACTS_REQUIRED":
+        category, next_step = "FACT", ('Check the named current fields. Occupied/unknown is not refundable; '
+            'a failed entitlement condition does not justify REJECT. Missing source: read it. Conflict: '
+            '{"kind":"ESCALATE","reason_codes":["NEEDS_HUMAN_VERIFICATION"]}.')
     elif "CITATION" in code or "FACTS_REQUIRED" in code or "EVIDENCE" in code:
         category, next_step = "SOURCE", "Use current observed sources; investigate missing facts or hand over."
     elif code in {"TOOL_TRANSIENT", "UPSTREAM_UNAVAILABLE"}:
