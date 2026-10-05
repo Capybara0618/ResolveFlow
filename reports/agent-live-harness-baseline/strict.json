@@ -1,0 +1,207 @@
+{
+  "dataset_version": "resolveflow-evaluation-calibrated-v3",
+  "manifest_hash": "087f709b3dbf764daec9c4eb25bc00059c012e4a44326557d3b8e8a2713e82de",
+  "replay_manifest_hash": "3f302d192973946731fad187004bb82f24de0ce4cfce208e48114170d7aa6593",
+  "mode": "replay",
+  "synthetic": true,
+  "backend_profile": "Java ReviewerRunInput + EvidenceListResponse; synthetic loopback sources",
+  "business_end_to_end": false,
+  "scoring_scope": "automatic action/read/citation checks; semantic explanation and question review pending",
+  "gold_review": "policy_checked_by_codex_not_human",
+  "embedding": {
+    "model": "BAAI/bge-small-zh-v1.5",
+    "revision": "7999e1d3359715c523056ef9478215996d62a620",
+    "dimension": 512
+  },
+  "dependencies": {
+    "agentscope": "2.0.8",
+    "mcp": "2.2.0",
+    "psycopg": "3.3.5",
+    "sentence-transformers": "5.1.2"
+  },
+  "entry_hash": "0c2ab91800895e643ba3478db5d158c513311c3f30f4252417c165da35f03fdd",
+  "dependency_lock_hash": "0fedd60f93948c7c4a4e9ac9d434133348dc88a9bae3ffd888c6c97b4dbbccf2",
+  "code_commit": "103aabe4bf468f970b475ab92306620c2dd7a19e",
+  "code_hashes": {
+    "agent/src/resolveflow/harness/__init__.py": "fb556adf1332d5a33aaa0a1e544037a289c34fe9cfea58a3373253b8e19b73e0",
+    "agent/src/resolveflow/harness/actions.py": "15095ee3ccadeb1e66e7ef0d142cd54e76bac2d540f3e65e5f8d3677fb6e21e7",
+    "agent/src/resolveflow/harness/budget.py": "1aa4cad28a72dcbbc0dce69c0a4b7a931e6ebfb2e3f642954aae6527f33278e2",
+    "agent/src/resolveflow/harness/claim_checks.py": "bc5da0f1a0921cf3bee60ed5488e3c41a3b463d0792506149efff54daea5b1b6",
+    "agent/src/resolveflow/harness/context.py": "9a3694461a7e38785ae1060acd2a17f181cf1217c5fbafbb8c9952bdb55658f3",
+    "agent/src/resolveflow/harness/control.py": "ea6bc210624f468ded83f58f4ebada84badb100e23e460e4dc81fc2d8a5e59c8",
+    "agent/src/resolveflow/harness/correction.py": "de08a458c43aee81578711288d051eee5b058844754900b7e53baf2f7846a89a",
+    "agent/src/resolveflow/harness/facts.py": "843199acd6e642ec6f64ef340a3ae4fbefe6ece31949b1341b54754dbeb964ca",
+    "agent/src/resolveflow/harness/live_model.py": "2666f3c25743c1117cb287ed531b90e468d21cf9ee88c2f6260ef97d7fb81215",
+    "agent/src/resolveflow/harness/local_reads.py": "a12221b8b08edbe40129bbe7f9449cd555b6f0ca7fab701016d3f214128c0afb",
+    "agent/src/resolveflow/harness/manifest.py": "99d4dfa6bc6cfdb36712003a00051787d2cb152e30f5fc5d54b7669a06a320cb",
+    "agent/src/resolveflow/harness/mcp_client.py": "c1ba774e0fded1b40de67f603a622769c0f079185e9efc35b6b9a2eabd9ee7f3",
+    "agent/src/resolveflow/harness/model.py": "ccb3d5cfc27aa6986ed5ba05009977af1bfe73833aed63af6e1a34c0f513f6f9",
+    "agent/src/resolveflow/harness/observation_read.py": "dcd122018911689f76880ebfdf4ea322537b375a97db29bd27fed60286e064a0",
+    "agent/src/resolveflow/harness/references.py": "5829e241b412b6d19520621467e5f802683f2f54a59dfbb0b835cbed835cb1c4",
+    "agent/src/resolveflow/harness/runner.py": "1dca5a4e41ea220bfa65fcf5f9ce3e67516396a56a5b388274f26d842f95a25d",
+    "agent/src/resolveflow/harness/sdk_adapter.py": "743bb949a41f4576aebd4ddcd0c35036410cf8f42ce4ef2d3077a39eb9f0bc51",
+    "agent/src/resolveflow/harness/sdk_runner.py": "9f357963ab5a47e94f9897cf0683b751fefa6f8ca00bf466ef69cde5dbb42609",
+    "agent/src/resolveflow/harness/token_counting.py": "b8290a023e8ca79a172fa2a852c2cfa8a00123106b65da77bb1ed50a0ce0e785",
+    "agent/src/resolveflow/harness/verifier.py": "23c1f75ce80c90d43746b722831389f2896608808c6c60ba58f03cf4c0257473",
+    "agent/src/resolveflow/harness/vocabulary.py": "4b599eceb70a3fc209971c17103bec25b9f3a4b37a20b971b13dc3d59368da1a",
+    "agent/src/resolveflow/policies/__init__.py": "494045da95f585695439376aa6c81020ce84f8a650a1c9380dd59efd5159a9e8",
+    "agent/src/resolveflow/policies/chunking.py": "73f8c1e8f966610f794f1edd1b7fc96c591f4b890c3ef166824a7f1fdaa3a4d6",
+    "agent/src/resolveflow/policies/index.py": "45241be165893d9b7552e8aa62e4200adc165c87457ec4dfddffa242033e4f9c",
+    "agent/src/resolveflow/policies/retrieval.py": "4d550643ee606d86273d1c36c092e2992d77baeddad082e74ed81261be0bf4c6",
+    "agent/src/resolveflow/policies/status.py": "f78da3a02e9dff8885d5ae5e18dfd5025dbaedaac17c68c5f155d5ffba407d8e",
+    "agent/src/resolveflow/tools/__init__.py": "c31684e3643842958b527d575f3be1d39c74f19d428d6551cda987491b57b412",
+    "agent/src/resolveflow/tools/catalog.py": "588e370d42693f350f2cb2d68a22af94f97d977869b271e6d7379fbf80671fca",
+    "agent/src/resolveflow/tools/credential.py": "432714f3b03ed84bdeb3a56adbd3fea86b3e58570a80aa96273b1e7f661b37dc",
+    "agent/src/resolveflow/tools/result_validation.py": "9c8fa2aee0cc90346bdcd3ad6eb99601038f7c39721fc270e2f4db746b9b0986",
+    "agent/src/resolveflow/tools/server.py": "6f071de6dcdc206e83348fc8986ed841c3e0a986541ae1b6e493e160d4a39a10",
+    "agent/src/resolveflow/tools/upstream.py": "e07a317104a667aa8040dd1c88208fe4b620b56e21c87998b1d1108544344d60",
+    "scripts/evaluation/__init__.py": "37ed1419e5238190069e037c70567e9e7516390d3037cefbfb1de5da176637b2",
+    "scripts/evaluation/build_alignment.py": "5e2763c38fc468467c2b903fa7cad337e6b1f884e4fbf9b7449ad9c39d7f3223",
+    "scripts/evaluation/build_assets.py": "4024b0bcef60ce1386598643a2036270dee5ab248e651e59511bf6aa155a2bee",
+    "scripts/evaluation/build_calibration.py": "6d7bca2344876583bf3dddc786d03d02b2eda7f73783eb8315f31942e28e2304",
+    "scripts/evaluation/dataset.py": "b0be4607bee79ac7c3a642e266ebd7e0089188d39ee8cf403d76e25a67ebcef0",
+    "scripts/evaluation/environment.py": "38c73ce81bc6c9be0dd1a70c8282b345afb220236fb8af92944f58cbdd66f333",
+    "scripts/evaluation/harness_checks.py": "121ca5870f1a27c90a5c5d2dc401ef82753994c0450682733addf4cd0cc5e8f6",
+    "scripts/evaluation/models.py": "ff6f759c4c2b3191bcd543ec614174b8f429df774db8f10e22a20d8a24655034",
+    "scripts/evaluation/quality_audit.py": "74be754223316ceeee7cc47b626b84ce14f70d17e1ca31bf60a3c6efdd9ad4ef",
+    "scripts/evaluation/rag_experiments.py": "cac74f9b95f872253c11e1f9508cec91a6dea93a9bcbe7c78b08e1ef3576102d",
+    "scripts/evaluation/rag_probes.py": "b0950fa26db13e119166fc6753494f4388addbaa51f4928df42af369b9e129e3",
+    "scripts/evaluation/reporting.py": "9382108850d324b765ad382a81a2f5b8cad29841c2afbed908b53c78246fa3e9",
+    "scripts/evaluation/review.py": "0b9f3f25680d0b865919b0299cefa57a8045ea440ae553f7c0e068d948035d89",
+    "scripts/evaluation/scoring.py": "4291f2939f1bb4f0c201f05f0a501be832f344864622d720dc52e3bd7565d88b"
+  },
+  "time": "2026-10-05T21:58:52+0800",
+  "results": [
+    {
+      "id": "alternating_no_progress",
+      "status": "MATCH",
+      "evaluation_run_id": "2e23c4ed-1128-4428-a953-755194fb8378",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 5,
+      "tool_calls": 4,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "bound_question_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "48dabee9-0354-4393-87ba-9ead033e6df5",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "claim_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "5efe2031-cb78-4fa1-89d0-53c17eec0541",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "escalation",
+      "status": "MATCH",
+      "evaluation_run_id": "a3843551-cafe-464c-b411-c4d9fad3cfbe",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 1,
+      "tool_calls": 0,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "malformed_tool_handover",
+      "status": "MATCH",
+      "evaluation_run_id": "f82b5b9c-3a73-4149-9fe1-3e8d8a1da205",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "manual_review",
+      "status": "MATCH",
+      "evaluation_run_id": "f33080ae-eb0e-4170-81da-9db7416d5e66",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 1,
+      "tool_calls": 0,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "non_json_exhausted",
+      "status": "MATCH",
+      "evaluation_run_id": "49845994-593c-492e-aa67-29a325edbe12",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 0,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "non_json_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "35a0f4d0-ec16-44b5-ac6c-4497ed12af3a",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 0,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "question",
+      "status": "MATCH",
+      "evaluation_run_id": "0727db20-e976-4a24-a895-001a4e29b20d",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 1,
+      "tool_calls": 0,
+      "callback_kind": "QUESTION"
+    },
+    {
+      "id": "read_then_question",
+      "status": "MATCH",
+      "evaluation_run_id": "3790da22-024f-4bfe-b4c4-7f650821361e",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 1,
+      "callback_kind": "QUESTION"
+    },
+    {
+      "id": "read_then_review",
+      "status": "MATCH",
+      "evaluation_run_id": "ae821c08-3702-4e8e-ab26-a7202b606756",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "short_references",
+      "status": "MATCH",
+      "evaluation_run_id": "30e007d7-4233-4c62-872c-e425e3b30a44",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 2,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "transient_tool_exhausted",
+      "status": "MATCH",
+      "evaluation_run_id": "1a2056fc-7617-47e8-9497-a877963f532c",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 2,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "transient_tool_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "d7cffd62-1efa-459a-9538-b039caef2347",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 2,
+      "callback_kind": "PROPOSAL"
+    }
+  ],
+  "replay_profile": "evals\\replay\\harness-v10",
+  "summary": {
+    "n": 14,
+    "matched": 14
+  }
+}

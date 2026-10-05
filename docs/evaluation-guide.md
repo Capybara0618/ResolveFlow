@@ -1,3 +1,5 @@
+2026-10-05 当前 Harness 为 context v12/verifier v6，默认strict为 `evals/replay/harness-v10` 十四包，输入仍 `evals/calibrated-v3`。本次[真实基线协议及结果](../reports/agent-live-harness-baseline/README.md)使用显式 `-ModelCalls 12`；入口历史默认6保留，不能默认认为与生产调用次数一致。全部32例拆为不重叠的6+26各一次，固定配置只读聚合；自动评分失败仍保留分母，聚合成功只证明来源/覆盖一致，不等于质量通过。新报告记录 `evaluation_config`，设置不同或新旧缺配置时拒绝直接compare。逐query入口新增 `--dataset evals/calibrated-v3`，旧默认v2不变，FAQ复用要求政策语料hash一致。下方版本说明只作历史。
+
 # Agent / RAG 评测使用指南
 
 2026-10-05 第六批当前默认输入为 `evals/calibrated-v3`、strict 为 `evals/replay/calibration-v9` 十三包。见[校准规格](agent-calibration-batch6.md)与[结果](../reports/agent-calibration-batch6/README.md)。新版本校准 RESERVED 行槽/DELIVERED 承运枚举；A04B 为未支付草稿来源缺失边界探针，必须实际观察订单 NOT_FOUND，再补证或转人工，不能无读直接算通过。31普通合成例+1边界探针仍非真实分布；16份原非法响应保留为负向契约样本。旧v1/v2/Gold/报告/strict不变，跨版本分数不可当受控提升。`-Dataset evals/aligned-v2` 可显式保留旧校准基线，旧回放在新源码下应明确拒绝，不自动迁移。`quality_audit.py --dataset evals/calibrated-v3` 才审计新报告，默认依然保留历史v2审计行为。

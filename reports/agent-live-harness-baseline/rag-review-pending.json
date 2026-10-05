@@ -1,0 +1,1169 @@
+{
+  "status": "PENDING",
+  "reviewer_kind": "HUMAN",
+  "reviewer": "",
+  "reviewed_at": "",
+  "corpus_manifest_sha256": "087f709b3dbf764daec9c4eb25bc00059c012e4a44326557d3b8e8a2713e82de",
+  "live_report_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+  "external_manifest_sha256": "ab874d5a6701a3d7a420743874bb7eb8e9b10484d4e77bfac3f7b782a87eca90",
+  "instructions": "逐query判断项目条款相关性；must_rules=null为待标注，[]仅用于确认无适用条款。先看问法及完整条款再看候选，不能抄最终工单Gold，不写京东政策或授权。",
+  "policy_bundles": [
+    {
+      "bundle_id": "eval-m-1001-v1",
+      "merchant_id": "M-1001",
+      "version": "v1",
+      "effective_from": "2026-09-01",
+      "effective_to": "2026-10-01",
+      "synthetic": true,
+      "rules": [
+        {
+          "rule_id": "R-UNSHIPPED-001",
+          "title": "付款后尚未发货",
+          "text": "商品已付款，商家履约记录明确尚未发货，且没有退款占用时，可以申请该商品行全部数量的实付全额退款。买错规格、重复购买或改变购买计划均可提出申请。不能用没有物流记录代替尚未发货的确认；已经发货时应调查其他理由。"
+        },
+        {
+          "rule_id": "R-LOST-001",
+          "title": "运输丢失",
+          "text": "承运记录确认包裹丢失、没有有效签收记录，且商家已核验丢失事实时，可以建议该商品行实付全额退款。只有运输延迟、普通在途或客户单方声称没有收到，不足以确认丢失。签收和丢失记录冲突时先核验。"
+        },
+        {
+          "rule_id": "R-SIGNED-001",
+          "title": "签收争议",
+          "text": "物流显示有效签收但客户说没收到，应核对签收人与客户说明，缺少关键说明时补证或转人工。不能仅凭签收状态确认客户实际收货，也不能仅凭未收到的主张建议退款。若人工核验确认错误签收且承运记录已确认丢失，按运输丢失条款继续判断。"
+        },
+        {
+          "rule_id": "R-DMG-001",
+          "title": "商品质量或破损",
+          "text": "商品发货后存在损坏或功能质量问题，人工核验确认问题属实并符合售后条件时，可以建议该商品行实付全额退款。未经核验的客户陈述或一张已上传的图片不能自动证明问题；核验结果未知或材料相互矛盾时补证或转人工。核验否认某项事实仅否认该理由，不能代替对其他有效理由的调查。"
+        },
+        {
+          "rule_id": "R-INTRANSIT-001",
+          "title": "运输中与延迟",
+          "text": "普通运输中或配送变慢不等于丢失。应查看承运异常及客户理由，不能套用尚未发货退款条款。没有异常结论或存在其他未核验理由时，提出具体补充问题或交由商家人工处理。"
+        },
+        {
+          "rule_id": "R-UNKNOWN-001",
+          "title": "履约信息不足",
+          "text": "付款或发货状态无法确认、记录缺失或读取失败时，不得假定已付款未发货，也不得据此认定客户无权申请。应说明缺少哪项事实，重新取得有效记录或转人工；不得编造物流、付款和核验结论。"
+        },
+        {
+          "rule_id": "R-MONEY-001",
+          "title": "退款记录与处理范围",
+          "text": "已有退款成功记录时不得再次建议执行同一商品行退款；退款处理中或结果尚不明确时先核对原处理记录。本系统只处理单商品行全部数量的实付全额模拟退款，不支持行内部分退款、补发、真实支付或退货入库。模型仅提供建议，最终由商家审批；任何建议不产生退款授权。"
+        },
+        {
+          "rule_id": "R-QUESTION-001",
+          "title": "补充说明与已有回答",
+          "text": "补证只询问影响判断且尚未回答的问题，并说明需要补充的内容。已经回答的同一问题不得重复询问。现有信息仍不足或有冲突时交由商家处理；材料为空不是直接拒绝申请的理由。"
+        },
+        {
+          "rule_id": "R-MATERIAL-001",
+          "title": "数码商品核验材料",
+          "text": "商品质量争议需要补充问题说明，由商家人工核验。"
+        }
+      ]
+    },
+    {
+      "bundle_id": "eval-m-1001-v2",
+      "merchant_id": "M-1001",
+      "version": "v2",
+      "effective_from": "2026-10-01",
+      "effective_to": null,
+      "synthetic": true,
+      "rules": [
+        {
+          "rule_id": "R-UNSHIPPED-001",
+          "title": "付款后尚未发货",
+          "text": "商品已付款，商家履约记录明确尚未发货，且没有退款占用时，可以申请该商品行全部数量的实付全额退款。买错规格、重复购买或改变购买计划均可提出申请。不能用没有物流记录代替尚未发货的确认；已经发货时应调查其他理由。"
+        },
+        {
+          "rule_id": "R-LOST-001",
+          "title": "运输丢失",
+          "text": "承运记录确认包裹丢失、没有有效签收记录，且商家已核验丢失事实时，可以建议该商品行实付全额退款。只有运输延迟、普通在途或客户单方声称没有收到，不足以确认丢失。签收和丢失记录冲突时先核验。"
+        },
+        {
+          "rule_id": "R-SIGNED-001",
+          "title": "签收争议",
+          "text": "物流显示有效签收但客户说没收到，应核对签收人与客户说明，缺少关键说明时补证或转人工。不能仅凭签收状态确认客户实际收货，也不能仅凭未收到的主张建议退款。若人工核验确认错误签收且承运记录已确认丢失，按运输丢失条款继续判断。"
+        },
+        {
+          "rule_id": "R-DMG-001",
+          "title": "商品质量或破损",
+          "text": "商品发货后存在损坏或功能质量问题，人工核验确认问题属实并符合售后条件时，可以建议该商品行实付全额退款。未经核验的客户陈述或一张已上传的图片不能自动证明问题；核验结果未知或材料相互矛盾时补证或转人工。核验否认某项事实仅否认该理由，不能代替对其他有效理由的调查。"
+        },
+        {
+          "rule_id": "R-INTRANSIT-001",
+          "title": "运输中与延迟",
+          "text": "普通运输中或配送变慢不等于丢失。应查看承运异常及客户理由，不能套用尚未发货退款条款。没有异常结论或存在其他未核验理由时，提出具体补充问题或交由商家人工处理。"
+        },
+        {
+          "rule_id": "R-UNKNOWN-001",
+          "title": "履约信息不足",
+          "text": "付款或发货状态无法确认、记录缺失或读取失败时，不得假定已付款未发货，也不得据此认定客户无权申请。应说明缺少哪项事实，重新取得有效记录或转人工；不得编造物流、付款和核验结论。"
+        },
+        {
+          "rule_id": "R-MONEY-001",
+          "title": "退款记录与处理范围",
+          "text": "已有退款成功记录时不得再次建议执行同一商品行退款；退款处理中或结果尚不明确时先核对原处理记录。本系统只处理单商品行全部数量的实付全额模拟退款，不支持行内部分退款、补发、真实支付或退货入库。模型仅提供建议，最终由商家审批；任何建议不产生退款授权。"
+        },
+        {
+          "rule_id": "R-QUESTION-001",
+          "title": "补充说明与已有回答",
+          "text": "补证只询问影响判断且尚未回答的问题，并说明需要补充的内容。已经回答的同一问题不得重复询问。现有信息仍不足或有冲突时交由商家处理；材料为空不是直接拒绝申请的理由。"
+        },
+        {
+          "rule_id": "R-MATERIAL-001",
+          "title": "数码商品核验材料",
+          "text": "数码商品无法正常工作时，可补充故障发生步骤、设备型号与已有排查情况，由商家核验；系统不自动诊断设备，也不把上传视频当作已确认故障。"
+        }
+      ]
+    },
+    {
+      "bundle_id": "eval-m-1002-v1",
+      "merchant_id": "M-1002",
+      "version": "v1",
+      "effective_from": "2026-09-01",
+      "effective_to": "2026-10-01",
+      "synthetic": true,
+      "rules": [
+        {
+          "rule_id": "R-UNSHIPPED-001",
+          "title": "付款后尚未发货",
+          "text": "商品已付款，商家履约记录明确尚未发货，且没有退款占用时，可以申请该商品行全部数量的实付全额退款。买错规格、重复购买或改变购买计划均可提出申请。不能用没有物流记录代替尚未发货的确认；已经发货时应调查其他理由。"
+        },
+        {
+          "rule_id": "R-LOST-001",
+          "title": "运输丢失",
+          "text": "承运记录确认包裹丢失、没有有效签收记录，且商家已核验丢失事实时，可以建议该商品行实付全额退款。只有运输延迟、普通在途或客户单方声称没有收到，不足以确认丢失。签收和丢失记录冲突时先核验。"
+        },
+        {
+          "rule_id": "R-SIGNED-001",
+          "title": "签收争议",
+          "text": "物流显示有效签收但客户说没收到，应核对签收人与客户说明，缺少关键说明时补证或转人工。不能仅凭签收状态确认客户实际收货，也不能仅凭未收到的主张建议退款。若人工核验确认错误签收且承运记录已确认丢失，按运输丢失条款继续判断。"
+        },
+        {
+          "rule_id": "R-DMG-001",
+          "title": "商品质量或破损",
+          "text": "商品发货后存在损坏或功能质量问题，人工核验确认问题属实并符合售后条件时，可以建议该商品行实付全额退款。未经核验的客户陈述或一张已上传的图片不能自动证明问题；核验结果未知或材料相互矛盾时补证或转人工。核验否认某项事实仅否认该理由，不能代替对其他有效理由的调查。"
+        },
+        {
+          "rule_id": "R-INTRANSIT-001",
+          "title": "运输中与延迟",
+          "text": "普通运输中或配送变慢不等于丢失。应查看承运异常及客户理由，不能套用尚未发货退款条款。没有异常结论或存在其他未核验理由时，提出具体补充问题或交由商家人工处理。"
+        },
+        {
+          "rule_id": "R-UNKNOWN-001",
+          "title": "履约信息不足",
+          "text": "付款或发货状态无法确认、记录缺失或读取失败时，不得假定已付款未发货，也不得据此认定客户无权申请。应说明缺少哪项事实，重新取得有效记录或转人工；不得编造物流、付款和核验结论。"
+        },
+        {
+          "rule_id": "R-MONEY-001",
+          "title": "退款记录与处理范围",
+          "text": "已有退款成功记录时不得再次建议执行同一商品行退款；退款处理中或结果尚不明确时先核对原处理记录。本系统只处理单商品行全部数量的实付全额模拟退款，不支持行内部分退款、补发、真实支付或退货入库。模型仅提供建议，最终由商家审批；任何建议不产生退款授权。"
+        },
+        {
+          "rule_id": "R-QUESTION-001",
+          "title": "补充说明与已有回答",
+          "text": "补证只询问影响判断且尚未回答的问题，并说明需要补充的内容。已经回答的同一问题不得重复询问。现有信息仍不足或有冲突时交由商家处理；材料为空不是直接拒绝申请的理由。"
+        },
+        {
+          "rule_id": "R-MATERIAL-001",
+          "title": "家居商品核验材料",
+          "text": "商品质量争议需要补充问题说明，由商家人工核验。"
+        }
+      ]
+    },
+    {
+      "bundle_id": "eval-m-1002-v2",
+      "merchant_id": "M-1002",
+      "version": "v2",
+      "effective_from": "2026-10-01",
+      "effective_to": null,
+      "synthetic": true,
+      "rules": [
+        {
+          "rule_id": "R-UNSHIPPED-001",
+          "title": "付款后尚未发货",
+          "text": "商品已付款，商家履约记录明确尚未发货，且没有退款占用时，可以申请该商品行全部数量的实付全额退款。买错规格、重复购买或改变购买计划均可提出申请。不能用没有物流记录代替尚未发货的确认；已经发货时应调查其他理由。"
+        },
+        {
+          "rule_id": "R-LOST-001",
+          "title": "运输丢失",
+          "text": "承运记录确认包裹丢失、没有有效签收记录，且商家已核验丢失事实时，可以建议该商品行实付全额退款。只有运输延迟、普通在途或客户单方声称没有收到，不足以确认丢失。签收和丢失记录冲突时先核验。"
+        },
+        {
+          "rule_id": "R-SIGNED-001",
+          "title": "签收争议",
+          "text": "物流显示有效签收但客户说没收到，应核对签收人与客户说明，缺少关键说明时补证或转人工。不能仅凭签收状态确认客户实际收货，也不能仅凭未收到的主张建议退款。若人工核验确认错误签收且承运记录已确认丢失，按运输丢失条款继续判断。"
+        },
+        {
+          "rule_id": "R-DMG-001",
+          "title": "商品质量或破损",
+          "text": "商品发货后存在损坏或功能质量问题，人工核验确认问题属实并符合售后条件时，可以建议该商品行实付全额退款。未经核验的客户陈述或一张已上传的图片不能自动证明问题；核验结果未知或材料相互矛盾时补证或转人工。核验否认某项事实仅否认该理由，不能代替对其他有效理由的调查。"
+        },
+        {
+          "rule_id": "R-INTRANSIT-001",
+          "title": "运输中与延迟",
+          "text": "普通运输中或配送变慢不等于丢失。应查看承运异常及客户理由，不能套用尚未发货退款条款。没有异常结论或存在其他未核验理由时，提出具体补充问题或交由商家人工处理。"
+        },
+        {
+          "rule_id": "R-UNKNOWN-001",
+          "title": "履约信息不足",
+          "text": "付款或发货状态无法确认、记录缺失或读取失败时，不得假定已付款未发货，也不得据此认定客户无权申请。应说明缺少哪项事实，重新取得有效记录或转人工；不得编造物流、付款和核验结论。"
+        },
+        {
+          "rule_id": "R-MONEY-001",
+          "title": "退款记录与处理范围",
+          "text": "已有退款成功记录时不得再次建议执行同一商品行退款；退款处理中或结果尚不明确时先核对原处理记录。本系统只处理单商品行全部数量的实付全额模拟退款，不支持行内部分退款、补发、真实支付或退货入库。模型仅提供建议，最终由商家审批；任何建议不产生退款授权。"
+        },
+        {
+          "rule_id": "R-QUESTION-001",
+          "title": "补充说明与已有回答",
+          "text": "补证只询问影响判断且尚未回答的问题，并说明需要补充的内容。已经回答的同一问题不得重复询问。现有信息仍不足或有冲突时交由商家处理；材料为空不是直接拒绝申请的理由。"
+        },
+        {
+          "rule_id": "R-MATERIAL-001",
+          "title": "家居商品核验材料",
+          "text": "家居商品到货破损时，可补充破损部位、商品整体和包装情况，由商家核验运输破损或质量问题；缺照片不直接否认客户陈述。"
+        }
+      ]
+    },
+    {
+      "bundle_id": "eval-m-1003-v1",
+      "merchant_id": "M-1003",
+      "version": "v1",
+      "effective_from": "2026-09-01",
+      "effective_to": "2026-10-01",
+      "synthetic": true,
+      "rules": [
+        {
+          "rule_id": "R-UNSHIPPED-001",
+          "title": "付款后尚未发货",
+          "text": "商品已付款，商家履约记录明确尚未发货，且没有退款占用时，可以申请该商品行全部数量的实付全额退款。买错规格、重复购买或改变购买计划均可提出申请。不能用没有物流记录代替尚未发货的确认；已经发货时应调查其他理由。"
+        },
+        {
+          "rule_id": "R-LOST-001",
+          "title": "运输丢失",
+          "text": "承运记录确认包裹丢失、没有有效签收记录，且商家已核验丢失事实时，可以建议该商品行实付全额退款。只有运输延迟、普通在途或客户单方声称没有收到，不足以确认丢失。签收和丢失记录冲突时先核验。"
+        },
+        {
+          "rule_id": "R-SIGNED-001",
+          "title": "签收争议",
+          "text": "物流显示有效签收但客户说没收到，应核对签收人与客户说明，缺少关键说明时补证或转人工。不能仅凭签收状态确认客户实际收货，也不能仅凭未收到的主张建议退款。若人工核验确认错误签收且承运记录已确认丢失，按运输丢失条款继续判断。"
+        },
+        {
+          "rule_id": "R-DMG-001",
+          "title": "商品质量或破损",
+          "text": "商品发货后存在损坏或功能质量问题，人工核验确认问题属实并符合售后条件时，可以建议该商品行实付全额退款。未经核验的客户陈述或一张已上传的图片不能自动证明问题；核验结果未知或材料相互矛盾时补证或转人工。核验否认某项事实仅否认该理由，不能代替对其他有效理由的调查。"
+        },
+        {
+          "rule_id": "R-INTRANSIT-001",
+          "title": "运输中与延迟",
+          "text": "普通运输中或配送变慢不等于丢失。应查看承运异常及客户理由，不能套用尚未发货退款条款。没有异常结论或存在其他未核验理由时，提出具体补充问题或交由商家人工处理。"
+        },
+        {
+          "rule_id": "R-UNKNOWN-001",
+          "title": "履约信息不足",
+          "text": "付款或发货状态无法确认、记录缺失或读取失败时，不得假定已付款未发货，也不得据此认定客户无权申请。应说明缺少哪项事实，重新取得有效记录或转人工；不得编造物流、付款和核验结论。"
+        },
+        {
+          "rule_id": "R-MONEY-001",
+          "title": "退款记录与处理范围",
+          "text": "已有退款成功记录时不得再次建议执行同一商品行退款；退款处理中或结果尚不明确时先核对原处理记录。本系统只处理单商品行全部数量的实付全额模拟退款，不支持行内部分退款、补发、真实支付或退货入库。模型仅提供建议，最终由商家审批；任何建议不产生退款授权。"
+        },
+        {
+          "rule_id": "R-QUESTION-001",
+          "title": "补充说明与已有回答",
+          "text": "补证只询问影响判断且尚未回答的问题，并说明需要补充的内容。已经回答的同一问题不得重复询问。现有信息仍不足或有冲突时交由商家处理；材料为空不是直接拒绝申请的理由。"
+        },
+        {
+          "rule_id": "R-MATERIAL-001",
+          "title": "户外商品核验材料",
+          "text": "商品质量争议需要补充问题说明，由商家人工核验。"
+        }
+      ]
+    },
+    {
+      "bundle_id": "eval-m-1003-v2",
+      "merchant_id": "M-1003",
+      "version": "v2",
+      "effective_from": "2026-10-01",
+      "effective_to": null,
+      "synthetic": true,
+      "rules": [
+        {
+          "rule_id": "R-UNSHIPPED-001",
+          "title": "付款后尚未发货",
+          "text": "商品已付款，商家履约记录明确尚未发货，且没有退款占用时，可以申请该商品行全部数量的实付全额退款。买错规格、重复购买或改变购买计划均可提出申请。不能用没有物流记录代替尚未发货的确认；已经发货时应调查其他理由。"
+        },
+        {
+          "rule_id": "R-LOST-001",
+          "title": "运输丢失",
+          "text": "承运记录确认包裹丢失、没有有效签收记录，且商家已核验丢失事实时，可以建议该商品行实付全额退款。只有运输延迟、普通在途或客户单方声称没有收到，不足以确认丢失。签收和丢失记录冲突时先核验。"
+        },
+        {
+          "rule_id": "R-SIGNED-001",
+          "title": "签收争议",
+          "text": "物流显示有效签收但客户说没收到，应核对签收人与客户说明，缺少关键说明时补证或转人工。不能仅凭签收状态确认客户实际收货，也不能仅凭未收到的主张建议退款。若人工核验确认错误签收且承运记录已确认丢失，按运输丢失条款继续判断。"
+        },
+        {
+          "rule_id": "R-DMG-001",
+          "title": "商品质量或破损",
+          "text": "商品发货后存在损坏或功能质量问题，人工核验确认问题属实并符合售后条件时，可以建议该商品行实付全额退款。未经核验的客户陈述或一张已上传的图片不能自动证明问题；核验结果未知或材料相互矛盾时补证或转人工。核验否认某项事实仅否认该理由，不能代替对其他有效理由的调查。"
+        },
+        {
+          "rule_id": "R-INTRANSIT-001",
+          "title": "运输中与延迟",
+          "text": "普通运输中或配送变慢不等于丢失。应查看承运异常及客户理由，不能套用尚未发货退款条款。没有异常结论或存在其他未核验理由时，提出具体补充问题或交由商家人工处理。"
+        },
+        {
+          "rule_id": "R-UNKNOWN-001",
+          "title": "履约信息不足",
+          "text": "付款或发货状态无法确认、记录缺失或读取失败时，不得假定已付款未发货，也不得据此认定客户无权申请。应说明缺少哪项事实，重新取得有效记录或转人工；不得编造物流、付款和核验结论。"
+        },
+        {
+          "rule_id": "R-MONEY-001",
+          "title": "退款记录与处理范围",
+          "text": "已有退款成功记录时不得再次建议执行同一商品行退款；退款处理中或结果尚不明确时先核对原处理记录。本系统只处理单商品行全部数量的实付全额模拟退款，不支持行内部分退款、补发、真实支付或退货入库。模型仅提供建议，最终由商家审批；任何建议不产生退款授权。"
+        },
+        {
+          "rule_id": "R-QUESTION-001",
+          "title": "补充说明与已有回答",
+          "text": "补证只询问影响判断且尚未回答的问题，并说明需要补充的内容。已经回答的同一问题不得重复询问。现有信息仍不足或有冲突时交由商家处理；材料为空不是直接拒绝申请的理由。"
+        },
+        {
+          "rule_id": "R-MATERIAL-001",
+          "title": "户外商品核验材料",
+          "text": "户外商品规格或质量争议时，可补充购买规格、实物标识及问题发生情况，由商家区分买错规格与质量问题；已使用不自动证明存在质量问题。"
+        }
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "id": "EXT:JD01:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD01",
+      "query": "为何物流显示签收，却没有收到？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD01:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD01",
+      "query": "为何物流显示签收，却没有收到？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD01:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD01",
+      "query": "为何物流显示签收，却没有收到？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD02:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD02",
+      "query": "为什么支付总是失败？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD02:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD02",
+      "query": "为什么支付总是失败？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD02:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD02",
+      "query": "为什么支付总是失败？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD03:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD03",
+      "query": "订单重复支付怎么办？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD03:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD03",
+      "query": "订单重复支付怎么办？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD03:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD03",
+      "query": "订单重复支付怎么办？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD04:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD04",
+      "query": "退货/换货申请在哪里查看进度？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD04:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD04",
+      "query": "退货/换货申请在哪里查看进度？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD04:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD04",
+      "query": "退货/换货申请在哪里查看进度？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD05:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD05",
+      "query": "为什么售后服务单没有审核通过？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD05:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD05",
+      "query": "为什么售后服务单没有审核通过？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD05:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD05",
+      "query": "为什么售后服务单没有审核通过？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD06:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD06",
+      "query": "订单取消后还能恢复吗？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD06:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD06",
+      "query": "订单取消后还能恢复吗？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD06:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD06",
+      "query": "订单取消后还能恢复吗？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD07:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD07",
+      "query": "预售商品售后政策是？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD07:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD07",
+      "query": "预售商品售后政策是？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD07:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD07",
+      "query": "预售商品售后政策是？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD08:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD08",
+      "query": "申请退换货或保修，没有发票可以申请吗？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD08:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD08",
+      "query": "申请退换货或保修，没有发票可以申请吗？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD08:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD08",
+      "query": "申请退换货或保修，没有发票可以申请吗？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD09:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD09",
+      "query": "京东发错货，该怎么办？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD09:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD09",
+      "query": "京东发错货，该怎么办？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD09:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD09",
+      "query": "京东发错货，该怎么办？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD10:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD10",
+      "query": "为什么我不能退换货？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD10:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD10",
+      "query": "为什么我不能退换货？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD10:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD10",
+      "query": "为什么我不能退换货？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD11:M-1001",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD11",
+      "query": "提交了的服务单，什么时候审核完？",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD11:M-1002",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD11",
+      "query": "提交了的服务单，什么时候审核完？",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "EXT:JD11:M-1003",
+      "split": "external_faq_diagnostic",
+      "source_id": "JD11",
+      "query": "提交了的服务单，什么时候审核完？",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A01A:3",
+      "split": "current_live_query_probe",
+      "query": "未发货 买错尺寸 全额退款 条件 例外",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A01A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A01B:3",
+      "split": "current_live_query_probe",
+      "query": "买错尺寸 七天无理由 退货退款 条件 例外",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A01B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A02A:3",
+      "split": "current_live_query_probe",
+      "query": "未发货 重复下单 撤回购买 全额退款 政策条件",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "case_id": "A02A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A02B:3",
+      "split": "current_live_query_probe",
+      "query": "重复下单 撤回购买 全额退款 未发货 退款条件",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "case_id": "A02B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A03A:3",
+      "split": "current_live_query_probe",
+      "query": "未发货 退款 政策 条件 例外",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "case_id": "A03A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A03B:3",
+      "split": "current_live_query_probe",
+      "query": "未发货 退款 条件 政策",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "case_id": "A03B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A04A:3",
+      "split": "current_live_query_probe",
+      "query": "未发货 买错颜色 整行退款 重新购买 退款条件",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A04A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A04B:3",
+      "split": "current_live_query_probe",
+      "query": "买错颜色 整行退款 重新购买 退货退款条件",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A04B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A04B:5",
+      "split": "current_live_query_probe",
+      "query": "买错颜色 整行退款 重新购买 未发货 退款占用 退款记录",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A04B",
+      "turn": 5,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A05A:3",
+      "split": "current_live_query_probe",
+      "query": "运输丢失 未签收 退款 条件",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A05A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A05B:3",
+      "split": "current_live_query_probe",
+      "query": "包裹未送达 运输丢失 退款条件 承运结论",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A05B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A06A:3",
+      "split": "current_live_query_probe",
+      "query": "运输丢失 退款 条件 承运 核验",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "case_id": "A06A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A06B:3",
+      "split": "current_live_query_probe",
+      "query": "包裹运输丢失 退款 承运结论 核验条件",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "case_id": "A06B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A07A:3",
+      "split": "current_live_query_probe",
+      "query": "物流丢失 未送达 退款 条件 商家核验 运输丢失",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "case_id": "A07A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A07B:3",
+      "split": "current_live_query_probe",
+      "query": "物流未送达 退款 条件 承运 丢失 核验",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "case_id": "A07B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A08A:3",
+      "split": "current_live_query_probe",
+      "query": "运输丢失 未收到 全额退款 政策条件",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A08A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A08B:5",
+      "split": "current_live_query_probe",
+      "query": "运输丢失 未收到 全额退款 承运结论 核验条件",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A08B",
+      "turn": 5,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A09A:3",
+      "split": "current_live_query_probe",
+      "query": "签收未收到 运输丢失 退款 政策",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A09A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A09B:4",
+      "split": "current_live_query_probe",
+      "query": "签收未收到 退款 核验 承运结论 政策",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A09B",
+      "turn": 4,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A10A:3",
+      "split": "current_live_query_probe",
+      "query": "运输丢失 未签收 退款 条件",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "case_id": "A10A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A10B:3",
+      "split": "current_live_query_probe",
+      "query": "未签收 未收到货 签收争议 退款 核验 承运 签收人",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "case_id": "A10B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A11A:3",
+      "split": "current_live_query_probe",
+      "query": "运输丢失 无有效签收 退款 条件",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "case_id": "A11A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A11B:3",
+      "split": "current_live_query_probe",
+      "query": "签收争议 未收到 退款 核验 承运 签收人",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "case_id": "A11B",
+      "turn": 3,
+      "original_top_k": null,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A12A:2",
+      "split": "current_live_query_probe",
+      "query": "配送显示送达但未收到商品 运输丢失 无有效签收 退款条件",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A12A",
+      "turn": 2,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A12B:5",
+      "split": "current_live_query_probe",
+      "query": "配送显示送达但未收到商品 退款 签收核验 政策",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A12B",
+      "turn": 5,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A13A:3",
+      "split": "current_live_query_probe",
+      "query": "商品质量问题 无法正常使用 退款 售后条件",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A13A",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A13B:3",
+      "split": "current_live_query_probe",
+      "query": "收到商品无法正常使用 质量问题 退款 核验 政策",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A13B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A14A:2",
+      "split": "current_live_query_probe",
+      "query": "到货商品破损 退款 商家核验 质量问题 售后条件",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "case_id": "A14A",
+      "turn": 2,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A14B:3",
+      "split": "current_live_query_probe",
+      "query": "到货商品破损 退款 政策 条件 证据要求",
+      "merchant_id": "M-1002",
+      "bundle_id": "eval-m-1002-v2",
+      "case_id": "A14B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A15A:2",
+      "split": "current_live_query_probe",
+      "query": "商品质量问题 全额退款 售后条件 商家核验",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "case_id": "A15A",
+      "turn": 2,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A15B:3",
+      "split": "current_live_query_probe",
+      "query": "质量问题 全额退款 核验 结论 政策",
+      "merchant_id": "M-1003",
+      "bundle_id": "eval-m-1003-v2",
+      "case_id": "A15B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A16A:2",
+      "split": "current_live_query_probe",
+      "query": "商品故障 质量问题 退款 售后条件 核验",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A16A",
+      "turn": 2,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    },
+    {
+      "id": "LIVE:A16B:3",
+      "split": "current_live_query_probe",
+      "query": "商品故障 质量问题 退款 核验 条件",
+      "merchant_id": "M-1001",
+      "bundle_id": "eval-m-1001-v2",
+      "case_id": "A16B",
+      "turn": 3,
+      "original_top_k": 3,
+      "request_failed": false,
+      "source_report": "reports/agent-live-harness-baseline/live-baseline.json",
+      "source_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+      "must_rules": null,
+      "notes": ""
+    }
+  ]
+}
