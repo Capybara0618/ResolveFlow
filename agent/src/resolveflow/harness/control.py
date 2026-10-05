@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final
 
 from resolveflow.harness.actions import ModelDecision
@@ -102,9 +102,10 @@ class NoProgressTracker:
     last_digest: str | None = None
     #: Set when the previous action's evidence was new; the loop reports it rather than inferring it.
     latest_was_new: bool = False
-    #: Set when the action about to run repeated the previous one, so the evidence that follows decides whether it
-    #: was "no progress" or a legitimate re-read.
+    #: Set for a previously requested action or a policy search; its actual result decides whether it progressed.
     pending_repeat: bool = False
+    #: Bounded by the run's existing call limits, and reconstructed from saved decisions on recovery.
+    seen_digests: set[str] = field(default_factory=set)
 
     def note_action(self, decision: ModelDecision) -> bool:
         """Record the action about to run and return whether it is a repeat of the previous one.
@@ -113,12 +114,16 @@ class NoProgressTracker:
         produced, which is not known until after it ran — and a version of this that counted here incremented the
         streak for a repeat that returned *new* evidence, so a run paging or re-reading after a change was stopped
         as if it had made no progress. The counted decision is made in :meth:`note_evidence`.
+        Previously seen digests also detect A/B/A/B cycles; source updates still reset the no-progress count.
         """
         digest = action_digest(decision)
-        repeated = digest == self.last_digest
+        repeated = digest in self.seen_digests
+        self.seen_digests.add(digest)
         self.last_digest = digest
         self.latest_was_new = False
-        self.pending_repeat = repeated
+        # A new search wording may still yield only previously read chunks. It must be allowed to run before
+        # judging its progress, so return the exact-repeat flag separately from the post-result check.
+        self.pending_repeat = repeated or decision.kind == "SEARCH_POLICY"
         return repeated
 
     @property

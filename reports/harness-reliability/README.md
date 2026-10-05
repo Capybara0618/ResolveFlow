@@ -14,4 +14,15 @@ agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_harness_reliabili
 agent/.venv/Scripts/python.exe -m ruff check --config agent/pyproject.toml agent/src/resolveflow/harness/verifier.py agent/src/resolveflow/harness/correction.py agent/src/resolveflow/harness/manifest.py agent/tests/unit/test_harness_reliability.py
 ```
 
-交替重复调用和429恢复尚在实施；未跑本批集中PG/MCP/strict、真实模型复测、Java整链或网页。没有收费调用或常驻服务重启，不宣称建议质量提升。已有全项目mypy16个错误基线保留，待集中检查。
+## 第二步：交替循环与检索进展
+
+动作追踪保留本run已请求的动作，交替重复动作也进入原两次无进展反馈门禁；已知重复在第三次无进展执行前阻止。搜索结果以bundle/version/rule/chunk/hash集合判新，不把query/排序/分数变化算新依据；空或旧结果的不同query仍可执行以发现新规则，第三次无新依据后停止。普通结果以工具/来源/版本/hash判新，避免相同payload跨来源或新版本误去重。context v12，verifier v6；受原manifest和代码身份保护。
+
+先失败6项中5失败1通过（loops-before.txt）；初轮缺少常量import及测试模拟的来源区分导致12失败/90通过（loops-initial.txt），修正后102项通过，0 skipped（loops.xml/txt），包含SDK实际交替动作和隔离PG第四次工具落库后崩溃恢复：4次真实stub读取、5次脚本模型调用、2条无进展反馈，恢复不重发保存结果、不重置计数。Ruff首次长度错误修正后通过；排序测试加强后6项仍通过。
+
+```powershell
+$env:RESOLVEFLOW_AGENT_DB='postgresql://agent:agent@127.0.0.1:55433/agent_db'
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_loop_reliability.py agent/tests/unit/test_harness_loop.py agent/tests/unit/test_loop_semantics.py agent/tests/unit/test_sdk_adapter.py agent/tests/unit/test_correction_loop.py agent/tests/integration/test_loop_reliability_recovery.py agent/tests/integration/test_correction_recovery.py -q --tb=short --junitxml=reports/harness-reliability/loops.xml
+```
+
+第一步0c86215已核实正常push到origin/main。429恢复尚在实施；本批全量集中PG/MCP/strict和mypy待收口。未真实模型复测、Java整链、网页或收费调用/常驻服务重启，不宣称建议质量提升。已有全项目mypy16个错误基线保留。

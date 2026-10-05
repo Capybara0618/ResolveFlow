@@ -76,6 +76,7 @@ from resolveflow.harness.context import (
     extract_facts,
 )
 from resolveflow.harness.control import (
+    MAX_NO_PROGRESS_ROUNDS,
     REASON_ACTION_REFUSED,
     REASON_COMPLETED,
     REASON_NO_PROGRESS,
@@ -205,7 +206,7 @@ class ActionGateMiddleware(MiddlewareBase):
             # Not repairable: this is the loop's own bound, not a mistake in the model's output, and the two rounds
             # before it were already fed back (docs/agent-spec.md:44).
             self._refuse(
-                REASON_NO_PROGRESS, "the same action repeated three times with no new evidence", repairable=False
+                REASON_NO_PROGRESS, "repeated investigation actions added no new evidence", repairable=False
             )
             return None
         # A repeat is **not** counted here: whether it was "no progress" depends on the evidence it produces, which
@@ -318,6 +319,11 @@ class ActionGateMiddleware(MiddlewareBase):
         was_repeat = self.progress.pending_repeat
         self.progress.note_evidence(fresh)
         if was_repeat and not fresh:
+            if self.progress.rounds > MAX_NO_PROGRESS_ROUNDS:
+                # A novel search cannot be refused before knowing its hits. Stop after the third stale/empty
+                # result instead; fresh chunks above reset the streak and permit normal investigation.
+                self.note_stop(REASON_NO_PROGRESS)
+                return
             self.notices.append(
                 "NO_PROGRESS: that action produced nothing you had not already seen. Read something else or "
                 "decide with what you have."

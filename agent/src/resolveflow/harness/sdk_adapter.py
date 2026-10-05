@@ -117,8 +117,9 @@ class AgentScopeModelAdapter(ChatModelBase):
         self.observations: list[Any] = []
         self.notices: list[str] = []
         self.modes: list[str] = []
-        #: Content hashes already observed, so "new evidence" is decidable (docs/agent-spec.md:44).
-        self._seen_hashes: set[str] = set()
+        #: Source/version/hash identities already observed; equal bytes from different sources stay distinct.
+        self._seen_hashes: set[tuple[str, str, str, str]] = set()
+        self._seen_policy_chunks: set[str] = set()
         #: Failures already seen, keyed by error code and source. A failure has no content hash, so this is what
         #: makes "the same read failed again" distinguishable from "the read failed differently" (see
         #: `record_observation`).
@@ -144,8 +145,19 @@ class AgentScopeModelAdapter(ChatModelBase):
         not yours" and "the shop is down" are different facts about the world.
         """
         if observation.content_hash is not None:
-            fresh = observation.content_hash not in self._seen_hashes
-            self._seen_hashes.add(observation.content_hash)
+            if observation.tool_name == POLICY_SEARCH_TOOL_NAME:
+                # Query text, rank and score change the wrapper hash without adding an authoritative clause.
+                hits = (observation.result or {}).get("hits", [])
+                chunks = {json.dumps({key: hit.get(key) for key in (
+                    "bundle_id", "version", "rule_id", "chunk_id", "content_hash")},
+                    sort_keys=True, ensure_ascii=False) for hit in hits if isinstance(hit, dict)}
+                fresh = bool(chunks - self._seen_policy_chunks)
+                self._seen_policy_chunks.update(chunks)
+            else:
+                key = (observation.tool_name, observation.source_ref,
+                       observation.source_version, observation.content_hash)
+                fresh = key not in self._seen_hashes
+                self._seen_hashes.add(key)
             self.observations.append(observation)
             return fresh
         error = observation.error
