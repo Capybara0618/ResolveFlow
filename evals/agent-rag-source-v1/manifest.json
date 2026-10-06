@@ -1,0 +1,37 @@
+{
+  "version": "agent-rag-source-manifest-v1",
+  "date": "2026-10-06",
+  "origin": "CODEX_REVIEW_NONBLIND",
+  "candidate": "reports/rag-delivery/agent-live.json",
+  "baseline": "reports/agent-live-harness-baseline/live-baseline.json",
+  "dataset": "evals/calibrated-v3",
+  "labels": "evals/agent-rag-source-v1/labels.json",
+  "inputs": {
+    "reports/rag-delivery/agent-live.json": "c4e156d4e394f8f2a6f2a19729d71a00653e5fa90bed49a293ccff7fd1bfbf50",
+    "reports/agent-live-harness-baseline/live-baseline.json": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+    "reports/rag-delivery/agent-semantic.json": "c5d387ae8176f606b934cf1d25c87f5bdaf92e05ec40b463a3eb030ba7a3dad4",
+    "reports/rag-delivery/judge-source-audit.json": "caede33687712c456bdc8dce344781738169ede220f9aa91f25398369053a1d0",
+    "reports/rag-deployment/verification.json": "db1754671693c2244b6031c3fb96b2a995f22c684bdaa8cdc190a62ac0f0d0ef",
+    "evals/calibrated-v3/manifest.json": "087f709b3dbf764daec9c4eb25bc00059c012e4a44326557d3b8e8a2713e82de",
+    "evals/calibrated-v3/agent/cases.json": "74e7093b2f71426d1271f914f097e0a110979de6c604bf0cde90a95682908aa5",
+    "evals/calibrated-v3/policies/bundles.json": "85497e6b3308b8130ba58c0757e10e96975cd32d9911cc065a5f73fa4a0ffbc7",
+    "evals/calibrated-v3/gold/agent.json": "5386c7cbcc56f3bcfad9f578972010aa56c1ff981bf4231524b4f7e2248073ba",
+    "evals/agent-rag-source-v1/labels.json": "c9ba9fff17c50b1224cc9f04317b0cc5e3e8a3b1a8b8421d3a905698dc7c2bec",
+    "scripts/agent_rag_source_review.py": "fc0459aec472695863c735506449b5c35213ab7e4f8f120745b89acfc6639539",
+    "scripts/evaluation/scoring.py": "4291f2939f1bb4f0c201f05f0a501be832f344864622d720dc52e3bd7565d88b",
+    "scripts/evaluation/dataset.py": "b0be4607bee79ac7c3a642e266ebd7e0089188d39ee8cf403d76e25a67ebcef0",
+    "agent/src/resolveflow/harness/actions.py": "15095ee3ccadeb1e66e7ef0d142cd54e76bac2d540f3e65e5f8d3677fb6e21e7",
+    "agent/src/resolveflow/harness/references.py": "5829e241b412b6d19520621467e5f802683f2f54a59dfbb0b835cbed835cb1c4",
+    "agent/src/resolveflow/harness/context.py": "9a3694461a7e38785ae1060acd2a17f181cf1217c5fbafbb8c9952bdb55658f3",
+    "agent/src/resolveflow/harness/local_reads.py": "aab9e5d8aa6b841f17320bebaf0abe8512566c1e2e5882980c275503a57e617f",
+    "agent/src/resolveflow/harness/sdk_runner.py": "bf18a19f1e16d9269ba9100a7d26574b21c406629332c4c8e387ea453ca58fac",
+    "agent/src/resolveflow/contracts/core_models.py": "8a1c5c939f6f784f738f08b354c09aad46cb4d60ec7dcb9cf2fc854a85a14580",
+    "agent/src/resolveflow/policies/chunking.py": "73f8c1e8f966610f794f1edd1b7fc96c591f4b890c3ef166824a7f1fdaa3a4d6",
+    "docs/agent-rag-source-review.md": "d1c6f1fd09870cde171ea8fddf2b9c4ebd7f671bb7d85b9bc61247316103f12d"
+  },
+  "scope": "Saved current live attempts/executions/source review; baseline is execution-only; no model calls",
+  "preflight_failures": [
+    "First audit refused Python string enum in strict ToolObservation; corrected JSON deserialization before any completed report. Labels/old source bytes unchanged.",
+    "Second audit refused failed-observation model_dump null defaults; added explicit archive-only decode of paired absent metadata, preserving strict wire validation and old bytes. No completed audit existed."
+  ]
+}

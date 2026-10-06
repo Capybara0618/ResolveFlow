@@ -1,4 +1,14 @@
-## 当前快照（2026-10-06，RAG结构/检索候选与完整证据去重）
+## 当前快照（2026-10-06，实际Agent查询、建议与业务政策来源审查）
+
+- 用户批准接续实际Agent来源审查，按[本批规格](../docs/agent-rag-source-review.md)完成[集中报告](../reports/agent-rag-source-review/README.md)、[32例说明](../reports/agent-rag-source-review/cases.md)及[机器审查](../reports/agent-rag-source-review/audit-v1.json)。新增CODEX_REVIEW标签绑定原请求/案例/hash，已见旧结果，非盲测或真实客户准确率；原Gold、自动评分及已有失败不改。21输入冻结，复算JSON相同。
+- 原32例/165实际模型请求：33次SEARCH_POLICY尝试、32次实际执行、1次参数拒绝，实际top_k均3。31个完整可答query所需依据前2齐30/31、前3齐31/31；1个七天无理由query仅部分可答，因为当前政策没有该主题，不宣称32/32完整回答。32次返回正文/商家/版本/hash及下一轮P2全部核对；67份有政策P2的请求已经去重，不将上批外部正文20.58%节省套到生产。
+- 31有效建议、1未完成；旧自动31/32逐字段复算相同。来源审查完成者事实/政策支持各31 PASS，动作理由29 PASS/2 WARN，商家可读性24 PASS/7 WARN。需改的是补证责任、摘要缺关键占用/失败、转人工缺可执行说明。PROPOSE REQUEST_INFO不等于ASK_CUSTOMER或已向客户发问题，不把旧Gold允许动作当完整客户补证链证据。
+- [终止来源核查](../reports/agent-rag-source-review/termination-source.json)纠正旧A15B解释：真实第5/6次响应均PROPOSE，分别因CONFLICT单一来源、finding引用未列入evidence_refs被拒；轨迹ESCALATE为SDK适配器停止信号，非模型有效人工转交。原completed=false/decision=null/ACTION_REFUSED保留，不归因检索或12次预算耗尽，不覆盖原报告。
+- 以PG可重复读只读事务核查一笔已有Java业务run，原3次SAVED/live模型响应、2次工具读取均保持；[业务来源v2](../reports/agent-rag-source-review/business-source-v2.json)验证完整五字段引用/正文/P2。未发货query的主条款排第2，另有质量/签收噪声，样本不加入32例质量分母。完整快照仅忽略tmp；无新模型/业务写入/重建索引或部署。
+- 新增scripts/agent_rag_source_review.py、agent_rag_business_review.py及两unit文件（15项）。实际主审查、业务v2及各新路径repeat命令见集中报告；相关10文件集中pytest --junitxml=reports/agent-rag-source-review/tests.xml：128 passed/0 failed/errors/skipped（4.59s）。Ruff显式--config agent/pyproject.toml、21冻结输入/来源SHA/复算/链接/diff检查通过。初次模块缺失、Lint、严格枚举/归档失败null身份适配已修复并记录；业务v1后两负测暴露零检索/引用hash漏验（2 failed/6 passed），补齐后8通过，新v2保留v1不覆盖。
+- 本批新模型API调用0/生产写入0；生产排序/上下文/循环保持。未运行全仓、Java/浏览器/mypy或新收费对照，历史16类型诊断及8可见测试失败不因128项通过消失。历史四脏文件及旧图/日志继续排除；精确提交和正常推送后停止写入。下一步按[plan顶部](plan.md)先通用改善关键阻碍/补证责任/纠错字段反馈/终止来源展示，再以独立变体核验，之后固定整体真实对照；不优先调RRF或按题号补丁。
+
+## 历史快照（2026-10-06，RAG结构/检索候选与完整证据去重）
 
 - 用户批准接续RAG优化；按运行前[结构规格](../docs/rag-structure-optimization.md)及第二轮[来源去重规格](../docs/rag-source-union.md)，完成[集中报告](../reports/rag-structure-v1/README.md)和[采用决定](../reports/rag-structure-v1/decision.json)。原29题/来源标签、旧Gold/评分/4份HTML/66子块字节保持；新增18个运行前冻结的Codex合成改写/边界探针（12完整可答/1部分/2澄清/3语料外），非盲测、非真实用户。
 - 首轮7候选×47题×前2/前5=658记录，第二轮4候选=376记录，共1034；本地真实BGE产生47query/248原子子块向量（最大367 token，前缀/正文共检查），第二轮复用缓存。旧BODY dense/BM25排名与分数复现，重复报告除耗时外相同；33/38冻结输入及旧27输入hash通过。新增结构/粒度/父正文聚合/路径/固定RRF通用候选，不按题号调参；第二轮在看首轮结果后提出，开发证据如实区分。

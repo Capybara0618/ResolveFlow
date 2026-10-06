@@ -1,0 +1,38 @@
+{
+  "version": "agent-rag-business-source-v2",
+  "origin": "CODEX_SOURCE_CHECK",
+  "new_model_calls": 0,
+  "production_writes": 0,
+  "cases": 1,
+  "run_id": "3d0289ae-41b5-57c1-997b-314a78ffae2f",
+  "case_id": "12b357d0-a69f-4aaa-9b7b-25bcf80e07ed",
+  "source": "SAVED_JAVA_BACKED_SYNTHETIC_BUSINESS_RUN",
+  "bundle_id": "policy-foundation-m1001-2026.10",
+  "version_scope": "2026.10",
+  "rule_count": 6,
+  "saved_models": 3,
+  "saved_tools": 2,
+  "searches": [
+    {
+      "turn": 2,
+      "query": "未发货 取消订单 退款 条件",
+      "top_k": 3,
+      "ranked_rules": [
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001"
+      ],
+      "full_policy_visible_next_turn": true,
+      "duplicate_source_body_chars": 0,
+      "observation_sha256": "fdba3f9e4a0e4a20d88794e26533ba39377fbd767448eced77937db7af03304b"
+    }
+  ],
+  "accepted_action": "REFUND",
+  "scope": "one source roundtrip, not quality accuracy",
+  "source_inputs": {
+    "tmp\\agent-rag-source-v1\\business-source-snapshot.json": "a45d8faae76015c322c430d43c6177a3aaee58fe2666fd95c0e6901ec7ed30d3",
+    "fixtures\\demo-foundation\\policies\\policy-foundation-m1001-2026.10.yaml": "90142365a6a6ec43dff1052e10d080d514e5e953aadaee8a94f4a107b732d433",
+    "E:\\Code\\Agent+Backend\\reports\\rag-deployment\\verification.json": "db1754671693c2244b6031c3fb96b2a995f22c684bdaa8cdc190a62ac0f0d0ef"
+  },
+  "runner_sha256": "731b1a1716ecc56e50f2d24af1f732315968a2c8d56fe01e186c7f1b4ff6bef7"
+}

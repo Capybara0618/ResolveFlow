@@ -1,5 +1,7 @@
 # 政策检索 · v1.2核心
 
+2026-10-06[实际Agent查询/建议来源审查](../reports/agent-rag-source-review/README.md)表明：31个范围内可完整回答的query在实际前3均取得所需依据，另1个七天主题在当前语料中缺失，只能部分回答。现有规则P2已经去重；已有Java业务样本仍见不适用候选排前，但一例不足以切换排序。生产保持dense及完整条款，优先改善建议中的关键阻碍、补证责任与纠错/终止解释，不把模型提出检索当实际执行、不把Harness停止信号当有效模型建议。此结论来自合成业务的保存真实请求，不宣称真实用户泛化或完成全部RAG优化。
+
 2026-10-06本地[结构/检索与完整来源去重比较](../reports/rag-structure-v1/README.md)增加显式实验RRF/粒度/路径候选；结果不能支持替换生产dense或裁剪完整规则。新增scripts/policy_document_search.py只返回外部来源证据，默认dense，复用已有完整块去重/短引用账本；20.58%为同一外部证据集合的正文本地token比较，不是生产Agent收益。公开来源仍未采用为商家政策，后续先复用已保存实际Agent query核查，再决定生产检索修改；不修改下方历史结论或冻结资产。
 
 2026-10-06接续[完整RAG交付批次](rag-delivery-batch.md)：真实BGE构建政策索引时按实际tokenizer产生目标384 token的检索子块，以每条完整政策的最高子块分数排序；对模型及Java仍返回完整规则与原`c-XX`/content_hash，不改变审批协议。新增012迁移保存子块、精确字符跨度/原文hash/向量指纹与generation元数据；入库前禁止截断，查询超过encoder窗口也明确拒绝。旧whole-rule-v1索引可沿用，不在本批重建业务库。run锁定所有bundle的generation映射，失效或缺失拒绝换代；多bundle映射共同进入manifest身份。公开文档仍为EXTERNAL_REFERENCE，待适用确认后才能导入商家政策，不能由模型自行授权。实际证据见[批次报告](../reports/rag-delivery/README.md)，人审指标与模型辅助诊断严格分开。

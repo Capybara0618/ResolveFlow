@@ -1,0 +1,35 @@
+{
+  "version": "saved-termination-source-v1",
+  "origin": "CODEX_SOURCE_REVIEW",
+  "new_model_calls": 0,
+  "case_id": "A15B",
+  "source_report_sha256": "c4e156d4e394f8f2a6f2a19729d71a00653e5fa90bed49a293ccff7fd1bfbf50",
+  "source_runner_sha256": "bf18a19f1e16d9269ba9100a7d26574b21c406629332c4c8e387ea453ca58fac",
+  "failed_provider_decisions": [
+    {
+      "turn": 5,
+      "raw_kind": "PROPOSE",
+      "request_sha256": "9a1105956bc5e79d650a186efe777bbb84aff85a19ef0ce207d9af11e0c3b69a",
+      "actual_schema_refusal": "the model's action is not one this ABI accepts: review_findings.4: Value error, a conflict must name at least two observed sources"
+    },
+    {
+      "turn": 6,
+      "raw_kind": "PROPOSE",
+      "request_sha256": "4ce382fff960ab91644306f8c472d0b6e840ef1c84883c94904bea6876b6a988",
+      "actual_schema_refusal": "the model's action is not one this ABI accepts: : Value error, review findings may only cite observations in evidence_refs"
+    }
+  ],
+  "saved_result": {
+    "completed": false,
+    "reason_code": "ACTION_REFUSED",
+    "decision": null
+  },
+  "sdk_trajectory_terminal": {
+    "action": "ESCALATE",
+    "outcome": "DECIDED",
+    "detail": "ESCALATE"
+  },
+  "terminal_signal_origin": "HARNESS_ADAPTER_REFUSAL_NOT_PROVIDER_DECISION",
+  "source_code": "sdk_runner._GateAwareClient.decide: gate.check returns None and no repair_message remains => ModelReply(kind=ESCALATE, reason_codes=REFUSED)",
+  "previous_summary_correction": "Original README said the model chose ESCALATE after one correction; saved provider request6 is still PROPOSE. Original scores/report remain unchanged."
+}
