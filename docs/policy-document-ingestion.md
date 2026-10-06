@@ -77,3 +77,10 @@ agent/.venv/Scripts/python.exe scripts/policy_chunks.py --max-tokens 384 --embed
 离线入口`scripts/policy_query_eval.py`可生成隐藏标签/排名的全来源复核包，也可运行同条件dense/BM25前2/5诊断；另有require-reviewed质量门禁，未独立标注则明确失败。评分区分直接字符区间覆盖和成功导出的完整父节覆盖，去重并限制所有context合计字符量，不把被拒导出的依据算命中。非可答问题不空集合刷通过；拒答需要后续判断层，单纯返回近邻无法证明接受了无答案。
 
 当前报告显示扩展后覆盖明显高于直接覆盖且带回数千字，提示检索与上下文装配须分开归因；标签同作者，不能用这些诊断挑生产算法。正式质量指标null，下一步先复核必要依据/例外/适用性，再在冻结标签/语料/query条件下比较表示或query策略。详见[集中证据](../reports/policy-document-ingestion/README.md)。
+
+
+## 表示与装配的实验边界（2026-10-06）
+
+[policy-representation-v1](../evals/policy-representation-v1/README.md)固定query/evidence/旧baseline和依赖，在复现旧排名后比较body与完整章节路径、完整context与来源块并集。22通用测试和真实本地embedding证明子块长度安全、来源块无损准入与预算拒绝；不改Java政策/生产索引，不增加LLM调用。
+
+完整标题路径在草稿dense前5退化，保留失败、不采用；“加标题通常有效”不能代替本项目测量。来源块去重减少本轮平均体积，但释放空间也可准入更多无关context，且贪心算法不能保证普遍不丢后续证据。下一步把依据选择与表达分开：先确定真正需要的context/条件/例外集合，再无损去重，并按聊天模型token与引用包装验证。当前字符实验不是完整Agent上下文优化，也不能代替独立标注。

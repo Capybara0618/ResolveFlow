@@ -145,3 +145,40 @@ agent/.venv/Scripts/python.exe scripts/policy_query_eval.py --require-reviewed -
 本机无排名复核包包含全部4文件/242块，隐去draft/排名，只存忽略tmp；不是仅让复核者在作者预选41原子中挑选。解析结构仍为作者草稿，需结合原HTML。人工确认必须另冻新版本并真实归因；文件协议无法自动认证复核者身份。重复CLI输出实际拒绝覆盖，原报告hash不变。原全文、生产索引、旧评测/Gold/原四脏文件不改，付费LLM0、生产写入0。
 
 未运行：独立相关性/适用性人审、拒答与回答语义评测、算法优化后受控提升、生产LLM上下文/整体Agent/Java/网页/服务重启。后续按独立标签和失败类别比较标题/表格表示、跨章节必要依据及query；不默认加hybrid/rerank，不追单例满分。当前长度处理＋可追溯逐query诊断已具备，RAG质量结论仍待审。
+
+
+## 2026-10-06 标题表示与原文块并集受控实验
+
+按用户继续指示完成[固定实验](../../evals/policy-representation-v1/README.md)，不等待标签时伪造独立人审，而是明确按作者草稿进行机制诊断。新manifest在标题排名前冻结旧query/基线/源码，旧policy-query-v1和所有Gold/原文/子块/生产索引不改；body/完整章节路径两种表示、dense/BM25两路径及两种装配，全部同29问/17草稿可答分母，模型/依赖/8000总内容字符固定。
+
+新增`scripts/policy_representation_eval.py`及22通用测试。前缀标题实际token审计，超encoder限制在embedding前明确失败，无截断/隐式回退；来源碎片坐标保持原body，不将标题自身作为原文证据。原文块装配验证context与原块完整文本/hash/主体/快照一致；source/rawsha/block身份去重，单文件原文顺序保留，不跨版本合并。context必要块作为不可拆整体准入，部分新增例外放不下则整份拒绝，不返回半套依据。
+
+实际命令：
+
+```powershell
+agent/.venv/Scripts/python.exe -m ruff format --config agent/pyproject.toml scripts/policy_representation_eval.py agent/tests/unit/test_policy_representation_eval.py
+agent/.venv/Scripts/python.exe -m ruff check --config agent/pyproject.toml scripts/policy_representation_eval.py agent/tests/unit/test_policy_representation_eval.py
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_policy_representation_eval.py agent/tests/unit/test_policy_query_eval.py agent/tests/unit/test_policy_chunks.py agent/tests/unit/test_policy_drafts.py agent/tests/unit/test_policy_documents.py agent/tests/unit/test_policy_chunking.py agent/tests/unit/test_rag_probes.py agent/tests/unit/test_live_baseline_merge.py -q --basetemp tmp/policy-representation-tests-final --junitxml reports/policy-document-ingestion/representation-tests.xml
+agent/.venv/Scripts/python.exe scripts/policy_representation_eval.py --output reports/policy-document-ingestion/representation-experiment.json --cache-output tmp/policy-documents-v1/representation-v1.json
+```
+
+先失败缺新模块collection error/退出1；实现后11通过，首轮Ruff导入1项、扩充测试后2项排序均修复，最终22新项。集中170 passed/0 skipped（22新增＋前批148），Ruff通过，[JUnit](representation-tests.xml)。没有实施失败后按问题ID修订算法；通用反例测试主动证明贪心准入并非覆盖单调保证。
+
+[实际116条记录](representation-experiment.json)先复现body/dense与BM25各29的排名/分数（绝对容差1e-6）/计分/体积，58旧记录全部一致。body最长383/总16130 encoder token；完整标题路径最长444/总18106，66新向量全部低于512，无encoder警告或默认截断。query仍29个原问法；标题只来自冻结章节路径，不额外生成关键词或按场景改写。
+
+下表分母17均为draft ANSWERABLE，独立Gold0，正式质量null；并集覆盖本轮与完整context相同：
+
+| 表示/路径 | 直接前2/5找齐 | 完整context前2/5找齐 | 前5平均原context字数 | 前5平均原文块并集字数 |
+|---|---|---|---:|---:|
+| body/dense | 5/9 | 10/16 | 3446.79 | 2876.97 |
+| body/BM25 | 7/12 | 11/17 | 3425.72 | 2888.93 |
+| title_path/dense | 6/7 | 11/15 | 3279.72 | 2757.69 |
+| title_path/BM25 | 6/12 | 11/17 | 3351.93 | 2899.97 |
+
+决定：完整标题路径未通过诊断，尤其dense前5退化，保留body、不部署；前2少量改善不能抵消前5退化，也不能证明真实效果。正文并集前5平均字数降低dense16.53%/BM2515.67%，是去重的固定样本效果，不是LLM token节约或答案质量改善。
+
+另用`agent/.venv/Scripts/python.exe -`读取已冻报告和本机cache，独立重算旧context准入与新原块准入、文本sha/主体快照/完整引用，输出[232前缀源块审计](representation-audit.json)：116记录均无基线来源块丢失、草稿缺依据集合变化0、所有已接纳context所需块全在导出集合、内容总字符均≤8000。body/dense前5为23问减少/6相同；body/BM25为21减少/7相同/1增加。S:IK04在BM25（两表示）5913→7708字，因新准入额外章节，并未增加必要依据覆盖；去重不是相关性过滤，不能忽略这个增加例或称噪音已去掉。
+
+经验与取舍：检索加元数据可能稀释细则而非提高召回，完整路径的根/父标题有重复泛化词；这只是失败解释假说，未做叶标题/权重的新受控证明，不继续追参数或补两条题。上下文去重只保证单个已接纳context完整；释放空间会改变贪心准入顺序，通用测试证明可能新增早期context而挡住后面的context。本轮无损不能当普遍定理；若强调相同信息集合，应先固定context选择，再做来源块无损表达的新实验。
+
+全文/新向量保存在忽略cache，公开报告不含原政策正文；脚本强制full cache位于tmp、报告/cache不同且不能覆盖。实际同路径重复命令退出1/FileExistsError，报告/cache hash仍一致，属于预期覆盖拒绝。旧来源/Gold/解析器/依赖/生产代码均不改；付费LLM0、生产写入0、无部署或服务重启。未运行独立人审、真实客户/holdout相关性、LLM引用与token装配、拒答/整体Agent/Java/网页。后续先确认必要依据与适用性；可独立验证context选择与无损装配，当前标题试验失败和去重边界保留，不自动扩大算法栈或收费。

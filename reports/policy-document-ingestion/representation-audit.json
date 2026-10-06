@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-06",
+  "experiment_sha256": "a3e447349cf6ecaae5f509468f14e4f92053a4e0ccfbfa2d6881d889460b3893",
+  "checked_rows": 116,
+  "checked_rank_prefixes": 232,
+  "rows_losing_baseline_source_blocks": 0,
+  "draft_missing_set_changes_after_union": 0,
+  "all_accepted_contexts_complete": true,
+  "within_8000_total_text_chars": true,
+  "packing_text_changes": {
+    "body/dense": {
+      "queries_with_less_text_at_5": 23,
+      "equal": 6,
+      "more": 0
+    },
+    "body/bm25": {
+      "queries_with_less_text_at_5": 21,
+      "equal": 7,
+      "more": 1
+    },
+    "title_path/dense": {
+      "queries_with_less_text_at_5": 23,
+      "equal": 6,
+      "more": 0
+    },
+    "title_path/bm25": {
+      "queries_with_less_text_at_5": 20,
+      "equal": 8,
+      "more": 1
+    }
+  },
+  "title_direct_at_5_draft_changes": {
+    "dense": [
+      {
+        "query_id": "S:JD01",
+        "body_direct_complete": true,
+        "title_direct_complete": false
+      },
+      {
+        "query_id": "S:JD04",
+        "body_direct_complete": true,
+        "title_direct_complete": false
+      }
+    ],
+    "bm25": [
+      {
+        "query_id": "S:JD05",
+        "body_direct_complete": false,
+        "title_direct_complete": true
+      },
+      {
+        "query_id": "S:MI03",
+        "body_direct_complete": true,
+        "title_direct_complete": false
+      }
+    ]
+  },
+  "independent_review_count": 0,
+  "official_quality": null
+}
