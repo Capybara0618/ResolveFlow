@@ -1,4 +1,13 @@
-## 当前快照（2026-10-06，RAG语义验证/生产接入/整体Agent对照批次完成）
+## 当前快照（2026-10-06，Docker恢复后RAG部署与真实业务闭环）
+
+- 用户已恢复Docker并要求继续；沿用f0048a8生产源码，完成[部署验收](../reports/rag-deployment/README.md)。原数据卷保留，正常start重建三Java/启动真实Agent及网页，九项状态通过；再次start -SkipBuild复用所属进程。业务5174、Gateway8180、Agent8182。不重跑上一批32例付费对照，不改Agent/RAG算法/提示/预算/Gold。
+- 新增一笔正式购买/付款/申请的合成样本12b357d0-a69f-4aaa-9b7b-25bcf80e07ed，真实DeepSeek自行读订单/生成query/查政策/建议REFUND，3次live/SAVED，provider input3673/output430；回调接受，经验收驱动使用商家身份审批后329元模拟退款成功、预留0、仅1成功操作、买家CLOSED_SUCCESS。25 HTTP记录含恢复重复检查，覆盖跨账号404、非商家审批403、旧协作/重复审批409；不是25独立场景或用户亲自审批。
+- 原4工单/4负责人/4pin/3政策/3授权/3退款/4账本/4run的基线选定字段保持，旧模型15→18只增本例3次。012已应用到原Docker PG16.15/fsync与synchronous_commit on；三店各6检索子块/READY。原24generation身份及lineage保留，受控--replace退役3旧READY→BUILDING并追加3新代，当前27；旧run未重执行/换manifest，不宣称退役代可无条件恢复。
+- Docker PG相关33测试0失败/0跳过（6.40s），真实BGE1501→4子块/最大380/父规则尾部例外完整/超长query拒绝、临时schema清理。Ruff通过。新增scripts/rag_deployment_acceptance.py保存幂等键并恢复同一样本；首次脚本在业务已成功后误把SHOP行转UUID，修正后继续验账，无新调用/重复退款。源码字段response在读取前校正。机器报告脱敏，基线/幂等键仅tmp。
+- 容器OS隔离已补实测：test_replay_container_isolation改为fixture真实DSN及联网写成功的正对照，消除固定55432未启动时的假阳性；cached旧镜像1 passed/0 skipped（2.72s），按原Dockerfile/uv锁新构建镜像后1 passed/0 skipped（2.61s）。新镜像无网络/只读/无转发业务凭据strict v13全部14/14 MATCH，SDK调用计数是记录回放而非新API。原业务模型调用仍18、全部5run COMPLETED、索引27，末次status九项通过。Java本轮构建/业务HTTP验证，未重跑全部Java单测或浏览器逐页视觉验收。
+- 上一批语义诊断/805相关项/28Harness/14strict/真实32例31联合达标与全部失败保留；独立人审0、正式准确率null，外部文档未自动采用为商家政策。原mypy16错误及整个历史测试目录中断/8可见失败仍未处理，不宣称全项目门禁通过。历史四脏文件/旧图日志保留不夹带。当前仅本实施者写入，精确提交/正常push核实后停止写入。
+
+## 历史快照（2026-10-06，RAG语义验证/生产接入/整体Agent对照批次完成）
 
 - 用户要求一次连贯做到整体Agent对照再结束；已完成[批次规格](../docs/rag-delivery-batch.md)及[统一报告](../reports/rag-delivery/README.md)。未改旧Gold/原语料/冻结query/提示与预算，未添加题目特例/自动hybrid/rerank；独立人审0，正式准确率null。
 - 116短引用固定信息集全部回查；前5完整实验JSON dense/BM25减少73.93/74.73%，不是生产整体token收益。语义源审22/29协议合法、7失败，18需依据题前2全依据dense11/BM2513、前5均18；模型辅助未当人审。政策语义80实际请求；首次29误计按0实际发送明确调整，失败报告/拒绝响应保留。

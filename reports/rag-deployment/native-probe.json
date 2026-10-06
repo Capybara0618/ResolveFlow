@@ -1,0 +1,38 @@
+{
+  "kind": "SYNTHETIC_LENGTH_ENGINEERING_PROBE",
+  "semantic_accuracy": null,
+  "postgres_version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+  "temporary_schema_cleaned": true,
+  "isolated_database_settings": {
+    "fsync": "on",
+    "synchronous_commit": "on"
+  },
+  "runner_sha256": "ddc0da73b5e5ce8028d2ed7b54d5e1c8c2276a2f45f230a028086ba399921b3c",
+  "migrations": [
+    "001_agent_run.sql",
+    "002_agent_callback_outbox.sql",
+    "003_agent_callback_dead.sql",
+    "004_policy_index.sql",
+    "005_agent_model_reservation.sql",
+    "006_agent_model_result.sql",
+    "007_agent_model_attempt.sql",
+    "008_agent_reconstruction.sql",
+    "009_agent_replay_spend.sql",
+    "010_agent_review_context.sql",
+    "011_model_retry_cooldown.sql",
+    "012_policy_retrieval_children.sql"
+  ],
+  "model": "BAAI/bge-small-zh-v1.5",
+  "revision": "7999e1d3359715c523056ef9478215996d62a620",
+  "dimension": 512,
+  "encoder_window": 512,
+  "full_rule_encoder_tokens": 1501,
+  "retrieval_layout": "token-children-v1",
+  "children": 4,
+  "min_child_tokens": 367,
+  "max_child_tokens": 380,
+  "whole_rule_returned": true,
+  "trailing_exception_preserved": true,
+  "authority_citation_hash": "da8c7157d4747b75ccd362f1c8a71ffcde989d185dac284d4d376810a9d630bf",
+  "oversized_query_rejected": true
+}

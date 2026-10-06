@@ -1,6 +1,6 @@
 # RAG语义验证、生产接入及Agent对照
 
-2026-10-06完整批次，统一交付。语义诊断、生产代码接入、真实Agent对照与统一报告均已完成；人审与原Docker部署仍有明确未完成项。当前状态只在tasks/todo.md顶部维护。核心证据：[整体Agent对照](agent-comparison.json)、[政策语义覆盖](policy-semantic-coverage.json)、[评估员来源核查](judge-source-audit.json)、[实际调用与用量](usage-summary.json)。
+2026-10-06完整批次，统一交付。语义诊断、生产代码接入、真实Agent对照与统一报告均已完成；本批当时的人审与原Docker部署仍有明确未完成项。之后用户恢复Docker，部署与真实业务闭环见[追加部署报告](../rag-deployment/README.md)，下文保留原实验环境与当时未运行事实，不覆盖原结果。当前状态只在tasks/todo.md顶部维护。核心证据：[整体Agent对照](agent-comparison.json)、[政策语义覆盖](policy-semantic-coverage.json)、[评估员来源核查](judge-source-audit.json)、[实际调用与用量](usage-summary.json)。
 
 本批复用原文冻结、结构保留、66个无截断子块与29个冻结问题，不改Gold或排名。生产已经有ReferenceCatalog短引用，本次外部文档短包是独立实验：正文/必要上下文相同，只把重复来源证明留在可信账本。116组回查通过；前5项完整JSON相对去重但带完整元数据的实验包减少dense73.93%、BM2574.73%。这是实验包的开销，不是生产首轮/整个Agent token节省。
 
