@@ -1,4 +1,14 @@
-## 当前快照（2026-10-06，建议/补证责任/引用纠错与停止来源改进）
+## 当前快照（2026-10-06，建议交接真实整体对照与Codex来源复核）
+
+- 用户批准继续上一批后整体对照；按[运行前协议](../docs/agent-handoff-live-comparison.md)及[集中报告](../reports/agent-handoff-live/README.md)执行。运行前冻结[12例/75输入](../evals/agent-handoff-live-v1/cohort.json)，calibrated-v3/Gold/旧32例保持，代码7e07700、context v13/verifier v7、deepseek-flash/temperature=0/JSON/输出1024/12次单例终止，生产仍dense及完整规则。没有按题号改生产或重新跑失败刷分。
+- 真实12例各一次，10/12自动动作/联合，10有效建议、2未完成、0禁止终局/调用ERROR，60准确usage请求，input105391/output6689；账本753→813。旧相同12例完整entry投影11/12、64请求/input110012/output7782；改善A15B，退化A02B/A08B。两别名均deepseek-flash但服务版本未固定，多项Harness变化/单次响应不能单因归因；请求减少不称节费，案例p50 11.058→13.878秒、合计131.565→171.393秒，非整批墙钟。
+- [Codex逐例来源](../evals/agent-handoff-live-v1/review.json)/[可读表](../reports/agent-handoff-live/cases.md)12/12完成、NONBLIND，事实PASS10/未完成2；政策PASS6/WARN4，动作/责任各PASS8/WARN2，可读性PASS6/WARN4（各保留2未完成）。没有用户人工标签门槛。A04B/A12B有效ESCALATE明确系统失败/商家核查；A07B/A16B写了占用但REQUEST_INFO仍要求商家/承运结论，非客户材料。A14B客户照片方向合理，query却加无依据生鲜、前三漏质量规则，条件退款缺充分规则且electronics与家居材料政策有合成品类不一致；A01B正文P2别名错配，A15B其他理由笼统归质量条款，保留警告不改Gold。
+- 两真实纠错未恢复有效建议：A02B文字承认履约不满足却两次REFUND，字段反馈实际出现在第6请求，最终STOP/HARNESS/MISSING_EVIDENCE_ON_REFUND；A08B第5轮引用失败O3，第6轮模型ESCALATE仍附带O3 finding，引用反馈实际出现在下一请求，最终STOP/HARNESS/ACTION_CITATION_INVALID。都不是12次耗尽，无放宽来源或第二次修正。A15B未自然再现旧CONFLICT，不能称字段反馈带来真实修正收益；0 ASK_CUSTOMER，3 REQUEST_INFO未实际发客户问题。
+- 新增scripts/evaluation/handoff_comparison.py/test_handoff_comparison.py，只读投影/配置与分母比较/自动原分重判/完整政策及P2/来源绑定语义汇总；[comparison-v1](../reports/agent-handoff-live/comparison-v1.json)及新tmp复算相同，10次SEARCH_POLICY均执行，未新增逐query Gold，不称召回10/10。17新增协议/来源/篡改负例；五文件实际pytest共83 passed/0 failed/errors/skipped（6.32s），相关Ruff通过，默认strict18/18 MATCH。最终[清单](../evals/agent-handoff-live-v1/manifest.json)/[核查](../reports/agent-handoff-live/verification.json)绑定新报告、源码及旧资产不变。
+- 开发记录：Database误用context manager预检TypeError，改psycopg只读连接通过；初次70项通过，新增反例时测试误写工具大写1 failed/16 passed，按wire小写纠正保留反例，最后83项通过；Ruff2导入/1长行冻结前修复。真实评测退出1为两未完成，后续只读聚合0不等于质量提升；全部过程JUnit保留，不覆盖旧报告。
+- 本批真实模型新增60，另有真实隔离PG schema/embedding索引临时写入并自动清理；无业务库写入、退款、生产索引修改、常驻重启/队列消费或Java/网页/worker持久恢复实测。未跑新全仓/mypy/剩余20例；历史16类型诊断/8失败保留。FAILED summary仍未接网页。原四脏文件及旧图/日志不夹带，精确提交/正常push确认后停止写入。下一步先通用区分客户缺项和商家核查及动作/理由一致，复用本批坏响应离线验证；再做明确失败的商家接管说明纵向协议，之后小范围query/适用边界与固定版真实对照，不盲上reranker或整套收费试错。
+
+## 历史快照（2026-10-06，建议/补证责任/引用纠错与停止来源改进）
 
 - 用户批准继续上一批三类通用缺口，按[实施规格](../docs/agent-decision-handoff.md)完成[集中报告](../reports/decision-handoff/README.md)。没有按案例ID/问法改生产路由，不重做Gold、政策排名或已有来源审查；生产仍dense及Java完整规则。
 - actions/correction/sdk_runner对finding错误反馈SOURCE类别、具体review_findings.i.observation_ids及缺失O编号，区分CONFLICT数量/重复来源，不自动补引；全run仍共享一次修正。ASK_CUSTOMER拒绝明确系统字段，客户照片/陈述仍可问；REQUEST_INFO要求具体非空白missing_evidence，最终verifier同检查。纠正最终校验原对象列表助手吞掉所有字符串补证项的问题。

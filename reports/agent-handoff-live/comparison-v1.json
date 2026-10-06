@@ -1,0 +1,1249 @@
+{
+  "version": "agent-handoff-comparison-v1",
+  "cohort_case_ids": [
+    "A01A",
+    "A01B",
+    "A02B",
+    "A04B",
+    "A05A",
+    "A07B",
+    "A08B",
+    "A12B",
+    "A14B",
+    "A15B",
+    "A16A",
+    "A16B"
+  ],
+  "candidate_sha256": "54cb2e98778714f3aeef62de63f056b3895a753daa04980e5d68e534e54b39d8",
+  "comparison": {
+    "n": 12,
+    "scored_n": 12,
+    "metric": "joint_correct",
+    "before": 11,
+    "after": 10,
+    "improved": [
+      "A15B"
+    ],
+    "regressed": [
+      "A02B",
+      "A08B"
+    ],
+    "changed_code": [
+      "agent/src/resolveflow/harness/actions.py",
+      "agent/src/resolveflow/harness/context.py",
+      "agent/src/resolveflow/harness/correction.py",
+      "agent/src/resolveflow/harness/manifest.py",
+      "agent/src/resolveflow/harness/model.py",
+      "agent/src/resolveflow/harness/sdk_adapter.py",
+      "agent/src/resolveflow/harness/sdk_runner.py",
+      "agent/src/resolveflow/harness/verifier.py",
+      "agent/src/resolveflow/harness/vocabulary.py",
+      "scripts/evaluation/handoff_comparison.py"
+    ]
+  },
+  "semantic_review": {
+    "factual_support": {
+      "PASS": 10,
+      "NOT_COMPLETED": 2
+    },
+    "policy_application": {
+      "PASS": 6,
+      "WARN": 4,
+      "NOT_COMPLETED": 2
+    },
+    "action_reason_alignment": {
+      "PASS": 8,
+      "NOT_COMPLETED": 2,
+      "WARN": 2
+    },
+    "responsibility": {
+      "PASS": 8,
+      "NOT_COMPLETED": 2,
+      "WARN": 2
+    },
+    "merchant_readability": {
+      "PASS": 6,
+      "WARN": 4,
+      "NOT_COMPLETED": 2
+    }
+  },
+  "usage": {
+    "n": 12,
+    "automatic_action_correct": 10,
+    "automatic_joint_correct": 10,
+    "forbidden_final_actions": 0,
+    "completed": 10,
+    "incomplete": 2,
+    "reason_counts": {
+      "COMPLETED": 10,
+      "MISSING_EVIDENCE_ON_REFUND": 1,
+      "ACTION_CITATION_INVALID": 1
+    },
+    "request_count": 60,
+    "refusal_notice_count": 6,
+    "queries": 10,
+    "usage": {
+      "provider_input_tokens": 105391,
+      "provider_output_tokens": 6689,
+      "provider_usage_requests": 60,
+      "estimated_usage_requests": 0,
+      "missing_usage_requests": 0
+    },
+    "independent_semantic_review": "PENDING",
+    "results": [
+      {
+        "id": "A01A",
+        "family": "unshipped",
+        "split": "dev",
+        "pair_id": "P01",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "REFUND",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 4,
+        "usage": {
+          "provider_input_tokens": 6063,
+          "provider_output_tokens": 398,
+          "provider_usage_requests": 4,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2546,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 378,
+        "mean_estimate_to_provider_token_ratio": 1.2942,
+        "search_decisions": [
+          {
+            "turn": 3,
+            "query": "未发货 买错尺寸 退款 条件",
+            "top_k": 3
+          }
+        ],
+        "refusal_notices": [],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-27cafb50919d1970d1ee75f8b6c5f057",
+            "hits": 3
+          },
+          {
+            "action": "PROPOSE",
+            "outcome": "DECIDED",
+            "detail": "REFUND",
+            "origin": "MODEL"
+          }
+        ]
+      },
+      {
+        "id": "A01B",
+        "family": "unshipped",
+        "split": "dev",
+        "pair_id": "P01",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "MANUAL_REVIEW",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 5,
+        "usage": {
+          "provider_input_tokens": 7998,
+          "provider_output_tokens": 507,
+          "provider_usage_requests": 5,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2562,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 378,
+        "mean_estimate_to_provider_token_ratio": 1.2881,
+        "search_decisions": [
+          {
+            "turn": 3,
+            "query": "买错尺寸 七天无理由 退货退款 条件 在途 未收到货",
+            "top_k": 3
+          }
+        ],
+        "refusal_notices": [],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-cf70a1967e235b55378415b89fad62d0",
+            "hits": 3
+          },
+          {
+            "action": "get_shipment_trace",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          },
+          {
+            "action": "PROPOSE",
+            "outcome": "DECIDED",
+            "detail": "MANUAL_REVIEW",
+            "origin": "MODEL"
+          }
+        ]
+      },
+      {
+        "id": "A02B",
+        "family": "unshipped",
+        "split": "dev",
+        "pair_id": "P02",
+        "status": "INCOMPLETE",
+        "completed": false,
+        "action": null,
+        "action_correct": false,
+        "joint_correct": false,
+        "forbidden_action": false,
+        "reason_code": "MISSING_EVIDENCE_ON_REFUND",
+        "error": null,
+        "model_calls": 8,
+        "usage": {
+          "provider_input_tokens": 15194,
+          "provider_output_tokens": 1057,
+          "provider_usage_requests": 8,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2970,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 378,
+        "mean_estimate_to_provider_token_ratio": 1.2589,
+        "search_decisions": [
+          {
+            "turn": 3,
+            "query": "重复下单 未发货 全额退款 撤回购买 政策条件",
+            "top_k": 3
+          },
+          {
+            "turn": 6,
+            "query": "未发货 全额退款 履约记录 退款占用 重复购买",
+            "top_k": 3
+          }
+        ],
+        "refusal_notices": [
+          "REFUSED MISSING_EVIDENCE_ON_REFUND [SOURCE]: MISSING_EVIDENCE_ON_REFUND: a refund cannot also report missing evidence: ask for it, or propose, not both; UNSHIPPED_FACTS_REQUIRED: get_order_context.fulfillment_status=<missing>; required NOT_SHIPPED; get_order_context.fulfillment_version=<missing>; required 1; get_shipment_trace.status=IN_TRANSIT; required NOT_SHIPPED; 占用/未知/冲突不能建议REFUND，不得据此拒绝整个申请。缺失可补查；占用/冲突需ESCALATE人工核对，不向客户索要绑定编号。. Use current observed sources; investigate missing facts or hand over. repair_remaining=1"
+        ],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-fe2d1262e17c18ac1234fdcad0627ceb",
+            "hits": 3
+          },
+          {
+            "action": "get_shipment_trace",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-ee4acb4bd277fc57c7f1031cfe5aa4b5",
+            "hits": 3
+          },
+          {
+            "action": "get_refund_status",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_refund_status-416b33ce49a4ad5d"
+          },
+          {
+            "action": "STOP",
+            "outcome": "REFUSED",
+            "detail": "MISSING_EVIDENCE_ON_REFUND",
+            "origin": "HARNESS"
+          }
+        ]
+      },
+      {
+        "id": "A04B",
+        "family": "unshipped",
+        "split": "dev",
+        "pair_id": "P04",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "MANUAL_REVIEW",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 3,
+        "usage": {
+          "provider_input_tokens": 3852,
+          "provider_output_tokens": 234,
+          "provider_usage_requests": 3,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 1922,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 378,
+        "mean_estimate_to_provider_token_ratio": 1.3177,
+        "search_decisions": [],
+        "refusal_notices": [
+          "REFUSED NOT_FOUND [TOOL_DATA]: get_order_context: failed read is not evidence. Do not repeat this tool or ask for bound order/line/customer IDs. Use another source or {\"kind\":\"ESCALATE\",\"reason_codes\":[\"NEEDS_HUMAN_VERIFICATION\"]}. repair_remaining=1"
+        ],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "ERROR:NOT_FOUND",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "ESCALATE",
+            "outcome": "DECIDED",
+            "detail": "ESCALATE",
+            "origin": "MODEL"
+          }
+        ]
+      },
+      {
+        "id": "A05A",
+        "family": "lost",
+        "split": "dev",
+        "pair_id": "P05",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "REFUND",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 5,
+        "usage": {
+          "provider_input_tokens": 9187,
+          "provider_output_tokens": 504,
+          "provider_usage_requests": 5,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2766,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 396,
+        "mean_estimate_to_provider_token_ratio": 1.2601,
+        "search_decisions": [
+          {
+            "turn": 3,
+            "query": "运输丢失 未收到货 退款 条件",
+            "top_k": 3
+          }
+        ],
+        "refusal_notices": [],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-06a3b5c6412d8146ea40defdaacee4af",
+            "hits": 3
+          },
+          {
+            "action": "get_shipment_trace",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          },
+          {
+            "action": "PROPOSE",
+            "outcome": "DECIDED",
+            "detail": "REFUND",
+            "origin": "MODEL"
+          }
+        ]
+      },
+      {
+        "id": "A07B",
+        "family": "lost",
+        "split": "dev",
+        "pair_id": "P07",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "REQUEST_INFO",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 5,
+        "usage": {
+          "provider_input_tokens": 9400,
+          "provider_output_tokens": 551,
+          "provider_usage_requests": 5,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2828,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 396,
+        "mean_estimate_to_provider_token_ratio": 1.2556,
+        "search_decisions": [
+          {
+            "turn": 3,
+            "query": "物流未送达 退款 承运丢失 核验 条件",
+            "top_k": 3
+          }
+        ],
+        "refusal_notices": [],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-af3557b97279f13ec6ab9bac05c80de5",
+            "hits": 3
+          },
+          {
+            "action": "get_shipment_trace",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          },
+          {
+            "action": "PROPOSE",
+            "outcome": "DECIDED",
+            "detail": "REQUEST_INFO",
+            "origin": "MODEL"
+          }
+        ]
+      },
+      {
+        "id": "A08B",
+        "family": "lost",
+        "split": "dev",
+        "pair_id": "P08",
+        "status": "INCOMPLETE",
+        "completed": false,
+        "action": null,
+        "action_correct": false,
+        "joint_correct": false,
+        "forbidden_action": false,
+        "reason_code": "ACTION_CITATION_INVALID",
+        "error": null,
+        "model_calls": 6,
+        "usage": {
+          "provider_input_tokens": 10604,
+          "provider_output_tokens": 846,
+          "provider_usage_requests": 6,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2459,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 396,
+        "mean_estimate_to_provider_token_ratio": 1.255,
+        "search_decisions": [],
+        "refusal_notices": [
+          "REFUSED UPSTREAM_UNAVAILABLE [TRANSIENT]: get_shipment_trace: failed read is not evidence. Retry the same bound read at most once, use another source, or hand over. repair_remaining=1",
+          "REFUSED ACTION_CITATION_INVALID [SOURCE]: Unknown or wrong-kind evidence reference 'O3'; available evidence aliases: O2,O4,O1. Use current P2 refs.. Use only the listed P2 aliases of the required kind; failed reads are not citations. Read another source or ESCALATE. repair_remaining=1"
+        ],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "get_shipment_trace",
+            "outcome": "ERROR:UPSTREAM_UNAVAILABLE",
+            "new_evidence": true,
+            "observation_id": "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          },
+          {
+            "action": "get_refund_status",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_refund_status-416b33ce49a4ad5d"
+          },
+          {
+            "action": "STOP",
+            "outcome": "REFUSED",
+            "detail": "ACTION_CITATION_INVALID",
+            "origin": "HARNESS"
+          }
+        ]
+      },
+      {
+        "id": "A12B",
+        "family": "signed",
+        "split": "test",
+        "pair_id": "P12",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "MANUAL_REVIEW",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 5,
+        "usage": {
+          "provider_input_tokens": 8568,
+          "provider_output_tokens": 394,
+          "provider_usage_requests": 5,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2557,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 396,
+        "mean_estimate_to_provider_token_ratio": 1.2579,
+        "search_decisions": [],
+        "refusal_notices": [
+          "REFUSED UPSTREAM_UNAVAILABLE [TRANSIENT]: get_case_evidence: failed read is not evidence. Retry the same bound read at most once, use another source, or hand over. repair_remaining=1",
+          "REFUSED UPSTREAM_UNAVAILABLE [TRANSIENT]: get_case_evidence: failed read is not evidence. Do not repeat this tool or ask for bound order/line/customer IDs. Use another source or {\"kind\":\"ESCALATE\",\"reason_codes\":[\"NEEDS_HUMAN_VERIFICATION\"]}. repair_remaining=1"
+        ],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "ERROR:UPSTREAM_UNAVAILABLE",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "get_shipment_trace",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          },
+          {
+            "action": "get_case_evidence",
+            "outcome": "ERROR:UPSTREAM_UNAVAILABLE",
+            "new_evidence": false,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "ESCALATE",
+            "outcome": "DECIDED",
+            "detail": "ESCALATE",
+            "origin": "MODEL"
+          }
+        ]
+      },
+      {
+        "id": "A14B",
+        "family": "quality",
+        "split": "test",
+        "pair_id": "P14",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "REQUEST_INFO",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 5,
+        "usage": {
+          "provider_input_tokens": 8021,
+          "provider_output_tokens": 482,
+          "provider_usage_requests": 5,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2525,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 378,
+        "mean_estimate_to_provider_token_ratio": 1.2858,
+        "search_decisions": [
+          {
+            "turn": 3,
+            "query": "到货商品破损 退款 政策 条件 生鲜 电子产品",
+            "top_k": 3
+          }
+        ],
+        "refusal_notices": [],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-e5a6a32102cea09a788a8a9efdd7d3be",
+            "hits": 3
+          },
+          {
+            "action": "get_refund_status",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_refund_status-416b33ce49a4ad5d"
+          },
+          {
+            "action": "PROPOSE",
+            "outcome": "DECIDED",
+            "detail": "REQUEST_INFO",
+            "origin": "MODEL"
+          }
+        ]
+      },
+      {
+        "id": "A15B",
+        "family": "quality",
+        "split": "test",
+        "pair_id": "P15",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "MANUAL_REVIEW",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 5,
+        "usage": {
+          "provider_input_tokens": 9595,
+          "provider_output_tokens": 630,
+          "provider_usage_requests": 5,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2766,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 396,
+        "mean_estimate_to_provider_token_ratio": 1.2511,
+        "search_decisions": [
+          {
+            "turn": 2,
+            "query": "商品质量问题 全额退款 核验未发现故障 政策条件",
+            "top_k": 3
+          }
+        ],
+        "refusal_notices": [],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-6409e499c0d6670ebfab2a881d6b4842",
+            "hits": 3
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "get_refund_status",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_refund_status-416b33ce49a4ad5d"
+          },
+          {
+            "action": "PROPOSE",
+            "outcome": "DECIDED",
+            "detail": "MANUAL_REVIEW",
+            "origin": "MODEL"
+          }
+        ]
+      },
+      {
+        "id": "A16A",
+        "family": "quality",
+        "split": "test",
+        "pair_id": "P16",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "REFUND",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 4,
+        "usage": {
+          "provider_input_tokens": 7263,
+          "provider_output_tokens": 475,
+          "provider_usage_requests": 4,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2739,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 396,
+        "mean_estimate_to_provider_token_ratio": 1.2621,
+        "search_decisions": [
+          {
+            "turn": 2,
+            "query": "商品故障 质量问题 退款 售后条件 核验",
+            "top_k": 3
+          }
+        ],
+        "refusal_notices": [],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-a7ce2f850812d720ad99aab8c5d38d1b",
+            "hits": 3
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "PROPOSE",
+            "outcome": "DECIDED",
+            "detail": "REFUND",
+            "origin": "MODEL"
+          }
+        ]
+      },
+      {
+        "id": "A16B",
+        "family": "quality",
+        "split": "test",
+        "pair_id": "P16",
+        "status": "COMPLETED",
+        "completed": true,
+        "action": "REQUEST_INFO",
+        "action_correct": true,
+        "joint_correct": true,
+        "forbidden_action": false,
+        "reason_code": "COMPLETED",
+        "error": null,
+        "model_calls": 5,
+        "usage": {
+          "provider_input_tokens": 9646,
+          "provider_output_tokens": 611,
+          "provider_usage_requests": 5,
+          "estimated_usage_requests": 0,
+          "missing_usage_requests": 0
+        },
+        "max_sent_input_estimate": 2799,
+        "input_count_modes": [
+          "ESTIMATED_DEEPSEEK_V41_JSON"
+        ],
+        "minimum_estimate_headroom": 396,
+        "mean_estimate_to_provider_token_ratio": 1.2509,
+        "search_decisions": [
+          {
+            "turn": 2,
+            "query": "商品故障 质量问题 退款 核验 证据要求",
+            "top_k": 3
+          }
+        ],
+        "refusal_notices": [],
+        "overflow_diagnostics": [],
+        "automatic_support_gaps": {
+          "missing_tools": [],
+          "missing_cited_tools": [],
+          "missing_rules": [],
+          "citation_errors": [],
+          "missing_support": [],
+          "missing_read_errors": []
+        },
+        "trajectory": [
+          {
+            "action": "get_case_evidence",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          },
+          {
+            "action": "search_policy",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "policy-search-7a8eb7857c86c1fc4c4a93b2141bdfc7",
+            "hits": 3
+          },
+          {
+            "action": "get_order_context",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_order_context-f8e6e363a5fbb962"
+          },
+          {
+            "action": "get_refund_status",
+            "outcome": "OBSERVED",
+            "new_evidence": true,
+            "observation_id": "obs-get_refund_status-416b33ce49a4ad5d"
+          },
+          {
+            "action": "PROPOSE",
+            "outcome": "DECIDED",
+            "detail": "REQUEST_INFO",
+            "origin": "MODEL"
+          }
+        ]
+      }
+    ]
+  },
+  "case_results": [
+    {
+      "id": "A01A",
+      "completed": true,
+      "kind": "PROPOSE",
+      "action": "REFUND",
+      "reason_code": "COMPLETED",
+      "search_attempts": 1,
+      "search_executed": 1,
+      "refusals": [],
+      "terminal_trajectory": [
+        {
+          "action": "PROPOSE",
+          "outcome": "DECIDED",
+          "detail": "REFUND",
+          "origin": "MODEL"
+        }
+      ]
+    },
+    {
+      "id": "A01B",
+      "completed": true,
+      "kind": "PROPOSE",
+      "action": "MANUAL_REVIEW",
+      "reason_code": "COMPLETED",
+      "search_attempts": 1,
+      "search_executed": 1,
+      "refusals": [],
+      "terminal_trajectory": [
+        {
+          "action": "PROPOSE",
+          "outcome": "DECIDED",
+          "detail": "MANUAL_REVIEW",
+          "origin": "MODEL"
+        }
+      ]
+    },
+    {
+      "id": "A02B",
+      "completed": false,
+      "kind": null,
+      "action": null,
+      "reason_code": "MISSING_EVIDENCE_ON_REFUND",
+      "search_attempts": 2,
+      "search_executed": 2,
+      "refusals": [
+        "REFUSED MISSING_EVIDENCE_ON_REFUND [SOURCE]: MISSING_EVIDENCE_ON_REFUND: a refund cannot also report missing evidence: ask for it, or propose, not both; UNSHIPPED_FACTS_REQUIRED: get_order_context.fulfillment_status=<missing>; required NOT_SHIPPED; get_order_context.fulfillment_version=<missing>; required 1; get_shipment_trace.status=IN_TRANSIT; required NOT_SHIPPED; 占用/未知/冲突不能建议REFUND，不得据此拒绝整个申请。缺失可补查；占用/冲突需ESCALATE人工核对，不向客户索要绑定编号。. Use current observed sources; investigate missing facts or hand over. repair_remaining=1"
+      ],
+      "terminal_trajectory": [
+        {
+          "action": "STOP",
+          "outcome": "REFUSED",
+          "detail": "MISSING_EVIDENCE_ON_REFUND",
+          "origin": "HARNESS"
+        }
+      ]
+    },
+    {
+      "id": "A04B",
+      "completed": true,
+      "kind": "ESCALATE",
+      "action": "MANUAL_REVIEW",
+      "reason_code": "COMPLETED",
+      "search_attempts": 0,
+      "search_executed": 0,
+      "refusals": [
+        "REFUSED NOT_FOUND [TOOL_DATA]: get_order_context: failed read is not evidence. Do not repeat this tool or ask for bound order/line/customer IDs. Use another source or {\"kind\":\"ESCALATE\",\"reason_codes\":[\"NEEDS_HUMAN_VERIFICATION\"]}. repair_remaining=1"
+      ],
+      "terminal_trajectory": [
+        {
+          "action": "ESCALATE",
+          "outcome": "DECIDED",
+          "detail": "ESCALATE",
+          "origin": "MODEL"
+        }
+      ]
+    },
+    {
+      "id": "A05A",
+      "completed": true,
+      "kind": "PROPOSE",
+      "action": "REFUND",
+      "reason_code": "COMPLETED",
+      "search_attempts": 1,
+      "search_executed": 1,
+      "refusals": [],
+      "terminal_trajectory": [
+        {
+          "action": "PROPOSE",
+          "outcome": "DECIDED",
+          "detail": "REFUND",
+          "origin": "MODEL"
+        }
+      ]
+    },
+    {
+      "id": "A07B",
+      "completed": true,
+      "kind": "PROPOSE",
+      "action": "REQUEST_INFO",
+      "reason_code": "COMPLETED",
+      "search_attempts": 1,
+      "search_executed": 1,
+      "refusals": [],
+      "terminal_trajectory": [
+        {
+          "action": "PROPOSE",
+          "outcome": "DECIDED",
+          "detail": "REQUEST_INFO",
+          "origin": "MODEL"
+        }
+      ]
+    },
+    {
+      "id": "A08B",
+      "completed": false,
+      "kind": null,
+      "action": null,
+      "reason_code": "ACTION_CITATION_INVALID",
+      "search_attempts": 0,
+      "search_executed": 0,
+      "refusals": [
+        "REFUSED UPSTREAM_UNAVAILABLE [TRANSIENT]: get_shipment_trace: failed read is not evidence. Retry the same bound read at most once, use another source, or hand over. repair_remaining=1",
+        "REFUSED ACTION_CITATION_INVALID [SOURCE]: Unknown or wrong-kind evidence reference 'O3'; available evidence aliases: O2,O4,O1. Use current P2 refs.. Use only the listed P2 aliases of the required kind; failed reads are not citations. Read another source or ESCALATE. repair_remaining=1"
+      ],
+      "terminal_trajectory": [
+        {
+          "action": "STOP",
+          "outcome": "REFUSED",
+          "detail": "ACTION_CITATION_INVALID",
+          "origin": "HARNESS"
+        }
+      ]
+    },
+    {
+      "id": "A12B",
+      "completed": true,
+      "kind": "ESCALATE",
+      "action": "MANUAL_REVIEW",
+      "reason_code": "COMPLETED",
+      "search_attempts": 0,
+      "search_executed": 0,
+      "refusals": [
+        "REFUSED UPSTREAM_UNAVAILABLE [TRANSIENT]: get_case_evidence: failed read is not evidence. Retry the same bound read at most once, use another source, or hand over. repair_remaining=1",
+        "REFUSED UPSTREAM_UNAVAILABLE [TRANSIENT]: get_case_evidence: failed read is not evidence. Do not repeat this tool or ask for bound order/line/customer IDs. Use another source or {\"kind\":\"ESCALATE\",\"reason_codes\":[\"NEEDS_HUMAN_VERIFICATION\"]}. repair_remaining=1"
+      ],
+      "terminal_trajectory": [
+        {
+          "action": "ESCALATE",
+          "outcome": "DECIDED",
+          "detail": "ESCALATE",
+          "origin": "MODEL"
+        }
+      ]
+    },
+    {
+      "id": "A14B",
+      "completed": true,
+      "kind": "PROPOSE",
+      "action": "REQUEST_INFO",
+      "reason_code": "COMPLETED",
+      "search_attempts": 1,
+      "search_executed": 1,
+      "refusals": [],
+      "terminal_trajectory": [
+        {
+          "action": "PROPOSE",
+          "outcome": "DECIDED",
+          "detail": "REQUEST_INFO",
+          "origin": "MODEL"
+        }
+      ]
+    },
+    {
+      "id": "A15B",
+      "completed": true,
+      "kind": "PROPOSE",
+      "action": "MANUAL_REVIEW",
+      "reason_code": "COMPLETED",
+      "search_attempts": 1,
+      "search_executed": 1,
+      "refusals": [],
+      "terminal_trajectory": [
+        {
+          "action": "PROPOSE",
+          "outcome": "DECIDED",
+          "detail": "MANUAL_REVIEW",
+          "origin": "MODEL"
+        }
+      ]
+    },
+    {
+      "id": "A16A",
+      "completed": true,
+      "kind": "PROPOSE",
+      "action": "REFUND",
+      "reason_code": "COMPLETED",
+      "search_attempts": 1,
+      "search_executed": 1,
+      "refusals": [],
+      "terminal_trajectory": [
+        {
+          "action": "PROPOSE",
+          "outcome": "DECIDED",
+          "detail": "REFUND",
+          "origin": "MODEL"
+        }
+      ]
+    },
+    {
+      "id": "A16B",
+      "completed": true,
+      "kind": "PROPOSE",
+      "action": "REQUEST_INFO",
+      "reason_code": "COMPLETED",
+      "search_attempts": 1,
+      "search_executed": 1,
+      "refusals": [],
+      "terminal_trajectory": [
+        {
+          "action": "PROPOSE",
+          "outcome": "DECIDED",
+          "detail": "REQUEST_INFO",
+          "origin": "MODEL"
+        }
+      ]
+    }
+  ],
+  "origin": "CODEX_REVIEW_NONBLIND_SYNTHETIC_SINGLE_RUN",
+  "new_model_calls": 0,
+  "production_writes": 0,
+  "cohort_sha256": "493f2d5cb371faffe946cbabdfb903933b68014b8c1576572259b2dedfa40570",
+  "review_sha256": "8681de90b3166c52ed0f4744fad9ca728e38dce862287cb92b6515cd022eb46e",
+  "runner_sha256": "5cc0fdd9290edfc0d8689ef4f473dc6c20502b8e9e7fe4ce2f53960ea61bd533"
+}
