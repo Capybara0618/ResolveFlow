@@ -1,0 +1,13 @@
+{
+  "version": "policy-documents-v1",
+  "created": "2026-10-06",
+  "kind": "EXTERNAL_REFERENCE",
+  "files": {
+    "sources.json": "48f449272a00295473db3fd963e85c8599cb0f53c84b7cb0418159ed8a6ac996"
+  },
+  "documents": 4,
+  "source_families": 3,
+  "review_status": "PENDING_REVIEW",
+  "raw_storage": "local_ignored_cache",
+  "independent_gold_count": 0
+}

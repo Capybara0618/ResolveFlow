@@ -1,0 +1,54 @@
+[
+  {
+    "id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "title": "京东售后服务总则",
+    "url": "https://help.jd.com/user/issue/126-406.html",
+    "encoding": "gb18030",
+    "selector": {"tag": "div", "class": "content"},
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "structure_risks": ["table", "notes", "exceptions", "navigation_noise"]
+  },
+  {
+    "id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "title": "京东数码类目售后说明",
+    "url": "https://help.jd.com/user/issue/325-915.html",
+    "encoding": "gb18030",
+    "selector": {"tag": "div", "class": "content"},
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "structure_risks": ["category_conditions", "lists", "navigation_noise"]
+  },
+  {
+    "id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "title": "小米有品自营商品售后规则",
+    "url": "https://home.mi.com/app/shop/content?id=rb2051039f9de31b4",
+    "encoding": "utf-8",
+    "selector": {"tag": "div", "id": "wrap"},
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "structure_risks": ["table", "nested_exceptions", "cross_section_reference"]
+  },
+  {
+    "id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "title": "宜家电商使用条款",
+    "url": "https://www.ikea.cn/cn/zh/customer-service/terms-conditions/",
+    "encoding": "utf-8",
+    "selector": {"tag": "div", "class": "bcms-rich-text__content"},
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "structure_risks": ["long_document", "mixed_topics", "inline_section_titles"]
+  }
+]
