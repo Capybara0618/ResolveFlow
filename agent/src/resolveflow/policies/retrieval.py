@@ -132,8 +132,21 @@ class SentenceTransformerEmbedder:
         """Unit vectors, so a dot product is the cosine and no caller has to remember to normalise."""
         if not texts:
             return []
-        vectors = self._encoder().encode(texts, normalize_embeddings=True)
+        encoder = self._encoder()
+        from resolveflow.policies.segments import encoder_tokens
+
+        if any(encoder_tokens(text, encoder.tokenizer) > encoder.max_seq_length for text in texts):
+            raise ValueError("embedding input exceeds encoder window; split policies or shorten query, no truncation")
+        vectors = encoder.encode(texts, normalize_embeddings=True)
         return [[float(value) for value in vector] for vector in vectors]
+
+    def policy_segments(self, text: str) -> list[dict[str, Any]]:
+        from resolveflow.policies.segments import TARGET_ENCODER_TOKENS, split_for_encoder
+
+        encoder = self._encoder()
+        return split_for_encoder(
+            text, encoder.tokenizer, min(TARGET_ENCODER_TOKENS, encoder.max_seq_length), encoder.max_seq_length
+        )
 
 
 def embedder(local_path: str | None = None) -> Embedder:

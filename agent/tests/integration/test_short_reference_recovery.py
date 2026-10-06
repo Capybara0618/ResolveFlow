@@ -78,5 +78,5 @@ def test_short_ref_readback_and_proposal_strict_replay(agent_db, tmp_path):
 
 
 def test_committed_short_reference_pack():
-    directory = Path(__file__).resolve().parents[3] / "evals/replay/harness-v10/short_references"
+    directory = Path(__file__).resolve().parents[3] / "evals/replay/rag-delivery-v13/short_references"
     assert strict_replay(directory)["status"] == "MATCH"

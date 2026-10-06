@@ -1,0 +1,605 @@
+{
+  "version": "policy-semantic-revalidated-v4",
+  "origin": "LLM_ASSISTED_NOT_HUMAN_GOLD",
+  "source_report_sha256": "f152047883051d5ef995aa05665820e7cebefc0ab141de118f3ddfe281a6cc90",
+  "source_cache_sha256": "36b9031703fe85034989f56952d7dc5c1ea50369c454569751be14625c57ab5f",
+  "validation_runner_sha256": "47b78042219a95e525540881f1bd6100b973e2782f52d6ded1e599352dce001f",
+  "new_model_requests": 0,
+  "original_actual_model_requests": 50,
+  "validated": 22,
+  "errors": 7,
+  "human_review_count": 0,
+  "official_human_quality": null,
+  "results": [
+    {
+      "id": "S:JD01",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0003"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0008"
+          }
+        ],
+        "rationale": "普通摆件非例外商品，收货四天在7日内，无理由退货成立。总则表格“其他原因”行明确个人原因退货运费由客户承担，PLUS会员例外；买家非PLUS，故返回运费由其自付。所需依据为总则退换货标准表及7天无理由条款。",
+        "uncertain": false
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 1,
+      "input_sha256": "9a8edf967d6d070e22d8c8aa05bdfd94a10c3989e6952ef955c06e1d853468a0"
+    },
+    {
+      "id": "S:JD02",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0008"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0009"
+          }
+        ],
+        "rationale": "资料显示无理由退货需在收货7日内且承担返回运费，但个人定作类商品被明确排除在7天无理由退货之外。该木盒刻有名字，属于个人定作，故即使收到三天且无质量问题，也不能按无理由退货。",
+        "uncertain": false
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 1,
+      "input_sha256": "c4c93a667d6f6f6e4ceef4f8c5ef3fd912b9ec4f1c5d6d1dd37a0952ff06ddbf"
+    },
+    {
+      "id": "S:JD03",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0002"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0006"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0004"
+          }
+        ],
+        "rationale": "两份资料对起算日规定不同：总则写自收到商品之日起7日内，且判断实际收货日期以签收日期为准；数码细则写自实际收到商品第二日起7日内。因此回答需并列这两条规则并指出冲突，不能只取其一。",
+        "uncertain": false
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 1,
+      "input_sha256": "6357b1adfb22aeae0a5faae149f98ee0e98452078f0376e141047aa9163705f1"
+    },
+    {
+      "id": "S:JD04",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0015"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0004"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0003"
+          }
+        ],
+        "rationale": "手机属数码类，物流损外观异常须在签收后24小时内提交退换货申请，可能需提供实物照片；超时未申请将无法受理。签收约30小时已超过该时限，故时间上可能无法受理。另数码类退换货时限为收货次日起7日退货、15日换货，但物流损的24小时特别要求优先适用。",
+        "uncertain": false
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 1,
+      "input_sha256": "0a5f8d5b02687064b95200c56a8dbcf7d01c34e889d1b9fe607712222fa9da83"
+    },
+    {
+      "id": "S:JD05",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0013"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0020"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0007"
+          }
+        ],
+        "rationale": "资料覆盖该情形：软件类含授权/激活信息属特殊商品，不予退换货；含授权/激活类信息商品一经激活，因留存激活痕迹，不支持七天无理由退货。无理由退货以商品完好为前提，激活后已不满足。故五天内无质量问题也不能无理由退。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "dc4b86154fe42ecb3bdf5361a5ae78097edbdca60fa370e928139e97d4eac97b"
+    },
+    {
+      "id": "S:JD06",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "NEEDS_CLARIFICATION",
+        "required": [],
+        "rationale": "现有资料只给出京东通用及手机数码类的退换货条件、时限与例外，但用户未说明商品类别、收货日期、退货原因、商品是否完好或是否属于例外商品等适用事实，无法判断其具体情形是否符合退款条件。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "f010a33d05b539b30ae51d33543751ee0b33713dc2e42beeeb63871eca2bb141"
+    },
+    {
+      "id": "S:MI01",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0008"
+          },
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0046"
+          }
+        ],
+        "rationale": "资料明确区分质量问题与无理由退货的物流费承担：经检测确认非人为质量问题且在期限内退换货，双向物流费由小米承担；无理由退货才由用户承担。用户已提供检测报告确认非人为质量问题，且收到四天在7日内，故无需自付物流费。需注意退货须经客服确认等程序性要求。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "3e1c4b70fd75d013181f2630326ac076cbdb540361a9c996da8945e405844f67"
+    },
+    {
+      "id": "S:MI02",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0007"
+          },
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0008"
+          },
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0013"
+          }
+        ],
+        "rationale": "资料覆盖自营商品退换货规则：妥投次日起7日内可退货，无理由退货需商品完好且不属除外情形。但个人定作类商品被明确列为不适用七天无理由退货，定制杯子很可能落入该除外，故仅凭现有事实不能直接得出可退结论，需确认该定制商品是否属于个人定作类。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "1f6da8e1c5b5f92b69d7a203ad17272e8b8196db5933a7387e9d9957b22c625b"
+    },
+    {
+      "id": "S:MI03",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0080"
+          }
+        ],
+        "rationale": "资料明确要求退换货须经小米客服中心确认后方可办理，未确认前自行退回的商品无法受理。用户已自述未联系客服直接寄回，故依据该条即可判断不受理，无需补充其他事实。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "1e601a5d0f192cfb6c62786c17ba79dd95abfd3a7f5961bac2079faa6eddb22c"
+    },
+    {
+      "id": "S:MI04",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0082"
+          }
+        ],
+        "rationale": "资料明确说明退货时赠品应一并退回；若赠品已丢失、使用、破损或未退回，需按事先标明的赠品价格支付赠品价款，且小米有权直接从应退货款中扣除。该条足以回答赠品不完整及扣款依据，无需额外事实。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "4c053e55ff108418ae9f25b5b537fa013b55477f1d6bfd9428abee193af3d4b5"
+    },
+    {
+      "id": "S:MI05",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0076"
+          }
+        ],
+        "rationale": "该块明确说明收到退货包裹并确认无误后，平台在7个工作日内办理退款，款项退回付款账户；同时说明到账时间因支付平台和支付方式不同而有差异。因此退款办理时限与到账时间均有依据。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "e94784cbd34584b0bd5155e2537fead8ac2d9e8a00655ad057eab8fef1a4ae9e"
+    },
+    {
+      "id": "S:MI06",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0003"
+          },
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0027"
+          }
+        ],
+        "rationale": "资料明确自营规则仅适用于平台自营主体销售并开具发票的商品，且不予办理退换货情形包括非小米出售的商品。因此别家店购买的小米手机不适用该自营退货规则。所需依据为适用范围和排除情形两块。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "8944f2aede1c61f8a564cd6e433112ccbca9acba8ecd217aeafbdd3383259db2"
+    },
+    {
+      "id": "S:IK01",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0072"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0073"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0074"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0076"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0078"
+          }
+        ],
+        "rationale": "资料含退货政策：非会员60天内、货品完好、有原始凭证和发票即可按原支付方式退款；普通桌子非排除品类，且属大陆官方电商商城购买，故40天可退。线上购买需联系在线客服申请，可上门收货或自行邮寄，确认后7日内退款。",
+        "uncertain": false
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 1,
+      "input_sha256": "ad4a335e652db9a60450a4056659c70ad745b97eee3afb2796354ffc1b57526e"
+    },
+    {
+      "id": "S:IK02",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0072"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0073"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0076"
+          }
+        ],
+        "rationale": "资料同时给出会员退货期限（365天）和退货条件：货品须完好、未经裁剪等。窗帘已按尺寸裁剪，属于被裁剪产品，明确排除在退货政策之外，因此即使仍在会员期限内也不能退。三个块分别提供期限、排除品类和完好定义，均为回答所必需。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "962efe2576430ac375414f8baa3ea07e7f3388d8e4fb39f1b838eec0b15c81bc"
+    },
+    {
+      "id": "S:IK03",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0072"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0074"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0077"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0078"
+          }
+        ],
+        "rationale": "资料覆盖大陆宜家官方电商商城购买普通桌子的退货问题：退货期限、货品状态与凭证要求见b0072，适用范围见b0074，官网/APP购买渠道见b0077，联系在线客服申请、寄回确认后7日内退款并按原支付方式退回见b0078。普通桌子非排除品类，未使用符合完好要求，故可回答联系对象、退款时限与去向。",
+        "uncertain": false
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 1,
+      "input_sha256": "de1fc0e4248838ff6e27826f8e715e6e4bf64666d58271daa39bacd5df0eff36"
+    },
+    {
+      "id": "S:IK04",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0072"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0073"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0074"
+          }
+        ],
+        "rationale": "资料明确列出退货期限（60天/会员365天）及所需凭证，并单独规定食品不适用退货政策，且该政策仅限中国大陆宜家商场及官方电商商城。因此食品即使未拆封、仅三天，也不能按普通退货期限退。三个块共同构成完整依据：期限、食品例外、适用范围。",
+        "uncertain": false
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 1,
+      "input_sha256": "564553439cff37a91629bd084191019a44ada44c4f008b9005f1456f7d07c0c9"
+    },
+    {
+      "id": "S:IK05",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0059"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0073"
+          }
+        ],
+        "rationale": "资料说明产品未派送时可更改或取消送货，但定制产品确认后不能随时取消；且定制商品不适用退货政策。因此对已确认的定制柜，答案是否定的，不能随时取消。所需依据为取消送货条款及退货例外条款。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "3caeb72f3ab9f67c34e3158a2d95db03fe23a8be42f310b400f7b279ae7dcc3f"
+    },
+    {
+      "id": "S:IK06",
+      "status": "ERROR",
+      "judgment": null,
+      "selected_first_valid_response_index": null,
+      "protocol_errors": [
+        "invalid semantic answerability",
+        "invalid semantic answerability"
+      ],
+      "original_model_requests": 2,
+      "input_sha256": "d1a855670d382a3355afd91c56248e536766807fecd4bd0547d991072c4ad030"
+    },
+    {
+      "id": "F:JD01",
+      "status": "ERROR",
+      "judgment": null,
+      "selected_first_valid_response_index": null,
+      "protocol_errors": [
+        "invalid semantic answerability",
+        "invalid semantic answerability"
+      ],
+      "original_model_requests": 2,
+      "input_sha256": "c7c56940d4ded2bf2e2135da3625e7d61ae3c4670833e7cc7cf918618fd3bdbc"
+    },
+    {
+      "id": "F:JD02",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "NOT_IN_CORPUS",
+        "required": [],
+        "rationale": "两份资料分别讲京东通用退换货规则和手机数码类售后细则，均未涉及支付失败的原因或处理方式，因此无法回答该问题。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "70d6481b1558c1d83becf53da5f040d37ab562aedfd18557af80da37013ac815"
+    },
+    {
+      "id": "F:JD03",
+      "status": "ERROR",
+      "judgment": null,
+      "selected_first_valid_response_index": null,
+      "protocol_errors": [
+        "invalid semantic answerability",
+        "invalid semantic answerability"
+      ],
+      "original_model_requests": 2,
+      "input_sha256": "011b04fe7c87f754f841cec0be9243b4ecf1563fd9ef72d596a1980f08b079ae"
+    },
+    {
+      "id": "F:JD04",
+      "status": "ERROR",
+      "judgment": null,
+      "selected_first_valid_response_index": null,
+      "protocol_errors": [
+        "invalid semantic answerability",
+        "invalid semantic answerability"
+      ],
+      "original_model_requests": 2,
+      "input_sha256": "26b8a0c70f354e0dc31951955ae57987c18844c24f5c156041b9df9b8b959cc8"
+    },
+    {
+      "id": "F:JD05",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "NEEDS_CLARIFICATION",
+        "required": [],
+        "rationale": "资料列出了不予退换货的若干情形及退换货条件，但未说明售后服务单审核不通过的具体原因。要判断原因，必须知道该售后单对应的商品类别、申请类型、时间、商品状态等事实，query均未提供，无法定位适用条款。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "0f2865cda450cefa40e2ffd01db47871b0081f0eb207d661ca495e04c9d21e88"
+    },
+    {
+      "id": "F:JD06",
+      "status": "ERROR",
+      "judgment": null,
+      "selected_first_valid_response_index": null,
+      "protocol_errors": [
+        "invalid semantic answerability",
+        "invalid semantic answerability"
+      ],
+      "original_model_requests": 2,
+      "input_sha256": "e15cd04462c65b79fbd177489b3e52722a5b4b20eda070ebfccca1529de5b270"
+    },
+    {
+      "id": "F:JD07",
+      "status": "ERROR",
+      "judgment": null,
+      "selected_first_valid_response_index": null,
+      "protocol_errors": [
+        "invalid semantic answerability",
+        "invalid semantic answerability"
+      ],
+      "original_model_requests": 2,
+      "input_sha256": "6a93bf69287d20834c15c5c97854f4681941026c5fdc5672cffa67e120d53bf8"
+    },
+    {
+      "id": "F:JD08",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0018"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0010"
+          }
+        ],
+        "rationale": "资料明确列出无法提供发票等三包凭证属于不予办理退换货的情形，因此无发票通常不能申请退换货。数码类售后流程还要求质量问题返修时一并返回发票等凭证，但电子发票无需返回。资料未区分保修与退换货的发票要求，也未说明无发票时能否单独保修，故仅能就退换货给出依据。",
+        "uncertain": false
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 1,
+      "input_sha256": "459c72a1f3dbaa95b8a56d65eee9718009687a874f36fabd60707bacac268be2"
+    },
+    {
+      "id": "F:JD09",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0002"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0003"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0006"
+          }
+        ],
+        "rationale": "资料覆盖发错货情形：总则规定收货后7日内可退货、15日内可换货，表格中“商品描述与网站不符等京东原因”支持退换且不收返回运费，并说明审核可能需快递证明或实物照片。收货日期以实际签收为准。据此可回答处理方式与时限，无需补充缺失事实。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "82fe565ffb27ce062402d6c11687e0ed30c1987347638b58276677473a232b25"
+    },
+    {
+      "id": "F:JD10",
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "NEEDS_CLARIFICATION",
+        "required": [],
+        "rationale": "资料列出了多种不予退换货的情形及例外，但用户未说明商品类型、退换原因、是否在时限内、商品状态等适用事实，无法判断具体适用哪一条拒绝理由。",
+        "uncertain": null
+      },
+      "selected_first_valid_response_index": 0,
+      "protocol_errors": [],
+      "original_model_requests": 2,
+      "input_sha256": "a6435a4999c110449c12b525f578eb5eeb63898fb83bb3c8c34acb806860767e"
+    },
+    {
+      "id": "F:JD11",
+      "status": "ERROR",
+      "judgment": null,
+      "selected_first_valid_response_index": null,
+      "protocol_errors": [
+        "invalid semantic answerability",
+        "invalid semantic answerability"
+      ],
+      "original_model_requests": 2,
+      "input_sha256": "4d5350b359a8f67728a2e5de874c5f305e89e820c0693ee8d96e642f5329fc35"
+    }
+  ]
+}

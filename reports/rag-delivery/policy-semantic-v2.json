@@ -1,0 +1,455 @@
+{
+  "version": "model-assisted-semantic-v1",
+  "mode": "policy",
+  "state": "FINISHED",
+  "query_manifest_sha256": "f849082353f1e78e1a3c0ec8693349003511ba7004f961203484c7968fe96a97",
+  "human_review_count": 0,
+  "official_human_quality": null,
+  "origin": "LLM_ASSISTED_NOT_HUMAN_GOLD",
+  "runner_sha256": "63b47e9b8e7014b29152d3cf9d598f6ad83126c7b9c64fcf7370d333b9986f2f",
+  "prompt_sha256": "6dd3aa25ff932ea1fb48f8e0f67d7bb7f90243afc78cb04d603137c6491a32e4",
+  "provider": {
+    "model": "deepseek-flash",
+    "parameters": {
+      "temperature": 0,
+      "thinking": {
+        "type": "disabled"
+      },
+      "response_format": {
+        "type": "json_object"
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "S:JD01",
+      "input_sha256": "9a8edf967d6d070e22d8c8aa05bdfd94a10c3989e6952ef955c06e1d853468a0",
+      "mapping": null,
+      "local_payload_tokens": 2047,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "165cd2d8189e5f8550fd6b49d992c72f8c56613fa9c5a4759e0964966c13a682"
+    },
+    {
+      "id": "S:JD02",
+      "input_sha256": "c4c93a667d6f6f6e4ceef4f8c5ef3fd912b9ec4f1c5d6d1dd37a0952ff06ddbf",
+      "mapping": null,
+      "local_payload_tokens": 2043,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0008"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0009"
+          }
+        ],
+        "rationale": "资料明确7天无理由退货以商品无问题为前提，但个人定作类商品被列为不适用无理由退货。该木盒刻有名字，属于个人定作，故即使收到三天且无质量问题，也不能按无理由退货。依据为总则中无理由退货条款及其例外清单。",
+        "uncertain": false
+      },
+      "usage": {
+        "input_tokens": 2295,
+        "output_tokens": 117,
+        "estimated": false
+      },
+      "model_alias": "deepseek-flash",
+      "calls": 1,
+      "request_sha256": "2146eb8194fbec8c5ca11eb2b60e8591f03d118d8329493ae79e183b0dc49942"
+    },
+    {
+      "id": "S:JD03",
+      "input_sha256": "6357b1adfb22aeae0a5faae149f98ee0e98452078f0376e141047aa9163705f1",
+      "mapping": null,
+      "local_payload_tokens": 2042,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0002"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0006"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0004"
+          }
+        ],
+        "rationale": "两份说明对七天起算点表述不同：总则写自收到商品之日起7日内，且明确京东配送以实际签收日期为准；数码细则写自实际收到商品第二日起7日内。因此回答需同时核对这两处日期规则，并说明二者存在差异。",
+        "uncertain": false
+      },
+      "usage": {
+        "input_tokens": 2294,
+        "output_tokens": 128,
+        "estimated": false
+      },
+      "model_alias": "deepseek-flash",
+      "calls": 1,
+      "request_sha256": "3d4c1cbff6b6b24ea2f286f3423b6d1d3cd64dab26c501c5d52d8e9504c33c7e"
+    },
+    {
+      "id": "S:JD04",
+      "input_sha256": "0a5f8d5b02687064b95200c56a8dbcf7d01c34e889d1b9fe607712222fa9da83",
+      "mapping": null,
+      "local_payload_tokens": 2042,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0015"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0004"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0003"
+          }
+        ],
+        "rationale": "手机属数码类，物流损外观异常须在签收后24小时内提交退换货申请，可能需提供实物照片；超时无法受理。签收30小时已超过该时限，故不符合物流损受理条件。退换货时限为收货次日起7日退货、15日换货，但该时限不能替代物流损的24小时特别要求。",
+        "uncertain": false
+      },
+      "usage": {
+        "input_tokens": 2294,
+        "output_tokens": 150,
+        "estimated": false
+      },
+      "model_alias": "deepseek-flash",
+      "calls": 1,
+      "request_sha256": "8d2356c7cda7395f3e2394626fe5225de81164e8509d714fc68554c3b7e7fbe7"
+    },
+    {
+      "id": "S:JD05",
+      "input_sha256": "dc4b86154fe42ecb3bdf5361a5ae78097edbdca60fa370e928139e97d4eac97b",
+      "mapping": null,
+      "local_payload_tokens": 2042,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "0f4aca9e0a10ae81256ad875db88d5be44b983d6a3981bd3c9d290270da5f513"
+    },
+    {
+      "id": "S:JD06",
+      "input_sha256": "f010a33d05b539b30ae51d33543751ee0b33713dc2e42beeeb63871eca2bb141",
+      "mapping": null,
+      "local_payload_tokens": 2026,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "4599f57d1c00cba4320566a06814134c5871e1ad2e398d0f7cf97f4a404ade22"
+    },
+    {
+      "id": "S:MI01",
+      "input_sha256": "3e1c4b70fd75d013181f2630326ac076cbdb540361a9c996da8945e405844f67",
+      "mapping": null,
+      "local_payload_tokens": 4011,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "b0ed65b4fc19fb67012449d6c07b92cf453474335af1f88b9e88958a504ca9fd"
+    },
+    {
+      "id": "S:MI02",
+      "input_sha256": "1f6da8e1c5b5f92b69d7a203ad17272e8b8196db5933a7387e9d9957b22c625b",
+      "mapping": null,
+      "local_payload_tokens": 4005,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "f2465f7acfd65b3f8c0b26d9a103013e81f4525b67cf45d3fcb3f0873700b615"
+    },
+    {
+      "id": "S:MI03",
+      "input_sha256": "1e601a5d0f192cfb6c62786c17ba79dd95abfd3a7f5961bac2079faa6eddb22c",
+      "mapping": null,
+      "local_payload_tokens": 4006,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "9d04e400ca51678f2247e388ae1d8b103c2c7d3a1ac18f3d3f42d25e8a5999c6"
+    },
+    {
+      "id": "S:MI04",
+      "input_sha256": "4c053e55ff108418ae9f25b5b537fa013b55477f1d6bfd9428abee193af3d4b5",
+      "mapping": null,
+      "local_payload_tokens": 4010,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "c01a90c9777912d729370882bda595895c46689ea2fa9767e425cdb4632e244e"
+    },
+    {
+      "id": "S:MI05",
+      "input_sha256": "e94784cbd34584b0bd5155e2537fead8ac2d9e8a00655ad057eab8fef1a4ae9e",
+      "mapping": null,
+      "local_payload_tokens": 4000,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "58ed85cba0f699b4e46ec4e96d0dfcc5502f433e4de500183a3a231e9dba558e"
+    },
+    {
+      "id": "S:MI06",
+      "input_sha256": "8944f2aede1c61f8a564cd6e433112ccbca9acba8ecd217aeafbdd3383259db2",
+      "mapping": null,
+      "local_payload_tokens": 4004,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "58743983c3a50690c8b35258695508bfd035e34b254ac345bdc271b54b14af27"
+    },
+    {
+      "id": "S:IK01",
+      "input_sha256": "ad4a335e652db9a60450a4056659c70ad745b97eee3afb2796354ffc1b57526e",
+      "mapping": null,
+      "local_payload_tokens": 8101,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "a7681cf3dcb2e047ba6278aebe8616a6d937a20c65140873d083fc40342e6031"
+    },
+    {
+      "id": "S:IK02",
+      "input_sha256": "962efe2576430ac375414f8baa3ea07e7f3388d8e4fb39f1b838eec0b15c81bc",
+      "mapping": null,
+      "local_payload_tokens": 8098,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "8e87fbeea7dbb6583a6ad52218ccd2124419cf5a3c4e0de3cc60a75a1e4070f5"
+    },
+    {
+      "id": "S:IK03",
+      "input_sha256": "de1fc0e4248838ff6e27826f8e715e6e4bf64666d58271daa39bacd5df0eff36",
+      "mapping": null,
+      "local_payload_tokens": 8101,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "f32fe470a5b76d81837e8840e7d78772cc5a70ece2a198a1386e8e66c933595c"
+    },
+    {
+      "id": "S:IK04",
+      "input_sha256": "564553439cff37a91629bd084191019a44ada44c4f008b9005f1456f7d07c0c9",
+      "mapping": null,
+      "local_payload_tokens": 8099,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0072"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0073"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0074"
+          }
+        ],
+        "rationale": "资料明确列出退货期限（60天/会员365天）及不适用退货政策的商品类别，其中食品被明确排除。因此食品即使未拆封、在三天内，也不能按普通退货期限退货。所需依据为退货期限条款、排除商品条款及适用范围条款。",
+        "uncertain": false
+      },
+      "usage": {
+        "input_tokens": 8351,
+        "output_tokens": 138,
+        "estimated": false
+      },
+      "model_alias": "deepseek-flash",
+      "calls": 1,
+      "request_sha256": "930e917a6ff01a61cd7c2b1ad39e172a44bce25504ffae89fbc297b5439109af"
+    },
+    {
+      "id": "S:IK05",
+      "input_sha256": "3caeb72f3ab9f67c34e3158a2d95db03fe23a8be42f310b400f7b279ae7dcc3f",
+      "mapping": null,
+      "local_payload_tokens": 8096,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "420c937ac180102b8e5a16dd323fce02c590599d3e93aa8e069ff5c401b2a054"
+    },
+    {
+      "id": "S:IK06",
+      "input_sha256": "d1a855670d382a3355afd91c56248e536766807fecd4bd0547d991072c4ad030",
+      "mapping": null,
+      "local_payload_tokens": 8089,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "36c5fba1cf084454661d576f20e94bb79e346408c9f852ac11f57f467b2481e1"
+    },
+    {
+      "id": "F:JD01",
+      "input_sha256": "c7c56940d4ded2bf2e2135da3625e7d61ae3c4670833e7cc7cf918618fd3bdbc",
+      "mapping": null,
+      "local_payload_tokens": 2029,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "e209ab45fe0a69d1f2cbcc2da2ebb50f25d3f00eee49ce03185bf1d88328d8ef"
+    },
+    {
+      "id": "F:JD02",
+      "input_sha256": "70d6481b1558c1d83becf53da5f040d37ab562aedfd18557af80da37013ac815",
+      "mapping": null,
+      "local_payload_tokens": 2025,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "b4c06164918c124ff149f57daedf6d8da06aa323d23f15f3b512eff5c533928c"
+    },
+    {
+      "id": "F:JD03",
+      "input_sha256": "011b04fe7c87f754f841cec0be9243b4ecf1563fd9ef72d596a1980f08b079ae",
+      "mapping": null,
+      "local_payload_tokens": 2025,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "5eebff3389ddb85fe89266d107371995f539f84eb334b1c310bdb09eb69319bc"
+    },
+    {
+      "id": "F:JD04",
+      "input_sha256": "26b8a0c70f354e0dc31951955ae57987c18844c24f5c156041b9df9b8b959cc8",
+      "mapping": null,
+      "local_payload_tokens": 2029,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "bb47214d77c2658bfd3040f8c4c00e6b355094af8fb0b7c55522f021f314d486"
+    },
+    {
+      "id": "F:JD05",
+      "input_sha256": "0f2865cda450cefa40e2ffd01db47871b0081f0eb207d661ca495e04c9d21e88",
+      "mapping": null,
+      "local_payload_tokens": 2027,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "eeb132febe5af796b7e4b859391b1cb1d51dd4074ef8af08e32866998bab65e5"
+    },
+    {
+      "id": "F:JD06",
+      "input_sha256": "e15cd04462c65b79fbd177489b3e52722a5b4b20eda070ebfccca1529de5b270",
+      "mapping": null,
+      "local_payload_tokens": 2027,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "41214ca38fd64b17b93c8594a0cc451ba18102726d9cad2b148945640b025771"
+    },
+    {
+      "id": "F:JD07",
+      "input_sha256": "6a93bf69287d20834c15c5c97854f4681941026c5fdc5672cffa67e120d53bf8",
+      "mapping": null,
+      "local_payload_tokens": 2026,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "0d18e5c3155bfc2fbd57ed1c2567598d859d07e33e6017dee6bdeb53ee81cc60"
+    },
+    {
+      "id": "F:JD08",
+      "input_sha256": "459c72a1f3dbaa95b8a56d65eee9718009687a874f36fabd60707bacac268be2",
+      "mapping": null,
+      "local_payload_tokens": 2033,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0018"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0010"
+          }
+        ],
+        "rationale": "资料明确列出无法提供发票等三包凭证属于不予办理退换货的情形，因此无发票通常不能申请退换货。数码类售后流程还要求质量问题返修时一并返回发票等凭证，但电子发票无需返回。资料未区分保修与退换货的发票要求，也未说明无发票时能否单独保修，故仅能就退换货及数码返修凭证要求作答。",
+        "uncertain": false
+      },
+      "usage": {
+        "input_tokens": 2285,
+        "output_tokens": 139,
+        "estimated": false
+      },
+      "model_alias": "deepseek-flash",
+      "calls": 1,
+      "request_sha256": "50d5e932379cb08f3e96107d5661916ae250c6e76df761ef9a1eac0065cfe329"
+    },
+    {
+      "id": "F:JD09",
+      "input_sha256": "82fe565ffb27ce062402d6c11687e0ed30c1987347638b58276677473a232b25",
+      "mapping": null,
+      "local_payload_tokens": 2027,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "d25849f8c534b45c256426765e2a94cc1d1e61996508acc05a2470de97aadc52"
+    },
+    {
+      "id": "F:JD10",
+      "input_sha256": "a6435a4999c110449c12b525f578eb5eeb63898fb83bb3c8c34acb806860767e",
+      "mapping": null,
+      "local_payload_tokens": 2026,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "901e61facb8637016c61db54075dd1ddf093241231566f7d2c4f7ba467d12857"
+    },
+    {
+      "id": "F:JD11",
+      "input_sha256": "4d5350b359a8f67728a2e5de874c5f305e89e820c0693ee8d96e642f5329fc35",
+      "mapping": null,
+      "local_payload_tokens": 2029,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "ValueError",
+      "calls": 1,
+      "request_sha256": "8fa11460371502be5e9972a0ca823b7a558a5928c08f02fc75a3637cb9a93285"
+    }
+  ],
+  "transmissions": 29,
+  "validated": 5,
+  "errors": 24,
+  "cache_sha256": "eac24550026ebaefdaf655f2378477e709ac0e16d10e5853590bce77e188f917"
+}

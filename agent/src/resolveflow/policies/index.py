@@ -36,6 +36,7 @@ from dataclasses import dataclass
 from typing import Any, Final, Literal
 
 from resolveflow.contracts.canonical import canonical_bytes
+from resolveflow.policies import child_index
 from resolveflow.policies.chunking import Chunk, chunks_of_bundle
 from resolveflow.policies.retrieval import (
     Embedder,
@@ -146,6 +147,9 @@ class PolicyGeneration:
     embedding_dimension: int | None
     chunk_count: int
     built_at: dt.datetime
+    retrieval_layout: str = "whole-rule-v1"
+    child_count: int = 0
+    retrieval_fingerprint: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -290,15 +294,20 @@ class PolicyIndex:
         dimension: int | None = None
         model: str | None = None
         revision: str | None = None
+        children = child_index.prepare(chunks, embedder) if embedder is not None else None
         if embedder is not None:
             texts = [chunk.embedded_text for chunk in chunks]
-            embedded: list[list[float] | None] = list(embedder.embed(texts))
+            embedded: list[list[float] | None] = (
+                [None] * len(chunks) if children is not None else list(embedder.embed(texts))
+            )
             if len(embedded) != len(chunks):
                 raise ValueError(
                     f"the embedder returned {len(embedded)} vectors for {len(chunks)} chunks; refusing to "
                     "guess which chunk a vector belongs to"
                 )
             for vector in embedded:
+                if children is not None:
+                    continue
                 if vector is None or len(vector) != embedder.dimension:
                     raise ValueError(
                         f"the embedder declares {embedder.dimension} dimensions but returned "
@@ -319,8 +328,8 @@ class PolicyIndex:
                     INSERT INTO policy_index_generation (
                         generation_id, bundle_id, merchant_id, version, safety_epoch, manifest_hash,
                         lineage_hash, status, embedding_model, embedding_revision, embedding_dimension,
-                        chunk_count, built_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        chunk_count, built_at, retrieval_layout, child_count, retrieval_fingerprint)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
                         generation,
@@ -336,6 +345,9 @@ class PolicyIndex:
                         dimension,
                         len(chunks),
                         moment,
+                        "token-children-v1" if children is not None else "whole-rule-v1",
+                        len(children) if children is not None else 0,
+                        child_index.fingerprint(children) if children is not None else None,
                     ),
                 )
                 for chunk, vector in zip(chunks, vectors, strict=True):
@@ -359,6 +371,8 @@ class PolicyIndex:
                             vector,
                         ),
                     )
+                if children is not None:
+                    child_index.store(connection, generation, bundle.bundle_id, children)
                 # READY last, inside the same transaction as the chunks: a generation that says READY while a
                 # chunk is missing would be a search that silently returns fewer rules than the policy has.
                 connection.execute(
@@ -471,6 +485,7 @@ class PolicyIndex:
         path: PolicySearchPath,
         top_k: int = MAX_TOP_K,
         embedder: Embedder | None = None,
+        generation_ids: dict[str, str] | None = None,
     ) -> list[PolicyHit]:
         """Rank the pinned bundles' rules for ``query``, after the hard filters.
 
@@ -488,7 +503,31 @@ class PolicyIndex:
             raise ValueError(f"{path!r} is not a retrieval path; dense and bm25 are the only two")
         if top_k < 1 or top_k > MAX_TOP_K:
             raise ValueError(f"top_k must be 1..{MAX_TOP_K} (docs/agent-spec.md:16)")
-        ready = self.require_ready(bundle_ids, manifest_hash)
+        if generation_ids is None:
+            ready = self.require_ready(bundle_ids, manifest_hash)
+        else:
+            if set(generation_ids) != set(bundle_ids) or not bundle_ids or not manifest_hash:
+                with self._database.connection() as connection:
+                    mismatch = any(
+                        self._not_ready(connection, bundle, manifest_hash).hash_mismatch
+                        for bundle in set(bundle_ids) - set(generation_ids)
+                    )
+                raise PolicyIndexNotReadyError(
+                    "run has no complete pinned READY generation mapping", hash_mismatch=mismatch
+                )
+            ready = []
+            with self._database.connection() as connection:
+                for bundle in bundle_ids:
+                    row = connection.execute(
+                        """SELECT * FROM policy_index_generation
+                           WHERE generation_id=%s AND bundle_id=%s AND manifest_hash=%s AND status=%s""",
+                        (generation_ids[bundle], bundle, manifest_hash, GENERATION_READY),
+                    ).fetchone()
+                    if row is None:
+                        raise PolicyIndexNotReadyError(
+                            "run's pinned policy generation is no longer READY; no substitution"
+                        )
+                    ready.append(_generation_of(row))
         by_bundle = {generation.bundle_id: generation for generation in ready}
         if any(generation.merchant_id != merchant_id for generation in ready):
             raise PolicyIndexNotReadyError(
@@ -509,7 +548,13 @@ class PolicyIndex:
         if any(sum(row.bundle_id == g.bundle_id for row in rows) != g.chunk_count for g in ready):
             raise PolicyIndexNotReadyError("selected index chunk count differs from READY metadata")
         if path == "dense":
-            scored = self._rank_dense(rows, query, embedder)
+            layouts = {g.retrieval_layout for g in ready}
+            if layouts == {"whole-rule-v1"}:
+                scored = self._rank_dense(rows, query, embedder)
+            elif layouts <= {"whole-rule-v1", "token-children-v1"}:
+                scored = child_index.rank(self._database, rows, ready, query, embedder)
+            else:
+                raise PolicyIndexNotReadyError("unsupported or mixed policy retrieval layouts")
         else:
             scored = self._rank_bm25(rows, query)
         scored.sort(key=lambda row: (-row.score, row.bundle_id, row.chunk_id))
@@ -647,6 +692,9 @@ def _generation_of(row: dict[str, Any]) -> PolicyGeneration:
         embedding_dimension=row["embedding_dimension"],
         chunk_count=row["chunk_count"],
         built_at=row["built_at"],
+        retrieval_layout=row.get("retrieval_layout", "whole-rule-v1"),
+        child_count=row.get("child_count", 0),
+        retrieval_fingerprint=row.get("retrieval_fingerprint"),
     )
 
 

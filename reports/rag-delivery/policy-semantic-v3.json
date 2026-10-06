@@ -1,0 +1,1179 @@
+{
+  "version": "model-assisted-semantic-v1",
+  "mode": "policy",
+  "state": "FINISHED",
+  "query_manifest_sha256": "f849082353f1e78e1a3c0ec8693349003511ba7004f961203484c7968fe96a97",
+  "human_review_count": 0,
+  "official_human_quality": null,
+  "origin": "LLM_ASSISTED_NOT_HUMAN_GOLD",
+  "runner_sha256": "7a8fcae3993d8331b23e0b0271783cd7964a8b35b3db770f7104bac5c65f428d",
+  "prompt_sha256": "6dd3aa25ff932ea1fb48f8e0f67d7bb7f90243afc78cb04d603137c6491a32e4",
+  "provider": {
+    "model": "deepseek-flash",
+    "parameters": {
+      "temperature": 0,
+      "thinking": {
+        "type": "disabled"
+      },
+      "response_format": {
+        "type": "json_object"
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "S:JD01",
+      "input_sha256": "9a8edf967d6d070e22d8c8aa05bdfd94a10c3989e6952ef955c06e1d853468a0",
+      "mapping": null,
+      "local_payload_tokens": 2047,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0003"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0008"
+          }
+        ],
+        "rationale": "普通摆件非例外商品，收货四天在7日内，无理由退货成立。总则表格“其他原因”行明确个人原因退货运费由客户承担，PLUS会员例外；买家非PLUS，故返回运费由其自付。所需依据为总则退换货标准表及7天无理由条款。",
+        "uncertain": false
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2299,
+            "output_tokens": 122,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "165cd2d8189e5f8550fd6b49d992c72f8c56613fa9c5a4759e0964966c13a682"
+    },
+    {
+      "id": "S:JD02",
+      "input_sha256": "c4c93a667d6f6f6e4ceef4f8c5ef3fd912b9ec4f1c5d6d1dd37a0952ff06ddbf",
+      "mapping": null,
+      "local_payload_tokens": 2043,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0008"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0009"
+          }
+        ],
+        "rationale": "资料显示无理由退货需在收货7日内且承担返回运费，但个人定作类商品被明确排除在7天无理由退货之外。该木盒刻有名字，属于个人定作，故即使收到三天且无质量问题，也不能按无理由退货。",
+        "uncertain": false
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2295,
+            "output_tokens": 109,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "2146eb8194fbec8c5ca11eb2b60e8591f03d118d8329493ae79e183b0dc49942"
+    },
+    {
+      "id": "S:JD03",
+      "input_sha256": "6357b1adfb22aeae0a5faae149f98ee0e98452078f0376e141047aa9163705f1",
+      "mapping": null,
+      "local_payload_tokens": 2042,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0002"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0006"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0004"
+          }
+        ],
+        "rationale": "两份资料对起算日规定不同：总则写自收到商品之日起7日内，且判断实际收货日期以签收日期为准；数码细则写自实际收到商品第二日起7日内。因此回答需并列这两条规则并指出冲突，不能只取其一。",
+        "uncertain": false
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2294,
+            "output_tokens": 127,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "3d4c1cbff6b6b24ea2f286f3423b6d1d3cd64dab26c501c5d52d8e9504c33c7e"
+    },
+    {
+      "id": "S:JD04",
+      "input_sha256": "0a5f8d5b02687064b95200c56a8dbcf7d01c34e889d1b9fe607712222fa9da83",
+      "mapping": null,
+      "local_payload_tokens": 2042,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0015"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0004"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0003"
+          }
+        ],
+        "rationale": "手机属数码类，物流损外观异常须在签收后24小时内提交退换货申请，可能需提供实物照片；超时未申请将无法受理。签收约30小时已超过该时限，故时间上可能无法受理。另数码类退换货时限为收货次日起7日退货、15日换货，但物流损的24小时特别要求优先适用。",
+        "uncertain": false
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2294,
+            "output_tokens": 155,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "8d2356c7cda7395f3e2394626fe5225de81164e8509d714fc68554c3b7e7fbe7"
+    },
+    {
+      "id": "S:JD05",
+      "input_sha256": "dc4b86154fe42ecb3bdf5361a5ae78097edbdca60fa370e928139e97d4eac97b",
+      "mapping": null,
+      "local_payload_tokens": 2042,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0013"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0020"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0007"
+          }
+        ],
+        "rationale": "资料覆盖该情形：软件类含授权/激活信息属特殊商品，不予退换货；含授权/激活类信息商品一经激活，因留存激活痕迹，不支持七天无理由退货。无理由退货以商品完好为前提，激活后已不满足。故五天内无质量问题也不能无理由退。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2294,
+            "output_tokens": 134,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2478,
+            "output_tokens": 139,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "75a09a7a101fd5671cc7e93c2106f5f1616fe413be2639d9ce3a1f4ada4bf380"
+    },
+    {
+      "id": "S:JD06",
+      "input_sha256": "f010a33d05b539b30ae51d33543751ee0b33713dc2e42beeeb63871eca2bb141",
+      "mapping": null,
+      "local_payload_tokens": 2026,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "NEEDS_CLARIFICATION",
+        "required": [],
+        "rationale": "现有资料只给出京东通用及手机数码类的退换货条件、时限与例外，但用户未说明商品类别、收货日期、退货原因、商品是否完好或是否属于例外商品等适用事实，无法判断其具体情形是否符合退款条件。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2278,
+            "output_tokens": 71,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2398,
+            "output_tokens": 76,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "f5891f980375998af6509aae4befd53e89d35ad955b41636c5f8989b771bd130"
+    },
+    {
+      "id": "S:MI01",
+      "input_sha256": "3e1c4b70fd75d013181f2630326ac076cbdb540361a9c996da8945e405844f67",
+      "mapping": null,
+      "local_payload_tokens": 4011,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 4263,
+            "output_tokens": 127,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 4440,
+            "output_tokens": 127,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "0a206214ec2e1146f1dcbf1fa4e3ca76dbef97bed0034f6ab0d85f560d1ddda2"
+    },
+    {
+      "id": "S:MI02",
+      "input_sha256": "1f6da8e1c5b5f92b69d7a203ad17272e8b8196db5933a7387e9d9957b22c625b",
+      "mapping": null,
+      "local_payload_tokens": 4005,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "PARTIAL",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0007"
+          },
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0008"
+          },
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0013"
+          }
+        ],
+        "rationale": "资料覆盖自营商品退换货规则：妥投次日起7日内可退货，无理由退货需商品完好且不属除外情形。但个人定作类商品被明确列为不适用七天无理由退货，定制杯子很可能落入该除外，故仅凭现有事实不能直接得出可退结论，需确认该定制商品是否属于个人定作类。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 4257,
+            "output_tokens": 146,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 4453,
+            "output_tokens": 151,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "b770907afbf64750a041287903637e6b5ddd1faae65797576ef62a1aea16cc71"
+    },
+    {
+      "id": "S:MI03",
+      "input_sha256": "1e601a5d0f192cfb6c62786c17ba79dd95abfd3a7f5961bac2079faa6eddb22c",
+      "mapping": null,
+      "local_payload_tokens": 4006,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0080"
+          }
+        ],
+        "rationale": "资料明确要求退换货须经小米客服中心确认后方可办理，未确认前自行退回的商品无法受理。用户已自述未联系客服直接寄回，故依据该条即可判断不受理，无需补充其他事实。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 4258,
+            "output_tokens": 82,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 4390,
+            "output_tokens": 87,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "5d67e2cb37fc7001633f2c106779f6aa890f6cf8e77b4f478ca8b36ae4edbb99"
+    },
+    {
+      "id": "S:MI04",
+      "input_sha256": "4c053e55ff108418ae9f25b5b537fa013b55477f1d6bfd9428abee193af3d4b5",
+      "mapping": null,
+      "local_payload_tokens": 4010,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0082"
+          }
+        ],
+        "rationale": "资料明确说明退货时赠品应一并退回；若赠品已丢失、使用、破损或未退回，需按事先标明的赠品价格支付赠品价款，且小米有权直接从应退货款中扣除。该条足以回答赠品不完整及扣款依据，无需额外事实。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 4262,
+            "output_tokens": 96,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 4408,
+            "output_tokens": 101,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "1b336c04bcea4816b4eca516a339603f1fa14067470e6c451ca0d163bf249ed3"
+    },
+    {
+      "id": "S:MI05",
+      "input_sha256": "e94784cbd34584b0bd5155e2537fead8ac2d9e8a00655ad057eab8fef1a4ae9e",
+      "mapping": null,
+      "local_payload_tokens": 4000,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0076"
+          }
+        ],
+        "rationale": "该块明确说明收到退货包裹并确认无误后，平台在7个工作日内办理退款，款项退回付款账户；同时说明到账时间因支付平台和支付方式不同而有差异。因此退款办理时限与到账时间均有依据。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 4252,
+            "output_tokens": 83,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 4385,
+            "output_tokens": 88,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "e413bcf647906e1390bbbd120256a0c2c6d852278fdeba5300ce9f83e58e035d"
+    },
+    {
+      "id": "S:MI06",
+      "input_sha256": "8944f2aede1c61f8a564cd6e433112ccbca9acba8ecd217aeafbdd3383259db2",
+      "mapping": null,
+      "local_payload_tokens": 4004,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0003"
+          },
+          {
+            "source_id": "mi-self-operated",
+            "block_id": "mi-self-operated:b0027"
+          }
+        ],
+        "rationale": "资料明确自营规则仅适用于平台自营主体销售并开具发票的商品，且不予办理退换货情形包括非小米出售的商品。因此别家店购买的小米手机不适用该自营退货规则。所需依据为适用范围和排除情形两块。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 4256,
+            "output_tokens": 105,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 4411,
+            "output_tokens": 110,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "24a1db49a8e1b6ea9e02ad17aa33bf5d4b6d25653da49c0a11c5854e7f6960f9"
+    },
+    {
+      "id": "S:IK01",
+      "input_sha256": "ad4a335e652db9a60450a4056659c70ad745b97eee3afb2796354ffc1b57526e",
+      "mapping": null,
+      "local_payload_tokens": 8101,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0072"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0073"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0074"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0076"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0078"
+          }
+        ],
+        "rationale": "资料含退货政策：非会员60天内、货品完好、有原始凭证和发票即可按原支付方式退款；普通桌子非排除品类，且属大陆官方电商商城购买，故40天可退。线上购买需联系在线客服申请，可上门收货或自行邮寄，确认后7日内退款。",
+        "uncertain": false
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 8353,
+            "output_tokens": 186,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "a7681cf3dcb2e047ba6278aebe8616a6d937a20c65140873d083fc40342e6031"
+    },
+    {
+      "id": "S:IK02",
+      "input_sha256": "962efe2576430ac375414f8baa3ea07e7f3388d8e4fb39f1b838eec0b15c81bc",
+      "mapping": null,
+      "local_payload_tokens": 8098,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0072"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0073"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0076"
+          }
+        ],
+        "rationale": "资料同时给出会员退货期限（365天）和退货条件：货品须完好、未经裁剪等。窗帘已按尺寸裁剪，属于被裁剪产品，明确排除在退货政策之外，因此即使仍在会员期限内也不能退。三个块分别提供期限、排除品类和完好定义，均为回答所必需。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 8350,
+            "output_tokens": 140,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 8540,
+            "output_tokens": 145,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "adcdb9db1ade7f9bda23e13d415dbb45e52a241436cd973cfec1e886888df2fc"
+    },
+    {
+      "id": "S:IK03",
+      "input_sha256": "de1fc0e4248838ff6e27826f8e715e6e4bf64666d58271daa39bacd5df0eff36",
+      "mapping": null,
+      "local_payload_tokens": 8101,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0072"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0074"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0077"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0078"
+          }
+        ],
+        "rationale": "资料覆盖大陆宜家官方电商商城购买普通桌子的退货问题：退货期限、货品状态与凭证要求见b0072，适用范围见b0074，官网/APP购买渠道见b0077，联系在线客服申请、寄回确认后7日内退款并按原支付方式退回见b0078。普通桌子非排除品类，未使用符合完好要求，故可回答联系对象、退款时限与去向。",
+        "uncertain": false
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 8353,
+            "output_tokens": 189,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "f32fe470a5b76d81837e8840e7d78772cc5a70ece2a198a1386e8e66c933595c"
+    },
+    {
+      "id": "S:IK04",
+      "input_sha256": "564553439cff37a91629bd084191019a44ada44c4f008b9005f1456f7d07c0c9",
+      "mapping": null,
+      "local_payload_tokens": 8099,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0072"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0073"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0074"
+          }
+        ],
+        "rationale": "资料明确列出退货期限（60天/会员365天）及所需凭证，并单独规定食品不适用退货政策，且该政策仅限中国大陆宜家商场及官方电商商城。因此食品即使未拆封、仅三天，也不能按普通退货期限退。三个块共同构成完整依据：期限、食品例外、适用范围。",
+        "uncertain": false
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 8351,
+            "output_tokens": 150,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "930e917a6ff01a61cd7c2b1ad39e172a44bce25504ffae89fbc297b5439109af"
+    },
+    {
+      "id": "S:IK05",
+      "input_sha256": "3caeb72f3ab9f67c34e3158a2d95db03fe23a8be42f310b400f7b279ae7dcc3f",
+      "mapping": null,
+      "local_payload_tokens": 8096,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0059"
+          },
+          {
+            "source_id": "ikea-terms",
+            "block_id": "ikea-terms:b0073"
+          }
+        ],
+        "rationale": "资料说明产品未派送时可更改或取消送货，但定制产品确认后不能随时取消；且定制商品不适用退货政策。因此对已确认的定制柜，答案是否定的，不能随时取消。所需依据为取消送货条款及退货例外条款。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 8348,
+            "output_tokens": 110,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 8508,
+            "output_tokens": 115,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "666160a98b2c49dc6bc399c05b420ece2b303ba1934d292b799a50cf40c0f65d"
+    },
+    {
+      "id": "S:IK06",
+      "input_sha256": "d1a855670d382a3355afd91c56248e536766807fecd4bd0547d991072c4ad030",
+      "mapping": null,
+      "local_payload_tokens": 8089,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 8341,
+            "output_tokens": 74,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 8464,
+            "output_tokens": 79,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "7641afbde0ec6b117b8d1e9e744f5e335e51ca2dbf41170249826c9f85ebc6dd"
+    },
+    {
+      "id": "F:JD01",
+      "input_sha256": "c7c56940d4ded2bf2e2135da3625e7d61ae3c4670833e7cc7cf918618fd3bdbc",
+      "mapping": null,
+      "local_payload_tokens": 2029,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2281,
+            "output_tokens": 59,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2389,
+            "output_tokens": 64,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "6e94259b30e97b6eca43d95eeaafb0e0f0e56cfd97571fb6aa8d08962467aa7e"
+    },
+    {
+      "id": "F:JD02",
+      "input_sha256": "70d6481b1558c1d83becf53da5f040d37ab562aedfd18557af80da37013ac815",
+      "mapping": null,
+      "local_payload_tokens": 2025,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "NOT_IN_CORPUS",
+        "required": [],
+        "rationale": "两份资料分别讲京东通用退换货规则和手机数码类售后细则，均未涉及支付失败的原因或处理方式，因此无法回答该问题。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2277,
+            "output_tokens": 52,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2378,
+            "output_tokens": 57,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "c295e7653c508e65f8f00aa4b730d223a4376cb24e56f41a7b9f7d62a03cd032"
+    },
+    {
+      "id": "F:JD03",
+      "input_sha256": "011b04fe7c87f754f841cec0be9243b4ecf1563fd9ef72d596a1980f08b079ae",
+      "mapping": null,
+      "local_payload_tokens": 2025,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2277,
+            "output_tokens": 74,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2400,
+            "output_tokens": 79,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "718a8e5e09fa4553eb72815cae60fa73a95550dc875b16195bad4e7492bbd41d"
+    },
+    {
+      "id": "F:JD04",
+      "input_sha256": "26b8a0c70f354e0dc31951955ae57987c18844c24f5c156041b9df9b8b959cc8",
+      "mapping": null,
+      "local_payload_tokens": 2029,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2281,
+            "output_tokens": 63,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2393,
+            "output_tokens": 68,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "f54e679821308067812628905f0d32fd8e647c5b0a0f4f15176f1ac21ce9ee4c"
+    },
+    {
+      "id": "F:JD05",
+      "input_sha256": "0f2865cda450cefa40e2ffd01db47871b0081f0eb207d661ca495e04c9d21e88",
+      "mapping": null,
+      "local_payload_tokens": 2027,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "NEEDS_CLARIFICATION",
+        "required": [],
+        "rationale": "资料列出不予退换货的若干情形及退换货条件，但未说明售后服务单审核不通过的具体原因。要判断原因，必须知道该售后单对应的商品类别、申请类型、时间、商品状态等事实，query均未提供，无法定位适用条款。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2279,
+            "output_tokens": 77,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2405,
+            "output_tokens": 82,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "96c15acab5ff11b1f75118d55a8780149f382ca90a1f1e302549729cba900988"
+    },
+    {
+      "id": "F:JD06",
+      "input_sha256": "e15cd04462c65b79fbd177489b3e52722a5b4b20eda070ebfccca1529de5b270",
+      "mapping": null,
+      "local_payload_tokens": 2027,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2279,
+            "output_tokens": 72,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2400,
+            "output_tokens": 77,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "01c203de3d722cf5b66071efe10a04d6eb77407c4b770dcf23edcfc98b992771"
+    },
+    {
+      "id": "F:JD07",
+      "input_sha256": "6a93bf69287d20834c15c5c97854f4681941026c5fdc5672cffa67e120d53bf8",
+      "mapping": null,
+      "local_payload_tokens": 2026,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2278,
+            "output_tokens": 84,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2411,
+            "output_tokens": 89,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "ece014802d02619d42eeb2c5fcb56a2d7f78f58a9ea1d6eeb9f7df43b0877ec6"
+    },
+    {
+      "id": "F:JD08",
+      "input_sha256": "459c72a1f3dbaa95b8a56d65eee9718009687a874f36fabd60707bacac268be2",
+      "mapping": null,
+      "local_payload_tokens": 2033,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0018"
+          },
+          {
+            "source_id": "jd-digital",
+            "block_id": "jd-digital:b0010"
+          }
+        ],
+        "rationale": "资料明确列出无法提供发票等三包凭证属于不予办理退换货的情形，因此无发票通常不能申请退换货。数码类售后流程还要求质量问题返修时一并返回发票等凭证，但电子发票无需返回。资料未区分保修与退换货的发票要求，也未说明无发票时能否单独保修，故仅能就退换货给出依据。",
+        "uncertain": false
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2285,
+            "output_tokens": 134,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "50d5e932379cb08f3e96107d5661916ae250c6e76df761ef9a1eac0065cfe329"
+    },
+    {
+      "id": "F:JD09",
+      "input_sha256": "82fe565ffb27ce062402d6c11687e0ed30c1987347638b58276677473a232b25",
+      "mapping": null,
+      "local_payload_tokens": 2027,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "ANSWERABLE",
+        "required": [
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0002"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0003"
+          },
+          {
+            "source_id": "jd-general",
+            "block_id": "jd-general:b0006"
+          }
+        ],
+        "rationale": "资料覆盖发错货情形：总则规定收货后7日内可退货、15日内可换货，表格中“商品描述与网站不符等京东原因”支持退换且不收返回运费，并说明审核可能需快递证明或实物照片。收货日期以实际签收为准。据此可回答处理方式与时限，无需补充缺失事实。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2279,
+            "output_tokens": 137,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2466,
+            "output_tokens": 142,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "42d3cc9750fa32d298f1bd17496f4071b11c4dd425d0e3c8cb17a1630d6240c7"
+    },
+    {
+      "id": "F:JD10",
+      "input_sha256": "a6435a4999c110449c12b525f578eb5eeb63898fb83bb3c8c34acb806860767e",
+      "mapping": null,
+      "local_payload_tokens": 2026,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "answerability": "NEEDS_CLARIFICATION",
+        "required": [],
+        "rationale": "资料列出了多种不予退换货的情形及例外，但用户未说明商品类型、退换原因、是否在时限内、商品状态等适用事实，无法判断具体适用哪一条拒绝理由。",
+        "uncertain": false
+      },
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2278,
+            "output_tokens": 60,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2387,
+            "output_tokens": 65,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "5ee8b52ee258f9db4b7bc17f1e8b131dead7aac1fa94de5984ed82cc513ffbe4"
+    },
+    {
+      "id": "F:JD11",
+      "input_sha256": "4d5350b359a8f67728a2e5de874c5f305e89e820c0693ee8d96e642f5329fc35",
+      "mapping": null,
+      "local_payload_tokens": 2029,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 2281,
+            "output_tokens": 69,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        },
+        {
+          "usage": {
+            "input_tokens": 2399,
+            "output_tokens": 74,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "invalid semantic answerability"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "74645edce49980338f4840fc33cb8c3efa32e051cf99bc0e31c59d29f5c174ce"
+    }
+  ],
+  "transmissions": 50,
+  "validated": 21,
+  "errors": 8,
+  "cache_sha256": "36b9031703fe85034989f56952d7dc5c1ea50369c454569751be14625c57ab5f"
+}

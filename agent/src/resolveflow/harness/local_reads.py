@@ -256,6 +256,7 @@ class PolicySearchBridge(LocalReadBridge):
         guard: Any,
         *,
         embedder: Any = None,
+        generation_ids: dict[str, str] | None = None,
     ) -> None:
         super().__init__(
             POLICY_SEARCH_TOOL_NAME,
@@ -279,6 +280,7 @@ class PolicySearchBridge(LocalReadBridge):
         )
         self._index = index
         self._embedder = embedder
+        self._generation_ids = generation_ids
 
     def refusal_types(self) -> tuple[type[BaseException], ...]:
         return (PolicyIndexNotReadyError,)
@@ -306,6 +308,7 @@ class PolicySearchBridge(LocalReadBridge):
             path="dense",
             top_k=int(top_k) if isinstance(top_k, int) and not isinstance(top_k, bool) else MAX_POLICY_TOP_K,
             embedder=self._embedder,
+            **({"generation_ids": self._generation_ids} if self._generation_ids is not None else {}),
         )
         return _policy_observation(hits, self._facts, query, self._now())
 

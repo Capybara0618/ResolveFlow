@@ -1,0 +1,348 @@
+{
+  "version": "model-assisted-semantic-v1",
+  "mode": "policy",
+  "state": "FINISHED",
+  "query_manifest_sha256": "f849082353f1e78e1a3c0ec8693349003511ba7004f961203484c7968fe96a97",
+  "human_review_count": 0,
+  "official_human_quality": null,
+  "origin": "LLM_ASSISTED_NOT_HUMAN_GOLD",
+  "runner_sha256": "f087b75040e2a4aeb33a6375f79c8428fb9d9cb3ce29106be248f47d46d4e2af",
+  "prompt_sha256": "6dd3aa25ff932ea1fb48f8e0f67d7bb7f90243afc78cb04d603137c6491a32e4",
+  "provider": {
+    "model": "deepseek-flash",
+    "parameters": {
+      "temperature": 0,
+      "thinking": {
+        "type": "disabled"
+      },
+      "response_format": {
+        "type": "json_object"
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "S:JD01",
+      "input_sha256": "9a8edf967d6d070e22d8c8aa05bdfd94a10c3989e6952ef955c06e1d853468a0",
+      "mapping": null,
+      "local_payload_tokens": 2047,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:JD02",
+      "input_sha256": "c4c93a667d6f6f6e4ceef4f8c5ef3fd912b9ec4f1c5d6d1dd37a0952ff06ddbf",
+      "mapping": null,
+      "local_payload_tokens": 2043,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:JD03",
+      "input_sha256": "6357b1adfb22aeae0a5faae149f98ee0e98452078f0376e141047aa9163705f1",
+      "mapping": null,
+      "local_payload_tokens": 2042,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:JD04",
+      "input_sha256": "0a5f8d5b02687064b95200c56a8dbcf7d01c34e889d1b9fe607712222fa9da83",
+      "mapping": null,
+      "local_payload_tokens": 2042,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:JD05",
+      "input_sha256": "dc4b86154fe42ecb3bdf5361a5ae78097edbdca60fa370e928139e97d4eac97b",
+      "mapping": null,
+      "local_payload_tokens": 2042,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:JD06",
+      "input_sha256": "f010a33d05b539b30ae51d33543751ee0b33713dc2e42beeeb63871eca2bb141",
+      "mapping": null,
+      "local_payload_tokens": 2026,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:MI01",
+      "input_sha256": "3e1c4b70fd75d013181f2630326ac076cbdb540361a9c996da8945e405844f67",
+      "mapping": null,
+      "local_payload_tokens": 4011,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:MI02",
+      "input_sha256": "1f6da8e1c5b5f92b69d7a203ad17272e8b8196db5933a7387e9d9957b22c625b",
+      "mapping": null,
+      "local_payload_tokens": 4005,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:MI03",
+      "input_sha256": "1e601a5d0f192cfb6c62786c17ba79dd95abfd3a7f5961bac2079faa6eddb22c",
+      "mapping": null,
+      "local_payload_tokens": 4006,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:MI04",
+      "input_sha256": "4c053e55ff108418ae9f25b5b537fa013b55477f1d6bfd9428abee193af3d4b5",
+      "mapping": null,
+      "local_payload_tokens": 4010,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:MI05",
+      "input_sha256": "e94784cbd34584b0bd5155e2537fead8ac2d9e8a00655ad057eab8fef1a4ae9e",
+      "mapping": null,
+      "local_payload_tokens": 4000,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:MI06",
+      "input_sha256": "8944f2aede1c61f8a564cd6e433112ccbca9acba8ecd217aeafbdd3383259db2",
+      "mapping": null,
+      "local_payload_tokens": 4004,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:IK01",
+      "input_sha256": "ad4a335e652db9a60450a4056659c70ad745b97eee3afb2796354ffc1b57526e",
+      "mapping": null,
+      "local_payload_tokens": 8101,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:IK02",
+      "input_sha256": "962efe2576430ac375414f8baa3ea07e7f3388d8e4fb39f1b838eec0b15c81bc",
+      "mapping": null,
+      "local_payload_tokens": 8098,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:IK03",
+      "input_sha256": "de1fc0e4248838ff6e27826f8e715e6e4bf64666d58271daa39bacd5df0eff36",
+      "mapping": null,
+      "local_payload_tokens": 8101,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:IK04",
+      "input_sha256": "564553439cff37a91629bd084191019a44ada44c4f008b9005f1456f7d07c0c9",
+      "mapping": null,
+      "local_payload_tokens": 8099,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:IK05",
+      "input_sha256": "3caeb72f3ab9f67c34e3158a2d95db03fe23a8be42f310b400f7b279ae7dcc3f",
+      "mapping": null,
+      "local_payload_tokens": 8096,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "S:IK06",
+      "input_sha256": "d1a855670d382a3355afd91c56248e536766807fecd4bd0547d991072c4ad030",
+      "mapping": null,
+      "local_payload_tokens": 8089,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD01",
+      "input_sha256": "c7c56940d4ded2bf2e2135da3625e7d61ae3c4670833e7cc7cf918618fd3bdbc",
+      "mapping": null,
+      "local_payload_tokens": 2029,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD02",
+      "input_sha256": "70d6481b1558c1d83becf53da5f040d37ab562aedfd18557af80da37013ac815",
+      "mapping": null,
+      "local_payload_tokens": 2025,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD03",
+      "input_sha256": "011b04fe7c87f754f841cec0be9243b4ecf1563fd9ef72d596a1980f08b079ae",
+      "mapping": null,
+      "local_payload_tokens": 2025,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD04",
+      "input_sha256": "26b8a0c70f354e0dc31951955ae57987c18844c24f5c156041b9df9b8b959cc8",
+      "mapping": null,
+      "local_payload_tokens": 2029,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD05",
+      "input_sha256": "0f2865cda450cefa40e2ffd01db47871b0081f0eb207d661ca495e04c9d21e88",
+      "mapping": null,
+      "local_payload_tokens": 2027,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD06",
+      "input_sha256": "e15cd04462c65b79fbd177489b3e52722a5b4b20eda070ebfccca1529de5b270",
+      "mapping": null,
+      "local_payload_tokens": 2027,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD07",
+      "input_sha256": "6a93bf69287d20834c15c5c97854f4681941026c5fdc5672cffa67e120d53bf8",
+      "mapping": null,
+      "local_payload_tokens": 2026,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD08",
+      "input_sha256": "459c72a1f3dbaa95b8a56d65eee9718009687a874f36fabd60707bacac268be2",
+      "mapping": null,
+      "local_payload_tokens": 2033,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD09",
+      "input_sha256": "82fe565ffb27ce062402d6c11687e0ed30c1987347638b58276677473a232b25",
+      "mapping": null,
+      "local_payload_tokens": 2027,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD10",
+      "input_sha256": "a6435a4999c110449c12b525f578eb5eeb63898fb83bb3c8c34acb806860767e",
+      "mapping": null,
+      "local_payload_tokens": 2026,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    },
+    {
+      "id": "F:JD11",
+      "input_sha256": "4d5350b359a8f67728a2e5de874c5f305e89e820c0693ee8d96e642f5329fc35",
+      "mapping": null,
+      "local_payload_tokens": 2029,
+      "status": "ERROR",
+      "judgment": null,
+      "error_type": "TypeError",
+      "calls": 1,
+      "request_sha256": null
+    }
+  ],
+  "transmissions": 29,
+  "validated": 0,
+  "errors": 29,
+  "cache_sha256": "649a3fab02f1f615b5490726233b6b46e3379a571d5495950a18406dcc5efe79"
+}

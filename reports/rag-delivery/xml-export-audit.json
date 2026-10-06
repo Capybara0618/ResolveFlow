@@ -1,0 +1,65 @@
+[
+  {
+    "file": "reports/rag-delivery/diagnostic-tests.xml",
+    "raw_sha256": "ba1f13d4d52be10179c5e743a7bb250e8e42ea98914d1218ac54e21a608b3b8a",
+    "normalized_sha256": "e52cd6163c24dbb44747c931b9670b35d1152c65ce28e286cd1c33ac8873960d",
+    "transformation": "LF plus end-of-line whitespace removal only; XML test outcomes unchanged",
+    "raw_cache": "tmp/rag-delivery/diagnostic-tests.xml.raw"
+  },
+  {
+    "file": "reports/rag-delivery/replay-export-final.xml",
+    "raw_sha256": "956bdd24c85ec441a71b0d836f73670fce2715c98404c5f653f73d533781bca0",
+    "normalized_sha256": "e89269dd31e18634a7937603458b36182a7b0c08243455042b05f4e08a96c7c5",
+    "transformation": "LF plus end-of-line whitespace removal only; XML test outcomes unchanged",
+    "raw_cache": "tmp/rag-delivery/replay-export-final.xml.raw"
+  },
+  {
+    "file": "reports/rag-delivery/replay-export-last.xml",
+    "raw_sha256": "3003f0435a8b5b4958efa04b6aaa9ffb080f841fdd1e82c5452317edb8671cd6",
+    "normalized_sha256": "1c4e5732baaaded09be2b36ac315962c12e08856346f4949d460c1d0340ca666",
+    "transformation": "LF plus end-of-line whitespace removal only; XML test outcomes unchanged",
+    "raw_cache": "tmp/rag-delivery/replay-export-last.xml.raw"
+  },
+  {
+    "file": "reports/rag-delivery/replay-export-tests.xml",
+    "raw_sha256": "363434fd013acc990825fdddd860abbb7df2dc079e76021cd9fd9068f695053b",
+    "normalized_sha256": "1d52f1418d57fd9ff02c734779a3fa53c7f12d23686f6b7f7639ef9f7aad9f96",
+    "transformation": "LF plus end-of-line whitespace removal only; XML test outcomes unchanged",
+    "raw_cache": "tmp/rag-delivery/replay-export-tests.xml.raw"
+  },
+  {
+    "file": "reports/rag-delivery/replay-export-v13.xml",
+    "raw_sha256": "6a0aa8e63e131d1a7fb5cff4ec5ef11211d1d4a8f353f5c415247d859c547fbc",
+    "normalized_sha256": "d0caf2ecba39b79f8fe86f270092139bda3a31a82eb6f6e1ad2e26850849ba0f",
+    "transformation": "LF plus end-of-line whitespace removal only; XML test outcomes unchanged",
+    "raw_cache": "tmp/rag-delivery/replay-export-v13.xml.raw"
+  },
+  {
+    "file": "reports/rag-delivery/targeted-tests.xml",
+    "raw_sha256": "0da6c0ea9a1755e03e3c5889c134ef0784bfb85826f100d3c6a13a565cafdf43",
+    "normalized_sha256": "3effd05d1ddc130472c3a3d02d838525c15612cc0ba17b6235a943d366d3c42c",
+    "transformation": "LF plus end-of-line whitespace removal only; XML test outcomes unchanged",
+    "raw_cache": "tmp/rag-delivery/targeted-tests.xml.raw"
+  },
+  {
+    "file": "reports/rag-delivery/tests-accepted.xml",
+    "raw_sha256": "91d55a796e1ae64746784019d17b4a6a97511d694d7f5f5e30f8f2da58c2bff8",
+    "normalized_sha256": "45399e9541776f0dfbd06b790ce4ad3142abff76312f1a12350cb7b19e8747fa",
+    "transformation": "LF plus end-of-line whitespace removal only; XML test outcomes unchanged",
+    "raw_cache": "tmp/rag-delivery/tests-accepted.xml.raw"
+  },
+  {
+    "file": "reports/rag-delivery/tests-final.xml",
+    "raw_sha256": "f16012fb9b9f64aa329b798c28261ac68404f2c4976e3245064e7ed0739a419e",
+    "normalized_sha256": "218fdb8fa408f94df158bc4f1776f97f599575509f238953749df6ddf0de4b0d",
+    "transformation": "LF plus end-of-line whitespace removal only; XML test outcomes unchanged",
+    "raw_cache": "tmp/rag-delivery/tests-final.xml.raw"
+  },
+  {
+    "file": "reports/rag-delivery/tests-focused.xml",
+    "raw_sha256": "19555c73fed105c0660592bc8c7ba3ef6a30534d2fe571ba92a6bddadb473492",
+    "normalized_sha256": "f52fa579652c4f939f24101969796eb19867a24c07ba2e65c3d3c3badb65865f",
+    "transformation": "LF plus end-of-line whitespace removal only; XML test outcomes unchanged",
+    "raw_cache": "tmp/rag-delivery/tests-focused.xml.raw"
+  }
+]

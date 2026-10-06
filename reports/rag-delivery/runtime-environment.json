@@ -1,0 +1,21 @@
+{
+  "purpose": "isolated verification only; existing Docker databases and business records untouched",
+  "download_source": "https://get.enterprisedb.com/postgresql/postgresql-16.15-1-windows-x64-binaries.zip",
+  "version": "PostgreSQL 16.15 Windows x64",
+  "zip_bytes": 332441502,
+  "local_download_sha256": "25e6fcdfb8caec38691bf461125e7564508760666f7b8e5dc6a5f0818f58f81e",
+  "vendor_checksum_verified": false,
+  "bind": "127.0.0.1:55434",
+  "database": "agent_db",
+  "fsync_before_offline_probe": "on",
+  "subsequent_isolated_tests": {
+    "fsync": "off",
+    "synchronous_commit": "off"
+  },
+  "qualification": "SQL transactions/fence/worker recovery checks, not OS/power-loss durability benchmark",
+  "docker_error": "dockerInference socket remove: file cannot be accessed; daemon unavailable",
+  "automatic_approval_rejection": "force-end Docker and remove stale socket was blocked by policy; no reason detail and no action performed",
+  "graceful_cli_stop": "failed; did not force-stop Docker",
+  "global_installation_or_service": false,
+  "removed_original_database_records": false
+}

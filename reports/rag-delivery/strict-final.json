@@ -1,0 +1,137 @@
+{
+  "replay_profile": "evals/replay/rag-delivery-v12",
+  "manifest_sha256": "34150939fa538e283118f7596b148fcd50370ad873f1eba3c2ce08a5a0d66aea",
+  "results": [
+    {
+      "id": "alternating_no_progress",
+      "status": "MATCH",
+      "evaluation_run_id": "19daa8fc-2fe3-4019-a317-601d20baafc8",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 5,
+      "tool_calls": 4,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "bound_question_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "d28ec13c-85a9-4468-8cab-00df375e9a33",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "claim_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "23cfb9e3-63c8-456e-a000-80d40aae4259",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "escalation",
+      "status": "MATCH",
+      "evaluation_run_id": "c3e5e81c-e7c8-4a57-8c0a-e937e5c1b9ed",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 1,
+      "tool_calls": 0,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "malformed_tool_handover",
+      "status": "MATCH",
+      "evaluation_run_id": "0618e45e-c106-429f-adc7-9e34eaaa542c",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "manual_review",
+      "status": "MATCH",
+      "evaluation_run_id": "0d199da5-c2e3-414e-b219-2a002fae0eed",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 1,
+      "tool_calls": 0,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "non_json_exhausted",
+      "status": "MATCH",
+      "evaluation_run_id": "c91167c7-1e1d-4e53-b4e0-6248a6370c37",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 0,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "non_json_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "8b6d3878-6787-4fe4-93ed-3de83b4b57f9",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 0,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "question",
+      "status": "MATCH",
+      "evaluation_run_id": "6b14cb82-d819-433b-82fa-1ec3f4c652a6",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 1,
+      "tool_calls": 0,
+      "callback_kind": "QUESTION"
+    },
+    {
+      "id": "read_then_question",
+      "status": "MATCH",
+      "evaluation_run_id": "bdffd5fd-615d-4b89-97c5-a476df55ecbd",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 1,
+      "callback_kind": "QUESTION"
+    },
+    {
+      "id": "read_then_review",
+      "status": "MATCH",
+      "evaluation_run_id": "ed500e21-3a86-4a3d-bdf9-c2fcfae8163c",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "short_references",
+      "status": "MATCH",
+      "evaluation_run_id": "afacd31c-33f7-4f33-a03d-fdf0008ae69b",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 2,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "transient_tool_exhausted",
+      "status": "MATCH",
+      "evaluation_run_id": "95298d91-7461-449d-888c-7bb71e24bb22",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 2,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "transient_tool_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "9319d92d-46ea-461b-aae6-99f4ec9e2110",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 2,
+      "callback_kind": "PROPOSAL"
+    }
+  ],
+  "summary": {
+    "n": 14,
+    "matched": 14
+  },
+  "network": "Python strict guard, not Docker OS sandbox"
+}

@@ -603,6 +603,7 @@ class AgentScopeRunner:
     #: forbids silently changing the manifest on resume, and a manifest recomputed each step could differ from the
     #: one a snapshot stored without anything noticing.
     frozen_manifest: dict[str, Any] | None = field(default=None, init=False, repr=False)
+    _selected_policy_generations: dict[str, str] | None = field(default=None, init=False, repr=False)
 
     def manifest(self) -> dict[str, Any]:
         """The run's frozen manifest (``docs/agent-harness.md:33``), built once."""
@@ -635,6 +636,26 @@ class AgentScopeRunner:
         bundles = sorted(bundle for bundle in (pinned.get("bundle_ids") or []) if isinstance(bundle, str))
         manifest_hash = pinned.get("manifest_hash")
         if self.policy_index is not None and bundles and isinstance(manifest_hash, str) and manifest_hash:
+            from resolveflow.policies.index import PolicyIndex
+
+            if isinstance(self.policy_index, PolicyIndex):
+                if self._selected_policy_generations is None:
+                    selected = {bundle: self.policy_index.generation_for(bundle, manifest_hash) for bundle in bundles}
+                    self._selected_policy_generations = {
+                        bundle: row.generation_id for bundle, row in selected.items() if row is not None
+                    }
+                first = self._selected_policy_generations.get(bundles[0])
+                if first is not None and len(bundles) == 1:
+                    return first
+                if self._selected_policy_generations:
+                    identity = canonical_json(
+                        {"bundles": bundles, "manifest_hash": manifest_hash,
+                         "generations": self._selected_policy_generations}
+                    )
+                    return str(uuid.uuid5(uuid.NAMESPACE_URL, "resolveflow:policy-generations:" + identity))
+                pin_hash = manifest_hash
+                identity = f"resolveflow:policy-pin:{','.join(bundles)}:{pin_hash}"
+                return str(uuid.uuid5(uuid.NAMESPACE_URL, identity))
             generation = self.policy_index.generation_for(bundles[0], manifest_hash)
             if generation is not None:
                 return str(generation.generation_id)
@@ -688,6 +709,7 @@ class AgentScopeRunner:
         # anyway would let the model ask a question the harness would then fail to answer with `TOOL_FAILED`
         # instead of the honest "not ready".
         if self.policy_index is not None:
+            self.index_generation()  # Freeze the READY map once; searches cannot jump generations mid-run.
             await toolkit.add_tool(
                 PolicySearchBridge(
                     self.policy_index,
@@ -697,6 +719,7 @@ class AgentScopeRunner:
                     client,
                     guard,
                     embedder=self.policy_embedder,
+                    generation_ids=getattr(self, "_selected_policy_generations", None),
                 )
             )
         # C07.2: the second local read. Registered whenever this run has a store — which, since ``_drive`` creates
