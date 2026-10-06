@@ -1,4 +1,15 @@
-## 当前快照（2026-10-06，实际Agent查询、建议与业务政策来源审查）
+## 当前快照（2026-10-06，建议/补证责任/引用纠错与停止来源改进）
+
+- 用户批准继续上一批三类通用缺口，按[实施规格](../docs/agent-decision-handoff.md)完成[集中报告](../reports/decision-handoff/README.md)。没有按案例ID/问法改生产路由，不重做Gold、政策排名或已有来源审查；生产仍dense及Java完整规则。
+- actions/correction/sdk_runner对finding错误反馈SOURCE类别、具体review_findings.i.observation_ids及缺失O编号，区分CONFLICT数量/重复来源，不自动补引；全run仍共享一次修正。ASK_CUSTOMER拒绝明确系统字段，客户照片/陈述仍可问；REQUEST_INFO要求具体非空白missing_evidence，最终verifier同检查。纠正最终校验原对象列表助手吞掉所有字符串补证项的问题。
+- context/vocabulary在既有P1给实际当前占用/读取失败的短来源提示及商家核查责任，P2原金额/版本/hash保持；无阻碍不添加该段，不替模型决定动作。系统提示343字符，不加LLM摘要或固定工具路径。自然语言责任和摘要质量不能仅由这些结构门禁证明。
+- model/sdk_adapter/sdk_runner内部区分MODEL/HARNESS终止：SDK占位记STOP/REFUSED/真实原因，不作为有效ESCALATE/DECIDED；原provider响应/usage不改。worker沿现有FAILED协议保留有效模型转交reason_codes，空码用NEEDS_HUMAN_VERIFICATION，不再发送COMPLETED作为转交原因。FAILED尚不传summary到商家时间线，未扩展Java/网页协议；REQUEST_INFO仍建议、真正QUESTION仍ASK_CUSTOMER。
+- context v13/verifier v7及prompt/tool/source进入新manifest；[decision-handoff-v14](../evals/replay/decision-handoff-v14/manifest.json)冻结28输入、36文件、18个独立mock包（原14行为+4新通用变体）。旧包/标签/Gold/报告66项与原HEAD字节相同；原21输入来源审查需用5597f5c源码复算，不能改旧hash迁就新代码。默认agent_eval.py replay已同步18包完整数。
+- 实际20文件unit最终307 passed/0 failed/errors/skipped（11.13s），11文件真实隔离PG/MCP/恢复/回调/导出/回放111 passed/0 failed/errors/skipped（84.55s）；共418不同测试，新增44。`agent_eval.py replay --output reports/decision-handoff/strict-v14.json` 18/18 MATCH，相关Ruff、差异/28SHA/历史字节/链接及公开文件核查通过。两新恢复用例证明已落库错误反馈/一次修正状态复用，仅发第三次mock响应，工具一次，无第二次纠错。完整命令/清单/JUnit见报告。
+- 初次负测19 failed/4 passed→23通过；一次不存在测试路径造成0项运行，按真实入口改正；Lint长行/导入修复。首次PG包1 failed/23 passed，新增wire反例再现补证字符串吞掉（1 failed），修复后53 passed/18 deselected，重导新tmp候选；305项中间JUnit保留、最终307用新文件。最终111集成无筛选/跳过，不将生成阶段筛选当最终验收。
+- 本批新模型API调用0；仅隔离测试schema写入并清理，无业务库写入/退款/索引重建/常驻重启或队列消费。未跑全仓/mypy/Java/网页/新收费整体Agent，历史16类型诊断和8可见失败保留。原四脏文件及图/日志不夹带；精确commit/正常push核实后停止写入。下一步固定本次版本做真实模型整体对照及语义复核，检验反馈采纳/责任/摘要，而非继续盲调RRF；商家转交全文展示另需协议纵向接线，不假称本批已实现。
+
+## 历史快照（2026-10-06，实际Agent查询、建议与业务政策来源审查）
 
 - 用户批准接续实际Agent来源审查，按[本批规格](../docs/agent-rag-source-review.md)完成[集中报告](../reports/agent-rag-source-review/README.md)、[32例说明](../reports/agent-rag-source-review/cases.md)及[机器审查](../reports/agent-rag-source-review/audit-v1.json)。新增CODEX_REVIEW标签绑定原请求/案例/hash，已见旧结果，非盲测或真实客户准确率；原Gold、自动评分及已有失败不改。21输入冻结，复算JSON相同。
 - 原32例/165实际模型请求：33次SEARCH_POLICY尝试、32次实际执行、1次参数拒绝，实际top_k均3。31个完整可答query所需依据前2齐30/31、前3齐31/31；1个七天无理由query仅部分可答，因为当前政策没有该主题，不宣称32/32完整回答。32次返回正文/商家/版本/hash及下一轮P2全部核对；67份有政策P2的请求已经去重，不将上批外部正文20.58%节省套到生产。

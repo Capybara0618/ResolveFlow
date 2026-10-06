@@ -439,7 +439,7 @@ class ContextBuilder:
         # P2 — the exact fields a decision is checked against, each with its source and status.
         sections.append(_Section(layer=Layer.P1, label="reads", text=_investigation_progress(observations)))
         if catalog is not None:
-            guidance = _domain_guidance(observations, review_context)
+            guidance = _domain_guidance(observations, review_context, catalog=catalog)
             if guidance:
                 sections.append(_Section(layer=Layer.P1, label="guidance", text=guidance))
         for line in _render_facts(view, catalog):
@@ -687,10 +687,26 @@ def _investigation_progress(observations: list[ToolObservation]) -> str:
 EVIDENCE_IDENTITY_FIELDS: Final = ("observation_id", "source_ref", "source_version", "content_hash")
 
 
-def _domain_guidance(observations: list[ToolObservation], snapshot: dict[str, Any] | None) -> str:
+def _domain_guidance(observations: list[ToolObservation], snapshot: dict[str, Any] | None,
+                     *, catalog: ReferenceCatalog | None = None) -> str:
     """Relevant interpretation rules, not an investigation route or a generated summary."""
     tools = {item.tool_name for item in observations}
     rules = []
+    business_tools = {"get_order_context", "get_refund_status", "get_shipment_trace", "get_case_evidence"}
+    latest = {item.source_ref: item for item in observations if item.tool_name in business_tools}
+    blockers = []
+    for item in latest.values():
+        alias = catalog.read_alias(item.observation_id) if catalog else item.observation_id
+        if item.error is not None:
+            blockers.append(f"{alias}:{item.tool_name}=失败:{item.error.code}")
+        elif item.tool_name in {"get_order_context", "get_refund_status"} and isinstance(item.result, dict):
+            key = "line_refund_state" if item.tool_name == "get_order_context" else "state"
+            state = item.result.get(key)
+            if state in {"RESERVED", "UNKNOWN", "CONSUMED"}:
+                blockers.append(f"{alias}:{key}={state}")
+    if blockers:
+        rules.append("关键阻碍（非最终结论）：" + ";".join(blockers)
+                     + "。摘要说明阻碍及下一步；系统失败/资金占用由商家核查，不能要求客户生成系统记录。")
     if (snapshot and snapshot.get("materials")) or "get_case_evidence" in tools:
         rules.append("核验/回答引用须读get_case_evidence，订单不能证明核验；INCONCLUSIVE=未知。")
     if "get_order_context" in tools:

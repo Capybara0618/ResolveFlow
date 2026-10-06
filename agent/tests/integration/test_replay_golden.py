@@ -10,7 +10,7 @@ import pytest
 from resolveflow.harness.live_model import _decision_of
 from resolveflow.harness.model import MockModelClient
 from resolveflow.replay.export import export_run
-from resolveflow.replay.pack import ReplayMiss, UnsupportedRecord, read_pack, write_pack
+from resolveflow.replay.pack import PackInvalid, ReplayMiss, UnsupportedRecord, read_pack, write_pack
 from resolveflow.replay.strict import ReplayMismatch, strict_replay
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import DeploymentConfig, build_investigation
@@ -56,14 +56,36 @@ CASES: dict[str, tuple[list[dict[str, Any]], tuple[Any, ...], str]] = {
     "alternating_no_progress": ([read(name) for name in ["get_order_context", "get_refund_status",
         "get_order_context", "get_refund_status", "get_order_context"]],
         (observation(), observation("get_refund_status"), observation(), observation("get_refund_status")), "FAILED"),
+    "system_question_repair": ([{"kind": "ASK_CUSTOMER", "questions": [
+        {"question_id": "q", "field": "carrier_conclusion", "prompt": "Please supply carrier conclusion"}]},
+        {"kind": "ASK_CUSTOMER", "questions": [
+        {"question_id": "q", "field": "package_photo", "prompt": "Please provide package photo"}]}], (), "QUESTION"),
+    "request_info_repair": ([propose("REQUEST_INFO", missing_evidence=[]),
+        propose("REQUEST_INFO", missing_evidence=["破损位置照片"], summary="商家向客户索取破损位置照片后核验")],
+        (), "PROPOSAL"),
+    "finding_association_repair": ([read("get_order_context"), read("get_refund_status"),
+        propose("MANUAL_REVIEW", evidence_refs=["O1"], review_findings=[
+            {"kind": "FACT", "text": "synthetic source claim", "observation_ids": ["O2"]}]),
+        propose("MANUAL_REVIEW", evidence_refs=["O1", "O2"], review_findings=[
+            {"kind": "FACT", "text": "synthetic source claim", "observation_ids": ["O2"]}])],
+        (observation(), observation("get_refund_status").model_copy(update={"source_ref": "refund:line"})), "PROPOSAL"),
+    "finding_conflict_exhausted": ([read("get_order_context"), *[propose("MANUAL_REVIEW", evidence_refs=["O1"],
+        review_findings=[{"kind": "CONFLICT", "text": "synthetic conflict", "observation_ids": ["O1"]}])] * 2],
+        (observation(),), "FAILED"),
 }
 
 
 @pytest.mark.parametrize("name", CASES)
 def test_committed_golden_pack(name: str) -> None:
     root = Path(__file__).resolve().parents[3]
-    directory = root / "evals" / "replay" / "rag-delivery-v13" / name
+    directory = root / "evals" / "replay" / "decision-handoff-v14" / name
     assert strict_replay(directory)["status"] == "MATCH"
+
+
+def test_old_profile_is_retained_but_cannot_silently_use_new_source():
+    root = Path(__file__).resolve().parents[3]
+    with pytest.raises(PackInvalid, match="incompatible harness"):
+        strict_replay(root / "evals/replay/rag-delivery-v13/manual_review")
 
 
 @pytest.mark.parametrize("name", CASES)
@@ -75,7 +97,11 @@ def test_golden_trajectory(agent_db: Database, tmp_path: Path, name: str) -> Non
         model=MockModelClient(script=script), tools=StubTools(*observations),
     )
     outcome = RunWorker(agent_db, investigate, recoverable=True).run_once()
-    assert outcome is not None and outcome.callback_kind == terminal
+    assert outcome is not None and outcome.callback_kind == terminal, outcome.result if outcome else None
+    if name == "finding_conflict_exhausted":
+        assert outcome.result.reason_code == "FINDING_SOURCE_INVALID"
+        assert outcome.result.spend.model_calls == 3 and outcome.result.spend.tool_attempts == 1
+        assert outcome.result.trajectory[-1]["origin"] == "HARNESS"
     with agent_db.connection() as connection:
         saved = connection.execute("SELECT budget_spent FROM agent_run WHERE run_id=%s", (RUN_ID,)).fetchone()
     assert saved["budget_spent"] == outcome.result.spend.as_dict()

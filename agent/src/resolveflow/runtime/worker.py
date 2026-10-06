@@ -380,4 +380,8 @@ def callback_payload(kind: CallbackKind, claimed: ClaimedRun, result: RunResult)
     # input, not a transient fault. A retryable failure (a tool outage the model could route around) is the model's
     # to make inside the run, and the run's budget is what bounds it. Exactly `FailedPayload`'s members and no more:
     # the component is `additionalProperties: false`, so an invented `schema_version` would be a refusal.
-    return {"reason_codes": [result.reason_code], "retryable": False}
+    codes = [result.reason_code]
+    if result.completed and getattr(decision, "kind", None) == "ESCALATE":
+        # A genuine model handover finished investigation, but COMPLETED is not why Case needs a human.
+        codes = list(decision.reason_codes) or ["NEEDS_HUMAN_VERIFICATION"]
+    return {"reason_codes": codes, "retryable": False}

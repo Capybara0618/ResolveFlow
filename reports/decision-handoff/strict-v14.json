@@ -1,0 +1,247 @@
+{
+  "dataset_version": "resolveflow-evaluation-calibrated-v3",
+  "manifest_hash": "087f709b3dbf764daec9c4eb25bc00059c012e4a44326557d3b8e8a2713e82de",
+  "replay_manifest_hash": "3f302d192973946731fad187004bb82f24de0ce4cfce208e48114170d7aa6593",
+  "mode": "replay",
+  "synthetic": true,
+  "backend_profile": "Java ReviewerRunInput + EvidenceListResponse; synthetic loopback sources",
+  "business_end_to_end": false,
+  "scoring_scope": "automatic action/read/citation checks; semantic explanation and question review pending",
+  "gold_review": "policy_checked_by_codex_not_human",
+  "embedding": {
+    "model": "BAAI/bge-small-zh-v1.5",
+    "revision": "7999e1d3359715c523056ef9478215996d62a620",
+    "dimension": 512
+  },
+  "dependencies": {
+    "agentscope": "2.0.8",
+    "mcp": "2.2.0",
+    "psycopg": "3.3.5",
+    "sentence-transformers": "5.1.2"
+  },
+  "entry_hash": "7846a408727d6a3476761c01f0caca9c22d1107ebe7ea74b15b0ba5495042450",
+  "dependency_lock_hash": "0fedd60f93948c7c4a4e9ac9d434133348dc88a9bae3ffd888c6c97b4dbbccf2",
+  "code_commit": "5597f5cd8d9ec6a2887f73cb707d3db2a3380f7c",
+  "code_hashes": {
+    "agent/src/resolveflow/harness/__init__.py": "fb556adf1332d5a33aaa0a1e544037a289c34fe9cfea58a3373253b8e19b73e0",
+    "agent/src/resolveflow/harness/actions.py": "9a2a5d4655f2d0c34a4d9797df713b77ef8e833fb67ce5181bfca73ee9e282ce",
+    "agent/src/resolveflow/harness/budget.py": "1aa4cad28a72dcbbc0dce69c0a4b7a931e6ebfb2e3f642954aae6527f33278e2",
+    "agent/src/resolveflow/harness/claim_checks.py": "bc5da0f1a0921cf3bee60ed5488e3c41a3b463d0792506149efff54daea5b1b6",
+    "agent/src/resolveflow/harness/context.py": "677595166e7ed32c7aa2846e8224852c04eba1bad50e3e65a0dfaa212044a607",
+    "agent/src/resolveflow/harness/control.py": "ea6bc210624f468ded83f58f4ebada84badb100e23e460e4dc81fc2d8a5e59c8",
+    "agent/src/resolveflow/harness/correction.py": "42e07985578e9e2ad69f0f70e325f801f8a446af47dc254927f020abe20e38f8",
+    "agent/src/resolveflow/harness/facts.py": "843199acd6e642ec6f64ef340a3ae4fbefe6ece31949b1341b54754dbeb964ca",
+    "agent/src/resolveflow/harness/live_model.py": "2666f3c25743c1117cb287ed531b90e468d21cf9ee88c2f6260ef97d7fb81215",
+    "agent/src/resolveflow/harness/local_reads.py": "aab9e5d8aa6b841f17320bebaf0abe8512566c1e2e5882980c275503a57e617f",
+    "agent/src/resolveflow/harness/manifest.py": "e29f847020fe7767fdbd99ae1c5fb7605dbf3d20282d325385e728e1cfdf4fc4",
+    "agent/src/resolveflow/harness/mcp_client.py": "c1ba774e0fded1b40de67f603a622769c0f079185e9efc35b6b9a2eabd9ee7f3",
+    "agent/src/resolveflow/harness/model.py": "03b039b1a64a5f4b8fbdfe9d8b5ffd9d38234f7739b6a99e85652263397b9ba0",
+    "agent/src/resolveflow/harness/observation_read.py": "dcd122018911689f76880ebfdf4ea322537b375a97db29bd27fed60286e064a0",
+    "agent/src/resolveflow/harness/references.py": "5829e241b412b6d19520621467e5f802683f2f54a59dfbb0b835cbed835cb1c4",
+    "agent/src/resolveflow/harness/runner.py": "1dca5a4e41ea220bfa65fcf5f9ce3e67516396a56a5b388274f26d842f95a25d",
+    "agent/src/resolveflow/harness/sdk_adapter.py": "2f9386963b2e9b1b22f7b791fc04d369089d953f5a806c657c854ab8ae9fe997",
+    "agent/src/resolveflow/harness/sdk_runner.py": "df8515cffd64dbcb8173aac12ad83731be49ab2b6ad810b4669130f9cb1c9794",
+    "agent/src/resolveflow/harness/token_counting.py": "b8290a023e8ca79a172fa2a852c2cfa8a00123106b65da77bb1ed50a0ce0e785",
+    "agent/src/resolveflow/harness/verifier.py": "e0fd63270546afbd99b301e745c9795d0333b6f41fbbda69aa9c03511b7f03ea",
+    "agent/src/resolveflow/harness/vocabulary.py": "58fc7adcd4487881691439384c41ecbf0dcb41c157fdb8e4f78eea418e4142cd",
+    "agent/src/resolveflow/policies/__init__.py": "494045da95f585695439376aa6c81020ce84f8a650a1c9380dd59efd5159a9e8",
+    "agent/src/resolveflow/policies/child_index.py": "3adeaab6142b017ea8ee773ec36dcfe26c7aa85cf7961139929fc6d0d6beff99",
+    "agent/src/resolveflow/policies/chunking.py": "73f8c1e8f966610f794f1edd1b7fc96c591f4b890c3ef166824a7f1fdaa3a4d6",
+    "agent/src/resolveflow/policies/index.py": "1f1715dba02aee10ca9eef9dcb75cdb4c529d85ea52a8e2dd99b41078bd19e38",
+    "agent/src/resolveflow/policies/retrieval.py": "277c5eb45687fa587fba42a191844a6fa893389db3515a30a0d290b7f3d96585",
+    "agent/src/resolveflow/policies/segments.py": "9caa0473c7cc5538d2834583e61640f823234ce4227704711f0e418417c59023",
+    "agent/src/resolveflow/policies/status.py": "f78da3a02e9dff8885d5ae5e18dfd5025dbaedaac17c68c5f155d5ffba407d8e",
+    "agent/src/resolveflow/tools/__init__.py": "c31684e3643842958b527d575f3be1d39c74f19d428d6551cda987491b57b412",
+    "agent/src/resolveflow/tools/catalog.py": "588e370d42693f350f2cb2d68a22af94f97d977869b271e6d7379fbf80671fca",
+    "agent/src/resolveflow/tools/credential.py": "432714f3b03ed84bdeb3a56adbd3fea86b3e58570a80aa96273b1e7f661b37dc",
+    "agent/src/resolveflow/tools/result_validation.py": "9c8fa2aee0cc90346bdcd3ad6eb99601038f7c39721fc270e2f4db746b9b0986",
+    "agent/src/resolveflow/tools/server.py": "6f071de6dcdc206e83348fc8986ed841c3e0a986541ae1b6e493e160d4a39a10",
+    "agent/src/resolveflow/tools/upstream.py": "e07a317104a667aa8040dd1c88208fe4b620b56e21c87998b1d1108544344d60",
+    "scripts/evaluation/__init__.py": "37ed1419e5238190069e037c70567e9e7516390d3037cefbfb1de5da176637b2",
+    "scripts/evaluation/build_alignment.py": "5e2763c38fc468467c2b903fa7cad337e6b1f884e4fbf9b7449ad9c39d7f3223",
+    "scripts/evaluation/build_assets.py": "4024b0bcef60ce1386598643a2036270dee5ab248e651e59511bf6aa155a2bee",
+    "scripts/evaluation/build_calibration.py": "6d7bca2344876583bf3dddc786d03d02b2eda7f73783eb8315f31942e28e2304",
+    "scripts/evaluation/dataset.py": "b0be4607bee79ac7c3a642e266ebd7e0089188d39ee8cf403d76e25a67ebcef0",
+    "scripts/evaluation/environment.py": "38c73ce81bc6c9be0dd1a70c8282b345afb220236fb8af92944f58cbdd66f333",
+    "scripts/evaluation/harness_checks.py": "121ca5870f1a27c90a5c5d2dc401ef82753994c0450682733addf4cd0cc5e8f6",
+    "scripts/evaluation/live_baseline.py": "b6683505edfd0b5a0afcf9bfa9912e0949533ba5759e0961a7f1a1a54c7d0368",
+    "scripts/evaluation/models.py": "ff6f759c4c2b3191bcd543ec614174b8f429df774db8f10e22a20d8a24655034",
+    "scripts/evaluation/quality_audit.py": "74be754223316ceeee7cc47b626b84ce14f70d17e1ca31bf60a3c6efdd9ad4ef",
+    "scripts/evaluation/rag_experiments.py": "cac74f9b95f872253c11e1f9508cec91a6dea93a9bcbe7c78b08e1ef3576102d",
+    "scripts/evaluation/rag_probes.py": "0564dadefe1bfee56593a7a7250c090d8d93545ba77c0881032313b583fc73ce",
+    "scripts/evaluation/reporting.py": "9382108850d324b765ad382a81a2f5b8cad29841c2afbed908b53c78246fa3e9",
+    "scripts/evaluation/review.py": "0b9f3f25680d0b865919b0299cefa57a8045ea440ae553f7c0e068d948035d89",
+    "scripts/evaluation/scoring.py": "4291f2939f1bb4f0c201f05f0a501be832f344864622d720dc52e3bd7565d88b",
+    "scripts/evaluation/semantic_review.py": "47b78042219a95e525540881f1bd6100b973e2782f52d6ded1e599352dce001f"
+  },
+  "time": "2026-10-06T22:07:34+0800",
+  "results": [
+    {
+      "id": "alternating_no_progress",
+      "status": "MATCH",
+      "evaluation_run_id": "99c57b60-3ef3-4109-a418-5856a70bdfe3",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 5,
+      "tool_calls": 4,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "bound_question_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "737be513-2666-422d-aa80-20bd735f84c7",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "claim_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "eb561988-f7b3-48e8-87bb-a3b5d134bbd0",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "escalation",
+      "status": "MATCH",
+      "evaluation_run_id": "a0c1e921-e62a-423d-bdc3-9a69accf7b39",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 1,
+      "tool_calls": 0,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "finding_association_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "cfda1c01-e226-4227-aba1-c6853e3266a4",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 4,
+      "tool_calls": 2,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "finding_conflict_exhausted",
+      "status": "MATCH",
+      "evaluation_run_id": "abd07c87-6e33-43ee-9267-578f8ebb9dcb",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 1,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "malformed_tool_handover",
+      "status": "MATCH",
+      "evaluation_run_id": "ab50d4c4-7f61-4b25-aecb-b1870683c1c6",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "manual_review",
+      "status": "MATCH",
+      "evaluation_run_id": "c3814bab-be27-439d-883c-9200f1da40f6",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 1,
+      "tool_calls": 0,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "non_json_exhausted",
+      "status": "MATCH",
+      "evaluation_run_id": "1213b91d-3fe2-4225-8f8a-fc16d2b51e9c",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 0,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "non_json_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "61ba3373-9e49-480f-9971-b9fe89a6707b",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 0,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "question",
+      "status": "MATCH",
+      "evaluation_run_id": "47cc07d2-3544-4b5c-bb15-7d39e02938a1",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 1,
+      "tool_calls": 0,
+      "callback_kind": "QUESTION"
+    },
+    {
+      "id": "read_then_question",
+      "status": "MATCH",
+      "evaluation_run_id": "b6ad7d2e-6f16-4c32-8fb0-50a4138b44f9",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 1,
+      "callback_kind": "QUESTION"
+    },
+    {
+      "id": "read_then_review",
+      "status": "MATCH",
+      "evaluation_run_id": "a9758cae-2c1b-4ba3-9899-5a9cabe86f83",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 1,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "request_info_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "bf4d1bac-51ec-4f00-b78d-9ae453b176d0",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 0,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "short_references",
+      "status": "MATCH",
+      "evaluation_run_id": "8175c3b2-f2d4-4350-a0eb-9d00675bab10",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 2,
+      "callback_kind": "PROPOSAL"
+    },
+    {
+      "id": "system_question_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "ec85af6a-2788-405c-a1e7-1c72564014c3",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 2,
+      "tool_calls": 0,
+      "callback_kind": "QUESTION"
+    },
+    {
+      "id": "transient_tool_exhausted",
+      "status": "MATCH",
+      "evaluation_run_id": "b53ec251-4764-4e61-827d-733f1a2315fb",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 2,
+      "callback_kind": "FAILED"
+    },
+    {
+      "id": "transient_tool_repair",
+      "status": "MATCH",
+      "evaluation_run_id": "e2fd3da9-4019-4ec6-a1c4-39c1dc9f66a3",
+      "source_run_id": "11111111-2222-4333-8444-555555555555",
+      "model_calls": 3,
+      "tool_calls": 2,
+      "callback_kind": "PROPOSAL"
+    }
+  ],
+  "replay_profile": "E:\\Code\\Agent+Backend\\evals\\replay\\decision-handoff-v14",
+  "summary": {
+    "n": 18,
+    "matched": 18
+  }
+}

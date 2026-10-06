@@ -31,7 +31,7 @@ from typing import Any, Final
 
 from resolveflow.contracts._schemaio import CORE_SCHEMA_FILES, validator_bundle
 from resolveflow.contracts.core_models import CoreToolError, ToolObservation
-from resolveflow.harness.actions import POLICY_SEARCH_TOOL_NAME
+from resolveflow.harness.actions import POLICY_SEARCH_TOOL_NAME, request_info_gap_error
 from resolveflow.harness.claim_checks import unsupported_claims
 
 __all__ = [
@@ -145,6 +145,10 @@ class ProposalVerifier:
         citation rules are the same either way, so they live in one place.
         """
         refusals: list[CitationRefusal] = []
+
+        gap_error = request_info_gap_error(recommended_action, list(missing_evidence))
+        if gap_error:
+            refusals.append(CitationRefusal("REQUEST_INFO_INCOMPLETE", gap_error))
 
         if recommended_action == _ACTIONABLE:
             if not evidence_refs:
@@ -321,7 +325,8 @@ class ProposalVerifier:
                 recommended_action=str(proposal.get("recommended_action", "")),
                 evidence_refs=_sequence_of(proposal.get("evidence_refs")),
                 policy_refs=_sequence_of(proposal.get("policy_refs")),
-                missing_evidence=[str(item) for item in _sequence_of(proposal.get("missing_evidence"))],
+                # Schema already checked list[str]; the source-object helper would silently discard every string.
+                missing_evidence=list(proposal.get("missing_evidence", [])),
             ).refusals
         )
         refusals.extend(self.verify_content(summary=str(proposal.get("summary", "")),

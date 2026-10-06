@@ -283,6 +283,9 @@ def validate_decision(raw: dict[str, Any]) -> ModelDecision:
     try:
         decision = ModelDecision.model_validate(raw)
     except ValidationError as refusal:
+        finding_detail = _finding_source_detail(raw)
+        if finding_detail:
+            raise ActionRefusedError(finding_detail, reason_code="FINDING_SOURCE_INVALID") from refusal
         # A repair needs field names and constraints, not Pydantic's echoed model payload.
         # Keep the mandatory repair notice bounded so a large proposal cannot crowd it out.
         details = "; ".join(
@@ -306,11 +309,51 @@ def validate_decision(raw: dict[str, Any]) -> ModelDecision:
                 f"docs/agent-spec.md:19 allows {sorted(RECOMMENDED_ACTIONS)}"
             )
         _check_arguments(decision.arguments, what="a PROPOSE")
+        gap_error = request_info_gap_error(decision.recommended_action, decision.missing_evidence)
+        if gap_error:
+            raise ActionRefusedError(gap_error, reason_code="REQUEST_INFO_INCOMPLETE")
     if decision.kind == ESCALATE and decision.recommended_action is not None:
         # ESCALATE produces a MANUAL_REVIEW proposal or a failure callback and never invents a citation
         # (docs/agent-spec.md:20). The action it recommends is therefore fixed here rather than chosen.
         raise ActionRefusedError("an ESCALATE does not choose its own recommended action")
     return decision
+
+
+def _finding_source_detail(raw: dict[str, Any]) -> str:
+    """Explain a failed strict validation; never repair the model's references automatically."""
+    findings, refs = raw.get("review_findings"), raw.get("evidence_refs")
+    if not isinstance(findings, list) or not isinstance(refs, list):
+        return ""
+    available = {ref.get("observation_id") for ref in refs if isinstance(ref, dict)
+                 and isinstance(ref.get("observation_id"), str)}
+    for index, finding in enumerate(findings[:8]):
+        if not isinstance(finding, dict):
+            continue
+        ids = finding.get("observation_ids")
+        if (not isinstance(ids, list) or not ids or len(ids) > 8
+                or any(not isinstance(value, str) or not 1 <= len(value) <= 64 for value in ids)):
+            continue
+        path = f"review_findings.{index}.observation_ids"
+        if finding.get("kind") == "CONFLICT" and len(set(ids)) < 2:
+            return (f"{path}: CONFLICT has {len(set(ids))} distinct source(s); needs >=2 actual disagreeing "
+                    "observations also in evidence_refs. Do not add unrelated sources; "
+                    "correct/drop unsupported finding.")
+        if len(set(ids)) != len(ids):
+            return f"{path}: source IDs must be unique; remove duplicates, do not invent another source."
+        missing = sorted(set(ids) - available)
+        if missing:
+            names = ','.join(repr(value) for value in missing)
+            return (f"{path}: {names} absent from evidence_refs. Cite the actual supporting P2 evidence "
+                    "in evidence_refs or correct/drop this finding; do not add unrelated sources.")
+    return ""
+
+
+def request_info_gap_error(action: str | None, missing: list[str] | tuple[str, ...]) -> str:
+    if action == "REQUEST_INFO" and (not missing or any(not value.strip() for value in missing)):
+        return ("missing_evidence: REQUEST_INFO needs explicit nonblank customer-provided material gaps; "
+                "system/merchant checks require investigation or human handover. "
+                "PROPOSE does not send a customer question.")
+    return ""
 
 
 def _check_tool(decision: ModelDecision) -> None:
@@ -379,6 +422,15 @@ def _check_questions(decision: ModelDecision) -> None:
     ids = [question.question_id for question in decision.questions]
     if len(set(ids)) != len(ids):
         raise ActionRefusedError("question ids must be distinct, or an answer cannot name which one it answers")
+    system_fields = {"fulfillment_status", "fulfillment_version", "order_status", "payment_status",
+                     "line_paid_amount", "order_paid_amount", "line_refund_state", "refunded_amount",
+                     "reserved_refund_amount", "carrier_conclusion", "verification_result"}
+    for index, question in enumerate(decision.questions):
+        if question.field.strip().lower().rsplit(".", 1)[-1] in system_fields:
+            raise ActionRefusedError(
+                f"questions.{index}.field={question.field}: authoritative system/merchant fact; use the bound "
+                "read tools or human verification, not customer evidence. Ask only customer-provided materials.",
+                reason_code="QUESTION_RESPONSIBILITY_INVALID")
 
 
 def _check_policy_search(decision: ModelDecision) -> None:

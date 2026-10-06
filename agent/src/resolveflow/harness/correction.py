@@ -15,6 +15,12 @@ def feedback(code: str, detail: str, *, repair: bool = False) -> dict[str, Any]:
     elif code == "ACTION_REFUSED":
         category, next_step = "FORMAT", ('Use published flat fields; no type/action wrapper. If unable: '
             '{"kind":"ESCALATE","reason_codes":["NEEDS_HUMAN_VERIFICATION"]}.')
+    elif code == "FINDING_SOURCE_INVALID":
+        category, next_step = "SOURCE", ("Fix the named finding/evidence_refs association or drop unsupported finding; "
+            "CONFLICT needs actual disagreeing sources. Never add unrelated sources to meet the count.")
+    elif code in {"QUESTION_RESPONSIBILITY_INVALID", "REQUEST_INFO_INCOMPLETE"}:
+        category, next_step = "ACTION", ("Customer materials: explicit gaps or ASK_CUSTOMER. System/merchant facts: "
+            "bound reads or handover. REQUEST_INFO is a merchant suggestion, not a sent customer question.")
     elif code == "ACTION_CITATION_INVALID":
         category, next_step = "SOURCE", ('Use only the listed P2 aliases of the required kind; '
             'failed reads are not citations. Read another source or ESCALATE.')

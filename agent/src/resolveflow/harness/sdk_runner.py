@@ -176,7 +176,11 @@ class ActionGateMiddleware(MiddlewareBase):
             payload = expand_references(payload, self.references, self.read_ids)
             decision = validate_decision(payload)
         except ActionRefusedError as refusal:
-            self._refuse(refusal.reason_code or REASON_ACTION_REFUSED, str(refusal))
+            detail = str(refusal)
+            if refusal.reason_code == "FINDING_SOURCE_INVALID":
+                for alias, source_id in self.read_ids.items():
+                    detail = detail.replace(repr(source_id), repr(alias))
+            self._refuse(refusal.reason_code or REASON_ACTION_REFUSED, detail)
             return None
 
         if decision.kind in _TERMINAL_KINDS:
@@ -1019,6 +1023,8 @@ class _GateAwareClient:
                 usage=ModelUsage(),
                 mode="harness",
                 model_alias=None,
+                origin="HARNESS",
+                control_reason=self._gate.stop_reason,
             )
         if self._runner.use_context_builder and self._view is not None:
             packet = self.prepare_packet(messages)
@@ -1069,6 +1075,8 @@ class _GateAwareClient:
                 usage=reply.usage,
                 mode=reply.mode,
                 model_alias=reply.model_alias,
+                origin="HARNESS",
+                control_reason=self._gate.stop_reason,
             )
         self.note_confirmed_action(decision)
         return ModelReply(decision=self._gate.accepted or reply.decision, usage=reply.usage,
@@ -1168,7 +1176,7 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
             {"kind": PROPOSE, "case_type": "LOGISTICS", "recommended_action": "REFUND",
              "reason_codes": ["POLICY_CONDITIONS_MET"], "summary": "...",
              "evidence_refs": ["O1"], "policy_refs": ["P1"]},
-            {"kind": ESCALATE, "reason_codes": ["NEEDS_HUMAN_VERIFICATION"]},
+            {"kind": ESCALATE, "reason_codes": ["NEEDS_HUMAN_VERIFICATION"], "summary": "阻碍；商家下一步"},
         ],
         "bounds": "top_k:1..5;read:material:ID或O#,limit:1..4000字符;ASK<=3;PROPOSE可加missing_evidence。",
         "proposal": {
@@ -1179,6 +1187,7 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
             "review_findings": "max8 [{kind:FACT|INFERENCE|CONFLICT,text<=400,observation_ids:1..8 cited O-numbers}]; "
                                "CONFLICT>=2",
             "rule": "REFUND: both refs, no missing_evidence. REJECT: both refs/current facts. "
+                    "REQUEST_INFO: explicit nonblank missing_evidence, merchant suggestion only. "
                     "Material windows cannot be cited.",
         },
     }

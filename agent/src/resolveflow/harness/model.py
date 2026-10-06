@@ -21,7 +21,7 @@ many" into a passing test, because the extra call would get a plausible answer a
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Final, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     # Imported for typing only: the client protocol speaks AgentScope messages, and importing the SDK at module
@@ -77,6 +77,9 @@ class ModelReply:
     #: The provider's own name for what answered (a model alias). ``docs/agent-harness.md:35`` requires a
     #: drifting alias to be recorded as a limitation rather than assumed reproducible.
     model_alias: str | None = None
+    #: Internal adapter metadata, never a model action field or part of the provider's saved response.
+    origin: Literal["MODEL", "HARNESS"] = "MODEL"
+    control_reason: str | None = None
 
 
 @runtime_checkable

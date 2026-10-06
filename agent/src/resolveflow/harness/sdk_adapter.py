@@ -200,12 +200,16 @@ class AgentScopeModelAdapter(ChatModelBase):
         # test comparing the trajectory against the recorded actions caught immediately. A terminal decision is
         # recorded here because nothing else sees it: it is not executed, so no tool has it.
         kind = reply.decision.get("kind")
-        if kind in ("PROPOSE", "ASK_CUSTOMER", "ESCALATE"):
+        if reply.origin == "HARNESS":
+            self.trajectory.append({"action": "STOP", "outcome": "REFUSED",
+                                    "detail": reply.control_reason, "origin": "HARNESS"})
+        elif kind in ("PROPOSE", "ASK_CUSTOMER", "ESCALATE"):
             self.trajectory.append(
                 {
                     "action": kind,
                     "outcome": "DECIDED",
                     "detail": reply.decision.get("recommended_action") or kind,
+                    "origin": "MODEL",
                 }
             )
             self.decision = reply.decision
