@@ -1,0 +1,12 @@
+{
+  "version": "policy-structure-v1",
+  "created": "2026-10-06",
+  "source_manifest_sha256": "8535aed4b5bc126d6bad115eeb04144d925e213ddb5793560ca4d54625c1c5f2",
+  "files": {
+    "profiles.json": "a1dc4053644b9658a1bb0fe355ae3419cd7dc7cf65e0c41f78e141ef93796d9c"
+  },
+  "annotation_origin": "CODEX_STRUCTURE_DRAFT",
+  "independent_review_count": 0,
+  "review_status": "PENDING_HUMAN_REVIEW",
+  "publishable": false
+}

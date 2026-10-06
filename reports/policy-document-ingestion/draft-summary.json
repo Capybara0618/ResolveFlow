@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-06",
+  "status": "PENDING_HUMAN_REVIEW",
+  "publishable": false,
+  "indexable_documents": 0,
+  "independent_review_count": 0,
+  "retrieval_accuracy": null,
+  "new_model_api_calls": 0,
+  "production_writes": 0,
+  "builder_sha256": "46509114c9f241b058e1af37a7b3dc81a62e83a40ab57ac364c7d50733728826",
+  "parser_sha256": "2fd2eaace582ffbb00bd44b78c4f413d9ad737977d4f7a820ac0030043169078",
+  "source_manifest_sha256": "8535aed4b5bc126d6bad115eeb04144d925e213ddb5793560ca4d54625c1c5f2",
+  "profile_manifest_sha256": "3f89e6354d510fe498629ff080df9d7932dc8209dd04e8553f084369341e41db",
+  "local_output": "tmp/policy-documents-v1/drafts-audited.json",
+  "local_output_sha256": "96cb35bf2d42849452afca33f449672271948d60eae7abef0739c1fe5e4ecc10",
+  "encoder_audit": {
+    "limit": 512,
+    "units": 29,
+    "requires_split": 16,
+    "truncation": false,
+    "includes_special_tokens": true,
+    "token_space": "LOCAL_POLICY_ENCODER_NOT_CHAT_LLM",
+    "model": "BAAI/bge-small-zh-v1.5",
+    "revision": "7999e1d3359715c523056ef9478215996d62a620"
+  },
+  "documents": [
+    {
+      "source_id": "jd-general",
+      "subject": "EXTERNAL:JD",
+      "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+      "previous_blocks": 21,
+      "blocks": 20,
+      "excluded_previous_block_ids": [
+        "jd-general:b0001"
+      ],
+      "sections": 4,
+      "draft_units": 3,
+      "context_relations": 2,
+      "unresolved_heading_candidates": [
+        "jd-general:b0002"
+      ],
+      "table_header_drafts": 0,
+      "encoder_tokens": [
+        991,
+        318,
+        242
+      ],
+      "requires_split": 1
+    },
+    {
+      "source_id": "jd-digital",
+      "subject": "EXTERNAL:JD",
+      "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+      "previous_blocks": 24,
+      "blocks": 21,
+      "excluded_previous_block_ids": [
+        "jd-digital:b0001",
+        "jd-digital:b0023",
+        "jd-digital:b0024"
+      ],
+      "sections": 6,
+      "draft_units": 5,
+      "context_relations": 7,
+      "unresolved_heading_candidates": [],
+      "table_header_drafts": 0,
+      "encoder_tokens": [
+        951,
+        33,
+        78,
+        103,
+        712
+      ],
+      "requires_split": 2
+    },
+    {
+      "source_id": "mi-self-operated",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+      "previous_blocks": 87,
+      "blocks": 87,
+      "excluded_previous_block_ids": [],
+      "sections": 12,
+      "draft_units": 11,
+      "context_relations": 21,
+      "unresolved_heading_candidates": [],
+      "table_header_drafts": 5,
+      "encoder_tokens": [
+        3816,
+        55,
+        1525,
+        1517,
+        326,
+        1182,
+        472,
+        839,
+        94,
+        804,
+        31
+      ],
+      "requires_split": 6
+    },
+    {
+      "source_id": "ikea-terms",
+      "subject": "EXTERNAL:IKEA_CN",
+      "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+      "previous_blocks": 114,
+      "blocks": 114,
+      "excluded_previous_block_ids": [],
+      "sections": 10,
+      "draft_units": 10,
+      "context_relations": 0,
+      "unresolved_heading_candidates": [],
+      "table_header_drafts": 0,
+      "encoder_tokens": [
+        10039,
+        49,
+        2401,
+        1472,
+        2437,
+        507,
+        761,
+        999,
+        236,
+        859
+      ],
+      "requires_split": 7
+    }
+  ]
+}

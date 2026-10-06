@@ -43,3 +43,33 @@ agent/.venv/Scripts/python.exe scripts/policy_documents.py --output tmp/policy-d
 重复执行同一`--output ...parsed-final.json`实际退出1/FileExistsError，原输出hash未变，属于预期覆盖拒绝。新增来源/URL/商家/路径/编码异常、来源manifest漂移、空正文、可选闭合、脚本/隐藏文本、章节例外、表格合并、跨host重定向均有组件测试；不会执行网页指令，也不因未知字节进行replace解码。
 
 未运行/未实现：正式条款语义确认、合并表格逻辑网格展开、PDF/OCR/动态页面、新语料向量化/检索对照、独立Gold、全Agent/Java/网页验收、生产政策导入或索引重建。解析4页仅证明结构处理探针，准确率null、独立Gold0；“原始文档→业务政策→可验证检索”整批尚未完成。下一步处理正文边界/章节与必要例外关系并生成待审条款，再新实验语料检索基线；无自动公开政策采用或收费调用。
+
+## 2026-10-06 正文边界、章节草稿与编码长度诊断
+
+新增[结构配置](../../evals/policy-structure-v1/README.md)、`scripts/policy_drafts.py`及26项测试。旧来源manifest/原文hash、原解析器、旧报告和生产索引均不变；`profiles.json`另冻为独立manifest，绑定原来源manifest。每个章节/表头标记绑定block ID、文本hash和原片段hash，不按query/案例或最终动作分支。
+
+JD从.content缩到.contxt，原21/24块变20/21块；4个排除块分别是面包屑/下载入口及正文外“猜你感兴趣”的推荐链接，完整原文件仍保留。小米87块、宜家114块不删，合计242块。非售后章节不按关键词过滤，以便未来测范围/负例。每块唯一直接章节归属、原文顺序、检索与完整依据hash均核验。
+
+补齐非h标签标题的显式结构草稿及小米5个表头单元格解释，保留original_header/header_origin；不是人工确认的Gold。JD总则与附注/排除条件、数码条件与注意事项、小米条件/排除项及地域/适用范围作为候选关系；闭包有界，跨主体/未知章节拒绝，双向关联不重复。原解析告警保留，JD仍有1段加粗引言候选未当标题。输出统一PENDING_HUMAN_REVIEW/publishable=false/indexable=false，未运行Java导入。
+
+本地实测BGE固定revision tokenizer/max_seq_length=512，包括特殊token、truncation=false；完整章节29个候选中16个超限。该结果证明“整章节直接向量化”会出现截断风险，不能把章节草稿当最终chunk。最长宜家根文档10039 token；章节检索子块与完整依据分离需下一步实现，当前没有向量化这些超限候选。
+
+| 来源 | 正文块 | 章节候选 | 超512 token | 最长候选 |
+|---|---:|---:|---:|---:|
+| 京东总则 | 20 | 3 | 1 | 991 |
+| 京东数码 | 21 | 5 | 2 | 951 |
+| 小米有品 | 87 | 11 | 6 | 3816 |
+| 宜家条款 | 114 | 10 | 7 | 10039 |
+
+实际命令：
+
+```powershell
+agent/.venv/Scripts/python.exe -m ruff check --config agent/pyproject.toml scripts/policy_drafts.py agent/tests/unit/test_policy_drafts.py --fix
+agent/.venv/Scripts/python.exe -m ruff format --config agent/pyproject.toml scripts/policy_drafts.py agent/tests/unit/test_policy_drafts.py
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_policy_drafts.py agent/tests/unit/test_policy_documents.py agent/tests/unit/test_policy_chunking.py agent/tests/unit/test_rag_probes.py agent/tests/unit/test_live_baseline_merge.py -q --basetemp tmp/policy-drafts-tests-final --junitxml reports/policy-document-ingestion/draft-tests.xml
+agent/.venv/Scripts/python.exe scripts/policy_drafts.py --audit-encoder --output tmp/policy-documents-v1/drafts-audited.json
+```
+
+先失败为新模块不存在/collection error；实现后18 passed，首次Ruff仅导入排序1项，修正后通过。补实际token审计及manifest/缓存漂移测试后，最终92 passed/0 skipped（26新增＋前批66），[JUnit](draft-tests.xml)。实际四页重解析和草稿构建、原来源hash、结构配置hash、唯一归属/上下文引用/文本hash校验通过，[机器报告](draft-summary.json)记录源码/配置/输出hash及长度。Tokenizer一次长序列警告为预期诊断，不是前向编码错误；不截断、不运行超长embedding前向。
+
+未运行：独立人审/商家政策采用、长章节子块编码与新索引、query Gold/相关性和检索对照、整体Agent/Java/浏览器。新增收费调用0，未重启服务/写业务库，依赖锁及原四脏文件保留。结构关系可能宽泛/遗漏，不保证“已找齐全部必要例外”；待审不阻止做长度可控的实验，但不能当生产政策发布。下一步按encoder实际限制拆分检索子块，完整依据保留父节/候选关联且测上下文体积，再建立新语料召回基线。
