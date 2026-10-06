@@ -1,0 +1,177 @@
+{
+  "version": "rag-codex-source-review-v1",
+  "origin": "CODEX_REVIEW",
+  "review_date": "2026-10-06",
+  "reviewer": "Codex",
+  "accepted_by_user": true,
+  "blind_review": false,
+  "review_basis": "冻结原始HTML、解析块及来源定位；已见旧作者标签、模型判断和检索排名，不作为独立盲测或真实用户准确率。",
+  "evidence_semantics": "evidence_sets为或关系，每个集合内为且关系。引用完整原文块或带表头的完整表格行；是保守的块/行充分依据，不声称语义最短字符跨度。无完整答案的题不进入完整答案覆盖率分母。PARTIAL另报局部依据覆盖。",
+  "results": [
+    {
+      "id": "S:JD01", "answerability": "ANSWERABLE",
+      "conclusion": "普通完好商品在七天内因个人原因退回，非PLUS买家承担返回运费。",
+      "rationale": "总则表格个人原因行同时包含完好条件、七天范围、返回运费及PLUS例外；不必重复要求另一个概述块。手机数码页不提供这道普通商品运费题的充分依据。",
+      "evidence_sets": [[{"block_id": "jd-general:b0003", "table_row": 3}]]
+    },
+    {
+      "id": "S:JD02", "answerability": "ANSWERABLE",
+      "conclusion": "个人定作商品不适用七天无理由退货；三天和未使用不能消除该例外。",
+      "rationale": "需要无理由退货例外的引导句和定作条目共同建立规则，不能只引用一般七天承诺。",
+      "evidence_sets": [[{"block_id": "jd-general:b0008"}, {"block_id": "jd-general:b0009"}]]
+    },
+    {
+      "id": "S:JD03", "answerability": "ANSWERABLE",
+      "conclusion": "总则从收到之日起表述，数码细则明确第二日起；还需核对配送渠道及实际签收/到货日期，不能把两份表述强行改成一致。",
+      "rationale": "问题明确询问两份说明和日期核对，因此保留总则与细则差异及两类实际收货日期判定。该结论只解释冻结版本，不替商家决定冲突优先级。",
+      "evidence_sets": [[{"block_id": "jd-general:b0002"}, {"block_id": "jd-digital:b0004"}, {"block_id": "jd-general:b0006"}, {"block_id": "jd-general:b0007"}]]
+    },
+    {
+      "id": "S:JD04", "answerability": "ANSWERABLE",
+      "conclusion": "数码外观物流损要求签收后24小时内申请，并可能要求照片；30小时已超过该条款的申请时间。",
+      "rationale": "具体物流损时限优先于宽泛七天退货摘要；不能因总则也写物流损就忽略24小时条件。只判断所问政策，不认定实际责任或法律权利。",
+      "evidence_sets": [[{"block_id": "jd-digital:b0015"}]]
+    },
+    {
+      "id": "S:JD05", "answerability": "ANSWERABLE",
+      "conclusion": "软件带授权/激活信息的特殊商品例外，以及激活后不支持无理由退货，均能支持本题否定结论。",
+      "rationale": "两条互为充分依据，不要求同时命中；一般数字商品拆封规则不能自动代替明确的激活例外。",
+      "evidence_sets": [[{"block_id": "jd-digital:b0013"}], [{"block_id": "jd-digital:b0020"}]]
+    },
+    {
+      "id": "S:JD06", "answerability": "NEEDS_CLARIFICATION",
+      "conclusion": "先确认商品类别、购买渠道、收货日期、退款原因与完好情况，不能直接给可退或不可退结论。",
+      "rationale": "问法没有适用事实；任何一条泛化退款规则都不足以给个案决定。", "evidence_sets": []
+    },
+    {
+      "id": "S:MI01", "answerability": "ANSWERABLE",
+      "conclusion": "在退货期限内且经售后检测确认符合质量问题标准，双向物流费用由小米承担；仍须满足退货受理条件。",
+      "rationale": "质量问题表格行或七天期限块提供时间条件，物流费专条明确双向承担；无理由退货费用不是本题适用项。",
+      "evidence_sets": [[{"block_id": "mi-self-operated:b0008", "table_row": 1}, {"block_id": "mi-self-operated:b0046"}], [{"block_id": "mi-self-operated:b0007"}, {"block_id": "mi-self-operated:b0046"}]]
+    },
+    {
+      "id": "S:MI02", "answerability": "ANSWERABLE",
+      "conclusion": "个人定作杯子被列为无理由退货例外，三天内不喜欢不能直接依据一般七天条款退货。",
+      "rationale": "引导句和例外条目是完整依据；一般期限只能作为背景。",
+      "evidence_sets": [[{"block_id": "mi-self-operated:b0012"}, {"block_id": "mi-self-operated:b0013"}]]
+    },
+    {
+      "id": "S:MI03", "answerability": "ANSWERABLE",
+      "conclusion": "未先经客服确认自行退回，按该条款无法受理；需先联系并说明情况。",
+      "rationale": "客服确认专条直接覆盖本题，不需要附加全部退货条件。",
+      "evidence_sets": [[{"block_id": "mi-self-operated:b0080"}]]
+    },
+    {
+      "id": "S:MI04", "answerability": "ANSWERABLE",
+      "conclusion": "文档同时有赠品不完整的不受理项和赠品使用等可扣事先标价的说明；应核对适用条件，不能只凭扣价条款断言一定能退。",
+      "rationale": "本题明确问两种说明如何看，必须保留两条来源张力。可回答政策存在什么条件，不能凭文档消除矛盾或作自动批准。",
+      "evidence_sets": [[{"block_id": "mi-self-operated:b0026"}, {"block_id": "mi-self-operated:b0032"}, {"block_id": "mi-self-operated:b0082"}]]
+    },
+    {
+      "id": "S:MI05", "answerability": "ANSWERABLE",
+      "conclusion": "收到退货并确认后七个工作日内办理，原付款账户退回；到账时间受支付平台和方式影响，并非固定七个工作日到账。",
+      "rationale": "退款专条同时给出办理时间与到账不确定性，不能只摘出数字。",
+      "evidence_sets": [[{"block_id": "mi-self-operated:b0076"}]]
+    },
+    {
+      "id": "S:MI06", "answerability": "ANSWERABLE",
+      "conclusion": "手机品牌不能证明销售主体是小米有品自营；需确认卖家，该规则不能直接适用于别家店。",
+      "rationale": "自营定义和非平台销售的排除项共同说明主体边界。不是替其他店决定能否退货。",
+      "evidence_sets": [[{"block_id": "mi-self-operated:b0003"}, {"block_id": "mi-self-operated:b0026"}, {"block_id": "mi-self-operated:b0027"}]]
+    },
+    {
+      "id": "S:IK01", "answerability": "ANSWERABLE",
+      "conclusion": "普通桌子40天仍在非会员60天期限内；须满足完好、购物凭证及已开票的发票要求，已入账/抵扣发票另有流程。",
+      "rationale": "期限与凭证条款，加完好定义和商品例外，足以作条件性政策说明；题目已给大陆官网渠道，不额外重复要求范围注释。",
+      "evidence_sets": [[{"block_id": "ikea-terms:b0072"}, {"block_id": "ikea-terms:b0076"}]]
+    },
+    {
+      "id": "S:IK02", "answerability": "ANSWERABLE",
+      "conclusion": "会员365天期限不消除已裁剪商品例外，半年内不能据会员期限直接认定可退。",
+      "rationale": "期限块加任一重复出现的裁剪例外均充分，不要求两处重复说明全命中。",
+      "evidence_sets": [[{"block_id": "ikea-terms:b0072"}, {"block_id": "ikea-terms:b0073"}], [{"block_id": "ikea-terms:b0072"}, {"block_id": "ikea-terms:b0076"}]]
+    },
+    {
+      "id": "S:IK03", "answerability": "ANSWERABLE",
+      "conclusion": "联系在线客服，可有偿收货或邮寄至指定商场；收到并确认后七日内办理，按原支付方式退回。",
+      "rationale": "官网退货流程块包含三个所问事实；七日是办理时间，未承诺银行实际到账日期。",
+      "evidence_sets": [[{"block_id": "ikea-terms:b0078"}]]
+    },
+    {
+      "id": "S:IK04", "answerability": "ANSWERABLE",
+      "conclusion": "食品属于普通退货政策例外，未拆封和三天内不能消除品类例外。",
+      "rationale": "两处食品例外均可支持，不必重复要求一般60天期限来判断例外。",
+      "evidence_sets": [[{"block_id": "ikea-terms:b0073"}], [{"block_id": "ikea-terms:b0076"}]]
+    },
+    {
+      "id": "S:IK05", "answerability": "ANSWERABLE",
+      "conclusion": "未派送的一般取消说明不能覆盖已确认定制商品，后者不能随时取消；还需核对合理费用及取消原因。",
+      "rationale": "取消订单段本身同时写一般规则、定制例外和费用条件。",
+      "evidence_sets": [[{"block_id": "ikea-terms:b0059"}]]
+    },
+    {
+      "id": "S:IK06", "answerability": "NOT_IN_CORPUS",
+      "conclusion": "静态政策不提供某门店某商品今天的库存数量，需要库存系统。",
+      "rationale": "库存说明仅提示显示值的边界，不能生成实时数量；不能归为检索没找到已存在答案。",
+      "evidence_sets": [], "boundary_refs": [{"block_id": "ikea-terms:b0037"}]
+    },
+    {
+      "id": "F:JD01", "answerability": "NOT_IN_CORPUS",
+      "conclusion": "两份政策没有签收但未收到的调查和申诉流程，需要物流记录及相关操作指南。",
+      "rationale": "实际收货日期或运输损坏条款不能回答未收到货的原因和处理流程。", "evidence_sets": []
+    },
+    {
+      "id": "F:JD02", "answerability": "NOT_IN_CORPUS",
+      "conclusion": "支付失败原因与处理不在这两份退换货政策中。",
+      "rationale": "需要支付FAQ或支付状态工具，不应把退款条款当支付故障答案。", "evidence_sets": []
+    },
+    {
+      "id": "F:JD03", "answerability": "NOT_IN_CORPUS",
+      "conclusion": "重复支付的处理流程不在本语料范围内。",
+      "rationale": "退货退款与重复支付是不同事件，需支付记录和对应处理规定。", "evidence_sets": []
+    },
+    {
+      "id": "F:JD04", "answerability": "NOT_IN_CORPUS",
+      "conclusion": "政策没有售后进度查询的页面入口。",
+      "rationale": "在线提交返修申请不等于已有进度查询操作说明。", "evidence_sets": []
+    },
+    {
+      "id": "F:JD05", "answerability": "NEEDS_CLARIFICATION",
+      "conclusion": "需要服务单拒绝原因和商品、时间、凭证等实际资料，政策只能解释可能的限制。",
+      "rationale": "静态政策不能判断这张服务单为何未通过，不能编造审核原因。", "evidence_sets": []
+    },
+    {
+      "id": "F:JD06", "answerability": "NOT_IN_CORPUS",
+      "conclusion": "取消订单后的恢复能力没有在这两份政策说明。",
+      "rationale": "退换货条款不能推导订单恢复功能，需订单规则或系统状态。", "evidence_sets": []
+    },
+    {
+      "id": "F:JD07", "answerability": "NOT_IN_CORPUS",
+      "conclusion": "语料没有预售商品专项售后规则，不能仅由普通七天条款判断预售约定。",
+      "rationale": "商品详情特殊规则优先的提示并未提供预售规则本身。", "evidence_sets": []
+    },
+    {
+      "id": "F:JD08", "answerability": "PARTIAL",
+      "conclusion": "可说明缺有效三包凭证的限制及电子发票不用随货寄回；不能据此统一回答没有发票能否申请退换或保修、怎样补开或替代。",
+      "rationale": "无纸质发票、无任何有效凭证和未开具发票不同；两页没有所有品类申请入口和补凭证流程。旧ANSWERABLE标签把局部规定当完整通用答案。",
+      "evidence_sets": [[{"block_id": "jd-general:b0014"}, {"block_id": "jd-general:b0018"}, {"block_id": "jd-digital:b0010"}]],
+      "missing_information": ["商品类别与保修/退换诉求", "发票类型及其他有效凭证", "申请、补开或替代凭证规则"]
+    },
+    {
+      "id": "F:JD09", "answerability": "ANSWERABLE",
+      "conclusion": "若核实为京东原因的错发/与描述不符，可按总则在线申请退换，七天退货、十五天换货且不收返回运费；可能要求证明或照片。",
+      "rationale": "在线申请条款和表格京东原因行可提供一般处理路径；不虚构某服务单已核实、具体按钮或无条件退款。",
+      "evidence_sets": [[{"block_id": "jd-general:b0002"}, {"block_id": "jd-general:b0003", "table_row": 2}]]
+    },
+    {
+      "id": "F:JD10", "answerability": "NEEDS_CLARIFICATION",
+      "conclusion": "需确认具体商品、状态、日期、凭证及系统拒绝原因，不能只从例外列表断定本人的原因。",
+      "rationale": "政策能列可能条件，无法据含糊个案问法判定实际拒绝原因。", "evidence_sets": []
+    },
+    {
+      "id": "F:JD11", "answerability": "NOT_IN_CORPUS",
+      "conclusion": "服务单提交后的审核时限未写在两份政策中。",
+      "rationale": "检测、维修和退换期限不是审核队列完成时间。", "evidence_sets": []
+    }
+  ]
+}
