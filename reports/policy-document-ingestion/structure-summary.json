@@ -1,0 +1,106 @@
+{
+  "date": "2026-10-06",
+  "source_kind": "OFFICIAL_HTML_EXTERNAL_REFERENCE",
+  "parser_version": "policy-html-v1",
+  "parser_sha256": "2fd2eaace582ffbb00bd44b78c4f413d9ad737977d4f7a820ac0030043169078",
+  "source_manifest_sha256": "8535aed4b5bc126d6bad115eeb04144d925e213ddb5793560ca4d54625c1c5f2",
+  "source_config_sha256": "1f3935dd4becf35df80469bf1f65af95f3e01c37c4c2576407044ec32d80f4af",
+  "local_output": "tmp/policy-documents-v1/parsed-final.json",
+  "parsed_output_sha256": "4bff4675ee4233ad0db60b0a22e2b8f33677c21be5379d505532132cf4f00c0a",
+  "status": "PENDING_REVIEW",
+  "independent_gold_count": 0,
+  "retrieval_accuracy": null,
+  "indexable_documents": 0,
+  "new_model_calls": 0,
+  "production_writes": 0,
+  "documents": [
+    {
+      "source_id": "jd-general",
+      "subject": "EXTERNAL:JD",
+      "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+      "blocks": 21,
+      "kinds": {
+        "paragraph": 20,
+        "table": 1
+      },
+      "text_chars": 1058,
+      "inline_heading_candidates": 3,
+      "warnings": [
+        "INLINE_HEADING_CANDIDATE_REQUIRES_REVIEW",
+        "NO_SEMANTIC_HEADINGS_REQUIRES_REVIEW"
+      ],
+      "tables": [
+        {
+          "rows": 4,
+          "cells_per_row": [
+            6,
+            6,
+            6,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "jd-digital",
+      "subject": "EXTERNAL:JD",
+      "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+      "blocks": 24,
+      "kinds": {
+        "paragraph": 22,
+        "heading": 1,
+        "list_item": 1
+      },
+      "text_chars": 1005,
+      "inline_heading_candidates": 4,
+      "warnings": [
+        "INLINE_HEADING_CANDIDATE_REQUIRES_REVIEW"
+      ],
+      "tables": []
+    },
+    {
+      "source_id": "mi-self-operated",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+      "blocks": 87,
+      "kinds": {
+        "heading": 1,
+        "paragraph": 85,
+        "table": 1
+      },
+      "text_chars": 3871,
+      "inline_heading_candidates": 7,
+      "warnings": [
+        "INLINE_HEADING_CANDIDATE_REQUIRES_REVIEW",
+        "TABLE_HEADER_REQUIRES_REVIEW"
+      ],
+      "tables": [
+        {
+          "rows": 3,
+          "cells_per_row": [
+            5,
+            5,
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "ikea-terms",
+      "subject": "EXTERNAL:IKEA_CN",
+      "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+      "blocks": 114,
+      "kinds": {
+        "paragraph": 113,
+        "heading": 1
+      },
+      "text_chars": 10287,
+      "inline_heading_candidates": 6,
+      "warnings": [
+        "INLINE_HEADING_CANDIDATE_REQUIRES_REVIEW"
+      ],
+      "tables": []
+    }
+  ],
+  "verified_block_locators": 246
+}
