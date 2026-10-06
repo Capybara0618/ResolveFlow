@@ -1,4 +1,9 @@
-## 当前快照（2026-10-06，建议交接真实整体对照与Codex来源复核）
+## 当前快照（2026-10-06，固定六条简历模板）
+
+- 用户确定简历写六条，要求先写模板、后填量化结果。新增[六条简历模板](../docs/resume-six-points.md)，沿用微服务/授权、可靠退款、SQL/Redis、Agent/Harness、上下文/RAG、恢复/回放六方向；更新docs/resume-evidence.md入口。逐条给出待填正文、计量口径及现有报告，说明第4/5条尚缺固定流程/无RAG价值对照，既有质量缺口不等同只缺数字。
+- 本批仅文档；实际核验README/core-scope/handoff/plan/todo及报告，git fetch确认main与origin/main同步，保留四个原脏文件及旧未跟踪资产。执行git diff --check和本地链接/六条结构/占位检查；未启动模型、数据库、应用或测试，不新增效果数字。精确提交并正常推送后停止写入，SHA及远端确认见回复。后续实施/评测按用户新指示，上一批技术状态及冻结资产保持。
+
+## 历史快照（2026-10-06，建议交接真实整体对照与Codex来源复核）
 
 - 用户批准继续上一批后整体对照；按[运行前协议](../docs/agent-handoff-live-comparison.md)及[集中报告](../reports/agent-handoff-live/README.md)执行。运行前冻结[12例/75输入](../evals/agent-handoff-live-v1/cohort.json)，calibrated-v3/Gold/旧32例保持，代码7e07700、context v13/verifier v7、deepseek-flash/temperature=0/JSON/输出1024/12次单例终止，生产仍dense及完整规则。没有按题号改生产或重新跑失败刷分。
 - 真实12例各一次，10/12自动动作/联合，10有效建议、2未完成、0禁止终局/调用ERROR，60准确usage请求，input105391/output6689；账本753→813。旧相同12例完整entry投影11/12、64请求/input110012/output7782；改善A15B，退化A02B/A08B。两别名均deepseek-flash但服务版本未固定，多项Harness变化/单次响应不能单因归因；请求减少不称节费，案例p50 11.058→13.878秒、合计131.565→171.393秒，非整批墙钟。
