@@ -1,0 +1,4859 @@
+{
+  "version": "policy-query-baseline-v1",
+  "query_manifest_sha256": "f849082353f1e78e1a3c0ec8693349003511ba7004f961203484c7968fe96a97",
+  "children_sha256": "12c875b0bc234961ed5683771e737d66ced488c1447abab615539c82c6ce0811",
+  "runner_sha256": "029bd0ff114ff490c4fbcb40c8d185d82f45b24ebe5adf469b2d0c8b3c5d53bd",
+  "retrieval_code_sha256": "4d550643ee606d86273d1c36c092e2992d77baeddad082e74ed81261be0bf4c6",
+  "child_builder_sha256": "250743bda0bc4f40f45bfd5604f90b5b4dac52c3a968fa55ea84368845d0229a",
+  "encoder": {
+    "model": "BAAI/bge-small-zh-v1.5",
+    "revision": "7999e1d3359715c523056ef9478215996d62a620",
+    "dimension": 512
+  },
+  "packages": {
+    "sentence-transformers": "5.1.2",
+    "transformers": "4.57.6",
+    "torch": "2.14.0",
+    "jieba": "0.42.1",
+    "rank-bm25": "0.2.2"
+  },
+  "context_chars": 8000,
+  "limit_kind": "TOTAL_CHARACTERS_NOT_CHAT_LLM_TOKENS",
+  "independent_review_count": 0,
+  "official_faq_questions": 11,
+  "synthetic_questions": 18,
+  "new_chat_api_calls": 0,
+  "production_writes": 0,
+  "summary": {
+    "dense": {
+      "queries": 29,
+      "reviewed_answerable_n": 0,
+      "all_required_context_at_k": {
+        "2": null,
+        "5": null
+      },
+      "mean_exported_chars_at_k": {
+        "2": 1755.551724137931,
+        "5": 3446.793103448276
+      },
+      "all_required_direct_at_k": {
+        "2": null,
+        "5": null
+      },
+      "abstention_accuracy": null
+    },
+    "bm25": {
+      "queries": 29,
+      "reviewed_answerable_n": 0,
+      "all_required_context_at_k": {
+        "2": null,
+        "5": null
+      },
+      "mean_exported_chars_at_k": {
+        "2": 1793.2068965517242,
+        "5": 3425.7241379310344
+      },
+      "all_required_direct_at_k": {
+        "2": null,
+        "5": null
+      },
+      "abstention_accuracy": null
+    }
+  },
+  "results": [
+    {
+      "query_id": "S:JD01",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6924425492327394
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6780240194283539
+            }
+          ],
+          "exported_chars": 1144,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0008:row=None:span=0-94",
+            "jd-general:b0003:row=3:span=0-145"
+          ],
+          "draft_context_missing": [
+            "jd-general:b0008:row=None:span=0-94",
+            "jd-general:b0003:row=3:span=0-145"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6924425492327394
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6780240194283539
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6736990962629847
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.657762283842547
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6540091464666449
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:JD01",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 5.210091470960309
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 5.098721906196544
+            }
+          ],
+          "exported_chars": 1076,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0008:row=None:span=0-94"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 5.210091470960309
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 5.098721906196544
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 4.832749841953369
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 4.1788588409412535
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.9289129069421582
+            }
+          ],
+          "exported_chars": 1217,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "jd-general:b0003:row=1:span=0-147"
+          ]
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:JD02",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6291502091693912
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6147118789073628
+            }
+          ],
+          "exported_chars": 1217,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0008:row=None:span=0-94",
+            "jd-general:b0009:row=None:span=0-11"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6291502091693912
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6147118789073628
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5965366586996952
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5861491783036755
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5764316462923229
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0008:row=None:span=0-94",
+            "jd-general:b0009:row=None:span=0-11"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:JD02",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.501557272752253
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.2124984758706674
+            }
+          ],
+          "exported_chars": 1144,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0008:row=None:span=0-94",
+            "jd-general:b0009:row=None:span=0-11"
+          ],
+          "draft_context_missing": [
+            "jd-general:b0008:row=None:span=0-94",
+            "jd-general:b0009:row=None:span=0-11"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.501557272752253
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.2124984758706674
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 2.631121991763372
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 2.528446770798708
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 2.1947236652286577
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:JD03",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.7504959222326866
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6821751550228015
+            }
+          ],
+          "exported_chars": 1076,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-digital:b0002:row=None:span=0-14",
+            "jd-digital:b0004:row=None:span=0-26"
+          ],
+          "draft_context_missing": [
+            "jd-digital:b0002:row=None:span=0-14",
+            "jd-digital:b0004:row=None:span=0-26"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.7504959222326866
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6821751550228015
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6689114750991653
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6683388801147133
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6641502582571109
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-digital:b0002:row=None:span=0-14"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:JD03",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 7.081738047221906
+            },
+            {
+              "chunk_id": "jd-digital:child:f1a08b49894accb14017f24b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 5.8497067459083825
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0002:row=None:span=0-67",
+            "jd-digital:b0004:row=None:span=0-26"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 7.081738047221906
+            },
+            {
+              "chunk_id": "jd-digital:child:f1a08b49894accb14017f24b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 5.8497067459083825
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 4.979585699927555
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 4.831718600824789
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.1345536644523992
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0002:row=None:span=0-67",
+            "jd-digital:b0004:row=None:span=0-26"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:JD04",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6414493817196656
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6229801438502598
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0003:row=2:span=0-183"
+          ],
+          "draft_context_missing": [
+            "jd-general:b0003:row=2:span=0-183"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6414493817196656
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6229801438502598
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6092710298749122
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6057484656806752
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5976437185692992
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:JD04",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 7.07133219046556
+            },
+            {
+              "chunk_id": "jd-digital:child:f1a08b49894accb14017f24b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 5.8497067459083825
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0003:row=2:span=0-183"
+          ],
+          "draft_context_missing": [
+            "jd-general:b0003:row=2:span=0-183"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 7.07133219046556
+            },
+            {
+              "chunk_id": "jd-digital:child:f1a08b49894accb14017f24b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 5.8497067459083825
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 4.663791869302591
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 4.375239140764256
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.2043297599037226
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:JD05",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6790001157230279
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6670407846783536
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0011:row=None:span=0-30",
+            "jd-digital:b0007:row=None:span=0-26",
+            "jd-digital:b0008:row=None:span=0-35",
+            "jd-digital:b0020:row=None:span=0-39"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6790001157230279
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6670407846783536
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6665150470680159
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.658633002459695
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6512253320968132
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0011:row=None:span=0-30",
+            "jd-digital:b0007:row=None:span=0-26",
+            "jd-digital:b0008:row=None:span=0-35"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:JD05",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 6.28975887431421
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 5.033196054610753
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0011:row=None:span=0-30",
+            "jd-digital:b0007:row=None:span=0-26",
+            "jd-digital:b0008:row=None:span=0-35"
+          ],
+          "draft_context_missing": [
+            "jd-general:b0011:row=None:span=0-30"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 6.28975887431421
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 5.033196054610753
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.501557272752253
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.3442519398364214
+            },
+            {
+              "chunk_id": "jd-digital:child:f1a08b49894accb14017f24b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.2007669145176862
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-digital:b0007:row=None:span=0-26",
+            "jd-digital:b0008:row=None:span=0-35"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:JD06",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NEEDS_CLARIFICATION",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6020902977625632
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.571035825140494
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6020902977625632
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.571035825140494
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5585959151506479
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.5049890062675214
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.4948195812733448
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:JD06",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NEEDS_CLARIFICATION",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 2.0646942186354567
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.7132005300956508
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": [
+            "jd-general:b0002:row=None:span=0-67"
+          ]
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 2.0646942186354567
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.7132005300956508
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.1921210030933036
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.0204907848464828
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": [
+            "jd-general:b0002:row=None:span=0-67"
+          ]
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:MI01",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7441425795564733
+            },
+            {
+              "chunk_id": "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7067792978201771
+            }
+          ],
+          "exported_chars": 959,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0003:row=None:span=0-46",
+            "mi-self-operated:b0007:row=None:span=0-77",
+            "mi-self-operated:b0008:row=1:span=0-99",
+            "mi-self-operated:b0046:row=None:span=0-67",
+            "mi-self-operated:b0087:row=None:span=0-29"
+          ],
+          "draft_context_missing": [
+            "mi-self-operated:b0007:row=None:span=0-77",
+            "mi-self-operated:b0008:row=1:span=0-99",
+            "mi-self-operated:b0046:row=None:span=0-67"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7441425795564733
+            },
+            {
+              "chunk_id": "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7067792978201771
+            },
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7062178133691034
+            },
+            {
+              "chunk_id": "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6973471021428677
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6959246865389762
+            }
+          ],
+          "exported_chars": 4470,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0003:row=None:span=0-46",
+            "mi-self-operated:b0087:row=None:span=0-29"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "mi-self-operated:b0045:row=None:span=0-48"
+          ]
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:MI01",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 12.153950330518366
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 8.324693901899288
+            }
+          ],
+          "exported_chars": 3605,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0003:row=None:span=0-46",
+            "mi-self-operated:b0046:row=None:span=0-67",
+            "mi-self-operated:b0087:row=None:span=0-29"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 12.153950330518366
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 8.324693901899288
+            },
+            {
+              "chunk_id": "mi-self-operated:child:10879a2429d8b6a02d35a094",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 7.643985462114462
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 7.46264321194082
+            },
+            {
+              "chunk_id": "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 7.182913331935179
+            }
+          ],
+          "exported_chars": 5201,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0046:row=None:span=0-67",
+            "mi-self-operated:b0087:row=None:span=0-29"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:MI02",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6395608034243303
+            },
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6317216644617235
+            }
+          ],
+          "exported_chars": 3605,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0003:row=None:span=0-46",
+            "mi-self-operated:b0013:row=None:span=0-11"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6395608034243303
+            },
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6317216644617235
+            },
+            {
+              "chunk_id": "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6193677608287773
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6105078328880492
+            },
+            {
+              "chunk_id": "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6101610002376394
+            }
+          ],
+          "exported_chars": 4533,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0003:row=None:span=0-46"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:MI02",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 8.167322443786647
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 6.260880275679936
+            }
+          ],
+          "exported_chars": 993,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0007:row=None:span=0-77",
+            "mi-self-operated:b0013:row=None:span=0-11"
+          ],
+          "draft_context_missing": [
+            "mi-self-operated:b0007:row=None:span=0-77",
+            "mi-self-operated:b0013:row=None:span=0-11"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 8.167322443786647
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 6.260880275679936
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 6.156235089123239
+            },
+            {
+              "chunk_id": "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 4.011081765895869
+            },
+            {
+              "chunk_id": "mi-self-operated:child:04249d11e54fdca116629351",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 3.672445126086547
+            }
+          ],
+          "exported_chars": 5561,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0007:row=None:span=0-77",
+            "mi-self-operated:b0013:row=None:span=0-11"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:MI03",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7324472627043919
+            },
+            {
+              "chunk_id": "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7065755154040394
+            }
+          ],
+          "exported_chars": 1983,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0003:row=None:span=0-46",
+            "mi-self-operated:b0080:row=None:span=0-72"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7324472627043919
+            },
+            {
+              "chunk_id": "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7065755154040394
+            },
+            {
+              "chunk_id": "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7001514575649401
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6966228958012217
+            },
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6953888416545686
+            }
+          ],
+          "exported_chars": 5494,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0003:row=None:span=0-46"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:MI03",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 7.182913331935179
+            },
+            {
+              "chunk_id": "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 6.0797716787353036
+            }
+          ],
+          "exported_chars": 993,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 7.182913331935179
+            },
+            {
+              "chunk_id": "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 6.0797716787353036
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 5.714541642351638
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 4.069130106056599
+            },
+            {
+              "chunk_id": "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 3.8997944171114196
+            }
+          ],
+          "exported_chars": 4537,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "mi-self-operated:b0040:row=None:span=0-35"
+          ]
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:MI04",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7363963330867451
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6870307562464816
+            }
+          ],
+          "exported_chars": 1950,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0032:row=None:span=0-23"
+          ],
+          "draft_context_missing": [
+            "mi-self-operated:b0032:row=None:span=0-23"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7363963330867451
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6870307562464816
+            },
+            {
+              "chunk_id": "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6792506620069382
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6701116726080809
+            },
+            {
+              "chunk_id": "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.631866640636769
+            }
+          ],
+          "exported_chars": 2911,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0032:row=None:span=0-23"
+          ],
+          "draft_context_missing": [
+            "mi-self-operated:b0032:row=None:span=0-23"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:MI04",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 13.48611221243891
+            },
+            {
+              "chunk_id": "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 11.590627769441458
+            }
+          ],
+          "exported_chars": 926,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0032:row=None:span=0-23"
+          ],
+          "draft_context_missing": [
+            "mi-self-operated:b0032:row=None:span=0-23"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 13.48611221243891
+            },
+            {
+              "chunk_id": "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 11.590627769441458
+            },
+            {
+              "chunk_id": "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 8.84761134587696
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 6.668177153064701
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 5.65775571250717
+            }
+          ],
+          "exported_chars": 4533,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:MI05",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.8518891901663304
+            },
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7157376133101645
+            }
+          ],
+          "exported_chars": 3605,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "mi-self-operated:b0007:row=None:span=0-77"
+          ]
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.8518891901663304
+            },
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7157376133101645
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6566573670658472
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6400816136019297
+            },
+            {
+              "chunk_id": "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6324692119352602
+            }
+          ],
+          "exported_chars": 4533,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "mi-self-operated:b0007:row=None:span=0-77"
+          ]
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:MI05",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 20.02573442219428
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 5.860041876417295
+            }
+          ],
+          "exported_chars": 1950,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 20.02573442219428
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 5.860041876417295
+            },
+            {
+              "chunk_id": "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 3.4598987121236364
+            },
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 3.4444149625694926
+            },
+            {
+              "chunk_id": "mi-self-operated:child:10879a2429d8b6a02d35a094",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 2.92339927600094
+            }
+          ],
+          "exported_chars": 5201,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "mi-self-operated:b0007:row=None:span=0-77"
+          ]
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:MI06",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7065859284514467
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7003650047298289
+            }
+          ],
+          "exported_chars": 1950,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0003:row=None:span=0-46",
+            "mi-self-operated:b0027:row=None:span=0-14"
+          ],
+          "draft_context_missing": [
+            "mi-self-operated:b0027:row=None:span=0-14"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7065859284514467
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.7003650047298289
+            },
+            {
+              "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6681800097553001
+            },
+            {
+              "chunk_id": "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.662470092595216
+            },
+            {
+              "chunk_id": "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 0.6616278433491849
+            }
+          ],
+          "exported_chars": 4533,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0003:row=None:span=0-46"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:MI06",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:MIYOUPIN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 10.227960062096503
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 7.1353215204236164
+            }
+          ],
+          "exported_chars": 993,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0027:row=None:span=0-14"
+          ],
+          "draft_context_missing": [
+            "mi-self-operated:b0027:row=None:span=0-14"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 10.227960062096503
+            },
+            {
+              "chunk_id": "mi-self-operated:child:067c2b252fd378331ba43457",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 7.1353215204236164
+            },
+            {
+              "chunk_id": "mi-self-operated:child:b8aded81287844fd0204e59e",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 6.196516003355786
+            },
+            {
+              "chunk_id": "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 5.511761154111535
+            },
+            {
+              "chunk_id": "mi-self-operated:child:67a1475b57db4b5433cbc8a3",
+              "source_id": "mi-self-operated",
+              "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+              "score": 5.342691422963963
+            }
+          ],
+          "exported_chars": 7023,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "mi-self-operated:b0027:row=None:span=0-14"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:IK01",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.7024503660676183
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6525945919162608
+            }
+          ],
+          "exported_chars": 1173,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.7024503660676183
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6525945919162608
+            },
+            {
+              "chunk_id": "ikea-terms:child:db8d39afcd8a2564d86be89c",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5897587368110121
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5801952508315068
+            },
+            {
+              "chunk_id": "ikea-terms:child:b70848edfb4dffa3740c78ec",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5540954918142912
+            }
+          ],
+          "exported_chars": 7310,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:IK01",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 14.184753614199163
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 13.097298774962372
+            }
+          ],
+          "exported_chars": 1173,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 14.184753614199163
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 13.097298774962372
+            },
+            {
+              "chunk_id": "ikea-terms:child:817ebba659227725f85f2ef4",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 6.461650130813684
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 5.136063591504725
+            },
+            {
+              "chunk_id": "ikea-terms:child:c316f45867f09a652136faef",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 4.11554847882604
+            }
+          ],
+          "exported_chars": 3943,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:IK02",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6647460278906651
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5940572571251254
+            }
+          ],
+          "exported_chars": 3040,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6647460278906651
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5940572571251254
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.58167002125373
+            },
+            {
+              "chunk_id": "ikea-terms:child:b70848edfb4dffa3740c78ec",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5756674036092495
+            },
+            {
+              "chunk_id": "ikea-terms:child:db8d39afcd8a2564d86be89c",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5699266608349508
+            }
+          ],
+          "exported_chars": 7310,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:IK02",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 18.354401729986375
+            },
+            {
+              "chunk_id": "ikea-terms:child:c316f45867f09a652136faef",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 10.105202356005446
+            }
+          ],
+          "exported_chars": 2076,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 18.354401729986375
+            },
+            {
+              "chunk_id": "ikea-terms:child:c316f45867f09a652136faef",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 10.105202356005446
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 7.925104800671528
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 6.084079701617053
+            },
+            {
+              "chunk_id": "ikea-terms:child:aa670a22de8a1eb3c7e445c1",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 4.029076642354217
+            }
+          ],
+          "exported_chars": 3943,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:IK03",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.71054064987609
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6629542444194036
+            }
+          ],
+          "exported_chars": 1173,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "ikea-terms:b0080:row=None:span=0-120"
+          ]
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.71054064987609
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6629542444194036
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6428586154870943
+            },
+            {
+              "chunk_id": "ikea-terms:child:dfffee47b08417e929f262fb",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6311429744400526
+            },
+            {
+              "chunk_id": "ikea-terms:child:db8d39afcd8a2564d86be89c",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6234074946871911
+            }
+          ],
+          "exported_chars": 7310,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "ikea-terms:b0080:row=None:span=0-120"
+          ]
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:IK03",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 17.646336419955478
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 11.98537280562845
+            }
+          ],
+          "exported_chars": 1173,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "ikea-terms:b0080:row=None:span=0-120"
+          ]
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 17.646336419955478
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 11.98537280562845
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 7.1656957872967
+            },
+            {
+              "chunk_id": "ikea-terms:child:817ebba659227725f85f2ef4",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 6.798105423720666
+            },
+            {
+              "chunk_id": "ikea-terms:child:44d21771059c164f097bb1ae",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 6.31312871808081
+            }
+          ],
+          "exported_chars": 5913,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "ikea-terms:b0080:row=None:span=0-120"
+          ]
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:IK04",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.7234607125546907
+            },
+            {
+              "chunk_id": "ikea-terms:child:b70848edfb4dffa3740c78ec",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6779610488607835
+            }
+          ],
+          "exported_chars": 4048,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.7234607125546907
+            },
+            {
+              "chunk_id": "ikea-terms:child:b70848edfb4dffa3740c78ec",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6779610488607835
+            },
+            {
+              "chunk_id": "ikea-terms:child:dfffee47b08417e929f262fb",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6591573790358844
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6520399147862521
+            },
+            {
+              "chunk_id": "ikea-terms:child:11cfdeebef13782ca9e6f152",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6228738497400997
+            }
+          ],
+          "exported_chars": 4048,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:IK04",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 14.48843814876411
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 9.058524709801455
+            }
+          ],
+          "exported_chars": 1173,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 14.48843814876411
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 9.058524709801455
+            },
+            {
+              "chunk_id": "ikea-terms:child:817ebba659227725f85f2ef4",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 8.043698001955223
+            },
+            {
+              "chunk_id": "ikea-terms:child:4fddee7e434f652c303012b7",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 7.836645102813123
+            },
+            {
+              "chunk_id": "ikea-terms:child:b823d3a1b252133f60202cd2",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 7.441469029651042
+            }
+          ],
+          "exported_chars": 5913,
+          "blocked_context_ids": [
+            "ikea-terms:b0042:section:draft"
+          ],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:IK05",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:11cfdeebef13782ca9e6f152",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6534587303071154
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6486295242075971
+            }
+          ],
+          "exported_chars": 4740,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "ikea-terms:b0059:row=None:span=0-287"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:11cfdeebef13782ca9e6f152",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6534587303071154
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6486295242075971
+            },
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6484203593587436
+            },
+            {
+              "chunk_id": "ikea-terms:child:b70848edfb4dffa3740c78ec",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.647231429940953
+            },
+            {
+              "chunk_id": "ikea-terms:child:2b22ab89227673665cc5fbad",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.6348861802764308
+            }
+          ],
+          "exported_chars": 5915,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "ikea-terms:b0072:row=None:span=0-175"
+          ]
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:IK05",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:2b22ab89227673665cc5fbad",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 15.162872305506113
+            },
+            {
+              "chunk_id": "ikea-terms:child:489aadd08ac580b395148ef0",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 9.132367639112896
+            }
+          ],
+          "exported_chars": 4740,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:2b22ab89227673665cc5fbad",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 15.162872305506113
+            },
+            {
+              "chunk_id": "ikea-terms:child:489aadd08ac580b395148ef0",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 9.132367639112896
+            },
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 8.98655800084152
+            },
+            {
+              "chunk_id": "ikea-terms:child:817ebba659227725f85f2ef4",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 5.210156448636192
+            },
+            {
+              "chunk_id": "ikea-terms:child:eaa97ab9e9fc1d7af5d5ea11",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 4.914024485267458
+            }
+          ],
+          "exported_chars": 6818,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": [
+            "ikea-terms:b0072:row=None:span=0-175"
+          ]
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "S:IK06",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5629299743561937
+            },
+            {
+              "chunk_id": "ikea-terms:child:c316f45867f09a652136faef",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5054798742661699
+            }
+          ],
+          "exported_chars": 2768,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5629299743561937
+            },
+            {
+              "chunk_id": "ikea-terms:child:c316f45867f09a652136faef",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5054798742661699
+            },
+            {
+              "chunk_id": "ikea-terms:child:8c3daaa844a126911cc65b1d",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5046224632399803
+            },
+            {
+              "chunk_id": "ikea-terms:child:6a156d15628eb631a70b663f",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.49556925646290245
+            },
+            {
+              "chunk_id": "ikea-terms:child:11cfdeebef13782ca9e6f152",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.48574981047385535
+            }
+          ],
+          "exported_chars": 6818,
+          "blocked_context_ids": [
+            "ikea-terms:document:draft"
+          ],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": [
+            "ikea-terms:b0072:row=None:span=0-175"
+          ]
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "S:IK06",
+      "origin": {
+        "kind": "CODEX_SYNTHETIC",
+        "written_before_this_baseline": true
+      },
+      "subject": "EXTERNAL:IKEA_CN",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:5e7d124fb037dcb22b13a4b5",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 6.4825116837527315
+            },
+            {
+              "chunk_id": "ikea-terms:child:11cfdeebef13782ca9e6f152",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 3.573514175425558
+            }
+          ],
+          "exported_chars": 4740,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "ikea-terms:child:5e7d124fb037dcb22b13a4b5",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 6.4825116837527315
+            },
+            {
+              "chunk_id": "ikea-terms:child:11cfdeebef13782ca9e6f152",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 3.573514175425558
+            },
+            {
+              "chunk_id": "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 3.0954222983979456
+            },
+            {
+              "chunk_id": "ikea-terms:child:99b349f0a92cde689efca9d6",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 2.1141165546976715
+            },
+            {
+              "chunk_id": "ikea-terms:child:7b83a23aef612424e1e9fe20",
+              "source_id": "ikea-terms",
+              "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+              "score": 0.5806907982475861
+            }
+          ],
+          "exported_chars": 5915,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD01",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD01",
+        "url": "https://help.jd.com/user/issue/108-385.html",
+        "upstream_question_sha256": "01e088ebaf5eda1f7a34b084778d36821a8ce96560f27865d9290c4dd35dae3a",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5599933063747331
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5547044577344333
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5599933063747331
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5547044577344333
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5533535151480148
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.5497017205255579
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.5459021943093956
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": [
+            "jd-general:b0003:row=2:span=0-183"
+          ]
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD01",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD01",
+        "url": "https://help.jd.com/user/issue/108-385.html",
+        "upstream_question_sha256": "01e088ebaf5eda1f7a34b084778d36821a8ce96560f27865d9290c4dd35dae3a",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.3186679073981424
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.305061230971924
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.3186679073981424
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.305061230971924
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.0687463936431243
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.8143654473289373
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.4409417359553162
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD02",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD02",
+        "url": "https://help.jd.com/user/issue/212-641.html",
+        "upstream_question_sha256": "244fbc6035c404126ac065459d028508d408d902d2950bd5d95123cfbd6a0eb4",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.4681028525338481
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.4510285007134564
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.4681028525338481
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.4510285007134564
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.4449667913513101
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.4197094577976674
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.40137888951867584
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD02",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD02",
+        "url": "https://help.jd.com/user/issue/212-641.html",
+        "upstream_question_sha256": "244fbc6035c404126ac065459d028508d408d902d2950bd5d95123cfbd6a0eb4",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            }
+          ],
+          "exported_chars": 1144,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            }
+          ],
+          "exported_chars": 1144,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD03",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD03",
+        "url": "https://help.jd.com/user/issue/215-644.html",
+        "upstream_question_sha256": "0498af2eb5b79736a607e61c509808f5334ee0be003bc10d5637d1d66a4a916f",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5547436942352246
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5188068672959868
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5547436942352246
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5188068672959868
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5170222301789217
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5129616218367192
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5061926512055639
+            }
+          ],
+          "exported_chars": 1144,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD03",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD03",
+        "url": "https://help.jd.com/user/issue/215-644.html",
+        "upstream_question_sha256": "0498af2eb5b79736a607e61c509808f5334ee0be003bc10d5637d1d66a4a916f",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 2.284782385270708
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 2.284782385270708
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD04",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD04",
+        "url": "https://help.jd.com/user/issue/123-268.html",
+        "upstream_question_sha256": "19eb8acc7ffc0c9814725398f13692676961d9824bed2691f0262880a033c3b3",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6609824691487787
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6590387612088678
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6609824691487787
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6590387612088678
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6195719391252204
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5521705594267987
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.5452416807611925
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD04",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD04",
+        "url": "https://help.jd.com/user/issue/123-268.html",
+        "upstream_question_sha256": "19eb8acc7ffc0c9814725398f13692676961d9824bed2691f0262880a033c3b3",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.8189386604179014
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.4341498436956819
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.8189386604179014
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.4341498436956819
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.39130387326162
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.2595456107645333
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.242788115107674
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD05",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD05",
+        "url": "https://help.jd.com/user/issue/122-467.html",
+        "upstream_question_sha256": "9edce7a5f807ae45d7641544a04a3e3a1cb8669d5111db93c0ea7b9123014aa9",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NEEDS_CLARIFICATION",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5899841038344354
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5876504002728296
+            }
+          ],
+          "exported_chars": 1144,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5899841038344354
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5876504002728296
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5491453534454552
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5329566215702859
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.5321013584930104
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD05",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD05",
+        "url": "https://help.jd.com/user/issue/122-467.html",
+        "upstream_question_sha256": "9edce7a5f807ae45d7641544a04a3e3a1cb8669d5111db93c0ea7b9123014aa9",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NEEDS_CLARIFICATION",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.6185789273562095
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.5041347632304183
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.6185789273562095
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.5041347632304183
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.1921210030933036
+            },
+            {
+              "chunk_id": "jd-digital:child:f1a08b49894accb14017f24b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.8402411367409778
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6829219569064044
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": [
+            "jd-general:b0014:row=None:span=0-17",
+            "jd-general:b0017:row=None:span=0-67"
+          ]
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD06",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD06",
+        "url": "https://help.jd.com/user/issue/64-113.html",
+        "upstream_question_sha256": "44d1c6027b65657613650f376a1a8920e7c6e090e5c7f0841120bf2436bb35b5",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5853506745098949
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5773038822806192
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5853506745098949
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5773038822806192
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5666284372510256
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5633479485191717
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.545513146984216
+            }
+          ],
+          "exported_chars": 1144,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD06",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD06",
+        "url": "https://help.jd.com/user/issue/64-113.html",
+        "upstream_question_sha256": "44d1c6027b65657613650f376a1a8920e7c6e090e5c7f0841120bf2436bb35b5",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 2.284782385270708
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.5630545358394525
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 2.284782385270708
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.5630545358394525
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.9126766447012932
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.0
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD07",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD07",
+        "url": "https://help.jd.com/user/issue/489-3343.html",
+        "upstream_question_sha256": "ca48129e57107971edcaa96d454acdae576596ada2436e73fd665e70dfb2bafd",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:f1a08b49894accb14017f24b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6073307347324058
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5608720191062693
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:f1a08b49894accb14017f24b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6073307347324058
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5608720191062693
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5219344542559419
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.5072640333503055
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5006461381427572
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": [
+            "jd-general:b0002:row=None:span=0-67"
+          ]
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD07",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD07",
+        "url": "https://help.jd.com/user/issue/489-3343.html",
+        "upstream_question_sha256": "ca48129e57107971edcaa96d454acdae576596ada2436e73fd665e70dfb2bafd",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.8609088704549643
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.739697457639583
+            }
+          ],
+          "exported_chars": 1076,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": [
+            "jd-general:b0002:row=None:span=0-67"
+          ]
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.8609088704549643
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.739697457639583
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 2.8189267296252356
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.7059816779965093
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.79344002915788
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": [
+            "jd-general:b0002:row=None:span=0-67"
+          ]
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD08",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD08",
+        "url": "https://help.jd.com/user/issue/126-412.html",
+        "upstream_question_sha256": "5ba6a92bc4afc53cc4eaf27025905630c7a59fcbc03f34fc23b7968bc8fae04f",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6790657136102981
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6585851991707162
+            }
+          ],
+          "exported_chars": 1144,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0018:row=None:span=0-39"
+          ],
+          "draft_context_missing": [
+            "jd-general:b0018:row=None:span=0-39"
+          ],
+          "draft_direct_complete": false,
+          "draft_context_complete": false,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6790657136102981
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6585851991707162
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6547023311473503
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.638944005868477
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6083714102966161
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD08",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD08",
+        "url": "https://help.jd.com/user/issue/126-412.html",
+        "upstream_question_sha256": "5ba6a92bc4afc53cc4eaf27025905630c7a59fcbc03f34fc23b7968bc8fae04f",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "ANSWERABLE",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.308371822499874
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.0030873987331472
+            }
+          ],
+          "exported_chars": 1217,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0018:row=None:span=0-39"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.308371822499874
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.0030873987331472
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 2.867441887872383
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.9484910120146628
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.9235403495306933
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD09",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD09",
+        "url": "https://help.jd.com/user/issue/127-456.html",
+        "upstream_question_sha256": "7a9f67d768a841a8a525116ca65b2a0baceb430cc722dc4f8ed0bc9d057f4a5a",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "PARTIAL",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6801212444720983
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6589014622628058
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6801212444720983
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6589014622628058
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6550261582015808
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.62710807862762
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6236800525952366
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD09",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD09",
+        "url": "https://help.jd.com/user/issue/127-456.html",
+        "upstream_question_sha256": "7a9f67d768a841a8a525116ca65b2a0baceb430cc722dc4f8ed0bc9d057f4a5a",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "PARTIAL",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 2.0848092350269587
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.669517931490782
+            }
+          ],
+          "exported_chars": 1076,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [
+            "jd-general:b0003:row=2:span=0-183"
+          ],
+          "draft_context_missing": [],
+          "draft_direct_complete": false,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 2.0848092350269587
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.669517931490782
+            },
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6593565577678934
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6236034156514911
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6012680160603523
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": true,
+          "draft_context_complete": true,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD10",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD10",
+        "url": "https://help.jd.com/user/issue/127-782.html",
+        "upstream_question_sha256": "2a517b873957f65f3cf6181ace37bb5628efcdc8b562ab00f53b980cb54b9e72",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NEEDS_CLARIFICATION",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.7542974420762099
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6782939439996784
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.7542974420762099
+            },
+            {
+              "chunk_id": "jd-digital:child:2a9db3c845742e49592065a8",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6782939439996784
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6773279688839832
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6621215991145107
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.6361312939786025
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": [
+            "jd-general:b0014:row=None:span=0-17",
+            "jd-general:b0017:row=None:span=0-67"
+          ]
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD10",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD10",
+        "url": "https://help.jd.com/user/issue/127-782.html",
+        "upstream_question_sha256": "2a517b873957f65f3cf6181ace37bb5628efcdc8b562ab00f53b980cb54b9e72",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NEEDS_CLARIFICATION",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.1784609291300256
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.0242719363753499
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 1.1784609291300256
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 1.0242719363753499
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6773015681890006
+            },
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.6197843963667446
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5370852182006853
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    },
+    {
+      "query_id": "F:JD11",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD11",
+        "url": "https://help.jd.com/user/issue/127-792.html",
+        "upstream_question_sha256": "a9a5b1a2ec78e67c2746722ee19670a25f8f749146dd49f4fd4bd90f9af0dfb0",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5509602282905743
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5257610588592614
+            }
+          ],
+          "exported_chars": 1003,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5509602282905743
+            },
+            {
+              "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.5257610588592614
+            },
+            {
+              "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.48186181695517055
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.4793233663960425
+            },
+            {
+              "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 0.46664234827969664
+            }
+          ],
+          "exported_chars": 2222,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "dense"
+    },
+    {
+      "query_id": "F:JD11",
+      "origin": {
+        "kind": "OFFICIAL_FAQ_REUSED",
+        "source_id": "JD11",
+        "url": "https://help.jd.com/user/issue/127-792.html",
+        "upstream_question_sha256": "a9a5b1a2ec78e67c2746722ee19670a25f8f749146dd49f4fd4bd90f9af0dfb0",
+        "reused_from": "external-faq-v1",
+        "not_customer_log": true
+      },
+      "subject": "EXTERNAL:JD",
+      "review_state": "PENDING",
+      "draft_answerability": "NOT_IN_CORPUS",
+      "official_score": null,
+      "at_k": {
+        "2": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.427580927278716
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.1279691454900265
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        },
+        "5": {
+          "hits": [
+            {
+              "chunk_id": "jd-general:child:af125b08d0d70058d3f9a1d6",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 3.427580927278716
+            },
+            {
+              "chunk_id": "jd-digital:child:094da39b48617d825de0053b",
+              "source_id": "jd-digital",
+              "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+              "score": 3.1279691454900265
+            },
+            {
+              "chunk_id": "jd-general:child:b6699a690c650b1c4eb75988",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 2.127738178881909
+            },
+            {
+              "chunk_id": "jd-general:child:b7ae706481688c7f1af1ca4d",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.8099672298736377
+            },
+            {
+              "chunk_id": "jd-general:child:7132c8eb57c8f21a7037cbc7",
+              "source_id": "jd-general",
+              "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+              "score": 0.7348444114142677
+            }
+          ],
+          "exported_chars": 2081,
+          "blocked_context_ids": [],
+          "draft_direct_missing": [],
+          "draft_context_missing": [],
+          "draft_direct_complete": null,
+          "draft_context_complete": null,
+          "draft_related_not_sufficient_hits": []
+        }
+      },
+      "method": "bm25"
+    }
+  ]
+}

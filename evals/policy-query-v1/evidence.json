@@ -1,0 +1,617 @@
+[
+  {
+    "id": "jd-general:b0008:row=None:span=0-94",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0008",
+    "block_text_sha256": "ea07709ee7150160b306e5fba0d24fc7485d341000e2bc4627f654a092eb0bc5",
+    "table_row": null,
+    "text_range": [
+      0,
+      94
+    ],
+    "representation_sha256": "ea07709ee7150160b306e5fba0d24fc7485d341000e2bc4627f654a092eb0bc5",
+    "span_sha256": "ea07709ee7150160b306e5fba0d24fc7485d341000e2bc4627f654a092eb0bc5"
+  },
+  {
+    "id": "jd-general:b0003:row=3:span=0-145",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0003",
+    "block_text_sha256": "95faf217fab1eca5b67390fea46504b59fce1adcc38954aea50ca799c3d36aed",
+    "table_row": 3,
+    "text_range": [
+      0,
+      145
+    ],
+    "representation_sha256": "84708e08fccac4218a69719766bbfb67d7dc3b51cfefeaa72e8d780fa98930ce",
+    "span_sha256": "84708e08fccac4218a69719766bbfb67d7dc3b51cfefeaa72e8d780fa98930ce"
+  },
+  {
+    "id": "jd-general:b0003:row=1:span=0-147",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0003",
+    "block_text_sha256": "95faf217fab1eca5b67390fea46504b59fce1adcc38954aea50ca799c3d36aed",
+    "table_row": 1,
+    "text_range": [
+      0,
+      147
+    ],
+    "representation_sha256": "65821f79c19a8c60fa1586c5342f4baf1f8869145aed2ed67d5aa104c5fbbce0",
+    "span_sha256": "65821f79c19a8c60fa1586c5342f4baf1f8869145aed2ed67d5aa104c5fbbce0"
+  },
+  {
+    "id": "jd-general:b0009:row=None:span=0-11",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0009",
+    "block_text_sha256": "6acd3df9b269c274e2ee8cdb8e316e71b1e468bdc9d258ebc855c0df6e1909a4",
+    "table_row": null,
+    "text_range": [
+      0,
+      11
+    ],
+    "representation_sha256": "6acd3df9b269c274e2ee8cdb8e316e71b1e468bdc9d258ebc855c0df6e1909a4",
+    "span_sha256": "6acd3df9b269c274e2ee8cdb8e316e71b1e468bdc9d258ebc855c0df6e1909a4"
+  },
+  {
+    "id": "jd-general:b0002:row=None:span=0-67",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0002",
+    "block_text_sha256": "cc89d08e3206d50865730bf723d0e1f902bbd9140f8ff8330cd36ece43b1590e",
+    "table_row": null,
+    "text_range": [
+      0,
+      67
+    ],
+    "representation_sha256": "cc89d08e3206d50865730bf723d0e1f902bbd9140f8ff8330cd36ece43b1590e",
+    "span_sha256": "cc89d08e3206d50865730bf723d0e1f902bbd9140f8ff8330cd36ece43b1590e"
+  },
+  {
+    "id": "jd-general:b0006:row=None:span=0-29",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0006",
+    "block_text_sha256": "d7495a26e1c9e167b4cfe3d434d5f2ec698384618517c9a84806ca5ac3b39ad4",
+    "table_row": null,
+    "text_range": [
+      0,
+      29
+    ],
+    "representation_sha256": "d7495a26e1c9e167b4cfe3d434d5f2ec698384618517c9a84806ca5ac3b39ad4",
+    "span_sha256": "d7495a26e1c9e167b4cfe3d434d5f2ec698384618517c9a84806ca5ac3b39ad4"
+  },
+  {
+    "id": "jd-digital:b0002:row=None:span=0-14",
+    "source_id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "block_id": "jd-digital:b0002",
+    "block_text_sha256": "253e4128a26752f4c8e9b8330aa75fa36700f07ebc5d883c4d067e95be72f505",
+    "table_row": null,
+    "text_range": [
+      0,
+      14
+    ],
+    "representation_sha256": "253e4128a26752f4c8e9b8330aa75fa36700f07ebc5d883c4d067e95be72f505",
+    "span_sha256": "253e4128a26752f4c8e9b8330aa75fa36700f07ebc5d883c4d067e95be72f505"
+  },
+  {
+    "id": "jd-digital:b0004:row=None:span=0-26",
+    "source_id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "block_id": "jd-digital:b0004",
+    "block_text_sha256": "9ea4af1a04272dece5ac9975dcede6c14a6c1f9db1fd2e7f559fc5dd28241a29",
+    "table_row": null,
+    "text_range": [
+      0,
+      26
+    ],
+    "representation_sha256": "9ea4af1a04272dece5ac9975dcede6c14a6c1f9db1fd2e7f559fc5dd28241a29",
+    "span_sha256": "9ea4af1a04272dece5ac9975dcede6c14a6c1f9db1fd2e7f559fc5dd28241a29"
+  },
+  {
+    "id": "jd-general:b0003:row=2:span=0-183",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0003",
+    "block_text_sha256": "95faf217fab1eca5b67390fea46504b59fce1adcc38954aea50ca799c3d36aed",
+    "table_row": 2,
+    "text_range": [
+      0,
+      183
+    ],
+    "representation_sha256": "a453d58d19e4720ccab2139f4bfcca3171313293b45430371e9d0cc1ec02b6bf",
+    "span_sha256": "a453d58d19e4720ccab2139f4bfcca3171313293b45430371e9d0cc1ec02b6bf"
+  },
+  {
+    "id": "jd-digital:b0015:row=None:span=0-124",
+    "source_id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "block_id": "jd-digital:b0015",
+    "block_text_sha256": "6186364de2e22f456df01ae9db5fd32eb303b270f5a8a8b27aba89e53bece014",
+    "table_row": null,
+    "text_range": [
+      0,
+      124
+    ],
+    "representation_sha256": "6186364de2e22f456df01ae9db5fd32eb303b270f5a8a8b27aba89e53bece014",
+    "span_sha256": "6186364de2e22f456df01ae9db5fd32eb303b270f5a8a8b27aba89e53bece014"
+  },
+  {
+    "id": "jd-general:b0011:row=None:span=0-30",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0011",
+    "block_text_sha256": "f7af2929efbf27a27b8981a01e835e549fd276c18d009bf729d859dac00e14c5",
+    "table_row": null,
+    "text_range": [
+      0,
+      30
+    ],
+    "representation_sha256": "f7af2929efbf27a27b8981a01e835e549fd276c18d009bf729d859dac00e14c5",
+    "span_sha256": "f7af2929efbf27a27b8981a01e835e549fd276c18d009bf729d859dac00e14c5"
+  },
+  {
+    "id": "jd-digital:b0007:row=None:span=0-26",
+    "source_id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "block_id": "jd-digital:b0007",
+    "block_text_sha256": "3d2f398379d93a204fc4da5ccc2508682b7ef09840d9d0cfcded1c4b55f69626",
+    "table_row": null,
+    "text_range": [
+      0,
+      26
+    ],
+    "representation_sha256": "3d2f398379d93a204fc4da5ccc2508682b7ef09840d9d0cfcded1c4b55f69626",
+    "span_sha256": "3d2f398379d93a204fc4da5ccc2508682b7ef09840d9d0cfcded1c4b55f69626"
+  },
+  {
+    "id": "jd-digital:b0008:row=None:span=0-35",
+    "source_id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "block_id": "jd-digital:b0008",
+    "block_text_sha256": "021ee8947012b5ee8619d996febd520612ef891320323ec70c1ad02fc7fcf31e",
+    "table_row": null,
+    "text_range": [
+      0,
+      35
+    ],
+    "representation_sha256": "021ee8947012b5ee8619d996febd520612ef891320323ec70c1ad02fc7fcf31e",
+    "span_sha256": "021ee8947012b5ee8619d996febd520612ef891320323ec70c1ad02fc7fcf31e"
+  },
+  {
+    "id": "jd-digital:b0013:row=None:span=0-75",
+    "source_id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "block_id": "jd-digital:b0013",
+    "block_text_sha256": "1214787411f9cf7c938b49ca1cd8a7c3a5dd7384bffd0d6ac7464bbfcc7404f5",
+    "table_row": null,
+    "text_range": [
+      0,
+      75
+    ],
+    "representation_sha256": "1214787411f9cf7c938b49ca1cd8a7c3a5dd7384bffd0d6ac7464bbfcc7404f5",
+    "span_sha256": "1214787411f9cf7c938b49ca1cd8a7c3a5dd7384bffd0d6ac7464bbfcc7404f5"
+  },
+  {
+    "id": "jd-digital:b0020:row=None:span=0-39",
+    "source_id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "block_id": "jd-digital:b0020",
+    "block_text_sha256": "7ba06d73a1d075978593905128b4e821203520123d33f79fcce2fd3f16485681",
+    "table_row": null,
+    "text_range": [
+      0,
+      39
+    ],
+    "representation_sha256": "7ba06d73a1d075978593905128b4e821203520123d33f79fcce2fd3f16485681",
+    "span_sha256": "7ba06d73a1d075978593905128b4e821203520123d33f79fcce2fd3f16485681"
+  },
+  {
+    "id": "mi-self-operated:b0003:row=None:span=0-46",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0003",
+    "block_text_sha256": "26041430d330e8b4a11be3c9e93773cca71263a6874821c6ce6b6845edbc8f39",
+    "table_row": null,
+    "text_range": [
+      0,
+      46
+    ],
+    "representation_sha256": "26041430d330e8b4a11be3c9e93773cca71263a6874821c6ce6b6845edbc8f39",
+    "span_sha256": "26041430d330e8b4a11be3c9e93773cca71263a6874821c6ce6b6845edbc8f39"
+  },
+  {
+    "id": "mi-self-operated:b0007:row=None:span=0-77",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0007",
+    "block_text_sha256": "c8a0af3dbe6d99cb3770e7a99e0416012134748036d4705ba25cb79a4868e03b",
+    "table_row": null,
+    "text_range": [
+      0,
+      77
+    ],
+    "representation_sha256": "c8a0af3dbe6d99cb3770e7a99e0416012134748036d4705ba25cb79a4868e03b",
+    "span_sha256": "c8a0af3dbe6d99cb3770e7a99e0416012134748036d4705ba25cb79a4868e03b"
+  },
+  {
+    "id": "mi-self-operated:b0008:row=1:span=0-99",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0008",
+    "block_text_sha256": "f4883156ebca2c6fec7c4c81f5f9cbcc91263ac404f022acb245f24b6520adc6",
+    "table_row": 1,
+    "text_range": [
+      0,
+      99
+    ],
+    "representation_sha256": "6b4204483ddf5b2eef3322eab5d096e79873a33b0b15e1a25c35a0d23fb0d123",
+    "span_sha256": "6b4204483ddf5b2eef3322eab5d096e79873a33b0b15e1a25c35a0d23fb0d123"
+  },
+  {
+    "id": "mi-self-operated:b0046:row=None:span=0-67",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0046",
+    "block_text_sha256": "97c8d1f4eba2fd275cc081919c98ea588d7ea29d1c14b162cf8528f6ae8aaf38",
+    "table_row": null,
+    "text_range": [
+      0,
+      67
+    ],
+    "representation_sha256": "97c8d1f4eba2fd275cc081919c98ea588d7ea29d1c14b162cf8528f6ae8aaf38",
+    "span_sha256": "97c8d1f4eba2fd275cc081919c98ea588d7ea29d1c14b162cf8528f6ae8aaf38"
+  },
+  {
+    "id": "mi-self-operated:b0087:row=None:span=0-29",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0087",
+    "block_text_sha256": "54a17d291b0c6da8af7996d14303d6d9520f09f6dffcc2c981b8a9caa13cdfa8",
+    "table_row": null,
+    "text_range": [
+      0,
+      29
+    ],
+    "representation_sha256": "54a17d291b0c6da8af7996d14303d6d9520f09f6dffcc2c981b8a9caa13cdfa8",
+    "span_sha256": "54a17d291b0c6da8af7996d14303d6d9520f09f6dffcc2c981b8a9caa13cdfa8"
+  },
+  {
+    "id": "mi-self-operated:b0045:row=None:span=0-48",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0045",
+    "block_text_sha256": "d331920ebd9afe8118fe7eb70167698b55ff33d31f640b22592c72fe82f8c1ee",
+    "table_row": null,
+    "text_range": [
+      0,
+      48
+    ],
+    "representation_sha256": "d331920ebd9afe8118fe7eb70167698b55ff33d31f640b22592c72fe82f8c1ee",
+    "span_sha256": "d331920ebd9afe8118fe7eb70167698b55ff33d31f640b22592c72fe82f8c1ee"
+  },
+  {
+    "id": "mi-self-operated:b0013:row=None:span=0-11",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0013",
+    "block_text_sha256": "6acd3df9b269c274e2ee8cdb8e316e71b1e468bdc9d258ebc855c0df6e1909a4",
+    "table_row": null,
+    "text_range": [
+      0,
+      11
+    ],
+    "representation_sha256": "6acd3df9b269c274e2ee8cdb8e316e71b1e468bdc9d258ebc855c0df6e1909a4",
+    "span_sha256": "6acd3df9b269c274e2ee8cdb8e316e71b1e468bdc9d258ebc855c0df6e1909a4"
+  },
+  {
+    "id": "mi-self-operated:b0080:row=None:span=0-72",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0080",
+    "block_text_sha256": "7f4fe893b4b655d4fff1776c5de4c77f29a83ee7fabfe2f665647327ae135f40",
+    "table_row": null,
+    "text_range": [
+      0,
+      72
+    ],
+    "representation_sha256": "7f4fe893b4b655d4fff1776c5de4c77f29a83ee7fabfe2f665647327ae135f40",
+    "span_sha256": "7f4fe893b4b655d4fff1776c5de4c77f29a83ee7fabfe2f665647327ae135f40"
+  },
+  {
+    "id": "mi-self-operated:b0040:row=None:span=0-35",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0040",
+    "block_text_sha256": "b7455ea6c9baf345bd479275eba7d3bb0a94c730595e44b55b2f85632bb7f081",
+    "table_row": null,
+    "text_range": [
+      0,
+      35
+    ],
+    "representation_sha256": "b7455ea6c9baf345bd479275eba7d3bb0a94c730595e44b55b2f85632bb7f081",
+    "span_sha256": "b7455ea6c9baf345bd479275eba7d3bb0a94c730595e44b55b2f85632bb7f081"
+  },
+  {
+    "id": "mi-self-operated:b0032:row=None:span=0-23",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0032",
+    "block_text_sha256": "4f2742bd6c52ac007e3ec4be024efaef26532154e289d674131087329c8b80fe",
+    "table_row": null,
+    "text_range": [
+      0,
+      23
+    ],
+    "representation_sha256": "4f2742bd6c52ac007e3ec4be024efaef26532154e289d674131087329c8b80fe",
+    "span_sha256": "4f2742bd6c52ac007e3ec4be024efaef26532154e289d674131087329c8b80fe"
+  },
+  {
+    "id": "mi-self-operated:b0082:row=None:span=0-134",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0082",
+    "block_text_sha256": "cdecfc6b192dea65a4c0be9f48ab044d945e8f404cf5b55d4c240430ce4cfc9b",
+    "table_row": null,
+    "text_range": [
+      0,
+      134
+    ],
+    "representation_sha256": "cdecfc6b192dea65a4c0be9f48ab044d945e8f404cf5b55d4c240430ce4cfc9b",
+    "span_sha256": "cdecfc6b192dea65a4c0be9f48ab044d945e8f404cf5b55d4c240430ce4cfc9b"
+  },
+  {
+    "id": "mi-self-operated:b0076:row=None:span=0-85",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0076",
+    "block_text_sha256": "acd4323a8c568659f57628c712b8aa5f1514e758208ceaf1160a02254da9b9b2",
+    "table_row": null,
+    "text_range": [
+      0,
+      85
+    ],
+    "representation_sha256": "acd4323a8c568659f57628c712b8aa5f1514e758208ceaf1160a02254da9b9b2",
+    "span_sha256": "acd4323a8c568659f57628c712b8aa5f1514e758208ceaf1160a02254da9b9b2"
+  },
+  {
+    "id": "mi-self-operated:b0027:row=None:span=0-14",
+    "source_id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "block_id": "mi-self-operated:b0027",
+    "block_text_sha256": "b8545c707e31506452ddd363936aefe095107e52a003265115ba8d8d50e16b0c",
+    "table_row": null,
+    "text_range": [
+      0,
+      14
+    ],
+    "representation_sha256": "b8545c707e31506452ddd363936aefe095107e52a003265115ba8d8d50e16b0c",
+    "span_sha256": "b8545c707e31506452ddd363936aefe095107e52a003265115ba8d8d50e16b0c"
+  },
+  {
+    "id": "ikea-terms:b0072:row=None:span=0-175",
+    "source_id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "block_id": "ikea-terms:b0072",
+    "block_text_sha256": "44d340a2750636ca9b7a2268fa92fe1b1a930a6d345b6fe6c5375d54d3c66d8d",
+    "table_row": null,
+    "text_range": [
+      0,
+      175
+    ],
+    "representation_sha256": "44d340a2750636ca9b7a2268fa92fe1b1a930a6d345b6fe6c5375d54d3c66d8d",
+    "span_sha256": "44d340a2750636ca9b7a2268fa92fe1b1a930a6d345b6fe6c5375d54d3c66d8d"
+  },
+  {
+    "id": "ikea-terms:b0073:row=None:span=0-54",
+    "source_id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "block_id": "ikea-terms:b0073",
+    "block_text_sha256": "95cbe7f723e2206585850b5f583549d935f246665dfa79c069ee50b6034d06ba",
+    "table_row": null,
+    "text_range": [
+      0,
+      54
+    ],
+    "representation_sha256": "95cbe7f723e2206585850b5f583549d935f246665dfa79c069ee50b6034d06ba",
+    "span_sha256": "95cbe7f723e2206585850b5f583549d935f246665dfa79c069ee50b6034d06ba"
+  },
+  {
+    "id": "ikea-terms:b0074:row=None:span=0-36",
+    "source_id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "block_id": "ikea-terms:b0074",
+    "block_text_sha256": "6afd9b69fc49cf9305df55d33cce34a63b8cdb93356fed82459de389979d855c",
+    "table_row": null,
+    "text_range": [
+      0,
+      36
+    ],
+    "representation_sha256": "6afd9b69fc49cf9305df55d33cce34a63b8cdb93356fed82459de389979d855c",
+    "span_sha256": "6afd9b69fc49cf9305df55d33cce34a63b8cdb93356fed82459de389979d855c"
+  },
+  {
+    "id": "ikea-terms:b0076:row=None:span=0-88",
+    "source_id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "block_id": "ikea-terms:b0076",
+    "block_text_sha256": "34f8b1695e8f4a918f28e988b4a16f4187d86582e7a0a96e0253e88388e1cbdc",
+    "table_row": null,
+    "text_range": [
+      0,
+      88
+    ],
+    "representation_sha256": "34f8b1695e8f4a918f28e988b4a16f4187d86582e7a0a96e0253e88388e1cbdc",
+    "span_sha256": "34f8b1695e8f4a918f28e988b4a16f4187d86582e7a0a96e0253e88388e1cbdc"
+  },
+  {
+    "id": "ikea-terms:b0077:row=None:span=0-25",
+    "source_id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "block_id": "ikea-terms:b0077",
+    "block_text_sha256": "eb9c73227d5bf5a5bf83d22dfc31cd112245b0bf78e5b72a7a4ff5b0f0e918ab",
+    "table_row": null,
+    "text_range": [
+      0,
+      25
+    ],
+    "representation_sha256": "eb9c73227d5bf5a5bf83d22dfc31cd112245b0bf78e5b72a7a4ff5b0f0e918ab",
+    "span_sha256": "eb9c73227d5bf5a5bf83d22dfc31cd112245b0bf78e5b72a7a4ff5b0f0e918ab"
+  },
+  {
+    "id": "ikea-terms:b0078:row=None:span=0-19",
+    "source_id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "block_id": "ikea-terms:b0078",
+    "block_text_sha256": "7ebed70339baf76a1a1d4bd3fe14ad4d86f29420aecaebfd39c0c1badea15afc",
+    "table_row": null,
+    "text_range": [
+      0,
+      19
+    ],
+    "representation_sha256": "7ebed70339baf76a1a1d4bd3fe14ad4d86f29420aecaebfd39c0c1badea15afc",
+    "span_sha256": "1fa75a1af30e70d76a31a3e5996b6af0c7ec5a6f22a1223ab7f59a289ec477f1"
+  },
+  {
+    "id": "ikea-terms:b0078:row=None:span=88-132",
+    "source_id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "block_id": "ikea-terms:b0078",
+    "block_text_sha256": "7ebed70339baf76a1a1d4bd3fe14ad4d86f29420aecaebfd39c0c1badea15afc",
+    "table_row": null,
+    "text_range": [
+      88,
+      132
+    ],
+    "representation_sha256": "7ebed70339baf76a1a1d4bd3fe14ad4d86f29420aecaebfd39c0c1badea15afc",
+    "span_sha256": "a3254947b5355bb41953702fbf552723d7643ea5dd326c380c585e039eb7c82a"
+  },
+  {
+    "id": "ikea-terms:b0080:row=None:span=0-120",
+    "source_id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "block_id": "ikea-terms:b0080",
+    "block_text_sha256": "74eb01c1047e307e52858f0800d3f2ae89969fcb79c0200a1778d0e39a02ef3e",
+    "table_row": null,
+    "text_range": [
+      0,
+      120
+    ],
+    "representation_sha256": "74eb01c1047e307e52858f0800d3f2ae89969fcb79c0200a1778d0e39a02ef3e",
+    "span_sha256": "03bf27aa7846bdb5e6264d2afbba724f484d50667d48340a7ac28b002c13ff1f"
+  },
+  {
+    "id": "ikea-terms:b0059:row=None:span=0-287",
+    "source_id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "block_id": "ikea-terms:b0059",
+    "block_text_sha256": "d51d0d04012da8b7b4a66cb822f3f265d57fd595ce9016e4a48f2390cc5aca4c",
+    "table_row": null,
+    "text_range": [
+      0,
+      287
+    ],
+    "representation_sha256": "d51d0d04012da8b7b4a66cb822f3f265d57fd595ce9016e4a48f2390cc5aca4c",
+    "span_sha256": "d51d0d04012da8b7b4a66cb822f3f265d57fd595ce9016e4a48f2390cc5aca4c"
+  },
+  {
+    "id": "jd-general:b0014:row=None:span=0-17",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0014",
+    "block_text_sha256": "3c629cc875d0c85e6abdaabd70fa0f816dce51687f415dac32908524b7b2fc28",
+    "table_row": null,
+    "text_range": [
+      0,
+      17
+    ],
+    "representation_sha256": "3c629cc875d0c85e6abdaabd70fa0f816dce51687f415dac32908524b7b2fc28",
+    "span_sha256": "3c629cc875d0c85e6abdaabd70fa0f816dce51687f415dac32908524b7b2fc28"
+  },
+  {
+    "id": "jd-general:b0017:row=None:span=0-67",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0017",
+    "block_text_sha256": "393ae4fcffac2e99f8a012b63fc2ad2fd1949d6a66f1fc37c31ae038149f7320",
+    "table_row": null,
+    "text_range": [
+      0,
+      67
+    ],
+    "representation_sha256": "393ae4fcffac2e99f8a012b63fc2ad2fd1949d6a66f1fc37c31ae038149f7320",
+    "span_sha256": "393ae4fcffac2e99f8a012b63fc2ad2fd1949d6a66f1fc37c31ae038149f7320"
+  },
+  {
+    "id": "jd-general:b0018:row=None:span=0-39",
+    "source_id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "block_id": "jd-general:b0018",
+    "block_text_sha256": "3862c7d2652d9ef43b467d0d201e0ebe06b380c137142908e6d302d5a889cd29",
+    "table_row": null,
+    "text_range": [
+      0,
+      39
+    ],
+    "representation_sha256": "3862c7d2652d9ef43b467d0d201e0ebe06b380c137142908e6d302d5a889cd29",
+    "span_sha256": "3862c7d2652d9ef43b467d0d201e0ebe06b380c137142908e6d302d5a889cd29"
+  },
+  {
+    "id": "jd-digital:b0010:row=None:span=0-96",
+    "source_id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "block_id": "jd-digital:b0010",
+    "block_text_sha256": "e4243b7d62cfedeff47c78bfac97e9e54dc31883a393b34e4967c68a279fe3de",
+    "table_row": null,
+    "text_range": [
+      0,
+      96
+    ],
+    "representation_sha256": "e4243b7d62cfedeff47c78bfac97e9e54dc31883a393b34e4967c68a279fe3de",
+    "span_sha256": "e4243b7d62cfedeff47c78bfac97e9e54dc31883a393b34e4967c68a279fe3de"
+  }
+]

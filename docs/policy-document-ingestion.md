@@ -68,3 +68,12 @@ agent/.venv/Scripts/python.exe scripts/policy_chunks.py --max-tokens 384 --embed
 不带`--embed`仅构建及审计长度；带该参数使用既有本地BGE生成实验向量，检查数量/维度/有限非零。不写PG/Java，不改变生产索引，原文全文/完整依据/向量只存忽略缓存。子块仍PENDING_HUMAN_REVIEW、publishable=false、indexable=false；有实验向量不等于获准进入生产。原文、结构配置、切分器或参数变化均应生成新快照，严禁覆盖旧输出。
 
 本次66子块/29完整依据、实际向量与4条合成查询接线探针见[报告](../reports/policy-document-ingestion/README.md)。接下来冻结逐query所需依据与无答案/相似不适用样本，独立复核后比较召回和完整依据覆盖；先评价失败再决定标题表示、混合检索或重排，不能凭4条接线探针宣称RAG优化成功。
+
+
+## 逐query基线与复核（2026-10-06）
+
+[新逐query包](../evals/policy-query-v1/README.md)追加29问/41来源依据原子，复用11官方FAQ并新增18合成结构诊断；三个来源家族不拆页制造holdout。query、draft和独立review分开，所有review尚待审。依据绑原文block/表格row/span与来源/hash，不绑定某个算法的chunk ID或排名。原文和基线字节均冻结；独立确认或实验参数变化新建版本，不改旧标签刷新分数。
+
+离线入口`scripts/policy_query_eval.py`可生成隐藏标签/排名的全来源复核包，也可运行同条件dense/BM25前2/5诊断；另有require-reviewed质量门禁，未独立标注则明确失败。评分区分直接字符区间覆盖和成功导出的完整父节覆盖，去重并限制所有context合计字符量，不把被拒导出的依据算命中。非可答问题不空集合刷通过；拒答需要后续判断层，单纯返回近邻无法证明接受了无答案。
+
+当前报告显示扩展后覆盖明显高于直接覆盖且带回数千字，提示检索与上下文装配须分开归因；标签同作者，不能用这些诊断挑生产算法。正式质量指标null，下一步先复核必要依据/例外/适用性，再在冻结标签/语料/query条件下比较表示或query策略。详见[集中证据](../reports/policy-document-ingestion/README.md)。

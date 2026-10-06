@@ -108,3 +108,40 @@ agent/.venv/Scripts/python.exe scripts/policy_chunks.py --max-tokens 384 --embed
 实际还跑过初版`children-v1.json`，绑定旧的中间构建器hash，仅作为本机中间产物；最终报告绑定`children-final.json`，不混用。对final重复执行相同CLI实际FileExistsError/退出1，原输出SHA未变，属于预期覆盖拒绝。Tokenizer在计数待拆长段落时报告537>512警告，前向embedding仅接收已验证≤384的最终子块；该警告不是对超长段落执行向量化。
 
 未运行：独立Gold/商家采用、正式召回准确率或前后算法受控比较、LLM上下文装配/整体Agent、Java/浏览器、生产政策发布/索引重建/服务重启。收费调用0、业务写入0。下一步补新语料逐query必要依据/例外/无答案标注与固定检索基线，之后按失败选择表示/query/排序调整；384尚未证实最优，父节过大/关联宽泛及行切分语义需评测。旧四脏文件和草图日志不夹带。
+
+
+## 2026-10-06 新语料逐query待审标注与检索基线
+
+新增[policy-query-v1](../../evals/policy-query-v1/README.md)：29条问题（复用11官方FAQ＋18作者来源感知合成诊断）、41原文依据原子，在本轮排名前冻结queries/evidence与原草稿/子块/FAQ manifest hash。所有正式标签null、独立复核0；草稿17可答/1部分/3须澄清/8语料无答案，不冒充独立Gold、客户日志或测试集。结构问题覆盖定作/激活/食品例外、质量与无理由物流费、总则与类目时限、地域/销售主体/线上线下渠道、退款办理与到账及相似无关材料。
+
+新增`scripts/policy_query_eval.py`＋27通用测试：来源快照/证据区间/hash/数量冻结校验，原始block/表格row/span计分，部分片段与重复重叠不刷覆盖；dense和BM25先主体+快照硬过滤再排名。直接与父节扩展覆盖分开，回查按排名贪心/重复ID或相同payload去重，总字符预算包括分隔符，超限不作为已交付证据；不同上下文的部分重叠仍可能保留，暂非最优选择。正式指标只用独立APPROVED可答标签，无答案/缺事实不空集合通过，拒答质量未实现。
+
+实际命令：
+
+```powershell
+agent/.venv/Scripts/python.exe -m ruff format --config agent/pyproject.toml scripts/policy_query_eval.py agent/tests/unit/test_policy_query_eval.py
+agent/.venv/Scripts/python.exe -m ruff check --config agent/pyproject.toml scripts/policy_query_eval.py agent/tests/unit/test_policy_query_eval.py
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_policy_query_eval.py agent/tests/unit/test_policy_chunks.py agent/tests/unit/test_policy_drafts.py agent/tests/unit/test_policy_documents.py agent/tests/unit/test_policy_chunking.py agent/tests/unit/test_rag_probes.py agent/tests/unit/test_live_baseline_merge.py -q --basetemp tmp/policy-query-tests-final --junitxml reports/policy-document-ingestion/query-tests.xml
+agent/.venv/Scripts/python.exe scripts/policy_query_eval.py --prepare-review --output tmp/policy-documents-v1/query-review-v1.json
+agent/.venv/Scripts/python.exe scripts/policy_query_eval.py --context-chars 8000 --output reports/policy-document-ingestion/query-baseline.json
+agent/.venv/Scripts/python.exe scripts/policy_query_eval.py --require-reviewed --output tmp/policy-documents-v1/reviewed-gate.json
+```
+
+先失败为缺模块collection error/退出1；初次实现13测试通过，首次Ruff有导入排序和多语句/长行共15项，格式化修正；扩充总预算/同payload去重/独立标签与草稿分离/原子漂移等后27通过，Ruff最终通过。最终集中148 passed/0 skipped（27新增＋前批121），[JUnit](query-tests.xml)。质量门禁命令实际退出1/independent labels pending，未创建报告、未运行embedding，属于预期待审拒绝；不得记为正式质量通过。
+
+实际本地BGE对29短问题向量化，dense/BM25共58查询记录，[逐问报告](query-baseline.json)保存排名/分数/源快照/缺依据/导出体积/源码与输入hash/依赖版本，没有原政策全文。所有调用范围通过硬过滤与计分前复核，无跨主体/快照。BM25在过滤后的同主体语料计算统计；两方法同query/语料/表示/预算，未改生产排名。当前无语义判定/拒答阈值，8条无答案仍会返回近邻，不能因此称检索器错误接受答案或拒答通过。
+
+以下仅为作者草稿诊断计数，分母17条draft ANSWERABLE，不是正式召回/准确率：
+
+| 路径 | 直接找齐前2 | 直接找齐前5 | 扩展后找齐前2 | 扩展后找齐前5 | 全29问前5平均导出字符 |
+|---|---:|---:|---:|---:|---:|
+| dense | 5/17 | 9/17 | 10/17 | 16/17 | 3446.79 |
+| BM25 | 7/17 | 12/17 | 11/17 | 17/17 | 3425.72 |
+
+两种方法前5均出现1次整context预算拒绝，体积未超过8000总字符。正式all_required_direct/context指标和abstention_accuracy全部null；没有独立人审、没有holdout。FAQ中草稿可答仅1条，另一条部分可答，绝大多数17分母来自来源感知合成问题，不能据此裁定BM25优于dense的真实用户效果，也不能称RAG已优化完成。
+
+学习归因：直接覆盖低、父节扩展高，说明索引表示/跨章节依据与返回策略是不同问题；返回较大父节可能掩盖检索缺口，必须并报体积。S:MI04要求并列核对“赠品不完整”和“赠品扣款”，dense前5扩展仍缺一个不办理条款；这只是待审的跨章节关系诊断，不补按case ID的关系或query补丁。其他前2缺口包括日期多文档、类目限制与质量/运费条件；先复核Gold/适用性再决定通用表示或关联策略。BM25本轮较高草稿计数照实保留，不为了展示dense更好而删失败或改标签。
+
+本机无排名复核包包含全部4文件/242块，隐去draft/排名，只存忽略tmp；不是仅让复核者在作者预选41原子中挑选。解析结构仍为作者草稿，需结合原HTML。人工确认必须另冻新版本并真实归因；文件协议无法自动认证复核者身份。重复CLI输出实际拒绝覆盖，原报告hash不变。原全文、生产索引、旧评测/Gold/原四脏文件不改，付费LLM0、生产写入0。
+
+未运行：独立相关性/适用性人审、拒答与回答语义评测、算法优化后受控提升、生产LLM上下文/整体Agent/Java/网页/服务重启。后续按独立标签和失败类别比较标题/表格表示、跨章节必要依据及query；不默认加hybrid/rerank，不追单例满分。当前长度处理＋可追溯逐query诊断已具备，RAG质量结论仍待审。
