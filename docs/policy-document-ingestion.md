@@ -50,3 +50,21 @@ Java继续拥有政策权威版本和hash，Python仍通过`scripts/policy_index
 草稿检索表示与完整依据分别记录块引用和hash。附注/排除条件作为候选关联保留，章节覆盖校验确保正文块不遗漏或重复归属；关系闭包必须有界。Codex结构判断明确标记，不能成为独立人工Gold或商家采用记录。最终发布和索引仍须确认内容、来源、范围和版本。
 
 章节长度用固定本地embedding tokenizer测，包括特殊token，不截断。超限候选标requires_split；后续拆检索子块，保留父节/必要例外定位，不把大章节直接交给encoder截断。完整依据同样不能无界注入LLM，后续须按事实/相关性和上下文预算验证。长度安全、解析结构正确和语义适用是三个不同门槛。
+
+
+## 检索子块与完整依据（2026-10-06）
+
+离线脚本`scripts/policy_chunks.py`读取已冻章节草稿及其报告，校验草稿字节、解析器/构建器/来源/结构manifest指纹后构建子块。每个原文块仅从直接所属章节生成一次，父节完整内容保留为context，不把整篇重复作为检索候选。章节内部按原段落顺序聚合，长段落按固定encoder tokenizer的真实token/offset切分，优先靠近句界，特殊token计入；每个最终字符串再核对token长度。384是本次候选配置，尚未证明最优，encoder实际上限512不可被配置绕过。
+
+子块保留source_id/subject/raw_sha256、章节路径/context_id、原块定位和hash、表示字符区间/片段hash。普通段落连续区间无丢失无重叠；这里的表示区间不是原始HTML字节区间，原文位置另存block_locator。简单表格将每行表示为列名与值，保留行号及整表定位；合并表格只保留原单元格并标grid_requires_review，不伪造逻辑网格。子块独立编码可能丢失章节标题语义、长表格行拆分也可能弱化列关系，须在下一步检索失败归因中验证，而非声称长度安全即语义充分。
+
+命中子块后通过`complete_context(bundle, chunk_id, max_chars)`回查已保存的完整章节及候选关联；主体/快照/hash不一致拒绝。超过字符上限返回CONTEXT_TOO_LARGE、complete=false、text=null，仍保留必需块引用，不截一部分冒充完整政策。此导出字符上限不是模型token预算，也不是生产Harness的限制；接入LLM之前仍须按LLM tokenizer计算、去重、必要性选择并检查例外保留。关系来自待审结构草稿，不能保证语义上已找齐所有例外。
+
+```powershell
+# 输出路径必须是新文件；本地模型需已按项目既有方式准备。
+agent/.venv/Scripts/python.exe scripts/policy_chunks.py --max-tokens 384 --embed --output tmp/policy-documents-v1/children-new.json
+```
+
+不带`--embed`仅构建及审计长度；带该参数使用既有本地BGE生成实验向量，检查数量/维度/有限非零。不写PG/Java，不改变生产索引，原文全文/完整依据/向量只存忽略缓存。子块仍PENDING_HUMAN_REVIEW、publishable=false、indexable=false；有实验向量不等于获准进入生产。原文、结构配置、切分器或参数变化均应生成新快照，严禁覆盖旧输出。
+
+本次66子块/29完整依据、实际向量与4条合成查询接线探针见[报告](../reports/policy-document-ingestion/README.md)。接下来冻结逐query所需依据与无答案/相似不适用样本，独立复核后比较召回和完整依据覆盖；先评价失败再决定标题表示、混合检索或重排，不能凭4条接线探针宣称RAG优化成功。

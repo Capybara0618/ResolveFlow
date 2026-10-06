@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-06",
+  "version": "policy-retrieval-children-v1",
+  "status": "PENDING_HUMAN_REVIEW",
+  "publishable": false,
+  "production_index_writes": 0,
+  "new_chat_api_calls": 0,
+  "independent_review_count": 0,
+  "retrieval_accuracy": null,
+  "local_output": "tmp/policy-documents-v1/children-final.json",
+  "local_output_sha256": "12c875b0bc234961ed5683771e737d66ced488c1447abab615539c82c6ce0811",
+  "source_draft_sha256": "96cb35bf2d42849452afca33f449672271948d60eae7abef0739c1fe5e4ecc10",
+  "builder_sha256": "250743bda0bc4f40f45bfd5604f90b5b4dac52c3a968fa55ea84368845d0229a",
+  "encoder": {
+    "model": "BAAI/bge-small-zh-v1.5",
+    "revision": "7999e1d3359715c523056ef9478215996d62a620",
+    "dimension": 512
+  },
+  "encoder_limit": 512,
+  "target_tokens": 384,
+  "children": 66,
+  "contexts": 29,
+  "max_encoder_tokens": 383,
+  "oversized_children": 0,
+  "verified_source_blocks": 242,
+  "verified_representations": 247,
+  "vector_count": 66,
+  "vector_norm_min": 0.99999992793086,
+  "vector_norm_max": 1.0000001161706378,
+  "context_probe_limit": 8000,
+  "context_probe_limit_kind": "CHARACTERS_NOT_CHAT_LLM_TOKENS",
+  "contexts_over_probe_limit": 1,
+  "children_resolving_over_limit": 1,
+  "documents": [
+    {
+      "source_id": "jd-general",
+      "subject": "EXTERNAL:JD",
+      "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+      "blocks": 20,
+      "children": 4,
+      "table_rows_verified": 4,
+      "max_encoder_tokens": 318,
+      "max_complete_context_chars": 1076,
+      "contexts_over_8000_chars": 0
+    },
+    {
+      "source_id": "jd-digital",
+      "subject": "EXTERNAL:JD",
+      "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+      "blocks": 21,
+      "children": 7,
+      "table_rows_verified": 0,
+      "max_encoder_tokens": 357,
+      "max_complete_context_chars": 1003,
+      "contexts_over_8000_chars": 0
+    },
+    {
+      "source_id": "mi-self-operated",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+      "blocks": 87,
+      "children": 20,
+      "table_rows_verified": 3,
+      "max_encoder_tokens": 383,
+      "max_complete_context_chars": 4043,
+      "contexts_over_8000_chars": 0
+    },
+    {
+      "source_id": "ikea-terms",
+      "subject": "EXTERNAL:IKEA_CN",
+      "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+      "blocks": 114,
+      "children": 35,
+      "table_rows_verified": 0,
+      "max_encoder_tokens": 382,
+      "max_complete_context_chars": 10513,
+      "contexts_over_8000_chars": 1
+    }
+  ],
+  "synthetic_scoped_retrieval_smoke": [
+    {
+      "origin": "CODEX_SYNTHETIC_SMOKE_NOT_GOLD",
+      "subject": "EXTERNAL:JD",
+      "query": "收到商品后发现损坏，可以退货吗？",
+      "required_chunk_ids": null,
+      "hits": [
+        {
+          "chunk_id": "jd-digital:child:e0a8c0521f1a1b959e66524d",
+          "source_id": "jd-digital",
+          "score": 0.7007500757597692,
+          "context_id": "jd-digital:b0005:section:draft",
+          "context_chars": 1003
+        },
+        {
+          "chunk_id": "jd-digital:child:cf635af80ef9fe829cb58e4d",
+          "source_id": "jd-digital",
+          "score": 0.6868806268332911,
+          "context_id": "jd-digital:b0003:section:draft",
+          "context_chars": 1003
+        }
+      ]
+    },
+    {
+      "origin": "CODEX_SYNTHETIC_SMOKE_NOT_GOLD",
+      "subject": "EXTERNAL:JD",
+      "query": "耳机拆封以后有质量问题，怎么申请售后？",
+      "required_chunk_ids": null,
+      "hits": [
+        {
+          "chunk_id": "jd-digital:child:1dfb370ce711f9a72fd171d2",
+          "source_id": "jd-digital",
+          "score": 0.673023976778128,
+          "context_id": "jd-digital:b0009:section:draft",
+          "context_chars": 139
+        },
+        {
+          "chunk_id": "jd-digital:child:f23ddc888c30d42ed194e757",
+          "source_id": "jd-digital",
+          "score": 0.6015499028922094,
+          "context_id": "jd-digital:b0011:section:draft",
+          "context_chars": 1003
+        }
+      ]
+    },
+    {
+      "origin": "CODEX_SYNTHETIC_SMOKE_NOT_GOLD",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "query": "定制商品可以七天无理由退货吗？",
+      "required_chunk_ids": null,
+      "hits": [
+        {
+          "chunk_id": "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+          "source_id": "mi-self-operated",
+          "score": 0.7714778458271117,
+          "context_id": "mi-self-operated:b0012:section:draft",
+          "context_chars": 2581
+        },
+        {
+          "chunk_id": "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+          "source_id": "mi-self-operated",
+          "score": 0.6667232127888674,
+          "context_id": "mi-self-operated:b0006:section:draft",
+          "context_chars": 2581
+        }
+      ]
+    },
+    {
+      "origin": "CODEX_SYNTHETIC_SMOKE_NOT_GOLD",
+      "subject": "EXTERNAL:IKEA_CN",
+      "query": "商品送到后发现质量问题，退货怎么处理？",
+      "required_chunk_ids": null,
+      "hits": [
+        {
+          "chunk_id": "ikea-terms:child:dfffee47b08417e929f262fb",
+          "source_id": "ikea-terms",
+          "score": 0.7013584496352498,
+          "context_id": "ikea-terms:b0042:section:draft",
+          "context_chars": 2873
+        },
+        {
+          "chunk_id": "ikea-terms:child:489aadd08ac580b395148ef0",
+          "source_id": "ikea-terms",
+          "score": 0.6179087236558843,
+          "context_id": "ikea-terms:b0034:section:draft",
+          "context_chars": 1865
+        }
+      ]
+    }
+  ]
+}

@@ -73,3 +73,38 @@ agent/.venv/Scripts/python.exe scripts/policy_drafts.py --audit-encoder --output
 先失败为新模块不存在/collection error；实现后18 passed，首次Ruff仅导入排序1项，修正后通过。补实际token审计及manifest/缓存漂移测试后，最终92 passed/0 skipped（26新增＋前批66），[JUnit](draft-tests.xml)。实际四页重解析和草稿构建、原来源hash、结构配置hash、唯一归属/上下文引用/文本hash校验通过，[机器报告](draft-summary.json)记录源码/配置/输出hash及长度。Tokenizer一次长序列警告为预期诊断，不是前向编码错误；不截断、不运行超长embedding前向。
 
 未运行：独立人审/商家政策采用、长章节子块编码与新索引、query Gold/相关性和检索对照、整体Agent/Java/浏览器。新增收费调用0，未重启服务/写业务库，依赖锁及原四脏文件保留。结构关系可能宽泛/遗漏，不保证“已找齐全部必要例外”；待审不阻止做长度可控的实验，但不能当生产政策发布。下一步按encoder实际限制拆分检索子块，完整依据保留父节/候选关联且测上下文体积，再建立新语料召回基线。
+
+
+## 2026-10-06 检索子块与本地向量探针
+
+新增`scripts/policy_chunks.py`及29项通用组件测试；本批复用冻结原文/草稿/encoder，未改生产代码、旧Gold、依赖或数据库。子块按直接章节块一次构建，真实token/offset切分并复核每个字符串，长段落无损；简单表格每行重复列名，保留原表/行/定位/hash。完整依据单独绑定章节及候选关联；重复上下文身份、重复章节映射、来源/hash错误明确拒绝。
+
+先失败：新模块不存在，collection error/退出1。初次实现7 failed/12 passed，Counter(dict)误把字典值作为计数，修正为Counter(keys)后19通过；Ruff闭包B023改为显式参数函数，未忽略诊断。追加歧义绑定负测后2 failed/27 passed（重复章节映射和context ID未拒绝），补通用唯一性校验后29通过。不是对query或退款场景定制答案。
+
+实际集中命令：
+
+```powershell
+agent/.venv/Scripts/python.exe -m ruff format --config agent/pyproject.toml scripts/policy_chunks.py agent/tests/unit/test_policy_chunks.py
+agent/.venv/Scripts/python.exe -m ruff check --config agent/pyproject.toml scripts/policy_chunks.py agent/tests/unit/test_policy_chunks.py
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_policy_chunks.py agent/tests/unit/test_policy_drafts.py agent/tests/unit/test_policy_documents.py agent/tests/unit/test_policy_chunking.py agent/tests/unit/test_rag_probes.py agent/tests/unit/test_live_baseline_merge.py -q --basetemp tmp/policy-chunks-tests-final --junitxml reports/policy-document-ingestion/child-tests.xml
+agent/.venv/Scripts/python.exe scripts/policy_chunks.py --max-tokens 384 --embed --output tmp/policy-documents-v1/children-final.json
+```
+
+最终121 passed/0 skipped（29新＋前批92），Ruff通过，[JUnit](child-tests.xml)。实际本地BGE revision7999e1d3359715c523056ef9478215996d62a620、encoder512、候选目标384；得到66向量/66子块，最长383 token、超限0。此前完整章候选16/29超512与当前子块0/66超限是不同粒度的长度诊断，不能称召回质量提升。
+
+| 来源 | 原文块 | 检索子块 | 最大token | 最大完整依据字数 |
+|---|---:|---:|---:|---:|
+| 京东总则 | 20 | 4 | 318 | 1076 |
+| 京东数码 | 21 | 7 | 357 | 1003 |
+| 小米有品 | 87 | 20 | 383 | 4043 |
+| 宜家条款 | 114 | 35 | 382 | 10513 |
+
+额外以`agent/.venv/Scripts/python.exe -`执行标准库＋既有本地embedder只读核验，输出[机器报告](child-summary.json)：当前源码/原草稿/output SHA一致；242块的247表示（含7表格行）逐片段区间连续、文本重组/原文定位/hash一致，无丢失或重复。每个实际chunk按不截断tokenizer重新计数；66×512维向量有限非零，范数0.999999928–1.000000116。每个chunk回查完整依据并检查主体/快照/hash。
+
+完整依据29份；8000字符探针上限下1份宜家根上下文10513字超限，关联1个chunk。实际返回CONTEXT_TOO_LARGE、complete=false/text=null及完整块引用，没有截断导出。8000仅探针字符参数，非聊天模型token预算、非生产限制；未把10513字正文送入LLM，也未证明全部必要关系语义正确。
+
+同一只读命令将机器报告所列4条CODEX_SYNTHETIC_SMOKE_NOT_GOLD问法经本地模型向量化，先按EXTERNAL主体过滤再exact cosine前2。4次/8命中0跨主体，保存query/score/chunk/context ID，未保存版权正文。required_chunk_ids全null，独立审查0，retrieval_accuracy=null；这只是向量/检索/回查接线探针，不算相关性或多依据覆盖通过，也不是来自真实客户。两页京东同一来源家族，不冒充独立商家样本。
+
+实际还跑过初版`children-v1.json`，绑定旧的中间构建器hash，仅作为本机中间产物；最终报告绑定`children-final.json`，不混用。对final重复执行相同CLI实际FileExistsError/退出1，原输出SHA未变，属于预期覆盖拒绝。Tokenizer在计数待拆长段落时报告537>512警告，前向embedding仅接收已验证≤384的最终子块；该警告不是对超长段落执行向量化。
+
+未运行：独立Gold/商家采用、正式召回准确率或前后算法受控比较、LLM上下文装配/整体Agent、Java/浏览器、生产政策发布/索引重建/服务重启。收费调用0、业务写入0。下一步补新语料逐query必要依据/例外/无答案标注与固定检索基线，之后按失败选择表示/query/排序调整；384尚未证实最优，父节过大/关联宽泛及行切分语义需评测。旧四脏文件和草图日志不夹带。
