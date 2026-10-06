@@ -1,0 +1,35 @@
+{
+  "version": "context-packet-audit-v1",
+  "report_sha256": "257b8e43adcadad6a32042c2bb58650ab15d395318ba412e4fb28975c7bacf69",
+  "cache_sha256": "333f55966ff5b013e359b36e7128b739a3f19237f48934e54a73702b2d47a927",
+  "checked_prefixes": 116,
+  "same_context_ids_and_block_mapping": true,
+  "additional_evidence_blocks": 0,
+  "lost_evidence_blocks": 0,
+  "source_snapshot_duplicates": 0,
+  "content_character_growth_prefixes": 0,
+  "canonical_json_token_and_hash_matches": 232,
+  "quality": null,
+  "summary": {
+    "dense/k2": {
+      "content_token_reduction_percent": 11.260192976186623,
+      "packet_token_reduction_percent": 2.0507738494272565,
+      "dedup_wrapper_fraction_percent": 83.74368405077756
+    },
+    "dense/k5": {
+      "content_token_reduction_percent": 16.705772718952282,
+      "packet_token_reduction_percent": 3.3573807777673603,
+      "dedup_wrapper_fraction_percent": 83.2670867668444
+    },
+    "bm25/k2": {
+      "content_token_reduction_percent": 6.591976640853126,
+      "packet_token_reduction_percent": 1.1262898623061957,
+      "dedup_wrapper_fraction_percent": 83.85094871766734
+    },
+    "bm25/k5": {
+      "content_token_reduction_percent": 18.30767950744654,
+      "packet_token_reduction_percent": 3.5370752361307156,
+      "dedup_wrapper_fraction_percent": 84.21355576850108
+    }
+  }
+}

@@ -84,3 +84,12 @@ agent/.venv/Scripts/python.exe scripts/policy_chunks.py --max-tokens 384 --embed
 [policy-representation-v1](../evals/policy-representation-v1/README.md)固定query/evidence/旧baseline和依赖，在复现旧排名后比较body与完整章节路径、完整context与来源块并集。22通用测试和真实本地embedding证明子块长度安全、来源块无损准入与预算拒绝；不改Java政策/生产索引，不增加LLM调用。
 
 完整标题路径在草稿dense前5退化，保留失败、不采用；“加标题通常有效”不能代替本项目测量。来源块去重减少本轮平均体积，但释放空间也可准入更多无关context，且贪心算法不能保证普遍不丢后续证据。下一步把依据选择与表达分开：先确定真正需要的context/条件/例外集合，再无损去重，并按聊天模型token与引用包装验证。当前字符实验不是完整Agent上下文优化，也不能代替独立标注。
+
+
+## 固定选择与证据包 token（2026-10-06）
+
+[policy-context-packet-v1](../evals/policy-context-packet-v1/README.md)把上一批的选择和表达拆开：复现旧整context的贪心准入，固定context IDs、来源块及指纹，然后无损去重。释放空间不再新增章节；通用反例证明后续context不会因为表达变化被替换。选择器不看query内容或Gold，来源/快照/原文与引用映射在选择后仍须校验。
+
+正文和完整引用JSON均用既有DeepSeek V4.1 tokenizer离线测量，不再拿字符等同模型token。两表达携带同样的网址、快照hash、块hash/定位和context映射；116前缀无源块丢失、新增或正文增长，但完整溯源字段占据大量token。前5正文token均值dense减少16.71%、BM25减少18.31%；含完整溯源的实验包仅减少3.36%/3.54%，不建议整包注入模型。旧生产上下文未改；本地证据包计数也不等于完整Agent请求或供应商计费。
+
+取舍：系统保留完整原文、版本、定位与hash；模型应只读取必要正文、短引用和必要的适用信息，通过受控回查解析完整来源。下一步另冻短引用实验，证明短引用可回查、跨主体/快照不可混用、来源变化可检出，再考虑接入生产，不能通过删掉系统溯源来刷token指标。当前独立人审0、正式质量null，不宣称相关性或回答质量改善；结果和实际命令见[报告](../reports/policy-document-ingestion/README.md)。

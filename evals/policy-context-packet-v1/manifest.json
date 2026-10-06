@@ -1,0 +1,41 @@
+{
+  "version": "policy-context-packet-v1",
+  "representation": "body",
+  "selection": "FROZEN_WHOLE_CONTEXT_BASELINE",
+  "context_chars": 8000,
+  "serialization": [
+    "repeated",
+    "deduplicated"
+  ],
+  "methods": [
+    "dense",
+    "bm25"
+  ],
+  "k": [
+    2,
+    5
+  ],
+  "packet_token_probes": [
+    2048,
+    4096,
+    8192
+  ],
+  "probe_kind": "OFFLINE_EVIDENCE_PACKET_ONLY_NOT_SPEND_LIMIT",
+  "production_adoption": false,
+  "frozen_before_measurement": true,
+  "files": {
+    "evals/policy-query-v1/manifest.json": "f849082353f1e78e1a3c0ec8693349003511ba7004f961203484c7968fe96a97",
+    "reports/policy-document-ingestion/query-baseline.json": "6e310f28253c37525e3ecd73950c04284abee8ed6716fd74057cfdf0cc3118f8",
+    "scripts/policy_context_packet_eval.py": "8a247c7e9c9d920f6da1126f7f537ee802c3b88da5152e3e787516d0ac189ab3",
+    "agent/tests/unit/test_policy_context_packet_eval.py": "110cecff7a1d53d9a7f07c7f60941ac6c36c739878063d66f280d076a479a3de",
+    "scripts/policy_query_eval.py": "029bd0ff114ff490c4fbcb40c8d185d82f45b24ebe5adf469b2d0c8b3c5d53bd",
+    "scripts/policy_representation_eval.py": "18aa082a311df3bd3ea7a779bef58625ddf8cb76674176676ec2a6849efd0e0d",
+    "scripts/policy_chunks.py": "250743bda0bc4f40f45bfd5604f90b5b4dac52c3a968fa55ea84368845d0229a",
+    "scripts/policy_drafts.py": "46509114c9f241b058e1af37a7b3dc81a62e83a40ab57ac364c7d50733728826",
+    "scripts/policy_documents.py": "2fd2eaace582ffbb00bd44b78c4f413d9ad737977d4f7a820ac0030043169078",
+    "agent/src/resolveflow/policies/retrieval.py": "4d550643ee606d86273d1c36c092e2992d77baeddad082e74ed81261be0bf4c6",
+    "agent/src/resolveflow/harness/context.py": "9a3694461a7e38785ae1060acd2a17f181cf1217c5fbafbb8c9952bdb55658f3",
+    "agent/src/resolveflow/harness/token_counting.py": "b8290a023e8ca79a172fa2a852c2cfa8a00123106b65da77bb1ed50a0ce0e785",
+    "agent/src/resolveflow/assets/deepseek-v41/tokenizer.json.gz": "a06de40d7aa5f5f2486dea7d0d516420edfe07e1d946b5ad2c57e73851de3008"
+  }
+}

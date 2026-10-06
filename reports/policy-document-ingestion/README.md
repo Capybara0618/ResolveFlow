@@ -182,3 +182,42 @@ agent/.venv/Scripts/python.exe scripts/policy_representation_eval.py --output re
 经验与取舍：检索加元数据可能稀释细则而非提高召回，完整路径的根/父标题有重复泛化词；这只是失败解释假说，未做叶标题/权重的新受控证明，不继续追参数或补两条题。上下文去重只保证单个已接纳context完整；释放空间会改变贪心准入顺序，通用测试证明可能新增早期context而挡住后面的context。本轮无损不能当普遍定理；若强调相同信息集合，应先固定context选择，再做来源块无损表达的新实验。
 
 全文/新向量保存在忽略cache，公开报告不含原政策正文；脚本强制full cache位于tmp、报告/cache不同且不能覆盖。实际同路径重复命令退出1/FileExistsError，报告/cache hash仍一致，属于预期覆盖拒绝。旧来源/Gold/解析器/依赖/生产代码均不改；付费LLM0、生产写入0、无部署或服务重启。未运行独立人审、真实客户/holdout相关性、LLM引用与token装配、拒答/整体Agent/Java/网页。后续先确认必要依据与适用性；可独立验证context选择与无损装配，当前标题试验失败和去重边界保留，不自动扩大算法栈或收费。
+
+
+## 2026-10-06 固定依据集合与完整溯源包 token
+
+按用户“开始下一步”完成[固定选择实验](../../evals/policy-context-packet-v1/README.md)，不重做旧解析/切分/排名。manifest在测量前绑定BODY、58条旧排名、前2/5、8000内容字符、旧query/依据/源码、本批实现与测试、官方V4.1 tokenizer。新脚本只重放已冻结排名，不重新embedding、不调用LLM，不改生产Agent/索引/协议。
+
+新增`scripts/policy_context_packet_eval.py`与34通用测试：选择器精确复现旧整context准入，固定接受context IDs、源块集合与指纹，表达阶段无权限接纳新context。选择不读取query文本、Gold或案例ID；同文不同出处/快照不合并。选择后原文、定位、网址或引用漂移拒绝；相同payload不同块身份报ambiguous，不静默丢出处。重复context和同出处同块的别名去重，全部超限返回空集合，整包token不足返回packet=null。
+
+两表达都有来源字典（URL/主体/rawsha）、源块metadata（原块ID/textsha/raw-fragment-sha/locator）与context有序引用/章节路径/全文sha。repeated在context保存全文；deduplicated在源块保存唯一全文并按引用重建context。源块元数据相同，不能通过隐去引用开销宣称节省。定位/hash保留使这套实验包相当重，不是生产SEARCH_POLICY接口，也不会自动授予外部政策权限。
+
+实际命令：
+
+```powershell
+agent/.venv/Scripts/python.exe -m ruff format --config agent/pyproject.toml scripts/policy_context_packet_eval.py agent/tests/unit/test_policy_context_packet_eval.py
+agent/.venv/Scripts/python.exe -m ruff check --config agent/pyproject.toml scripts/policy_context_packet_eval.py agent/tests/unit/test_policy_context_packet_eval.py
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_policy_context_packet_eval.py agent/tests/unit/test_policy_representation_eval.py agent/tests/unit/test_policy_query_eval.py agent/tests/unit/test_policy_chunks.py agent/tests/unit/test_policy_drafts.py agent/tests/unit/test_policy_documents.py agent/tests/unit/test_policy_chunking.py agent/tests/unit/test_rag_probes.py agent/tests/unit/test_live_baseline_merge.py -q --basetemp tmp/policy-context-packet-tests-final --junitxml reports/policy-document-ingestion/context-packet-tests.xml
+agent/.venv/Scripts/python.exe scripts/policy_context_packet_eval.py --output reports/policy-document-ingestion/context-packet-experiment.json --cache-output tmp/policy-documents-v1/context-packets-v1.json
+```
+
+先失败为缺模块collection error/退出1；实现后19测试通过，扩充主体/快照隔离、选择不读Gold、全文重建/额外引用/原文漂移、token原子拒绝和真实tokenizer不截断后34通过。最终集中204 passed/0 skipped（34新增+前批170），Ruff通过，[JUnit](context-packet-tests.xml)。文档第一次patch因段落锚点不匹配失败，纠正后写入；未覆盖已有文档或冻结资产。测试使用通用ABC来源块和变体，不按29个query修代码。
+
+[报告](context-packet-experiment.json)58条原排名形成116个前2/5前缀；旧计分/体积/预算拒绝全部复现。另通过`agent/.venv/Scripts/python.exe -`读取本机cache和报告，逐包重建context、比对源块身份、canonical JSON hash和真实token计数，输出[独立重算审计](context-packet-audit.json)：116前缀无新增/丢失源块、无正文字符增长，232包的hash/token一致。这里“独立重算”是另一校验路径，不是独立人工审查。
+
+| 方法/前缀 | 正文token均值：重复→去重 | 完整溯源JSON token均值：重复→去重 | 正文降低 | 整包降低 |
+|---|---:|---:|---:|---:|
+| dense/前2 | 1061.41→941.90 | 5915.34→5794.03 | 11.26% | 2.05% |
+| dense/前5 | 2072.17→1726.00 | 10673.34→10315.00 | 16.71% | 3.36% |
+| BM25/前2 | 1086.48→1014.86 | 6355.93→6284.34 | 6.59% | 1.13% |
+| BM25/前5 | 2072.24→1692.86 | 11116.72→10723.52 | 18.31% | 3.54% |
+
+计数用项目固定官方V4.1 tokenizer（raw SHA `81f64d1248a68ce3663e07ab3ee48b851e5df0e32d27cb98e4c9a268151e8d99`），无padding/truncation或网络。计量对象仅实验canonical JSON证据包，不包含system/tools/history/chat template，不等于生产完整请求或provider usage。wrapper_delta是包token减正文拼接token；token边界不具字段可加性，该差值不能当逐字段准确账单。去重包这一差值占总token约83%–84%，完整定位链的大量元数据明显抵消了正文节省。
+
+每组29问，dense前5有23包降低/6增加；BM25前5有22降低/7增加。增加包均没有正文去重收益，额外JSON结构仅增加2–3token，照实保留，不声称每问节约。S:IK04/BM25固定原选择后5913→5193字符，原已拒b0042仍拒；上一批重新准入后7708的增加不会重现。这是机制反例诊断，不按此query写分支。
+
+离线2048/4096/8192长度探针包含全部引用JSON，超限整包拒绝，不修改生产预算或API费用限额。前5在8192探针下dense两表达均仅3/29完整，BM25均2/29；4096/2048前5均0。说明完整溯源包本身不适合直接注入小窗口，去重并没有修好这件事；不是现有生产Agent的失败率。probe完整性是长度验证，无法证明检索语义已充分。
+
+决定：保留“先选后表达”机制与失败证据，**不部署当前完整溯源包**。下一步将模型需要的短引用/适用信息与系统留存的定位/hash账本分开，另冻版本，仍保持同信息集合，验证短引用唯一解析、来源篡改/错快照/错主体拒绝，再测包含引用的token与生产适配收益。不删系统证据链，不把一套离线包当最终Agent优化成果。
+
+全文包仅在忽略tmp，报告只存hash/IDs/计数。相同CLI输出路径实际FileExistsError/退出1，报告/cache未变；冻结依赖/hash/链接/diff检查通过。生产代码/依赖/原文/Gold/旧报告均保留，收费调用0、业务写入0、无重启部署。未运行独立人审/真实用户holdout、LLM引用理解/建议质量、整体Agent/Java/浏览器。独立Gold0、正式质量null；选中章节本身仍可能太宽，不把无损表达当相关性过滤。原四脏文件和草图日志不夹带。
