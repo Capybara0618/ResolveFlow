@@ -1,11 +1,14 @@
-## 当前快照（2026-10-06，RAG完整批次工程完成，真实Agent对照执行中）
+## 当前快照（2026-10-06，RAG语义验证/生产接入/整体Agent对照批次完成）
 
-- 用户要求连贯完成语义质量验证、生产接入与整体Agent对照后一次收口；不以小实验结束。按[批次规格](../docs/rag-delivery-batch.md)及[报告](../reports/rag-delivery/README.md)，原冻结语料/Gold/排序/预算不改，独立人审仍0。
-- 116短引用包全部来源回查，正文信息集相同；前5完整实验JSON dense/BM25减少73.93/74.73%，不是生产整体token指标。真实语义源审22/29协议合法、7失败；18需依据问题前2全依据dense11/BM2513，前5均18；仅模型辅助，正式准确率null。80实际语义请求、首次29误计已按0发送明确更正，所有失败报告保留。
-- 生产真实encoder目标384检索子块/完整父政策权威引用已接，012追加迁移；逐字符来源/向量/版本/范围/READY完整性、全bundle generation锁定及manifest绑定，无审批/退款权。真实BGE/PG长规则1501→4子块/最大380，尾部例外/hash完整回传，超长query拒绝。公开原文仍EXTERNAL_REFERENCE，未采用为商家政策。
-- 最终相关集中800 passed/0 failed/errors/skipped（137.12s）、Harness28/28、当前rag-delivery-v13 strict14/14、Ruff/diff通过。中间785/15及并行DDL导出13/1失败均保留；诊断回归修复/原断言保留，旧回放不兼容不覆盖，只追加当前14包。mypy16既有错误/9文件/75源码，无新增但全项目类型门禁失败。整个历史测试目录曾中断，8可见失败未归因，不能宣称全项目通过。
-- Docker因dockerInference套接字启动失败；强制结束/清理被自动审批拒绝，未执行；正常停止也失败。临时官方PG16.15 Windows ZIP在tmp、仅127.0.0.1:55434新agent_db，首次probe fsync开启，后续隔离验证关闭fsync/synchronous_commit，不宣称断电持久性；原库/卷/业务记录不动，无全局服务安装。部署到原Docker/Java整链/网页/日常run消费未运行。
-- 开工生产及入口hash与旧32基线一致，只有未进Agent的离线rag_probes不同，baseline-provenance.json记录。当前工程提交/普通push核实后用固定输入/参数/12次配置真实跑新32例，再做匿名X/Y语义三维判断；不重跑before或为满分改单例。原四历史脏文件和草图日志不夹带，本实施者仍继续本完整批次。
+- 用户要求一次连贯做到整体Agent对照再结束；已完成[批次规格](../docs/rag-delivery-batch.md)及[统一报告](../reports/rag-delivery/README.md)。未改旧Gold/原语料/冻结query/提示与预算，未添加题目特例/自动hybrid/rerank；独立人审0，正式准确率null。
+- 116短引用固定信息集全部回查；前5完整实验JSON dense/BM25减少73.93/74.73%，不是生产整体token收益。语义源审22/29协议合法、7失败，18需依据题前2全依据dense11/BM2513、前5均18；模型辅助未当人审。政策语义80实际请求；首次29误计按0实际发送明确调整，失败报告/拒绝响应保留。
+- 生产真实encoder目标384检索子块/完整父规则权威引用已接，012追加迁移；精确字符跨度/原文/向量/READY完整性、全bundle generation一次锁定及manifest绑定，旧索引可沿用。真实BGE/PG长规则1501→4子块/最大380，尾部例外/hash完整返回，超长query拒绝。公开原文仍EXTERNAL_REFERENCE，未采用为商家政策，无审批/退款权限扩张。
+- 最终相关集中800 passed/0 failed/errors/skipped（137.12s）；另58入口/指标/评分相关项通过，其中5新增，805不同相关用例。Harness28/28、当前rag-delivery-v13 strict14/14及正式默认CLI14/14、Ruff/diff通过。保留中间785/15与并行DDL导出13/1失败，原诊断断言保留/回归已修；旧回放不覆盖。mypy16既有错误/9文件/75源码，无新增但全项目类型门禁失败。整个历史测试目录中断/8可见失败未归因，不宣称整个项目通过。
+- 固定工程4c1b67e已核实正常push；evals/rag-delivery-v4冻结34生产文件/入口/模型/12次预算/32例，live期间源码未变。新真实Agent31/32联合达标/31完成/1未完成，0调用错误/0接受禁止终局，165实际请求，provider input289906/output21516；基线31/32/158/input273381/output18588开工hash一致复用。A03B此次人工复核；A15B单来源CONFLICT格式被拦、一次反馈后ESCALATE，无有效终局，保留失败不追补丁。自动率未提高、用量未下降，不宣称RAG收益。
+- 匿名语义32组/34实际请求：30有效/2协议失败；完成候选各30份有分数，模型原判baseline29/30、candidate30/30。baseline A10B标记与已注入ReviewSnapshot及当前证据version/hash相悖，judge-source-audit.json保存Codex来源核查；原评分未改，不据此宣称语义提升。两组失败因评估员仍给未完成者写false评分，不偷偷删除后算通过；独立人审仍0。
+- 本批实际新增279请求（政策语义80+Agent165+匿名34），ledger474→753/limit=null，不重置；199 Agent/匿名调用usage齐全，但政策v2有24缺usage，全批token总量null不补造。最终live/匿名结束后才更新eval默认回放/14包门禁，final-entry-audit.json说明，不改变生产循环；真实重現checkout4c1b67e。
+- Docker因dockerInference套接字启动失败；强制结束/清理被自动审批拒绝且未执行，正常停止也失败。临时官方PG16.15 Windows ZIP仅tmp/127.0.0.1:55434新agent_db，首次probe fsync开启，后续隔离验证关闭fsync/synchronous_commit，不宣称断电持久性。已正常停止临时PG，目录及中断留下1临时schema保留；原库/卷/业务数据未动。未部署到原Docker/Java整链/网页、未消费日常队列/执行退款。
+- 原四历史脏文件及草图日志不夹带。本完整批次最终精确commit/正常push核实后本实施者停止写入。后续只按用户指示：独立确认标签/商家政策采用、Docker恢复后保留数据部署及Java整链；不重做本批/旧迁移或自动付费刷分。最终SHA/远端状态在交接回复给出。下方均为历史。
 
 ## 当前快照（2026-10-05，生产配置真实基线完成）
 

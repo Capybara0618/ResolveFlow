@@ -1,0 +1,11 @@
+{
+  "manifest_sha256": "7fd83c6b5a20569aa72a37d6f619c22b1a2f8c0b670f3755921e53cf9550d963",
+  "agent_report_sha256": "c4e156d4e394f8f2a6f2a19729d71a00653e5fa90bed49a293ccff7fd1bfbf50",
+  "runtime_commit": "4c1b67edee3b3030c94dc7c8d624ef250c400dd3",
+  "runtime_files_unchanged_during_live": true,
+  "entry_unchanged_during_live": true,
+  "cases": 32,
+  "new_production_scope": "bounded native policy retrieval plus whole-rule citation and pinned generation map",
+  "old_baseline_scope": "matching starting runtime verified in baseline-provenance.json",
+  "no_added_case_specific_rules": true
+}

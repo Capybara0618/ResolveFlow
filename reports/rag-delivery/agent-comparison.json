@@ -1,0 +1,216 @@
+{
+  "controlled_configuration_matched": true,
+  "baseline": {
+    "n": 32,
+    "joint_correct": 31,
+    "action_correct": 31,
+    "forbidden_actions": 0,
+    "errors": 0,
+    "incomplete": 1,
+    "model_calls": 158,
+    "completed": 31,
+    "request_records": 158,
+    "requests_with_provider_usage": 158,
+    "requests_without_provider_usage": 0,
+    "provider_input_tokens": 273381,
+    "provider_output_tokens": 18588,
+    "model_aliases": {
+      "deepseek-flash": 158
+    },
+    "failures": [
+      {
+        "id": "A03B",
+        "status": "INCOMPLETE",
+        "completed": false,
+        "action": null,
+        "reason_code": "MISSING_EVIDENCE_ON_REFUND",
+        "missing_support": [],
+        "missing_rules": [],
+        "notices": [
+          "REFUSED UNSHIPPED_FACTS_REQUIRED [FACT]: UNSHIPPED_FACTS_REQUIRED: get_order_context.line_refund_state=RESERVED; required FREE; balance (minor units): order_paid_amount=32900,refunded_amount=0,reserved_refund_amount=32900,line_paid_amount=32900; paid-refunded-reserved must cover line_paid_amount; 占用/未知/冲突不能建议REFUND，不得据此拒绝整个申请。缺失可补查；占用/冲突需ESCALATE人工核对，不向客户索要绑定编号。. Check the named current fields. Occupied/unknown is not refundable; a failed entitlement condition does not justify REJECT. Missing source: read it. Conflict: {\"kind\":\"ESCALATE\",\"reason_codes\":[\"NEEDS_HUMAN_VERIFICATION\"]}. repair_remaining=1"
+        ]
+      }
+    ]
+  },
+  "candidate": {
+    "n": 32,
+    "joint_correct": 31,
+    "action_correct": 31,
+    "forbidden_actions": 0,
+    "errors": 0,
+    "incomplete": 1,
+    "model_calls": 165,
+    "completed": 31,
+    "request_records": 165,
+    "requests_with_provider_usage": 165,
+    "requests_without_provider_usage": 0,
+    "provider_input_tokens": 289906,
+    "provider_output_tokens": 21516,
+    "model_aliases": {
+      "deepseek-flash": 165
+    },
+    "failures": [
+      {
+        "id": "A15B",
+        "status": "INCOMPLETE",
+        "completed": false,
+        "action": null,
+        "reason_code": "ACTION_REFUSED",
+        "missing_support": [],
+        "missing_rules": [],
+        "notices": [
+          "REFUSED ACTION_REFUSED [FORMAT]: the model's action is not one this ABI accepts: review_findings.4: Value error, a conflict must name at least two observed sources. Use published flat fields; no type/action wrapper. If unable: {\"kind\":\"ESCALATE\",\"reason_codes\":[\"NEEDS_HUMAN_VERIFICATION\"]}. repair_remaining=1"
+        ]
+      }
+    ]
+  },
+  "changed_outcomes": [
+    {
+      "id": "A03B",
+      "joint_correct": {
+        "baseline": false,
+        "candidate": true
+      },
+      "completed": {
+        "baseline": false,
+        "candidate": true
+      },
+      "action": {
+        "baseline": null,
+        "candidate": "MANUAL_REVIEW"
+      },
+      "reason_code": {
+        "baseline": "MISSING_EVIDENCE_ON_REFUND",
+        "candidate": "COMPLETED"
+      }
+    },
+    {
+      "id": "A07B",
+      "joint_correct": {
+        "baseline": true,
+        "candidate": true
+      },
+      "completed": {
+        "baseline": true,
+        "candidate": true
+      },
+      "action": {
+        "baseline": "MANUAL_REVIEW",
+        "candidate": "REQUEST_INFO"
+      },
+      "reason_code": {
+        "baseline": "COMPLETED",
+        "candidate": "COMPLETED"
+      }
+    },
+    {
+      "id": "A14B",
+      "joint_correct": {
+        "baseline": true,
+        "candidate": true
+      },
+      "completed": {
+        "baseline": true,
+        "candidate": true
+      },
+      "action": {
+        "baseline": "MANUAL_REVIEW",
+        "candidate": "REQUEST_INFO"
+      },
+      "reason_code": {
+        "baseline": "COMPLETED",
+        "candidate": "COMPLETED"
+      }
+    },
+    {
+      "id": "A15B",
+      "joint_correct": {
+        "baseline": true,
+        "candidate": false
+      },
+      "completed": {
+        "baseline": true,
+        "candidate": false
+      },
+      "action": {
+        "baseline": "MANUAL_REVIEW",
+        "candidate": null
+      },
+      "reason_code": {
+        "baseline": "COMPLETED",
+        "candidate": "ACTION_REFUSED"
+      }
+    }
+  ],
+  "anonymous_semantic": {
+    "baseline": {
+      "total_cases": 32,
+      "validated_judgment_denominator": 30,
+      "factual_support": 29,
+      "policy_application": 30,
+      "action_reason_alignment": 30,
+      "all_three_passed": 29,
+      "uncertain_true": 0,
+      "uncertainty_unspecified": 0,
+      "unassessed": [
+        {
+          "id": "A03B",
+          "reason": "ERROR"
+        },
+        {
+          "id": "A15B",
+          "reason": "ERROR"
+        }
+      ],
+      "failed_dimensions": [
+        {
+          "id": "A10B",
+          "candidate": "Y",
+          "factual_support": false,
+          "policy_application": true,
+          "action_reason_alignment": true,
+          "rationale": "将案件证据中的复核结论表述为INCONCLUSIVE，但该观察结果仅含证据引用，未显示此结论，属无来源事实；其余签收争议适用与转人工建议一致。",
+          "uncertain": false
+        }
+      ]
+    },
+    "candidate": {
+      "total_cases": 32,
+      "validated_judgment_denominator": 30,
+      "factual_support": 30,
+      "policy_application": 30,
+      "action_reason_alignment": 30,
+      "all_three_passed": 30,
+      "uncertain_true": 0,
+      "uncertainty_unspecified": 0,
+      "unassessed": [
+        {
+          "id": "A03B",
+          "reason": "ERROR"
+        },
+        {
+          "id": "A15B",
+          "reason": "ERROR"
+        }
+      ],
+      "failed_dimensions": []
+    }
+  },
+  "semantic_model_requests": 34,
+  "semantic_protocol_errors": 2,
+  "human_review_count": 0,
+  "official_human_accuracy": null,
+  "limits": [
+    "synthetic cases and HTTP/MCP sources; real LLM/SDK/BGE/PG",
+    "same-model semantic judging is correlated, not independent human Gold",
+    "one new cohort versus preserved baseline, no stochastic confidence interval",
+    "no overall quality/usage gain causally attributed to RAG from this single comparison",
+    "new temporary Windows PG differs from historical Docker runtime; no latency advantage claim"
+  ],
+  "files": {
+    "reports/agent-live-harness-baseline/live-baseline.json": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+    "reports/rag-delivery/agent-live.json": "c4e156d4e394f8f2a6f2a19729d71a00653e5fa90bed49a293ccff7fd1bfbf50",
+    "reports/rag-delivery/agent-semantic.json": "c5d387ae8176f606b934cf1d25c87f5bdaf92e05ec40b463a3eb030ba7a3dad4"
+  },
+  "runner_sha256": "bd31160c36eaeb7b7e50d2db935a356acb0c0859726a060ca5df8b6182a7a720"
+}

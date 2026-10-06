@@ -1,0 +1,17 @@
+{
+  "previous_audit_sha256": "d409005349a3dc1ff01a19aeff3b178ece9e8a179123ccee4b6cd9ccad8bb694",
+  "new_files": [
+    {
+      "file": "reports/rag-delivery/comparison-tests.xml",
+      "raw_sha256": "692ecfad8976896221729e14b01fa3564e35b54a040b089585312f8facda1054",
+      "normalized_sha256": "a8ad1d6b8b757df44a9f95bd7a9392d44259f288f8657cb06dd91d57634bceed",
+      "transformation": "LF and line-end whitespace only"
+    },
+    {
+      "file": "reports/rag-delivery/final-entry-tests.xml",
+      "raw_sha256": "502c9e1df6031f92e5a8b85d7f7d28e0737969bdcd8af05fa82ad18062a492ba",
+      "normalized_sha256": "dd5d5471700de9e8273356fd1ce08f367b29bca432fe1c4630257b6bd933f0e4",
+      "transformation": "LF and line-end whitespace only"
+    }
+  ]
+}

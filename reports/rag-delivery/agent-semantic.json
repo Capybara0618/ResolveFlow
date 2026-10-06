@@ -1,0 +1,1422 @@
+{
+  "version": "model-assisted-semantic-v1",
+  "mode": "agent",
+  "state": "FINISHED",
+  "baseline_sha256": "d964b277b0b7d12a458e8e62c6cdda1ae194fb56d6d7d60e4a739c9290a7ddf0",
+  "candidate_sha256": "c4e156d4e394f8f2a6f2a19729d71a00653e5fa90bed49a293ccff7fd1bfbf50",
+  "human_review_count": 0,
+  "official_human_quality": null,
+  "origin": "LLM_ASSISTED_NOT_HUMAN_GOLD",
+  "runner_sha256": "47b78042219a95e525540881f1bd6100b973e2782f52d6ded1e599352dce001f",
+  "prompt_sha256": "5ec4404ef44fbb2d0bc68b4944fc822ed1c62eae73aa73bf76c8dd9f3ae41712",
+  "provider": {
+    "model": "deepseek-flash",
+    "parameters": {
+      "temperature": 0,
+      "thinking": {
+        "type": "disabled"
+      },
+      "response_format": {
+        "type": "json_object"
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "A01A",
+      "input_sha256": "0f5bd68a18244f0f567f59d0739d69873f3724de2f8adc79c5532a7f395d5cfc",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 5210,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "关键事实均来自订单上下文与客户陈述，未捏造；已付款、NOT_SHIPPED、无退款占用，买错尺寸符合R-UNSHIPPED-001，且R-MONEY-001下无成功退款记录，建议退款与事实一致，并明确仅建议、由商家审批。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与订单记录一致，未虚构；适用未发货全额退款条件正确，无退款占用且无成功记录，建议退款与理由相符，并说明不构成退款授权、需商家审批。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5474,
+            "output_tokens": 188,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "161d53536966a8702d3c85c0476b6857aa3028dda3ee4381c7f573c2f901b900"
+    },
+    {
+      "id": "A01B",
+      "input_sha256": "b7db785625fea7f2064926955f362629bb3509bd3566a94e8263e40fcf6868c7",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 4174,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "读取到订单已付款、履约状态为IN_TRANSIT、承运结论在途，客户主张买错尺寸。已发货不适用未发货退款条款，在途也不等于丢失；客户单方陈述未经核验，故转人工核验合理，未捏造事实或声明已退款。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "观察与X一致：订单已付款、履约在途、承运在途，客户称买错尺寸。已发货排除未发货退款，在途非丢失，客户陈述未核验，转人工核验符合政策，未虚构核验结论或声称已执行退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 4438,
+            "output_tokens": 200,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "52b21c156a7a21489640f330811a45446d3449736c2d113370e00dec34b360d5"
+    },
+    {
+      "id": "A02A",
+      "input_sha256": "b4efc928443665ec38107baf8fd2f6ab644ca2e3d751aae7a93f7da187d45e4c",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 5190,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "关键事实均来自订单上下文与客户陈述，未捏造；已付款、NOT_SHIPPED、无退款占用符合未发货退款条件，重复购买属可申请情形；建议为模拟建议且由商家审批，未声明已执行退款。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与订单证据一致，未捏造；正确适用未发货条款并排除无关的破损条款，退款记录为0不触发重复退款限制；建议措辞为模拟建议、商家审批，未越权声明已退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5454,
+            "output_tokens": 181,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "1336c513398c165c58e620d00f2c057c886cf407e92de61acfcfbdd1efb16750"
+    },
+    {
+      "id": "A02B",
+      "input_sha256": "4b68700a67a2cb73d99710d8bbeb735e5b2a4afa90ba804f5f0acee7316dfd2e",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 4349,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "读取到订单已付款、退款状态FREE、承运记录IN_TRANSIT，与客户重复下单撤回诉求一致；已发货故不适用未发货退款，转人工核验合理，未声明已退款。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "订单已付款、无退款占用、承运在途，客户重复下单撤回；在途不适用未发货条款，转人工核验符合政策，未虚构事实或声称已执行退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 4613,
+            "output_tokens": 163,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "6ac693734b162b46defc7a5908e6a9bc1bb513e021ab75678e2272dbc35a40c1"
+    },
+    {
+      "id": "A03A",
+      "input_sha256": "6dc55b93dec4347c5f00343b6e329e7420017b951aaea5bfee0bf147419daaea",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 5144,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "订单记录显示已付款、NOT_SHIPPED、无退款占用，客户陈述改变购买计划，符合未发货全额退款条件；无既有退款成功记录，建议仅为模拟退款并由商家审批，事实与政策适用一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "订单记录显示已付款、NOT_SHIPPED、无退款占用，客户陈述改变购买计划，符合未发货全额退款条件；无既有退款成功记录，建议仅为模拟退款并由商家审批，事实与政策适用一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5408,
+            "output_tokens": 175,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "d696a7b0d80e2e927babd16f3381a5821fd77f6054612a788da714605c212696"
+    },
+    {
+      "id": "A03B",
+      "input_sha256": "8a98a5f90a2e570b3b16df2ecd6c0b500dff080a76cf8d6fcc46de1a660e0063",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 4788,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5052,
+            "output_tokens": 151,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "missing or extra semantic candidates"
+        },
+        {
+          "usage": {
+            "input_tokens": 5253,
+            "output_tokens": 151,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "missing or extra semantic candidates"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "0957cda3baea809c32e16d48121db13ab4a9c68fbf2fbe4aa55c4b9b12279ea5"
+    },
+    {
+      "id": "A04A",
+      "input_sha256": "d181956542ad8f35fa67f4f7d1b06b7c6ded003eb11812be10c6e6efea1ba967",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 5214,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自订单上下文与客户陈述，未捏造；已付款、NOT_SHIPPED、无退款占用，买错颜色符合R-UNSHIPPED-001；无退款成功记录，R-MONEY-001适用，建议退款并声明仅建议、由商家审批，动作与理由一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与订单上下文一致，无捏造；未发货、已付款、无退款占用满足R-UNSHIPPED-001，买错颜色属可申请情形；R-MONEY-001无成功退款记录，建议退款且明确仅为建议、商家审批，动作与理由一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5478,
+            "output_tokens": 209,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "1dcc44e7c5426d9a5a07e8d092b7c7edffe98a57c761ce4a28d98d6b25047312"
+    },
+    {
+      "id": "A04B",
+      "input_sha256": "a8fb9a305f4b1bab3ac521e73b0bcbfd7a5e33a5e38934de84d5891a0b13cf7c",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 4846,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "仅引用客户陈述与政策检索，未捏造事实；正确指出买错规格属R-UNSHIPPED-001但需商家履约记录确认未发货且无退款占用，订单读取失败故请求补证，动作与理由一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自客户陈述与政策检索，未编造；正确适用R-UNSHIPPED-001前提并说明不得以无物流代替未发货确认，因订单与退款状态不可读而请求补证，动作与理由一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5110,
+            "output_tokens": 182,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "5bf54584acdfa0b2b446db1bbfd0e8bd6f6c7ae533723d14df91b86f77aed7e2"
+    },
+    {
+      "id": "A05A",
+      "input_sha256": "0e9174ae1ba7822dba9e59d15f96a370675d6fad4610558fd12feb68016f04c5",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 5963,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运记录LOST、无有效签收、商家核验CONFIRMED，订单已付32900且未退款，均与观察一致；R-LOST-001条件满足，建议全额退款与事实理由一致，未声称已执行。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运LOST、无有效签收、商家核验CONFIRMED，订单已付32900且无退款，事实均有来源；R-LOST-001适用正确，建议全额退款与理由一致，未越权声明已退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6227,
+            "output_tokens": 180,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "c603e9e72b6924fa3bf1e5e235614eac2369516ccbf53e98d4c7af228d83de14"
+    },
+    {
+      "id": "A05B",
+      "input_sha256": "82a1dd1fabb448856d9f6a360464a3a926bdded97a688e88a752a0ccd70ddf34",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 6438,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自订单、物流与案件证据：在途、无异常、复核INCONCLUSIVE。正确适用R-LOST-001与R-INTRANSIT-001，认定不满足丢失退款条件，转人工复核，未声明已退款。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与观察一致，在途无异常、复核未确认丢失。正确适用丢失与在途条款，建议人工核验而非退款，未越权声明执行退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6702,
+            "output_tokens": 168,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "a9757809e51bc55c7a4e61fb5f3469cd503eda3b062698c4538da20e82a4d895"
+    },
+    {
+      "id": "A06A",
+      "input_sha256": "0d616c1541fa55e8f5929e94c0b09677a5e7572fd99444c37ddfa0d4b4be233c",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 6008,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运LOST、无有效签收、商家核验CONFIRMED，订单已付32900分未退款，符合R-LOST-001；建议全额退款与事实一致，仅建议未声明已执行。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运LOST、无有效签收、商家核验CONFIRMED，订单已付32900分且退款状态FREE，符合R-LOST-001；建议全额退款与事实一致，仅建议未声明已执行。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6272,
+            "output_tokens": 171,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "15f0f6e00f4bb76f9de4a36b5fa5d04b92fa1ab3e2f7f8f08b93c41603a0f59c"
+    },
+    {
+      "id": "A06B",
+      "input_sha256": "7e34a8daf53ce3a7107959b79992f5b7dc503a18250516af6409b299ef55fc14",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 6704,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自订单、物流与案件证据，未捏造；正确认定承运结论DELIVERED、复核INCONCLUSIVE，不满足R-LOST-001全额退款条件，并按R-SIGNED-001转人工核验签收记录，建议与理由一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与观察一致，未虚构签收记录；正确适用R-LOST-001与R-SIGNED-001，认定签收与未收到主张冲突、丢失未确认，转人工核验，动作与理由一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6968,
+            "output_tokens": 185,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "e3dd9657953de9f4b10ca5c67e4e1bdb5a6c465f8468fe108f60d22906360417"
+    },
+    {
+      "id": "A07A",
+      "input_sha256": "8775a46f948056205742335465d93aa900df0fdf429227d133a181b46ce32c64",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 6300,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运LOST、商家核验CONFIRMED、无有效签收、退款状态FREE，事实均有对应Observation；适用R-LOST-001条件正确，仅建议退款未声称已执行，金额与实付一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运LOST、商家核验CONFIRMED、无有效签收、未退款，事实来源充分；R-LOST-001适用条件满足，建议全额退款与事实一致，未越权声明已退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6564,
+            "output_tokens": 171,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "50f0ea3fc9248c31d4f68eca4b6d5798b1aaff62d8e325161f06f3cfffc139f1"
+    },
+    {
+      "id": "A07B",
+      "input_sha256": "b712414505fd9bb8771af0dd21097470d892a17127454e28b4e1f5cdefe05257",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 6293,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自订单、物流与案件证据：在途、无异常、复核INCONCLUSIVE。正确适用R-INTRANSIT-001与R-LOST-001，未把在途或单方主张当丢失，未将RESERVED当可退款，仅建议补证/转人工，未声称已退款。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用一致：在途、无异常、复核INCONCLUSIVE。正确适用在途与丢失条款，未将RESERVED视为可再次退款，仅建议转商家人工核验，未声明已执行退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6557,
+            "output_tokens": 195,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "182522f8c7d2ce9908189bbf8452c7aa93fac6f06706543e2f07656d0bdd912c"
+    },
+    {
+      "id": "A08A",
+      "input_sha256": "648a8b04838c7c41bc27defc321aa8fd7f851c0207f90b3d211eb702c669db36",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 6042,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运结论LOST、无有效签收、商家核验CONFIRMED，订单实付32900且退款状态FREE，事实均有对应Observation。R-LOST-001适用条件满足，建议全额退款与事实一致，且仅表述为建议。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运结论LOST、无有效签收、商家核验CONFIRMED，订单实付32900且退款状态FREE，事实均有对应Observation。R-LOST-001适用条件满足，建议全额退款与事实一致，且仅表述为建议。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6306,
+            "output_tokens": 185,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "2e19ebeb37259fc464f7c33bb235d5f3bd19e5019962f905d125dbf8830dce75"
+    },
+    {
+      "id": "A08B",
+      "input_sha256": "e3ebe3997750b8fb51683d27ae6ec1c24c1bc2d723b56a5da21647e2e79df3db",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 4161,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "读取到订单在途、客户未收到主张及核验结论为不确定；无承运丢失确认，故升级人工核验符合运输中/丢失条款，未捏造事实或越权退款。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "同样读取到在途、未收到主张与不确定核验；缺少承运丢失确认，升级人工核验与政策一致，未声明已退款或误用未发货条款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 4425,
+            "output_tokens": 158,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "70a8ed93252e41e4cb6cd429a15a3f33c469aa276005035d9306b9e785b05949"
+    },
+    {
+      "id": "A09A",
+      "input_sha256": "e94f0f0557325199c750f394d4b60e82c0aefc585d9ef9680b14d6dba38d91ac",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 6034,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "关键事实均来自真实Observation：承运LOST、无有效签收、商家核验CONFIRMED、订单已付款且退款状态FREE。适用R-LOST-001条件成立，建议全额退款与事实一致，且仅作建议未声明已执行。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与Observation一致，承运LOST、无有效签收、商家核验CONFIRMED、行退款FREE。R-LOST-001适用条件满足，建议全额退款并注明由商家审批，动作与理由一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6298,
+            "output_tokens": 182,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "0e920831e444476f72cbdad21f2aeaf2fe1d12cd1a22722a1b94850ba2a9a0c0"
+    },
+    {
+      "id": "A09B",
+      "input_sha256": "d51716c0780b2389c71190f87cc84f08846c5703065623a702147f3ada8aefc2",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 6284,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自订单、物流与案件证据，无捏造；正确适用R-SIGNED-001，认定签收争议且签收人待核验，排除R-LOST-001；建议转人工核验而非直接退款，与事实和理由一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与观察一致，无捏造；正确适用R-SIGNED-001并说明例外路径，未误用R-LOST-001；建议人工核验签收人、暂不退款，动作与理由一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6548,
+            "output_tokens": 183,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "dc1507317b81b84091e64404730af1da87bf9219881491dd41016dab0d8b4436"
+    },
+    {
+      "id": "A10A",
+      "input_sha256": "51ae2ee0a51a4879429221e4350929e46bfa81b63eae07bb56a1e4937f7a6475",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 5988,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运LOST、无有效签收、商家核验CONFIRMED，订单已付款32900且未退款，事实均有对应Observation。适用R-LOST-001全额退款条件，建议REFUND与事实理由一致，仅建议未声明已执行。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运LOST、无有效签收、商家核验CONFIRMED，订单已付款32900且未退款，事实均有对应Observation。适用R-LOST-001全额退款条件，建议REFUND与事实理由一致，仅建议未声明已执行。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6252,
+            "output_tokens": 187,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "3a1ea01839bc4ab981d8f318b1038b94ce6853d7b2022ce5f222ade22c018430"
+    },
+    {
+      "id": "A10B",
+      "input_sha256": "79416d19261cad04277403045125ab23955e4c6fd0e704084f6ebca9e227de79",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 6477,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自订单、承运与案件证据，未捏造；正确适用签收争议规则，指出签收人未核验、不能仅凭签收或客户主张退款，转人工核验，动作与理由一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": false,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "将案件证据中的复核结论表述为INCONCLUSIVE，但该观察结果仅含证据引用，未显示此结论，属无来源事实；其余签收争议适用与转人工建议一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6741,
+            "output_tokens": 168,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "d80745b8603e533e53aec1df2386ccab78b6c89f54410025552b173e7f982ba5"
+    },
+    {
+      "id": "A11A",
+      "input_sha256": "7f78f8c1b913ed0991f12f034bb4df139be7ce67c7782d29a1f45f822c0a61d2",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 5968,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运结论LOST、无有效签收，商家核验CONFIRMED，订单已付款未退款，符合R-LOST-001；建议全额退款与事实一致，且为建议非已执行。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "承运结论LOST、无有效签收，商家核验CONFIRMED，订单已付款未退款，符合R-LOST-001；建议全额退款与事实一致，并注明由商家审批。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6232,
+            "output_tokens": 164,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "649bc9666e0e95931a77a27363848158e8fac01bd35952911248c38edad036d7"
+    },
+    {
+      "id": "A11B",
+      "input_sha256": "a1987c3682e145c75723149e402a108cbccc6a91b3980494cd8e5a48f576a1cf",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 6846,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自订单、物流与案件证据，未捏造；正确适用签收争议规则，因签收人核验为INCONCLUSIVE而转人工，未越权退款，动作与理由一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与观察一致，未虚构；按签收争议规则处理核验未决情形，建议人工核验而非退款，动作与冲突事实及理由一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 7110,
+            "output_tokens": 158,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "8f807e63463233198db285e2f722957f9901b1e87a9c918e03a96b4dc3d89c01"
+    },
+    {
+      "id": "A12A",
+      "input_sha256": "375e7c87abd741a1ff445deaa823edd1f0e8e67634c846f5ec9216314fa95554",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 5974,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "关键事实均来自实际读取的观察：承运结论LOST、无有效签收、商家核验CONFIRMED、实付32900且无退款占用。适用R-LOST-001条件成立，建议全额退款与事实一致，且明确为建议需商家审批，未声明已执行。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与观察一致：承运LOST、无有效签收、核验CONFIRMED、实付32900无退款。R-LOST-001适用条件满足，建议退款金额与实付一致，并保留冲突核验例外与商家审批，未越权声明执行。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6238,
+            "output_tokens": 202,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "a66e598c05014c8204e9fe6558a84d41d63f31a84c8186c84bec0fde1f60cd90"
+    },
+    {
+      "id": "A12B",
+      "input_sha256": "d3fa436a778df8ca99e0ec70dd0e357141a380dedc8126b822e88fa8f7fdeb4b",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 3681,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "订单与物流记录均无错误，签收状态与买家未收到主张冲突，核验结论为不确定。按签收争议规则应转人工核验，未擅自建议退款，动作与事实一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "读取的订单、物流与政策观察均无错误，签收与未收到主张冲突且核验不确定，转人工核验符合签收争议规则，未越权建议退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 3945,
+            "output_tokens": 162,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "455545fdedb30282c0aeb9628f845f1c268fbd337df4510a53abadaa60f478df"
+    },
+    {
+      "id": "A13A",
+      "input_sha256": "4059f3a6fa58f568341bcb0ca368ce73c81674d73cf55ef2b9f6105dc550065c",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 5589,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "关键事实均来自订单上下文与案件证据：送达、实付32900分、无退款记录，且商家核验CONFIRMED。适用R-DMG-001建议全额退款，R-MONEY-001无重复退款限制；仅建议、由商家审批，未声称已执行。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与观察一致：送达、实付32900分、退款0且FREE，商家核验CONFIRMED。R-DMG-001条件满足，R-MONEY-001无禁止情形；建议全额退款并明确仅为模拟建议、商家审批，未越权执行。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5853,
+            "output_tokens": 201,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "4a0348a7cd27b6d6a19f0efa464be316207c70b6459c0dbc590561062045bafc"
+    },
+    {
+      "id": "A13B",
+      "input_sha256": "f1abb772feb9058dac5b665868f914fa5cc4cb5cceeeb423993464d07b6ae4c7",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 6213,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自订单、退款状态与案件证据；核验INCONCLUSIVE，R-DMG-001条件未满足，转人工并保留后续核验路径，未声明已退款，动作与理由一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实有订单、物流与案件证据支撑；核验未知时依R-DMG-001转人工，未直接退款，也未越权声明执行，动作与理由一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 6477,
+            "output_tokens": 160,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "089d2695bcd8af069365d356d6a702c13bea028ac93d23d2052f4df2b117e7ab"
+    },
+    {
+      "id": "A14A",
+      "input_sha256": "cad592ed56ad926cb5aaf1cf652306393670741fcecbf4295b45dcf4f9e1468c",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 5441,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "关键事实均来自证据与订单观察：客户陈述、商家核验CONFIRMED、已送达、退款占用0。R-DMG-001适用条件满足，建议全额退款与事实一致，且仅建议未声称已执行。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与观察一致，核验CONFIRMED且订单已送达，R-DMG-001条件满足；建议全额退款并说明由商家审批，未越权声明已退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5705,
+            "output_tokens": 167,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "9bad95df3270d4102d827001df701f01e76c4374096e609eb0a206d0fd31e0df"
+    },
+    {
+      "id": "A14B",
+      "input_sha256": "3ef2e3131f533a69bb916fac295a14ec1892588cfa7c7e2062639a98f1a8d40c",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 5674,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自真实Observation：客户陈述、订单已付款已送达、承运DELIVERED且轨迹为空。适用R-DMG-001，仅有单方陈述无核验，故转人工核验而非直接退款，动作与理由一致，未声明已执行退款。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用真实Observation，无捏造。适用R-DMG-001，送达前提成立但核验结果未知，建议补证转人工，符合补证/转人工要求，动作与理由一致，未越权声明退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5938,
+            "output_tokens": 185,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "4cbd80d593ddf1b3775f43e960092e0f8cb1621f1784dbecce504ebfd64160ce"
+    },
+    {
+      "id": "A15A",
+      "input_sha256": "6d02a6aec6fce1922377414106ae57cf485f0a828d82da1480e42c9a4b83b361",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 5694,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "证据引用与观察一致：客户陈述、商家核验CONFIRMED、订单已送达且退款状态FREE。R-DMG-001条件满足，R-MONEY-001无重复退款障碍，建议全额退款并声明仅建议、由商家审批，动作与理由一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实与观察相符：核验CONFIRMED、已送达、无退款记录。适用R-DMG-001建议全额退款，R-MONEY-001不构成障碍，且明确仅为模拟建议、由商家审批，未声明已执行退款。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5958,
+            "output_tokens": 191,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "d87605a3ad293e677b7124a3f7a07df646b85f3094e6caf9d94579908fc7a74d"
+    },
+    {
+      "id": "A15B",
+      "input_sha256": "4d4c69b1db929fb3ff13d765f6066a7c9174d5259bbd4d50804072af06b6ed1f",
+      "mapping": {
+        "X": "baseline",
+        "Y": "candidate"
+      },
+      "local_payload_tokens": 5342,
+      "status": "ERROR",
+      "judgment": null,
+      "calls": 2,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5606,
+            "output_tokens": 164,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "missing or extra semantic candidates"
+        },
+        {
+          "usage": {
+            "input_tokens": 5820,
+            "output_tokens": 164,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "INVALID_PROTOCOL",
+          "validation_error": "missing or extra semantic candidates"
+        }
+      ],
+      "repairs": 1,
+      "request_sha256": "4dc2d9f86b047b4af69526ff0b4d44b2b7a38a912406a16827375417078f76b4"
+    },
+    {
+      "id": "A16A",
+      "input_sha256": "8d57c1d9d987428e9fdcaac75ab2c0037522ee10d6df401a4196d9d8a0f7a5dd",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 5677,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "证据引用与观察一致：客户陈述、商家核验CONFIRMED、订单已送达已付款、退款状态FREE。R-DMG-001送达+核验条件满足，R-MONEY-001无重复退款障碍，建议全额退款并声明仅为建议、由商家审批，未声称已执行。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实与观察相符：核验CONFIRMED、订单DELIVERED、退款状态FREE。适用R-DMG-001与R-MONEY-001正确，建议全额退款且明确仅为模型建议、不产生退款授权，动作与理由一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5941,
+            "output_tokens": 197,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "d7fe8ae31aacffd48a7b91174e023a66d195b8c794e9354b6ce0fa7600bbed61"
+    },
+    {
+      "id": "A16B",
+      "input_sha256": "380b8f25bc36fcf4ad867d711315cc9c0d021b468e9fdd2f924c3568c7fd7683",
+      "mapping": {
+        "X": "candidate",
+        "Y": "baseline"
+      },
+      "local_payload_tokens": 5622,
+      "status": "VALIDATED_MODEL_JUDGMENT",
+      "judgment": {
+        "evaluations": [
+          {
+            "candidate": "X",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实均来自订单与案件证据：已送达、已付款、退款0、行状态RESERVED、核验INCONCLUSIVE。正确适用R-DMG-001（核验未知应转人工）与R-MONEY-001（无成功退款记录，RESERVED不等于可再退），建议人工核验而非直接退款，动作与理由一致。",
+            "uncertain": false
+          },
+          {
+            "candidate": "Y",
+            "factual_support": true,
+            "policy_application": true,
+            "action_reason_alignment": true,
+            "rationale": "事实引用与订单/案件证据一致，核验INCONCLUSIVE、已送达、退款0。适用R-DMG-001转人工核验，R-MONEY-001仅作重复退款限制说明，未声称已退款，建议人工核验与事实理由一致。",
+            "uncertain": false
+          }
+        ]
+      },
+      "calls": 1,
+      "attempts": [
+        {
+          "usage": {
+            "input_tokens": 5886,
+            "output_tokens": 214,
+            "estimated": false
+          },
+          "model_alias": "deepseek-flash",
+          "status": "VALIDATED"
+        }
+      ],
+      "repairs": 0,
+      "request_sha256": "7cdd9fd557cc214c25879c811026e3cdee96c431a41d25f741b7d67720420301"
+    }
+  ],
+  "transmissions": 34,
+  "validated": 30,
+  "errors": 2,
+  "cache_sha256": "5a5c3ad4213937672dc117e4e63b53f695b225f2eae941014210c6d2d22b6a85"
+}
