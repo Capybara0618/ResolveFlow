@@ -1,4 +1,11 @@
-## 当前快照（2026-10-06，固定六条简历模板）
+## 当前快照（2026-10-07，七条简历表达与实验方向已更新）
+
+- 用户确认保留 PDF 的七条贡献，并要求以实验结果决定成果表达。新增[七条简历文案与实验方向](../docs/resume-seven-points.md)，更新docs/resume-evidence.md入口；旧六条模板保留历史。已确认动态Agent对比固定调查流程（32场景、每组2次，共128次调查）；RAG外部原始政策文档五组对照、商城业务补充；Harness同时收集请求减少与真实token差异；Redis沿三条件性能/故障回源方案。授权竞争、退款故障及恢复窗口数量仍为实施建议，具体矩阵待细化。
+- 已在桌面另存`Agent开发实习简历(量化实验版).pdf`，仓库本地副本为`output/pdf/Agent开发实习简历(量化实验版).pdf`，可编辑源在原简历LaTeX工程的`resume-zh_CN_hejunnan_quantification.tex`。更新项目介绍和七条正文，原PDF/源文件保留；PDF与个人信息源不纳入Git提交。
+- 实际执行bundled Python的`tmp/pdfs/build_resume_quantification.py`和已有MiKTeX `xelatex -interaction=nonstopmode -halt-on-error`：编译0、1页、7条、0 Overfull；文本检查通过，项目之外的教育/实习提取文本完全一致，原PDF/原tex SHA不变。Poppler `pdftoppm -scale-to 1800 -png -singlefile`及整页面视通过，无重叠/裁切。初次关键词断言因PDF换行失败，按去空白文本检查修正后重跑通过。现有FontAwesome粗体替代及hyperref书签字符警告不影响页内显示。
+- 本批仅简历与文档；未运行新量化实验、模型请求、应用/数据库/业务测试或部署。差异/文档链接及七条一致性核验通过后精确commit、正常push并核实远端；原四脏文件和未跟踪资产保留不夹带。SHA与远端结果见本轮回复；后续实验按已确定方向及用户指示实施，不恢复旧CXX计划。
+
+## 历史快照（2026-10-06，固定六条简历模板）
 
 - 用户确定简历写六条，要求先写模板、后填量化结果。新增[六条简历模板](../docs/resume-six-points.md)，沿用微服务/授权、可靠退款、SQL/Redis、Agent/Harness、上下文/RAG、恢复/回放六方向；更新docs/resume-evidence.md入口。逐条给出待填正文、计量口径及现有报告，说明第4/5条尚缺固定流程/无RAG价值对照，既有质量缺口不等同只缺数字。
 - 本批仅文档；实际核验README/core-scope/handoff/plan/todo及报告，git fetch确认main与origin/main同步，保留四个原脏文件及旧未跟踪资产。执行git diff --check和本地链接/六条结构/占位检查；未启动模型、数据库、应用或测试，不新增效果数字。精确提交并正常推送后停止写入，SHA及远端确认见回复。后续实施/评测按用户新指示，上一批技术状态及冻结资产保持。
