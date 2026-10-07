@@ -84,17 +84,17 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
         commerce.reset();
     }
 
-    private String reviewer() {
+    protected String reviewer() {
         return new JwtCodec(secret, Duration.ofHours(1))
                 .issue(new AuthenticatedPrincipal("demo-reviewer", MERCHANT, Role.REVIEWER, null), Instant.now());
     }
 
-    private String customer() {
+    protected String customer() {
         return new JwtCodec(secret, Duration.ofHours(1))
                 .issue(new AuthenticatedPrincipal("demo-customer", MERCHANT, Role.CUSTOMER, CUSTOMER), Instant.now());
     }
 
-    private String openCase() {
+    protected String openCase() {
         String lineId = String.valueOf(++lineCounter);
         String body = rest.post()
                 .uri("/api/v1/cases")
@@ -138,7 +138,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
     }
 
     /** An approved authorisation on a fresh case: the state every test here starts from. */
-    private String approvedCase() {
+    protected String approvedCase() {
         String caseId = openCase();
         submitAndApprove(caseId, "人工复核后确认按丢失政策全额退款");
         assertThat(column("aftersale_case", "status", caseId))
@@ -152,7 +152,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
         return submitAndApprove(caseId, "客户补充材料后重新给出方案");
     }
 
-    private String submitAndApprove(String caseId, String reason) {
+    protected String submitProposal(String caseId, String reason) {
         ObjectNode body = MAPPER.createObjectNode();
         body.put("action", "REFUND");
         ObjectNode evidence = body.putArray("evidence_refs").addObject();
@@ -173,7 +173,11 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
                 .expectStatus()
                 .isOk();
 
-        String authorizationId = authorisationOf(caseId);
+        return authorisationOf(caseId);
+    }
+
+    protected String submitAndApprove(String caseId, String reason) {
+        String authorizationId = submitProposal(caseId, reason);
         ObjectNode decision = MAPPER.createObjectNode();
         decision.put("authorization_id", authorizationId);
         decision.put("authorization_version", 1);
@@ -194,7 +198,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
         return authorizationId;
     }
 
-    private JsonNode caseView(String caseId) {
+    protected JsonNode caseView(String caseId) {
         String body = rest.get()
                 .uri("/api/v1/cases/" + caseId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + reviewer())
@@ -207,7 +211,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
         return MAPPER.readTree(body);
     }
 
-    private String authorisationOf(String caseId) {
+    protected String authorisationOf(String caseId) {
         return caseView(caseId).get("authorization").get("authorization_id").stringValue();
     }
 
@@ -215,7 +219,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
         return jdbc.queryForObject("SELECT " + column + " FROM " + table + " WHERE case_id = ?", String.class, caseId);
     }
 
-    private String authorizationColumn(String column, String authorizationId) {
+    protected String authorizationColumn(String column, String authorizationId) {
         return jdbc.queryForObject(
                 "SELECT " + column + " FROM case_authorization WHERE authorization_id = ?",
                 String.class,
@@ -335,7 +339,7 @@ class InputMovesRetireApprovalApiTest extends CaseDatabaseTest {
     }
 
     /** The customer's own material, returned as the id a verification has to cite. */
-    private String appendStatement(String caseId, String text) {
+    protected String appendStatement(String caseId, String text) {
         rest.post()
                 .uri("/api/v1/cases/" + caseId + "/evidence")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + customer())

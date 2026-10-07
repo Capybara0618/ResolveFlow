@@ -1,10 +1,10 @@
-## 当前快照（2026-10-07，RAG完成，Agent接线试跑完成，授权矩阵执行中）
+## 当前快照（2026-10-07，RAG与授权矩阵完成，正式128次Agent调查执行中）
 
 - 最新用户要求“一次性把这些量化指标都测出来”，按已敲定计划持续执行；真实模型调用、隔离测试库与负载属于本次授权范围。已核验main/origin main同步、暂存为空，原四脏文件及旧未跟踪资产保留；唯一业务写入者为当前执行者。
 - 原demo依赖容器停止，已恢复既有PG55433/MySQL3307/MQ9877与Redis56379，均保留卷；未启动常驻业务worker。DeepSeek User环境凭据可用，BGE dense和reranker snapshot已有本地缓存，沿用原锁。
 - RAG完成：[报告](../reports/resume-quantification-v1/rag/README.md)、[冻结19文件与模型权重](../evals/resume-quantification-v1/rag-manifest.json)。外部29×5×3正式计时435、18探针×5附加90，235质量记录；C/E原query前三完整13/17、Recall85.78%，前五17/17，BM25前三12/17、Recall81.37%。质量相同选C，CPU平均2219.45ms。商城60×2×3=360计时/120质量记录，54正例C前三52/54 vs dense49/54，Recall98.15% vs93.52%，C平均546.03ms，业务共用C。2计量单测、相关Ruff及运行前后SHA/完整计数核验通过；API调用0、无新模型下载。首次external-v1保存WinError5中断，json与最终partial另存保留；仅本地保存增加重试，完整重测v2，未当完成成绩。
 - 已实现评测专用固定调查基线scripts/evaluation/fixed_workflow.py，复用生产ContextBuilder/ActionGate/BudgetGuard/MCP与政策桥/来源Verifier/一次纠错，不改唯一生产AgentScope循环；固定读取不消耗模型请求数。3项单测通过（实际模型数、查询→终局、纠错不能额外读取），Ruff及差异核验通过。初次成功路径2项计数断言失败，发现生产tool_attempts包括政策本地读取，按实际定义核对为3外部+1本地，模型请求仍2/3；未改预算/断言弱化来放行。
-- 基线首实现已commit/push 6be7998；RAG实测已commit/push 1dc7e96并ls-remote核实，fetch一次TLS失败而正常push成功；冻结范围按已有.gitattributes模式保留CRLF与实际SHA，普通diff --check通过。真实trial-v1共8调查/26实际请求，发现Harness纠错占位被基线误判追加调查；修复后覆盖该反例，4基线单测通过。另按CheckoutPayments实际NOT_SHIPPED/UNKNOWN投影修复5个无事件合成默认值，创建business-v1，所有Gold/政策/RAG/材料/订单/错误/真实冲突字节保持，原数据不改；2输入单测及validate32例/16对/60query通过。trial-v2共8调查/26实际请求，7完成、动态A13A原引用纠错失败保留，不追单例满分；两试跑不进入正式128次分母。正式运行尚未开始。
+- 基线首实现已commit/push 6be7998；RAG实测已commit/push 1dc7e96并ls-remote核实，fetch一次TLS失败而正常push成功；冻结范围按已有.gitattributes模式保留CRLF与实际SHA，普通diff --check通过。真实trial-v1共8调查/26实际请求，发现Harness纠错占位被基线误判追加调查；修复后覆盖该反例，4基线单测通过。另按CheckoutPayments实际NOT_SHIPPED/UNKNOWN投影修复5个无事件合成默认值，创建business-v1，所有Gold/政策/RAG/材料/订单/错误/真实冲突字节保持，原数据不改；2输入单测及validate32例/16对/60query通过。trial-v2共8调查/26实际请求，7完成、动态A13A原引用纠错失败保留，不追单例满分；两试跑不进入正式128次分母。正式128次运行已启动，配置与business-v1输入冻结；未完成结果不计最终成绩。
 - 为后续Redis故障测量增加真实Mapper调用处inflight/peak计量，先负测MeterNotFound，再2项背压单测通过，尚未当成HTTP故障峰值。授权新矩阵首次93项因继承测试配置未自动导入而依赖注入失败；明确Import后attempt2已93 passed（80矩阵+10消费先赢+3继承回归），实际80场景、90过期授权尝试全拒、80有效控制消费成功、非法消费0、消费先赢后改输入10/10拒绝。此批真实Case HTTP/MySQL，Commerce资格来源为显式fixture stub，未宣称真实MQ/Commerce资金预留；退款60故障将单独测。原四脏文件保留。
 
 ## 历史快照（2026-10-07，七条简历量化实验计划已敲定）

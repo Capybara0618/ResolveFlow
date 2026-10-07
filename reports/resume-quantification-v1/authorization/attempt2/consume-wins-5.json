@@ -1,0 +1,5 @@
+{
+  "trial" : 5,
+  "scenario" : "consume-wins",
+  "update_rejected" : true
+}

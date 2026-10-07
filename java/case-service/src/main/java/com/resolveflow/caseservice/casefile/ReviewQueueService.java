@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -87,6 +89,8 @@ public class ReviewQueueService {
     private final boolean cacheEnabled;
     private final MeterRegistry metrics;
     private final Semaphore databasePermits = new Semaphore(8, true);
+    private final AtomicInteger databaseInflight = new AtomicInteger();
+    private final AtomicInteger databasePeak = new AtomicInteger();
 
     public ReviewQueueService(
             CaseRepository cases,
@@ -97,6 +101,8 @@ public class ReviewQueueService {
         this.cache = cache;
         this.cacheEnabled = cacheEnabled;
         this.metrics = metrics;
+        metrics.gauge("resolveflow.review.database.inflight", databaseInflight);
+        metrics.gauge("resolveflow.review.database.peak", databasePeak);
     }
 
     public Page list(AuthenticatedPrincipal principal, String cursor, Integer requestedLimit) {
@@ -146,8 +152,11 @@ public class ReviewQueueService {
 
     private Page loadFromDatabase(String merchantId, String cursor, ReviewQueueCursor after, int limit) {
         metrics.counter("resolveflow.review.database.queries").increment();
-        List<ReviewQueueRow> rows = cases.findReviewQueue(
-                merchantId, after == null ? null : after.updatedAt(), after == null ? null : after.caseId(), limit + 1);
+        List<ReviewQueueRow> rows = measuredQuery(() -> cases.findReviewQueue(
+                merchantId,
+                after == null ? null : after.updatedAt(),
+                after == null ? null : after.caseId(),
+                limit + 1));
         boolean hasMore = rows.size() > limit;
         List<ReviewQueueRow> page = hasMore ? List.copyOf(rows.subList(0, limit)) : List.copyOf(rows);
         Page result = new Page(items(page), ReviewQueueCursor.after(page, hasMore), limit);
@@ -177,7 +186,8 @@ public class ReviewQueueService {
             actions.put(row.caseId(), new ArrayList<>());
         }
         metrics.counter("resolveflow.review.database.queries").increment();
-        for (CaseRepository.RequestedActionRow requested : cases.findRequestedActionsFor(caseIds)) {
+        for (CaseRepository.RequestedActionRow requested :
+                measuredQuery(() -> cases.findRequestedActionsFor(caseIds))) {
             actions.computeIfAbsent(requested.caseId(), key -> new ArrayList<>())
                     .add(RequestedAction.of(requested.action()));
         }
@@ -194,6 +204,16 @@ public class ReviewQueueService {
                     List.copyOf(actions.getOrDefault(row.caseId(), List.of()))));
         }
         return items;
+    }
+
+    private <T> T measuredQuery(Supplier<T> query) {
+        int active = databaseInflight.incrementAndGet();
+        databasePeak.accumulateAndGet(active, Math::max);
+        try {
+            return query.get();
+        } finally {
+            databaseInflight.decrementAndGet();
+        }
     }
 
     /**

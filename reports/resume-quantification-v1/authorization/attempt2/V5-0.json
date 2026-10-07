@@ -1,0 +1,11 @@
+{
+  "scenario" : "V5",
+  "trial" : 0,
+  "expired_attempts" : 1,
+  "expired_rejected" : 1,
+  "illegal_consumptions" : 0,
+  "valid_consumptions" : 1,
+  "old_authorization_status" : "REVOKED",
+  "real_mysql" : true,
+  "commerce_context" : "explicit eligibility fixture stub"
+}

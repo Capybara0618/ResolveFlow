@@ -76,6 +76,12 @@ class ReviewQueueBackpressureTest {
                     .toList();
             start.countDown();
             assertThat(reading.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(metrics.get("resolveflow.review.database.inflight")
+                            .gauge()
+                            .value())
+                    .isEqualTo(8);
+            assertThat(metrics.get("resolveflow.review.database.peak").gauge().value())
+                    .isEqualTo(8);
             Thread.sleep(250);
             release.countDown();
             int accepted = 0;
@@ -88,6 +94,12 @@ class ReviewQueueBackpressureTest {
                             .count())
                     .isEqualTo(4);
             assertThat(active.get()).isZero();
+            assertThat(metrics.get("resolveflow.review.database.inflight")
+                            .gauge()
+                            .value())
+                    .isZero();
+            assertThat(metrics.get("resolveflow.review.database.peak").gauge().value())
+                    .isEqualTo(8);
             assertThat(service.list(staff, null, null).items()).isEmpty();
         } finally {
             release.countDown();
