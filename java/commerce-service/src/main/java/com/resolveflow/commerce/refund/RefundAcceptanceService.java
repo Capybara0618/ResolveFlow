@@ -105,6 +105,13 @@ public class RefundAcceptanceService {
         if (ledger == null) {
             throw new RefundRejectedException(RefundError.AMOUNT_MISMATCH, "the order has no payment ledger");
         }
+        // The first lookup can precede a concurrent delivery's commit. Read the current row under
+        // the ledger lock: a REPEATABLE READ snapshot would still miss it and falsely emit failure
+        // for an operation that has already reserved this very line.
+        existing = operations.findForUpdate(command.operationId());
+        if (existing != null) {
+            return new Receipt(requireSamePayment(existing, command), true);
+        }
         RefundMoneyRepository.RefundSlot slot = money.slotForUpdate(command.lineId());
         if (slot == null) {
             throw new RefundRejectedException(

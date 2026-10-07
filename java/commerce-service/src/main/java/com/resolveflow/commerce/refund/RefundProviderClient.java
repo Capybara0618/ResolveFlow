@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -109,7 +110,8 @@ public class RefundProviderClient {
         } catch (ProviderNotFound notFound) {
             return new ProviderAnswer(
                     operationId, "NOT_FOUND", null, null, true, "the provider has nothing for this key");
-        } catch (ResourceAccessException unreachable) {
+        } catch (RestClientException unreachable) {
+            if (!transportFailure(unreachable)) throw unreachable;
             return unknown(operationId, "the provider could not be reached: " + unreachable.getMessage());
         }
     }
@@ -117,11 +119,16 @@ public class RefundProviderClient {
     private ProviderAnswer call(java.util.function.Supplier<String> call) {
         try {
             return parse(call.get(), null);
-        } catch (ResourceAccessException unreachable) {
+        } catch (RestClientException unreachable) {
+            if (!transportFailure(unreachable)) throw unreachable;
             // No answer arrived. The provider may still have taken the money, so this is UNKNOWN: keeping
             // the reservation is the only safe reading of "I do not know".
             return unknown(null, "the provider could not be reached: " + unreachable.getMessage());
         }
+    }
+
+    private static boolean transportFailure(RestClientException failure) {
+        return failure instanceof ResourceAccessException || failure.getMostSpecificCause() instanceof java.io.IOException;
     }
 
     private ProviderAnswer parse(String body, String fallbackOperationId) {

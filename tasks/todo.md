@@ -1,4 +1,4 @@
-## 当前快照（2026-10-07，RAG与授权矩阵完成，正式128次Agent调查执行中）
+## 当前快照（2026-10-07，RAG与授权矩阵完成，Agent正式调查完成，退款/恢复故障接线中）
 
 - 最新用户要求“一次性把这些量化指标都测出来”，按已敲定计划持续执行；真实模型调用、隔离测试库与负载属于本次授权范围。已核验main/origin main同步、暂存为空，原四脏文件及旧未跟踪资产保留；唯一业务写入者为当前执行者。
 - 原demo依赖容器停止，已恢复既有PG55433/MySQL3307/MQ9877与Redis56379，均保留卷；未启动常驻业务worker。DeepSeek User环境凭据可用，BGE dense和reranker snapshot已有本地缓存，沿用原锁。
@@ -6,6 +6,8 @@
 - 已实现评测专用固定调查基线scripts/evaluation/fixed_workflow.py，复用生产ContextBuilder/ActionGate/BudgetGuard/MCP与政策桥/来源Verifier/一次纠错，不改唯一生产AgentScope循环；固定读取不消耗模型请求数。3项单测通过（实际模型数、查询→终局、纠错不能额外读取），Ruff及差异核验通过。初次成功路径2项计数断言失败，发现生产tool_attempts包括政策本地读取，按实际定义核对为3外部+1本地，模型请求仍2/3；未改预算/断言弱化来放行。
 - 基线首实现已commit/push 6be7998；RAG实测已commit/push 1dc7e96并ls-remote核实，fetch一次TLS失败而正常push成功；冻结范围按已有.gitattributes模式保留CRLF与实际SHA，普通diff --check通过。真实trial-v1共8调查/26实际请求，发现Harness纠错占位被基线误判追加调查；修复后覆盖该反例，4基线单测通过。另按CheckoutPayments实际NOT_SHIPPED/UNKNOWN投影修复5个无事件合成默认值，创建business-v1，所有Gold/政策/RAG/材料/订单/错误/真实冲突字节保持，原数据不改；2输入单测及validate32例/16对/60query通过。trial-v2共8调查/26实际请求，7完成、动态A13A原引用纠错失败保留，不追单例满分；两试跑不进入正式128次分母。正式128次运行已启动，配置与business-v1输入冻结；未完成结果不计最终成绩。
 - 为后续Redis故障测量增加真实Mapper调用处inflight/peak计量，先负测MeterNotFound，再2项背压单测通过，尚未当成HTTP故障峰值。授权新矩阵首次93项因继承测试配置未自动导入而依赖注入失败；明确Import后attempt2已93 passed（80矩阵+10消费先赢+3继承回归），实际80场景、90过期授权尝试全拒、80有效控制消费成功、非法消费0、消费先赢后改输入10/10拒绝。此批真实Case HTTP/MySQL，Commerce资格来源为显式fixture stub，未宣称真实MQ/Commerce资金预留；退款60故障将单独测。原四脏文件保留。
+
+- Agent formal-v1完成128次：固定自动联合62/64、64完成、137实际请求；动态52/64、56完成、300请求，语义复核未完成。mock跨进程恢复26 passed/0 skipped，strict本轮18/18 MATCH。正式Redis新schema已准备20000/4000/2，未测性能。退款开发接线发现同操作竞争误拒及响应头EOF未转UNKNOWN；分别真实MySQL屏障/HTTP断连反例后修复，集中28 passed（多行、传输、provider、消费者），更新Commerce jar；开发失败日志与试跑保留，不计正式60故障。已有四脏文件不夹带。
 
 ## 历史快照（2026-10-07，七条简历量化实验计划已敲定）
 

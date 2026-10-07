@@ -12,6 +12,7 @@ import java.util.concurrent.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -30,6 +31,12 @@ class MultiLineRefundDatabaseTest extends CommerceDatabaseTest {
 
     @Autowired
     LineRefundStatusRepository statuses;
+
+    @MockitoSpyBean
+    RefundMoneyRepository money;
+
+    @Autowired
+    org.apache.ibatis.session.SqlSessionFactory sqlSessions;
 
     private final ObjectMapper json = new ObjectMapper();
     private final String merchant = "M-MULTILINE-TEST";
@@ -139,6 +146,35 @@ class MultiLineRefundDatabaseTest extends CommerceDatabaseTest {
         ledger(39800, 0);
         settlement.settleSucceeded(accept(a), "synthetic-retry");
         ledger(72700, 0);
+    }
+
+    @Test
+    void concurrentDeliveriesOfOneOperationAllReturnTheSameReservation() throws Exception {
+        var reachedLedger = new CyclicBarrier(10);
+        var realMoney = new org.mybatis.spring.SqlSessionTemplate(sqlSessions).getMapper(RefundMoneyRepository.class);
+        org.mockito.Mockito.doAnswer(invocation -> {
+                    reachedLedger.await(10, TimeUnit.SECONDS);
+                    return realMoney.lockLedger(order);
+                })
+                .when(money)
+                .lockLedger(order);
+        var document = command(a);
+        try (var pool = Executors.newFixedThreadPool(10)) {
+            var deliveries = new ArrayList<Future<RefundAcceptanceService.Receipt>>();
+            for (int i = 0; i < 10; i++) {
+                deliveries.add(
+                        pool.submit(() -> acceptance.accept(UUID.randomUUID().toString(), document)));
+            }
+            var receipts = new ArrayList<RefundAcceptanceService.Receipt>();
+            for (var delivery : deliveries) receipts.add(delivery.get(20, TimeUnit.SECONDS));
+            assertThat(receipts).filteredOn(receipt -> !receipt.replayed()).hasSize(1);
+            assertThat(receipts)
+                    .extracting(receipt -> receipt.operation().operationId())
+                    .containsOnly(document.get("operation_id").stringValue());
+            ledger(0, 32900);
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM refund_operation WHERE line_id=?", Long.class, a))
+                    .isEqualTo(1);
+        }
     }
 
     @Test
