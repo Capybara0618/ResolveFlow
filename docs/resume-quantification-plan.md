@@ -24,7 +24,7 @@
 - 商城补充使用 [60条已有查询](../evals/calibrated-v3/rag/queries.json)、[对应Gold](../evals/calibrated-v3/gold/rag.json)及本轮 Agent 的实际query。外部与商城分别输出结果。
 - 正式测量前记录源码、实际模型ID、模型snapshot、数据hash、参数与机器资源。沿用现有依赖锁与AgentScope 2.0.8，reranker使用现有sentence-transformers接入。实验资产拟放 `evals/resume-quantification-v1/`，报告拟放 `reports/resume-quantification-v1/`；这些是后续产出路径，本轮不创建未实现profile或声称已有入口。
 - 所有正式轮次纳入报告；失败按原结果记录。Codex按源事实、政策和轨迹逐例评分，不增加用户人工标签或独立专家验收步骤。结果不理想时分析原因和选取有价值的成果，不为单例追加固定答案。
-- 本轮用户要求为敲定计划；实验调用、模型下载、测试库写入及负载运行在后续实施批次开展。本次不启动这些操作。
+- 2026-10-07用户进一步要求整批执行量化测量；按本文四批顺序实施，实际调用/测试/报告及未完成项目仅在tasks/todo.md顶部记录。
 
 ## 3. RAG 五组对照
 
