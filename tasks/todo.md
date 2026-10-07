@@ -1,9 +1,11 @@
-## 当前快照（2026-10-07，用户授权整批量化执行，RAG正式测量中）
+## 当前快照（2026-10-07，RAG完成，Agent接线试跑完成，授权矩阵执行中）
 
 - 最新用户要求“一次性把这些量化指标都测出来”，按已敲定计划持续执行；真实模型调用、隔离测试库与负载属于本次授权范围。已核验main/origin main同步、暂存为空，原四脏文件及旧未跟踪资产保留；唯一业务写入者为当前执行者。
-- 原demo依赖容器停止，已恢复既有PG55433/MySQL3307/MQ9877与Redis56379，均保留卷；未启动常驻业务worker。DeepSeek User环境凭据可用，BGE dense和reranker snapshot已有本地缓存，沿用原锁。RAG新增scripts/resume_rag_benchmark.py与2项计量单测：缺模块负测失败，实现后2 passed，Ruff修正后通过。external-v1正式运行正在进行（五组各5次预热、29query各3轮与18探针附报），尚无最终成绩。
+- 原demo依赖容器停止，已恢复既有PG55433/MySQL3307/MQ9877与Redis56379，均保留卷；未启动常驻业务worker。DeepSeek User环境凭据可用，BGE dense和reranker snapshot已有本地缓存，沿用原锁。
+- RAG完成：[报告](../reports/resume-quantification-v1/rag/README.md)、[冻结19文件与模型权重](../evals/resume-quantification-v1/rag-manifest.json)。外部29×5×3正式计时435、18探针×5附加90，235质量记录；C/E原query前三完整13/17、Recall85.78%，前五17/17，BM25前三12/17、Recall81.37%。质量相同选C，CPU平均2219.45ms。商城60×2×3=360计时/120质量记录，54正例C前三52/54 vs dense49/54，Recall98.15% vs93.52%，C平均546.03ms，业务共用C。2计量单测、相关Ruff及运行前后SHA/完整计数核验通过；API调用0、无新模型下载。首次external-v1保存WinError5中断，json与最终partial另存保留；仅本地保存增加重试，完整重测v2，未当完成成绩。
 - 已实现评测专用固定调查基线scripts/evaluation/fixed_workflow.py，复用生产ContextBuilder/ActionGate/BudgetGuard/MCP与政策桥/来源Verifier/一次纠错，不改唯一生产AgentScope循环；固定读取不消耗模型请求数。3项单测通过（实际模型数、查询→终局、纠错不能额外读取），Ruff及差异核验通过。初次成功路径2项计数断言失败，发现生产tool_attempts包括政策本地读取，按实际定义核对为3外部+1本地，模型请求仍2/3；未改预算/断言弱化来放行。
-- RAG external-v1保存过程中遇Windows WinError5，原json及partial保留；仅增加本地保存重试，新external-v2从完整预热重新测量。后续依次商城补充、128次Agent、授权/退款/缓存与恢复/回放；未完成项目不可作为已测量成果。
+- 基线首实现已commit/push 6be7998。真实trial-v1共8调查/26实际请求，发现Harness纠错占位被基线误判追加调查；修复后覆盖该反例，4基线单测通过。另按CheckoutPayments实际NOT_SHIPPED/UNKNOWN投影修复5个无事件合成默认值，创建business-v1，所有Gold/政策/RAG/材料/订单/错误/真实冲突字节保持，原数据不改；2输入单测及validate32例/16对/60query通过。trial-v2共8调查/26实际请求，7完成、动态A13A原引用纠错失败保留，不追单例满分；两试跑不进入正式128次分母。正式运行尚未开始。
+- 为后续Redis故障测量增加真实Mapper调用处inflight/peak计量，先负测MeterNotFound，再2项背压单测通过，尚未当成HTTP故障峰值。授权新矩阵首次93项因继承测试配置未自动导入而依赖注入失败；明确Import后attempt2正在执行，未宣称80场景已通过。后续授权/退款/缓存/恢复/strict仍须完成，原四脏文件保留。
 
 ## 历史快照（2026-10-07，七条简历量化实验计划已敲定）
 
