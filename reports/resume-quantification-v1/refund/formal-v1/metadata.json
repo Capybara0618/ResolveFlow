@@ -1,0 +1,14 @@
+{
+  "case_schema": "resume_refund_case_20261007c",
+  "commerce_schema": "resume_refund_commerce_20261007c",
+  "namesrv": "127.0.0.1:9879",
+  "provider": "durable simulated SQLite provider; real loopback HTTP",
+  "source_sha256": {
+    "scripts/resume_refund_benchmark.py": "0d20fa62540f27607d3663ac257d8e27fc5e624370c5ceef0c05fecdb0ebda14",
+    "scripts/evaluation/ResumeMqSender.java": "8aca5f56f50a013a5286b9be88e6499d2ec3bb910895e9efbf7c796017290741",
+    "scripts/evaluation/resume_lab.py": "1763e84497a30019f484a3e7f4c506e14d8fe4424605aca3d4657e6debb57df9",
+    "java/commerce-service/target/commerce-service-0.1.0-SNAPSHOT.jar": "7072a354f389bccbfb4eeca1e61c2c57e93ac1b0e2b526e9e4ca53171cf1a13e",
+    "java/case-service/target/case-service-0.1.0-SNAPSHOT.jar": "8851f5cb117cabb913712176093e2181c8319ca6d7af3680c7232c491657cc57"
+  },
+  "command_delivery": "Case HTTP approval/consumption writes real signed outbox; lab sender controls MQ delivery count"
+}
