@@ -9,6 +9,8 @@
 
 - Agent formal-v1完成128次：固定自动联合62/64、64完成、137实际请求；动态52/64、56完成、300请求，语义复核未完成。mock跨进程恢复26 passed/0 skipped，strict本轮18/18 MATCH。正式Redis新schema已准备20000/4000/2，未测性能。退款开发接线发现同操作竞争误拒及响应头EOF未转UNKNOWN；分别真实MySQL屏障/HTTP断连反例后修复，集中28 passed（多行、传输、provider、消费者），更新Commerce jar；开发失败日志与试跑保留，不计正式60故障。已有四脏文件不夹带。
 
+- Agent来源复核128/128完成（Codex NONBLIND）：固定有效62/64、动态56/64；复杂50/52 vs44/52，动态未体现质量提升，HTTP读192→159但模型137→300。新增agent-review、逐例表、无网络复算脚本/summary，Ruff与两次复算通过。真实恢复15对已结束，退款正式F1–F4及F5部分通过；剩余及Redis窗口仍执行中。strict负例首次DB环境变量误用3pass/1skip，改用RESOLVEFLOW_AGENT_DB后4pass/0skip，两个JUnit均保留。
+
 ## 历史快照（2026-10-07，七条简历量化实验计划已敲定）
 
 - 新增[正式执行计划](../docs/resume-quantification-plan.md)，同步七条文案及plan/handoff入口；明确RAG五组/外部29query（完整可答17、附加改写18）/商城60query、Agent32场景×2组×2次=128次、授权8类×10轮=80场景、退款6类×10轮=60故障、恢复3窗口×5对=15对/30次与18条strict、Redis2万工单/10和30并发/三条件/3轮/30秒预热60秒测量，故障32并发另测。原始计量单位与分母、评分、固定流程、reranker/RRF参数、故障矩阵、报告产出和四批顺序均已写入。
