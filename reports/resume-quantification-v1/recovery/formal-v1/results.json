@@ -1,0 +1,1032 @@
+{
+  "state": "COMPLETED",
+  "trial": false,
+  "pairs": [
+    {
+      "window": "before_model_saved",
+      "repeat": 0,
+      "groups": {
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-0-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:53:58.894944+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-0-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:53:58.894944+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7492,
+              "output_tokens": 1454,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        },
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-0-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:54:22.566031+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-0-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:54:22.566031+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7724,
+              "output_tokens": 1534,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "before_model_saved",
+      "repeat": 1,
+      "groups": {
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-1-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:54:45.794211+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-1-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:54:45.794211+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7443,
+              "output_tokens": 1542,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        },
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-1-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:55:06.645034+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-1-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:55:06.645034+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7726,
+              "output_tokens": 1474,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "before_model_saved",
+      "repeat": 2,
+      "groups": {
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-2-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:55:29.337524+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-2-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:55:29.337524+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7496,
+              "output_tokens": 1424,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        },
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-2-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:55:50.767463+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-2-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:55:50.767463+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7716,
+              "output_tokens": 1492,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "before_model_saved",
+      "repeat": 3,
+      "groups": {
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-3-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:56:11.705510+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-3-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:56:11.705510+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 6,
+              "input_tokens": 9607,
+              "output_tokens": 1563,
+              "tool_attempts": 4,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 5
+        },
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-3-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:56:39.458869+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-3-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:56:39.458869+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7496,
+              "output_tokens": 1433,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "before_model_saved",
+      "repeat": 4,
+      "groups": {
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-4-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:57:02.665346+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-4-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:57:02.665346+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7443,
+              "output_tokens": 1540,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        },
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "before_model_saved-4-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:57:25.701193+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1431,
+              "output_tokens": 1024,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "before_model_saved-4-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:57:25.701193+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7498,
+              "output_tokens": 1505,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "after_model_saved",
+      "repeat": 0,
+      "groups": {
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-0-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:57:46.024777+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-0-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:57:46.024777+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 4,
+              "input_tokens": 6071,
+              "output_tokens": 442,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 3
+        },
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-0-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:58:07.995263+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-0-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:58:07.995263+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7342,
+              "output_tokens": 580,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "after_model_saved",
+      "repeat": 1,
+      "groups": {
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-1-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:58:32.267906+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-1-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:58:32.267906+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7348,
+              "output_tokens": 539,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        },
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-1-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:58:53.360925+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-1-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:58:53.360925+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 8176,
+              "output_tokens": 536,
+              "tool_attempts": 4,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "after_model_saved",
+      "repeat": 2,
+      "groups": {
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-2-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:59:17.199876+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 76,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-2-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:59:17.199876+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 4,
+              "input_tokens": 6293,
+              "output_tokens": 447,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 3
+        },
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-2-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:59:38.997697+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 76,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-2-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:59:38.997697+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7340,
+              "output_tokens": 573,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "after_model_saved",
+      "repeat": 3,
+      "groups": {
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-3-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 10:59:59.342765+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-3-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 10:59:59.342765+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7350,
+              "output_tokens": 624,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        },
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-3-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:00:20.655947+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-3-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:00:20.655947+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 4,
+              "input_tokens": 6060,
+              "output_tokens": 436,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 3
+        }
+      }
+    },
+    {
+      "window": "after_model_saved",
+      "repeat": 4,
+      "groups": {
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-4-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:00:42.564854+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-4-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:00:42.564854+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 4,
+              "input_tokens": 6012,
+              "output_tokens": 471,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 3
+        },
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_model_saved-4-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:01:04.797988+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 0,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_model_saved-4-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:01:04.797988+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7063,
+              "output_tokens": 606,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "after_tool_saved",
+      "repeat": 0,
+      "groups": {
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-0-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:01:26.350283+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 76,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-0-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:01:26.350283+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 4,
+              "input_tokens": 6297,
+              "output_tokens": 478,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 3
+        },
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-0-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:01:48.431098+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-0-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:01:48.431098+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7346,
+              "output_tokens": 583,
+              "tool_attempts": 4,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "after_tool_saved",
+      "repeat": 1,
+      "groups": {
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-1-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:02:11.396729+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-1-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:02:11.396729+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7344,
+              "output_tokens": 577,
+              "tool_attempts": 4,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        },
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-1-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:02:36.654809+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-1-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:02:36.654809+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 4,
+              "input_tokens": 5998,
+              "output_tokens": 493,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 3
+        }
+      }
+    },
+    {
+      "window": "after_tool_saved",
+      "repeat": 2,
+      "groups": {
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-2-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:02:58.757122+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-2-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:02:58.757122+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 4,
+              "input_tokens": 6066,
+              "output_tokens": 460,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 3
+        },
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-2-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:03:18.125428+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-2-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:03:18.125428+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7067,
+              "output_tokens": 576,
+              "tool_attempts": 4,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    },
+    {
+      "window": "after_tool_saved",
+      "repeat": 3,
+      "groups": {
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-3-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:03:44.695114+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-3-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:03:44.695114+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7114,
+              "output_tokens": 542,
+              "tool_attempts": 4,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        },
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-3-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:04:09.338721+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-3-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:04:09.338721+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 4,
+              "input_tokens": 6285,
+              "output_tokens": 510,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 3
+        }
+      }
+    },
+    {
+      "window": "after_tool_saved",
+      "repeat": 4,
+      "groups": {
+        "resume": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-4-resume-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:04:32.226762+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-4-resume-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:04:32.226762+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 4,
+              "input_tokens": 6287,
+              "output_tokens": 511,
+              "tool_attempts": 3,
+              "no_progress_rounds": 0
+            },
+            "fence": 2
+          },
+          "same_deadline": true,
+          "post_requests": 3
+        },
+        "redo": {
+          "prefix_exit": 73,
+          "prefix_file": "after_tool_saved-4-redo-prefix.json",
+          "before": {
+            "active_deadline_at": "2026-10-07 11:04:51.582733+00:00",
+            "budget_spent": {
+              "local_reads": 0,
+              "model_calls": 1,
+              "input_tokens": 1053,
+              "output_tokens": 108,
+              "tool_attempts": 1,
+              "no_progress_rounds": 0
+            }
+          },
+          "continuation_exit": 0,
+          "continuation_file": "after_tool_saved-4-redo-continuation.json",
+          "after": {
+            "active_deadline_at": "2026-10-07 11:04:51.582733+00:00",
+            "budget_spent": {
+              "local_reads": 1,
+              "model_calls": 5,
+              "input_tokens": 7067,
+              "output_tokens": 585,
+              "tool_attempts": 4,
+              "no_progress_rounds": 0
+            },
+            "fence": 1
+          },
+          "same_deadline": true,
+          "post_requests": 4
+        }
+      }
+    }
+  ],
+  "runner_sha256": "121c40d6ccc8980f35dcb7606563a8682522252d15b2bdba2cab8b1f7e75254c",
+  "case": "A01A",
+  "policy_variant": "B dense",
+  "provider": "deepseek-flash",
+  "temperature": 0,
+  "scope": "real LLM/PG/AgentScope; production MCP to frozen synthetic read sources"
+}

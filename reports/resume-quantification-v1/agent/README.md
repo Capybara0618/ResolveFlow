@@ -31,6 +31,6 @@
 
 ## 复算与资产
 
-`agent/.venv/Scripts/python.exe scripts/resume_agent_summary.py` 无网络、无模型请求，重新核对128个键及决策/来源hash，输出summary和cases。Ruff通过；两次复算语义及数值一致。所有模型请求、prompt/P2条款、usage、Observations、轨迹、HTTP读与失败在[formal-v1](formal-v1.json)；开发试跑与原数据修正说明见[试跑1](trial-v1.json)、[试跑2](trial-v2.json)和[输入分叉说明](../../../evals/resume-quantification-v1/business-v1/README.md)。实际检索query与返回排名在轨迹，不新增query Gold，不将运行内检索调用次数解释为100%召回。
+`agent/.venv/Scripts/python.exe scripts/resume_agent_summary.py` 无网络、无模型请求，重新核对128个键及决策/来源hash，输出summary和cases。Ruff通过；两次复算语义及数值一致。所有模型请求、prompt/P2条款、usage、Observations、轨迹、HTTP读与失败在[formal-v1](formal-v1.json)；开发试跑与原数据修正说明见[试跑接线记录](trials.md)、[试跑1](trial-v1.json)、[试跑2](trial-v2.json)和[输入分叉说明](../../../evals/resume-quantification-v1/business-v1/README.md)。实际检索query与返回排名在轨迹，不新增query Gold，不将运行内检索调用次数解释为100%召回。
 
 正式运行命令为 `scripts/resume_agent_comparison.py --dataset evals/resume-quantification-v1/business-v1 --variant C --reranker <本地BGE-reranker-base snapshot> --output reports/resume-quantification-v1/agent/formal-v1.json`（模型密钥通过既有环境变量；已存在输出不应覆盖）。正式时Python生产源码与锁均冻结，报告code_hashes/runner_sha256/manifest为依据；后续Java资金修复未改变本批Python版本。原Gold及旧报告保留。

@@ -11,6 +11,8 @@
 
 - Agent来源复核128/128完成（Codex NONBLIND）：固定有效62/64、动态56/64；复杂50/52 vs44/52，动态未体现质量提升，HTTP读192→159但模型137→300。新增agent-review、逐例表、无网络复算脚本/summary，Ruff与两次复算通过。真实恢复15对已结束，退款正式F1–F4及F5部分通过；剩余及Redis窗口仍执行中。strict负例首次DB环境变量误用3pass/1skip，改用RESOLVEFLOW_AGENT_DB后4pass/0skip，两个JUnit均保留。
 
+- Harness正式15对/30次真实进程崩溃与30续跑全部完成，30/30有效；post模型61→51（-16.39%）、token101937→89486（-12.21%），30/30保留各自原deadline与前置预算。原始60份prefix/continuation、逐对budget/fence、复算及报告完成，Ruff/断言通过；未保存窗口的1次差别只记自然波动。退款剩F6及Redis整批仍执行。
+
 ## 历史快照（2026-10-07，七条简历量化实验计划已敲定）
 
 - 新增[正式执行计划](../docs/resume-quantification-plan.md)，同步七条文案及plan/handoff入口；明确RAG五组/外部29query（完整可答17、附加改写18）/商城60query、Agent32场景×2组×2次=128次、授权8类×10轮=80场景、退款6类×10轮=60故障、恢复3窗口×5对=15对/30次与18条strict、Redis2万工单/10和30并发/三条件/3轮/30秒预热60秒测量，故障32并发另测。原始计量单位与分母、评分、固定流程、reranker/RRF参数、故障矩阵、报告产出和四批顺序均已写入。
