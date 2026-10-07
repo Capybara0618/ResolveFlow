@@ -1,4 +1,12 @@
-## 当前快照（2026-10-07，七条简历量化实验与PDF填数完成）
+## 当前快照（2026-10-07，按新版原文局部填数的量化简历完成）
+
+- 用户明确量化版必须基于桌面《Agent开发实习简历(新版).pdf》的实际原文局部修改，只增加量化指标，其他内容大致不变。本轮以PDF实际文本逐条比对，不把旧六条LaTeX正文当作原版七条。当前[正文](../docs/resume-seven-points-minimal.md)取代此前重写稿作为简历入口；既有实验原始记录、原文案、completion/hash均保持，不重新测量或改历史hash。
+- 项目介绍、技术栈、七条标题、第1条全部恢复原文；第2–7条量化句之前的技术机制经去排版空白核对全部相同，包括乐观锁/行级锁、Agent SDK动态循环、BGE/pgvector版本过滤、Agent仅建议/Java授权预留、本地状态机/UNKNOWN异步对账、token预占/结算/反馈纠错、有界回源/超限失败。
+- 局部量化：Agent32场景有效建议87.5%/HTTP读取减少17.2%，移除未测到的复杂处理提升；RAG明确外部原文BM25+rerank，85.8%/+4.4pp/平均2219ms；授权8类80次实验拦截100%；退款60/0/0；恢复15对中断后模型-16.4%/token-12.2%/strict18/18；Redis分开32并发故障峰值8和2万工单30并发成功p95 18.9ms。未塞入额外实验过程或将索引联合收益归给Redis。
+- 实际命令：bundled Python `tmp/pdfs/build_resume_minimal.py` + xelatex编译0、1页/7条/0 Overfull；原PDF/原tex SHA保持，项目外LaTeX保持及PDF文本核对通过。Poppler `pdftoppm -scale-to 1800 -png -singlefile` 整页检查无重叠/裁切，输出SHAba5a3a3241efd26fa060e009dc15e69c299340243dff73092b384c9c54cd5953。[修订核验](../reports/resume-quantification-v1/resume-minimal-edit.json)单独绑定新正文、原PDF和旧完成清单，个人PDF/tex仍只存桌面/忽略output。旧量化PDF/tex在本地tmp作可恢复备份。
+- 本轮仅文案/PDF，未运行模型、业务服务、数据库或新性能测试；原FontAwesome/hyperref编译警告保留。差异/本地链接及原实验completion/hash复核后精确commit/正常push到已确认main/origin，SHA与远端结果见回复；原四脏文件、旧图/日志/个人资产保留不夹带。收口后停止写入，下次仍按用户新指示。
+
+## 历史快照（2026-10-07，七条简历量化实验与PDF填数完成）
 
 - 用户要求“一次性把这些量化指标都测出来”，按[执行协议](../docs/resume-quantification-plan.md)完成全批。统一[报告](../reports/resume-quantification-v1/README.md)、[完成清单](../reports/resume-quantification-v1/completion.json)与[七条正文](../docs/resume-seven-points.md)绑定原始数据、来源/权重hash和分母。第一条沿用现有架构/事务/隔离证据，不新增吞吐数字；数据为合成业务/工单与外部原文，模型真实、支付持久模拟。
 - RAG五组：外部29query（17完整可答）×5×3计时435，加18探针×5计时90；商城60×2×3计时360。BM25→rerank Recall@3 85.78% vs BM2581.37%，前三完整13/17 vs12/17；商城54正例98.15% vs dense93.52%。C/E质量相同选C，两组Agent共用C；CPU平均外部2219.45ms、商城546.03ms，生产默认dense保持。19文件/权重冻结，API0、未下载模型；external-v1保存WinError5的部分记录保留，完整v2作为正式成绩。
