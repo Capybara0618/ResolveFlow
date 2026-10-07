@@ -1,0 +1,26 @@
+{
+  "scope": "real Redis read-only PING, owned TCP proxy network control smoke; not performance score",
+  "source_sha256": "f1d6f9a2a42447e13293a80d211945ad12a720ee38f7fa91dbcfc723ad0421d0",
+  "rows": [
+    {
+      "mode": "normal",
+      "result": "+PONG",
+      "elapsed_ms": 32.375200011301786
+    },
+    {
+      "mode": "disconnect",
+      "result": "DISCONNECTED",
+      "elapsed_ms": 13.992799969855696
+    },
+    {
+      "mode": "timeout",
+      "result": "TIMEOUT",
+      "elapsed_ms": 128.06839996483177
+    },
+    {
+      "mode": "normal",
+      "result": "+PONG",
+      "elapsed_ms": 16.73889998346567
+    }
+  ]
+}

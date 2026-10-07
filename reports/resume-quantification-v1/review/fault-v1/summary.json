@@ -1,0 +1,389 @@
+{
+  "state": "COMPLETED",
+  "runs": [
+    {
+      "repeat": 0,
+      "fault": "expired",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 16453,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.0,
+      "requests": 66212,
+      "successes": 66212,
+      "success_rps": 2207.0666666666666,
+      "error_rate": 0.0,
+      "p95_success_ms": 19.52619996154681,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 768.0,
+        "cache_hit": 65828.0,
+        "cache_miss": 384.0,
+        "cache_error": 0.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 0,
+      "fault": "disconnect",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 16041,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.01600000000326,
+      "requests": 62236,
+      "successes": 62236,
+      "success_rps": 2073.4275053302654,
+      "error_rate": 0.0,
+      "p95_success_ms": 21.99320000363514,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 124472.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 62236.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 0,
+      "fault": "timeout",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 1276,
+      "warmup_errors": 566,
+      "elapsed_seconds": 30.25,
+      "requests": 3779,
+      "successes": 2166,
+      "success_rps": 71.60330578512396,
+      "error_rate": 0.4268324953691453,
+      "p95_success_ms": 327.4651000392623,
+      "p95_failure_ms": 231.87160002999008,
+      "metrics_delta": {
+        "database_queries": 4332.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 3779.0,
+        "fallback_rejected": 1613.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 0,
+      "fault": "restored",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 16492,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.01600000000326,
+      "requests": 62484,
+      "successes": 62484,
+      "success_rps": 2081.6897654581962,
+      "error_rate": 0.0,
+      "p95_success_ms": 21.957699966151267,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 28742.0,
+        "cache_hit": 48113.0,
+        "cache_miss": 273.0,
+        "cache_error": 14098.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 1,
+      "fault": "expired",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 18130,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.01600000000326,
+      "requests": 68273,
+      "successes": 68273,
+      "success_rps": 2274.5535714283246,
+      "error_rate": 0.0,
+      "p95_success_ms": 18.848400039132684,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 822.0,
+        "cache_hit": 67862.0,
+        "cache_miss": 411.0,
+        "cache_error": 0.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 1,
+      "fault": "disconnect",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 15514,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.014999999955762,
+      "requests": 62026,
+      "successes": 62026,
+      "success_rps": 2066.500083294733,
+      "error_rate": 0.0,
+      "p95_success_ms": 22.161500004585832,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 124052.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 62026.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 1,
+      "fault": "timeout",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 1360,
+      "warmup_errors": 658,
+      "elapsed_seconds": 30.28100000001723,
+      "requests": 3805,
+      "successes": 2188,
+      "success_rps": 72.25653049763069,
+      "error_rate": 0.4249671484888305,
+      "p95_success_ms": 326.5022999839857,
+      "p95_failure_ms": 232.41779999807477,
+      "metrics_delta": {
+        "database_queries": 4376.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 3805.0,
+        "fallback_rejected": 1617.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 1,
+      "fault": "restored",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 17152,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.0,
+      "requests": 66602,
+      "successes": 66602,
+      "success_rps": 2220.0666666666666,
+      "error_rate": 0.0,
+      "p95_success_ms": 20.040899980813265,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 31310.0,
+        "cache_hit": 50947.0,
+        "cache_miss": 324.0,
+        "cache_error": 15331.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 2,
+      "fault": "expired",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 18033,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.03100000001723,
+      "requests": 63602,
+      "successes": 63602,
+      "success_rps": 2117.878192533166,
+      "error_rate": 0.0,
+      "p95_success_ms": 20.122499961871654,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 892.0,
+        "cache_hit": 63156.0,
+        "cache_miss": 414.0,
+        "cache_error": 32.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 2,
+      "fault": "disconnect",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 15683,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.014999999955762,
+      "requests": 61467,
+      "successes": 61467,
+      "success_rps": 2047.8760619720338,
+      "error_rate": 0.0,
+      "p95_success_ms": 22.32470002491027,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 122934.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 61467.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 2,
+      "fault": "timeout",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 1311,
+      "warmup_errors": 610,
+      "elapsed_seconds": 30.29700000002049,
+      "requests": 3802,
+      "successes": 2189,
+      "success_rps": 72.25137802417795,
+      "error_rate": 0.42425039452919516,
+      "p95_success_ms": 326.908299990464,
+      "p95_failure_ms": 232.27310000220314,
+      "metrics_delta": {
+        "database_queries": 4378.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 3802.0,
+        "fallback_rejected": 1613.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 2,
+      "fault": "restored",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 14712,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.0,
+      "requests": 62091,
+      "successes": 62091,
+      "success_rps": 2069.7,
+      "error_rate": 0.0,
+      "p95_success_ms": 21.93240000633523,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 28120.0,
+        "cache_hit": 48031.0,
+        "cache_miss": 276.0,
+        "cache_error": 13784.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    }
+  ]
+}

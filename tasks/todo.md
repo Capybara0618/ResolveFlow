@@ -1,19 +1,15 @@
-## 当前快照（2026-10-07，RAG与授权矩阵完成，Agent正式调查完成，退款/恢复故障接线中）
+## 当前快照（2026-10-07，七条简历量化实验与PDF填数完成）
 
-- 最新用户要求“一次性把这些量化指标都测出来”，按已敲定计划持续执行；真实模型调用、隔离测试库与负载属于本次授权范围。已核验main/origin main同步、暂存为空，原四脏文件及旧未跟踪资产保留；唯一业务写入者为当前执行者。
-- 原demo依赖容器停止，已恢复既有PG55433/MySQL3307/MQ9877与Redis56379，均保留卷；未启动常驻业务worker。DeepSeek User环境凭据可用，BGE dense和reranker snapshot已有本地缓存，沿用原锁。
-- RAG完成：[报告](../reports/resume-quantification-v1/rag/README.md)、[冻结19文件与模型权重](../evals/resume-quantification-v1/rag-manifest.json)。外部29×5×3正式计时435、18探针×5附加90，235质量记录；C/E原query前三完整13/17、Recall85.78%，前五17/17，BM25前三12/17、Recall81.37%。质量相同选C，CPU平均2219.45ms。商城60×2×3=360计时/120质量记录，54正例C前三52/54 vs dense49/54，Recall98.15% vs93.52%，C平均546.03ms，业务共用C。2计量单测、相关Ruff及运行前后SHA/完整计数核验通过；API调用0、无新模型下载。首次external-v1保存WinError5中断，json与最终partial另存保留；仅本地保存增加重试，完整重测v2，未当完成成绩。
-- 已实现评测专用固定调查基线scripts/evaluation/fixed_workflow.py，复用生产ContextBuilder/ActionGate/BudgetGuard/MCP与政策桥/来源Verifier/一次纠错，不改唯一生产AgentScope循环；固定读取不消耗模型请求数。3项单测通过（实际模型数、查询→终局、纠错不能额外读取），Ruff及差异核验通过。初次成功路径2项计数断言失败，发现生产tool_attempts包括政策本地读取，按实际定义核对为3外部+1本地，模型请求仍2/3；未改预算/断言弱化来放行。
-- 基线首实现已commit/push 6be7998；RAG实测已commit/push 1dc7e96并ls-remote核实，fetch一次TLS失败而正常push成功；冻结范围按已有.gitattributes模式保留CRLF与实际SHA，普通diff --check通过。真实trial-v1共8调查/26实际请求，发现Harness纠错占位被基线误判追加调查；修复后覆盖该反例，4基线单测通过。另按CheckoutPayments实际NOT_SHIPPED/UNKNOWN投影修复5个无事件合成默认值，创建business-v1，所有Gold/政策/RAG/材料/订单/错误/真实冲突字节保持，原数据不改；2输入单测及validate32例/16对/60query通过。trial-v2共8调查/26实际请求，7完成、动态A13A原引用纠错失败保留，不追单例满分；两试跑不进入正式128次分母。正式128次运行已启动，配置与business-v1输入冻结；未完成结果不计最终成绩。
-- 为后续Redis故障测量增加真实Mapper调用处inflight/peak计量，先负测MeterNotFound，再2项背压单测通过，尚未当成HTTP故障峰值。授权新矩阵首次93项因继承测试配置未自动导入而依赖注入失败；明确Import后attempt2已93 passed（80矩阵+10消费先赢+3继承回归），实际80场景、90过期授权尝试全拒、80有效控制消费成功、非法消费0、消费先赢后改输入10/10拒绝。此批真实Case HTTP/MySQL，Commerce资格来源为显式fixture stub，未宣称真实MQ/Commerce资金预留；退款60故障将单独测。原四脏文件保留。
-
-- Agent formal-v1完成128次：固定自动联合62/64、64完成、137实际请求；动态52/64、56完成、300请求，语义复核未完成。mock跨进程恢复26 passed/0 skipped，strict本轮18/18 MATCH。正式Redis新schema已准备20000/4000/2，未测性能。退款开发接线发现同操作竞争误拒及响应头EOF未转UNKNOWN；分别真实MySQL屏障/HTTP断连反例后修复，集中28 passed（多行、传输、provider、消费者），更新Commerce jar；开发失败日志与试跑保留，不计正式60故障。已有四脏文件不夹带。
-
-- Agent来源复核128/128完成（Codex NONBLIND）：固定有效62/64、动态56/64；复杂50/52 vs44/52，动态未体现质量提升，HTTP读192→159但模型137→300。新增agent-review、逐例表、无网络复算脚本/summary，Ruff与两次复算通过。真实恢复15对已结束，退款正式F1–F4及F5部分通过；剩余及Redis窗口仍执行中。strict负例首次DB环境变量误用3pass/1skip，改用RESOLVEFLOW_AGENT_DB后4pass/0skip，两个JUnit均保留。
-
-- Harness正式15对/30次真实进程崩溃与30续跑全部完成，30/30有效；post模型61→51（-16.39%）、token101937→89486（-12.21%），30/30保留各自原deadline与前置预算。原始60份prefix/continuation、逐对budget/fence、复算及报告完成，Ruff/断言通过；未保存窗口的1次差别只记自然波动。退款剩F6及Redis整批仍执行。
-
-- 退款formal-v1完整6×10=60/60通过，70行各一次成功、190账本边界超额0/最大0分、重复成功0/错误RefundFailed0、UNKNOWN10/10原操作查询收敛，F5真实kill后Outbox恢复/F6十次投递只关闭一次。执行源/jar冻结hash核对及复算/Ruff通过；独立MQv2与c schemas、持久模拟支付，原库/试跑保留。SQL/Redis18正常窗口+12故障窗口已自动开始，未缩短时间。
+- 用户要求“一次性把这些量化指标都测出来”，按[执行协议](../docs/resume-quantification-plan.md)完成全批。统一[报告](../reports/resume-quantification-v1/README.md)、[完成清单](../reports/resume-quantification-v1/completion.json)与[七条正文](../docs/resume-seven-points.md)绑定原始数据、来源/权重hash和分母。第一条沿用现有架构/事务/隔离证据，不新增吞吐数字；数据为合成业务/工单与外部原文，模型真实、支付持久模拟。
+- RAG五组：外部29query（17完整可答）×5×3计时435，加18探针×5计时90；商城60×2×3计时360。BM25→rerank Recall@3 85.78% vs BM2581.37%，前三完整13/17 vs12/17；商城54正例98.15% vs dense93.52%。C/E质量相同选C，两组Agent共用C；CPU平均外部2219.45ms、商城546.03ms，生产默认dense保持。19文件/权重冻结，API0、未下载模型；external-v1保存WinError5的部分记录保留，完整v2作为正式成绩。
+- Agent完成32场景×两组×两次=128次真实调查及128/128 Codex NONBLIND来源复核：固定有效62/64、动态56/64，复杂50/52 vs44/52；业务HTTP读192→159、模型137→300。删除预设准确率/复杂提升，HTTP减少17.2%不称整体降本。动态8次未完成及固定2次错误整例拒绝保留分母，无付费刷分。评测固定流程复用生产门禁/一次纠错，生产仍唯一AgentScope2.0.8循环；business-v1仅5个无事件合成物流按CheckoutPayments投影校准，原Gold/输入保留。
+- 授权8类×10=80真实Case HTTP/MySQL场景，90/90过期尝试拒绝、80/80当前有效消费、非法消费0，消费先提交的10次更新均409；Commerce资格为显式fixture，非退款资金成绩。93项通过（80矩阵+10消费先赢+3继承），ReviewQueueBackpressureTest另2项通过，真实Mapper计量。首次矩阵依赖注入失败记录保留。
+- 退款6类×10=60/60正式故障通过，70行各一次成功、190账本边界超额0/最大0分、重复成功0、错误RefundFailed0、UNKNOWN10/10原操作查询收敛。真实Java/MySQL/RocketMQ、持久模拟provider，F5真kill恢复Outbox、F6十次投递只关闭一次。开发试跑失败及旧MQ/schema保留；针对同行竞争重查/HTTP EOF的生产修复先跑真实反例，再集中28项通过，已在43c3003提交。正式报告源/jar冻结hash通过。
+- 恢复3窗口×5对=15对/30真实进程崩溃，两组各15/15有效；新增模型61→51（-16.39%）、token101937→89486（-12.21%），30/30继承原deadline与前置预算，fence有效。只用1个业务场景重复，不写15种业务；未保存窗口1请求差别属自然波动。mock26通过/0跳过、strict当前18包18/18 MATCH；负例修正DB环境变量后4通过/0跳过（原3通过/1跳过保留）。本轮未跑Docker OS网络隔离项，Python代码/锁未变，不重导旧strict包。
+- SQL/Redis完成18正常与12故障HTTP窗口，20000工单/4000待审/2商家；10/30并发三条件三轮30秒预热/60秒测量。30并发成功p95三轮中位数63.873→20.319→18.949ms，DB查询/成功请求2→0.004827（-99.7586%）。正常1578938请求有1次transport失败，未补跑；第17窗口后会话中断，校验保留17份hash，只续测缺失r2-indexed-c30完整窗口。故障32并发10/30秒×4类×3轮：586379请求、4843失败全为503且等于实际拒绝数；超时拒绝率中位数42.50%、成功RPS72.25，TTL/断连/恢复测量0拒绝，各轮实测Mapper峰值8、最终inflight0。不称超时无损可用。环境/短暂PDF编译重叠故障第二轮已记录。
+- 实际命令及核验：各批driver与详细README记录完整命令/JUnit/试跑；最后执行 `python scripts/resume_review_benchmark.py --schema resume_review_20261007a --output reports/resume-quantification-v1/review/normal-v1 --prepared --continue`、`python scripts/resume_review_faults.py --schema resume_review_20261007a --output reports/resume-quantification-v1/review/fault-v1`、`python scripts/resume_review_summary.py`、`python scripts/resume_quantification_summary.py`，全部0。完整原始计数/计量/hash审计及相关Ruff通过；正式Agent+恢复579模型请求，input1057732/output74957，开发试跑另存、累计费用账本未重置。
+- 桌面另存量化实验版PDF与可编辑LaTeX源，仓库本地output副本不提交。七条已填本轮数字；原PDF/tex及项目外内容保持。bundled Python `tmp/pdfs/build_resume_quantification.py` + xelatex编译0、1页/7条/0 Overfull；Poppler1800px整页检查无裁切/重叠，输出SHA80cd767dd66ac9d46310a03352027a533b1e524651d7c4152f1e002bcbbe3abf。原FontAwesome/hyperref警告保留，原非项目占位内容未改。
+- 环境：既有PG55433/MySQL3307/MQ9877/Redis56379卷/库保持；本轮独立schema及两个专用MQ历史数据保留，所属业务Java/provider/Redis代理均停止，未清库/删卷/部署公网或购买资源。原四脏文件（engineering、两verify、Commerce退款测试）与旧图/日志/个人资产不夹带。此前各步已正常commit/push：6be7998、1dc7e96、9e90e1d、abae479、43c3003、9a277a1、83b693e、bbf2ca7；最终SQL/Redis与文档批按相同规则精确提交/推送，SHA和远端确认见最终回复。收口停止写入，无默认下一批收费优化；下次由用户主导。
 
 ## 历史快照（2026-10-07，七条简历量化实验计划已敲定）
 

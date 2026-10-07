@@ -128,7 +128,7 @@
 - 输入、输出token分别求和；`token降低比例 = (从头执行新增token - 恢复新增token) / 从头执行新增token`。汇总总token比例与输入/输出分项；两组完成率、结果质量和耗时一起报告。
 - 中断前已发生的请求/usage和未取得usage的未知请求也保存，未知不当0，不估算成真实计费。供应商实际usage是token依据，费用不是本轮主指标。
 
-复用[跨进程故障验收](../agent/tests/integration/test_c09_acceptance.py)及[恢复报告](../reports/c09-production-recovery.md)。strict复用已有18种轨迹，按本轮最终源码manifest导出新版本包；旧包保留。匹配需重新处理记录并核对动作、引用与终态，另检查缺记录、篡改和禁网；报告m/18及首个差异。
+复用[跨进程故障验收](../agent/tests/integration/test_c09_acceptance.py)及[恢复报告](../reports/c09-production-recovery.md)。strict复用已有18种轨迹；若生产Python源码/manifest改变则导出新版本包，旧包保留。本轮生产Python源码与锁未改变，重跑当前18包并核对绑定，不伪造新的导出版本。匹配需重新处理记录并核对动作、引用与终态，另检查缺记录、篡改和禁网；报告m/18及首个差异。
 
 ## 8. Redis与SQL：三条件性能及故障回源
 

@@ -1,0 +1,36 @@
+{
+  "state": "COMPLETED",
+  "architecture_new_quantification": false,
+  "formal_live_model_requests": 579,
+  "formal_live_input_tokens": 1057732,
+  "formal_live_output_tokens": 74957,
+  "formal_live_total_tokens": 1132689,
+  "scope": "synthetic business/queue data; real LLM and service measurements; durable simulated payment; development trials excluded from formal totals",
+  "seven_evidence": {
+    "1": "Existing architecture/transactions/tenant isolation; see README code and evidence links",
+    "2": "agent/README.md",
+    "3": "rag/README.md",
+    "4": "authorization/README.md",
+    "5": "refund/README.md",
+    "6": "recovery/README.md",
+    "7": "review/README.md"
+  },
+  "hashes": {
+    "reports/resume-quantification-v1/agent/summary.json": "44de132b184ad49707c51dc02ef4f57f47b5a9c5a599721ea81431665d7d8eb7",
+    "reports/resume-quantification-v1/authorization/summary.json": "5be2007bf1d04f1f1971518a961a2f2b2c1cef45f55c3f1629b540bd48745a39",
+    "reports/resume-quantification-v1/refund/summary.json": "445d4bb27486f0fba15994fa8a04ccccd3f3ed71469fc56878565ceb7702ae7e",
+    "reports/resume-quantification-v1/recovery/summary.json": "a376cc1918b898572ac01f8e5a273a962fb8ff8f720b459a48c600208bf92fb9",
+    "reports/resume-quantification-v1/review/audited-summary.json": "2009811e14f66bf597dfcfac43d3ed9c1637cd7f98f08833084772d517961c4d",
+    "reports/resume-quantification-v1/recovery/strict-v1.json": "b87c7e50ceaf3616d43d4b5d85e5ec5f0dfea9b39743b5a9dfb671404db3b44f",
+    "reports/resume-quantification-v1/rag/external-v2.json": "72a6bd316bb542a4ac01bf98a27a9d9806d6a30c11a16862f0deaa969f9d9b23",
+    "reports/resume-quantification-v1/rag/mall-v1.json": "a1afa0dd488b70ccbe8884d5174667031283e7127ea83f810c33e9dd7a037b71",
+    "evals/resume-quantification-v1/rag-manifest.json": "8a3a816cac4e43fc32439672ef8e83a093b518de13254162d0b702ccb71fee29",
+    "docs/resume-seven-points.md": "e43946513d518c5f4cf097f3fd3fb1cd0aa5d2aa35fecfee039929e6b2c19c75",
+    "docs/resume-quantification-plan.md": "e099e2c55f53bdd9fd308a9bc942d9a465c0b55b5a8f2dac8671f2e418ad2a24",
+    "docs/resume-evidence.md": "3deaa819d5ce47d67027965287c98d51311f3f4cddd8dd5dbd54bc36c9dbd1e4",
+    "reports/resume-quantification-v1/README.md": "16e68ed8203c45402ce55175e6504d37c7927f94a0e17abc94181b356d070612",
+    "reports/resume-quantification-v1/review/README.md": "7f5982a76b78a0d529ec615d8d23778c2dd86f513de63f6ac51855e2d76be7fd",
+    "reports/resume-quantification-v1/review/environment.json": "d8086992b1b9177a08fa0d56eb9c87ec800cd2b45f0648dd714affaa24b52d81",
+    "scripts/resume_quantification_summary.py": "2fb9e087c4425680795e04ee5eea11a87c90046091636903d315a93948e6e305"
+  }
+}

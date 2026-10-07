@@ -1,0 +1,55 @@
+{
+  "machine": "AMD Ryzen 9 8940HX,16 cores/32 logical,16425455616 physical memory bytes; Windows/PowerShell",
+  "jvm": "Java21.0.12 -Xms256m -Xmx768m,one owned Case process at a time",
+  "traffic": "loopback HTTP,persistent synthetic20000/4000/2 dataset,80/10/10 key distribution seed42",
+  "redis_command_timeout_ms": 100,
+  "redis_connection_timeout_ms": 100,
+  "cache_ttl_seconds": 2,
+  "semaphore_permits": 8,
+  "semaphore_wait_ms": 100,
+  "containers": [
+    {
+      "name": "/resolveflow-review-demo-mysql-1",
+      "image": "sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a",
+      "memory_limit_bytes": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/resolveflow-redis-1",
+      "image": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+      "memory_limit_bytes": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/resolveflow-review-demo-postgres-1",
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "memory_limit_bytes": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/resolveflow-resume-v2-rocketmq-broker-1",
+      "image": "sha256:455287638deddbbcd6cf48cdf988ed4d05bbac7265acc0c399d9d8228862a7d7",
+      "memory_limit_bytes": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/resolveflow-resume-v2-rocketmq-namesrv-1",
+      "image": "sha256:455287638deddbbcd6cf48cdf988ed4d05bbac7265acc0c399d9d8228862a7d7",
+      "memory_limit_bytes": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/resolveflow-review-demo-rocketmq-broker-1",
+      "image": "sha256:455287638deddbbcd6cf48cdf988ed4d05bbac7265acc0c399d9d8228862a7d7",
+      "memory_limit_bytes": 0,
+      "nano_cpus": 0
+    },
+    {
+      "name": "/resolveflow-review-demo-rocketmq-namesrv-1",
+      "image": "sha256:455287638deddbbcd6cf48cdf988ed4d05bbac7265acc0c399d9d8228862a7d7",
+      "memory_limit_bytes": 0,
+      "nano_cpus": 0
+    }
+  ],
+  "resource_note": "0 Docker limits means no per-container hard limit; host/client/database share this machine. PostgreSQL and both RocketMQ NameServer/broker pairs remain idle and up throughout all normal and fault windows; no live-model or refund batch overlaps. A brief local xelatex PDF compile/render occurred during fault repeat1; not during the 18 normal performance windows."
+}

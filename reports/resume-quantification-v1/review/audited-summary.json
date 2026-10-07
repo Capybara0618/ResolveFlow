@@ -1,0 +1,894 @@
+{
+  "state": "COMPLETED",
+  "normal_windows": 18,
+  "fault_windows": 12,
+  "normal_requests": 1578938,
+  "normal_errors": 1,
+  "fault_requests": 586379,
+  "fault_errors": 4843,
+  "medians_of_three": {
+    "10": {
+      "groups": {
+        "baseline": {
+          "success_rps": 548.9460968090033,
+          "p95_ms": 34.0600999770686,
+          "error_rate": 0.0,
+          "db_queries_per_success": 2.0,
+          "cache_hit_rate": 0.0
+        },
+        "indexed": {
+          "success_rps": 1366.135697147353,
+          "p95_ms": 21.77360001951456,
+          "error_rate": 0.0,
+          "db_queries_per_success": 2.0,
+          "cache_hit_rate": 0.0
+        },
+        "cache": {
+          "success_rps": 1717.9252199412556,
+          "p95_ms": 17.749099992215633,
+          "error_rate": 0.0,
+          "db_queries_per_success": 0.0045197520925676265,
+          "cache_hit_rate": 0.9977401239537161
+        }
+      },
+      "index_p95_reduction": 0.3607300027253615,
+      "cache_p95_reduction": 0.18483392841293927,
+      "combined_p95_reduction": 0.4788887876381619,
+      "cache_db_queries_per_success_reduction": 0.9977401239537161
+    },
+    "30": {
+      "groups": {
+        "baseline": {
+          "success_rps": 717.6839019188986,
+          "p95_ms": 63.87320003705099,
+          "error_rate": 0.0,
+          "db_queries_per_success": 2.0,
+          "cache_hit_rate": 0.0
+        },
+        "indexed": {
+          "success_rps": 2112.6699546786376,
+          "p95_ms": 20.31859999988228,
+          "error_rate": 0.0,
+          "db_queries_per_success": 2.0,
+          "cache_hit_rate": 0.0
+        },
+        "cache": {
+          "success_rps": 2287.611430475182,
+          "p95_ms": 18.948599987197667,
+          "error_rate": 0.0,
+          "db_queries_per_success": 0.0048274758989719805,
+          "cache_hit_rate": 0.997586262050514
+        }
+      },
+      "index_p95_reduction": 0.6818916229639966,
+      "cache_p95_reduction": 0.06742590595279944,
+      "combined_p95_reduction": 0.7033403684768239,
+      "cache_db_queries_per_success_reduction": 0.997586262050514
+    }
+  },
+  "fault_medians": {
+    "expired": {
+      "success_rps": 2207.0666666666666,
+      "error_rate": 0.0,
+      "p95_success_ms": 19.52619996154681,
+      "p95_failure_ms": null,
+      "maximum_mapper_peak": 8.0,
+      "fallback_rejected": 0.0
+    },
+    "disconnect": {
+      "success_rps": 2066.500083294733,
+      "error_rate": 0.0,
+      "p95_success_ms": 22.161500004585832,
+      "p95_failure_ms": null,
+      "maximum_mapper_peak": 8.0,
+      "fallback_rejected": 0.0
+    },
+    "timeout": {
+      "success_rps": 72.25137802417795,
+      "error_rate": 0.4249671484888305,
+      "p95_success_ms": 326.908299990464,
+      "p95_failure_ms": 232.27310000220314,
+      "maximum_mapper_peak": 8.0,
+      "fallback_rejected": 4843.0
+    },
+    "restored": {
+      "success_rps": 2081.6897654581962,
+      "error_rate": 0.0,
+      "p95_success_ms": 21.93240000633523,
+      "p95_failure_ms": null,
+      "maximum_mapper_peak": 8.0,
+      "fallback_rejected": 0.0
+    }
+  },
+  "normal_runs": [
+    {
+      "repeat": 0,
+      "mode": "baseline",
+      "concurrency": 10,
+      "file": "r0-baseline-c10.json.gz",
+      "sha256": "5ec95e85b62cba7b0f455c7b56aa18ea0221e7989a983a34d8fd0d5e5f283518",
+      "request_count": 33201,
+      "success_count": 33201,
+      "error_count": 0,
+      "success_rps": 553.35,
+      "error_rate": 0.0,
+      "p95_ms": 33.772499999031425,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        31.34789998875931,
+        32.67389995744452,
+        29.23799998825416
+      ]
+    },
+    {
+      "repeat": 0,
+      "mode": "indexed",
+      "concurrency": 10,
+      "file": "r0-indexed-c10.json.gz",
+      "sha256": "3de577f36a2b58c5ab9d1556c44bc4a0eade1c9a2dbd55ecb371627f5bfe1555",
+      "request_count": 82538,
+      "success_count": 82538,
+      "error_count": 0,
+      "success_rps": 1375.2895109566082,
+      "error_rate": 0.0,
+      "p95_ms": 21.71010000165552,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        30.1638999953866,
+        29.058099957183003,
+        9.461099980399013
+      ]
+    },
+    {
+      "repeat": 0,
+      "mode": "cache",
+      "concurrency": 10,
+      "file": "r0-cache-c10.json.gz",
+      "sha256": "2ebd475ec7f3ca844170f5e2fa92acf3b84d7ea1aebce3edb12bfad4320358f5",
+      "request_count": 103103,
+      "success_count": 103103,
+      "error_count": 0,
+      "success_rps": 1717.9252199412556,
+      "error_rate": 0.0,
+      "p95_ms": 17.749099992215633,
+      "db_queries_per_success": 0.0045197520925676265,
+      "cache_hit_rate": 0.9977401239537161,
+      "cold_ms": [
+        16.481099999509752,
+        34.35209998860955,
+        14.900100009981543
+      ]
+    },
+    {
+      "repeat": 0,
+      "mode": "baseline",
+      "concurrency": 30,
+      "file": "r0-baseline-c30.json.gz",
+      "sha256": "69e799f7f949a92dce3a38be6f27c5bdde4005575ed2eecc0b069f07905eb125",
+      "request_count": 43084,
+      "success_count": 43084,
+      "error_count": 0,
+      "success_rps": 717.6839019188986,
+      "error_rate": 0.0,
+      "p95_ms": 63.87320003705099,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        18.607200006954372,
+        36.110500048380345,
+        19.997900002636015
+      ]
+    },
+    {
+      "repeat": 0,
+      "mode": "indexed",
+      "concurrency": 30,
+      "file": "r0-indexed-c30.json.gz",
+      "sha256": "3db37f1d358fc26fe02f71c5f9be1e6f04eba172b220afe89ee761df394d1050",
+      "request_count": 126794,
+      "success_count": 126794,
+      "error_count": 0,
+      "success_rps": 2112.6699546786376,
+      "error_rate": 0.0,
+      "p95_ms": 20.31859999988228,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        9.88219998544082,
+        19.917499972507358,
+        10.575999971479177
+      ]
+    },
+    {
+      "repeat": 0,
+      "mode": "cache",
+      "concurrency": 30,
+      "file": "r0-cache-c30.json.gz",
+      "sha256": "3f5e834651b66feb24332f244d6a4d73042b927d7b64b4ccd690d7819370f910",
+      "request_count": 137546,
+      "success_count": 137546,
+      "error_count": 0,
+      "success_rps": 2291.822180751675,
+      "error_rate": 0.0,
+      "p95_ms": 18.928400008007884,
+      "db_queries_per_success": 0.0048274758989719805,
+      "cache_hit_rate": 0.997586262050514,
+      "cold_ms": [
+        36.72999999253079,
+        28.682800009846687,
+        30.767599993851036
+      ]
+    },
+    {
+      "repeat": 1,
+      "mode": "indexed",
+      "concurrency": 10,
+      "file": "r1-indexed-c10.json.gz",
+      "sha256": "fb8cd7d51f2a1043a4f98f86e8e4ba1a8391eafbbe23358944d625f46ba49351",
+      "request_count": 81990,
+      "success_count": 81990,
+      "error_count": 0,
+      "success_rps": 1366.135697147353,
+      "error_rate": 0.0,
+      "p95_ms": 21.77360001951456,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        28.312299982644618,
+        22.08330004941672,
+        28.37720001116395
+      ]
+    },
+    {
+      "repeat": 1,
+      "mode": "cache",
+      "concurrency": 10,
+      "file": "r1-cache-c10.json.gz",
+      "sha256": "98c2e3c890043f48b97537aa420180605e29511b4dbc77e57dafd35a33675d5a",
+      "request_count": 102588,
+      "success_count": 102587,
+      "error_count": 1,
+      "success_rps": 1709.7833333333333,
+      "error_rate": 9.747728779194448e-06,
+      "p95_ms": 19.04320000903681,
+      "db_queries_per_success": 0.004717946718395118,
+      "cache_hit_rate": 0.9976410266408025,
+      "cold_ms": [
+        37.131199962459505,
+        24.86140001565218,
+        11.821499967481941
+      ]
+    },
+    {
+      "repeat": 1,
+      "mode": "baseline",
+      "concurrency": 10,
+      "file": "r1-baseline-c10.json.gz",
+      "sha256": "80cca7a915e1976bf35cd7333bce713c12e7bc3712e78894224edcd6a46ac694",
+      "request_count": 32656,
+      "success_count": 32656,
+      "error_count": 0,
+      "success_rps": 544.1215675819486,
+      "error_rate": 0.0,
+      "p95_ms": 34.20759999426082,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        28.046099992934614,
+        31.44869999960065,
+        29.596799984574318
+      ]
+    },
+    {
+      "repeat": 1,
+      "mode": "indexed",
+      "concurrency": 30,
+      "file": "r1-indexed-c30.json.gz",
+      "sha256": "a9495ccbf66fb6afd9976819b53f7d57e525a8fe79b78023cb4ebbd6c0838a71",
+      "request_count": 126143,
+      "success_count": 126143,
+      "error_count": 0,
+      "success_rps": 2101.8228472406217,
+      "error_rate": 0.0,
+      "p95_ms": 20.54860000498593,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        8.74730001669377,
+        11.021199985407293,
+        35.947400028817356
+      ]
+    },
+    {
+      "repeat": 1,
+      "mode": "cache",
+      "concurrency": 30,
+      "file": "r1-cache-c30.json.gz",
+      "sha256": "254c40460e57aaae50578cb866aec31027da3962df2d5d7b8521ff12caab6426",
+      "request_count": 137291,
+      "success_count": 137291,
+      "error_count": 0,
+      "success_rps": 2287.611430475182,
+      "error_rate": 0.0,
+      "p95_ms": 18.948599987197667,
+      "db_queries_per_success": 0.004268306006948744,
+      "cache_hit_rate": 0.9978658469965256,
+      "cold_ms": [
+        28.576600016094744,
+        23.313399986363947,
+        12.650899996515363
+      ]
+    },
+    {
+      "repeat": 1,
+      "mode": "baseline",
+      "concurrency": 30,
+      "file": "r1-baseline-c30.json.gz",
+      "sha256": "ca814fb2ac6bb2143b42da1f8cbab236ea9cddf1e6aa6a728ce2fbddd93e7890",
+      "request_count": 41944,
+      "success_count": 41944,
+      "error_count": 0,
+      "success_rps": 698.7056687382958,
+      "error_rate": 0.0,
+      "p95_ms": 66.55189994489774,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        29.39649997279048,
+        29.87490000668913,
+        31.176300020888448
+      ]
+    },
+    {
+      "repeat": 2,
+      "mode": "cache",
+      "concurrency": 10,
+      "file": "r2-cache-c10.json.gz",
+      "sha256": "6262a6ebd156e43f52d8f0269ffbbcc7d2064e393c4a8cf2fdc0bdb9f9cdf03d",
+      "request_count": 105981,
+      "success_count": 105981,
+      "error_count": 0,
+      "success_rps": 1765.4378571083664,
+      "error_rate": 0.0,
+      "p95_ms": 16.793199989479035,
+      "db_queries_per_success": 0.004302658023608005,
+      "cache_hit_rate": 0.997848670988196,
+      "cold_ms": [
+        34.28819996770471,
+        35.56029999163002,
+        34.16849998757243
+      ]
+    },
+    {
+      "repeat": 2,
+      "mode": "baseline",
+      "concurrency": 10,
+      "file": "r2-baseline-c10.json.gz",
+      "sha256": "d66cc82717a8c079224526462626907a3c2320117b35485844f619c88642752a",
+      "request_count": 32945,
+      "success_count": 32945,
+      "error_count": 0,
+      "success_rps": 548.9460968090033,
+      "error_rate": 0.0,
+      "p95_ms": 34.0600999770686,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        39.29980000248179,
+        33.85140001773834,
+        17.94669998344034
+      ]
+    },
+    {
+      "repeat": 2,
+      "mode": "indexed",
+      "concurrency": 10,
+      "file": "r2-indexed-c10.json.gz",
+      "sha256": "8e48bd50989c6162cdce0971d8453c17dea73f68061923b3a0403c59448bec87",
+      "request_count": 81856,
+      "success_count": 81856,
+      "error_count": 0,
+      "success_rps": 1363.902959210803,
+      "error_rate": 0.0,
+      "p95_ms": 22.195000026840717,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        24.420300032943487,
+        35.8354999916628,
+        30.290999973658472
+      ]
+    },
+    {
+      "repeat": 2,
+      "mode": "cache",
+      "concurrency": 30,
+      "file": "r2-cache-c30.json.gz",
+      "sha256": "4ea0f9a06ecadc86dc4bf20cbf565ecc5ddf9310f7e61959e0615bc4a2ee53d0",
+      "request_count": 136760,
+      "success_count": 136760,
+      "error_count": 0,
+      "success_rps": 2278.725673153702,
+      "error_rate": 0.0,
+      "p95_ms": 19.23289999831468,
+      "db_queries_per_success": 0.005264697279906405,
+      "cache_hit_rate": 0.9973676513600468,
+      "cold_ms": [
+        32.671799999661744,
+        23.929800023324788,
+        28.007599990814924
+      ]
+    },
+    {
+      "repeat": 2,
+      "mode": "baseline",
+      "concurrency": 30,
+      "file": "r2-baseline-c30.json.gz",
+      "sha256": "cfc4af956f114bc57bca411186b613eae37615b3be16400c1a1cb2eca11a5583",
+      "request_count": 43990,
+      "success_count": 43990,
+      "error_count": 0,
+      "success_rps": 732.7880595023801,
+      "error_rate": 0.0,
+      "p95_ms": 62.760000000707805,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        33.16880000056699,
+        19.203999952878803,
+        19.568600051570684
+      ]
+    },
+    {
+      "repeat": 2,
+      "mode": "indexed",
+      "concurrency": 30,
+      "file": "r2-indexed-c30.json.gz",
+      "sha256": "e1debb805ae59785ed7e2d3e6db8ac42b6e946eb9462b7e230075a7e390e76e8",
+      "request_count": 128528,
+      "success_count": 128528,
+      "error_count": 0,
+      "success_rps": 2141.5979338514494,
+      "error_rate": 0.0,
+      "p95_ms": 20.09039995027706,
+      "db_queries_per_success": 2.0,
+      "cache_hit_rate": 0.0,
+      "cold_ms": [
+        26.68660000199452,
+        12.952500022947788,
+        30.952600005548447
+      ]
+    }
+  ],
+  "fault_runs": [
+    {
+      "repeat": 0,
+      "fault": "expired",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 16453,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.0,
+      "requests": 66212,
+      "successes": 66212,
+      "success_rps": 2207.0666666666666,
+      "error_rate": 0.0,
+      "p95_success_ms": 19.52619996154681,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 768.0,
+        "cache_hit": 65828.0,
+        "cache_miss": 384.0,
+        "cache_error": 0.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 0,
+      "fault": "disconnect",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 16041,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.01600000000326,
+      "requests": 62236,
+      "successes": 62236,
+      "success_rps": 2073.4275053302654,
+      "error_rate": 0.0,
+      "p95_success_ms": 21.99320000363514,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 124472.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 62236.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 0,
+      "fault": "timeout",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 1276,
+      "warmup_errors": 566,
+      "elapsed_seconds": 30.25,
+      "requests": 3779,
+      "successes": 2166,
+      "success_rps": 71.60330578512396,
+      "error_rate": 0.4268324953691453,
+      "p95_success_ms": 327.4651000392623,
+      "p95_failure_ms": 231.87160002999008,
+      "metrics_delta": {
+        "database_queries": 4332.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 3779.0,
+        "fallback_rejected": 1613.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 0,
+      "fault": "restored",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 16492,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.01600000000326,
+      "requests": 62484,
+      "successes": 62484,
+      "success_rps": 2081.6897654581962,
+      "error_rate": 0.0,
+      "p95_success_ms": 21.957699966151267,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 28742.0,
+        "cache_hit": 48113.0,
+        "cache_miss": 273.0,
+        "cache_error": 14098.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 1,
+      "fault": "expired",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 18130,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.01600000000326,
+      "requests": 68273,
+      "successes": 68273,
+      "success_rps": 2274.5535714283246,
+      "error_rate": 0.0,
+      "p95_success_ms": 18.848400039132684,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 822.0,
+        "cache_hit": 67862.0,
+        "cache_miss": 411.0,
+        "cache_error": 0.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 1,
+      "fault": "disconnect",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 15514,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.014999999955762,
+      "requests": 62026,
+      "successes": 62026,
+      "success_rps": 2066.500083294733,
+      "error_rate": 0.0,
+      "p95_success_ms": 22.161500004585832,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 124052.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 62026.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 1,
+      "fault": "timeout",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 1360,
+      "warmup_errors": 658,
+      "elapsed_seconds": 30.28100000001723,
+      "requests": 3805,
+      "successes": 2188,
+      "success_rps": 72.25653049763069,
+      "error_rate": 0.4249671484888305,
+      "p95_success_ms": 326.5022999839857,
+      "p95_failure_ms": 232.41779999807477,
+      "metrics_delta": {
+        "database_queries": 4376.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 3805.0,
+        "fallback_rejected": 1617.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 1,
+      "fault": "restored",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 17152,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.0,
+      "requests": 66602,
+      "successes": 66602,
+      "success_rps": 2220.0666666666666,
+      "error_rate": 0.0,
+      "p95_success_ms": 20.040899980813265,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 31310.0,
+        "cache_hit": 50947.0,
+        "cache_miss": 324.0,
+        "cache_error": 15331.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 2,
+      "fault": "expired",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 18033,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.03100000001723,
+      "requests": 63602,
+      "successes": 63602,
+      "success_rps": 2117.878192533166,
+      "error_rate": 0.0,
+      "p95_success_ms": 20.122499961871654,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 892.0,
+        "cache_hit": 63156.0,
+        "cache_miss": 414.0,
+        "cache_error": 32.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 2,
+      "fault": "disconnect",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 15683,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.014999999955762,
+      "requests": 61467,
+      "successes": 61467,
+      "success_rps": 2047.8760619720338,
+      "error_rate": 0.0,
+      "p95_success_ms": 22.32470002491027,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 122934.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 61467.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 2,
+      "fault": "timeout",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 1311,
+      "warmup_errors": 610,
+      "elapsed_seconds": 30.29700000002049,
+      "requests": 3802,
+      "successes": 2189,
+      "success_rps": 72.25137802417795,
+      "error_rate": 0.42425039452919516,
+      "p95_success_ms": 326.908299990464,
+      "p95_failure_ms": 232.27310000220314,
+      "metrics_delta": {
+        "database_queries": 4378.0,
+        "cache_hit": 0.0,
+        "cache_miss": 0.0,
+        "cache_error": 3802.0,
+        "fallback_rejected": 1613.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    },
+    {
+      "repeat": 2,
+      "fault": "restored",
+      "concurrency": 32,
+      "warmup_seconds": 10,
+      "measurement_seconds": 30,
+      "warmup_requests": 14712,
+      "warmup_errors": 0,
+      "elapsed_seconds": 30.0,
+      "requests": 62091,
+      "successes": 62091,
+      "success_rps": 2069.7,
+      "error_rate": 0.0,
+      "p95_success_ms": 21.93240000633523,
+      "p95_failure_ms": null,
+      "metrics_delta": {
+        "database_queries": 28120.0,
+        "cache_hit": 48031.0,
+        "cache_miss": 276.0,
+        "cache_error": 13784.0,
+        "fallback_rejected": 0.0
+      },
+      "peak_before": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_after": {
+        "inflight": 0.0,
+        "peak": 8.0
+      },
+      "peak_scope": "actual maximum Mapper concurrency since this process start, includes validation/warmup/measurement"
+    }
+  ],
+  "peak_scope": "actual maximum Mapper concurrency since each process start, includes validation/warmup/measurement",
+  "hashes": {
+    "reports/resume-quantification-v1/review/normal-v1/metadata.json": "382e9304c846fb689f98cae1a4983a002def4ef8b75dc61b0542235a4887ae3e",
+    "reports/resume-quantification-v1/review/fault-v1/metadata.json": "c8dfc5315b449a1003d4caaec273db237b7e0751ca4dd67755ad694482376cf3",
+    "reports/resume-quantification-v1/review/fault-v1/summary.json": "398fdcb2f2af2b9340ebca2afc733762f8578b9687351fe896da97a3b4c87deb",
+    "reports/resume-quantification-v1/review/normal-v1/r0-baseline-c10.json.gz": "5ec95e85b62cba7b0f455c7b56aa18ea0221e7989a983a34d8fd0d5e5f283518",
+    "reports/resume-quantification-v1/review/normal-v1/r0-indexed-c10.json.gz": "3de577f36a2b58c5ab9d1556c44bc4a0eade1c9a2dbd55ecb371627f5bfe1555",
+    "reports/resume-quantification-v1/review/normal-v1/r0-cache-c10.json.gz": "2ebd475ec7f3ca844170f5e2fa92acf3b84d7ea1aebce3edb12bfad4320358f5",
+    "reports/resume-quantification-v1/review/normal-v1/r0-baseline-c30.json.gz": "69e799f7f949a92dce3a38be6f27c5bdde4005575ed2eecc0b069f07905eb125",
+    "reports/resume-quantification-v1/review/normal-v1/r0-indexed-c30.json.gz": "3db37f1d358fc26fe02f71c5f9be1e6f04eba172b220afe89ee761df394d1050",
+    "reports/resume-quantification-v1/review/normal-v1/r0-cache-c30.json.gz": "3f5e834651b66feb24332f244d6a4d73042b927d7b64b4ccd690d7819370f910",
+    "reports/resume-quantification-v1/review/normal-v1/r1-indexed-c10.json.gz": "fb8cd7d51f2a1043a4f98f86e8e4ba1a8391eafbbe23358944d625f46ba49351",
+    "reports/resume-quantification-v1/review/normal-v1/r1-cache-c10.json.gz": "98c2e3c890043f48b97537aa420180605e29511b4dbc77e57dafd35a33675d5a",
+    "reports/resume-quantification-v1/review/normal-v1/r1-baseline-c10.json.gz": "80cca7a915e1976bf35cd7333bce713c12e7bc3712e78894224edcd6a46ac694",
+    "reports/resume-quantification-v1/review/normal-v1/r1-indexed-c30.json.gz": "a9495ccbf66fb6afd9976819b53f7d57e525a8fe79b78023cb4ebbd6c0838a71",
+    "reports/resume-quantification-v1/review/normal-v1/r1-cache-c30.json.gz": "254c40460e57aaae50578cb866aec31027da3962df2d5d7b8521ff12caab6426",
+    "reports/resume-quantification-v1/review/normal-v1/r1-baseline-c30.json.gz": "ca814fb2ac6bb2143b42da1f8cbab236ea9cddf1e6aa6a728ce2fbddd93e7890",
+    "reports/resume-quantification-v1/review/normal-v1/r2-cache-c10.json.gz": "6262a6ebd156e43f52d8f0269ffbbcc7d2064e393c4a8cf2fdc0bdb9f9cdf03d",
+    "reports/resume-quantification-v1/review/normal-v1/r2-baseline-c10.json.gz": "d66cc82717a8c079224526462626907a3c2320117b35485844f619c88642752a",
+    "reports/resume-quantification-v1/review/normal-v1/r2-indexed-c10.json.gz": "8e48bd50989c6162cdce0971d8453c17dea73f68061923b3a0403c59448bec87",
+    "reports/resume-quantification-v1/review/normal-v1/r2-cache-c30.json.gz": "4ea0f9a06ecadc86dc4bf20cbf565ecc5ddf9310f7e61959e0615bc4a2ee53d0",
+    "reports/resume-quantification-v1/review/normal-v1/r2-baseline-c30.json.gz": "cfc4af956f114bc57bca411186b613eae37615b3be16400c1a1cb2eca11a5583",
+    "reports/resume-quantification-v1/review/normal-v1/r2-indexed-c30.json.gz": "e1debb805ae59785ed7e2d3e6db8ac42b6e946eb9462b7e230075a7e390e76e8",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r0-expired.json.gz": "c3c3ec6874aa0f09f911cf3381560f6b6deee19a6bbd3a53209490c8825f9aaf",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r0-disconnect.json.gz": "63b45e6d7b28b1bf36aa2928d24286861814a2054aa977896a2a743c1fb2c38d",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r0-timeout.json.gz": "2db42d625fd111ab23e1c16d405a67b2e8c1264218e52c0f97d258ac0df88bb6",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r0-restored.json.gz": "0b87894baefbb791c161c626f2a57c99186fb014ad4c200b2fa2b8ed835f7880",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r1-expired.json.gz": "9a19cd385652cc9e069543f5e992cd564f2a8cec9d428b58587440cab0b90a5e",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r1-disconnect.json.gz": "ee046174e1828def4852412c3fc6afd285f72d99e8d9997b0ef6786a851481b2",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r1-timeout.json.gz": "8cd7813c67f4667b35d3b2b9b5dcb7bb00e0241d0aacdef43e09b76b9abb5261",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r1-restored.json.gz": "9cbb4b1cd7fc61869f901911ddd029038d2e7b8d093f51171c4893c62c5fe335",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r2-expired.json.gz": "77d9e3815d1bcddc4804f8ef592cf0dd1829a8399859dd4cc95b9f05f5ec7f92",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r2-disconnect.json.gz": "838d81661a9db8fdbaef109a5b934e26218481f962b633f20ec32f37820ec68c",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r2-timeout.json.gz": "e3d24b113dbf129f905321b863b6edab5a499ab1c74a907ff1de34c1e949cfd7",
+    "reports/resume-quantification-v1/review/fault-v1/fault-r2-restored.json.gz": "42df0a268334a1dd5a3cc23cb2772d06c76d690218b00980773a6d57b6c9b40a",
+    "reports/resume-quantification-v1/review/environment.json": "d8086992b1b9177a08fa0d56eb9c87ec800cd2b45f0648dd714affaa24b52d81",
+    "reports/resume-quantification-v1/review/proxy-smoke.json": "8ec6b1ba1c7c4a366a9faf63d2697383427222f828a835827d2167e61790bf7c",
+    "reports/resume-quantification-v1/review/normal-v1/interruption.json": "12fb79dcea491b9871e060dcdd4254f1e9d97a738ba49cb9aa2d6f2a0fc40b09",
+    "reports/resume-quantification-v1/review/normal-v1/launcher-before-interruption.py": "cd63d386e1cb001553137b0d2b4c34c2318361c8c09b7b9b191034821d36710f",
+    "scripts/resume_review_summary.py": "c25627db368a7d0d1a344e25b5f91e3578559cac071c7e03125c4f7354dffb6a",
+    "scripts/resume_review_batch.py": "677b00645a0bf7e12945996166e476d15b6275a56b53d4ce4192d0bd9b52eae6",
+    "java/case-service/src/main/resources/application.yml": "c9249413675f27ace2e8e53d9e3d6097f9d7497874fc7b4dba6f11381534eea2"
+  }
+}
