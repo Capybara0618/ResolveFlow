@@ -108,6 +108,11 @@ async def _drive_fixed(runner):
         ask()
         if gate.terminal is not None:
             return _outcome("COMPLETED", gate, adapter, guard, completed=True)
+        if gate.repair_message is not None:
+            # The GateAwareClient returns a denied SDK probe for an invalid terminal.
+            # It is transport for the existing repair, not a second model-selected read.
+            gate.repair_message = None
+            continue
         if gate.accepted and gate.accepted.get("kind") not in TERMINAL_KINDS:
             gate._refuse(
                 "FIXED_TERMINAL_REQUIRED",

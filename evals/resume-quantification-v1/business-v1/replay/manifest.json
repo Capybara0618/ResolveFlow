@@ -1,0 +1,16 @@
+{
+  "dataset_manifest_sha256": "dc83a697ecca9a29addf42fdf5bfc983863c63508f450616d7b19dfcbcadc2d3",
+  "files": {
+    "replay/golden/escalation/files.json": "3f467a8f713917b1417e221ffe6f4d3dd21a3f9847fb639223d2c59b332c8fa7",
+    "replay/golden/escalation/pack.json": "e951ce8fc59efa63c5ba6ecc43a21d714aac002554651cd6c5cb11d9bc36a315",
+    "replay/golden/manual_review/files.json": "095a95f542d9f3f0726aadc5f8766ad9572594092cc5961b5291498a77d57a79",
+    "replay/golden/manual_review/pack.json": "2d6beebbcd1ed493a7f8566978ab1220f2cd996e35ef7444e7213308506a106f",
+    "replay/golden/question/files.json": "df4bdd50000e1341352ced3e90c5c844b4cbc01216e0c25903f63bcd6eb48751",
+    "replay/golden/question/pack.json": "cd1eea2820f4ba14d7f59d15fa417178740cd3bb67f316fc10dbca43a0de3da3",
+    "replay/golden/read_then_question/files.json": "dd77d39890ab1bb8d14d91978060d7d74e423134a6103550813560e89261e5cb",
+    "replay/golden/read_then_question/pack.json": "8262630abe212ffd1615e3d09d12db6b13fdb4ad09697acc59845398f7908924",
+    "replay/golden/read_then_review/files.json": "e65ad87b1ee55a2f61c6da85f926f86be2e0ae0b94b7a8168e8033d56170604e",
+    "replay/golden/read_then_review/pack.json": "b2d5169ec970ab34bb15a6161ea78d0eeab2b56d6f644817883f2538df153d2a"
+  },
+  "purpose": "unchanged calibrated-v3 historical fixture lineage; not current-source strict replay"
+}
