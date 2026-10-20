@@ -1,0 +1,255 @@
+{
+  "data_mode": "synthetic API fixtures",
+  "real_vue_components": true,
+  "business_servers_started": false,
+  "model_calls": 0,
+  "checks": [
+    {
+      "view": "buyer-chat",
+      "width": 1280,
+      "height": 800,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 787,
+      "main_height": 652,
+      "context_bottom": 788,
+      "dialog": false
+    },
+    {
+      "view": "buyer-chat",
+      "width": 1440,
+      "height": 900,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 887,
+      "main_height": 752,
+      "context_bottom": 888,
+      "dialog": false
+    },
+    {
+      "view": "buyer-chat",
+      "width": 1600,
+      "height": 1000,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 987,
+      "main_height": 852,
+      "context_bottom": 988,
+      "dialog": false
+    },
+    {
+      "interaction": "answer source chips expand to original policy and version",
+      "passed": true
+    },
+    {
+      "view": "buyer-order-picker",
+      "width": 1280,
+      "height": 800,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 787,
+      "main_height": 652,
+      "context_bottom": 788,
+      "dialog": true
+    },
+    {
+      "view": "buyer-order-picker",
+      "width": 1440,
+      "height": 900,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 887,
+      "main_height": 752,
+      "context_bottom": 888,
+      "dialog": true
+    },
+    {
+      "view": "buyer-order-picker",
+      "width": 1600,
+      "height": 1000,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 987,
+      "main_height": 852,
+      "context_bottom": 988,
+      "dialog": true
+    },
+    {
+      "interaction": "order chooser traps focus and Escape preserves draft",
+      "passed": true
+    },
+    {
+      "view": "buyer-handoff-confirm",
+      "width": 1280,
+      "height": 800,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 787,
+      "main_height": 652,
+      "context_bottom": 788,
+      "dialog": true
+    },
+    {
+      "view": "buyer-handoff-confirm",
+      "width": 1440,
+      "height": 900,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 887,
+      "main_height": 752,
+      "context_bottom": 888,
+      "dialog": true
+    },
+    {
+      "view": "buyer-handoff-confirm",
+      "width": 1600,
+      "height": 1000,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 987,
+      "main_height": 852,
+      "context_bottom": 988,
+      "dialog": true
+    },
+    {
+      "interaction": "editable summary, opt-in report and one selected original submitted only after confirmation",
+      "passed": true
+    },
+    {
+      "view": "merchant-investigation",
+      "width": 1280,
+      "height": 800,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 800,
+      "main_height": 728,
+      "context_bottom": 800,
+      "dialog": false
+    },
+    {
+      "view": "merchant-investigation",
+      "width": 1440,
+      "height": 900,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 900,
+      "main_height": 828,
+      "context_bottom": 900,
+      "dialog": false
+    },
+    {
+      "view": "merchant-investigation",
+      "width": 1600,
+      "height": 1000,
+      "horizontal_overflow": false,
+      "page_vertical_overflow": false,
+      "composer_bottom": 1000,
+      "main_height": 928,
+      "context_bottom": 1000,
+      "dialog": false
+    },
+    {
+      "interaction": "merchant loaded queue counts and status filters are consistent",
+      "passed": true
+    },
+    {
+      "interaction": "merchant sees shared projection and can request more information",
+      "passed": true
+    }
+  ],
+  "images": [
+    {
+      "path": "images/buyer-chat.png",
+      "sha256": "4b696e41cf56b6c283d54e3bd9dbd735bd238fb8b532b857037199eb5a7d8379"
+    },
+    {
+      "path": "images/buyer-order-picker.png",
+      "sha256": "cd1683a01ec6b4838d08a5fd96862157ea387d885036c8ae5edc16f96b650a27"
+    },
+    {
+      "path": "images/buyer-handoff-confirm.png",
+      "sha256": "08fa0947b29391b87ae30892536984695f1e8bdaf4cb6522afa7e04fe89db5fb"
+    },
+    {
+      "path": "images/merchant-investigation.png",
+      "sha256": "23395789ae10b0f4e093034ac48d1f190e7dc2836622fe7d38b965cdd03a703f"
+    }
+  ],
+  "unknown_requests": [],
+  "page_errors": [],
+  "calls": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/products"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/stores"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations/00000000-0000-4000-8000-000000000001"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/00000000-0000-4000-8000-000000000001/tickets",
+      "body": {
+        "expected_version": 3,
+        "summary": "客户确认：请核查签收凭证及代收地点，暂不申请退款。",
+        "shared_message_ids": [
+          "00000000-0000-4000-8000-000000000002"
+        ],
+        "assistant_message_id": "00000000-0000-4000-8000-000000000005"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/review/cases"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/overview"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/tickets"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/tickets/00000000-0000-4000-8000-000000000003"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/tickets/00000000-0000-4000-8000-000000000003/messages",
+      "body": {
+        "expected_version": 4,
+        "text": "请补充是否有授权代收，我们继续核查签收记录。",
+        "kind": "REQUEST_INFO"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/tickets"
+    }
+  ]
+}

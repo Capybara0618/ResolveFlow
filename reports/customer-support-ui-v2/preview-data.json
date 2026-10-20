@@ -1,0 +1,373 @@
+{
+  "synthetic": true,
+  "original_contract_fixture": "contracts/core/fixtures/support-assistant.json",
+  "conversations": [
+    {
+      "conversation_id": "00000000-0000-4000-8000-000000000001",
+      "merchant_id": "M-1001",
+      "store_name": "松间数码",
+      "order_id": "ui-demo-order-6382",
+      "line_id": "ui-demo-line-6382",
+      "product": {
+        "name": "无线降噪耳机",
+        "variant": "黑色",
+        "asset_key": "headphones",
+        "quantity": 1,
+        "amount_minor": 32900,
+        "currency": "CNY"
+      },
+      "version": 3,
+      "ticket": null,
+      "messages": [
+        {
+          "message_id": "00000000-0000-4000-8000-000000000009",
+          "sequence": 1,
+          "author": "CUSTOMER",
+          "recipient": "ASSISTANT",
+          "text": "私人备注：白天不方便接电话。",
+          "ticket_id": null,
+          "created_at": "2026-10-20T06:31:00Z"
+        },
+        {
+          "message_id": "00000000-0000-4000-8000-000000000002",
+          "sequence": 2,
+          "author": "CUSTOMER",
+          "recipient": "ASSISTANT",
+          "text": "显示签收了，但我没有收到，家里人也没代收。",
+          "ticket_id": null,
+          "created_at": "2026-10-20T06:32:00Z"
+        },
+        {
+          "message_id": "00000000-0000-4000-8000-000000000005",
+          "sequence": 3,
+          "author": "ASSISTANT",
+          "recipient": "CUSTOMER",
+          "text": "物流记录显示今天 10:42 已签收，但不能据此确认由你本人签收。\n你已确认家人没有代收，建议请商家核查签收凭证。",
+          "ticket_id": null,
+          "created_at": "2026-10-20T06:33:00Z",
+          "assistant": {
+            "run_id": "00000000-0000-4000-8000-000000000004",
+            "mode": "mock",
+            "citations": [
+              {
+                "source_id": "O1",
+                "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "source_type": "SHIPMENT",
+                "version": 3,
+                "data": {
+                  "status": "DELIVERED",
+                  "synthetic": true,
+                  "lines": [
+                    {
+                      "line_id": "ui-demo-line-6382",
+                      "carrier_conclusion": "DELIVERED",
+                      "events": [
+                        {
+                          "code": "IN_TRANSIT",
+                          "occurred_at": "2026-10-19T10:18:00Z"
+                        },
+                        {
+                          "code": "IN_TRANSIT",
+                          "occurred_at": "2026-10-20T01:18:00Z"
+                        },
+                        {
+                          "code": "DELIVERED",
+                          "occurred_at": "2026-10-20T02:42:00Z"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "source_id": "P1",
+                "source_type": "POLICY",
+                "content_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                "version": "2026.10",
+                "title": "签收争议处理",
+                "data": {
+                  "merchant_id": "M-1001",
+                  "rule_id": "R-SIGNED-001",
+                  "text": "存在签收争议时，需要核验签收凭证与代收情况；客户单方陈述不直接作为退款依据。"
+                }
+              }
+            ],
+            "handoff_summary": "客户否认收到商品，家人未代收。请核实签收凭证及代收地点。"
+          }
+        }
+      ],
+      "next_before_sequence": null,
+      "assistant_turn": {
+        "run_id": "00000000-0000-4000-8000-000000000004",
+        "status": "SUCCEEDED",
+        "reason": null
+      }
+    },
+    {
+      "conversation_id": "00000000-0000-4000-8000-000000000006",
+      "merchant_id": "M-1002",
+      "store_name": "拾光家居",
+      "order_id": "ui-demo-order-4821",
+      "line_id": "ui-demo-line-4821",
+      "product": {
+        "name": "桌面台灯",
+        "variant": "米白色",
+        "asset_key": "lamp",
+        "quantity": 1,
+        "amount_minor": 12900,
+        "currency": "CNY"
+      },
+      "version": 1,
+      "ticket": null,
+      "messages": [],
+      "next_before_sequence": null
+    },
+    {
+      "conversation_id": "00000000-0000-4000-8000-000000000007",
+      "merchant_id": "M-1001",
+      "store_name": "松间数码",
+      "order_id": "ui-demo-order-3291",
+      "line_id": "ui-demo-line-3291",
+      "product": {
+        "name": "无线降噪耳机",
+        "variant": "黑色",
+        "asset_key": "headphones",
+        "quantity": 1,
+        "amount_minor": 32900,
+        "currency": "CNY"
+      },
+      "version": 3,
+      "ticket": {
+        "ticket_id": "00000000-0000-4000-8000-000000000008",
+        "status": "RESOLVED",
+        "summary": "之前的运输进度咨询",
+        "shared_messages": []
+      },
+      "messages": [],
+      "next_before_sequence": null,
+      "assistant_turn": {
+        "run_id": "00000000-0000-4000-8000-000000000004",
+        "status": "SUCCEEDED",
+        "reason": null
+      }
+    }
+  ],
+  "tickets": [
+    {
+      "conversation_id": "00000000-0000-4000-8000-000000000001",
+      "merchant_id": "M-1001",
+      "store_name": "松间数码",
+      "order_id": "ui-demo-order-6382",
+      "line_id": "ui-demo-line-6382",
+      "product": {
+        "name": "无线降噪耳机",
+        "variant": "黑色",
+        "asset_key": "headphones",
+        "quantity": 1,
+        "amount_minor": 32900,
+        "currency": "CNY"
+      },
+      "version": 3,
+      "ticket": {
+        "ticket_id": "00000000-0000-4000-8000-000000000003",
+        "status": "PENDING",
+        "summary": "客户希望核查签收情况，暂不申请退款。",
+        "shared_messages": [
+          {
+            "message_id": "00000000-0000-4000-8000-000000000002",
+            "sequence": 2,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "显示签收了，但我没有收到，家里人也没代收。",
+            "ticket_id": null,
+            "created_at": "2026-10-20T06:32:00Z"
+          }
+        ],
+        "report": {
+          "run_id": "00000000-0000-4000-8000-000000000004",
+          "mode": "mock",
+          "citations": [
+            {
+              "source_id": "O1",
+              "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "source_type": "SHIPMENT",
+              "version": 3,
+              "data": {
+                "status": "DELIVERED",
+                "synthetic": true,
+                "lines": [
+                  {
+                    "line_id": "ui-demo-line-6382",
+                    "carrier_conclusion": "DELIVERED",
+                    "events": [
+                      {
+                        "code": "IN_TRANSIT",
+                        "occurred_at": "2026-10-19T10:18:00Z"
+                      },
+                      {
+                        "code": "IN_TRANSIT",
+                        "occurred_at": "2026-10-20T01:18:00Z"
+                      },
+                      {
+                        "code": "DELIVERED",
+                        "occurred_at": "2026-10-20T02:42:00Z"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "source_id": "P1",
+              "source_type": "POLICY",
+              "content_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "version": "2026.10",
+              "title": "签收争议处理",
+              "data": {
+                "merchant_id": "M-1001",
+                "rule_id": "R-SIGNED-001",
+                "text": "存在签收争议时，需要核验签收凭证与代收情况；客户单方陈述不直接作为退款依据。"
+              }
+            }
+          ],
+          "handoff_summary": "客户否认收到商品，家人未代收。请核实签收凭证及代收地点。"
+        }
+      },
+      "messages": [],
+      "next_before_sequence": null
+    },
+    {
+      "conversation_id": "00000000-0000-4000-8000-000000000010",
+      "merchant_id": "M-1001",
+      "store_name": "松间数码",
+      "order_id": "ui-demo-order-7729",
+      "line_id": "ui-demo-line-7729",
+      "product": {
+        "name": "无线鼠标",
+        "variant": "黑色",
+        "asset_key": "mouse",
+        "quantity": 1,
+        "amount_minor": 9900,
+        "currency": "CNY"
+      },
+      "version": 3,
+      "ticket": {
+        "ticket_id": "00000000-0000-4000-8000-000000000011",
+        "status": "WAITING_CUSTOMER",
+        "summary": "请补充物流异常情况",
+        "shared_messages": [
+          {
+            "message_id": "00000000-0000-4000-8000-000000000002",
+            "sequence": 2,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "显示签收了，但我没有收到，家里人也没代收。",
+            "ticket_id": null,
+            "created_at": "2026-10-20T06:32:00Z"
+          }
+        ],
+        "report": {
+          "run_id": "00000000-0000-4000-8000-000000000004",
+          "mode": "mock",
+          "citations": [
+            {
+              "source_id": "O1",
+              "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "source_type": "SHIPMENT",
+              "version": 3,
+              "data": {
+                "status": "DELIVERED",
+                "synthetic": true,
+                "lines": [
+                  {
+                    "line_id": "ui-demo-line-6382",
+                    "carrier_conclusion": "DELIVERED",
+                    "events": [
+                      {
+                        "code": "IN_TRANSIT",
+                        "occurred_at": "2026-10-19T10:18:00Z"
+                      },
+                      {
+                        "code": "IN_TRANSIT",
+                        "occurred_at": "2026-10-20T01:18:00Z"
+                      },
+                      {
+                        "code": "DELIVERED",
+                        "occurred_at": "2026-10-20T02:42:00Z"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "source_id": "P1",
+              "source_type": "POLICY",
+              "content_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "version": "2026.10",
+              "title": "签收争议处理",
+              "data": {
+                "merchant_id": "M-1001",
+                "rule_id": "R-SIGNED-001",
+                "text": "存在签收争议时，需要核验签收凭证与代收情况；客户单方陈述不直接作为退款依据。"
+              }
+            }
+          ],
+          "handoff_summary": "客户否认收到商品，家人未代收。请核实签收凭证及代收地点。"
+        }
+      },
+      "messages": [],
+      "next_before_sequence": null
+    }
+  ],
+  "orders": [
+    {
+      "merchant_id": "M-1001",
+      "merchant_name": "松间数码",
+      "order_id": "ui-demo-order-6382",
+      "line_id": "ui-demo-line-6382",
+      "sku": "UI-DEMO",
+      "product_name": "无线降噪耳机",
+      "variant_text": "黑色",
+      "asset_key": "headphones",
+      "category": "electronics",
+      "quantity": 1,
+      "line_paid_amount": 32900,
+      "currency": "CNY",
+      "paid_at": "2026-10-18T06:00:00Z",
+      "status": "PAID"
+    },
+    {
+      "merchant_id": "M-1002",
+      "merchant_name": "拾光家居",
+      "order_id": "ui-demo-order-4821",
+      "line_id": "ui-demo-line-4821",
+      "sku": "UI-DEMO",
+      "product_name": "桌面台灯",
+      "variant_text": "米白色",
+      "asset_key": "lamp",
+      "category": "electronics",
+      "quantity": 1,
+      "line_paid_amount": 12900,
+      "currency": "CNY",
+      "paid_at": "2026-10-18T06:00:00Z",
+      "status": "PAID"
+    },
+    {
+      "merchant_id": "M-1001",
+      "merchant_name": "松间数码",
+      "order_id": "ui-demo-order-3291",
+      "line_id": "ui-demo-line-3291",
+      "sku": "UI-DEMO",
+      "product_name": "无线降噪耳机",
+      "variant_text": "黑色",
+      "asset_key": "headphones",
+      "category": "electronics",
+      "quantity": 1,
+      "line_paid_amount": 32900,
+      "currency": "CNY",
+      "paid_at": "2026-10-18T06:00:00Z",
+      "status": "PAID"
+    }
+  ]
+}
