@@ -1,0 +1,166 @@
+{
+  "date": "2026-10-20",
+  "review_type": "selected upstream source modules; not deployed or benchmarked",
+  "local_production_revision": "ca1b3939ff8dfab82639e61a8eddede1173fa5b0",
+  "repositories": [
+    {
+      "repo": "infiniflow/ragflow",
+      "tag": "v0.23.0",
+      "sha": "8dc5b4dc56c18497a16d8ca91b2abf9bdf9dd8a0",
+      "files": [
+        {
+          "path": "rag/nlp/query.py",
+          "url": "https://github.com/infiniflow/ragflow/blob/8dc5b4dc56c18497a16d8ca91b2abf9bdf9dd8a0/rag/nlp/query.py",
+          "sha256": "5bfdfda1316d4d70e06f8a1861c8ac5e35cae59ed0e9e27ed8d7b476f78f6de5",
+          "bytes": 9175
+        },
+        {
+          "path": "rag/nlp/search.py",
+          "url": "https://github.com/infiniflow/ragflow/blob/8dc5b4dc56c18497a16d8ca91b2abf9bdf9dd8a0/rag/nlp/search.py",
+          "sha256": "960563c60373f3301988987f1625b576fa25cba8753b103599df409615abae4f",
+          "bytes": 29093
+        },
+        {
+          "path": "api/db/services/dialog_service.py",
+          "url": "https://github.com/infiniflow/ragflow/blob/8dc5b4dc56c18497a16d8ca91b2abf9bdf9dd8a0/api/db/services/dialog_service.py",
+          "sha256": "eae2932f947d95f30f8347e953153b175e49c1b6a55c74e3e1a6a36fa3657642",
+          "bytes": 34948
+        },
+        {
+          "path": "rag/prompts/generator.py",
+          "url": "https://github.com/infiniflow/ragflow/blob/8dc5b4dc56c18497a16d8ca91b2abf9bdf9dd8a0/rag/prompts/generator.py",
+          "sha256": "21c0efb94bc0e7558d3eb1c864b76294b7968a0b48759e7a949eff6084b797cc",
+          "bytes": 33281
+        }
+      ]
+    },
+    {
+      "repo": "langgenius/dify",
+      "sha": "88529a0dcdda7ec680384915782bf14fa217da9b",
+      "files": [
+        {
+          "path": "api/core/rag/retrieval/dataset_retrieval.py",
+          "url": "https://github.com/langgenius/dify/blob/88529a0dcdda7ec680384915782bf14fa217da9b/api/core/rag/retrieval/dataset_retrieval.py",
+          "sha256": "c084a1d2c4958efc332e99fdcf129c7bcfbfd0d49a9a62702d82279d9471db57",
+          "bytes": 97042
+        },
+        {
+          "path": "api/core/rag/datasource/retrieval_service.py",
+          "url": "https://github.com/langgenius/dify/blob/88529a0dcdda7ec680384915782bf14fa217da9b/api/core/rag/datasource/retrieval_service.py",
+          "sha256": "b05ac90fae437640bc0401ef979db395254773172ff3e3420fd1d9ca2452dc77",
+          "bytes": 46168
+        }
+      ]
+    },
+    {
+      "repo": "deepset-ai/haystack",
+      "sha": "e4d2e4d95d80cf18a8b18d8e5b8d63296aad119f",
+      "files": [
+        {
+          "path": "haystack/components/query/query_expander.py",
+          "url": "https://github.com/deepset-ai/haystack/blob/e4d2e4d95d80cf18a8b18d8e5b8d63296aad119f/haystack/components/query/query_expander.py",
+          "sha256": "3f49478e4d6ff2c06ed2ab875155de3f8a0095726e4da02e340f5fe86f0e7246",
+          "bytes": 18639
+        },
+        {
+          "path": "haystack/components/joiners/document_joiner.py",
+          "url": "https://github.com/deepset-ai/haystack/blob/e4d2e4d95d80cf18a8b18d8e5b8d63296aad119f/haystack/components/joiners/document_joiner.py",
+          "sha256": "e47bdc6ac28e096d597982d366559e80ebe9bd81f395100804572595ff2f4af8",
+          "bytes": 11787
+        },
+        {
+          "path": "haystack/components/retrievers/multi_query_text_retriever.py",
+          "url": "https://github.com/deepset-ai/haystack/blob/e4d2e4d95d80cf18a8b18d8e5b8d63296aad119f/haystack/components/retrievers/multi_query_text_retriever.py",
+          "sha256": "aa1df4d31fdf4a26fe6635436ebe0403a32c31b7669ca60f93aa6049d7606f9c",
+          "bytes": 9077
+        }
+      ]
+    }
+  ],
+  "failed_fetches": [
+    {
+      "kind": "GitHub API commit lookup",
+      "error": "HTTP 403 rate limit exceeded"
+    },
+    {
+      "repo": "infiniflow/ragflow",
+      "revision": "aad53ef308c5fa02a4394b66cac4d2e856ceae19",
+      "files": [
+        {
+          "path": "rag/nlp/query.py",
+          "error": "HTTP Error 404: Not Found"
+        },
+        {
+          "path": "rag/nlp/search.py",
+          "error": "HTTP Error 404: Not Found"
+        },
+        {
+          "path": "api/db/services/dialog_service.py",
+          "error": "HTTP Error 404: Not Found"
+        }
+      ]
+    }
+  ],
+  "local_source_hashes": [
+    {
+      "path": "docs/rag-engineering-review-v1.md",
+      "sha256": "ee0530d2f44907db818f75789ca3794ee559ed02d5720916cf9736dd471158b1"
+    },
+    {
+      "path": "fixtures/demo-foundation/policies/policy-foundation-m1002-2026.10.yaml",
+      "sha256": "87f68ce05522a37e43e2550160d8b7ab26d86cda84ee74b4edc39e1f507272d8"
+    },
+    {
+      "path": "agent/src/resolveflow/support/engine.py",
+      "sha256": "dabb6e6a1089d8004188c0770837bba23bb1bf819aafc558ee7a14fb0c7b4d78"
+    },
+    {
+      "path": "agent/src/resolveflow/support/sources.py",
+      "sha256": "a27ec48d01058a58b9e315fcb767877b19e45a1787b735e01cddf5bd2a93ab9d"
+    },
+    {
+      "path": "agent/src/resolveflow/support/service.py",
+      "sha256": "b88d177d432e13c92b980c1bd55d1bbf70abea9bdb42d79d9fd70f43b3768450"
+    },
+    {
+      "path": "agent/src/resolveflow/policies/chunking.py",
+      "sha256": "73f8c1e8f966610f794f1edd1b7fc96c591f4b890c3ef166824a7f1fdaa3a4d6"
+    },
+    {
+      "path": "agent/src/resolveflow/policies/child_index.py",
+      "sha256": "3adeaab6142b017ea8ee773ec36dcfe26c7aa85cf7961139929fc6d0d6beff99"
+    },
+    {
+      "path": "agent/src/resolveflow/policies/index.py",
+      "sha256": "1f1715dba02aee10ca9eef9dcb75cdb4c529d85ea52a8e2dd99b41078bd19e38"
+    },
+    {
+      "path": "agent/src/resolveflow/policies/retrieval.py",
+      "sha256": "277c5eb45687fa587fba42a191844a6fa893389db3515a30a0d290b7f3d96585"
+    },
+    {
+      "path": "reports/customer-agent-live-v1/diagnostics.json",
+      "sha256": "e713f685aa31d64ca9563c5fce5c11dcb3ee6e793d86bb710726a3bf789d7966"
+    },
+    {
+      "path": "reports/rag-batch4/README.md",
+      "sha256": "1fcb26be1b4961a5669ec9e8ea6db7c1147fd04a001f3371e9aa6d64e715155c"
+    }
+  ],
+  "ports": {
+    "5174": "closed",
+    "5175": "closed",
+    "8180": "closed",
+    "8181": "closed",
+    "8182": "closed",
+    "8183": "closed",
+    "3307": "closed",
+    "55433": "closed",
+    "9877": "closed",
+    "10912": "closed"
+  },
+  "new_model_calls": 0,
+  "production_code_changed": false,
+  "services_started": false,
+  "verified_local_links": 7
+}
