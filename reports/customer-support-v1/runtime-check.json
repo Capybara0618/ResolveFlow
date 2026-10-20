@@ -1,0 +1,181 @@
+{
+  "synthetic": true,
+  "model_calls": 0,
+  "gateway_tested": false,
+  "case_and_commerce_real": true,
+  "conversation_a": "a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1",
+  "conversation_b": "a8b04769-618f-4a82-b085-93c0e007b445",
+  "ticket_id": "ae60ba3e-ab7e-462f-9eda-d7a4816d4174",
+  "final_ticket_status": "RESOLVED",
+  "originals_shared": 1,
+  "customer_supplements": 3,
+  "private_notes_hidden_from_merchant": true,
+  "receipt_replay_identical": true,
+  "schema_validated_responses": 3,
+  "preserved_business_tables": {
+    "case_db.aftersale_case": {
+      "count": 5,
+      "sha256": "36d3418c1f750d309c89d23a3899100736f62e9ca119fe0b15c479c27f07b646"
+    },
+    "case_db.case_authorization": {
+      "count": 4,
+      "sha256": "8c660a2db76771c23bb3558600f7fcc819be41e6457c5c11b1cf29398b25b32f"
+    },
+    "case_db.active_case_slot": {
+      "count": 5,
+      "sha256": "f5f2e52036b1540b10a159322e4266b6304c8d7ee37e348253dfeed6824bfceb"
+    },
+    "commerce_db.orders": {
+      "count": 12,
+      "sha256": "fecf09d5587a2b9af436c6957df3a5b72f48cd57e62698da39e1c4561d8f53a4"
+    },
+    "commerce_db.order_line": {
+      "count": 12,
+      "sha256": "308762c401d79129f5617998a7cfbbe7a15cf5ced582e45c6d9da58b330c1aa8"
+    },
+    "commerce_db.payment_ledger": {
+      "count": 12,
+      "sha256": "701b794196f38d32d92a4e0cd1a97308612cc62a9141422f27b88ed54130ca54"
+    },
+    "commerce_db.line_refund": {
+      "count": 12,
+      "sha256": "d4a842986165f4b3a71249afcd41b6806091ee92e0ee6401f1c963d4c44fad5c"
+    },
+    "commerce_db.refund_operation": {
+      "count": 4,
+      "sha256": "9db7de78de884e9fdad832cd241eaa7c22c0c50481dd7a059a4b1216a2ac6a3c"
+    }
+  },
+  "http": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/messages",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/messages",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/tickets",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/tickets/ae60ba3e-ab7e-462f-9eda-d7a4816d4174",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/tickets",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/tickets",
+      "status": 409
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/tickets/ae60ba3e-ab7e-462f-9eda-d7a4816d4174",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/tickets/ae60ba3e-ab7e-462f-9eda-d7a4816d4174/messages",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/messages",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/messages",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/messages",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/messages",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/tickets/ae60ba3e-ab7e-462f-9eda-d7a4816d4174",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/tickets/ae60ba3e-ab7e-462f-9eda-d7a4816d4174/messages",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a3a4ef4b-2f67-4f36-b6b9-e0cf13230da1/resolve",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/a8b04769-618f-4a82-b085-93c0e007b445/messages",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations/a8b04769-618f-4a82-b085-93c0e007b445",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/tickets/ae60ba3e-ab7e-462f-9eda-d7a4816d4174",
+      "status": 200
+    }
+  ]
+}

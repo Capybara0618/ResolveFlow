@@ -5,6 +5,7 @@ import { shopApi, type ShopProduct, type ShopStore, type ShopQuote, type ShopDra
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
 import CustomerWorkspace from './CustomerWorkspace.vue'
+import SupportWorkspace from './SupportWorkspace.vue'
 import BuyerOrders from './BuyerOrders.vue'
 import CartWorkspace from './CartWorkspace.vue'
 import { readCartPending, saveCartPending, clearCartPending, type CartPending } from '../cart-pending'
@@ -12,7 +13,7 @@ import './marketplace.css'
 
 const props = defineProps<{ account: LoginResponse | null }>()
 const emit = defineEmits<{ expired: []; login: [] }>()
-type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart'
+type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support'
 const screen = ref<Screen>('home'), query = ref(''), category = ref(''), stores = ref<ShopStore[]>([])
 const ordersRoute = ref(''), cartBusy = ref(false), added = ref(false)
 let pendingAdd: Extract<CartPending, { kind: 'mutation' }> | null = null
@@ -39,6 +40,7 @@ async function route() {
   error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; pending = null
   products.value = []; next.value = null
   let hash = window.location.hash
+  if (hash === '#/shop/support') { screen.value = 'support'; loading.value = false; if (!props.account) emit('login'); return }
   if (hash.startsWith('#/customer/')) { screen.value = 'customer'; loading.value = false; return }
   loading.value = true
   try {
@@ -141,14 +143,16 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
 <template>
   <div class="marketplace" :class="{ 'buyer-aftercare': screen === 'customer' }">
     <nav class="shop-nav" aria-label="买家导航">
-      <a href="#/shop" :class="{ current: screen !== 'customer' && screen !== 'orders' && screen !== 'cart' }" @click.prevent="go('#/shop')">商城</a>
+      <a href="#/shop" :class="{ current: !['customer','orders','cart','support'].includes(screen) }" @click.prevent="go('#/shop')">商城</a>
       <a v-if="account" href="#/shop/cart" :class="{ current: screen === 'cart' }" @click.prevent="go('#/shop/cart')">购物车</a>
       <a v-if="account" href="#/shop/orders" :class="{ current: screen === 'orders' }" @click.prevent="go('#/shop/orders')">我的订单</a>
+      <a v-if="account" href="#/shop/support" :class="{ current: screen === 'support' }" @click.prevent="go('#/shop/support')">售后咨询</a>
       <a v-if="account" href="#/customer/applications" :class="{ current: screen === 'customer' }" @click.prevent="go('#/customer/applications')">我的售后</a>
       <button v-if="!account" class="shop-login" @click="emit('login')">登录</button>
     </nav>
     <p v-if="error" class="shop-error shop-global-error" role="alert">{{ error }}</p>
-    <CartWorkspace v-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
+    <SupportWorkspace v-if="screen === 'support' && account" :key="account.access_token" :account="account" @expired="emit('expired')" />
+    <CartWorkspace v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
     <CustomerWorkspace v-else-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
     <BuyerOrders v-else-if="screen === 'orders' && account" :key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
     <main v-else class="shop-content">

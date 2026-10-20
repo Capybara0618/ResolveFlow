@@ -15,6 +15,7 @@
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
 | [当前交接](tasks/handoff-current.md) | 当前任务、验收顺序与接管规则 |
 | [客服 Agent 首场景与双端预期图](docs/ui-customer-agent-v1/README.md) | 物流异常/签收争议、独立人工咨询、退款确认与两店上下文；设计原型，尚非客服实现 |
+| [售后咨询与商家核查](docs/customer-support-workspace.md) | 当前已接通持久会话、确认转交、商家回复与客户补充；Agent自动问答/报告及聊天内退款待下一步 |
 | [Agent/RAG评测指南](docs/evaluation-guide.md) | 冻结数据、eval.ps1、评分/人工复核/回放/对照；不启动业务退款 |
 | [售后简约预期图与合同](docs/ui-aftercare-v3/README.md) | 双端五页目标、商品卡片与字号、实施顺序 |
 | [本机运行说明](docs/local-runtime.md) | 正式start/stop/status、全部功能默认启动及保留数据 |

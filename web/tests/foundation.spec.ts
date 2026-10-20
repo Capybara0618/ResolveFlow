@@ -22,7 +22,7 @@ describe('foundation management', () => {
     try {
       await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
       expect(wrapper.find('[aria-label="商家工作台"]').exists()).toBe(true)
-      expect(wrapper.findAll('.nav-link').map(link => link.text())).toEqual(['商家概览', '交易订单', '商品管理', '售后工单', '售后政策'])
+      expect(wrapper.findAll('.nav-link').map(link => link.text())).toEqual(['商家概览', '交易订单', '商品管理', '售后工单', '咨询核查', '售后政策'])
       await wrapper.findAll('.nav-link').find(link => link.text() === '售后工单')!.trigger('click'); await flushPromises()
       expect(wrapper.find('#queue-panel').exists()).toBe(true)
       expect(wrapper.find('[aria-label="工单归属范围"]').exists()).toBe(false)

@@ -1,0 +1,80 @@
+{
+  "real_backend": true,
+  "synthetic": true,
+  "model_calls": 0,
+  "checks": [
+    {
+      "view": "buyer-select",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "buyer-select",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "buyer-select",
+      "width": 1680,
+      "overflow": false
+    },
+    {
+      "view": "buyer-conversation",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "buyer-conversation",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "buyer-conversation",
+      "width": 1680,
+      "overflow": false
+    },
+    {
+      "view": "buyer-handoff",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "buyer-handoff",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "buyer-handoff",
+      "width": 1680,
+      "overflow": false
+    },
+    {
+      "view": "merchant-ticket",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "merchant-ticket",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "merchant-ticket",
+      "width": 1680,
+      "overflow": false
+    }
+  ],
+  "interactions": [
+    "buyer selects actual order line",
+    "own private note visible",
+    "B context independent",
+    "handoff preview without submit",
+    "merchant receives shared originals and supplements only"
+  ],
+  "style_checks": [
+    "bounded checkbox width",
+    "visible primary action",
+    "stacked history text"
+  ],
+  "browser_errors": []
+}

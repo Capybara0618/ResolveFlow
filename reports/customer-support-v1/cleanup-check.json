@@ -1,0 +1,10 @@
+{
+  "temporary_ports_open": {
+    "frontend": false,
+    "case": false,
+    "commerce": false
+  },
+  "remaining_owned_processes": [],
+  "mysql_retained": true,
+  "data_retained": true
+}

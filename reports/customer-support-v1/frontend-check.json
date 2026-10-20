@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-20",
+  "web_test_files": 25,
+  "web_tests_passed": 189,
+  "typecheck_and_production_build_passed": true,
+  "real_http_calls_per_run": 26,
+  "acceptance_runs": 2,
+  "browser_viewport_checks": 12,
+  "browser_interactions": 5,
+  "browser_style_checks": 3,
+  "local_links_checked": 88,
+  "model_calls": 0,
+  "screenshots": {
+    "buyer-conversation.png": {
+      "width": 1440,
+      "height": 1761,
+      "sha256": "eb4928ad1520818d8c6190b11e71eee29876cb451a030c20d59b99f872f00b60"
+    },
+    "buyer-handoff.png": {
+      "width": 1440,
+      "height": 1050,
+      "sha256": "61016d54d335dfe369fb87f25c4c268e489c17190d77715b83c0d467b3eb7932"
+    },
+    "buyer-select.png": {
+      "width": 1440,
+      "height": 1598,
+      "sha256": "e557cfe8dc0dabd2fe1798865134e42d38a92b04f3522d1e730948bf33548e85"
+    },
+    "merchant-ticket.png": {
+      "width": 1440,
+      "height": 1481,
+      "sha256": "b753b2f7bb2fa061ac59f83b66833dc740e569e4345111a5f6c3124b8678b167"
+    }
+  },
+  "source_sha256": {
+    "web/src/support-client.ts": "5ab2d9660fcd00ad44201ecddef8f4b2427d47b33739573e2c68ce54d17560cb",
+    "web/src/ui/SupportWorkspace.vue": "24aa7d66dee9ac409fc203b5a573d4cbef439aad5ff3ed2d3968daca474bb727",
+    "web/src/ui/support-workspace.css": "312ce46f69b14f5614b2d38e05b39e9c9f838a33192d55e6c22d8a86854ed268",
+    "web/src/ui/MarketplaceWorkspace.vue": "d116d7ef4040e2b6be54079dda4fcb60b4030ab283a8999fa3d078500ee44f5b",
+    "web/src/App.vue": "0d3e85770e0b655edadf6c61a14af420c2466884f5a4643db03801e7007dfcb7",
+    "web/tests/support-workspace.spec.ts": "08e3ba96cb0179d02b7915ac27dce9cfabbe8cb6438aeb4527a8a082cc6a98d2",
+    "web/tests/support-client.spec.ts": "5f7fdb869d01f1667ee27a07c6f6ffcaa11f8014b187de204a1375c4bc113446",
+    "scripts/customer_support_acceptance.py": "dd6d4cf90712c84c5b73217fdc94a251a5056878fd4f03d022362b7554841df5",
+    "scripts/check_support_runtime.cjs": "429a185b87d2c425c62313b0aea929b45d78f039cb9a1b65140ae95dbbcdf4ab"
+  }
+}

@@ -1,10 +1,11 @@
-## 当前快照（2026-10-20，客服会话与人工核查链路实施中）
+## 当前快照（2026-10-20，客服持久会话与跨端人工核查完成）
 
-- 用户在双端预期图交付后授权开始下一批；只读核验HEAD eeb6786、main跟踪origin/main，原四工程/验证脏文件及旧图日志保持，未发现本步同文件并行编辑。按[客服协议v1](../docs/customer-support-contract-v1.md)先定义并接通持久会话/消息/独立咨询核查单、商家回复及客户补充，再接Agent咨询与退款摘要；不复开旧任务或更换AgentScope。
-- 已完成7个预期视图、12个开发样例及7笔保留模拟订单，证据见[设计报告](../reports/customer-agent-design-v1/README.md)，接线908a76e/设计eeb6786均正常推送；MySQL及数据保留。新客服实现/迁移/HTTP/网页尚未验证，模型调用0。
-- 本轮先关键失败测试，再追加Case V27/独立support模块与受限路由、共享类型/fixture/契约，按独立小步验证并commit/push；后续接入现有双端网页。保留原四脏文件、旧报告/Gold/简历及退款状态/金额约束，不在未建Case会话伪造case_id。实际文件/命令/失败与未运行在本顶部追加，不另建进度。
-
-- 后端独立步已实现Case V27四表、SupportService/Controller、共享SupportWire及fixture，核心路由同步新增9项/12组件（Case70→79）。隔离MySQL V1–V27和HTTP/并发/分页/共享/资金无副作用8项+Wire1项+既有买家/付款12项，共21通过；Spotless/Ruff通过。Python聚焦18通过，完整新契约+核心路由94通过/1旧LineContext可选字段断言失败；Commerce契约与断言函数均与361149f一致，失败保留，见[实施报告](../reports/customer-support-v1/README.md)。红测缺表、PowerShell参数/Spotless正则、Wire泛型与JSON数值节点、生成引用错误均已修复并记录。下一步连接网页并保留数据跨进程验收，未调用模型。
+- 用户在双端预期图交付后授权开始，期间要求继续。本轮完成[客服契约v1](../docs/customer-support-contract-v1.md)和[双端实际使用](../docs/customer-support-workspace.md)：平台买家选订单商品/恢复独立会话、私有记录、客户确认共享摘要/所选原文后转交；商家本店核查/补问/回复，客户补充与确认解决，同单可接续。咨询不生成退款Case/授权/槽，不套两轮补证；智能问答、自动报告、咨询内退款确认及新RAG效果尚未实现，页面明确当前能力，不用固定话术冒充模型。
+- 后端：追加Case V27四表与SupportController/Service、共享SupportWire/fixture及核心OpenAPI9操作/12组件，Case路由70→79；Java拥有会话/消息/核查单，原Case/资金/AgentScope职责保持。写事务账号/归属/会话锁、输入版本、幂等回执同事务；Commerce网络读取在本地写事务外，商家接口只返回共享投影。协议361149f、后端3aa3d62已正常推送origin/main。
+- 验证：JDK21 Maven指定SupportApiTest8、SupportWireTest1、PlatformBuyerApiTest8、CheckoutBuyerApiTest4，共21通过/0失败/0跳过；Spotless限定Support文件与Ruff通过。Python新契约/核心路由94通过/1既有LineContext可选字段断言失败（Commerce契约与该函数均与361149f一致，未删断言），聚焦18项通过。网页Vitest最终25文件/189项通过，vue-tsc与Vite正式构建通过；新测试含确认前不写、原请求重试/旧版本、商家投影与A旧响应不覆盖B。报告见[实施证据](../reports/customer-support-v1/README.md)。
+- 保留演示库备份Case后Flyway V27、Commerce V16，临时Case/Commerce关闭派发/MQ/outbox投递/退款后台，网页直连Case，Python Agent/worker未启动、Gateway本批未重验。`scripts/customer_support_acceptance.py`一次+同状态重放各26个真实HTTP通过，2会话/1核查单，共享1条原文、两私有记录不交商家、商家补问/客户3次补充/回复/解决；原8表逐表全表hash保持。`scripts/check_support_runtime.cjs`真实双端12宽度检查+5交互+3样式检查、4张实图；人工检查CSS后修复旧全局按钮/勾选框/历史卡片影响，重拍正常。结构核验88本地链接/9来源hash/4PNG，模型调用0，未跑旧量化/Gold/简历。
+- 开发失败均保留并在报告解释：红测缺表/组件、PowerShell参数与文本替换转义、Spotless正则、Wire泛型/数值节点比较、生成引用、Headers测试读取与商家新增导航断言已修复；旧核心字段断言失败单列。最终本轮design-support-web/design-case/design-commerce均按归属停止、5174/8182/8181关闭，MySQL/卷/新旧数据保留；原四工程/verify/Commerce测试脏文件与旧图日志不夹带。网页及报告本步精确commit/正常push并核实远端，SHA在回复报告；收口后停止写入。
+- 下一步接客服Agent真实自动问答/事实与政策读取：按conversation/input_version构建独立只读身份与上下文，复用唯一AgentScope循环/Harness预算和来源，不伪造case_id、不静默迁移旧run；自动整理报告后再接退款摘要确认/原Case关联。既有7模拟样本/12开发对话与预期图沿用，正式质量对照另冻结留出变体，不把本轮人工闭环指标当Agent质量提升。
 
 ## 历史快照（2026-10-20，物流场景模拟器实现与隔离验证完成）
 
