@@ -5,10 +5,11 @@ from __future__ import annotations
 import hashlib
 import math
 import struct
+import time
 from typing import TYPE_CHECKING, Any
 
 from resolveflow.contracts.canonical import canonical_bytes, content_hash
-from resolveflow.policies.retrieval import cosine_similarity
+from resolveflow.policies.retrieval import cosine_similarity, embed_query
 from resolveflow.policies.segments import RETRIEVAL_LAYOUT
 
 if TYPE_CHECKING:
@@ -151,10 +152,16 @@ def validate_children(
 
 
 def rank(
-    database: Any, parents: list[PolicyChunkRow], generations: list[PolicyGeneration], query: str, encoder: Any
+    database: Any,
+    parents: list[PolicyChunkRow],
+    generations: list[PolicyGeneration],
+    query: str,
+    encoder: Any,
+    timings: dict[str, float] | None = None,
 ) -> list[PolicyChunkRow]:
     from resolveflow.policies.index import PolicyIndexNotReadyError
 
+    started = time.perf_counter()
     all_children: list[tuple[str, dict[str, Any]]] = []
     try:
         for generation in generations:
@@ -185,9 +192,11 @@ def rank(
             all_children.extend((generation.bundle_id, child) for child in children)
     except (ValueError, KeyError, OverflowError, struct.error) as error:
         raise PolicyIndexNotReadyError(f"policy retrieval child integrity failed: {error}") from error
+    if timings is not None:
+        timings["child_read_ms"] = (time.perf_counter() - started) * 1000
     if encoder is None:
         raise PolicyIndexNotReadyError("policy child retrieval needs its pinned encoder")
-    vectors = encoder.embed([query])
+    vectors = embed_query(encoder, query, timings)
     if (
         len(vectors) != 1
         or len(vectors[0]) != encoder.dimension

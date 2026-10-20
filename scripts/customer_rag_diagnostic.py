@@ -15,6 +15,7 @@ from pathlib import Path
 from resolveflow.policies.index import PolicyIndex
 from resolveflow.policies.retrieval import embedder
 from resolveflow.runtime.db import Database
+from resolveflow.support.embeddings import SupportEmbeddings
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "evals/customer-rag-v1/queries.json"
@@ -83,7 +84,7 @@ def main():
     database = ReadOnlyDatabase(f"postgresql://agent:agent@127.0.0.1:{args.port}/agent_db")
     index = PolicyIndex(database)
     rows = []
-    shared = embedder(model_path) if args.mode == "shared" else None
+    resources = SupportEmbeddings()
     try:
         before = snapshot(database)
         for case in plan["cases"]:
@@ -99,8 +100,9 @@ def main():
             manifest = run["run"]["input_json"]["context"]["policy_manifest"]
             generations = run["run"]["generations_json"]
             for variant, query in variants.items():
-                encoder = shared if shared is not None else embedder(model_path)
+                encoder = resources.get(model_path) if args.mode == "shared" else embedder(model_path)
                 for path in ["dense", "bm25"]:
+                    timings = {}
                     started = time.perf_counter()
                     hits = index.search(
                         merchant_id=manifest["merchant_id"],
@@ -111,6 +113,7 @@ def main():
                         path=path,
                         top_k=5,
                         embedder=encoder if path == "dense" else None,
+                        timings=timings,
                     )
                     elapsed = (time.perf_counter() - started) * 1000
                     ids = [h.rule_id for h in hits]
@@ -132,6 +135,7 @@ def main():
                             "all_required_at_5": expected <= set(ids),
                             "reciprocal_rank_at_5": 1 / first if first else 0,
                             "elapsed_ms": elapsed,
+                            "stages": timings,
                         }
                     )
                     print(case["id"], variant, path, round(elapsed, 2), ids, flush=True)
@@ -148,6 +152,16 @@ def main():
             "synthetic_business_data": True,
             "not_holdout": True,
             "new_llm_calls": 0,
+            "implementation_sha256": {
+                name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+                for name in [
+                    "agent/src/resolveflow/policies/retrieval.py",
+                    "agent/src/resolveflow/policies/index.py",
+                    "agent/src/resolveflow/policies/child_index.py",
+                    "agent/src/resolveflow/support/embeddings.py",
+                    "scripts/customer_rag_diagnostic.py",
+                ]
+            },
             "note": (
                 "Human reference queries are diagnostic annotations, not Agent output. "
                 "Timings are local observations, not an end-to-end SLA."
@@ -159,6 +173,7 @@ def main():
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     finally:
+        resources.clear()
         database.close()
 
 

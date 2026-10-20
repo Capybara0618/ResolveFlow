@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
+import logging
+import time
 from typing import Any
 from urllib.parse import quote
 
@@ -10,6 +13,8 @@ import httpx
 from resolveflow.policies.index import PolicyIndexNotReadyError
 from resolveflow.policies.retrieval import EmbeddingUnavailableError
 from resolveflow.support.protocol import History, SupportFailure, SupportInput
+
+LOG = logging.getLogger(__name__)
 
 
 class BoundSources:
@@ -82,6 +87,8 @@ class BoundSources:
         return {"source_type": source_type, "version": value.get("version", self.request.input_version), "data": value}
 
     def search(self, query: str, top_k: int) -> list[dict[str, Any]]:
+        started = time.perf_counter()
+        timings: dict[str, float] = {}
         manifest = self.request.context.get("policy_manifest")
         if self.index is None or not manifest:
             return [{"error": "POLICY_INDEX_UNAVAILABLE", "retryable": False}]
@@ -108,9 +115,22 @@ class BoundSources:
                 top_k=top_k,
                 embedder=self.embedder,
                 generation_ids=self.generations,
+                timings=timings,
             )
         except (PolicyIndexNotReadyError, EmbeddingUnavailableError):
+            LOG.info(
+                "support_policy_search run_id=%s status=unavailable elapsed_ms=%.3f",
+                self.request.run_id,
+                (time.perf_counter() - started) * 1000,
+            )
             return [{"error": "POLICY_INDEX_UNAVAILABLE", "retryable": False}]
+        LOG.info(
+            "support_policy_search run_id=%s query_sha256=%s stages=%s source_total_ms=%.3f",
+            self.request.run_id,
+            hashlib.sha256(query.encode()).hexdigest(),
+            timings,
+            (time.perf_counter() - started) * 1000,
+        )
         return [
             {
                 "source_type": "POLICY",

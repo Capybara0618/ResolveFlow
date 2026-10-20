@@ -31,6 +31,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import math
+import time
 import uuid
 from dataclasses import dataclass
 from typing import Any, Final, Literal
@@ -43,6 +44,7 @@ from resolveflow.policies.retrieval import (
     EmbeddingUnavailableError,
     bm25_scores,
     cosine_similarity,
+    embed_query,
 )
 from resolveflow.runtime.db import Database
 
@@ -486,6 +488,7 @@ class PolicyIndex:
         top_k: int = MAX_TOP_K,
         embedder: Embedder | None = None,
         generation_ids: dict[str, str] | None = None,
+        timings: dict[str, float] | None = None,
     ) -> list[PolicyHit]:
         """Rank the pinned bundles' rules for ``query``, after the hard filters.
 
@@ -499,6 +502,9 @@ class PolicyIndex:
            even if a bundle id were ever mis-pinned, and it is the one a test can falsify by pinning the
            wrong bundle.
         """
+        started = time.perf_counter()
+        if timings is not None:
+            timings.clear()
         if path not in ("dense", "bm25"):
             raise ValueError(f"{path!r} is not a retrieval path; dense and bm25 are the only two")
         if top_k < 1 or top_k > MAX_TOP_K:
@@ -543,22 +549,32 @@ class PolicyIndex:
             != (embedder.model, embedder.revision, embedder.dimension) for g in ready
         ):
             raise PolicyIndexNotReadyError("query embedding model/revision/dimension differs from the selected index")
+        if timings is not None:
+            timings["scope_ms"] = (time.perf_counter() - started) * 1000
+        stage = time.perf_counter()
         rows = self._chunks_for(list(by_bundle), manifest_hash,
                                 generation_ids=[g.generation_id for g in ready])
         if any(sum(row.bundle_id == g.bundle_id for row in rows) != g.chunk_count for g in ready):
             raise PolicyIndexNotReadyError("selected index chunk count differs from READY metadata")
+        if timings is not None:
+            timings["parent_read_ms"] = (time.perf_counter() - stage) * 1000
+        stage = time.perf_counter()
         if path == "dense":
             layouts = {g.retrieval_layout for g in ready}
             if layouts == {"whole-rule-v1"}:
-                scored = self._rank_dense(rows, query, embedder)
+                scored = self._rank_dense(rows, query, embedder, timings)
             elif layouts <= {"whole-rule-v1", "token-children-v1"}:
-                scored = child_index.rank(self._database, rows, ready, query, embedder)
+                scored = child_index.rank(self._database, rows, ready, query, embedder, timings)
             else:
                 raise PolicyIndexNotReadyError("unsupported or mixed policy retrieval layouts")
         else:
             scored = self._rank_bm25(rows, query)
+        if timings is not None:
+            timings["ranking_ms"] = max(0.0, (time.perf_counter() - stage) * 1000
+                                       - timings.get("embedding_ms", 0.0) - timings.get("child_read_ms", 0.0))
+        stage = time.perf_counter()
         scored.sort(key=lambda row: (-row.score, row.bundle_id, row.chunk_id))
-        return [
+        result = [
             PolicyHit(
                 bundle_id=row.bundle_id,
                 merchant_id=row.merchant_id,
@@ -574,9 +590,14 @@ class PolicyIndex:
             )
             for row in scored[:top_k]
         ]
+        if timings is not None:
+            timings["result_ms"] = (time.perf_counter() - stage) * 1000
+            timings["total_ms"] = (time.perf_counter() - started) * 1000
+        return result
 
     def _rank_dense(
-        self, rows: list[PolicyChunkRow], query: str, embedder: Embedder | None
+        self, rows: list[PolicyChunkRow], query: str, embedder: Embedder | None,
+        timings: dict[str, float] | None = None,
     ) -> list[PolicyChunkRow]:
         """Cosine over real embeddings, or a refusal — never a silent BM25.
 
@@ -599,7 +620,7 @@ class PolicyIndex:
                 f"(generation was built without one); the dense path refuses rather than falling back to a "
                 "different ranking (docs/policy-rag.md:23)"
             )
-        query_vectors = embedder.embed([query])
+        query_vectors = embed_query(embedder, query, timings)
         if len(query_vectors) != 1:
             raise ValueError("query encoder must return exactly one vector")
         query_vector = query_vectors[0]

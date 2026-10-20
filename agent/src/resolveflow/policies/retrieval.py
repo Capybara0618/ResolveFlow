@@ -30,7 +30,7 @@ import re
 import threading
 import time
 from dataclasses import dataclass, field
-from typing import Any, Final, Protocol
+from typing import Any, Final, Protocol, cast
 
 __all__ = [
     "BM25_BASELINE_NOTE",
@@ -184,6 +184,20 @@ def embedder(local_path: str | None = None) -> Embedder:
 
     path = local_path or os.environ.get("RESOLVEFLOW_EMBEDDING_PATH") or _default_snapshot()
     return SentenceTransformerEmbedder(local_path=path)
+
+
+def embed_query(encoder: Embedder, query: str, timings: dict[str, float] | None) -> list[list[float]]:
+    """Measure this call without putting mutable timing state on a shared encoder."""
+    started = time.perf_counter()
+    measured = getattr(encoder, "embed_profiled", None)
+    if timings is not None and callable(measured):
+        vectors, profile = measured([query])
+        timings.update(profile)
+    else:
+        vectors = encoder.embed([query])
+    if timings is not None:
+        timings["embedding_ms"] = (time.perf_counter() - started) * 1000
+    return cast(list[list[float]], vectors)
 
 
 def _default_snapshot() -> str:

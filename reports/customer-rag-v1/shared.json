@@ -1,0 +1,1347 @@
+{
+  "mode": "shared",
+  "source_sha256": "cbcd2c79186178586f8be85f36252d001c6a9222b572bf3710185275cc7888f8",
+  "plan_sha256": "fab42c20bd84e5161cfbacf2cb48e095d2efff213b59121e6b6b8dd4d7eb3039",
+  "code_head": "11d820e7d4cceb9d63aa248de3a651f411b496ad",
+  "synthetic_business_data": true,
+  "not_holdout": true,
+  "new_llm_calls": 0,
+  "implementation_sha256": {
+    "agent/src/resolveflow/policies/retrieval.py": "fb3e1240c00b51d9646af08197ef2fe75f06374a0696df0b700d4a0fbb6b8250",
+    "agent/src/resolveflow/policies/index.py": "e94274c4abc89dcd69309f05e91b40d948a0f3f53ae5246e081c619c4ec6d7f6",
+    "agent/src/resolveflow/policies/child_index.py": "041b0e522e3ded5322cadc8f24478f940f72d0a94277cee915c7aaa344332ad9",
+    "agent/src/resolveflow/support/embeddings.py": "76a0bbe253ffec52080092df67529de9bb5c697d666ed556fba09e26b91604ed",
+    "scripts/customer_rag_diagnostic.py": "38f5f1c76ebd535f1f18cf2eb64579b432f6b062b747d5519ce16f15bf4b5f6a"
+  },
+  "note": "Human reference queries are diagnostic annotations, not Agent output. Timings are local observations, not an end-to-end SLA.",
+  "preservation": {
+    "read_only_session": true,
+    "before": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "after": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "equal": true
+  },
+  "summary": {
+    "saved-live/human-reference/bm25": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "mrr_at_5": 1.0,
+      "median_total_ms": 10.772999987239018
+    },
+    "saved-live/human-reference/dense": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "mrr_at_5": 1.0,
+      "median_total_ms": 23.78580000367947
+    },
+    "saved-live/original/bm25": {
+      "n": 3,
+      "all_required_at_3": 2,
+      "all_required_at_5": 3,
+      "mrr_at_5": 0.75,
+      "median_total_ms": 12.084699992556125
+    },
+    "saved-live/original/dense": {
+      "n": 3,
+      "all_required_at_3": 2,
+      "all_required_at_5": 3,
+      "mrr_at_5": 0.75,
+      "median_total_ms": 36.541700013913214
+    },
+    "synthetic-probe/probe/bm25": {
+      "n": 6,
+      "all_required_at_3": 3,
+      "all_required_at_5": 4,
+      "mrr_at_5": 0.45,
+      "median_total_ms": 9.833899996010587
+    },
+    "synthetic-probe/probe/dense": {
+      "n": 6,
+      "all_required_at_3": 5,
+      "all_required_at_5": 6,
+      "mrr_at_5": 0.5888888888888889,
+      "median_total_ms": 25.68730000348296
+    }
+  },
+  "rows": [
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "variant": "original",
+      "path": "dense",
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.7035211478343321,
+        0.628058506056646,
+        0.6041317339927321,
+        0.5849323066602427,
+        0.5723809884705141
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 9963.927199976752,
+      "stages": {
+        "scope_ms": 16.249399981461465,
+        "parent_read_ms": 5.121700000017881,
+        "child_read_ms": 7.307200023205951,
+        "embedding_wait_ms": 0.000700005330145359,
+        "model_load_ms": 9809.682499995688,
+        "query_encoding_ms": 124.51739999232814,
+        "embedding_ms": 9934.22249998548,
+        "ranking_ms": 0.9769999887794256,
+        "result_ms": 0.03190001007169485,
+        "total_ms": 9963.916100008646
+      }
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "variant": "original",
+      "path": "bm25",
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        4.728334122836247,
+        1.2816979173617946,
+        1.2379668595242608,
+        1.2161016324693568,
+        0.0
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 445.0570000044536,
+      "stages": {
+        "scope_ms": 3.802699997322634,
+        "parent_read_ms": 4.027999995741993,
+        "ranking_ms": 437.1834000048693,
+        "result_ms": 0.021799991372972727,
+        "total_ms": 445.0422000081744
+      }
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "variant": "human-reference",
+      "path": "dense",
+      "query": "已签收但未收到 签收争议 核验签收凭证",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.720016992160036,
+        0.5926708287046988,
+        0.5697888921291953,
+        0.5437662262230086,
+        0.5402685408457427
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 37.728299997979775,
+      "stages": {
+        "scope_ms": 3.8791999977547675,
+        "parent_read_ms": 2.927800000179559,
+        "child_read_ms": 4.7101999807637185,
+        "embedding_wait_ms": 0.00100000761449337,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 25.47619998222217,
+        "embedding_ms": 25.487300008535385,
+        "ranking_ms": 0.67710000439547,
+        "result_ms": 0.028400012524798512,
+        "total_ms": 37.715000013122335
+      }
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "variant": "human-reference",
+      "path": "bm25",
+      "query": "已签收但未收到 签收争议 核验签收凭证",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        6.732326069651914,
+        2.1569872149156395,
+        0.8454247511756385,
+        0.5501559948540987,
+        0.495103322862297
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 11.242199980188161,
+      "stages": {
+        "scope_ms": 4.492400010349229,
+        "parent_read_ms": 4.980300000170246,
+        "ranking_ms": 1.732900011120364,
+        "result_ms": 0.017799990018829703,
+        "total_ms": 11.230000003706664
+      }
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "variant": "original",
+      "path": "dense",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.6955731185027899,
+        0.6440546158151549,
+        0.6284893710021067,
+        0.6127959582295063,
+        0.6074535425212149
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 21.16940001724288,
+      "stages": {
+        "scope_ms": 3.308099985588342,
+        "parent_read_ms": 2.4452999932691455,
+        "child_read_ms": 3.200999984983355,
+        "embedding_wait_ms": 0.000400003045797348,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 11.602899990975857,
+        "embedding_ms": 11.610399989876896,
+        "ranking_ms": 0.5676000146195292,
+        "result_ms": 0.022899999748915434,
+        "total_ms": 21.15879999473691
+      }
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "variant": "original",
+      "path": "bm25",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        5.801694871263505,
+        1.6066717271756108,
+        1.516138256234742,
+        1.261160122053056,
+        0.8430307957452283
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 10.052300000097603,
+      "stages": {
+        "scope_ms": 3.5115999926347286,
+        "parent_read_ms": 4.186600010143593,
+        "ranking_ms": 2.30089999968186,
+        "result_ms": 0.03470000228844583,
+        "total_ms": 10.038400010671467
+      }
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "variant": "human-reference",
+      "path": "dense",
+      "query": "已签收未收到 能否直接退款 签收争议政策",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.7520084770840072,
+        0.6216257610750573,
+        0.613520974800659,
+        0.5957131743226503,
+        0.5875333558046175
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 23.78580000367947,
+      "stages": {
+        "scope_ms": 5.748299998231232,
+        "parent_read_ms": 3.028900013305247,
+        "child_read_ms": 3.7016999849583954,
+        "embedding_wait_ms": 0.0006999762263149023,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 10.748900007456541,
+        "embedding_ms": 10.75650000711903,
+        "ranking_ms": 0.5169000069145113,
+        "result_ms": 0.019400002202019095,
+        "total_ms": 23.774900007992983
+      }
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "variant": "human-reference",
+      "path": "bm25",
+      "query": "已签收未收到 能否直接退款 签收争议政策",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        5.801694871263505,
+        1.516138256234742,
+        0.9876882974134804,
+        0.8430307957452283,
+        0.7660567991907589
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 10.772999987239018,
+      "stages": {
+        "scope_ms": 4.060600011143833,
+        "parent_read_ms": 4.973900009645149,
+        "ranking_ms": 1.7060000100173056,
+        "result_ms": 0.019400002202019095,
+        "total_ms": 10.763500002212822
+      }
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "variant": "original",
+      "path": "dense",
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.6120842536631899,
+        0.6055825529875265,
+        0.596964470819402,
+        0.579010770737402,
+        0.5366662081666251
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 0.25,
+      "elapsed_ms": 36.541700013913214,
+      "stages": {
+        "scope_ms": 3.617899987148121,
+        "parent_read_ms": 3.2504999835509807,
+        "child_read_ms": 3.807000000961125,
+        "embedding_wait_ms": 0.0007999769877642393,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 25.209999992512167,
+        "embedding_ms": 25.218900002073497,
+        "ranking_ms": 0.5978000117465854,
+        "result_ms": 0.03250001464039087,
+        "total_ms": 36.528399999951944
+      }
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "variant": "original",
+      "path": "bm25",
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        2.8657341975538584,
+        1.6066717271756108,
+        1.5089764333604863,
+        0.8752892975538447,
+        0.7660567991907589
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 0.25,
+      "elapsed_ms": 12.084699992556125,
+      "stages": {
+        "scope_ms": 7.402999995974824,
+        "parent_read_ms": 3.225899999961257,
+        "ranking_ms": 1.4276999863795936,
+        "result_ms": 0.016400008462369442,
+        "total_ms": 12.075999984517694
+      }
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "variant": "human-reference",
+      "path": "dense",
+      "query": "承运商结论 LOST 丢失 退款处理条件",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "rules": [
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.8045027390027687,
+        0.7455375969261105,
+        0.6673786380878756,
+        0.6448725107209485,
+        0.5730498813735261
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 22.0195000001695,
+      "stages": {
+        "scope_ms": 2.6428999844938517,
+        "parent_read_ms": 2.904199995100498,
+        "child_read_ms": 4.071100003784522,
+        "embedding_wait_ms": 0.000900006853044033,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 11.938400013605133,
+        "embedding_ms": 11.945700010983273,
+        "ranking_ms": 0.42719999328255653,
+        "result_ms": 0.017799990018829703,
+        "total_ms": 22.011499997461215
+      }
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "variant": "human-reference",
+      "path": "bm25",
+      "query": "承运商结论 LOST 丢失 退款处理条件",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "rules": [
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        4.717671672286098,
+        2.8446385866998716,
+        1.5848952936399576,
+        0.29287480089112955,
+        0.27095347632846184
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 8.547100005671382,
+      "stages": {
+        "scope_ms": 3.628000005846843,
+        "parent_read_ms": 3.3897999965120107,
+        "ranking_ms": 1.5032000083010644,
+        "result_ms": 0.01650000922381878,
+        "total_ms": 8.540700015146285
+      }
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "dense",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "rules": [
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.641670352421548,
+        0.6230899023350215,
+        0.5833741429137913,
+        0.5814662038921519,
+        0.5460325891143705
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 0.5,
+      "elapsed_ms": 27.348000003257766,
+      "stages": {
+        "scope_ms": 2.2280999983195215,
+        "parent_read_ms": 2.8446000069379807,
+        "child_read_ms": 6.2790999945718795,
+        "embedding_wait_ms": 0.001200009137392044,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 15.445400000317022,
+        "embedding_ms": 15.455099986866117,
+        "ranking_ms": 0.511500024003908,
+        "result_ms": 0.018099992303177714,
+        "total_ms": 27.33859998988919
+      }
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "bm25",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 8.473099995171651,
+      "stages": {
+        "scope_ms": 3.9736999897286296,
+        "parent_read_ms": 3.0454999941866845,
+        "ranking_ms": 1.4267000078689307,
+        "result_ms": 0.016700010746717453,
+        "total_ms": 8.46579999779351
+      }
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "dense",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.6834486578414828,
+        0.6704869262848108,
+        0.629241991314802,
+        0.6272475338690036,
+        0.6090283578153166
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 0.2,
+      "elapsed_ms": 25.66159999696538,
+      "stages": {
+        "scope_ms": 2.5727999745868146,
+        "parent_read_ms": 2.8279999969527125,
+        "child_read_ms": 4.530000005615875,
+        "embedding_wait_ms": 0.000400003045797348,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 15.223299997160211,
+        "embedding_ms": 15.232000005198643,
+        "ranking_ms": 0.46660000225529075,
+        "result_ms": 0.020499981474131346,
+        "total_ms": 25.65249998588115
+      }
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "bm25",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        2.8657341975538584,
+        0.36870486765135,
+        0.29287480089112955,
+        0.27095347632846184,
+        0.2491064397755646
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "elapsed_ms": 8.792100008577108,
+      "stages": {
+        "scope_ms": 4.2452999914530665,
+        "parent_read_ms": 3.1092999852262437,
+        "ranking_ms": 1.4100999978836626,
+        "result_ms": 0.016600009985268116,
+        "total_ms": 8.783800003584474
+      }
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "dense",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.6543510875878152,
+        0.5964555806625642,
+        0.5896794871500061,
+        0.5756661770873894,
+        0.5680044447025102
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 25.713000010000542,
+      "stages": {
+        "scope_ms": 2.444299985654652,
+        "parent_read_ms": 2.9272999963723123,
+        "child_read_ms": 4.073499992955476,
+        "embedding_wait_ms": 0.000800006091594696,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 15.662600024370477,
+        "embedding_ms": 15.670999971916899,
+        "ranking_ms": 0.5618000286631286,
+        "result_ms": 0.021799991372972727,
+        "total_ms": 25.70269998977892
+      }
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "bm25",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "rules": [
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.7514183299479469,
+        0.6762258622947999,
+        0.35553683666380187,
+        0.23444033887294738,
+        0.22644132141350815
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "reciprocal_rank_at_5": 0,
+      "elapsed_ms": 9.216199978254735,
+      "stages": {
+        "scope_ms": 4.4578000088222325,
+        "parent_read_ms": 2.9467999993357807,
+        "ranking_ms": 1.784800027962774,
+        "result_ms": 0.01610000617802143,
+        "total_ms": 9.208500006934628
+      }
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "dense",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "rules": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.7955464055952974,
+        0.6653769075713044,
+        0.6604780570907275,
+        0.6210391240028226,
+        0.5824010807586445
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 34.97320000315085,
+      "stages": {
+        "scope_ms": 4.426400002557784,
+        "parent_read_ms": 10.562600014964119,
+        "child_read_ms": 5.865300016012043,
+        "embedding_wait_ms": 0.000500003807246685,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 13.62480001989752,
+        "embedding_ms": 13.632900023367256,
+        "ranking_ms": 0.4513999738264829,
+        "result_ms": 0.019799976143985987,
+        "total_ms": 34.963699989020824
+      }
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "bm25",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        1.7542998875631701,
+        1.5848952936399576,
+        0.36870486765135,
+        0.29287480089112955,
+        0.27095347632846184
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 0.5,
+      "elapsed_ms": 10.907799995038658,
+      "stages": {
+        "scope_ms": 5.866399995284155,
+        "parent_read_ms": 3.3235999871976674,
+        "ranking_ms": 1.6875999863259494,
+        "result_ms": 0.017999991541728377,
+        "total_ms": 10.899699991568923
+      }
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "dense",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "rules": [
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.6124445419294925,
+        0.6019396752873603,
+        0.6000392219422302,
+        0.5957444196133428,
+        0.5820830323953969
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 0.3333333333333333,
+      "elapsed_ms": 21.53790000011213,
+      "stages": {
+        "scope_ms": 2.596400008769706,
+        "parent_read_ms": 2.3981999838724732,
+        "child_read_ms": 3.357999987201765,
+        "embedding_wait_ms": 0.000500003807246685,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 12.744300009217113,
+        "embedding_ms": 12.751600006595254,
+        "ranking_ms": 0.4057000041939318,
+        "result_ms": 0.016400008462369442,
+        "total_ms": 21.528700017370284
+      }
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "bm25",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+      },
+      "generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "rules": [
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.9300455789114764,
+        0.8834990798898177,
+        0.8752892975538447,
+        0.7660567991907589,
+        0.36870486765135
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 0.2,
+      "elapsed_ms": 10.518199997022748,
+      "stages": {
+        "scope_ms": 4.434900009073317,
+        "parent_read_ms": 4.510799975832924,
+        "ranking_ms": 1.5477999986615032,
+        "result_ms": 0.01479999627918005,
+        "total_ms": 10.511200001928955
+      }
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "dense",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "rules": [
+        "R-DMG-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.6451739450561309,
+        0.632576625314932,
+        0.6223786505010798,
+        0.5939887413536434,
+        0.5580505471908933
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 0.5,
+      "elapsed_ms": 17.94220000738278,
+      "stages": {
+        "scope_ms": 2.1638999751303345,
+        "parent_read_ms": 2.2778999991714954,
+        "child_read_ms": 3.413200000068173,
+        "embedding_wait_ms": 0.000400003045797348,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 9.291700000176206,
+        "embedding_ms": 9.299600002123043,
+        "ranking_ms": 0.7530000002589077,
+        "result_ms": 0.022799998987466097,
+        "total_ms": 17.932899994775653
+      }
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "variant": "probe",
+      "path": "bm25",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1002-2026.10"
+        ],
+        "merchant_id": "M-1002",
+        "safety_epoch": 3,
+        "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+        "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+      },
+      "generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "rules": [
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        1.7102387684543343,
+        1.546485537434028,
+        0.6595932263898587,
+        0.5951461890648582,
+        0.46888067774589476
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "reciprocal_rank_at_5": 1.0,
+      "elapsed_ms": 10.451600013766438,
+      "stages": {
+        "scope_ms": 3.783699998166412,
+        "parent_read_ms": 4.464699974050745,
+        "ranking_ms": 2.1730999869760126,
+        "result_ms": 0.016900012269616127,
+        "total_ms": 10.44230000115931
+      }
+    }
+  ]
+}

@@ -34,7 +34,7 @@ def test_forbidden_or_stale_stops_instead_of_switching_scope(code, reason):
             source.check_current()
 
 
-def test_search_filters_before_recall_and_pins_generation_instead_of_using_query_identity():
+def test_search_filters_before_recall_and_pins_generation_instead_of_using_query_identity(caplog):
     calls = []
 
     class Index:
@@ -43,6 +43,7 @@ def test_search_filters_before_recall_and_pins_generation_instead_of_using_query
             return [SimpleNamespace(bundle_id="A", generation_id="generation-1", merchant_id="M-A")]
 
         def search(self, **scope):
+            scope["timings"].update({"embedding_ms": 5.0, "total_ms": 8.0})
             calls.append(scope)
             return [
                 SimpleNamespace(
@@ -60,13 +61,17 @@ def test_search_filters_before_recall_and_pins_generation_instead_of_using_query
 
     source = BoundSources(request(), case_url="http://case.local", token="token", index=Index(), embedder=object())
     try:
-        hits = source.search("请查询M-B的政策", 3)
+        with caplog.at_level("INFO", logger="resolveflow.support.sources"):
+            hits = source.search("请查询M-B的政策", 3)
         source.search("再解释一下", 2)
         assert hits[0]["data"]["merchant_id"] == "M-A"
         assert len(calls) == 3
         for call in calls:
             assert call.get("merchant_id", "M-A") == "M-A" and call["bundle_ids"] == ["A"]
         assert calls[-1]["generation_ids"] == {"A": "generation-1"} and calls[-1]["path"] == "dense"
+        assert "support_policy_search" in caplog.text and "embedding_ms" in caplog.text
+        assert "请查询M-B的政策" not in caplog.text and "bound-read-token" not in caplog.text
+        assert "timings" not in hits[0] and "embedding_ms" not in str(hits)
     finally:
         source.close()
 

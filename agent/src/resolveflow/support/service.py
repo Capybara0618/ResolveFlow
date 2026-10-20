@@ -92,6 +92,8 @@ class SupportRuntime:
                     "service.py",
                     "embeddings.py",
                     "../policies/retrieval.py",
+                    "../policies/index.py",
+                    "../policies/child_index.py",
                 ]
             },
             "prompt_hash": hashlib.sha256(SYSTEM.encode()).hexdigest(),

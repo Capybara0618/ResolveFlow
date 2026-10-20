@@ -1,0 +1,117 @@
+{
+  "version": "customer-rag-diagnostic-comparison-v1",
+  "new_llm_calls": 0,
+  "all_24_rank_lists_identical_across_3_runs": true,
+  "all_11_public_table_witnesses_identical_across_3_runs": true,
+  "inputs": {
+    "before": "9815e46a524e2670d9a3e35b707984534576cda52c4c865c88bc193972a61dfd",
+    "shared": "29f5adc7386156e0bc4e26a12c474789469ada39a323bcd8e0460e0bba3ba50c",
+    "per-query-profiled": "ca5d6d88992d088738e2959585f89aff247cbc4714a223370803292a6c76fa4e"
+  },
+  "local_observations_not_sla": true,
+  "metrics": {
+    "before": {
+      "dense_queries": 12,
+      "cold_total_ms": 9723.220100015169,
+      "warm_n": 11,
+      "warm_median_ms": 78.7580999894999,
+      "warm_min_ms": 69.26940000266768,
+      "warm_max_ms": 98.88529998715967
+    },
+    "shared": {
+      "dense_queries": 12,
+      "cold_total_ms": 9963.927199976752,
+      "warm_n": 11,
+      "warm_median_ms": 25.66159999696538,
+      "warm_min_ms": 17.94220000738278,
+      "warm_max_ms": 37.728299997979775,
+      "cold_stages": {
+        "scope_ms": 16.249399981461465,
+        "parent_read_ms": 5.121700000017881,
+        "child_read_ms": 7.307200023205951,
+        "embedding_wait_ms": 0.000700005330145359,
+        "model_load_ms": 9809.682499995688,
+        "query_encoding_ms": 124.51739999232814,
+        "embedding_ms": 9934.22249998548,
+        "ranking_ms": 0.9769999887794256,
+        "result_ms": 0.03190001007169485,
+        "total_ms": 9963.916100008646
+      },
+      "warm_median_stages": {
+        "scope_ms": 2.6428999844938517,
+        "parent_read_ms": 2.904199995100498,
+        "child_read_ms": 4.071100003784522,
+        "embedding_wait_ms": 0.0006999762263149023,
+        "model_load_ms": 0.0,
+        "query_encoding_ms": 13.62480001989752,
+        "embedding_ms": 13.632900023367256,
+        "ranking_ms": 0.5169000069145113,
+        "result_ms": 0.020499981474131346,
+        "total_ms": 25.65249998588115
+      },
+      "model_loads": 1
+    },
+    "per-query-profiled": {
+      "dense_queries": 12,
+      "cold_total_ms": 7512.035599997034,
+      "warm_n": 11,
+      "warm_median_ms": 87.15159998973832,
+      "warm_min_ms": 64.71440001041628,
+      "warm_max_ms": 230.40100000798702,
+      "cold_stages": {
+        "scope_ms": 18.419800006086007,
+        "parent_read_ms": 4.181800002697855,
+        "child_read_ms": 6.722499994793907,
+        "embedding_wait_ms": 0.0009999785106629133,
+        "model_load_ms": 7453.246900025988,
+        "query_encoding_ms": 28.798399987863377,
+        "embedding_ms": 7482.0570000156295,
+        "ranking_ms": 0.6136999872978777,
+        "result_ms": 0.026399997295811772,
+        "total_ms": 7512.025100004394
+      },
+      "warm_median_stages": {
+        "scope_ms": 3.1411999952979386,
+        "parent_read_ms": 2.810900012264028,
+        "child_read_ms": 4.731799999717623,
+        "embedding_wait_ms": 0.000700005330145359,
+        "model_load_ms": 55.76030001975596,
+        "query_encoding_ms": 20.38120001088828,
+        "embedding_ms": 76.83650002581999,
+        "ranking_ms": 0.5782999796792865,
+        "result_ms": 0.022499996703118086,
+        "total_ms": 87.13090000674129
+      },
+      "model_loads": 12
+    }
+  },
+  "final_ports": {
+    "5174": "closed",
+    "5175": "closed",
+    "8180": "closed",
+    "8181": "closed",
+    "8182": "closed",
+    "8183": "closed",
+    "3307": "closed",
+    "55433": "closed",
+    "9877": "closed",
+    "10912": "closed"
+  },
+  "checks": {
+    "targeted_pytest": {
+      "passed": 66,
+      "failed": 0,
+      "skipped": 0,
+      "existing_warnings": 1
+    },
+    "ruff": "passed",
+    "strict_mypy_changed_5_source_files": "passed"
+  },
+  "unrun": [
+    "new generative-model query generation",
+    "full Agent live retest",
+    "external corpus comparison",
+    "hybrid/reranker deployment",
+    "load/concurrency latency benchmark"
+  ]
+}
