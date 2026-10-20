@@ -28,6 +28,8 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 
 | 所属 | 方法与路由 | 行为 |
 | --- | --- | --- |
+| Case | GET /internal/v1/support/turns/{run_id}/current | docs/customer-agent-implementation-v1.md；按咨询输入和fence受限读取，不授予Case/退款权限 |
+| Case | GET /internal/v1/support/turns/{run_id}/facts/{kind} | docs/customer-agent-implementation-v1.md；按咨询输入和fence受限读取，不授予Case/退款权限 |
 | Case | POST /api/v1/support/conversations | docs/customer-support-contract-v1.md；独立咨询与人工接续，不创建退款授权 |
 | Case | GET /api/v1/support/conversations | docs/customer-support-contract-v1.md；独立咨询与人工接续，不创建退款授权 |
 | Case | GET /api/v1/support/conversations/{id} | docs/customer-support-contract-v1.md；独立咨询与人工接续，不创建退款授权 |

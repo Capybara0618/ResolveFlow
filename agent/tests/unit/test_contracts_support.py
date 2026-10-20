@@ -14,6 +14,13 @@ def test_support_wires_are_closed_and_match_shared_fixture(name):
     assert not validator.accepts({**FIXTURES[name], 'buyer_id': 'foreign'})
 
 
+@pytest.mark.parametrize('name', ['Handoff', 'Conversation', 'TicketDetail'])
+def test_assistant_and_confirmed_report_wires(name):
+    fixtures = json.loads((REPO_ROOT / 'contracts/core/fixtures/support-assistant.json').read_text(encoding='utf-8'))
+    validator = component_validator('case', 'Support' + name, 'contracts/core')
+    assert validator.accepts(fixtures[name]), validator.error_messages(fixtures[name])
+
+
 @pytest.mark.parametrize('name', ['Send', 'Handoff', 'Reply', 'Resolve'])
 def test_support_writes_refuse_invalid_versions_and_user_authority(name):
     validator = component_validator('case', 'Support' + name, 'contracts/core')

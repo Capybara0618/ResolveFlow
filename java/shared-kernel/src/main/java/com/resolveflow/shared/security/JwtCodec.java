@@ -206,6 +206,53 @@ public final class JwtCodec {
      * of "which run, for which subject, may read what", and a caller that supplied some of them positionally
      * could swap two strings of the same type without the compiler noticing.
      */
+    public record SupportCredential(
+            String runId,
+            String conversationId,
+            long inputVersion,
+            long fence,
+            String merchantId,
+            String customerId,
+            String lineId) {}
+
+    /** Consultation-only token: no case_id, refund scope or authority to read arbitrary lines. */
+    public String issueSupportCredential(SupportCredential bound, Instant now) {
+        var claims = MAPPER.createObjectNode();
+        claims.put("sub", "agent-service");
+        claims.put("aud", SERVICE_AUDIENCE);
+        claims.put("iss", ISSUER);
+        claims.put("iat", now.getEpochSecond());
+        claims.put("exp", now.plusSeconds(150).getEpochSecond());
+        claims.put("scope", "support:read");
+        claims.put("run_id", bound.runId());
+        claims.put("conversation_id", bound.conversationId());
+        claims.put("input_version", bound.inputVersion());
+        claims.put("dispatch_fence", bound.fence());
+        claims.put("merchant_id", bound.merchantId());
+        claims.put("customer_id", bound.customerId());
+        claims.put("line_id", bound.lineId());
+        return signRaw(claims.toString());
+    }
+
+    public SupportCredential verifySupportCredential(String token, Instant now) {
+        var claims = verifiedClaims(token, SERVICE_AUDIENCE, now);
+        if (!requiredText(claims, "sub").equals("agent-service")
+                || !requiredText(claims, "scope").equals("support:read")
+                || !claims.path("input_version").isIntegralNumber()
+                || claims.path("input_version").asLong() < 1
+                || !claims.path("dispatch_fence").isIntegralNumber()
+                || claims.path("dispatch_fence").asLong() < 1)
+            throw new TokenException("bound consultation credential required");
+        return new SupportCredential(
+                requiredText(claims, "run_id"),
+                requiredText(claims, "conversation_id"),
+                claims.path("input_version").asLong(),
+                claims.path("dispatch_fence").asLong(),
+                requiredText(claims, "merchant_id"),
+                requiredText(claims, "customer_id"),
+                requiredText(claims, "line_id"));
+    }
+
     public record ToolCredential(
             String serviceName,
             String caseId,

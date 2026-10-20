@@ -10,6 +10,24 @@ import tools.jackson.databind.ObjectMapper;
 
 class SupportWireTest {
     @Test
+    void assistantAndConfirmedReportUseTheSameWires() {
+        var json = new ObjectMapper();
+        var fixture = ContractFixtures.load("contracts/core/fixtures/support-assistant.json");
+        for (var entry : Map.<String, Class<?>>of(
+                        "Handoff",
+                        Handoff.class,
+                        "Conversation",
+                        Conversation.class,
+                        "TicketDetail",
+                        TicketDetail.class)
+                .entrySet()) {
+            var node = fixture.get(entry.getKey());
+            assertThat(json.readTree(json.writeValueAsString(json.readValue(node.toString(), entry.getValue()))))
+                    .isEqualTo(node);
+        }
+    }
+
+    @Test
     void sharedFixturesRoundTripThroughProductionRecords() {
         var json = new ObjectMapper();
         var fixture = ContractFixtures.load("contracts/core/fixtures/support.json");

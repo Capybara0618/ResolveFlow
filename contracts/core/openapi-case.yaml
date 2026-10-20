@@ -43,6 +43,144 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /internal/v1/support/turns/{run_id}/current:
+    get:
+      operationId: readSupportCurrentInput
+      summary: Read only this consultation input and permitted facts
+      description: 'Authority: docs/customer-agent-implementation-v1.md. support:read
+        credential bound to run/conversation/input/fence/merchant/customer/line; no
+        Case/refund scope.'
+      security:
+      - serviceToken: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Current bound input or typed source facts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportCurrentInput'
+        '400':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /internal/v1/support/turns/{run_id}/facts/{kind}:
+    get:
+      operationId: readSupportBoundFact
+      summary: Read only this consultation input and permitted facts
+      description: 'Authority: docs/customer-agent-implementation-v1.md. support:read
+        credential bound to run/conversation/input/fence/merchant/customer/line; no
+        Case/refund scope.'
+      security:
+      - serviceToken: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: kind
+        in: path
+        required: true
+        schema:
+          enum:
+          - order
+          - shipment
+          - history
+      - name: before_sequence
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 5
+      responses:
+        '200':
+          description: Current bound input or typed source facts
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Invalid/invisible/stale/unavailable read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
   /api/v1/support/conversations:
     post:
       operationId: openSupportConversation
@@ -4175,6 +4313,98 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    SupportCitation:
+      type: object
+      additionalProperties: false
+      required:
+      - source_id
+      - source_type
+      - content_hash
+      - version
+      - data
+      properties:
+        source_id:
+          type: string
+          pattern: ^[OP][1-9][0-9]*$
+        source_type:
+          enum:
+          - ORDER
+          - SHIPMENT
+          - POLICY
+          - CONVERSATION
+        content_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        version:
+          type:
+          - integer
+          - string
+          - 'null'
+        data:
+          type: object
+        title:
+          type: string
+    SupportAssistant:
+      type: object
+      additionalProperties: false
+      required:
+      - run_id
+      - mode
+      - citations
+      - handoff_summary
+      properties:
+        run_id:
+          type: string
+          format: uuid
+        mode:
+          enum:
+          - mock
+          - live
+        citations:
+          type: array
+          maxItems: 8
+          items:
+            $ref: '#/components/schemas/SupportCitation'
+        handoff_summary:
+          type:
+          - string
+          - 'null'
+          maxLength: 2000
+    SupportAssistantTurn:
+      type: object
+      additionalProperties: false
+      required:
+      - run_id
+      - status
+      - reason
+      properties:
+        run_id:
+          type: string
+          format: uuid
+        status:
+          enum:
+          - PENDING
+          - RUNNING
+          - SUCCEEDED
+          - FAILED
+          - STALE
+        reason:
+          type:
+          - string
+          - 'null'
+    SupportCurrentInput:
+      type: object
+      additionalProperties: false
+      required:
+      - conversation_id
+      - input_version
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+        input_version:
+          type: integer
+          minimum: 1
     SupportOpen:
       type: object
       additionalProperties: false
@@ -4226,6 +4456,9 @@ components:
             format: uuid
           maxItems: 20
           uniqueItems: true
+        assistant_message_id:
+          type: string
+          format: uuid
     SupportReply:
       type: object
       additionalProperties: false
@@ -4308,6 +4541,7 @@ components:
           enum:
           - CUSTOMER
           - MERCHANT
+          - ASSISTANT
         recipient:
           enum:
           - ASSISTANT
@@ -4325,6 +4559,8 @@ components:
         created_at:
           type: string
           format: date-time
+        assistant:
+          $ref: '#/components/schemas/SupportAssistant'
     SupportTicket:
       type: object
       additionalProperties: false
@@ -4352,6 +4588,8 @@ components:
           items:
             $ref: '#/components/schemas/SupportMessage'
           maxItems: 20
+        report:
+          $ref: '#/components/schemas/SupportAssistant'
     SupportConversation:
       type: object
       additionalProperties: false
@@ -4401,6 +4639,8 @@ components:
           - type: integer
             minimum: 1
           - type: 'null'
+        assistant_turn:
+          $ref: '#/components/schemas/SupportAssistantTurn'
     SupportTicketDetail:
       type: object
       additionalProperties: false

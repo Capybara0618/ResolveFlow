@@ -35,6 +35,15 @@ class SupportApiTest extends CaseDatabaseTest {
     SupportService support;
 
     @Autowired
+    SupportAgentTurns turns;
+
+    @Autowired
+    SupportAgentClient assistant;
+
+    @Autowired
+    com.resolveflow.shared.security.JwtCodec codec;
+
+    @Autowired
     com.resolveflow.caseservice.order.RequestPrincipalResolver principals;
 
     final ObjectMapper json = new ObjectMapper();
@@ -42,6 +51,12 @@ class SupportApiTest extends CaseDatabaseTest {
 
     @TestConfiguration
     static class Configuration {
+        @Bean
+        @Primary
+        SupportAgentClient assistantStub() {
+            return mock(SupportAgentClient.class);
+        }
+
         @Bean
         @Primary
         CommerceOrderLineClient supportCommerce() {
@@ -52,7 +67,8 @@ class SupportApiTest extends CaseDatabaseTest {
     @BeforeEach
     void prepare() {
         // Only this new module's rows in the disposable test container.
-        for (String t : List.of("support_receipt", "support_message", "support_ticket", "support_conversation"))
+        for (String t : List.of(
+                "support_receipt", "support_message", "support_ticket", "support_agent_turn", "support_conversation"))
             jdbc.update("DELETE FROM " + t);
         jdbc.update("INSERT IGNORE INTO platform_buyer(buyer_id) VALUES ('B-support-other')");
         jdbc.update("""
@@ -61,6 +77,7 @@ class SupportApiTest extends CaseDatabaseTest {
             FROM identity_account WHERE username='demo-buyer'
             """);
         reset(commerce);
+        reset(assistant);
         when(commerce.listByLine(any(), anyString())).thenAnswer(i -> {
             AuthenticatedPrincipal p = i.getArgument(0);
             String id = i.getArgument(1);
@@ -149,6 +166,209 @@ class SupportApiTest extends CaseDatabaseTest {
 
     long count(String table) {
         return jdbc.queryForObject("SELECT COUNT(*) FROM " + table, Long.class);
+    }
+
+    @Test
+    void assistantPublishesOnceWithModeReferencesAndNoRefundSideEffects() {
+        long cases = count("aftersale_case");
+        var c = message(open("support-A"), "ask", "这个签收记录如何核查？", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> input = i.getArgument(1);
+            return json.readTree(json.writeValueAsString(Map.of(
+                    "run_id",
+                    input.get("run_id"),
+                    "conversation_id",
+                    input.get("conversation_id"),
+                    "input_version",
+                    input.get("input_version"),
+                    "status",
+                    "SUCCEEDED",
+                    "mode",
+                    "mock",
+                    "spend",
+                    Map.of("model_calls", 2),
+                    "answer",
+                    Map.of("text", "可以请商家核查签收争议。", "citations", List.of(), "handoff_summary", "客户否认收到，请核查签收。"))));
+        });
+        assertThat(c.get("assistant_turn").get("status").asString()).isEqualTo("PENDING");
+        turns.dispatchOne();
+        turns.dispatchOne();
+        c = get(path(c), buyer, 200);
+        assertThat(c.get("messages").size()).isEqualTo(2);
+        assertThat(c.get("messages").get(1).get("author").asString()).isEqualTo("ASSISTANT");
+        assertThat(c.get("messages").get(1).get("assistant").get("mode").asString())
+                .isEqualTo("mock");
+        assertThat(c.get("assistant_turn").get("status").asString()).isEqualTo("SUCCEEDED");
+        verify(assistant, times(1)).execute(anyString(), any());
+        assertThat(count("aftersale_case")).isEqualTo(cases);
+    }
+
+    @Test
+    void anOldDispatcherCannotMarkTheNewFenceStale() {
+        var c = message(open("support-A"), "fence-race", "核查物流", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> input = i.getArgument(1);
+            jdbc.update("UPDATE support_agent_turn SET fence=fence+1 WHERE run_id=?", input.get("run_id"));
+            return json.readTree(json.writeValueAsString(Map.of(
+                    "run_id",
+                    input.get("run_id"),
+                    "conversation_id",
+                    input.get("conversation_id"),
+                    "input_version",
+                    input.get("input_version"),
+                    "status",
+                    "FAILED",
+                    "reason",
+                    "OLD_RESULT")));
+        });
+        turns.dispatchOne();
+        var live = get(path(c), buyer, 200);
+        assertThat(live.get("assistant_turn").get("status").asString()).isEqualTo("RUNNING");
+        assertThat(live.get("messages").size()).isEqualTo(1);
+    }
+
+    @Test
+    void agentReportIsSharedOnlyAfterConfirmationAndNeverIncludesPrivateHistoryCitation() {
+        var c = message(open("support-A"), "ask-report", "请核查签收，不申请退款。", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> input = i.getArgument(1);
+            var shipment = Map.of(
+                    "source_id",
+                    "O1",
+                    "source_type",
+                    "SHIPMENT",
+                    "version",
+                    3,
+                    "content_hash",
+                    "a".repeat(64),
+                    "data",
+                    Map.of("status", "DELIVERED"));
+            var privateHistory = Map.of(
+                    "source_id",
+                    "O2",
+                    "source_type",
+                    "CONVERSATION",
+                    "version",
+                    2,
+                    "content_hash",
+                    "b".repeat(64),
+                    "data",
+                    Map.of("text", "私人历史不交给商家"));
+            return json.readTree(json.writeValueAsString(Map.of(
+                    "run_id",
+                    input.get("run_id"),
+                    "conversation_id",
+                    input.get("conversation_id"),
+                    "input_version",
+                    input.get("input_version"),
+                    "status",
+                    "SUCCEEDED",
+                    "mode",
+                    "mock",
+                    "answer",
+                    Map.of(
+                            "text",
+                            "建议核查签收。",
+                            "citations",
+                            List.of(shipment, privateHistory),
+                            "handoff_summary",
+                            "客户否认收到，请核验签收。"))));
+        });
+        turns.dispatchOne();
+        c = get(path(c), buyer, 200);
+        String messageId = c.get("messages").get(1).get("message_id").asString();
+        assertThat(get("/tickets", merchant, 200).get("items").size()).isZero();
+        c = post(
+                path(c) + "/tickets",
+                buyer,
+                "confirm-report",
+                Map.of(
+                        "expected_version",
+                        c.get("version").asLong(),
+                        "summary",
+                        "客户确认：只核查",
+                        "shared_message_ids",
+                        List.of(),
+                        "assistant_message_id",
+                        messageId),
+                200);
+        var report = get("/tickets/" + c.get("ticket").get("ticket_id").asString(), merchant, 200);
+        assertThat(report.get("ticket").get("report").get("citations").size()).isEqualTo(1);
+        assertThat(report.toString()).contains("DELIVERED").doesNotContain("私人历史不交给商家");
+    }
+
+    @Test
+    void correctionArrivingDuringGenerationPreventsOldReplyPublication() {
+        var c = message(open("support-A"), "ask", "没有收到，先帮我核查。", "ASSISTANT");
+        final String id = c.get("conversation_id").asString();
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            var live = get("/conversations/" + id, buyer, 200);
+            message(live, "correction", "找到了，不用核查。", "ASSISTANT");
+            Map<String, Object> input = i.getArgument(1);
+            return json.readTree(json.writeValueAsString(Map.of(
+                    "run_id",
+                    input.get("run_id"),
+                    "conversation_id",
+                    id,
+                    "input_version",
+                    input.get("input_version"),
+                    "status",
+                    "SUCCEEDED",
+                    "mode",
+                    "mock",
+                    "answer",
+                    Map.of("text", "过时回复不该出现", "citations", List.of()))));
+        });
+        turns.dispatchOne();
+        c = get(path(c), buyer, 200);
+        assertThat(c.toString()).doesNotContain("过时回复不该出现");
+        assertThat(c.get("messages").size()).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM support_agent_turn WHERE status='STALE'", Long.class))
+                .isEqualTo(1);
+    }
+
+    @Test
+    void consultationCredentialCannotReadOtherRunAndOldFenceCannotReadCurrentFacts() {
+        var c = message(open("support-A"), "ask", "查物流", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> body = i.getArgument(1);
+            String token = "Bearer " + body.get("tool_token");
+            String prefix = "/internal/v1/support/turns/" + body.get("run_id");
+            rest.get()
+                    .uri(prefix + "/current")
+                    .header("Authorization", token)
+                    .exchange()
+                    .expectStatus()
+                    .isOk();
+            rest.get()
+                    .uri("/internal/v1/support/turns/foreign/current")
+                    .header("Authorization", token)
+                    .exchange()
+                    .expectStatus()
+                    .isForbidden();
+            rest.get()
+                    .uri(prefix + "/facts/order")
+                    .header("Authorization", token)
+                    .exchange()
+                    .expectStatus()
+                    .isOk();
+            rest.get()
+                    .uri(prefix + "/facts/order")
+                    .header("Authorization", buyer)
+                    .exchange()
+                    .expectStatus()
+                    .isForbidden();
+            jdbc.update("UPDATE support_agent_turn SET fence=fence+1 WHERE run_id=?", body.get("run_id"));
+            rest.get()
+                    .uri(prefix + "/current")
+                    .header("Authorization", token)
+                    .exchange()
+                    .expectStatus()
+                    .isEqualTo(409);
+            return json.readTree("{\"status\":\"FAILED\",\"reason\":\"STALE_INPUT\"}");
+        });
+        turns.dispatchOne();
+        assertThat(get(path(c), buyer, 200).get("messages").size()).isEqualTo(1);
     }
 
     @Test

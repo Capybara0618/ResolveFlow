@@ -35,18 +35,21 @@ public class SupportService {
     private final BuyerScopes buyers;
     private final CommerceOrderLineClient commerce;
     private final ObjectMapper json;
+    private final SupportAgentTurns turns;
 
     public SupportService(
             JdbcTemplate db,
             PlatformTransactionManager transactions,
             BuyerScopes buyers,
             CommerceOrderLineClient commerce,
-            ObjectMapper json) {
+            ObjectMapper json,
+            SupportAgentTurns turns) {
         this.db = db;
         this.tx = new TransactionTemplate(transactions);
         this.buyers = buyers;
         this.commerce = commerce;
         this.json = json;
+        this.turns = turns;
         this.writes = new TransactionTemplate(transactions);
         this.writes.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
     }
@@ -154,7 +157,10 @@ public class SupportService {
                         rs.getString("ticket_id"),
                         rs.getString("status"),
                         rs.getString("summary"),
-                        List.of(json.readValue(rs.getString("shared_json"), Message[].class))),
+                        List.of(json.readValue(rs.getString("shared_json"), Message[].class)),
+                        rs.getString("report_json") == null
+                                ? null
+                                : json.readValue(rs.getString("report_json"), Assistant.class)),
                 r.id);
         return rows.isEmpty() ? null : rows.getFirst();
     }
@@ -167,7 +173,10 @@ public class SupportService {
                 rs.getString("recipient"),
                 rs.getString("text"),
                 rs.getString("ticket_id"),
-                rs.getTimestamp("created_at").toInstant());
+                rs.getTimestamp("created_at").toInstant(),
+                rs.getString("assistant_json") == null
+                        ? null
+                        : json.readValue(rs.getString("assistant_json"), Assistant.class));
     }
 
     private record Messages(List<Message> items, Long next) {}
@@ -190,7 +199,17 @@ public class SupportService {
     private Conversation detail(Row r, Long before) {
         var page = messages(r, false, before);
         return new Conversation(
-                r.id, r.merchant, r.store, r.order, r.line, r.product, r.version, ticket(r), page.items, page.next);
+                r.id,
+                r.merchant,
+                r.store,
+                r.order,
+                r.line,
+                r.product,
+                r.version,
+                ticket(r),
+                page.items,
+                page.next,
+                turns.view(r.id));
     }
 
     private TicketDetail staffDetail(Row r, Long before) {
@@ -405,6 +424,9 @@ public class SupportService {
 
     private void bump(Row r) {
         db.update("UPDATE support_conversation SET version=version+1 WHERE conversation_id=?", r.id);
+        db.update(
+                "UPDATE support_agent_turn SET status='STALE',reason='INPUT_CHANGED' WHERE conversation_id=? AND status IN ('PENDING','RUNNING')",
+                r.id);
     }
 
     public Conversation send(Session s, String id, String key, Send body) {
@@ -421,7 +443,9 @@ public class SupportService {
                 tid = ticket.ticketId();
                 db.update("UPDATE support_ticket SET status='PENDING' WHERE ticket_id=?", tid);
             }
-            return detail(append(r, s, "CUSTOMER", body.recipient(), body.text(), tid), null);
+            var updated = append(r, s, "CUSTOMER", body.recipient(), body.text(), tid);
+            if (body.recipient().equals("ASSISTANT")) turns.enqueue(s, id, updated.version);
+            return detail(updated, null);
         });
     }
 
@@ -447,6 +471,26 @@ public class SupportService {
                 shared.add(found.getFirst());
             }
             shared.sort(Comparator.comparingLong(Message::sequence));
+            Assistant report = null;
+            if (body.assistantMessageId() != null) {
+                var entries = db.query(
+                        "SELECT * FROM support_message WHERE conversation_id=? AND message_id=? AND author='ASSISTANT' AND sequence=?",
+                        this::message,
+                        id,
+                        body.assistantMessageId(),
+                        r.version);
+                if (entries.isEmpty() || entries.getFirst().assistant() == null)
+                    throw new Refused(409, "ASSISTANT_SUMMARY_STALE", "助手建议已过时，请重新核对或手工填写摘要");
+                var value = entries.getFirst().assistant();
+                report = new Assistant(
+                        value.runId(),
+                        value.mode(),
+                        value.citations().stream()
+                                .filter(c ->
+                                        List.of("ORDER", "SHIPMENT", "POLICY").contains(c.get("source_type")))
+                                .toList(),
+                        value.handoffSummary());
+            }
             db.update(
                     "INSERT INTO support_ticket(ticket_id,conversation_id,merchant_id,status,summary,shared_json) VALUES(?,?,?,'PENDING',?,?)",
                     uuid(),
@@ -454,6 +498,11 @@ public class SupportService {
                     r.merchant,
                     body.summary(),
                     json.writeValueAsString(shared));
+            if (report != null)
+                db.update(
+                        "UPDATE support_ticket SET report_json=? WHERE conversation_id=?",
+                        json.writeValueAsString(report),
+                        id);
             bump(r);
             return detail(find(s, id, false, true), null);
         });

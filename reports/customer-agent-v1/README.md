@@ -19,3 +19,13 @@
 保留演示PG启动、无旧调查worker。5项真实PG隔离schema测试覆盖完成复用、并发拒绝、manifest/fence、未完成调用预占、已保存模型结果后崩溃重建且0新增模型/工具调用，以及真实PolicyIndex接口的dense候选（此项embedding为明确stub，不当真实向量效果）。补查实际Index API发现require_ready返回generation对象列表，已修正咨询适配并以真实索引测试，而非只靠mock签名。
 
 新API/协议根对象封闭，新增Agent核心路由1项（7→8）与请求/结果/错误3组件、合成fixture，保留旧路由断言。新增API单元证明错误scope/主体/绑定拒绝、无假Case字段与token不入运行输入；完整新批测试与本地契约引用检查命令/计数在账本顶部。开发红测缺store模块，格式/导入问题已修复；既有Starlette测试弃用警告保留。Java/网页尚未接入，不据此宣称客服可用或真实质量通过。
+
+## Java咨询派发与确认共享
+
+Case追加V28：客户发送给助手的消息在原事务中生成独立咨询待办；后台单工作线程调用Python，HTTP在本地事务外。冻结商家/客户/商品、支付时政策版本和当前原文；每个run的只读JWT仅有support:read，绑定输入版本/fence，不能读其他run或调用原退款工具。回复入库前再次核对身份、版本和fence。修复旧派发者不得将新fence标为STALE的并发问题。
+
+助手消息含模型模式、引用和转交摘要；客户明确确认assistant_message_id后才复制订单/物流/政策依据给商家，对话历史引用不自动共享，仍由客户选择原文。不创建退款Case或授权。独立开关resolveflow.support-agent.enabled可只启咨询派发，默认沿用原dispatch开关；便于保留数据验收时关闭原调查及退款后台。
+
+JDK21实际命令：`java/mvnw.cmd -f java/pom.xml -B -pl case-service -am -Dtest=SupportApiTest,SupportWireTest,SupportCredentialTest -Dsurefire.failIfNoSpecifiedTests=false test`，最终Case13、共享Wire2、凭据1共16通过/0跳过；此前含平台买家8和checkout4的回归也通过。新增契约/共享fixture及引用/重复路由检查22通过，Case79→81。Spotless限定本步Support/JwtCodec/ServiceTokenFilter文件通过。此阶段使用Testcontainers隔离MySQL，未迁移保留业务库、未调用真实模型。
+
+开发过程修正过YAML片段生成导致的重复alias，未放宽旧Schema断言；最终重建仅Support组件块并验证。PowerShell Maven含点参数必须完整引用，首个package命令误拆参数失败后按原命令修正；不会将构建失败写为通过。Python类型补齐与网页接线另验证，不把工作区尚未提交部分算本步依赖。

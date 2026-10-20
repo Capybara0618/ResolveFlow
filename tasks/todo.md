@@ -7,6 +7,8 @@
 
 - PG/API独立步：追加013咨询run/call，固定输入/manifest/deadline、180秒lease/fence与持久预占/完整调用复用；未完成调用保留预算并报UNKNOWN/INTERRUPTED。新增独立support:run内部接口及Agent核心协议1路由/3组件/fixture，Agent7→8，旧断言保留。真实保留PG仅启动数据库，5项隔离schema验证含崩溃重建0新增调用、fence/manifest/预占与真实PolicyIndex接口（embedding明确stub）；含API/循环/来源/契约引用共30通过/0跳过，Ruff通过，旧Starlette弃用警告保留。实际Index.require_ready返回generation列表的适配已修正。Java/网页尚未接线，无真实模型/旧任务消费，报告记录局限。
 
+- Java独立步：V28咨询待办、后台派发/绑定只读JWT、按输入版本与fence发布、客户确认后共享事实/政策报告。修复旧派发者误标新fence状态；Java Case13+Wire2+凭据1共16通过/0跳过，新增契约/fixture/引用与路由22通过，Case79→81。源码格式门禁通过；仅隔离MySQL，无真实模型和保留库迁移，详见本批报告。网页和Python类型补齐仍在工作区，未计此提交成果。
+
 ## 历史快照（2026-10-20，客服持久会话与跨端人工核查完成）
 
 - 用户在双端预期图交付后授权开始，期间要求继续。本轮完成[客服契约v1](../docs/customer-support-contract-v1.md)和[双端实际使用](../docs/customer-support-workspace.md)：平台买家选订单商品/恢复独立会话、私有记录、客户确认共享摘要/所选原文后转交；商家本店核查/补问/回复，客户补充与确认解决，同单可接续。咨询不生成退款Case/授权/槽，不套两轮补证；智能问答、自动报告、咨询内退款确认及新RAG效果尚未实现，页面明确当前能力，不用固定话术冒充模型。

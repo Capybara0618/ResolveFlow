@@ -1,8 +1,10 @@
 package com.resolveflow.shared.support;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 public final class SupportWire {
     private SupportWire() {}
@@ -14,7 +16,14 @@ public final class SupportWire {
     public record Handoff(
             @JsonProperty("expected_version") Long expectedVersion,
             String summary,
-            @JsonProperty("shared_message_ids") List<String> sharedMessageIds) {}
+            @JsonProperty("shared_message_ids") List<String> sharedMessageIds,
+
+            @JsonProperty("assistant_message_id") @JsonInclude(JsonInclude.Include.NON_NULL)
+            String assistantMessageId) {
+        public Handoff(Long expectedVersion, String summary, List<String> sharedMessageIds) {
+            this(expectedVersion, summary, sharedMessageIds, null);
+        }
+    }
 
     public record Reply(@JsonProperty("expected_version") Long expectedVersion, String text, String kind) {}
 
@@ -35,13 +44,38 @@ public final class SupportWire {
             String recipient,
             String text,
             @JsonProperty("ticket_id") String ticketId,
-            @JsonProperty("created_at") Instant createdAt) {}
+            @JsonProperty("created_at") Instant createdAt,
+            @JsonInclude(JsonInclude.Include.NON_NULL) Assistant assistant) {
+        public Message(
+                String messageId,
+                long sequence,
+                String author,
+                String recipient,
+                String text,
+                String ticketId,
+                Instant createdAt) {
+            this(messageId, sequence, author, recipient, text, ticketId, createdAt, null);
+        }
+    }
+
+    public record Assistant(
+            @JsonProperty("run_id") String runId,
+            String mode,
+            List<Map<String, Object>> citations,
+            @JsonProperty("handoff_summary") String handoffSummary) {}
+
+    public record AssistantTurn(@JsonProperty("run_id") String runId, String status, String reason) {}
 
     public record Ticket(
             @JsonProperty("ticket_id") String ticketId,
             String status,
             String summary,
-            @JsonProperty("shared_messages") List<Message> sharedMessages) {}
+            @JsonProperty("shared_messages") List<Message> sharedMessages,
+            @JsonInclude(JsonInclude.Include.NON_NULL) Assistant report) {
+        public Ticket(String id, String status, String summary, List<Message> messages) {
+            this(id, status, summary, messages, null);
+        }
+    }
 
     public record Conversation(
             @JsonProperty("conversation_id") String conversationId,
@@ -53,7 +87,24 @@ public final class SupportWire {
             long version,
             Ticket ticket,
             List<Message> messages,
-            @JsonProperty("next_before_sequence") Long nextBeforeSequence) {}
+            @JsonProperty("next_before_sequence") Long nextBeforeSequence,
+
+            @JsonProperty("assistant_turn") @JsonInclude(JsonInclude.Include.NON_NULL)
+            AssistantTurn assistantTurn) {
+        public Conversation(
+                String id,
+                String merchant,
+                String store,
+                String order,
+                String line,
+                Product product,
+                long version,
+                Ticket ticket,
+                List<Message> messages,
+                Long next) {
+            this(id, merchant, store, order, line, product, version, ticket, messages, next, null);
+        }
+    }
 
     public record TicketDetail(
             @JsonProperty("conversation_id") String conversationId,
