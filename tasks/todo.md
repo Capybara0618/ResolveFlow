@@ -3,6 +3,8 @@
 - 用户在6cbb19f人工接续交付后授权开始Agent/RAG批次。已只读核对README/core-scope/当前handoff/plan/账本、AgentScope适配/预算/政策索引与Java会话/身份；main跟踪origin/main，原四脏文件及旧图日志保留，未发现本步并行写入。沿[实施设计](../docs/customer-agent-implementation-v1.md)接独立咨询run、受限只读工具、按输入版本发布、回答引用与转交摘要，不伪造case_id或更换框架。
 - 现有人工链路、7笔物流样本/12开发对话及旧报告保留；本轮尚未实现/验证新Agent，不启动收费评测或消费旧退款任务。先咨询循环/协议关键失败测试，再PG调用账/Case派发与网页纵向接线；按独立验证步commit/push，实际命令/失败/未运行仅在本顶部追加。
 
+- 咨询循环独立步：新增support协议/AgentScope循环/绑定HTTP与dense来源适配，先红测后实现；新19项与既有SDK适配/LiveModelClient回归合计38通过，Ruff check/format通过。脚本模型覆盖动态工具/搜索、禁止身份/写操作/假引用、预算/失败/过期与实际输入；来源固定商家/manifest/generation，无假Case或BM25回退。修复工具异常触发SDK MCP别名、来源异常名/测试导入问题，见[报告](../reports/customer-agent-v1/README.md)。目前尚未连接PG/Java/网页；模型调用仅mock，不冒称效果提升。
+
 ## 历史快照（2026-10-20，客服持久会话与跨端人工核查完成）
 
 - 用户在双端预期图交付后授权开始，期间要求继续。本轮完成[客服契约v1](../docs/customer-support-contract-v1.md)和[双端实际使用](../docs/customer-support-workspace.md)：平台买家选订单商品/恢复独立会话、私有记录、客户确认共享摘要/所选原文后转交；商家本店核查/补问/回复，客户补充与确认解决，同单可接续。咨询不生成退款Case/授权/槽，不套两轮补证；智能问答、自动报告、咨询内退款确认及新RAG效果尚未实现，页面明确当前能力，不用固定话术冒充模型。
