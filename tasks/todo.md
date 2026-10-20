@@ -1,4 +1,9 @@
-## 当前快照（2026-10-20，客服双端预期图v2完成）
+## 当前快照（2026-10-20，客服双端界面v2实施中）
+
+- 用户已认可双端预期图并授权按图改造。已只读核对当前规范、Support接口/组件/测试、宿主页及四历史脏文件；唯一业务写入者接续，本批按[预期图](../docs/ui-customer-agent-v2/README.md)实现独立滚动三栏/消息/来源、订单选择和确认弹层，不自动重启已关闭业务栈，不运行收费模型评测。
+- 首个独立步：来源/上下文展示组件与数据呈现函数，商家严格读取ticket.report与所选原文，不用私有新回答、未确认建议或缺记录补造事实；首轮措辞红测已修正，新增3项及原workspace/client回归、类型检查结果在[报告](../reports/customer-support-ui-v2/README.md)。下一步接主布局/订单选择/转交确认并以实际前端请求夹具截图验证；不把夹具截图当真实模型或业务闭环证明。
+
+## 历史快照（2026-10-20，客服双端预期图v2完成）
 
 - 用户最新要求先关闭项目再继续设计：标准`stop.ps1`返回0，已停止Case/Commerce/Gateway/Agent-live/frontend及resolveflow-review-demo所属依赖容器，数据卷保留，不reset或清库；日志在忽略tmp/customer-agent-design-v1/user-experience-stop.log。停止确认后才继续本批图文/校验，不重新启动服务。
 - 用户体验现有页面后要求参考成熟售后客服并绘制买家/商家双端预期图；本批使用imagegen技能及内置image_gen各生成一图。已读Intercom Messenger与Zendesk Agent Workspace官方资料；Chatwoot官方搜索摘要作补充、正文抓取超时。新增[图文说明](../docs/ui-customer-agent-v2/README.md)、完整提示词、两张PNG及manifest；原图/现有运行界面保留，不改Vue/协议/Agent/RAG，服务按用户最新关闭指示处理。
