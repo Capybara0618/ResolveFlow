@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The synthetic shipment adapter (C06.2a).
@@ -20,6 +22,14 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ShipmentReadService {
+
+    public static class SimulatedUnavailableException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        public SimulatedUnavailableException() {
+            super("simulated carrier query is unavailable");
+        }
+    }
 
     /** The contract caps {@code events} at 200 items (contracts/core/openapi-commerce.yaml:514). */
     public static final int MAX_EVENTS = 200;
@@ -38,9 +48,13 @@ public class ShipmentReadService {
      * blank snapshot would invent a conclusion the carrier never made, which is exactly what a citation check
      * exists to prevent (docs/agent-spec.md:36 — NOT_FOUND 不是否定事实).
      */
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Optional<ShipmentSnapshot> readShipment(String lineId) {
         if (lineId == null || lineId.isBlank()) {
             throw new IllegalArgumentException("a shipment read needs a line id");
+        }
+        if (repository.queryUnavailable(lineId)) {
+            throw new SimulatedUnavailableException();
         }
         ShipmentRepository.ShipmentRow row = repository.findShipment(lineId);
         if (row == null) {

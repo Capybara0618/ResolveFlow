@@ -35,4 +35,34 @@
 3. 集中验证迁移、场景/终局、重复请求/并发、错商家/旧版本、回滚/保留历史、多行一致、故障503恢复及资金不变；复用发货/物流读取回归。编译/格式/CLI检查，报告失败与未运行。
 4. 文档补使用示例及报告，按已授权精确提交推送。验证不启动真实模型、清库/删卷或重写旧实验；不会为演示自动消费已有待调查工单。
 
-当前操作约定已确定，脚本/迁移/测试仍待本轮实现。数据库迁移后Java重新构建/启动才加载故障处理；工具应明确指出缺迁移/服务未更新，不能把脚本成功当已完成网页部署。
+## 使用方式
+
+实现与真实MySQL验证见[验证报告](../reports/logistics-simulator/README.md)。使用前Commerce必须通过正常Flyway启动应用V16；Java更新后重新构建/启动才加载故障处理。本轮没有启动日常业务栈或对现有订单写入场景；缺少V16时工具会返回SQL错误，而不是假成功。
+
+先正常购物、模拟付款，并由对应商家首次模拟发货。复制该商家订单ID，以下占位值需换成实际ID。使用项目现有Python环境，从仓库根目录执行：
+
+```powershell
+# 只读检查，找到当前fulfillment_version
+.\agent\.venv\Scripts\python.exe scripts/logistics_simulator.py inspect --merchant-id M-1001 --order-id <订单ID>
+
+# 以首次发货后的version=2为例，追加签收事件
+.\agent\.venv\Scripts\python.exe scripts/logistics_simulator.py advance --merchant-id M-1001 --order-id <订单ID> --expected-version 2 --scenario DELIVERED --request-key eval-signed-001
+```
+
+返回`receipt`是这次请求的原始持久收据，`current`是随后读取的当前物流。重试使用完全相同的key、version和参数；成功后新操作使用新的key及最新version。以后有新进展再重放旧请求时，原收据和当前快照可以不同，旧请求不会回退状态。
+
+可将场景替换为`IN_TRANSIT`、`DELAYED`、`LOST`或`UNKNOWN`。DELIVERED/LOST不能再转其他物流结论；不同终局对照用不同订单。一次操作影响整单全部行，事件/version及履约投影同事务更新；历史事件及金额保持。
+
+```powershell
+# 查询故障开关不增加履约或物流事实版本；以下2需换成当前版本
+.\agent\.venv\Scripts\python.exe scripts/logistics_simulator.py advance --merchant-id M-1001 --order-id <订单ID> --expected-version 2 --scenario UNAVAILABLE --request-key fault-on-001
+.\agent\.venv\Scripts\python.exe scripts/logistics_simulator.py advance --merchant-id M-1001 --order-id <订单ID> --expected-version 2 --scenario AVAILABLE --request-key fault-off-001
+```
+
+故障影响Java私有物流查询（Agent实际读取的路径），不会把失败改装成UNKNOWN；订单/商家工作台仍可读取已保存的履约投影。数据库可保存开关，但旧Java进程不会自动加载新处理逻辑，必须更新服务；关闭开关是明确的AVAILABLE操作。
+
+`--occurred-at`可指定带时区的事件时间，要求不早于现有最后事件且不在未来。不填时使用数据库UTC时间，并为与应用发货时钟不超过1秒的偏差对齐到最后事件时间；更大未来偏差明确拒绝。不会倒改ORDER_PAID或SIMULATED_SHIPPED时间。
+
+`DELAYED`代表承运商报告异常延迟，仍是IN_TRANSIT。它会追加一个当前异常事件，不能因此宣称已构造“七天没更新”。`inspect --observed-at <带时区时间>`仅计算评测参考时间距最后事件多久，输出明确标记未更改服务时钟；真实Agent的时间判断仍需自然等待或时间合理的独立fixture。本版不实现全系统虚拟时钟/历史重置。
+
+首次发货仍走原商家接口；旧种子只读物流不由本工具改写。脚本只连接校验过Compose归属的本地演示MySQL，不提供远程数据库参数。普通用户和Agent不获得此写入口；无需模型API密钥即可运行模拟器本身。

@@ -25,6 +25,12 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+    @ExceptionHandler(com.resolveflow.commerce.shipment.ShipmentReadService.SimulatedUnavailableException.class)
+    public ResponseEntity<ApiError> simulatedCarrierUnavailable(Exception error, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ApiError.of("UPSTREAM_UNAVAILABLE", error.getMessage(), true, traceId(request)));
+    }
+
     @ExceptionHandler(OrderLineController.LineNotFoundException.class)
     public ResponseEntity<ApiError> lineNotFound(
             OrderLineController.LineNotFoundException error, HttpServletRequest request) {

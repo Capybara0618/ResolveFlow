@@ -1,4 +1,10 @@
-## 当前快照（2026-10-14，物流场景模拟器开发中：计划已写）
+## 当前快照（2026-10-20，物流场景模拟器实现与隔离验证完成）
+
+- 用户持续授权完成模拟器；承接f65136b计划及中断的未提交实现，已完成本地[scripts/logistics_simulator.py](../scripts/logistics_simulator.py)、V16追加迁移/事务过程、独立收据/查询故障、Java一致只读物流及503映射。整单支持IN_TRANSIT/DELAYED/DELIVERED/LOST/UNKNOWN及UNAVAILABLE/AVAILABLE，inspect显示事件/version及参考时刻；重复key/载荷返回原收据，旧版本/终局倒退/错商家/时间倒退/200事件上限拒绝。多行同事务，原资金/槽/历史事件保留；成功HTTP协议不变，OpenAPI补503及协议说明。使用见[计划与操作说明](../docs/logistics-simulator.md)，证据见[验证报告](../reports/logistics-simulator/README.md)。
+- 实际验证：真实MySQL8.4 Flyway V1–V16，`mvn -pl commerce-service -am -Dtest=LogisticsSimulatorTest,FulfillmentDatabaseTest,MerchantTradeApiTest,OrderLineShipmentControllerTest -Dsurefire.failIfNoSpecifiedTests=false test`最终28通过/0失败/0跳过；Python指定OpenAPI/工具/CLI146通过（含脚本9项）。Ruff check/format、针对本步Java四文件Spotless check、CLI帮助通过。此前红测缺过程、时钟偏差、Docker关闭、测试容器定位及格式命令失败保留tmp并在报告解释；最终日志test-20261020-v2.log。`git diff --check`、本地链接7处与8份实现/测试文件SHA256清单核查通过；fetch后HEAD/origin同位，精确暂存逐项审查后提交。
+- 限制：仅隔离验证，没有对日常演示库部署V16、启动正式业务/worker或更改现有交易；使用前Commerce按正常流程构建/迁移/启动，旧进程无新503处理。DELAYED不伪造七天无更新，observed-at不改服务时钟；签收争议仍为签收事实+客户陈述。Agent/RAG质量、页面视觉和全部资金故障矩阵未重跑。原四历史脏文件/旧图/日志/Gold/简历不夹带。按原授权精确commit/正常push，SHA与远端结果在回复报告；收口后停止写入，下一步由用户决定。
+
+## 历史快照（2026-10-14，物流场景模拟器开发中：计划已写）
 
 - 用户已授权先处理物流场景模拟器，后续评测可设置/推进物流。中断前只读核查并尝试启动Docker，未写文件；本轮确认Git仍8e631cd，暂存空，四历史脏文件/旧资产保持。已写[计划](../docs/logistics-simulator.md)及核心范围；拟按整单推进已首次发货checkout订单，追加事件/version与履约投影，幂等收据，独立查询503开关；签收争议仍为客户陈述与签收记录冲突，停滞不倒改历史时间。
 - 现状发现：V14只允许履约version1/2及未发货/在途，需要追加迁移；物流读取上限200需在写入门禁覆盖。Docker初查不可用，已隐藏启动Docker Desktop，不启动正式worker或付费模型；脚本沿用agent/.venv和Docker客户端，不新装MySQL依赖。先关键失败测试再实现/集中验证，完成情况、命令及未运行在本顶部持续记录，不另开进度。

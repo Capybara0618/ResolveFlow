@@ -779,6 +779,8 @@ paths:
           $ref: '#/components/responses/ForbiddenScope'
         '404':
           $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /internal/v1/order-lines/{line_id}/refund-status:
     get:
       tags: [refund]

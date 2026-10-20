@@ -9,9 +9,7 @@ import org.apache.ibatis.annotations.Select;
 /**
  * The synthetic shipment adapter's reads (V6__commerce_shipment_adapter.sql).
  *
- * <p>Reads only, and there is no write statement here on purpose: nothing in core changes a shipment after the
- * seed, and a repository with an update method would be an invitation for a later step to treat simulated
- * logistics as something to move (docs/core-scope.md:30).
+ * <p>Reads only. First shipment and the local V16 simulator own logistics writes; the Agent never does.
  *
  * <p>Both reads are by line id alone. That is safe here for the same reason the line-context read is
  * (C03.2a): the caller is the service that already decided the line is in scope, and this route is
@@ -36,6 +34,13 @@ public interface ShipmentRepository {
              WHERE line_id = #{lineId}
             """)
     ShipmentRow findShipment(@Param("lineId") String lineId);
+
+    @Select("""
+            SELECT COUNT(*)>0 FROM shipment_simulation_fault f
+            JOIN order_line l ON l.order_id=f.order_id
+            WHERE l.line_id=#{lineId} AND f.unavailable=TRUE
+            """)
+    boolean queryUnavailable(@Param("lineId") String lineId);
 
     /**
      * The events, oldest first.

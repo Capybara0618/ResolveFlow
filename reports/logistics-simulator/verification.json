@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-20",
+  "java_tests": {
+    "passed": 28,
+    "failures": 0,
+    "skipped": 0
+  },
+  "python_tests": {
+    "passed": 146,
+    "failures": 0,
+    "skipped": 0
+  },
+  "database": "isolated Testcontainers MySQL 8.4 / Flyway V1-V16",
+  "daily_runtime_deployed": false,
+  "model_calls": 0,
+  "files": [
+    {
+      "path": "scripts/logistics_simulator.py",
+      "sha256": "1c4cd2ee053dae10d2d9af709896b54031f44d4f257ce9093c24e1b2f95e5784"
+    },
+    {
+      "path": "scripts/test_logistics_simulator.py",
+      "sha256": "f74171297a9b248610b611587d9b784a3c83850981f5cdeff43d61f28712c57e"
+    },
+    {
+      "path": "java/commerce-service/src/main/resources/db/migration/V16__logistics_simulator.sql",
+      "sha256": "6ed3e5677897bf40e9ada7d4bb897a997e30c87df4ce23e3c36e230a1fed9b7f"
+    },
+    {
+      "path": "java/commerce-service/src/main/java/com/resolveflow/commerce/shipment/ShipmentRepository.java",
+      "sha256": "4e9f7cc3e6778c28feb999b2cd92de6bf5ddd7b9e715c33e36a0c2db1de914b4"
+    },
+    {
+      "path": "java/commerce-service/src/main/java/com/resolveflow/commerce/shipment/ShipmentReadService.java",
+      "sha256": "9e41e9c481a9315e0d8ab0e2cf634b21a04be26f9120552203b7048162d3871c"
+    },
+    {
+      "path": "java/commerce-service/src/main/java/com/resolveflow/commerce/error/ApiExceptionHandler.java",
+      "sha256": "1ba5175acf94d9a85154755030be1d0401847fb7ec95950d4d1139caf31e7798"
+    },
+    {
+      "path": "java/commerce-service/src/test/java/com/resolveflow/commerce/shipment/LogisticsSimulatorTest.java",
+      "sha256": "e3a144fe12e1c482d23141738ce82da531d80246d278c1c9703e969aff9006cd"
+    },
+    {
+      "path": "contracts/core/openapi-commerce.yaml",
+      "sha256": "bfe9479d4962de75bf5347ddb181be53d2c49cd4f52cec7c84b7341b1d482c54"
+    }
+  ]
+}
