@@ -54,3 +54,41 @@ def test_consultation_route_requires_its_scope_and_exact_case_dispatch_subjects(
             client.post("/internal/v1/support-runs", json={**body, "case_id": "fake"}, headers=headers()).status_code
             == 422
         )
+
+
+def test_default_runtime_receives_app_encoder_pool_but_separate_run_state(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    from resolveflow.runtime.factory import DeploymentConfig
+
+    instances = []
+
+    class DefaultRuntime(Runtime):
+        def __init__(self, database, config, *, embeddings):
+            super().__init__()
+            self.embeddings = embeddings
+            instances.append(self)
+
+    monkeypatch.setattr("resolveflow.support.api.SupportRuntime", DefaultRuntime)
+    monkeypatch.setattr(DeploymentConfig, "from_environ", lambda: DeploymentConfig(mode="mock"))
+    app = create_app(
+        provider_db=tmp_path / "provider.db",
+        delivery_loop=False,
+        worker_loop=False,
+        migrate=False,
+        jwt_secret=SECRET,
+        run_store=SimpleNamespace(database=object()),
+    )
+    token = mint_service_token("case-service", SECRET, scope="support:run", merchant_id="M-A", customer_id="C-A")
+    body = {**request().model_dump(mode="json"), "tool_token": "per-run-read-token"}
+    with TestClient(app) as client:
+        for _ in range(2):
+            assert (
+                client.post(
+                    "/internal/v1/support-runs", json=body, headers={"Authorization": "Bearer " + token}
+                ).status_code
+                == 200
+            )
+        assert len(instances) == 2 and instances[0] is not instances[1]
+        assert instances[0].embeddings is instances[1].embeddings is app.state.support_embeddings
+        assert len(instances[0].calls) == len(instances[1].calls) == 1

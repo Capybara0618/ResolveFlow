@@ -27,7 +27,9 @@ from __future__ import annotations
 
 import math
 import re
-from dataclasses import dataclass
+import threading
+import time
+from dataclasses import dataclass, field
 from typing import Any, Final, Protocol
 
 __all__ = [
@@ -100,6 +102,7 @@ class SentenceTransformerEmbedder:
 
     local_path: str
     _model: Any = None
+    _lock: Any = field(default_factory=threading.RLock, init=False, repr=False, compare=False)
 
     @property
     def model(self) -> str:
@@ -114,6 +117,10 @@ class SentenceTransformerEmbedder:
         return EMBEDDING_DIMENSION
 
     def _encoder(self) -> Any:
+        with self._lock:
+            return self._load_encoder()
+
+    def _load_encoder(self) -> Any:
         if self._model is None:
             try:
                 from sentence_transformers import SentenceTransformer
@@ -123,22 +130,39 @@ class SentenceTransformerEmbedder:
                     "Install the `retrieval` extra (`uv sync --project agent --extra retrieval`); this path "
                     "has no fallback on purpose (docs/policy-rag.md:23)."
                 ) from missing
-            # `dataclass(frozen=True)` forbids assigning here, so the cache lives in a mutable slot the
-            # frozen wrapper does not see. Kept small deliberately: one loaded model per process.
+            # One loaded model per wrapper. The consultation app owns/reuses a wrapper across runs.
             object.__setattr__(self, "_model", SentenceTransformer(self.local_path))
         return self._model
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         """Unit vectors, so a dot product is the cosine and no caller has to remember to normalise."""
-        if not texts:
-            return []
-        encoder = self._encoder()
-        from resolveflow.policies.segments import encoder_tokens
+        vectors, _ = self.embed_profiled(texts)
+        return vectors
 
-        if any(encoder_tokens(text, encoder.tokenizer) > encoder.max_seq_length for text in texts):
-            raise ValueError("embedding input exceeds encoder window; split policies or shorten query, no truncation")
-        vectors = encoder.encode(texts, normalize_embeddings=True)
-        return [[float(value) for value in vector] for vector in vectors]
+    def embed_profiled(self, texts: list[str]) -> tuple[list[list[float]], dict[str, float]]:
+        """Per-call timings, with one lock for lazy loading and shared model inference."""
+        profile = {"embedding_wait_ms": 0.0, "model_load_ms": 0.0, "query_encoding_ms": 0.0}
+        if not texts:
+            return [], profile
+        started = time.perf_counter()
+        with self._lock:
+            profile["embedding_wait_ms"] = (time.perf_counter() - started) * 1000
+            started = time.perf_counter()
+            unloaded = self._model is None
+            encoder = self._load_encoder()
+            if unloaded:
+                profile["model_load_ms"] = (time.perf_counter() - started) * 1000
+            started = time.perf_counter()
+            from resolveflow.policies.segments import encoder_tokens
+
+            if any(encoder_tokens(text, encoder.tokenizer) > encoder.max_seq_length for text in texts):
+                raise ValueError(
+                    "embedding input exceeds encoder window; split policies or shorten query, no truncation"
+                )
+            vectors = encoder.encode(texts, normalize_embeddings=True)
+            result = [[float(value) for value in vector] for vector in vectors]
+            profile["query_encoding_ms"] = (time.perf_counter() - started) * 1000
+            return result, profile
 
     def policy_segments(self, text: str) -> list[dict[str, Any]]:
         from resolveflow.policies.segments import TARGET_ENCODER_TOKENS, split_for_encoder

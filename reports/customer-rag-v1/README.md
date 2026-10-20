@@ -18,7 +18,17 @@ L08原Query的LOST条款两路都排第4，复现原失败；参考Query保留�
 
 原先每Query新实例：第一次dense耗时9723ms（含进程首次import/加载等），随后11次69–99ms。不能把此前约59秒工具间隔全部归为模型加载，也不能把9.7秒作为每次请求开销。共享修复后的冷/热与各阶段需另测。
 
-首次Ruff检查发现行宽及git可执行路径规则，格式化并改用解析后的路径；不删断言。后续实现/验证结果将在本报告追加。
+首次Ruff检查发现行宽及git可执行路径规则，格式化并改用解析后的路径；Git差异检查发现Windows写入CRLF，统一LF并在before记录纯序列化变更前hash，实测数值保留。
+
+## 2. 共享embedding生命周期
+
+- `SupportEmbeddings`由FastAPI lifespan拥有，默认HTTP咨询Runtime获得同一资源；只共享惰性权重对象，不共享HTTP凭据/消息/generation/预算。直接构造Runtime也可注入资源。
+- BGE wrapper对首次加载及编码加同一可重入锁，加载失败下次仍可重试，过长查询仍拒绝截断；`embed_profiled`返回本次独立计时，记录等待/加载/编码。没有启动预热或额外模型服务。
+- 退出释放资源引用；改配置路径替换单槽缓存，不累积多个模型。新资源/检索实现hash进入Support manifest，未完旧run仍拒绝换manifest，已完成结果仍可复用。
+
+验证：新增并发加载/推理串行、失败重试/窗口、空输入惰性、应用隔离/关闭、API两次派发共享权重资源且Runtime分开的5项；先运行为2失败/2通过（缺新接口/模块），实施后连同原咨询API/Agent/来源、真实PG隔离Schema的SupportStore/PolicyIndex/完整性共64通过、0跳过。命令：`RESOLVEFLOW_AGENT_DB=postgresql://agent:agent@127.0.0.1:55433/agent_db`加`python -m pytest agent/tests/unit/test_support_embeddings.py agent/tests/unit/test_support_api.py agent/tests/unit/test_support_agent.py agent/tests/unit/test_support_sources.py agent/tests/integration/test_support_store.py agent/tests/integration/test_policy_index.py agent/tests/integration/test_rag_index_integrity.py -q`。未操作public业务行；保留1条既有Starlette弃用警告。
+
+新/改源码及测试Ruff通过（从agent目录加载测试忽略规则；根目录首查曾误报既有测试SECRET规则）；4个源码严格mypy通过。未对既有app整文件宣称严格类型/格式通过，撤回工具带来的无关格式改动，仅保留3行接线。基线244d3e9已普通推送并核实远端。
 
 ## 尚未完成
 

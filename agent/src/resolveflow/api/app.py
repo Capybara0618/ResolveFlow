@@ -65,6 +65,7 @@ from resolveflow.runtime.runs import (
     VerifiedCaller,
 )
 from resolveflow.runtime.worker import RunWorker
+from resolveflow.support.embeddings import SupportEmbeddings
 
 SERVICE_NAME = "agent-service"
 
@@ -449,6 +450,7 @@ def create_app(
         app.state.provider = provider if provider is not None else RefundProviderStub(database)
         app.state.token_verifier = ServiceTokenVerifier(secret)
         app.state.support_runtime = support_runtime
+        app.state.support_embeddings = SupportEmbeddings()
         holder: _RunStoreHolder | None = None
         if run_store is not None:
             # A caller that already owns a store (the integration tests do) wants exactly that store.
@@ -494,6 +496,7 @@ def create_app(
                 loop.start()
             yield
         finally:
+            app.state.support_embeddings.clear()
             if investigation_loop is not None:
                 await asyncio.to_thread(investigation_loop.close)
             if loop is not None:

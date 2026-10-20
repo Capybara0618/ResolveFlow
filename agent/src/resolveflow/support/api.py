@@ -30,7 +30,11 @@ def router_for(authenticate: Any, run_store: Any) -> APIRouter:
         try:
             runtime = request.app.state.support_runtime
             if runtime is None:
-                runtime = SupportRuntime(run_store(request).database, DeploymentConfig.from_environ())
+                runtime = SupportRuntime(
+                    run_store(request).database,
+                    DeploymentConfig.from_environ(),
+                    embeddings=request.app.state.support_embeddings,
+                )
             context = SupportInput.model_validate(body.model_dump(exclude={"tool_token"}))
             return cast(dict[str, Any], runtime.run(context, body.tool_token.get_secret_value()))
         except SupportFailure as error:

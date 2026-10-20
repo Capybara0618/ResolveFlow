@@ -14,9 +14,9 @@ from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.live_model import LiveModelClient
 from resolveflow.harness.model import MockModelClient
 from resolveflow.policies.index import PolicyIndex
-from resolveflow.policies.retrieval import embedder
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import DeploymentConfig
+from resolveflow.support.embeddings import SupportEmbeddings
 from resolveflow.support.engine import SYSTEM, SupportAgent
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
 from resolveflow.support.sources import BoundSources
@@ -25,10 +25,17 @@ from resolveflow.support.store import SupportStore
 
 class SupportRuntime:
     def __init__(
-        self, database: Database, config: DeploymentConfig, *, model_factory: Any = None, sources_factory: Any = None
+        self,
+        database: Database,
+        config: DeploymentConfig,
+        *,
+        model_factory: Any = None,
+        sources_factory: Any = None,
+        embeddings: SupportEmbeddings | None = None,
     ) -> None:
         self.database, self.config = database, config
         self.model_factory, self.sources_factory = model_factory, sources_factory
+        self.embeddings = embeddings if embeddings is not None else SupportEmbeddings()
 
     def _model(self) -> Any:
         config = self.config
@@ -77,7 +84,15 @@ class SupportRuntime:
             "mock_script": getattr(model, "script", None),
             "code": {
                 name: hashlib.sha256((root / name).read_bytes()).hexdigest()
-                for name in ["engine.py", "protocol.py", "sources.py", "store.py", "service.py"]
+                for name in [
+                    "engine.py",
+                    "protocol.py",
+                    "sources.py",
+                    "store.py",
+                    "service.py",
+                    "embeddings.py",
+                    "../policies/retrieval.py",
+                ]
             },
             "prompt_hash": hashlib.sha256(SYSTEM.encode()).hexdigest(),
         }
@@ -89,7 +104,7 @@ class SupportRuntime:
             sources = self.sources_factory(request, token, journal)
         else:
             # Local weights are lazy; a logistics-only question does not load the embedder or require an index.
-            encoder = embedder(local_path=self.config.embedding_path) if self.config.policy_index else None
+            encoder = self.embeddings.get(self.config.embedding_path) if self.config.policy_index else None
             sources = BoundSources(
                 request,
                 case_url=self.config.case_base_url,

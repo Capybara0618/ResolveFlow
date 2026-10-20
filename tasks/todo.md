@@ -1,3 +1,8 @@
+## 当前快照（2026-10-20，客服RAG第一批：共享embedding已验证）
+
+- 基线244d3e9已正常推送并核实；原Query漏召回/人工参考与合成探针见[报告](../reports/customer-rag-v1/README.md)。现已接应用生命周期共享惰性BGE权重、并发加载/编码锁、加载失败重试与独立耗时，保留逐run上下文/凭据/generation/fence；相关实现hash加入manifest。
+- 新增5项含HTTP接线与原咨询/PG隔离Schema检索共64通过/0跳过，Ruff及4源码严格mypy通过；红测2失败/2通过和旧Starlette警告已记录。没有新LLM请求/业务栈启动/原政策重建，原四历史脏文件保持。本步精确提交正常push后继续阶段计时与实际共享冷/热对照，尚未优化自动Query或部署融合/重排。
+
 ## 当前快照（2026-10-20，客服RAG第一批：诊断基线已实测）
 
 - 用户授权开始修正RAG。本轮先冻结3条保存的真实模型Query、3条人工参考Query与6条合成场景探针，真实本地BGE/原固定政策generation只读24次搜索。dense原Query Top3必要条款2/3、人工参考3/3、合成5/6；不作为自动Query或盲测提升。L08两路第4复现，P02也漏，见[报告](../reports/customer-rag-v1/README.md)。
