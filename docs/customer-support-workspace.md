@@ -1,6 +1,6 @@
 # 售后咨询与商家核查使用说明
 
-2026-10-20。[协议](customer-support-contract-v1.md)中的持久会话、人工核查及[Agent只读咨询](customer-agent-implementation-v1.md)已接入网页。客服入口退款摘要确认仍待后续，本页描述当前可操作行为，不把[预期图](ui-customer-agent-v1/README.md)全部视作已完成。本轮使用明确脚本模型验证接线，真实模型回答质量尚未评测。
+2026-10-20。[协议](customer-support-contract-v1.md)中的持久会话、人工核查及[Agent只读咨询](customer-agent-implementation-v1.md)已接入网页。客服入口退款摘要确认仍待后续，本页描述当前可操作行为，不把[预期图](ui-customer-agent-v1/README.md)全部视作已完成。工程接线此前用脚本模型验证，新界面后已完成[首轮真实模型诊断](../reports/customer-agent-live-v1/README.md)：8turn中6条达标，另有LOST政策回答问题与查询失败覆盖缺口，正式固定流程量化对照尚未运行。
 
 ## 买家
 

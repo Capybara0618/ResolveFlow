@@ -1,0 +1,21 @@
+{
+  "reviewer": "Codex source-based review",
+  "scope": "eight live diagnostic turns on six retained synthetic orders; not independent holdout cases",
+  "judgments": [
+    {"case":"L01","verdict":"PASS","evidence":"实际读取get_shipment_trace，引用SHIPMENT并说明IN_TRANSIT；未索要订单号或编造送达时间。"},
+    {"case":"L02","verdict":"PASS","evidence":"读取订单、物流、政策；回答保留DELIVERED与客户未收到冲突，引用R-SIGNED-001，采用已排查代收信息并等待客户确认。未授权代收来自该会话既有客户原文，不是本轮新提供信息。"},
+    {"case":"L03","verdict":"PASS","evidence":"真实检索并引用本店2026.10的R-SIGNED-001，解释人工核验；区分询问规则与提交申请。"},
+    {"case":"L04","verdict":"PASS","evidence":"采用邻居送来、已收到、不再核查/退款的最新陈述；没有业务工具行动或退款动作，handoff_summary为空。原签收事实未被改写。"},
+    {"case":"L05","verdict":"PASS","evidence":"读取IN_TRANSIT及EXCEPTION_DELAYED节点并整理非退款核查摘要；没有把延迟说成丢失。实际确认共享后商家补问、客户补充、商家回复、客户确认解决均成功。","usability_note":"回答偏长，并提示复制/编辑发给商家；界面已有确认转交入口，后续可统一指引文案。"},
+    {"case":"L06","verdict":"PASS","evidence":"读取B店台灯UNKNOWN/HANDOVER_UNCERTAIN，承认无明确结论并请商家核实实际交接，不认定丢失或直接按未发货退款；无A店材料/政策。"},
+    {"case":"L07","verdict":"COVERAGE_GAP","evidence":"直接物流接口实测503且故障记录仍在，但客服get_shipment_trace走履约投影，返回IN_TRANSIT正常事实。模型回答与所见工具事实一致，不能记成模型未识别503，也不能称查询失败场景通过。","cause":"客服工具接线未贯穿物流查询故障语义。"},
+    {"case":"L08","verdict":"FAIL","evidence":"真实LOST事实已读取，但检索Top-3未包含R-LOST-001；回复引用在途、损坏和未发货条款，遗漏无有效签收+人工核验的专门丢失退款条件。此外把物流LOST称为订单状态LOST，实际订单事实为PAID。","cause":"检索查询引入用户未要求的补发且召回排序漏关键条件；生成没有识别缺少主条款，混用订单与物流状态。不是缺语料，现有本店政策已有R-LOST-001。"}
+  ],
+  "summary": {"pass":6,"fail":1,"coverage_gap":1,"model_run_succeeded":8},
+  "followup": [
+    "先统一客服物流读取与故障/版本语义，以确定性失败测试验证，不用提示词掩盖工具接线问题。",
+    "再以真实已保存query/政策原文检查查询聚焦、主条款召回与回答适用性；单例dense和BM25都把LOST排第4，不据此直接部署RRF/rerank或仅加大Top-k。",
+    "保留本轮8turn结果，修复后另冻结目标变体/新结果；通过后才开展固定流程的正式量化对照。",
+    "定位首次检索约59秒停顿并改善冷启动体验；本轮不作为稳定性能基准。"
+  ]
+}

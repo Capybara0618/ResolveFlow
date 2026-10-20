@@ -17,6 +17,7 @@
 | [客服 Agent 首场景与双端预期图](docs/ui-customer-agent-v1/README.md) | 物流异常/签收争议、独立人工咨询、退款确认与两店上下文；设计原型，尚非客服实现 |
 | [售后咨询与商家核查](docs/customer-support-workspace.md) | 持久会话、Agent只读问答/来源、确认共享报告、商家回复与客户补充；聊天内退款确认待后续 |
 | [客服双端界面v2](reports/customer-support-ui-v2/README.md) | 按认可预期图落地聊天/核查三栏、订单与转交弹层、来源标签；实际页面及前端交互证据 |
+| [客服首轮真实联调](reports/customer-agent-live-v1/README.md) | 8turn真实模型、双端人工接续与实际界面；保留物流故障接线/RAG漏主条款问题及源审 |
 | [Agent/RAG评测指南](docs/evaluation-guide.md) | 冻结数据、eval.ps1、评分/人工复核/回放/对照；不启动业务退款 |
 | [售后简约预期图与合同](docs/ui-aftercare-v3/README.md) | 双端五页目标、商品卡片与字号、实施顺序 |
 | [本机运行说明](docs/local-runtime.md) | 正式start/stop/status、全部功能默认启动及保留数据 |

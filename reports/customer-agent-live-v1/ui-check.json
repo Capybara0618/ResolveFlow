@@ -1,0 +1,147 @@
+{
+  "real_api": true,
+  "api_interception": false,
+  "model_requests_from_ui_check": 0,
+  "checks": [
+    {
+      "view": "buyer-l01",
+      "width": 1280,
+      "height": 800,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 787,
+      "passed": true
+    },
+    {
+      "view": "buyer-l01",
+      "width": 1440,
+      "height": 900,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 887,
+      "passed": true
+    },
+    {
+      "interaction": "actual policy source expands with original and version",
+      "passed": true
+    },
+    {
+      "view": "buyer-l03",
+      "width": 1280,
+      "height": 800,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 787,
+      "passed": true
+    },
+    {
+      "view": "buyer-l03",
+      "width": 1440,
+      "height": 900,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 887,
+      "passed": true
+    },
+    {
+      "view": "buyer-l07",
+      "width": 1280,
+      "height": 800,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 787,
+      "passed": true
+    },
+    {
+      "view": "buyer-l07",
+      "width": 1440,
+      "height": 900,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 887,
+      "passed": true
+    },
+    {
+      "view": "buyer-l08",
+      "width": 1280,
+      "height": 800,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 787,
+      "passed": true
+    },
+    {
+      "view": "buyer-l08",
+      "width": 1440,
+      "height": 900,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 887,
+      "passed": true
+    },
+    {
+      "interaction": "real order picker switches tenant context and restores prior history",
+      "passed": true
+    },
+    {
+      "view": "merchant-followup",
+      "width": 1280,
+      "height": 800,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 800,
+      "passed": true
+    },
+    {
+      "view": "merchant-followup",
+      "width": 1440,
+      "height": 900,
+      "horizontal": false,
+      "outerScroll": false,
+      "composerBottom": 900,
+      "passed": true
+    },
+    {
+      "interaction": "confirmed report and real human replies visible; private assistant absent; resolved composer disabled",
+      "passed": true
+    }
+  ],
+  "images": [
+    {
+      "path": "images/buyer-l01.png",
+      "sha256": "7040a44b42cba25464949581bb7d23d466dbfe91beb29bf753974c3ae06b411c"
+    },
+    {
+      "path": "images/buyer-l03.png",
+      "sha256": "ddaee53afb67a3b06bf8bcd49fe8082830f0863023dcc5f288f98c4ac7600921"
+    },
+    {
+      "path": "images/buyer-l07.png",
+      "sha256": "35cc9995f5cfecaf5ffde485051638a1ab5bfb91e0984f9263ca8a096ff56478"
+    },
+    {
+      "path": "images/buyer-l08.png",
+      "sha256": "b61941a36532450c8716266dd8be644c2ab70e144d6bd7923109ad53f2e6a61f"
+    },
+    {
+      "path": "images/merchant-followup.png",
+      "sha256": "296f1160785ca4ded8c6536cdbe653c214f72e96aa88abf94704bc7fbb630788"
+    }
+  ],
+  "page_errors": [],
+  "http_errors": [],
+  "writes": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    }
+  ]
+}
