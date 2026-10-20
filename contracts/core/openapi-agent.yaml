@@ -32,6 +32,54 @@ tags:
   - name: observations
     description: The tool records Java re-reads to verify an Agent citation.
 paths:
+  /internal/v1/support-runs:
+    post:
+      operationId: executeSupportAgentTurn
+      summary: Execute or reuse a bound consultation run
+      description: 'Authority: docs/customer-agent-implementation-v1.md. Requires case-service
+        and support:run with exact merchant/customer. No Case/refund permission. Durable
+        result/call reuse; concurrent claim or changed input/manifest refuses.'
+      security:
+      - serviceToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportAgentRequest'
+      responses:
+        '200':
+          description: Completed consultation result; SUCCEEDED is not a refund authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportAgentResult'
+        '401':
+          description: Invalid service token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportAgentError'
+        '403':
+          description: Wrong dispatch subject/scope/binding
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportAgentError'
+        '409':
+          description: Busy run or frozen input/manifest conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportAgentError'
+        '503':
+          description: Runtime unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportAgentError'
+        '422':
+          description: Closed input schema validation failed
   /internal/v1/policies/{bundle_id}/index-status:
     get:
       operationId: readPolicyIndexStatus
@@ -381,6 +429,124 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    SupportAgentRequest:
+      additionalProperties: false
+      properties:
+        run_id:
+          pattern: ^[0-9a-f-]{36}$
+          title: Run Id
+          type: string
+        conversation_id:
+          pattern: ^[0-9a-f-]{36}$
+          title: Conversation Id
+          type: string
+        input_version:
+          minimum: 1
+          title: Input Version
+          type: integer
+        merchant_id:
+          maxLength: 64
+          minLength: 1
+          title: Merchant Id
+          type: string
+        customer_id:
+          maxLength: 64
+          minLength: 1
+          title: Customer Id
+          type: string
+        line_id:
+          maxLength: 64
+          minLength: 1
+          title: Line Id
+          type: string
+        deadline_at:
+          format: date-time
+          title: Deadline At
+          type: string
+        context:
+          additionalProperties: true
+          title: Context
+          type: object
+        tool_token:
+          format: password
+          maxLength: 8192
+          minLength: 1
+          title: Tool Token
+          type: string
+          writeOnly: true
+      required:
+      - run_id
+      - conversation_id
+      - input_version
+      - merchant_id
+      - customer_id
+      - line_id
+      - deadline_at
+      - context
+      - tool_token
+      title: SupportDispatch
+      type: object
+    SupportAgentResult:
+      additionalProperties: false
+      properties:
+        run_id:
+          title: Run Id
+          type: string
+        conversation_id:
+          title: Conversation Id
+          type: string
+        input_version:
+          minimum: 1
+          title: Input Version
+          type: integer
+        status:
+          enum:
+          - SUCCEEDED
+          - FAILED
+          title: Status
+          type: string
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        mode:
+          enum:
+          - mock
+          - live
+          - unknown
+          title: Mode
+          type: string
+        spend:
+          additionalProperties:
+            type: integer
+          title: Spend
+          type: object
+        answer:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Answer
+      required:
+      - run_id
+      - conversation_id
+      - input_version
+      - status
+      - reason
+      - mode
+      - spend
+      - answer
+      title: SupportResult
+      type: object
+    SupportAgentError:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          type: string
+      additionalProperties: false
     PolicyIndexStatus:
       type: object
       additionalProperties: false

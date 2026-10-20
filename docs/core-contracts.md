@@ -111,6 +111,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/cases/{case_id}/review-actions | 带If-Match的审核动作：MANUAL_PROPOSAL（金额仍由Java重算）/REJECT/REQUEST_INFO；不伪造授权，输入修订与状态同事务推进使旧调查失效；已消费输入冻结 |
 | Case | GET /api/v1/cases/{case_id}/investigation | 商户人员只读当前修订绑定的调查原始记录；无绑定NOT_SCHEDULED，下游故障或历史缺失UNAVAILABLE；不重跑模型/工具 |
 | Case | POST /api/v1/operations/{operation_id}/reconcile | OPERATOR请求查状态，不再次付款 |
+| Agent | POST /internal/v1/support-runs | docs/customer-agent-implementation-v1.md；独立咨询run/调用账，按绑定输入执行或复用，非退款权限 |
 | Agent | POST /internal/v1/runs | PG落库后202，同case/revision唯一；`run_id`由Case从`(case_id,input_revision)`派生（RFC 9562 v5），重试得到同一个id |
 | Agent | GET /internal/v1/runs/{run_id} | 受权运行摘要 |
 | Agent | GET /internal/v1/runs/{run_id}/observations/{observation_id} | 仅Case校验证据 |

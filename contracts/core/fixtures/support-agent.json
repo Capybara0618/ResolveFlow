@@ -1,0 +1,38 @@
+{
+  "SupportAgentRequest": {
+    "run_id": "00000000-0000-4000-8000-000000000001",
+    "conversation_id": "00000000-0000-4000-8000-000000000002",
+    "input_version": 2,
+    "merchant_id": "M-A",
+    "customer_id": "C-A",
+    "line_id": "line-A",
+    "deadline_at": "2030-01-01T00:00:00Z",
+    "context": {
+      "current_request": "已经问过家人和代收点，都没有找到，能否请商家核查？",
+      "history": [],
+      "product": {
+        "name": "耳机"
+      },
+      "policy_manifest": {
+        "merchant_id": "M-A",
+        "bundle_ids": [
+          "A"
+        ],
+        "manifest_hash": "hash"
+      }
+    },
+    "tool_token": "synthetic-support-read-token"
+  },
+  "SupportAgentResult": {
+    "run_id": "00000000-0000-4000-8000-000000000001",
+    "conversation_id": "00000000-0000-4000-8000-000000000002",
+    "input_version": 2,
+    "status": "FAILED",
+    "reason": "EXAMPLE_ONLY",
+    "mode": "mock",
+    "spend": {
+      "model_calls": 0
+    },
+    "answer": null
+  }
+}

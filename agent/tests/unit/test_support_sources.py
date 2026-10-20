@@ -38,9 +38,9 @@ def test_search_filters_before_recall_and_pins_generation_instead_of_using_query
     calls = []
 
     class Index:
-        def require_ready(self, **scope):
-            calls.append(scope)
-            return {"A": "generation-1"}
+        def require_ready(self, bundle_ids, manifest_hash):
+            calls.append({"bundle_ids": bundle_ids, "manifest_hash": manifest_hash})
+            return [SimpleNamespace(bundle_id="A", generation_id="generation-1", merchant_id="M-A")]
 
         def search(self, **scope):
             calls.append(scope)
@@ -65,7 +65,7 @@ def test_search_filters_before_recall_and_pins_generation_instead_of_using_query
         assert hits[0]["data"]["merchant_id"] == "M-A"
         assert len(calls) == 3
         for call in calls:
-            assert call["merchant_id"] == "M-A" and call["bundle_ids"] == ["A"]
+            assert call.get("merchant_id", "M-A") == "M-A" and call["bundle_ids"] == ["A"]
         assert calls[-1]["generation_ids"] == {"A": "generation-1"} and calls[-1]["path"] == "dense"
     finally:
         source.close()

@@ -5,6 +5,8 @@
 
 - 咨询循环独立步：新增support协议/AgentScope循环/绑定HTTP与dense来源适配，先红测后实现；新19项与既有SDK适配/LiveModelClient回归合计38通过，Ruff check/format通过。脚本模型覆盖动态工具/搜索、禁止身份/写操作/假引用、预算/失败/过期与实际输入；来源固定商家/manifest/generation，无假Case或BM25回退。修复工具异常触发SDK MCP别名、来源异常名/测试导入问题，见[报告](../reports/customer-agent-v1/README.md)。目前尚未连接PG/Java/网页；模型调用仅mock，不冒称效果提升。
 
+- PG/API独立步：追加013咨询run/call，固定输入/manifest/deadline、180秒lease/fence与持久预占/完整调用复用；未完成调用保留预算并报UNKNOWN/INTERRUPTED。新增独立support:run内部接口及Agent核心协议1路由/3组件/fixture，Agent7→8，旧断言保留。真实保留PG仅启动数据库，5项隔离schema验证含崩溃重建0新增调用、fence/manifest/预占与真实PolicyIndex接口（embedding明确stub）；含API/循环/来源/契约引用共30通过/0跳过，Ruff通过，旧Starlette弃用警告保留。实际Index.require_ready返回generation列表的适配已修正。Java/网页尚未接线，无真实模型/旧任务消费，报告记录局限。
+
 ## 历史快照（2026-10-20，客服持久会话与跨端人工核查完成）
 
 - 用户在双端预期图交付后授权开始，期间要求继续。本轮完成[客服契约v1](../docs/customer-support-contract-v1.md)和[双端实际使用](../docs/customer-support-workspace.md)：平台买家选订单商品/恢复独立会话、私有记录、客户确认共享摘要/所选原文后转交；商家本店核查/补问/回复，客户补充与确认解决，同单可接续。咨询不生成退款Case/授权/槽，不套两轮补证；智能问答、自动报告、咨询内退款确认及新RAG效果尚未实现，页面明确当前能力，不用固定话术冒充模型。

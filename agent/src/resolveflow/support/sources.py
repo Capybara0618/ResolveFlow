@@ -79,11 +79,13 @@ class BoundSources:
         try:
             if self.generations is None:
                 saved = None if self.journal is None else self.journal.generations()
-                self.generations = saved or self.index.require_ready(
-                    merchant_id=self.request.merchant_id,
-                    bundle_ids=manifest["bundle_ids"],
-                    manifest_hash=manifest["manifest_hash"],
-                )
+                if saved:
+                    self.generations = saved
+                else:
+                    ready = self.index.require_ready(manifest["bundle_ids"], manifest["manifest_hash"])
+                    if any(g.merchant_id != self.request.merchant_id for g in ready):
+                        raise SupportFailure("POLICY_SCOPE_MISMATCH")
+                    self.generations = {g.bundle_id: g.generation_id for g in ready}
                 if self.journal is not None and saved is None:
                     self.journal.pin_generations(self.generations)
             hits = self.index.search(

@@ -22,6 +22,7 @@ import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 
 import psycopg
 from fastapi import FastAPI, HTTPException, Query, Request, Response, status
@@ -29,7 +30,6 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from resolveflow import __version__
-from resolveflow.contracts.reviewer_input import ReviewerInput
 from resolveflow.api.identity import (
     CASE_SERVICE,
     ISSUER,
@@ -41,6 +41,7 @@ from resolveflow.api.identity import (
     VerifiedServiceToken,
     mint_service_token,
 )
+from resolveflow.contracts.reviewer_input import ReviewerInput
 from resolveflow.provider_stub import NOT_FOUND, ProviderConflictError, RefundProviderStub, RefundResult
 from resolveflow.runtime.callbacks import CallbackStore
 from resolveflow.runtime.db import DEFAULT_SCHEMA, Database
@@ -411,6 +412,7 @@ def create_app(
     delivery_batch_size: int = DEFAULT_BATCH_SIZE,
     worker_loop: bool | None = None,
     worker_interval_seconds: float = 1.0,
+    support_runtime: Any = None,
 ) -> FastAPI:
     """Build the service app.
 
@@ -446,6 +448,7 @@ def create_app(
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.provider = provider if provider is not None else RefundProviderStub(database)
         app.state.token_verifier = ServiceTokenVerifier(secret)
+        app.state.support_runtime = support_runtime
         holder: _RunStoreHolder | None = None
         if run_store is not None:
             # A caller that already owns a store (the integration tests do) wants exactly that store.
@@ -678,6 +681,9 @@ def create_app(
             except ValueError as error:
                 raise HTTPException(status_code=422, detail=str(error)) from error
 
+    from resolveflow.support.api import router_for
+
+    app.include_router(router_for(service_token_of, run_store_of))
     return app
 
 

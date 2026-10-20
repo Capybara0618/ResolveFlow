@@ -51,6 +51,25 @@ class Answer(Closed):
     handoff_summary: str | None = Field(default=None, min_length=1, max_length=2000)
 
 
+class SupportResult(Closed):
+    run_id: str
+    conversation_id: str
+    input_version: int = Field(ge=1)
+    status: Literal["SUCCEEDED", "FAILED"]
+    reason: str | None
+    mode: Literal["mock", "live", "unknown"]
+    spend: dict[str, int]
+    answer: dict | None
+
+    @model_validator(mode="after")
+    def outcome(self):
+        if self.status == "SUCCEEDED" and (not self.answer or self.reason or self.mode == "unknown"):
+            raise ValueError("success needs an actual model answer and mode")
+        if self.status == "FAILED" and self.answer is not None:
+            raise ValueError("failure cannot publish an answer")
+        return self
+
+
 DECISION = TypeAdapter(Annotated[Read | Search | Answer, Field(discriminator="kind")])
 
 
