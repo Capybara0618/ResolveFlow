@@ -1,0 +1,472 @@
+{
+  "version": "customer-rag-runtime-v2",
+  "new_llm_calls": 0,
+  "http_calls": 0,
+  "not_holdout": true,
+  "all_rankings_match_selected_candidate": true,
+  "adapter": "BoundSources.search",
+  "summary": {
+    "saved-live": {
+      "n": 3,
+      "all_required_at_3": 3
+    },
+    "synthetic-probe": {
+      "n": 6,
+      "all_required_at_3": 5
+    }
+  },
+  "latency": {
+    "cold_ms": 8143.1081000191625,
+    "subsequent_n": 8,
+    "subsequent_median_ms": 34.996950009372085
+  },
+  "rows": [
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001"
+      ],
+      "all_required_at_3": true,
+      "elapsed_ms": 8143.1081000191625,
+      "citations": [
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-SIGNED-001",
+          "chunk_id": "c-03",
+          "content_hash": "f79c1fe89c49e0d592287abf3acbb11380a7df680d9f4e10e07ec78fc0dc8f73"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-LOST-001",
+          "chunk_id": "c-02",
+          "content_hash": "f698c0b0d82dea5fe08866011a7db5e53de2a910df5d9059f75939b05fc82e08"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-UNSHIPPED-001",
+          "chunk_id": "c-01",
+          "content_hash": "5c4d06296b6e9d9ed90c093fbc134ca1b428c52fc54e66b029bd71747ea9e032"
+        }
+      ]
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001"
+      ],
+      "all_required_at_3": true,
+      "elapsed_ms": 34.53939998871647,
+      "citations": [
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-SIGNED-001",
+          "chunk_id": "c-03",
+          "content_hash": "f79c1fe89c49e0d592287abf3acbb11380a7df680d9f4e10e07ec78fc0dc8f73"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-UNSHIPPED-001",
+          "chunk_id": "c-01",
+          "content_hash": "5c4d06296b6e9d9ed90c093fbc134ca1b428c52fc54e66b029bd71747ea9e032"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-INTRANSIT-001",
+          "chunk_id": "c-05",
+          "content_hash": "63f657fc9cd71917d23a998329626a9e8c4c52f7bcbe47f671319cbc4cb87d79"
+        }
+      ]
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "rules": [
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "all_required_at_3": true,
+      "elapsed_ms": 35.474699980113655,
+      "citations": [
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-LOST-001",
+          "chunk_id": "c-02",
+          "content_hash": "5d939273bd40f52230b820dacdfc970c977b681f445df01f0362d155c7d2242f"
+        },
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-DMG-001",
+          "chunk_id": "c-04",
+          "content_hash": "2b2d7eb3ffde7fc6244c9fe355e4b33cfc385a93eb8557b434ef96991265196e"
+        },
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-INTRANSIT-001",
+          "chunk_id": "c-05",
+          "content_hash": "18786c5e973c12b73be3ba6037a1eae33b2654f2d4d10b05190958baf804941a"
+        }
+      ]
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "all_required_at_3": true,
+      "elapsed_ms": 34.87410000525415,
+      "citations": [
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-UNSHIPPED-001",
+          "chunk_id": "c-01",
+          "content_hash": "5c4d06296b6e9d9ed90c093fbc134ca1b428c52fc54e66b029bd71747ea9e032"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-DMG-001",
+          "chunk_id": "c-04",
+          "content_hash": "41d974f1039cd58ff18ce311a4fb987f4e893a63e942a48eb95d0cd8316e2e6b"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-SIGNED-001",
+          "chunk_id": "c-03",
+          "content_hash": "f79c1fe89c49e0d592287abf3acbb11380a7df680d9f4e10e07ec78fc0dc8f73"
+        }
+      ]
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001"
+      ],
+      "all_required_at_3": false,
+      "elapsed_ms": 35.11980001349002,
+      "citations": [
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-DMG-001",
+          "chunk_id": "c-04",
+          "content_hash": "2b2d7eb3ffde7fc6244c9fe355e4b33cfc385a93eb8557b434ef96991265196e"
+        },
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-INTRANSIT-001",
+          "chunk_id": "c-05",
+          "content_hash": "18786c5e973c12b73be3ba6037a1eae33b2654f2d4d10b05190958baf804941a"
+        },
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-SIGNED-001",
+          "chunk_id": "c-03",
+          "content_hash": "7931bc9fe43010c65d24e8bead8870c65990bc14300be8bb043551ec5227a430"
+        }
+      ]
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-LOST-001"
+      ],
+      "all_required_at_3": true,
+      "elapsed_ms": 33.451099996455014,
+      "citations": [
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-UNSHIPPED-001",
+          "chunk_id": "c-01",
+          "content_hash": "5c4d06296b6e9d9ed90c093fbc134ca1b428c52fc54e66b029bd71747ea9e032"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-SIGNED-001",
+          "chunk_id": "c-03",
+          "content_hash": "f79c1fe89c49e0d592287abf3acbb11380a7df680d9f4e10e07ec78fc0dc8f73"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-LOST-001",
+          "chunk_id": "c-02",
+          "content_hash": "f698c0b0d82dea5fe08866011a7db5e53de2a910df5d9059f75939b05fc82e08"
+        }
+      ]
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "rules": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001"
+      ],
+      "all_required_at_3": true,
+      "elapsed_ms": 35.882100026356056,
+      "citations": [
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-DMG-001",
+          "chunk_id": "c-04",
+          "content_hash": "2b2d7eb3ffde7fc6244c9fe355e4b33cfc385a93eb8557b434ef96991265196e"
+        },
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-SIGNED-001",
+          "chunk_id": "c-03",
+          "content_hash": "7931bc9fe43010c65d24e8bead8870c65990bc14300be8bb043551ec5227a430"
+        },
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-INTRANSIT-001",
+          "chunk_id": "c-05",
+          "content_hash": "18786c5e973c12b73be3ba6037a1eae33b2654f2d4d10b05190958baf804941a"
+        }
+      ]
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-SIGNED-001"
+      ],
+      "all_required_at_3": true,
+      "elapsed_ms": 31.949800002621487,
+      "citations": [
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-INTRANSIT-001",
+          "chunk_id": "c-05",
+          "content_hash": "63f657fc9cd71917d23a998329626a9e8c4c52f7bcbe47f671319cbc4cb87d79"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-LOST-001",
+          "chunk_id": "c-02",
+          "content_hash": "f698c0b0d82dea5fe08866011a7db5e53de2a910df5d9059f75939b05fc82e08"
+        },
+        {
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "merchant_id": "M-1001",
+          "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+          "rule_id": "R-SIGNED-001",
+          "chunk_id": "c-03",
+          "content_hash": "f79c1fe89c49e0d592287abf3acbb11380a7df680d9f4e10e07ec78fc0dc8f73"
+        }
+      ]
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-MONEY-001",
+        "R-DMG-001"
+      ],
+      "all_required_at_3": true,
+      "elapsed_ms": 35.662799986312166,
+      "citations": [
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-UNSHIPPED-001",
+          "chunk_id": "c-01",
+          "content_hash": "54d1b7d166a5c09e8e0854b72ddedfe24c1927cd88b27a40b5ba62452c943591"
+        },
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-MONEY-001",
+          "chunk_id": "c-06",
+          "content_hash": "3ce99fb1f49bf67218401707b0781bbc848e805c358597bbe17a8c5bd1fa3da8"
+        },
+        {
+          "bundle_id": "policy-foundation-m1002-2026.10",
+          "merchant_id": "M-1002",
+          "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+          "rule_id": "R-DMG-001",
+          "chunk_id": "c-04",
+          "content_hash": "2b2d7eb3ffde7fc6244c9fe355e4b33cfc385a93eb8557b434ef96991265196e"
+        }
+      ]
+    }
+  ],
+  "preservation": {
+    "before": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "after": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "equal": true
+  },
+  "inputs": {
+    "evals\\customer-rag-v1\\queries.json": "fab42c20bd84e5161cfbacf2cb48e095d2efff213b59121e6b6b8dd4d7eb3039",
+    "reports\\customer-agent-live-v1\\runtime-results.json": "cbcd2c79186178586f8be85f36252d001c6a9222b572bf3710185275cc7888f8",
+    "reports\\customer-rag-v2\\candidates.json": "45882f0be3e17261a929e0c27eeff146b713e89f270f802076bfc5ac448ece74",
+    "scripts\\customer_rag_runtime_check.py": "29713fed470afe266d42997319c13d71f74de83f1389cb90563e4318ca909db8",
+    "agent\\src\\resolveflow\\support\\engine.py": "8aa54f9e28990e899f71b1faed4c16d8637a2413be58ab281f303572e8db2d88",
+    "agent\\src\\resolveflow\\support\\sources.py": "2b0cd456130250e0f0fdc2f847386f3679291cbc5f115465248ac44d065ef509",
+    "agent\\src\\resolveflow\\support\\service.py": "0c7cc1b36fe06a177c6c1110e569a7d83b0698e0c80ce4d53ac570fbbab78869",
+    "agent\\src\\resolveflow\\support\\retrieval.py": "d8a4fdeb632fa69482c6e87d05945bfecc024e069f880ba14ae1d24cd36de6a2"
+  }
+}

@@ -3,6 +3,7 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
+from resolveflow.policies.index import PolicyHit
 from resolveflow.support.protocol import SupportFailure
 from resolveflow.support.sources import BoundSources
 from tests.unit.test_support_agent import request
@@ -46,7 +47,7 @@ def test_search_filters_before_recall_and_pins_generation_instead_of_using_query
             scope["timings"].update({"embedding_ms": 5.0, "total_ms": 8.0})
             calls.append(scope)
             return [
-                SimpleNamespace(
+                PolicyHit(
                     version="v1",
                     title="本店政策",
                     bundle_id="A",
@@ -56,6 +57,8 @@ def test_search_filters_before_recall_and_pins_generation_instead_of_using_query
                     chunk_id="chunk",
                     content_hash="digest",
                     text="完整条件与例外",
+                    score=1.0,
+                    path=scope["path"],
                 )
             ]
 
@@ -65,10 +68,16 @@ def test_search_filters_before_recall_and_pins_generation_instead_of_using_query
             hits = source.search("请查询M-B的政策", 3)
         source.search("再解释一下", 2)
         assert hits[0]["data"]["merchant_id"] == "M-A"
-        assert len(calls) == 3
+        assert len(calls) == 7  # One generation pin, three routes for each of two Agent searches.
         for call in calls:
             assert call.get("merchant_id", "M-A") == "M-A" and call["bundle_ids"] == ["A"]
-        assert calls[-1]["generation_ids"] == {"A": "generation-1"} and calls[-1]["path"] == "dense"
+        assert all(c["generation_ids"] == {"A": "generation-1"} for c in calls[1:])
+        assert [(c["path"], c["lexical_field"]) for c in calls[1:4]] == [
+            ("dense", "body"),
+            ("bm25", "body"),
+            ("bm25", "title"),
+        ]
+        assert all(c["query"] == "请查询M-B的政策" for c in calls[1:4])
         assert "support_policy_search" in caplog.text and "embedding_ms" in caplog.text
         assert "请查询M-B的政策" not in caplog.text and "bound-read-token" not in caplog.text
         assert "timings" not in hits[0] and "embedding_ms" not in str(hits)

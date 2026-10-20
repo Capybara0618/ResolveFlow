@@ -13,6 +13,7 @@ import httpx
 from resolveflow.policies.index import PolicyIndexNotReadyError
 from resolveflow.policies.retrieval import EmbeddingUnavailableError
 from resolveflow.support.protocol import History, SupportFailure, SupportInput
+from resolveflow.support.retrieval import retrieve_policy
 
 LOG = logging.getLogger(__name__)
 
@@ -106,12 +107,12 @@ class BoundSources:
                     self.generations = {g.bundle_id: g.generation_id for g in ready}
                 if self.journal is not None and saved is None:
                     self.journal.pin_generations(self.generations)
-            hits = self.index.search(
+            hits = retrieve_policy(
+                self.index,
                 merchant_id=self.request.merchant_id,
                 bundle_ids=manifest["bundle_ids"],
                 manifest_hash=manifest["manifest_hash"],
                 query=query,
-                path="dense",
                 top_k=top_k,
                 embedder=self.embedder,
                 generation_ids=self.generations,

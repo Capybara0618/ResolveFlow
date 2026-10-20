@@ -19,6 +19,7 @@ from resolveflow.runtime.factory import DeploymentConfig
 from resolveflow.support.embeddings import SupportEmbeddings
 from resolveflow.support.engine import SYSTEM, SupportAgent
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
+from resolveflow.support.retrieval import CANDIDATE_K, RETRIEVAL_VERSION, RRF_CONSTANT
 from resolveflow.support.sources import BoundSources
 from resolveflow.support.store import SupportStore
 
@@ -80,6 +81,12 @@ class SupportRuntime:
             "provider": self.config.provider,
             "model_id": self.config.model_id,
             "endpoint": self.config.endpoint,
+            "retrieval": {
+                "version": RETRIEVAL_VERSION,
+                "candidate_k": CANDIDATE_K,
+                "rrf_constant": RRF_CONSTANT,
+                "lexical_positive_only": True,
+            },
             "parameters": getattr(model, "parameters", {}),
             "mock_script": getattr(model, "script", None),
             "code": {
@@ -91,6 +98,7 @@ class SupportRuntime:
                     "store.py",
                     "service.py",
                     "embeddings.py",
+                    "retrieval.py",
                     "../policies/retrieval.py",
                     "../policies/index.py",
                     "../policies/child_index.py",

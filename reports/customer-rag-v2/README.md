@@ -36,6 +36,25 @@ Query仍由Agent现有决策生成，不新增LLM改写调用。新增`grounded_
 
 验证：新增Query/去重融合/真实PG标题读取8项及原PolicyIndex/两布局计时/索引完整性共44通过、0跳过；三个源码严格mypy通过。先红测2个模块缺失、标题接口缺失；首次标题夹具只有2条使BM25单次词IDF为0，改成3条明晰字段夹具，未改变生产BM25公式或删除断言。脚本初查行宽/闭包绑定规则失败已修正，外部静态修正重跑逐项一致；中间输出保留本地，不作为最终结果。源码/测试/两脚本Ruff通过。public全11表在本地搜索前后hash相同，没有新生成模型调用。
 
-## 下一小步
+## 小步2：客服接线与实际工具验收
 
-接客服三路候选融合、保持原Query/动态工具选择，改善常驻Query生成指引；测试实际工具接线、引用和恢复，再验证真实本地检索。外部检索不部署进本店索引；真实模型Query/回答质量与完整业务复测本步尚未运行。
+已接`BoundSources.search → retrieve_policy → PolicyIndex`，使用三路同权RRF；原Query原样传入三路，不用离线状态拼接。各路固定原generation，只有一次dense编码，每路最多5候选，最终仍遵守Agent指定1–5条；标题/正文词法仅正分数进入融合。任一路失败则本次搜索不可用，不悄悄用dense或BM25代替完整策略。计时日志区分dense/正文词法/标题词法/融合，模型Observation和引用不加入排名分数/计时字段。旧退款调查仍dense；没有重建政策或新增数据库迁移。
+
+常驻指引增加当前意图/有效历史、否定/假设、客户陈述与可信事实、订单与物流状态分别理解、不新增补发等意图、缺主题时自主重查；不强制预读工具、拼状态或新增LLM调用。新prompt/code hash与`support-fields-rrf-v1`/候选数/RRF参数进入manifest，保留旧完成结果复用、未完成run不静默换逻辑。提示词接线通过不等于真实模型已稳定遵守。
+
+实际工具：`agent/.venv/Scripts/python.exe scripts/customer_rag_runtime_check.py --output reports/customer-rag-v2/runtime-final.json`。直接调用生产`BoundSources.search`+真实BGE+只读PG，在旧固定generation上核验9条原Query，HTTP传输显式禁止，无新run领取/持久化或生成模型调用。9条的Top3都与离线选定三路排名一致，3条保存模型Query必要条款3/3，6条合成探针5/6，引用保持原店/manifest/正文hash，见[实际工具结果](runtime-final.json)。这不是模型重新生成Query或回答的完整回放。
+
+该工具实测首次8143ms、随后8次中位35.00ms；范围仅当前短政策集，不是端到端或并发SLA。增加词法路径有额外开销，第一批共享dense中位26ms来自不同查询组合，不当作严格同组差额。首次加载仍慢；P02口语漏召回、外部S:JD03退化和最终回答适用性继续保留待查。
+
+验证：新接线先红测2失败/3通过（缺新入口）；原来源测试因fixture没有真实PolicyHit.score而失败，补为完整PolicyHit并继续核对全部商家/generation/原Query及三路调用，不删除旧隔离断言。新增测试包含同一原Query/固定generation/最终top_k/旁路计时、dense失败不回退、后续路版本失效不返回部分结果。最终咨询/接口/embedding/查询/融合/真实PG持久恢复/索引及两布局计时共**77通过、0失败/跳过**，保留1条既有Starlette警告。4个改动源码严格mypy、相关源码/测试与脚本Ruff通过。未改Java/前端，未运行其构建或新真实模型测试。
+
+实际最终命令（agent目录，`RESOLVEFLOW_AGENT_DB`为原本机55433）：
+
+```powershell
+.venv/Scripts/python.exe -m pytest tests/unit/test_support_retrieval.py tests/unit/test_support_query.py tests/unit/test_support_sources.py tests/unit/test_support_agent.py tests/unit/test_support_api.py tests/unit/test_support_embeddings.py tests/integration/test_support_store.py tests/integration/test_support_retrieval_index.py tests/integration/test_policy_search_profile.py tests/integration/test_policy_index.py tests/integration/test_rag_index_integrity.py -q
+.venv/Scripts/python.exe -m mypy --strict src/resolveflow/support/engine.py src/resolveflow/support/retrieval.py src/resolveflow/support/service.py src/resolveflow/support/sources.py
+```
+
+收尾失误如实记录：首次77项通过后，在包含最终manifest参数的复跑尚未结束时提前stop了PG，产生9个ERROR进度并使迁移连接等待，**该次运行作废**。恢复PG后结束本轮被打断的pytest进程；唯一遗留`t_d280932b6d11458b`只有2个空表，核实文件修改时间在本轮runtime验收后，使用原drop_schema只清理该自有隔离schema，未触及public；随后完整重跑77通过。复跑结束后核验无`t_*` schema、public11表全行见证与第一批完全一致，再顺序stop PG。10端口全闭、卷保留，见[完成清单](completion.json)。开发脚本静态问题、无改动的中间输出均保留本地；只发布通过核验的final报告。
+
+独立小步1b2d28a已正常push核实；本步接线/测试/报告精确提交并正常push后核实，SHA见回复。原四历史脏文件保持且不夹带，无新增生成模型用量。下一步需要新真实模型Query及有条件回答复测，不能直接将本批召回数字写成客服解决率或简历最终提升。
