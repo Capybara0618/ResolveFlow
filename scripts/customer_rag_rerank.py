@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import statistics
+import subprocess
 import sys
 import time
 from dataclasses import asdict
@@ -21,6 +22,7 @@ from resolveflow.policies.retrieval import bm25_scores, embedder  # noqa: E402
 from resolveflow.support.retrieval import reciprocal_rank_fusion  # noqa: E402
 from scripts.customer_rag_diagnostic import ReadOnlyDatabase, snapshot  # noqa: E402
 from scripts.evaluation.customer_rerank import LocalReranker, candidate_union  # noqa: E402
+from scripts.evaluation.customer_rerank_gpu import GPUWorker  # noqa: E402
 from scripts.policy_chunks import load_draft, representations  # noqa: E402
 from scripts.policy_codex_review import (  # noqa: E402
     resolve_atom,
@@ -54,6 +56,8 @@ INPUTS = [
     "agent/src/resolveflow/policies/child_index.py",
     "agent/src/resolveflow/support/retrieval.py",
     "scripts/evaluation/customer_rerank.py",
+    "scripts/evaluation/customer_rerank_gpu.py",
+    "scripts/evaluation/customer_rerank_gpu_worker.py",
     "scripts/customer_rag_rerank.py",
     "scripts/policy_query_eval.py",
     "scripts/policy_codex_review.py",
@@ -68,7 +72,7 @@ def digest(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def freeze(manifest_path=MANIFEST, device="cpu"):
+def freeze(manifest_path=MANIFEST, device="cpu", gpu_python=None):
     if manifest_path.exists():
         raise FileExistsError("experiment manifest is immutable")
     result = {
@@ -104,6 +108,22 @@ def freeze(manifest_path=MANIFEST, device="cpu"):
             "Keep regressions. External labels remain CODEX_REVIEW."
         ),
     }
+    if gpu_python:
+        if device != "cuda:0" or not gpu_python.is_file():
+            raise ValueError("GPU worker requires an explicit existing interpreter and cuda:0")
+        result["config"]["gpu_python"] = str(gpu_python.resolve())
+        result["gpu_runtime_packages"] = json.loads(
+            subprocess.check_output(  # noqa: S603 - trusted explicit local Python
+                [
+                    str(gpu_python),
+                    "-c",
+                    "import json,sys;from importlib.metadata import version;"
+                    "print(json.dumps({'python':sys.version.split()[0],**{p:version(p) for p in "
+                    "['torch','transformers','tokenizers','safetensors']}}))",
+                ],
+                text=True,
+            )
+        )
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
@@ -278,13 +298,23 @@ def evaluate(output, manifest_path=MANIFEST):
     torch.set_num_interop_threads(1)
     device = manifest["config"]["device"]
     gpu = device.startswith("cuda")
-    if gpu and not torch.cuda.is_available():
+    worker_python = manifest["config"].get("gpu_python")
+    if worker_python:
+        model = GPUWorker(Path(worker_python), MODEL, ROOT / "tmp/customer-rag-v3" / (output.stem + ".gpu-stderr.log"))
+        actual = model.ready["environment"]
+        expected = manifest["gpu_runtime_packages"]
+        if any(actual[k] != expected[k] for k in ["python", "torch", "transformers"]):
+            model.close()
+            raise ValueError("GPU worker runtime differs from frozen manifest")
+        synchronize = model.synchronize
+    elif gpu and not torch.cuda.is_available():
         raise RuntimeError("manifest requires CUDA; refusing silent CPU substitution")
-    if gpu:
+    elif gpu:
         torch.backends.cuda.matmul.allow_tf32 = False
         torch.backends.cudnn.allow_tf32 = False
-    model = CrossEncoder(str(MODEL), device=device, max_length=512, local_files_only=True)
-    synchronize = (lambda: torch.cuda.synchronize(device)) if gpu else (lambda: None)
+    if not worker_python:
+        model = CrossEncoder(str(MODEL), device=device, max_length=512, local_files_only=True)
+        synchronize = (lambda: torch.cuda.synchronize(device)) if gpu else (lambda: None)
     synchronize()
     load_ms = (time.perf_counter() - start) * 1000
     scorer = LocalReranker(model, synchronize=synchronize)
@@ -293,7 +323,7 @@ def evaluate(output, manifest_path=MANIFEST):
     for _ in range(3):
         _, profile = scorer.rank("退款条件", warm)
         warmup.append(profile)
-    if gpu:
+    if gpu and not worker_python:
         torch.cuda.reset_peak_memory_stats(device)
     database = ReadOnlyDatabase("postgresql://agent:agent@127.0.0.1:55433/agent_db")
     rows = []
@@ -361,17 +391,10 @@ def evaluate(output, manifest_path=MANIFEST):
         if before != after:
             raise RuntimeError("public witness changed")
         verify(manifest)
-        result = {
-            "version": "customer-rag-union-rerank-v1",
-            "manifest_sha256": digest(manifest_path),
-            "new_chat_api_calls": 0,
-            "query_changed": False,
-            "production_writes": 0,
-            "new_model_weight_downloads": 0,
-            "not_holdout": True,
-            "model_load_including_import_ms": load_ms,
-            "warmup": warmup,
-            "environment": {
+        environment = (
+            model.request("stats")
+            if worker_python
+            else {
                 "torch": torch.__version__,
                 "sentence_transformers": version("sentence-transformers"),
                 "device": str(next(model.model.parameters()).device),
@@ -384,11 +407,33 @@ def evaluate(output, manifest_path=MANIFEST):
                 "peak_reserved_bytes": torch.cuda.max_memory_reserved(device) if gpu else None,
                 "synchronized_timing": gpu,
                 "tf32": False,
+            }
+        )
+        result = {
+            "version": "customer-rag-union-rerank-v1",
+            "manifest_sha256": digest(manifest_path),
+            "new_chat_api_calls": 0,
+            "query_changed": False,
+            "production_writes": 0,
+            "new_model_weight_downloads": 0,
+            "not_holdout": True,
+            "model_load_including_import_ms": load_ms,
+            "warmup": warmup,
+            "environment": environment,
+            "evaluation_environment": {
+                "torch": torch.__version__,
+                "python": sys.version.split()[0],
+                "sentence_transformers": version("sentence-transformers"),
             },
+            "gpu_worker_stdio": bool(worker_python),
+            "gpu_model_load_including_import_ms": model.ready["model_load_including_import_ms"]
+            if worker_python
+            else load_ms,
             "latency_scope": (
                 "Incremental fusion or Cross-Encoder tokenization+inference only; "
                 "excludes retrieval, query embedding, model loading. "
                 "Two passes per case/variant; not an end-to-end SLA."
+                " GPU worker measurements include local stdio overhead; gpu_predict_ms is separately recorded."
             ),
             "preservation": {"before": before, "after": after, "equal": before == after},
             "summary": summarize(rows),
@@ -398,6 +443,8 @@ def evaluate(output, manifest_path=MANIFEST):
         output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     finally:
         database.close()
+        if worker_python:
+            model.close()
 
 
 if __name__ == "__main__":
@@ -406,9 +453,10 @@ if __name__ == "__main__":
     parser.add_argument("--output", type=Path)
     parser.add_argument("--manifest", type=Path, default=MANIFEST)
     parser.add_argument("--device", choices=["cpu", "cuda:0"], default="cpu", help="Used only when freezing a manifest")
+    parser.add_argument("--gpu-python", type=Path, help="Existing CUDA interpreter, used only when freezing a manifest")
     args = parser.parse_args()
     if args.freeze:
-        freeze(args.manifest, args.device)
+        freeze(args.manifest, args.device, args.gpu_python)
     elif args.output:
         evaluate(args.output, args.manifest)
     else:

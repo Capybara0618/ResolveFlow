@@ -47,8 +47,11 @@ class LocalReranker:
             raise ValueError("reranker output count or finite score differs")
         ranked = [replace(h, score=float(s)) for h, s in zip(candidates, values, strict=True)]
         ranked.sort(key=lambda h: (-h.score, h.bundle_id, h.chunk_id))
-        return ranked, {
+        profile = {
             "pairs": len(pairs),
             "max_pair_tokens": max(lengths),
             "elapsed_ms": (time.perf_counter() - start) * 1000,
         }
+        if hasattr(self.model, "gpu_predict_ms"):
+            profile["gpu_predict_ms"] = self.model.gpu_predict_ms
+        return ranked, profile

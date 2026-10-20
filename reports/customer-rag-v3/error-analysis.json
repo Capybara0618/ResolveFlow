@@ -1,0 +1,442 @@
+{
+  "results_sha256": "98d908a0fb1825a05b09d1ef75ba0f51e49ceb6bc3a88ffc5c07c1651b6b49b2",
+  "note": "Original labels unchanged; first evidence set atom ranks for diagnosis, official score uses all sufficient sets and union coverage. Not model inputs.",
+  "cases": [
+    {
+      "cohort": "external-original",
+      "id": "S:JD03",
+      "query": "京东自营手机退货的七天从收货当天还是第二天算？两份说明有哪些日期规则要核对？",
+      "first_evidence_set": [
+        {
+          "variant": "fields-rrf",
+          "complete_at_3": false,
+          "complete_at_5": false,
+          "atoms": [
+            {
+              "source_id": "jd-general",
+              "block_id": "jd-general:b0002",
+              "text_range": [
+                0,
+                67
+              ],
+              "first_complete_single_chunk_rank": 2
+            },
+            {
+              "source_id": "jd-digital",
+              "block_id": "jd-digital:b0004",
+              "text_range": [
+                0,
+                26
+              ],
+              "first_complete_single_chunk_rank": null
+            },
+            {
+              "source_id": "jd-general",
+              "block_id": "jd-general:b0006",
+              "text_range": [
+                0,
+                29
+              ],
+              "first_complete_single_chunk_rank": 1
+            },
+            {
+              "source_id": "jd-general",
+              "block_id": "jd-general:b0007",
+              "text_range": [
+                0,
+                79
+              ],
+              "first_complete_single_chunk_rank": 1
+            }
+          ]
+        },
+        {
+          "variant": "rrf-top5-ce",
+          "complete_at_3": false,
+          "complete_at_5": false,
+          "atoms": [
+            {
+              "source_id": "jd-general",
+              "block_id": "jd-general:b0002",
+              "text_range": [
+                0,
+                67
+              ],
+              "first_complete_single_chunk_rank": 2
+            },
+            {
+              "source_id": "jd-digital",
+              "block_id": "jd-digital:b0004",
+              "text_range": [
+                0,
+                26
+              ],
+              "first_complete_single_chunk_rank": null
+            },
+            {
+              "source_id": "jd-general",
+              "block_id": "jd-general:b0006",
+              "text_range": [
+                0,
+                29
+              ],
+              "first_complete_single_chunk_rank": 1
+            },
+            {
+              "source_id": "jd-general",
+              "block_id": "jd-general:b0007",
+              "text_range": [
+                0,
+                79
+              ],
+              "first_complete_single_chunk_rank": 1
+            }
+          ]
+        },
+        {
+          "variant": "union-ce",
+          "complete_at_3": false,
+          "complete_at_5": true,
+          "atoms": [
+            {
+              "source_id": "jd-general",
+              "block_id": "jd-general:b0002",
+              "text_range": [
+                0,
+                67
+              ],
+              "first_complete_single_chunk_rank": 2
+            },
+            {
+              "source_id": "jd-digital",
+              "block_id": "jd-digital:b0004",
+              "text_range": [
+                0,
+                26
+              ],
+              "first_complete_single_chunk_rank": 4
+            },
+            {
+              "source_id": "jd-general",
+              "block_id": "jd-general:b0006",
+              "text_range": [
+                0,
+                29
+              ],
+              "first_complete_single_chunk_rank": 1
+            },
+            {
+              "source_id": "jd-general",
+              "block_id": "jd-general:b0007",
+              "text_range": [
+                0,
+                79
+              ],
+              "first_complete_single_chunk_rank": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "external-original",
+      "id": "S:MI02",
+      "query": "小米有品自营给我定制的杯子收到三天，没有问题，只是不喜欢，能退吗？",
+      "first_evidence_set": [
+        {
+          "variant": "fields-rrf",
+          "complete_at_3": true,
+          "complete_at_5": true,
+          "atoms": [
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0012",
+              "text_range": [
+                0,
+                15
+              ],
+              "first_complete_single_chunk_rank": 2
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0013",
+              "text_range": [
+                0,
+                11
+              ],
+              "first_complete_single_chunk_rank": 2
+            }
+          ]
+        },
+        {
+          "variant": "rrf-top5-ce",
+          "complete_at_3": false,
+          "complete_at_5": true,
+          "atoms": [
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0012",
+              "text_range": [
+                0,
+                15
+              ],
+              "first_complete_single_chunk_rank": 4
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0013",
+              "text_range": [
+                0,
+                11
+              ],
+              "first_complete_single_chunk_rank": 4
+            }
+          ]
+        },
+        {
+          "variant": "union-ce",
+          "complete_at_3": false,
+          "complete_at_5": true,
+          "atoms": [
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0012",
+              "text_range": [
+                0,
+                15
+              ],
+              "first_complete_single_chunk_rank": 5
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0013",
+              "text_range": [
+                0,
+                11
+              ],
+              "first_complete_single_chunk_rank": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "external-probe",
+      "id": "P09",
+      "query": "小米有品主商品想退，赠送的东西已经用掉了。政策一处写赠品不完整，一处写扣赠品钱，这两处要怎样一并看？",
+      "first_evidence_set": [
+        {
+          "variant": "fields-rrf",
+          "complete_at_3": true,
+          "complete_at_5": true,
+          "atoms": [
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0026",
+              "text_range": [
+                0,
+                12
+              ],
+              "first_complete_single_chunk_rank": 3
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0032",
+              "text_range": [
+                0,
+                23
+              ],
+              "first_complete_single_chunk_rank": 3
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0082",
+              "text_range": [
+                0,
+                134
+              ],
+              "first_complete_single_chunk_rank": 1
+            }
+          ]
+        },
+        {
+          "variant": "rrf-top5-ce",
+          "complete_at_3": false,
+          "complete_at_5": true,
+          "atoms": [
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0026",
+              "text_range": [
+                0,
+                12
+              ],
+              "first_complete_single_chunk_rank": 4
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0032",
+              "text_range": [
+                0,
+                23
+              ],
+              "first_complete_single_chunk_rank": 4
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0082",
+              "text_range": [
+                0,
+                134
+              ],
+              "first_complete_single_chunk_rank": 1
+            }
+          ]
+        },
+        {
+          "variant": "union-ce",
+          "complete_at_3": false,
+          "complete_at_5": false,
+          "atoms": [
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0026",
+              "text_range": [
+                0,
+                12
+              ],
+              "first_complete_single_chunk_rank": 8
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0032",
+              "text_range": [
+                0,
+                23
+              ],
+              "first_complete_single_chunk_rank": 8
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0082",
+              "text_range": [
+                0,
+                134
+              ],
+              "first_complete_single_chunk_rank": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cohort": "external-probe",
+      "id": "P10",
+      "query": "手机虽然是小米牌的，可我是别的店买的，这是不是就能直接套小米有品自营的退货说明？",
+      "first_evidence_set": [
+        {
+          "variant": "fields-rrf",
+          "complete_at_3": true,
+          "complete_at_5": true,
+          "atoms": [
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0003",
+              "text_range": [
+                0,
+                46
+              ],
+              "first_complete_single_chunk_rank": 3
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0026",
+              "text_range": [
+                0,
+                12
+              ],
+              "first_complete_single_chunk_rank": 2
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0027",
+              "text_range": [
+                0,
+                14
+              ],
+              "first_complete_single_chunk_rank": 2
+            }
+          ]
+        },
+        {
+          "variant": "rrf-top5-ce",
+          "complete_at_3": false,
+          "complete_at_5": true,
+          "atoms": [
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0003",
+              "text_range": [
+                0,
+                46
+              ],
+              "first_complete_single_chunk_rank": 1
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0026",
+              "text_range": [
+                0,
+                12
+              ],
+              "first_complete_single_chunk_rank": 4
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0027",
+              "text_range": [
+                0,
+                14
+              ],
+              "first_complete_single_chunk_rank": 4
+            }
+          ]
+        },
+        {
+          "variant": "union-ce",
+          "complete_at_3": false,
+          "complete_at_5": false,
+          "atoms": [
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0003",
+              "text_range": [
+                0,
+                46
+              ],
+              "first_complete_single_chunk_rank": 1
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0026",
+              "text_range": [
+                0,
+                12
+              ],
+              "first_complete_single_chunk_rank": 6
+            },
+            {
+              "source_id": "mi-self-operated",
+              "block_id": "mi-self-operated:b0027",
+              "text_range": [
+                0,
+                14
+              ],
+              "first_complete_single_chunk_rank": 6
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

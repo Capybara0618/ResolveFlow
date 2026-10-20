@@ -1,10 +1,13 @@
 """The experiment must rerank the untruncated union and refuse incomplete model inputs."""
 
+import json
 from dataclasses import replace
+from io import StringIO
 from types import SimpleNamespace
 
 import pytest
 from scripts.evaluation.customer_rerank import LocalReranker, candidate_union
+from scripts.evaluation.customer_rerank_gpu import GPUWorker
 
 from tests.unit.test_support_retrieval import hit
 
@@ -74,3 +77,26 @@ def test_accelerator_timing_waits_before_start_and_after_forward():
 
     LocalReranker(AsyncModel(), synchronize=lambda: events.append("synchronize")).rank("query", [hit("A"), hit("B")])
     assert events == ["synchronize", "forward", "synchronize"]
+
+
+def test_gpu_stdio_preserves_pairs_scores_and_device_timing():
+    worker = GPUWorker.__new__(GPUWorker)
+    worker.process = SimpleNamespace(
+        stdin=StringIO(), stdout=StringIO('{"scores":[0.1,0.9],"gpu_predict_ms":12.5}\n')
+    )
+    worker.tokenizer = Model().tokenizer
+    worker.gpu_predict_ms = 0.0
+    ranked, profile = LocalReranker(worker).rank("query", [hit("A"), hit("B")])
+    request = json.loads(worker.process.stdin.getvalue())
+    assert request == {"method": "predict", "pairs": [["query", hit("A").text], ["query", hit("B").text]]}
+    assert [h.rule_id for h in ranked] == ["B", "A"]
+    assert profile["gpu_predict_ms"] == 12.5
+    with pytest.raises(ValueError, match="settings"):
+        worker.predict([], batch_size=16, show_progress_bar=False)
+
+
+def test_gpu_stdio_refuses_terminated_worker_without_scores():
+    worker = GPUWorker.__new__(GPUWorker)
+    worker.process = SimpleNamespace(stdin=StringIO(), stdout=StringIO(""))
+    with pytest.raises(RuntimeError, match="complete response"):
+        worker.request("predict", pairs=[["query", "original"]])
