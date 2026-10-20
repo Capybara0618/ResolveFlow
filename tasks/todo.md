@@ -1,3 +1,9 @@
+## 当前快照（2026-10-20，客服RAG第三批准备完成，按用户要求改GPU实测）
+
+- 用户批准候选并集+Cross-Encoder对照，后指定本机GPU推理。已冻结[GPU方案](../evals/customer-rag-v3/manifest-gpu.json)及输入/旧本机BGE-reranker-base权重hash：当前RRF、RRF前5精排、完整候选并集精排、商城全规则精排。外部29原问/18改写、商城3保存Query/6合成探针分开，不改Query/Gold/生产排序。CPU准备manifest保留但未运行。
+- 实测RTX5060 Laptop8GB/driver592.01；原torch2.14.0+cpu无CUDA，正将同版本cu130安装到忽略独立实验目录，不改agent环境/锁/驱动。GPU计时显式同步、FP32/TF32关闭、3预热/每题每组2次独立forward，结果/退化/延迟范围见[报告](../reports/customer-rag-v3/README.md)，不声称已完成真实推理。
+- 新实验4项+原融合6项10通过，Ruff通过，缺模块红测/行宽修正已记录。未启业务或数据库，无新模型权重/聊天API调用；原四脏文件保持。准备步精确提交正常push核实后继续GPU可用性验证与只读正式实测，不改旧结果。
+
 ## 当前快照（2026-10-20，客服RAG第二批完成：三路召回接线/Query指引）
 
 - 已选并接客服专用正文dense+正文/标题正分BM25→RRF(60)，各最多5候选，最终Agent指定1–5；原Query/固定generation/完整引用/权限/预算保留，原退款调查仍dense。当前意图/来源/条件及订单与物流区别进入常驻Query指引；状态硬拼接因L02退化未接生产。新策略/参数/源码hash进入manifest。
