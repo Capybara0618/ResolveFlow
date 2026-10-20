@@ -53,7 +53,7 @@ it('shows a confirmed report in the merchant workbench without private assistant
   vi.mocked(supportApi.read).mockResolvedValue(ticket)
   wrapper = mount(SupportWorkspace, { props: { account: { access_token: 'merchant-token', role: 'MERCHANT_ADMIN', merchant_id: 'M-1001', expires_in: 3600 } } })
   await flushPromises(); await wrapper.get('[data-conversation]').trigger('click'); await flushPromises()
-  expect(wrapper.text()).toContain('客户确认共享的调查依据')
+  expect(wrapper.text()).toContain('客户已确认共享')
   expect(wrapper.text()).toContain('物流事实')
   expect(wrapper.find('.support-message.assistant').exists()).toBe(false)
 })
@@ -97,7 +97,7 @@ it('shows only the shared merchant projection and submits a merchant-authored qu
   expect(supportApi.read).toHaveBeenCalledWith('merchant-token', ticket.ticket!.ticket_id, true)
   expect(wrapper.text()).toContain('客户共享原文')
   expect(wrapper.find('[data-action="handoff"]').exists()).toBe(false)
-  await wrapper.get('select').setValue('REQUEST_INFO'); await wrapper.get('[aria-label="咨询消息"]').setValue('请补充是否授权代收')
+  await wrapper.findAll('.support-recipient button').find(b => b.text() === '请求客户补充')!.trigger('click'); await wrapper.get('[aria-label="咨询消息"]').setValue('请补充是否授权代收')
   await wrapper.get('[data-action="send"]').trigger('click'); await flushPromises()
   expect(mutate.mock.calls[0][1]).toMatchObject({ kind: 'reply', id: ticket.ticket!.ticket_id, body: { kind: 'REQUEST_INFO', text: '请补充是否授权代收' } })
 })
@@ -112,4 +112,74 @@ it('ignores a late A conversation response after the buyer chooses B', async () 
   completeA(a); await flushPromises()
   expect(wrapper.get('.support-product').text()).toContain('B商品')
   expect(wrapper.get('.support-product').text()).not.toContain('合成商品')
+})
+
+it('opens the first real conversation automatically and keeps an order chooser separate from the draft', async () => {
+  const openOrder = vi.spyOn(supportApi, 'open')
+  wrapper = mount(SupportWorkspace, { props: { account: buyer } }); await flushPromises()
+  expect(wrapper.get('.support-product').text()).toContain('合成商品')
+  await wrapper.get('[aria-label="咨询消息"]').setValue('未发出的补充')
+  await wrapper.findAll('button').find(b => b.text().includes('选择订单'))!.trigger('click')
+  expect(wrapper.get('[role="dialog"]').attributes('aria-modal')).toBe('true')
+  expect(openOrder).not.toHaveBeenCalled()
+  await wrapper.get('[aria-label="关闭弹层"]').trigger('click')
+  expect((wrapper.get('[aria-label="咨询消息"]').element as HTMLTextAreaElement).value).toBe('未发出的补充')
+})
+
+it('searches only loaded conversations and does not show another store as the current context', async () => {
+  const a = original(), b = { ...original(), conversation_id: 'b-search', store_name: '拾光家居', product: { ...original().product, name: '桌面台灯' } }
+  vi.mocked(supportApi.conversations).mockResolvedValue({ items: [a, b], next_before: 12 })
+  await open()
+  await wrapper.get('[aria-label="搜索已加载咨询"]').setValue('拾光')
+  expect(wrapper.findAll('[data-conversation]')).toHaveLength(1)
+  expect(wrapper.get('[data-conversation]').text()).toContain('桌面台灯')
+  expect(wrapper.get('.support-product').text()).toContain('合成商品')
+  expect(wrapper.text()).toContain('加载更多咨询')
+})
+
+it('uses real loaded status counts and filters the merchant queue', async () => {
+  const first = structuredClone(fixture.TicketDetail) as SupportConversation
+  const second = { ...structuredClone(first), conversation_id: 'waiting', ticket: { ...first.ticket!, ticket_id: 'waiting-ticket', status: 'WAITING_CUSTOMER' as const } }
+  vi.spyOn(supportApi, 'tickets').mockResolvedValue({ items: [first, second], next_before: null })
+  vi.mocked(supportApi.read).mockResolvedValue(first)
+  wrapper = mount(SupportWorkspace, { props: { account: { access_token: 'merchant-token', role: 'MERCHANT_ADMIN', merchant_id: 'M-1001', expires_in: 3600 } } }); await flushPromises()
+  const waiting = wrapper.findAll('.support-filters button').find(b => b.text().includes('待补充'))!
+  expect(waiting.text()).toContain('1')
+  await waiting.trigger('click')
+  expect(wrapper.findAll('[data-conversation]')).toHaveLength(1)
+  expect(wrapper.get('[data-conversation]').text()).toContain('待客户补充')
+})
+
+it('keeps the assistant recipient after a private follow-up on a transferred conversation', async () => {
+  const c = structuredClone(fixture.Conversation) as SupportConversation
+  vi.mocked(supportApi.read).mockResolvedValue(c)
+  const mutate = vi.spyOn(supportApi, 'mutate').mockResolvedValue(c)
+  await open()
+  await wrapper.findAll('.support-recipient button').find(b => b.text() === '询问智能助手')!.trigger('click')
+  for (const text of ['第一条私人追问', '第二条私人追问']) {
+    await wrapper.get('[aria-label="咨询消息"]').setValue(text)
+    await wrapper.get('[data-action="send"]').trigger('click'); await flushPromises()
+  }
+  expect(mutate.mock.calls.map(c => c[1].body)).toEqual([expect.objectContaining({ recipient: 'ASSISTANT' }), expect.objectContaining({ recipient: 'ASSISTANT' })])
+})
+
+it('does not send on Chinese composition confirmation, but sends once on the following Enter', async () => {
+  const mutate = vi.spyOn(supportApi, 'mutate').mockResolvedValue(original())
+  await open(); const input = wrapper.get('[aria-label="咨询消息"]')
+  await input.setValue('签收情况需要核查')
+  await input.trigger('keydown', { key: 'Enter', isComposing: true })
+  expect(mutate).not.toHaveBeenCalled()
+  await input.trigger('keydown', { key: 'Enter', isComposing: false }); await flushPromises()
+  expect(mutate).toHaveBeenCalledTimes(1)
+})
+
+it('keeps an order read failure distinct from an empty purchase history and allows retry in the chooser', async () => {
+  vi.mocked(coreApi.orders).mockRejectedValueOnce(new ApiError(503, 'UNAVAILABLE', '订单服务暂不可用')).mockRejectedValueOnce(new ApiError(503, 'UNAVAILABLE', '订单服务暂不可用')).mockResolvedValueOnce({ items: [], page: { limit: 20 } })
+  wrapper = mount(SupportWorkspace, { props: { account: buyer } }); await flushPromises()
+  expect(wrapper.text()).toContain('订单服务暂不可用')
+  await wrapper.findAll('button').find(b => b.text().includes('选择订单'))!.trigger('click'); await flushPromises()
+  expect(wrapper.get('[role="dialog"]').text()).toContain('订单读取失败')
+  expect(wrapper.get('[role="dialog"]').text()).not.toContain('暂无已付款订单')
+  await wrapper.get('[role="dialog"]').findAll('button').find(b => b.text() === '重试读取订单')!.trigger('click'); await flushPromises()
+  expect(wrapper.get('[role="dialog"]').text()).toContain('暂无已付款订单')
 })

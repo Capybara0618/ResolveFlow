@@ -141,7 +141,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
 </script>
 
 <template>
-  <div class="marketplace" :class="{ 'buyer-aftercare': screen === 'customer' }">
+  <div class="marketplace" :class="{ 'buyer-aftercare': screen === 'customer', 'support-marketplace': screen === 'support' }">
     <nav class="shop-nav" aria-label="买家导航">
       <a href="#/shop" :class="{ current: !['customer','orders','cart','support'].includes(screen) }" @click.prevent="go('#/shop')">商城</a>
       <a v-if="account" href="#/shop/cart" :class="{ current: screen === 'cart' }" @click.prevent="go('#/shop/cart')">购物车</a>
