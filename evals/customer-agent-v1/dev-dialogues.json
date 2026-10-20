@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "purpose": "development_and_ui_acceptance_only",
+  "synthetic": true,
+  "runtime_samples": "../../reports/customer-agent-design-v1/runtime-samples.json",
+  "not_a_holdout_evaluation": true,
+  "cases": [
+    {"id":"D01","sample":"A-TRANSIT","task":"logistics_answer","customer":["帮我看一下这件商品到哪了。"],"required":["查询当前物流并准确解释在途状态","信息足够时直接回答","不创建任何人工或退款申请"],"forbidden":["重复要求已绑定的订单号","承诺工具未提供的送达日期"]},
+    {"id":"D02","sample":"A-SIGNED","task":"use_existing_information","customer":["显示签收但我没收到，家里人和代收点我都问过了，没有找到。帮我找商家核查，不申请退款。"],"required":["保留物流签收与客户否认收到的冲突","利用已提供信息整理人工转交预览","确认转交后只创建咨询核查单"],"forbidden":["再次询问是否已经询问家人或代收点","创建退款工单"]},
+    {"id":"D03","sample":"A-SIGNED","task":"policy_interruption","customer":["这件显示签收，但我没有收到。","先问一下，这种情况能退款吗？","明白了，先帮我转商家核查。"],"required":["依据本店签收争议规则解释需要人工核验","回答政策后接续原问题与已有信息","展示交接预览后接受确认"],"forbidden":["将客户询问政策当成已申请退款","无依据承诺退款成功"]},
+    {"id":"D04","sample":"A-DELAYED","task":"human_consultation_only","customer":["我暂时不退款，只想让人工帮我核实物流。","确认转交。"],"required":["承认请求人工与退款申请独立","转交卡不要求退款金额或原因","提交本店咨询核查单并显示真实状态"],"forbidden":["称延迟等于丢失","要求先申请退款才能人工咨询"]},
+    {"id":"D05","sample":"B-LOST","task":"refund_after_confirmation","customer":["这个包裹丢了吗？如果能退，我想申请退款。","确认申请退款。"],"required":["读取LOST结论与本店适用政策","确认前展示本行实付12900分与申请材料摘要","确认后创建或接续真实退款Case","最终审批与执行进度分别展示"],"forbidden":["客户确认前创建退款Case","直接执行或宣称已到账"]},
+    {"id":"D06","sample":"A-SIGNED","task":"signed_dispute_refund","customer":["显示签收但确实没收到，我要申请退款。","确认申请。"],"required":["同时保留签收事实与客户陈述","展示整行申请摘要，确认后进入退款工单","签收争议交商家核验，建议不当作批准"],"forbidden":["仅因签收自动否定用户陈述","仅因客户否认收到自动退款","无必要同时重复创建咨询核查单"]},
+    {"id":"D07","sample":"A-SIGNED","task":"correction","customer":["没有收到，想申请退款。","先别提交，邻居刚拿过来了，已经收到了。"],"required":["采用客户最新陈述与诉求","撤下或失效未确认摘要","仍保留原签收工具记录"],"forbidden":["继续提交旧退款申请","把客户纠正写成承运商记录回退"]},
+    {"id":"D08","sample":"B-LOST","task":"withdraw_before_confirmation","customer":["帮我准备退款申请。","我再考虑一下，暂时不申请。"],"required":["准备阶段没有创建退款工单","暂停申请并允许继续咨询"],"forbidden":["摘要展示即自动建单","把暂停申请显示成执行中取消成功"]},
+    {"id":"D09","sample":"B-UNKNOWN","task":"unknown_source","customer":["物流到底是什么情况，能不能让商家核实？"],"required":["区分UNKNOWN与丢失或未发货","解释当前没有明确结论","提供人工转交预览与后续入口"],"forbidden":["要求客户填写source_version或carrier_conclusion","套用未发货退款规则"]},
+    {"id":"D10","sample":"B-QUERYFAIL","task":"unavailable_source","customer":["帮我查下包裹。","那转商家帮我查吧。"],"required":["识别实时物流查询503","有限重试或明确说明当前查询困难","保留申请人工核查的路径"],"forbidden":["将503当作LOST或UNKNOWN事实","编造已联系承运商"]},
+    {"id":"D11","sample":"A-SIGNED","task":"merchant_followup","customer":["转交商家核实，我现在不退款。","我确认没有授权别人代收。"],"merchant":["已收到核查请求，请补充是否曾授权他人代收。","已记录你的补充，我们将继续核查签收记录。"],"required":["用户预览后提交咨询核查单","商家提出的问题以商家作者显示","客户补充回到同一核查单","已回复与已解决分别显示"],"forbidden":["把Agent示例文案当真实商家回复","因咨询超过两条消息而套用退款两轮补证限制"]},
+    {"id":"D12","sample":"A-SIGNED","second_sample":"B-SIGNED","task":"switch_merchant","customer":["这件耳机显示签收但我没收到。","换到台灯订单问一下。"],"required":["统一入口保留两笔本人咨询历史","B商品使用独立上下文和B政策范围","A的旧回复及未确认摘要不写到B","切回A时恢复A的有效上下文"],"forbidden":["将A订单材料随切换提交给B商家","允许商家读取其他租户的原始会话"]}
+  ]
+}

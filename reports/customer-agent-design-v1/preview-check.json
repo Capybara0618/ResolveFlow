@@ -1,0 +1,127 @@
+{
+  "prototype_only": true,
+  "views": [
+    {
+      "view": "orders",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "chat",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "handoff",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "refund",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "progress",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "queue",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "detail",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "view": "orders",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "chat",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "handoff",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "refund",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "progress",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "queue",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "detail",
+      "width": 1280,
+      "overflow": false
+    },
+    {
+      "view": "orders",
+      "width": 1680,
+      "overflow": false
+    },
+    {
+      "view": "chat",
+      "width": 1680,
+      "overflow": false
+    },
+    {
+      "view": "handoff",
+      "width": 1680,
+      "overflow": false
+    },
+    {
+      "view": "refund",
+      "width": 1680,
+      "overflow": false
+    },
+    {
+      "view": "progress",
+      "width": 1680,
+      "overflow": false
+    },
+    {
+      "view": "queue",
+      "width": 1680,
+      "overflow": false
+    },
+    {
+      "view": "detail",
+      "width": 1680,
+      "overflow": false
+    }
+  ],
+  "checks": [
+    "handoff preview and submission",
+    "recipient switching",
+    "policy drawer",
+    "merchant switch",
+    "independent notes",
+    "cancel before confirmation",
+    "refund confirmation and pending review",
+    "consultation vs refund distinction",
+    "edited handoff summary",
+    "shared original text choice",
+    "merchant reply delivery",
+    "supplement routing",
+    "customer resolution",
+    "transit handoff keeps selected order and applicable rule"
+  ],
+  "browser_errors": []
+}

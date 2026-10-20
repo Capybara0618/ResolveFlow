@@ -1,8 +1,10 @@
-## 当前快照（2026-10-20，演示物流样本已接通，首场景与预期图制作中）
+## 当前快照（2026-10-20，演示物流样本、首场景与双端预期图完成）
 
 - 用户授权开始“接通模拟器/独立场景订单→首场景规格与样例→双端预期图”。已保留备份并仅启动演示MySQL，构建Commerce/Case/shared成功；临时design-commerce/design-case明确禁用派发/MQ/outbox/退款后台，Commerce Flyway迁至V16，Python/worker未启动。新增[scripts/prepare_logistics_samples.py](../scripts/prepare_logistics_samples.py)，正常购买/模拟付款/首次发货接口+物流模拟器，7笔两店同买家独立样本已准备且重放无新增；[运行证据](../reports/customer-agent-design-v1/README.md)及[样本](../reports/customer-agent-design-v1/runtime-samples.json)包含事实/版本/回执与隔离/保留检查。
 - 验证：正常物流6例200、故障503→200→503，故障留在专用新订单B-QUERYFAIL；同买家跨店看到7单，其他买家购买详情7次404，商家跨店新单7次404。原Commerce5笔相关记录逐行hash保持，退款操作4/授权4保持；Case表名初查错误已修正，5条aftersale_case仅有购买后见证，报告明确局限。原旧交易/政策/Gold/简历不改，模型调用0。Ruff及差异/链接收口后按授权提交；本批只接线/准备，不声称客服功能已实现。
-- 下一步本轮继续完成物流/签收争议的场景规格、12个开发对话及评分、可切换双端原型和截图；技术协议待图/样例确认后再拆，用户端咨询/独立人工核查/退款确认、商家报告处理与多租户决定保持。不自动启动收费评测，收尾停止本轮临时Java进程，MySQL与数据保留。
+- 本轮已完成[首场景规格/评分](../docs/customer-agent-scenario-v1.md)、[12个开发对话](../evals/customer-agent-v1/dev-dialogues.json)、[双端7视图原型/图文约定](../docs/ui-customer-agent-v1/README.md)和7张截图。覆盖跨店选商品/独立咨询、自然表达/纠正/插问、独立人工核查、退款确认、商家报告/回复与客户补充；保留既有单AgentScope/Java资金职责，不重选框架或实现新客服后台。公开页面商品/状态/金额与7笔模拟订单逐项一致，对话和商家回复仍为设计示例。
+- 实际验证：既有Node+Playwright+已安装Edge运行`scripts/check_customer_agent_preview.cjs`，7视图×1280/1440/1680共21项无横向溢出、14项原型交互通过、7张1440px截图；转交及商家详情人工检查。结构校验12个唯一开发样例/7笔绑定、92处本地Markdown链接与6份来源hash；证据见[报告](../reports/customer-agent-design-v1/README.md)。修复原型全局函数名/hash截图/图片路径，默认Playwright浏览器缺失改用既有Edge；关闭进程后的端口核查首次缺参数后修正通过。未运行Agent质量、真实客服API/人工接续或新入口退款测试，模型调用0。
+- 收尾确认本轮design-case/design-commerce均停止，8182/8181关闭、所属临时Java记录为空；MySQL/卷/新旧交易保留。上一接线独立步908a76e已正常推送；本设计批差异/链接检查后精确提交正常push，SHA/远端核实在回复报告，原四脏文件与旧图/日志/Gold/简历不夹带。完成后停止写入，下一步由用户查看图/样例，再冻结会话/消息/核查单/Case/run与共享/状态/幂等/旧回复契约，按最小纵向链路实现，不自动启动收费评测或旧任务。
 
 ## 历史快照（2026-10-20，物流场景模拟器实现与隔离验证完成）
 

@@ -1,0 +1,53 @@
+{
+  "development_cases": 12,
+  "bound_runtime_samples": 7,
+  "local_markdown_links_checked": 92,
+  "screenshots": {
+    "orders": {
+      "width": 1440,
+      "height": 1050,
+      "sha256": "8ddfcd96ba9215394c92fb1706a8038651eec0bf5f2a967cba562e22545f8ce5"
+    },
+    "chat": {
+      "width": 1440,
+      "height": 1050,
+      "sha256": "b99414cfc7cbcaac20ef784651d69094d6c20eb6009bf76508fdfa47169bbeae"
+    },
+    "handoff": {
+      "width": 1440,
+      "height": 1450,
+      "sha256": "b1dd4e52c9618c3f7b7e94c96b28e57a4911ce55c24f996272dbd1f8a8dc221e"
+    },
+    "refund": {
+      "width": 1440,
+      "height": 1402,
+      "sha256": "deb556336047d56c3ca5e7bd7c51a569a075fa0747a29f4ddefae5d28b47d3cc"
+    },
+    "progress": {
+      "width": 1440,
+      "height": 1164,
+      "sha256": "02188c54672fea812e8d8f84231faada2a5b6e0650dbba118b02104e75de219d"
+    },
+    "queue": {
+      "width": 1440,
+      "height": 1050,
+      "sha256": "c54611a4d92b6e593137bbaeacb9c5570596de275e4e533cf4a6106e9ab833cf"
+    },
+    "detail": {
+      "width": 1440,
+      "height": 1183,
+      "sha256": "1ed859de4aee4702a5e3b734d485c368d83117df21c36883dd55eddfaf187ba0"
+    }
+  },
+  "source_sha256": {
+    "docs/customer-agent-scenario-v1.md": "c8cd52f44cc75f9128cec84ae8f54b62128f5ac99c718fba6ac1df71dbc08035",
+    "docs/ui-customer-agent-v1/index.html": "6d705e8ebc79ec55b6f07582f51b12ca6360d50b4b9cde900d63787ebdef0480",
+    "docs/ui-customer-agent-v1/samples.js": "4adb0d6cc7697ea0917a0043f6a4f103d80cf047f49483ce40d83e7c4db0cbe7",
+    "docs/ui-customer-agent-v1/README.md": "4d01f0b7a5e9615fc35208dbec6edea4cd4332be51f2988d27c91e32e0892f01",
+    "evals/customer-agent-v1/dev-dialogues.json": "cbd6d4bfd383df29ee73e22a2750290144bc580f0200c969e2d06e994a7a77ca",
+    "scripts/check_customer_agent_preview.cjs": "3d1673bad0b8057925e7574012eefb62cdb63cae786c5868511a22708b2d0b04"
+  },
+  "model_calls": 0,
+  "prototype_only": true,
+  "temporary_java_ports_closed": true
+}
