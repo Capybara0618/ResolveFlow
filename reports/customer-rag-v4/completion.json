@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-20",
+  "checked_ports": [
+    5174,
+    8080,
+    8081,
+    8083,
+    8090,
+    55433,
+    53306,
+    6379,
+    9876,
+    10911
+  ],
+  "active_listeners": [],
+  "owned_experiment_processes": [],
+  "running_containers": [],
+  "result_sha256": "f0d299d3fcc31ad8d6053ab64033ef472b15aefed6afb2b9e3276e0cef900caa",
+  "wire_result_sha256": "7ecfbc47e6114ac281c1ec12662594e77a47c463abdefd8c56c5bd842f45b4d3",
+  "manifest_sha256": "689a8761fa9ee6e0b79b6e056f68f576a4d9d4148e28f824de5ffe7bc52e92f0",
+  "wire_manifest_sha256": "b8740b145631321f973913ae3ac46a29ac09fe23c0aa87678c65ef64f0037416",
+  "frozen_inputs_and_model_hashes_verified": true,
+  "new_model_calls": 0,
+  "new_business_writes": 0,
+  "database_started": false,
+  "gpu_inference_started": false,
+  "assembly_rows": 470,
+  "assembly_passes": 940,
+  "short_reference_roundtrips": 470,
+  "anchor_preservation_verified": true,
+  "own_parent_variant_no_coverage_regressions": true,
+  "body_budget_verified": true,
+  "test_summary": {
+    "passed": 120,
+    "failed": 0,
+    "skipped": 0
+  },
+  "inherited_four_files_unchanged": true,
+  "inherited_numstat": [
+    "2\t2\tdocs/engineering.md",
+    "52\t0\tjava/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java",
+    "8\t2\tscripts/verify.ps1",
+    "10\t5\tscripts/verify.sh"
+  ],
+  "result_archive_sha256": "0eb3e7f8642c1a93cb620857c5487f95e67ff2e3d1cc23b570940cb537ded9b9",
+  "result_archive_decompresses_to_exact_raw_json": true,
+  "raw_json_bytes": 8420517,
+  "archive_bytes": 412867
+}
