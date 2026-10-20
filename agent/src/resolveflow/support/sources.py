@@ -1,5 +1,8 @@
 """Bound HTTP facts and existing dense PolicyIndex; no Case credential or arbitrary URL fallback."""
 
+from __future__ import annotations
+
+from typing import Any
 from urllib.parse import quote
 
 import httpx
@@ -11,21 +14,29 @@ from resolveflow.support.protocol import History, SupportFailure, SupportInput
 
 class BoundSources:
     def __init__(
-        self, request: SupportInput, *, case_url: str, token: str, index=None, embedder=None, journal=None, client=None
-    ):
+        self,
+        request: SupportInput,
+        *,
+        case_url: str,
+        token: str,
+        index: Any = None,
+        embedder: Any = None,
+        journal: Any = None,
+        client: httpx.Client | None = None,
+    ) -> None:
         self.request = request
         self.index, self.embedder, self.journal = index, embedder, journal
         self.client = client or httpx.Client(timeout=10, follow_redirects=False)
         self.owns_client = client is None
         self.prefix = case_url.rstrip("/") + "/internal/v1/support/turns/" + quote(request.run_id, safe="")
         self.headers = {"Authorization": "Bearer " + token}
-        self.generations = None
+        self.generations: dict[str, str] | None = None
 
-    def close(self):
+    def close(self) -> None:
         if self.owns_client:
             self.client.close()
 
-    def _get(self, suffix, parameters=None):
+    def _get(self, suffix: str, parameters: dict[str, Any] | None = None) -> dict[str, Any]:
         try:
             response = self.client.get(self.prefix + suffix, params=parameters, headers=self.headers)
         except httpx.RequestError:
@@ -48,7 +59,7 @@ class BoundSources:
             return {"error": "SOURCE_INVALID", "retryable": False}
         return value
 
-    def check_current(self):
+    def check_current(self) -> None:
         value = self._get("/current")
         if "error" in value:
             raise SupportFailure(value["error"])
@@ -58,7 +69,7 @@ class BoundSources:
         ):
             raise SupportFailure("STALE_INPUT")
 
-    def read(self, name, arguments):
+    def read(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         route, source_type = {
             "get_order_context": ("order", "ORDER"),
             "get_shipment_trace": ("shipment", "SHIPMENT"),
@@ -70,7 +81,7 @@ class BoundSources:
             return value
         return {"source_type": source_type, "version": value.get("version", self.request.input_version), "data": value}
 
-    def search(self, query, top_k):
+    def search(self, query: str, top_k: int) -> list[dict[str, Any]]:
         manifest = self.request.context.get("policy_manifest")
         if self.index is None or not manifest:
             return [{"error": "POLICY_INDEX_UNAVAILABLE", "retryable": False}]

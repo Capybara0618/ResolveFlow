@@ -1,9 +1,11 @@
 """Consultation ABI over the same AgentScope loop and provider/budget adapters as Case investigation."""
 
+from __future__ import annotations
+
 import hashlib
 import json
 from dataclasses import asdict, replace
-from typing import Any
+from typing import Any, cast
 
 import anyio
 from agentscope.agent import Agent, ReActConfig
@@ -46,15 +48,15 @@ class SupportAgent:
         budget: RunBudget | None = None,
         journal: Any = None,
         provider_capacity: int = 8192,
-    ):
+    ) -> None:
         self.request, self.model, self.sources, self.journal = request, model, sources, journal
         self.budget = budget or RunBudget()
         self.input_cap = min(self.budget.step_input_tokens, provider_capacity - self.budget.step_output_tokens)
         self.guard = BudgetGuard(self.budget, active_deadline=request.deadline_at)
         if journal is not None:
             self.guard.spend = RunSpend(**journal.spend())
-        self.observations: list[dict] = []
-        self.citations: dict[str, dict] = {}
+        self.observations: list[dict[str, Any]] = []
+        self.citations: dict[str, dict[str, Any]] = {}
         self.step = 0
         self.tool_step = 0
         self.final: Answer | None = None
@@ -66,7 +68,7 @@ class SupportAgent:
         self.last_evidence_hash = ""
         self.failure: str | None = None
 
-    def run(self) -> dict:
+    def run(self) -> dict[str, Any]:
         reason = None
         try:
             anyio.run(self._drive)
@@ -76,6 +78,8 @@ class SupportAgent:
             reason = getattr(error, "reason_code", None) or getattr(error, "reason", "FAILED")
         except Exception as error:  # noqa: BLE001 - no fabricated answer on transport/SDK/model failure
             reason = type(error).__name__
+        final = self.final
+        assert reason is not None or final is not None
         return {
             "run_id": self.request.run_id,
             "conversation_id": self.request.conversation_id,
@@ -85,15 +89,15 @@ class SupportAgent:
             "mode": self.mode,
             "spend": asdict(self.guard.spend),
             "answer": None
-            if reason
+            if reason or final is None
             else {
-                "text": self.final.text,
-                "handoff_summary": self.final.handoff_summary,
-                "citations": [self.citations[c] for c in dict.fromkeys(self.final.citations)],
+                "text": final.text,
+                "handoff_summary": final.handoff_summary,
+                "citations": [self.citations[c] for c in dict.fromkeys(final.citations)],
             },
         }
 
-    async def _drive(self):
+    async def _drive(self) -> None:
         toolkit = Toolkit()
         for name in [
             "get_order_context",
@@ -113,7 +117,7 @@ class SupportAgent:
         )
         await agent.reply(messenger_message({"consultation": self.request.conversation_id}))
 
-    def _packet(self):
+    def _packet(self) -> dict[str, Any]:
         context = self.request.context
         # Exact current input is protected. Older originals remain readable, with explicit indices instead
         # of silently rewriting customer claims into an LLM summary.
@@ -135,18 +139,18 @@ class SupportAgent:
             "feedback": self.feedback,
         }
 
-    def _cached(self, kind, position, request):
+    def _cached(self, kind: str, position: int, request: dict[str, Any]) -> Any:
         return None if self.journal is None else self.journal.cached(kind, position, request)
 
-    def _start(self, kind, position, request):
+    def _start(self, kind: str, position: int, request: dict[str, Any]) -> None:
         if self.journal is not None:
             self.journal.start(kind, position, request, asdict(self.guard.spend))
 
-    def _save(self, kind, position, response):
+    def _save(self, kind: str, position: int, response: Any) -> None:
         if self.journal is not None:
             self.journal.complete(kind, position, response, asdict(self.guard.spend))
 
-    def decide(self, **_sdk_kwargs):
+    def decide(self, **_sdk_kwargs: Any) -> ModelReply:
         if self.failure:
             raise SupportFailure(self.failure)
         self.step += 1
@@ -202,7 +206,7 @@ class SupportAgent:
             self.feedback = "INVALID_DECISION: use only the documented closed consultation ABI and actual O/P citations"
             return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_feedback", "arguments": {}})
 
-    def execute(self, name, arguments):
+    def execute(self, name: str, arguments: dict[str, Any]) -> Any:
         if name == "__support_feedback":
             if not self.feedback:
                 raise SupportFailure("INVALID_DECISION")
@@ -210,12 +214,12 @@ class SupportAgent:
         if name == POLICY_SEARCH_TOOL_NAME:
             validated = Search.model_validate({"kind": "SEARCH_POLICY", **arguments})
 
-            def invoke():
-                return self.sources.search(validated.query, validated.top_k)
+            def invoke() -> list[dict[str, Any]]:
+                return cast(list[dict[str, Any]], self.sources.search(validated.query, validated.top_k))
         else:
             Read.model_validate({"kind": "READ_TOOL", "tool_name": name, "arguments": arguments})
 
-            def invoke():
+            def invoke() -> list[dict[str, Any]]:
                 return [self.sources.read(name, arguments)]
 
         self.tool_step += 1
@@ -262,7 +266,7 @@ class SupportAgent:
 
 
 class _ReadTool(ToolBase):
-    def __init__(self, name, agent):
+    def __init__(self, name: str, agent: SupportAgent) -> None:
         self.name, self.agent = name, agent
         self.description = "Bound, read-only consultation capability; no refund authority."
         self.input_schema = {"type": "object", "properties": {}}
@@ -272,13 +276,13 @@ class _ReadTool(ToolBase):
         self.is_state_injected = False
         self.is_mcp = False
         self.mcp_name = None
-        self.dangerous_files = []
-        self.dangerous_directories = []
+        self.dangerous_files: list[str] = []
+        self.dangerous_directories: list[str] = []
 
-    def check_permissions(self, tool_input, context):
-        return PermissionDecision(behavior=PermissionBehavior.ALLOW)
+    async def check_permissions(self, tool_input: Any, context: Any) -> PermissionDecision:
+        return PermissionDecision(behavior=PermissionBehavior.ALLOW, message="Bound read-only consultation capability")
 
-    async def call(self, **kwargs):
+    async def call(self, **kwargs: Any) -> ToolChunk:
         try:
             value = self.agent.execute(self.name, kwargs)
         except Exception as error:  # noqa: BLE001 - SDK tool errors are observations, not an exception retry path

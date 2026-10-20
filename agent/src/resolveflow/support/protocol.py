@@ -1,4 +1,6 @@
-from typing import Annotated, Literal
+from __future__ import annotations
+
+from typing import Annotated, Any, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, TypeAdapter, model_validator
 
@@ -15,16 +17,16 @@ class SupportInput(Closed):
     customer_id: str = Field(min_length=1, max_length=64)
     line_id: str = Field(min_length=1, max_length=64)
     deadline_at: AwareDatetime
-    context: dict
+    context: dict[str, Any]
 
 
 class Read(Closed):
     kind: Literal["READ_TOOL"]
     tool_name: Literal["get_order_context", "get_shipment_trace", "read_history"]
-    arguments: dict = Field(default_factory=dict)
+    arguments: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def scope_free_arguments(self):
+    def scope_free_arguments(self) -> Read:
         if self.tool_name != "read_history":
             if self.arguments:
                 raise ValueError("bound order/shipment reads take no identity or arguments")
@@ -59,10 +61,10 @@ class SupportResult(Closed):
     reason: str | None
     mode: Literal["mock", "live", "unknown"]
     spend: dict[str, int]
-    answer: dict | None
+    answer: dict[str, Any] | None
 
     @model_validator(mode="after")
-    def outcome(self):
+    def outcome(self) -> SupportResult:
         if self.status == "SUCCEEDED" and (not self.answer or self.reason or self.mode == "unknown"):
             raise ValueError("success needs an actual model answer and mode")
         if self.status == "FAILED" and self.answer is not None:
@@ -70,7 +72,9 @@ class SupportResult(Closed):
         return self
 
 
-DECISION = TypeAdapter(Annotated[Read | Search | Answer, Field(discriminator="kind")])
+DECISION: TypeAdapter[Read | Search | Answer] = TypeAdapter(
+    Annotated[Read | Search | Answer, Field(discriminator="kind")]
+)
 
 
 class SupportFailure(Exception):

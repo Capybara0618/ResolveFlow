@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any, cast
+
 import psycopg
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import Field, SecretStr
@@ -11,11 +15,11 @@ class SupportDispatch(SupportInput):
     tool_token: SecretStr = Field(min_length=1, max_length=8192)
 
 
-def router_for(authenticate, run_store):
+def router_for(authenticate: Any, run_store: Any) -> APIRouter:
     router = APIRouter()
 
     @router.post("/internal/v1/support-runs", response_model=SupportResult)
-    def execute(body: SupportDispatch, request: Request):
+    def execute(body: SupportDispatch, request: Request) -> dict[str, Any]:
         identity = authenticate(request, required_scope="support:run")
         if (
             identity.subject != "case-service"
@@ -28,7 +32,7 @@ def router_for(authenticate, run_store):
             if runtime is None:
                 runtime = SupportRuntime(run_store(request).database, DeploymentConfig.from_environ())
             context = SupportInput.model_validate(body.model_dump(exclude={"tool_token"}))
-            return runtime.run(context, body.tool_token.get_secret_value())
+            return cast(dict[str, Any], runtime.run(context, body.tool_token.get_secret_value()))
         except SupportFailure as error:
             raise HTTPException(409, detail=error.reason) from error
         except DeploymentRefusedError as error:

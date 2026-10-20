@@ -1,20 +1,27 @@
 """Small fenced consultation journal; completed calls replay, unknown in-flight calls never reset spend."""
 
+from __future__ import annotations
+
 import hashlib
 from dataclasses import asdict
+from typing import Any, cast
 
+import psycopg
 from psycopg.types.json import Jsonb
 
 from resolveflow.harness.budget import RunSpend
 from resolveflow.harness.context import canonical_json
-from resolveflow.support.protocol import SupportFailure
+from resolveflow.runtime.db import Database
+from resolveflow.support.protocol import SupportFailure, SupportInput
 
 
 class SupportStore:
-    def __init__(self, database):
+    def __init__(self, database: Database) -> None:
         self.database = database
 
-    def claim(self, request, manifest):
+    def claim(
+        self, request: SupportInput, manifest: dict[str, Any]
+    ) -> tuple[SupportJournal | None, dict[str, Any] | None]:
         payload = request.model_dump(mode="json")
         with self.database.connection() as c, c.transaction():
             c.execute(
@@ -26,6 +33,7 @@ class SupportStore:
                 "SELECT *,lease_until>now() AS busy FROM support_agent_run WHERE run_id=%s FOR UPDATE",
                 (request.run_id,),
             ).fetchone()
+            assert row is not None
             if row["input_json"] != payload:
                 raise SupportFailure("INPUT_MISMATCH")
             if row["result_json"] is not None:
@@ -39,14 +47,15 @@ class SupportStore:
                                WHERE run_id=%s RETURNING fence""",
                 (request.run_id,),
             ).fetchone()
+            assert row is not None
             return SupportJournal(self.database, request.run_id, row["fence"]), None
 
 
 class SupportJournal:
-    def __init__(self, database, run_id, fence):
+    def __init__(self, database: Database, run_id: str, fence: int) -> None:
         self.database, self.run_id, self.fence = database, run_id, fence
 
-    def _lock(self, c):
+    def _lock(self, c: psycopg.Connection[dict[str, Any]]) -> dict[str, Any]:
         row = c.execute(
             """SELECT * FROM support_agent_run WHERE run_id=%s AND fence=%s
                            AND status='RUNNING' AND lease_until>now() FOR UPDATE""",
@@ -56,11 +65,11 @@ class SupportJournal:
             raise SupportFailure("STALE_FENCE")
         return row
 
-    def spend(self):
+    def spend(self) -> dict[str, int]:
         with self.database.connection() as c, c.transaction():
-            return asdict(RunSpend()) | self._lock(c)["spend_json"]
+            return cast(dict[str, int], asdict(RunSpend()) | self._lock(c)["spend_json"])
 
-    def cached(self, kind, position, request):
+    def cached(self, kind: str, position: int, request: dict[str, Any]) -> Any:
         digest = hashlib.sha256(canonical_json(request).encode()).hexdigest()
         with self.database.connection() as c, c.transaction():
             self._lock(c)
@@ -76,7 +85,7 @@ class SupportJournal:
                 raise SupportFailure("UNKNOWN_MODEL_RESULT" if kind == "model" else "INTERRUPTED_TOOL_RESULT")
             return row["response_json"]
 
-    def start(self, kind, position, request, spend):
+    def start(self, kind: str, position: int, request: dict[str, Any], spend: dict[str, int]) -> None:
         digest = hashlib.sha256(canonical_json(request).encode()).hexdigest()
         with self.database.connection() as c, c.transaction():
             self._lock(c)
@@ -87,7 +96,7 @@ class SupportJournal:
             )
             c.execute("UPDATE support_agent_run SET spend_json=%s WHERE run_id=%s", (Jsonb(spend), self.run_id))
 
-    def complete(self, kind, position, response, spend):
+    def complete(self, kind: str, position: int, response: Any, spend: dict[str, int]) -> None:
         with self.database.connection() as c, c.transaction():
             self._lock(c)
             updated = c.execute(
@@ -99,11 +108,11 @@ class SupportJournal:
                 raise SupportFailure("CALL_STATE_MISMATCH")
             c.execute("UPDATE support_agent_run SET spend_json=%s WHERE run_id=%s", (Jsonb(spend), self.run_id))
 
-    def generations(self):
+    def generations(self) -> dict[str, str] | None:
         with self.database.connection() as c, c.transaction():
-            return self._lock(c)["generations_json"]
+            return cast(dict[str, str] | None, self._lock(c)["generations_json"])
 
-    def pin_generations(self, generations):
+    def pin_generations(self, generations: dict[str, str]) -> None:
         with self.database.connection() as c, c.transaction():
             row = self._lock(c)
             if row["generations_json"] is not None and row["generations_json"] != generations:
@@ -112,7 +121,7 @@ class SupportJournal:
                 "UPDATE support_agent_run SET generations_json=%s WHERE run_id=%s", (Jsonb(generations), self.run_id)
             )
 
-    def finish(self, result):
+    def finish(self, result: dict[str, Any]) -> None:
         with self.database.connection() as c, c.transaction():
             self._lock(c)
             c.execute(

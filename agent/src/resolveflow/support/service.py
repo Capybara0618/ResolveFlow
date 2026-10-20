@@ -1,30 +1,36 @@
 """Request-driven consultation runtime; no new resident loop and no default mock decisions."""
 
+from __future__ import annotations
+
 import hashlib
 import json
 import os
 from dataclasses import asdict
 from importlib.metadata import version
 from pathlib import Path
+from typing import Any
 
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.live_model import LiveModelClient
 from resolveflow.harness.model import MockModelClient
 from resolveflow.policies.index import PolicyIndex
 from resolveflow.policies.retrieval import embedder
+from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import DeploymentConfig
 from resolveflow.support.engine import SYSTEM, SupportAgent
-from resolveflow.support.protocol import DECISION, SupportFailure
+from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
 from resolveflow.support.sources import BoundSources
 from resolveflow.support.store import SupportStore
 
 
 class SupportRuntime:
-    def __init__(self, database, config: DeploymentConfig, *, model_factory=None, sources_factory=None):
+    def __init__(
+        self, database: Database, config: DeploymentConfig, *, model_factory: Any = None, sources_factory: Any = None
+    ) -> None:
         self.database, self.config = database, config
         self.model_factory, self.sources_factory = model_factory, sources_factory
 
-    def _model(self):
+    def _model(self) -> Any:
         config = self.config
         if self.model_factory:
             return self.model_factory()
@@ -55,7 +61,7 @@ class SupportRuntime:
             else {},
         )
 
-    def run(self, request, token):
+    def run(self, request: SupportInput, token: str) -> dict[str, Any]:
         model = self._model()
         root = Path(__file__).parent
         manifest = {
@@ -78,6 +84,7 @@ class SupportRuntime:
         journal, cached = SupportStore(self.database).claim(request, manifest)
         if cached is not None:
             return cached
+        assert journal is not None
         if self.sources_factory:
             sources = self.sources_factory(request, token, journal)
         else:

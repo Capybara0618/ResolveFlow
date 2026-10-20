@@ -29,3 +29,7 @@ Case追加V28：客户发送给助手的消息在原事务中生成独立咨询�
 JDK21实际命令：`java/mvnw.cmd -f java/pom.xml -B -pl case-service -am -Dtest=SupportApiTest,SupportWireTest,SupportCredentialTest -Dsurefire.failIfNoSpecifiedTests=false test`，最终Case13、共享Wire2、凭据1共16通过/0跳过；此前含平台买家8和checkout4的回归也通过。新增契约/共享fixture及引用/重复路由检查22通过，Case79→81。Spotless限定本步Support/JwtCodec/ServiceTokenFilter文件通过。此阶段使用Testcontainers隔离MySQL，未迁移保留业务库、未调用真实模型。
 
 开发过程修正过YAML片段生成导致的重复alias，未放宽旧Schema断言；最终重建仅Support组件块并验证。PowerShell Maven含点参数必须完整引用，首个package命令误拆参数失败后按原命令修正；不会将构建失败写为通过。Python类型补齐与网页接线另验证，不把工作区尚未提交部分算本步依赖。
+
+## 咨询模块类型与SDK签名
+
+新support七个源文件补齐函数/容器类型，PG可空行显式检查；AgentScope工具check_permissions改为实际SDK要求的async接口并提供message，未修改SDK。`python -m mypy --config-file agent/pyproject.toml agent/src/resolveflow/support --follow-imports=silent`实际7文件通过，无关闭错误类型或新增全局豁免；早期skip导入的辅助结果不作为正式门禁。Ruff check/format通过。真实PG隔离schema+新API/来源/循环最终25通过/0跳过；此前含契约共43通过。首次误设测试DSN造成5项跳过，改用现有RESOLVEFLOW_AGENT_DB后重跑，未把跳过计通过。所有模型mock，本地测试不作质量分数。
