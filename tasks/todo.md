@@ -1,4 +1,9 @@
-## 当前快照（2026-10-20，客服RAG第三批GPU对照完成，暂不更换生产默认）
+## 当前快照（2026-10-20，客服RAG第四批证据组装已冻结，待执行）
+
+- 用户批准固定RAG骨架后继续。按[本批规格](../docs/customer-rag-evidence-v1.md)，复用第三批GPU固定排名，比较RRF/CE直接跨度、锚点优先完整父级、双路锚点父级；47外部题/前3和5入口、正文8000字符及4096本地token统一上限，[manifest](../evals/customer-rag-v4/manifest.json)固定源码/Query/Gold/来源/排名/分词器。展开覆盖不称Recall@K，商城原完整规则不冒充外部父级收益。
+- 新组装9项含例外保留、超限原锚点、重叠/间隙、源版本/坏hash/表格等；结合原精排/完整父级/子块共78通过、0失败/跳过，源码及测试Ruff通过。缺模块红测与闭包Lint修正已实际执行；尚未跑本批正式质量结果，无新模型/DB/业务写入。原四脏文件保持，本准备小步精确提交正常push后继续全部固定题的组装实测与P03/P06只读排名归因。
+
+## 上一批（2026-10-20，客服RAG第三批GPU对照完成，暂不更换生产默认）
 
 - 固定Query/原政策/Gold与本机BGE-reranker-base revision，RTX5060 Laptop8GB实际cuda:0精排完成56题/177策略记录/242独立正式forward、每组两轮排名一致。[报告](../reports/customer-rag-v3/README.md)、[结果](../reports/customer-rag-v3/gpu-results.json)和[逐依据反例](../reports/customer-rag-v3/error-analysis.json)保留完整并集/B0截5/商城全规则对照。原问17可回答Top3 12→14、Top5 16→17；外部改写12题Top3/5由10/10退为8/8，P09/P10完整依据被挤出。商城保存3/3保持，合成5/6→6/6，P02恢复；不称回答正确率或盲测。
 - 同版本CUDA wheel下载慢已停止，跨Python目录复用不兼容尝试已记录；正式[独立冻结manifest](../evals/customer-rag-v3/manifest-gpu-stdio.json)使用既有Python3.11/torch2.11cu128的本地stdio子进程，主评测仍原Python3.12/torch2.14cpu。环境/锁/驱动未改，无新权重/聊天API。FP32/同步/不截断；精排增量中位商城约28ms、外部约83–88ms，冷加载子进程15.08秒，非端到端或CPU/GPU加速倍数。
