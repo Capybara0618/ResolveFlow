@@ -1,4 +1,10 @@
-## 当前快照（2026-10-20，物流场景模拟器实现与隔离验证完成）
+## 当前快照（2026-10-20，演示物流样本已接通，首场景与预期图制作中）
+
+- 用户授权开始“接通模拟器/独立场景订单→首场景规格与样例→双端预期图”。已保留备份并仅启动演示MySQL，构建Commerce/Case/shared成功；临时design-commerce/design-case明确禁用派发/MQ/outbox/退款后台，Commerce Flyway迁至V16，Python/worker未启动。新增[scripts/prepare_logistics_samples.py](../scripts/prepare_logistics_samples.py)，正常购买/模拟付款/首次发货接口+物流模拟器，7笔两店同买家独立样本已准备且重放无新增；[运行证据](../reports/customer-agent-design-v1/README.md)及[样本](../reports/customer-agent-design-v1/runtime-samples.json)包含事实/版本/回执与隔离/保留检查。
+- 验证：正常物流6例200、故障503→200→503，故障留在专用新订单B-QUERYFAIL；同买家跨店看到7单，其他买家购买详情7次404，商家跨店新单7次404。原Commerce5笔相关记录逐行hash保持，退款操作4/授权4保持；Case表名初查错误已修正，5条aftersale_case仅有购买后见证，报告明确局限。原旧交易/政策/Gold/简历不改，模型调用0。Ruff及差异/链接收口后按授权提交；本批只接线/准备，不声称客服功能已实现。
+- 下一步本轮继续完成物流/签收争议的场景规格、12个开发对话及评分、可切换双端原型和截图；技术协议待图/样例确认后再拆，用户端咨询/独立人工核查/退款确认、商家报告处理与多租户决定保持。不自动启动收费评测，收尾停止本轮临时Java进程，MySQL与数据保留。
+
+## 历史快照（2026-10-20，物流场景模拟器实现与隔离验证完成）
 
 - 用户持续授权完成模拟器；承接f65136b计划及中断的未提交实现，已完成本地[scripts/logistics_simulator.py](../scripts/logistics_simulator.py)、V16追加迁移/事务过程、独立收据/查询故障、Java一致只读物流及503映射。整单支持IN_TRANSIT/DELAYED/DELIVERED/LOST/UNKNOWN及UNAVAILABLE/AVAILABLE，inspect显示事件/version及参考时刻；重复key/载荷返回原收据，旧版本/终局倒退/错商家/时间倒退/200事件上限拒绝。多行同事务，原资金/槽/历史事件保留；成功HTTP协议不变，OpenAPI补503及协议说明。使用见[计划与操作说明](../docs/logistics-simulator.md)，证据见[验证报告](../reports/logistics-simulator/README.md)。
 - 实际验证：真实MySQL8.4 Flyway V1–V16，`mvn -pl commerce-service -am -Dtest=LogisticsSimulatorTest,FulfillmentDatabaseTest,MerchantTradeApiTest,OrderLineShipmentControllerTest -Dsurefire.failIfNoSpecifiedTests=false test`最终28通过/0失败/0跳过；Python指定OpenAPI/工具/CLI146通过（含脚本9项）。Ruff check/format、针对本步Java四文件Spotless check、CLI帮助通过。此前红测缺过程、时钟偏差、Docker关闭、测试容器定位及格式命令失败保留tmp并在报告解释；最终日志test-20261020-v2.log。`git diff --check`、本地链接7处与8份实现/测试文件SHA256清单核查通过；fetch后HEAD/origin同位，精确暂存逐项审查后提交。
