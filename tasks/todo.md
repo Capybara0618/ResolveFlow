@@ -1,4 +1,9 @@
-## 当前快照（2026-10-20，客服持久会话与跨端人工核查完成）
+## 当前快照（2026-10-20，客服Agent与RAG接入中）
+
+- 用户在6cbb19f人工接续交付后授权开始Agent/RAG批次。已只读核对README/core-scope/当前handoff/plan/账本、AgentScope适配/预算/政策索引与Java会话/身份；main跟踪origin/main，原四脏文件及旧图日志保留，未发现本步并行写入。沿[实施设计](../docs/customer-agent-implementation-v1.md)接独立咨询run、受限只读工具、按输入版本发布、回答引用与转交摘要，不伪造case_id或更换框架。
+- 现有人工链路、7笔物流样本/12开发对话及旧报告保留；本轮尚未实现/验证新Agent，不启动收费评测或消费旧退款任务。先咨询循环/协议关键失败测试，再PG调用账/Case派发与网页纵向接线；按独立验证步commit/push，实际命令/失败/未运行仅在本顶部追加。
+
+## 历史快照（2026-10-20，客服持久会话与跨端人工核查完成）
 
 - 用户在双端预期图交付后授权开始，期间要求继续。本轮完成[客服契约v1](../docs/customer-support-contract-v1.md)和[双端实际使用](../docs/customer-support-workspace.md)：平台买家选订单商品/恢复独立会话、私有记录、客户确认共享摘要/所选原文后转交；商家本店核查/补问/回复，客户补充与确认解决，同单可接续。咨询不生成退款Case/授权/槽，不套两轮补证；智能问答、自动报告、咨询内退款确认及新RAG效果尚未实现，页面明确当前能力，不用固定话术冒充模型。
 - 后端：追加Case V27四表与SupportController/Service、共享SupportWire/fixture及核心OpenAPI9操作/12组件，Case路由70→79；Java拥有会话/消息/核查单，原Case/资金/AgentScope职责保持。写事务账号/归属/会话锁、输入版本、幂等回执同事务；Commerce网络读取在本地写事务外，商家接口只返回共享投影。协议361149f、后端3aa3d62已正常推送origin/main。
