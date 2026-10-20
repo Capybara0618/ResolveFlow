@@ -1,5 +1,7 @@
 ## 当前快照（2026-10-20，客服Agent与RAG工程接线验收完成）
 
+- 2026-10-20用户请求启动体验：`start.ps1 -SkipBuild -NoBrowser`返回0，复用已构建Java包，标准入口启动原数据上的三Java、真实模型配置Agent、网页及依赖，九项组件/政策索引检查全通过。经5174→Gateway登录并只读核验buyer01的4咨询、admin01的2核查单及共享报告通过，未发送测试问题或另跑模型评测。日志/无凭据结果在忽略tmp/customer-agent-design-v1/user-experience-start.log及user-entry-check.json。当前正式服务保持运行供用户体验；下方临时停机记录为上一批收尾。应用内打开请求已排队；终端唤起浏览器与记账的组合命令被自动审批blocked by policy拒绝，未执行该组合命令，不改启动结果。原四历史脏文件保持，不清库/造新交易。
+
 - 用户在6cbb19f人工接续交付后授权开始Agent/RAG批次。已只读核对README/core-scope/当前handoff/plan/账本、AgentScope适配/预算/政策索引与Java会话/身份；main跟踪origin/main，原四脏文件及旧图日志保留，未发现本步并行写入。沿[实施设计](../docs/customer-agent-implementation-v1.md)接独立咨询run、受限只读工具、按输入版本发布、回答引用与转交摘要，不伪造case_id或更换框架。
 - 已完成独立咨询AgentScope循环→PG调用账→Case异步派发/绑定读取→网页回答/引用→客户确认共享→商家报告的纵向链路。Case追加V28、PG追加013，Commerce仍V16；旧7物流样本/开发对话与政策索引保留。聊天内退款确认/原Case关联未实施，真实客服质量与新对照实验未运行，无收费模型调用。
 - 最终验证：新增咨询/API/来源/真实PG与契约43通过/0跳过、Java咨询13+共享Wire2+凭据1共16通过、网页25文件192通过及类型检查/正式构建通过；新Python七文件严格mypy与Ruff通过。核心契约整文件80通过/1既有LineContext字段断言失败，保留原断言并单列，不宣称全仓通过。
