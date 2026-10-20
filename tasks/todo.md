@@ -1,7 +1,12 @@
-## 当前快照（2026-10-20，客服Agent与RAG接入中）
+## 当前快照（2026-10-20，客服Agent与RAG工程接线验收完成）
 
 - 用户在6cbb19f人工接续交付后授权开始Agent/RAG批次。已只读核对README/core-scope/当前handoff/plan/账本、AgentScope适配/预算/政策索引与Java会话/身份；main跟踪origin/main，原四脏文件及旧图日志保留，未发现本步并行写入。沿[实施设计](../docs/customer-agent-implementation-v1.md)接独立咨询run、受限只读工具、按输入版本发布、回答引用与转交摘要，不伪造case_id或更换框架。
-- 现有人工链路、7笔物流样本/12开发对话及旧报告保留；本轮尚未实现/验证新Agent，不启动收费评测或消费旧退款任务。先咨询循环/协议关键失败测试，再PG调用账/Case派发与网页纵向接线；按独立验证步commit/push，实际命令/失败/未运行仅在本顶部追加。
+- 已完成独立咨询AgentScope循环→PG调用账→Case异步派发/绑定读取→网页回答/引用→客户确认共享→商家报告的纵向链路。Case追加V28、PG追加013，Commerce仍V16；旧7物流样本/开发对话与政策索引保留。聊天内退款确认/原Case关联未实施，真实客服质量与新对照实验未运行，无收费模型调用。
+- 最终验证：新增咨询/API/来源/真实PG与契约43通过/0跳过、Java咨询13+共享Wire2+凭据1共16通过、网页25文件192通过及类型检查/正式构建通过；新Python七文件严格mypy与Ruff通过。核心契约整文件80通过/1既有LineContext字段断言失败，保留原断言并单列，不宣称全仓通过。
+- 保留库真实HTTP首轮成功34项、最终原请求重放13项通过；成功run3次mock模型/2次只读行动，真实本地BGE dense使用原READY generation，完成重复派发0新增调用。原8交易表全表hash+4咨询表旧行旧列hash及旧Agent run5保持。UI三幅实图9宽度+2交互、0页面异常；A-TRANSIT确认报告，A-DELAYED停在预览，咨询未创建退款Case。验收开关误写导致首轮失败run保留，新消息修正验证，未清预算或覆盖结果。
+- 本轮临时design-support-web/design-support-agent/design-case/design-commerce均按归属停止，5174/8182/8183/8181关闭；MySQL/PG/卷/新旧数据保留，最终4咨询/14消息/2核查单/3咨询run（失败1/成功2）。详见[集中报告](../reports/customer-agent-v1/README.md)、[使用说明](../docs/customer-support-workspace.md)及[完成清单](../reports/customer-agent-v1/completion.json)。8911452/d01a10e等前序独立步已推送；本步网页/证据精确提交正常push后核实远端，SHA在回复报告。原四脏文件/旧资产不夹带，收口后停止业务写入，下一步由用户主导。
+
+以下为本批各独立步骤的当时验证记录。
 
 - 咨询循环独立步：新增support协议/AgentScope循环/绑定HTTP与dense来源适配，先红测后实现；新19项与既有SDK适配/LiveModelClient回归合计38通过，Ruff check/format通过。脚本模型覆盖动态工具/搜索、禁止身份/写操作/假引用、预算/失败/过期与实际输入；来源固定商家/manifest/generation，无假Case或BM25回退。修复工具异常触发SDK MCP别名、来源异常名/测试导入问题，见[报告](../reports/customer-agent-v1/README.md)。目前尚未连接PG/Java/网页；模型调用仅mock，不冒称效果提升。
 

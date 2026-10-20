@@ -4,6 +4,7 @@ import SupportWorkspace from '../src/ui/SupportWorkspace.vue'
 import { supportApi, type SupportConversation } from '../src/support-client'
 import { coreApi, ApiError } from '../src/client'
 import fixture from '../../contracts/core/fixtures/support.json'
+import assistantFixture from '../../contracts/core/fixtures/support-assistant.json'
 
 const buyer = { access_token: 'buyer-token', role: 'CUSTOMER' as const, buyer_id: 'B-1', expires_in: 3600 }
 let wrapper: VueWrapper
@@ -15,6 +16,47 @@ beforeEach(() => {
   vi.spyOn(supportApi, 'read').mockResolvedValue(original())
 })
 afterEach(() => { wrapper?.unmount(); vi.restoreAllMocks(); sessionStorage.clear() })
+
+it('renders assistant sources and shares its editable summary only after explicit confirmation', async () => {
+  const conversation = { ...structuredClone(assistantFixture.Conversation), ticket: null } as SupportConversation
+  vi.mocked(supportApi.read).mockResolvedValue(conversation)
+  const mutate = vi.spyOn(supportApi, 'mutate').mockResolvedValue(conversation)
+  await open()
+  expect(wrapper.text()).toContain('售后助手')
+  expect(wrapper.text()).toContain('脚本模型演示')
+  expect(wrapper.get('.support-message.assistant').text()).toContain('物流事实')
+  await wrapper.get('[data-action="handoff"]').trigger('click')
+  expect((wrapper.get('[aria-label="核查摘要"]').element as HTMLTextAreaElement).value).toBe(conversation.messages[1].assistant!.handoff_summary)
+  expect(mutate).not.toHaveBeenCalled()
+  expect((wrapper.get('[data-share-report]').element as HTMLInputElement).checked).toBe(false)
+  await wrapper.get('[data-share-report]').setValue(true)
+  await wrapper.get('[aria-label="核查摘要"]').setValue('我确认：只核查')
+  await wrapper.get('[data-action="confirm-handoff"]').trigger('click'); await flushPromises()
+  expect(mutate.mock.calls[0][1]).toMatchObject({ kind: 'handoff', body: { summary: '我确认：只核查', assistant_message_id: conversation.messages[1].message_id, shared_message_ids: [] } })
+})
+
+it('keeps corrections and human handoff available while the assistant is running', async () => {
+  const conversation = { ...original(), assistant_turn: { run_id: 'running', status: 'RUNNING' as const, reason: null } }
+  vi.mocked(supportApi.read).mockResolvedValue(conversation)
+  const mutate = vi.spyOn(supportApi, 'mutate').mockResolvedValue(conversation)
+  await open()
+  expect(wrapper.text()).toContain('助手正在查阅资料')
+  expect(wrapper.get('[data-action="handoff"]').attributes('disabled')).toBeUndefined()
+  await wrapper.get('[aria-label="咨询消息"]').setValue('更正，已经找到了')
+  await wrapper.get('[data-action="send"]').trigger('click'); await flushPromises()
+  expect(mutate.mock.calls[0][1]).toMatchObject({ body: { recipient: 'ASSISTANT', text: '更正，已经找到了' } })
+})
+
+it('shows a confirmed report in the merchant workbench without private assistant messages', async () => {
+  const ticket = { ...structuredClone(assistantFixture.TicketDetail), messages: [] } as SupportConversation
+  vi.spyOn(supportApi, 'tickets').mockResolvedValue({ items: [ticket], next_before: null })
+  vi.mocked(supportApi.read).mockResolvedValue(ticket)
+  wrapper = mount(SupportWorkspace, { props: { account: { access_token: 'merchant-token', role: 'MERCHANT_ADMIN', merchant_id: 'M-1001', expires_in: 3600 } } })
+  await flushPromises(); await wrapper.get('[data-conversation]').trigger('click'); await flushPromises()
+  expect(wrapper.text()).toContain('客户确认共享的调查依据')
+  expect(wrapper.text()).toContain('物流事实')
+  expect(wrapper.find('.support-message.assistant').exists()).toBe(false)
+})
 async function open() {
   wrapper = mount(SupportWorkspace, { props: { account: buyer } }); await flushPromises()
   await wrapper.get('[data-conversation]').trigger('click'); await flushPromises()

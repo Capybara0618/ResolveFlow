@@ -6,7 +6,7 @@
 
 ## 1. 唯一主链路
 
-2026-10-20按用户授权接入[持久会话与独立人工核查](customer-support-workspace.md)，复用Case服务与现有双端网页；人工咨询不创建退款Case/授权。Agent咨询、自动报告和聊天退款确认分后续小步接入，原三Java+Python与资金职责不变。
+2026-10-20按用户授权接入[持久会话与独立人工核查](customer-support-workspace.md)及[Agent只读咨询/来源与确认共享报告](customer-agent-implementation-v1.md)，复用Case服务、唯一AgentScope循环和现有双端网页；人工咨询不创建退款Case/授权。聊天退款确认后续接入，原三Java+Python与资金职责不变。本批工程以脚本模型和真实本地dense检索验证，真实模型问答质量单独评测。
 
 2026-10-14用户授权先实现[物流场景模拟器](logistics-simulator.md)：本地工具为已模拟发货订单追加运输/延迟/签收/丢失/未知事件，并提供可恢复查询故障，供客服设计与评测设置事实。只推进版本、不覆盖历史、不改资金/原实验；继续Commerce内模拟适配，不新增履约微服务或公开物流编辑入口。实际实施状态看todo顶部。
 

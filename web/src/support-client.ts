@@ -1,16 +1,19 @@
 import { apiRequest } from './client'
 
-export interface SupportMessage { message_id: string; sequence: number; author: 'CUSTOMER' | 'MERCHANT'; recipient: 'ASSISTANT' | 'MERCHANT' | 'CUSTOMER'; text: string; ticket_id: string | null; created_at: string }
-export interface SupportTicket { ticket_id: string; status: 'PENDING' | 'WAITING_CUSTOMER' | 'REPLIED' | 'RESOLVED'; summary: string; shared_messages: SupportMessage[] }
+export interface SupportCitation { source_id: string; source_type: 'ORDER' | 'SHIPMENT' | 'POLICY' | 'CONVERSATION'; content_hash: string; version: string | number; title?: string; data: Record<string, unknown> }
+export interface SupportAssistant { run_id: string; mode: 'mock' | 'live'; citations: SupportCitation[]; handoff_summary: string | null }
+export interface SupportMessage { message_id: string; sequence: number; author: 'CUSTOMER' | 'MERCHANT' | 'ASSISTANT'; recipient: 'ASSISTANT' | 'MERCHANT' | 'CUSTOMER'; text: string; ticket_id: string | null; created_at: string; assistant?: SupportAssistant }
+export interface SupportTicket { ticket_id: string; status: 'PENDING' | 'WAITING_CUSTOMER' | 'REPLIED' | 'RESOLVED'; summary: string; shared_messages: SupportMessage[]; report?: SupportAssistant }
 export interface SupportConversation {
   conversation_id: string; merchant_id: string; store_name: string; order_id: string; line_id: string
   product: { name: string; variant: string | null; asset_key: string | null; quantity: number; amount_minor: number; currency: string }
   version: number; ticket: SupportTicket | null; messages: SupportMessage[]; next_before_sequence: number | null
+  assistant_turn?: { run_id: string; status: 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'STALE'; reason: string | null }
 }
 export interface SupportPage { items: SupportConversation[]; next_before: number | null }
 export type SupportCommand =
   | { kind: 'send'; id: string; body: { expected_version: number; text: string; recipient: 'ASSISTANT' | 'MERCHANT' } }
-  | { kind: 'handoff'; id: string; body: { expected_version: number; summary: string; shared_message_ids: string[] } }
+  | { kind: 'handoff'; id: string; body: { expected_version: number; summary: string; shared_message_ids: string[]; assistant_message_id?: string } }
   | { kind: 'reply'; id: string; body: { expected_version: number; text: string; kind: 'REPLY' | 'REQUEST_INFO' } }
   | { kind: 'resolve'; id: string; body: { expected_version: number } }
 export type SupportPending = SupportCommand & { key: string; label: string }

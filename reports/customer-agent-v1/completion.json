@@ -1,0 +1,124 @@
+{
+  "synthetic": true,
+  "live_model_calls": 0,
+  "source_files": [
+    {
+      "path": "web/src/support-client.ts",
+      "sha256": "9d663ce2c0034262d3f4b2b90eeda01ad1708057266ab2b32403abcbea9d3e22"
+    },
+    {
+      "path": "web/src/ui/SupportWorkspace.vue",
+      "sha256": "e3be57b559d1b96beda9068804e108e52573bbfd3c8c94c035fc1f9ad9f244f1"
+    },
+    {
+      "path": "web/src/ui/SupportSources.vue",
+      "sha256": "80305895e1b1deefdcd983e533e6c0675eed53a2db0cf14b169f3432f476f6bd"
+    },
+    {
+      "path": "web/src/ui/support-workspace.css",
+      "sha256": "ab3988944fbc4e2c3c4ac1862cbfc1e43d7e53f2a0560ddae42f76bfc06a6396"
+    },
+    {
+      "path": "web/tests/support-workspace.spec.ts",
+      "sha256": "a660aa52f23a02897fae5bc0396db8540508dbf03df17438dc9fc42545034d31"
+    },
+    {
+      "path": "scripts/customer_agent_acceptance.py",
+      "sha256": "0a4299bc8c6281a5e394360856b4610c25831480a7fc04c8a3d145254cde0b88"
+    },
+    {
+      "path": "scripts/check_customer_agent_runtime.cjs",
+      "sha256": "1bc377a9a97f0acaea04392d6c631eb9e6ae53485ab0623b16840d0bcb14bc10"
+    },
+    {
+      "path": "docs/customer-support-workspace.md",
+      "sha256": "132c6dd293a4f16d8c3385ac2f7dfdbe18777cd6da6eca300dd0708ff91af2fb"
+    },
+    {
+      "path": "docs/core-scope.md",
+      "sha256": "664873258572b6d414c93c0dd86afeecd6d614eb095fceeee6ced4871f804522"
+    },
+    {
+      "path": "README.md",
+      "sha256": "2a9f7f3cb7e8727c79325a8c94c99675422a6c7304f6c0c238e9c2e31a6329d0"
+    },
+    {
+      "path": "reports/customer-agent-v1/runtime-check.json",
+      "sha256": "12cb7f3a2751ecbc4042df00d5e5137e2289a1bba49a3f3cffe8a2e39f6cdbfb"
+    },
+    {
+      "path": "reports/customer-agent-v1/ui-check.json",
+      "sha256": "47f9d12b33e5b6b3089d6996e015e3e284ac21b23a4ce5d18d33183b65e2eb96"
+    }
+  ],
+  "local_links_checked": 93,
+  "images": [
+    {
+      "path": "reports/customer-agent-v1/images/buyer-answer.png",
+      "width": 1440,
+      "height": 1818,
+      "sha256": "2cfda153f2f891de7138b9cf668f5a799a877fd04345f73e418a1a7a56a11039"
+    },
+    {
+      "path": "reports/customer-agent-v1/images/buyer-handoff-preview.png",
+      "width": 1440,
+      "height": 1537,
+      "sha256": "7fc89908551896f170a75e87487fbc3621d62a0b7c7546c1ab2723afeeeaea4a"
+    },
+    {
+      "path": "reports/customer-agent-v1/images/merchant-report.png",
+      "width": 1440,
+      "height": 1604,
+      "sha256": "6b1dfb15f813b48a370b7cd94faf6fca35f312f2b8a636322c73e81c1ebbbc69"
+    }
+  ],
+  "support_agent_runs": [
+    {
+      "run_id": "2a11eaf3-c2e6-47d7-a5cd-628006f6cb6f",
+      "status": "FAILED"
+    },
+    {
+      "run_id": "0e30d997-5b66-4577-9e16-a55963b10871",
+      "status": "SUCCEEDED"
+    },
+    {
+      "run_id": "bf43ba3b-eb13-48c7-828b-ce24db32e56f",
+      "status": "SUCCEEDED"
+    }
+  ],
+  "old_agent_run_count": 5,
+  "final_case_counts": {
+    "support_conversation": "4",
+    "support_message": "14",
+    "support_ticket": "2",
+    "support_agent_turn": "3",
+    "aftersale_case": "5",
+    "case_authorization": "4",
+    "active_case_slot": "5"
+  },
+  "temporary_processes_stopped": [
+    "design-support-web(pid 45152, port 5174)",
+    "design-support-agent(pid 7584, port 8182)",
+    "design-case(pid 21556, port 8183)",
+    "design-commerce(pid 12688, port 8181)"
+  ],
+  "ports": {
+    "frontend": {
+      "port": 5174,
+      "closed": true
+    },
+    "agent": {
+      "port": 8182,
+      "closed": true
+    },
+    "case": {
+      "port": 8183,
+      "closed": true
+    },
+    "commerce": {
+      "port": 8181,
+      "closed": true
+    }
+  },
+  "databases_and_volumes_retained": true
+}
