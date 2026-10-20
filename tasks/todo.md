@@ -4,6 +4,8 @@
 - 已完成7个预期视图、12个开发样例及7笔保留模拟订单，证据见[设计报告](../reports/customer-agent-design-v1/README.md)，接线908a76e/设计eeb6786均正常推送；MySQL及数据保留。新客服实现/迁移/HTTP/网页尚未验证，模型调用0。
 - 本轮先关键失败测试，再追加Case V27/独立support模块与受限路由、共享类型/fixture/契约，按独立小步验证并commit/push；后续接入现有双端网页。保留原四脏文件、旧报告/Gold/简历及退款状态/金额约束，不在未建Case会话伪造case_id。实际文件/命令/失败与未运行在本顶部追加，不另建进度。
 
+- 后端独立步已实现Case V27四表、SupportService/Controller、共享SupportWire及fixture，核心路由同步新增9项/12组件（Case70→79）。隔离MySQL V1–V27和HTTP/并发/分页/共享/资金无副作用8项+Wire1项+既有买家/付款12项，共21通过；Spotless/Ruff通过。Python聚焦18通过，完整新契约+核心路由94通过/1旧LineContext可选字段断言失败；Commerce契约与断言函数均与361149f一致，失败保留，见[实施报告](../reports/customer-support-v1/README.md)。红测缺表、PowerShell参数/Spotless正则、Wire泛型与JSON数值节点、生成引用错误均已修复并记录。下一步连接网页并保留数据跨进程验收，未调用模型。
+
 ## 历史快照（2026-10-20，物流场景模拟器实现与隔离验证完成）
 
 - 用户持续授权完成模拟器；承接f65136b计划及中断的未提交实现，已完成本地[scripts/logistics_simulator.py](../scripts/logistics_simulator.py)、V16追加迁移/事务过程、独立收据/查询故障、Java一致只读物流及503映射。整单支持IN_TRANSIT/DELAYED/DELIVERED/LOST/UNKNOWN及UNAVAILABLE/AVAILABLE，inspect显示事件/version及参考时刻；重复key/载荷返回原收据，旧版本/终局倒退/错商家/时间倒退/200事件上限拒绝。多行同事务，原资金/槽/历史事件保留；成功HTTP协议不变，OpenAPI补503及协议说明。使用见[计划与操作说明](../docs/logistics-simulator.md)，证据见[验证报告](../reports/logistics-simulator/README.md)。

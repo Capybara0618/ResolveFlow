@@ -43,6 +43,653 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /api/v1/support/conversations:
+    post:
+      operationId: openSupportConversation
+      summary: Platform buyer opens or resumes a line; no model or refund
+      parameters: []
+      responses:
+        '200':
+          description: Persisted scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportConversation'
+        '400':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '401':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '403':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '404':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '409':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '503':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportOpen'
+      security:
+      - bearerAuth: []
+      description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
+        consultation, no refund authority.'
+    get:
+      operationId: listSupportConversations
+      summary: Buyer-owned conversations
+      parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 20
+      - name: before
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Persisted scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportConversationPage'
+        '400':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '401':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '403':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '404':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '409':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '503':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+      security:
+      - bearerAuth: []
+      description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
+        consultation, no refund authority.'
+  /api/v1/support/conversations/{id}:
+    get:
+      operationId: readSupportConversation
+      summary: Buyer-only private messages, bounded history
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: before_sequence
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Persisted scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportConversation'
+        '400':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '401':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '403':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '404':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '409':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '503':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+      security:
+      - bearerAuth: []
+      description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
+        consultation, no refund authority.'
+  /api/v1/support/conversations/{id}/messages:
+    post:
+      operationId: sendSupportMessage
+      summary: ASSISTANT saves privately without invoking a model in this batch; MERCHANT
+        supplements the confirmed ticket
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: Persisted scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportConversation'
+        '400':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '401':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '403':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '404':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '409':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '503':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportSend'
+      security:
+      - bearerAuth: []
+      description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
+        consultation, no refund authority.'
+  /api/v1/support/conversations/{id}/tickets:
+    post:
+      operationId: confirmSupportHandoff
+      summary: Customer confirms summary and selected original snapshots; no refund
+        Case
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: Persisted scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportConversation'
+        '400':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '401':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '403':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '404':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '409':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '503':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportHandoff'
+      security:
+      - bearerAuth: []
+      description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
+        consultation, no refund authority.'
+  /api/v1/support/conversations/{id}/resolve:
+    post:
+      operationId: resolveSupportTicket
+      summary: Customer resolves a replied ticket
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: Persisted scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportConversation'
+        '400':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '401':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '403':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '404':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '409':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '503':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportResolve'
+      security:
+      - bearerAuth: []
+      description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
+        consultation, no refund authority.'
+  /api/v1/support/tickets:
+    get:
+      operationId: listMerchantSupportTickets
+      summary: MERCHANT_ADMIN scoped queue
+      parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 20
+      - name: before
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Persisted scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportTicketDetailPage'
+        '400':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '401':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '403':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '404':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '409':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '503':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+      security:
+      - bearerAuth: []
+      description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
+        consultation, no refund authority.'
+  /api/v1/support/tickets/{id}:
+    get:
+      operationId: readMerchantSupportTicket
+      summary: Shared snapshot and ticket messages only; never full private chat
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: before_sequence
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Persisted scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportTicketDetail'
+        '400':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '401':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '403':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '404':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '409':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '503':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+      security:
+      - bearerAuth: []
+      description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
+        consultation, no refund authority.'
+  /api/v1/support/tickets/{id}/messages:
+    post:
+      operationId: replyMerchantSupportTicket
+      summary: Merchant reply or request for information
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,128}$
+      responses:
+        '200':
+          description: Persisted scoped result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportTicketDetail'
+        '400':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '401':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '403':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '404':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '409':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+        '503':
+          description: Invalid / unauthenticated / forbidden / invisible / stale or
+            conflicting / dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/ApiError
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportReply'
+      security:
+      - bearerAuth: []
+      description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
+        consultation, no refund authority.'
   /api/v1/shop/cart/{store_id}/quote:
     post:
       operationId: caseCartQuote
@@ -3528,6 +4175,315 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    SupportOpen:
+      type: object
+      additionalProperties: false
+      required:
+      - line_id
+      properties:
+        line_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+    SupportSend:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_version
+      - text
+      - recipient
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        recipient:
+          enum:
+          - ASSISTANT
+          - MERCHANT
+    SupportHandoff:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_version
+      - summary
+      - shared_message_ids
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1
+        summary:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        shared_message_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 20
+          uniqueItems: true
+    SupportReply:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_version
+      - text
+      - kind
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        kind:
+          enum:
+          - REPLY
+          - REQUEST_INFO
+    SupportResolve:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_version
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1
+    SupportProduct:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - variant
+      - asset_key
+      - quantity
+      - amount_minor
+      - currency
+      properties:
+        name:
+          type: string
+          minLength: 1
+        variant:
+          anyOf:
+          - type: string
+            minLength: 1
+          - type: 'null'
+        asset_key:
+          anyOf:
+          - type: string
+            minLength: 1
+          - type: 'null'
+        quantity:
+          type: integer
+          minimum: 1
+        amount_minor:
+          type: integer
+          minimum: 0
+        currency:
+          const: CNY
+    SupportMessage:
+      type: object
+      additionalProperties: false
+      required:
+      - message_id
+      - sequence
+      - author
+      - recipient
+      - text
+      - ticket_id
+      - created_at
+      properties:
+        message_id:
+          type: string
+          format: uuid
+        sequence:
+          type: integer
+          minimum: 1
+        author:
+          enum:
+          - CUSTOMER
+          - MERCHANT
+        recipient:
+          enum:
+          - ASSISTANT
+          - MERCHANT
+          - CUSTOMER
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        ticket_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        created_at:
+          type: string
+          format: date-time
+    SupportTicket:
+      type: object
+      additionalProperties: false
+      required:
+      - ticket_id
+      - status
+      - summary
+      - shared_messages
+      properties:
+        ticket_id:
+          type: string
+          format: uuid
+        status:
+          enum:
+          - PENDING
+          - WAITING_CUSTOMER
+          - REPLIED
+          - RESOLVED
+        summary:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        shared_messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportMessage'
+          maxItems: 20
+    SupportConversation:
+      type: object
+      additionalProperties: false
+      required:
+      - conversation_id
+      - merchant_id
+      - store_name
+      - order_id
+      - line_id
+      - product
+      - version
+      - ticket
+      - messages
+      - next_before_sequence
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+        merchant_id:
+          type: string
+          minLength: 1
+        store_name:
+          type: string
+          minLength: 1
+        order_id:
+          type: string
+          minLength: 1
+        line_id:
+          type: string
+          minLength: 1
+        product:
+          $ref: '#/components/schemas/SupportProduct'
+        version:
+          type: integer
+          minimum: 1
+        ticket:
+          anyOf:
+          - $ref: '#/components/schemas/SupportTicket'
+          - type: 'null'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportMessage'
+          maxItems: 50
+        next_before_sequence:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+    SupportTicketDetail:
+      type: object
+      additionalProperties: false
+      required:
+      - conversation_id
+      - merchant_id
+      - store_name
+      - order_id
+      - line_id
+      - product
+      - version
+      - ticket
+      - messages
+      - next_before_sequence
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+        merchant_id:
+          type: string
+          minLength: 1
+        store_name:
+          type: string
+          minLength: 1
+        order_id:
+          type: string
+          minLength: 1
+        line_id:
+          type: string
+          minLength: 1
+        product:
+          $ref: '#/components/schemas/SupportProduct'
+        version:
+          type: integer
+          minimum: 1
+        ticket:
+          anyOf:
+          - $ref: '#/components/schemas/SupportTicket'
+          - type: 'null'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportMessage'
+          maxItems: 50
+        next_before_sequence:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+    SupportConversationPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - next_before
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportConversation'
+          maxItems: 50
+        next_before:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+    SupportTicketDetailPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - next_before
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportTicketDetail'
+          maxItems: 50
+        next_before:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
     CartQuoteRequest:
       type: object
       additionalProperties: false
