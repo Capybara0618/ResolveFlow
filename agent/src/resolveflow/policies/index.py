@@ -489,6 +489,7 @@ class PolicyIndex:
         embedder: Embedder | None = None,
         generation_ids: dict[str, str] | None = None,
         timings: dict[str, float] | None = None,
+        lexical_field: Literal["body", "title"] = "body",
     ) -> list[PolicyHit]:
         """Rank the pinned bundles' rules for ``query``, after the hard filters.
 
@@ -507,6 +508,8 @@ class PolicyIndex:
             timings.clear()
         if path not in ("dense", "bm25"):
             raise ValueError(f"{path!r} is not a retrieval path; dense and bm25 are the only two")
+        if lexical_field not in ("body", "title") or (path == "dense" and lexical_field != "body"):
+            raise ValueError("lexical_field is body/title and only applies to lexical recall")
         if top_k < 1 or top_k > MAX_TOP_K:
             raise ValueError(f"top_k must be 1..{MAX_TOP_K} (docs/agent-spec.md:16)")
         if generation_ids is None:
@@ -568,7 +571,7 @@ class PolicyIndex:
             else:
                 raise PolicyIndexNotReadyError("unsupported or mixed policy retrieval layouts")
         else:
-            scored = self._rank_bm25(rows, query)
+            scored = self._rank_bm25(rows, query, lexical_field)
         if timings is not None:
             timings["ranking_ms"] = max(0.0, (time.perf_counter() - stage) * 1000
                                        - timings.get("embedding_ms", 0.0) - timings.get("child_read_ms", 0.0))
@@ -634,9 +637,11 @@ class PolicyIndex:
             row.score = cosine_similarity(query_vector, row.embedding)
         return rows
 
-    def _rank_bm25(self, rows: list[PolicyChunkRow], query: str) -> list[PolicyChunkRow]:
+    def _rank_bm25(
+        self, rows: list[PolicyChunkRow], query: str, lexical_field: Literal["body", "title"] = "body"
+    ) -> list[PolicyChunkRow]:
         """BM25 over the same filtered candidates. The offline baseline (``docs/policy-rag.md:17``)."""
-        scores = bm25_scores([row.text for row in rows], query)
+        scores = bm25_scores([row.title if lexical_field == "title" else row.text for row in rows], query)
         for row, score in zip(rows, scores, strict=True):
             row.score = score
         return rows

@@ -1,0 +1,2947 @@
+{
+  "version": "customer-rag-candidates-v1",
+  "new_llm_calls": 0,
+  "not_holdout": true,
+  "synthetic_business_data": true,
+  "rrf_constant": 60,
+  "candidate_k": 5,
+  "final_k": 3,
+  "synthetic_probes_have_no_invented_facts": true,
+  "summary": {
+    "saved-live/original/dense": {
+      "n": 3,
+      "all_required_at_3": 2,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 33.07499998481944
+    },
+    "saved-live/original/body-bm25": {
+      "n": 3,
+      "all_required_at_3": 2,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 13.801699999021366
+    },
+    "saved-live/original/title-bm25": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 6.9697999861091375
+    },
+    "saved-live/original/body-rrf": {
+      "n": 3,
+      "all_required_at_3": 2,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 42.051600001286715
+    },
+    "saved-live/original/title-rrf": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 40.07479996653274
+    },
+    "saved-live/original/fields-rrf": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 48.99369995109737
+    },
+    "saved-live/fact-anchored/dense": {
+      "n": 3,
+      "all_required_at_3": 2,
+      "all_required_at_5": 3,
+      "regressions_at_3": [
+        "L02"
+      ],
+      "median_estimated_sequential_ms": 27.357100014341995
+    },
+    "saved-live/fact-anchored/body-bm25": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 11.069600004702806
+    },
+    "saved-live/fact-anchored/title-bm25": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 6.370000017341226
+    },
+    "saved-live/fact-anchored/body-rrf": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 38.45020002336241
+    },
+    "saved-live/fact-anchored/title-rrf": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 33.757500030333176
+    },
+    "saved-live/fact-anchored/fields-rrf": {
+      "n": 3,
+      "all_required_at_3": 3,
+      "all_required_at_5": 3,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 44.8009000683669
+    },
+    "synthetic-probe/original/dense": {
+      "n": 6,
+      "all_required_at_3": 5,
+      "all_required_at_5": 6,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 27.923849993385375
+    },
+    "synthetic-probe/original/body-bm25": {
+      "n": 6,
+      "all_required_at_3": 2,
+      "all_required_at_5": 3,
+      "regressions_at_3": [
+        "P01",
+        "P03",
+        "P05"
+      ],
+      "median_estimated_sequential_ms": 20.291650012950413
+    },
+    "synthetic-probe/original/title-bm25": {
+      "n": 6,
+      "all_required_at_3": 4,
+      "all_required_at_5": 4,
+      "regressions_at_3": [
+        "P06"
+      ],
+      "median_estimated_sequential_ms": 11.24910001817625
+    },
+    "synthetic-probe/original/body-rrf": {
+      "n": 6,
+      "all_required_at_3": 3,
+      "all_required_at_5": 5,
+      "regressions_at_3": [
+        "P03",
+        "P05"
+      ],
+      "median_estimated_sequential_ms": 49.867999987327494
+    },
+    "synthetic-probe/original/title-rrf": {
+      "n": 6,
+      "all_required_at_3": 5,
+      "all_required_at_5": 6,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 39.16450000542682
+    },
+    "synthetic-probe/original/fields-rrf": {
+      "n": 6,
+      "all_required_at_3": 5,
+      "all_required_at_5": 5,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 61.09415001992602
+    },
+    "synthetic-probe/fact-anchored/dense": {
+      "n": 6,
+      "all_required_at_3": 5,
+      "all_required_at_5": 6,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 31.61619999445975
+    },
+    "synthetic-probe/fact-anchored/body-bm25": {
+      "n": 6,
+      "all_required_at_3": 2,
+      "all_required_at_5": 3,
+      "regressions_at_3": [
+        "P01",
+        "P03",
+        "P05"
+      ],
+      "median_estimated_sequential_ms": 13.193749997299165
+    },
+    "synthetic-probe/fact-anchored/title-bm25": {
+      "n": 6,
+      "all_required_at_3": 4,
+      "all_required_at_5": 4,
+      "regressions_at_3": [
+        "P06"
+      ],
+      "median_estimated_sequential_ms": 14.205399987986311
+    },
+    "synthetic-probe/fact-anchored/body-rrf": {
+      "n": 6,
+      "all_required_at_3": 3,
+      "all_required_at_5": 5,
+      "regressions_at_3": [
+        "P03",
+        "P05"
+      ],
+      "median_estimated_sequential_ms": 45.79389998980332
+    },
+    "synthetic-probe/fact-anchored/title-rrf": {
+      "n": 6,
+      "all_required_at_3": 5,
+      "all_required_at_5": 6,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 45.97754997666925
+    },
+    "synthetic-probe/fact-anchored/fields-rrf": {
+      "n": 6,
+      "all_required_at_3": 5,
+      "all_required_at_5": 5,
+      "regressions_at_3": [],
+      "median_estimated_sequential_ms": 56.77809999906458
+    }
+  },
+  "rows": [
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.7035211478343321,
+        0.628058506056646,
+        0.6041317339927321,
+        0.5849323066602427,
+        0.5723809884705141
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 9138.78140001907
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        4.728334122836247,
+        1.2816979173617946,
+        1.2379668595242608,
+        1.2161016324693568
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 504.7467999975197
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        2.927961654378053,
+        2.5985659682605218
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 6.538200017530471
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.03225806451612903,
+        0.03125763125763126,
+        0.015873015873015872,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 9643.635999993421
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.031754032258064516,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 9145.353200030513
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.04918032786885246,
+        0.03225806451612903,
+        0.031754032258064516,
+        0.03125763125763126,
+        0.015873015873015872
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 9650.164200051222
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 DELIVERED；签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.6581729452012872,
+        0.6391264501401002,
+        0.6389448460408657,
+        0.6209725465009069,
+        0.5816539017223562
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 38.949100009631366
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 DELIVERED；签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        4.728334122836247,
+        1.8569502892863912,
+        1.2816979173617946,
+        1.2161016324693568,
+        0.495103322862297
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 11.069600004702806
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 DELIVERED；签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        2.927961654378053,
+        2.5985659682605218
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 10.235399997327477
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 DELIVERED；签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.032018442622950824,
+        0.03200204813108039,
+        0.03125763125763126,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 50.117500009946525
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 DELIVERED；签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.032018442622950824,
+        0.03200204813108039,
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 49.24570000730455
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 DELIVERED；签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "original_query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "query_reason": "shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.04841188524590165,
+        0.04738666351569577,
+        0.03252247488101534,
+        0.03200204813108039,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 60.34150000778027
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.6955731185027899,
+        0.6440546158151549,
+        0.6284893710021067,
+        0.6127959582295063,
+        0.6074535425212149
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 26.01969998795539
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        5.801694871263505,
+        1.6066717271756108,
+        1.516138256234742,
+        1.261160122053056,
+        0.8430307957452283
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 13.801699999021366
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        5.054237315259607,
+        1.88706964903238
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 8.152899972628802
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.031754032258064516,
+        0.0315136476426799,
+        0.03149801587301587,
+        0.015873015873015872
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 39.89549996913411
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.03225806451612903,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 34.208099968964234
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.04918032786885246,
+        0.04788306451612903,
+        0.0315136476426799,
+        0.03149801587301587,
+        0.015873015873015872
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 48.035899962997064
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.6955731185027899,
+        0.6440546158151549,
+        0.6284893710021067,
+        0.6127959582295063,
+        0.6074535425212149
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 20.091399986995384
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        5.801694871263505,
+        1.6066717271756108,
+        1.516138256234742,
+        1.261160122053056,
+        0.8430307957452283
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 15.497899992624298
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        5.054237315259607,
+        1.88706964903238
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 5.872599984286353
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.031754032258064516,
+        0.0315136476426799,
+        0.03149801587301587,
+        0.015873015873015872
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 35.69319998496212
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.03225806451612903,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 26.016199990408495
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "original_query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.04918032786885246,
+        0.04788306451612903,
+        0.0315136476426799,
+        0.03149801587301587,
+        0.015873015873015872
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 41.54899998684414
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.6120842536631899,
+        0.6055825529875265,
+        0.596964470819402,
+        0.579010770737402,
+        0.5366662081666251
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 33.07499998481944
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        2.8657341975538584,
+        1.6066717271756108,
+        1.5089764333604863,
+        0.8752892975538447,
+        0.7660567991907589
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 8.893899997929111
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-LOST-001"
+      ],
+      "scores": [
+        1.2992829841302609
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 6.9697999861091375
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.03252247488101534,
+        0.03125763125763126,
+        0.03125,
+        0.015873015873015872
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 42.051600001286715
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.032018442622950824,
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 40.07479996653274
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "original",
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.047643442622950824,
+        0.03252247488101534,
+        0.03252247488101534,
+        0.03125763125763126,
+        0.015873015873015872
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 48.99369995109737
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 LOST；台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.6843414980274524,
+        0.6680722206455363,
+        0.6450736917978226,
+        0.6150895311527419,
+        0.5556943952417803
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 27.357100014341995
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 LOST；台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        2.8657341975538584,
+        2.291864727264116,
+        2.225655156937741,
+        1.5089764333604863,
+        1.261160122053056
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 11.017800017725676
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 LOST；台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-LOST-001"
+      ],
+      "scores": [
+        1.2992829841302609
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 6.370000017341226
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 LOST；台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.032266458495966696,
+        0.03225806451612903,
+        0.032018442622950824,
+        0.03125763125763126,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 38.45020002336241
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 LOST；台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.01639344262295082,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 33.757500030333176
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "query_variant": "fact-anchored",
+      "query": "物流状态 LOST；台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "original_query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "query_reason": "shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.048651507139079855,
+        0.032266458495966696,
+        0.032018442622950824,
+        0.03125763125763126,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 44.8009000683669
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.641670352421548,
+        0.6230899023350215,
+        0.5833741429137913,
+        0.5814662038921519,
+        0.5460325891143705
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 30.530499992892146
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [],
+      "scores": [],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 14.665599999716505
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        1.2992829841302609
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 14.637399988714606
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 45.24920001858845
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.01639344262295082,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 45.21849998855032
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.01639344262295082,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 59.88969997270033
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.641670352421548,
+        0.6230899023350215,
+        0.5833741429137913,
+        0.5814662038921519,
+        0.5460325891143705
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 29.817000002367422
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [],
+      "scores": [],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 17.605400003958493
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        1.2992829841302609
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 8.913099998608232
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 47.49540000921115
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.01639344262295082,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 38.79560000495985
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "original_query": "付完钱还没发货，不想要了，可以退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.01639344262295082,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 56.39439998776652
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.6834486578414828,
+        0.6704869262848108,
+        0.629241991314802,
+        0.6272475338690036,
+        0.6090283578153166
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 25.317199993878603
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        2.8657341975538584,
+        0.36870486765135,
+        0.29287480089112955,
+        0.27095347632846184,
+        0.2491064397755646
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 20.89220000198111
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [],
+      "scores": [],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 7.681300019612536
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.03225806451612903,
+        0.03125763125763126,
+        0.03125,
+        0.015873015873015872
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 46.2851999909617
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 33.021300012478605
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.03225806451612903,
+        0.03125763125763126,
+        0.03125,
+        0.015873015873015872
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 53.99150002631359
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.6834486578414828,
+        0.6704869262848108,
+        0.629241991314802,
+        0.6272475338690036,
+        0.6090283578153166
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 31.78950000437908
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        2.8657341975538584,
+        0.36870486765135,
+        0.29287480089112955,
+        0.27095347632846184,
+        0.2491064397755646
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 8.533400017768145
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [],
+      "scores": [],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 16.280599986203015
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.03225806451612903,
+        0.03125763125763126,
+        0.03125,
+        0.015873015873015872
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 40.9644000174012
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 48.302499984856695
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "original_query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.03225806451612903,
+        0.03125763125763126,
+        0.03125,
+        0.015873015873015872
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 57.16180001036264
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.6543510875878152,
+        0.5964555806625642,
+        0.5896794871500061,
+        0.5756661770873894,
+        0.5680044447025102
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 40.684000006876886
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.7514183299479469,
+        0.6762258622947999,
+        0.35553683666380187,
+        0.23444033887294738,
+        0.22644132141350815
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 19.691100023919716
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        0.6622948336925285,
+        0.5877866649021191
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 15.38200001232326
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.031754032258064516,
+        0.031754032258064516,
+        0.03125763125763126,
+        0.03125763125763126,
+        0.01639344262295082
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 60.46090001473203
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.031754032258064516,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 56.10980003257282
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.04788306451612903,
+        0.03278688524590164,
+        0.031754032258064516,
+        0.03125763125763126,
+        0.03125763125763126
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 75.83050001994707
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.6543510875878152,
+        0.5964555806625642,
+        0.5896794871500061,
+        0.5756661770873894,
+        0.5680044447025102
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 28.949900006409734
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.7514183299479469,
+        0.6762258622947999,
+        0.35553683666380187,
+        0.23444033887294738,
+        0.22644132141350815
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 11.464799987152219
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        0.6622948336925285,
+        0.5877866649021191
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 7.504699984565377
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.031754032258064516,
+        0.031754032258064516,
+        0.03125763125763126,
+        0.03125763125763126,
+        0.01639344262295082
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 40.488499973434955
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.031754032258064516,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 36.492699990049005
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "original_query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.04788306451612903,
+        0.03278688524590164,
+        0.031754032258064516,
+        0.03125763125763126,
+        0.03125763125763126
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 47.984099976019934
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.7955464055952974,
+        0.6653769075713044,
+        0.6604780570907275,
+        0.6210391240028226,
+        0.5824010807586445
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 20.88180001010187
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        1.7542998875631701,
+        1.5848952936399576,
+        0.36870486765135,
+        0.29287480089112955,
+        0.27095347632846184
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 30.006000015418977
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-DMG-001"
+      ],
+      "scores": [
+        2.3357896343914804
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 10.380400024587288
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.03252247488101534,
+        0.03149801587301587,
+        0.03125763125763126,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 51.00540001876652
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 31.312800012528896
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.048915917503966164,
+        0.03252247488101534,
+        0.03149801587301587,
+        0.03125763125763126,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 61.36060005519539
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.7955464055952974,
+        0.6653769075713044,
+        0.6604780570907275,
+        0.6210391240028226,
+        0.5824010807586445
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 51.61799999768846
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        1.7542998875631701,
+        1.5848952936399576,
+        0.36870486765135,
+        0.29287480089112955,
+        0.27095347632846184
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 13.859800004865974
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-DMG-001"
+      ],
+      "scores": [
+        2.3357896343914804
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 22.320000018225983
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.03252247488101534,
+        0.03149801587301587,
+        0.03125763125763126,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 65.90039998991415
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        0.03278688524590164,
+        0.016129032258064516,
+        0.015873015873015872,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 74.02780003030784
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "original_query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "scores": [
+        0.048915917503966164,
+        0.03252247488101534,
+        0.03149801587301587,
+        0.03125763125763126,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 87.92970000649802
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.6124445419294925,
+        0.6019396752873603,
+        0.6000392219422302,
+        0.5957444196133428,
+        0.5820830323953969
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 37.655699998140335
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.9300455789114764,
+        0.8834990798898177,
+        0.8752892975538447,
+        0.7660567991907589,
+        0.36870486765135
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 17.633600014960393
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        1.4639808271890264
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 6.583700014743954
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.032266458495966696,
+        0.03177805800756621,
+        0.031754032258064516,
+        0.031754032258064516,
+        0.03125763125763126
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 55.41980001726188
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.032266458495966696,
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 44.28930001449771
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.04765107388058208,
+        0.032266458495966696,
+        0.03177805800756621,
+        0.031754032258064516,
+        0.031754032258064516
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 61.97760003851727
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.6124445419294925,
+        0.6019396752873603,
+        0.6000392219422302,
+        0.5957444196133428,
+        0.5820830323953969
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 31.442899984540418
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.9300455789114764,
+        0.8834990798898177,
+        0.8752892975538447,
+        0.7660567991907589,
+        0.36870486765135
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 12.527699989732355
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        1.4639808271890264
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 12.130199989769608
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.032266458495966696,
+        0.03177805800756621,
+        0.031754032258064516,
+        0.031754032258064516,
+        0.03125763125763126
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 44.09239997039549
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.032266458495966696,
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 43.65259996848181
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "original_query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "scores": [
+        0.04765107388058208,
+        0.032266458495966696,
+        0.03177805800756621,
+        0.031754032258064516,
+        0.031754032258064516
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 56.21089995838702
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-DMG-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.6451739450561309,
+        0.632576625314932,
+        0.6223786505010798,
+        0.5939887413536434,
+        0.5580505471908933
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 21.876299986615777
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        1.7102387684543343,
+        1.546485537434028,
+        0.6595932263898587,
+        0.5951461890648582,
+        0.46888067774589476
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 26.749799988465384
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        1.2992829841302609
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 12.117800011765212
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-MONEY-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.032266458495966696,
+        0.03200204813108039,
+        0.031009615384615385,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 48.730599955888465
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-MONEY-001",
+        "R-LOST-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.032266458495966696,
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 34.03969999635592
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "original",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-MONEY-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.04839549075403121,
+        0.03252247488101534,
+        0.032266458495966696,
+        0.031009615384615385,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 60.82769998465665
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "dense",
+      "rules": [
+        "R-DMG-001",
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.6451739450561309,
+        0.632576625314932,
+        0.6223786505010798,
+        0.5939887413536434,
+        0.5580505471908933
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 35.72159999748692
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-bm25",
+      "rules": [
+        "R-MONEY-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "scores": [
+        1.7102387684543343,
+        1.546485537434028,
+        0.6595932263898587,
+        0.5951461890648582,
+        0.46888067774589476
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 26.742399990325794
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-bm25",
+      "rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "scores": [
+        1.2992829841302609
+      ],
+      "all_required_at_3": false,
+      "all_required_at_5": false,
+      "estimated_sequential_ms": 16.900000016903505
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "body-rrf",
+      "rules": [
+        "R-MONEY-001",
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.03252247488101534,
+        0.032266458495966696,
+        0.03200204813108039,
+        0.031009615384615385,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 62.5399999844376
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "title-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-MONEY-001",
+        "R-LOST-001",
+        "R-SIGNED-001"
+      ],
+      "scores": [
+        0.032266458495966696,
+        0.01639344262295082,
+        0.016129032258064516,
+        0.015625,
+        0.015384615384615385
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 52.652600017609075
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "query_variant": "fact-anchored",
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "original_query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "query_reason": "no_unambiguous_shipment_fact",
+      "variant": "fields-rrf",
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-MONEY-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "scores": [
+        0.04839549075403121,
+        0.03252247488101534,
+        0.032266458495966696,
+        0.031009615384615385,
+        0.015625
+      ],
+      "all_required_at_3": true,
+      "all_required_at_5": true,
+      "estimated_sequential_ms": 79.42230001208372
+    }
+  ],
+  "preservation": {
+    "before": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "after": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "equal": true
+  },
+  "inputs": {
+    "evals\\customer-rag-v1\\queries.json": "fab42c20bd84e5161cfbacf2cb48e095d2efff213b59121e6b6b8dd4d7eb3039",
+    "reports\\customer-agent-live-v1\\runtime-results.json": "cbcd2c79186178586f8be85f36252d001c6a9222b572bf3710185275cc7888f8",
+    "scripts\\customer_rag_candidates.py": "9d2571a9a7d48c300b405beeab2c899dc7b2415b9dca4ca238b93f7f4b03e7ee",
+    "agent\\src\\resolveflow\\support\\query.py": "149396d9bae2b4adc9b7851bc0d945de646b0e8bd7511d4d87efa7356c88136c",
+    "agent\\src\\resolveflow\\support\\retrieval.py": "455b12050cd0473612d90a2a6d38c442fe8d73a0cebf00318dc36b47310b3fdc",
+    "agent\\src\\resolveflow\\policies\\index.py": "3968b252cd10c1c0a3d3ead8957c30b31f06f615945f73d9289e7606df6c8ce8"
+  }
+}
