@@ -1,3 +1,8 @@
+## 当前快照（2026-10-20，客服RAG第一批：诊断基线已实测）
+
+- 用户授权开始修正RAG。本轮先冻结3条保存的真实模型Query、3条人工参考Query与6条合成场景探针，真实本地BGE/原固定政策generation只读24次搜索。dense原Query Top3必要条款2/3、人工参考3/3、合成5/6；不作为自动Query或盲测提升。L08两路第4复现，P02也漏，见[报告](../reports/customer-rag-v1/README.md)。
+- 仅临时启动保留PG，强制只读连接、public全表前后行数/hash相等，无新LLM/业务worker/政策重建。首次dense9.7秒、随后69–99ms，不据此把原59秒全部归因于加载。下一小步修共享embedding与阶段计时；本步脚本/冻结输入/报告/基线精确提交正常push。原四历史脏文件保留，不夹带。
+
 ## 当前快照（2026-10-20，RAG成熟系统源码调研完成，待用户决定优化实施）
 
 - 用户要求去GitHub核查成熟RAG的Query/检索方式，并审查当前文档质量。已只读固定RAGFlow v0.23.0、Dify/Haystack main快照，共9份源码；[调研与项目判断](../docs/rag-engineering-review-v1.md)及[来源/hash清单](../reports/rag-engineering-review-v1/sources.json)记录实际函数/分支、版本、获取失败和建议，不声称部署或收益。

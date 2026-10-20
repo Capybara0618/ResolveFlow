@@ -1,0 +1,89 @@
+{
+  "version": "customer-rag-diagnostic-v1",
+  "source_sha256": "cbcd2c79186178586f8be85f36252d001c6a9222b572bf3710185275cc7888f8",
+  "not_holdout": true,
+  "annotation": "开发诊断集。前三条保留已观察真实模型Query；人工参考Query只用于检索归因。后六条为人工合成场景，不是用户日志、自动Query生成或盲测。每条标注必要条款，不代表其他条款均无关。",
+  "cases": [
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "source_case": "L02",
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "reference_query": "已签收但未收到 签收争议 核验签收凭证"
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "source_case": "L03",
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "reference_query": "已签收未收到 能否直接退款 签收争议政策"
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "source_case": "L08",
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "reference_query": "承运商结论 LOST 丢失 退款处理条件"
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "source_case": "L02",
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "query": "付完钱还没发货，不想要了，可以退吗？"
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "source_case": "L08",
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。"
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "source_case": "L02",
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？"
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "source_case": "L08",
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？"
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "source_case": "L02",
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？"
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "source_case": "L08",
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？"
+    }
+  ]
+}
