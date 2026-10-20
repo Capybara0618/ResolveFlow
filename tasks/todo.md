@@ -1,4 +1,11 @@
-## 当前快照（2026-10-20，客服Agent与RAG工程接线验收完成）
+## 当前快照（2026-10-20，客服双端预期图v2完成）
+
+- 用户最新要求先关闭项目再继续设计：标准`stop.ps1`返回0，已停止Case/Commerce/Gateway/Agent-live/frontend及resolveflow-review-demo所属依赖容器，数据卷保留，不reset或清库；日志在忽略tmp/customer-agent-design-v1/user-experience-stop.log。停止确认后才继续本批图文/校验，不重新启动服务。
+- 用户体验现有页面后要求参考成熟售后客服并绘制买家/商家双端预期图；本批使用imagegen技能及内置image_gen各生成一图。已读Intercom Messenger与Zendesk Agent Workspace官方资料；Chatwoot官方搜索摘要作补充、正文抓取超时。新增[图文说明](../docs/ui-customer-agent-v2/README.md)、完整提示词、两张PNG及manifest；原图/现有运行界面保留，不改Vue/协议/Agent/RAG，服务按用户最新关闭指示处理。
+- 设计为买家会话/聊天/订单上下文、商家队列/客户沟通/调查依据；保留客户确认转交、本店来源与政策版本、陈述和事实分开及人工处理。图中搜索筛选/摘要分区为预期，附件图标不表示批准上传；队列计数与小字以文字规格为准。用户指定GPT Image 2，内置接口无model参数且未返回模型ID，具体模型版本未单独核验，未使用CLI或降级模型。
+- 人工检查两图布局/主要文字/共享边界，PNG尺寸/hash、原图复制一致、两份提示词、本地链接及9个端口关闭核验见manifest；首次内联校验受PowerShell反引号转义失败，改用保存脚本重验。仅设计，未运行实现/响应式/业务质量测试，无新业务模型请求。核对原四脏文件不夹带后，本批精确commit/正常push并核实远端，SHA在回复报告；下一步先讨论图的方向，不自动改造当前页面。
+
+## 历史快照（2026-10-20，客服Agent与RAG工程接线验收完成）
 
 - 2026-10-20用户请求启动体验：`start.ps1 -SkipBuild -NoBrowser`返回0，复用已构建Java包，标准入口启动原数据上的三Java、真实模型配置Agent、网页及依赖，九项组件/政策索引检查全通过。经5174→Gateway登录并只读核验buyer01的4咨询、admin01的2核查单及共享报告通过，未发送测试问题或另跑模型评测。日志/无凭据结果在忽略tmp/customer-agent-design-v1/user-experience-start.log及user-entry-check.json。当前正式服务保持运行供用户体验；下方临时停机记录为上一批收尾。应用内打开请求已排队；终端唤起浏览器与记账的组合命令被自动审批blocked by policy拒绝，未执行该组合命令，不改启动结果。原四历史脏文件保持，不清库/造新交易。
 

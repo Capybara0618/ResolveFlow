@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-20",
+  "kind": "design-mockups",
+  "implemented": false,
+  "generation": {
+    "tool": "image_gen",
+    "mode": "built-in",
+    "requested_model": "gpt-image-2",
+    "returned_model_id": null,
+    "model_version_verified": false,
+    "reference_role": "User screenshots identify current layout problems; no pixels copied or edited."
+  },
+  "images": [
+    {
+      "path": "images/buyer-chat-v2.png",
+      "original_basename": "exec-e51d97d5-a553-4d3a-9ff5-67eb27bba949.png",
+      "prompt_sha256": "373717dbfbb033f56f99cdbf540ee460c77033ad6820d37a14398cd0f38799ce",
+      "sha256": "3044e9048ea0d5b89a7da2b610940de4995cd0be3094aa4f25c4638a54d00fc1",
+      "width": 1586,
+      "height": 992
+    },
+    {
+      "path": "images/merchant-inbox-v2.png",
+      "original_basename": "exec-c7fa6ebb-db83-42cd-8436-aa07f233dea7.png",
+      "prompt_sha256": "4ef4171c8e55fad5c81cbdcf105a24d0f6fef16237752ff52dcf233c24c9205a",
+      "sha256": "be1c3171f2ee23527f3aced2fc9ba88a8a29b97fae137cbdc2c90f3ca84b466a",
+      "width": 1586,
+      "height": 992
+    }
+  ],
+  "primary_sources": [
+    "https://www.intercom.com/help/en/articles/9319961-updates-to-the-messenger",
+    "https://www.intercom.com/help/en/articles/6612589-set-up-and-customize-the-messenger",
+    "https://support.zendesk.com/hc/en-us/articles/4408821259930-About-the-Zendesk-Agent-Workspace/"
+  ],
+  "validation": {
+    "generated_images_visually_reviewed": true,
+    "primary_labels_in_chinese": true,
+    "buyer_transfer_requires_confirmation": true,
+    "merchant_view_contains_only_explicitly_shared_content": true,
+    "business_source_code_modified": false,
+    "responsive_implementation_tested": false,
+    "local_links_checked": 5,
+    "prompt_count": 2,
+    "copies_match_generated_originals": true,
+    "initial_inline_shell_check_failed": "PowerShell backtick escaping removed Markdown code fences; corrected by using a saved Python verification script."
+  },
+  "runtime": {
+    "user_requested_shutdown": true,
+    "standard_stop_exit_code": 0,
+    "data_volumes_retained": true,
+    "ports": {
+      "5174": "closed",
+      "8180": "closed",
+      "8181": "closed",
+      "8182": "closed",
+      "8183": "closed",
+      "3307": "closed",
+      "55433": "closed",
+      "9877": "closed",
+      "10912": "closed"
+    }
+  }
+}
