@@ -4332,6 +4332,7 @@ components:
           - SHIPMENT
           - POLICY
           - CONVERSATION
+          - KNOWLEDGE
         content_hash:
           type: string
           pattern: ^[a-f0-9]{64}$

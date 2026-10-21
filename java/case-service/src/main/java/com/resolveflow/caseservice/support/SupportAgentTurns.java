@@ -352,7 +352,7 @@ public class SupportAgentTurns {
         for (var cite : citations) {
             if (!cite.path("source_id").asString().matches("[OP][1-9][0-9]*")
                     || !cite.path("content_hash").asString().matches("[a-f0-9]{64}")
-                    || !List.of("ORDER", "SHIPMENT", "CONVERSATION", "POLICY")
+                    || !List.of("ORDER", "SHIPMENT", "CONVERSATION", "POLICY", "KNOWLEDGE")
                             .contains(cite.path("source_type").asString())) return false;
             if (cite.path("source_type").asString().equals("POLICY")
                     && (!t.merchant.equals(cite.path("data").path("merchant_id").asString())

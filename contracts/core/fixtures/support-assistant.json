@@ -50,6 +50,18 @@
               "version": 3,
               "status": "DELIVERED"
             }
+          },
+          {
+            "source_id": "O2",
+            "source_type": "KNOWLEDGE",
+            "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "version": "2026.10.21-v1",
+            "title": "售后咨询使用指南",
+            "data": {
+              "authority": "APPLICATION_GUIDE",
+              "text": "请商家核查不需要先申请退款。",
+              "knowledge_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+            }
           }
         ],
         "handoff_summary": "系统显示签收，客户否认收到，请商家核查。"
@@ -85,6 +97,18 @@
               "data": {
                 "version": 3,
                 "status": "DELIVERED"
+              }
+            },
+            {
+              "source_id": "O2",
+              "source_type": "KNOWLEDGE",
+              "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "version": "2026.10.21-v1",
+              "title": "售后咨询使用指南",
+              "data": {
+                "authority": "APPLICATION_GUIDE",
+                "text": "请商家核查不需要先申请退款。",
+                "knowledge_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
               }
             }
           ],
@@ -141,6 +165,18 @@
             "data": {
               "version": 3,
               "status": "DELIVERED"
+            }
+          },
+          {
+            "source_id": "O2",
+            "source_type": "KNOWLEDGE",
+            "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "version": "2026.10.21-v1",
+            "title": "售后咨询使用指南",
+            "data": {
+              "authority": "APPLICATION_GUIDE",
+              "text": "请商家核查不需要先申请退款。",
+              "knowledge_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             }
           }
         ],

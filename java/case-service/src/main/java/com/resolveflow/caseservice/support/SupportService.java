@@ -487,7 +487,8 @@ public class SupportService {
                         value.mode(),
                         value.citations().stream()
                                 .filter(c ->
-                                        List.of("ORDER", "SHIPMENT", "POLICY").contains(c.get("source_type")))
+                                        List.of("ORDER", "SHIPMENT", "POLICY", "KNOWLEDGE")
+                                                .contains(c.get("source_type")))
                                 .toList(),
                         value.handoffSummary());
             }

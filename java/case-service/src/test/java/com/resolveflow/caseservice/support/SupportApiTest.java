@@ -254,6 +254,10 @@ class SupportApiTest extends CaseDatabaseTest {
                     "b".repeat(64),
                     "data",
                     Map.of("text", "私人历史不交给商家"));
+            var guide = Map.of(
+                    "source_id", "O3", "source_type", "KNOWLEDGE", "version", "2026.10.21-v1",
+                    "content_hash", "c".repeat(64),
+                    "data", Map.of("authority", "APPLICATION_GUIDE", "text", "人工核查不需要先申请退款。"));
             return json.readTree(json.writeValueAsString(Map.of(
                     "run_id",
                     input.get("run_id"),
@@ -270,7 +274,7 @@ class SupportApiTest extends CaseDatabaseTest {
                             "text",
                             "建议核查签收。",
                             "citations",
-                            List.of(shipment, privateHistory),
+                            List.of(shipment, privateHistory, guide),
                             "handoff_summary",
                             "客户否认收到，请核验签收。"))));
         });
@@ -293,8 +297,9 @@ class SupportApiTest extends CaseDatabaseTest {
                         messageId),
                 200);
         var report = get("/tickets/" + c.get("ticket").get("ticket_id").asString(), merchant, 200);
-        assertThat(report.get("ticket").get("report").get("citations").size()).isEqualTo(1);
+        assertThat(report.get("ticket").get("report").get("citations").size()).isEqualTo(2);
         assertThat(report.toString()).contains("DELIVERED").doesNotContain("私人历史不交给商家");
+        assertThat(report.toString()).contains("APPLICATION_GUIDE").contains("人工核查不需要先申请退款");
     }
 
     @Test
