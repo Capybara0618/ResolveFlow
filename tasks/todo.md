@@ -1,3 +1,8 @@
+## 当前快照（2026-10-21，客服上下文企业工程调研完成）
+
+- 用户要求调研成熟客服上下文工程，已查Intercom Fin/Cognigy/Rasa官方配置与API、AWS Memory开发文档，并固定Chatwoot develop 39314c9定点读6源码，3猜测路径404保留。见[调研与项目对照](../docs/customer-context-engineering-review-v1.md)/[来源清单](../reports/customer-context-engineering-review-v1/sources.json)；公开产品行为与源码事实、综合建议明确分开，不推断私有prompt或部署效果。
+- 当前实现与上一批可评测状态不变，建议下一优先为来源化有效陈述/纠正关系、显式暂停恢复/撤回、按事项注入旧证据，摘要按需作为后续候选；上述均未新增实现，不自动修改冻结清单/评测/简历。仅文档及本顶部，未运行模型/服务/DB、未改生产代码或旧29文件；精确提交正常push后收口。
+
 ## 当前快照（2026-10-21，客服Agent评测前工程完成，待正式评测）
 
 - 用户要求做到可以开始评测，暂不更新简历。按[本批设计与验收](../docs/customer-agent-readiness-v1.md)实施任务状态、分层上下文/原文读回、跨轮提示与工程验证，保留单AgentScope循环和现有RAG/Java资金权限；不运行正式效果评测或付费模型，不启动原业务队列。
