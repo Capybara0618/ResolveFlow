@@ -174,6 +174,17 @@ class SupportApiTest extends CaseDatabaseTest {
         var c = message(open("support-A"), "ask", "这个签收记录如何核查？", "ASSISTANT");
         when(assistant.execute(anyString(), any())).thenAnswer(i -> {
             Map<String, Object> input = i.getArgument(1);
+            JsonNode context = (JsonNode) input.get("context");
+            assertThat(context.get("conversation_state"))
+                    .isEqualTo(json.readTree(json.writeValueAsString(Map.of(
+                            "has_ticket",
+                            false,
+                            "ticket_status",
+                            "NONE",
+                            "current_recipient",
+                            "ASSISTANT",
+                            "default_recipient",
+                            "ASSISTANT"))));
             return json.readTree(json.writeValueAsString(Map.of(
                     "run_id",
                     input.get("run_id"),
@@ -225,6 +236,67 @@ class SupportApiTest extends CaseDatabaseTest {
         var live = get(path(c), buyer, 200);
         assertThat(live.get("assistant_turn").get("status").asString()).isEqualTo("RUNNING");
         assertThat(live.get("messages").size()).isEqualTo(1);
+    }
+
+    @Test
+    void assistantAfterHandoffReceivesTrustedTicketStateSeparateFromCurrentPrivateRecipient() {
+        var c = open("support-A");
+        c = post(
+                path(c) + "/tickets",
+                buyer,
+                "state-handoff",
+                Map.of(
+                        "expected_version",
+                        c.get("version").asLong(),
+                        "summary",
+                        "仅核查",
+                        "shared_message_ids",
+                        List.of()),
+                200);
+        message(c, "private-state", "我想私下问一下", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> input = i.getArgument(1);
+            JsonNode context = (JsonNode) input.get("context");
+            assertThat(context.get("conversation_state"))
+                    .isEqualTo(json.readTree(json.writeValueAsString(Map.of(
+                            "has_ticket",
+                            true,
+                            "ticket_status",
+                            "PENDING",
+                            "current_recipient",
+                            "ASSISTANT",
+                            "default_recipient",
+                            "MERCHANT"))));
+            return json.readTree(json.writeValueAsString(Map.of(
+                    "run_id",
+                    input.get("run_id"),
+                    "conversation_id",
+                    input.get("conversation_id"),
+                    "input_version",
+                    input.get("input_version"),
+                    "status",
+                    "FAILED",
+                    "reason",
+                    "TEST_ONLY")));
+        });
+        turns.dispatchOne();
+        verify(assistant, times(1)).execute(anyString(), any());
+        assertThat(get(path(c), buyer, 200).get("assistant_turn").get("reason").asString())
+                .isEqualTo("TEST_ONLY");
+        var state = jdbc.queryForObject(
+                "SELECT context_json FROM support_agent_turn WHERE conversation_id=?",
+                String.class,
+                c.get("conversation_id").asString());
+        assertThat(json.readTree(state).get("conversation_state"))
+                .isEqualTo(json.readTree(json.writeValueAsString(Map.of(
+                        "has_ticket",
+                        true,
+                        "ticket_status",
+                        "PENDING",
+                        "current_recipient",
+                        "ASSISTANT",
+                        "default_recipient",
+                        "MERCHANT"))));
     }
 
     @Test

@@ -12,6 +12,10 @@ Python咨询运行独立于退款agent_run，不填虚假case_id。AgentScope Ag
 
 ## 上下文与检索
 
+2026-10-21客服Harness优化见[本批方案](customer-agent-optimization-v1.md)：实际模型上下文携带与SDK一致的工具用途/合法动作示例，区分实时事实、资格政策与操作指南；格式错误的一次反馈定位字段，未知引用列出当前合法来源。工具持续失败时source_status显示失败次数/能否重试，同参数可重试失败至多实际访问两次，之后给模型明确未取得资料的观察，由模型决定读指南或整理待确认摘要。状态通过持久工具结果重建，不替模型生成答案，不重置原预算。
+
+Java在会话版本/fence校验后的短事务中冻结可选`conversation_state`：has_ticket、ticket_status、current_recipient及default_recipient。当前消息私发助手，不表示页面初始接收方也是助手；有核查单时页面初始接收方为商家。Python将系统状态和客户陈述分别放入实际请求，旧输入缺字段为null，不推断核查单已创建。新增状态兼容原开放context协议，原持久run输入不回填升级。
+
 2026-10-20客服RAG第二批更新：咨询`BoundSources.search`采用同一原Query的正文dense、正文BM25、标题BM25各取最多5候选，正分词法候选与dense按RRF(k=60)去重融合，再返回Agent要求的1–5条完整规则。三路都绑定原商家/manifest/generation，dense或任一路失败不回退拼凑部分结果；只有一次Query编码，没有额外改写模型。计时在旁路日志，引用仍为原条款。原退款调查Harness及PolicyIndex默认dense不变，下面“咨询仅dense”是首版历史。实际对照、退化和未运行项见[第二批报告](../reports/customer-rag-v2/README.md)。
 
 Query继续由现有Agent动作生成，当前问题/有效历史补全指代、区分客户猜测和已读事实、订单/物流状态分开，不强制先读所有工具；未提出的补发等意图不应新增。直接拼接物流代码在诊断中导致退化，未接入生产。新指引的真实模型保真性和最终回答效果仍待单独复测；检索提升不等于答案质量已通过。

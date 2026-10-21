@@ -1,8 +1,9 @@
-## 当前快照（2026-10-21，客服Agent优化：工具协议/精确纠错/失败恢复已验证）
+## 当前快照（2026-10-21，客服Agent优化：可信状态接线与集中回归通过）
 
-- 用户授权按[方案](../docs/customer-agent-optimization-v1.md)优化，工具目录/合法示例进入实际模型请求和SDK、精确一次kind/schema/引用纠错，准备d968a99已普通push核实。先3红测失败，目录接线后20通过/1窗口超限，合并重复系统指引并完整保留指南正文、审计留持久引用后21通过；3生产模块严格mypy/Ruff通过。
-- 新SourceRecovery按工具及参数跟踪失败；可重试失败至多实际读2次，不可重试不再访问，拒绝重复动作仍记录/计尝试；source_status明确交给模型选择说明缺失/读指南/待确认核查摘要。短暂失败后成功会清状态，不替模型生成业务答案或自动转交；原NO_PROGRESS/预算保留。状态通过已保存工具结果重建，恢复不重发或重置计数，新源码hash入manifest。
-- 本步新增3关键红测全失败，再24单元通过，含真实隔离PG崩溃重建和ASGI指南共32通过/0失败/跳过；3生产模块严格mypy、5文件Ruff通过，原Starlette警告保留。持续失败/稍后成功/不可重试/复用分别验证。下一Java可信会话状态及集中新版本实测；PG临时运行、业务worker停、新生成API0，原四历史脏文件保持。
+- 用户授权按[方案](../docs/customer-agent-optimization-v1.md)实施，工具协议/精确纠错d968a99、来源失败状态/有界重试/持久恢复88a100c均普通push核实。AgentScope循环、模型、RAG、权限/预算/锁保持。指南模型包只精简审计元数据，完整正文和持久引用保留；自然语言条件完整性靠指引/语义验收，不硬编码政策或题号冒充门禁。
+- Java在版本/fence检查后的会话事务内冻结has_ticket/ticket_status/current_recipient/default_recipient；Python实际请求独立携带，旧context缺字段null，不从用户陈述造系统事实。新增无核查单/转交后私有询问与默认商家接收方检查。Python新状态红测1失败后通过；Java首红14中1失败，接线后测试误将JsonNode转Map被派发异常处理捕获仍1失败，改实际类型并在派发外核验持久值/TEST_ONLY原因后14 API通过，SupportWire一并执行成功。原字段/过时发布/fence测试保留。
+- 本批集中Python咨询/工具/来源/协议/实际ASGI/隔离PG恢复/评测驱动共77通过/0失败/跳过；4生产模块严格mypy和相关Ruff通过，Java两自有文件Spotless apply通过。Ruff从agent目录误检scripts导入分类产生2告警，按仓库根配置检查修正新测试导入后通过，原脚本无需改排序；原Starlette/Mockito警告保留。
+- [新版本12场景](../evals/customer-agent-live-v3/cases.json)业务文本/事实/政策pins/评分与v2逐字相同，仅run/conversation ID不同，新runner验证输入/基线报告hash，不伪造系统状态到旧快照。准备脚本尚未正式真实调用。PG临时运行/业务worker停，原四历史脏文件保持。本可信状态纵向小步精确commit普通push核实后提交评测准备并执行一次真实回归。
 
 ## 当前快照（2026-10-21，客服RAG真实模型v2验收完成）
 

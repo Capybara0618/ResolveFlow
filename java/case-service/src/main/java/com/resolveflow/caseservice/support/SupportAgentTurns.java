@@ -265,13 +265,26 @@ public class SupportAgentTurns {
         context.put("history_before", history.size() == 20 ? history.getFirst().get("sequence") : null);
         context.put("current_request", current.get("text"));
         context.put("policy_manifest", manifest(t, line.paidAt()));
-        String encoded = json.writeValueAsString(context);
         return tx.execute(st -> {
             Turn live = lock(t.id);
             if (!same(t, live)) {
                 markStale(live, t);
                 return null;
             }
+            var tickets = db.queryForList(
+                    "SELECT status FROM support_ticket WHERE conversation_id=?", String.class, t.conversation);
+            context.put(
+                    "conversation_state",
+                    Map.of(
+                            "has_ticket",
+                            !tickets.isEmpty(),
+                            "ticket_status",
+                            tickets.isEmpty() ? "NONE" : tickets.getFirst(),
+                            "current_recipient",
+                            current.get("recipient"),
+                            "default_recipient",
+                            tickets.isEmpty() ? "ASSISTANT" : "MERCHANT"));
+            String encoded = json.writeValueAsString(context);
             if (live.context == null)
                 db.update("UPDATE support_agent_turn SET context_json=? WHERE run_id=?", encoded, t.id);
             return find(t.id);

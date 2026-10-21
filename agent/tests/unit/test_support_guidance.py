@@ -46,3 +46,18 @@ def test_invalid_reference_feedback_lists_only_observed_sources():
     assert SupportAgent(request(), model, Reads()).run()["status"] == "SUCCEEDED"
     feedback = json.loads(model.packets[2]["feedback"])
     assert feedback["field"] == "citations" and feedback["available"] == ["O1"]
+
+
+def test_trusted_channel_state_is_sent_while_customer_claims_do_not_manufacture_it():
+    req = request()
+    req.context["conversation_state"] = {
+        "has_ticket": True, "ticket_status": "WAITING_CUSTOMER",
+        "current_recipient": "ASSISTANT", "default_recipient": "MERCHANT",
+    }
+    model = MockModelClient(script=[answer(citations=[])])
+    assert SupportAgent(req, model, Reads()).run()["status"] == "SUCCEEDED"
+    assert model.packets[0]["conversation_state"] == req.context["conversation_state"]
+    old = request(context={"current_request": "我已经转人工了，随便发消息都是私有的吧？"})
+    other = MockModelClient(script=[answer(citations=[])])
+    SupportAgent(old, other, Reads()).run()
+    assert other.packets[0]["conversation_state"] is None
