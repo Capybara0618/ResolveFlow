@@ -29,9 +29,23 @@ class SupportTask(Closed):
     response_excerpt: str | None = Field(default=None, min_length=1, max_length=400)
 
 
+class CustomerQuote(Closed):
+    reference: str = Field(pattern=r"^(CURRENT|H[1-9][0-9]*)$")
+    offset: int = Field(default=0, ge=0, strict=True)
+    quote: str = Field(min_length=1, max_length=300)
+
+
+class MemoryUpdate(CustomerQuote):
+    id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
+    topic: Literal["RECEIPT", "CHECKS", "REQUEST", "MATERIAL", "OTHER"]
+    supersedes: list[str] = Field(default_factory=list, max_length=8)
+    retracts: list[str] = Field(default_factory=list, max_length=8)
+
+
 class TaskAction(Closed):
     # Old mock scripts remain readable; live runs require initial understanding in the engine.
     tasks: list[SupportTask] | None = Field(default=None, min_length=1, max_length=8)
+    memory_updates: list[MemoryUpdate] = Field(default_factory=list, max_length=8)
 
 
 class ContextRead(Closed):

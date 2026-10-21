@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from resolveflow.support.memory import MemoryStateError
 from resolveflow.support.tasks import TaskStateError
 
 CAPABILITIES: dict[str, dict[str, Any]] = {
@@ -68,7 +69,9 @@ def tool_schema(name: str) -> dict[str, Any]:
 
 def decision_feedback(error: Exception, payload: Any, references: list[str]) -> str:
     result: dict[str, Any] = {"code": "INVALID_DECISION", "remaining_repairs": 0}
-    if isinstance(error, TaskStateError):
+    if isinstance(error, MemoryStateError):
+        result.update(field="memory_updates", detail=str(error))
+    elif isinstance(error, TaskStateError):
         result.update(field="tasks", detail=str(error))
     elif isinstance(payload, dict) and payload.get("kind") in CAPABILITIES:
         name = payload["kind"]
