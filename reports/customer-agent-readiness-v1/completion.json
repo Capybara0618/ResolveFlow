@@ -1,0 +1,235 @@
+{
+  "date": "2026-10-21",
+  "phase": "ENGINEERING_READY_FOR_EVALUATION",
+  "formal_evaluation_executed": false,
+  "new_model_provider_calls": 0,
+  "usage_ledger_after": 1540,
+  "python": {
+    "passed": 96,
+    "failed": 0,
+    "skipped": 0,
+    "modules": 19
+  },
+  "java": {
+    "support_api_passed": 15,
+    "support_wire_passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "strict_mypy_production_modules": 6,
+  "ruff_passed": true,
+  "spotless_own_files_passed": true,
+  "scripted_three_turn_api_sdk_pg_passed": true,
+  "scripted_decisions_in_three_turn_test": 6,
+  "new_quality_scores": null,
+  "preflight": {
+    "version": "customer-agent-readiness-v1",
+    "preflight": "PASSED",
+    "conversations": 12,
+    "turns": 36,
+    "new_model_calls": 0,
+    "formal_evaluation_executed": false,
+    "database_checked": true,
+    "database": {
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f",
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "public_before": {
+        "agent_callback_outbox": {
+          "rows": 10,
+          "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+        },
+        "agent_model_attempt": {
+          "rows": 18,
+          "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+        },
+        "agent_model_call": {
+          "rows": 18,
+          "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+        },
+        "agent_run": {
+          "rows": 5,
+          "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+        },
+        "agent_run_model_budget": {
+          "rows": 5,
+          "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+        },
+        "agent_tool_call": {
+          "rows": 12,
+          "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+        },
+        "policy_index_child": {
+          "rows": 36,
+          "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+        },
+        "policy_index_chunk": {
+          "rows": 180,
+          "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+        },
+        "policy_index_generation": {
+          "rows": 30,
+          "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+        },
+        "support_agent_call": {
+          "rows": 52,
+          "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+        },
+        "support_agent_run": {
+          "rows": 11,
+          "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+        }
+      },
+      "public_after": {
+        "agent_callback_outbox": {
+          "rows": 10,
+          "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+        },
+        "agent_model_attempt": {
+          "rows": 18,
+          "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+        },
+        "agent_model_call": {
+          "rows": 18,
+          "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+        },
+        "agent_run": {
+          "rows": 5,
+          "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+        },
+        "agent_run_model_budget": {
+          "rows": 5,
+          "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+        },
+        "agent_tool_call": {
+          "rows": 12,
+          "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+        },
+        "policy_index_child": {
+          "rows": 36,
+          "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+        },
+        "policy_index_chunk": {
+          "rows": 180,
+          "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+        },
+        "policy_index_generation": {
+          "rows": 30,
+          "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+        },
+        "support_agent_call": {
+          "rows": 52,
+          "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+        },
+        "support_agent_run": {
+          "rows": 11,
+          "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+        }
+      },
+      "equal": true
+    }
+  },
+  "preservation": {
+    "public": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "temporary_schemas": [],
+    "matches_v3": true,
+    "dirty_files_unchanged": true,
+    "ledger_used": 1540
+  },
+  "inherited_dirty_files": {
+    "docs/engineering.md": {
+      "worktree_sha256": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+      "diff_sha256": "2ea8e5b42e4651876dec174fd8857391153859870e63d6433c529498326558d4"
+    },
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": {
+      "worktree_sha256": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+      "diff_sha256": "74a7ee8fa53619c540e76b2141a0d723a2e33187fd17323532f8298c204970b9"
+    },
+    "scripts/verify.ps1": {
+      "worktree_sha256": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+      "diff_sha256": "783d905eca718fe0f691483d4645fcb3d3311a3497e7349973c16e4c80fd6804"
+    },
+    "scripts/verify.sh": {
+      "worktree_sha256": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a",
+      "diff_sha256": "5de242ba9bcf73415f4452a9132eaf4b16df37973ad83e85e5b79bbbe52cbbc3"
+    }
+  },
+  "project_ports_closed": [
+    5174,
+    8080,
+    8081,
+    8083,
+    8090,
+    55433,
+    53306,
+    6379,
+    9876,
+    10911
+  ],
+  "pg_state": "exited",
+  "retained_pg_volume": "resolveflow-review-demo_demo-postgres-data",
+  "frontend_or_refund_changed": false,
+  "whole_repo_green_claim": false,
+  "new_dependency_or_weight_downloads": 0,
+  "business_queue_consumed": false,
+  "resume_changed": false,
+  "new_trade_refund_or_policy_publish": false,
+  "formal_paired_dispatch_and_semantic_review": "DEFERRED_TO_EVALUATION_PHASE",
+  "evidence_sha256": {
+    "tmp/customer-agent-readiness-v1/python-final.log": "b700cd960ddd6f4bdc075ec1fd4b73da309e98e0b096ecd8dcb7c55d642f3b15",
+    "evals/customer-agent-readiness-v1/manifest.json": "d0ed3af32bf37f047f58f2911f220ac870a2a600ba90cc9f7978e6f70ba5d0bf",
+    "evals/customer-agent-readiness-v1/scenarios.json": "7865e61dfa2013665399f1791e507242ba5b29ad1046245438e3de1852834c27",
+    "scripts/customer_agent_readiness.py": "1f55128188cf15985c51128450a265ad876a0f8902f0d9687fefb84772595c41",
+    "reports/customer-agent-readiness-v1/README.md": "2fa09504f4c1a8a6e49de0e5d4de5c41bdd866cdf2327dc2680fefcb841aed9f",
+    "java/case-service/target/surefire-reports/TEST-com.resolveflow.caseservice.support.SupportApiTest.xml": "8988bb84408068f73cc52ed9fa255388259a845d3baab544b539ea0bef03c404",
+    "java/shared-kernel/target/surefire-reports/TEST-com.resolveflow.shared.support.SupportWireTest.xml": "8a70c390187387b294ab4752cb8a98da16699a128c1f50c748579d0bba83cc24"
+  },
+  "packaging_line_endings": "LF; JSON values unchanged; precommit original bytes retained in ignored tmp"
+}
