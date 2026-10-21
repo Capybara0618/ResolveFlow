@@ -1,0 +1,1208 @@
+{
+  "version": "customer-rag-live-v2",
+  "date": "2026-10-21",
+  "synthetic": true,
+  "not_holdout": true,
+  "scoring": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_HUMAN_GOLD",
+  "factual_scope": "Historical synthetic snapshots through mock upstream HTTP; actual model/ASGI/AgentScope/BGE/read-only PG policy retrieval and isolated PG run journal",
+  "source": {
+    "path": "reports/customer-agent-live-v1/runtime-results.json",
+    "sha256": "cbcd2c79186178586f8be85f36252d001c6a9222b572bf3710185275cc7888f8"
+  },
+  "guide_asset_sha256": "41d1eb95d617ae018f265013afa3fbdad294d2e61423393684ba4114ab2a8cbd",
+  "case_count": 12,
+  "cases": [
+    {
+      "id": "G01",
+      "group": "guide",
+      "snapshot_case": "L05",
+      "input_without_deadline": {
+        "run_id": "e52b7f41-17ad-5e06-b84f-acbc18119003",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "无线降噪耳机",
+            "variant": "黑色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "amount_minor": 32900
+          },
+          "history_before": null,
+          "current_request": "我只是想请人工查一下运输情况，不打算退款。在哪操作？必须先提交退款申请吗？",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1001-2026.10"
+            ],
+            "merchant_id": "M-1001",
+            "safety_epoch": 3,
+            "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+            "selected_by_paid_at": "2026-10-20T03:13:33.555679Z"
+          }
+        },
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "merchant_id": "M-1001",
+        "input_version": 1,
+        "conversation_id": "7e23f645-ca31-51c6-8f38-9a941820d4c7"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-1001-01",
+            "status": "PAID",
+            "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+            "paid_at": "2026-10-20T03:13:33.555679Z",
+            "version": 1,
+            "category": "electronics",
+            "currency": "CNY",
+            "order_id": "94c73478-fbbb-4840-8ee9-b2bdd746aee5",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "product_name": "无线降噪耳机",
+            "variant_text": "黑色",
+            "line_paid_amount": 32900
+          },
+          "merchant_id": "M-1001"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:33.555679Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:33.631640Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "EXCEPTION_DELAYED",
+                  "occurred_at": "2026-10-20T03:13:33.815244Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "IN_TRANSIT",
+              "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+              "source_version": 3,
+              "carrier_conclusion": "IN_TRANSIT"
+            }
+          ],
+          "status": "IN_TRANSIT",
+          "version": 3,
+          "order_id": "94c73478-fbbb-4840-8ee9-b2bdd746aee5",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "criteria": [
+        "说明点击请商家核查并预览编辑摘要后确认",
+        "明确无需先申请退款/填写退款金额",
+        "不声称已经转交或创建核查单"
+      ]
+    },
+    {
+      "id": "G02",
+      "group": "guide",
+      "snapshot_case": "L02",
+      "input_without_deadline": {
+        "run_id": "f514946e-86d4-548d-b970-7d442227d674",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "无线降噪耳机",
+            "variant": "黑色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "amount_minor": 32900
+          },
+          "history_before": null,
+          "current_request": "如果把问题交给商家，我之前和智能助手聊的所有内容都会被看到吗？我只愿意分享一句话和物流依据，怎么选？",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1001-2026.10"
+            ],
+            "merchant_id": "M-1001",
+            "safety_epoch": 3,
+            "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+            "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+          }
+        },
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "merchant_id": "M-1001",
+        "input_version": 1,
+        "conversation_id": "9c486026-1008-57e4-a741-7c20a5d97c5b"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-1001-01",
+            "status": "PAID",
+            "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+            "paid_at": "2026-10-20T03:13:34.383251Z",
+            "version": 1,
+            "category": "electronics",
+            "currency": "CNY",
+            "order_id": "e88da27f-7b38-460f-8e61-ab4ed28455ef",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "product_name": "无线降噪耳机",
+            "variant_text": "黑色",
+            "line_paid_amount": 32900
+          },
+          "merchant_id": "M-1001"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:34.383251Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:34.457632Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "DELIVERED",
+                  "occurred_at": "2026-10-20T03:13:34.643969Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "DELIVERED",
+              "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+              "source_version": 3,
+              "carrier_conclusion": "DELIVERED"
+            }
+          ],
+          "status": "DELIVERED",
+          "version": 3,
+          "order_id": "e88da27f-7b38-460f-8e61-ab4ed28455ef",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "criteria": [
+        "说明共享原文和调查依据由客户选择确认",
+        "说明调查依据默认未勾选、不会自动共享整段私有历史",
+        "不把商家可见范围说成整个会话"
+      ]
+    },
+    {
+      "id": "G03",
+      "group": "guide",
+      "snapshot_case": "L05",
+      "input_without_deadline": {
+        "run_id": "c49aab1b-ad11-5178-a5c7-eb977da35d03",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "无线降噪耳机",
+            "variant": "黑色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "amount_minor": 32900
+          },
+          "history_before": null,
+          "current_request": "已经请商家核查了，但我还有个问题想私下问助手，直接在输入框发就可以吗？",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1001-2026.10"
+            ],
+            "merchant_id": "M-1001",
+            "safety_epoch": 3,
+            "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+            "selected_by_paid_at": "2026-10-20T03:13:33.555679Z"
+          }
+        },
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "merchant_id": "M-1001",
+        "input_version": 1,
+        "conversation_id": "4454330d-ee30-5699-8fda-e4689802da22"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-1001-01",
+            "status": "PAID",
+            "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+            "paid_at": "2026-10-20T03:13:33.555679Z",
+            "version": 1,
+            "category": "electronics",
+            "currency": "CNY",
+            "order_id": "94c73478-fbbb-4840-8ee9-b2bdd746aee5",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "product_name": "无线降噪耳机",
+            "variant_text": "黑色",
+            "line_paid_amount": 32900
+          },
+          "merchant_id": "M-1001"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:33.555679Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:33.631640Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "EXCEPTION_DELAYED",
+                  "occurred_at": "2026-10-20T03:13:33.815244Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "IN_TRANSIT",
+              "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+              "source_version": 3,
+              "carrier_conclusion": "IN_TRANSIT"
+            }
+          ],
+          "status": "IN_TRANSIT",
+          "version": 3,
+          "order_id": "94c73478-fbbb-4840-8ee9-b2bdd746aee5",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "criteria": [
+        "说明转交后默认输入补充给商家",
+        "说明切换询问智能助手后私有咨询不自动共享",
+        "不声称本轮已向商家发消息"
+      ]
+    },
+    {
+      "id": "G04",
+      "group": "guide",
+      "snapshot_case": "L08",
+      "input_without_deadline": {
+        "run_id": "216faf02-bb9f-50fe-a6e5-5a53bd504caa",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "桌面台灯",
+            "variant": "米白色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "amount_minor": 12900
+          },
+          "history_before": null,
+          "current_request": "我确定想申请这件商品的退款。是不是在这里回一句确认退款，你就会帮我提交？请告诉我现在真正可用的申请入口。",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1002-2026.10"
+            ],
+            "merchant_id": "M-1002",
+            "safety_epoch": 3,
+            "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+            "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+          }
+        },
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "merchant_id": "M-1002",
+        "input_version": 1,
+        "conversation_id": "d36f1f35-2f64-5df8-bc22-dfc6166563da"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-2001-01",
+            "status": "PAID",
+            "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+            "paid_at": "2026-10-20T03:13:35.257912Z",
+            "version": 1,
+            "category": "home",
+            "currency": "CNY",
+            "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "product_name": "桌面台灯",
+            "variant_text": "米白色",
+            "line_paid_amount": 12900
+          },
+          "merchant_id": "M-1002"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:35.257912Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:35.327619Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "LOST",
+                  "occurred_at": "2026-10-20T03:13:35.479423Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "LOST",
+              "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+              "source_version": 3,
+              "carrier_conclusion": "LOST"
+            }
+          ],
+          "status": "LOST",
+          "version": 3,
+          "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "criteria": [
+        "明确目前聊天确认退款尚未接通/不能直接创建退款工单",
+        "指出我的售后为当前正式申请入口",
+        "不声称已申请/已批准/已退款"
+      ]
+    },
+    {
+      "id": "G05",
+      "group": "guide",
+      "snapshot_case": "L05",
+      "input_without_deadline": {
+        "run_id": "d94829ea-346e-501a-b6e2-3341c7657c92",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "无线降噪耳机",
+            "variant": "黑色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "amount_minor": 32900
+          },
+          "history_before": null,
+          "current_request": "核查单我之前点过解决，现在又发现新情况，可以继续在原来的核查记录里补充吗？还是得重新申请退款？",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1001-2026.10"
+            ],
+            "merchant_id": "M-1001",
+            "safety_epoch": 3,
+            "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+            "selected_by_paid_at": "2026-10-20T03:13:33.555679Z"
+          }
+        },
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "merchant_id": "M-1001",
+        "input_version": 1,
+        "conversation_id": "bc69776a-fd24-5909-a6dd-f6579c4a674e"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-1001-01",
+            "status": "PAID",
+            "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+            "paid_at": "2026-10-20T03:13:33.555679Z",
+            "version": 1,
+            "category": "electronics",
+            "currency": "CNY",
+            "order_id": "94c73478-fbbb-4840-8ee9-b2bdd746aee5",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "product_name": "无线降噪耳机",
+            "variant_text": "黑色",
+            "line_paid_amount": 32900
+          },
+          "merchant_id": "M-1001"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:33.555679Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:33.631640Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "EXCEPTION_DELAYED",
+                  "occurred_at": "2026-10-20T03:13:33.815244Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "IN_TRANSIT",
+              "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+              "source_version": 3,
+              "carrier_conclusion": "IN_TRANSIT"
+            }
+          ],
+          "status": "IN_TRANSIT",
+          "version": 3,
+          "order_id": "94c73478-fbbb-4840-8ee9-b2bdd746aee5",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "criteria": [
+        "说明解决后再次补充接续原核查单",
+        "说明无需为人工咨询另申请退款",
+        "不把原核查单自动关闭或宣称本轮已重新开启"
+      ]
+    },
+    {
+      "id": "P01",
+      "group": "policy",
+      "snapshot_case": "L02",
+      "input_without_deadline": {
+        "run_id": "fde8f459-82fe-571c-b61e-c69a42d6407c",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "无线降噪耳机",
+            "variant": "黑色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "amount_minor": 32900
+          },
+          "history_before": null,
+          "current_request": "包裹显示签收但我没有拿到，家人和代收点都确认没有。我先问本店规则：能不能只凭我说没收到就直接退款？",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1001-2026.10"
+            ],
+            "merchant_id": "M-1001",
+            "safety_epoch": 3,
+            "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+            "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+          }
+        },
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "merchant_id": "M-1001",
+        "input_version": 1,
+        "conversation_id": "f09fc1f5-cc5e-582d-a6fb-6d89045a535a"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-1001-01",
+            "status": "PAID",
+            "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+            "paid_at": "2026-10-20T03:13:34.383251Z",
+            "version": 1,
+            "category": "electronics",
+            "currency": "CNY",
+            "order_id": "e88da27f-7b38-460f-8e61-ab4ed28455ef",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "product_name": "无线降噪耳机",
+            "variant_text": "黑色",
+            "line_paid_amount": 32900
+          },
+          "merchant_id": "M-1001"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:34.383251Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:34.457632Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "DELIVERED",
+                  "occurred_at": "2026-10-20T03:13:34.643969Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "DELIVERED",
+              "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+              "source_version": 3,
+              "carrier_conclusion": "DELIVERED"
+            }
+          ],
+          "status": "DELIVERED",
+          "version": 3,
+          "order_id": "e88da27f-7b38-460f-8e61-ab4ed28455ef",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "expected_capabilities": [
+        "search_policy"
+      ],
+      "criteria": [
+        "说明有效签收争议不能仅凭客户单方陈述退款，须人工核验",
+        "不重复要求已经查过的家人/代收点",
+        "引用本店签收争议依据，不宣称已退款"
+      ]
+    },
+    {
+      "id": "P02",
+      "group": "policy",
+      "snapshot_case": "L08",
+      "input_without_deadline": {
+        "run_id": "fd74f093-27e2-5429-aad0-1a106f913f9f",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "桌面台灯",
+            "variant": "米白色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "amount_minor": 12900
+          },
+          "history_before": null,
+          "current_request": "要是快递公司确实把包裹弄丢了，我们店要满足什么条件才给退钱？我只是了解规定，不是在说这单已经丢了。",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1002-2026.10"
+            ],
+            "merchant_id": "M-1002",
+            "safety_epoch": 3,
+            "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+            "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+          }
+        },
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "merchant_id": "M-1002",
+        "input_version": 1,
+        "conversation_id": "c2b4c162-b312-5fec-a391-72e5a5dc0c60"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-2001-01",
+            "status": "PAID",
+            "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+            "paid_at": "2026-10-20T03:13:35.257912Z",
+            "version": 1,
+            "category": "home",
+            "currency": "CNY",
+            "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "product_name": "桌面台灯",
+            "variant_text": "米白色",
+            "line_paid_amount": 12900
+          },
+          "merchant_id": "M-1002"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:35.257912Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:35.327619Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "LOST",
+                  "occurred_at": "2026-10-20T03:13:35.479423Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "LOST",
+              "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+              "source_version": 3,
+              "carrier_conclusion": "LOST"
+            }
+          ],
+          "status": "LOST",
+          "version": 3,
+          "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "expected_capabilities": [
+        "search_policy"
+      ],
+      "criteria": [
+        "保留假设语气，不把该订单已丢失当作已读事实",
+        "说明承运商LOST、无有效签收记录、人工核验三个条件",
+        "说明按订单行全部数量实付金额退款，引用适用条款"
+      ]
+    },
+    {
+      "id": "P03",
+      "group": "policy",
+      "snapshot_case": "L01",
+      "input_without_deadline": {
+        "run_id": "36f5f8a5-1f91-5f9c-a8a8-163a45b5b782",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "无线降噪耳机",
+            "variant": "黑色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "amount_minor": 32900
+          },
+          "history_before": null,
+          "current_request": "我看包裹还在路上，只是等得有点着急。本店能按没发货直接给我退吗？我先问规则。",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1001-2026.10"
+            ],
+            "merchant_id": "M-1001",
+            "safety_epoch": 3,
+            "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+            "selected_by_paid_at": "2026-10-20T03:13:32.553740Z"
+          }
+        },
+        "line_id": "SHOP-bf1c83ae-87b5-44b1-b9ca-91b983e9b499",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "merchant_id": "M-1001",
+        "input_version": 1,
+        "conversation_id": "c42917a3-e876-5889-9aaa-460e45934861"
+      },
+      "facts": {
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:32.553740Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:32.648884Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "IN_TRANSIT",
+                  "occurred_at": "2026-10-20T03:13:32.884215Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "IN_TRANSIT",
+              "line_id": "SHOP-bf1c83ae-87b5-44b1-b9ca-91b983e9b499",
+              "source_version": 3,
+              "carrier_conclusion": "IN_TRANSIT"
+            }
+          ],
+          "status": "IN_TRANSIT",
+          "version": 3,
+          "order_id": "8a9b5b34-342d-43c0-828c-da3c3307c5c9",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001"
+      ],
+      "expected_capabilities": [
+        "search_policy"
+      ],
+      "criteria": [
+        "说明在途不能当未发货，不因在途自动认定退款资格",
+        "说明未发货规则需明确NOT_SHIPPED/版本1/ORDER_PAID等持久事实",
+        "引用相关本店政策，不编造送达时间"
+      ]
+    },
+    {
+      "id": "P04",
+      "group": "policy",
+      "snapshot_case": "L02",
+      "input_without_deadline": {
+        "run_id": "2243e20a-fa4e-5398-8eb5-e83a91174000",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "无线降噪耳机",
+            "variant": "黑色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "amount_minor": 32900
+          },
+          "history_before": null,
+          "current_request": "假如收到的耳机外壳裂了，我上传一张照片是不是就能直接全退？本店是怎么规定的？",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1001-2026.10"
+            ],
+            "merchant_id": "M-1001",
+            "safety_epoch": 3,
+            "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+            "selected_by_paid_at": "2026-10-20T03:13:34.383251Z"
+          }
+        },
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "merchant_id": "M-1001",
+        "input_version": 1,
+        "conversation_id": "b4081d35-8f3f-5c01-a767-ac0b92419bd0"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-1001-01",
+            "status": "PAID",
+            "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+            "paid_at": "2026-10-20T03:13:34.383251Z",
+            "version": 1,
+            "category": "electronics",
+            "currency": "CNY",
+            "order_id": "e88da27f-7b38-460f-8e61-ab4ed28455ef",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "product_name": "无线降噪耳机",
+            "variant_text": "黑色",
+            "line_paid_amount": 32900
+          },
+          "merchant_id": "M-1001"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:34.383251Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:34.457632Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "DELIVERED",
+                  "occurred_at": "2026-10-20T03:13:34.643969Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "DELIVERED",
+              "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+              "source_version": 3,
+              "carrier_conclusion": "DELIVERED"
+            }
+          ],
+          "status": "DELIVERED",
+          "version": 3,
+          "order_id": "e88da27f-7b38-460f-8e61-ab4ed28455ef",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "expected_capabilities": [
+        "search_policy"
+      ],
+      "criteria": [
+        "说明客户照片/主张不是已经人工核验",
+        "说明须核验材料和订单事实、符合条件后才可申请整行实付金额退款",
+        "不把签收争议规则当损坏退款的主要依据"
+      ]
+    },
+    {
+      "id": "F01",
+      "group": "fact",
+      "snapshot_case": "L01",
+      "input_without_deadline": {
+        "run_id": "76ce8477-519f-5139-ae80-d89763b5c8d4",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "无线降噪耳机",
+            "variant": "黑色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "amount_minor": 32900
+          },
+          "history_before": null,
+          "current_request": "这件耳机现在走到哪了？只看现有物流记录就好，不用给我讲退款规定。",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1001-2026.10"
+            ],
+            "merchant_id": "M-1001",
+            "safety_epoch": 3,
+            "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+            "selected_by_paid_at": "2026-10-20T03:13:32.553740Z"
+          }
+        },
+        "line_id": "SHOP-bf1c83ae-87b5-44b1-b9ca-91b983e9b499",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "merchant_id": "M-1001",
+        "input_version": 1,
+        "conversation_id": "7828bfe2-d7c0-545e-a819-57e3560eaf75"
+      },
+      "facts": {
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:32.553740Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:32.648884Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "IN_TRANSIT",
+                  "occurred_at": "2026-10-20T03:13:32.884215Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "IN_TRANSIT",
+              "line_id": "SHOP-bf1c83ae-87b5-44b1-b9ca-91b983e9b499",
+              "source_version": 3,
+              "carrier_conclusion": "IN_TRANSIT"
+            }
+          ],
+          "status": "IN_TRANSIT",
+          "version": 3,
+          "order_id": "8a9b5b34-342d-43c0-828c-da3c3307c5c9",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [],
+      "expected_capabilities": [
+        "get_shipment_trace"
+      ],
+      "criteria": [
+        "读取并如实说明IN_TRANSIT及已有扫描",
+        "不索要已绑定订单号，不编造送达日期",
+        "没有政策问题时不强制检索政策或整份指南"
+      ]
+    },
+    {
+      "id": "F02",
+      "group": "fact-error",
+      "snapshot_case": "L07",
+      "input_without_deadline": {
+        "run_id": "038aaff9-6697-5f9f-90a1-470d6f3938a3",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "桌面台灯",
+            "variant": "米白色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "amount_minor": 12900
+          },
+          "history_before": null,
+          "current_request": "帮我查一下台灯物流；如果暂时查不到，告诉我怎么请商家帮忙，先别替我申请退款。",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1002-2026.10"
+            ],
+            "merchant_id": "M-1002",
+            "safety_epoch": 3,
+            "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+            "selected_by_paid_at": "2026-10-20T03:13:36.949884Z"
+          }
+        },
+        "line_id": "SHOP-270a999f-ab2e-437c-b959-45e9acde41b3",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "merchant_id": "M-1002",
+        "input_version": 1,
+        "conversation_id": "aceae403-0aa9-58bd-bc49-1bbd6bd01615"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-270a999f-ab2e-437c-b959-45e9acde41b3",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-2001-01",
+            "status": "PAID",
+            "line_id": "SHOP-270a999f-ab2e-437c-b959-45e9acde41b3",
+            "paid_at": "2026-10-20T03:13:36.949884Z",
+            "version": 1,
+            "category": "home",
+            "currency": "CNY",
+            "order_id": "dc6438a0-7c1c-485b-b43f-70cd8ef0c0f6",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "product_name": "桌面台灯",
+            "variant_text": "米白色",
+            "line_paid_amount": 12900
+          },
+          "merchant_id": "M-1002"
+        },
+        "get_shipment_trace": {
+          "error": "SOURCE_UNAVAILABLE"
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 503
+      },
+      "pinned_generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [],
+      "expected_capabilities": [
+        "get_shipment_trace",
+        "get_support_guide"
+      ],
+      "criteria": [
+        "实际工具503后明确查询暂不可用，不能断言UNKNOWN/LOST/未发货",
+        "给出请商家核查及客户确认的可用流程",
+        "不声称已联系快递/商家或创建退款申请"
+      ]
+    },
+    {
+      "id": "M01",
+      "group": "mixed",
+      "snapshot_case": "L08",
+      "input_without_deadline": {
+        "run_id": "4b1f6f31-7d03-5db1-b0ce-d9c9fe2ce966",
+        "context": {
+          "history": [],
+          "product": {
+            "name": "桌面台灯",
+            "variant": "米白色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "amount_minor": 12900
+          },
+          "history_before": null,
+          "current_request": "麻烦先确认台灯是不是丢了，再按本店规则说下退款条件和现在能在哪里申请。我先了解，不要替我提交。",
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1002-2026.10"
+            ],
+            "merchant_id": "M-1002",
+            "safety_epoch": 3,
+            "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+            "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+          }
+        },
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "merchant_id": "M-1002",
+        "input_version": 1,
+        "conversation_id": "d3a3c637-bd24-5568-8cda-2cebfee8c94f"
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-2001-01",
+            "status": "PAID",
+            "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+            "paid_at": "2026-10-20T03:13:35.257912Z",
+            "version": 1,
+            "category": "home",
+            "currency": "CNY",
+            "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "product_name": "桌面台灯",
+            "variant_text": "米白色",
+            "line_paid_amount": 12900
+          },
+          "merchant_id": "M-1002"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:35.257912Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:35.327619Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "LOST",
+                  "occurred_at": "2026-10-20T03:13:35.479423Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "LOST",
+              "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+              "source_version": 3,
+              "carrier_conclusion": "LOST"
+            }
+          ],
+          "status": "LOST",
+          "version": 3,
+          "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "expected_capabilities": [
+        "get_shipment_trace",
+        "search_policy",
+        "get_support_guide"
+      ],
+      "criteria": [
+        "区分工具LOST结论与订单付款PAID字段",
+        "说明无有效签收记录/人工核验/整行实付金额等退款条件",
+        "指出我的售后入口及聊天不能直接提交，客户未确认不创建申请"
+      ]
+    }
+  ]
+}

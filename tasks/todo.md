@@ -1,3 +1,9 @@
+## 当前快照（2026-10-21，客服RAG真实模型v2输入与驱动已冻结）
+
+- 用户要求继续实际效果验收，按[本批协议](../docs/customer-rag-live-v2.md)冻结[12场景/逐项条件](../evals/customer-rag-live-v2/cases.json)：5流程、4政策、2事实/故障、1混合。真实DeepSeek Flash/ASGI/SupportRuntime/AgentScope/本地BGE/保留PG政策；订单物流由明确冻结的旧合成快照HTTP提供，F02实际合成503。非盲测/真实用户集、不替代Java故障接线验证；当前不改生产提示词/检索，不重做旧评测。
+- 驱动scripts/customer_rag_live_v2.py准备完成，调用前记录并沿用原用量ledger锁/累计数，独占结果不重跑；仅隔离Schema写run/call，政策强制只读/前后public全表见证。5单元+1真实ASGI/隔离PG脚本接线=6通过，Ruff check/format通过；脚本冒烟初次因测试patch覆盖_model绕过记录包装得到1失败/5通过，修正注入后6通过。静态导入/行宽/local测试secret标记已修，原Starlette警告保留。
+- 目前新生成API调用0；保留PG已临时start供脚本/正式实测，业务服务/worker仍停。原四历史脏文件hash保持。冻结准备精确提交/普通push核实后执行12场景，每项一次、不调整Gold/失败重跑；再由Codex基于完整依据逐项复核并收口。
+
 ## 当前快照（2026-10-21，客服指南接线/预热/验证完成）
 
 - 用户授权本批按[协议](../docs/customer-rag-integration-v1.md)完成，统一证据见[报告](../reports/customer-rag-integration-v1/README.md)/[收口](../reports/customer-rag-integration-v1/completion.json)。10篇流程作为版本化完整短指南，Agent按需get_support_guide读取；KNOWLEDGE/O、Java确认共享/私有历史排除、双端来源展示、持久调用/预算/manifest/fence已接线。政策仍本店版本/generation单Query三路RRF，实时事实走业务工具。资产11a0087、消费者f4b8c92/格式664206a、UI b5bcd12、工具80539f0、预热2a28e1d均正常push核实。
