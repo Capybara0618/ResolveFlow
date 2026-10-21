@@ -44,7 +44,24 @@ class MemoryUpdate(CustomerQuote):
 
 class DialogueEvent(CustomerQuote):
     change: Literal["ADD", "CONTINUE", "CORRECT", "CANCEL", "PAUSE", "RESUME", "CLARIFY"]
-    task_id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
+    task_id: str | None = Field(default=None, pattern=r"^[a-zA-Z0-9_-]{1,32}$")
+    task_ids: list[Annotated[str, Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")]] | None = Field(
+        default=None, min_length=1, max_length=8,
+    )
+
+    @model_validator(mode="after")
+    def unambiguous_targets(self) -> DialogueEvent:
+        if (self.task_id is None) == (self.task_ids is None):
+            raise ValueError("use either task_id or task_ids")
+        if self.task_ids is not None and len(self.task_ids) != len(set(self.task_ids)):
+            raise ValueError("task_ids must be distinct")
+        return self
+
+    def targets(self) -> list[str]:
+        if self.task_ids is not None:
+            return list(self.task_ids)
+        assert self.task_id is not None
+        return [self.task_id]
 
 
 class TaskAction(Closed):

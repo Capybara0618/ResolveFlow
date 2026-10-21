@@ -77,6 +77,14 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
     }
     if isinstance(error, DialogueStateError):
         result.update(field="dialogue_events", detail=str(error))
+        if error.missing_task_ids:
+            result.update(
+                issue="DIALOGUE_COVERAGE", missing_task_ids=error.missing_task_ids,
+                required_on_action=["tasks", "dialogue_events"],
+                resubmit_note="被拒标注未提交；按当前task_state重发完整动作。",
+                repair_note="同change/原句可用task_ids数组共享一事件，或逐项task_id，两者二选一。"
+                            "覆盖所列缺项，reference=CURRENT、offset=0、quote为本轮原文。",
+            )
     elif isinstance(error, MemoryStateError):
         result.update(field="memory_updates", detail=str(error))
     elif isinstance(error, TaskStateError):

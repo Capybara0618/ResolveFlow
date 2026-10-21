@@ -11,7 +11,9 @@ from resolveflow.support.tasks import previous_hint
 
 
 class DialogueStateError(ValueError):
-    pass
+    def __init__(self, message: str, *, missing_task_ids: list[str] | None = None) -> None:
+        super().__init__(message)
+        self.missing_task_ids = list(missing_task_ids or [])
 
 
 class DialogueState:
@@ -30,16 +32,20 @@ class DialogueState:
         if not events and not self.started and not require:
             return  # Old scripted clients remain compatible; this does not demonstrate understanding.
         after = {t.id: t.status for t in tasks}
-        changes = {e.task_id: e.change for e in events}
-        if len(changes) != len(events):
+        # Expand only explicit targets, never guess an omitted change from a task status.
+        expanded = [(event, key) for event in events for key in event.targets()]
+        changes = {key: event.change for event, key in expanded}
+        if len(changes) != len(expanded):
             raise DialogueStateError("同次每个task最多一项变化。")
-        if not self.started and (not events or set(after) - set(changes)):
-            raise DialogueStateError("首次决策须dialogue_events逐项标记新增/继续/纠正/撤回/暂停/恢复/澄清。")
+        missing = [key for key in after if key not in changes]
+        if not self.started and (not events or missing):
+            raise DialogueStateError("首次决策须dialogue_events逐项标记新增/继续/纠正/撤回/暂停/恢复/澄清。",
+                                     missing_task_ids=missing)
         if set(self.before) - set(after):
             raise DialogueStateError("前轮未完成任务不能消失；临时插问用PAUSE/SUSPENDED，撤回用CANCEL/CANCELLED。")
         recorded = []
-        for event in events:
-            old, new = self.before.get(event.task_id), after.get(event.task_id)
+        for event, task_id in expanded:
+            old, new = self.before.get(task_id), after.get(task_id)
             if new is None:
                 raise DialogueStateError("对话变化须关联本次tasks中的任务。")
             try:
@@ -57,11 +63,11 @@ class DialogueState:
             }[event.change]
             if not valid:
                 raise DialogueStateError("变化与任务前后状态不一致；RESUME仅用于暂停任务，PAUSE/CANCEL须对应终态。")
-            recorded.append({"change": event.change, "task_id": event.task_id, "source": source})
+            recorded.append({"change": event.change, "task_id": task_id, "source": source})
         for key, status in after.items():
             old = self.before.get(key)
             if old is None and changes.get(key) not in {"ADD", "CLARIFY"}:
-                raise DialogueStateError("新增任务须ADD或CLARIFY，不能静默替换旧任务。")
+                raise DialogueStateError("新增任务须ADD或CLARIFY，不能静默替换旧任务。", missing_task_ids=[key])
             if status == "CANCELLED" and old != status and changes.get(key) != "CANCEL":
                 raise DialogueStateError("撤回任务须CANCEL事件和客户当前原句。")
             if status == "SUSPENDED" and old != status and changes.get(key) != "PAUSE":
