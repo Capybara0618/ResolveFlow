@@ -1,0 +1,49 @@
+{
+  "version": "customer-agent-answer-tasks-v1",
+  "state": "FINISHED_TARGET_NOT_MET",
+  "repair_commit": "5fd5d5a837e18fa5f0588b5af508a45f4b056369",
+  "preparation_commit": "3c2007f5678188140abc3b9dc669acdac12e9cdd",
+  "runtime_sha256": "ffd23d0d87f3c40c24f1c0cb35674f1108a77c1bb3d859a55280b90e348991d4",
+  "turns": 2,
+  "published": 1,
+  "complete": 1,
+  "failed": 1,
+  "provider_requests": 4,
+  "provider_errors": 0,
+  "input_tokens": 6120,
+  "output_tokens": 468,
+  "all_usage_provider_reported": true,
+  "harness_input_budget_accounting": 7665,
+  "token_note": "Conservative Harness input budget accounting differs from provider-reported actual token usage.",
+  "usage_before": 1750,
+  "usage_after": 1754,
+  "warmup": {
+    "status": "READY",
+    "elapsed_ms": 12239.7992000042
+  },
+  "legal_kind": 4,
+  "actual_tools": 1,
+  "actual_searches": 0,
+  "rows": [
+    {
+      "id": "A01-answer-tasks-v1",
+      "status": "SUCCEEDED",
+      "reason": null,
+      "requests": 2,
+      "elapsed_ms": 3341.386699990835
+    },
+    {
+      "id": "A02-answer-tasks-v1",
+      "status": "FAILED",
+      "reason": "INVALID_DECISION",
+      "requests": 2,
+      "elapsed_ms": 2840.1276000076905
+    }
+  ],
+  "multi_turn_gate_passed": false,
+  "multi_turn_calls": 0,
+  "scope": "Two seen synthetic HTTP snapshots; actual model/ASGI/AgentScope/PG, no Java/browser",
+  "synthetic": true,
+  "not_holdout": true,
+  "reviewer": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_GOLD"
+}
