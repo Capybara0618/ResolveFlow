@@ -255,9 +255,16 @@ class SupportApiTest extends CaseDatabaseTest {
                     "data",
                     Map.of("text", "私人历史不交给商家"));
             var guide = Map.of(
-                    "source_id", "O3", "source_type", "KNOWLEDGE", "version", "2026.10.21-v1",
-                    "content_hash", "c".repeat(64),
-                    "data", Map.of("authority", "APPLICATION_GUIDE", "text", "人工核查不需要先申请退款。"));
+                    "source_id",
+                    "O3",
+                    "source_type",
+                    "KNOWLEDGE",
+                    "version",
+                    "2026.10.21-v1",
+                    "content_hash",
+                    "c".repeat(64),
+                    "data",
+                    Map.of("authority", "APPLICATION_GUIDE", "text", "人工核查不需要先申请退款。"));
             return json.readTree(json.writeValueAsString(Map.of(
                     "run_id",
                     input.get("run_id"),
