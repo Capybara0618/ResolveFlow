@@ -1,0 +1,81 @@
+{
+  "version": "2026.10.21-v1",
+  "guide_id": "support-guide-v1",
+  "authority": "APPLICATION_GUIDE",
+  "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前可用的正式退款申请入口为我的售后。售后咨询内的退款摘要确认和Case关联尚未接通，聊天表示想退款或提交人工核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+  "text_sha256": "36cf84fc69f01922f447f5689806988725ed5feb441a2885e795e9a8013266eb",
+  "sources": [
+    {
+      "ref": "s0",
+      "path": "docs/customer-support-workspace.md",
+      "sha256_at_import": "590a885a5a87bd9a042e25cca3cebc3849d980c768e10ddfc867cbcb04f9a046"
+    },
+    {
+      "ref": "s1",
+      "path": "docs/customer-agent-implementation-v1.md",
+      "sha256_at_import": "3826ffaadd7ea6f55be72a305e1c72c36be8dba7718f9383b6cb9d72633cfdba"
+    }
+  ],
+  "sections": [
+    {
+      "id": "K-ORDER",
+      "title": "选择订单商品与独立咨询",
+      "source_ref": "s0",
+      "content_sha256": "0b9024410e73cb06276d40e13032e841b129006e139c08360062d681bbdaec30"
+    },
+    {
+      "id": "K-HANDOFF",
+      "title": "不申请退款也能请商家核查",
+      "source_ref": "s0",
+      "content_sha256": "879a4c3ad27ab5621f84ed2eb5cc43cf0e18351ff46081ecb2dbb265961166f0"
+    },
+    {
+      "id": "K-SHARE",
+      "title": "转交前选择共享原文和调查依据",
+      "source_ref": "s0",
+      "content_sha256": "eea932ba2356c4434fe1d2a89afd819bd70de0d853c0a3520fa48cb663a3fb07"
+    },
+    {
+      "id": "K-PRIVATE",
+      "title": "私有助手咨询与补充给商家的区别",
+      "source_ref": "s0",
+      "content_sha256": "f5aed43a041386b8781354bc6237a1acc0a5ce41b5aa370134f0cb9f6df082b1"
+    },
+    {
+      "id": "K-RESOLVE",
+      "title": "商家回复与客户确认解决",
+      "source_ref": "s0",
+      "content_sha256": "2b4c156fca14434c77590441fd3fd4ccc98d8e01ee000de7f4bb7754cf9f9fac"
+    },
+    {
+      "id": "K-STATUS",
+      "title": "查看核查进度和历史消息",
+      "source_ref": "s0",
+      "content_sha256": "f655a65dee43308fbf3d69bb4cd2bb08b420ff2821569803b9e0b3df9b1f1b87"
+    },
+    {
+      "id": "K-RETRY",
+      "title": "发送结果不明确与版本冲突",
+      "source_ref": "s0",
+      "content_sha256": "ad62323703821ebce40ab2156956f23d914c571a1f5f1630d1d122e1be9a20be"
+    },
+    {
+      "id": "K-ENTRY",
+      "title": "正式退款申请与咨询入口",
+      "source_ref": "s0",
+      "content_sha256": "2fe4ceca600510fd2656f2ca4ee760f3ecb913fc41afbe5e32b172308ff76a68"
+    },
+    {
+      "id": "K-SOURCES",
+      "title": "助手回答来源与实时事实",
+      "source_ref": "s1",
+      "content_sha256": "612667d73a8062856b9d7b8b5ee0a170ddbbfadf53cd27e1968f5da779623d93"
+    },
+    {
+      "id": "K-STALE",
+      "title": "补充纠正与过时回答",
+      "source_ref": "s0",
+      "content_sha256": "c3671d4ce76908e8037a0ec2ebc9ba293b7ae3f26b2100acdbfef1015a64b7d4"
+    }
+  ]
+}
