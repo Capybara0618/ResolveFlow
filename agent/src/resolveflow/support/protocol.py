@@ -24,7 +24,7 @@ class SupportTask(Closed):
     id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
     intent: Literal["LOGISTICS", "ELIGIBILITY", "APPLICATION", "HANDOFF", "PRODUCT", "OTHER"]
     request: str = Field(min_length=1, max_length=200)
-    status: Literal["PENDING", "ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED"]
+    status: Literal["PENDING", "ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED", "SUSPENDED"]
     evidence_refs: list[str] = Field(default_factory=list, max_length=8)
     response_excerpt: str | None = Field(default=None, min_length=1, max_length=400)
 
@@ -42,10 +42,16 @@ class MemoryUpdate(CustomerQuote):
     retracts: list[str] = Field(default_factory=list, max_length=8)
 
 
+class DialogueEvent(CustomerQuote):
+    change: Literal["ADD", "CONTINUE", "CORRECT", "CANCEL", "PAUSE", "RESUME", "CLARIFY"]
+    task_id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
+
+
 class TaskAction(Closed):
     # Old mock scripts remain readable; live runs require initial understanding in the engine.
     tasks: list[SupportTask] | None = Field(default=None, min_length=1, max_length=8)
     memory_updates: list[MemoryUpdate] = Field(default_factory=list, max_length=8)
+    dialogue_events: list[DialogueEvent] = Field(default_factory=list, max_length=8)
 
 
 class ContextRead(Closed):

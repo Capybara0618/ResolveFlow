@@ -107,6 +107,7 @@ class SupportRuntime:
                     "tasks.py",
                     "context.py",
                     "memory.py",
+                    "dialogue.py",
                     "../harness/token_counting.py",
                     "../assets/support-guide-v1.json",
                     "../policies/retrieval.py",

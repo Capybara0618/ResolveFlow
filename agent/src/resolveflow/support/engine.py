@@ -22,6 +22,7 @@ from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.harness.sdk_adapter import AgentScopeModelAdapter, messenger_message, raw_text_message
 from resolveflow.harness.token_counting import counter_for
 from resolveflow.support.context import LAYOUTS, read_context, render_context
+from resolveflow.support.dialogue import DialogueState
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.protocol import DECISION, Answer, Read, Search, SupportFailure, SupportInput
@@ -34,6 +35,7 @@ SYSTEM = """你是绑定订单行的售后助手，不索要已有编号。客�
 conversation_state是系统给出的当前/默认消息对象和核查状态；customer_memory是客户陈述。历史截断用read_context，未知更早消息用read_history。source_status禁止重试时不重复查，可据指南说明人工核查。
 首次动作带tasks，变更给全部项：id、intent(LOGISTICS/ELIGIBILITY/APPLICATION/HANDOFF/PRODUCT/OTHER)、request、status(PENDING/ANSWERED/NEEDS_CUSTOMER/NEEDS_MERCHANT/UNAVAILABLE/CANCELLED)、evidence_refs、response_excerpt(读取null，回答为text中原句)。回答不能漏诉求/留PENDING/删项，撤回用CANCELLED；previous_tasks需重判，不继承旧事实/引用。
 同次可附memory_updates：id、topic(RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER)、reference(CURRENT或H序号)、offset、quote(精确原句)、supersedes/retracts(旧id数组)。仅客户陈述；明确纠正才替代，不重复问已排查事项。
+首次同次附dialogue_events，每任务一项change(ADD/CONTINUE/CORRECT/CANCEL/PAUSE/RESUME/CLARIFY)、task_id、reference、offset、quote(本轮原句)。插问=旧任务PAUSE/status=SUSPENDED+新任务ADD；恢复RESUME，撤回CANCEL，不能漏前轮未完成任务。后续变化按需附，不能把暂停当取消。
 """
 
 
@@ -69,6 +71,7 @@ class SupportAgent:
         self.recovery = SourceRecovery()
         self.tasks = TaskTracker()
         self.memory = CustomerMemory(request)
+        self.dialogue = DialogueState(request)
 
     def run(self) -> dict[str, Any]:
         reason = None
@@ -98,6 +101,7 @@ class SupportAgent:
                 "citations": [self.citations[c] for c in dict.fromkeys(final.citations)],
                 **({"task_state": self.tasks.packet()} if self.tasks.tasks else {}),
                 "customer_memory": self.memory.snapshot(),
+                "dialogue_state": self.dialogue.packet(),
             },
         }
 
@@ -139,6 +143,7 @@ class SupportAgent:
             "task_state": self.tasks.packet(),
             "previous_tasks": previous_hint(context, self.request.input_version),
             "customer_memory": self.memory.packet(),
+            "dialogue_state": self.dialogue.packet(),
             "feedback": self.feedback,
         }
         return render_context(
@@ -204,13 +209,16 @@ class SupportAgent:
                 if any(c not in self.citations for c in decision.citations):
                     raise ValueError("citations must name this run's observed O/P references")
             tasks, memory = deepcopy(self.tasks), deepcopy(self.memory)
+            dialogue = deepcopy(self.dialogue)
             memory.apply(decision.memory_updates, self.observations)
             tasks.accept(
                 decision.tasks, set(self.citations),
                 answer=decision if isinstance(decision, Answer) else None,
                 require=reply.mode == "live",
             )
+            dialogue.apply(decision.dialogue_events, tasks.tasks, self.observations, require=reply.mode == "live")
             self.tasks, self.memory = tasks, memory
+            self.dialogue = dialogue
             if isinstance(decision, Answer):
                 self.final = decision
             if isinstance(decision, Search):

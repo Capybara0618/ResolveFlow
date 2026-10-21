@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from resolveflow.support.dialogue import DialogueStateError
 from resolveflow.support.memory import MemoryStateError
 from resolveflow.support.tasks import TaskStateError
 
@@ -69,7 +70,9 @@ def tool_schema(name: str) -> dict[str, Any]:
 
 def decision_feedback(error: Exception, payload: Any, references: list[str]) -> str:
     result: dict[str, Any] = {"code": "INVALID_DECISION", "remaining_repairs": 0}
-    if isinstance(error, MemoryStateError):
+    if isinstance(error, DialogueStateError):
+        result.update(field="dialogue_events", detail=str(error))
+    elif isinstance(error, MemoryStateError):
         result.update(field="memory_updates", detail=str(error))
     elif isinstance(error, TaskStateError):
         result.update(field="tasks", detail=str(error))
