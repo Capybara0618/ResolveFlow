@@ -103,6 +103,7 @@ class SupportRuntime:
                     "retrieval.py",
                     "guide.py",
                     "guidance.py",
+                    "recovery.py",
                     "../assets/support-guide-v1.json",
                     "../policies/retrieval.py",
                     "../policies/index.py",

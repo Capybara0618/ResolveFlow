@@ -132,3 +132,26 @@ def test_saved_guide_source_and_local_spend_survive_crash_without_reading_new_as
         second = SupportAgent(req, second_model, source, journal=resumed).run()
     assert second == first and second_model.calls == 0
     assert second["spend"]["local_reads"] == 1
+
+
+def test_recovery_rebuilds_source_failure_state_from_saved_calls_without_new_requests(agent_db):
+    from resolveflow.harness.model import MockModelClient
+    from resolveflow.support.engine import SupportAgent
+    from tests.unit.test_support_agent import answer, read
+    from tests.unit.test_support_recovery import Unavailable
+
+    req = request()
+    store = SupportStore(agent_db)
+    journal, _ = store.claim(req, {"version": "recovery-v1"})
+    model = MockModelClient(script=[read(), read(), read("get_support_guide"), answer(citations=["O1"])])
+    original = SupportAgent(req, model, Unavailable(), journal=journal).run()
+    assert original["status"] == "SUCCEEDED"
+    with agent_db.connection() as c:
+        c.execute("UPDATE support_agent_run SET lease_until=now()-interval '1 second'")
+    resumed, _ = store.claim(req, {"version": "recovery-v1"})
+    source = Unavailable()
+    recovered = SupportAgent(req, MockModelClient(script=[]), source, journal=resumed)
+    result = recovered.run()
+    assert result == original and source.calls == []
+    assert recovered.recovery.packet()[0]["failures"] == 2
+    assert recovered.recovery.packet()[0]["retry_allowed"] is False
