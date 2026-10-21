@@ -1,0 +1,78 @@
+{
+  "version": "customer-agent-eval-v2-summary",
+  "runtime_sha256": "12cff28bf929ee1f6339d5df987e18968379c3f78f8bf1f6ba7e1e589d2c5f35",
+  "groups": {
+    "agent": {
+      "conversations": 14,
+      "conversation_complete": 0,
+      "conversation_failed": 14,
+      "turns": 44,
+      "turn_complete": 0,
+      "turn_partial": 0,
+      "turn_failed": 44,
+      "reasons": {
+        "INVALID_DECISION": 44
+      },
+      "provider_requests": 88,
+      "provider_errors": 0,
+      "input_tokens": 146668,
+      "output_tokens": 22118,
+      "all_usage_provider_reported": true,
+      "failure_stop_latency_ms": {
+        "p50": 3419.9736500158906,
+        "p95": 4459.213199996157,
+        "min": 2509.866900014458,
+        "max": 5087.414299981901
+      },
+      "actual_business_tool_executions": 0,
+      "actual_searches": 0
+    },
+    "fixed": {
+      "conversations": 14,
+      "conversation_complete": 0,
+      "conversation_failed": 14,
+      "turns": 44,
+      "turn_complete": 0,
+      "turn_partial": 0,
+      "turn_failed": 44,
+      "reasons": {
+        "INVALID_DECISION": 44
+      },
+      "provider_requests": 88,
+      "provider_errors": 0,
+      "input_tokens": 152812,
+      "output_tokens": 21255,
+      "all_usage_provider_reported": true,
+      "failure_stop_latency_ms": {
+        "p50": 3178.2028000016,
+        "p95": 4231.301509999321,
+        "min": 2418.6068999988493,
+        "max": 4676.62830001791
+      },
+      "actual_business_tool_executions": 0,
+      "actual_searches": 0
+    }
+  },
+  "source_review": "FAILED_OUTCOME_AUDIT_NOT_INDEPENDENT_SEMANTIC_GOLD",
+  "requests_missing_kind": 176,
+  "all_requests": 176,
+  "served_models": [
+    "deepseek-flash"
+  ],
+  "max_provider_output_tokens": 593,
+  "output_ceiling": [
+    1024
+  ],
+  "warmup": {
+    "status": "READY",
+    "elapsed_ms": 8862.865700008115
+  },
+  "usage_before": 1540,
+  "usage_after": 1716,
+  "preservation_equal": true,
+  "isolated_schema_dropped": true,
+  "published_answer_latency_available": false,
+  "live_rag_quality_exercised": false,
+  "relative_agent_benefit_estimable": false,
+  "acceptance_target_met": false
+}

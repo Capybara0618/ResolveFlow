@@ -1,0 +1,146 @@
+{
+  "date": "2026-10-21",
+  "state": "EVALUATION_FINISHED_ACCEPTANCE_FAILED",
+  "preparation_commit": "d1139d9049a9f81bf8c77067952f34c70f3bbf57",
+  "production_baseline_revision": "56d09edba4f717075ab34b96192ffd2b225ea807",
+  "frozen_files": 53,
+  "planned_and_finished_turns": 88,
+  "groups": {
+    "agent": {
+      "conversations": 14,
+      "conversation_complete": 0,
+      "conversation_failed": 14,
+      "turns": 44,
+      "turn_complete": 0,
+      "turn_partial": 0,
+      "turn_failed": 44,
+      "reasons": {
+        "INVALID_DECISION": 44
+      },
+      "provider_requests": 88,
+      "provider_errors": 0,
+      "input_tokens": 146668,
+      "output_tokens": 22118,
+      "all_usage_provider_reported": true,
+      "failure_stop_latency_ms": {
+        "p50": 3419.9736500158906,
+        "p95": 4459.213199996157,
+        "min": 2509.866900014458,
+        "max": 5087.414299981901
+      },
+      "actual_business_tool_executions": 0,
+      "actual_searches": 0
+    },
+    "fixed": {
+      "conversations": 14,
+      "conversation_complete": 0,
+      "conversation_failed": 14,
+      "turns": 44,
+      "turn_complete": 0,
+      "turn_partial": 0,
+      "turn_failed": 44,
+      "reasons": {
+        "INVALID_DECISION": 44
+      },
+      "provider_requests": 88,
+      "provider_errors": 0,
+      "input_tokens": 152812,
+      "output_tokens": 21255,
+      "all_usage_provider_reported": true,
+      "failure_stop_latency_ms": {
+        "p50": 3178.2028000016,
+        "p95": 4231.301509999321,
+        "min": 2418.6068999988493,
+        "max": 4676.62830001791
+      },
+      "actual_business_tool_executions": 0,
+      "actual_searches": 0
+    }
+  },
+  "new_live_model_requests": 176,
+  "provider_errors": 0,
+  "all_usage_provider_reported": true,
+  "usage_ledger_before": 1540,
+  "usage_ledger_after": 1716,
+  "paid_case_reruns": 0,
+  "production_changes_during_evaluation": false,
+  "acceptance_target_met": false,
+  "all_missing_top_level_kind": true,
+  "failed_outcome_review_rows": 88,
+  "successful_answer_semantic_review_rows": 0,
+  "new_pause_resume_behavior_validated_live": false,
+  "agent_vs_fixed_business_benefit_estimable": false,
+  "end_to_end_live_rag_quality_exercised": false,
+  "isolated_exported_runs": 88,
+  "isolated_exported_model_calls": 176,
+  "all_isolated_calls_exported_before_drop": true,
+  "engineering": {
+    "python_passed": 121,
+    "python_failed": 0,
+    "python_skipped": 0,
+    "python_files": 22,
+    "ruff_passed": true,
+    "java_rerun": false,
+    "frontend_rerun": false,
+    "whole_repo_green_claim": false,
+    "legacy_frozen_tests_not_included": 5
+  },
+  "rag_independent_regression": {
+    "requests": 27,
+    "unique_queries": 9,
+    "rounds": 3,
+    "generation_requests": 0,
+    "groups": {
+      "saved-live": {
+        "n": 3,
+        "complete_at_3": 3,
+        "complete_at_5": 3
+      },
+      "synthetic-probe": {
+        "n": 6,
+        "complete_at_3": 5,
+        "complete_at_5": 5
+      }
+    },
+    "cold_ms": 7128.174000012223,
+    "warm_n": 26,
+    "warm_p50_ms": 31.543649995001033,
+    "warm_p95_ms": 37.48455001186812,
+    "known_p02_miss_retained": true,
+    "rankings_same_three_rounds": true
+  },
+  "preservation": {
+    "public_tables": 11,
+    "public_before_after_equal": true,
+    "preflight_and_rag_equal": true,
+    "temporary_schemas": [],
+    "inherited_dirty_files_sha256": {
+      "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+      "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+      "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+      "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+    },
+    "production_and_old_evals_unchanged": true,
+    "model_abi_missing_kind_verified": 176,
+    "correction_feedback_same_error_verified": 88,
+    "usage_ledger_used": 1716,
+    "no_model_key_in_report_files": true
+  },
+  "active_project_listeners": [],
+  "pg_state": "exited",
+  "retained_pg_volume": "resolveflow-review-demo_demo-postgres-data",
+  "new_dependencies_or_model_downloads": 0,
+  "resume_changed": false,
+  "business_queue_consumed": false,
+  "new_trade_refund_policy_publish": false,
+  "next_priority": "Restore explicit action ABI/examples and missing-kind feedback; frozen small live smoke before a new full cohort",
+  "files_sha256": {
+    "reports/customer-agent-eval-v2/failed-outcome-review.json": "fd9818af282057ac995dc77dd9b553f80cc53b1b001c43fcf815484affeb53a1",
+    "reports/customer-agent-eval-v2/rag-pg-regression.json": "aaac94f133b96f53750b436a3839ad5813fd211358220abb75564e59fd601489",
+    "reports/customer-agent-eval-v2/rag-regression-protocol.json": "ed9cc0cb9770ec469f727cf734a4320a3aa139fabfff01d17a1899ffcd1ecc68",
+    "reports/customer-agent-eval-v2/README.md": "ee6fe08cff54ac6823da483c6ab75b167ea5ea7a58e178b51fa57f1b5e627fb3",
+    "reports/customer-agent-eval-v2/runtime-results.json": "12cff28bf929ee1f6339d5df987e18968379c3f78f8bf1f6ba7e1e589d2c5f35",
+    "reports/customer-agent-eval-v2/summarize.py": "cc2f0b901ce7e7397cdb2f365d9f0fbc2aebe884fd21355cf187ca26b9e30589",
+    "reports/customer-agent-eval-v2/summary.json": "fe07a90df9c56299bb6fb16d8288018880d31fb93ff06f5bd9d09cad58adb7f9"
+  }
+}

@@ -1,0 +1,1586 @@
+[
+  {
+    "id": "D01",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "按物流来源说明在途，不从PAID推断物流",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不编造预计送达时间",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D01",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保留假设，不把当前在途改成丢失",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按丢失政策说明适用条件和人工核验",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D01",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "采用当前诉求，不继续要求退款材料",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "给出预览确认后转交核查的流程，不假称已经转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D02",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分LOST与PAID",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "完整回答资格和当前申请入口",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D02",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分查到丢失、人工核验、正式申请和退款执行",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不声称已退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D02",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "指出共享原文与调查依据分别选择",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不声称整段私聊自动共享",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D03",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "同时保留系统签收与客户否认收到",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不重复要求已经做过的代收排查",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D03",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "不能仅凭客户陈述承诺退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按签收争议规则说明商家核查",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D03",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "重新判断当前意图，退款诉求不再推进",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "摘要区分已读事实和客户陈述，待客户确认",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D04",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "照片与客户陈述不等于已人工核验",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按损坏政策说明核验与订单条件",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D04",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "纠正为假设，不保留成已经损坏的事实",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不要求当前不存在的损坏照片",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D04",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "给出当前我的售后入口",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "聊天未创建申请，不暴露内部Case术语",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D05",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "不套用损坏或丢失规则证明个人原因可退",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "没有适用依据时说明需要确认本店规则",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D05",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "朋友说法不能替代本店绑定政策",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不编造政策天数或退款承诺",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D05",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "人工咨询不要求先退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "明确预览摘要并确认转交，未确认不能称已提交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D06",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "不要求创建退款或金额",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "给出独立核查入口和确认步骤",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D06",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "表达意愿不等于已创建核查单",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按可信会话状态说明尚未转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D06",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "提供可编辑摘要",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "只整理当前已知信息，不虚构已读物流",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D07",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分当前ASSISTANT与默认MERCHANT",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "私有消息不会自动共享",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D07",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "按默认MERCHANT说明发给商家",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不把本次私聊对象等同默认对象",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D07",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "说明切换询问智能助手",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不要求重新申请退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D08",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "说明可在原核查单补充接续",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "咨询不套正式两轮补证限制",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D08",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "补充核查与退款申请分开",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "说明补充给商家的对象",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D08",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "商家回复与客户确认解决不同",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不因客户文字伪造当前状态",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D09",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "必要时读取较早原文中的尾部纠正",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "摘要保留未收到且家人未代收，不反复问已排查事项",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D09",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "采纳最新纠正并停止原退款/核查诉求",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不把旧状态当客户当前诉求",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D09",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "说明每订单行独立保存咨询",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不把本商品私人历史带到其他商品",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D10",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "实际查询503不能断言未发货或丢失",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "提供客户确认后核查路径",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D10",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分不可用与丢失事实",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不无限重复查询同参数",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D10",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "明确尚缺实时物流",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "给待确认摘要，不假称已经联系",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D11",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "按在途与未发货两条依据回答",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "保留NOT_SHIPPED、版本1及ORDER_PAID条件，不仅说已付款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D11",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保持假设，不从客户话推断订单实际状态",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "需要实际判断时重新读业务事实",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D11",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分付款状态和物流状态",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不漏未发货规则的版本与事件限制",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D12",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保留假设，不说本单已经丢失",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按本店丢失规则保留签收、核验和金额条件",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D12",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保持已绑定商家/政策范围",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不声称已查其他商家私有政策",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D12",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "人工核查不要求已满足退款资格",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不绕过人工核验作退款授权",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D13",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "读取签收来源并区分客户未找到与系统签收",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "代收只是猜测，不当成已核实；需要核查时不虚构已转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D13",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "暂停原签收调查而不是永久取消",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "回答当前正式申请入口，不继续索要代收材料",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D13",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "恢复原签收任务，并采用家人及代收点均已排查的纠正",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不重复要求同样排查，给出可确认的商家核查下一步",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D13",
+    "variant": "agent",
+    "turn": 4,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "采用找到包裹的新信息，停止原核查/退款推进",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不把客户找到包裹说成系统已完成退款或转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D14",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "读取实际物流LOST而不只按PAID推断",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不因丢失自动申请或承诺已退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D14",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保留暂停的原任务，不当成彻底撤回",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按指南说明原文选择、摘要预览和确认共享，不称全部聊天自动公开",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D14",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "恢复物流任务并保留收件人已排查未收到",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "摘要区分物流丢失来源与客户陈述，待客户确认且不虚构已转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D14",
+    "variant": "agent",
+    "turn": 4,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "明确撤回当前核查，不继续要求确认转交或创建退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不伪称撤销了不存在的核查单或业务退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D01",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "按物流来源说明在途，不从PAID推断物流",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不编造预计送达时间",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D01",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保留假设，不把当前在途改成丢失",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按丢失政策说明适用条件和人工核验",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D01",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "采用当前诉求，不继续要求退款材料",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "给出预览确认后转交核查的流程，不假称已经转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D02",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分LOST与PAID",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "完整回答资格和当前申请入口",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D02",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分查到丢失、人工核验、正式申请和退款执行",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不声称已退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D02",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "指出共享原文与调查依据分别选择",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不声称整段私聊自动共享",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D03",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "同时保留系统签收与客户否认收到",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不重复要求已经做过的代收排查",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D03",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "不能仅凭客户陈述承诺退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按签收争议规则说明商家核查",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D03",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "重新判断当前意图，退款诉求不再推进",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "摘要区分已读事实和客户陈述，待客户确认",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D04",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "照片与客户陈述不等于已人工核验",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按损坏政策说明核验与订单条件",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D04",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "纠正为假设，不保留成已经损坏的事实",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不要求当前不存在的损坏照片",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D04",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "给出当前我的售后入口",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "聊天未创建申请，不暴露内部Case术语",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D05",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "不套用损坏或丢失规则证明个人原因可退",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "没有适用依据时说明需要确认本店规则",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D05",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "朋友说法不能替代本店绑定政策",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不编造政策天数或退款承诺",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D05",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "人工咨询不要求先退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "明确预览摘要并确认转交，未确认不能称已提交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D06",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "不要求创建退款或金额",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "给出独立核查入口和确认步骤",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D06",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "表达意愿不等于已创建核查单",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按可信会话状态说明尚未转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D06",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "提供可编辑摘要",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "只整理当前已知信息，不虚构已读物流",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D07",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分当前ASSISTANT与默认MERCHANT",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "私有消息不会自动共享",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D07",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "按默认MERCHANT说明发给商家",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不把本次私聊对象等同默认对象",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D07",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "说明切换询问智能助手",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不要求重新申请退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D08",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "说明可在原核查单补充接续",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "咨询不套正式两轮补证限制",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D08",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "补充核查与退款申请分开",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "说明补充给商家的对象",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D08",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "商家回复与客户确认解决不同",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不因客户文字伪造当前状态",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D09",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "必要时读取较早原文中的尾部纠正",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "摘要保留未收到且家人未代收，不反复问已排查事项",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D09",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "采纳最新纠正并停止原退款/核查诉求",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不把旧状态当客户当前诉求",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D09",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "说明每订单行独立保存咨询",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不把本商品私人历史带到其他商品",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D10",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "实际查询503不能断言未发货或丢失",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "提供客户确认后核查路径",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D10",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分不可用与丢失事实",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不无限重复查询同参数",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D10",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "明确尚缺实时物流",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "给待确认摘要，不假称已经联系",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D11",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "按在途与未发货两条依据回答",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "保留NOT_SHIPPED、版本1及ORDER_PAID条件，不仅说已付款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D11",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保持假设，不从客户话推断订单实际状态",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "需要实际判断时重新读业务事实",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D11",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "区分付款状态和物流状态",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不漏未发货规则的版本与事件限制",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D12",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保留假设，不说本单已经丢失",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按本店丢失规则保留签收、核验和金额条件",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D12",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保持已绑定商家/政策范围",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不声称已查其他商家私有政策",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D12",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "人工核查不要求已满足退款资格",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不绕过人工核验作退款授权",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D13",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "读取签收来源并区分客户未找到与系统签收",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "代收只是猜测，不当成已核实；需要核查时不虚构已转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D13",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "暂停原签收调查而不是永久取消",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "回答当前正式申请入口，不继续索要代收材料",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D13",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "恢复原签收任务，并采用家人及代收点均已排查的纠正",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不重复要求同样排查，给出可确认的商家核查下一步",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D13",
+    "variant": "fixed",
+    "turn": 4,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "采用找到包裹的新信息，停止原核查/退款推进",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不把客户找到包裹说成系统已完成退款或转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D14",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "读取实际物流LOST而不只按PAID推断",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不因丢失自动申请或承诺已退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D14",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "保留暂停的原任务，不当成彻底撤回",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "按指南说明原文选择、摘要预览和确认共享，不称全部聊天自动公开",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D14",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "恢复物流任务并保留收件人已排查未收到",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "摘要区分物流丢失来源与客户陈述，待客户确认且不虚构已转交",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  },
+  {
+    "id": "D14",
+    "variant": "fixed",
+    "turn": 4,
+    "grade": "FAILED",
+    "reason": "INVALID_DECISION",
+    "basis": "RUN_FAILED_WITH_NO_PUBLISHED_ANSWER",
+    "conditions": [
+      {
+        "text": "明确撤回当前核查，不继续要求确认转交或创建退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      },
+      {
+        "text": "不伪称撤销了不存在的核查单或业务退款",
+        "state": "NOT_SCORED_NO_ANSWER"
+      }
+    ]
+  }
+]

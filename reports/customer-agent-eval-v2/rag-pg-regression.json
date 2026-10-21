@@ -1,0 +1,1349 @@
+{
+  "version": "customer-rag-actual-pg-profile-v1",
+  "source_sha256": "cbcd2c79186178586f8be85f36252d001c6a9222b572bf3710185275cc7888f8",
+  "runner_sha256": "c95c476bf5d2df622c3dc00d47c0ec88c4286efe152f6a4d33fa2e9fc2d9b154",
+  "scope": "Actual retrieve_policy with readonly retained PG, CPU embedding4 threads; no HTTP/LLM.",
+  "cold_ms": 7128.174000012223,
+  "warm_n": 26,
+  "warm_p50_ms": 31.543649995001033,
+  "warm_p95_ms": 37.48455001186812,
+  "preservation": {
+    "before": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "after": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "equal": true
+  },
+  "rows": [
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 0,
+      "cold": true,
+      "elapsed_ms": 7128.174000012223,
+      "stages": {
+        "dense_scope_ms": 19.308599992655218,
+        "dense_parent_read_ms": 24.61829999811016,
+        "dense_child_read_ms": 7.784199988236651,
+        "dense_embedding_wait_ms": 0.001500011421740055,
+        "dense_model_load_ms": 6586.43069997197,
+        "dense_query_encoding_ms": 31.33299999171868,
+        "dense_embedding_ms": 6617.777599982219,
+        "dense_ranking_ms": 0.5421000241767615,
+        "dense_result_ms": 0.024200009647756815,
+        "dense_total_ms": 6670.058000017889,
+        "dense_ms": 6670.074399997247,
+        "body_lexical_scope_ms": 3.3807999861892313,
+        "body_lexical_parent_read_ms": 2.282100002048537,
+        "body_lexical_ranking_ms": 446.78830000339076,
+        "body_lexical_result_ms": 0.025399989681318402,
+        "body_lexical_total_ms": 452.4813999887556,
+        "body_lexical_ms": 452.4991000071168,
+        "title_lexical_scope_ms": 2.630000002682209,
+        "title_lexical_parent_read_ms": 2.549400000134483,
+        "title_lexical_ranking_ms": 0.311699986923486,
+        "title_lexical_result_ms": 0.012200005585327744,
+        "title_lexical_total_ms": 5.5056000128388405,
+        "title_lexical_ms": 5.5145999940577894,
+        "fusion_ms": 0.07080001523718238,
+        "total_ms": 7128.166800015606
+      },
+      "rule_ids": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 0,
+      "cold": false,
+      "elapsed_ms": 36.08550000353716,
+      "stages": {
+        "dense_scope_ms": 1.8934000108856708,
+        "dense_parent_read_ms": 2.1773999906145036,
+        "dense_child_read_ms": 3.5943999828305095,
+        "dense_embedding_wait_ms": 0.001900014467537403,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 16.23069998458959,
+        "dense_embedding_ms": 16.246199986198917,
+        "dense_ranking_ms": 0.6041000306140631,
+        "dense_result_ms": 0.02889998722821474,
+        "dense_total_ms": 24.54720000969246,
+        "dense_ms": 24.56199997686781,
+        "body_lexical_scope_ms": 2.672599977813661,
+        "body_lexical_parent_read_ms": 2.234999992651865,
+        "body_lexical_ranking_ms": 1.358800014713779,
+        "body_lexical_result_ms": 0.019700004486367106,
+        "body_lexical_total_ms": 6.28939998568967,
+        "body_lexical_ms": 6.30280000041239,
+        "title_lexical_scope_ms": 2.2659999958705157,
+        "title_lexical_parent_read_ms": 2.607999980682507,
+        "title_lexical_ranking_ms": 0.2457000082358718,
+        "title_lexical_result_ms": 0.010099989594891667,
+        "title_lexical_total_ms": 5.131699988851324,
+        "title_lexical_ms": 5.140000022947788,
+        "fusion_ms": 0.06700001540593803,
+        "total_ms": 36.077900003874674
+      },
+      "rule_ids": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-DMG-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 0,
+      "cold": false,
+      "elapsed_ms": 35.70629999740049,
+      "stages": {
+        "dense_scope_ms": 2.1770999883301556,
+        "dense_parent_read_ms": 2.5650000025052577,
+        "dense_child_read_ms": 2.928700007032603,
+        "dense_embedding_wait_ms": 0.000800006091594696,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 15.90339999529533,
+        "dense_embedding_ms": 15.910299989627674,
+        "dense_ranking_ms": 1.0143000108655542,
+        "dense_result_ms": 0.023200002033263445,
+        "dense_total_ms": 24.621999997179955,
+        "dense_ms": 24.633799999719486,
+        "body_lexical_scope_ms": 3.0919999990146607,
+        "body_lexical_parent_read_ms": 2.502200019080192,
+        "body_lexical_ranking_ms": 1.2941999884787947,
+        "body_lexical_result_ms": 0.013599987141788006,
+        "body_lexical_total_ms": 6.904600013513118,
+        "body_lexical_ms": 6.912599987117574,
+        "title_lexical_scope_ms": 1.7846999980974942,
+        "title_lexical_parent_read_ms": 1.8822999845724553,
+        "title_lexical_ranking_ms": 0.37200000951997936,
+        "title_lexical_result_ms": 0.015500001609325409,
+        "title_lexical_total_ms": 4.056699981447309,
+        "title_lexical_ms": 4.06989999464713,
+        "fusion_ms": 0.07670000195503235,
+        "total_ms": 35.69810002227314
+      },
+      "rule_ids": [
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "cold": false,
+      "elapsed_ms": 36.17189999204129,
+      "stages": {
+        "dense_scope_ms": 2.0674999977927655,
+        "dense_parent_read_ms": 1.962799986358732,
+        "dense_child_read_ms": 3.6801999958697706,
+        "dense_embedding_wait_ms": 0.000500003807246685,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 15.795200015418231,
+        "dense_embedding_ms": 15.801700006704777,
+        "dense_ranking_ms": 0.5512000061571598,
+        "dense_result_ms": 0.02929999027401209,
+        "dense_total_ms": 24.097299989080057,
+        "dense_ms": 24.114100000588223,
+        "body_lexical_scope_ms": 3.1789999920874834,
+        "body_lexical_parent_read_ms": 2.355500007979572,
+        "body_lexical_ranking_ms": 1.5244999958667904,
+        "body_lexical_result_ms": 0.013900018529966474,
+        "body_lexical_total_ms": 7.075700006680563,
+        "body_lexical_ms": 7.0850000192876905,
+        "title_lexical_scope_ms": 2.366400003666058,
+        "title_lexical_parent_read_ms": 2.1146000071894377,
+        "title_lexical_ranking_ms": 0.40600000647827983,
+        "title_lexical_result_ms": 0.015099998563528061,
+        "title_lexical_total_ms": 4.9048000073526055,
+        "title_lexical_ms": 4.915099998470396,
+        "fusion_ms": 0.0447999918833375,
+        "total_ms": 36.16459999466315
+      },
+      "rule_ids": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "cold": false,
+      "elapsed_ms": 35.341599985258654,
+      "stages": {
+        "dense_scope_ms": 1.8965999770443887,
+        "dense_parent_read_ms": 4.060000006575137,
+        "dense_child_read_ms": 3.857500007143244,
+        "dense_embedding_wait_ms": 0.000700005330145359,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 14.27819998934865,
+        "dense_embedding_ms": 14.284500008216128,
+        "dense_ranking_ms": 0.3857999690808356,
+        "dense_result_ms": 0.016300007700920105,
+        "dense_total_ms": 24.503299995558336,
+        "dense_ms": 24.512599979061633,
+        "body_lexical_scope_ms": 2.8538999904412776,
+        "body_lexical_parent_read_ms": 2.1084999898448586,
+        "body_lexical_ranking_ms": 1.3515000173356384,
+        "body_lexical_result_ms": 0.015500001609325409,
+        "body_lexical_total_ms": 6.331899989163503,
+        "body_lexical_ms": 6.33969999034889,
+        "title_lexical_scope_ms": 1.7973999783862382,
+        "title_lexical_parent_read_ms": 2.2193000186234713,
+        "title_lexical_ranking_ms": 0.37739999243058264,
+        "title_lexical_result_ms": 0.01279998105019331,
+        "title_lexical_total_ms": 4.4089999864809215,
+        "title_lexical_ms": 4.417199990712106,
+        "fusion_ms": 0.05729999975301325,
+        "total_ms": 35.33189999870956
+      },
+      "rule_ids": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "complete_at_3": false,
+      "complete_at_5": false
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "cold": false,
+      "elapsed_ms": 34.597699996083975,
+      "stages": {
+        "dense_scope_ms": 1.8509999790694565,
+        "dense_parent_read_ms": 2.010099997278303,
+        "dense_child_read_ms": 3.301899996586144,
+        "dense_embedding_wait_ms": 0.000800006091594696,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 13.052099995547906,
+        "dense_embedding_ms": 13.059499993687496,
+        "dense_ranking_ms": 0.5517000099644065,
+        "dense_result_ms": 0.02720000338740647,
+        "dense_total_ms": 20.804400002816692,
+        "dense_ms": 20.818599994527176,
+        "body_lexical_scope_ms": 3.491499985102564,
+        "body_lexical_parent_read_ms": 2.457099995808676,
+        "body_lexical_ranking_ms": 1.9044000073336065,
+        "body_lexical_result_ms": 0.017699989257380366,
+        "body_lexical_total_ms": 7.873800001107156,
+        "body_lexical_ms": 7.886000006692484,
+        "title_lexical_scope_ms": 2.4311000015586615,
+        "title_lexical_parent_read_ms": 2.889399998821318,
+        "title_lexical_ranking_ms": 0.4507999983616173,
+        "title_lexical_result_ms": 0.016700010746717453,
+        "title_lexical_total_ms": 5.791300005512312,
+        "title_lexical_ms": 5.802100000437349,
+        "fusion_ms": 0.07280000136233866,
+        "total_ms": 34.58780000801198
+      },
+      "rule_ids": [
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "cold": false,
+      "elapsed_ms": 31.59379999851808,
+      "stages": {
+        "dense_scope_ms": 3.0618000018876046,
+        "dense_parent_read_ms": 2.4446999887004495,
+        "dense_child_read_ms": 3.3471000206191093,
+        "dense_embedding_wait_ms": 0.000500003807246685,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 10.456499992869794,
+        "dense_embedding_ms": 10.463500017067418,
+        "dense_ranking_ms": 0.5316999740898609,
+        "dense_result_ms": 0.020100007532164454,
+        "dense_total_ms": 19.871900003636256,
+        "dense_ms": 19.883599976310506,
+        "body_lexical_scope_ms": 2.7120999875478446,
+        "body_lexical_parent_read_ms": 2.3379999911412597,
+        "body_lexical_ranking_ms": 2.0385999814607203,
+        "body_lexical_result_ms": 0.018699996871873736,
+        "body_lexical_total_ms": 7.1106999821495265,
+        "body_lexical_ms": 7.121600006939843,
+        "title_lexical_scope_ms": 2.067399997031316,
+        "title_lexical_parent_read_ms": 2.040299994405359,
+        "title_lexical_ranking_ms": 0.3622999938670546,
+        "title_lexical_result_ms": 0.014999997802078724,
+        "title_lexical_total_ms": 4.486999998334795,
+        "title_lexical_ms": 4.496300010941923,
+        "fusion_ms": 0.07690000347793102,
+        "total_ms": 31.584299984388053
+      },
+      "rule_ids": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "cold": false,
+      "elapsed_ms": 39.92909999215044,
+      "stages": {
+        "dense_scope_ms": 1.7817000043578446,
+        "dense_parent_read_ms": 2.3609999916516244,
+        "dense_child_read_ms": 3.6988999927416444,
+        "dense_embedding_wait_ms": 0.000800006091594696,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 14.268400002038106,
+        "dense_embedding_ms": 14.284899982158095,
+        "dense_ranking_ms": 0.590300012845546,
+        "dense_result_ms": 0.028400012524798512,
+        "dense_total_ms": 22.747599985450506,
+        "dense_ms": 22.760099993320182,
+        "body_lexical_scope_ms": 4.439300013473257,
+        "body_lexical_parent_read_ms": 3.1458000012207776,
+        "body_lexical_ranking_ms": 2.283800014993176,
+        "body_lexical_result_ms": 0.023600005079060793,
+        "body_lexical_total_ms": 9.897300013108179,
+        "body_lexical_ms": 9.911100001772866,
+        "title_lexical_scope_ms": 3.355499997269362,
+        "title_lexical_parent_read_ms": 3.289399988716468,
+        "title_lexical_ranking_ms": 0.4724999889731407,
+        "title_lexical_result_ms": 0.016600009985268116,
+        "title_lexical_total_ms": 7.13679997716099,
+        "title_lexical_ms": 7.146499992813915,
+        "fusion_ms": 0.09330001194030046,
+        "total_ms": 39.91760002099909
+      },
+      "rule_ids": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "cold": false,
+      "elapsed_ms": 37.92210001847707,
+      "stages": {
+        "dense_scope_ms": 2.725900005316362,
+        "dense_parent_read_ms": 2.980699995532632,
+        "dense_child_read_ms": 3.18550001247786,
+        "dense_embedding_wait_ms": 0.001200009137392044,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 11.259399994742125,
+        "dense_embedding_ms": 11.266899993643165,
+        "dense_ranking_ms": 0.40879996959120035,
+        "dense_result_ms": 0.017200014553964138,
+        "dense_total_ms": 20.587700011674315,
+        "dense_ms": 20.597900002030656,
+        "body_lexical_scope_ms": 3.0848999740555882,
+        "body_lexical_parent_read_ms": 3.7681999965570867,
+        "body_lexical_ranking_ms": 2.3711000103503466,
+        "body_lexical_result_ms": 0.01960000372491777,
+        "body_lexical_total_ms": 9.247599984519184,
+        "body_lexical_ms": 9.25859998096712,
+        "title_lexical_scope_ms": 4.805199976544827,
+        "title_lexical_parent_read_ms": 2.7219000039622188,
+        "title_lexical_ranking_ms": 0.40950000402517617,
+        "title_lexical_result_ms": 0.0171000137925148,
+        "title_lexical_total_ms": 7.957499998155981,
+        "title_lexical_ms": 7.968499994603917,
+        "fusion_ms": 0.08100000559352338,
+        "total_ms": 37.91120002279058
+      },
+      "rule_ids": [
+        "R-UNSHIPPED-001",
+        "R-MONEY-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 1,
+      "cold": false,
+      "elapsed_ms": 32.01880000415258,
+      "stages": {
+        "dense_scope_ms": 1.900000002933666,
+        "dense_parent_read_ms": 2.6292999973520637,
+        "dense_child_read_ms": 3.089300007559359,
+        "dense_embedding_wait_ms": 0.000900006853044033,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 11.64110001991503,
+        "dense_embedding_ms": 11.650200001895428,
+        "dense_ranking_ms": 0.5790999857708812,
+        "dense_result_ms": 0.021100015146657825,
+        "dense_total_ms": 19.87150000059046,
+        "dense_ms": 19.88290000008419,
+        "body_lexical_scope_ms": 2.8891999972984195,
+        "body_lexical_parent_read_ms": 2.754399989498779,
+        "body_lexical_ranking_ms": 1.3907999964430928,
+        "body_lexical_result_ms": 0.015700003132224083,
+        "body_lexical_total_ms": 7.053400011500344,
+        "body_lexical_ms": 7.062699995003641,
+        "title_lexical_scope_ms": 1.7712000117171556,
+        "title_lexical_parent_read_ms": 2.666699991095811,
+        "title_lexical_ranking_ms": 0.4902999789919704,
+        "title_lexical_result_ms": 0.020799983758479357,
+        "title_lexical_total_ms": 4.952799994498491,
+        "title_lexical_ms": 4.965900006936863,
+        "fusion_ms": 0.09099999442696571,
+        "total_ms": 32.00880001531914
+      },
+      "rule_ids": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 1,
+      "cold": false,
+      "elapsed_ms": 30.96979999099858,
+      "stages": {
+        "dense_scope_ms": 2.7913000085391104,
+        "dense_parent_read_ms": 2.048599999397993,
+        "dense_child_read_ms": 3.946000011637807,
+        "dense_embedding_wait_ms": 0.000700005330145359,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 9.282100014388561,
+        "dense_embedding_ms": 9.289200010243803,
+        "dense_ranking_ms": 0.5357999762054533,
+        "dense_result_ms": 0.020899984519928694,
+        "dense_total_ms": 18.634599982760847,
+        "dense_ms": 18.646800017450005,
+        "body_lexical_scope_ms": 2.524199982872233,
+        "body_lexical_parent_read_ms": 2.967200009152293,
+        "body_lexical_ranking_ms": 1.6413999837823212,
+        "body_lexical_result_ms": 0.018499995348975062,
+        "body_lexical_total_ms": 7.154099992476404,
+        "body_lexical_ms": 7.1638000081293285,
+        "title_lexical_scope_ms": 2.2603000106755644,
+        "title_lexical_parent_read_ms": 2.4101999879349023,
+        "title_lexical_ranking_ms": 0.37930000689812005,
+        "title_lexical_result_ms": 0.014300021575763822,
+        "title_lexical_total_ms": 5.0669999909587204,
+        "title_lexical_ms": 5.076700006611645,
+        "fusion_ms": 0.06880000000819564,
+        "total_ms": 30.96130001358688
+      },
+      "rule_ids": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-DMG-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 1,
+      "cold": false,
+      "elapsed_ms": 32.69900000304915,
+      "stages": {
+        "dense_scope_ms": 2.2458999883383512,
+        "dense_parent_read_ms": 2.8316999960225075,
+        "dense_child_read_ms": 3.585800004657358,
+        "dense_embedding_wait_ms": 0.001100008375942707,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 9.909900021739304,
+        "dense_embedding_ms": 9.918800002196804,
+        "dense_ranking_ms": 0.38720000884495676,
+        "dense_result_ms": 0.01680001150816679,
+        "dense_total_ms": 18.988900003023446,
+        "dense_ms": 19.00309999473393,
+        "body_lexical_scope_ms": 3.577199997380376,
+        "body_lexical_parent_read_ms": 2.952199982246384,
+        "body_lexical_ranking_ms": 1.9057999888900667,
+        "body_lexical_result_ms": 0.019700004486367106,
+        "body_lexical_total_ms": 8.458700001938269,
+        "body_lexical_ms": 8.474100002786145,
+        "title_lexical_scope_ms": 2.352599985897541,
+        "title_lexical_parent_read_ms": 2.290300006279722,
+        "title_lexical_ranking_ms": 0.44499998330138624,
+        "title_lexical_result_ms": 0.018499995348975062,
+        "title_lexical_total_ms": 5.109399993671104,
+        "title_lexical_ms": 5.121099995449185,
+        "fusion_ms": 0.08410000009462237,
+        "total_ms": 32.68900001421571
+      },
+      "rule_ids": [
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "cold": false,
+      "elapsed_ms": 30.08260001661256,
+      "stages": {
+        "dense_scope_ms": 2.502000017557293,
+        "dense_parent_read_ms": 2.338099991902709,
+        "dense_child_read_ms": 3.3970999938901514,
+        "dense_embedding_wait_ms": 0.0007999769877642393,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 8.439700002782047,
+        "dense_embedding_ms": 8.445799991022795,
+        "dense_ranking_ms": 0.4285000031813979,
+        "dense_result_ms": 0.017099984688684344,
+        "dense_total_ms": 17.131300002802163,
+        "dense_ms": 17.141699994681403,
+        "body_lexical_scope_ms": 3.040999989025295,
+        "body_lexical_parent_read_ms": 2.387899992754683,
+        "body_lexical_ranking_ms": 1.6924999945331365,
+        "body_lexical_result_ms": 0.01889999839477241,
+        "body_lexical_total_ms": 7.143199996789917,
+        "body_lexical_ms": 7.154900027671829,
+        "title_lexical_scope_ms": 2.1721999801229686,
+        "title_lexical_parent_read_ms": 2.643500018166378,
+        "title_lexical_ranking_ms": 0.8688000089023262,
+        "title_lexical_result_ms": 0.01960000372491777,
+        "title_lexical_total_ms": 5.707599979359657,
+        "title_lexical_ms": 5.721099994843826,
+        "fusion_ms": 0.05089998012408614,
+        "total_ms": 30.074399983277544
+      },
+      "rule_ids": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "cold": false,
+      "elapsed_ms": 35.92319999006577,
+      "stages": {
+        "dense_scope_ms": 2.5622000102885067,
+        "dense_parent_read_ms": 2.611899981275201,
+        "dense_child_read_ms": 3.548800013959408,
+        "dense_embedding_wait_ms": 0.000600004568696022,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 11.353799985954538,
+        "dense_embedding_ms": 11.360599979525432,
+        "dense_ranking_ms": 0.47160001122392714,
+        "dense_result_ms": 0.021299987565726042,
+        "dense_total_ms": 20.579000003635883,
+        "dense_ms": 20.59000000008382,
+        "body_lexical_scope_ms": 4.042800021125004,
+        "body_lexical_parent_read_ms": 3.9289999986067414,
+        "body_lexical_ranking_ms": 1.6272999928332865,
+        "body_lexical_result_ms": 0.016000005416572094,
+        "body_lexical_total_ms": 9.618300013244152,
+        "body_lexical_ms": 9.629299980588257,
+        "title_lexical_scope_ms": 2.622300002258271,
+        "title_lexical_parent_read_ms": 2.580800006398931,
+        "title_lexical_ranking_ms": 0.39820000529289246,
+        "title_lexical_result_ms": 0.015799974789842963,
+        "title_lexical_total_ms": 5.620299984002486,
+        "title_lexical_ms": 5.628399987472221,
+        "fusion_ms": 0.060699996538460255,
+        "total_ms": 35.91390000656247
+      },
+      "rule_ids": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "complete_at_3": false,
+      "complete_at_5": false
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "cold": false,
+      "elapsed_ms": 31.403500004671514,
+      "stages": {
+        "dense_scope_ms": 2.582999994046986,
+        "dense_parent_read_ms": 2.3600999847985804,
+        "dense_child_read_ms": 3.0943000165279955,
+        "dense_embedding_wait_ms": 0.000500003807246685,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 10.330299992347136,
+        "dense_embedding_ms": 10.336800012737513,
+        "dense_ranking_ms": 0.47559995437040925,
+        "dense_result_ms": 0.018699996871873736,
+        "dense_total_ms": 18.871799984481186,
+        "dense_ms": 18.882499978644773,
+        "body_lexical_scope_ms": 2.541699999710545,
+        "body_lexical_parent_read_ms": 2.828700002282858,
+        "body_lexical_ranking_ms": 1.7124000005424023,
+        "body_lexical_result_ms": 0.01650000922381878,
+        "body_lexical_total_ms": 7.101800001692027,
+        "body_lexical_ms": 7.111600018106401,
+        "title_lexical_scope_ms": 2.6935999921988696,
+        "title_lexical_parent_read_ms": 2.2582999954465777,
+        "title_lexical_ranking_ms": 0.3597000031732023,
+        "title_lexical_result_ms": 0.012299977242946625,
+        "title_lexical_total_ms": 5.326099984813482,
+        "title_lexical_ms": 5.333500012056902,
+        "fusion_ms": 0.06320001557469368,
+        "total_ms": 31.395700003486127
+      },
+      "rule_ids": [
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "cold": false,
+      "elapsed_ms": 31.30490001058206,
+      "stages": {
+        "dense_scope_ms": 1.9987999985460192,
+        "dense_parent_read_ms": 2.5341000000480562,
+        "dense_child_read_ms": 2.8476000006776303,
+        "dense_embedding_wait_ms": 0.000900006853044033,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 10.146600019652396,
+        "dense_embedding_ms": 10.152600007131696,
+        "dense_ranking_ms": 0.37930000689812005,
+        "dense_result_ms": 0.015400000847876072,
+        "dense_total_ms": 17.93159998487681,
+        "dense_ms": 17.94049999443814,
+        "body_lexical_scope_ms": 2.807800017762929,
+        "body_lexical_parent_read_ms": 3.274199989391491,
+        "body_lexical_ranking_ms": 1.5603999781887978,
+        "body_lexical_result_ms": 0.014499993994832039,
+        "body_lexical_total_ms": 7.660500006750226,
+        "body_lexical_ms": 7.671400002436712,
+        "title_lexical_scope_ms": 2.4858999822754413,
+        "title_lexical_parent_read_ms": 2.405400009592995,
+        "title_lexical_ranking_ms": 0.6868999917060137,
+        "title_lexical_result_ms": 0.01610000617802143,
+        "title_lexical_total_ms": 5.5979999888222665,
+        "title_lexical_ms": 5.608400009805337,
+        "fusion_ms": 0.07120001828297973,
+        "total_ms": 31.29720001015812
+      },
+      "rule_ids": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "cold": false,
+      "elapsed_ms": 29.948700015665963,
+      "stages": {
+        "dense_scope_ms": 2.444100013235584,
+        "dense_parent_read_ms": 1.95569999050349,
+        "dense_child_read_ms": 3.552300011506304,
+        "dense_embedding_wait_ms": 0.000900006853044033,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 10.053599980892614,
+        "dense_embedding_ms": 10.061899985885248,
+        "dense_ranking_ms": 0.613499985774979,
+        "dense_result_ms": 0.02509998739697039,
+        "dense_total_ms": 18.655599997146055,
+        "dense_ms": 18.667700001969934,
+        "body_lexical_scope_ms": 2.6211999938823283,
+        "body_lexical_parent_read_ms": 2.1272999874781817,
+        "body_lexical_ranking_ms": 1.742499996908009,
+        "body_lexical_result_ms": 0.013199984095990658,
+        "body_lexical_total_ms": 6.506699981400743,
+        "body_lexical_ms": 6.515000015497208,
+        "title_lexical_scope_ms": 2.140199998393655,
+        "title_lexical_parent_read_ms": 2.2096000029705465,
+        "title_lexical_ranking_ms": 0.30229997355490923,
+        "title_lexical_result_ms": 0.012500007869675756,
+        "title_lexical_total_ms": 4.666900000302121,
+        "title_lexical_ms": 4.674199997680262,
+        "fusion_ms": 0.0754999928176403,
+        "total_ms": 29.938199993921444
+      },
+      "rule_ids": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "cold": false,
+      "elapsed_ms": 30.30320000834763,
+      "stages": {
+        "dense_scope_ms": 2.5824000185821205,
+        "dense_parent_read_ms": 2.2852999973110855,
+        "dense_child_read_ms": 3.335499990498647,
+        "dense_embedding_wait_ms": 0.000400003045797348,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 8.81420000223443,
+        "dense_embedding_ms": 8.821099996566772,
+        "dense_ranking_ms": 0.4747000348288566,
+        "dense_result_ms": 0.031800009310245514,
+        "dense_total_ms": 17.534000013256446,
+        "dense_ms": 17.547299998113886,
+        "body_lexical_scope_ms": 3.2632999937050045,
+        "body_lexical_parent_read_ms": 3.056399989873171,
+        "body_lexical_ranking_ms": 1.4592999941669405,
+        "body_lexical_result_ms": 0.013599987141788006,
+        "body_lexical_total_ms": 7.79619999229908,
+        "body_lexical_ms": 7.805600005667657,
+        "title_lexical_scope_ms": 1.9802000024355948,
+        "title_lexical_parent_read_ms": 2.5673999916762114,
+        "title_lexical_ranking_ms": 0.30640000477433205,
+        "title_lexical_result_ms": 0.011800002539530396,
+        "title_lexical_total_ms": 4.868000018177554,
+        "title_lexical_ms": 4.876899998635054,
+        "fusion_ms": 0.059600017266348004,
+        "total_ms": 30.295600008685142
+      },
+      "rule_ids": [
+        "R-UNSHIPPED-001",
+        "R-MONEY-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 2,
+      "cold": false,
+      "elapsed_ms": 32.23559999605641,
+      "stages": {
+        "dense_scope_ms": 2.081899991026148,
+        "dense_parent_read_ms": 2.796799992211163,
+        "dense_child_read_ms": 3.6214999854564667,
+        "dense_embedding_wait_ms": 0.001200009137392044,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 9.967799996957183,
+        "dense_embedding_ms": 9.97710000956431,
+        "dense_ranking_ms": 0.48340001376345754,
+        "dense_result_ms": 0.018300022929906845,
+        "dense_total_ms": 18.981600005645305,
+        "dense_ms": 18.99139999295585,
+        "body_lexical_scope_ms": 2.8331000066827983,
+        "body_lexical_parent_read_ms": 2.621999999973923,
+        "body_lexical_ranking_ms": 1.4797999756410718,
+        "body_lexical_result_ms": 0.017700018361210823,
+        "body_lexical_total_ms": 6.9558999966830015,
+        "body_lexical_ms": 6.966299988562241,
+        "title_lexical_scope_ms": 1.9286000169813633,
+        "title_lexical_parent_read_ms": 3.45209997612983,
+        "title_lexical_ranking_ms": 0.6919000006746501,
+        "title_lexical_result_ms": 0.02649999805726111,
+        "title_lexical_total_ms": 6.103499996243045,
+        "title_lexical_ms": 6.119800003943965,
+        "fusion_ms": 0.14029999147169292,
+        "total_ms": 32.22470000036992
+      },
+      "rule_ids": [
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 2,
+      "cold": false,
+      "elapsed_ms": 32.20450002118014,
+      "stages": {
+        "dense_scope_ms": 2.512100007152185,
+        "dense_parent_read_ms": 2.681999991182238,
+        "dense_child_read_ms": 3.405600000405684,
+        "dense_embedding_wait_ms": 0.000700005330145359,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 9.739600005559623,
+        "dense_embedding_ms": 9.74589999532327,
+        "dense_ranking_ms": 0.4707000043708831,
+        "dense_result_ms": 0.027600006433203816,
+        "dense_total_ms": 18.846899998607114,
+        "dense_ms": 18.85809999657795,
+        "body_lexical_scope_ms": 3.1581000075675547,
+        "body_lexical_parent_read_ms": 2.5864999915938824,
+        "body_lexical_ranking_ms": 2.3287000076379627,
+        "body_lexical_result_ms": 0.03759999526664615,
+        "body_lexical_total_ms": 8.115500007988885,
+        "body_lexical_ms": 8.136699994793162,
+        "title_lexical_scope_ms": 2.219099987996742,
+        "title_lexical_parent_read_ms": 2.459599985741079,
+        "title_lexical_ranking_ms": 0.38889999268576503,
+        "title_lexical_result_ms": 0.018499995348975062,
+        "title_lexical_total_ms": 5.088999983854592,
+        "title_lexical_ms": 5.100999987917021,
+        "fusion_ms": 0.0926000066101551,
+        "total_ms": 32.194700004765764
+      },
+      "rule_ids": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-DMG-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 2,
+      "cold": false,
+      "elapsed_ms": 31.493499991483986,
+      "stages": {
+        "dense_scope_ms": 2.3649999930057675,
+        "dense_parent_read_ms": 2.9214000096544623,
+        "dense_child_read_ms": 3.2742000184953213,
+        "dense_embedding_wait_ms": 0.000800006091594696,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 10.765900020487607,
+        "dense_embedding_ms": 10.773100017104298,
+        "dense_ranking_ms": 0.42739996570162475,
+        "dense_result_ms": 0.01650000922381878,
+        "dense_total_ms": 19.780200003879145,
+        "dense_ms": 19.793200015556067,
+        "body_lexical_scope_ms": 2.7184000064153224,
+        "body_lexical_parent_read_ms": 2.2271999914664775,
+        "body_lexical_ranking_ms": 1.6506999963894486,
+        "body_lexical_result_ms": 0.01659998088143766,
+        "body_lexical_total_ms": 6.61539999418892,
+        "body_lexical_ms": 6.625600013649091,
+        "title_lexical_scope_ms": 2.1419000113382936,
+        "title_lexical_parent_read_ms": 2.408800006378442,
+        "title_lexical_ranking_ms": 0.39999998989515007,
+        "title_lexical_result_ms": 0.01680001150816679,
+        "title_lexical_total_ms": 4.970100009813905,
+        "title_lexical_ms": 4.980300000170246,
+        "fusion_ms": 0.07909999112598598,
+        "total_ms": 31.48410000721924
+      },
+      "rule_ids": [
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "cold": false,
+      "elapsed_ms": 27.87019999232143,
+      "stages": {
+        "dense_scope_ms": 2.7580000169109553,
+        "dense_parent_read_ms": 2.6437999913468957,
+        "dense_child_read_ms": 3.3165999921038747,
+        "dense_embedding_wait_ms": 0.000900006853044033,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 7.078399998135865,
+        "dense_embedding_ms": 7.085699995514005,
+        "dense_ranking_ms": 0.4369000089354813,
+        "dense_result_ms": 0.01889999839477241,
+        "dense_total_ms": 16.26210001995787,
+        "dense_ms": 16.27229998121038,
+        "body_lexical_scope_ms": 2.824499999405816,
+        "body_lexical_parent_read_ms": 2.218900015577674,
+        "body_lexical_ranking_ms": 1.6383999900426716,
+        "body_lexical_result_ms": 0.018099992303177714,
+        "body_lexical_total_ms": 6.703199993353337,
+        "body_lexical_ms": 6.7128000082448125,
+        "title_lexical_scope_ms": 1.8930000078398734,
+        "title_lexical_parent_read_ms": 2.502999996067956,
+        "title_lexical_ranking_ms": 0.39720002678222954,
+        "title_lexical_result_ms": 0.016700010746717453,
+        "title_lexical_total_ms": 4.8123000015039,
+        "title_lexical_ms": 4.823900002520531,
+        "fusion_ms": 0.04439998883754015,
+        "total_ms": 27.86000000196509
+      },
+      "rule_ids": [
+        "R-UNSHIPPED-001",
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "cold": false,
+      "elapsed_ms": 27.95640000840649,
+      "stages": {
+        "dense_scope_ms": 1.8934000108856708,
+        "dense_parent_read_ms": 2.4541000020690262,
+        "dense_child_read_ms": 3.541200014296919,
+        "dense_embedding_wait_ms": 0.000700005330145359,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 7.4167999846395105,
+        "dense_embedding_ms": 7.423100003506988,
+        "dense_ranking_ms": 0.4101000085938722,
+        "dense_result_ms": 0.016000005416572094,
+        "dense_total_ms": 15.741000010166317,
+        "dense_ms": 15.750299993669614,
+        "body_lexical_scope_ms": 3.4669000015128404,
+        "body_lexical_parent_read_ms": 2.4944999895524234,
+        "body_lexical_ranking_ms": 1.5444000018760562,
+        "body_lexical_result_ms": 0.015700003132224083,
+        "body_lexical_total_ms": 7.524799992097542,
+        "body_lexical_ms": 7.534700009273365,
+        "title_lexical_scope_ms": 1.8289000145159662,
+        "title_lexical_parent_read_ms": 2.2763999877497554,
+        "title_lexical_ranking_ms": 0.4667000030167401,
+        "title_lexical_result_ms": 0.013399985618889332,
+        "title_lexical_total_ms": 4.588400013744831,
+        "title_lexical_ms": 4.597699997248128,
+        "fusion_ms": 0.059900019550696015,
+        "total_ms": 27.94759999960661
+      },
+      "rule_ids": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "complete_at_3": false,
+      "complete_at_5": false
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "cold": false,
+      "elapsed_ms": 29.932500008726493,
+      "stages": {
+        "dense_scope_ms": 1.9180999952368438,
+        "dense_parent_read_ms": 2.395899995462969,
+        "dense_child_read_ms": 3.069600003072992,
+        "dense_embedding_wait_ms": 0.000700005330145359,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 9.286199987400323,
+        "dense_embedding_ms": 9.291500027757138,
+        "dense_ranking_ms": 0.40379996062256396,
+        "dense_result_ms": 0.016200006939470768,
+        "dense_total_ms": 17.097400006605312,
+        "dense_ms": 17.107199993915856,
+        "body_lexical_scope_ms": 2.4110999947879463,
+        "body_lexical_parent_read_ms": 2.768599981209263,
+        "body_lexical_ranking_ms": 1.8672000151127577,
+        "body_lexical_result_ms": 0.015700003132224083,
+        "body_lexical_total_ms": 7.065599987981841,
+        "body_lexical_ms": 7.074299996020272,
+        "title_lexical_scope_ms": 2.6630999927874655,
+        "title_lexical_parent_read_ms": 2.272899990202859,
+        "title_lexical_ranking_ms": 0.6719999946653843,
+        "title_lexical_result_ms": 0.020499981474131346,
+        "title_lexical_total_ms": 5.63159998273477,
+        "title_lexical_ms": 5.643099982989952,
+        "fusion_ms": 0.09049999061971903,
+        "total_ms": 29.92110000923276
+      },
+      "rule_ids": [
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001",
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "cold": false,
+      "elapsed_ms": 30.720299982931465,
+      "stages": {
+        "dense_scope_ms": 2.06090000574477,
+        "dense_parent_read_ms": 2.6784999936353415,
+        "dense_child_read_ms": 3.6837000225204974,
+        "dense_embedding_wait_ms": 0.0008999777492135763,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 10.228800005279481,
+        "dense_embedding_ms": 10.245900019071996,
+        "dense_ranking_ms": 0.39689993718639016,
+        "dense_result_ms": 0.01680001150816679,
+        "dense_total_ms": 19.085100007941946,
+        "dense_ms": 19.093900016741827,
+        "body_lexical_scope_ms": 2.849000011337921,
+        "body_lexical_parent_read_ms": 2.739599993219599,
+        "body_lexical_ranking_ms": 1.6799000150058419,
+        "body_lexical_result_ms": 0.02060001133941114,
+        "body_lexical_total_ms": 7.293700007721782,
+        "body_lexical_ms": 7.306400017114356,
+        "title_lexical_scope_ms": 1.9564999965950847,
+        "title_lexical_parent_read_ms": 1.8715000187512487,
+        "title_lexical_ranking_ms": 0.38519999361597,
+        "title_lexical_result_ms": 0.018499995348975062,
+        "title_lexical_total_ms": 4.234199994243681,
+        "title_lexical_ms": 4.2437000083737075,
+        "fusion_ms": 0.06220000796020031,
+        "total_ms": 30.71220000856556
+      },
+      "rule_ids": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "cold": false,
+      "elapsed_ms": 27.659600018523633,
+      "stages": {
+        "dense_scope_ms": 1.6938999760895967,
+        "dense_parent_read_ms": 2.213200001278892,
+        "dense_child_read_ms": 2.945600019302219,
+        "dense_embedding_wait_ms": 0.000500003807246685,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 9.38450000830926,
+        "dense_embedding_ms": 9.391400002641603,
+        "dense_ranking_ms": 0.5347999685909599,
+        "dense_result_ms": 0.019700004486367106,
+        "dense_total_ms": 16.800699988380075,
+        "dense_ms": 16.811399982543662,
+        "body_lexical_scope_ms": 2.4563999904785305,
+        "body_lexical_parent_read_ms": 2.478999987943098,
+        "body_lexical_ranking_ms": 1.6321000002790242,
+        "body_lexical_result_ms": 0.013899989426136017,
+        "body_lexical_total_ms": 6.583599984878674,
+        "body_lexical_ms": 6.591199984541163,
+        "title_lexical_scope_ms": 1.9365999905858189,
+        "title_lexical_parent_read_ms": 1.9623000116553158,
+        "title_lexical_ranking_ms": 0.2665999927558005,
+        "title_lexical_result_ms": 0.009799987310543656,
+        "title_lexical_total_ms": 4.177099996013567,
+        "title_lexical_ms": 4.183400014881045,
+        "fusion_ms": 0.06130000110715628,
+        "total_ms": 27.651999989757314
+      },
+      "rule_ids": [
+        "R-INTRANSIT-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "cold": false,
+      "elapsed_ms": 28.189899981953204,
+      "stages": {
+        "dense_scope_ms": 1.8492999952286482,
+        "dense_parent_read_ms": 1.9654000061564147,
+        "dense_child_read_ms": 2.742599986959249,
+        "dense_embedding_wait_ms": 0.000600004568696022,
+        "dense_model_load_ms": 0.0,
+        "dense_query_encoding_ms": 8.763600024394691,
+        "dense_embedding_ms": 8.770300017204136,
+        "dense_ranking_ms": 0.40869999793358147,
+        "dense_result_ms": 0.01680001150816679,
+        "dense_total_ms": 15.755200001876801,
+        "dense_ms": 15.764800016768277,
+        "body_lexical_scope_ms": 3.790199989452958,
+        "body_lexical_parent_read_ms": 2.397100004600361,
+        "body_lexical_ranking_ms": 1.3802999746985734,
+        "body_lexical_result_ms": 0.013100012438371778,
+        "body_lexical_total_ms": 7.584600010886788,
+        "body_lexical_ms": 7.592500012833625,
+        "title_lexical_scope_ms": 1.9067999965045601,
+        "title_lexical_parent_read_ms": 2.4591000110376626,
+        "title_lexical_ranking_ms": 0.35930000012740493,
+        "title_lexical_result_ms": 0.015400000847876072,
+        "title_lexical_total_ms": 4.743400000734255,
+        "title_lexical_ms": 4.752900014864281,
+        "fusion_ms": 0.06649998249486089,
+        "total_ms": 28.1816000060644
+      },
+      "rule_ids": [
+        "R-UNSHIPPED-001",
+        "R-MONEY-001",
+        "R-DMG-001",
+        "R-LOST-001",
+        "R-INTRANSIT-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "complete_at_3": true,
+      "complete_at_5": true
+    }
+  ]
+}
