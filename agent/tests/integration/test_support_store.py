@@ -1,5 +1,6 @@
 from dataclasses import asdict
 
+import httpx
 import pytest
 
 from resolveflow.harness.budget import RunSpend
@@ -103,3 +104,31 @@ def test_bound_sources_uses_existing_index_api_with_scoped_dense_candidates(agen
         assert sources.generations["A"]
     finally:
         sources.close()
+
+
+def test_saved_guide_source_and_local_spend_survive_crash_without_reading_new_asset(agent_db, monkeypatch):
+    from resolveflow.harness.model import MockModelClient
+    from resolveflow.support.engine import SupportAgent
+    from resolveflow.support.sources import BoundSources
+
+    req = request()
+    store = SupportStore(agent_db)
+    journal, _ = store.claim(req, {"guide_version": "2026.10.21-v1"})
+    model = MockModelClient(script=[
+        {"kind": "READ_TOOL", "tool_name": "get_support_guide", "arguments": {}},
+        {"kind": "ANSWER", "text": "不申请退款也可以请商家核查。", "citations": ["O1"]},
+    ])
+    with httpx.Client() as client:
+        source = BoundSources(req, case_url="http://unused", token="token", client=client)
+        monkeypatch.setattr(source, "check_current", lambda: None)
+        first = SupportAgent(req, model, source, journal=journal).run()
+        assert first["status"] == "SUCCEEDED"
+        assert len(first["answer"]["citations"][0]["data"]["sections"]) == 10
+        with agent_db.connection() as c:
+            c.execute("UPDATE support_agent_run SET lease_until=now()-interval '1 second'")
+        resumed, _ = store.claim(req, {"guide_version": "2026.10.21-v1"})
+        monkeypatch.setattr("resolveflow.support.sources.guide_source", lambda: pytest.fail("must use saved guide"))
+        second_model = MockModelClient(script=[])
+        second = SupportAgent(req, second_model, source, journal=resumed).run()
+    assert second == first and second_model.calls == 0
+    assert second["spend"]["local_reads"] == 1

@@ -22,14 +22,14 @@ class SupportInput(Closed):
 
 class Read(Closed):
     kind: Literal["READ_TOOL"]
-    tool_name: Literal["get_order_context", "get_shipment_trace", "read_history"]
+    tool_name: Literal["get_order_context", "get_shipment_trace", "read_history", "get_support_guide"]
     arguments: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def scope_free_arguments(self) -> Read:
         if self.tool_name != "read_history":
             if self.arguments:
-                raise ValueError("bound order/shipment reads take no identity or arguments")
+                raise ValueError("bound reads take no identity or arguments")
         else:
             History.model_validate(self.arguments)
         return self

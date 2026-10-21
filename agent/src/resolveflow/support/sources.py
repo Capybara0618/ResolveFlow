@@ -12,6 +12,7 @@ import httpx
 
 from resolveflow.policies.index import PolicyIndexNotReadyError
 from resolveflow.policies.retrieval import EmbeddingUnavailableError
+from resolveflow.support.guide import guide_source
 from resolveflow.support.protocol import History, SupportFailure, SupportInput
 from resolveflow.support.retrieval import retrieve_policy
 
@@ -76,6 +77,8 @@ class BoundSources:
             raise SupportFailure("STALE_INPUT")
 
     def read(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        if name == "get_support_guide":
+            return guide_source()
         route, source_type = {
             "get_order_context": ("order", "ORDER"),
             "get_shipment_trace": ("shipment", "SHIPMENT"),

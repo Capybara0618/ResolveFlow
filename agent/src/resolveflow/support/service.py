@@ -18,6 +18,7 @@ from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import DeploymentConfig
 from resolveflow.support.embeddings import SupportEmbeddings
 from resolveflow.support.engine import SYSTEM, SupportAgent
+from resolveflow.support.guide import GUIDE_VERSION
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
 from resolveflow.support.retrieval import CANDIDATE_K, RETRIEVAL_VERSION, RRF_CONSTANT
 from resolveflow.support.sources import BoundSources
@@ -80,6 +81,7 @@ class SupportRuntime:
             "mode": self.config.mode,
             "provider": self.config.provider,
             "model_id": self.config.model_id,
+            "support_guide_version": GUIDE_VERSION,
             "endpoint": self.config.endpoint,
             "retrieval": {
                 "version": RETRIEVAL_VERSION,
@@ -99,6 +101,8 @@ class SupportRuntime:
                     "service.py",
                     "embeddings.py",
                     "retrieval.py",
+                    "guide.py",
+                    "../assets/support-guide-v1.json",
                     "../policies/retrieval.py",
                     "../policies/index.py",
                     "../policies/child_index.py",

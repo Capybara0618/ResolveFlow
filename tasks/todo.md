@@ -1,8 +1,9 @@
-## 当前快照（2026-10-21，客服指南接线：Java/前端消费者已验证）
+## 当前快照（2026-10-21，客服指南工具生产接线已验证）
 
-- 用户批准继续完成接线/预热/验证，按[本批协议](../docs/customer-rag-integration-v1.md)。10篇已审流程文章形成独立版本化KNOWLEDGE资产，不修改六条商家政策，不借POLICY类型表达流程。独立读取2测试/Ruff/严格mypy通过；先缺模块红测，再因断言未匹配原文措辞1失败/1通过，核实原文修正断言后2通过。尚未对Agent暴露工具或改Java/UI。
-- 独立资产11a0087已普通push核实。KNOWLEDGE类型加入Case协议/fixture，Java允许指南引用并在客户确认后共享；私有CONVERSATION仍剔除，原商家POLICY校验保留。真实隔离MySQL/HTTP SupportApiTest13+SupportWireTest2共15通过，Python协议17通过；此前新增指南引用红测13中1异常（被旧消费者拒收），修正类型后通过。Spotless先误用glob报regex错误，再因CMD解释正则中的竖线失败；先前记录提前写成成功，现更正。随后逐文件无竖线regex apply/check实际通过，仅SupportService/SupportApiTest产生格式差异，SupportAgentTurns无差异。
-- Java消费者f4b8c92、格式/记录修正664206a均已普通push核实；格式小步误将todo换成CRLF，本步恢复原LF。前端KNOWLEDGE类型/使用指南文案/来源原文及买家侧栏接线，新2项红测先失败，再与context/workspace/client共21测试通过，pnpm build通过。Python工具接线中，已发现并修正逐篇审计hash占模型上下文的问题，尚未验证持久恢复。后续启动预热/实测，不新增模型API/原业务DB写入，不提前称真实答案通过；原四历史脏文件保持。
+- 按[本批协议](../docs/customer-rag-integration-v1.md)，独立指南资产11a0087、Java来源/确认共享f4b8c92、格式修正664206a、双端展示b5bcd12均已普通push核实。Java真实隔离MySQL/HTTP15通过；前端21交互测试/构建通过。两次Spotless命令错误已更正，最终逐文件apply/check通过；误引入todo CRLF已恢复原LF。
+- Python get_support_guide无参数/本地读预算/AgentScope工具/来源接入，完整指南与源码hash加入run manifest。模型读取完整正文/版本/authority和短引用，逐篇审计hash留在持久来源/最终引用，避免上下文超限；未改变POLICY和实时事实边界。新增红测先因未注册失败，接线后因审计元数据撑满上下文失败，去除模型包中的sections后通过。新参数拒绝/预算耗尽/真实隔离PG崩溃恢复均通过，持久指南/预算可复用且不重读新版资产。
+- 实际命令agent/.venv Python pytest咨询/Query/三路/协议/API/guide及store/index共62通过/0失败/跳过；5源码严格mypy、7文件Ruff通过。不是生成模型新答案质量。新来源UI全内容/确认共享已验证；退款/主体/版本/fence保持。
+- 下一小步启动预热（本工作区实现8测试通过，尚未提交）；app严格mypy发现原有两个裸dict返回注解，后续核实处理再记录。保留PG临时启动用于隔离Schema测试/后续只读实测，不开业务worker/生成模型。原四历史脏文件保持。
 
 ## 上一批（2026-10-21，RAG资料/架构/速度统一实测完成）
 
