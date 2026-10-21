@@ -10,7 +10,10 @@ from resolveflow.support.protocol import Answer, SupportTask
 
 
 class TaskStateError(ValueError):
-    pass
+    def __init__(self, message: str, *, issue: str = "TASK_STATE_INVALID", task_ids: list[str] | None = None) -> None:
+        super().__init__(message)
+        self.issue = issue
+        self.task_ids = list(task_ids or [])
 
 
 class TaskTracker:
@@ -31,14 +34,18 @@ class TaskTracker:
         ids = [t.id for t in candidate]
         if len(ids) != len(set(ids)):
             raise TaskStateError("tasks.id必须唯一。")
-        if set(t.id for t in self.tasks) - set(ids):
-            raise TaskStateError("不能删除已记录子问题；撤回的诉求须明确标记CANCELLED。")
+        removed = [t.id for t in self.tasks if t.id not in ids]
+        if removed:
+            raise TaskStateError("不能删除已记录子问题；撤回的诉求须明确标记CANCELLED。",
+                                 issue="TASKS_REMOVED", task_ids=removed)
         for task in candidate:
             if set(task.evidence_refs) - references:
                 raise TaskStateError("tasks.evidence_refs只能关联当前run已经读取的O/P依据，旧run编号不能复用。")
             if answer is not None:
                 if task.status == "PENDING":
-                    raise TaskStateError("仍有PENDING子问题；继续取得依据或明确缺信息/不可查询/需商家后再回答。")
+                    raise TaskStateError("仍有PENDING子问题；继续取得依据或明确缺信息/不可查询/需商家后再回答。",
+                                         issue="ANSWER_TASKS_PENDING",
+                                         task_ids=[t.id for t in candidate if t.status == "PENDING"])
                 if task.status != "CANCELLED" and (
                     not task.response_excerpt or task.response_excerpt not in answer.text
                 ):

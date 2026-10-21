@@ -80,7 +80,16 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
     elif isinstance(error, MemoryStateError):
         result.update(field="memory_updates", detail=str(error))
     elif isinstance(error, TaskStateError):
-        result.update(field="tasks", detail=str(error))
+        result.update(field="tasks", detail=str(error), issue=error.issue, task_ids=error.task_ids)
+        if error.issue in {"ANSWER_TASKS_PENDING", "TASKS_REMOVED"}:
+            result.update(
+                resubmit_note="被拒标注未保存，沿用已接受task_state。",
+                required_on_answer=["tasks"],
+                status_choices=["ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED",
+                                "SUSPENDED"],
+                repair_note="ANSWER同层重发全量tasks，沿用id/intent/request；response_excerpt用text原句，"
+                            "evidence_refs须已读并在citations中；依据不足可继续读取，勿虚标完成。",
+            )
     elif (isinstance(payload, dict) and isinstance(payload.get("kind"), str)
           and payload["kind"] in CAPABILITIES):
         name = payload["kind"]
