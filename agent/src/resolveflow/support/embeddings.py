@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import threading
+import time
 
-from resolveflow.policies.retrieval import Embedder, embedder
+from resolveflow.policies.retrieval import Embedder, embedder, tokenize
 
 
 class SupportEmbeddings:
@@ -24,3 +25,10 @@ class SupportEmbeddings:
         with self._lock:
             self._encoder = None
             self._path = None
+
+    def prewarm(self, local_path: str | None) -> float:
+        """Exercise shared weights and lexical tokenization before readiness; no database or LLM."""
+        started = time.perf_counter()
+        self.get(local_path).embed(["售后咨询政策检索预热"])
+        tokenize("售后咨询政策检索预热")
+        return (time.perf_counter() - started) * 1000

@@ -451,6 +451,7 @@ def create_app(
         app.state.token_verifier = ServiceTokenVerifier(secret)
         app.state.support_runtime = support_runtime
         app.state.support_embeddings = SupportEmbeddings()
+        app.state.support_warmup = {"status": "DISABLED"}
         holder: _RunStoreHolder | None = None
         if run_store is not None:
             # A caller that already owns a store (the integration tests do) wants exactly that store.
@@ -474,6 +475,22 @@ def create_app(
         investigation_loop: InvestigationLoop | None = None
         app.state.investigation_loop = None
         try:
+            if os.environ.get("RESOLVEFLOW_POLICY_INDEX", "").strip() == "1" and os.environ.get(
+                "RESOLVEFLOW_SUPPORT_PREWARM", "1"
+            ).strip() != "0":
+                app.state.support_warmup = {"status": "WARMING"}
+                LOG.info("support_embedding_warmup status=WARMING; waiting before startup readiness")
+                try:
+                    elapsed_ms = await asyncio.to_thread(
+                        app.state.support_embeddings.prewarm,
+                        os.environ.get("RESOLVEFLOW_EMBEDDING_PATH", "").strip() or None,
+                    )
+                except Exception:
+                    app.state.support_warmup = {"status": "FAILED"}
+                    LOG.exception("support_embedding_warmup status=FAILED; startup not ready")
+                    raise
+                app.state.support_warmup = {"status": "READY", "elapsed_ms": elapsed_ms}
+                LOG.info("support_embedding_warmup status=READY elapsed_ms=%.3f", elapsed_ms)
             if worker_enabled:
                 if run_store is not None:
                     worker_database = run_store.database
@@ -567,7 +584,7 @@ def create_app(
         )
 
     @app.get("/internal/v1/runs/{run_id}/review-sources")
-    async def read_review_sources(run_id: str, case_id: str, input_revision: int, request: Request) -> dict:
+    async def read_review_sources(run_id: str, case_id: str, input_revision: int, request: Request) -> dict[str, Any]:
         token = service_token_of(request, required_scope="run:review")
         if token.subject != CASE_SERVICE or not token.merchant_id or not token.customer_id:
             raise HTTPException(status_code=403, detail="scoped case-service identity required")
@@ -580,7 +597,7 @@ def create_app(
 
     @app.get("/internal/v1/policies/{bundle_id}/index-status")
     def read_policy_index(bundle_id: str, request: Request,
-                          manifest_hash: str = Query(pattern="^[a-f0-9]{64}$")) -> dict:
+                          manifest_hash: str = Query(pattern="^[a-f0-9]{64}$")) -> dict[str, Any]:
         """Persisted metadata only; authority: docs/merchant-workspace.md."""
         token = service_token_of(request, required_scope="policy:read")
         if token.subject != CASE_SERVICE or not token.merchant_id or "policy:read" not in (token.scope or "").split():

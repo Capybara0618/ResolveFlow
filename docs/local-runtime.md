@@ -8,6 +8,8 @@
 
 这是日常运行入口。它启动 MySQL、PostgreSQL、RocketMQ、Gateway、Case、Commerce、Python Agent 和网页，检查基础政策的精确版本索引，自动打开商城 http://127.0.0.1:5174/#/shop 。Agent 默认使用现有 DeepSeek Flash 配置处理新调查，读取真实订单、材料及政策，再向商家提交建议。人工审批和 Java 模拟退款仍走原有权限与资金约束。
 
+开启政策索引时，Python Agent 启动会先预热客服共享的本地 embedding 和 BM25 分词器，日志显示 `support_embedding_warmup status=WARMING/READY` 及耗时，就绪后才接受请求。预热不访问生成模型或数据库；权重缺失或损坏会使启动失败。可设置进程环境变量 `RESOLVEFLOW_SUPPORT_PREWARM=0` 保留惰性加载，此时首次政策检索会承担加载耗时。启动预热会增加启动等待时间，并不保证生成模型或数据库的后续响应速度。
+
 启动自动读取 Windows 用户环境变量 `Deepseek_API_KEY`，也接受进程中的 `RESOLVEFLOW_MODEL_API_KEY` 或 `Deepseek_API_KEY`。密钥不写入源码、命令参数或报告。缺少密钥时启动明确失败，不切换到功能不全的只读模式。新申请和补证后的调查会产生模型用量；启动和状态检查自身不发送测试模型请求，已有待调查任务会被 worker 消费。
 
 ```powershell

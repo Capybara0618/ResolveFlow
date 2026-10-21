@@ -110,3 +110,64 @@ def test_app_resource_reuses_only_encoder_and_clears_at_shutdown(monkeypatch, tm
         assert app.state.support_embeddings.get("A") is not first
     # The prior lifespan released its cached weights too.
     assert first_pool.get("A") is not first
+
+
+def test_index_enabled_startup_prewarms_shared_encoder_before_health(monkeypatch, tmp_path):
+    from fastapi.testclient import TestClient
+
+    from resolveflow.api.app import create_app
+
+    calls = []
+
+    class Encoder:
+        def embed(self, texts):
+            calls.append(texts)
+            return [[1.0]]
+
+    encoder = Encoder()
+    lexical = []
+    monkeypatch.setattr("resolveflow.support.embeddings.embedder", lambda local_path: encoder)
+    monkeypatch.setattr("resolveflow.support.embeddings.tokenize", lambda text: lexical.append(text))
+    monkeypatch.setenv("RESOLVEFLOW_POLICY_INDEX", "1")
+    monkeypatch.setenv("RESOLVEFLOW_EMBEDDING_PATH", "snapshot")
+    monkeypatch.delenv("RESOLVEFLOW_SUPPORT_PREWARM", raising=False)
+    app = create_app(provider_db=tmp_path / "provider.db", delivery_loop=False, worker_loop=False, migrate=False)
+    with TestClient(app) as client:
+        assert calls and client.get("/health").status_code == 200
+        assert app.state.support_embeddings.get("snapshot") is encoder
+        assert len(calls) == 1 and app.state.support_warmup["status"] == "READY"
+        assert len(lexical) == 1
+
+
+@pytest.mark.parametrize("policy,prewarm", [("0", "1"), ("1", "0")])
+def test_startup_stays_lazy_when_index_or_prewarm_disabled(monkeypatch, tmp_path, policy, prewarm):
+    from fastapi.testclient import TestClient
+
+    from resolveflow.api.app import create_app
+
+    monkeypatch.setenv("RESOLVEFLOW_POLICY_INDEX", policy)
+    monkeypatch.setenv("RESOLVEFLOW_SUPPORT_PREWARM", prewarm)
+    monkeypatch.setattr("resolveflow.support.embeddings.embedder", lambda **kwargs: pytest.fail("must stay lazy"))
+    app = create_app(provider_db=tmp_path / "provider.db", delivery_loop=False, worker_loop=False, migrate=False)
+    with TestClient(app) as client:
+        assert client.get("/health").status_code == 200
+        assert app.state.support_warmup["status"] == "DISABLED"
+
+
+def test_prewarm_failure_does_not_publish_ready_or_retain_cached_encoder(monkeypatch, tmp_path):
+    from fastapi.testclient import TestClient
+
+    from resolveflow.api.app import create_app
+
+    class Encoder:
+        def embed(self, texts):
+            raise OSError("local weights unavailable")
+
+    monkeypatch.setenv("RESOLVEFLOW_POLICY_INDEX", "1")
+    monkeypatch.delenv("RESOLVEFLOW_SUPPORT_PREWARM", raising=False)
+    monkeypatch.setattr("resolveflow.support.embeddings.embedder", lambda local_path: Encoder())
+    app = create_app(provider_db=tmp_path / "provider.db", delivery_loop=False, worker_loop=False, migrate=False)
+    with pytest.raises(OSError, match="local weights unavailable"), TestClient(app):
+        pytest.fail("failed prewarm must stop startup")
+    assert app.state.support_warmup["status"] == "FAILED"
+    assert app.state.support_embeddings._encoder is None
