@@ -1,8 +1,8 @@
-## 当前快照（2026-10-21，客服RAG真实模型v2输入与驱动已冻结）
+## 当前快照（2026-10-21，客服RAG真实模型v2首9项完成，保存故障已修）
 
-- 用户要求继续实际效果验收，按[本批协议](../docs/customer-rag-live-v2.md)冻结[12场景/逐项条件](../evals/customer-rag-live-v2/cases.json)：5流程、4政策、2事实/故障、1混合。真实DeepSeek Flash/ASGI/SupportRuntime/AgentScope/本地BGE/保留PG政策；订单物流由明确冻结的旧合成快照HTTP提供，F02实际合成503。非盲测/真实用户集、不替代Java故障接线验证；当前不改生产提示词/检索，不重做旧评测。
-- 驱动scripts/customer_rag_live_v2.py准备完成，调用前记录并沿用原用量ledger锁/累计数，独占结果不重跑；仅隔离Schema写run/call，政策强制只读/前后public全表见证。5单元+1真实ASGI/隔离PG脚本接线=6通过，Ruff check/format通过；脚本冒烟初次因测试patch覆盖_model绕过记录包装得到1失败/5通过，修正注入后6通过。静态导入/行宽/local测试secret标记已修，原Starlette警告保留。
-- 目前新生成API调用0；保留PG已临时start供脚本/正式实测，业务服务/worker仍停。原四历史脏文件hash保持。冻结准备精确提交/普通push核实后执行12场景，每项一次、不调整Gold/失败重跑；再由Codex基于完整依据逐项复核并收口。
+- 准备2df2610正常push核实；按[冻结12场景](../evals/customer-rag-live-v2/cases.json)/[协议](../docs/customer-rag-live-v2.md)执行，首9场景19次真实DeepSeek请求（provider usage均非estimated），G01动作格式两次错误后INVALID_DECISION；其余8项run成功，G03未读指南错说默认输入私有、G04误走政策且未给我的售后入口，政策4项必要规则均召回。最终语义复核尚待全批，保留原始失败不重跑。
+- P04完成并保存调用后，直接报告文件写入触发Windows OSError22，原始报告state=ERROR但9项完整结果/调用均保留、隔离Schema已清理。首轮driver按原hash无损归档。修正为临时文件原子替换，有限重试仅本地保存不重发模型；追加continuation仅选择从未开始的F01/F02/M01，原计划/生产源码/资产hash不变，已有失败也禁止重跑。
+- 新增原子保存/继续集合单测，7单元+1真实ASGI/隔离PG脚本冒烟共8通过，Ruff check/format通过；首次冒烟patch绕过记录问题已修，原警告保留。原四历史脏文件保持；业务服务/worker仍停，只有保留PG暂运行。保存修正/9项原始证据精确commit普通push核实后继续剩3场景，最终统一复核12项分母/模型与检索耗时。
 
 ## 当前快照（2026-10-21，客服指南接线/预热/验证完成）
 

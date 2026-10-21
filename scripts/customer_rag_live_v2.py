@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import sys
+import tempfile
 import time
 import uuid
 from dataclasses import asdict
@@ -42,7 +43,18 @@ def digest(path):
 
 def persist(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes((json.dumps(value, ensure_ascii=False, indent=2, default=str) + "\n").encode())
+    payload = (json.dumps(value, ensure_ascii=False, indent=2, default=str) + "\n").encode()
+    with tempfile.NamedTemporaryFile(dir=path.parent, prefix=path.name + ".", suffix=".pending", delete=False) as file:
+        file.write(payload)
+        pending = Path(file.name)
+    for attempt in range(20):
+        try:
+            pending.replace(path)
+            return
+        except OSError:
+            if attempt == 19:
+                raise
+            time.sleep(0.05)
 
 
 def load_plan():
@@ -150,7 +162,20 @@ class MeasuredSources(BoundSources):
         return value
 
 
-def evaluate(output, usage_path):
+def remaining_cases(plan, previous):
+    if previous["plan_sha256"] != digest(PLAN) or not previous.get("isolated_schema_dropped"):
+        raise ValueError("continuation requires the unchanged plan and cleaned prior schema")
+    started = {row["id"] for row in previous["rows"]}
+    expected = {case["id"] for case in plan["cases"]}
+    if not started <= expected or len(started) != len(previous["rows"]):
+        raise ValueError("prior cohort contains unknown or duplicate cases")
+    remaining = [case for case in plan["cases"] if case["id"] not in started]
+    if not remaining:
+        raise ValueError("no unstarted cases remain")
+    return remaining
+
+
+def evaluate(output, usage_path, continue_from=None):
     if output.exists():
         raise FileExistsError("live report already exists; never rerun paid cases under a new identity")
     plan = load_plan()
@@ -182,6 +207,16 @@ def evaluate(output, usage_path):
         "fingerprints": {p: digest(ROOT / p) for p in paths},
         "rows": [],
     }
+    if continue_from is not None:
+        previous = json.loads(continue_from.read_text(encoding="utf-8"))
+        plan["cases"] = remaining_cases(plan, previous)
+        if any(
+            report["fingerprints"][p] != h
+            for p, h in previous["fingerprints"].items()
+            if p != "scripts/customer_rag_live_v2.py"
+        ):
+            raise ValueError("production source changed between cohorts")
+        report["continued_from"] = {"path": str(continue_from), "sha256": digest(continue_from)}
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("x", encoding="utf-8") as file:
         json.dump(report, file, ensure_ascii=False, indent=2)
@@ -194,6 +229,8 @@ def evaluate(output, usage_path):
     created = False
     try:
         before = snapshot(retained)
+        report["preservation_before"] = before
+        persist(output, report)
         create_schema(DSN, schema)
         created = True
         journal_db.migrations()
@@ -325,7 +362,8 @@ if __name__ == "__main__":
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--live-usage", type=Path, default=ROOT / "tmp/evaluation-live-budget.json")
+    parser.add_argument("--continue-from", type=Path)
     args = parser.parse_args()
     if not args.execute:
         parser.error("explicit --execute is required for live calls")
-    evaluate(args.output, args.live_usage)
+    evaluate(args.output, args.live_usage, args.continue_from)

@@ -1,12 +1,22 @@
 """The live diagnostic must preserve attempts/failures and bind upstream snapshots without sending a model call."""
 
 import datetime as dt
+from pathlib import Path
 
 import httpx
 import pytest
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.support.protocol import SupportInput
-from scripts.customer_rag_live_v2 import RecordedModel, evaluate, load_plan, upstream_for
+from scripts.customer_rag_live_v2 import (
+    PLAN,
+    RecordedModel,
+    digest,
+    evaluate,
+    load_plan,
+    persist,
+    remaining_cases,
+    upstream_for,
+)
 
 
 def test_frozen_cases_have_bound_fact_snapshots_and_distinct_criteria():
@@ -83,3 +93,34 @@ def test_existing_report_is_refused_before_any_model_configuration(tmp_path):
     with pytest.raises(FileExistsError):
         evaluate(report, tmp_path / "usage.json")
     assert report.read_text() == "existing"
+
+
+def test_atomic_report_keeps_old_value_during_transient_windows_replace_error(tmp_path, monkeypatch):
+    path = tmp_path / "result.json"
+    path.write_text("old", encoding="utf-8")
+    original = Path.replace
+    seen = []
+
+    def replace(source, target):
+        seen.append(path.read_text())
+        if len(seen) == 1:
+            raise OSError(22, "transient Windows file sharing")
+        return original(source, target)
+
+    monkeypatch.setattr(Path, "replace", replace)
+    persist(path, {"new": True})
+    assert seen == ["old", "old"] and '"new": true' in path.read_text()
+    assert not list(tmp_path.glob("*.pending"))
+
+
+def test_continuation_only_selects_never_started_cases_including_no_retry_of_failure():
+    plan = load_plan()
+    prior = {
+        "plan_sha256": digest(PLAN),
+        "isolated_schema_dropped": True,
+        "rows": [{"id": c["id"], "state": "ERROR"} for c in plan["cases"][:9]],
+    }
+    assert [c["id"] for c in remaining_cases(plan, prior)] == ["F01", "F02", "M01"]
+    prior["isolated_schema_dropped"] = False
+    with pytest.raises(ValueError, match="cleaned"):
+        remaining_cases(plan, prior)
