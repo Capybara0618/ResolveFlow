@@ -189,6 +189,8 @@ def evaluate(output, usage_path, continue_from=None):
         "agent/src/resolveflow/support/protocol.py",
         "agent/src/resolveflow/support/store.py",
         "agent/src/resolveflow/support/guide.py",
+        "agent/src/resolveflow/support/guidance.py",
+        "agent/src/resolveflow/support/recovery.py",
         "agent/src/resolveflow/support/embeddings.py",
         "agent/src/resolveflow/support/retrieval.py",
         "agent/src/resolveflow/harness/live_model.py",
@@ -198,7 +200,7 @@ def evaluate(output, usage_path, continue_from=None):
         "scripts/customer_rag_live_v2.py",
     ]
     report = {
-        "version": "customer-rag-live-v2",
+        "version": plan["version"],
         "state": "PREPARING",
         "synthetic": True,
         "not_holdout": True,
