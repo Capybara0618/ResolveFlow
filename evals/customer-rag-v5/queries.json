@@ -1,0 +1,867 @@
+{
+  "version": "project-customer-queries-v1",
+  "not_holdout": true,
+  "split_policy": "30 semantic families x2; first20 dev/last10 acceptance; same author, no independent blind review",
+  "cases": [
+    {
+      "id": "Q01-1",
+      "family": "unshipped",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "钱付了，仓库还没有发出，我不想买了能退吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-UNSHIPPED-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q01-2",
+      "family": "unshipped",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "已经付款但是还没交快递，可以申请退这一件吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-UNSHIPPED-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q02-1",
+      "family": "lost",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "快递公司已经确认遗失，而且没有签收，应该怎么退？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-LOST-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q02-2",
+      "family": "lost",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "承运方说货确实找不到了，无人签收，退款需要什么条件？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-LOST-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q03-1",
+      "family": "signed",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "物流写已签收但我根本没拿到，可以直接退款吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-SIGNED-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q03-2",
+      "family": "signed",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "显示别人收了件，我没收到，需要核查还是能立即退钱？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-SIGNED-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q04-1",
+      "family": "damage",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "收到商品坏了，发照片就能立刻批准退款吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-DMG-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q04-2",
+      "family": "damage",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "东西到手不能正常使用，售后要核验哪些依据才可以退？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-DMG-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q05-1",
+      "family": "transit",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "在路上三天没更新，能直接认定丢失吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-INTRANSIT-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q05-2",
+      "family": "transit",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "运输停了几天但快递没说异常，可不可以按丢件退？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-INTRANSIT-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q06-1",
+      "family": "money",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "同一个商品买了两件，只退其中一件行吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-MONEY-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q06-2",
+      "family": "money",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "一个订单行数量是二，能不能只退一半金额？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-MONEY-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q07-1",
+      "family": "handoff",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "不退钱，只想让店家帮忙查一下可以吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-HANDOFF"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q07-2",
+      "family": "handoff",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "人工咨询是不是非得先填写退款申请？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-HANDOFF"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q08-1",
+      "family": "sharing",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "转给商家前，能选只共享我说的某几句话吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-SHARE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q08-2",
+      "family": "sharing",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "核查摘要发出之前，订单和物流证据是不是默认都给店家？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-SHARE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q09-1",
+      "family": "privacy",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "我转人工后再问助手，店家会看见这些私聊吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-PRIVATE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q09-2",
+      "family": "privacy",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "补充给商家和询问智能助手两个输入方式有啥区别？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-PRIVATE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q10-1",
+      "family": "resolved",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "商家回复以后是不是就自动结案了？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-RESOLVE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q10-2",
+      "family": "resolved",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "我点解决后又发现新情况，还能接着补充给店家吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-RESOLVE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q11-1",
+      "family": "order",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "想问另一件商品怎么切换，还会保留原来聊天吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-ORDER"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q11-2",
+      "family": "order",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "同一个订单两种商品，售后咨询记录是分开的吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-ORDER"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q12-1",
+      "family": "progress",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "我怎么查店家核查处理到哪了？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-STATUS"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q12-2",
+      "family": "progress",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "翻以前聊天时页面自动刷新会不会把阅读打断？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-STATUS"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q13-1",
+      "family": "retry",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "刚点转交就断网了，应该直接重新发一份吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-RETRY"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q13-2",
+      "family": "retry",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "提交显示版本冲突，我写好的摘要会丢失吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-RETRY"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q14-1",
+      "family": "entry",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "聊天说我要退款，就算已经提交退款申请了吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-ENTRY"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q14-2",
+      "family": "entry",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "正式退款现在应该从哪里申请，人工核查会替我申请吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-ENTRY"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q15-1",
+      "family": "stale",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "助手还在回答，我发现说错了可以马上纠正吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-STALE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q15-2",
+      "family": "stale",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "我已经换成另一件商品了，旧问题的回复还会当成最新的吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-STALE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q16-1",
+      "family": "dual-loss-money",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "快递已认定丢件没有签收，我想多退一笔补偿行吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-LOST-001",
+          "R-MONEY-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q16-2",
+      "family": "dual-loss-money",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "既然包裹确认遗失，退款可不可以超过这一行的实付款？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-LOST-001",
+          "R-MONEY-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q17-1",
+      "family": "live-trace",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "我这单现在具体到哪个站点了？",
+      "answerability": "NEEDS_LIVE_TOOL",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q17-2",
+      "family": "live-trace",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "帮我查一下当前快递所在的城市。",
+      "answerability": "NEEDS_LIVE_TOOL",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q18-1",
+      "family": "live-refund",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "查查我的退款到底成功了没有。",
+      "answerability": "NEEDS_LIVE_TOOL",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q18-2",
+      "family": "live-refund",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "我的钱这会儿退到账了吗？",
+      "answerability": "NEEDS_LIVE_TOOL",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q19-1",
+      "family": "missing-return",
+      "split": "dev",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "七天无理由退货运费到底谁承担？",
+      "answerability": "NOT_IN_KNOWLEDGE",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q19-2",
+      "family": "missing-return",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "这个店的无理由退货邮费归买家还是卖家？",
+      "answerability": "NOT_IN_KNOWLEDGE",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q20-1",
+      "family": "missing-repair",
+      "split": "dev",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "耳机保修两年吗？",
+      "answerability": "NOT_IN_KNOWLEDGE",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q20-2",
+      "family": "missing-repair",
+      "split": "dev",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "桌灯坏了保修期限是多少个月？",
+      "answerability": "NOT_IN_KNOWLEDGE",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q21-1",
+      "family": "lost-signed-conflict",
+      "split": "acceptance",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "快递既有丢失结论又有签收记录，能套丢件政策直接退吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-LOST-001",
+          "R-SIGNED-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q21-2",
+      "family": "lost-signed-conflict",
+      "split": "acceptance",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "客服称包裹遗失，但系统还有有效签收凭证，这种矛盾如何处理？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-LOST-001",
+          "R-SIGNED-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q22-1",
+      "family": "unknown-unshipped",
+      "split": "acceptance",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "物流什么都查不到，就能算没发货退款吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-UNSHIPPED-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q22-2",
+      "family": "unknown-unshipped",
+      "split": "acceptance",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "接口返回UNKNOWN，能按已付款未发货那条给我退吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-UNSHIPPED-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q23-1",
+      "family": "damage-transit",
+      "split": "acceptance",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "包裹还在路上，我猜里面已经坏了，能先批准退款吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-DMG-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q23-2",
+      "family": "damage-transit",
+      "split": "acceptance",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "还未收货也没核验损坏，可否直接按质量问题退钱？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-DMG-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q24-1",
+      "family": "handoff-share",
+      "split": "acceptance",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "我只想人工咨询不退款，也想先看哪些材料要交给店家。",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-HANDOFF",
+          "K-SHARE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q24-2",
+      "family": "handoff-share",
+      "split": "acceptance",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "请商家查一下但不申请退款，我能自己选发给他的原话和依据吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-HANDOFF",
+          "K-SHARE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q25-1",
+      "family": "private-progress",
+      "split": "acceptance",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "店家已经在查了，我怎么一边看进度一边私下再问助手？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-PRIVATE",
+          "K-STATUS"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q25-2",
+      "family": "private-progress",
+      "split": "acceptance",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "核查交给店家后，我能查进度并另开私有助手咨询吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-PRIVATE",
+          "K-STATUS"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q26-1",
+      "family": "approval-boundary",
+      "split": "acceptance",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "助手已经建议全额退款，它能代替商家批准吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-MONEY-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q26-2",
+      "family": "approval-boundary",
+      "split": "acceptance",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "模型说把握很大而且给了退钱建议，是不是就有退款授权？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-MONEY-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q27-1",
+      "family": "refund-unknown",
+      "split": "acceptance",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "退款处理结果暂时未知，我能换个操作再退一次吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-MONEY-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q27-2",
+      "family": "refund-unknown",
+      "split": "acceptance",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "原退款返回UNKNOWN，是否可以释放占用重新申请支付？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "R-MONEY-001"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q28-1",
+      "family": "handoff-resume",
+      "split": "acceptance",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "客户已经点解决了，之后还能继续找店家补材料吗？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-RESOLVE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q28-2",
+      "family": "handoff-resume",
+      "split": "acceptance",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "这次核查结了，但我还有信息，必须开新单还是接着原单？",
+      "answerability": "ANSWERABLE",
+      "evidence_sets": [
+        [
+          "K-RESOLVE"
+        ]
+      ],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q29-1",
+      "family": "live-signature",
+      "split": "acceptance",
+      "merchant_id": "M-1002",
+      "version": "2026.10",
+      "query": "是谁签了我这个包裹，有没有签收图片？",
+      "answerability": "NEEDS_LIVE_TOOL",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q29-2",
+      "family": "live-signature",
+      "split": "acceptance",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "帮我查这票快递代收人的名字和凭证。",
+      "answerability": "NEEDS_LIVE_TOOL",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q30-1",
+      "family": "missing-deadline",
+      "split": "acceptance",
+      "merchant_id": "M-1003",
+      "version": "2026.10",
+      "query": "店家收到核查申请必须几小时内回复？",
+      "answerability": "NOT_IN_KNOWLEDGE",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    },
+    {
+      "id": "Q30-2",
+      "family": "missing-deadline",
+      "split": "acceptance",
+      "merchant_id": "M-1001",
+      "version": "2026.10",
+      "query": "人工核查有没有承诺二十四小时处理完？",
+      "answerability": "NOT_IN_KNOWLEDGE",
+      "evidence_sets": [],
+      "origin": "CODEX_SYNTHETIC_NOT_BLIND"
+    }
+  ]
+}

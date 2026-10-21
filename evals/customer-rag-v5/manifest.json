@@ -1,0 +1,96 @@
+{
+  "version": "customer-corpus-design-speed-v1",
+  "config": {
+    "variants": [
+      "bm25",
+      "dense",
+      "rrf",
+      "rrf-linked",
+      "union-ce",
+      "all-ce",
+      "all-read"
+    ],
+    "candidate_per_route": 5,
+    "final_k": [
+      3,
+      5
+    ],
+    "rrf_constant": 60,
+    "embedding_device": "cpu",
+    "ce_device": "cuda:0",
+    "threads": 4,
+    "ce_batch": 8,
+    "ce_max_pair_tokens": 512,
+    "tf32": false,
+    "concurrency": [
+      1,
+      4
+    ],
+    "requests_per_concurrency": 40,
+    "quality_rounds": 1,
+    "gpu_warmup": 3,
+    "targets_ms": {
+      "rrf_p95": 300,
+      "ce_p95": 500
+    },
+    "selection": "Max dev complete_at_3; ties prefer rrf then bm25/dense/rrf-linked before CE; all-read excluded.",
+    "scope": "In-memory file corpus; query-to-evidence only; no HTTP/PG/answer generation."
+  },
+  "not_holdout": true,
+  "inputs": {
+    "scripts/customer_rag_pg_profile.py": "c95c476bf5d2df622c3dc00d47c0ec88c4286efe152f6a4d33fa2e9fc2d9b154",
+    "scripts/customer_rag_benchmark.py": "241a92a1e51f3c64a08c6f64c691a6da45f590376fc6ac8ebc698be3204c6f18",
+    "scripts/evaluation/customer_knowledge.py": "955b9be8cd6216a16bdbd21d880380221c69cdcd34ed292afd2d1e91ec55315b",
+    "scripts/evaluation/customer_rerank.py": "ceeeb7b1ad8a426cf5314ef33391e653b19726ec6d9f2009f77d3e29049265de",
+    "scripts/evaluation/customer_rerank_gpu.py": "9951c95cb7b44fa94cb05313839c83e6f8c5bba9d61d7c2f3b728a63932aa737",
+    "scripts/evaluation/customer_rerank_gpu_worker.py": "69cddc547062c2f152b912376cb0a63d1c029bcea68a489aa73b86b35ab22c86",
+    "agent/tests/unit/test_customer_knowledge.py": "a9eaa4f5dc055c58ba135b1a07a15a698b1acb9031de8ecf99be3b520c6f5791",
+    "docs/customer-rag-data-design-speed.md": "d2029e437292a6dc206bd0e3240b5db379f598370f27144f29d27d4051aab760",
+    "agent/uv.lock": "0fedd60f93948c7c4a4e9ac9d434133348dc88a9bae3ffd888c6c97b4dbbccf2",
+    "agent/src/resolveflow/policies/retrieval.py": "fb3e1240c00b51d9646af08197ef2fe75f06374a0696df0b700d4a0fbb6b8250",
+    "agent/src/resolveflow/support/retrieval.py": "d8a4fdeb632fa69482c6e87d05945bfecc024e069f880ba14ae1d24cd36de6a2",
+    "agent/src/resolveflow/harness/token_counting.py": "b8290a023e8ca79a172fa2a852c2cfa8a00123106b65da77bb1ed50a0ce0e785",
+    "agent/src/resolveflow/assets/deepseek-v41/tokenizer.json.gz": "a06de40d7aa5f5f2486dea7d0d516420edfe07e1d946b5ad2c57e73851de3008",
+    "evals/customer-rag-v5/knowledge.json": "bbe16c1f9426dad875d60835bc3be48d76d54b34355ce447cc237f55a545f276",
+    "evals/customer-rag-v5/queries.json": "c8b6e06cb8b34761e42caff85acc0f7ce21f502ba76597a5b7c4c181ebc32648",
+    "evals/customer-rag-v5/references.json": "67095afb5af378c61b0bd4a8d40aebe348f2c74373bd1604d2a33121a899dc7c",
+    "fixtures/demo-foundation/policies/policy-foundation-m1001-2026.10.yaml": "90142365a6a6ec43dff1052e10d080d514e5e953aadaee8a94f4a107b732d433",
+    "docs/customer-support-workspace.md": "590a885a5a87bd9a042e25cca3cebc3849d980c768e10ddfc867cbcb04f9a046",
+    "docs/customer-agent-implementation-v1.md": "3826ffaadd7ea6f55be72a305e1c72c36be8dba7718f9383b6cb9d72633cfdba",
+    "fixtures/demo-foundation/policies/policy-foundation-m1002-2026.10.yaml": "87f68ce05522a37e43e2550160d8b7ab26d86cda84ee74b4edc39e1f507272d8",
+    "fixtures/demo-foundation/policies/policy-foundation-m1003-2026.10.yaml": "8cf25ed596f5239f76bb37225fcc0b4d6abfe0c56dad2d2c66e987bb22d2a19e",
+    "evals/policy-documents-v1/sources.json": "48f449272a00295473db3fd963e85c8599cb0f53c84b7cb0418159ed8a6ac996",
+    "reports/rag-engineering-review-v1/sources.json": "da838d6c6d4a19c18afa5cb96c22ec8b77b43439cf0d50ed137c8cc5f63a39da"
+  },
+  "gpu_python": "E:\\Code\\servicedesk-agent-sft\\.venv\\Scripts\\python.exe",
+  "gpu_runtime": {
+    "python": "3.11.15",
+    "torch": "2.11.0+cu128",
+    "transformers": "5.14.1"
+  },
+  "reranker_files": {
+    "config.json": "289adf7ada1eb6b4afa7589a48a032d45a076cf2e46dcdb3b4cabc33be14f708",
+    "model.safetensors": "ced967c45fd1902eb92716c9ceeca7c95a936770ea9db611f5a841b926e33fbd",
+    "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865",
+    "special_tokens_map.json": "d5469a60db23249c7f8945013d78df30b44b6bf686c6bb4740f4223f77b1b535",
+    "tokenizer.json": "9eb652ac4e40cc093272bbbe0f55d521cf67570060227109b5cdc20945a4489e",
+    "tokenizer_config.json": "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b"
+  },
+  "embedding_files": {
+    ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+    "config.json": "3853a7979202c348751b753e36f579c41d8da7d36af617d3d907e1fc9b441f2a",
+    "config_sentence_transformers.json": "940d5f50db195fa6e5e6a4f122c095f77880de259d74b14a65779ed48bdd7c56",
+    "model.safetensors": "354763b9b1357bc9c44f62c6be2276321081ed2567773608c0d0785b61d5a026",
+    "modules.json": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf",
+    "pytorch_model.bin": "7c5fe667bbed05dc10e246e229b701ad266fe4d95ab946e9e5aa402056611b88",
+    "README.md": "c48a4eeea77f6b1d38b48ec1c5b8d4f86d5550cc43fa345a0db1b2ca1d082369",
+    "sentence_bert_config.json": "84e39fda68ccbff05bfa723ae9c0e70e23e2ec373b76e0f8c6e71af72a693cbf",
+    "special_tokens_map.json": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3",
+    "tokenizer.json": "48cea5d44424912a6fd1ea647bf4fe50b55ab8b1e5879c3275f80e339e8fae26",
+    "tokenizer_config.json": "e6f3b96db926a37d4039995fbf5ad17de158dfb8f6343d607e4dbaad18d75f5a",
+    "vocab.txt": "45bbac6b341c319adc98a532532882e91a9cefc0329aa57bac9ae761c27b291c"
+  },
+  "unique_knowledge_count": 16,
+  "synthetic": true,
+  "production_published": false
+}

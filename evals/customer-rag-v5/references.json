@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-21",
+  "project_sources": [
+    {
+      "path": "fixtures/demo-foundation/policies/policy-foundation-m1001-2026.10.yaml",
+      "sha256": "90142365a6a6ec43dff1052e10d080d514e5e953aadaee8a94f4a107b732d433"
+    },
+    {
+      "path": "docs/customer-support-workspace.md",
+      "sha256": "590a885a5a87bd9a042e25cca3cebc3849d980c768e10ddfc867cbcb04f9a046"
+    },
+    {
+      "path": "docs/customer-agent-implementation-v1.md",
+      "sha256": "3826ffaadd7ea6f55be72a305e1c72c36be8dba7718f9383b6cb9d72633cfdba"
+    },
+    {
+      "path": "fixtures/demo-foundation/policies/policy-foundation-m1002-2026.10.yaml",
+      "sha256": "87f68ce05522a37e43e2550160d8b7ab26d86cda84ee74b4edc39e1f507272d8"
+    },
+    {
+      "path": "fixtures/demo-foundation/policies/policy-foundation-m1003-2026.10.yaml",
+      "sha256": "8cf25ed596f5239f76bb37225fcc0b4d6abfe0c56dad2d2c66e987bb22d2a19e"
+    }
+  ],
+  "external_policy_catalog": {
+    "path": "evals/policy-documents-v1/sources.json",
+    "sha256": "48f449272a00295473db3fd963e85c8599cb0f53c84b7cb0418159ed8a6ac996",
+    "role": "FROZEN_LONG_DOCUMENT_REGRESSION_ONLY"
+  },
+  "engineering_fixed_sources": {
+    "path": "reports/rag-engineering-review-v1/sources.json",
+    "sha256": "da838d6c6d4a19c18afa5cb96c22ec8b77b43439cf0d50ed137c8cc5f63a39da"
+  },
+  "checked_online": [
+    {
+      "url": "https://help.jd.com/user/issue/126-406.html",
+      "use": "结构参考；非本店政策；不替换旧快照"
+    },
+    {
+      "url": "https://docs.haystack.deepset.ai/docs/retrievers",
+      "use": "关键词/向量及结构检索职责参考，不移植框架"
+    },
+    {
+      "url": "https://www.sbert.net/examples/cross_encoder/applications/README.html",
+      "use": "pair语义评分及召回/精排成本边界"
+    }
+  ]
+}
