@@ -76,12 +76,23 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         result.update(field="memory_updates", detail=str(error))
     elif isinstance(error, TaskStateError):
         result.update(field="tasks", detail=str(error))
-    elif isinstance(payload, dict) and payload.get("kind") in CAPABILITIES:
+    elif (isinstance(payload, dict) and isinstance(payload.get("kind"), str)
+          and payload["kind"] in CAPABILITIES):
         name = payload["kind"]
         result.update(
             field="kind",
             detail="kind是动作类别，工具名写在tool_name；请重新输出目录中的完整动作。",
             example=CAPABILITIES[name]["action"],
+        )
+    elif isinstance(error, ValidationError) and any(
+        e["type"] in {"union_tag_not_found", "union_tag_invalid"} and not e["loc"]
+        for e in error.errors(include_input=False, include_context=False)
+    ):
+        result.update(
+            field="kind", required=True, allowed=["READ_TOOL", "SEARCH_POLICY", "ANSWER"],
+            detail="顶层kind缺失或非法。只重发一个完整动作；动作参数和标注在同层，不能嵌套ANSWER或用type替代kind。",
+            examples=[CAPABILITIES["get_shipment_trace"]["action"], CAPABILITIES["search_policy"]["action"],
+                      {"kind": "ANSWER", "text": "回答或必要追问", "citations": [], "handoff_summary": None}],
         )
     elif isinstance(error, ValidationError):
         result.update(
