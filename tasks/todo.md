@@ -1,3 +1,8 @@
+## 当前快照（2026-10-21，意图/上下文闭环改进：实施中）
+
+- 用户批准先改，按[本批设计](../docs/customer-dialogue-state-v1.md)分步实现来源化有效陈述、纠正关系和对话变化/任务暂停恢复，再跨轮接线。不增加分类/摘要模型，AgentScope/Java业务权限/RAG保持；不调用正式模型评测或改简历。
+- 已只读核对规范/源码/分支及工作区，main/origin为636a131；原四历史脏文件及旧资产保持，暂存空。旧readiness-v1清单与36轮问题保持，改源码后预检拒绝是预期，不能改历史hash。当前仅设计和本顶部，差异/链接核查后独立提交普通push，再继续实现。
+
 ## 当前快照（2026-10-21，客服上下文企业工程调研完成）
 
 - 用户要求调研成熟客服上下文工程，已查Intercom Fin/Cognigy/Rasa官方配置与API、AWS Memory开发文档，并固定Chatwoot develop 39314c9定点读6源码，3猜测路径404保留。见[调研与项目对照](../docs/customer-context-engineering-review-v1.md)/[来源清单](../reports/customer-context-engineering-review-v1/sources.json)；公开产品行为与源码事实、综合建议明确分开，不推断私有prompt或部署效果。
