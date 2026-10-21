@@ -105,6 +105,8 @@ class SupportRuntime:
                     "guidance.py",
                     "recovery.py",
                     "tasks.py",
+                    "context.py",
+                    "../harness/token_counting.py",
                     "../assets/support-guide-v1.json",
                     "../policies/retrieval.py",
                     "../policies/index.py",

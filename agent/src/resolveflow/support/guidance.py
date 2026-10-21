@@ -23,6 +23,10 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
         "purpose": "读取本会话较早原文；arguments可含before_sequence和limit(1–5)。",
         "action": {"kind": "READ_TOOL", "tool_name": "read_history", "arguments": {"limit": 5}},
     },
+    "read_context": {
+        "purpose": "读已知历史片段，H序号见索引；offset/limit为Unicode字符。更早消息用read_history。",
+        "action": {"kind": "READ_TOOL", "tool_name": "read_context", "arguments": {"reference": "H1", "limit": 500}},
+    },
     "get_support_guide": {
         "purpose": "平台操作流程：咨询/退款申请入口、转交、共享范围、消息接收方、解决后补充。不是退款资格。",
         "action": {"kind": "READ_TOOL", "tool_name": "get_support_guide", "arguments": {}},
@@ -52,6 +56,13 @@ def tool_schema(name: str) -> dict[str, Any]:
             "before_sequence": {"type": "integer", "minimum": 1},
             "limit": {"type": "integer", "minimum": 1, "maximum": 5},
         }
+    elif name == "read_context":
+        properties = {
+            "reference": {"type": "string", "pattern": "^H[1-9][0-9]*$"},
+            "offset": {"type": "integer", "minimum": 0},
+            "limit": {"type": "integer", "minimum": 1, "maximum": 1000},
+        }
+        required = ["reference"]
     return {"type": "object", "properties": properties, "required": required, "additionalProperties": False}
 
 

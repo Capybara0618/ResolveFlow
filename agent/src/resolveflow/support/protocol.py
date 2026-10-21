@@ -34,14 +34,22 @@ class TaskAction(Closed):
     tasks: list[SupportTask] | None = Field(default=None, min_length=1, max_length=8)
 
 
+class ContextRead(Closed):
+    reference: str = Field(pattern=r"^H[1-9][0-9]*$")
+    offset: int = Field(default=0, ge=0, strict=True)
+    limit: int = Field(default=500, ge=1, le=1000, strict=True)
+
+
 class Read(TaskAction):
     kind: Literal["READ_TOOL"]
-    tool_name: Literal["get_order_context", "get_shipment_trace", "read_history", "get_support_guide"]
+    tool_name: Literal["get_order_context", "get_shipment_trace", "read_history", "get_support_guide", "read_context"]
     arguments: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def scope_free_arguments(self) -> Read:
-        if self.tool_name != "read_history":
+        if self.tool_name == "read_context":
+            ContextRead.model_validate(self.arguments)
+        elif self.tool_name != "read_history":
             if self.arguments:
                 raise ValueError("bound reads take no identity or arguments")
         else:

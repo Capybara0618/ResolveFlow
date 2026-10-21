@@ -4,6 +4,8 @@
 - 已只读核查当前源码/规范/工作区；main跟踪已确认origin/main，HEAD=a49bae1，暂存为空，原四历史脏文件和旧未跟踪资产保持。当前确认旧历史统一前160字、无显式任务状态，已有RAG和来源故障机制复用。
 - 方案独立提交41fc2f1已普通push核实。任务理解小步：protocol/tasks/engine/guidance/service接同次模型任务标注、已有任务不得静默丢弃、依据引用/回答原句与一次精确反馈；live首轮要求tasks，旧mock兼容。任务只为模型判断，输出保存在既有answer开放对象，公共协议未变。
 - 先执行tests/unit/test_support_tasks.py：3失败/1通过；实现后相关31通过，既有guide出现窗口超限，精简重复提示后31通过。随后support两契约18通过，新5源码严格mypy/Ruff通过，无付费模型/数据库/业务服务。上下文与跨轮提示尚待下一小步，不能当模型效果已提高。
+- 任务小步529fbca已普通push核实。上下文小步：新增context.py，按实际provider请求计数选择最近原文/首尾索引/省略索引引用；原请求、可信状态、业务及政策条件保护，来源去重但冲突版本保持。read_context按H序号/Unicode偏移读已知原文，同原8次local预算/调用账；远程read_history大原文可索引再精确读回，仍受256KiB上限。新代码/token计数器纳入manifest。
+- 上下文关键红测4失败/1通过；实现及精简重复提示后相关37单元通过。初次误设PG变量致8跳过，改用RESOLVEFLOW_AGENT_DB后真实隔离PG8通过，含任务/上下文零新增调用恢复。agent目录执行相关Ruff及新5源码strict mypy通过；从根目录检查agent测试曾产生导入分类告警，未据此重排旧测试。集中相关测试60通过/0失败跳过，正式效果/付费API/Java全栈仍未运行。
 
 ## 当前快照（2026-10-21，客服Agent/Harness优化及真实回归v3完成）
 

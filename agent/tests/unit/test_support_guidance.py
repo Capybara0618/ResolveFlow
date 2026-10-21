@@ -13,6 +13,7 @@ def test_actual_model_packet_explains_distinct_capabilities_and_valid_action_sha
         "get_order_context",
         "get_shipment_trace",
         "read_history",
+        "read_context",
         "get_support_guide",
         "search_policy",
     }
