@@ -1,4 +1,7 @@
-## 当前快照（2026-10-21，客服对话事件分组与一致性修复：实施中）
+## 当前快照（2026-10-21，客服事件分组确认完成，混合回答仍未通过）
+
+- 准备48ce783已普通push核实。真实单次两条仍1/2完整，[报告](../reports/customer-agent-event-groups-v1/README.md)/轨迹/源审/统计/收口保留：E01物流正确发布，3.700秒；E02首次三事项/一条ADD task_ids=[t1,t2,t3]被接受，自主读订单→物流→政策→指南，已解除旧覆盖阻塞。中途READ_TOOL/search_policy非法，经一次反馈重发SEARCH_POLICY检索成功，R-LOST-001第1/115.42ms；最终三任务response_excerpt均为改述而非text子串，TaskStateError离线复现，因已用纠错最终INVALID_DECISION，8.683秒。分组生效不等于业务通过，未达2/2门槛而未运行四轮付费扩展。
+- 新增8真实请求、provider输入18357/输出975，账本1754→1762；供应商错误0、kind合法8/8但Schema合法7/8，Harness保守输入21665另列，预热11.888秒单列。后续先离线梳理工具动作/目录一致性及正文与任务原句重复生成负担，不靠扩纠错或收费追分。本批工程158通过/4源码strict mypy/相关Ruff，public11表与旧见证/预检/执行前后相同，四历史脏文件字节保持，2 run/8模型/5工具账导出、自有schema清理；PG已stop/原卷保留/10端口闭/本批进程退出，旧报告/Gold/简历/Java/UI保持。最终精确报告commit普通push核实后停止写入。
 
 - 修复dc9228e已普通push核实。新增实际ASGI/AgentScope/隔离PG三任务分组纠错/持久/到期run恢复测试1通过，保存3模型+1工具、恢复0模型/0网络；首次Ruff长行1已换行修正。新两条准备2测试通过、相关Ruff通过，82文件与原权重冻结，原D01/D02完整请求仅run/conversation身份变化；`--check --database --output tmp/customer-agent-event-groups-v1/preflight.json`通过。30文件集中158通过/0失败跳过（36.75秒），public11表与上批相同、四历史脏文件hash保持。准备步精确提交普通push核实后单次真实两条，ledger1754起；全过才另冻D13四轮。
 

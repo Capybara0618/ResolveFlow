@@ -1,0 +1,74 @@
+{
+  "version": "customer-agent-event-groups-v1",
+  "state": "FINISHED_TARGET_NOT_MET",
+  "repair_commit": "dc9228eb1119902e3543bc622cca25875b6b30ca",
+  "preparation_commit": "48ce7830e962208ffa2a362a7c09522be010b412",
+  "runtime_sha256": "b9cda3a646cebad109e4703dbd78fa77b956114da2ae1552ba78201a60f0e115",
+  "turns": 2,
+  "published": 1,
+  "business_complete": 1,
+  "failed": 1,
+  "provider_requests": 8,
+  "provider_errors": 0,
+  "input_tokens": 18357,
+  "output_tokens": 975,
+  "all_usage_provider_reported": true,
+  "harness_input_budget_accounting": 21665,
+  "token_note": "Conservative Harness input accounting is separate from actual provider-reported tokens.",
+  "usage_before": 1754,
+  "usage_after": 1762,
+  "warmup": {
+    "status": "READY",
+    "elapsed_ms": 11887.860099988757
+  },
+  "kind_legal": 8,
+  "schema_legal": 7,
+  "actual_tools": 5,
+  "actual_searches": 1,
+  "rows": [
+    {
+      "id": "E01-groups-v1",
+      "status": "SUCCEEDED",
+      "reason": null,
+      "requests": 2,
+      "elapsed_ms": 3700.413899990963,
+      "tools": [
+        {
+          "name": "get_shipment_trace",
+          "elapsed_ms": 0.6243999814614654
+        }
+      ]
+    },
+    {
+      "id": "E02-groups-v1",
+      "status": "FAILED",
+      "reason": "INVALID_DECISION",
+      "requests": 6,
+      "elapsed_ms": 8682.581800007029,
+      "tools": [
+        {
+          "name": "get_order_context",
+          "elapsed_ms": 0.3358999965712428
+        },
+        {
+          "name": "get_shipment_trace",
+          "elapsed_ms": 0.39499998092651367
+        },
+        {
+          "name": "search_policy",
+          "elapsed_ms": 115.42439999175258
+        },
+        {
+          "name": "get_support_guide",
+          "elapsed_ms": 1.5790000034030527
+        }
+      ]
+    }
+  ],
+  "multi_turn_gate_passed": false,
+  "multi_turn_calls": 0,
+  "scope": "Two seen synthetic HTTP snapshots; actual model/ASGI/AgentScope/PG, no Java/browser",
+  "synthetic": true,
+  "not_holdout": true,
+  "reviewer": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_GOLD"
+}
