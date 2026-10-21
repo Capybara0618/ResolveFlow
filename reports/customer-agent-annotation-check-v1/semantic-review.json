@@ -1,0 +1,42 @@
+[
+  {
+    "id": "C01-annotation-v1",
+    "source_case": "D01",
+    "grade": "COMPLETE",
+    "criteria": [
+      {
+        "criterion": "按物流来源说明在途，不从PAID推断物流",
+        "passed": true
+      },
+      {
+        "criterion": "不编造预计送达时间",
+        "passed": true
+      }
+    ],
+    "basis": "实际读取SHIPMENT O1/version3，按IN_TRANSIT回答在途，无预计送达编造；任务ANSWERED与回答原句/已读引用一致。时间复制原UTC事件但未标时区，属于展示待改，不改变原评分。"
+  },
+  {
+    "id": "C02-annotation-v1",
+    "source_case": "D02",
+    "grade": "FAILED",
+    "criteria": [
+      {
+        "criterion": "区分LOST与PAID",
+        "passed": false,
+        "reason": "没有发布答案，不以被拒草稿计业务完成"
+      },
+      {
+        "criterion": "完整回答资格和当前申请入口",
+        "passed": false,
+        "reason": "没有发布答案，不以被拒草稿计业务完成"
+      }
+    ],
+    "basis": "实际自主读取LOST物流、使用指南和政策，R-LOST-001排第1；两次ANSWER均不带tasks，先前PENDING仍有效，反馈后重复漏更新，INVALID_DECISION。草稿覆盖LOST/人工核验/无有效签收/我的售后，不能当已发布成功。",
+    "diagnosis": {
+      "retrieval_missing": false,
+      "task_decomposition": "把三个诉求合成一个LOGISTICS任务；本轮未单独形成资格与入口任务",
+      "immediate_blocker": "ANSWER缺少任务终态更新，且一次纠错仍缺；不是模型供应商错误或超时",
+      "feedback_limit": "FULL_ACTION及tasks字段反馈已实际发送，但未使模型更新任务；缺具体终态标注形状仍是候选原因，未实测归因"
+    }
+  }
+]

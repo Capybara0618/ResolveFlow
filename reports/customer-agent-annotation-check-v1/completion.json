@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-21",
+  "state": "FINISHED_TARGET_NOT_MET",
+  "preservation": {
+    "inherited_dirty_files_sha256": {
+      "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+      "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+      "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+      "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+    },
+    "public_tables": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "all_11_tables_match_preflight_and_run": true,
+    "temporary_schemas_remaining": [],
+    "own_schema_dropped": true,
+    "old_reports_and_gold": "unchanged; their pinned hashes remain in the new 67-file manifest"
+  },
+  "verification": {
+    "pytest": {
+      "passed": 137,
+      "failed": 0,
+      "skipped": 0,
+      "files": 25,
+      "elapsed_seconds": 38.18,
+      "warning": "existing Starlette anyio BlockingPortal deprecation"
+    },
+    "strict_mypy_production_modules": 2,
+    "ruff": "passed for changed source/tests and new wrapper",
+    "freeze_and_readonly_database_check": "passed",
+    "earlier_environment_failure": "PG exited after interruption: 124 passed/13 skipped and preflight PoolTimeout; restored original container and reran, not accepted as pass",
+    "report_whitespace": "Initial staged diff check rejected CRLF in three generated summary/review/completion JSONs; normalized those new derived artifacts to LF and rechecked. Raw runtime bytes unchanged."
+  },
+  "commands": [
+    "agent/.venv/Scripts/python.exe scripts/customer_agent_annotation_check_v1.py --freeze",
+    "agent/.venv/Scripts/python.exe scripts/customer_agent_annotation_check_v1.py --check --database --output tmp/customer-agent-annotation-check-v1/preflight.json",
+    "agent/.venv/Scripts/python.exe scripts/customer_agent_annotation_check_v1.py --execute --output reports/customer-agent-annotation-check-v1/runtime-results.json",
+    ".venv/Scripts/mypy.exe --strict src/resolveflow/support/engine.py src/resolveflow/support/guidance.py (cwd agent)",
+    "25-file targeted pytest command recorded below in README; cwd agent, RESOLVEFLOW_AGENT_DB set"
+  ],
+  "requests_added": 7,
+  "usage_after": 1750,
+  "paid_reruns": 0,
+  "cleanup": {
+    "postgres_container": "resolveflow-review-demo-postgres-1",
+    "container_state": "exited",
+    "retained_volume": "resolveflow-review-demo_demo-postgres-data",
+    "closed_ports": [
+      5174,
+      8080,
+      8081,
+      8083,
+      8090,
+      55433,
+      53306,
+      6379,
+      9876,
+      10911
+    ],
+    "batch_processes_remaining": 0
+  }
+}

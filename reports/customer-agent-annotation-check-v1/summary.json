@@ -1,0 +1,70 @@
+{
+  "version": "customer-agent-annotation-check-v1",
+  "state": "FINISHED_TARGET_NOT_MET",
+  "repair_commit": "a0f621b2ee150a0b3a0ff7cf9b62a05fb69d44c0",
+  "preparation_commit": "7ff0de577fe7e80f53ff78061d0b509121f7ef87",
+  "runtime_sha256": "2169892d54fe304ba20cfe4069d991ff61a6b0fc1d74470833274cee10a7f4c0",
+  "turns": 2,
+  "published": 1,
+  "business_complete": 1,
+  "failed": 1,
+  "provider_requests": 7,
+  "provider_errors": 0,
+  "input_tokens": 15338,
+  "output_tokens": 956,
+  "all_usage_provider_reported": true,
+  "harness_input_budget_accounting": 18078,
+  "token_note": "Provider usage is actual reported tokens; Harness spend uses its conservative input accounting and must not substitute for billed token totals.",
+  "legal_kind": 7,
+  "usage_before": 1743,
+  "usage_after": 1750,
+  "warmup": {
+    "status": "READY",
+    "elapsed_ms": 12715.188300004229
+  },
+  "rows": [
+    {
+      "id": "C01-annotation-v1",
+      "status": "SUCCEEDED",
+      "reason": null,
+      "elapsed_ms": 3577.379900001688,
+      "requests": 2,
+      "tools": [
+        {
+          "name": "get_shipment_trace",
+          "elapsed_ms": 0.3645999822765589
+        }
+      ]
+    },
+    {
+      "id": "C02-annotation-v1",
+      "status": "FAILED",
+      "reason": "INVALID_DECISION",
+      "elapsed_ms": 6250.955600000452,
+      "requests": 5,
+      "tools": [
+        {
+          "name": "get_shipment_trace",
+          "elapsed_ms": 0.36959999124519527
+        },
+        {
+          "name": "get_support_guide",
+          "elapsed_ms": 1.2735000054817647
+        },
+        {
+          "name": "search_policy",
+          "elapsed_ms": 102.59300001780502
+        }
+      ]
+    }
+  ],
+  "reviewer": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_GOLD",
+  "scope": "Two seen synthetic HTTP snapshots, actual model/API/SDK/PG; no Java/browser",
+  "not_holdout": true,
+  "not_verified": [
+    "多轮暂停/恢复/撤回/纠正",
+    "Java与双端网页全栈",
+    "泛化完成率或Agent优于固定流程",
+    "RAG整体质量/延迟指标变化"
+  ]
+}
