@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-21",
+  "preparation_commit": "2df2610",
+  "atomic_save_fix_commit": "75c0348",
+  "scope": "Real generative model + ASGI/AgentScope/BGE/retained read-only policies; synthetic frozen upstream order/logistics HTTP",
+  "synthetic": true,
+  "not_holdout": true,
+  "production_logic_changed": false,
+  "paid_case_reruns": 0,
+  "selected_cases": 12,
+  "live_provider_requests": 30,
+  "provider_failed_requests": 0,
+  "usage_ledger_before": 1482,
+  "usage_ledger_after": 1512,
+  "all_usage_provider_reported": true,
+  "business_summary": {
+    "n": 12,
+    "run_succeeded": 10,
+    "business_pass": 6,
+    "business_partial": 3,
+    "business_fail": 3,
+    "required_policy_cases": 5,
+    "required_policy_covered": 5,
+    "guide_expected_cases": 7,
+    "guide_actually_read": 2,
+    "actual_models": 30,
+    "actual_tool_executions": 16,
+    "actual_searches": 6,
+    "input_tokens": 35207,
+    "output_tokens": 1848,
+    "all_usage_provider_reported": true,
+    "http_min_ms": 1345.8270999835804,
+    "http_max_ms": 5635.470600012923,
+    "http_p50_ms": 2758.690300004673,
+    "http_p95_ms": 5006.095590008771,
+    "search_p50_ms": 74.19215000118129,
+    "search_p95_ms": 81.07912499690428,
+    "sum_model_ms": 34389.347199961776,
+    "sum_http_ms": 37016.54890002101,
+    "startup_warmup_ms": [
+      12313.111100025708,
+      9061.54319999041
+    ],
+    "usage_ledger_before": 1482,
+    "usage_ledger_after": 1512
+  },
+  "engineering_tests": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "files": [
+      "agent/tests/unit/test_customer_rag_live_v2.py",
+      "agent/tests/integration/test_customer_rag_live_v2.py"
+    ],
+    "ruff_check_and_format": true,
+    "old_starlette_deprecation_warning": true
+  },
+  "cohorts": [
+    {
+      "path": "runtime-results.json",
+      "driver_state": "ERROR",
+      "completed_cases": 9,
+      "calls": 19,
+      "cause": "OSError22 while persisting report; completed case/model records retained"
+    },
+    {
+      "path": "remaining-results.json",
+      "driver_state": "FINISHED",
+      "completed_cases": 3,
+      "calls": 11,
+      "overlap_with_prior": false
+    }
+  ],
+  "first_initial_public_witness_exported": false,
+  "later_public_before_after_equal": true,
+  "prior_batch_through_final_public_equal": true,
+  "retained_public_table_count": 11,
+  "temporary_schemas_remaining": [],
+  "business_queue_consumed": false,
+  "new_trade_or_refund": false,
+  "new_policy_or_index_publish": false,
+  "new_model_weight_downloads": 0,
+  "dependency_locks_changed": false,
+  "original_four_files_unchanged": true,
+  "inherited_dirty_files": {
+    "docs/engineering.md": {
+      "worktree_sha256": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+      "diff_sha256": "2ea8e5b42e4651876dec174fd8857391153859870e63d6433c529498326558d4"
+    },
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": {
+      "worktree_sha256": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+      "diff_sha256": "74a7ee8fa53619c540e76b2141a0d723a2e33187fd17323532f8298c204970b9"
+    },
+    "scripts/verify.ps1": {
+      "worktree_sha256": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+      "diff_sha256": "783d905eca718fe0f691483d4645fcb3d3311a3497e7349973c16e4c80fd6804"
+    },
+    "scripts/verify.sh": {
+      "worktree_sha256": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a",
+      "diff_sha256": "5de242ba9bcf73415f4452a9132eaf4b16df37973ad83e85e5b79bbbe52cbbc3"
+    }
+  },
+  "artifact_key_content_check": true,
+  "actual_model_and_durable_record_counts_match": true,
+  "frozen_criteria_unchanged": true,
+  "active_listeners": [],
+  "owned_experiment_processes": [],
+  "pg_state": "exited",
+  "retained_pg_volume": "resolveflow-review-demo_demo-postgres-data",
+  "usage_ledger_lock_remaining": false,
+  "report_pending_files_remaining": false,
+  "files_sha256": {
+    "driver-before-atomic-save.py": "0935347a3171448366b0a129506f53472a5157c6ef9effa42e8173c81883a6ac",
+    "README.md": "a62d477731a39f7fd97bfd5c499587e2da0dfb23036914cf9d38cb604efe41ea",
+    "remaining-results.json": "91e7a2421c24ac53a75df0461443a53e6cf5fbe1c2258886fc4c17ad24096763",
+    "runtime-results.json": "4ab5806f5124454ee868d0103fd249ec4f7c45ee578694115a548d69fd594b8e",
+    "semantic-review.json": "1a8af5b60db939fe94aa48cc8632ee398cc161c25ff30615e2511a981ad3e5fe"
+  }
+}

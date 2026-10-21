@@ -1,8 +1,11 @@
-## 当前快照（2026-10-21，客服RAG真实模型v2首9项完成，保存故障已修）
+## 当前快照（2026-10-21，客服RAG真实模型v2验收完成）
 
-- 准备2df2610正常push核实；按[冻结12场景](../evals/customer-rag-live-v2/cases.json)/[协议](../docs/customer-rag-live-v2.md)执行，首9场景19次真实DeepSeek请求（provider usage均非estimated），G01动作格式两次错误后INVALID_DECISION；其余8项run成功，G03未读指南错说默认输入私有、G04误走政策且未给我的售后入口，政策4项必要规则均召回。最终语义复核尚待全批，保留原始失败不重跑。
-- P04完成并保存调用后，直接报告文件写入触发Windows OSError22，原始报告state=ERROR但9项完整结果/调用均保留、隔离Schema已清理。首轮driver按原hash无损归档。修正为临时文件原子替换，有限重试仅本地保存不重发模型；追加continuation仅选择从未开始的F01/F02/M01，原计划/生产源码/资产hash不变，已有失败也禁止重跑。
-- 新增原子保存/继续集合单测，7单元+1真实ASGI/隔离PG脚本冒烟共8通过，Ruff check/format通过；首次冒烟patch绕过记录问题已修，原警告保留。原四历史脏文件保持；业务服务/worker仍停，只有保留PG暂运行。保存修正/9项原始证据精确commit普通push核实后继续剩3场景，最终统一复核12项分母/模型与检索耗时。
+- 用户授权继续，按[冻结协议](../docs/customer-rag-live-v2.md)/[12场景及逐项条件](../evals/customer-rag-live-v2/cases.json)完成真实DeepSeek Flash+生产ASGI/SupportRuntime/AgentScope/BGE/保留PG政策诊断；订单/物流为明确冻结的旧合成HTTP快照，F02实际503，非Java/网页全栈或盲测。统一[报告](../reports/customer-rag-live-v2/README.md)/[逐项源审](../reports/customer-rag-live-v2/semantic-review.json)/[收口](../reports/customer-rag-live-v2/completion.json)。准备2df2610、保存修正75c0348均正常push核实。
+- 12项/30次模型/16实际工具/6政策检索；10项run产出答案，业务完整6/12、部分3/12、失败3/12。5政策场景必要条款均覆盖；7需指南场景仅2实际读取。G01动作格式两次错误后INVALID_DECISION；G03漏读指南错述默认输入私有；G04入口错查政策/未给我的售后；P03依据已齐但漏版本1/ORDER_PAID；F02三次不可用后第四同动作执行前NO_PROGRESS；M01事实/政策正确但漏指南入口。原P02固定Query遗漏不宣称修复，新模型聚焦Query本轮主规则第1。
+- 完整Python接口（含失败/记录开销、不含Java/网页/预热）12项中位2.759秒、描述性P95 5.006秒，范围1.346–5.635秒；6检索中位74.2ms/P95约81.1ms。两进程预热12.31/9.06秒，模型总34.39秒/接口37.02秒。实际usage均provider非estimated，输入35207/输出1848，旧ledger1482→1512，未重置或设新上限。小样本不当SLA/因果提升。
+- 首9项19次调用后报告写OSError22中断，9项结果全部保留且隔离Schema清理。原driver按hash归档；原子保存/有限本地IO重试及continuation只选未开始的F01/F02/M01，后3项11次完成，无付费重跑/输入Gold或生产逻辑修改。两个driver除实验脚本外生产/依赖hash一致。首组起始public见证未导出，末组before/after与上批收口public11表全行hash一致，报告明确区别。
+- 最终7单元+1真实ASGI/隔离PG脚本冒烟=8通过/0失败/跳过，Ruff check/format通过；准备冒烟patch绕过记录的1失败/5通过已修，原警告保留。当前不再重跑旧退款3失败，也不称全仓绿。原四历史脏文件逐字节hash保持，密钥未入报告/命令参数；两隔离Schema已清理，PG已stop/卷保留，10端口闭/本批进程退出。
+- 本批真实效果验收完成。下一优先通用指南/政策工具用途选择、具体动作格式纠错、查询持续失败后的可操作交接、生成保留关键条件，先独立变体脚本验证再另冻真实结果；不以堆CE/新召回替代Agent缺口。最终结果/源审精确commit普通push核实后收口，SHA见回复，不自动开业务worker或继续付费调参。
 
 ## 当前快照（2026-10-21，客服指南接线/预热/验证完成）
 

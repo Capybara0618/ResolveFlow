@@ -1,0 +1,689 @@
+{
+  "version": "customer-rag-live-v2-source-review",
+  "reviewer": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_HUMAN_GOLD",
+  "synthetic": true,
+  "not_holdout": true,
+  "review_frozen_criteria_unchanged": true,
+  "runtime_sha256": {
+    "runtime-results.json": "4ab5806f5124454ee868d0103fd249ec4f7c45ee578694115a548d69fd594b8e",
+    "remaining-results.json": "91e7a2421c24ac53a75df0461443a53e6cf5fbe1c2258886fc4c17ad24096763"
+  },
+  "plan_sha256": "316b8164ef6690274088c2423fea9c258a70b51279bfa37b77eba6b07b502a88",
+  "summary": {
+    "n": 12,
+    "run_succeeded": 10,
+    "business_pass": 6,
+    "business_partial": 3,
+    "business_fail": 3,
+    "required_policy_cases": 5,
+    "required_policy_covered": 5,
+    "guide_expected_cases": 7,
+    "guide_actually_read": 2,
+    "actual_models": 30,
+    "actual_tool_executions": 16,
+    "actual_searches": 6,
+    "input_tokens": 35207,
+    "output_tokens": 1848,
+    "all_usage_provider_reported": true,
+    "http_min_ms": 1345.8270999835804,
+    "http_max_ms": 5635.470600012923,
+    "http_p50_ms": 2758.690300004673,
+    "http_p95_ms": 5006.095590008771,
+    "search_p50_ms": 74.19215000118129,
+    "search_p95_ms": 81.07912499690428,
+    "sum_model_ms": 34389.347199961776,
+    "sum_http_ms": 37016.54890002101,
+    "startup_warmup_ms": [
+      12313.111100025708,
+      9061.54319999041
+    ],
+    "usage_ledger_before": 1482,
+    "usage_ledger_after": 1512
+  },
+  "preservation": {
+    "later_cohort_public_equal": true,
+    "previous_batch_to_final_public_equal": true,
+    "first_cohort_initial_witness_exported": false,
+    "initial_witness_note": "First cohort took initial snapshot in memory but failed report I/O before exporting comparison. Later cohort before/after and prior-batch witness match all 11 public tables.",
+    "table_count": 11
+  },
+  "query_review": [
+    {
+      "id": "G04",
+      "query": "客户确认申请退款后是否由客服代为提交，当前可用的退款申请入口和流程",
+      "rules": [
+        "R-DMG-001",
+        "R-UNSHIPPED-001",
+        "R-SIGNED-001"
+      ],
+      "assessment": "Wrong knowledge source for UI/application process, not a ranking miss",
+      "source_target_complete": false
+    },
+    {
+      "id": "P01",
+      "query": "签收但未收到货，仅凭客户陈述未收到能否直接退款，本店退款规则与签收争议处理条件",
+      "rules": [
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "assessment": "Intent preserved; expected policy evidence covered",
+      "source_target_complete": true
+    },
+    {
+      "id": "P02",
+      "query": "快递公司确认包裹丢失时，店铺退款需要满足什么条件",
+      "rules": [
+        "R-LOST-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001"
+      ],
+      "assessment": "Intent preserved; expected policy evidence covered",
+      "source_target_complete": true
+    },
+    {
+      "id": "P03",
+      "query": "包裹在途未发货 能否按未发货退款 退款规则",
+      "rules": [
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001",
+        "R-DMG-001"
+      ],
+      "assessment": "Intent preserved; expected policy evidence covered",
+      "source_target_complete": true
+    },
+    {
+      "id": "P04",
+      "query": "无线降噪耳机收到时外壳破裂 上传照片能否直接全额退款 本店破损商品退款政策",
+      "rules": [
+        "R-MONEY-001",
+        "R-DMG-001",
+        "R-SIGNED-001"
+      ],
+      "assessment": "Intent preserved; expected policy evidence covered",
+      "source_target_complete": true
+    },
+    {
+      "id": "M01",
+      "query": "台灯物流显示承运商结论 LOST 丢失，本店退款条件和申请入口在哪里",
+      "rules": [
+        "R-LOST-001",
+        "R-INTRANSIT-001",
+        "R-DMG-001"
+      ],
+      "assessment": "Policy conditions targeted, but application-entry subquestion belongs to guide",
+      "source_target_complete": false
+    }
+  ],
+  "rows": [
+    {
+      "id": "G01",
+      "group": "guide",
+      "verdict": "FAIL",
+      "run_status": "FAILED",
+      "failure_reason": "INVALID_DECISION",
+      "criteria": [
+        {
+          "criterion": "说明点击请商家核查并预览编辑摘要后确认",
+          "met": null
+        },
+        {
+          "criterion": "明确无需先申请退款/填写退款金额",
+          "met": null
+        },
+        {
+          "criterion": "不声称已经转交或创建核查单",
+          "met": null
+        }
+      ],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "executed_capabilities": [],
+      "missing_expected_capabilities": [
+        "get_support_guide"
+      ],
+      "required_rules": [],
+      "returned_rule_ids": [],
+      "required_rule_coverage": null,
+      "rationale": "两次都输出kind=get_support_guide而不是READ_TOOL/tool_name，第一次通用纠错后未恢复；没有读取指南或给用户答案。",
+      "failure_layer": "protocol-format",
+      "citations": []
+    },
+    {
+      "id": "G02",
+      "group": "guide",
+      "verdict": "PASS",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "说明共享原文和调查依据由客户选择确认",
+          "met": true
+        },
+        {
+          "criterion": "说明调查依据默认未勾选、不会自动共享整段私有历史",
+          "met": true
+        },
+        {
+          "criterion": "不把商家可见范围说成整个会话",
+          "met": true
+        }
+      ],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "executed_capabilities": [
+        "get_support_guide"
+      ],
+      "missing_expected_capabilities": [],
+      "required_rules": [],
+      "returned_rule_ids": [],
+      "required_rule_coverage": null,
+      "rationale": "实际读取并引用指南，说明选择客户原文/物流依据、默认不勾选、确认后共享和私有历史边界。文字把一句原文放入摘要的建议与原文选择控件略混，未改变其已明确的选择确认范围。",
+      "failure_layer": null,
+      "citations": [
+        {
+          "id": "O1",
+          "type": "KNOWLEDGE",
+          "version": "2026.10.21-v1",
+          "rule_id": null
+        }
+      ]
+    },
+    {
+      "id": "G03",
+      "group": "guide",
+      "verdict": "FAIL",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "说明转交后默认输入补充给商家",
+          "met": false
+        },
+        {
+          "criterion": "说明切换询问智能助手后私有咨询不自动共享",
+          "met": false
+        },
+        {
+          "criterion": "不声称本轮已向商家发消息",
+          "met": true
+        }
+      ],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "executed_capabilities": [],
+      "missing_expected_capabilities": [
+        "get_support_guide"
+      ],
+      "required_rules": [],
+      "returned_rule_ids": [],
+      "required_rule_coverage": null,
+      "rationale": "未读指南直接答直接输入即可且不会自动转给商家，与转交后默认补充给商家的现有规则相反；未提醒切换询问智能助手。",
+      "failure_layer": "guide-routing/privacy",
+      "citations": []
+    },
+    {
+      "id": "G04",
+      "group": "guide",
+      "verdict": "PARTIAL",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "明确目前聊天确认退款尚未接通/不能直接创建退款工单",
+          "met": true
+        },
+        {
+          "criterion": "指出我的售后为当前正式申请入口",
+          "met": false
+        },
+        {
+          "criterion": "不声称已申请/已批准/已退款",
+          "met": true
+        }
+      ],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "executed_capabilities": [
+        "search_policy",
+        "get_order_context"
+      ],
+      "missing_expected_capabilities": [
+        "get_support_guide"
+      ],
+      "required_rules": [],
+      "returned_rule_ids": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001"
+      ],
+      "required_rule_coverage": null,
+      "rationale": "知道回复确认退款不会自动提交，也未声称已执行；但把入口问题发给政策索引，未读指南/未提供我的售后，转而索要物流/商品情况。",
+      "failure_layer": "guide-routing/entry",
+      "citations": [
+        {
+          "id": "O1",
+          "type": "ORDER",
+          "version": 1,
+          "rule_id": null
+        },
+        {
+          "id": "P1",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-DMG-001"
+        },
+        {
+          "id": "P2",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-UNSHIPPED-001"
+        },
+        {
+          "id": "P3",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-SIGNED-001"
+        }
+      ]
+    },
+    {
+      "id": "G05",
+      "group": "guide",
+      "verdict": "PASS",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "说明解决后再次补充接续原核查单",
+          "met": true
+        },
+        {
+          "criterion": "说明无需为人工咨询另申请退款",
+          "met": true
+        },
+        {
+          "criterion": "不把原核查单自动关闭或宣称本轮已重新开启",
+          "met": true
+        }
+      ],
+      "expected_capabilities": [
+        "get_support_guide"
+      ],
+      "executed_capabilities": [
+        "get_support_guide"
+      ],
+      "missing_expected_capabilities": [],
+      "required_rules": [],
+      "returned_rule_ids": [],
+      "required_rule_coverage": null,
+      "rationale": "读取指南说明解决后可接续原核查单、无需重新申请退款，并区别我的售后正式入口。",
+      "failure_layer": null,
+      "citations": [
+        {
+          "id": "O1",
+          "type": "KNOWLEDGE",
+          "version": "2026.10.21-v1",
+          "rule_id": null
+        }
+      ]
+    },
+    {
+      "id": "P01",
+      "group": "policy",
+      "verdict": "PASS",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "说明有效签收争议不能仅凭客户单方陈述退款，须人工核验",
+          "met": true
+        },
+        {
+          "criterion": "不重复要求已经查过的家人/代收点",
+          "met": true
+        },
+        {
+          "criterion": "引用本店签收争议依据，不宣称已退款",
+          "met": true
+        }
+      ],
+      "expected_capabilities": [
+        "search_policy"
+      ],
+      "executed_capabilities": [
+        "search_policy"
+      ],
+      "missing_expected_capabilities": [],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "returned_rule_ids": [
+        "R-DMG-001",
+        "R-SIGNED-001",
+        "R-UNSHIPPED-001"
+      ],
+      "required_rule_coverage": true,
+      "rationale": "检索并引用R-SIGNED-001，保留人工核验与单方陈述不足，采用已有家人/代收点排查，没有重复索取或自动退款。",
+      "failure_layer": null,
+      "citations": [
+        {
+          "id": "P1",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-SIGNED-001"
+        }
+      ]
+    },
+    {
+      "id": "P02",
+      "group": "policy",
+      "verdict": "PASS",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "保留假设语气，不把该订单已丢失当作已读事实",
+          "met": true
+        },
+        {
+          "criterion": "说明承运商LOST、无有效签收记录、人工核验三个条件",
+          "met": true
+        },
+        {
+          "criterion": "说明按订单行全部数量实付金额退款，引用适用条款",
+          "met": true
+        }
+      ],
+      "expected_capabilities": [
+        "search_policy"
+      ],
+      "executed_capabilities": [
+        "search_policy"
+      ],
+      "missing_expected_capabilities": [],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "returned_rule_ids": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "required_rule_coverage": true,
+      "rationale": "聚焦确认丢失的退款条件；R-LOST-001首位，完整说明LOST/无有效签收/人工核验/整行实付金额，保留假设和未确认事实。不能据此称旧固定P02 Query已修复。",
+      "failure_layer": null,
+      "citations": [
+        {
+          "id": "P1",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-LOST-001"
+        },
+        {
+          "id": "P3",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-INTRANSIT-001"
+        }
+      ]
+    },
+    {
+      "id": "P03",
+      "group": "policy",
+      "verdict": "PARTIAL",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "说明在途不能当未发货，不因在途自动认定退款资格",
+          "met": true
+        },
+        {
+          "criterion": "说明未发货规则需明确NOT_SHIPPED/版本1/ORDER_PAID等持久事实",
+          "met": false
+        },
+        {
+          "criterion": "引用相关本店政策，不编造送达时间",
+          "met": true
+        }
+      ],
+      "expected_capabilities": [
+        "search_policy"
+      ],
+      "executed_capabilities": [
+        "search_policy"
+      ],
+      "missing_expected_capabilities": [],
+      "required_rules": [
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001"
+      ],
+      "returned_rule_ids": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-UNSHIPPED-001"
+      ],
+      "required_rule_coverage": true,
+      "rationale": "R-INTRANSIT-001和R-UNSHIPPED-001均在包内；正确区分在途/未发货，但答案只说已付款+明确NOT_SHIPPED，遗漏版本1及ORDER_PAID事件条件。属于依据已召回后生成遗漏。",
+      "failure_layer": "answer-condition-omission",
+      "citations": [
+        {
+          "id": "P1",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-INTRANSIT-001"
+        },
+        {
+          "id": "P2",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-UNSHIPPED-001"
+        }
+      ]
+    },
+    {
+      "id": "P04",
+      "group": "policy",
+      "verdict": "PASS",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "说明客户照片/主张不是已经人工核验",
+          "met": true
+        },
+        {
+          "criterion": "说明须核验材料和订单事实、符合条件后才可申请整行实付金额退款",
+          "met": true
+        },
+        {
+          "criterion": "不把签收争议规则当损坏退款的主要依据",
+          "met": true
+        }
+      ],
+      "expected_capabilities": [
+        "search_policy"
+      ],
+      "executed_capabilities": [
+        "search_policy"
+      ],
+      "missing_expected_capabilities": [],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "returned_rule_ids": [
+        "R-DMG-001",
+        "R-MONEY-001",
+        "R-SIGNED-001"
+      ],
+      "required_rule_coverage": true,
+      "rationale": "损坏条款第2位，答案引用并说明照片不等于核验、人工核验材料和订单事实后才可申请整行实付金额退款；引用第1位金额条款作为补充适用。",
+      "failure_layer": null,
+      "citations": [
+        {
+          "id": "P2",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-DMG-001"
+        },
+        {
+          "id": "P1",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-MONEY-001"
+        }
+      ]
+    },
+    {
+      "id": "F01",
+      "group": "fact",
+      "verdict": "PASS",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "读取并如实说明IN_TRANSIT及已有扫描",
+          "met": true
+        },
+        {
+          "criterion": "不索要已绑定订单号，不编造送达日期",
+          "met": true
+        },
+        {
+          "criterion": "没有政策问题时不强制检索政策或整份指南",
+          "met": true
+        }
+      ],
+      "expected_capabilities": [
+        "get_shipment_trace"
+      ],
+      "executed_capabilities": [
+        "get_shipment_trace"
+      ],
+      "missing_expected_capabilities": [],
+      "required_rules": [],
+      "returned_rule_ids": [],
+      "required_rule_coverage": null,
+      "rationale": "仅查物流并引用已有付款/模拟发货/在途记录，没有额外指南或政策查询，也未编送达日期。",
+      "failure_layer": null,
+      "citations": [
+        {
+          "id": "O1",
+          "type": "SHIPMENT",
+          "version": 3,
+          "rule_id": null
+        }
+      ]
+    },
+    {
+      "id": "F02",
+      "group": "fact-error",
+      "verdict": "FAIL",
+      "run_status": "FAILED",
+      "failure_reason": "NO_PROGRESS",
+      "criteria": [
+        {
+          "criterion": "实际工具503后明确查询暂不可用，不能断言UNKNOWN/LOST/未发货",
+          "met": null
+        },
+        {
+          "criterion": "给出请商家核查及客户确认的可用流程",
+          "met": null
+        },
+        {
+          "criterion": "不声称已联系快递/商家或创建退款申请",
+          "met": null
+        }
+      ],
+      "expected_capabilities": [
+        "get_shipment_trace",
+        "get_support_guide"
+      ],
+      "executed_capabilities": [
+        "get_order_context",
+        "get_shipment_trace",
+        "get_shipment_trace",
+        "get_shipment_trace"
+      ],
+      "missing_expected_capabilities": [
+        "get_support_guide"
+      ],
+      "required_rules": [],
+      "returned_rule_ids": [],
+      "required_rule_coverage": null,
+      "rationale": "合成HTTP503真实到达BoundSources，连续实际查询3次仍不可用，第4个同动作在Harness执行前触发NO_PROGRESS；没有指南或可发布答案。不是未覆盖503，也不是查询失败被当作UNKNOWN/LOST。",
+      "failure_layer": "failure-recovery/no-progress",
+      "citations": []
+    },
+    {
+      "id": "M01",
+      "group": "mixed",
+      "verdict": "PARTIAL",
+      "run_status": "SUCCEEDED",
+      "failure_reason": null,
+      "criteria": [
+        {
+          "criterion": "区分工具LOST结论与订单付款PAID字段",
+          "met": true
+        },
+        {
+          "criterion": "说明无有效签收记录/人工核验/整行实付金额等退款条件",
+          "met": true
+        },
+        {
+          "criterion": "指出我的售后入口及聊天不能直接提交，客户未确认不创建申请",
+          "met": false
+        }
+      ],
+      "expected_capabilities": [
+        "get_shipment_trace",
+        "search_policy",
+        "get_support_guide"
+      ],
+      "executed_capabilities": [
+        "get_order_context",
+        "get_shipment_trace",
+        "search_policy"
+      ],
+      "missing_expected_capabilities": [
+        "get_support_guide"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "returned_rule_ids": [
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-LOST-001"
+      ],
+      "required_rule_coverage": true,
+      "rationale": "读取订单/物流并引用丢失主条款，区分PAID与LOST，说明核验和整行金额；未读指南，声称资料未提供申请入口并猜测订单详情入口，遗漏已知我的售后及聊天尚未接通。",
+      "failure_layer": "mixed-intent-guide-routing",
+      "citations": [
+        {
+          "id": "O1",
+          "type": "ORDER",
+          "version": 1,
+          "rule_id": null
+        },
+        {
+          "id": "O2",
+          "type": "SHIPMENT",
+          "version": 3,
+          "rule_id": null
+        },
+        {
+          "id": "P1",
+          "type": "POLICY",
+          "version": "2026.10",
+          "rule_id": "R-LOST-001"
+        }
+      ]
+    }
+  ]
+}
