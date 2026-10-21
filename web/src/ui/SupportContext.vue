@@ -13,6 +13,7 @@ const report = computed(() => reportFor(props.conversation, props.merchant))
 const shipment = computed(() => shipmentIn(report.value?.citations ?? []))
 const events = computed(() => shipmentEvents(shipment.value).slice(0, 3))
 const policies = computed(() => report.value?.citations.filter(c => c.source_type === 'POLICY') ?? [])
+const guides = computed(() => report.value?.citations.filter(c => c.source_type === 'KNOWLEDGE') ?? [])
 </script>
 
 <template>
@@ -32,6 +33,7 @@ const policies = computed(() => report.value?.citations.filter(c => c.source_typ
     <template v-else>
       <section class="context-card"><h2>物流概览</h2><template v-if="shipment"><span class="support-tag amber">{{ shipmentLabel(shipment.data.status) }}</span><ol class="shipment-timeline"><li v-for="(event, index) in events" :key="index"><span>{{ stamp(event.occurred_at, true) }}</span><strong>{{ shipmentLabel(event.code) }}</strong></li></ol><p class="source-version">回答引用 · {{ stamp(lastAssistant(conversation)?.created_at, true) }}</p><SupportSources :citations="[shipment]" /></template><p v-else class="context-muted">助手查阅物流后，相关记录会显示在这里。</p></section>
       <section class="context-card"><h2>相关政策</h2><template v-if="policies.length"><p class="context-muted">本次回答引用的适用政策</p><SupportSources :citations="policies" /></template><p v-else class="context-muted">需要解释政策时，助手会查阅本店适用版本。</p></section>
+      <section v-if="guides.length" class="context-card"><h2>使用指南</h2><SupportSources :citations="guides" /></section>
     </template>
   </aside>
 </template>

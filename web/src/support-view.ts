@@ -1,6 +1,6 @@
 import type { SupportAssistant, SupportCitation, SupportConversation, SupportMessage } from './support-client'
 
-export const sourceLabels = { ORDER: '订单事实', SHIPMENT: '物流事实', POLICY: '店铺政策', CONVERSATION: '对话原文' }
+export const sourceLabels = { ORDER: '订单事实', SHIPMENT: '物流事实', POLICY: '店铺政策', CONVERSATION: '对话原文', KNOWLEDGE: '使用指南' }
 export const shipmentLabel = (value: unknown) => {
   const labels: Record<string, string> = { IN_TRANSIT: '运输中', DELAYED: '运输延迟', EXCEPTION_DELAYED: '物流延迟异常', DELIVERED: '记录显示已签收', LOST: '承运方确认丢失', UNKNOWN: '状态待核实', NOT_SHIPPED: '尚未发货', ORDER_PAID: '订单已付款', SIMULATED_SHIPPED: '已模拟发货' }
   return typeof value === 'string' ? labels[value] || value : '待核实'
