@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-21",
+  "state": "ENGINEERING_FINISHED_BEFORE_FORMAL_EVALUATION",
+  "plan_commit": "31325bed915ba1ba4da93ce5a42b713a5759ab07",
+  "implementation_commits": [
+    "9b95f99d81abf992dbf98f636273a5ba99d03196",
+    "02a57c779f6632d7be0c048bf217b1be80213617",
+    "e76ba84d9130e44c12df85c32da465b846edbe0d"
+  ],
+  "python": {
+    "test_files": 20,
+    "passed": 113,
+    "failed": 0,
+    "skipped": 0,
+    "strict_mypy_modules": 8,
+    "ruff_passed": true,
+    "old_frozen_profile_tests_not_included": 5
+  },
+  "java": {
+    "support_api_passed": 16,
+    "support_wire_passed": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "targeted_spotless_passed": true
+  },
+  "scripted_runtime": {
+    "turns": 4,
+    "generation_model": "SCRIPTED_NOT_LIVE",
+    "upstream_facts": "SYNTHETIC_HTTP",
+    "journal": "REAL_ISOLATED_PG",
+    "model_calls": [
+      2,
+      2,
+      2,
+      1
+    ],
+    "duplicate_dispatch_same_result": true,
+    "saved_decision_recovery_same_result": true,
+    "recovery_additional_model_calls": 0,
+    "recovery_additional_upstream_calls": 0
+  },
+  "formal_effect_evaluation_executed": false,
+  "new_live_model_requests": 0,
+  "usage_ledger_used": 1540,
+  "extra_classifier_or_summary_model_calls": 0,
+  "frontend_changed": false,
+  "resume_changed": false,
+  "rag_algorithm_changed": false,
+  "new_tables_or_dependencies": false,
+  "public_tables": 11,
+  "public_before_after_equal": true,
+  "previous_v3_public_witness_equal": true,
+  "public_witness_sha256": "29d0395295cfeb6b534353867b2738e03cbe0238c904041d9a267e0b797ed0ec",
+  "inherited_dirty_files_sha256": {
+    "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+    "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+    "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+  },
+  "temporary_schemas_remaining": [],
+  "old_readiness_and_cases_unchanged": true,
+  "old_readiness_preflight_now_rejects_changed_code": true,
+  "whole_repo_green_claim": false,
+  "real_semantic_accuracy_improvement_claim": false,
+  "full_java_python_browser_e2e_run": false,
+  "active_project_listeners": [],
+  "pg_state": "exited",
+  "retained_pg_volume": "resolveflow-review-demo_demo-postgres-data",
+  "known_limits": {
+    "active_claims_max": 12,
+    "total_claims_max": 24,
+    "automatic_archive": false,
+    "semantic_annotation_still_model_judgment": true
+  },
+  "files_sha256": {
+    "docs/customer-dialogue-state-v1.md": "82c53f9bb675b7bfee27117d3bd6e8b82687aa0cca1a51d26bc725789338c4e3",
+    "agent/src/resolveflow/support/memory.py": "d3f4814d8491b1f6d809fcf9bdda126c5f33ff5709dd8ba17124337b386a904c",
+    "agent/src/resolveflow/support/dialogue.py": "7ef9c4f7749ac351db64b746490d7012a418b64440cd23bb2d8e360dc0fa1430",
+    "agent/src/resolveflow/support/protocol.py": "d183d90eb7b2e15076d67f553e3d96f210431c09eaa923318cfbe2448663ef7d",
+    "agent/src/resolveflow/support/engine.py": "e9d41f5601ace8bedeaf7e74d2916f89854c166eddb650c91b05b7d86a34d363",
+    "agent/src/resolveflow/support/guidance.py": "f4389bd5d32c55427244f7027b5e48d33934bfe78769880af8d65185e890c703",
+    "agent/src/resolveflow/support/service.py": "a7e7acd6b2902619e0bd985e96c9923b2e972d16e217a733e70cc1c7a8d7bb9d",
+    "agent/tests/unit/test_support_memory.py": "c2f1619e8879cbf171d39999aa2c7ad3af52957389f331a9f1e5ac66bb615742",
+    "agent/tests/unit/test_support_dialogue.py": "e51f34fb8788936bf58b3b8a4f6fa1d53ffd323c17c4cb5d4eab706ac1c4f30e",
+    "agent/tests/integration/test_support_dialogue_api.py": "d5c7b2236b239cb8db3788d6b507fc720aebe39309baceb946cc578dd7ebcc18",
+    "java/case-service/src/main/java/com/resolveflow/caseservice/support/SupportAgentTurns.java": "b27f4bec4eec43d830743313b802c91a2ac06eb2b0b28d98745e1cc367c63335",
+    "java/case-service/src/test/java/com/resolveflow/caseservice/support/SupportApiTest.java": "70b4414ae4c96f51bb4561c835e18e4ee0ae6e7a728d93f9fb6932205d2a9925",
+    "reports/support-dialogue-state-v1/README.md": "0d3a597ac46fdfed99d944ecc2caef681750975f190b2ebd0df58ca06fd1b4b9",
+    "evals/customer-agent-readiness-v1/manifest.json": "d0ed3af32bf37f047f58f2911f220ac870a2a600ba90cc9f7978e6f70ba5d0bf",
+    "evals/customer-agent-readiness-v1/scenarios.json": "7865e61dfa2013665399f1791e507242ba5b29ad1046245438e3de1852834c27"
+  }
+}
