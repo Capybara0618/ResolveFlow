@@ -102,6 +102,7 @@ class SupportRuntime:
                     "embeddings.py",
                     "retrieval.py",
                     "guide.py",
+                    "guidance.py",
                     "../assets/support-guide-v1.json",
                     "../policies/retrieval.py",
                     "../policies/index.py",

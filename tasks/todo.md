@@ -1,3 +1,9 @@
+## 当前快照（2026-10-21，客服Agent优化：工具协议与精确纠错已验证）
+
+- 用户授权开始，按[本批方案](../docs/customer-agent-optimization-v1.md)优化客服Harness，旧RAG/模型/权限/锁不改。guidance.py提供实际模型可见目录与SDK共用用途/参数，区分实时事实/商家资格/平台流程，闭合JSON动作示例不再用含“或”的伪工具名；错误反馈指出kind/schema或合法引用，一次纠正不放宽。
+- 新3项关键红测均失败，接线后21项中20通过/指南因上下文超限1失败；合并重复系统提示、模型仅携完整指南正文/authority，审计记录保留持久引用后21通过。实际命令agent/.venv Python pytest guidance/agent/guide -q，3生产模块严格mypy、4文件Ruff通过；不增加窗口/预算。新模块hash加入manifest。
+- 下一小步：持续工具故障的有界反馈与恢复、可信会话状态、集中新版本实测。保留PG已临时start供后续隔离Schema测试，业务worker未启动/新模型调用0。原四历史脏文件保持；本步精确commit/正常push核实后继续，不以脚本通过代替真实模型效果。
+
 ## 当前快照（2026-10-21，客服RAG真实模型v2验收完成）
 
 - 用户授权继续，按[冻结协议](../docs/customer-rag-live-v2.md)/[12场景及逐项条件](../evals/customer-rag-live-v2/cases.json)完成真实DeepSeek Flash+生产ASGI/SupportRuntime/AgentScope/BGE/保留PG政策诊断；订单/物流为明确冻结的旧合成HTTP快照，F02实际503，非Java/网页全栈或盲测。统一[报告](../reports/customer-rag-live-v2/README.md)/[逐项源审](../reports/customer-rag-live-v2/semantic-review.json)/[收口](../reports/customer-rag-live-v2/completion.json)。准备2df2610、保存修正75c0348均正常push核实。
