@@ -8,6 +8,8 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from resolveflow.support.tasks import TaskStateError
+
 CAPABILITIES: dict[str, dict[str, Any]] = {
     "get_order_context": {
         "purpose": "读取本商品订单付款事实；不提供物流结论或页面入口。",
@@ -55,7 +57,9 @@ def tool_schema(name: str) -> dict[str, Any]:
 
 def decision_feedback(error: Exception, payload: Any, references: list[str]) -> str:
     result: dict[str, Any] = {"code": "INVALID_DECISION", "remaining_repairs": 0}
-    if isinstance(payload, dict) and payload.get("kind") in CAPABILITIES:
+    if isinstance(error, TaskStateError):
+        result.update(field="tasks", detail=str(error))
+    elif isinstance(payload, dict) and payload.get("kind") in CAPABILITIES:
         name = payload["kind"]
         result.update(
             field="kind",

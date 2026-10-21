@@ -104,6 +104,7 @@ class SupportRuntime:
                     "guide.py",
                     "guidance.py",
                     "recovery.py",
+                    "tasks.py",
                     "../assets/support-guide-v1.json",
                     "../policies/retrieval.py",
                     "../policies/index.py",

@@ -20,7 +20,21 @@ class SupportInput(Closed):
     context: dict[str, Any]
 
 
-class Read(Closed):
+class SupportTask(Closed):
+    id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
+    intent: Literal["LOGISTICS", "ELIGIBILITY", "APPLICATION", "HANDOFF", "PRODUCT", "OTHER"]
+    request: str = Field(min_length=1, max_length=200)
+    status: Literal["PENDING", "ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED"]
+    evidence_refs: list[str] = Field(default_factory=list, max_length=8)
+    response_excerpt: str | None = Field(default=None, min_length=1, max_length=400)
+
+
+class TaskAction(Closed):
+    # Old mock scripts remain readable; live runs require initial understanding in the engine.
+    tasks: list[SupportTask] | None = Field(default=None, min_length=1, max_length=8)
+
+
+class Read(TaskAction):
     kind: Literal["READ_TOOL"]
     tool_name: Literal["get_order_context", "get_shipment_trace", "read_history", "get_support_guide"]
     arguments: dict[str, Any] = Field(default_factory=dict)
@@ -40,13 +54,13 @@ class History(Closed):
     limit: int = Field(default=5, ge=1, le=5, strict=True)
 
 
-class Search(Closed):
+class Search(TaskAction):
     kind: Literal["SEARCH_POLICY"]
     query: str = Field(min_length=1, max_length=1000)
     top_k: int = Field(default=3, ge=1, le=5, strict=True)
 
 
-class Answer(Closed):
+class Answer(TaskAction):
     kind: Literal["ANSWER"]
     text: str = Field(min_length=1, max_length=4000)
     citations: list[str] = Field(default_factory=list, max_length=8)
