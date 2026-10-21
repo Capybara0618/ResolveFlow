@@ -291,9 +291,9 @@ public class SupportAgentTurns {
                     t.input);
             if (!previous.isEmpty()) {
                 var row = previous.getFirst();
-                var state = json.readTree(row.get("result_json").toString())
-                        .path("answer")
-                        .path("task_state");
+                var previousAnswer =
+                        json.readTree(row.get("result_json").toString()).path("answer");
+                var state = previousAnswer.path("task_state");
                 if (state.path("origin").asString().equals("MODEL")
                         && state.path("tasks").isArray()
                         && !state.path("tasks").isEmpty()
@@ -305,6 +305,13 @@ public class SupportAgentTurns {
                                     "origin", "MODEL_PREVIOUS_TURN",
                                     "input_version", row.get("input_version"),
                                     "tasks", state.path("tasks")));
+                }
+                var memory = previousAnswer.get("customer_memory");
+                if (memory != null && !memory.isNull()) {
+                    long version = ((Number) row.get("input_version")).longValue();
+                    if (!validCustomerMemory(t, memory, version))
+                        throw new IllegalStateException("invalid persisted customer memory");
+                    context.put("previous_customer_memory", memory);
                 }
             }
             String encoded = json.writeValueAsString(context);
@@ -371,6 +378,52 @@ public class SupportAgentTurns {
         });
     }
 
+    private boolean validCustomerMemory(Turn t, JsonNode memory, long inputVersion) {
+        if (!memory.isObject()
+                || memory.toString().length() > 24000
+                || !memory.path("version").asString().equals("support-claims-v1")
+                || !memory.path("origin").asString().equals("GROUNDED_CUSTOMER_CLAIMS")
+                || !memory.path("conversation_id").asString().equals(t.conversation)
+                || !memory.path("merchant_id").asString().equals(t.merchant)
+                || !memory.path("customer_id").asString().equals(t.customer)
+                || !memory.path("line_id").asString().equals(t.line)
+                || memory.path("input_version").asLong(-1) != inputVersion
+                || !memory.path("entries").isArray()
+                || memory.path("entries").size() > 24) return false;
+        var ids = new HashSet<String>();
+        for (var entry : memory.path("entries")) {
+            if (!ids.add(entry.path("id").asString())
+                    || !List.of("RECEIPT", "CHECKS", "REQUEST", "MATERIAL", "OTHER")
+                            .contains(entry.path("topic").asString())
+                    || !List.of("ACTIVE", "SUPERSEDED", "RETRACTED")
+                            .contains(entry.path("status").asString())) return false;
+            var source = entry.path("source");
+            long sequence = source.path("sequence").asLong(-1);
+            int offset = source.path("offset").asInt(-1);
+            String quote = source.path("quote").asString();
+            if (sequence < 1
+                    || sequence > inputVersion
+                    || offset < 0
+                    || quote.isBlank()
+                    || quote.codePointCount(0, quote.length()) > 300
+                    || !quote.equals(entry.path("quote").asString())) return false;
+            var originals = db.queryForList(
+                    "SELECT message_id,text FROM support_message WHERE conversation_id=? AND sequence=? AND author='CUSTOMER'",
+                    t.conversation,
+                    sequence);
+            if (originals.size() != 1) return false;
+            var original = originals.getFirst();
+            String text = original.get("text").toString();
+            if (offset > text.codePointCount(0, text.length())
+                    || !text.startsWith(quote, text.offsetByCodePoints(0, offset))) return false;
+            var messageId = source.get("message_id");
+            if (messageId != null
+                    && !messageId.isNull()
+                    && !messageId.asString().equals(original.get("message_id").toString())) return false;
+        }
+        return true;
+    }
+
     private boolean validResult(Turn t, JsonNode result) {
         if (result == null
                 || !result.isObject()
@@ -381,6 +434,8 @@ public class SupportAgentTurns {
         if (!result.path("status").asString().equals("SUCCEEDED")
                 || !List.of("mock", "live").contains(result.path("mode").asString())) return false;
         var answer = result.path("answer");
+        var memory = answer.get("customer_memory");
+        if (memory != null && !memory.isNull() && !validCustomerMemory(t, memory, t.input)) return false;
         var text = answer.path("text");
         if (!text.isString() || text.asString().isBlank() || text.asString().length() > 4000) return false;
         var citations = answer.path("citations");

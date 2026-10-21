@@ -3,10 +3,58 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any
+from typing import Any, Literal
+
+from pydantic import Field, ValidationError, model_validator
 
 from resolveflow.support.context import history_messages
-from resolveflow.support.protocol import CustomerQuote, MemoryUpdate, SupportInput
+from resolveflow.support.protocol import Closed, CustomerQuote, MemoryUpdate, SupportFailure, SupportInput
+
+
+class ClaimSource(Closed):
+    message_id: str | None
+    sequence: int = Field(ge=1, strict=True)
+    offset: int = Field(ge=0, strict=True)
+    quote: str = Field(min_length=1, max_length=300)
+
+
+class ClaimEntry(Closed):
+    id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
+    topic: Literal["RECEIPT", "CHECKS", "REQUEST", "MATERIAL", "OTHER"]
+    quote: str = Field(min_length=1, max_length=300)
+    source: ClaimSource
+    status: Literal["ACTIVE", "SUPERSEDED", "RETRACTED"]
+    supersedes: list[str] = Field(max_length=8)
+    retracts: list[str] = Field(max_length=8)
+
+
+class ClaimSnapshot(Closed):
+    version: Literal["support-claims-v1"]
+    origin: Literal["GROUNDED_CUSTOMER_CLAIMS"]
+    conversation_id: str
+    merchant_id: str
+    customer_id: str
+    line_id: str
+    input_version: int = Field(ge=1, strict=True)
+    entries: list[ClaimEntry] = Field(max_length=24)
+
+    @model_validator(mode="after")
+    def provenance(self) -> ClaimSnapshot:
+        seen: dict[str, ClaimEntry] = {}
+        for entry in self.entries:
+            if (entry.id in seen or entry.quote != entry.source.quote
+                    or entry.source.sequence > self.input_version):
+                raise ValueError("invalid claim identity or source")
+            for key in entry.supersedes + entry.retracts:
+                target = seen.get(key)
+                expected = "SUPERSEDED" if key in entry.supersedes else "RETRACTED"
+                if (target is None or target.topic != entry.topic or target.status != expected
+                        or target.source.sequence >= entry.source.sequence):
+                    raise ValueError("invalid historical correction link")
+            seen[entry.id] = entry
+        if sum(e.status == "ACTIVE" for e in self.entries) > 12:
+            raise ValueError("too many active claims")
+        return self
 
 
 class MemoryStateError(ValueError):
@@ -37,6 +85,18 @@ class CustomerMemory:
     def __init__(self, request: SupportInput) -> None:
         self.request = request
         self.entries: list[dict[str, Any]] = []
+        raw = request.context.get("previous_customer_memory")
+        if raw is not None:
+            try:
+                snapshot = ClaimSnapshot.model_validate(raw)
+                if any(getattr(snapshot, field) != getattr(request, field)
+                       for field in ("conversation_id", "merchant_id", "customer_id", "line_id")):
+                    raise ValueError("scope mismatch")
+                if snapshot.input_version >= request.input_version:
+                    raise ValueError("nonhistorical snapshot")
+                self.entries = [entry.model_dump() for entry in snapshot.entries]
+            except (ValidationError, ValueError):
+                raise SupportFailure("PREVIOUS_MEMORY_INVALID") from None
 
     def apply(self, updates: list[MemoryUpdate], observations: list[dict[str, Any]]) -> None:
         entries = deepcopy(self.entries)

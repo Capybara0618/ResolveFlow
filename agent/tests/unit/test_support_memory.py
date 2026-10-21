@@ -72,3 +72,60 @@ def test_bad_task_validation_does_not_commit_otherwise_valid_memory_update():
     result = SupportAgent(req, model, Reads()).run()
     assert result["status"] == "SUCCEEDED"
     assert model.packets[1]["customer_memory"]["active"] == [] and req.context == original
+
+
+def saved_memory():
+    req = request(input_version=3)
+    req.context["current_request"] = "家人可能代收了"
+    model = MockModelClient(script=[answer(citations=[], memory_updates=[memory("old", "家人可能代收了")])])
+    return SupportAgent(req, model, Reads()).run()["answer"]["customer_memory"]
+
+
+def test_imported_claim_is_injected_without_old_history_and_correction_is_persisted():
+    req = request(input_version=7)
+    req.context.update(current_request="纠正，家人没代收", history=[], previous_customer_memory=saved_memory())
+    model = MockModelClient(script=[answer(citations=[], memory_updates=[
+        memory("new", "纠正，家人没代收", supersedes=["old"])])])
+    result = SupportAgent(req, model, Reads()).run()
+    assert result["status"] == "SUCCEEDED", result["reason"]
+    assert model.packets[0]["customer_memory"]["active"][0]["quote"] == "家人可能代收了"
+    assert [e["status"] for e in result["answer"]["customer_memory"]["entries"]] == ["SUPERSEDED", "ACTIVE"]
+
+
+@pytest.mark.parametrize("field,value", [("conversation_id", "foreign"), ("merchant_id", "M-other"),
+                                        ("line_id", "other-line"), ("input_version", 7)])
+def test_foreign_or_nonhistorical_memory_is_refused_before_model_call(field, value):
+    from resolveflow.support.protocol import SupportFailure
+
+    snapshot = saved_memory()
+    snapshot[field] = value
+    req = request(input_version=7)
+    req.context["previous_customer_memory"] = snapshot
+    model = MockModelClient(script=[answer(citations=[])])
+    with pytest.raises(SupportFailure, match="PREVIOUS_MEMORY_INVALID"):
+        SupportAgent(req, model, Reads())
+    assert model.calls == 0
+
+
+def test_carried_active_claim_stays_in_budgeted_packet_when_recent_history_is_removed():
+    from tests.unit.test_support_context import long_request
+
+    req = long_request()
+    req.context["previous_customer_memory"] = saved_memory()
+    model = MockModelClient(script=[answer(citations=[])])
+    result = SupportAgent(req, model, Reads()).run()
+    assert result["status"] == "SUCCEEDED", result["reason"]
+    assert model.packets[0]["customer_memory"]["active"][0]["quote"] == "家人可能代收了"
+    assert model.packets[0]["context_layout"]["recent_full"] < 4
+
+
+def test_retraction_preserves_original_and_prevents_silent_overwrite():
+    req = request(input_version=7)
+    req.context.update(current_request="刚才的代收猜测撤回", previous_customer_memory=saved_memory())
+    model = MockModelClient(script=[answer(citations=[], memory_updates=[
+        memory("withdraw", "刚才的代收猜测撤回", retracts=["old"])])])
+    result = SupportAgent(req, model, Reads()).run()
+    assert result["status"] == "SUCCEEDED", result["reason"]
+    entries = result["answer"]["customer_memory"]["entries"]
+    assert entries[0]["status"] == "RETRACTED" and entries[0]["quote"] == "家人可能代收了"
+    assert entries[1]["retracts"] == ["old"]

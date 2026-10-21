@@ -455,6 +455,75 @@ class SupportApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void customerMemorySurvivesTurnsWithUnicodeQuoteAndStaysPrivateAndBoundToProduct() {
+        var contexts = new java.util.ArrayList<JsonNode>();
+        var memory = json.createObjectNode();
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> input = i.getArgument(1);
+            var context = (JsonNode) input.get("context");
+            contexts.add(context);
+            if (contexts.size() == 1) {
+                memory.put("version", "support-claims-v1");
+                memory.put("origin", "GROUNDED_CUSTOMER_CLAIMS");
+                for (String key : List.of("conversation_id", "merchant_id", "customer_id", "line_id"))
+                    memory.put(key, input.get(key).toString());
+                memory.put("input_version", ((Number) input.get("input_version")).longValue());
+                var entry = memory.putArray("entries").addObject();
+                entry.put("id", "receipt");
+                entry.put("topic", "RECEIPT");
+                entry.put("status", "ACTIVE");
+                entry.put("quote", "家人未代收");
+                entry.putArray("supersedes");
+                entry.putArray("retracts");
+                var source = entry.putObject("source");
+                source.putNull("message_id");
+                source.put("sequence", ((Number) input.get("input_version")).longValue());
+                source.put("offset", 1);
+                source.put("quote", "家人未代收");
+            }
+            var answer = json.createObjectNode().put("text", "请商家核查。");
+            answer.putArray("citations");
+            if (contexts.size() <= 2) {
+                var own = memory.deepCopy();
+                own.put("input_version", ((Number) input.get("input_version")).longValue());
+                answer.set("customer_memory", own);
+            }
+            var result = json.createObjectNode().put("status", "SUCCEEDED").put("mode", "mock");
+            result.put("run_id", input.get("run_id").toString());
+            result.put("conversation_id", input.get("conversation_id").toString());
+            result.put("input_version", ((Number) input.get("input_version")).longValue());
+            result.set("answer", answer);
+            return result;
+        });
+        var c = message(open("support-A"), "memory-first", "😀家人未代收", "ASSISTANT");
+        turns.dispatchOne();
+        c = get(path(c), buyer, 200);
+        assertThat(c.get("assistant_turn").get("status").asString()).isEqualTo("SUCCEEDED");
+        assertThat(c.toString()).doesNotContain("customer_memory").doesNotContain("GROUNDED_CUSTOMER_CLAIMS");
+        c = message(c, "memory-next", "继续核查", "ASSISTANT");
+        turns.dispatchOne();
+        var other = message(open("support-B"), "memory-other", "查另一商品", "ASSISTANT");
+        turns.dispatchOne();
+        assertThat(contexts.size()).isEqualTo(3);
+        assertThat(contexts.get(1)
+                        .path("previous_customer_memory")
+                        .path("entries")
+                        .get(0)
+                        .path("quote")
+                        .asString())
+                .isEqualTo("家人未代收");
+        assertThat(contexts.get(2).path("previous_customer_memory").isMissingNode())
+                .isTrue();
+        assertThat(get(path(c), buyer, 200).get("assistant_turn").get("status").asString())
+                .isEqualTo("SUCCEEDED");
+        assertThat(get(path(other), buyer, 200)
+                        .get("assistant_turn")
+                        .get("status")
+                        .asString())
+                .isEqualTo("SUCCEEDED");
+    }
+
+    @Test
     void correctionArrivingDuringGenerationPreventsOldReplyPublication() {
         var c = message(open("support-A"), "ask", "没有收到，先帮我核查。", "ASSISTANT");
         final String id = c.get("conversation_id").asString();
