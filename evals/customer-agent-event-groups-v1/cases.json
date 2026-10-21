@@ -1,0 +1,228 @@
+{
+  "version": "customer-agent-event-groups-v1",
+  "synthetic": true,
+  "not_holdout": true,
+  "cases": [
+    {
+      "id": "E01-groups-v1",
+      "group": "event-groups-confirmation",
+      "snapshot_case": "L01",
+      "input_without_deadline": {
+        "run_id": "470e416a-e2d2-534c-b717-6850c74e6097",
+        "conversation_id": "38e00787-051e-5964-b3f0-2c88cb7d6486",
+        "input_version": 1,
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-bf1c83ae-87b5-44b1-b9ca-91b983e9b499",
+        "context": {
+          "product": {
+            "name": "无线降噪耳机",
+            "variant": "黑色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "headphones",
+            "amount_minor": 32900
+          },
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1001-2026.10"
+            ],
+            "merchant_id": "M-1001",
+            "safety_epoch": 3,
+            "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+            "selected_by_paid_at": "2026-10-20T03:13:32.553740Z"
+          },
+          "current_request": "这副耳机最新物流是什么状态？",
+          "history": [
+            {
+              "message_id": "64ebe32b-b14d-558a-b4e3-93d86ae54212",
+              "sequence": 1,
+              "author": "CUSTOMER",
+              "recipient": "ASSISTANT",
+              "text": "这副耳机最新物流是什么状态？"
+            }
+          ],
+          "history_before": null,
+          "conversation_state": {
+            "has_ticket": false,
+            "ticket_status": "NONE",
+            "current_recipient": "ASSISTANT",
+            "default_recipient": "ASSISTANT"
+          },
+          "previous_tasks": null
+        }
+      },
+      "facts": {
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:32.553740Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:32.648884Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "IN_TRANSIT",
+                  "occurred_at": "2026-10-20T03:13:32.884215Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "IN_TRANSIT",
+              "line_id": "SHOP-bf1c83ae-87b5-44b1-b9ca-91b983e9b499",
+              "source_version": 3,
+              "carrier_conclusion": "IN_TRANSIT"
+            }
+          ],
+          "status": "IN_TRANSIT",
+          "version": 3,
+          "order_id": "8a9b5b34-342d-43c0-828c-da3c3307c5c9",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      },
+      "required_rules": [],
+      "expected_capabilities": [
+        "get_shipment_trace"
+      ],
+      "criteria": [
+        "按物流来源说明在途，不从PAID推断物流",
+        "不编造预计送达时间"
+      ],
+      "source_case": "D01"
+    },
+    {
+      "id": "E02-groups-v1",
+      "group": "event-groups-confirmation",
+      "snapshot_case": "L08",
+      "input_without_deadline": {
+        "run_id": "14992cda-28ee-5673-b5cf-0e2d4d368d32",
+        "conversation_id": "c4ea1aa9-7df5-5cf8-9722-562bc8200684",
+        "input_version": 1,
+        "merchant_id": "M-1002",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "context": {
+          "product": {
+            "name": "桌面台灯",
+            "variant": "米白色",
+            "currency": "CNY",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "amount_minor": 12900
+          },
+          "policy_manifest": {
+            "bundle_ids": [
+              "policy-foundation-m1002-2026.10"
+            ],
+            "merchant_id": "M-1002",
+            "safety_epoch": 3,
+            "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+            "selected_by_paid_at": "2026-10-20T03:13:35.257912Z"
+          },
+          "current_request": "查一下台灯的承运结论、能否退以及在哪申请，三个都想知道。",
+          "history": [
+            {
+              "message_id": "d97497b8-9d50-5382-a4e6-5e2a6ef7a32e",
+              "sequence": 1,
+              "author": "CUSTOMER",
+              "recipient": "ASSISTANT",
+              "text": "查一下台灯的承运结论、能否退以及在哪申请，三个都想知道。"
+            }
+          ],
+          "history_before": null,
+          "conversation_state": {
+            "has_ticket": false,
+            "ticket_status": "NONE",
+            "current_recipient": "ASSISTANT",
+            "default_recipient": "ASSISTANT"
+          },
+          "previous_tasks": null
+        }
+      },
+      "facts": {
+        "get_order_context": {
+          "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+          "version": 1,
+          "order_line": {
+            "sku": "SKU-2001-01",
+            "status": "PAID",
+            "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+            "paid_at": "2026-10-20T03:13:35.257912Z",
+            "version": 1,
+            "category": "home",
+            "currency": "CNY",
+            "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+            "quantity": 1,
+            "asset_key": "lamp",
+            "product_name": "桌面台灯",
+            "variant_text": "米白色",
+            "line_paid_amount": 12900
+          },
+          "merchant_id": "M-1002"
+        },
+        "get_shipment_trace": {
+          "lines": [
+            {
+              "events": [
+                {
+                  "code": "ORDER_PAID",
+                  "occurred_at": "2026-10-20T03:13:35.257912Z",
+                  "source_version": 1
+                },
+                {
+                  "code": "SIMULATED_SHIPPED",
+                  "occurred_at": "2026-10-20T03:13:35.327619Z",
+                  "source_version": 2
+                },
+                {
+                  "code": "LOST",
+                  "occurred_at": "2026-10-20T03:13:35.479423Z",
+                  "source_version": 3
+                }
+              ],
+              "status": "LOST",
+              "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+              "source_version": 3,
+              "carrier_conclusion": "LOST"
+            }
+          ],
+          "status": "LOST",
+          "version": 3,
+          "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+          "synthetic": true
+        }
+      },
+      "http_status": {
+        "get_order_context": 200,
+        "get_shipment_trace": 200
+      },
+      "pinned_generations": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      },
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "expected_capabilities": [
+        "get_shipment_trace",
+        "search_policy",
+        "get_support_guide"
+      ],
+      "criteria": [
+        "区分LOST与PAID",
+        "完整回答资格和当前申请入口"
+      ],
+      "source_case": "D02"
+    }
+  ]
+}
