@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-21",
+  "checked_ports": [
+    5174,
+    8080,
+    8081,
+    8083,
+    8090,
+    55433,
+    53306,
+    6379,
+    9876,
+    10911
+  ],
+  "active_listeners": [],
+  "owned_experiment_processes": [],
+  "running_containers": [],
+  "postgres_state": "exited",
+  "retained_pg_volume": [
+    "resolveflow-review-demo_demo-postgres-data"
+  ],
+  "test_summary": {
+    "passed": 127,
+    "failed": 0,
+    "skipped": 0
+  },
+  "frozen_model_and_input_hashes_verified": true,
+  "quality_requests": 420,
+  "gpu_warmup_calls": 3,
+  "initial_concurrency_requests": 80,
+  "extra_concurrency_probe_requests": 320,
+  "actual_pg_requests": 27,
+  "public_witness_equal": true,
+  "public_table_count": 11,
+  "new_chat_api_calls": 0,
+  "new_model_weight_downloads": 0,
+  "production_writes": 0,
+  "policy_publish": false,
+  "original_four_files_unchanged": true,
+  "semantic_split_warning": "Q28 overlaps dev resolved scenario; disclosed with original and supplemental scores.",
+  "reports_sha256": {
+    "acceptance.json": "08c44dae70dc53060391366a0da6c709c924e4c246c10cba5e7a6756aa4f96b2",
+    "concurrency-probe-v2.json": "a4e39d6019ca5eef48b4ee428150abf44c3f50799e798407aa120daac77fed3c",
+    "concurrency-probe.json": "9dfccb97e8241747bcfd278d6dd5b95a18874152e9a6434d08d7c1e669c4fa47",
+    "dataset-audit.json": "dedec06b085bbd3c0a44c00070c6f41849fff7ce3693318ea20fcbd62dae8fc5",
+    "dev.json": "0136b020e51aefa03b30a2d49ab939b287b7eb83aade1c2a60de5179ecd4614f",
+    "performance.json": "25661903544a417e8aa5e7afb45184a5aacead0659915e560b4d28d69d00cd8c",
+    "pg-profile.json": "64a8d3339a167cffebf6a3254bb49d605b859958cbb3eb503591ed5ae2486359"
+  },
+  "final_source_fingerprints": {
+    "scripts/customer_rag_benchmark.py": "241a92a1e51f3c64a08c6f64c691a6da45f590376fc6ac8ebc698be3204c6f18",
+    "scripts/customer_rag_pg_profile.py": "c95c476bf5d2df622c3dc00d47c0ec88c4286efe152f6a4d33fa2e9fc2d9b154",
+    "scripts/customer_rag_concurrency_probe.py": "29fd85f0a8f6c968a4986959101fc544b9a876c5bf53d3a2a6c63393bc6f0ebe",
+    "scripts/evaluation/customer_knowledge.py": "955b9be8cd6216a16bdbd21d880380221c69cdcd34ed292afd2d1e91ec55315b"
+  },
+  "inherited_numstat": [
+    "2\t2\tdocs/engineering.md",
+    "52\t0\tjava/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java",
+    "8\t2\tscripts/verify.ps1",
+    "10\t5\tscripts/verify.sh"
+  ],
+  "formal_ce_prediction_requests": 120,
+  "formal_ce_model_forward_batches": 195
+}

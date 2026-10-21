@@ -1,0 +1,43 @@
+{
+  "version": "customer-embedding-thread-ownership-probe-v1",
+  "phase": "After first performance observed; mechanism probe, not a hidden replacement of original measurements.",
+  "inputs": {
+    "scripts/customer_rag_pg_profile.py": "c95c476bf5d2df622c3dc00d47c0ec88c4286efe152f6a4d33fa2e9fc2d9b154",
+    "scripts/customer_rag_benchmark.py": "241a92a1e51f3c64a08c6f64c691a6da45f590376fc6ac8ebc698be3204c6f18",
+    "scripts/evaluation/customer_knowledge.py": "955b9be8cd6216a16bdbd21d880380221c69cdcd34ed292afd2d1e91ec55315b",
+    "scripts/evaluation/customer_rerank.py": "ceeeb7b1ad8a426cf5314ef33391e653b19726ec6d9f2009f77d3e29049265de",
+    "scripts/evaluation/customer_rerank_gpu.py": "9951c95cb7b44fa94cb05313839c83e6f8c5bba9d61d7c2f3b728a63932aa737",
+    "scripts/evaluation/customer_rerank_gpu_worker.py": "69cddc547062c2f152b912376cb0a63d1c029bcea68a489aa73b86b35ab22c86",
+    "agent/tests/unit/test_customer_knowledge.py": "a9eaa4f5dc055c58ba135b1a07a15a698b1acb9031de8ecf99be3b520c6f5791",
+    "docs/customer-rag-data-design-speed.md": "d2029e437292a6dc206bd0e3240b5db379f598370f27144f29d27d4051aab760",
+    "agent/uv.lock": "0fedd60f93948c7c4a4e9ac9d434133348dc88a9bae3ffd888c6c97b4dbbccf2",
+    "agent/src/resolveflow/policies/retrieval.py": "fb3e1240c00b51d9646af08197ef2fe75f06374a0696df0b700d4a0fbb6b8250",
+    "agent/src/resolveflow/support/retrieval.py": "d8a4fdeb632fa69482c6e87d05945bfecc024e069f880ba14ae1d24cd36de6a2",
+    "agent/src/resolveflow/harness/token_counting.py": "b8290a023e8ca79a172fa2a852c2cfa8a00123106b65da77bb1ed50a0ce0e785",
+    "agent/src/resolveflow/assets/deepseek-v41/tokenizer.json.gz": "a06de40d7aa5f5f2486dea7d0d516420edfe07e1d946b5ad2c57e73851de3008",
+    "evals/customer-rag-v5/knowledge.json": "bbe16c1f9426dad875d60835bc3be48d76d54b34355ce447cc237f55a545f276",
+    "evals/customer-rag-v5/queries.json": "c8b6e06cb8b34761e42caff85acc0f7ce21f502ba76597a5b7c4c181ebc32648",
+    "evals/customer-rag-v5/references.json": "67095afb5af378c61b0bd4a8d40aebe348f2c74373bd1604d2a33121a899dc7c",
+    "fixtures/demo-foundation/policies/policy-foundation-m1001-2026.10.yaml": "90142365a6a6ec43dff1052e10d080d514e5e953aadaee8a94f4a107b732d433",
+    "docs/customer-support-workspace.md": "590a885a5a87bd9a042e25cca3cebc3849d980c768e10ddfc867cbcb04f9a046",
+    "docs/customer-agent-implementation-v1.md": "3826ffaadd7ea6f55be72a305e1c72c36be8dba7718f9383b6cb9d72633cfdba",
+    "fixtures/demo-foundation/policies/policy-foundation-m1002-2026.10.yaml": "87f68ce05522a37e43e2550160d8b7ab26d86cda84ee74b4edc39e1f507272d8",
+    "fixtures/demo-foundation/policies/policy-foundation-m1003-2026.10.yaml": "8cf25ed596f5239f76bb37225fcc0b4d6abfe0c56dad2d2c66e987bb22d2a19e",
+    "evals/policy-documents-v1/sources.json": "48f449272a00295473db3fd963e85c8599cb0f53c84b7cb0418159ed8a6ac996",
+    "reports/rag-engineering-review-v1/sources.json": "da838d6c6d4a19c18afa5cb96c22ec8b77b43439cf0d50ed137c8cc5f63a39da",
+    "scripts/customer_rag_concurrency_probe.py": "29fd85f0a8f6c968a4986959101fc544b9a876c5bf53d3a2a6c63393bc6f0ebe",
+    "reports/customer-rag-v5/performance.json": "25661903544a417e8aa5e7afb45184a5aacead0659915e560b4d28d69d00cd8c",
+    "agent/tests/unit/test_customer_concurrency_probe.py": "7af6f60776d5cf22878641253e0d3d85c45f93f2963850a2514c4e788a1307dd"
+  },
+  "modes": [
+    "direct-shared-lock",
+    "one-owner-thread"
+  ],
+  "concurrency": [
+    1,
+    4
+  ],
+  "n": 40,
+  "new_chat_api_calls": 0,
+  "production_adoption": false
+}
