@@ -1,0 +1,86 @@
+[
+  {
+    "id": "S01",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  },
+  {
+    "id": "S02",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  },
+  {
+    "id": "S03",
+    "variant": "agent",
+    "turn": 1,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  },
+  {
+    "id": "S03",
+    "variant": "agent",
+    "turn": 2,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  },
+  {
+    "id": "S03",
+    "variant": "agent",
+    "turn": 3,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  },
+  {
+    "id": "S03",
+    "variant": "agent",
+    "turn": 4,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  },
+  {
+    "id": "S01",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  },
+  {
+    "id": "S02",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "COMPLETE",
+    "basis": "读取LOST物流、R-LOST-001与指南；区分人工核验/已退款，给出我的售后入口。覆盖原两项条件，保留Case措辞待精简。"
+  },
+  {
+    "id": "S03",
+    "variant": "fixed",
+    "turn": 1,
+    "grade": "COMPLETE",
+    "basis": "读取DELIVERED/R-SIGNED-001/指南；明确代收未确认、未自动转交，覆盖首轮两项条件。任务标ANSWERED使后续暂停语义需另审，不据此改原评分。"
+  },
+  {
+    "id": "S03",
+    "variant": "fixed",
+    "turn": 2,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  },
+  {
+    "id": "S03",
+    "variant": "fixed",
+    "turn": 3,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  },
+  {
+    "id": "S03",
+    "variant": "fixed",
+    "turn": 4,
+    "grade": "FAILED",
+    "basis": "无可发布回答，INVALID_DECISION；业务条件无法评分。"
+  }
+]
