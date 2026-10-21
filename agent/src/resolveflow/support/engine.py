@@ -39,7 +39,7 @@ SYSTEM = """售后助手，订单行已绑定，勿索要编号。客户原文�
 系统conversation_state区分当前/默认对象和核查状态；customer_memory仅客户陈述。截断读read_context，更早read_history；source_status禁止重试则不重查，可读指南。
 tasks首次必给，更新全量：id、intent(LOGISTICS/ELIGIBILITY/APPLICATION/HANDOFF/PRODUCT/OTHER)、request、status(PENDING/ANSWERED/NEEDS_CUSTOMER/NEEDS_MERCHANT/UNAVAILABLE/CANCELLED/SUSPENDED)、evidence_refs、response_excerpt(读取null，回答text原句)。回答不漏项/留PENDING/删项；previous_tasks需重判，旧事实/引用不继承。
 memory_updates可选：id、topic(RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER)、reference(CURRENT/H序号)、offset、quote(原句)、supersedes/retracts(旧id数组)。仅客户原文，明确纠正才替代，不重问已排查事项。
-dialogue_events首轮逐任务给change(ADD/CONTINUE/CORRECT/CANCEL/PAUSE/RESUME/CLARIFY)、task_id、reference、offset、quote(本轮原句)。插问PAUSE/SUSPENDED+ADD；恢复RESUME，撤回CANCEL/CANCELLED；后续变化才附，未完成任务不丢弃。
+dialogue_events首轮逐任务给change(ADD/CONTINUE/CORRECT/CANCEL/PAUSE/RESUME/CLARIFY)、task_id、reference=CURRENT、offset=0、quote(本轮原文)。插问PAUSE/SUSPENDED+ADD；恢复RESUME，撤回CANCEL/CANCELLED；后续变化才附，未完成任务不丢弃。
 不虚构提交/联系/转交/退款/日期；核查摘要确认才转交。
 """
 
@@ -151,6 +151,17 @@ class SupportAgent:
             "dialogue_state": self.dialogue.packet(),
             "feedback": self.feedback,
         }
+        if self.step == 1 and previous_hint(context, self.request.input_version) is None:
+            # A format example grounded only in current input; no selected tool, gold or inferred state.
+            base["annotation_example_note"] = (
+                "仅展示形状，置于所选动作同层；按真实诉求改id/intent/状态，回答时写实际response_excerpt。"
+            )
+            base["first_action_annotations"] = {
+                "tasks": [{"id": "t1", "intent": "OTHER", "request": "当前诉求", "status": "PENDING",
+                           "evidence_refs": [], "response_excerpt": None}],
+                "dialogue_events": [{"change": "ADD", "task_id": "t1", "reference": "CURRENT",
+                                     "offset": 0, "quote": str(context.get("current_request", ""))[:300]}],
+            }
         return render_context(
             self.request, base, self.observations, recent=recent, preview=preview, index_limit=index_limit
         )

@@ -69,7 +69,12 @@ def tool_schema(name: str) -> dict[str, Any]:
 
 
 def decision_feedback(error: Exception, payload: Any, references: list[str]) -> str:
-    result: dict[str, Any] = {"code": "INVALID_DECISION", "remaining_repairs": 0}
+    result: dict[str, Any] = {
+        "code": "INVALID_DECISION", "remaining_repairs": 0, "resubmit": "FULL_ACTION",
+        "rejected_annotations_committed": False,
+        "resubmit_note": "被拒动作的标注未保存；重发完整动作及所需tasks/dialogue_events，不只补字段。"
+                         "以当前task_state/dialogue_state为准，已有任务不用ADD。",
+    }
     if isinstance(error, DialogueStateError):
         result.update(field="dialogue_events", detail=str(error))
     elif isinstance(error, MemoryStateError):
@@ -93,6 +98,15 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
             detail="顶层kind缺失或非法。只重发一个完整动作；动作参数和标注在同层，不能嵌套ANSWER或用type替代kind。",
             examples=[CAPABILITIES["get_shipment_trace"]["action"], CAPABILITIES["search_policy"]["action"],
                       {"kind": "ANSWER", "text": "回答或必要追问", "citations": [], "handoff_summary": None}],
+        )
+    elif isinstance(error, ValidationError) and any(
+        "dialogue_events" in e["loc"] and any(key in e["loc"] for key in {"reference", "offset", "quote"})
+        for e in error.errors(include_input=False, include_context=False)
+    ):
+        result.update(
+            field="dialogue_events.reference", reference="CURRENT", offset=0,
+            detail="对话变化引用本轮客户原文：reference=CURRENT，offset=0，quote取current_request开头最多300字。"
+                   "不能用O/P工具编号、sequence:N或null。每任务仅一项当前变化，不能补记整个历史事件。",
         )
     elif isinstance(error, ValidationError):
         result.update(
