@@ -12,11 +12,11 @@ from resolveflow.support.tasks import TaskStateError
 
 CAPABILITIES: dict[str, dict[str, Any]] = {
     "get_order_context": {
-        "purpose": "读取本商品订单付款事实；不提供物流结论或页面入口。",
+        "purpose": "本商品订单/付款事实；不含物流和页面入口。",
         "action": {"kind": "READ_TOOL", "tool_name": "get_order_context", "arguments": {}},
     },
     "get_shipment_trace": {
-        "purpose": "读取实时物流与事件；错误表示查询失败，不是未发货或丢失。",
+        "purpose": "实时物流/事件；查询失败非未发货或丢失。",
         "action": {"kind": "READ_TOOL", "tool_name": "get_shipment_trace", "arguments": {}},
     },
     "read_history": {
@@ -28,11 +28,11 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
         "action": {"kind": "READ_TOOL", "tool_name": "read_context", "arguments": {"reference": "H1", "limit": 500}},
     },
     "get_support_guide": {
-        "purpose": "平台操作流程：咨询/退款申请入口、转交、共享范围、消息接收方、解决后补充。不是退款资格。",
+        "purpose": "平台流程：咨询/退款入口、转交/共享、消息对象、解决后补充；不含资格。",
         "action": {"kind": "READ_TOOL", "tool_name": "get_support_guide", "arguments": {}},
     },
     "search_policy": {
-        "purpose": "本店退款资格/条件/例外/金额规则；不含界面入口与消息共享流程。",
+        "purpose": "本店退款资格/条件/例外/金额；不含界面流程。",
         "action": {"kind": "SEARCH_POLICY", "query": "当前要了解的资格条件", "top_k": 3},
     },
 }

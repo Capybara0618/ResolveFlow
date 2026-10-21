@@ -284,6 +284,29 @@ public class SupportAgentTurns {
                             current.get("recipient"),
                             "default_recipient",
                             tickets.isEmpty() ? "ASSISTANT" : "MERCHANT"));
+            // Previous tasks are model hints, not facts or live source references. Freeze with this input.
+            var previous = db.queryForList(
+                    "SELECT input_version,result_json FROM support_agent_turn WHERE conversation_id=? AND status='SUCCEEDED' AND input_version<? ORDER BY input_version DESC LIMIT 1",
+                    t.conversation,
+                    t.input);
+            if (!previous.isEmpty()) {
+                var row = previous.getFirst();
+                var state = json.readTree(row.get("result_json").toString())
+                        .path("answer")
+                        .path("task_state");
+                if (state.path("origin").asString().equals("MODEL")
+                        && state.path("tasks").isArray()
+                        && !state.path("tasks").isEmpty()
+                        && state.path("tasks").size() <= 8
+                        && state.toString().length() <= 12000) {
+                    context.put(
+                            "previous_tasks",
+                            Map.of(
+                                    "origin", "MODEL_PREVIOUS_TURN",
+                                    "input_version", row.get("input_version"),
+                                    "tasks", state.path("tasks")));
+                }
+            }
             String encoded = json.writeValueAsString(context);
             if (live.context == null)
                 db.update("UPDATE support_agent_turn SET context_json=? WHERE run_id=?", encoded, t.id);

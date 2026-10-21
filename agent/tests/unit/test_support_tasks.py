@@ -58,3 +58,22 @@ def test_live_decisions_require_initial_task_understanding_but_old_mock_scripts_
     assert '"field": "tasks"' in live.packets[1]["feedback"]
     old = SupportAgent(request(), MockModelClient(script=[answer(citations=[])]), Reads()).run()
     assert old["status"] == "SUCCEEDED"  # compatibility, not proof of task understanding
+
+
+def test_previous_turn_is_a_recheck_hint_with_no_inherited_refs_or_business_facts():
+    req = request(input_version=5)
+    req.context["current_request"] = "我改主意了，不退款，只查签收记录。"
+    req.context["previous_tasks"] = {"origin": "MODEL_PREVIOUS_TURN", "input_version": 1, "tasks": [
+        task("refund", "ELIGIBILITY", "ANSWERED", evidence_refs=["P1"], response_excerpt="之前的退款结论")
+    ]}
+    model = MockModelClient(script=[answer(citations=[])])
+    assert SupportAgent(req, model, Reads()).run()["status"] == "SUCCEEDED"
+    hint = model.packets[0]["previous_tasks"]
+    assert hint["origin"] == "MODEL_PREVIOUS_TURN" and hint["needs_recheck"] is True
+    assert hint["tasks"][0]["previous_status"] == "ANSWERED"
+    assert "evidence_refs" not in hint["tasks"][0] and "response_excerpt" not in hint["tasks"][0]
+    assert model.packets[0]["task_state"]["tasks"] == []
+    req.context["previous_tasks"]["input_version"] = 5
+    other = MockModelClient(script=[answer(citations=[])])
+    SupportAgent(req, other, Reads()).run()
+    assert other.packets[0]["previous_tasks"] is None

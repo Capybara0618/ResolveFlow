@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pydantic import ValidationError
+
 from resolveflow.support.protocol import Answer, SupportTask
 
 
@@ -48,3 +50,22 @@ class TaskTracker:
 
     def packet(self) -> dict[str, Any]:
         return {"origin": "MODEL", "tasks": [task.model_dump() for task in self.tasks]}
+
+
+def previous_hint(context: dict[str, Any], input_version: int) -> dict[str, Any] | None:
+    raw = context.get("previous_tasks")
+    if not isinstance(raw, dict) or raw.get("origin") != "MODEL_PREVIOUS_TURN":
+        return None
+    version = raw.get("input_version")
+    values = raw.get("tasks")
+    if type(version) is not int or not 0 < version < input_version or not isinstance(values, list):
+        return None
+    if not 1 <= len(values) <= 8:
+        return None
+    try:
+        tasks = [SupportTask.model_validate(task) for task in values]
+    except ValidationError:
+        return None  # Old or unknown model state is not a substitute for the actual conversation.
+    return {"origin": "MODEL_PREVIOUS_TURN", "input_version": version, "needs_recheck": True,
+            "tasks": [{"id": t.id, "intent": t.intent, "request": t.request, "previous_status": t.status}
+                      for t in tasks]}

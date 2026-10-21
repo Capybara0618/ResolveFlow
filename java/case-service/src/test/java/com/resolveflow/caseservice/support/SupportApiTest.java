@@ -382,6 +382,79 @@ class SupportApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void previousModelTasksAreFrozenForSameConversationOnlyAndNotPublishedAsCustomerMetadata() {
+        var contexts = new java.util.ArrayList<JsonNode>();
+        var state = Map.of(
+                "origin",
+                "MODEL",
+                "tasks",
+                List.of(Map.of(
+                        "id",
+                        "refund",
+                        "intent",
+                        "ELIGIBILITY",
+                        "request",
+                        "私人退款诉求",
+                        "status",
+                        "NEEDS_CUSTOMER",
+                        "evidence_refs",
+                        List.of(),
+                        "response_excerpt",
+                        "请补充情况")));
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> input = i.getArgument(1);
+            contexts.add((JsonNode) input.get("context"));
+            return json.readTree(json.writeValueAsString(Map.of(
+                    "run_id",
+                    input.get("run_id"),
+                    "conversation_id",
+                    input.get("conversation_id"),
+                    "input_version",
+                    input.get("input_version"),
+                    "status",
+                    "SUCCEEDED",
+                    "mode",
+                    "mock",
+                    "answer",
+                    Map.of("text", "请补充情况", "citations", List.of(), "task_state", state))));
+        });
+        var c = message(open("support-A"), "task-first", "了解退款", "ASSISTANT");
+        long firstInput = c.get("version").asLong();
+        turns.dispatchOne();
+        c = get(path(c), buyer, 200);
+        assertThat(c.toString()).doesNotContain("task_state").doesNotContain("私人退款诉求");
+        c = message(c, "task-correct", "不退款了，只查物流", "ASSISTANT");
+        turns.dispatchOne();
+        var other = message(open("support-B"), "task-other", "查询本商品物流", "ASSISTANT");
+        turns.dispatchOne();
+        assertThat(contexts.size()).isEqualTo(3);
+        assertThat(contexts.get(0).path("previous_tasks").isMissingNode()
+                        || contexts.get(0).path("previous_tasks").isNull())
+                .isTrue();
+        assertThat(contexts.get(1).path("previous_tasks").path("origin").asString())
+                .isEqualTo("MODEL_PREVIOUS_TURN");
+        assertThat(contexts.get(1).path("previous_tasks").path("input_version").asLong())
+                .isEqualTo(firstInput);
+        assertThat(contexts.get(1)
+                        .path("previous_tasks")
+                        .path("tasks")
+                        .get(0)
+                        .path("request")
+                        .asString())
+                .isEqualTo("私人退款诉求");
+        assertThat(contexts.get(2).path("previous_tasks").isMissingNode()
+                        || contexts.get(2).path("previous_tasks").isNull())
+                .isTrue();
+        assertThat(get(path(c), buyer, 200).get("assistant_turn").get("status").asString())
+                .isEqualTo("SUCCEEDED");
+        assertThat(get(path(other), buyer, 200)
+                        .get("assistant_turn")
+                        .get("status")
+                        .asString())
+                .isEqualTo("SUCCEEDED");
+    }
+
+    @Test
     void correctionArrivingDuringGenerationPreventsOldReplyPublication() {
         var c = message(open("support-A"), "ask", "没有收到，先帮我核查。", "ASSISTANT");
         final String id = c.get("conversation_id").asString();
