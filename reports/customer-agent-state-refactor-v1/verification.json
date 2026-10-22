@@ -1,0 +1,1828 @@
+{
+  "python": {
+    "total": 299,
+    "passed": 294,
+    "failed": 5,
+    "skipped": 0,
+    "elapsed_seconds": 23.54,
+    "rows": [
+      {
+        "classname": "tests.unit.test_support_action_interface",
+        "name": "test_actual_resolve_with_cancelled_outcome_derives_one_canonical_closed_state",
+        "status": "PASSED",
+        "seconds": 0.37
+      },
+      {
+        "classname": "tests.unit.test_support_action_interface",
+        "name": "test_explicit_event_derives_display_outcome_without_duplicate_status_control[PAUSE-SUSPENDED]",
+        "status": "PASSED",
+        "seconds": 0.013
+      },
+      {
+        "classname": "tests.unit.test_support_action_interface",
+        "name": "test_explicit_event_derives_display_outcome_without_duplicate_status_control[CANCEL-CANCELLED]",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_action_interface",
+        "name": "test_explicit_event_derives_display_outcome_without_duplicate_status_control[RESOLVE-ANSWERED]",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_action_interface",
+        "name": "test_purpose_is_nonexecuting_metadata_but_foreign_arguments_and_other_unknown_keys_still_fail",
+        "status": "PASSED",
+        "seconds": 0.052
+      },
+      {
+        "classname": "tests.unit.test_support_action_interface",
+        "name": "test_non_current_quote_still_cannot_close_issue",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_activity",
+        "name": "test_packet_keeps_order_and_repeated_attempts_separate_from_deduplicated_evidence",
+        "status": "PASSED",
+        "seconds": 0.011
+      },
+      {
+        "classname": "tests.unit.test_support_activity",
+        "name": "test_bounded_activity_retains_last_three_distinct_queries_and_counts_omitted_groups",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_activity",
+        "name": "test_errors_and_later_success_are_different_actions_and_feedback_is_not_an_action",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_sdk_drives_model_chosen_reads_and_search_before_grounded_answer",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_ordinary_logistics_question_does_not_force_policy_search_or_order_read",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_writes_identity_overrides_and_unknown_citations_never_execute[decision0]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_writes_identity_overrides_and_unknown_citations_never_execute[decision1]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_writes_identity_overrides_and_unknown_citations_never_execute[decision2]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_writes_identity_overrides_and_unknown_citations_never_execute[decision3]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_writes_identity_overrides_and_unknown_citations_never_execute[decision4]",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_writes_identity_overrides_and_unknown_citations_never_execute[decision5]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_repeat_reads_are_bounded_and_model_requests_are_capped",
+        "status": "PASSED",
+        "seconds": 0.014
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_expired_or_oversize_current_request_fails_before_model",
+        "status": "PASSED",
+        "seconds": 0.01
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_query_failure_is_observation_not_a_delivered_or_unknown_fact",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_agent",
+        "name": "test_actual_model_input_is_bounded_and_no_sdk_history_is_appended",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_annotation_repair",
+        "name": "test_packets_keep_current_quote_but_do_not_embed_initial_annotation_output_templates",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_annotation_repair",
+        "name": "test_saved_null_source_gets_reference_contract_and_full_action_resubmission",
+        "status": "PASSED",
+        "seconds": 0.011
+      },
+      {
+        "classname": "tests.unit.test_support_annotation_repair",
+        "name": "test_failed_first_annotations_are_reissued_in_full_and_only_selected_read_runs",
+        "status": "PASSED",
+        "seconds": 0.02
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_three_tasks_answer_text_is_written_once_and_original_metadata_is_reused",
+        "status": "PASSED",
+        "seconds": 0.028
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_incomplete_duplicate_unknown_future_ref_or_pending_parts_do_not_publish[bad_parts0]",
+        "status": "PASSED",
+        "seconds": 0.01
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_incomplete_duplicate_unknown_future_ref_or_pending_parts_do_not_publish[bad_parts1]",
+        "status": "PASSED",
+        "seconds": 0.01
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_incomplete_duplicate_unknown_future_ref_or_pending_parts_do_not_publish[bad_parts2]",
+        "status": "PASSED",
+        "seconds": 0.01
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_incomplete_duplicate_unknown_future_ref_or_pending_parts_do_not_publish[bad_parts3]",
+        "status": "PASSED",
+        "seconds": 0.011
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_incomplete_duplicate_unknown_future_ref_or_pending_parts_do_not_publish[bad_parts4]",
+        "status": "PASSED",
+        "seconds": 0.011
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_parts_cannot_invent_an_initial_task_or_silently_cancel_it",
+        "status": "PASSED",
+        "seconds": 0.018
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_long_part_is_not_duplicated_or_truncated_in_the_published_text",
+        "status": "PASSED",
+        "seconds": 0.01
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_combined_answer_still_obeys_public_length_limit_and_duplicate_initial_tasks_fail",
+        "status": "PASSED",
+        "seconds": 0.019
+      },
+      {
+        "classname": "tests.unit.test_support_answer_parts",
+        "name": "test_saved_wrong_search_shape_is_now_an_explicit_valid_tool_contract",
+        "status": "PASSED",
+        "seconds": 0.016
+      },
+      {
+        "classname": "tests.unit.test_support_answer_tasks",
+        "name": "test_saved_answers_get_specific_pending_ids_without_mutating_accepted_state[3]",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.unit.test_support_answer_tasks",
+        "name": "test_saved_answers_get_specific_pending_ids_without_mutating_accepted_state[4]",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.unit.test_support_answer_tasks",
+        "name": "test_sent_answer_example_is_complete_and_packet_keeps_all_required_task_ids",
+        "status": "PASSED",
+        "seconds": 0.012
+      },
+      {
+        "classname": "tests.unit.test_support_answer_tasks",
+        "name": "test_model_repairs_saved_answer_with_full_task_updates_and_one_repair_only",
+        "status": "PASSED",
+        "seconds": 0.057
+      },
+      {
+        "classname": "tests.unit.test_support_answer_tasks",
+        "name": "test_removed_task_feedback_identifies_the_task_instead_of_allowing_silent_deletion",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_api",
+        "name": "test_consultation_route_requires_its_scope_and_exact_case_dispatch_subjects",
+        "status": "PASSED",
+        "seconds": 0.096
+      },
+      {
+        "classname": "tests.unit.test_support_api",
+        "name": "test_default_runtime_receives_app_encoder_pool_but_separate_run_state",
+        "status": "PASSED",
+        "seconds": 0.029
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_saved_incomplete_process_answers_do_not_publish_and_can_read_guide_after_feedback[U02]",
+        "status": "PASSED",
+        "seconds": 0.082
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_saved_incomplete_process_answers_do_not_publish_and_can_read_guide_after_feedback[U03]",
+        "status": "PASSED",
+        "seconds": 0.036
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_customer_wait_requires_explicit_question_in_this_answer_and_stays_a_customer_claim",
+        "status": "PASSED",
+        "seconds": 0.014
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_unavailable_must_match_actual_relevant_failure_and_can_explain_guide_outage[get_shipment_trace]",
+        "status": "PASSED",
+        "seconds": 0.01
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_unavailable_must_match_actual_relevant_failure_and_can_explain_guide_outage[get_support_guide]",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_recovered_source_failure_cannot_remain_a_blocker_and_answer_cannot_bypass_with_legacy_kind",
+        "status": "PASSED",
+        "seconds": 0.034
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_eligibility_needs_policy_but_plain_logistics_and_cancellation_do_not_force_guide",
+        "status": "PASSED",
+        "seconds": 0.026
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_declared_pending_task_exposes_completion_requirements_without_forcing_the_next_read",
+        "status": "PASSED",
+        "seconds": 0.031
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_guide_elsewhere_in_answer_does_not_support_an_unbound_application_task",
+        "status": "PASSED",
+        "seconds": 0.023
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_empty_policy_result_is_not_a_source_failure",
+        "status": "PASSED",
+        "seconds": 0.016
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_legacy_answer_without_task_field_checks_the_actual_accepted_tasks",
+        "status": "PASSED",
+        "seconds": 0.015
+      },
+      {
+        "classname": "tests.unit.test_support_completion",
+        "name": "test_customer_question_at_end_of_long_part_remains_bound_to_that_part",
+        "status": "PASSED",
+        "seconds": 0.018
+      },
+      {
+        "classname": "tests.unit.test_support_context",
+        "name": "test_history_is_compacted_to_real_request_budget_and_current_input_remains_exact",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_context",
+        "name": "test_model_can_read_tail_correction_without_network_or_losing_original_identity",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_context",
+        "name": "test_identical_reads_are_deduplicated_but_conflicting_versions_and_conditions_are_kept",
+        "status": "PASSED",
+        "seconds": 0.012
+      },
+      {
+        "classname": "tests.unit.test_support_context",
+        "name": "test_required_overflow_does_not_call_model_or_silently_drop_current_request",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_context",
+        "name": "test_unknown_readback_reference_is_an_observation_not_arbitrary_history_access",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_context",
+        "name": "test_large_remote_history_is_indexed_then_exact_tail_is_locally_readable",
+        "status": "PASSED",
+        "seconds": 0.012
+      },
+      {
+        "classname": "tests.unit.test_support_context",
+        "name": "test_recent_customer_correction_is_exact_not_only_the_old_first_160_characters",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_context",
+        "name": "test_protected_policy_conditions_are_not_deleted_to_fit_a_small_context",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_append_assigns_stable_id_and_source_without_model_identity_or_old_target",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_only_real_customer_targets_can_be_replaced_and_old_quote_is_retained[REPLACE]",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_only_real_customer_targets_can_be_replaced_and_old_quote_is_retained[RETRACT]",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_invalid_optional_proposal_is_visible_without_blocking_an_otherwise_valid_turn[bad0]",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_invalid_optional_proposal_is_visible_without_blocking_an_otherwise_valid_turn[bad1]",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_invalid_optional_proposal_is_visible_without_blocking_an_otherwise_valid_turn[bad2]",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_invalid_optional_proposal_is_visible_without_blocking_an_otherwise_valid_turn[bad3]",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_invalid_optional_proposal_is_visible_without_blocking_an_otherwise_valid_turn[bad4]",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_invalid_optional_proposal_is_visible_without_blocking_an_otherwise_valid_turn[bad5]",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_staged_resume_accepts_plain_new_claim_and_preserves_actual_source_offset",
+        "status": "PASSED",
+        "seconds": 0.014
+      },
+      {
+        "classname": "tests.unit.test_support_customer_claims",
+        "name": "test_valid_new_claim_does_not_commit_if_the_same_action_has_invalid_dialogue",
+        "status": "PASSED",
+        "seconds": 0.012
+      },
+      {
+        "classname": "tests.unit.test_support_dialogue",
+        "name": "test_interruption_pauses_old_task_and_new_subquestion_does_not_delete_it",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_dialogue",
+        "name": "test_suspended_task_can_resume_then_use_new_run_evidence",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_dialogue",
+        "name": "test_omission_preserves_old_issue_and_only_explicit_event_cancels_it",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_dialogue",
+        "name": "test_live_first_decision_requires_explicit_change_but_not_an_extra_classifier_call",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_dialogue",
+        "name": "test_resume_cannot_reopen_a_closed_issue_and_old_message_cannot_authorize_a_current_change",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_dialogue",
+        "name": "test_old_cancellation_quote_cannot_cancel_the_current_request",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_embeddings",
+        "name": "test_shared_encoder_loads_once_and_serializes_concurrent_inference",
+        "status": "PASSED",
+        "seconds": 0.054
+      },
+      {
+        "classname": "tests.unit.test_support_embeddings",
+        "name": "test_failed_load_is_retried_and_oversize_query_is_still_refused",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_embeddings",
+        "name": "test_empty_input_does_not_load_weights",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_embeddings",
+        "name": "test_app_resource_reuses_only_encoder_and_clears_at_shutdown",
+        "status": "PASSED",
+        "seconds": 0.03
+      },
+      {
+        "classname": "tests.unit.test_support_embeddings",
+        "name": "test_index_enabled_startup_prewarms_shared_encoder_before_health",
+        "status": "PASSED",
+        "seconds": 0.027
+      },
+      {
+        "classname": "tests.unit.test_support_embeddings",
+        "name": "test_startup_stays_lazy_when_index_or_prewarm_disabled[0-1]",
+        "status": "PASSED",
+        "seconds": 0.022
+      },
+      {
+        "classname": "tests.unit.test_support_embeddings",
+        "name": "test_startup_stays_lazy_when_index_or_prewarm_disabled[1-0]",
+        "status": "PASSED",
+        "seconds": 0.022
+      },
+      {
+        "classname": "tests.unit.test_support_embeddings",
+        "name": "test_prewarm_failure_does_not_publish_ready_or_retain_cached_encoder",
+        "status": "PASSED",
+        "seconds": 0.03
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_saved_three_task_failure_reports_exact_missing_ids_and_does_not_commit",
+        "status": "PASSED",
+        "seconds": 0.002
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_grouped_additions_are_explicitly_expanded_to_per_task_source_records",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_group_target_shape_rejects_ambiguous_duplicate_empty_or_excessive_ids[updates0]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_group_target_shape_rejects_ambiguous_duplicate_empty_or_excessive_ids[updates1]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_group_target_shape_rejects_ambiguous_duplicate_empty_or_excessive_ids[updates2]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_group_target_shape_rejects_ambiguous_duplicate_empty_or_excessive_ids[updates3]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_group_target_shape_rejects_ambiguous_duplicate_empty_or_excessive_ids[updates4]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_group_target_shape_rejects_ambiguous_duplicate_empty_or_excessive_ids[updates5]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_overlapping_groups_and_unknown_tasks_cannot_silently_merge",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_invalid_member_of_group_blocks_all_changes_and_current_source_is_still_required",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_event_groups",
+        "name": "test_model_can_reissue_complete_three_task_group_after_one_repair_then_answer",
+        "status": "PASSED",
+        "seconds": 0.036
+      },
+      {
+        "classname": "tests.unit.test_support_fact_view",
+        "name": "test_order_paid_and_carrier_lost_are_separate_versioned_facts",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_fact_view",
+        "name": "test_fact_view_ignores_other_lines_and_failed_or_unbound_sources",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_fact_view",
+        "name": "test_each_read_version_stays_visible_without_deriving_business_state",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_program_renders_current_paid_amount_and_status_from_distinct_authorities",
+        "status": "PASSED",
+        "seconds": 0.028
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_wrong_source_type_or_unread_source_cannot_supply_order_fact[O1-PAID_AMOUNT]",
+        "status": "PASSED",
+        "seconds": 0.026
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_wrong_source_type_or_unread_source_cannot_supply_order_fact[O8-ORDER_STATUS]",
+        "status": "PASSED",
+        "seconds": 0.029
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_wrong_source_type_or_unread_source_cannot_supply_order_fact[O1-ORDER_STATUS]",
+        "status": "PASSED",
+        "seconds": 0.024
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_numeric_money_requires_current_order_source_even_when_product_amount_is_available[\\u672c\\u5355\\u5b9e\\u4ed8129.00 CNY\\u3002]",
+        "status": "PASSED",
+        "seconds": 0.024
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_numeric_money_requires_current_order_source_even_when_product_amount_is_available[\\u672c\\u5355\\u5b9e\\u4ed8\\uffe5129\\u3002]",
+        "status": "PASSED",
+        "seconds": 0.021
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_numeric_money_requires_current_order_source_even_when_product_amount_is_available[\\u672c\\u5355\\u5b9e\\u4ed8129\\u5143\\u3002]",
+        "status": "PASSED",
+        "seconds": 0.026
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_general_policy_can_describe_whole_paid_amount_without_reading_order",
+        "status": "PASSED",
+        "seconds": 0.013
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_fact_cannot_read_another_line_or_accept_model_supplied_value",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_current_order_reference_does_not_make_a_wrong_literal_amount_valid",
+        "status": "PASSED",
+        "seconds": 0.027
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_incomplete_order_source_is_not_completed_from_product_metadata[version]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_incomplete_order_source_is_not_completed_from_product_metadata[currency]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_grounding",
+        "name": "test_incomplete_order_source_is_not_completed_from_product_metadata[line_paid_amount]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_actual_model_packet_explains_distinct_capabilities_and_valid_action_shapes",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_wrong_kind_feedback_names_field_and_valid_read_action_without_executing_it",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_invalid_reference_feedback_lists_only_observed_sources",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_trusted_channel_state_is_sent_while_customer_claims_do_not_manufacture_it",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_all_176_saved_real_failures_get_kind_feedback_without_rewriting_decisions",
+        "status": "PASSED",
+        "seconds": 0.069
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_exact_sent_system_contains_parseable_read_and_complete_publication_examples",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_saved_missing_kind_uses_one_correction_then_model_selects_read_and_answer",
+        "status": "PASSED",
+        "seconds": 0.067
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_repeated_saved_invalid_output_still_stops_after_single_correction",
+        "status": "PASSED",
+        "seconds": 0.063
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_invalid_discriminator_type_gets_field_feedback_instead_of_feedback_crash[None]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_invalid_discriminator_type_gets_field_feedback_instead_of_feedback_crash[UNKNOWN]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_invalid_discriminator_type_gets_field_feedback_instead_of_feedback_crash[kind2]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_guidance",
+        "name": "test_invalid_discriminator_type_gets_field_feedback_instead_of_feedback_crash[kind3]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_guide",
+        "name": "test_guide_is_versioned_source_bound_and_not_refund_policy",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_guide",
+        "name": "test_guide_returns_independent_values_with_exact_source_fingerprint",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_guide",
+        "name": "test_agent_reads_guide_on_demand_without_policy_index_or_business_fact_reads",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_guide",
+        "name": "test_guide_tool_has_no_scope_or_search_arguments[arguments0]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_guide",
+        "name": "test_guide_tool_has_no_scope_or_search_arguments[arguments1]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_guide",
+        "name": "test_guide_read_obeys_local_budget_before_source_access",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_issue_retention",
+        "name": "test_actual_published_interruption_keeps_unmentioned_open_issue_and_only_answers_entry",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_issue_retention",
+        "name": "test_event_can_pause_nonfocus_issue_then_resume_original_id_after_a_faq",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_issue_retention",
+        "name": "test_issue_capacity_refuses_without_losing_previously_accepted_state",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_lifecycle",
+        "name": "test_saved_answered_topic_can_be_paused_or_cancelled_without_editing_the_saved_decision[2-PAUSED]",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_lifecycle",
+        "name": "test_saved_answered_topic_can_be_paused_or_cancelled_without_editing_the_saved_decision[4-CANCELLED]",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_lifecycle",
+        "name": "test_answered_response_remains_open_then_pauses_resumes_with_correction_and_cancels",
+        "status": "PASSED",
+        "seconds": 0.038
+      },
+      {
+        "classname": "tests.unit.test_support_lifecycle",
+        "name": "test_explicitly_closed_topic_needs_reopen_and_cannot_silently_continue[RESOLVED]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_lifecycle",
+        "name": "test_explicitly_closed_topic_needs_reopen_and_cannot_silently_continue[CANCELLED]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_lifecycle",
+        "name": "test_resolve_is_explicit_and_lifecycle_cannot_be_forged_in_task_metadata",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_lifecycle",
+        "name": "test_answered_faq_and_unfinished_issue_both_survive_nonfocus_omission",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_original_customer_quotes_and_correction_links_survive_history_compression",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_fabricated_assistant_future_or_invalid_quotes_never_enter_memory[update0]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_fabricated_assistant_future_or_invalid_quotes_never_enter_memory[update1]",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_fabricated_assistant_future_or_invalid_quotes_never_enter_memory[update2]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_fabricated_assistant_future_or_invalid_quotes_never_enter_memory[update3]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_conflicting_claims_coexist_without_an_explicit_correction_and_bad_batch_is_atomic",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_bad_task_validation_does_not_commit_otherwise_valid_memory_update",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_imported_claim_is_injected_without_old_history_and_correction_is_persisted",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_foreign_or_nonhistorical_memory_is_refused_before_model_call[conversation_id-foreign]",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_foreign_or_nonhistorical_memory_is_refused_before_model_call[merchant_id-M-other]",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_foreign_or_nonhistorical_memory_is_refused_before_model_call[line_id-other-line]",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_foreign_or_nonhistorical_memory_is_refused_before_model_call[input_version-7]",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_carried_active_claim_stays_in_budgeted_packet_when_recent_history_is_removed",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_memory",
+        "name": "test_retraction_preserves_original_and_prevents_silent_overwrite",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_publication_feedback",
+        "name": "test_missing_first_declaration_gets_tasks_and_events_feedback_and_repairs_in_one_call",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_publication_feedback",
+        "name": "test_saved_partial_fix_that_still_omits_events_remains_rejected",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_query",
+        "name": "test_matching_observed_fact_preserves_original_query_and_records_source",
+        "status": "PASSED",
+        "seconds": 0.0
+      },
+      {
+        "classname": "tests.unit.test_support_query",
+        "name": "test_claims_policy_refund_unknown_and_other_line_do_not_supply_shipment_state",
+        "status": "PASSED",
+        "seconds": 0.0
+      },
+      {
+        "classname": "tests.unit.test_support_query",
+        "name": "test_newer_status_replaces_old_but_failure_or_same_version_conflict_is_not_guessed",
+        "status": "PASSED",
+        "seconds": 0.0
+      },
+      {
+        "classname": "tests.unit.test_support_query",
+        "name": "test_uncertainty_is_kept_and_enrichment_never_truncates_original",
+        "status": "PASSED",
+        "seconds": 0.0
+      },
+      {
+        "classname": "tests.unit.test_support_quote_location",
+        "name": "test_saved_actual_quotes_are_located_without_changing_the_model_outputs",
+        "status": "PASSED",
+        "seconds": 0.013
+      },
+      {
+        "classname": "tests.unit.test_support_quote_location",
+        "name": "test_unique_unicode_quote_is_located_and_canonical_offset_is_saved[None]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_quote_location",
+        "name": "test_unique_unicode_quote_is_located_and_canonical_offset_is_saved[0]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_quote_location",
+        "name": "test_unique_unicode_quote_is_located_and_canonical_offset_is_saved[999]",
+        "status": "PASSED",
+        "seconds": 0.0
+      },
+      {
+        "classname": "tests.unit.test_support_quote_location",
+        "name": "test_ambiguous_quote_needs_matching_explicit_offset_not_a_default_zero",
+        "status": "PASSED",
+        "seconds": 0.0
+      },
+      {
+        "classname": "tests.unit.test_support_quote_location",
+        "name": "test_location_never_changes_author_message_scope_or_allows_fake_current_events",
+        "status": "PASSED",
+        "seconds": 0.0
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_live_unannotated_read_executes_without_repair_then_final_declares_tasks_and_sources",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_saved_extra_field_is_rejected_but_valid_read_after_feedback_needs_no_annotations",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_read_does_not_grant_permission_to_publish_incomplete_or_ungrounded_answer[no_tasks]",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_read_does_not_grant_permission_to_publish_incomplete_or_ungrounded_answer[missing_events]",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_read_does_not_grant_permission_to_publish_incomplete_or_ungrounded_answer[pending]",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_read_does_not_grant_permission_to_publish_incomplete_or_ungrounded_answer[future_ref]",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_unannotated_reads_preserve_prior_tasks_and_do_not_authorize_state_changes[drop]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_unannotated_reads_preserve_prior_tasks_and_do_not_authorize_state_changes[cancel]",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_unannotated_reads_preserve_prior_tasks_and_do_not_authorize_state_changes[resume]",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_unannotated_reads_preserve_prior_tasks_and_do_not_authorize_state_changes[old_quote]",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_supplied_invalid_annotations_still_block_the_whole_action_atomically",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_tool_permission_and_identity_arguments_remain_closed_without_annotations[bad0]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_tool_permission_and_identity_arguments_remain_closed_without_annotations[bad1]",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_read_before_tasks",
+        "name": "test_read_before_tasks_still_consumes_original_tool_budget",
+        "status": "PASSED",
+        "seconds": 0.006
+      },
+      {
+        "classname": "tests.unit.test_support_read_progress",
+        "name": "test_saved_signed_dispute_sees_repeated_read_progress_without_losing_raw_sources",
+        "status": "PASSED",
+        "seconds": 0.021
+      },
+      {
+        "classname": "tests.unit.test_support_read_progress",
+        "name": "test_changed_evidence_resets_progress_and_errors_or_empty_are_not_verified",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_read_progress",
+        "name": "test_same_read_still_stops_at_original_no_progress_limit",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_read_progress",
+        "name": "test_completion_instruction_distinguishes_customer_material_from_available_tool_work",
+        "status": "PASSED",
+        "seconds": 0.0
+      },
+      {
+        "classname": "tests.unit.test_support_recovery",
+        "name": "test_repeated_outage_stops_network_reads_but_allows_guide_and_honest_answer",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_support_recovery",
+        "name": "test_transient_outage_can_recover_without_blocking_later_facts",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_recovery",
+        "name": "test_nonretryable_source_error_is_not_called_again",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_refine_needs",
+        "name": "test_additional_need_is_accepted_and_checked_without_changing_prior_event_or_focus",
+        "status": "PASSED",
+        "seconds": 0.035
+      },
+      {
+        "classname": "tests.unit.test_support_refine_needs",
+        "name": "test_invalid_refinement_keeps_focus_and_sources_unchanged[bad0]",
+        "status": "PASSED",
+        "seconds": 0.014
+      },
+      {
+        "classname": "tests.unit.test_support_refine_needs",
+        "name": "test_invalid_refinement_keeps_focus_and_sources_unchanged[bad1]",
+        "status": "PASSED",
+        "seconds": 0.019
+      },
+      {
+        "classname": "tests.unit.test_support_refine_needs",
+        "name": "test_invalid_refinement_keeps_focus_and_sources_unchanged[bad2]",
+        "status": "PASSED",
+        "seconds": 0.017
+      },
+      {
+        "classname": "tests.unit.test_support_refine_needs",
+        "name": "test_invalid_refinement_keeps_focus_and_sources_unchanged[bad3]",
+        "status": "PASSED",
+        "seconds": 0.022
+      },
+      {
+        "classname": "tests.unit.test_support_refine_needs",
+        "name": "test_invalid_refinement_keeps_focus_and_sources_unchanged[bad4]",
+        "status": "PASSED",
+        "seconds": 0.023
+      },
+      {
+        "classname": "tests.unit.test_support_refine_needs",
+        "name": "test_refinement_cap_cannot_reset_or_evade_run_budget",
+        "status": "PASSED",
+        "seconds": 0.031
+      },
+      {
+        "classname": "tests.unit.test_support_response_contract",
+        "name": "test_sent_publication_example_includes_initial_tasks_and_current_source_events",
+        "status": "PASSED",
+        "seconds": 0.012
+      },
+      {
+        "classname": "tests.unit.test_support_response_contract",
+        "name": "test_sent_contract_assigns_application_flow_to_guide_not_eligibility_policy",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_response_contract",
+        "name": "test_guide_only_variants_publish_with_real_guide_source_and_no_policy_request[\\u8d44\\u6599\\u51c6\\u5907\\u597d\\u4e86\\uff0c\\u4e0b\\u4e00\\u6b65\\u5230\\u54ea\\u91cc\\u63d0\\u4ea4\\uff1f-\\u6b63\\u5f0f\\u9000\\u6b3e\\u7533\\u8bf7\\u5165\\u53e3\\u4e3a\\u6211\\u7684\\u552e\\u540e\\u3002]",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_response_contract",
+        "name": "test_guide_only_variants_publish_with_real_guide_source_and_no_policy_request[\\u53ea\\u627e\\u5546\\u5bb6\\u95ee\\u4e00\\u4e0b\\uff0c\\u4e5f\\u8981\\u5148\\u586b\\u5199\\u9000\\u591a\\u5c11\\u94b1\\u5417\\uff1f-\\u8bf7\\u5546\\u5bb6\\u6838\\u67e5\\u524d\\u9884\\u89c8\\u6458\\u8981\\u5e76\\u786e\\u8ba4\\uff0c\\u65e0\\u9700\\u586b\\u5199\\u9000\\u6b3e\\u91d1\\u989d\\u3002]",
+        "status": "PASSED",
+        "seconds": 0.008
+      },
+      {
+        "classname": "tests.unit.test_support_response_contract",
+        "name": "test_guide_only_variants_publish_with_real_guide_source_and_no_policy_request[\\u6211\\u9009\\u51e0\\u53e5\\u8bdd\\u7ed9\\u5546\\u5bb6\\u770b\\uff0c\\u5176\\u4f59\\u5bf9\\u8bdd\\u80fd\\u4fdd\\u7559\\u5417\\uff1f-\\u5ba2\\u6237\\u539f\\u6587\\u4e0e\\u8c03\\u67e5\\u4f9d\\u636e\\u5206\\u522b\\u52fe\\u9009\\uff0c\\u4ec5\\u786e\\u8ba4\\u5171\\u4eab\\u7684\\u5185\\u5bb9\\u53d1\\u7ed9\\u5546\\u5bb6\\u3002]",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_retrieval",
+        "name": "test_rank_fusion_counts_each_document_once_per_route_and_preserves_source",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_retrieval",
+        "name": "test_cross_scope_and_conflicting_originals_are_rejected_before_fusion",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_retrieval",
+        "name": "test_ties_are_stable_and_rank_bounds_are_explicit",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_retrieval",
+        "name": "test_consultation_search_calls_three_scoped_routes_with_same_unmodified_query",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_retrieval",
+        "name": "test_dense_failure_does_not_fall_back_to_lexical_or_return_partial_evidence",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_retrieval",
+        "name": "test_later_route_version_change_aborts_instead_of_returning_dense_only",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_sources",
+        "name": "test_only_fixed_run_facade_is_called_and_fault_is_not_a_shipment_fact[503-SOURCE_UNAVAILABLE]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_sources",
+        "name": "test_only_fixed_run_facade_is_called_and_fault_is_not_a_shipment_fact[404-NOT_FOUND]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_sources",
+        "name": "test_forbidden_or_stale_stops_instead_of_switching_scope[403-FORBIDDEN_SOURCE]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_sources",
+        "name": "test_forbidden_or_stale_stops_instead_of_switching_scope[401-FORBIDDEN_SOURCE]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_sources",
+        "name": "test_forbidden_or_stale_stops_instead_of_switching_scope[409-STALE_INPUT]",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_sources",
+        "name": "test_search_filters_before_recall_and_pins_generation_instead_of_using_query_identity",
+        "status": "PASSED",
+        "seconds": 0.15
+      },
+      {
+        "classname": "tests.unit.test_support_sources",
+        "name": "test_cross_merchant_manifest_fails_without_reading_index",
+        "status": "PASSED",
+        "seconds": 0.05
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_understanding_is_separate_from_reads_and_final_answer_no_longer_repeats_annotations",
+        "status": "PASSED",
+        "seconds": 0.02
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_illegal_phase_actions_have_one_feedback_and_never_execute_business_reads[read_first]",
+        "status": "PASSED",
+        "seconds": 0.019
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_illegal_phase_actions_have_one_feedback_and_never_execute_business_reads[redeclare]",
+        "status": "PASSED",
+        "seconds": 0.019
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_illegal_phase_actions_have_one_feedback_and_never_execute_business_reads[repeat_understanding]",
+        "status": "PASSED",
+        "seconds": 0.021
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_logistics_answer_with_attached_operation_requires_both_declared_sources",
+        "status": "PASSED",
+        "seconds": 0.037
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_closure_is_one_event_without_a_second_outcome_enum",
+        "status": "PASSED",
+        "seconds": 0.014
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_bad_understanding_quote_does_not_commit_memory_or_topics",
+        "status": "PASSED",
+        "seconds": 0.012
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_understanding_counts_toward_existing_budget_and_cannot_reset_it",
+        "status": "PASSED",
+        "seconds": 0.012
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_unknown_architecture_is_rejected_before_model_calls",
+        "status": "PASSED",
+        "seconds": 0.001
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_multiple_focus_questions_use_different_source_needs_and_dynamic_tool_order[a-\\u7269\\u6d41\\u662f\\u5426\\u5f02\\u5e38\\uff0c\\u80fd\\u9000\\u5417\\uff0c\\u5728\\u54ea\\u7533\\u8bf7\\uff1f]",
+        "status": "PASSED",
+        "seconds": 0.047
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_multiple_focus_questions_use_different_source_needs_and_dynamic_tool_order[other_id-\\u6211\\u60f3\\u540c\\u65f6\\u77e5\\u9053\\u8fd0\\u8f93\\u7ed3\\u8bba\\u3001\\u9000\\u6b3e\\u6761\\u4ef6\\u548c\\u529e\\u7406\\u5165\\u53e3\\u3002]",
+        "status": "PASSED",
+        "seconds": 0.041
+      },
+      {
+        "classname": "tests.unit.test_support_staged",
+        "name": "test_stage_cannot_satisfy_source_requirement_with_a_reference_from_a_previous_run",
+        "status": "PASSED",
+        "seconds": 0.019
+      },
+      {
+        "classname": "tests.unit.test_support_state_feedback",
+        "name": "test_continue_after_a_failed_pause_does_not_require_inventing_a_successful_pause",
+        "status": "PASSED",
+        "seconds": 0.013
+      },
+      {
+        "classname": "tests.unit.test_support_state_feedback",
+        "name": "test_closed_issue_reports_actual_state_and_legal_reopen_without_accepting_resume[RESOLVED-ANSWERED]",
+        "status": "PASSED",
+        "seconds": 0.014
+      },
+      {
+        "classname": "tests.unit.test_support_state_feedback",
+        "name": "test_closed_issue_reports_actual_state_and_legal_reopen_without_accepting_resume[CANCELLED-CANCELLED]",
+        "status": "PASSED",
+        "seconds": 0.015
+      },
+      {
+        "classname": "tests.unit.test_support_state_feedback",
+        "name": "test_enum_feedback_provides_expected_actions_instead_of_only_literal_error",
+        "status": "PASSED",
+        "seconds": 0.017
+      },
+      {
+        "classname": "tests.unit.test_support_tasks",
+        "name": "test_mixed_tasks_share_the_existing_model_call_and_are_visible_after_a_read",
+        "status": "PASSED",
+        "seconds": 0.01
+      },
+      {
+        "classname": "tests.unit.test_support_tasks",
+        "name": "test_answer_cannot_silently_drop_a_pending_subquestion_and_can_repair_once",
+        "status": "PASSED",
+        "seconds": 0.012
+      },
+      {
+        "classname": "tests.unit.test_support_tasks",
+        "name": "test_a_task_cannot_claim_a_future_source_or_a_response_absent_from_answer",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_support_tasks",
+        "name": "test_live_decisions_require_initial_task_understanding_but_old_mock_scripts_still_work",
+        "status": "PASSED",
+        "seconds": 0.011
+      },
+      {
+        "classname": "tests.unit.test_support_tasks",
+        "name": "test_previous_turn_is_a_recheck_hint_with_no_inherited_refs_or_business_facts",
+        "status": "PASSED",
+        "seconds": 0.01
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_action_smoke_v1",
+        "name": "test_three_conversations_preserve_six_original_turns_and_use_fresh_identities",
+        "status": "PASSED",
+        "seconds": 0.012
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_action_smoke_v1",
+        "name": "test_new_freeze_detects_source_changes_and_does_not_overwrite_old_manifest",
+        "status": "PASSED",
+        "seconds": 0.502
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_action_smoke_v1",
+        "name": "test_evaluation_adapter_restores_driver_globals_even_on_error",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_annotation_check_v1",
+        "name": "test_two_original_inputs_are_frozen_separately_and_detect_tampering",
+        "status": "PASSED",
+        "seconds": 0.247
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_annotation_check_v1",
+        "name": "test_scoped_loader_is_restored_after_single_turn_driver_error",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_answer_parts_v1",
+        "name": "test_only_fresh_identities_change_and_new_sources_are_frozen",
+        "status": "PASSED",
+        "seconds": 0.303
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_answer_parts_v1",
+        "name": "test_scoped_driver_is_restored_after_failure_without_creating_output",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_answer_tasks_v1",
+        "name": "test_inputs_keep_original_conditions_under_new_frozen_source_manifest",
+        "status": "PASSED",
+        "seconds": 0.261
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_answer_tasks_v1",
+        "name": "test_scoped_driver_and_prior_loader_are_restored_after_error",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_eval_v2",
+        "name": "test_dataset_retains_old_conditions_and_adds_pause_resume_conversations",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_eval_v2",
+        "name": "test_actual_prior_answer_memory_and_scope_are_carried_without_gold",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_eval_v2",
+        "name": "test_failed_turn_keeps_last_success_memory_without_fabricating_answer",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_eval_v2",
+        "name": "test_foreign_memory_is_not_imported_from_a_completed_envelope",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_eval_v2",
+        "name": "test_fixed_schedule_uses_same_context_and_real_model_only_for_query_and_answer",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_eval_v2",
+        "name": "test_fixed_stage_cannot_accept_unplanned_model_reads_or_publish_early_answer",
+        "status": "PASSED",
+        "seconds": 0.002
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_eval_v2",
+        "name": "test_freeze_checks_code_changes_and_never_replaces_prior_manifest",
+        "status": "PASSED",
+        "seconds": 0.279
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_event_groups_v1",
+        "name": "test_only_fresh_identities_change_and_new_sources_are_frozen",
+        "status": "PASSED",
+        "seconds": 0.411
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_event_groups_v1",
+        "name": "test_scoped_driver_is_restored_after_failure_without_creating_output",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_experience_v1",
+        "name": "test_experience_selection_keeps_original_questions_and_checks_frozen_sources",
+        "status": "PASSED",
+        "seconds": 0.283
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_experience_v1",
+        "name": "test_actual_failed_turn_stays_in_history_without_gold_answer_or_foreign_memory",
+        "status": "PASSED",
+        "seconds": 0.007
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_experience_v2",
+        "name": "test_new_freeze_keeps_old_evidence_and_covers_current_sources",
+        "status": "PASSED",
+        "seconds": 0.269
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_experience_v2",
+        "name": "test_fresh_identity_and_actual_failed_history_are_retained",
+        "status": "PASSED",
+        "seconds": 0.004
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_experience_v2",
+        "name": "test_scoped_executor_binding_is_restored_even_on_failure",
+        "status": "PASSED",
+        "seconds": 0.002
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_experience_v3",
+        "name": "test_three_conversations_six_turns_keep_original_inputs_and_freeze_sources",
+        "status": "PASSED",
+        "seconds": 0.273
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_experience_v3",
+        "name": "test_new_identities_keep_actual_answered_lifecycle_and_failed_prefix",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_experience_v3",
+        "name": "test_executor_binding_restores_after_exception",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_live_v3",
+        "name": "test_regression_keeps_original_business_inputs_and_criteria",
+        "status": "PASSED",
+        "seconds": 0.009
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_live_v3",
+        "name": "test_changed_business_fact_is_rejected_before_new_model_calls",
+        "status": "PASSED",
+        "seconds": 0.022
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_read_first_v1",
+        "name": "test_only_fresh_identities_change_and_new_sources_are_frozen",
+        "status": "PASSED",
+        "seconds": 0.258
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_read_first_v1",
+        "name": "test_scoped_driver_is_restored_after_failure_without_creating_output",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_readiness",
+        "name": "test_frozen_scenarios_preflight_without_model_or_database",
+        "status": "FAILED",
+        "seconds": 0.002,
+        "cause": "Historical readiness manifest refuses changed support/context.py; frozen files not rewritten."
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_readiness",
+        "name": "test_next_turn_uses_actual_answer_and_rejects_foreign_or_skipped_results",
+        "status": "FAILED",
+        "seconds": 0.002,
+        "cause": "Historical readiness manifest refuses changed support/context.py; frozen files not rewritten."
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_readiness",
+        "name": "test_long_history_keeps_original_archive_and_exposes_pagination",
+        "status": "FAILED",
+        "seconds": 0.002,
+        "cause": "Historical readiness manifest refuses changed support/context.py; frozen files not rewritten."
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_readiness",
+        "name": "test_changed_source_or_case_is_rejected_by_frozen_manifest",
+        "status": "FAILED",
+        "seconds": 0.004,
+        "cause": "Historical readiness manifest refuses changed support/context.py; frozen files not rewritten."
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_staged_live_v1",
+        "name": "test_paired_cases_keep_questions_facts_and_bound_new_identities",
+        "status": "PASSED",
+        "seconds": 0.317
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_staged_live_v1",
+        "name": "test_failed_prefix_and_actual_lifecycle_remain_architecture_local",
+        "status": "PASSED",
+        "seconds": 0.005
+      },
+      {
+        "classname": "tests.unit.test_customer_agent_staged_live_v1",
+        "name": "test_temporary_bindings_restore_after_interruption",
+        "status": "PASSED",
+        "seconds": 0.003
+      },
+      {
+        "classname": "tests.integration.test_support_answer_parts_api",
+        "name": "test_parts_persist_raw_and_recover_identical_rendered_answer_with_no_new_calls",
+        "status": "PASSED",
+        "seconds": 0.424
+      },
+      {
+        "classname": "tests.integration.test_support_conversation_update",
+        "name": "test_failed_reply_exports_accepted_pause_and_next_turn_can_resume",
+        "status": "PASSED",
+        "seconds": 0.534
+      },
+      {
+        "classname": "tests.integration.test_support_conversation_update",
+        "name": "test_rejected_understanding_never_exports_candidate_as_accepted_state",
+        "status": "PASSED",
+        "seconds": 0.237
+      },
+      {
+        "classname": "tests.integration.test_support_conversation_update",
+        "name": "test_refinement_and_source_rendered_amount_rebuild_from_saved_calls",
+        "status": "PASSED",
+        "seconds": 0.465
+      },
+      {
+        "classname": "tests.integration.test_support_dialogue_api",
+        "name": "test_four_real_runtime_turns_and_saved_decisions_reconstruct_identical_memory[mock]",
+        "status": "PASSED",
+        "seconds": 0.746
+      },
+      {
+        "classname": "tests.integration.test_support_dialogue_api",
+        "name": "test_four_real_runtime_turns_and_saved_decisions_reconstruct_identical_memory[live]",
+        "status": "PASSED",
+        "seconds": 0.674
+      },
+      {
+        "classname": "tests.integration.test_support_dialogue_api",
+        "name": "test_previous_frozen_readiness_manifest_is_not_silently_rewritten",
+        "status": "PASSED",
+        "seconds": 0.002
+      },
+      {
+        "classname": "tests.integration.test_support_event_groups_api",
+        "name": "test_group_correction_is_persisted_and_rebuilt_without_model_or_network",
+        "status": "PASSED",
+        "seconds": 0.469
+      },
+      {
+        "classname": "tests.integration.test_support_guide_api",
+        "name": "test_http_guide_answer_pins_asset_and_duplicate_dispatch_reuses_exact_result",
+        "status": "PASSED",
+        "seconds": 0.281
+      },
+      {
+        "classname": "tests.integration.test_support_read_before_tasks_api",
+        "name": "test_three_reads_then_three_task_publication_and_zero_call_recovery",
+        "status": "PASSED",
+        "seconds": 0.464
+      },
+      {
+        "classname": "tests.integration.test_support_readiness_api",
+        "name": "test_three_turn_correction_preserves_exact_archive_and_new_run_citations",
+        "status": "FAILED",
+        "seconds": 0.172,
+        "cause": "Historical readiness manifest refuses changed support/context.py; frozen files not rewritten."
+      },
+      {
+        "classname": "tests.integration.test_support_retrieval_index",
+        "name": "test_title_recall_uses_source_field_and_keeps_complete_original",
+        "status": "PASSED",
+        "seconds": 0.812
+      },
+      {
+        "classname": "tests.integration.test_support_staged_api",
+        "name": "test_focus_ledger_and_phase_rebuild_after_each_turn_with_no_new_calls[single]",
+        "status": "PASSED",
+        "seconds": 0.876
+      },
+      {
+        "classname": "tests.integration.test_support_staged_api",
+        "name": "test_focus_ledger_and_phase_rebuild_after_each_turn_with_no_new_calls[staged-v1]",
+        "status": "PASSED",
+        "seconds": 0.885
+      },
+      {
+        "classname": "tests.integration.test_support_store",
+        "name": "test_completed_dispatch_reuses_result_and_changed_input_is_refused",
+        "status": "PASSED",
+        "seconds": 0.184
+      },
+      {
+        "classname": "tests.integration.test_support_store",
+        "name": "test_lease_fence_and_frozen_manifest_are_checked_on_every_write",
+        "status": "PASSED",
+        "seconds": 0.215
+      },
+      {
+        "classname": "tests.integration.test_support_store",
+        "name": "test_saved_result_reuses_exact_request_and_unfinished_call_keeps_reservation",
+        "status": "PASSED",
+        "seconds": 0.237
+      },
+      {
+        "classname": "tests.integration.test_support_store",
+        "name": "test_crash_after_saved_model_result_reconstructs_sdk_without_more_calls",
+        "status": "PASSED",
+        "seconds": 0.256
+      },
+      {
+        "classname": "tests.integration.test_support_store",
+        "name": "test_bound_sources_uses_existing_index_api_with_scoped_dense_candidates",
+        "status": "PASSED",
+        "seconds": 0.249
+      },
+      {
+        "classname": "tests.integration.test_support_store",
+        "name": "test_saved_guide_source_and_local_spend_survive_crash_without_reading_new_asset",
+        "status": "PASSED",
+        "seconds": 0.245
+      },
+      {
+        "classname": "tests.integration.test_support_store",
+        "name": "test_recovery_rebuilds_source_failure_state_from_saved_calls_without_new_requests",
+        "status": "PASSED",
+        "seconds": 0.346
+      },
+      {
+        "classname": "tests.integration.test_support_store",
+        "name": "test_layered_context_and_tasks_rebuild_exactly_from_saved_calls",
+        "status": "PASSED",
+        "seconds": 0.247
+      },
+      {
+        "classname": "tests.integration.test_customer_agent_eval_v2",
+        "name": "test_fixed_two_turns_share_current_annotations_and_saved_result_is_reused",
+        "status": "PASSED",
+        "seconds": 0.424
+      },
+      {
+        "classname": "tests.integration.test_customer_agent_experience_v1",
+        "name": "test_autonomous_driver_exports_two_actual_turns_and_drops_only_its_own_schema",
+        "status": "PASSED",
+        "seconds": 0.603
+      },
+      {
+        "classname": "tests.integration.test_customer_agent_experience_v2",
+        "name": "test_new_version_exports_actual_calls_and_cleans_only_own_schema",
+        "status": "PASSED",
+        "seconds": 0.499
+      },
+      {
+        "classname": "tests.integration.test_customer_agent_experience_v3",
+        "name": "test_answered_prefix_pause_resume_correction_cancel_via_saved_runtime",
+        "status": "PASSED",
+        "seconds": 0.793
+      },
+      {
+        "classname": "tests.integration.test_customer_agent_staged_live_v1",
+        "name": "test_paired_runs_select_manifest_architecture_and_use_real_previous_result",
+        "status": "PASSED",
+        "seconds": 0.684
+      },
+      {
+        "classname": "tests.unit.test_contracts_support_agent",
+        "name": "test_consultation_wire_is_independent_from_case_permissions_and_closed",
+        "status": "PASSED",
+        "seconds": 0.089
+      }
+    ]
+  },
+  "java_support_api": {
+    "tests": "20",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "43.65"
+  },
+  "static_checks": {
+    "ruff": "passed",
+    "strict_mypy_sources": 9,
+    "strict_mypy": "passed",
+    "targeted_java_spotless": "passed"
+  },
+  "known_intermediate_run_busy": {
+    "observed": 1,
+    "later_focused_and_final_cohort": "not reproduced",
+    "root_cause": "unconfirmed"
+  }
+}

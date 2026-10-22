@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-22",
+  "engineering_scope": "Four refactor steps implemented; real quality not retested",
+  "default_architecture": "single",
+  "optional_architecture": "staged-v1",
+  "sdk": "AgentScope 2.0.8, sole loop",
+  "commits": [
+    "a122a87",
+    "0da003d",
+    "a44d187",
+    "5d75185",
+    "e1a9532"
+  ],
+  "preservation": {
+    "public_11_tables_unchanged": true,
+    "temporary_schemas": [],
+    "baseline_files_unchanged": true,
+    "usage_before": 1868,
+    "usage_after": 1868,
+    "new_model_requests": 0,
+    "historical_readiness": {
+      "file": "agent/src/resolveflow/support/context.py",
+      "baseline_4ad7611_equals_current": true,
+      "frozen_sha256": "64fd301b05f7a6369b05e6be85c1021e405ea14951d399c678a3bad2565d9517",
+      "current_sha256": "7608f04b34be93b3659763664af0864a6e2cca14e868fb0f0f1411c4fd1b613f"
+    }
+  },
+  "pg": {
+    "state": "exited",
+    "exit_code": 0,
+    "volume_retained": "resolveflow-review-demo_demo-postgres-data"
+  },
+  "listening_project_ports": [],
+  "checked_ports": [
+    5174,
+    8080,
+    8081,
+    8083,
+    8090,
+    55433,
+    53306,
+    6379,
+    9876,
+    10911
+  ],
+  "not_run": [
+    "new real LLM cohort",
+    "resume metrics",
+    "web deployment",
+    "full repository verification"
+  ],
+  "sha256": {
+    "agent/src/resolveflow/support/activity.py": "ab46a06fb40d4667505ff50d2db62f15a31aaa362d2d8e779b21eb3ea02a25bb",
+    "agent/src/resolveflow/support/api.py": "1c588acc2e541f7356499d45608b68a1f66ef9fceec316d7b33a7debd3c7a25b",
+    "agent/src/resolveflow/support/completion.py": "667b430ab87ce2d8fb2d3b05348de020dba5c9c9946372ad2b061bd260fc047c",
+    "agent/src/resolveflow/support/context.py": "7608f04b34be93b3659763664af0864a6e2cca14e868fb0f0f1411c4fd1b613f",
+    "agent/src/resolveflow/support/dialogue.py": "a2d5a5800887ab8a3f0c8dca852c689fa5c80882c222d50efcb019cbeef43f47",
+    "agent/src/resolveflow/support/embeddings.py": "5e827e2ab1edc3fa2ce4449ba1c514131aeb3db78b455f9b77b3ef40831a844e",
+    "agent/src/resolveflow/support/engine.py": "b6b543fdf0c8bff10680af30ff240e8477763ee785c217c3b6e68cd2e058a56e",
+    "agent/src/resolveflow/support/grounding.py": "8d98ad73f2e8309504d21f553b779a87720cba464a6ae2d4f47e1a3f05a61760",
+    "agent/src/resolveflow/support/guidance.py": "56fc2b8e4c712d9f87210d13ab706d91e6b69b2ff3c588d8484d935abf3ccd86",
+    "agent/src/resolveflow/support/guide.py": "f1c55067b7c8668389bfce23e879e898a04d87649c959e578cfe80c79f09639c",
+    "agent/src/resolveflow/support/memory.py": "d093965091bfa8070feab8b4f15ad046ce11667da908334027f28a179f601f10",
+    "agent/src/resolveflow/support/protocol.py": "37f25f6764745fb1380340acfcee9e6b0520697a5df40066d51fcad64ebc3cc1",
+    "agent/src/resolveflow/support/query.py": "149396d9bae2b4adc9b7851bc0d945de646b0e8bd7511d4d87efa7356c88136c",
+    "agent/src/resolveflow/support/recovery.py": "8fa01771a898afec926189054975355057a4b5072a11eb5bcceaabf6e1b974ff",
+    "agent/src/resolveflow/support/retrieval.py": "d8a4fdeb632fa69482c6e87d05945bfecc024e069f880ba14ae1d24cd36de6a2",
+    "agent/src/resolveflow/support/service.py": "1f55ed750d59bccc74bb36c21c8a5d444ee46cc7e426c2853af7b7b75578da45",
+    "agent/src/resolveflow/support/sources.py": "59f28271920937b9355d21c3a425bc44cd347bcd76c94981cbcccf9227b5e6bf",
+    "agent/src/resolveflow/support/stages.py": "1335fda41715c0765948b7a018792d61c55c4f33e1703cb037ff4e4fd6ff4472",
+    "agent/src/resolveflow/support/store.py": "5a21edcfbff18a1c10632334c2d3987f83dcca2d808326800187e2cf53fb0702",
+    "agent/src/resolveflow/support/tasks.py": "f20e587bc8313d7fbd85c0442178c2a97e1339d5a0d6d084f8bf4551f63567ce",
+    "agent/src/resolveflow/support/__init__.py": "1f35e5cef0d04b2a5785cf9f904215cfa269558b0f098698f71352d74650fa81",
+    "contracts/core/openapi-agent.yaml": "62a1101efbe707b7f1e06fe05957f6b83792e3266b72b70b80b2652bec0c1c73",
+    "contracts/core/fixtures/support-agent.json": "bfeeb25cca27380968e48265de6111bcd76fc12bda04addd9e437ca34d070be3",
+    "java/case-service/src/main/java/com/resolveflow/caseservice/support/SupportAgentTurns.java": "af8f95096de768927066c41d38345b8b6a2bc6a39e3c16abee42efe90f195082",
+    "java/case-service/src/test/java/com/resolveflow/caseservice/support/SupportApiTest.java": "362c0bc715122a24ab89b7e521b298fa4951917b11270ebfcafe8962710dd1f4",
+    "docs/customer-agent-state-refactor-v1.md": "d5b4777d06b681c0121e02e7928a82e91d7ad20da9686ed571f8257247ff294e",
+    "reports/customer-agent-state-refactor-v1/README.md": "f7b938a1d48cf295ab7d1fa4e091791b145ee0fb6ef4b1fd188b64a312607d2c",
+    "reports/customer-agent-state-refactor-v1/verification.json": "14869b37fe6df8b145c8273f278c443954eeb047d1edcf32ebc5a9c84437e598"
+  }
+}
