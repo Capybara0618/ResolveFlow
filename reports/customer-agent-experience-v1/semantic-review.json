@@ -1,0 +1,133 @@
+{
+  "scope": "single experience diagnostic, not resume metrics",
+  "rows": [
+    {
+      "id": "U01",
+      "turn": 1,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "按物流来源说明在途，不从PAID推断物流",
+          "pass": true
+        },
+        {
+          "text": "不编造预计送达时间",
+          "pass": true
+        }
+      ],
+      "note": "读取实际IN_TRANSIT，无编造ETA。"
+    },
+    {
+      "id": "U02",
+      "turn": 1,
+      "classification": "PARTIAL",
+      "criteria": [
+        {
+          "text": "区分LOST与PAID",
+          "pass": true
+        },
+        {
+          "text": "完整回答资格和当前申请入口",
+          "pass": false
+        }
+      ],
+      "note": "LOST/退款条件正确，但未读指南，入口未回答且以请稍等结束；任务误标NEEDS_CUSTOMER。"
+    },
+    {
+      "id": "U03",
+      "turn": 1,
+      "classification": "PARTIAL",
+      "criteria": [
+        {
+          "text": "不要求创建退款或金额",
+          "pass": true
+        },
+        {
+          "text": "给出独立核查入口和确认步骤",
+          "pass": false
+        }
+      ],
+      "note": "无需退款金额正确；无指南来源，未给请商家核查/预览/确认步骤，以请稍候结束。"
+    },
+    {
+      "id": "U04",
+      "turn": 1,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "区分当前ASSISTANT与默认MERCHANT",
+          "pass": true
+        },
+        {
+          "text": "私有消息不会自动共享",
+          "pass": true
+        }
+      ],
+      "note": "读当前指南，区分询问助手与补充给商家。"
+    },
+    {
+      "id": "U05",
+      "turn": 1,
+      "classification": "FAILED",
+      "criteria": [
+        {
+          "text": "读取签收来源并区分客户未找到与系统签收",
+          "pass": false
+        },
+        {
+          "text": "代收只是猜测，不当成已核实；需要核查时不虚构已转交",
+          "pass": false
+        }
+      ],
+      "note": "订单后物流连续读取四次意图，实际执行三次，观察不变，NO_PROGRESS无回答。"
+    },
+    {
+      "id": "U05",
+      "turn": 2,
+      "classification": "PARTIAL",
+      "criteria": [
+        {
+          "text": "暂停原签收调查而不是永久取消",
+          "pass": false
+        },
+        {
+          "text": "回答当前正式申请入口，不继续索要代收材料",
+          "pass": true
+        }
+      ],
+      "note": "入口我的售后正确；首轮失败无任务可暂停，未证明PAUSE。"
+    },
+    {
+      "id": "U05",
+      "turn": 3,
+      "classification": "PARTIAL",
+      "criteria": [
+        {
+          "text": "恢复原签收任务，并采用家人及代收点均已排查的纠正",
+          "pass": false
+        },
+        {
+          "text": "不重复要求同样排查，给出可确认的商家核查下一步",
+          "pass": false
+        }
+      ],
+      "note": "采用纠正且不重问，但没有恢复原任务链，误引我的售后做独立核查，没有摘要确认步骤。"
+    },
+    {
+      "id": "U05",
+      "turn": 4,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "采用找到包裹的新信息，停止原核查/退款推进",
+          "pass": true
+        },
+        {
+          "text": "不把客户找到包裹说成系统已完成退款或转交",
+          "pass": true
+        }
+      ],
+      "note": "采用找到包裹并CANCEL原任务，没有虚构退款或已转交。"
+    }
+  ]
+}
