@@ -115,7 +115,7 @@ def start(
             "前后端依赖与 Java 服务已运行，复用现有进程", True, current.gateway_url
         )
     else:
-        runtime.command_prepare(current, log, build=build)
+        runtime.command_prepare(current, log, build=build, preserve_ready_index=True)
     if not policies_ready(current):
         raise runtime.DemoRefused(
             "基础政策与精确版本索引尚未就绪，不能将启动报告为完成"

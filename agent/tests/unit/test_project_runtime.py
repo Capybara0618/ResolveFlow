@@ -67,6 +67,8 @@ def test_start_includes_live_agent_and_frontend_even_when_backend_is_already_run
     frontend.assert_called_once_with(current, log)
     browser.assert_called_once_with(current.frontend_url + "/#/shop", new=2)
     assert prepare.call_count == (0 if ready else 1)
+    if not ready:
+        assert prepare.call_args.kwargs['preserve_ready_index'] is True
 
 
 def test_wrong_policy_hash_is_not_reported_as_ready(tmp_path, monkeypatch):

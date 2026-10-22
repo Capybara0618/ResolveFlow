@@ -50,6 +50,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -1426,7 +1427,19 @@ def build_script(
 # --------------------------------------------------------------------------- stage
 
 
-def start_stage(settings: Settings, log: Log, *, build: bool) -> None:
+def policy_index_ready(settings: Settings, bundles: tuple[str, ...]) -> bool:
+    if not bundles:
+        return False
+    identities = ','.join(_sql_text(bundle) for bundle in bundles)
+    rows = mysql_rows(f"SELECT bundle_id,manifest_hash FROM case_db.policy_bundle WHERE bundle_id IN ({identities})", settings)
+    return (len(rows) == len(set(bundles)) and all(
+        bundle in bundles and re.fullmatch(r"[a-f0-9]{64}", digest) is not None
+        and postgres_scalar("SELECT COUNT(*) FROM policy_index_generation WHERE bundle_id=" + _sql_text(bundle)
+                            + " AND manifest_hash=" + _sql_text(digest) + " AND status='READY'", settings) == "1"
+        for bundle, digest in rows))
+
+
+def start_stage(settings: Settings, log: Log, *, build: bool, preserve_ready_index: bool = False) -> None:
     """Bring up the demo infrastructure and the three always-on demo services."""
     guard(settings)
     settings.runtime().mkdir(parents=True, exist_ok=True)
@@ -1502,6 +1515,9 @@ def start_stage(settings: Settings, log: Log, *, build: bool) -> None:
     start_gateway(settings, log)
 
     log.section("policy index in the demo PostgreSQL")
+    if preserve_ready_index and policy_index_ready(settings, policy_bundles):
+        log.step("retained policy index matches every authoritative bundle; reused without rebuilding", True)
+        return
     indexed = run(
         [
             str(AGENT_PYTHON),
@@ -2363,7 +2379,7 @@ def command_start(settings: Settings, log: Log, *, build: bool, open_browser: bo
     return 0
 
 
-def command_prepare(settings: Settings, log: Log, *, build: bool) -> int:
+def command_prepare(settings: Settings, log: Log, *, build: bool, preserve_ready_index: bool = False) -> int:
     guard(settings)
     manifest_exists = settings.manifest_path.is_file()
     document = load_manifest(settings)
@@ -2375,7 +2391,7 @@ def command_prepare(settings: Settings, log: Log, *, build: bool) -> int:
             json.dumps({"recorded_at": now_iso(), "tables": observed}, ensure_ascii=False, indent=2) + "\n",
         )
         log.note(f"recorded the shared environment's row counts in {baseline.name}")
-    start_stage(settings, log, build=build)
+    start_stage(settings, log, build=build, preserve_ready_index=preserve_ready_index)
     backfill_display_fields(settings, document, log)
     if not manifest_exists:
         save_manifest(settings, document)

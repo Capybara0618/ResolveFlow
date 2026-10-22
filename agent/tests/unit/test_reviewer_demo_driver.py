@@ -305,6 +305,17 @@ def test_health_checks_requested_support_architecture(tmp_path, monkeypatch):
     assert not demo.agent_health(current, architecture="staged-v1")
 
 
+def test_retained_policy_index_requires_exact_hash_and_one_ready_generation(tmp_path, monkeypatch):
+    current = settings_for(tmp_path)
+    monkeypatch.setattr(demo, "mysql_rows", lambda *_: [["bundle", "a" * 64]])
+    monkeypatch.setattr(demo, "postgres_scalar", lambda *_: "1")
+    assert demo.policy_index_ready(current, ("bundle",))
+    monkeypatch.setattr(demo, "postgres_scalar", lambda *_: "0")
+    assert not demo.policy_index_ready(current, ("bundle",))
+    monkeypatch.setattr(demo, "mysql_rows", lambda *_: [])
+    assert not demo.policy_index_ready(current, ("bundle",))
+
+
 def test_status_is_useful_while_the_demo_is_stopped(tmp_path: Path, monkeypatch) -> None:
     settings = settings_for(tmp_path)
     document = demo.load_manifest(settings)
