@@ -1,5 +1,13 @@
 # 后端深化验证记录
 
+## B2.1 评价领域与追加迁移（2026-10-22）
+
+B1.3 0b831fb及文档检查修正65ab7ef均已普通push核实。新增共享ProductReviewWire、Commerce V17追加评价/epoch表、ProductReviewService和真实MySQL领域测试。本人已支付且DELIVERED的订单行可首评；行锁/唯一键确保一行一评；同内容重放、不同内容原版本校验；商家仅回复本店、不能改评分或删除；修改/回复与epoch同事务；公开结果不含订单/账号归属，退款不删除原评价。历史跨店商品映射无效则拒绝首评。
+
+关键6测试对尚未实现的service骨架先全部失败（包含预期异常不符/UnsupportedOperation）；落实领域后 `./mvnw.cmd -B -pl commerce-service -am spotless:apply '-DspotlessFiles=.*ProductReviewWire.java,.*ProductReviewService.java,.*ProductReviewDatabaseTest.java' test '-Dtest=ProductReviewDatabaseTest,ShoppingDatabaseTest,CheckoutPaymentDatabaseTest' '-Dsurefire.failIfNoSpecifiedTests=false'` 28通过/0失败/0跳过（30.653秒）。再加强epoch重放/失败不增长及跨店SKU映射，用新共7项领域测试复验通过（24.887秒），定点Spotless/diff通过，Java21与隔离MySQL8.4。测试中付款走现有服务，签收/退款账本仅隔离合成夹具设置，不称正式物流/退款闭环新验收。
+
+当前尚无评价HTTP入口或页面，Redis评分/限流未接，不宣称评价端到端完成。未启动正式业务服务、迁移演示库、调用模型或改冻结结果。下一步B2.2接口、严格契约及权限验证。
+
 ## B1.3 本机独立 Redis 接线（2026-10-22）
 
 B1.2 9c76b5c 已正常push核实。原本本机 Compose 没有 Redis，Case 被显式禁用缓存；现追加本项目 Redis7.4 服务，loopback56380、无业务卷，与共享56379分离。driver端口守卫/Compose变量、就绪检查、正式status均包含Redis；Case启用缓存并使用本项目端口。未启动正式Java/Agent，旧进程需按正常重启加载，不能称当前页面已验证。
