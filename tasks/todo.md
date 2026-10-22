@@ -1,5 +1,6 @@
 ## 当前快照（2026-10-22，只读取证与发布标注解耦修复：实施中）
 
+- 真实结果b226b68已普通push核实。按[离线反馈修正](../docs/customer-agent-read-first-feedback-v1.md)补无初始任务的render_answer分类为TASKS_REQUIRED，复用发布前tasks+dialogue_events完整说明；原无事件修正仍拒绝，不自动补事件/扩大重试。新两测试先1失败/1通过，接3行实现后37文件集中190通过/0失败跳过（30.58秒），首次新测试长行1换行修正，Ruff/4源码strict mypy实际通过。无新增收费/账本1774，旧真实结果/98清单不改；源码变化后旧清单按预期拒绝，需要未来新冻结才可再运行真实确认。
 - 准备5f36eec已普通push核实，单次真实两条7请求完成：[报告](../reports/customer-agent-read-first-v1/README.md)/轨迹/源审/统计/收口。4次无标注读取全部执行、查询阶段0纠错，首次阻塞已解除。R01查物流后无任务ANSWER_PARTS反馈只要求tasks，补tasks漏事件而发布失败4.225秒；R02无标注读订单/物流/政策后同次三事项/ADD/分项答复发布5.795秒，但没读指南且入口仅订单/售后，原条件部分通过。发布1/2，业务完整0/2、部分1/2、失败1/2，不能称整体通过；不继续付费扩展。
 - 新增7请求、provider输入12308/输出806，ledger1767→1774，Schema7/7/provider错误0，保守输入14982另列、预热9.249秒；检索R-LOST-001首位/83.41ms，剩余入口来源选择非召回算法问题。public11表与旧见证/预检/执行前后相同，四历史脏文件hash保持，2 run/7模型/4工具账导出、自有schema清理。先归档真实结果，再离线修无初始任务的ANSWER_PARTS应走TASKS_REQUIRED反馈并明确tasks+dialogue_events；不改本次冻结清单/原始结果或收费重跑。临时PG仍仅供离线回归，结束stop保留卷。
 - 修复aa28d3a已普通push核实。新增ASGI/AgentScope/隔离PG实际三次无标注查询→最后三事项声明/发布→到期run恢复，与准备共3测试通过；保存4模型/3工具原始记录，恢复0模型/0网络，相关Ruff通过。新原D01/D02完整请求仅运行身份变化，98文件/既有权重冻结，`--check --database --output tmp/customer-agent-read-first-v1/preflight.json`通过。36文件集中188通过/0失败跳过（31.63秒），public11表与旧见证一致、四历史脏文件hash保持；准备精确提交普通push核实后单次真实两条，ledger1767起。

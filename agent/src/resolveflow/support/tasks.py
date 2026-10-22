@@ -12,6 +12,9 @@ from resolveflow.support.protocol import Answer, AnswerParts, SupportTask
 def render_answer(decision: AnswerParts, accepted: list[SupportTask]) -> Answer:
     """Render explicit model outcomes once; metadata comes from declared/current tasks, never guessed."""
     initial = decision.tasks if decision.tasks is not None else accepted
+    if not initial:
+        raise TaskStateError("发布回答前须同层声明tasks及客户原文dialogue_events；只读取证不需要标注。",
+                             issue="TASKS_REQUIRED")
     ids = [p.task_id for p in decision.parts]
     if (len(ids) != len(set(ids)) or len(initial) != len({t.id for t in initial})
             or set(ids) != {t.id for t in initial}):
