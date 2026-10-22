@@ -43,6 +43,8 @@ class SupportTask(Closed):
     evidence_refs: list[str] = Field(default_factory=list, max_length=8)
     response_excerpt: str | None = Field(default=None, min_length=1, max_length=400)
     blocker: TaskBlocker | None = Field(default=None, exclude_if=lambda v: v is None)
+    lifecycle: Literal["OPEN", "PAUSED", "RESOLVED", "CANCELLED"] | None = Field(
+        default=None, exclude_if=lambda v: v is None)
 
 
 class CustomerQuote(Closed):
@@ -59,7 +61,7 @@ class MemoryUpdate(CustomerQuote):
 
 
 class DialogueEvent(CustomerQuote):
-    change: Literal["ADD", "CONTINUE", "CORRECT", "CANCEL", "PAUSE", "RESUME", "CLARIFY"]
+    change: Literal["ADD", "CONTINUE", "CORRECT", "CANCEL", "PAUSE", "RESUME", "CLARIFY", "RESOLVE", "REOPEN"]
     task_id: str | None = Field(default=None, pattern=r"^[a-zA-Z0-9_-]{1,32}$")
     task_ids: list[Annotated[str, Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")]] | None = Field(
         default=None, min_length=1, max_length=8,

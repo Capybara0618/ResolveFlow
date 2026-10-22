@@ -44,11 +44,12 @@ def requirements(tasks: list[SupportTask], citations: dict[str, dict[str, Any]])
 
 def check_completion(
     answer: Answer, tasks: list[SupportTask], citations: dict[str, dict[str, Any]], failures: list[dict[str, Any]],
+    lifecycles: dict[str, str] | None = None,
 ) -> None:
     gaps: list[dict[str, Any]] = []
     failed_tools = {f["tool_name"] for f in failures}
     for task in tasks:
-        if task.status in {"CANCELLED", "SUSPENDED"}:
+        if task.status in {"CANCELLED", "SUSPENDED"} or (lifecycles or {}).get(task.id) in {"RESOLVED", "CANCELLED"}:
             continue
         blocker = task.blocker
         sources = [citations[ref] for ref in task.evidence_refs if ref in citations]

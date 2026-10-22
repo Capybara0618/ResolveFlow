@@ -78,7 +78,7 @@ def test_model_repairs_saved_answer_with_full_task_updates_and_one_repair_only()
     assert result['status'] == 'SUCCEEDED', result['reason']
     feedback = json.loads(model.packets[2]['feedback'])
     assert feedback['task_ids'] == ['shipping', 'eligibility', 'entry']
-    assert result['answer']['task_state']['tasks'] == complete
+    assert result['answer']['task_state']['tasks'] == [{**t, 'lifecycle': 'OPEN'} for t in complete]
     assert sources.calls == [('get_shipment_trace', {}), ('get_support_guide', {})] and model.calls == 4
     repeated = MockModelClient(mode='live', script=[pending, saved, saved])
     failed = SupportAgent(req, repeated, Reads()).run()

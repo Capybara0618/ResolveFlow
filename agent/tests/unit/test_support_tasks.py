@@ -24,7 +24,7 @@ def test_mixed_tasks_share_the_existing_model_call_and_are_visible_after_a_read(
     assert model.calls == 3 and len(source.calls) == 2
     assert model.packets[1]["task_state"]["origin"] == "MODEL"
     assert len(model.packets[1]["task_state"]["tasks"]) == 2
-    assert result["answer"]["task_state"]["tasks"] == final
+    assert result["answer"]["task_state"]["tasks"] == [{**t, 'lifecycle': 'OPEN'} for t in final]
 
 
 def test_answer_cannot_silently_drop_a_pending_subquestion_and_can_repair_once():

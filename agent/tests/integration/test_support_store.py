@@ -181,4 +181,4 @@ def test_layered_context_and_tasks_rebuild_exactly_from_saved_calls(agent_db):
     empty = MockModelClient(script=[])
     rebuilt = SupportAgent(req, empty, source, journal=resumed)
     assert rebuilt.run() == original and empty.calls == 0 and source.calls == []
-    assert rebuilt.tasks.packet() == original["answer"]["task_state"]
+    assert rebuilt.tasks.packet(rebuilt.dialogue.lifecycles) == original["answer"]["task_state"]

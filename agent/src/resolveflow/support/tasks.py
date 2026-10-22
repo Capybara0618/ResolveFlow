@@ -82,8 +82,16 @@ class TaskTracker:
         # Failed validation cannot replace a valid prior state. Decisions, including annotations, are journaled.
         self.tasks = [task.model_copy(deep=True) for task in candidate]
 
-    def packet(self) -> dict[str, Any]:
-        return {"origin": "MODEL", "tasks": [task.model_dump() for task in self.tasks]}
+    def packet(self, lifecycles: dict[str, str] | None = None) -> dict[str, Any]:
+        values = [task.model_dump() for task in self.tasks]
+        if lifecycles is not None:
+            for task, value in zip(self.tasks, values, strict=True):
+                value["lifecycle"] = lifecycles.get(task.id, lifecycle_for(task))
+        return {"origin": "MODEL", "tasks": values}
+
+
+def lifecycle_for(task: SupportTask) -> str:
+    return task.lifecycle or {"CANCELLED": "CANCELLED", "SUSPENDED": "PAUSED"}.get(task.status, "OPEN")
 
 
 def previous_hint(context: dict[str, Any], input_version: int) -> dict[str, Any] | None:
@@ -102,5 +110,6 @@ def previous_hint(context: dict[str, Any], input_version: int) -> dict[str, Any]
         return None  # Old or unknown model state is not a substitute for the actual conversation.
     return {"origin": "MODEL_PREVIOUS_TURN", "input_version": version, "needs_recheck": True,
             "tasks": [{"id": t.id, "intent": t.intent, "request": t.request, "previous_status": t.status,
+                       "previous_lifecycle": lifecycle_for(t),
                        **({"previous_blocker": t.blocker.model_dump()} if t.blocker else {})}
                       for t in tasks]}
