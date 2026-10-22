@@ -7,6 +7,7 @@ import ProductArt from './ProductArt.vue'
 import CustomerWorkspace from './CustomerWorkspace.vue'
 import SupportWorkspace from './SupportWorkspace.vue'
 import BuyerOrders from './BuyerOrders.vue'
+import ProductReviews from './ProductReviews.vue'
 import CartWorkspace from './CartWorkspace.vue'
 import { readCartPending, saveCartPending, clearCartPending, type CartPending } from '../cart-pending'
 import './marketplace.css'
@@ -175,6 +176,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
         <button class="shop-back" @click="go('#/shop')">← 返回商城</button>
         <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
         <section v-if="product" class="shop-product-detail"><div class="detail-image"><ProductArt :asset="product.asset_key" :name="product.name" /></div><div class="detail-copy"><a :href="`#/shop/stores/${product.store_id}`" @click.prevent="go(`#/shop/stores/${product.store_id}`)">{{ product.store_name }} →</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><p>已加入购物车</p><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车 →</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route">重新读取商品</button></div></section>
+        <ProductReviews v-if="product" :key="product.product_id" :product="product.product_id" />
       </template>
       <template v-else-if="screen === 'checkout' && quote">
         <button class="shop-back" :disabled="writing || uncertain" @click="screen = 'product'; quote = null">← 修改规格与数量</button><h1>确认订单</h1>

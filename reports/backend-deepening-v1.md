@@ -1,5 +1,13 @@
 # 后端深化验证记录
 
+## B2.3a 商品页公开评价（2026-10-22）
+
+B2.2提交5d94d6a首push发生schannel中断，第一次核对远端也空响应；使用命令级HTTP/1.1核对远端仍79ab120、左右1/0后普通重试成功，再ls-remote核实5d94d6a。没有force、改remote或关闭TLS验证。B2.2暂存检查也拦下新JSON fixture的CRLF，提交前统一LF后通过。
+
+新增review-client TS协议和ProductReviews公开组件，商品详情下接入真实API；显示真实均分/星级分布、正文及商家回复、空/错误/分页，Vue文本转义；按商品变化的请求代际阻止迟到覆盖。不在无评价时编造0分，不读取私有订单信息。CSS主事实16px。
+
+新4前端测试对空组件先全部失败；实现后 `pnpm --dir web test -- product-reviews.spec.ts marketplace.spec.ts` 12通过，`pnpm --dir web build` vue-tsc/Vite通过；原样式/其他功能未重做。此次为组件/API mock验证，未称正式浏览器或真实部署验收。下一步B2.3b订单行编辑，B2.3c商家回复，再B2.4 Redis和B3恢复。
+
 ## B2.2 评价 HTTP、可信归属与契约（2026-10-22）
 
 B2.1 79ab120已正常push核实。本步纵向接Commerce/Case各5操作，Case派生买家映射/商家身份，私有Commerce路由要求Case部署主体和checkout/fulfillment scope。公共列表允许匿名Case读取；Agent即使持私有scope仍被拒绝。请求额外字段拒绝、rating/version要求整数token；新增严格正文反序列化防数字/布尔值被Jackson静默转为文字。Schema/OpenAPI/共享Wire/fixture/核心路由表同步（Case86/Commerce35/Agent8），公开投影不暴露账号/订单。
