@@ -84,7 +84,14 @@ def test_unannotated_reads_preserve_prior_tasks_and_do_not_authorize_state_chang
     invalid = parts(part(ids[0], '已处理', ['O1'], status), tasks=values, dialogue_events=events)
     model = MockModelClient(mode='live', script=[read(), invalid, invalid])
     result = SupportAgent(req, model, Reads()).run()
-    assert result['reason'] == 'INVALID_DECISION'
+    if change == 'drop':
+        assert result['status'] == 'SUCCEEDED'
+        state = result['answer']['task_state']
+        assert state['focus_ids'] == ['new']
+        assert [t['id'] for t in state['tasks']] == ['existing', 'new']
+        assert state['tasks'][0]['lifecycle'] == 'OPEN'
+    else:
+        assert result['reason'] == 'INVALID_DECISION'
     assert model.packets[1]['dialogue_state']['carried_tasks'] == {
         'existing': 'SUSPENDED' if change == 'resume' else 'NEEDS_MERCHANT'}
 

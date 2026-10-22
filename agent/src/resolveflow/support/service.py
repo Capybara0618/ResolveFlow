@@ -22,6 +22,7 @@ from resolveflow.support.guide import GUIDE_VERSION
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
 from resolveflow.support.retrieval import CANDIDATE_K, RETRIEVAL_VERSION, RRF_CONSTANT
 from resolveflow.support.sources import BoundSources
+from resolveflow.support.stages import INVESTIGATION_SYSTEM, UNDERSTANDING_SYSTEM, TurnStage, Understanding
 from resolveflow.support.store import SupportStore
 
 
@@ -34,7 +35,10 @@ class SupportRuntime:
         model_factory: Any = None,
         sources_factory: Any = None,
         embeddings: SupportEmbeddings | None = None,
+        architecture: str = "single",
     ) -> None:
+        TurnStage(architecture)  # Refuse unknown configuration before constructing a model.
+        self.architecture = architecture
         self.database, self.config = database, config
         self.model_factory, self.sources_factory = model_factory, sources_factory
         self.embeddings = embeddings if embeddings is not None else SupportEmbeddings()
@@ -54,7 +58,10 @@ class SupportRuntime:
             if not isinstance(script, list) or not 1 <= len(script) <= 12:
                 raise SupportFailure("MOCK_SCRIPT_INVALID")
             for decision in script:
-                DECISION.validate_python(decision)
+                if self.architecture == "staged-v1" and decision.get("kind") == "TURN_UNDERSTANDING":
+                    Understanding.model_validate(decision)
+                else:
+                    DECISION.validate_python(decision)
             return MockModelClient(script=script)
         if config.mode != "live" or not config.endpoint or not config.model_id:
             raise SupportFailure("MODEL_NOT_CONFIGURED")
@@ -75,6 +82,7 @@ class SupportRuntime:
         root = Path(__file__).parent
         manifest = {
             "version": "support-agent-v1",
+            "architecture": self.architecture,
             "sdk": version("agentscope"),
             "budget": asdict(RunBudget()),
             "provider_capacity": self.config.context_window_tokens,
@@ -110,6 +118,7 @@ class SupportRuntime:
                     "context.py",
                     "memory.py",
                     "dialogue.py",
+                    "stages.py",
                     "../harness/token_counting.py",
                     "../assets/support-guide-v1.json",
                     "../policies/retrieval.py",
@@ -117,7 +126,8 @@ class SupportRuntime:
                     "../policies/child_index.py",
                 ]
             },
-            "prompt_hash": hashlib.sha256(SYSTEM.encode()).hexdigest(),
+            "prompt_hash": hashlib.sha256((UNDERSTANDING_SYSTEM + INVESTIGATION_SYSTEM
+                                           if self.architecture == "staged-v1" else SYSTEM).encode()).hexdigest(),
         }
         journal, cached = SupportStore(self.database).claim(request, manifest)
         if cached is not None:
@@ -138,7 +148,8 @@ class SupportRuntime:
             )
         try:
             result = SupportAgent(
-                request, model, sources, journal=journal, provider_capacity=self.config.context_window_tokens
+                request, model, sources, journal=journal, provider_capacity=self.config.context_window_tokens,
+                architecture=self.architecture,
             ).run()
             journal.finish(result)
             return result

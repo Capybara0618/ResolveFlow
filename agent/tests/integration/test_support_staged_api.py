@@ -1,0 +1,120 @@
+"""Same four-turn business path in both architectures, actual ASGI/PG and zero-call recovery."""
+
+import uuid
+
+import httpx
+import pytest
+from fastapi.testclient import TestClient
+
+from resolveflow.api.app import create_app
+from resolveflow.api.identity import mint_service_token
+from resolveflow.runtime.factory import DeploymentConfig
+from resolveflow.support.service import SupportRuntime
+from resolveflow.support.sources import BoundSources
+from tests.integration.test_support_dialogue_api import TokenizedScript
+from tests.unit.test_support_agent import read, request
+from tests.unit.test_support_answer_parts import part, parts
+from tests.unit.test_support_context import message
+from tests.unit.test_support_event_groups import group
+from tests.unit.test_support_staged import understand
+from tests.unit.test_support_tasks import task
+
+SECRET = 'staged-test-local-secret-only'  # noqa: S105 - scoped test identity, no real credential
+
+
+@pytest.mark.parametrize('architecture', ['single', 'staged-v1'])
+def test_focus_ledger_and_phase_rebuild_after_each_turn_with_no_new_calls(agent_db, tmp_path, architecture):
+    texts = ['签收没找到，可能家人代收了。', '这件事先暂停，问一下正式申请入口。',
+             '继续核查。纠正：家人和代收点都没有代收。', '包裹找到了，不用再查了。']
+    active, bound, paths, models, results, history = [None], [None], [], [], [], []
+
+    def transport(call):
+        req = bound[0]
+        paths.append(call.url.path)
+        assert req.run_id in call.url.path
+        if call.url.path.endswith('/current'):
+            return httpx.Response(200, json={'conversation_id': req.conversation_id,
+                                              'input_version': req.input_version})
+        assert call.url.path.endswith('/facts/shipment')
+        return httpx.Response(200, json={'version': 3, 'line_id': req.line_id,
+                                          'status': 'DELIVERED', 'synthetic': True})
+
+    with httpx.Client(transport=httpx.MockTransport(transport)) as upstream:
+        runtime = SupportRuntime(agent_db, DeploymentConfig(mode='mock'), architecture=architecture,
+                                 model_factory=lambda: active[0],
+                                 sources_factory=lambda req, token, journal: BoundSources(
+                                     req, case_url='http://case.local', token=token, journal=journal, client=upstream))
+        app = create_app(provider_db=tmp_path / 'provider.db', delivery_loop=False, worker_loop=False,
+                         migrate=False, jwt_secret=SECRET, support_runtime=runtime)
+        with TestClient(app) as api:
+            for index, text in enumerate(texts):
+                req = request(run_id=str(uuid.uuid4()), input_version=1 + len(history))
+                history.append(message(req.input_version, text))
+                req.context.update(current_request=text, history=list(history))
+                if results:
+                    prior = results[-1]
+                    req.context.update(previous_tasks={'origin': 'MODEL_PREVIOUS_TURN',
+                        'input_version': prior['input_version'], 'tasks': prior['answer']['task_state']['tasks']},
+                        previous_customer_memory=prior['answer']['customer_memory'])
+                if index == 0:
+                    focus, intent, needs = 'trace', 'LOGISTICS', ['SHIPMENT']
+                    events, memory = [group('ADD', [focus], text)], []
+                    reads, final = [read()], parts(part(focus, '承运方记录签收，是否亲收尚待核实。', ['O1']))
+                elif index == 1:
+                    focus, intent, needs = 'entry', 'APPLICATION', ['GUIDE']
+                    events = [group('PAUSE', ['trace'], text), group('ADD', [focus], text)]
+                    memory, reads = [], [read('get_support_guide')]
+                    final = parts(part(focus, '正式申请入口为我的售后。', ['O1']))
+                elif index == 2:
+                    focus, intent, needs = 'trace', 'LOGISTICS', ['SHIPMENT', 'GUIDE']
+                    events = [group('RESUME', [focus], text)]
+                    memory = [{'id': 'checked', 'topic': 'CHECKS', 'reference': 'CURRENT',
+                               'quote': '家人和代收点都没有代收。'}]
+                    reads = [read(), read('get_support_guide')]
+                    final = parts(part(focus, '已记录排查；请从售后咨询预览摘要后确认请商家核查。', ['O1', 'O2']))
+                else:
+                    focus, intent, needs = 'trace', 'LOGISTICS', []
+                    events, memory, reads = [group('RESOLVE', [focus], text)], [], []
+                    final = parts(part(focus, '已记录找到包裹，结束核查。', status='CANCELLED'))
+                if architecture == 'staged-v1':
+                    script = [understand(req, key=focus, intent=intent, needs=needs, events=events, memory=memory),
+                              *reads, final]
+                else:
+                    declaration = {'tasks': [task(focus, intent)], 'dialogue_events': events,
+                                   'memory_updates': memory}
+                    script = [*reads, final]
+                    script[0] = {**script[0], **declaration}
+                active[0] = TokenizedScript(mode='live', script=script)
+                models.append(active[0])
+                bound[0] = req
+                token = mint_service_token('case-service', SECRET, scope='support:run',
+                                           merchant_id=req.merchant_id, customer_id=req.customer_id)
+                headers = {'Authorization': 'Bearer ' + token}
+                body = {**req.model_dump(mode='json'), 'tool_token': 'bound-test-token'}
+                response = api.post('/internal/v1/support-runs', json=body, headers=headers)
+                assert response.status_code == 200
+                result = response.json()
+                assert result['status'] == 'SUCCEEDED', result['reason']
+                results.append(result)
+                history.append(message(req.input_version + 1, result['answer']['text'], 'ASSISTANT'))
+                with agent_db.connection() as c:
+                    c.execute("UPDATE support_agent_run SET status='RUNNING',result_json=NULL,"
+                              "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
+                before_paths = list(paths)
+                active[0] = TokenizedScript(mode='live', script=script)
+                replayed = api.post('/internal/v1/support-runs', json=body, headers=headers)
+                assert replayed.json() == result and active[0].calls == 0 and paths == before_paths
+            assert [t['id'] for t in results[1]['answer']['task_state']['tasks']] == ['trace', 'entry']
+            assert results[1]['answer']['task_state']['focus_ids'] == ['entry']
+            assert [r['answer']['task_state']['tasks'][0]['lifecycle'] for r in results] == [
+                'OPEN', 'PAUSED', 'OPEN', 'RESOLVED']
+            assert results[2]['answer']['customer_memory']['entries'][0]['source']['offset'] == 8
+            assert [m.calls for m in models] == ([2, 2, 3, 1] if architecture == 'single' else [3, 3, 4, 2])
+            # An unfinished saved run must not silently switch architecture or reset phase/budget.
+            with agent_db.connection() as c:
+                c.execute("UPDATE support_agent_run SET status='RUNNING',result_json=NULL,"
+                          "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
+            runtime.architecture = 'single' if architecture == 'staged-v1' else 'staged-v1'
+            response = api.post('/internal/v1/support-runs', json=body, headers=headers)
+            assert response.status_code == 409 and response.json()['detail'] == 'MANIFEST_MISMATCH'
+            assert active[0].calls == 0

@@ -1,3 +1,10 @@
+## 当前快照（2026-10-22，客服Agent职责拆分试验：可选两阶段实现并通过工程验证）
+
+- 公共基础02384a0、协议a9c9faa均已普通push核实。新增stages.py/SupportAgent与SupportRuntime显式architecture=staged-v1（默认single）：同一AgentScope循环内先TURN_UNDERSTANDING，仅声明本轮焦点、需求/事件/记忆；程序原子保存后调查/答复阶段只选工具或ANSWER_PARTS，禁止重声明。理解调用纳入原预算/窗口/一次反馈/调用账，manifest记录架构/新源码/两段提示，不静默迁移旧run。
+- 理解与调查分别使用精简提示/上下文；调查仍动态选择工具，不固定全量路径。焦点needs支持ORDER/SHIPMENT/POLICY/GUIDE多选，单个物流任务附带操作指引须同时有两类来源，结束事件由程序派生状态；错误需求识别/自然语言事实仍不能由结构规则保证。单Agent默认与可选模式都使用同一公共事项/协议基础，未做真实质量对照。
+- 新阶段9红测先全失败，接实现9通过；补多意图/换ID/换问法与旧引用拒绝，单元共12项。实际ASGI-PG两种模式各4轮：OPEN→PAUSED→OPEN→RESOLVED、入口插问不丢原事项、纠正offset8、每轮重建0模型0HTTP、架构切换409 MANIFEST_MISMATCH，2项通过。脚本模型调用单Agent[2,2,3,1]共8；两阶段[3,3,4,2]共12，5次相同业务工具；不称降本或真实泛化提升。
+- 首集中255通过/1旧drop断言失败；改为验证漏列不删除原事项，最终52文件261通过/0失败/0跳过（44.60秒），另新v3准备/ASGI-PG4通过（5.31秒）。新增混合测试首两项引用把O2误写O3已修夹具；Ruff导入排序/测试密钥标记修复后实际通过，5生产模块strict mypy通过。旧raw/Gold/清单保持，生产RAG/Java/网页未改；尚未运行真实模型或部署。准备精确提交普通push后归档本批工程证据/数据保全并停PG，ledger1830保持。
+
 ## 当前快照（2026-10-22，客服Agent职责拆分试验：公共协议完成）
 
 - 事项基础02384a0已普通push核实。按[方案](../docs/customer-agent-staged-v1.md)接协议减负：PAUSE/CANCEL/RESOLVE事件在原句/前态校验下决定生命周期，并由程序派生展示状态SUSPENDED/CANCELLED/ANSWERED，不要求模型同步双枚举；原模型响应不改。READ_TOOL允许限长purpose非执行说明，其余未知字段/主体参数/工具权限保持拒绝。
