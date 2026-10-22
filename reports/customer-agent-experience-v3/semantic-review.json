@@ -1,0 +1,134 @@
+{
+  "reviewer": "CODEX_SOURCE_REVIEW, not independent human Gold",
+  "original_criteria_unchanged": true,
+  "runtime_sha256": "68c6578ec8eadeefa94b8d652d6cb06a5815136a258f2639bb6d52469bb920f3",
+  "rows": [
+    {
+      "id": "U05",
+      "turn": 1,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "读取签收来源并区分客户未找到与系统签收",
+          "pass": true
+        },
+        {
+          "text": "代收只是猜测，不当成已核实；需要核查时不虚构已转交",
+          "pass": true
+        }
+      ],
+      "note": "实际读订单PAID与物流DELIVERED，明确家人代收无法确认，未虚构已转交。ANSWERED仍OPEN实际保存。",
+      "additional_issues": []
+    },
+    {
+      "id": "U05",
+      "turn": 2,
+      "published": true,
+      "classification": "PARTIAL",
+      "criteria": [
+        {
+          "text": "暂停原签收调查而不是永久取消",
+          "pass": false
+        },
+        {
+          "text": "回答当前正式申请入口，不继续索要代收材料",
+          "pass": true
+        }
+      ],
+      "note": "先出现非法purpose，格式反馈后读指南并正确给我的售后。只声明新t2，原OPEN签收t1被省略并从状态消失，没有PAUSE。",
+      "additional_issues": [
+        "OPEN_ANSWERED_ISSUE_DROPPED",
+        "EXTRA_PURPOSE_FIELD_REPAIRED"
+      ]
+    },
+    {
+      "id": "U05",
+      "turn": 3,
+      "published": true,
+      "classification": "PARTIAL",
+      "criteria": [
+        {
+          "text": "恢复原签收任务，并采用家人及代收点均已排查的纠正",
+          "pass": false
+        },
+        {
+          "text": "不重复要求同样排查，给出可确认的商家核查下一步",
+          "pass": false
+        }
+      ],
+      "note": "纠正原句在offset15正确保存且没有重复要求排查；但前轮只剩t2，本轮ADD新t3，不是恢复原t1。无工具/引用，复述历史系统事实并把请商家核查错放到我的售后；正确位置应为售后咨询。两个复合原条件均非完整满足，部分评级仅表示其中纠正/不重复子项通过。",
+      "additional_issues": [
+        "NEW_TASK_INSTEAD_OF_RESUME",
+        "HISTORICAL_ASSISTANT_FACTS_WITHOUT_CURRENT_SOURCES",
+        "WRONG_HANDOFF_ROUTE"
+      ]
+    },
+    {
+      "id": "U05",
+      "turn": 4,
+      "published": false,
+      "classification": "FAILED",
+      "criteria": [
+        {
+          "text": "采用找到包裹的新信息，停止原核查/退款推进",
+          "pass": false
+        },
+        {
+          "text": "不把客户找到包裹说成系统已完成退款或转交",
+          "pass": false
+        }
+      ],
+      "note": "未发布。两次RESOLVE事件均配CANCELLED状态，校验拒绝且反馈未指出具体组合要求。停止核查草稿存在，但不能算用户收到。",
+      "additional_issues": [
+        "RESOLVE_CANCELLED_COUPLING",
+        "NON_SPECIFIC_DIALOGUE_FEEDBACK"
+      ]
+    },
+    {
+      "id": "U02",
+      "turn": 1,
+      "published": false,
+      "classification": "FAILED",
+      "criteria": [
+        {
+          "text": "区分LOST与PAID",
+          "pass": false
+        },
+        {
+          "text": "完整回答资格和当前申请入口",
+          "pass": false
+        }
+      ],
+      "note": "未发布。读订单后两次物流READ_TOOL都含非法purpose而停止；没有实际物流或政策检索，不能验证本轮完整订单/承运双状态表达。",
+      "additional_issues": [
+        "EXTRA_PURPOSE_FIELD_REPEATED",
+        "RETRIEVAL_NOT_REACHED"
+      ]
+    },
+    {
+      "id": "U03",
+      "turn": 1,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "不要求创建退款或金额",
+          "pass": true
+        },
+        {
+          "text": "给出独立核查入口和确认步骤",
+          "pass": true
+        }
+      ],
+      "note": "初次无指南答复被完成检查指出缺来源，随后读指南并明确无需退款金额、请商家核查、预览编辑摘要后确认、选择共享材料；未虚构已提交。",
+      "additional_issues": []
+    }
+  ],
+  "classification_note": "PARTIAL is qualitative: U05-3 passed correction/non-repetition subparts but neither compound criterion fully; no resume metric derived.",
+  "full_conversation_pass": {
+    "U05": false,
+    "U02": false,
+    "U03": true
+  }
+}

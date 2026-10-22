@@ -1,0 +1,122 @@
+{
+  "version": "customer-agent-experience-v3-diagnosis",
+  "runtime_sha256": "68c6578ec8eadeefa94b8d652d6cb06a5815136a258f2639bb6d52469bb920f3",
+  "diagnoser_sha256": "82ad01354c4c339c5dac53fdd896b11202d664087ec92e29c4f7d1171f83d190",
+  "new_model_calls": 0,
+  "raw_unchanged": true,
+  "schema_invalid": [
+    {
+      "id": "U05",
+      "turn": 2,
+      "model": 1,
+      "errors": [
+        {
+          "path": [
+            "READ_TOOL",
+            "purpose"
+          ],
+          "type": "extra_forbidden"
+        }
+      ]
+    },
+    {
+      "id": "U02",
+      "turn": 1,
+      "model": 2,
+      "errors": [
+        {
+          "path": [
+            "READ_TOOL",
+            "purpose"
+          ],
+          "type": "extra_forbidden"
+        }
+      ]
+    },
+    {
+      "id": "U02",
+      "turn": 1,
+      "model": 3,
+      "errors": [
+        {
+          "path": [
+            "READ_TOOL",
+            "purpose"
+          ],
+          "type": "extra_forbidden"
+        }
+      ]
+    }
+  ],
+  "open_issue_omission": {
+    "before": {
+      "origin": "MODEL_WITH_CUSTOMER_ANCHORS",
+      "events": [],
+      "carried_tasks": {
+        "t1": "ANSWERED"
+      },
+      "lifecycles": {
+        "t1": "OPEN"
+      }
+    },
+    "after": {
+      "origin": "MODEL_WITH_CUSTOMER_ANCHORS",
+      "events": [
+        {
+          "change": "ADD",
+          "task_id": "t2",
+          "source": {
+            "message_id": null,
+            "sequence": 3,
+            "offset": 15,
+            "quote": "要正式申请售后在哪个页面？"
+          }
+        }
+      ],
+      "carried_tasks": {
+        "t2": "ANSWERED"
+      },
+      "lifecycles": {
+        "t2": "OPEN"
+      }
+    },
+    "reason": "ANSWERED is exempt from required carry-over; omission removes OPEN topic"
+  },
+  "unique_quote_location": {
+    "message_id": null,
+    "sequence": 5,
+    "offset": 15,
+    "quote": "我问过家人和代收点了，都没代收，别让我再问一遍"
+  },
+  "resume_without_fresh_sources": {
+    "tools": [],
+    "citations": [],
+    "previous_task_ids": [
+      "t2"
+    ],
+    "new_task_ids": [
+      "t3"
+    ],
+    "wrong_route_excerpt": "可在「我的售后」页面选择该订单商品后点「请商家核查」"
+  },
+  "closure": {
+    "original_resolve_cancelled": {
+      "accepted": false,
+      "error": "事项事件与lifecycle不一致；ANSWERED不关闭事项；暂停用RESUME，已结束用REOPEN。"
+    },
+    "hypothetical_event_cancel": {
+      "accepted": true,
+      "lifecycles": {
+        "t3": "CANCELLED"
+      }
+    },
+    "hypothetical_outcome_answered": {
+      "accepted": true,
+      "lifecycles": {
+        "t3": "RESOLVED"
+      }
+    },
+    "probe_limit": "local DialogueState only; copies are not live results or accepted business writes"
+  },
+  "rag_searches": 0
+}
