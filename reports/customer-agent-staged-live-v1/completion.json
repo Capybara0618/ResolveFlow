@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-22",
+  "runtime": "FINISHED; 12 turns, not all business conditions passed",
+  "new_model_requests": 38,
+  "ledger_before": 1830,
+  "ledger_after": 1868,
+  "post_cohort_model_requests": 0,
+  "preparation_validation": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 4.03
+  },
+  "offline_diagnosis": {
+    "local_checks": 5,
+    "passed": 5,
+    "ruff": "passed after one import ordering correction",
+    "hypothetical_copy_not_real_success": true
+  },
+  "public_11_tables_unchanged": true,
+  "temporary_schemas": [],
+  "inherited_dirty_files_unchanged": true,
+  "old_raws_unchanged": true,
+  "frozen_sources_weights_unchanged": true,
+  "pg": {
+    "container": "resolveflow-review-demo-postgres-1",
+    "status": "exited",
+    "exit_code": 0,
+    "volume_retained": "resolveflow-review-demo_demo-postgres-data"
+  },
+  "project_ports_checked": [
+    5174,
+    8080,
+    8081,
+    8083,
+    8090,
+    55433,
+    53306,
+    6379,
+    9876,
+    10911
+  ],
+  "listening_project_ports": [],
+  "ledger_lock_released": true,
+  "actual_user_api_key_absent": true,
+  "not_run": [
+    "Java/web end-to-end",
+    "deployment",
+    "further paid generation",
+    "resume metrics",
+    "production fixes after cohort"
+  ],
+  "root_cause_next_step": "Simplify customer-claim append/correction references; concrete actual-state feedback; independent ORDER provenance for money claims; then offline variants. No automatic new cohort.",
+  "sha256": {
+    "reports/customer-agent-staged-live-v1/conversations.md": "cc669e6c3871b9e47842fa6c0e43d610f5145a31f8685c98a0860167a9510fd0",
+    "reports/customer-agent-staged-live-v1/diagnosis.json": "8990707621da0e25808cb0d23ca0b58ae35c7c133fc54bd58951457b97d9d7e4",
+    "reports/customer-agent-staged-live-v1/README.md": "0991dfbb4102b23b43dd8dee2d10f85f82e95b60ba4fd69bfac22d23b7da033f",
+    "reports/customer-agent-staged-live-v1/runtime-results.json": "0f498d647a11d71a0549c8be2275808e32069a63d6ca8d6ad1d294e705a921f7",
+    "reports/customer-agent-staged-live-v1/semantic-review.json": "1d6b341522bc8e4fc387457f3a6708bac950855428cccfce7b0c073fee4082df",
+    "reports/customer-agent-staged-live-v1/summary.json": "71ed81b0b2a94c41c453d401227d4d3866cd1f22e14f3f9f331fdb5632bc5b9a",
+    "scripts/customer_agent_staged_live_diagnose.py": "64d867d7b9f84973375e955edcb353c7091fd69658a107cc30f7e059bb4b66f1"
+  }
+}

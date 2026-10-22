@@ -1,0 +1,244 @@
+{
+  "reviewer": "CODEX_SOURCE_REVIEW, not independent human Gold",
+  "original_criteria_unchanged": true,
+  "runtime_sha256": "0f498d647a11d71a0549c8be2275808e32069a63d6ca8d6ad1d294e705a921f7",
+  "rating_rule": "COMPLETE requires both original conditions; PARTIAL records achieved subconditions, never full compound success. Published is separately counted.",
+  "rows": [
+    {
+      "id": "U05:single",
+      "turn": 1,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "读取签收来源并区分客户未找到与系统签收",
+          "pass": true
+        },
+        {
+          "text": "代收只是猜测，不当成已核实；需要核查时不虚构已转交",
+          "pass": true
+        }
+      ],
+      "note": "实际读取ORDER/SHIPMENT，区分系统签收与客户未找到；未将家人代收猜测当事实，未虚构已转交。",
+      "additional_issues": []
+    },
+    {
+      "id": "U05:single",
+      "turn": 2,
+      "published": false,
+      "classification": "FAILED",
+      "criteria": [
+        {
+          "text": "暂停原签收调查而不是永久取消",
+          "pass": false
+        },
+        {
+          "text": "回答当前正式申请入口，不继续索要代收材料",
+          "pass": false
+        }
+      ],
+      "note": "未发布。首答保留t1但缺少对应事件；修正使用不合法的SUSPEND而非PAUSE。草稿入口正确不算客户实际收到。",
+      "additional_issues": [
+        "DIALOGUE_COVERAGE",
+        "INVALID_SUSPEND_ENUM"
+      ]
+    },
+    {
+      "id": "U05:single",
+      "turn": 3,
+      "published": false,
+      "classification": "FAILED",
+      "criteria": [
+        {
+          "text": "恢复原签收任务，并采用家人及代收点均已排查的纠正",
+          "pass": false
+        },
+        {
+          "text": "不重复要求同样排查，给出可确认的商家核查下一步",
+          "pass": false
+        }
+      ],
+      "note": "未发布。前轮暂停失败，实际旧t1仍OPEN；两次RESUME均被拒。没有实际物流/指南读取，草稿复述历史助手事实与泛化转交承诺也存在问题，但未作为已发布错误计数。",
+      "additional_issues": [
+        "RESUME_FROM_OPEN_AFTER_FAILED_PAUSE",
+        "UNPUBLISHED_DRAFT_SOURCE_GAPS"
+      ]
+    },
+    {
+      "id": "U05:single",
+      "turn": 4,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "采用找到包裹的新信息，停止原核查/退款推进",
+          "pass": true
+        },
+        {
+          "text": "不把客户找到包裹说成系统已完成退款或转交",
+          "pass": true
+        }
+      ],
+      "note": "采纳找到包裹，结束核查且不推进退款；原RESOLVE+CANCELLED经程序规范化为ANSWERED/RESOLVED。",
+      "additional_issues": []
+    },
+    {
+      "id": "U05:staged-v1",
+      "turn": 1,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "读取签收来源并区分客户未找到与系统签收",
+          "pass": true
+        },
+        {
+          "text": "代收只是猜测，不当成已核实；需要核查时不虚构已转交",
+          "pass": true
+        }
+      ],
+      "note": "实际读取SHIPMENT，DELIVERED只作为承运结论；家人代收未确认为事实，未声称已核查转交。",
+      "additional_issues": []
+    },
+    {
+      "id": "U05:staged-v1",
+      "turn": 2,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "暂停原签收调查而不是永久取消",
+          "pass": true
+        },
+        {
+          "text": "回答当前正式申请入口，不继续索要代收材料",
+          "pass": true
+        }
+      ],
+      "note": "PAUSE原t1并ADD入口t2，最终t1仍在集合且PAUSED，当前焦点只有t2；实际读指南后回答我的售后。",
+      "additional_issues": []
+    },
+    {
+      "id": "U05:staged-v1",
+      "turn": 3,
+      "published": false,
+      "classification": "FAILED",
+      "criteria": [
+        {
+          "text": "恢复原签收任务，并采用家人及代收点均已排查的纠正",
+          "pass": false
+        },
+        {
+          "text": "不重复要求同样排查，给出可确认的商家核查下一步",
+          "pass": false
+        }
+      ],
+      "note": "未发布。正确选择旧t1/RESUME/SHIPMENT+GUIDE，先将supersedes填字符串，修正后却填助手建议文本；真实旧客户陈述集合为空。整次理解原子拒绝，暂停仍在，纠正未保存。",
+      "additional_issues": [
+        "MEMORY_SUPERSEDES_STRING",
+        "MEMORY_ASSISTANT_ADVICE_AS_PRIOR_CLAIM"
+      ]
+    },
+    {
+      "id": "U05:staged-v1",
+      "turn": 4,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "采用找到包裹的新信息，停止原核查/退款推进",
+          "pass": true
+        },
+        {
+          "text": "不把客户找到包裹说成系统已完成退款或转交",
+          "pass": true
+        }
+      ],
+      "note": "首理解误复用上一轮原句及supersedes字符串；一次修正后正确RESOLVE原t1，最终采用找到包裹且停止，无虚构提交。首错完整保留，不算一遍成功。",
+      "additional_issues": [
+        "STALE_INITIAL_UNDERSTANDING_REPAIRED"
+      ]
+    },
+    {
+      "id": "U02:staged-v1",
+      "turn": 1,
+      "published": true,
+      "classification": "PARTIAL",
+      "criteria": [
+        {
+          "text": "区分LOST与PAID",
+          "pass": false
+        },
+        {
+          "text": "完整回答资格和当前申请入口",
+          "pass": true
+        }
+      ],
+      "note": "物流LOST、政策条件与当前申请/独立核查入口均正确，实际检索命中R-LOST-001。但未读取订单PAID，也未明确区分两个字段，原第一条件不记完整；实付129来自绑定商品展示信息，缺当前ORDER权威来源，额外记录。没有把订单直接说成LOST。",
+      "additional_issues": [
+        "ORDER_PAID_DISTINCTION_NOT_DEMONSTRATED",
+        "AMOUNT_FROM_PRODUCT_WITHOUT_CURRENT_ORDER_SOURCE"
+      ]
+    },
+    {
+      "id": "U02:single",
+      "turn": 1,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "区分LOST与PAID",
+          "pass": true
+        },
+        {
+          "text": "完整回答资格和当前申请入口",
+          "pass": true
+        }
+      ],
+      "note": "ORDER返回PAID、SHIPMENT返回LOST，最终明确区分；首答缺资格/入口，完成反馈后实际检索政策及指南，完整给出无有效签收/人工核验/整行实付条件和我的售后入口。",
+      "additional_issues": [
+        "INITIAL_INCOMPLETE_ANSWER_REPAIRED"
+      ]
+    },
+    {
+      "id": "U03:single",
+      "turn": 1,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "不要求创建退款或金额",
+          "pass": true
+        },
+        {
+          "text": "给出独立核查入口和确认步骤",
+          "pass": true
+        }
+      ],
+      "note": "先答缺指南被拒，随后实际读取指南，给出无需退款金额、请商家核查→预览编辑→确认；未声称已转交。",
+      "additional_issues": [
+        "INITIAL_MISSING_GUIDE_REPAIRED"
+      ]
+    },
+    {
+      "id": "U03:staged-v1",
+      "turn": 1,
+      "published": true,
+      "classification": "COMPLETE",
+      "criteria": [
+        {
+          "text": "不要求创建退款或金额",
+          "pass": true
+        },
+        {
+          "text": "给出独立核查入口和确认步骤",
+          "pass": true
+        }
+      ],
+      "note": "虽然focus主意图为LOGISTICS，needs同时含SHIPMENT/GUIDE，实际都读取；说明无需退款金额及独立核查预览确认，额外运输说明符合当前来源。",
+      "additional_issues": [
+        "MAIN_INTENT_LOGISTICS_WITH_GUIDE_NEED"
+      ]
+    }
+  ]
+}
