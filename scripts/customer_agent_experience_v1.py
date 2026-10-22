@@ -52,6 +52,9 @@ def freeze(path=PLAN):
         "agent/tests/unit/test_customer_agent_experience_v1.py", "agent/tests/integration/test_customer_agent_experience_v1.py",
         "agent/tests/unit/test_support_response_contract.py", "agent/tests/unit/test_support_publication_feedback.py",
         "docs/customer-agent-experience-v1.md",
+        "agent/src/resolveflow/support/activity.py", "agent/src/resolveflow/support/completion.py",
+        "agent/tests/unit/test_support_activity.py", "agent/tests/unit/test_support_completion.py",
+        "docs/customer-agent-task-resolution-v1.md",
     }
     write_new(path, {"version": "customer-agent-experience-v1", "conversations": 5, "turns": 8,
                      "not_resume_metrics": True, "synthetic_facts": True, "not_holdout": True,

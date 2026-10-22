@@ -7,12 +7,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from resolveflow.harness.model import MockModelClient
 from resolveflow.support.dialogue import DialogueState, DialogueStateError
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.guidance import decision_feedback
 from resolveflow.support.protocol import DECISION, DialogueEvent, SupportTask
-from tests.unit.test_support_agent import Reads, answer, read, request
+from tests.integration.test_support_dialogue_api import TokenizedScript
+from tests.unit.test_support_agent import GuideReads, answer, read, request
 from tests.unit.test_support_dialogue import event, previous
 from tests.unit.test_support_tasks import task
 
@@ -103,13 +103,13 @@ def test_model_can_reissue_complete_three_task_group_after_one_repair_then_answe
     corrected = {**read(), 'tasks': initial, 'dialogue_events': [group('ADD', ['a', 'b', 'c'], quote)]}
     final = [task('a', status='ANSWERED', evidence_refs=['O1'], response_excerpt='系统有签收记录'),
              task('b', 'ELIGIBILITY', 'NEEDS_MERCHANT', response_excerpt='可以请商家核验'),
-             task('c', 'APPLICATION', 'UNAVAILABLE', response_excerpt='入口暂未核实')]
-    model = MockModelClient(mode='live', script=[incomplete, corrected,
-        answer(text='系统有签收记录，可以请商家核验。入口暂未核实。', citations=['O1'], tasks=final)])
-    sources = Reads()
+             task('c', 'APPLICATION', 'ANSWERED', evidence_refs=['O2'], response_excerpt='正式申请入口为我的售后')]
+    model = TokenizedScript(mode='live', script=[incomplete, corrected, read('get_support_guide'),
+        answer(text='系统有签收记录，可以请商家核验。正式申请入口为我的售后。', citations=['O1', 'O2'], tasks=final)])
+    sources = GuideReads()
     result = SupportAgent(req, model, sources).run()
     assert result['status'] == 'SUCCEEDED', result['reason']
     assert model.packets[1]['task_state']['tasks'] == []
     assert json.loads(model.packets[1]['feedback'])['missing_task_ids'] == ['b', 'c']
     assert [e['task_id'] for e in result['answer']['dialogue_state']['events']] == ['a', 'b', 'c']
-    assert sources.calls == [('get_shipment_trace', {})] and model.calls == 3
+    assert sources.calls == [('get_shipment_trace', {}), ('get_support_guide', {})] and model.calls == 4

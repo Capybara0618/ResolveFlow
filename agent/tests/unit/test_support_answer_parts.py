@@ -10,7 +10,8 @@ from pydantic import ValidationError
 from resolveflow.harness.model import MockModelClient
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.protocol import DECISION
-from tests.unit.test_support_agent import Reads, answer, read, request
+from tests.integration.test_support_dialogue_api import TokenizedScript
+from tests.unit.test_support_agent import GuideReads, Reads, answer, read, request
 from tests.unit.test_support_event_groups import group
 from tests.unit.test_support_tasks import task
 
@@ -30,16 +31,16 @@ def test_three_tasks_answer_text_is_written_once_and_original_metadata_is_reused
              'dialogue_events': [group('ADD', ['shipping', 'qualify', 'apply'], req.context['current_request'])]}
     final = parts(part('shipping', '系统有签收记录。', ['O1']),
                   part('qualify', '退款条件需商家核验。', status='NEEDS_MERCHANT'),
-                  part('apply', '当前入口尚未核实。', status='UNAVAILABLE'))
+                  part('apply', '正式退款申请入口为我的售后。', ['O2']))
     original = deepcopy(final)
-    model = MockModelClient(mode='live', script=[start, final])
-    result = SupportAgent(req, model, Reads()).run()
+    model = TokenizedScript(mode='live', script=[start, read('get_support_guide'), final])
+    result = SupportAgent(req, model, GuideReads()).run()
     assert result['status'] == 'SUCCEEDED', result['reason']
     assert result['answer']['text'] == '\n\n'.join(p['text'] for p in final['parts'])
     saved = result['answer']['task_state']['tasks']
     assert [t['intent'] for t in saved] == ['LOGISTICS', 'ELIGIBILITY', 'APPLICATION']
     assert all(t['response_excerpt'] in result['answer']['text'] for t in saved)
-    assert final == original and model.calls == 2
+    assert final == original and model.calls == 3
 
 
 @pytest.mark.parametrize('bad_parts', [

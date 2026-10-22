@@ -25,6 +25,9 @@ def render_answer(decision: AnswerParts, accepted: list[SupportTask]) -> Answer:
     for part in decision.parts:
         data = by_id[part.task_id].model_dump()
         data.update(status=part.status, evidence_refs=list(part.citations), response_excerpt=part.text[:400])
+        if part.blocker and part.blocker.question and part.blocker.question in part.text:
+            data["response_excerpt"] = part.blocker.question
+        data["blocker"] = part.blocker
         tasks.append(SupportTask.model_validate(data))
     return Answer(kind="ANSWER", text="\n\n".join(p.text for p in decision.parts), tasks=tasks,
                   citations=list(dict.fromkeys(ref for p in decision.parts for ref in p.citations)),
@@ -98,5 +101,6 @@ def previous_hint(context: dict[str, Any], input_version: int) -> dict[str, Any]
     except ValidationError:
         return None  # Old or unknown model state is not a substitute for the actual conversation.
     return {"origin": "MODEL_PREVIOUS_TURN", "input_version": version, "needs_recheck": True,
-            "tasks": [{"id": t.id, "intent": t.intent, "request": t.request, "previous_status": t.status}
+            "tasks": [{"id": t.id, "intent": t.intent, "request": t.request, "previous_status": t.status,
+                       **({"previous_blocker": t.blocker.model_dump()} if t.blocker else {})}
                       for t in tasks]}

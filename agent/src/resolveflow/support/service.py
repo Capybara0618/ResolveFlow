@@ -96,6 +96,7 @@ class SupportRuntime:
                 for name in [
                     "engine.py",
                     "activity.py",
+                    "completion.py",
                     "protocol.py",
                     "sources.py",
                     "store.py",

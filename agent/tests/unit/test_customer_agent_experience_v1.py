@@ -15,6 +15,8 @@ def test_experience_selection_keeps_original_questions_and_checks_frozen_sources
     runner.freeze(path)
     plan, loaded = runner.load_plan(path)
     assert plan['not_resume_metrics'] is True and len(loaded) == 5
+    modules = {'agent/src/resolveflow/support/activity.py', 'agent/src/resolveflow/support/completion.py'}
+    assert modules <= set(plan['files'])
     plan['files']['agent/src/resolveflow/support/engine.py'] = '0' * 64
     changed = tmp_path / 'changed.json'
     runner.write_new(changed, plan)

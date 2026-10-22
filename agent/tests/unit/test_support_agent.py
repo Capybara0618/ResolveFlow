@@ -5,6 +5,7 @@ import pytest
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.model import MockModelClient
 from resolveflow.support.engine import SupportAgent
+from resolveflow.support.guide import guide_source
 from resolveflow.support.protocol import SupportInput
 
 
@@ -47,6 +48,14 @@ class Reads:
                 "data": {"rule_id": "signed", "text": "有签收争议时须商家核验，不因客户陈述直接退款。"},
             }
         ]
+
+
+class GuideReads(Reads):
+    def read(self, name, arguments):
+        if name == "get_support_guide":
+            self.calls.append((name, arguments))
+            return guide_source()
+        return super().read(name, arguments)
 
 
 def read(name="get_shipment_trace", **arguments):

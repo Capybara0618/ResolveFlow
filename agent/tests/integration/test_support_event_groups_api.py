@@ -21,10 +21,12 @@ def test_group_correction_is_persisted_and_rebuilt_without_model_or_network(agen
     pending = [task('a'), task('b', 'ELIGIBILITY'), task('c', 'APPLICATION')]
     final = [task('a', status='ANSWERED', evidence_refs=['O1'], response_excerpt='系统有签收记录'),
              task('b', 'ELIGIBILITY', 'NEEDS_MERCHANT', response_excerpt='需要商家核验'),
-             task('c', 'APPLICATION', 'UNAVAILABLE', response_excerpt='入口尚未核实')]
+             task('c', 'APPLICATION', 'ANSWERED', evidence_refs=['O2'], response_excerpt='正式申请入口为我的售后')]
     script = [{**read(), 'tasks': pending, 'dialogue_events': [event('ADD', 'a', quote)]},
               {**read(), 'tasks': pending, 'dialogue_events': [group('ADD', ['a', 'b', 'c'], quote)]},
-              answer(text='系统有签收记录，需要商家核验。入口尚未核实。', citations=['O1'], tasks=final)]
+              read('get_support_guide'),
+              answer(text='系统有签收记录，需要商家核验。正式申请入口为我的售后。',
+                     citations=['O1', 'O2'], tasks=final)]
     active = [TokenizedScript(script=script, mode='live')]
     paths = []
 
@@ -53,12 +55,12 @@ def test_group_correction_is_persisted_and_rebuilt_without_model_or_network(agen
             result = response.json()
             assert result['status'] == 'SUCCEEDED', result['reason']
             assert [e['task_id'] for e in result['answer']['dialogue_state']['events']] == ['a', 'b', 'c']
-            assert active[0].calls == 3
+            assert active[0].calls == 4
             with agent_db.connection() as c:
                 calls = c.execute('SELECT * FROM support_agent_call WHERE run_id=%s ORDER BY kind,position',
                                   (req.run_id,)).fetchall()
                 model_calls = [row for row in calls if row['kind'] == 'model']
-                assert len(model_calls) == 3 and len(calls) == 4
+                assert len(model_calls) == 4 and len(calls) == 6
                 assert model_calls[1]['response_json']['decision']['dialogue_events'][0]['task_ids'] == ['a', 'b', 'c']
                 c.execute("UPDATE support_agent_run SET result_json=NULL,status='RUNNING',"
                           "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))

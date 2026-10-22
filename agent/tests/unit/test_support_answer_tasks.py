@@ -12,7 +12,8 @@ from resolveflow.support.engine import SupportAgent
 from resolveflow.support.guidance import decision_feedback
 from resolveflow.support.protocol import Answer, AnswerParts, SupportTask
 from resolveflow.support.tasks import TaskStateError, TaskTracker
-from tests.unit.test_support_agent import Reads, answer, read, request
+from tests.integration.test_support_dialogue_api import TokenizedScript
+from tests.unit.test_support_agent import GuideReads, Reads, answer, read, request
 from tests.unit.test_support_dialogue import event
 from tests.unit.test_support_tasks import task
 
@@ -65,18 +66,20 @@ def test_model_repairs_saved_answer_with_full_task_updates_and_one_repair_only()
         event('ADD', t['id'], req.context['current_request']) for t in initial]}
     saved = deepcopy(saved_row()['models'][3]['decision'])
     saved['citations'] = ['O1']  # Script source only provides O1; original report stays untouched.
-    text = '系统有签收记录；退款须商家核验；入口尚未核实。'
+    text = '系统有签收记录；退款须商家核验；正式申请入口为我的售后。'
     complete = [task('shipping', status='ANSWERED', evidence_refs=['O1'], response_excerpt='系统有签收记录'),
                 task('eligibility', 'ELIGIBILITY', 'NEEDS_MERCHANT', response_excerpt='退款须商家核验'),
-                task('entry', 'APPLICATION', 'UNAVAILABLE', response_excerpt='入口尚未核实')]
-    model = MockModelClient(mode='live', script=[pending, saved, answer(text=text, citations=['O1'], tasks=complete)])
-    sources = Reads()
+                task('entry', 'APPLICATION', 'ANSWERED', evidence_refs=['O2'],
+                     response_excerpt='正式申请入口为我的售后')]
+    model = TokenizedScript(mode='live', script=[pending, saved, read('get_support_guide'),
+                                                answer(text=text, citations=['O1', 'O2'], tasks=complete)])
+    sources = GuideReads()
     result = SupportAgent(req, model, sources).run()
     assert result['status'] == 'SUCCEEDED', result['reason']
     feedback = json.loads(model.packets[2]['feedback'])
     assert feedback['task_ids'] == ['shipping', 'eligibility', 'entry']
     assert result['answer']['task_state']['tasks'] == complete
-    assert sources.calls == [('get_shipment_trace', {})] and model.calls == 3
+    assert sources.calls == [('get_shipment_trace', {}), ('get_support_guide', {})] and model.calls == 4
     repeated = MockModelClient(mode='live', script=[pending, saved, saved])
     failed = SupportAgent(req, repeated, Reads()).run()
     assert failed['reason'] == 'INVALID_DECISION' and failed['answer'] is None

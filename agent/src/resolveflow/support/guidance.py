@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from resolveflow.support.completion import CompletionError
 from resolveflow.support.dialogue import DialogueStateError
 from resolveflow.support.memory import MemoryStateError
 from resolveflow.support.tasks import TaskStateError
@@ -76,7 +77,15 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         "resubmit_note": "被拒动作的标注未保存；重发完整动作及所需tasks/dialogue_events，不只补字段。"
                          "以当前task_state/dialogue_state为准，已有任务不用ADD。",
     }
-    if isinstance(error, DialogueStateError):
+    if isinstance(error, CompletionError):
+        result.update(
+            code="TASK_COMPLETION_INCOMPLETE", field="tasks", gaps=error.gaps,
+            repair_note="先取所缺来源，再完整发布；未读取不是来源失败。NEEDS_CUSTOMER需blocker="
+                        "{kind:CUSTOMER_INFO,detail:缺口,question:本段提问原句}；UNAVAILABLE需blocker="
+                        "{kind:SOURCE_FAILURE,detail:原因,tool_name:实际失败工具}。ANSWER_PARTS在对应part给blocker，"
+                        "ANSWER在对应task给。来源须在该任务citations/evidence_refs。",
+        )
+    elif isinstance(error, DialogueStateError):
         result.update(field="dialogue_events", detail=str(error))
         if error.missing_task_ids:
             result.update(

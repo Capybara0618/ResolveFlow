@@ -5,6 +5,7 @@ from scripts import customer_agent_experience_v1 as runner
 from resolveflow.support.embeddings import SupportEmbeddings
 from resolveflow.support.service import SupportRuntime
 from tests.integration.test_support_dialogue_api import TokenizedScript
+from tests.unit.test_support_agent import read
 from tests.unit.test_support_answer_parts import part, parts
 from tests.unit.test_support_event_groups import group
 from tests.unit.test_support_tasks import task
@@ -33,17 +34,20 @@ def test_autonomous_driver_exports_two_actual_turns_and_drops_only_its_own_schem
     scripts = [
         parts(part('trace', '可先请商家核查。', status='NEEDS_MERCHANT'), tasks=[task('trace')],
               dialogue_events=[group('ADD', ['trace'], case['turns'][0]['text'])]),
-        parts(part('trace', '签收问题稍后继续。', status='SUSPENDED'), part('entry', '正式申请入口为我的售后。'),
+        [read('get_support_guide'),
+         parts(part('trace', '签收问题稍后继续。', status='SUSPENDED'),
+               part('entry', '正式申请入口为我的售后。', ['O1']),
               tasks=[task('trace', status='SUSPENDED'), task('entry', 'APPLICATION')],
               dialogue_events=[group('PAUSE', ['trace'], case['turns'][1]['text']),
-                               group('ADD', ['entry'], case['turns'][1]['text'])]),
+                               group('ADD', ['entry'], case['turns'][1]['text'])])],
     ]
     models = []
 
     def model_factory(self):
         if self.model_factory:
             return self.model_factory()
-        model = OfflineProvider(script=[scripts[len(models)]], mode='live')
+        script = scripts[len(models)]
+        model = OfflineProvider(script=script if isinstance(script, list) else [script], mode='live')
         models.append(model)
         return model
 
@@ -53,11 +57,11 @@ def test_autonomous_driver_exports_two_actual_turns_and_drops_only_its_own_schem
     report = runner.read_json(output)
     assert report['state'] == 'FINISHED' and len(report['rows']) == 2
     assert all(row['variant'] == 'agent' and row['result']['status'] == 'SUCCEEDED' for row in report['rows'])
-    assert len(report['all_runs']) == 2 and len(report['all_calls']) == 2
+    assert len(report['all_runs']) == 2 and len(report['all_calls']) == 4
     assert report['isolated_schema_dropped'] and report['public_before'] == report['public_after']
     previous = report['rows'][1]['input']['context']['previous_tasks']
     assert previous['tasks'][0]['id'] == 'trace' and previous['tasks'][0]['status'] == 'NEEDS_MERCHANT'
-    assert [m.calls for m in models] == [1, 1] and runner.read_json(usage)['used'] == 2
+    assert [m.calls for m in models] == [1, 2] and runner.read_json(usage)['used'] == 3
     assert all(row['models'][0]['body']['model'] == 'scripted-offline' for row in report['rows'])
     import pytest
 

@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-22",
+  "scope": "offline implementation; not resume metrics",
+  "new_real_model_requests": 0,
+  "ledger_used": 1793,
+  "stage_a_commit": "a57d6766e5b67168bf78bef20e893f562c84e0ca",
+  "preservation": {
+    "inherited_dirty_files_sha256": {
+      "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+      "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+      "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+      "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+    },
+    "public_tables": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "all_11_tables_match_prior_preflight_and_run": true,
+    "temporary_schemas_remaining": [],
+    "own_schema_dropped": true,
+    "old_reports_gold_and_manifests": "unchanged; immutable new manifest pins source hashes",
+    "final_public_and_inherited_hashes_equal": true
+  },
+  "original_experience_sha256": "03c65ebbe42af44d98744c1611953b32e6f25e640ad767e6a10c581524682cbe",
+  "public_unchanged": true,
+  "temporary_schemas": [],
+  "guide_conservative_input": 7163,
+  "input_cap": 7168,
+  "tests": {
+    "stage_a_new_red": {
+      "failed": 3
+    },
+    "stage_a_related_passed": 29,
+    "stage_a_api_and_new_passed": 4,
+    "stage_a_strict_mypy_files": 3,
+    "completion_first": {
+      "failed": 6,
+      "passed": 1,
+      "includes_wrong_counter_context_overflow": true
+    },
+    "completion_first_concentrated": {
+      "failed": 5,
+      "passed": 207,
+      "seconds": 39.22
+    },
+    "legacy_bypass_red": {
+      "failed": 1,
+      "passed": 10
+    },
+    "before_bypass_fix_concentrated": {
+      "passed": 216,
+      "failed": 0,
+      "seconds": 33.52
+    },
+    "final": {
+      "files": 43,
+      "passed": 218,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 32.46
+    },
+    "ruff": "passed",
+    "strict_mypy_source_files": 7,
+    "strict_mypy": "passed",
+    "long_part_question_red": {
+      "failed": 1,
+      "passed": 11
+    },
+    "freeze_unit_api_passed": 3
+  },
+  "real_quality": "UNCONFIRMED",
+  "pg_stopped": true,
+  "state": "OFFLINE_IMPLEMENTED_REAL_QUALITY_UNCONFIRMED",
+  "old_frozen_manifest_rejects_new_source": true,
+  "retained_volume": "resolveflow-review-demo_demo-postgres-data",
+  "project_ports_closed": [
+    5174,
+    8080,
+    8081,
+    8083,
+    8090,
+    55433,
+    53306,
+    6379,
+    9876,
+    10911
+  ],
+  "batch_processes_exited": true,
+  "test_working_directory": "E:/Code/Agent+Backend/agent"
+}

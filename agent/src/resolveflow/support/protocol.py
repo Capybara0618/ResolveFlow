@@ -20,6 +20,21 @@ class SupportInput(Closed):
     context: dict[str, Any]
 
 
+class TaskBlocker(Closed):
+    kind: Literal["CUSTOMER_INFO", "SOURCE_FAILURE"]
+    detail: str = Field(min_length=1, max_length=200)
+    question: str | None = Field(default=None, min_length=1, max_length=200, exclude_if=lambda v: v is None)
+    tool_name: str | None = Field(default=None, min_length=1, max_length=64, exclude_if=lambda v: v is None)
+
+    @model_validator(mode="after")
+    def explicit_cause(self) -> TaskBlocker:
+        if self.kind == "CUSTOMER_INFO" and (self.question is None or self.tool_name is not None):
+            raise ValueError("CUSTOMER_INFO requires question, not tool_name")
+        if self.kind == "SOURCE_FAILURE" and (self.tool_name is None or self.question is not None):
+            raise ValueError("SOURCE_FAILURE requires tool_name, not question")
+        return self
+
+
 class SupportTask(Closed):
     id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
     intent: Literal["LOGISTICS", "ELIGIBILITY", "APPLICATION", "HANDOFF", "PRODUCT", "OTHER"]
@@ -27,6 +42,7 @@ class SupportTask(Closed):
     status: Literal["PENDING", "ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED", "SUSPENDED"]
     evidence_refs: list[str] = Field(default_factory=list, max_length=8)
     response_excerpt: str | None = Field(default=None, min_length=1, max_length=400)
+    blocker: TaskBlocker | None = Field(default=None, exclude_if=lambda v: v is None)
 
 
 class CustomerQuote(Closed):
@@ -123,6 +139,7 @@ class AnswerPart(Closed):
     status: Literal["ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED", "SUSPENDED"]
     text: str = Field(min_length=1, max_length=4000)
     citations: list[str] = Field(default_factory=list, max_length=8)
+    blocker: TaskBlocker | None = Field(default=None, exclude_if=lambda v: v is None)
 
 
 class AnswerParts(TaskAction):

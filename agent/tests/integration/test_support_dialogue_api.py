@@ -26,14 +26,17 @@ class TokenizedScript(MockModelClient):
     model_id = "deepseek-flash"
 
 
-def test_four_real_runtime_turns_and_saved_decisions_reconstruct_identical_memory(agent_db, tmp_path):
+@pytest.mark.parametrize('mode', ['mock', 'live'])
+def test_four_real_runtime_turns_and_saved_decisions_reconstruct_identical_memory(agent_db, tmp_path, mode):
     texts = ["签收没收到，家人可能代收了", "先问退款入口，签收核查稍后继续",
              "继续签收核查，纠正：家人没代收", "找到包裹了，不用核查"]
     scripts = [
         [{**read(), "tasks": [task("trace")], "dialogue_events": [event("ADD", "trace", texts[0])],
           "memory_updates": [memory("initial", texts[0])]},
-         answer(citations=["O1"], tasks=[task("trace", status="NEEDS_MERCHANT", evidence_refs=["O1"],
-                                                response_excerpt="可以请商家核验")])],
+         answer(text="系统有签收记录，但你尚未找到。请确认家人是否代收。", citations=["O1"], tasks=[
+             task("trace", status="NEEDS_CUSTOMER", evidence_refs=["O1"], response_excerpt="请确认家人是否代收。",
+                  blocker={"kind": "CUSTOMER_INFO", "detail": "客户仅推测代收，尚未排查",
+                           "question": "请确认家人是否代收。"})])],
         [{**read("get_support_guide"), "tasks": [task("trace", status="SUSPENDED"), task("entry", "APPLICATION")],
           "dialogue_events": [event("PAUSE", "trace", texts[1]), event("ADD", "entry", texts[1])]},
          answer(text="签收核查稍后继续。正式申请请到我的售后。", citations=["O1"], tasks=[
@@ -78,7 +81,7 @@ def test_four_real_runtime_turns_and_saved_decisions_reconstruct_identical_memor
                                        "input_version": previous["input_version"],
                                        "tasks": previous["answer"]["task_state"]["tasks"]},
                                        previous_customer_memory=previous["answer"]["customer_memory"])
-                active[0] = TokenizedScript(script=script)
+                active[0] = TokenizedScript(script=script, mode=mode)
                 bound[0] = req
                 models.append(active[0])
                 token = mint_service_token("case-service", SECRET, scope="support:run",
@@ -97,12 +100,15 @@ def test_four_real_runtime_turns_and_saved_decisions_reconstruct_identical_memor
                 c.execute("UPDATE support_agent_run SET result_json=NULL,status='RUNNING',"
                           "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
             before_paths = list(paths)
-            active[0] = TokenizedScript(script=scripts[-1])  # exact frozen mock manifest, not a different script
+            active[0] = TokenizedScript(script=scripts[-1], mode=mode)  # Same manifest, not a different script.
             replayed = api.post("/internal/v1/support-runs", json=body, headers=headers)
             assert replayed.json() == previous and active[0].calls == 0 and paths == before_paths
     assert [m.calls for m in models] == [2, 2, 2, 1]
     assert models[1].packets[0]["customer_memory"]["active"][0]["id"] == "initial"
+    old = models[1].packets[0]['previous_tasks']['tasks'][0]
+    assert old['previous_blocker']['kind'] == 'CUSTOMER_INFO' and 'evidence_refs' not in old
     assert results[1]["answer"]["task_state"]["tasks"][0]["status"] == "SUSPENDED"
+    assert 'blocker' not in results[1]['answer']['task_state']['tasks'][0]
     assert results[2]["answer"]["customer_memory"]["entries"][0]["status"] == "SUPERSEDED"
     assert results[-1]["answer"]["task_state"]["tasks"][0]["status"] == "CANCELLED"
     active_ids = [e["id"] for e in results[-1]["answer"]["customer_memory"]["entries"] if e["status"] == "ACTIVE"]

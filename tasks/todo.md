@@ -1,4 +1,8 @@
-## 当前快照（2026-10-22，Agent任务推进与完成依据：实施中）
+## 当前快照（2026-10-22，Agent根因修复离线开发完成，待真实体验确认）
+
+- 第一小步a57d676已普通push核实。按[任务推进方案](../docs/customer-agent-task-resolution-v1.md)接live统一完成检查：APPLICATION/HANDOFF绑定当前指南、已回答ELIGIBILITY绑定政策，NEEDS_CUSTOMER必须缺口及对应答复提问原句，UNAVAILABLE关联实际相关未恢复的故障；旧ANSWER省略tasks同样检查实际接受任务。记录previous_blocker但不当客户事实/旧来源，说明独立核查与正式退款区别，保持模型自主选择工具。
+- [集中报告](../reports/customer-agent-task-resolution-v1/README.md)：完成首7测试6失败/1通过，首集中207通过/5旧夹具缺指南失败，补实际指南/引用与调用账断言；保留原失败/Gold。旧ANSWER遗漏红测1失败/10通过、长答复末尾提问红测1失败/11通过后修复。最终43文件218通过/0失败/0跳过（32.46秒），7源码strict mypy/相关Ruff通过；mock/live协议的四轮实际ASGI-PG脚本验证暂停/恢复/纠正/撤回与0调用恢复。新冻结补新依赖，旧清单不改。
+- 本批真实模型请求0/ledger1793，不测简历指标、不宣称真实质量已好；误分类/遗漏诉求/引用但误用指南仍需有限真实确认，Java/网页部署未运行。public11表全行hash、原8轮raw、4历史脏文件保持，schema空；PG已stop/原卷保留/10端口闭/自用进程退出，其他MCP进程不动。准备精确提交普通push核实后停止写入。
 
 - 用户授权按根因修Agent三类体验问题，按[方案](../docs/customer-agent-task-resolution-v1.md)执行。已只读核验当前后端批次已收口/main=origin/main=3933c31、暂存空、四历史脏文件hash保持；旧后端成果/资产保留。第一小步新增最近3组实际执行记录/参数/来源/错误/重复次数，超过组计遗漏，原账不删。新3测试先全失败，实现后相关29通过，ASGI-PG含到期恢复与新3测试共4通过/0跳过，恢复0模型0网络；Ruff通过。独立精确提交普通push后接完成依据及业务区分，不开启付费/简历评测。
 
