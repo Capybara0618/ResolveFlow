@@ -94,12 +94,13 @@ def test_all_176_saved_real_failures_get_kind_feedback_without_rewriting_decisio
         assert payload == before
 
 
-def test_exact_sent_system_contains_three_parseable_top_level_action_examples():
+def test_exact_sent_system_contains_parseable_read_and_complete_publication_examples():
     model = MockModelClient(script=[answer(citations=[])])
     assert SupportAgent(request(), model, Reads()).run()["status"] == "SUCCEEDED"
     sent_system = "".join(b.text for b in model.conversations[0][0].get_content_blocks() if hasattr(b, "text"))
     examples = [json.loads(s) for s in re.findall(r'^\{"kind":.*\}$', sent_system, re.MULTILINE)]
-    assert {DECISION.validate_python(e).kind for e in examples} == {"READ_TOOL", "SEARCH_POLICY", "ANSWER_PARTS"}
+    assert {DECISION.validate_python(e).kind for e in examples} == {"READ_TOOL", "ANSWER_PARTS"}
+    assert len(examples) == 2  # Legacy SEARCH_POLICY remains supported; live tool catalog uses READ_TOOL.
 
 
 def test_saved_missing_kind_uses_one_correction_then_model_selects_read_and_answer():

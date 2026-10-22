@@ -14,27 +14,27 @@ from resolveflow.support.tasks import TaskStateError
 
 CAPABILITIES: dict[str, dict[str, Any]] = {
     "get_order_context": {
-        "purpose": "本商品订单/付款事实；不含物流和页面入口。",
+        "purpose": "订单/付款；非物流/页面入口。",
         "action": {"kind": "READ_TOOL", "tool_name": "get_order_context", "arguments": {}},
     },
     "get_shipment_trace": {
-        "purpose": "实时物流/事件；查询失败非未发货或丢失。",
+        "purpose": "实时物流/事件；失败非丢失。",
         "action": {"kind": "READ_TOOL", "tool_name": "get_shipment_trace", "arguments": {}},
     },
     "read_history": {
-        "purpose": "读取本会话较早原文；arguments可含before_sequence和limit(1–5)。",
+        "purpose": "更早原文；before_sequence、limit(1–5)。",
         "action": {"kind": "READ_TOOL", "tool_name": "read_history", "arguments": {"limit": 5}},
     },
     "read_context": {
-        "purpose": "读已知历史片段，H序号见索引；offset/limit为Unicode字符。更早消息用read_history。",
+        "purpose": "按H索引读原文，offset/limit为Unicode字符；更早用read_history。",
         "action": {"kind": "READ_TOOL", "tool_name": "read_context", "arguments": {"reference": "H1", "limit": 500}},
     },
     "get_support_guide": {
-        "purpose": "平台流程：咨询/退款入口、转交/共享、消息对象、解决后补充；不含资格。",
+        "purpose": "平台流程：入口/操作/共享/消息对象须据此；无法读取则明确未核实。不含退款资格。",
         "action": {"kind": "READ_TOOL", "tool_name": "get_support_guide", "arguments": {}},
     },
     "search_policy": {
-        "purpose": "本店退款资格/条件/例外/金额；不含界面流程。",
+        "purpose": "资格/条件/例外/金额；无入口，流程读指南。Query仅查资格。",
         "action": {"kind": "READ_TOOL", "tool_name": "search_policy",
                    "arguments": {"query": "当前要了解的资格条件", "top_k": 3}},
     },
