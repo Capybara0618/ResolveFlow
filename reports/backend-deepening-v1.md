@@ -6,7 +6,7 @@ B1.2 9c76b5c 已正常push核实。原本本机 Compose 没有 Redis，Case 被�
 
 新2测试先全失败（缺redis端口、错误就绪）；实现后相关38项34通过/4失败：两处旧断言仍禁止任何Redis/组件固定9项，改为独立loopback端口、禁止external复用及10组件中必须有Redis；另两项原测试未mock broker tcp导致意外尝试只读共享MySQL见证，被已停止容器拒绝，没有任何写入，补全网络替身。最终 `agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_reviewer_demo_driver.py agent/tests/unit/test_project_runtime.py -q` 38通过（0.36秒）。
 
-`docker compose -f infra/compose.reviewer-demo.yaml config --quiet` 通过；只 `up -d redis` 新服务，`exec -T redis redis-cli ping` 返回PONG，再 `stop redis`，未操作其他服务/卷。git diff --check通过。4文件Ruff检查中reviewer_demo.py有19项历史问题，逐文件用HEAD源码stdin同配置复核：旧19/当前19，其他3文件0/0，无新诊断；未为此改旧脚本无关风格，不称Ruff全绿。下一步B2.1评价领域和实库测试。
+`docker compose -f infra/compose.reviewer-demo.yaml config --quiet` 通过；只 `up -d redis` 新服务，`exec -T redis redis-cli ping` 返回PONG，再 `stop redis`，未操作其他服务/卷。提交时git diff --check曾指出local-runtime末尾多余空行，PowerShell继续执行而提交0b831fb；紧接独立文档小步去除并重新检查，不称该次初检通过。4文件Ruff检查中reviewer_demo.py有19项历史问题，逐文件用HEAD源码stdin同配置复核：旧19/当前19，其他3文件0/0，无新诊断；未为此改旧脚本无关风格，不称Ruff全绿。下一步B2.1评价领域和实库测试。
 
 ## B1.2 商品列表批量读取（2026-10-22）
 
