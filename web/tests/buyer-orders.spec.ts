@@ -6,6 +6,7 @@ import MarketplaceWorkspace from '../src/ui/MarketplaceWorkspace.vue'
 import CustomerWorkspace from '../src/ui/CustomerWorkspace.vue'
 import { shopApi, type Purchase, type CheckoutPayment } from '../src/shop-client'
 import { ApiError, coreApi, type CustomerOrderLine } from '../src/client'
+import { reviewApi } from '../src/review-client'
 
 const buyer = { access_token: 'buyer-token', role: 'CUSTOMER' as const, buyer_id: 'B-3001', expires_in: 3600 }
 const item: Purchase = { purchase_id: 'draft:one', draft_id: 'one', store_id: 'M-1001', store_name: '松间数码', status: 'WAITING_PAYMENT', total_amount: 65800, currency: 'CNY', created_at: '2026-10-03T04:00:00Z', expires_at: '2099-10-03T04:15:00Z', paid_at: null, order_id: null, payment: null, lines: [{ line_id: null, sku: 'SKU', product_name: '无线降噪耳机', variant: '黑色', asset_key: 'headphones', quantity: 2, unit_amount: 32900, line_amount: 65800 }] }
@@ -26,6 +27,14 @@ beforeEach(() => {
 })
 afterEach(() => { w?.unmount(); vi.restoreAllMocks(); window.sessionStorage.clear() })
 async function open() { w = mount(BuyerOrders, { props: { account: buyer } }); await flushPromises() }
+it('opens order-line reviews only on demand and displays authoritative delivery eligibility', async () => {
+  vi.mocked(shopApi.purchase).mockResolvedValue(paid)
+  vi.spyOn(reviewApi, 'own').mockResolvedValue({ can_review: false, blocked_reason: '签收后可评价', review: null })
+  await open(); expect(reviewApi.own).not.toHaveBeenCalled()
+  await w.get('[data-test="product-review"]').trigger('click'); await flushPromises()
+  expect(reviewApi.own).toHaveBeenCalledWith('buyer-token', 'line-one')
+  expect(w.text()).toContain('签收后可评价')
+})
 it('records no client amount and confirms success only after owned purchase is published', async () => {
   await open(); vi.mocked(shopApi.purchase).mockResolvedValue(paid)
   await w.get('[data-test="pay"]').trigger('click'); await flushPromises()

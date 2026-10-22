@@ -5,6 +5,7 @@ import { shopApi, type Purchase, type PurchaseStatus, type ShopStore } from '../
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
 import ReviewDialog from './ReviewDialog.vue'
+import ProductReviewEditor from './ProductReviewEditor.vue'
 import './buyer-orders.css'
 import FulfillmentPanel from './FulfillmentPanel.vue'
 import { fulfillmentApi, type OrderFulfillment } from '../fulfillment-client'
@@ -13,6 +14,7 @@ const props = defineProps<{ account: LoginResponse }>()
 const emit = defineEmits<{ expired: []; navigate: [hash: string] }>()
 const fulfillment = ref<OrderFulfillment | null>(null), fulfillmentLoading = ref(false), fulfillmentError = ref('')
 const items = ref<Purchase[]>([]), detail = ref<Purchase | null>(null), stores = ref<ShopStore[]>([])
+const reviewTarget = ref<{ line: string; name: string } | null>(null)
 const store = ref(''), status = ref<PurchaseStatus | ''>(''), next = ref<string | null>(null)
 const loading = ref(false), writing = ref(false), uncertain = ref(false), cancelUnknown = ref(false), cancelOpen = ref(false)
 const error = ref(''), notice = ref(''), mode = ref<'list' | 'detail' | 'payment'>('list'), now = ref(Date.now())
@@ -62,7 +64,7 @@ async function load(cursor?: string) {
 }
 async function route() {
   if (writing.value) return
-  const g = ++generation; detail.value = null; memoryKey = ''; items.value = []; next.value = null
+  const g = ++generation; detail.value = null; memoryKey = ''; items.value = []; next.value = null; reviewTarget.value = null
   ++fulfillmentGeneration; fulfillment.value = null; fulfillmentError.value = ''; fulfillmentLoading.value = false
   eligibility.value = {}; eligibilityErrors.value = {}; uncertain.value = false; cancelUnknown.value = false; cancelOpen.value = false; error.value = ''; notice.value = ''; loading.value = true
   try {
@@ -129,6 +131,7 @@ onBeforeUnmount(() => { alive = false; ++generation; if (timer) clearInterval(ti
         <section v-if="detail.status === 'PAID'" class="purchase-detail-panel"><h2>付款与售后</h2><p v-if="detail.refund_status && detail.refund_status !== 'NONE'">{{ refundLabels[detail.refund_status] }}</p><p v-if="detail.paid_at">{{ detail.draft_id ? '模拟付款完成于' : '原订单支付于' }} {{ time(detail.paid_at) }}</p><div v-for="line in detail.lines.filter(l => l.line_id)" :key="line.line_id!" class="purchase-aftercare"><strong>{{ line.product_name || line.sku }}</strong><template v-if="eligibility[line.line_id!]"> <p>{{ eligibility[line.line_id!]!.blocked_reason || '可提交整行全额退款申请，需商家审核。' }}</p><button v-if="eligibility[line.line_id!]!.application && !eligibility[line.line_id!]!.can_apply" class="shop-secondary" @click="navigate(`#/customer/applications/${eligibility[line.line_id!]!.application!.case_id}`)">查看售后申请</button><button v-else-if="eligibility[line.line_id!]!.can_apply" class="shop-secondary" @click="navigate(`#/customer/apply/${encodeURIComponent(line.line_id!)}`)">申请售后</button><button v-if="eligibility[line.line_id!]!.application && eligibility[line.line_id!]!.can_apply" class="shop-secondary" @click="navigate(`#/customer/applications/${eligibility[line.line_id!]!.application!.case_id}`)">查看上次售后申请</button></template><button v-else class="shop-secondary" :disabled="loading || writing" @click="readEligibility(line.line_id!)">{{ eligibilityErrors[line.line_id!] ? '重新读取售后资格' : '读取售后资格' }}</button></div></section>
         <section class="purchase-detail-panel purchase-times"><p>提交于 {{ time(detail.created_at) }}</p><p v-if="['CANCELLED','EXPIRED'].includes(detail.status)">本订单没有付款，可回到商城重新购买。</p><details><summary>查看交易编号</summary><p>订单 {{ detail.order_id || detail.draft_id }}</p><p v-if="detail.payment">付款尝试 {{ detail.payment.attempt_id }} · {{ detail.payment.status }}</p></details></section>
       </template>
+      <section v-if="detail?.status === 'PAID'" class="purchase-detail-panel"><h2>商品评价</h2><div v-for="line in detail.lines.filter(l => l.line_id)" :key="line.line_id!" class="purchase-aftercare"><strong>{{ line.product_name || line.sku }}</strong><button class="review-button" data-test="product-review" :disabled="writing" @click="reviewTarget = { line: line.line_id!, name: line.product_name || line.sku }">评价商品</button></div><ProductReviewEditor v-if="reviewTarget" :key="`${account.access_token}:${reviewTarget.line}`" :token="account.access_token" :line="reviewTarget.line" :name="reviewTarget.name" @expired="emit('expired')" @working="writing = $event" @close="reviewTarget = null" /></section>
     </main>
     <ReviewDialog v-if="cancelOpen" title="取消待付款订单" workspace="我的订单" :busy="writing" @close="cancelOpen = false"><p>确认取消这份待付款订单？取消后需重新购买。</p><div class="purchase-actions"><button class="shop-secondary" :disabled="writing" @click="cancelOpen = false">返回</button><button class="shop-primary" :disabled="writing" @click="cancel">确认取消</button></div></ReviewDialog>
   </div>
