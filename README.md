@@ -15,6 +15,7 @@
 | 文件 | 用途 |
 | --- | --- |
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
+| [商城后端深化与验收](reports/backend-deepening-v1.md) | 已购评价/商家回复、三处Redis应用、商品批量查询、支付恢复；真实页面截图与集中回归边界 |
 | [当前交接](tasks/handoff-current.md) | 当前任务、验收顺序与接管规则 |
 | [客服 Agent 首场景与双端预期图](docs/ui-customer-agent-v1/README.md) | 物流异常/签收争议、独立人工咨询、退款确认与两店上下文；设计原型，尚非客服实现 |
 | [售后咨询与商家核查](docs/customer-support-workspace.md) | 持久会话、Agent只读问答/来源、确认共享报告、商家回复与客户补充；聊天内退款确认待后续 |

@@ -1,5 +1,56 @@
 # 后端深化验证记录
 
+## 集中验收与交付（2026-10-22）
+
+开发方案与合成预期图先于实现提交（5f55049）。B1/B2/B3及实际网页样式修复均分步提交并正常推送，末笔业务样式提交775b501已核实远端。当前收口基于同一实现，以下是本轮最终集中证据；下方小步记录保留当时失败、修正和尚未运行项。
+
+| 范围 | 已实现行为 | 证据边界 |
+| --- | --- | --- |
+| 实际查询 | 商家workspace接2秒Redis缓存；商品列表1/4商品页均2条SQL、空页1条 | 实库SQL计数/真实Redis；未优化订单列表或宣称p95收益 |
+| 评价闭环 | 本人已付款且签收行首评、一行一评、修改/版本冲突、本店回复、公开评分/分布/分页、退款保留 | 实库并发/权限测试；实际浏览器发表5星→修改4星→商家回复→公开展示 |
+| 评价Redis | 默认首页/统计30秒epoch代际缓存；8并发/100ms数据库门控；账号动作Lua限6次/60秒 | 实Redis迟到填充/损坏/暂停测试；实际Case→Commerce缓存与429，重放后内容/version/epoch不变 |
+| 交易恢复 | 持久过期关闭；每2秒/20条调度；UNKNOWN只查原attempt、30秒持久退避、逐条隔离 | 实际常驻调度关闭到期草稿；UNKNOWN/崩溃/两worker/事务边界在实库测试中验证 |
+
+### 最终集中回归
+
+环境为仓库锁定依赖、Java21（21.0.12.1+1）、Docker Testcontainers MySQL8.4/Redis7.4、现有Python venv。当前Node为24，未声称Node22重跑；没有升级依赖锁。没有全仓测试或性能提升声明。
+
+| 命令 | 实际结果 |
+| --- | --- |
+| java目录：`./mvnw.cmd -B -pl case-service,commerce-service -am test '-Dtest=ProductReview*,ReviewWriteLimiterRedisTest,WorkspaceQueueCacheTest,RedisReviewQueueCacheIntegrationTest,ReviewQueueCacheTest,ReviewQueueBackpressureTest,MerchantWorkspaceApiTest,ReviewQueueApiTest,ShoppingBatchDatabaseTest,ShoppingDatabaseTest,ShoppingApiTest,CheckoutRecovery*,CheckoutPaymentDatabaseTest,MultiCheckoutDatabaseTest,InternalScopeEnforcementTest' '-Dsurefire.failIfNoSpecifiedTests=false'` | shared2 + Commerce67 + Case38 = **107通过，0失败/错误/跳过**，1分44秒 |
+| `agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_product_review_contract.py agent/tests/unit/test_contracts_core_routes.py agent/tests/unit/test_reviewer_demo_driver.py agent/tests/unit/test_project_runtime.py -q` | **121通过**，87.01秒 |
+| `pnpm --dir web test` | **30文件215通过**，15.10秒 |
+| `pnpm --dir web build` | vue-tsc与Vite构建通过 |
+| 两份Compose：`docker compose -f infra/compose.reviewer-demo.yaml config --quiet` / `docker compose -f infra/compose.yaml config --quiet` | 均通过 |
+| `agent/.venv/Scripts/ruff.exe check scripts/backend_deepening_acceptance.py` | 通过；不把旧reviewer_demo.py的19项历史诊断称全绿 |
+
+上述最终回归没有失败重跑。隔离驱动补resume时Ruff先报identity移出作用域后的F821，改读state.run_id后通过；占用服务端口时实际resume明确拒绝，未替换已有进程。
+
+### 真实HTTP与网页
+
+新增驱动[scripts/backend_deepening_acceptance.py](../scripts/backend_deepening_acceptance.py)，使用有唯一归属label的临时MySQL/Redis、实际Case/Commerce JAR及Vite；所有端口仅loopback。Vite直接代理Case，**本轮未经过Gateway**。没有启动Agent/MQ worker、调用收费模型或写原业务库。合成账号由临时库原有迁移建立，与原三角色演示账号分开。
+
+实际购买付款后，prepare读到未发货行can_review=false；此项是HTTP资格读取验证，写入拒绝由领域/HTTP测试覆盖。商家通过既有模拟发货API操作，再通过既有受控物流存储过程追加DELIVERED。浏览器实际发表、修改、回复；verify读回四星正文和商家回复，并核对公开摘要为1条/4.0分/星级计数[0,1,0,0,0]。不得把驱动读回内容当作自动证明浏览器点击；浏览器操作及截图是独立证据。
+
+[acceptance.json](backend-deepening-v1/acceptance.json)共**15项通过**，包括跨店回复404、买家商家列表403、旧版本409、真实Redis缓存、真实账号限流429、资金未变、退款槽FREE。资金为支付32900分/退款0/预留0。到期测试只在自有库中把专用未付款草稿时间调至过去，等待真实调度持久化CANCELLED:EXPIRED，公开EXPIRED且支付尝试0条；不是手工设置关闭状态。丢响应UNKNOWN恢复没有另造网页演示，证据为上述实库故障测试。
+
+截图是本轮实际页面，数据为合成交易，区别于[静态预期图](../docs/ui-backend-deepening-v1/index.html)：
+
+- [买家已保存评价/回复，1280桌面](backend-deepening-v1/buyer-review.png)
+- [商家回复已保存](backend-deepening-v1/merchant-review.png)
+- [公开评分与回复，1280桌面](backend-deepening-v1/public-reviews.png)
+- [匿名公开商品全页，1440桌面](backend-deepening-v1/public-reviews-1440.png)
+
+买家1280实测innerWidth=1280/scrollWidth=1265；公开页1280、1440及商家1280、1440检查均无横向溢出。临时viewport均已reset；没有手机适配验收声明。
+
+### 复现与收尾
+
+先按Java21构建实际包：java目录`./mvnw.cmd -B -pl case-service,commerce-service -am package -DskipTests`（本轮成功，跳过测试仅用于启动包；测试结果另见上表）。根目录依次运行`agent/.venv/Scripts/python.exe scripts/backend_deepening_acceptance.py start`、`prepare`；按输出URL用demo-buyer/demo-pass-4001及demo-admin/demo-pass-1100完成浏览器评价/回复，再`verify`、`stop`。首次start要求专用状态文件不存在，已有状态不得覆盖；中断后用resume恢复原库和服务，再继续未完成阶段。prepare仅在首次浏览器操作前运行；重复verify需等账号60秒窗口重置。verify要求正文以“隔离验收”开头、最终四星且已有回复。它是固定合成验收脚本，不是通用业务入口。
+
+运行状态/幂等键/原始日志仅保留在忽略的tmp/backend-deepening-acceptance，不提交。stop核验容器名与label、进程命令归属后停止自有Java/Node和容器，保留数据库容器；实际5端口全部关闭。首次MySQL停止exit137（OOM=false），随后仅重启自有MySQL只读核实评价1条和原资金，改用30秒停止宽限后MySQL/Redis均exit0。补充resume重读实际容器端口后，再完整运行resume→verify→stop，15项仍通过、两个容器exit0，端口关闭。没有清库、删容器或卷。
+
+本轮四个历史脏文件保持独立：engineering.md、RefundAcceptanceApiTest.java、verify.ps1/sh，未纳入本批提交。原业务环境未迁移/重启；正常使用时stop/start重新构建加载。未运行原全栈Gateway/Agent闭环、真实外部支付、压测或模型质量评测；不能把旧报告指标继承为本次性能。日常功能和启动配置见[本机说明](../docs/local-runtime.md)。
+
 ## 实际网页样式修正（2026-10-22）
 
 B3.2 d3ba8a6已普通push核实。独立环境实际网页已完成买家发表/修改、商家回复和匿名商品页展示，HTTP/数据14检查已通过（完整验收证据随后归档）。截图发现workbench全局label/display及button/inline-flex覆盖新评价组件，评分分布竖向撑高、商家选中行横排且底色对比差。局部提高评价组件选择器优先级、明确grid/block/hover和16px表单字号，不改全局旧界面。

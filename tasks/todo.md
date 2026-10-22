@@ -1,35 +1,10 @@
-## 当前快照（2026-10-22，后端深化：B1/B2工程通过，B3恢复领域通过，调度/集中验收接续）
+## 当前快照（2026-10-22，后端深化 B1/B2/B3 与集中验收完成）
 
-- B3.2 d3ba8a6已push核实；独立临时MySQL/Redis/实际Case→Commerce/网页已完成买家发表与四星修改、商家回复、匿名展示，14 HTTP/数据检查通过，原账本/退款槽不变，常驻调度实际关闭测试过期草稿。实际截图暴露全局样式覆盖，已局部修评分grid/商家选中行block/字号hover；相关7前端通过、1280与指定1440实际无溢出，viewport已reset。验收驱动/截图尚待收口归档，不操作原业务库/模型。先独立CSS修复提交push，再集中最终回归/归档/停止自有测试进程。
-
-- B3.1 99f39aa已push核实；B3.2常驻恢复调度/正式入口已接，2秒/20条、批量1–100校验/单轮异常后继续。循环+启动新断言先失败后Java8通过、配置38通过/core Compose config/Spotless/diff通过。下一步提交push核实后用独立临时MySQL/Redis启动实际Case→Commerce/网页验收；不启动原业务库/Agent/收费模型，详情reports/backend-deepening-v1.md。
-
-- B2.4b b29a473已push核实；B3.1 V18/到期持久关闭/原attempt只查询恢复/30秒持久退避与逐条故障隔离已实现。新6测试先全失败后恢复+旧付款/多行共31通过，加强查询事务边界/坏记录不挡后续后7恢复通过，Spotless/diff通过。UNKNOWN不关闭/不扣款/不换ID，原数据未动，详情reports/backend-deepening-v1.md。下一步本步提交push核实后B3.2常驻调度和正式启动，再独立环境真实网页验收，无模型请求。
-
-- B2.4a 0bebd5d已push核实；B2.4b Case按认证账号/动作Lua原子6次60秒，超额429/Redis故障503均可重试且不进Commerce写入，正式启动启用。3实Redis新测试先全失败后相关6通过，补HTTP拒绝前置后8通过/0跳过，运行配置38通过/core Compose config/Spotless/diff通过。详情reports/backend-deepening-v1.md。下一步提交push核实后B3到期关闭/原尝试只读恢复，再隔离环境真实网页集中验收，不启动模型或动原业务库。
-
-- B2.3c 0c5a26b已push核实；B2.4a公开评价首页/统计已接Redis30秒/DB epoch代际、事务外缓存I/O、8并发100ms DB门控，正式Commerce接独立56380。新2先失败后相关12通过；增加实MySQL+Redis旧代晚写/JSON损坏/暂停故障和并发门控，最终6通过，启动接线先失败后38通过/core Compose config/Spotless/diff通过。每次命中仍查DB epoch，尚未部署或压测，详情reports/backend-deepening-v1.md。提交push核实后B2.4b账号原子限流，再B3自动恢复与集中网页验收。
-
-- B2.3b 64ed751已push核实；B2.3c商家导航/评价/回复已接，保留买家原文、冲突显式读原评价/保留回复，未知绑定原目标原内容；新3测试先全失败后相关8通过/build通过。全前端首214通过/1旧导航断言失败，补新导航与进入行为后30文件215通过，diff通过。暂未正式浏览器实拍。下一步本小步提交push核实后B2.4评分缓存/账号限流，再B3后台恢复，详情reports/backend-deepening-v1.md。
-
-- B2.3a 7fa5646已普通push核实；B2.3b买家订单行评价编辑接入，资格按需读取、冲突保留输入/显式刷新、UNKNOWN保存原内容确认，4新测试先全失败、实施后3测试事件错误修正，最后相关18通过/web build/diff通过。未正式浏览器写入，详情reports/backend-deepening-v1.md。提交push核实后接B2.3c商家回复，再B2.4评分Redis/账号限流及B3恢复。
-
-- B2.2 5d94d6a首push网络中断，核对远端仍79ab120后命令级HTTP/1.1普通重试成功/ls-remote核实；无force/绕TLS。B2.3a已接商品页公开评价/星级摘要/回复/空错分页，代际隔离旧响应/纯文本转义；4新测试先全失败后相关12通过、web build通过，尚未正式浏览器部署验收。下一步本小步提交push核实后买家编辑/商家回复，再Redis评分限流和交易恢复，详情reports/backend-deepening-v1.md。
-
-- B2.1 79ab120已push核实；B2.2各5评价HTTP/可信映射/Case部署主体校验、严格DTO和双服务OpenAPI/fixture/路由表已接。Commerce先3失败后18通过；Case首mock配置3错误修正后8通过；Wire首1通过/1失败后2通过，最终三模块15通过。Python首82通过/1旧断言失败，核对原LineContext未变后补精确履约字段/配对约束，最终83通过；Ruff新测试/Spotless/diff通过。命令和边界见reports/backend-deepening-v1.md。未部署正式业务或模型/迁移演示库；下一步提交push核实后B2.3双端评价UI，再B2.4 Redis评分/限流和B3恢复。
-
-- B2.1评价领域/共享Wire/V17追加迁移已实现：已签收本人行一条评价、重放/版本更新、商家本店回复、公开摘要/隐私、退款保留及事务epoch。新6测试对骨架先全部失败，领域+旧购物/付款共28通过；加强epoch/跨店映射后7领域通过，Spotless/diff通过；详情 reports/backend-deepening-v1.md。只隔离MySQL测试，无正式HTTP/网页/Redis评分、无演示库迁移或模型请求。下一步精确提交push核实后B2.2接口/契约和权限，再界面/Redis评分及B3恢复。
-
-- B1.3 0b831fb已push核实；提交检查实际出现local-runtime末尾空行警告但PowerShell继续执行，随即独立文档修正并纠正报告，重新diff/cached检查通过后提交push。后续命令显式检查每个退出码，不把末条命令成功当整组成功。
-
-- B1.2 9c76b5c已普通push核实；B1.3追加本项目Redis(loopback56380/无业务卷)、Case缓存启用及健康检查，2新测试先失败，首集中34通过/4失败（旧Redis/组件断言2项，既有测试漏tcp mock2项），修正为独立隔离与完整替身后38通过；Compose config通过，专门只启Redis/PONG后停止，原业务数据/服务保持。Ruff旧19/当前19（reviewer_demo）、其他3文件0，无新诊断；diff通过。未启动Java/Agent/收费模型或重测性能。详情见 reports/backend-deepening-v1.md。下一步提交push核实后B2.1评价领域/数据库；B2界面/Redis评分和B3恢复未完成。
-
-- B1.1 ed53799已普通push核实；B1.2商品列表批量读取完成，新增实库SQL计数测试首单商品页3条/期望2失败，实施后1或4商品均2条、空结果1条且详情相同；4类21通过/0失败/0跳过、定点Spotless/diff通过。命令/边界见 reports/backend-deepening-v1.md。不宣称订单查询/大规模延迟优化；下一步提交push核实后B1.3独立Redis/日常启动接线，再B2评价、B3恢复。
-
-- 文档/原型5f55049已正常push核实；B1.1正式workspace缓存已实现，缓存I/O在DB事务外，主体/筛选隔离、8并发/100ms回源门控复用。新增4测试首编译失败（漏嵌套异常import），修正后3失败/1错误（含一处异常类型误断言），实现/纠正后7通过；加入真实Redis当前workspace验证后6类集中30通过/0失败/0跳过，定点Spotless/diff通过。实际命令/失败/未运行见 reports/backend-deepening-v1.md。未启动正式服务/模型；日常启动尚禁用缓存且独立Compose缺Redis，后续B1.3接线，不能称已实际启用。下一步精确提交push核实后B1.2批量商品查询；评价/恢复未开始。
-
-- 用户授权先写开发文档、画预期图再开发，依据 docs/backend-deepening-v1.md。接手只读核验 main=origin/main=932e067、fetch 左右0/0、暂存空，原四脏文件/历史产物保持，无运行 Java/Python 业务进程；上批已收口，当前唯一业务写入者接续本用户要求。
-- 已写查询缓存/评价数据与接口/三端界面/恢复约定及四页可切换静态原型 docs/ui-backend-deepening-v1/index.html。原型数据合成，不是业务验收；浏览器检查商品/买家/商家页切换与发表演示反馈，三张 preview.png 已保存；仅实际默认视口检查，不宣称1280/1440已验收。git diff --check 通过。尚未修改业务代码或调用模型，接下来先文档精确提交正常 push，再 B1.1 正式 workspace 缓存与失败测试；不做库存、营销、付费模型或清库。
+- 按用户“先开发文档、预期图再开发”的授权，已交付[开发方案](../docs/backend-deepening-v1.md)、[四页预期原型](../docs/ui-backend-deepening-v1/index.html)，分步完成工作台Redis/商品批量查询、已购评价与商家回复、评分epoch缓存/账号Lua限流、到期关闭和原支付尝试恢复。领域/资金/UNKNOWN约束保持；不扩展库存、营销或服务拆分。
+- 业务实现至775b501已普通push核实；本步归档[集中报告](../reports/backend-deepening-v1.md)、15项HTTP/数据结果、三端真实截图和独立验收驱动。最终Java107通过/0失败错误跳过，Python121通过，前端30文件215通过及构建通过，两Compose config通过、新驱动Ruff通过。旧reviewer_demo.py19项历史诊断不称全绿；实际命令、先失败记录和边界见报告。
+- 独立MySQL/Redis及实际Case→Commerce/网页已验收：未签收资格拒绝、买家发表5星→修改4星→商家回复→匿名展示；跨店404/买家商家列表403/旧版本409、缓存及真实429、资金32900/0/0与退款槽FREE不变、实际调度持久关闭过期草稿。UNKNOWN崩溃恢复证据为实库故障测试。本轮Gateway/Agent/模型/原业务部署/性能压测未运行。
+- 自有Java/Node和临时容器均停止，5端口关闭；自有MySQL重启只读核验评价/资金后30秒宽限停止，两个容器exit0且保留。不清库、不删卷，不动原账号/业务数据/模型账本。四历史脏文件与旧资产保持，未夹带提交。
+- 本轮范围已收口，完成精确提交/正常push核实后停止业务写入；下一步按用户新要求，不自动部署原全栈、收费评测或扩展商城范围。其他执行者先按handoff-current只读核验再接管。
 
 ### 上批 Agent 体验记录（原始证据保留）
 
