@@ -66,7 +66,7 @@ public class PurchaseReads {
         String sql = """
             SELECT id FROM (
                 SELECT CONCAT('draft:',draft_id) AS id,created_at,
-                    CASE WHEN status='WAITING_PAYMENT' AND expires_at<=? THEN 'EXPIRED' ELSE status END AS state
+                    CASE WHEN close_reason='EXPIRED' OR (status='WAITING_PAYMENT' AND expires_at<=?) THEN 'EXPIRED' ELSE status END AS state
                 FROM checkout_draft WHERE merchant_id=? AND customer_id=?
                 UNION ALL
                 SELECT CONCAT('order:',o.order_id) AS id,o.created_at,'PAID' AS state

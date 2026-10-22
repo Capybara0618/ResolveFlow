@@ -120,7 +120,7 @@ public class CheckoutPayments {
             var snapshots = lines.read(d);
             String firstLine = "SHOP-" + UUID.randomUUID();
             jdbc.update(
-                    "INSERT INTO checkout_payment_attempt(attempt_id,draft_id,sequence_no,idempotency_key,total_amount,currency,status,order_id,line_id,created_at) VALUES(?,?,?,?,?,'CNY','UNKNOWN',?,?,?)",
+                    "INSERT INTO checkout_payment_attempt(attempt_id,draft_id,sequence_no,idempotency_key,total_amount,currency,status,order_id,line_id,created_at,next_reconcile_at) VALUES(?,?,?,?,?,'CNY','UNKNOWN',?,?,?,?)",
                     attempt,
                     id,
                     seq,
@@ -128,6 +128,7 @@ public class CheckoutPayments {
                     d.get("total_amount"),
                     UUID.randomUUID().toString(),
                     firstLine,
+                    Timestamp.from(now()),
                     Timestamp.from(now()));
             if ("MULTI".equals(d.get("kind"))) {
                 for (int i = 0; i < snapshots.size(); i++)
@@ -174,7 +175,7 @@ public class CheckoutPayments {
         return latest(id);
     }
 
-    private Payment settle(String id, String merchant, String customer, SimulatedCheckoutProvider.Receipt receipt) {
+    Payment settle(String id, String merchant, String customer, SimulatedCheckoutProvider.Receipt receipt) {
         return tx.execute(status -> {
             var d = draft(id, merchant, customer, true);
             var rows = jdbc.queryForList(

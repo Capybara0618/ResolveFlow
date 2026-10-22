@@ -186,8 +186,9 @@ public class ShoppingService {
                         rs.getLong("unit_amount"),
                         rs.getLong("total_amount"),
                         "CNY",
-                        rs.getString("status").equals("WAITING_PAYMENT")
-                                        && !Instant.now(clock).isBefore(expires)
+                        "EXPIRED".equals(rs.getString("close_reason"))
+                                        || rs.getString("status").equals("WAITING_PAYMENT")
+                                                && !Instant.now(clock).isBefore(expires)
                                 ? "EXPIRED"
                                 : rs.getString("status"),
                         created,

@@ -1,5 +1,13 @@
 # 后端深化验证记录
 
+## B3.1 交易恢复领域（2026-10-22）
+
+B2.4b b29a473已普通push核实。追加V18：未付款到期持久CANCELLED/close_reason=EXPIRED，对外仍EXPIRED；PAYMENT_PENDING从不按到期关闭。attempt增加下次对账时间/次数/安全错误码和索引。每轮有界扫描、条件更新领取并持久退避30秒，避免无收据队首饿死后续；只查原attempt_id收据，在事务外查询，再调用原短事务settle原子发布。缺收据/查询失败/发布失败保留UNKNOWN及原ID，绝不调用charge。异常按条处理，不输出原始SQL/客户材料。
+
+新6实库测试对空worker先6失败；实施后CheckoutRecoveryDatabaseTest/CheckoutPaymentDatabaseTest/MultiCheckoutDatabaseTest共31通过（34.880秒）。测试时钟从构造时改为@BeforeEach初始化，避免容器启动耗时使固定时间早于新尝试。再补查询异常不中断下一收据及provider lookup不在数据库事务中的断言，恢复7项通过（27.222秒）。覆盖持久关单/公开过滤、UNKNOWN过期仍保留、收据丢响应后原ID一次发布、队首公平、发布回滚后重启重用原ID、并发条件领取、失败隔离。数据夹具/故障/定点删除冲突占位订单只在独立Testcontainers MySQL，不操作正式数据。
+
+命令均Java21、java目录：`./mvnw.cmd -B -pl commerce-service -am test '-Dtest=CheckoutRecoveryDatabaseTest,CheckoutPaymentDatabaseTest,MultiCheckoutDatabaseTest' '-Dsurefire.failIfNoSpecifiedTests=false'`，新实现文件定点Spotless通过；新增失败测试后再定点格式化/跑CheckoutRecoveryDatabaseTest，git diff通过。当前尚无常驻调度，下一步B3.2接正式入口与调度，再集中隔离网页验收。
+
 ## B2.4b 账号原子写入限流（2026-10-22）
 
 B2.4a 0bebd5d已普通push核实。Case在鉴权/角色检查后、Commerce调用前，按已认证账号+WRITE/REPLY动作执行Redis Lua原子INCR/EXPIRE，首请求起60秒内各动作最多6次。key摘要化账号，不接受客户端归属或限流键；Redis重启可清空窗口，业务唯一性仍由MySQL控制。超过限额429/Retry-After60秒，Redis异常503/Retry-After1秒且可重试，不退化为无限写入。正式本机/core Compose启用，单测默认可禁用。
