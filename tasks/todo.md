@@ -1,3 +1,9 @@
+## 当前快照（2026-10-22，客服中间层重构后真实验证：准备完成）
+
+- 用户批准开始新有限真实验证，按[本批方案](../docs/customer-agent-state-live-v1.md)固定64574bf生产及新执行器，single/staged-v1各7轮共14轮：原U05四轮/U02/U03各一轮问题/事实/条件不变，新增U06仅核实实付/PAID且不提交。新身份/组内实际历史，不补成功或掩盖失败；是整体候选比较，非独立留出/简历指标。
+- 新执行入口继承最近已接纳conversation_update，失败答复也可带状态，主体/行/run/版本核验，无更新才兼容最近成功answer；不把失败草稿当事实。新3单元+1实际ASGI/隔离PG共4通过/0失败/0跳过（4.66秒），Ruff通过；先缺模块红测收集1错误。脚本3轮真实链路SUCCEEDED→FAILED且PAUSED→SUCCEEDED原id恢复/纠正保存；只1条实际助手历史，10模型调用全为脚本，不算真实质量。
+- 新清单冻结/--check --database通过，public11表全行hash/4原脏文件/旧v2/v3/两候选raw及旧清单保持，自有schema空，ledger1868起。当前唯一写入者，main跟踪origin/main、fetch0:0、暂存原空；准备精确提交普通push核实后单次14轮生成，不改源码/提示继续收费重跑。PG临时启动，仅隔离账/只读政策，结束核对停PG保留卷/十端口闭；Java/网页保持关闭。
+
 ## 当前快照（2026-10-22，客服中间层四步重构收口：工程已接入，真实质量待新版本验证）
 
 - 按[方案](../docs/customer-agent-state-refactor-v1.md)完成陈述a122a87、状态解耦0da003d、需求追加a44d187、关键来源5d75185、反馈e1a9532，均普通push核实；[报告](../reports/customer-agent-state-refactor-v1/README.md)/逐项验证摘要/收口hash齐全。模型提原句/语义，程序管理陈述id；会话更新独立于答复；调查需求可有限补充；关键事实由来源填值；OPEN恢复幂等、关闭仍须重开。默认single保持，可选staged-v1，未新增Agent/模型/RAG算法或网页部署。
