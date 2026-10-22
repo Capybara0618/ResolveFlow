@@ -14,7 +14,7 @@ from resolveflow.support.tasks import TaskStateError
 
 CAPABILITIES: dict[str, dict[str, Any]] = {
     "get_order_context": {
-        "purpose": "订单/付款；非物流/页面入口。",
+        "purpose": "订单/付款。",
         "action": {"kind": "READ_TOOL", "tool_name": "get_order_context", "arguments": {}},
     },
     "get_shipment_trace": {
@@ -22,19 +22,19 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
         "action": {"kind": "READ_TOOL", "tool_name": "get_shipment_trace", "arguments": {}},
     },
     "read_history": {
-        "purpose": "更早原文；before_sequence、limit(1–5)。",
+        "purpose": "更早原文。",
         "action": {"kind": "READ_TOOL", "tool_name": "read_history", "arguments": {"limit": 5}},
     },
     "read_context": {
-        "purpose": "按H索引读原文，offset/limit为Unicode字符；更早用read_history。",
+        "purpose": "H原文；offset/limit为字符。",
         "action": {"kind": "READ_TOOL", "tool_name": "read_context", "arguments": {"reference": "H1", "limit": 500}},
     },
     "get_support_guide": {
-        "purpose": "平台流程：入口/操作/共享/消息对象须据此；无法读取则明确未核实。不含退款资格。",
+        "purpose": "平台流程/入口/共享；无法读取须说明。",
         "action": {"kind": "READ_TOOL", "tool_name": "get_support_guide", "arguments": {}},
     },
     "search_policy": {
-        "purpose": "资格/条件/例外/金额；无入口，流程读指南。Query仅查资格。",
+        "purpose": "资格/例外/金额，非入口。",
         "action": {"kind": "READ_TOOL", "tool_name": "search_policy",
                    "arguments": {"query": "当前要了解的资格条件", "top_k": 3}},
     },
