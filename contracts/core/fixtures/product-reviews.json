@@ -1,0 +1,94 @@
+{
+  "ProductReview": {
+    "review_id": 1,
+    "product_id": "P-1001",
+    "product_name": "无线降噪耳机",
+    "variant": "黑色",
+    "rating": 5,
+    "body": "佩戴舒适",
+    "reply": null,
+    "version": 1,
+    "created_at": "2026-10-22T04:00:00Z",
+    "updated_at": "2026-10-22T04:00:00Z"
+  },
+  "ProductReviewSummary": {
+    "count": 1,
+    "average": 5.0,
+    "stars": [
+      1,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "OwnProductReview": {
+    "can_review": true,
+    "blocked_reason": null,
+    "review": {
+      "review_id": 1,
+      "product_id": "P-1001",
+      "product_name": "无线降噪耳机",
+      "variant": "黑色",
+      "rating": 5,
+      "body": "佩戴舒适",
+      "reply": null,
+      "version": 1,
+      "created_at": "2026-10-22T04:00:00Z",
+      "updated_at": "2026-10-22T04:00:00Z"
+    }
+  },
+  "ProductReviewWrite": {
+    "rating": 5,
+    "body": "佩戴舒适",
+    "expected_version": 0
+  },
+  "ProductReviewReply": {
+    "body": "感谢反馈",
+    "expected_version": 1
+  },
+  "ProductReviewPage": {
+    "items": [
+      {
+        "review_id": 1,
+        "product_id": "P-1001",
+        "product_name": "无线降噪耳机",
+        "variant": "黑色",
+        "rating": 5,
+        "body": "佩戴舒适",
+        "reply": null,
+        "version": 1,
+        "created_at": "2026-10-22T04:00:00Z",
+        "updated_at": "2026-10-22T04:00:00Z"
+      }
+    ],
+    "summary": {
+      "count": 1,
+      "average": 5.0,
+      "stars": [
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "next_before": null
+  },
+  "ProductReviewCommand": {
+    "merchant_id": "M-1001",
+    "customer_id": "SYNTHETIC-CUSTOMER",
+    "request": {
+      "rating": 5,
+      "body": "佩戴舒适",
+      "expected_version": 0
+    }
+  },
+  "ProductReviewReplyCommand": {
+    "merchant_id": "M-1001",
+    "request": {
+      "body": "感谢反馈",
+      "expected_version": 1
+    }
+  }
+}

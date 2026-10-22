@@ -1,5 +1,7 @@
 ## 当前快照（2026-10-22，后端深化：B1实现通过，B2评价领域通过，接口/页面/恢复接续）
 
+- B2.1 79ab120已push核实；B2.2各5评价HTTP/可信映射/Case部署主体校验、严格DTO和双服务OpenAPI/fixture/路由表已接。Commerce先3失败后18通过；Case首mock配置3错误修正后8通过；Wire首1通过/1失败后2通过，最终三模块15通过。Python首82通过/1旧断言失败，核对原LineContext未变后补精确履约字段/配对约束，最终83通过；Ruff新测试/Spotless/diff通过。命令和边界见reports/backend-deepening-v1.md。未部署正式业务或模型/迁移演示库；下一步提交push核实后B2.3双端评价UI，再B2.4 Redis评分/限流和B3恢复。
+
 - B2.1评价领域/共享Wire/V17追加迁移已实现：已签收本人行一条评价、重放/版本更新、商家本店回复、公开摘要/隐私、退款保留及事务epoch。新6测试对骨架先全部失败，领域+旧购物/付款共28通过；加强epoch/跨店映射后7领域通过，Spotless/diff通过；详情 reports/backend-deepening-v1.md。只隔离MySQL测试，无正式HTTP/网页/Redis评分、无演示库迁移或模型请求。下一步精确提交push核实后B2.2接口/契约和权限，再界面/Redis评分及B3恢复。
 
 - B1.3 0b831fb已push核实；提交检查实际出现local-runtime末尾空行警告但PowerShell继续执行，随即独立文档修正并纠正报告，重新diff/cached检查通过后提交push。后续命令显式检查每个退出码，不把末条命令成功当整组成功。

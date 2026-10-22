@@ -1,5 +1,15 @@
 # 后端深化验证记录
 
+## B2.2 评价 HTTP、可信归属与契约（2026-10-22）
+
+B2.1 79ab120已正常push核实。本步纵向接Commerce/Case各5操作，Case派生买家映射/商家身份，私有Commerce路由要求Case部署主体和checkout/fulfillment scope。公共列表允许匿名Case读取；Agent即使持私有scope仍被拒绝。请求额外字段拒绝、rating/version要求整数token；新增严格正文反序列化防数字/布尔值被Jackson静默转为文字。Schema/OpenAPI/共享Wire/fixture/核心路由表同步（Case86/Commerce35/Agent8），公开投影不暴露账号/订单。
+
+新Commerce HTTP3测试先失败（尚无路由）；实现后Commerce领域/HTTP/旧权限18通过。Case首轮8项5通过/3错误，原因是mock先设置通用抛错后用when设置特例触发原桩，改doReturn后8通过（31.906秒），未改权限断言。共享Wire新2测试首1通过/1失败，复现数字正文被转换，严格文本后2通过；最终Java跨shared/commerce/case跑ProductReviewApiTest/ProductReviewWireTest/ProductReviewDatabaseTest，2+10+3=15通过/0跳过（42.717秒）。各相应命令均 `./mvnw.cmd -B -pl <module> -am test '-Dtest=<上述类>' '-Dsurefire.failIfNoSpecifiedTests=false'`，定点Spotless包含本步Java文件。
+
+`agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_product_review_contract.py agent/tests/unit/test_contracts_core_routes.py -q` 首82通过/1失败，原LineContext精确字段断言漏已有payment_version/fulfillment字段；核对HEAD与当前LineContext完全相同后，补精确可选字段/状态枚举及双向dependentRequired，不改生产Schema或删除旧断言。最终83通过（59.47秒）；新契约测试Ruff首1长行错误、换行后通过，git diff --check通过。生成附加契约时Windows文本换行曾扩大diff，已恢复原LF，仅追加新组件和路由。fixture索引更新，不改旧冻结数据/hash。
+
+未运行：正式浏览器评价、评分Redis/限流和端到端真实Case→Commerce部署。当前Case HTTP使用边界mock、Commerce HTTP使用真实隔离MySQL，两层证据分开。无模型请求、正式库迁移或收费资源；接下来B2.3双端界面，B2.4评分缓存/限流，B3自动恢复。
+
 ## B2.1 评价领域与追加迁移（2026-10-22）
 
 B1.3 0b831fb及文档检查修正65ab7ef均已普通push核实。新增共享ProductReviewWire、Commerce V17追加评价/epoch表、ProductReviewService和真实MySQL领域测试。本人已支付且DELIVERED的订单行可首评；行锁/唯一键确保一行一评；同内容重放、不同内容原版本校验；商家仅回复本店、不能改评分或删除；修改/回复与epoch同事务；公开结果不含订单/账号归属，退款不删除原评价。历史跨店商品映射无效则拒绝首评。

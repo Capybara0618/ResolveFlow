@@ -31,6 +31,398 @@ tags:
   - name: refund
     description: Refund operation state and the reconciliation answer.
 paths:
+  /internal/v1/shop/products/{product_id}/reviews:
+    get:
+      operationId: commerceProductReviews0
+      summary: ProductReviewPage
+      description: 'Authority: docs/backend-deepening-v1.md. Commerce owns reviews.
+        Delivered purchased line only; one per line, same-content replay, CAS edits
+        and merchant reply. Refund never deletes a review; Agent cannot access private
+        writes. Public results never include account or order identifiers.'
+      security:
+      - serviceToken: []
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+      - name: before
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 10
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductReviewPage'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /internal/v1/shop/orders/lines/{line_id}/review:
+    get:
+      operationId: commerceProductReviews1
+      summary: OwnProductReview
+      description: 'Authority: docs/backend-deepening-v1.md. Commerce owns reviews.
+        Delivered purchased line only; one per line, same-content replay, CAS edits
+        and merchant reply. Refund never deletes a review; Agent cannot access private
+        writes. Public results never include account or order identifiers.'
+      security:
+      - serviceToken: []
+      parameters:
+      - name: line_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+      - name: merchant_id
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+      - name: customer_id
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OwnProductReview'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+    post:
+      operationId: commerceProductReviews2
+      summary: ProductReview
+      description: 'Authority: docs/backend-deepening-v1.md. Commerce owns reviews.
+        Delivered purchased line only; one per line, same-content replay, CAS edits
+        and merchant reply. Refund never deletes a review; Agent cannot access private
+        writes. Public results never include account or order identifiers.'
+      security:
+      - serviceToken: []
+      parameters:
+      - name: line_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductReview'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductReviewCommand'
+  /internal/v1/merchant/reviews:
+    get:
+      operationId: commerceProductReviews3
+      summary: ProductReviewPage
+      description: 'Authority: docs/backend-deepening-v1.md. Commerce owns reviews.
+        Delivered purchased line only; one per line, same-content replay, CAS edits
+        and merchant reply. Refund never deletes a review; Agent cannot access private
+        writes. Public results never include account or order identifiers.'
+      security:
+      - serviceToken: []
+      parameters:
+      - name: before
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 10
+      - name: merchant_id
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductReviewPage'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /internal/v1/merchant/reviews/{review_id}/reply:
+    post:
+      operationId: commerceProductReviews4
+      summary: ProductReview
+      description: 'Authority: docs/backend-deepening-v1.md. Commerce owns reviews.
+        Delivered purchased line only; one per line, same-content replay, CAS edits
+        and merchant reply. Refund never deletes a review; Agent cannot access private
+        writes. Public results never include account or order identifiers.'
+      security:
+      - serviceToken: []
+      parameters:
+      - name: review_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      responses:
+        '200':
+          description: Authoritative review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductReview'
+        '400':
+          description: Invalid or non-integer input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Wrong role, scope or deployment subject
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Unknown or outside trusted ownership
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not delivered or stale review version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Account write limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: Temporarily unavailable; retain input and query original resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductReviewReplyCommand'
   /internal/v1/shop/cart/{store_id}/quote:
     post:
       operationId: commerceCartQuote
@@ -1695,6 +2087,205 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    ProductReview:
+      type: object
+      additionalProperties: false
+      required:
+      - review_id
+      - product_id
+      - product_name
+      - variant
+      - rating
+      - body
+      - reply
+      - version
+      - created_at
+      - updated_at
+      properties:
+        review_id:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        product_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+        product_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+        variant:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: \S
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        body:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: \S
+        reply:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 1000
+            pattern: \S
+          - type: 'null'
+        version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ProductReviewSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - count
+      - average
+      - stars
+      properties:
+        count:
+          type: integer
+          minimum: 0
+        average:
+          anyOf:
+          - type: number
+            minimum: 1
+            maximum: 5
+          - type: 'null'
+        stars:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items:
+            type: integer
+            minimum: 0
+    ProductReviewPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - summary
+      - next_before
+      properties:
+        items:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/ProductReview'
+        summary:
+          anyOf:
+          - $ref: '#/components/schemas/ProductReviewSummary'
+          - type: 'null'
+        next_before:
+          anyOf:
+          - type: integer
+            minimum: 1
+            maximum: 9007199254740991
+          - type: 'null'
+    OwnProductReview:
+      type: object
+      additionalProperties: false
+      required:
+      - can_review
+      - blocked_reason
+      - review
+      properties:
+        can_review:
+          type: boolean
+        blocked_reason:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 1000
+            pattern: \S
+          - type: 'null'
+        review:
+          anyOf:
+          - $ref: '#/components/schemas/ProductReview'
+          - type: 'null'
+    ProductReviewWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - rating
+      - body
+      - expected_version
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        body:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: \S
+        expected_version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740990
+    ProductReviewReply:
+      type: object
+      additionalProperties: false
+      required:
+      - body
+      - expected_version
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: \S
+        expected_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    ProductReviewCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - customer_id
+      - request
+      properties:
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+        customer_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+        request:
+          $ref: '#/components/schemas/ProductReviewWrite'
+    ProductReviewReplyCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - request
+      properties:
+        merchant_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: \S
+        request:
+          $ref: '#/components/schemas/ProductReviewReply'
     CartQuoteRequest:
       type: object
       additionalProperties: false

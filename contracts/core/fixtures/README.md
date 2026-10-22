@@ -10,6 +10,7 @@
 | `reviewer-context.json` | 审核工作台上下文接口示例 |
 | `reviewer-findings.json` | 合成的来源陈述、判断及冲突示例；Python校验契约、Java共享类型校验往返 |
 | `reviewer-investigation.json` | 审核员原始工具记录投影；内部Agent和公开Case协议共同验证 |
+| `product-reviews.json` | 购买后评价/评分摘要/本人资格/商家回复及可信命令，公开投影不含账号/订单，Java往返与双服务Schema验证 |
 
 ## 语料结构
 

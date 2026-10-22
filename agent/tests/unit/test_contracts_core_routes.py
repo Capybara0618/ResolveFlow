@@ -34,7 +34,7 @@ CORE_DIR = "contracts/core"
 #: Commerce went 4 -> 5 in C01.2: the Case row already said its order view calls
 #: Commerce internally, but no listing route existed for it to call (see the C01.2
 #: record in tasks/todo.md).
-EXPECTED_ROUTE_COUNTS = {"Case": 81, "Commerce": 30, "Agent": 8}
+EXPECTED_ROUTE_COUNTS = {"Case": 86, "Commerce": 35, "Agent": 8}
 
 
 def test_manual_refund_preparation_and_server_owned_action_contracts() -> None:
@@ -701,7 +701,8 @@ def test_case_internal_routes_require_the_service_token() -> None:
                 declared = operation.get("security")
                 assert declared == [{"serviceToken": []}], f"{method} {path} must not accept a user token"
             elif path in {"/api/v1/auth/login", "/api/v1/shop/stores", "/api/v1/shop/stores/{store_id}",
-                          "/api/v1/shop/products", "/api/v1/shop/products/{product_id}", "/api/v1/shop/quote"}:
+                          "/api/v1/shop/products", "/api/v1/shop/products/{product_id}", "/api/v1/shop/quote",
+                          "/api/v1/shop/products/{product_id}/reviews"}:
                 assert operation.get("security") == [], "login and the approved public catalog are anonymous"
             else:
                 declared = operation.get("security", [{"bearerAuth": []}])
@@ -880,10 +881,23 @@ def test_the_line_context_is_where_the_amount_is_recomputed_from() -> None:
         "order_status",
         "version",
     }
-    assert set(context["properties"]) == set(context["required"]) | {"order_paid_amount", "line_refund_state"}, (
-        "legacy facts stay required; only the documented multiline extension is optional"
+    assert set(context["properties"]) == set(context["required"]) | {
+        "order_paid_amount", "line_refund_state", "payment_version", "fulfillment_status", "fulfillment_version"
+    }, (
+        "legacy facts stay required; only documented multiline and authoritative fulfillment extensions are optional"
     )
-    assert context["dependentRequired"] == {"line_refund_state": ["order_paid_amount"]}
+    assert context["dependentRequired"] == {
+        "line_refund_state": ["order_paid_amount"],
+        "fulfillment_status": ["fulfillment_version"],
+        "fulfillment_version": ["fulfillment_status"],
+    }
+    assert context["properties"]["payment_version"] == {
+        "$ref": "#/components/schemas/Version",
+        "description": "Actual payment ledger version; omitted when no ledger exists.",
+    }
+    assert context["properties"]["fulfillment_status"]["enum"] == [
+        "NOT_SHIPPED", "IN_TRANSIT", "DELIVERED", "LOST", "UNKNOWN"
+    ]
 
     listing_item = commerce["components"]["schemas"]["OrderLineSummary"]
     for withheld in ("merchant_id", "customer_id", "refunded_amount", "reserved_refund_amount"):

@@ -36,6 +36,7 @@ public final class ProductReviewWire {
             @tools.jackson.databind.annotation.JsonDeserialize(using = FulfillmentWire.StrictVersion.class)
             Long rating,
 
+            @tools.jackson.databind.annotation.JsonDeserialize(using = StrictText.class)
             String body,
 
             @JsonProperty("expected_version")
@@ -48,6 +49,7 @@ public final class ProductReviewWire {
             Write request) {}
 
     public record Reply(
+            @tools.jackson.databind.annotation.JsonDeserialize(using = StrictText.class)
             String body,
 
             @JsonProperty("expected_version")
@@ -55,4 +57,14 @@ public final class ProductReviewWire {
             Long expectedVersion) {}
 
     public record ReplyCommand(@JsonProperty("merchant_id") String merchantId, Reply request) {}
+
+    public static class StrictText extends tools.jackson.databind.ValueDeserializer<String> {
+        @Override
+        public String deserialize(
+                tools.jackson.core.JsonParser parser, tools.jackson.databind.DeserializationContext context) {
+            if (parser.currentToken() != tools.jackson.core.JsonToken.VALUE_STRING)
+                throw new IllegalArgumentException("body must be text");
+            return parser.getString();
+        }
+    }
 }

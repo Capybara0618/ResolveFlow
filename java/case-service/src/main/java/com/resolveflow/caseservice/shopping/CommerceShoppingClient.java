@@ -17,6 +17,62 @@ import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class CommerceShoppingClient {
+    public com.resolveflow.shared.shopping.ProductReviewWire.Page productReviews(
+            String product, Long before, Integer limit) {
+        return call(
+                rest.get().uri(u -> {
+                    var b = u.path("/internal/v1/shop/products/{id}/reviews");
+                    if (before != null) b.queryParam("before", before);
+                    if (limit != null) b.queryParam("limit", limit);
+                    return b.build(product);
+                }),
+                false,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.ProductReviewWire.Own ownReview(
+            String line, String merchant, String customer) {
+        return call(
+                rest.get()
+                        .uri(u -> u.path("/internal/v1/shop/orders/lines/{id}/review")
+                                .queryParam("merchant_id", merchant)
+                                .queryParam("customer_id", customer)
+                                .build(line)),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.ProductReviewWire.Review saveReview(
+            String line, com.resolveflow.shared.shopping.ProductReviewWire.Command command) {
+        return call(
+                rest.post()
+                        .uri("/internal/v1/shop/orders/lines/{id}/review", line)
+                        .body(command),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.ProductReviewWire.Page merchantReviews(
+            String merchant, Long before, Integer limit) {
+        return call(
+                rest.get().uri(u -> {
+                    var b = u.path("/internal/v1/merchant/reviews").queryParam("merchant_id", merchant);
+                    if (before != null) b.queryParam("before", before);
+                    if (limit != null) b.queryParam("limit", limit);
+                    return b.build();
+                }),
+                ServiceScopes.COMMERCE_FULFILLMENT,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.ProductReviewWire.Review replyReview(
+            long id, com.resolveflow.shared.shopping.ProductReviewWire.ReplyCommand command) {
+        return call(
+                rest.post().uri("/internal/v1/merchant/reviews/{id}/reply", id).body(command),
+                ServiceScopes.COMMERCE_FULFILLMENT,
+                new ParameterizedTypeReference<>() {});
+    }
+
     private final RestClient rest;
     private final JwtCodec codec;
 
