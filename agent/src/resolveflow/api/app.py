@@ -22,7 +22,7 @@ import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import psycopg
 from fastapi import FastAPI, HTTPException, Query, Request, Response, status
@@ -101,7 +101,7 @@ class HealthResponse(BaseModel):
     status: str
     service: str
     version: str
-    support_architecture: str
+    support_architecture: Literal["single", "staged-v1"]
 
 
 class RunRequestContextShape(BaseModel):

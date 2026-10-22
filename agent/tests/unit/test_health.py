@@ -39,6 +39,19 @@ def test_health_does_not_expose_internals() -> None:
     assert body["support_architecture"] == "single"
 
 
+def test_core_health_contract_accepts_actual_profile_without_changing_legacy_contract() -> None:
+    from pathlib import Path
+
+    import jsonschema
+    import yaml
+
+    root = Path(__file__).resolve().parents[3]
+    core = yaml.safe_load((root / 'contracts/core/openapi-agent.yaml').read_text(encoding='utf-8'))
+    legacy = yaml.safe_load((root / 'contracts/openapi-agent.yaml').read_text(encoding='utf-8'))
+    jsonschema.validate(TestClient(create_app()).get('/health').json(), core['components']['schemas']['HealthResponse'])
+    assert 'support_architecture' not in legacy['components']['schemas']['HealthResponse']['properties']
+
+
 def test_interactive_docs_are_not_published() -> None:
     """The Agent exposes no browseable surface (docs/architecture.md)."""
     client = TestClient(create_app())

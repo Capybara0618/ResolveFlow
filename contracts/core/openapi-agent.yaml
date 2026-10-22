@@ -171,6 +171,7 @@ paths:
                 status: UP
                 service: agent-service
                 version: core-v1.2
+                support_architecture: staged-v1
   /internal/v1/runs:
     post:
       tags: [runs]
@@ -770,7 +771,7 @@ components:
     HealthResponse:
       type: object
       additionalProperties: false
-      required: [status, service, version]
+      required: [status, service, version, support_architecture]
       properties:
         status:
           type: string
@@ -781,6 +782,9 @@ components:
         version:
           type: string
           minLength: 1
+        support_architecture:
+          type: string
+          enum: [single, staged-v1]
     RunRequestContext:
       type: object
       additionalProperties: false
