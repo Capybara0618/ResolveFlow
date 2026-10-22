@@ -91,6 +91,8 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         )
     elif isinstance(error, DialogueStateError):
         result.update(field="dialogue_events", detail=str(error))
+        if error.state_conflict:
+            result["state_conflict"] = error.state_conflict
         if error.missing_task_ids:
             result.update(
                 issue="DIALOGUE_COVERAGE", missing_task_ids=error.missing_task_ids,
@@ -153,8 +155,9 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         result.update(
             field="schema",
             errors=[
-                {"path": ".".join(map(str, item["loc"])), "type": item["type"]}
-                for item in error.errors(include_input=False, include_context=False)[:4]
+                {"path": ".".join(map(str, item["loc"])), "type": item["type"],
+                 **({"expected": item["ctx"]["expected"]} if item.get("ctx", {}).get("expected") else {})}
+                for item in error.errors(include_input=False)[:4]
             ],
             detail="使用capabilities动作形状，只输出一个JSON，禁未知字段。"
                    "读取可省略tasks/dialogue_events；输入包中的说明键不属于输出。",

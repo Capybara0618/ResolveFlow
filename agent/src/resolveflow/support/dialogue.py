@@ -11,9 +11,11 @@ from resolveflow.support.tasks import lifecycle_for, previous_hint
 
 
 class DialogueStateError(ValueError):
-    def __init__(self, message: str, *, missing_task_ids: list[str] | None = None) -> None:
+    def __init__(self, message: str, *, missing_task_ids: list[str] | None = None,
+                 state_conflict: dict[str, Any] | None = None) -> None:
         super().__init__(message)
         self.missing_task_ids = list(missing_task_ids or [])
+        self.state_conflict = state_conflict
 
 
 def event_outcomes(tasks: list[SupportTask], events: list[DialogueEvent]) -> list[SupportTask]:
@@ -78,14 +80,19 @@ class DialogueState:
                 "CORRECT": lifecycle in {"OPEN", "PAUSED"},
                 "CANCEL": old is not None and new == "CANCELLED",
                 "PAUSE": lifecycle in {"OPEN", "PAUSED"} and new == "SUSPENDED",
-                "RESUME": lifecycle == "PAUSED" and new not in {"SUSPENDED", "CANCELLED"},
+                "RESUME": lifecycle in {"OPEN", "PAUSED"} and new not in {"SUSPENDED", "CANCELLED"},
                 "CLARIFY": lifecycle not in {"RESOLVED", "CANCELLED"} and new == "NEEDS_CUSTOMER",
                 "RESOLVE": lifecycle in {"OPEN", "PAUSED", "RESOLVED"} and new == "ANSWERED",
                 "REOPEN": lifecycle in {"RESOLVED", "CANCELLED"} and new not in {"SUSPENDED", "CANCELLED"},
             }[event.change]
             if not valid:
-                raise DialogueStateError("事项事件与lifecycle不一致；ANSWERED不关闭事项；"
-                                         "暂停用RESUME，已结束用REOPEN。")
+                allowed = (["REOPEN"] if lifecycle in {"RESOLVED", "CANCELLED"}
+                           else ["RESUME", "CORRECT", "CANCEL", "RESOLVE"] if lifecycle == "PAUSED"
+                           else ["CONTINUE", "CORRECT", "PAUSE", "CANCEL", "RESOLVE"] if lifecycle == "OPEN"
+                           else ["ADD"])
+                raise DialogueStateError("事件与实际前态不一致；暂停用PAUSE，恢复/继续用RESUME，结束后须REOPEN。",
+                    state_conflict={"task_id": task_id, "actual_lifecycle": lifecycle,
+                                    "proposed_change": event.change, "allowed_changes": allowed})
             lifecycles[task_id] = {"ADD": "OPEN", "CANCEL": "CANCELLED", "PAUSE": "PAUSED",
                                    "RESUME": "OPEN", "RESOLVE": "RESOLVED", "REOPEN": "OPEN"}.get(
                                        event.change, lifecycle or "OPEN")

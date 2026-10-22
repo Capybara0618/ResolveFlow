@@ -82,7 +82,8 @@ def test_overlapping_groups_and_unknown_tasks_cannot_silently_merge():
 def test_invalid_member_of_group_blocks_all_changes_and_current_source_is_still_required():
     req = request(input_version=5)
     quote = req.context['current_request']
-    previous(req, [task('paused', status='SUSPENDED'), task('active', status='NEEDS_MERCHANT')])
+    previous(req, [task('paused', status='SUSPENDED'),
+                   task('active', status='ANSWERED', lifecycle='RESOLVED')])
     state = DialogueState(req)
     before = state.packet()
     with pytest.raises(DialogueStateError):

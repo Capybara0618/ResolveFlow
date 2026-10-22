@@ -83,15 +83,15 @@ def test_live_first_decision_requires_explicit_change_but_not_an_extra_classifie
     assert '"field": "dialogue_events"' in model.packets[1]["feedback"] and model.calls == 2
 
 
-def test_invalid_resume_and_old_message_cannot_authorize_a_current_change():
+def test_resume_cannot_reopen_a_closed_issue_and_old_message_cannot_authorize_a_current_change():
     req = request(input_version=5)
     req.context["current_request"] = "继续"
-    previous(req, [task("trace", status="NEEDS_MERCHANT")])
+    previous(req, [task("trace", status="CANCELLED")])
     model = MockModelClient(script=[{**read(), "tasks": [task("trace")],
                                     "dialogue_events": [event("RESUME", "trace", "继续")]},
                                    answer(text="请说明需要继续哪件事。", citations=[], tasks=[
                                        task("trace", status="NEEDS_CUSTOMER", response_excerpt="请说明需要继续哪件事")],
-                                       dialogue_events=[event("CLARIFY", "trace", "继续")])])
+                                       dialogue_events=[event("REOPEN", "trace", "继续")])])
     source = Reads()
     result = SupportAgent(req, model, source).run()
     assert result["status"] == "SUCCEEDED", result["reason"]
