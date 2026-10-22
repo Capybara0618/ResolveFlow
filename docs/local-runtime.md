@@ -21,6 +21,8 @@
 
 重复启动复用健康的所属进程。停止、重启不会重建账号、商品、订单或工单，不生成验收交易。已有健康的 Java 服务会继续复用；修改 Java 源码后先停止再启动，默认重新构建。当前功能仍是个人项目的本地运行，支付、发货和退款为模拟操作；正式入口名称不表示已完成公网生产部署。
 
+售后咨询现在由正式启动器显式使用`staged-v1`（先理解本轮诉求，再自主调查/答复），Agent内部`/health`的`support_architecture`及status核验实际模式。直接启动Python服务时可设置`RESOLVEFLOW_SUPPORT_ARCHITECTURE=staged-v1`，未设置仍为兼容single，未知值启动失败；架构在进程启动固定，旧run不静默换manifest。日常启动复用与本店权威版本/hash一致的READY政策索引。实际三轮对话、双端人工接续和未完成问题见[网页验收报告](../reports/customer-agent-demo-v2/README.md)。
+
 ## 首次配置
 
 当前电脑已配置依赖和基础数据，可以直接使用 `start.ps1`。新电脑需要 Docker Desktop、JDK21、Node/pnpm、项目锁定的 Python 环境 `agent/.venv` 和本地政策 embedding 快照；Java/pnpm/Python 的依赖安装沿用[工程说明](engineering.md)，不得更换锁或使用假检索代替缺失模型。首次启动会构建 Java 包并在缺少 `web/node_modules` 时安装锁定依赖。

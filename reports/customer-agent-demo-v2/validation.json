@@ -1,0 +1,69 @@
+{
+  "public_retained_rows_unchanged": {
+    "agent_callback_outbox": true,
+    "agent_model_attempt": true,
+    "agent_model_call": true,
+    "agent_run": true,
+    "agent_run_model_budget": true,
+    "agent_tool_call": true,
+    "policy_index_child": true,
+    "policy_index_chunk": true,
+    "policy_index_generation": true,
+    "support_agent_call": true,
+    "support_agent_run": true
+  },
+  "baseline_files_unchanged": {
+    "docs/engineering.md": true,
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": true,
+    "scripts/verify.ps1": true,
+    "scripts/verify.sh": true,
+    "reports/customer-agent-state-live-v1/runtime-results.json": true,
+    "agent/src/resolveflow/assets/support-guide-v1.json": true
+  },
+  "business_and_index_unchanged": true,
+  "new_support_runs": 3,
+  "new_calls": 15,
+  "raw_file_sha256": "0b3e19db6db684d7114446bd76ed93b5f39d21a6aae55efc4d9870aefe8794a7",
+  "ledger_before": 1916,
+  "ledger_after": 1927,
+  "pending": 0,
+  "health": {
+    "status": "UP",
+    "service": "agent-service",
+    "version": "0.1.0",
+    "support_architecture": "staged-v1"
+  },
+  "services_left_running": true,
+  "tests": {
+    "final_support_unit_and_pg": {
+      "passed": 248,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 7.71
+    },
+    "health_and_contracts": {
+      "passed": 177,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 69.36
+    },
+    "startup": {
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0
+    },
+    "strict_mypy_source_files": 11,
+    "ruff_reviewer_demo_existing_findings": 19,
+    "ruff_reviewer_demo_added_findings": 0
+  },
+  "implementation_commit": "284a4df6310d9475d8599c022f62a1a8b29d1c28",
+  "artifacts_sha256": {
+    "README.md": "7b0ea83bfacb6a08cb782d3df6a474b568369c7a0dda7a732b706acdf38cba86",
+    "runtime-results.json": "0b3e19db6db684d7114446bd76ed93b5f39d21a6aae55efc4d9870aefe8794a7",
+    "images\\buyer-policy.png": "d31c9b5a731c04e1af80a09645f299790656d2392d69a2298d1c33067dc721c7",
+    "images\\buyer-resolved.png": "9630d71e226b2d431054d00785b215761982b43aa8d781b1fbf1ba5c900c1864",
+    "images\\handoff-preview.png": "27b0cda4c4e97be5f597c7a7bd1ac9749912bad5762cfcb7263cb436ba7b9ab9",
+    "images\\merchant-replied.png": "a352a240d9a08f7a43834b40e689110f43ea4ec10630412275e802a45e2ae58b",
+    "images\\merchant-shared.png": "20640dfea796f3fef7993cab08936d03634f9707fe1c8e98a8e6fc7838b1f96e"
+  }
+}
