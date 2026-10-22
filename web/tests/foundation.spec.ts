@@ -15,6 +15,7 @@ describe('foundation management', () => {
     const fetcher = vi.fn().mockImplementation((url: string) => {
       if (url.endsWith('/auth/login')) return Promise.resolve(new Response(JSON.stringify({ ...merchant, single_operator: true })))
       if (url.endsWith('/admin/overview')) return Promise.resolve(new Response(JSON.stringify({ mine: 0, attention: 0, items: [] })))
+      if (url.includes('/merchant/reviews')) return Promise.resolve(new Response(JSON.stringify({ items: [], summary: null, next_before: null })))
       return Promise.resolve(new Response(JSON.stringify({ items: [], page: { limit: 20 }, counts: { total: 0, public: 0, mine: 0, unclaimed: 0, stages: {} } })))
     })
     vi.stubGlobal('fetch', fetcher)
@@ -22,7 +23,10 @@ describe('foundation management', () => {
     try {
       await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
       expect(wrapper.find('[aria-label="商家工作台"]').exists()).toBe(true)
-      expect(wrapper.findAll('.nav-link').map(link => link.text())).toEqual(['商家概览', '交易订单', '商品管理', '售后工单', '咨询核查', '售后政策'])
+      expect(wrapper.findAll('.nav-link').map(link => link.text())).toEqual(['商家概览', '交易订单', '商品管理', '商品评价', '售后工单', '咨询核查', '售后政策'])
+      await wrapper.findAll('.nav-link').find(link => link.text() === '商品评价')!.trigger('click'); await flushPromises()
+      expect(wrapper.text()).toContain('本店暂无商品评价')
+      expect(fetcher.mock.calls.some(([url]) => url.includes('/merchant/reviews'))).toBe(true)
       await wrapper.findAll('.nav-link').find(link => link.text() === '售后工单')!.trigger('click'); await flushPromises()
       expect(wrapper.find('#queue-panel').exists()).toBe(true)
       expect(wrapper.find('[aria-label="工单归属范围"]').exists()).toBe(false)

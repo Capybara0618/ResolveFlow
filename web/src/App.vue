@@ -16,6 +16,7 @@ import PlatformWorkspace from './ui/PlatformWorkspace.vue'
 import AdminOverview from './ui/AdminOverview.vue'
 import AdminPolicies from './ui/AdminPolicies.vue'
 import AdminTrades from './ui/AdminTrades.vue'
+import MerchantReviews from './ui/MerchantReviews.vue'
 import SupportWorkspace from './ui/SupportWorkspace.vue'
 import InvestigationSources from './ui/InvestigationSources.vue'
 import PolicyCitations from './ui/PolicyCitations.vue'
@@ -80,7 +81,7 @@ let reviewContextGeneration = 0
 const focusedPolicy = ref<string | null>(null)
 const focusNonce = ref(0)
 const queryOpen = ref(false)
-type MerchantPage = 'review' | 'people' | 'overview' | 'policies' | 'orders' | 'products' | 'support'
+type MerchantPage = 'review' | 'people' | 'overview' | 'policies' | 'orders' | 'products' | 'support' | 'reviews'
 const merchantPage = ref<MerchantPage>('review')
 function changeMerchantPage(page: MerchantPage, query = false) {
   if (busy.value || (isSingleMerchant.value && page === 'people')) return
@@ -535,13 +536,15 @@ onUnmounted(() => { stopStream(); products.reset() })
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#overview" class="nav-link" :class="{ current: merchantPage === 'overview' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('overview')"><Icon name="box" />商家概览</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#orders" class="nav-link" :class="{ current: merchantPage === 'orders' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('orders')"><Icon name="box" />交易订单</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#products" class="nav-link" :class="{ current: merchantPage === 'products' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('products')"><Icon name="box" />商品管理</a>
+        <a v-if="account.role === 'MERCHANT_ADMIN'" href="#product-reviews" class="nav-link" :class="{ current: merchantPage === 'reviews' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('reviews')"><Icon name="file" />商品评价</a>
         <a v-if="isSingleMerchant" href="#aftercare" class="nav-link" :class="{ current: merchantPage === 'review' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('review')"><Icon name="queue" />售后工单</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#support" class="nav-link" :class="{ current: merchantPage === 'support' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('support')"><Icon name="queue" />咨询核查</a>
         <a v-if="account.role === 'MERCHANT_ADMIN' && !isSingleMerchant" href="#people" class="nav-link" :class="{ current: merchantPage === 'people' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('people')"><Icon name="user" />人员管理</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#policies" class="nav-link" :class="{ current: merchantPage === 'policies' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('policies')"><Icon name="file" />{{ isSingleMerchant ? '售后政策' : '政策与版本' }}</a>
         <div class="sidebar-note"><p>让售后更简单<br />让每一次服务都有结果</p><small>单订单行 · 全量模拟退款</small><span>© 2026 ResolveFlow</span></div>
       </nav>
-      <SupportWorkspace v-if="merchantPage === 'support' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
+      <MerchantReviews v-if="merchantPage === 'reviews' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
+      <SupportWorkspace v-else-if="merchantPage === 'support' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <AdminProducts v-else-if="merchantPage === 'products' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <AdminTrades v-else-if="merchantPage === 'orders' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" @aftercare="tradeAftercare" />
       <AdminPeople v-else-if="merchantPage === 'people' && account.role === 'MERCHANT_ADMIN' && !isSingleMerchant" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '账号状态或权限已变化，请重新登录。'" @renamed="account.display_name = $event" />
