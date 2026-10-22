@@ -141,8 +141,8 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         for e in error.errors(include_input=False, include_context=False)
     ):
         result.update(
-            field="dialogue_events.reference", reference="CURRENT", offset=0,
-            detail="对话变化引用本轮客户原文：reference=CURRENT，offset=0，quote取current_request开头最多300字。"
+            field="dialogue_events.reference", reference="CURRENT", offset_optional=True,
+            detail="对话变化引用本轮原句：reference=CURRENT，quote最多300字；程序定位唯一原句，重复时才给offset。"
                    "不能用O/P工具编号、sequence:N或null。每任务仅一项当前变化，不能补记整个历史事件。",
         )
     elif isinstance(error, ValidationError):

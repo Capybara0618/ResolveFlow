@@ -75,10 +75,15 @@ def customer_source(
             or sequence > request.input_version or (current_only and sequence != request.input_version)):
         raise MemoryStateError("引用须为已知客户原文；对话变化须引用当前客户输入，不能用助手或未来消息。")
     text = source.get("text", "")
-    if text[quote.offset:quote.offset + len(quote.quote)] != quote.quote:
-        raise MemoryStateError("quote必须与reference原文offset处完全相同；不能改写或补造。")
+    offset = text.find(quote.quote)
+    if offset < 0:
+        raise MemoryStateError("quote须为reference中的确切原句，不能改写或补造。")
+    if text.find(quote.quote, offset + 1) >= 0:
+        if "offset" not in quote.model_fields_set or not text.startswith(quote.quote, quote.offset):
+            raise MemoryStateError("原句位置有歧义；请给出匹配的offset或引用更完整原句。")
+        offset = quote.offset
     return {"message_id": source.get("message_id"), "sequence": sequence,
-            "offset": quote.offset, "quote": quote.quote}
+            "offset": offset, "quote": quote.quote}
 
 
 class CustomerMemory:

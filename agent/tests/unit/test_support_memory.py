@@ -42,6 +42,8 @@ def test_original_customer_quotes_and_correction_links_survive_history_compressi
 def test_fabricated_assistant_future_or_invalid_quotes_never_enter_memory(update):
     req = request(input_version=3)
     req.context.update(current_request="没有收到", history=[message(2, "助手说过的话", "ASSISTANT")])
+    if update.get('offset') == 999:
+        req.context['current_request'] = '没有收到，还是没有收到'
     model = MockModelClient(script=[{**read(), "memory_updates": [update]}, answer(citations=[])])
     source = Reads()
     result = SupportAgent(req, model, source).run()

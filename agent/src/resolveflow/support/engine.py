@@ -42,7 +42,7 @@ conversation_state为消息/核查状态，customer_memory仅陈述；source_sta
 part.blocker={kind:CUSTOMER_INFO,detail:缺口,question:提问原句}或{kind:SOURCE_FAILURE,detail:原因,tool_name:失败工具}。
 UNCHANGED勿循环读；查依据/给下一步。
 读取免标注，提交则校验。独立事项分任务；intent=LOGISTICS/ELIGIBILITY/APPLICATION/HANDOFF/PRODUCT/OTHER；status=ANSWERED/NEEDS_CUSTOMER/NEEDS_MERCHANT/UNAVAILABLE/CANCELLED/SUSPENDED，禁漏项/PENDING。previous_tasks须重判。
-memory_updates：id、topic(RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER)、reference(CURRENT/H序号)、offset、quote、supersedes/retracts(旧id数组)；仅据客户纠正替代，不重问已排查。
+memory_updates：id、topic(RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER)、reference(CURRENT/H序号)、quote、supersedes/retracts(旧id数组)；程序定位，客户纠正才替代，勿重问。
 dialogue_events首声明覆盖任务；change=ADD/CONTINUE/CORRECT/CANCEL/PAUSE/RESUME/CLARIFY。同变化共享原句；插问PAUSE/SUSPENDED+ADD，恢复RESUME，撤回CANCEL/CANCELLED；不丢任务。
 HANDOFF为独立核查，非退款APPLICATION；摘要须客户确认才提交。禁虚构操作/日期。
 """
