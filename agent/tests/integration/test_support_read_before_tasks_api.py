@@ -54,6 +54,8 @@ def test_three_reads_then_three_task_publication_and_zero_call_recovery(agent_db
             result = response.json()
             assert result['status'] == 'SUCCEEDED', result['reason']
             assert active[0].calls == 4
+            assert [a['tool_name'] for a in active[0].packets[-1]['recent_actions']] == [
+                'get_order_context', 'get_shipment_trace', 'get_support_guide']
             assert all(p['feedback'] is None and p['task_state']['tasks'] == [] for p in active[0].packets)
             assert len(result['answer']['task_state']['tasks']) == 3
             assert [e['task_id'] for e in result['answer']['dialogue_state']['events']] == [

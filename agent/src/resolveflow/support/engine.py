@@ -21,6 +21,7 @@ from resolveflow.harness.context import canonical_json
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.harness.sdk_adapter import AgentScopeModelAdapter, messenger_message, raw_text_message
 from resolveflow.harness.token_counting import counter_for
+from resolveflow.support.activity import ReadActivity
 from resolveflow.support.context import LAYOUTS, read_context, render_context
 from resolveflow.support.dialogue import DialogueState
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
@@ -74,6 +75,7 @@ class SupportAgent:
         self.repeats = 0
         self.last_evidence_hash = ""
         self.read_progress: dict[str, Any] | None = None
+        self.activity = ReadActivity()
         self.failure: str | None = None
         self.recovery = SourceRecovery()
         self.tasks = TaskTracker()
@@ -155,6 +157,7 @@ class SupportAgent:
         }
         if self.read_progress is not None:
             base["read_progress"] = deepcopy(self.read_progress)
+        base.update(self.activity.packet())
         if self.tasks.tasks:
             base["answer_requirements"] = {
                 "task_ids": [t.id for t in self.tasks.tasks],
@@ -321,6 +324,7 @@ class SupportAgent:
                      if outcome == "UNCHANGED" else 0)
         self.read_progress = {"tool_name": name, "source_refs": refs, "outcome": outcome,
                               "consecutive_unchanged": unchanged}
+        self.activity.record(request, self.read_progress, observed)
         self.observations.extend(observed)
         return observed
 

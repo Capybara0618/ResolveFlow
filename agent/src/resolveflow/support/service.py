@@ -95,6 +95,7 @@ class SupportRuntime:
                 name: hashlib.sha256((root / name).read_bytes()).hexdigest()
                 for name in [
                     "engine.py",
+                    "activity.py",
                     "protocol.py",
                     "sources.py",
                     "store.py",
