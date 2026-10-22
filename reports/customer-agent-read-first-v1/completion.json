@@ -57,7 +57,8 @@
     "all_11_tables_match_prior_preflight_and_run": true,
     "temporary_schemas_remaining": [],
     "own_schema_dropped": true,
-    "old_reports_gold_and_manifests": "unchanged; immutable new manifest pins source hashes"
+    "old_reports_gold_and_manifests": "unchanged; immutable new manifest pins source hashes",
+    "final_public_and_inherited_hashes_equal": true
   },
   "verification": {
     "new_tests_before_implementation": "8 failed/6 passed",
@@ -76,14 +77,16 @@
     "warnings": "existing Starlette anyio BlockingPortal deprecation",
     "frozen_files": 98,
     "freeze_and_readonly_database_check": "passed",
-    "staged_diff_check": "pending"
+    "staged_diff_check": "passed for archived runtime and offline fix; final cleanup artifacts checked before commit",
+    "final_witness_shell_error": "Initial inline shell quoting had ParserError before Python/DB execution; reran as literal here-string successfully."
   },
   "commands": [
     "agent/.venv/Scripts/python.exe scripts/customer_agent_read_first_v1.py --freeze",
     "agent/.venv/Scripts/python.exe scripts/customer_agent_read_first_v1.py --check --database --output tmp/customer-agent-read-first-v1/preflight.json",
     "agent/.venv/Scripts/python.exe scripts/customer_agent_read_first_v1.py --execute --output reports/customer-agent-read-first-v1/runtime-results.json",
     ".venv/Scripts/mypy.exe --strict src/resolveflow/support/engine.py src/resolveflow/support/guidance.py src/resolveflow/support/tasks.py src/resolveflow/support/dialogue.py (cwd agent)",
-    "36-file pytest command recorded in README; cwd agent, PYTHONPATH/RESOLVEFLOW_AGENT_DB set"
+    "36-file pytest command recorded in README; cwd agent, PYTHONPATH/RESOLVEFLOW_AGENT_DB set",
+    "Final 37-file pytest = the recorded 36-file command plus tests/unit/test_support_publication_feedback.py; same cwd/env"
   ],
   "actual_requests_added": 7,
   "usage_after": 1774,
@@ -94,5 +97,40 @@
     "88-turn paired evaluation",
     "resume edits"
   ],
-  "cleanup": "PG retained temporarily for offline feedback regression; stop before final completion"
+  "cleanup": {
+    "postgres_container": "resolveflow-review-demo-postgres-1",
+    "container_state": "exited",
+    "retained_volume": "resolveflow-review-demo_demo-postgres-data",
+    "closed_ports": [
+      5174,
+      8080,
+      8081,
+      8083,
+      8090,
+      55433,
+      53306,
+      6379,
+      9876,
+      10911
+    ],
+    "batch_processes_remaining": 0
+  },
+  "post_live_offline_repair": {
+    "commit": "0d4feac8242975848a4596da9da38c58ba12d1aa",
+    "scope": "No-initial-tasks ANSWER_PARTS now uses TASKS_REQUIRED feedback requiring tasks and dialogue_events",
+    "new_tests_before_fix": "1 failed/1 passed",
+    "final_regression": {
+      "files": 37,
+      "passed": 190,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 30.58
+    },
+    "strict_mypy": "4 production modules passed",
+    "ruff": "passed after 1 new test long-line correction",
+    "additional_provider_requests": 0,
+    "newer_sources_not_live_confirmed": true,
+    "old_manifest_check": "Expected frozen source changed: tasks.py after offline feedback repair; original manifest unchanged",
+    "saved_missing_event_response_still_rejected": true
+  }
 }
