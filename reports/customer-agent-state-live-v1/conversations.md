@@ -159,4 +159,3 @@
 源审：COMPLETE。只读ORDER，PAID_AMOUNT与ORDER_STATUS占位符由程序填129.00CNY/PAID，未提交任何申请；intent虽为LOGISTICS，来源需求ORDER正确。
 
 模型3次，耗时3.310秒；实际读取：get_order_context。
-
