@@ -1,0 +1,35 @@
+[
+  {
+    "id": "P01-parts-v1",
+    "grade": "COMPLETE",
+    "criteria": [
+      {
+        "criterion": "按物流来源说明在途，不从PAID推断物流",
+        "passed": true
+      },
+      {
+        "criterion": "不编造预计送达时间",
+        "passed": true
+      }
+    ],
+    "basis": "首次READ_TOOL漏tasks，字段反馈后完整重发tasks/分组ADD并读物流；最终原始ANSWER_PARTS生成text一次，程序拼接/投影为相同正文与任务片段，按IN_TRANSIT回答且无预计送达编造。最终仍重复携带tasks，说明未完全遵守不重复的建议，但不影响显式声明与part状态一致。"
+  },
+  {
+    "id": "P02-parts-v1",
+    "grade": "FAILED",
+    "criteria": [
+      {
+        "criterion": "区分LOST与PAID",
+        "passed": false,
+        "reason": "无发布回答，工具执行前失败"
+      },
+      {
+        "criterion": "完整回答资格和当前申请入口",
+        "passed": false,
+        "reason": "无发布回答，工具执行前失败"
+      }
+    ],
+    "basis": "首次READ_TOOL/get_order_context附未知annotation_example_note且缺tasks/dialogue_events；extra_forbidden反馈后仅重发工具动作，继续缺首次任务声明，INVALID_DECISION。未执行订单/物流/RAG，不归因为检索质量或ANSWER_PARTS失败。",
+    "remaining_issue": "首次动作与初始化标注仍需一起生成；输入示例说明键进入输出。需离线梳理首次标注及工具动作的组合呈现，不能继续仅加长提示或收费追分。"
+  }
+]

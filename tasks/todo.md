@@ -1,4 +1,7 @@
-## 当前快照（2026-10-22，客服回答单次生成与统一工具调用：实施中）
+## 当前快照（2026-10-22，客服分项回答已实现，首次动作标注仍不稳定）
+
+- 准备469e398已普通push核实，单次两条真实确认仍1/2业务完整，见[报告](../reports/customer-agent-answer-parts-v1/README.md)/轨迹/源审/统计/收口。P01首次漏tasks，反馈后完整重发/读物流，最终实际ANSWER_PARTS单次text渲染发布，3.863秒；仍额外重发tasks元数据但输出合法。P02首次输出未知annotation_example_note且漏任务，反馈后仅工具动作仍缺首次标注，INVALID_DECISION，1.769秒/无工具执行。新回答路径已被使用，混合题未到回答阶段不能称已修复；未达2/2不启动四轮付费扩展。
+- 新增5真实请求、provider输入7793/输出384，账本1762→1767；provider错误0、kind5/5但Schema4/5，Harness保守输入9766另列、预热10.687秒单列。后续先离线梳理首次任务声明与工具动作的组合呈现/输入说明键进入输出，不再仅加长提示或收费追分；本批不继续实现该后续。工程171通过/4源码strict mypy/相关Ruff，public11表与旧见证/预检/执行前后相同、四历史脏文件字节保持，2 run/5模型/1工具账导出，自有schema清理；PG已stop/卷保留/10端口闭/本批进程退出，旧输入/Gold/简历/Java/UI保持。最终报告精确commit普通push核实后停止写入。
 
 - 修复5758e7a已普通push核实。新增真实ASGI/AgentScope/隔离PG原始parts保存/归一化发布/到期run恢复测试及准备共3通过，恢复0模型/0HTTP；首次Ruff长行1修正后通过，4源码strict mypy通过。新原D01/D02完整请求仅运行身份变化，90文件与既有权重冻结，`--check --database --output tmp/customer-agent-answer-parts-v1/preflight.json`通过。33文件集中171通过/0失败跳过（48.66秒），public11表与上批一致/四历史脏文件hash保持。准备独立提交普通push核实后单次真实两条，ledger1762起。
 

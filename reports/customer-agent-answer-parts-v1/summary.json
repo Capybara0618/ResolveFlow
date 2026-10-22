@@ -1,0 +1,49 @@
+{
+  "version": "customer-agent-answer-parts-v1",
+  "state": "FINISHED_TARGET_NOT_MET",
+  "repair_commit": "5758e7aba3e6d6e5befbea59a9569482d0c8a269",
+  "preparation_commit": "469e3987e46281a4b3678d4053d34a06fc211240",
+  "runtime_sha256": "cd83667dc992a735a0a138603cb3c44dae08d89cd5a00dbe98bde2340f00e8d0",
+  "turns": 2,
+  "published": 1,
+  "business_complete": 1,
+  "failed": 1,
+  "provider_requests": 5,
+  "provider_errors": 0,
+  "input_tokens": 7793,
+  "output_tokens": 384,
+  "all_usage_provider_reported": true,
+  "harness_input_budget_accounting": 9766,
+  "usage_before": 1762,
+  "usage_after": 1767,
+  "warmup": {
+    "status": "READY",
+    "elapsed_ms": 10686.577999964356
+  },
+  "kind_legal": 5,
+  "schema_legal": 4,
+  "actual_tools": 1,
+  "actual_searches": 0,
+  "rows": [
+    {
+      "id": "P01-parts-v1",
+      "status": "SUCCEEDED",
+      "reason": null,
+      "requests": 3,
+      "elapsed_ms": 3862.6993999932893
+    },
+    {
+      "id": "P02-parts-v1",
+      "status": "FAILED",
+      "reason": "INVALID_DECISION",
+      "requests": 2,
+      "elapsed_ms": 1768.666599993594
+    }
+  ],
+  "multi_turn_gate_passed": false,
+  "multi_turn_calls": 0,
+  "scope": "Two seen synthetic HTTP snapshots; actual model/ASGI/AgentScope/PG, no Java/browser",
+  "synthetic": true,
+  "not_holdout": true,
+  "reviewer": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_GOLD"
+}
