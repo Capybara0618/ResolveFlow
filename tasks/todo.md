@@ -1,3 +1,10 @@
+## 当前快照（2026-10-22，客服中间层重构：会话更新与答复发布解耦完成）
+
+- 第一步a122a87已普通push核实。新增conversation_update/support-state-v1：输出本run已接纳的事项/陈述及当前原句事件，即使最终答复失败仍保存于受fence保护结果，answer保持null；去除答复原句与O/P引用，不把未发布草稿当事实。未接纳的理解不输出更新。
+- 契约/类型/fixture/Python生产者/Java消费者同步，无DB迁移。Case读取最近成功结果或失败且含已验证更新的结果，沿原锁、身份/input_version/fence发布；核验run/主体/行/版本、客户原句与陈述来源后供下轮继承，旧成功answer快照兼容；不向客户或商家展示内部状态，不执行共享/退款。
+- 新Python2项首1失败/1通过，Java新2项先全失败；实现后实际PG证明暂停接纳→回答失败→0模型/HTTP重建→下一轮原id恢复，非法理解不继承、换架构409。首恢复夹具误换mock_script触发manifest拒绝，修为同脚本后通过，未放宽门禁。Java跨行/错误版本/伪造当前原句拒绝、原旧输入/身份隔离与私有性保留；完整SupportApiTest20通过/0失败/0跳过（测试约32秒、Maven约60秒），使用独立Testcontainers MySQL。
+- Python客服单元/协议与相关ASGI-PG共218通过/0失败/0跳过（15.24秒）；2源码strict mypy、相关Ruff、定向Spotless通过，契约fixture与跨run拒绝核对通过。ledger1868不变，无真实模型；原四脏文件/旧raw保留。精确提交普通push后接有限调查需求修订/关键来源与反馈，当前默认single保持。
+
 ## 当前快照（2026-10-22，客服中间层重构：陈述接口完成）
 
 - 用户批准按[四步重构方案](../docs/customer-agent-state-refactor-v1.md)实施，已只读核对main=origin/main=4ad7611、暂存空、原四脏文件/旧raw保留，当前唯一业务写入者。先陈述接口，再状态/发布解耦、调查来源、具体反馈与集中验证；不新增真实模型、部署或更换框架。

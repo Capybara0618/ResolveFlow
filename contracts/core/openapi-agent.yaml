@@ -528,6 +528,10 @@ components:
             type: object
           - type: 'null'
           title: Answer
+        conversation_update:
+          anyOf:
+          - $ref: '#/components/schemas/SupportConversationUpdate'
+          - type: 'null'
       required:
       - run_id
       - conversation_id
@@ -538,6 +542,65 @@ components:
       - spend
       - answer
       title: SupportResult
+      type: object
+    SupportConversationUpdate:
+      additionalProperties: false
+      properties:
+        version:
+          const: support-state-v1
+          title: Version
+          type: string
+        run_id:
+          title: Run Id
+          type: string
+        conversation_id:
+          title: Conversation Id
+          type: string
+        input_version:
+          minimum: 1
+          title: Input Version
+          type: integer
+        merchant_id:
+          title: Merchant Id
+          type: string
+        customer_id:
+          title: Customer Id
+          type: string
+        line_id:
+          title: Line Id
+          type: string
+        task_state:
+          additionalProperties: true
+          title: Task State
+          type: object
+        customer_memory:
+          additionalProperties: true
+          title: Customer Memory
+          type: object
+        dialogue_state:
+          additionalProperties: true
+          title: Dialogue State
+          type: object
+        memory_warnings:
+          items:
+            additionalProperties: true
+            type: object
+          maxItems: 8
+          title: Memory Warnings
+          type: array
+      required:
+      - version
+      - run_id
+      - conversation_id
+      - input_version
+      - merchant_id
+      - customer_id
+      - line_id
+      - task_state
+      - customer_memory
+      - dialogue_state
+      - memory_warnings
+      title: ConversationUpdate
       type: object
     SupportAgentError:
       type: object

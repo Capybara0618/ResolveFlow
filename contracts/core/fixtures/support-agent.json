@@ -33,6 +33,34 @@
     "spend": {
       "model_calls": 0
     },
-    "answer": null
+    "answer": null,
+    "conversation_update": {
+      "version": "support-state-v1",
+      "run_id": "00000000-0000-4000-8000-000000000001",
+      "conversation_id": "00000000-0000-4000-8000-000000000002",
+      "input_version": 2,
+      "merchant_id": "M-A",
+      "customer_id": "C-A",
+      "line_id": "line-A",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [],
+        "focus_ids": []
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "00000000-0000-4000-8000-000000000002",
+        "input_version": 2,
+        "merchant_id": "M-A",
+        "customer_id": "C-A",
+        "line_id": "line-A",
+        "entries": []
+      },
+      "dialogue_state": {
+        "events": []
+      },
+      "memory_warnings": []
+    }
   }
 }

@@ -85,6 +85,7 @@ class SupportAgent:
         self.recovery = SourceRecovery()
         self.tasks = TaskTracker()
         self.memory = CustomerMemory(request)
+        self.initial_memory = deepcopy(self.memory.entries)
         self.dialogue = DialogueState(request)
 
     def run(self) -> dict[str, Any]:
@@ -98,6 +99,14 @@ class SupportAgent:
         except Exception as error:  # noqa: BLE001 - no fabricated answer on transport/SDK/model failure
             reason = type(error).__name__
         final = self.final
+        update = None
+        if self.dialogue.events or self.memory.entries != self.initial_memory:
+            # Accepted meaning is independent of answer publication; no response text or stale evidence is inherited.
+            update = {"version": "support-state-v1", **{
+                key: getattr(self.request, key) for key in ("run_id", "conversation_id", "input_version",
+                                                          "merchant_id", "customer_id", "line_id")},
+                "task_state": self.dialogue.task_snapshot([]), "customer_memory": self.memory.snapshot(),
+                "dialogue_state": self.dialogue.packet(), "memory_warnings": deepcopy(self.memory.warnings)}
         assert reason is not None or final is not None
         return {
             "run_id": self.request.run_id,
@@ -107,6 +116,7 @@ class SupportAgent:
             "reason": reason,
             "mode": self.mode,
             "spend": asdict(self.guard.spend),
+            **({"conversation_update": update} if update is not None else {}),
             "answer": None
             if reason or final is None
             else {

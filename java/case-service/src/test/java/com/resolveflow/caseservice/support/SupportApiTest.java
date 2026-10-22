@@ -381,6 +381,88 @@ class SupportApiTest extends CaseDatabaseTest {
         assertThat(report.toString()).contains("APPLICATION_GUIDE").contains("人工核查不需要先申请退款");
     }
 
+    private JsonNode failedPauseUpdate(Map<String, Object> input) {
+        var result = json.createObjectNode().put("status", "FAILED").put("mode", "mock");
+        result.put("reason", "INVALID_DECISION");
+        result.putNull("answer");
+        var update = result.putObject("conversation_update").put("version", "support-state-v1");
+        for (String key : List.of("run_id", "conversation_id", "merchant_id", "customer_id", "line_id")) {
+            update.put(key, input.get(key).toString());
+            if (List.of("run_id", "conversation_id").contains(key)) result.put(key, input.get(key).toString());
+        }
+        long version = ((Number) input.get("input_version")).longValue();
+        update.put("input_version", version);
+        result.put("input_version", version);
+        var state = update.putObject("task_state").put("origin", "MODEL");
+        state.putArray("focus_ids");
+        var task = state.putArray("tasks").addObject();
+        task.put("id", "trace").put("intent", "LOGISTICS").put("request", "查签收");
+        task.put("status", "SUSPENDED").put("lifecycle", "PAUSED");
+        task.putArray("evidence_refs");
+        task.putNull("response_excerpt");
+        var memory = update.putObject("customer_memory").put("version", "support-claims-v1");
+        memory.put("origin", "GROUNDED_CUSTOMER_CLAIMS").put("input_version", version);
+        for (String key : List.of("conversation_id", "merchant_id", "customer_id", "line_id"))
+            memory.put(key, input.get(key).toString());
+        memory.putArray("entries");
+        update.putArray("memory_warnings");
+        var event = update.putObject("dialogue_state").putArray("events").addObject();
+        event.put("change", "PAUSE").put("task_id", "trace");
+        event.putObject("source").put("sequence", version).put("offset", 0)
+                .put("quote", ((JsonNode) input.get("context")).path("current_request").asString());
+        return result;
+    }
+
+    @Test
+    void acceptedPauseSurvivesFailedReplyWithoutPublishingDraftAndCanBeInherited() {
+        var contexts = new java.util.ArrayList<JsonNode>();
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> input = i.getArgument(1);
+            contexts.add((JsonNode) input.get("context"));
+            if (contexts.size() == 1) return failedPauseUpdate(input);
+            return json.readTree(json.writeValueAsString(Map.of("run_id", input.get("run_id"),
+                    "conversation_id", input.get("conversation_id"), "input_version", input.get("input_version"),
+                    "status", "SUCCEEDED", "mode", "mock", "answer", Map.of("text", "继续处理", "citations", List.of()))));
+        });
+        var c = message(open("support-A"), "pause-fail", "先暂停签收调查。", "ASSISTANT");
+        long pausedInput = c.path("version").asLong();
+        turns.dispatchOne();
+        c = get(path(c), buyer, 200);
+        assertThat(c.path("assistant_turn").path("status").asString()).isEqualTo("FAILED");
+        assertThat(c.path("messages").size()).isEqualTo(1);
+        assertThat(c.toString()).doesNotContain("conversation_update").doesNotContain("task_state");
+        c = message(c, "resume-after-fail", "继续刚才的签收调查。", "ASSISTANT");
+        turns.dispatchOne();
+        var prior = contexts.get(1).path("previous_tasks");
+        assertThat(prior.path("input_version").asLong()).isEqualTo(pausedInput);
+        assertThat(prior.path("tasks").get(0).path("lifecycle").asString()).isEqualTo("PAUSED");
+        assertThat(get(path(c), buyer, 200).path("assistant_turn").path("status").asString()).isEqualTo("SUCCEEDED");
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"line_id", "quote", "input_version"})
+    void foreignStateOrFabricatedCurrentQuoteCannotBeInheritedFromFailedReply(String corruption) {
+        var contexts = new java.util.ArrayList<JsonNode>();
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> input = i.getArgument(1);
+            contexts.add((JsonNode) input.get("context"));
+            var result = failedPauseUpdate(input);
+            var update = (tools.jackson.databind.node.ObjectNode) result.path("conversation_update");
+            if (corruption.equals("line_id")) update.put("line_id", "foreign-product");
+            if (corruption.equals("input_version")) update.put("input_version", 9999);
+            if (corruption.equals("quote")) ((tools.jackson.databind.node.ObjectNode) update
+                    .path("dialogue_state").path("events").get(0).path("source")).put("quote", "不存在的原文");
+            return result;
+        });
+        var c = message(open("support-A"), "foreign-state", "先暂停。", "ASSISTANT");
+        turns.dispatchOne();
+        c = get(path(c), buyer, 200);
+        assertThat(c.path("assistant_turn").path("reason").asString()).isEqualTo("AGENT_PROTOCOL_INVALID");
+        c = message(c, "after-foreign-state", "继续。", "ASSISTANT");
+        turns.dispatchOne();
+        assertThat(contexts.get(1).path("previous_tasks").isMissingNode()).isTrue();
+    }
+
     @Test
     void previousModelTasksAreFrozenForSameConversationOnlyAndNotPublishedAsCustomerMetadata() {
         var contexts = new java.util.ArrayList<JsonNode>();

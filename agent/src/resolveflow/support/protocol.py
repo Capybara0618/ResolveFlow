@@ -166,6 +166,20 @@ class AnswerParts(TaskAction):
     handoff_summary: str | None = Field(default=None, min_length=1, max_length=2000)
 
 
+class ConversationUpdate(Closed):
+    version: Literal["support-state-v1"]
+    run_id: str
+    conversation_id: str
+    input_version: int = Field(ge=1, strict=True)
+    merchant_id: str
+    customer_id: str
+    line_id: str
+    task_state: dict[str, Any]
+    customer_memory: dict[str, Any]
+    dialogue_state: dict[str, Any]
+    memory_warnings: list[dict[str, Any]] = Field(max_length=8)
+
+
 class SupportResult(Closed):
     run_id: str
     conversation_id: str
@@ -175,9 +189,15 @@ class SupportResult(Closed):
     mode: Literal["mock", "live", "unknown"]
     spend: dict[str, int]
     answer: dict[str, Any] | None
+    conversation_update: ConversationUpdate | None = Field(default=None, exclude_if=lambda v: v is None)
 
     @model_validator(mode="after")
     def outcome(self) -> SupportResult:
+        if self.conversation_update is not None and any(
+            getattr(self.conversation_update, key) != getattr(self, key)
+            for key in ("run_id", "conversation_id", "input_version")
+        ):
+            raise ValueError("conversation update must match this run/input")
         if self.status == "SUCCEEDED" and (not self.answer or self.reason or self.mode == "unknown"):
             raise ValueError("success needs an actual model answer and mode")
         if self.status == "FAILED" and self.answer is not None:

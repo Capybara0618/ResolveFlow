@@ -286,13 +286,14 @@ public class SupportAgentTurns {
                             tickets.isEmpty() ? "ASSISTANT" : "MERCHANT"));
             // Previous tasks are model hints, not facts or live source references. Freeze with this input.
             var previous = db.queryForList(
-                    "SELECT input_version,result_json FROM support_agent_turn WHERE conversation_id=? AND status='SUCCEEDED' AND input_version<? ORDER BY input_version DESC LIMIT 1",
+                    "SELECT input_version,result_json FROM support_agent_turn WHERE conversation_id=? AND input_version<? AND (status='SUCCEEDED' OR (status='FAILED' AND JSON_UNQUOTE(JSON_EXTRACT(result_json,'$.conversation_update.version'))='support-state-v1')) ORDER BY input_version DESC LIMIT 1",
                     t.conversation,
                     t.input);
             if (!previous.isEmpty()) {
                 var row = previous.getFirst();
-                var previousAnswer =
-                        json.readTree(row.get("result_json").toString()).path("answer");
+                var previousResult = json.readTree(row.get("result_json").toString());
+                var previousAnswer = previousResult.hasNonNull("conversation_update")
+                        ? previousResult.path("conversation_update") : previousResult.path("answer");
                 var state = previousAnswer.path("task_state");
                 if (state.path("origin").asString().equals("MODEL")
                         && state.path("tasks").isArray()
@@ -424,12 +425,61 @@ public class SupportAgentTurns {
         return true;
     }
 
+    private boolean validConversationUpdate(Turn t, JsonNode update) {
+        if (update == null || update.isNull()) return true; // Old wire remains compatible.
+        if (!update.isObject() || update.toString().length() > 65536
+                || !update.path("version").asString().equals("support-state-v1")
+                || !update.path("run_id").asString().equals(t.id)
+                || !update.path("conversation_id").asString().equals(t.conversation)
+                || !update.path("merchant_id").asString().equals(t.merchant)
+                || !update.path("customer_id").asString().equals(t.customer)
+                || !update.path("line_id").asString().equals(t.line)
+                || update.path("input_version").asLong(-1) != t.input
+                || !validCustomerMemory(t, update.path("customer_memory"), t.input)) return false;
+        var state = update.path("task_state");
+        var tasks = state.path("tasks");
+        if (!state.path("origin").asString().equals("MODEL") || !tasks.isArray() || tasks.size() > 8)
+            return false;
+        var ids = new HashSet<String>();
+        for (var task : tasks) {
+            String id = task.path("id").asString();
+            if (!id.matches("^[a-zA-Z0-9_-]{1,32}$") || !ids.add(id)
+                    || !List.of("LOGISTICS", "ELIGIBILITY", "APPLICATION", "HANDOFF", "PRODUCT", "OTHER")
+                            .contains(task.path("intent").asString())
+                    || !List.of("PENDING", "ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED", "SUSPENDED")
+                            .contains(task.path("status").asString())
+                    || !List.of("OPEN", "PAUSED", "RESOLVED", "CANCELLED").contains(task.path("lifecycle").asString())
+                    || !task.path("evidence_refs").isArray() || !task.path("evidence_refs").isEmpty()
+                    || !task.path("response_excerpt").isNull()) return false;
+        }
+        var events = update.path("dialogue_state").path("events");
+        if (!events.isArray() || events.size() > 96) return false;
+        for (var event : events) {
+            if (!ids.contains(event.path("task_id").asString())
+                    || !List.of("ADD", "CONTINUE", "CORRECT", "CANCEL", "PAUSE", "RESUME", "CLARIFY", "RESOLVE", "REOPEN")
+                            .contains(event.path("change").asString())) return false;
+            var source = event.path("source");
+            String quote = source.path("quote").asString();
+            int offset = source.path("offset").asInt(-1);
+            if (source.path("sequence").asLong(-1) != t.input || offset < 0 || quote.isBlank()
+                    || quote.codePointCount(0, quote.length()) > 300) return false;
+            var originals = db.queryForList("SELECT text FROM support_message WHERE conversation_id=? AND sequence=? AND author='CUSTOMER'",
+                    String.class, t.conversation, t.input);
+            if (originals.size() != 1) return false;
+            String text = originals.getFirst();
+            if (offset > text.codePointCount(0, text.length())
+                    || !text.startsWith(quote, text.offsetByCodePoints(0, offset))) return false;
+        }
+        return true;
+    }
+
     private boolean validResult(Turn t, JsonNode result) {
         if (result == null
                 || !result.isObject()
                 || !t.id.equals(result.path("run_id").asString())
                 || !t.conversation.equals(result.path("conversation_id").asString())
-                || result.path("input_version").asLong() != t.input) return false;
+                || result.path("input_version").asLong() != t.input
+                || !validConversationUpdate(t, result.get("conversation_update"))) return false;
         if (result.path("status").asString().equals("FAILED")) return true;
         if (!result.path("status").asString().equals("SUCCEEDED")
                 || !List.of("mock", "live").contains(result.path("mode").asString())) return false;
