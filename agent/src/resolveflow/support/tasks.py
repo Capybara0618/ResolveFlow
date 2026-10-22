@@ -28,6 +28,8 @@ def render_answer(decision: AnswerParts, accepted: list[SupportTask]) -> Answer:
         if part.blocker and part.blocker.question and part.blocker.question in part.text:
             data["response_excerpt"] = part.blocker.question
         data["blocker"] = part.blocker
+        if part.assessment is not None:
+            data["assessment"] = part.assessment
         tasks.append(SupportTask.model_validate(data))
     return Answer(kind="ANSWER", text="\n\n".join(p.text for p in decision.parts), tasks=tasks,
                   citations=list(dict.fromkeys(ref for p in decision.parts for ref in p.citations)),

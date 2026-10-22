@@ -69,6 +69,10 @@ def check_completion(
             s.get("source_type") == "POLICY" for s in sources
         ):
             gaps.append({"task_id": task.id, "code": "SOURCE_REQUIRED", "tool_name": "search_policy"})
+        if (task.intent == "ELIGIBILITY" and task.status == "ANSWERED"
+                and task.assessment == "CASE_ASSESSMENT"
+                and not any(s.get("source_type") == "ORDER" for s in sources)):
+            gaps.append({"task_id": task.id, "code": "SOURCE_REQUIRED", "tool_name": "get_order_context"})
         if task.status == "NEEDS_CUSTOMER":
             if (blocker is None or blocker.kind != "CUSTOMER_INFO" or blocker.question is None
                     or blocker.question not in answer.text or blocker.question not in (task.response_excerpt or "")):

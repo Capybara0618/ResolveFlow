@@ -16,6 +16,7 @@ UNDERSTANDING_SYSTEM = """只理解本轮诉求，不查工具、不写答复。
 {"kind":"TURN_UNDERSTANDING","focus":[{"id":"t1","intent":"LOGISTICS","request":"诉求","needs":["SHIPMENT"]}],"dialogue_events":[{"change":"ADD","task_ids":["t1"],"reference":"CURRENT","quote":"本轮原句"}],"customer_claims":[]}
 intent=LOGISTICS/ELIGIBILITY/APPLICATION/HANDOFF/PRODUCT/OTHER；needs可多选ORDER/SHIPMENT/POLICY/GUIDE，纯确认可空。
 订单付款用ORDER，物流事实用SHIPMENT，资格用POLICY，页面/人工核查操作用GUIDE；一段同时说物流和操作须两者。
+一般政策条件只需POLICY；判断当前订单是否符合退款条件还需ORDER，涉及运输前提再取SHIPMENT。
 change=ADD/CONTINUE/CORRECT/PAUSE/RESUME/CANCEL/RESOLVE/REOPEN/CLARIFY。事件决定事项状态，不输出status/lifecycle。
 新事项ADD，插问可PAUSE旧事项，恢复RESUME，明确结束RESOLVE/撤回CANCEL，已结束再次处理REOPEN。变化须当前原句。
 客户陈述用customer_claims:[{topic:CHECKS,reference:CURRENT,quote:客户原句}]，不生成id或关系数组。
@@ -28,6 +29,7 @@ INVESTIGATION_SYSTEM = """按stage.focus逐项调查并答复；不重新声明�
 {"kind":"ANSWER_PARTS","parts":[{"task_id":"t1","status":"ANSWERED","text":"答复","citations":["O1"]}]}
 parts覆盖本轮焦点，引用仅本run已读O/P；stage.focus.needs的依据须在该part引用，缺什么查什么，不预设工具全路径。
 ORDER为订单付款，SHIPMENT为实时物流，POLICY为政策条件，GUIDE为应用入口；保留条件/版本/例外，失败非丢失。
+资格part注明assessment：CONDITIONS只解释一般条件并保留尚未核实前提；CASE_ASSESSMENT判断当前订单是否符合条件，须引用ORDER与POLICY，再按具体前提取证，不代替商家批准。
 关键事实可用text中的{{PAID_AMOUNT}}/{{ORDER_STATUS}}/{{SHIPMENT_STATUS}}/{{CARRIER_CONCLUSION}}，同part给facts:[{field:PAID_AMOUNT,source:O1}]由程序填值；具体金额须当前ORDER，不从商品展示猜实付。
 取消/结束/暂停只确认该变化，不替客户提交商家核查或退款；其他问题先查完能查的事项再答。
 status=ANSWERED/NEEDS_CUSTOMER/NEEDS_MERCHANT/UNAVAILABLE；缺客户材料用blocker={kind:CUSTOMER_INFO,detail:缺口,question:本段提问原句}；源失败用{kind:SOURCE_FAILURE,detail:原因,tool_name:失败工具}。

@@ -43,6 +43,8 @@ class SupportTask(Closed):
     evidence_refs: list[str] = Field(default_factory=list, max_length=8)
     response_excerpt: str | None = Field(default=None, min_length=1, max_length=400)
     blocker: TaskBlocker | None = Field(default=None, exclude_if=lambda v: v is None)
+    assessment: Literal["CONDITIONS", "CASE_ASSESSMENT"] | None = Field(
+        default=None, exclude_if=lambda v: v is None)
     lifecycle: Literal["OPEN", "PAUSED", "RESOLVED", "CANCELLED"] | None = Field(
         default=None, exclude_if=lambda v: v is None)
 
@@ -165,6 +167,8 @@ class AnswerPart(Closed):
     citations: list[str] = Field(default_factory=list, max_length=8)
     blocker: TaskBlocker | None = Field(default=None, exclude_if=lambda v: v is None)
     facts: list[AnswerFact] = Field(default_factory=list, max_length=8)
+    assessment: Literal["CONDITIONS", "CASE_ASSESSMENT"] | None = Field(
+        default=None, exclude_if=lambda v: v is None)
 
 
 class AnswerParts(TaskAction):
