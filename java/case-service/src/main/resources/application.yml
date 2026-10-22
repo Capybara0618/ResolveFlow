@@ -38,6 +38,8 @@ mybatis:
     arg-name-based-constructor-auto-mapping: true
 
 resolveflow:
+  product-reviews:
+    rate-limit-enabled: ${PRODUCT_REVIEW_RATE_LIMIT_ENABLED:false}
   review-cache:
     enabled: ${REVIEW_CACHE_ENABLED:false}
   commerce:

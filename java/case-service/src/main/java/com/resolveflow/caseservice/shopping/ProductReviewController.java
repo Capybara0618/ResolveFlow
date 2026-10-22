@@ -15,12 +15,17 @@ public class ProductReviewController {
     private final CommerceShoppingClient commerce;
     private final RequestPrincipalResolver principals;
     private final BuyerScopes scopes;
+    private final ReviewWriteLimiter limiter;
 
     public ProductReviewController(
-            CommerceShoppingClient commerce, RequestPrincipalResolver principals, BuyerScopes scopes) {
+            CommerceShoppingClient commerce,
+            RequestPrincipalResolver principals,
+            BuyerScopes scopes,
+            ReviewWriteLimiter limiter) {
         this.commerce = commerce;
         this.principals = principals;
         this.scopes = scopes;
+        this.limiter = limiter;
     }
 
     private AuthenticatedPrincipal buyer(String auth) {
@@ -65,7 +70,9 @@ public class ProductReviewController {
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable("line_id") String id,
             @RequestBody Write request) {
-        return owned(buyer(auth), s -> commerce.saveReview(id, new Command(s.merchantId(), s.customerId(), request)));
+        var p = buyer(auth);
+        limiter.check(p, ReviewWriteLimiter.Action.WRITE);
+        return owned(p, s -> commerce.saveReview(id, new Command(s.merchantId(), s.customerId(), request)));
     }
 
     @GetMapping("/api/v1/merchant/reviews")
@@ -81,7 +88,9 @@ public class ProductReviewController {
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable("review_id") long id,
             @RequestBody Reply request) {
-        return commerce.replyReview(id, new ReplyCommand(merchant(auth).merchantId(), request));
+        var p = merchant(auth);
+        limiter.check(p, ReviewWriteLimiter.Action.REPLY);
+        return commerce.replyReview(id, new ReplyCommand(p.merchantId(), request));
     }
 
     @ExceptionHandler(CommerceShoppingClient.Refused.class)
@@ -91,6 +100,28 @@ public class ProductReviewController {
                         e.code,
                         e.getMessage(),
                         false,
+                        java.util.UUID.randomUUID().toString()));
+    }
+
+    @ExceptionHandler(ReviewWriteLimiter.WriteLimited.class)
+    public ResponseEntity<ApiError> limited() {
+        return ResponseEntity.status(429)
+                .header("Retry-After", "60")
+                .body(ApiError.of(
+                        "RATE_LIMITED",
+                        "评价操作较频繁，请稍后再试",
+                        true,
+                        java.util.UUID.randomUUID().toString()));
+    }
+
+    @ExceptionHandler(ReviewWriteLimiter.WriteUnavailable.class)
+    public ResponseEntity<ApiError> limiterUnavailable() {
+        return ResponseEntity.status(503)
+                .header("Retry-After", "1")
+                .body(ApiError.of(
+                        "SERVICE_UNAVAILABLE",
+                        "评价暂时无法保存，请稍后确认原操作结果",
+                        true,
                         java.util.UUID.randomUUID().toString()));
     }
 }

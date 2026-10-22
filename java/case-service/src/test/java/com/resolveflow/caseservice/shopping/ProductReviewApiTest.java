@@ -28,6 +28,9 @@ class ProductReviewApiTest extends CaseDatabaseTest {
     @Autowired
     CommerceShoppingClient commerce;
 
+    @Autowired
+    ReviewWriteLimiter limiter;
+
     private final ObjectMapper json = new ObjectMapper();
     private Review review;
 
@@ -38,11 +41,18 @@ class ProductReviewApiTest extends CaseDatabaseTest {
         CommerceShoppingClient reviewCommerceStub() {
             return mock(CommerceShoppingClient.class);
         }
+
+        @Bean
+        @Primary
+        ReviewWriteLimiter reviewLimiterStub() {
+            return mock(ReviewWriteLimiter.class);
+        }
     }
 
     @BeforeEach
     void prepare() throws Exception {
         reset(commerce);
+        reset(limiter);
         review = json.treeToValue(
                 json.readTree(Files.readString(Path.of("../../contracts/core/fixtures/product-reviews.json")))
                         .get("ProductReview"),
@@ -73,6 +83,46 @@ class ProductReviewApiTest extends CaseDatabaseTest {
                 .returnResult()
                 .getResponseBody();
         return "Bearer " + json.readTree(body).get("access_token").asString();
+    }
+
+    @Test
+    void rateLimitedWritesReturnRetryable429BeforeCommerce() {
+        doThrow(new ReviewWriteLimiter.WriteLimited()).when(limiter).check(any(), eq(ReviewWriteLimiter.Action.WRITE));
+        var buyer = auth("demo-buyer", "demo-pass-4001");
+        rest.post()
+                .uri("/api/v1/shop/orders/lines/owned/review")
+                .header("Authorization", buyer)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("rating", 5, "body", "text", "expected_version", 0))
+                .exchange()
+                .expectStatus()
+                .isEqualTo(429)
+                .expectHeader()
+                .valueEquals("Retry-After", "60")
+                .expectBody()
+                .jsonPath("$.retryable")
+                .isEqualTo(true);
+        verify(commerce, never()).saveReview(anyString(), any());
+    }
+
+    @Test
+    void unavailableLimiterRejectsReplyWithRetryable503BeforeCommerce() {
+        doThrow(new ReviewWriteLimiter.WriteUnavailable())
+                .when(limiter)
+                .check(any(), eq(ReviewWriteLimiter.Action.REPLY));
+        var admin = auth("demo-admin", "demo-pass-1100");
+        rest.post()
+                .uri("/api/v1/merchant/reviews/1/reply")
+                .header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("body", "text", "expected_version", 1))
+                .exchange()
+                .expectStatus()
+                .isEqualTo(503)
+                .expectBody()
+                .jsonPath("$.retryable")
+                .isEqualTo(true);
+        verify(commerce, never()).replyReview(anyLong(), any());
     }
 
     @Test

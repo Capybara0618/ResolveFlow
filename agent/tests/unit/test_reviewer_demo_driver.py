@@ -51,6 +51,7 @@ def test_local_redis_is_isolated_and_case_cache_enabled(tmp_path, monkeypatch):
     demo.start_case_service(current, demo.Log())
     env = calls[0][0][-2]
     assert env["REVIEW_CACHE_ENABLED"] == "true"
+    assert env["PRODUCT_REVIEW_RATE_LIMIT_ENABLED"] == "true"
     assert env["REDIS_HOST"] == "127.0.0.1"
     assert env["REDIS_PORT"] == "56380"
     demo.start_commerce_service(current, demo.Log())

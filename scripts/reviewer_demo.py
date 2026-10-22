@@ -1603,6 +1603,7 @@ def start_case_service(settings: Settings, log: Log) -> None:
             COMMERCE_BASE_URL=settings.commerce_url,
             AGENT_BASE_URL=settings.agent_url,
             REVIEW_CACHE_ENABLED="true",
+            PRODUCT_REVIEW_RATE_LIMIT_ENABLED="true",
             REDIS_HOST="127.0.0.1",
             REDIS_PORT=str(settings.ports["redis"]),
         ),

@@ -1,5 +1,13 @@
 # 后端深化验证记录
 
+## B2.4b 账号原子写入限流（2026-10-22）
+
+B2.4a 0bebd5d已普通push核实。Case在鉴权/角色检查后、Commerce调用前，按已认证账号+WRITE/REPLY动作执行Redis Lua原子INCR/EXPIRE，首请求起60秒内各动作最多6次。key摘要化账号，不接受客户端归属或限流键；Redis重启可清空窗口，业务唯一性仍由MySQL控制。超过限额429/Retry-After60秒，Redis异常503/Retry-After1秒且可重试，不退化为无限写入。正式本机/core Compose启用，单测默认可禁用。
+
+新3真实Redis测试对空限流骨架先全部失败；实现后Redis3项+既有评价HTTP3项共6通过（38.086秒）。两个limiter实例12并发合计6放行，动作/账号相互隔离，所有窗口有TTL；CLIENT PAUSE2000ms时100ms命令超时，1200ms内明确拒绝。补HTTP429/503必须在Commerce写入前返回的断言后，3实Redis+5HTTP=8通过（33.899秒）。Java21命令 `./mvnw.cmd -B -pl case-service -am spotless:apply '-DspotlessFiles=.*ProductReviewApiTest.java' test '-Dtest=ReviewWriteLimiterRedisTest,ProductReviewApiTest' '-Dsurefire.failIfNoSpecifiedTests=false'`；新limiter/RedisTest已在前一步定点格式化。
+
+driver/project运行配置测试38通过（0.43秒）、core Compose config及diff检查通过。未跑付费模型/正式数据迁移，当前B2接口/三端UI/缓存/限流的工程验证已具备，正式网页和真实Case→Commerce集中验收仍待B3后独立环境完成。
+
 ## B2.4a 评价首页/评分 Redis 缓存（2026-10-22）
 
 B2.3c 0c5a26b已普通push核实。Commerce复用Case已经使用的Boot Redis starter版本，不换依赖锁；独立缓存服务在事务外访问Redis，首个默认10条页面和评分一起缓存30秒。每次先从MySQL验证商品公开可见性及epoch；修改/回复与epoch同事务。key含product/epoch，迟到旧填充不能覆盖新代。更多页/自定义页大小直接数据库；所有数据库入口共享8并发/100ms门控，缓存异常回源、过载503，缓存不承担资格/金额权限。

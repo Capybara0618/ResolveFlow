@@ -58,6 +58,7 @@ services:
       AGENT_BASE_URL: http://agent:8082
       REDIS_HOST: redis
       REVIEW_CACHE_ENABLED: "true"
+      PRODUCT_REVIEW_RATE_LIMIT_ENABLED: "true"
     depends_on:
       mysql:
         condition: service_healthy
