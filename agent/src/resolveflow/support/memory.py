@@ -145,8 +145,26 @@ class CustomerMemory:
             try:
                 proposal = CustomerClaim.model_validate(raw)
                 source = customer_source(proposal, self.request, observations, current_only=True)
-                identity = json.dumps({"topic": proposal.topic, "source": source,
-                                       "change": proposal.change, "target": proposal.target}, sort_keys=True)
+                existing = next((e for e in self.entries if e["topic"] == proposal.topic
+                                 and e["source"] == source and e["status"] == "ACTIVE"), None)
+                if existing is not None:
+                    if proposal.change == "APPEND":
+                        continue
+                    relation = "supersedes" if proposal.change == "REPLACE" else "retracts"
+                    if proposal.target in existing[relation]:
+                        continue
+                    entries = deepcopy(self.entries)
+                    target = next((e for e in entries if e["id"] == proposal.target), None)
+                    if (target is None or target["status"] != "ACTIVE" or target["topic"] != proposal.topic
+                            or target["source"]["sequence"] >= source["sequence"]):
+                        raise MemoryStateError("替代目标须为更早同主题有效客户陈述。")
+                    target["status"] = "SUPERSEDED" if proposal.change == "REPLACE" else "RETRACTED"
+                    same = next(e for e in entries if e["id"] == existing["id"])
+                    same[relation].append(proposal.target)
+                    ClaimSnapshot.model_validate({**self.snapshot(), "entries": entries})
+                    self.entries = entries
+                    continue
+                identity = json.dumps({"topic": proposal.topic, "source": source}, sort_keys=True)
                 key = "c_" + hashlib.sha256(identity.encode()).hexdigest()[:24]
                 update = MemoryUpdate(id=key, topic=proposal.topic, reference="CURRENT",
                                       quote=proposal.quote, offset=source["offset"],

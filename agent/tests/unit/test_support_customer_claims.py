@@ -88,3 +88,35 @@ def test_valid_new_claim_does_not_commit_if_the_same_action_has_invalid_dialogue
     result, _, _, agent = staged(req, [bad, bad])
     assert result["status"] == "FAILED"
     assert agent.memory.entries == [] and req.context == original
+
+
+@pytest.mark.parametrize("order", [["REPLACE", "APPEND"], ["APPEND", "REPLACE"]])
+def test_same_current_quote_deduplicates_without_losing_explicit_replacement(order):
+    from resolveflow.support.memory import CustomerMemory
+
+    req = request(input_version=1)
+    req.context["current_request"] = "可能家人代收。"
+    mem = CustomerMemory(req)
+    mem.propose([claim(req.context["current_request"])], [])
+    old = mem.entries[0]["id"]
+    next_req = request(input_version=3)
+    next_req.context.update(current_request="家人确认没有代收。", previous_customer_memory=mem.snapshot())
+    mem = CustomerMemory(next_req)
+    for change in order:
+        mem.propose([claim(next_req.context["current_request"], change=change,
+                           **({"target": old} if change == "REPLACE" else {}))], [])
+    assert len(mem.entries) == 2
+    assert [e["status"] for e in mem.entries] == ["SUPERSEDED", "ACTIVE"]
+    assert mem.entries[1]["supersedes"] == [old]
+    assert mem.warnings == []
+
+
+def test_distinct_topics_or_message_positions_are_not_semantically_merged():
+    from resolveflow.support.memory import CustomerMemory
+
+    req = request()
+    req.context["current_request"] = "没找到；没找到"
+    mem = CustomerMemory(req)
+    mem.propose([claim("没找到", offset=0), claim("没找到", offset=0),
+                 claim("没找到", offset=4), claim("没找到", topic="RECEIPT", offset=0)], [])
+    assert len(mem.entries) == 3

@@ -1,3 +1,9 @@
+## 当前快照（2026-10-22，演示体验接入：同源客户陈述去重完成）
+
+- 用户批准按[本批方案](../docs/customer-agent-demo-v2.md)修复后接入实际页面。当前唯一写入者已核对main/origin、原四脏文件与旧评测资产，旧任务不自动恢复。新去重以主题和同一当前消息原句位置为键，APPEND/REPLACE顺序不同仍只保留一条ACTIVE，显式替代/撤回关系保留，不合并跨主题或不同位置。
+- 新测试首2失败/12通过；实现后`.venv/Scripts/python.exe -m pytest tests/unit/test_support_customer_claims.py tests/unit/test_support_memory.py -q`：28通过（2.71秒），相关Ruff及memory.py strict mypy通过。未改旧raw/Gold/冻结清单；真实调用0、ledger1916，未启动演示服务。
+- 本小步独立提交并普通push核实后继续资格判断依据边界、显式staged-v1演示配置、客户指南和有限真实网页验收；尚不能称页面已启用两阶段。
+
 ## 当前快照（2026-10-22，客服中间层重构后真实验证收口：两阶段四轮完整通过，混合前提仍部分）
 
 - 准备1613abb已普通push核实，按[本批方案](../docs/customer-agent-state-live-v1.md)单次14轮完成：[报告](../reports/customer-agent-state-live-v1/README.md)/实际对话/raw/逐项源审/统计/离线诊断/收口齐全。single发布5/7、完整4/7、部分1、失败2；staged-v1发布7/7、完整6/7、部分1、失败0。两阶段U05原t1 OPEN→PAUSED→OPEN→RESOLVED，纠正offset15且不重复追问，正确核查入口/停止推进，四轮均无纠错反馈；不能外推生产泛化或简历指标。
