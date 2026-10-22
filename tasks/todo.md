@@ -2,7 +2,7 @@
 
 - 原句定位小步1b56dbe已普通push核实。对历史U05实际offset9/10/15原文由程序唯一匹配定位；重复原句需正确offset，作者/当前/历史/未来来源限制未放宽。新6测试、相关49测试通过；原v2轨迹及四历史脏文件hash保持。
 - 生命周期小步04da8a8已普通push核实：答复ANSWERED默认仍OPEN；PAUSE/RESUME/CANCEL按事项状态转换，明确RESOLVE/REOPEN；旧CANCELLED/SUSPENDED兼容，前轮未完成事项仍须携带，已答FAQ可省略。结束/撤回可从完成检查排除，生命周期作为task_state随原结果可重建，不增加DB迁移。保存的U05第2/4轮决定通过原解析和状态转换，链路脚本证明ANSWERED→暂停→恢复→修正→撤回；没有改写旧决定。
-- 订单/物流小步实现事实视图：按当前line_id投影带source/version的order_line_status、shipment_status、carrier_conclusion，并将context_layout版本升为support-layered-v2；跨行、失败、无source_id/version、无状态都不推断，原始observations不变。U02同一真实响应分别得到订单PAID、物流LOST，两个字段分开显示。
+- 订单/物流事实投影小步713d68b已普通push核实：按当前line_id投影带source/version的order_line_status、shipment_status、carrier_conclusion，并将context_layout版本升为support-layered-v2；跨行、失败、无source_id/version、无状态都不推断，原始observations不变。U02同一真实响应分别得到订单PAID、物流LOST，两个字段分开显示。
 - 最终验证：Agent集中回归238通过/0失败/0跳过（30.38秒）；新增定点32通过（生命周期/原句/事实投影/ASGI-PG/保存恢复），6个Agent生产模块strict mypy通过、相关Ruff通过。全套没有调用真实模型；这证明已确认的机制失败路径修复，不代表质量/简历指标已真实模型复测。
 - 数据保全核验通过：Agent schema无临时表；保留PG的11张public表行数/hash与experience-v2完成报告完全一致，runtime raw SHA256保持9da0120d...1619aac7，四历史脏文件hash逐字节保持；PG已stop、exit0、原卷仍挂载定义且10项目端口无监听。历史账本仍1815，无新增收费请求。
 ## 当前快照（2026-10-22，Agent生命周期与原句定位：实施中）
