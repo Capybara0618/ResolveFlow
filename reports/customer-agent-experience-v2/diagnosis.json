@@ -1,0 +1,201 @@
+{
+  "scope": "offline inspection of saved outputs; no model/network calls",
+  "transition_rejections": [
+    {
+      "turn": 2,
+      "model": 1,
+      "previous_tasks": {
+        "origin": "MODEL_PREVIOUS_TURN",
+        "input_version": 1,
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "物流显示签收但未找到，可能家人代收，查清签收情况",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O2"
+            ],
+            "response_excerpt": "已为您核查该订单（无线降噪耳机 黑色，订单号 e88da27f-7b38-460f-8e61-ab4ed28455ef）的物流记录：承运商结论为「已签收（DELIVERED）」，物流轨迹依次为：订单支付 → 已发货 → 已签收。\n\n需要说明的是：物流的「已签收」仅代表承运商记录的投递结果，并不等于您本人已亲自收到。您提到可能由家人代收，建议先向家人确认是否代签；同时可查看门口、快递柜、物业或邻居处是否有代收。\n\n如确认无人代收、包裹确实未收到，请告知我，我可以为您进一步发起物流核查/售后处理。"
+          }
+        ]
+      },
+      "before": {},
+      "error": "变化与任务前后状态不一致；RESUME仅用于暂停任务，PAUSE/CANCEL须对应终态。"
+    },
+    {
+      "turn": 2,
+      "model": 2,
+      "previous_tasks": {
+        "origin": "MODEL_PREVIOUS_TURN",
+        "input_version": 1,
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "物流显示签收但未找到，可能家人代收，查清签收情况",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O2"
+            ],
+            "response_excerpt": "已为您核查该订单（无线降噪耳机 黑色，订单号 e88da27f-7b38-460f-8e61-ab4ed28455ef）的物流记录：承运商结论为「已签收（DELIVERED）」，物流轨迹依次为：订单支付 → 已发货 → 已签收。\n\n需要说明的是：物流的「已签收」仅代表承运商记录的投递结果，并不等于您本人已亲自收到。您提到可能由家人代收，建议先向家人确认是否代签；同时可查看门口、快递柜、物业或邻居处是否有代收。\n\n如确认无人代收、包裹确实未收到，请告知我，我可以为您进一步发起物流核查/售后处理。"
+          }
+        ]
+      },
+      "before": {},
+      "error": "变化与任务前后状态不一致；RESUME仅用于暂停任务，PAUSE/CANCEL须对应终态。"
+    },
+    {
+      "turn": 3,
+      "model": 2,
+      "previous_tasks": {
+        "origin": "MODEL_PREVIOUS_TURN",
+        "input_version": 1,
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "物流显示签收但未找到，可能家人代收，查清签收情况",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O2"
+            ],
+            "response_excerpt": "已为您核查该订单（无线降噪耳机 黑色，订单号 e88da27f-7b38-460f-8e61-ab4ed28455ef）的物流记录：承运商结论为「已签收（DELIVERED）」，物流轨迹依次为：订单支付 → 已发货 → 已签收。\n\n需要说明的是：物流的「已签收」仅代表承运商记录的投递结果，并不等于您本人已亲自收到。您提到可能由家人代收，建议先向家人确认是否代签；同时可查看门口、快递柜、物业或邻居处是否有代收。\n\n如确认无人代收、包裹确实未收到，请告知我，我可以为您进一步发起物流核查/售后处理。"
+          }
+        ]
+      },
+      "before": {},
+      "error": "变化与任务前后状态不一致；RESUME仅用于暂停任务，PAUSE/CANCEL须对应终态。"
+    },
+    {
+      "turn": 3,
+      "model": 3,
+      "previous_tasks": {
+        "origin": "MODEL_PREVIOUS_TURN",
+        "input_version": 1,
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "物流显示签收但未找到，可能家人代收，查清签收情况",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O2"
+            ],
+            "response_excerpt": "已为您核查该订单（无线降噪耳机 黑色，订单号 e88da27f-7b38-460f-8e61-ab4ed28455ef）的物流记录：承运商结论为「已签收（DELIVERED）」，物流轨迹依次为：订单支付 → 已发货 → 已签收。\n\n需要说明的是：物流的「已签收」仅代表承运商记录的投递结果，并不等于您本人已亲自收到。您提到可能由家人代收，建议先向家人确认是否代签；同时可查看门口、快递柜、物业或邻居处是否有代收。\n\n如确认无人代收、包裹确实未收到，请告知我，我可以为您进一步发起物流核查/售后处理。"
+          }
+        ]
+      },
+      "before": {},
+      "error": "quote必须与reference原文offset处完全相同；不能改写或补造。"
+    },
+    {
+      "turn": 4,
+      "model": 1,
+      "previous_tasks": {
+        "origin": "MODEL_PREVIOUS_TURN",
+        "input_version": 1,
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "物流显示签收但未找到，可能家人代收，查清签收情况",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O2"
+            ],
+            "response_excerpt": "已为您核查该订单（无线降噪耳机 黑色，订单号 e88da27f-7b38-460f-8e61-ab4ed28455ef）的物流记录：承运商结论为「已签收（DELIVERED）」，物流轨迹依次为：订单支付 → 已发货 → 已签收。\n\n需要说明的是：物流的「已签收」仅代表承运商记录的投递结果，并不等于您本人已亲自收到。您提到可能由家人代收，建议先向家人确认是否代签；同时可查看门口、快递柜、物业或邻居处是否有代收。\n\n如确认无人代收、包裹确实未收到，请告知我，我可以为您进一步发起物流核查/售后处理。"
+          }
+        ]
+      },
+      "before": {},
+      "error": "变化与任务前后状态不一致；RESUME仅用于暂停任务，PAUSE/CANCEL须对应终态。"
+    },
+    {
+      "turn": 4,
+      "model": 2,
+      "previous_tasks": {
+        "origin": "MODEL_PREVIOUS_TURN",
+        "input_version": 1,
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "物流显示签收但未找到，可能家人代收，查清签收情况",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O2"
+            ],
+            "response_excerpt": "已为您核查该订单（无线降噪耳机 黑色，订单号 e88da27f-7b38-460f-8e61-ab4ed28455ef）的物流记录：承运商结论为「已签收（DELIVERED）」，物流轨迹依次为：订单支付 → 已发货 → 已签收。\n\n需要说明的是：物流的「已签收」仅代表承运商记录的投递结果，并不等于您本人已亲自收到。您提到可能由家人代收，建议先向家人确认是否代签；同时可查看门口、快递柜、物业或邻居处是否有代收。\n\n如确认无人代收、包裹确实未收到，请告知我，我可以为您进一步发起物流核查/售后处理。"
+          }
+        ]
+      },
+      "before": {},
+      "error": "变化与任务前后状态不一致；RESUME仅用于暂停任务，PAUSE/CANCEL须对应终态。"
+    }
+  ],
+  "quote_positions": [
+    {
+      "turn": 2,
+      "model": 1,
+      "field": "dialogue_events",
+      "quote": "要正式申请售后在哪个页面？",
+      "supplied_offset": 0,
+      "actual_matches": [
+        15
+      ]
+    },
+    {
+      "turn": 2,
+      "model": 2,
+      "field": "dialogue_events",
+      "quote": "我先问一下，要正式申请售后在哪个页面？",
+      "supplied_offset": 0,
+      "actual_matches": [
+        9
+      ]
+    },
+    {
+      "turn": 3,
+      "model": 2,
+      "field": "memory_updates",
+      "quote": "我问过家人和代收点了，都没代收，别让我再问一遍。",
+      "supplied_offset": 0,
+      "actual_matches": [
+        15
+      ]
+    },
+    {
+      "turn": 3,
+      "model": 3,
+      "field": "dialogue_events",
+      "quote": "纠正一下，我问过家人和代收点了，都没代收，别让我再问一遍。",
+      "supplied_offset": 0,
+      "actual_matches": [
+        10
+      ]
+    },
+    {
+      "turn": 3,
+      "model": 3,
+      "field": "memory_updates",
+      "quote": "纠正一下，我问过家人和代收点了，都没代收，别让我再问一遍。",
+      "supplied_offset": 0,
+      "actual_matches": [
+        10
+      ]
+    }
+  ],
+  "memory_rejections": [
+    {
+      "turn": 3,
+      "model": 2,
+      "error": "quote必须与reference原文offset处完全相同；不能改写或补造。"
+    },
+    {
+      "turn": 3,
+      "model": 3,
+      "error": "quote必须与reference原文offset处完全相同；不能改写或补造。"
+    }
+  ]
+}

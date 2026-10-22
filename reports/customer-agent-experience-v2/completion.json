@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-22",
+  "state": "LIVE_CONFIRMATION_COMPLETED_MULTI_TURN_NOT_ACCEPTED",
+  "source_commit": "e448fd81faf73ab530458b10965d96771fe46267",
+  "preparation_commit": "536a85b58b39fafc05d6b05f24e731f9dfefb3ac",
+  "runtime_sha256": "9da0120d436f2677ff884c2129b44137c508bb7d143d81de36cfe1ea5619aac7",
+  "old_runtime_sha256": "03c65ebbe42af44d98744c1611953b32e6f25e640ad767e6a10c581524682cbe",
+  "plan_sha256": "341cfcf01d8c4b7db0529d246f9b8b6d670e1552473959d639acd43eeaad43a1",
+  "preservation": {
+    "inherited_dirty_files_sha256": {
+      "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+      "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+      "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+      "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+    },
+    "public_tables": {
+      "agent_callback_outbox": {
+        "rows": 10,
+        "sha256": "42ecebfc248655bef5ab018ac2fdf1ff36f28515d94974acd569ed48e24e6b5a"
+      },
+      "agent_model_attempt": {
+        "rows": 18,
+        "sha256": "ba23cd2c815eb5bd6f72e9e5d770b10fce58d0788bc4e95932fe2fa6d766f910"
+      },
+      "agent_model_call": {
+        "rows": 18,
+        "sha256": "a030cfd1929012b113c41039821d7ea9208929b75f9632676054ee2d23a3f722"
+      },
+      "agent_run": {
+        "rows": 5,
+        "sha256": "cf4c02ab9a126b16d6234d1664bfa837cc959af7deeaa2b39435c69683c407b6"
+      },
+      "agent_run_model_budget": {
+        "rows": 5,
+        "sha256": "501376abea3933d255ffa8ff615952f8f5ffed3cef070cdaf59df4026c52e208"
+      },
+      "agent_tool_call": {
+        "rows": 12,
+        "sha256": "6948156fcffef123c7fc224400e23e1974fb97eb568e220e5174c569be1f2ea0"
+      },
+      "policy_index_child": {
+        "rows": 36,
+        "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+      },
+      "policy_index_chunk": {
+        "rows": 180,
+        "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+      },
+      "policy_index_generation": {
+        "rows": 30,
+        "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+      },
+      "support_agent_call": {
+        "rows": 52,
+        "sha256": "43af98dbf150717878eda3eff87a5a583c5a59918e1aad19478a7f0d8e94bce0"
+      },
+      "support_agent_run": {
+        "rows": 11,
+        "sha256": "4b97cc83e6d642cf065378c80336b2d8b47c2b20d2af497db1b5e5f432a22ed8"
+      }
+    },
+    "all_11_tables_match_prior_preflight_and_run": true,
+    "temporary_schemas_remaining": [],
+    "own_schema_dropped": true,
+    "old_reports_gold_and_manifests": "unchanged; immutable new manifest pins source hashes",
+    "final_public_and_inherited_hashes_equal": true
+  },
+  "schema_dropped": true,
+  "preparation_tests": {
+    "passed": 4,
+    "failed": 0,
+    "seconds": 5.83,
+    "ruff": "passed"
+  },
+  "offline_diagnosis": "saved outputs, no model/network calls; diagnosis.json",
+  "new_live_requests": 22,
+  "ledger_before": 1793,
+  "ledger_after": 1815,
+  "no_paid_rerun": true,
+  "production_code_changed_during_cohort": false,
+  "pg_stopped": true,
+  "final_public_unchanged": true,
+  "temporary_schemas": [],
+  "ledger_lock_released": true,
+  "plan_still_matches": true,
+  "retained_volume": "resolveflow-review-demo_demo-postgres-data",
+  "project_ports_closed": [
+    5174,
+    8080,
+    8081,
+    8083,
+    8090,
+    55433,
+    53306,
+    6379,
+    9876,
+    10911
+  ],
+  "batch_processes_exited": true
+}
