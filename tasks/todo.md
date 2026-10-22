@@ -1,5 +1,7 @@
 ## 当前快照（2026-10-22，后端深化：B1/B2工程通过，B3恢复领域通过，调度/集中验收接续）
 
+- B3.1 99f39aa已push核实；B3.2常驻恢复调度/正式入口已接，2秒/20条、批量1–100校验/单轮异常后继续。循环+启动新断言先失败后Java8通过、配置38通过/core Compose config/Spotless/diff通过。下一步提交push核实后用独立临时MySQL/Redis启动实际Case→Commerce/网页验收；不启动原业务库/Agent/收费模型，详情reports/backend-deepening-v1.md。
+
 - B2.4b b29a473已push核实；B3.1 V18/到期持久关闭/原attempt只查询恢复/30秒持久退避与逐条故障隔离已实现。新6测试先全失败后恢复+旧付款/多行共31通过，加强查询事务边界/坏记录不挡后续后7恢复通过，Spotless/diff通过。UNKNOWN不关闭/不扣款/不换ID，原数据未动，详情reports/backend-deepening-v1.md。下一步本步提交push核实后B3.2常驻调度和正式启动，再独立环境真实网页验收，无模型请求。
 
 - B2.4a 0bebd5d已push核实；B2.4b Case按认证账号/动作Lua原子6次60秒，超额429/Redis故障503均可重试且不进Commerce写入，正式启动启用。3实Redis新测试先全失败后相关6通过，补HTTP拒绝前置后8通过/0跳过，运行配置38通过/core Compose config/Spotless/diff通过。详情reports/backend-deepening-v1.md。下一步提交push核实后B3到期关闭/原尝试只读恢复，再隔离环境真实网页集中验收，不启动模型或动原业务库。

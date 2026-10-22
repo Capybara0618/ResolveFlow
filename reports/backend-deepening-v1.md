@@ -1,5 +1,11 @@
 # 后端深化验证记录
 
+## B3.2 常驻调度与正式入口（2026-10-22）
+
+B3.1 99f39aa已普通push核实。新增有开关的CheckoutRecoveryLoop，每2秒检查、每类默认20条；启动时校验批量1–100。单轮基础设施异常不终止后续调度，输出安全汇总；正式本机/core Compose启用CHECKOUT_RECOVERY_ENABLED，测试默认不开调度。同步模拟付款文档，到期公开语义不变。
+
+循环失败后下一tick继续和运行环境变量两新断言先失败；实施后 `./mvnw.cmd -B -pl commerce-service -am spotless:apply '-DspotlessFiles=.*CheckoutRecoveryLoop.java,.*CheckoutRecoveryLoopTest.java' test '-Dtest=CheckoutRecoveryLoopTest,CheckoutRecoveryDatabaseTest' '-Dsurefire.failIfNoSpecifiedTests=false'` 8通过（29.439秒），driver/project测试38通过（0.36秒）、core Compose config/diff通过。未启动原业务库/Agent或消费日常队列。下一步独立临时MySQL/Redis、实际Case→Commerce和桌面网页集中验收，模拟签收走已有受控存储过程，不将设计预览当实现截图。
+
 ## B3.1 交易恢复领域（2026-10-22）
 
 B2.4b b29a473已普通push核实。追加V18：未付款到期持久CANCELLED/close_reason=EXPIRED，对外仍EXPIRED；PAYMENT_PENDING从不按到期关闭。attempt增加下次对账时间/次数/安全错误码和索引。每轮有界扫描、条件更新领取并持久退避30秒，避免无收据队首饿死后续；只查原attempt_id收据，在事务外查询，再调用原短事务settle原子发布。缺收据/查询失败/发布失败保留UNKNOWN及原ID，绝不调用charge。异常按条处理，不输出原始SQL/客户材料。

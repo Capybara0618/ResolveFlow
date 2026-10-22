@@ -1647,6 +1647,7 @@ def start_commerce_service(settings: Settings, log: Log) -> None:
             COMMERCE_DB_PASSWORD="commerce",
             REFUND_PROVIDER_URL=settings.agent_url,
             PRODUCT_REVIEW_CACHE_ENABLED="true",
+            CHECKOUT_RECOVERY_ENABLED="true",
             REDIS_HOST="127.0.0.1",
             REDIS_PORT=str(settings.ports["redis"]),
         ),

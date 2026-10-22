@@ -85,6 +85,7 @@ services:
       COMMERCE_DB_URL: jdbc:mysql://mysql:3306/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false
       REFUND_PROVIDER_URL: http://agent:8082
       PRODUCT_REVIEW_CACHE_ENABLED: "true"
+      CHECKOUT_RECOVERY_ENABLED: "true"
       REDIS_HOST: redis
     depends_on:
       mysql:

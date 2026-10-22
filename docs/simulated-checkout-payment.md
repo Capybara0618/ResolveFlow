@@ -4,6 +4,8 @@
 
 ## 状态与事务
 
+2026-10-22按[后端深化](backend-deepening-v1.md)新增后台恢复：正式本机/core入口每2秒有界检查，待付款到期持久关闭（内部CANCELLED/close_reason=EXPIRED、公开仍EXPIRED）；PAYMENT_PENDING不受关单影响。UNKNOWN仅查询原attempt_id收据并结算，缺收据/错误退避30秒，绝不自动charge或换ID。每轮最多20条到期草稿和20条待确认尝试，错误按条记录；开关为CHECKOUT_RECOVERY_ENABLED，测试默认禁用调度。旧数据/原收据保留，不依赖Redis过期通知判定交易状态。
+
 草稿固化金额、规格、数量、商品/店铺名称及类别。追加迁移，不修改V10：持久状态WAITING_PAYMENT、PAYMENT_PENDING、PAID、CANCELLED；只有WAITING_PAYMENT在到期后投影EXPIRED。付款前锁草稿核对本人归属与服务端时钟。到期或取消不能开始付款；进入PAYMENT_PENDING后禁止取消，到期也不能把未知付款当成失败。PAID不可回到待付款。
 
 付款采用三个短事务边界：①锁草稿，记录唯一尝试和预分配订单/行ID，草稿进入PAYMENT_PENDING；②在该事务外调用持久本地模拟provider，以原attempt_id幂等生成收据；③锁同草稿和原尝试，成功时同一Commerce事务写orders/order_line/payment_ledger/line_refund并关联PAID。orders和line的paid_at仍非空，使用成功收据时间；账本paid_amount等于原草稿金额，refunded/reserved为0，每行FREE一次，不造物流。
