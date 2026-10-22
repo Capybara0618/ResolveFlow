@@ -67,3 +67,33 @@ def test_rejected_understanding_never_exports_candidate_as_accepted_state(agent_
     runtime.architecture = "single"
     with pytest.raises(SupportFailure, match="MANIFEST_MISMATCH"):
         runtime.run(req, "local-read-token")
+
+
+def test_refinement_and_source_rendered_amount_rebuild_from_saved_calls(agent_db):
+    from tests.unit.test_support_grounding import FactReads
+    from tests.unit.test_support_refine_needs import refine
+
+    req = request(run_id=str(uuid.uuid4()))
+    piece = part("trace", "当前实付{{PAID_AMOUNT}}。")
+    piece["facts"] = [{"field": "PAID_AMOUNT", "source": "O1"}]
+    script = [understand(req, needs=[]), refine(needs=["ORDER"]),
+              {"kind": "READ_TOOL", "tool_name": "get_order_context", "arguments": {}}, parts(piece)]
+    active = [TokenizedScript(mode="live", script=script)]
+    sources = []
+
+    def source_factory(*args):
+        source = FactReads()
+        sources.append(source)
+        return source
+
+    runtime = SupportRuntime(agent_db, DeploymentConfig(mode="mock"), architecture="staged-v1",
+        model_factory=lambda: active[0], sources_factory=source_factory)
+    result = runtime.run(req, "local-read-token")
+    assert result["status"] == "SUCCEEDED", result["reason"]
+    assert result["answer"]["text"] == "当前实付123.45 CNY。" and active[0].calls == 4
+    with agent_db.connection() as c:
+        c.execute("UPDATE support_agent_run SET status='RUNNING',result_json=NULL,"
+                  "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
+    active[0] = TokenizedScript(mode="live", script=script)
+    assert runtime.run(req, "local-read-token") == result
+    assert active[0].calls == 0 and sources[-1].calls == []

@@ -25,6 +25,7 @@ from resolveflow.support.activity import ReadActivity
 from resolveflow.support.completion import check_completion, requirements
 from resolveflow.support.context import LAYOUTS, read_context, render_context
 from resolveflow.support.dialogue import DialogueState, event_outcomes
+from resolveflow.support.grounding import check_amounts, ground_answer
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
@@ -265,6 +266,10 @@ class SupportAgent:
                                                    "arguments": {}})
                 self.stage.guard(reply.decision)
             decision = DECISION.validate_python(reply.decision)
+            grounded = None
+            if isinstance(decision, (Answer, AnswerParts)):
+                grounded = ground_answer(decision, self.request, self.citations)
+                decision = grounded
             if isinstance(decision, AnswerParts):
                 decision = render_answer(decision, self.tasks.tasks)
                 if self.stage.understanding is not None:
@@ -288,6 +293,8 @@ class SupportAgent:
                     require=reply.mode == "live",
                 )
                 dialogue.apply(decision.dialogue_events, tasks.tasks, self.observations, require=reply.mode == "live")
+            if grounded is not None:
+                check_amounts(grounded, self.request, self.citations)
             if isinstance(decision, Answer) and reply.mode == "live":
                 check_completion(decision, tasks.tasks, self.citations, self.recovery.packet(), dialogue.lifecycles)
                 if self.stage.enabled:

@@ -121,6 +121,7 @@ class SupportRuntime:
                     "memory.py",
                     "dialogue.py",
                     "stages.py",
+                    "grounding.py",
                     "../harness/token_counting.py",
                     "../assets/support-guide-v1.json",
                     "../policies/retrieval.py",
