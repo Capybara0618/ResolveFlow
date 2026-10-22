@@ -1,5 +1,7 @@
 ## 当前快照（2026-10-22，客服回答单次生成与统一工具调用：实施中）
 
+- 修复5758e7a已普通push核实。新增真实ASGI/AgentScope/隔离PG原始parts保存/归一化发布/到期run恢复测试及准备共3通过，恢复0模型/0HTTP；首次Ruff长行1修正后通过，4源码strict mypy通过。新原D01/D02完整请求仅运行身份变化，90文件与既有权重冻结，`--check --database --output tmp/customer-agent-answer-parts-v1/preflight.json`通过。33文件集中171通过/0失败跳过（48.66秒），public11表与上批一致/四历史脏文件hash保持。准备独立提交普通push核实后单次真实两条，ledger1762起。
+
 - 用户批准简化输出协议，按[方案](../docs/customer-agent-answer-parts-v1.md)实施ANSWER_PARTS逐任务状态/答复/引用，程序只做拼接/元数据投影，不自动标完成；旧ANSWER严格校验保持，统一READ_TOOL/search_policy新增显式校验兼容旧SEARCH_POLICY。已核对入口/当前记录/main=origin/main=b86a4c2/fetch左右0/0、暂存空，四历史脏文件/旧资产保持。
 - 新9测试先3失败/6通过；接4源码后39通过/1新脚本引用夹具失败（仅P1却沿用O1默认答案，改为P1）；协议/目录明确升级后旧4断言不匹配与1窗口失败，断言改核新枚举/示例并保留旧格式校验，删重复完整ANSWER示例改ANSWER_PARTS示例后32通过。另补全文长度及重复初始声明，11文件集中92通过/0失败，4源码strict mypy/相关Ruff通过。未启动服务/模型/PG，账本1762；独立提交普通push后接持久恢复及新冻结真实确认。
 
