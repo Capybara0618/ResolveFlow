@@ -97,6 +97,8 @@ class ContextRead(Closed):
 
 class Read(TaskAction):
     kind: Literal["READ_TOOL"]
+    # Documentation/rationale is nonexecuting metadata. Identity stays bound by the server.
+    purpose: str | None = Field(default=None, min_length=1, max_length=200, exclude_if=lambda v: v is None)
     tool_name: Literal["get_order_context", "get_shipment_trace", "read_history", "get_support_guide", "read_context",
                        "search_policy"]
     arguments: dict[str, Any] = Field(default_factory=dict)

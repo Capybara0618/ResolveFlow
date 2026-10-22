@@ -1,3 +1,9 @@
+## 当前快照（2026-10-22，客服Agent职责拆分试验：公共协议完成）
+
+- 事项基础02384a0已普通push核实。按[方案](../docs/customer-agent-staged-v1.md)接协议减负：PAUSE/CANCEL/RESOLVE事件在原句/前态校验下决定生命周期，并由程序派生展示状态SUSPENDED/CANCELLED/ANSWERED，不要求模型同步双枚举；原模型响应不改。READ_TOOL允许限长purpose非执行说明，其余未知字段/主体参数/工具权限保持拒绝。
+- 新6测试首4失败/2通过（首旧请求deadline到期，离线副本仅刷新deadline后仍4失败/2通过，原raw不改），实现后相关39通过；真实PG保存/恢复与四轮API共51通过/0失败/0跳过（8.41秒），3源码strict mypy通过，Ruff首新文件导入排序1条已修正重验通过。保存v3实际RESOLVE+CANCELLED响应离线可发布，不把局部机制通过称真实质量通过。
+- 下一步可选同模型理解阶段→自主调查/答复，继续唯一AgentScope循环/同预算/调用账及manifest；默认保留公共基础单Agent作比较。ledger1830、没有新增真实请求，PG仅临时用于隔离回归。
+
 ## 当前快照（2026-10-22，客服Agent职责拆分试验：事项基础完成）
 
 - 用户批准尝试新架构，按[职责拆分方案](../docs/customer-agent-staged-v1.md)先公共事项/协议基础，再同模型理解→自主调查/答复可选模式；仅离线与脚本真实ASGI-PG，不新增收费或多Agent/模型依赖。已只读核对main=origin/main=e9e06e9/fetch0:0、暂存空、原四脏文件/旧资产保留，唯一执行者接管本批。

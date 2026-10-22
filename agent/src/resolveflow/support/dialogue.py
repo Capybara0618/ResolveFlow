@@ -16,6 +16,14 @@ class DialogueStateError(ValueError):
         self.missing_task_ids = list(missing_task_ids or [])
 
 
+def event_outcomes(tasks: list[SupportTask], events: list[DialogueEvent]) -> list[SupportTask]:
+    """An explicit anchored event owns closure/pause; response metadata is derived, never model authority."""
+    derived = {key: {"PAUSE": "SUSPENDED", "CANCEL": "CANCELLED", "RESOLVE": "ANSWERED"}[event.change]
+               for event in events if event.change in {"PAUSE", "CANCEL", "RESOLVE"} for key in event.targets()}
+    return [task.model_copy(deep=True, update={"status": derived[task.id], "blocker": None})
+            if task.id in derived else task.model_copy(deep=True) for task in tasks]
+
+
 class DialogueState:
     def __init__(self, request: SupportInput) -> None:
         self.request = request
@@ -35,6 +43,7 @@ class DialogueState:
     ) -> None:
         if not events and not self.started and not require:
             return  # Old scripted clients remain compatible; this does not demonstrate understanding.
+        tasks = event_outcomes(tasks, events)
         after = {t.id: t.status for t in tasks}
         # Expand only explicit targets, never guess an omitted change from a task status.
         expanded = [(event, key) for event in events for key in event.targets()]

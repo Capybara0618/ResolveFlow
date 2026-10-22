@@ -24,7 +24,7 @@ from resolveflow.harness.token_counting import counter_for
 from resolveflow.support.activity import ReadActivity
 from resolveflow.support.completion import check_completion, requirements
 from resolveflow.support.context import LAYOUTS, read_context, render_context
-from resolveflow.support.dialogue import DialogueState
+from resolveflow.support.dialogue import DialogueState, event_outcomes
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
@@ -237,7 +237,8 @@ class SupportAgent:
             # Unannotated reads leave accepted task/dialogue state untouched. Publication cannot bypass validation.
             if isinstance(decision, Answer) or decision.tasks is not None or decision.dialogue_events:
                 tasks.accept(
-                    decision.tasks, set(self.citations),
+                    event_outcomes(decision.tasks, decision.dialogue_events) if decision.tasks is not None else None,
+                    set(self.citations),
                     answer=decision if isinstance(decision, Answer) else None,
                     require=reply.mode == "live",
                 )
