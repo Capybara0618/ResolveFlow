@@ -1,3 +1,8 @@
+## 当前快照（2026-10-22，演示体验接入：服务架构配置完成）
+
+- 资格边界d6454dd已普通push核实，另两阶段/事实来源/资格28通过。Agent启动时读取并固定RESOLVEFLOW_SUPPORT_ARCHITECTURE，默认single、显式staged-v1；未知值启动拒绝，内部客服路由传递给SupportRuntime。health新增不含凭据的support_architecture，便于核验实际运行模式；进程启动后修改环境不会换架构，旧run仍沿manifest拒绝不匹配恢复。
+- 配置新断言首2失败/1通过；实现后客服路由与health定向回归通过，相关Ruff及app.py/api.py strict mypy通过。尚未启动实际演示或新增真实调用，下一步接本地启动器、指南和网页体验。
+
 ## 当前快照（2026-10-22，演示体验接入：政策条件与订单判断分开）
 
 - 同源去重ab2c40a已普通push核实。两阶段提示区分一般政策条件和当前订单判断，资格part可声明assessment=CONDITIONS/CASE_ASSESSMENT；渲染传递至事项，后者答复ANSWERED须逐项引用ORDER与POLICY，一般条件不强制ORDER。物流等仍按具体前提自主读取，不能替商家批准。兼容旧无字段任务；这是声明与来源一致性检查，不宣称能自动理解所有自由文本资格断言。

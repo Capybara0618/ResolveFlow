@@ -35,7 +35,8 @@ def test_health_does_not_expose_internals() -> None:
 
     body = client.get("/health").json()
 
-    assert set(body) == {"status", "service", "version"}
+    assert set(body) == {"status", "service", "version", "support_architecture"}
+    assert body["support_architecture"] == "single"
 
 
 def test_interactive_docs_are_not_published() -> None:

@@ -34,6 +34,7 @@ def router_for(authenticate: Any, run_store: Any) -> APIRouter:
                     run_store(request).database,
                     DeploymentConfig.from_environ(),
                     embeddings=request.app.state.support_embeddings,
+                    architecture=request.app.state.support_architecture,
                 )
             context = SupportInput.model_validate(body.model_dump(exclude={"tool_token"}))
             return cast(dict[str, Any], runtime.run(context, body.tool_token.get_secret_value()))

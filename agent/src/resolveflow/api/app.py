@@ -101,6 +101,7 @@ class HealthResponse(BaseModel):
     status: str
     service: str
     version: str
+    support_architecture: str
 
 
 class RunRequestContextShape(BaseModel):
@@ -447,6 +448,10 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        architecture = os.environ.get("RESOLVEFLOW_SUPPORT_ARCHITECTURE", "single")
+        if architecture not in {"single", "staged-v1"}:
+            raise ValueError("unknown support architecture")
+        app.state.support_architecture = architecture
         app.state.provider = provider if provider is not None else RefundProviderStub(database)
         app.state.token_verifier = ServiceTokenVerifier(secret)
         app.state.support_runtime = support_runtime
@@ -534,7 +539,8 @@ def create_app(
 
     @app.get("/health", response_model=HealthResponse)
     async def health() -> HealthResponse:
-        return HealthResponse(status="UP", service=SERVICE_NAME, version=__version__)
+        return HealthResponse(status="UP", service=SERVICE_NAME, version=__version__,
+                              support_architecture=getattr(app.state, "support_architecture", "single"))
 
     # --- The run control plane (C06.1) ------------------------------------------------
 
