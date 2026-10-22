@@ -41,6 +41,34 @@ class RedisReviewQueueCacheIntegrationTest {
     }
 
     @Test
+    void currentWorkspaceUsesRealRedisWithoutMixingStaffOrFilters() {
+        var connection = boundedConnection(REDIS.getMappedPort(6379));
+        try {
+            var repository = org.mockito.Mockito.mock(CaseRepository.class);
+            var service = new ReviewQueueService(repository, cache(connection), new SimpleMeterRegistry(), true);
+            var staff = new AuthenticatedPrincipal("staff", "M-1001", Role.REVIEWER, null);
+            var first = service.workspace(staff, null, 20, "REVIEW", "", "PUBLIC");
+            assertThat(service.workspace(staff, null, 20, "REVIEW", "", "PUBLIC"))
+                    .isEqualTo(first);
+            org.mockito.Mockito.verify(repository, org.mockito.Mockito.times(1))
+                    .countWorkspaceCases("M-1001", "staff", "");
+            service.workspace(staff, null, 20, "REVIEW", "", "MINE");
+            org.mockito.Mockito.verify(repository, org.mockito.Mockito.times(2))
+                    .countWorkspaceCases("M-1001", "staff", "");
+            service.workspace(
+                    new AuthenticatedPrincipal("other", "M-1001", Role.REVIEWER, null),
+                    null,
+                    20,
+                    "REVIEW",
+                    "",
+                    "PUBLIC");
+            org.mockito.Mockito.verify(repository).countWorkspaceCases("M-1001", "other", "");
+        } finally {
+            connection.destroy();
+        }
+    }
+
+    @Test
     void hitMissScopeUpdateAndExpiryAreRealRedisOperations() throws Exception {
         RedisStandaloneConfiguration config =
                 new RedisStandaloneConfiguration(REDIS.getHost(), REDIS.getMappedPort(6379));

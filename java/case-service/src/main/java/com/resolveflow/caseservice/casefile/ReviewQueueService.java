@@ -11,10 +11,12 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * The reviewer's queue (docs/core-contracts.md:33).
@@ -88,18 +90,31 @@ public class ReviewQueueService {
     private final ReviewQueueCache cache;
     private final boolean cacheEnabled;
     private final MeterRegistry metrics;
+    private final TransactionTemplate readTransaction;
     private final Semaphore databasePermits = new Semaphore(8, true);
     private final AtomicInteger databaseInflight = new AtomicInteger();
     private final AtomicInteger databasePeak = new AtomicInteger();
 
     public ReviewQueueService(
+            CaseRepository cases, ReviewQueueCache cache, MeterRegistry metrics, boolean cacheEnabled) {
+        this(cases, cache, metrics, cacheEnabled, null);
+    }
+
+    @Autowired
+    public ReviewQueueService(
             CaseRepository cases,
             ReviewQueueCache cache,
             MeterRegistry metrics,
-            @Value("${resolveflow.review-cache.enabled:false}") boolean cacheEnabled) {
+            @Value("${resolveflow.review-cache.enabled:false}") boolean cacheEnabled,
+            PlatformTransactionManager transactionManager) {
         this.cases = cases;
         this.cache = cache;
         this.cacheEnabled = cacheEnabled;
+        readTransaction = transactionManager == null ? null : new TransactionTemplate(transactionManager);
+        if (readTransaction != null) {
+            readTransaction.setReadOnly(true);
+            readTransaction.setIsolationLevel(TransactionDefinition.ISOLATION_REPEATABLE_READ);
+        }
         this.metrics = metrics;
         metrics.gauge("resolveflow.review.database.inflight", databaseInflight);
         metrics.gauge("resolveflow.review.database.peak", databasePeak);
@@ -111,9 +126,17 @@ public class ReviewQueueService {
                 "the review queue belongs to a merchant's staff; a customer-scoped token has no queue" + " to read");
         int limit = normaliseLimit(requestedLimit);
         ReviewQueueCursor after = ReviewQueueCursor.decode(cursor);
+        return cached(
+                principal.merchantId(),
+                cursor,
+                limit,
+                () -> loadFromDatabase(principal.merchantId(), cursor, after, limit));
+    }
+
+    private Page cached(String merchant, String key, int limit, Supplier<Page> reader) {
         if (cacheEnabled) {
             try {
-                java.util.Optional<Page> cached = cache.find(principal.merchantId(), cursor, limit);
+                java.util.Optional<Page> cached = cache.find(merchant, key, limit);
                 if (cached.isPresent()) {
                     metrics.counter("resolveflow.review.cache", "outcome", "hit")
                             .increment();
@@ -142,7 +165,16 @@ public class ReviewQueueService {
             }
         }
         try {
-            return loadFromDatabase(principal.merchantId(), cursor, after, limit);
+            Page result = reader.get();
+            if (cacheEnabled) {
+                try {
+                    cache.store(merchant, key, limit, result);
+                } catch (RuntimeException ignored) {
+                    metrics.counter("resolveflow.review.cache.write", "outcome", "error")
+                            .increment();
+                }
+            }
+            return result;
         } finally {
             if (acquired) {
                 databasePermits.release();
@@ -160,13 +192,6 @@ public class ReviewQueueService {
         boolean hasMore = rows.size() > limit;
         List<ReviewQueueRow> page = hasMore ? List.copyOf(rows.subList(0, limit)) : List.copyOf(rows);
         Page result = new Page(items(page), ReviewQueueCursor.after(page, hasMore), limit);
-        if (cacheEnabled) {
-            try {
-                cache.store(merchantId, cursor, limit, result);
-            } catch (RuntimeException ignored) {
-                // A failed cache write never changes the authoritative answer.
-            }
-        }
         return result;
     }
 
@@ -232,7 +257,6 @@ public class ReviewQueueService {
         return requestedLimit;
     }
 
-    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Page workspace(
             AuthenticatedPrincipal principal,
             String cursor,
@@ -253,9 +277,28 @@ public class ReviewQueueService {
                 (principal.merchantId() + "\n" + principal.subject() + "\n" + stage + "\n" + ownership + "\n" + term)
                         .getBytes(java.nio.charset.StandardCharsets.UTF_8));
         ReviewQueueCursor after = ReviewQueueCursor.decodeWorkspace(cursor, context);
+        String key = "workspace:v1:" + context + ":" + (cursor == null ? "" : cursor);
+        return cached(principal.merchantId(), key, limit, () -> {
+            Supplier<Page> reader =
+                    () -> loadWorkspace(principal, term, stage, ownership, statuses, limit, context, after);
+            return readTransaction == null ? reader.get() : readTransaction.execute(status -> reader.get());
+        });
+    }
+
+    private Page loadWorkspace(
+            AuthenticatedPrincipal principal,
+            String term,
+            String stage,
+            String ownership,
+            List<String> statuses,
+            int limit,
+            String context,
+            ReviewQueueCursor after) {
+        metrics.counter("resolveflow.review.database.queries").increment();
         List<CaseRepository.WorkspaceCountRow> counts =
-                cases.countWorkspaceCases(principal.merchantId(), principal.subject(), term);
-        List<CaseRepository.WorkspaceQueueRow> rows = cases.findOwnedWorkspaceCases(
+                measuredQuery(() -> cases.countWorkspaceCases(principal.merchantId(), principal.subject(), term));
+        metrics.counter("resolveflow.review.database.queries").increment();
+        List<CaseRepository.WorkspaceQueueRow> rows = measuredQuery(() -> cases.findOwnedWorkspaceCases(
                 principal.merchantId(),
                 principal.subject(),
                 statuses,
@@ -263,7 +306,7 @@ public class ReviewQueueService {
                 term,
                 after == null ? null : after.updatedAt(),
                 after == null ? null : after.caseId(),
-                limit + 1);
+                limit + 1));
         boolean more = rows.size() > limit;
         List<CaseRepository.WorkspaceQueueRow> page = more ? List.copyOf(rows.subList(0, limit)) : List.copyOf(rows);
         List<ReviewQueueRow> facts = page.stream()
