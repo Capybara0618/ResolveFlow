@@ -1,0 +1,66 @@
+{
+  "version": "customer-agent-staged-v1-offline-probes",
+  "generation": "NONE",
+  "runtime_sha256": "68c6578ec8eadeefa94b8d652d6cb06a5815136a258f2639bb6d52469bb920f3",
+  "old_raw_unchanged": true,
+  "interpretation": "Local parsing/state probes only; not new model outputs or business writes.",
+  "retained_after_saved_interruption": {
+    "origin": "MODEL",
+    "tasks": [
+      {
+        "id": "t1",
+        "intent": "LOGISTICS",
+        "request": "物流显示签收但未找到，可能家人代收，先查清楚",
+        "status": "ANSWERED",
+        "evidence_refs": [],
+        "response_excerpt": null,
+        "lifecycle": "OPEN"
+      },
+      {
+        "id": "t2",
+        "intent": "APPLICATION",
+        "request": "正式申请售后的页面入口",
+        "status": "ANSWERED",
+        "evidence_refs": [
+          "O1"
+        ],
+        "response_excerpt": "正式退款/售后申请入口是「我的售后」页面：进入后选择本人已付款订单中的对应商品，即可发起正式申请。\n\n需要提醒的是：售后咨询里的退款摘要确认和 Case 关联目前尚未接通，在聊天里说想退款或提交人工核查都不会自动创建退款工单，必须走「我的售后」入口才算正式申请。\n\n另外，您之前提到的签收未找到问题，如需请商家核查，可在售后咨询中选择订单商品后点「请商家核查」，预览并确认转交摘要后提交，这不会提交退款申请。需要的话我可以继续帮您处理物流核查。",
+        "lifecycle": "OPEN"
+      }
+    ],
+    "focus_ids": [
+      "t2"
+    ]
+  },
+  "interruption_limit": "Original output did not propose PAUSE, so old issue remains OPEN, not PAUSED.",
+  "derived_after_saved_closure": {
+    "origin": "MODEL",
+    "tasks": [
+      {
+        "id": "t3",
+        "intent": "LOGISTICS",
+        "request": "继续签收调查（客户已确认家人与代收点均未代收）",
+        "status": "ANSWERED",
+        "evidence_refs": [],
+        "response_excerpt": "好的，已按您说的处理：签收调查到此结束，不再继续核查，也不会提交退款或售后申请。后续如有其他问题随时告诉我。",
+        "lifecycle": "RESOLVED"
+      }
+    ],
+    "focus_ids": [
+      "t3"
+    ]
+  },
+  "read_executable_fields": {
+    "tool_name": "get_shipment_trace",
+    "arguments": {}
+  },
+  "purpose_is_execution_parameter": false,
+  "source_sha256": {
+    "agent/src/resolveflow/support/engine.py": "3c52b69aec3e7f6979a1b7fb3ea18530ee147ffb63dcdbb745f02905166c0806",
+    "agent/src/resolveflow/support/dialogue.py": "9d917f8155b26583b5e2cd2c4209db2d4e969844c482eb8f8658972fd170ba90",
+    "agent/src/resolveflow/support/protocol.py": "7584c8b0c76b656783b8490106417bfd1b3296fc80ddd8d38aab12503f383c75",
+    "agent/src/resolveflow/support/stages.py": "4860fc0545005945f6d0b92f237071a9bcffa7147b3ebfe5101e3855cf98a185",
+    "agent/src/resolveflow/support/service.py": "31c254be09df9ad175113d28ecb423a1a88da45a6433f3f09b71430ecb11a1db",
+    "scripts/customer_agent_staged_probe.py": "bee62b4afdc3b49648aad1a1c9012b00d41a1c4694a5112436595bb0b80d21a2"
+  }
+}

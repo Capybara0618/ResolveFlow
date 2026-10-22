@@ -1,3 +1,10 @@
+## 当前快照（2026-10-22，客服Agent职责拆分试验收口：工程通过，真实效果待比较）
+
+- 公共事项02384a0、事件/接口a9c9faa、可选两阶段92d779e均已普通push核实。当前默认single，共享修正后的事项/协议基础；服务端显式architecture=staged-v1可先理解再自主调查/答复。唯一AgentScope循环/同模型/原预算与调用账、manifest与fence保持；未部署网页或接多Agent/大小模型/新RAG。详见[工程报告](../reports/customer-agent-staged-v1/README.md)和[方案](../docs/customer-agent-staged-v1.md)。
+- 52文件集中261通过（44.60秒），另新v3执行器4通过（5.31秒），54文件265项均无失败/跳过；5生产模块strict mypy及相关Ruff通过。两模式各4轮实际ASGI-PG脚本验证保留/暂停/恢复纠正/结束、每轮0模型0HTTP重建、切换架构409；调用单Agent8、两阶段12、工具各5，不称真实准确性/降本提升。
+- 新离线探针对旧v3实际响应复算3项通过：入口插问不丢t1、RESOLVE+CANCELLED由程序派生ANSWERED/RESOLVED、purpose可解析且非执行参数；原raw未改。原插问没有PAUSE事件，因此只证明保留OPEN，不能称原语义已修；理解准确性/重复建题/错误need标签/答复与来源逐句一致性仍待真实源审，当前焦点不重入、理解阶段无历史工具、8事项限制均明确记录。
+- 本批真实模型0/ledger1830不变，旧v2/v3 raw、公用11表全行hash、四历史脏文件hash保持，临时schema空；PG已stop/exit0、原卷保留/十项目端口闭/自用测试进程退出/账本锁释放。最终报告/探针精确提交普通push核实后停止写入。后续真实比较需新冻结、同公共基础/模型/事实/标准，且区分额外来源检查与阶段拆分的贡献；不自动开启收费评测或更新简历。
+
 ## 当前快照（2026-10-22，客服Agent职责拆分试验：可选两阶段实现并通过工程验证）
 
 - 公共基础02384a0、协议a9c9faa均已普通push核实。新增stages.py/SupportAgent与SupportRuntime显式architecture=staged-v1（默认single）：同一AgentScope循环内先TURN_UNDERSTANDING，仅声明本轮焦点、需求/事件/记忆；程序原子保存后调查/答复阶段只选工具或ANSWER_PARTS，禁止重声明。理解调用纳入原预算/窗口/一次反馈/调用账，manifest记录架构/新源码/两段提示，不静默迁移旧run。
