@@ -8,6 +8,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -50,6 +51,7 @@ public class ShoppingService {
         return stores().stream().filter(s -> s.storeId().equals(id)).findFirst().orElseThrow(ShoppingService::missing);
     }
 
+    @Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
     public Products products(String query, String category, String store, String after, Integer suppliedLimit) {
         int limit = suppliedLimit == null ? 24 : suppliedLimit;
         if (limit < 1
@@ -60,7 +62,7 @@ public class ShoppingService {
         if (category != null && !List.of("electronics", "home", "outdoor").contains(category))
             throw new IllegalArgumentException("分类无效");
         String sql =
-                "SELECT p.product_id FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id WHERE p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)";
+                "SELECT p.*,s.name AS store_name FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id WHERE p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)";
         List<Object> args = new ArrayList<>();
         if (query != null && !query.isBlank()) {
             sql += " AND LOCATE(?,p.name)>0";
@@ -80,39 +82,48 @@ public class ShoppingService {
         }
         sql += " ORDER BY p.product_id LIMIT ?";
         args.add(limit + 1);
-        List<String> ids = jdbc.queryForList(sql, String.class, args.toArray());
-        boolean more = ids.size() > limit;
-        var shown = ids.subList(0, Math.min(limit, ids.size()));
-        return new Products(shown.stream().map(this::product).toList(), more ? shown.getLast() : null);
+        var products = jdbc.query(sql, (rs, n) -> productRow(rs), args.toArray());
+        boolean more = products.size() > limit;
+        var shown = products.subList(0, Math.min(limit, products.size()));
+        if (shown.isEmpty()) return new Products(List.of(), null);
+        var skus = new HashMap<String, List<Sku>>();
+        String placeholders = String.join(",", java.util.Collections.nCopies(shown.size(), "?"));
+        jdbc.query(
+                "SELECT * FROM catalog_sku WHERE listed=TRUE AND product_id IN (" + placeholders + ") ORDER BY sku_id",
+                (org.springframework.jdbc.core.RowCallbackHandler)
+                        rs -> skus.computeIfAbsent(rs.getString("product_id"), ignored -> new ArrayList<>())
+                                .add(skuRow(rs)),
+                shown.stream().map(Product::productId).toArray());
+        return new Products(
+                shown.stream().map(p -> priced(p, skus.get(p.productId()))).toList(),
+                more ? shown.getLast().productId() : null);
     }
 
-    public Product product(String id) {
-        var rows = jdbc.query(
-                "SELECT p.*,s.name AS store_name FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id WHERE p.product_id=? AND p.listed=TRUE AND s.enabled=TRUE",
-                (rs, n) -> new Product(
-                        rs.getString("product_id"),
-                        rs.getString("store_id"),
-                        rs.getString("store_name"),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        rs.getString("category"),
-                        rs.getString("asset_key"),
-                        0,
-                        "CNY",
-                        List.of()),
-                id);
-        if (rows.isEmpty()) throw missing();
-        var p = rows.getFirst();
-        var skus = jdbc.query(
-                "SELECT * FROM catalog_sku WHERE product_id=? AND listed=TRUE ORDER BY sku_id",
-                (rs, n) -> new Sku(
-                        rs.getString("sku_id"),
-                        rs.getString("variant"),
-                        rs.getLong("unit_amount"),
-                        rs.getInt("max_quantity"),
-                        rs.getLong("version")),
-                id);
-        if (skus.isEmpty()) throw missing();
+    private static Product productRow(ResultSet rs) throws SQLException {
+        return new Product(
+                rs.getString("product_id"),
+                rs.getString("store_id"),
+                rs.getString("store_name"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getString("category"),
+                rs.getString("asset_key"),
+                0,
+                "CNY",
+                List.of());
+    }
+
+    private static Sku skuRow(ResultSet rs) throws SQLException {
+        return new Sku(
+                rs.getString("sku_id"),
+                rs.getString("variant"),
+                rs.getLong("unit_amount"),
+                rs.getInt("max_quantity"),
+                rs.getLong("version"));
+    }
+
+    private static Product priced(Product p, List<Sku> skus) {
+        if (skus == null || skus.isEmpty()) throw missing();
         return new Product(
                 p.productId(),
                 p.storeId(),
@@ -123,7 +134,21 @@ public class ShoppingService {
                 p.assetKey(),
                 skus.stream().mapToLong(Sku::unitAmount).min().orElseThrow(),
                 "CNY",
-                skus);
+                List.copyOf(skus));
+    }
+
+    public Product product(String id) {
+        var rows = jdbc.query(
+                "SELECT p.*,s.name AS store_name FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id WHERE p.product_id=? AND p.listed=TRUE AND s.enabled=TRUE",
+                (rs, n) -> productRow(rs),
+                id);
+        if (rows.isEmpty()) throw missing();
+        var p = rows.getFirst();
+        var skus = jdbc.query(
+                "SELECT * FROM catalog_sku WHERE product_id=? AND listed=TRUE ORDER BY sku_id",
+                (rs, n) -> skuRow(rs),
+                id);
+        return priced(p, skus);
     }
 
     public Quote quote(QuoteRequest request) {

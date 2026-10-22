@@ -1,5 +1,13 @@
 # 后端深化验证记录
 
+## B1.2 商品列表批量读取（2026-10-22）
+
+B1.1 ed53799 已普通push并核实远端。商品列表改为一次商品/店铺查询 + 一次可售SKU批量查询，最多48商品；只读 REPEATABLE_READ 包住两次读取，保留搜索/分页/上下架/规格排序/min价格语义。详情与报价仍读权威事实，不用缓存决定金额。
+
+新 ShoppingBatchDatabaseTest 在真实MySQL上通过Connection代理统计实际prepareStatement：旧实现单商品页3条，预期2而失败；实施后1商品/4商品页均2条，空结果1条，并逐项比对公开详情。未测订单查询或大规模延迟，不把SQL数减少等同p95收益。
+
+java目录相同Java21：`./mvnw.cmd -B -pl commerce-service -am test '-Dtest=ShoppingBatchDatabaseTest' '-Dsurefire.failIfNoSpecifiedTests=false'` 首次1失败；`./mvnw.cmd -B -pl commerce-service -am spotless:apply '-DspotlessFiles=.*ShoppingService.java,.*ShoppingBatchDatabaseTest.java' test '-Dtest=ShoppingBatchDatabaseTest,ShoppingDatabaseTest,ShoppingApiTest,MultiCheckoutDatabaseTest' '-Dsurefire.failIfNoSpecifiedTests=false'` 最后4类21通过/0失败/0跳过（29.865秒），git diff --check通过。原四脏文件/正式数据保持，模型调用0。下一步B1.3独立Redis运行接线。
+
 ## B1.1 正式工作台缓存（2026-10-22）
 
 文档与三张静态预期图提交 5f55049 已正常推送 origin/main，远端 SHA 已核实。实现根据 docs/backend-deepening-v1.md，保留四个历史脏文件、原数据和冻结实验。未调用模型、未启动正式业务服务。
