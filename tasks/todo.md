@@ -1,4 +1,6 @@
-## 当前快照（2026-10-22，Agent根因修复离线开发完成，待真实体验确认）
+## 当前快照（2026-10-22，Agent修复后有限真实确认：准备完成）
+
+- 根因修复e448fd8已普通push核实。用户授权开始[有限真实确认v2](../docs/customer-agent-experience-v2.md)，新入口复用已验证执行器/临时绑定新冻结与新身份，异常恢复绑定；旧问题/事实/条件及实际失败前缀保持。3单元+1实际ASGI-PG脚本共4通过（5.83秒）、相关Ruff通过，新冻结/只读PG预检通过，public11表/4历史脏文件保持。准备独立精确提交普通push后单次5会话8轮，不测简历指标，不修改模型/源码后收费重跑。ledger1793起，PG仅临时启动。
 
 - 第一小步a57d676已普通push核实。按[任务推进方案](../docs/customer-agent-task-resolution-v1.md)接live统一完成检查：APPLICATION/HANDOFF绑定当前指南、已回答ELIGIBILITY绑定政策，NEEDS_CUSTOMER必须缺口及对应答复提问原句，UNAVAILABLE关联实际相关未恢复的故障；旧ANSWER省略tasks同样检查实际接受任务。记录previous_blocker但不当客户事实/旧来源，说明独立核查与正式退款区别，保持模型自主选择工具。
 - [集中报告](../reports/customer-agent-task-resolution-v1/README.md)：完成首7测试6失败/1通过，首集中207通过/5旧夹具缺指南失败，补实际指南/引用与调用账断言；保留原失败/Gold。旧ANSWER遗漏红测1失败/10通过、长答复末尾提问红测1失败/11通过后修复。最终43文件218通过/0失败/0跳过（32.46秒），7源码strict mypy/相关Ruff通过；mock/live协议的四轮实际ASGI-PG脚本验证暂停/恢复/纠正/撤回与0调用恢复。新冻结补新依赖，旧清单不改。
