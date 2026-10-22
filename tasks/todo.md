@@ -1,3 +1,9 @@
+## 当前快照（2026-10-22，客服Agent两候选真实比较：准备完成）
+
+- 用户在离线职责拆分收口c704bca后要求继续，按[本批真实比较](../docs/customer-agent-staged-live-v1.md)固定公共基础single与staged-v1各六轮，共12轮；原U05四轮/U02/U03单轮问题/事实/原条件不变，分组独立新身份与实际前缀，控制器选择架构不进入模型输入。是整体候选比较，包含额外来源检查差异，不称纯阶段拆分消融或简历指标。
+- 复用原自主执行器/唯一AgentScope循环，运行时按控制器run_id指定架构，manifest记录真实模式；所有临时绑定正常/异常均恢复。先缺模块红测收集错误1，接实现3单元+1实际ASGI-PG配对测试共4通过/0失败/0跳过（4.03秒），相关Ruff通过；实际脚本单阶段2请求、两阶段3请求，7模型+工具调用导出，自有schema清理。原始前缀/跨组身份拒绝由单元覆盖，完整四轮由上批两模式API测试覆盖。
+- 新冻结及--check --database --output tmp/customer-agent-staged-live-v1/preflight.json通过，public11表全行hash/四历史脏文件/旧v2-v3 raw保持、自有schema空。ledger1830起，尚无新真实请求；准备独立精确提交普通push核实后仅单次12轮真实执行，固定当前生产/参数/权重，不改源码后重复收费。PG仅临时用于隔离账及只读政策，结束数据核对/停PG保留卷/十项目端口闭。
+
 ## 当前快照（2026-10-22，客服Agent职责拆分试验收口：工程通过，真实效果待比较）
 
 - 公共事项02384a0、事件/接口a9c9faa、可选两阶段92d779e均已普通push核实。当前默认single，共享修正后的事项/协议基础；服务端显式architecture=staged-v1可先理解再自主调查/答复。唯一AgentScope循环/同模型/原预算与调用账、manifest与fence保持；未部署网页或接多Agent/大小模型/新RAG。详见[工程报告](../reports/customer-agent-staged-v1/README.md)和[方案](../docs/customer-agent-staged-v1.md)。
