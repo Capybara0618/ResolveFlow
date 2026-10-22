@@ -22,7 +22,7 @@ from resolveflow.support.guide import GUIDE_VERSION
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
 from resolveflow.support.retrieval import CANDIDATE_K, RETRIEVAL_VERSION, RRF_CONSTANT
 from resolveflow.support.sources import BoundSources
-from resolveflow.support.stages import INVESTIGATION_SYSTEM, UNDERSTANDING_SYSTEM, TurnStage, Understanding
+from resolveflow.support.stages import INVESTIGATION_SYSTEM, UNDERSTANDING_SYSTEM, RefineNeeds, TurnStage, Understanding
 from resolveflow.support.store import SupportStore
 
 
@@ -60,6 +60,8 @@ class SupportRuntime:
             for decision in script:
                 if self.architecture == "staged-v1" and decision.get("kind") == "TURN_UNDERSTANDING":
                     Understanding.model_validate(decision)
+                elif self.architecture == "staged-v1" and decision.get("kind") == "REFINE_NEEDS":
+                    RefineNeeds.model_validate(decision)
                 else:
                     DECISION.validate_python(decision)
             return MockModelClient(script=script)

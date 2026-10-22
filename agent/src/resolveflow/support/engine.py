@@ -258,6 +258,11 @@ class SupportAgent:
                 return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
                                                "arguments": {}})
             if self.stage.enabled:
+                if reply.decision.get("kind") == "REFINE_NEEDS":
+                    self.stage.refine(reply.decision)
+                    self.feedback = None
+                    return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
+                                                   "arguments": {}})
                 self.stage.guard(reply.decision)
             decision = DECISION.validate_python(reply.decision)
             if isinstance(decision, AnswerParts):
