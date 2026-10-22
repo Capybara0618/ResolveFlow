@@ -1,0 +1,41 @@
+[
+  {
+    "id": "R01-read-first-v1",
+    "grade": "FAILED",
+    "criteria": [
+      {
+        "criterion": "按物流来源说明在途，不从PAID推断物流",
+        "passed": false,
+        "reason": "无发布答案，不能计入完成"
+      },
+      {
+        "criterion": "不编造预计送达时间",
+        "passed": false,
+        "reason": "无发布答案，不能计入完成"
+      }
+    ],
+    "basis": "首次无标注get_shipment_trace正常执行、未纠错；ANSWER_PARTS无任务声明被拒，反馈只说先声明tasks。纠错补tasks但仍缺dialogue_events，最终INVALID_DECISION。失败已转移到发布阶段，不能称整题完成。",
+    "read_before_annotation_verified": true,
+    "feedback_gap": "render_answer在无初始任务时抛ANSWER_PARTS_COVERAGE，未进入新TASKS_REQUIRED反馈；需离线修正分类，完整提示tasks+dialogue_events"
+  },
+  {
+    "id": "R02-read-first-v1",
+    "grade": "PARTIAL",
+    "criteria": [
+      {
+        "criterion": "区分LOST与PAID",
+        "passed": true,
+        "basis": "实际读PAID订单和LOST物流，依据物流说明丢失，不从PAID推断物流"
+      },
+      {
+        "criterion": "完整回答资格和当前申请入口",
+        "passed": false,
+        "basis": "资格含无有效签收/人工核验/整行实付条件，但当前入口仅说订单/售后入口，未核实我的售后且未读指南"
+      }
+    ],
+    "basis": "连续订单→物流→READ_TOOL政策检索均无标注且无反馈，最终同次明确三任务/分组ADD/三parts并发布。格式链路通过，业务部分通过，不能计全通过。",
+    "read_before_annotation_verified": true,
+    "published": true,
+    "remaining_issue": "流程入口用政策P1作依据，来源用途选择不当；需要准确读取使用指南，而非增加政策召回算法"
+  }
+]

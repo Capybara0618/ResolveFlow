@@ -1,0 +1,70 @@
+{
+  "version": "customer-agent-read-first-v1",
+  "state": "READ_GATE_FIXED_BUSINESS_TARGET_NOT_MET",
+  "repair_commit": "aa28d3afb49fab73d2332e1f3f1ded2175845de6",
+  "preparation_commit": "5f36eec492a886dda0878e8055e449d12f6fbf14",
+  "runtime_sha256": "5eebebf982b6845c269cb7a9fe59144011c2f708c749c1aab03b68a6a645bbaf",
+  "turns": 2,
+  "published": 1,
+  "business_complete": 0,
+  "business_partial": 1,
+  "business_failed": 1,
+  "unannotated_reads_requested_and_executed": 4,
+  "read_stage_format_repairs": 0,
+  "provider_requests": 7,
+  "provider_errors": 0,
+  "input_tokens": 12308,
+  "output_tokens": 806,
+  "all_usage_provider_reported": true,
+  "harness_input_budget_accounting": 14982,
+  "usage_before": 1767,
+  "usage_after": 1774,
+  "warmup": {
+    "status": "READY",
+    "elapsed_ms": 9249.041999981273
+  },
+  "kind_legal": 7,
+  "schema_legal": 7,
+  "actual_tools": 4,
+  "actual_searches": 1,
+  "rows": [
+    {
+      "id": "R01-read-first-v1",
+      "status": "FAILED",
+      "reason": "INVALID_DECISION",
+      "requests": 3,
+      "elapsed_ms": 4224.639200023375,
+      "tools": [
+        {
+          "name": "get_shipment_trace",
+          "elapsed_ms": 0.29689999064430594
+        }
+      ]
+    },
+    {
+      "id": "R02-read-first-v1",
+      "status": "SUCCEEDED",
+      "reason": null,
+      "requests": 4,
+      "elapsed_ms": 5794.570899975952,
+      "tools": [
+        {
+          "name": "get_order_context",
+          "elapsed_ms": 0.6062000175006688
+        },
+        {
+          "name": "get_shipment_trace",
+          "elapsed_ms": 0.41640002746134996
+        },
+        {
+          "name": "search_policy",
+          "elapsed_ms": 83.41409999411553
+        }
+      ]
+    }
+  ],
+  "scope": "Two seen synthetic HTTP snapshots; actual model/ASGI/AgentScope/PG, no Java/browser",
+  "synthetic": true,
+  "not_holdout": true,
+  "reviewer": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_GOLD"
+}
