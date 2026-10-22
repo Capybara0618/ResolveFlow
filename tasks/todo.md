@@ -1,5 +1,7 @@
 ## 当前快照（2026-10-22，后端深化：B1/B2工程通过，B3恢复领域通过，调度/集中验收接续）
 
+- B3.2 d3ba8a6已push核实；独立临时MySQL/Redis/实际Case→Commerce/网页已完成买家发表与四星修改、商家回复、匿名展示，14 HTTP/数据检查通过，原账本/退款槽不变，常驻调度实际关闭测试过期草稿。实际截图暴露全局样式覆盖，已局部修评分grid/商家选中行block/字号hover；相关7前端通过、1280与指定1440实际无溢出，viewport已reset。验收驱动/截图尚待收口归档，不操作原业务库/模型。先独立CSS修复提交push，再集中最终回归/归档/停止自有测试进程。
+
 - B3.1 99f39aa已push核实；B3.2常驻恢复调度/正式入口已接，2秒/20条、批量1–100校验/单轮异常后继续。循环+启动新断言先失败后Java8通过、配置38通过/core Compose config/Spotless/diff通过。下一步提交push核实后用独立临时MySQL/Redis启动实际Case→Commerce/网页验收；不启动原业务库/Agent/收费模型，详情reports/backend-deepening-v1.md。
 
 - B2.4b b29a473已push核实；B3.1 V18/到期持久关闭/原attempt只查询恢复/30秒持久退避与逐条故障隔离已实现。新6测试先全失败后恢复+旧付款/多行共31通过，加强查询事务边界/坏记录不挡后续后7恢复通过，Spotless/diff通过。UNKNOWN不关闭/不扣款/不换ID，原数据未动，详情reports/backend-deepening-v1.md。下一步本步提交push核实后B3.2常驻调度和正式启动，再独立环境真实网页验收，无模型请求。

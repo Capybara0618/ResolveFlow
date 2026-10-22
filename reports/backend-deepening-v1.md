@@ -1,5 +1,11 @@
 # 后端深化验证记录
 
+## 实际网页样式修正（2026-10-22）
+
+B3.2 d3ba8a6已普通push核实。独立环境实际网页已完成买家发表/修改、商家回复和匿名商品页展示，HTTP/数据14检查已通过（完整验收证据随后归档）。截图发现workbench全局label/display及button/inline-flex覆盖新评价组件，评分分布竖向撑高、商家选中行横排且底色对比差。局部提高评价组件选择器优先级、明确grid/block/hover和16px表单字号，不改全局旧界面。
+
+修正后实际读取：1280宽公开页评分条display=grid、商家选中行display=block，均无横向溢出；商家1440、匿名商品页1440也实际无横向溢出。临时viewport已reset，不能把未生效的1280读数称1440；首次对非当前页设置仍1280，改为当前匿名页后实测1440。`pnpm --dir web test -- product-reviews.spec.ts merchant-reviews.spec.ts` 7通过，构建通过；最后局部CSS补充在正式截图中确认，收口再构建。未新增模型请求或改原数据库。
+
 ## B3.2 常驻调度与正式入口（2026-10-22）
 
 B3.1 99f39aa已普通push核实。新增有开关的CheckoutRecoveryLoop，每2秒检查、每类默认20条；启动时校验批量1–100。单轮基础设施异常不终止后续调度，输出安全汇总；正式本机/core Compose启用CHECKOUT_RECOVERY_ENABLED，测试默认不开调度。同步模拟付款文档，到期公开语义不变。
