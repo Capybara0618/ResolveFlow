@@ -123,7 +123,7 @@ class SupportRuntime:
                     "stages.py",
                     "grounding.py",
                     "../harness/token_counting.py",
-                    "../assets/support-guide-v1.json",
+                    "../assets/support-guide-v2.json",
                     "../policies/retrieval.py",
                     "../policies/index.py",
                     "../policies/child_index.py",

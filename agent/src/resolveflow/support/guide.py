@@ -7,11 +7,11 @@ import json
 from importlib.resources import files
 from typing import Any
 
-GUIDE_VERSION = "2026.10.21-v1"
+GUIDE_VERSION = "2026.10.22-v2"
 
 
 def guide_source() -> dict[str, Any]:
-    raw = files("resolveflow.assets").joinpath("support-guide-v1.json").read_bytes()
+    raw = files("resolveflow.assets").joinpath("support-guide-v2.json").read_bytes()
     value = json.loads(raw)
     if (
         value["version"] != GUIDE_VERSION

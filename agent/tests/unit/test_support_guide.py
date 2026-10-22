@@ -17,12 +17,14 @@ from tests.unit.test_support_agent import request
 def test_guide_is_versioned_source_bound_and_not_refund_policy():
     source = guide_source()
     assert source["source_type"] == "KNOWLEDGE"
-    assert source["version"] == "2026.10.21-v1"
+    assert source["version"] == "2026.10.22-v2"
     assert source["data"]["authority"] == "APPLICATION_GUIDE"
     assert "policy_manifest" not in source["data"] and "rule_id" not in source["data"]
     assert len(source["data"]["sections"]) == 10
     assert "不需要填写退款金额" in source["data"]["text"]
     assert "并不会自动创建退款工单" in source["data"]["text"]
+    assert "Case关联" not in source["data"]["text"]
+    assert "尚未接通" not in source["data"]["text"]
     assert len(json.dumps(source, ensure_ascii=False).encode()) < 8192
     assert len(source["data"]["knowledge_sha256"]) == 64
 
@@ -56,7 +58,7 @@ def test_agent_reads_guide_on_demand_without_policy_index_or_business_fact_reads
     assert len(result["answer"]["citations"][0]["data"]["sections"]) == 10
     assert result["spend"]["local_reads"] == 1
     assert all(path.endswith("/current") for path in seen)
-    assert model.packets[-1]["observations"][0]["version"] == "2026.10.21-v1"
+    assert model.packets[-1]["observations"][0]["version"] == "2026.10.22-v2"
     assert "sections" not in model.packets[-1]["observations"][0]["data"]
 
 

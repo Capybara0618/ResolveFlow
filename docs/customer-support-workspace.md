@@ -30,6 +30,8 @@
 
 ## Agent链路验收与实图
 
+2026-10-22指南用语更新：如需正式退款，请到“我的售后”选择订单商品提交申请；聊天中表达退款意愿或请商家核查并不会自动创建退款工单。客户提示只说明可用入口和实际行为，内部接线进度不进入客服话术。新版知识源保留版本与内容指纹，旧版资产不覆盖。
+
 保留演示库追加Case V28及PG 013；A-TRANSIT使用真实物流接口、已存在READY政策generation与本地BGE向量检索，模型明确mock。独立咨询run保存调用账，重复完成请求复用结果。A-DELAYED保留真实回答与未确认的转交预览，未新增第二份核查单。原交易8表、原咨询4表和旧Agent run已核对保留，见[本批报告](../reports/customer-agent-v1/README.md)。
 
 - [买家查看回答与引用](../reports/customer-agent-v1/images/buyer-answer.png)

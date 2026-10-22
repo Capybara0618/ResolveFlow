@@ -55,6 +55,6 @@ def test_http_guide_answer_pins_asset_and_duplicate_dispatch_reuses_exact_result
     assert model.calls == 2 and calls and all(path.endswith("/current") for path in calls)
     with agent_db.connection() as c:
         manifest = c.execute("SELECT manifest_json FROM support_agent_run").fetchone()["manifest_json"]
-    asset = Path(__file__).resolve().parents[2] / "src/resolveflow/assets/support-guide-v1.json"
-    assert manifest["support_guide_version"] == "2026.10.21-v1"
-    assert manifest["code"]["../assets/support-guide-v1.json"] == hashlib.sha256(asset.read_bytes()).hexdigest()
+    asset = Path(__file__).resolve().parents[2] / "src/resolveflow/assets/support-guide-v2.json"
+    assert manifest["support_guide_version"] == "2026.10.22-v2"
+    assert manifest["code"]["../assets/support-guide-v2.json"] == hashlib.sha256(asset.read_bytes()).hexdigest()
