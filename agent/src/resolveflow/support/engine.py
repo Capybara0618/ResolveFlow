@@ -110,7 +110,7 @@ class SupportAgent:
                 "text": final.text,
                 "handoff_summary": final.handoff_summary,
                 "citations": [self.citations[c] for c in dict.fromkeys(final.citations)],
-                **({"task_state": self.tasks.packet(self.dialogue.lifecycles)} if self.tasks.tasks else {}),
+                **({"task_state": self.dialogue.task_snapshot(self.tasks.tasks)} if self.tasks.tasks else {}),
                 "customer_memory": self.memory.snapshot(),
                 "dialogue_state": self.dialogue.packet(),
             },

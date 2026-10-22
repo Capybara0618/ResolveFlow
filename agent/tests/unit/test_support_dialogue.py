@@ -49,21 +49,27 @@ def test_suspended_task_can_resume_then_use_new_run_evidence():
     assert result["answer"]["task_state"]["tasks"][0]["evidence_refs"] == ["O1"]
 
 
-def test_cancellation_is_explicit_and_missing_old_task_is_not_silently_accepted():
+def test_omission_preserves_old_issue_and_only_explicit_event_cancels_it():
     req = request(input_version=5)
     text = "家人找到了，不要退款也不用核查了。"
     req.context["current_request"] = text
     previous(req, [task("trace", status="NEEDS_MERCHANT")])
     new = task("new", "OTHER", "ANSWERED", response_excerpt="已记录")
     model = MockModelClient(script=[answer(text="已记录。", citations=[], tasks=[new],
-                                          dialogue_events=[event("ADD", "new", text)]),
-                                   answer(text="已记录，不再核查。", citations=[],
-                                          tasks=[task("trace", status="CANCELLED")],
-                                          dialogue_events=[event("CANCEL", "trace", text)])])
+                                          dialogue_events=[event("ADD", "new", text)])])
     result = SupportAgent(req, model, Reads()).run()
     assert result["status"] == "SUCCEEDED", result["reason"]
-    assert '"field": "dialogue_events"' in model.packets[1]["feedback"]
-    assert result["answer"]["task_state"]["tasks"][0]["status"] == "CANCELLED"
+    snapshot = result["answer"]["task_state"]
+    assert snapshot["focus_ids"] == ["new"]
+    assert snapshot["tasks"][0]["id"] == "trace" and snapshot["tasks"][0]["lifecycle"] == "OPEN"
+    req = request(input_version=7)
+    req.context.update(current_request=text, previous_tasks={"origin": "MODEL_PREVIOUS_TURN", "input_version": 5,
+                                                            "tasks": snapshot["tasks"]})
+    cancelled = MockModelClient(script=[answer(text="已记录，不再核查。", citations=[],
+        tasks=[task("trace", status="CANCELLED")], dialogue_events=[event("CANCEL", "trace", text)])])
+    result = SupportAgent(req, cancelled, Reads()).run()
+    assert result["status"] == "SUCCEEDED"
+    assert result["answer"]["task_state"]["tasks"][0]["lifecycle"] == "CANCELLED"
 
 
 def test_live_first_decision_requires_explicit_change_but_not_an_extra_classifier_call():

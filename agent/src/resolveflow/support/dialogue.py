@@ -7,7 +7,7 @@ from typing import Any
 
 from resolveflow.support.memory import MemoryStateError, customer_source
 from resolveflow.support.protocol import DialogueEvent, SupportInput, SupportTask
-from resolveflow.support.tasks import previous_hint
+from resolveflow.support.tasks import lifecycle_for, previous_hint
 
 
 class DialogueStateError(ValueError):
@@ -22,6 +22,10 @@ class DialogueState:
         hint = previous_hint(request.context, request.input_version)
         self.before = {t["id"]: t["previous_status"] for t in (hint or {}).get("tasks", [])}
         self.lifecycles = {t["id"]: t["previous_lifecycle"] for t in (hint or {}).get("tasks", [])}
+        self.issues = {t["id"]: SupportTask.model_validate({
+            "id": t["id"], "intent": t["intent"], "request": t["request"], "status": t["previous_status"],
+            **({"blocker": t["previous_blocker"]} if "previous_blocker" in t else {}),
+        }) for t in (hint or {}).get("tasks", [])}
         self.started = False
         self.events: list[dict[str, Any]] = []
 
@@ -41,18 +45,20 @@ class DialogueState:
         if not self.started and (not events or missing):
             raise DialogueStateError("首次任务声明须dialogue_events覆盖新增/继续/纠正/撤回/暂停/恢复/澄清。",
                                      missing_task_ids=missing)
-        required = {key for key, status in self.before.items()
-                    if self.lifecycles[key] == "PAUSED" or
-                    (status != "ANSWERED" and self.lifecycles[key] not in {"CANCELLED", "RESOLVED"})}
-        if required - set(after):
-            raise DialogueStateError("前轮未完成任务不能消失；临时插问用PAUSE/SUSPENDED，撤回用CANCEL/CANCELLED。")
+        if len(set(self.before) | set(after)) > 8:
+            raise DialogueStateError("会话事项最多8项，不能通过省略删除已有事项。")
         recorded = []
-        lifecycles = {key: value for key, value in self.lifecycles.items() if key in after}
+        lifecycles = dict(self.lifecycles)
+        issues = deepcopy(self.issues)
         for event, task_id in expanded:
             old, new = self.before.get(task_id), after.get(task_id)
             lifecycle = self.lifecycles.get(task_id)
             if new is None:
-                raise DialogueStateError("对话变化须关联本次tasks中的任务。")
+                if old is None:
+                    raise DialogueStateError("对话变化须关联已保存事项或本次声明的新事项。")
+                new = {"PAUSE": "SUSPENDED", "CANCEL": "CANCELLED", "RESOLVE": "ANSWERED"}.get(
+                    event.change, old)
+                issues[task_id] = issues[task_id].model_copy(update={"status": new, "blocker": None})
             try:
                 source = customer_source(event, self.request, observations, current_only=True)
             except MemoryStateError as error:
@@ -89,9 +95,24 @@ class DialogueState:
         for task in tasks:
             if task.lifecycle is not None and task.lifecycle != lifecycles.get(task.id):
                 raise DialogueStateError("lifecycle由已验证事件更新，不能通过任务字段静默覆盖。")
-        self.before, self.started = after, True
+        issues.update({task.id: task.model_copy(deep=True) for task in tasks})
+        self.issues = issues
+        self.before, self.started = {key: task.status for key, task in issues.items()}, True
         self.lifecycles = lifecycles
         self.events.extend(recorded)
+
+    def task_snapshot(self, focus: list[SupportTask]) -> dict[str, Any]:
+        """Persist all issues while citations/outcomes describe only this turn's focus."""
+        issues = {**self.issues, **{task.id: task for task in focus}}
+        values = []
+        focused = {task.id for task in focus}
+        for key, task in issues.items():
+            value = task.model_dump()
+            if key not in focused:
+                value.update(evidence_refs=[], response_excerpt=None)
+            value["lifecycle"] = self.lifecycles.get(key, lifecycle_for(task))
+            values.append(value)
+        return {"origin": "MODEL", "tasks": values, "focus_ids": [task.id for task in focus]}
 
     def packet(self) -> dict[str, Any]:
         return {"origin": "MODEL_WITH_CUSTOMER_ANCHORS", "events": deepcopy(self.events),

@@ -95,7 +95,7 @@ def test_resolve_is_explicit_and_lifecycle_cannot_be_forged_in_task_metadata():
             request().context['current_request']))], [fake], [], require=True)
 
 
-def test_answered_faq_can_be_omitted_but_unfinished_issue_cannot_disappear():
+def test_answered_faq_and_unfinished_issue_both_survive_nonfocus_omission():
     for old_status in ['ANSWERED', 'NEEDS_MERCHANT']:
         req = request(input_version=3)
         req.context['previous_tasks'] = {'origin': 'MODEL_PREVIOUS_TURN', 'input_version': 1,
@@ -103,9 +103,8 @@ def test_answered_faq_can_be_omitted_but_unfinished_issue_cannot_disappear():
         state = DialogueState(req)
         event = DialogueEvent.model_validate(group('ADD', ['new'], req.context['current_request']))
         values = [SupportTask.model_validate(task('new', status='ANSWERED'))]
-        if old_status == 'ANSWERED':
-            state.apply([event], values, [], require=True)
-            assert state.packet()['lifecycles']['new'] == 'OPEN'
-        else:
-            with pytest.raises(DialogueStateError):
-                state.apply([event], values, [], require=True)
+        state.apply([event], values, [], require=True)
+        assert state.packet()['lifecycles'] == {'old': 'OPEN', 'new': 'OPEN'}
+        snapshot = state.task_snapshot(values)
+        assert snapshot['tasks'][0]['id'] == 'old' and snapshot['tasks'][0]['status'] == old_status
+        assert snapshot['focus_ids'] == ['new']
