@@ -8,7 +8,7 @@ from typing import Any
 from resolveflow.harness.context import canonical_json
 from resolveflow.support.protocol import ContextRead, SupportInput
 
-CONTEXT_VERSION = "support-layered-v1"
+CONTEXT_VERSION = "support-layered-v2"
 # Each candidate is measured against the actual provider body, not a characters/token ratio.
 LAYOUTS = ((4, 80, 20), (2, 40, 20), (1, 0, 20), (0, 0, 8), (0, 0, 0))
 
@@ -38,6 +38,44 @@ def _preview(message: dict[str, Any], chars: int) -> dict[str, Any]:
         "excerpt": text if len(text) <= chars * 2 else text[:chars],
         "tail": text[-chars:] if chars and len(text) > chars * 2 else "",
     }
+
+
+def _fact_view(request: SupportInput, observations: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Expose scoped business states with their source/version and keep unlike states distinct."""
+    line_id = request.line_id
+    facts = []
+    for source in observations:
+        if ("error" in source or not isinstance(source.get("source_id"), str)
+                or source.get("version") is None or not isinstance(source.get("data"), dict)):
+            continue
+        data = source["data"]
+        item: dict[str, Any] = {"source_id": source.get("source_id"),
+                                "source_type": source.get("source_type"),
+                                "source_version": source.get("version"), "facts": {}}
+        if source.get("source_type") == "ORDER":
+            line = data.get("order_line")
+            if isinstance(line, dict) and line.get("line_id") == line_id and "status" in line:
+                item["facts"]["order_line_status"] = line["status"]
+            elif data.get("line_id") == line_id and "status" in data:
+                item["facts"]["order_line_status"] = data["status"]
+        elif source.get("source_type") == "SHIPMENT":
+            rows = data.get("lines")
+            if isinstance(rows, list):
+                for row in rows:
+                    if not isinstance(row, dict) or row.get("line_id") != line_id:
+                        continue
+                    if "status" in row:
+                        item["facts"]["shipment_status"] = row["status"]
+                    if "carrier_conclusion" in row:
+                        item["facts"]["carrier_conclusion"] = row["carrier_conclusion"]
+                    break
+            elif data.get("line_id") == line_id:
+                for key in ("status", "carrier_conclusion"):
+                    if key in data:
+                        item["facts"]["shipment_status" if key == "status" else key] = data[key]
+        if item["facts"]:
+            facts.append(item)
+    return facts
 
 
 def render_context(
@@ -74,6 +112,7 @@ def render_context(
         "recent_messages": deepcopy(full),
         "history_index": [_preview(m, preview) for m in indexed],
         "history_read_refs": ["H" + str(m["sequence"]) for m in omitted],
+        "fact_view": _fact_view(request, observations),
         "observations": unique,
         "context_layout": {"version": CONTEXT_VERSION, "recent_full": len(full),
                            "preview_chars": preview, "indexed": len(indexed), "omitted_indices": len(omitted)},

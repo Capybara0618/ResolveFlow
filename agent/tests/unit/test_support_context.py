@@ -29,7 +29,7 @@ def test_history_is_compacted_to_real_request_budget_and_current_input_remains_e
     assert result["status"] == "SUCCEEDED", result["reason"]
     packet = model.packets[0]
     assert packet["current_request"] == req.context["current_request"]
-    assert packet["context_layout"]["version"] == "support-layered-v1"
+    assert packet["context_layout"]["version"] == "support-layered-v2"
     assert (any(row["truncated"] and row["read_ref"] == "H21" for row in packet["history_index"])
             or "H21" in packet["history_read_refs"])
     assert all(m["sequence"] != 41 for m in packet["recent_messages"])
