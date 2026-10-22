@@ -90,7 +90,11 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         result.update(field="memory_updates", detail=str(error))
     elif isinstance(error, TaskStateError):
         result.update(field="tasks", detail=str(error), issue=error.issue, task_ids=error.task_ids)
-        if error.issue == "ANSWER_PARTS_COVERAGE":
+        if error.issue == "TASKS_REQUIRED":
+            result.update(required_on_answer=["tasks", "dialogue_events"],
+                          repair_note="只读取证不需标注；发布时同层声明tasks和当前原文dialogue_events，"
+                                      "再给覆盖全部事项的parts。不能直接发布无任务的回答。")
+        elif error.issue == "ANSWER_PARTS_COVERAGE":
             result.update(field="parts", repair_note="逐项给task_id/status/text/citations；覆盖全部task_state任务。"
                           "首次先声明tasks；不能省略任务或自动完成。")
         elif error.issue in {"ANSWER_TASKS_PENDING", "TASKS_REMOVED"}:
@@ -139,7 +143,8 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
                 {"path": ".".join(map(str, item["loc"])), "type": item["type"]}
                 for item in error.errors(include_input=False, include_context=False)[:4]
             ],
-            detail="使用capabilities中的合法动作形状；只输出一个JSON，不能添加未知字段。",
+            detail="使用capabilities动作形状，只输出一个JSON，禁未知字段。"
+                   "读取可省略tasks/dialogue_events；输入包中的说明键不属于输出。",
         )
     else:
         result.update(

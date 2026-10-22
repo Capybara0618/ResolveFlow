@@ -50,7 +50,8 @@ class TaskTracker:
     ) -> None:
         candidate = proposed if proposed is not None else self.tasks
         if require and not candidate:
-            raise TaskStateError("首次决策须用tasks列出当前诉求及intent；与本次动作一起输出，不新增分类调用。")
+            raise TaskStateError("声明任务或发布回答前须用tasks列出诉求及intent；只读取证可不带标注。",
+                                 issue="TASKS_REQUIRED")
         ids = [t.id for t in candidate]
         if len(ids) != len(set(ids)):
             raise TaskStateError("tasks.id必须唯一。")

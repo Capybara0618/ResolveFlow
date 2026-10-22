@@ -22,17 +22,14 @@ def saved_reference_failure():
     return saved["rows"][0]["models"][0]["decision"]
 
 
-def test_first_packet_shows_exact_current_quote_and_metadata_without_selecting_a_tool():
+def test_packets_keep_current_quote_but_do_not_embed_initial_annotation_output_templates():
     req = request()
     model = MockModelClient(script=[read(), answer(citations=["O1"])])
     assert SupportAgent(req, model, Reads()).run()["status"] == "SUCCEEDED"
-    example = model.packets[0]["first_action_annotations"]
-    assert set(example) == {"tasks", "dialogue_events"}
-    assert example["dialogue_events"][0]["reference"] == "CURRENT"
-    assert example["dialogue_events"][0]["offset"] == 0
-    assert example["dialogue_events"][0]["quote"] == req.context["current_request"][:300]
-    DECISION.validate_python({**read(), **example})
-    assert "first_action_annotations" not in model.packets[1]
+    assert model.packets[0]["current_request"] == req.context["current_request"]
+    for packet in model.packets:
+        assert "first_action_annotations" not in packet
+        assert "annotation_example_note" not in packet
 
 
 def test_saved_null_source_gets_reference_contract_and_full_action_resubmission():

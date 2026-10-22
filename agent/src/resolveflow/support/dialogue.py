@@ -39,7 +39,7 @@ class DialogueState:
             raise DialogueStateError("同次每个task最多一项变化。")
         missing = [key for key in after if key not in changes]
         if not self.started and (not events or missing):
-            raise DialogueStateError("首次决策须dialogue_events逐项标记新增/继续/纠正/撤回/暂停/恢复/澄清。",
+            raise DialogueStateError("首次任务声明须dialogue_events覆盖新增/继续/纠正/撤回/暂停/恢复/澄清。",
                                      missing_task_ids=missing)
         if set(self.before) - set(after):
             raise DialogueStateError("前轮未完成任务不能消失；临时插问用PAUSE/SUSPENDED，撤回用CANCEL/CANCELLED。")
