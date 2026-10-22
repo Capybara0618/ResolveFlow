@@ -189,7 +189,7 @@ public class ProductReviewService {
         return rows.getFirst();
     }
 
-    private static int limit(Long before, Integer limit) {
+    static int limit(Long before, Integer limit) {
         int size = limit == null ? 10 : limit;
         if (size < 1 || size > 20 || before != null && before < 1) throw new IllegalArgumentException("评价分页参数无效");
         return size;

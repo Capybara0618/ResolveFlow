@@ -53,6 +53,11 @@ def test_local_redis_is_isolated_and_case_cache_enabled(tmp_path, monkeypatch):
     assert env["REVIEW_CACHE_ENABLED"] == "true"
     assert env["REDIS_HOST"] == "127.0.0.1"
     assert env["REDIS_PORT"] == "56380"
+    demo.start_commerce_service(current, demo.Log())
+    commerce_env = calls[1][0][-2]
+    assert commerce_env["PRODUCT_REVIEW_CACHE_ENABLED"] == "true"
+    assert commerce_env["REDIS_HOST"] == "127.0.0.1"
+    assert commerce_env["REDIS_PORT"] == "56380"
 
 
 def test_stage_is_not_ready_when_project_redis_is_unhealthy(tmp_path, monkeypatch):

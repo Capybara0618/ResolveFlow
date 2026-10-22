@@ -1,5 +1,13 @@
 # 后端深化验证记录
 
+## B2.4a 评价首页/评分 Redis 缓存（2026-10-22）
+
+B2.3c 0c5a26b已普通push核实。Commerce复用Case已经使用的Boot Redis starter版本，不换依赖锁；独立缓存服务在事务外访问Redis，首个默认10条页面和评分一起缓存30秒。每次先从MySQL验证商品公开可见性及epoch；修改/回复与epoch同事务。key含product/epoch，迟到旧填充不能覆盖新代。更多页/自定义页大小直接数据库；所有数据库入口共享8并发/100ms门控，缓存异常回源、过载503，缓存不承担资格/金额权限。
+
+新2缓存测试对未缓存骨架先失败，实施后缓存/领域/HTTP12通过（36.016秒）。补真实MySQL+Redis代际更替、旧代晚写、损坏JSON回源和12并发门控后5项通过；再加真实Redis CLIENT PAUSE2000ms，100ms命令timeout使评价仍从DB返回并在1200ms内完成，最终3单测+3实Redis/实MySQL=6通过（29.284秒）。Redis容器仅本测试独有，不FLUSH共享数据。所有缓存命中仍含一次epoch数据库读取，不宣称DB查询归零/延迟提升。
+
+正式本机Commerce启动增加PRODUCT_REVIEW_CACHE_ENABLED/独立56380 Redis，core Compose设置Redis内部地址和依赖。运行接线新断言先缺环境变量失败，补后driver/project两文件38通过（0.32秒）；core Compose config通过，定点Spotless及diff检查通过。Ruff仍沿用前述旧脚本19项基线，不称全仓全绿。尚未部署正式服务或压测，未调用模型。接下来B2.4b账号写入限流。
+
 ## B2.3c 商家评价与回复（2026-10-22）
 
 B2.3b 64ed751已普通push核实。统一商家导航新增商品评价，显示本店反馈和公开回复；不提供删除/改评分入口。回复绑定原review_id/version，冲突后保留本地回复，用受商家范围约束的before=id+1/limit1定位原评价，展示买家当前文字后再提交；未知响应冻结原目标/原内容并支持确认。写入向父工作台发working，账号变化/卸载忽略旧读取。

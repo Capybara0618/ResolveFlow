@@ -83,10 +83,14 @@ services:
     environment:
       COMMERCE_DB_URL: jdbc:mysql://mysql:3306/commerce_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false
       REFUND_PROVIDER_URL: http://agent:8082
+      PRODUCT_REVIEW_CACHE_ENABLED: "true"
+      REDIS_HOST: redis
     depends_on:
       mysql:
         condition: service_healthy
       agent:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8081/actuator/health | grep -q '\"status\":\"UP\"'"]

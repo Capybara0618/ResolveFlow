@@ -1,5 +1,7 @@
 ## 当前快照（2026-10-22，后端深化：B1实现通过，B2评价领域通过，接口/页面/恢复接续）
 
+- B2.3c 0c5a26b已push核实；B2.4a公开评价首页/统计已接Redis30秒/DB epoch代际、事务外缓存I/O、8并发100ms DB门控，正式Commerce接独立56380。新2先失败后相关12通过；增加实MySQL+Redis旧代晚写/JSON损坏/暂停故障和并发门控，最终6通过，启动接线先失败后38通过/core Compose config/Spotless/diff通过。每次命中仍查DB epoch，尚未部署或压测，详情reports/backend-deepening-v1.md。提交push核实后B2.4b账号原子限流，再B3自动恢复与集中网页验收。
+
 - B2.3b 64ed751已push核实；B2.3c商家导航/评价/回复已接，保留买家原文、冲突显式读原评价/保留回复，未知绑定原目标原内容；新3测试先全失败后相关8通过/build通过。全前端首214通过/1旧导航断言失败，补新导航与进入行为后30文件215通过，diff通过。暂未正式浏览器实拍。下一步本小步提交push核实后B2.4评分缓存/账号限流，再B3后台恢复，详情reports/backend-deepening-v1.md。
 
 - B2.3a 7fa5646已普通push核实；B2.3b买家订单行评价编辑接入，资格按需读取、冲突保留输入/显式刷新、UNKNOWN保存原内容确认，4新测试先全失败、实施后3测试事件错误修正，最后相关18通过/web build/diff通过。未正式浏览器写入，详情reports/backend-deepening-v1.md。提交push核实后接B2.3c商家回复，再B2.4评分Redis/账号限流及B3恢复。

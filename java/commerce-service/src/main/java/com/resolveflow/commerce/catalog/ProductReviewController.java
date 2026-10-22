@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ProductReviewController {
     private final ProductReviewService reviews;
+    private final ProductReviewReadCache cache;
 
-    public ProductReviewController(ProductReviewService reviews) {
+    public ProductReviewController(ProductReviewService reviews, ProductReviewReadCache cache) {
         this.reviews = reviews;
+        this.cache = cache;
     }
 
     @GetMapping("/internal/v1/shop/products/{product_id}/reviews")
@@ -18,7 +20,7 @@ public class ProductReviewController {
             @PathVariable("product_id") String id,
             @RequestParam(required = false) Long before,
             @RequestParam(required = false) Integer limit) {
-        return reviews.publicPage(id, before, limit);
+        return cache.read(id, before, limit);
     }
 
     @GetMapping("/internal/v1/shop/orders/lines/{line_id}/review")
@@ -54,6 +56,16 @@ public class ProductReviewController {
                         error.code,
                         error.getMessage(),
                         false,
+                        java.util.UUID.randomUUID().toString()));
+    }
+
+    @ExceptionHandler(ProductReviewReadCache.ReadBusy.class)
+    public ResponseEntity<ApiError> busy() {
+        return ResponseEntity.status(503)
+                .body(ApiError.of(
+                        "SERVICE_UNAVAILABLE",
+                        "评价读取繁忙，请稍后重试",
+                        true,
                         java.util.UUID.randomUUID().toString()));
     }
 }

@@ -24,11 +24,19 @@ spring:
       # The core schemas are additionalProperties: false; an unknown member is a protocol error
       # rather than something to ignore (Boot defaults this to false).
       fail-on-unknown-properties: true
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      timeout: 100ms
+      connect-timeout: 100ms
 
 # Demonstration identity for the internal surface (C01.2b-2). The secret is a local default, not a
 # deployment key: it must match case-service's for a service token to verify, and the boundary that
 # separates the two surfaces is the audience, not the key. A deployment overrides it.
 resolveflow:
+  product-reviews:
+    cache-enabled: ${PRODUCT_REVIEW_CACHE_ENABLED:false}
   identity:
     jwt:
       secret: resolveflow-core-demo-identity-secret
@@ -48,6 +56,9 @@ mybatis:
     arg-name-based-constructor-auto-mapping: true
 
 management:
+  health:
+    redis:
+      enabled: false
   endpoints:
     web:
       exposure:
