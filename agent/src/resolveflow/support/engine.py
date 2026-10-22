@@ -25,7 +25,7 @@ from resolveflow.support.activity import ReadActivity
 from resolveflow.support.completion import check_completion, requirements
 from resolveflow.support.context import LAYOUTS, read_context, render_context
 from resolveflow.support.dialogue import DialogueState, event_outcomes
-from resolveflow.support.grounding import check_amounts, ground_answer
+from resolveflow.support.grounding import GroundingError, check_amounts, ground_answer
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
@@ -312,6 +312,20 @@ class SupportAgent:
             self.repairs += 1
             self.feedback = (self.stage.feedback(error) if self.stage.pending or isinstance(error, StageError)
                              else decision_feedback(error, reply.decision, list(self.citations)))
+            if self.stage.enabled and isinstance(error, GroundingError):
+                # Inspect metadata only: neither publish nor accept the rejected text/state.
+                try:
+                    candidate = DECISION.validate_python(reply.decision)
+                    if isinstance(candidate, AnswerParts):
+                        candidate = render_answer(candidate, self.tasks.tasks)
+                    if isinstance(candidate, Answer):
+                        self.stage.check_sources(candidate, self.citations, self.dialogue.lifecycles)
+                except StageError as source_error:
+                    feedback = json.loads(self.feedback)
+                    feedback["source_gaps"] = source_error.gaps
+                    self.feedback = json.dumps(feedback, ensure_ascii=False)
+                except ValueError:
+                    pass  # An invalid task shape cannot supply reliable additional diagnostics.
             return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_feedback", "arguments": {}})
 
     def execute(self, name: str, arguments: dict[str, Any]) -> Any:

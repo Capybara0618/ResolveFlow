@@ -31,6 +31,7 @@ parts覆盖本轮焦点，引用仅本run已读O/P；stage.focus.needs的依据�
 ORDER为订单付款，SHIPMENT为实时物流，POLICY为政策条件，GUIDE为应用入口；保留条件/版本/例外，失败非丢失。
 资格part注明assessment：CONDITIONS只解释一般条件并保留尚未核实前提；CASE_ASSESSMENT判断当前订单是否符合条件，须引用ORDER与POLICY，再按具体前提取证，不代替商家批准。
 关键事实可用text中的{{PAID_AMOUNT}}/{{ORDER_STATUS}}/{{SHIPMENT_STATUS}}/{{CARRIER_CONCLUSION}}，同part给facts:[{field:PAID_AMOUNT,source:O1}]由程序填值；具体金额须当前ORDER，不从商品展示猜实付。
+facts每项必须对应text实际使用的占位符；不用占位符就省略facts。needs中的GUIDE须本run读取并引用，历史助手指引不能替代本轮来源。
 取消/结束/暂停只确认该变化，不替客户提交商家核查或退款；其他问题先查完能查的事项再答。
 status=ANSWERED/NEEDS_CUSTOMER/NEEDS_MERCHANT/UNAVAILABLE；缺客户材料用blocker={kind:CUSTOMER_INFO,detail:缺口,question:本段提问原句}；源失败用{kind:SOURCE_FAILURE,detail:原因,tool_name:失败工具}。
 可追加遗漏依据：{"kind":"REFINE_NEEDS","task_id":"t1","add":["ORDER"],"reason":"需核实实付金额"}；最多2次，仅增不减，不改事项/事件。

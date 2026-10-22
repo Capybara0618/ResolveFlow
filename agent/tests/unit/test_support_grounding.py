@@ -96,3 +96,31 @@ def test_incomplete_order_source_is_not_completed_from_product_metadata(field):
         del source["data"]["order_line"][field]
     with pytest.raises(ValueError):
         value_for("PAID_AMOUNT", source, req)
+
+
+def test_fact_feedback_also_exposes_missing_stage_sources_before_the_only_repair():
+    import json
+
+    from resolveflow.support.guide import guide_source
+
+    class Sources(FactReads):
+        def read(self, name, arguments):
+            if name == 'get_support_guide':
+                self.calls.append((name, arguments))
+                return guide_source()
+            return super().read(name, arguments)
+
+    req = request()
+    bad = part('trace', '承运记录已签收。', ['O1'])
+    bad['facts'] = [{'field': 'SHIPMENT_STATUS', 'source': 'O1'}]
+    fixed = part('trace', '承运记录{{SHIPMENT_STATUS}}；可请商家核查。', ['O1', 'O2'])
+    fixed['facts'] = bad['facts']
+    result, model, source, _ = staged(req, [understand(req, needs=['SHIPMENT', 'GUIDE']), read(),
+        parts(bad), read('get_support_guide'), parts(fixed)], Sources())
+    assert result['status'] == 'SUCCEEDED', result['reason']
+    feedback = json.loads(model.packets[3]['feedback'])
+    assert feedback['field'] == 'answer_facts'
+    assert feedback['source_gaps'] == [{'task_id': 'trace', 'need': 'GUIDE'}]
+    assert 'facts' in feedback['repair_note'] and '{{FIELD}}' in feedback['repair_note']
+    assert source.calls == [('get_shipment_trace', {}), ('get_support_guide', {})]
+    assert result['spend']['model_calls'] == 5

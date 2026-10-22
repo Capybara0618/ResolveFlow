@@ -80,7 +80,8 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
     }
     if isinstance(error, GroundingError):
         result.update(field="answer_facts", detail=str(error),
-                      repair_note="先读取缺少的当前来源，再完整回答；金额用ORDER及PAID_AMOUNT占位符，勿引用商品展示值。")
+                      repair_note="facts只保留text实际使用的{{FIELD}}，不用占位符就省略facts；"
+                                  "先补source_gaps缺少的本轮来源再完整回答。金额须ORDER实付，不用商品展示值。")
     elif isinstance(error, CompletionError):
         result.update(
             code="TASK_COMPLETION_INCOMPLETE", field="tasks", gaps=error.gaps,
