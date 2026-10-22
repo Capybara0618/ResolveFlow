@@ -10,6 +10,8 @@
 
 ## 当前实施入口
 
+2026-10-22 新授权路线：[后端深化开发方案](docs/backend-deepening-v1.md)、[商城评价桌面预期图](docs/ui-backend-deepening-v1/index.html)。实施顺序为实际查询/Redis、购买后评价和商家回复、交易自动恢复；完成状态仍只看账本顶部。
+
 | 文件 | 用途 |
 | --- | --- |
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
