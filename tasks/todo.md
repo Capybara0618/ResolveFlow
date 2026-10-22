@@ -1,5 +1,7 @@
 ## 当前快照（2026-10-22，后端深化：文档/预期图准备，随后 B1→B2→B3）
 
+- B1.2 9c76b5c已普通push核实；B1.3追加本项目Redis(loopback56380/无业务卷)、Case缓存启用及健康检查，2新测试先失败，首集中34通过/4失败（旧Redis/组件断言2项，既有测试漏tcp mock2项），修正为独立隔离与完整替身后38通过；Compose config通过，专门只启Redis/PONG后停止，原业务数据/服务保持。Ruff旧19/当前19（reviewer_demo）、其他3文件0，无新诊断；diff通过。未启动Java/Agent/收费模型或重测性能。详情见 reports/backend-deepening-v1.md。下一步提交push核实后B2.1评价领域/数据库；B2界面/Redis评分和B3恢复未完成。
+
 - B1.1 ed53799已普通push核实；B1.2商品列表批量读取完成，新增实库SQL计数测试首单商品页3条/期望2失败，实施后1或4商品均2条、空结果1条且详情相同；4类21通过/0失败/0跳过、定点Spotless/diff通过。命令/边界见 reports/backend-deepening-v1.md。不宣称订单查询/大规模延迟优化；下一步提交push核实后B1.3独立Redis/日常启动接线，再B2评价、B3恢复。
 
 - 文档/原型5f55049已正常push核实；B1.1正式workspace缓存已实现，缓存I/O在DB事务外，主体/筛选隔离、8并发/100ms回源门控复用。新增4测试首编译失败（漏嵌套异常import），修正后3失败/1错误（含一处异常类型误断言），实现/纠正后7通过；加入真实Redis当前workspace验证后6类集中30通过/0失败/0跳过，定点Spotless/diff通过。实际命令/失败/未运行见 reports/backend-deepening-v1.md。未启动正式服务/模型；日常启动尚禁用缓存且独立Compose缺Redis，后续B1.3接线，不能称已实际启用。下一步精确提交push核实后B1.2批量商品查询；评价/恢复未开始。

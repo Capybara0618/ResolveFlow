@@ -90,6 +90,7 @@ COMMERCE_JAR = ROOT / "java" / "commerce-service" / "target" / "commerce-service
 
 #: The demo project's own compose services, by role.
 DEMO_SERVICES = {
+    "redis": "redis",
     "mysql": "mysql",
     "postgres": "postgres",
     "namesrv": "rocketmq-namesrv",
@@ -99,6 +100,7 @@ DEMO_SERVICES = {
 #: Host ports this demonstration owns. Every one is bound to 127.0.0.1 and is one away
 #: from the shared stack's, so both can run at the same time.
 DEFAULT_PORTS: dict[str, int] = {
+    "redis": 56380,
     "mysql": 3307,
     "postgres": 55433,
     "namesrv": 9877,
@@ -340,7 +342,7 @@ def compose(*args: str, settings: Settings, timeout: float = 600.0) -> subproces
         timeout=timeout,
         # The demo's own env file is never read: DEMO_* names in the compose file keep the
         # shared project's infra/.env out of this stack.
-        env=child_env(COMPOSE_PROJECT_NAME=settings.project),
+        env=child_env(COMPOSE_PROJECT_NAME=settings.project, DEMO_REDIS_PORT=str(settings.ports["redis"])),
     )
 
 
@@ -1437,10 +1439,10 @@ def start_stage(settings: Settings, log: Log, *, build: bool) -> None:
 
     healthy = wait_for(
         "demo datastores",
-        lambda: container_health("mysql", settings) == "healthy" and container_health("postgres", settings) == "healthy",
+        lambda: all(container_health(role, settings) == "healthy" for role in ("mysql", "postgres", "redis")),
         timeout=180.0,
     )
-    log.step("demo MySQL and PostgreSQL are healthy", healthy)
+    log.step("demo MySQL, PostgreSQL and Redis are healthy", healthy)
     if not healthy:
         raise DemoRefused("the demo datastores never became healthy")
     namesrv = wait_for("demo name server", lambda: tcp_open("127.0.0.1", settings.ports["namesrv"]), timeout=60.0)
@@ -1600,7 +1602,9 @@ def start_case_service(settings: Settings, log: Log) -> None:
             CASE_DB_PASSWORD="case_svc",
             COMMERCE_BASE_URL=settings.commerce_url,
             AGENT_BASE_URL=settings.agent_url,
-            REVIEW_CACHE_ENABLED="false",
+            REVIEW_CACHE_ENABLED="true",
+            REDIS_HOST="127.0.0.1",
+            REDIS_PORT=str(settings.ports["redis"]),
         ),
         settings.ports["case"],
     )
@@ -2317,6 +2321,7 @@ def stage_ready(settings: Settings) -> bool:
         return (
             container_health("mysql", settings) == "healthy"
             and container_health("postgres", settings) == "healthy"
+            and container_health("redis", settings) == "healthy"
             and tcp_open("127.0.0.1", settings.ports["namesrv"])
             and healthy_and_owned(settings, "case-service", settings.ports["case"], settings.case_url)
             and healthy_and_owned(settings, "commerce-service", settings.ports["commerce"], settings.commerce_url)
@@ -2435,7 +2440,7 @@ def command_verify(settings: Settings, log: Log) -> int:
     services = compose("ps", "--format", "{{.Name}}|{{.Status}}", settings=settings, timeout=120)
     names = [line for line in services.stdout.splitlines() if line.strip()]
     log.step("the demo compose project has its own containers", bool(names), "; ".join(names) or "none")
-    for role in ("mysql", "postgres"):
+    for role in ("mysql", "postgres", "redis"):
         log.step(f"demo {role} is healthy", container_health(role, settings) == "healthy")
     collisions = sorted(set(settings.ports.values()) & SHARED_PORTS)
     log.step("no demo port is a shared port", not collisions, ", ".join(str(item) for item in collisions) or "none")

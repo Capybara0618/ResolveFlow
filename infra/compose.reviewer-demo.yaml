@@ -28,6 +28,18 @@
 name: resolveflow-review-demo
 
 services:
+  redis:
+    # Non-authoritative cache, isolated from the shared project's 56379.
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "no", "--save", ""]
+    ports:
+      - "127.0.0.1:${DEMO_REDIS_PORT:-56380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   mysql:
     image: mysql:8.4
     command:

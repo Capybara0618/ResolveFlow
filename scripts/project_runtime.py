@@ -141,6 +141,7 @@ def status(current: runtime.Settings, log: ProjectLog) -> int:
     checks = [
         ("MySQL", runtime.container_health("mysql", current) == "healthy"),
         ("PostgreSQL", runtime.container_health("postgres", current) == "healthy"),
+        ("Redis", runtime.container_health("redis", current) == "healthy"),
         (
             "消息服务",
             runtime.tcp_open("127.0.0.1", current.ports["namesrv"])

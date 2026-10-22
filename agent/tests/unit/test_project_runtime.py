@@ -81,6 +81,7 @@ def test_wrong_policy_hash_is_not_reported_as_ready(tmp_path, monkeypatch):
 def test_missing_policy_blocks_start_before_live_queue_consumption(tmp_path, monkeypatch):
     monkeypatch.setenv("RESOLVEFLOW_MODEL_API_KEY", "synthetic-test-key")
     monkeypatch.setattr(runtime, "stage_ready", lambda *_: True)
+    monkeypatch.setattr(runtime, "tcp_open", lambda *_: True)
     monkeypatch.setattr(project, "policies_ready", lambda *_: False)
     agent = Mock()
     monkeypatch.setattr(runtime, "start_readonly_agent", agent)
@@ -92,6 +93,7 @@ def test_missing_policy_blocks_start_before_live_queue_consumption(tmp_path, mon
 def test_readonly_agent_does_not_count_as_complete_start(tmp_path, monkeypatch):
     monkeypatch.setenv("RESOLVEFLOW_MODEL_API_KEY", "synthetic-test-key")
     monkeypatch.setattr(runtime, "stage_ready", lambda *_: True)
+    monkeypatch.setattr(runtime, "tcp_open", lambda *_: True)
     monkeypatch.setattr(project, "policies_ready", lambda *_: True)
     monkeypatch.setattr(runtime, "start_readonly_agent", Mock())
     monkeypatch.setattr(runtime, "start_frontend", Mock())
@@ -151,7 +153,8 @@ def test_stopped_status_reports_every_component_without_querying_databases(tmp_p
     monkeypatch.setattr(project, "policies_ready", policies)
     log = Mock()
     assert project.status(application(tmp_path), log) == 1
-    assert log.step.call_count == 9
+    assert log.step.call_count == 10
+    assert any(call.args[0] == "Redis" for call in log.step.call_args_list)
     assert all(call.args[1] is False for call in log.step.call_args_list)
     policies.assert_not_called()
 

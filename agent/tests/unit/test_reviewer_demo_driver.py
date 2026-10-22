@@ -36,6 +36,33 @@ def settings_for(tmp_path: Path, **overrides) -> demo.Settings:
 # --------------------------------------------------------------------------- isolation
 
 
+def test_local_redis_is_isolated_and_case_cache_enabled(tmp_path, monkeypatch):
+    current = settings_for(tmp_path)
+    assert current.ports["redis"] == 56380
+    assert demo.DEMO_SERVICES["redis"] == "redis"
+    monkeypatch.setattr(demo, "healthy_and_owned", lambda *_: False)
+    monkeypatch.setattr(demo, "stop_owned", lambda *a, **k: None)
+    monkeypatch.setattr(demo, "refuse_if_port_held", lambda *_: None)
+    monkeypatch.setattr(demo, "java_home", lambda: Path("C:/synthetic-jdk"))
+    monkeypatch.setattr(demo, "wait_for", lambda *a, **k: True)
+    monkeypatch.setattr(demo, "record_port_owner", lambda *_: None)
+    calls = []
+    monkeypatch.setattr(demo, "start_process", lambda *args, **kwargs: calls.append((args, kwargs)))
+    demo.start_case_service(current, demo.Log())
+    env = calls[0][0][-2]
+    assert env["REVIEW_CACHE_ENABLED"] == "true"
+    assert env["REDIS_HOST"] == "127.0.0.1"
+    assert env["REDIS_PORT"] == "56380"
+
+
+def test_stage_is_not_ready_when_project_redis_is_unhealthy(tmp_path, monkeypatch):
+    current = settings_for(tmp_path)
+    monkeypatch.setattr(demo, "container_health", lambda role, _: "starting" if role == "redis" else "healthy")
+    monkeypatch.setattr(demo, "tcp_open", lambda *_: True)
+    monkeypatch.setattr(demo, "healthy_and_owned", lambda *_: True)
+    assert demo.stage_ready(current) is False
+
+
 def test_synthetic_claim_refuses_another_owner_without_stealing(tmp_path: Path, monkeypatch) -> None:
     calls = []
 
@@ -109,7 +136,8 @@ def test_the_demo_compose_project_is_isolated_on_paper() -> None:
     text = (demo.COMPOSE_FILE).read_text(encoding="utf-8")
     assert "name: resolveflow-review-demo" in text
     assert "demo-mysql-data" in text and "demo-postgres-data" in text
-    assert "redis" not in text, "the demo must not borrow the shared Redis"
+    assert '"127.0.0.1:${DEMO_REDIS_PORT:-56380}:6379"' in text
+    assert "external: true" not in text, "the demo must not borrow shared services or volumes"
     for line in text.splitlines():
         stripped = line.strip()
         if stripped.startswith('- "127.0.0.1:'):
