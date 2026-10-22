@@ -79,12 +79,15 @@ class ContextRead(Closed):
 
 class Read(TaskAction):
     kind: Literal["READ_TOOL"]
-    tool_name: Literal["get_order_context", "get_shipment_trace", "read_history", "get_support_guide", "read_context"]
+    tool_name: Literal["get_order_context", "get_shipment_trace", "read_history", "get_support_guide", "read_context",
+                       "search_policy"]
     arguments: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def scope_free_arguments(self) -> Read:
-        if self.tool_name == "read_context":
+        if self.tool_name == "search_policy":
+            SearchArguments.model_validate(self.arguments)
+        elif self.tool_name == "read_context":
             ContextRead.model_validate(self.arguments)
         elif self.tool_name != "read_history":
             if self.arguments:
@@ -99,16 +102,32 @@ class History(Closed):
     limit: int = Field(default=5, ge=1, le=5, strict=True)
 
 
-class Search(TaskAction):
-    kind: Literal["SEARCH_POLICY"]
+class SearchArguments(Closed):
     query: str = Field(min_length=1, max_length=1000)
     top_k: int = Field(default=3, ge=1, le=5, strict=True)
+
+
+class Search(TaskAction, SearchArguments):
+    kind: Literal["SEARCH_POLICY"]
 
 
 class Answer(TaskAction):
     kind: Literal["ANSWER"]
     text: str = Field(min_length=1, max_length=4000)
     citations: list[str] = Field(default_factory=list, max_length=8)
+    handoff_summary: str | None = Field(default=None, min_length=1, max_length=2000)
+
+
+class AnswerPart(Closed):
+    task_id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
+    status: Literal["ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED", "SUSPENDED"]
+    text: str = Field(min_length=1, max_length=4000)
+    citations: list[str] = Field(default_factory=list, max_length=8)
+
+
+class AnswerParts(TaskAction):
+    kind: Literal["ANSWER_PARTS"]
+    parts: list[AnswerPart] = Field(min_length=1, max_length=8)
     handoff_summary: str | None = Field(default=None, min_length=1, max_length=2000)
 
 
@@ -131,8 +150,8 @@ class SupportResult(Closed):
         return self
 
 
-DECISION: TypeAdapter[Read | Search | Answer] = TypeAdapter(
-    Annotated[Read | Search | Answer, Field(discriminator="kind")]
+DECISION: TypeAdapter[Read | Search | Answer | AnswerParts] = TypeAdapter(
+    Annotated[Read | Search | Answer | AnswerParts, Field(discriminator="kind")]
 )
 
 

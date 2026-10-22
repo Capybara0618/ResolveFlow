@@ -10,7 +10,7 @@ import pytest
 from resolveflow.harness.model import MockModelClient
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.guidance import decision_feedback
-from resolveflow.support.protocol import Answer, SupportTask
+from resolveflow.support.protocol import Answer, AnswerParts, SupportTask
 from resolveflow.support.tasks import TaskStateError, TaskTracker
 from tests.unit.test_support_agent import Reads, answer, read, request
 from tests.unit.test_support_dialogue import event
@@ -48,9 +48,9 @@ def test_sent_answer_example_is_complete_and_packet_keeps_all_required_task_ids(
     SupportAgent(request(), model, Reads()).run()
     system = ''.join(b.text for b in model.conversations[0][0].get_content_blocks() if hasattr(b, 'text'))
     examples = [json.loads(s) for s in re.findall(r'^\{"kind":.*\}$', system, re.MULTILINE)]
-    example = next(e for e in examples if e['kind'] == 'ANSWER')
-    parsed = Answer.model_validate(example)
-    assert parsed.tasks and parsed.tasks[0].response_excerpt in parsed.text
+    example = next(e for e in examples if e['kind'] == 'ANSWER_PARTS')
+    parsed = AnswerParts.model_validate(example)
+    assert parsed.parts[0].task_id == 't1' and parsed.parts[0].text
     assert '独立事项分任务' in system
     requirements = model.packets[1]['answer_requirements']
     assert requirements['task_ids'] == ['shipping', 'entry']

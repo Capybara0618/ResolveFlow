@@ -35,7 +35,8 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
     },
     "search_policy": {
         "purpose": "本店退款资格/条件/例外/金额；不含界面流程。",
-        "action": {"kind": "SEARCH_POLICY", "query": "当前要了解的资格条件", "top_k": 3},
+        "action": {"kind": "READ_TOOL", "tool_name": "search_policy",
+                   "arguments": {"query": "当前要了解的资格条件", "top_k": 3}},
     },
 }
 
@@ -89,7 +90,10 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         result.update(field="memory_updates", detail=str(error))
     elif isinstance(error, TaskStateError):
         result.update(field="tasks", detail=str(error), issue=error.issue, task_ids=error.task_ids)
-        if error.issue in {"ANSWER_TASKS_PENDING", "TASKS_REMOVED"}:
+        if error.issue == "ANSWER_PARTS_COVERAGE":
+            result.update(field="parts", repair_note="逐项给task_id/status/text/citations；覆盖全部task_state任务。"
+                          "首次先声明tasks；不能省略任务或自动完成。")
+        elif error.issue in {"ANSWER_TASKS_PENDING", "TASKS_REMOVED"}:
             result.update(
                 resubmit_note="被拒标注未保存，沿用已接受task_state。",
                 required_on_answer=["tasks"],
@@ -111,10 +115,13 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         for e in error.errors(include_input=False, include_context=False)
     ):
         result.update(
-            field="kind", required=True, allowed=["READ_TOOL", "SEARCH_POLICY", "ANSWER"],
+            field="kind", required=True, allowed=["READ_TOOL", "SEARCH_POLICY", "ANSWER", "ANSWER_PARTS"],
             detail="顶层kind缺失或非法。只重发一个完整动作；动作参数和标注在同层，不能嵌套ANSWER或用type替代kind。",
-            examples=[CAPABILITIES["get_shipment_trace"]["action"], CAPABILITIES["search_policy"]["action"],
-                      {"kind": "ANSWER", "text": "回答或必要追问", "citations": [], "handoff_summary": None}],
+            examples=[CAPABILITIES["get_shipment_trace"]["action"],
+                      {"kind": "SEARCH_POLICY", "query": "政策条件", "top_k": 3},
+                      {"kind": "ANSWER", "text": "回答或必要追问", "citations": [], "handoff_summary": None},
+                      {"kind": "ANSWER_PARTS", "parts": [{"task_id": "t1", "status": "ANSWERED",
+                                                          "text": "答复", "citations": []}]}],
         )
     elif isinstance(error, ValidationError) and any(
         "dialogue_events" in e["loc"] and any(key in e["loc"] for key in {"reference", "offset", "quote"})

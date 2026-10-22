@@ -28,7 +28,9 @@ def test_actual_model_packet_explains_distinct_capabilities_and_valid_action_sha
     assert "流程" in catalog["get_support_guide"]["purpose"]
     assert "资格" in catalog["search_policy"]["purpose"]
     assert catalog["get_support_guide"]["action"] == read("get_support_guide")
-    assert catalog["search_policy"]["action"]["kind"] == "SEARCH_POLICY"
+    assert catalog["search_policy"]["action"]["kind"] == "READ_TOOL"
+    assert catalog["search_policy"]["action"]["tool_name"] == "search_policy"
+    DECISION.validate_python(catalog["search_policy"]["action"])
     agent = SupportAgent(request(), model, Reads())
     assert _ReadTool("get_support_guide", agent).description != _ReadTool("get_order_context", agent).description
     schema = _ReadTool("search_policy", agent).input_schema
@@ -87,7 +89,7 @@ def test_all_176_saved_real_failures_get_kind_feedback_without_rewriting_decisio
             DECISION.validate_python(payload)
         feedback = json.loads(decision_feedback(error.value, payload, []))
         assert feedback["field"] == "kind" and feedback["required"] is True
-        assert feedback["allowed"] == ["READ_TOOL", "SEARCH_POLICY", "ANSWER"]
+        assert feedback["allowed"] == ["READ_TOOL", "SEARCH_POLICY", "ANSWER", "ANSWER_PARTS"]
         assert {DECISION.validate_python(e).kind for e in feedback["examples"]} == set(feedback["allowed"])
         assert payload == before
 
@@ -97,7 +99,7 @@ def test_exact_sent_system_contains_three_parseable_top_level_action_examples():
     assert SupportAgent(request(), model, Reads()).run()["status"] == "SUCCEEDED"
     sent_system = "".join(b.text for b in model.conversations[0][0].get_content_blocks() if hasattr(b, "text"))
     examples = [json.loads(s) for s in re.findall(r'^\{"kind":.*\}$', sent_system, re.MULTILINE)]
-    assert {DECISION.validate_python(e).kind for e in examples} == {"READ_TOOL", "SEARCH_POLICY", "ANSWER"}
+    assert {DECISION.validate_python(e).kind for e in examples} == {"READ_TOOL", "SEARCH_POLICY", "ANSWER_PARTS"}
 
 
 def test_saved_missing_kind_uses_one_correction_then_model_selects_read_and_answer():

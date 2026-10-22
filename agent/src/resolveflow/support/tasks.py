@@ -6,7 +6,27 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from resolveflow.support.protocol import Answer, SupportTask
+from resolveflow.support.protocol import Answer, AnswerParts, SupportTask
+
+
+def render_answer(decision: AnswerParts, accepted: list[SupportTask]) -> Answer:
+    """Render explicit model outcomes once; metadata comes from declared/current tasks, never guessed."""
+    initial = decision.tasks if decision.tasks is not None else accepted
+    ids = [p.task_id for p in decision.parts]
+    if (len(ids) != len(set(ids)) or len(initial) != len({t.id for t in initial})
+            or set(ids) != {t.id for t in initial}):
+        raise TaskStateError("parts须逐项覆盖当前tasks.id，不重复/增删；首次须先声明tasks。",
+                             issue="ANSWER_PARTS_COVERAGE", task_ids=[t.id for t in initial])
+    by_id = {t.id: t for t in initial}
+    tasks = []
+    for part in decision.parts:
+        data = by_id[part.task_id].model_dump()
+        data.update(status=part.status, evidence_refs=list(part.citations), response_excerpt=part.text[:400])
+        tasks.append(SupportTask.model_validate(data))
+    return Answer(kind="ANSWER", text="\n\n".join(p.text for p in decision.parts), tasks=tasks,
+                  citations=list(dict.fromkeys(ref for p in decision.parts for ref in p.citations)),
+                  handoff_summary=decision.handoff_summary, memory_updates=decision.memory_updates,
+                  dialogue_events=decision.dialogue_events)
 
 
 class TaskStateError(ValueError):
