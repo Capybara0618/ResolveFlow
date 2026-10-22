@@ -2,13 +2,22 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from copy import deepcopy
 from typing import Any, Literal
 
 from pydantic import Field, ValidationError, model_validator
 
 from resolveflow.support.context import history_messages
-from resolveflow.support.protocol import Closed, CustomerQuote, MemoryUpdate, SupportFailure, SupportInput
+from resolveflow.support.protocol import (
+    Closed,
+    CustomerClaim,
+    CustomerQuote,
+    MemoryUpdate,
+    SupportFailure,
+    SupportInput,
+)
 
 
 class ClaimSource(Closed):
@@ -90,6 +99,7 @@ class CustomerMemory:
     def __init__(self, request: SupportInput) -> None:
         self.request = request
         self.entries: list[dict[str, Any]] = []
+        self.warnings: list[dict[str, Any]] = []
         raw = request.context.get("previous_customer_memory")
         if raw is not None:
             try:
@@ -128,9 +138,35 @@ class CustomerMemory:
             raise MemoryStateError("陈述容量不足；不能静默删除有效信息，停止新增并整理必要询问。")
         self.entries = entries
 
+    def propose(self, proposals: list[dict[str, Any]], observations: list[dict[str, Any]]) -> None:
+        """Allocate stable identities; report rejected optional annotations without accepting false provenance."""
+        self.warnings = []
+        for index, raw in enumerate(proposals):
+            try:
+                proposal = CustomerClaim.model_validate(raw)
+                source = customer_source(proposal, self.request, observations, current_only=True)
+                identity = json.dumps({"topic": proposal.topic, "source": source,
+                                       "change": proposal.change, "target": proposal.target}, sort_keys=True)
+                key = "c_" + hashlib.sha256(identity.encode()).hexdigest()[:24]
+                update = MemoryUpdate(id=key, topic=proposal.topic, reference="CURRENT",
+                                      quote=proposal.quote, offset=source["offset"],
+                                      supersedes=[proposal.target] if proposal.change == "REPLACE"
+                                      and proposal.target is not None else [],
+                                      retracts=[proposal.target] if proposal.change == "RETRACT"
+                                      and proposal.target is not None else [])
+                self.apply([update], observations)
+            except (ValidationError, MemoryStateError) as error:
+                self.warnings.append({"index": index, "code": "CUSTOMER_CLAIM_NOT_ACCEPTED",
+                    "detail": str(error)[:350], "current_message_retained": True})
+
     def packet(self) -> dict[str, Any]:
         return {"origin": "GROUNDED_CUSTOMER_CLAIMS",
-                "active": [deepcopy(e) for e in self.entries if e["status"] == "ACTIVE"]}
+                "active": [deepcopy(e) for e in self.entries if e["status"] == "ACTIVE"],
+                **({"correction_targets": [{"id": e["id"], "topic": e["topic"]}
+                                       for e in self.entries if e["status"] == "ACTIVE"
+                                       and e["source"]["sequence"] < self.request.input_version]}
+                   if self.entries else {}),
+                **({"warnings": deepcopy(self.warnings)} if self.warnings else {})}
 
     def snapshot(self) -> dict[str, Any]:
         request = self.request

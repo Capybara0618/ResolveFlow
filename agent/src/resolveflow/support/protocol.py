@@ -60,6 +60,18 @@ class MemoryUpdate(CustomerQuote):
     retracts: list[str] = Field(default_factory=list, max_length=8)
 
 
+class CustomerClaim(CustomerQuote):
+    topic: Literal["RECEIPT", "CHECKS", "REQUEST", "MATERIAL", "OTHER"]
+    change: Literal["APPEND", "REPLACE", "RETRACT"] = "APPEND"
+    target: str | None = Field(default=None, min_length=1, max_length=32)
+
+    @model_validator(mode="after")
+    def target_only_for_correction(self) -> CustomerClaim:
+        if (self.change == "APPEND") != (self.target is None):
+            raise ValueError("APPEND不带target；REPLACE/RETRACT须选择已提供的客户陈述id。")
+        return self
+
+
 class DialogueEvent(CustomerQuote):
     change: Literal["ADD", "CONTINUE", "CORRECT", "CANCEL", "PAUSE", "RESUME", "CLARIFY", "RESOLVE", "REOPEN"]
     task_id: str | None = Field(default=None, pattern=r"^[a-zA-Z0-9_-]{1,32}$")
@@ -86,6 +98,8 @@ class TaskAction(Closed):
     # Old mock scripts remain readable; live runs require initial understanding in the engine.
     tasks: list[SupportTask] | None = Field(default=None, min_length=1, max_length=8)
     memory_updates: list[MemoryUpdate] = Field(default_factory=list, max_length=8)
+    # Optional annotations are individually validated; malformed proposals never become claims.
+    customer_claims: list[dict[str, Any]] = Field(default_factory=list, max_length=8)
     dialogue_events: list[DialogueEvent] = Field(default_factory=list, max_length=8)
 
 
