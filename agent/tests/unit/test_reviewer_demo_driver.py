@@ -276,10 +276,11 @@ def test_live_agent_uses_official_deepseek_only_and_never_places_the_key_in_argu
                         captured.update(name=name, args=args, env=env))
     monkeypatch.setattr(demo, "wait_for", lambda *args, **kwargs: True)
     monkeypatch.setattr(demo, "record_port_owner", lambda *args: "42")
-    demo.start_readonly_agent(settings, demo.Log(), live=True)
+    demo.start_readonly_agent(settings, demo.Log(), live=True, architecture="staged-v1")
     assert captured["name"] == "agent-live"
     env = captured["env"]
     assert env["RESOLVEFLOW_INVESTIGATION_ENABLED"] == "1"
+    assert env["RESOLVEFLOW_SUPPORT_ARCHITECTURE"] == "staged-v1"
     assert env["RESOLVEFLOW_MODEL_MODE"] == "live"
     assert env["RESOLVEFLOW_MODEL_ID"] == "deepseek-flash"
     assert env["RESOLVEFLOW_MODEL_ENDPOINT"] == "https://api.deepseek.com/chat/completions"
@@ -294,6 +295,14 @@ def test_live_agent_without_key_refuses_before_starting_any_process(tmp_path, mo
     monkeypatch.setattr(demo, "stop_owned", lambda *args, **kwargs: pytest.fail("must refuse before stopping"))
     with pytest.raises(demo.DemoRefused, match="key is missing"):
         demo.start_readonly_agent(settings_for(tmp_path), demo.Log(), live=True)
+
+
+def test_health_checks_requested_support_architecture(tmp_path, monkeypatch):
+    monkeypatch.setattr(demo, "http", lambda *_, **__: (200, {"status": "UP", "support_architecture": "single"}))
+    current = settings_for(tmp_path)
+    assert demo.agent_health(current)
+    assert demo.agent_health(current, architecture="single")
+    assert not demo.agent_health(current, architecture="staged-v1")
 
 
 def test_status_is_useful_while_the_demo_is_stopped(tmp_path: Path, monkeypatch) -> None:

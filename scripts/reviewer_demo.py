@@ -1767,21 +1767,24 @@ def start_agent(settings: Settings, scenario: Scenario, script_path: Path, log: 
         raise DemoRefused("the demo Agent never became healthy; check the process log")
 
 
-def agent_health(settings: Settings) -> bool:
+def agent_health(settings: Settings, *, architecture: str | None = None) -> bool:
     status, answer = http("GET", f"{settings.agent_url}/health", timeout=3)
-    return status == 200 and isinstance(answer, dict) and answer.get("status") == "UP"
+    return (status == 200 and isinstance(answer, dict) and answer.get("status") == "UP"
+            and (architecture is None or answer.get("support_architecture") == architecture))
 
 
-def start_readonly_agent(settings: Settings, log: Log, *, live: bool = False) -> None:
+def start_readonly_agent(settings: Settings, log: Log, *, live: bool = False, architecture: str = "single") -> None:
     """Serve the browser API; explicitly opt into live investigation with the user's key.
 
     The default only reads persisted records. Live mode uses the fixed official DeepSeek endpoint,
     while scenario commands replace either process before binding their isolated mock script.
     """
     process_name = "agent-live" if live else "agent-readonly"
+    if architecture not in {"single", "staged-v1"}:
+        raise DemoRefused("unknown support architecture")
     if live and not os.environ.get("RESOLVEFLOW_MODEL_API_KEY"):
         raise DemoRefused("DeepSeek key is missing; set Deepseek_API_KEY in your user environment and run demo.ps1 -Live")
-    if owns_port(settings, process_name, settings.ports["agent"]) and agent_health(settings):
+    if owns_port(settings, process_name, settings.ports["agent"]) and agent_health(settings, architecture=architecture):
         log.step(f"{process_name} is already up under this driver", True, settings.agent_url)
         return
     stop_owned(settings, "agent-readonly", log=log)
@@ -1799,6 +1802,7 @@ def start_readonly_agent(settings: Settings, log: Log, *, live: bool = False) ->
         RESOLVEFLOW_PROVIDER_DB=str(provider_db),
         RESOLVEFLOW_INVESTIGATION_ENABLED="1" if live else "0",
         RESOLVEFLOW_LAB_ROUTES="1",
+        RESOLVEFLOW_SUPPORT_ARCHITECTURE=architecture,
     )
     for name in (
         "RESOLVEFLOW_MODEL_MODE",
@@ -1840,7 +1844,7 @@ def start_readonly_agent(settings: Settings, log: Log, *, live: bool = False) ->
         env,
         settings.ports["agent"],
     )
-    ready = wait_for(process_name, lambda: agent_health(settings), timeout=180.0)
+    ready = wait_for(process_name, lambda: agent_health(settings, architecture=architecture), timeout=180.0)
     log.step(f"{process_name} is healthy", ready, settings.agent_url)
     if ready:
         record_port_owner(settings, process_name)

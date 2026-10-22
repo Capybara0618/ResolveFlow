@@ -1,3 +1,8 @@
+## 当前快照（2026-10-22，演示体验接入：启动器显式启用两阶段）
+
+- 服务配置038f40e已普通push核实，客服API/health共8通过。project启动器明确选择staged-v1，Agent子进程携带架构环境；复用进程和最终状态必须核验health的实际模式，不把旧single健康误当新模式已启用。独立reviewer-demo入口默认single保持。
+- 首启动器断言3失败/35通过，实现后再加实际模式不匹配检查共39通过；project_runtime.py及测试Ruff通过。reviewer_demo.py根配置Ruff有19条历史问题，逐项code/message与HEAD基线一致、未新增，不修改无关旧脚本。真实调用0，继续指南与实际联调。
+
 ## 当前快照（2026-10-22，演示体验接入：服务架构配置完成）
 
 - 资格边界d6454dd已普通push核实，另两阶段/事实来源/资格28通过。Agent启动时读取并固定RESOLVEFLOW_SUPPORT_ARCHITECTURE，默认single、显式staged-v1；未知值启动拒绝，内部客服路由传递给SupportRuntime。health新增不含凭据的support_architecture，便于核验实际运行模式；进程启动后修改环境不会换架构，旧run仍沿manifest拒绝不匹配恢复。

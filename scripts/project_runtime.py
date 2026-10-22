@@ -120,11 +120,11 @@ def start(
         raise runtime.DemoRefused(
             "基础政策与精确版本索引尚未就绪，不能将启动报告为完成"
         )
-    runtime.start_readonly_agent(current, log, live=True)
+    runtime.start_readonly_agent(current, log, live=True, architecture="staged-v1")
     runtime.start_frontend(current, log)
     if not runtime.owns_port(
         current, "agent-live", current.ports["agent"]
-    ) or not runtime.agent_health(current):
+    ) or not runtime.agent_health(current, architecture="staged-v1"):
         raise runtime.DemoRefused("真实调查服务尚未就绪，不能将启动报告为完成")
     if status(current, log) != 0:
         raise runtime.DemoRefused("仍有组件未就绪，请按失败项排查后重新启动")
@@ -171,7 +171,7 @@ def status(current: runtime.Settings, log: ProjectLog) -> int:
         (
             "Agent（真实调查配置）",
             runtime.owns_port(current, "agent-live", current.ports["agent"])
-            and runtime.agent_health(current),
+            and runtime.agent_health(current, architecture="staged-v1"),
         ),
         (
             "网页",
