@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，聊天退款真实整栈验收已准备，尚未发模型请求）
+
+- 用户授权继续真实体验，按[一次验收方案](../docs/customer-chat-refund-live-v1.md)，固定生产d99e324、两轮原话与唯一新合成订单/会话于[plan](../reports/chat-refund-live-v1/plan.json)。buyer10实付32900分、原模拟发货后追加LOST；旧数据基线存本机，不修改历史订单/Gold/报告。
+- 实际恢复时status全部停，已重新运行`./start.ps1 -NoBrowser`，当前三Java/Python/Web/原依赖及三店精确政策索引全部就绪、索引复用。`python scripts/accept_chat_refund_live_v1.py prepare`通过，Provider新增0、原usage2060。驱动Ruff check/format、node --check与git diff --check通过；补脚本失败后等待原服务端请求收尾的费用收集、适配列表摘要截断选择器，尚未执行真实消息。
+- 本步仅精确提交方案/驱动/冻结plan/账本并正常push核实；随后执行一次真实浏览器验收，收集全部客服与原退款调查调用、流式/等待时间、确认同键恢复、商家审批和原会话退款结果。四历史脏文件保持，失败保留、不重发追分；不是简历指标或完整质量矩阵。
+
 ## 当前快照（2026-10-23，聊天退款闭环R1–R4工程完成；真实整栈体验待验收）
 
 - 文档/认可预期图→草稿→原子确认建单→会话卡片与进度→v3办理指南已分别提交同步（最近7478f7f）。本步完成可选终局refund_summary的Python/共享契约/Java持久消息/前端自动准备联动；不增加模型轮次，用户编辑确认才建单。已有草稿保留客户编辑，商家共享报告不附未确认摘要。[使用说明](../docs/customer-chat-refund-usage-v1.md)/[完整验证](../reports/chat-refund-closure-v1/README.md)/[分层汇总](../reports/chat-refund-closure-v1/summary.json)。
