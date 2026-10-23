@@ -6,6 +6,8 @@
 
 ## 1. 唯一主链路
 
+2026-10-23 用户认可[聊天内退款确认与真实流式体验](customer-chat-refund-stream-v1.md)：本人订单行咨询中形成可编辑申请摘要，用户确认后复用既有Case建单/进度；按实际模型增量和工具事件展示流式回答。先交付[可交互预期稿](ui-chat-refund-stream-v1/index.html)与[目标协议](customer-chat-stream-contract-v1.md)，再按小步实施；不把预期稿作为已有功能。既有三Java+Python、单行全量模拟退款、用户确认和Java资金/权限职责保持，不新增多Agent或实时人工坐席。
+
 2026-10-22 用户授权[后端深化与商品评价](backend-deepening-v1.md)：先开发文档/预期图，再按小步完成正式查询与 Redis 接线、已签收本人订单行评价/商家回复、评分摘要缓存/账号限流以及模拟付款后台恢复。沿用三 Java 服务，评价归 Commerce，Java 持续拥有资格/版本/资金；评价不作为退款事实。未引入库存、营销、真实支付或新微服务，旧数据/冻结实验保持。
 
 2026-10-20按用户授权接入[持久会话与独立人工核查](customer-support-workspace.md)及[Agent只读咨询/来源与确认共享报告](customer-agent-implementation-v1.md)，复用Case服务、唯一AgentScope循环和现有双端网页；人工咨询不创建退款Case/授权。聊天退款确认后续接入，原三Java+Python与资金职责不变。本批工程以脚本模型和真实本地dense检索验证，真实模型问答质量单独评测。
