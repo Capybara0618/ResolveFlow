@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，S3b Python真实流式/工具观察器完成；前端draft待接）
+
+- S3a efc3f37普通push核实。本步新派发progress_token接独立流式客户端/正文投影/有界异步进度队列，manifest显式streaming及相关源码；SDK唯一循环/原退款调查保持。真实非缓存工具开始/结束受控类别，理解/工具JSON隐藏，首正文立即入队，后续有界合批；投影异常/一次修复reset旧视图，完整响应原校验/usage照常，进度断流无隐藏重试或第二模型。
+- 新单元红测缺模块collection失败后3通过；真实SDK/隔离PG/合成Provider SSE+进度HTTP证明理解→读取→错引用→一次修复、4模型+1工具持久账，以及完成run恢复0新HTTP；原staged API一起6通过。集中客服/传输/SDK/PG332通过（9.50秒、0跳过），Ruff与4源码strict mypy通过。扩大收集最初缺根PYTHONPATH未运行，补后通过；长行/导入检查问题修正，原Starlette弃用提示保留。[报告](../reports/chat-refund-stream-s3/README.md)含命令/边界，最新契约19确认通过。
+- 真实Provider新请求0、usage2011，仅启动原PG供临时schema测试，public数据不写/不清，原Java/网页未启；原四脏文件/旧资产保留。精确commit/普通push核实后接S3c前端生成气泡/新kind/快照/attempt reset/终局替换，再集中链路确认并停PG。尚未测真实模型首字延迟，聊天退款R1–R3未实施。
+
 ## 当前快照（2026-10-23，S3a限定进度入口与生成视图完成，Python正文待接）
 
 - 按用户开工要求先补S3接收端：独立support:progress绑定原run/input/fence/主体，原只读scope不能写进度，新scope不能读事实。V30保存有界临时视图和单调批次，重复最后相同批次幂等，乱序/旧输入/旧attempt拒绝，禁止Python伪造终局或退款。snapshot恢复生成视图，非当前RUNNING不可见，新fence清旧视图；SSE已建连接身份失效正常关闭。

@@ -13,12 +13,14 @@ from typing import Any
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.live_model import LiveModelClient
 from resolveflow.harness.model import MockModelClient
+from resolveflow.harness.streaming_model import StreamingLiveModelClient
 from resolveflow.policies.index import PolicyIndex
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import DeploymentConfig
 from resolveflow.support.embeddings import SupportEmbeddings
 from resolveflow.support.engine import SYSTEM, SupportAgent
 from resolveflow.support.guide import GUIDE_VERSION
+from resolveflow.support.progress import ProgressReporter
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
 from resolveflow.support.retrieval import CANDIDATE_K, RETRIEVAL_VERSION, RRF_CONSTANT
 from resolveflow.support.sources import BoundSources
@@ -43,7 +45,7 @@ class SupportRuntime:
         self.model_factory, self.sources_factory = model_factory, sources_factory
         self.embeddings = embeddings if embeddings is not None else SupportEmbeddings()
 
-    def _model(self) -> Any:
+    def _model(self, streaming: bool = False) -> Any:
         config = self.config
         if self.model_factory:
             return self.model_factory()
@@ -67,7 +69,7 @@ class SupportRuntime:
             return MockModelClient(script=script)
         if config.mode != "live" or not config.endpoint or not config.model_id:
             raise SupportFailure("MODEL_NOT_CONFIGURED")
-        return LiveModelClient(
+        return (StreamingLiveModelClient if streaming else LiveModelClient)(
             endpoint=config.endpoint,
             model_id=config.model_id,
             provider=config.provider,
@@ -79,12 +81,13 @@ class SupportRuntime:
             else {},
         )
 
-    def run(self, request: SupportInput, token: str) -> dict[str, Any]:
-        model = self._model()
+    def run(self, request: SupportInput, token: str, *, progress_token: str | None = None) -> dict[str, Any]:
+        model = self._model(streaming=bool(progress_token))
         root = Path(__file__).parent
         manifest = {
             "version": "support-agent-v1",
             "architecture": self.architecture,
+            "streaming": isinstance(model, StreamingLiveModelClient),
             "sdk": version("agentscope"),
             "budget": asdict(RunBudget()),
             "provider_capacity": self.config.context_window_tokens,
@@ -111,6 +114,10 @@ class SupportRuntime:
                     "sources.py",
                     "store.py",
                     "service.py",
+                    "progress.py",
+                    "stream_projection.py",
+                    "../harness/streaming_model.py",
+                    "../harness/live_model.py",
                     "embeddings.py",
                     "retrieval.py",
                     "guide.py",
@@ -150,14 +157,21 @@ class SupportRuntime:
                 embedder=encoder,
                 journal=journal,
             )
+        progress = (ProgressReporter(self.config.case_base_url, request.run_id, progress_token)
+                    if progress_token else None)
+        if isinstance(model, StreamingLiveModelClient) and progress is not None:
+            model.on_content = progress.content
         try:
             result = SupportAgent(
                 request, model, sources, journal=journal, provider_capacity=self.config.context_window_tokens,
                 architecture=self.architecture,
+                progress=progress,
             ).run()
             journal.finish(result)
             return result
         finally:
+            if progress is not None:
+                progress.close()
             close = getattr(sources, "close", None)
             if close:
                 close()

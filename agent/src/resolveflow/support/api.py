@@ -38,7 +38,8 @@ def router_for(authenticate: Any, run_store: Any) -> APIRouter:
                     architecture=request.app.state.support_architecture,
                 )
             context = SupportInput.model_validate(body.model_dump(exclude={"tool_token", "progress_token"}))
-            return cast(dict[str, Any], runtime.run(context, body.tool_token.get_secret_value()))
+            return cast(dict[str, Any], runtime.run(context, body.tool_token.get_secret_value(),
+                **({"progress_token": body.progress_token.get_secret_value()} if body.progress_token else {})))
         except SupportFailure as error:
             raise HTTPException(409, detail=error.reason) from error
         except DeploymentRefusedError as error:

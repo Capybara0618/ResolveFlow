@@ -62,9 +62,11 @@ class SupportAgent:
         journal: Any = None,
         provider_capacity: int = 8192,
         architecture: str = "single",
+        progress: Any = None,
     ) -> None:
         self.stage = TurnStage(architecture)
         self.request, self.model, self.sources, self.journal = request, model, sources, journal
+        self.progress = progress
         self.budget = budget or RunBudget()
         self.input_cap = min(self.budget.step_input_tokens, provider_capacity - self.budget.step_output_tokens)
         self.guard = BudgetGuard(self.budget, active_deadline=request.deadline_at)
@@ -236,6 +238,8 @@ class SupportAgent:
                 check()
             ceiling = self.guard.reserve_model_request(input_tokens=tokens)
             self._start("model", self.step, body)
+            if self.progress is not None:
+                self.progress.begin(self.step)
             reply = self.model.decide(
                 system="", messages=messages, context=packet, sent_context=packet, max_output_tokens=ceiling
             )
@@ -243,6 +247,8 @@ class SupportAgent:
             self._save(
                 "model", self.step, {"decision": reply.decision, "usage": asdict(reply.usage), "mode": reply.mode}
             )
+            if self.progress is not None:
+                self.progress.end()
         self.mode = reply.mode
         try:
             if self.stage.pending:
@@ -313,6 +319,8 @@ class SupportAgent:
                 reply = replace(reply, decision={**decision.model_dump(), "arguments": {"top_k": decision.top_k}})
             return reply
         except (ValidationError, ValueError) as error:
+            if self.progress is not None:
+                self.progress.reject()
             if self.repairs:
                 raise SupportFailure("INVALID_DECISION") from None
             self.repairs += 1
@@ -372,11 +380,19 @@ class SupportAgent:
             else:
                 self.guard.reserve_tool_attempt()
             self._start("tool", self.tool_step, request)
-            saved = (
-                [{"error": "SOURCE_RETRY_EXHAUSTED", "retryable": False}]
-                if self.recovery.blocked(request)
-                else invoke()
-            )
+            if self.recovery.blocked(request):
+                saved = [{"error": "SOURCE_RETRY_EXHAUSTED", "retryable": False}]
+            else:
+                category = {"get_order_context": "ORDER", "get_shipment_trace": "SHIPMENT",
+                            POLICY_SEARCH_TOOL_NAME: "POLICY", "get_support_guide": "GUIDE",
+                            "read_history": "HISTORY", "read_context": "HISTORY"}[name]
+                if self.progress is not None:
+                    self.progress.activity(category, True)
+                try:
+                    saved = invoke()
+                finally:
+                    if self.progress is not None:
+                        self.progress.activity(category, False)
             if len(canonical_json(saved).encode()) > 262144:
                 saved = [{"error": "SOURCE_TOO_LARGE", "retryable": False}]
             self._save("tool", self.tool_step, saved)
