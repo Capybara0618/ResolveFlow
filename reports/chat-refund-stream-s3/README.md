@@ -60,3 +60,21 @@ node scripts/check_support_stream_v3.cjs
 ```
 
 S3b `f43c934`已普通push核实。本步未触发真实模型调用，usage2011；原项目保持停止。已具备新派发的代码链路，但完整生产服务+DeepSeek联调、用户首正文p50/p95和工具失败/恢复现场验证未运行；不能拿合成HTTP截图或离线332项宣称模型流式互通/性能已验收。原1秒派发扫描尚待提交后唤醒优化；聊天退款R1–R3仍在后续。
+
+## 单次真实Provider互通确认
+
+用户批准的S3计划含小规模真实联调，本次预先明确仅1次、256输出token、无自动重试；没有扩大收费评测。执行专用互通脚本，真实deepseek-flash/非思考/JSON+stream模式，固定合成一般咨询，无业务读取/写入，不是完整客服任务。原账live_guard独占计量及单次BudgetGuard记录，usage2011→2012。
+
+[原始结果](provider-probe.json) SHA256 `3f7c0fe684d5a138206d57f29d54122279576c77deab5dc37cea596075451d35`：1请求成功，首原始content868.47ms，首可读正文1032.03ms，Provider流[DONE]1285.33ms，调用总1298.95ms。65个内容片段，结构化正文在完整响应结束前实际出现，Usage为130输入/64输出、非estimated；Harness输入估算960另列，未冒充Provider输入。
+
+这是传输与结构化投影互通的1条样本，未经过生产Java派发/工具/两阶段咨询/浏览器，不是客服首字p95、准确率或简历指标。没有追加第二次测试、因单样本快而宣称全面提速。生产代码为a4b2b7e；只新增独立probe脚本，原始结果保留，后续脚本仅修导入/检查注释及失败退出码，不重跑收费。
+
+实际命令（凭据仅从既有用户环境变量读入进程，不写文件/打印）：
+
+```powershell
+agent/.venv/Scripts/python.exe scripts/probe_support_stream_v3.py --execute --output reports/chat-refund-stream-s3/provider-probe.json
+agent/.venv/Scripts/python.exe -m ruff check scripts/probe_support_stream_v3.py
+agent/.venv/Scripts/python.exe -m py_compile scripts/probe_support_stream_v3.py
+```
+
+脚本首次Ruff有3项（根配置的导入分组、无效noqa、宽异常需说明），当次真实互通照上述单次执行并保存；随后修正Ruff/py_compile通过，无额外Provider请求，原结果不覆盖。

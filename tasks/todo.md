@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，S3真实Provider单次互通通过，完整客服计时仍未测）
+
+- S3c a4b2b7e已普通push核实。按已批准S3小规模真实联调先明确只1次/256输出token/无自动重试，独立固定合成一般咨询检查真实deepseek-flash非思考JSON+stream与正文投影；不接Java/两阶段任务/浏览器、不作简历指标。原live_guard/调用账和单次BudgetGuard记账，usage2011→2012。
+- 实际1请求成功，首原始content868.47ms、首可读正文1032.03ms、流DONE1285.33ms、总1298.95ms；65片段，正文确实早于完整响应，Provider130输入/64输出非estimated，Harness输入估算960单列。[原结果](../reports/chat-refund-stream-s3/provider-probe.json)SHA3f7c0fe684d5a138206d57f29d54122279576c77deab5dc37cea596075451d35，原文不覆盖。该1样本不能证明完整客服首字/p95或效果。
+- 独立脚本首次根Ruff3项（导入/noqa/异常说明）在单次请求后修复，Ruff和py_compile通过，未重跑收费；[报告](../reports/chat-refund-stream-s3/README.md)说明命令/边界。PG仅临时schema测试后待停，原Java/网页保持未启，原四脏文件/旧清单保留。精确commit/普通push核实后补提交后唤醒/工程收口，之后完整系统真实联调单独测；不扩大收费矩阵，R1–R3退款未做。
+
 ## 当前快照（2026-10-23，S3c前端生成视图与实际浏览器确认完成）
 
 - S3b f43c934普通push核实。前端接工具类别/正文delta/attempt reset，generation与正式messages分开，码点offset含emoji，修复撤旧草稿、终局替换成一条正式消息、失败/过时清理、重连快照恢复；源/分享/退款入口仍只用正式回答。动态光标支持reduced motion、阅读不跳底，不新增模型循环。
