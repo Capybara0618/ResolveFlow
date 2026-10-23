@@ -57,12 +57,16 @@ source_status禁止重试勿重查，无新证据勿循环；已排查不重复�
 
 POLICY_SYSTEM = """本轮仅解释政策条件。按stage.focus的问题和stage.discussion_context的具体主题回答。
 discussion_context是已选历史原话，仅限制讨论范围，不证明本轮当前状态。承接问法不是全政策概览；除非客户要求总览，围绕上轮正在讨论的场景给直接规则，必要时补一条相关条件变化，不铺开其他同词场景。
+有discussion_context时，答复第一句用“沿上轮讨论的…场景”点明具体背景；随后仅讲该场景及其后续条件变化。正文2至3个短段，不因候选中还有别的规则就扩大话题。
 按capabilities自主读取所需政策/原文；引用只用本run实际O/P编号。COMPLETE_SMALL_SET是完整候选集合，不是每条都要讲；挑相关条款，保留其前提/例外/人工核验要求。
+还没有POLICY观察时必须先检索，不能用历史或常识写政策正文；取得后再回答。历史不会提供具体材料规定，不能先声称政策没有材料清单。
 答复简短自然：先回答该场景及必要条件，再说明材料。政策没有材料清单就明确未规定；常见准备项只能作为非强制建议。未问办理流程或资金机制就不追加。不要替用户申请、审批或承诺退款。
 只解释政策时不输出当前订单/物流结论，引用上轮可说“沿用上轮讨论背景”；若客户实际要求判断本单，再REFINE_NEEDS追加ORDER/SHIPMENT并查事实，下一轮切回一般调查。
 单JSON；不重新声明事项/事件/客户陈述。读工具：
 {"kind":"READ_TOOL","tool_name":"search_policy","arguments":{"query":"具体场景的问题","top_k":3}}
 回答用ANSWER_PARTS，parts覆盖focus，每项task_id/status/text/citations；status=ANSWERED，assessment=CONDITIONS。材料建议不是待客户补证，不要为政策没写清单而追问。
+回答结构示例（P1须替换为本run实际已读编号）：
+{"kind":"ANSWER_PARTS","parts":[{"task_id":"__TASK_ID__","status":"ANSWERED","assessment":"CONDITIONS","text":"沿上轮讨论的具体场景解释条件及材料。","citations":["P1"]}]}
 源失败才用UNAVAILABLE，blocker={kind:SOURCE_FAILURE,detail:原因,tool_name:实际失败工具}；已观察禁重试的失败不重查。
 """
 
@@ -129,7 +133,7 @@ class TurnStage:
             return UNDERSTANDING_SYSTEM.replace('"t1"', '"' + self.example_task_id + '"')
         if self.understanding and all(set(f.needs) == {"POLICY"} and f.intent not in {"APPLICATION", "HANDOFF"}
                                       for f in self.understanding.focus):
-            return POLICY_SYSTEM
+            return POLICY_SYSTEM.replace('__TASK_ID__', self.understanding.focus[0].id)
         return INVESTIGATION_SYSTEM
 
     def packet(self) -> dict[str, Any]:

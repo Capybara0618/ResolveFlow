@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，scope-v4仍PARTIAL；纯政策JSON契约已补齐，scope-v5待一次确认）
+
+- 96659f4已普通push核实。scope-v4实际4请求/账2043→2047、准确13649输入/718输出、8034.19ms；理解正确新增t2并承接H12/H13，旧t1身份保持。纯政策提示漏完整回答JSON示例，模型先错结构/无政策正文被拒，一次修复读政策后发布仍多类目，源审PARTIAL，[原始输出/审查](../reports/customer-policy-focus-close-v1/scope-v4/review.json)保留。
+- 补绑定实际focus ID的完整ANSWER_PARTS例子，明确POLICY观察先于解释、历史不证明材料清单，承接主题开头/2–3短段聚焦。新增例子红测1失败/17通过→全客服/驱动/SDK/PG/流式337通过0跳过（18.48秒），Ruff/strict通过，原一次修复/预算保持。
+- 新[scope-v5](../reports/customer-policy-focus-close-v1/scope-v5/manifest.json)原追问仅一次/至多6请求已prepare冻结，0新增真实模型。先精确提交普通push核实，再执行并审查，不覆盖原失败/改政策Gold或提前称收口。Java/Web未启，PG仅隔离验证运行，收尾停保留卷；R1–R3/简历未做，原四脏文件及六SHA保持。
+
 ## 当前快照（2026-10-23，scope-v3仍偏宽已保留；纯政策阶段职责收窄，scope-v4待一次确认）
 
 - 7f2a2df已普通push核实。scope-v3真实3请求/账2040→2043、准确11278输入/497输出、6355.40ms运行成功；context_refs选H13、仅POLICY、材料非强制和历史不当现状通过，但仍展开其他类目，源审PARTIAL。旧t1被OTHER/PAUSE复用也原样记录，[原输出/审查](../reports/customer-policy-focus-close-v1/scope-v3/review.json)保持，不宣称已收口。

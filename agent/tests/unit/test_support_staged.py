@@ -85,7 +85,9 @@ def test_followup_carries_explicit_history_scope_without_making_it_a_business_fa
     assert packet['stage']['discussion_context']['trace'][0]['text'] == '上一轮讨论运输延迟。'
     assert packet['stage']['discussion_context']['trace'][0]['authority'] == 'HISTORICAL_ASSISTANT_OUTPUT'
     system = ''.join(b.text for b in model.conversations[-1][0].get_content_blocks() if hasattr(b, 'text'))
-    assert system == POLICY_SYSTEM
+    assert system == POLICY_SYSTEM.replace('__TASK_ID__', 'trace')
+    example = json.loads(next(line for line in system.splitlines() if line.startswith('{"kind":"ANSWER_PARTS"')))
+    assert example['parts'][0]['task_id'] == 'trace' and example['parts'][0]['assessment'] == 'CONDITIONS'
 
 
 def test_understanding_example_does_not_reuse_an_existing_task_id_for_a_new_question():
