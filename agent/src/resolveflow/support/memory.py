@@ -180,7 +180,7 @@ class CustomerMemory:
     def packet(self) -> dict[str, Any]:
         return {"origin": "GROUNDED_CUSTOMER_CLAIMS",
                 "active": [deepcopy(e) for e in self.entries if e["status"] == "ACTIVE"],
-                **({"correction_targets": [{"id": e["id"], "topic": e["topic"]}
+                **({"correction_targets": [{"id": e["id"], "topic": e["topic"], "quote": e["quote"]}
                                        for e in self.entries if e["status"] == "ACTIVE"
                                        and e["source"]["sequence"] < self.request.input_version]}
                    if self.entries else {}),

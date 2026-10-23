@@ -120,3 +120,24 @@ def test_distinct_topics_or_message_positions_are_not_semantically_merged():
     mem.propose([claim("没找到", offset=0), claim("没找到", offset=0),
                  claim("没找到", offset=4), claim("没找到", topic="RECEIPT", offset=0)], [])
     assert len(mem.entries) == 3
+
+
+def test_correction_target_shows_exact_old_quote_and_does_not_mutate_snapshot():
+    from resolveflow.support.memory import CustomerMemory
+
+    old_req = request(input_version=1)
+    old_req.context['current_request'] = '家人没代收。代收点问过也没找到。'
+    old = CustomerMemory(old_req)
+    old.propose([claim('家人没代收。'), claim('代收点问过也没找到。')], [])
+    req = request(input_version=3)
+    req.context.update(previous_customer_memory=old.snapshot(), current_request='家人是否代收还没问清楚。')
+    mem = CustomerMemory(req)
+    original = deepcopy(mem.snapshot())
+    targets = mem.packet()['correction_targets']
+    assert targets == [{'id': e['id'], 'topic': 'CHECKS', 'quote': e['quote']} for e in old.entries]
+    targets[0]['quote'] = '不能篡改原记录'
+    assert mem.snapshot() == original
+    mem.propose([claim(req.context['current_request'], change='REPLACE', target=old.entries[0]['id'])], [])
+    assert [e['status'] for e in mem.entries] == ['SUPERSEDED', 'ACTIVE', 'ACTIVE']
+    assert [e['quote'] for e in mem.packet()['active']] == ['代收点问过也没找到。', '家人是否代收还没问清楚。']
+    assert mem.entries[-1]['supersedes'] == [old.entries[0]['id']]

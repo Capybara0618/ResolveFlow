@@ -19,8 +19,9 @@ intent=LOGISTICS/ELIGIBILITY/APPLICATION/HANDOFF/PRODUCT/OTHER；needs可多选O
 一般政策条件只需POLICY；判断当前订单是否符合退款条件还需ORDER，涉及运输前提再取SHIPMENT。
 change=ADD/CONTINUE/CORRECT/PAUSE/RESUME/CANCEL/RESOLVE/REOPEN/CLARIFY。事件决定事项状态，不输出status/lifecycle。
 新事项ADD，插问可PAUSE旧事项，恢复RESUME，明确结束RESOLVE/撤回CANCEL，已结束再次处理REOPEN。变化须当前原句。
-客户陈述用customer_claims:[{topic:CHECKS,reference:CURRENT,quote:客户原句}]，不生成id或关系数组。
-默认追加；确有旧客户陈述才可change=REPLACE/RETRACT并选customer_memory.correction_targets中的target=id；无目标就追加，助手建议不是旧客户陈述。
+客户陈述用customer_claims，每条仅一项可独立纠正的信息，quote取当前确切原文；收货、不同人的代收、不同地点的排查分别提取，不合成大段。不生成id或关系数组。
+先逐条对照customer_memory.correction_targets中的quote：同一事实被否定、更正或从确定变为尚不确定，须change=REPLACE并选对应target=id；明确撤回用RETRACT，不把纠正仅APPEND而让旧说法继续有效。
+例如旧陈述为“外箱完好”，客户改口“外箱还没有检查”，输出{topic:MATERIAL,reference:CURRENT,quote:外箱还没有检查,change:REPLACE,target:对应旧id}；无旧目标的新事实才APPEND，其他独立旧陈述保留，别仅因同主题替代。助手建议不是客户陈述，假设问题不是已发生事实。
 """
 
 INVESTIGATION_SYSTEM = """按stage.focus逐项调查并答复；不重新声明事项、事件或客户陈述。历史助手话语不是实时事实。

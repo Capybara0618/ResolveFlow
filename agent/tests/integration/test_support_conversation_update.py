@@ -69,6 +69,41 @@ def test_rejected_understanding_never_exports_candidate_as_accepted_state(agent_
         runtime.run(req, "local-read-token")
 
 
+def test_atomic_claim_correction_survives_failed_answer_and_zero_call_recovery(agent_db):
+    from resolveflow.support.memory import CustomerMemory
+    from tests.unit.test_support_customer_claims import claim
+
+    initial = request(input_version=1)
+    initial.context['current_request'] = '门卫没有代收。代收柜已查没有包裹。'
+    memory = CustomerMemory(initial)
+    memory.propose([claim('门卫没有代收。'), claim('代收柜已查没有包裹。')], [])
+    old_id, separate_id = [e['id'] for e in memory.entries]
+    req = request(input_version=3, run_id=str(uuid.uuid4()))
+    req.context.update(current_request='更正：门卫是否代收还没确认。', previous_customer_memory=memory.snapshot())
+    opening = understand(req, needs=['GUIDE'])
+    opening['customer_claims'] = [claim('门卫是否代收还没确认。', change='REPLACE', target=old_id)]
+    bad = parts(part('trace', '无指南却给入口。'))
+    active = [TokenizedScript(mode='live', script=[opening, bad, bad])]
+    runtime = SupportRuntime(agent_db, DeploymentConfig(mode='mock'), architecture='staged-v1',
+        model_factory=lambda: active[0], sources_factory=lambda *a: Reads())
+    failed = runtime.run(req, 'local-read-token')
+    assert failed['status'] == 'FAILED' and failed['answer'] is None
+    saved = failed['conversation_update']['customer_memory']
+    assert [e['status'] for e in saved['entries']] == ['SUPERSEDED', 'ACTIVE', 'ACTIVE']
+    assert saved['entries'][-1]['supersedes'] == [old_id]
+    with agent_db.connection() as c:
+        c.execute("UPDATE support_agent_run SET status='RUNNING',result_json=NULL,"
+                  "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
+    active[0] = TokenizedScript(mode='live', script=[opening, bad, bad])
+    assert runtime.run(req, 'local-read-token') == failed and active[0].calls == 0
+    later = request(input_version=4)
+    later.context.update(previous_customer_memory=saved)
+    retained = CustomerMemory(later).packet()
+    assert {e['id'] for e in retained['active']} == {separate_id, saved['entries'][-1]['id']}
+    assert [e['quote'] for e in retained['correction_targets']] == [
+        '代收柜已查没有包裹。', '门卫是否代收还没确认。']
+
+
 def test_refinement_and_source_rendered_amount_rebuild_from_saved_calls(agent_db):
     from tests.unit.test_support_grounding import FactReads
     from tests.unit.test_support_refine_needs import refine
