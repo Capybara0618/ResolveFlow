@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，真实流式S1：隔离传输/正文投影与本地HTTP验证完成）
+
+- 用户批准按计划开工；S1a独立Provider SSE客户端已a79ae21普通push核实。本步新增AnswerProjection按根ANSWER_PARTS.parts[].text增量投影，处理kind后置、Unicode/转义/跨片段、part/码点offset及有界缓存；内部推理/工具JSON不输出，未解析占位符/数字/金额尾部留待最终来源填充。只是候选投影，来源/attempt门禁和最终审核仍由S3接入，不能直接当历史回答。
+- 新投影测试先模块缺失1collection失败，实现后1失败/17通过是测试把6字符offset写成7，改为实际len并补边界后通过。集中52通过（2.16秒），含原缓冲客户端、合成SSE与真实loopback HTTP：服务端flush首段后等客户端首正文，再发tail，证明正文早于完整响应且仅一调用/一结算。相关Ruff与2源码strict mypy通过；命令/失败/限制见[报告](../reports/chat-refund-stream-s1/README.md)。
+- 原四脏文件与旧冻结manifest SHA逐项保持，真实新调用0、usage2011；SDK循环/默认生产入口未切换，项目/数据库仍停，静态预期稿服务保留。S1隔离机制完成，真实供应商TTFT/浏览器延迟未测，不宣称性能达标。下一步按方案接S2 Case持久进度→鉴权SSE→当前会话，再S3正文转发；R1–R3聊天退款尚未实现。本步精确commit/普通push核实后停止写入。
+
 ## 当前快照（2026-10-23，聊天真实流式S1a：独立Provider传输通过，生产尚未切换）
 
 - 用户批准按既定开发计划开工。新增独立StreamingLiveModelClient，真实逐块读SSE、严格UTF-8/CRLF解析、片段观察器及首片段/完成计时，复用原请求上限/计量/完整ModelReply，不改SDK循环/默认生产模型或旧清单。首回调早于下一网络片段由测试明确断言；不是完成后模拟打字。
