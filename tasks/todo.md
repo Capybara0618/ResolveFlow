@@ -1,3 +1,8 @@
+## 当前快照（2026-10-23，真实物流/政策两轮成功；刷新登录限制已定位，剩余一轮待验收）
+
+- 驱动修复a79b655普通push核实。v2真实Vue/Gateway/Java/Python/DeepSeek前两轮后台SUCCEEDED，7模型全部COMPLETE、usage2012→2019、业务/政策/原调查hash保持；第一轮状态146ms/首正文4694ms/正式消息5488ms，一条正式消息与草稿清理成功。[原报告](../reports/chat-stream-live-v2/README.md)保持失败：第二轮启动204ms刷新，App登录仅内存回登录，驱动等会话30秒失败，非后台失败，第二轮浏览器正文计时未测。
+- 不重发前两条或刷分；脚本新增独立continuation准备v3，绑定v2原结果SHA，重新登录只读验证第二轮回答，然后只发送原计划第三条“已找到包裹/仅人工咨询”，实际AbortController断SSE验证续接。Ruff/node --check通过，prepare无模型；精确提交普通push后仅执行剩余1轮（最多12调用），完整刷新需重登记为体验限制，不扩登录架构或R1–R3。
+
 ## 当前快照（2026-10-23，真实验收首轮驱动收件人错误，零模型调用；已修正待续验收）
 
 - 准备93bad8f已普通push核实。完整系统首次页面执行所选A-DELAYED已有已解决人工核查单，默认收件人为商家，驱动漏点“询问智能助手”，发送未启动Agent，75秒未发布停止；[v1原结果](../reports/chat-stream-live-v1/runtime-results.json)/browser/截图保留，0新run/0模型、usage2012和业务hash保持，非Agent质量失败。

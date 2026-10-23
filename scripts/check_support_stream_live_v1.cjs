@@ -6,9 +6,9 @@ const directory = process.env.SUPPORT_STREAM_ACCEPTANCE_DIR || 'reports/chat-str
 const plan = JSON.parse(fs.readFileSync(`${directory}/plan.json`, 'utf8'));
 const output = `${directory}/browser.json`;
 assert(!fs.existsSync(output), 'Do not overwrite an earlier attempt');
-const observations = [], writes = [], errors = [], turns = [], httpErrors = [];
+const observations = [], writes = [], errors = [], turns = [], httpErrors = [], checks = [];
 let active = null;
-const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations, writes, errors, httpErrors }, null, 2) + '\n');
+const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations, writes, errors, httpErrors, checks }, null, 2) + '\n');
 (async () => {
   const browser = await chromium.launch({ headless: true, channel: 'msedge' });
   try {
@@ -32,9 +32,18 @@ const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations
       };
       new MutationObserver(observe).observe(document, { subtree: true, childList: true, characterData: true });
       const original = window.fetch;
+      let currentStream;
+      window.interruptAcceptanceStream = () => currentStream?.abort();
       window.fetch = async function (...args) {
+        const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+        if (url?.includes('/events')) {
+          currentStream = new AbortController();
+          const previous = args[1]?.signal;
+          args[1] = { ...args[1], signal: previous ? AbortSignal.any([previous, currentStream.signal]) : currentStream.signal };
+        }
         const response = await original.apply(this, args);
         if (response.headers.get('content-type')?.includes('text/event-stream')) {
+          window.recordStreamAcceptance({ type: 'connection', at: Date.now() });
           const reader = response.clone().body.getReader();
           void (async () => {
             const decoder = new TextDecoder(); let buffer = '';
@@ -77,17 +86,27 @@ const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations
       if (await assistant.count()) await assistant.click();
     };
     await select();
+    if (plan.recovered_answer) {
+      assert((await page.locator('.support-messages').innerText()).includes(plan.recovered_answer));
+      checks.push('Previous policy answer restored after fresh login; no message resubmitted');
+      await page.screenshot({ path: `${directory}/restored-policy.png`, fullPage: true });
+    }
     for (const [index, text] of plan.turns.entries()) {
       const count = await page.locator('.support-message.assistant:not([data-generation])').count();
       await page.getByLabel('咨询消息', { exact: true }).fill(text);
       active = { index, text, started_at: Date.now() }; turns.push(active);
       await page.locator('[data-action=send]').click();
-      if (index === 1) {
+      if (index === 1 || plan.reconnect_mode === 'transport-abort') {
         // A real page reload while the saved turn is running; it must only read/reconnect.
         const until = Date.now() + 15000;
         while (!observations.some(o => o.turn === index && o.type === 'event' && o.event.kind === 'turn.started') && Date.now() < until) await page.waitForTimeout(50);
-        active.reload_at_ms = Date.now() - active.started_at;
-        await page.reload(); await select();
+        if (plan.reconnect_mode === 'transport-abort') {
+          active.transport_abort_ms = Date.now() - active.started_at;
+          await page.evaluate(() => window.interruptAcceptanceStream());
+        } else {
+          active.reload_at_ms = Date.now() - active.started_at;
+          await page.reload(); await select();
+        }
       }
       const until = Date.now() + 75000;
       let captured = false;
@@ -116,7 +135,11 @@ const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations
       console.log(JSON.stringify({ turn: index + 1, first_body_ms: active.first_body_ms, completed_ms: active.completed_ms }));
       active = null;
     }
-    assert.equal(writes.filter(w => w.path.endsWith('/messages')).length, 3);
+    assert.equal(writes.filter(w => w.path.endsWith('/messages')).length, plan.turn_limit);
+    if (plan.reconnect_mode === 'transport-abort') {
+      assert(observations.some(o => o.type === 'connection' && o.elapsed_ms >= turns[0].transport_abort_ms));
+      checks.push('Real fetch SSE aborted and reconnected; one user POST and one final message');
+    }
     assert.equal(errors.length, 0);
   } catch (error) {
     errors.push(error.message); process.exitCode = 1;

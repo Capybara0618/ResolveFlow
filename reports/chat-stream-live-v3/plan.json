@@ -1,0 +1,23 @@
+{
+  "synthetic_data": true,
+  "live_provider": "deepseek-flash",
+  "not_holdout": true,
+  "resume_metrics": false,
+  "turn_limit": 1,
+  "model_call_upper_bound": 12,
+  "automatic_retry": false,
+  "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+  "conversation_id": "da936b0c-18c1-4cbc-8832-184b3d3b8137",
+  "turns": [
+    "补充更正一下：我已经找到包裹了，暂时没有发现商品损坏。现在只想知道如何找商家人工咨询，不申请退款。"
+  ],
+  "continue_from": "reports\\chat-stream-live-v2",
+  "previous_result_sha256": "804d641bedae2d3845ab84c29e6a040d2fbc0c8945d7cf2c3f168800ad4b017d",
+  "recovered_answer": "关于“一直未收到货”的售后政策，本店现行版本（2026.10）分几种情形，需要先核实订单当前事实才能判断适用哪一条：\n\n1. 已付款未发货：若订单已成功付款，且当前履约记录明确为“未发货”（NOT_SHIPPED，版本1并含付款事件），可申请该订单行全部数量的实付金额退款；若物流缺失、状态未知或已发货，则不适用本规则。\n2. 已签收争议：若存在有效签收记录，不能仅因您主张未收到就退款，须人工核验签收争议；事实不足时需补充材料或转人工调查。\n3. 发货后损坏或质量问题：须由人工核验客户材料与订单事实，确认符合条件后才可申请退款；普通在途或未经核验的主张不足以批准。\n\n需要提供的材料：政策要求以人工核验为准，通常需能说明订单事实的材料（如订单号、物流记录、签收争议或商品问题的相关凭证）；具体清单以商家核查时提出的补充要求为准。以上仅为一般条件说明，尚未核实您这笔订单是否符合，最终由售后专员决定。\n\n您已说明暂不申请退款，这里只解释政策，不代为提交任何申请。\n\n人工核查：打开“售后咨询”，选择对应订单商品，点击“请商家核查”。预览并编辑核查摘要，选择要共享的原文和调查依据，确认后才转交商家。私有对话不会默认全部共享；此操作不需要填写退款金额，也不会自动提交退款申请。",
+  "reconnect_mode": "transport-abort",
+  "source_commit": "a79b655c6a2218de1be363a44270479253589112",
+  "files": {
+    "scripts/accept_support_stream_v1.py": "dc17ee9f244d49596485a14909eb30629f8b72a9b377bf2185135eb742d16766",
+    "scripts/check_support_stream_live_v1.cjs": "d667e0888368fbbe952e37725a273426585e3f4ebb6a1760d993a1016e0c516d"
+  }
+}

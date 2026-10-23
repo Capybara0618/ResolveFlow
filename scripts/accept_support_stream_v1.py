@@ -41,7 +41,7 @@ def connect():
     return settings, Database(settings.agent_dsn)
 
 
-def prepare():
+def prepare(continue_from=None):
     assert not (OUT / 'plan.json').exists(), 'frozen plan already exists'
     settings, db = connect()
     try:
@@ -63,12 +63,23 @@ def prepare():
         persist(PRIVATE / 'before.json', {'business': snapshot(settings), 'runs': runs, 'general_model_attempts': attempts,
                                          'conversation': conversation})
         files = ['scripts/accept_support_stream_v1.py', 'scripts/check_support_stream_live_v1.cjs']
+        continuation = {}
+        if continue_from:
+            previous = json.loads((continue_from / 'runtime-results.json').read_text(encoding='utf-8'))
+            assert len(previous['runs']) == 2 and all(r['run']['status'] == 'SUCCEEDED' for r in previous['runs'])
+            assert previous['model_attempts'] == 7 and previous['ledger_after'] == 2019
+            recovered = previous['runs'][-1]['run']['result_json']['answer']['text']
+            assert any(m['author'] == 'ASSISTANT' and m['text'] == recovered for m in conversation['messages'])
+            continuation = {'continue_from': str(continue_from.relative_to(ROOT)),
+                            'previous_result_sha256': digest(continue_from / 'runtime-results.json'),
+                            'recovered_answer': recovered, 'reconnect_mode': 'transport-abort'}
+        turns = TURNS[2:] if continuation else TURNS
         persist(OUT / 'plan.json', {'synthetic_data': True, 'live_provider': 'deepseek-flash', 'not_holdout': True,
-            'resume_metrics': False, 'turn_limit': 3, 'model_call_upper_bound': 36, 'automatic_retry': False,
-            'line_id': sample['line_id'], 'conversation_id': conversation['conversation_id'], 'turns': TURNS,
+            'resume_metrics': False, 'turn_limit': len(turns), 'model_call_upper_bound': len(turns)*12, 'automatic_retry': False,
+            'line_id': sample['line_id'], 'conversation_id': conversation['conversation_id'], 'turns': turns, **continuation,
             'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
             'files': {f: digest(ROOT / f) for f in files}})
-        print('Prepared three turns; provider requests: 0')
+        print(f'Prepared {len(turns)} remaining turns; provider requests: 0')
     finally:
         db.close()
 
@@ -115,9 +126,9 @@ def execute():
                 report['ledger_after'] = usage['used']
                 report['preservation'] = snapshot(settings)
                 report['business_unchanged'] = report['preservation'] == before['business']
-                report['success'] = (report.get('browser_exit_code') == 0 and len(runs) == 3
+                report['success'] = (report.get('browser_exit_code') == 0 and len(runs) == plan['turn_limit']
                     and all(r['run']['status'] == 'SUCCEEDED' for r in runs)
-                    and len(models) <= 36 and not report['unknown_model_results']
+                    and len(models) <= plan['model_call_upper_bound'] and not report['unknown_model_results']
                     and not report['general_model_attempts_delta'] and report['business_unchanged'])
                 persist(OUT / 'runtime-results.json', report)
     finally:
@@ -131,8 +142,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=['prepare', 'execute'])
     parser.add_argument('--directory', type=Path, default=OUT)
+    parser.add_argument('--continue-from', type=Path)
     args = parser.parse_args()
     OUT = args.directory.resolve()
     assert OUT.parent == ROOT / 'reports' and OUT.name.startswith('chat-stream-live-v')
     PRIVATE = ROOT / 'tmp' / OUT.name
-    prepare() if args.command == 'prepare' else execute()
+    prepare(args.continue_from.resolve() if args.continue_from else None) if args.command == 'prepare' else execute()
