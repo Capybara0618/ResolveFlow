@@ -1,11 +1,13 @@
 """Phase isolation, scoped evidence and actual SDK calls for the optional architecture."""
 
 import json
+from pathlib import Path
 
 import pytest
 
 from resolveflow.harness.budget import RunBudget
 from resolveflow.support.engine import SupportAgent
+from resolveflow.support.protocol import SupportInput
 from resolveflow.support.stages import INVESTIGATION_SYSTEM, POLICY_SYSTEM, UNDERSTANDING_SYSTEM, Understanding
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.unit.test_support_agent import GuideReads, Reads, read, request
@@ -119,6 +121,32 @@ def test_policy_phase_can_refine_to_current_case_in_the_same_sdk_loop():
     assert model.calls == 5 and source.calls[-1] == ('get_order_context', {})
     last_system = ''.join(b.text for b in model.conversations[-1][0].get_content_blocks() if hasattr(b, 'text'))
     assert last_system == INVESTIGATION_SYSTEM
+
+
+def test_saved_policy_paragraphs_get_precise_duplicate_part_feedback_and_repair_without_weakening_coverage():
+    root = Path(__file__).resolve().parents[3]
+    saved = json.loads((root / 'reports/customer-policy-focus-close-v1/scope-v5/runtime-results.json').read_text(
+        encoding='utf-8'))
+    original = json.dumps(saved['models'][2]['decision'], ensure_ascii=False, sort_keys=True)
+    bad = saved['models'][2]['decision']
+    good = {**bad, 'parts': [{**bad['parts'][0], 'text': '\n\n'.join(p['text'] for p in bad['parts']),
+                            'citations': list(dict.fromkeys(c for p in bad['parts'] for c in p['citations']))}]}
+    records = next(c['response_json'] for c in saved['calls'] if c['kind'] == 'tool')
+
+    class SavedPolicies(Reads):
+        def search(self, query, top_k):
+            self.calls.append(('search_policy', {'query': query, 'top_k': top_k}))
+            return records
+
+    req = SupportInput.model_validate(saved['input'])
+    req.deadline_at = request().deadline_at
+    result, model, _, _ = staged(req, [saved['models'][0]['decision'], saved['models'][1]['decision'], bad, good],
+                                SavedPolicies(), provider_capacity=32768)
+    assert result['status'] == 'SUCCEEDED', result['reason']
+    feedback = json.loads(model.packets[-1]['feedback'])
+    assert feedback['expected_parts'] == 1 and feedback['duplicate_task_ids'] == ['t2']
+    assert '一个part' in feedback['repair_note']
+    assert json.dumps(bad, ensure_ascii=False, sort_keys=True) == original
 
 
 def test_unknown_history_scope_is_rejected_before_any_meaning_state_is_committed():

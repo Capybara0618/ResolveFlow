@@ -128,8 +128,13 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
                           repair_note="只读取证不需标注；发布时同层声明tasks和当前原文dialogue_events，"
                                       "再给覆盖全部事项的parts。不能直接发布无任务的回答。")
         elif error.issue == "ANSWER_PARTS_COVERAGE":
-            result.update(field="parts", repair_note="逐项给task_id/status/text/citations；覆盖全部task_state任务。"
-                          "首次先声明tasks；不能省略任务或自动完成。")
+            provided = [p.get('task_id') for p in payload.get('parts', []) if isinstance(p, dict)]
+            result.update(field="parts", expected_parts=len(error.task_ids),
+                duplicate_task_ids=sorted({key for key in provided
+                                           if isinstance(key, str) and provided.count(key) > 1}),
+                repair_note="每个所列task_id必须且只能一个part。属于同一事项的政策/材料等不同段落合并进该part.text，"
+                            "用换行分段并合并citations，不要重复task_id；不同事项仍分别覆盖，不省略任务。"
+                            "保留原status/assessment与依据，不重新声明已经接纳的tasks或事件。")
         elif error.issue in {"ANSWER_TASKS_PENDING", "TASKS_REMOVED"}:
             result.update(
                 resubmit_note="被拒标注未保存，沿用已接受task_state。",

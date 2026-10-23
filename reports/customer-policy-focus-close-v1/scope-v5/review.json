@@ -1,0 +1,49 @@
+{
+  "verdict": "FAIL_PUBLICATION",
+  "candidate_content_verdict": "PASS_TARGETED_SCOPE",
+  "source_commit": "e3e7eb7bae05c5e1ccd6eb55a6118e5207830c9a",
+  "runtime_sha256": "572569e12813d9f6f853bce51ea66d7ada2ca9f2a7361be5ac237994eabfa38d",
+  "runtime_status": "FAILED",
+  "reason": "INVALID_DECISION",
+  "models": 4,
+  "input_tokens": 15628,
+  "output_tokens": 664,
+  "elapsed_ms": 7328.879500000767,
+  "ledger_before": 2047,
+  "ledger_after": 2051,
+  "findings": [
+    "Correct new t2 and retained historical H12/H13 topic references.",
+    "Candidate focuses on historical transport-delay discussion, transit boundary and conditional carrier-confirmed loss; valid signing is explained as a necessary contrast to the no-signing condition, not an unrelated category.",
+    "No unshipped/damage/general money catalogue; no current shipment assertion without fact reads; suggestions marked nonmandatory.",
+    "Both answer attempts split policy/material paragraphs into two parts with the same task_id, so strict task coverage rejected them and no message was published."
+  ],
+  "rejected_candidate": {
+    "kind": "ANSWER_PARTS",
+    "parts": [
+      {
+        "task_id": "t2",
+        "status": "ANSWERED",
+        "assessment": "CONDITIONS",
+        "text": "沿上轮讨论的“耳机一直未收到、仅核实物流延迟原因”场景：普通在途（IN_TRANSIT）本身不构成丢失或退款资格，尚无承运商异常结论时，店家不会按未发货规则退款，只能补充信息或转人工核查。若后续承运商结论为 LOST 且无有效签收记录，经人工核验可按该订单行全部数量实付金额退款；若已有有效签收记录，则不能仅凭“未收到”退款，须人工核验签收争议。",
+        "citations": [
+          "P5",
+          "P2",
+          "P3"
+        ]
+      },
+      {
+        "task_id": "t2",
+        "status": "ANSWERED",
+        "assessment": "CONDITIONS",
+        "text": "材料方面：政策未规定固定的材料清单。常见可准备的是订单号、物流单号及与商家/承运商的沟通记录，作为协助人工核查的非强制建议；是否需补充材料由售后专员核验时决定。",
+        "citations": [
+          "P5",
+          "P3"
+        ]
+      }
+    ]
+  },
+  "public_data_unchanged": true,
+  "temporary_schema_removed": true,
+  "next_step": "Keep duplicate-task rejection. Clarify one part per task with paragraphs inside text and report expected count/duplicate IDs in feedback; confirm on one fresh frozen source version."
+}

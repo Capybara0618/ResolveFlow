@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，scope-v5候选内容聚焦但重复part未发布；格式约束/反馈已补，最后限定确认待执行）
+
+- e3e7eb7已普通push核实。scope-v5实际4请求/账2047→2051、准确15628输入/664输出、7328.88ms；历史运输延迟主题→在途/确认丢失/无签收对照与材料建议已聚焦，无无源当前断言/其他类目。两次把同一t2拆政策/材料两个part，原覆盖拒绝，FAILED/INVALID_DECISION且未发布。[原结果/候选源审](../reports/customer-policy-focus-close-v1/scope-v5/review.json)保留，不当正式成功。
+- 明确同一任务一个part、text换行；覆盖反馈增加expected_parts/duplicate_task_ids及合并段落和引用说明，原解析/覆盖/一次修复不放宽。保存坏响应SDK离线回归新断言先红1失败/18通过，修后全客服/驱动/SDK/PG/流式338通过0跳过（25.26秒），Ruff首轮超长行仅换行后最终Ruff/strict通过，不把脚本合规回答当模型成功。
+- 未执行scope-v6初稿因格式修复归档本机tmp（0请求）；实际[scope-v6-final](../reports/customer-policy-focus-close-v1/scope-v6-final/manifest.json)原追问仅一次/至多6模型已复冻，prepare0新增。先精确提交普通push核实后执行并审正式结果，不再改RAG路径/重刷旧题；Java/Web未启、PG仅隔离验证运行，收尾停保留卷，原四脏文件/六SHA/原失败保持，R1–R3/简历未做。
+
 ## 当前快照（2026-10-23，scope-v4仍PARTIAL；纯政策JSON契约已补齐，scope-v5待一次确认）
 
 - 96659f4已普通push核实。scope-v4实际4请求/账2043→2047、准确13649输入/718输出、8034.19ms；理解正确新增t2并承接H12/H13，旧t1身份保持。纯政策提示漏完整回答JSON示例，模型先错结构/无政策正文被拒，一次修复读政策后发布仍多类目，源审PARTIAL，[原始输出/审查](../reports/customer-policy-focus-close-v1/scope-v4/review.json)保留。
