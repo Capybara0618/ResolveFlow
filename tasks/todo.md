@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，scope-v3仍偏宽已保留；纯政策阶段职责收窄，scope-v4待一次确认）
+
+- 7f2a2df已普通push核实。scope-v3真实3请求/账2040→2043、准确11278输入/497输出、6355.40ms运行成功；context_refs选H13、仅POLICY、材料非强制和历史不当现状通过，但仍展开其他类目，源审PARTIAL。旧t1被OTHER/PAUSE复用也原样记录，[原输出/审查](../reports/customer-policy-focus-close-v1/scope-v3/review.json)保持，不宣称已收口。
+- 选中历史原话/来源紧邻focus投影到stage.discussion_context，纯POLICY焦点用精简POLICY_SYSTEM，仍原SDK唯一循环、权限/预算/来源保持；REFINE_NEEDS后回一般调查，不加模型。理解示例按当前占用集合选未占用ID，不强制模型新建。红测collection缺常量后定向26、扩展336通过0跳过（20.69秒），追加同SDK政策转本单调查定向18通过，Ruff/strict通过。[收口记录](../reports/customer-policy-focus-close-v1/README.md)。
+- 新[scope-v4](../reports/customer-policy-focus-close-v1/scope-v4/manifest.json)仍原追问1次/至多6模型已冻结，prepare0新增；提交普通push核实后仅执行一次，按焦点/原话/正文/引用/事项身份审核。旧失败/政策/Gold/账不改，不称旧三题为最终版本全测；Java/Web未启，PG仅验证运行，收尾停保留卷，R1–R3/简历未做。
+
 ## 当前快照（2026-10-23，scope-v2未发布并保留；提示示例已统一，scope-v3待一次确认）
 
 - 773a9bd已普通push核实。scope-v2原题4次真实请求/账2036→2040、准确输入16592/输出720；理解误加GUIDE且省context_refs，初答缺源后第4次读指南，第5次模型发送前被4上限拦截，FAILED/ValueError、未发布。Harness含未发送预留，不能当5次实际收费；public保持/schema导出清理。[完整原始失败](../reports/customer-policy-focus-close-v1/scope-v2/runtime-results.json)不覆盖。

@@ -24,7 +24,14 @@ from resolveflow.support.progress import ProgressReporter
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
 from resolveflow.support.retrieval import CANDIDATE_K, RETRIEVAL_VERSION, RRF_CONSTANT
 from resolveflow.support.sources import BoundSources
-from resolveflow.support.stages import INVESTIGATION_SYSTEM, UNDERSTANDING_SYSTEM, RefineNeeds, TurnStage, Understanding
+from resolveflow.support.stages import (
+    INVESTIGATION_SYSTEM,
+    POLICY_SYSTEM,
+    UNDERSTANDING_SYSTEM,
+    RefineNeeds,
+    TurnStage,
+    Understanding,
+)
 from resolveflow.support.store import SupportStore
 
 
@@ -139,7 +146,7 @@ class SupportRuntime:
                     "../policies/child_index.py",
                 ]
             },
-            "prompt_hash": hashlib.sha256((UNDERSTANDING_SYSTEM + INVESTIGATION_SYSTEM
+            "prompt_hash": hashlib.sha256((UNDERSTANDING_SYSTEM + INVESTIGATION_SYSTEM + POLICY_SYSTEM
                                            if self.architecture == "staged-v1" else SYSTEM).encode()).hexdigest(),
         }
         journal, cached = SupportStore(self.database).claim(request, manifest)

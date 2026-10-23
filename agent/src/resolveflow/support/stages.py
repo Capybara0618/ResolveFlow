@@ -55,6 +55,17 @@ status=ANSWERED/NEEDS_CUSTOMER/NEEDS_MERCHANT/UNAVAILABLE；缺客户材料用bl
 source_status禁止重试勿重查，无新证据勿循环；已排查不重复问，独立人工咨询不要求退款金额。
 """
 
+POLICY_SYSTEM = """本轮仅解释政策条件。按stage.focus的问题和stage.discussion_context的具体主题回答。
+discussion_context是已选历史原话，仅限制讨论范围，不证明本轮当前状态。承接问法不是全政策概览；除非客户要求总览，围绕上轮正在讨论的场景给直接规则，必要时补一条相关条件变化，不铺开其他同词场景。
+按capabilities自主读取所需政策/原文；引用只用本run实际O/P编号。COMPLETE_SMALL_SET是完整候选集合，不是每条都要讲；挑相关条款，保留其前提/例外/人工核验要求。
+答复简短自然：先回答该场景及必要条件，再说明材料。政策没有材料清单就明确未规定；常见准备项只能作为非强制建议。未问办理流程或资金机制就不追加。不要替用户申请、审批或承诺退款。
+只解释政策时不输出当前订单/物流结论，引用上轮可说“沿用上轮讨论背景”；若客户实际要求判断本单，再REFINE_NEEDS追加ORDER/SHIPMENT并查事实，下一轮切回一般调查。
+单JSON；不重新声明事项/事件/客户陈述。读工具：
+{"kind":"READ_TOOL","tool_name":"search_policy","arguments":{"query":"具体场景的问题","top_k":3}}
+回答用ANSWER_PARTS，parts覆盖focus，每项task_id/status/text/citations；status=ANSWERED，assessment=CONDITIONS。材料建议不是待客户补证，不要为政策没写清单而追问。
+源失败才用UNAVAILABLE，blocker={kind:SOURCE_FAILURE,detail:原因,tool_name:实际失败工具}；已观察禁重试的失败不重查。
+"""
+
 
 class StageError(ValueError):
     def __init__(self, detail: str, *, gaps: list[dict[str, str]] | None = None) -> None:
@@ -105,6 +116,8 @@ class TurnStage:
         self.understanding: Understanding | None = None
         self.refinements = 0
         self.history_refs: set[str] = set()
+        self.history_context: dict[str, dict[str, Any]] = {}
+        self.example_task_id = "t1"
 
     @property
     def pending(self) -> bool:
@@ -112,7 +125,12 @@ class TurnStage:
 
     @property
     def system(self) -> str:
-        return UNDERSTANDING_SYSTEM if self.pending else INVESTIGATION_SYSTEM
+        if self.pending:
+            return UNDERSTANDING_SYSTEM.replace('"t1"', '"' + self.example_task_id + '"')
+        if self.understanding and all(set(f.needs) == {"POLICY"} and f.intent not in {"APPLICATION", "HANDOFF"}
+                                      for f in self.understanding.focus):
+            return POLICY_SYSTEM
+        return INVESTIGATION_SYSTEM
 
     def packet(self) -> dict[str, Any]:
         policy_scope = {f.id: "CONDITIONS" for f in (self.understanding.focus if self.understanding else [])
@@ -127,13 +145,25 @@ class TurnStage:
             return packet
         packet["stage"] = self.packet()
         if self.pending:
+            messages = [message for key in ("recent_messages", "history_index") for message in packet.get(key, [])]
+            self.history_context = {m["read_ref"]: deepcopy(m) for m in messages}
             self.history_refs = set(packet.get("history_read_refs", [])) | {
                 message["read_ref"] for key in ("recent_messages", "history_index")
                 for message in packet.get(key, [])}
+            used = {t["id"] for t in packet.get("dialogue_state", {}).get("issue_tasks", [])}
+            position = 1
+            while "t" + str(position) in used:
+                position += 1
+            self.example_task_id = "t" + str(position)
             for key in ("capabilities", "observations", "read_activity", "read_progress", "source_status",
                         "answer_requirements", "fact_view"):
                 packet.pop(key, None)
         else:
+            discussion = {f.id: [deepcopy(self.history_context.get(ref, {"read_ref": ref, "not_loaded": True}))
+                                for ref in f.context_refs]
+                          for f in (self.understanding.focus if self.understanding else []) if f.context_refs}
+            if discussion:
+                packet["stage"]["discussion_context"] = discussion
             # Persisted history stays readable; action state isn't a second edit channel.
             for key in ("previous_tasks", "dialogue_state"):
                 packet.pop(key, None)

@@ -1,0 +1,22 @@
+{
+  "verdict": "PARTIAL",
+  "source_commit": "7f2a2dfb34518c4a31b9aba17893fd9afe7e8382",
+  "runtime_sha256": "21286badc4a9767cd6006a498062f5498fd77c1ca7b795530a02e852565bf9d5",
+  "models": 3,
+  "input_tokens": 11278,
+  "output_tokens": 497,
+  "elapsed_ms": 6355.402099998173,
+  "ledger_before": 2040,
+  "ledger_after": 2043,
+  "findings": {
+    "coverage": "Both in-transit and carrier-confirmed-loss clauses cited.",
+    "current_fact_authority": "No current business fact reads and no assertion of this-run shipment state; all policy conditions.",
+    "materials": "No invented mandatory list.",
+    "scope": "Still expands unshipped/signing alternatives despite selecting H13 as context; remains too broad for the retained transport-delay discussion.",
+    "meaning_identity_warning": "Understanding reused old t1 (LOGISTICS) as OTHER with PAUSE rather than creating the policy question separately; retained, not silently corrected."
+  },
+  "raw_answer": "针对“一直没收到货”的情形，店家售后政策按不同前提区分：\n\n1. 如果承运商结论为丢失（LOST）且没有有效签收记录，经人工核验后，可按该订单行全部数量实付金额退款。\n2. 如果存在有效签收记录，则不能仅因您主张未收到就退款，需要人工核验签收争议；事实不足时会要求补充材料或转人工调查。\n3. 如果只是普通在途（IN_TRANSIT），这本身不构成丢失或退款资格；在没有承运商异常结论、也没有其他经核验的退款理由时，会要求补充信息或转人工处理，不按“未发货”规则退款。\n4. 如果实际是已付款但持久履约记录明确为未发货（NOT_SHIPPED），才适用“已付款未发货”的全额退款规则；缺失物流、状态未知或已发货都不适用。\n\n关于材料：上述政策没有写明“未收到货”情形下必须提交的具体材料清单，因此无法给出固定必交项。通常可准备订单号、收货信息及与商家的沟通记录，供人工核验时参考——这属于建议，不是政策规定的必交材料。\n\n以上仅为政策条件说明，不构成对您本单资格的认定，也不代为申请退款。",
+  "public_data_unchanged": true,
+  "temporary_schema_removed": true,
+  "next_step": "Materialize chosen historical discussion adjacent to focus; use a compact policy-only instruction in the same AgentScope loop; make the understanding example use an unoccupied ID. New frozen source version, not a rerun of this run."
+}

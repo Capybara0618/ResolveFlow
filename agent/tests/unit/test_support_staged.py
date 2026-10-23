@@ -6,7 +6,7 @@ import pytest
 
 from resolveflow.harness.budget import RunBudget
 from resolveflow.support.engine import SupportAgent
-from resolveflow.support.stages import UNDERSTANDING_SYSTEM, Understanding
+from resolveflow.support.stages import INVESTIGATION_SYSTEM, POLICY_SYSTEM, UNDERSTANDING_SYSTEM, Understanding
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.unit.test_support_agent import GuideReads, Reads, read, request
 from tests.unit.test_support_answer_parts import part, parts
@@ -82,6 +82,41 @@ def test_followup_carries_explicit_history_scope_without_making_it_a_business_fa
     packet = model.packets[-1]
     assert packet['stage']['focus'][0]['context_refs'] == ['H1']
     assert packet['recent_messages'][0]['read_ref'] == 'H1' and packet['fact_view'] == []
+    assert packet['stage']['discussion_context']['trace'][0]['text'] == '上一轮讨论运输延迟。'
+    assert packet['stage']['discussion_context']['trace'][0]['authority'] == 'HISTORICAL_ASSISTANT_OUTPUT'
+    system = ''.join(b.text for b in model.conversations[-1][0].get_content_blocks() if hasattr(b, 'text'))
+    assert system == POLICY_SYSTEM
+
+
+def test_understanding_example_does_not_reuse_an_existing_task_id_for_a_new_question():
+    req = request()
+    req.context['previous_tasks'] = {'origin': 'MODEL_PREVIOUS_TURN', 'input_version': 1, 'tasks': [
+        {'id': 't1', 'intent': 'LOGISTICS', 'request': '原物流事项', 'status': 'ANSWERED', 'lifecycle': 'OPEN'}]}
+    _, model, _, _ = staged(req, [understand(req, needs=[]), parts(part('trace', '已记录。'))])
+    system = ''.join(b.text for b in model.conversations[0][0].get_content_blocks() if hasattr(b, 'text'))
+    payload = json.loads(next(line for line in system.splitlines() if line.startswith('{"kind":"TURN_UNDERSTANDING"')))
+    assert payload['focus'][0]['id'] != 't1'
+
+
+def test_policy_phase_can_refine_to_current_case_in_the_same_sdk_loop():
+    req = request()
+
+    class OrderReads(Reads):
+        def read(self, name, arguments):
+            self.calls.append((name, arguments))
+            assert name == 'get_order_context'
+            return {'source_type': 'ORDER', 'version': 1, 'data': {'line_id': req.line_id, 'status': 'PAID'}}
+
+    final = part('trace', '按本轮订单与政策，还需要核验具体前提。', ['P1', 'O1'])
+    final['assessment'] = 'CASE_ASSESSMENT'
+    result, model, source, _ = staged(req, [understand(req, intent='ELIGIBILITY', needs=['POLICY']),
+        read('search_policy', query='条件'),
+        {'kind': 'REFINE_NEEDS', 'task_id': 'trace', 'add': ['ORDER'], 'reason': '需要判断本单前提'},
+        read('get_order_context'), parts(final)], OrderReads())
+    assert result['status'] == 'SUCCEEDED', result['reason']
+    assert model.calls == 5 and source.calls[-1] == ('get_order_context', {})
+    last_system = ''.join(b.text for b in model.conversations[-1][0].get_content_blocks() if hasattr(b, 'text'))
+    assert last_system == INVESTIGATION_SYSTEM
 
 
 def test_unknown_history_scope_is_rejected_before_any_meaning_state_is_committed():
