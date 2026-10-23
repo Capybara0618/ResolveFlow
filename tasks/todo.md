@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，用户批准单场景真实确认，输入/执行驱动已冻结待运行）
+
+- 用户“那请你开始吧”批准原固定计划一次真实追问/至多12次模型、不强制分支、不自动重跑。基线9b7700c，原文本/历史/事实快照和真实PG policy generation已绑定；当前Java/Web不启，仅PG。新run/调用账独立临时schema，公共表只读核验，实际流式DeepSeek/staged-v1循环；不把冻结业务快照称实时Java或网页验收。
+- 新脚本confirm_policy_focus_live_v1.py及单元/实际PG合成Provider预跑3通过0跳过（14.72秒），验证发送前记账/硬上限/流式、同run快照与导出清理。Ruff首轮导入/冗余noqa/长行问题已修，Ruff/py_compile通过。prepare冻结[输入/源码](../reports/customer-policy-focus-live-v1/manifest.json)，新真实模型0/账2022。[报告](../reports/customer-policy-focus-live-v1/README.md)记范围。
+- 准备精确提交普通push核实后仅execute一次，保留全部真实Query/调用/回答和失败，按原来源审查实际效果；不改原报告/索引/Gold/公共业务。R1–R3未做，原六SHA需保持，收尾停PG保留卷。
+
 ## 当前快照（2026-10-23，政策Query衔接与可选分支已接；真实自动选择/回答待单场景确认）
 
 - 诊断bf85195、检索接线8bdf18c均普通push核实。默认单Query/原三路RRF保持，复合条件可同一次search_policy给两条sub_queries，分支首候选覆盖/余位融合；真实本地确认默认7Query排序全保持，人工分支普通在途+丢失前三均覆盖，热单次73.46ms不当p95或自动生成收益。
