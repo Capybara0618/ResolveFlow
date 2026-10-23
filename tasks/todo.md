@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，可选双分支检索接入并验证；Query/回答聚焦提示待接）
+
+- 诊断bf85195已普通push核实。SearchArguments/SDK schema/Engine/BoundSources/检索同步可选sub_queries两条有界独立分支，主query留意图、仅检索子Query；原单Query默认排序保持。分支内三路RRF、首候选覆盖+余位融合，单Agent工具/本地读记账，至多6索引查询/2本地embedding，不额外LLM或ReAct。[实现报告](../reports/customer-policy-focus-v1/implementation.md)记边界。
+- 关键红测5失败/23通过；定向35后mypy1变量重复修复；扩展1失败317通过是长目录说明导致旧Mock保守包溢出，去重复说明、不加预算后定向41、全客服单元+真实SDK/隔离PG共322通过0跳过（8.82秒），5源码strict/Ruff通过。PG证明双分支参数持久、同run恢复0新模型/检索。
+- [真实本地索引确认](../reports/customer-policy-focus-v1/branches.json)默认7Query前五全与原冻结一致；人工两分支前三普通在途/丢失/损坏，必要两规则覆盖、原文hash保持，热单次73.46ms不当p95/真实生成效果。全public表hash保持/新LLM与HTTP0、usage2022；仅PG启动。先精确提交push核实，再补staged省略语境/假设/政策回答聚焦提示与离线场景；真实模型自动拆分及最终回答尚未复测，R1–R3未做。
+
 ## 当前快照（2026-10-23，政策Query只读诊断完成；按需双分支检索待实现）
 
 - 用户批准继续当前Agent/RAG衔接，e07c85e已普通push核实。复核真实请求：追问语境在理解/单Query处丢失；grounded_query仅旧离线候选，生产未接自动补强。原跨轮助手陈述不能当本轮实时物流，不强制所有政策问题先读物流。

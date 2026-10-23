@@ -135,3 +135,74 @@ def test_later_route_version_change_aborts_instead_of_returning_dense_only():
             embedder=object(),
             timings={},
         )
+
+
+def test_branch_merge_keeps_each_head_before_filling_from_fused_candidates():
+    from resolveflow.support.retrieval import merge_query_branches
+
+    a, b, common = hit('A'), hit('B'), hit('common')
+    result = merge_query_branches([[a, common, b], [b, common, a]], top_k=3)
+    assert [h.rule_id for h in result] == ['A', 'B', 'common']
+    assert [h.rule_id for h in merge_query_branches([[a, b], [a, b]], top_k=3)] == ['A', 'B']
+    assert merge_query_branches([[], []], top_k=3) == []
+    with pytest.raises(ValueError):
+        merge_query_branches([[a], [hit('B', merchant='M-B')]], top_k=3)
+
+
+def test_optional_two_queries_share_pins_and_use_six_bounded_routes_in_one_search():
+    from resolveflow.support.retrieval import retrieve_policy
+
+    calls = []
+
+    class Index:
+        def search(self, **kwargs):
+            calls.append(kwargs)
+            return [hit('A'), hit('common')] if kwargs['query'] == '当前分支' else [hit('B'), hit('common')]
+
+    timings = {}
+    result = retrieve_policy(Index(), merchant_id='M-A', bundle_ids=['bundle-A'], manifest_hash='hash',
+        generation_ids={'bundle-A': 'generation-1'}, query='完整问题', sub_queries=['当前分支', '假设分支'],
+        top_k=3, embedder=object(), timings=timings)
+    assert [h.rule_id for h in result] == ['A', 'B', 'common']
+    assert len(calls) == 6 and [c['query'] for c in calls] == ['当前分支'] * 3 + ['假设分支'] * 3
+    assert all(c['generation_ids'] == {'bundle-A': 'generation-1'} and c['top_k'] == 5 for c in calls)
+    assert 'branch_0_total_ms' in timings and 'branch_1_total_ms' in timings
+
+
+def test_second_branch_failure_cannot_return_first_branch_evidence():
+    from resolveflow.policies.index import PolicyIndexNotReadyError
+    from resolveflow.support.retrieval import retrieve_policy
+
+    class Index:
+        def search(self, **kwargs):
+            if kwargs['query'] == '第二分支':
+                raise PolicyIndexNotReadyError('generation unavailable')
+            return [hit('A')]
+
+    with pytest.raises(PolicyIndexNotReadyError):
+        retrieve_policy(Index(), merchant_id='M-A', bundle_ids=['bundle-A'], manifest_hash='hash',
+            generation_ids={'bundle-A': 'generation-1'}, query='完整问题', sub_queries=['第一分支', '第二分支'],
+            top_k=3, embedder=object(), timings={})
+
+
+@pytest.mark.parametrize('queries', [[], ['只有一个'], ['a', 'b', 'c'], ['相同', ' 相同 '], ['', 'b']])
+def test_query_decomposition_is_explicit_bounded_and_distinct(queries):
+    from pydantic import ValidationError
+
+    from resolveflow.support.protocol import SearchArguments
+
+    with pytest.raises(ValidationError):
+        SearchArguments(query='完整问题', sub_queries=queries)
+
+
+def test_two_branch_request_requires_room_and_is_in_the_sdk_schema():
+    from pydantic import ValidationError
+
+    from resolveflow.support.guidance import tool_schema
+    from resolveflow.support.protocol import SearchArguments
+
+    with pytest.raises(ValidationError):
+        SearchArguments(query='完整问题', sub_queries=['a', 'b'], top_k=1)
+    value = SearchArguments(query='完整问题', sub_queries=['a', 'b'])
+    assert value.sub_queries == ['a', 'b']
+    assert tool_schema('search_policy')['properties']['sub_queries']['maxItems'] == 2

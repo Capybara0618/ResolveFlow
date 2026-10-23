@@ -22,6 +22,36 @@ from tests.unit.test_support_tasks import task
 SECRET = 'staged-test-local-secret-only'  # noqa: S105 - scoped test identity, no real credential
 
 
+def test_branched_query_journal_rebuilds_without_resending_models_or_search(agent_db):
+    from tests.unit.test_support_agent import Reads
+
+    class Branches(Reads):
+        def search(self, query, top_k, *, sub_queries=None):
+            self.calls.append((query, top_k, sub_queries))
+            return [{'source_type': 'POLICY', 'version': 'v1', 'data': {'text': text}}
+                    for text in ['在途不足以确认丢失。', '假设确认丢失后须人工核验。']]
+
+    req = request(run_id=str(uuid.uuid4()))
+    query, branches = '当前与假设条件', ['当前在途', '假设确认丢失']
+    script = [understand(req, intent='OTHER', needs=['POLICY']),
+              read('search_policy', query=query, sub_queries=branches, top_k=3),
+              parts(part('trace', '仅解释条件，不认定当前丢失或退款资格。', ['P1', 'P2']))]
+    model, source = [TokenizedScript(mode='live', script=script)], Branches()
+    runtime = SupportRuntime(agent_db, DeploymentConfig(mode='mock'), architecture='staged-v1',
+                             model_factory=lambda: model[0], sources_factory=lambda *_: source)
+    result = runtime.run(req, 'bound-test-token')
+    assert result['status'] == 'SUCCEEDED' and model[0].calls == 3
+    with agent_db.connection() as c:
+        call = c.execute("SELECT request_json FROM support_agent_call WHERE run_id=%s AND kind='tool'",
+                         (req.run_id,)).fetchone()
+        assert call['request_json']['arguments'] == {'query': query, 'sub_queries': branches, 'top_k': 3}
+        c.execute("UPDATE support_agent_run SET status='RUNNING',result_json=NULL,"
+                  "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
+    model[0] = TokenizedScript(mode='live', script=script)
+    assert runtime.run(req, 'replacement-bound-test-token') == result
+    assert model[0].calls == 0 and source.calls == [(query, 3, branches)]
+
+
 @pytest.mark.parametrize('architecture', ['single', 'staged-v1'])
 def test_focus_ledger_and_phase_rebuild_after_each_turn_with_no_new_calls(agent_db, tmp_path, architecture):
     texts = ['签收没找到，可能家人代收了。', '这件事先暂停，问一下正式申请入口。',

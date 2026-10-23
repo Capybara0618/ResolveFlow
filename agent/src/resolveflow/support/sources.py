@@ -90,7 +90,7 @@ class BoundSources:
             return value
         return {"source_type": source_type, "version": value.get("version", self.request.input_version), "data": value}
 
-    def search(self, query: str, top_k: int) -> list[dict[str, Any]]:
+    def search(self, query: str, top_k: int, *, sub_queries: list[str] | None = None) -> list[dict[str, Any]]:
         started = time.perf_counter()
         timings: dict[str, float] = {}
         manifest = self.request.context.get("policy_manifest")
@@ -120,6 +120,7 @@ class BoundSources:
                 embedder=self.embedder,
                 generation_ids=self.generations,
                 timings=timings,
+                sub_queries=sub_queries,
             )
         except (PolicyIndexNotReadyError, EmbeddingUnavailableError):
             LOG.info(

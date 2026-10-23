@@ -141,6 +141,16 @@ class History(Closed):
 class SearchArguments(Closed):
     query: str = Field(min_length=1, max_length=1000)
     top_k: int = Field(default=3, ge=1, le=5, strict=True)
+    sub_queries: list[Annotated[str, Field(min_length=1, max_length=1000)]] | None = Field(
+        default=None, min_length=2, max_length=2, exclude_if=lambda v: v is None)
+
+    @model_validator(mode='after')
+    def distinct_branches_with_room(self) -> SearchArguments:
+        if self.sub_queries is not None:
+            normalized = [q.strip() for q in self.sub_queries]
+            if not all(normalized) or len(set(normalized)) != 2 or self.top_k < 2:
+                raise ValueError('sub_queries须两条非空独立分支，top_k至少为2。')
+        return self
 
 
 class Search(TaskAction, SearchArguments):

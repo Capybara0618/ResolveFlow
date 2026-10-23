@@ -94,3 +94,26 @@ def test_cross_merchant_manifest_fails_without_reading_index():
             source.search("退款条件", 3)
     finally:
         source.close()
+
+
+def test_bound_adapter_passes_both_branches_under_one_pinned_generation():
+    calls = []
+
+    class Index:
+        def require_ready(self, bundle_ids, manifest_hash):
+            return [SimpleNamespace(bundle_id='A', generation_id='generation-1', merchant_id='M-A')]
+
+        def search(self, **scope):
+            calls.append(scope)
+            name = 'current' if scope['query'] == '当前条件' else 'conditional'
+            return [PolicyHit(version='v1', title=name, bundle_id='A', merchant_id='M-A', manifest_hash='hash',
+                              rule_id=name, chunk_id=name, content_hash='hash-' + name,
+                              text='受控原始条件' + name, score=1.0, path=scope['path'])]
+
+    source = BoundSources(request(), case_url='http://unused.local', token='unused', index=Index(), embedder=object())
+    try:
+        values = source.search('完整问题', 3, sub_queries=['当前条件', '假设条件'])
+        assert [s['data']['rule_id'] for s in values] == ['current', 'conditional']
+        assert len(calls) == 6 and all(c['generation_ids'] == {'A': 'generation-1'} for c in calls)
+    finally:
+        source.close()

@@ -358,6 +358,9 @@ class SupportAgent:
             validated = Search.model_validate({"kind": "SEARCH_POLICY", **arguments})
 
             def invoke() -> list[dict[str, Any]]:
+                if validated.sub_queries is not None:
+                    return cast(list[dict[str, Any]], self.sources.search(
+                        validated.query, validated.top_k, sub_queries=validated.sub_queries))
                 return cast(list[dict[str, Any]], self.sources.search(validated.query, validated.top_k))
         else:
             Read.model_validate({"kind": "READ_TOOL", "tool_name": name, "arguments": arguments})

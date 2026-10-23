@@ -27,6 +27,23 @@ def staged(req, script, sources=None, **kwargs):
     return agent.run(), model, source, agent
 
 
+def test_optional_branch_queries_are_one_sdk_action_without_an_extra_model_round():
+    class Branches(Reads):
+        def search(self, query, top_k, *, sub_queries=None):
+            self.calls.append(('search_policy', {'query': query, 'top_k': top_k, 'sub_queries': sub_queries}))
+            return [{'source_type': 'POLICY', 'version': 'v1', 'data': {'text': text}}
+                    for text in ['当前状态不足以认定丢失。', '假设确认丢失后仍须人工核验。']]
+
+    req = request()
+    queries = ['当前在途的适用条件', '假如以后确认丢失的条件']
+    action = read('search_policy', query='当前与假设两类条件', sub_queries=queries, top_k=3)
+    result, model, source, _ = staged(req, [understand(req, intent='OTHER', needs=['POLICY']),
+        action, parts(part('trace', '目前与假设条件分别说明，尚未认定退款资格。', ['P1', 'P2']))], Branches())
+    assert result['status'] == 'SUCCEEDED', result['reason']
+    assert model.calls == 3 and source.calls == [('search_policy', {
+        'query': '当前与假设两类条件', 'sub_queries': queries, 'top_k': 3})]
+
+
 def test_understanding_is_separate_from_reads_and_final_answer_no_longer_repeats_annotations():
     req = request()
     result, model, source, agent = staged(req, [understand(req), read(),

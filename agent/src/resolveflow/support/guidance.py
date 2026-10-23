@@ -54,6 +54,8 @@ def tool_schema(name: str) -> dict[str, Any]:
     if name == "search_policy":
         properties = {
             "query": {"type": "string", "minLength": 1, "maxLength": 1000},
+            "sub_queries": {"type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": True,
+                            "items": {"type": "string", "minLength": 1, "maxLength": 1000}},
             "top_k": {"type": "integer", "minimum": 1, "maximum": 5},
         }
         required = ["query"]
