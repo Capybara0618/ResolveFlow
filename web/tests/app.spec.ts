@@ -66,7 +66,7 @@ function ownership(caseId: string, isOwner = true, version = 2) {
 
 vi.mock('../src/events', () => ({ watchCaseEvents: vi.fn().mockResolvedValue(undefined) }))
 
-afterEach(() => { vi.unstubAllGlobals(); window.history.replaceState(null, '', '/') })
+afterEach(() => { vi.unstubAllGlobals(); sessionStorage.clear(); window.history.replaceState(null, '', '/') })
 
 describe('core workbench', () => {
   it('separates merchant list and detail and discards an old optional product read after returning', async () => {

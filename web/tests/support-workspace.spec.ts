@@ -69,6 +69,19 @@ async function open() {
   await wrapper.get('[data-conversation]').trigger('click'); await flushPromises()
 }
 
+it('restores the selected conversation after remount using reads only', async () => {
+  const second = { ...original(), conversation_id: 'second-conversation', line_id: 'second-line' }
+  vi.mocked(supportApi.conversations).mockResolvedValue({ items: [original(), second], next_before: null })
+  vi.mocked(supportApi.read).mockImplementation(async (_token, id) => id === second.conversation_id ? second : original())
+  const mutate = vi.spyOn(supportApi, 'mutate')
+  await open()
+  await wrapper.findAll('[data-conversation]')[1]!.trigger('click'); await flushPromises()
+  wrapper.unmount()
+  wrapper = mount(SupportWorkspace, { props: { account: buyer } }); await flushPromises()
+  expect(wrapper.get('[aria-current="true"]').attributes('data-line-id')).toBe('second-line')
+  expect(mutate).not.toHaveBeenCalled()
+})
+
 function completed(c: SupportConversation): SupportStreamEvent {
   return { event_id: '3', conversation_id: c.conversation_id, run_id: c.assistant_turn!.run_id,
     input_version: c.version, attempt_id: null, kind: 'answer.committed', created_at: '2026-10-23T04:00:00Z',

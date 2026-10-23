@@ -28,6 +28,7 @@ import AftercareProduct from './ui/AftercareProduct.vue'
 import MerchantCaseDetail from './ui/MerchantCaseDetail.vue'
 import { useAftercareProducts } from './ui/aftercare-products'
 import { fulfillmentApi, fulfillmentLabels, type MerchantTrade } from './fulfillment-client'
+import { clearTabSession, readTabSession, saveTabSession } from './tab-session'
 
 const username = ref('')
 const password = ref('')
@@ -415,26 +416,35 @@ async function openCase(caseId: string) {
     if (!controller.signal.aborted) { streamStatus.value = '连接失败'; fail(cause) }
   })
 }
+async function enterSession(session: LoginResponse) {
+  stopStream()
+  products.reset(); merchantCaseOpen.value = false; merchantTrade.value = null
+  account.value = session
+  if (session.single_operator) merchantPage.value = 'overview'
+  if (session.buyer_id && !window.location.hash.startsWith('#/shop') && !window.location.hash.startsWith('#/customer/')) window.history.replaceState(null, '', shopReturn.value.startsWith('#/shop') ? shopReturn.value : '#/shop')
+  shopReturn.value = ''
+  password.value = ''
+  reviewItems.value = []; reviewCounts.value = null; reviewCursor.value = undefined
+  reviewScope.value = 'PUBLIC'; reviewView.value = session.single_operator ? 'ALL' : 'REVIEW'; reviewQuery.value = ''; reviewSearch.value = ''
+  snapshot.value = null; selectedOrderLine.value = null
+  if (['REVIEWER', 'MERCHANT_ADMIN', 'OPERATOR'].includes(session.role)) {
+    if (!await loadReviewQueue()) return
+    if (!isSingleMerchant.value && reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
+  }
+}
 function login() {
   void act(async () => {
-    stopStream()
     const session = await coreApi.login(username.value, password.value)
-    products.reset(); merchantCaseOpen.value = false; merchantTrade.value = null
-    account.value = session
-    if (session.single_operator) merchantPage.value = 'overview'
-    if (session.buyer_id && !window.location.hash.startsWith('#/shop') && !window.location.hash.startsWith('#/customer/')) window.history.replaceState(null, '', shopReturn.value.startsWith('#/shop') ? shopReturn.value : '#/shop')
-    shopReturn.value = ''
-    password.value = ''
-    reviewItems.value = []; reviewCounts.value = null; reviewCursor.value = undefined
-    reviewScope.value = 'PUBLIC'; reviewView.value = session.single_operator ? 'ALL' : 'REVIEW'; reviewQuery.value = ''; reviewSearch.value = ''
-    snapshot.value = null; selectedOrderLine.value = null
-    if (['REVIEWER', 'MERCHANT_ADMIN', 'OPERATOR'].includes(session.role)) {
-      if (!await loadReviewQueue()) return
-      if (!isSingleMerchant.value && reviewItems.value.length) await openCase(reviewItems.value[0].case_id)
-    }
+    saveTabSession(session)
+    await enterSession(session)
   })
 }
+onMounted(() => {
+  const session = readTabSession()
+  if (session) void act(() => enterSession(session))
+})
 function logout() {
+  clearTabSession()
   // An explicit account boundary must not reopen the previous customer's private route.
   window.history.replaceState(null, '', window.location.pathname + window.location.search)
   products.reset(); merchantCaseOpen.value = false; merchantTrade.value = null

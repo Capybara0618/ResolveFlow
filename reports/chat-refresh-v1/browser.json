@@ -1,0 +1,22 @@
+{
+  "synthetic_business_data": true,
+  "new_consultations": 0,
+  "checks": [
+    "Reload retains buyer, current consultation, messages and route; reads/SSE only",
+    "Explicit logout remains logged out after reload"
+  ],
+  "writes": [
+    {
+      "path": "/api/v1/auth/login",
+      "method": "POST"
+    }
+  ],
+  "event_connections": 2,
+  "errors": [],
+  "files": {
+    "web/src/tab-session.ts": "d5d2acd96dc57dd1584cc3dba46048c655ef36f1b1d49c688a338570b5811c38",
+    "web/src/App.vue": "39130b91a2a1b48d69b1ff8ba23b1f8dea2bb80bee7ca8ff2896c458f6b084e8",
+    "web/src/ui/SupportWorkspace.vue": "d0c66d9779f1cb9e84503c49fe9b8004098662734622f8a79e31b043188d8abe",
+    "scripts/check_support_refresh_v1.cjs": "067c4d7b99670528e79ea907f2b711f2e5e01afb356054061c9f68d6b6efc052"
+  }
+}

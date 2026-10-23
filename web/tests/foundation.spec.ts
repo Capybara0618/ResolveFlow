@@ -8,7 +8,7 @@ import App from '../src/App.vue'
 
 const platform: LoginResponse = { access_token: 't', role: 'PLATFORM_ADMIN', expires_in: 3600 }
 const merchant: LoginResponse = { access_token: 't', role: 'MERCHANT_ADMIN', merchant_id: 'M-1001', expires_in: 3600 }
-afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); window.history.replaceState(null, '', '/') })
+afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); sessionStorage.clear(); window.history.replaceState(null, '', '/') })
 
 describe('foundation management', () => {
   it('opens one merchant workspace and enters aftercare without personnel or claiming', async () => {

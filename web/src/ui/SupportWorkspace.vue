@@ -10,6 +10,7 @@ import SupportDialog from './SupportDialog.vue'
 import Icon from './ReviewIcon.vue'
 import { conversationTitle, stamp, tail } from '../support-view'
 import { applySupportEvent, mergeSupportConversation, watchSupportEvents } from '../support-events'
+import { readSupportSelection, saveSupportSelection } from '../tab-session'
 import './support-workspace.css'
 
 const props = defineProps<{ account: LoginResponse }>()
@@ -67,6 +68,8 @@ function setSelected(value: SupportConversation) {
   const same = selected.value?.conversation_id === value.conversation_id
   if (!same) expandedHistory = false
   selected.value = same ? mergeSupportConversation(selected.value!, value) : value; choosing.value = false
+  const remembered = merchant.value ? value.ticket?.ticket_id : value.conversation_id
+  if (remembered) saveSupportSelection(owner, remembered)
   if (resetRecipient) recipient.value = value.ticket ? 'MERCHANT' : 'ASSISTANT'
   remember(selected.value)
 }
@@ -92,6 +95,17 @@ async function load() {
   try { await Promise.all([list(), merchant.value ? Promise.resolve() : readOrders()]) }
   catch (cause) { if (alive) fail(cause) } finally { if (alive) loading.value = false }
   if (alive && !selected.value && !pending.value && !error.value) {
+    const remembered = readSupportSelection(owner)
+    if (remembered) {
+      const g = generation
+      try {
+        const value = await supportApi.read(token, remembered, merchant.value)
+        if (alive && g === generation && !selected.value && !pending.value) setSelected(value)
+        return
+      } catch (cause) {
+        if (!(cause instanceof ApiError && cause.status === 404)) { if (alive) fail(cause); return }
+      }
+    }
     if (items.value.length) await open(items.value[0])
     else if (!merchant.value) choosing.value = true
   }
