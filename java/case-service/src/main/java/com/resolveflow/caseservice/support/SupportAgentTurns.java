@@ -36,6 +36,9 @@ public class SupportAgentTurns {
     private final Clock clock;
     private final SupportStreamEvents events;
     private final SupportProgress progress;
+    private final org.springframework.context.ApplicationEventPublisher publisher;
+
+    public record Queued() {}
 
     public SupportAgentTurns(
             JdbcTemplate db,
@@ -48,7 +51,8 @@ public class SupportAgentTurns {
             SupportAgentClient agent,
             Clock clock,
             SupportStreamEvents events,
-            SupportProgress progress) {
+            SupportProgress progress,
+            org.springframework.context.ApplicationEventPublisher publisher) {
         this.db = db;
         this.tx = new TransactionTemplate(manager);
         tx.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
@@ -61,6 +65,7 @@ public class SupportAgentTurns {
         this.clock = clock;
         this.events = events;
         this.progress = progress;
+        this.publisher = publisher;
     }
 
     private static SupportService.Refused stale() {
@@ -134,6 +139,7 @@ public class SupportAgentTurns {
                 session.principal().subject(),
                 session.identityVersion());
         events.append(conversation, run, version, 0, "turn.accepted", Map.of("status", "PENDING"));
+        publisher.publishEvent(new Queued());
     }
 
     /** Caller holds the conversation lock; every invalidation shares its message transaction. */

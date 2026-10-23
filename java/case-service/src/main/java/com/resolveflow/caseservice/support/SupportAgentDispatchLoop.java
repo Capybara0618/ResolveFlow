@@ -15,6 +15,8 @@ public class SupportAgentDispatchLoop {
     private final java.util.concurrent.ExecutorService worker = Executors.newSingleThreadExecutor(
             Thread.ofPlatform().name("support-agent-dispatch").daemon().factory());
     private final AtomicBoolean busy = new AtomicBoolean();
+    private final AtomicBoolean requested = new AtomicBoolean();
+    private volatile boolean closed;
 
     public SupportAgentDispatchLoop(SupportAgentTurns turns) {
         this.turns = turns;
@@ -22,21 +24,34 @@ public class SupportAgentDispatchLoop {
 
     @Scheduled(fixedDelay = 1000)
     public void tick() {
+        if (closed) return;
         if (busy.compareAndSet(false, true))
             worker.submit(() -> {
                 try {
-                    turns.dispatchOne();
+                    do {
+                        requested.set(false);
+                        turns.dispatchOne();
+                    } while (requested.get() && !closed);
                 } catch (RuntimeException e) {
                     org.slf4j.LoggerFactory.getLogger(getClass())
                             .warn("support dispatch failed: {}", e.getClass().getSimpleName());
                 } finally {
                     busy.set(false);
+                    if (requested.get() && !closed) tick();
                 }
             });
     }
 
+    @org.springframework.transaction.event.TransactionalEventListener(
+            phase = org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT)
+    public void queued(SupportAgentTurns.Queued event) {
+        requested.set(true);
+        tick();
+    }
+
     @PreDestroy
     public void close() {
+        closed = true;
         worker.shutdown();
     }
 }

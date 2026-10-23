@@ -78,3 +78,19 @@ agent/.venv/Scripts/python.exe -m py_compile scripts/probe_support_stream_v3.py
 ```
 
 脚本首次Ruff有3项（根配置的导入分组、无效noqa、宽异常需说明），当次真实互通照上述单次执行并保存；随后修正Ruff/py_compile通过，无额外Provider请求，原结果不覆盖。
+
+## S3d：提交后唤醒与收口
+
+- 咨询消息/turn/event提交成功后，通过AFTER_COMMIT事件唤醒原单个有界worker，不再等待下一次1秒扫描；扫描保留用于恢复。事务回滚不唤醒，在worker繁忙期间到来的新输入保留唤醒标记，收尾检查竞态，无第二循环/模型重试。
+- 先加调度红测编译失败（Queued事件API未实现），接入后Case HTTP28项+独立调度1项以及共享凭据2项通过，0跳过；reactor59.867秒。覆盖提交后事件、回滚不触发、繁忙时新唤醒不丢及原聊天/来源/主体/fence/退款无副作用；Support限定格式检查通过。
+
+实际命令（cwd java，原JAVA_HOME）：
+
+```powershell
+./mvnw.cmd -B -pl case-service -am '-Dtest=SupportApiTest,SupportDispatchWakeTest,SupportCredentialTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+./mvnw.cmd -B -pl case-service '-DspotlessFiles=.*Support.*[.]java' spotless:apply spotless:check
+```
+
+收尾：原四脏文件、旧冻结manifest和本次真实probe原文共6文件SHA保持，usage2012且锁已释放；PG已停止exited/0保留原卷，原业务端口无监听。浏览器测试的自有HTTP/Edge已关闭，当前5175静态预期稿端口也无监听，本次未重新启动它。未修改简历/旧指标/旧失败。
+
+本批完成代码链路、工程回归、实际浏览器合成HTTP确认和1次真实Provider互通；完整系统真实对话、重连/修复现场与首正文计时仍需下一批集中验收。该项通过后再做R1–R3聊天内正式退款申请。提交记录：S3c a4b2b7e、单次互通14cf25d均普通push核实，唤醒小步同样独立提交推送。

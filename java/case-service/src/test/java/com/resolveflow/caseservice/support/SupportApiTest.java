@@ -52,6 +52,11 @@ class SupportApiTest extends CaseDatabaseTest {
     @TestConfiguration
     static class Configuration {
         @Bean
+        WakeProbe wakeProbe() {
+            return new WakeProbe();
+        }
+
+        @Bean
         @Primary
         SupportAgentClient assistantStub() {
             return mock(SupportAgentClient.class);
@@ -62,6 +67,36 @@ class SupportApiTest extends CaseDatabaseTest {
         CommerceOrderLineClient supportCommerce() {
             return mock(CommerceOrderLineClient.class);
         }
+    }
+
+    static class WakeProbe {
+        final java.util.concurrent.atomic.AtomicInteger calls = new java.util.concurrent.atomic.AtomicInteger();
+
+        @org.springframework.transaction.event.TransactionalEventListener
+        public void committed(SupportAgentTurns.Queued event) {
+            calls.incrementAndGet();
+        }
+    }
+
+    @Autowired
+    WakeProbe wakeProbe;
+
+    @Test
+    void wakeEventIsDeliveredAfterCommitAndNotAfterRollback() {
+        int before = wakeProbe.calls.get();
+        var c = message(open("support-A"), "wake-commit", "核查物流", "ASSISTANT");
+        assertThat(wakeProbe.calls.get()).isEqualTo(before + 1);
+        assertThatThrownBy(() -> new org.springframework.transaction.support.TransactionTemplate(transactionManager)
+                        .executeWithoutResult(st -> {
+                            turns.enqueue(
+                                    principals.session(buyer),
+                                    c.path("conversation_id").asString(),
+                                    3);
+                            throw new IllegalStateException("synthetic rollback");
+                        }))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(wakeProbe.calls.get()).isEqualTo(before + 1);
+        verifyNoInteractions(assistant);
     }
 
     @BeforeEach
