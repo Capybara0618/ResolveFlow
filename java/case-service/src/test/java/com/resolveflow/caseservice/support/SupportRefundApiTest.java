@@ -212,12 +212,124 @@ class SupportRefundApiTest extends SupportApiTest {
                 .isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM agent_binding", Integer.class))
                 .isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM case_evidence WHERE case_id=?", Integer.class, caseId))
+                .isEqualTo(1);
         post(
                 path(c) + "/refund-drafts/" + v.path("draft").path("draft_id").asString() + "/confirm",
                 buyer,
                 "confirm-once",
                 Map.of("revision", 99, "expected_version", 1),
                 409);
+        verifyNoInteractions(assistant);
+    }
+
+    @Test
+    void onlyFinalConfirmedReasonBecomesAnUnverifiedInitialCustomerStatement() {
+        var c = message(open("support-A"), "private-question", "私有咨询原文不应共享", "ASSISTANT");
+        var v = prepareDraft(c, "statement-draft");
+        String draftId = v.path("draft").path("draft_id").asString();
+        String reason = "本人未收到商品，请商家核实后处理整件退款。";
+        var edited = post(
+                path(c) + "/refund-drafts/" + draftId + "/edit",
+                buyer,
+                "statement-edit",
+                Map.of("revision", 1, "reason", reason),
+                200);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM case_evidence", Integer.class))
+                .isZero();
+        var created = confirmDraft(c, edited, "statement-confirm", 200);
+        String caseId = created.path("application").path("case").path("case_id").asString();
+        var claims = jdbc.queryForList("SELECT * FROM case_evidence WHERE case_id=?", caseId);
+        assertThat(claims).hasSize(1);
+        var claim = claims.getFirst();
+        assertThat(claim.get("source_type")).isEqualTo("CUSTOMER_STATEMENT");
+        assertThat(claim.get("content")).isEqualTo(reason);
+        assertThat(claim.get("source_ref").toString())
+                .contains(c.path("conversation_id").asString(), draftId);
+        assertThat(claim.get("source_version")).isEqualTo("conversation-2:draft-2");
+        assertThat(claim.get("content_hash").toString()).matches("[0-9a-f]{64}");
+        assertThat(claim.get("appended_role")).isEqualTo("CUSTOMER");
+        assertThat(claim.get("appended_by")).isNotNull();
+        assertThat(claim.get("input_revision")).isEqualTo(1);
+        assertThat(claim.get("verification_result")).isNull();
+        assertThat(claim.get("reviewed_evidence_id")).isNull();
+        assertThatThrownBy(() -> jdbc.update(
+                        "UPDATE case_evidence SET source_type='REVIEWER_VERIFICATION',appended_role='REVIEWER' WHERE case_id=?",
+                        caseId))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class)
+                .hasRootCauseMessage("Check constraint 'chk_evidence_revision' is violated.");
+        assertThat(jdbc.queryForObject(
+                        "SELECT input_revision FROM aftersale_case WHERE case_id=?", Integer.class, caseId))
+                .isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM agent_binding WHERE case_id=?", Integer.class, caseId))
+                .isEqualTo(1);
+        assertThat(confirmDraft(c, edited, "statement-confirm", 200)).isEqualTo(created);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM case_evidence WHERE case_id=?", Integer.class, caseId))
+                .isEqualTo(1);
+    }
+
+    @Test
+    void initialStatementFailureRollsBackCaseBindingDraftAndReceipts() {
+        var c = open("support-A");
+        var v = prepareDraft(c, "statement-rollback-draft");
+        jdbc.execute(
+                "ALTER TABLE case_evidence ADD CONSTRAINT reject_initial_statement CHECK(source_type<>'CUSTOMER_STATEMENT')");
+        try {
+            confirmDraft(c, v, "statement-rollback-confirm", 500);
+        } finally {
+            jdbc.execute("ALTER TABLE case_evidence DROP CHECK reject_initial_statement");
+        }
+        for (String table :
+                java.util.List.of("aftersale_case", "agent_binding", "case_evidence", "request_idempotency")) {
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM " + table, Integer.class))
+                    .isZero();
+        }
+        assertThat(get(path(c) + "/refund-application", buyer, 200)
+                        .path("draft")
+                        .path("status")
+                        .asString())
+                .isEqualTo("DRAFT");
+        confirmDraft(c, v, "statement-rollback-confirm", 200);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM case_evidence", Integer.class))
+                .isEqualTo(1);
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"CONFIRMED", "REFUTED", "INCONCLUSIVE"})
+    void merchantCanVerifyTheConfirmedReasonAndDispatchANewRevision(String result) {
+        var c = open("support-A");
+        var draft = prepareDraft(c, "reviewable-reason-draft");
+        var created = confirmDraft(c, draft, "reviewable-reason-confirm", 200);
+        String caseId = created.path("application").path("case").path("case_id").asString();
+        var initial = jdbc.queryForMap("SELECT * FROM case_evidence WHERE case_id=?", caseId);
+        // This inherited fixture retains the legacy multi-staff shop; claim through its real route.
+        claimTestCase(caseId, "demo-admin");
+        String text = rest.post()
+                .uri("/api/v1/cases/" + caseId + "/reviewed-evidence")
+                .header("Authorization", merchant)
+                .headers(h -> addReviewHeaders(h, caseId))
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(Map.of(
+                        "source_evidence_id",
+                        initial.get("evidence_id"),
+                        "verification_result",
+                        result,
+                        "reason",
+                        "商家核对订单及承运记录后登记核验结论"))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+        assertThat(json.readTree(text).path("input_revision").asInt()).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM agent_binding WHERE case_id=?", Integer.class, caseId))
+                .isEqualTo(2);
+        assertThat(jdbc.queryForMap("SELECT * FROM case_evidence WHERE case_id=? AND input_revision=1", caseId))
+                .isEqualTo(initial);
+        var check = jdbc.queryForMap("SELECT * FROM case_evidence WHERE case_id=? AND input_revision=2", caseId);
+        assertThat(check.get("reviewed_evidence_id")).isEqualTo(initial.get("evidence_id"));
+        assertThat(check.get("verification_result")).isEqualTo(result);
         verifyNoInteractions(assistant);
     }
 
@@ -256,6 +368,8 @@ class SupportRefundApiTest extends SupportApiTest {
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM aftersale_case", Integer.class))
                 .isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM agent_binding", Integer.class))
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM case_evidence", Integer.class))
                 .isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM request_idempotency", Integer.class))
                 .isZero();

@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，核验衔接H1完成：确认原因已成为可核验初始陈述）
+
+- 按用户新授权，聊天新Case确认事务写入最终原因的未核验CUSTOMER_STATEMENT/来源版本hash；不共享其他私聊、不增加初始run/revision。V32追加允许revision1仅未核验客户陈述。原有单/重放不追加、材料或关联失败全回滚；商家三种核验均保留陈述并新增revision2与binding。[实施合同](../docs/customer-chat-refund-implementation-v1.md)/[证据与全部失败](../reports/chat-refund-handoff-v1/README.md)。
+- 真实隔离MySQL/Flyway/HTTP Case68+shared2通过0跳过56.578秒，限定格式/diff检查通过。红测2失败、原revision约束/异常映射/投影与旧多人fixture失败均已定位并披露后全组复核。只验证临时库，原服务尚旧版、原usage2076无新Provider；四历史脏文件保持。
+- 精确提交普通push核实后继续H2：缺商家核验时给有效MANUAL_REVIEW建议及明确反馈、保留真实FAILED；再H3状态区分与集中验收。不重放/覆盖原失败，不放松CONFIRMED或资金/权限。
+
 ## 当前快照（2026-10-23，聊天退款真实验收完成记录：卡片/建单通过，自动摘要与退款调查未全通过）
 
 - 1d82f03准备已同步。原两轮自动摘要失败保持，根级字符串/定位反馈5b6e952已离线修复（447客服/契约、5隔离PG通过）；未重发原题。`continue_chat_refund_live_v1.py`同原329元订单真实手动入口：编辑/金额/确认前无单、确认217ms、同键重复和刷新同单通过；Case 0fadd26d-6f92-4422-8866-d71ec013af02。

@@ -6,7 +6,9 @@ import com.resolveflow.caseservice.casefile.CaseService;
 import com.resolveflow.caseservice.casefile.CaseWriter;
 import com.resolveflow.caseservice.casefile.CustomerCaseRepository;
 import com.resolveflow.caseservice.casefile.CustomerCaseService;
+import com.resolveflow.caseservice.casefile.EvidenceRepository;
 import com.resolveflow.caseservice.order.RequestPrincipalResolver.Session;
+import com.resolveflow.shared.contract.CanonicalJson;
 import com.resolveflow.shared.security.AuthenticatedPrincipal;
 import com.resolveflow.shared.security.Role;
 import com.resolveflow.shared.support.SupportRefundWire.*;
@@ -36,6 +38,7 @@ public class SupportRefundService {
     private final TransactionTemplate tx;
     private final CaseService cases;
     private final CaseWriter writer;
+    private final EvidenceRepository evidence;
 
     public SupportRefundService(
             JdbcTemplate db,
@@ -45,7 +48,8 @@ public class SupportRefundService {
             Clock clock,
             PlatformTransactionManager transactions,
             CaseService cases,
-            CaseWriter writer) {
+            CaseWriter writer,
+            EvidenceRepository evidence) {
         this.db = db;
         this.customerCases = customerCases;
         this.lists = lists;
@@ -55,6 +59,7 @@ public class SupportRefundService {
         this.tx.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
         this.cases = cases;
         this.writer = writer;
+        this.evidence = evidence;
     }
 
     private static SupportService.Refused refused(int status, String text) {
@@ -320,7 +325,7 @@ public class SupportRefundService {
                 var current = conversation(s, id, true);
                 return receipt(current, s, key, "R_CONFIRM", request, () -> {
                     version(current, body.expectedVersion());
-                    editable(current, draftId, body.revision());
+                    var confirmedReason = editable(current, draftId, body.revision());
                     var existing = lists.related(current.merchant(), current.customer(), current.line());
                     if (existing != null
                             && (!existing.status().isTerminal()
@@ -329,6 +334,10 @@ public class SupportRefundService {
                         return view(s, current);
                     var created =
                             prepared.replayed() != null ? prepared.replayed() : writer.writeCase(prepared.write());
+                    if (prepared.replayed() == null) {
+                        registerConfirmedReason(
+                                s, current, confirmedReason, created.body().caseId());
+                    }
                     db.update(
                             "UPDATE support_refund_draft SET status='CONFIRMED',case_id=? WHERE conversation_id=?",
                             created.body().caseId(),
@@ -347,5 +356,36 @@ public class SupportRefundService {
             }
             throw refused(409, "申请状态已变化，请刷新后重试同一请求");
         }
+    }
+
+    /** Initial customer input, committed with the new case, not a later append or a verification. */
+    private void registerConfirmedReason(Session s, Conversation c, Draft d, String caseId) {
+        var provenance = json.createObjectNode();
+        provenance.put("case_id", caseId);
+        provenance.put("conversation_id", c.id());
+        provenance.put("conversation_version", c.version());
+        provenance.put("draft_id", d.draftId());
+        provenance.put("draft_revision", d.revision());
+        provenance.put("evidence_kind", "CUSTOMER_STATEMENT");
+        provenance.put("text", d.reason());
+        provenance.put("submitted_by", s.principal().subject());
+        provenance.put("submitted_role", "CUSTOMER");
+        Instant now = Instant.now(clock);
+        evidence.insertEvidence(
+                caseId,
+                UUID.randomUUID().toString(),
+                "CUSTOMER_STATEMENT",
+                "customer:" + c.customer() + ":support-refund:" + c.id() + ":" + d.draftId(),
+                "conversation-" + c.version() + ":draft-" + d.revision(),
+                CanonicalJson.contentHash(provenance),
+                1,
+                now,
+                d.reason(),
+                null,
+                null,
+                null,
+                s.principal().subject(),
+                "CUSTOMER",
+                now);
     }
 }
