@@ -117,3 +117,20 @@ def test_bound_adapter_passes_both_branches_under_one_pinned_generation():
         assert len(calls) == 6 and all(c['generation_ids'] == {'A': 'generation-1'} for c in calls)
     finally:
         source.close()
+
+
+def test_ranked_source_identity_does_not_change_when_result_window_size_changes():
+    class Index:
+        def require_ready(self, bundle_ids, manifest_hash):
+            return [SimpleNamespace(bundle_id='A', generation_id='g1', merchant_id='M-A')]
+
+        def search(self, **scope):
+            return [PolicyHit(version='v1', title=name, bundle_id='A', merchant_id='M-A', manifest_hash='hash',
+                rule_id=name, chunk_id=name, content_hash='hash-' + name, text='完整条件', score=1.0,
+                path=scope['path']) for name in ['a', 'b']]
+
+    source = BoundSources(request(), case_url='http://unused', token='unused', index=Index(), embedder=object())
+    try:
+        assert source.search('条件', 1)[0] == source.search('条件', 2)[0]
+    finally:
+        source.close()

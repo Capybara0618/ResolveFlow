@@ -253,6 +253,7 @@ class SupportAgent:
         try:
             if self.stage.pending:
                 understanding = Understanding.model_validate(reply.decision)
+                self.stage.check_context_refs(understanding)
                 tasks, memory, dialogue = deepcopy(self.tasks), deepcopy(self.memory), deepcopy(self.dialogue)
                 memory.apply(understanding.memory_updates, self.observations)
                 if understanding.customer_claims:

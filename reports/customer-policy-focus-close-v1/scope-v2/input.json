@@ -1,0 +1,197 @@
+{
+  "original_input": {
+    "run_id": "d204b6d2-fe57-48a5-b5e5-5bd7c116b04f",
+    "context": {
+      "history": [
+        {
+          "text": "请帮我看一下物流和适用政策，先核查运输情况。",
+          "author": "CUSTOMER",
+          "sequence": 2,
+          "recipient": "ASSISTANT",
+          "message_id": "588fd00b-cbb1-4acb-b1af-cb22bd433034"
+        },
+        {
+          "text": "这是脚本模型的接线演示。物流记录显示商品仍在运输中，不能据此认定丢失或承诺退款。可以请商家核查运输进度；退款需依据适用政策和核验结果另行申请。",
+          "author": "ASSISTANT",
+          "sequence": 3,
+          "recipient": "CUSTOMER",
+          "message_id": "65bcb4da-7f08-490a-a7d9-bb119bd214eb"
+        },
+        {
+          "text": "我不打算退款，只希望人工帮我核实为什么运输延迟。请先整理要交给商家核查的内容。",
+          "author": "CUSTOMER",
+          "sequence": 4,
+          "recipient": "ASSISTANT",
+          "message_id": "32b66523-7a0d-4dc2-b4bf-18e13bb4ebc7"
+        },
+        {
+          "text": "已为您整理好交给商家核查的内容，您可直接复制或编辑后发给商家：\n\n【订单信息】\n订单号：94c73478-fbbb-4840-8ee9-b2bdd746aee5\n商品：无线降噪耳机（黑色，SKU-1001-01），数量1件\n实付金额：329.00元\n支付时间：2026-10-20 03:13:33（UTC）\n\n【物流现状】\n承运状态：运输中（IN_TRANSIT）\n物流事件：已下单支付 → 已发货 → 出现异常：运输延迟（EXCEPTION_DELAYED）\n\n【请商家核查的问题】\n1. 该订单已出现“运输延迟”异常，请核实具体延迟原因（如分拣、中转、运力等）；\n2. 请确认当前包裹实际所在环节及预计恢复运输的时间；\n3. 如属承运方异常，请协助跟进处理并同步进展。\n\n【客户说明】\n客户明确表示不申请退款，仅希望核实运输延迟原因。\n\n说明：以上为根据现有订单与物流记录整理的信息，具体延迟原因需商家进一步核查确认。",
+          "author": "ASSISTANT",
+          "sequence": 5,
+          "recipient": "CUSTOMER",
+          "message_id": "9021a7a7-3335-4ceb-b918-a5a732e23073"
+        },
+        {
+          "text": "【本地验收商家回复】请补充你希望优先核实运输延迟原因，还是当前预计送达信息？",
+          "author": "MERCHANT",
+          "sequence": 7,
+          "recipient": "CUSTOMER",
+          "message_id": "299b1f59-573e-4339-8a21-ac0eddcd7124"
+        },
+        {
+          "text": "【本地验收客户补充】优先核实延迟原因即可，我暂时不退款。",
+          "author": "CUSTOMER",
+          "sequence": 8,
+          "recipient": "MERCHANT",
+          "message_id": "edcda97c-2e7f-4049-ac1f-c2309935db21"
+        },
+        {
+          "text": "【本地验收商家回复】已记录你的诉求；本次仅验证咨询接续，没有实际联系承运商或取得新的物流结论。",
+          "author": "MERCHANT",
+          "sequence": 9,
+          "recipient": "CUSTOMER",
+          "message_id": "b85bad1c-5d25-4662-a5de-b254864dc9b4"
+        },
+        {
+          "text": "这副耳机还没收到，麻烦查一下现在的物流状态。我暂时不申请退款。",
+          "author": "CUSTOMER",
+          "sequence": 11,
+          "recipient": "MERCHANT",
+          "message_id": "9e2565ee-9122-48f7-b7f1-867e9d664e54"
+        },
+        {
+          "text": "这副耳机还没收到，麻烦查一下现在的物流状态。我暂时不申请退款。",
+          "author": "CUSTOMER",
+          "sequence": 12,
+          "recipient": "ASSISTANT",
+          "message_id": "81da6bd0-b7df-42be-898f-bb8957bdcb22"
+        },
+        {
+          "text": "当前物流记录显示：包裹状态为运输中（IN_TRANSIT），承运方结论为运输中（IN_TRANSIT），并有一条“运输延迟”异常事件记录。也就是说，目前没有丢失或退回的结论，延迟原因需商家进一步向承运方核实。您已说明暂不申请退款，本次仅核实物流状态与延迟原因。",
+          "author": "ASSISTANT",
+          "sequence": 13,
+          "recipient": "CUSTOMER",
+          "message_id": "1a975d77-a3d4-445a-a146-50d1173eb705"
+        },
+        {
+          "text": "如果一直没有收到，店里的售后政策是怎样的？需要我提供哪些材料？先解释政策，不要替我申请。",
+          "author": "CUSTOMER",
+          "sequence": 14,
+          "recipient": "ASSISTANT",
+          "message_id": "ebbad2b9-2595-4111-9b9c-88b9392c4e91"
+        }
+      ],
+      "product": {
+        "name": "无线降噪耳机",
+        "variant": "黑色",
+        "currency": "CNY",
+        "quantity": 1,
+        "asset_key": "headphones",
+        "amount_minor": 32900
+      },
+      "history_before": null,
+      "previous_tasks": {
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "status": "ANSWERED",
+            "request": "查询这副耳机当前的物流状态，并核实运输延迟原因；暂不申请退款",
+            "lifecycle": "OPEN",
+            "evidence_refs": [],
+            "response_excerpt": null
+          }
+        ],
+        "origin": "MODEL_PREVIOUS_TURN",
+        "input_version": 12
+      },
+      "current_request": "如果一直没有收到，店里的售后政策是怎样的？需要我提供哪些材料？先解释政策，不要替我申请。",
+      "policy_manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "selected_by_paid_at": "2026-10-20T03:13:33.555679Z"
+      },
+      "conversation_state": {
+        "has_ticket": true,
+        "ticket_status": "PENDING",
+        "current_recipient": "ASSISTANT",
+        "default_recipient": "MERCHANT"
+      },
+      "previous_customer_memory": {
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "entries": [],
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "version": "support-claims-v1",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "merchant_id": "M-1001",
+        "input_version": 12,
+        "conversation_id": "da936b0c-18c1-4cbc-8832-184b3d3b8137"
+      }
+    },
+    "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+    "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+    "deadline_at": "2026-10-23T06:18:58.095338Z",
+    "merchant_id": "M-1001",
+    "input_version": 14,
+    "conversation_id": "da936b0c-18c1-4cbc-8832-184b3d3b8137"
+  },
+  "generation_ids": {
+    "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+  },
+  "order": {
+    "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+    "version": 1,
+    "order_line": {
+      "sku": "SKU-1001-01",
+      "status": "PAID",
+      "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+      "paid_at": "2026-10-20T03:13:33.555679Z",
+      "version": 1,
+      "category": "electronics",
+      "currency": "CNY",
+      "order_id": "94c73478-fbbb-4840-8ee9-b2bdd746aee5",
+      "quantity": 1,
+      "asset_key": "headphones",
+      "product_name": "无线降噪耳机",
+      "variant_text": "黑色",
+      "line_paid_amount": 32900
+    },
+    "merchant_id": "M-1001"
+  },
+  "shipment": {
+    "lines": [
+      {
+        "events": [
+          {
+            "code": "ORDER_PAID",
+            "occurred_at": "2026-10-20T03:13:33.555679Z",
+            "source_version": 1
+          },
+          {
+            "code": "SIMULATED_SHIPPED",
+            "occurred_at": "2026-10-20T03:13:33.631640Z",
+            "source_version": 2
+          },
+          {
+            "code": "EXCEPTION_DELAYED",
+            "occurred_at": "2026-10-20T03:13:33.815244Z",
+            "source_version": 3
+          }
+        ],
+        "status": "IN_TRANSIT",
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "source_version": 3,
+        "carrier_conclusion": "IN_TRANSIT"
+      }
+    ],
+    "status": "IN_TRANSIT",
+    "version": 3,
+    "order_id": "94c73478-fbbb-4840-8ee9-b2bdd746aee5",
+    "synthetic": true
+  },
+  "facts_mode": "frozen synthetic HTTP snapshots, not current business reads"
+}

@@ -1,0 +1,78 @@
+{
+  "verdict": "PARTIAL",
+  "scope": "three independent follow-ups on retained synthetic history; not a general benchmark",
+  "rows": [
+    {
+      "case": "original-followup",
+      "runtime_results_sha256": "b4833a305ca5450e6662e491c81fa63670899e6e85924e3ea7a8049356748fdf",
+      "source_commit": "793c76daa56dc2e0c9c355d1aa996c3c491c2f20",
+      "runtime_status": "SUCCEEDED",
+      "semantic_verdict": "PARTIAL",
+      "models": 3,
+      "input_tokens": 10841,
+      "output_tokens": 598,
+      "provider_usage_estimated": false,
+      "elapsed_ms": 6859.0062000002945,
+      "citations": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "answer": "关于“一直没收到货”的售后政策，按不同前提区分如下：\n\n1. 如果订单已付款，且履约记录明确为“未发货”（NOT_SHIPPED），则可申请该订单行全部数量的实付金额退款；如果缺失物流信息、状态为 UNKNOWN 或已经发货，则不能按“未发货”规则退款（P1）。\n2. 如果承运商结论为“丢失”（LOST）且没有有效签收记录，经人工核验后可按该订单行全部数量的实付金额退款；本地模拟的“在途”状态不代表承运商已判定丢失（P2）。\n3. 如果存在有效签收记录，则不能仅因客户主张未收到就退款，须由人工核验签收争议；事实不足时，会要求补充材料或转人工调查（P3）。\n4. 如果只是普通在途（IN_TRANSIT），这本身不构成物流丢失或退款资格；在尚无承运商异常结论、也没有其他经核验的退款理由时，会要求补充信息或转人工处理，不按未发货规则退款（P5）。\n5. 退款仅支持单订单行全部数量的全额模拟退款，同一订单行最多成功一次，不支持部分退款、补发或真实支付；模型建议不构成授权，最终由售后专员决定（P6）。\n\n关于需要提供哪些材料：上述政策未规定具体的材料清单。如果进入人工核验，通常可能需要订单号、物流单号、未收到货的说明等，但这只是常见建议，并非政策规定的必交材料；实际以商家或售后专员的核验要求为准。\n\n以上仅为政策条件解释，未核实您当前订单的具体状态，也未替您提交任何申请。",
+      "public_data_unchanged": true,
+      "temporary_schema_removed": true,
+      "finding": "Both required rules now covered and no unsupported current shipment assertion, but still enumerates unshipped/signing/general money categories rather than retaining the previous transport-delay discussion scope."
+    },
+    {
+      "case": "topic-switch-quality",
+      "runtime_results_sha256": "0a02f85322acbb76cf7d75b0604e936b3b3d52ba7fb678a9b009e76964296aa0",
+      "source_commit": "793c76daa56dc2e0c9c355d1aa996c3c491c2f20",
+      "runtime_status": "SUCCEEDED",
+      "semantic_verdict": "PASS",
+      "models": 3,
+      "input_tokens": 10841,
+      "output_tokens": 396,
+      "provider_usage_estimated": false,
+      "elapsed_ms": 5066.245800000615,
+      "citations": [
+        "R-DMG-001",
+        "R-MONEY-001"
+      ],
+      "answer": "关于商品到手后发现质量问题的处理，按平台政策（P4）：发货后的损坏或质量退款，必须由人工核验客户材料与订单事实，确认符合售后条件后才可申请该订单行全部数量的实付金额退款；普通在途或未经核验的主张不足以批准。也就是说，是否受理、能否退款，取决于人工核验结果，最终由售后专员决定。\n\n关于具体材料要求：政策只写明需“人工核验客户材料与订单事实”，并未规定具体材料清单。常见做法（仅为建议，非必交材料）是准备能体现问题部位的照片或视频、订单信息及问题描述，供商家核验时参考。\n\n另外，按P6，仅支持单订单行全部数量的全额模拟退款，不支持部分退款、补发或真实支付。以上仅为政策解释，不代您提交申请。",
+      "public_data_unchanged": true,
+      "temporary_schema_removed": true,
+      "finding": "Answers quality policy and material guidance; does not assert delivered or continue transit topic. Extra generic money paragraph remains verbose."
+    },
+    {
+      "case": "hypothetical-loss",
+      "runtime_results_sha256": "1f8425047cca1a39c2a033531ab3d51fad7ddd70e8a02bbe44fb3a7f4a2197a6",
+      "source_commit": "793c76daa56dc2e0c9c355d1aa996c3c491c2f20",
+      "runtime_status": "SUCCEEDED",
+      "semantic_verdict": "PASS",
+      "models": 5,
+      "input_tokens": 22097,
+      "output_tokens": 560,
+      "provider_usage_estimated": false,
+      "elapsed_ms": 7063.591199999792,
+      "citations": [
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-INTRANSIT-001",
+        "SHIPMENT"
+      ],
+      "answer": "沿用刚才运输延迟的讨论，这里只作假设说明：如果之后承运商结论明确为“丢失（LOST）”，并且没有有效签收记录，那么经人工核验后，可按该订单行全部数量的实付金额退款。反过来，如果存在有效签收记录，就不能仅凭“未收到”主张退款，需要人工核验签收争议；如果只是普通在途（IN_TRANSIT），本身不构成丢失或退款资格。当前物流记录仍为运输中（IN_TRANSIT），承运方结论也是运输中，并未确认丢失，因此以上仅为条件说明，不代表本单已符合退款条件，也不代您申请。",
+      "public_data_unchanged": true,
+      "temporary_schema_removed": true,
+      "finding": "Hypothetical loss remains conditional. Initial understanding unnecessarily declares SHIPMENT, causing one missing-source repair and actual frozen shipment read before final answer. Current-state statement is grounded in that read, not old history."
+    }
+  ],
+  "total_model_calls": 11,
+  "total_input_tokens": 43779,
+  "total_output_tokens": 1554,
+  "ledger_before": 2025,
+  "ledger_after": 2036,
+  "rerun_failed_turns": 0,
+  "remaining_gap": "Original follow-up scope still generalized during understanding; tighten explicit discussion references and relevant-clause selection in a new source version before one bounded confirmation."
+}

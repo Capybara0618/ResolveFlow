@@ -62,6 +62,28 @@ def test_understanding_is_separate_from_reads_and_final_answer_no_longer_repeats
     assert agent.stage.packet()['focus'][0]['needs'] == ['SHIPMENT']
 
 
+def test_followup_carries_explicit_history_scope_without_making_it_a_business_fact():
+    req = request()
+    req.context['history'] = [{'sequence': 1, 'author': 'ASSISTANT', 'text': '上一轮讨论运输延迟。'}]
+    opening = understand(req, intent='OTHER', needs=['POLICY'])
+    opening['focus'][0]['context_refs'] = ['H1']
+    result, model, _, _ = staged(req, [opening, read('search_policy', query='相关条件'),
+        parts(part('trace', '沿用上轮讨论，只解释条件。', ['P1']))])
+    assert result['status'] == 'SUCCEEDED', result['reason']
+    packet = model.packets[-1]
+    assert packet['stage']['focus'][0]['context_refs'] == ['H1']
+    assert packet['recent_messages'][0]['read_ref'] == 'H1' and packet['fact_view'] == []
+
+
+def test_unknown_history_scope_is_rejected_before_any_meaning_state_is_committed():
+    req = request()
+    opening = understand(req, needs=['POLICY'])
+    opening['focus'][0]['context_refs'] = ['H999']
+    result, _, source, agent = staged(req, [opening, opening])
+    assert result['status'] == 'FAILED' and result['reason'] == 'INVALID_DECISION'
+    assert agent.tasks.tasks == [] and source.calls == [] and agent.stage.understanding is None
+
+
 @pytest.mark.parametrize('bad', ['read_first', 'redeclare', 'repeat_understanding'])
 def test_illegal_phase_actions_have_one_feedback_and_never_execute_business_reads(bad):
     req = request()

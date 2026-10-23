@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, ValidationError, model_validator
 
@@ -18,6 +18,7 @@ intent=LOGISTICS/ELIGIBILITY/APPLICATION/HANDOFF/PRODUCT/OTHER；needs可多选O
 订单付款用ORDER，物流事实用SHIPMENT，资格用POLICY，页面/人工核查操作用GUIDE；一段同时说物流和操作须两者。
 一般政策条件只需POLICY；判断当前订单是否符合退款条件还需ORDER，涉及运输前提再取SHIPMENT。
 承接、指代或假设追问须从最近原文/旧事项补足focus.request的主体和讨论范围；新话题不夹带旧背景。区分客户陈述、过去讨论与本轮已核实事实，假设不能写成已发生。问材料条件不等于问办理入口。
+承接历史时在focus给context_refs:["H序号"]锚定所承接的原话，并将那段话的具体主题保留在request；不要改写成无范围的政策概览。新主题省略context_refs。引用只限制讨论范围，不证明现状。仅问一般/未来假设政策时needs只需POLICY，不能因历史谈过物流就追加SHIPMENT。
 change=ADD/CONTINUE/CORRECT/PAUSE/RESUME/CANCEL/RESOLVE/REOPEN/CLARIFY。事件决定事项状态，不输出status/lifecycle。
 新事项ADD，插问可PAUSE旧事项，恢复RESUME，明确结束RESOLVE/撤回CANCEL，已结束再次处理REOPEN。变化须当前原句。
 客户陈述用customer_claims，每条仅一项可独立纠正的信息，quote取当前确切原文；收货、不同人的代收、不同地点的排查分别提取，不合成大段。不生成id或关系数组。
@@ -42,6 +43,7 @@ ORDER为订单付款，SHIPMENT为实时物流，POLICY为政策条件，GUIDE�
 search_policy.query须独立表达当前focus问题，保留上一轮相关语境、条件和假设，不只写宽泛类别。确有两个独立条件分支时，可在同一次读取的arguments给sub_queries:["分支一完整问题","分支二完整问题"]及top_k>=2；主query保留完整意图。普通问题省略sub_queries，不能自动把假设或历史助手话语当当前事实。
 命中不等于适用：先答当前focus相关条件，不逐条罗列全部召回结果；仅解释政策时不顺带附办理步骤。政策没写具体材料清单就明确未规定，常见建议须标明建议，不编成必交材料；未知事实只作条件说明，需要认定当前状态再自主读取对应事实。
 stage.policy_scope的CONDITIONS只解释focus主题下的条件：先辨相关条款及不同前提，以“如果…则…”组织，不列无关退款类别，不判断本单当前资格。HISTORICAL_ASSISTANT_OUTPUT仅上轮讨论；可说“沿用上轮讨论背景”，不能说“您当前…”或“目前没有…”来确认现状。要判断本单须先REFINE_NEEDS并读取当前事实。完整小政策集合也须选择相关条款，不能按返回清单逐条作答。
+承接问题按focus.context_refs限定的主题回答，历史可以限制话题但不证明现状。正文简短：先答该主题及必要的后续条件，再答材料；未明确问全部政策时不列全类目或通用资金/实现机制，其他规则仅在对照条件确有必要时解释。
 资格part注明assessment：CONDITIONS只解释一般条件并保留尚未核实前提；CASE_ASSESSMENT判断当前订单是否符合条件，须引用ORDER与POLICY，再按具体前提取证，不代替商家批准。
 关键事实可用text中的{{PAID_AMOUNT}}/{{ORDER_STATUS}}/{{SHIPMENT_STATUS}}/{{CARRIER_CONCLUSION}}，同part给facts:[{field:PAID_AMOUNT,source:O1}]由程序填值；具体金额须当前ORDER，不从商品展示猜实付。
 facts每项必须对应text实际使用的占位符；不用占位符就省略facts。needs中的GUIDE须本run读取并引用，历史助手指引不能替代本轮来源。
@@ -63,6 +65,8 @@ class Focus(Closed):
     intent: Literal["LOGISTICS", "ELIGIBILITY", "APPLICATION", "HANDOFF", "PRODUCT", "OTHER"]
     request: str = Field(min_length=1, max_length=200)
     needs: list[Literal["ORDER", "SHIPMENT", "POLICY", "GUIDE"]] = Field(max_length=4)
+    context_refs: list[Annotated[str, Field(pattern=r"^H[1-9][0-9]*$")]] = Field(
+        default_factory=list, max_length=3, exclude_if=lambda value: not value)
 
 
 class Understanding(Closed):
@@ -98,6 +102,7 @@ class TurnStage:
         self.enabled = architecture == "staged-v1"
         self.understanding: Understanding | None = None
         self.refinements = 0
+        self.history_refs: set[str] = set()
 
     @property
     def pending(self) -> bool:
@@ -120,6 +125,9 @@ class TurnStage:
             return packet
         packet["stage"] = self.packet()
         if self.pending:
+            self.history_refs = set(packet.get("history_read_refs", [])) | {
+                message["read_ref"] for key in ("recent_messages", "history_index")
+                for message in packet.get(key, [])}
             for key in ("capabilities", "observations", "read_activity", "read_progress", "source_status",
                         "answer_requirements", "fact_view"):
                 packet.pop(key, None)
@@ -137,6 +145,12 @@ class TurnStage:
 
     def accept(self, understanding: Understanding) -> None:
         self.understanding = understanding.model_copy(deep=True)
+
+    def check_context_refs(self, understanding: Understanding) -> None:
+        for focus in understanding.focus:
+            if (len(set(focus.context_refs)) != len(focus.context_refs)
+                    or not set(focus.context_refs) <= self.history_refs):
+                raise StageError("context_refs须唯一且引用已提供的历史H编号；只限制主题，不证明当前事实。")
 
     def refine(self, payload: dict[str, Any]) -> None:
         change = RefineNeeds.model_validate(payload)

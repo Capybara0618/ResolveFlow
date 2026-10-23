@@ -114,7 +114,8 @@ def render_context(
         unique.append(projected)
     return {
         **base,
-        "recent_messages": [{**deepcopy(m), "authority": _authority(m)} for m in full],
+        "recent_messages": [{**deepcopy(m), "read_ref": "H" + str(m["sequence"]),
+                             "authority": _authority(m)} for m in full],
         "history_index": [_preview(m, preview) for m in indexed],
         "history_read_refs": ["H" + str(m["sequence"]) for m in omitted],
         "fact_view": _fact_view(request, observations),

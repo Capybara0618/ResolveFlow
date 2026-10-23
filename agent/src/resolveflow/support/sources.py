@@ -148,8 +148,8 @@ class BoundSources:
                 "source_type": "POLICY",
                 "version": hit.version,
                 "title": hit.title,
-                "retrieval_context": {"mode": "COMPLETE_SMALL_SET" if complete else "RANKED",
-                                      "count": len(hits)},
+                "retrieval_context": ({"mode": "COMPLETE_SMALL_SET", "count": len(hits)} if complete
+                                      else {"mode": "RANKED"}),
                 "data": {
                     k: getattr(hit, k)
                     for k in [
