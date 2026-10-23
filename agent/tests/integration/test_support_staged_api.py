@@ -22,6 +22,29 @@ from tests.unit.test_support_tasks import task
 SECRET = 'staged-test-local-secret-only'  # noqa: S105 - scoped test identity, no real credential
 
 
+def test_refund_summary_survives_persisted_recovery_without_model_or_tool_resend(agent_db):
+    from tests.unit.test_support_agent import GuideReads
+
+    req = request(run_id=str(uuid.uuid4()))
+    summary = '客户反馈未收到商品，请核实签收后处理退款申请。'
+    final = parts({**part('trace', '请核对申请摘要后自行确认。', ['O1']),
+                   'next_steps': [{'action': 'REFUND_APPLICATION', 'source': 'O1'}]})
+    final['refund_summary'] = summary
+    script = [understand(req, intent='APPLICATION', needs=['GUIDE']), read('get_support_guide'), final]
+    models, source = [TokenizedScript(mode='live', script=script)], GuideReads()
+    runtime = SupportRuntime(agent_db, DeploymentConfig(mode='mock'), architecture='staged-v1',
+                             model_factory=lambda: models[0], sources_factory=lambda *_: source)
+    result = runtime.run(req, 'bound-test-token')
+    assert result['status'] == 'SUCCEEDED' and result['answer']['refund_summary'] == summary
+    assert models[0].calls == 3
+    with agent_db.connection() as c:
+        c.execute("UPDATE support_agent_run SET status='RUNNING',result_json=NULL,"
+                  "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
+    models[0] = TokenizedScript(mode='live', script=script)
+    assert runtime.run(req, 'replacement-bound-test-token') == result
+    assert models[0].calls == 0 and source.calls == [('get_support_guide', {})]
+
+
 def test_branched_query_journal_rebuilds_without_resending_models_or_search(agent_db):
     from tests.unit.test_support_agent import Reads
 

@@ -1,7 +1,7 @@
 import { apiRequest } from './client'
 
 export interface SupportCitation { source_id: string; source_type: 'ORDER' | 'SHIPMENT' | 'POLICY' | 'CONVERSATION' | 'KNOWLEDGE'; content_hash: string; version: string | number; title?: string; data: Record<string, unknown> }
-export interface SupportAssistant { run_id: string; mode: 'mock' | 'live'; citations: SupportCitation[]; handoff_summary: string | null }
+export interface SupportAssistant { run_id: string; mode: 'mock' | 'live'; citations: SupportCitation[]; handoff_summary: string | null; refund_summary?: string }
 export interface SupportMessage { message_id: string; sequence: number; author: 'CUSTOMER' | 'MERCHANT' | 'ASSISTANT'; recipient: 'ASSISTANT' | 'MERCHANT' | 'CUSTOMER'; text: string; ticket_id: string | null; created_at: string; assistant?: SupportAssistant }
 export interface SupportTicket { ticket_id: string; status: 'PENDING' | 'WAITING_CUSTOMER' | 'REPLIED' | 'RESOLVED'; summary: string; shared_messages: SupportMessage[]; report?: SupportAssistant }
 export interface SupportConversation {

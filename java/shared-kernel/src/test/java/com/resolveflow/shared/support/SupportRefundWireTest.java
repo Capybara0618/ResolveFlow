@@ -10,6 +10,15 @@ import tools.jackson.databind.ObjectMapper;
 
 class SupportRefundWireTest {
     @Test
+    void optionalAssistantProposalRoundTripsWithoutChangingLegacyRecords() {
+        var json = new ObjectMapper();
+        var node = ContractFixtures.load("contracts/core/fixtures/support-refund-offer.json");
+        var value = json.readValue(node.toString(), SupportWire.Assistant.class);
+        assertThat(json.readTree(json.writeValueAsString(value))).isEqualTo(node);
+        assertThat(value.refundSummary()).contains("客户反馈");
+    }
+
+    @Test
     void customerRefundFixturesRoundTripThroughProductionRecords() {
         var json = new ObjectMapper();
         var fixture = ContractFixtures.load("contracts/core/fixtures/support-refund.json");

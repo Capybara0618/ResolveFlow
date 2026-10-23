@@ -569,6 +569,12 @@ public class SupportAgentTurns {
                                             .asString()))) return false;
         }
         var summary = answer.get("handoff_summary");
+        var refundSummary = answer.get("refund_summary");
+        if (refundSummary != null
+                && !refundSummary.isNull()
+                && (!refundSummary.isString()
+                        || refundSummary.asString().isBlank()
+                        || refundSummary.asString().length() > 2000)) return false;
         return summary == null
                 || summary.isNull()
                 || (summary.isString()
@@ -627,6 +633,7 @@ public class SupportAgentTurns {
             metadata.set("citations", answer.get("citations"));
             metadata.set(
                     "handoff_summary", answer.has("handoff_summary") ? answer.get("handoff_summary") : json.nullNode());
+            if (answer.hasNonNull("refund_summary")) metadata.set("refund_summary", answer.get("refund_summary"));
             String messageId = UUID.randomUUID().toString();
             db.update(
                     "INSERT INTO support_message(message_id,conversation_id,sequence,author,recipient,actor,text,assistant_json) VALUES(?,?,?,'ASSISTANT','CUSTOMER','agent-service',?,?)",

@@ -19,3 +19,11 @@ def test_prepare_cannot_override_the_order_amount():
     validator = component_validator('case', 'SupportRefundPrepare', 'contracts/core')
     assert not validator.accepts({**FIXTURES['Prepare'], 'amount_minor': 1})
     assert not validator.accepts({**FIXTURES['Prepare'], 'expected_version': 0})
+
+
+def test_optional_final_assistant_summary_has_no_authority_fields():
+    value = json.loads((REPO_ROOT / 'contracts/core/fixtures/support-refund-offer.json').read_text(encoding='utf-8'))
+    validator = component_validator('case', 'SupportAssistant', 'contracts/core')
+    assert validator.accepts(value), validator.error_messages(value)
+    assert not validator.accepts({**value, 'refund_amount': 32900})
+    assert not validator.accepts({**value, 'refund_summary': ''})

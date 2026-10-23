@@ -11,7 +11,9 @@
     "edited reason persisted before confirm",
     "lost response retains request",
     "reload retries identical key/body and returns one Case",
-    "unknown is not refund success"
+    "unknown is not refund success",
+    "accepted assistant offer prepares editable draft without another Case",
+    "assistant reason remains editable before confirmation"
   ],
   "browser_errors": [],
   "unexpected_routes": []

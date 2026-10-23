@@ -13,7 +13,7 @@ const conversation = { ...fixture.Conversation, version: 3, ticket: null, messag
   { message_id: 'assistant-1', sequence: 3, author: 'ASSISTANT', recipient: 'CUSTOMER', text: '你反馈商品尚未收到。可以核对下面的申请原因，再确认提交；商家将进一步核查签收情况。', ticket_id: null, created_at: '2026-10-23T10:00:01Z', assistant: { run_id: 'synthetic-run', mode: 'mock', citations: [], handoff_summary: null } },
 ] };
 let view = { draft: null, application: null }, creates = 0, lost = false;
-let confirmation, confirmations = [], unexpected = [];
+let confirmation, confirmations = [], unexpected = [], prepares = 0;
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   function json(body, code = 200) { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(body)); }
@@ -31,6 +31,7 @@ const server = http.createServer(async (req, res) => {
         let raw = ''; for await (const chunk of req) raw += chunk;
         const body = JSON.parse(raw), key = req.headers['idempotency-key']; assert(key);
         if (parts.length === 1) {
+          prepares++;
           assert.equal(body.expected_version, conversation.version);
           view.draft = { ...refundFixture.Draft, expected_version: conversation.version, reason: body.reason, expires_at: new Date(Date.now() + 1800000).toISOString() };
         } else if (parts[2] === 'edit') {
@@ -99,6 +100,20 @@ const server = http.createServer(async (req, res) => {
     assert.equal(await page.locator('.chat-refund').innerText().then(t => t.includes('退款完成')), false);
     await page.screenshot({ path: path.join(out, 'unknown.png'), fullPage: true }); checks.push('unknown is not refund success');
     assert.deepEqual(unexpected, []); assert.deepEqual(errors, []);
+    // New final answer may offer a draft; provisional generation and stale history cannot do so.
+    view = { draft: null, application: null };
+    conversation.version = 5;
+    conversation.messages.push({ ...conversation.messages[1], message_id: 'accepted-refund-offer', sequence: 5,
+      assistant: { ...conversation.messages[1].assistant, refund_summary: '客户反馈未收到商品，申请核实签收情况后退款。' } });
+    const previousPrepares = prepares;
+    await page.reload(); await page.locator('[data-refund="confirm"]').waitFor();
+    assert.equal(prepares, previousPrepares + 1);
+    assert.equal(view.draft.reason, '客户反馈未收到商品，申请核实签收情况后退款。');
+    assert.equal(creates, 1); checks.push('accepted assistant offer prepares editable draft without another Case');
+    await page.locator('[data-refund="edit"]').click(); await page.locator('[aria-label="退款申请原因"]').fill('用户补充：已核实家人未代收，请进一步处理。');
+    await page.locator('[data-refund="save"]').click(); await page.locator('[data-refund="confirm"]').waitFor();
+    assert.match(view.draft.reason, /用户补充/); checks.push('assistant reason remains editable before confirmation');
+    await page.locator('.chat-refund').scrollIntoViewIfNeeded(); await page.screenshot({ path: path.join(out, 'agent-offer.png'), fullPage: true });
     const summary = { scope: 'built Vue + real loopback HTTP, synthetic business only', live_calls: 0, real_business_writes: 0, synthetic_cases_created: creates, checks, browser_errors: errors, unexpected_routes: unexpected };
     fs.writeFileSync(path.join(out, 'checks.json'), JSON.stringify(summary, null, 2) + '\n');
     console.log(JSON.stringify(summary));

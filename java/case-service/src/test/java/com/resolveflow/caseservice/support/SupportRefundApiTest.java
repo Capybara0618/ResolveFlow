@@ -19,6 +19,90 @@ class SupportRefundApiTest extends SupportApiTest {
     @org.springframework.beans.factory.annotation.Autowired
     SupportRefundService refunds;
 
+    @Test
+    void publishedSummaryIsPrivateAndDoesNotCreateApplicationOrDraft() {
+        var c = message(open("support-A"), "summary-question", "请整理退款申请原因", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> request = i.getArgument(1);
+            return json.valueToTree(Map.of(
+                    "run_id",
+                    request.get("run_id"),
+                    "conversation_id",
+                    request.get("conversation_id"),
+                    "input_version",
+                    request.get("input_version"),
+                    "status",
+                    "SUCCEEDED",
+                    "mode",
+                    "mock",
+                    "answer",
+                    Map.of(
+                            "text",
+                            "可核对申请摘要后确认。",
+                            "citations",
+                            java.util.List.of(),
+                            "refund_summary",
+                            "客户反馈未收到商品，希望核实签收后退款。")));
+        });
+        turns.dispatchOne();
+        var current = get(path(c), buyer, 200);
+        assertThat(current.path("messages")
+                        .get(1)
+                        .path("assistant")
+                        .path("refund_summary")
+                        .asString())
+                .contains("客户反馈");
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM aftersale_case", Integer.class))
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM support_refund_draft", Integer.class))
+                .isZero();
+        get(path(c), merchant, 403);
+        get(path(c) + "/refund-application", otherBuyer, 404);
+        var shared = post(
+                path(c) + "/tickets",
+                buyer,
+                "share-without-refund-summary",
+                Map.of(
+                        "expected_version",
+                        current.path("version").asLong(),
+                        "summary",
+                        "请核查签收情况",
+                        "shared_message_ids",
+                        java.util.List.of(),
+                        "assistant_message_id",
+                        current.path("messages").get(1).path("message_id").asString()),
+                200);
+        var ticket = get("/tickets/" + shared.path("ticket").path("ticket_id").asString(), merchant, 200);
+        assertThat(ticket.path("ticket").path("report").has("refund_summary")).isFalse();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM aftersale_case", Integer.class))
+                .isZero();
+    }
+
+    @Test
+    void blankRefundSummaryCannotBePublishedAsAnActionableOffer() {
+        var c = message(open("support-A"), "blank-summary-question", "请整理退款申请原因", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> request = i.getArgument(1);
+            return json.valueToTree(Map.of(
+                    "run_id",
+                    request.get("run_id"),
+                    "conversation_id",
+                    request.get("conversation_id"),
+                    "input_version",
+                    request.get("input_version"),
+                    "status",
+                    "SUCCEEDED",
+                    "mode",
+                    "mock",
+                    "answer",
+                    Map.of("text", "可核对申请摘要后确认。", "citations", java.util.List.of(), "refund_summary", " ")));
+        });
+        turns.dispatchOne();
+        assertThat(get(path(c), buyer, 200).path("messages").size()).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM aftersale_case", Integer.class))
+                .isZero();
+    }
+
     @BeforeEach
     void refundFacts() {
         deleteAllCaseData(jdbc);
@@ -223,6 +307,8 @@ class SupportRefundApiTest extends SupportApiTest {
                 Map.of("revision", 1, "reason", "已联系家人确认未收到，希望退款。"),
                 200);
         assertThat(edited.path("draft").path("revision").asInt()).isEqualTo(2);
+        // Another tab preparing the same accepted answer must not overwrite an already edited reason.
+        assertThat(prepareDraft(c, "second-tab-prepare").path("draft")).isEqualTo(edited.path("draft"));
         post(path(c) + "/refund-drafts/" + d + "/edit", buyer, "old-edit", Map.of("revision", 1, "reason", "旧原因"), 409);
         var cancelled =
                 post(path(c) + "/refund-drafts/" + d + "/cancel", buyer, "cancel-draft", Map.of("revision", 2), 200);

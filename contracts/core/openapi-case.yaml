@@ -5015,6 +5015,11 @@ components:
           - string
           - 'null'
           maxLength: 2000
+        refund_summary:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Optional accepted application reason proposal; customer confirmation is still required.
     SupportAssistantTurn:
       type: object
       additionalProperties: false

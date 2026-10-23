@@ -126,6 +126,7 @@ class SupportAgent:
             else {
                 "text": final.text,
                 "handoff_summary": final.handoff_summary,
+                **({"refund_summary": final.refund_summary} if final.refund_summary else {}),
                 "citations": [self.citations[c] for c in dict.fromkeys(final.citations)],
                 **({"task_state": self.dialogue.task_snapshot(self.tasks.tasks)} if self.tasks.tasks else {}),
                 "customer_memory": self.memory.snapshot(),
@@ -274,6 +275,12 @@ class SupportAgent:
                                                    "arguments": {}})
                 self.stage.guard(reply.decision)
             decision = DECISION.validate_python(reply.decision)
+            if isinstance(decision, (Answer, AnswerParts)) and decision.refund_summary is not None:
+                pieces = decision.parts if isinstance(decision, AnswerParts) else [decision]
+                if not decision.refund_summary.strip() or not any(
+                    step.action == 'REFUND_APPLICATION' for piece in pieces for step in piece.next_steps
+                ):
+                    raise ValueError('refund_summary仅用于已选择REFUND_APPLICATION并读取指南的申请摘要。')
             grounded = None
             if isinstance(decision, (Answer, AnswerParts)):
                 required = {f.id: {'HANDOFF': 'MERCHANT_REVIEW', 'APPLICATION': 'REFUND_APPLICATION'}[f.intent]

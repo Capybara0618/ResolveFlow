@@ -172,6 +172,7 @@ class Answer(TaskAction):
     text: str = Field(min_length=1, max_length=4000)
     citations: list[str] = Field(default_factory=list, max_length=8)
     handoff_summary: str | None = Field(default=None, min_length=1, max_length=2000)
+    refund_summary: str | None = Field(default=None, min_length=1, max_length=2000, exclude_if=lambda v: v is None)
     facts: list[AnswerFact] = Field(default_factory=list, max_length=8)
     next_steps: list[NextStep] = Field(default_factory=list, max_length=2, exclude_if=lambda v: not v)
 
@@ -192,6 +193,7 @@ class AnswerParts(TaskAction):
     kind: Literal["ANSWER_PARTS"]
     parts: list[AnswerPart] = Field(min_length=1, max_length=8)
     handoff_summary: str | None = Field(default=None, min_length=1, max_length=2000)
+    refund_summary: str | None = Field(default=None, min_length=1, max_length=2000, exclude_if=lambda v: v is None)
 
 
 class ConversationUpdate(Closed):

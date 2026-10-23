@@ -1,5 +1,8 @@
 # 聊天退款闭环实施验证
 
+
+本批R1–R4工程开发与针对性验收已完成，实际使用见[体验与接口说明](../../docs/customer-chat-refund-usage-v1.md)，各层证据见[汇总](summary.json)。用户退款意愿→可编辑摘要→明确确认→原子建单→会话进度已接线；自动摘要为可选终局字段，未生成时保留手动入口。本批未运行真实DeepSeek到Java/Web完整退款对话及执行，不当正式量化或性能结果。下文按实施步骤保留当时的失败/未完成记录。
+
 2026-10-23。范围与预期图见[实施合同](../../docs/customer-chat-refund-implementation-v1.md)。本报告区分隔离MySQL/HTTP、合成页面和真实模型，不改旧量化结果。当前进度只见tasks/todo.md顶部。
 
 ## R1 草稿
@@ -37,3 +40,15 @@ CaseService拆出只读准备，旧create仍复用原CaseWriter。确认外部�
 指南/导航红测4失败，初实现仍4失败：指南过长使原Mock请求预算溢出、两项旧路由断言及一项冻结v2来源被当前v3拒绝。精简新段落、不扩大预算；将合法新入口移入正例，当前证据门禁仍验证旧v2拒绝。历史诊断测试显式绑定其原v2规则/原v2来源，只验证原诊断，不作为新v3表现；旧raw/脚本/来源未修改。首次扩收集因根PYTHONPATH缺失报错，补后326过1旧诊断失败，修正测试分代后客服单元 **327通过/7.38秒**，相关Ruff、4源码strict mypy通过。准备脚本曾语法错误未编辑，随后真实红测确认；均不计成功。
 
 本步仅办理指引，摘要字段接线下一小步；真实Provider0，原项目停。
+
+## R4b 已接纳摘要与卡片联动、最终收口
+
+ANSWER/ANSWER_PARTS可选refund_summary（不超过2000字）必须对应REFUND_APPLICATION及当前已读指南；原终局/来源/事项校验仍生效。持久化最终结果→Java公开消息元数据→当前买家卡片准备，用户可编辑保存，确认才建Case。未接纳/过时/修复失败答案不提供摘要，原私聊与核查报告仍隔离；商家共享报告使用原四参构造，不包含refund_summary。新草稿准备保留同版本有效草稿，防止另一个标签页覆盖客户已保存的原因。
+
+关键摘要红测1失败2通过，实装3通过；全客服单元+本批契约/OpenAPI **442通过/34.97秒**，相关Ruff、4源码strict mypy通过。启动原PG仅用于独立临时schema：`RESOLVEFLOW_AGENT_DB=postgresql://agent:agent@127.0.0.1:55433/agent_db`、根PYTHONPATH，`pytest agent/tests/integration/test_support_staged_api.py agent/tests/integration/test_support_stream_runtime.py -q --tb=short` **5通过/5.08秒、0跳过**；新摘要在持久模型记录恢复后相同，0新模型/工具，原流式修复/终局路径通过。PG已停止exited0、原卷保留。
+
+Java最终执行（java目录）：`./mvnw.cmd -B -pl case-service -am -Dtest=SupportRefundApiTest,SupportWireTest,SupportRefundWireTest -Dsurefire.failIfNoSpecifiedTests=false test`，真实临时MySQL/Flyway/HTTP **Case38、共享类型4通过、0失败/跳过**（reactor约2分02秒，包含测试容器启动，不是业务延迟）；本步新增最终摘要落库、空摘要拒绝、共享报告不携带未确认摘要及多标签页编辑保全。补多标签页红测1失败实际重现原因被覆盖，生产准备分支复用当前DRAFT后同完整组全过。隐私定向测试曾因同时启动另一Maven编译共享target导致class不存在1error；停止重叠后串行完整验收通过，未改断言。之前38/4的49.856秒结果不冒充新编辑保全测试，最终记录以本次为准。
+
+前端全量 **34文件240通过/10.69秒**，typecheck/build通过（707ms）。实际built Vue/Edge/真实loopback合成HTTP从8扩为 **10项检查/浏览器错误0**，新增已接纳摘要自动准备且可编辑、无额外建单；[摘要卡片截图](browser/agent-offer.png)。此前单独27项相关前端通过、各次浏览器检查不重复累计。无新依赖/第二SDK循环/额外模型总结。服务与原业务库未启动，真实Provider请求0、账2060保持；四历史脏文件与原manifest/probe/最初失败SHA逐一保持。
+
+最终使用已实现POST edit/cancel路由，替代早期PATCH草案；客户Case进度采用5秒只读轮询/手动刷新，不宣称已实现新refund SSE事件。附件/补证/撤销继续原申请详情，首版未自动附加聊天材料。真实模型完整双端验收、完整模拟退款执行和本批性能/简历量化未运行。

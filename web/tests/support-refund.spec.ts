@@ -88,3 +88,18 @@ it('keeps cancelled reasons available and rejects stale confirmation in the UI',
   expect(wrapper.text()).toContain('请重新核对')
   expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(false)
 })
+
+it('prepares only the accepted current assistant summary and never auto-confirms it', async () => {
+  vi.mocked(refundApi.read).mockResolvedValue({ draft: null, application: null })
+  const mutate = vi.spyOn(refundApi, 'mutate').mockResolvedValue(current())
+  const input = props()
+  input.conversation.messages = [{ message_id: 'accepted-offer', sequence: 1, author: 'ASSISTANT', recipient: 'CUSTOMER', text: '请核对摘要', ticket_id: null, created_at: '', assistant: { run_id: 'run', mode: 'mock', citations: [], handoff_summary: null, refund_summary: '客户反馈未收到商品，请核实后处理退款。' } }]
+  wrapper = mount(SupportRefundCard, { props: input }); await flushPromises()
+  expect(mutate).toHaveBeenCalledTimes(1)
+  expect(mutate.mock.calls[0][1]).toMatchObject({ kind: 'prepare', body: { reason: '客户反馈未收到商品，请核实后处理退款。', expected_version: 1 } })
+  expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(true)
+  wrapper.unmount()
+  input.conversation.version = 2
+  wrapper = mount(SupportRefundCard, { props: input }); await flushPromises()
+  expect(mutate).toHaveBeenCalledTimes(1)
+})

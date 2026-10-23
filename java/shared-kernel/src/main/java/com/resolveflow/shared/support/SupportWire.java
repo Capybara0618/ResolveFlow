@@ -62,7 +62,14 @@ public final class SupportWire {
             @JsonProperty("run_id") String runId,
             String mode,
             List<Map<String, Object>> citations,
-            @JsonProperty("handoff_summary") String handoffSummary) {}
+            @JsonProperty("handoff_summary") String handoffSummary,
+
+            @JsonProperty("refund_summary") @JsonInclude(JsonInclude.Include.NON_NULL)
+            String refundSummary) {
+        public Assistant(String runId, String mode, List<Map<String, Object>> citations, String handoffSummary) {
+            this(runId, mode, citations, handoffSummary, null);
+        }
+    }
 
     public record AssistantTurn(@JsonProperty("run_id") String runId, String status, String reason) {}
 

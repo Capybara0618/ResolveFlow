@@ -34,6 +34,7 @@ def render_answer(decision: AnswerParts, accepted: list[SupportTask]) -> Answer:
     return Answer(kind="ANSWER", text="\n\n".join(p.text for p in decision.parts), tasks=tasks,
                   citations=list(dict.fromkeys(ref for p in decision.parts for ref in p.citations)),
                   handoff_summary=decision.handoff_summary, memory_updates=decision.memory_updates,
+                  refund_summary=decision.refund_summary,
                   customer_claims=decision.customer_claims,
                   dialogue_events=decision.dialogue_events)
 

@@ -209,6 +209,9 @@ public class SupportRefundService {
                                 || related.status() == com.resolveflow.caseservice.casefile.CaseStatus.CLOSED_SUCCESS))
                     return view(s, current);
                 if (!line.canApply()) throw refused(409, line.blockedReason());
+                // A second tab preparing the same conversation must preserve the customer's saved edits.
+                var currentDraft = draft(current);
+                if (currentDraft != null && currentDraft.status().equals("DRAFT")) return view(s, current);
                 var l = line.orderLine();
                 db.update(
                         "INSERT INTO support_refund_draft(conversation_id,draft_id,revision,input_version,status,reason,quantity,amount_minor,currency,expires_at) VALUES(?,?,1,?,'DRAFT',?,?,?,?,?) ON DUPLICATE KEY UPDATE draft_id=VALUES(draft_id),revision=1,input_version=VALUES(input_version),status='DRAFT',reason=VALUES(reason),quantity=VALUES(quantity),amount_minor=VALUES(amount_minor),currency=VALUES(currency),expires_at=VALUES(expires_at),case_id=NULL",

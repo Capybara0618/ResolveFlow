@@ -14,6 +14,8 @@ const pending = ref(readRefundRequest(props.owner, id)), busy = ref(false), read
 const error = ref(''), expanded = ref(false), editing = ref(false), reason = ref('')
 const dismissed = ref(false), now = ref(Date.now())
 let alive = true, timer: ReturnType<typeof setInterval> | undefined, readSequence = 0
+let offeredMessage = ''
+const offer = computed(() => [...props.conversation.messages].reverse().find(m => m.author === 'ASSISTANT' && m.sequence === props.conversation.version && m.assistant?.refund_summary?.trim()))
 const d = computed(() => value.value.draft)
 const application = computed(() => value.value.application)
 const blockingApplication = computed(() => application.value && !['CLOSED_REJECTED', 'CANCELLED'].includes(application.value.case.status))
@@ -67,6 +69,14 @@ async function send(kind: RefundRequest['kind']) {
 }
 function save() { return send(!d.value || outdated.value ? 'prepare' : 'edit') }
 watch(() => props.conversation.version, () => { void read() })
+watch(() => [loaded.value, offer.value?.message_id], () => {
+  const message = offer.value
+  if (!loaded.value || !message || offeredMessage === message.message_id || d.value || blockingApplication.value || busy.value || pending.value) return
+  offeredMessage = message.message_id
+  reason.value = message.assistant!.refund_summary!
+  // Only a finalized message can prepare a Java-checked draft; Case creation still needs the confirm button.
+  void send('prepare')
+}, { immediate: true })
 onMounted(() => {
   void read()
   timer = setInterval(() => { now.value = Date.now(); if (application.value && !['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(application.value.case.status)) void read() }, 5000)
