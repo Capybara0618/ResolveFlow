@@ -152,12 +152,18 @@ class AnswerFact(Closed):
     source: str = Field(pattern=r"^O[1-9][0-9]*$")
 
 
+class NextStep(Closed):
+    action: Literal["MERCHANT_REVIEW", "REFUND_APPLICATION"]
+    source: str = Field(pattern=r"^O[1-9][0-9]*$")
+
+
 class Answer(TaskAction):
     kind: Literal["ANSWER"]
     text: str = Field(min_length=1, max_length=4000)
     citations: list[str] = Field(default_factory=list, max_length=8)
     handoff_summary: str | None = Field(default=None, min_length=1, max_length=2000)
     facts: list[AnswerFact] = Field(default_factory=list, max_length=8)
+    next_steps: list[NextStep] = Field(default_factory=list, max_length=2, exclude_if=lambda v: not v)
 
 
 class AnswerPart(Closed):
@@ -167,6 +173,7 @@ class AnswerPart(Closed):
     citations: list[str] = Field(default_factory=list, max_length=8)
     blocker: TaskBlocker | None = Field(default=None, exclude_if=lambda v: v is None)
     facts: list[AnswerFact] = Field(default_factory=list, max_length=8)
+    next_steps: list[NextStep] = Field(default_factory=list, max_length=2, exclude_if=lambda v: not v)
     assessment: Literal["CONDITIONS", "CASE_ASSESSMENT"] | None = Field(
         default=None, exclude_if=lambda v: v is None)
 

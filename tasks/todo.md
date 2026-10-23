@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，固定操作指引：纯渲染接口完成，尚未接主链）
+
+- 用户批准按[固定操作指引方案](../docs/customer-agent-navigation-v1.md)收口，已核对main=origin/main=ce8f7b1/fetch0:0、暂存空、原四脏文件/旧资产保持。新增模型内部next_steps仅允许MERCHANT_REVIEW/REFUND_APPLICATION及本run指南引用；程序生成明确区分入口、预览确认/未提交说明，合并引用，不执行任何业务动作，模型不能提供URL/执行参数。
+- 新9项首8失败/1通过，实现后导航/答复/事项24通过；首静态检查两长行与联合返回类型错误已修正，相关Ruff与2源码strict mypy通过。纯渲染校验当前指南完整data/version，拒绝政策/旧/未知/篡改指南、重复动作、结构化模式下自由UI名称。single兼容不禁止旧自由文案；任意同义自由文本语义仍有边界。
+- 当前主循环尚未接新渲染，不称实际回答已修。独立提交普通push核实后接模型提示/主循环/反馈与manifest，再集中验证及有限真实运行。新增真实调用0，usage1949；本步未启动业务服务或PG。
+
 ## 当前快照（2026-10-23，纠正记忆真实收口：两次替代与原事项恢复通过，操作入口仍部分）
 
 - 准备0070738已普通push核实，按[方案](../docs/customer-agent-correction-v1.md)仅单次执行六轮：[总报告](../reports/customer-agent-correction-v1/README.md)/完整对话/raw/源审/统计/离线诊断/保全hash齐全。6/6发布，Codex源审4完整/2部分/0失败，非独立Gold/留出/简历指标。C01首轮三独立陈述，第三轮真实REPLACE家人确定未代收→尚未确认，第四轮再REPLACE为已确认无人代收；旧条SUPERSEDED、未收到与原门卫排查保留，t1 OPEN→PAUSED→OPEN沿原id，恢复后未重复询问门卫。跨消息同义门卫条仍有重复，不称长期记忆全面成熟。
