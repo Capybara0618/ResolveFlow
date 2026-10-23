@@ -138,7 +138,22 @@ public class CaseService {
         this.clock = clock;
     }
 
+    /** Network reads and policy selection only; callers may compose the resulting local write atomically. */
+    public record Prepared(CaseWriter.CaseWrite write, Created replayed) {}
+
     public Created create(AuthenticatedPrincipal principal, String idempotencyKey, CaseCreateRequest request) {
+        var prepared = prepare(principal, idempotencyKey, request);
+        if (prepared.replayed() != null) return prepared.replayed();
+        try {
+            return writer.writeCase(prepared.write());
+        } catch (DuplicateKeyException error) {
+            var raced = cases.findIdempotency(principal.merchantId(), idempotencyKey);
+            if (raced != null) return replay(principal, raced, prepared.write().requestHash());
+            throw new CaseAlreadyOpenException();
+        }
+    }
+
+    public Prepared prepare(AuthenticatedPrincipal principal, String idempotencyKey, CaseCreateRequest request) {
         if (idempotencyKey == null || idempotencyKey.isBlank()) {
             throw new MissingIdempotencyKeyException();
         }
@@ -156,7 +171,7 @@ public class CaseService {
 
         CaseRepository.StoredResponse stored = cases.findIdempotency(principal.merchantId(), idempotencyKey);
         if (stored != null) {
-            return replay(principal, stored, requestHash);
+            return new Prepared(null, replay(principal, stored, requestHash));
         }
 
         // The scope is the token's, and Commerce answers with the order the line really belongs to.
@@ -171,28 +186,21 @@ public class CaseService {
 
         Instant now = Instant.now(clock);
         String caseId = UUID.randomUUID().toString();
-        try {
-            return writer.writeCase(new CaseWriter.CaseWrite(
-                    caseId,
-                    1,
-                    principal.merchantId(),
-                    principal.customerId(),
-                    line.orderId(),
-                    lineId,
-                    actions,
-                    description,
-                    idempotencyKey,
-                    requestHash,
-                    manifest,
-                    now));
-        } catch (DuplicateKeyException error) {
-            // Two unique keys can collide here, and they mean different things.
-            CaseRepository.StoredResponse raced = cases.findIdempotency(principal.merchantId(), idempotencyKey);
-            if (raced != null) {
-                return replay(principal, raced, requestHash);
-            }
-            throw new CaseAlreadyOpenException();
-        }
+        return new Prepared(
+                new CaseWriter.CaseWrite(
+                        caseId,
+                        1,
+                        principal.merchantId(),
+                        principal.customerId(),
+                        line.orderId(),
+                        lineId,
+                        actions,
+                        description,
+                        idempotencyKey,
+                        requestHash,
+                        manifest,
+                        now),
+                null);
     }
 
     private Created replay(AuthenticatedPrincipal principal, CaseRepository.StoredResponse stored, String requestHash) {

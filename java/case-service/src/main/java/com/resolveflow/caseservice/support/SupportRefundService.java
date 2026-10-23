@@ -1,6 +1,9 @@
 package com.resolveflow.caseservice.support;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.resolveflow.caseservice.casefile.CaseCreateRequest;
+import com.resolveflow.caseservice.casefile.CaseService;
+import com.resolveflow.caseservice.casefile.CaseWriter;
 import com.resolveflow.caseservice.casefile.CustomerCaseRepository;
 import com.resolveflow.caseservice.casefile.CustomerCaseService;
 import com.resolveflow.caseservice.order.RequestPrincipalResolver.Session;
@@ -31,6 +34,8 @@ public class SupportRefundService {
     private final ObjectMapper json;
     private final Clock clock;
     private final TransactionTemplate tx;
+    private final CaseService cases;
+    private final CaseWriter writer;
 
     public SupportRefundService(
             JdbcTemplate db,
@@ -38,7 +43,9 @@ public class SupportRefundService {
             CustomerCaseRepository lists,
             ObjectMapper json,
             Clock clock,
-            PlatformTransactionManager transactions) {
+            PlatformTransactionManager transactions,
+            CaseService cases,
+            CaseWriter writer) {
         this.db = db;
         this.customerCases = customerCases;
         this.lists = lists;
@@ -46,6 +53,8 @@ public class SupportRefundService {
         this.clock = clock;
         this.tx = new TransactionTemplate(transactions);
         this.tx.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
+        this.cases = cases;
+        this.writer = writer;
     }
 
     private static SupportService.Refused refused(int status, String text) {
@@ -247,4 +256,93 @@ public class SupportRefundService {
     }
 
     private record Mutation(@JsonProperty("draft_id") String draftId, Object body) {}
+
+    public View confirm(Session s, String id, String draftId, String key, Confirm body) {
+        key(key);
+        var c = conversation(s, id, false);
+        var request = new Mutation(draftId, body);
+        var previous = replay(c, s, key, "R_CONFIRM", request);
+        if (previous != null) return previous;
+        var d = draft(c);
+        if (d != null
+                && d.status().equals("CONFIRMED")
+                && d.draftId().equals(draftId)
+                && body.revision() != null
+                && body.revision() == d.revision()
+                && body.expectedVersion() != null
+                && body.expectedVersion() == d.expectedVersion()) {
+            return tx.execute(status -> {
+                var current = conversation(s, id, true);
+                return receipt(current, s, key, "R_CONFIRM", request, () -> {
+                    var confirmed = draft(current);
+                    if (confirmed == null
+                            || !confirmed.status().equals("CONFIRMED")
+                            || !confirmed.draftId().equals(draftId)
+                            || confirmed.revision() != body.revision()
+                            || confirmed.expectedVersion() != body.expectedVersion())
+                        throw refused(409, "申请摘要已变化，请刷新当前申请");
+                    return view(s, current);
+                });
+            });
+        }
+        version(c, body.expectedVersion());
+        d = editable(c, draftId, body.revision());
+        var p = scope(s, c);
+        var line = customerCases.line(p, c.line());
+        if (!line.canApply()) {
+            if (line.application() != null
+                    && (!line.application().status().isTerminal()
+                            || line.application().status()
+                                    == com.resolveflow.caseservice.casefile.CaseStatus.CLOSED_SUCCESS)) {
+                return tx.execute(status -> {
+                    var current = conversation(s, id, true);
+                    return receipt(current, s, key, "R_CONFIRM", request, () -> {
+                        version(current, body.expectedVersion());
+                        editable(current, draftId, body.revision());
+                        return view(s, current);
+                    });
+                });
+            }
+            throw refused(409, line.blockedReason());
+        }
+        if (line.orderLine().linePaidAmount() != d.amountMinor()
+                || line.orderLine().quantity() != d.quantity()
+                || !line.orderLine().currency().equals(d.currency())) throw refused(409, "订单金额已变化，请重新核对申请摘要");
+        var prepared = cases.prepare(
+                p,
+                "support-refund:" + draftId,
+                new CaseCreateRequest(c.line(), d.reason(), java.util.List.of("REFUND")));
+        try {
+            return tx.execute(status -> {
+                var current = conversation(s, id, true);
+                return receipt(current, s, key, "R_CONFIRM", request, () -> {
+                    version(current, body.expectedVersion());
+                    editable(current, draftId, body.revision());
+                    var existing = lists.related(current.merchant(), current.customer(), current.line());
+                    if (existing != null
+                            && (!existing.status().isTerminal()
+                                    || existing.status()
+                                            == com.resolveflow.caseservice.casefile.CaseStatus.CLOSED_SUCCESS))
+                        return view(s, current);
+                    var created =
+                            prepared.replayed() != null ? prepared.replayed() : writer.writeCase(prepared.write());
+                    db.update(
+                            "UPDATE support_refund_draft SET status='CONFIRMED',case_id=? WHERE conversation_id=?",
+                            created.body().caseId(),
+                            id);
+                    return view(s, current);
+                });
+            });
+        } catch (org.springframework.dao.DuplicateKeyException error) {
+            // An old /cases request can win the line slot concurrently; never create a replacement.
+            var current = read(s, id);
+            if (current.application() != null) {
+                return tx.execute(status -> {
+                    var locked = conversation(s, id, true);
+                    return receipt(locked, s, key, "R_CONFIRM", request, () -> view(s, locked));
+                });
+            }
+            throw refused(409, "申请状态已变化，请刷新后重试同一请求");
+        }
+    }
 }

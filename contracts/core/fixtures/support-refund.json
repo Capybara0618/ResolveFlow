@@ -21,5 +21,9 @@
     "currency": "CNY",
     "expires_at": "2026-10-23T10:30:00Z",
     "case_id": null
+  },
+  "Confirm": {
+    "revision": 1,
+    "expected_version": 1
   }
 }

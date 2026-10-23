@@ -14,7 +14,16 @@ class SupportRefundWireTest {
         var json = new ObjectMapper();
         var fixture = ContractFixtures.load("contracts/core/fixtures/support-refund.json");
         for (var entry : Map.<String, Class<?>>of(
-                        "Prepare", Prepare.class, "Edit", Edit.class, "Revision", Revision.class, "Draft", Draft.class)
+                        "Prepare",
+                        Prepare.class,
+                        "Confirm",
+                        Confirm.class,
+                        "Edit",
+                        Edit.class,
+                        "Revision",
+                        Revision.class,
+                        "Draft",
+                        Draft.class)
                 .entrySet()) {
             var node = fixture.get(entry.getKey());
             assertThat(json.readTree(json.writeValueAsString(json.readValue(node.toString(), entry.getValue()))))

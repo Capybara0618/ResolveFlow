@@ -43,6 +43,8 @@ tags:
   - name: internal
     description: Service-to-service endpoints. Never exposed through the gateway.
 paths:
+  /api/v1/support/conversations/{id}/refund-drafts/{draftId}/confirm:
+    post: {"operationId": "confirmSupportRefund", "tags": ["support"], "security": [{"bearerAuth": []}], "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "draftId", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}, {"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "pattern": "^[A-Za-z0-9_-]{1,128}$"}}], "responses": {"200": {"description": "Current customer refund view; draft alone never creates a Case", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SupportRefundView"}}}}, "400": {"description": "Invalid input"}, "401": {"description": "Login required"}, "403": {"description": "Platform buyer required"}, "404": {"description": "Conversation not visible"}, "409": {"description": "Version, eligibility or idempotency conflict"}, "503": {"description": "Commerce unavailable; retry with original key"}}, "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SupportRefundConfirm"}}}}}
   /api/v1/support/conversations/{id}/refund-application:
     get: {"operationId": "readSupportRefund", "tags": ["support"], "security": [{"bearerAuth": []}], "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "Current customer refund view; draft alone never creates a Case", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SupportRefundView"}}}}, "400": {"description": "Invalid input"}, "401": {"description": "Login required"}, "403": {"description": "Platform buyer required"}, "404": {"description": "Conversation not visible"}, "409": {"description": "Version, eligibility or idempotency conflict"}, "503": {"description": "Commerce unavailable; retry with original key"}}}
   /api/v1/support/conversations/{id}/refund-drafts:
@@ -5058,6 +5060,7 @@ components:
           type: string
           minLength: 1
           maxLength: 64
+    SupportRefundConfirm: {"type": "object", "additionalProperties": false, "required": ["revision", "expected_version"], "properties": {"revision": {"type": "integer", "minimum": 1}, "expected_version": {"type": "integer", "minimum": 1}}}
     SupportRefundPrepare: {"type": "object", "additionalProperties": false, "required": ["expected_version", "reason"], "properties": {"expected_version": {"type": "integer", "minimum": 1}, "reason": {"type": "string", "minLength": 1, "maxLength": 4000}}}
     SupportRefundEdit: {"type": "object", "additionalProperties": false, "required": ["revision", "reason"], "properties": {"revision": {"type": "integer", "minimum": 1}, "reason": {"type": "string", "minLength": 1, "maxLength": 4000}}}
     SupportRefundRevision: {"type": "object", "additionalProperties": false, "required": ["revision"], "properties": {"revision": {"type": "integer", "minimum": 1}}}

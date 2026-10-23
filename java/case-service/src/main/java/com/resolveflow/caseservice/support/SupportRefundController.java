@@ -53,6 +53,16 @@ public class SupportRefundController {
         return refunds.cancel(principals.session(auth), id, draftId, key, body);
     }
 
+    @PostMapping("/refund-drafts/{draftId}/confirm")
+    public SupportRefundService.View confirm(
+            @RequestHeader(name = "Authorization", required = false) String auth,
+            @RequestHeader(name = "Idempotency-Key", required = false) String key,
+            @PathVariable String id,
+            @PathVariable String draftId,
+            @RequestBody Confirm body) {
+        return refunds.confirm(principals.session(auth), id, draftId, key, body);
+    }
+
     @ExceptionHandler(SupportService.Refused.class)
     public ResponseEntity<ApiError> refused(SupportService.Refused e) {
         return ResponseEntity.status(e.status)

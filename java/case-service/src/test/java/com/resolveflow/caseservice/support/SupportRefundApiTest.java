@@ -16,8 +16,12 @@ import tools.jackson.databind.JsonNode;
 /** Reuses the consultation HTTP fixture; inherited tests also protect its existing behavior. */
 @Import(SupportApiTest.Configuration.class)
 class SupportRefundApiTest extends SupportApiTest {
+    @org.springframework.beans.factory.annotation.Autowired
+    SupportRefundService refunds;
+
     @BeforeEach
     void refundFacts() {
+        deleteAllCaseData(jdbc);
         when(commerce.readLineContext(anyString()))
                 .thenAnswer(i -> Optional.of(new CommerceOrderLineClient.LineContext(
                         "order-" + i.getArgument(0),
@@ -34,6 +38,152 @@ class SupportRefundApiTest extends SupportApiTest {
                         Instant.parse("2026-09-20T08:00:00Z"),
                         "PAID",
                         1)));
+    }
+
+    JsonNode confirmDraft(JsonNode c, JsonNode v, String key, int status) {
+        return post(
+                path(c) + "/refund-drafts/" + v.path("draft").path("draft_id").asString() + "/confirm",
+                buyer,
+                key,
+                Map.of(
+                        "revision",
+                        v.path("draft").path("revision").asLong(),
+                        "expected_version",
+                        c.path("version").asLong()),
+                status);
+    }
+
+    @Test
+    void concurrentSameRequestCreatesOnlyOneCaseAndExistingEntryIsRecovered() throws Exception {
+        var c = open("support-A");
+        var v = prepareDraft(c, "concurrent-draft");
+        var session = principals.session(buyer);
+        var body = new com.resolveflow.shared.support.SupportRefundWire.Confirm(1L, 1L);
+        String id = c.path("conversation_id").asString(),
+                d = v.path("draft").path("draft_id").asString();
+        try (var pool = java.util.concurrent.Executors.newFixedThreadPool(2)) {
+            var first = pool.submit(() -> refunds.confirm(session, id, d, "concurrent-confirm", body));
+            var second = pool.submit(() -> refunds.confirm(session, id, d, "concurrent-confirm", body));
+            assertThat(first.get(15, java.util.concurrent.TimeUnit.SECONDS))
+                    .isEqualTo(second.get(15, java.util.concurrent.TimeUnit.SECONDS));
+        }
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM aftersale_case", Integer.class))
+                .isEqualTo(1);
+        var existing = prepareDraft(c, "existing-prepare");
+        assertThat(existing.path("application").path("case").path("case_id").asString())
+                .isNotBlank();
+    }
+
+    @Test
+    void oldApplicationEntryAndUnknownProgressDoNotCreateAnotherCaseOrLeakChat() {
+        var c = open("support-A");
+        var v = prepareDraft(c, "old-entry-prepare");
+        var original = postRaw(
+                "/api/v1/cases",
+                buyer,
+                "old-entry",
+                Map.of(
+                        "line_id",
+                        "support-A",
+                        "description",
+                        "客户在原页面提交的原因",
+                        "requested_actions",
+                        java.util.List.of("REFUND")),
+                201);
+        var got = confirmDraft(c, v, "old-entry-confirm", 200);
+        assertThat(got.path("application").path("case").path("case_id").asString())
+                .isEqualTo(original.path("case_id").asString());
+        jdbc.update(
+                "UPDATE aftersale_case SET status='RECONCILING' WHERE case_id=?",
+                original.path("case_id").asString());
+        var progress = get(path(c) + "/refund-application", buyer, 200);
+        assertThat(progress.path("application").path("case").path("status").asString())
+                .isEqualTo("RECONCILING");
+        assertThat(progress.path("application").has("authorization")).isFalse();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM aftersale_case", Integer.class))
+                .isEqualTo(1);
+        verifyNoInteractions(assistant);
+    }
+
+    @Test
+    void confirmCreatesOneCaseAndResponseLossReplaysTheOriginalReceipt() {
+        var c = open("support-A");
+        var v = prepareDraft(c, "confirm-prepare");
+        var created = confirmDraft(c, v, "confirm-once", 200);
+        String caseId = created.path("application").path("case").path("case_id").asString();
+        assertThat(caseId).isNotBlank();
+        assertThat(created.path("draft").path("status").asString()).isEqualTo("CONFIRMED");
+        assertThat(created.path("draft").path("case_id").asString()).isEqualTo(caseId);
+        assertThat(jdbc.queryForObject("SELECT description FROM aftersale_case WHERE case_id=?", String.class, caseId))
+                .isEqualTo(v.path("draft").path("reason").asString());
+        message(c, "after-confirm-message", "继续问一下进度", "ASSISTANT");
+        assertThat(confirmDraft(c, v, "confirm-once", 200)).isEqualTo(created);
+        assertThat(confirmDraft(c, v, "confirm-another-key", 200)
+                        .path("application")
+                        .path("case")
+                        .path("case_id")
+                        .asString())
+                .isEqualTo(caseId);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM aftersale_case", Integer.class))
+                .isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM agent_binding", Integer.class))
+                .isEqualTo(1);
+        post(
+                path(c) + "/refund-drafts/" + v.path("draft").path("draft_id").asString() + "/confirm",
+                buyer,
+                "confirm-once",
+                Map.of("revision", 99, "expected_version", 1),
+                409);
+        verifyNoInteractions(assistant);
+    }
+
+    @Test
+    void staleExpiredAndChangedAmountCannotBeConfirmed() {
+        var c = open("support-A");
+        var v = prepareDraft(c, "stale-prepare");
+        message(c, "correction-before-confirm", "不要退款了", "ASSISTANT");
+        confirmDraft(c, v, "stale-confirm", 409);
+        var updated = get(path(c), buyer, 200);
+        var newer = prepareDraft(updated, "newer-prepare");
+        jdbc.update(
+                "UPDATE support_refund_draft SET expires_at=TIMESTAMP('2020-01-01') WHERE conversation_id=?",
+                c.path("conversation_id").asString());
+        confirmDraft(updated, newer, "expired-confirm", 409);
+        var last = prepareDraft(updated, "amount-prepare");
+        jdbc.update(
+                "UPDATE support_refund_draft SET amount_minor=1 WHERE conversation_id=?",
+                c.path("conversation_id").asString());
+        confirmDraft(updated, last, "amount-confirm", 409);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM aftersale_case", Integer.class))
+                .isZero();
+    }
+
+    @Test
+    void caseAndLinkRollbackTogetherWhenConfirmationWriteFails() {
+        var c = open("support-A");
+        var v = prepareDraft(c, "rollback-prepare");
+        jdbc.execute(
+                "ALTER TABLE support_refund_draft ADD CONSTRAINT reject_refund_confirmation CHECK(status<>'CONFIRMED')");
+        try {
+            confirmDraft(c, v, "rollback-confirm", 500);
+        } finally {
+            jdbc.execute("ALTER TABLE support_refund_draft DROP CHECK reject_refund_confirmation");
+        }
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM aftersale_case", Integer.class))
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM agent_binding", Integer.class))
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM request_idempotency", Integer.class))
+                .isZero();
+        assertThat(get(path(c) + "/refund-application", buyer, 200)
+                        .path("draft")
+                        .path("status")
+                        .asString())
+                .isEqualTo("DRAFT");
+        assertThat(confirmDraft(c, v, "rollback-confirm", 200)
+                        .path("application")
+                        .isObject())
+                .isTrue();
     }
 
     JsonNode prepareDraft(JsonNode c, String key) {
