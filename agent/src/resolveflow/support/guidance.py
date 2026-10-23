@@ -174,6 +174,21 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
             detail="对话变化引用本轮原句：reference=CURRENT，quote最多300字；程序定位唯一原句，重复时才给offset。"
                    "不能用O/P工具编号、sequence:N或null。每任务仅一项当前变化，不能补记整个历史事件。",
         )
+    elif isinstance(error, ValidationError) and isinstance(payload, dict) and any(
+        "refund_summary" in item["loc"] for item in error.errors(include_input=False, include_context=False)
+    ):
+        example = deepcopy(payload)
+        for piece in example.get("parts", []) if isinstance(example.get("parts"), list) else []:
+            if isinstance(piece, dict):
+                piece.pop("refund_summary", None)
+        example["refund_summary"] = "客户陈述：商品未收到。诉求：申请整件退款，待本人核对后提交。"
+        result.update(
+            field="refund_summary", location="ROOT", type="string", min_length=1, max_length=2000,
+            detail="refund_summary与kind/parts同层，值是字符串，不能用对象/数组或放到parts内部。"
+                   "请按实际客户陈述与已查事实重写简短原因，不含金额/审批结论；可省略此可选字段。"
+                   "重发完整动作，保留对应part的指南引用与REFUND_APPLICATION。",
+            example=example,
+        )
     elif isinstance(error, ValidationError):
         result.update(
             field="schema",

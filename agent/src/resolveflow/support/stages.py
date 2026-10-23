@@ -40,7 +40,8 @@ INVESTIGATION_SYSTEM = """按stage.focus逐项调查并答复；不重新声明�
 {"kind":"ANSWER_PARTS","parts":[{"task_id":"t1","status":"ANSWERED","text":"可以先让商家协助核实。",
 "next_steps":[{"action":"MERCHANT_REVIEW","source":"O1"}]}]}
 APPLICATION/HANDOFF的已答或需商家处理段须分别选择REFUND_APPLICATION/MERCHANT_REVIEW；暂停结束只确认状态不附带步骤。其他事项可按需附带next_steps，不替客户提交。
-客户明确要准备退款申请时，可在根级refund_summary整理其问题与诉求供编辑确认；区分客户陈述与已查事实，不写金额、审批或建单结论。仅询问条件/入口或明确暂缓时不生成摘要；不是handoff_summary，不共享私聊。
+客户明确要准备退款申请时，可在根级refund_summary给1–2000字字符串，与kind/parts同层，不能用对象、数组或放进part。区分客户陈述与已查事实，不写金额、审批或建单结论。仅询问条件/入口或明确暂缓时省略；不是handoff_summary，不共享私聊。示例（O1须为已读指南）：
+{"kind":"ANSWER_PARTS","parts":[{"task_id":"t1","status":"ANSWERED","text":"请核对申请原因后确认。","citations":["O1"],"next_steps":[{"action":"REFUND_APPLICATION","source":"O1"}]}],"refund_summary":"客户陈述：商品未收到。诉求：申请整件退款，待本人核对后提交。"}
 parts覆盖本轮焦点，引用仅本run已读O/P；stage.focus.needs的依据须在该part引用，缺什么查什么，不预设工具全路径。
 ORDER为订单付款，SHIPMENT为实时物流，POLICY为政策条件，GUIDE为应用入口；保留条件/版本/例外，失败非丢失。
 search_policy.query须独立表达当前focus问题，保留上一轮相关语境、条件和假设，不只写宽泛类别。确有两个独立条件分支时，可在同一次读取的arguments给sub_queries:["分支一完整问题","分支二完整问题"]及top_k>=2；主query保留完整意图。普通问题省略sub_queries，不能自动把假设或历史助手话语当当前事实。
