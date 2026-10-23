@@ -1,0 +1,51 @@
+{
+  "verdict": "PASS_TARGETED_WITH_MINOR_WORDING",
+  "scope": "two unchanged retained controls on exactly the same final production source fingerprints as scope-v6-final; backend only, not a benchmark/browser write",
+  "rows": [
+    {
+      "case": "topic-switch-quality",
+      "verdict": "PASS_WITH_MINOR_WORDING",
+      "runtime_results_sha256": "5264ca3924813d78acc51bf824a86e96b86718247bd0b032d6c9f2d1a266c84c",
+      "models": 3,
+      "repairs": 0,
+      "input_tokens": 10091,
+      "output_tokens": 379,
+      "elapsed_ms": 5019.259799999418,
+      "rule_ids": [
+        "R-DMG-001",
+        "R-MONEY-001"
+      ],
+      "answer": "沿上轮讨论的“商品到手后发现质量问题”场景：发货后的损坏或质量退款，必须由人工核验客户材料与订单事实，确认符合售后条件后，才可申请该订单行全部数量的实付金额退款；普通在途或未经核验的主张不足以批准。仅支持单订单行全部数量的全额模拟退款，不支持部分退款、补发或真实支付，最终由售后专员决定。\n\n关于具体材料清单，现有政策未规定固定材料清单，也未列明必须提交哪些凭证。常见准备项（如商品问题照片、订单信息、问题描述）只能作为非强制建议，是否采信由人工核验时判断。\n\n以上仅为政策解释，不构成申请或审批承诺。",
+      "public_data_unchanged": true,
+      "temporary_schema_removed": true,
+      "finding": "Correct new quality topic, old logistics paused, no claim that goods have already arrived, manual quality verification and optional materials correct. Opening 沿上轮讨论 incorrectly attributes current quality scenario to history although context_refs is empty; retained as a nonblocking wording issue."
+    },
+    {
+      "case": "hypothetical-loss",
+      "verdict": "PASS_TARGETED",
+      "runtime_results_sha256": "e889548622fcd61a722da301d8e55032832333d714a33d9968e7d8812707a08b",
+      "models": 3,
+      "repairs": 0,
+      "input_tokens": 10505,
+      "output_tokens": 350,
+      "elapsed_ms": 4137.39010000063,
+      "rule_ids": [
+        "R-LOST-001",
+        "R-SIGNED-001"
+      ],
+      "answer": "沿上轮讨论的运输延迟场景，若后续承运商结论明确为 LOST 且无有效签收记录，经人工核验后可按该订单行全部数量的实付金额退款；本地模拟在途本身不代表承运商丢失。\n\n若存在有效签收记录，则不能仅因客户主张未收到而退款，须人工核验签收争议；事实不足时需补充材料或转人工调查。\n\n政策未规定固定材料清单；常见准备项如承运商丢失结论、物流轨迹、订单信息可作为非强制建议，最终由售后专员核验决定。",
+      "public_data_unchanged": true,
+      "temporary_schema_removed": true,
+      "finding": "Future carrier-confirmed loss remains conditional, no-valid-signing and manual verification retained. No unnecessary live/frozen shipment read or missing-source repair; no application/approval claim."
+    }
+  ],
+  "models": 6,
+  "repairs": 0,
+  "ledger_before": 2054,
+  "ledger_after": 2060,
+  "production_source_unchanged": true,
+  "limitations": [
+    "Quality opening has an inaccurate historical lead-in; content and task state correctly switch to current quality question.",
+    "Only three targeted independent follow-ups including scope-v6-final, not a general accuracy estimate."
+  ]
+}

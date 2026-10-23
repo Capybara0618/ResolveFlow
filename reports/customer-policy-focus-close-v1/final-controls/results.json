@@ -1,0 +1,19 @@
+{
+  "state": "FINISHED",
+  "models": 6,
+  "runs": [
+    {
+      "case": "topic-switch-quality",
+      "status": "SUCCEEDED",
+      "models": 3,
+      "runtime_sha256": "5264ca3924813d78acc51bf824a86e96b86718247bd0b032d6c9f2d1a266c84c"
+    },
+    {
+      "case": "hypothetical-loss",
+      "status": "SUCCEEDED",
+      "models": 3,
+      "runtime_sha256": "e889548622fcd61a722da301d8e55032832333d714a33d9968e7d8812707a08b"
+    }
+  ],
+  "total_model_attempt_limit": 8
+}
