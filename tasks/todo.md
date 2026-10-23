@@ -1,3 +1,8 @@
+## 当前快照（2026-10-23，完整客服流式真实验收准备完成，三轮尚未执行）
+
+- 用户批准继续S3完整系统验收；旧Java/PG客服和调查队列均空，当前Java重新构建、Agent staged-v1及网页启动通过，原政策精确索引复用。已有A-DELAYED合成订单不改业务状态；三条物流/政策/诉求纠正固定，第二轮实际运行中刷新，只读恢复不重发，生产每轮12次/30秒、整组三轮最多36次尝试，无自动失败续跑。
+- 新scripts/accept_support_stream_v1.py与check_support_stream_live_v1.cjs经Ruff/py_compile/node --check通过；prepare冻结[计划](../reports/chat-stream-live-v1/plan.json)及私有业务/原run快照，无新增模型请求。[报告](../reports/chat-stream-live-v1/README.md)先记范围/命令/计时边界。先精确提交普通push核实，再execute一次并记录全部成功/失败、账本及原业务保持；未称真实性能达标，不启动R1–R3或简历测评。原四脏文件保持。
+
 ## 当前快照（2026-10-23，S3流式工程收口：正文/工具/重连修复与提交后唤醒已接，完整现场待验收）
 
 - S3a efc3f37、S3b f43c934、S3c a4b2b7e、单次互通14cf25d均普通push核实。真实Provider流→受控正文投影/实际工具→有界异步批次→Java当前run/fence/input临时视图→本人SSE→同一气泡draft/reset/commit已接；正式消息/来源仍原终局事务，候选不共享/不建单，SDK唯一循环/原RAG架构保持。
