@@ -28,7 +28,7 @@ from resolveflow.support.dialogue import DialogueState, event_outcomes
 from resolveflow.support.grounding import GroundingError, check_amounts, ground_answer
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
-from resolveflow.support.navigation import render_navigation
+from resolveflow.support.navigation import navigation_references, render_navigation
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
 from resolveflow.support.recovery import SourceRecovery
 from resolveflow.support.stages import StageError, TurnStage, Understanding
@@ -322,6 +322,8 @@ class SupportAgent:
                 # Inspect metadata only: neither publish nor accept the rejected text/state.
                 try:
                     candidate = DECISION.validate_python(reply.decision)
+                    if isinstance(candidate, (Answer, AnswerParts)):
+                        candidate = navigation_references(candidate, self.citations)
                     if isinstance(candidate, AnswerParts):
                         candidate = render_answer(candidate, self.tasks.tasks)
                     if isinstance(candidate, Answer):

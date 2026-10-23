@@ -88,7 +88,8 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
                         "GUIDE读取与完整回答可依次进行，不需要再次声明事项。")
     elif isinstance(error, NavigationError):
         result.update(field="next_steps", detail=str(error),
-            repair_note="解释段不写固定页面名；普通核查说明允许。GUIDE未读先读，已读复用本run编号；对应part用next_steps:"
+            repair_note="正确页面说明允许：售后咨询对应MERCHANT_REVIEW，我的售后对应REFUND_APPLICATION。"
+                        "按所需操作修正页面/按钮错配，不为保留错页而增加无关操作；GUIDE未读先读，已读复用本run编号。next_steps:"
                         "[{action:MERCHANT_REVIEW或REFUND_APPLICATION,source:本run指南O编号}]，"
                         "程序生成正确入口/确认步骤，不执行提交；两种操作可并列。重发完整ANSWER_PARTS。")
     elif isinstance(error, GroundingError):
