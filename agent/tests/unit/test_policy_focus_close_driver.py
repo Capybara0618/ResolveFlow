@@ -25,7 +25,8 @@ def test_variants_preserve_old_history_pins_and_replace_only_current_question():
     assert driver.driver.read(driver.PLAN)['total_model_attempt_limit'] == 12
 
 
-def test_whole_cohort_has_a_hard_bound_restores_driver_and_cannot_be_reexecuted(tmp_path, monkeypatch):
+@pytest.mark.parametrize('limit', [8, 12])
+def test_whole_cohort_has_a_hard_bound_restores_driver_and_cannot_be_reexecuted(tmp_path, monkeypatch, limit):
     out = tmp_path / 'live'
     monkeypatch.setattr(driver, 'OUT', out)
     calls = []
@@ -40,7 +41,7 @@ def test_whole_cohort_has_a_hard_bound_restores_driver_and_cannot_be_reexecuted(
     for name in ['a', 'b', 'c']:
         driver.driver.persist(out / name / 'manifest.json', {})
         cases[name] = driver.driver.digest(out / name / 'manifest.json')
-    driver.driver.persist(out / 'manifest.json', {'cases': cases, 'total_model_attempt_limit': 12})
+    driver.driver.persist(out / 'manifest.json', {'cases': cases, 'total_model_attempt_limit': limit})
 
     def synthetic_execute():
         status = 'FAILED'
@@ -55,7 +56,7 @@ def test_whole_cohort_has_a_hard_bound_restores_driver_and_cannot_be_reexecuted(
     monkeypatch.setattr(driver.driver, 'execute', synthetic_execute)
     with pytest.raises(ValueError, match='whole-cohort'):
         driver.execute()
-    assert len(calls) == 12 and driver.driver.OUT == original_output
+    assert len(calls) == limit and driver.driver.OUT == original_output
     assert driver.driver.RecordedStreamingModel is SyntheticModel
     assert driver.driver.read(out / 'results.json')['state'] == 'FAILED'
     with pytest.raises(AssertionError, match='immutable'):

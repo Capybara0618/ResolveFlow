@@ -1,3 +1,8 @@
+## 当前快照（2026-10-23，原追问已通过；同最终生产源码的两项控制已准备待执行）
+
+- 8612f04已普通push核实。scope-v6-final原题真实3模型/0修复、准确10625输入/384输出、账2051→2054、Agent5083.35ms。新t2/H12H13承接且旧t1物流身份保留；一个part内分段，政策在途/确认丢失/无签收对照及非强制材料聚焦，无无源现状/审批申请，运行时发布校验SUCCEEDED，[完整源审](../reports/customer-policy-focus-close-v1/scope-v6-final/review.json)PASS_TARGETED。没开Java/Web或写原会话，非浏览器/p95；public/schema保持。本次累计29真实请求/111551输入4537输出（含所有失败），不只算最后3次。
+- 为覆盖当前新提示，沿用原固定质量换题/未来假设两题、每题一次/整组至多8请求的[最终控制](../reports/customer-policy-focus-close-v1/final-controls/manifest.json)已冻结，逐生产源码指纹与v6完全一致；不重跑原题、不改政策Gold。仅评测驱动支持显式plan/output及计划硬上限，8/12等四单元/Ruff通过（2.28秒），prepare0新模型。先精确提交普通push核实再执行一次、按全部回答源审后收尾；旧版本2题结果不冒充最终版全测。PG仅本次验证运行、Java/Web停，完后停PG保留卷；原四脏文件/六SHA保持，R1–R3/简历未做。
+
 ## 当前快照（2026-10-23，scope-v5候选内容聚焦但重复part未发布；格式约束/反馈已补，最后限定确认待执行）
 
 - e3e7eb7已普通push核实。scope-v5实际4请求/账2047→2051、准确15628输入/664输出、7328.88ms；历史运输延迟主题→在途/确认丢失/无签收对照与材料建议已聚焦，无无源当前断言/其他类目。两次把同一t2拆政策/材料两个part，原覆盖拒绝，FAILED/INVALID_DECISION且未发布。[原结果/候选源审](../reports/customer-policy-focus-close-v1/scope-v5/review.json)保留，不当正式成功。

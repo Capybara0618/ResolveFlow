@@ -26,6 +26,8 @@ def fixture_for(question, original=None):
 def prepare():
     assert not (OUT / 'manifest.json').exists(), 'frozen cohort already exists'
     plan = driver.read(PLAN)
+    limit = plan['total_model_attempt_limit']
+    assert 1 <= limit <= 12
     original_output, original_fixture = driver.OUT, driver.build_fixture
     original = original_fixture()
     try:
@@ -41,7 +43,7 @@ def prepare():
             driver.persist(path, manifest)
     finally:
         driver.OUT, driver.build_fixture = original_output, original_fixture
-    driver.persist(OUT / 'manifest.json', {'scope': plan['scope'], 'total_model_attempt_limit': 12,
+    driver.persist(OUT / 'manifest.json', {'scope': plan['scope'], 'total_model_attempt_limit': limit,
         'cases': {c['id']: driver.digest(OUT / c['id'] / 'manifest.json') for c in plan['cases']}})
 
 
@@ -51,7 +53,8 @@ def execute():
     for name, fingerprint in manifest['cases'].items():
         assert driver.digest(OUT / name / 'manifest.json') == fingerprint
     original_output, original_model = driver.OUT, driver.RecordedStreamingModel
-    summary = {'state': 'RUNNING', 'models': 0, 'runs': [], 'total_model_attempt_limit': 12}
+    summary = {'state': 'RUNNING', 'models': 0, 'runs': [],
+               'total_model_attempt_limit': manifest['total_model_attempt_limit']}
     driver.persist(OUT / 'results.json', summary)
 
     class CohortModel(original_model):
@@ -91,5 +94,8 @@ def execute():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=['prepare', 'execute'])
+    parser.add_argument('--output', type=Path, default=OUT)
+    parser.add_argument('--plan', type=Path, default=PLAN)
     args = parser.parse_args()
+    OUT, PLAN = args.output.resolve(), args.plan.resolve()
     prepare() if args.command == 'prepare' else execute()
