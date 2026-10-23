@@ -16,9 +16,11 @@ def refine(key="trace", needs=None, **updates):
 
 def test_additional_need_is_accepted_and_checked_without_changing_prior_event_or_focus():
     req = request()
+    fixed = part("trace", "系统有签收记录，可以进一步核验。", ["O1", "O2"])
+    fixed['next_steps'] = [{'action': 'MERCHANT_REVIEW', 'source': 'O2'}]
     script = [understand(req), read(), refine(),
-              parts(part("trace", "请商家核查。", ["O1"])), read("get_support_guide"),
-              parts(part("trace", "系统有签收记录；从售后咨询预览确认核查。", ["O1", "O2"]))]
+              parts(part("trace", "需要商家进一步核验。", ["O1"])), read("get_support_guide"),
+              parts(fixed)]
     result, model, sources, agent = staged(req, script, GuideReads())
     assert result["status"] == "SUCCEEDED", result["reason"]
     assert model.calls == 6 and len(sources.calls) == 2

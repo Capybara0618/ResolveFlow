@@ -113,7 +113,8 @@ def test_fact_feedback_also_exposes_missing_stage_sources_before_the_only_repair
     req = request()
     bad = part('trace', '承运记录已签收。', ['O1'])
     bad['facts'] = [{'field': 'SHIPMENT_STATUS', 'source': 'O1'}]
-    fixed = part('trace', '承运记录{{SHIPMENT_STATUS}}；可请商家核查。', ['O1', 'O2'])
+    fixed = part('trace', '承运记录{{SHIPMENT_STATUS}}；可以进一步核验。', ['O1', 'O2'])
+    fixed['next_steps'] = [{'action': 'MERCHANT_REVIEW', 'source': 'O2'}]
     fixed['facts'] = bad['facts']
     result, model, source, _ = staged(req, [understand(req, needs=['SHIPMENT', 'GUIDE']), read(),
         parts(bad), read('get_support_guide'), parts(fixed)], Sources())

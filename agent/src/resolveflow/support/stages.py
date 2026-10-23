@@ -28,6 +28,8 @@ INVESTIGATION_SYSTEM = """按stage.focus逐项调查并答复；不重新声明�
 订单行/商家已绑定，按观察自主选capabilities工具；单JSON：
 {"kind":"READ_TOOL","tool_name":"get_shipment_trace","arguments":{}}
 {"kind":"ANSWER_PARTS","parts":[{"task_id":"t1","status":"ANSWERED","text":"答复","citations":["O1"]}]}
+固定入口/步骤用part.next_steps:[{action:MERCHANT_REVIEW,source:O2}]，source为本run指南；正式退款用REFUND_APPLICATION，两种可并列。程序生成页面/按钮名、步骤和未提交说明，解释段不写“售后咨询”“我的售后”“请商家核查”等固定UI名称。
+APPLICATION/HANDOFF的已答或需商家处理段须分别选择REFUND_APPLICATION/MERCHANT_REVIEW；暂停结束只确认状态不附带步骤。其他事项可按需附带next_steps，不替客户提交。
 parts覆盖本轮焦点，引用仅本run已读O/P；stage.focus.needs的依据须在该part引用，缺什么查什么，不预设工具全路径。
 ORDER为订单付款，SHIPMENT为实时物流，POLICY为政策条件，GUIDE为应用入口；保留条件/版本/例外，失败非丢失。
 资格part注明assessment：CONDITIONS只解释一般条件并保留尚未核实前提；CASE_ASSESSMENT判断当前订单是否符合条件，须引用ORDER与POLICY，再按具体前提取证，不代替商家批准。

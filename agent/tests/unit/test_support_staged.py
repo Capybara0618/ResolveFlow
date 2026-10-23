@@ -65,9 +65,11 @@ def test_illegal_phase_actions_have_one_feedback_and_never_execute_business_read
 def test_logistics_answer_with_attached_operation_requires_both_declared_sources():
     req = request()
     opening = understand(req, needs=['SHIPMENT', 'GUIDE'])
-    final = parts(part('trace', '可以从售后咨询预览摘要后确认请商家核查。', ['O1', 'O2']))
+    fixed = part('trace', '可以进一步由商家核验。', ['O1', 'O2'])
+    fixed['next_steps'] = [{'action': 'MERCHANT_REVIEW', 'source': 'O2'}]
+    final = parts(fixed)
     result, model, source, _ = staged(req, [opening, read(),
-        parts(part('trace', '从售后咨询转交商家核查。', ['O1'])), read('get_support_guide'), final], GuideReads())
+        parts(part('trace', '物流记录已查看，可进一步核查。', ['O1'])), read('get_support_guide'), final], GuideReads())
     assert result['status'] == 'SUCCEEDED', result['reason']
     feedback = json.loads(model.packets[3]['feedback'])
     assert feedback['field'] == 'stage_sources' and feedback['gaps'][0]['need'] == 'GUIDE'
@@ -120,9 +122,11 @@ def test_multiple_focus_questions_use_different_source_needs_and_dynamic_tool_or
             ['运输结论', '退款条件', '办理入口'], ['SHIPMENT', 'POLICY', 'GUIDE'], strict=True)],
         'dialogue_events': [group('ADD', ids, utterance)]}
     # Guide first and policy before shipment: phase splitting does not preselect a full tool path.
+    entry = part(ids[2], '正式申请需要你核对后自行提交。', ['O1'])
+    entry['next_steps'] = [{'action': 'REFUND_APPLICATION', 'source': 'O1'}]
     final = parts(part(ids[0], '物流有签收记录，不代表本人收到。', ['O2']),
                   part(ids[1], '签收争议须商家核验，不直接判定可退。', ['P1']),
-                  part(ids[2], '正式退款入口为我的售后。', ['O1']))
+                  entry)
     result, model, source, _ = staged(req, [opening, read('get_support_guide'),
         {'kind': 'SEARCH_POLICY', 'query': '签收争议核验条件', 'top_k': 3}, read(), final], GuideReads())
     assert result['status'] == 'SUCCEEDED', result['reason']

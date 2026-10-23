@@ -12,6 +12,7 @@ from resolveflow.support.completion import CompletionError
 from resolveflow.support.dialogue import DialogueStateError
 from resolveflow.support.grounding import GroundingError
 from resolveflow.support.memory import MemoryStateError
+from resolveflow.support.navigation import NavigationError
 from resolveflow.support.tasks import TaskStateError
 
 CAPABILITIES: dict[str, dict[str, Any]] = {
@@ -78,7 +79,12 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         "resubmit_note": "被拒动作的标注未保存；重发完整动作及所需tasks/dialogue_events，不只补字段。"
                          "以当前task_state/dialogue_state为准，已有任务不用ADD。",
     }
-    if isinstance(error, GroundingError):
+    if isinstance(error, NavigationError):
+        result.update(field="next_steps", detail=str(error),
+            repair_note="解释段不写固定页面/按钮名。先读取get_support_guide；对应part用next_steps:"
+                        "[{action:MERCHANT_REVIEW或REFUND_APPLICATION,source:本run指南O编号}]，"
+                        "程序生成正确入口/确认步骤，不执行提交；两种操作可并列。重发完整ANSWER_PARTS。")
+    elif isinstance(error, GroundingError):
         result.update(field="answer_facts", detail=str(error),
                       repair_note="facts只保留text实际使用的{{FIELD}}，不用占位符就省略facts；"
                                   "先补source_gaps缺少的本轮来源再完整回答。金额须ORDER实付，不用商品展示值。")

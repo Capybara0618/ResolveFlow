@@ -77,6 +77,11 @@ def test_focus_ledger_and_phase_rebuild_after_each_turn_with_no_new_calls(agent_
                     events, memory, reads = [group('RESOLVE', [focus], text)], [], []
                     final = parts(part(focus, '已记录找到包裹，结束核查。', status='CANCELLED'))
                 if architecture == 'staged-v1':
+                    if index in {1, 2}:
+                        final['parts'][0]['text'] = '请核对后自行确认下一步操作。'
+                        final['parts'][0]['next_steps'] = [{
+                            'action': 'REFUND_APPLICATION' if index == 1 else 'MERCHANT_REVIEW',
+                            'source': 'O1' if index == 1 else 'O2'}]
                     script = [understand(req, key=focus, intent=intent, needs=needs, events=events, memory=memory),
                               *reads, final]
                 else:

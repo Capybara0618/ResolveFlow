@@ -122,6 +122,7 @@ class SupportRuntime:
                     "dialogue.py",
                     "stages.py",
                     "grounding.py",
+                    "navigation.py",
                     "../harness/token_counting.py",
                     "../assets/support-guide-v2.json",
                     "../policies/retrieval.py",

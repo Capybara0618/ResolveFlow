@@ -28,6 +28,7 @@ from resolveflow.support.dialogue import DialogueState, event_outcomes
 from resolveflow.support.grounding import GroundingError, check_amounts, ground_answer
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
+from resolveflow.support.navigation import render_navigation
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
 from resolveflow.support.recovery import SourceRecovery
 from resolveflow.support.stages import StageError, TurnStage, Understanding
@@ -268,6 +269,11 @@ class SupportAgent:
             decision = DECISION.validate_python(reply.decision)
             grounded = None
             if isinstance(decision, (Answer, AnswerParts)):
+                required = {f.id: {'HANDOFF': 'MERCHANT_REVIEW', 'APPLICATION': 'REFUND_APPLICATION'}[f.intent]
+                            for f in (self.stage.understanding.focus if self.stage.understanding else [])
+                            if f.intent in {'HANDOFF', 'APPLICATION'}
+                            and self.dialogue.lifecycles.get(f.id) not in {'PAUSED', 'CANCELLED', 'RESOLVED'}}
+                decision = render_navigation(decision, self.citations, strict=self.stage.enabled, required=required)
                 grounded = ground_answer(decision, self.request, self.citations)
                 decision = grounded
             if isinstance(decision, AnswerParts):
