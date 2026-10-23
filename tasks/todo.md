@@ -1,8 +1,9 @@
-## 当前快照（2026-10-23，用户批准单场景真实确认，输入/执行驱动已冻结待运行）
+## 当前快照（2026-10-23，单场景真实确认已完成；政策回答质量未通过，未自动重跑）
 
-- 用户“那请你开始吧”批准原固定计划一次真实追问/至多12次模型、不强制分支、不自动重跑。基线9b7700c，原文本/历史/事实快照和真实PG policy generation已绑定；当前Java/Web不启，仅PG。新run/调用账独立临时schema，公共表只读核验，实际流式DeepSeek/staged-v1循环；不把冻结业务快照称实时Java或网页验收。
-- 新脚本confirm_policy_focus_live_v1.py及单元/实际PG合成Provider预跑3通过0跳过（14.72秒），验证发送前记账/硬上限/流式、同run快照与导出清理。Ruff首轮导入/冗余noqa/长行问题已修，Ruff/py_compile通过。prepare冻结[输入/源码](../reports/customer-policy-focus-live-v1/manifest.json)，新真实模型0/账2022。[报告](../reports/customer-policy-focus-live-v1/README.md)记范围。
-- 准备精确提交普通push核实后仅execute一次，保留全部真实Query/调用/回答和失败，按原来源审查实际效果；不改原报告/索引/Gold/公共业务。R1–R3未做，原六SHA需保持，收尾停PG保留卷。
+- 准备11a14a5已普通push核实，按用户批准原追问仅执行一次。实际AgentScope staged-v1/DeepSeek Flash流式3模型，无修复/重试、账2022→2025，准确Provider9191输入/489输出，Agent6057.38ms（预热另列，非网页首字/p95）。[原始结果/源审](../reports/customer-policy-focus-live-v1/README.md)完整保留，运行SUCCEEDED不等于回答验收通过。
+- Query补“运输中/延迟”但focus仍泛化，top3未发货/损坏/签收争议，缺普通在途及确认丢失条件；自主未选分支本身不判错。原Query只读top5定位两规则在第4/5，前三与真实工具完全一致，public保持、0新增模型/HTTP。证明候选存在但排序/截取漏关键证据，模型也未发现证据缺口，仍罗列无关类别；fact_view空且无物流读，终局却用旧助手历史断言当前状态。材料未列清单/建议非强制及无写入通过，不能称RAG/完整客服冻结。
+- 冻结源码/input/原结果SHA、调用/usage、原四脏文件/旧清单/probe六SHA与账锁核验；public前后hash保持，独立run/schema导出清理，Java/Web未启，PG收尾停止保留卷。仅证据/文档，无生产改动，不重测收费或覆盖原失败；精确提交普通push核实后停止本步写入。
+- 下一步先用保存Query/输出离线比较六条短政策有界全读、top3与候选相关性筛选，验证关键条款覆盖及答案条件语义，再定有限真实确认。不是继续堆提示词或重构框架，不强制每个政策问题查物流；R1–R3退款摘要确认/建单/进度仍未做，未测简历指标。
 
 ## 当前快照（2026-10-23，政策Query衔接与可选分支已接；真实自动选择/回答待单场景确认）
 
