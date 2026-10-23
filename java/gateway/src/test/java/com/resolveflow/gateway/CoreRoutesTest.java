@@ -25,6 +25,10 @@ import reactor.core.publisher.Flux;
 class CoreRoutesTest {
 
     static final AtomicReference<String> forwarded = new AtomicReference<>();
+    static final java.util.concurrent.CountDownLatch supportFirstReceived = new java.util.concurrent.CountDownLatch(1);
+    static final java.util.concurrent.atomic.AtomicBoolean supportFlushed =
+            new java.util.concurrent.atomic.AtomicBoolean();
+    static final AtomicReference<String> supportForwarded = new AtomicReference<>();
     static final HttpServer upstream = startUpstream();
 
     @DynamicPropertySource
@@ -52,6 +56,28 @@ class CoreRoutesTest {
                 exchange.sendResponseHeaders(200, frame.length);
                 try (var output = exchange.getResponseBody()) {
                     output.write(frame);
+                }
+            });
+            server.createContext("/api/v1/support/conversations/c-1/events", exchange -> {
+                supportForwarded.set(exchange.getRequestHeaders().getFirst("Authorization") + " "
+                        + exchange.getRequestHeaders().getFirst("Last-Event-ID") + " "
+                        + exchange.getRequestHeaders().getFirst("X-User"));
+                exchange.getResponseHeaders().set("Content-Type", "text/event-stream");
+                exchange.getResponseHeaders().set("Cache-Control", "no-store");
+                exchange.getResponseHeaders().set("X-Accel-Buffering", "no");
+                exchange.sendResponseHeaders(200, 0);
+                try (var output = exchange.getResponseBody()) {
+                    output.write(
+                            "id: 1\nevent: turn.started\ndata: {\"phase\":1}\n\n".getBytes(StandardCharsets.UTF_8));
+                    output.flush();
+                    try {
+                        supportFlushed.set(supportFirstReceived.await(2, java.util.concurrent.TimeUnit.SECONDS));
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                    }
+                    output.write(
+                            "id: 2\nevent: answer.committed\ndata: {\"phase\":2}\n\n".getBytes(StandardCharsets.UTF_8));
+                    output.flush();
                 }
             });
             server.start();
@@ -94,5 +120,34 @@ class CoreRoutesTest {
                 .expectBody(String.class)
                 .value(body -> assertThat(body).contains("id: ev-2"));
         assertThat(forwarded.get()).isEqualTo("GET /api/v1/cases/case-1/events Bearer test-token ev-1 null");
+    }
+
+    @Test
+    void consultationFirstFrameReachesClientBeforeUpstreamSendsTheTail() {
+        var frames = webTestClient
+                .get()
+                .uri("/api/v1/support/conversations/c-1/events")
+                .header("Authorization", "Bearer buyer-token")
+                .header("Last-Event-ID", "0")
+                .header("X-User", "forged")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectHeader()
+                .valueEquals("Cache-Control", "no-store")
+                .expectHeader()
+                .valueEquals("X-Accel-Buffering", "no")
+                .returnResult(String.class)
+                .getResponseBody()
+                .doOnNext(frame -> {
+                    if (frame.contains("\"phase\":1")) supportFirstReceived.countDown();
+                })
+                .collectList()
+                .block(java.time.Duration.ofSeconds(5));
+        assertThat(frames).hasSize(2);
+        assertThat(supportFlushed.get())
+                .as("gateway must deliver first event before upstream completion")
+                .isTrue();
+        assertThat(supportForwarded.get()).isEqualTo("Bearer buyer-token 0 null");
     }
 }

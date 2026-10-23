@@ -44,3 +44,19 @@ S2a提交`1f619a3`已普通push/远端核实。S2b仍未接页面、未声明工
 实际命令：`pnpm --dir web test -- tests/support-workspace.spec.ts tests/support-events.spec.ts tests/events.spec.ts`、`pnpm --dir web typecheck`、`pnpm --dir web test`、`pnpm --dir web build`。
 
 S2b提交`2e35c5b`已普通push/远端核实。下一项验证Gateway是否及时转发分块；Python实际工具进度、正文S3、聊天退款R1–R3仍未接线。真实Provider新调用0，原库/项目未启动。
+
+## S2d：网关分块转发与本批收口
+
+- 新增真实Gateway HTTP测试：合成上游flush第一帧后，必须等客户端确认收到才发送尾帧；客户端经网关提前收到首帧，Bearer/Last-Event-ID原样转发、伪造身份头被剥离，no-store/禁缓冲响应头保留。沿原通配路由即可通过，无需新增网关生产配置。
+- 原Case SSE转发/路由与新咨询分块共3通过，0失败/跳过，reactor14.404秒；限定CoreRoutesTest格式检查通过。命令（cwd java，沿相同JAVA_HOME）：
+
+```powershell
+./mvnw.cmd -B -pl gateway -am '-Dtest=CoreRoutesTest' '-Dsurefire.failIfNoSpecifiedTests=false' test
+./mvnw.cmd -B -pl gateway '-DspotlessFiles=.*CoreRoutesTest[.]java' spotless:apply spotless:check
+```
+
+本批结果分别为：Case真实MySQL/HTTP26项、OpenAPI/fixture105项、前端223项、Gateway3项通过；完整网页与真实模型联合验收未运行，不把各类测试混算为Agent准确率或用户延迟。
+
+S2c提交`7dae4de`已普通push/远端核实。收口核对原四脏文件及旧冻结manifest五个SHA均保持，usage2011，业务端口5174/8080/8082/8083/8000/55433无监听，只有原静态预期稿5175保留。测试临时库未用于日常数据。
+
+S2当前接通排队/领取/过时/失败与完整已审核回复的实时更新，尚无Python实际工具事件和正文delta。后续S3需要限定progress凭证与run/fence/input校验入口、当前生成视图/attempt快照、观察器批量转发及前端reset/commit；原1秒扫描派发仍保留，事务提交后唤醒也待补，性能目标尚未测。聊天退款R1–R3在S3后实施，不能把本批称为完整流式或退款功能完成。
