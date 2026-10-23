@@ -8,7 +8,7 @@ from resolveflow.support.grounding import GroundingError
 from resolveflow.support.guide import guide_source
 from resolveflow.support.protocol import Answer, AnswerParts
 
-UI_LABELS = ('售后咨询', '我的售后', '请商家核查')
+PAGE_LABELS = ('售后咨询', '我的售后')
 INSTRUCTIONS = {
     'MERCHANT_REVIEW': '人工核查：打开“售后咨询”，选择对应订单商品，点击“请商家核查”。'
                        '预览并编辑核查摘要，选择要共享的原文和调查依据，确认后才转交商家。'
@@ -22,6 +22,10 @@ class NavigationError(GroundingError):
     pass
 
 
+class NavigationSourceError(NavigationError):
+    pass
+
+
 def render_navigation(
     decision: Answer | AnswerParts, citations: dict[str, dict[str, Any]], *, strict: bool = False,
     required: dict[str, str] | None = None,
@@ -29,8 +33,8 @@ def render_navigation(
     trusted = guide_source()
     rendered = []
     for piece in decision.parts if isinstance(decision, AnswerParts) else [decision]:
-        if strict and any(label in piece.text for label in UI_LABELS):
-            raise NavigationError('固定页面/按钮名由程序生成；解释段不写页面按钮名，改用next_steps。')
+        if strict and any(label in piece.text for label in PAGE_LABELS):
+            raise NavigationError('固定页面入口由程序生成；解释段不写页面名，改用next_steps。')
         actions = [step.action for step in piece.next_steps]
         if len(actions) != len(set(actions)):
             raise NavigationError('同一段next_steps.action不可重复。')
@@ -45,7 +49,7 @@ def render_navigation(
             source = citations.get(step.source, {})
             if (source.get('source_type') != 'KNOWLEDGE' or source.get('version') != trusted['version']
                     or source.get('data') != trusted['data'] or 'error' in source):
-                raise NavigationError('next_steps.source须实际读取的当前受控get_support_guide来源。')
+                raise NavigationSourceError('next_steps.source须实际读取的当前受控get_support_guide来源。')
             text += '\n\n' + INSTRUCTIONS[step.action]
             if step.source not in refs:
                 refs.append(step.source)

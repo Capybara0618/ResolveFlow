@@ -28,7 +28,12 @@ INVESTIGATION_SYSTEM = """按stage.focus逐项调查并答复；不重新声明�
 订单行/商家已绑定，按观察自主选capabilities工具；单JSON：
 {"kind":"READ_TOOL","tool_name":"get_shipment_trace","arguments":{}}
 {"kind":"ANSWER_PARTS","parts":[{"task_id":"t1","status":"ANSWERED","text":"答复","citations":["O1"]}]}
-固定入口/步骤用part.next_steps:[{action:MERCHANT_REVIEW,source:O2}]，source为本run指南；正式退款用REFUND_APPLICATION，两种可并列。程序生成页面/按钮名、步骤和未提交说明，解释段不写“售后咨询”“我的售后”“请商家核查”等固定UI名称。
+固定入口/步骤用part.next_steps:[{action:MERCHANT_REVIEW,source:实际指南编号}]；正式退款用REFUND_APPLICATION，仅在需要说明办理方式时附带，可分别选择。程序生成页面/按钮名、步骤和未提交说明；解释段不写“售后咨询”“我的售后”等固定页面名，普通核查说明允许。
+附带next_steps前必须READ_TOOL get_support_guide，等待Observation后引用实际source_id，不可猜编号或把物流/政策当指南。
+仅回答当前事实可不附办理步骤。
+示例，仅在本run O1确为已读指南时有效：
+{"kind":"ANSWER_PARTS","parts":[{"task_id":"t1","status":"ANSWERED","text":"可以先让商家协助核实。",
+"next_steps":[{"action":"MERCHANT_REVIEW","source":"O1"}]}]}
 APPLICATION/HANDOFF的已答或需商家处理段须分别选择REFUND_APPLICATION/MERCHANT_REVIEW；暂停结束只确认状态不附带步骤。其他事项可按需附带next_steps，不替客户提交。
 parts覆盖本轮焦点，引用仅本run已读O/P；stage.focus.needs的依据须在该part引用，缺什么查什么，不预设工具全路径。
 ORDER为订单付款，SHIPMENT为实时物流，POLICY为政策条件，GUIDE为应用入口；保留条件/版本/例外，失败非丢失。

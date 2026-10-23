@@ -12,7 +12,7 @@ from resolveflow.support.completion import CompletionError
 from resolveflow.support.dialogue import DialogueStateError
 from resolveflow.support.grounding import GroundingError
 from resolveflow.support.memory import MemoryStateError
-from resolveflow.support.navigation import NavigationError
+from resolveflow.support.navigation import NavigationError, NavigationSourceError
 from resolveflow.support.tasks import TaskStateError
 
 CAPABILITIES: dict[str, dict[str, Any]] = {
@@ -79,9 +79,16 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         "resubmit_note": "被拒动作的标注未保存；重发完整动作及所需tasks/dialogue_events，不只补字段。"
                          "以当前task_state/dialogue_state为准，已有任务不用ADD。",
     }
-    if isinstance(error, NavigationError):
+    if isinstance(error, NavigationSourceError):
+        result.update(field="next_steps", detail=str(error), resubmit="READ_THEN_FULL_ANSWER",
+            required_read={"kind": "READ_TOOL", "tool_name": "get_support_guide", "arguments": {}},
+            resubmit_note="被拒答案未发布；先读取指南再提交完整答复，沿用当前已接受stage和task状态。",
+            repair_note="下一动作先执行required_read读取指南，等Observation返回实际source_id后，"
+                        "再用该编号重发完整ANSWER_PARTS。不能猜O编号或只修改source；"
+                        "GUIDE读取与完整回答可依次进行，不需要再次声明事项。")
+    elif isinstance(error, NavigationError):
         result.update(field="next_steps", detail=str(error),
-            repair_note="解释段不写固定页面/按钮名。先读取get_support_guide；对应part用next_steps:"
+            repair_note="解释段不写固定页面名；普通核查说明允许。GUIDE未读先读，已读复用本run编号；对应part用next_steps:"
                         "[{action:MERCHANT_REVIEW或REFUND_APPLICATION,source:本run指南O编号}]，"
                         "程序生成正确入口/确认步骤，不执行提交；两种操作可并列。重发完整ANSWER_PARTS。")
     elif isinstance(error, GroundingError):

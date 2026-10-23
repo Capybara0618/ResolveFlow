@@ -84,6 +84,37 @@ def test_refund_step_cannot_satisfy_required_merchant_review():
                           strict=True, required={'t1': 'MERCHANT_REVIEW'})
 
 
+def test_ordinary_review_explanation_is_allowed_without_free_page_routes():
+    from resolveflow.support.navigation import render_navigation
+
+    text = '请商家核查不会自动创建退款工单。'
+    rendered = render_navigation(decision(['REFUND_APPLICATION'], text=text),
+                                 {'O1': guide_source()}, strict=True)
+    assert rendered.parts[0].text.startswith(text)
+    assert '正式退款：打开“我的售后”' in rendered.parts[0].text
+
+
+def test_missing_navigation_source_feedback_requires_real_read_before_resubmission():
+    import json
+
+    from tests.unit.test_support_agent import GuideReads, read, request
+    from tests.unit.test_support_staged import staged, understand
+
+    req = request()
+    bad = parts({**part('trace', '运输记录仍需进一步核验。', ['O1']),
+                 'next_steps': [{'action': 'MERCHANT_REVIEW', 'source': 'O1'}]})
+    fixed = parts({**part('trace', '运输记录仍需进一步核验。', ['O1']),
+                   'next_steps': [{'action': 'MERCHANT_REVIEW', 'source': 'O2'}]})
+    result, model, source, _ = staged(req, [understand(req), read(), bad,
+        read('get_support_guide'), fixed], GuideReads())
+    assert result['status'] == 'SUCCEEDED', result['reason']
+    feedback = json.loads(model.packets[3]['feedback'])
+    assert feedback['resubmit'] == 'READ_THEN_FULL_ANSWER'
+    assert feedback['required_read'] == read('get_support_guide')
+    assert '不能猜' in feedback['repair_note']
+    assert source.calls == [('get_shipment_trace', {}), ('get_support_guide', {})]
+
+
 def test_engine_rejects_mixed_entry_and_repairs_by_selecting_source_bound_step():
     import json
 
