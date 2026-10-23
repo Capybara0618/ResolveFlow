@@ -7,12 +7,14 @@ import fixture from '../../contracts/core/fixtures/support.json'
 import assistantFixture from '../../contracts/core/fixtures/support-assistant.json'
 import * as streamEvents from '../src/support-events'
 import type { SupportStreamEvent } from '../src/support-events'
+import { refundApi } from '../src/support-refund'
 
 const buyer = { access_token: 'buyer-token', role: 'CUSTOMER' as const, buyer_id: 'B-1', expires_in: 3600 }
 let wrapper: VueWrapper
 const original = (): SupportConversation => ({ ...structuredClone(fixture.Conversation), ticket: null } as SupportConversation)
 beforeEach(() => {
   sessionStorage.clear()
+  vi.spyOn(refundApi, 'read').mockResolvedValue({ draft: null, application: null })
   vi.spyOn(streamEvents, 'watchSupportEvents').mockImplementation(async (_id, _token, _event, signal, connected) => {
     connected?.(true)
     await new Promise<void>(resolve => signal.addEventListener('abort', () => resolve(), { once: true }))
@@ -63,6 +65,7 @@ it('shows a confirmed report in the merchant workbench without private assistant
   expect(wrapper.text()).toContain('物流事实')
   expect(wrapper.find('.support-message.assistant').exists()).toBe(false)
   expect(streamEvents.watchSupportEvents).not.toHaveBeenCalled()
+  expect(refundApi.read).not.toHaveBeenCalled()
 })
 async function open() {
   wrapper = mount(SupportWorkspace, { props: { account: buyer } }); await flushPromises()

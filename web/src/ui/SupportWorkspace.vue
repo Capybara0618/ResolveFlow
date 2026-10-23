@@ -7,6 +7,7 @@ import ProductArt from './ProductArt.vue'
 import SupportSources from './SupportSources.vue'
 import SupportContext from './SupportContext.vue'
 import SupportDialog from './SupportDialog.vue'
+import SupportRefundCard from './SupportRefundCard.vue'
 import Icon from './ReviewIcon.vue'
 import { conversationTitle, stamp, tail } from '../support-view'
 import { applySupportEvent, mergeSupportConversation, watchSupportEvents } from '../support-events'
@@ -291,6 +292,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
               </div>
             </article>
             <p v-if="assistantState" role="status" class="support-agent-state"><Icon name="clock" :size="16" />{{ assistantState }}</p>
+            <SupportRefundCard v-if="!merchant && !historyTab" :key="`${owner}:${selected.conversation_id}`" :token="token" :owner="owner" :conversation="selected" @expired="emit('expired')" />
             <section v-if="!merchant && !selected.ticket && latestAssistant?.assistant?.handoff_summary" class="support-handoff-card"><Icon name="file" :size="25" /><div><h3>需要商家进一步核查</h3><p>将你的问题与相关依据整理给商家。</p><blockquote>{{ latestAssistant.assistant.handoff_summary }}</blockquote><div><small>可编辑 · 确认后共享</small><button class="primary" data-action="preview-handoff" :disabled="busy || !!pending" @click="handoff">预览并转交商家</button></div></div></section>
           </div>
 
