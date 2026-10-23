@@ -1,0 +1,39 @@
+{
+  "reviewer": "CODEX_SOURCE_REVIEW",
+  "independent_human_gold": false,
+  "not_holdout": true,
+  "raw_sha256": {
+    "natural-results.json": "d762af26155f53249eca0bbd29c8f123a0542ccd12ae762c61c6ea995fd2f867",
+    "repair-results.json": "c6e8ca0dfed8583830550563807e123865b5365598de800586e8535309847cdf"
+  },
+  "natural_rows": [
+    {"id": "A01", "turn": 1, "rating": "COMPLETE", "reason": "真实读取物流，承运DELIVERED与客户未收到分开；三项客户陈述独立保存，不断言丢失、不附无关办理步骤。"},
+    {"id": "A01", "turn": 2, "rating": "COMPLETE", "reason": "原t1保留并暂停，新t2读取实际指南、选择REFUND_APPLICATION；正确解释我的售后直接发布，程序附固定步骤和未提交说明，没有发生旧页面名误拦或自动申请。"},
+    {"id": "A01", "turn": 3, "rating": "COMPLETE", "reason": "t1原id恢复OPEN，家人没代收显式REPLACE为尚未问清，旧门卫事实保留；真实物流/指南齐全，人工核查入口售后咨询正确，不重问门卫。可选门卫CONTINUE提议被拒并保留warning，不算新增记忆更新成功，不阻塞主答复。"},
+    {"id": "A01", "turn": 4, "rating": "COMPLETE", "reason": "家人不确定陈述显式REPLACE为已确认无人代收，旧条SUPERSEDED；门卫事实由同一事实的新确认替代。首次答复facts缺占位符被拒，唯一修复后正确填物流事实并发布，核查页面/按钮/选择共享/确认边界一致，未申请退款。说明与程序步骤重复为非阻塞问题。"}
+  ],
+  "probe": {
+    "id": "R01",
+    "mode": "injected-prefix-live-repair",
+    "scripted_prefix_decisions": 2,
+    "provider_requests": 2,
+    "first_real_decision_reads_guide": true,
+    "guide_observation_then_actual_reference": true,
+    "published": true,
+    "rating": "COMPLETE",
+    "reason": "两条mock前缀触发真实Harness缺指南反馈；第一条真实供应商决定读取get_support_guide，第二条引用实际O1并选择MERCHANT_REVIEW。正确售后咨询页面说明及固定步骤成功发布，预览编辑/原文与依据选择/私聊边界/客户确认完整，没有虚构转交或退款。注入部分不记为自主理解或自然错误恢复率。"
+  },
+  "freeze_recommendation": "当前个人项目限定场景的Agent实现、提示与配置可阶段性冻结，进入量化评测与演示整理；不再扩展架构或为非阻塞表达问题追加收费迭代。",
+  "nonblocking_observations": [
+    "模型解释与程序步骤仍有重复，探针答复偏长。",
+    "可选customer_claims误用CONTINUE被拒且有warning，旧事实与当前原文保留；不宣称任意记忆更新都成功。",
+    "UI合同仅覆盖两个页面与有限直接错配，不理解任意同义路线、多句指代或否定语义。",
+    "事实反馈中source_gaps按最终引用诊断，不能把缺占位符时未合并的SHIPMENT引用误读为物流未读取。"
+  ],
+  "limitations": [
+    "同四个已见问题的新版本一次回归，非独立人工Gold、留出泛化或简历指标。",
+    "自然4/4与单独注入探针通过分开报告，不合成总体5/5准确率。",
+    "真实模型、SDK、ASGI与隔离PG；Commerce/Case为固定合成HTTP，Java和网页本批未启动。",
+    "旧验收失败保持，新增结果不回填旧3/4或旧探针失败。"
+  ]
+}
