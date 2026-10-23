@@ -1,0 +1,35 @@
+{
+  "scope": "Three targeted real-model policy confirmations on synthetic saved history and pinned local policies; not a resume benchmark",
+  "total_model_attempt_limit": 12,
+  "turns": 3,
+  "automatic_retry_failed_turn": false,
+  "force_tool_path_or_query_branches": false,
+  "business_facts": "frozen synthetic snapshots; no live Java, browser or current conversation writes",
+  "checks": [
+    "policy sources cover necessary conditions and answer selects relevant clauses",
+    "history is discussion context, not a current verified shipment fact",
+    "conditional loss is not declared already happened",
+    "topic switch is respected without inheriting unrelated logistics assumptions",
+    "no invented required materials or business submission"
+  ],
+  "cases": [
+    {
+      "id": "original-followup",
+      "question": "如果一直没有收到，店里的售后政策是怎样的？需要我提供哪些材料？先解释政策，不要替我申请。",
+      "required_policy_topics": ["ordinary transit is insufficient for loss/refund", "carrier-confirmed loss and no valid signing require manual verification"],
+      "answer_scope": "policy conditions and optional material suggestions; no current case qualification"
+    },
+    {
+      "id": "topic-switch-quality",
+      "question": "先不讨论物流。如果商品到手后发现质量问题，店里怎么处理？具体材料要求是什么？只解释政策，不替我申请。",
+      "required_policy_topics": ["damage/quality requires manual evidence and order verification"],
+      "answer_scope": "quality policy only; do not assume the shipment has arrived or keep answering transit policy"
+    },
+    {
+      "id": "hypothetical-loss",
+      "question": "沿用刚才运输延迟的讨论。如果之后承运商确认丢失、而且没有有效签收，退款需要什么条件？我现在只是问假设，别当成已经丢失，也不要代我申请。",
+      "required_policy_topics": ["carrier-confirmed loss and no valid signing require manual verification"],
+      "answer_scope": "conditional future loss; not already lost, not approval or automatic refund"
+    }
+  ]
+}

@@ -41,6 +41,7 @@ parts覆盖本轮焦点，引用仅本run已读O/P；stage.focus.needs的依据�
 ORDER为订单付款，SHIPMENT为实时物流，POLICY为政策条件，GUIDE为应用入口；保留条件/版本/例外，失败非丢失。
 search_policy.query须独立表达当前focus问题，保留上一轮相关语境、条件和假设，不只写宽泛类别。确有两个独立条件分支时，可在同一次读取的arguments给sub_queries:["分支一完整问题","分支二完整问题"]及top_k>=2；主query保留完整意图。普通问题省略sub_queries，不能自动把假设或历史助手话语当当前事实。
 命中不等于适用：先答当前focus相关条件，不逐条罗列全部召回结果；仅解释政策时不顺带附办理步骤。政策没写具体材料清单就明确未规定，常见建议须标明建议，不编成必交材料；未知事实只作条件说明，需要认定当前状态再自主读取对应事实。
+stage.policy_scope的CONDITIONS只解释focus主题下的条件：先辨相关条款及不同前提，以“如果…则…”组织，不列无关退款类别，不判断本单当前资格。HISTORICAL_ASSISTANT_OUTPUT仅上轮讨论；可说“沿用上轮讨论背景”，不能说“您当前…”或“目前没有…”来确认现状。要判断本单须先REFINE_NEEDS并读取当前事实。完整小政策集合也须选择相关条款，不能按返回清单逐条作答。
 资格part注明assessment：CONDITIONS只解释一般条件并保留尚未核实前提；CASE_ASSESSMENT判断当前订单是否符合条件，须引用ORDER与POLICY，再按具体前提取证，不代替商家批准。
 关键事实可用text中的{{PAID_AMOUNT}}/{{ORDER_STATUS}}/{{SHIPMENT_STATUS}}/{{CARRIER_CONCLUSION}}，同part给facts:[{field:PAID_AMOUNT,source:O1}]由程序填值；具体金额须当前ORDER，不从商品展示猜实付。
 facts每项必须对应text实际使用的占位符；不用占位符就省略facts。needs中的GUIDE须本run读取并引用，历史助手指引不能替代本轮来源。
@@ -107,8 +108,11 @@ class TurnStage:
         return UNDERSTANDING_SYSTEM if self.pending else INVESTIGATION_SYSTEM
 
     def packet(self) -> dict[str, Any]:
+        policy_scope = {f.id: "CONDITIONS" for f in (self.understanding.focus if self.understanding else [])
+                        if "POLICY" in f.needs and not {"ORDER", "SHIPMENT"}.intersection(f.needs)}
         return {"phase": "UNDERSTAND" if self.pending else "INVESTIGATE_AND_ANSWER",
                 **({"refinements": self.refinements} if self.refinements else {}),
+                **({"policy_scope": policy_scope} if policy_scope else {}),
                 "focus": [] if self.understanding is None else [f.model_dump() for f in self.understanding.focus]}
 
     def project(self, packet: dict[str, Any]) -> dict[str, Any]:

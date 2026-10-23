@@ -42,6 +42,7 @@ def test_optional_branch_queries_are_one_sdk_action_without_an_extra_model_round
     assert result['status'] == 'SUCCEEDED', result['reason']
     assert model.calls == 3 and source.calls == [('search_policy', {
         'query': '当前与假设两类条件', 'sub_queries': queries, 'top_k': 3})]
+    assert model.packets[-1]['stage']['policy_scope'] == {'trace': 'CONDITIONS'}
 
 
 def test_understanding_is_separate_from_reads_and_final_answer_no_longer_repeats_annotations():

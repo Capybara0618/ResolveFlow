@@ -132,3 +132,18 @@ def test_protected_policy_conditions_are_not_deleted_to_fit_a_small_context():
     result = agent.run()
     assert result["reason"] == "CONTEXT_REQUIRED_OVERFLOW" and model.calls == 1
     assert len(agent.citations) == 3 and all("例外" in o["data"]["text"] for o in agent.observations)
+
+
+def test_history_authority_is_explicit_without_rewriting_text_or_promoting_it_to_facts():
+    from resolveflow.support.context import render_context
+
+    req = request(input_version=4)
+    req.context['history'] = [message(1, '之前查到运输延迟。', 'ASSISTANT'), message(2, '假如之后丢失呢？')]
+    before = deepcopy(req.context)
+    packet = render_context(req, {}, [])
+    assert packet['recent_messages'][0]['authority'] == 'HISTORICAL_ASSISTANT_OUTPUT'
+    assert packet['recent_messages'][1]['authority'] == 'CUSTOMER_STATEMENT'
+    assert packet['recent_messages'][0]['text'] == '之前查到运输延迟。'
+    assert packet['fact_view'] == [] and req.context == before
+    indexed = render_context(req, {}, [], recent=0)
+    assert indexed['history_index'][0]['authority'] == 'HISTORICAL_ASSISTANT_OUTPUT'

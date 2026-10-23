@@ -30,10 +30,15 @@ def history_messages(request: SupportInput, observations: list[dict[str, Any]]) 
     return [messages[key] for key in sorted(messages)]
 
 
+def _authority(message: dict[str, Any]) -> str:
+    return {"CUSTOMER": "CUSTOMER_STATEMENT", "MERCHANT": "MERCHANT_STATEMENT",
+            "ASSISTANT": "HISTORICAL_ASSISTANT_OUTPUT"}.get(str(message.get("author")), "HISTORICAL_MESSAGE")
+
+
 def _preview(message: dict[str, Any], chars: int) -> dict[str, Any]:
     text = message["text"]
     return {k: message.get(k) for k in ("message_id", "sequence", "author", "recipient")} | {
-        "read_ref": "H" + str(message["sequence"]), "total_chars": len(text),
+        "read_ref": "H" + str(message["sequence"]), "total_chars": len(text), "authority": _authority(message),
         "truncated": len(text) > chars * 2,
         "excerpt": text if len(text) <= chars * 2 else text[:chars],
         "tail": text[-chars:] if chars and len(text) > chars * 2 else "",
@@ -109,7 +114,7 @@ def render_context(
         unique.append(projected)
     return {
         **base,
-        "recent_messages": deepcopy(full),
+        "recent_messages": [{**deepcopy(m), "authority": _authority(m)} for m in full],
         "history_index": [_preview(m, preview) for m in indexed],
         "history_read_refs": ["H" + str(m["sequence"]) for m in omitted],
         "fact_view": _fact_view(request, observations),
@@ -134,5 +139,6 @@ def read_context(
     return {"source_type": "CONVERSATION", "version": request.input_version, "data": {
         **{k: message.get(k) for k in ("message_id", "sequence", "author", "recipient")},
         "reference": read.reference, "offset": read.offset, "end": end, "total_chars": len(text),
+        "authority": _authority(message),
         "text": text[read.offset:end], "complete": read.offset == 0 and end == len(text),
     }}

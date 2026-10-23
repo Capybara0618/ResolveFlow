@@ -37,7 +37,7 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
         "action": {"kind": "READ_TOOL", "tool_name": "get_support_guide", "arguments": {}},
     },
     "search_policy": {
-        "purpose": "政策条件；小集合完整返回，大集合按top_k检索。",
+        "purpose": "资格/例外/金额，非入口。",
         "action": {"kind": "READ_TOOL", "tool_name": "search_policy",
                    "arguments": {"query": "当前要了解的资格条件", "top_k": 3}},
     },

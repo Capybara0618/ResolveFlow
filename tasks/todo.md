@@ -1,3 +1,8 @@
+## 当前快照（2026-10-23，政策收口上下文已接；三场景固定真实确认已准备待执行）
+
+- 完整小集合8cecc6b已普通push核实。历史投影标明助手输出/客户/商家陈述，最近/预览/精确回读同源，原文/fact_view不改；纯政策stage.policy_scope=CONDITIONS，仅解释相关前提，不将旧物流当当前资格。新红测2失败/20通过后定向42通过；扩大选择首轮1预算溢出/353通过/4跳过，去目录重复说明不扩预算，精确客服单元+真实SDK/PG/流式共328通过0跳过（23.47秒），strict/Ruff通过。[收口记录](../reports/customer-policy-focus-close-v1/README.md)。
+- 新有限确认驱动两项单元/上限/原历史/pin保持通过；三题原追问、质量换题、未来假设丢失已prepare冻结[输入/源码/计划](../reports/customer-policy-focus-close-v1/live/manifest.json)。同一授权内整组至多12真实模型、每题一次、无失败重跑，不强制工具路径/分支；新模型0/账2025。先精确提交普通push核实后execute一次，保存每次实际Query/完整政策/回答/用量并按来源审核，不能凭合成工程检查称答案收口。Java/Web未启，PG仅隔离验证运行，收尾停止保留卷；R1–R3未做，原四脏文件/六SHA及旧失败保持。
+
 ## 当前快照（2026-10-23，政策收口第一步完成；完整小集合供给已验证，回答质量待继续确认）
 
 - 用户新授权完成政策质量收口。复用原商家/manifest/READY generation校验，客服search_policy对至多8条/8192序列化UTF-8字节的小集合完整返回；超限原检索/可选分支保持。top_k排序语义与complete观察/manifest显式标记，无按ID/题号补召回。[收口报告](../reports/customer-policy-focus-close-v1/README.md)/真实PG只读原Query六条完整、20.96ms单样本非p95，公共表保持，新模型0/账2025。
