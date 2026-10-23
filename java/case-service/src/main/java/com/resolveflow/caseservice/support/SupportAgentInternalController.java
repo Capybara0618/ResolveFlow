@@ -35,6 +35,22 @@ public class SupportAgentInternalController {
         return turns.current(bound(auth, id));
     }
 
+    @PostMapping("/stream-events")
+    public Object progress(
+            @RequestHeader(name = "Authorization", required = false) String auth,
+            @PathVariable("run_id") String id,
+            @RequestBody tools.jackson.databind.JsonNode batch) {
+        JwtCodec.SupportCredential token;
+        try {
+            if (auth == null || !auth.startsWith("Bearer ")) throw new IllegalArgumentException();
+            token = codec.verifySupportProgressCredential(auth.substring(7), clock.instant());
+            if (!id.equals(token.runId())) throw new IllegalArgumentException();
+        } catch (RuntimeException refused) {
+            throw new SupportService.Refused(403, "FORBIDDEN_SCOPE", "需要绑定咨询的进度凭据");
+        }
+        return turns.progress(token, batch);
+    }
+
     @GetMapping("/facts/{kind}")
     public Object facts(
             @RequestHeader("Authorization") String auth,

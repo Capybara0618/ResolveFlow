@@ -217,13 +217,21 @@ public final class JwtCodec {
 
     /** Consultation-only token: no case_id, refund scope or authority to read arbitrary lines. */
     public String issueSupportCredential(SupportCredential bound, Instant now) {
+        return issueSupportCredential(bound, now, "support:read");
+    }
+
+    public String issueSupportProgressCredential(SupportCredential bound, Instant now) {
+        return issueSupportCredential(bound, now, "support:progress");
+    }
+
+    private String issueSupportCredential(SupportCredential bound, Instant now, String scope) {
         var claims = MAPPER.createObjectNode();
         claims.put("sub", "agent-service");
         claims.put("aud", SERVICE_AUDIENCE);
         claims.put("iss", ISSUER);
         claims.put("iat", now.getEpochSecond());
         claims.put("exp", now.plusSeconds(150).getEpochSecond());
-        claims.put("scope", "support:read");
+        claims.put("scope", scope);
         claims.put("run_id", bound.runId());
         claims.put("conversation_id", bound.conversationId());
         claims.put("input_version", bound.inputVersion());
@@ -235,9 +243,17 @@ public final class JwtCodec {
     }
 
     public SupportCredential verifySupportCredential(String token, Instant now) {
+        return verifySupportCredential(token, now, "support:read");
+    }
+
+    public SupportCredential verifySupportProgressCredential(String token, Instant now) {
+        return verifySupportCredential(token, now, "support:progress");
+    }
+
+    private SupportCredential verifySupportCredential(String token, Instant now, String scope) {
         var claims = verifiedClaims(token, SERVICE_AUDIENCE, now);
         if (!requiredText(claims, "sub").equals("agent-service")
-                || !requiredText(claims, "scope").equals("support:read")
+                || !requiredText(claims, "scope").equals(scope)
                 || !claims.path("input_version").isIntegralNumber()
                 || claims.path("input_version").asLong() < 1
                 || !claims.path("dispatch_fence").isIntegralNumber()

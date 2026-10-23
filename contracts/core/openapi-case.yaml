@@ -548,6 +548,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
+  /internal/v1/support/turns/{run_id}/stream-events:
+    post:
+      operationId: appendSupportProgress
+      description: 'Bound support:progress credential only. Current run/input/fence and lease checked. Ordered batches are idempotent only for the last identical batch; stale/unknown batches fail. Never publishes assistant messages or refunds.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [batch_sequence, events]
+              properties:
+                batch_sequence: {type: integer, minimum: 1, maximum: 512}
+                events:
+                  type: array
+                  minItems: 1
+                  maxItems: 16
+                  items:
+                    type: object
+                    additionalProperties: false
+                    required: [kind, attempt_id, payload]
+                    properties:
+                      kind:
+                        type: string
+                        enum: [answer.started, answer.delta, answer.reset, activity.started, activity.completed]
+                      attempt_id: {type: [string, 'null'], maxLength: 64}
+                      payload: {type: object, additionalProperties: true}
+      responses:
+        '200': {description: Accepted batch or replay of last identical batch}
+        '403': {description: Missing/wrong credential or bound identity}
+        '409': {description: Stale run/input/fence/lease or invalid/out-of-order progress}
   /api/v1/support/conversations:
     post:
       operationId: openSupportConversation
@@ -5306,7 +5345,7 @@ components:
           type: [string, 'null']
         kind:
           type: string
-          enum: [turn.accepted, turn.started, answer.committed, answer.failed, answer.stale, stream.snapshot]
+          enum: [turn.accepted, turn.started, answer.committed, answer.failed, answer.stale, stream.snapshot, answer.started, answer.delta, answer.reset, activity.started, activity.completed]
         payload:
           type: object
           additionalProperties: true

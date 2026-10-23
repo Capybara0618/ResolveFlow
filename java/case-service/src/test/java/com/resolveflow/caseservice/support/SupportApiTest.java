@@ -259,6 +259,89 @@ class SupportApiTest extends CaseDatabaseTest {
     @Autowired
     SupportStreamEvents streamJournal;
 
+    Map<String, Object> progressEvent(String kind, String attempt, Map<String, Object> payload) {
+        var event = new java.util.LinkedHashMap<String, Object>();
+        event.put("kind", kind);
+        event.put("attempt_id", attempt);
+        event.put("payload", payload);
+        return event;
+    }
+
+    @Test
+    void progressIsFencedSequencedProvisionalAndRestoredWithoutPublishing() throws Exception {
+        var c = message(open("support-A"), "progress-ask", "请查物流", "ASSISTANT");
+        String id = c.path("conversation_id").asString(),
+                run = c.path("assistant_turn").path("run_id").asString();
+        turns.claim();
+        var bound = new com.resolveflow.shared.security.JwtCodec.SupportCredential(
+                run, id, 2, 1, "M-1001", "C-B3001-M1001", "support-A");
+        String progress = "Bearer " + codec.issueSupportProgressCredential(bound, Instant.now());
+        String reader = "Bearer " + codec.issueSupportCredential(bound, Instant.now());
+        String route = "/internal/v1/support/turns/" + run + "/stream-events";
+        var batch = Map.of(
+                "batch_sequence",
+                1,
+                "events",
+                List.of(
+                        progressEvent("answer.started", "a1", Map.of()),
+                        progressEvent("answer.delta", "a1", Map.of("part_id", "part-0", "offset", 0, "text", "您好😀"))));
+        postRaw(route, reader, null, batch, 403);
+        postRaw(route, progress, null, batch, 200);
+        postRaw(route, progress, null, batch, 200); // Same sequence/payload is idempotent.
+        assertThat(get(path(c), buyer, 200).path("messages").size()).isEqualTo(1);
+        assertThat(get(path(c), buyer, 200).path("version").asLong()).isEqualTo(2);
+        var view =
+                stream(c, null, 1, () -> {}).events.getFirst().path("payload").path("generation");
+        assertThat(view.path("view").path("parts").path("part-0").asString()).isEqualTo("您好😀");
+        postRaw(
+                route,
+                progress,
+                null,
+                Map.of(
+                        "batch_sequence",
+                        2,
+                        "events",
+                        List.of(progressEvent(
+                                "answer.delta", "a1", Map.of("part_id", "part-0", "offset", 3, "text", "，核查中。")))),
+                200);
+        postRaw(
+                route,
+                progress,
+                null,
+                Map.of("batch_sequence", 3, "events", List.of(progressEvent("answer.committed", "a1", Map.of()))),
+                409);
+        postRaw(
+                route,
+                progress,
+                null,
+                Map.of("batch_sequence", 3, "events", List.of(progressEvent("answer.reset", "a2", Map.of()))),
+                200);
+        postRaw(
+                route,
+                progress,
+                null,
+                Map.of(
+                        "batch_sequence",
+                        4,
+                        "events",
+                        List.of(progressEvent(
+                                "answer.delta", "a1", Map.of("part_id", "part-0", "offset", 0, "text", "旧草稿")))),
+                409);
+        c = message(c, "new-input", "更正一下", "ASSISTANT");
+        postRaw(
+                route,
+                progress,
+                null,
+                Map.of(
+                        "batch_sequence",
+                        4,
+                        "events",
+                        List.of(progressEvent(
+                                "answer.delta", "a2", Map.of("part_id", "part-0", "offset", 0, "text", "旧输入")))),
+                409);
+        verifyNoInteractions(assistant);
+    }
+
     @Test
     void boundedOrExpiredHistoryRestoresSnapshotWithoutChangingInput() throws Exception {
         var c = message(open("support-A"), "sse-bounded", "查询", "ASSISTANT");

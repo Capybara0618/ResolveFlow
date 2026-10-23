@@ -99,6 +99,9 @@ public class SupportEventStreamService {
                     emitter.send(SseEmitter.event().comment("keep-alive"));
                     lastSent = System.nanoTime();
                 }
+            } catch (SupportService.Refused | RequestPrincipalResolver.UnauthenticatedException revoked) {
+                stop();
+                emitter.complete();
             } catch (IOException | IllegalStateException disconnected) {
                 stop();
             } catch (RuntimeException refused) {

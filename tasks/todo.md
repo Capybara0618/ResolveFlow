@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，S3a限定进度入口与生成视图完成，Python正文待接）
+
+- 按用户开工要求先补S3接收端：独立support:progress绑定原run/input/fence/主体，原只读scope不能写进度，新scope不能读事实。V30保存有界临时视图和单调批次，重复最后相同批次幂等，乱序/旧输入/旧attempt拒绝，禁止Python伪造终局或退款。snapshot恢复生成视图，非当前RUNNING不可见，新fence清旧视图；SSE已建连接身份失效正常关闭。
+- Java附可选progress_token，Python SecretStr接受并从输入排除，本步尚不使用/切模型；契约和fixture同步。凭据红测编译失败，首Case26通过/1失败定位原ServiceTokenFilter scope路由，修后确认Case27/共享凭据2通过（总53.365秒），契约/原OpenAPI106通过（14.81秒），相关格式通过。具体命令/失败和限制见[报告](../reports/chat-refund-stream-s3/README.md)。
+- 无真实模型调用、usage2011，原业务库未启动/只用临时测试库；原四脏文件/旧资产保留。本步精确commit/普通push核实后接S3b Python观察器和真实工具事件，再S3c页面draft/reset/commit与小规模联调；尚不能称正文流式已可体验，聊天退款R1–R3未实施。
+
 ## 当前快照（2026-10-23，真实流式S2事件/页面链路收口；S3模型正文待接）
 
 - S2a/b/c的1f619a3、2e35c5b、7dae4de均已普通push/远端核实。已接事务事件→本人鉴权SSE/快照续接→当前会话实时状态/正式回复，切商品释放旧订阅，旧run/input忽略，历史阅读位置保留，断线只读降级，不自动重发用户消息。

@@ -104,6 +104,8 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
      */
     private static String requiredScope(HttpServletRequest request) {
         String path = request.getRequestURI();
+        if (path.startsWith("/internal/v1/support/turns/") && path.endsWith("/stream-events"))
+            return "support:progress";
         if (path.startsWith("/internal/v1/support/turns/")) return "support:read";
         if (path.startsWith(POLICIES_PREFIX) || path.contains(POLICY_MANIFEST_SEGMENT)) {
             return POLICY_READ;

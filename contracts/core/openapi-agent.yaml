@@ -475,6 +475,11 @@ components:
           title: Tool Token
           type: string
           writeOnly: true
+        progress_token:
+          type: [string, 'null']
+          minLength: 1
+          maxLength: 8192
+          writeOnly: true
       required:
       - run_id
       - conversation_id

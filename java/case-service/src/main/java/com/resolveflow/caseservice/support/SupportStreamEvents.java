@@ -49,7 +49,13 @@ public class SupportStreamEvents {
                     && cursor <= latest
                     && (cursor == latest || earliest != null && cursor >= earliest - 1);
             if (!resumable) {
-                var payload = json.valueToTree(Map.of("conversation", view, "last_event_id", Long.toString(latest)));
+                var payload = json.valueToTree(Map.of(
+                        "conversation",
+                        view,
+                        "last_event_id",
+                        Long.toString(latest),
+                        "generation",
+                        generation(conversation)));
                 return List.of(frame(
                         latest,
                         conversation,
@@ -97,7 +103,25 @@ public class SupportStreamEvents {
         return new Frame(id, kind, node.toString());
     }
 
-    public void append(String conversation, String run, long input, long fence, String kind, Map<String, ?> payload) {
+    public void append(String conversation, String run, long input, long fence, String kind, Object payload) {
+        append(conversation, run, input, fence, kind, payload, null);
+    }
+
+    public JsonNode generation(String conversation) {
+        var rows = db.queryForList(
+                "SELECT run_id,input_version,progress_json FROM support_agent_turn WHERE conversation_id=? AND status='RUNNING' AND input_version=(SELECT version FROM support_conversation WHERE conversation_id=?) ORDER BY input_version DESC LIMIT 1",
+                conversation,
+                conversation);
+        if (rows.isEmpty() || rows.getFirst().get("progress_json") == null) return json.nullNode();
+        var row = rows.getFirst();
+        return json.createObjectNode()
+                .put("run_id", row.get("run_id").toString())
+                .put("input_version", ((Number) row.get("input_version")).longValue())
+                .set("view", json.readTree(row.get("progress_json").toString()));
+    }
+
+    public void append(
+            String conversation, String run, long input, long fence, String kind, Object payload, String attempt) {
         if (!TransactionSynchronizationManager.isActualTransactionActive())
             throw new IllegalStateException("support events must join the business transaction");
         long previous = db.queryForObject(
@@ -107,14 +131,15 @@ public class SupportStreamEvents {
         long next = Math.addExact(previous, 1);
         db.update("UPDATE support_conversation SET event_sequence=? WHERE conversation_id=?", next, conversation);
         db.update(
-                "INSERT INTO support_stream_event(conversation_id,event_id,run_id,input_version,fence,kind,payload_json) VALUES(?,?,?,?,?,?,?)",
+                "INSERT INTO support_stream_event(conversation_id,event_id,run_id,input_version,fence,kind,payload_json,attempt_id) VALUES(?,?,?,?,?,?,?,?)",
                 conversation,
                 next,
                 run,
                 input,
                 fence,
                 kind,
-                json.writeValueAsString(payload));
+                json.writeValueAsString(payload),
+                attempt);
         // Bounded reconnect history; an older cursor will read an authoritative snapshot instead.
         db.update(
                 "DELETE FROM support_stream_event WHERE conversation_id=? AND (event_id<=? OR created_at<TIMESTAMPADD(HOUR,-24,CURRENT_TIMESTAMP(6)))",

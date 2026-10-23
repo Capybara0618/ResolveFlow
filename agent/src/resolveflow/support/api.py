@@ -13,6 +13,7 @@ from resolveflow.support.service import SupportRuntime
 
 class SupportDispatch(SupportInput):
     tool_token: SecretStr = Field(min_length=1, max_length=8192)
+    progress_token: SecretStr | None = Field(default=None, min_length=1, max_length=8192)
 
 
 def router_for(authenticate: Any, run_store: Any) -> APIRouter:
@@ -36,7 +37,7 @@ def router_for(authenticate: Any, run_store: Any) -> APIRouter:
                     embeddings=request.app.state.support_embeddings,
                     architecture=request.app.state.support_architecture,
                 )
-            context = SupportInput.model_validate(body.model_dump(exclude={"tool_token"}))
+            context = SupportInput.model_validate(body.model_dump(exclude={"tool_token", "progress_token"}))
             return cast(dict[str, Any], runtime.run(context, body.tool_token.get_secret_value()))
         except SupportFailure as error:
             raise HTTPException(409, detail=error.reason) from error

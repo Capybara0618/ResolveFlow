@@ -35,6 +35,7 @@ public class SupportAgentTurns {
     private final SupportAgentClient agent;
     private final Clock clock;
     private final SupportStreamEvents events;
+    private final SupportProgress progress;
 
     public SupportAgentTurns(
             JdbcTemplate db,
@@ -46,7 +47,8 @@ public class SupportAgentTurns {
             PolicySelectionService policies,
             SupportAgentClient agent,
             Clock clock,
-            SupportStreamEvents events) {
+            SupportStreamEvents events,
+            SupportProgress progress) {
         this.db = db;
         this.tx = new TransactionTemplate(manager);
         tx.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
@@ -58,6 +60,7 @@ public class SupportAgentTurns {
         this.agent = agent;
         this.clock = clock;
         this.events = events;
+        this.progress = progress;
     }
 
     private static SupportService.Refused stale() {
@@ -209,7 +212,7 @@ public class SupportAgentTurns {
                     deadline = cap.isBefore(active) ? cap : active;
                 }
                 db.update(
-                        "UPDATE support_agent_turn SET status='RUNNING',reason=NULL,fence=fence+1,lease_until=?,deadline_at=? WHERE run_id=?",
+                        "UPDATE support_agent_turn SET status='RUNNING',reason=NULL,fence=fence+1,lease_until=?,deadline_at=?,progress_sequence=0,progress_batch_json=NULL,progress_json=NULL,progress_event_count=0 WHERE run_id=?",
                         java.sql.Timestamp.from(clock.instant().plusSeconds(150)),
                         java.sql.Timestamp.from(deadline),
                         id);
@@ -375,6 +378,7 @@ public class SupportAgentTurns {
             body.put("deadline_at", t.deadline.toString());
             body.put("context", json.readTree(t.context));
             body.put("tool_token", codec.issueSupportCredential(bound, clock.instant()));
+            body.put("progress_token", codec.issueSupportProgressCredential(bound, clock.instant()));
             String identity =
                     codec.issueServiceToken("case-service", t.merchant, t.customer, "support:run", clock.instant());
             publish(t, agent.execute(identity, body));
@@ -663,6 +667,14 @@ public class SupportAgentTurns {
                 || !t.lease.isAfter(clock.instant())
                 || !owner(t, false)) throw stale();
         return Map.of("conversation_id", t.conversation, "input_version", t.input);
+    }
+
+    public Object progress(JwtCodec.SupportCredential token, JsonNode batch) {
+        return tx.execute(st -> {
+            Turn t = lock(token.runId());
+            current(token);
+            return progress.append(t.conversation, t.id, t.input, t.fence, batch);
+        });
     }
 
     public Object fact(JwtCodec.SupportCredential token, String kind, Long before, int limit) {
