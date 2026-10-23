@@ -169,6 +169,121 @@ class SupportApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void privateStreamRefusesMissingOrOtherIdentitiesBeforeStarting() {
+        var c = open("support-A");
+        get(path(c) + "/events", null, 401);
+        get(path(c) + "/events", otherBuyer, 404);
+        get(path(c) + "/events", merchant, 404);
+        get(path(c) + "/events", otherMerchant, 404);
+        verifyNoInteractions(assistant);
+    }
+
+    @org.springframework.boot.test.web.server.LocalServerPort
+    int httpPort;
+
+    record StreamResult(java.net.http.HttpHeaders headers, List<JsonNode> events) {}
+
+    StreamResult stream(JsonNode c, String cursor, int count, Runnable afterHeaders) throws Exception {
+        var builder = java.net.http.HttpRequest.newBuilder(
+                        java.net.URI.create("http://127.0.0.1:" + httpPort + "/api/v1/support" + path(c) + "/events"))
+                .timeout(java.time.Duration.ofSeconds(6))
+                .header("Authorization", buyer)
+                .header("Accept", "text/event-stream");
+        if (cursor != null) builder.header("Last-Event-ID", cursor);
+        try (var client = java.net.http.HttpClient.newHttpClient()) {
+            var response = client.send(builder.build(), java.net.http.HttpResponse.BodyHandlers.ofInputStream());
+            assertThat(response.statusCode()).isEqualTo(200);
+            try (var input = response.body();
+                    var lines = new java.io.BufferedReader(
+                            new java.io.InputStreamReader(input, java.nio.charset.StandardCharsets.UTF_8))) {
+                afterHeaders.run();
+                var events = new java.util.ArrayList<JsonNode>();
+                while (events.size() < count) {
+                    String line = lines.readLine();
+                    assertThat(line).isNotNull();
+                    if (line.startsWith("data:")) events.add(json.readTree(line.substring(5)));
+                }
+                return new StreamResult(response.headers(), events);
+            }
+        }
+    }
+
+    @Test
+    void streamStartsWithSnapshotAndResumesOrderedEventsWithoutDispatching() throws Exception {
+        var c = message(open("support-A"), "sse-first", "物流查询", "ASSISTANT");
+        var initial = stream(c, null, 1, () -> {});
+        assertThat(initial.headers.firstValue("Cache-Control")).contains("no-store");
+        assertThat(initial.headers.firstValue("X-Accel-Buffering")).contains("no");
+        var snapshot = initial.events.getFirst();
+        assertThat(snapshot.path("kind").asString()).isEqualTo("stream.snapshot");
+        assertThat(snapshot.path("event_id").asString()).isEqualTo("1");
+        assertThat(snapshot.path("payload").path("conversation").path("version").asLong())
+                .isEqualTo(2);
+        c = message(c, "sse-second", "更正：还没收到", "ASSISTANT");
+        var resumed = stream(c, "1", 2, () -> {}).events;
+        assertThat(resumed.stream().map(e -> e.path("event_id").asString())).containsExactly("2", "3");
+        assertThat(resumed.stream().map(e -> e.path("kind").asString()))
+                .containsExactly("answer.stale", "turn.accepted");
+        var reset = stream(c, "999999", 1, () -> {}).events.getFirst();
+        assertThat(reset.path("kind").asString()).isEqualTo("stream.snapshot");
+        assertThat(reset.path("event_id").asString()).isEqualTo("3");
+        verifyNoInteractions(assistant);
+    }
+
+    @Test
+    void alreadyConnectedStreamReceivesActualPublicationWithoutClientPolling() throws Exception {
+        var c = message(open("support-A"), "sse-live", "请核查物流", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> input = i.getArgument(1);
+            return json.readTree(json.writeValueAsString(Map.of(
+                    "run_id",
+                    input.get("run_id"),
+                    "conversation_id",
+                    input.get("conversation_id"),
+                    "input_version",
+                    input.get("input_version"),
+                    "status",
+                    "SUCCEEDED",
+                    "mode",
+                    "mock",
+                    "answer",
+                    Map.of("text", "已核查，可继续补充。", "citations", List.of()))));
+        });
+        var events = stream(c, "0", 3, turns::dispatchOne).events;
+        assertThat(events.stream().map(e -> e.path("kind").asString()))
+                .containsExactly("turn.accepted", "turn.started", "answer.committed");
+        assertThat(events.getLast().path("payload").path("text").asString()).isEqualTo("已核查，可继续补充。");
+        verify(assistant, times(1)).execute(anyString(), any());
+    }
+
+    @Autowired
+    SupportStreamEvents streamJournal;
+
+    @Test
+    void boundedOrExpiredHistoryRestoresSnapshotWithoutChangingInput() throws Exception {
+        var c = message(open("support-A"), "sse-bounded", "查询", "ASSISTANT");
+        String conversation = c.path("conversation_id").asString();
+        String run = c.path("assistant_turn").path("run_id").asString();
+        new org.springframework.transaction.support.TransactionTemplate(transactionManager).executeWithoutResult(st -> {
+            for (int i = 0; i < 513; i++)
+                streamJournal.append(conversation, run, 2, 0, "turn.accepted", Map.of("status", "PENDING"));
+        });
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM support_stream_event WHERE conversation_id=?", Long.class, conversation))
+                .isEqualTo(512);
+        var snapshot = stream(c, "1", 1, () -> {}).events.getFirst();
+        assertThat(snapshot.path("kind").asString()).isEqualTo("stream.snapshot");
+        assertThat(snapshot.path("event_id").asString()).isEqualTo("514");
+        jdbc.update(
+                "UPDATE support_stream_event SET created_at=TIMESTAMPADD(HOUR,-25,CURRENT_TIMESTAMP(6)) WHERE conversation_id=?",
+                conversation);
+        assertThat(stream(c, "513", 1, () -> {}).events.getFirst().path("kind").asString())
+                .isEqualTo("stream.snapshot");
+        assertThat(get(path(c), buyer, 200).path("version").asLong()).isEqualTo(2);
+        verifyNoInteractions(assistant);
+    }
+
+    @Test
     void assistantPublishesOnceWithModeReferencesAndNoRefundSideEffects() {
         long cases = count("aftersale_case");
         var c = message(open("support-A"), "ask", "这个签收记录如何核查？", "ASSISTANT");

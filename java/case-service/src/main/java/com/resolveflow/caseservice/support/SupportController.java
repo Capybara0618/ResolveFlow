@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.*;
 public class SupportController {
     private final SupportService service;
     private final RequestPrincipalResolver principals;
+    private final SupportEventStreamService streams;
 
-    public SupportController(SupportService service, RequestPrincipalResolver principals) {
+    public SupportController(
+            SupportService service, RequestPrincipalResolver principals, SupportEventStreamService streams) {
         this.service = service;
         this.principals = principals;
+        this.streams = streams;
     }
 
     @PostMapping("/conversations")
@@ -38,6 +41,18 @@ public class SupportController {
             @PathVariable String id,
             @RequestParam(name = "before_sequence", required = false) Long before) {
         return service.read(principals.session(auth), id, before);
+    }
+
+    @GetMapping(value = "/conversations/{id}/events", produces = "text/event-stream")
+    public org.springframework.web.servlet.mvc.method.annotation.SseEmitter events(
+            @RequestHeader(name = "Authorization", required = false) String auth,
+            @RequestHeader(name = "Last-Event-ID", required = false) String lastId,
+            @PathVariable String id,
+            jakarta.servlet.http.HttpServletResponse response) {
+        var emitter = streams.stream(auth, id, lastId);
+        response.setHeader("Cache-Control", "no-store");
+        response.setHeader("X-Accel-Buffering", "no");
+        return emitter;
     }
 
     @PostMapping("/conversations/{id}/messages")

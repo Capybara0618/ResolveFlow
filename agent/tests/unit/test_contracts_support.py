@@ -33,12 +33,30 @@ def test_support_writes_refuse_invalid_versions_and_user_authority(name):
 def test_support_routes_are_authenticated_and_keyed_with_no_refund_operation():
     doc = load_openapi('case', 'contracts/core')
     paths = {p: item for p, item in doc['paths'].items() if p.startswith('/api/v1/support/')}
-    assert len(paths) == 8
-    assert sum(len(item) for item in paths.values()) == 9
+    assert len(paths) == 9
+    assert sum(len(item) for item in paths.values()) == 10
     for path, item in paths.items():
         for method, operation in item.items():
             assert operation['security'] == [{'bearerAuth': []}]
-            assert {'400', '401', '403', '404', '409', '503'} <= operation['responses'].keys()
+            if path.endswith('/events'):
+                assert method == 'get'
+                assert {'200', '401', '404'} <= operation['responses'].keys()
+                assert 'text/event-stream' in operation['responses']['200']['content']
+                assert any(p['name'] == 'Last-Event-ID' for p in operation['parameters'])
+            else:
+                assert {'400', '401', '403', '404', '409', '503'} <= operation['responses'].keys()
             if method == 'post' and path != '/api/v1/support/conversations':
                 assert any(p['name'] == 'Idempotency-Key' and p['required'] for p in operation['parameters'])
     assert all('refund' not in path for path in paths)
+
+
+def test_private_stream_envelope_matches_shared_fixture_and_has_no_write_authority():
+    fixtures = json.loads((REPO_ROOT / 'contracts/core/fixtures/support-stream.json').read_text(encoding='utf-8'))
+    validator = component_validator('case', 'SupportStreamEvent', 'contracts/core')
+    for event in fixtures.values():
+        assert validator.accepts(event), validator.error_messages(event)
+        assert not validator.accepts({**event, 'refund_amount': 123})
+        assert not validator.accepts({**event, 'event_id': -1})
+        assert not validator.accepts({**event, 'kind': 'REFUND_EXECUTE'})
+    conversation = component_validator('case', 'SupportConversation', 'contracts/core')
+    assert conversation.accepts(fixtures['snapshot']['payload']['conversation'])

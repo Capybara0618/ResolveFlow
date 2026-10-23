@@ -18,3 +18,18 @@
 测试22项33.89秒，reactor总50.370秒；限定Support文件格式检查通过。初次PowerShell未完整引用`-Dsurefire.failIfNoSpecifiedTests=false`导致生命周期参数错误，未运行测试，修正引用后执行红绿测试。格式文件参数先误用glob、再含管道被cmd拆分，两次失败均未改文件；改为不含shell元字符的正则后通过。
 
 无真实Provider请求，usage仍2011；生产项目和原数据库未启动，测试仅使用Testcontainers临时库，未清理日常数据。网页订阅、工具进度、正文增量与聊天退款尚未交付。
+
+## S2b：鉴权SSE与断线恢复
+
+- 新增GET `/api/v1/support/conversations/{id}/events`，只有本人平台买家可订阅；无身份401，其他买家/商家404，在流开始前拒绝。每次读取重新检查身份/可见性；250ms读取一批有序事件、15秒注释心跳、10分钟连接期限，断开/关闭应用回收订阅。只读连接不派发Agent，两个共享线程，不为字符开线程。
+- SSE使用独立十进制字符串id，Bearer/Last-Event-ID在header，no-store及X-Accel-Buffering no。首次、错误/过期/超出保留区间游标返回含当前正式会话的stream.snapshot；短共享锁内取得快照与游标，网络发送在事务外。当前尚无模型草稿，S3需扩展生成视图快照。
+- HTTP红测1失败（原路由不存在返回404而非401）；实现后完整SupportApiTest 26通过，0失败/跳过，35.56秒（reactor50.486秒）。包括已连接HTTP客户端收到后续实际发布、不靠客户端轮询；按游标只读续接；513次追加后只留512条，旧/过期游标恢复且输入版本不变。
+- OpenAPI新增已实现路由/封闭包络，增加共享fixture与契约校验；首轮1失败/104通过，发现OAS3.1不采用nullable，修为显式string/null后105通过（15.35秒）。原路由全部身份/写幂等断言保留，新增路由只读401/404单独验证。Support限定格式检查通过。
+
+实际命令除S2a的Java完整测试/格式外：
+
+```powershell
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_contracts_support.py agent/tests/unit/test_contracts_openapi.py -q
+```
+
+S2a提交`1f619a3`已普通push/远端核实。S2b仍未接页面、未声明工具查询/正文实时输出；无真实模型请求或生产库迁移，静态预期稿保留。

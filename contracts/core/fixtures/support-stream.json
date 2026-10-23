@@ -1,0 +1,70 @@
+{
+  "accepted": {
+    "event_id": "1",
+    "conversation_id": "00000000-0000-4000-8000-000000000001",
+    "run_id": "65000000-0000-4000-8000-000000000001",
+    "input_version": 2,
+    "attempt_id": null,
+    "created_at": "2026-10-23T04:00:00Z",
+    "kind": "turn.accepted",
+    "payload": {
+      "status": "PENDING"
+    }
+  },
+  "snapshot": {
+    "event_id": "1",
+    "conversation_id": "00000000-0000-4000-8000-000000000001",
+    "run_id": null,
+    "input_version": 2,
+    "attempt_id": null,
+    "created_at": "2026-10-23T04:00:00Z",
+    "kind": "stream.snapshot",
+    "payload": {
+      "conversation": {
+        "conversation_id": "00000000-0000-4000-8000-000000000001",
+        "merchant_id": "M-1001",
+        "store_name": "合成店铺",
+        "order_id": "synthetic-order",
+        "line_id": "synthetic-line",
+        "product": {
+          "name": "合成商品",
+          "variant": "黑色",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "amount_minor": 32900,
+          "currency": "CNY"
+        },
+        "version": 3,
+        "ticket": {
+          "ticket_id": "00000000-0000-4000-8000-000000000003",
+          "status": "PENDING",
+          "summary": "只核查，不退款",
+          "shared_messages": [
+            {
+              "message_id": "00000000-0000-4000-8000-000000000002",
+              "sequence": 2,
+              "author": "CUSTOMER",
+              "recipient": "ASSISTANT",
+              "text": "显示签收但没有收到，只请求核查。",
+              "ticket_id": null,
+              "created_at": "2026-10-20T03:00:00Z"
+            }
+          ]
+        },
+        "messages": [
+          {
+            "message_id": "00000000-0000-4000-8000-000000000002",
+            "sequence": 2,
+            "author": "CUSTOMER",
+            "recipient": "ASSISTANT",
+            "text": "显示签收但没有收到，只请求核查。",
+            "ticket_id": null,
+            "created_at": "2026-10-20T03:00:00Z"
+          }
+        ],
+        "next_before_sequence": null
+      },
+      "last_event_id": "1"
+    }
+  }
+}

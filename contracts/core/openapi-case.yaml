@@ -750,6 +750,35 @@ paths:
       - bearerAuth: []
       description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
         consultation, no refund authority.'
+  /api/v1/support/conversations/{id}/events:
+    get:
+      operationId: streamSupportConversation
+      summary: Buyer-only read-only event stream with snapshot/resumption
+      description: 'Authority: docs/customer-chat-stream-contract-v1.md. SSE id is an independent per-conversation decimal cursor; reconnect never dispatches an Agent. Data conforms to SupportStreamEvent. Stale/unknown cursors receive stream.snapshot.'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Last-Event-ID
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Ordered UTF-8 SSE frames; no-store, X-Accel-Buffering no; comment heartbeats
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '401':
+          description: Missing, expired or revoked identity, refused before stream starts
+        '404':
+          description: Conversation absent or invisible to this buyer; merchants cannot subscribe
   /api/v1/support/conversations/{id}/messages:
     post:
       operationId: sendSupportMessage
@@ -5257,6 +5286,33 @@ components:
           - type: integer
             minimum: 1
           - type: 'null'
+    SupportStreamEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, conversation_id, run_id, input_version, attempt_id, kind, payload, created_at]
+      properties:
+        event_id:
+          type: string
+          pattern: '^[0-9]+$'
+        conversation_id:
+          type: string
+          format: uuid
+        run_id:
+          type: [string, 'null']
+        input_version:
+          type: integer
+          minimum: 1
+        attempt_id:
+          type: [string, 'null']
+        kind:
+          type: string
+          enum: [turn.accepted, turn.started, answer.committed, answer.failed, answer.stale, stream.snapshot]
+        payload:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
     SupportConversationPage:
       type: object
       additionalProperties: false
