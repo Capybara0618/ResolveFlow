@@ -6,6 +6,7 @@ import pytest
 
 from resolveflow.harness.budget import RunBudget
 from resolveflow.support.engine import SupportAgent
+from resolveflow.support.stages import UNDERSTANDING_SYSTEM, Understanding
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.unit.test_support_agent import GuideReads, Reads, read, request
 from tests.unit.test_support_answer_parts import part, parts
@@ -25,6 +26,14 @@ def staged(req, script, sources=None, **kwargs):
     source = sources or Reads()
     agent = SupportAgent(req, model, source, architecture='staged-v1', **kwargs)
     return agent.run(), model, source, agent
+
+
+def test_understanding_example_shows_the_scope_field_and_has_no_default_fact_read():
+    payload = json.loads(next(line for line in UNDERSTANDING_SYSTEM.splitlines()
+                             if line.startswith('{"kind":"TURN_UNDERSTANDING"')))
+    assert 'context_refs' in payload['focus'][0]
+    assert payload['focus'][0]['needs'] == []
+    assert Understanding.model_validate(payload).focus[0].context_refs == []
 
 
 def test_optional_branch_queries_are_one_sdk_action_without_an_extra_model_round():

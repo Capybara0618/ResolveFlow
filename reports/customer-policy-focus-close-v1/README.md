@@ -46,3 +46,11 @@
 
 - 新历史承接与来源身份断言先红2失败/22通过，修后定向33通过；Ruff首次长行已修。**客服单元+新驱动+实际SDK/PG/流式333通过0跳过（23.48秒）**，四源码strict/Ruff通过。不修改原评判/增加预算/削弱断言。
 - 原三题输出冻结，下一次仅对原追问做新源码版本的[scope-v2确认](scope-v2/manifest.json)，新run、**最多4次请求**、不改变原问题/政策/Gold、不自动失败重跑。独立包装`scripts/confirm_policy_focus_scope_v2.py`经Ruff/py_compile，复用已验证的同一驱动/账/流式/临时库边界；prepare新增模型0。提交普通push核实后execute一次，按真实focus/context_refs与最终相关条款审查，不把新增元数据本身当效果。
+
+## scope-v2失败与提示契约修正
+
+773a9bd下的[原始确认](scope-v2/runtime-results.json)未发布答案：理解仍给POLICY+GUIDE且未输出context_refs，首次回答缺声明GUIDE而被原Harness拒绝；第4次请求选择读指南，第5次模型调用在发送前被4请求硬上限阻止，运行FAILED/ValueError。准确Provider **4请求、输入16592/输出720**，账2036→2040；Harness含第5次未发送请求的预留，不能当5次收费或实际token。public保持/自有schema已导出清理，不重跑这个run或覆盖失败。
+
+复核发现理解JSON示例仍未展示context_refs，并默认LOGISTICS/SHIPMENT，与新增说明不一致。现改为无默认事实读取的完整字段示例，把材料条件与页面操作的区别放在前面，并明确承接原话如何形成具体问题；调查回答按承接主题给直接规则、必要变化和材料，不概览全部同词场景。没有改政策/Gold或原输出，也没有将某一政策ID写入路由。
+
+新增示例契约关键红测1失败/15通过，修后客服相关全套**334通过0跳过（19.93秒）**、Ruff/strict通过；单场景包装增加显式output/请求上限并仍拒绝覆盖旧结果，三项驱动单元通过（1.97秒）。新源码[scope-v3输入/manifest](scope-v3/manifest.json)已prepare，仍仅原追问一次，明确至多6次真实请求，允许原循环的有限结构修复，不增加生产RunBudget。旧scope-v2封存；提交普通push核实后执行新版本一次，结果仍需源审，不预先称成功。

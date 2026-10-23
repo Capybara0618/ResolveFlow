@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'scripts'))
 
 import close_policy_focus_live_v1 as driver  # noqa: E402 - same script import path as the CLI
+import confirm_policy_focus_scope_v2 as scope_driver  # noqa: E402
 
 
 def test_variants_preserve_old_history_pins_and_replace_only_current_question():
@@ -59,3 +60,19 @@ def test_whole_cohort_has_a_hard_bound_restores_driver_and_cannot_be_reexecuted(
     assert driver.driver.read(out / 'results.json')['state'] == 'FAILED'
     with pytest.raises(AssertionError, match='immutable'):
         driver.execute()
+
+
+def test_single_scope_revision_freezes_its_explicit_request_limit_and_restores_driver(tmp_path, monkeypatch):
+    original = scope_driver.driver.OUT
+    monkeypatch.setattr(scope_driver, 'OUT', tmp_path / 'revision')
+
+    def synthetic_prepare():
+        scope_driver.driver.persist(scope_driver.driver.OUT / 'manifest.json', {'files': {}})
+
+    monkeypatch.setattr(scope_driver.driver, 'prepare', synthetic_prepare)
+    scope_driver.prepare(6)
+    manifest = scope_driver.driver.read(scope_driver.OUT / 'manifest.json')
+    assert manifest['model_attempt_limit'] == 6 and scope_driver.driver.OUT == original
+    assert 'scripts/confirm_policy_focus_scope_v2.py' in manifest['files']
+    with pytest.raises(AssertionError):
+        scope_driver.prepare(0)

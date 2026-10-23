@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，scope-v2未发布并保留；提示示例已统一，scope-v3待一次确认）
+
+- 773a9bd已普通push核实。scope-v2原题4次真实请求/账2036→2040、准确输入16592/输出720；理解误加GUIDE且省context_refs，初答缺源后第4次读指南，第5次模型发送前被4上限拦截，FAILED/ValueError、未发布。Harness含未发送预留，不能当5次实际收费；public保持/schema导出清理。[完整原始失败](../reports/customer-policy-focus-close-v1/scope-v2/runtime-results.json)不覆盖。
+- 复核理解示例缺context_refs并默认SHIPMENT，与段落要求不一致；示例补完整字段/needs空，材料条件与操作区分前置，承接问题明确引用实际H原话主题，回答不概览所有同词类别。新增示例红测1失败/15通过→客服全套334通过0跳过（19.93秒）、Ruff/strict通过；包装显式output/limit及三项单元通过。不是按政策ID或改Gold补命中。
+- 新[scope-v3](../reports/customer-policy-focus-close-v1/scope-v3/manifest.json)仅原追问一次、至多6真实请求已prepare冻结，仍旧RunBudget/有限修复，无失败自动重跑，旧v2封存。先精确提交普通push核实再执行一次并审查，不称最终已达标。Java/Web未启，PG仅隔离验证运行，收尾停保留卷；原四脏文件/六SHA及前11次三题PARTIAL保持，R1–R3未做。
+
 ## 当前快照（2026-10-23，三场景真实确认局部通过；显式历史承接已接，原追问新版本待确认）
 
 - 793c76d已普通push核实，固定三题一次共11真实模型、账2025→2036、准确输入43779/输出1554。六条政策完整取得、材料建议非强制、质量换题正确，假设未当已丢失；原题仍展开未发货/签收/通用资金，故源审PARTIAL。[完整报告/原始三题](../reports/customer-policy-focus-close-v1/README.md)保留；假设题初始多声明SHIPMENT，原Harness一次缺源修复后读冻结物流，5模型非3，现状表述有本轮来源。
