@@ -9,6 +9,7 @@ import SupportContext from './SupportContext.vue'
 import SupportDialog from './SupportDialog.vue'
 import Icon from './ReviewIcon.vue'
 import { conversationTitle, stamp, tail } from '../support-view'
+import { applySupportEvent, mergeSupportConversation, watchSupportEvents } from '../support-events'
 import './support-workspace.css'
 
 const props = defineProps<{ account: LoginResponse }>()
@@ -29,7 +30,7 @@ const preview = ref(false), summary = ref(''), share = ref<string[]>([]), previe
 const shareReport = ref(false)
 const tabs = [{ key: 'ALL', label: '全部' }, { key: 'PENDING', label: '待处理' }, { key: 'WAITING_CUSTOMER', label: '待补充' }, { key: 'ANSWERED', label: '已答复' }]
 const inFilter = (c: SupportConversation, key: string) => key === 'ALL' || (key === 'ANSWERED' ? ['REPLIED', 'RESOLVED'].includes(c.ticket?.status ?? '') : c.ticket?.status === key)
-const itemView = (c: SupportConversation) => cache.get(c.conversation_id)?.version === c.version ? cache.get(c.conversation_id)! : c
+const itemView = (c: SupportConversation) => (cache.get(c.conversation_id)?.version ?? -1) >= c.version ? cache.get(c.conversation_id)! : c
 const matching = computed(() => items.value.map(itemView).filter(c => [c.product.name, c.store_name, c.order_id, c.ticket?.summary ?? '', conversationTitle(c)].join(' ').toLocaleLowerCase().includes(search.value.trim().toLocaleLowerCase())))
 const visibleItems = computed(() => matching.value.filter(c => !merchant.value || inFilter(c, filter.value)))
 const visibleOrders = computed(() => orders.value.filter(o => [o.product_name, o.sku, o.merchant_name, o.order_id].join(' ').toLocaleLowerCase().includes(orderSearch.value.trim().toLocaleLowerCase())))
@@ -38,11 +39,13 @@ const sharedCitations = computed(() => latestAssistant.value?.assistant?.citatio
 const assistantState = computed(() => {
   const turn = selected.value?.assistant_turn
   if (!turn || merchant.value) return ''
-  return { PENDING: '助手正在等待处理，你可以继续补充问题。', RUNNING: '助手正在查阅资料，你可以补充或纠正问题。', SUCCEEDED: '', FAILED: '助手本次未能完成回答，可重新提问或请商家核查。', STALE: '问题已更新，旧回复不会发布。' }[turn.status]
+  return { PENDING: '助手正在等待处理，你可以继续补充问题。', RUNNING: '助手正在处理你的问题，可以继续补充或纠正。', SUCCEEDED: '', FAILED: '助手本次未能完成回答，可重新提问或请商家核查。', STALE: '问题已更新，旧回复不会发布。' }[turn.status]
 })
 const pending = ref<SupportPending | null>(readSupportPending(owner))
 let alive = true, generation = 0, timer: ReturnType<typeof setInterval> | undefined
 let expandedHistory = false
+const streamConnected = ref(false), newContent = ref(false)
+let subscription: AbortController | undefined, nearBottom = true, streamRefreshNeeded = false, streamRefreshRevision = 0, refreshing = false, lastFallback = 0
 const labels = { PENDING: '待商家处理', WAITING_CUSTOMER: merchant.value ? '待客户补充' : '待你补充', REPLIED: '商家已回复', RESOLVED: '咨询已解决' }
 const privateMessages = computed(() => selected.value?.messages.filter(m => m.author === 'CUSTOMER' && m.recipient === 'ASSISTANT') ?? [])
 function fail(cause: unknown) {
@@ -57,10 +60,11 @@ function remember(value: SupportConversation) {
 }
 function setSelected(value: SupportConversation) {
   const resetRecipient = selected.value?.conversation_id !== value.conversation_id || (!selected.value?.ticket && value.ticket)
-  expandedHistory = false
-  selected.value = value; choosing.value = false
+  const same = selected.value?.conversation_id === value.conversation_id
+  if (!same) expandedHistory = false
+  selected.value = same ? mergeSupportConversation(selected.value!, value) : value; choosing.value = false
   if (resetRecipient) recipient.value = value.ticket ? 'MERCHANT' : 'ASSISTANT'
-  remember(value)
+  remember(selected.value)
 }
 async function list(more = false) {
   const result = merchant.value ? await supportApi.tickets(token, more ? next.value : null) : await supportApi.conversations(token, more ? next.value : null)
@@ -108,17 +112,21 @@ async function choose(line: OrderLine) {
 async function refresh(quiet = false) {
   const c = selected.value
   if (!c || busy.value || preview.value || choosing.value || pending.value || loading.value) return
-  if (quiet && expandedHistory) return
+  if (refreshing) return
+  refreshing = true
   const g = generation
+  const revision = streamRefreshRevision
   try {
     const value = await supportApi.read(token, merchant.value ? c.ticket!.ticket_id : c.conversation_id, merchant.value)
     if (alive && g === generation && selected.value?.conversation_id === c.conversation_id) {
-      selected.value = value; expandedHistory = false
-      remember(value)
+      selected.value = mergeSupportConversation(selected.value, value)
+      streamRefreshNeeded = revision !== streamRefreshRevision
+      remember(selected.value)
       if (notice.value === '问题已发送，助手正在处理。' && value.assistant_turn && !['PENDING', 'RUNNING'].includes(value.assistant_turn.status)) notice.value = ''
       if (!quiet) error.value = ''
     }
-  } catch (cause) { if (alive && g === generation) fail(cause) }
+  } catch (cause) { if (alive && g === generation && (!quiet || cause instanceof ApiError && cause.status === 401)) fail(cause) }
+  finally { refreshing = false }
 }
 async function older() {
   const c = selected.value; if (!c?.next_before_sequence || loading.value) return
@@ -167,12 +175,50 @@ async function send() {
 function pickOrder() { if (!busy.value && !pending.value && !loading.value) { orderSearch.value = ''; choosing.value = true; if (!orderLoaded.value) void readOrders().catch(fail) } }
 function enter(event: KeyboardEvent) { if (!event.isComposing && event.keyCode !== 229) { event.preventDefault(); void send() } }
 function fit() { if (workspace.value) workspace.value.style.setProperty('--support-height', `${Math.max(420, window.innerHeight - workspace.value.getBoundingClientRect().top)}px`) }
+function reading() {
+  const pane = messagePane.value
+  if (pane) nearBottom = pane.scrollHeight - pane.scrollTop - pane.clientHeight <= 80
+  if (nearBottom) newContent.value = false
+}
+function latest() {
+  expandedHistory = false; nearBottom = true; newContent.value = false
+  if (messagePane.value) messagePane.value.scrollTop = messagePane.value.scrollHeight
+}
+watch(() => selected.value?.conversation_id, id => {
+  subscription?.abort(); streamConnected.value = false; streamRefreshNeeded = false
+  nearBottom = true; newContent.value = false
+  if (!id || merchant.value) return
+  const controller = new AbortController(); subscription = controller
+  void watchSupportEvents(id, token, event => {
+    if (!alive || controller.signal.aborted || selected.value?.conversation_id !== id) return
+    const value = applySupportEvent(selected.value, event)
+    if (value === null) { streamRefreshNeeded = true; ++streamRefreshRevision; void refresh(true); return }
+    selected.value = value; remember(value)
+    if (!value.assistant_turn || !['PENDING', 'RUNNING'].includes(value.assistant_turn.status)) notice.value = ''
+  }, controller.signal, connected => { if (!controller.signal.aborted) streamConnected.value = connected })
+    .catch(cause => {
+      if (!alive || controller.signal.aborted) return
+      if (cause instanceof Error && /HTTP 401/.test(cause.message)) emit('expired')
+      streamConnected.value = false
+    })
+})
 watch(() => selected.value?.messages.at(-1)?.message_id, async () => {
   await nextTick()
-  if (!expandedHistory && messagePane.value) messagePane.value.scrollTop = messagePane.value.scrollHeight
+  if (!expandedHistory && nearBottom && messagePane.value) latest()
+  else if (selected.value) newContent.value = true
 })
-onMounted(() => { void load(); void nextTick(fit); window.addEventListener('resize', fit); timer = setInterval(() => { if (!document.hidden) void refresh(true) }, 8000) })
-onBeforeUnmount(() => { alive = false; ++generation; window.removeEventListener('resize', fit); if (timer) clearInterval(timer) })
+onMounted(() => {
+  void load(); void nextTick(fit); window.addEventListener('resize', fit)
+  timer = setInterval(() => {
+    if (document.hidden) return
+    const active = ['PENDING', 'RUNNING'].includes(selected.value?.assistant_turn?.status ?? '')
+    const fallback = merchant.value || !!selected.value?.ticket
+    if (streamRefreshNeeded || (!merchant.value && !streamConnected.value && active) || (fallback && Date.now() - lastFallback >= 8000)) {
+      lastFallback = Date.now(); void refresh(true)
+    }
+  }, 2000)
+})
+onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); window.removeEventListener('resize', fit); if (timer) clearInterval(timer) })
 </script>
 
 <template>
@@ -205,7 +251,7 @@ onBeforeUnmount(() => { alive = false; ++generation; window.removeEventListener(
           </header>
           <div v-if="merchant" class="support-chat-tabs"><button :class="{ current: !historyTab }" @click="historyTab = false">客户沟通</button><button :class="{ current: historyTab }" @click="historyTab = true">消息记录</button></div>
 
-          <div ref="messagePane" class="support-messages" :role="historyTab ? undefined : 'log'" aria-label="咨询消息记录">
+          <div ref="messagePane" class="support-messages" :role="historyTab ? undefined : 'log'" aria-label="咨询消息记录" @scroll="reading">
             <button v-if="selected.next_before_sequence" class="support-older" :disabled="loading" @click="older">读取更早消息</button>
             <section v-if="selected.ticket" class="support-ticket"><Icon name="file" :size="22" /><div><h3>{{ merchant ? '客户已确认转交' : '已转交商家核查' }}</h3><p>{{ selected.ticket.summary }}</p><small>{{ merchant ? '以下为客户确认共享的内容及后续核查消息。' : '商家仅能查看你确认共享的内容。' }}</small></div></section>
             <template v-if="merchant && !historyTab"><div v-if="selected.ticket?.shared_messages.length" class="support-date-divider">客户共享原文</div><article v-for="m in selected.ticket?.shared_messages" :key="m.message_id" class="support-message shared-original"><span class="support-avatar customer"><Icon name="user" /></span><div class="support-message-content"><div class="support-message-bubble"><p>{{ m.text }}</p></div><small class="support-message-meta">客户共享原文 · {{ stamp(m.created_at, true) }}</small></div></article></template>
@@ -223,6 +269,7 @@ onBeforeUnmount(() => { alive = false; ++generation; window.removeEventListener(
             <section v-if="!merchant && !selected.ticket && latestAssistant?.assistant?.handoff_summary" class="support-handoff-card"><Icon name="file" :size="25" /><div><h3>需要商家进一步核查</h3><p>将你的问题与相关依据整理给商家。</p><blockquote>{{ latestAssistant.assistant.handoff_summary }}</blockquote><div><small>可编辑 · 确认后共享</small><button class="primary" data-action="preview-handoff" :disabled="busy || !!pending" @click="handoff">预览并转交商家</button></div></div></section>
           </div>
 
+          <button v-if="newContent" class="text-action" data-action="latest-messages" @click="latest">有新内容 · 回到最新</button>
           <div class="support-compose">
             <div v-if="merchant" class="support-recipient"><button :class="{ current: replyKind === 'REPLY' }" @click="replyKind = 'REPLY'">核查回复</button><button :class="{ current: replyKind === 'REQUEST_INFO' }" @click="replyKind = 'REQUEST_INFO'">请求客户补充</button></div>
             <div v-else-if="selected.ticket" class="support-recipient"><button :class="{ current: recipient === 'MERCHANT' }" :disabled="busy || !!pending" @click="recipient = 'MERCHANT'">补充给商家</button><button :class="{ current: recipient === 'ASSISTANT' }" :disabled="busy || !!pending" @click="recipient = 'ASSISTANT'">询问智能助手</button></div>

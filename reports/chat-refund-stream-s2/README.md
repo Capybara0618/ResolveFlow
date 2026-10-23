@@ -33,3 +33,14 @@ agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_contracts_support
 ```
 
 S2a提交`1f619a3`已普通push/远端核实。S2b仍未接页面、未声明工具查询/正文实时输出；无真实模型请求或生产库迁移，静态预期稿保留。
+
+## S2c：页面订阅与阅读体验
+
+- 抽取复用原fetch SSE读取器，保持Case读取入口；新增咨询包络类型/校验、逐帧推进游标、重连去重、Bearer/Last-Event-ID及可取消退避。半途断流不会丢失已交付游标；身份拒绝停止重连；取消时关闭reader，不重发任何用户消息。
+- 买家只订阅当前会话，切商品/卸载取消旧订阅，商家不订阅私有流。当前run/input匹配才更新处理状态或同一正式回答；另一个输入超前时只读刷新。快照/刷新合并已加载历史，旧版本不覆盖新结果；并发刷新期间的新事件保留待刷新标记。
+- 活跃断线2秒只读降级；健康的纯助手会话不再8秒等答案，商家/人工核查仍保留8秒读取，未伪称人工消息也有新流事件。向上阅读不强制滚动，出现“有新内容·回到最新”；RUNNING改为实际“处理问题”，尚未接工具事件时不声称正在查阅来源。
+- 新客户端红测缺模块1suite失败；实现后新/原Case事件6通过，再页面/事件24通过和typecheck通过，最后完整前端31文件223项通过（12.25秒），vue-tsc+Vite构建通过（867ms）。测试为Vitest/jsdom与合成Response；真实SSE HTTP已由S2b验证，尚未运行浏览器+生产服务体验或模型首字计时。
+
+实际命令：`pnpm --dir web test -- tests/support-workspace.spec.ts tests/support-events.spec.ts tests/events.spec.ts`、`pnpm --dir web typecheck`、`pnpm --dir web test`、`pnpm --dir web build`。
+
+S2b提交`2e35c5b`已普通push/远端核实。下一项验证Gateway是否及时转发分块；Python实际工具进度、正文S3、聊天退款R1–R3仍未接线。真实Provider新调用0，原库/项目未启动。

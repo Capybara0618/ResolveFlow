@@ -24,20 +24,21 @@ export function parseEventFrames() {
   }
 }
 
-export async function consumeCaseEvents(
-  caseId: string, token: string, lastEventId: string | null,
-  onEvent: (frame: EventFrame) => void, signal?: AbortSignal,
+export async function consumeEventStream(
+  path: string, token: string, lastEventId: string | null,
+  onEvent: (frame: EventFrame) => void, signal?: AbortSignal, onOpen?: () => void,
 ): Promise<string | null> {
   const headers: Record<string, string> = { Accept: 'text/event-stream', Authorization: `Bearer ${token}` }
   if (lastEventId) headers['Last-Event-ID'] = lastEventId
-  const response = await fetch(`/api/v1/cases/${encodeURIComponent(caseId)}/events`, { headers, signal })
+  const response = await fetch(path, { headers, signal })
   if (!response.ok || !response.body) throw new Error(`Event stream refused: HTTP ${response.status}`)
+  onOpen?.()
   const reader = response.body.getReader()
   const decoder = new TextDecoder()
   const parser = parseEventFrames()
   let cursor = lastEventId
   try {
-    while (true) {
+    while (!signal?.aborted) {
       const { value, done } = await reader.read()
       if (done) break
       for (const frame of parser.push(decoder.decode(value, { stream: true }))) {
@@ -50,9 +51,17 @@ export async function consumeCaseEvents(
       onEvent(frame)
     }
   } finally {
+    await reader.cancel().catch(() => {})
     reader.releaseLock()
   }
   return cursor
+}
+
+export function consumeCaseEvents(
+  caseId: string, token: string, lastEventId: string | null,
+  onEvent: (frame: EventFrame) => void, signal?: AbortSignal,
+): Promise<string | null> {
+  return consumeEventStream(`/api/v1/cases/${encodeURIComponent(caseId)}/events`, token, lastEventId, onEvent, signal)
 }
 
 export async function watchCaseEvents(

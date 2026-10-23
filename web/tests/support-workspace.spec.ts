@@ -5,12 +5,18 @@ import { supportApi, type SupportConversation } from '../src/support-client'
 import { coreApi, ApiError } from '../src/client'
 import fixture from '../../contracts/core/fixtures/support.json'
 import assistantFixture from '../../contracts/core/fixtures/support-assistant.json'
+import * as streamEvents from '../src/support-events'
+import type { SupportStreamEvent } from '../src/support-events'
 
 const buyer = { access_token: 'buyer-token', role: 'CUSTOMER' as const, buyer_id: 'B-1', expires_in: 3600 }
 let wrapper: VueWrapper
 const original = (): SupportConversation => ({ ...structuredClone(fixture.Conversation), ticket: null } as SupportConversation)
 beforeEach(() => {
   sessionStorage.clear()
+  vi.spyOn(streamEvents, 'watchSupportEvents').mockImplementation(async (_id, _token, _event, signal, connected) => {
+    connected?.(true)
+    await new Promise<void>(resolve => signal.addEventListener('abort', () => resolve(), { once: true }))
+  })
   vi.spyOn(coreApi, 'orders').mockResolvedValue({ items: [], page: { limit: 20 } })
   vi.spyOn(supportApi, 'conversations').mockResolvedValue({ items: [original()], next_before: null })
   vi.spyOn(supportApi, 'read').mockResolvedValue(original())
@@ -40,7 +46,7 @@ it('keeps corrections and human handoff available while the assistant is running
   vi.mocked(supportApi.read).mockResolvedValue(conversation)
   const mutate = vi.spyOn(supportApi, 'mutate').mockResolvedValue(conversation)
   await open()
-  expect(wrapper.text()).toContain('助手正在查阅资料')
+  expect(wrapper.text()).toContain('助手正在处理你的问题')
   expect(wrapper.get('[data-action="handoff"]').attributes('disabled')).toBeUndefined()
   await wrapper.get('[aria-label="咨询消息"]').setValue('更正，已经找到了')
   await wrapper.get('[data-action="send"]').trigger('click'); await flushPromises()
@@ -56,11 +62,79 @@ it('shows a confirmed report in the merchant workbench without private assistant
   expect(wrapper.text()).toContain('客户已确认共享')
   expect(wrapper.text()).toContain('物流事实')
   expect(wrapper.find('.support-message.assistant').exists()).toBe(false)
+  expect(streamEvents.watchSupportEvents).not.toHaveBeenCalled()
 })
 async function open() {
   wrapper = mount(SupportWorkspace, { props: { account: buyer } }); await flushPromises()
   await wrapper.get('[data-conversation]').trigger('click'); await flushPromises()
 }
+
+function completed(c: SupportConversation): SupportStreamEvent {
+  return { event_id: '3', conversation_id: c.conversation_id, run_id: c.assistant_turn!.run_id,
+    input_version: c.version, attempt_id: null, kind: 'answer.committed', created_at: '2026-10-23T04:00:00Z',
+    payload: { message_id: 'stream-message', sequence: c.version + 1, text: '已收到实时发布的回答。',
+      assistant: { run_id: c.assistant_turn!.run_id, mode: 'mock', citations: [], handoff_summary: null } } }
+}
+
+it('receives a committed answer without an extra read or resubmitting the question', async () => {
+  const c: SupportConversation = { ...original(), assistant_turn: { run_id: 'active-run', status: 'RUNNING', reason: null } }
+  vi.mocked(supportApi.read).mockResolvedValue(c)
+  const mutate = vi.spyOn(supportApi, 'mutate')
+  await open()
+  const call = vi.mocked(streamEvents.watchSupportEvents).mock.calls.at(-1)!
+  const before = vi.mocked(supportApi.read).mock.calls.length
+  call[2](completed(c)); await flushPromises()
+  expect(wrapper.text()).toContain('已收到实时发布的回答。')
+  expect(wrapper.text()).not.toContain('助手正在处理你的问题')
+  expect(supportApi.read).toHaveBeenCalledTimes(before)
+  expect(mutate).not.toHaveBeenCalled()
+  wrapper.unmount()
+  expect(call[3].aborted).toBe(true)
+})
+
+it('ignores a late event from a previous product after aborting its subscription', async () => {
+  const a: SupportConversation = { ...original(), assistant_turn: { run_id: 'run-A', status: 'RUNNING', reason: null } }
+  const b = { ...original(), conversation_id: 'product-B', product: { ...original().product, name: 'B商品' } }
+  vi.mocked(supportApi.conversations).mockResolvedValue({ items: [a, b], next_before: null })
+  vi.mocked(supportApi.read).mockImplementation(async (_token, id) => id === a.conversation_id ? a : b)
+  await open()
+  const previous = vi.mocked(streamEvents.watchSupportEvents).mock.calls.at(-1)!
+  await wrapper.findAll('[data-conversation]').find(item => item.attributes('data-line-id') === b.line_id && item.text().includes('B商品'))!.trigger('click')
+  await flushPromises()
+  expect(previous[3].aborted).toBe(true)
+  previous[2](completed(a)); await flushPromises()
+  expect(wrapper.get('.support-product').text()).toContain('B商品')
+  expect(wrapper.text()).not.toContain('已收到实时发布的回答。')
+})
+
+it('preserves the reading position for a new answer and offers a jump to latest', async () => {
+  const c: SupportConversation = { ...original(), assistant_turn: { run_id: 'reading-run', status: 'RUNNING', reason: null } }
+  vi.mocked(supportApi.read).mockResolvedValue(c)
+  await open()
+  const pane = wrapper.get('.support-messages').element as HTMLElement
+  Object.defineProperties(pane, { scrollHeight: { value: 1000, configurable: true }, clientHeight: { value: 100, configurable: true } })
+  pane.scrollTop = 200
+  await wrapper.get('.support-messages').trigger('scroll')
+  vi.mocked(streamEvents.watchSupportEvents).mock.calls.at(-1)![2](completed(c)); await flushPromises()
+  expect(pane.scrollTop).toBe(200)
+  await wrapper.get('[data-action="latest-messages"]').trigger('click')
+  expect(pane.scrollTop).toBe(1000)
+})
+
+it('uses read-only fallback for an active disconnected turn and never retries a write', async () => {
+  vi.useFakeTimers()
+  try {
+    const c: SupportConversation = { ...original(), assistant_turn: { run_id: 'offline-run', status: 'RUNNING', reason: null } }
+    vi.mocked(supportApi.read).mockResolvedValue(c)
+    const mutate = vi.spyOn(supportApi, 'mutate')
+    await open()
+    vi.mocked(streamEvents.watchSupportEvents).mock.calls.at(-1)![4]?.(false)
+    const before = vi.mocked(supportApi.read).mock.calls.length
+    await vi.advanceTimersByTimeAsync(2000)
+    expect(supportApi.read).toHaveBeenCalledTimes(before + 1)
+    expect(mutate).not.toHaveBeenCalled()
+  } finally { vi.useRealTimers() }
+})
 it('requires preview confirmation and passes selected original ids instead of text copies', async () => {
   const mutate = vi.spyOn(supportApi, 'mutate').mockResolvedValue(fixture.Conversation as SupportConversation)
   await open(); await wrapper.get('[data-action="handoff"]').trigger('click'); await flushPromises()
