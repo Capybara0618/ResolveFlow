@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，聊天真实流式S1a：独立Provider传输通过，生产尚未切换）
+
+- 用户批准按既定开发计划开工。新增独立StreamingLiveModelClient，真实逐块读SSE、严格UTF-8/CRLF解析、片段观察器及首片段/完成计时，复用原请求上限/计量/完整ModelReply，不改SDK循环/默认生产模型或旧清单。首回调早于下一网络片段由测试明确断言；不是完成后模拟打字。
+- 关键测试先模块缺失1collection失败；实现26通过；新增CR-only及时性曾1失败/28通过，修正立即分行及跨块LF去重后集中29通过（1.42秒），含原缓冲客户端回归。Ruff与1源码strict mypy通过；实际命令和范围见[报告](../reports/chat-refund-stream-s1/README.md)。断流/无结束/缺usage估算/HTTP分类/观察器异常/上限均覆盖，无内部重试。
+- 全为合成HTTP，真实新调用0、usage2011，项目/数据库仍停，原四脏文件/旧资产保持；静态预期稿服务保留。S1仍待ANSWER_PARTS正文投影，S2/S3网页事件链和R1–R3退款尚未实现，未声称体验/延迟达标。本小步精确commit/普通push确认后接S1b正文解析。
+
 ## 当前快照（2026-10-23，聊天退款与真实流式：开发文档/交互预期稿完成，未改业务）
 
 - 用户认可摘要→确认→建单→会话进度，明确要求低延迟真实流式；已读现状并写[开发方案](../docs/customer-chat-refund-stream-v1.md)/[目标协议](../docs/customer-chat-stream-contract-v1.md)，范围授权同步core-scope。先S1–S3真实Provider/进度/正文流，再R1–R3草稿/确认建单/进度，单步验证commit/push，不再扩多Agent。生产冻结基线仍426f08c，本批只设计，新能力实施另建manifest，旧评测保持。
