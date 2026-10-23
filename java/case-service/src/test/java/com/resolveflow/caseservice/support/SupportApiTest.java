@@ -202,6 +202,13 @@ class SupportApiTest extends CaseDatabaseTest {
                     Map.of("text", "可以请商家核查签收争议。", "citations", List.of(), "handoff_summary", "客户否认收到，请核查签收。"))));
         });
         assertThat(c.get("assistant_turn").get("status").asString()).isEqualTo("PENDING");
+        long input = c.get("version").asLong();
+        String conversation = c.get("conversation_id").asString();
+        assertThat(jdbc.queryForList(
+                        "SELECT kind FROM support_stream_event WHERE conversation_id=? ORDER BY event_id",
+                        String.class,
+                        conversation))
+                .containsExactly("turn.accepted");
         turns.dispatchOne();
         turns.dispatchOne();
         c = get(path(c), buyer, 200);
@@ -212,6 +219,65 @@ class SupportApiTest extends CaseDatabaseTest {
         assertThat(c.get("assistant_turn").get("status").asString()).isEqualTo("SUCCEEDED");
         verify(assistant, times(1)).execute(anyString(), any());
         assertThat(count("aftersale_case")).isEqualTo(cases);
+        assertThat(c.get("version").asLong()).isEqualTo(input + 1);
+        assertThat(jdbc.queryForList(
+                        "SELECT kind FROM support_stream_event WHERE conversation_id=? ORDER BY event_id",
+                        String.class,
+                        conversation))
+                .containsExactly("turn.accepted", "turn.started", "answer.committed");
+        var committed = json.readTree(jdbc.queryForObject(
+                "SELECT payload_json FROM support_stream_event WHERE conversation_id=? AND kind='answer.committed'",
+                String.class,
+                conversation));
+        assertThat(committed.path("message_id").asString())
+                .isEqualTo(c.path("messages").get(1).path("message_id").asString());
+        assertThat(committed.path("text").asString())
+                .isEqualTo(c.path("messages").get(1).path("text").asString());
+    }
+
+    @Test
+    void newInputInvalidatesOldTurnAndEventsHaveIndependentSequence() {
+        var c = message(open("support-A"), "stream-first", "物流呢？", "ASSISTANT");
+        c = message(c, "stream-second", "补充：家人也没收到。", "ASSISTANT");
+        String conversation = c.path("conversation_id").asString();
+        assertThat(c.path("version").asLong()).isEqualTo(3);
+        assertThat(jdbc.queryForList(
+                        "SELECT kind FROM support_stream_event WHERE conversation_id=? ORDER BY event_id",
+                        String.class,
+                        conversation))
+                .containsExactly("turn.accepted", "answer.stale", "turn.accepted");
+        assertThat(jdbc.queryForObject(
+                        "SELECT event_sequence FROM support_conversation WHERE conversation_id=?",
+                        Long.class,
+                        conversation))
+                .isEqualTo(3);
+    }
+
+    @Autowired
+    org.springframework.transaction.PlatformTransactionManager transactionManager;
+
+    @Test
+    void turnAndAcceptedEventRollbackWithOriginalMessageTransaction() {
+        var c = open("support-A");
+        String conversation = c.path("conversation_id").asString();
+        var session = principals.session(buyer);
+        assertThatThrownBy(() -> new org.springframework.transaction.support.TransactionTemplate(transactionManager)
+                        .executeWithoutResult(st -> {
+                            turns.enqueue(session, conversation, 1);
+                            throw new IllegalStateException("synthetic rollback");
+                        }))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM support_stream_event WHERE conversation_id=?", Long.class, conversation))
+                .isZero();
+        assertThat(jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM support_agent_turn WHERE conversation_id=?", Long.class, conversation))
+                .isZero();
+        assertThat(jdbc.queryForObject(
+                        "SELECT event_sequence FROM support_conversation WHERE conversation_id=?",
+                        Long.class,
+                        conversation))
+                .isZero();
     }
 
     @Test
@@ -388,7 +454,8 @@ class SupportApiTest extends CaseDatabaseTest {
         var update = result.putObject("conversation_update").put("version", "support-state-v1");
         for (String key : List.of("run_id", "conversation_id", "merchant_id", "customer_id", "line_id")) {
             update.put(key, input.get(key).toString());
-            if (List.of("run_id", "conversation_id").contains(key)) result.put(key, input.get(key).toString());
+            if (List.of("run_id", "conversation_id").contains(key))
+                result.put(key, input.get(key).toString());
         }
         long version = ((Number) input.get("input_version")).longValue();
         update.put("input_version", version);
@@ -408,8 +475,14 @@ class SupportApiTest extends CaseDatabaseTest {
         update.putArray("memory_warnings");
         var event = update.putObject("dialogue_state").putArray("events").addObject();
         event.put("change", "PAUSE").put("task_id", "trace");
-        event.putObject("source").put("sequence", version).put("offset", 0)
-                .put("quote", ((JsonNode) input.get("context")).path("current_request").asString());
+        event.putObject("source")
+                .put("sequence", version)
+                .put("offset", 0)
+                .put(
+                        "quote",
+                        ((JsonNode) input.get("context"))
+                                .path("current_request")
+                                .asString());
         return result;
     }
 
@@ -420,9 +493,19 @@ class SupportApiTest extends CaseDatabaseTest {
             Map<String, Object> input = i.getArgument(1);
             contexts.add((JsonNode) input.get("context"));
             if (contexts.size() == 1) return failedPauseUpdate(input);
-            return json.readTree(json.writeValueAsString(Map.of("run_id", input.get("run_id"),
-                    "conversation_id", input.get("conversation_id"), "input_version", input.get("input_version"),
-                    "status", "SUCCEEDED", "mode", "mock", "answer", Map.of("text", "继续处理", "citations", List.of()))));
+            return json.readTree(json.writeValueAsString(Map.of(
+                    "run_id",
+                    input.get("run_id"),
+                    "conversation_id",
+                    input.get("conversation_id"),
+                    "input_version",
+                    input.get("input_version"),
+                    "status",
+                    "SUCCEEDED",
+                    "mode",
+                    "mock",
+                    "answer",
+                    Map.of("text", "继续处理", "citations", List.of()))));
         });
         var c = message(open("support-A"), "pause-fail", "先暂停签收调查。", "ASSISTANT");
         long pausedInput = c.path("version").asLong();
@@ -436,7 +519,11 @@ class SupportApiTest extends CaseDatabaseTest {
         var prior = contexts.get(1).path("previous_tasks");
         assertThat(prior.path("input_version").asLong()).isEqualTo(pausedInput);
         assertThat(prior.path("tasks").get(0).path("lifecycle").asString()).isEqualTo("PAUSED");
-        assertThat(get(path(c), buyer, 200).path("assistant_turn").path("status").asString()).isEqualTo("SUCCEEDED");
+        assertThat(get(path(c), buyer, 200)
+                        .path("assistant_turn")
+                        .path("status")
+                        .asString())
+                .isEqualTo("SUCCEEDED");
     }
 
     @org.junit.jupiter.params.ParameterizedTest
@@ -450,8 +537,12 @@ class SupportApiTest extends CaseDatabaseTest {
             var update = (tools.jackson.databind.node.ObjectNode) result.path("conversation_update");
             if (corruption.equals("line_id")) update.put("line_id", "foreign-product");
             if (corruption.equals("input_version")) update.put("input_version", 9999);
-            if (corruption.equals("quote")) ((tools.jackson.databind.node.ObjectNode) update
-                    .path("dialogue_state").path("events").get(0).path("source")).put("quote", "不存在的原文");
+            if (corruption.equals("quote"))
+                ((tools.jackson.databind.node.ObjectNode) update.path("dialogue_state")
+                                .path("events")
+                                .get(0)
+                                .path("source"))
+                        .put("quote", "不存在的原文");
             return result;
         });
         var c = message(open("support-A"), "foreign-state", "先暂停。", "ASSISTANT");

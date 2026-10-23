@@ -424,9 +424,7 @@ public class SupportService {
 
     private void bump(Row r) {
         db.update("UPDATE support_conversation SET version=version+1 WHERE conversation_id=?", r.id);
-        db.update(
-                "UPDATE support_agent_turn SET status='STALE',reason='INPUT_CHANGED' WHERE conversation_id=? AND status IN ('PENDING','RUNNING')",
-                r.id);
+        turns.invalidate(r.id);
     }
 
     public Conversation send(Session s, String id, String key, Send body) {

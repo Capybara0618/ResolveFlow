@@ -34,6 +34,7 @@ public class SupportAgentTurns {
     private final PolicySelectionService policies;
     private final SupportAgentClient agent;
     private final Clock clock;
+    private final SupportStreamEvents events;
 
     public SupportAgentTurns(
             JdbcTemplate db,
@@ -44,7 +45,8 @@ public class SupportAgentTurns {
             CommerceShoppingClient shopping,
             PolicySelectionService policies,
             SupportAgentClient agent,
-            Clock clock) {
+            Clock clock,
+            SupportStreamEvents events) {
         this.db = db;
         this.tx = new TransactionTemplate(manager);
         tx.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
@@ -55,6 +57,7 @@ public class SupportAgentTurns {
         this.policies = policies;
         this.agent = agent;
         this.clock = clock;
+        this.events = events;
     }
 
     private static SupportService.Refused stale() {
@@ -119,13 +122,28 @@ public class SupportAgentTurns {
 
     public void enqueue(Session session, String conversation, long version) {
         // Called within SupportService's message transaction, after its identity and ownership checks.
+        String run = UUID.randomUUID().toString();
         db.update(
                 "INSERT INTO support_agent_turn(run_id,conversation_id,input_version,actor,identity_version) VALUES(?,?,?,?,?)",
-                UUID.randomUUID().toString(),
+                run,
                 conversation,
                 version,
                 session.principal().subject(),
                 session.identityVersion());
+        events.append(conversation, run, version, 0, "turn.accepted", Map.of("status", "PENDING"));
+    }
+
+    /** Caller holds the conversation lock; every invalidation shares its message transaction. */
+    public void invalidate(String conversation) {
+        var ids = db.queryForList(
+                "SELECT run_id FROM support_agent_turn WHERE conversation_id=? AND status IN ('PENDING','RUNNING')",
+                String.class,
+                conversation);
+        for (String id : ids) {
+            Turn t = find(id);
+            db.update("UPDATE support_agent_turn SET status='STALE',reason='INPUT_CHANGED' WHERE run_id=?", id);
+            events.append(conversation, id, t.input, t.fence, "answer.stale", Map.of("reason", "INPUT_CHANGED"));
+        }
     }
 
     public AssistantTurn view(String conversation) {
@@ -178,7 +196,7 @@ public class SupportAgentTurns {
             Turn claimed = tx.execute(st -> {
                 Turn t = lock(id);
                 if (!owner(t, false) || t.input != t.version) {
-                    db.update("UPDATE support_agent_turn SET status='STALE',reason='INPUT_CHANGED' WHERE run_id=?", id);
+                    markStale(t, t);
                     return null;
                 }
                 if (!t.status.equals("PENDING")
@@ -195,6 +213,7 @@ public class SupportAgentTurns {
                         java.sql.Timestamp.from(clock.instant().plusSeconds(150)),
                         java.sql.Timestamp.from(deadline),
                         id);
+                events.append(t.conversation, t.id, t.input, t.fence + 1, "turn.started", Map.of("status", "RUNNING"));
                 return find(id);
             });
             if (claimed != null) return claimed;
@@ -293,7 +312,8 @@ public class SupportAgentTurns {
                 var row = previous.getFirst();
                 var previousResult = json.readTree(row.get("result_json").toString());
                 var previousAnswer = previousResult.hasNonNull("conversation_update")
-                        ? previousResult.path("conversation_update") : previousResult.path("answer");
+                        ? previousResult.path("conversation_update")
+                        : previousResult.path("answer");
                 var state = previousAnswer.path("task_state");
                 if (state.path("origin").asString().equals("MODEL")
                         && state.path("tasks").isArray()
@@ -331,8 +351,10 @@ public class SupportAgentTurns {
 
     private void markStale(Turn t, Turn owned) {
         if (t.fence != owned.fence) return;
-        if (t.status.equals("RUNNING") || t.status.equals("PENDING"))
+        if (t.status.equals("RUNNING") || t.status.equals("PENDING")) {
             db.update("UPDATE support_agent_turn SET status='STALE',reason='INPUT_CHANGED' WHERE run_id=?", t.id);
+            events.append(t.conversation, t.id, t.input, t.fence, "answer.stale", Map.of("reason", "INPUT_CHANGED"));
+        }
     }
 
     public void dispatchOne() {
@@ -376,6 +398,13 @@ public class SupportAgentTurns {
                     retryable ? "PENDING" : "FAILED",
                     retryable ? "ASSISTANT_UNAVAILABLE" : "AGENT_REQUEST_REJECTED",
                     t.id);
+            events.append(
+                    t.conversation,
+                    t.id,
+                    t.input,
+                    t.fence,
+                    retryable ? "turn.accepted" : "answer.failed",
+                    Map.of("status", retryable ? "PENDING" : "FAILED"));
         });
     }
 
@@ -427,7 +456,8 @@ public class SupportAgentTurns {
 
     private boolean validConversationUpdate(Turn t, JsonNode update) {
         if (update == null || update.isNull()) return true; // Old wire remains compatible.
-        if (!update.isObject() || update.toString().length() > 65536
+        if (!update.isObject()
+                || update.toString().length() > 65536
                 || !update.path("version").asString().equals("support-state-v1")
                 || !update.path("run_id").asString().equals(t.id)
                 || !update.path("conversation_id").asString().equals(t.conversation)
@@ -438,33 +468,56 @@ public class SupportAgentTurns {
                 || !validCustomerMemory(t, update.path("customer_memory"), t.input)) return false;
         var state = update.path("task_state");
         var tasks = state.path("tasks");
-        if (!state.path("origin").asString().equals("MODEL") || !tasks.isArray() || tasks.size() > 8)
-            return false;
+        if (!state.path("origin").asString().equals("MODEL") || !tasks.isArray() || tasks.size() > 8) return false;
         var ids = new HashSet<String>();
         for (var task : tasks) {
             String id = task.path("id").asString();
-            if (!id.matches("^[a-zA-Z0-9_-]{1,32}$") || !ids.add(id)
+            if (!id.matches("^[a-zA-Z0-9_-]{1,32}$")
+                    || !ids.add(id)
                     || !List.of("LOGISTICS", "ELIGIBILITY", "APPLICATION", "HANDOFF", "PRODUCT", "OTHER")
                             .contains(task.path("intent").asString())
-                    || !List.of("PENDING", "ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED", "SUSPENDED")
+                    || !List.of(
+                                    "PENDING",
+                                    "ANSWERED",
+                                    "NEEDS_CUSTOMER",
+                                    "NEEDS_MERCHANT",
+                                    "UNAVAILABLE",
+                                    "CANCELLED",
+                                    "SUSPENDED")
                             .contains(task.path("status").asString())
-                    || !List.of("OPEN", "PAUSED", "RESOLVED", "CANCELLED").contains(task.path("lifecycle").asString())
-                    || !task.path("evidence_refs").isArray() || !task.path("evidence_refs").isEmpty()
+                    || !List.of("OPEN", "PAUSED", "RESOLVED", "CANCELLED")
+                            .contains(task.path("lifecycle").asString())
+                    || !task.path("evidence_refs").isArray()
+                    || !task.path("evidence_refs").isEmpty()
                     || !task.path("response_excerpt").isNull()) return false;
         }
         var events = update.path("dialogue_state").path("events");
         if (!events.isArray() || events.size() > 96) return false;
         for (var event : events) {
             if (!ids.contains(event.path("task_id").asString())
-                    || !List.of("ADD", "CONTINUE", "CORRECT", "CANCEL", "PAUSE", "RESUME", "CLARIFY", "RESOLVE", "REOPEN")
+                    || !List.of(
+                                    "ADD",
+                                    "CONTINUE",
+                                    "CORRECT",
+                                    "CANCEL",
+                                    "PAUSE",
+                                    "RESUME",
+                                    "CLARIFY",
+                                    "RESOLVE",
+                                    "REOPEN")
                             .contains(event.path("change").asString())) return false;
             var source = event.path("source");
             String quote = source.path("quote").asString();
             int offset = source.path("offset").asInt(-1);
-            if (source.path("sequence").asLong(-1) != t.input || offset < 0 || quote.isBlank()
+            if (source.path("sequence").asLong(-1) != t.input
+                    || offset < 0
+                    || quote.isBlank()
                     || quote.codePointCount(0, quote.length()) > 300) return false;
-            var originals = db.queryForList("SELECT text FROM support_message WHERE conversation_id=? AND sequence=? AND author='CUSTOMER'",
-                    String.class, t.conversation, t.input);
+            var originals = db.queryForList(
+                    "SELECT text FROM support_message WHERE conversation_id=? AND sequence=? AND author='CUSTOMER'",
+                    String.class,
+                    t.conversation,
+                    t.input);
             if (originals.size() != 1) return false;
             String text = originals.getFirst();
             if (offset > text.codePointCount(0, text.length())
@@ -525,6 +578,13 @@ public class SupportAgentTurns {
                 db.update(
                         "UPDATE support_agent_turn SET status='FAILED',reason='AGENT_PROTOCOL_INVALID' WHERE run_id=?",
                         live.id);
+                events.append(
+                        live.conversation,
+                        live.id,
+                        live.input,
+                        live.fence,
+                        "answer.failed",
+                        Map.of("reason", "ASSISTANT_FAILED"));
                 return;
             }
             if (result.path("status").asString().equals("FAILED")) {
@@ -541,6 +601,13 @@ public class SupportAgentTurns {
                                                         .length())),
                         result.toString(),
                         live.id);
+                events.append(
+                        live.conversation,
+                        live.id,
+                        live.input,
+                        live.fence,
+                        "answer.failed",
+                        Map.of("reason", "ASSISTANT_FAILED"));
                 return;
             }
             var answer = result.path("answer");
@@ -550,9 +617,10 @@ public class SupportAgentTurns {
             metadata.set("citations", answer.get("citations"));
             metadata.set(
                     "handoff_summary", answer.has("handoff_summary") ? answer.get("handoff_summary") : json.nullNode());
+            String messageId = UUID.randomUUID().toString();
             db.update(
                     "INSERT INTO support_message(message_id,conversation_id,sequence,author,recipient,actor,text,assistant_json) VALUES(?,?,?,'ASSISTANT','CUSTOMER','agent-service',?,?)",
-                    UUID.randomUUID().toString(),
+                    messageId,
                     live.conversation,
                     live.input + 1,
                     answer.path("text").asString(),
@@ -562,6 +630,21 @@ public class SupportAgentTurns {
                     "UPDATE support_agent_turn SET status='SUCCEEDED',reason=NULL,result_json=? WHERE run_id=?",
                     result.toString(),
                     live.id);
+            events.append(
+                    live.conversation,
+                    live.id,
+                    live.input,
+                    live.fence,
+                    "answer.committed",
+                    Map.of(
+                            "message_id",
+                            messageId,
+                            "sequence",
+                            live.input + 1,
+                            "text",
+                            answer.path("text").asString(),
+                            "assistant",
+                            metadata));
         });
     }
 
