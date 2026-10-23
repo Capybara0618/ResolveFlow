@@ -1,0 +1,136 @@
+{
+  "scope": "one exact saved query; bounded complete context vs retained live top3; no LLM",
+  "new_llm_calls": 0,
+  "http_calls": 0,
+  "live_baseline_sha256": "17ef3b3edb7739aba503e54a7d75e6d45ae070e6ff25e1a1946a0226a9163bd0",
+  "previous_top3": [
+    "R-UNSHIPPED-001",
+    "R-DMG-001",
+    "R-SIGNED-001"
+  ],
+  "complete_rule_ids": [
+    "R-UNSHIPPED-001",
+    "R-LOST-001",
+    "R-SIGNED-001",
+    "R-DMG-001",
+    "R-INTRANSIT-001",
+    "R-MONEY-001"
+  ],
+  "source_count": 6,
+  "elapsed_ms": 20.963800001482014,
+  "sources": [
+    {
+      "source_type": "POLICY",
+      "version": "2026.10",
+      "title": "已付款未发货",
+      "retrieval_context": {
+        "mode": "COMPLETE_SMALL_SET",
+        "count": 6
+      },
+      "data": {
+        "bundle_id": "policy-foundation-m1001-2026.10",
+        "merchant_id": "M-1001",
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "rule_id": "R-UNSHIPPED-001",
+        "chunk_id": "c-01",
+        "content_hash": "5c4d06296b6e9d9ed90c093fbc134ca1b428c52fc54e66b029bd71747ea9e032",
+        "text": "已成功付款且当前持久履约记录明确为 NOT_SHIPPED、版本为 1 并含 ORDER_PAID 事件时，可申请该订单行全部数量的实付金额退款；缺失物流、UNKNOWN 或已经发货不能按本规则退款。建议提交与人工批准时均须复核当前事实，最终由售后专员决定。"
+      }
+    },
+    {
+      "source_type": "POLICY",
+      "version": "2026.10",
+      "title": "承运商判定丢失",
+      "retrieval_context": {
+        "mode": "COMPLETE_SMALL_SET",
+        "count": 6
+      },
+      "data": {
+        "bundle_id": "policy-foundation-m1001-2026.10",
+        "merchant_id": "M-1001",
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "rule_id": "R-LOST-001",
+        "chunk_id": "c-02",
+        "content_hash": "f698c0b0d82dea5fe08866011a7db5e53de2a910df5d9059f75939b05fc82e08",
+        "text": "承运商结论为 LOST 且无有效签收记录时，经人工核验可按该订单行全部数量的实付金额退款；本地模拟在途不代表承运商丢失。"
+      }
+    },
+    {
+      "source_type": "POLICY",
+      "version": "2026.10",
+      "title": "已签收争议",
+      "retrieval_context": {
+        "mode": "COMPLETE_SMALL_SET",
+        "count": 6
+      },
+      "data": {
+        "bundle_id": "policy-foundation-m1001-2026.10",
+        "merchant_id": "M-1001",
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "rule_id": "R-SIGNED-001",
+        "chunk_id": "c-03",
+        "content_hash": "f79c1fe89c49e0d592287abf3acbb11380a7df680d9f4e10e07ec78fc0dc8f73",
+        "text": "存在有效签收记录时不能仅因客户主张未收到而退款，须人工核验签收争议；事实不足时要求补充材料或转人工调查。"
+      }
+    },
+    {
+      "source_type": "POLICY",
+      "version": "2026.10",
+      "title": "商品损坏或质量问题",
+      "retrieval_context": {
+        "mode": "COMPLETE_SMALL_SET",
+        "count": 6
+      },
+      "data": {
+        "bundle_id": "policy-foundation-m1001-2026.10",
+        "merchant_id": "M-1001",
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "rule_id": "R-DMG-001",
+        "chunk_id": "c-04",
+        "content_hash": "41d974f1039cd58ff18ce311a4fb987f4e893a63e942a48eb95d0cd8316e2e6b",
+        "text": "发货后的损坏或质量退款必须由人工核验客户材料与订单事实，确认符合售后条件后才可申请该订单行全部数量的实付金额退款；普通在途或未经核验的主张不足以批准。"
+      }
+    },
+    {
+      "source_type": "POLICY",
+      "version": "2026.10",
+      "title": "普通在途",
+      "retrieval_context": {
+        "mode": "COMPLETE_SMALL_SET",
+        "count": 6
+      },
+      "data": {
+        "bundle_id": "policy-foundation-m1001-2026.10",
+        "merchant_id": "M-1001",
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "rule_id": "R-INTRANSIT-001",
+        "chunk_id": "c-05",
+        "content_hash": "63f657fc9cd71917d23a998329626a9e8c4c52f7bcbe47f671319cbc4cb87d79",
+        "text": "IN_TRANSIT 本身不构成物流丢失或退款资格；尚无承运商异常结论且无其他经核验的退款理由时，要求补充信息或转人工，不按未发货规则退款。"
+      }
+    },
+    {
+      "source_type": "POLICY",
+      "version": "2026.10",
+      "title": "单行全额与人工决定",
+      "retrieval_context": {
+        "mode": "COMPLETE_SMALL_SET",
+        "count": 6
+      },
+      "data": {
+        "bundle_id": "policy-foundation-m1001-2026.10",
+        "merchant_id": "M-1001",
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a",
+        "rule_id": "R-MONEY-001",
+        "chunk_id": "c-06",
+        "content_hash": "3018731f9ed05b08da835f0e04d69b5ff631e652d80df2411d97e5c90b2f943b",
+        "text": "仅支持单订单行全部数量的全额模拟退款，同行最多一次成功，整单已退加预留不超过支付额，UNKNOWN 保留原操作和占用；不支持部分退款、补发或真实支付。模型建议与 confidence 均不是授权，不得自动审批。"
+      }
+    }
+  ],
+  "public_data_unchanged": true,
+  "limitations": [
+    "Returning all six short rules guarantees coverage, not relevant selection or answer quality.",
+    "No claim of general RAG precision, recall benchmark, latency percentile or large-corpus gain."
+  ]
+}

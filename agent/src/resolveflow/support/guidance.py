@@ -37,7 +37,7 @@ CAPABILITIES: dict[str, dict[str, Any]] = {
         "action": {"kind": "READ_TOOL", "tool_name": "get_support_guide", "arguments": {}},
     },
     "search_policy": {
-        "purpose": "资格/例外/金额，非入口。",
+        "purpose": "政策条件；小集合完整返回，大集合按top_k检索。",
         "action": {"kind": "READ_TOOL", "tool_name": "search_policy",
                    "arguments": {"query": "当前要了解的资格条件", "top_k": 3}},
     },
@@ -56,7 +56,8 @@ def tool_schema(name: str) -> dict[str, Any]:
             "query": {"type": "string", "minLength": 1, "maxLength": 1000},
             "sub_queries": {"type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": True,
                             "items": {"type": "string", "minLength": 1, "maxLength": 1000}},
-            "top_k": {"type": "integer", "minimum": 1, "maximum": 5},
+            "top_k": {"type": "integer", "minimum": 1, "maximum": 5,
+                      "description": "排序返回数；小集合可完整返回至多8条/8192字节，见retrieval_context。"},
         }
         required = ["query"]
     elif name == "read_history":

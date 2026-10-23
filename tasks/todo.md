@@ -1,3 +1,8 @@
+## 当前快照（2026-10-23，政策收口第一步完成；完整小集合供给已验证，回答质量待继续确认）
+
+- 用户新授权完成政策质量收口。复用原商家/manifest/READY generation校验，客服search_policy对至多8条/8192序列化UTF-8字节的小集合完整返回；超限原检索/可选分支保持。top_k排序语义与complete观察/manifest显式标记，无按ID/题号补召回。[收口报告](../reports/customer-policy-focus-close-v1/README.md)/真实PG只读原Query六条完整、20.96ms单样本非p95，公共表保持，新模型0/账2025。
+- 新增红测/测试长参数与过长语料问题、首实现canonical float错误均保留记录；修后原索引/工具/检索/新完整供给/SDK/流式/隔离driver53通过0跳过（28.44秒）、三源码strict通过。精确提交普通push后继续历史事实来源上下文，再限定真实确认；不能只凭覆盖称答案已修好。不改原失败/索引/Gold，四脏文件及六SHA保持，Java/Web未启、PG本步验证运行中，收尾停保留卷。R1–R3/简历未做。
+
 ## 当前快照（2026-10-23，单场景真实确认已完成；政策回答质量未通过，未自动重跑）
 
 - 准备11a14a5已普通push核实，按用户批准原追问仅执行一次。实际AgentScope staged-v1/DeepSeek Flash流式3模型，无修复/重试、账2022→2025，准确Provider9191输入/489输出，Agent6057.38ms（预热另列，非网页首字/p95）。[原始结果/源审](../reports/customer-policy-focus-live-v1/README.md)完整保留，运行SUCCEEDED不等于回答验收通过。

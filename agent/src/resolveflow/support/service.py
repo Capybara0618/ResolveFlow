@@ -14,7 +14,7 @@ from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.live_model import LiveModelClient
 from resolveflow.harness.model import MockModelClient
 from resolveflow.harness.streaming_model import StreamingLiveModelClient
-from resolveflow.policies.index import PolicyIndex
+from resolveflow.policies.index import SMALL_CONTEXT_BYTES, SMALL_CONTEXT_RULES, PolicyIndex
 from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import DeploymentConfig
 from resolveflow.support.embeddings import SupportEmbeddings
@@ -101,6 +101,8 @@ class SupportRuntime:
                 "candidate_k": CANDIDATE_K,
                 "rrf_constant": RRF_CONSTANT,
                 "lexical_positive_only": True,
+                "small_context": {"version": "bounded-complete-v1", "max_rules": SMALL_CONTEXT_RULES,
+                                  "max_bytes": SMALL_CONTEXT_BYTES},
             },
             "parameters": getattr(model, "parameters", {}),
             "mock_script": getattr(model, "script", None),

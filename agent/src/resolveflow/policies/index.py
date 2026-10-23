@@ -33,7 +33,7 @@ import hashlib
 import math
 import time
 import uuid
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any, Final, Literal
 
 from resolveflow.contracts.canonical import canonical_bytes
@@ -47,6 +47,9 @@ from resolveflow.policies.retrieval import (
     embed_query,
 )
 from resolveflow.runtime.db import Database
+
+SMALL_CONTEXT_RULES = 8
+SMALL_CONTEXT_BYTES = 8192
 
 __all__ = [
     "GENERATION_READY",
@@ -173,7 +176,7 @@ class PolicyHit:
     title: str
     text: str
     score: float
-    path: PolicySearchPath
+    path: PolicySearchPath | Literal["complete"]
 
     @property
     def source_ref(self) -> str:
@@ -477,6 +480,64 @@ class PolicyIndex:
             hash_mismatch=any(row["manifest_hash"] != manifest_hash for row in others),
         )
 
+    def _scope(
+        self, merchant_id: str, bundle_ids: list[str], manifest_hash: str,
+        generation_ids: dict[str, str] | None,
+    ) -> list[PolicyGeneration]:
+        if generation_ids is None:
+            ready = self.require_ready(bundle_ids, manifest_hash)
+        else:
+            if set(generation_ids) != set(bundle_ids) or not bundle_ids or not manifest_hash:
+                with self._database.connection() as connection:
+                    mismatch = any(
+                        self._not_ready(connection, bundle, manifest_hash).hash_mismatch
+                        for bundle in set(bundle_ids) - set(generation_ids)
+                    )
+                raise PolicyIndexNotReadyError(
+                    "run has no complete pinned READY generation mapping", hash_mismatch=mismatch
+                )
+            ready = []
+            with self._database.connection() as connection:
+                for bundle in bundle_ids:
+                    row = connection.execute(
+                        """SELECT * FROM policy_index_generation
+                           WHERE generation_id=%s AND bundle_id=%s AND manifest_hash=%s AND status=%s""",
+                        (generation_ids[bundle], bundle, manifest_hash, GENERATION_READY),
+                    ).fetchone()
+                    if row is None:
+                        raise PolicyIndexNotReadyError(
+                            "run's pinned policy generation is no longer READY; no substitution"
+                        )
+                    ready.append(_generation_of(row))
+        if any(generation.merchant_id != merchant_id for generation in ready):
+            raise PolicyIndexNotReadyError(
+                f"the run's merchant {merchant_id} does not match any pinned bundle's merchant "
+                f"({sorted({generation.merchant_id for generation in ready})}); a run may not retrieve "
+                "another merchant's policy (docs/policy-rag.md:15)"
+            )
+
+        return ready
+
+    def small_context(
+        self, *, merchant_id: str, bundle_ids: list[str], manifest_hash: str,
+        generation_ids: dict[str, str],
+    ) -> list[PolicyHit] | None:
+        """Complete immutable policy context only when <=8 rules and <=8192 serialized UTF-8 bytes.
+
+        None means use ranked retrieval. It never means a partial or failed policy read.
+        """
+        ready = self._scope(merchant_id, bundle_ids, manifest_hash, generation_ids)
+        if sum(g.chunk_count for g in ready) > SMALL_CONTEXT_RULES:
+            return None
+        rows = self._chunks_for(bundle_ids, manifest_hash, generation_ids=[g.generation_id for g in ready])
+        if any(sum(row.bundle_id == g.bundle_id for row in rows) != g.chunk_count for g in ready):
+            raise PolicyIndexNotReadyError("selected index chunk count differs from READY metadata")
+        result = [PolicyHit(bundle_id=row.bundle_id, merchant_id=row.merchant_id, version=row.version,
+            manifest_hash=row.manifest_hash, rule_id=row.rule_id, chunk_id=row.chunk_id,
+            content_hash=row.content_hash, title=row.title, text=row.text, score=0, path="complete")
+            for row in sorted(rows, key=lambda row: (row.bundle_id, row.chunk_id))]
+        return result if len(canonical_bytes([asdict(hit) for hit in result])) <= SMALL_CONTEXT_BYTES else None
+
     def search(
         self,
         *,
@@ -512,39 +573,8 @@ class PolicyIndex:
             raise ValueError("lexical_field is body/title and only applies to lexical recall")
         if top_k < 1 or top_k > MAX_TOP_K:
             raise ValueError(f"top_k must be 1..{MAX_TOP_K} (docs/agent-spec.md:16)")
-        if generation_ids is None:
-            ready = self.require_ready(bundle_ids, manifest_hash)
-        else:
-            if set(generation_ids) != set(bundle_ids) or not bundle_ids or not manifest_hash:
-                with self._database.connection() as connection:
-                    mismatch = any(
-                        self._not_ready(connection, bundle, manifest_hash).hash_mismatch
-                        for bundle in set(bundle_ids) - set(generation_ids)
-                    )
-                raise PolicyIndexNotReadyError(
-                    "run has no complete pinned READY generation mapping", hash_mismatch=mismatch
-                )
-            ready = []
-            with self._database.connection() as connection:
-                for bundle in bundle_ids:
-                    row = connection.execute(
-                        """SELECT * FROM policy_index_generation
-                           WHERE generation_id=%s AND bundle_id=%s AND manifest_hash=%s AND status=%s""",
-                        (generation_ids[bundle], bundle, manifest_hash, GENERATION_READY),
-                    ).fetchone()
-                    if row is None:
-                        raise PolicyIndexNotReadyError(
-                            "run's pinned policy generation is no longer READY; no substitution"
-                        )
-                    ready.append(_generation_of(row))
+        ready = self._scope(merchant_id, bundle_ids, manifest_hash, generation_ids)
         by_bundle = {generation.bundle_id: generation for generation in ready}
-        if any(generation.merchant_id != merchant_id for generation in ready):
-            raise PolicyIndexNotReadyError(
-                f"the run's merchant {merchant_id} does not match any pinned bundle's merchant "
-                f"({sorted({generation.merchant_id for generation in ready})}); a run may not retrieve "
-                "another merchant's policy (docs/policy-rag.md:15)"
-            )
-
         if path == "dense" and any(g.embedding_model is None for g in ready):
             raise PolicyIndexNotReadyError("selected generation has no embedding; build a dense index first")
         if path == "dense" and embedder is not None and any(

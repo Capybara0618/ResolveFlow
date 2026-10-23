@@ -110,18 +110,25 @@ class BoundSources:
                     self.generations = {g.bundle_id: g.generation_id for g in ready}
                 if self.journal is not None and saved is None:
                     self.journal.pin_generations(self.generations)
-            hits = retrieve_policy(
-                self.index,
-                merchant_id=self.request.merchant_id,
-                bundle_ids=manifest["bundle_ids"],
-                manifest_hash=manifest["manifest_hash"],
-                query=query,
-                top_k=top_k,
-                embedder=self.embedder,
-                generation_ids=self.generations,
-                timings=timings,
-                sub_queries=sub_queries,
-            )
+            # A tiny policy set is cheaper and more complete than a lossy ranked window.
+            # Keep this explicit in the observation; top_k still bounds the ranked path.
+            small = getattr(self.index, 'small_context', None)
+            hits = small(merchant_id=self.request.merchant_id, bundle_ids=manifest['bundle_ids'],
+                manifest_hash=manifest['manifest_hash'], generation_ids=self.generations) if callable(small) else None
+            complete = hits is not None
+            if hits is None:
+                hits = retrieve_policy(
+                    self.index,
+                    merchant_id=self.request.merchant_id,
+                    bundle_ids=manifest["bundle_ids"],
+                    manifest_hash=manifest["manifest_hash"],
+                    query=query,
+                    top_k=top_k,
+                    embedder=self.embedder,
+                    generation_ids=self.generations,
+                    timings=timings,
+                    sub_queries=sub_queries,
+                )
         except (PolicyIndexNotReadyError, EmbeddingUnavailableError):
             LOG.info(
                 "support_policy_search run_id=%s status=unavailable elapsed_ms=%.3f",
@@ -141,6 +148,8 @@ class BoundSources:
                 "source_type": "POLICY",
                 "version": hit.version,
                 "title": hit.title,
+                "retrieval_context": {"mode": "COMPLETE_SMALL_SET" if complete else "RANKED",
+                                      "count": len(hits)},
                 "data": {
                     k: getattr(hit, k)
                     for k in [
