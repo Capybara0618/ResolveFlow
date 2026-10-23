@@ -1,7 +1,8 @@
 import { consumeEventStream } from './events'
 import type { SupportAssistant, SupportConversation, SupportMessage } from './support-client'
 
-const kinds = ['turn.accepted', 'turn.started', 'answer.committed', 'answer.failed', 'answer.stale', 'stream.snapshot'] as const
+const kinds = ['turn.accepted', 'turn.started', 'answer.committed', 'answer.failed', 'answer.stale', 'stream.snapshot',
+  'answer.started', 'answer.delta', 'answer.reset', 'activity.started', 'activity.completed'] as const
 export interface SupportStreamEvent {
   event_id: string; conversation_id: string; run_id: string | null; input_version: number; attempt_id: string | null
   kind: typeof kinds[number]; payload: Record<string, unknown>; created_at: string
@@ -14,7 +15,8 @@ export function mergeSupportConversation(current: SupportConversation, next: Sup
   if (next.conversation_id !== current.conversation_id || next.version < current.version) return current
   const messages = new Map(current.messages.map(message => [message.message_id, message]))
   for (const message of next.messages) messages.set(message.message_id, message)
-  return { ...next, messages: [...messages.values()].sort((a, b) => a.sequence - b.sequence),
+  return { ...next, generation: next.generation ?? (next.version === current.version && next.assistant_turn?.run_id === current.assistant_turn?.run_id && next.assistant_turn?.status === 'RUNNING' ? current.generation : undefined),
+    messages: [...messages.values()].sort((a, b) => a.sequence - b.sequence),
     next_before_sequence: current.messages[0]?.sequence < (next.messages[0]?.sequence ?? Infinity) ? current.next_before_sequence : next.next_before_sequence }
 }
 
@@ -24,7 +26,18 @@ export function applySupportEvent(current: SupportConversation, event: SupportSt
   if (event.kind === 'stream.snapshot') {
     const next = event.payload.conversation
     if (!object(next) || !Array.isArray(next.messages) || !Number.isSafeInteger(next.version)) return current
-    return mergeSupportConversation(current, next as unknown as SupportConversation)
+    const merged = mergeSupportConversation(current, next as unknown as SupportConversation)
+    if (next.version !== merged.version) return merged
+    const raw = event.payload.generation
+    if (!object(raw) || raw.run_id !== merged.assistant_turn?.run_id || raw.input_version !== merged.version
+      || merged.assistant_turn?.status !== 'RUNNING' || !object(raw.view)) return { ...merged, generation: undefined }
+    const view = raw.view
+    if (!object(view.parts) && view.parts !== undefined) return merged
+    const parts = (view.parts ?? {}) as Record<string, unknown>
+    if (Object.entries(parts).some(([key, text]) => !/^part-[0-7]$/.test(key) || typeof text !== 'string')) return merged
+    return { ...merged, generation: { run_id: raw.run_id as string, input_version: merged.version,
+      attempt_id: typeof view.attempt_id === 'string' ? view.attempt_id : null, parts: parts as Record<string, string>,
+      activity: object(view.activity) && typeof view.activity.category === 'string' ? view.activity.category : undefined } }
   }
   if (event.input_version < current.version) return current
   if (event.input_version > current.version) return null
@@ -36,11 +49,32 @@ export function applySupportEvent(current: SupportConversation, event: SupportSt
       || !['mock', 'live'].includes(String(p.assistant.mode))) return null
     const message: SupportMessage = { message_id: p.message_id, sequence: p.sequence as number, text: p.text,
       author: 'ASSISTANT', recipient: 'CUSTOMER', ticket_id: null, created_at: event.created_at, assistant: p.assistant as unknown as SupportAssistant }
-    return { ...current, version: message.sequence, messages: [...current.messages.filter(m => m.message_id !== message.message_id), message],
+    return { ...current, generation: undefined, version: message.sequence, messages: [...current.messages.filter(m => m.message_id !== message.message_id), message],
       assistant_turn: { run_id: event.run_id, status: 'SUCCEEDED', reason: null } }
   }
-  const status = { 'turn.accepted': 'PENDING', 'turn.started': 'RUNNING', 'answer.failed': 'FAILED', 'answer.stale': 'STALE' }[event.kind]
-  return { ...current, assistant_turn: { run_id: event.run_id, status: status as NonNullable<SupportConversation['assistant_turn']>['status'], reason: null } }
+  if (['answer.started', 'answer.reset', 'answer.delta', 'activity.started', 'activity.completed'].includes(event.kind)) {
+    const generation = current.generation ?? { run_id: event.run_id, input_version: event.input_version, attempt_id: null, parts: {} }
+    if (event.kind === 'answer.started' || event.kind === 'answer.reset') {
+      if (!event.attempt_id) return current
+      return { ...current, generation: event.kind === 'answer.started' && generation.attempt_id === event.attempt_id ? generation
+        : { ...generation, attempt_id: event.attempt_id, parts: {}, activity: undefined } }
+    }
+    if (event.kind === 'answer.delta') {
+      if (event.attempt_id !== generation.attempt_id) return current
+      const { part_id: part, offset, text } = event.payload
+      if (typeof part !== 'string' || !/^part-[0-7]$/.test(part) || typeof text !== 'string' || !Number.isSafeInteger(offset)) return null
+      const existing = generation.parts[part] ?? ''
+      if (Array.from(existing).length !== offset) return null
+      const parts = { ...generation.parts, [part]: existing + text }
+      if (Object.values(parts).reduce((total, value) => total + Array.from(value).length, 0) > 4000) return null
+      return { ...current, generation: { ...generation, parts } }
+    }
+    return { ...current, generation: { ...generation, activity: event.kind === 'activity.started' && typeof event.payload.category === 'string' ? event.payload.category : undefined } }
+  }
+  const statuses: Partial<Record<SupportStreamEvent['kind'], NonNullable<SupportConversation['assistant_turn']>['status']>> = {
+    'turn.accepted': 'PENDING', 'turn.started': 'RUNNING', 'answer.failed': 'FAILED', 'answer.stale': 'STALE' }
+  const status = statuses[event.kind]
+  return status ? { ...current, generation: undefined, assistant_turn: { run_id: event.run_id, status, reason: null } } : current
 }
 
 function delay(milliseconds: number, signal: AbortSignal): Promise<void> {

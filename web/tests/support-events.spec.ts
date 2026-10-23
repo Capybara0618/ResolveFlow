@@ -68,3 +68,37 @@ it('stops on authentication refusal instead of retrying or dispatching a model',
   await expect(watchSupportEvents(accepted().conversation_id, 'old-token', () => {}, new AbortController().signal)).rejects.toThrow('401')
   expect(fetcher).toHaveBeenCalledTimes(1)
 })
+
+it('keeps streamed text provisional, handles code point offsets, resets and commits one final message', () => {
+  let c: SupportConversation = { ...original(), version: 2,
+    assistant_turn: { run_id: accepted().run_id!, status: 'RUNNING', reason: null } }
+  const e = (kind: SupportStreamEvent['kind'], payload: Record<string, unknown>, attempt = 'model-3'): SupportStreamEvent =>
+    ({ ...accepted(), kind, payload, attempt_id: attempt })
+  c = applySupportEvent(c, e('answer.started', {}))!
+  c = applySupportEvent(c, e('answer.delta', { part_id: 'part-0', offset: 0, text: '您好😀' }))!
+  c = applySupportEvent(c, e('answer.delta', { part_id: 'part-0', offset: 3, text: '，核查中' }))!
+  expect(c.generation?.parts['part-0']).toBe('您好😀，核查中')
+  expect(c.messages).toHaveLength(1)
+  c = applySupportEvent(c, e('answer.reset', {}, 'model-4'))!
+  expect(c.generation?.parts).toEqual({})
+  expect(applySupportEvent(c, e('answer.delta', { part_id: 'part-0', offset: 0, text: '旧片段' }))).toBe(c)
+  c = applySupportEvent(c, e('answer.started', {}, 'model-4'))!
+  c = applySupportEvent(c, e('answer.delta', { part_id: 'part-0', offset: 0, text: '修正正文' }, 'model-4'))!
+  c = applySupportEvent(c, e('answer.committed', { message_id: 'final-id', sequence: 3, text: '最终审核正文',
+    assistant: { run_id: accepted().run_id, mode: 'mock', citations: [], handoff_summary: null } }))!
+  expect(c.generation).toBeUndefined()
+  expect(c.messages).toHaveLength(2)
+  expect(c.messages.at(-1)?.text).toBe('最终审核正文')
+})
+
+it('restores a current draft snapshot and clears it on failure or new input', () => {
+  const c: SupportConversation = { ...original(), version: 2,
+    assistant_turn: { run_id: accepted().run_id!, status: 'RUNNING', reason: null } }
+  const snapshot: SupportStreamEvent = { ...accepted(), kind: 'stream.snapshot', payload: { conversation: c,
+    generation: { run_id: accepted().run_id, input_version: 2, view: { attempt_id: 'model-3', parts: { 'part-0': '恢复文字' } } } } }
+  const restored = applySupportEvent(c, snapshot)!
+  expect(restored.generation?.parts['part-0']).toBe('恢复文字')
+  expect(applySupportEvent(restored, { ...accepted(), kind: 'answer.failed' })?.generation).toBeUndefined()
+  const next = { ...original(), version: 3 }
+  expect(applySupportEvent(restored, { ...snapshot, payload: { conversation: next, generation: null } })?.generation).toBeUndefined()
+})

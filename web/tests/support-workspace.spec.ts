@@ -76,6 +76,33 @@ function completed(c: SupportConversation): SupportStreamEvent {
       assistant: { run_id: c.assistant_turn!.run_id, mode: 'mock', citations: [], handoff_summary: null } } }
 }
 
+it('shows one provisional bubble, clears rejected text and replaces it with the committed answer', async () => {
+  const c: SupportConversation = { ...original(), assistant_turn: { run_id: 'stream-run', status: 'RUNNING', reason: null } }
+  vi.mocked(supportApi.read).mockResolvedValue(c)
+  await open()
+  const deliver = vi.mocked(streamEvents.watchSupportEvents).mock.calls.at(-1)![2]
+  const event = (kind: SupportStreamEvent['kind'], payload: Record<string, unknown>, attempt: string | null = 'model-3') =>
+    deliver({ ...completed(c), kind, payload, attempt_id: attempt })
+  event('activity.started', { category: 'SHIPMENT' }, null); await flushPromises()
+  expect(wrapper.text()).toContain('正在查询物流记录')
+  event('activity.completed', { category: 'SHIPMENT' }, null)
+  event('answer.started', {})
+  event('answer.delta', { part_id: 'part-0', offset: 0, text: '第一段生成文字' }); await flushPromises()
+  expect(wrapper.get('[data-generation]').text()).toContain('第一段生成文字')
+  expect(wrapper.findAll('.support-message.assistant')).toHaveLength(1)
+  expect(wrapper.find('[data-action="preview-handoff"]').exists()).toBe(false)
+  event('answer.reset', {}, 'model-4'); await flushPromises()
+  expect(wrapper.text()).not.toContain('第一段生成文字')
+  expect(wrapper.get('[data-generation]').text()).toContain('正在完善回答')
+  event('answer.started', {}, 'model-4')
+  event('answer.delta', { part_id: 'part-0', offset: 0, text: '修复后的生成文字' }, 'model-4')
+  deliver(completed(c)); await flushPromises()
+  expect(wrapper.find('[data-generation]').exists()).toBe(false)
+  expect(wrapper.findAll('.support-message.assistant')).toHaveLength(1)
+  expect(wrapper.text()).toContain('已收到实时发布的回答。')
+  expect(wrapper.text()).not.toContain('修复后的生成文字')
+})
+
 it('receives a committed answer without an extra read or resubmitting the question', async () => {
   const c: SupportConversation = { ...original(), assistant_turn: { run_id: 'active-run', status: 'RUNNING', reason: null } }
   vi.mocked(supportApi.read).mockResolvedValue(c)

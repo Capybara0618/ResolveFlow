@@ -1,0 +1,10 @@
+{
+  "synthetic": true,
+  "files": {
+    "scripts/check_support_stream_v3.cjs": "b91256d476c36ab4ddc3b23db699ace15c1dfee246ea3afcb865ff161580b82c",
+    "reports/chat-refund-stream-s3/browser/01-tool-activity.png": "022014309d0d7589cc6d1a606d029a4d15d932263fe50725e748347063d9ee04",
+    "reports/chat-refund-stream-s3/browser/02-streaming-body.png": "568ec1f0ffcd38b69e201dcde4140d0b2e60ba1f5bf1dc298773e841a5930fbd",
+    "reports/chat-refund-stream-s3/browser/03-repaired-body.png": "f57d66ded754afbcdf7745a8241e0be8c8ad0f07826407a1ee7b68eb82a59610",
+    "reports/chat-refund-stream-s3/browser/04-committed-answer.png": "6d5a0cc6d48f6b1dfaead8a16cb1b67002d6492e8620741e97e2d3eceddf7e6d"
+  }
+}

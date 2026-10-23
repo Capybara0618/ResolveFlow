@@ -1,0 +1,52 @@
+{
+  "synthetic": true,
+  "real_model_calls": 0,
+  "scope": "built Vue + actual local chunked HTTP + Edge; no Java/Agent service",
+  "checks": [
+    "body visible before HTTP completion",
+    "rejected draft removed and replacement stays in one bubble",
+    "single final message replaces provisional view",
+    "no horizontal overflow at 1280",
+    "no horizontal overflow at 1440",
+    "no horizontal overflow at 1680"
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/products"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/shop/stores"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations/00000000-0000-4000-8000-000000000001"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations/00000000-0000-4000-8000-000000000001/events"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/support/conversations/00000000-0000-4000-8000-000000000001/messages"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/support/conversations"
+    }
+  ]
+}

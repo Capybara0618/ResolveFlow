@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，S3c前端生成视图与实际浏览器确认完成）
+
+- S3b f43c934普通push核实。前端接工具类别/正文delta/attempt reset，generation与正式messages分开，码点offset含emoji，修复撤旧草稿、终局替换成一条正式消息、失败/过时清理、重连快照恢复；源/分享/退款入口仍只用正式回答。动态光标支持reduced motion、阅读不跳底，不新增模型循环。
+- 关键红测2失败/4通过，后定向24通过；TS includes未收窄kind索引错误改typed Partial Record后通过。全前端31文件226通过（9.45秒）及build746ms，去重复处理文案后定向25通过（2.42秒）与build709ms。真实built Vue+Edge+本地chunked HTTP6项检查/错误0，连接结束前可见正文、reset/单终局、三桌面宽度无溢出/用户消息只写一次；脚本首轮stores合成响应错类型导致导航超时，修原数组契约后两次通过。四幅截图及hash清单见[报告](../reports/chat-refund-stream-s3/README.md)，是合成HTTP非真实模型效果。
+- 无真实Provider调用、usage2011，原业务服务未启，PG仅隔离schema测试后待收尾停止。代码链路已接但完整Java/Python/DeepSeek现场联调、首正文p50/p95未测；原1秒派发扫描的提交后唤醒待补，R1–R3聊天退款未做。精确commit/普通push核实后收口必要派发唤醒/验证与PG停止，不凭合成结果宣称性能达标。
+
 ## 当前快照（2026-10-23，S3b Python真实流式/工具观察器完成；前端draft待接）
 
 - S3a efc3f37普通push核实。本步新派发progress_token接独立流式客户端/正文投影/有界异步进度队列，manifest显式streaming及相关源码；SDK唯一循环/原退款调查保持。真实非缓存工具开始/结束受控类别，理解/工具JSON隐藏，首正文立即入队，后续有界合批；投影异常/一次修复reset旧视图，完整响应原校验/usage照常，进度断流无隐藏重试或第二模型。

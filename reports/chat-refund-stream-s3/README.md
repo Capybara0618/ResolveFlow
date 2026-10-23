@@ -41,3 +41,22 @@ $streamUnitFiles=Get-ChildItem tests/unit/test_support*.py | ForEach-Object Full
 ```
 
 S3a `efc3f37`已普通push核实；最新fixture定向契约19通过（8.37秒）。仅启动原PG供临时schema测试，public业务表不写/不清，收尾停原PG；原业务服务未起，无真实Provider消费，usage2011。前端尚未识别这批新kind，因此S3c接线后才具备完整产品路径。
+
+## S3c：生成气泡与实际浏览器确认
+
+- 前端接activity/start/delta/reset，候选文字只存本地generation，不放进正式messages/共享摘要。码点offset兼容emoji；新attempt撤旧文字，终局committed替换同一位置，失败/过时清理；snapshot恢复当前生成视图，普通同版本读取保留候选，新版本不带旧候选。聊天生成中不显示重复处理文案，光标支持减少动态效果偏好。
+- 关键红测2失败/4通过（尚无generation逻辑）；实现后24定向通过，首次TS收口因includes未收窄kind导致5处索引类型错误，改为有类型的Partial Record并显式处理后通过。完整前端31文件226项通过（9.45秒），typecheck+build通过（746ms）；视觉去重复文案后定向25通过（2.42秒）及build709ms。
+- [真实浏览器结果](browser/result.json)：built Vue + 本地chunked HTTP + Edge，6项检查/页面错误0。真实发送按钮只写1次用户消息；连接未结束前已经出现正文、reset撤旧草稿、修复后最终仅一条正式回复，1280/1440/1680无横向溢出。首次脚本把商城stores响应误设为分页对象，导致导航渲染失败/等待链接超时；修为原数组契约后两次通过，未改业务来适配测试。
+- 截图来自本次真实运行的前端，API和文案均合成、未接Java/Python/真实Provider：[实际工具进度](browser/01-tool-activity.png)、[分块正文](browser/02-streaming-body.png)、[修复新正文](browser/03-repaired-body.png)、[最终回答](browser/04-committed-answer.png)。已视觉检查生成与最终截图，保持原三栏页面，无新退款卡片。
+
+实际命令：
+
+```powershell
+pnpm --dir web test
+pnpm --dir web test -- tests/support-events.spec.ts tests/support-workspace.spec.ts
+pnpm --dir web build
+# 原bundled Node/Playwright；NODE_PATH指向dependencies/node/node_modules
+node scripts/check_support_stream_v3.cjs
+```
+
+S3b `f43c934`已普通push核实。本步未触发真实模型调用，usage2011；原项目保持停止。已具备新派发的代码链路，但完整生产服务+DeepSeek联调、用户首正文p50/p95和工具失败/恢复现场验证未运行；不能拿合成HTTP截图或离线332项宣称模型流式互通/性能已验收。原1秒派发扫描尚待提交后唤醒优化；聊天退款R1–R3仍在后续。

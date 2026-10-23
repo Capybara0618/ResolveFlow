@@ -9,6 +9,8 @@ export interface SupportConversation {
   product: { name: string; variant: string | null; asset_key: string | null; quantity: number; amount_minor: number; currency: string }
   version: number; ticket: SupportTicket | null; messages: SupportMessage[]; next_before_sequence: number | null
   assistant_turn?: { run_id: string; status: 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'STALE'; reason: string | null }
+  /** Local candidate view only: never part of a write/share/refund request. */
+  generation?: { run_id: string; input_version: number; attempt_id: string | null; parts: Record<string, string>; activity?: string }
 }
 export interface SupportPage { items: SupportConversation[]; next_before: number | null }
 export type SupportCommand =
