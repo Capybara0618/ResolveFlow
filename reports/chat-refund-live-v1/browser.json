@@ -1,0 +1,45 @@
+{
+  "turns": [
+    {
+      "index": 0,
+      "text": "这件商品一直没收到，请帮我查一下最新物流状态，先不要申请退款。",
+      "started_at": 1792766865306,
+      "completed_ms": 5309,
+      "answer": "已查到最新物流状态：承运方结论为LOST，即该包裹在运输途中被判定为丢失，后续不会正常送达。您已说明暂不申请退款，我这边不会发起任何退款操作。如需处理，可先联系商家核实并协商补发或后续方案。"
+    },
+    {
+      "index": 1,
+      "text": "我确实没有收到这件商品，想申请整件退款。请把申请原因整理成可编辑的摘要，由我核对后再确认提交。",
+      "started_at": 1792766870710
+    }
+  ],
+  "events": [],
+  "writes": [
+    {
+      "path": "/api/v1/support/conversations/aa7f2d5f-226b-49cc-879a-95e53dbd8c1c/messages",
+      "method": "POST",
+      "body": {
+        "expected_version": 1,
+        "text": "这件商品一直没收到，请帮我查一下最新物流状态，先不要申请退款。",
+        "recipient": "ASSISTANT"
+      },
+      "key": "75fe4565-7df0-4876-be2e-e63814ac4fda"
+    },
+    {
+      "path": "/api/v1/support/conversations/aa7f2d5f-226b-49cc-879a-95e53dbd8c1c/messages",
+      "method": "POST",
+      "body": {
+        "expected_version": 3,
+        "text": "我确实没有收到这件商品，想申请整件退款。请把申请原因整理成可编辑的摘要，由我核对后再确认提交。",
+        "recipient": "ASSISTANT"
+      },
+      "key": "96c81606-6810-4ef4-8f63-1694a990677c"
+    }
+  ],
+  "checks": [
+    "logistics-only turn creates no draft or Case"
+  ],
+  "errors": [],
+  "httpErrors": [],
+  "failure": "Agent did not publish this turn"
+}
