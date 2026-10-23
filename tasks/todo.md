@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，已有核查单导航与纯办理重复修复完成，刷新体验待接）
+
+- 真实验收证据85715cd已普通push核实；其原JSON CRLF被默认diff --check报行尾，保留字节/SHA后`git -c core.whitespace=cr-at-eol show --check HEAD`通过，首失败已记。用户继续授权后深读实际请求纠正初判：conversation_state原已由Java冻结并发给模型，非缺字段；静态导航未消费该状态才走错新单路线，模型正文+程序追加造成重复。
+- Engine/导航/提示复用原state：已有单用“补充给商家”，无单仍预览确认；纯HANDOFF/APPLICATION且仅指南引用的步骤由程序渲染一次，混合业务解释保留。未加模型循环/Java字段/迁移。[报告](../reports/chat-navigation-state-v1/README.md)含原真实响应离线对照及边界。
+- 关键红测8失败/17通过，后定向25、全客服单元307通过0跳过（6.59秒）、3源码strict mypy/Ruff通过；错误命令路径及扩展首次缺PYTHONPATH collection失败保留。真实新调用0、usage2022，旧run/报告不改，服务/容器保持停止。精确提交普通push后接刷新登录/当前咨询位置保持小步；政策聚焦待处理，R1–R3未做。
+
 ## 当前快照（2026-10-23，真实三轮流式/断线续接完成；体验缺口已定位，未冻结完整客服）
 
 - 准备/驱动三小步93bad8f、a79b655、67573b9均普通push核实。生产d4836e7不变，真实Vue/Gateway/Java/Python/DeepSeek原三条各发给助手一次，3run均SUCCEEDED、10模型全部COMPLETE、Provider31144输入/1160输出准确token，usage2012→2022。v1误向已有商家单发1消息零模型保留；v2刷新回登录失败保留，不重发两条；v3只续最后一条、重登恢复第二条及真实SSE abort→续接→单终局通过。[集中报告](../reports/chat-stream-live-v3/README.md)/离线summary绑定原SHA。

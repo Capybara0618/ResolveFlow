@@ -22,6 +22,11 @@ INSTRUCTIONS = {
     'REFUND_APPLICATION': '正式退款：打开“我的售后”，选择对应订单商品，核对申请内容后自行提交。'
                           '聊天表达退款意愿或转交人工核查不会自动创建退款工单；助手没有替你提交申请。',
 }
+EXISTING_REVIEW = ('人工咨询：当前已有商家核查记录。在当前会话选择“补充给商家”，'
+                   '填写本次要咨询或补充的内容，点击“发送”，消息会进入原核查单。'
+                   '已解决的核查单也可通过再次补充接续，无需重新转交。'
+                   '只会共享本次发给商家的内容，私有助手对话不会自动全部共享；'
+                   '此操作不会自动提交退款申请。')
 
 
 class NavigationError(GroundingError):
@@ -56,6 +61,7 @@ def navigation_references(decision: Answer | AnswerParts, citations: dict[str, d
 def render_navigation(
     decision: Answer | AnswerParts, citations: dict[str, dict[str, Any]], *, strict: bool = False,
     required: dict[str, str] | None = None,
+    conversation_state: dict[str, Any] | None = None,
 ) -> Answer | AnswerParts:
     decision = navigation_references(decision, citations)
     rendered = []
@@ -76,9 +82,17 @@ def render_navigation(
             raise NavigationError(f'当前事项须选择next_steps.action={expected}，并引用本run指南。')
         if actions and status not in {'ANSWERED', 'NEEDS_MERCHANT'}:
             raise NavigationError('暂停、取消、未完成或来源失败段不能附带办理步骤。')
-        text, refs = piece.text, list(piece.citations)
+        # Java freezes this state with the input. It is not inferred from customer/model prose.
+        existing_ticket = (conversation_state or {}).get('has_ticket') is True
+        # Pure application guidance is program-owned. Do not append the same route to a model's
+        # free-form version of it. Mixed investigation/fact explanations remain intact.
+        guide_only = (expected is not None and len(actions) == 1 and actions[0] == expected
+                      and set(piece.citations) <= {step.source for step in piece.next_steps})
+        text, refs = ('' if guide_only else piece.text), list(piece.citations)
         for step in piece.next_steps:
-            text += '\n\n' + INSTRUCTIONS[step.action]
+            instruction = (EXISTING_REVIEW if existing_ticket and step.action == 'MERCHANT_REVIEW'
+                           else INSTRUCTIONS[step.action])
+            text += ('\n\n' if text else '') + instruction
         if len(text) > 4000 or len(refs) > 8:
             raise NavigationError('生成步骤后仍须满足4000字符和8引用限制。')
         rendered.append(piece.model_copy(update={'text': text, 'citations': refs, 'next_steps': []}))

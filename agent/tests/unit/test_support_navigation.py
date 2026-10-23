@@ -153,3 +153,74 @@ def test_handoff_requires_matching_step_but_a_resolved_issue_only_acknowledges_c
         parts(part('trace', '已结束此项咨询。'))], GuideReads())
     assert closed['status'] == 'SUCCEEDED', closed['reason']
     assert source.calls == [] and closed['answer']['text'] == '已结束此项咨询。'
+
+
+@pytest.mark.parametrize('status', ['PENDING', 'WAITING_CUSTOMER', 'REPLIED', 'RESOLVED'])
+def test_existing_ticket_uses_current_reply_control_once(status):
+    from resolveflow.support.navigation import render_navigation
+
+    # The model can repeat an obsolete generic route; the program owns pure guide instructions.
+    original = decision(['MERCHANT_REVIEW'], text='打开售后咨询，点击请商家核查，选择共享原文并确认。')
+    rendered = render_navigation(original, {'O1': guide_source()}, strict=True,
+        required={'t1': 'MERCHANT_REVIEW'},
+        conversation_state={'has_ticket': True, 'ticket_status': status, 'current_recipient': 'ASSISTANT'})
+    text = rendered.parts[0].text
+    assert text.count('补充给商家') == 1 and '请商家核查' not in text
+    assert '发送' in text and '不会自动提交退款申请' in text
+    assert rendered.parts[0].citations == ['O1'] and original.parts[0].next_steps
+
+
+def test_new_ticket_pure_guide_keeps_confirmation_and_sharing_once():
+    from resolveflow.support.navigation import render_navigation
+
+    rendered = render_navigation(decision(['MERCHANT_REVIEW'], text='打开售后咨询，点击请商家核查并预览摘要。'),
+        {'O1': guide_source()}, strict=True, required={'t1': 'MERCHANT_REVIEW'},
+        conversation_state={'has_ticket': False, 'ticket_status': 'NONE'})
+    text = rendered.parts[0].text
+    assert text.count('请商家核查') == 1 and text.count('预览并编辑') == 1
+    assert '确认后才转交商家' in text and '不会默认全部共享' in text
+
+
+def test_investigation_explanation_with_business_evidence_is_preserved():
+    from resolveflow.support.navigation import render_navigation
+
+    selected = decision(['MERCHANT_REVIEW'], text='物流来源明确记录了运输延迟，需要商家核实原因。')
+    selected.parts[0].citations.append('O2')
+    text = render_navigation(selected, {'O1': guide_source(), 'O2': {'source_type': 'SHIPMENT'}},
+        strict=True, required={'t1': 'MERCHANT_REVIEW'},
+        conversation_state={'has_ticket': True, 'ticket_status': 'PENDING'}).parts[0].text
+    assert text.startswith(selected.parts[0].text) and '补充给商家' in text
+
+
+def test_saved_live_handoff_is_rendered_for_its_actual_existing_ticket():
+    import json
+    from pathlib import Path
+
+    from resolveflow.support.navigation import render_navigation
+
+    path = Path(__file__).resolve().parents[3] / 'reports/chat-stream-live-v3/runtime-results.json'
+    run = json.loads(path.read_text(encoding='utf-8'))['runs'][0]
+    reply = next(c['response_json']['decision'] for c in reversed(run['calls'])
+                 if c['kind'] == 'model' and c['response_json']['decision']['kind'] == 'ANSWER_PARTS')
+    state = run['run']['input_json']['context']['conversation_state']
+    citations = {source['source_id']: source for source in run['run']['result_json']['answer']['citations']}
+    rendered = render_navigation(AnswerParts.model_validate(reply), citations, strict=True,
+        required={'t3': 'MERCHANT_REVIEW'}, conversation_state=state)
+    text = rendered.parts[0].text
+    assert state['has_ticket'] is True
+    assert text.count('补充给商家') == 1 and '请商家核查' not in text
+
+
+def test_engine_reuses_frozen_ticket_state_without_another_model_or_read():
+    from tests.unit.test_support_agent import GuideReads, read, request
+    from tests.unit.test_support_staged import staged, understand
+
+    req = request()
+    req.context['conversation_state'] = {'has_ticket': True, 'ticket_status': 'RESOLVED'}
+    piece = part('trace', '打开售后咨询，点击请商家核查并确认。', ['O1'])
+    piece['next_steps'] = [{'action': 'MERCHANT_REVIEW', 'source': 'O1'}]
+    result, model, source, _ = staged(req, [understand(req, intent='HANDOFF', needs=['GUIDE']),
+        read('get_support_guide'), parts(piece)], GuideReads())
+    assert result['status'] == 'SUCCEEDED', result['reason']
+    assert '补充给商家' in result['answer']['text'] and '请商家核查' not in result['answer']['text']
+    assert model.calls == 3 and source.calls == [('get_support_guide', {})]

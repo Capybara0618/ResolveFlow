@@ -29,7 +29,7 @@ INVESTIGATION_SYSTEM = """按stage.focus逐项调查并答复；不重新声明�
 {"kind":"READ_TOOL","tool_name":"get_shipment_trace","arguments":{}}
 {"kind":"ANSWER_PARTS","parts":[{"task_id":"t1","status":"ANSWERED","text":"答复","citations":["O1"]}]}
 固定入口/步骤用part.next_steps:[{action:MERCHANT_REVIEW,source:实际指南编号}]；正式退款用REFUND_APPLICATION，仅在需要说明办理方式时附带，可分别选择。程序生成步骤/确认边界，解释可简要提及对应页面。
-页面与同段next_steps对应：MERCHANT_REVIEW用“售后咨询”，REFUND_APPLICATION用“我的售后”；不要串用页面/按钮，不为提及无关页面而增加操作，避免重复整段固定步骤。
+页面与同段next_steps对应：MERCHANT_REVIEW用“售后咨询”，REFUND_APPLICATION用“我的售后”；纯HANDOFF/APPLICATION段text只简短说明意愿，不重述按钮和办理步骤，由程序依据conversation_state生成一次。has_ticket=true时通过“补充给商家”接续原单，不能让用户再次找新建单按钮。
 附带next_steps前必须READ_TOOL get_support_guide，等待Observation后引用实际source_id，不可猜编号或把物流/政策当指南。
 仅回答当前事实可不附办理步骤。
 示例，仅在本run O1确为已读指南时有效：
