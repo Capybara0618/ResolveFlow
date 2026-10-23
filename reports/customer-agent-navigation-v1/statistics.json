@@ -1,0 +1,96 @@
+{
+  "raw_sha256": "7e873e6d11c19b2165d4795543d1630f80ed1467e34dae6c77c78925d16fbf86",
+  "published": 3,
+  "complete": 3,
+  "partial": 0,
+  "failed": 3,
+  "semantic_review": "CODEX_SOURCE_REVIEW",
+  "independent_human_gold": false,
+  "models": 28,
+  "tools": 10,
+  "usage_before": 1949,
+  "usage_after": 1977,
+  "provider_input": 66538,
+  "provider_output": 3547,
+  "provider_usage_estimated": false,
+  "harness_input_estimate": 78357,
+  "total_turn_elapsed_ms": 40415.81730000007,
+  "warmup": {
+    "status": "READY",
+    "elapsed_ms": 8350.874900000235
+  },
+  "public_preserved": true,
+  "isolated_schema_dropped": true,
+  "per_turn": [
+    {
+      "id": "C01",
+      "turn": 1,
+      "published": "FAILED",
+      "rating": "FAILED",
+      "ms": 5393.0067999999665,
+      "models": 4,
+      "tools": [
+        "get_shipment_trace"
+      ]
+    },
+    {
+      "id": "C01",
+      "turn": 2,
+      "published": "FAILED",
+      "rating": "FAILED",
+      "ms": 4553.398099999868,
+      "models": 4,
+      "tools": [
+        "get_support_guide"
+      ]
+    },
+    {
+      "id": "C01",
+      "turn": 3,
+      "published": "FAILED",
+      "rating": "FAILED",
+      "ms": 7291.548000000148,
+      "models": 5,
+      "tools": [
+        "get_shipment_trace",
+        "get_support_guide"
+      ]
+    },
+    {
+      "id": "C01",
+      "turn": 4,
+      "published": "SUCCEEDED",
+      "rating": "COMPLETE",
+      "ms": 7561.290099999951,
+      "models": 5,
+      "tools": [
+        "get_shipment_trace",
+        "get_support_guide"
+      ]
+    },
+    {
+      "id": "C02",
+      "turn": 1,
+      "published": "SUCCEEDED",
+      "rating": "COMPLETE",
+      "ms": 9821.425600000111,
+      "models": 6,
+      "tools": [
+        "get_shipment_trace",
+        "search_policy",
+        "get_support_guide"
+      ]
+    },
+    {
+      "id": "C03",
+      "turn": 1,
+      "published": "SUCCEEDED",
+      "rating": "COMPLETE",
+      "ms": 5795.148700000027,
+      "models": 4,
+      "tools": [
+        "get_support_guide"
+      ]
+    }
+  ]
+}
