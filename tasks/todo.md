@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，摘要离线修复已同步；同原样本手动入口补充验收准备）
+
+- 5b6e952修复已普通push核实，447客服/契约与5隔离PG通过。原自动摘要失败保持；[方案补充](../docs/customer-chat-refund-live-v1.md)只走现成手动退款入口，不再发送客服问题，只允许同样本一个原Case调查run，原总账2070续记。
+- 新`continue_chat_refund_live_v1.py`及真实浏览器驱动单独保存manual-continuation；Ruff首次捕获循环lambda绑定警告已改显式默认参数，format/check、py_compile、node --check通过。尚未建Case/新增模型；四原脏文件保持。
+- 精确提交普通push核实后执行一次、保存未运行/失败/全部费用与旧行hash；不把手工申请替代自动摘要验收，不改库/伪造退款建议。
+
 ## 当前快照（2026-10-23，真实摘要形状缺口已离线修复；自动摘要未重新Live确认）
 
 - 原失败c24343a已同步，stages明确根级1–2000字字符串并给完整JSON例子，guidance按refund_summary字段位置/类型返回完整修正示例；不改契约/一次修正/权限。保存真实对象/嵌套坏响应两种均拒绝，合法修正成功、重复坏响应仍失败。[定向修复证据](../reports/chat-refund-live-v1/summary-shape-fix.md)。
