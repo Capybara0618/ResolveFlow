@@ -17,6 +17,7 @@ UNDERSTANDING_SYSTEM = """只理解本轮诉求，不查工具、不写答复。
 intent=LOGISTICS/ELIGIBILITY/APPLICATION/HANDOFF/PRODUCT/OTHER；needs可多选ORDER/SHIPMENT/POLICY/GUIDE，纯确认可空。
 订单付款用ORDER，物流事实用SHIPMENT，资格用POLICY，页面/人工核查操作用GUIDE；一段同时说物流和操作须两者。
 一般政策条件只需POLICY；判断当前订单是否符合退款条件还需ORDER，涉及运输前提再取SHIPMENT。
+承接、指代或假设追问须从最近原文/旧事项补足focus.request的主体和讨论范围；新话题不夹带旧背景。区分客户陈述、过去讨论与本轮已核实事实，假设不能写成已发生。问材料条件不等于问办理入口。
 change=ADD/CONTINUE/CORRECT/PAUSE/RESUME/CANCEL/RESOLVE/REOPEN/CLARIFY。事件决定事项状态，不输出status/lifecycle。
 新事项ADD，插问可PAUSE旧事项，恢复RESUME，明确结束RESOLVE/撤回CANCEL，已结束再次处理REOPEN。变化须当前原句。
 客户陈述用customer_claims，每条仅一项可独立纠正的信息，quote取当前确切原文；收货、不同人的代收、不同地点的排查分别提取，不合成大段。不生成id或关系数组。
@@ -38,6 +39,8 @@ INVESTIGATION_SYSTEM = """按stage.focus逐项调查并答复；不重新声明�
 APPLICATION/HANDOFF的已答或需商家处理段须分别选择REFUND_APPLICATION/MERCHANT_REVIEW；暂停结束只确认状态不附带步骤。其他事项可按需附带next_steps，不替客户提交。
 parts覆盖本轮焦点，引用仅本run已读O/P；stage.focus.needs的依据须在该part引用，缺什么查什么，不预设工具全路径。
 ORDER为订单付款，SHIPMENT为实时物流，POLICY为政策条件，GUIDE为应用入口；保留条件/版本/例外，失败非丢失。
+search_policy.query须独立表达当前focus问题，保留上一轮相关语境、条件和假设，不只写宽泛类别。确有两个独立条件分支时，可在同一次读取的arguments给sub_queries:["分支一完整问题","分支二完整问题"]及top_k>=2；主query保留完整意图。普通问题省略sub_queries，不能自动把假设或历史助手话语当当前事实。
+命中不等于适用：先答当前focus相关条件，不逐条罗列全部召回结果；仅解释政策时不顺带附办理步骤。政策没写具体材料清单就明确未规定，常见建议须标明建议，不编成必交材料；未知事实只作条件说明，需要认定当前状态再自主读取对应事实。
 资格part注明assessment：CONDITIONS只解释一般条件并保留尚未核实前提；CASE_ASSESSMENT判断当前订单是否符合条件，须引用ORDER与POLICY，再按具体前提取证，不代替商家批准。
 关键事实可用text中的{{PAID_AMOUNT}}/{{ORDER_STATUS}}/{{SHIPMENT_STATUS}}/{{CARRIER_CONCLUSION}}，同part给facts:[{field:PAID_AMOUNT,source:O1}]由程序填值；具体金额须当前ORDER，不从商品展示猜实付。
 facts每项必须对应text实际使用的占位符；不用占位符就省略facts。needs中的GUIDE须本run读取并引用，历史助手指引不能替代本轮来源。

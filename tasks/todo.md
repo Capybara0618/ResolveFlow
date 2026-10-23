@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，政策Query衔接与可选分支已接；真实自动选择/回答待单场景确认）
+
+- 诊断bf85195、检索接线8bdf18c均普通push核实。默认单Query/原三路RRF保持，复合条件可同一次search_policy给两条sub_queries，分支首候选覆盖/余位融合；真实本地确认默认7Query排序全保持，人工分支普通在途+丢失前三均覆盖，热单次73.46ms不当p95或自动生成收益。
+- 本步staged提示补省略/承接语境、主体/讨论范围与假设区分；生成自包含Query、按需两分支，回答相关条件、不罗列全部命中、不编材料清单或额外办理步骤。[设计](../docs/customer-policy-focus-v1.md)/架构同步，[报告](../reports/customer-policy-focus-v1/implementation.md)保留失败。最终客服单元+SDK/隔离PG322通过0跳过（8.92秒），提示Ruff/strict通过。
+- 本轮真实新模型/HTTP0，usage2022，不修改旧run/报告/政策/Gold；[单场景真实计划](../evals/customer-policy-focus-v1/live-plan.json)已准备未执行：原追问一次、至多12模型、不强制分支/不自动重跑。下步确认实际focus/query/召回/回答是否聚焦，不能宣称RAG已全面验收；R1–R3仍未做。原六SHA保持，Java/Web未启；PG收尾停止保留卷，精确提交普通push核实后停止写入。
+
 ## 当前快照（2026-10-23，可选双分支检索接入并验证；Query/回答聚焦提示待接）
 
 - 诊断bf85195已普通push核实。SearchArguments/SDK schema/Engine/BoundSources/检索同步可选sub_queries两条有界独立分支，主query留意图、仅检索子Query；原单Query默认排序保持。分支内三路RRF、首候选覆盖+余位融合，单Agent工具/本地读记账，至多6索引查询/2本地embedding，不额外LLM或ReAct。[实现报告](../reports/customer-policy-focus-v1/implementation.md)记边界。

@@ -21,3 +21,9 @@
 - 确认经生产BoundSources→PolicyIndex，generation沿用原run；全部public表hash保持，无HTTP/生成模型请求。原宽泛单Query仍保留原排序，未改旧报告、政策原文/索引、Gold或日常run。Java/Web未启动，PG保持供接续验证，usage2022。
 
 入口：`scripts/check_policy_branches_v1.py`拒绝覆盖原确认；命令与源码SHA在原JSON。下一步补理解/Query保留语境和条件、回答只讲相关条件与缺失材料，真实自动选择与最终回答质量尚未复测。
+
+## 提示接线收口
+
+检索接线8bdf18c普通push核实后，仅修改stages.py：理解承接问题时补足当前focus的主体与讨论范围、区分旧叙述/假设/实时事实；执行生成自包含Query，显式说明可选sub_queries/普通问题省略；回答只讲相关条款，没明确材料清单时说明未规定，不自动加办理步骤。没有强制固定工具路径或按规则ID造Query。
+
+同一工程范围最终 **322通过、0跳过（8.92秒）**，stages Ruff/strict mypy通过；此轮新增模型0，usage2022。[单场景真实确认计划](../../evals/customer-policy-focus-v1/live-plan.json)固定原追问、最多1轮/12次模型尝试、不强制分支、不自动重跑，当前仅准备未执行。下一次需要验证的是模型实际Query/分支选择和最终回答，不能把提示修改或脚本模型通过当真实质量收益。
