@@ -1,0 +1,37 @@
+{
+  "reviewer": "CODEX_SOURCE_REVIEW",
+  "independent_human_gold": false,
+  "not_holdout": true,
+  "raw_sha256": {
+    "natural-results.json": "0634f803d06db29517f5359e5420895a2e064f5d3263e7df89b543025c5291f0",
+    "repair-results.json": "fc382cb47ee8fcdae2d412c6ca6e6a6cbdb15f92873fd6d97cbb447f0f548b9e"
+  },
+  "natural_rows": [
+    {"id": "A01", "turn": 1, "rating": "COMPLETE", "reason": "三项客户陈述独立保存；实际读取物流，用事实占位符区分承运DELIVERED与客户未收到，不断言丢失。只回答事实未附操作，未要求无关指南。"},
+    {"id": "A01", "turn": 2, "rating": "FAILED", "reason": "t1暂停、独立t2、读取指南、选择REFUND_APPLICATION均正确。初答和唯一修复都正确说我的售后，但解释含页面名被程序一概拒绝，未发布。反馈还把尚未从next_steps合并的指南引用列为source_gaps，实际指南已读取，不是检索漏读。"},
+    {"id": "A01", "turn": 3, "rating": "COMPLETE", "reason": "原t1恢复OPEN，家人没代收显式REPLACE为尚未问清，门卫旧陈述保留且未重复询问；读取本轮物流和指南，选择MERCHANT_REVIEW，程序生成人工核查正确入口。可选门卫陈述误提议CONTINUE被拒并记录warning，保留原事实与当前原文，没有阻塞答复。"},
+    {"id": "A01", "turn": 4, "rating": "COMPLETE", "reason": "显式REPLACE家人尚未确认的旧陈述，新事实已确认无人代收，旧条SUPERSEDED；门卫排查仍保留，实际物流/指南来源完整，正确人工核查入口及选择共享/确认说明，不虚构转交或退款。"}
+  ],
+  "probe": {
+    "id": "R01",
+    "mode": "injected-prefix-live-repair",
+    "scripted_prefix_decisions": 2,
+    "provider_requests": 2,
+    "first_real_decision_reads_guide": true,
+    "guide_observation_then_actual_reference": true,
+    "published": false,
+    "rating": "PARTIAL",
+    "reason": "两条mock前缀触发真实Harness缺GUIDE反馈。首条真实模型决定按required_read读取指南，第二条引用实际O1并选择MERCHANT_REVIEW，补读行为生效；但解释中正确写售后咨询，因页面名禁用被拒，且唯一修复预算已用完，最终FAILED。不是自然错误恢复成功率，也不是完整通过。"
+  },
+  "freeze_recommendation": "架构和功能范围可以保持冻结；当前可演示版本暂不标记验收完成。主要阻塞是正确页面说明也被一概拒绝的发布条件，本批不修改生产代码或追加真实重跑。",
+  "nonblocking_observations": [
+    "部分解释与程序步骤重复、同义门卫陈述仍会追加。",
+    "可选customer_claims中CONTINUE不是合法change，已记录warning并保留旧事实，不计为客户记忆更新成功。",
+    "已失败退款事项t2仍OPEN/PENDING并保留，没有伪造完成；后续恢复的是原物流事项。"
+  ],
+  "limitations": [
+    "四轮已见自然表达及一个显式注入探针，非独立Gold、留出集、简历指标或总体成功率。",
+    "真实模型/SDK/ASGI/独立PG，Commerce与Case是固定合成HTTP；未启动Java或网页。",
+    "不把探针补读子步骤通过改写为最终答复通过，不把注入决策计入真实调用或Token。"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "version": "customer-agent-acceptance-v1",
+  "raw_sha256": {
+    "natural-results.json": "0634f803d06db29517f5359e5420895a2e064f5d3263e7df89b543025c5291f0",
+    "repair-results.json": "fc382cb47ee8fcdae2d412c6ca6e6a6cbdb15f92873fd6d97cbb447f0f548b9e"
+  },
+  "semantic_review": "CODEX_SOURCE_REVIEW",
+  "independent_human_gold": false,
+  "natural_turns": 4,
+  "natural_published": 3,
+  "natural_complete": 3,
+  "natural_failed": 1,
+  "probe_mode": "injected-prefix-live-repair",
+  "probe_published": false,
+  "probe_source_recovered": true,
+  "probe_scripted_decisions": 2,
+  "probe_provider_requests": 2,
+  "provider_requests": 17,
+  "sdk_decisions_including_injection": 19,
+  "tools": 7,
+  "usage_before": 1977,
+  "usage_after": 1994,
+  "provider_input": 42653,
+  "provider_output": 1838,
+  "provider_usage_estimated": false,
+  "served_models": [
+    "deepseek-flash"
+  ],
+  "natural_harness_input_estimate": 44782,
+  "probe_harness_input_estimate_including_injected_prefix": 8815,
+  "natural_turn_elapsed_ms": 20107.419599999957,
+  "probe_elapsed_ms": 3064.307700000427,
+  "warmup": {
+    "status": "READY",
+    "elapsed_ms": 9770.256300000256
+  },
+  "public_preserved": true,
+  "isolated_schemas_dropped": true,
+  "exported_runs": 5,
+  "exported_calls": 26,
+  "per_turn": [
+    {
+      "id": "A01",
+      "turn": 1,
+      "published": "SUCCEEDED",
+      "provider_requests": 3,
+      "tools": [
+        "get_shipment_trace"
+      ],
+      "elapsed_ms": 4614.873599999555
+    },
+    {
+      "id": "A01",
+      "turn": 2,
+      "published": "FAILED",
+      "provider_requests": 4,
+      "tools": [
+        "get_support_guide"
+      ],
+      "elapsed_ms": 5200.473599999896
+    },
+    {
+      "id": "A01",
+      "turn": 3,
+      "published": "SUCCEEDED",
+      "provider_requests": 4,
+      "tools": [
+        "get_shipment_trace",
+        "get_support_guide"
+      ],
+      "elapsed_ms": 5484.531799999786
+    },
+    {
+      "id": "A01",
+      "turn": 4,
+      "published": "SUCCEEDED",
+      "provider_requests": 4,
+      "tools": [
+        "get_shipment_trace",
+        "get_support_guide"
+      ],
+      "elapsed_ms": 4807.540600000721
+    }
+  ]
+}
