@@ -1,0 +1,70 @@
+{
+  "scope": "three original synthetic business turns with a real provider; not p95/holdout quality",
+  "backend_published": 3,
+  "distinct_runs": 3,
+  "model_attempts": 10,
+  "unknown_model_results": 0,
+  "provider_input_tokens": 31144,
+  "provider_output_tokens": 1160,
+  "provider_usage_estimated": false,
+  "financial_order_shipment_policy_baseline_preserved": true,
+  "extra_merchant_message_in_v1": true,
+  "full_reload_requires_login": true,
+  "sse_transport_reconnect_passed": true,
+  "normal_viewport": "1440x1000",
+  "semantic_quality_unresolved": [
+    "policy_relevance_and_coverage",
+    "guide_existing_ticket_branch",
+    "duplicate_navigation"
+  ],
+  "timings": [
+    {
+      "original_turn": 1,
+      "run_id": "fb1dab46-a6d2-4d50-8aa2-0e1ba2f3b09c",
+      "model_calls": 3,
+      "browser_first_body_ms": 4694,
+      "browser_completed_ms": 5488,
+      "server_first_delta_from_accept_ms": 4743.649,
+      "server_commit_from_accept_ms": 5420.85,
+      "server_claim_from_accept_ms": 71.651
+    },
+    {
+      "original_turn": 2,
+      "run_id": "d204b6d2-fe57-48a5-b5e5-5bd7c116b04f",
+      "model_calls": 4,
+      "browser_first_body_ms": null,
+      "browser_completed_ms": null,
+      "server_first_delta_from_accept_ms": 5199.911,
+      "server_commit_from_accept_ms": 7322.672,
+      "server_claim_from_accept_ms": 33.468
+    },
+    {
+      "original_turn": 3,
+      "run_id": "599fed27-a4ca-439b-aa06-b02b4aac9a60",
+      "model_calls": 3,
+      "browser_first_body_ms": 4079,
+      "browser_completed_ms": 4872,
+      "server_first_delta_from_accept_ms": 4002.104,
+      "server_commit_from_accept_ms": 4914.85,
+      "server_claim_from_accept_ms": 49.689
+    }
+  ],
+  "files": {
+    "reports/chat-stream-live-v1/browser.json": "773873a506ee3f0bef9b733470baf78c5487d7be9b90c1afe37ff9963b413ce1",
+    "reports/chat-stream-live-v1/plan.json": "158430832d6dfd5c7704e580a32d361e72dbb151c0e3b31a518578326d2b9ce6",
+    "reports/chat-stream-live-v1/runtime-results.json": "3d8d3c6987212256bdbe77204ce41073201cb8e0fb6efd0cd426d7252741f3d4",
+    "reports/chat-stream-live-v1/turn-1-final.png": "4f9fa2524a5dc17a5b5676d14be9d4b35bc948b9b653cb2bf89e744bd8d541ed",
+    "reports/chat-stream-live-v2/browser.json": "a5021f0f56e03cf709b1c363f23fa83643509017694c693fa867a3ea340f5b1b",
+    "reports/chat-stream-live-v2/plan.json": "e79a4d098981346d044f55b187245323c9902d6b3225a3e1163baf58ceebd9e8",
+    "reports/chat-stream-live-v2/runtime-results.json": "804d641bedae2d3845ab84c29e6a040d2fbc0c8945d7cf2c3f168800ad4b017d",
+    "reports/chat-stream-live-v2/turn-1-final.png": "87aeff86387cb5dfcea87071cf04b703a4a5389ab3a46e24ba9020b60f79ed1a",
+    "reports/chat-stream-live-v2/turn-1-stream.png": "4f258d83201ba9031a9249215a71b0194c8a35f54e1eec6cc7a1e5c2b4ea3d3c",
+    "reports/chat-stream-live-v3/backend-events.json": "258e08c024eb4e871ef7ea8b43299dd9f7c06b3242e194a4c67dbaa8c481999e",
+    "reports/chat-stream-live-v3/browser.json": "ad8aaed700b45c971065167cf75c06cd097c2c76072a0732811ac3a459c034b0",
+    "reports/chat-stream-live-v3/plan.json": "a047cb66e59cf92fae77f8807359803c135992b944bb08bcee2148aedf432cc9",
+    "reports/chat-stream-live-v3/restored-policy.png": "1dcc331d3729f24771130e34e1c8a2627085cbf6c18f2df4fb7783d0b3aa7c00",
+    "reports/chat-stream-live-v3/runtime-results.json": "a73b061fdb15e8c48fa7a2f64031b337591883a396bba601c10134a083e2d5b9",
+    "reports/chat-stream-live-v3/turn-1-final.png": "6b727bc280f11e6a44310e26596653c0483cdf96a3af885a6a8a5fee0f8e8682",
+    "reports/chat-stream-live-v3/turn-1-stream.png": "bd9bc1c4b5275fad2902cdebf0f3c7d7c1685e6affa98a4d364fe7beb4a27a32"
+  }
+}

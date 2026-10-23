@@ -10,3 +10,5 @@
 [browser.json](browser.json)、[runtime-results.json](runtime-results.json)保持原文；已有输入不得重发刷分。后续v3重新登录只读确认第二轮已保存答复，只发送剩余第三条更正，并以真实fetch AbortController断开SSE验证同登录会话内的网络续接。v3新before快照和独立计划绑定本报告原结果SHA，不重算前两轮模型。
 
 完整页面刷新需重新登录是当前已知体验限制，不能把SSE游标恢复说成已实现登录会话持久化。第一轮只是单样本耗时，未做30次p50/p95验收。
+
+剩余第三条已单次完成，无重发前两条；完整结果/用量/内容复核见[v3汇总](../chat-stream-live-v3/README.md)。
