@@ -17,7 +17,7 @@ from tests.unit.test_support_agent import request
 def test_guide_is_versioned_source_bound_and_not_refund_policy():
     source = guide_source()
     assert source["source_type"] == "KNOWLEDGE"
-    assert source["version"] == "2026.10.22-v2"
+    assert source["version"] == "2026.10.23-v3"
     assert source["data"]["authority"] == "APPLICATION_GUIDE"
     assert "policy_manifest" not in source["data"] and "rule_id" not in source["data"]
     assert len(source["data"]["sections"]) == 10
@@ -58,7 +58,7 @@ def test_agent_reads_guide_on_demand_without_policy_index_or_business_fact_reads
     assert len(result["answer"]["citations"][0]["data"]["sections"]) == 10
     assert result["spend"]["local_reads"] == 1
     assert all(path.endswith("/current") for path in seen)
-    assert model.packets[-1]["observations"][0]["version"] == "2026.10.22-v2"
+    assert model.packets[-1]["observations"][0]["version"] == "2026.10.23-v3"
     assert "sections" not in model.packets[-1]["observations"][0]["data"]
 
 

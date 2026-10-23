@@ -21,7 +21,7 @@ def test_review_and_refund_steps_are_generated_separately_from_current_guide():
     rendered = render_navigation(original, {'O1': guide_source()}, strict=True)
     text = rendered.parts[0].text
     assert '人工核查：打开“售后咨询”' in text
-    assert '正式退款：打开“我的售后”' in text
+    assert '正式退款：在当前会话点击“申请退款”' in text
     assert '预览并编辑' in text and '确认后' in text
     assert '不会自动提交退款申请' in text
     assert rendered.parts[0].citations == ['O1']
@@ -91,7 +91,7 @@ def test_ordinary_review_explanation_is_allowed_without_free_page_routes():
     rendered = render_navigation(decision(['REFUND_APPLICATION'], text=text),
                                  {'O1': guide_source()}, strict=True)
     assert rendered.parts[0].text.startswith(text)
-    assert '正式退款：打开“我的售后”' in rendered.parts[0].text
+    assert '正式退款：在当前会话点击“申请退款”' in rendered.parts[0].text
 
 
 def test_missing_navigation_source_feedback_requires_real_read_before_resubmission():
@@ -204,6 +204,14 @@ def test_saved_live_handoff_is_rendered_for_its_actual_existing_ticket():
                  if c['kind'] == 'model' and c['response_json']['decision']['kind'] == 'ANSWER_PARTS')
     state = run['run']['input_json']['context']['conversation_state']
     citations = {source['source_id']: source for source in run['run']['result_json']['answer']['citations']}
+    from resolveflow.support.navigation import NavigationSourceError
+
+    with pytest.raises(NavigationSourceError):
+        render_navigation(AnswerParts.model_validate(reply), citations, strict=True,
+                          required={'t3': 'MERCHANT_REVIEW'}, conversation_state=state)
+    # Reuse saved model text with explicitly fresh guide evidence; never relabel the frozen run.
+    citations = {key: guide_source() if value['source_type'] == 'KNOWLEDGE' else value
+                 for key, value in citations.items()}
     rendered = render_navigation(AnswerParts.model_validate(reply), citations, strict=True,
         required={'t3': 'MERCHANT_REVIEW'}, conversation_state=state)
     text = rendered.parts[0].text

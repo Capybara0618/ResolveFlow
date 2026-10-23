@@ -140,7 +140,7 @@ class SupportRuntime:
                     "grounding.py",
                     "navigation.py",
                     "../harness/token_counting.py",
-                    "../assets/support-guide-v2.json",
+                    "../assets/support-guide-v3.json",
                     "../policies/retrieval.py",
                     "../policies/index.py",
                     "../policies/child_index.py",

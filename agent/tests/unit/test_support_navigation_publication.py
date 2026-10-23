@@ -12,6 +12,9 @@ from tests.unit.test_support_staged import staged, understand
 
 
 @pytest.mark.parametrize('actions,text', [
+    (['REFUND_APPLICATION'], '正式退款可在售后咨询核对后提交。'),
+    (['REFUND_APPLICATION'], '正式退款到售后咨询提交。'),
+    (['MERCHANT_REVIEW', 'REFUND_APPLICATION'], '在售后咨询中提交退款申请。'),
     (['REFUND_APPLICATION'], '正式退款申请请到“我的售后”选择对应商品，不会替您提交。'),
     (['MERCHANT_REVIEW'], '在售后咨询中选择商品，点击“请商家核查”，确认后转交。'),
     (['MERCHANT_REVIEW'], '在售后咨询中选择商品核查，不会自动提交退款申请。'),
@@ -28,11 +31,9 @@ def test_matching_page_mentions_are_published_without_rewriting_explanation(acti
 
 @pytest.mark.parametrize('actions,text', [
     (['MERCHANT_REVIEW'], '打开我的售后，请商家核查。'),
-    (['REFUND_APPLICATION'], '正式退款到售后咨询提交。'),
     ([], '打开我的售后申请。'),
     (['MERCHANT_REVIEW', 'REFUND_APPLICATION'], '在我的售后点击请商家核查。'),
     (['MERCHANT_REVIEW', 'REFUND_APPLICATION'], '到“我的售后”页面选择“请商家核查”。'),
-    (['MERCHANT_REVIEW', 'REFUND_APPLICATION'], '在售后咨询中提交退款申请。'),
 ])
 def test_pages_need_matching_steps_and_direct_crossed_routes_remain_rejected(actions, text):
     from resolveflow.support.navigation import NavigationError, render_navigation
