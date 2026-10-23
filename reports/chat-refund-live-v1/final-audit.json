@@ -1,0 +1,26 @@
+{
+  "pending": {
+    "agent_run": [],
+    "support_agent_run": []
+  },
+  "indexes_unchanged": true,
+  "new_support_runs": 2,
+  "ledger": 2076,
+  "runtime": "all normal services healthy; owned Python restarted after 5b6e952; no new model messages",
+  "protected_sha256": {
+    "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+    "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+    "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a",
+    "evals/customer-agent-publication-v2/manifest.json": "b28b708ac5d18d62965424a4e537000b519129b769880095da5ec573bc38f814",
+    "reports/chat-refund-stream-s3/provider-probe.json": "3f7c0fe684d5a138206d57f29d54122279576c77deab5dc37cea596075451d35",
+    "reports/customer-policy-focus-live-v1/runtime-results.json": "17ef3b3edb7739aba503e54a7d75e6d45ae070e6ff25e1a1946a0226a9163bd0"
+  },
+  "initial_frozen_unchanged": {
+    "reports/chat-refund-live-v1/plan.json": true,
+    "reports/chat-refund-live-v1/browser.json": true,
+    "reports/chat-refund-live-v1/runtime-results.json": true,
+    "scripts/accept_chat_refund_live_v1.py": true,
+    "scripts/check_chat_refund_live_v1.cjs": true
+  }
+}

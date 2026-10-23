@@ -1,0 +1,370 @@
+{
+  "success": false,
+  "automatic_summary_retested": false,
+  "ledger_before": 2070,
+  "browser_exit_code": 1,
+  "general_runs": [
+    {
+      "run_id": "9456f524-f440-54c6-9296-4a9a98348f12",
+      "case_id": "0fadd26d-6f92-4422-8866-d71ec013af02",
+      "input_revision": 1,
+      "parent_run_id": null,
+      "merchant_id": "M-1001",
+      "customer_id": "C-9b18b1d1c0ffcdf384bbc7b843977700f32b816e",
+      "order_id": "9018d3ff-48ba-41fa-898d-bcd1042d5fa0",
+      "line_id": "SHOP-d2c9e5ee-9c32-4177-aa18-6c124fe4482c",
+      "request_hash": "8ef48437e4aa204f327b655003090628958420f3e7033170a5b630d2068a70b9",
+      "request_description": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+      "requested_actions": [
+        "REFUND"
+      ],
+      "evidence_refs": [],
+      "policy_manifest": {
+        "bundle_ids": [
+          "policy-foundation-m1001-2026.10"
+        ],
+        "merchant_id": "M-1001",
+        "safety_epoch": 3,
+        "manifest_hash": "27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a"
+      },
+      "traceparent": "00-a25526363fc6470fa3f11d9d72b25960-84da7c96fa5b47c3-01",
+      "status": "FAILED",
+      "version": 15,
+      "result_summary": null,
+      "deadline_at": "2026-10-23 15:04:15.221185+00:00",
+      "active_deadline_at": "2026-10-23 14:56:16.719279+00:00",
+      "lease_owner": "worker-aec3900a-91e3-4ddb-a92c-d3adcb636ac3",
+      "lease_until": "2026-10-23 14:54:56.032544+00:00",
+      "fence": 1,
+      "budget_spent": {
+        "local_reads": 1,
+        "model_calls": 6,
+        "input_tokens": 9545,
+        "output_tokens": 766,
+        "tool_attempts": 4,
+        "no_progress_rounds": 0
+      },
+      "created_at": "2026-10-23 14:54:15.678680+00:00",
+      "updated_at": "2026-10-23 14:54:33.197767+00:00",
+      "cancelled_at": null,
+      "review_context": {},
+      "model_retry_after": null
+    }
+  ],
+  "model_attempt_records": [
+    {
+      "run_id": "9456f524-f440-54c6-9296-4a9a98348f12",
+      "call_id": "model-0",
+      "attempt_no": 0,
+      "reserved_fence": 1,
+      "reserved_input": 1199,
+      "reserved_output": 1024,
+      "state": "SAVED",
+      "response": {
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 841,
+          "output_tokens": 108
+        },
+        "origin": "MODEL",
+        "decision": {
+          "kind": "READ_TOOL",
+          "arguments": {},
+          "tool_name": "get_order_context"
+        },
+        "model_alias": "deepseek-flash",
+        "control_reason": null
+      },
+      "saved_at": "2026-10-23 14:54:18.970337+00:00",
+      "stop_reason": null,
+      "created_at": "2026-10-23 14:54:17.143702+00:00",
+      "failure_code": null,
+      "retry_after_at": null
+    },
+    {
+      "run_id": "9456f524-f440-54c6-9296-4a9a98348f12",
+      "call_id": "model-1",
+      "attempt_no": 0,
+      "reserved_fence": 1,
+      "reserved_input": 1643,
+      "reserved_output": 1024,
+      "state": "SAVED",
+      "response": {
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1253,
+          "output_tokens": 21
+        },
+        "origin": "MODEL",
+        "decision": {
+          "kind": "READ_TOOL",
+          "arguments": {},
+          "tool_name": "get_shipment_trace"
+        },
+        "model_alias": "deepseek-flash",
+        "control_reason": null
+      },
+      "saved_at": "2026-10-23 14:54:22.528109+00:00",
+      "stop_reason": null,
+      "created_at": "2026-10-23 14:54:21.134955+00:00",
+      "failure_code": null,
+      "retry_after_at": null
+    },
+    {
+      "run_id": "9456f524-f440-54c6-9296-4a9a98348f12",
+      "call_id": "model-2",
+      "attempt_no": 0,
+      "reserved_fence": 1,
+      "reserved_input": 2010,
+      "reserved_output": 1024,
+      "state": "SAVED",
+      "response": {
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1573,
+          "output_tokens": 31
+        },
+        "origin": "MODEL",
+        "decision": {
+          "kind": "SEARCH_POLICY",
+          "query": "承运商确认丢失 未收到商品 退款 条件",
+          "arguments": {
+            "top_k": 3
+          }
+        },
+        "model_alias": "deepseek-flash",
+        "control_reason": null
+      },
+      "saved_at": "2026-10-23 14:54:25.135340+00:00",
+      "stop_reason": null,
+      "created_at": "2026-10-23 14:54:24.464610+00:00",
+      "failure_code": null,
+      "retry_after_at": null
+    },
+    {
+      "run_id": "9456f524-f440-54c6-9296-4a9a98348f12",
+      "call_id": "model-3",
+      "attempt_no": 0,
+      "reserved_fence": 1,
+      "reserved_input": 2401,
+      "reserved_output": 1024,
+      "state": "SAVED",
+      "response": {
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1912,
+          "output_tokens": 267
+        },
+        "origin": "MODEL",
+        "decision": {
+          "kind": "PROPOSE",
+          "summary": "订单已付款32900分，承运商结论为LOST且无有效签收记录，符合R-LOST-001，建议按该订单行全部实付金额退款；请商家审批并完成人工核验。",
+          "case_type": "LOGISTICS",
+          "policy_refs": [
+            "P1"
+          ],
+          "reason_codes": [
+            "POLICY_CONDITIONS_MET"
+          ],
+          "evidence_refs": [
+            "O1",
+            "O2"
+          ],
+          "review_findings": [
+            {
+              "kind": "FACT",
+              "text": "订单实付32900分（CNY），数量1，履约状态LOST，退款金额0，行退款状态FREE。",
+              "observation_ids": [
+                "O1"
+              ]
+            },
+            {
+              "kind": "FACT",
+              "text": "承运商轨迹结论为LOST，状态LOST，事件含ORDER_PAID、SIMULATED_SHIPPED、LOST。",
+              "observation_ids": [
+                "O2"
+              ]
+            },
+            {
+              "kind": "INFERENCE",
+              "text": "R-LOST-001要求承运商结论LOST且无有效签收记录，经人工核验可按该订单行全部数量实付金额退款；本案承运结论LOST且无签收记录，符合条件。",
+              "observation_ids": [
+                "O1",
+                "O2"
+              ]
+            }
+          ],
+          "recommended_action": "REFUND"
+        },
+        "model_alias": "deepseek-flash",
+        "control_reason": null
+      },
+      "saved_at": "2026-10-23 14:54:26.965198+00:00",
+      "stop_reason": null,
+      "created_at": "2026-10-23 14:54:25.273321+00:00",
+      "failure_code": null,
+      "retry_after_at": null
+    },
+    {
+      "run_id": "9456f524-f440-54c6-9296-4a9a98348f12",
+      "call_id": "model-4",
+      "attempt_no": 0,
+      "reserved_fence": 1,
+      "reserved_input": 2505,
+      "reserved_output": 1024,
+      "state": "SAVED",
+      "response": {
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2016,
+          "output_tokens": 38
+        },
+        "origin": "MODEL",
+        "decision": {
+          "kind": "READ_TOOL",
+          "arguments": {},
+          "tool_name": "get_case_evidence"
+        },
+        "model_alias": "deepseek-flash",
+        "control_reason": null
+      },
+      "saved_at": "2026-10-23 14:54:27.855578+00:00",
+      "stop_reason": null,
+      "created_at": "2026-10-23 14:54:27.013016+00:00",
+      "failure_code": null,
+      "retry_after_at": null
+    },
+    {
+      "run_id": "9456f524-f440-54c6-9296-4a9a98348f12",
+      "call_id": "model-5",
+      "attempt_no": 0,
+      "reserved_fence": 1,
+      "reserved_input": 2426,
+      "reserved_output": 1024,
+      "state": "SAVED",
+      "response": {
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1950,
+          "output_tokens": 301
+        },
+        "origin": "MODEL",
+        "decision": {
+          "kind": "PROPOSE",
+          "summary": "依据O1订单已付32900分且履约状态LOST、O2承运商结论LOST，符合P1 R-LOST-001（承运LOST且无有效签收记录，经人工核验可按该订单行全部数量实付金额退款）。建议退还该订单行全部实付款32900分；商家审批时请复核承运LOST结论与无签收记录，如对核验有疑义可转人工。",
+          "case_type": "LOGISTICS",
+          "policy_refs": [
+            "P1"
+          ],
+          "reason_codes": [
+            "POLICY_CONDITIONS_MET"
+          ],
+          "evidence_refs": [
+            "O1",
+            "O2"
+          ],
+          "review_findings": [
+            {
+              "kind": "FACT",
+              "text": "订单已支付32900分（CNY），退款金额0，订单行退款状态FREE，履约状态LOST（版本3）。",
+              "observation_ids": [
+                "O1"
+              ]
+            },
+            {
+              "kind": "FACT",
+              "text": "承运商轨迹结论为LOST，物流状态LOST。",
+              "observation_ids": [
+                "O2"
+              ]
+            },
+            {
+              "kind": "INFERENCE",
+              "text": "R-LOST-001要求承运商结论LOST且无有效签收记录，经人工核验可按该订单行全部数量实付金额退款；本案承运结论LOST，订单无签收记录，符合退款条件。",
+              "observation_ids": [
+                "O1",
+                "O2"
+              ]
+            }
+          ],
+          "recommended_action": "REFUND"
+        },
+        "model_alias": "deepseek-flash",
+        "control_reason": null
+      },
+      "saved_at": "2026-10-23 14:54:32.916500+00:00",
+      "stop_reason": null,
+      "created_at": "2026-10-23 14:54:30.618553+00:00",
+      "failure_code": null,
+      "retry_after_at": null
+    }
+  ],
+  "new_support_runs": [],
+  "support_model_calls": [],
+  "model_attempts": 6,
+  "ledger_after": 2076,
+  "input_tokens": 9545,
+  "output_tokens": 766,
+  "unknown_usage": 0,
+  "estimated": false,
+  "pending_at_accounting": [],
+  "preservation": {
+    "cases": {
+      "unchanged": true,
+      "sha256_before": "f7c1b751c906b06f088e0127f2f64a9daef726459ba3921107a606efaba3ad62",
+      "sha256_after": "f7c1b751c906b06f088e0127f2f64a9daef726459ba3921107a606efaba3ad62"
+    },
+    "owners": {
+      "unchanged": true,
+      "sha256_before": "b39efe212344d771e6cc7cff5ca6d56e85c5a802f395b2b837613c90db5aca49",
+      "sha256_after": "b39efe212344d771e6cc7cff5ca6d56e85c5a802f395b2b837613c90db5aca49"
+    },
+    "pins": {
+      "unchanged": true,
+      "sha256_before": "4f94864efe8b629e3ea6b3ee7dca9a217566a41ec38d8cc1f9f96ecec27179c0",
+      "sha256_after": "4f94864efe8b629e3ea6b3ee7dca9a217566a41ec38d8cc1f9f96ecec27179c0"
+    },
+    "policies": {
+      "unchanged": true,
+      "sha256_before": "bbd2084ed6a0679eb4e0017db7fdadbda23af1d04a9a625a2af4b4015cbe5081",
+      "sha256_after": "bbd2084ed6a0679eb4e0017db7fdadbda23af1d04a9a625a2af4b4015cbe5081"
+    },
+    "authorizations": {
+      "unchanged": true,
+      "sha256_before": "046a18c56116eec32d82ee41c5a37a197310ef670b10107a799605f3958aaec2",
+      "sha256_after": "046a18c56116eec32d82ee41c5a37a197310ef670b10107a799605f3958aaec2"
+    },
+    "operations": {
+      "unchanged": true,
+      "sha256_before": "0f486c1e7c2a63879ef4fb9358de595e385706ed6d0c34cf23146d194be05a12",
+      "sha256_after": "0f486c1e7c2a63879ef4fb9358de595e385706ed6d0c34cf23146d194be05a12"
+    },
+    "payments": {
+      "unchanged": true,
+      "sha256_before": "701b794196f38d32d92a4e0cd1a97308612cc62a9141422f27b88ed54130ca54",
+      "sha256_after": "701b794196f38d32d92a4e0cd1a97308612cc62a9141422f27b88ed54130ca54"
+    },
+    "runs": {
+      "unchanged": true,
+      "sha256_before": "f49e118324838e98530356cfd0ada836ba57bbfad71324cbe2f2db82fa1a4db9",
+      "sha256_after": "f49e118324838e98530356cfd0ada836ba57bbfad71324cbe2f2db82fa1a4db9"
+    },
+    "support_runs_including_original_failure": {
+      "unchanged": true
+    }
+  },
+  "payment_ledger": [
+    [
+      "32900",
+      "0",
+      "0"
+    ]
+  ],
+  "refund_operations": []
+}
