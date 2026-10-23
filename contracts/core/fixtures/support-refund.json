@@ -1,0 +1,25 @@
+{
+  "Prepare": {
+    "expected_version": 1,
+    "reason": "未收到商品，请核查后退款。"
+  },
+  "Edit": {
+    "revision": 1,
+    "reason": "已联系家人确认未收到商品。"
+  },
+  "Revision": {
+    "revision": 1
+  },
+  "Draft": {
+    "draft_id": "f6e47fc0-c7a4-4ca4-8799-6c3ba9d47890",
+    "revision": 1,
+    "expected_version": 1,
+    "status": "DRAFT",
+    "reason": "未收到商品，请核查后退款。",
+    "quantity": 1,
+    "amount_minor": 32900,
+    "currency": "CNY",
+    "expires_at": "2026-10-23T10:30:00Z",
+    "case_id": null
+  }
+}

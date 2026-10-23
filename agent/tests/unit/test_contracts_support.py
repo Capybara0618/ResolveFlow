@@ -30,11 +30,11 @@ def test_support_writes_refuse_invalid_versions_and_user_authority(name):
         assert not validator.accepts({**FIXTURES[name], field: 'forged'})
 
 
-def test_support_routes_are_authenticated_and_keyed_with_no_refund_operation():
+def test_support_routes_are_authenticated_and_keyed_with_no_refund_execution():
     doc = load_openapi('case', 'contracts/core')
     paths = {p: item for p, item in doc['paths'].items() if p.startswith('/api/v1/support/')}
-    assert len(paths) == 9
-    assert sum(len(item) for item in paths.values()) == 10
+    assert len(paths) == 13
+    assert sum(len(item) for item in paths.values()) == 14
     for path, item in paths.items():
         for method, operation in item.items():
             assert operation['security'] == [{'bearerAuth': []}]
@@ -47,7 +47,7 @@ def test_support_routes_are_authenticated_and_keyed_with_no_refund_operation():
                 assert {'400', '401', '403', '404', '409', '503'} <= operation['responses'].keys()
             if method == 'post' and path != '/api/v1/support/conversations':
                 assert any(p['name'] == 'Idempotency-Key' and p['required'] for p in operation['parameters'])
-    assert all('refund' not in path for path in paths)
+    assert all('execute' not in path and 'approve' not in path for path in paths)
 
 
 def test_private_stream_envelope_matches_shared_fixture_and_has_no_write_authority():
