@@ -90,7 +90,8 @@ def execute():
             try:
                 # The bundled runtime is under the user profile, independent of system Node.
                 runtime = Path.home() / '.cache/codex-runtimes/codex-primary-runtime/dependencies/node'
-                env = {**os.environ, 'NODE_PATH': str(runtime / 'node_modules')}
+                env = {**os.environ, 'NODE_PATH': str(runtime / 'node_modules'),
+                       'SUPPORT_STREAM_ACCEPTANCE_DIR': str(OUT)}
                 result = subprocess.run([str(runtime / 'bin/node.exe'), 'scripts/check_support_stream_live_v1.cjs'],
                                         cwd=ROOT, env=env, timeout=300, check=False)
                 report['browser_exit_code'] = result.returncode
@@ -129,5 +130,9 @@ def execute():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=['prepare', 'execute'])
+    parser.add_argument('--directory', type=Path, default=OUT)
     args = parser.parse_args()
+    OUT = args.directory.resolve()
+    assert OUT.parent == ROOT / 'reports' and OUT.name.startswith('chat-stream-live-v')
+    PRIVATE = ROOT / 'tmp' / OUT.name
     prepare() if args.command == 'prepare' else execute()

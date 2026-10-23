@@ -1,0 +1,69 @@
+{
+  "plan_sha256": "158430832d6dfd5c7704e580a32d361e72dbb151c0e3b31a518578326d2b9ce6",
+  "success": false,
+  "ledger_before": 2012,
+  "browser_exit_code": 1,
+  "runs": [],
+  "model_attempts": 0,
+  "unknown_model_results": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "estimated": false,
+  "general_model_attempts_delta": 0,
+  "ledger_after": 2012,
+  "preservation": {
+    "case_db.aftersale_case": {
+      "count": 5,
+      "sha256": "36d3418c1f750d309c89d23a3899100736f62e9ca119fe0b15c479c27f07b646"
+    },
+    "case_db.case_authorization": {
+      "count": 4,
+      "sha256": "8c660a2db76771c23bb3558600f7fcc819be41e6457c5c11b1cf29398b25b32f"
+    },
+    "case_db.active_case_slot": {
+      "count": 5,
+      "sha256": "f5f2e52036b1540b10a159322e4266b6304c8d7ee37e348253dfeed6824bfceb"
+    },
+    "commerce_db.orders": {
+      "count": 12,
+      "sha256": "fecf09d5587a2b9af436c6957df3a5b72f48cd57e62698da39e1c4561d8f53a4"
+    },
+    "commerce_db.order_line": {
+      "count": 12,
+      "sha256": "308762c401d79129f5617998a7cfbbe7a15cf5ced582e45c6d9da58b330c1aa8"
+    },
+    "commerce_db.payment_ledger": {
+      "count": 12,
+      "sha256": "701b794196f38d32d92a4e0cd1a97308612cc62a9141422f27b88ed54130ca54"
+    },
+    "commerce_db.line_refund": {
+      "count": 12,
+      "sha256": "d4a842986165f4b3a71249afcd41b6806091ee92e0ee6401f1c963d4c44fad5c"
+    },
+    "commerce_db.refund_operation": {
+      "count": 4,
+      "sha256": "9db7de78de884e9fdad832cd241eaa7c22c0c50481dd7a059a4b1216a2ac6a3c"
+    },
+    "commerce_db.order_fulfillment": {
+      "count": 12,
+      "sha256": "605977263d63c2d65a78b063fa3d77494c8742def4cfd2c446887772008ea203"
+    },
+    "commerce_db.shipment": {
+      "count": 12,
+      "sha256": "0f6a710ebfee1eff4d679e5a28341cac25ae16c554d0cda2fbf887e992f43f3e"
+    },
+    "commerce_db.shipment_event": {
+      "count": 25,
+      "sha256": "3c2a1fa7419c527f55ec45eb6344a83e35d88356963ee8bd38fcd44082397326"
+    },
+    "agent_db.agent_run": {
+      "count": 5,
+      "sha256": "0192897fcd721002d3ad07281852be6bf3a79629799a8da61e935b3cb5979a90"
+    },
+    "agent_db.policy_index_generation": {
+      "count": 30,
+      "sha256": "a4275a5fcf79a8ca9e3f6c2472a501379de8fce8a485b219d61b337e0f03dacd"
+    }
+  },
+  "business_unchanged": true
+}

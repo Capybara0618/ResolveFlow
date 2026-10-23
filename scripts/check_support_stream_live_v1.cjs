@@ -2,13 +2,13 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 const assert = require('assert/strict');
-const directory = 'reports/chat-stream-live-v1';
+const directory = process.env.SUPPORT_STREAM_ACCEPTANCE_DIR || 'reports/chat-stream-live-v1';
 const plan = JSON.parse(fs.readFileSync(`${directory}/plan.json`, 'utf8'));
 const output = `${directory}/browser.json`;
 assert(!fs.existsSync(output), 'Do not overwrite an earlier attempt');
-const observations = [], writes = [], errors = [], turns = [];
+const observations = [], writes = [], errors = [], turns = [], httpErrors = [];
 let active = null;
-const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations, writes, errors }, null, 2) + '\n');
+const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations, writes, errors, httpErrors }, null, 2) + '\n');
 (async () => {
   const browser = await chromium.launch({ headless: true, channel: 'msedge' });
   try {
@@ -61,6 +61,10 @@ const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations
       const path = new URL(request.url()).pathname;
       if (path.startsWith('/api/') && request.method() !== 'GET') writes.push({ path, method: request.method() });
     });
+    page.on('response', response => {
+      const path = new URL(response.url()).pathname;
+      if (path.startsWith('/api/') && response.status() >= 400) httpErrors.push({ path, status: response.status() });
+    });
     await page.goto('http://127.0.0.1:5174/#/login');
     await page.locator('[name=username]').fill('buyer01');
     await page.locator('[name=password]').fill(process.env.RESOLVEFLOW_DEMO_PASSWORD || '123456');
@@ -69,6 +73,8 @@ const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations
     const select = async () => {
       await page.locator(`[data-conversation][data-line-id="${plan.line_id}"]`).click();
       await page.getByLabel('咨询消息', { exact: true }).waitFor();
+      const assistant = page.getByRole('button', { name: '询问智能助手', exact: true });
+      if (await assistant.count()) await assistant.click();
     };
     await select();
     for (const [index, text] of plan.turns.entries()) {
@@ -98,6 +104,7 @@ const save = () => fs.writeFileSync(output, JSON.stringify({ turns, observations
           active.generation_removed = await page.locator('[data-generation]').count() === 0;
           break;
         }
+        assert.equal(httpErrors.length, 0, 'HTTP command failed: ' + JSON.stringify(httpErrors));
         await page.waitForTimeout(40);
       }
       active.terminal_visible = active.completed_ms !== undefined;
