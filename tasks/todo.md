@@ -1,3 +1,9 @@
+## 当前快照（2026-10-23，纠正记忆收口：六轮不同表达真实验证准备完成）
+
+- 工程57d3ab8已普通push核实。按[本批方案](../docs/customer-agent-correction-v1.md)固定C01四轮连续纠正/暂停恢复、C02混合物流政策、C03独立人工咨询，共6轮，只用staged-v1，不为原失败刷分。新场景/标准与当前源码/执行器/权重已冻结evals/customer-agent-correction-v1/manifest.json，真实LLM/本地RAG/ASGI隔离PG，Commerce/Case事实为固定合成，不启动Java/网页，不写旧会话。
+- 新准备单元及实际隔离PG4通过（4.04秒），覆盖新身份、标准不入模型、manifest损坏拒绝、失败更新继承/零伪造回答、执行器异常恢复和0调用持久恢复；Ruff通过。`scripts/customer_agent_correction_v1.py --check --database --output tmp/customer-agent-correction-v1/preflight.json`通过，原public11表hash/六文件hash独立预检保存，自有schema空。usage1927起，尚未新增真实请求。
+- 本准备小步独立提交普通push核实后仅执行一次六轮，完整归档调用/来源/实际语义与失败；结束停本批PG保留原卷，旧服务保持用户停止状态。
+
 ## 当前快照（2026-10-23，纠正记忆收口：独立事实与明确替代提示完成）
 
 - 用户批准按[纠正与稳定性方案](../docs/customer-agent-correction-v1.md)实施，唯一执行者核对main=origin/main=00a4138/fetch0:0、暂存空、原四脏文件/旧资产保持后接管。根因是理解提示优先默认追加、目标id/topic与原句分散、不同可纠正信息被合成大段；程序已有REPLACE校验不等于模型会正确提议。
