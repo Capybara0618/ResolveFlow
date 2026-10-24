@@ -1,6 +1,6 @@
-"""Opt-in provider SSE transport; the SDK still receives one complete ModelReply.
+"""Provider SSE transport; the SDK still receives one complete ModelReply.
 
-Not wired into production yet. ``on_content`` is an internal JSON fragment observer,
+``on_content`` is an internal JSON fragment observer,
 never a browser callback. Only the support projection may turn fragments into a
 provisional view; the ordinary domain validators still own the final answer.
 """
@@ -11,6 +11,7 @@ import codecs
 import json
 import time
 from collections.abc import Callable, Iterator
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -70,6 +71,23 @@ class StreamingLiveModelClient(LiveModelClient):
     stream_transport: httpx.BaseTransport | None = None
     on_content: Callable[[str], None] | None = None
     last_stream: dict[str, Any] | None = field(default=None, init=False)
+    _request_client: httpx.Client | None = field(default=None, init=False, repr=False)
+
+    @contextmanager
+    def request_session(self) -> Iterator[None]:
+        """Reuse connections inside one owned run, and close even on failure or interruption."""
+        if self._request_client is not None:
+            raise ValueError("request session already active for this model instance")
+        with self._new_client() as client:
+            self._request_client = client
+            try:
+                yield
+            finally:
+                self._request_client = None
+
+    def _new_client(self) -> httpx.Client:
+        return httpx.Client(transport=self.stream_transport, timeout=self.timeout_seconds,
+                            follow_redirects=False, trust_env=False)
 
     def _body(self, *, system: str, messages: list[Message], max_output_tokens: int) -> dict[str, Any]:
         if self.transport is not None:
@@ -89,8 +107,8 @@ class StreamingLiveModelClient(LiveModelClient):
                             "content_chars": 0}
         headers = {**headers, "Accept": "text/event-stream"}
         try:
-            with httpx.Client(transport=self.stream_transport, timeout=self.timeout_seconds,
-                              follow_redirects=False, trust_env=False) as client:
+            connection = nullcontext(self._request_client) if self._request_client is not None else self._new_client()
+            with connection as client:
                 with client.stream("POST", self.endpoint, content=payload, headers=headers) as response:
                     if not 200 <= response.status_code < 300:
                         # Preserve the existing refusal/rate-limit classification, with a bounded error body.

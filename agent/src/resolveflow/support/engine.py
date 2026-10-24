@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from contextlib import nullcontext
 from copy import deepcopy
 from dataclasses import asdict, replace
 from typing import Any, cast
@@ -20,6 +21,7 @@ from resolveflow.harness.budget import BudgetExhaustedError, BudgetGuard, RunBud
 from resolveflow.harness.context import canonical_json
 from resolveflow.harness.model import ModelReply, ModelUsage
 from resolveflow.harness.sdk_adapter import AgentScopeModelAdapter, messenger_message, raw_text_message
+from resolveflow.harness.streaming_model import StreamingLiveModelClient
 from resolveflow.harness.token_counting import counter_for
 from resolveflow.support.activity import ReadActivity
 from resolveflow.support.completion import check_completion, requirements
@@ -98,7 +100,8 @@ class SupportAgent:
     def run(self) -> dict[str, Any]:
         reason = None
         try:
-            anyio.run(self._drive)
+            with (self.model.request_session() if isinstance(self.model, StreamingLiveModelClient) else nullcontext()):
+                anyio.run(self._drive)
             if self.final is None:
                 raise SupportFailure("NO_ANSWER")
         except (BudgetExhaustedError, SupportFailure) as error:

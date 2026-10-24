@@ -1,0 +1,15 @@
+{
+  "scope": "HTTP session engineering only",
+  "public_unchanged": true,
+  "temporary_schemas_remaining": 0,
+  "historical_reports_unchanged": 188,
+  "protected_dirty_files_unchanged": true,
+  "requests": 0,
+  "usage_before": 2367,
+  "usage_after": 2367,
+  "unit_contract_passed": 540,
+  "pg_api_stream_recovery_passed": 17,
+  "strict_sources": 2,
+  "ruff_files": 3,
+  "resources": "only owned PG retained for next bounded validation; no Java/Web started"
+}
