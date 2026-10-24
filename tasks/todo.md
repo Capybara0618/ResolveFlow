@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，新事实协议实际被采用；Live整体仍失败，缺项反馈根因已定位）
+
+- 准备d94f7a4已同步，唯一新问句真实执行完：两候选均正确fields-v1/facts，未再遇宏错配；第3步错误指南引用触发一次修正，第4步只补指南，第5步仍缺申请事项ORDER，最终未发布/无草稿。[原始结果与计量](../reports/customer-answer-fact-fields-v1/live-v1/README.md)。
+- 原5动作/2工具经SDK离线复现末次stage_sources ORDER缺项；诊断先整体校验next_steps，错误GUIDE使收集提前中止、漏报ORDER。不是本次事实渲染/资金核验失败。
+- 实际5请求准确14070输入/678输出、0未知，usage2093→2098；原业务/索引/10保护文件SHA保持、无在途/新Case/退款。先精确保存原失败并普通push核实，再离线修复只读拒绝诊断聚合；不删断言/改原raw/增修正或自动再收费。四历史脏文件保持。
+
 ## 当前快照（2026-10-24，事实渲染修复已加载，唯一新样本待执行）
 
 - 74fe23a/2a1e8c0已同步，工程结果见[报告](../reports/customer-answer-fact-fields-v1/README.md)。无在途run后仅重启所属Python，start -SkipBuild -NoBrowser全部健康、原Java/Web/精确索引复用。

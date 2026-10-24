@@ -45,3 +45,7 @@ git diff --check
 新增独立`accept_customer_fact_fields_v1.py`和`check_customer_fact_fields_v1.cjs`，复用原购买/模拟发货/LOST准备与使用账本工具，原驱动/原失败不修改。新驱动只发送1条客服问句，要求实际正式答案/真实SSE；自动摘要生成退款草稿，编辑原因并保存，刷新仍为同草稿，未点击确认/无新Case调查/无退款。保留原全局费用账本和待结束计量、旧业务/索引/文件hash核对。
 
 命令：新Python Ruff/py_compile、新CJS `node --check`通过；首次`ruff format --check`指出新驱动需格式化，已格式化后Ruff/编译/语法检查通过。`python scripts/accept_customer_fact_fields_v1.py prepare`生成一笔新合成订单及会话，[唯一冻结计划](live-v1/plan.json)，0Provider，usage2093。准备/执行互斥文件及禁止覆盖旧输出保持。精确提交普通push核实后执行一次，不失败后重发追分。
+
+## 第四步：真实结果与独立剩余问题
+
+准备d94f7a4已同步后`python scripts/accept_customer_fact_fields_v1.py execute`仅执行一次，**整体失败**。两次真实候选均已使用新事实协议，未再出现facts/宏错配；但第一个提前回答的GUIDE错误使诊断提前中止，漏报同时缺少的ORDER，模型只补指南后仍无法发布。原5动作/2工具离线精确复现末次ORDER缺项。完整原始输出、截图、计量及未运行步骤见[真实报告](live-v1/README.md)。实际5请求14070输入/678输出，usage2093→2098，0未知；原数据/资产保持，无新Case/退款。下一步离线修复诊断聚合，不自动重复收费验证或宣称Agent全部完成。
