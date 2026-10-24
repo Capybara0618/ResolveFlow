@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，独立验收驱动/五合成订单已准备，待四组真实执行）
+
+- 固定policy1/纠正2/暂停2/独立人工1，主链1待四组源审通过后执行；新三脚本Ruff/编译/node语法通过，五新329元LOST订单和独立会话已创建，最终脚本/源码/15保护文件hash冻结。[计划](../reports/customer-agent-orchestration-acceptance-v1/plan.json)、[报告](../reports/customer-agent-orchestration-acceptance-v1/README.md)。
+- 机械检查覆盖合法工具/旧陈述替代/暂停生命周期/草稿STALE及不可直接确认/独立核查共享；源审另外检查回答含义，不仅看SUCCEEDED。主链复用原完整网页确认/同键/商家未核验逻辑，独立新目录、不改旧失败。
+- prepare 0模型，usage2108；默认staged-v1未改，旧四历史脏文件保持。精确commit普通push核实后显式新profile运行四组一次，无收费重试；通过后再主链，未全过不切默认。
+
 ## 当前快照（2026-10-24，用户批准新编排独立验收/确认建单/按证据采用，准备中）
 
 - 按[固定验收合同](../docs/customer-agent-orchestration-acceptance-v1.md)：policy1、纠正2、暂停2、独立人工1及主链1，最多7客服轮/1Case调查。四组输入各执行一次，保留失败，不手填原因替代自动；四组过再确认主链，无退款/审批。
