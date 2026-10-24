@@ -10,6 +10,8 @@
 
 ## 当前实施入口
 
+2026-10-24 客服日常启动采用`orchestrated-v1`：程序维护取证就绪，Agent按观察选工具，目标决定回答合同，程序装配事实/操作并分阶段流式。独立政策/纠正/暂停/人工及聊天确认建单已验证，原人工失败与一次有限修正保留；见[本批报告](reports/customer-agent-orchestration-acceptance-v1/README.md)，单例耗时不作总体指标。
+
 2026-10-22 新授权路线：[后端深化开发方案](docs/backend-deepening-v1.md)、[商城评价桌面预期图](docs/ui-backend-deepening-v1/index.html)。实施顺序为实际查询/Redis、购买后评价和商家回复、交易自动恢复；完成状态仍只看账本顶部。
 
 | 文件 | 用途 |

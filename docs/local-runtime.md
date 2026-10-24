@@ -1,5 +1,7 @@
 # ResolveFlow 本机启动
 
+客服默认运行`orchestrated-v1`，正式启动与status健康检查要求同一版本；独立对话及确认建单验收见[报告](../reports/customer-agent-orchestration-acceptance-v1/README.md)。Case调查仍沿原AgentScope循环，未更换模型或RAG。
+
 在项目根目录打开 PowerShell，先启动 Docker Desktop，然后运行：
 
 ```powershell

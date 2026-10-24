@@ -43,3 +43,9 @@ f94ede7实现已同步；新verify_support_contract_v1.py及recheck/primary两�
 本批总8客服轮（含原人工失败及一条不同措辞确认）+1Case调查、35真实请求81579输入/3697输出、0未知，usage2108→2143。原21请求失败批/后4请求人工成功与UI观察错误/本次10请求均完整保留；不将不同版本汇总成总体成功率或p95。
 
 有效主链问答首DOM5.244秒、完整6.619秒、确认105ms，主要可见等待是理解/串行工具选择及生成；没有实测依据把RAG当主要瓶颈。功能/源审及工程无新增回归满足本批采用门槛，接下来同步正式启动/状态检查为orchestrated-v1，并进行不发模型的最终审计。
+
+## 默认采用与运行入口验证
+
+正式project_runtime以一个SUPPORT_ARCHITECTURE常量同步start/启动后检查/status为orchestrated-v1；README/local-runtime更新当前入口。原兼容profile仍保留，不改历史评测。旧启动预期有意更新为已批准新默认，并新增“HTTP可用但旧profile不能算完整就绪”两边界测试，4红→runtime/API/驱动46过；Ruff/py_compile通过。
+
+无在途后实际执行status.ps1和start.ps1 -SkipBuild -NoBrowser：复用所属当前新profile/原Java/Web，依赖、3 Java、Python、网页、基础政策精确索引全部健康；没有新增模型请求。接下来只读审计旧业务/索引/失败hash与新Case资金状态，不再追加付费或重跑已通过案例。

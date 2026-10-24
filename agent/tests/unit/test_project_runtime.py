@@ -63,7 +63,7 @@ def test_start_includes_live_agent_and_frontend_even_when_backend_is_already_run
     monkeypatch.setattr(project.webbrowser, "open", browser)
     log = Mock()
     assert project.start(current, log, build=True, open_browser=True) == 0
-    agent.assert_called_once_with(current, log, live=True, architecture="staged-v1")
+    agent.assert_called_once_with(current, log, live=True, architecture="orchestrated-v1")
     frontend.assert_called_once_with(current, log)
     browser.assert_called_once_with(current.frontend_url + "/#/shop", new=2)
     assert prepare.call_count == (0 if ready else 1)
@@ -78,6 +78,19 @@ def test_wrong_policy_hash_is_not_reported_as_ready(tmp_path, monkeypatch):
     assert project.policies_ready(current) is False
     monkeypatch.setattr(runtime, "postgres_scalar", lambda *_: "1")
     assert project.policies_ready(current) is True
+
+
+@pytest.mark.parametrize("actual,expected", [("staged-v1", 1), ("orchestrated-v1", 0)])
+def test_status_requires_adopted_support_architecture_even_when_http_is_up(tmp_path, monkeypatch, actual, expected):
+    current = application(tmp_path)
+    monkeypatch.setattr(runtime, "container_health", lambda *_: "healthy")
+    monkeypatch.setattr(runtime, "tcp_open", lambda *_: True)
+    monkeypatch.setattr(runtime, "healthy_and_owned", lambda *_: True)
+    monkeypatch.setattr(runtime, "owns_port", lambda *_: True)
+    monkeypatch.setattr(runtime, "frontend_health", lambda *_: True)
+    monkeypatch.setattr(runtime, "agent_health", lambda *_, architecture: actual == architecture)
+    monkeypatch.setattr(project, "policies_ready", lambda *_: True)
+    assert project.status(current, Mock()) == expected
 
 
 def test_missing_policy_blocks_start_before_live_queue_consumption(tmp_path, monkeypatch):

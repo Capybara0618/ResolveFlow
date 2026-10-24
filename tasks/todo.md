@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，客服新编排已切日常默认并验证正常启动，待最终只读审计）
+
+- c7a49b7主链结果已同步。project_runtime统一常量将start/启动后检查/status切orchestrated-v1，README/local-runtime同步；旧兼容profile/冻结失败保留。
+- 启动/健康边界4红→runtime/API/驱动46过，Ruff/编译过；实际status及start -SkipBuild -NoBrowser所有依赖、3 Java、Python、网页/精确政策索引健康，复用当前所属进程，不新构建或发模型请求。
+- 精确commit普通push核实后只读最终审计：保留旧业务/索引/历史四脏文件/失败raw，本批Case仍PENDING_REVIEW且无授权/退款/在途，账本2143不得再增；本批基础开发收口，不新增付费矩阵或继续追成功问句。
+
 ## 当前快照（2026-10-24，新编排独立场景及确认主链通过，待切日常默认与最终审计）
 
 - 0c1f88d人工确认结果已同步。原定primary客服5模型0修正+Case调查5模型，一次10请求23342输入/1085输出、0未知，usage2133→2143。自动原因/编辑刷新/确认同键同Case/会话进度/商家未核验陈述与VALIDATED MANUAL_REVIEW全过，Case fabd03ac-f159-4b93-8fa6-178f461bf938。[主链](../reports/customer-agent-orchestration-acceptance-v1/recheck-v1/primary/README.md)。
