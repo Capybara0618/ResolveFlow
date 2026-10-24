@@ -29,7 +29,7 @@ from resolveflow.support.grounding import check_amounts, diagnostic_fact_referen
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.navigation import RefundSummaryError, navigation_references, render_navigation
-from resolveflow.support.orchestration import GoalConflict, Orchestration, Response, TurnPlan
+from resolveflow.support.orchestration import FactReadBatch, GoalConflict, Orchestration, Response, TurnPlan
 from resolveflow.support.orchestration_prompts import system_for
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
 from resolveflow.support.recovery import SourceRecovery
@@ -153,6 +153,7 @@ class SupportAgent:
             POLICY_SEARCH_TOOL_NAME,
             "__support_feedback",
             "__support_stage_ready",
+            *(["__support_read_facts"] if self.orchestration is not None else []),
         ]:
             await toolkit.add_tool(_ReadTool(name, self))
         adapter = AgentScopeModelAdapter(self, system="")
@@ -333,6 +334,14 @@ class SupportAgent:
                                                    "arguments": {}})
                 self.stage.guard(reply.decision)
             if self.orchestration is not None:
+                if reply.decision.get("kind") == "READ_FACTS":
+                    batch = FactReadBatch.model_validate(reply.decision)
+                    missing = {need for task in self._readiness()["tasks"] for need in task["missing"]}
+                    if not {"ORDER", "SHIPMENT"} <= missing:
+                        raise ValueError("READ_FACTS仅用于当前事项同时缺少ORDER和SHIPMENT的独立读取")
+                    self.feedback = None
+                    return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_read_facts",
+                                                   "arguments": {"tools": batch.tools}})
                 if reply.decision.get("kind") in {"ANSWER", "ANSWER_PARTS"}:
                     raise ValueError("orchestrated-v1使用RESPOND，不重复输出程序负责的事实/操作")
                 if reply.decision.get("kind") == "RESPOND":
@@ -419,7 +428,7 @@ class SupportAgent:
             if self.orchestration is not None:
                 self.feedback = json.dumps({"code": "INVALID_PROTOCOL", "detail": str(error)[:1800],
                     "orchestration": self._readiness(), "repair_note": (
-                        "理解用TURN_UNDERSTANDING及goal；调查用READ_TOOL/REFINE_NEEDS；"
+                        "理解用TURN_UNDERSTANDING及goal；调查用READ_TOOL/READ_FACTS/REFINE_NEEDS；"
                         "就绪后用RESPOND.parts(task_id/text/citations)，操作原因用refund_reason/handoff_reason；"
                         "不输出next_steps/facts/fact_rendering/refund_summary，仍用实际引用。")}, ensure_ascii=False)
                 return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_feedback",
@@ -458,6 +467,13 @@ class SupportAgent:
             return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_feedback", "arguments": {}})
 
     def execute(self, name: str, arguments: dict[str, Any]) -> Any:
+        if name == "__support_read_facts":
+            if self.orchestration is None or self.stage.understanding is None:
+                raise SupportFailure("STAGE_NOT_READY")
+            batch = FactReadBatch.model_validate({"kind": "READ_FACTS", **arguments})
+            # Ordered child execution preserves the existing journal positions and partial recovery.
+            # This groups one model decision, not the child permissions, budgets, or transactions.
+            return [source for tool in batch.tools for source in self.execute(tool, {})]
         if name == "__support_stage_ready":
             if self.stage.understanding is None:
                 raise SupportFailure("STAGE_NOT_READY")
@@ -558,6 +574,10 @@ class _ReadTool(ToolBase):
         self.name, self.agent = name, agent
         self.description = CAPABILITIES.get(name, {}).get("purpose", "Return current structured repair feedback.")
         self.input_schema = tool_schema(name)
+        if name == "__support_read_facts":
+            self.input_schema = FactReadBatch.model_json_schema()
+            self.input_schema["properties"].pop("kind")
+            self.input_schema["required"].remove("kind")
         self.is_concurrency_safe = False
         self.is_read_only = True
         self.is_external_tool = False

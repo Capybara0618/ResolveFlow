@@ -1,4 +1,10 @@
-## 当前快照（2026-10-24，履约退款政策依据工程修复完成，接续效率分析）
+## 当前快照（2026-10-24，政策依据及只读合并工程完成，待有限真实验收）
+
+- 政策修复6c2e3c1普通push核实；[只读合并说明](../docs/customer-agent-fact-batch-v1.md)/[工程报告](../reports/customer-agent-fact-batch-v1/README.md)：必要ORDER与SHIPMENT同时缺少时，模型可READ_FACTS一次选择两项；原SDK逐项预算/fence/journal/activity，单读仍可用，不改RAG/Java/业务写权限。旧网页6.49秒首正文中四类activity合计0.323秒，其余间隔含模型/SDK等，非纯模型计时。
+- 合并12例5红/7过→43针对/494客服单元合同/14真PG API流式恢复通过；3源码strict及5文件Ruff过。同证据脚本5→4模型请求，业务读取仍2；完整恢复0发送，部分开始前中断复用，已STARTED无结果明确中断，fence改变阻断后项。E52记录成本与边界。
+- 两工程步均0供应商请求、usage2349，旧真实4/5和网页6.49秒不改，旧业务/索引/188报告/原四脏文件保持；未做浏览器/Java/Web/全仓。政策语义完整性、合并真实采用与实际速度仍需一次固定小样本；精确commit普通push后冻结新输入/判据，各题一次，不追加追成功。浏览器刷新及渐进DOM仍未确认。
+
+## 历史快照（2026-10-24，履约退款政策依据工程修复完成，接续效率分析）
 
 - 按用户“开始”接续[本批说明](../docs/customer-refund-policy-readiness-v1.md)，活跃PREPARE_REFUND且needs含SHIPMENT动态要求POLICY，后续REFINE_NEEDS同样适用；沿用相关P引用、来源失败和原预算，提示/合同要求解释前提核验。入口/独立人工/物流查询及撤回不强查政策，不改RAG索引/Java。
 - [工程报告](../reports/customer-refund-policy-readiness-v1/README.md)：新14例8红/6过，48针对/482客服单元合同/10真PG API流式恢复最终通过。原S02/1原样不能发布或流出候选，脚本加政策解释后通过；PG可用/不可用恢复0新发送。旧三条脚本同步新增政策读取/引用/计数，首次失败保留。两源码strict、七文件Ruff；E51记录职责缺口/取舍。

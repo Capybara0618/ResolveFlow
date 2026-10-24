@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-24",
+  "scope": "engineering and preservation only",
+  "public_unchanged": true,
+  "public_after": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 185,
+      "sha256": "3dc55c7bfdf5ea453b84f21bab799e086e41648e229713099f8d7b2f7462f584"
+    },
+    "support_agent_run": {
+      "rows": 32,
+      "sha256": "df8c202e4df84029551ff577444c8fbdf32922aebeb106da2a7e1256f3464493"
+    }
+  },
+  "temporary_schemas_remaining": 0,
+  "historical_reports_unchanged": 188,
+  "protected_dirty_files_unchanged": true,
+  "old_real_results_unchanged": true,
+  "new_provider_requests": 0,
+  "usage_before": 2349,
+  "usage_after": 2349,
+  "unit_contract_passed": 494,
+  "pg_api_stream_recovery_passed": 14,
+  "static_source_files": 3,
+  "ruff_files": 5,
+  "resources": "Only owned reviewer PG remains up for the next authorized bounded acceptance; all other original demo processes remain stopped.",
+  "semantic_quality": "Not remeasured; old4/5 stays unchanged",
+  "quality_scope": "Script request reduction5 to4 only; real adoption and latency not measured."
+}

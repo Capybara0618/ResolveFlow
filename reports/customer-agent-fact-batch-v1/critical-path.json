@@ -1,0 +1,48 @@
+{
+  "source": "reports/customer-agent-summary-live-v1/browser/backend-observations.json",
+  "source_scope": "original real UI single request, not new speed result",
+  "activities": [
+    {
+      "category": "GUIDE",
+      "start_ms": 285.531,
+      "duration_ms": 234.651
+    },
+    {
+      "category": "ORDER",
+      "start_ms": 3123.6389999999997,
+      "duration_ms": 23.098
+    },
+    {
+      "category": "SHIPMENT",
+      "start_ms": 4248.363,
+      "duration_ms": 38.41
+    },
+    {
+      "category": "POLICY",
+      "start_ms": 5441.962,
+      "duration_ms": 26.418
+    }
+  ],
+  "first_body_ms": 6488.443,
+  "recorded_activity_sum_ms": 322.577,
+  "remaining_before_body_ms": 6165.866,
+  "remaining_includes": "model decisions, provider/network/SDK/context/tokenization/journal/scheduling gaps; not a precise provider-only duration",
+  "old_model_steps": [
+    "UNDERSTAND",
+    "ORDER choice",
+    "SHIPMENT choice",
+    "POLICY choice",
+    "RESPOND"
+  ],
+  "new_optional_steps": [
+    "UNDERSTAND",
+    "READ_FACTS choice",
+    "POLICY choice",
+    "RESPOND"
+  ],
+  "synthetic_same_evidence_calls": {
+    "single_reads": 5,
+    "paired_reads": 4
+  },
+  "real_new_latency": "NOT_MEASURED"
+}

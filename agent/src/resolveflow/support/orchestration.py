@@ -88,6 +88,17 @@ class SummaryDraft(Closed):
         return self
 
 
+class FactReadBatch(Closed):
+    kind: Literal["READ_FACTS"]
+    tools: list[Literal["get_order_context", "get_shipment_trace"]] = Field(min_length=2, max_length=2)
+
+    @model_validator(mode="after")
+    def distinct_facts(self) -> FactReadBatch:
+        if len(set(self.tools)) != 2:
+            raise ValueError("READ_FACTS仅选择订单和物流各一次，不接受其他工具、参数或主体")
+        return self
+
+
 class Response(Closed):
     kind: Literal["RESPOND"]
     parts: list[ResponsePart] = Field(min_length=1, max_length=8)

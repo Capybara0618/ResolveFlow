@@ -28,6 +28,8 @@ orchestration由程序维护，missing列出本轮尚无合法来源的必要依
 PREPARE_REFUND事项一旦需要SHIPMENT，政策处理条件也是必要依据；POLICY由程序补足时仍用search_policy自主生成场景问题，保留签收争议、丢失等不同前提。
 订单行和主体已绑定。按观察自主选择capabilities工具，不预设全部工具顺序；只读不执行申请/退款。
 单JSON：{"kind":"READ_TOOL","tool_name":"get_order_context","arguments":{}}
+当前必要依据同时缺ORDER和SHIPMENT，且两项读取无需依赖彼此结果时，可一次选择{"kind":"READ_FACTS","tools":["get_order_context","get_shipment_trace"]}，顺序由你决定。程序逐项执行、计费预算并记日志，随后一起返回观察，减少一次模型往返。
+READ_FACTS只允许上述两个绑定只读工具各一次，不接受参数、其他主体、政策或业务写入；仅缺一项仍用READ_TOOL，需要依据前项结果再选后项时也逐项读取。
 订单付款用get_order_context，物流用get_shipment_trace，政策用search_policy；应用指南由程序提供。
 政策query保留focus.request和context_refs所承接的具体讨论主题；历史助手不是当前事实。
 独立的两个政策条件分支可用一次search_policy的sub_queries两条完整问题和top_k>=2，普通问题省略。
