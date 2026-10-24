@@ -1,8 +1,9 @@
-## 当前快照（2026-10-24，事实输出与缺项诊断修复完成；最终诊断修复尚未再Live）
+## 当前快照（2026-10-24，事实输出与完整缺项反馈已部署；修复后未再Live）
 
-- 真实失败285b4f6已同步保留。3核心文件仅修拒绝诊断聚合：合法facts引用独立收集，坏操作不遮住其他合法指南/缺项，同一次反馈ORDER/GUIDE；正式发布仍严格，不改循环/预算/一次修正。[报告](../reports/customer-answer-fact-fields-v1/README.md)。
-- 新3红→全客服组388过1既有旧v2指南诊断失败；临时PG/SDK/模拟SSE16过0跳过，strict3源码/Ruff/diff通过。原5动作/2工具离线仍失败不发布，第一反馈现在同时列ORDER/GUIDE、末次仍ORDER缺项，[对比](../reports/customer-answer-fact-fields-v1/source-feedback-review.json)。没有替换原响应或宣称真实模型已经采纳。
-- 本批真实仅5请求，usage2098；未自动再Live、无新Case/退款/在途。精确提交普通push核实后仅保留数据加载最终Python/status；旧失败/冻结资产与四历史脏文件保持。不宣布整个Agent冻结或自动摘要全链已成功。
+- f39a67e已普通push核实。客服新fields-v1由程序渲染事实，当前两阶段提示/流式/持久化已接；拒绝诊断不再被第一个错误GUIDE遮住ORDER缺项，正式校验/预算/一次修正保持。[报告](../reports/customer-answer-fact-fields-v1/README.md)。
+- 工程全客服组388过1既有旧v2指南诊断失败，临时PG/SDK/模拟SSE16过0跳过，strict3源码/Ruff/diff通过。真实仅一次5请求、原格式错误未复现但整轮缺ORDER失败；反馈修复后原5动作离线仍失败不发布、首次现同时反馈ORDER/GUIDE，[对比](../reports/customer-answer-fact-fields-v1/source-feedback-review.json)。不冒充真实模型已采纳或全链成功。
+- 无在途后仅重启所属Python，start -SkipBuild -NoBrowser三Java/Python/Web/依赖/精确索引全健康；[最终只读审计](../reports/customer-answer-fact-fields-v1/final-audit.json)原业务/索引/冻结失败及10保护文件保持，新单已付32900/已退0/预留0，无新Case调查/退款/在途，usage2098无新增调用。
+- 最后仅提交审计与记录，普通push核实后停止写入；不自动再Live/简历指标/收费矩阵。最终反馈修复的真实采纳与整轮正式发布仍需后续小规模确认，四历史脏文件保持。
 
 ## 当前快照（2026-10-24，新事实协议实际被采用；Live整体仍失败，缺项反馈根因已定位）
 

@@ -59,3 +59,9 @@ git diff --check
 `python scripts/diagnose_customer_source_gaps_v1.py`读取本轮原raw，经原SDK仍消费同5动作/2工具、仍失败且不发布；第一个反馈现在同时列出ORDER/GUIDE，原最后答案仍正确报告ORDER缺项。末次事实段单独渲染通过，但明确未发布。只刷新离线诊断deadline，不是strict回放；0网络/业务写/新模型，[完整对比](source-feedback-review.json)。原rawSHA保持，不拿改写尾部或补造Observation将真实失败变成功。
 
 本步未再次Live，usage2098保持；不能宣布自动摘要全链完成。精确提交普通push核实后保留数据加载最终Python并只读status核验；服务可供体验，真实采纳/发布效果留待新授权有限验收，不重复本次样本追分。四历史脏文件及原冻结结果保持。
+
+## 最终加载与保留核对
+
+f39a67e已普通push核实。只读确认无在途run，停止所属agent-live，再执行`start.ps1 -SkipBuild -NoBrowser`：最终Python已加载，三Java/Web/依赖/精确索引全部健康。没有触发模型或改旧运行。
+
+末次只读重算原准备基线：全部旧Case/归属/钉住政策/授权/操作/付款/调查/客服结果与索引保持，10保护文件SHA保持，本轮原失败run及完整calls与冻结报告逐值相同，rawSHA与诊断记录一致。新单实付32900、退款0、预留0，无Case调查/退款/在途；总账仍2098。[审计](final-audit.json)。所有本批代码/测试/驱动/证据均分步提交普通push；最后只提交审计与记录，核实后停止写入。未运行修复后的第二次真实确认、简历指标或全量付费评测，不宣布Agent整体完成。
