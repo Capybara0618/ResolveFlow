@@ -49,3 +49,13 @@ git diff --check
 ## 第四步：真实结果与独立剩余问题
 
 准备d94f7a4已同步后`python scripts/accept_customer_fact_fields_v1.py execute`仅执行一次，**整体失败**。两次真实候选均已使用新事实协议，未再出现facts/宏错配；但第一个提前回答的GUIDE错误使诊断提前中止，漏报同时缺少的ORDER，模型只补指南后仍无法发布。原5动作/2工具离线精确复现末次ORDER缺项。完整原始输出、截图、计量及未运行步骤见[真实报告](live-v1/README.md)。实际5请求14070输入/678输出，usage2093→2098，0未知；原数据/资产保持，无新Case/退款。下一步离线修复诊断聚合，不自动重复收费验证或宣称Agent全部完成。
+
+## 第五步：独立缺项诊断修复（离线通过，尚未再Live）
+
+失败285b4f6已普通push核实。3个核心文件：grounding提供仅诊断用的逐项合法事实引用收集；navigation仅在明确diagnostic分支跳过单个无效操作来源以继续收集其他合法项；engine拒绝分支合并这两类元数据并一次反馈全部source_gaps。正式render_navigation仍默认严格拒绝，不使用diagnostic参数；不接受被拒候选的状态、不修改原文或增加修正次数。
+
+新增`test_support_combined_source_feedback.py`三项：错误GUIDE同时反馈ORDER/GUIDE、隐式合法facts引用不误报、一个坏操作不遮住另一个有效指南。首次3红；实现后1个断言仅因缺项顺序不固定失败，改为验证2项精确集合和各task_id，保留全部语义断言。完整客服/契约/旧诊断组 **388通过、1条同样已定位的历史v2指南诊断失败，389总项，23.60秒**；新问题用6次脚本模型/3次读/一次修正可成功，但这是工程脚本行为，不冒充真实模型已采纳新反馈。临时PG/SDK/模拟SSE同四文件 **16通过、0跳过，8.21秒**。`mypy --strict` engine/grounding/navigation **3源码通过**，源码/新测试/诊断脚本Ruff通过，diff检查通过。
+
+`python scripts/diagnose_customer_source_gaps_v1.py`读取本轮原raw，经原SDK仍消费同5动作/2工具、仍失败且不发布；第一个反馈现在同时列出ORDER/GUIDE，原最后答案仍正确报告ORDER缺项。末次事实段单独渲染通过，但明确未发布。只刷新离线诊断deadline，不是strict回放；0网络/业务写/新模型，[完整对比](source-feedback-review.json)。原rawSHA保持，不拿改写尾部或补造Observation将真实失败变成功。
+
+本步未再次Live，usage2098保持；不能宣布自动摘要全链完成。精确提交普通push核实后保留数据加载最终Python并只读status核验；服务可供体验，真实采纳/发布效果留待新授权有限验收，不重复本次样本追分。四历史脏文件及原冻结结果保持。

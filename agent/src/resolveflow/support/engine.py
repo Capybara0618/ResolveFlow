@@ -25,7 +25,7 @@ from resolveflow.support.activity import ReadActivity
 from resolveflow.support.completion import check_completion, requirements
 from resolveflow.support.context import LAYOUTS, read_context, render_context
 from resolveflow.support.dialogue import DialogueState, event_outcomes
-from resolveflow.support.grounding import GroundingError, check_amounts, ground_answer
+from resolveflow.support.grounding import GroundingError, check_amounts, diagnostic_fact_references, ground_answer
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.navigation import navigation_references, render_navigation
@@ -340,7 +340,8 @@ class SupportAgent:
                 try:
                     candidate = DECISION.validate_python(reply.decision)
                     if isinstance(candidate, (Answer, AnswerParts)):
-                        candidate = navigation_references(candidate, self.citations)
+                        candidate = diagnostic_fact_references(candidate, self.request, self.citations)
+                        candidate = navigation_references(candidate, self.citations, diagnostic=True)
                     if isinstance(candidate, AnswerParts):
                         candidate = render_answer(candidate, self.tasks.tasks)
                     if isinstance(candidate, Answer):
@@ -348,6 +349,8 @@ class SupportAgent:
                 except StageError as source_error:
                     feedback = json.loads(self.feedback)
                     feedback["source_gaps"] = source_error.gaps
+                    feedback["repair_note"] = feedback.get("repair_note", "") + (
+                        "同时补齐source_gaps列出的全部本轮依据，并在对应part引用；不只修正第一个错误来源。")
                     self.feedback = json.dumps(feedback, ensure_ascii=False)
                 except ValueError:
                     pass  # An invalid task shape cannot supply reliable additional diagnostics.

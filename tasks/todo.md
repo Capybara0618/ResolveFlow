@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，事实输出与缺项诊断修复完成；最终诊断修复尚未再Live）
+
+- 真实失败285b4f6已同步保留。3核心文件仅修拒绝诊断聚合：合法facts引用独立收集，坏操作不遮住其他合法指南/缺项，同一次反馈ORDER/GUIDE；正式发布仍严格，不改循环/预算/一次修正。[报告](../reports/customer-answer-fact-fields-v1/README.md)。
+- 新3红→全客服组388过1既有旧v2指南诊断失败；临时PG/SDK/模拟SSE16过0跳过，strict3源码/Ruff/diff通过。原5动作/2工具离线仍失败不发布，第一反馈现在同时列ORDER/GUIDE、末次仍ORDER缺项，[对比](../reports/customer-answer-fact-fields-v1/source-feedback-review.json)。没有替换原响应或宣称真实模型已经采纳。
+- 本批真实仅5请求，usage2098；未自动再Live、无新Case/退款/在途。精确提交普通push核实后仅保留数据加载最终Python/status；旧失败/冻结资产与四历史脏文件保持。不宣布整个Agent冻结或自动摘要全链已成功。
+
 ## 当前快照（2026-10-24，新事实协议实际被采用；Live整体仍失败，缺项反馈根因已定位）
 
 - 准备d94f7a4已同步，唯一新问句真实执行完：两候选均正确fields-v1/facts，未再遇宏错配；第3步错误指南引用触发一次修正，第4步只补指南，第5步仍缺申请事项ORDER，最终未发布/无草稿。[原始结果与计量](../reports/customer-answer-fact-fields-v1/live-v1/README.md)。

@@ -90,6 +90,27 @@ def ground_answer(
     return decision.model_copy(update={"text": text, "citations": refs})
 
 
+def diagnostic_fact_references(
+    decision: Answer | AnswerParts, request: SupportInput, citations: dict[str, dict[str, Any]],
+) -> Answer | AnswerParts:
+    """Read-only rejection metadata; a bad field cannot hide other independently valid references."""
+    def refs_for(facts: list[AnswerFact], refs: list[str]) -> list[str]:
+        refs = list(refs)
+        for fact in facts:
+            try:
+                value_for(fact.field, citations.get(fact.source, {}), request)
+            except GroundingError:
+                continue
+            if fact.source not in refs:
+                refs.append(fact.source)
+        return refs
+
+    if isinstance(decision, AnswerParts):
+        return decision.model_copy(update={"parts": [p.model_copy(update={
+            "citations": refs_for(p.facts, p.citations)}) for p in decision.parts]})
+    return decision.model_copy(update={"citations": refs_for(decision.facts, decision.citations)})
+
+
 def check_amounts(decision: Answer | AnswerParts, request: SupportInput,
                   citations: dict[str, dict[str, Any]]) -> None:
     for part in decision.parts if isinstance(decision, AnswerParts) else [decision]:

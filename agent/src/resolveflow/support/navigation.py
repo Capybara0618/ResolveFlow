@@ -37,7 +37,9 @@ class NavigationSourceError(NavigationError):
     pass
 
 
-def navigation_references(decision: Answer | AnswerParts, citations: dict[str, dict[str, Any]]) -> Answer | AnswerParts:
+def navigation_references(
+    decision: Answer | AnswerParts, citations: dict[str, dict[str, Any]], *, diagnostic: bool = False,
+) -> Answer | AnswerParts:
     """Merge only observed guide references; also usable for metadata-only rejection diagnostics."""
     trusted = guide_source()
 
@@ -47,6 +49,8 @@ def navigation_references(decision: Answer | AnswerParts, citations: dict[str, d
             source = citations.get(step.source, {})
             if (source.get('source_type') != 'KNOWLEDGE' or source.get('version') != trusted['version']
                     or source.get('data') != trusted['data'] or 'error' in source):
+                if diagnostic:
+                    continue  # Rejection diagnostics collect other valid steps; publication still raises below.
                 raise NavigationSourceError('next_steps.source须实际读取的当前受控get_support_guide来源。')
             if step.source not in refs:
                 refs.append(step.source)
