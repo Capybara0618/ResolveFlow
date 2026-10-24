@@ -2,6 +2,8 @@
 
 按用户授权修复确认原因、正常待核验调查与状态展示，保留[原真实失败](../chat-refund-live-v1/README.md)。本轮新状态仅见tasks/todo顶部。
 
+实际结论：H1–H3核验衔接已由[真实手动确认入口整链](live-v2/manual-continuation/README.md)验证通过，包括两次正常Agent调查、商家核验与329元模拟退款；[自动客服回答](live-v2/README.md)仍因事实标注格式未发布，不能称整个自动链路完成。
+
 ## H1 确认原因进入初始材料
 
 SupportRefundService复用EvidenceRepository，仅新建Case时将最终确认原因原样登记为revision1的CUSTOMER_STATEMENT，来源绑定客户/会话/草稿、版本绑定会话输入版与草稿revision、hash覆盖文本和主体；无核验结果。与Case/run/确认关联/回执同事务，草稿编辑取消/已有单接续/重放不添加材料。沿原派发evidence_refs和review_context读取，无第二轮建单或初始revision2。
@@ -33,3 +35,9 @@ H2 d128c1c首次普通push遇schannel连接中断，ls-remote确认远端仍3c92
 H3a 79d391e已同步。客户卡片对PENDING_REVIEW使用Java投影的进度说明作标题，其他状态/UNKNOWN/完成判断保留。商家有效MANUAL_REVIEW显示“等待商家核验”，初始客户陈述未核验时提供“核验申请陈述”按钮，直接展开原材料与核验操作；点击只打开材料，不创建授权。当前revision实际AGENT_FAILED显示“本次调查未完成”，不再显示“等待调查建议”，旧失败不继承到新revision。核验后有效退款方案/当前授权就绪，仍沿原审批入口。
 
 前端新增5红测→定向25通过；全34文件245项通过26.13秒，vue-tsc与Vite正式构建通过。覆盖核验前无批准、查看原陈述、授权就绪后审批、失败/旧版及客户三类标题。未添加依赖或改变审核条件。下一步正常启动当前版本、冻结一笔新合成订单的有限真实验收；旧失败/订单不重发或覆盖。
+
+## 最终验收与边界（2026-10-24）
+
+`accept_chat_refund_handoff_v2.py execute`保存7请求客服失败；`continue_chat_refund_handoff_v2.py`不发新客服消息，沿同单手动确认，10请求/两正常调查整链通过。首次MANUAL_REVIEW及核验后的REFUND均5模型、0修正。唯一模拟退款32900分SUCCEEDED，原客户会话和详情均CLOSED_SUCCESS。所有原数据/旧失败/索引/四历史脏文件及旧SHA保持，[审计](live-v2/final-audit.json)无待处理run、原账2093、总17请求含全部失败。普通status各服务全健康，项目保持运行。
+
+当前未解决的是客服多事项回答的事实注释与自然正文一致性，不是本次材料核验或RAG漏召回；原候选严格拒绝、未伪造成功。没有重发失败题、修改旧Gold、放宽退款条件或测简历指标。本次只证明上述单合成样本，不是整体准确率。源码与记录按小步普通push同步，四旧脏文件不夹带。

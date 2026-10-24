@@ -1,3 +1,10 @@
+## 当前快照（2026-10-24，H1–H3核验衔接已真实跑通；自动客服仍有独立格式问题）
+
+- 准备4160777已同步。同一新合成订单的手动确认入口真实整栈通过：最终原因登记未核验初始陈述、首次5模型/0修正MANUAL_REVIEW无授权、网页商家CONFIRMED保留原文并升revision2、第二次5模型/0修正REFUND经Java复核后网页独立审批、32900分唯一模拟退款SUCCEEDED/预留0，原会话与详情同一Case CLOSED_SUCCESS。Case 1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e，确认213ms。[完整证据/截图](../reports/chat-refund-handoff-v1/live-v2/manual-continuation/README.md)。
+- 原自动客服回答失败保持：根级摘要已正确，最后多part事实注释未用对应占位符，严格校验拒绝；离线ground_answer精准复现，未改候选/重发。[源审与原失败](../reports/chat-refund-handoff-v1/live-v2/README.md)。手动原因不冒充模型摘要，不称自动客服全部冻结。
+- 本轮共17真实请求（失败客服7+正常调查10），准确45295输入/1879输出、0未知/非估算，原usage2076→2093。最终审计旧业务/索引/冻结驱动/旧SHA及四历史脏文件保持、无在途run；原材料基线0行，新单仅初始陈述与CONFIRMED关联核验两行。三Java/Python/Web/依赖/status全健康，生产6d997d8已加载V32与全部修复。
+- 工程证据：H1真实Java68+DTO2/H3a52、Python195与strict、前端34文件245/typecheck/build通过（重叠组不求和）；[集中报告](../reports/chat-refund-handoff-v1/README.md)。本步精确提交结果/审计/截图，普通push核实后停止写入。不自动付费重跑；下一步按用户新要求处理客服输出格式稳定性，核验/资金机制不重做。
+
 ## 当前快照（2026-10-24，live-v2客服候选仍失败已保留；核验衔接独立手动入口待执行）
 
 - 准备c6f4d98已同步，冻结唯一1问执行完：根级摘要已正确字符串，但最后物流part的facts未在正文使用占位符，首次过早回答已消耗一次修正，最终INVALID_DECISION、无正式发布/草稿/Case。[原始结果与完整费用](../reports/chat-refund-handoff-v1/live-v2/README.md)。不是RAG未读或本轮核验逻辑已失败，后者尚未到达。

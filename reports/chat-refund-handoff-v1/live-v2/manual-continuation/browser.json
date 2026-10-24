@@ -1,0 +1,715 @@
+{
+  "turns": [],
+  "events": [],
+  "writes": [
+    {
+      "path": "/api/v1/support/conversations/49cdd51d-8817-4c12-ba5f-2268044b63ab/refund-drafts",
+      "method": "POST",
+      "body": {
+        "expected_version": 2,
+        "reason": "本人未收到商品，希望申请该订单行全部数量的退款，提交前由本人核对。"
+      },
+      "key": "0b3cf581-4a8d-4524-8961-51feae16921a"
+    },
+    {
+      "path": "/api/v1/support/conversations/49cdd51d-8817-4c12-ba5f-2268044b63ab/refund-drafts/0b1a95ed-4044-4e4e-9aca-5c9cb58a278c/edit",
+      "method": "POST",
+      "body": {
+        "revision": 1,
+        "reason": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。"
+      },
+      "key": "834fc996-74ad-41a8-9ad7-18925a7ebaac"
+    },
+    {
+      "path": "/api/v1/support/conversations/49cdd51d-8817-4c12-ba5f-2268044b63ab/refund-drafts/0b1a95ed-4044-4e4e-9aca-5c9cb58a278c/confirm",
+      "method": "POST",
+      "body": {
+        "revision": 2,
+        "expected_version": 2
+      },
+      "key": "4d9ac24f-1dfa-4368-9db8-2f0e7af056cc"
+    },
+    {
+      "path": "/api/v1/support/conversations/49cdd51d-8817-4c12-ba5f-2268044b63ab/refund-drafts/0b1a95ed-4044-4e4e-9aca-5c9cb58a278c/confirm",
+      "method": "POST",
+      "body": {
+        "revision": 2,
+        "expected_version": 2
+      },
+      "key": "4d9ac24f-1dfa-4368-9db8-2f0e7af056cc"
+    },
+    {
+      "path": "/api/v1/cases/1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e/reviewed-evidence",
+      "method": "POST",
+      "body": {
+        "source_evidence_id": "b3e56993-c7b9-4e83-b2d7-183329362028",
+        "verification_result": "CONFIRMED",
+        "reason": "合成验收：已核对本订单、承运商LOST记录和当前客户未收货陈述，确认本案丢失事实。"
+      }
+    },
+    {
+      "path": "/api/v1/cases/1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e/reviews",
+      "method": "POST",
+      "body": {
+        "authorization_id": "f84fba4d-27ed-4b6a-8a63-b5cef7d58380",
+        "authorization_version": 1,
+        "decision": "APPROVE",
+        "reason": "合成验收：已核对承运商丢失记录、当前订单行实付与政策依据，同意本次整行模拟退款。"
+      }
+    }
+  ],
+  "checks": [
+    "manual reason editable; correct paid amount; no Case before confirm",
+    "same-key confirmation and browser refresh restore the same application",
+    "initial reason is an unverified customer statement; first valid manual review grants no refund authorization",
+    "merchant verification creates revision2, preserves the claim, and yields a validated refund with current authorization",
+    "merchant approval settles simulated refund; conversation and original detail show same Case"
+  ],
+  "errors": [],
+  "httpErrors": [],
+  "entry": "manual request button; earlier automatic response failure is not replaced",
+  "original_draft": {
+    "draft_id": "0b1a95ed-4044-4e4e-9aca-5c9cb58a278c",
+    "revision": 1,
+    "expected_version": 2,
+    "status": "DRAFT",
+    "reason": "本人未收到商品，希望申请该订单行全部数量的退款，提交前由本人核对。",
+    "quantity": 1,
+    "amount_minor": 32900,
+    "currency": "CNY",
+    "expires_at": "2026-10-24T03:16:30.809857Z",
+    "case_id": null
+  },
+  "confirm_receipt_ms": 213,
+  "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e",
+  "confirmed": {
+    "draft": {
+      "draft_id": "0b1a95ed-4044-4e4e-9aca-5c9cb58a278c",
+      "revision": 2,
+      "expected_version": 2,
+      "status": "CONFIRMED",
+      "reason": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+      "quantity": 1,
+      "amount_minor": 32900,
+      "currency": "CNY",
+      "expires_at": "2026-10-24T03:16:30.809857Z",
+      "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e"
+    },
+    "application": {
+      "case": {
+        "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e",
+        "status": "QUEUED",
+        "line_id": "SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb",
+        "order_id": "b1a71c3a-f80c-4cf4-909c-e3ad6b701466",
+        "description": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+        "version": 1,
+        "created_at": "2026-10-24T02:46:31.168068Z",
+        "updated_at": "2026-10-24T02:46:31.168068Z"
+      },
+      "input_revision": 1,
+      "allowed_actions": [
+        "CANCEL",
+        "APPEND_EVIDENCE"
+      ],
+      "blocked_reason": "",
+      "materials": [
+        {
+          "id": "b3e56993-c7b9-4e83-b2d7-183329362028",
+          "text": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+          "submitted_at": "2026-10-24T02:46:31.231026Z",
+          "question_id": null,
+          "verification_result": null
+        }
+      ],
+      "questions": [],
+      "result": {
+        "status": "QUEUED",
+        "message": "申请已收到，等待调查",
+        "amount_minor": null,
+        "currency": "CNY",
+        "public_reason": null
+      },
+      "timeline": [
+        {
+          "type": "CASE_CREATED",
+          "occurred_at": "2026-10-24T02:46:31.168068Z",
+          "summary": "退款申请已提交"
+        }
+      ]
+    }
+  },
+  "latest_snapshot": {
+    "case": {
+      "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e",
+      "status": "PENDING_REVIEW",
+      "input_revision": 2,
+      "version": 6,
+      "created_at": "2026-10-24T02:46:31.168068Z",
+      "updated_at": "2026-10-24T02:47:04.420159Z",
+      "requested_actions": [
+        "REFUND"
+      ],
+      "line_id": "SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb",
+      "order_id": "b1a71c3a-f80c-4cf4-909c-e3ad6b701466",
+      "description": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。"
+    },
+    "proposal": {
+      "run_id": "a960a2b3-0272-507b-8772-78089c9d6f49",
+      "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e",
+      "summary": "依据R-LOST-001：承运商结论LOST且无有效签收记录，材料已CONFIRMED，订单实付32900分、未退款，满足全额退款条件，建议按订单行全部数量实付金额退款32900分，由商家审批。例外提示：本地模拟在途不代表承运商丢失，本案以承运商LOST结论为准。",
+      "case_type": "LOGISTICS",
+      "policy_refs": [
+        {
+          "rule_id": "R-LOST-001",
+          "version": "2026.10",
+          "chunk_id": "c-02",
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "content_hash": "f698c0b0d82dea5fe08866011a7db5e53de2a910df5d9059f75939b05fc82e08"
+        }
+      ],
+      "proposal_id": "92b10647-ab73-5143-a7aa-86d8897cd474",
+      "reason_codes": [
+        "POLICY_CONDITIONS_MET"
+      ],
+      "evidence_refs": [
+        {
+          "source_ref": "case:/internal/v1/cases/1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e/evidence",
+          "content_hash": "85b5af2cf32439a4a019de40c5466f1e1a7439444bd30ba00c2661ab54791c7d",
+          "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e",
+          "source_version": "2"
+        },
+        {
+          "source_ref": "commerce:/internal/v1/order-lines/SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb/context",
+          "content_hash": "01ab3b136d8c8f27b2f7ee36ab7c4a518b7708ab0177fe675f17c37c015c3636",
+          "observation_id": "obs-get_order_context-f8e6e363a5fbb962",
+          "source_version": "order-1:payment-1:fulfillment-3"
+        },
+        {
+          "source_ref": "commerce:/internal/v1/order-lines/SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb/shipment",
+          "content_hash": "a6b1c3a2ff6c7099337c082468a03acbaa8ac7d87c807bb44205e027b45c231d",
+          "observation_id": "obs-get_shipment_trace-f92c4f5cc87c23b3",
+          "source_version": "3"
+        }
+      ],
+      "input_revision": 2,
+      "schema_version": 2,
+      "review_findings": [
+        {
+          "kind": "FACT",
+          "text": "订单实付32900分（CNY），数量1，履约状态LOST，退款金额0，行退款状态FREE。",
+          "observation_ids": [
+            "obs-get_order_context-f8e6e363a5fbb962"
+          ]
+        },
+        {
+          "kind": "FACT",
+          "text": "承运商轨迹结论为LOST，事件序列为ORDER_PAID→SIMULATED_SHIPPED→LOST，无有效签收记录。",
+          "observation_ids": [
+            "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          ]
+        },
+        {
+          "kind": "FACT",
+          "text": "客户陈述未收到商品，要求核实后退还全部实付款；复核材料标记CONFIRMED，确认丢失事实。",
+          "observation_ids": [
+            "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          ]
+        }
+      ],
+      "recommended_action": "REFUND",
+      "origin": "AGENT",
+      "status": "VALIDATED",
+      "recomputed_amount_minor": 32900,
+      "created_at": "2026-10-24T02:47:04.420159Z"
+    },
+    "authorization": {
+      "authorization_id": "f84fba4d-27ed-4b6a-8a63-b5cef7d58380",
+      "authorization_version": 1,
+      "status": "PENDING_REVIEW",
+      "input_revision": 2,
+      "action": "REFUND",
+      "planned_operation_id": "d41cc2de-664e-473c-b982-22e3e3386f9d",
+      "payload_hash": "a654b40d7df96545154cf3b525af3c3edcbe7244644bebf81bf74577ee4ced72"
+    },
+    "evidence": [
+      {
+        "observation_id": "b3e56993-c7b9-4e83-b2d7-183329362028",
+        "source_ref": "customer:C-9b18b1d1c0ffcdf384bbc7b843977700f32b816e:support-refund:49cdd51d-8817-4c12-ba5f-2268044b63ab:0b1a95ed-4044-4e4e-9aca-5c9cb58a278c",
+        "source_version": "conversation-2:draft-2",
+        "content_hash": "0d2d44d21d20a6d0be0a0310ca0fd94e464d5e04918dc94d5915a90794de3b08",
+        "evidence_kind": "CUSTOMER_STATEMENT",
+        "content": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+        "input_revision": 1,
+        "observed_at": "2026-10-24T02:46:31.231026Z",
+        "appended_by": "buyer10",
+        "appended_role": "CUSTOMER"
+      },
+      {
+        "observation_id": "f276d404-195e-4a85-876a-4d35322eb2d2",
+        "source_ref": "evidence:b3e56993-c7b9-4e83-b2d7-183329362028",
+        "source_version": "1",
+        "content_hash": "12768d33b8cd625966dc27d3e4cda879c5ec7d0ab03534db402546b7680a04c3",
+        "evidence_kind": "REVIEWER_VERIFICATION",
+        "content": "合成验收：已核对本订单、承运商LOST记录和当前客户未收货陈述，确认本案丢失事实。",
+        "input_revision": 2,
+        "observed_at": "2026-10-24T02:46:50.307119Z",
+        "appended_by": "admin01",
+        "appended_role": "MERCHANT_ADMIN",
+        "reviewed_evidence_id": "b3e56993-c7b9-4e83-b2d7-183329362028",
+        "verification_result": "CONFIRMED"
+      }
+    ],
+    "timeline": [
+      {
+        "event_id": "06a12c53-3711-4fb4-812f-162867d4c4bd",
+        "type": "CASE_CREATED",
+        "occurred_at": "2026-10-24T02:46:31.168068Z",
+        "summary": "客户提交退款诉求（line_id=SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb）",
+        "revision": 1
+      },
+      {
+        "event_id": "0d7acd34-1796-401e-b897-08b621ffa181",
+        "type": "AGENT_STARTED",
+        "occurred_at": "2026-10-24T02:46:32.905487Z",
+        "summary": "调查已受理",
+        "revision": 1
+      },
+      {
+        "event_id": "57855c4a-0024-46b2-8bf5-a13fdbccc575",
+        "type": "PROPOSAL_READY",
+        "occurred_at": "2026-10-24T02:46:49.191207Z",
+        "summary": "方案已按政策核对，等待人工确认",
+        "revision": 1
+      },
+      {
+        "event_id": "45091dd9-c9d7-42ce-a25b-bf4150d41ba6",
+        "type": "EVIDENCE_APPENDED",
+        "occurred_at": "2026-10-24T02:46:50.307119Z",
+        "summary": "人工核验：已确认该材料",
+        "revision": 2
+      },
+      {
+        "event_id": "ef9e3b57-1109-471a-94b5-1e9f696687a4",
+        "type": "AGENT_STARTED",
+        "occurred_at": "2026-10-24T02:46:51.279741Z",
+        "summary": "调查已受理",
+        "revision": 2
+      },
+      {
+        "event_id": "d92ce965-3c49-4778-8876-4c1c9c7e9c31",
+        "type": "PROPOSAL_READY",
+        "occurred_at": "2026-10-24T02:47:04.420159Z",
+        "summary": "方案已按政策核对，重算金额 32900 分，等待人工确认",
+        "revision": 2
+      },
+      {
+        "event_id": "611fcdb0-f30e-4843-be8a-7e90147c3bad",
+        "type": "APPROVAL_REQUIRED",
+        "occurred_at": "2026-10-24T02:47:04.420159Z",
+        "summary": "等待人工审批（授权版本 1）",
+        "revision": 2
+      }
+    ]
+  },
+  "before_verification": {
+    "case": {
+      "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e",
+      "status": "PENDING_REVIEW",
+      "input_revision": 1,
+      "version": 3,
+      "created_at": "2026-10-24T02:46:31.168068Z",
+      "updated_at": "2026-10-24T02:46:49.191207Z",
+      "requested_actions": [
+        "REFUND"
+      ],
+      "line_id": "SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb",
+      "order_id": "b1a71c3a-f80c-4cf4-909c-e3ad6b701466",
+      "description": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。"
+    },
+    "proposal": {
+      "run_id": "1307a4be-6f6a-5407-8b66-7cfb87ae8b6e",
+      "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e",
+      "summary": "订单已付款32900分（1件），履约状态LOST，承运商轨迹结论LOST且无签收记录，客户主张未收到商品。按R-LOST-001，承运商LOST且无有效签收记录时，经人工核验可按该订单行全部数量实付金额退款；当前材料仅为客户陈述，尚未完成商家人工核验，故建议商家核验后按全额退款处理。",
+      "case_type": "LOGISTICS",
+      "policy_refs": [
+        {
+          "rule_id": "R-LOST-001",
+          "version": "2026.10",
+          "chunk_id": "c-02",
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "content_hash": "f698c0b0d82dea5fe08866011a7db5e53de2a910df5d9059f75939b05fc82e08"
+        }
+      ],
+      "proposal_id": "f93ddbd2-7470-5091-84bf-9a16f38ae143",
+      "reason_codes": [
+        "NEEDS_HUMAN_VERIFICATION"
+      ],
+      "evidence_refs": [
+        {
+          "source_ref": "case:/internal/v1/cases/1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e/evidence",
+          "content_hash": "1c592d58fc6272ce23da0a9c2b8d6d7e23191837f031ec710de1d1842d8b3892",
+          "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e",
+          "source_version": "1"
+        },
+        {
+          "source_ref": "commerce:/internal/v1/order-lines/SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb/context",
+          "content_hash": "01ab3b136d8c8f27b2f7ee36ab7c4a518b7708ab0177fe675f17c37c015c3636",
+          "observation_id": "obs-get_order_context-f8e6e363a5fbb962",
+          "source_version": "order-1:payment-1:fulfillment-3"
+        },
+        {
+          "source_ref": "commerce:/internal/v1/order-lines/SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb/shipment",
+          "content_hash": "a6b1c3a2ff6c7099337c082468a03acbaa8ac7d87c807bb44205e027b45c231d",
+          "observation_id": "obs-get_shipment_trace-f92c4f5cc87c23b3",
+          "source_version": "3"
+        }
+      ],
+      "input_revision": 1,
+      "schema_version": 2,
+      "review_findings": [
+        {
+          "kind": "FACT",
+          "text": "订单实付32900分，数量1，状态PAID，履约状态LOST，已退款0分。",
+          "observation_ids": [
+            "obs-get_order_context-f8e6e363a5fbb962"
+          ]
+        },
+        {
+          "kind": "FACT",
+          "text": "承运商轨迹结论为LOST，事件含ORDER_PAID、SIMULATED_SHIPPED、LOST，无签收记录。",
+          "observation_ids": [
+            "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          ]
+        },
+        {
+          "kind": "FACT",
+          "text": "客户主张未收到商品，要求核实后退还全部实付款。",
+          "observation_ids": [
+            "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          ]
+        },
+        {
+          "kind": "INFERENCE",
+          "text": "符合R-LOST-001适用前提（承运商LOST且无有效签收），但需商家人工核验后方可退款。",
+          "observation_ids": [
+            "obs-get_order_context-f8e6e363a5fbb962",
+            "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          ]
+        }
+      ],
+      "recommended_action": "MANUAL_REVIEW",
+      "origin": "AGENT",
+      "status": "VALIDATED",
+      "created_at": "2026-10-24T02:46:49.191207Z"
+    },
+    "evidence": [
+      {
+        "observation_id": "b3e56993-c7b9-4e83-b2d7-183329362028",
+        "source_ref": "customer:C-9b18b1d1c0ffcdf384bbc7b843977700f32b816e:support-refund:49cdd51d-8817-4c12-ba5f-2268044b63ab:0b1a95ed-4044-4e4e-9aca-5c9cb58a278c",
+        "source_version": "conversation-2:draft-2",
+        "content_hash": "0d2d44d21d20a6d0be0a0310ca0fd94e464d5e04918dc94d5915a90794de3b08",
+        "evidence_kind": "CUSTOMER_STATEMENT",
+        "content": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+        "input_revision": 1,
+        "observed_at": "2026-10-24T02:46:31.231026Z",
+        "appended_by": "buyer10",
+        "appended_role": "CUSTOMER"
+      }
+    ],
+    "timeline": [
+      {
+        "event_id": "06a12c53-3711-4fb4-812f-162867d4c4bd",
+        "type": "CASE_CREATED",
+        "occurred_at": "2026-10-24T02:46:31.168068Z",
+        "summary": "客户提交退款诉求（line_id=SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb）",
+        "revision": 1
+      },
+      {
+        "event_id": "0d7acd34-1796-401e-b897-08b621ffa181",
+        "type": "AGENT_STARTED",
+        "occurred_at": "2026-10-24T02:46:32.905487Z",
+        "summary": "调查已受理",
+        "revision": 1
+      },
+      {
+        "event_id": "57855c4a-0024-46b2-8bf5-a13fdbccc575",
+        "type": "PROPOSAL_READY",
+        "occurred_at": "2026-10-24T02:46:49.191207Z",
+        "summary": "方案已按政策核对，等待人工确认",
+        "revision": 1
+      }
+    ]
+  },
+  "after_verification": {
+    "case": {
+      "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e",
+      "status": "PENDING_REVIEW",
+      "input_revision": 2,
+      "version": 6,
+      "created_at": "2026-10-24T02:46:31.168068Z",
+      "updated_at": "2026-10-24T02:47:04.420159Z",
+      "requested_actions": [
+        "REFUND"
+      ],
+      "line_id": "SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb",
+      "order_id": "b1a71c3a-f80c-4cf4-909c-e3ad6b701466",
+      "description": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。"
+    },
+    "proposal": {
+      "run_id": "a960a2b3-0272-507b-8772-78089c9d6f49",
+      "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e",
+      "summary": "依据R-LOST-001：承运商结论LOST且无有效签收记录，材料已CONFIRMED，订单实付32900分、未退款，满足全额退款条件，建议按订单行全部数量实付金额退款32900分，由商家审批。例外提示：本地模拟在途不代表承运商丢失，本案以承运商LOST结论为准。",
+      "case_type": "LOGISTICS",
+      "policy_refs": [
+        {
+          "rule_id": "R-LOST-001",
+          "version": "2026.10",
+          "chunk_id": "c-02",
+          "bundle_id": "policy-foundation-m1001-2026.10",
+          "content_hash": "f698c0b0d82dea5fe08866011a7db5e53de2a910df5d9059f75939b05fc82e08"
+        }
+      ],
+      "proposal_id": "92b10647-ab73-5143-a7aa-86d8897cd474",
+      "reason_codes": [
+        "POLICY_CONDITIONS_MET"
+      ],
+      "evidence_refs": [
+        {
+          "source_ref": "case:/internal/v1/cases/1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e/evidence",
+          "content_hash": "85b5af2cf32439a4a019de40c5466f1e1a7439444bd30ba00c2661ab54791c7d",
+          "observation_id": "obs-get_case_evidence-5d444c9ca2ea5d1e",
+          "source_version": "2"
+        },
+        {
+          "source_ref": "commerce:/internal/v1/order-lines/SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb/context",
+          "content_hash": "01ab3b136d8c8f27b2f7ee36ab7c4a518b7708ab0177fe675f17c37c015c3636",
+          "observation_id": "obs-get_order_context-f8e6e363a5fbb962",
+          "source_version": "order-1:payment-1:fulfillment-3"
+        },
+        {
+          "source_ref": "commerce:/internal/v1/order-lines/SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb/shipment",
+          "content_hash": "a6b1c3a2ff6c7099337c082468a03acbaa8ac7d87c807bb44205e027b45c231d",
+          "observation_id": "obs-get_shipment_trace-f92c4f5cc87c23b3",
+          "source_version": "3"
+        }
+      ],
+      "input_revision": 2,
+      "schema_version": 2,
+      "review_findings": [
+        {
+          "kind": "FACT",
+          "text": "订单实付32900分（CNY），数量1，履约状态LOST，退款金额0，行退款状态FREE。",
+          "observation_ids": [
+            "obs-get_order_context-f8e6e363a5fbb962"
+          ]
+        },
+        {
+          "kind": "FACT",
+          "text": "承运商轨迹结论为LOST，事件序列为ORDER_PAID→SIMULATED_SHIPPED→LOST，无有效签收记录。",
+          "observation_ids": [
+            "obs-get_shipment_trace-f92c4f5cc87c23b3"
+          ]
+        },
+        {
+          "kind": "FACT",
+          "text": "客户陈述未收到商品，要求核实后退还全部实付款；复核材料标记CONFIRMED，确认丢失事实。",
+          "observation_ids": [
+            "obs-get_case_evidence-5d444c9ca2ea5d1e"
+          ]
+        }
+      ],
+      "recommended_action": "REFUND",
+      "origin": "AGENT",
+      "status": "VALIDATED",
+      "recomputed_amount_minor": 32900,
+      "created_at": "2026-10-24T02:47:04.420159Z"
+    },
+    "authorization": {
+      "authorization_id": "f84fba4d-27ed-4b6a-8a63-b5cef7d58380",
+      "authorization_version": 1,
+      "status": "PENDING_REVIEW",
+      "input_revision": 2,
+      "action": "REFUND",
+      "planned_operation_id": "d41cc2de-664e-473c-b982-22e3e3386f9d",
+      "payload_hash": "a654b40d7df96545154cf3b525af3c3edcbe7244644bebf81bf74577ee4ced72"
+    },
+    "evidence": [
+      {
+        "observation_id": "b3e56993-c7b9-4e83-b2d7-183329362028",
+        "source_ref": "customer:C-9b18b1d1c0ffcdf384bbc7b843977700f32b816e:support-refund:49cdd51d-8817-4c12-ba5f-2268044b63ab:0b1a95ed-4044-4e4e-9aca-5c9cb58a278c",
+        "source_version": "conversation-2:draft-2",
+        "content_hash": "0d2d44d21d20a6d0be0a0310ca0fd94e464d5e04918dc94d5915a90794de3b08",
+        "evidence_kind": "CUSTOMER_STATEMENT",
+        "content": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+        "input_revision": 1,
+        "observed_at": "2026-10-24T02:46:31.231026Z",
+        "appended_by": "buyer10",
+        "appended_role": "CUSTOMER"
+      },
+      {
+        "observation_id": "f276d404-195e-4a85-876a-4d35322eb2d2",
+        "source_ref": "evidence:b3e56993-c7b9-4e83-b2d7-183329362028",
+        "source_version": "1",
+        "content_hash": "12768d33b8cd625966dc27d3e4cda879c5ec7d0ab03534db402546b7680a04c3",
+        "evidence_kind": "REVIEWER_VERIFICATION",
+        "content": "合成验收：已核对本订单、承运商LOST记录和当前客户未收货陈述，确认本案丢失事实。",
+        "input_revision": 2,
+        "observed_at": "2026-10-24T02:46:50.307119Z",
+        "appended_by": "admin01",
+        "appended_role": "MERCHANT_ADMIN",
+        "reviewed_evidence_id": "b3e56993-c7b9-4e83-b2d7-183329362028",
+        "verification_result": "CONFIRMED"
+      }
+    ],
+    "timeline": [
+      {
+        "event_id": "06a12c53-3711-4fb4-812f-162867d4c4bd",
+        "type": "CASE_CREATED",
+        "occurred_at": "2026-10-24T02:46:31.168068Z",
+        "summary": "客户提交退款诉求（line_id=SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb）",
+        "revision": 1
+      },
+      {
+        "event_id": "0d7acd34-1796-401e-b897-08b621ffa181",
+        "type": "AGENT_STARTED",
+        "occurred_at": "2026-10-24T02:46:32.905487Z",
+        "summary": "调查已受理",
+        "revision": 1
+      },
+      {
+        "event_id": "57855c4a-0024-46b2-8bf5-a13fdbccc575",
+        "type": "PROPOSAL_READY",
+        "occurred_at": "2026-10-24T02:46:49.191207Z",
+        "summary": "方案已按政策核对，等待人工确认",
+        "revision": 1
+      },
+      {
+        "event_id": "45091dd9-c9d7-42ce-a25b-bf4150d41ba6",
+        "type": "EVIDENCE_APPENDED",
+        "occurred_at": "2026-10-24T02:46:50.307119Z",
+        "summary": "人工核验：已确认该材料",
+        "revision": 2
+      },
+      {
+        "event_id": "ef9e3b57-1109-471a-94b5-1e9f696687a4",
+        "type": "AGENT_STARTED",
+        "occurred_at": "2026-10-24T02:46:51.279741Z",
+        "summary": "调查已受理",
+        "revision": 2
+      },
+      {
+        "event_id": "d92ce965-3c49-4778-8876-4c1c9c7e9c31",
+        "type": "PROPOSAL_READY",
+        "occurred_at": "2026-10-24T02:47:04.420159Z",
+        "summary": "方案已按政策核对，重算金额 32900 分，等待人工确认",
+        "revision": 2
+      },
+      {
+        "event_id": "611fcdb0-f30e-4843-be8a-7e90147c3bad",
+        "type": "APPROVAL_REQUIRED",
+        "occurred_at": "2026-10-24T02:47:04.420159Z",
+        "summary": "等待人工审批（授权版本 1）",
+        "revision": 2
+      }
+    ]
+  },
+  "final": {
+    "draft": {
+      "draft_id": "0b1a95ed-4044-4e4e-9aca-5c9cb58a278c",
+      "revision": 2,
+      "expected_version": 2,
+      "status": "CONFIRMED",
+      "reason": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+      "quantity": 1,
+      "amount_minor": 32900,
+      "currency": "CNY",
+      "expires_at": "2026-10-24T03:16:30.809857Z",
+      "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e"
+    },
+    "application": {
+      "case": {
+        "case_id": "1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e",
+        "status": "CLOSED_SUCCESS",
+        "line_id": "SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb",
+        "order_id": "b1a71c3a-f80c-4cf4-909c-e3ad6b701466",
+        "description": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+        "version": 9,
+        "created_at": "2026-10-24T02:46:31.168068Z",
+        "updated_at": "2026-10-24T02:47:07.353214Z"
+      },
+      "input_revision": 2,
+      "allowed_actions": [],
+      "blocked_reason": "退款已进入执行阶段，不能撤销或修改材料",
+      "materials": [
+        {
+          "id": "b3e56993-c7b9-4e83-b2d7-183329362028",
+          "text": "合成验收：本人未收到商品，承运商记录为丢失，请商家核实后退还这件商品全部实付款。",
+          "submitted_at": "2026-10-24T02:46:31.231026Z",
+          "question_id": null,
+          "verification_result": "CONFIRMED"
+        }
+      ],
+      "questions": [],
+      "result": {
+        "status": "CLOSED_SUCCESS",
+        "message": "模拟退款已完成",
+        "amount_minor": 32900,
+        "currency": "CNY",
+        "public_reason": "合成验收：已核对承运商丢失记录、当前订单行实付与政策依据，同意本次整行模拟退款。"
+      },
+      "timeline": [
+        {
+          "type": "CASE_CREATED",
+          "occurred_at": "2026-10-24T02:46:31.168068Z",
+          "summary": "退款申请已提交"
+        },
+        {
+          "type": "AGENT_STARTED",
+          "occurred_at": "2026-10-24T02:46:32.905487Z",
+          "summary": "开始调查"
+        },
+        {
+          "type": "PROPOSAL_READY",
+          "occurred_at": "2026-10-24T02:46:49.191207Z",
+          "summary": "调查完成，等待商家核对"
+        },
+        {
+          "type": "EVIDENCE_APPENDED",
+          "occurred_at": "2026-10-24T02:46:50.307119Z",
+          "summary": "提交材料或核验记录已更新"
+        },
+        {
+          "type": "AGENT_STARTED",
+          "occurred_at": "2026-10-24T02:46:51.279741Z",
+          "summary": "开始调查"
+        },
+        {
+          "type": "PROPOSAL_READY",
+          "occurred_at": "2026-10-24T02:47:04.420159Z",
+          "summary": "调查完成，等待商家核对"
+        },
+        {
+          "type": "APPROVAL_REQUIRED",
+          "occurred_at": "2026-10-24T02:47:04.420159Z",
+          "summary": "调查完成，等待商家核对"
+        },
+        {
+          "type": "AUTHORIZATION_DECIDED",
+          "occurred_at": "2026-10-24T02:47:05.739537Z",
+          "summary": "商家审核决定已记录"
+        },
+        {
+          "type": "EXECUTION_UPDATED",
+          "occurred_at": "2026-10-24T02:47:06.240282Z",
+          "summary": "模拟退款执行状态已更新"
+        },
+        {
+          "type": "CASE_CLOSED",
+          "occurred_at": "2026-10-24T02:47:07.353214Z",
+          "summary": "申请处理已结束"
+        }
+      ]
+    }
+  },
+  "success": true
+}

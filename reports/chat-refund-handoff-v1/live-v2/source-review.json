@@ -1,0 +1,20 @@
+{
+  "candidate_sha256": "f22da0187328541490168fd69395a713238cfdbcbabccdebceef8e5b80dee082",
+  "root_summary_is_string": true,
+  "unused_fact_annotations": [
+    {
+      "task_id": "t1",
+      "field": "SHIPMENT_STATUS",
+      "source": "O1"
+    },
+    {
+      "task_id": "t1",
+      "field": "CARRIER_CONCLUSION",
+      "source": "O1"
+    }
+  ],
+  "schema_accepted": true,
+  "network_calls": 0,
+  "repaired_candidate_published": false,
+  "actual_grounding_error": "facts.field须唯一且在对应text中有{{FIELD}}占位符。"
+}
