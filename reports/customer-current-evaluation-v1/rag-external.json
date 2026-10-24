@@ -1,0 +1,4589 @@
+{
+  "version": "customer-rag-external-fields-v1",
+  "inputs": {
+    "evals/policy-query-v1/manifest.json": "f849082353f1e78e1a3c0ec8693349003511ba7004f961203484c7968fe96a97",
+    "evals/policy-query-v1/queries.json": "9957ab90c1238ef8d5e00eded2d9a0a33a628b4508bddb975b01e736623309c6",
+    "evals/policy-query-v1/evidence.json": "f1d9d60c1f3f7f8f1188b1450b36bfe1b02e666eefac9d3e0f2474a9dc225315",
+    "evals/rag-codex-review-v1/labels.json": "caab1b995b798419095b6b22865f563949066cc4c25db7f3063224591a59c8d5",
+    "tmp/policy-documents-v1/children-final.json": "12c875b0bc234961ed5683771e737d66ced488c1447abab615539c82c6ce0811",
+    "tmp/policy-documents-v1/drafts-audited.json": "96cb35bf2d42849452afca33f449672271948d60eae7abef0739c1fe5e4ecc10",
+    "tmp/rag-structure-v1/vectors-v1.json": "2a219acf16dfd75e7a691ff6ad13b65bbe5c9c39cb9046e130a7643b63272fd3",
+    "agent/src/resolveflow/support/retrieval.py": "ef8343717851b64285dce82c4319f80c247e49017506a1b4af0f09982209d04d"
+  },
+  "script_sha256": "bba22c21e223e1ad7838a1cd4eeba94e81fb556be5fe566c62aa96f32d2c0ccb",
+  "new_llm_calls": 0,
+  "new_embedding_calls": 0,
+  "production_writes": 0,
+  "label_origin": "CODEX_REVIEW",
+  "blind_review": false,
+  "formal_accuracy": null,
+  "candidate_k": 5,
+  "rrf_constant": 60,
+  "query_count": 29,
+  "chunk_count": 66,
+  "summary": {
+    "dense/top3/ANSWERABLE": {
+      "n": 17,
+      "covered": 10,
+      "regressions": []
+    },
+    "dense/top3/PARTIAL": {
+      "n": 1,
+      "covered": 0,
+      "regressions": []
+    },
+    "dense/top5/ANSWERABLE": {
+      "n": 17,
+      "covered": 13,
+      "regressions": []
+    },
+    "dense/top5/PARTIAL": {
+      "n": 1,
+      "covered": 1,
+      "regressions": []
+    },
+    "body-bm25/top3/ANSWERABLE": {
+      "n": 17,
+      "covered": 12,
+      "regressions": [
+        "S:MI02"
+      ]
+    },
+    "body-bm25/top3/PARTIAL": {
+      "n": 1,
+      "covered": 0,
+      "regressions": []
+    },
+    "body-bm25/top5/ANSWERABLE": {
+      "n": 17,
+      "covered": 13,
+      "regressions": [
+        "S:JD03",
+        "S:MI01",
+        "S:MI02"
+      ]
+    },
+    "body-bm25/top5/PARTIAL": {
+      "n": 1,
+      "covered": 1,
+      "regressions": []
+    },
+    "title-bm25/top3/ANSWERABLE": {
+      "n": 17,
+      "covered": 9,
+      "regressions": [
+        "S:JD05",
+        "S:MI03",
+        "S:IK01"
+      ]
+    },
+    "title-bm25/top3/PARTIAL": {
+      "n": 1,
+      "covered": 0,
+      "regressions": []
+    },
+    "title-bm25/top5/ANSWERABLE": {
+      "n": 17,
+      "covered": 10,
+      "regressions": [
+        "S:JD03",
+        "S:JD05",
+        "S:MI01",
+        "S:IK01",
+        "S:IK05"
+      ]
+    },
+    "title-bm25/top5/PARTIAL": {
+      "n": 1,
+      "covered": 0,
+      "regressions": [
+        "F:JD08"
+      ]
+    },
+    "body-rrf/top3/ANSWERABLE": {
+      "n": 17,
+      "covered": 10,
+      "regressions": [
+        "S:MI02"
+      ]
+    },
+    "body-rrf/top3/PARTIAL": {
+      "n": 1,
+      "covered": 1,
+      "regressions": []
+    },
+    "body-rrf/top5/ANSWERABLE": {
+      "n": 17,
+      "covered": 12,
+      "regressions": [
+        "S:JD03",
+        "S:MI01"
+      ]
+    },
+    "body-rrf/top5/PARTIAL": {
+      "n": 1,
+      "covered": 1,
+      "regressions": []
+    },
+    "title-rrf/top3/ANSWERABLE": {
+      "n": 17,
+      "covered": 10,
+      "regressions": []
+    },
+    "title-rrf/top3/PARTIAL": {
+      "n": 1,
+      "covered": 0,
+      "regressions": []
+    },
+    "title-rrf/top5/ANSWERABLE": {
+      "n": 17,
+      "covered": 12,
+      "regressions": [
+        "S:MI01",
+        "S:IK05"
+      ]
+    },
+    "title-rrf/top5/PARTIAL": {
+      "n": 1,
+      "covered": 1,
+      "regressions": []
+    },
+    "fields-rrf/top3/ANSWERABLE": {
+      "n": 17,
+      "covered": 12,
+      "regressions": []
+    },
+    "fields-rrf/top3/PARTIAL": {
+      "n": 1,
+      "covered": 0,
+      "regressions": []
+    },
+    "fields-rrf/top5/ANSWERABLE": {
+      "n": 17,
+      "covered": 16,
+      "regressions": [
+        "S:JD03"
+      ]
+    },
+    "fields-rrf/top5/PARTIAL": {
+      "n": 1,
+      "covered": 1,
+      "regressions": []
+    }
+  },
+  "rows": [
+    {
+      "id": "S:JD01",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "S:JD01",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "S:JD02",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "S:JD03",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "S:JD04",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "S:JD05",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "S:JD06",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "S:JD06",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    },
+    {
+      "id": "S:JD06",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:10879a2429d8b6a02d35a094"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:10879a2429d8b6a02d35a094",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:c8654c4e57421588a25a17b4",
+        "mi-self-operated:child:67a1475b57db4b5433cbc8a3"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:2b117aa03c80153f14bf8ee4"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:10879a2429d8b6a02d35a094"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee"
+      ]
+    },
+    {
+      "id": "S:MI01",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:2b117aa03c80153f14bf8ee4"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:b8aded81287844fd0204e59e"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+        "mi-self-operated:child:04249d11e54fdca116629351"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:bec6af1da981f3d9699e329e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:bec6af1da981f3d9699e329e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:c8654c4e57421588a25a17b4"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:bec6af1da981f3d9699e329e"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:bec6af1da981f3d9699e329e",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:067c2b252fd378331ba43457"
+      ]
+    },
+    {
+      "id": "S:MI02",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:bec6af1da981f3d9699e329e"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:67a1475b57db4b5433cbc8a3",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:067c2b252fd378331ba43457"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:67a1475b57db4b5433cbc8a3",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:73884ab6e51f4e0145dd62b4"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:067c2b252fd378331ba43457"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:b8aded81287844fd0204e59e"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:67a1475b57db4b5433cbc8a3"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:67a1475b57db4b5433cbc8a3",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56"
+      ]
+    },
+    {
+      "id": "S:MI03",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486",
+        "mi-self-operated:child:67a1475b57db4b5433cbc8a3"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:fe2efaa9a710e67c62aa4486"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:b8aded81287844fd0204e59e"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:bec6af1da981f3d9699e329e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:bec6af1da981f3d9699e329e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:b8aded81287844fd0204e59e"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:bec6af1da981f3d9699e329e"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:bec6af1da981f3d9699e329e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859"
+      ]
+    },
+    {
+      "id": "S:MI04",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e",
+        "mi-self-operated:child:1393fd0d42a26b3fc9183859",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:067c2b252fd378331ba43457"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:067c2b252fd378331ba43457"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:7e42e60b837d48aebbd3eb5e"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:10879a2429d8b6a02d35a094"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:c8654c4e57421588a25a17b4"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:067c2b252fd378331ba43457"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7"
+      ]
+    },
+    {
+      "id": "S:MI05",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:b8aded81287844fd0204e59e"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:2b117aa03c80153f14bf8ee4",
+        "mi-self-operated:child:67a1475b57db4b5433cbc8a3"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:bec6af1da981f3d9699e329e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:bec6af1da981f3d9699e329e",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:b9a2da5a914529e5ad64aacf",
+        "mi-self-operated:child:c8654c4e57421588a25a17b4"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56",
+        "mi-self-operated:child:310cbfcbd430f183e9b3c4c7",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:b8aded81287844fd0204e59e"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:bec6af1da981f3d9699e329e",
+        "mi-self-operated:child:067c2b252fd378331ba43457"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee"
+      ]
+    },
+    {
+      "id": "S:MI06",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "mi-self-operated:child:b8aded81287844fd0204e59e",
+        "mi-self-operated:child:067c2b252fd378331ba43457",
+        "mi-self-operated:child:100b4e63d3bcd5ed6ce0deee",
+        "mi-self-operated:child:3bd804daad5a0ef2c6042f1c",
+        "mi-self-operated:child:a52c9d06fc6f8ad9482cbc56"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:db8d39afcd8a2564d86be89c"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:db8d39afcd8a2564d86be89c",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:817ebba659227725f85f2ef4"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:817ebba659227725f85f2ef4",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:c316f45867f09a652136faef"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:817ebba659227725f85f2ef4",
+        "ikea-terms:child:db8d39afcd8a2564d86be89c"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:db8d39afcd8a2564d86be89c",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK01",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:817ebba659227725f85f2ef4"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec",
+        "ikea-terms:child:db8d39afcd8a2564d86be89c"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:aa670a22de8a1eb3c7e445c1"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec",
+        "ikea-terms:child:db8d39afcd8a2564d86be89c"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK02",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:dfffee47b08417e929f262fb",
+        "ikea-terms:child:db8d39afcd8a2564d86be89c"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:817ebba659227725f85f2ef4",
+        "ikea-terms:child:44d21771059c164f097bb1ae"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:011a499e76da16be83336470",
+        "ikea-terms:child:0157a9b23de5036a7b597b41"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:817ebba659227725f85f2ef4",
+        "ikea-terms:child:dfffee47b08417e929f262fb"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:011a499e76da16be83336470"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK03",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:011a499e76da16be83336470"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec",
+        "ikea-terms:child:dfffee47b08417e929f262fb"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec",
+        "ikea-terms:child:dfffee47b08417e929f262fb",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:817ebba659227725f85f2ef4"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:817ebba659227725f85f2ef4",
+        "ikea-terms:child:4fddee7e434f652c303012b7",
+        "ikea-terms:child:b823d3a1b252133f60202cd2"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec",
+        "ikea-terms:child:817ebba659227725f85f2ef4",
+        "ikea-terms:child:dfffee47b08417e929f262fb"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec",
+        "ikea-terms:child:dfffee47b08417e929f262fb"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a"
+      ]
+    },
+    {
+      "id": "S:IK04",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec",
+        "ikea-terms:child:817ebba659227725f85f2ef4"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec",
+        "ikea-terms:child:2b22ab89227673665cc5fbad"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:2b22ab89227673665cc5fbad",
+        "ikea-terms:child:489aadd08ac580b395148ef0",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:2b22ab89227673665cc5fbad",
+        "ikea-terms:child:489aadd08ac580b395148ef0",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:817ebba659227725f85f2ef4",
+        "ikea-terms:child:eaa97ab9e9fc1d7af5d5ea11"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:2b22ab89227673665cc5fbad",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:2b22ab89227673665cc5fbad",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:489aadd08ac580b395148ef0"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:b70848edfb4dffa3740c78ec"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:2b22ab89227673665cc5fbad",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152"
+      ]
+    },
+    {
+      "id": "S:IK05",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "ikea-terms:child:2b22ab89227673665cc5fbad",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:7c00b029f09d77e0a33f4b4a",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:6a156d15628eb631a70b663f",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:5e7d124fb037dcb22b13a4b5",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:5e7d124fb037dcb22b13a4b5",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:99b349f0a92cde689efca9d6",
+        "ikea-terms:child:7b83a23aef612424e1e9fe20"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "S:IK06",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "S:IK06",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:5e7d124fb037dcb22b13a4b5"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:5e7d124fb037dcb22b13a4b5",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d",
+        "ikea-terms:child:6a156d15628eb631a70b663f",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:5e7d124fb037dcb22b13a4b5"
+      ]
+    },
+    {
+      "id": "S:IK06",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "ikea-terms:child:00c200c00ac0ce1055b0f37b",
+        "ikea-terms:child:11cfdeebef13782ca9e6f152",
+        "ikea-terms:child:5e7d124fb037dcb22b13a4b5",
+        "ikea-terms:child:c316f45867f09a652136faef",
+        "ikea-terms:child:8c3daaa844a126911cc65b1d"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD01",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD01",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD01",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD02",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD02",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD02",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD02",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD02",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD02",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD02",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD02",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD02",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD02",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD02",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD02",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD03",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD03",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD03",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD04",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD04",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD04",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD05",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD06",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": []
+    },
+    {
+      "id": "F:JD06",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD06",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:f1a08b49894accb14017f24b",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD07",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    },
+    {
+      "id": "F:JD08",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "PARTIAL",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:f1a08b49894accb14017f24b"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:094da39b48617d825de0053b"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": false,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD09",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "ANSWERABLE",
+      "direct_sufficient_evidence": true,
+      "hits": [
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:2a9db3c845742e49592065a8",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD10",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NEEDS_CLARIFICATION",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:f23ddc888c30d42ed194e757",
+        "jd-digital:child:2a9db3c845742e49592065a8"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "dense",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "dense",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-digital:child:1dfb370ce711f9a72fd171d2",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:f23ddc888c30d42ed194e757"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "body-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "body-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "title-bm25",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "title-bm25",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:b7ae706481688c7f1af1ca4d"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "body-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "body-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:094da39b48617d825de0053b",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "title-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:af125b08d0d70058d3f9a1d6"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "title-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-digital:child:e0a8c0521f1a1b959e66524d",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "fields-rrf",
+      "k": 3,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988"
+      ]
+    },
+    {
+      "id": "F:JD11",
+      "variant": "fields-rrf",
+      "k": 5,
+      "answerability": "NOT_IN_CORPUS",
+      "direct_sufficient_evidence": null,
+      "hits": [
+        "jd-general:child:7132c8eb57c8f21a7037cbc7",
+        "jd-general:child:af125b08d0d70058d3f9a1d6",
+        "jd-general:child:b6699a690c650b1c4eb75988",
+        "jd-general:child:b7ae706481688c7f1af1ca4d",
+        "jd-digital:child:cf635af80ef9fe829cb58e4d"
+      ]
+    }
+  ],
+  "note": "Direct complete block/row evidence coverage; no parent expansion. Section paths differ from short business rule titles."
+}

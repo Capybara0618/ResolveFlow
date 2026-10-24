@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，当前版本RAG集中评测完成，待Agent44轮）
+
+- 5691690驱动/冻结已同步；两个只读命令external/runtime退出0，公共PG前后hash相等、0新模型。外部17 ANSWERABLE三路Top5完整证据16/17，正文BM25 13/17；Top3均12/17，仍有S:JD03退化，不是回答准确率。[报告](../reports/customer-current-evaluation-v1/README.md)。
+- 商城实际BoundSources9查询×10轮热态90次均COMPLETE_SMALL_SET/6规则、必要规则覆盖90/90错误0；p50 4.74ms/p95 5.84ms，独立加载预热7589.5ms，首查询19.09ms；完整输入覆盖不冒充排序胜出，工具耗时不冒充Agent回复耗时。
+- 本步精确commit普通push核实后，一次冻结14组44轮真实流式生成及逐轮源审；业务版本不改、原失败保留，不创建Case/退款。usage仍2143，历史四脏文件保持。
+
 ## 当前快照（2026-10-24，当前版本评测驱动及零付费预检完成）
 
 - d9869bd口径已同步。新增独立Agent/RAG驱动，原14组44轮不改；跨轮接续匹配Java最新accepted状态（含失败），真实StreamingLiveModelClient子类计量、原ProgressReporter投影，撤回临时正文不计有效首段。业务源码未改。

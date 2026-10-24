@@ -1,0 +1,5183 @@
+{
+  "version": "current-bound-sources-v1",
+  "scope": "CPU4 readonly actual BoundSources.search",
+  "new_llm_calls": 0,
+  "local_embedding_prewarm_ms": 7589.5014999987325,
+  "first_query_pass": [
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 0,
+      "warm": false,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 19.092900009127334,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 0,
+      "warm": false,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 4.404699997394346,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 0,
+      "warm": false,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 4.512500003329478,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 4.665399988880381,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 4.046499991090968,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 4.179800002020784,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.6491999964928254,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 4.815700012841262,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.227299999911338,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    }
+  ],
+  "warm_n": 90,
+  "warm_p50_ms": 4.73739999870304,
+  "warm_p95_ms": 5.835344991646707,
+  "required_input_covered": 90,
+  "error_count": 0,
+  "public_before": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 176,
+      "sha256": "602bc3a2023df615dc7f4cdd9f34b73079ca7b0069eaa4be504c6318fffc75ad"
+    },
+    "support_agent_run": {
+      "rows": 31,
+      "sha256": "6e469b3c88c761760bb7aca46c2c8ca3d507b415a32408a886c6786271c1e4a2"
+    }
+  },
+  "public_after": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 176,
+      "sha256": "602bc3a2023df615dc7f4cdd9f34b73079ca7b0069eaa4be504c6318fffc75ad"
+    },
+    "support_agent_run": {
+      "rows": 31,
+      "sha256": "6e469b3c88c761760bb7aca46c2c8ca3d507b415a32408a886c6786271c1e4a2"
+    }
+  },
+  "rows": [
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 0,
+      "warm": false,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 19.092900009127334,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 0,
+      "warm": false,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 4.404699997394346,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 0,
+      "warm": false,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 4.512500003329478,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 4.665399988880381,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 4.046499991090968,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 4.179800002020784,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.6491999964928254,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 4.815700012841262,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 0,
+      "warm": false,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.227299999911338,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 1,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 4.077300007338636,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 1,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 4.34480000694748,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 1,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 4.250699988915585,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 4.830799996852875,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 4.899099993053824,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 5.390799997258,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 5.195000005187467,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 4.766500002006069,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 1,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.313299999921583,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 2,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 4.195800007437356,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 2,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 4.772400003275834,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 2,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 4.757999995490536,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 5.958599998848513,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 4.908699993393384,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 4.484000004595146,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.5762999943690374,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 4.236499997205101,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 2,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 5.72939999983646,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 3,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 4.649999988032505,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 3,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 4.368499998236075,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 3,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 4.844800001592375,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 3,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 4.709700006060302,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 3,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 5.0560000090627,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 3,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 4.929100003209896,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 3,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.906900008791126,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 3,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 5.082899995613843,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 3,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.3083000055048615,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 4,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 4.319699990446679,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 4,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 4.3261999962851405,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 4,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 4.5018000091658905,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 4,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 5.1346000109333545,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 4,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 5.730999997467734,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 4,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 4.97900000482332,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 4,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.2818000074476,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 4,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 5.018900003051385,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 4,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.883700006757863,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 5,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 4.809899997781031,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 5,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 5.03000000026077,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 5,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 5.2610999991884455,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 5,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 4.39889999688603,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 5,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 4.6242999960668385,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 5,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 4.448499996215105,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 5,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.974800001946278,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 5,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 4.518700006883591,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 5,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.761200005305,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 6,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 4.633999997167848,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 6,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 4.68410000030417,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 6,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 4.356299992650747,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 6,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 4.075999997439794,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 6,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 4.060899998876266,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 6,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 4.2474000074435025,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 6,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.532300008577295,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 6,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 5.420300003606826,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 6,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.226899996865541,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 7,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 4.288700001779944,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 7,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 3.8915999903110787,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 7,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 3.754700010176748,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 7,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 3.8077999925008044,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 7,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 4.228999998304062,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 7,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 5.262899998342618,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 7,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.8060999979497865,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 7,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 5.00849999662023,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 7,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.442999997991137,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 8,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 4.635400007828139,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 8,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 4.337700011092238,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 8,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 3.94330000563059,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 8,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 4.977500007953495,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 8,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 4.831499987631105,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 8,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 4.340100000263192,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 8,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.622199994628318,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 8,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 4.251599995768629,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 8,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.2391000024508685,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 9,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 4.918199992971495,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 9,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 6.6423999960534275,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 9,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 6.032499994034879,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 9,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 4.902100001345389,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 9,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 4.601199994795024,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 9,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 4.682300001149997,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 9,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 5.324400000972673,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 9,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 5.575499992119148,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 9,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 6.400799989933148,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L02",
+      "kind": "saved-live",
+      "round": 10,
+      "warm": true,
+      "query": "签收未收到 核实签收凭证 商家核查流程 未授权代收",
+      "elapsed_ms": 5.772699994849972,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L03",
+      "kind": "saved-live",
+      "round": 10,
+      "warm": true,
+      "query": "已签收但未收到 签收争议 退款规则 本店政策",
+      "elapsed_ms": 4.716800001915544,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "L08",
+      "kind": "saved-live",
+      "round": 10,
+      "warm": true,
+      "query": "台灯 物流确认丢失 本店政策 后续处理 条件 补发 退款",
+      "elapsed_ms": 5.284400001983158,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P01",
+      "kind": "synthetic-probe",
+      "round": 10,
+      "warm": true,
+      "query": "付完钱还没发货，不想要了，可以退吗？",
+      "elapsed_ms": 5.210400006035343,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-UNSHIPPED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P02",
+      "kind": "synthetic-probe",
+      "round": 10,
+      "warm": true,
+      "query": "快递确认弄丢了，我想知道退款要满足什么条件。",
+      "elapsed_ms": 5.719599997974001,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-LOST-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P03",
+      "kind": "synthetic-probe",
+      "round": 10,
+      "warm": true,
+      "query": "页面显示已送达，我却没收到，是别人代签的吗？能退吗？",
+      "elapsed_ms": 5.886599989025854,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-SIGNED-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P04",
+      "kind": "synthetic-probe",
+      "round": 10,
+      "warm": true,
+      "query": "收到货发现坏了，质量有问题，要准备什么才能退款？",
+      "elapsed_ms": 4.796900000656024,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-DMG-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P05",
+      "kind": "synthetic-probe",
+      "round": 10,
+      "warm": true,
+      "query": "包裹还在运输，几天没更新了，能不能当成丢件退款？",
+      "elapsed_ms": 4.9629999994067475,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-INTRANSIT-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    },
+    {
+      "id": "P06",
+      "kind": "synthetic-probe",
+      "round": 10,
+      "warm": true,
+      "query": "退款金额怎么算，可以超过这一件的实付款吗？",
+      "elapsed_ms": 4.37670000246726,
+      "retrieval_context": [
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        },
+        {
+          "mode": "COMPLETE_SMALL_SET",
+          "count": 6
+        }
+      ],
+      "rules": [
+        "R-UNSHIPPED-001",
+        "R-LOST-001",
+        "R-SIGNED-001",
+        "R-DMG-001",
+        "R-INTRANSIT-001",
+        "R-MONEY-001"
+      ],
+      "required_rules": [
+        "R-MONEY-001"
+      ],
+      "error": false,
+      "required_input_coverage": true
+    }
+  ]
+}
