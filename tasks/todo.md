@@ -1,3 +1,8 @@
+## 当前快照（2026-10-24，用户批准当前版本集中评测，口径已定）
+
+- 业务默认orchestrated-v1保持；按[本批合同](../docs/customer-current-evaluation-v1.md)固定14组44轮合成多轮回归、真实流式生成及源审，外部29题证据覆盖、商城9查询×10轮实际检索耗时分开报告。开发集不冒充盲测，绝对效果不与旧版异条件成绩算提升。
+- 本步仅口径/记录，0模型；随后准备评测驱动、失败后accepted状态接续和真实流式计量的针对性验证，冻结源码/权重/数据后执行一次。不创建Case或退款，不更新简历/业务架构。既有四历史脏文件保持，usage2143。
+
 ## 当前快照（2026-10-24，客服新编排验收及默认采用完成，本批收口）
 
 - 实现f94ede7/主链c7a49b7/默认819f293均已普通push核实。正式start/启动后检查/status统一orchestrated-v1；实际start -SkipBuild -NoBrowser与status所有依赖、3 Java、Python、网页/精确索引健康。[集中报告](../reports/customer-agent-orchestration-acceptance-v1/README.md)。
