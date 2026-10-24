@@ -336,9 +336,12 @@ class SupportAgent:
                     raise RefundSummaryError('refund_summary仅用于已选择REFUND_APPLICATION并读取指南的非空申请摘要。')
             grounded = None
             if isinstance(decision, (Answer, AnswerParts)):
-                required = self.stage.required_actions(self.dialogue.lifecycles)
+                required = (self.orchestration.required_actions(self.dialogue.lifecycles)
+                            if self.orchestration is not None else
+                            self.stage.required_actions(self.dialogue.lifecycles))
                 decision = render_navigation(decision, self.citations, strict=self.stage.enabled, required=required,
-                                             conversation_state=self.request.context.get('conversation_state'))
+                                             conversation_state=self.request.context.get('conversation_state'),
+                                             program_owned=self.orchestration is not None)
                 grounded = ground_answer(decision, self.request, self.citations)
                 decision = grounded
             if isinstance(decision, AnswerParts):

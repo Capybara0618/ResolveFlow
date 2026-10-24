@@ -23,6 +23,7 @@ from resolveflow.support.stages import Focus, Understanding
 TOOLS = {"ORDER": "get_order_context", "SHIPMENT": "get_shipment_trace",
          "POLICY": "search_policy", "GUIDE": "get_support_guide"}
 INACTIVE = {"PAUSED", "CANCELLED", "RESOLVED"}
+GOAL_ACTIONS = {"PREPARE_REFUND": "REFUND_APPLICATION", "MERCHANT_REVIEW": "MERCHANT_REVIEW"}
 
 
 class PlannedFocus(Focus):
@@ -151,6 +152,10 @@ class Orchestration:
     def failure_tools(self, meaning: Understanding) -> dict[str, set[str]]:
         return {f.id: {TOOLS[need] for need in self.required(f)} for f in meaning.focus}
 
+    def required_actions(self, lives: dict[str, str]) -> dict[str, str]:
+        return {task_id: GOAL_ACTIONS[goal] for task_id, goal in self.goals.items()
+                if goal in GOAL_ACTIONS and lives.get(task_id) not in INACTIVE}
+
     def response_contract(self, meaning: Understanding, refs: dict[str, dict[str, Any]],
                           failures: list[dict[str, Any]], lives: dict[str, str]) -> dict[str, Any]:
         """Compile the accepted goals into the exact output shape, never into invented customer reasons."""
@@ -230,7 +235,7 @@ class Orchestration:
                             continue
                         facts.append(AnswerFact.model_validate({"field": field, "source": ref}))
                 if status in {"ANSWERED", "NEEDS_MERCHANT"}:
-                    action = {"APPLICATION": "REFUND_APPLICATION", "HANDOFF": "MERCHANT_REVIEW"}.get(focus.intent)
+                    action = self.required_actions(lives).get(focus.id)
                     if action:
                         steps = [{"action": action, "source": task["refs_by_need"]["GUIDE"][-1]}]
                     usable_goals.add(task["goal"])

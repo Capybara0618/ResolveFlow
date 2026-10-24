@@ -70,14 +70,25 @@ def render_navigation(
     decision: Answer | AnswerParts, citations: dict[str, dict[str, Any]], *, strict: bool = False,
     required: dict[str, str] | None = None,
     conversation_state: dict[str, Any] | None = None,
+    program_owned: bool = False,
 ) -> Answer | AnswerParts:
     decision = navigation_references(decision, citations)
     rendered = []
     for piece in decision.parts if isinstance(decision, AnswerParts) else [decision]:
         actions = [step.action for step in piece.next_steps]
+        refs = list(piece.citations)
         if strict:
+            if program_owned and any(label in piece.text for label in PAGE_LABELS):
+                trusted = guide_source()
+                guide_ref = next((ref for ref, source in citations.items() if all(
+                    source.get(key) == trusted[key] for key in ('source_type', 'version', 'data')
+                ) and 'error' not in source), None)
+                if guide_ref is None:
+                    raise NavigationSourceError('解释页面也须本run实际读取的当前受控指南。')
+                if guide_ref not in refs:
+                    refs.append(guide_ref)
             for label in PAGE_LABELS:
-                if label in piece.text and not PAGE_ACTIONS[label].intersection(actions):
+                if not program_owned and label in piece.text and not PAGE_ACTIONS[label].intersection(actions):
                     choices = sorted(PAGE_ACTIONS[label])
                     raise NavigationError(f'页面“{label}”须对应next_steps.action={choices}及本run指南。')
             # Finite direct UI pairs, not a general classifier of prose or negation.
@@ -95,9 +106,9 @@ def render_navigation(
         existing_ticket = (conversation_state or {}).get('has_ticket') is True
         # Pure application guidance is program-owned. Do not append the same route to a model's
         # free-form version of it. Mixed investigation/fact explanations remain intact.
-        guide_only = (expected is not None and len(actions) == 1 and actions[0] == expected
+        guide_only = (not program_owned and expected is not None and len(actions) == 1 and actions[0] == expected
                       and set(piece.citations) <= {step.source for step in piece.next_steps})
-        text, refs = ('' if guide_only else piece.text), list(piece.citations)
+        text = '' if guide_only else piece.text
         for step in piece.next_steps:
             instruction = (EXISTING_REVIEW if existing_ticket and step.action == 'MERCHANT_REVIEW'
                            else INSTRUCTIONS[step.action])

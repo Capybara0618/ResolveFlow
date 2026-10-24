@@ -1,8 +1,9 @@
-## 当前快照（2026-10-24，用户批准客服共同边界修复，A已验证）
+## 当前快照（2026-10-24，客服共同边界A/B工程修复及PG恢复验证完成）
 
-- 按[方案](../docs/customer-agent-boundary-v1.md)保留orchestrated-v1修来源/步骤/呈现合同。A在理解前经原预算/journal读公共指南；实际理解messages保留可信指南，application_context分开current/default recipient与has_ticket，缺失保持未知，业务工具仍自主按需。
-- 新5红→控制/SDK脚本31通过；Ruff五文件/strict三源码通过。[报告](../reports/customer-agent-boundary-v1/README.md)。纯政策多1本地读但不自动填指南引用，模型次数不增。Docker管道不可用，未运行PG/API/Java/Web或Provider；账2274，旧四脏文件/原44轮保持。
-- A精确提交普通push核实后继续B：解释性页面引用与实际操作分离，保留模型直接解释，统一装配/发布；先反例/离线回归，不能只删校验或按GUIDE引用删正文。上下文纠正、政策前提与人工完成缺口另批，不自动收费重跑。
+- A实现5719328已同步。B统一按accepted goal/lifecycle装配/要求操作，EXPLAIN只解释页面不强制办理；当前编排保留直接text、不按GUIDE-only删正文。已读真实指南可支持页面解释，跨页直接错配、原因/事实/金额及权限限制保持；旧single/staged兼容不变。[方案](../docs/customer-agent-boundary-v1.md)/[报告](../reports/customer-agent-boundary-v1/README.md)。
+- 新6红→76针对通过；50文件客服/契约429通过，后补流式正文保留/诊断9针对通过，重叠不累加。四个原真实候选D03/1、D06/2、D08/1、D10/2离线发布且原解释保留0修正；原44轮/模型决策/评分不改，不称新生成或语义成功。Ruff相关源码/测试/诊断、strict四源码通过。
+- 用户恢复Docker后仅启动所属原PG；真实隔离PG/API/SSE/store18通过0跳过，并对同一恢复测试追加第一tool/第一实际model请求断言1项确认。指南理解前已持久传入、恢复0新模型/来源读、manifest不静默升级。11公共表/旧评测/四历史脏文件保持，账2274；[最终审计](../reports/customer-agent-boundary-v1/final-audit.json)。0Provider/Case/退款/正常业务写；未启动Java/业务Agent、未做真实LLM或网页验收。
+- 本批精确提交普通push核实后收口；前三共同问题已完成工程修正，模型采纳仍需有限真实确认。长历史纠正、政策关键条件与明确人工摘要完成缺口尚未本批修复；不自动扩评测刷分、不宣称Agent冻结。下一步固定新版本少量真实对话验证这一合同，再按结果决定后续。
 
 ## 当前快照（2026-10-24，用户要求持续记录架构演进，复盘文档已建立）
 

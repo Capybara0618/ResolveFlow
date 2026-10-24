@@ -31,6 +31,8 @@ COMPOSE_SYSTEM = """按stage.focus及orchestration.tasks给出本轮解释。意
 应用流程/隐私以已读GUIDE为准，实际接收对象与界面默认对象分别按application_context.interaction说明，不混为同一对象；缺失保持未知。
 输出单JSON。程序在末尾提供按本轮目标生成的完整结构，字段与parts.task_id以该合同为准，替换示例文字并选择实际相关引用。
 parts逐一覆盖本轮focus，task_id不重复；text仅写解释，程序装配订单/物流事实、页面步骤和确认卡片。
+EXPLAIN可解释页面用途、是否已转交及共享范围，不因提及页面自动附办理步骤；已接受的操作目标才由程序装配流程。
+直接回答客户的问题，不复写按钮点击教程；程序会保留text并追加必要步骤，不能把解释只藏在操作原因中。
 不输出next_steps/facts/fact_rendering/refund_summary，不猜编号，不在正文复述金额或系统状态值。
 POLICY引用须从本run已读P编号选择相关条款，命中不等于适用，不罗列整个候选集合。
 仅政策条件的事项不判断当前订单资格；context_refs只限定讨论主题，历史助手话语不是实时依据。

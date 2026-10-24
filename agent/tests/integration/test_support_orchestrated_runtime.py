@@ -66,6 +66,15 @@ def test_api_persists_raw_protocol_and_reconstructs_plan_guide_gaps_without_new_
                               "WHERE run_id=%s ORDER BY kind,position", (req.run_id,)).fetchall()
             assert [r["response_json"]["decision"] for r in calls if r["kind"] == "model"] == script
             assert len([r for r in calls if r["kind"] == "tool"]) == 3
+            first_tool = next(r for r in calls if r["kind"] == "tool" and r["position"] == 1)
+            assert first_tool["response_json"][0]["data"]["authority"] == "APPLICATION_GUIDE"
+            sent = c.execute("SELECT request_json FROM support_agent_call "
+                             "WHERE run_id=%s AND kind='model' AND position=1", (req.run_id,)).fetchone()
+            packet = json.loads(sent["request_json"]["messages"][-1]["content"])
+            assert packet["stage"]["phase"] == "UNDERSTAND"
+            assert packet["application_context"]["guide_refs"] == ["O1"]
+            assert packet["observations"][0]["data"]["authority"] == "APPLICATION_GUIDE"
+            assert "私有助手咨询与补充给商家的区别" in packet["observations"][0]["data"]["text"]
             c.execute("UPDATE support_agent_run SET status='RUNNING',result_json=NULL,"
                       "lease_until=now()-interval '1 second' WHERE run_id=%s", (req.run_id,))
         models[0] = TokenizedScript(mode="live", script=script)
