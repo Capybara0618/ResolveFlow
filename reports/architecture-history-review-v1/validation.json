@@ -1,0 +1,63 @@
+{
+  "version": "architecture-history-document-validation-v1",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "baseline_head": "b72233fb73e4a4bce18c199ad05eaaa4218b99e9",
+  "episode_count": 46,
+  "episode_ids_contiguous_unique": true,
+  "markdown_link_checks": {
+    "docs/architecture-evolution.md": {
+      "local_file_links": 163,
+      "missing": []
+    },
+    "reports/architecture-history-review-v1/README.md": {
+      "local_file_links": 5,
+      "missing": []
+    }
+  },
+  "source_index_counts_match_baseline_git_tree": true,
+  "baseline_markdown_files": 381,
+  "baseline_lines": 24406,
+  "baseline_reports": 188,
+  "baseline_docs": 146,
+  "baseline_commit_subjects": 541,
+  "reports_mapped": 188,
+  "unmapped_reports": [],
+  "unchanged_initial_markdown_files": 379,
+  "changed_initial_markdown_files": [
+    "docs/architecture-evolution.md",
+    "tasks/todo.md"
+  ],
+  "protected_preexisting_dirty_files_sha256": {
+    "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+    "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+    "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+  },
+  "protected_preexisting_dirty_files_unchanged": true,
+  "model_ledger_used_before": 2274,
+  "model_ledger_used_after": 2274,
+  "new_model_requests": 0,
+  "business_writes": 0,
+  "business_tests": "NOT_RUN: documentation-only task",
+  "credential_shape_scan": "PASS",
+  "initial_check_failure": "Literal 37/44 marker absent in equivalent prose; wording unified to fractions, no historical result changed",
+  "historical_failures_and_version_boundaries": "Retained; original reports and frozen evidence not rewritten",
+  "artifacts_sha256": {
+    "docs/architecture-evolution.md": "aa69b5881d35916da4173794ec0c8f855450a36ac88edaeb145df5170949c347",
+    "tasks/todo.md": "0a4e42a0cc36ea70e54aaf3b80847983be862e4abe2396d7c5a1a7cee5e640fa",
+    "reports/architecture-history-review-v1/README.md": "77aee4fe2072ffe6d0f2f616236ce2370183ea58ba3cea5ae463eb14793354bf",
+    "reports/architecture-history-review-v1/source-index.json": "d7f13520d2db12d46852f38af07819f828da78c7ffe707b0973ba139d735a8e0",
+    "reports/architecture-history-review-v1/commit-index.json": "44cda73dcc3cda37d95970a3ce50b6717b0249bf5d780bb3efc3f443c9495ac3"
+  },
+  "verification_commands": [
+    "Python UTF-8 local Markdown/JSON/numbering/hash checks",
+    "git ls-tree -r --name-only b72233f",
+    "git diff --check -- docs/architecture-evolution.md tasks/todo.md"
+  ],
+  "limits": [
+    "Source scanning and focused evidence review do not imply all source lines or every commit diff were audited",
+    "No new functional, model-quality or performance result was produced",
+    "Commit and remote SHA are verified separately after this artifact is written"
+  ]
+}
