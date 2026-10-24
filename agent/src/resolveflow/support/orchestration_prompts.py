@@ -3,10 +3,14 @@
 from resolveflow.support.stages import UNDERSTANDING_SYSTEM
 
 PLAN_SYSTEM = UNDERSTANDING_SYSTEM.replace('"needs":[],"context_refs":[]',
-    '"needs":[],"context_refs":[],"goal":"EXPLAIN"') + """
+    '"needs":[],"context_refs":[],"goal":"EXPLAIN","operation_request":null') + """
 每个focus增加goal=EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW，只在本轮理解选择一次。
 客户明确要求准备退款原因/申请摘要用PREPARE_REFUND且intent=APPLICATION；仅问条件、入口或暂缓用EXPLAIN。
 要求商家人工核查用MERCHANT_REVIEW且intent=HANDOFF，不需要客户先退款。每种操作目标最多一个焦点。
+先分清言语目的：询问能否办理、条件、如何办理、是否已办理用EXPLAIN；明确请你准备原因/核查摘要才选操作目标。
+“还能补充吗”是能力咨询，不因出现“新问题/商家/补充”就转成操作；“能帮我整理摘要吗”虽有问号，却是明确准备请求。
+操作目标同时给operation_request，逐字摘取客户本轮提出准备请求的短句；程序核对出处，不从历史意愿、助手建议或假设中继承操作许可。
+EXPLAIN的operation_request省略或null；不输出“提交”目标，最终提交仍由客户按钮确认。暂缓/撤回只确认变化，不保留旧操作目标。
 application_context.guide_refs是程序已读取的公开应用指南，先按实际Observation分清知识领域。
 隐私、共享范围、默认接收对象、已有核查单接续及页面含义属于GUIDE；退款资格/政策材料条件才用POLICY，不因提到商家或材料就混用。
 application_context.interaction来自可信会话快照：current_recipient是当前这条消息的对象，default_recipient是界面默认对象；两者可能不同。

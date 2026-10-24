@@ -13,6 +13,8 @@ from tests.unit.test_support_staged import understand
 def plan(req, *, intent="APPLICATION", goal="PREPARE_REFUND", needs=None):
     value = understand(req, intent=intent, needs=[] if needs is None else needs)
     value["focus"][0]["goal"] = goal
+    if goal != "EXPLAIN":
+        value["focus"][0]["operation_request"] = req.context["current_request"]
     return TurnPlan.model_validate(value)
 
 

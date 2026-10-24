@@ -28,6 +28,7 @@ GOAL_ACTIONS = {"PREPARE_REFUND": "REFUND_APPLICATION", "MERCHANT_REVIEW": "MERC
 
 class PlannedFocus(Focus):
     goal: Literal["EXPLAIN", "PREPARE_REFUND", "MERCHANT_REVIEW"]
+    operation_request: str | None = Field(default=None, min_length=1, max_length=300)
 
 
 class TurnPlan(Understanding):
@@ -37,6 +38,10 @@ class TurnPlan(Understanding):
     def consistent_goals(self) -> TurnPlan:
         actions = []
         for focus in self.focus:
+            if focus.goal == "EXPLAIN" and focus.operation_request is not None:
+                raise ValueError("EXPLAIN不带operation_request；话题不等于操作请求")
+            if focus.goal != "EXPLAIN" and not (focus.operation_request or "").strip():
+                raise ValueError("操作目标须operation_request引用客户本轮明确准备请求的原文；仅咨询用EXPLAIN")
             if (focus.goal == "PREPARE_REFUND" and focus.intent != "APPLICATION"
                     or focus.goal == "MERCHANT_REVIEW" and focus.intent != "HANDOFF"):
                 raise ValueError("goal须与APPLICATION/HANDOFF意图一致")
@@ -46,10 +51,16 @@ class TurnPlan(Understanding):
             raise ValueError("同一订单行每种操作目标只能有一个焦点")
         return self
 
+    def check_operation_requests(self, current_request: str) -> None:
+        for focus in self.focus:
+            if focus.operation_request is not None and focus.operation_request not in current_request:
+                raise ValueError("operation_request须来自本轮原文，不能取历史、助手话语或改写文本")
+
     def meaning(self) -> Understanding:
         value = self.model_dump()
         for focus in value["focus"]:
             goal = focus.pop("goal")
+            focus.pop("operation_request", None)
             floor = {"LOGISTICS": "SHIPMENT", "ELIGIBILITY": "POLICY"}.get(focus["intent"])
             for need in [floor, "ORDER" if goal == "PREPARE_REFUND" else None]:
                 if need and need not in focus["needs"]:

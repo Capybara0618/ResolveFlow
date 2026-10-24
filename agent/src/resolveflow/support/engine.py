@@ -290,6 +290,8 @@ class SupportAgent:
         try:
             if self.stage.pending:
                 plan = TurnPlan.model_validate(reply.decision) if self.orchestration is not None else None
+                if plan is not None:
+                    plan.check_operation_requests(str(self.request.context.get("current_request", "")))
                 understanding = plan.meaning() if plan is not None else Understanding.model_validate(reply.decision)
                 self.stage.check_context_refs(understanding)
                 tasks, memory, dialogue = deepcopy(self.tasks), deepcopy(self.memory), deepcopy(self.dialogue)
