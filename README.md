@@ -16,6 +16,7 @@
 
 | 文件 | 用途 |
 | --- | --- |
+| [架构演进与工程复盘](docs/architecture-evolution.md) | 持续记录Agent职责变迁、RAG取舍、Redis经验，以及问题证据/定位/验证和面试表达 |
 | [核心范围](docs/core-scope.md) | 哪些必做、哪些退出核心、怎样算完成 |
 | [商城后端深化与验收](reports/backend-deepening-v1.md) | 已购评价/商家回复、三处Redis应用、商品批量查询、支付恢复；真实页面截图与集中回归边界 |
 | [当前交接](tasks/handoff-current.md) | 当前任务、验收顺序与接管规则 |
