@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，核验衔接H3a完成：客户投影区分核验/调查失败/待审批）
+
+- H2 d128c1c普通push首次断连、核对远端后重试成功且核实。CustomerCaseService沿原result.message只看当前revision的有效方案/失败/授权，分别说明待商家核验、调查未完成或待审批；旧版不冒充当前，原执行失败/UNKNOWN/终态保持，不暴露内部方案或新增协议字段。[报告](../reports/chat-refund-handoff-v1/README.md)。
+- 新定向红1→客户9+确认43=52项真实隔离MySQL/HTTP通过0跳过57.348秒；限定格式/diff通过。首次格式regex竖线命令未执行已纠正。无原库写/新Provider、usage2076；四原脏文件保持。
+- 精确提交普通push核实后完成H3b前端标题、商家核验入口与失败/旧建议区分，集中验证及加载新版本；不重发原Live失败或宣称整链真实已通过。
+
 ## 当前快照（2026-10-24，核验衔接H2完成：正常人工复核建议与纠错）
 
 - H1 3c92f0b已同步。按已检索适用政策明确缺商家核验时可形成PROPOSE/MANUAL_REVIEW，实际SDK目录给语法例子；INVESTIGATION_FACTS_REQUIRED提供具体责任/完整动作指引。一次修正/退款资格/真实FAILED语义保持。[报告](../reports/chat-refund-handoff-v1/README.md)。

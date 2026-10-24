@@ -83,6 +83,46 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void pendingReviewSeparatesValidMerchantVerificationFromFailedInvestigationAndStaleHistory() {
+        String normal = row("M-1001", "C-2002", "PENDING_REVIEW", Instant.now());
+        proposals.insert(
+                UUID.randomUUID().toString(),
+                normal,
+                UUID.randomUUID().toString(),
+                "AGENT",
+                null,
+                null,
+                1,
+                1,
+                "VALIDATED",
+                null,
+                null,
+                "{\"recommended_action\":\"MANUAL_REVIEW\",\"summary\":\"private investigation text\"}",
+                "a".repeat(64),
+                Instant.now());
+        var detail = json.readTree(read("/api/v1/customer/cases/" + normal, own()));
+        assertThat(detail.path("result").path("message").asString()).isEqualTo("等待商家核验申请情况");
+        assertThat(detail.toString()).doesNotContain("private investigation text", "MANUAL_REVIEW", "proposal");
+
+        String failed = row("M-1001", "C-2002", "PENDING_REVIEW", Instant.now());
+        cases.insertTimeline(
+                failed,
+                UUID.randomUUID().toString(),
+                1,
+                "AGENT_FAILED",
+                "{\"reason_codes\":[\"INVESTIGATION_FACTS_REQUIRED\"]}",
+                Instant.now(),
+                1);
+        var failure = json.readTree(read("/api/v1/customer/cases/" + failed, own()));
+        assertThat(failure.path("result").path("message").asString()).isEqualTo("本次调查未完成，已转商家继续核查");
+        jdbc.update("UPDATE aftersale_case SET input_revision=2 WHERE case_id IN (?,?)", normal, failed);
+        for (String id : java.util.List.of(normal, failed)) {
+            var current = json.readTree(read("/api/v1/customer/cases/" + id, own()));
+            assertThat(current.path("result").path("message").asString()).isEqualTo("等待商家复核");
+        }
+    }
+
+    @Test
     void listIsOwnedAndSupportsStages() {
         String mine = row("M-1001", "C-2002", "WAITING_CUSTOMER", Instant.now());
         String another = row("M-1001", "C-2003", "WAITING_CUSTOMER", Instant.now());

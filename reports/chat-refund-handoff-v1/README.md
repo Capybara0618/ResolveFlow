@@ -21,3 +21,9 @@ V32追加迁移只允许初始revision1为未核验客户陈述，人工核验�
 使用上次6条真实模型动作及原工具结果离线送入唯一AgentScope循环：原末条REFUND仍6调用后被拒；仅末条改为合法人工复核建议时，6调用/3业务读取、相同一次修正完成，最终worker verified_callback仍为PROPOSAL/MANUAL_REVIEW。记录不改、不联网；这不是新真实模型成功率。
 
 验证：新定向4通过2.36秒；10个相关Harness/上下文/纠错/退款来源/契约模块195通过6.69秒；Ruff4文件、完整strict mypy3源码通过。最初新夹具严格JSON枚举、generation_for、短编号目录未绑定及Mock字节估计溢出分别修正：使用model_validate_json/显式代际/正式reference_format/带原DeepSeek tokenizer的脚本模型，不扩大预算。原断言先红后绿。完整strict扫描较慢，另试follow-imports=skip产生4个SDK第三方基类/ignore诊断；完整扫描最终独立通过，以完整结果为准，无源码压制。Provider新增0，原usage2076，原项目/失败报告保持。
+
+## H3a 客户进度投影（2026-10-24）
+
+H2 d128c1c首次普通push遇schannel连接中断，ls-remote确认远端仍3c92f0b后普通重试成功并核实d128c1c，未强推。CustomerCaseService沿原result.message区分当前有效人工复核建议“等待商家核验申请情况”、当前调查失败“本次调查未完成，已转商家继续核查”、当前待审授权“退款方案已生成，等待商家审批”；其他PENDING_REVIEW为“等待商家复核”。只读取当前revision，旧建议/旧失败不冒充当前结果；消费者不新增协议字段、不暴露内部方案/失败原因。消费后执行失败、UNKNOWN和终态原投影保持。
+
+新HTTP回归先红1项；实现后真实隔离MySQL/HTTP客户9+确认43共52项通过0跳过，reactor57.348秒，限定Customer格式/diff通过。一次格式命令regex含竖线被Windows wrapper解释，退出255未跑测试；改无竖线限定表达式后正常。原项目未重启、原数据/模型调用无新增，usage2076。后续H3b挂接卡片标题与商家核验入口、区分失败建议。

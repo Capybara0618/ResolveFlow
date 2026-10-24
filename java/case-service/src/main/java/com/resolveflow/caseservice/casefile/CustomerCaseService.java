@@ -22,6 +22,7 @@ public class CustomerCaseService {
     private final CustomerCaseRepository lists;
     private final EvidenceRepository evidence;
     private final AuthorizationRepository authorizations;
+    private final ProposalRepository proposals;
     private final CaseEvidenceService writes;
     private final CommerceOrderLineClient commerce;
     private final Clock clock;
@@ -32,6 +33,7 @@ public class CustomerCaseService {
             CustomerCaseRepository lists,
             EvidenceRepository evidence,
             AuthorizationRepository authorizations,
+            ProposalRepository proposals,
             CaseEvidenceService writes,
             CommerceOrderLineClient commerce,
             Clock clock,
@@ -40,6 +42,7 @@ public class CustomerCaseService {
         this.lists = lists;
         this.evidence = evidence;
         this.authorizations = authorizations;
+        this.proposals = proposals;
         this.writes = writes;
         this.commerce = commerce;
         this.clock = clock;
@@ -320,6 +323,9 @@ public class CustomerCaseService {
             reason = null;
         }
         String message = resultMessage(row.status());
+        if (row.status() == CaseStatus.PENDING_REVIEW && !consumed) {
+            message = pendingReviewMessage(row, auth, events);
+        }
         if (consumed && row.status() == CaseStatus.PENDING_REVIEW && auth != null) {
             var execution = events.stream()
                     .filter(e -> e.kind() == TimelineEventType.EXECUTION_UPDATED
@@ -343,6 +349,33 @@ public class CustomerCaseService {
                 List.copyOf(questions),
                 result,
                 timeline);
+    }
+
+    private String pendingReviewMessage(
+            CaseRow row, AuthorizationRepository.StoredAuthorization auth, List<TimelineEventRow> events) {
+        if (auth != null
+                && auth.inputRevision() == row.inputRevision()
+                && auth.status().equals("PENDING_REVIEW")) {
+            return "退款方案已生成，等待商家审批";
+        }
+        var latest = events.stream()
+                .filter(e -> e.inputRevision() == row.inputRevision()
+                        && (e.kind() == TimelineEventType.AGENT_FAILED
+                                || e.kind() == TimelineEventType.PROPOSAL_READY
+                                || e.kind() == TimelineEventType.AGENT_STARTED))
+                .reduce((a, b) -> b)
+                .orElse(null);
+        if (latest != null && latest.kind() == TimelineEventType.AGENT_FAILED) {
+            return "本次调查未完成，已转商家继续核查";
+        }
+        var proposal = proposals.findLatest(row.caseId());
+        if (proposal != null
+                && proposal.inputRevision() == row.inputRevision()
+                && proposal.status().equals("VALIDATED")
+                && "MANUAL_REVIEW".equals(JsonField.of(proposal.payload(), "recommended_action"))) {
+            return "等待商家核验申请情况";
+        }
+        return "等待商家复核";
     }
 
     private static String resultMessage(CaseStatus status) {
