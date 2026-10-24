@@ -50,3 +50,11 @@ agent/.venv/Scripts/python.exe -m mypy --strict agent/src/resolveflow/support/se
 ```
 
 未部署新profile、未访问真实模型；usage仍2102。后续先固定新协议的离线变换对照，再有限真实确认，不修改旧失败/Gold或日常默认。
+
+## 第四步准备：冻结轨迹离线就绪对照与一次新协议真实确认
+
+scripts/diagnose_support_orchestration_v1.py对3份冻结失败先验证原SHA；仅明确增加goal、程序当前指南并重映射source id，用实际保存的来源验证状态。两份缺ORDER轨迹保持INVESTIGATE、提前收尾返回缺口且不耗格式修正；第三份已具订单/物流/政策来源可COMPOSE。不是strict回放、旧文本成功或LLM质量分，0网络/业务写；见offline-readiness.json。
+
+一次新profile浏览器确认已准备：复用原摘要验收逻辑但独立新Python/CJS驱动和目录，固定源码/13保护文件SHA。新合成订单c4ba8ab2-23e6-4888-8abc-37bead7953f3，329元、LOST，输入仍固定一条“核对承运记录并准备退款原因，先查看修改再决定”。新场景/新运行，不修改旧失败。只允许该客服轮原12模型预算；不重试，不确认建单/审批/退款、不切日常默认。检查自动模型摘要、正确实际金额、编辑保存、刷新恢复、COMPOSE真实流式。原Case调查不触发。
+
+实际命令：diagnose_support_orchestration_v1.py输出3条/0新调用/阶段INVESTIGATE、INVESTIGATE、COMPOSE；新脚本Ruff/py_compile、CJS node --check通过（初次import排序已修正，执行前最终冻结hash）。prepare已完成、provider_requests0，usage2102。本步提交并普通push核实后，仅显式启动新profile并execute一次；结果完整保存，失败不收费重发。

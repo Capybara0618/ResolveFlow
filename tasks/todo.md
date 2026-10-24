@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，新编排工程通过，离线对照及一次真实确认已准备）
+
+- f056a66已同步。冻结3旧失败SHA保持，明确新协议映射后两条缺ORDER保持调查，一条实际依据齐备可组织回答；0网络/业务写，不把旧失败重算成功。[离线证据](../reports/customer-agent-orchestration-v1/offline-readiness.json)。
+- 新独立验收脚本/浏览器驱动Ruff/编译/node语法通过，准备新329元LOST订单c4ba8ab2-23e6-4888-8abc-37bead7953f3并固定源码/13保护SHA；只跑一条客服消息，检查自动摘要/编辑/刷新/流式，不确认建单/审批/退款，不重试、不切日常默认。[计划](../reports/customer-agent-orchestration-v1/live-v1/plan.json)。usage2102，真实execute未运行。
+- 普通push核实后仅显式新profile有限确认；旧四历史脏文件、冻结raw/Gold保持。工程已验证不等于真实质量/全链冻结。
+
 ## 当前快照（2026-10-24，新编排API/manifest及PG恢复已验证，待离线对照和有限真实确认）
 
 - 54b0e83已同步。显式orchestrated-v1已接API、runtime/mock校验与部署驱动，manifest固定编排/提示hash；日常默认仍staged-v1。
