@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，live-v2客服候选仍失败已保留；核验衔接独立手动入口待执行）
+
+- 准备c6f4d98已同步，冻结唯一1问执行完：根级摘要已正确字符串，但最后物流part的facts未在正文使用占位符，首次过早回答已消耗一次修正，最终INVALID_DECISION、无正式发布/草稿/Case。[原始结果与完整费用](../reports/chat-refund-handoff-v1/live-v2/README.md)。不是RAG未读或本轮核验逻辑已失败，后者尚未到达。
+- 真实7请求准确25495输入/816输出、0未知，原usage2076→2083；DOM反馈118ms、候选首正文5087ms、实际29SSE/6正文变更，候选撤回不当正式答案速度。旧业务/运行/索引保持。
+- 不重发旧题、不放宽事实绑定。已有手动入口仅同原订单独立验收H1–H3，0新客服消息/至多原计划2Case run；新驱动Ruff/py_compile/node检查通过。精确保存失败/方案补充/驱动并push核实后执行，手工原因不代替模型摘要，Case失败不伪造建议。四原脏文件保持。
+
 ## 当前快照（2026-10-24，核验衔接修复已部署；live-v2唯一新样本待执行）
 
 - H3b 6d997d8已普通push核实。`start.ps1 -NoBrowser`三Java/Python/Web/依赖/原精确索引全部健康，V32就绪；政策3包按同hash跳过、索引复用。`accept_chat_refund_handoff_v2.py prepare`通过：新329元LOST订单/会话、单条申请问句、最多2Case run已[冻结](../reports/chat-refund-handoff-v1/live-v2/plan.json)，Provider新增0、usage2076。[范围](../docs/customer-chat-refund-handoff-live-v2.md)。
