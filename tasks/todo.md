@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，用户批准客服职责重构，合同已定待实施）
+
+- 从根因改调查/生成边界，按[编排合同](../docs/customer-agent-orchestration-v1.md)实现显式orchestrated-v1，沿原唯一AgentScope循环/预算/Java职责；原single/staged-v1和失败保持。程序维护缺口/就绪，提前收尾正常继续，UI合同程序提供、模型只组织解释与原因。
+- 先独立控制/装配与红测，再引擎/流式和持久恢复，工程通过后固定新profile有限真实确认；未验证不切日常默认、不自动重复旧题/全量付费。当前原服务未改，usage2102。
+- 开工暂存空、旧四历史脏文件保持；合同差异检查后精确commit普通push核实再实现，不重做AgentScope迁移/旧任务。
+
 ## 当前快照（2026-10-24，A真实验收未通过；统一发布诊断已修复部署，B–D未运行）
 
 - 38e486b已普通push核实。A真实4请求10032输入/528输出、0未知，usage2098→2102；摘要缺申请操作，前置普通ValueError反馈误归citations，修正删摘要仍缺ORDER/GUIDE/操作，未发布。没有自动草稿/Case/退款，后续确认/B–D按协议未运行。[报告](../reports/customer-agent-acceptance-gate-v1/README.md)。
