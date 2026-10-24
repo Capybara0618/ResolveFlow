@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，客服编排第一步：就绪控制与确定性装配已实现）
+
+- 新增support/orchestration.py及独立测试：理解一次接受goal，程序补最低ORDER/SHIPMENT/POLICY依据，按实际来源/不可重试失败判断INVESTIGATE或COMPOSE；连续两次无进展提前收尾后明确终止。新RESPOND仅解释/相关政策引用/原因，程序装配字段事实、指南操作及原摘要合同。
+- 红测先因模块缺失collection error；实现后pytest test_support_orchestration.py 13过，strict mypy 1源码、Ruff通过。[记录](../reports/customer-agent-orchestration-v1/README.md)。尚未接生产循环/API/流式，不能据此声称已修复真实客服；原服务/default/usage2102不变，0新模型调用。
+- 精确提交并普通push核实后接第二步；旧四脏文件和冻结失败保持。
+
 ## 当前快照（2026-10-24，用户批准客服职责重构，合同已定待实施）
 
 - 从根因改调查/生成边界，按[编排合同](../docs/customer-agent-orchestration-v1.md)实现显式orchestrated-v1，沿原唯一AgentScope循环/预算/Java职责；原single/staged-v1和失败保持。程序维护缺口/就绪，提前收尾正常继续，UI合同程序提供、模型只组织解释与原因。
