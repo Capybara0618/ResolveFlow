@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，独立验收前三组通过，人工漏独立摘要失败，根因已定位待离线修正）
+
+- b407832准备已同步，六条消息各一次21真实请求46629输入/2177输出、0未知，usage2108→2129；policy/纠正/暂停均通过，原陈述正确替代、暂停草稿STALE且无确认按钮。[源审](../reports/customer-agent-orchestration-acceptance-v1/controls-review.json)。
+- 人工已接受MERCHANT_REVIEW、实际ORDER/SHIPMENT/GUIDE齐备，两RESPOND都把摘要写正文而漏handoff_reason，唯一字段反馈后仍漏，INVALID_DECISION。原始失败冻结，不把未共享写成商家已接收；主链未运行、默认未切换，无新Case/退款/在途，旧业务/索引/15保护文件保持。
+- 保存结果精确commit普通push核实，再离线修正“accepted goal未编译成本轮输出合同”：统一生成当前原因字段/事项示例，覆盖退款/人工及暂停受阻，不正文充摘要、不放宽校验。前三组不重跑，原失败不改；旧四历史脏文件保持。
+
 ## 当前快照（2026-10-24，独立验收驱动/五合成订单已准备，待四组真实执行）
 
 - 固定policy1/纠正2/暂停2/独立人工1，主链1待四组源审通过后执行；新三脚本Ruff/编译/node语法通过，五新329元LOST订单和独立会话已创建，最终脚本/源码/15保护文件hash冻结。[计划](../reports/customer-agent-orchestration-acceptance-v1/plan.json)、[报告](../reports/customer-agent-orchestration-acceptance-v1/README.md)。

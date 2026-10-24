@@ -9,3 +9,11 @@
 实际命令：Python Ruff/py_compile、两CJS node --check通过；prepare已创建policy/correction/pause/human/primary五单与会话，provider_requests0、全局账本2108。准备期间核对票据API以ticket_id读取，脚本import排序已修正；执行前统一冻结最终脚本hash，尚未执行或重写任何真实结果。source_files/15保护文件SHA及固定输入见plan.json。
 
 先精确commit普通push核实，再无在途时显式启用候选、controls仅一次；保存所有请求费用并源审，通过后primary仅一次。所有功能/语义及工程无新增回归后才切日常默认。结果/失败/未运行和下一步集中更新本报告，当前唯一进度仍在tasks/todo.md顶部。
+
+## 四组真实结果：三组通过，独立人工失败
+
+六条消息各一次，21真实请求、准确46629输入/2177输出token、0未知，账本2108→2129。policy3模型、纠正3+3、暂停4+3均发布正确且无修正；人工5模型含一次修正仍INVALID_DECISION。原始controls-runtime.json SHA 1f581b7e39e1c9b6138c3f68e68f300501b569d48b86b2cf601681251987149a，保留冻结。controls-review.json逐条源审通过前三组；截图和browser事件包含真实暂停草稿STALE/不能直接确认。
+
+人工正确接受MERCHANT_REVIEW目标、ORDER/SHIPMENT已取证、程序GUIDE有效；两次RESPOND都把拟转交摘要写在正文，漏独立handoff_reason。实际反馈点名该字段后仍遗漏，失败未发布、无核查单/Case/退款。根因是目标未编译成本轮明确输出合同，通用示例只有parts，原因字段在通用Schema可选；不是RAG检索或事实不齐。
+
+主链按门槛未运行、默认未切换，旧业务/索引/15保护文件保持，无在途。先保存失败普通push核实，再离线实现按已接受goal/生命周期/来源状态生成明确回答合同，统一覆盖退款和人工。禁止正文自动冒充可共享摘要或删除校验来通过。
