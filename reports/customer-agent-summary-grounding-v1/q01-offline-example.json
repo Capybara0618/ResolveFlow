@@ -1,0 +1,57 @@
+{
+  "source": "saved real Q01 decisions plus scripted quote-object correction; not strict replay or new real-model generation",
+  "source_sha256": "304e31bc9a56b9559bd8df0244db60d04cf2defd03e71850166fb1f620439fdc",
+  "case": "Q01/1",
+  "real_provider_requests": 0,
+  "business_writes": 0,
+  "old_summary": "客户陈述：耳机外壳有裂痕，希望商家核查。此前核查已结束，本次为在原核查单中补充说明，不申请退款。已核实事实：客户已付款订单中的商品为无线降噪耳机（黑色）1件。待本人确认后共享给商家。",
+  "old_response_preserved": {
+    "handoff_reason": "客户陈述：耳机外壳有裂痕，希望商家核查。此前核查已结束，本次为在原核查单中补充说明，不申请退款。已核实事实：客户已付款订单中的商品为无线降噪耳机（黑色）1件。待本人确认后共享给商家。",
+    "kind": "RESPOND",
+    "parts": [
+      {
+        "citations": [
+          "O1"
+        ],
+        "task_id": "t1",
+        "text": "这段说明是补充给商家的核查摘要，不是退款申请，也不会因此创建退款工单。按指南，转交前你可以预览并编辑摘要，并选择共享哪些客户原文和调查依据；只有你确认的内容才会发给商家。当前对话默认接收方是商家，但这条摘要尚未发送，需你核对后再确认。此前核查已结束，本次补充会接续原核查单，商家可核查回复或请你补充。"
+      }
+    ]
+  },
+  "scripted_correction": {
+    "handoff_reason": {
+      "customer_quotes": [
+        "耳机外壳有裂痕"
+      ]
+    },
+    "kind": "RESPOND",
+    "parts": [
+      {
+        "citations": [
+          "O1"
+        ],
+        "task_id": "t1",
+        "text": "这段说明是补充给商家的核查摘要，不是退款申请，也不会因此创建退款工单。按指南，转交前你可以预览并编辑摘要，并选择共享哪些客户原文和调查依据；只有你确认的内容才会发给商家。当前对话默认接收方是商家，但这条摘要尚未发送，需你核对后再确认。此前核查已结束，本次补充会接续原核查单，商家可核查回复或请你补充。"
+      }
+    ]
+  },
+  "corrected_summary": "客户陈述（未经核验）：\n- 本轮原话：\"耳机外壳有裂痕\"\n本摘要未附订单或物流的已读系统记录。\n核查摘要尚未发送，待本人核对、编辑并确认共享。",
+  "status": "SUCCEEDED",
+  "format_repairs": 1,
+  "scripted_model_calls": 3,
+  "source_reads": [
+    {
+      "name": "get_support_guide",
+      "arguments": {},
+      "origin": "SAVED_TOOL_RESULT"
+    }
+  ],
+  "spend": {
+    "model_calls": 3,
+    "tool_attempts": 0,
+    "local_reads": 1,
+    "input_tokens": 9223,
+    "output_tokens": 0,
+    "no_progress_rounds": 0
+  }
+}

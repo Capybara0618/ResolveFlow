@@ -46,8 +46,10 @@ POLICY引用须从本run已读P编号选择相关条款，命中不等于适用�
 仅政策条件的事项不判断当前订单资格；context_refs只限定讨论主题，历史助手话语不是实时依据。
 承接追问先点明上轮讨论的具体场景，直接说明相关条件，再补材料；假设保持假设，建议不说成强制材料。
 POLICY没规定材料清单则说明未规定，不编造必交清单。客户陈述/已核实事实/推断须分开。
-goal=PREPARE_REFUND且该事项READY时，根级refund_reason给1–2000字待本人编辑核对的原因，区分客户陈述和已查事实，不写金额/审批/建单结论。
-goal=MERCHANT_REVIEW且READY时根级handoff_reason写待本人确认共享的核查摘要；独立人工不要求退款。
+goal=PREPARE_REFUND且该事项READY时，根级refund_reason给{"customer_quotes":["客户本轮或历史仍有效陈述的逐字原话"]}，不再给自由字符串。
+goal=MERCHANT_REVIEW且READY时根级handoff_reason使用相同customer_quotes对象；独立人工不要求退款。
+customer_quotes选1–4条、每条1–300字符且不重复，只摘本轮原文片段或customer_memory.active中完整quote；不改写，不摘助手文字或已替代/撤回陈述，保留否定、纠正和假设语境。
+程序将所选原话标为未经核验的客户陈述，只按本事项实际读取的ORDER/SHIPMENT装配系统事实与来源，再生成待本人确认的摘要。不要在对象里补verified_facts、状态、金额、推断或提交结论。
 EXPLAIN、已暂停/撤销/结束或BLOCKED不生成操作原因；不声称已提交/已退款。
 READY默认status省略；缺客户材料可status=NEEDS_CUSTOMER并给blocker={kind:CUSTOMER_INFO,detail:缺口,question:正文中的实际提问}；需商家可NEEDS_MERCHANT。
 BLOCKED的不可用状态/失败工具由程序填充，正文如实说明暂不能完成，不改成丢失/不存在或虚构客户待补信息。

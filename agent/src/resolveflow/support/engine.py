@@ -344,7 +344,8 @@ class SupportAgent:
                                                        "arguments": {}})
                     assert self.stage.understanding is not None
                     compiled = self.orchestration.compose(response, self.stage.understanding, self.citations,
-                                                          self.recovery.packet(), self.dialogue.lifecycles)
+                                                          self.recovery.packet(), self.dialogue.lifecycles,
+                                                          customer_claims=self.memory.packet()["active"])
                     reply = replace(reply, decision=compiled.model_dump())
             decision = DECISION.validate_python(reply.decision)
             if isinstance(decision, (Answer, AnswerParts)) and decision.refund_summary is not None:

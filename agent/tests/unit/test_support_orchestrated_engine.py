@@ -23,7 +23,7 @@ class Sources(FactReads):
 
 def respond(**kwargs):
     return {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "请核对原因后再确认。"}],
-            "refund_reason": "客户表示尚未收到商品，希望准备退款申请，待本人核对。", **kwargs}
+            "refund_reason": {"customer_quotes": [request().context["current_request"]]}, **kwargs}
 
 
 def run(script, req=None, sources=None, **kwargs):
@@ -43,7 +43,7 @@ def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_
     assert result["spend"]["local_reads"] == 1 and result["spend"]["tool_attempts"] == 2
     assert model.packets[3]["orchestration"]["tasks"][0]["missing"] == ["ORDER"]
     assert model.packets[-1]["orchestration"]["phase"] == "COMPOSE"
-    assert result["answer"]["refund_summary"].startswith("客户表示")
+    assert result["answer"]["refund_summary"].startswith("客户陈述")
     assert "123.45 CNY" in result["answer"]["text"]
     assert "承运商记录结论：丢失" in result["answer"]["text"]
 
@@ -126,7 +126,7 @@ def test_actual_composition_request_has_goal_specific_complete_output_example():
     req = request()
     opening = plan(req, intent="HANDOFF", goal="MERCHANT_REVIEW").model_dump()
     final = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "请先核对共享内容。"}],
-             "handoff_reason": "客户表示未收到，已排查家人和代收点，待本人确认后请商家核查。"}
+             "handoff_reason": {"customer_quotes": [req.context["current_request"]]}}
     result, agent, model, _ = run([opening, final], req)
     assert result["status"] == "SUCCEEDED", result["reason"]
     assert agent.repairs == 0

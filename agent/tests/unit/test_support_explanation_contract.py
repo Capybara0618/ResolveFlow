@@ -33,7 +33,7 @@ def test_explicit_handoff_preserves_direct_explanation_even_with_only_guide_evid
     text = "可以，已解决后再次补充会接续原记录，之前的沟通仍保留。"
     opening = plan(req, intent="HANDOFF", goal="MERCHANT_REVIEW").model_dump()
     final = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": text, "citations": ["O1"]}],
-             "handoff_reason": "客户希望在原核查单补充说明新的问题，待本人核对。"}
+             "handoff_reason": {"customer_quotes": [req.context["current_request"]]}}
     result, agent, _, _ = run([opening, final], req)
     assert result["status"] == "SUCCEEDED", result["reason"]
     assert result["answer"]["text"].startswith(text + "\n\n")
@@ -87,7 +87,7 @@ def test_streamed_direct_explanation_is_preserved_when_program_appends_handoff_i
     req = request()
     opening = plan(req, intent="HANDOFF", goal="MERCHANT_REVIEW").model_dump()
     final = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": text, "citations": ["O1"]}],
-             "handoff_reason": "客户希望商家核查，待本人确认所选原文和摘要后共享。"}
+             "handoff_reason": {"customer_quotes": [req.context["current_request"]]}}
 
     class Script(TokenizedScript):
         def decide(self, **kwargs):

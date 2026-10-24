@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from decimal import Decimal
 from typing import Any
@@ -19,6 +20,39 @@ STATUS_LABELS = {"PAID": "已付款", "SHIPPED": "已发货", "IN_TRANSIT": "运
 
 class GroundingError(ValueError):
     pass
+
+
+def ground_summary(quotes: list[str], facts: list[AnswerFact], request: SupportInput,
+                   citations: dict[str, dict[str, Any]], customer_claims: list[dict[str, Any]], *,
+                   refund: bool) -> str:
+    """Quote customer evidence; render business fields only from this goal's observed facts."""
+    current = str(request.context.get("current_request", ""))
+    lines = ["客户陈述（未经核验）："]
+    for quote in quotes:
+        if quote in current:
+            origin = "本轮"
+        elif any(entry.get("status") == "ACTIVE" and entry.get("quote") == quote
+                 and entry.get("source", {}).get("quote") == quote
+                 and type(entry.get("source", {}).get("sequence")) is int
+                 and 0 < entry["source"]["sequence"] < request.input_version for entry in customer_claims):
+            origin = "历史有效陈述"
+        else:
+            raise GroundingError("摘要须摘取本轮或历史仍有效客户原话，不接受模型改写、助手文字或失效陈述。")
+        lines.append(f"- {origin}原话：{json.dumps(quote, ensure_ascii=False)}")
+    if facts:
+        lines.append("已读系统记录（不代表客户陈述已核验）：")
+        for fact in facts:
+            value = value_for(fact.field, citations.get(fact.source, {}), request)
+            display = value if fact.field == "PAID_AMOUNT" else STATUS_LABELS.get(value, value)
+            lines.append(f"- {FACT_LABELS[fact.field]}：{display}。[{fact.source}]")
+    else:
+        lines.append("本摘要未附订单或物流的已读系统记录。")
+    lines.append("退款原因草稿尚未提交，待本人核对、编辑并确认。" if refund else
+                 "核查摘要尚未发送，待本人核对、编辑并确认共享。")
+    result = "\n".join(lines)
+    if len(result) > 2000:
+        raise GroundingError("摘要超过2000字符，请选择更少、更短且保留原意的客户原话，不能裁掉事实来源。")
+    return result
 
 
 def value_for(field: str, source: dict[str, Any], request: SupportInput) -> str:

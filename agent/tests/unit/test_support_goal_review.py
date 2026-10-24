@@ -25,17 +25,19 @@ def review(task_id="trace", previous="PREPARE_REFUND", goal="MERCHANT_REVIEW", q
 
 def conflict(flow, meaning, refs=None):
     value = {"kind": "RESPOND", "parts": [{"task_id": meaning.focus[0].id, "text": "待本人核对。"}],
-             "handoff_reason": "客户表示未收到，请商家核查，尚未转交。"}
+             "handoff_reason": {"customer_quotes": [flow.request.context["current_request"]]}}
     with pytest.raises(ValueError, match="GOAL_CONFLICT"):
         flow.compose(Response.model_validate(value), meaning, refs or source_refs(), [], {})
 
 
-def test_real_saved_correct_handoff_survives_wrong_refund_goal_after_bounded_review():
+def test_saved_wrong_refund_goal_keeps_handoff_purpose_with_new_quote_draft_contract():
     raw = json.loads((Path(__file__).resolve().parents[3]
         / "reports/customer-agent-close-v1/runtime-results.json").read_text(encoding="utf-8"))
     row = next(r for r in raw["rows"] if (r["id"], r["turn"]) == ("M02", 2))
     req = SupportInput.model_validate({**row["input"], "deadline_at": request().deadline_at})
-    decisions = [m["decision"] for m in row["models"][:3]]
+    decisions = deepcopy([m["decision"] for m in row["models"][:3]])
+    # Saved plan/tool/body stay intact; adapt only the old free reason to the new quote-only ABI.
+    decisions[-1]["handoff_reason"] = {"customer_quotes": ["新发现耳机外壳有损坏"]}
     corrected = review("t2", quote="能帮我整理一段给商家的摘要吗？先不要发出去。")
     batches = []
     reporter = ProgressReporter("http://synthetic.invalid", "run", "test", transport=httpx.MockTransport(
@@ -54,7 +56,8 @@ def test_real_saved_correct_handoff_survives_wrong_refund_goal_after_bounded_rev
     finally:
         reporter.close()
     assert result["status"] == "SUCCEEDED", result["reason"]
-    assert result["answer"]["handoff_summary"] == decisions[-1]["handoff_reason"]
+    assert "新发现耳机外壳有损坏" in result["answer"]["handoff_summary"]
+    assert "未经核验" in result["answer"]["handoff_summary"]
     assert "refund_summary" not in result["answer"] and "正式退款：" not in result["answer"]["text"]
     assert "补充给商家" in result["answer"]["text"]
     assert agent.repairs == 0 and len(agent.orchestration.goal_reviews) == 1
@@ -128,7 +131,8 @@ def test_second_artifact_conflict_stops_without_another_review():
     updated = flow.review_goal(review(goal="PREPARE_REFUND"), p.meaning(), {})
     with pytest.raises(SupportFailure, match="GOAL_REVIEW_EXHAUSTED"):
         flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [
-            {"task_id": "trace", "text": "待确认"}], "handoff_reason": "仍提交错误产物"}),
+            {"task_id": "trace", "text": "待确认"}],
+            "handoff_reason": {"customer_quotes": [request().context["current_request"]]}}),
             updated, source_refs(), [], {})
 
 
@@ -140,7 +144,8 @@ def test_review_to_refund_reopens_evidence_readiness_instead_of_skipping_order()
     refs = {"O1": source_refs()["O1"]}
     with pytest.raises(ValueError, match="GOAL_CONFLICT"):
         flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [
-            {"task_id": "trace", "text": "待确认"}], "refund_reason": "客户要退款原因"}),
+            {"task_id": "trace", "text": "待确认"}],
+            "refund_reason": {"customer_quotes": [req.context["current_request"]]}}),
             p.meaning(), refs, [], {})
     updated = flow.review_goal(review(previous="MERCHANT_REVIEW", goal="PREPARE_REFUND"), p.meaning(), {})
     assert flow.snapshot(updated, refs, [], {})["tasks"][0]["missing"] == ["ORDER"]

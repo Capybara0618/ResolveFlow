@@ -7,7 +7,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field, model_validator
 
 from resolveflow.harness.context import canonical_json
-from resolveflow.support.grounding import GroundingError, value_for
+from resolveflow.support.grounding import GroundingError, ground_summary, value_for
 from resolveflow.support.guide import guide_source
 from resolveflow.support.protocol import (
     AnswerFact,
@@ -77,11 +77,22 @@ class ResponsePart(Closed):
     blocker: TaskBlocker | None = None
 
 
+class SummaryDraft(Closed):
+    customer_quotes: list[Annotated[str, Field(min_length=1, max_length=300)]] = Field(min_length=1, max_length=4)
+
+    @model_validator(mode="after")
+    def unique_quotes(self) -> SummaryDraft:
+        if any(not quote.strip() for quote in self.customer_quotes) or len(set(self.customer_quotes)) != len(
+                self.customer_quotes):
+            raise ValueError("摘要客户原话须非空且不重复")
+        return self
+
+
 class Response(Closed):
     kind: Literal["RESPOND"]
     parts: list[ResponsePart] = Field(min_length=1, max_length=8)
-    refund_reason: str | None = Field(default=None, min_length=1, max_length=2000)
-    handoff_reason: str | None = Field(default=None, min_length=1, max_length=2000)
+    refund_reason: SummaryDraft | None = None
+    handoff_reason: SummaryDraft | None = None
 
 
 class GoalConflict(ValueError):
@@ -223,16 +234,15 @@ class Orchestration:
                 continue
             field = {"PREPARE_REFUND": "refund_reason", "MERCHANT_REVIEW": "handoff_reason"}.get(task["goal"])
             if field:
-                fields.append({"field": field, "task_id": task["task_id"], "type": "nonempty string",
+                fields.append({"field": field, "task_id": task["task_id"], "type": "customer_quotes object",
                                "required_for_status": ["ANSWERED", "NEEDS_MERCHANT"],
                                "omit_for_status": ["NEEDS_CUSTOMER"]})
-                example[field] = ("替换为待本人核对的退款原因，区分客户陈述与已核实事实。"
-                                  if field == "refund_reason" else
-                                  "替换为待本人确认共享给商家的核查摘要，区分客户陈述与已核实事实。")
+                example[field] = {"customer_quotes": [str(self.request.context.get("current_request", ""))[:300]]}
         return {"reason_fields": fields, "example": example}
 
     def compose(self, response: Response, meaning: Understanding, refs: dict[str, dict[str, Any]],
-                failures: list[dict[str, Any]], lives: dict[str, str]) -> AnswerParts:
+                failures: list[dict[str, Any]], lives: dict[str, str], *,
+                customer_claims: list[dict[str, Any]] | None = None) -> AnswerParts:
         state = self.snapshot(meaning, refs, failures, lives)
         if state["phase"] != "COMPOSE":
             raise ValueError("evidence not ready")
@@ -309,12 +319,18 @@ class Orchestration:
             self.goal_review = {"task_ids": eligible, "candidate_goals": unexpected,
                                 "accepted_goals": {key: self.goals[key] for key in eligible}}
             raise GoalConflict("GOAL_CONFLICT：候选产物与已接受目标不同，先核对本轮原话，不能只改原因字段")
+        summaries: dict[str, str] = {}
         for field, goal in reasons:
             reason = getattr(response, field)
             if goal in usable_goals:
-                if reason is None or not reason.strip():
+                if reason is None:
                     raise ValueError(f"{field}须给出待客户核对的非空原因")
+                task_id = next(task["task_id"] for task in state["tasks"] if task["goal"] == goal)
+                summary_part = next(piece for piece in parts if piece.task_id == task_id)
+                summaries[field] = ground_summary(reason.customer_quotes, summary_part.facts, self.request, refs,
+                                                  customer_claims or [], refund=goal == "PREPARE_REFUND")
             elif reason is not None:
                 raise ValueError(f"{field}仅用于本轮仍可办理的明确操作目标")
         return AnswerParts(kind="ANSWER_PARTS", fact_rendering="fields-v1", parts=parts,
-                           refund_summary=response.refund_reason, handoff_summary=response.handoff_reason)
+                           refund_summary=summaries.get("refund_reason"),
+                           handoff_summary=summaries.get("handoff_reason"))

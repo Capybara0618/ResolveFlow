@@ -1,0 +1,72 @@
+FFFFFFF.                                                                 [100%]
+================================== FAILURES ===================================
+_ test_original_q01_free_summary_is_rejected_then_customer_quote_repairs_without_order_read _
+agent\tests\unit\test_support_summary_grounding.py:43: in test_original_q01_free_summary_is_rejected_then_customer_quote_repairs_without_order_read
+    assert "耳机外壳有裂痕" in summary and "未经核验" in summary
+E   AssertionError: assert ('耳机外壳有裂痕' in '客户陈述：耳机外壳有裂痕，希望商家核查。此前核查已结束，本次为在原核查单中补充说明，不申请退款。已核实事实：客户已付款订单中的商品为无线降噪耳机（黑色）1件。待本人确认后共享给商家。' and '未经核验' in '客户陈述：耳机外壳有裂痕，希望商家核查。此前核查已结束，本次为在原核查单中补充说明，不申请退款。已核实事实：客户已付款订单中的商品为无线降噪耳机（黑色）1件。待本人确认后共享给商家。')
+_ test_product_and_policy_paid_at_metadata_never_supply_current_payment_status _
+agent\tests\unit\test_support_summary_grounding.py:55: in test_product_and_policy_paid_at_metadata_never_supply_current_payment_status
+    result = compose(req, draft("外壳破了"))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+agent\tests\unit\test_support_summary_grounding.py:25: in compose
+    return flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for Response
+E   handoff_reason
+E     Input should be a valid string [type=string_type, input_value={'customer_quotes': ['外壳破了']}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/string_type
+_ test_model_paraphrase_or_fabricated_fact_cannot_be_published_as_a_customer_quote _
+agent\tests\unit\test_support_summary_grounding.py:62: in test_model_paraphrase_or_fabricated_fact_cannot_be_published_as_a_customer_quote
+    with pytest.raises(ValueError, match="原话"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: '原话'
+E     Actual message: "1 validation error for Response\nhandoff_reason\n  Input should be a valid string [type=string_type, input_value={'customer_quotes': ['已核实客户已付款']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+_ test_authoritative_fields_are_rendered_from_this_tasks_actual_observations __
+agent\tests\unit\test_support_summary_grounding.py:69: in test_authoritative_fields_are_rendered_from_this_tasks_actual_observations
+    result = compose(req, draft("我没付款"), refs=source_refs(), needs=["ORDER", "SHIPMENT"])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+agent\tests\unit\test_support_summary_grounding.py:25: in compose
+    return flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for Response
+E   handoff_reason
+E     Input should be a valid string [type=string_type, input_value={'customer_quotes': ['我没付款']}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/string_type
+_____ test_retired_history_cannot_be_reused_in_a_new_summary[SUPERSEDED] ______
+agent\tests\unit\test_support_summary_grounding.py:80: in test_retired_history_cannot_be_reused_in_a_new_summary
+    with pytest.raises(ValueError, match="原话"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: '原话'
+E     Actual message: "1 validation error for Response\nhandoff_reason\n  Input should be a valid string [type=string_type, input_value={'customer_quotes': ['家人可能代收了']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+______ test_retired_history_cannot_be_reused_in_a_new_summary[RETRACTED] ______
+agent\tests\unit\test_support_summary_grounding.py:80: in test_retired_history_cannot_be_reused_in_a_new_summary
+    with pytest.raises(ValueError, match="原话"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: '原话'
+E     Actual message: "1 validation error for Response\nhandoff_reason\n  Input should be a valid string [type=string_type, input_value={'customer_quotes': ['家人可能代收了']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+_ test_active_history_is_quoted_as_customer_statement_not_a_verified_system_fact _
+agent\tests\unit\test_support_summary_grounding.py:87: in test_active_history_is_quoted_as_customer_statement_not_a_verified_system_fact
+    summary = compose(req, draft(entry["quote"]), claims=[entry]).handoff_summary
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+agent\tests\unit\test_support_summary_grounding.py:25: in compose
+    return flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for Response
+E   handoff_reason
+E     Input should be a valid string [type=string_type, input_value={'customer_quotes': ['家人没有代收']}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/string_type
+============================== warnings summary ===============================
+agent\.venv\Lib\site-packages\starlette\testclient.py:53
+  E:\Code\Agent+Backend\agent\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED agent\tests\unit\test_support_summary_grounding.py::test_original_q01_free_summary_is_rejected_then_customer_quote_repairs_without_order_read
+FAILED agent\tests\unit\test_support_summary_grounding.py::test_product_and_policy_paid_at_metadata_never_supply_current_payment_status
+FAILED agent\tests\unit\test_support_summary_grounding.py::test_model_paraphrase_or_fabricated_fact_cannot_be_published_as_a_customer_quote
+FAILED agent\tests\unit\test_support_summary_grounding.py::test_authoritative_fields_are_rendered_from_this_tasks_actual_observations
+FAILED agent\tests\unit\test_support_summary_grounding.py::test_retired_history_cannot_be_reused_in_a_new_summary[SUPERSEDED]
+FAILED agent\tests\unit\test_support_summary_grounding.py::test_retired_history_cannot_be_reused_in_a_new_summary[RETRACTED]
+FAILED agent\tests\unit\test_support_summary_grounding.py::test_active_history_is_quoted_as_customer_statement_not_a_verified_system_fact
+7 failed, 1 passed, 1 warning in 2.95s

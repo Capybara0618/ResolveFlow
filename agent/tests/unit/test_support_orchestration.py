@@ -61,7 +61,7 @@ def test_program_assembles_steps_amount_facts_and_summary_from_one_accepted_goal
     refs = source_refs()
     result = flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [
         {"task_id": "trace", "text": "请核对申请原因，确认后再提交。"}],
-        "refund_reason": "客户陈述商品未收到，希望申请整行退款，待本人核对。"}), p.meaning(), refs, [], {})
+        "refund_reason": {"customer_quotes": [req.context["current_request"]]}}), p.meaning(), refs, [], {})
     assert result.fact_rendering == "fields-v1"
     assert result.parts[0].next_steps[0].model_dump() == {"action": "REFUND_APPLICATION", "source": "O1"}
     assert {f.field for f in result.parts[0].facts} == {"ORDER_STATUS", "PAID_AMOUNT"}

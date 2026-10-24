@@ -1,3 +1,10 @@
+## 当前快照（2026-10-24，摘要事实来源约束及保护审计完成，本批收口）
+
+- 按用户“开始”收口[摘要来源合同](../docs/customer-agent-summary-grounding-v1.md)。内部reason由自由字符串改为customer_quotes对象，程序验证本轮/历史ACTIVE原话并标未经核验，只从对应事项已读ORDER/SHIPMENT装配系统字段和O引用；无订单读取不生成已付款，普通人工摘要不强制读全部工具。Java/前端仍用原字符串和编辑确认，唯一SDK/预算/资金保持。
+- [工程报告](../reports/customer-agent-summary-grounding-v1/README.md)：7红/1过→49针对，最终464单元契约及20真PG/API/SSE/恢复过0跳过，四源码strict及11文件Ruff过。原Q01自由错误响应原样拒绝，脚本quote修正后3模型/1指南，无状态扩写；PG恢复0新发送/原事件不重复。M02适配新reason结构继续保留目标核对测试，历史真实原文件不改。
+- 本批0新供应商请求、账2329，不更新原3/4成绩或简历；E50记录正文/摘要边界及取舍。新协议真实遵循、目标核对自然触发及任意原话语义完整性未被工程测试证明；不追加付费测试，不扩大重构或按旧任务推进。
+- [最终保护审计](../reports/customer-agent-summary-grounding-v1/final-audit.json)通过：公共11表/188历史报告/四历史脏文件/旧6与10与4轮原结果及评分保持，测试schema清理、凭据扫描通过；仅恢复所属PG停止并保留卷/Docker。[原反例离线前后示例](../reports/customer-agent-summary-grounding-v1/q01-offline-example.json)明确脚本修正、非新真实生成。报告/记录精确commit普通push核实后停止本批写入。未跑Java/Web整栈或全仓。
+
 ## 当前快照（2026-10-24，受控目标核对及四轮真实确认完成，本批收口）
 
 - 工程996d16f/准备22f9b3b均普通push核实；[本批报告](../reports/customer-agent-goal-confirm-v1/README.md)/[全部对话](../reports/customer-agent-goal-confirm-v1/conversations.md)/[源审](../reports/customer-agent-goal-confirm-v1/source-review.json)。新3组4轮各一次，4发布/目标产物4正确/完整质量3，原十轮和失败不改。11请求31532输入/1473输出、未知/估算0，账2318→2329，不追加收费追题。

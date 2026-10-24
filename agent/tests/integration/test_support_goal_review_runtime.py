@@ -15,7 +15,8 @@ def test_goal_review_and_task_intent_survive_real_pg_recovery_without_resetting_
     req = request()
     req.context["current_request"] = "请准备给商家的核查摘要，先不发送。"
     final = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "核查摘要待本人确认。",
-                                          "citations": ["O1"]}], "handoff_reason": "客户请求核查，尚未转交。"}
+                                          "citations": ["O1"]}],
+             "handoff_reason": {"customer_quotes": [req.context["current_request"]]}}
     script = [plan(req).model_dump(), read("get_order_context"), final,
               review(quote=req.context["current_request"]), final]
     models, sources = [TokenizedScript(script=script, mode="live")], Sources()
