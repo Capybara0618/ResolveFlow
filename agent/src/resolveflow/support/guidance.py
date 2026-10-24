@@ -96,9 +96,12 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
                         "[{action:MERCHANT_REVIEW或REFUND_APPLICATION,source:本run指南O编号}]，"
                         "程序生成正确入口/确认步骤，不执行提交；两种操作可并列。重发完整ANSWER_PARTS。")
     elif isinstance(error, GroundingError):
+        structured = isinstance(payload, dict) and payload.get("fact_rendering") == "fields-v1"
         result.update(field="answer_facts", detail=str(error),
-                      repair_note="facts只保留text实际使用的{{FIELD}}，不用占位符就省略facts；"
-                                  "先补source_gaps缺少的本轮来源再完整回答。金额须ORDER实付，不用商品展示值。")
+                      repair_note=("根级保持fact_rendering=fields-v1；facts独立选本run已读field/source，"
+                                   "同段field唯一，text仅写解释，不用占位符、不传value。"
+                                   if structured else "facts只保留text实际使用的{{FIELD}}，不用占位符就省略facts；")
+                                  + "先补source_gaps缺少的本轮来源再完整回答。金额须ORDER实付，不用商品展示值。")
     elif isinstance(error, CompletionError):
         result.update(
             code="TASK_COMPLETION_INCOMPLETE", field="tasks", gaps=error.gaps,

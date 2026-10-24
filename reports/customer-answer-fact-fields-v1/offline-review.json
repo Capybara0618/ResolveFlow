@@ -1,0 +1,156 @@
+{
+  "diagnostic_only": true,
+  "strict_replay": false,
+  "new_provider_calls": 0,
+  "business_writes": 0,
+  "raw_sha256": "0ad1e89dd5e49a541cf00e6eb97ac7b4e3969100a79479f397bfbfaae0007f99",
+  "original_error": "facts.field须唯一且在对应text中有{{FIELD}}占位符。",
+  "transformations": {
+    "root_fact_rendering": "fields-v1",
+    "macro_replacements": [
+      {
+        "task_id": "t2",
+        "marker": "{{PAID_AMOUNT}}"
+      }
+    ]
+  },
+  "not_a_real_model_success": true,
+  "original_candidate": {
+    "kind": "ANSWER_PARTS",
+    "parts": [
+      {
+        "text": "当前物流状态为承运商判定丢失（LOST），无有效签收记录。",
+        "facts": [
+          {
+            "field": "SHIPMENT_STATUS",
+            "source": "O1"
+          },
+          {
+            "field": "CARRIER_CONCLUSION",
+            "source": "O1"
+          }
+        ],
+        "status": "ANSWERED",
+        "task_id": "t1",
+        "citations": [
+          "O1"
+        ]
+      },
+      {
+        "text": "整件退款申请原因可整理为：订单已付款，商品为无线降噪耳机（黑色）1件，实付{{PAID_AMOUNT}}；物流显示承运商判定丢失且无有效签收记录，客户未收到商品，申请该订单行全部数量全额退款。按规则，承运商结论为LOST且无有效签收记录时，经人工核验可按该订单行全部数量实付金额退款，最终由售后专员核验决定。请核对上述原因后确认提交。",
+        "facts": [
+          {
+            "field": "PAID_AMOUNT",
+            "source": "O2"
+          }
+        ],
+        "status": "ANSWERED",
+        "task_id": "t2",
+        "citations": [
+          "O1",
+          "O2",
+          "P2",
+          "O3"
+        ],
+        "next_steps": [
+          {
+            "action": "REFUND_APPLICATION",
+            "source": "O3"
+          }
+        ]
+      }
+    ],
+    "refund_summary": "客户陈述：商品一直未收到。已查事实：订单已付款，物流承运商结论为LOST、无有效签收记录。诉求：申请该订单行全部数量全额退款，原因待客户核对后确认提交。"
+  },
+  "experimental_candidate": {
+    "kind": "ANSWER_PARTS",
+    "parts": [
+      {
+        "text": "当前物流状态为承运商判定丢失（LOST），无有效签收记录。",
+        "facts": [
+          {
+            "field": "SHIPMENT_STATUS",
+            "source": "O1"
+          },
+          {
+            "field": "CARRIER_CONCLUSION",
+            "source": "O1"
+          }
+        ],
+        "status": "ANSWERED",
+        "task_id": "t1",
+        "citations": [
+          "O1"
+        ]
+      },
+      {
+        "text": "整件退款申请原因可整理为：订单已付款，商品为无线降噪耳机（黑色）1件，实付订单行实付款（见本段事实）；物流显示承运商判定丢失且无有效签收记录，客户未收到商品，申请该订单行全部数量全额退款。按规则，承运商结论为LOST且无有效签收记录时，经人工核验可按该订单行全部数量实付金额退款，最终由售后专员核验决定。请核对上述原因后确认提交。",
+        "facts": [
+          {
+            "field": "PAID_AMOUNT",
+            "source": "O2"
+          }
+        ],
+        "status": "ANSWERED",
+        "task_id": "t2",
+        "citations": [
+          "O1",
+          "O2",
+          "P2",
+          "O3"
+        ],
+        "next_steps": [
+          {
+            "action": "REFUND_APPLICATION",
+            "source": "O3"
+          }
+        ]
+      }
+    ],
+    "refund_summary": "客户陈述：商品一直未收到。已查事实：订单已付款，物流承运商结论为LOST、无有效签收记录。诉求：申请该订单行全部数量全额退款，原因待客户核对后确认提交。",
+    "fact_rendering": "fields-v1"
+  },
+  "rendered_parts": [
+    {
+      "task_id": "t1",
+      "status": "ANSWERED",
+      "text": "当前物流状态为承运商判定丢失（LOST），无有效签收记录。\n\n物流状态：丢失。\n承运商记录结论：丢失。",
+      "citations": [
+        "O1"
+      ],
+      "facts": [
+        {
+          "field": "SHIPMENT_STATUS",
+          "source": "O1"
+        },
+        {
+          "field": "CARRIER_CONCLUSION",
+          "source": "O1"
+        }
+      ]
+    },
+    {
+      "task_id": "t2",
+      "status": "ANSWERED",
+      "text": "整件退款申请原因可整理为：订单已付款，商品为无线降噪耳机（黑色）1件，实付订单行实付款（见本段事实）；物流显示承运商判定丢失且无有效签收记录，客户未收到商品，申请该订单行全部数量全额退款。按规则，承运商结论为LOST且无有效签收记录时，经人工核验可按该订单行全部数量实付金额退款，最终由售后专员核验决定。请核对上述原因后确认提交。\n\n订单行实付：329.00 CNY。",
+      "citations": [
+        "O1",
+        "O2",
+        "P2",
+        "O3"
+      ],
+      "facts": [
+        {
+          "field": "PAID_AMOUNT",
+          "source": "O2"
+        }
+      ],
+      "next_steps": [
+        {
+          "action": "REFUND_APPLICATION",
+          "source": "O3"
+        }
+      ]
+    }
+  ]
+}

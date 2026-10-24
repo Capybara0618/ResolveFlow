@@ -19,6 +19,7 @@ from resolveflow.runtime.db import Database
 from resolveflow.runtime.factory import DeploymentConfig
 from resolveflow.support.embeddings import SupportEmbeddings
 from resolveflow.support.engine import SYSTEM, SupportAgent
+from resolveflow.support.grounding import FACT_RENDERING_VERSION
 from resolveflow.support.guide import GUIDE_VERSION
 from resolveflow.support.progress import ProgressReporter
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
@@ -93,6 +94,7 @@ class SupportRuntime:
         root = Path(__file__).parent
         manifest = {
             "version": "support-agent-v1",
+            "answer_fact_rendering": FACT_RENDERING_VERSION,
             "architecture": self.architecture,
             "streaming": isinstance(model, StreamingLiveModelClient),
             "sdk": version("agentscope"),

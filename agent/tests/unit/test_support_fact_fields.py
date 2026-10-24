@@ -124,3 +124,48 @@ def test_multiple_fields_select_current_line_and_preserve_unknown_authoritative_
     rendered = ground_answer(AnswerParts.model_validate(payload), request(), sources)
     assert rendered.parts[0].text.endswith("物流状态：运输中。\n承运商记录结论：PENDING_CHECK。")
     assert rendered.parts[0].citations == ["O1"]
+
+
+def test_new_fact_feedback_keeps_new_protocol_without_requesting_macros():
+    import json
+
+    req = request()
+    bad = candidate(fields=[{"field": "SHIPMENT_STATUS", "source": "O99"}])
+    result, model, _, agent = staged(req, [understand(req), read(), bad, candidate()], FactReads())
+    assert result["status"] == "SUCCEEDED", result["reason"]
+    feedback = json.loads(model.packets[-1]["feedback"])
+    assert feedback["field"] == "answer_facts" and "fields-v1" in feedback["repair_note"]
+    assert "{{FIELD}}" not in feedback["repair_note"]
+    assert model.calls == 4 and agent.repairs == 1
+
+
+def test_refund_summary_and_guide_remain_independent_of_rendered_facts():
+    from resolveflow.support.guide import guide_source
+
+    class Sources(FactReads):
+        def read(self, name, arguments):
+            if name == "get_support_guide":
+                self.calls.append((name, arguments))
+                return guide_source()
+            return super().read(name, arguments)
+
+    req = request()
+    payload = candidate()
+    payload["parts"][0]["next_steps"] = [{"action": "REFUND_APPLICATION", "source": "O2"}]
+    payload["refund_summary"] = "客户陈述：未收到商品。诉求：整件退款，待本人核对后提交。"
+    result, model, _, agent = staged(req, [understand(req, needs=["SHIPMENT", "GUIDE"]), read(),
+        read("get_support_guide"), payload], Sources())
+    assert result["status"] == "SUCCEEDED", result["reason"]
+    assert result["answer"]["refund_summary"] == payload["refund_summary"]
+    assert "物流状态：丢失。" in result["answer"]["text"]
+    assert "确认" in result["answer"]["text"]
+    assert {c["source_id"] for c in result["answer"]["citations"]} == {"O1", "O2"}
+    assert model.calls == 4 and agent.repairs == 0
+
+
+def test_actual_investigation_prompt_uses_fact_selection_instead_of_macro_duplication():
+    from resolveflow.support.stages import INVESTIGATION_SYSTEM
+
+    assert 'fact_rendering="fields-v1"' in INVESTIGATION_SYSTEM
+    assert "{{PAID_AMOUNT}}" not in INVESTIGATION_SYSTEM
+    assert "{{FIELD}}" not in INVESTIGATION_SYSTEM

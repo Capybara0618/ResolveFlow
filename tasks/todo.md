@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，客服事实渲染与流式工程接入通过，待新样本Live）
+
+- 第一步089f68e已同步。实际两阶段提示/样例及纠错切换fields-v1，新manifest记录协议，旧宏/反馈/结果/在途拒绝保持。[报告](../reports/customer-answer-fact-fields-v1/README.md)/[原失败离线诊断](../reports/customer-answer-fact-fields-v1/offline-review.json)。
+- 定向80过，临时PG/实际SDK/模拟SSE16过0跳过，strict3源码和Ruff通过；全客服组385过1已有旧v2指南诊断失败，旧提示同样复现且保留原断言/raw。single扩写导致3溢出已撤回，未增预算。
+- 无新模型/原库写，usage2093；服务仍旧版本。精确提交普通push核实后仅保留数据加载Python，准备新合成订单/一次客服问句验证正式回答/流式/自动摘要可编辑；不自动启动Case调查或重复退款，不改原失败/冻结资产及四脏文件。
+
 ## 当前快照（2026-10-24，客服事实输出协议第一步完成）
 
 - 用户批准消除事实标注与正文占位符重复约束；新增显式fields-v1，程序从本run实际来源追加事实段，旧协议/原失败保持。[合同](../docs/customer-answer-fact-fields-v1.md)/[报告](../reports/customer-answer-fact-fields-v1/README.md)。
