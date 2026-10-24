@@ -58,3 +58,9 @@ scripts/diagnose_support_orchestration_v1.py对3份冻结失败先验证原SHA�
 一次新profile浏览器确认已准备：复用原摘要验收逻辑但独立新Python/CJS驱动和目录，固定源码/13保护文件SHA。新合成订单c4ba8ab2-23e6-4888-8abc-37bead7953f3，329元、LOST，输入仍固定一条“核对承运记录并准备退款原因，先查看修改再决定”。新场景/新运行，不修改旧失败。只允许该客服轮原12模型预算；不重试，不确认建单/审批/退款、不切日常默认。检查自动模型摘要、正确实际金额、编辑保存、刷新恢复、COMPOSE真实流式。原Case调查不触发。
 
 实际命令：diagnose_support_orchestration_v1.py输出3条/0新调用/阶段INVESTIGATE、INVESTIGATE、COMPOSE；新脚本Ruff/py_compile、CJS node --check通过（初次import排序已修正，执行前最终冻结hash）。prepare已完成、provider_requests0，usage2102。本步提交并普通push核实后，仅显式启动新profile并execute一次；结果完整保存，失败不收费重发。
+
+## 一次真实结果：自动原因闭环通过，保留一次纠错与实际等待
+
+[完整结果](live-v1/README.md)：6真实请求19357输入/767输出、0未知，usage2102→2108。模型按新goal/RESPOND协议查订单/物流/政策，程序指南与就绪控制生效；首次RESPOND漏refund_reason，经一次字段纠错完成，不能写0纠错。自动原因卡片、编辑保存、刷新恢复通过，无Case/授权/退款或旧业务/索引变化。
+
+状态183ms、首候选6855ms随后撤回，有效候选首流8688ms、正式提交10064ms、DOM完成10083ms。约10秒等待与重复说明仍有优化空间。本次不自动追成功题或开新收费控制组；取消/纠正/纯政策/独立人工的真实跨轮确认和聊天确认后建单仍需独立验收，不据一例宣称客服冻结。日常默认保持，完成验证后恢复原服务配置并只读审计。
