@@ -1,0 +1,229 @@
+{
+  "events": [
+    [
+      "1",
+      "turn.accepted",
+      "NULL",
+      "{\"status\": \"PENDING\"}",
+      "2026-10-24 12:15:43.747919"
+    ],
+    [
+      "2",
+      "turn.started",
+      "NULL",
+      "{\"status\": \"RUNNING\"}",
+      "2026-10-24 12:15:43.792414"
+    ],
+    [
+      "3",
+      "activity.started",
+      "NULL",
+      "{\"category\": \"GUIDE\"}",
+      "2026-10-24 12:15:44.033450"
+    ],
+    [
+      "4",
+      "activity.completed",
+      "NULL",
+      "{\"category\": \"GUIDE\"}",
+      "2026-10-24 12:15:44.268101"
+    ],
+    [
+      "5",
+      "activity.started",
+      "NULL",
+      "{\"category\": \"ORDER\"}",
+      "2026-10-24 12:15:46.871558"
+    ],
+    [
+      "6",
+      "activity.completed",
+      "NULL",
+      "{\"category\": \"ORDER\"}",
+      "2026-10-24 12:15:46.894656"
+    ],
+    [
+      "7",
+      "activity.started",
+      "NULL",
+      "{\"category\": \"SHIPMENT\"}",
+      "2026-10-24 12:15:47.996282"
+    ],
+    [
+      "8",
+      "activity.completed",
+      "NULL",
+      "{\"category\": \"SHIPMENT\"}",
+      "2026-10-24 12:15:48.034692"
+    ],
+    [
+      "9",
+      "activity.started",
+      "NULL",
+      "{\"category\": \"POLICY\"}",
+      "2026-10-24 12:15:49.189881"
+    ],
+    [
+      "10",
+      "activity.completed",
+      "NULL",
+      "{\"category\": \"POLICY\"}",
+      "2026-10-24 12:15:49.216299"
+    ],
+    [
+      "11",
+      "answer.started",
+      "model-5",
+      "{}",
+      "2026-10-24 12:15:50.233589"
+    ],
+    [
+      "12",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"这件\", \"offset\": 0, \"part_id\": \"part-0\"}",
+      "2026-10-24 12:15:50.236362"
+    ],
+    [
+      "13",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"无线降噪耳机订单的物流记录显示承运商已判定为\", \"offset\": 2, \"part_id\": \"part-0\"}",
+      "2026-10-24 12:15:50.333158"
+    ],
+    [
+      "14",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"丢失，并非仍在正常运输途中。该结论\", \"offset\": 24, \"part_id\": \"part-0\"}",
+      "2026-10-24 12:15:50.424044"
+    ],
+    [
+      "15",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"来自物流接口的当前记录，不是知识文档\", \"offset\": 41, \"part_id\": \"part-0\"}",
+      "2026-10-24 12:15:50.521987"
+    ],
+    [
+      "16",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"的推断；如后续需要，可再\", \"offset\": 59, \"part_id\": \"part-0\"}",
+      "2026-10-24 12:15:50.617339"
+    ],
+    [
+      "17",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"刷新查看是否有更新。\", \"offset\": 71, \"part_id\": \"part-0\"}",
+      "2026-10-24 12:15:50.694334"
+    ],
+    [
+      "18",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"退款原因草稿已按你“还没有收到\", \"offset\": 0, \"part_id\": \"part-1\"}",
+      "2026-10-24 12:15:50.789099"
+    ],
+    [
+      "19",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"”的陈述整理，供你核对编辑，尚未提交，也不会\", \"offset\": 15, \"part_id\": \"part-1\"}",
+      "2026-10-24 12:15:50.884515"
+    ],
+    [
+      "20",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"因此自动创建退款申请。承运商判定丢失的情形需经\", \"offset\": 37, \"part_id\": \"part-1\"}",
+      "2026-10-24 12:15:50.981893"
+    ],
+    [
+      "21",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"人工核验后才可按该订单行全额退款，最终\", \"offset\": 60, \"part_id\": \"part-1\"}",
+      "2026-10-24 12:15:51.076640"
+    ],
+    [
+      "22",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"由售后专员决定；你可在草稿\", \"offset\": 79, \"part_id\": \"part-1\"}",
+      "2026-10-24 12:15:51.173879"
+    ],
+    [
+      "23",
+      "answer.delta",
+      "model-5",
+      "{\"text\": \"中补充或修改表述后再决定是否提交。\", \"offset\": 92, \"part_id\": \"part-1\"}",
+      "2026-10-24 12:15:51.274267"
+    ],
+    [
+      "24",
+      "answer.committed",
+      "NULL",
+      "{\"text\": \"这件无线降噪耳机订单的物流记录显示承运商已判定为丢失，并非仍在正常运输途中。该结论来自物流接口的当前记录，不是知识文档的推断；如后续需要，可再刷新查看是否有更新。\\\\n\\\\n订单状态：已付款。\\\\n订单行实付：329.00 CNY。\\\\n物流状态：丢失。\\\\n承运商记录结论：丢失。\\\\n\\\\n退款原因草稿已按你“还没有收到”的陈述整理，供你核对编辑，尚未提交，也不会因此自动创建退款申请。承运商判定丢失的情形需经人工核验后才可按该订单行全额退款，最终由售后专员决定；你可在草稿中补充或修改表述后再决定是否提交。\\\\n\\\\n正式退款：在当前会话点击“申请退款”，核对整行实付金额和申请原因，可编辑后点击“确认提交申请”。提交后在当前会话查看进度，也可到“我的售后”查看同一笔申请详情和补充材料。聊天表达退款意愿或转交人工核查不会自动创建退款工单；助手没有替你提交申请。\\\\n\\\\n订单状态：已付款。\\\\n订单行实付：329.00 CNY。\", \"sequence\": 3, \"assistant\": {\"mode\": \"live\", \"run_id\": \"a06b1594-f9de-4d81-b62e-cb7702f688a8\", \"citations\": [{\"data\": {\"line_id\": \"SHOP-e28108ad-99b8-49e6-8863-6fa2ce693a0b\", \"version\": 1, \"order_line\": {\"sku\": \"SKU-1001-01\", \"status\": \"PAID\", \"line_id\": \"SHOP-e28108ad-99b8-49e6-8863-6fa2ce693a0b\", \"paid_at\": \"2026-10-24T12:10:35.440846Z\", \"version\": 1, \"category\": \"electronics\", \"currency\": \"CNY\", \"order_id\": \"2125ef07-fa88-40f6-8cd9-82223ae10ee1\", \"quantity\": 1, \"asset_key\": \"headphones\", \"product_name\": \"无线降噪耳机\", \"variant_text\": \"黑色\", \"line_paid_amount\": 32900}, \"merchant_id\": \"M-1001\"}, \"version\": 1, \"source_id\": \"O2\", \"source_type\": \"ORDER\", \"content_hash\": \"49981df8315f9c7e82d5f86f438d25fd19cd1e3455d5cd539ada8abc35814795\"}, {\"data\": {\"lines\": [{\"events\": [{\"code\": \"ORDER_PAID\", \"occurred_at\": \"2026-10-24T12:10:35.440846Z\", \"source_version\": 1}, {\"code\": \"SIMULATED_SHIPPED\", \"occurred_at\": \"2026-10-24T12:10:35.528631Z\", \"source_version\": 2}, {\"code\": \"LOST\", \"occurred_at\": \"2026-10-24T12:10:36.288244Z\", \"source_version\": 3}], \"status\": \"LOST\", \"line_id\": \"SHOP-e28108ad-99b8-49e6-8863-6fa2ce693a0b\", \"source_version\": 3, \"carrier_conclusion\": \"LOST\"}], \"status\": \"LOST\", \"version\": 3, \"order_id\": \"2125ef07-fa88-40f6-8cd9-82223ae10ee1\", \"synthetic\": true}, \"version\": 3, \"source_id\": \"O3\", \"source_type\": \"SHIPMENT\", \"content_hash\": \"171d5de9b37d77155d3ce14d119fde73dfe9675a910404773da840155c9c9cd9\"}, {\"data\": {\"text\": \"选择订单商品与独立咨询\\\\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\\\\n\\\\n不申请退款也能请商家核查\\\\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\\\\n\\\\n转交前选择共享原文和调查依据\\\\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\\\\n\\\\n私有助手咨询与补充给商家的区别\\\\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\\\\n\\\\n商家回复与客户确认解决\\\\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\\\\n\\\\n查看核查进度和历史消息\\\\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\\\\n\\\\n发送结果不明确与版本冲突\\\\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\\\\n\\\\n正式退款申请与咨询入口\\\\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\\\\n\\\\n助手回答来源与实时事实\\\\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\\\\n\\\\n补充纠正与过时回答\\\\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。\", \"sources\": [{\"ref\": \"s0\", \"path\": \"docs/customer-support-workspace.md\", \"sha256_at_import\": \"7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89\"}, {\"ref\": \"s1\", \"path\": \"docs/customer-agent-implementation-v1.md\", \"sha256_at_import\": \"c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb\"}, {\"ref\": \"s2\", \"path\": \"docs/customer-chat-refund-implementation-v1.md\", \"sha256_at_import\": \"196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c\"}], \"guide_id\": \"support-guide-v3\", \"sections\": [{\"id\": \"K-ORDER\", \"title\": \"选择订单商品与独立咨询\", \"source_ref\": \"s0\", \"content_sha256\": \"c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79\"}, {\"id\": \"K-HANDOFF\", \"title\": \"不申请退款也能请商家核查\", \"source_ref\": \"s0\", \"content_sha256\": \"d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a\"}, {\"id\": \"K-SHARE\", \"title\": \"转交前选择共享原文和调查依据\", \"source_ref\": \"s0\", \"content_sha256\": \"2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632\"}, {\"id\": \"K-PRIVATE\", \"title\": \"私有助手咨询与补充给商家的区别\", \"source_ref\": \"s0\", \"content_sha256\": \"a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42\"}, {\"id\": \"K-RESOLVE\", \"title\": \"商家回复与客户确认解决\", \"source_ref\": \"s0\", \"content_sha256\": \"de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f\"}, {\"id\": \"K-STATUS\", \"title\": \"查看核查进度和历史消息\", \"source_ref\": \"s0\", \"content_sha256\": \"74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623\"}, {\"id\": \"K-RETRY\", \"title\": \"发送结果不明确与版本冲突\", \"source_ref\": \"s0\", \"content_sha256\": \"e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d\"}, {\"id\": \"K-ENTRY\", \"title\": \"正式退款申请与咨询入口\", \"source_ref\": \"s2\", \"content_sha256\": \"41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca\"}, {\"id\": \"K-SOURCES\", \"title\": \"助手回答来源与实时事实\", \"source_ref\": \"s1\", \"content_sha256\": \"650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717\"}, {\"id\": \"K-STALE\", \"title\": \"补充纠正与过时回答\", \"source_ref\": \"s0\", \"content_sha256\": \"cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31\"}], \"authority\": \"APPLICATION_GUIDE\", \"text_sha256\": \"841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727\", \"knowledge_sha256\": \"cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb\"}, \"title\": \"售后咨询使用指南\", \"version\": \"2026.10.23-v3\", \"source_id\": \"O1\", \"source_type\": \"KNOWLEDGE\", \"content_hash\": \"0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120\"}, {\"data\": {\"text\": \"承运商结论为 LOST 且无有效签收记录时，经人工核验可按该订单行全部数量的实付金额退款；本地模拟在途不代表承运商丢失。\", \"rule_id\": \"R-LOST-001\", \"chunk_id\": \"c-02\", \"bundle_id\": \"policy-foundation-m1001-2026.10\", \"merchant_id\": \"M-1001\", \"content_hash\": \"f698c0b0d82dea5fe08866011a7db5e53de2a910df5d9059f75939b05fc82e08\", \"manifest_hash\": \"27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a\"}, \"title\": \"承运商判定丢失\", \"version\": \"2026.10\", \"source_id\": \"P2\", \"source_type\": \"POLICY\", \"content_hash\": \"bc2cd9edb7d4083ef159fbc6a2d160e6ba94eff2449c160f1f0ff421845f3e96\", \"retrieval_context\": {\"mode\": \"COMPLETE_SMALL_SET\", \"count\": 6}}], \"refund_summary\": \"客户陈述（未经核验）：\\\\n- 本轮原话：\\\\\"这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。\\\\\"\\\\n已读系统记录（不代表客户陈述已核验）：\\\\n- 订单状态：已付款。[O2]\\\\n- 订单行实付：329.00 CNY。[O2]\\\\n退款原因草稿尚未提交，待本人核对、编辑并确认。\", \"handoff_summary\": null}, \"message_id\": \"24775d87-30d5-492a-8145-0f2ad4d91a24\"}",
+      "2026-10-24 12:15:51.412524"
+    ]
+  ],
+  "drafts": [
+    [
+      "DRAFT",
+      "2",
+      "3",
+      "客户陈述（未经核验）：\\n- 本轮原话：\"这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。\"\\n已读系统记录（不代表客户陈述已核验）：\\n- 订单状态：已付款。[O2]\\n- 订单行实付：329.00 CNY。[O2]\\n退款原因草稿尚未提交，待本人核对、编辑并确认。\\n验收补充：请先核对承运商记录，我暂不提交申请。",
+      "32900",
+      "CNY",
+      "NULL"
+    ]
+  ],
+  "turns": [
+    [
+      "a06b1594-f9de-4d81-b62e-cb7702f688a8",
+      "4b9de572-2f44-49c4-ab01-d44f6e2e091d",
+      "2",
+      "buyer10",
+      "1791025957",
+      "SUCCEEDED",
+      "NULL",
+      "1",
+      "2026-10-24 12:18:13.770834",
+      "2026-10-24 12:17:43.770834",
+      "2026-10-24 12:15:43.721261",
+      "{\"history\": [{\"text\": \"这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。\", \"author\": \"CUSTOMER\", \"sequence\": 2, \"recipient\": \"ASSISTANT\", \"message_id\": \"01fb74f1-946f-4add-b808-f97dcfb1d567\"}], \"product\": {\"name\": \"无线降噪耳机\", \"variant\": \"黑色\", \"currency\": \"CNY\", \"quantity\": 1, \"asset_key\": \"headphones\", \"amount_minor\": 32900}, \"history_before\": null, \"current_request\": \"这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。\", \"policy_manifest\": {\"bundle_ids\": [\"policy-foundation-m1001-2026.10\"], \"merchant_id\": \"M-1001\", \"safety_epoch\": 3, \"manifest_hash\": \"27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a\", \"selected_by_paid_at\": \"2026-10-24T12:10:35.440846Z\"}, \"conversation_state\": {\"has_ticket\": false, \"ticket_status\": \"NONE\", \"current_recipient\": \"ASSISTANT\", \"default_recipient\": \"ASSISTANT\"}}",
+      "{\"mode\": \"live\", \"spend\": {\"local_reads\": 2, \"model_calls\": 5, \"input_tokens\": 18658, \"output_tokens\": 520, \"tool_attempts\": 2, \"no_progress_rounds\": 0}, \"answer\": {\"text\": \"这件无线降噪耳机订单的物流记录显示承运商已判定为丢失，并非仍在正常运输途中。该结论来自物流接口的当前记录，不是知识文档的推断；如后续需要，可再刷新查看是否有更新。\\\\n\\\\n订单状态：已付款。\\\\n订单行实付：329.00 CNY。\\\\n物流状态：丢失。\\\\n承运商记录结论：丢失。\\\\n\\\\n退款原因草稿已按你“还没有收到”的陈述整理，供你核对编辑，尚未提交，也不会因此自动创建退款申请。承运商判定丢失的情形需经人工核验后才可按该订单行全额退款，最终由售后专员决定；你可在草稿中补充或修改表述后再决定是否提交。\\\\n\\\\n正式退款：在当前会话点击“申请退款”，核对整行实付金额和申请原因，可编辑后点击“确认提交申请”。提交后在当前会话查看进度，也可到“我的售后”查看同一笔申请详情和补充材料。聊天表达退款意愿或转交人工核查不会自动创建退款工单；助手没有替你提交申请。\\\\n\\\\n订单状态：已付款。\\\\n订单行实付：329.00 CNY。\", \"citations\": [{\"data\": {\"line_id\": \"SHOP-e28108ad-99b8-49e6-8863-6fa2ce693a0b\", \"version\": 1, \"order_line\": {\"sku\": \"SKU-1001-01\", \"status\": \"PAID\", \"line_id\": \"SHOP-e28108ad-99b8-49e6-8863-6fa2ce693a0b\", \"paid_at\": \"2026-10-24T12:10:35.440846Z\", \"version\": 1, \"category\": \"electronics\", \"currency\": \"CNY\", \"order_id\": \"2125ef07-fa88-40f6-8cd9-82223ae10ee1\", \"quantity\": 1, \"asset_key\": \"headphones\", \"product_name\": \"无线降噪耳机\", \"variant_text\": \"黑色\", \"line_paid_amount\": 32900}, \"merchant_id\": \"M-1001\"}, \"version\": 1, \"source_id\": \"O2\", \"source_type\": \"ORDER\", \"content_hash\": \"49981df8315f9c7e82d5f86f438d25fd19cd1e3455d5cd539ada8abc35814795\"}, {\"data\": {\"lines\": [{\"events\": [{\"code\": \"ORDER_PAID\", \"occurred_at\": \"2026-10-24T12:10:35.440846Z\", \"source_version\": 1}, {\"code\": \"SIMULATED_SHIPPED\", \"occurred_at\": \"2026-10-24T12:10:35.528631Z\", \"source_version\": 2}, {\"code\": \"LOST\", \"occurred_at\": \"2026-10-24T12:10:36.288244Z\", \"source_version\": 3}], \"status\": \"LOST\", \"line_id\": \"SHOP-e28108ad-99b8-49e6-8863-6fa2ce693a0b\", \"source_version\": 3, \"carrier_conclusion\": \"LOST\"}], \"status\": \"LOST\", \"version\": 3, \"order_id\": \"2125ef07-fa88-40f6-8cd9-82223ae10ee1\", \"synthetic\": true}, \"version\": 3, \"source_id\": \"O3\", \"source_type\": \"SHIPMENT\", \"content_hash\": \"171d5de9b37d77155d3ce14d119fde73dfe9675a910404773da840155c9c9cd9\"}, {\"data\": {\"text\": \"选择订单商品与独立咨询\\\\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\\\\n\\\\n不申请退款也能请商家核查\\\\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\\\\n\\\\n转交前选择共享原文和调查依据\\\\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\\\\n\\\\n私有助手咨询与补充给商家的区别\\\\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\\\\n\\\\n商家回复与客户确认解决\\\\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\\\\n\\\\n查看核查进度和历史消息\\\\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\\\\n\\\\n发送结果不明确与版本冲突\\\\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\\\\n\\\\n正式退款申请与咨询入口\\\\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\\\\n\\\\n助手回答来源与实时事实\\\\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\\\\n\\\\n补充纠正与过时回答\\\\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。\", \"sources\": [{\"ref\": \"s0\", \"path\": \"docs/customer-support-workspace.md\", \"sha256_at_import\": \"7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89\"}, {\"ref\": \"s1\", \"path\": \"docs/customer-agent-implementation-v1.md\", \"sha256_at_import\": \"c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb\"}, {\"ref\": \"s2\", \"path\": \"docs/customer-chat-refund-implementation-v1.md\", \"sha256_at_import\": \"196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c\"}], \"guide_id\": \"support-guide-v3\", \"sections\": [{\"id\": \"K-ORDER\", \"title\": \"选择订单商品与独立咨询\", \"source_ref\": \"s0\", \"content_sha256\": \"c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79\"}, {\"id\": \"K-HANDOFF\", \"title\": \"不申请退款也能请商家核查\", \"source_ref\": \"s0\", \"content_sha256\": \"d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a\"}, {\"id\": \"K-SHARE\", \"title\": \"转交前选择共享原文和调查依据\", \"source_ref\": \"s0\", \"content_sha256\": \"2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632\"}, {\"id\": \"K-PRIVATE\", \"title\": \"私有助手咨询与补充给商家的区别\", \"source_ref\": \"s0\", \"content_sha256\": \"a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42\"}, {\"id\": \"K-RESOLVE\", \"title\": \"商家回复与客户确认解决\", \"source_ref\": \"s0\", \"content_sha256\": \"de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f\"}, {\"id\": \"K-STATUS\", \"title\": \"查看核查进度和历史消息\", \"source_ref\": \"s0\", \"content_sha256\": \"74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623\"}, {\"id\": \"K-RETRY\", \"title\": \"发送结果不明确与版本冲突\", \"source_ref\": \"s0\", \"content_sha256\": \"e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d\"}, {\"id\": \"K-ENTRY\", \"title\": \"正式退款申请与咨询入口\", \"source_ref\": \"s2\", \"content_sha256\": \"41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca\"}, {\"id\": \"K-SOURCES\", \"title\": \"助手回答来源与实时事实\", \"source_ref\": \"s1\", \"content_sha256\": \"650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717\"}, {\"id\": \"K-STALE\", \"title\": \"补充纠正与过时回答\", \"source_ref\": \"s0\", \"content_sha256\": \"cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31\"}], \"authority\": \"APPLICATION_GUIDE\", \"text_sha256\": \"841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727\", \"knowledge_sha256\": \"cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb\"}, \"title\": \"售后咨询使用指南\", \"version\": \"2026.10.23-v3\", \"source_id\": \"O1\", \"source_type\": \"KNOWLEDGE\", \"content_hash\": \"0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120\"}, {\"data\": {\"text\": \"承运商结论为 LOST 且无有效签收记录时，经人工核验可按该订单行全部数量的实付金额退款；本地模拟在途不代表承运商丢失。\", \"rule_id\": \"R-LOST-001\", \"chunk_id\": \"c-02\", \"bundle_id\": \"policy-foundation-m1001-2026.10\", \"merchant_id\": \"M-1001\", \"content_hash\": \"f698c0b0d82dea5fe08866011a7db5e53de2a910df5d9059f75939b05fc82e08\", \"manifest_hash\": \"27ed0c53c0357f9ef4c63133b03556974ca3b2d31fd39319edbc0d6098488a0a\"}, \"title\": \"承运商判定丢失\", \"version\": \"2026.10\", \"source_id\": \"P2\", \"source_type\": \"POLICY\", \"content_hash\": \"bc2cd9edb7d4083ef159fbc6a2d160e6ba94eff2449c160f1f0ff421845f3e96\", \"retrieval_context\": {\"mode\": \"COMPLETE_SMALL_SET\", \"count\": 6}}], \"task_state\": {\"tasks\": [{\"id\": \"t1\", \"intent\": \"LOGISTICS\", \"status\": \"ANSWERED\", \"request\": \"查询这件无线降噪耳机订单的当前物流状态\", \"lifecycle\": \"OPEN\", \"evidence_refs\": [\"O2\", \"O3\"], \"response_excerpt\": \"这件无线降噪耳机订单的物流记录显示承运商已判定为丢失，并非仍在正常运输途中。该结论来自物流接口的当前记录，不是知识文档的推断；如后续需要，可再刷新查看是否有更新。\\\\n\\\\n订单状态：已付款。\\\\n订单行实付：329.00 CNY。\\\\n物流状态：丢失。\\\\n承运商记录结论：丢失。\"}, {\"id\": \"t2\", \"intent\": \"APPLICATION\", \"status\": \"ANSWERED\", \"request\": \"为这件耳机订单准备退款原因草稿，供客户核对编辑，不提交\", \"lifecycle\": \"OPEN\", \"evidence_refs\": [\"O1\", \"P2\", \"O2\"], \"response_excerpt\": \"退款原因草稿已按你“还没有收到”的陈述整理，供你核对编辑，尚未提交，也不会因此自动创建退款申请。承运商判定丢失的情形需经人工核验后才可按该订单行全额退款，最终由售后专员决定；你可在草稿中补充或修改表述后再决定是否提交。\\\\n\\\\n正式退款：在当前会话点击“申请退款”，核对整行实付金额和申请原因，可编辑后点击“确认提交申请”。提交后在当前会话查看进度，也可到“我的售后”查看同一笔申请详情和补充材料。聊天表达退款意愿或转交人工核查不会自动创建退款工单；助手没有替你提交申请。\\\\n\\\\n订单状态：已付款。\\\\n订单行实付：329.00 CNY。\"}], \"origin\": \"MODEL\", \"focus_ids\": [\"t1\", \"t2\"]}, \"dialogue_state\": {\"events\": [{\"change\": \"ADD\", \"source\": {\"quote\": \"这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。\", \"offset\": 0, \"sequence\": 2, \"message_id\": null}, \"task_id\": \"t1\"}, {\"change\": \"ADD\", \"source\": {\"quote\": \"这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。\", \"offset\": 0, \"sequence\": 2, \"message_id\": null}, \"task_id\": \"t2\"}], \"origin\": \"MODEL_WITH_CUSTOMER_ANCHORS\", \"lifecycles\": {\"t1\": \"OPEN\", \"t2\": \"OPEN\"}, \"carried_tasks\": {\"t1\": \"ANSWERED\", \"t2\": \"ANSWERED\"}}, \"refund_summary\": \"客户陈述（未经核验）：\\\\n- 本轮原话：\\\\\"这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。\\\\\"\\\\n已读系统记录（不代表客户陈述已核验）：\\\\n- 订单状态：已付款。[O2]\\\\n- 订单行实付：329.00 CNY。[O2]\\\\n退款原因草稿尚未提交，待本人核对、编辑并确认。\", \"customer_memory\": {\"origin\": \"GROUNDED_CUSTOMER_CLAIMS\", \"entries\": [{\"id\": \"c_25c19da173723a83b2c75842\", \"quote\": \"这件耳机我还没有收到\", \"topic\": \"RECEIPT\", \"source\": {\"quote\": \"这件耳机我还没有收到\", \"offset\": 0, \"sequence\": 2, \"message_id\": null}, \"status\": \"ACTIVE\", \"retracts\": [], \"supersedes\": []}], \"line_id\": \"SHOP-e28108ad-99b8-49e6-8863-6fa2ce693a0b\", \"version\": \"support-claims-v1\", \"customer_id\": \"C-9b18b1d1c0ffcdf384bbc7b843977700f32b816e\", \"merchant_id\": \"M-1001\", \"input_version\": 2, \"conversation_id\": \"4b9de572-2f44-49c4-ab01-d44f6e2e091d\"}, \"handoff_summary\": null, \"memory_warnings\": []}, \"reason\": null, \"run_id\": \"a06b1594-f9de-4d81-b62e-cb7702f688a8\", \"status\": \"SUCCEEDED\", \"input_version\": 2, \"conversation_id\": \"4b9de572-2f44-49c4-ab01-d44f6e2e091d\", \"conversation_update\": {\"run_id\": \"a06b1594-f9de-4d81-b62e-cb7702f688a8\", \"line_id\": \"SHOP-e28108ad-99b8-49e6-8863-6fa2ce693a0b\", \"version\": \"support-state-v1\", \"task_state\": {\"tasks\": [{\"id\": \"t1\", \"intent\": \"LOGISTICS\", \"status\": \"ANSWERED\", \"request\": \"查询这件无线降噪耳机订单的当前物流状态\", \"lifecycle\": \"OPEN\", \"evidence_refs\": [], \"response_excerpt\": null}, {\"id\": \"t2\", \"intent\": \"APPLICATION\", \"status\": \"ANSWERED\", \"request\": \"为这件耳机订单准备退款原因草稿，供客户核对编辑，不提交\", \"lifecycle\": \"OPEN\", \"evidence_refs\": [], \"response_excerpt\": null}], \"origin\": \"MODEL\", \"focus_ids\": []}, \"customer_id\": \"C-9b18b1d1c0ffcdf384bbc7b843977700f32b816e\", \"merchant_id\": \"M-1001\", \"input_version\": 2, \"dialogue_state\": {\"events\": [{\"change\": \"ADD\", \"source\": {\"quote\": \"这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。\", \"offset\": 0, \"sequence\": 2, \"message_id\": null}, \"task_id\": \"t1\"}, {\"change\": \"ADD\", \"source\": {\"quote\": \"这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。\", \"offset\": 0, \"sequence\": 2, \"message_id\": null}, \"task_id\": \"t2\"}], \"origin\": \"MODEL_WITH_CUSTOMER_ANCHORS\", \"lifecycles\": {\"t1\": \"OPEN\", \"t2\": \"OPEN\"}, \"carried_tasks\": {\"t1\": \"ANSWERED\", \"t2\": \"ANSWERED\"}}, \"conversation_id\": \"4b9de572-2f44-49c4-ab01-d44f6e2e091d\", \"customer_memory\": {\"origin\": \"GROUNDED_CUSTOMER_CLAIMS\", \"entries\": [{\"id\": \"c_25c19da173723a83b2c75842\", \"quote\": \"这件耳机我还没有收到\", \"topic\": \"RECEIPT\", \"source\": {\"quote\": \"这件耳机我还没有收到\", \"offset\": 0, \"sequence\": 2, \"message_id\": null}, \"status\": \"ACTIVE\", \"retracts\": [], \"supersedes\": []}], \"line_id\": \"SHOP-e28108ad-99b8-49e6-8863-6fa2ce693a0b\", \"version\": \"support-claims-v1\", \"customer_id\": \"C-9b18b1d1c0ffcdf384bbc7b843977700f32b816e\", \"merchant_id\": \"M-1001\", \"input_version\": 2, \"conversation_id\": \"4b9de572-2f44-49c4-ab01-d44f6e2e091d\"}, \"memory_warnings\": []}}",
+      "2026-10-24 12:15:43.721261",
+      "20",
+      "21",
+      "{\"events\": [{\"kind\": \"answer.delta\", \"payload\": {\"text\": \"中补充或修改表述后再决定是否提交。\", \"offset\": 92, \"part_id\": \"part-1\"}, \"attempt_id\": \"model-5\"}], \"batch_sequence\": 20}",
+      "{\"parts\": {\"part-0\": \"这件无线降噪耳机订单的物流记录显示承运商已判定为丢失，并非仍在正常运输途中。该结论来自物流接口的当前记录，不是知识文档的推断；如后续需要，可再刷新查看是否有更新。\", \"part-1\": \"退款原因草稿已按你“还没有收到”的陈述整理，供你核对编辑，尚未提交，也不会因此自动创建退款申请。承运商判定丢失的情形需经人工核验后才可按该订单行全额退款，最终由售后专员决定；你可在草稿中补充或修改表述后再决定是否提交。\"}, \"attempt_id\": \"model-5\"}"
+    ]
+  ],
+  "tables": [
+    [
+      "support_agent_turn"
+    ],
+    [
+      "support_conversation"
+    ],
+    [
+      "support_message"
+    ],
+    [
+      "support_receipt"
+    ],
+    [
+      "support_refund_draft"
+    ],
+    [
+      "support_stream_event"
+    ],
+    [
+      "support_ticket"
+    ]
+  ],
+  "source": "read-only MySQL, not DOM refresh proof"
+}

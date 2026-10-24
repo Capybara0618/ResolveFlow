@@ -1,0 +1,40 @@
+{
+  "published_free_turns": 5,
+  "full_criteria_free_turns": 4,
+  "partial_free_turns": 1,
+  "requests": {
+    "free": 13,
+    "controlled_real": 2,
+    "browser": 5,
+    "total": 20,
+    "mock_prefix": 3
+  },
+  "input_tokens": 61415,
+  "output_tokens": 2568,
+  "unknown_usage": 0,
+  "estimated": false,
+  "usage_before": 2329,
+  "usage_after": 2349,
+  "free_first_retained_median_ms": 2848.9555999985896,
+  "free_completion_median_ms": 3402.309900004184,
+  "prewarm_ms": 6207.991700008279,
+  "server_first_delta_ui_ms": 6488.443,
+  "server_commit_ui_ms": 7664.605,
+  "accounting_note": "Provider tokens sum actual persisted response usage, not Harness spend.input_tokens (local tokenizer plus perrequest256 reservation). Export UUID failure recovered read-only after ledger saved; no duplicate charge count.",
+  "freeze": {
+    "summary_source_contract": "PASS_THIS_SAMPLE",
+    "correction_and_withdrawal": "PASS_THIS_SAMPLE",
+    "controlled_goal_review": "PASS_CONTROLLED_ONLY",
+    "complete_policy_answer": "NOT_COMPLETE",
+    "browser_edit_save": "PASS",
+    "browser_refresh_render_and_progressive_body": "UNVERIFIED",
+    "overall": "NOT_FULLY_FROZEN"
+  },
+  "not_run": [
+    "no added paid retries",
+    "no merchant confirmation/approval/refund execution",
+    "no independent holdout or resume metrics",
+    "no new RAG ranking benchmark",
+    "no Java/Web rebuild or full repository tests"
+  ]
+}

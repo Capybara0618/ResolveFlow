@@ -1,0 +1,183 @@
+{
+  "reviewer": "CODEX_SOURCE_REVIEW",
+  "synthetic": true,
+  "independent_holdout": false,
+  "published": 5,
+  "full_criteria_passed": 4,
+  "partial": 1,
+  "rows": [
+    {
+      "id": "S01",
+      "turn": 1,
+      "published": true,
+      "complete_quality": "PASS",
+      "explanation": "人工用途正确；quote对象保留当前完整原话，未冒充订单/物流核验；指南支持原核查继续补充。",
+      "source": "runtime-results.json rows[0] result.answer/task_state/customer_memory, models, tools, events",
+      "model_calls": 2,
+      "elapsed_ms": 3402.309900004184,
+      "stream_times": {
+        "first_provisional_ms": 2848.9555999985896,
+        "first_retained_ms": 2848.9555999985896,
+        "resets": 0
+      },
+      "task_statuses": [
+        {
+          "id": "t1",
+          "status": "ANSWERED",
+          "lifecycle": "OPEN"
+        }
+      ],
+      "customer_claims": [
+        {
+          "quote": "耳机左侧外壳有裂纹",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "S01",
+      "turn": 2,
+      "published": true,
+      "complete_quality": "PASS",
+      "explanation": "首次理解把新focus命名t2却CORRECT旧t1，协议拒绝后同run修为t1；旧裂纹陈述SUPERSEDED，新开线ACTIVE，摘要保留否定语境。一次修复及费用计入，非首次全对。",
+      "source": "runtime-results.json rows[1] result.answer/task_state/customer_memory, models, tools, events",
+      "model_calls": 3,
+      "elapsed_ms": 5253.015600013896,
+      "stream_times": {
+        "first_provisional_ms": 4752.409000007901,
+        "first_retained_ms": 4752.409000007901,
+        "resets": 0
+      },
+      "task_statuses": [
+        {
+          "id": "t1",
+          "status": "ANSWERED",
+          "lifecycle": "OPEN"
+        }
+      ],
+      "customer_claims": [
+        {
+          "quote": "耳机左侧外壳有裂纹",
+          "status": "SUPERSEDED"
+        },
+        {
+          "quote": "不是外壳裂纹，是耳罩边缘开线",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "S01",
+      "turn": 3,
+      "published": true,
+      "complete_quality": "PASS",
+      "explanation": "原t1状态和lifecycle均CANCELLED；本轮无摘要，正确解释原记录可补充。措辞“不需要再撤回”不够自然，但没有误称已发送/已重开，实际撤回状态正确。",
+      "source": "runtime-results.json rows[2] result.answer/task_state/customer_memory, models, tools, events",
+      "model_calls": 2,
+      "elapsed_ms": 3178.0944999918574,
+      "stream_times": {
+        "first_provisional_ms": 2346.7764999950305,
+        "first_retained_ms": 2346.7764999950305,
+        "resets": 0
+      },
+      "task_statuses": [
+        {
+          "id": "t1",
+          "status": "CANCELLED",
+          "lifecycle": "CANCELLED"
+        },
+        {
+          "id": "t2",
+          "status": "ANSWERED",
+          "lifecycle": "OPEN"
+        }
+      ],
+      "customer_claims": [
+        {
+          "quote": "耳机左侧外壳有裂纹",
+          "status": "SUPERSEDED"
+        },
+        {
+          "quote": "不是外壳裂纹，是耳罩边缘开线",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "S02",
+      "turn": 1,
+      "published": true,
+      "complete_quality": "PARTIAL",
+      "explanation": "退款摘要与金额/签收来源正确，未自动提交。但仅读GUIDE/ORDER/SHIPMENT，没有检索POLICY，也没有解释签收争议需人工核验；不满足冻结第二条完整判据。不能将“客户陈述未经核验”替代政策处理条件。",
+      "source": "runtime-results.json rows[3] result.answer/task_state/customer_memory, models, tools, events",
+      "model_calls": 4,
+      "elapsed_ms": 5068.029199988814,
+      "stream_times": {
+        "first_provisional_ms": 4267.523699993035,
+        "first_retained_ms": 4267.523699993035,
+        "resets": 0
+      },
+      "task_statuses": [
+        {
+          "id": "t1",
+          "status": "ANSWERED",
+          "lifecycle": "OPEN"
+        }
+      ],
+      "customer_claims": [
+        {
+          "quote": "物流显示耳机签收了，但我本人没拿到",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "S02",
+      "turn": 2,
+      "published": true,
+      "complete_quality": "PASS",
+      "explanation": "找到包裹取代旧未收到陈述；事项CANCELLED，无人工/退款摘要，无正式申请取消虚称。",
+      "source": "runtime-results.json rows[4] result.answer/task_state/customer_memory, models, tools, events",
+      "model_calls": 2,
+      "elapsed_ms": 2771.8542000075104,
+      "stream_times": {
+        "first_provisional_ms": 2268.018500006292,
+        "first_retained_ms": 2268.018500006292,
+        "resets": 0
+      },
+      "task_statuses": [
+        {
+          "id": "t1",
+          "status": "CANCELLED",
+          "lifecycle": "CANCELLED"
+        }
+      ],
+      "customer_claims": [
+        {
+          "quote": "物流显示耳机签收了，但我本人没拿到",
+          "status": "SUPERSEDED"
+        },
+        {
+          "quote": "我刚刚找到包裹了",
+          "status": "ACTIVE"
+        }
+      ]
+    }
+  ],
+  "goal_diagnostic": {
+    "status": "PASS",
+    "real_calls": 2,
+    "mock_prefix_decisions": 3,
+    "natural_trigger": false,
+    "evidence": "goal-continuation.json real_models[0] REVIEW_GOAL corrects PREPARE_REFUND to MERCHANT_REVIEW; real_models[1] independent quote-only handoff; goal_reviews length1, no refunds."
+  },
+  "browser": {
+    "status": "PARTIAL",
+    "backend_persistence": "PASS",
+    "edit_save_observed": true,
+    "reload_dom_verified": false,
+    "progressive_dom_verified": false,
+    "screenshot_available": false,
+    "reason": "Browser control disabled before final refresh confirmation/screenshot. Backend has revision2 DRAFT, exact edit, null Case. Server increment events do not prove browser rendering."
+  }
+}

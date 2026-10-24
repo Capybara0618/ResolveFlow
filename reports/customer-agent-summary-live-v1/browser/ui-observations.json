@@ -1,0 +1,38 @@
+{
+  "source": "cua observations before browser restriction, supplemented with read-only backend records",
+  "observation_windows_ms": [
+    {
+      "at": 280,
+      "state": "提交中/正在确认"
+    },
+    {
+      "at": 5884,
+      "state": "问题已发送，助手正在处理，尚无正文"
+    },
+    {
+      "at": 12240,
+      "state": "完整回答和待确认退款卡片已显示"
+    }
+  ],
+  "exact_dom_first_text_ms": null,
+  "server_first_delta_from_turn_accepted_ms": 6488.443,
+  "server_commit_from_turn_accepted_ms": 7664.605,
+  "server_delta_count": 12,
+  "server_resets": 0,
+  "server_stream_parts_retained": true,
+  "server_stream_parts": {
+    "part-0": "这件无线降噪耳机订单的物流记录显示承运商已判定为丢失，并非仍在正常运输途中。该结论来自物流接口的当前记录，不是知识文档的推断；如后续需要，可再刷新查看是否有更新。",
+    "part-1": "退款原因草稿已按你“还没有收到”的陈述整理，供你核对编辑，尚未提交，也不会因此自动创建退款申请。承运商判定丢失的情形需经人工核验后才可按该订单行全额退款，最终由售后专员决定；你可在草稿中补充或修改表述后再决定是否提交。"
+  },
+  "edited_and_saved_observed": true,
+  "edit_text": "验收补充：请先核对承运商记录，我暂不提交申请。",
+  "saved_in_database": true,
+  "reload_requested": true,
+  "reload_dom_verified": false,
+  "progressive_dom_verified": false,
+  "screenshot": "NOT_CAPTURED: local browser use disabled before final observation",
+  "submitted": false,
+  "confirmation_clicked": false,
+  "case_created": false,
+  "latency_assessment": "单例约6.49秒才出现服务端首正文，约7.66秒完成；即时提交/处理中反馈存在，但速度不能据此称为全面达标。UI观测窗口不是精确首字。"
+}
