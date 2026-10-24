@@ -31,3 +31,7 @@ output-contract-diagnostic.json对原人工5模型/3工具做显式离线重放�
 ## 有限修正确认准备
 
 f94ede7实现已同步；新verify_support_contract_v1.py及recheck/primary两个CJS脚本Ruff/编译/node语法通过，独立recheck-v1计划冻结当前源码/旧失败/旧计划/脚本hash。继续同一人工失败会话但使用合同中固定的不同措辞新消息；原失败run/输入/源审不改。主链使用已准备但尚未发消息的primary订单，无新建订单，不重跑前三组。全局usage2129、0新增模型；提交普通push核实并无在途重启所属新profile后仅执行新人工一次。
+
+## 有限新人工确认通过，保留脚本观察错误
+
+新人工4请求、0修正、11608输入/435输出、0未知，usage2129→2133，run c0c9ba17-e53a-4188-9d6a-d5f9edcd2230实际SUCCEEDED并返回独立handoff_reason。原浏览器误读上一轮残留失败提示而提早退出，controls-runtime的false保留；通过独立0模型continuation读取已存结果完成摘要编辑/选择共享/商家投影，未重发消息。新[源审](recheck-v1/controls-review.json)明确原失败/新成功/脚本观察错误，前三成功组未重跑。下一步仅原定尚未执行的确认建单主链，完整结果通过前不切默认。

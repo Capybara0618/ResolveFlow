@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，人工新合同真实成功并完成零模型共享续验，待原定主链）
+
+- c281fc9准备已同步。新人工run c0c9ba17-e53a-4188-9d6a-d5f9edcd2230实际成功，4请求0字段修正11608输入/435输出、0未知，usage2129→2133；实际模型请求含本轮handoff_reason完整结构，返回独立摘要。
+- 浏览器最初误读上一轮残留失败提示而提前结束，原false报告保持。新独立CJS只读已存成功结果、0新消息/模型，完成真实预览编辑/选中新原文及依据/确认共享/商家投影，无退款draft/Case。原三成功组未重跑、旧失败保留。[源审](../reports/customer-agent-orchestration-acceptance-v1/recheck-v1/controls-review.json)。
+- 保存全部证据/观察错误并普通push核实后，执行原定primary一次：自动原因→编辑确认→同键同Case→商家未核验材料/初始人工调查。不审批/退款，不切默认直到完整通过；旧四脏文件保持。
+
 ## 当前快照（2026-10-24，新输出合同确认计划已冻结，待一次人工新消息）
 
 - f94ede7已同步；独立recheck-v1三新驱动Ruff/编译/node语法通过，复用本批人工会话与尚未执行primary订单，0新订单/0模型、usage2129。计划固定不同措辞人工消息、新源码和原失败/旧计划/脚本hash；原三成功组不重跑。[计划](../reports/customer-agent-orchestration-acceptance-v1/recheck-v1/plan.json)。

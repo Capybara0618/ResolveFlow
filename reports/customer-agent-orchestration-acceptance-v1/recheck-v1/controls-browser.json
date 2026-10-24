@@ -1,0 +1,132 @@
+{
+  "groups": [
+    {
+      "id": "human",
+      "turns": [
+        {
+          "index": 0,
+          "text": "请把我没收到耳机、已经问过家人和代收点仍未找到的情况，单独整理成要交给商家的核查摘要，先让我编辑确认；这次不申请退款。",
+          "started_at": 1792817180332,
+          "conversation": {
+            "conversation_id": "d01d593c-3ea7-4115-8c32-5a44e6a7a441",
+            "merchant_id": "M-1001",
+            "store_name": "松间数码",
+            "order_id": "b080308f-e4fb-4b98-9ac5-22412d89e379",
+            "line_id": "SHOP-27e95da8-4f71-42cf-89a1-f3403c2023d8",
+            "product": {
+              "name": "无线降噪耳机",
+              "variant": "黑色",
+              "asset_key": "headphones",
+              "quantity": 1,
+              "amount_minor": 32900,
+              "currency": "CNY"
+            },
+            "version": 2,
+            "ticket": null,
+            "messages": [
+              {
+                "message_id": "c8587731-a952-4691-a61c-dbf645f90bcd",
+                "sequence": 2,
+                "author": "CUSTOMER",
+                "recipient": "ASSISTANT",
+                "text": "我现在不打算退款，只想请商家人工帮忙核查耳机没收到的问题。我已经问过家人和代收点，都没有找到。请先给我一份可以确认后转交商家的摘要。",
+                "ticket_id": null,
+                "created_at": "2026-10-24T04:38:38.805439Z"
+              }
+            ],
+            "next_before_sequence": null,
+            "assistant_turn": {
+              "run_id": "b52c3378-6f7c-4c05-8d1e-00d6581b4cdf",
+              "status": "FAILED",
+              "reason": "INVALID_DECISION"
+            }
+          },
+          "first_feedback_ms": 85,
+          "refund": {
+            "draft": null,
+            "application": null
+          }
+        }
+      ],
+      "events": [
+        {
+          "type": "event",
+          "at": 1792817180342,
+          "event": {
+            "event_id": "34",
+            "conversation_id": "d01d593c-3ea7-4115-8c32-5a44e6a7a441",
+            "run_id": null,
+            "input_version": 2,
+            "attempt_id": null,
+            "kind": "stream.snapshot",
+            "created_at": "2026-10-24T04:46:20.331915800Z",
+            "payload": {
+              "last_event_id": "34",
+              "generation": null,
+              "conversation": {
+                "conversation_id": "d01d593c-3ea7-4115-8c32-5a44e6a7a441",
+                "merchant_id": "M-1001",
+                "store_name": "松间数码",
+                "order_id": "b080308f-e4fb-4b98-9ac5-22412d89e379",
+                "line_id": "SHOP-27e95da8-4f71-42cf-89a1-f3403c2023d8",
+                "product": {
+                  "name": "无线降噪耳机",
+                  "variant": "黑色",
+                  "asset_key": "headphones",
+                  "quantity": 1,
+                  "amount_minor": 32900,
+                  "currency": "CNY"
+                },
+                "version": 2,
+                "ticket": null,
+                "messages": [
+                  {
+                    "message_id": "c8587731-a952-4691-a61c-dbf645f90bcd",
+                    "sequence": 2,
+                    "author": "CUSTOMER",
+                    "recipient": "ASSISTANT",
+                    "text": "我现在不打算退款，只想请商家人工帮忙核查耳机没收到的问题。我已经问过家人和代收点，都没有找到。请先给我一份可以确认后转交商家的摘要。",
+                    "ticket_id": null,
+                    "created_at": "2026-10-24T04:38:38.805439Z"
+                  }
+                ],
+                "next_before_sequence": null,
+                "assistant_turn": {
+                  "run_id": "b52c3378-6f7c-4c05-8d1e-00d6581b4cdf",
+                  "status": "FAILED",
+                  "reason": "INVALID_DECISION"
+                }
+              }
+            }
+          },
+          "index": 0,
+          "elapsed_ms": 10
+        },
+        {
+          "type": "state",
+          "at": 1792817180417,
+          "text": "助手正在等待处理，你可以继续补充问题。",
+          "index": 0,
+          "elapsed_ms": 85
+        }
+      ],
+      "checks": [],
+      "success": false,
+      "failure": "No finalized Agent answer; stop dependent turns"
+    }
+  ],
+  "errors": [],
+  "writes": [
+    {
+      "path": "/api/v1/support/conversations/d01d593c-3ea7-4115-8c32-5a44e6a7a441/messages",
+      "method": "POST",
+      "body": {
+        "expected_version": 2,
+        "text": "请把我没收到耳机、已经问过家人和代收点仍未找到的情况，单独整理成要交给商家的核查摘要，先让我编辑确认；这次不申请退款。",
+        "recipient": "ASSISTANT"
+      },
+      "key": "b6e27a64-28bc-4d81-b056-3ad8d33fafce"
+    }
+  ],
+  "success": false
+}
