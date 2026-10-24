@@ -36,12 +36,16 @@ def run(script, req=None, sources=None, **kwargs):
 def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_read():
     req = request()
     opening = plan(req, needs=["SHIPMENT"]).model_dump()
-    result, agent, model, source = run([opening, read(), respond(), read("get_order_context"), respond()], req)
+    result, agent, model, source = run([opening, read(), respond(), read("get_order_context"),
+        read("search_policy", query="物流争议退款的核验条件"),
+        respond(parts=[{"task_id": "trace", "text": "须按条款核验争议，核对原因后再确认。",
+                        "citations": ["P1"]}])], req)
     assert result["status"] == "SUCCEEDED", result["reason"]
-    assert agent.repairs == 0 and model.calls == 5
-    assert [name for name, _ in source.calls] == ["get_support_guide", "get_shipment_trace", "get_order_context"]
-    assert result["spend"]["local_reads"] == 1 and result["spend"]["tool_attempts"] == 2
-    assert model.packets[3]["orchestration"]["tasks"][0]["missing"] == ["ORDER"]
+    assert agent.repairs == 0 and model.calls == 6
+    assert [name for name, _ in source.calls] == ["get_support_guide", "get_shipment_trace", "get_order_context",
+                                               "search_policy"]
+    assert result["spend"]["local_reads"] == 2 and result["spend"]["tool_attempts"] == 2
+    assert model.packets[3]["orchestration"]["tasks"][0]["missing"] == ["ORDER", "POLICY"]
     assert model.packets[-1]["orchestration"]["phase"] == "COMPOSE"
     assert result["answer"]["refund_summary"].startswith("客户陈述")
     assert "123.45 CNY" in result["answer"]["text"]

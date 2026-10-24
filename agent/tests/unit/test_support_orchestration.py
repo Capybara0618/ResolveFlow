@@ -45,11 +45,13 @@ def test_missing_evidence_is_a_normal_state_until_ready_and_early_finish_is_boun
     meaning = p.meaning()
     refs = source_refs()
     state = flow.snapshot(meaning, {"O1": refs["O1"], "O2": refs["O2"]}, [], {})
-    assert state["tasks"][0]["missing"] == ["ORDER"]
+    assert state["tasks"][0]["missing"] == ["ORDER", "POLICY"]
     flow.defer(state)
     flow.defer(state)
     with pytest.raises(SupportFailure, match="NO_PROGRESS"):
         flow.defer(state)
+    assert flow.snapshot(meaning, refs, [], {})["tasks"][0]["missing"] == ["POLICY"]
+    refs["P1"] = {"source_type": "POLICY", "version": "v1", "data": {"text": "须核验履约争议。"}}
     assert flow.snapshot(meaning, refs, [], {})["phase"] == "COMPOSE"
 
 

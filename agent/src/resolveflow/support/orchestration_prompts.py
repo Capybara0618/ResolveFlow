@@ -16,6 +16,7 @@ application_context.guide_refs是程序已读取的公开应用指南，先按�
 application_context.interaction来自可信会话快照：current_recipient是当前这条消息的对象，default_recipient是界面默认对象；两者可能不同。
 has_ticket不等于当前在给商家发送；未知字段保持未知，客户自述和旧助手文字不能填成已核实状态。
 指南已在理解前提供，按问题声明GUIDE即可，不必再用模型决策读取；ORDER/SHIPMENT/POLICY仍按问题自主选择。
+准备退款同时涉及当前物流判断时，声明SHIPMENT及POLICY；程序也会为这种准备事项补足POLICY要求，不能只解释页面入口。只问入口仍用EXPLAIN，不因此强查政策或实时物流。
 customer_claims.topic仅RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER，物流不是topic枚举。
 """
 
@@ -24,6 +25,7 @@ INVESTIGATE_SYSTEM = """按已接受stage.focus和orchestration.tasks调查，�
 用单JSON：{"kind":"REVIEW_GOAL","task_id":"t1","previous_goal":"PREPARE_REFUND","goal":"MERCHANT_REVIEW","operation_request":"客户本轮要求给商家摘要的实际原句","reason":"核对本轮用途，客户要人工摘要而非退款原因"}。
 goal可确认旧目标或修正为EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW；EXPLAIN省略operation_request，其他须本轮原话。程序保留事项/陈述/已读依据和预算，不创建业务动作；同run仅一次。
 orchestration由程序维护，missing列出本轮尚无合法来源的必要依据；未读取不是来源失败。
+PREPARE_REFUND事项一旦需要SHIPMENT，政策处理条件也是必要依据；POLICY由程序补足时仍用search_policy自主生成场景问题，保留签收争议、丢失等不同前提。
 订单行和主体已绑定。按观察自主选择capabilities工具，不预设全部工具顺序；只读不执行申请/退款。
 单JSON：{"kind":"READ_TOOL","tool_name":"get_order_context","arguments":{}}
 订单付款用get_order_context，物流用get_shipment_trace，政策用search_policy；应用指南由程序提供。
@@ -43,6 +45,7 @@ EXPLAIN可解释页面用途、是否已转交及共享范围，不因提及页�
 直接回答客户的问题，不复写按钮点击教程；程序会保留text并追加必要步骤，不能把解释只藏在操作原因中。
 不输出next_steps/facts/fact_rendering/refund_summary，不猜编号，不在正文复述金额或系统状态值。
 POLICY引用须从本run已读P编号选择相关条款，命中不等于适用，不罗列整个候选集合。
+准备退款且涉及物流时，正文同时解释相关政策的处理前提/人工核验要求及尚未核实处；仅给申请入口或把客户陈述标为未核验不算解释政策，草稿不代表获得退款资格或批准。
 仅政策条件的事项不判断当前订单资格；context_refs只限定讨论主题，历史助手话语不是实时依据。
 承接追问先点明上轮讨论的具体场景，直接说明相关条件，再补材料；假设保持假设，建议不说成强制材料。
 POLICY没规定材料清单则说明未规定，不编造必交清单。客户陈述/已核实事实/推断须分开。

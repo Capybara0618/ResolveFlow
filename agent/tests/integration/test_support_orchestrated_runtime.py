@@ -36,7 +36,10 @@ def test_api_persists_raw_protocol_and_reconstructs_plan_guide_gaps_without_new_
     agent_db, monkeypatch, tmp_path,
 ):
     req = request()
-    script = [plan(req, needs=["SHIPMENT"]).model_dump(), read(), respond(), read("get_order_context"), respond()]
+    script = [plan(req, needs=["SHIPMENT"]).model_dump(), read(), respond(), read("get_order_context"),
+              read("search_policy", query="物流争议退款的核验条件"),
+              respond(parts=[{"task_id": "trace", "text": "按条款核验争议，先核对原因再确认。",
+                              "citations": ["P1"]}])]
     models, sources = [TokenizedScript(mode="live", script=script)], Sources()
     runtime = SupportRuntime(agent_db, DeploymentConfig(mode="mock"), architecture="orchestrated-v1",
                              model_factory=lambda: models[0], sources_factory=lambda *_: sources)
@@ -65,7 +68,7 @@ def test_api_persists_raw_protocol_and_reconstructs_plan_guide_gaps_without_new_
             calls = c.execute("SELECT kind,position,response_json FROM support_agent_call "
                               "WHERE run_id=%s ORDER BY kind,position", (req.run_id,)).fetchall()
             assert [r["response_json"]["decision"] for r in calls if r["kind"] == "model"] == script
-            assert len([r for r in calls if r["kind"] == "tool"]) == 3
+            assert len([r for r in calls if r["kind"] == "tool"]) == 4
             first_tool = next(r for r in calls if r["kind"] == "tool" and r["position"] == 1)
             assert first_tool["response_json"][0]["data"]["authority"] == "APPLICATION_GUIDE"
             sent = c.execute("SELECT request_json FROM support_agent_call "

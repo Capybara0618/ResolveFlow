@@ -1,4 +1,10 @@
-## 当前快照（2026-10-24，摘要真实验收完成，来源有效、整体尚未冻结）
+## 当前快照（2026-10-24，履约退款政策依据工程修复完成，接续效率分析）
+
+- 按用户“开始”接续[本批说明](../docs/customer-refund-policy-readiness-v1.md)，活跃PREPARE_REFUND且needs含SHIPMENT动态要求POLICY，后续REFINE_NEEDS同样适用；沿用相关P引用、来源失败和原预算，提示/合同要求解释前提核验。入口/独立人工/物流查询及撤回不强查政策，不改RAG索引/Java。
+- [工程报告](../reports/customer-refund-policy-readiness-v1/README.md)：新14例8红/6过，48针对/482客服单元合同/10真PG API流式恢复最终通过。原S02/1原样不能发布或流出候选，脚本加政策解释后通过；PG可用/不可用恢复0新发送。旧三条脚本同步新增政策读取/引用/计数，首次失败保留。两源码strict、七文件Ruff；E51记录职责缺口/取舍。
+- 本步0真实供应商请求、usage2349，旧真实成绩及188历史报告/原四脏文件保持；仅所属PG临时schema验证，公共11表保持。实际语义效果仍未重新实测，不把脚本通过算真实改善。工程精确commit普通push核实后分析已有网页串行5请求关键路径，保留必要取证，再决定最小效率优化；浏览器恢复展示仍待可用后核对。
+
+## 历史快照（2026-10-24，摘要真实验收完成，来源有效、整体尚未冻结）
 
 - 准备1c7a2e2已普通push核实，生产4a1b0b0全程不改；[报告](../reports/customer-agent-summary-live-v1/README.md)/[全部对话](../reports/customer-agent-summary-live-v1/conversations.md)/[源审](../reports/customer-agent-summary-live-v1/source-review.json)。固定2组5轮全发布，完整判据4轮/部分1轮；quote来源、纠正失效和撤回正确，S02/1仅读指南/订单/物流，漏签收争议政策核验说明。S01/2一次事项ID协议修复及费用保留。
 - 独立受控续验3个mock前缀后真实2请求，REVIEW_GOAL正确纠正并生成人工摘要；不算自然触发/自由组成功率。网页1条5请求，原话/系统记录分区、编辑保存可用，数据库DRAFT revision2含补充且无Case；刷新后DOM/渐进显示/截图因本地浏览器控制关闭未确认，不代称网页全通过。

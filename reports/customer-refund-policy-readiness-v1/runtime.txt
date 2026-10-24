@@ -1,0 +1,23 @@
+....F.....                                                               [100%]
+================================== FAILURES ===================================
+_ test_api_persists_raw_protocol_and_reconstructs_plan_guide_gaps_without_new_calls _
+agent\tests\integration\test_support_orchestrated_runtime.py:55: in test_api_persists_raw_protocol_and_reconstructs_plan_guide_gaps_without_new_calls
+    assert result["status"] == "SUCCEEDED", result["reason"]
+E   AssertionError: AssertionError
+E   assert 'FAILED' == 'SUCCEEDED'
+E
+E     - SUCCEEDED
+E     + FAILED
+---------------------------- Captured stderr call -----------------------------
+2026-10-24 20:45:02,310 | WARNING | _agent:_call_model:3383 - Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-support.
+------------------------------ Captured log call ------------------------------
+WARNING  as:_agent.py:3383 Model harness-adapter exhausted all 1 attempt(s) for agent resolveflow-support.
+============================== warnings summary ===============================
+agent\.venv\Lib\site-packages\starlette\testclient.py:53
+  E:\Code\Agent+Backend\agent\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED agent\tests\integration\test_support_orchestrated_runtime.py::test_api_persists_raw_protocol_and_reconstructs_plan_guide_gaps_without_new_calls
+1 failed, 9 passed, 1 warning in 9.56s

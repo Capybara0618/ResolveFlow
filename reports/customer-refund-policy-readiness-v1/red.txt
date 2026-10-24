@@ -1,0 +1,71 @@
+FFFFFF......FF                                                           [100%]
+================================== FAILURES ===================================
+____ test_fulfilment_refund_stays_waiting_even_if_model_omits_policy_need _____
+agent\tests\unit\test_support_refund_policy_readiness.py:36: in test_fulfilment_refund_stays_waiting_even_if_model_omits_policy_need
+    assert state["phase"] == "INVESTIGATE"
+E   AssertionError: assert 'COMPOSE' == 'INVESTIGATE'
+E
+E     - INVESTIGATE
+E     + COMPOSE
+_________ test_later_shipment_refinement_also_adds_policy_requirement _________
+agent\tests\unit\test_support_refund_policy_readiness.py:49: in test_later_shipment_refinement_also_adds_policy_requirement
+    assert flow.snapshot(meaning, source_refs(), [], {})["tasks"][0]["missing"] == ["POLICY"]
+E   AssertionError: assert [] == ['POLICY']
+E
+E     Right contains one more item: 'POLICY'
+E     Use -v to get more diff
+_ test_required_policy_must_be_selected_in_response_not_just_present_in_packet _
+agent\tests\unit\test_support_refund_policy_readiness.py:55: in test_required_policy_must_be_selected_in_response_not_just_present_in_packet
+    with pytest.raises(ValueError, match="POLICY"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+_ test_absent_retryable_and_final_policy_failure_have_distinct_readiness[None] _
+agent\tests\unit\test_support_refund_policy_readiness.py:69: in test_absent_retryable_and_final_policy_failure_have_distinct_readiness
+    assert state["tasks"][0]["state"] == ("BLOCKED" if failure is False else "WAITING")
+E   AssertionError: assert 'READY' == 'WAITING'
+E
+E     - WAITING
+E     + READY
+_ test_absent_retryable_and_final_policy_failure_have_distinct_readiness[True] _
+agent\tests\unit\test_support_refund_policy_readiness.py:69: in test_absent_retryable_and_final_policy_failure_have_distinct_readiness
+    assert state["tasks"][0]["state"] == ("BLOCKED" if failure is False else "WAITING")
+E   AssertionError: assert 'READY' == 'WAITING'
+E
+E     - WAITING
+E     + READY
+_ test_absent_retryable_and_final_policy_failure_have_distinct_readiness[False] _
+agent\tests\unit\test_support_refund_policy_readiness.py:69: in test_absent_retryable_and_final_policy_failure_have_distinct_readiness
+    assert state["tasks"][0]["state"] == ("BLOCKED" if failure is False else "WAITING")
+E   AssertionError: assert 'READY' == 'BLOCKED'
+E
+E     - BLOCKED
+E     + READY
+_ test_old_real_s02_response_cannot_publish_before_policy_read_or_stream_candidate _
+agent\tests\unit\test_support_refund_policy_readiness.py:114: in test_old_real_s02_response_cannot_publish_before_policy_read_or_stream_candidate
+    assert result["status"] == "FAILED" and result["answer"] is None
+E   AssertionError: assert ('SUCCEEDED' == 'FAILED'
+E
+E     - FAILED
+E     + SUCCEEDED)
+__ test_sdk_continues_to_model_chosen_policy_and_requires_cited_explanation ___
+agent\tests\unit\test_support_refund_policy_readiness.py:130: in test_sdk_continues_to_model_chosen_policy_and_requires_cited_explanation
+    assert agent.repairs == 0 and model.calls == 6
+E   AssertionError: assert (0 == 0 and 4 == 6)
+E    +  where 0 = <resolveflow.support.engine.SupportAgent object at 0x00000214B4F87020>.repairs
+E    +  and   4 = TokenizedScript(script=[{'kind': 'TURN_UNDERSTANDING', 'focus': [{'id': 'trace', 'intent': 'APPLICATION', 'request': '...reason=None, structured_output=None, error=None)]], output_limits=[1024, 1024, 1024, 1024], calls=4, repeat_last=False).calls
+============================== warnings summary ===============================
+agent\.venv\Lib\site-packages\starlette\testclient.py:53
+  E:\Code\Agent+Backend\agent\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED agent\tests\unit\test_support_refund_policy_readiness.py::test_fulfilment_refund_stays_waiting_even_if_model_omits_policy_need
+FAILED agent\tests\unit\test_support_refund_policy_readiness.py::test_later_shipment_refinement_also_adds_policy_requirement
+FAILED agent\tests\unit\test_support_refund_policy_readiness.py::test_required_policy_must_be_selected_in_response_not_just_present_in_packet
+FAILED agent\tests\unit\test_support_refund_policy_readiness.py::test_absent_retryable_and_final_policy_failure_have_distinct_readiness[None]
+FAILED agent\tests\unit\test_support_refund_policy_readiness.py::test_absent_retryable_and_final_policy_failure_have_distinct_readiness[True]
+FAILED agent\tests\unit\test_support_refund_policy_readiness.py::test_absent_retryable_and_final_policy_failure_have_distinct_readiness[False]
+FAILED agent\tests\unit\test_support_refund_policy_readiness.py::test_old_real_s02_response_cannot_publish_before_policy_read_or_stream_candidate
+FAILED agent\tests\unit\test_support_refund_policy_readiness.py::test_sdk_continues_to_model_chosen_policy_and_requires_cited_explanation
+8 failed, 6 passed, 1 warning in 5.60s

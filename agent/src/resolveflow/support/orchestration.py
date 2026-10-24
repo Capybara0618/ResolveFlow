@@ -125,7 +125,12 @@ class Orchestration:
         self.operation_requests = {f.id: f.operation_request for f in plan.focus}
 
     def required(self, focus: Focus) -> set[str]:
-        return set(focus.needs) | ({"GUIDE"} if focus.intent in {"APPLICATION", "HANDOFF"} else set())
+        required = set(focus.needs) | ({"GUIDE"} if focus.intent in {"APPLICATION", "HANDOFF"} else set())
+        # A fulfilment-based refund draft needs the handling conditions, not only a page guide.
+        # Derive this at readiness time so later REFINE_NEEDS also receives the same floor.
+        if self.goals.get(focus.id) == "PREPARE_REFUND" and "SHIPMENT" in required:
+            required.add("POLICY")
+        return required
 
     def application_context(self, refs: dict[str, dict[str, Any]]) -> dict[str, Any]:
         state = self.request.context.get("conversation_state")
@@ -226,7 +231,10 @@ class Orchestration:
         if state["phase"] != "COMPOSE":
             raise ValueError("response contract requires evidence readiness")
         example: dict[str, Any] = {"kind": "RESPOND", "parts": [
-            {"task_id": focus.id, "text": "替换为本事项的直接解释，不将待共享原因只写在正文。", "citations": []}
+            {"task_id": focus.id, "text": (
+                "解释本事项相关政策的前提和核验条件，草稿不等于资格认定或批准；选择实际相关条款引用。"
+                if "POLICY" in self.required(focus) else "替换为本事项的直接解释，不将待共享原因只写在正文。"),
+             "citations": []}
             for focus in meaning.focus]}
         fields = []
         for task in state["tasks"]:
