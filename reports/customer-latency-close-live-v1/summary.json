@@ -1,0 +1,156 @@
+{
+  "scope": "three same-input source-visible synthetic real-model cases; not randomized SLA",
+  "published": 3,
+  "complete_quality": 3,
+  "requests": 8,
+  "input_tokens": 25986,
+  "output_tokens": 1207,
+  "unknown_usage": 0,
+  "estimated": false,
+  "usage_before": 2359,
+  "usage_after": 2367,
+  "prewarm_ms": 10431.120799999917,
+  "rows": [
+    {
+      "id": "B01",
+      "quality": "PASS",
+      "review": "签收与本人未收到分开，真实P3签收政策/P6范围规则，说明人工核验及事实不足调查，不承诺批准；quote草稿未提交。",
+      "provider_requests": 3,
+      "first_retained_ms": 5229.221899993718,
+      "completion_ms": 6659.518000000389,
+      "old_same_input_first_ms": 5280.533599987393,
+      "target_met": false,
+      "models": [
+        {
+          "kind": "TURN_UNDERSTANDING",
+          "elapsed_ms": 2199.52649998595,
+          "stream": {
+            "first_content_ms": 1328.8146000122651,
+            "completed_ms": 2197.8895000065677,
+            "content_fragments": 211,
+            "content_chars": 523
+          }
+        },
+        {
+          "kind": "READ_FACTS",
+          "elapsed_ms": 820.843599998625,
+          "stream": {
+            "first_content_ms": 520.463099994231,
+            "completed_ms": 819.6479000034742,
+            "content_fragments": 51,
+            "content_chars": 124
+          }
+        },
+        {
+          "kind": "RESPOND",
+          "elapsed_ms": 2676.6387000097893,
+          "stream": {
+            "first_content_ms": 1093.6762999917846,
+            "completed_ms": 2675.594500004081,
+            "content_fragments": 282,
+            "content_chars": 494
+          }
+        }
+      ],
+      "batch_actions": [
+        {
+          "kind": "READ_FACTS",
+          "tools": [
+            "get_order_context",
+            "get_shipment_trace"
+          ],
+          "policy_query": "签收争议（物流显示签收但本人未收到）情形下的退款条件、核验要求与例外"
+        }
+      ]
+    },
+    {
+      "id": "B02",
+      "quality": "PASS",
+      "review": "本店M-1002订单129元/LOST事实及相关丢失条款，解释核验前提，quote草稿未提交；未串店。",
+      "provider_requests": 3,
+      "first_retained_ms": 3299.989800027106,
+      "completion_ms": 4324.407900014194,
+      "old_same_input_first_ms": 4528.54529999604,
+      "target_met": true,
+      "models": [
+        {
+          "kind": "TURN_UNDERSTANDING",
+          "elapsed_ms": 1334.781900019152,
+          "stream": {
+            "first_content_ms": 608.0608000047505,
+            "completed_ms": 1333.5919000091963,
+            "content_fragments": 192,
+            "content_chars": 493
+          }
+        },
+        {
+          "kind": "READ_FACTS",
+          "elapsed_ms": 861.1606000049505,
+          "stream": {
+            "first_content_ms": 471.0307999921497,
+            "completed_ms": 860.3405999892857,
+            "content_fragments": 61,
+            "content_chars": 138
+          }
+        },
+        {
+          "kind": "RESPOND",
+          "elapsed_ms": 1824.2786999908276,
+          "stream": {
+            "first_content_ms": 672.4576999840792,
+            "completed_ms": 1823.494899988873,
+            "content_fragments": 201,
+            "content_chars": 362
+          }
+        }
+      ],
+      "batch_actions": [
+        {
+          "kind": "READ_FACTS",
+          "tools": [
+            "get_order_context",
+            "get_shipment_trace"
+          ],
+          "policy_query": "台灯订单物流显示未收到/一直未到，在签收争议、运输中丢失或未发货等不同前提下的退款条件与核验要求"
+        }
+      ]
+    },
+    {
+      "id": "B03",
+      "quality": "PASS",
+      "review": "仅GUIDE解释编辑入口，未读业务或政策，未生成操作摘要。",
+      "provider_requests": 2,
+      "first_retained_ms": 2351.680000021588,
+      "completion_ms": 2782.699400006095,
+      "old_same_input_first_ms": 2135.0270999973873,
+      "target_met": null,
+      "models": [
+        {
+          "kind": "TURN_UNDERSTANDING",
+          "elapsed_ms": 1133.6374999955297,
+          "stream": {
+            "first_content_ms": 575.290299981134,
+            "completed_ms": 1132.670799997868,
+            "content_fragments": 122,
+            "content_chars": 328
+          }
+        },
+        {
+          "kind": "RESPOND",
+          "elapsed_ms": 1490.6225000158884,
+          "stream": {
+            "first_content_ms": 833.9568999945186,
+            "completed_ms": 1489.4315999990795,
+            "content_fragments": 94,
+            "content_chars": 175
+          }
+        }
+      ],
+      "batch_actions": []
+    }
+  ],
+  "complex_target_ms": 4000,
+  "complex_target_passed": 1,
+  "complex_target_total": 2,
+  "conclusion": "Query batching adopted2/2; first body3.30s and5.23s, one misses target. Preserve failure; HTTP client recreated every request identified for engineering follow-up."
+}
