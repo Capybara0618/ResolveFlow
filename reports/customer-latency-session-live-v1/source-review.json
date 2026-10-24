@@ -1,0 +1,131 @@
+{
+  "reviewer": "CODEX_SOURCE_REVIEW",
+  "rows": [
+    {
+      "id": "B01",
+      "published": true,
+      "quality": "PASS",
+      "review": "实际读订单和签收轨迹，引用本店签收争议政策，说明须人工核验/事实不足调查；举例仅建议非必交清单，quote草稿未提交。",
+      "provider_requests": 3,
+      "first_retained_ms": 4343.435800023144,
+      "completion_ms": 5715.142700006254,
+      "query_batch_first_ms": 5229.221899993718,
+      "target_met": false,
+      "stream_retained": true,
+      "resets": 0,
+      "model_timings": [
+        {
+          "kind": "TURN_UNDERSTANDING",
+          "elapsed_ms": 1909.3629000126384,
+          "stream": {
+            "first_content_ms": 1025.4153000132646,
+            "completed_ms": 1908.5066000116058,
+            "content_fragments": 211,
+            "content_chars": 524
+          }
+        },
+        {
+          "kind": "READ_FACTS",
+          "elapsed_ms": 763.9250000065658,
+          "stream": {
+            "first_content_ms": 461.86239999951795,
+            "completed_ms": 762.8287999832537,
+            "content_fragments": 51,
+            "content_chars": 124
+          }
+        },
+        {
+          "kind": "RESPOND",
+          "elapsed_ms": 2131.18680001935,
+          "stream": {
+            "first_content_ms": 605.6623000185937,
+            "completed_ms": 2130.32630001544,
+            "content_fragments": 258,
+            "content_chars": 444
+          }
+        }
+      ]
+    },
+    {
+      "id": "B02",
+      "published": true,
+      "quality": "PASS",
+      "review": "M-1002台灯129元及完整LOST轨迹，引用本店丢失/范围规则，说明人工核验前提；quote草稿未提交，无串店。",
+      "provider_requests": 3,
+      "first_retained_ms": 3912.747299997136,
+      "completion_ms": 4758.083399996394,
+      "query_batch_first_ms": 3299.989800027106,
+      "target_met": true,
+      "stream_retained": true,
+      "resets": 0,
+      "model_timings": [
+        {
+          "kind": "TURN_UNDERSTANDING",
+          "elapsed_ms": 1552.0175000128802,
+          "stream": {
+            "first_content_ms": 799.4235999940429,
+            "completed_ms": 1551.2728999892715,
+            "content_fragments": 191,
+            "content_chars": 490
+          }
+        },
+        {
+          "kind": "READ_FACTS",
+          "elapsed_ms": 1048.062799993204,
+          "stream": {
+            "first_content_ms": 676.3373000139836,
+            "completed_ms": 1047.1586000057869,
+            "content_fragments": 60,
+            "content_chars": 137
+          }
+        },
+        {
+          "kind": "RESPOND",
+          "elapsed_ms": 1842.5443999876734,
+          "stream": {
+            "first_content_ms": 798.6481000261847,
+            "completed_ms": 1841.5723000071011,
+            "content_fragments": 194,
+            "content_chars": 346
+          }
+        }
+      ]
+    },
+    {
+      "id": "B03",
+      "published": true,
+      "quality": "PASS",
+      "review": "仅GUIDE解释编辑入口，无事实/政策读取、无操作摘要。",
+      "provider_requests": 2,
+      "first_retained_ms": 1946.090399986133,
+      "completion_ms": 2308.4881999820936,
+      "query_batch_first_ms": 2351.680000021588,
+      "target_met": null,
+      "stream_retained": true,
+      "resets": 0,
+      "model_timings": [
+        {
+          "kind": "TURN_UNDERSTANDING",
+          "elapsed_ms": 1083.1711000064388,
+          "stream": {
+            "first_content_ms": 525.7174000144005,
+            "completed_ms": 1082.160699996166,
+            "content_fragments": 128,
+            "content_chars": 336
+          }
+        },
+        {
+          "kind": "RESPOND",
+          "elapsed_ms": 1033.7316999793984,
+          "stream": {
+            "first_content_ms": 493.52879999787547,
+            "completed_ms": 1032.9261999868322,
+            "content_fragments": 89,
+            "content_chars": 168
+          }
+        }
+      ]
+    }
+  ],
+  "no_latency_causality_claim": true
+}

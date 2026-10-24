@@ -1,4 +1,11 @@
-## 当前快照（2026-10-24，连接复用工程已同步，第二版相同输入确认准备）
+## 当前快照（2026-10-24，两项体验收尾部分完成，浏览器权限仍阻碍页面验收）
+
+- Query合并d1f7856、首轮dc8d338、HTTP会话05801d9、第二版准备6d2c9ec均同步。[第二版报告](../reports/customer-latency-session-live-v1/README.md)/[完整对话](../reports/customer-latency-session-live-v1/conversations.md)/[源审](../reports/customer-latency-session-live-v1/source-review.json)：3题各一次，3发布/3满足本轮业务判据，复杂各3模型请求、入口2；不改旧失败/成绩。工程540扩大单元合同/17PG API流式恢复过，客户端同run复用和全部退出释放。
+- 最新首正文4.34/3.91/1.95秒、完成5.72/4.76/2.31秒、预热10.05秒另列；复杂4秒样本目标仍1/2，不能称速度全部收尾或SLA达标。首轮5.23/3.30秒保留，跨时段非随机因果对照。三条服务端原增量保留、reset/投递失败0，E53/E54记录有效及未证实边界。
+- 本版8真实请求26004输入/1174输出，未知/估算0；两版共16请求51990输入/2381输出，账2359→2375，未追加追成功题。3run/17journal导出及schema删除，[保护审计](../reports/customer-latency-session-live-v1/final-audit.json)核对公共11表/188历史报告/原四脏文件、凭据、原卷及所属PG恢复停止，Docker保留。未启动Java/Web、未写Case/退款，项目保持关闭。
+- 页面NOT_RUN：[浏览器工具状态](../reports/customer-latency-session-live-v1/browser-status.json)仍报Work设置关闭本地控制。已给用户官方Settings→Browser与Ctrl+,入口；用户尚未提供已生效确认/设置页，未代改权限。后续先恢复该能力，核对原buyer10草稿刷新，再单轮真实咨询的渐进正文/编辑保存/刷新（≤12请求、不提交）；不以后台代替DOM。服务端不自动再付费或扩架构，当前执行者精确commit普通push核实后停止写入，等用户配置后接续。
+
+## 历史快照（2026-10-24，连接复用工程已同步，第二版相同输入确认准备）
 
 - 05801d9普通push核实，工程540扩大单元合同/17PG API流式恢复通过；[第二版真实确认](../reports/customer-latency-session-live-v1/README.md)保持同3输入/快照/判据，新manifest最多10请求，各题一次，账2367。连同前版8次服务端最多18，页面≤12总≤30，旧失败/4秒目标不改。
 - 准备Ruff、冻结源码/权重及0模型PG预检，精确commit普通push后执行源审/准确计量，最终恢复所属PG停止。浏览器仍被Work设置关闭，用户已获官方设置入口与Ctrl+,，页面草稿刷新及渐进DOM未运行，不代改权限或用后台证明替代。
