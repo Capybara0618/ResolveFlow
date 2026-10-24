@@ -35,3 +35,5 @@ git diff --check
 - `PYTHONPATH=agent/src python scripts/review_customer_fact_fields_v1.py`：只读原保存候选精准重现占位符错误，另以添加版本、替换原宏为指向事实段的解释创建实验副本；两part可渲染。见[诊断原文/明确变换](offline-review.json)。0Provider、0业务写，不更改原raw或记为真实模型成功。
 
 原服务/status健康，尚未加载本批Python；无新模型，usage2093。下一步保留数据加载当前代码、仅一次新合成问句验证正式发布/实际SSE及自动摘要可编辑；不重复商家调查/退款执行验收，不重发旧失败题。
+
+第二步暂存差异检查发现新生成的offline-review.json使用Windows CRLF而被识别为行尾空白，PowerShell原命令未据原生命令退出码中断，提交74fe23a已正常同步。追加独立格式修复：诊断生成器改UTF-8字节写入，仅将本批衍生诊断文件CRLF改LF，JSON内容逐值保持，原始live-v2文件及其SHA不变。后续提交前显式检查退出码；没有改写历史commit或原始失败。

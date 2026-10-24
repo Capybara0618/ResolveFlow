@@ -56,6 +56,6 @@ def review():
 if __name__ == "__main__":
     value = review()
     assert not OUT.exists(), "Never overwrite a previous experiment"
-    OUT.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    OUT.write_bytes((json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
     print({"original_still_rejected": True, "experimental_parts": len(value["rendered_parts"]),
            "new_provider_calls": 0})
