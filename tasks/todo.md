@@ -1,8 +1,9 @@
-## 当前快照（2026-10-24，发布缺项统一诊断已离线修复；A原失败保持，B–D未运行）
+## 当前快照（2026-10-24，A真实验收未通过；统一发布诊断已修复部署，B–D未运行）
 
-- A失败856f944已同步。四核心文件修复摘要语义明确分类，所有可解析且有accepted理解的回答校验错误统一诊断source_gaps/action_gaps；正式导航和诊断共用required_actions，不改发布断言/预算/一次修正。[报告](../reports/customer-agent-acceptance-gate-v1/README.md)。
-- 新4红→定向43过；客服/相关契约392过1既有旧指南诊断失败，临时PG/SDK/流式16过0跳过，strict四源码/Ruff/diff通过。原4动作/1工具离线仍失败，首反馈现同时摘要/ORDER/GUIDE/REFUND_APPLICATION，[对比](../reports/customer-agent-acceptance-gate-v1/diagnostic.json)。脚本补读分支非真实采纳证据。
-- 本轮实际仍4请求10032输入/528输出、usage2102，无新Case/退款/在途；B–D按A门槛未启动。精确提交普通push核实后仅保留数据加载最终Python/审计，不自动收费重发或称完整客服成功；四历史脏文件保持。
+- 38e486b已普通push核实。A真实4请求10032输入/528输出、0未知，usage2098→2102；摘要缺申请操作，前置普通ValueError反馈误归citations，修正删摘要仍缺ORDER/GUIDE/操作，未发布。没有自动草稿/Case/退款，后续确认/B–D按协议未运行。[报告](../reports/customer-agent-acceptance-gate-v1/README.md)。
+- 四源码现统一可解析且已有accepted理解的回答错误诊断，摘要有明确错误分类，source_gaps/action_gaps共用正式required_actions规则；不改发布断言/预算/一次修正。新4红→定向43过，客服/契约392过1既有旧指南诊断失败，临时PG/SDK/流式16过0跳过，strict四源码/Ruff/diff通过。原4动作离线仍失败不发布，[对比](../reports/customer-agent-acceptance-gate-v1/diagnostic.json)首反馈现同时列摘要/ORDER/GUIDE/REFUND_APPLICATION；非真实采纳证据。
+- 无在途后仅重启所属Python，start -SkipBuild -NoBrowser三Java/Python/Web/依赖/精确索引全部健康。[最终只读审计](../reports/customer-agent-acceptance-gate-v1/final-audit.json)旧业务/索引/冻结失败及13保护文件保持，新单已付32900/已退0/预留0，无新Case调查/退款/在途，usage2102无新增调用。
+- 最后仅提交审计/记录，普通push核实后停止写入。修复后真实确认与B–D仍未运行，不自动收费重发、宣称客服冻结或写简历指标；四历史脏文件保持。
 
 ## 当前快照（2026-10-24，小规模真实验收A失败，发布诊断短路根因已定位）
 

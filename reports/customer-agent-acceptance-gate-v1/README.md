@@ -32,3 +32,9 @@
 - `python scripts/diagnose_customer_gate_v1.py`：只读本轮原raw，经同一SDK仍消费原4动作/1工具、一次修正、仍失败不发布；新首个反馈同时指出根级摘要、ORDER/GUIDE与REFUND_APPLICATION，原反馈只有citations。[完整对比](diagnostic.json)。仅刷新离线deadline，不是strict回放；0Provider/业务写，rawSHA保持，不合成新事实救活原失败。
 
 没有再次Live或启动B–D，总usage2102不变。精确提交普通push核实后保留数据加载最终Python并核对原业务/冻结结果；完整链路尚未通过，不能冻结整个客服或写简历指标。
+
+## 最终部署与核对
+
+38e486b普通push已核实。确认PG与Case无在途客服/调查后仅停止所属agent-live进程，`start.ps1 -SkipBuild -NoBrowser`加载最终Python，原Java/Web/依赖与精确政策索引全部健康。没有额外模型调用。
+
+末次只读重算原准备基线，旧业务/索引/客服run/13保护文件SHA全部保持；本轮失败run及calls与冻结runtime-results逐值相同，rawSHA与诊断一致。新单实付32900、已退0、预留0，0新Case调查/退款/在途，usage2102。[审计](final-audit.json)。B–D和修复后新真实确认均未运行，不把完成部署作为验收通过；最后只提交记录/审计，普通push核实后停止写入，四历史脏文件保留。
