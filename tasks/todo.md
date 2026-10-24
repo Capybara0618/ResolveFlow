@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，事实渲染修复已加载，唯一新样本待执行）
+
+- 74fe23a/2a1e8c0已同步，工程结果见[报告](../reports/customer-answer-fact-fields-v1/README.md)。无在途run后仅重启所属Python，start -SkipBuild -NoBrowser全部健康、原Java/Web/精确索引复用。
+- 新独立驱动Ruff/编译/node语法通过，prepare新增329元LOST订单/会话，[单问计划](../reports/customer-answer-fact-fields-v1/live-v1/plan.json)已冻结，0Provider、usage2093。仅正式回答/实际SSE/自动摘要编辑保存刷新，不确认建Case或调用商家调查/退款。
+- 精确提交普通push核实后执行一次，完整计量失败与原数据/资产hash；不重发旧题/变换原失败或自动付费矩阵。四历史脏文件保持。
+
 ## 当前快照（2026-10-24，客服事实渲染与流式工程接入通过，待新样本Live）
 
 - 第一步089f68e已同步。实际两阶段提示/样例及纠错切换fields-v1，新manifest记录协议，旧宏/反馈/结果/在途拒绝保持。[报告](../reports/customer-answer-fact-fields-v1/README.md)/[原失败离线诊断](../reports/customer-answer-fact-fields-v1/offline-review.json)。

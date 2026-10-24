@@ -1,0 +1,36 @@
+{
+  "synthetic_business": true,
+  "provider": "deepseek-flash",
+  "resume_metrics": false,
+  "source_commit": "2a1e8c0ee1a37a7671a4fac4a26d0e8b15b4898d",
+  "turns": [
+    "耳机还没送到。我想核对一下承运商的记录，并准备一份退款原因；先让我查看和修改，再决定是否提交。"
+  ],
+  "turn_limit": 1,
+  "automatic_retry": false,
+  "customer": "buyer10",
+  "merchant": "admin01",
+  "line_id": "SHOP-014366b0-404a-4b5f-884d-8b08eba5d08d",
+  "order_id": "3fe544f9-6442-430f-a739-52517d915b25",
+  "amount_minor": 32900,
+  "conversation_id": "0c4672b4-1cb8-454c-b719-c444f0678dbc",
+  "model_bound": "one support turn under original budget; no retry, Case creation, merchant approval or refund",
+  "files": {
+    "scripts/accept_customer_fact_fields_v1.py": "0d0002c219d9ef37e4493ad595cc6f1750417611702da4e36ef7227c1256b29c",
+    "scripts/check_customer_fact_fields_v1.cjs": "db0648630cd68a8678d1b14c8f4b2fd9fddf2302faed427a972fd5d71b2ea535",
+    "scripts/accept_chat_refund_live_v1.py": "87e1eeaf2801b7e696f1b8e86f6cc5de577608820dc21c663cd18fd472f19306"
+  },
+  "new_general_run_limit": 0,
+  "protected": {
+    "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+    "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+    "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+    "evals/customer-agent-publication-v2/manifest.json": "b28b708ac5d18d62965424a4e537000b519129b769880095da5ec573bc38f814",
+    "reports/chat-refund-stream-s3/provider-probe.json": "3f7c0fe684d5a138206d57f29d54122279576c77deab5dc37cea596075451d35",
+    "reports/customer-policy-focus-live-v1/runtime-results.json": "17ef3b3edb7739aba503e54a7d75e6d45ae070e6ff25e1a1946a0226a9163bd0",
+    "reports/chat-refund-handoff-v1/live-v2/runtime-results.json": "0ad1e89dd5e49a541cf00e6eb97ac7b4e3969100a79479f397bfbfaae0007f99",
+    "scripts/accept_chat_refund_handoff_v2.py": "f80ebbd603303f4e35ba29ac17a498527bafb627365c3218b4b6dfe320de26d0",
+    "scripts/check_chat_refund_handoff_v2.cjs": "234f91b8a10f81ebc51e53bd4d3a62647e6374afbebae817d01d29b9b7d9e90e"
+  }
+}

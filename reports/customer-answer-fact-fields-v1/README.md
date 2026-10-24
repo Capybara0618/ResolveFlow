@@ -37,3 +37,11 @@ git diff --check
 原服务/status健康，尚未加载本批Python；无新模型，usage2093。下一步保留数据加载当前代码、仅一次新合成问句验证正式发布/实际SSE及自动摘要可编辑；不重复商家调查/退款执行验收，不重发旧失败题。
 
 第二步暂存差异检查发现新生成的offline-review.json使用Windows CRLF而被识别为行尾空白，PowerShell原命令未据原生命令退出码中断，提交74fe23a已正常同步。追加独立格式修复：诊断生成器改UTF-8字节写入，仅将本批衍生诊断文件CRLF改LF，JSON内容逐值保持，原始live-v2文件及其SHA不变。后续提交前显式检查退出码；没有改写历史commit或原始失败。
+
+## 第三步：唯一新样本准备
+
+2a1e8c0格式修复已普通push核实。只读确认无在途run后停止所属agent-live进程，再执行`start.ps1 -SkipBuild -NoBrowser`：原Java/Web/数据库和索引复用，新Python健康，实际两阶段配置保持。
+
+新增独立`accept_customer_fact_fields_v1.py`和`check_customer_fact_fields_v1.cjs`，复用原购买/模拟发货/LOST准备与使用账本工具，原驱动/原失败不修改。新驱动只发送1条客服问句，要求实际正式答案/真实SSE；自动摘要生成退款草稿，编辑原因并保存，刷新仍为同草稿，未点击确认/无新Case调查/无退款。保留原全局费用账本和待结束计量、旧业务/索引/文件hash核对。
+
+命令：新Python Ruff/py_compile、新CJS `node --check`通过；首次`ruff format --check`指出新驱动需格式化，已格式化后Ruff/编译/语法检查通过。`python scripts/accept_customer_fact_fields_v1.py prepare`生成一笔新合成订单及会话，[唯一冻结计划](live-v1/plan.json)，0Provider，usage2093。准备/执行互斥文件及禁止覆盖旧输出保持。精确提交普通push核实后执行一次，不失败后重发追分。
