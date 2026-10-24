@@ -1,3 +1,12 @@
+## 当前快照（2026-10-24，客服新编排验收及默认采用完成，本批收口）
+
+- 实现f94ede7/主链c7a49b7/默认819f293均已普通push核实。正式start/启动后检查/status统一orchestrated-v1；实际start -SkipBuild -NoBrowser与status所有依赖、3 Java、Python、网页/精确索引健康。[集中报告](../reports/customer-agent-orchestration-acceptance-v1/README.md)。
+- 独立政策/纠正/暂停通过；人工首轮漏handoff_reason失败保留，按goal编译输出合同后不同措辞新消息4模型0修正成功。网页误读旧失败态的原false报告保持，独立0模型续验完成编辑共享及商家接收。原成功三组不重跑。
+- 原定退款主链一次客服5模型0修正+Case调查5模型，自动原因/编辑刷新/确认同键同Case/会话进度/商家未核验陈述及VALIDATED MANUAL_REVIEW全过。主链状态113ms/有效首DOM5244ms/完成6619ms/确认105ms，单例非p95。
+- 总8客服轮/1Case调查、35真实请求81579输入/3697输出、0未知，usage2108→2143，含所有失败。工程控制/SDK26过、PG/API/SSE/store18过0跳过、启动/API/驱动46过；扩大客服/契约427过/6既有跳过/1既有冻结v2指南诊断失败，strict/Ruff相关通过。未重建Java/Web、未跑全仓或付费性能矩阵。
+- [最终只读审计](../reports/customer-agent-orchestration-acceptance-v1/final-audit.json)：旧业务/索引/21保护项及主链持久答案不变；Case fabd03ac-f159-4b93-8fa6-178f461bf938保持PENDING_REVIEW rev1/version3，支付32900/0/0、无授权/退款/在途，审计/启动0新调用。旧四历史脏文件与旧未跟踪资产保持。
+- 最后仅提交审计/记录并普通push核实后停止写入。本批基础开发收口，后续按用户新指示固定当前版本开展简历量化/独立性能样本；不继续追成功问句或默认增加功能/收费矩阵，不宣称全面客服质量冻结。
+
 ## 当前快照（2026-10-24，客服新编排已切日常默认并验证正常启动，待最终只读审计）
 
 - c7a49b7主链结果已同步。project_runtime统一常量将start/启动后检查/status切orchestrated-v1，README/local-runtime同步；旧兼容profile/冻结失败保留。

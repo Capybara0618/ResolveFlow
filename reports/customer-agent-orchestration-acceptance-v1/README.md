@@ -1,5 +1,7 @@
 # 新编排独立对话与确认建单验收
 
+当前结论：本批基础功能收口，日常启动已采用orchestrated-v1。独立政策/纠正/暂停通过；人工首轮失败保留，目标输出合同修正后新消息与零模型UI续验通过；聊天自动退款原因→编辑确认→同键同Case→商家未核验材料通过。8客服轮与1Case调查共35真实请求，含所有失败，账本2108→2143，准确81579输入/3697输出、0未知。单例问答6.619秒、确认105ms，不作为p95或跨版本总体成功率。
+
 2026-10-24，按docs/customer-agent-orchestration-acceptance-v1.md及用户授权执行。原默认staged-v1，新候选orchestrated-v1及RAG/模型/预算保持。五新合成329元LOST订单，四组6消息和主链1消息，主链最多初始Case调查1run；不审批/退款，不自动重发失败题。
 
 ## 准备
@@ -49,3 +51,23 @@ f94ede7实现已同步；新verify_support_contract_v1.py及recheck/primary两�
 正式project_runtime以一个SUPPORT_ARCHITECTURE常量同步start/启动后检查/status为orchestrated-v1；README/local-runtime更新当前入口。原兼容profile仍保留，不改历史评测。旧启动预期有意更新为已批准新默认，并新增“HTTP可用但旧profile不能算完整就绪”两边界测试，4红→runtime/API/驱动46过；Ruff/py_compile通过。
 
 无在途后实际执行status.ps1和start.ps1 -SkipBuild -NoBrowser：复用所属当前新profile/原Java/Web，依赖、3 Java、Python、网页、基础政策精确索引全部健康；没有新增模型请求。接下来只读审计旧业务/索引/失败hash与新Case资金状态，不再追加付费或重跑已通过案例。
+
+## 最终审计与停止写入
+
+819f293默认切换已普通push核实。final-audit.json确认当前HTTP与日常入口均orchestrated-v1，旧业务/政策索引/21保护项与主链持久答案保持；本批恰8客服轮/1Case调查/35模型调用，原人工FAILED仍保留。新Case仍PENDING_REVIEW revision1/version3，支付32900分/已退0/预留0，无授权/退款操作或在途；最终审计与启动未增加调用，usage2143。
+
+实际工程命令（均已执行）：
+```
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_support_orchestration.py agent/tests/unit/test_support_orchestrated_engine.py -q --tb=short
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit -q -k "support or customer_agent_publication or customer_answer or refund_summary" --tb=short
+agent/.venv/Scripts/python.exe -m mypy --strict agent/src/resolveflow/support/orchestration.py agent/src/resolveflow/support/engine.py agent/src/resolveflow/support/orchestration_prompts.py
+$env:RESOLVEFLOW_AGENT_DB='postgresql://agent:agent@127.0.0.1:55433/agent_db'
+agent/.venv/Scripts/python.exe -m pytest agent/tests/integration/test_support_orchestrated_runtime.py agent/tests/integration/test_support_staged_api.py agent/tests/integration/test_support_stream_runtime.py agent/tests/integration/test_support_store.py -q --tb=short
+agent/.venv/Scripts/python.exe -m pytest agent/tests/unit/test_project_runtime.py agent/tests/unit/test_reviewer_demo_driver.py agent/tests/unit/test_support_api.py -q --tb=short
+.\status.ps1
+.\start.ps1 -SkipBuild -NoBrowser
+```
+
+结果：控制/SDK26过，临时PG/API/SSE/store18过0跳过，默认启动/API/驱动46过；扩大客服/契约427过、6既有无citation跳过、1既有冻结v2指南诊断失败。strict3源码与相关Ruff/编译/node语法过；未跑Java/Web重新构建（无业务侧改动），未跑完整仓库或收费性能矩阵，不把既有失败写成全绿。
+
+本批结束后不继续加功能/追单题，旧四历史脏文件与旧未跟踪资产保持。后续可在用户新指示下固定当前版本进行简历量化和独立性能样本；建议先测再决定是否减少模型轮次。当前只完成本合同范围，不声称覆盖所有客服场景或达到公司级生产标准。
