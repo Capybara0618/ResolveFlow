@@ -1,0 +1,95 @@
+{
+  "version": "goal-confirm-final-audit-v1",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "frozen_source_count": 108,
+  "frozen_source_and_embedding_hashes_match": true,
+  "public": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 176,
+      "sha256": "602bc3a2023df615dc7f4cdd9f34b73079ca7b0069eaa4be504c6318fffc75ad"
+    },
+    "support_agent_run": {
+      "rows": 31,
+      "sha256": "6e469b3c88c761760bb7aca46c2c8ca3d507b415a32408a886c6786271c1e4a2"
+    }
+  },
+  "public_unchanged": true,
+  "owned_schema_removed": "t_support_current_v1_60e64b34dabb",
+  "exported_runs": 4,
+  "exported_calls": 18,
+  "historical_reports_unchanged": 188,
+  "old_six_and_ten_turn_results_unchanged": true,
+  "protected_dirty_files_sha256": {
+    "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+    "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+    "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+  },
+  "protected_dirty_files_unchanged": true,
+  "usage_before": 2318,
+  "usage_after": 2329,
+  "real_provider_requests": 11,
+  "audit_provider_requests": 0,
+  "formal_business_writes": 0,
+  "test_writes": "owned temporary schema only, exported and removed",
+  "credential_scan": "PASS actual provider key absent from both new report directories",
+  "ledger_lock_released": true,
+  "resources": {
+    "postgres_restored_to_stopped": true,
+    "volumes_preserved": true,
+    "docker_desktop_left_running": true
+  },
+  "technical_published": 4,
+  "goal_contract_pass": 4,
+  "business_complete": 3,
+  "business_partial": 1,
+  "live_goal_reviews": 0,
+  "goal_review_branch_evidence": "saved scripted SDK regression and real PG recovery; no live trigger",
+  "quality_freeze": "NOT_FULLY_FROZEN",
+  "runtime_sha256": "304e31bc9a56b9559bd8df0244db60d04cf2defd03e71850166fb1f620439fdc",
+  "review_sha256": "47f664d81c795e9da2c9d761323518175a3d49112c5c6f9599a60469551f02ed",
+  "not_run": [
+    "Java/Web end-to-end",
+    "Resume metrics",
+    "Additional paid confirmations",
+    "Full repository tests"
+  ],
+  "note": "Q01/1 unsupported verified payment phrase retained; no post-failure regeneration or code tuning."
+}

@@ -1,0 +1,158 @@
+{
+  "version": "goal-confirm-metrics-v1",
+  "runtime_sha256": "304e31bc9a56b9559bd8df0244db60d04cf2defd03e71850166fb1f620439fdc",
+  "review_sha256": "47f664d81c795e9da2c9d761323518175a3d49112c5c6f9599a60469551f02ed",
+  "review_provider_calls": 0,
+  "turns": 4,
+  "technical_published": 4,
+  "goal_contract_pass": 4,
+  "business_complete": 3,
+  "business_partial": 1,
+  "live_goal_reviews": 0,
+  "real_provider_calls": 11,
+  "input_tokens": 31532,
+  "output_tokens": 1473,
+  "unknown_usage": 0,
+  "estimated_usage": 0,
+  "usage_before": 2318,
+  "usage_after": 2329,
+  "tools": {
+    "get_support_guide": 4,
+    "get_order_context": 1,
+    "get_shipment_trace": 1,
+    "search_policy": 1
+  },
+  "prewarm_ms": 5559.012400000938,
+  "latency_scope": "four server-side observations, not browser or production SLA",
+  "completion_ms": {
+    "min": 2589.9497000064002,
+    "median": 3661.9753499908256,
+    "max": 6074.4853999931365
+  },
+  "stable_body_ms": {
+    "min": 1875.7249000045704,
+    "median": 2823.1733499924303,
+    "max": 4840.304400000605
+  },
+  "stream_replaced_turns": 0,
+  "progress_failures": 0,
+  "exported_runs": 4,
+  "exported_calls": 18,
+  "public_unchanged": true,
+  "isolated_schema_dropped": true,
+  "quality_freeze": "NOT_FULLY_FROZEN",
+  "branch_verification": "goal conflict/review branch exercised by saved scripted SDK regression and real PG recovery only; zero naturally triggered live reviews",
+  "rows": [
+    {
+      "id": "Q01",
+      "turn": 1,
+      "criteria_pass": [
+        true,
+        true,
+        true
+      ],
+      "goal_contract_pass": true,
+      "material_issues": [
+        "UNSUPPORTED_PAYMENT_VERIFICATION_IN_HANDOFF_SUMMARY"
+      ],
+      "note": "人工摘要、待本人确认及原核查单补充正确，裂痕明确是客户陈述，无退款产物。但摘要额外写已核实客户已付款订单：本轮只有GUIDE，可信输入仅product及政策按paid_at选版本元数据，没有订单状态Observation。商品名称/规格/数量有输入依据，当前已付款被称为已核实证据不足。冻结底层快照确为PAID不能补成模型本轮已读取，故目标判据满足但完整质量记部分，不能仅按SUCCEEDED计全过。",
+      "published": true,
+      "business_complete": false,
+      "criteria": [
+        "提供独立待确认人工摘要，不产生退款摘要或退款步骤",
+        "裂痕只是客户陈述，不能声称已核验或已发给商家",
+        "保留原核查记录补充入口和本人确认说明"
+      ],
+      "projection": {
+        "published_body_ms": 3506.365299996105,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "elapsed_ms": 4213.902599993162
+    },
+    {
+      "id": "Q01",
+      "turn": 2,
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "goal_contract_pass": true,
+      "material_issues": [],
+      "note": "实际继承首轮状态，将t1标CANCELLED，新增撤回确认与接收人解释焦点；无人工/退款摘要。正确区分默认商家、当前助手，未声称已发送或重开。",
+      "published": true,
+      "business_complete": true,
+      "criteria": [
+        "撤回先前准备事项，不再提供可用人工或退款摘要",
+        "解释默认店家和当前助手私聊的差别，不声称已发送或重开核查"
+      ],
+      "projection": {
+        "published_body_ms": 2139.9813999887556,
+        "stream_identity_parts": [
+          "part-0",
+          "part-1"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "elapsed_ms": 3110.0480999884894
+    },
+    {
+      "id": "Q02",
+      "turn": 1,
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "goal_contract_pass": true,
+      "material_issues": [],
+      "note": "EXPLAIN且只读取指南，解释已解决记录可补充接续，不生成摘要。未来新情况保留条件语义，不声称已发生或已办理。",
+      "published": true,
+      "business_complete": true,
+      "criteria": [
+        "只解释原单补充能力及历史保留，不准备人工或退款摘要",
+        "不把未来假设记成已发生事实，不声称已经操作"
+      ],
+      "projection": {
+        "published_body_ms": 1875.7249000045704,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "elapsed_ms": 2589.9497000064002
+    },
+    {
+      "id": "Q03",
+      "turn": 1,
+      "criteria_pass": [
+        true,
+        true,
+        true
+      ],
+      "goal_contract_pass": true,
+      "material_issues": [],
+      "note": "PREPARE_REFUND，实际读取订单、物流与政策。提供独立退款原因，329.00 CNY由订单事实装配，签收记录与客户未收到主张分开，解释人工核验争议，未声称审批/提交/到账。提及人工核查为可选解释，没有错误提供人工摘要。",
+      "published": true,
+      "business_complete": true,
+      "criteria": [
+        "提供独立待确认退款摘要及本人确认入口，不错误替换成人工核查摘要",
+        "读取订单金额及相关调查依据，签收记录与客户未收到陈述分开",
+        "不声称退款获批、提交或已到账"
+      ],
+      "projection": {
+        "published_body_ms": 4840.304400000605,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "elapsed_ms": 6074.4853999931365
+    }
+  ]
+}

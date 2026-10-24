@@ -1,3 +1,11 @@
+## 当前快照（2026-10-24，受控目标核对及四轮真实确认完成，本批收口）
+
+- 工程996d16f/准备22f9b3b均普通push核实；[本批报告](../reports/customer-agent-goal-confirm-v1/README.md)/[全部对话](../reports/customer-agent-goal-confirm-v1/conversations.md)/[源审](../reports/customer-agent-goal-confirm-v1/source-review.json)。新3组4轮各一次，4发布/目标产物4正确/完整质量3，原十轮和失败不改。11请求31532输入/1473输出、未知/估算0，账2318→2329，不追加收费追题。
+- 目标核对最多一次、同SDK循环/原预算/事项记忆保留，工程450单元契约及19PG API SSE恢复通过；真实本批初始目标直接正确，REVIEW_GOAL=0，纠错分支仍只有离线SDK原轨迹和PG恢复证据。不能宣称已真实观测纠错或全质量冻结。
+- Q01/1人工摘要正确，但额外称“已核实已付款”，本轮只读GUIDE；商品信息有可信product来源，政策paid_at选版本元数据不能代替当前订单状态Observation，完整质量记部分。已在E49记录摘要来源边界，后续优先约束摘要事实依据；本批未实施该后续修复，不更换框架或继续无限追改。
+- 有效正文中位2.82秒/完成3.66秒、预热5.56秒另列，4条流式正文保留、替换0/投递失败0，仅服务端小样本。4run/18journal导出、隔离schema删除，公共11表/历史报告/四历史脏文件保持，详见[最终审计](../reports/customer-agent-goal-confirm-v1/final-audit.json)。仅恢复本批PG停止，保留卷/Docker；未跑Java/Web/全仓/简历量化。
+- 报告及最终审计精确commit普通push核实后停止本批写入，下一步由用户决定；不自动按旧任务或新缺口追加开发。
+
 ## 当前快照（2026-10-24，目标核对已同步，四轮真实确认已冻结）
 
 - 工程996d16f普通push核实；[3组4轮新措辞](../evals/customer-agent-goal-confirm-v1/scenarios.json)覆盖人工摘要→撤回、能力咨询及退款准备，源码/本地权重和usage2318已冻结，最多20请求，各轮一次，不追加追成功测试。沿用既有真实流式驱动和隔离run schema，原失败/十轮报告保持。
