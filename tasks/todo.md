@@ -1,7 +1,13 @@
+## 当前快照（2026-10-24，新编排API/manifest及PG恢复已验证，待离线对照和有限真实确认）
+
+- 54b0e83已同步。显式orchestrated-v1已接API、runtime/mock校验与部署驱动，manifest固定编排/提示hash；日常默认仍staged-v1。
+- 临时真实PG+API/SDK/模拟SSE/store 18过0跳过，重建理解/程序指南/提前收尾进度和原摘要0重发，未完成跨协议恢复拒绝。API/驱动32过，扩大客服/契约421过/6既有无citation项跳过/1既有冻结v2指南诊断失败，service strict及本步Ruff通过。[报告](../reports/customer-agent-orchestration-v1/README.md)。reviewer_demo全文件19既有Ruff问题与HEAD逐code对比相同，本步不扩大清理。
+- 普通push核实后做明确新协议的旧失败离线变换与小规模真实模型确认；旧raw/Gold不变，不把工程通过当真实采纳。原服务未重启/usage2102/旧四脏文件保持。
+
 ## 当前快照（2026-10-24，客服新编排已接唯一SDK循环，待运行持久化验收）
 
 - 第一步9e0db61已同步；第二步orchestrated-v1接engine/stages及独立提示，程序原账本读指南、阶段驱动提前收尾继续、COMPOSE装配仍走原发布校验，调查正文不投影。新增SDK场景7过；伪造金额仍拒绝、纯入口不强查订单。
-- 扩大回归418过/6跳过（未指定实际PG）/1既有冻结v2指南诊断失败，strict7源码及Ruff通过；[报告](../reports/customer-agent-orchestration-v1/README.md)。不改原失败、不放开金额/主体/发布断言。
+- 扩大回归418过/6跳过（既有无citation契约fixture）/1既有冻结v2指南诊断失败，strict7源码及Ruff通过；[报告](../reports/customer-agent-orchestration-v1/README.md)。不改原失败、不放开金额/主体/发布断言。
 - 本步普通push核实后接API/runtime profile与真实临时PG恢复/模拟SSE；尚未切日常默认或新live，usage2102。旧四历史脏文件保持。
 
 ## 当前快照（2026-10-24，客服编排第一步：就绪控制与确定性装配已实现）

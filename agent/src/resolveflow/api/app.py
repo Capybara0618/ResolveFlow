@@ -101,7 +101,7 @@ class HealthResponse(BaseModel):
     status: str
     service: str
     version: str
-    support_architecture: Literal["single", "staged-v1"]
+    support_architecture: Literal["single", "staged-v1", "orchestrated-v1"]
 
 
 class RunRequestContextShape(BaseModel):
@@ -449,7 +449,7 @@ def create_app(
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         architecture = os.environ.get("RESOLVEFLOW_SUPPORT_ARCHITECTURE", "single")
-        if architecture not in {"single", "staged-v1"}:
+        if architecture not in {"single", "staged-v1", "orchestrated-v1"}:
             raise ValueError("unknown support architecture")
         app.state.support_architecture = architecture
         app.state.provider = provider if provider is not None else RefundProviderStub(database)

@@ -21,6 +21,8 @@ from resolveflow.support.embeddings import SupportEmbeddings
 from resolveflow.support.engine import SYSTEM, SupportAgent
 from resolveflow.support.grounding import FACT_RENDERING_VERSION
 from resolveflow.support.guide import GUIDE_VERSION
+from resolveflow.support.orchestration import Response, TurnPlan
+from resolveflow.support.orchestration_prompts import COMPOSE_SYSTEM, INVESTIGATE_SYSTEM, PLAN_SYSTEM
 from resolveflow.support.progress import ProgressReporter
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
 from resolveflow.support.retrieval import CANDIDATE_K, RETRIEVAL_VERSION, RRF_CONSTANT
@@ -68,10 +70,12 @@ class SupportRuntime:
             if not isinstance(script, list) or not 1 <= len(script) <= 12:
                 raise SupportFailure("MOCK_SCRIPT_INVALID")
             for decision in script:
-                if self.architecture == "staged-v1" and decision.get("kind") == "TURN_UNDERSTANDING":
-                    Understanding.model_validate(decision)
-                elif self.architecture == "staged-v1" and decision.get("kind") == "REFINE_NEEDS":
+                if self.architecture != "single" and decision.get("kind") == "TURN_UNDERSTANDING":
+                    (TurnPlan if self.architecture == "orchestrated-v1" else Understanding).model_validate(decision)
+                elif self.architecture != "single" and decision.get("kind") == "REFINE_NEEDS":
                     RefineNeeds.model_validate(decision)
+                elif self.architecture == "orchestrated-v1" and decision.get("kind") == "RESPOND":
+                    Response.model_validate(decision)
                 else:
                     DECISION.validate_python(decision)
             return MockModelClient(script=script)
@@ -139,6 +143,8 @@ class SupportRuntime:
                     "memory.py",
                     "dialogue.py",
                     "stages.py",
+                    "orchestration.py",
+                    "orchestration_prompts.py",
                     "grounding.py",
                     "navigation.py",
                     "../harness/token_counting.py",
@@ -148,7 +154,9 @@ class SupportRuntime:
                     "../policies/child_index.py",
                 ]
             },
-            "prompt_hash": hashlib.sha256((UNDERSTANDING_SYSTEM + INVESTIGATION_SYSTEM + POLICY_SYSTEM
+            "prompt_hash": hashlib.sha256((PLAN_SYSTEM + INVESTIGATE_SYSTEM + COMPOSE_SYSTEM
+                                           if self.architecture == "orchestrated-v1"
+                                           else UNDERSTANDING_SYSTEM + INVESTIGATION_SYSTEM + POLICY_SYSTEM
                                            if self.architecture == "staged-v1" else SYSTEM).encode()).hexdigest(),
         }
         journal, cached = SupportStore(self.database).claim(request, manifest)

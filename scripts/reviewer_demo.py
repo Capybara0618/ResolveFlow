@@ -1796,7 +1796,7 @@ def start_readonly_agent(settings: Settings, log: Log, *, live: bool = False, ar
     while scenario commands replace either process before binding their isolated mock script.
     """
     process_name = "agent-live" if live else "agent-readonly"
-    if architecture not in {"single", "staged-v1"}:
+    if architecture not in {"single", "staged-v1", "orchestrated-v1"}:
         raise DemoRefused("unknown support architecture")
     if live and not os.environ.get("RESOLVEFLOW_MODEL_API_KEY"):
         raise DemoRefused("DeepSeek key is missing; set Deepseek_API_KEY in your user environment and run demo.ps1 -Live")

@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from resolveflow.api.app import create_app
@@ -56,7 +57,8 @@ def test_consultation_route_requires_its_scope_and_exact_case_dispatch_subjects(
         )
 
 
-def test_default_runtime_receives_app_encoder_pool_but_separate_run_state(monkeypatch, tmp_path):
+@pytest.mark.parametrize("architecture", ["staged-v1", "orchestrated-v1"])
+def test_default_runtime_receives_app_encoder_pool_but_separate_run_state(monkeypatch, tmp_path, architecture):
     from types import SimpleNamespace
 
     from resolveflow.runtime.factory import DeploymentConfig
@@ -72,7 +74,7 @@ def test_default_runtime_receives_app_encoder_pool_but_separate_run_state(monkey
 
     monkeypatch.setattr("resolveflow.support.api.SupportRuntime", DefaultRuntime)
     monkeypatch.setattr(DeploymentConfig, "from_environ", lambda: DeploymentConfig(mode="mock"))
-    monkeypatch.setenv("RESOLVEFLOW_SUPPORT_ARCHITECTURE", "staged-v1")
+    monkeypatch.setenv("RESOLVEFLOW_SUPPORT_ARCHITECTURE", architecture)
     app = create_app(
         provider_db=tmp_path / "provider.db",
         delivery_loop=False,
@@ -84,7 +86,7 @@ def test_default_runtime_receives_app_encoder_pool_but_separate_run_state(monkey
     token = mint_service_token("case-service", SECRET, scope="support:run", merchant_id="M-A", customer_id="C-A")
     body = {**request().model_dump(mode="json"), "tool_token": "per-run-read-token"}
     with TestClient(app) as client:
-        assert client.get('/health').json()['support_architecture'] == 'staged-v1'
+        assert client.get('/health').json()['support_architecture'] == architecture
         monkeypatch.setenv("RESOLVEFLOW_SUPPORT_ARCHITECTURE", "single")
         for _ in range(2):
             assert (
@@ -95,7 +97,7 @@ def test_default_runtime_receives_app_encoder_pool_but_separate_run_state(monkey
             )
         assert len(instances) == 2 and instances[0] is not instances[1]
         assert instances[0].embeddings is instances[1].embeddings is app.state.support_embeddings
-        assert all(instance.architecture == 'staged-v1' for instance in instances)
+        assert all(instance.architecture == architecture for instance in instances)
         assert len(instances[0].calls) == len(instances[1].calls) == 1
 
 
