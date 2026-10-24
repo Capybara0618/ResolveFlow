@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，用户批准小规模真实验收，主链路已准备待执行）
+
+- 原最终修复d99fb4d已同步并运行，status全部健康。新[协议](../docs/customer-agent-acceptance-gate-v1.md)固定A自动摘要/确认/同一申请及B纯政策/C两轮纠正/D独立人工；A通过后才继续，至多5客服轮/1Case调查，沿原预算，不改RAG/框架/模型。
+- 新独立Python/CJS驱动Ruff/编译/node语法/diff通过，prepare一笔新329元LOST订单，[A计划](../reports/customer-agent-acceptance-gate-v1/primary/plan.json)固定全support源码/驱动/13保护文件SHA，0模型、usage2098。[报告](../reports/customer-agent-acceptance-gate-v1/README.md)。
+- 精确提交普通push核实后仅执行A一次；若正式摘要失败不改手动入口冒充通过，保存完整费用并离线定位，B–D不伪造执行。原四历史脏文件/旧运行/冻结结果保持。
+
 ## 当前快照（2026-10-24，事实输出与完整缺项反馈已部署；修复后未再Live）
 
 - f39a67e已普通push核实。客服新fields-v1由程序渲染事实，当前两阶段提示/流式/持久化已接；拒绝诊断不再被第一个错误GUIDE遮住ORDER缺项，正式校验/预算/一次修正保持。[报告](../reports/customer-answer-fact-fields-v1/README.md)。
