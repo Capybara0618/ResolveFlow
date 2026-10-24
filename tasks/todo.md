@@ -1,8 +1,10 @@
-## 当前快照（2026-10-24，三组十轮真实收口准备已冻结）
+## 当前快照（2026-10-24，意愿工程修复及十轮真实验收完成，尚不冻结）
 
-- 14f2c7e意愿合同已同步。固定[三组十轮](../evals/customer-agent-close-v1/scenarios.json)：签收插问/恢复/纠正/结束4轮、能力咨询/礼貌准备/撤回3轮、未发货政策/假设/前提3轮。整批最多40真实请求，运行中代码/输入/Gold不变，每轮一次。
-- 新驱动2单元/Ruff过；manifest冻结业务/数据/权重和usage2290，[只读预检](../reports/customer-agent-close-v1/preflight.json)核对精确索引/11表不变、0模型。仅所属PG启动，普通业务未起。[报告](../reports/customer-agent-close-v1/README.md)。
-- 准备精确commit普通push后execute一次，保存逐轮原文/来源/流式/账本/失败并源审，按结果决定是否冻结。只写本批临时schema，不建Case/核查/退款，不改旧六条/44轮；失败不自动补跑，不追加费用追题。
+- 意愿合同14f2c7e/准备c83da44已同步。3组10轮一次真实执行，28请求90908输入/3594输出、未知/估算0，账2290→2318；10发布/9业务完整/1失败，完整会话2/3。[报告](../reports/customer-agent-close-v1/README.md)/[全部对话](../reports/customer-agent-close-v1/conversations.md)/[源审](../reports/customer-agent-close-v1/source-review.json)。旧44轮/六条/评分不改，不当独立准确率。
+- M01插问暂停→恢复纠正（旧代收猜测SUPERSEDED）→找到包裹RESOLVED完整；M03未发货版本1/付款事件/资金条件及假设完整。10条最终正文保留，替换0；有效首正文中位2.89秒、完成中位3.70秒，预热7.38秒另列，服务端10例非稳定SLA。
+- M02/2未通过：本轮给商家摘要被错误标PREPARE_REFUND，operation_request出处真实仍挡不住类别错。首RESPOND实际handoff_reason正确，却被错误已接受目标拒绝，反馈要求refund_reason后产生错误退款草稿/步骤。无业务写入，但不能质量冻结。下一步先离线查目标/产物一致性及受控返回理解，不强迫答复迁就错误目标；本批未实施该后续修复、不自动再收费。
+- 工程8红→41针对/440单元契约/18PG API SSE恢复均通过，strict三源码/Ruff过。只写本次临时schema，10run/45journal导出后删除；[最终审计](../reports/customer-agent-close-v1/final-audit.json)核对冻结文件/权重、11公共表、旧报告和四历史脏文件保持/账2318，停止仅本批PG保留卷和Docker。未做Java/Web、简历量化或全仓。
+- 结果/记录精确commit普通push核实后本批收口并停止写入，保留唯一失败和明确下一修复边界；不按旧任务推进，不宣布Agent开发结束。
 
 ## 当前快照（2026-10-24，用户要求持续记录架构演进，复盘文档已建立）
 
