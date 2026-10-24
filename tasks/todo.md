@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，用户批准新编排独立验收/确认建单/按证据采用，准备中）
+
+- 按[固定验收合同](../docs/customer-agent-orchestration-acceptance-v1.md)：policy1、纠正2、暂停2、独立人工1及主链1，最多7客服轮/1Case调查。四组输入各执行一次，保留失败，不手填原因替代自动；四组过再确认主链，无退款/审批。
+- 当前默认仍staged-v1，status所有组件/精确索引健康。开工仅四历史脏文件与既有未跟踪资产，暂存空，main跟踪origin/main及远程已核对；旧实现与失败不重做。准备新驱动/合成订单并固定hash，未新调用模型，账本2108。
+- 默认切换须完整功能/语义及工程无新增回归通过；失败优先已有响应离线诊断，不自动追单题。合同差异检查/精确commit普通push核实后继续。
+
 ## 当前快照（2026-10-24，客服职责重构本批收尾：新profile工程及一次真实通过，日常默认保留）
 
 - 新profile实现f056a66/准备c2e9209/真实结果480d14f均已普通push核实。orchestrated-v1沿唯一AgentScope循环：程序维护取证就绪/实际阻碍，提前RESPOND正常继续不耗格式修正，模型选工具/解释/原因，程序提供GUIDE并装配事实/页面步骤；按阶段流式、原预算/来源/金额/fence保持。[合同](../docs/customer-agent-orchestration-v1.md)、[报告](../reports/customer-agent-orchestration-v1/README.md)。
