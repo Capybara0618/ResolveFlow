@@ -9,6 +9,12 @@ from typing import Any
 from resolveflow.support.protocol import Answer, AnswerFact, AnswerParts, SupportInput
 
 MONEY = re.compile(r"[¥￥]\s*(-?\d[\d,]*(?:\.\d+)?)|(-?\d[\d,]*(?:\.\d+)?)\s*(?:CNY|元)", re.I)
+FACT_RENDERING_VERSION = "fields-v1"
+FACT_LABELS = {"PAID_AMOUNT": "订单行实付", "ORDER_STATUS": "订单状态",
+               "SHIPMENT_STATUS": "物流状态", "CARRIER_CONCLUSION": "承运商记录结论"}
+STATUS_LABELS = {"PAID": "已付款", "SHIPPED": "已发货", "IN_TRANSIT": "运输中",
+                 "DELIVERED": "已签收", "LOST": "丢失", "DELAYED": "延迟",
+                 "UNKNOWN": "未知", "NOT_SHIPPED": "未发货", "DAMAGED": "损坏"}
 
 
 class GroundingError(ValueError):
@@ -43,17 +49,31 @@ def value_for(field: str, source: dict[str, Any], request: SupportInput) -> str:
 def ground_answer(
     decision: Answer | AnswerParts, request: SupportInput, citations: dict[str, dict[str, Any]]
 ) -> Answer | AnswerParts:
+    structured = decision.fact_rendering == FACT_RENDERING_VERSION
+
     def render(text: str, facts: list[AnswerFact], refs: list[str]) -> tuple[str, list[str]]:
         refs = list(refs)
         fields = set()
+        lines = []
+        if structured and ("{{" in text or "}}" in text):
+            raise GroundingError("fields-v1正文仅写解释，不混用旧事实占位符；facts独立选field/source。")
         for fact in facts:
             marker = "{{" + fact.field + "}}"
-            if fact.field in fields or marker not in text:
+            if structured and fact.field in fields:
+                raise GroundingError("fields-v1同段facts.field须唯一。")
+            if not structured and (fact.field in fields or marker not in text):
                 raise GroundingError("facts.field须唯一且在对应text中有{{FIELD}}占位符。")
             fields.add(fact.field)
-            text = text.replace(marker, value_for(fact.field, citations.get(fact.source, {}), request))
+            value = value_for(fact.field, citations.get(fact.source, {}), request)
+            if structured:
+                display = value if fact.field == "PAID_AMOUNT" else STATUS_LABELS.get(value, value)
+                lines.append(FACT_LABELS[fact.field] + "：" + display + "。")
+            else:
+                text = text.replace(marker, value)
             if fact.source not in refs:
                 refs.append(fact.source)
+        if lines:
+            text += "\n\n" + "\n".join(lines)
         if "{{" in text or "}}" in text:
             raise GroundingError("事实占位符须声明field与本run已读source；未知占位符不发布。")
         if len(refs) > 8 or len(text) > 4000:

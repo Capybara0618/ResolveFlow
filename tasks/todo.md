@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，客服事实输出协议第一步完成）
+
+- 用户批准消除事实标注与正文占位符重复约束；新增显式fields-v1，程序从本run实际来源追加事实段，旧协议/原失败保持。[合同](../docs/customer-answer-fact-fields-v1.md)/[报告](../reports/customer-answer-fact-fields-v1/README.md)。
+- 新红测14失败/1过→新旧grounding29过，补齐版本/多行后集中52过；Ruff/strict两源码/diff检查通过。无模型/原库写入/重启，usage2093。
+- 本步精确提交普通push核实后继续实际提示/纠错/manifest及SDK+临时PG流式验证；再新合成样本有限真实确认。不改旧raw/Gold/失败或资金核验，四历史脏文件保持。
+
 ## 当前快照（2026-10-24，H1–H3核验衔接已真实跑通；自动客服仍有独立格式问题）
 
 - 准备4160777已同步。同一新合成订单的手动确认入口真实整栈通过：最终原因登记未核验初始陈述、首次5模型/0修正MANUAL_REVIEW无授权、网页商家CONFIRMED保留原文并升revision2、第二次5模型/0修正REFUND经Java复核后网页独立审批、32900分唯一模拟退款SUCCEEDED/预留0，原会话与详情同一Case CLOSED_SUCCESS。Case 1cbb2300-ffaf-4686-bcbf-f18acd3d7f8e，确认213ms。[完整证据/截图](../reports/chat-refund-handoff-v1/live-v2/manual-continuation/README.md)。

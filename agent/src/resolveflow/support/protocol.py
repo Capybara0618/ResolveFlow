@@ -169,6 +169,7 @@ class NextStep(Closed):
 
 class Answer(TaskAction):
     kind: Literal["ANSWER"]
+    fact_rendering: Literal["fields-v1"] | None = Field(default=None, exclude_if=lambda v: v is None)
     text: str = Field(min_length=1, max_length=4000)
     citations: list[str] = Field(default_factory=list, max_length=8)
     handoff_summary: str | None = Field(default=None, min_length=1, max_length=2000)
@@ -191,6 +192,7 @@ class AnswerPart(Closed):
 
 class AnswerParts(TaskAction):
     kind: Literal["ANSWER_PARTS"]
+    fact_rendering: Literal["fields-v1"] | None = Field(default=None, exclude_if=lambda v: v is None)
     parts: list[AnswerPart] = Field(min_length=1, max_length=8)
     handoff_summary: str | None = Field(default=None, min_length=1, max_length=2000)
     refund_summary: str | None = Field(default=None, min_length=1, max_length=2000, exclude_if=lambda v: v is None)
