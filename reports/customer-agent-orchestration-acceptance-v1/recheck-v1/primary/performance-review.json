@@ -1,0 +1,38 @@
+{
+  "single_sample_not_percentile": true,
+  "repair_count": 0,
+  "model_calls": 5,
+  "first_feedback_ms": 113,
+  "first_valid_body_dom_ms": 5244,
+  "formal_commit_ms": 6575,
+  "dom_complete_ms": 6619,
+  "confirmation_receipt_ms": 105,
+  "model_request_starts": [
+    {
+      "position": 1,
+      "kind": "TURN_UNDERSTANDING",
+      "start_after_click_ms": 233
+    },
+    {
+      "position": 2,
+      "kind": "READ_TOOL",
+      "start_after_click_ms": 1422
+    },
+    {
+      "position": 3,
+      "kind": "READ_TOOL",
+      "start_after_click_ms": 2353
+    },
+    {
+      "position": 4,
+      "kind": "READ_TOOL",
+      "start_after_click_ms": 3254
+    },
+    {
+      "position": 5,
+      "kind": "RESPOND",
+      "start_after_click_ms": 4287
+    }
+  ],
+  "interpretation": "取证工具事件开始/完成均在同一批或约3ms内到达网页，不能当作精确工具耗时。主要可见等待来自理解和三个串行工具选择模型轮次、最后正文生成。未发现秒级RAG等待；这些时间是单例浏览器/调度混合计时，不是供应商独占耗时或p95。"
+}
