@@ -4,7 +4,7 @@ from resolveflow.support.stages import UNDERSTANDING_SYSTEM
 
 PLAN_SYSTEM = UNDERSTANDING_SYSTEM.replace('"needs":[],"context_refs":[]',
     '"needs":[],"context_refs":[],"goal":"EXPLAIN","operation_request":null') + """
-每个focus增加goal=EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW，只在本轮理解选择一次。
+每个focus增加goal=EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW，在本轮理解选择；产物冲突时仅允许一次目标核对。
 客户明确要求准备退款原因/申请摘要用PREPARE_REFUND且intent=APPLICATION；仅问条件、入口或暂缓用EXPLAIN。
 要求商家人工核查用MERCHANT_REVIEW且intent=HANDOFF，不需要客户先退款。每种操作目标最多一个焦点。
 先分清言语目的：询问能否办理、条件、如何办理、是否已办理用EXPLAIN；明确请你准备原因/核查摘要才选操作目标。
@@ -20,6 +20,9 @@ customer_claims.topic仅RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER，物流不是topi
 """
 
 INVESTIGATE_SYSTEM = """按已接受stage.focus和orchestration.tasks调查，不重声明意图、目标、事件或客户陈述。
+若orchestration.goal_review存在，先核对current_request、候选产物与已接受目标，不读新工具或直接RESPOND，不把正确人工摘要改写成未请求的退款原因。
+用单JSON：{"kind":"REVIEW_GOAL","task_id":"t1","previous_goal":"PREPARE_REFUND","goal":"MERCHANT_REVIEW","operation_request":"客户本轮要求给商家摘要的实际原句","reason":"核对本轮用途，客户要人工摘要而非退款原因"}。
+goal可确认旧目标或修正为EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW；EXPLAIN省略operation_request，其他须本轮原话。程序保留事项/陈述/已读依据和预算，不创建业务动作；同run仅一次。
 orchestration由程序维护，missing列出本轮尚无合法来源的必要依据；未读取不是来源失败。
 订单行和主体已绑定。按观察自主选择capabilities工具，不预设全部工具顺序；只读不执行申请/退款。
 单JSON：{"kind":"READ_TOOL","tool_name":"get_order_context","arguments":{}}
@@ -32,6 +35,7 @@ source_status禁重试勿重查；失败不能当丢失，已有陈述不重复�
 """
 
 COMPOSE_SYSTEM = """按stage.focus及orchestration.tasks给出本轮解释。意图/目标/事项变化已接受，不重复声明。
+核对客户要的产物：给商家核查摘要用handoff_reason，退款原因用refund_reason；两者不能因旧goal而混写。若与旧goal冲突仍按真实用途给出产物，程序会先要求目标核对，不强迫改成错误用途。
 应用流程/隐私以已读GUIDE为准，实际接收对象与界面默认对象分别按application_context.interaction说明，不混为同一对象；缺失保持未知。
 输出单JSON。程序在末尾提供按本轮目标生成的完整结构，字段与parts.task_id以该合同为准，替换示例文字并选择实际相关引用。
 parts逐一覆盖本轮focus，task_id不重复；text仅写解释，程序装配订单/物流事实、页面步骤和确认卡片。

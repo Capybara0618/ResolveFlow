@@ -29,7 +29,7 @@ from resolveflow.support.grounding import check_amounts, diagnostic_fact_referen
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.navigation import RefundSummaryError, navigation_references, render_navigation
-from resolveflow.support.orchestration import Orchestration, Response, TurnPlan
+from resolveflow.support.orchestration import GoalConflict, Orchestration, Response, TurnPlan
 from resolveflow.support.orchestration_prompts import system_for
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
 from resolveflow.support.recovery import SourceRecovery
@@ -309,6 +309,23 @@ class SupportAgent:
                 return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
                                                "arguments": {}})
             if self.stage.enabled:
+                if (self.orchestration is not None and self.orchestration.goal_review is not None
+                        and reply.decision.get("kind") != "REVIEW_GOAL"):
+                    raise ValueError("目标冲突期间先REVIEW_GOAL核对本轮用途，不读新工具或按旧目标发布")
+                if self.orchestration is not None and reply.decision.get("kind") == "REVIEW_GOAL":
+                    assert self.stage.understanding is not None
+                    updated = self.orchestration.review_goal(reply.decision, self.stage.understanding,
+                                                             self.dialogue.lifecycles)
+                    self.stage.accept(updated)
+                    intents = {focus.id: focus.intent for focus in updated.focus}
+                    self.tasks.tasks = [task.model_copy(update={"intent": intents[task.id]})
+                                        for task in self.tasks.tasks]
+                    for key, task in self.dialogue.issues.items():
+                        if key in intents:
+                            self.dialogue.issues[key] = task.model_copy(update={"intent": intents[key]})
+                    self.feedback = None
+                    return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
+                                                   "arguments": {}})
                 if reply.decision.get("kind") == "REFINE_NEEDS":
                     self.stage.refine(reply.decision)
                     self.feedback = None
@@ -385,6 +402,13 @@ class SupportAgent:
             if isinstance(decision, Search):
                 reply = replace(reply, decision={**decision.model_dump(), "arguments": {"top_k": decision.top_k}})
             return reply
+        except GoalConflict as error:
+            if self.progress is not None:
+                self.progress.reject()
+            self.feedback = json.dumps({"code": "GOAL_CONFLICT", "detail": str(error),
+                                       "orchestration": self._readiness()}, ensure_ascii=False)
+            return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
+                                           "arguments": {}})
         except (ValidationError, ValueError) as error:
             if self.progress is not None:
                 self.progress.reject()

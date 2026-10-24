@@ -84,17 +84,34 @@ class Response(Closed):
     handoff_reason: str | None = Field(default=None, min_length=1, max_length=2000)
 
 
+class GoalConflict(ValueError):
+    """Artifact and accepted goal disagree; recheck purpose instead of coercing a field."""
+
+
+class GoalReview(Closed):
+    kind: Literal["REVIEW_GOAL"]
+    task_id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
+    previous_goal: Literal["EXPLAIN", "PREPARE_REFUND", "MERCHANT_REVIEW"]
+    goal: Literal["EXPLAIN", "PREPARE_REFUND", "MERCHANT_REVIEW"]
+    operation_request: str | None = Field(default=None, min_length=1, max_length=300)
+    reason: str = Field(min_length=1, max_length=300)
+
+
 class Orchestration:
     def __init__(self, request: SupportInput) -> None:
         self.request = request
         self.goals: dict[str, str] = {}
         self.last_missing = ""
         self.early_finishes = 0
+        self.operation_requests: dict[str, str | None] = {}
+        self.goal_review: dict[str, Any] | None = None
+        self.goal_reviews: list[dict[str, Any]] = []
 
     def accept(self, plan: TurnPlan) -> None:
         if self.goals:
             raise ValueError("turn plan already accepted")
         self.goals = {f.id: f.goal for f in plan.focus}
+        self.operation_requests = {f.id: f.operation_request for f in plan.focus}
 
     def required(self, focus: Focus) -> set[str]:
         return set(focus.needs) | ({"GUIDE"} if focus.intent in {"APPLICATION", "HANDOFF"} else set())
@@ -150,8 +167,32 @@ class Orchestration:
                           "state": "WAITING" if waiting else "BLOCKED" if missing else "READY",
                           "missing": missing, "refs_by_need": found,
                           "blocked": [value for value in blocked.values() if value is not None]})
-        return {"phase": "INVESTIGATE" if any(t["state"] == "WAITING" for t in tasks) else "COMPOSE",
-                "tasks": tasks}
+        return {"phase": "INVESTIGATE" if self.goal_review or any(t["state"] == "WAITING" for t in tasks)
+                else "COMPOSE", "tasks": tasks,
+                **({"goal_review": self.goal_review} if self.goal_review is not None else {}),
+                **({"goal_reviews": self.goal_reviews} if self.goal_reviews else {})}
+
+    def review_goal(self, payload: dict[str, Any], meaning: Understanding, lives: dict[str, str]) -> Understanding:
+        change = GoalReview.model_validate(payload)
+        if (self.goal_review is None or self.goal_reviews or change.task_id not in self.goal_review["task_ids"]
+                or lives.get(change.task_id) in INACTIVE or self.goals.get(change.task_id) != change.previous_goal):
+            raise ValueError("仅目标冲突后可核对当前活跃事项一次，previous_goal须匹配当前目标")
+        value = meaning.model_dump()
+        for focus in value["focus"]:
+            selected = focus["id"] == change.task_id
+            focus["goal"] = change.goal if selected else self.goals[focus["id"]]
+            focus["operation_request"] = (change.operation_request if selected else
+                                          self.operation_requests[focus["id"]])
+            if selected and change.goal != "EXPLAIN":
+                focus["intent"] = {"PREPARE_REFUND": "APPLICATION", "MERCHANT_REVIEW": "HANDOFF"}[change.goal]
+        checked = TurnPlan.model_validate(value)
+        checked.check_operation_requests(str(self.request.context.get("current_request", "")))
+        updated = checked.meaning()  # Adds a newly required ORDER, never removes prior evidence requirements.
+        self.goals[change.task_id] = change.goal
+        self.operation_requests[change.task_id] = change.operation_request
+        self.goal_reviews.append(change.model_dump())
+        self.goal_review = None
+        return updated
 
     def defer(self, state: dict[str, Any]) -> None:
         fingerprint = canonical_json(state)
@@ -256,7 +297,19 @@ class Orchestration:
             parts.append(AnswerPart.model_validate({"task_id": focus.id, "status": status, "text": part.text,
                          "citations": citations, "facts": facts, "next_steps": steps,
                          "blocker": blocker, "assessment": assessment}))
-        for field, goal in [("refund_reason", "PREPARE_REFUND"), ("handoff_reason", "MERCHANT_REVIEW")]:
+        reasons = [("refund_reason", "PREPARE_REFUND"), ("handoff_reason", "MERCHANT_REVIEW")]
+        unexpected = [goal for field, goal in reasons if getattr(response, field) is not None
+                      and goal not in usable_goals]
+        eligible = [task["task_id"] for task in state["tasks"] if task["state"] == "READY"
+                    and lives.get(task["task_id"]) not in INACTIVE
+                    and by_id[task["task_id"]].status in {"ANSWERED", "NEEDS_MERCHANT"}]
+        if unexpected and eligible:
+            if self.goal_reviews:
+                raise SupportFailure("GOAL_REVIEW_EXHAUSTED")
+            self.goal_review = {"task_ids": eligible, "candidate_goals": unexpected,
+                                "accepted_goals": {key: self.goals[key] for key in eligible}}
+            raise GoalConflict("GOAL_CONFLICT：候选产物与已接受目标不同，先核对本轮原话，不能只改原因字段")
+        for field, goal in reasons:
             reason = getattr(response, field)
             if goal in usable_goals:
                 if reason is None or not reason.strip():

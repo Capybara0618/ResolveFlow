@@ -21,7 +21,7 @@ from resolveflow.support.embeddings import SupportEmbeddings
 from resolveflow.support.engine import SYSTEM, SupportAgent
 from resolveflow.support.grounding import FACT_RENDERING_VERSION
 from resolveflow.support.guide import GUIDE_VERSION
-from resolveflow.support.orchestration import Response, TurnPlan
+from resolveflow.support.orchestration import GoalReview, Response, TurnPlan
 from resolveflow.support.orchestration_prompts import COMPOSE_SYSTEM, INVESTIGATE_SYSTEM, PLAN_SYSTEM
 from resolveflow.support.progress import ProgressReporter
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
@@ -76,6 +76,8 @@ class SupportRuntime:
                     RefineNeeds.model_validate(decision)
                 elif self.architecture == "orchestrated-v1" and decision.get("kind") == "RESPOND":
                     Response.model_validate(decision)
+                elif self.architecture == "orchestrated-v1" and decision.get("kind") == "REVIEW_GOAL":
+                    GoalReview.model_validate(decision)
                 else:
                     DECISION.validate_python(decision)
             return MockModelClient(script=script)
