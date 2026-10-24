@@ -1,8 +1,8 @@
-## 当前快照（2026-10-24，操作意愿原话合同工程修复完成，待多轮真实验收）
+## 当前快照（2026-10-24，三组十轮真实收口准备已冻结）
 
-- 按[规格](../docs/customer-agent-intent-v1.md)新增内部operation_request：非EXPLAIN须有本轮请求原话、EXPLAIN不携带，事项/记忆接受前核对出处；礼貌请求与能力咨询由模型判断，不按问号/关键词路由，不替模型改目标。旧Java/资金权限保持，旧run manifest不升级。
-- 新8红→41针对、440客服/契约通过，真实隔离PG/API/SSE/store18过0跳过；Ruff相关五文件/strict三源码过。[报告](../reports/customer-agent-intent-v1/README.md)。原B02坏目标离线拒绝并可一次修正，不当新模型已修好；真实调用0/账2290。
-- 工程步精确commit普通push后，冻结三组十轮代表性新真实对话、40总请求上限，一次执行/完整源审；覆盖插问/恢复/纠正/结束、能力咨询vs礼貌准备/撤回、政策假设/必要前提。只写本次临时schema，旧结果/Gold/四历史脏文件保持，无Case/人工单/退款；按结果判断冻结，不追加收费追题。
+- 14f2c7e意愿合同已同步。固定[三组十轮](../evals/customer-agent-close-v1/scenarios.json)：签收插问/恢复/纠正/结束4轮、能力咨询/礼貌准备/撤回3轮、未发货政策/假设/前提3轮。整批最多40真实请求，运行中代码/输入/Gold不变，每轮一次。
+- 新驱动2单元/Ruff过；manifest冻结业务/数据/权重和usage2290，[只读预检](../reports/customer-agent-close-v1/preflight.json)核对精确索引/11表不变、0模型。仅所属PG启动，普通业务未起。[报告](../reports/customer-agent-close-v1/README.md)。
+- 准备精确commit普通push后execute一次，保存逐轮原文/来源/流式/账本/失败并源审，按结果决定是否冻结。只写本批临时schema，不建Case/核查/退款，不改旧六条/44轮；失败不自动补跑，不追加费用追题。
 
 ## 当前快照（2026-10-24，用户要求持续记录架构演进，复盘文档已建立）
 
