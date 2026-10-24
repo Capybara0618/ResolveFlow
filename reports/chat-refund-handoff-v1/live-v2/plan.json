@@ -1,0 +1,24 @@
+{
+  "synthetic_business": true,
+  "provider": "deepseek-flash",
+  "resume_metrics": false,
+  "source_commit": "6d997d8cf34fb5859bd2d53ece19e7afa9283767",
+  "turns": [
+    "这件商品一直没收到，请查看当前物流，并帮我整理整件退款申请的原因，供我核对后确认提交。"
+  ],
+  "turn_limit": 1,
+  "automatic_retry": false,
+  "customer": "buyer10",
+  "merchant": "admin01",
+  "line_id": "SHOP-5dc9e307-6ae2-40a9-80e6-5213eb162eeb",
+  "order_id": "b1a71c3a-f80c-4cf4-909c-e3ad6b701466",
+  "amount_minor": 32900,
+  "conversation_id": "49cdd51d-8817-4c12-ba5f-2268044b63ab",
+  "model_bound": "one support turn; Case revision1 manual review then merchant verification and revision2 refund; original budgets",
+  "files": {
+    "scripts/accept_chat_refund_handoff_v2.py": "f80ebbd603303f4e35ba29ac17a498527bafb627365c3218b4b6dfe320de26d0",
+    "scripts/check_chat_refund_handoff_v2.cjs": "234f91b8a10f81ebc51e53bd4d3a62647e6374afbebae817d01d29b9b7d9e90e",
+    "scripts/accept_chat_refund_live_v1.py": "87e1eeaf2801b7e696f1b8e86f6cc5de577608820dc21c663cd18fd472f19306"
+  },
+  "new_general_run_limit": 2
+}

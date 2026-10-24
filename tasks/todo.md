@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，核验衔接修复已部署；live-v2唯一新样本待执行）
+
+- H3b 6d997d8已普通push核实。`start.ps1 -NoBrowser`三Java/Python/Web/依赖/原精确索引全部健康，V32就绪；政策3包按同hash跳过、索引复用。`accept_chat_refund_handoff_v2.py prepare`通过：新329元LOST订单/会话、单条申请问句、最多2Case run已[冻结](../reports/chat-refund-handoff-v1/live-v2/plan.json)，Provider新增0、usage2076。[范围](../docs/customer-chat-refund-handoff-live-v2.md)。
+- 新驱动复用原准备/原计费收集逻辑，真实浏览器完整核验前后链路，原失败/驱动不动。安装监听改当前document evaluate，原hash漏采不复用。首次静态检查发现Path导入缺失已补，最终Ruff check/format/py_compile/node --check通过。
+- 精确提交普通push核实后仅执行一次；若真实模型/业务未通过保留全部费用和未运行步骤，不替换模型建议、不再发一轮追分，不称工程测试为真实效果。四历史脏文件保持。
+
 ## 当前快照（2026-10-24，核验衔接H1–H3工程完成，待新样本集中真实验收）
 
 - H3a 79d391e已同步。客户卡片显示Java投影的核验/失败/待审批标题；商家有效人工复核建议显示待核验，原确认陈述可一键打开现有核验区，未核验不出现批准。当前revision失败明确说明，旧失败不套入新版，授权就绪沿原审批。[集中报告](../reports/chat-refund-handoff-v1/README.md)。
