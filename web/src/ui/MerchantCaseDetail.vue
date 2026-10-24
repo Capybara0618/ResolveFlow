@@ -39,7 +39,15 @@ const canReview = computed(() => contextReady.value && !frozen.value && !oldAuth
   && props.snapshot.case.status === 'PENDING_REVIEW' && props.snapshot.authorization?.status === 'PENDING_REVIEW')
 const actionsAvailable = computed(() => contextReady.value && !frozen.value)
 const actionLabels: Record<string, string> = { REFUND: '建议批准退款', REJECT: '建议拒绝申请', REQUEST_INFO: '建议补充说明', MANUAL_REVIEW: '建议人工复核' }
-const advice = computed(() => stale.value ? '旧建议已失效' : actionLabels[String(proposal.value?.recommended_action)] || '等待调查建议')
+const currentFailure = computed(() => props.snapshot.case.status === 'PENDING_REVIEW'
+  && [...props.snapshot.timeline].reverse().find(event => event.revision === props.snapshot.case.input_revision
+    && ['AGENT_STARTED', 'AGENT_FAILED', 'PROPOSAL_READY'].includes(event.type))?.type === 'AGENT_FAILED')
+const awaitingVerification = computed(() => !currentFailure.value && !stale.value && !frozen.value
+  && proposal.value?.status === 'VALIDATED' && proposal.value.recommended_action === 'MANUAL_REVIEW')
+const unverifiedStatement = computed(() => props.snapshot.evidence.some(item => item.evidence_kind === 'CUSTOMER_STATEMENT'
+  && !props.snapshot.evidence.some(check => check.reviewed_evidence_id === item.observation_id && check.verification_result)))
+const advice = computed(() => currentFailure.value ? '本次调查未完成' : stale.value ? '旧建议已失效'
+  : awaitingVerification.value ? '等待商家核验' : actionLabels[String(proposal.value?.recommended_action)] || '等待调查建议')
 type Finding = { kind: string; text: string }
 const findings = computed(() => Array.isArray(proposal.value?.review_findings)
   ? proposal.value.review_findings.filter((value): value is Finding => !!value && typeof value === 'object'
@@ -60,6 +68,8 @@ const executionText = computed(() => {
   if (props.snapshot.case.status === 'WAITING_CUSTOMER') return '等待客户补充说明，收到后会重新调查。'
   if (props.snapshot.case.status === 'QUEUED') return '调查已排队，可先核对客户申请。'
   if (props.snapshot.case.status === 'ANALYZING') return 'Agent正在调查，生成建议后再决定。'
+  if (currentFailure.value) return '本次调查未完成，请商家核对原始材料并继续处理。'
+  if (awaitingVerification.value) return '请核验客户陈述并记录结论，之后会重新调查。'
   return ''
 })
 function focusPolicy(key: string) { focusKey.value = key; focusNonce.value++ }
@@ -89,10 +99,12 @@ function focusPolicy(key: string) { focusKey.value = key; focusNonce.value++ }
         <section class="merchant-detail-card merchant-advice" aria-label="调查建议">
           <h3>{{ proposal?.origin === 'HUMAN' ? '人工方案' : 'Agent建议' }}</h3>
           <div class="merchant-advice-title"><Icon name="sparkle" :size="26" /><strong>{{ advice }}</strong></div>
-          <template v-if="!stale">
+          <template v-if="!stale && !currentFailure">
             <p v-if="typeof proposal?.summary === 'string'" class="merchant-advice-summary">{{ proposal.summary }}</p>
             <ul v-else-if="reasons.length" class="merchant-advice-reasons"><li v-for="(finding, index) in reasons" :key="index">{{ finding.kind === 'INFERENCE' ? '模型判断：' : 'Agent整理：' }}{{ finding.text }}</li></ul>
           </template>
+          <p v-if="currentFailure" class="merchant-warning" role="status">本次未形成有效调查建议，需商家结合材料继续核查。</p>
+          <button v-if="(awaitingVerification || currentFailure) && unverifiedStatement && !frozen" data-test="verify-application" class="secondary-button" type="button" @click="detailsOpen = true">核验申请陈述</button>
           <p v-if="stale" class="merchant-warning" role="status">材料已更新，旧建议仅供追溯，请等待新调查或形成人工方案。</p>
           <p v-if="proposal?.refusal_reason" class="merchant-warning">服务端复核未通过：{{ proposal.refusal_reason }}</p>
           <p v-for="(finding, index) in conflicts" :key="index" class="merchant-warning">信息冲突：{{ finding.text }}</p>

@@ -19,6 +19,35 @@ function inputs() {
 describe('merchant detail design and permissions', () => {
   beforeEach(() => vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ case_version: 7, input_revision: 2, availability: 'NOT_SCHEDULED', investigation: null })))))
 
+  it('opens the confirmed customer statement for verification without granting refund approval', async () => {
+    const props = inputs(); delete props.snapshot.authorization
+    props.snapshot.proposal = { origin: 'AGENT', status: 'VALIDATED', input_revision: 2, recommended_action: 'MANUAL_REVIEW', summary: '承运丢失记录已查，等待商家核验客户陈述。', policy_refs: [{ rule_id: 'lost' }] }
+    props.snapshot.evidence = [{ observation_id: 'claim-1', evidence_kind: 'CUSTOMER_STATEMENT', content: '本人未收到商品，请核实后退款。', input_revision: 1 }]
+    const wrapper = mount(MerchantCaseDetail, { props, slots: { materials: '<p>本人未收到商品，等待核验</p>' } })
+    expect(wrapper.get('.merchant-advice-title').text()).toContain('等待商家核验')
+    expect(wrapper.find('[data-test="approve"]').exists()).toBe(false)
+    await wrapper.get('[data-test="verify-application"]').trigger('click')
+    expect(wrapper.get('[aria-label="详细依据"]').text()).toContain('本人未收到商品，等待核验')
+    expect(wrapper.find('[data-test="approve"]').exists()).toBe(false)
+    await wrapper.setProps({ snapshot: { ...props.snapshot, authorization: inputs().snapshot.authorization,
+      proposal: inputs().snapshot.proposal } })
+    expect(wrapper.find('[data-test="verify-application"]').exists()).toBe(false)
+    expect(wrapper.find('[data-test="approve"]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('labels an actual current investigation failure and does not inherit it into a new revision', async () => {
+    const props = inputs(); delete props.snapshot.authorization; delete props.snapshot.proposal
+    props.snapshot.timeline = [{ event_id: 'failed-2', type: 'AGENT_FAILED', occurred_at: '', summary: '调查失败', revision: 2 }]
+    const wrapper = mount(MerchantCaseDetail, { props })
+    expect(wrapper.get('.merchant-advice-title').text()).toContain('本次调查未完成')
+    expect(wrapper.get('.merchant-advice-title').text()).not.toContain('等待调查建议')
+    expect(wrapper.find('[data-test="approve"]').exists()).toBe(false)
+    await wrapper.setProps({ snapshot: { ...props.snapshot, case: { ...props.snapshot.case, input_revision: 3 } } })
+    expect(wrapper.get('.merchant-advice-title').text()).toContain('等待调查建议')
+    wrapper.unmount()
+  })
+
   it('shows four business areas with provenance while keeping audit detail behind one entry', async () => {
     const wrapper = mount(MerchantCaseDetail, { props: inputs(), slots: { materials: '<p>原始材料及核验操作</p>' } })
     for (const label of ['商品与订单', '客户申请', '调查建议', '退款处理']) expect(wrapper.find(`[aria-label="${label}"]`).exists()).toBe(true)

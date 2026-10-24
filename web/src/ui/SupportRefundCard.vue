@@ -89,7 +89,7 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
     <p v-if="error" role="alert" class="refund-error">{{ error }} <button :disabled="busy || reading" @click="read">重新读取</button></p>
     <div v-if="pending" class="refund-pending" role="status">{{ busy ? '正在保存，请稍候…' : '提交结果尚未确认，请使用原请求确认结果。' }}<button v-if="!busy" data-refund="retry" @click="retry">确认原请求结果</button></div>
     <article v-if="application" class="refund-progress">
-      <header><strong>{{ refundStatus(application.case.status) }}</strong><small>模拟退款</small></header>
+      <header><strong>{{ refundStatus(application.case.status, application.result.message) }}</strong><small>模拟退款</small></header>
       <p>{{ application.result.message }}</p>
       <small>申请编号 {{ application.case.case_id }}</small>
       <ol v-if="application.timeline.length"><li v-for="(event, index) in application.timeline.slice(-3)" :key="index">{{ event.summary }}</li></ol>

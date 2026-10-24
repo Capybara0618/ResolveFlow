@@ -14,6 +14,15 @@ const application = (status = 'QUEUED') => ({ case: { case_id: 'one-case', statu
 beforeEach(() => { sessionStorage.clear(); vi.spyOn(refundApi, 'read').mockResolvedValue(current()) })
 afterEach(() => { wrapper?.unmount(); vi.restoreAllMocks(); sessionStorage.clear() })
 
+it.each(['等待商家核验申请情况', '本次调查未完成，已转商家继续核查', '退款方案已生成，等待商家审批'])('shows the server-projected pending-review stage: %s', async message => {
+  const view = application('PENDING_REVIEW'); view.result.message = message
+  vi.mocked(refundApi.read).mockResolvedValue({ draft: null, application: view })
+  wrapper = mount(SupportRefundCard, { props: props() }); await flushPromises()
+  expect(wrapper.get('.refund-progress header strong').text()).toBe(message)
+  expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(false)
+  expect(wrapper.text()).not.toContain('退款完成')
+})
+
 it('requires an explicit confirm and displays the same application after submission', async () => {
   const result = { ...current(), draft: { ...current().draft!, status: 'CONFIRMED' as const, case_id: 'one-case' }, application: application() }
   const mutate = vi.spyOn(refundApi, 'mutate').mockResolvedValue(result)

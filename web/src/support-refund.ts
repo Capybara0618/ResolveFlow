@@ -28,4 +28,5 @@ export function readRefundRequest(owner: string, id: string): RefundRequest | nu
     return value as RefundRequest
   } catch { clearRefundRequest(owner, id); return null }
 }
-export const refundStatus = (status: string) => ({ QUEUED: '申请已提交', ANALYZING: '正在核查', WAITING_CUSTOMER: '待你补充材料', PENDING_REVIEW: '等待商家审核', AUTHORIZED: '已审核，等待退款处理', EXECUTING: '退款处理中', RECONCILING: '退款结果待确认', CLOSED_SUCCESS: '退款完成', CLOSED_REJECTED: '申请未通过', CANCELLED: '申请已撤销' }[status] ?? '正在读取申请状态')
+export const refundStatus = (status: string, message?: string) => status === 'PENDING_REVIEW' && message?.trim()
+  ? message : ({ QUEUED: '申请已提交', ANALYZING: '正在核查', WAITING_CUSTOMER: '待你补充材料', PENDING_REVIEW: '等待商家审核', AUTHORIZED: '已审核，等待退款处理', EXECUTING: '退款处理中', RECONCILING: '退款结果待确认', CLOSED_SUCCESS: '退款完成', CLOSED_REJECTED: '申请未通过', CANCELLED: '申请已撤销' }[status] ?? '正在读取申请状态')
