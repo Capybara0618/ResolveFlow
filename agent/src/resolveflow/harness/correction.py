@@ -30,6 +30,12 @@ def feedback(code: str, detail: str, *, repair: bool = False) -> dict[str, Any]:
         category, next_step = "FACT", ('Check the named current fields. Occupied/unknown is not refundable; '
             'a failed entitlement condition does not justify REJECT. Missing source: read it. Conflict: '
             '{"kind":"ESCALATE","reason_codes":["NEEDS_HUMAN_VERIFICATION"]}.')
+    elif code == "INVESTIGATION_FACTS_REQUIRED":
+        category, next_step = "FACT", (
+            "未读来源可补查；已读材料但缺关联CONFIRMED时，不能把等待商家最终审批当成已完成核验。"
+            "可PROPOSE recommended_action=MANUAL_REVIEW，引用已查事实/政策，summary说明待商家核验及下一步。"
+            "商家核验不是客户补证，不让客户提供系统或核验记录；确有客户可补的信息才ASK_CUSTOMER。"
+            "若来源失败或无法形成有依据建议，可ESCALATE。只重发一个完整动作，不重复原REFUND。")
     elif "CITATION" in code or "FACTS_REQUIRED" in code or "EVIDENCE" in code:
         category, next_step = "SOURCE", "Use current observed sources; investigate missing facts or hand over."
     elif code in {"TOOL_TRANSIENT", "UPSTREAM_UNAVAILABLE"}:

@@ -724,6 +724,9 @@ def _domain_guidance(observations: list[ToolObservation], snapshot: dict[str, An
             if "R-DMG-001" in rule_ids:
                 conditions.append("R-DMG-001:送达+材料CONFIRMED")
             rules.append("按适用条款:" + ";".join(conditions) + "。这些核验条件不套用于未发货。")
+            rules.append("缺关联CONFIRMED时，尚未读取可查材料；已查仍待商家核验，可PROPOSE/MANUAL_REVIEW，"
+                         "引用现有事实/政策并说明商家核验下一步。客户陈述不等于核验；最终审批不替代核验。"
+                         "不要让客户补系统记录。满足全部当前前提后才建议REFUND。")
     return "\n".join(rules)
 
 

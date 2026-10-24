@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，核验衔接H2完成：正常人工复核建议与纠错）
+
+- H1 3c92f0b已同步。按已检索适用政策明确缺商家核验时可形成PROPOSE/MANUAL_REVIEW，实际SDK目录给语法例子；INVESTIGATION_FACTS_REQUIRED提供具体责任/完整动作指引。一次修正/退款资格/真实FAILED语义保持。[报告](../reports/chat-refund-handoff-v1/README.md)。
+- 保存的真实6动作/工具结果在原SDK中离线回归：原末条REFUND仍失败，合法人工复核建议在同6调用/3业务读及一次修正内通过，最终worker回调PROPOSAL/MANUAL_REVIEW。定向4过2.36秒，相关195过6.69秒，Ruff4文件/完整strict3源码通过；夹具计量/严格JSON等失败及额外skip-imports诊断已披露，无新Provider/原usage2076。
+- 精确提交普通push核实后做H3客户投影/商家详情与卡片状态区分，核验后沿现有revision失效机制接续；原服务尚未加载本轮Java迁移，不覆盖旧运行/报告，不自动收费矩阵。四历史脏文件保持。
+
 ## 当前快照（2026-10-23，核验衔接H1完成：确认原因已成为可核验初始陈述）
 
 - 按用户新授权，聊天新Case确认事务写入最终原因的未核验CUSTOMER_STATEMENT/来源版本hash；不共享其他私聊、不增加初始run/revision。V32追加允许revision1仅未核验客户陈述。原有单/重放不追加、材料或关联失败全回滚；商家三种核验均保留陈述并新增revision2与binding。[实施合同](../docs/customer-chat-refund-implementation-v1.md)/[证据与全部失败](../reports/chat-refund-handoff-v1/README.md)。

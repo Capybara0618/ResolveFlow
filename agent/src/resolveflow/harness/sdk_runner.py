@@ -1176,6 +1176,9 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
             {"kind": PROPOSE, "case_type": "LOGISTICS", "recommended_action": "REFUND",
              "reason_codes": ["POLICY_CONDITIONS_MET"], "summary": "...",
              "evidence_refs": ["O1"], "policy_refs": ["P1"]},
+            {"kind": PROPOSE, "case_type": "LOGISTICS", "recommended_action": "MANUAL_REVIEW",
+             "reason_codes": ["NEEDS_HUMAN_VERIFICATION"], "summary": "已查事实；待商家核验及下一步",
+             "evidence_refs": ["O1"], "policy_refs": ["P1"]},
             {"kind": ESCALATE, "reason_codes": ["NEEDS_HUMAN_VERIFICATION"], "summary": "阻碍；商家下一步"},
         ],
         "bounds": "top_k:1..5;read:material:ID或O#,limit:1..4000字符;ASK<=3;PROPOSE可加missing_evidence。",
@@ -1188,6 +1191,7 @@ def _tool_schema_document(runner: AgentScopeRunner) -> dict[str, Any]:
                                "CONFLICT>=2",
             "rule": "REFUND: both refs, no missing_evidence. REJECT: both refs/current facts. "
                     "REQUEST_INFO: explicit nonblank missing_evidence, merchant suggestion only. "
+                    "MANUAL_REVIEW: merchant investigation/check pending, not approval or a sent customer question. "
                     "Material windows cannot be cited.",
         },
     }
