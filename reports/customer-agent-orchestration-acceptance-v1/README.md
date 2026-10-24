@@ -27,3 +27,7 @@ orchestration.response_contract按accepted goal/READY/lifecycle生成精确事�
 output-contract-diagnostic.json对原人工5模型/3工具做显式离线重放，0网络/业务写；新实际请求有handoff_reason键及实际t1例子，但原漏字段响应仍INVALID_DECISION，原失败未重算成功。
 
 用户授权目标仍为四组与主链完成：成功前三组不重跑；修复后只补1条不同措辞人工确认（新独立运行、原失败保留），通过后执行原定尚未运行主链。本批上限由7客服消息增为8，Case调查仍最多1；不另开矩阵、不刷同句。先固定新确认输入/源码/原失败hash再执行，失败停止依赖链路。
+
+## 有限修正确认准备
+
+f94ede7实现已同步；新verify_support_contract_v1.py及recheck/primary两个CJS脚本Ruff/编译/node语法通过，独立recheck-v1计划冻结当前源码/旧失败/旧计划/脚本hash。继续同一人工失败会话但使用合同中固定的不同措辞新消息；原失败run/输入/源审不改。主链使用已准备但尚未发消息的primary订单，无新建订单，不重跑前三组。全局usage2129、0新增模型；提交普通push核实并无在途重启所属新profile后仅执行新人工一次。

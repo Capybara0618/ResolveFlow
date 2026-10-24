@@ -1,3 +1,8 @@
+## 当前快照（2026-10-24，新输出合同确认计划已冻结，待一次人工新消息）
+
+- f94ede7已同步；独立recheck-v1三新驱动Ruff/编译/node语法通过，复用本批人工会话与尚未执行primary订单，0新订单/0模型、usage2129。计划固定不同措辞人工消息、新源码和原失败/旧计划/脚本hash；原三成功组不重跑。[计划](../reports/customer-agent-orchestration-acceptance-v1/recheck-v1/plan.json)。
+- 本步精确commit普通push核实后，无在途先重启所属orchestrated-v1进程加载新合同，再人工仅一次；通过及源审后执行原定主链。若失败停止依赖，不追加付费追题或切默认。旧四历史脏文件保持。
+
 ## 当前快照（2026-10-24，按目标编译输出合同已离线验证，待有限人工确认与原定主链）
 
 - 6c5b16a失败已同步。程序现按accepted goal/READY/lifecycle生成本轮完整RESPOND例子，明确退款/人工原因字段；COMPOSE真实system使用，暂停/取消/受阻不要求原因，不用正文替代摘要或放宽校验。
