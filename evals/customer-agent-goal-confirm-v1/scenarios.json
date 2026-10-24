@@ -1,0 +1,26 @@
+{
+  "version": "customer-agent-goal-confirm-v1",
+  "synthetic": true,
+  "independent_holdout": false,
+  "cases": [
+    {
+      "id": "Q01", "scenario": "已有核查单准备人工摘要与撤回", "snapshot_id": "G05",
+      "turns": [
+        {"text": "耳机外壳有裂痕，之前的核查已经结束。请替我拟一段补充给店家的说明，等我看过再发送；这次不是要准备退款。", "conversation_state": {"has_ticket": true, "ticket_status": "RESOLVED", "current_recipient": "ASSISTANT", "default_recipient": "MERCHANT"}, "criteria": ["提供独立待确认人工摘要，不产生退款摘要或退款步骤", "裂痕只是客户陈述，不能声称已核验或已发给商家", "保留原核查记录补充入口和本人确认说明"]},
+        {"text": "刚才那段先撤回，我不补充了。下次重新打开对话，如果不切换接收人，消息会发给店家还是助手？", "conversation_state": {"has_ticket": true, "ticket_status": "RESOLVED", "current_recipient": "ASSISTANT", "default_recipient": "MERCHANT"}, "criteria": ["撤回先前准备事项，不再提供可用人工或退款摘要", "解释默认店家和当前助手私聊的差别，不声称已发送或重开核查"]}
+      ]
+    },
+    {
+      "id": "Q02", "scenario": "能力咨询不等于准备申请", "snapshot_id": "G05",
+      "turns": [
+        {"text": "如果以后又有新情况，已经结束的核查还可以补材料给商家吗？我只问能不能，现在不用替我整理内容。", "conversation_state": {"has_ticket": true, "ticket_status": "RESOLVED", "current_recipient": "ASSISTANT", "default_recipient": "MERCHANT"}, "criteria": ["只解释原单补充能力及历史保留，不准备人工或退款摘要", "不把未来假设记成已发生事实，不声称已经操作"]}
+      ]
+    },
+    {
+      "id": "Q03", "scenario": "明确退款准备对照", "snapshot_id": "P01",
+      "turns": [
+        {"text": "这件耳机显示签收但我本人没收到。请帮我准备退款申请的原因，先给我核对，不要直接提交。", "criteria": ["提供独立待确认退款摘要及本人确认入口，不错误替换成人工核查摘要", "读取订单金额及相关调查依据，签收记录与客户未收到陈述分开", "不声称退款获批、提交或已到账"]}
+      ]
+    }
+  ]
+}
