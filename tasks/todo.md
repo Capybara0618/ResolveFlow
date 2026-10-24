@@ -1,4 +1,10 @@
-## 当前快照（2026-10-24，政策与合并工程及三轮真实确认完成，本批收口）
+## 当前快照（2026-10-24，用户要求两项体验收尾，独立政策Query合并工程完成）
+
+- 按用户要求收尾复杂首正文与网页体验，[说明](../docs/customer-agent-latency-close-v1.md)/[工程报告](../reports/customer-agent-latency-close-v1/README.md)。READ_FACTS可附模型policy_query，必须同时缺POLICY；独立条件问题与两事实一次选择，逐项原预算/fence/journal，依赖结果时仍逐步选或事后补查，不改RAG排名/业务权限。
+- 新10例4红/6过→44针对、506客服单元合同、17真PG/API/流式恢复通过；3源码strict及5文件Ruff。同证据脚本4→3请求、2业务/2本地读和最终内容保持，完整/政策前中断及fence覆盖；E53记录取舍。工程0供应商、usage2359，旧业务/历史四脏文件保持，PG临时schema。
+- 浏览器工具仍提示Work设置关闭本地控制；已给用户官方设置入口，当前页面验收未完成，不能以数据库替代DOM。工程精确commit普通push后冻结同3输入≤18请求、页面单轮≤12（若可用），各部分一次，不追加追题。服务端首正文4秒为本批样本目标，非SLA；结束恢复所属资源。
+
+## 历史快照（2026-10-24，政策与合并工程及三轮真实确认完成，本批收口）
 
 - 政策6c2e3c1、合并f5153dd、准备f0c52d5均普通push核实。[真实报告](../reports/customer-policy-batch-live-v1/README.md)/[全部对话](../reports/customer-policy-batch-live-v1/conversations.md)/[源审](../reports/customer-policy-batch-live-v1/source-review.json)：固定3题各一次，3发布/3满足本轮业务判据；签收争议和另一商家LOST都自主READ_FACTS并引用本店政策说明人工核验，quote草稿未提交；纯入口仅GUIDE无操作摘要。B01自身已声明POLICY，不称真实观测程序补项挽救。
 - 工程494客服单元合同/14真PG API流式恢复过，另2驱动单元；原S02/1离线不能越过POLICY缺口，单读及完整/部分恢复/fence预算保持。10真实请求32259输入/1128输出、未知/估算0，账2349→2359；复杂各4请求、入口2，未追加追成功题。E51/E52记录工程与真实边界。

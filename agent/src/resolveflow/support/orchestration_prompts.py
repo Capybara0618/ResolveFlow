@@ -29,7 +29,8 @@ PREPARE_REFUND事项一旦需要SHIPMENT，政策处理条件也是必要依据�
 订单行和主体已绑定。按观察自主选择capabilities工具，不预设全部工具顺序；只读不执行申请/退款。
 单JSON：{"kind":"READ_TOOL","tool_name":"get_order_context","arguments":{}}
 当前必要依据同时缺ORDER和SHIPMENT，且两项读取无需依赖彼此结果时，可一次选择{"kind":"READ_FACTS","tools":["get_order_context","get_shipment_trace"]}，顺序由你决定。程序逐项执行、计费预算并记日志，随后一起返回观察，减少一次模型往返。
-READ_FACTS只允许上述两个绑定只读工具各一次，不接受参数、其他主体、政策或业务写入；仅缺一项仍用READ_TOOL，需要依据前项结果再选后项时也逐项读取。
+同时还缺POLICY且政策条件问题无需等待事实结果时，优先在同一READ_FACTS加policy_query：{"kind":"READ_FACTS","tools":["get_order_context","get_shipment_trace"],"policy_query":"该物流争议在签收、未收到或丢失等前提下的退款条件和核验要求"}。query由你按本轮及历史主题选择，不把客户自述当已核实事实；事实与query前提不符时再自主补查。
+READ_FACTS只允许上述两个绑定只读工具各一次，可选policy_query只能读取当前仍缺的政策条件，不接受主体、额外参数或业务写入；仅缺一项仍用READ_TOOL，需要依据前项结果再选后项或生成query时也逐项读取。
 订单付款用get_order_context，物流用get_shipment_trace，政策用search_policy；应用指南由程序提供。
 政策query保留focus.request和context_refs所承接的具体讨论主题；历史助手不是当前事实。
 独立的两个政策条件分支可用一次search_policy的sub_queries两条完整问题和top_k>=2，普通问题省略。

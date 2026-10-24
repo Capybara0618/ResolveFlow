@@ -1,0 +1,16 @@
+{
+  "scope": "engineering only",
+  "public_unchanged": true,
+  "temporary_schemas_remaining": 0,
+  "historical_reports_unchanged": 188,
+  "protected_dirty_files_unchanged": true,
+  "new_provider_requests": 0,
+  "usage_before": 2359,
+  "usage_after": 2359,
+  "unit_contract_passed": 506,
+  "pg_api_stream_recovery_passed": 17,
+  "strict_sources": 3,
+  "ruff_files": 5,
+  "resources": "only owned PG running for next accepted bounded validation",
+  "browser": "unavailable, local browser disabled in Work settings"
+}

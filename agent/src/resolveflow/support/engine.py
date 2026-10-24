@@ -339,9 +339,11 @@ class SupportAgent:
                     missing = {need for task in self._readiness()["tasks"] for need in task["missing"]}
                     if not {"ORDER", "SHIPMENT"} <= missing:
                         raise ValueError("READ_FACTS仅用于当前事项同时缺少ORDER和SHIPMENT的独立读取")
+                    if batch.policy_query is not None and "POLICY" not in missing:
+                        raise ValueError("policy_query仅用于同时缺少POLICY的必要条件读取")
                     self.feedback = None
                     return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_read_facts",
-                                                   "arguments": {"tools": batch.tools}})
+                                                   "arguments": batch.model_dump(exclude={"kind"}, exclude_none=True)})
                 if reply.decision.get("kind") in {"ANSWER", "ANSWER_PARTS"}:
                     raise ValueError("orchestrated-v1使用RESPOND，不重复输出程序负责的事实/操作")
                 if reply.decision.get("kind") == "RESPOND":
@@ -473,7 +475,10 @@ class SupportAgent:
             batch = FactReadBatch.model_validate({"kind": "READ_FACTS", **arguments})
             # Ordered child execution preserves the existing journal positions and partial recovery.
             # This groups one model decision, not the child permissions, budgets, or transactions.
-            return [source for tool in batch.tools for source in self.execute(tool, {})]
+            observed = [source for tool in batch.tools for source in self.execute(tool, {})]
+            if batch.policy_query is not None:
+                observed.extend(self.execute(POLICY_SEARCH_TOOL_NAME, {"query": batch.policy_query, "top_k": 3}))
+            return observed
         if name == "__support_stage_ready":
             if self.stage.understanding is None:
                 raise SupportFailure("STAGE_NOT_READY")
