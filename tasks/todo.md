@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，当前版本44轮真实执行完成，待完整源审）
+
+- b86894b只读RAG成绩已同步。本批固定14组44轮各一次真实流式生成，131请求均COMPLETE且usage准确、无未知，账本2143→2274；技术发布37/44、7 INVALID_DECISION失败完整保留，未重跑/改业务/Gold。[原始结果](../reports/customer-current-evaluation-v1/agent-runtime.json)。
+- 44个run及185个journal调用均导出，独占临时schema已删除，公共PG前后hash相同，全部orchestrated-v1/streaming、进度投递无失败。凭据扫描无泄露，未创建Case或退款，旧四历史脏文件保持。
+- 正在逐轮语义源审；已有成功发布但隐私默认对象回答错误、长历史纠正遗漏、政策条件省略。另发现导航正文被最终程序替换，最后attempt首delta不能直接称有效首正文；按实际保留part重新统计，不能把候选响应或SUCCEEDED当最终质量。本步原始结果精确提交普通push后完成源审/统一报告。
+
 ## 当前快照（2026-10-24，当前版本RAG集中评测完成，待Agent44轮）
 
 - 5691690驱动/冻结已同步；两个只读命令external/runtime退出0，公共PG前后hash相等、0新模型。外部17 ANSWERABLE三路Top5完整证据16/17，正文BM25 13/17；Top3均12/17，仍有S:JD03退化，不是回答准确率。[报告](../reports/customer-current-evaluation-v1/README.md)。
