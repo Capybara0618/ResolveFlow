@@ -1,0 +1,42 @@
+{
+  "kind": "CODEX_SOURCE_REVIEW, developer-visible synthetic UI single case; not blinded quality score",
+  "business_request_satisfied": true,
+  "evidence": [
+    "ORDER version1 PAID32900CNY",
+    "SHIPMENT version3 LOST / ORDER_PAID,SIMULATED_SHIPPED,LOST events",
+    "bound M-1001 complete6 policy rules",
+    "GUIDE v3"
+  ],
+  "model_decisions": [
+    "TURN_UNDERSTANDING",
+    "READ_FACTS",
+    "RESPOND"
+  ],
+  "read_facts_policy_query_used": true,
+  "customer_quote_summary": {
+    "customer_quotes": [
+      "这件耳机我还没有收到"
+    ]
+  },
+  "facts_not_customer_verified": true,
+  "policy_conditions_preserved": [
+    "LOST and no effective delivery record, manual verification",
+    "effective delivery dispute requires manual verification",
+    "full line paid amount; once successful; no automatic eligibility/approval"
+  ],
+  "streamed_paragraphs_retained_in_final": true,
+  "stream_resets": 0,
+  "server_delta_events": 16,
+  "server_first_delta_from_accepted_ms": 5429.744,
+  "server_commit_from_accepted_ms": 6988.503,
+  "ui_first_feedback_observed_ms": 316,
+  "ui_first_body_observed_ms": 5596,
+  "ui_final_observed_ms": 7210,
+  "quality_limits": [
+    "Answer is verbose for a draft request; shipment state is rendered twice across two task sections.",
+    "It explains both lost and signed-dispute premises and leaves effective-signature verification unresolved. Current API supplies an event trace, not an explicit valid-signature-verification field; do not declare this legally/operationally verified.",
+    "The preparation card is already present, while program-rendered instructions still refer to clicking Apply Refund first; not polished contextual guidance."
+  ],
+  "latency_target_met": false,
+  "latency_interpretation": "One end-to-end UI sample misses4s; no more paid retries. Same3 model calls do not imply identical server/API/network costs to saved-facts cohorts."
+}

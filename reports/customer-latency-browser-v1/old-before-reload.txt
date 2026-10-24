@@ -1,0 +1,172 @@
+- banner:
+  - generic: ResolveFlow
+  - generic: 本地演示 · 合成商品与模拟交易
+  - generic: 买
+  - strong: 买家10
+  - generic: 平台买家
+  - button "退出":
+    - text: 退出
+- navigation "买家导航":
+  - link "商城":
+    - /url: "#/shop"
+  - link "购物车":
+    - /url: "#/shop/cart"
+  - link "我的订单":
+    - /url: "#/shop/orders"
+  - link "售后咨询":
+    - /url: "#/shop/support"
+  - link "我的售后":
+    - /url: "#/customer/applications"
+- complementary "咨询列表":
+  - heading "售后咨询" [level=1]
+  - button "刷新咨询列表":
+  - button "＋ 选择订单":
+    - generic: ＋
+    - text: 选择订单
+  - textbox "搜索已加载咨询":
+    - /placeholder: 搜索咨询记录
+  - paragraph:
+    - text: 我的咨询记录
+    - generic: 11条
+  - button "无线降噪耳机商品插画 这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。 松间数码 · 无线降噪耳机 订单尾号 E10EE1 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 E10EE1
+    - emphasis: 咨询中
+  - button "无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 66A1F4 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 无线降噪耳机
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 66A1F4
+    - emphasis: 咨询中
+  - button "无线降噪耳机商品插画 客户陈述：耳机未收到，已询问家人和代收点，均未找到。已核实事实：该订单行状态为已付款；物流轨迹显示承运商结论为丢失。本次仅请商家核查，不申请退款。 请商家核对承运记录后回复核查进度。 松间数码 · 无线降噪耳机 订单尾号 89E379 待商家处理":
+    - img "无线降噪耳机商品插画"
+    - strong: 客户陈述：耳机未收到，已询问家人和代收点，均未找到。已核实事实：该订单行状态为已付款；物流轨迹显示承运商结论为丢失。本次仅请商家核查，不申请退款。 请商家核对承运记录后回复核查进度。
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 89E379
+    - emphasis: 待商家处理
+  - button "无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 A3AC04 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 无线降噪耳机
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 A3AC04
+    - emphasis: 咨询中
+  - button "无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 3F9763 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 无线降噪耳机
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 3F9763
+    - emphasis: 咨询中
+  - button "无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 ACEB81 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 无线降噪耳机
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 ACEB81
+    - emphasis: 咨询中
+  - button "无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 7953F3 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 无线降噪耳机
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 7953F3
+    - emphasis: 咨询中
+  - button "无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 C10774 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 无线降噪耳机
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 C10774
+    - emphasis: 咨询中
+  - button "无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 915B25 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 无线降噪耳机
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 915B25
+    - emphasis: 咨询中
+  - button "无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 701466 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 无线降噪耳机
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 701466
+    - emphasis: 咨询中
+  - button "无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 2D5FA0 咨询中":
+    - img "无线降噪耳机商品插画"
+    - strong: 无线降噪耳机
+    - generic: 松间数码 · 无线降噪耳机
+    - generic: 订单尾号 2D5FA0
+    - emphasis: 咨询中
+- main:
+  - heading "售后助手" [level=2]
+  - paragraph: 松间数码 · 无线降噪耳机
+  - button "请商家核查":
+    - text: 请商家核查
+  - log "咨询消息记录":
+    - article:
+      - strong: 我
+      - paragraph: 这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。
+      - generic: 10/24 20:15 · 与助手的私有咨询
+    - article:
+      - strong: 售后助手
+      - paragraph: 这件无线降噪耳机订单的物流记录显示承运商已判定为丢失，并非仍在正常运输途中。该结论来自物流接口的当前记录，不是知识文档的推断；如后续需要，可再刷新查看是否有更新。 订单状态：已付款。 订单行实付：329.00 CNY。 物流状态：丢失。 承运商记录结论：丢失。 退款原因草稿已按你“还没有收到”的陈述整理，供你核对编辑，尚未提交，也不会因此自动创建退款申请。承运商判定丢失的情形需经人工核验后才可按该订单行全额退款，最终由售后专员决定；你可在草稿中补充或修改表述后再决定是否提交。 正式退款：在当前会话点击“申请退款”，核对整行实付金额和申请原因，可编辑后点击“确认提交申请”。提交后在当前会话查看进度，也可到“我的售后”查看同一笔申请详情和补充材料。聊天表达退款意愿或转交人工核查不会自动创建退款工单；助手没有替你提交申请。 订单状态：已付款。 订单行实付：329.00 CNY。
+      - generic: 10/24 20:15 · 智能回答
+      - generic "回答依据":
+        - generic "订单事实":
+          - generic: 订单事实
+        - generic "物流事实":
+          - generic: 物流事实
+        - generic "使用指南":
+          - generic: 使用指南
+        - generic "店铺政策":
+          - generic: 店铺政策
+    - region "退款申请":
+      - article:
+        - strong: 退款申请
+        - generic: 请重新核对
+        - img "无线降噪耳机商品插画"
+        - strong: 无线降噪耳机
+        - paragraph: 黑色 · 1件 · 松间数码
+        - paragraph:
+          - generic: 整行申请金额
+          - strong: ¥329.00 CNY
+        - generic: 申请原因
+        - button "重新核对"
+        - paragraph: 客户陈述（未经核验）： - 本轮原话："这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。" 已读系统记录（不代表客户陈述已核验）： - 订单状态：已付款。[O2] - 订单行实付：329.00 CNY。[O2] 退款原因草稿尚未提交，待本人核对、编辑并确认。 验收补充：请先核对承运商记录，我暂不提交申请。
+        - paragraph: 仅提交你确认的申请原因，私有聊天不会自动共享。提交后进入核查流程。
+        - paragraph: 摘要或咨询已更新，请重新核对金额和原因后再确认。
+        - button "暂不申请"
+  - textbox "咨询消息":
+    - /placeholder: 继续描述问题，或补充、纠正之前的信息…
+  - generic: 转交前，你可以确认摘要和共享内容。
+  - button "发送" [disabled]
+  - button "刷新进度"
+- complementary "订单与调查依据":
+  - heading "当前咨询商品" [level=2]
+  - button "更换"
+  - img "无线降噪耳机商品插画"
+  - heading "无线降噪耳机" [level=3]
+  - paragraph: 黑色 · 1件
+  - strong: ¥329.00
+  - generic: 松间数码
+  - generic: 订单尾号 E10EE1
+  - generic "订单与核查编号"
+  - heading "物流概览" [level=2]
+  - generic: 承运方确认丢失
+  - list:
+    - generic: 10/24 20:10
+    - strong: 承运方确认丢失
+    - generic: 10/24 20:10
+    - strong: 已模拟发货
+    - generic: 10/24 20:10
+    - strong: 订单已付款
+  - paragraph: 回答引用 · 10/24 20:15
+  - generic "回答依据":
+    - generic "物流事实 · 3":
+      - generic: 物流事实 · 3
+  - heading "相关政策" [level=2]
+  - paragraph: 本次回答引用的适用政策
+  - generic "回答依据":
+    - generic "店铺政策 · 2026.10":
+      - generic: 店铺政策 · 2026.10
+  - heading "使用指南" [level=2]
+  - generic "回答依据":
+    - generic "使用指南 · 2026.10.23-v3":
+      - generic: 使用指南 · 2026.10.23-v3

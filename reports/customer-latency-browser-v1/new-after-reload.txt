@@ -1,0 +1,106 @@
+Browser tab: 2, Title: "ResolveFlow 工单工作台", URL: "http://127.0.0.1:5174/#/shop/support".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 107, 110-127, 129-154, 157, 159-192
++						26 text 这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。
+~					30 button 无线降噪耳机商品插画 无线降噪耳机 松间数码 · 无线降噪耳机 订单尾号 E10EE1 咨询中
+~						32 text 无线降噪耳机
++				102 container
++					103 text 我 这件耳机我还没有收到，请查当前物流并帮我准备退款原因草稿，先让我核对编辑，不要提交。 10/24 22:48 · 与助手的私有咨询
++				104 container
++					105 text 售后助手 已按当前订单行读取实时物流：承运商结论为丢失（LOST），并非仍在正常运输途中。该结论来自物流接口，不是知识文档推断；若后续承运商更新或出现有效签收记录，需以最新接口结果重新核对。
+
+物流状态：丢失。
+承运商记录结论：丢失。
+
+退款原因草稿已按你“尚未收到耳机”的陈述准备，供你核对编辑，尚未提交，也不代表已获得退款资格或批准。就政策前提而言：承运商结论为丢失且无有效签收记录时，须经人工核验后才可按该订单行全部数量实付金额退款；若存在有效签收记录，则不能仅凭未收到主张退款，需人工核验签收争议。当前是否已有有效签收记录、人工核验结论如何，尚未核实；且仅支持单行全额、同行最多一次成功，最终由售后专员决定。政策未规定必须提交的材料清单，如后续需要补充，会另行说明。
+
+正式退款：在当前会话点击“申请退款”，核对整行实付金额和申请原因，可编辑后点击“确认提交申请”。提交后在当前会话查看进度，也可到“我的售后”查看同一笔申请详情和补充材料。聊天表达退款意愿或转交人工核查不会自动创建退款工单；助手没有替你提交申请。
+
+订单状态：已付款。
+订单行实付：329.00 CNY。
+物流状态：丢失。
+承运商记录结论：丢失。 10/24 22:48 · 智能回答
++					106 container 回答依据
++						107 button (collapsed) 物流事实, Secondary Actions: Expand
++							108 text 物流事实
++						109 button (collapsed) 使用指南, Secondary Actions: Expand
++							110 text 使用指南
++						111 button (collapsed) 店铺政策, Secondary Actions: Expand
++							112 text 店铺政策
++						113 button (collapsed) 店铺政策, Secondary Actions: Expand
++							114 text 店铺政策
++						115 button (collapsed) 店铺政策, Secondary Actions: Expand
++							116 text 店铺政策
++						117 button (collapsed) 订单事实, Secondary Actions: Expand
++							118 text 订单事实
++				119 container 退款申请
++					120 container
++						121 text 退款申请
++						122 text 待你确认
++						123 image 无线降噪耳机商品插画
++						124 text 无线降噪耳机 黑色 · 1件 · 松间数码 整行申请金额 ¥329.00  CNY 申请原因
++						125 button 编辑
++						126 text 客户陈述（未经核验）：
+- 本轮原话："这件耳机我还没有收到"
+已读系统记录（不代表客户陈述已核验）：
+- 订单状态：已付款。[O2]
+- 订单行实付：329.00 CNY。[O2]
+- 物流状态：丢失。[O3]
+- 承运商记录结论：丢失。[O3]
+退款原因草稿尚未提交，待本人核对、编辑并确认。
+验收补充：请先核对承运商记录，我暂不提交申请。 仅提交你确认的申请原因，私有聊天不会自动共享。提交后进入核查流程。
++						127 button 暂不申请
++						128 button 确认提交申请
++			129 text entry area (settable) 咨询消息
++			130 text 转交前，你可以确认摘要和共享内容。
++			131 button (disabled) 发送
++			132 button 刷新进度
++			133 container 订单与调查依据
++				134 container
++					135 heading 当前咨询商品, Value: 2
++						136 text 当前咨询商品
++					137 button 更换
++					138 image 无线降噪耳机商品插画
++					139 heading 无线降噪耳机, Value: 3
++						140 text 无线降噪耳机
++					141 text 黑色 · 1件 ¥329.00 松间数码 订单尾号 D196BF
++					142 button (collapsed) 订单与核查编号, Secondary Actions: Expand
++						143 text 订单与核查编号
++				144 container
++					145 heading 物流概览, Value: 2
++						146 text 物流概览
++					147 text 承运方确认丢失
++					148 content list
++						149 container
++							150 text 10/24 22:45 承运方确认丢失
++						151 container
++							152 text 10/24 22:45 已模拟发货
++						153 container
++							154 text 10/24 22:45 订单已付款
++					155 text 回答引用 · 10/24 22:48
++					156 container 回答依据
++						157 button (collapsed) 物流事实 · 3, Secondary Actions: Expand
++							158 text 物流事实
++							159 text  · 3
++				160 container
++					161 heading 相关政策, Value: 2
++						162 text 相关政策
++					163 text 本次回答引用的适用政策
++					164 container 回答依据
++						165 button (collapsed) 店铺政策 · 2026.10, Secondary Actions: Expand
++							166 text 店铺政策
++							167 text  · 2026.10
++						168 button (collapsed) 店铺政策 · 2026.10, Secondary Actions: Expand
++							169 text 店铺政策
++							170 text  · 2026.10
++						171 button (collapsed) 店铺政策 · 2026.10, Secondary Actions: Expand
++							172 text 店铺政策
++							173 text  · 2026.10
++				174 container
++					175 heading 使用指南, Value: 2
++						176 text 使用指南
++					177 container 回答依据
++						178 button (collapsed) 使用指南 · 2026.10.23-v3, Secondary Actions: Expand
++							179 text 使用指南
++							180 text  · 2026.10.23-v3
+The focused UI element is 1 AXWebArea ResolveFlow 工单工作台, URL: 127.0.0.1:5174/#/shop/support

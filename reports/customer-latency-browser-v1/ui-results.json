@@ -1,0 +1,18 @@
+{
+  "source": "actual CUA read-only rendered DOM sampling, no injected observer or fetch patch",
+  "one_message_sent": true,
+  "stream_changes": 6,
+  "first_feedback_observed_ms": 316,
+  "first_stream_observed_ms": 5596,
+  "completion_observed_ms": 7210,
+  "edit_saved": true,
+  "reload_reason_exact": true,
+  "pending_confirmation_after_reload": true,
+  "amount_correct": true,
+  "original_reason": "客户陈述（未经核验）：\n- 本轮原话：\"这件耳机我还没有收到\"\n已读系统记录（不代表客户陈述已核验）：\n- 订单状态：已付款。[O2]\n- 订单行实付：329.00 CNY。[O2]\n- 物流状态：丢失。[O3]\n- 承运商记录结论：丢失。[O3]\n退款原因草稿尚未提交，待本人核对、编辑并确认。",
+  "edited_reason": "客户陈述（未经核验）：\n- 本轮原话：\"这件耳机我还没有收到\"\n已读系统记录（不代表客户陈述已核验）：\n- 订单状态：已付款。[O2]\n- 订单行实付：329.00 CNY。[O2]\n- 物流状态：丢失。[O3]\n- 承运商记录结论：丢失。[O3]\n退款原因草稿尚未提交，待本人核对、编辑并确认。\n验收补充：请先核对承运商记录，我暂不提交申请。",
+  "restored_card": "退款申请\n待你确认\n无线降噪耳机\n\n黑色 · 1件 · 松间数码\n\n整行申请金额\n¥329.00 CNY\n\n申请原因\n编辑\n\n客户陈述（未经核验）：\n- 本轮原话：\"这件耳机我还没有收到\"\n已读系统记录（不代表客户陈述已核验）：\n- 订单状态：已付款。[O2]\n- 订单行实付：329.00 CNY。[O2]\n- 物流状态：丢失。[O3]\n- 承运商记录结论：丢失。[O3]\n退款原因草稿尚未提交，待本人核对、编辑并确认。\n验收补充：请先核对承运商记录，我暂不提交申请。\n\n仅提交你确认的申请原因，私有聊天不会自动共享。提交后进入核查流程。\n\n暂不申请\n确认提交申请",
+  "confirm_clicked": false,
+  "handoff_clicked": false,
+  "sampling_limitations": "Observed windows include CUA/DOM polling delay; not exact token latency or p95. Final program inserts fact fields between streamed paragraphs; stream paragraphs retained as subsequences, not one contiguous string."
+}

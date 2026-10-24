@@ -1,0 +1,33 @@
+{
+  "functional_acceptance_passed": true,
+  "overall_quality_or_latency_freeze": false,
+  "latency4s_sample_target_met": false,
+  "ui": {
+    "first_feedback_observed_ms": 316,
+    "first_stream_observed_ms": 5596,
+    "completion_observed_ms": 7210,
+    "stream_changes": 6,
+    "reload_reason_exact": true,
+    "pending_confirmation_after_reload": true
+  },
+  "scope": "one developer-visible synthetic actual browser case; no paid retry",
+  "model_requests": 3,
+  "ledger_after": 2378,
+  "remaining": [
+    "complex first-body latency",
+    "answer concision, duplicate rendered facts and generic instructions"
+  ],
+  "resources": {
+    "all_owned_containers_stopped": true,
+    "original_pg_identity_and_volume_retained": true,
+    "data_volumes_preserved": true,
+    "docker_left_running": true,
+    "stopped_owned_processes": [
+      "case8183",
+      "commerce8181",
+      "gateway8180",
+      "agent8182",
+      "web5174"
+    ]
+  }
+}

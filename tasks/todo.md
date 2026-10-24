@@ -1,4 +1,10 @@
-## 当前快照（2026-10-24，浏览器控制恢复，页面续验准备）
+## 当前快照（2026-10-24，实际页面续验完成，功能通过而速度仍未达目标）
+
+- 准备35e5488已普通push核实后，本轮真实Vue/Java/Python/DeepSeek一次咨询，6个不同中间正文可见，两段解释在最终回答保留；原因自动生成/编辑保存/刷新逐字一致，金额329元、“待你确认”保持。旧草稿补充也恢复，因expires_at已过要求重新核对。[实际报告](../reports/customer-latency-browser-v1/README.md)/[截图与UI结果](../reports/customer-latency-browser-v1/ui-results.json)/[源审](../reports/customer-latency-browser-v1/source-review.json)。不改原NOT_RUN/失败报告。
+- UI首反馈316ms/首正文5596ms/完成7210ms，Java持久首delta5429.744ms/commit6988.503ms；单例观测窗口非p95/SLA，4秒目标未过，不能称两项全面收尾。页面功能已通过，正文仍偏长/重复物流字段及通用教程不够精炼，E54记录。后续由用户决定是否分解已有关键路径再优化，不自动追加付费重测或换架构。
+- 1客服run/7journal（3模型+4工具），10713输入/558输出、未知/估算0，usage2375→2378，连两版服务端共19请求；无新Case/人工核查/授权/退款，支付32900/0/0。[保护审计](../reports/customer-latency-browser-v1/final-audit.json)核对旧业务/旧run/政策、PG其余9表、188历史报告/四历史脏文件/冻结源码保持，锁释放；仅本轮进程/容器stop保留卷与Docker，项目关闭。新准备驱动Ruff/py_compile过，未改生产/全仓测试/简历；结果精确commit普通push核实后停止本批写入。
+
+## 历史快照（2026-10-24，浏览器控制恢复，页面续验准备）
 
 - 用户开启浏览器控制后本轮已实际连接成功；保留数据正式`start.ps1 -SkipBuild -NoBrowser`全部健康，启动前四类待处理队列0，不发送测试模型请求。旧buyer10/E10EE1原因补充已在实际刷新后恢复，卡片为“请重新核对”，不冒充可直接确认；[新报告](../reports/customer-latency-browser-v1/README.md)保存AX/截图，旧失败及报告不改。
 - 固定一个新合成LOST订单/空会话及同一条咨询，最多12模型请求；新CUA独立计量驱动Ruff/py_compile过，usage2375，未发送新问题。精确commit普通push核实后单轮观察真实中间正文、编辑保存/刷新，无确认建单/转交；服务端前两版16请求保持，不再重测刷分。
