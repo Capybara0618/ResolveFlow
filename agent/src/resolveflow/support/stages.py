@@ -117,9 +117,9 @@ class RefineNeeds(Closed):
 
 class TurnStage:
     def __init__(self, architecture: str) -> None:
-        if architecture not in {"single", "staged-v1"}:
+        if architecture not in {"single", "staged-v1", "orchestrated-v1"}:
             raise ValueError("unknown support architecture")
-        self.enabled = architecture == "staged-v1"
+        self.enabled = architecture != "single"
         self.understanding: Understanding | None = None
         self.refinements = 0
         self.history_refs: set[str] = set()

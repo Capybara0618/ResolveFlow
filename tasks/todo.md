@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，客服新编排已接唯一SDK循环，待运行持久化验收）
+
+- 第一步9e0db61已同步；第二步orchestrated-v1接engine/stages及独立提示，程序原账本读指南、阶段驱动提前收尾继续、COMPOSE装配仍走原发布校验，调查正文不投影。新增SDK场景7过；伪造金额仍拒绝、纯入口不强查订单。
+- 扩大回归418过/6跳过（未指定实际PG）/1既有冻结v2指南诊断失败，strict7源码及Ruff通过；[报告](../reports/customer-agent-orchestration-v1/README.md)。不改原失败、不放开金额/主体/发布断言。
+- 本步普通push核实后接API/runtime profile与真实临时PG恢复/模拟SSE；尚未切日常默认或新live，usage2102。旧四历史脏文件保持。
+
 ## 当前快照（2026-10-24，客服编排第一步：就绪控制与确定性装配已实现）
 
 - 新增support/orchestration.py及独立测试：理解一次接受goal，程序补最低ORDER/SHIPMENT/POLICY依据，按实际来源/不可重试失败判断INVESTIGATE或COMPOSE；连续两次无进展提前收尾后明确终止。新RESPOND仅解释/相关政策引用/原因，程序装配字段事实、指南操作及原摘要合同。

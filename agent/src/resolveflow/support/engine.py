@@ -29,6 +29,8 @@ from resolveflow.support.grounding import check_amounts, diagnostic_fact_referen
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.navigation import RefundSummaryError, navigation_references, render_navigation
+from resolveflow.support.orchestration import Orchestration, Response, TurnPlan
+from resolveflow.support.orchestration_prompts import system_for
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
 from resolveflow.support.recovery import SourceRecovery
 from resolveflow.support.stages import StageError, TurnStage, Understanding
@@ -65,6 +67,7 @@ class SupportAgent:
         progress: Any = None,
     ) -> None:
         self.stage = TurnStage(architecture)
+        self.orchestration = Orchestration(request) if architecture == "orchestrated-v1" else None
         self.request, self.model, self.sources, self.journal = request, model, sources, journal
         self.progress = progress
         self.budget = budget or RunBudget()
@@ -191,10 +194,23 @@ class SupportAgent:
         packet = render_context(
             self.request, base, self.observations, recent=recent, preview=preview, index_limit=index_limit
         )
-        return self.stage.project(packet)
+        packet = self.stage.project(packet)
+        if self.orchestration is not None:
+            packet["orchestration"] = self._readiness()
+            packet["stage"]["phase"] = packet["orchestration"]["phase"]
+            packet.pop("answer_requirements", None)
+        return packet
+
+    def _readiness(self) -> dict[str, Any]:
+        if self.stage.understanding is None or self.orchestration is None:
+            return {"phase": "UNDERSTAND"}
+        return self.orchestration.snapshot(self.stage.understanding, self.citations,
+                                           self.recovery.packet(), self.dialogue.lifecycles)
 
     def _prepare(self, packet: dict[str, Any]) -> tuple[dict[str, Any], list[Any]]:
         system = self.stage.system if self.stage.enabled else SYSTEM
+        if self.orchestration is not None:
+            system = system_for(self._readiness()["phase"], self.stage.example_task_id)
         messages = [raw_text_message(system, role="system"), messenger_message(packet)]
         ceiling = self.budget.step_output_tokens
         prepare = getattr(self.model, "prepare_request", None)
@@ -240,7 +256,10 @@ class SupportAgent:
             ceiling = self.guard.reserve_model_request(input_tokens=tokens)
             self._start("model", self.step, body)
             if self.progress is not None:
-                self.progress.begin(self.step)
+                if self.orchestration is not None:
+                    self.progress.begin(self.step, project_answer=self._readiness()["phase"] == "COMPOSE")
+                else:
+                    self.progress.begin(self.step)
             reply = self.model.decide(
                 system="", messages=messages, context=packet, sent_context=packet, max_output_tokens=ceiling
             )
@@ -253,7 +272,8 @@ class SupportAgent:
         self.mode = reply.mode
         try:
             if self.stage.pending:
-                understanding = Understanding.model_validate(reply.decision)
+                plan = TurnPlan.model_validate(reply.decision) if self.orchestration is not None else None
+                understanding = plan.meaning() if plan is not None else Understanding.model_validate(reply.decision)
                 self.stage.check_context_refs(understanding)
                 tasks, memory, dialogue = deepcopy(self.tasks), deepcopy(self.memory), deepcopy(self.dialogue)
                 memory.apply(understanding.memory_updates, self.observations)
@@ -264,6 +284,8 @@ class SupportAgent:
                 dialogue.apply(understanding.dialogue_events, tasks.tasks, self.observations, require=True)
                 self.tasks, self.memory, self.dialogue = tasks, memory, dialogue
                 self.stage.accept(understanding)
+                if self.orchestration is not None and plan is not None:
+                    self.orchestration.accept(plan)
                 self.feedback = None
                 return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
                                                "arguments": {}})
@@ -274,6 +296,20 @@ class SupportAgent:
                     return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
                                                    "arguments": {}})
                 self.stage.guard(reply.decision)
+            if self.orchestration is not None:
+                if reply.decision.get("kind") in {"ANSWER", "ANSWER_PARTS"}:
+                    raise ValueError("orchestrated-v1使用RESPOND，不重复输出程序负责的事实/操作")
+                if reply.decision.get("kind") == "RESPOND":
+                    response = Response.model_validate(reply.decision)
+                    if self._readiness()["phase"] == "INVESTIGATE":
+                        self.orchestration.defer(self._readiness())
+                        self.feedback = None
+                        return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
+                                                       "arguments": {}})
+                    assert self.stage.understanding is not None
+                    compiled = self.orchestration.compose(response, self.stage.understanding, self.citations,
+                                                          self.recovery.packet(), self.dialogue.lifecycles)
+                    reply = replace(reply, decision=compiled.model_dump())
             decision = DECISION.validate_python(reply.decision)
             if isinstance(decision, (Answer, AnswerParts)) and decision.refund_summary is not None:
                 pieces = decision.parts if isinstance(decision, AnswerParts) else [decision]
@@ -314,7 +350,10 @@ class SupportAgent:
             if grounded is not None:
                 check_amounts(grounded, self.request, self.citations)
             if isinstance(decision, Answer) and reply.mode == "live":
-                check_completion(decision, tasks.tasks, self.citations, self.recovery.packet(), dialogue.lifecycles)
+                relevant = (self.orchestration.failure_tools(self.stage.understanding)
+                            if self.orchestration is not None and self.stage.understanding is not None else None)
+                check_completion(decision, tasks.tasks, self.citations, self.recovery.packet(), dialogue.lifecycles,
+                                 relevant_tools=relevant)
                 if self.stage.enabled:
                     self.stage.check_sources(decision, self.citations, dialogue.lifecycles)
             self.tasks, self.memory = tasks, memory
@@ -330,6 +369,14 @@ class SupportAgent:
             if self.repairs:
                 raise SupportFailure("INVALID_DECISION") from None
             self.repairs += 1
+            if self.orchestration is not None:
+                self.feedback = json.dumps({"code": "INVALID_PROTOCOL", "detail": str(error)[:1800],
+                    "orchestration": self._readiness(), "repair_note": (
+                        "理解用TURN_UNDERSTANDING及goal；调查用READ_TOOL/REFINE_NEEDS；"
+                        "就绪后用RESPOND.parts(task_id/text/citations)，操作原因用refund_reason/handoff_reason；"
+                        "不输出next_steps/facts/fact_rendering/refund_summary，仍用实际引用。")}, ensure_ascii=False)
+                return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_feedback",
+                                               "arguments": {}})
             self.feedback = (self.stage.feedback(error) if self.stage.pending or isinstance(error, StageError)
                              else decision_feedback(error, reply.decision, list(self.citations)))
             if self.stage.enabled and self.stage.understanding is not None:
@@ -367,6 +414,11 @@ class SupportAgent:
         if name == "__support_stage_ready":
             if self.stage.understanding is None:
                 raise SupportFailure("STAGE_NOT_READY")
+            if self.orchestration is not None:
+                if (self.orchestration.needs_ui(self.stage.understanding, self.citations, self.dialogue.lifecycles)
+                        and not self.recovery.blocked({"name": "get_support_guide", "arguments": {}})):
+                    self.execute("get_support_guide", {})
+                return self._readiness()
             return self.stage.packet()
         if name == "__support_feedback":
             if not self.feedback:

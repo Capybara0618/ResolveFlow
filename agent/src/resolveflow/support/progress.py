@@ -45,7 +45,7 @@ class ProgressReporter:
             self.failure = "PROGRESS_BACKPRESSURE"
             self._stop.set()
 
-    def begin(self, step: int) -> None:
+    def begin(self, step: int, *, project_answer: bool = True) -> None:
         if self._started:
             self.reject()
         self._attempt = f"model-{step}"
@@ -53,7 +53,7 @@ class ProgressReporter:
         if self._view_attempt is not None and self._view_attempt != self._attempt:
             self._emit("answer.reset", {}, self._attempt)
             self._view_attempt = self._attempt
-        self._projection = AnswerProjection()
+        self._projection = AnswerProjection() if project_answer else None
         self._pending.clear()
         self._last_flush = time.monotonic()
 

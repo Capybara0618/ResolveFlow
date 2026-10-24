@@ -45,6 +45,7 @@ def requirements(tasks: list[SupportTask], citations: dict[str, dict[str, Any]])
 def check_completion(
     answer: Answer, tasks: list[SupportTask], citations: dict[str, dict[str, Any]], failures: list[dict[str, Any]],
     lifecycles: dict[str, str] | None = None,
+    *, relevant_tools: dict[str, set[str]] | None = None,
 ) -> None:
     gaps: list[dict[str, Any]] = []
     failed_tools = {f["tool_name"] for f in failures}
@@ -54,7 +55,8 @@ def check_completion(
         blocker = task.blocker
         sources = [citations[ref] for ref in task.evidence_refs if ref in citations]
         if task.status == "UNAVAILABLE":
-            relevant = RELEVANT_FAILURES.get(task.intent, failed_tools)
+            relevant = ((relevant_tools or {}).get(task.id)
+                        if relevant_tools is not None else RELEVANT_FAILURES.get(task.intent, failed_tools)) or set()
             if (blocker is None or blocker.kind != "SOURCE_FAILURE" or blocker.tool_name not in failed_tools
                     or blocker.tool_name not in relevant):
                 gaps.append({"task_id": task.id, "code": "SOURCE_FAILURE_REQUIRED",

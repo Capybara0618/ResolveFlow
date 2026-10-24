@@ -71,7 +71,7 @@ class AnswerProjection:
             for character in fragment:
                 self._consume(character)
             deltas = []
-            if self._kind == "ANSWER_PARTS":
+            if self._kind in {"ANSWER_PARTS", "RESPOND"}:
                 for index, prefix in sorted(self._prefixes.items()):
                     offset = self._offsets.get(index, 0)
                     if len(prefix) > offset:
