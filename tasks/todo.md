@@ -1,4 +1,11 @@
-## 当前快照（2026-10-24，两工程步已同步，三轮真实确认准备）
+## 当前快照（2026-10-24，政策与合并工程及三轮真实确认完成，本批收口）
+
+- 政策6c2e3c1、合并f5153dd、准备f0c52d5均普通push核实。[真实报告](../reports/customer-policy-batch-live-v1/README.md)/[全部对话](../reports/customer-policy-batch-live-v1/conversations.md)/[源审](../reports/customer-policy-batch-live-v1/source-review.json)：固定3题各一次，3发布/3满足本轮业务判据；签收争议和另一商家LOST都自主READ_FACTS并引用本店政策说明人工核验，quote草稿未提交；纯入口仅GUIDE无操作摘要。B01自身已声明POLICY，不称真实观测程序补项挽救。
+- 工程494客服单元合同/14真PG API流式恢复过，另2驱动单元；原S02/1离线不能越过POLICY缺口，单读及完整/部分恢复/fence预算保持。10真实请求32259输入/1128输出、未知/估算0，账2349→2359；复杂各4请求、入口2，未追加追成功题。E51/E52记录工程与真实边界。
+- 服务端有效首正文5.28/4.53/2.14秒、完成6.54/5.25/2.50秒，预热11.53秒另列；三条原文流式保留、reset/投递失败0。**复杂请求速度仍未全面达标**，新旧条件不同不算降幅；浏览器控制关闭，刷新及渐进DOM仍未确认，不算全质量/全体验冻结，不更新简历。
+- [最终审计](../reports/customer-policy-batch-live-v1/final-audit.json)：3run/19journal导出，隔离schema删除，公共11表/旧业务索引/188历史报告/四历史脏文件及旧原始成绩保持。仅所属PG用于验证并恢复停止，卷/Docker保留，未启动Java/Web/业务worker或创建Case/退款。报告精确commit普通push核实后停止本批写入，后续优先确认页面和复杂请求体验目标/关键路径，不自动扩大重构或再收费。
+
+## 历史快照（2026-10-24，两工程步已同步，三轮真实确认准备）
 
 - 政策6c2e3c1、合并f5153dd均普通push核实。按已批准集中验收冻结[三条独立输入](../evals/customer-policy-batch-live-v1/scenarios.json)：签收争议准备、另一商家丢失准备、纯编辑入口；[说明](../docs/customer-policy-batch-live-v1.md)/[报告](../reports/customer-policy-batch-live-v1/README.md)。总最多18新请求，各题一次，账2349，不改生产/判据或追加追成功题。
 - 驱动2单元及Ruff过，先源码/权重hash和0模型PG预检、精确commit普通push再执行。仅PG隔离run schema，真实模型/政策与冻结合成HTTP，不创建Case/退款、不启动Java/Web。分别源审政策解释、摘要、合并采用与服务端首正文；不重算旧4/5/网页6.49秒。浏览器DOM/刷新仍未验证。
