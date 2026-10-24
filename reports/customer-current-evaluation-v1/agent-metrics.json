@@ -1,0 +1,1263 @@
+{
+  "version": "current-source-review-metrics-v1",
+  "runtime_sha256": "e460976701658f1f74f3d9eb5b535a86997b4229af6eaf418cef7bb9c0abcc03",
+  "review_sha256": "d9c8be6f93e0b9527a3d5a1c79bdf530d084b6570ff2ec42d3b4e307b1a35bf7",
+  "new_model_calls": 0,
+  "reviewer": "CODEX_SOURCE_REVIEW",
+  "independent_holdout": false,
+  "turns": 44,
+  "published": 37,
+  "semantic_complete": 27,
+  "conversations": 14,
+  "complete_conversations": 4,
+  "conversation_scores": {
+    "D01": {
+      "passed": 3,
+      "n": 3
+    },
+    "D02": {
+      "passed": 3,
+      "n": 3
+    },
+    "D03": {
+      "passed": 2,
+      "n": 3
+    },
+    "D04": {
+      "passed": 2,
+      "n": 3
+    },
+    "D05": {
+      "passed": 3,
+      "n": 3
+    },
+    "D06": {
+      "passed": 2,
+      "n": 3
+    },
+    "D07": {
+      "passed": 0,
+      "n": 3
+    },
+    "D08": {
+      "passed": 1,
+      "n": 3
+    },
+    "D09": {
+      "passed": 2,
+      "n": 3
+    },
+    "D10": {
+      "passed": 1,
+      "n": 3
+    },
+    "D11": {
+      "passed": 0,
+      "n": 3
+    },
+    "D12": {
+      "passed": 3,
+      "n": 3
+    },
+    "D13": {
+      "passed": 3,
+      "n": 4
+    },
+    "D14": {
+      "passed": 2,
+      "n": 4
+    }
+  },
+  "completion_all": {
+    "n": 44,
+    "p50_ms": 3755.1418999937596,
+    "p95_ms": 6376.781554995979,
+    "max_ms": 8074.518000008538
+  },
+  "completion_published": {
+    "n": 37,
+    "p50_ms": 3682.743399986066,
+    "p95_ms": 5841.856279995409,
+    "max_ms": 7619.088100007502
+  },
+  "completion_failed": {
+    "n": 7,
+    "p50_ms": 5696.6298000043025,
+    "p95_ms": 7591.06803000468,
+    "max_ms": 8074.518000008538
+  },
+  "first_provisional": {
+    "n": 42,
+    "p50_ms": 2693.170899998222,
+    "p95_ms": 4703.981460007342,
+    "max_ms": 6393.745100009255
+  },
+  "published_stable_body": {
+    "n": 37,
+    "p50_ms": 3041.09790000075,
+    "p95_ms": 4399.849859994718,
+    "max_ms": 6393.745100009255
+  },
+  "stable_body_observation_modes": {
+    "STREAM_RECEIVER": 30,
+    "FINAL_RESULT_RETURN": 7,
+    "NO_PUBLISHED_ANSWER": 7
+  },
+  "published_with_replaced_stream_parts": 9,
+  "model_requests": 131,
+  "model_states": {
+    "COMPLETE": 131
+  },
+  "model_elapsed": {
+    "n": 131,
+    "p50_ms": 1180.6914000044344,
+    "p95_ms": 2406.783850005013,
+    "max_ms": 2885.938499995973
+  },
+  "input_tokens": 356754,
+  "output_tokens": 16413,
+  "unknown_usage_requests": 0,
+  "estimated_usage_requests": 0,
+  "tools": {
+    "get_shipment_trace": 15,
+    "search_policy": 15,
+    "get_support_guide": 18,
+    "get_order_context": 6
+  },
+  "agent_rag_elapsed": {
+    "n": 15,
+    "p50_ms": 8.07689999055583,
+    "p95_ms": 11.09087999066105,
+    "max_ms": 12.22389999020379
+  },
+  "public_unchanged": true,
+  "isolated_schema_dropped": true,
+  "rows": [
+    {
+      "id": "D01",
+      "turn": 1,
+      "run_id": "c25774ef-f992-5cba-a496-73cf64a2f6d4",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "按物流来源说明在途，不从PAID推断物流",
+        "不编造预计送达时间"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "实际get_shipment_trace为IN_TRANSIT，未从PAID推断，未给预计到货时间。",
+      "projection": {
+        "published_body_ms": 3389.3975999963004,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D01",
+      "turn": 2,
+      "run_id": "ebde5307-3912-56e5-b506-6dfcab354dbb",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "保留假设，不把当前在途改成丢失",
+        "按丢失政策说明适用条件和人工核验"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "明确未来丢失是假设，按LOST、无有效签收及人工核验解释，当前仍在途。",
+      "projection": {
+        "published_body_ms": 3730.743899999652,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D01",
+      "turn": 3,
+      "run_id": "4c0edd19-4609-59c9-a12b-aedf234256ea",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "采用当前诉求，不继续要求退款材料",
+        "给出预览确认后转交核查的流程，不假称已经转交"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "最终给客户确认后商家核查流程，未继续索退款材料，独立handoff_summary存在。摘要明确“此前”读取事实。",
+      "projection": {
+        "published_body_ms": 3783.5670999920694,
+        "stream_identity_parts": [],
+        "replaced_parts": [
+          "part-0"
+        ],
+        "first_stable_observation": "FINAL_RESULT_RETURN"
+      }
+    },
+    {
+      "id": "D02",
+      "turn": 1,
+      "run_id": "58d62d40-c0f1-5e43-989d-c347be962abf",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "区分LOST与PAID",
+        "完整回答资格和当前申请入口"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "本轮ORDER、SHIPMENT、POLICY和GUIDE齐备，区分LOST/PAID，给人工核验条件及会话确认申请入口。",
+      "projection": {
+        "published_body_ms": 4231.061699989368,
+        "stream_identity_parts": [
+          "part-0",
+          "part-1"
+        ],
+        "replaced_parts": [
+          "part-2"
+        ],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D02",
+      "turn": 2,
+      "run_id": "3ec5a300-26e0-5c55-ae38-3305e55b33ed",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "区分查到丢失、人工核验、正式申请和退款执行",
+        "不声称已退款"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "区分查到丢失、人工核验、申请确认及实际执行，明确未替客户申请/退款。",
+      "projection": {
+        "published_body_ms": 3041.09790000075,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D02",
+      "turn": 3,
+      "run_id": "e7057209-65f8-5c31-b153-7e22d4fa3005",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "指出共享原文与调查依据分别选择",
+        "不声称整段私聊自动共享"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "最终说明原文和调查依据由本人选择及确认，不自动共享全部聊天。",
+      "projection": {
+        "published_body_ms": 3604.523000001791,
+        "stream_identity_parts": [],
+        "replaced_parts": [
+          "part-0"
+        ],
+        "first_stable_observation": "FINAL_RESULT_RETURN"
+      }
+    },
+    {
+      "id": "D03",
+      "turn": 1,
+      "run_id": "e08274d5-8e34-5f54-ad81-d49a14173eed",
+      "published": false,
+      "passed": false,
+      "criteria": [
+        "同时保留系统签收与客户否认收到",
+        "不重复要求已经做过的代收排查"
+      ],
+      "criteria_pass": [
+        false,
+        false
+      ],
+      "material_issues": [
+        "NAVIGATION_CONTRACT_REJECTION"
+      ],
+      "note": "原候选已读签收及指南，但LOGISTICS/EXPLAIN无程序next_steps；正文出现“售后咨询”，两次候选均被拒绝，最终没有交付。首候选另建议再问代收点。",
+      "projection": {
+        "published_body_ms": null,
+        "stream_identity_parts": [],
+        "replaced_parts": [],
+        "first_stable_observation": "NO_PUBLISHED_ANSWER"
+      }
+    },
+    {
+      "id": "D03",
+      "turn": 2,
+      "run_id": "5c15917d-09d9-504b-bb0f-d221dfedd47d",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "不能仅凭客户陈述承诺退款",
+        "按签收争议规则说明商家核查"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "失败轮accepted记忆实际接续。说明签收争议须人工核验，未承诺直接退；可生成待本人确认申请原因不等于退款执行。",
+      "projection": {
+        "published_body_ms": 3731.1258999980055,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D03",
+      "turn": 3,
+      "run_id": "175bec39-b234-58d4-b62c-b053472efd3f",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "重新判断当前意图，退款诉求不再推进",
+        "摘要区分已读事实和客户陈述，待客户确认"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "退款任务CANCELLED，改HANDOFF/MERCHANT_REVIEW，本轮读订单物流并给独立待共享摘要。",
+      "projection": {
+        "published_body_ms": 4206.240300001809,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D04",
+      "turn": 1,
+      "run_id": "42adfe9e-6c0c-52a3-875a-a6a9e42ed5b0",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "照片与客户陈述不等于已人工核验",
+        "按损坏政策说明核验与订单条件"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "照片作为核验依据而非退款保证，按损坏政策说明人工核验材料和订单事实。",
+      "projection": {
+        "published_body_ms": 2736.0027999966405,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D04",
+      "turn": 2,
+      "run_id": "82bee99e-20dd-5e02-828f-4b0bf2ab3f2a",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "纠正为假设，不保留成已经损坏的事实",
+        "不要求当前不存在的损坏照片"
+      ],
+      "criteria_pass": [
+        true,
+        false
+      ],
+      "material_issues": [
+        "STALE_HYPOTHETICAL_MATERIAL"
+      ],
+      "note": "开头已改成假设，但仍说“您提到已有照片，可先保留”，旧MATERIAL“我有照片”仍ACTIVE。未完整撤销该假设场景的现实材料预设；并非要求立即上传，但修正处理不完整。",
+      "projection": {
+        "published_body_ms": 3267.2085000085644,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D04",
+      "turn": 3,
+      "run_id": "6fd7d30c-6860-5cea-8c29-3a2a078a7028",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "给出当前我的售后入口",
+        "聊天未创建申请，不暴露内部Case术语"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "给当前会话确认申请及我的售后查看入口，未称聊天已建单，未向客户暴露Case术语。",
+      "projection": {
+        "published_body_ms": 2614.404200008721,
+        "stream_identity_parts": [],
+        "replaced_parts": [
+          "part-0"
+        ],
+        "first_stable_observation": "FINAL_RESULT_RETURN"
+      }
+    },
+    {
+      "id": "D05",
+      "turn": 1,
+      "run_id": "221a70f2-eb4f-5867-a1e5-3f19eb8be8d9",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "不套用损坏或丢失规则证明个人原因可退",
+        "没有适用依据时说明需要确认本店规则"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "说明个人原因缺适用规则，未把颜色不喜欢当损坏或丢失，建议核实规则。",
+      "projection": {
+        "published_body_ms": 2635.917799998424,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D05",
+      "turn": 2,
+      "run_id": "ebd1822c-4782-5e37-a152-e0a1516db958",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "朋友说法不能替代本店绑定政策",
+        "不编造政策天数或退款承诺"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "朋友转述没有替代绑定政策，未把七天说法采纳为本店规则。",
+      "projection": {
+        "published_body_ms": 2693.1390999961877,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D05",
+      "turn": 3,
+      "run_id": "b866659f-4324-5afb-9820-fab09988c551",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "人工咨询不要求先退款",
+        "明确预览摘要并确认转交，未确认不能称已提交"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "不退款也可核查，待编辑确认的独立摘要存在，未称已提交。",
+      "projection": {
+        "published_body_ms": 3726.7166999954497,
+        "stream_identity_parts": [],
+        "replaced_parts": [
+          "part-0"
+        ],
+        "first_stable_observation": "FINAL_RESULT_RETURN"
+      }
+    },
+    {
+      "id": "D06",
+      "turn": 1,
+      "run_id": "c9a379cf-8259-5dba-8976-f36b82c4788b",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "不要求创建退款或金额",
+        "给出独立核查入口和确认步骤"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "实际物流记录在途及延迟事件，给独立人工核查和确认流程，不要求金额/退款。摘要末尾“无损坏相关记录”表述偏泛，不能当人工核验无损坏。",
+      "projection": {
+        "published_body_ms": 3568.1496000033803,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D06",
+      "turn": 2,
+      "run_id": "72100d15-50aa-55d5-8e5d-8e2abce01b57",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "表达意愿不等于已创建核查单",
+        "按可信会话状态说明尚未转交"
+      ],
+      "criteria_pass": [
+        true,
+        false
+      ],
+      "material_issues": [
+        "FINAL_RENDER_DROPS_DIRECT_ANSWER"
+      ],
+      "note": "临时流中明确“目前没有已提交核查的记录”，但最终guide_only渲染删掉直接解释，只剩通用操作说明；没有按has_ticket=false直接回答是否已发给商家。未虚称已转交，但最终回答不完整。",
+      "projection": {
+        "published_body_ms": 2706.9830000109505,
+        "stream_identity_parts": [],
+        "replaced_parts": [
+          "part-0"
+        ],
+        "first_stable_observation": "FINAL_RESULT_RETURN"
+      }
+    },
+    {
+      "id": "D06",
+      "turn": 3,
+      "run_id": "db78facb-6998-5813-9000-3bf64f75e513",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "提供可编辑摘要",
+        "只整理当前已知信息，不虚构已读物流"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "提供结构化可编辑handoff_summary，说明待本人确认；引用物流为“此前”已读，未虚构本轮新物流。",
+      "projection": {
+        "published_body_ms": 3621.903999999631,
+        "stream_identity_parts": [],
+        "replaced_parts": [
+          "part-0"
+        ],
+        "first_stable_observation": "FINAL_RESULT_RETURN"
+      }
+    },
+    {
+      "id": "D07",
+      "turn": 1,
+      "run_id": "f0533ad0-70a4-5270-a731-d55ee2925b8b",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "区分当前ASSISTANT与默认MERCHANT",
+        "私有消息不会自动共享"
+      ],
+      "criteria_pass": [
+        false,
+        true
+      ],
+      "material_issues": [
+        "DEFAULT_RECIPIENT_NOT_EXPLAINED"
+      ],
+      "note": "对当前ASSISTANT私有问题回答正确，但只区分两个通道，未说明default_recipient=MERCHANT；完整判据未满足。未读GUIDE且自称没有流程说明，后续两轮因此失准。",
+      "projection": {
+        "published_body_ms": 1893.9028000022518,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D07",
+      "turn": 2,
+      "run_id": "3db1dba7-a95f-5fe1-a9f3-5207d68b1b08",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "按默认MERCHANT说明发给商家",
+        "不把本次私聊对象等同默认对象"
+      ],
+      "criteria_pass": [
+        false,
+        false
+      ],
+      "material_issues": [
+        "INCORRECT_DEFAULT_PRIVACY"
+      ],
+      "note": "可信输入default_recipient=MERCHANT，回答却称重新打开不切换仍私有、商家看不到，实质错误。理解为OTHER/needs=[]，未读取指南。",
+      "projection": {
+        "published_body_ms": 1557.3349000042072,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D07",
+      "turn": 3,
+      "run_id": "512a1ec1-bb7b-5dd0-babd-167600e1050e",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "说明切换询问智能助手",
+        "不要求重新申请退款"
+      ],
+      "criteria_pass": [
+        false,
+        true
+      ],
+      "material_issues": [
+        "MISSING_PRIVATE_MODE_SWITCH"
+      ],
+      "note": "应说明重新打开后切换“询问智能助手”，却答“不需要先做什么，直接发即可”，沿用上一轮错误；未要求退款。",
+      "projection": {
+        "published_body_ms": 1628.1527999963146,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D08",
+      "turn": 1,
+      "run_id": "50ed4e16-78ec-5ac8-ac15-42d5ecd6d823",
+      "published": false,
+      "passed": false,
+      "criteria": [
+        "说明可在原核查单补充接续",
+        "咨询不套正式两轮补证限制"
+      ],
+      "criteria_pass": [
+        false,
+        false
+      ],
+      "material_issues": [
+        "NAVIGATION_CONTRACT_REJECTION"
+      ],
+      "note": "已读GUIDE，候选正确说明接续原单及不限两轮，但OTHER/EXPLAIN无next_steps，页面标签校验拒绝，最终未交付。",
+      "projection": {
+        "published_body_ms": null,
+        "stream_identity_parts": [],
+        "replaced_parts": [],
+        "first_stable_observation": "NO_PUBLISHED_ANSWER"
+      }
+    },
+    {
+      "id": "D08",
+      "turn": 2,
+      "run_id": "c5c0dc43-8900-512d-bed0-a52ed9557ba1",
+      "published": false,
+      "passed": false,
+      "criteria": [
+        "补充核查与退款申请分开",
+        "说明补充给商家的对象"
+      ],
+      "criteria_pass": [
+        false,
+        false
+      ],
+      "material_issues": [
+        "WRONG_EVIDENCE_DOMAIN"
+      ],
+      "note": "流程问题误选POLICY，读到六退款规则；最终RESPOND只引用正确GUIDE而未引用无关政策，被POLICY必引校验拒绝。候选正确内容不能计发布。",
+      "projection": {
+        "published_body_ms": null,
+        "stream_identity_parts": [],
+        "replaced_parts": [],
+        "first_stable_observation": "NO_PUBLISHED_ANSWER"
+      }
+    },
+    {
+      "id": "D08",
+      "turn": 3,
+      "run_id": "b03ad2de-d07a-5de9-8de5-9f64bf17570c",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "商家回复与客户确认解决不同",
+        "不因客户文字伪造当前状态"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "明确商家回复不等于客户确认解决，未用用户文字覆盖可信REPLIED状态。未新增实际业务操作。",
+      "projection": {
+        "published_body_ms": 1828.171500004828,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D09",
+      "turn": 1,
+      "run_id": "d06c23e8-a4fa-5e6e-a478-7d954c6fb891",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "必要时读取较早原文中的尾部纠正",
+        "摘要保留未收到且家人未代收，不反复问已排查事项"
+      ],
+      "criteria_pass": [
+        false,
+        false
+      ],
+      "material_issues": [
+        "LONG_HISTORY_CORRECTION_OMITTED"
+      ],
+      "note": "未调用read_context/read_history，摘要只写“最新纠正说法”而未保留尾部原文“仍未收到、家人没有代收”，关键已排查事实缺失。",
+      "projection": {
+        "published_body_ms": 4724.256900008186,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D09",
+      "turn": 2,
+      "run_id": "6cd2c0bb-66b8-507d-8da8-fb5ccda5ad35",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "采纳最新纠正并停止原退款/核查诉求",
+        "不把旧状态当客户当前诉求"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "家人找到包裹作为当前客户陈述，原HANDOFF取消，无转交/退款推进；正文对旧业务事实使用“仍为”偏强，应区分历史读取。",
+      "projection": {
+        "published_body_ms": 2015.329700006987,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D09",
+      "turn": 3,
+      "run_id": "6dd257c3-ba1c-532f-9f9a-03cebe08684a",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "说明每订单行独立保存咨询",
+        "不把本商品私人历史带到其他商品"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "说明切换商品不清空原记录，新商品不自动带出该私有上下文；未重启已撤回核查。订单措辞可更精确到订单行。",
+      "projection": {
+        "published_body_ms": 2297.716400003992,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D10",
+      "turn": 1,
+      "run_id": "db678b28-a5e6-5b8f-9c8d-9b7b942081dd",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "实际查询503不能断言未发货或丢失",
+        "提供客户确认后核查路径"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "按真实两次503说明暂不可读而非丢失，次数受原控制，给确认后核查路径，不退款。",
+      "projection": {
+        "published_body_ms": 6393.745100009255,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [
+          "part-1"
+        ],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D10",
+      "turn": 2,
+      "run_id": "ba25cea9-64b8-5e06-a587-db683491aa55",
+      "published": false,
+      "passed": false,
+      "criteria": [
+        "区分不可用与丢失事实",
+        "不无限重复查询同参数"
+      ],
+      "criteria_pass": [
+        false,
+        false
+      ],
+      "material_issues": [
+        "NAVIGATION_CONTRACT_REJECTION"
+      ],
+      "note": "本轮物流两次失败后已BLOCKED，候选正确区别不可用与丢失，但无GUIDE/next_steps仍自由描述页面，发布被拒绝。没有无限重复，但最终未交付。",
+      "projection": {
+        "published_body_ms": null,
+        "stream_identity_parts": [],
+        "replaced_parts": [],
+        "first_stable_observation": "NO_PUBLISHED_ANSWER"
+      }
+    },
+    {
+      "id": "D10",
+      "turn": 3,
+      "run_id": "8711da00-269b-5fea-9f4e-b1141bf11206",
+      "published": false,
+      "passed": false,
+      "criteria": [
+        "明确尚缺实时物流",
+        "给待确认摘要，不假称已经联系"
+      ],
+      "criteria_pass": [
+        false,
+        false
+      ],
+      "material_issues": [
+        "INTENT_GOAL_MISMATCH"
+      ],
+      "note": "两次理解均APPLICATION+MERCHANT_REVIEW，违反须HANDOFF的协议，未接受/查源/发布摘要。",
+      "projection": {
+        "published_body_ms": null,
+        "stream_identity_parts": [],
+        "replaced_parts": [],
+        "first_stable_observation": "NO_PUBLISHED_ANSWER"
+      }
+    },
+    {
+      "id": "D11",
+      "turn": 1,
+      "run_id": "1332694b-6734-5795-9c43-9fb582eba129",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "按在途与未发货两条依据回答",
+        "保留NOT_SHIPPED、版本1及ORDER_PAID条件，不仅说已付款"
+      ],
+      "criteria_pass": [
+        true,
+        false
+      ],
+      "material_issues": [
+        "POLICY_PREDICATES_OMITTED"
+      ],
+      "note": "实际召回含NOT_SHIPPED、版本1和ORDER_PAID完整原文。回答区分在途和未发货，但省略版本1、ORDER_PAID事件，缺完整条件。",
+      "projection": {
+        "published_body_ms": 3238.536799995927,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D11",
+      "turn": 2,
+      "run_id": "75eaaab6-c00b-5d8f-b9d2-b5f31e46e4b1",
+      "published": false,
+      "passed": false,
+      "criteria": [
+        "保持假设，不从客户话推断订单实际状态",
+        "需要实际判断时重新读业务事实"
+      ],
+      "criteria_pass": [
+        false,
+        false
+      ],
+      "material_issues": [
+        "DIALOGUE_EVENT_MISMATCH"
+      ],
+      "note": "客户澄清假设，两次输出CLARIFY；当前事件协议仅在新状态NEEDS_CUSTOMER可用，实际PENDING，均被拒绝。未发布不能计正确澄清。",
+      "projection": {
+        "published_body_ms": null,
+        "stream_identity_parts": [],
+        "replaced_parts": [],
+        "first_stable_observation": "NO_PUBLISHED_ANSWER"
+      }
+    },
+    {
+      "id": "D11",
+      "turn": 3,
+      "run_id": "d78f6a7b-d9c9-5794-a880-e892a4f9bf88",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "区分付款状态和物流状态",
+        "不漏未发货规则的版本与事件限制"
+      ],
+      "criteria_pass": [
+        true,
+        false
+      ],
+      "material_issues": [
+        "POLICY_PREDICATES_OMITTED"
+      ],
+      "note": "说明付款不等于未发货，但只泛称“记录版本与付款事件可对应”，未给版本1及ORDER_PAID限定，仍未完整满足判据。",
+      "projection": {
+        "published_body_ms": 2925.4539999965345,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D12",
+      "turn": 1,
+      "run_id": "fa891f01-db56-5343-9491-05b9168cdcf0",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "保留假设，不说本单已经丢失",
+        "按本店丢失规则保留签收、核验和金额条件"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "假设保持假设，按本店规则说明LOST/无有效签收/人工核验及单行实付金额，不称当前已满足。",
+      "projection": {
+        "published_body_ms": 2663.66669999843,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D12",
+      "turn": 2,
+      "run_id": "389f0602-667a-5775-90c6-f279ca1ca367",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "保持已绑定商家/政策范围",
+        "不声称已查其他商家私有政策"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "绑定M-1002未改，无跨商家读取；未把其他商家政策冒充已查到。可去掉对客户无益的内部商家编码。",
+      "projection": {
+        "published_body_ms": 2268.616400004248,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D12",
+      "turn": 3,
+      "run_id": "8a2f04d0-1c2d-5c2e-8bc7-449065e66f6a",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "人工核查不要求已满足退款资格",
+        "不绕过人工核验作退款授权"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "当前政策/指南已读，说明资格不足仍可人工核查，待确认摘要存在，不把模型建议作授权。",
+      "projection": {
+        "published_body_ms": 4318.748099991353,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D13",
+      "turn": 1,
+      "run_id": "5f5100a8-d482-5a32-b7f7-9a4da53c7cf1",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "读取签收来源并区分客户未找到与系统签收",
+        "代收只是猜测，不当成已核实；需要核查时不虚构已转交"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "实际查DELIVERED，家人代收仅猜测，无虚称商家已接单。",
+      "projection": {
+        "published_body_ms": 2504.366099994513,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D13",
+      "turn": 2,
+      "run_id": "312e764c-1dbc-5f07-b6ed-581a25d269d1",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "暂停原签收调查而不是永久取消",
+        "回答当前正式申请入口，不继续索要代收材料"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "原物流事项PAUSED/SUSPENDED，当前回答会话退款申请入口，无继续索代收资料。",
+      "projection": {
+        "published_body_ms": 2966.913800002658,
+        "stream_identity_parts": [],
+        "replaced_parts": [
+          "part-0"
+        ],
+        "first_stable_observation": "FINAL_RESULT_RETURN"
+      }
+    },
+    {
+      "id": "D13",
+      "turn": 3,
+      "run_id": "8781801b-5e02-5fbf-8786-e6e231ec8388",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "恢复原签收任务，并采用家人及代收点均已排查的纠正",
+        "不重复要求同样排查，给出可确认的商家核查下一步"
+      ],
+      "criteria_pass": [
+        true,
+        false
+      ],
+      "material_issues": [
+        "MERCHANT_NEXT_STEP_MISSING"
+      ],
+      "note": "原物流任务恢复OPEN，猜测被新陈述SUPERSEDED，明确不再重复问家人。回答只建议联系承运商/再排查，没有原判据要求的可确认商家核查下一步。",
+      "projection": {
+        "published_body_ms": 3364.746399995056,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D13",
+      "turn": 4,
+      "run_id": "7d327279-e197-5a48-a293-1ebcab595ca2",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "采用找到包裹的新信息，停止原核查/退款推进",
+        "不把客户找到包裹说成系统已完成退款或转交"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "找到包裹后物流RESOLVED，申请事项CANCELLED，没有伪称发生退款或商家转交。",
+      "projection": {
+        "published_body_ms": 2487.5471999985166,
+        "stream_identity_parts": [
+          "part-0",
+          "part-1"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D14",
+      "turn": 1,
+      "run_id": "ee2e9edf-bd30-528a-82b2-b5d5fce515c7",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "读取实际物流LOST而不只按PAID推断",
+        "不因丢失自动申请或承诺已退款"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "本轮实际查LOST，明确尊重暂不申请，不从PAID推物流，也不执行退款。",
+      "projection": {
+        "published_body_ms": 2591.98739999556,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D14",
+      "turn": 2,
+      "run_id": "41a6574b-686d-52b5-92d6-e746a3c7f7c6",
+      "published": false,
+      "passed": false,
+      "criteria": [
+        "保留暂停的原任务，不当成彻底撤回",
+        "按指南说明原文选择、摘要预览和确认共享，不称全部聊天自动公开"
+      ],
+      "criteria_pass": [
+        false,
+        false
+      ],
+      "material_issues": [
+        "WRONG_EVIDENCE_DOMAIN"
+      ],
+      "note": "原任务实际PAUSED，但隐私共享被选为POLICY，未读GUIDE，候选无法确认已有功能；相关政策引用合同拒绝，最终未交付。",
+      "projection": {
+        "published_body_ms": null,
+        "stream_identity_parts": [],
+        "replaced_parts": [],
+        "first_stable_observation": "NO_PUBLISHED_ANSWER"
+      }
+    },
+    {
+      "id": "D14",
+      "turn": 3,
+      "run_id": "f2389958-fb9f-5030-ad20-de78a6aec860",
+      "published": true,
+      "passed": false,
+      "criteria": [
+        "恢复物流任务并保留收件人已排查未收到",
+        "摘要区分物流丢失来源与客户陈述，待客户确认且不虚构已转交"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [
+        "MISSING_ACTIONABLE_HANDOFF_SUMMARY"
+      ],
+      "note": "恢复OPEN并采纳收件人已排查未收到，正文摘要区分实读事实/客户陈述且待确认。额外业务完成检查未过：理解仍LOGISTICS/EXPLAIN，没有handoff_summary/确认共享能力，只在正文写摘要。",
+      "projection": {
+        "published_body_ms": 3806.5987000009045,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    },
+    {
+      "id": "D14",
+      "turn": 4,
+      "run_id": "01b4bcb2-830d-512c-a3d5-061adf4efcbb",
+      "published": true,
+      "passed": true,
+      "criteria": [
+        "明确撤回当前核查，不继续要求确认转交或创建退款",
+        "不伪称撤销了不存在的核查单或业务退款"
+      ],
+      "criteria_pass": [
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "原核查任务CANCELLED，明确自行联系快递、不再转交，无伪造取消已存在工单或退款。",
+      "projection": {
+        "published_body_ms": 3374.600700000883,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      }
+    }
+  ]
+}

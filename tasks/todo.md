@@ -1,3 +1,11 @@
+## 当前快照（2026-10-24，当前版本Agent/RAG集中评测完成，缺陷已分类，本批收口）
+
+- a642be8完整原始44轮已同步。[统一报告](../reports/customer-current-evaluation-v1/README.md)/[全部对话及逐轮源审](../reports/customer-current-evaluation-v1/conversations.md)：技术发布37/44，完整业务判据27/44，另10轮发布但部分不满足/错误、7轮未发布；全轮完整4/14。开发可见合成回归、Codex源审，非独立盲测准确率，不改分母/重跑失败。
+- 131真实请求356754输入/16413输出，准确usage、0未知/估算，账本2143→2274；当前默认orchestrated-v1未改。整轮44条p50 3.76s/p95 6.38s；正式发布稳定正文37条p50 3.04s/p95 4.40s（30流式原段保留、7仅最终可观测；9轮至少一段被程序替换），服务端非浏览器/生产p95。
+- RAG外部17 ANSWERABLE三路Top5 16/17 vs正文BM25 13/17，Top3均12/17；商城完整6规则路径90次热态p50 4.74ms/p95 5.84ms，Agent中15次实际检索p95 11.09ms。速度/证据覆盖不混成回答准确率。
+- 根因集中：流程GUIDE与POLICY选择/可信默认接收人；compose按intent装步骤与正文页面校验冲突；guide_only删除直接解释并造成流式跳变；长历史/假设纠正采纳不足；理解事件及政策前提完整性；人工摘要缺实际可确认产物。当前Agent不能宣称质量冻结，优先离线修共同合同，不新增框架/多Agent或自动收费重跑。
+- 评测及计量12针对测试全过0跳过，新增脚本/测试Ruff通过；全仓未跑，既有冻结v2指南失败不改。[最终只读审计](../reports/customer-current-evaluation-v1/final-audit.json)全部冻结hash、公共PG/政策、4历史脏文件保持，临时schema已导出删除，正常Agent UP，审计0模型。不创建Case/退款、不更新简历；本步报告/计量精确commit普通push核实后停止写入，后续由用户决定针对性修正。
+
 ## 当前快照（2026-10-24，当前版本44轮真实执行完成，待完整源审）
 
 - b86894b只读RAG成绩已同步。本批固定14组44轮各一次真实流式生成，131请求均COMPLETE且usage准确、无未知，账本2143→2274；技术发布37/44、7 INVALID_DECISION失败完整保留，未重跑/改业务/Gold。[原始结果](../reports/customer-current-evaluation-v1/agent-runtime.json)。
