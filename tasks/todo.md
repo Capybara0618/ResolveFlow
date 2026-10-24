@@ -1,4 +1,9 @@
-## 当前快照（2026-10-24，政策依据及只读合并工程完成，待有限真实验收）
+## 当前快照（2026-10-24，两工程步已同步，三轮真实确认准备）
+
+- 政策6c2e3c1、合并f5153dd均普通push核实。按已批准集中验收冻结[三条独立输入](../evals/customer-policy-batch-live-v1/scenarios.json)：签收争议准备、另一商家丢失准备、纯编辑入口；[说明](../docs/customer-policy-batch-live-v1.md)/[报告](../reports/customer-policy-batch-live-v1/README.md)。总最多18新请求，各题一次，账2349，不改生产/判据或追加追成功题。
+- 驱动2单元及Ruff过，先源码/权重hash和0模型PG预检、精确commit普通push再执行。仅PG隔离run schema，真实模型/政策与冻结合成HTTP，不创建Case/退款、不启动Java/Web。分别源审政策解释、摘要、合并采用与服务端首正文；不重算旧4/5/网页6.49秒。浏览器DOM/刷新仍未验证。
+
+## 历史快照（2026-10-24，政策依据及只读合并工程完成，待有限真实验收）
 
 - 政策修复6c2e3c1普通push核实；[只读合并说明](../docs/customer-agent-fact-batch-v1.md)/[工程报告](../reports/customer-agent-fact-batch-v1/README.md)：必要ORDER与SHIPMENT同时缺少时，模型可READ_FACTS一次选择两项；原SDK逐项预算/fence/journal/activity，单读仍可用，不改RAG/Java/业务写权限。旧网页6.49秒首正文中四类activity合计0.323秒，其余间隔含模型/SDK等，非纯模型计时。
 - 合并12例5红/7过→43针对/494客服单元合同/14真PG API流式恢复通过；3源码strict及5文件Ruff过。同证据脚本5→4模型请求，业务读取仍2；完整恢复0发送，部分开始前中断复用，已STARTED无结果明确中断，fence改变阻断后项。E52记录成本与边界。
