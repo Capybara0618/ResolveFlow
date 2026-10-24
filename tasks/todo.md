@@ -1,9 +1,8 @@
-## 当前快照（2026-10-24，客服共同边界A/B工程修复及PG恢复验证完成）
+## 当前快照（2026-10-24，用户批准六条真实边界确认，准备冻结完成）
 
-- A实现5719328已同步。B统一按accepted goal/lifecycle装配/要求操作，EXPLAIN只解释页面不强制办理；当前编排保留直接text、不按GUIDE-only删正文。已读真实指南可支持页面解释，跨页直接错配、原因/事实/金额及权限限制保持；旧single/staged兼容不变。[方案](../docs/customer-agent-boundary-v1.md)/[报告](../reports/customer-agent-boundary-v1/README.md)。
-- 新6红→76针对通过；50文件客服/契约429通过，后补流式正文保留/诊断9针对通过，重叠不累加。四个原真实候选D03/1、D06/2、D08/1、D10/2离线发布且原解释保留0修正；原44轮/模型决策/评分不改，不称新生成或语义成功。Ruff相关源码/测试/诊断、strict四源码通过。
-- 用户恢复Docker后仅启动所属原PG；真实隔离PG/API/SSE/store18通过0跳过，并对同一恢复测试追加第一tool/第一实际model请求断言1项确认。指南理解前已持久传入、恢复0新模型/来源读、manifest不静默升级。11公共表/旧评测/四历史脏文件保持，账2274；[最终审计](../reports/customer-agent-boundary-v1/final-audit.json)。0Provider/Case/退款/正常业务写；未启动Java/业务Agent、未做真实LLM或网页验收。
-- 本批精确提交普通push核实后收口；前三共同问题已完成工程修正，模型采纳仍需有限真实确认。长历史纠正、政策关键条件与明确人工摘要完成缺口尚未本批修复；不自动扩评测刷分、不宣称Agent冻结。下一步固定新版本少量真实对话验证这一合同，再按结果决定后续。
+- 业务7bce02d保持orchestrated-v1；按[协议](../docs/customer-agent-boundary-live-v1.md)固定6独立单轮，覆盖私聊/默认对象、已解决接续、未确认转交、签收争议、物流故障与明确人工摘要。新措辞/原合成业务事实/真实本地政策，整批最多24请求，每条一次、失败不重跑，不改旧44轮评分。
+- 新驱动2单元/Ruff过，冻结代码/数据/本地权重与usage2274；[预检](../reports/customer-agent-boundary-live-v1/preflight.json)精确索引/11公共表不变、0模型。只启动所属原PG，Java/正常业务Agent未起；现有用户环境key仅传入执行进程，不写日志。[报告](../reports/customer-agent-boundary-live-v1/README.md)。
+- 准备精确commit普通push核实后执行一次并逐条源审、保存完整usage/失败/实际流式，不改业务、Gold/旧结果，不建Case/核查单/退款。完成后导出清理本次schema并核对公共数据/历史四脏文件，按真实结果决定后续，不自动追题。
 
 ## 当前快照（2026-10-24，用户要求持续记录架构演进，复盘文档已建立）
 
