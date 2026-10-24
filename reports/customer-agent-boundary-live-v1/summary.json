@@ -1,0 +1,47 @@
+{
+  "version": "support-boundary-live-summary-v1",
+  "technical_published": 6,
+  "complete": 5,
+  "partial": 1,
+  "failed": 0,
+  "original_criteria_satisfied": 6,
+  "material_completion_gap_cases": [
+    "B02"
+  ],
+  "new_provider_requests": 16,
+  "usage_before": 2274,
+  "usage_after": 2290,
+  "provider_input_tokens": 37660,
+  "provider_output_tokens": 2125,
+  "unknown_usage": 0,
+  "estimated_usage": 0,
+  "prewarm_ms": 7148.50199999637,
+  "model_repairs": 0,
+  "tools": {
+    "get_support_guide": 6,
+    "get_shipment_trace": 4
+  },
+  "first_stable_body_ms": {
+    "n": 6,
+    "min": 2292.5977000122657,
+    "median": 2818.9749000011943,
+    "max": 3969.7009999945294
+  },
+  "completion_ms": {
+    "n": 6,
+    "min": 2856.9550000102026,
+    "median": 4208.494550002797,
+    "max": 4696.420899999794
+  },
+  "stream_parts_replaced": 0,
+  "public_unchanged": true,
+  "isolated_schema_dropped": true,
+  "limits": [
+    "Six independent synthetic regression turns, not blind accuracy or stable p95",
+    "No old/new paired architecture comparison",
+    "Server-side stream receiver, not browser DOM",
+    "No Java or real business writes"
+  ],
+  "runtime_sha256": "f69e7998b767d07ec28af793b562fddedb53443a06b0d45bd40708ffe27b0e3b",
+  "source_review_sha256": "7ec19014dafcc27e68e4353ebff087eb86dbb5120ee503eeb64abf56223a01d8"
+}

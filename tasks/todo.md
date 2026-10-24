@@ -1,8 +1,10 @@
-## 当前快照（2026-10-24，用户批准六条真实边界确认，准备冻结完成）
+## 当前快照（2026-10-24，六条共同边界真实确认完成，本批收口）
 
-- 业务7bce02d保持orchestrated-v1；按[协议](../docs/customer-agent-boundary-live-v1.md)固定6独立单轮，覆盖私聊/默认对象、已解决接续、未确认转交、签收争议、物流故障与明确人工摘要。新措辞/原合成业务事实/真实本地政策，整批最多24请求，每条一次、失败不重跑，不改旧44轮评分。
-- 新驱动2单元/Ruff过，冻结代码/数据/本地权重与usage2274；[预检](../reports/customer-agent-boundary-live-v1/preflight.json)精确索引/11公共表不变、0模型。只启动所属原PG，Java/正常业务Agent未起；现有用户环境key仅传入执行进程，不写日志。[报告](../reports/customer-agent-boundary-live-v1/README.md)。
-- 准备精确commit普通push核实后执行一次并逐条源审、保存完整usage/失败/实际流式，不改业务、Gold/旧结果，不建Case/核查单/退款。完成后导出清理本次schema并核对公共数据/历史四脏文件，按真实结果决定后续，不自动追题。
+- 准备c738336已同步；固定7bce02d业务/orchestrated-v1一次6独立单轮，16真实模型请求37660输入/2125输出、未知/估算0，账2274→2290。6发布、5完整/1部分，0格式修正；[报告](../reports/customer-agent-boundary-live-v1/README.md)/[全部对话](../reports/customer-agent-boundary-live-v1/conversations.md)/[源审](../reports/customer-agent-boundary-live-v1/source-review.json)。原44轮/原评分保持，不称盲测或架构因果收益。
+- 实际指南6/物流4，POLICY0；私聊/默认对象、未确认转交、签收解释及物流故障正确，6条流式正文都最终保留、替换/reset/投递失败0。有效首正文2.29–3.97秒/中位2.82，完成2.86–4.70秒/中位4.21；预热7.15秒另列，非浏览器或稳定p95。
+- B02接续能力咨询被理解为MERCHANT_REVIEW，额外摘要/程序步骤；原文字三判据满足但完成缺口记PARTIAL。程序服从上游错误目标，下一步优先离线复现“能否办理vs明确办理”，不再归因渲染或追加框架。B06原单措辞/冗长及步骤重复为文案观察；长历史纠正/政策关键条件本批未覆盖。
+- 6run/26journal已导出、本批schema删除；[最终只读审计](../reports/customer-agent-boundary-live-v1/final-audit.json)核对11公共表/冻结文件/权重/历史四脏文件保持、账2290，无Case/人工单/退款业务写、0审计模型；停止仅本批启动PG，卷和Docker保留。未做Java/Web整栈/简历指标，不宣称Agent冻结。
+- 结果/记录精确commit普通push核实后停止写入，本批已完成且不再付费追题。后续按用户新指示，不自动追加变体或改业务。
 
 ## 当前快照（2026-10-24，用户要求持续记录架构演进，复盘文档已建立）
 

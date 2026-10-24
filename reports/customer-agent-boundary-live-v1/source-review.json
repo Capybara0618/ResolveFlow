@@ -1,0 +1,221 @@
+{
+  "version": "support-boundary-live-source-review-v1",
+  "reviewer": "CODEX_SOURCE_REVIEW",
+  "runtime_sha256": "f69e7998b767d07ec28af793b562fddedb53443a06b0d45bd40708ffe27b0e3b",
+  "plan_sha256": "e14068a9f881e73bd7715bcb3910c338b612aa0ff89b66b22d992685780741ce",
+  "independent_holdout": false,
+  "new_model_calls": 0,
+  "rating_rule": "All original criteria plus no material completion gap; do not change frozen criteria to hide extra operation artifacts",
+  "rows": [
+    {
+      "id": "B01",
+      "turn": 1,
+      "technical_published": true,
+      "verdict": "PASS",
+      "complete": true,
+      "criteria": [
+        "区分当前助手消息不自动共享与下次默认发给商家",
+        "按需使用已读应用指南，不以退款政策解释隐私",
+        "不声称已经完成共享，不生成申请或转交摘要"
+      ],
+      "criteria_pass": [
+        true,
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "正确选择OTHER/EXPLAIN＋GUIDE，明确当前助手消息私有与再次打开默认补充给商家；只读指南，无政策/物流调用，无操作摘要。",
+      "direct_text_preserved": true,
+      "projection": {
+        "published_body_ms": 2597.4410999915563,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "model_requests": 2,
+      "completion_ms": 3326.1465999967186,
+      "goal": "EXPLAIN",
+      "tools": [
+        "get_support_guide"
+      ]
+    },
+    {
+      "id": "B02",
+      "turn": 1,
+      "technical_published": true,
+      "verdict": "PARTIAL",
+      "complete": false,
+      "criteria": [
+        "直接解释可在原核查单补充接续且历史保留",
+        "说明补充给商家与询问助手的区别时与可信状态一致",
+        "不要求新建核查或退款申请，不删除直接解释"
+      ],
+      "criteria_pass": [
+        true,
+        true,
+        true
+      ],
+      "material_issues": [
+        "EXPLAIN_QUESTION_OVERACTIVATED_AS_MERCHANT_REVIEW"
+      ],
+      "note": "原三条文字判据均满足：可接续、消息保留、未要求新单或退款；但理解把“还能补吗”的能力咨询当MERCHANT_REVIEW，产生多余handoff_summary及重复程序步骤。单列完成缺口，不改原判据或把技术发布算完全正确。没有实际转交写入。",
+      "direct_text_preserved": true,
+      "projection": {
+        "published_body_ms": 2715.0791000021854,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "model_requests": 2,
+      "completion_ms": 3795.3309000004083,
+      "goal": "MERCHANT_REVIEW",
+      "tools": [
+        "get_support_guide"
+      ]
+    },
+    {
+      "id": "B03",
+      "turn": 1,
+      "technical_published": true,
+      "verdict": "PASS",
+      "complete": true,
+      "criteria": [
+        "直接回答当前没有已提交的核查记录，仅说想找人工不等于已转交",
+        "说明确认后才共享与私聊边界",
+        "仅解释而不生成新的转交或退款摘要，直接回答保留在最终正文"
+      ],
+      "criteria_pass": [
+        true,
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "OTHER/EXPLAIN＋GUIDE；根据has_ticket=false与当前助手消息直接回答未提交，确认共享边界明确，无摘要或操作副作用，直接解释完整保留。",
+      "direct_text_preserved": true,
+      "projection": {
+        "published_body_ms": 2292.5977000122657,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "model_requests": 2,
+      "completion_ms": 2856.9550000102026,
+      "goal": "EXPLAIN",
+      "tools": [
+        "get_support_guide"
+      ]
+    },
+    {
+      "id": "B04",
+      "turn": 1,
+      "technical_published": true,
+      "verdict": "PASS",
+      "complete": true,
+      "criteria": [
+        "实际读取当前物流，区分承运签收记录与客户未收到的陈述",
+        "页面与处理方式解释可正常发布，保持本人确认边界",
+        "不重复强制要求已完成排查，不虚构已转交或退款，不生成未要求的操作摘要"
+      ],
+      "criteria_pass": [
+        true,
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "读取DELIVERED物流来源，区分承运记录与客户未收陈述；提供可选人工和后续退款方式但明确本人确认，不强制重复既有排查；没有多余操作摘要。OTHER分类宽泛但needs含SHIPMENT/GUIDE，实际调查和结果满足。",
+      "direct_text_preserved": true,
+      "projection": {
+        "published_body_ms": 2922.870700000203,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "model_requests": 3,
+      "completion_ms": 4621.658200005186,
+      "goal": "EXPLAIN",
+      "tools": [
+        "get_support_guide",
+        "get_shipment_trace"
+      ]
+    },
+    {
+      "id": "B05",
+      "turn": 1,
+      "technical_published": true,
+      "verdict": "PASS",
+      "complete": true,
+      "criteria": [
+        "实际物流读取失败后说明不可用，不能把查不到当丢失或不存在",
+        "如解释政策则保留适用前提，不能认定当前退款资格",
+        "来源受阻的解释和可选人工处理不因页面词被拒绝，不生成退款摘要"
+      ],
+      "criteria_pass": [
+        true,
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "两次物流SOURCE_UNAVAILABLE后受控停止读取，任务UNAVAILABLE带SOURCE_FAILURE，直接解释查不到不等于丢失；未调用政策或认定资格，给可选人工方式，不要求客户补系统数据，无退款摘要。",
+      "direct_text_preserved": true,
+      "projection": {
+        "published_body_ms": 3952.4111000064295,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "model_requests": 4,
+      "completion_ms": 4696.420899999794,
+      "goal": "EXPLAIN",
+      "tools": [
+        "get_support_guide",
+        "get_shipment_trace",
+        "get_shipment_trace"
+      ]
+    },
+    {
+      "id": "B06",
+      "turn": 1,
+      "technical_published": true,
+      "verdict": "PASS",
+      "complete": true,
+      "criteria": [
+        "接受明确人工目标，生成独立待本人确认的handoff_summary",
+        "直接解释选择共享及私聊边界，原解释在最终正文保留",
+        "程序附带确认共享流程但不声称已发给商家，不生成退款摘要，已查事实与客户陈述分开"
+      ],
+      "criteria_pass": [
+        true,
+        true,
+        true
+      ],
+      "material_issues": [],
+      "note": "明确HANDOFF/MERCHANT_REVIEW，实际读取在途和延迟事件，独立handoff_summary区分客户陈述与物流来源；保留隐私直接解释并追加程序确认流程，无退款草稿/真实共享。正文“原核查单”用于尚未创建前的后续描述略不精确，记文案观察，未声称已有单。",
+      "direct_text_preserved": true,
+      "projection": {
+        "published_body_ms": 3969.7009999945294,
+        "stream_identity_parts": [
+          "part-0"
+        ],
+        "replaced_parts": [],
+        "first_stable_observation": "STREAM_RECEIVER"
+      },
+      "model_requests": 3,
+      "completion_ms": 4644.198499998311,
+      "goal": "MERCHANT_REVIEW",
+      "tools": [
+        "get_support_guide",
+        "get_shipment_trace"
+      ]
+    }
+  ]
+}
