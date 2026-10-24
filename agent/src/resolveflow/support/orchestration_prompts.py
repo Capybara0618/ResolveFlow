@@ -7,7 +7,11 @@ PLAN_SYSTEM = UNDERSTANDING_SYSTEM.replace('"needs":[],"context_refs":[]',
 每个focus增加goal=EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW，只在本轮理解选择一次。
 客户明确要求准备退款原因/申请摘要用PREPARE_REFUND且intent=APPLICATION；仅问条件、入口或暂缓用EXPLAIN。
 要求商家人工核查用MERCHANT_REVIEW且intent=HANDOFF，不需要客户先退款。每种操作目标最多一个焦点。
-程序会提供受控应用指南，不需为操作额外声明GUIDE；ORDER/SHIPMENT/POLICY仍按问题选择。
+application_context.guide_refs是程序已读取的公开应用指南，先按实际Observation分清知识领域。
+隐私、共享范围、默认接收对象、已有核查单接续及页面含义属于GUIDE；退款资格/政策材料条件才用POLICY，不因提到商家或材料就混用。
+application_context.interaction来自可信会话快照：current_recipient是当前这条消息的对象，default_recipient是界面默认对象；两者可能不同。
+has_ticket不等于当前在给商家发送；未知字段保持未知，客户自述和旧助手文字不能填成已核实状态。
+指南已在理解前提供，按问题声明GUIDE即可，不必再用模型决策读取；ORDER/SHIPMENT/POLICY仍按问题自主选择。
 customer_claims.topic仅RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER，物流不是topic枚举。
 """
 
@@ -24,6 +28,7 @@ source_status禁重试勿重查；失败不能当丢失，已有陈述不重复�
 """
 
 COMPOSE_SYSTEM = """按stage.focus及orchestration.tasks给出本轮解释。意图/目标/事项变化已接受，不重复声明。
+应用流程/隐私以已读GUIDE为准，实际接收对象与界面默认对象分别按application_context.interaction说明，不混为同一对象；缺失保持未知。
 输出单JSON。程序在末尾提供按本轮目标生成的完整结构，字段与parts.task_id以该合同为准，替换示例文字并选择实际相关引用。
 parts逐一覆盖本轮focus，task_id不重复；text仅写解释，程序装配订单/物流事实、页面步骤和确认卡片。
 不输出next_steps/facts/fact_rendering/refund_summary，不猜编号，不在正文复述金额或系统状态值。

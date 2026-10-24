@@ -87,6 +87,15 @@ class Orchestration:
     def required(self, focus: Focus) -> set[str]:
         return set(focus.needs) | ({"GUIDE"} if focus.intent in {"APPLICATION", "HANDOFF"} else set())
 
+    def application_context(self, refs: dict[str, dict[str, Any]]) -> dict[str, Any]:
+        state = self.request.context.get("conversation_state")
+        state = state if isinstance(state, dict) else {}
+        return {"guide_refs": self.valid_refs("GUIDE", refs), "interaction": {
+            "has_ticket": state.get("has_ticket") if type(state.get("has_ticket")) is bool else None,
+            **{key: state[key] if state.get(key) in {"ASSISTANT", "MERCHANT"} else "UNKNOWN"
+               for key in ("current_recipient", "default_recipient")},
+        }}
+
     def valid_refs(self, need: str, refs: dict[str, dict[str, Any]]) -> list[str]:
         accepted = []
         for ref, source in refs.items():

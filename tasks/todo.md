@@ -1,9 +1,8 @@
-## 当前快照（2026-10-24，全项目历史难题复盘完成）
+## 当前快照（2026-10-24，用户批准客服共同边界修复，A已验证）
 
-- 前两步1543468/900407a已同步；按用户最新要求完成[架构演进与工程复盘](../docs/architecture-evolution.md)，共46个问题族。覆盖从初始构建/依赖、契约权限/事务/MQ/资金、SDK/Harness/恢复、上下文/评测、RAG文献/Query/GPU/效率、双端/多租户/购物物流，到客服状态/政策追问/流式/退款确认核验/UI/启动。补建设阶段导航及六组面试案例；原失败、未采用候选、当前质量缺口均保留。
-- [覆盖审计](../reports/architecture-history-review-v1/README.md)记录初扫381份Markdown（24406行，188份reports/146份docs）、基线541条提交；逐份来源hash和188份报告归属可查。方法为全量标题/问题上下文筛查＋专题聚焦读取，不声称全源码逐行审计或补造未记录历史。
-- 纯文档验证：46编号连续唯一、本地链接/JSON/覆盖计数一致，初扫381文件中除本复盘与本账本外379份hash保持，四既有业务/工程脏文件hash保持；详见[检查结果](../reports/architecture-history-review-v1/validation.json)。0新模型/业务写入，账本2274，未执行业务测试，不更新简历/生产逻辑。
-- 本步只精确提交复盘、来源审计与本账本，普通push并核实远端SHA后收口。用户本次整理要求完成；后续按新指示，不能据此宣称Agent已质量冻结或启动旧任务。
+- 按[方案](../docs/customer-agent-boundary-v1.md)保留orchestrated-v1修来源/步骤/呈现合同。A在理解前经原预算/journal读公共指南；实际理解messages保留可信指南，application_context分开current/default recipient与has_ticket，缺失保持未知，业务工具仍自主按需。
+- 新5红→控制/SDK脚本31通过；Ruff五文件/strict三源码通过。[报告](../reports/customer-agent-boundary-v1/README.md)。纯政策多1本地读但不自动填指南引用，模型次数不增。Docker管道不可用，未运行PG/API/Java/Web或Provider；账2274，旧四脏文件/原44轮保持。
+- A精确提交普通push核实后继续B：解释性页面引用与实际操作分离，保留模型直接解释，统一装配/发布；先反例/离线回归，不能只删校验或按GUIDE引用删正文。上下文纠正、政策前提与人工完成缺口另批，不自动收费重跑。
 
 ## 当前快照（2026-10-24，用户要求持续记录架构演进，复盘文档已建立）
 

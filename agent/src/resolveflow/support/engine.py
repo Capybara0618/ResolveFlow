@@ -139,6 +139,10 @@ class SupportAgent:
         }
 
     async def _drive(self) -> None:
+        if self.orchestration is not None:
+            # Public application boundaries must be observed before asking the model to choose a domain.
+            # Use the normal journal/budget path so recovery reuses the same source and request ordering.
+            self.execute("get_support_guide", {})
         toolkit = Toolkit()
         for name in [
             "get_order_context",
@@ -194,8 +198,13 @@ class SupportAgent:
         packet = render_context(
             self.request, base, self.observations, recent=recent, preview=preview, index_limit=index_limit
         )
+        guide_refs = self.orchestration.valid_refs("GUIDE", self.citations) if self.orchestration else []
+        application_guides = [o for o in packet["observations"] if o.get("source_id") in guide_refs]
         packet = self.stage.project(packet)
         if self.orchestration is not None:
+            if self.stage.pending:
+                packet["observations"] = application_guides
+            packet["application_context"] = self.orchestration.application_context(self.citations)
             packet["orchestration"] = self._readiness()
             packet["stage"]["phase"] = packet["orchestration"]["phase"]
             packet.pop("answer_requirements", None)

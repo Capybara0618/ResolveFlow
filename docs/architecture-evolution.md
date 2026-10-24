@@ -544,6 +544,14 @@ T00实际发现并处理了以下问题，均为**当时锁定版本**的历史�
 
 **验证与经验**：历史坏结果/冻结包不覆写来兼容新代码；文档不把不同迭代的通过数相加。精确暂存、独立提交、普通push及远端SHA核实；原有未提交文件独立保护。本轮复盘同样只改文档和索引，不启动模型/业务写入来补“漂亮结果”。[测试隔离反例](../reports/agent-commerce-facts.md)、[文件原子替换](../reports/agent-investigation-batch3/README.md)、[行尾及评测重建](../reports/agent-evaluation-rebuild.md)、[计量勘误](../reports/rag-delivery/README.md)、[本次覆盖审计](../reports/architecture-history-review-v1/README.md)。
 
+## E47：修正知识域选择之前，先让理解阶段看到应用边界
+
+**根因与确认程度**：当前44轮源审发现隐私/共享/接续被送去POLICY或无需求。代码确认只有部分已接受意图才补指南，UNDERSTAND还剥离全部Observation；因此应用知识在分类之前不可见。这解释一个输入缺口，不证明它是所有错分的唯一原因。
+
+**处理与取舍**：新版通过原预算/持久调用路径，在理解之前读取公共指南，仅向理解阶段恢复该可信来源；分开Java冻结的current_recipient/default_recipient，未知保持未知，不从用户文字推断。实际订单/物流/政策仍自主按需读取。代价是每run增加一次本地读及指南上下文，纯政策回答不因此自动引用指南。
+
+**验证**：5项新失败测试后，31项控制/真实SDK脚本回归通过，实际发送messages包含指南正文和可信接收对象；Ruff/三源码strict通过。初实现只提前调用工具仍失败，测试发现stage投影删掉Observation，再修正。Docker不可用，PG/网页及真实LLM改善本步未验证，不能按新逻辑重算旧44轮。[本批证据](../reports/customer-agent-boundary-v1/README.md)、[修复合同](customer-agent-boundary-v1.md)。后续回答装配与呈现的共同合同结果随对应批次追加。
+
 ## 按建设阶段阅读
 
 编号按问题族固定，后续追加不改旧编号；这里提供从头阅读顺序。早期项目报告日期与Git起点的差异见前文，不据文件排列推断发生先后。

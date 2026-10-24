@@ -54,7 +54,7 @@ def test_repeated_early_finish_cannot_publish_or_reset_the_budget():
     assert result["answer"] is None and agent.repairs == 0 and model.calls == 4
 
 
-def test_pure_policy_has_no_ui_or_business_read_and_still_requires_relevant_policy_reference():
+def test_pure_policy_uses_common_application_context_without_forcing_business_reads():
     req = request()
     value = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "须按条款核验条件。",
                                           "citations": ["P1"]}]}
@@ -62,7 +62,8 @@ def test_pure_policy_has_no_ui_or_business_read_and_still_requires_relevant_poli
                                       read("search_policy", query="签收争议的核验条件"), value], req)
     assert result["status"] == "SUCCEEDED", result["reason"]
     assert model.calls == 3 and agent.repairs == 0
-    assert [name for name, _ in source.calls] == ["search_policy"]
+    assert [name for name, _ in source.calls] == ["get_support_guide", "search_policy"]
+    assert [c["source_type"] for c in result["answer"]["citations"]] == ["POLICY"]
     assert "refund_summary" not in result["answer"]
 
 
