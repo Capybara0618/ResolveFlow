@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，当前版本评测驱动及零付费预检完成）
+
+- d9869bd口径已同步。新增独立Agent/RAG驱动，原14组44轮不改；跨轮接续匹配Java最新accepted状态（含失败），真实StreamingLiveModelClient子类计量、原ProgressReporter投影，撤回临时正文不计有效首段。业务源码未改。
+- 新单元5/临时PG录制集成1/原编排集成3共9过0跳过，Ruff通过；[冻结manifest](../evals/customer-current-evaluation-v1/manifest.json)固定源码/数据/本地权重，0付费[预检](../reports/customer-current-evaluation-v1/preflight.json)核实两租户精确generation和公共PG前后相等。usage2143。
+- 精确commit普通push核实后，只读外部29题及商城9×10热态检索，再当前版本一次44轮真实生成；原始失败全留，逐轮源审，不临场改业务/Gold、不创建Case/退款。历史四脏文件保持。
+
 ## 当前快照（2026-10-24，用户批准当前版本集中评测，口径已定）
 
 - 业务默认orchestrated-v1保持；按[本批合同](../docs/customer-current-evaluation-v1.md)固定14组44轮合成多轮回归、真实流式生成及源审，外部29题证据覆盖、商城9查询×10轮实际检索耗时分开报告。开发集不冒充盲测，绝对效果不与旧版异条件成绩算提升。
