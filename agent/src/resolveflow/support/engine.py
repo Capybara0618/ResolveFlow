@@ -25,10 +25,10 @@ from resolveflow.support.activity import ReadActivity
 from resolveflow.support.completion import check_completion, requirements
 from resolveflow.support.context import LAYOUTS, read_context, render_context
 from resolveflow.support.dialogue import DialogueState, event_outcomes
-from resolveflow.support.grounding import GroundingError, check_amounts, diagnostic_fact_references, ground_answer
+from resolveflow.support.grounding import check_amounts, diagnostic_fact_references, ground_answer
 from resolveflow.support.guidance import CAPABILITIES, capabilities, decision_feedback, tool_schema
 from resolveflow.support.memory import CustomerMemory
-from resolveflow.support.navigation import navigation_references, render_navigation
+from resolveflow.support.navigation import RefundSummaryError, navigation_references, render_navigation
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
 from resolveflow.support.recovery import SourceRecovery
 from resolveflow.support.stages import StageError, TurnStage, Understanding
@@ -280,13 +280,10 @@ class SupportAgent:
                 if not decision.refund_summary.strip() or not any(
                     step.action == 'REFUND_APPLICATION' for piece in pieces for step in piece.next_steps
                 ):
-                    raise ValueError('refund_summary仅用于已选择REFUND_APPLICATION并读取指南的申请摘要。')
+                    raise RefundSummaryError('refund_summary仅用于已选择REFUND_APPLICATION并读取指南的非空申请摘要。')
             grounded = None
             if isinstance(decision, (Answer, AnswerParts)):
-                required = {f.id: {'HANDOFF': 'MERCHANT_REVIEW', 'APPLICATION': 'REFUND_APPLICATION'}[f.intent]
-                            for f in (self.stage.understanding.focus if self.stage.understanding else [])
-                            if f.intent in {'HANDOFF', 'APPLICATION'}
-                            and self.dialogue.lifecycles.get(f.id) not in {'PAUSED', 'CANCELLED', 'RESOLVED'}}
+                required = self.stage.required_actions(self.dialogue.lifecycles)
                 decision = render_navigation(decision, self.citations, strict=self.stage.enabled, required=required,
                                              conversation_state=self.request.context.get('conversation_state'))
                 grounded = ground_answer(decision, self.request, self.citations)
@@ -335,23 +332,33 @@ class SupportAgent:
             self.repairs += 1
             self.feedback = (self.stage.feedback(error) if self.stage.pending or isinstance(error, StageError)
                              else decision_feedback(error, reply.decision, list(self.citations)))
-            if self.stage.enabled and isinstance(error, GroundingError):
+            if self.stage.enabled and self.stage.understanding is not None:
                 # Inspect metadata only: neither publish nor accept the rejected text/state.
                 try:
                     candidate = DECISION.validate_python(reply.decision)
+                    action_gaps: list[dict[str, str]] = []
                     if isinstance(candidate, (Answer, AnswerParts)):
+                        action_gaps = self.stage.missing_actions(candidate, self.dialogue.lifecycles)
                         candidate = diagnostic_fact_references(candidate, self.request, self.citations)
                         candidate = navigation_references(candidate, self.citations, diagnostic=True)
                     if isinstance(candidate, AnswerParts):
                         candidate = render_answer(candidate, self.tasks.tasks)
                     if isinstance(candidate, Answer):
-                        self.stage.check_sources(candidate, self.citations, self.dialogue.lifecycles)
-                except StageError as source_error:
-                    feedback = json.loads(self.feedback)
-                    feedback["source_gaps"] = source_error.gaps
-                    feedback["repair_note"] = feedback.get("repair_note", "") + (
-                        "同时补齐source_gaps列出的全部本轮依据，并在对应part引用；不只修正第一个错误来源。")
-                    self.feedback = json.dumps(feedback, ensure_ascii=False)
+                        source_gaps: list[dict[str, str]] = []
+                        try:
+                            self.stage.check_sources(candidate, self.citations, self.dialogue.lifecycles)
+                        except StageError as source_error:
+                            source_gaps = source_error.gaps
+                        if source_gaps or action_gaps:
+                            feedback = json.loads(self.feedback)
+                            if source_gaps:
+                                feedback["source_gaps"] = source_gaps
+                            if action_gaps:
+                                feedback["action_gaps"] = action_gaps
+                            feedback["repair_note"] = feedback.get("repair_note", "") + (
+                                "先补齐source_gaps中的全部本轮依据，再在对应part引用并选择action_gaps中的操作；"
+                                "source用实际GUIDE编号，不只修正第一个错误或删除摘要。")
+                            self.feedback = json.dumps(feedback, ensure_ascii=False)
                 except ValueError:
                     pass  # An invalid task shape cannot supply reliable additional diagnostics.
             return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_feedback", "arguments": {}})

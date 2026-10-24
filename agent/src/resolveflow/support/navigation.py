@@ -37,6 +37,10 @@ class NavigationSourceError(NavigationError):
     pass
 
 
+class RefundSummaryError(ValueError):
+    """A parsed summary lacks its confirmation-only application contract."""
+
+
 def navigation_references(
     decision: Answer | AnswerParts, citations: dict[str, dict[str, Any]], *, diagnostic: bool = False,
 ) -> Answer | AnswerParts:

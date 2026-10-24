@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，发布缺项统一诊断已离线修复；A原失败保持，B–D未运行）
+
+- A失败856f944已同步。四核心文件修复摘要语义明确分类，所有可解析且有accepted理解的回答校验错误统一诊断source_gaps/action_gaps；正式导航和诊断共用required_actions，不改发布断言/预算/一次修正。[报告](../reports/customer-agent-acceptance-gate-v1/README.md)。
+- 新4红→定向43过；客服/相关契约392过1既有旧指南诊断失败，临时PG/SDK/流式16过0跳过，strict四源码/Ruff/diff通过。原4动作/1工具离线仍失败，首反馈现同时摘要/ORDER/GUIDE/REFUND_APPLICATION，[对比](../reports/customer-agent-acceptance-gate-v1/diagnostic.json)。脚本补读分支非真实采纳证据。
+- 本轮实际仍4请求10032输入/528输出、usage2102，无新Case/退款/在途；B–D按A门槛未启动。精确提交普通push核实后仅保留数据加载最终Python/审计，不自动收费重发或称完整客服成功；四历史脏文件保持。
+
 ## 当前快照（2026-10-24，小规模真实验收A失败，发布诊断短路根因已定位）
 
 - 准备8af7335已同步，A一次真实4请求，准确10032输入/528输出、0未知，usage2098→2102。fields-v1已正确，但根级摘要没有退款next_steps，前置普通ValueError绕过原GroundingError诊断，反馈仅citations；修正删摘要仍无操作/ORDER/GUIDE，未发布。[原始证据](../reports/customer-agent-acceptance-gate-v1/primary/README.md)。

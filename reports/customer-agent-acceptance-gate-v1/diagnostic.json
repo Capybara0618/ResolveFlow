@@ -1,0 +1,52 @@
+{
+  "diagnostic_only": true,
+  "strict_replay": false,
+  "deadline_refreshed_for_offline_execution": true,
+  "raw_sha256": "94d76f7489266803f8d4b89c5e91eaddf1c5f165b4a5e8c3eeb4e8e4da795014",
+  "new_provider_calls": 0,
+  "business_writes": 0,
+  "old_feedback": {
+    "code": "INVALID_DECISION",
+    "remaining_repairs": 0,
+    "resubmit": "FULL_ACTION",
+    "rejected_annotations_committed": false,
+    "resubmit_note": "被拒动作的标注未保存；重发完整动作及所需tasks/dialogue_events，不只补字段。以当前task_state/dialogue_state为准，已有任务不用ADD。",
+    "field": "citations",
+    "available": [
+      "O1"
+    ],
+    "detail": "只能引用已读且存在的编号；缺少依据时先选择相应读取工具。"
+  },
+  "new_feedback": {
+    "code": "INVALID_DECISION",
+    "remaining_repairs": 0,
+    "resubmit": "FULL_ACTION",
+    "rejected_annotations_committed": false,
+    "resubmit_note": "被拒动作的标注未保存；重发完整动作及所需tasks/dialogue_events，不只补字段。以当前task_state/dialogue_state为准，已有任务不用ADD。",
+    "field": "refund_summary",
+    "detail": "refund_summary仅用于已选择REFUND_APPLICATION并读取指南的非空申请摘要。",
+    "repair_note": "确需准备申请时，refund_summary是根级非空字符串，对应申请part须给next_steps:[{action:REFUND_APPLICATION,source:本run实际已读指南编号}]。先读取所缺来源再完整回答，不能猜编号；只咨询或暂缓申请则省略摘要，仍须满足当前已接受事项的操作和依据要求。先补齐source_gaps中的全部本轮依据，再在对应part引用并选择action_gaps中的操作；source用实际GUIDE编号，不只修正第一个错误或删除摘要。",
+    "source_gaps": [
+      {
+        "task_id": "t2",
+        "need": "GUIDE"
+      },
+      {
+        "task_id": "t2",
+        "need": "ORDER"
+      }
+    ],
+    "action_gaps": [
+      {
+        "task_id": "t2",
+        "action": "REFUND_APPLICATION"
+      }
+    ]
+  },
+  "saved_model_actions": 4,
+  "saved_tool_results": 1,
+  "repairs": 1,
+  "original_actions_still_failed": true,
+  "published_answer": null,
+  "real_model_acceptance_of_new_feedback": "NOT_TESTED"
+}

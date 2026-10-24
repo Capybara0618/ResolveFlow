@@ -17,3 +17,18 @@
 ## 一次真实结果
 
 准备8af7335已同步。`execute`返回失败：4真实请求、准确10032输入/528输出、0未知，usage2098→2102；候选缺少退款操作声明，摘要语义前置检查的普通ValueError绕过完整缺项诊断，反馈误归为citations。模型修正只删摘要，未补ORDER/GUIDE及操作，未正式发布。没有生成草稿/新Case/退款，B–D未启动。[全部证据与未运行项](primary/README.md)。原数据/索引/13保护文件保持，无在途。先精确保存失败并普通push核实，再做离线诊断修复；本轮不自动重发收费题。
+
+## 发布诊断统一修复（尚未再Live）
+
+失败856f944已普通push核实后，四核心文件小步修复：navigation新增明确RefundSummaryError；guidance给正确摘要/操作关系反馈；stages提取同一required_actions给正式导航与只读缺项检查共用；engine对所有已解析/已接受理解的回答错误收集source_gaps及action_gaps，不再仅限GroundingError。先抛错的正式校验仍拒绝，诊断副本不执行、不发布、不保存状态，原权限/预算/一次修正不变。
+
+新增`test_support_publication_requirements.py`四项先红4失败：保存真实前缀的摘要缺口、原动作继续拒绝、无摘要的人工操作缺口、已读合法指南但空摘要。实现后定向五文件43通过3.42秒。包含显式脚本修复分支（补读指南/ORDER后6次脚本模型/3工具读/一次修正成功），与原真实4动作失败分开，不称模型已采纳。
+
+实际集中命令/结果：
+
+- `rg --files agent/tests/unit`选取support/相关contracts/customer_agent_publication组，`python -m pytest ... -q --tb=short`：**392通过、1已知历史v2指南诊断失败，393总项，20.80秒**；与开工已知基线相同，原断言/旧指南/原报告不删改，不报全仓绿。
+- 显式PG55433、原临时schema：`pytest agent/tests/integration/test_support_stream_runtime.py agent/tests/integration/test_support_store.py agent/tests/integration/test_support_staged_api.py agent/tests/integration/test_support_answer_parts_api.py -q --tb=short`：**16通过、0跳过，8.83秒**，覆盖真实SDK/PG、流式撤回/持久结果/0调用复用/旧manifest拒绝。
+- `mypy --strict` engine/stages/guidance/navigation **四源码通过**；上述源码/新单测/诊断脚本Ruff通过，diff检查通过。
+- `python scripts/diagnose_customer_gate_v1.py`：只读本轮原raw，经同一SDK仍消费原4动作/1工具、一次修正、仍失败不发布；新首个反馈同时指出根级摘要、ORDER/GUIDE与REFUND_APPLICATION，原反馈只有citations。[完整对比](diagnostic.json)。仅刷新离线deadline，不是strict回放；0Provider/业务写，rawSHA保持，不合成新事实救活原失败。
+
+没有再次Live或启动B–D，总usage2102不变。精确提交普通push核实后保留数据加载最终Python并核对原业务/冻结结果；完整链路尚未通过，不能冻结整个客服或写简历指标。

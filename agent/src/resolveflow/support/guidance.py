@@ -12,7 +12,7 @@ from resolveflow.support.completion import CompletionError
 from resolveflow.support.dialogue import DialogueStateError
 from resolveflow.support.grounding import GroundingError
 from resolveflow.support.memory import MemoryStateError
-from resolveflow.support.navigation import NavigationError, NavigationSourceError
+from resolveflow.support.navigation import NavigationError, NavigationSourceError, RefundSummaryError
 from resolveflow.support.tasks import TaskStateError
 
 CAPABILITIES: dict[str, dict[str, Any]] = {
@@ -82,7 +82,13 @@ def decision_feedback(error: Exception, payload: Any, references: list[str]) -> 
         "resubmit_note": "被拒动作的标注未保存；重发完整动作及所需tasks/dialogue_events，不只补字段。"
                          "以当前task_state/dialogue_state为准，已有任务不用ADD。",
     }
-    if isinstance(error, NavigationSourceError):
+    if isinstance(error, RefundSummaryError):
+        result.update(field="refund_summary", detail=str(error),
+            repair_note="确需准备申请时，refund_summary是根级非空字符串，对应申请part须给"
+                        "next_steps:[{action:REFUND_APPLICATION,source:本run实际已读指南编号}]。"
+                        "先读取所缺来源再完整回答，不能猜编号；只咨询或暂缓申请则省略摘要，"
+                        "仍须满足当前已接受事项的操作和依据要求。")
+    elif isinstance(error, NavigationSourceError):
         result.update(field="next_steps", detail=str(error), resubmit="READ_THEN_FULL_ANSWER",
             required_read={"kind": "READ_TOOL", "tool_name": "get_support_guide", "arguments": {}},
             resubmit_note="被拒答案未发布；先读取指南再提交完整答复，沿用当前已接受stage和task状态。",
