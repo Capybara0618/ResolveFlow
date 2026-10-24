@@ -119,3 +119,25 @@ def test_explain_entry_generates_guide_but_no_refund_reason_or_current_order_rea
     assert model.calls == 2 and agent.repairs == 0
     assert source.calls == [("get_support_guide", {})]
     assert "refund_summary" not in result["answer"]
+
+
+def test_actual_composition_request_has_goal_specific_complete_output_example():
+    req = request()
+    opening = plan(req, intent="HANDOFF", goal="MERCHANT_REVIEW").model_dump()
+    final = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "请先核对共享内容。"}],
+             "handoff_reason": "客户表示未收到，已排查家人和代收点，待本人确认后请商家核查。"}
+    result, agent, model, _ = run([opening, final], req)
+    assert result["status"] == "SUCCEEDED", result["reason"]
+    assert agent.repairs == 0
+    system = model.conversations[-1][0].get_content_blocks()[0].text
+    example = json.loads(system.split("本轮完整输出示例：\n", 1)[1])
+    assert set(example) == {"kind", "parts", "handoff_reason"}
+    assert example["parts"][0]["task_id"] == "trace"
+
+
+def test_refund_request_contract_requires_its_own_reason_not_handoff_or_presentation_fields():
+    result, _, model, _ = run([plan(request()).model_dump(), read("get_order_context"), respond()])
+    assert result["status"] == "SUCCEEDED"
+    system = model.conversations[-1][0].get_content_blocks()[0].text
+    example = json.loads(system.split("本轮完整输出示例：\n", 1)[1])
+    assert set(example) == {"kind", "parts", "refund_reason"}

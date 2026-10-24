@@ -1,3 +1,9 @@
+## 当前快照（2026-10-24，按目标编译输出合同已离线验证，待有限人工确认与原定主链）
+
+- 6c5b16a失败已同步。程序现按accepted goal/READY/lifecycle生成本轮完整RESPOND例子，明确退款/人工原因字段；COMPOSE真实system使用，暂停/取消/受阻不要求原因，不用正文替代摘要或放宽校验。
+- 新6红→控制/SDK26过，3源码strict/Ruff过；临时PG/API/流式/store18过0跳过，扩大客服/契约427过/6既有跳过/1既有v2指南诊断失败。原5模型/3工具离线0网仍失败，新请求有明确handoff_reason例子，不冒充模型已采纳。[记录](../reports/customer-agent-orchestration-acceptance-v1/README.md)。
+- 精确commit普通push核实后固定一条不同措辞人工确认，成功前三组不重跑，原失败不改；通过再原定主链。本批最多8客服轮/1Case调查（比原计划多1条修正确认），若再失败停止依赖，不切默认。当前usage2129，无新Case/退款，旧四脏文件保持。
+
 ## 当前快照（2026-10-24，独立验收前三组通过，人工漏独立摘要失败，根因已定位待离线修正）
 
 - b407832准备已同步，六条消息各一次21真实请求46629输入/2177输出、0未知，usage2108→2129；policy/纠正/暂停均通过，原陈述正确替代、暂停草稿STALE且无确认按钮。[源审](../reports/customer-agent-orchestration-acceptance-v1/controls-review.json)。

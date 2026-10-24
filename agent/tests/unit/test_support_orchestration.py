@@ -164,3 +164,25 @@ def test_prepared_refund_requires_reason_and_rejects_unobserved_references():
 def test_operation_goal_cannot_be_attached_to_unrelated_intent():
     with pytest.raises(ValueError, match="goal"):
         plan(request(), intent="LOGISTICS")
+
+
+@pytest.mark.parametrize("life", ["PAUSED", "CANCELLED", "RESOLVED"])
+def test_output_contract_for_inactive_goal_does_not_request_a_reason(life):
+    req = request()
+    p = plan(req)
+    flow = Orchestration(req)
+    flow.accept(p)
+    contract = flow.response_contract(p.meaning(), {}, [], {"trace": life})
+    assert set(contract["example"]) == {"kind", "parts"}
+    assert contract["reason_fields"] == []
+
+
+def test_output_contract_for_blocked_goal_does_not_suggest_a_usable_application():
+    req = request()
+    p = plan(req)
+    flow = Orchestration(req)
+    flow.accept(p)
+    failures = [{"tool_name": "get_order_context", "error": "NOT_FOUND", "retry_allowed": False}]
+    contract = flow.response_contract(p.meaning(), {"O1": guide_source()}, failures, {})
+    assert "refund_reason" not in contract["example"]
+    assert contract["reason_fields"] == []

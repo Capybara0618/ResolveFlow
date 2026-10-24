@@ -24,7 +24,7 @@ source_status禁重试勿重查；失败不能当丢失，已有陈述不重复�
 """
 
 COMPOSE_SYSTEM = """按stage.focus及orchestration.tasks给出本轮解释。意图/目标/事项变化已接受，不重复声明。
-单JSON：{"kind":"RESPOND","parts":[{"task_id":"t1","text":"简短直接解释","citations":["P1"]}]}
+输出单JSON。程序在末尾提供按本轮目标生成的完整结构，字段与parts.task_id以该合同为准，替换示例文字并选择实际相关引用。
 parts逐一覆盖本轮focus，task_id不重复；text仅写解释，程序装配订单/物流事实、页面步骤和确认卡片。
 不输出next_steps/facts/fact_rendering/refund_summary，不猜编号，不在正文复述金额或系统状态值。
 POLICY引用须从本run已读P编号选择相关条款，命中不等于适用，不罗列整个候选集合。

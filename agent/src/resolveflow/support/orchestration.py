@@ -142,6 +142,29 @@ class Orchestration:
     def failure_tools(self, meaning: Understanding) -> dict[str, set[str]]:
         return {f.id: {TOOLS[need] for need in self.required(f)} for f in meaning.focus}
 
+    def response_contract(self, meaning: Understanding, refs: dict[str, dict[str, Any]],
+                          failures: list[dict[str, Any]], lives: dict[str, str]) -> dict[str, Any]:
+        """Compile the accepted goals into the exact output shape, never into invented customer reasons."""
+        state = self.snapshot(meaning, refs, failures, lives)
+        if state["phase"] != "COMPOSE":
+            raise ValueError("response contract requires evidence readiness")
+        example: dict[str, Any] = {"kind": "RESPOND", "parts": [
+            {"task_id": focus.id, "text": "替换为本事项的直接解释，不将待共享原因只写在正文。", "citations": []}
+            for focus in meaning.focus]}
+        fields = []
+        for task in state["tasks"]:
+            if task["state"] != "READY" or lives.get(task["task_id"]) in INACTIVE:
+                continue
+            field = {"PREPARE_REFUND": "refund_reason", "MERCHANT_REVIEW": "handoff_reason"}.get(task["goal"])
+            if field:
+                fields.append({"field": field, "task_id": task["task_id"], "type": "nonempty string",
+                               "required_for_status": ["ANSWERED", "NEEDS_MERCHANT"],
+                               "omit_for_status": ["NEEDS_CUSTOMER"]})
+                example[field] = ("替换为待本人核对的退款原因，区分客户陈述与已核实事实。"
+                                  if field == "refund_reason" else
+                                  "替换为待本人确认共享给商家的核查摘要，区分客户陈述与已核实事实。")
+        return {"reason_fields": fields, "example": example}
+
     def compose(self, response: Response, meaning: Understanding, refs: dict[str, dict[str, Any]],
                 failures: list[dict[str, Any]], lives: dict[str, str]) -> AnswerParts:
         state = self.snapshot(meaning, refs, failures, lives)
