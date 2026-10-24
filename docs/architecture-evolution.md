@@ -11,6 +11,7 @@
 | E01 | 2026-10-21至10-24 | 客服Agent从单阶段到两阶段，再到程序参与的运行编排 | 为什么不能把所有职责交给LLM？拆阶段解决了什么、没解决什么？ |
 | E02 | 2026-10-24证据归纳 | RAG按知识领域、语料规模及实际瓶颈取舍 | 检索差一定是向量模型问题吗？为什么小政策集合完整输入？ |
 | E03 | 2026-10-22 | 评价缓存的代际失效及故障策略 | 删缓存后旧请求回填怎么办？Redis故障能否统一放行？ |
+| E04–E18 | 早期构建至2026-10-07 | 环境、范围、契约、权限、事务、退款、框架、恢复、回放与查询 | 一个Agent项目怎样从可运行走到业务可靠？ |
 
 另有运行框架层的[AgentScope迁移记录](agentscope-migration.md)。运行框架替换与E01的客服职责编排是两类变化：E01三个版本复用同一个AgentScope主循环，不应讲成换了三次框架或引入了多个Agent。
 
@@ -169,3 +170,144 @@
 经验：缓存优化要讲数据版本、并发和故障时的业务含义。一次缓存命中、正确性故障测试和压力测试证明的事情不同。
 
 [后端深化报告及实际命令](../reports/backend-deepening-v1.md)、[设计取舍](backend-deepening-v1.md)。
+
+## 从项目最初构建开始的工程记录
+
+以下按问题族归并历史，多次修复放在同一条中。**实际缺陷**表示有失败或反例记录；**设计取舍**表示预先限制业务风险，不能讲成线上事故。历史验证只证明对应版本，最新执行状态仍查任务账本。早期兼容报告标注2026-09-15，Git最早保留提交为2026-09-18；两种日期各按原记录保留。
+
+## E04：先让依赖真正兼容，再开始业务开发
+
+**实际难题**：最初只有设计文档，本机Java17、Python3.10、Node24和文档目标不一致；Maven/pnpm缺失、Docker未启动。应用启动成功也不保证基础设施正确工作。
+
+T00实际发现并处理了以下问题，均为**当时锁定版本**的历史经验：
+
+| 现象 | 定位及处理 |
+| --- | --- |
+| Boot4应用正常启动，Flyway表却没创建 | 只有flyway-core不再触发相应自动配置，补spring-boot-flyway并验证真实迁移 |
+| 旧Gateway坐标解析失败 | 改用该版本对应的gateway-server-webflux starter |
+| SCA BOM可能管理到Boot3线的MyBatis | 显式锁兼容线并以Enforcer阻止依赖仲裁悄悄回退 |
+| Testcontainers报找不到Docker环境 | 实际是Docker29最低API与旧docker-java不兼容；采用验证过的Testcontainers2组合及新模块坐标 |
+| Docker Hub直连超时 | 本地镜像源拉取并核验固定digest；未将本机网络绕行当可移植CI方案 |
+| MCP旧样例导入失败、结果字段取不到 | 固定SDK2.2实际MCPServer及snake_case接口，未混用1.x示例 |
+| Nacos容器退出、管理接口410/403 | 实测鉴权配置及API代际变化；此为早期兼容验证，后续核心不强制Nacos |
+| RocketMQ宿主机客户端连接不到broker | 广播了容器内网地址，按本地部署配置可达brokerIP1 |
+| CHECK违反未被预期异常类型捕获 | MySQL3819在当时Spring组合映射为UncategorizedSQLException，不能只捕获DataIntegrityViolationException |
+| LangGraph PG检查点初始化/恢复用法不明 | 实测上下文管理器、setup、跨连接和thread隔离；后来切AgentScope时没有继承这份通过结论 |
+
+**验证与经验**：当时Java20项、Python18项兼容测试和前端构建通过。先用最小真实数据库/MQ/MCP spike固定组合，再进入业务；不能把“容器健康”当业务功能证明。[原始兼容报告](compatibility-report.md)、[日志摘录](../reports/t00-compatibility/EVIDENCE-SUMMARY.md)。
+
+## E05：从大而全的平台设想收敛到可验收的个人项目
+
+**设计取舍**：原范围含更多履约与跨动作协调，退款和补发、跨服务权益预留、执行中取消会显著增加状态组合与补偿复杂度。
+
+**调整**：v1.2收敛到Gateway、Case、Commerce和Python Agent；只做单订单行全量模拟退款，退出补发/库存/跨动作Saga及授权消费后的输入变更与取消。Case管理授权，Commerce管理资金和provider，模型提供调查建议。
+
+**代价与验证边界**：业务范围限制本身也是可靠性设计的一部分，不能保留“执行中可取消”的产品承诺却删掉对应协议。后续商城允许多订单行，但每行仍整行退款，不等于恢复了行内部分退款。[范围](core-scope.md)、[架构](architecture.md)、[领域不变量](domain-model.md)；早期范围收敛提交`e37d691`。
+
+## E06：跨语言契约不能靠发送方自己的断言自证
+
+**实际缺陷**：早期核心提案曾漏schema_version/case_id；后续Python四类回调的多余字段、缺失成员、question字段名和非UUID提案ID，与已发布Case契约不符，但发送方测试仍通过。模型动作ABI一度没有引用字段，校验器要求的引用根本无从表达。
+
+**根因**：测试只核对Python自己列的required keys，假投递器直接返回接受，缺少“真实出站载荷→权威Schema→消费者”验证。
+
+**落地**：核心Schema/OpenAPI、Java record、Python DTO、正反fixture和路由同步；对实际回调做完整闭合Schema校验，补模型分类和四成员引用，最终worker状态/回调同事务。T00另以Java独立复现Python canonical hash，避免跨语言签名与载荷指纹漂移。
+
+**验证与经验**：C08最终方案修复后相关五文件53项通过；真实常驻联调又发现CallbackRecord未读出traceparent，补持久记录→真实HTTP组合测试后闭环通过。编译、生产者单测和组件契约都不能替代消费者边界。[回调缺口](../reports/c08-2-5-callback-payload-contract-gap.md)、[最终出站修复](../reports/c08-2-8-final-proposal-validation.md)、[真实回调trace缺陷](../reports/c08-resident-java-bridge.md)。
+
+## E07：身份、资源归属和工具scope是三道独立边界
+
+**实际缺陷与设计问题**：早期JWT漏issuer验证，内部工具只验服务身份却没有逐路由scope；跨语言run UUID曾用错namespace，产生“形式合法但Case从未派生”的ID。前端隐藏菜单也不能保证跨主体不可读。
+
+**处理**：issuer与audience分别校验；服务身份、run/case/revision绑定及路由scope独立强制，scope按集合解释。run ID移入生产函数，并从Java namespace独立重算作跨语言断言，替换测试内自比自的恒真校验。常驻Agent每run领取短期工具凭据，失败不退回部署身份；资源服务按已认证主体验证归属，跨主体读取404。
+
+**证据**：issuer修复`9127f9b`，Java scope修复`96a4200`、Python集合语义`4ac5e71`；[UUID真实失败与10测试](../reports/agentscope-migration/baseline.md)、[常驻凭据接线及全量验证](../reports/c08-resident-run-credential.md)。后续账号身份版本和多人负责人保护见E31。经验是身份可信、允许调用及资源属于谁必须分别证明。
+
+## E08：旧建议、旧授权与补证输入必须共同失效
+
+**实际缺陷**：只看工单status不足以判断能否编辑。退款明确失败后工单可回待审，但授权已经消费；旧材料/人工方案/取消入口曾重新开放输入。
+
+**处理**：input_revision与资源version分开；补证、核验、人工方案使未消费旧授权失效；新run入队和旧run STALE同事务，旧待投递回调一并作废。授权消费后各写入口持工单锁检查消费存在性，不依赖页面隐藏或“当前待审”状态。
+
+**验证与经验**：新增四条消费后入口反例最终均409，业务version/revision、方案和消费状态保持；Python新修订/旧回调有独立PG测试。方案正确也可能过期，执行资格必须绑定当时输入而非模型confidence。[已消费输入冻结修复](../reports/reviewer-consumed-input.md)、[新revision令旧run失效](../reports/c08-2-3-supersede-stale.md)、[领域规则](domain-model.md)。
+
+## E09：消息协议名合法，不代表实际broker能传输
+
+**实际缺陷**：核心信封topic含点，RocketMQ classic实际发送拒绝该名称；订阅端当时不立即报错，造成看似健康但没有消息。早期规格里的RocketMQ starter坐标也与官方客户端路线冲突。
+
+**处理**：采用已验证classic客户端，不额外引Stream绑定或gRPC proxy。签名覆盖的逻辑topic保持原协议，只在统一传输边界将两个允许topic映射成合法broker名，生产和消费同用映射。
+
+**验证与经验**：真实失败时原outbox连续退避仍PENDING，未丢行；修复后真实收发验证。业务协议与传输限制要明确分层，健康检查不能替代一次真实收发。[兼容报告5.12及6.1](compatibility-report.md)；消费入口提交`efcdbde`。
+
+## E10：第三次重复投递和并发结果暴露了真正的幂等漏洞
+
+**实际缺陷**：MySQL upsert重复分支若值没改变，Connector/J返回的affected rows可与新插入相同；先改固定detail只保证第二次改变，第三次又可能被误认新认领。并发结果还触发锁顺序死锁、快照读导致timeline序号撞主键、陈旧结果被记成CASE_CLOSED。
+
+**修复**：重复分支使用每次都会变化的deliveries计数；按一致锁序与当前读比较聚合版本、分配轨迹序号。inbox、投影/轨迹和本地结果同事务；确定性业务拒绝留记录，临时数据库竞争交由原投递重试，不把重复交付当新增业务效果。
+
+**验证与经验**：真实MySQL并发/重复及乱序反例有修复提交`97f1b8a`、`b814463`；[当时数据库诊断](compatibility-report.md)、[后续真实MQ退款矩阵](../reports/resume-quantification-v1/refund/README.md)。只测两次重复不够，唯一键也不会自动消除死锁；系统按至少一次交付设计，不宣称端到端exactly-once。
+
+## E11：请求超时不能直接当退款失败
+
+**实际难题**：provider可能已退款但响应丢失。若释放预留并换operation重付，会发生第二次业务执行。2026-10-07还发现Spring读取响应头时将断连包成RestClientException，原先只捕获ResourceAccessException，未进入UNKNOWN。
+
+**处理**：稳定operation/provider key；网络放在资金事务外；UNKNOWN保留资金和行槽，仅查原操作，明确成功或失败后再结算。补识别根因含IOException的响应读取错误，其他非传输异常不随意吞掉。未知不是确定失败，成功退款也不能本地回滚。
+
+**验证与经验**：早期CF3真实丢响应→UNKNOWN→原ID对账收敛，provider attempts=1；后续真实HTTP接收后断连反例与资金测试28项通过。测试覆盖指定故障窗口，不能推导任意支付场景零重复。[正式矩阵前的修复](../reports/resume-quantification-v1/refund/fixes/README.md)、[可靠执行边界](reliability-security.md)；早期提交`0e6a91c`。
+
+## E12：从单行订单扩展到多行时，旧金额算法不再成立
+
+**实际缺陷**：用“本行实付－整单已退/预留”计算，导致一行退完后另一行错误地失去资格；并发结算先读非终态再等锁，会对别人已结算的结果再次做状态转换。同一操作不同事件ID并发接受也曾在等待后仍用旧快照判断占用。
+
+**处理**：分开整单支付上限与本行退款槽，FREE行可用额取本行原实付与整单剩余的较小值。先锁整单账本，再锁定当前operation/行槽；同operation返回原结果、换载荷冲突，终态不重复结算。缺少新事实不放行；兼容旧响应保留保守算法。
+
+**验证与经验**：两行329/398元、并发预留、UNKNOWN/失败释放、16次重复结算及整单不足回滚在真实隔离MySQL验证；后续十线程屏障复现旧快照问题。扩展数据模型时要重新审查旧算法假设，不能只给列表增加多行。[多行前置](../reports/multiline-refunds.md)、[并发接受修复](../reports/resume-quantification-v1/refund/fixes/README.md)。
+
+## E13：一条坏记录不能拖死整个投递/恢复批次
+
+**实际缺陷**：早期Commerce已有孤儿RECEIVED记录，每轮派发抛同一异常，后续合法操作无法推进。恢复过程中，无收据的UNKNOWN也可能反复占队首。
+
+**处理**：逐条隔离异常并记录attempted/failed，查询原ID、持久重试时间和有界退避；批次有限扫描，provider查询在事务外。后续支付恢复按条件领取，缺收据继续UNKNOWN，未付款草稿才允许持久过期关闭，PAYMENT_PENDING不按到期直接取消。
+
+**验证与经验**：孤儿＋合法同批反例对应`0bc6590`；2026-10-22实库覆盖队首公平、两worker、收据发布回滚后重启复用原ID及异常不影响下一条。[后端深化B3](../reports/backend-deepening-v1.md)、[模拟付款](../reports/checkout-payment.md)。状态机正确还需要调度层能持续取得进展。
+
+## E14：AgentScope迁移中，锁能解开不代表SDK接口可用
+
+**实际缺陷**：AgentScope2.0.8声明mcp<2，而项目已锁MCP2.2。即使依赖解析完成，真实适配仍因inputSchema/input_schema、readOnlyHint/read_only_hint、isError/is_error以及McpError/MCPError不一致而崩溃或静默丢只读语义。
+
+**处理**：先独立spike和锁，逐项验证真实stdio握手、工具适配、正常调用及错误分支，再用薄边界适配接唯一SDK循环；不把旧完整Harness循环套进SDK形成双循环，也不重选整套Java/Python依赖。
+
+**验证与经验**：兼容报告保存故意触发的AttributeError及补适配后的探针；生产只保留AgentScope循环。迁移时“先查fence再另开连接写快照”也被真实反例纠正为每个写事务内锁行核验。SDK会话保存不能替代业务持久化与恢复。[兼容成本及恢复探针](../reports/agentscope-migration/compatibility.md)、[迁移边界](agentscope-migration.md)；生产切换`59e9625`。
+
+## E15：模型能否使用依据，取决于真正发出的messages
+
+**实际缺陷**：ContextPacket虽实现，正式runner默认仍走旧输入；测试读取mock隐藏packets。引用id/version/hash只存在内部Observation，真实P3却仅渲染result；另有拒绝notice只记在Harness日志，模型从未收到。
+
+**处理**：正式路径启用有界ContextBuilder；计数和hash覆盖最终实际请求，禁止之后又追加SDK历史。可信引用元数据独立呈现，result自带伪造hash不能覆盖来源；notice进入必保上下文。第一次可修复错误继续原循环，仍只有一次修正且计预算，第二次失败才结束。
+
+**验证与经验**：通过型退款候选先在真实messages缺content_hash处失败，修复后40项相关测试通过；通知与一次修正有独立失败测试。查看内部对象“有数据”不能证明模型看见，更不能证明模型用了它。[正式上下文路径](../reports/c08-1a-context-path.md)、[引用管道](../reports/c08-refund-citation-pipeline.md)、[反馈通道](../reports/c08-1c-2a-feedback-channel.md)、[一次修正](../reports/c08-1c-2-repair-once.md)。
+
+## E16：恢复Agent既要防旧worker写入，也要保住真实调用成本
+
+**实际缺陷与边界**：查fence和写入不同事务有竞争窗口；等待行锁可能耗尽lease，锁前取的时间已过期；旧无fence领取者曾能在新worker接管后写终局。模型返回未保存与已保存未推进，是不同的重复计费风险窗口。
+
+**处理**：领取递增fence；同run持session advisory lock，网络不持行事务，独立心跳。预占、保存回复/usage、工具结果、终局及callback都在各自事务锁run后读取数据库时间、验证owner/fence/lease/deadline。稳定call ID、实际请求body/hash和UNKNOWN attempt持久；已存结果重建复用，未存响应可保留占用后有限重发。发送timeout取配置与剩余deadline最小值，恢复不重置manifest或期限。
+
+早期spike的12+2恢复额度不能直接作生产总上限，C09明确为当时总12内的10普通＋2恢复分区。后续配置以各run冻结manifest为准，不把历史分区当所有入口恒定事实。
+
+**验证与经验**：C09真实PG双进程三个崩溃窗口各5次重领fence恢复；补锁等待、迟到工具fence和旧领取者反例。最终当时1138通过/9既有无citation跳过。另有SDK异常handler遮蔽StaleFenceError，需在工具边界保留原领域拒绝。测试不证明零重复付费或生产HA。[完整恢复过程](../reports/c09-production-recovery.md)、[预占](../reports/c09-pg-model-reservation.md)、[结果与usage](../reports/c09-pg-model-result.md)、[UNKNOWN attempt](../reports/c09-pg-model-attempt.md)、[预算边界](../reports/c09-recovery-budget-boundary.md)。
+
+## E17：strict回放的“无网络”不能靠一次monkeypatch证明
+
+**实际缺陷**：早期只替换socket.create_connection，直接socket与asyncio连接仍可绕过。源码import扫描也不能证明没有业务写入能力。
+
+**处理**：Python层补可恢复的入口守卫并撤回过强结论；正式strict容器采用network none、只读根/包、非root、不挂生产凭据及数据库。模型/工具按完整记录顺序及请求hash回放，缺失、篡改、未知类型或版本不兼容明确失败，不联网补齐。
+
+**验证与经验**：C10五个真实PG导出的合成顺序轨迹在容器5/5 MATCH；当时支持范围限定mock顺序轨迹，后续回放版本单独冻结，不能改旧包hash假装兼容。全量测试曾在并行镜像构建负载下触发恢复时序失败，最终无并行负载复验记录另留。隔离保障与逻辑复现应各有证据。[隔离结论勘误](../reports/c08-review-fixes.md)、[正式回放](../reports/c10-strict-replay.md)。
+
+## E18：索引要匹配真实排序，缓存要接到真实查询路径
+
+**实际问题**：审核队列按updated_at排序，旧复合索引却以created_at排序；过滤虽命中，仍扫描约2000行再Sort。后续商家workspace也需要确认真正调用了已有查询缓存，而非只写一个未接入的缓存类。
+
+**处理**：按tenant/status/updated_at/case_id构建稳定keyset索引，批量读取附属动作避免N+1；同数据验证新旧顺序相同。列表用已认证商家、limit及游标摘要作key，2秒TTL仅是非权威视图；资金/审批依旧数据库及版本校验。Redis100ms超时，8并发/100ms回源门控，异常回源或过载503。
+
+**验证与经验**：早期同2万行SQL诊断首页9.62ms→0.156ms，但这是单次EXPLAIN ANALYZE，不是接口p95。真实Redis/超时/租户及游标隔离有测试，后续workspace接线见深化报告。先核对调用链、SQL和计划，再报告独立接口压测。[C11查询证据](../reports/c11-review-query.md)、[workspace接线](../reports/backend-deepening-v1.md)、[独立量化口径](../reports/resume-quantification-v1/review/README.md)。
