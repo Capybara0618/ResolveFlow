@@ -1,4 +1,10 @@
-## 当前快照（2026-10-25，两处定点确认已冻结待执行）
+## 当前快照（2026-10-25，Agent状态/引用收尾完成，停止继续扩架构）
+
+- 多目标更正b929687、摘要引用bffe5cd、阶段合同539c519已普通push；准备62ecae5后[两处实际定点](../reports/customer-phase-closeout-live-v1/README.md)2/2通过，7新模型32866输入/999输出，usage2440→2447。和前30请求合并37/40、143776输入/5564输出、未知/估算0，不继续用余量追题。[工程报告](../reports/customer-boundary-closeout-v1/README.md)/E59同步。
+- 原t1 RESUME后同id APPLICATION/OPEN，实际订单/物流/政策及退款摘要正确；暂停准备后新政策问题活跃且本run检索政策，无操作摘要。一次仅缺POLICY误选READ_FACTS被拦后原修正成功，保留费用。原11轮9/11与失败保持，另2/2不合并成完整11/11；当前工程/已发现阻断收口，文案长/包含式重复/失效范围偏宽/额外工具修正为次要边界，不声明全场景零问题。
+- 最终516客服单元/17原PG集成、新wrapper3测/Ruff通过；无全仓/新Java/UI/业务写入/简历更新。原public11表/索引、188历史报告、原固定11轮报告和四脏文件保持，临时schema导出清理、所属资源恢复关闭，Docker/原卷保留，见[最终审计](../reports/customer-phase-closeout-live-v1/final-audit.json)。结果精确commit普通push核实后停止本批写入；下一步由用户指定正式Agent/RAG指标或演示，不自动新收费评测/优化。
+
+## 历史快照（2026-10-25，两处定点确认已冻结待执行）
 
 - 阶段合同539c519已普通push核实，按[定点说明](../reports/customer-phase-closeout-live-v1/README.md)仅原实际F01/4、F03/2各一新run，完全沿用实际输入/已接受前缀，不编造前轮、不回填旧11轮成绩。原40上限已用30，剩余最多10、ledger2440起/绝对2450截止；无新场景/预算扩充。
 - 新wrapper/原上限驱动3测及Ruff过，freeze/check原PG/政策通过，0新供应商。精确commit普通push核实后仅执行一次，失败/到顶保留；结束公共数据/历史报告/四脏文件核验、导出临时schema并恢复所属资源关闭。RAG/模型/每run预算保持，不更新简历。

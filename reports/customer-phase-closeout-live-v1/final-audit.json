@@ -1,0 +1,103 @@
+{
+  "scope": "finite boundary closeout; 11 known-input turns plus 2 separately reported targeted checks; not full latest cohort",
+  "ledger_before": 2410,
+  "ledger_after": 2447,
+  "new_provider_requests": 37,
+  "allowance": 40,
+  "provider_input_tokens": 143776,
+  "provider_output_tokens": 5564,
+  "unknown_usage_requests": 0,
+  "estimated_usage_requests": 0,
+  "ledger_lock_absent": true,
+  "public_unchanged": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 199,
+      "sha256": "1cb491f5d060288b676afccb73d1975fcfa2cea1d6f592dd5f8567fe5148083b"
+    },
+    "support_agent_run": {
+      "rows": 34,
+      "sha256": "0747e93502101e86f98b20db0f756e6852a6a4e20d2e11dff2323481ddd57f18"
+    }
+  },
+  "temporary_schemas_exported_and_dropped": [
+    "t_support_current_v1_ecb2fb49e676",
+    "t_support_current_v1_7d64f57eb211"
+  ],
+  "remaining_temporary_schema_count": 0,
+  "historical_reports_unchanged": 188,
+  "original_final_acceptance_report_hashes_unchanged": true,
+  "frozen_final_point_source_files_unchanged": 141,
+  "frozen_embedding_files_unchanged": 12,
+  "protected_dirty_files_unchanged": {
+    "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+    "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+    "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+  },
+  "actual_provider_key_scan": "PASS",
+  "no_java_ui_or_business_service_started": true,
+  "owned_containers": {
+    "resolveflow-review-demo-postgres-1": "exited",
+    "resolveflow-review-demo-mysql-1": "exited",
+    "resolveflow-review-demo-redis-1": "exited",
+    "resolveflow-review-demo-rocketmq-namesrv-1": "exited",
+    "resolveflow-review-demo-rocketmq-broker-1": "exited"
+  },
+  "app_and_pg_ports_listening": [],
+  "docker_left_running": true,
+  "original_pg_volume_retained": true,
+  "current_full_cohort_rerun": false,
+  "old_full_score_preserved": "9/11",
+  "separate_final_points": "2/2",
+  "no_resume_edit": true,
+  "new_report_hashes": {
+    "reports/customer-boundary-closeout-v1/offline-adaptations.json": "62869266eb58782e2312b109f9edb7a20701c39e864ef5a1f66c0f80953a2ad2",
+    "reports/customer-boundary-closeout-v1/README.md": "9aafce059edb34df13765111c48dac38efb571f00d168547037109312c3b1585",
+    "reports/customer-boundary-confirm-live-v1/conversations.md": "513744ce89ed9e6986db0b0d6faca6ec9e09afc7949b61ac5a471402fddc339a",
+    "reports/customer-boundary-confirm-live-v1/preflight.json": "bcbe357d5e6a10549f2efeaf0e2bbf225c0f74bf464e4533c4183615e28b3bb4",
+    "reports/customer-boundary-confirm-live-v1/README.md": "6b6ff8920c20aad77b56daa4bfe7d878d4c22871ca336abf05ceb12d16a9ddad",
+    "reports/customer-boundary-confirm-live-v1/runtime-results.json": "a9f68dbfadd4c596d44ae365298048dcb0c7866777d6c4de6c25af46d8220345",
+    "reports/customer-boundary-confirm-live-v1/source-review.json": "fdac787c3d21e6e97b845dabcba1b1ef3e45cb9f8971dcf48026e080ed513faf",
+    "reports/customer-phase-closeout-live-v1/conversations.md": "c7394c86d3c3a06bca57e60a69192e8385c5906d4250a35e16503a092551e79c",
+    "reports/customer-phase-closeout-live-v1/preflight.json": "5d6bac7044b2b164a35a07e976a5ae1fa77b5eb0bd58bf4fc5af5de41ec56ed1",
+    "reports/customer-phase-closeout-live-v1/README.md": "ea1db91627d3bc12d086e74fd7919ef18edd9dd0dc68cab6d6ff726f99f4796d",
+    "reports/customer-phase-closeout-live-v1/runtime-results.json": "57ddf665cc2863c4b046771eaa9db31ad4873a0ba5dbbb4ec29b20342550c9d3",
+    "reports/customer-phase-closeout-live-v1/source-review.json": "c871a3adf45d968d4de31d2adb8146a1a3cc341d24a8c4fbfb6d93e9e7fd7989"
+  }
+}
