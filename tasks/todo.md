@@ -1,4 +1,9 @@
-## 当前快照（2026-10-25，呈现/冷启动修正及耗时诊断工程完成）
+## 当前快照（2026-10-25，按用户要求复核原PG端口限制）
+
+- [诊断报告](../reports/postgres-port-investigation-v1/README.md)/[证据](../reports/postgres-port-investigation-v1/evidence.json)：当前active段55385–55484含55433，无监听；独立Python普通/独占绑定55433均10013、65433均成功，Docker原容器重试同拒绝，确认宿主绑定限制独立于Agent代码。原容器/卷/映射及Compose与昨日成功版保持，昨日22:42–22:53仍健康；不把未启动说成数据库损坏。
+- 创建者/具体创建时刻仍未知，昨日无排除表快照；OS自23日未重启、Docker日志仅见WSL NAT/映射立即撤回，不能断言重启或HNS必然导致。E56记录证据层次及前次表达不足。只做诊断，0模型/业务、无系统/端口/数据修改，原容器保持停止；用户尚未要求本次改映射/迁库，后续恢复方案另定。Agent修复15aaab2已同步，速度4秒仍未实测；原四脏文件保持。文档精确commit普通push核实后本次收口。
+
+## 历史快照（2026-10-25，呈现/冷启动修正及耗时诊断工程完成）
 
 - 呈现a442486已普通push核实；同来源事实块跨事项去重、退款草稿卡片指引修正，原决策摘要/记忆/状态保持。[本批报告](../reports/customer-agent-polish-v1/README.md)/[设计](../docs/customer-agent-polish-v1.md)。live Flash计数器现于启动就绪前预热，实测256.655ms加载后，三决策cache misses仍1；不重合并理解/调查、不改模型/提示或政策要求。
 - 新增模型prepare/current/journal/provider/first_content及工具耗时日志，错误可观察、cached恢复标0发送、不输出客户文本/Query/凭据；正式启动器显式日志配置，子进程确认INFO可见/不全开httpx。最初7红，最终含启动器39针对过，support扩大536过/6既有跳过、三源码strict/五文件Ruff过，启动脚本原19条lint基线无新增。原PG14及新恢复1通过，同run0新模型/工具且结果全等；新测试初次误改mock脚本manifest已修测试，生产拒绝语义保留。
