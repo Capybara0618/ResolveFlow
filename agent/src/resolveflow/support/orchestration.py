@@ -78,14 +78,28 @@ class ResponsePart(Closed):
 
 
 class SummaryDraft(Closed):
-    customer_quotes: list[Annotated[str, Field(min_length=1, max_length=300)]] = Field(min_length=1, max_length=4)
+    customer_quotes: list[Annotated[str, Field(min_length=1, max_length=300)]] | None = Field(
+        default=None, min_length=1, max_length=4)
+    customer_refs: list[Annotated[str, Field(min_length=1, max_length=64)]] | None = Field(
+        default=None, min_length=1, max_length=4)
 
     @model_validator(mode="after")
     def unique_quotes(self) -> SummaryDraft:
-        if any(not quote.strip() for quote in self.customer_quotes) or len(set(self.customer_quotes)) != len(
-                self.customer_quotes):
+        if (self.customer_quotes is None) == (self.customer_refs is None):
+            raise ValueError("摘要须选择customer_refs；兼容customer_quotes不能与引用混用。")
+        values = self.customer_quotes or self.customer_refs or []
+        if any(not quote.strip() for quote in values) or len(set(values)) != len(values):
             raise ValueError("摘要客户原话须非空且不重复")
         return self
+
+    def quotes(self, candidates: list[dict[str, str]]) -> list[str]:
+        if self.customer_quotes is not None:
+            return self.customer_quotes
+        allowed = {c["ref"]: c["quote"] for c in candidates}
+        invalid = [ref for ref in self.customer_refs or [] if ref not in allowed]
+        if invalid:
+            raise ValueError(f"未知或失效customer_refs={invalid}；仅选择summary_candidates，合法引用={list(allowed)}")
+        return list(dict.fromkeys(allowed[ref] for ref in self.customer_refs or []))
 
 
 class FactReadBatch(Closed):
@@ -137,6 +151,24 @@ class Orchestration:
             raise ValueError("turn plan already accepted")
         self.goals = {f.id: f.goal for f in plan.focus}
         self.operation_requests = {f.id: f.operation_request for f in plan.focus}
+
+    def quote_candidates(self, claims: list[dict[str, Any]]) -> list[dict[str, str]]:
+        """Only current text and source-checked active claims can become operation reasons."""
+        current = str(self.request.context.get("current_request", ""))
+        values = [("CURRENT", current)] if 0 < len(current) <= 300 else []
+        values.extend(("REQUEST-" + key, quote) for key, quote in self.operation_requests.items() if quote)
+        values.extend((c["id"], c["quote"]) for c in claims
+                      if isinstance(c.get("id"), str) and c["id"] and c.get("status") == "ACTIVE"
+                      and c.get("quote") == c.get("source", {}).get("quote")
+                      and type(c.get("source", {}).get("sequence")) is int
+                      and 0 < c["source"]["sequence"] <= self.request.input_version)
+        seen = set()
+        candidates = []
+        for ref, quote in values:
+            if quote.strip() and quote not in seen:
+                seen.add(quote)
+                candidates.append({"ref": ref, "quote": quote})
+        return candidates
 
     def required(self, focus: Focus) -> set[str]:
         required = set(focus.needs) | ({"GUIDE"} if focus.intent in {"APPLICATION", "HANDOFF"} else set())
@@ -256,10 +288,11 @@ class Orchestration:
                 continue
             field = {"PREPARE_REFUND": "refund_reason", "MERCHANT_REVIEW": "handoff_reason"}.get(task["goal"])
             if field:
-                fields.append({"field": field, "task_id": task["task_id"], "type": "customer_quotes object",
+                fields.append({"field": field, "task_id": task["task_id"], "type": "customer_refs object",
                                "required_for_status": ["ANSWERED", "NEEDS_MERCHANT"],
                                "omit_for_status": ["NEEDS_CUSTOMER"]})
-                example[field] = {"customer_quotes": [str(self.request.context.get("current_request", ""))[:300]]}
+                candidates = self.quote_candidates([])
+                example[field] = {"customer_refs": [candidates[0]["ref"]] if candidates else []}
         return {"reason_fields": fields, "example": example}
 
     def compose(self, response: Response, meaning: Understanding, refs: dict[str, dict[str, Any]],
@@ -349,7 +382,8 @@ class Orchestration:
                     raise ValueError(f"{field}须给出待客户核对的非空原因")
                 task_id = next(task["task_id"] for task in state["tasks"] if task["goal"] == goal)
                 summary_part = next(piece for piece in parts if piece.task_id == task_id)
-                summaries[field] = ground_summary(reason.customer_quotes, summary_part.facts, self.request, refs,
+                quotes = reason.quotes(self.quote_candidates(customer_claims or []))
+                summaries[field] = ground_summary(quotes, summary_part.facts, self.request, refs,
                                                   customer_claims or [], refund=goal == "PREPARE_REFUND")
             elif reason is not None:
                 raise ValueError(f"{field}仅用于本轮仍可办理的明确操作目标")

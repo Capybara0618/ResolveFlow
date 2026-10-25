@@ -215,6 +215,8 @@ class SupportAgent:
             packet["application_context"] = self.orchestration.application_context(self.citations)
             packet["orchestration"] = self._readiness()
             packet["stage"]["phase"] = packet["orchestration"]["phase"]
+            if packet["stage"]["phase"] == "COMPOSE":
+                packet["summary_candidates"] = self.orchestration.quote_candidates(self.memory.packet()["active"])
             packet.pop("answer_requirements", None)
         return packet
 

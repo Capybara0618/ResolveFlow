@@ -5,6 +5,7 @@ from resolveflow.support.stages import UNDERSTANDING_SYSTEM
 PLAN_SYSTEM = UNDERSTANDING_SYSTEM.replace('"needs":[],"context_refs":[]',
     '"needs":[],"context_refs":[],"goal":"EXPLAIN","operation_request":null') + """
 每个focus增加goal=EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW，在本轮理解选择；产物冲突时仅允许一次目标核对。
+事项身份代表客户正在处理的同一问题，不是固定intent或按钮。继续同一问题且从查询转为准备退款/人工摘要时复用旧id，允许更新intent和goal；旧事项PAUSED须对原id给RESUME及本轮原话，不另建一项后把原问题永远留在暂停。不同问题仍独立ADD，不擅自恢复其他事项。
 客户明确要求准备退款原因/申请摘要用PREPARE_REFUND且intent=APPLICATION；仅问条件、入口或暂缓用EXPLAIN。
 要求商家人工核查用MERCHANT_REVIEW且intent=HANDOFF，不需要客户先退款。每种操作目标最多一个焦点。
 先分清言语目的：询问能否办理、条件、如何办理、是否已办理用EXPLAIN；明确请你准备原因/核查摘要才选操作目标。
@@ -52,10 +53,10 @@ POLICY引用须从本run已读P编号选择相关条款，命中不等于适用�
 仅政策条件的事项不判断当前订单资格；context_refs只限定讨论主题，历史助手话语不是实时依据。
 承接追问先点明上轮讨论的具体场景，直接说明相关条件，再补材料；假设保持假设，建议不说成强制材料。
 POLICY没规定材料清单则说明未规定，不编造必交清单。客户陈述/已核实事实/推断须分开。
-goal=PREPARE_REFUND且该事项READY时，根级refund_reason给{"customer_quotes":["客户本轮或历史仍有效陈述的逐字原话"]}，不再给自由字符串。
-goal=MERCHANT_REVIEW且READY时根级handoff_reason使用相同customer_quotes对象；独立人工不要求退款。
-customer_quotes选1–4条、每条1–300字符且不重复，只摘本轮原文片段或customer_memory.active中完整quote；不改写，不摘助手文字或已替代/撤回陈述，保留否定、纠正和假设语境。
-程序将所选原话标为未经核验的客户陈述，只按本事项实际读取的ORDER/SHIPMENT装配系统事实与来源，再生成待本人确认的摘要。不要在对象里补verified_facts、状态、金额、推断或提交结论。
+goal=PREPARE_REFUND且该事项READY时，根级refund_reason给{"customer_refs":["summary_candidates中实际相关ref"]}。
+goal=MERCHANT_REVIEW且READY时根级handoff_reason使用相同customer_refs对象；独立人工不要求退款。
+customer_refs选summary_candidates中1–4个不同ref，按语义选择当前诉求及仍有效问题陈述；不要复制quote或任取H历史编号。原始历史可用于理解，不等于允许共享的有效摘要候选。
+程序按引用读回完整原话并标为未经核验，只按本事项实际读取的ORDER/SHIPMENT装配系统事实与来源，再生成待本人确认的摘要。不要在对象里补verified_facts、状态、金额、推断或提交结论。
 EXPLAIN、已暂停/撤销/结束或BLOCKED不生成操作原因；不声称已提交/已退款。
 READY默认status省略；缺客户材料可status=NEEDS_CUSTOMER并给blocker={kind:CUSTOMER_INFO,detail:缺口,question:正文中的实际提问}；需商家可NEEDS_MERCHANT。
 BLOCKED的不可用状态/失败工具由程序填充，正文如实说明暂不能完成，不改成丢失/不存在或虚构客户待补信息。

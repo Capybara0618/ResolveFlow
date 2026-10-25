@@ -1,4 +1,10 @@
-## 当前快照（2026-10-25，状态/引用收尾：多目标纠正工程通过）
+## 当前快照（2026-10-25，状态/引用收尾工程完成，待有限真实确认）
+
+- 多目标纠正b929687已普通push核实；现COMPOSE使用合法原话候选/模型customer_refs/程序读回装配、具体非法引用反馈，旧quotes严格兼容。明确同一事项可更改intent/goal、暂停须原id RESUME，不另加语义关键词状态机。[说明](../docs/customer-boundary-closeout-v1.md)/[工程报告](../reports/customer-boundary-closeout-v1/README.md)/[三处原输出离线适配](../reports/customer-boundary-closeout-v1/offline-adaptations.json)，E59同步。
+- 52针对/514客服单元、原PG17集成通过；新同run恢复0新模型/工具、结果全等，Ruff通过。初次兼容片段无id/测试fixture/脚本路径及lint已修并记录，旧断言保留。0新供应商请求、usage2410；仅原PG启动，业务服务关闭，历史报告/四脏文件保持。
+- 本步精确commit普通push核实后，新manifest绑定当前源码/权重及原3组11轮输入/判据，最多40模型执行一次；不是独立盲测，不追加追分。真实模型选全纠正目标、用对引用/原事项仍待确认，不把离线适配当质量成功；结束导出清理临时schema并恢复资源关闭，不更新简历。
+
+## 历史快照（2026-10-25，状态/引用收尾：多目标纠正工程通过）
 
 - 用户要求收尾，按[有限方案](../docs/customer-boundary-closeout-v1.md)/[本批记录](../reports/customer-boundary-closeout-v1/README.md)先补显式多targets、原子验证/关系扩展，保留旧单target/其他独立事实；不换框架/RAG/资金权限。先2红4过→36针对通过、四文件Ruff通过，0新模型、usage2410；E59记录工程边界，未称模型已选全。
 - 精确提交普通push核实后接摘要合法候选引用/原事项目标变化状态，再冻结旧3组11轮一次真实确认（最多40模型），不追题补分。原报告/业务/四历史脏文件保持，当前资源关闭。
