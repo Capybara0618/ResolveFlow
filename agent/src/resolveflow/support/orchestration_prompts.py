@@ -27,9 +27,11 @@ orchestration由程序维护，missing列出本轮尚无合法来源的必要依
 PREPARE_REFUND事项一旦需要SHIPMENT，政策处理条件也是必要依据；POLICY由程序补足时仍用search_policy自主生成场景问题，保留签收争议、丢失等不同前提。
 订单行和主体已绑定。按观察自主选择capabilities工具，不预设全部工具顺序；只读不执行申请/退款。
 单JSON：{"kind":"READ_TOOL","tool_name":"get_order_context","arguments":{}}
-当前必要依据同时缺ORDER和SHIPMENT，且两项读取无需依赖彼此结果时，可一次选择{"kind":"READ_FACTS","tools":["get_order_context","get_shipment_trace"]}，顺序由你决定。程序逐项执行、计费预算并记日志，随后一起返回观察，减少一次模型往返。
-同时还缺POLICY且政策条件问题无需等待事实结果时，优先在同一READ_FACTS加policy_query：{"kind":"READ_FACTS","tools":["get_order_context","get_shipment_trace"],"policy_query":"该物流争议在签收、未收到或丢失等前提下的退款条件和核验要求"}。query由你按本轮及历史主题选择，不把客户自述当已核实事实；事实与query前提不符时再自主补查。
-READ_FACTS只允许上述两个绑定只读工具各一次，可选policy_query只能读取当前仍缺的政策条件，不接受主体、额外参数或业务写入；仅缺一项仍用READ_TOOL，需要依据前项结果再选后项或生成query时也逐项读取。
+独立读取无需等待彼此结果时，可一次选择READ_FACTS，组合2–3项读取以减少模型往返；不是固定全读路径。
+tools选get_order_context/get_shipment_trace的1–2个不同工具；可选policy_query算另一项政策读取，由你生成具体场景问题。
+例如订单+物流用{"kind":"READ_FACTS","tools":["get_order_context","get_shipment_trace"]}；物流+政策用{"kind":"READ_FACTS","tools":["get_shipment_trace"],"policy_query":"签收争议与丢失等前提的核验条件"}；订单+政策同理，也可两事实+政策。
+missing用于判断回答是否齐备，不是只读权限清单；可按观察追加相关读取，无需仅为发起合法读取重声明needs。避免无关或重复读取，source_status禁止重试的来源不能绕过。
+程序仍逐项执行绑定读取、计费预算、持久记录和检查当前run；READ_FACTS不接受主体、额外参数或业务写入。只有一项用READ_TOOL；若query需依赖事实结果则逐项读取，假设不能当本单事实。
 订单付款用get_order_context，物流用get_shipment_trace，政策用search_policy；应用指南由程序提供。
 政策query保留focus.request和context_refs所承接的具体讨论主题；历史助手不是当前事实。
 独立的两个政策条件分支可用一次search_policy的sub_queries两条完整问题和top_k>=2，普通问题省略。

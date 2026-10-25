@@ -40,11 +40,31 @@ def test_invalid_queries_fail_before_any_child_read(query):
     assert sources.calls == [("get_support_guide", {})]
 
 
-def test_policy_cannot_be_attached_when_it_is_not_a_missing_requirement():
+def test_model_can_investigate_related_policy_without_a_second_declaration_channel():
     opening = plan(request(), intent="LOGISTICS", goal="EXPLAIN", needs=["ORDER", "SHIPMENT"]).model_dump()
-    result, _, _, sources = run([opening, evidence_batch(), evidence_batch()])
-    assert result["status"] == "FAILED"
-    assert sources.calls == [("get_support_guide", {})]
+    answer = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "按相关条款需核验。",
+                                            "citations": ["P1"]}]}
+    result, agent, _, sources = run([opening, evidence_batch(), answer])
+    assert result["status"] == "SUCCEEDED" and agent.repairs == 0
+    assert [n for n, _ in sources.calls] == ["get_support_guide", "get_order_context",
+                                          "get_shipment_trace", "search_policy"]
+    assert sources.calls[-1][1]["query"] == QUERY
+
+
+@pytest.mark.parametrize(("tool", "intent", "needs"), [
+    ("get_order_context", "OTHER", ["ORDER", "POLICY"]),
+    ("get_shipment_trace", "LOGISTICS", ["SHIPMENT", "POLICY"]),
+])
+def test_one_fact_and_one_policy_are_two_independent_guarded_reads(tool, intent, needs):
+    opening = plan(request(), intent=intent, goal="EXPLAIN", needs=needs).model_dump()
+    selected = {"kind": "READ_FACTS", "tools": [tool], "policy_query": QUERY}
+    answer = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "按相关条款需核验。",
+                                            "citations": ["P1"]}]}
+    result, agent, model, sources = run([opening, selected, answer])
+    assert result["status"] == "SUCCEEDED", result["reason"]
+    assert model.calls == 3 and agent.repairs == 0 and result["spend"]["tool_attempts"] == 1
+    assert result["spend"]["local_reads"] == 2
+    assert [n for n, _ in sources.calls] == ["get_support_guide", tool, "search_policy"]
 
 
 def test_guide_and_policy_have_separate_local_budget_charges():

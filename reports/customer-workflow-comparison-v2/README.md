@@ -33,3 +33,13 @@ python -m ruff check scripts/customer_workflow_comparison_prepare.py agent/tests
 [八分支脚本接线](basic-workflow-offline.json)及[当前准备审计](baseline-audit.json)已生成，全部mode=scripted，不是业务质量分数或真实分类成功率。一次命令把烟测代码传给audit模块的stdin，实际只执行审计；已用独立Python stdin入口真正运行八分支并保存输出，未产生供应商请求。普通首正文尚未独立流式计时，first_body_ms=null/NOT_MEASURED，不填0。
 
 本步0新供应商/本地推理、ledger3053；无DB或服务启停、无生产/简历改动。真实模型客户端、共享原始接口/两组历史驱动及性能聚合仍待接线；Agent通用缺口接下一小步。设计阶段design-audit/preservation-audit保留原时间状态，不回写为已经实现。
+
+## Agent批量只读合同修复（2026-10-25接续）
+
+根因是把“当前回答必须有哪些依据”误当成“模型只读权限”，且优化动作READ_FACTS要求恰好两个事实工具，导致物流+政策、订单+政策等合理组合被拒绝。现允许1–2个不同绑定事实工具加可选政策query，总读取至少2项；未列needs的相关只读也与单项READ_TOOL权限一致，不静默替模型删工具/query或补语义。仍只允许订单/物流与search_policy，禁止额外主体、参数、写入口和重复事实工具；每子项仍走原execute的scope/fence/预算/失败重试/journal。提示说明按观察选组合，不固定全量路径。
+
+先4红/20通过→24针对通过；扩大实际命令为`pytest`全部test_support_*.py，521通过。原55433 PG运行test_support_fact_batch_runtime、test_support_evidence_batch_runtime、test_support_orchestrated_runtime、test_support_goal_review_runtime、test_support_boundary_closeout_runtime，共13通过；新增单事实+政策的实际持久化与同run恢复0新调用，原部分恢复/预算/fence断言保留。六文件Ruff通过，只有已有Starlette弃用警告。
+
+两个旧“未声明需要就拒绝批量读取”的测试按新权限一致性合同更新，改为验证实际调用/费用/模型不触发修正，未删除重复/越主体/写工具/预算/未落库重发等失败断言。[旧真实输出的合同检查](batch-contract-check.json)覆盖11个失败轮/22个保存批量决策，全部新形状合法；它不是完整对话回放，也没有新模型回答。Q22-r2终局多字段失败之前同样发生过batch拒绝，但不能据此提前宣称其发布已修复。
+
+原public11表前后hash一致，临时测试schema清理，ledger3053不增；未重启业务或消费旧run。生产三文件有意变化，v1旧源码manifest不再匹配当前工作区，保持旧manifest/结果不重写，新执行入口需另建manifest。政策遗漏/条件当事实/人工摘要等业务质量须新对照源审确认，不以解析通过冒充成功。一次只读rg通配路径和不存在历史测试名查找失败，已定位实际文件，不影响测试执行。

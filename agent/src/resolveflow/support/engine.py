@@ -369,11 +369,8 @@ class SupportAgent:
             if self.orchestration is not None:
                 if reply.decision.get("kind") == "READ_FACTS":
                     batch = FactReadBatch.model_validate(reply.decision)
-                    missing = {need for task in self._readiness()["tasks"] for need in task["missing"]}
-                    if not {"ORDER", "SHIPMENT"} <= missing:
-                        raise ValueError("READ_FACTS仅用于当前事项同时缺少ORDER和SHIPMENT的独立读取")
-                    if batch.policy_query is not None and "POLICY" not in missing:
-                        raise ValueError("policy_query仅用于同时缺少POLICY的必要条件读取")
+                    # Declared needs govern completion, not read permissions. Batch children use
+                    # the exact same scoped execute/budget/recovery/fence path as individual reads.
                     self.feedback = None
                     return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_read_facts",
                                                    "arguments": batch.model_dump(exclude={"kind"}, exclude_none=True)})

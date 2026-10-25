@@ -59,11 +59,13 @@ def test_invalid_pairs_never_reach_business_sources(invalid):
     assert sources.calls == [("get_support_guide", {})]
 
 
-def test_pair_is_not_available_when_only_one_fact_is_needed():
-    result, _, _, sources = run([plan(request(), intent="LOGISTICS", goal="EXPLAIN", needs=[]).model_dump(),
-                                batch(), batch()])
-    assert result["status"] == "FAILED"
-    assert sources.calls == [("get_support_guide", {})]
+def test_pair_uses_same_bound_read_permissions_even_when_order_was_not_a_declared_need():
+    answer = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "承运记录不等于本人收到。"}]}
+    result, agent, _, sources = run([plan(request(), intent="LOGISTICS", goal="EXPLAIN", needs=[]).model_dump(),
+                                    batch(), answer])
+    assert result["status"] == "SUCCEEDED" and agent.repairs == 0
+    assert sources.calls == [("get_support_guide", {}), ("get_order_context", {}), ("get_shipment_trace", {})]
+    assert result["spend"]["tool_attempts"] == 2
 
 
 def test_each_fact_still_consumes_budget_and_second_read_cannot_bypass_limit():

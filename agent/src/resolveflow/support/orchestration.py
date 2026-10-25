@@ -109,15 +109,17 @@ class SummaryDraft(Closed):
 
 class FactReadBatch(Closed):
     kind: Literal["READ_FACTS"]
-    tools: list[Literal["get_order_context", "get_shipment_trace"]] = Field(min_length=2, max_length=2)
+    tools: list[Literal["get_order_context", "get_shipment_trace"]] = Field(min_length=1, max_length=2)
     policy_query: str | None = Field(default=None, min_length=1, max_length=1000, exclude_if=lambda v: v is None)
 
     @model_validator(mode="after")
     def distinct_facts(self) -> FactReadBatch:
-        if len(set(self.tools)) != 2:
-            raise ValueError("READ_FACTS仅选择订单和物流各一次，不接受其他工具、参数或主体")
+        if len(set(self.tools)) != len(self.tools):
+            raise ValueError("READ_FACTS中每个绑定只读事实工具仅选择一次，不接受其他工具、参数或主体")
         if self.policy_query is not None and not self.policy_query.strip():
             raise ValueError("policy_query须为模型选择的非空政策条件问题")
+        if len(self.tools) + (self.policy_query is not None) < 2:
+            raise ValueError("READ_FACTS至少两项独立读取；单个事实用READ_TOOL，单个政策用search_policy")
         return self
 
 
