@@ -1,4 +1,9 @@
-## 当前快照（2026-10-25，新版量化评测已搭建并冻结，正式测量未执行）
+## 当前快照（2026-10-25，用户授权正式量化执行）
+
+- 用户明确要求正式评测，按冻结7cf1b3f/[原规格](../docs/customer-quantification-v1.md)/[正式报告](../reports/customer-quantification-v1/README.md)执行，准备公开建议800新模型请求作为本批上限，ledger2447起/至多3247；32场景双组双次128会话/200客服轮，随后RAG40×5×3=600本地检索，顺序执行避免干扰计时。
+- 输入/判据/主候选RRF/源码/权重保持冻结，不修正式结果/补跑追分；失败计全分母，完整源审后才汇总。不启动Java/UI/业务worker、不改简历；原PG只读public/临时schema导出清理，旧报告/四脏文件保持。执行记录精确commit普通push核实后开跑，当前0新请求；结束报告通过/失败/未知usage与保留审计。
+
+## 历史快照（2026-10-25，新版量化评测已搭建并冻结，正式测量未执行）
 
 - 数据fc63389/工程ea75ab7已普通push核实；新Agent32组50输入（普通8/复杂24）、两组两次128会话/200客服轮，固定全读Workflow共用当前理解/记忆/摘要/校验与恢复；RAG4文档66子块、新40问可答32/语料外8、五路径600检索，RRF预选。两个manifest冻结源码/数据/权重并check，原PG政策/generation/public只读预检通过。[准备报告](../reports/customer-quantification-preparation-v1/README.md)/[命令与样例](../reports/customer-quantification-preparation-v1/how-to-run.md)/E60。
 - 13工程测试过（原55433双组恢复0新调用），Ruff过；660个新Query/文档对窗口max319/512、0截断。一个通用GPU pair接线成功，新40题排名/正式配对未跑；工具中断后台完成并退出，未重复启动。0生成API、ledger2447保持，只有本地通用CE forward1，不称质量指标/热P95。
