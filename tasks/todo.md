@@ -1,4 +1,9 @@
-## 当前快照（2026-10-25，单轮真实等待分解完成，当前架构保留）
+## 当前快照（2026-10-25，固定3组11轮收口验收准备完成）
+
+- 用户认可有限代表性多轮验收后转指标/演示，按[规格](../docs/customer-final-acceptance-v1.md)/[报告](../reports/customer-final-acceptance-v1/README.md)冻结当前生产实现，新输入开发可见合成3组11轮，涵盖纠正/暂停恢复/隐私/跨店政策/退款转人工。最多40新模型请求，不改提示/业务、不重跑补分；技术成功与业务完整源审分开。
+- 新驱动复用实际已接受状态及流式计量，7单元/Ruff通过；freeze/check确认原PG原卷/政策索引，0新模型、usage2381。只启动原PG，Java/UI/worker保持关闭；临时schema隔离并导出清理。准备精确commit普通push核实后执行一次，若有阻断先报告根因、不自动追加付费修复；无阻断则工程收口转指标及演示。四历史脏文件保持，不更新简历。
+
+## 历史快照（2026-10-25，单轮真实等待分解完成，当前架构保留）
 
 - 准备d310e7d普通push核实后，冻结原问题实际Vue/Java/Python/DeepSeek一次3模型，10706输入/545输出、未知/估算0，usage2378→2381，无追加题/确认建单/转交。[本批报告](../reports/customer-wait-profile-live-v1/README.md)/[时延分解](../reports/customer-wait-profile-live-v1/timing-analysis.json)/[源审](../reports/customer-wait-profile-live-v1/source-review.json)。5个可见中间正文、15delta/reset0，两模型段落保留，329元DRAFT待确认，原程序重复物流块/旧入口指引已实际消除，模型语义冗长仍保留。
 - UI首反馈307ms/首正文3970ms/完成5340ms，服务端首delta3627.908ms/commit5158.096ms；4秒单例过但仅余30ms，不当稳定SLA/受控提升。UNDERSTAND/INVESTIGATE/COMPOSE模型全程1.20/0.81/2.12秒，合计4.13秒约占commit80%；订单/物流/政策源约24/30/22ms，政策为本店6条小集合全读，不是本例主要等待。接收至首模型约596ms未全部细分，不擅自归为TLS，E57记录。
