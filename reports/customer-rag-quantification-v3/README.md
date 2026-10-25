@@ -10,4 +10,14 @@
 - 先缺模块收集失败，接通后3单元通过；两项Ruff导入排序失败经自动整理修正。实际命令：`python -m pytest agent/tests/unit/test_customer_rag_dataset_v3.py -q --basetemp .pytest-tmp/rag-v3-data-green`、`python -m ruff check scripts/customer_rag_dataset_v3.py agent/tests/unit/test_customer_rag_dataset_v3.py`、`python -m scripts.customer_rag_dataset_v3 build`及`check`。check重建正文与原始HTML逐项一致。
 - 文档有效日期缺失不补造，抓取时间不是政策生效时间；公开参考不发布为项目商家规则。品牌过滤后每题候选不同，后续报告实际规模。
 
-本步只证明来源提取；100题/证据标签、四路适配、token窗口审计与冻结仍继续准备，不能称新质量/时延已测。0生成API、未改Agent/线上RAG/业务数据库或启停服务。
+来源小步只证明提取；未测新质量/时延。0生成API、未改Agent/线上RAG/业务数据库或启停服务。
+
+## 问题与标签小步
+
+[问题索引](../../evals/customer-rag-quantification-v3/README.md)/[100题与Gold](../../evals/customer-rag-quantification-v3/queries.json)/[数据审计](dataset-audit.json)已完成：五类各20，40开发（32可答）/60验收（48可答），103条原文跨度，15文档均有可答题。开发证据来自京东/有品3篇，其余12篇用于验收题，两组来源不重叠；作者见过原文，且部分文档沿旧数据，不称全新独立盲测。
+
+每题包含品牌全范围scope、答案要点、必要原文及hash；20无法回答中8政策缺口/12实时业务或私有事实缺失，不从排名分数直接算拒答正确率。所有答案要点须在后续真实回答中逐项源审，关键词匹配不代替语义评分。
+
+先模块缺失失败，再6检查通过（真实100题矩阵、造假quote、只选正确单篇scope、跨组变化、无缺失原因、重复ID拒绝），Ruff导入排序1项修正。`python -m scripts.customer_rag_questions_v3`实际核验全部103跨度逐字/hash一致、40/60及每类分层、原文来源不跨组。首次编写发现表格单元分隔符是` | `而非换行，按原表格第一行及表头修正引用后才写最终问题文件；没有运行排名后换题。
+
+四路运行适配、向量构建/token窗口审计、manifest仍待下一小步；新题排名/答案/速度尚未测，0生成API/GPU新题推理，Agent与生产保持。

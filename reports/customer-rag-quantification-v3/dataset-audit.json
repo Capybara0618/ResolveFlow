@@ -1,0 +1,27 @@
+{
+  "questions": 100,
+  "development": 40,
+  "acceptance": 60,
+  "answerable_development": 32,
+  "answerable_acceptance": 48,
+  "unanswerable": 20,
+  "positive_sources": 15,
+  "evidence_atoms": 103,
+  "split_source_overlap": [],
+  "new_rankings": 0,
+  "new_generation_api_calls": 0,
+  "categories": {
+    "ordinary": 20,
+    "colloquial": 20,
+    "exact": 20,
+    "compound": 20,
+    "unanswerable": 20
+  },
+  "negative_types": {
+    "policy_gap": 8,
+    "missing_business_or_private_facts": 12
+  },
+  "independent_human_review": false,
+  "acceptance_ranks_run": false,
+  "max_required_span_chars": 268
+}

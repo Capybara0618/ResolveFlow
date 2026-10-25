@@ -1,0 +1,4223 @@
+{
+  "version": "customer-rag-quantification-v3",
+  "origin": "AUTHOR_CONSTRUCTED_FROM_OFFICIAL_SNAPSHOTS",
+  "independent_holdout": false,
+  "acceptance_rankings_seen": false,
+  "split_rule": "development: JD/MI source families; acceptance: other source families; all fixed before new ranks",
+  "queries": [
+    {
+      "id": "V3Q001",
+      "category": "ordinary",
+      "split": "development",
+      "query": "京东自营数码产品，退货和换货分别有多少天？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0005",
+          "text_range": [
+            0,
+            26
+          ],
+          "quote": "自实际收到商品第二日起7日内可退货，15日内可换货。",
+          "quote_sha256": "9ea4af1a04272dece5ac9975dcede6c14a6c1f9db1fd2e7f559fc5dd28241a29"
+        }
+      ],
+      "answer_points": [
+        "从实际收到第二日起，7日内退货、15日内换货"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-1"
+    },
+    {
+      "id": "V3Q002",
+      "category": "ordinary",
+      "split": "development",
+      "query": "京东数码商品因质量问题退回，电子发票也要打印寄回吗？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0011",
+          "text_range": [
+            0,
+            96
+          ],
+          "quote": "注：返修退换货时，属于质量问题的，请将生产厂家售后服务中心开具的检测报告（维修检验单据）、附件、说明书、发票、保修卡、购物凭证、包装、商品，一并返回京东办理返修退换货手续（电子发票无需返回）。",
+          "quote_sha256": "e4243b7d62cfedeff47c78bfac97e9e54dc31883a393b34e4967c68a279fe3de"
+        }
+      ],
+      "answer_points": [
+        "电子发票无需返回",
+        "其他商品、凭证及检测报告按说明一并退回"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-2"
+    },
+    {
+      "id": "V3Q003",
+      "category": "ordinary",
+      "split": "development",
+      "query": "有品上标注的自营商品具体由谁销售，发票由谁开？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0003",
+          "text_range": [
+            0,
+            46
+          ],
+          "quote": "自营商品是指小米有品上由平台公示的自营主体（以下统称“小米”）销售的商品（由小米开具发票）。",
+          "quote_sha256": "26041430d330e8b4a11be3c9e93773cca71263a6874821c6ce6b6845edbc8f39"
+        }
+      ],
+      "answer_points": [
+        "平台公示的自营主体销售",
+        "由小米开具发票"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-3"
+    },
+    {
+      "id": "V3Q004",
+      "category": "ordinary",
+      "split": "development",
+      "query": "小米有品售后退换货地址在哪里获取？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0040",
+          "text_range": [
+            0,
+            35
+          ],
+          "quote": "联系客服热线，客服会在依据不同的情况及处理流程，告知相应的退换货地址。",
+          "quote_sha256": "b7455ea6c9baf345bd479275eba7d3bb0a94c730595e44b55b2f85632bb7f081"
+        }
+      ],
+      "answer_points": [
+        "联系客服热线",
+        "客服根据具体情况和流程告知地址"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-4"
+    },
+    {
+      "id": "V3Q005",
+      "category": "ordinary",
+      "split": "development",
+      "query": "小米有品寄回售后可以上门取件吗？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0043",
+          "text_range": [
+            0,
+            58
+          ],
+          "quote": "您可以选择自助邮寄或上门取件两种方式，部分商品或地区不支持上门取件，请以小米的售后申请展示页面及小米客服的引导为准。",
+          "quote_sha256": "00950a1e937918aa8e8ea51a1913122550772e0485859b2284eea2a38216327f"
+        }
+      ],
+      "answer_points": [
+        "可自助邮寄或上门取件",
+        "部分商品或地区不支持，以申请页和客服引导为准"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-5"
+    },
+    {
+      "id": "V3Q006",
+      "category": "ordinary",
+      "split": "development",
+      "query": "小米有品这份自营售后规则也适用港澳台吗？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0087",
+          "text_range": [
+            0,
+            29
+          ],
+          "quote": "提示：本规则仅适用于中国地区（港澳台地区除外）的售后服务。",
+          "quote_sha256": "54a17d291b0c6da8af7996d14303d6d9520f09f6dffcc2c981b8a9caa13cdfa8"
+        }
+      ],
+      "answer_points": [
+        "仅适用于中国地区，不含港澳台"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-6"
+    },
+    {
+      "id": "V3Q007",
+      "category": "ordinary",
+      "split": "development",
+      "query": "小米有品确认收到退货后多久办理退款，退到哪里？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0076",
+          "text_range": [
+            0,
+            85
+          ],
+          "quote": "收到退货包裹并确认无误后，小米有品将在【7】个工作日内为您办理退款，您已支付的款项将退回您的付款账户。您理解并认可，退款到账时间会因不同支付平台、支付方式等原因而有差异。",
+          "quote_sha256": "acd4323a8c568659f57628c712b8aa5f1514e758208ceaf1160a02254da9b9b2"
+        }
+      ],
+      "answer_points": [
+        "确认无误后7个工作日内办理",
+        "退回付款账户，实际到账因支付方式而异"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-7"
+    },
+    {
+      "id": "V3Q008",
+      "category": "ordinary",
+      "split": "development",
+      "query": "京东自营没有质量问题的商品，申请七天无理由退货要谁承担返回运费？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+          "block_id": "jd-general:b0009",
+          "text_range": [
+            19,
+            59
+          ],
+          "quote": "自您实际收到商品之日起7日内，在商品返回运费由您承担的情况下,可享受无理由退货。",
+          "quote_sha256": "b4302697281fffb1da5fad8e1cdd1f52e687a6debcb4bbdb903bebdf3664e283"
+        }
+      ],
+      "answer_points": [
+        "无理由退货需符合条件",
+        "返回运费通常由消费者承担"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-8"
+    },
+    {
+      "id": "V3Q009",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "Apple官网购买符合退货条件的商品，应该多久内申请退货？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0004",
+          "text_range": [
+            0,
+            61
+          ],
+          "quote": "退货须遵守 Apple Store 销售与退款政策。对于符合退货条件的商品，请在商品交付之日起 14 个自然日内申请退货。",
+          "quote_sha256": "ad155b1f29c0c89c1d38a8c8cfd5537502f9bc7ca01574df825756de86fe76e2"
+        }
+      ],
+      "answer_points": [
+        "商品交付之日起14个自然日内申请",
+        "仍须符合退货条件"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-9"
+    },
+    {
+      "id": "V3Q010",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "Apple官网退货提供免费上门取件吗？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0015",
+          "text_range": [
+            0,
+            39
+          ],
+          "quote": "我们提供免费上门取货服务。请等待承运商联系你并在预定日期上门取走你退回的商品。",
+          "quote_sha256": "3b2ca7c011d59e33752340dda375ad54a8cbb0087c95916dd19539cd2cacb913"
+        }
+      ],
+      "answer_points": [
+        "提供免费上门取货",
+        "等待承运商联系并在预定日期取件"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-10"
+    },
+    {
+      "id": "V3Q011",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "Apple寄错商品了，我要联系哪个客服渠道？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0037",
+          "text_range": [
+            0,
+            108
+          ],
+          "quote": "如果你收到了错误的商品，或其在运送过程中受损，请通过 400-666-8800 联系 Apple Store 客户服务，受理时间：周一至周五上午 9 点至晚上 9 点，周末上午 9 点至晚上 9 点，不含公共节假日。",
+          "quote_sha256": "00eadd55be6d3326893ba50ebceda18079d4a162723de733bf714c3d556affd2"
+        }
+      ],
+      "answer_points": [
+        "联系Apple Store客户服务400-666-8800",
+        "按页面列明受理时间处理"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-11"
+    },
+    {
+      "id": "V3Q012",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "华为手机送修之前，自己保存的数据需要做什么处理？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a",
+          "block_id": "huawei-phone:b0035",
+          "text_range": [
+            0,
+            68
+          ],
+          "quote": "送修前，请您提前备份个人数据。维修过程中可能会造成您个人数据的丢失，华为会保护您的个人隐私，但不承担维修过程中个人数据损坏、丢失的责任。",
+          "quote_sha256": "8d4cf219200106eeae85077afb3b37ce3113574080eb8f4bda3bede859b48e7c"
+        }
+      ],
+      "answer_points": [
+        "提前备份个人数据",
+        "维修可能造成数据丢失，不能承诺恢复或保留"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-12"
+    },
+    {
+      "id": "V3Q013",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "三星商城退款会退回哪个支付渠道？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231",
+          "block_id": "samsung-refund:b0002",
+          "text_range": [
+            3,
+            35
+          ],
+          "quote": "经本商城确认商品符合退换货条件后，退款按照购买时的支付方式返还。",
+          "quote_sha256": "759e47b6827dfa8f5a4150917a90388918782b6616e939c615321793c9bb3365"
+        }
+      ],
+      "answer_points": [
+        "确认符合退换货条件后，按购买时支付方式返还"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-13"
+    },
+    {
+      "id": "V3Q014",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "三星产品性能故障退换货，需要自己付运费吗？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0",
+          "block_id": "samsung-notes:b0002",
+          "text_range": [
+            2,
+            31
+          ],
+          "quote": "因性能故障造成退换货（以售后网点鉴定单为准）的，免收运费。",
+          "quote_sha256": "2c17cf94b36874b1edef6f5b93bd2a28831e12aa0353489cb0376486867f2b2b"
+        }
+      ],
+      "answer_points": [
+        "以售后网点鉴定单为准确认性能故障",
+        "免收运费"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-14"
+    },
+    {
+      "id": "V3Q015",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "宜家俱乐部会员和普通顾客，完好商品的退货期限分别是多少？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59",
+          "block_id": "ikea-returns:b0002",
+          "text_range": [
+            0,
+            25
+          ],
+          "quote": "您可在60天内退货（宜家俱乐部会员可在365天内）",
+          "quote_sha256": "d22a7925b89a6c9613a91830dfd68c3e470699a18abade740d7ea647fcf150e5"
+        }
+      ],
+      "answer_points": [
+        "普通顾客60天",
+        "会员365天，仍需满足商品和凭证条件"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-15"
+    },
+    {
+      "id": "V3Q016",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "宜家网上买的完好商品能带到附近商场退吗？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59",
+          "block_id": "ikea-returns:b0012",
+          "text_range": [
+            0,
+            69
+          ],
+          "quote": "您也可以携带完好的货品、原始购物凭证（例如商场提供的纸质小票、宜家会员俱乐部中的订单编号等）和发票（如已开具）至就近宜家商场办理退货手续。",
+          "quote_sha256": "5baa16673775bea48d5441f415124cd66bf0456e1d1c48cd93c5c586c9b75237"
+        }
+      ],
+      "answer_points": [
+        "可以至就近宜家商场",
+        "携带完好商品、原始购物凭证及已开具发票"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-16"
+    },
+    {
+      "id": "V3Q017",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "索尼产品因性能故障申请退换，需要哪种检测证明？",
+      "subject": "EXTERNAL:SONY_CN",
+      "scope": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50"
+        },
+        {
+          "source_id": "sony-warranty",
+          "raw_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50",
+          "block_id": "sony-service:b0034",
+          "text_range": [
+            0,
+            55
+          ],
+          "quote": "因产品性能故障的退换货申请，产品需经索尼特约维修站（“维修站”）检测，并获得由维修站提供的产品性能故障检测单。",
+          "quote_sha256": "07e2b3206c98c91c2cfeec8234be23552e197df68bcff710705a8576552b69e6"
+        }
+      ],
+      "answer_points": [
+        "经索尼特约维修站检测",
+        "取得其提供的产品性能故障检测单"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-17"
+    },
+    {
+      "id": "V3Q018",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "索尼2018年及之后上市的耳机整机保修多久？",
+      "subject": "EXTERNAL:SONY_CN",
+      "scope": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50"
+        },
+        {
+          "source_id": "sony-warranty",
+          "raw_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50",
+          "block_id": "sony-service:b0013",
+          "text_range": [
+            0,
+            74
+          ],
+          "quote": "耳机产品\n整机 | 主要部件 | 附件 | 主要部件或附件名称\n整机1年（2018年及之后上市机型）；2018年之前上市机型的保修政策见产品保修卡。",
+          "quote_sha256": "63786c7e9e44e1e3d87061dcaea0bcf80daa9d469b1e7cda19c8d6204be2e55b"
+        }
+      ],
+      "answer_points": [
+        "整机1年",
+        "更早机型按产品保修卡"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-18"
+    },
+    {
+      "id": "V3Q019",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "平板电视约好了送货安装调试，三包期从发票日还是安装完成后开始？",
+      "subject": "EXTERNAL:SONY_CN",
+      "scope": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50"
+        },
+        {
+          "source_id": "sony-warranty",
+          "raw_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "sony-warranty",
+          "raw_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee",
+          "block_id": "sony-warranty:b0043",
+          "text_range": [
+            144,
+            204
+          ],
+          "quote": "其“三包”有效期从销售者和消费者约定的送货、安装、调试全部结束之日起计算，不需要送货、安装、调试的从开具发票之日起计算。",
+          "quote_sha256": "c3e51b4cb7e210c7bed0e6c9c02f5736c726f43225714db9ae3c6137f814a1d3"
+        }
+      ],
+      "answer_points": [
+        "需要约定送货安装调试的，从全部结束起算",
+        "不需要这些服务的，从发票日算"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-19"
+    },
+    {
+      "id": "V3Q020",
+      "category": "ordinary",
+      "split": "acceptance",
+      "query": "华为手机免费维修时，包装和赠品一定都要带吗？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a",
+          "block_id": "huawei-phone:b0034",
+          "text_range": [
+            0,
+            97
+          ],
+          "quote": "保修服务 | 主机、配件齐全 | 包装完整 | 发票(未涂改) | 赠品(若有)\n退货 | √ | √ | √ | √\n换货 | √ | √ | √ | -\n维修 | √ | - | √ | -",
+          "quote_sha256": "96383efa4f6c3238713e9f2f50c389d0fad8bdab38bd8f2e5bd8fb4a90d8cbb1"
+        }
+      ],
+      "answer_points": [
+        "按送修指引维修需主机配件齐全及未涂改发票",
+        "维修不要求包装完整和赠品"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-20"
+    },
+    {
+      "id": "V3Q021",
+      "category": "colloquial",
+      "split": "development",
+      "query": "京东买的硬盘要返修，你们能替我把照片先倒出来吗？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0013",
+          "text_range": [
+            0,
+            66
+          ],
+          "quote": "1.对于存储类商品，京东不提供数据保存、数据导出服务，请务必在返修前将商品内的数据自行导出，否则若有数据遗失、损坏等京东不承担责任；",
+          "quote_sha256": "ad13cc9a7117f2ca96cbed848495ec9b35ea384965e8651de3f0835ff23ec904"
+        }
+      ],
+      "answer_points": [
+        "不提供数据保存或导出服务",
+        "返修前自行导出并备份"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-21"
+    },
+    {
+      "id": "V3Q022",
+      "category": "colloquial",
+      "split": "development",
+      "query": "京东买的手机卡顿，刷个系统就能好，也一定要整机退回吗？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0015",
+          "text_range": [
+            0,
+            52
+          ],
+          "quote": "3.手机、数码、IT类商品通过软件升级可以排除的故障，可送至当地生产厂家指定或特约售后服务中心升级即可；",
+          "quote_sha256": "57cabedaae9b5772d43101736c7c7d6eb5bc60506ca0b386371a21aca664bf43"
+        }
+      ],
+      "answer_points": [
+        "通过升级可排除的故障，可送当地厂家指定或特约中心升级",
+        "不能直接承诺退货"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-22"
+    },
+    {
+      "id": "V3Q023",
+      "category": "colloquial",
+      "split": "development",
+      "query": "京东买的东西我把防伪涂层刮了，但没用，能走无理由吗？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0020",
+          "text_range": [
+            0,
+            29
+          ],
+          "quote": "8.包装含防伪码的商品防伪码一经刮开不支持7天无理由退货；",
+          "quote_sha256": "6f49bbdc659f1b5b4965b9fcf99dbb928b8aa28517f494eebc03da1119105693"
+        }
+      ],
+      "answer_points": [
+        "包装防伪码一经刮开，不支持7天无理由退货"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-23"
+    },
+    {
+      "id": "V3Q024",
+      "category": "colloquial",
+      "split": "development",
+      "query": "京东买的主商品我想退，赠的那件找不到了，还能全额退吗？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0022",
+          "text_range": [
+            0,
+            41
+          ],
+          "quote": "10.退货时赠品需一并返回京东，如赠品缺失，则主商品无法全额退款（换货无需返回）。",
+          "quote_sha256": "2c9c15e8feee8e128974414840ec307203764e68c24a9bff50b7647ff37bf40e"
+        }
+      ],
+      "answer_points": [
+        "退货赠品须一起返回",
+        "缺失则主商品无法全额退款，换货无需返回"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-24"
+    },
+    {
+      "id": "V3Q025",
+      "category": "colloquial",
+      "split": "development",
+      "query": "有品客服还没回我，我先把东西寄过去可以吧？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0080",
+          "text_range": [
+            0,
+            72
+          ],
+          "quote": "3. 商品退换货及维修须经过小米客服中心确认后方可办理，如果商品存在质量问题，请务必说明原因。未与小米客服中心确认之前自行退回的商品将无法受理。",
+          "quote_sha256": "7f4fe893b4b655d4fff1776c5de4c77f29a83ee7fabfe2f665647327ae135f40"
+        }
+      ],
+      "answer_points": [
+        "退换修须先经小米客服确认",
+        "未经确认自行退回无法受理"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-25"
+    },
+    {
+      "id": "V3Q026",
+      "category": "colloquial",
+      "split": "development",
+      "query": "有品商品的发票型号和机子对不上，能直接给我换吗？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0034",
+          "text_range": [
+            0,
+            27
+          ],
+          "quote": "（8）发票缺失或涂改三包凭证信息与商品不符及被涂改的；",
+          "quote_sha256": "11c1b80ae943cf095e6f954fb67df32e3dc49dc36bb050f8b257f2e92d3f61de"
+        }
+      ],
+      "answer_points": [
+        "发票或三包凭证信息不符、缺失或涂改属于不予办理情形",
+        "不能直接承诺换货"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-26"
+    },
+    {
+      "id": "V3Q027",
+      "category": "colloquial",
+      "split": "development",
+      "query": "有品设备的外壳用久了磨裂了，不是触摸屏，能当免费维修吗？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0059",
+          "text_range": [
+            0,
+            39
+          ],
+          "quote": "（7）使用中造成的除触摸屏外的外壳类元器件磨损、开裂、折断、破洞、烧焦、脱焊；",
+          "quote_sha256": "01e0700f1bca5108f0cb24f6fe06b90de27ac6a95f33b78133537bcb3b39267d"
+        },
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0052",
+          "text_range": [
+            0,
+            39
+          ],
+          "quote": "2．以下情况属于保外维修，您需支付相应费用，即可享受到小米官方授权的维修服务。",
+          "quote_sha256": "8f094ca0d12b355c6c7f80f3b67ad75abeff85374f20ae4731718b7347f49593"
+        }
+      ],
+      "answer_points": [
+        "使用中外壳类磨损开裂等属于列明的保外维修",
+        "需付相应费用"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-27"
+    },
+    {
+      "id": "V3Q028",
+      "category": "colloquial",
+      "split": "development",
+      "query": "有品退货我在寄回路上弄丢了，你们能照样给我退款吧？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0086",
+          "text_range": [
+            0,
+            55
+          ],
+          "quote": "8. 用户在退还商品的途中，有责任保证所退还商品的安全及完整，如退还途中出现丢失、损坏等情形，责任由用户承担。",
+          "quote_sha256": "83afd51bc3ea6df33c5f45a55285808480262d08d01adb863b9d93f952ed0ed3"
+        }
+      ],
+      "answer_points": [
+        "退回途中安全完整由用户负责",
+        "途中丢失损坏责任由用户承担，不能承诺退款"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-28"
+    },
+    {
+      "id": "V3Q029",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "Apple订单还写着正在处理，我地址填错了，还能改吗？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28",
+          "block_id": "apple-orders:b0029",
+          "text_range": [
+            0,
+            63
+          ],
+          "quote": "如果订单状态为“正在处理”，你或许可以在订单详情中编辑送货地址。有关订单状态的更多详情，请参阅本页上方的“查看订单状态”部分。",
+          "quote_sha256": "7288435c391cc2865fde223c88f885b16f0d35ef63ae5c98ac4ed7cc9a40031e"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28",
+          "block_id": "apple-orders:b0030",
+          "text_range": [
+            0,
+            41
+          ],
+          "quote": "国家补贴活动订单完成购买后，你将无法更改送货地址或发票类型。进一步了解国家补贴活动",
+          "quote_sha256": "83f4099062d4e714132f928c906e94a3b54db2d2504fe67f887cf932fe240a31"
+        }
+      ],
+      "answer_points": [
+        "正在处理或许可以在订单详情修改",
+        "国家补贴活动订单完成购买后不可改地址，需核对订单类别"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-29"
+    },
+    {
+      "id": "V3Q030",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "Apple还没准备发货，我突然不想要了，能直接取消整单吗？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28",
+          "block_id": "apple-orders:b0047",
+          "text_range": [
+            0,
+            42
+          ],
+          "quote": "如果你的订单商品不是“准备发货”或“已发货”状态，你可以在线取消某件商品或整个订单。",
+          "quote_sha256": "db71ce716db6487187593b4491f07f2dbaa9a9beeec23a53f3fd8d4712b7d72a"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28",
+          "block_id": "apple-orders:b0048",
+          "text_range": [
+            0,
+            72
+          ],
+          "quote": "如要取消订单或订购的商品，请访问订单列表页面，选择相应商品进入订单详情页面。 在订单详情页面中找到你想要取消的商品，然后点击“取消此商品”链接。",
+          "quote_sha256": "acb5c676c2b194f08ca7b32832a4eadac3d56903515f5bdbf47a533eddbf37fa"
+        }
+      ],
+      "answer_points": [
+        "不是准备发货或已发货状态时可在线取消商品或整单",
+        "进入订单详情取消"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-30"
+    },
+    {
+      "id": "V3Q031",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "Apple一单买了几件只退一件，剩下东西的发票怎么办？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0009",
+          "text_range": [
+            0,
+            72
+          ],
+          "quote": "原发票会在退货完成后失效。如果你办理的是部分退货，未退货的商品发票将会在退货完成后，发送到你的电子邮箱或 iMessage 信息所用的电话号码。",
+          "quote_sha256": "08b72cc3ecab84a73cf87d16ac6f922ab40b67502ff027550fcb2956b7954700"
+        }
+      ],
+      "answer_points": [
+        "原发票退货完成后失效",
+        "未退商品的新发票发送至邮箱或iMessage号码"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-31"
+    },
+    {
+      "id": "V3Q032",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "华为Windows笔记本刚联网进了桌面，我不喜欢，七天内还能无理由退吗？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0023",
+          "text_range": [
+            0,
+            158
+          ],
+          "quote": "*预置windows系统电脑，已激活Windows系统或Office的主机，不支持 7 天无理由退货。由于Windows系统联网时自动激活（Windows 11 系统首次开机需要连接网络才可进入桌面，连接网络会导致Windows系统自动激活），请确认需求后再激活使用。定制机等特殊商品，不适用于 7 天无理由退换货。",
+          "quote_sha256": "751a2e5f3808c01dab6ddea996876d7460bbb5e2c775750aeb93a8fafb1aa9ce"
+        }
+      ],
+      "answer_points": [
+        "联网可能自动激活Windows",
+        "已激活Windows或Office的主机不支持7天无理由退货，不能仅按天数承诺"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-32"
+    },
+    {
+      "id": "V3Q033",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "华为笔记本发票保修卡都丢了，也拿不出别的购机证据，保修起点怎么算？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0019",
+          "text_range": [
+            0,
+            64
+          ],
+          "quote": "消费者丢失发票和产品保修卡，且不能提供发票底联或者发票（底联）复印件等有效证据，则保修起始日期以出厂日期向后顺延 90 日计算。",
+          "quote_sha256": "70b817e6350ef3837db69bba734d459866292472fe2525999e091f68b41bfcea"
+        }
+      ],
+      "answer_points": [
+        "无列明有效证据时，按出厂日期向后顺延90日计算"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-33"
+    },
+    {
+      "id": "V3Q034",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "华为授权第三方平台买的笔记本，我直接找华为办退货行吗？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0004",
+          "text_range": [
+            0,
+            76
+          ],
+          "quote": "本服务政策仅应用于中国大陆地区官方渠道销售的华为笔记本电脑及随机配件产品。华为授权第三方平台销售的产品，仅提供保内维修服务，退换货服务请联系经销商处理。",
+          "quote_sha256": "d085fe1015dc5c657c5f7bc70eb7a27f7bf2cce3ff438d2f4a9ccd78c79b84c9"
+        }
+      ],
+      "answer_points": [
+        "该类产品华为仅提供保内维修",
+        "退换货联系经销商"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-34"
+    },
+    {
+      "id": "V3Q035",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "三星手机已经激活了，但一点划痕都没有，能无理由退吗？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968",
+          "block_id": "samsung-conditions:b0002",
+          "text_range": [
+            302,
+            384
+          ],
+          "quote": "智能手机类产品：以不影响二次销售为前提（产品未激活且可以正常开关机，前后屏无划伤、机身无损坏、划痕、进液和无Rooting行为，产品包装、贴膜、附件等齐全且完好）；",
+          "quote_sha256": "615996c7ebf7ef64b44b382d80d9351b6b5f57a68d47d773746f1efd03c86ec7"
+        }
+      ],
+      "answer_points": [
+        "规则要求手机未激活等",
+        "已经激活不满足该无理由退货条件"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-35"
+    },
+    {
+      "id": "V3Q036",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "三星洗衣机我已经装好洗过一次了，没坏，只是不喜欢，可以七天无理由吗？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968",
+          "block_id": "samsung-conditions:b0002",
+          "text_range": [
+            789,
+            867
+          ],
+          "quote": "生活家电类产品：以不影响二次销售为前提，如出现人为损坏、包装箱、包装袋、泡沫缺失或破损、随机零配件缺失或破损以及产品已使用或安装情况下不支持7天无理由退货；",
+          "quote_sha256": "15f7b52e6ac895ea148915d5b1f8302ce802ee64552e76c36d18295d01b1ec0b"
+        }
+      ],
+      "answer_points": [
+        "已使用或安装不支持该7天无理由退货",
+        "不能套用质量问题退货"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-36"
+    },
+    {
+      "id": "V3Q037",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "三星买手机送的赠品我留着，手机退了还能一分钱不少地退吗？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0",
+          "block_id": "samsung-notes:b0002",
+          "text_range": [
+            565,
+            705
+          ],
+          "quote": "7.买赠产品退货。若退货商品是在本商城开展促销活动期间以购买商品及其免费赠送的商品，通过买赠获得的所有商品必须一次性全部退还，客户方能收到退款。若客户所购买赠产品中的某项产品已被客户保留、使用、损坏、丢失，则该商品的价格将按照客户购买时本商城的零售价格从客户的退款金额中全额扣除。",
+          "quote_sha256": "a7581b41f06f44a9c0a2cf50ba47e46ee91661613f252ace8ed3c41cfb917b0c"
+        }
+      ],
+      "answer_points": [
+        "买赠应全部退还",
+        "保留赠品按购买时商城零售价从退款扣除，不能承诺全额"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-37"
+    },
+    {
+      "id": "V3Q038",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "宜家家具拆箱才看到破了，我是不是现在就能把破件扔掉？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+          "block_id": "ikea-terms:b0052",
+          "text_range": [
+            75,
+            141
+          ],
+          "quote": "请妥善保留任何损坏产品，以便我们在日后进行检查。如果您在我们尚有机会检测前处理了任何损坏产品，这可能会对后续提供的售后服务产生影响。",
+          "quote_sha256": "4c56a49fffbfc3909b25dae4ca317fb1bc14d9862fa2970f4c39576d1ed7bfe9"
+        }
+      ],
+      "answer_points": [
+        "保留损坏产品供检测",
+        "提前处理可能影响后续售后"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-38"
+    },
+    {
+      "id": "V3Q039",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "宜家椅子我坐了一段时间有磨痕，不是质量问题，会员是不是也能随便退？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59",
+          "block_id": "ikea-returns:b0006",
+          "text_range": [
+            0,
+            90
+          ],
+          "quote": "“完好的货品” 指货品未受损、无污渍、未变形、未经洗涤且无使用痕迹等。食品、家用电器商品、购买前单独签署协议的特殊定制产品，以及被切割、裁剪和油漆过的产品，不在无忧退换货范围之内。",
+          "quote_sha256": "453ea8d46c52807ff85e77252e685b3829704d654bb3411227f52db1a657486e"
+        }
+      ],
+      "answer_points": [
+        "完好要求无使用痕迹等",
+        "会员期限不豁免商品完好条件，不能直接承诺退货"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-39"
+    },
+    {
+      "id": "V3Q040",
+      "category": "colloquial",
+      "split": "acceptance",
+      "query": "索尼耳机掉水里坏了，反正还在保修期，是不是免费修？",
+      "subject": "EXTERNAL:SONY_CN",
+      "scope": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50"
+        },
+        {
+          "source_id": "sony-warranty",
+          "raw_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50",
+          "block_id": "sony-service:b0031",
+          "text_range": [
+            281,
+            312
+          ],
+          "quote": "9）由于进液、受潮、外力挤压、掉落等使用或保管不当造成故障的；",
+          "quote_sha256": "c4689279e9f72c447bed7b050f532c2f9b523d8bd5efff34744b0f7c22dad646"
+        }
+      ],
+      "answer_points": [
+        "进液等使用保管不当故障列为不实行三包服务",
+        "不能只依据在保时间承诺免费"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-40"
+    },
+    {
+      "id": "V3Q041",
+      "category": "exact",
+      "split": "development",
+      "query": "京东数码到货后才发现外观异常，签收后申请物流损退换的时限是多久？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0016",
+          "text_range": [
+            0,
+            124
+          ],
+          "quote": "4.关于物流损：请您在收货时务必仔细验货，如发现商品外包装或商品本身外观存在异常，需当场向配送人员指出，并拒收整个包裹；如您在收货后发现外观异常，请在签收后的24小时内提交退换货申请,可能需要您提供实物照片,以便核实处理。如超时未申请，将无法受理;",
+          "quote_sha256": "6186364de2e22f456df01ae9db5fd32eb303b270f5a8a8b27aba89e53bece014"
+        }
+      ],
+      "answer_points": [
+        "签收后24小时内提交",
+        "可能需实物照片核实，超时无法受理"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-41"
+    },
+    {
+      "id": "V3Q042",
+      "category": "exact",
+      "split": "development",
+      "query": "当地没有厂家维修中心，京东代检和代修分别预计多久？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0017",
+          "text_range": [
+            27,
+            90
+          ],
+          "quote": "检测周期为：代检7到15天，代修30天，自签收商品时间起算（不含物流时间，部分商品维修周期可能会延长，具体的以实际情况确定）。",
+          "quote_sha256": "ce8bf2beb31166301676661acdb662a031d3592129a4096f2bc8bf7189595d47"
+        }
+      ],
+      "answer_points": [
+        "代检7至15天、代修30天",
+        "自签收起不含物流，部分商品可能延长"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-42"
+    },
+    {
+      "id": "V3Q043",
+      "category": "exact",
+      "split": "development",
+      "query": "京东数码性能故障在三包期内修了两次仍不能用，换货需要什么凭证？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0018",
+          "text_range": [
+            0,
+            126
+          ],
+          "quote": "6.商品出现性能故障，在三包有效期内经两次维修仍不能正常使用，客户可凭厂商或厂商指定授权服务中心出具的有效维修记录或凭证，申请调换同型号同规格的商品或按三包规定退换货。（因品类不同，具体商品的三包性能故障、退换机政策以国家三包规定、各厂商三包政策为准）",
+          "quote_sha256": "ca331e8d39d7eafb71fa4632d5c29ac06658db9372a5c712a62c3631856ca514"
+        }
+      ],
+      "answer_points": [
+        "有效维修记录或凭证",
+        "可申请同型号同规格更换或按三包规定处理，依品类政策"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-43"
+    },
+    {
+      "id": "V3Q044",
+      "category": "exact",
+      "split": "development",
+      "query": "京东数码外包装至少建议保留多少天？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0019",
+          "text_range": [
+            0,
+            21
+          ],
+          "quote": "7.外包装建议在收货之日起保留至少15天；",
+          "quote_sha256": "0bb54f384ffd015c28cef54b5a42b30b2a79af619e287140a4412ce6e0e767e2"
+        }
+      ],
+      "answer_points": [
+        "收货之日起至少15天"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-44"
+    },
+    {
+      "id": "V3Q045",
+      "category": "exact",
+      "split": "development",
+      "query": "有品物流没有有效签收时间，七天退货窗口怎么判定？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0038",
+          "text_range": [
+            0,
+            71
+          ],
+          "quote": "按照第三方物流平台显示的实际到货日期第二日开始计算。如果第三方物流平台不能有效返回签收日期，则小米将根据商品激活时间、距离等因素作出综合判断。",
+          "quote_sha256": "ce618217f3d2b77b798a8580cde0ea0e5ff3aed7b0e243dec8f5c910f13188d0"
+        }
+      ],
+      "answer_points": [
+        "通常到货日期第二日开始",
+        "不能返回签收日期时，结合激活时间、距离等综合判断"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-45"
+    },
+    {
+      "id": "V3Q046",
+      "category": "exact",
+      "split": "development",
+      "query": "小米有品保外维修费通知后七天未付，商品怎么处理？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0073",
+          "text_range": [
+            0,
+            86
+          ],
+          "quote": "（6）如商品经检测属保外维修，如您对维修费用与小米不能达成一致，或虽达成一致，您在小米发出须支付维修费通知后7日内，未能完成维修费用支付的，小米将原物退回，物流费由您承担。",
+          "quote_sha256": "84f2028783d53e55e8cde2b7e40f2abe604e3b26a2e9eaa6e0d43c3e46a70a39"
+        }
+      ],
+      "answer_points": [
+        "通知后7日内未完成支付，原物退回",
+        "物流费由用户承担"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-46"
+    },
+    {
+      "id": "V3Q047",
+      "category": "exact",
+      "split": "development",
+      "query": "小米有品退货成功，原先用的优惠券和礼品卡余额分别怎么退？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0082",
+          "text_range": [
+            94,
+            134
+          ],
+          "quote": "礼品卡退货时金额退回卡内，不予兑现。退货成功后，您在购物时使用的优惠券不予退还。",
+          "quote_sha256": "86ffde8e1f5b45ec9b1d182830ff9880096d8d96d7ce297f9479ca026e082879"
+        }
+      ],
+      "answer_points": [
+        "礼品卡金额退卡内不兑现",
+        "已用优惠券不予退还"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-47"
+    },
+    {
+      "id": "V3Q048",
+      "category": "exact",
+      "split": "development",
+      "query": "小米保内服务采用以换代修，换新的商品是否重新有退换期和保修起点？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0048",
+          "text_range": [
+            69,
+            130
+          ],
+          "quote": "如小米采用以换代修的方式为您提供保内维修服务，则对于换新的商品，不再适用退换货的规定，保修期仍按照原商品购买日期进行计算。",
+          "quote_sha256": "e048ba5840f3e00bbe9db3982f788896f1f4f0d57cf671101766ffc85165a938"
+        }
+      ],
+      "answer_points": [
+        "以换代修的新商品不再适用退换货规定",
+        "保修期仍从原购买日算"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-48"
+    },
+    {
+      "id": "V3Q049",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "Apple官网微信钱包支付的退货退款，页面规定几个工作日完成操作，查哪里？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0023",
+          "text_range": [
+            0,
+            52
+          ],
+          "quote": "微信支付，Apple 将在 5 个工作日完成退款操作，如果你选择的是微信钱包支付，请查询你的钱包账户余额",
+          "quote_sha256": "456ec412054a94ad99864c02fa087e915f4c1a184dccea7bf2ace65f13d159ba"
+        }
+      ],
+      "answer_points": [
+        "5个工作日完成退款操作",
+        "查微信钱包余额，不等同保证实际到账时刻"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-49"
+    },
+    {
+      "id": "V3Q050",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "Apple官网电汇支付退款，需要提供什么账户，几个工作日办理？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0026",
+          "text_range": [
+            0,
+            51
+          ],
+          "quote": "电汇，请致电4006668800并提供订单持有方的银行账户信息。Apple将在6个工作日完成退款操作。",
+          "quote_sha256": "116a06a5e6c379a7bb3aa6a896d88fcbc809506e22b362b4ad13a19cbc20bb6f"
+        }
+      ],
+      "answer_points": [
+        "致电客服提供订单持有方银行账户信息",
+        "6个工作日完成退款操作"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-50"
+    },
+    {
+      "id": "V3Q051",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "Apple预定三小时快送，要求什么下单付款时间，有没有地区限制？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03",
+          "block_id": "apple-shipping:b0006",
+          "text_range": [
+            0,
+            85
+          ],
+          "quote": "预定快送服务 → 预计三小时内送货 (必须在当天上午 10:00 至晚上 8:30 之间下单并完成支付。某些产品或送货地址可能无法选择快送服务，具体以结账页面信息为准。)",
+          "quote_sha256": "cb76d72c31f72fdc075b3987c9beab8d08ba2d5ba90cd5a3ce24abd2930c3530"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03",
+          "block_id": "apple-shipping:b0007",
+          "text_range": [
+            0,
+            70
+          ],
+          "quote": "请注意：上述送货时间仅为快递公司基于过往物流数据预估得出。如遇恶劣天气、高峰时段及其他特殊情况，送货可能会有延迟。请以订单实际送货时间为准。",
+          "quote_sha256": "701a9549aa2fbd55c1ec168053416f19a8db1813cbbe677c41fe5d86b092fe72"
+        }
+      ],
+      "answer_points": [
+        "当天10:00至20:30下单并支付",
+        "部分产品地址不适用，三小时为预估且可能延迟"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-51"
+    },
+    {
+      "id": "V3Q052",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "华为笔记本电池和主板的保修期限一样吗？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0009",
+          "text_range": [
+            0,
+            268
+          ],
+          "quote": "类别 | 子类别 | 保修期限\n主机 | 主机 | 2年\n电池 | 1年\n主要部件：\n主板\nCPU\n内存\n显示器\n硬盘\n键盘\n电源适配器（含线） | 2年\n其他部件 | 2年\n预置软件系统 | 1、预置Windows系统（部分机型预置Linux系统）含BIOS、驱动和预置的华为应用软件\n2、预置Linux系统\n3、预置鸿蒙操作系统（HarmonyOS） | 1年\n随包装销售配件 | 皮套键盘（二合一PC）\n星跃随行键盘（适用于MateBook Fold 非凡大师）\n转接线 | 1年\n有线耳机 | 90天\n内胆包\n配件包 | 15天",
+          "quote_sha256": "ef8c8ecc2caa4133239a30c3b6fb986f7f0ded6f377359d04ebe235fc494c01f"
+        }
+      ],
+      "answer_points": [
+        "电池1年",
+        "主板等主要部件2年，不能把主机2年套到电池"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-52"
+    },
+    {
+      "id": "V3Q053",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "HUAWEI MateBook X Pro 2023 13代酷睿版是否在两年上门服务型号表里？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0011",
+          "text_range": [
+            0,
+            114
+          ],
+          "quote": "支持的型号 | 上门服务有效期\nHUAWEI MateBook X Pro 2022款 | 2年\nMateBook X Pro 2022 12代酷睿版/微绒典藏版\nMateBook X Pro 2023 13代酷睿版/微绒典藏版",
+          "quote_sha256": "5e1c5355c62f6980d5e59680d385eb40f17be5590e60b232e6a30705d8b57b46"
+        }
+      ],
+      "answer_points": [
+        "在列明型号表内",
+        "上门服务有效期2年，具体区域另有限制"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-53"
+    },
+    {
+      "id": "V3Q054",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "华为线上买的手机签收次日起第10天出现非人为性能故障，能选哪些免费处理？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a",
+          "block_id": "huawei-phone:b0019",
+          "text_range": [
+            177,
+            256
+          ],
+          "quote": "线上购买自消费者签收次日起第 8 日至 15 日（包含 15 日）内，若产品的主机出现非人为损坏的性能故障，可以选择更换同型号同规格的产品，或者选择免费修理。",
+          "quote_sha256": "d4b7ce35a5b4724ac36ea495731d204feda422adf05458da04561912c39c7d30"
+        }
+      ],
+      "answer_points": [
+        "第8至15日可选同型号同规格换货或免费修理",
+        "该条未承诺退款"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-54"
+    },
+    {
+      "id": "V3Q055",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "三星商城显示器没有性能故障而退货，配送费按什么标准收？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0",
+          "block_id": "samsung-notes:b0002",
+          "text_range": [
+            180,
+            219
+          ],
+          "quote": "音响、电视配件（电视配件及投影仪配件）、显示器，配送费：用户实付金额的 5%；",
+          "quote_sha256": "5c305fe516c865cb5aa31a8b5d50856d9d716f6f4f1c07f24b615da0ff3d6e09"
+        }
+      ],
+      "answer_points": [
+        "正常出库后非性能故障退货，显示器配送费按实付金额5%"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-55"
+    },
+    {
+      "id": "V3Q056",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "三星商城智能手机正常出库后无理由退货，双向配送费用标准是多少？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0",
+          "block_id": "samsung-notes:b0002",
+          "text_range": [
+            107,
+            177
+          ],
+          "quote": "智能手机、智能平板、手表/耳机、智能手机配件、智能平板配件、智能耳机配件、智能手表配件、存储类、智能投影仪等小件产品，配送费用：40元/台；",
+          "quote_sha256": "877e9b788c9940ec4a24a9ef9a65069abca2503e725f1023602a5f691b6e6c31"
+        }
+      ],
+      "answer_points": [
+        "该类小件非性能故障退货配送费用40元每台",
+        "适用前提为正常出库后非故障退货"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-56"
+    },
+    {
+      "id": "V3Q057",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "宜家线上购物发票中心周末能处理发票吗，工作日几点开？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59",
+          "block_id": "ikea-returns:b0013",
+          "text_range": [
+            0,
+            67
+          ],
+          "quote": "对于线上购买的产品，宜家发票中心工作时间为工作日：09：00-17：30。请注意，节假日与非工作日宜家发票中心无法处理发票，敬请见谅。",
+          "quote_sha256": "b21ac5a98b14dedc0099f1eec730a9c15eec9884b5d7e8b3966cdeefdece1832"
+        }
+      ],
+      "answer_points": [
+        "工作日09:00至17:30",
+        "节假日和非工作日不处理"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-57"
+    },
+    {
+      "id": "V3Q058",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "宜家退货验收无误后，规定几日内办理退款？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59",
+          "block_id": "ikea-returns:b0011",
+          "text_range": [
+            0,
+            42
+          ],
+          "quote": "宜家收到退货商品并确认无误后，将在7日之内办理退款手续，钱款将按照原始支付方式退回。",
+          "quote_sha256": "b940371ef8c3710bd32e6a168847a7500cf220c0ebf56b0a5ea56acfa0661928"
+        }
+      ],
+      "answer_points": [
+        "收到退货并确认无误后7日内办理",
+        "按原始支付方式退回"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-58"
+    },
+    {
+      "id": "V3Q059",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "索尼投影机整机和灯泡分别保修多久？",
+      "subject": "EXTERNAL:SONY_CN",
+      "scope": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50"
+        },
+        {
+          "source_id": "sony-warranty",
+          "raw_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50",
+          "block_id": "sony-service:b0017",
+          "text_range": [
+            0,
+            50
+          ],
+          "quote": "投影机产品\n整机 | 主要部件 | 附件 | 主要部件或附件名称\n2年 | 6个月 | - | 灯泡",
+          "quote_sha256": "cfe15aff48a76f2b08357dc7dca7e0209a6e042507fddd6f393d975c3f2330e5"
+        }
+      ],
+      "answer_points": [
+        "整机2年",
+        "灯泡6个月"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-59"
+    },
+    {
+      "id": "V3Q060",
+      "category": "exact",
+      "split": "acceptance",
+      "query": "索尼平板电视整机和显示屏等主要部件保修各几年？",
+      "subject": "EXTERNAL:SONY_CN",
+      "scope": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50"
+        },
+        {
+          "source_id": "sony-warranty",
+          "raw_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50",
+          "block_id": "sony-service:b0007",
+          "text_range": [
+            0,
+            68
+          ],
+          "quote": "平板电视机产品\n整机 | 主要部件 | 附件 | 主要部件或附件名称\n1年 | 3年 | - | 显示屏、背光组件、逻辑组件、高频调谐器",
+          "quote_sha256": "9bf9075098681edf9d974e33b3c49be30affe9b6c469bef4fce2e3777da07e49"
+        }
+      ],
+      "answer_points": [
+        "整机1年",
+        "显示屏等主要部件3年"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-60"
+    },
+    {
+      "id": "V3Q061",
+      "category": "compound",
+      "split": "development",
+      "query": "京东自营商品说是质量问题，谁来确认、要什么证明，退回运费谁出？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+          "block_id": "jd-general:b0004",
+          "text_range": [
+            0,
+            161
+          ],
+          "quote": "退换类别 | 具体描述 | 是否支持7天（含）内退货 | 是否支持15天（含）内换货 | 是否收取返回运费 | 备注\n国家法律所规定的功能性故障或商品质量问题 | 经由生产厂家指定或特约售后服务中心检测确认，并出具检测报告或经京东售后确认属于商品质量问题。 | 是 | 是 | 否 | 当地无检测条件的请联系京东售后处理。",
+          "quote_sha256": "f4c4753f59a34e3a3be5a5bfeff65bedd4e0c6986f3ed5e7109b6af322cb18a3"
+        }
+      ],
+      "answer_points": [
+        "厂家指定或特约售后检测报告或京东确认",
+        "符合质量问题退换条件不收返回运费"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-61"
+    },
+    {
+      "id": "V3Q062",
+      "category": "compound",
+      "split": "development",
+      "query": "京东非京东物流送来的商品，物流缺签收时间，退换窗口和收货日如何确认？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+          "block_id": "jd-general:b0003",
+          "text_range": [
+            0,
+            67
+          ],
+          "quote": "京东承诺符合以下情况，自客户收到商品之日起7日内可以退货，15日内可以换货，客户可在线提交返修申请办理退换货事宜。具体退换货标准如下：",
+          "quote_sha256": "cc89d08e3206d50865730bf723d0e1f902bbd9140f8ff8330cd36ece43b1590e"
+        },
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+          "block_id": "jd-general:b0008",
+          "text_range": [
+            0,
+            79
+          ],
+          "quote": "（2）非京东配送的订单，按照第三方物流平台显示的实际到货日期为准。如果第三方合作伙伴不能有效返回签收日期，则京东客服根据距离等因素和客户人工确认实际到货日期。",
+          "quote_sha256": "085b468bda07272696232afc3b5776cde1a7a3bfb58bb6c5543505670bd6195c"
+        }
+      ],
+      "answer_points": [
+        "一般7日可退15日可换，须符合条件",
+        "无有效第三方签收日期时京东客服结合距离等与客户人工确认到货日"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-62"
+    },
+    {
+      "id": "V3Q063",
+      "category": "compound",
+      "split": "development",
+      "query": "京东自营下载的软件和普通完好商品都能七天无理由吗，普通退货运费谁付？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+          "block_id": "jd-general:b0009",
+          "text_range": [
+            19,
+            59
+          ],
+          "quote": "自您实际收到商品之日起7日内，在商品返回运费由您承担的情况下,可享受无理由退货。",
+          "quote_sha256": "b4302697281fffb1da5fad8e1cdd1f52e687a6debcb4bbdb903bebdf3664e283"
+        },
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+          "block_id": "jd-general:b0012",
+          "text_range": [
+            0,
+            30
+          ],
+          "quote": "（3）在线下载或者您拆封的音像制品，计算机软件等数字化商品；",
+          "quote_sha256": "f7af2929efbf27a27b8981a01e835e549fd276c18d009bf729d859dac00e14c5"
+        }
+      ],
+      "answer_points": [
+        "普通符合条件商品7日无理由且自行承担返回运费",
+        "在线下载或拆封音像软件等数字商品不适用"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-63"
+    },
+    {
+      "id": "V3Q064",
+      "category": "compound",
+      "split": "development",
+      "query": "京东代修的存储设备寄出前数据怎么处理，修好收到发现外观问题多久反馈？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0013",
+          "text_range": [
+            0,
+            66
+          ],
+          "quote": "1.对于存储类商品，京东不提供数据保存、数据导出服务，请务必在返修前将商品内的数据自行导出，否则若有数据遗失、损坏等京东不承担责任；",
+          "quote_sha256": "ad13cc9a7117f2ca96cbed848495ec9b35ea384965e8651de3f0835ff23ec904"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0017",
+          "text_range": [
+            90,
+            144
+          ],
+          "quote": "在您收到维修好的商品后请及时进行检查，若存在外观问题，请在24小时内联系京东；如超时未反馈，将无法为您处理；",
+          "quote_sha256": "883ea2980e472eb81d38de57061ec67be24632b4a0daee8e693e70e9a5561692"
+        }
+      ],
+      "answer_points": [
+        "寄出前自行导出数据",
+        "收到维修品外观异常24小时内联系"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-64"
+    },
+    {
+      "id": "V3Q065",
+      "category": "compound",
+      "split": "development",
+      "query": "有品自营质量问题申请退换，检测和双向运费分别怎么处理？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0008",
+          "text_range": [
+            76,
+            98
+          ],
+          "quote": "经由小米售后服务中心检测确认，并出具检测报告",
+          "quote_sha256": "d6dd9908b08cbba26d5a2ce77e3cd996c992c67bc8e5630ff19ecf0af2957471"
+        },
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0046",
+          "text_range": [
+            0,
+            67
+          ],
+          "quote": "b. 质量问题退换货，经检测后符合退换货标准，双向物流费由小米承担，如不符合退换货标准小米将按原地址寄回商品，双向物流费由您自行承担。",
+          "quote_sha256": "97c8d1f4eba2fd275cc081919c98ea588d7ea29d1c14b162cf8528f6ae8aaf38"
+        }
+      ],
+      "answer_points": [
+        "小米售后检测并出具报告",
+        "符合标准小米承担双向物流，否则原址寄回且用户承担"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-65"
+    },
+    {
+      "id": "V3Q066",
+      "category": "compound",
+      "split": "development",
+      "query": "有品订单只退部分商品，电子发票和没有退回的赠品怎么处理？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0085",
+          "text_range": [
+            70,
+            148
+          ],
+          "quote": "如您开具电子发票后申请退货，原电子发票会通过系统自动冲红（电子发票显示无效），如您只是申请订单中部分商品退货，小米有品将对未发生退货部分的商品重新开具发票。",
+          "quote_sha256": "ccea2e079fdf56dbeefd0915a1e0c4ccb497ed4cc1b6344d6158f5b4883b02dd"
+        },
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0082",
+          "text_range": [
+            3,
+            94
+          ],
+          "quote": "商品退货时，赠品（包括赠送的实物、积分、代金券、优惠券等形式）应一并退回，如赠品已丢失、使用、破损或未退回等，需按照事先标明的赠品价格支付赠品价款，价款小米有权直接于应退货款中扣除。",
+          "quote_sha256": "1ca67c4c481b422646c2af1a33929f58bdf6333779c4b1518a2c9e3c23d3b80a"
+        }
+      ],
+      "answer_points": [
+        "原电子发票冲红，未退部分重新开票",
+        "未退赠品按事先标明价格扣款"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-66"
+    },
+    {
+      "id": "V3Q067",
+      "category": "compound",
+      "split": "development",
+      "query": "小米有品寄修前数据和快递面单需要分别准备什么？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0068",
+          "text_range": [
+            0,
+            85
+          ],
+          "quote": "（1）寄修前，请您提前备份个人数据并将个人数据从维修商品中删除。维修过程中可能会造成您个人数据的丢失，小米会保护您的个人隐私，但不承担维修过程中个人数据损坏、丢失的责任。",
+          "quote_sha256": "34dee0a8dc27d129f3af8e9d5e2d70a73908c1a630b9878b3523357f9ddcf724"
+        },
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0069",
+          "text_range": [
+            0,
+            113
+          ],
+          "quote": "（2）邮寄商品时，请您务必在快递面单上备注售后服务工单或订单号，并留下您的有效联系方式及地址，若小米无法与您取得联系，您在申请售后服务过程中留下的联系方式及地址将默认为寄返商品的收件人联系方式及地址，以确保退换修流程顺利进行。",
+          "quote_sha256": "5c89f38e17fb3ee544d017004b0463ba118fe7ab0f0265a4ca9554a9b88d5660"
+        }
+      ],
+      "answer_points": [
+        "提前备份并删除个人数据",
+        "面单备注售后工单或订单号，留有效联系方式和地址"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-67"
+    },
+    {
+      "id": "V3Q068",
+      "category": "compound",
+      "split": "development",
+      "query": "有品退货的外包装指快递纸箱还是厂家包装，返程损坏是谁负责？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0083",
+          "text_range": [
+            0,
+            84
+          ],
+          "quote": "6. 商品的外包装为商品不可分割的组成部分，退回时应当齐全、无严重破损、受污。“外包装”是指：生产厂商原包装（最小销售单元），不含销售商或物流服务商自行二次封装的包装。",
+          "quote_sha256": "87e2c266b443a2df12b6f476d9d7a7c04d9fb5ab4c92457f53181b70af6fd986"
+        },
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0086",
+          "text_range": [
+            0,
+            55
+          ],
+          "quote": "8. 用户在退还商品的途中，有责任保证所退还商品的安全及完整，如退还途中出现丢失、损坏等情形，责任由用户承担。",
+          "quote_sha256": "83afd51bc3ea6df33c5f45a55285808480262d08d01adb863b9d93f952ed0ed3"
+        }
+      ],
+      "answer_points": [
+        "外包装指厂家原包装，不含物流二次包装",
+        "退回途中安全完整由用户负责"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-68"
+    },
+    {
+      "id": "V3Q069",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "Apple订单已经无法在线取消，我还想退，接下来走哪个入口、申请期限是多少？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28",
+          "block_id": "apple-orders:b0050",
+          "text_range": [
+            0,
+            49
+          ],
+          "quote": "如果你无法在线取消商品并且需要退货，请访问退货与退款帮助页面，或者拨打 400-666-8800。",
+          "quote_sha256": "94a40d47e45e7148f2a8d414af5bba69387a62ed9ed4c99afaf5a435a1f0fec6"
+        },
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0004",
+          "text_range": [
+            0,
+            61
+          ],
+          "quote": "退货须遵守 Apple Store 销售与退款政策。对于符合退货条件的商品，请在商品交付之日起 14 个自然日内申请退货。",
+          "quote_sha256": "ad155b1f29c0c89c1d38a8c8cfd5537502f9bc7ca01574df825756de86fe76e2"
+        }
+      ],
+      "answer_points": [
+        "访问退货退款帮助或联系客服",
+        "符合条件商品交付日起14个自然日内申请"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-69"
+    },
+    {
+      "id": "V3Q070",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "Apple官网微信付款并付过快送费，退货后快送费退不退，退款操作多久完成？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0020",
+          "text_range": [
+            0,
+            73
+          ],
+          "quote": "Apple 退货中心收到退还的物品并检测无误后，会立即处理你的退款。退款时不会退还快送服务费用。你收到退款的时间会根据订购时的付款方式而有所不同。",
+          "quote_sha256": "1331378884296c9f500b7e95805316322694adf52ee376aa49ac7e23d5a8f865"
+        },
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0023",
+          "text_range": [
+            0,
+            52
+          ],
+          "quote": "微信支付，Apple 将在 5 个工作日完成退款操作，如果你选择的是微信钱包支付，请查询你的钱包账户余额",
+          "quote_sha256": "456ec412054a94ad99864c02fa087e915f4c1a184dccea7bf2ace65f13d159ba"
+        }
+      ],
+      "answer_points": [
+        "退货中心收到并检测无误后处理",
+        "不退快送费，微信退款操作5个工作日，实际到账查询支付方"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-70"
+    },
+    {
+      "id": "V3Q071",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "Apple企业抬头发票已经抵扣，现在部分退货，公司财务和剩余发票分别怎么办？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0009",
+          "text_range": [
+            0,
+            72
+          ],
+          "quote": "原发票会在退货完成后失效。如果你办理的是部分退货，未退货的商品发票将会在退货完成后，发送到你的电子邮箱或 iMessage 信息所用的电话号码。",
+          "quote_sha256": "08b72cc3ecab84a73cf87d16ac6f922ab40b67502ff027550fcb2956b7954700"
+        },
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+          "block_id": "apple-returns:b0010",
+          "text_range": [
+            0,
+            87
+          ],
+          "quote": "如果你是公司用户，申请并收到了企业抬头电子发票，且该发票已被相关公司确认用途或者认证抵扣，Apple将会发起红字通知单申请，请你联系公司财务相关团队配合在电子税务局进行确认。",
+          "quote_sha256": "560a01b9ad6a176b87423cb93988906521e28ea8cd007a0b9adbe71fd4650d04"
+        }
+      ],
+      "answer_points": [
+        "配合红字通知单在电子税务局确认",
+        "原发票失效，未退部分重新发送发票"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-71"
+    },
+    {
+      "id": "V3Q072",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "Apple包裹运输中疑似丢了，你们怎么调查？能保证精确到几点送达吗？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03",
+          "block_id": "apple-shipping:b0068",
+          "text_range": [
+            0,
+            126
+          ],
+          "quote": "如果货物配送有任何问题，Apple 将直接联系承运商尽快解决问题，并尽量减少给你带来的不便。我们将尽全力与你联系并及时通知你我们的调查进度，需要时我们会更换所发出的商品。如果你已收到订购的商品，但发现商品损坏，请致电 Apple Store 客户服务。",
+          "quote_sha256": "cf0d0fcc7e2c9044bc6c49fe5284b2c1f5fa5901c7e8e5080ad06355762c70f5"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03",
+          "block_id": "apple-shipping:b0057",
+          "text_range": [
+            0,
+            80
+          ],
+          "quote": "你可以访问我们的订单列表页面，查看预计送达日期和承运商，了解订单的最新状况。Apple 及其承运商无法提供精确的送达时间。我们的承运商在商品送达前会打电话通知。",
+          "quote_sha256": "f826f6423dbbc0a1350489f4935d11e3e53ad47b1c21569f1c13f32332a82aeb"
+        }
+      ],
+      "answer_points": [
+        "Apple联系承运商解决并告知调查进度，必要时更换商品",
+        "无法提供精确送达时间，不承诺具体点钟"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-72"
+    },
+    {
+      "id": "V3Q073",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "华为手机整机换新和只换一个部件，主机及部件保修期分别怎么续？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a",
+          "block_id": "huawei-phone:b0030",
+          "text_range": [
+            0,
+            119
+          ],
+          "quote": "在保修范围内，如果发生整机更换（不包括配件），更换后的产品按照三包法规定重新计算保修期；如果发生部件更换，更换后主机延续原保修期，主机的保修期不足30天的按照30天计算，更换后的部件延续主机剩余保修期或90天质保（以时间较长的方式为准）。",
+          "quote_sha256": "b729bc040bbf65f93d294d5ddc23d76d3b17d4ad39f9becb5f784600166a2018"
+        }
+      ],
+      "answer_points": [
+        "整机更换重算保修",
+        "换部件主机延续且不足30天按30天，部件取剩余主机期与90天较长者"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-73"
+    },
+    {
+      "id": "V3Q074",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "华为MateBook X Pro 2023 13代酷睿版在两年内非人为故障，是不是所有地方都免费上门？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0011",
+          "text_range": [
+            0,
+            114
+          ],
+          "quote": "支持的型号 | 上门服务有效期\nHUAWEI MateBook X Pro 2022款 | 2年\nMateBook X Pro 2022 12代酷睿版/微绒典藏版\nMateBook X Pro 2023 13代酷睿版/微绒典藏版",
+          "quote_sha256": "5e1c5355c62f6980d5e59680d385eb40f17be5590e60b232e6a30705d8b57b46"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0012",
+          "text_range": [
+            0,
+            62
+          ],
+          "quote": "*产品主机上门服务仅适用于特定区域，若消费者不在该区域内，服务将以送修方式提供，由消费者将产品送到华为授权服务中心进行维修。",
+          "quote_sha256": "833f7ea2bb0fe6d7b32a3383de85c75135fccdd2823764214b4a2fdf3893f830"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0013",
+          "text_range": [
+            0,
+            43
+          ],
+          "quote": "*在2年上门服务有效期内，产品主机出现非人为损坏的性能故障，为消费者免费提供上门服务。",
+          "quote_sha256": "00ec208a04b787795fe27f7f9883a655377c02970d98e1fe5780df7aa75669f3"
+        }
+      ],
+      "answer_points": [
+        "列明机型有效期2年且非人为性能故障",
+        "仅特定区域，区域外送修，不能承诺全国上门"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-74"
+    },
+    {
+      "id": "V3Q075",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "华为Windows笔记本联网激活后想无理由退，如果确有非人为性能故障，和无理由退是一回事吗？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0023",
+          "text_range": [
+            0,
+            158
+          ],
+          "quote": "*预置windows系统电脑，已激活Windows系统或Office的主机，不支持 7 天无理由退货。由于Windows系统联网时自动激活（Windows 11 系统首次开机需要连接网络才可进入桌面，连接网络会导致Windows系统自动激活），请确认需求后再激活使用。定制机等特殊商品，不适用于 7 天无理由退换货。",
+          "quote_sha256": "751a2e5f3808c01dab6ddea996876d7460bbb5e2c775750aeb93a8fafb1aa9ce"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+          "block_id": "huawei-laptop:b0022",
+          "text_range": [
+            49,
+            131
+          ],
+          "quote": "线上购买自消费者签收次日起7 日内（包含 7 日），若产品的主机出现非人为损坏的性能故障，可以选择按发票价格一次退清货款或更换同型号同规格的产品，或者选择免费修理。",
+          "quote_sha256": "bd07840a7d511faec295c3937b2465e7d779e3b9a82e17f9076b6df74cbb303c"
+        }
+      ],
+      "answer_points": [
+        "已激活不支持无理由退货",
+        "非人为性能故障按质量问题条件处理，线上签收次日起7日内可选退换修，不把两类混为一谈"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-75"
+    },
+    {
+      "id": "V3Q076",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "三星显示器包装完好也没揭原厂膜，不是质量问题，七天内退货条件和配送费怎么算？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968",
+          "block_id": "samsung-conditions:b0002",
+          "text_range": [
+            920,
+            981
+          ],
+          "quote": "显示器产品：以不影响二次销售为前提，产品外包装需要完好，产品无损坏瑕疵、无划痕、无揭起原厂覆盖膜情况下支持7天无理由退货；",
+          "quote_sha256": "4a295e695e21d2f63f751d5489614c2121b7e6d0f49c8fe47fd05cb362b0f31d"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0",
+          "block_id": "samsung-notes:b0002",
+          "text_range": [
+            180,
+            219
+          ],
+          "quote": "音响、电视配件（电视配件及投影仪配件）、显示器，配送费：用户实付金额的 5%；",
+          "quote_sha256": "5c305fe516c865cb5aa31a8b5d50856d9d716f6f4f1c07f24b615da0ff3d6e09"
+        }
+      ],
+      "answer_points": [
+        "须签收次日起7日内且符合完好等条件",
+        "非性能故障正常出库后配送费实付金额5%"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-76"
+    },
+    {
+      "id": "V3Q077",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "三星商城买的优惠套装想拆开只退一件，另外信用卡手续费能一起退吗？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0",
+          "block_id": "samsung-notes:b0002",
+          "text_range": [
+            429,
+            564
+          ],
+          "quote": "6.优惠套装退货。若退货商品是在本商城开展促销活动期间以优惠价格购买的套装商品，套装内的所有商品必须一次性全部退还，客户方能收到退款。若客户所购优惠套装中的某项商品已被客户保留、使用、损坏、丢失，则该商品的价格将按照客户购买时本商城的零售价格从客户的退款金额中全额扣除。",
+          "quote_sha256": "87e57c61c7d9257b8b80b6b62828ba31bd68bf3b8e64ed2079c356ef4b3aa7cb"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231",
+          "block_id": "samsung-refund:b0002",
+          "text_range": [
+            60,
+            127
+          ],
+          "quote": "顾客使用信用卡支付方式并支付手续费的，退款时将不包含手续费金额；顾客使用信用卡支付方式并由商城免除手续费，退款时将相应扣除手续费金额。",
+          "quote_sha256": "acfab801bf160201038b9461b33f550f52e478695ac2804b0d6c0a3281dda1fc"
+        }
+      ],
+      "answer_points": [
+        "优惠套装须全部退还，保留部分按购买时零售价扣除",
+        "信用卡已付手续费不退，商城免除的手续费相应扣除"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-77"
+    },
+    {
+      "id": "V3Q078",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "宜家送来的家具拆包发现破损，几天内通知、要不要留破件，什么情况下才全额退货款和运费？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+          "block_id": "ikea-terms:b0052",
+          "text_range": [
+            0,
+            249
+          ],
+          "quote": "4.5 如果您在交货后发现产品损坏该怎么办?\n如果包装里的产品发现损坏，请在收货后 7 日内拨打电话通知宜家客户服务处，并在交货后尽快记录到送货单上。请妥善保留任何损坏产品，以便我们在日后进行检查。如果您在我们尚有机会检测前处理了任何损坏产品，这可能会对后续提供的售后服务产生影响。检测后，如果我们对配送产品的损坏负有责任，我们将给您提供售后服务，如果我们无法维修，则会全额退还您之前购买产品所支付给我们的款项和任何运费。如果任何产品在配送过程中因您的错误或过失而损坏，我们将不对此类产品承担责任。",
+          "quote_sha256": "68711b3ce931b111bead1552f5a9df13839bf39818f7d5b33fe883bce3202d1b"
+        }
+      ],
+      "answer_points": [
+        "收货后7日内电话通知并尽快记录送货单",
+        "保留损坏品供检测，宜家负有责任且无法维修时全额退货款和运费"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-78"
+    },
+    {
+      "id": "V3Q079",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "宜家用两种方式付款，送货当天取消，退款怎么分配，原运费也退吗？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59",
+          "block_id": "ikea-returns:b0018",
+          "text_range": [
+            0,
+            28
+          ],
+          "quote": "如果订单在送货当天或送货服务完成后取消，运费将不予退还。",
+          "quote_sha256": "3a05778ed02696fdcd5cd8ce961bd84feb3173030f58da88f3839e442f641ba4"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59",
+          "block_id": "ikea-returns:b0020",
+          "text_range": [
+            0,
+            37
+          ],
+          "quote": "如果购买时是以多种支付方式付款，则退货时会按照各种支付方式的比例进行退款。",
+          "quote_sha256": "80ef22da67093efba789addff26657d2d085efa5f4ea6509c890f4a997581bb0"
+        }
+      ],
+      "answer_points": [
+        "按原各支付方式比例退款",
+        "送货当天或服务完成后取消，运费不退"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-79"
+    },
+    {
+      "id": "V3Q080",
+      "category": "compound",
+      "split": "acceptance",
+      "query": "我在香港指定渠道买的索尼正品手机，保修期内到内地能连配件一起联保，还能直接换新退机吗？",
+      "subject": "EXTERNAL:SONY_CN",
+      "scope": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50"
+        },
+        {
+          "source_id": "sony-warranty",
+          "raw_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee"
+        }
+      ],
+      "answerability": "ANSWERABLE",
+      "required_evidence": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50",
+          "block_id": "sony-service:b0039",
+          "text_range": [
+            0,
+            151
+          ],
+          "quote": "1.在中国大陆、香港特别行政区、澳门特别行政区指定销售渠道购买索尼正品手机的用户，于购买日起1年内（“保修期”）异地旅行到上述另外两地区时，若手机主机出现故障或异常且符合保修条件的，可联系当地索尼手机产品服务热线或指定服务中心或授权维修站，凭购买地有效购机凭证，在当地享受联保保修服务（“本项服务”）。",
+          "quote_sha256": "3ee0bb0598dc7e79c020dba65d85d1dec7ba54aa0a7fb47544927ed35c833bef"
+        },
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50",
+          "block_id": "sony-service:b0039",
+          "text_range": [
+            152,
+            185
+          ],
+          "quote": "2.本项服务仅限于用户购买的索尼手机主机，其他附件类产品不在其内。",
+          "quote_sha256": "c96df68ebe4b53790c21de72a6aa7438edab27ce604e9e4db276b81d5d811522"
+        },
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50",
+          "block_id": "sony-service:b0039",
+          "text_range": [
+            186,
+            228
+          ],
+          "quote": "3.本项服务不包含换新、退机服务及用户在购买地获得的增值服务项目（如延长保修期等）。",
+          "quote_sha256": "02ecfa999e7ffca23df52c83520ab69355b1f530fb0eea439b55d38dd6b26658"
+        }
+      ],
+      "answer_points": [
+        "符合指定渠道型号及保修条件、有效凭证时主机可异地联保维修",
+        "不含配件、换新退机及购买地增值服务，需核对当地型号支持"
+      ],
+      "missing_reason": null,
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-80"
+    },
+    {
+      "id": "V3Q081",
+      "category": "unanswerable",
+      "split": "development",
+      "query": "京东海外购跨境商品退货后关税如何逐项退还？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "说明现有文档不足，需海外购适用政策，不能套用一般退款"
+      ],
+      "missing_reason": "现有自营总则和数码细则未给跨境税款退还规则",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-81"
+    },
+    {
+      "id": "V3Q082",
+      "category": "unanswerable",
+      "split": "development",
+      "query": "京东这款数码产品三十天价保的差价计算公式是什么？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "说明缺少价保规则，应获取适用活动政策"
+      ],
+      "missing_reason": "自营售后文档没有价格保护计算规则",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-82"
+    },
+    {
+      "id": "V3Q083",
+      "category": "unanswerable",
+      "split": "development",
+      "query": "京东送修的硬盘里那张毕业合照现在还在吗？",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "不能承诺数据仍在，需实际检测或用户核验"
+      ],
+      "missing_reason": "文档不能访问用户设备数据",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-83"
+    },
+    {
+      "id": "V3Q084",
+      "category": "unanswerable",
+      "split": "development",
+      "query": "京东退货寄回地址帮我确定到具体门牌，订单信息我还没给。",
+      "subject": "EXTERNAL:JD",
+      "scope": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd"
+        },
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需要具体订单及售后指引，不能给出通用固定地址"
+      ],
+      "missing_reason": "文档没有本次售后地址与订单绑定",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-84"
+    },
+    {
+      "id": "V3Q085",
+      "category": "unanswerable",
+      "split": "development",
+      "query": "有品安心保碎屏险的免赔额和一年赔付次数是多少？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需对应保险合同，不能把普通保修当保险权益"
+      ],
+      "missing_reason": "自营售后规则没有该保险合同和赔付条款",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-85"
+    },
+    {
+      "id": "V3Q086",
+      "category": "unanswerable",
+      "split": "development",
+      "query": "有品配送延误一天赔偿多少钱，按哪个公式计算？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "说明缺少赔付依据，不能编造每日赔偿额"
+      ],
+      "missing_reason": "自营售后文档未列配送延误赔偿公式",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-86"
+    },
+    {
+      "id": "V3Q087",
+      "category": "unanswerable",
+      "split": "development",
+      "query": "有品这次售后寄回的包裹现在在哪个网点？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需物流查询，不从政策猜测位置"
+      ],
+      "missing_reason": "规则无物流实时轨迹",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-87"
+    },
+    {
+      "id": "V3Q088",
+      "category": "unanswerable",
+      "split": "development",
+      "query": "有品维修中心今天把我的主板换成哪个序列号了？",
+      "subject": "EXTERNAL:MIYOUPIN",
+      "scope": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需维修记录，不编造更换结果"
+      ],
+      "missing_reason": "规则没有维修结果及部件序列号",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "DEV-88"
+    },
+    {
+      "id": "V3Q089",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "在日本Apple零售店购买的商品，当地适用的完整退货期限是什么？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "说明需日本购买渠道的政策，不能套中国大陆规则"
+      ],
+      "missing_reason": "冻结资料为中国大陆购买帮助，不含日本门店适用政策",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-89"
+    },
+    {
+      "id": "V3Q090",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "Apple帮我查这笔订单真实的取消状态，我没有提供订单号。",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需订单身份与业务查询，不断言已取消"
+      ],
+      "missing_reason": "文档不是具体订单状态接口",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-90"
+    },
+    {
+      "id": "V3Q091",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "Apple我家所在小区今天几点能收到这单货？",
+      "subject": "EXTERNAL:APPLE_CN",
+      "scope": [
+        {
+          "source_id": "apple-returns",
+          "raw_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0"
+        },
+        {
+          "source_id": "apple-orders",
+          "raw_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28"
+        },
+        {
+          "source_id": "apple-shipping",
+          "raw_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "说明无法由政策确定，应查订单或承运商"
+      ],
+      "missing_reason": "帮助文档不含本单配送轨迹且不承诺精确时间",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-91"
+    },
+    {
+      "id": "V3Q092",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "华为碎屏服务宝这一款的免赔额和保障次数是多少？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需要对应保障条款，不能把基础保修当碎屏险"
+      ],
+      "missing_reason": "手机基础售后政策未包含该增值保障合同",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-92"
+    },
+    {
+      "id": "V3Q093",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "华为我这个SN今天实际还剩多少天保修？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需权益查询及实际凭证，不能编造剩余天数"
+      ],
+      "missing_reason": "无该SN保修权益或购买时间数据",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-93"
+    },
+    {
+      "id": "V3Q094",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "华为你们能保证把我电脑丢失的文件全部恢复吗？",
+      "subject": "EXTERNAL:HUAWEI_CN",
+      "scope": [
+        {
+          "source_id": "huawei-phone",
+          "raw_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a"
+        },
+        {
+          "source_id": "huawei-laptop",
+          "raw_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "不能保证全部恢复，说明需另行检测"
+      ],
+      "missing_reason": "政策无数据恢复能力或结果保证",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-94"
+    },
+    {
+      "id": "V3Q095",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "三星商城延迟发货，每天赔偿多少，封顶多少？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "说明当前资料不足，需适用物流赔付政策"
+      ],
+      "missing_reason": "退换货和退款FAQ没有延迟发货赔偿标准",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-95"
+    },
+    {
+      "id": "V3Q096",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "三星这笔信用卡订单退货后确定到账金额是多少？我没提供金额和手续费。",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需具体支付及退货信息，不编造金额"
+      ],
+      "missing_reason": "无本单金额、手续费和已保留商品等输入",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-96"
+    },
+    {
+      "id": "V3Q097",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "三星能给我查今天仓库还有多少台同型号换货库存吗？",
+      "subject": "EXTERNAL:SAMSUNG_CN",
+      "scope": [
+        {
+          "source_id": "samsung-conditions",
+          "raw_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968"
+        },
+        {
+          "source_id": "samsung-notes",
+          "raw_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0"
+        },
+        {
+          "source_id": "samsung-refund",
+          "raw_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需库存查询，不能从规则断言有货"
+      ],
+      "missing_reason": "政策仅说明缺货处理，不包含实时库存",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-97"
+    },
+    {
+      "id": "V3Q098",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "宜家床垫质保逐年折旧比例的完整表是什么？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需对应产品质保条款，不把会员退货期限当质保期"
+      ],
+      "missing_reason": "退货和电商条款未给床垫质保逐年折旧表",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-98"
+    },
+    {
+      "id": "V3Q099",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "宜家今天送货给我的司机姓名和车牌是什么？",
+      "subject": "EXTERNAL:IKEA_CN",
+      "scope": [
+        {
+          "source_id": "ikea-terms",
+          "raw_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95"
+        },
+        {
+          "source_id": "ikea-returns",
+          "raw_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需业务查询，不编造人员信息"
+      ],
+      "missing_reason": "协议无实时配送人员资料",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-99"
+    },
+    {
+      "id": "V3Q100",
+      "category": "unanswerable",
+      "split": "acceptance",
+      "query": "索尼我的耳机维修今天已经换了哪一个零件？",
+      "subject": "EXTERNAL:SONY_CN",
+      "scope": [
+        {
+          "source_id": "sony-service",
+          "raw_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50"
+        },
+        {
+          "source_id": "sony-warranty",
+          "raw_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee"
+        }
+      ],
+      "answerability": "NOT_IN_CORPUS",
+      "required_evidence": [],
+      "answer_points": [
+        "需维修记录，不把一般服务范围说成已完成"
+      ],
+      "missing_reason": "服务政策无具体维修工单结果",
+      "review": {
+        "origin": "CODEX_SOURCE_REVIEW",
+        "source_checked": true,
+        "independent_human": false
+      },
+      "fact_group": "ACCEPTANCE-100"
+    }
+  ]
+}
