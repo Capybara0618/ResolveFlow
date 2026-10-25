@@ -1,0 +1,407 @@
+{
+  "purpose": "source-span capacity check only; oracle selection uses Gold, never a retrieval strategy or measured accuracy",
+  "queries": 80,
+  "top3_structurally_possible": 80,
+  "cases": [
+    {
+      "id": "V3Q001",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q002",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q003",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q004",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q005",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q006",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q007",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q008",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q009",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q010",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q011",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q012",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q013",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q014",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q015",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q016",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q017",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q018",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q019",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q020",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q021",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q022",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q023",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q024",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q025",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q026",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q027",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q028",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q029",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q030",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q031",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q032",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q033",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q034",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q035",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q036",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q037",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q038",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q039",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q040",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q041",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q042",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q043",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q044",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q045",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q046",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q047",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q048",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q049",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q050",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q051",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q052",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q053",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q054",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q055",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q056",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q057",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q058",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q059",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q060",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q061",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q062",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q063",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q064",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q065",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q066",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q067",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q068",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q069",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q070",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q071",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q072",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q073",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q074",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q075",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q076",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q077",
+      "minimum_source_chunks": 3,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q078",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q079",
+      "minimum_source_chunks": 2,
+      "query_ranking_run": false
+    },
+    {
+      "id": "V3Q080",
+      "minimum_source_chunks": 1,
+      "query_ranking_run": false
+    }
+  ]
+}

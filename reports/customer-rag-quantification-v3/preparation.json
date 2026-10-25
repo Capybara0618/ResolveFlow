@@ -1,0 +1,60 @@
+{
+  "stage": "PREPARED_NOT_EVALUATED",
+  "questions": 100,
+  "development": 40,
+  "acceptance": 60,
+  "answerable_development": 32,
+  "answerable_acceptance": 48,
+  "unanswerable": 20,
+  "positive_sources": 15,
+  "evidence_atoms": 103,
+  "split_source_overlap": [],
+  "new_rankings": 0,
+  "new_generation_api_calls": 0,
+  "chunks": 344,
+  "by_subject": {
+    "EXTERNAL:APPLE_CN": {
+      "documents": 3,
+      "chunks": 50
+    },
+    "EXTERNAL:HUAWEI_CN": {
+      "documents": 2,
+      "chunks": 24
+    },
+    "EXTERNAL:IKEA_CN": {
+      "documents": 2,
+      "chunks": 48
+    },
+    "EXTERNAL:JD": {
+      "documents": 2,
+      "chunks": 10
+    },
+    "EXTERNAL:MIYOUPIN": {
+      "documents": 1,
+      "chunks": 15
+    },
+    "EXTERNAL:SAMSUNG_CN": {
+      "documents": 3,
+      "chunks": 9
+    },
+    "EXTERNAL:SONY_CN": {
+      "documents": 2,
+      "chunks": 188
+    }
+  },
+  "window_audit": {
+    "embedding_chunk_max_tokens": 341,
+    "embedding_query_max_tokens": 45,
+    "ce_pair_max_tokens": 316,
+    "ce_pairs_checked": 3733,
+    "tokenization_only_no_ce_forward": true,
+    "silent_truncations": 0
+  },
+  "document_encoding_ms": 17237.08389999956,
+  "embedding_dimension": 512,
+  "embedding_runtime_window": 512,
+  "vectors_sha256": "5a3ea4ee106317dbce78a80e18c8c4211e2fb91ab8f72ab5b8fe1c54b4f67947",
+  "chunks_sha256": "838984b89cc848c4e2fdd126c97429a9f2702a2869140439b528655e0c0c0044",
+  "new_query_rankings": 0,
+  "new_ce_forwards": 0
+}
