@@ -1,0 +1,2056 @@
+{
+  "reviewer": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_HUMAN_GOLD",
+  "summary": {
+    "mode": "KNOWN_INPUT_REPAIR_CONFIRMATION_NOT_HOLDOUT",
+    "turns": 11,
+    "published": 10,
+    "criteria_pass": 9,
+    "criteria_fail": 2,
+    "freeze_ready": false,
+    "failed_turns": [
+      "F01/4",
+      "F03/2"
+    ],
+    "provider_requests": 30,
+    "usage_before": 2410,
+    "usage_after": 2440,
+    "provider_input_tokens": 110910,
+    "provider_output_tokens": 4565,
+    "unknown_usage_requests": 0,
+    "estimated_usage_requests": 0,
+    "runtime_completion_ms": {
+      "n": 10,
+      "median": 3942.492900000161,
+      "min": 2733.7972999998783,
+      "max": 5831.157999999959
+    },
+    "retained_first_body_ms": {
+      "n": 10,
+      "median": 2919.23520000023,
+      "min": 2116.7687000001933,
+      "max": 5130.342800000108
+    },
+    "public_unchanged": true,
+    "isolated_schema_dropped": true,
+    "original_summary_failure_now_passes": true,
+    "original_unreceived_claims_now_inactive": true,
+    "limits": [
+      "没有回填旧成绩",
+      "非浏览器速度/总体SLA",
+      "原例余下问题另作有限定点验证，不合并成11/11"
+    ]
+  },
+  "rows": [
+    {
+      "id": "F01",
+      "turn": 1,
+      "run_id": "12fb8973-3ad4-5534-bcc4-28f2b797171c",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "实际读取当前签收物流，承运记录与客户未收到/家人未代收陈述分开",
+        "无退款或人工摘要，不承诺签收等于本人收到"
+      ],
+      "finding": "实际读取ORDER/SHIPMENT，区分承运签收与客户未收陈述；无操作摘要。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "核对耳机订单的物流记录（显示已签收但本人及家人均未收到），暂不申请退款",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1",
+              "O2",
+              "O3"
+            ],
+            "response_excerpt": "我核对了这笔耳机订单的物流记录：承运方给出的结论是已签收，系统里也记录了签收事件；但这只是承运方的记录，不能证明包裹实际交到了你或你家人手上。你反馈本人没拿到、家人也没有代收，这与签收记录不一致，需要进一步核查。按平台流程，不申请退款也可以请商家核查：转交前你可以选择共享哪些自己的原话，以及本次回答所依据的订单、物流记录；调查依据默认不勾选，对话历史不会自动共享，只有你确认的内容才会发给商家。转交后默认输入是补充给商家，消息进入原核查单；你也可以切换为询问智能助手，这类咨询不会自动交给商家。商家回复不会自动算作已解决，你可以继续补充或确认解决。需要我现在帮你整理一份给商家核查用的转交摘要吗？\n\n订单状态：已付款。\n订单行实付：329.00 CNY。\n物流状态：已签收。\n承运商记录结论：已签收。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "44d5cfdf-d417-5591-af78-00cc184f76d8",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 1,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [
+        {
+          "source_type": "KNOWLEDGE",
+          "version": "2026.10.23-v3",
+          "title": "售后咨询使用指南",
+          "data": {
+            "guide_id": "support-guide-v3",
+            "authority": "APPLICATION_GUIDE",
+            "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+            "text_sha256": "841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727",
+            "sources": [
+              {
+                "ref": "s0",
+                "path": "docs/customer-support-workspace.md",
+                "sha256_at_import": "7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89"
+              },
+              {
+                "ref": "s1",
+                "path": "docs/customer-agent-implementation-v1.md",
+                "sha256_at_import": "c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb"
+              },
+              {
+                "ref": "s2",
+                "path": "docs/customer-chat-refund-implementation-v1.md",
+                "sha256_at_import": "196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c"
+              }
+            ],
+            "sections": [
+              {
+                "id": "K-ORDER",
+                "title": "选择订单商品与独立咨询",
+                "source_ref": "s0",
+                "content_sha256": "c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79"
+              },
+              {
+                "id": "K-HANDOFF",
+                "title": "不申请退款也能请商家核查",
+                "source_ref": "s0",
+                "content_sha256": "d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a"
+              },
+              {
+                "id": "K-SHARE",
+                "title": "转交前选择共享原文和调查依据",
+                "source_ref": "s0",
+                "content_sha256": "2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632"
+              },
+              {
+                "id": "K-PRIVATE",
+                "title": "私有助手咨询与补充给商家的区别",
+                "source_ref": "s0",
+                "content_sha256": "a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42"
+              },
+              {
+                "id": "K-RESOLVE",
+                "title": "商家回复与客户确认解决",
+                "source_ref": "s0",
+                "content_sha256": "de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f"
+              },
+              {
+                "id": "K-STATUS",
+                "title": "查看核查进度和历史消息",
+                "source_ref": "s0",
+                "content_sha256": "74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623"
+              },
+              {
+                "id": "K-RETRY",
+                "title": "发送结果不明确与版本冲突",
+                "source_ref": "s0",
+                "content_sha256": "e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d"
+              },
+              {
+                "id": "K-ENTRY",
+                "title": "正式退款申请与咨询入口",
+                "source_ref": "s2",
+                "content_sha256": "41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca"
+              },
+              {
+                "id": "K-SOURCES",
+                "title": "助手回答来源与实时事实",
+                "source_ref": "s1",
+                "content_sha256": "650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717"
+              },
+              {
+                "id": "K-STALE",
+                "title": "补充纠正与过时回答",
+                "source_ref": "s0",
+                "content_sha256": "cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31"
+              }
+            ],
+            "knowledge_sha256": "cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb"
+          },
+          "source_id": "O1",
+          "content_hash": "0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120"
+        },
+        {
+          "source_type": "ORDER",
+          "version": 1,
+          "data": {
+            "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+            "version": 1,
+            "order_line": {
+              "sku": "SKU-1001-01",
+              "status": "PAID",
+              "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+              "paid_at": "2026-10-20T03:13:34.383251Z",
+              "version": 1,
+              "category": "electronics",
+              "currency": "CNY",
+              "order_id": "e88da27f-7b38-460f-8e61-ab4ed28455ef",
+              "quantity": 1,
+              "asset_key": "headphones",
+              "product_name": "无线降噪耳机",
+              "variant_text": "黑色",
+              "line_paid_amount": 32900
+            },
+            "merchant_id": "M-1001"
+          },
+          "source_id": "O2",
+          "content_hash": "9497edb995bf3037b2fc3ebe33e00132cf552761dd20f9068e79fef2541dab7b"
+        },
+        {
+          "source_type": "SHIPMENT",
+          "version": 3,
+          "data": {
+            "lines": [
+              {
+                "events": [
+                  {
+                    "code": "ORDER_PAID",
+                    "occurred_at": "2026-10-20T03:13:34.383251Z",
+                    "source_version": 1
+                  },
+                  {
+                    "code": "SIMULATED_SHIPPED",
+                    "occurred_at": "2026-10-20T03:13:34.457632Z",
+                    "source_version": 2
+                  },
+                  {
+                    "code": "DELIVERED",
+                    "occurred_at": "2026-10-20T03:13:34.643969Z",
+                    "source_version": 3
+                  }
+                ],
+                "status": "DELIVERED",
+                "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+                "source_version": 3,
+                "carrier_conclusion": "DELIVERED"
+              }
+            ],
+            "status": "DELIVERED",
+            "version": 3,
+            "order_id": "e88da27f-7b38-460f-8e61-ab4ed28455ef",
+            "synthetic": true
+          },
+          "source_id": "O3",
+          "content_hash": "32ecdec4b28bacf0ff78a811eec9a722ac8a332177f3bb6210b5ef7480ef1b4b"
+        }
+      ],
+      "stream_times": {
+        "first_provisional_ms": 4398.959300000115,
+        "first_retained_ms": 4398.959300000115,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F01",
+      "turn": 2,
+      "run_id": "1b648d18-3216-5003-bdff-84b6b44ac1df",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "旧家人未代收陈述失效，新尚未回复仍未核验，不能继续说已排除家人代收",
+        "保留本人未收到事项，不无端生成退款/人工摘要"
+      ],
+      "finding": "家人未代收被替代为未回复，保留本人未收到；无操作摘要。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "更正耳机订单收货情况：家人尚未回复是否代收，本人目前仍未拿到，继续核对物流记录",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O2"
+            ],
+            "response_excerpt": "明白，我更正一下记录：你之前说家人没有代收，这个说法不准确；现在的情况是家人还没回复是否代收，而你本人目前仍未拿到包裹。物流记录这边，承运方给出的结论是已签收，系统里也有签收事件；但这只是承运方的记录，不能证明包裹实际交到了你或你家人手上。你本人未收到、家人是否代收尚未确认，这与签收记录不一致，需要进一步核查。按平台流程，不申请退款也可以请商家核查：转交前你可以选择共享哪些自己的原话，以及本次回答所依据的订单、物流记录；调查依据默认不勾选，对话历史不会自动共享，只有你确认的内容才会发给商家。转交后默认输入是补充给商家，消息进入原核查单；你也可以切换为询问智能助手，这类咨询不会自动交给商家。商家回复不会自动算作已解决，你可以继续补充或确认解决。需要我现在帮你整理一份给商家核查用的转交摘要吗？\n\n物流状态：已签收。\n承运商记录结论：已签收。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "44d5cfdf-d417-5591-af78-00cc184f76d8",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 3,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_9b7dcffb5181a9b16089679f",
+            "topic": "RECEIPT",
+            "quote": "家里人其实还没回复我，刚才说他们没代收不准确",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 5,
+              "quote": "家里人其实还没回复我，刚才说他们没代收不准确"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_2a90f9de6d711f54f56ac657"
+            ],
+            "retracts": []
+          },
+          {
+            "id": "c_094f0c98c333746a5c3acdc9",
+            "topic": "RECEIPT",
+            "quote": "目前我还没有拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 28,
+              "quote": "目前我还没有拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [
+        {
+          "source_type": "SHIPMENT",
+          "version": 3,
+          "data": {
+            "lines": [
+              {
+                "events": [
+                  {
+                    "code": "ORDER_PAID",
+                    "occurred_at": "2026-10-20T03:13:34.383251Z",
+                    "source_version": 1
+                  },
+                  {
+                    "code": "SIMULATED_SHIPPED",
+                    "occurred_at": "2026-10-20T03:13:34.457632Z",
+                    "source_version": 2
+                  },
+                  {
+                    "code": "DELIVERED",
+                    "occurred_at": "2026-10-20T03:13:34.643969Z",
+                    "source_version": 3
+                  }
+                ],
+                "status": "DELIVERED",
+                "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+                "source_version": 3,
+                "carrier_conclusion": "DELIVERED"
+              }
+            ],
+            "status": "DELIVERED",
+            "version": 3,
+            "order_id": "e88da27f-7b38-460f-8e61-ab4ed28455ef",
+            "synthetic": true
+          },
+          "source_id": "O2",
+          "content_hash": "32ecdec4b28bacf0ff78a811eec9a722ac8a332177f3bb6210b5ef7480ef1b4b"
+        }
+      ],
+      "stream_times": {
+        "first_provisional_ms": 2999.3846000002122,
+        "first_retained_ms": 2999.3846000002122,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F01",
+      "turn": 3,
+      "run_id": "b59bd639-d4b8-52d5-955b-688277da203f",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "收货调查暂停并保留，只解释独立人工咨询能力",
+        "使用真实GUIDE说明确认转交边界，无操作摘要或自动发送"
+      ],
+      "finding": "原t1 PAUSED，GUIDE回答独立人工咨询，未生成操作摘要；末段仍提历史收货问题，偏冗长。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "更正耳机订单收货情况：家人尚未回复是否代收，本人目前仍未拿到，继续核对物流记录",
+            "status": "SUSPENDED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "PAUSED"
+          },
+          {
+            "id": "t2",
+            "intent": "HANDOFF",
+            "request": "不申请退款能否请商家人工核查",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1"
+            ],
+            "response_excerpt": "可以。不申请退款也能请商家人工核查：在售后咨询里选择这笔耳机订单的商品，点“请商家核查”，预览并编辑转交摘要后确认提交即可，不需要填写退款金额，也不会因此提交退款申请。转交前你可以选择共享哪些自己的原话，以及本次回答所依据的订单、物流记录；调查依据默认不勾选，对话历史不会自动共享，只有你确认的内容才会发给商家。转交后默认输入是补充给商家，消息进入原核查单；也可以切换为询问智能助手，这类咨询不会自动交给商家。商家回复不会自动算作已解决，你可以继续补充或确认解决。你之前提到本人还没拿到、家人是否代收尚未确认，这与承运方的签收记录不一致，适合请商家进一步核查。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "44d5cfdf-d417-5591-af78-00cc184f76d8",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 5,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_9b7dcffb5181a9b16089679f",
+            "topic": "RECEIPT",
+            "quote": "家里人其实还没回复我，刚才说他们没代收不准确",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 5,
+              "quote": "家里人其实还没回复我，刚才说他们没代收不准确"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_2a90f9de6d711f54f56ac657"
+            ],
+            "retracts": []
+          },
+          {
+            "id": "c_094f0c98c333746a5c3acdc9",
+            "topic": "RECEIPT",
+            "quote": "目前我还没有拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 28,
+              "quote": "目前我还没有拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [
+        {
+          "source_type": "KNOWLEDGE",
+          "version": "2026.10.23-v3",
+          "title": "售后咨询使用指南",
+          "data": {
+            "guide_id": "support-guide-v3",
+            "authority": "APPLICATION_GUIDE",
+            "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+            "text_sha256": "841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727",
+            "sources": [
+              {
+                "ref": "s0",
+                "path": "docs/customer-support-workspace.md",
+                "sha256_at_import": "7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89"
+              },
+              {
+                "ref": "s1",
+                "path": "docs/customer-agent-implementation-v1.md",
+                "sha256_at_import": "c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb"
+              },
+              {
+                "ref": "s2",
+                "path": "docs/customer-chat-refund-implementation-v1.md",
+                "sha256_at_import": "196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c"
+              }
+            ],
+            "sections": [
+              {
+                "id": "K-ORDER",
+                "title": "选择订单商品与独立咨询",
+                "source_ref": "s0",
+                "content_sha256": "c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79"
+              },
+              {
+                "id": "K-HANDOFF",
+                "title": "不申请退款也能请商家核查",
+                "source_ref": "s0",
+                "content_sha256": "d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a"
+              },
+              {
+                "id": "K-SHARE",
+                "title": "转交前选择共享原文和调查依据",
+                "source_ref": "s0",
+                "content_sha256": "2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632"
+              },
+              {
+                "id": "K-PRIVATE",
+                "title": "私有助手咨询与补充给商家的区别",
+                "source_ref": "s0",
+                "content_sha256": "a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42"
+              },
+              {
+                "id": "K-RESOLVE",
+                "title": "商家回复与客户确认解决",
+                "source_ref": "s0",
+                "content_sha256": "de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f"
+              },
+              {
+                "id": "K-STATUS",
+                "title": "查看核查进度和历史消息",
+                "source_ref": "s0",
+                "content_sha256": "74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623"
+              },
+              {
+                "id": "K-RETRY",
+                "title": "发送结果不明确与版本冲突",
+                "source_ref": "s0",
+                "content_sha256": "e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d"
+              },
+              {
+                "id": "K-ENTRY",
+                "title": "正式退款申请与咨询入口",
+                "source_ref": "s2",
+                "content_sha256": "41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca"
+              },
+              {
+                "id": "K-SOURCES",
+                "title": "助手回答来源与实时事实",
+                "source_ref": "s1",
+                "content_sha256": "650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717"
+              },
+              {
+                "id": "K-STALE",
+                "title": "补充纠正与过时回答",
+                "source_ref": "s0",
+                "content_sha256": "cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31"
+              }
+            ],
+            "knowledge_sha256": "cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb"
+          },
+          "source_id": "O1",
+          "content_hash": "0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120"
+        }
+      ],
+      "stream_times": {
+        "first_provisional_ms": 2839.085800000248,
+        "first_retained_ms": 2839.085800000248,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F01",
+      "turn": 4,
+      "run_id": "553dc7a7-1da1-5af0-b16c-5cecd13214ff",
+      "publication": "FAILED",
+      "review": "FAIL",
+      "criteria": [
+        "恢复原收货事项，退款草稿用途正确，不能从旧被纠正陈述推定已排除代收",
+        "当前ORDER/SHIPMENT/POLICY充分，解释签收争议人工核验条件，quote摘要未提交"
+      ],
+      "finding": "原id t1已RESUME并变APPLICATION，理解正确；调查连续两次无冲突REVIEW_GOAL，有限修正后INVALID_DECISION，未读取必要事实/政策、未发布。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "APPLICATION",
+            "request": "耳机订单未收到货，整理退款原因供核对，先不提交",
+            "status": "PENDING",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          },
+          {
+            "id": "t2",
+            "intent": "HANDOFF",
+            "request": "不申请退款能否请商家人工核查",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": []
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "44d5cfdf-d417-5591-af78-00cc184f76d8",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 7,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_9b7dcffb5181a9b16089679f",
+            "topic": "RECEIPT",
+            "quote": "家里人其实还没回复我，刚才说他们没代收不准确",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 5,
+              "quote": "家里人其实还没回复我，刚才说他们没代收不准确"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_2a90f9de6d711f54f56ac657"
+            ],
+            "retracts": []
+          },
+          {
+            "id": "c_094f0c98c333746a5c3acdc9",
+            "topic": "RECEIPT",
+            "quote": "目前我还没有拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 28,
+              "quote": "目前我还没有拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_a89e6e0f8066aedafc1e0dd5",
+            "topic": "RECEIPT",
+            "quote": "我还是没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 7,
+              "offset": 14,
+              "quote": "我还是没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [],
+      "stream_times": {
+        "first_provisional_ms": null,
+        "first_retained_ms": null,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F01",
+      "turn": 5,
+      "run_id": "5c681e35-4f04-500b-9084-0dc8453893d3",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "记录找到及结束/撤回意愿，未收到陈述不再作为当前主张",
+        "无可操作退款或人工摘要，不声称已经取消真实退款工单"
+      ],
+      "finding": "旧未收到条目全部SUPERSEDED，找到包裹ACTIVE，t1/t2 RESOLVED且无操作摘要；连家人尚未回复也被失效，原文保留，失效范围比必要更广。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "APPLICATION",
+            "request": "耳机订单未收到货的退款原因整理事项，客户本轮表示已找到包裹、不再准备退款",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": "明白，你已找到包裹，之前没拿到的情况已经解决。之前那件耳机订单的退款原因整理事项就此结束，不再准备退款，也不会生成退款原因或提交退款申请。",
+            "lifecycle": "RESOLVED"
+          },
+          {
+            "id": "t2",
+            "intent": "HANDOFF",
+            "request": "不申请退款请商家人工核查事项，客户本轮表示不用商家核查",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": "好的，不用商家核查，之前讨论的请商家人工核查事项也一并结束，不会整理或转交核查摘要给商家。如果之后还有问题，可以随时再找我。",
+            "lifecycle": "RESOLVED"
+          }
+        ],
+        "focus_ids": [
+          "t1",
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "44d5cfdf-d417-5591-af78-00cc184f76d8",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 8,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_9b7dcffb5181a9b16089679f",
+            "topic": "RECEIPT",
+            "quote": "家里人其实还没回复我，刚才说他们没代收不准确",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 5,
+              "quote": "家里人其实还没回复我，刚才说他们没代收不准确"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [
+              "c_2a90f9de6d711f54f56ac657"
+            ],
+            "retracts": []
+          },
+          {
+            "id": "c_094f0c98c333746a5c3acdc9",
+            "topic": "RECEIPT",
+            "quote": "目前我还没有拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 28,
+              "quote": "目前我还没有拿到"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_a89e6e0f8066aedafc1e0dd5",
+            "topic": "RECEIPT",
+            "quote": "我还是没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 7,
+              "offset": 14,
+              "quote": "我还是没拿到"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_298e07dd5cb0364ec4bd6d23",
+            "topic": "RECEIPT",
+            "quote": "刚找到包裹了，之前没拿到的情况已经解决",
+            "source": {
+              "message_id": null,
+              "sequence": 8,
+              "offset": 0,
+              "quote": "刚找到包裹了，之前没拿到的情况已经解决"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_1c1dcf18bf3c26f5aaaba2e2",
+              "c_9b7dcffb5181a9b16089679f",
+              "c_094f0c98c333746a5c3acdc9",
+              "c_a89e6e0f8066aedafc1e0dd5"
+            ],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [],
+      "stream_times": {
+        "first_provisional_ms": 5130.342800000108,
+        "first_retained_ms": 5130.342800000108,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F02",
+      "turn": 1,
+      "run_id": "cd3e7eaa-fdfe-5e2b-94a8-115d8ef07837",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "输出待客户确认的handoff摘要，开线是未核验客户陈述，无无依据已核实事实",
+        "原核查可接续，私有助手消息不等于给商家发送，无退款摘要"
+      ],
+      "finding": "正确handoff草稿、未核验标记、已有核查可接续，无退款；当前ASSISTANT和默认MERCHANT分开。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "HANDOFF",
+            "request": "整理耳罩边缘开线给商家的核查说明，先不发送、不退款",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1"
+            ],
+            "response_excerpt": "这是给商家核查用的说明草稿，不是退款申请，也不会自动提交退款。按指南，请商家核查不需要填写退款金额，只有你预览并确认转交摘要后才会发给商家；目前尚未发送。转交前你可以选择共享哪些客户原文和调查依据，对话历史不会随依据自动共享，商家只能读取你确认共享及后续发给商家的消息。当前会话默认接收方是商家，但本次只整理草稿，是否转交由你确认。\n\n人工咨询：当前已有商家核查记录。在当前会话选择“补充给商家”，填写本次要咨询或补充的内容，点击“发送”，消息会进入原核查单。已解决的核查单也可通过再次补充接续，无需重新转交。只会共享本次发给商家的内容，私有助手对话不会自动全部共享；此操作不会自动提交退款申请。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "f6584304-1b61-54a4-bcba-d60014bb8fb7",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "input_version": 1,
+        "entries": [
+          {
+            "id": "c_024c262a7311a1b390ce2038",
+            "topic": "MATERIAL",
+            "quote": "耳罩边缘开线",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳罩边缘开线"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [
+        {
+          "source_type": "KNOWLEDGE",
+          "version": "2026.10.23-v3",
+          "title": "售后咨询使用指南",
+          "data": {
+            "guide_id": "support-guide-v3",
+            "authority": "APPLICATION_GUIDE",
+            "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+            "text_sha256": "841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727",
+            "sources": [
+              {
+                "ref": "s0",
+                "path": "docs/customer-support-workspace.md",
+                "sha256_at_import": "7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89"
+              },
+              {
+                "ref": "s1",
+                "path": "docs/customer-agent-implementation-v1.md",
+                "sha256_at_import": "c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb"
+              },
+              {
+                "ref": "s2",
+                "path": "docs/customer-chat-refund-implementation-v1.md",
+                "sha256_at_import": "196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c"
+              }
+            ],
+            "sections": [
+              {
+                "id": "K-ORDER",
+                "title": "选择订单商品与独立咨询",
+                "source_ref": "s0",
+                "content_sha256": "c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79"
+              },
+              {
+                "id": "K-HANDOFF",
+                "title": "不申请退款也能请商家核查",
+                "source_ref": "s0",
+                "content_sha256": "d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a"
+              },
+              {
+                "id": "K-SHARE",
+                "title": "转交前选择共享原文和调查依据",
+                "source_ref": "s0",
+                "content_sha256": "2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632"
+              },
+              {
+                "id": "K-PRIVATE",
+                "title": "私有助手咨询与补充给商家的区别",
+                "source_ref": "s0",
+                "content_sha256": "a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42"
+              },
+              {
+                "id": "K-RESOLVE",
+                "title": "商家回复与客户确认解决",
+                "source_ref": "s0",
+                "content_sha256": "de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f"
+              },
+              {
+                "id": "K-STATUS",
+                "title": "查看核查进度和历史消息",
+                "source_ref": "s0",
+                "content_sha256": "74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623"
+              },
+              {
+                "id": "K-RETRY",
+                "title": "发送结果不明确与版本冲突",
+                "source_ref": "s0",
+                "content_sha256": "e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d"
+              },
+              {
+                "id": "K-ENTRY",
+                "title": "正式退款申请与咨询入口",
+                "source_ref": "s2",
+                "content_sha256": "41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca"
+              },
+              {
+                "id": "K-SOURCES",
+                "title": "助手回答来源与实时事实",
+                "source_ref": "s1",
+                "content_sha256": "650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717"
+              },
+              {
+                "id": "K-STALE",
+                "title": "补充纠正与过时回答",
+                "source_ref": "s0",
+                "content_sha256": "cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31"
+              }
+            ],
+            "knowledge_sha256": "cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb"
+          },
+          "source_id": "O1",
+          "content_hash": "0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120"
+        }
+      ],
+      "stream_times": {
+        "first_provisional_ms": 2334.8841999995784,
+        "first_retained_ms": 2334.8841999995784,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F02",
+      "turn": 2,
+      "run_id": "5285f6fa-9e01-5a2b-952d-1e464caed448",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "开线旧主张失效，新掉皮陈述有效，摘要保留纠正语境且不认定已核验损坏",
+        "仍是人工核查摘要，无退款摘要或已转交承诺"
+      ],
+      "finding": "开线旧条目SUPERSEDED，掉皮及否定开线原话有效，handoff草稿尚未发送；当前整句及短句存在包含式重复。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "HANDOFF",
+            "request": "按更正后的情况（耳罩表面掉皮，撤回开线描述）重新整理给商家的核查说明，先不发送、不退款",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1"
+            ],
+            "response_excerpt": "已按更正后的情况重新整理：本次给商家的核查说明只写耳罩表面掉皮，原先“开线”的描述已撤回，不再出现在摘要里。这份摘要仅用于请商家核查，不是退款申请，也不会自动提交退款；目前尚未发送，需要你预览并确认转交摘要后才会发给商家。转交前你可以选择共享哪些客户原文和调查依据，对话历史不会随依据自动共享，商家只能读取你确认共享及后续发给商家的消息。\n\n人工咨询：当前已有商家核查记录。在当前会话选择“补充给商家”，填写本次要咨询或补充的内容，点击“发送”，消息会进入原核查单。已解决的核查单也可通过再次补充接续，无需重新转交。只会共享本次发给商家的内容，私有助手对话不会自动全部共享；此操作不会自动提交退款申请。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "f6584304-1b61-54a4-bcba-d60014bb8fb7",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "input_version": 3,
+        "entries": [
+          {
+            "id": "c_024c262a7311a1b390ce2038",
+            "topic": "MATERIAL",
+            "quote": "耳罩边缘开线",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳罩边缘开线"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a0bea847df89c50dd110d90",
+            "topic": "MATERIAL",
+            "quote": "不是开线，是耳罩表面掉皮",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 3,
+              "quote": "不是开线，是耳罩表面掉皮"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_024c262a7311a1b390ce2038"
+            ],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [
+        {
+          "source_type": "KNOWLEDGE",
+          "version": "2026.10.23-v3",
+          "title": "售后咨询使用指南",
+          "data": {
+            "guide_id": "support-guide-v3",
+            "authority": "APPLICATION_GUIDE",
+            "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+            "text_sha256": "841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727",
+            "sources": [
+              {
+                "ref": "s0",
+                "path": "docs/customer-support-workspace.md",
+                "sha256_at_import": "7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89"
+              },
+              {
+                "ref": "s1",
+                "path": "docs/customer-agent-implementation-v1.md",
+                "sha256_at_import": "c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb"
+              },
+              {
+                "ref": "s2",
+                "path": "docs/customer-chat-refund-implementation-v1.md",
+                "sha256_at_import": "196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c"
+              }
+            ],
+            "sections": [
+              {
+                "id": "K-ORDER",
+                "title": "选择订单商品与独立咨询",
+                "source_ref": "s0",
+                "content_sha256": "c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79"
+              },
+              {
+                "id": "K-HANDOFF",
+                "title": "不申请退款也能请商家核查",
+                "source_ref": "s0",
+                "content_sha256": "d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a"
+              },
+              {
+                "id": "K-SHARE",
+                "title": "转交前选择共享原文和调查依据",
+                "source_ref": "s0",
+                "content_sha256": "2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632"
+              },
+              {
+                "id": "K-PRIVATE",
+                "title": "私有助手咨询与补充给商家的区别",
+                "source_ref": "s0",
+                "content_sha256": "a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42"
+              },
+              {
+                "id": "K-RESOLVE",
+                "title": "商家回复与客户确认解决",
+                "source_ref": "s0",
+                "content_sha256": "de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f"
+              },
+              {
+                "id": "K-STATUS",
+                "title": "查看核查进度和历史消息",
+                "source_ref": "s0",
+                "content_sha256": "74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623"
+              },
+              {
+                "id": "K-RETRY",
+                "title": "发送结果不明确与版本冲突",
+                "source_ref": "s0",
+                "content_sha256": "e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d"
+              },
+              {
+                "id": "K-ENTRY",
+                "title": "正式退款申请与咨询入口",
+                "source_ref": "s2",
+                "content_sha256": "41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca"
+              },
+              {
+                "id": "K-SOURCES",
+                "title": "助手回答来源与实时事实",
+                "source_ref": "s1",
+                "content_sha256": "650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717"
+              },
+              {
+                "id": "K-STALE",
+                "title": "补充纠正与过时回答",
+                "source_ref": "s0",
+                "content_sha256": "cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31"
+              }
+            ],
+            "knowledge_sha256": "cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb"
+          },
+          "source_id": "O1",
+          "content_hash": "0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120"
+        }
+      ],
+      "stream_times": {
+        "first_provisional_ms": 2472.6603000003706,
+        "first_retained_ms": 2472.6603000003706,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F02",
+      "turn": 3,
+      "run_id": "debc7d00-94f8-5b07-959f-61d0e0a1ee89",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "暂停/撤回摘要准备，无本轮可操作摘要",
+        "说明仅确认共享或后续明确发给商家的内容可见，私有对话不会自动全部共享；不混淆当前与默认接收人"
+      ],
+      "finding": "核查准备PAUSED，无操作摘要；GUIDE解释仅确认共享及明确发给商家的消息可见，私有历史不自动全共享。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "HANDOFF",
+            "request": "按更正后的情况（耳罩表面掉皮，撤回开线描述）重新整理给商家的核查说明，先不发送、不退款",
+            "status": "SUSPENDED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "PAUSED"
+          },
+          {
+            "id": "t2",
+            "intent": "OTHER",
+            "request": "补充材料后，商家是否会看到客户之前与机器人的全部聊天记录",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1"
+            ],
+            "response_excerpt": "不会。补充给商家的消息只会进入原核查单，商家能读取的是你确认共享的原文、调查依据，以及之后直接发给商家的消息；你和智能助手的私有对话不会因此自动全部共享给商家。补充材料本身也不等于提交退款申请。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "f6584304-1b61-54a4-bcba-d60014bb8fb7",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "input_version": 5,
+        "entries": [
+          {
+            "id": "c_024c262a7311a1b390ce2038",
+            "topic": "MATERIAL",
+            "quote": "耳罩边缘开线",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳罩边缘开线"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a0bea847df89c50dd110d90",
+            "topic": "MATERIAL",
+            "quote": "不是开线，是耳罩表面掉皮",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 3,
+              "quote": "不是开线，是耳罩表面掉皮"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_024c262a7311a1b390ce2038"
+            ],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [
+        {
+          "source_type": "KNOWLEDGE",
+          "version": "2026.10.23-v3",
+          "title": "售后咨询使用指南",
+          "data": {
+            "guide_id": "support-guide-v3",
+            "authority": "APPLICATION_GUIDE",
+            "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+            "text_sha256": "841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727",
+            "sources": [
+              {
+                "ref": "s0",
+                "path": "docs/customer-support-workspace.md",
+                "sha256_at_import": "7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89"
+              },
+              {
+                "ref": "s1",
+                "path": "docs/customer-agent-implementation-v1.md",
+                "sha256_at_import": "c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb"
+              },
+              {
+                "ref": "s2",
+                "path": "docs/customer-chat-refund-implementation-v1.md",
+                "sha256_at_import": "196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c"
+              }
+            ],
+            "sections": [
+              {
+                "id": "K-ORDER",
+                "title": "选择订单商品与独立咨询",
+                "source_ref": "s0",
+                "content_sha256": "c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79"
+              },
+              {
+                "id": "K-HANDOFF",
+                "title": "不申请退款也能请商家核查",
+                "source_ref": "s0",
+                "content_sha256": "d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a"
+              },
+              {
+                "id": "K-SHARE",
+                "title": "转交前选择共享原文和调查依据",
+                "source_ref": "s0",
+                "content_sha256": "2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632"
+              },
+              {
+                "id": "K-PRIVATE",
+                "title": "私有助手咨询与补充给商家的区别",
+                "source_ref": "s0",
+                "content_sha256": "a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42"
+              },
+              {
+                "id": "K-RESOLVE",
+                "title": "商家回复与客户确认解决",
+                "source_ref": "s0",
+                "content_sha256": "de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f"
+              },
+              {
+                "id": "K-STATUS",
+                "title": "查看核查进度和历史消息",
+                "source_ref": "s0",
+                "content_sha256": "74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623"
+              },
+              {
+                "id": "K-RETRY",
+                "title": "发送结果不明确与版本冲突",
+                "source_ref": "s0",
+                "content_sha256": "e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d"
+              },
+              {
+                "id": "K-ENTRY",
+                "title": "正式退款申请与咨询入口",
+                "source_ref": "s2",
+                "content_sha256": "41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca"
+              },
+              {
+                "id": "K-SOURCES",
+                "title": "助手回答来源与实时事实",
+                "source_ref": "s1",
+                "content_sha256": "650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717"
+              },
+              {
+                "id": "K-STALE",
+                "title": "补充纠正与过时回答",
+                "source_ref": "s0",
+                "content_sha256": "cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31"
+              }
+            ],
+            "knowledge_sha256": "cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb"
+          },
+          "source_id": "O1",
+          "content_hash": "0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120"
+        }
+      ],
+      "stream_times": {
+        "first_provisional_ms": 2314.2911999998432,
+        "first_retained_ms": 2314.2911999998432,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F03",
+      "turn": 1,
+      "run_id": "f5bce584-8378-5548-9afb-8168ce423247",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "读取本店当前订单与LOST物流及政策，金额129元有ORDER来源，客户陈述未核验",
+        "退款quote摘要可核对，保留丢失/无有效签收/人工核验条件，无假提交"
+      ],
+      "finding": "本店ORDER129元/SHIPMENT LOST/POLICY实际读取，refund草稿及人工核验/无有效签收前提正确；摘要含整句和短句重复。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "查询桌面台灯当前物流状态",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O3"
+            ],
+            "response_excerpt": "这盏桌面台灯的物流记录显示承运商已给出丢失结论，并非仍在正常运输途中。该结论来自物流接口的当前记录，具体以承运商和售后核验为准。\n\n物流状态：丢失。\n承运商记录结论：丢失。",
+            "lifecycle": "OPEN"
+          },
+          {
+            "id": "t2",
+            "intent": "APPLICATION",
+            "request": "准备退款原因草稿供客户核对，不提交",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "P2",
+              "P6",
+              "O1",
+              "O2"
+            ],
+            "response_excerpt": "退款原因草稿按“承运商判定丢失、客户未收到”来写，供你先核对，不会提交，也不代表已获得退款资格。按本店政策，承运商结论为丢失且无有效签收记录时，需经人工核验后才可按该订单行全部数量全额退款；目前是否已有有效签收记录、人工核验结论如何，尚未核实。政策未规定必须提交的材料清单；草稿只是申请入口的预填内容，最终由售后专员决定。\n\n退款草稿尚未提交。申请卡片准备好后，请核对整行实付金额和原因，可编辑后点击“确认提交申请”。确认后才创建申请，并可在当前会话或“我的售后”查看进度；私有聊天不会自动共享。\n\n订单状态：已付款。\n订单行实付：129.00 CNY。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1",
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "a11ce354-c35b-5df4-b696-ed346937b80e",
+        "merchant_id": "M-1002",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "input_version": 1,
+        "entries": [
+          {
+            "id": "c_5c40815a700bbb4fae678726",
+            "topic": "RECEIPT",
+            "quote": "这盏灯一直没收到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "这盏灯一直没收到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [
+        {
+          "source_type": "SHIPMENT",
+          "version": 3,
+          "data": {
+            "lines": [
+              {
+                "events": [
+                  {
+                    "code": "ORDER_PAID",
+                    "occurred_at": "2026-10-20T03:13:35.257912Z",
+                    "source_version": 1
+                  },
+                  {
+                    "code": "SIMULATED_SHIPPED",
+                    "occurred_at": "2026-10-20T03:13:35.327619Z",
+                    "source_version": 2
+                  },
+                  {
+                    "code": "LOST",
+                    "occurred_at": "2026-10-20T03:13:35.479423Z",
+                    "source_version": 3
+                  }
+                ],
+                "status": "LOST",
+                "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+                "source_version": 3,
+                "carrier_conclusion": "LOST"
+              }
+            ],
+            "status": "LOST",
+            "version": 3,
+            "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+            "synthetic": true
+          },
+          "source_id": "O3",
+          "content_hash": "d0506cd5a62b4af3097d88923ca8a44db6fb12000dc41fdb04de8f612c47a968"
+        },
+        {
+          "source_type": "POLICY",
+          "version": "2026.10",
+          "title": "承运商判定丢失",
+          "retrieval_context": {
+            "mode": "COMPLETE_SMALL_SET",
+            "count": 6
+          },
+          "data": {
+            "bundle_id": "policy-foundation-m1002-2026.10",
+            "merchant_id": "M-1002",
+            "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+            "rule_id": "R-LOST-001",
+            "chunk_id": "c-02",
+            "content_hash": "5d939273bd40f52230b820dacdfc970c977b681f445df01f0362d155c7d2242f",
+            "text": "承运商结论为 LOST 且无有效签收记录时，经人工核验可按该订单行全部数量的实付金额退款；本地模拟在途不代表承运商丢失。"
+          },
+          "source_id": "P2",
+          "content_hash": "93f7acd7a138e02784512adfa11ebe5ce8ee1138060ab7eeaea07e04d686d2a3"
+        },
+        {
+          "source_type": "POLICY",
+          "version": "2026.10",
+          "title": "单行全额与人工决定",
+          "retrieval_context": {
+            "mode": "COMPLETE_SMALL_SET",
+            "count": 6
+          },
+          "data": {
+            "bundle_id": "policy-foundation-m1002-2026.10",
+            "merchant_id": "M-1002",
+            "manifest_hash": "b4aae62c56c095b77be64e1819d4d3d3762cc07b121c11070dd4227b1009f8de",
+            "rule_id": "R-MONEY-001",
+            "chunk_id": "c-06",
+            "content_hash": "3ce99fb1f49bf67218401707b0781bbc848e805c358597bbe17a8c5bd1fa3da8",
+            "text": "仅支持单订单行全部数量的全额模拟退款，同行最多一次成功，整单已退加预留不超过支付额，UNKNOWN 保留原操作和占用；不支持部分退款、补发或真实支付。模型建议与 confidence 均不是授权，不得自动审批。"
+          },
+          "source_id": "P6",
+          "content_hash": "67038326674ba9d1189647925941c166e383988c5194ff3a7668ed364999bbc7"
+        },
+        {
+          "source_type": "KNOWLEDGE",
+          "version": "2026.10.23-v3",
+          "title": "售后咨询使用指南",
+          "data": {
+            "guide_id": "support-guide-v3",
+            "authority": "APPLICATION_GUIDE",
+            "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+            "text_sha256": "841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727",
+            "sources": [
+              {
+                "ref": "s0",
+                "path": "docs/customer-support-workspace.md",
+                "sha256_at_import": "7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89"
+              },
+              {
+                "ref": "s1",
+                "path": "docs/customer-agent-implementation-v1.md",
+                "sha256_at_import": "c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb"
+              },
+              {
+                "ref": "s2",
+                "path": "docs/customer-chat-refund-implementation-v1.md",
+                "sha256_at_import": "196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c"
+              }
+            ],
+            "sections": [
+              {
+                "id": "K-ORDER",
+                "title": "选择订单商品与独立咨询",
+                "source_ref": "s0",
+                "content_sha256": "c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79"
+              },
+              {
+                "id": "K-HANDOFF",
+                "title": "不申请退款也能请商家核查",
+                "source_ref": "s0",
+                "content_sha256": "d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a"
+              },
+              {
+                "id": "K-SHARE",
+                "title": "转交前选择共享原文和调查依据",
+                "source_ref": "s0",
+                "content_sha256": "2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632"
+              },
+              {
+                "id": "K-PRIVATE",
+                "title": "私有助手咨询与补充给商家的区别",
+                "source_ref": "s0",
+                "content_sha256": "a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42"
+              },
+              {
+                "id": "K-RESOLVE",
+                "title": "商家回复与客户确认解决",
+                "source_ref": "s0",
+                "content_sha256": "de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f"
+              },
+              {
+                "id": "K-STATUS",
+                "title": "查看核查进度和历史消息",
+                "source_ref": "s0",
+                "content_sha256": "74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623"
+              },
+              {
+                "id": "K-RETRY",
+                "title": "发送结果不明确与版本冲突",
+                "source_ref": "s0",
+                "content_sha256": "e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d"
+              },
+              {
+                "id": "K-ENTRY",
+                "title": "正式退款申请与咨询入口",
+                "source_ref": "s2",
+                "content_sha256": "41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca"
+              },
+              {
+                "id": "K-SOURCES",
+                "title": "助手回答来源与实时事实",
+                "source_ref": "s1",
+                "content_sha256": "650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717"
+              },
+              {
+                "id": "K-STALE",
+                "title": "补充纠正与过时回答",
+                "source_ref": "s0",
+                "content_sha256": "cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31"
+              }
+            ],
+            "knowledge_sha256": "cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb"
+          },
+          "source_id": "O1",
+          "content_hash": "0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120"
+        },
+        {
+          "source_type": "ORDER",
+          "version": 1,
+          "data": {
+            "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+            "version": 1,
+            "order_line": {
+              "sku": "SKU-2001-01",
+              "status": "PAID",
+              "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+              "paid_at": "2026-10-20T03:13:35.257912Z",
+              "version": 1,
+              "category": "home",
+              "currency": "CNY",
+              "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+              "quantity": 1,
+              "asset_key": "lamp",
+              "product_name": "桌面台灯",
+              "variant_text": "米白色",
+              "line_paid_amount": 12900
+            },
+            "merchant_id": "M-1002"
+          },
+          "source_id": "O2",
+          "content_hash": "44bcc5e89705483fc540c7e777675f091a0750bed0d9cbff0b8a5b2e895f8625"
+        }
+      ],
+      "stream_times": {
+        "first_provisional_ms": 3249.8929999997017,
+        "first_retained_ms": 3249.8929999997017,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F03",
+      "turn": 2,
+      "run_id": "e5d40f97-98d5-51df-964a-610b7db05218",
+      "publication": "SUCCEEDED",
+      "review": "FAIL",
+      "criteria": [
+        "暂停退款准备，无本轮退款或人工摘要",
+        "承接LOST具体政策主题并引用本店条款，不编造必交材料清单或用应用GUIDE回答政策要求"
+      ],
+      "finding": "理解明确needs POLICY，但把有新政策问题的焦点本身PAUSE，程序按inactive跳过取证，最终只引GUIDE重述旧助手政策，违反本轮政策判据。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "查询桌面台灯当前物流状态",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          },
+          {
+            "id": "t2",
+            "intent": "APPLICATION",
+            "request": "暂不准备退款，改为询问在承运商判定丢失的物流情况下店铺规定必须提供哪些材料",
+            "status": "SUSPENDED",
+            "evidence_refs": [
+              "O1"
+            ],
+            "response_excerpt": "承接上轮讨论的“承运商判定丢失、客户未收到”这一物流场景：本店政策对这类情况只规定了处理前提——承运商结论为丢失且无有效签收记录时，需经人工核验后才可按该订单行全部数量全额退款；政策并未规定必须提交的材料清单，因此没有“必须提供”的材料可以列出。目前是否已有有效签收记录、人工核验结论如何，均尚未核实。若后续需要人工核查，可在转交前自行选择共享哪些客户原文和调查依据，只有你确认的内容才会发给商家。",
+            "lifecycle": "PAUSED"
+          }
+        ],
+        "focus_ids": [
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "a11ce354-c35b-5df4-b696-ed346937b80e",
+        "merchant_id": "M-1002",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "input_version": 3,
+        "entries": [
+          {
+            "id": "c_5c40815a700bbb4fae678726",
+            "topic": "RECEIPT",
+            "quote": "这盏灯一直没收到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "这盏灯一直没收到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [
+        {
+          "source_type": "KNOWLEDGE",
+          "version": "2026.10.23-v3",
+          "title": "售后咨询使用指南",
+          "data": {
+            "guide_id": "support-guide-v3",
+            "authority": "APPLICATION_GUIDE",
+            "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+            "text_sha256": "841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727",
+            "sources": [
+              {
+                "ref": "s0",
+                "path": "docs/customer-support-workspace.md",
+                "sha256_at_import": "7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89"
+              },
+              {
+                "ref": "s1",
+                "path": "docs/customer-agent-implementation-v1.md",
+                "sha256_at_import": "c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb"
+              },
+              {
+                "ref": "s2",
+                "path": "docs/customer-chat-refund-implementation-v1.md",
+                "sha256_at_import": "196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c"
+              }
+            ],
+            "sections": [
+              {
+                "id": "K-ORDER",
+                "title": "选择订单商品与独立咨询",
+                "source_ref": "s0",
+                "content_sha256": "c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79"
+              },
+              {
+                "id": "K-HANDOFF",
+                "title": "不申请退款也能请商家核查",
+                "source_ref": "s0",
+                "content_sha256": "d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a"
+              },
+              {
+                "id": "K-SHARE",
+                "title": "转交前选择共享原文和调查依据",
+                "source_ref": "s0",
+                "content_sha256": "2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632"
+              },
+              {
+                "id": "K-PRIVATE",
+                "title": "私有助手咨询与补充给商家的区别",
+                "source_ref": "s0",
+                "content_sha256": "a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42"
+              },
+              {
+                "id": "K-RESOLVE",
+                "title": "商家回复与客户确认解决",
+                "source_ref": "s0",
+                "content_sha256": "de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f"
+              },
+              {
+                "id": "K-STATUS",
+                "title": "查看核查进度和历史消息",
+                "source_ref": "s0",
+                "content_sha256": "74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623"
+              },
+              {
+                "id": "K-RETRY",
+                "title": "发送结果不明确与版本冲突",
+                "source_ref": "s0",
+                "content_sha256": "e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d"
+              },
+              {
+                "id": "K-ENTRY",
+                "title": "正式退款申请与咨询入口",
+                "source_ref": "s2",
+                "content_sha256": "41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca"
+              },
+              {
+                "id": "K-SOURCES",
+                "title": "助手回答来源与实时事实",
+                "source_ref": "s1",
+                "content_sha256": "650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717"
+              },
+              {
+                "id": "K-STALE",
+                "title": "补充纠正与过时回答",
+                "source_ref": "s0",
+                "content_sha256": "cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31"
+              }
+            ],
+            "knowledge_sha256": "cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb"
+          },
+          "source_id": "O1",
+          "content_hash": "0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120"
+        }
+      ],
+      "stream_times": {
+        "first_provisional_ms": 2116.7687000001933,
+        "first_retained_ms": 2116.7687000001933,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F03",
+      "turn": 3,
+      "run_id": "c1ff3d07-ba79-55e8-a62c-5dc19d6109a7",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "选择独立人工核查用途并提供handoff摘要，不输出退款摘要",
+        "使用本人本店上下文与有效客户陈述，未核验标记及确认共享边界清楚，没有已发送/自动退款承诺"
+      ],
+      "finding": "正确MERCHANT_REVIEW并使用合法customer_refs，本run实际SHIPMENT、GUIDE，handoff摘要未核验且待本人确认，无退款摘要；正文额外重述历史政策却未本run检索，此部分不作为新政策取证证据。",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "查询桌面台灯当前物流状态",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          },
+          {
+            "id": "t2",
+            "intent": "HANDOFF",
+            "request": "请商家核查桌面台灯未收到、承运商判定丢失的情况，先整理核查说明供客户确认，客户同意后再发送",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1",
+              "O2"
+            ],
+            "response_excerpt": "这次是请商家核查，不是退款，所以核查说明按“未收到货、承运商判定丢失”来整理，供你先核对；你确认同意后才会发给商家，草稿不代表已提交，也不代表已获得退款资格。\n\n物流接口当前记录显示承运商已给出丢失结论，并非仍在正常运输途中；该结论以承运商和售后核验为准。按本店政策，承运商结论为丢失且无有效签收记录时，需经人工核验后才可按该订单行全部数量全额退款；目前是否已有有效签收记录、人工核验结论如何，均尚未核实。政策未规定必须提交的材料清单。\n\n转交前你可以自行选择共享哪些客户原文和调查依据，只有你确认的内容才会发给商家；对话历史不会随依据自动共享。转交后默认输入补充给商家，消息进入原核查单；切换询问智能助手的内容不会自动交给商家。商家回复不会自动变成已解决，你可以继续补充或确认解决。\n\n人工核查：打开“售后咨询”，选择对应订单商品，点击“请商家核查”。预览并编辑核查摘要，选择要共享的原文和调查依据",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "a11ce354-c35b-5df4-b696-ed346937b80e",
+        "merchant_id": "M-1002",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "input_version": 5,
+        "entries": [
+          {
+            "id": "c_5c40815a700bbb4fae678726",
+            "topic": "RECEIPT",
+            "quote": "这盏灯一直没收到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "这盏灯一直没收到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "citations": [
+        {
+          "source_type": "KNOWLEDGE",
+          "version": "2026.10.23-v3",
+          "title": "售后咨询使用指南",
+          "data": {
+            "guide_id": "support-guide-v3",
+            "authority": "APPLICATION_GUIDE",
+            "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+            "text_sha256": "841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727",
+            "sources": [
+              {
+                "ref": "s0",
+                "path": "docs/customer-support-workspace.md",
+                "sha256_at_import": "7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89"
+              },
+              {
+                "ref": "s1",
+                "path": "docs/customer-agent-implementation-v1.md",
+                "sha256_at_import": "c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb"
+              },
+              {
+                "ref": "s2",
+                "path": "docs/customer-chat-refund-implementation-v1.md",
+                "sha256_at_import": "196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c"
+              }
+            ],
+            "sections": [
+              {
+                "id": "K-ORDER",
+                "title": "选择订单商品与独立咨询",
+                "source_ref": "s0",
+                "content_sha256": "c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79"
+              },
+              {
+                "id": "K-HANDOFF",
+                "title": "不申请退款也能请商家核查",
+                "source_ref": "s0",
+                "content_sha256": "d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a"
+              },
+              {
+                "id": "K-SHARE",
+                "title": "转交前选择共享原文和调查依据",
+                "source_ref": "s0",
+                "content_sha256": "2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632"
+              },
+              {
+                "id": "K-PRIVATE",
+                "title": "私有助手咨询与补充给商家的区别",
+                "source_ref": "s0",
+                "content_sha256": "a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42"
+              },
+              {
+                "id": "K-RESOLVE",
+                "title": "商家回复与客户确认解决",
+                "source_ref": "s0",
+                "content_sha256": "de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f"
+              },
+              {
+                "id": "K-STATUS",
+                "title": "查看核查进度和历史消息",
+                "source_ref": "s0",
+                "content_sha256": "74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623"
+              },
+              {
+                "id": "K-RETRY",
+                "title": "发送结果不明确与版本冲突",
+                "source_ref": "s0",
+                "content_sha256": "e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d"
+              },
+              {
+                "id": "K-ENTRY",
+                "title": "正式退款申请与咨询入口",
+                "source_ref": "s2",
+                "content_sha256": "41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca"
+              },
+              {
+                "id": "K-SOURCES",
+                "title": "助手回答来源与实时事实",
+                "source_ref": "s1",
+                "content_sha256": "650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717"
+              },
+              {
+                "id": "K-STALE",
+                "title": "补充纠正与过时回答",
+                "source_ref": "s0",
+                "content_sha256": "cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31"
+              }
+            ],
+            "knowledge_sha256": "cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb"
+          },
+          "source_id": "O1",
+          "content_hash": "0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120"
+        },
+        {
+          "source_type": "SHIPMENT",
+          "version": 3,
+          "data": {
+            "lines": [
+              {
+                "events": [
+                  {
+                    "code": "ORDER_PAID",
+                    "occurred_at": "2026-10-20T03:13:35.257912Z",
+                    "source_version": 1
+                  },
+                  {
+                    "code": "SIMULATED_SHIPPED",
+                    "occurred_at": "2026-10-20T03:13:35.327619Z",
+                    "source_version": 2
+                  },
+                  {
+                    "code": "LOST",
+                    "occurred_at": "2026-10-20T03:13:35.479423Z",
+                    "source_version": 3
+                  }
+                ],
+                "status": "LOST",
+                "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+                "source_version": 3,
+                "carrier_conclusion": "LOST"
+              }
+            ],
+            "status": "LOST",
+            "version": 3,
+            "order_id": "3b555dea-9916-443b-ba81-93a96ba89a5a",
+            "synthetic": true
+          },
+          "source_id": "O2",
+          "content_hash": "d0506cd5a62b4af3097d88923ca8a44db6fb12000dc41fdb04de8f612c47a968"
+        }
+      ],
+      "stream_times": {
+        "first_provisional_ms": 4557.619400000021,
+        "first_retained_ms": 4557.619400000021,
+        "resets": 0
+      }
+    }
+  ]
+}
