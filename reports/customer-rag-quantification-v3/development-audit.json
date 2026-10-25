@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-25",
+  "status": "DEVELOPMENT_COMPLETE_ACCEPTANCE_UNRUN",
+  "source_sha256": "acd9966752785800a1be7adc2734758edfc8fcd4827652366483fa246adbbe91",
+  "analysis_sha256": "6beb76e7d7bef32be73b1fe77851e967258375ff3e3a66d229e446f39e16ae3f",
+  "analyzer_sha256": "facd3cf00a48b1a09a34db9ea81aa5de84d424c311ac9b4253a73c23c93202b4",
+  "manifest_sha256": "8ecda17f83ed321cfe1c1c4ad20065ad97123756a53cbeb4bf3d4ba38713ddb1",
+  "baseline_head": "e7064efdcdcc456ba067a0c90fb5e18b75d30723",
+  "prior_tracked_files_checked": 4153,
+  "prior_tracked_files_changed": [
+    "docs/architecture-evolution.md",
+    "reports/customer-rag-quantification-v3/README.md",
+    "tasks/todo.md"
+  ],
+  "unexpected_prior_changes": [],
+  "frozen_sources_questions_weights_unchanged": true,
+  "agent_frozen_text_unchanged": true,
+  "four_original_dirty_files_preserved": true,
+  "generation_ledger_unchanged": true,
+  "new_generation_api_calls": 0,
+  "new_labeled_retrieval_requests": 480,
+  "question_denominators": {
+    "unique_development": 40,
+    "answerable": 32,
+    "unanswerable_excluded_from_quality": 8
+  },
+  "journal_matches_final_result": true,
+  "packets_rebuilt_and_scored": 1440,
+  "top3_budget_skips": 0,
+  "full_rankings_stable": true,
+  "measured_ce_pairs": 1515,
+  "generic_prewarm_ce_pairs": 8,
+  "measured_ce_max_tokens": 289,
+  "acceptance_results_exist": false,
+  "quality_and_latency": {
+    "dense": {
+      "complete": 24,
+      "mean_ms": 14.19356583373883,
+      "p95_ms": 23.961500002769753
+    },
+    "bm25": {
+      "complete": 25,
+      "mean_ms": 8.91315749995556,
+      "p95_ms": 11.73459999699844
+    },
+    "hybrid-rrf": {
+      "complete": 25,
+      "mean_ms": 19.290252500286442,
+      "p95_ms": 25.122999999439344
+    },
+    "hybrid-rrf-ce": {
+      "complete": 27,
+      "mean_ms": 134.57511333326693,
+      "p95_ms": 163.6553999996977
+    }
+  },
+  "analysis_unit_checks_passed": 2,
+  "ruff_new_two_files": "passed",
+  "full_repository_tests": "not_run",
+  "database_writes_or_service_start_stop": "none",
+  "gpu_worker_exit": "observed zero matching Python worker processes after completion",
+  "production_adoption": false,
+  "new_final_answer_evaluation": false
+}

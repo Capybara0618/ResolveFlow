@@ -1,0 +1,162 @@
+{
+  "source_sha256": "acd9966752785800a1be7adc2734758edfc8fcd4827652366483fa246adbbe91",
+  "quality_repeat": 1,
+  "changes": {
+    "any_required": {
+      "questions": 32,
+      "gained": [
+        {
+          "id": "V3Q003",
+          "query": "有品上标注的自营商品具体由谁销售，发票由谁开？",
+          "category": "ordinary",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q004",
+          "query": "小米有品售后退换货地址在哪里获取？",
+          "category": "ordinary",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q005",
+          "query": "小米有品寄回售后可以上门取件吗？",
+          "category": "ordinary",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q008",
+          "query": "京东自营没有质量问题的商品，申请七天无理由退货要谁承担返回运费？",
+          "category": "ordinary",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q025",
+          "query": "有品客服还没回我，我先把东西寄过去可以吧？",
+          "category": "colloquial",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q026",
+          "query": "有品商品的发票型号和机子对不上，能直接给我换吗？",
+          "category": "colloquial",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q041",
+          "query": "京东数码到货后才发现外观异常，签收后申请物流损退换的时限是多久？",
+          "category": "exact",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q045",
+          "query": "有品物流没有有效签收时间，七天退货窗口怎么判定？",
+          "category": "exact",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q063",
+          "query": "京东自营下载的软件和普通完好商品都能七天无理由吗，普通退货运费谁付？",
+          "category": "compound",
+          "before": false,
+          "after": true
+        }
+      ],
+      "regressed": [
+        {
+          "id": "V3Q046",
+          "query": "小米有品保外维修费通知后七天未付，商品怎么处理？",
+          "category": "exact",
+          "before": true,
+          "after": false
+        }
+      ],
+      "net_count": 8
+    },
+    "complete": {
+      "questions": 32,
+      "gained": [
+        {
+          "id": "V3Q003",
+          "query": "有品上标注的自营商品具体由谁销售，发票由谁开？",
+          "category": "ordinary",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q004",
+          "query": "小米有品售后退换货地址在哪里获取？",
+          "category": "ordinary",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q005",
+          "query": "小米有品寄回售后可以上门取件吗？",
+          "category": "ordinary",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q008",
+          "query": "京东自营没有质量问题的商品，申请七天无理由退货要谁承担返回运费？",
+          "category": "ordinary",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q025",
+          "query": "有品客服还没回我，我先把东西寄过去可以吧？",
+          "category": "colloquial",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q026",
+          "query": "有品商品的发票型号和机子对不上，能直接给我换吗？",
+          "category": "colloquial",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q041",
+          "query": "京东数码到货后才发现外观异常，签收后申请物流损退换的时限是多久？",
+          "category": "exact",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q045",
+          "query": "有品物流没有有效签收时间，七天退货窗口怎么判定？",
+          "category": "exact",
+          "before": false,
+          "after": true
+        },
+        {
+          "id": "V3Q063",
+          "query": "京东自营下载的软件和普通完好商品都能七天无理由吗，普通退货运费谁付？",
+          "category": "compound",
+          "before": false,
+          "after": true
+        }
+      ],
+      "regressed": [
+        {
+          "id": "V3Q046",
+          "query": "小米有品保外维修费通知后七天未付，商品怎么处理？",
+          "category": "exact",
+          "before": true,
+          "after": false
+        }
+      ],
+      "net_count": 8
+    }
+  }
+}
