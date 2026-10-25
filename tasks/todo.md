@@ -1,4 +1,10 @@
-## 当前快照（2026-10-25，独立对照准备已完成并冻结，正式测量未启动）
+## 当前快照（2026-10-25，用户授权独立对照正式执行）
+
+- 准备冻结7a9f94f已普通push核实，用户明确要求开始；按原manifest 6cefdbb6/32场景/两组/一次执行，共64会话100轮，最多400新请求。实际ledger3053起、绝对3453截止，不自动重跑失败或补额；执行后逐轮源审业务正确/完成/上下文，再汇总主辅指标。[执行说明](../reports/customer-workflow-comparison-v2/how-to-run.md)。
+- 开跑前源码/142文件/原PG政策与指南一致性check通过，旧四脏文件保持、无账本lock/旧输出。进程环境未继承模型凭据，已确认Windows用户级配置存在，将只在本次进程注入，不打印或写入报告。生产/数据/Gold/模型参数保持，不启动Java/UI或重测RAG。
+- 本步授权记录精确commit普通push核实后仅启动一次正式执行；所有模型尝试/失败/未运行保留，最终导出临时schema、核对public与旧报告，记录新效果及局限，不更新简历。
+
+## 历史快照（2026-10-25，独立对照准备已完成并冻结，正式测量未启动）
 
 - 双组实现a941206已普通push核实，独立Workflow与生产AgentScope分别执行/保存真实历史，共同原始来源和模型参数；56相关检查（含3原PG集成）/九文件Ruff通过。新manifest绑定142文件，原PG只读冻结check通过。[命令与说明](../reports/customer-workflow-comparison-v2/how-to-run.md)/[准备报告](../reports/customer-workflow-comparison-v2/README.md)/E66。
 - 最终审计：public11表/旧正式11报告/188历史报告/旧Agent与RAG manifest/四脏文件保持，0测试schema遗留；真实ledger3053，无有效凭据新生成/新付费测量。1次测试假凭据拒绝网络尝试已单列并修正MockTransport，不写成零网络。原容器/原卷/55433保持，业务端口无监听，未启停Java/UI/改简历。

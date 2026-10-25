@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-25",
+  "user_authorization": "User requested formal execution after frozen preparation",
+  "manifest_sha256": "6cefdbb6a6b3bfbca19e07a70151f94bac9cd34b46dfd882166d9477c220715e",
+  "implementation_head": "a9412063f23d06e091dc97cde7e6cf553d3146b1",
+  "ledger_start": 3053,
+  "max_new_provider_requests": 400,
+  "absolute_ceiling": 3453,
+  "conversations": 64,
+  "turns": 100,
+  "repeats": 1,
+  "rerun_failed_turns": false,
+  "new_rag_evaluation": false
+}
