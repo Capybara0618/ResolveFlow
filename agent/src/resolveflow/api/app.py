@@ -42,6 +42,7 @@ from resolveflow.api.identity import (
     mint_service_token,
 )
 from resolveflow.contracts.reviewer_input import ReviewerInput
+from resolveflow.harness.token_counting import prewarm_counter
 from resolveflow.provider_stub import NOT_FOUND, ProviderConflictError, RefundProviderStub, RefundResult
 from resolveflow.runtime.callbacks import CallbackStore
 from resolveflow.runtime.db import DEFAULT_SCHEMA, Database
@@ -457,6 +458,7 @@ def create_app(
         app.state.support_runtime = support_runtime
         app.state.support_embeddings = SupportEmbeddings()
         app.state.support_warmup = {"status": "DISABLED"}
+        app.state.support_counter_warmup = {"status": "DISABLED"}
         holder: _RunStoreHolder | None = None
         if run_store is not None:
             # A caller that already owns a store (the integration tests do) wants exactly that store.
@@ -480,6 +482,23 @@ def create_app(
         investigation_loop: InvestigationLoop | None = None
         app.state.investigation_loop = None
         try:
+            if (os.environ.get("RESOLVEFLOW_MODEL_MODE", "").strip() == "live"
+                    and os.environ.get("RESOLVEFLOW_SUPPORT_PREWARM", "1").strip() != "0"):
+                app.state.support_counter_warmup = {"status": "WARMING"}
+                try:
+                    elapsed = await asyncio.to_thread(
+                        prewarm_counter,
+                        provider=os.environ.get("RESOLVEFLOW_MODEL_PROVIDER", "").strip(),
+                        model_id=os.environ.get("RESOLVEFLOW_MODEL_ID", "").strip(),
+                    )
+                except Exception:
+                    app.state.support_counter_warmup = {"status": "FAILED"}
+                    LOG.exception("support_counter_warmup status=FAILED; startup not ready")
+                    raise
+                app.state.support_counter_warmup = ({"status": "NOT_APPLICABLE"} if elapsed is None else
+                                                   {"status": "READY", "elapsed_ms": elapsed})
+                LOG.info("support_counter_warmup status=%s elapsed_ms=%s",
+                         app.state.support_counter_warmup["status"], elapsed)
             if os.environ.get("RESOLVEFLOW_POLICY_INDEX", "").strip() == "1" and os.environ.get(
                 "RESOLVEFLOW_SUPPORT_PREWARM", "1"
             ).strip() != "0":

@@ -12,6 +12,10 @@
 
 开启政策索引时，Python Agent 启动会先预热客服共享的本地 embedding 和 BM25 分词器，日志显示 `support_embedding_warmup status=WARMING/READY` 及耗时，就绪后才接受请求。预热不访问生成模型或数据库；权重缺失或损坏会使启动失败。可设置进程环境变量 `RESOLVEFLOW_SUPPORT_PREWARM=0` 保留惰性加载，此时首次政策检索会承担加载耗时。启动预热会增加启动等待时间，并不保证生成模型或数据库的后续响应速度。
 
+2026-10-25：live模式且使用deepseek/deepseek-flash时，启动还会预加载原锁定输入计数tokenizer，日志为`support_counter_warmup`，不发送供应商请求；独立于是否启用政策索引。其他模型不加载该资产，禁用`RESOLVEFLOW_SUPPORT_PREWARM`时仍惰性；校验失败拒绝就绪。客服`support_model_timing`按UNDERSTAND/INVESTIGATE/COMPOSE记录prepare/current/journal/provider及first_content时间，缓存恢复明确cached=True、provider_ms=0；`support_tool_timing`记录单个实际读取。供应商首内容可能仍是JSON前缀，不等于用户首正文；日志不含问题/Query/口令，COMPLETE仅表示模型调用完成，不表示业务质量通过。
+
+正式客服启动器通过`--log-config infra/logging.agent.json`启用上述项目模块INFO，其他第三方模块不统一开放详细日志。手动uvicorn需要显式使用该配置才能保证这些INFO可见；原`--log-level`继续控制Uvicorn自身日志。
+
 启动自动读取 Windows 用户环境变量 `Deepseek_API_KEY`，也接受进程中的 `RESOLVEFLOW_MODEL_API_KEY` 或 `Deepseek_API_KEY`。密钥不写入源码、命令参数或报告。缺少密钥时启动明确失败，不切换到功能不全的只读模式。新申请和补证后的调查会产生模型用量；启动和状态检查自身不发送测试模型请求，已有待调查任务会被 worker 消费。
 
 ```powershell

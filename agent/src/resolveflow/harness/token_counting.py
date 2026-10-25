@@ -7,6 +7,7 @@ No network, fallback after asset corruption, or mutable tokenizer selection in a
 import gzip
 import hashlib
 import importlib
+import time
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -64,3 +65,12 @@ def counter_for(client: Any) -> InputCounter:
     if getattr(client, "provider", None) == "deepseek" and getattr(client, "model_id", None) == "deepseek-flash":
         return InputCounter(FLASH_VERSION, "ESTIMATED_DEEPSEEK_V41_JSON")
     return InputCounter()
+
+
+def prewarm_counter(*, provider: str, model_id: str) -> float | None:
+    """Load the pinned live Flash estimator before readiness, without constructing a model/client."""
+    if provider != "deepseek" or model_id != "deepseek-flash":
+        return None
+    started = time.perf_counter()
+    load_tokenizer()
+    return (time.perf_counter() - started) * 1000

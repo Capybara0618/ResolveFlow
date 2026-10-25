@@ -1856,6 +1856,8 @@ def start_readonly_agent(settings: Settings, log: Log, *, live: bool = False, ar
             str(settings.ports["agent"]),
             "--log-level",
             os.environ.get("REVIEWER_DEMO_AGENT_LOG_LEVEL", "info"),
+            "--log-config",
+            str(ROOT / "infra" / "logging.agent.json"),
         ],
         env,
         settings.ports["agent"],
