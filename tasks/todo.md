@@ -1,4 +1,9 @@
-## 当前快照（2026-10-25，固定收口验收完成：架构保留，两个边界未过）
+## 当前快照（2026-10-25，状态/引用收尾：多目标纠正工程通过）
+
+- 用户要求收尾，按[有限方案](../docs/customer-boundary-closeout-v1.md)/[本批记录](../reports/customer-boundary-closeout-v1/README.md)先补显式多targets、原子验证/关系扩展，保留旧单target/其他独立事实；不换框架/RAG/资金权限。先2红4过→36针对通过、四文件Ruff通过，0新模型、usage2410；E59记录工程边界，未称模型已选全。
+- 精确提交普通push核实后接摘要合法候选引用/原事项目标变化状态，再冻结旧3组11轮一次真实确认（最多40模型），不追题补分。原报告/业务/四历史脏文件保持，当前资源关闭。
+
+## 历史快照（2026-10-25，固定收口验收完成：架构保留，两个边界未过）
 
 - 准备6ad2853已普通push核实，固定3组11轮只执行一次，真实29模型、供应商108934输入/4517输出、未知/估算0，usage2381→2410。[报告](../reports/customer-final-acceptance-v1/README.md)/[全部会话](../reports/customer-final-acceptance-v1/conversations.md)/[源审](../reports/customer-final-acceptance-v1/source-review.json)。10/11发布，严格判据8通过/1部分/2阻断，不改输入/提示/业务、不追加真实轮；0业务/新页面/简历。
 - 已定位F01找到包裹仅替换一条未收旧记忆，其余同义旧条目仍ACTIVE；F03转人工摘要两次选入不合法历史quote，原有限修正后INVALID_DECISION。[离线复现](../reports/customer-final-acceptance-v1/offline-diagnosis.json)确认原拒绝/合法候选存在及下一版本携带旧ACTIVE，不把离线替换报真实成功。另恢复问题后新APPLICATION完成而原LOGISTICS仍PAUSED，判部分；E58记录职责根因/未实施方案。RAG本批3次6条本店全读，非失败根因/大语料新评测。

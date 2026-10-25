@@ -66,12 +66,20 @@ class CustomerClaim(CustomerQuote):
     topic: Literal["RECEIPT", "CHECKS", "REQUEST", "MATERIAL", "OTHER"]
     change: Literal["APPEND", "REPLACE", "RETRACT"] = "APPEND"
     target: str | None = Field(default=None, min_length=1, max_length=32)
+    targets: list[Annotated[str, Field(min_length=1, max_length=32)]] | None = Field(
+        default=None, min_length=1, max_length=8)
 
     @model_validator(mode="after")
     def target_only_for_correction(self) -> CustomerClaim:
-        if (self.change == "APPEND") != (self.target is None):
-            raise ValueError("APPEND不带target；REPLACE/RETRACT须选择已提供的客户陈述id。")
+        if self.target is not None and self.targets is not None:
+            raise ValueError("单target与多targets不能同时提供。")
+        chosen = self.correction_ids()
+        if (self.change == "APPEND") != (not chosen) or len(chosen) != len(set(chosen)):
+            raise ValueError("APPEND不带目标；REPLACE/RETRACT须选择不重复的已提供客户陈述id。")
         return self
+
+    def correction_ids(self) -> list[str]:
+        return list(self.targets) if self.targets is not None else ([self.target] if self.target else [])
 
 
 class DialogueEvent(CustomerQuote):

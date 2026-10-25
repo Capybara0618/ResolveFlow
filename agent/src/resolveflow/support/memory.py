@@ -144,6 +144,7 @@ class CustomerMemory:
         for index, raw in enumerate(proposals):
             try:
                 proposal = CustomerClaim.model_validate(raw)
+                targets = proposal.correction_ids()
                 source = customer_source(proposal, self.request, observations, current_only=True)
                 existing = next((e for e in self.entries if e["topic"] == proposal.topic
                                  and e["source"] == source and e["status"] == "ACTIVE"), None)
@@ -151,16 +152,18 @@ class CustomerMemory:
                     if proposal.change == "APPEND":
                         continue
                     relation = "supersedes" if proposal.change == "REPLACE" else "retracts"
-                    if proposal.target in existing[relation]:
+                    pending = [key for key in targets if key not in existing[relation]]
+                    if not pending:
                         continue
                     entries = deepcopy(self.entries)
-                    target = next((e for e in entries if e["id"] == proposal.target), None)
-                    if (target is None or target["status"] != "ACTIVE" or target["topic"] != proposal.topic
-                            or target["source"]["sequence"] >= source["sequence"]):
-                        raise MemoryStateError("替代目标须为更早同主题有效客户陈述。")
-                    target["status"] = "SUPERSEDED" if proposal.change == "REPLACE" else "RETRACTED"
+                    for key in pending:
+                        target = next((e for e in entries if e["id"] == key), None)
+                        if (target is None or target["status"] != "ACTIVE" or target["topic"] != proposal.topic
+                                or target["source"]["sequence"] >= source["sequence"]):
+                            raise MemoryStateError("替代目标须为更早同主题有效客户陈述。")
+                        target["status"] = "SUPERSEDED" if proposal.change == "REPLACE" else "RETRACTED"
                     same = next(e for e in entries if e["id"] == existing["id"])
-                    same[relation].append(proposal.target)
+                    same[relation].extend(pending)
                     ClaimSnapshot.model_validate({**self.snapshot(), "entries": entries})
                     self.entries = entries
                     continue
@@ -168,10 +171,8 @@ class CustomerMemory:
                 key = "c_" + hashlib.sha256(identity.encode()).hexdigest()[:24]
                 update = MemoryUpdate(id=key, topic=proposal.topic, reference="CURRENT",
                                       quote=proposal.quote, offset=source["offset"],
-                                      supersedes=[proposal.target] if proposal.change == "REPLACE"
-                                      and proposal.target is not None else [],
-                                      retracts=[proposal.target] if proposal.change == "RETRACT"
-                                      and proposal.target is not None else [])
+                                      supersedes=targets if proposal.change == "REPLACE" else [],
+                                      retracts=targets if proposal.change == "RETRACT" else [])
                 self.apply([update], observations)
             except (ValidationError, MemoryStateError) as error:
                 self.warnings.append({"index": index, "code": "CUSTOMER_CLAIM_NOT_ACCEPTED",

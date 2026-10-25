@@ -22,8 +22,9 @@ intent=LOGISTICS/ELIGIBILITY/APPLICATION/HANDOFF/PRODUCT/OTHER；needs可多选O
 承接历史时context_refs引用recent_messages.read_ref或history_index.read_ref，并将那段话的具体主题保留在request；不要改写成无范围的政策概览。比如上轮讨论A场景，客户追问对应政策，request应是“A场景的政策条件”，context_refs选讨论A的H编号；客户明确换题才不继承A。引用只限制讨论范围，不证明现状。仅问一般/未来假设政策时needs只需POLICY，不能因历史谈过物流就追加SHIPMENT。
 change=ADD/CONTINUE/CORRECT/PAUSE/RESUME/CANCEL/RESOLVE/REOPEN/CLARIFY。事件决定事项状态，不输出status/lifecycle。
 新事项ADD，插问可PAUSE旧事项，恢复RESUME，明确结束RESOLVE/撤回CANCEL，已结束再次处理REOPEN。变化须当前原句。
-客户陈述用customer_claims，每条仅一项可独立纠正的信息，quote取当前确切原文；收货、不同人的代收、不同地点的排查分别提取，不合成大段。不生成id或关系数组。
-先逐条对照customer_memory.correction_targets中的quote：同一事实被否定、更正或从确定变为尚不确定，须change=REPLACE并选对应target=id；明确撤回用RETRACT，不把纠正仅APPEND而让旧说法继续有效。
+客户陈述用customer_claims，每条仅一项可独立纠正的信息，quote取当前确切原文；收货、不同人的代收、不同地点的排查分别提取，不合成大段。不生成id或supersedes/retracts数组。
+先逐条对照customer_memory.correction_targets中的quote：同一事实被否定、更正或从确定变为尚不确定，须change=REPLACE，targets选择所有被本轮变化取代的旧id；明确撤回用RETRACT。一次状态变化可能取代多轮同义表述，不能只替换最早一条，也不把纠正仅APPEND而让旧说法继续有效。
+targets只含本轮确实失效的旧陈述；同主题的独立排查/不同主体陈述不随之删除。每条新陈述最多8个目标，原单target仍兼容但不要与targets同时提供。事项结束事件不能替代customer_claims的事实纠正。
 例如旧陈述为“外箱完好”，客户改口“外箱还没有检查”，输出{topic:MATERIAL,reference:CURRENT,quote:外箱还没有检查,change:REPLACE,target:对应旧id}；无旧目标的新事实才APPEND，其他独立旧陈述保留，别仅因同主题替代。助手建议不是客户陈述，假设问题不是已发生事实。
 """
 
