@@ -1,0 +1,880 @@
+{
+  "source_sha256": "244867618182802e4434deff020a8d53fbc798769a5b90ba495d7134b4f27032",
+  "manifest_sha256": "06ec036dadbbe531f4583c9ccc98077199c2de0144f65db09c425d538e906f25",
+  "analyzer_sha256": "9a358ed539f22332ab6800a17839b1466166fc2781ce85765f5ec3df5c411b93",
+  "raw_rows_checked": 720,
+  "packet_scores_rebuilt": 2160,
+  "child_parent_projection_verified": true,
+  "packed_control_matches_previous_ranks_packets_scores": true,
+  "complex_questions": 24,
+  "complex_complete_counts": {
+    "packed-ce": 19,
+    "clause-dense": 17,
+    "clause-bm25": 17,
+    "clause-rrf": 19,
+    "clause-ce-naive": 19,
+    "clause-ce-grouped": 19
+  },
+  "paired_changes": [
+    {
+      "baseline": "packed-ce",
+      "candidate": "clause-ce-grouped",
+      "questions": 32,
+      "gained": [
+        "V3Q068"
+      ],
+      "regressed": [
+        "V3Q021"
+      ],
+      "net_count": 0
+    },
+    {
+      "baseline": "clause-ce-naive",
+      "candidate": "clause-ce-grouped",
+      "questions": 32,
+      "gained": [],
+      "regressed": [],
+      "net_count": 0
+    },
+    {
+      "baseline": "clause-dense",
+      "candidate": "clause-ce-grouped",
+      "questions": 32,
+      "gained": [
+        "V3Q025",
+        "V3Q026",
+        "V3Q068"
+      ],
+      "regressed": [
+        "V3Q021"
+      ],
+      "net_count": 2
+    },
+    {
+      "baseline": "clause-bm25",
+      "candidate": "clause-ce-grouped",
+      "questions": 32,
+      "gained": [
+        "V3Q026",
+        "V3Q063",
+        "V3Q068"
+      ],
+      "regressed": [
+        "V3Q021"
+      ],
+      "net_count": 2
+    },
+    {
+      "baseline": "clause-rrf",
+      "candidate": "clause-ce-grouped",
+      "questions": 32,
+      "gained": [
+        "V3Q068"
+      ],
+      "regressed": [
+        "V3Q021"
+      ],
+      "net_count": 0
+    }
+  ],
+  "failure_stages": {
+    "packed-ce": {
+      "parent_candidate_missing": 0,
+      "top3_ranking": 5,
+      "assembly_missing": 0
+    },
+    "clause-dense": {
+      "parent_candidate_missing": 0,
+      "top3_ranking": 7,
+      "assembly_missing": 0
+    },
+    "clause-bm25": {
+      "parent_candidate_missing": 1,
+      "top3_ranking": 6,
+      "assembly_missing": 0
+    },
+    "clause-rrf": {
+      "parent_candidate_missing": 0,
+      "top3_ranking": 5,
+      "assembly_missing": 0
+    },
+    "clause-ce-naive": {
+      "parent_candidate_missing": 0,
+      "top3_ranking": 5,
+      "assembly_missing": 0
+    },
+    "clause-ce-grouped": {
+      "parent_candidate_missing": 0,
+      "top3_ranking": 5,
+      "assembly_missing": 0
+    }
+  },
+  "grouped_failures": [
+    {
+      "id": "V3Q021",
+      "query": "京东买的硬盘要返修，你们能替我把照片先倒出来吗？",
+      "category": "colloquial",
+      "stage": "top3_ranking",
+      "evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0013",
+          "text_range": [
+            0,
+            66
+          ],
+          "quote": "1.对于存储类商品，京东不提供数据保存、数据导出服务，请务必在返修前将商品内的数据自行导出，否则若有数据遗失、损坏等京东不承担责任；",
+          "quote_sha256": "ad13cc9a7117f2ca96cbed848495ec9b35ea384965e8651de3f0835ff23ec904",
+          "covered_top3": false,
+          "minimum_parent_rank_prefix": 4
+        }
+      ],
+      "parent_hits": [
+        {
+          "id": "jd-general:c0001",
+          "score": 0.25676965713500977
+        },
+        {
+          "id": "jd-general:c0005",
+          "score": 0.126874640583992
+        },
+        {
+          "id": "jd-general:c0002",
+          "score": 0.0862649455666542
+        },
+        {
+          "id": "jd-digital:c0007",
+          "score": 0.08320765942335129
+        },
+        {
+          "id": "jd-general:c0003",
+          "score": 0.0708773285150528
+        },
+        {
+          "id": "jd-general:c0004",
+          "score": 0.05907363072037697
+        },
+        {
+          "id": "jd-digital:c0006",
+          "score": 0.025306425988674164
+        },
+        {
+          "id": "jd-digital:c0009",
+          "score": 0.011890150606632233
+        },
+        {
+          "id": "jd-digital:c0008",
+          "score": 0.007494776975363493
+        },
+        {
+          "id": "jd-digital:c0010",
+          "score": 6.923041655682027e-05
+        }
+      ],
+      "child_hits": [
+        {
+          "id": "jd-general:clause-5c36f330b3bb73f54159",
+          "score": 0.25676965713500977
+        },
+        {
+          "id": "jd-general:clause-cf5f2c4c64739f9c3af3",
+          "score": 0.126874640583992
+        },
+        {
+          "id": "jd-general:clause-36d627bab0c4e2e69ea0",
+          "score": 0.0862649455666542
+        },
+        {
+          "id": "jd-digital:clause-5b66b8beae5eb25e6205",
+          "score": 0.08320765942335129
+        },
+        {
+          "id": "jd-general:clause-2eec948d8880d8a3912c",
+          "score": 0.0708773285150528
+        },
+        {
+          "id": "jd-general:clause-f5353f247d2e55f69592",
+          "score": 0.05907363072037697
+        },
+        {
+          "id": "jd-digital:clause-0cf7b908abc9502c243e",
+          "score": 0.025306425988674164
+        },
+        {
+          "id": "jd-digital:clause-19bae4d00dd43d9e78d1",
+          "score": 0.016256058588624
+        },
+        {
+          "id": "jd-digital:clause-8b217935d86869e67787",
+          "score": 0.014556501992046833
+        },
+        {
+          "id": "jd-digital:clause-55ab4178f1ae3742447a",
+          "score": 0.013409738428890705
+        },
+        {
+          "id": "jd-digital:clause-f16747d0b6d758968c56",
+          "score": 0.011890150606632233
+        },
+        {
+          "id": "jd-digital:clause-57d847fe28874d54356d",
+          "score": 0.01015257928520441
+        },
+        {
+          "id": "jd-general:clause-9c25fb9470b77ec2162f",
+          "score": 0.00904768891632557
+        },
+        {
+          "id": "jd-digital:clause-90b75fff93e80604f71a",
+          "score": 0.007494776975363493
+        },
+        {
+          "id": "jd-digital:clause-38cd7fcb815ee7127875",
+          "score": 0.006120617035776377
+        },
+        {
+          "id": "jd-digital:clause-5c0d1de449b5571687c3",
+          "score": 0.002636493183672428
+        },
+        {
+          "id": "jd-general:clause-ce574c7766ab0b6dc0c7",
+          "score": 0.0021979042794555426
+        },
+        {
+          "id": "jd-general:clause-03209bece4752e60640b",
+          "score": 0.0016042398056015372
+        },
+        {
+          "id": "jd-general:clause-4b70f1259d527459fbb7",
+          "score": 0.0012256416957825422
+        },
+        {
+          "id": "jd-digital:clause-b0ce09141b87333e1372",
+          "score": 6.923041655682027e-05
+        }
+      ]
+    },
+    {
+      "id": "V3Q022",
+      "query": "京东买的手机卡顿，刷个系统就能好，也一定要整机退回吗？",
+      "category": "colloquial",
+      "stage": "top3_ranking",
+      "evidence": [
+        {
+          "source_id": "jd-digital",
+          "raw_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+          "block_id": "jd-digital:b0015",
+          "text_range": [
+            0,
+            52
+          ],
+          "quote": "3.手机、数码、IT类商品通过软件升级可以排除的故障，可送至当地生产厂家指定或特约售后服务中心升级即可；",
+          "quote_sha256": "57cabedaae9b5772d43101736c7c7d6eb5bc60506ca0b386371a21aca664bf43",
+          "covered_top3": false,
+          "minimum_parent_rank_prefix": 8
+        }
+      ],
+      "parent_hits": [
+        {
+          "id": "jd-general:c0005",
+          "score": 0.45839259028434753
+        },
+        {
+          "id": "jd-general:c0001",
+          "score": 0.18837426602840424
+        },
+        {
+          "id": "jd-general:c0004",
+          "score": 0.06892449408769608
+        },
+        {
+          "id": "jd-digital:c0008",
+          "score": 0.039627231657505035
+        },
+        {
+          "id": "jd-general:c0003",
+          "score": 0.030010655522346497
+        },
+        {
+          "id": "jd-digital:c0006",
+          "score": 0.010417448356747627
+        },
+        {
+          "id": "jd-digital:c0009",
+          "score": 0.009652560576796532
+        },
+        {
+          "id": "jd-digital:c0007",
+          "score": 0.003278319491073489
+        },
+        {
+          "id": "jd-digital:c0010",
+          "score": 6.015144390403293e-05
+        }
+      ],
+      "child_hits": [
+        {
+          "id": "jd-general:clause-bfffc954ff054bda0aac",
+          "score": 0.45839259028434753
+        },
+        {
+          "id": "jd-general:clause-cf5f2c4c64739f9c3af3",
+          "score": 0.4181131422519684
+        },
+        {
+          "id": "jd-general:clause-5c36f330b3bb73f54159",
+          "score": 0.18837426602840424
+        },
+        {
+          "id": "jd-general:clause-0702d904caf3e54c6331",
+          "score": 0.1110568642616272
+        },
+        {
+          "id": "jd-general:clause-8131b914760012a2e8b4",
+          "score": 0.06892449408769608
+        },
+        {
+          "id": "jd-digital:clause-90b75fff93e80604f71a",
+          "score": 0.039627231657505035
+        },
+        {
+          "id": "jd-general:clause-2eec948d8880d8a3912c",
+          "score": 0.030010655522346497
+        },
+        {
+          "id": "jd-general:clause-34f9139bbf087e9a59b9",
+          "score": 0.015709998086094856
+        },
+        {
+          "id": "jd-general:clause-04ee09417f2d6516e4c7",
+          "score": 0.011571094393730164
+        },
+        {
+          "id": "jd-digital:clause-8b217935d86869e67787",
+          "score": 0.010417448356747627
+        },
+        {
+          "id": "jd-digital:clause-e20f18b8f46d1c51df19",
+          "score": 0.009652560576796532
+        },
+        {
+          "id": "jd-general:clause-9c25fb9470b77ec2162f",
+          "score": 0.007486000191420317
+        },
+        {
+          "id": "jd-general:clause-db5bc7fdd625859f2c22",
+          "score": 0.007039932534098625
+        },
+        {
+          "id": "jd-digital:clause-5b66b8beae5eb25e6205",
+          "score": 0.003278319491073489
+        },
+        {
+          "id": "jd-digital:clause-0cf7b908abc9502c243e",
+          "score": 0.0024359202943742275
+        },
+        {
+          "id": "jd-digital:clause-38cd7fcb815ee7127875",
+          "score": 0.0023057458456605673
+        },
+        {
+          "id": "jd-general:clause-ce574c7766ab0b6dc0c7",
+          "score": 0.0017403049860149622
+        },
+        {
+          "id": "jd-general:clause-03209bece4752e60640b",
+          "score": 0.0017284613568335772
+        },
+        {
+          "id": "jd-general:clause-4b70f1259d527459fbb7",
+          "score": 0.0008376832120120525
+        },
+        {
+          "id": "jd-digital:clause-b0ce09141b87333e1372",
+          "score": 6.015144390403293e-05
+        }
+      ]
+    },
+    {
+      "id": "V3Q028",
+      "query": "有品退货我在寄回路上弄丢了，你们能照样给我退款吧？",
+      "category": "colloquial",
+      "stage": "top3_ranking",
+      "evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0086",
+          "text_range": [
+            0,
+            55
+          ],
+          "quote": "8. 用户在退还商品的途中，有责任保证所退还商品的安全及完整，如退还途中出现丢失、损坏等情形，责任由用户承担。",
+          "quote_sha256": "83afd51bc3ea6df33c5f45a55285808480262d08d01adb863b9d93f952ed0ed3",
+          "covered_top3": false,
+          "minimum_parent_rank_prefix": 9
+        }
+      ],
+      "parent_hits": [
+        {
+          "id": "mi-self-operated:c0015",
+          "score": 0.7388761043548584
+        },
+        {
+          "id": "mi-self-operated:c0011",
+          "score": 0.6490576267242432
+        },
+        {
+          "id": "mi-self-operated:c0023",
+          "score": 0.6188387274742126
+        },
+        {
+          "id": "mi-self-operated:c0022",
+          "score": 0.4137561619281769
+        },
+        {
+          "id": "mi-self-operated:c0024",
+          "score": 0.3743538558483124
+        },
+        {
+          "id": "mi-self-operated:c0013",
+          "score": 0.2920144200325012
+        },
+        {
+          "id": "mi-self-operated:c0016",
+          "score": 0.28528451919555664
+        },
+        {
+          "id": "mi-self-operated:c0012",
+          "score": 0.2469647377729416
+        },
+        {
+          "id": "mi-self-operated:c0025",
+          "score": 0.24645547568798065
+        },
+        {
+          "id": "mi-self-operated:c0019",
+          "score": 0.19983123242855072
+        },
+        {
+          "id": "mi-self-operated:c0014",
+          "score": 0.1973722130060196
+        },
+        {
+          "id": "mi-self-operated:c0021",
+          "score": 0.17273806035518646
+        },
+        {
+          "id": "mi-self-operated:c0020",
+          "score": 0.09377598762512207
+        }
+      ],
+      "child_hits": [
+        {
+          "id": "mi-self-operated:clause-29887444ba741baf80b7",
+          "score": 0.7388761043548584
+        },
+        {
+          "id": "mi-self-operated:clause-985baf1930672e7ff7ac",
+          "score": 0.6490576267242432
+        },
+        {
+          "id": "mi-self-operated:clause-0afcdc51c11b8d877e50",
+          "score": 0.6188387274742126
+        },
+        {
+          "id": "mi-self-operated:clause-8818cdb0bc856bf82025",
+          "score": 0.4137561619281769
+        },
+        {
+          "id": "mi-self-operated:clause-1a5d0979f1b0c819db5b",
+          "score": 0.3743538558483124
+        },
+        {
+          "id": "mi-self-operated:clause-502bdce897e4b5a08499",
+          "score": 0.2982413172721863
+        },
+        {
+          "id": "mi-self-operated:clause-3cbeabec059d998e8dbc",
+          "score": 0.2920144200325012
+        },
+        {
+          "id": "mi-self-operated:clause-7808abc225d48c8eb680",
+          "score": 0.28528451919555664
+        },
+        {
+          "id": "mi-self-operated:clause-b57ff03f0d5533e29bbd",
+          "score": 0.2469647377729416
+        },
+        {
+          "id": "mi-self-operated:clause-f7fa307d1f85ae22eca7",
+          "score": 0.24645547568798065
+        },
+        {
+          "id": "mi-self-operated:clause-d6d6b7dca44b77a89141",
+          "score": 0.19983123242855072
+        },
+        {
+          "id": "mi-self-operated:clause-63b721263a2b3c36faeb",
+          "score": 0.1973722130060196
+        },
+        {
+          "id": "mi-self-operated:clause-aed35afc42fb5fa7a0df",
+          "score": 0.18100246787071228
+        },
+        {
+          "id": "mi-self-operated:clause-9d3e7c4c17cca6b2ae6a",
+          "score": 0.17273806035518646
+        },
+        {
+          "id": "mi-self-operated:clause-0c56ac85c9620cab5814",
+          "score": 0.1394929438829422
+        },
+        {
+          "id": "mi-self-operated:clause-214f4832d02da946fdd2",
+          "score": 0.09377598762512207
+        },
+        {
+          "id": "mi-self-operated:clause-e12d37a3accfd89e7338",
+          "score": 0.08354323357343674
+        },
+        {
+          "id": "mi-self-operated:clause-000af00ce764566e067a",
+          "score": 0.05415430665016174
+        },
+        {
+          "id": "mi-self-operated:clause-08d0aa5a43903247b607",
+          "score": 0.053128432482481
+        },
+        {
+          "id": "mi-self-operated:clause-26ae37402dac3d6ebf6f",
+          "score": 0.03228936716914177
+        }
+      ]
+    },
+    {
+      "id": "V3Q062",
+      "query": "京东非京东物流送来的商品，物流缺签收时间，退换窗口和收货日如何确认？",
+      "category": "compound",
+      "stage": "top3_ranking",
+      "evidence": [
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+          "block_id": "jd-general:b0003",
+          "text_range": [
+            0,
+            67
+          ],
+          "quote": "京东承诺符合以下情况，自客户收到商品之日起7日内可以退货，15日内可以换货，客户可在线提交返修申请办理退换货事宜。具体退换货标准如下：",
+          "quote_sha256": "cc89d08e3206d50865730bf723d0e1f902bbd9140f8ff8330cd36ece43b1590e",
+          "covered_top3": false,
+          "minimum_parent_rank_prefix": 6
+        },
+        {
+          "source_id": "jd-general",
+          "raw_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+          "block_id": "jd-general:b0008",
+          "text_range": [
+            0,
+            79
+          ],
+          "quote": "（2）非京东配送的订单，按照第三方物流平台显示的实际到货日期为准。如果第三方合作伙伴不能有效返回签收日期，则京东客服根据距离等因素和客户人工确认实际到货日期。",
+          "quote_sha256": "085b468bda07272696232afc3b5776cde1a7a3bfb58bb6c5543505670bd6195c",
+          "covered_top3": true,
+          "minimum_parent_rank_prefix": 1
+        }
+      ],
+      "parent_hits": [
+        {
+          "id": "jd-general:c0004",
+          "score": 0.9927095174789429
+        },
+        {
+          "id": "jd-general:c0002",
+          "score": 0.8849411010742188
+        },
+        {
+          "id": "jd-general:c0005",
+          "score": 0.8414390683174133
+        },
+        {
+          "id": "jd-digital:c0007",
+          "score": 0.7084011435508728
+        },
+        {
+          "id": "jd-digital:c0006",
+          "score": 0.61281818151474
+        },
+        {
+          "id": "jd-general:c0001",
+          "score": 0.5910265445709229
+        },
+        {
+          "id": "jd-digital:c0008",
+          "score": 0.5444307923316956
+        },
+        {
+          "id": "jd-general:c0003",
+          "score": 0.46671944856643677
+        },
+        {
+          "id": "jd-digital:c0009",
+          "score": 0.36959144473075867
+        }
+      ],
+      "child_hits": [
+        {
+          "id": "jd-general:clause-db5bc7fdd625859f2c22",
+          "score": 0.9927095174789429
+        },
+        {
+          "id": "jd-general:clause-19a6cba9347382f0958c",
+          "score": 0.9048866629600525
+        },
+        {
+          "id": "jd-general:clause-36d627bab0c4e2e69ea0",
+          "score": 0.8849411010742188
+        },
+        {
+          "id": "jd-general:clause-9c25fb9470b77ec2162f",
+          "score": 0.8414390683174133
+        },
+        {
+          "id": "jd-general:clause-ce574c7766ab0b6dc0c7",
+          "score": 0.8151354789733887
+        },
+        {
+          "id": "jd-digital:clause-55ab4178f1ae3742447a",
+          "score": 0.7084011435508728
+        },
+        {
+          "id": "jd-digital:clause-19bae4d00dd43d9e78d1",
+          "score": 0.61281818151474
+        },
+        {
+          "id": "jd-general:clause-5c36f330b3bb73f54159",
+          "score": 0.5910265445709229
+        },
+        {
+          "id": "jd-digital:clause-57d847fe28874d54356d",
+          "score": 0.5705501437187195
+        },
+        {
+          "id": "jd-digital:clause-38cd7fcb815ee7127875",
+          "score": 0.5444307923316956
+        },
+        {
+          "id": "jd-digital:clause-8b217935d86869e67787",
+          "score": 0.4702460765838623
+        },
+        {
+          "id": "jd-general:clause-0702d904caf3e54c6331",
+          "score": 0.46747490763664246
+        },
+        {
+          "id": "jd-general:clause-2eec948d8880d8a3912c",
+          "score": 0.46671944856643677
+        },
+        {
+          "id": "jd-digital:clause-f16747d0b6d758968c56",
+          "score": 0.36959144473075867
+        },
+        {
+          "id": "jd-digital:clause-2bbb88768cf5f26d9554",
+          "score": 0.3678496479988098
+        },
+        {
+          "id": "jd-digital:clause-5c0d1de449b5571687c3",
+          "score": 0.31285902857780457
+        },
+        {
+          "id": "jd-general:clause-04ee09417f2d6516e4c7",
+          "score": 0.1760128289461136
+        },
+        {
+          "id": "jd-general:clause-8131b914760012a2e8b4",
+          "score": 0.1380101889371872
+        },
+        {
+          "id": "jd-digital:clause-90b75fff93e80604f71a",
+          "score": 0.13568387925624847
+        },
+        {
+          "id": "jd-digital:clause-5b66b8beae5eb25e6205",
+          "score": 0.061973463743925095
+        }
+      ]
+    },
+    {
+      "id": "V3Q065",
+      "query": "有品自营质量问题申请退换，检测和双向运费分别怎么处理？",
+      "category": "compound",
+      "stage": "top3_ranking",
+      "evidence": [
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0008",
+          "text_range": [
+            76,
+            98
+          ],
+          "quote": "经由小米售后服务中心检测确认，并出具检测报告",
+          "quote_sha256": "d6dd9908b08cbba26d5a2ce77e3cd996c992c67bc8e5630ff19ecf0af2957471",
+          "covered_top3": false,
+          "minimum_parent_rank_prefix": 8
+        },
+        {
+          "source_id": "mi-self-operated",
+          "raw_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+          "block_id": "mi-self-operated:b0046",
+          "text_range": [
+            0,
+            67
+          ],
+          "quote": "b. 质量问题退换货，经检测后符合退换货标准，双向物流费由小米承担，如不符合退换货标准小米将按原地址寄回商品，双向物流费由您自行承担。",
+          "quote_sha256": "97c8d1f4eba2fd275cc081919c98ea588d7ea29d1c14b162cf8528f6ae8aaf38",
+          "covered_top3": true,
+          "minimum_parent_rank_prefix": 1
+        }
+      ],
+      "parent_hits": [
+        {
+          "id": "mi-self-operated:c0016",
+          "score": 0.9947668313980103
+        },
+        {
+          "id": "mi-self-operated:c0015",
+          "score": 0.9721020460128784
+        },
+        {
+          "id": "mi-self-operated:c0020",
+          "score": 0.9259965419769287
+        },
+        {
+          "id": "mi-self-operated:c0023",
+          "score": 0.918373703956604
+        },
+        {
+          "id": "mi-self-operated:c0011",
+          "score": 0.8943145871162415
+        },
+        {
+          "id": "mi-self-operated:c0022",
+          "score": 0.884865939617157
+        },
+        {
+          "id": "mi-self-operated:c0014",
+          "score": 0.7703288197517395
+        },
+        {
+          "id": "mi-self-operated:c0012",
+          "score": 0.7440387606620789
+        },
+        {
+          "id": "mi-self-operated:c0017",
+          "score": 0.6712530255317688
+        },
+        {
+          "id": "mi-self-operated:c0019",
+          "score": 0.5869894027709961
+        },
+        {
+          "id": "mi-self-operated:c0021",
+          "score": 0.38258081674575806
+        }
+      ],
+      "child_hits": [
+        {
+          "id": "mi-self-operated:clause-7808abc225d48c8eb680",
+          "score": 0.9947668313980103
+        },
+        {
+          "id": "mi-self-operated:clause-5abda25099863d09d821",
+          "score": 0.9783132672309875
+        },
+        {
+          "id": "mi-self-operated:clause-502bdce897e4b5a08499",
+          "score": 0.9721020460128784
+        },
+        {
+          "id": "mi-self-operated:clause-214f4832d02da946fdd2",
+          "score": 0.9259965419769287
+        },
+        {
+          "id": "mi-self-operated:clause-e116faacf7027a3ccc68",
+          "score": 0.918373703956604
+        },
+        {
+          "id": "mi-self-operated:clause-985baf1930672e7ff7ac",
+          "score": 0.8943145871162415
+        },
+        {
+          "id": "mi-self-operated:clause-2f5168b3efcd22cbed07",
+          "score": 0.884865939617157
+        },
+        {
+          "id": "mi-self-operated:clause-29887444ba741baf80b7",
+          "score": 0.8723468780517578
+        },
+        {
+          "id": "mi-self-operated:clause-3e23b067f8c7ded5f717",
+          "score": 0.8658960461616516
+        },
+        {
+          "id": "mi-self-operated:clause-5a255324d11dc1a8e26e",
+          "score": 0.7703288197517395
+        },
+        {
+          "id": "mi-self-operated:clause-0c56ac85c9620cab5814",
+          "score": 0.7440387606620789
+        },
+        {
+          "id": "mi-self-operated:clause-17e13bf8042aee6e8802",
+          "score": 0.6712530255317688
+        },
+        {
+          "id": "mi-self-operated:clause-d6d6b7dca44b77a89141",
+          "score": 0.5869894027709961
+        },
+        {
+          "id": "mi-self-operated:clause-20b9111446953364256a",
+          "score": 0.5135186314582825
+        },
+        {
+          "id": "mi-self-operated:clause-b0b5a9105534f8ec2efa",
+          "score": 0.40065857768058777
+        },
+        {
+          "id": "mi-self-operated:clause-08d0aa5a43903247b607",
+          "score": 0.38258081674575806
+        },
+        {
+          "id": "mi-self-operated:clause-26ae37402dac3d6ebf6f",
+          "score": 0.36295515298843384
+        },
+        {
+          "id": "mi-self-operated:clause-e88c3fa3930d871ca5f5",
+          "score": 0.27384236454963684
+        },
+        {
+          "id": "mi-self-operated:clause-71a3f7a3d8476f0a767c",
+          "score": 0.2165738344192505
+        },
+        {
+          "id": "mi-self-operated:clause-556ea2f907c3ebb08f30",
+          "score": 0.17687974870204926
+        }
+      ]
+    }
+  ],
+  "measured_ce_pairs": 6315,
+  "generic_warmup_ce_pairs": 8,
+  "measured_ce_max_tokens": 289,
+  "top3_budget_skips": 0,
+  "new_generation_api_calls": 0,
+  "acceptance_rankings": 0,
+  "all_parent_rankings_stable": true
+}
