@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-25",
+  "runtime_sha256": "47e3e543aeb24797f2c4bad0c9b9a210fa31e1d8139ffb0e65bb96509565f9f6",
+  "review_sha256": "736f14f121a7b0d9e2ecfe60ae3c2442100328d7008a60abcb5bac6e9469e464",
+  "scenario_success_agent": [
+    28,
+    32
+  ],
+  "scenario_success_workflow": [
+    15,
+    32
+  ],
+  "agent_first_body_samples": 49,
+  "agent_first_body_mean_ms": 3369.3232653063114,
+  "agent_first_body_mean_seconds_rounded": 3.37,
+  "agent_first_body_p50_ms": 3046.4490999984264,
+  "timing_scope": "SERVER_RETAINED_BODY_SUCCESSFUL_PUBLICATIONS",
+  "chat_application_creation_in_comparison": false,
+  "new_model_requests": 0
+}
