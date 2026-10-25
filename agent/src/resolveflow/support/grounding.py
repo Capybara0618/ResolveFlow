@@ -81,9 +81,11 @@ def value_for(field: str, source: dict[str, Any], request: SupportInput) -> str:
 
 
 def ground_answer(
-    decision: Answer | AnswerParts, request: SupportInput, citations: dict[str, dict[str, Any]]
+    decision: Answer | AnswerParts, request: SupportInput, citations: dict[str, dict[str, Any]], *,
+    deduplicate: bool = False,
 ) -> Answer | AnswerParts:
     structured = decision.fact_rendering == FACT_RENDERING_VERSION
+    displayed: set[tuple[str, str]] = set()
 
     def render(text: str, facts: list[AnswerFact], refs: list[str]) -> tuple[str, list[str]]:
         refs = list(refs)
@@ -101,7 +103,12 @@ def ground_answer(
             value = value_for(fact.field, citations.get(fact.source, {}), request)
             if structured:
                 display = value if fact.field == "PAID_AMOUNT" else STATUS_LABELS.get(value, value)
-                lines.append(FACT_LABELS[fact.field] + "：" + display + "。")
+                identity = (fact.field, fact.source)
+                # Suppress only repeated presentation of the same observed field. Each task still
+                # validates and retains its facts/citations; different observations remain distinct.
+                if not deduplicate or identity not in displayed:
+                    lines.append(FACT_LABELS[fact.field] + "：" + display + "。")
+                displayed.add(identity)
             else:
                 text = text.replace(marker, value)
             if fact.source not in refs:
