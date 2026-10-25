@@ -1,4 +1,9 @@
-## 当前快照（2026-10-25，用户重启后原PG恢复验证通过）
+## 当前快照（2026-10-25，真实等待分解单轮准备）
+
+- 用户要求开始Agent优化主线，按[本批说明](../docs/customer-wait-profile-live-v1.md)/[报告](../reports/customer-wait-profile-live-v1/README.md)冻结一个新合成LOST订单/空会话，原问题只发一次、最多12新模型请求、不确认/转交/Case。复用已验证准备/计账路径，新wrapper Ruff过，0模型、usage2378，未发送问题。
+- 原四类队列0后正式start -SkipBuild -NoBrowser保留原数据/精确索引；计数器启动READY360.962ms、embedding/BM25预热31388.657ms单列，非客户等待。精确commit普通push核实后CUA实际渐进正文与同run模型/工具日志对齐，按实测决定优化，不追题或更换框架；原四历史脏文件保持。
+
+## 历史快照（2026-10-25，用户重启后原PG恢复验证通过）
 
 - 用户重启后当前排除表不含55433；直接启动原2697eb86cf0b容器/原卷成功，经原端口连接，公共11表内容hash及行数与最后页面验收后快照全部相同。[重启后证据](../reports/postgres-port-investigation-v1/after-reboot.json)/[更新说明](../reports/postgres-port-investigation-v1/README.md)。当前无需改端口/迁库，先前建议不再实施；保留此前限制证据，创建者仍未知。
 - 本轮只读验证，0模型/Java业务；未启动应用worker，验证后恢复原PG停止，数据卷/Docker保留、项目关闭。Agent修正15aaab2已同步，真实首正文4秒仍未实测；后续回到Agent等待主线由用户指定。文档/证据检查后精确commit普通push核实，本轮停止写入，原四历史脏文件保持。
