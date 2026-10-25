@@ -1,0 +1,293 @@
+[
+  {
+    "id": "jd-general",
+    "subject": "EXTERNAL:JD",
+    "title": "京东售后服务总则",
+    "url": "https://help.jd.com/user/issue/126-406.html",
+    "encoding": "gb18030",
+    "selector": {
+      "tag": "div",
+      "class": "content"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "fc02aadbeb9393abe176b07664424ce07ce693f8f1262a4aa4cb4aec5f0bc8bd",
+    "structure_risks": [
+      "table",
+      "notes",
+      "exceptions",
+      "navigation_noise"
+    ],
+    "snapshot_path": "tmp/policy-documents-v1/jd-general.html",
+    "capture_path": "tmp/policy-documents-v1/jd-general.capture.json",
+    "snapshot_lineage": "reused-2026-10-05-frozen-source"
+  },
+  {
+    "id": "jd-digital",
+    "subject": "EXTERNAL:JD",
+    "title": "京东数码类目售后说明",
+    "url": "https://help.jd.com/user/issue/325-915.html",
+    "encoding": "gb18030",
+    "selector": {
+      "tag": "div",
+      "class": "content"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "41a42945549a2cfb677b3c4d38bfaa90e1d5053c57c7d8941141eec84f305968",
+    "structure_risks": [
+      "category_conditions",
+      "lists",
+      "navigation_noise"
+    ],
+    "snapshot_path": "tmp/policy-documents-v1/jd-digital.html",
+    "capture_path": "tmp/policy-documents-v1/jd-digital.capture.json",
+    "snapshot_lineage": "reused-2026-10-05-frozen-source"
+  },
+  {
+    "id": "mi-self-operated",
+    "subject": "EXTERNAL:MIYOUPIN",
+    "title": "小米有品自营商品售后规则",
+    "url": "https://home.mi.com/app/shop/content?id=rb2051039f9de31b4",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "id": "wrap"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "811135156fe418853f366a8516e19ead0ae120c0053b2a1b74f233a8a98cb07b",
+    "structure_risks": [
+      "table",
+      "nested_exceptions",
+      "cross_section_reference"
+    ],
+    "snapshot_path": "tmp/policy-documents-v1/mi-self-operated.html",
+    "capture_path": "tmp/policy-documents-v1/mi-self-operated.capture.json",
+    "snapshot_lineage": "reused-2026-10-05-frozen-source"
+  },
+  {
+    "id": "ikea-terms",
+    "subject": "EXTERNAL:IKEA_CN",
+    "title": "宜家电商使用条款",
+    "url": "https://www.ikea.cn/cn/zh/customer-service/terms-conditions/",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "bcms-rich-text__content"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "b7f363054261c834c4d59a45ad21f0944049a5e723ac1931c64cf426c24dcc95",
+    "structure_risks": [
+      "long_document",
+      "mixed_topics",
+      "inline_section_titles"
+    ],
+    "snapshot_path": "tmp/policy-documents-v1/ikea-terms.html",
+    "capture_path": "tmp/policy-documents-v1/ikea-terms.capture.json",
+    "snapshot_lineage": "reused-2026-10-05-frozen-source"
+  },
+  {
+    "id": "apple-returns",
+    "subject": "EXTERNAL:APPLE_CN",
+    "title": "Apple中国大陆退货与退款",
+    "url": "https://www.apple.com.cn/shop/help/returns_refund",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "rf-helpdetails-categorysection"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "0cd8d1b090fbae26963fc9d04b1d621675c5e030446303bfd4e08daa5945eaa0",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/apple-returns.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/apple-returns.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "apple-orders",
+    "subject": "EXTERNAL:APPLE_CN",
+    "title": "Apple中国大陆查看与更改订单",
+    "url": "https://www.apple.com.cn/shop/help/viewing_changing_orders",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "rf-helpdetails-categorysection"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "ab5c64e51ed7db0c89c1f57ef27e08658825bdd54382e900efacc12bb8d8be28",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/apple-orders.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/apple-orders.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "apple-shipping",
+    "subject": "EXTERNAL:APPLE_CN",
+    "title": "Apple中国大陆发货与交货",
+    "url": "https://www.apple.com.cn/shop/help/shipping_delivery",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "rf-helpdetails-categorysection"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "4453a615362d7e1720a89bfddcbc3b78033cc014a782174ed26ceccc40a4bb03",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/apple-shipping.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/apple-shipping.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "huawei-phone",
+    "subject": "EXTERNAL:HUAWEI_CN",
+    "title": "华为手机产品服务政策",
+    "url": "https://consumer.huawei.com/cn/support/content/zh-cn15868840/",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "id": "jd-content"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "20abfcb626da8e36701400a65314b076872ab358ebddea7e8e4053d29981388a",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/huawei-phone.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/huawei-phone.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "huawei-laptop",
+    "subject": "EXTERNAL:HUAWEI_CN",
+    "title": "华为笔记本产品服务政策",
+    "url": "https://consumer.huawei.com/cn/support/content/zh-cn15868356/",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "id": "jd-content"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "88e22b7999a06ec0e5639b665599079d07037246828e1f396ee0338b4196317c",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/huawei-laptop.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/huawei-laptop.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "sony-service",
+    "subject": "EXTERNAL:SONY_CN",
+    "title": "索尼产品保修退换货及收费政策",
+    "url": "https://service.sony.com.cn/content/casch/serviceinfo/servicepolicy.html",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "full-main"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "47247bd29cba34bb76ad2165c8ed92bf248be887025b3a19e2621239fc287e50",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/sony-service.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/sony-service.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "sony-warranty",
+    "subject": "EXTERNAL:SONY_CN",
+    "title": "索尼服务站三包法规",
+    "url": "https://service.sony.com.cn/content/casch/serviceinfo/warrantyinfo.html",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "full-main"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "74e1e97df85cb7d4e139288ee6e4a4d2d61556695d4e8059634c1c446a663fee",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/sony-warranty.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/sony-warranty.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "samsung-conditions",
+    "subject": "EXTERNAL:SAMSUNG_CN",
+    "title": "三星商城退换货适用条件",
+    "url": "https://www.samsung.com.cn/shop-faq/after-sale/what-conditions-apply-to-returns-and-exchanges/",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "textblock__body"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "fe884c09412f0cc6b0f435fbcca35e7ff626e2fa427c662be9f5fc281701e968",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/samsung-conditions.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/samsung-conditions.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "samsung-notes",
+    "subject": "EXTERNAL:SAMSUNG_CN",
+    "title": "三星商城退换货特别注意事项",
+    "url": "https://www.samsung.com.cn/shop-faq/after-sale/special-notes-for-return-and-exchange/",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "textblock__body"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "caebab7de815b37bdea5565703fb23d80334ef46d407dc8d62388464d6b6efb0",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/samsung-notes.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/samsung-notes.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "samsung-refund",
+    "subject": "EXTERNAL:SAMSUNG_CN",
+    "title": "三星商城如何收到退款",
+    "url": "https://www.samsung.com.cn/shop-faq/after-sale/how-long-will-it-take-to-receive-a-refund/",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "textblock__body"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "d8552b650a3088bf3b5094093a757aa7d075b8c84544d70ed9392da094285231",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/samsung-refund.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/samsung-refund.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  },
+  {
+    "id": "ikea-returns",
+    "subject": "EXTERNAL:IKEA_CN",
+    "title": "宜家中国退货政策",
+    "url": "https://www.ikea.cn/cn/zh/customer-service/returns-claims/return-policy/",
+    "encoding": "utf-8",
+    "selector": {
+      "tag": "div",
+      "class": "bcms-rich-text__content"
+    },
+    "effective_from": null,
+    "role": "EXTERNAL_REFERENCE",
+    "adopted_by_project_merchant": false,
+    "expected_sha256": "51082fab8c38e35c38b128f16d5b81fe5635d0cc8a2f090c278975e5fc864f59",
+    "snapshot_path": "tmp/customer-rag-quantification-v3/raw/ikea-returns.html",
+    "capture_path": "tmp/customer-rag-quantification-v3/raw/ikea-returns.capture.json",
+    "snapshot_lineage": "new-2026-10-25"
+  }
+]
