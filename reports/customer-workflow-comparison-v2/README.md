@@ -67,3 +67,11 @@ prepare汇总新增真实发送计数、被拦截调用、已知/估算/未知us
 测试过程中先模块缺失收集失败；独立矩阵测试datetime序列化修正；第二轮测试脚本错误ADD与旧事项冲突后改CONTINUE；恢复测试重建deadline触发INPUT_MISMATCH后改用原持久输入，没有放松生产fence/输入合同。性能新增关键检查先3失败/9通过，补实现后通过；Ruff导入/行长修正。一次全驱动测试对transport=None使用setdefault没覆盖，Agent持测试假凭据尝试供应商并被ModelRefusedError拒绝（非有效账号生成，无法确认具体HTTP码）；修复为显式覆盖None，随后1/3上限测试全部由MockTransport接管。该次拒绝网络尝试1单列，不能宣称绝对零网络；真实计费账本仍3053，没有使用有效凭据的新生成或付费评测。
 
 [驱动预检](driver-preflight.json)已通过原PG32场景/每场景六政策/public一致（当时尚未冻结，manifest_checked=false）；[当前审计](driver-audit.json)记录基线及Live执行器已实现、质量未测。旧设计审计、旧正式128会话/600检索及负向结论不回写。下一步仅完成新manifest冻结核验和保留审计，再等待正式测量要求；既有RAG对照独立保留，不自动重跑检索或选择有利主候选。
+
+## 准备收尾（2026-10-25）
+
+双组驱动a941206已普通push核实。执行`customer_workflow_comparison_live freeze`生成[新执行manifest](../../evals/customer-workflow-comparison-v2/execution-manifest.json)，绑定142文件及数据/模型参数；随后`check --output reports/customer-workflow-comparison-v2/frozen-preflight.json`通过，manifest_checked=true。命令和正式运行/源审步骤见[使用说明](how-to-run.md)。未发起正式收费对照，400仍是建议上限。
+
+[最终保留审计](final-preparation-audit.json)核实原public11表与中性源步骤前相同、0自有/测试schema遗留、四历史脏文件字节一致、旧正式11报告及188历史报告hash一致、旧Agent/RAG manifest不变、ledger3053/无lock。原PG容器/原卷保持且55433监听；5174/8180–8183无监听，本轮未启停Java/UI；这里只重启过一次当时已退出的原PG。一次Docker inspect模板对bind mount取Name失败，随后用JSON结构检查卷通过，没有修改挂载。未改简历，RAG/Agent新业务指标仍为空。
+
+当前交付为可执行评测设施及已知批量合同修复，不是新效果结论。剩余工作是用户安排后执行一次新完整配对、逐轮源审、汇总实际优劣及展示案例；不再以离线通过数量替代业务验收，也不自动追加重复或改判据追分。

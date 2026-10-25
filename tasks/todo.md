@@ -1,4 +1,10 @@
-## 当前快照（2026-10-25，独立双组驱动/计量完成，待新manifest核验）
+## 当前快照（2026-10-25，独立对照准备已完成并冻结，正式测量未启动）
+
+- 双组实现a941206已普通push核实，独立Workflow与生产AgentScope分别执行/保存真实历史，共同原始来源和模型参数；56相关检查（含3原PG集成）/九文件Ruff通过。新manifest绑定142文件，原PG只读冻结check通过。[命令与说明](../reports/customer-workflow-comparison-v2/how-to-run.md)/[准备报告](../reports/customer-workflow-comparison-v2/README.md)/E66。
+- 最终审计：public11表/旧正式11报告/188历史报告/旧Agent与RAG manifest/四脏文件保持，0测试schema遗留；真实ledger3053，无有效凭据新生成/新付费测量。1次测试假凭据拒绝网络尝试已单列并修正MockTransport，不写成零网络。原容器/原卷/55433保持，业务端口无监听，未启停Java/UI/改简历。
+- 当前按用户要求准备收口；本步精确提交普通push核实后停止新增写入。下一步是用户安排后一次正式32场景×两组（64会话/100轮）、逐轮源审及主/辅指标汇总；建议400新请求仅计划未消费，当前无新效果数字，不自动追加付费、改旧判据/结果或重跑RAG。
+
+## 历史快照（2026-10-25，独立双组驱动/计量完成，待新manifest核验）
 
 - 中性源批8eff882已普通push核实。双组分别调生产AgentScope与独立Workflow，不继承构造基线；100轮独立历史/实际草稿、全局发送上限、原PG只读+临时schema导出清理接通。8192/1024输入输出统一，tokenizer原始资产共享但基线无Agent上下文依赖。[报告](../reports/customer-workflow-comparison-v2/README.md)/E66。
 - 56相关检查（含3原PG集成）及九文件Ruff通过：两轮两组SDK/PG/SSE桩成功、原输入恢复0新调用、完整驱动1/3请求停且100分母保留、public保持。性能汇总有实际发送/未知估算usage/首正文及最终P50/P95/成功配对，未运行无0耗时。一次测试transport=None漏桩持假凭据请求被拒，已修正后全MockTransport，单列1拒绝网络尝试；有效账号新生成/付费0，真实ledger3053。
