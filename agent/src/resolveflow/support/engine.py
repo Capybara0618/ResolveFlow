@@ -229,7 +229,8 @@ class SupportAgent:
     def _prepare(self, packet: dict[str, Any]) -> tuple[dict[str, Any], list[Any]]:
         system = self.stage.system if self.stage.enabled else SYSTEM
         if self.orchestration is not None:
-            system = system_for(self._readiness()["phase"], self.stage.example_task_id)
+            phase = "GOAL_REVIEW" if self.orchestration.goal_review else self._readiness()["phase"]
+            system = system_for(phase, self.stage.example_task_id)
             if self._readiness()["phase"] == "COMPOSE":
                 assert self.stage.understanding is not None
                 contract = self.orchestration.response_contract(self.stage.understanding, self.citations,

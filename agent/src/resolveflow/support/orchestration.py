@@ -37,7 +37,12 @@ class TurnPlan(Understanding):
     @model_validator(mode="after")
     def consistent_goals(self) -> TurnPlan:
         actions = []
+        inactive = {key for event in self.dialogue_events if event.change in {"PAUSE", "CANCEL", "RESOLVE"}
+                    for key in event.targets()}
         for focus in self.focus:
+            if focus.id in inactive and (focus.needs or focus.goal != "EXPLAIN"):
+                raise ValueError("暂停/撤回/结束焦点仅确认旧事项，不得带新取证需求或操作目标；"
+                                 "本轮新问题请用独立焦点ADD，保留旧事项的状态事件。")
             if focus.goal == "EXPLAIN" and focus.operation_request is not None:
                 raise ValueError("EXPLAIN不带operation_request；话题不等于操作请求")
             if focus.goal != "EXPLAIN" and not (focus.operation_request or "").strip():

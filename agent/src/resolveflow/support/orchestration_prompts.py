@@ -6,6 +6,7 @@ PLAN_SYSTEM = UNDERSTANDING_SYSTEM.replace('"needs":[],"context_refs":[]',
     '"needs":[],"context_refs":[],"goal":"EXPLAIN","operation_request":null') + """
 每个focus增加goal=EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW，在本轮理解选择；产物冲突时仅允许一次目标核对。
 事项身份代表客户正在处理的同一问题，不是固定intent或按钮。继续同一问题且从查询转为准备退款/人工摘要时复用旧id，允许更新intent和goal；旧事项PAUSED须对原id给RESUME及本轮原话，不另建一项后把原问题永远留在暂停。不同问题仍独立ADD，不擅自恢复其他事项。
+暂停准备操作后另问政策等问题：PAUSE事件针对旧准备事项，新问题独立focus/ADD并保留所需POLICY等依据。PAUSE/CANCEL/RESOLVE焦点本身只确认变化，needs空、goal=EXPLAIN；不能把新问题附在已停焦点而跳过取证。
 客户明确要求准备退款原因/申请摘要用PREPARE_REFUND且intent=APPLICATION；仅问条件、入口或暂缓用EXPLAIN。
 要求商家人工核查用MERCHANT_REVIEW且intent=HANDOFF，不需要客户先退款。每种操作目标最多一个焦点。
 先分清言语目的：询问能否办理、条件、如何办理、是否已办理用EXPLAIN；明确请你准备原因/核查摘要才选操作目标。
@@ -22,9 +23,6 @@ customer_claims.topic仅RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER，物流不是topi
 """
 
 INVESTIGATE_SYSTEM = """按已接受stage.focus和orchestration.tasks调查，不重声明意图、目标、事件或客户陈述。
-若orchestration.goal_review存在，先核对current_request、候选产物与已接受目标，不读新工具或直接RESPOND，不把正确人工摘要改写成未请求的退款原因。
-用单JSON：{"kind":"REVIEW_GOAL","task_id":"t1","previous_goal":"PREPARE_REFUND","goal":"MERCHANT_REVIEW","operation_request":"客户本轮要求给商家摘要的实际原句","reason":"核对本轮用途，客户要人工摘要而非退款原因"}。
-goal可确认旧目标或修正为EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW；EXPLAIN省略operation_request，其他须本轮原话。程序保留事项/陈述/已读依据和预算，不创建业务动作；同run仅一次。
 orchestration由程序维护，missing列出本轮尚无合法来源的必要依据；未读取不是来源失败。
 PREPARE_REFUND事项一旦需要SHIPMENT，政策处理条件也是必要依据；POLICY由程序补足时仍用search_policy自主生成场景问题，保留签收争议、丢失等不同前提。
 订单行和主体已绑定。按观察自主选择capabilities工具，不预设全部工具顺序；只读不执行申请/退款。
@@ -38,6 +36,14 @@ READ_FACTS只允许上述两个绑定只读工具各一次，可选policy_query�
 若调查发现原需求缺少必要依据，用{"kind":"REFINE_NEEDS","task_id":"t1","add":["ORDER"],"reason":"核实当前订单"}，最多2次，仅追加尚未声明项。
 source_status禁重试勿重查；失败不能当丢失，已有陈述不重复问。缺依据时继续调查，不写长答案。
 程序在全部事项依据就绪或真实不可重试来源阻碍后切到COMPOSE；提前RESPOND只会返回缺口，不会发布。
+"""
+
+GOAL_REVIEW_SYSTEM = """程序检测到候选产物与目标冲突，本轮仅核对orchestration.goal_review。
+按current_request、已接受目标与候选用途判断，不因之前问过人工就把本轮退款草稿改成人工核查。
+输出单JSON：kind=REVIEW_GOAL，task_id选goal_review.task_ids，previous_goal与该事项当前goal一致。
+goal选EXPLAIN/PREPARE_REFUND/MERCHANT_REVIEW，可确认原目标；reason简述核对理由。
+操作目标给operation_request摘本轮真实请求，EXPLAIN省略。当前目标和候选都不代替本轮原话。
+本次不调用工具或RESPOND，程序保留事项/陈述/已读依据与预算，仅允许一次核对。
 """
 
 COMPOSE_SYSTEM = """按stage.focus及orchestration.tasks给出本轮解释。意图/目标/事项变化已接受，不重复声明。
@@ -65,6 +71,8 @@ BLOCKED的不可用状态/失败工具由程序填充，正文如实说明暂不
 
 
 def system_for(phase: str, example_task_id: str) -> str:
+    if phase == "GOAL_REVIEW":
+        return GOAL_REVIEW_SYSTEM
     if phase == "UNDERSTAND":
         return PLAN_SYSTEM.replace('"t1"', '"' + example_task_id + '"')
     return (COMPOSE_SYSTEM if phase == "COMPOSE" else INVESTIGATE_SYSTEM).replace(

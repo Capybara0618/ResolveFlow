@@ -61,6 +61,8 @@ def test_saved_wrong_refund_goal_keeps_handoff_purpose_with_new_quote_draft_cont
     assert "refund_summary" not in result["answer"] and "正式退款：" not in result["answer"]["text"]
     assert "补充给商家" in result["answer"]["text"]
     assert agent.repairs == 0 and len(agent.orchestration.goal_reviews) == 1
+    assert "REVIEW_GOAL" not in model.conversations[1][0].get_content_blocks()[0].text
+    assert "REVIEW_GOAL" in model.conversations[3][0].get_content_blocks()[0].text
     assert agent.tasks.tasks[0].intent == "HANDOFF"
     assert model.packets[3]["orchestration"]["goal_review"]["candidate_goals"] == ["MERCHANT_REVIEW"]
     assert model.calls == 5 and result["spend"]["model_calls"] == 5

@@ -142,3 +142,41 @@ def test_resume_reuses_original_issue_while_changing_intent_and_goal():
     assert result["status"] == "SUCCEEDED" and agent.repairs == 0 and model.calls == 3
     tasks = result["answer"]["task_state"]["tasks"]
     assert [(t["id"], t["intent"], t["lifecycle"]) for t in tasks] == [("trace", "APPLICATION", "OPEN")]
+
+
+def test_normal_investigation_does_not_expose_goal_review_contract():
+    from tests.unit.test_support_agent import read
+
+    req = request()
+    final = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "原因待本人确认。"}],
+             "refund_reason": {"customer_refs": ["CURRENT"]}}
+    result, _, model, _ = run([plan(req).model_dump(), read("get_order_context"), final], req)
+    assert result["status"] == "SUCCEEDED"
+    investigation = model.conversations[1][0].get_content_blocks()[0].text
+    assert "REVIEW_GOAL" not in investigation
+
+
+def test_pause_acknowledgement_cannot_hide_a_new_policy_question_from_readiness():
+    from resolveflow.support.orchestration import TurnPlan
+    from tests.unit.test_support_agent import read
+
+    req = request(input_version=3)
+    req.context["current_request"] = "先不准备申请，只问这种情况的政策材料要求。"
+    req.context["previous_tasks"] = {"origin": "MODEL_PREVIOUS_TURN", "input_version": 1,
+        "tasks": [{"id": "trace", "intent": "APPLICATION", "request": "准备申请", "status": "ANSWERED"}]}
+    bad = plan(req, goal="EXPLAIN", needs=["POLICY"]).model_dump()
+    bad["dialogue_events"][0]["change"] = "PAUSE"
+    with pytest.raises(ValueError, match="独立焦点"):
+        TurnPlan.model_validate(bad)
+    fixed = deepcopy(bad)
+    fixed["focus"][0].update(id="policy", intent="OTHER")
+    fixed["dialogue_events"].append({"change": "ADD", "task_ids": ["policy"], "reference": "CURRENT",
+                                     "quote": req.context["current_request"]})
+    final = {"kind": "RESPOND", "parts": [{"task_id": "policy", "text": "须按政策核验，未规定固定材料清单。",
+                                            "citations": ["P1"]}]}
+    result, agent, model, sources = run([bad, fixed, read("search_policy", query="当前场景的材料要求"), final], req)
+    assert result["status"] == "SUCCEEDED" and agent.repairs == 1 and model.calls == 4
+    assert "独立焦点" in model.packets[1]["feedback"]
+    assert [name for name, _ in sources.calls] == ["get_support_guide", "search_policy"]
+    assert {t["id"]: t["lifecycle"] for t in result["answer"]["task_state"]["tasks"]} == {
+        "trace": "PAUSED", "policy": "OPEN"}
