@@ -1,4 +1,9 @@
-## 当前快照（2026-10-25，状态/引用收尾工程完成，待有限真实确认）
+## 当前快照（2026-10-25，原11轮修复确认准备）
+
+- 工程bffe5cd已普通push核实，现按原输入/判据固定一次[真实确认](../reports/customer-boundary-confirm-live-v1/README.md)，新manifest绑定当前源码/权重，不改旧manifest/Gold；同3组11轮，最多40新请求，参数/RAG/12次120秒预算保持，是修复确认非独立盲测。
+- wrapper复用原实际状态继承/流式计量/计费硬上限，freeze/check原PG/政策通过，0新模型、usage2410。精确提交普通push核实后只执行一次，逐轮核对多目标失效/合法摘要/原事项恢复；失败保留、不追分。仅原PG启动、业务服务关闭；结束导出临时schema并审计恢复资源。
+
+## 历史快照（2026-10-25，状态/引用收尾工程完成，待有限真实确认）
 
 - 多目标纠正b929687已普通push核实；现COMPOSE使用合法原话候选/模型customer_refs/程序读回装配、具体非法引用反馈，旧quotes严格兼容。明确同一事项可更改intent/goal、暂停须原id RESUME，不另加语义关键词状态机。[说明](../docs/customer-boundary-closeout-v1.md)/[工程报告](../reports/customer-boundary-closeout-v1/README.md)/[三处原输出离线适配](../reports/customer-boundary-closeout-v1/offline-adaptations.json)，E59同步。
 - 52针对/514客服单元、原PG17集成通过；新同run恢复0新模型/工具、结果全等，Ruff通过。初次兼容片段无id/测试fixture/脚本路径及lint已修并记录，旧断言保留。0新供应商请求、usage2410；仅原PG启动，业务服务关闭，历史报告/四脏文件保持。
