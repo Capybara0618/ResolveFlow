@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-25",
+  "runtime_sha256": "47e3e543aeb24797f2c4bad0c9b9a210fa31e1d8139ffb0e65bb96509565f9f6",
+  "review_sha256": "736f14f121a7b0d9e2ecfe60ae3c2442100328d7008a60abcb5bac6e9469e464",
+  "manifest_sha256": "6cefdbb6a6b3bfbca19e07a70151f94bac9cd34b46dfd882166d9477c220715e",
+  "continuation_manifest_sha256": "b5a8c01e641f642fe4dddd000c6ff68ee5b24535058e07eda91fc1c56ab41d40",
+  "frozen_original_source_files_verified": 142,
+  "continuation_files_verified": 3,
+  "matrix_rows": 100,
+  "conversation_runs": 64,
+  "agent_db_runs_exported": 50,
+  "agent_calls_exported": 272,
+  "call_kinds": {
+    "model": 136,
+    "tool": 136
+  },
+  "first_55_rows_byte_equivalent_as_json_values": true,
+  "prefix_provider_requests": 126,
+  "new_suffix_provider_requests": 110,
+  "prefix_provider_reexecutions": 0,
+  "ledger_before": 3053,
+  "ledger_after": 3289,
+  "provider_attempts": 236,
+  "total_provider_ceiling": 400,
+  "known_input_tokens": 703012,
+  "known_output_tokens": 29841,
+  "unknown_usage_calls": 0,
+  "estimated_usage_calls": 0,
+  "real_technical_status_counts": {
+    "SUCCEEDED": 98,
+    "FAILED": 2
+  },
+  "source_review_rows": 100,
+  "summary_recomputed_equal": true,
+  "public_tables_unchanged": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 209,
+      "sha256": "c7a86c525caeb890f59c95267c98f75d9b8325763a98a31dcf3c2ed422ee6d55"
+    },
+    "support_agent_run": {
+      "rows": 36,
+      "sha256": "409ec018b789a069d2a91c95916be19d2783bb4c1a1fb757836c7d996e63f7ee"
+    }
+  },
+  "owned_or_test_schemas_remaining": [],
+  "ledger_lock_absent": true,
+  "old_formal_report_hashes_unchanged": 11,
+  "historical_reports_unchanged": 188,
+  "protected_dirty_files_unchanged": {
+    "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+    "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+    "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+  },
+  "production_source_changes_during_formal_evaluation": 0,
+  "new_rag_inferences": 0,
+  "resume_changes": 0,
+  "new_java_ui_business_end_to_end": false,
+  "runtime_failure_note": "Q27 both arms hit fixture KeyError before intended NOT_FOUND response; counted incomplete, not rerun",
+  "continuation_tests": 6,
+  "continuation_ruff": "PASS"
+}

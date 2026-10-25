@@ -1,5 +1,9 @@
 # 独立 Workflow 对照的执行入口
 
+2026-10-25接续：本轮正式执行已完成，结果见[报告](README.md)。原agent-runtime.json是55轮后文件I/O中断的历史证据；实际100轮完整输入为agent-runtime-complete.json，源审source-review.json和汇总agent-summary.json已经生成。不要重跑下方原执行命令覆盖/重复计费。复算现有结果时使用完整runtime及新的输出路径，原摘要/判据保持；中断续测代码和补充manifest只服务本次已验证的55轮边界，账本已变化，不可再次直接执行。
+
+以下为准备阶段保存的操作说明。
+
 2026-10-25，准备已完成，正式新对照尚未运行。实现a941206，冻结142个源码/资产文件，32场景×两组×一次，共64会话/100客户轮；24复杂与8普通分别报告。保持原输入与快照，评分检查对外正确性、完成性、上下文，不要求Workflow输出Agent内部状态。
 
 在E:\Code\Agent+Backend，沿用agent/.venv和原PG55433/原政策卷；模型凭据只通过已有环境变量提供，不能放命令、报告或Git。以下路径均为仓库相对路径，Python可用agent/.venv/Scripts/python.exe代替。

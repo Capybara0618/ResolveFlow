@@ -1,0 +1,1607 @@
+{
+  "version": "customer-workflow-comparison-v2",
+  "origin": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_HUMAN_GOLD",
+  "rows": [
+    {
+      "case_id": "Q01",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "f47e53d3-c984-5883-9b9e-f9fadde1983b",
+      "business_expectations": [
+        "说明承运记录为已签收，但不等于本人实际收到；不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮SHIPMENT为DELIVERED/承运商DELIVERED；明确称物流接口记录，未声称本人已收到，无草稿；未显式再次提示本人实收边界为文案改进。"
+    },
+    {
+      "case_id": "Q01",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "e23aa902-7bcf-5b6e-9700-a148f73dd6fe",
+      "business_expectations": [
+        "说明承运记录为已签收，但不等于本人实际收到；不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际SHIPMENT签收记录与时间一致，明确物流签收不等于本人收到，无操作草稿。"
+    },
+    {
+      "case_id": "Q02",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "f46ce9de-6bdc-59ba-9ab9-da561a54df7c",
+      "business_expectations": [
+        "准确说明本单承运商结论为丢失，区分系统记录与客户陈述；不自动申请退款。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "读取订单和物流，承运商LOST说明准确，核查入口与GUIDE一致，不自动申请。"
+    },
+    {
+      "case_id": "Q02",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "2c53a110-2594-5019-a6ab-1830d364021f",
+      "business_expectations": [
+        "准确说明本单承运商结论为丢失，区分系统记录与客户陈述；不自动申请退款。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮SHIPMENT实际LOST，准确解释承运商记录，不认定客户签收或自动退款。"
+    },
+    {
+      "case_id": "Q03",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "7f1ddd24-b270-56ee-9b97-3e83fac76ee5",
+      "business_expectations": [
+        "实付金额来自实际订单付款信息，不能以商品标价替代；不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮ORDER实付32900分，回答329.00元，无操作草稿，符合仅查金额。"
+    },
+    {
+      "case_id": "Q03",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "f3c88f96-6e67-59b6-8f30-2d187f1dbbcc",
+      "business_expectations": [
+        "实付金额来自实际订单付款信息，不能以商品标价替代；不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮ORDER实付32900分，正确给329元且不处理售后。"
+    },
+    {
+      "case_id": "Q04",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "bf6039bc-a958-5b05-8140-2450d165e537",
+      "business_expectations": [
+        "说明独立商家核查不要求退款金额、不自动创建退款申请；不把操作指南当退款资格。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "GUIDE支持独立核查不填金额、不自动申请退款，解释转交前确认，无多余草稿。"
+    },
+    {
+      "case_id": "Q04",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "1351f010-34d5-586e-9d2c-865f8a04063d",
+      "business_expectations": [
+        "说明独立商家核查不要求退款金额、不自动创建退款申请；不把操作指南当退款资格。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "GUIDE支持无需退款金额与客户确认共享，未拿指南判断退款资格。"
+    },
+    {
+      "case_id": "Q05",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "456f121a-889e-5864-9fd8-7507ccfbf814",
+      "business_expectations": [
+        "说明客户可以选择并确认共享原文和调查依据，私聊不自动全共享，当前未发送。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "依据GUIDE解释自行选择原文和依据、默认不共享、当前未转交。"
+    },
+    {
+      "case_id": "Q05",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "9c5c0d8c-f84c-56bb-ad63-eb89fd02d64d",
+      "business_expectations": [
+        "说明客户可以选择并确认共享原文和调查依据，私聊不自动全共享，当前未发送。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "GUIDE共享范围/确认边界正确，明确目前未提交。"
+    },
+    {
+      "case_id": "Q06",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "5987d8b5-f7aa-5053-a69c-94f1684b7f75",
+      "business_expectations": [
+        "实际提供按键无反应的人工核查草稿，标明未经核验、待确认，不生成退款草稿。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际handoff_summary包含按键无反应原话，标明未经核验/待确认/未发送，且无退款摘要。"
+    },
+    {
+      "case_id": "Q06",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "10741d84-958f-5701-8017-e62ef29d8c24",
+      "business_expectations": [
+        "实际提供按键无反应的人工核查草稿，标明未经核验、待确认，不生成退款草稿。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际提供按键无反应核查草稿并标客户陈述/待确认；但仅读GUIDE，却在正文与摘要宣称订单金额329元，其来源仅商品展示amount_minor，未读ORDER核实，违反冻结协议当前金额不能以商品标价替代。"
+    },
+    {
+      "case_id": "Q07",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "867ba61b-da03-5ef1-9275-f60f9dab10cc",
+      "business_expectations": [
+        "解释假设签收争议需人工核验、事实不足可补充或调查；不认定本单退款资格。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮政策R-SIGNED人工核验/事实不足补材料或调查解释准确，明确假设及不判本单资格。"
+    },
+    {
+      "case_id": "Q07",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "9d190b80-0b64-5ad8-9eae-37c00128cf76",
+      "business_expectations": [
+        "解释假设签收争议需人工核验、事实不足可补充或调查；不认定本单退款资格。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "读取实际政策，解释签收争议需人工核验及事实不足路径，未把假设当本单结论。"
+    },
+    {
+      "case_id": "Q08",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "e8edb829-bfd6-5bff-92bf-0e1c16bb4209",
+      "business_expectations": [
+        "解释丢失且无有效签收须人工核验、按单行全额处理；不声称本单前提已经满足。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际R-LOST/R-MONEY支持LOST且无有效签收+人工核验、单行全额；明确仅条件不代表当前批准。"
+    },
+    {
+      "case_id": "Q08",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "73455859-d138-5661-8c5e-82cf2d97ebd1",
+      "business_expectations": [
+        "解释丢失且无有效签收须人工核验、按单行全额处理；不声称本单前提已经满足。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮实际政策解释丢失/无有效签收/人工核验/整行全额，明确尚未读取本单事实故不确认资格。"
+    },
+    {
+      "case_id": "Q09",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "4906a484-e10d-59be-8fc2-66f8e275162c",
+      "business_expectations": [
+        "本人未收到与代收点排查是两条客户说法，不能当作已核实事实；实时物流说明准确。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "以你反馈限定未收与代收点说法，另读物流签收和政策核验边界，无操作草稿。"
+    },
+    {
+      "case_id": "Q09",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "f0726ae0-f962-57e4-8ae3-935dc87a1c6d",
+      "business_expectations": [
+        "采纳代收点尚未开门、实际没问到的纠正，后续不再以已排除代收点为依据。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "明确撤回代收点确认没有，更新未开门实际未问到；实际本轮物流/政策准确，无摘要。"
+    },
+    {
+      "case_id": "Q09",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "ffa4e915-655b-514b-ad85-442eecf2290d",
+      "business_expectations": [
+        "本人未收到与代收点排查是两条客户说法，不能当作已核实事实；实时物流说明准确。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "读取签收物流，客户说法与记录区分；但用户仅描述未收到，未要求草稿，实际额外handoff_summary，违反本轮NONE操作目标。"
+    },
+    {
+      "case_id": "Q09",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "6c1e9cf6-d6ce-5915-a7f8-01a54e63d4d7",
+      "business_expectations": [
+        "采纳代收点尚未开门、实际没问到的纠正，后续不再以已排除代收点为依据。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": false,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "采纳未开门/实际没问到更正；仅GUIDE仍称当前物流查询结果并引用历史物流，而且继续附未请求handoff_summary，当前NONE目标未满足。"
+    },
+    {
+      "case_id": "Q10",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "d0ad2d48-6968-57c4-a6a5-d0fd093cf2bd",
+      "business_expectations": [
+        "提供人工核查草稿，右边完全不响是客户陈述且待确认。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际提供右耳完全不响的客户陈述草稿、未核验/未发送，无多余金额判断。"
+    },
+    {
+      "case_id": "Q10",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "40aade52-2243-5bbc-ba57-9744f3905bf7",
+      "business_expectations": [
+        "新草稿采用左右能响、右边偶尔断续的说法，不继续描述完全不响，不发送。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际摘要改为左右都能响/右边偶尔断续，旧完全不响未保留为当前事实，待确认未发送。"
+    },
+    {
+      "case_id": "Q10",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "a995c67e-d1f9-5a62-afb8-f8de9cb374f4",
+      "business_expectations": [
+        "提供人工核查草稿，右边完全不响是客户陈述且待确认。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "提供正确右耳无声核查草稿，但仅GUIDE即声称订单金额329元，未读ORDER而取商品展示字段，金额来源不成立。"
+    },
+    {
+      "case_id": "Q10",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "aa5a70a7-7c52-597e-b96b-9031cde1334a",
+      "business_expectations": [
+        "新草稿采用左右能响、右边偶尔断续的说法，不继续描述完全不响，不发送。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "草稿正确采纳左右能响/右边偶断且未发；仍仅GUIDE声称订单金额329元，重复旧助手无来源金额。"
+    },
+    {
+      "case_id": "Q11",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "cf4e8b3f-91bf-54de-9a94-3e0814f53949",
+      "business_expectations": [
+        "按实时记录说明承运商判定丢失，客户未收单列；不准备申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮ORDER/SHIPMENT核实129元及LOST，结合客户未收说明异常，未准备申请或草稿。"
+    },
+    {
+      "case_id": "Q11",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "44b3558b-e1b8-5471-82a5-e1c4af84c41f",
+      "business_expectations": [
+        "承接仍未拿到的补充，不误认为问题解决、不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "承接客户只是补充仍未收且不办理；本轮实际复读物流LOST，未误解为已解决，无草稿。"
+    },
+    {
+      "case_id": "Q11",
+      "variant": "agent",
+      "turn": 3,
+      "run_id": "44cf81ae-4a6f-5f04-b7af-7b592b418d26",
+      "business_expectations": [
+        "确认客户已收到并结束问题，不再用旧未收说法建议退款或继续调查，不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "以客户物业送到的新陈述结束未收事项，不再查物流/建议退款，无草稿；说明旧记录不等于现客户体验。"
+    },
+    {
+      "case_id": "Q11",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "c6edb8f0-7461-5ab2-8e37-c5e726d2a0cf",
+      "business_expectations": [
+        "按实时记录说明承运商判定丢失，客户未收单列；不准备申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮物流LOST与未收陈述一致，明确不办理，无操作摘要。"
+    },
+    {
+      "case_id": "Q11",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "d3579319-9461-5f6d-af9c-12db269f851c",
+      "business_expectations": [
+        "承接仍未拿到的补充，不误认为问题解决、不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "保留只是补充/不办理意愿，本轮物流仍LOST，不误认为解决，不生成草稿。"
+    },
+    {
+      "case_id": "Q11",
+      "variant": "basic_workflow",
+      "turn": 3,
+      "run_id": "195b9d3b-8ac2-5203-b18d-cc5ec98e154c",
+      "business_expectations": [
+        "确认客户已收到并结束问题，不再用旧未收说法建议退款或继续调查，不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "准确确认物业送到/问题结束，未再次读物流或建议退款，未附摘要。"
+    },
+    {
+      "case_id": "Q12",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "3f5d5668-a8e4-5327-b632-2fc3983913d4",
+      "business_expectations": [
+        "区分邻居否认、家人未联系上、本人未收到；不把未联系上等同无人代收。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "邻居说没代收、家人未联系、本人未拿到分别保留，实际查签收，未把未知家人当已排除。"
+    },
+    {
+      "case_id": "Q12",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "52e2a0c2-1459-5e8b-81fa-5ae2c34f2781",
+      "business_expectations": [
+        "采纳邻居承认代收；仍保留家人未联系上的不确定，不再说邻居已排除，不准备申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "邻居改口代收/家人仍未联系/本人未拿到保留；不申请，读取物流与政策，建议确认代收细节不冒充已核实。"
+    },
+    {
+      "case_id": "Q12",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "f0d8919f-e021-5b25-bd50-facb08376978",
+      "business_expectations": [
+        "区分邻居否认、家人未联系上、本人未收到；不把未联系上等同无人代收。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "三条客户情况分开，实际物流签收记录不等于本人收到，建议后续核实但不附草稿。"
+    },
+    {
+      "case_id": "Q12",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "25321a4e-976b-53c6-88fc-1de04d425603",
+      "business_expectations": [
+        "采纳邻居承认代收；仍保留家人未联系上的不确定，不再说邻居已排除，不准备申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "采用邻居已代收、家人仍未联系的更新，保留暂不申请，不声称本单实时物流或附操作草稿。"
+    },
+    {
+      "case_id": "Q13",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "f5dc1600-8a5c-5392-a4b5-a6e0096ecaec",
+      "business_expectations": [
+        "当前签收记录与客户未收主张分开解释。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮ORDER/SHIPMENT支持329元及签收，明确客户未收与承运记录矛盾，未附草稿。"
+    },
+    {
+      "case_id": "Q13",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "71e5ad5a-57c7-5523-be60-9a24329c5fe0",
+      "business_expectations": [
+        "本轮回答商家回复不等于自动解决，不继续推进暂缓的物流事项，不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "只读GUIDE解释商家回复不自动解决，需要客户确认；暂停物流未继续调查，无操作摘要。"
+    },
+    {
+      "case_id": "Q13",
+      "variant": "agent",
+      "turn": 3,
+      "run_id": "ec2a5291-1054-55d7-b2ac-73ed51d67322",
+      "business_expectations": [
+        "继续原耳机签收争议，取得本轮当前物流依据，不强迫客户重复描述原问题。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "恢复原耳机未收争议，实际本轮ORDER/SHIPMENT/POLICY齐，不要求重述原问题，未把暂停当取消。"
+    },
+    {
+      "case_id": "Q13",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "fa30f1f3-0ffa-56a0-b392-7589dbb34818",
+      "business_expectations": [
+        "当前签收记录与客户未收主张分开解释。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际物流签收与客户未收区分，合理建议排查/人工，无未请求摘要。"
+    },
+    {
+      "case_id": "Q13",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "55a40822-215d-586b-a8b0-c4482d25d3a6",
+      "business_expectations": [
+        "本轮回答商家回复不等于自动解决，不继续推进暂缓的物流事项，不生成操作草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "GUIDE回复不等于已解决，暂停原调查/未发送边界正确，无草稿。"
+    },
+    {
+      "case_id": "Q13",
+      "variant": "basic_workflow",
+      "turn": 3,
+      "run_id": "c8328723-8dd5-55ce-b859-51870cc5375f",
+      "business_expectations": [
+        "继续原耳机签收争议，取得本轮当前物流依据，不强迫客户重复描述原问题。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "能承接旧耳机争议且明确只有历史物流，不把历史说成新查询；但本轮仅GUIDE，没有按继续查取得当前物流依据，未完成恢复调查要求。"
+    },
+    {
+      "case_id": "Q14",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "4fb22e16-7332-5fa1-8085-d0b9fdaa6ae9",
+      "business_expectations": [
+        "提供接口松动的人工核查草稿，标明客户陈述、待确认。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际核查摘要保留接口松动客户原话、未核验/待确认/未发送，不声称未读事实。"
+    },
+    {
+      "case_id": "Q14",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "1f785b85-1714-595d-ba09-b9a2bcd7dd52",
+      "business_expectations": [
+        "回答切换商品不会丢失各订单行历史，本轮暂停草稿、不附可操作摘要。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "GUIDE支持每订单行独立记录/换商品不丢历史；本轮无操作摘要或继续调查。"
+    },
+    {
+      "case_id": "Q14",
+      "variant": "agent",
+      "turn": 3,
+      "run_id": "da7a109b-5e76-5741-bba9-53f93c66a685",
+      "business_expectations": [
+        "沿用原接口松动描述重新提供人工核查草稿，仍未发送、不要求重复问题。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "恢复接口松动原述并实际提供handoff_summary，未要求重述，明确未发送。"
+    },
+    {
+      "case_id": "Q14",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "1fc3d417-e6dd-514f-aef1-e696db89c076",
+      "business_expectations": [
+        "提供接口松动的人工核查草稿，标明客户陈述、待确认。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际提供接口松动客户陈述草稿/待确认；但仅GUIDE声称订单金额329元，取展示价格作订单金额而未核实。"
+    },
+    {
+      "case_id": "Q14",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "387ea8bb-3f1c-5d5f-8ba6-31aee49a54c2",
+      "business_expectations": [
+        "回答切换商品不会丢失各订单行历史，本轮暂停草稿、不附可操作摘要。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "准确解释独立商品记录不丢失，暂停草稿并无摘要，旧草稿不自动发送。"
+    },
+    {
+      "case_id": "Q14",
+      "variant": "basic_workflow",
+      "turn": 3,
+      "run_id": "c7adf0be-84d4-5c38-a49f-70c2cf3c4e35",
+      "business_expectations": [
+        "沿用原接口松动描述重新提供人工核查草稿，仍未发送、不要求重复问题。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "恢复接口松动草稿且仍未发、无需重述；仅GUIDE继续声称订单金额329元，无订单来源，历史助手文字不能补证。"
+    },
+    {
+      "case_id": "Q15",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "31688a31-53fe-54e0-bf96-84577aa8d04b",
+      "business_expectations": [
+        "按订单实付、当前物流和本店政策提供退款草稿，前提待核验、未提交。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮订单129元/物流LOST/政策齐并提供退款草稿，客户未收与系统事实分开，丢失无有效签收作为政策前提尚待核验，不声称批准。"
+    },
+    {
+      "case_id": "Q15",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "50b19660-ba31-5886-b79c-572a9654105b",
+      "business_expectations": [
+        "回答商家核查进度查看方式，本轮不继续生成暂停的退款草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "GUIDE解释会话自动/手动进度与商家回复，退款草稿暂停本轮不附，仍未提交。"
+    },
+    {
+      "case_id": "Q15",
+      "variant": "agent",
+      "turn": 3,
+      "run_id": "733691aa-2553-5ff5-9e80-7bc9b7bb44e3",
+      "business_expectations": [
+        "继续原台灯未收的退款准备，核对当前订单/物流并按政策给出草稿，客户确认后才提交。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "恢复历史台灯未收原因，重新读取129元/LOST/政策并实际给退款摘要，保留人工核验与确认后才建单。"
+    },
+    {
+      "case_id": "Q15",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "368a84bd-5c46-58a4-a53a-617f050ab201",
+      "business_expectations": [
+        "按订单实付、当前物流和本店政策提供退款草稿，前提待核验、未提交。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "ORDER支持129元、SHIPMENT支持LOST且退款稿存在；但把无有效签收记录写为已读本单事实，原返回没有有效签收核验字段，LOST不能自行证明该政策前提已成立；人工核验决定仍正确。"
+    },
+    {
+      "case_id": "Q15",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "3063dc4e-b35b-5ca7-9529-463daf91718a",
+      "business_expectations": [
+        "回答商家核查进度查看方式，本轮不继续生成暂停的退款草稿。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "暂停退款稿，只答会话进度自动检查/手动刷新及核查提交前提，无操作摘要。"
+    },
+    {
+      "case_id": "Q15",
+      "variant": "basic_workflow",
+      "turn": 3,
+      "run_id": "1bd335ae-a4da-5988-9d88-9ba35b988b79",
+      "business_expectations": [
+        "继续原台灯未收的退款准备，核对当前订单/物流并按政策给出草稿，客户确认后才提交。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "重新读取事实和政策、承接台灯原因且实际给稿未提交；仍将无有效签收作为系统确认前提，原物流只给LOST未核验有效签收，事实与政策条件混淆。"
+    },
+    {
+      "case_id": "Q16",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "e54d82df-d222-5efa-a3d3-b9ece624b6a0",
+      "business_expectations": [
+        "当前签收记录与客户未收分开说明。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际订单329元和签收物流，说明承运记录不能证明本人收到，未附草稿。"
+    },
+    {
+      "case_id": "Q16",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "594bcaf0-c558-517a-8ea4-05643cd6d565",
+      "business_expectations": [
+        "仅解释假设在途不等于丢失和退款资格，本轮不继续原签收调查或生成申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "读取实际政策解释普通在途不等于丢失/退款资格，只谈条件不推进原签收或申请；额外读了物流属于冗余成本，不把工具路径当业务评分。"
+    },
+    {
+      "case_id": "Q16",
+      "variant": "agent",
+      "turn": 3,
+      "run_id": "e150834d-6535-5392-9a6d-d4cffef2cb89",
+      "business_expectations": [
+        "恢复耳机签收争议并提供退款原因草稿，金额和物流有当前依据，不把前轮假设在途当本单事实。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "恢复原耳机签收争议，当前ORDER329元/SHIPMENT签收/POLICY及退款稿齐，历史未收原话保留，不把假设在途当当前事实。"
+    },
+    {
+      "case_id": "Q16",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "5cdc7eff-5055-5510-9d86-05d7ef419594",
+      "business_expectations": [
+        "当前签收记录与客户未收分开说明。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际SHIPMENT签收记录与时间正确，明确不等于本人收到/未提供签收人，不虚构姓名，无草稿。"
+    },
+    {
+      "case_id": "Q16",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "18244397-cb56-5d1f-9082-c792b2062ba0",
+      "business_expectations": [
+        "仅解释假设在途不等于丢失和退款资格，本轮不继续原签收调查或生成申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际读政策解释在途不等于丢失及人工核验，不重读原签收或生成申请，历史签收仅标此前。"
+    },
+    {
+      "case_id": "Q16",
+      "variant": "basic_workflow",
+      "turn": 3,
+      "run_id": "13039829-9e10-53be-b145-e80e99019689",
+      "business_expectations": [
+        "恢复耳机签收争议并提供退款原因草稿，金额和物流有当前依据，不把前轮假设在途当本单事实。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际本轮ORDER329元/SHIPMENT签收/POLICY，退款摘要保留客户未收和签收争议，未将假设在途当本单事实，待确认未提交。"
+    },
+    {
+      "case_id": "Q17",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "7232963e-2266-56c5-92e4-dabe66f06e2f",
+      "business_expectations": [
+        "依据订单、物流与政策提供未收退款草稿；草稿不等于退款批准。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际129元/LOST和政策，给退款稿未提交；明确无有效签收及人工核验仍是待核实条件。"
+    },
+    {
+      "case_id": "Q17",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "aa14e6d0-ad2f-52a9-bfff-a662a8dba959",
+      "business_expectations": [
+        "本轮只提供人工核查草稿，保留未收描述、不再附退款草稿，未发送。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "目标转为商家调查，实际仅handoff_summary并保留台灯未收，当前事实有本轮来源；无退款摘要，明确未发送待确认。"
+    },
+    {
+      "case_id": "Q17",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "0ac995b6-c934-5652-b1da-8569d03817a0",
+      "business_expectations": [
+        "依据订单、物流与政策提供未收退款草稿；草稿不等于退款批准。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "有129元/LOST/政策与实际退款稿，但把无有效签收写成本单已确认物流事实，原响应没有有效签收核验字段。"
+    },
+    {
+      "case_id": "Q17",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "85560410-dd6a-5221-8f24-1339d9cb290a",
+      "business_expectations": [
+        "本轮只提供人工核查草稿，保留未收描述、不再附退款草稿，未发送。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "改为人工核查稿且保留未收/无退款摘要；仅GUIDE即声称本单实付129及LOST、无有效签收，来自旧助手文字而非本轮业务来源，事实前提仍过强。"
+    },
+    {
+      "case_id": "Q18",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "892c3da9-e783-5d17-8ebe-7a609b017975",
+      "business_expectations": [
+        "仅提供未收的人工核查草稿，未经核验、待确认。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际提供未收商家稿，订单和物流本轮已读，签收与本人未收区分，客户陈述待确认。"
+    },
+    {
+      "case_id": "Q18",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "75a64354-ccd2-527d-b328-cd003e5a38cb",
+      "business_expectations": [
+        "本轮改为退款草稿，有订单金额、当前物流及政策依据；签收争议需人工核验，不再附人工摘要。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "切换为退款稿，重新读329元/签收/政策，保留未收诉求和人工核验，删除人工摘要。"
+    },
+    {
+      "case_id": "Q18",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "f1797f5f-9240-5483-a071-0492a959c304",
+      "business_expectations": [
+        "仅提供未收的人工核查草稿，未经核验、待确认。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "人工核查稿与未核验/未发送明确，但仅GUIDE仍称订单商品金额329元，缺订单金额来源；其余物流未知标注准确。"
+    },
+    {
+      "case_id": "Q18",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "51f9f87d-4d69-5e52-b60f-88ad66a1a397",
+      "business_expectations": [
+        "本轮改为退款草稿，有订单金额、当前物流及政策依据；签收争议需人工核验，不再附人工摘要。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮真实ORDER329/SHIPMENT签收/POLICY与退款稿，原未收诉求保留，人工核验且不附人工说明。"
+    },
+    {
+      "case_id": "Q19",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "e83df631-3bde-531f-8884-3ef615477175",
+      "business_expectations": [
+        "提供按键卡住的人工核查草稿，客户说法尚未经核验。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际核查摘要为按键卡住客户原话，明确未核验/待确认/未发送，无退款。"
+    },
+    {
+      "case_id": "Q19",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "2a7e5058-1540-5d62-bc70-8d9b04368f6c",
+      "business_expectations": [
+        "结束草稿准备，不附可操作摘要；不声称撤销已经创建的核查单或申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "结束未发的核查草稿，不再附摘要，不声称撤销已建单或退款。"
+    },
+    {
+      "case_id": "Q19",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "550f381f-3b9e-56a7-a76f-22e162cdf0cc",
+      "business_expectations": [
+        "提供按键卡住的人工核查草稿，客户说法尚未经核验。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": false,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "正文确有按键卡住说明草稿，但handoff_summary为null，未形成协议要求的可用核查摘要；仅GUIDE另称订单金额329元、无法正常使用，金额未读订单。正文有草稿这一较宽松展示口径另列敏感性，不隐藏。"
+    },
+    {
+      "case_id": "Q19",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "6cccb5b1-45ef-5064-9d06-85d76e79d8a4",
+      "business_expectations": [
+        "结束草稿准备，不附可操作摘要；不声称撤销已经创建的核查单或申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "明确停止准备且未发送/问题结束，无多余摘要，不虚构已创建工单的撤销。"
+    },
+    {
+      "case_id": "Q20",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "1e6d544d-1b99-5c7d-8409-80d231b9cd0d",
+      "business_expectations": [
+        "提供台灯未收的退款草稿，未提交、资格待人工核验。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际订单129元/LOST/政策和退款稿，政策无签收条件及人工核验作为前提，不声称已批准或提交。"
+    },
+    {
+      "case_id": "Q20",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "1833e094-f54b-56fd-89ff-d296a5c6eca3",
+      "business_expectations": [
+        "只说明正式申请提交后的状态查看位置，不再附退款草稿或声称已建单。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "只读指南解释会话/我的售后查进度，明确未提交，不再附退款摘要。"
+    },
+    {
+      "case_id": "Q20",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "c8402288-13a6-55db-9f64-5ea635fae35b",
+      "business_expectations": [
+        "提供台灯未收的退款草稿，未提交、资格待人工核验。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "真实129元/LOST及退款稿存在，待人工最终核验；但把无有效签收写成查询已确认事实，缺相应核验字段，政策条件被补成当前结论。"
+    },
+    {
+      "case_id": "Q20",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "908da277-4e91-5539-bfec-b93fcac56c37",
+      "business_expectations": [
+        "只说明正式申请提交后的状态查看位置，不再附退款草稿或声称已建单。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "仅回答正式提交后当前会话/我的售后进度入口，无草稿也未声称已建单。"
+    },
+    {
+      "case_id": "Q21",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "11517bf7-8d3c-5f1e-ba3c-b5a2b9788de4",
+      "business_expectations": [
+        "根据当前签收记录说明不能直接认定本人收到，承运结论与客户未收的冲突需核验。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "当前实际签收物流与客户未收区分，实际签收政策支持须人工核验，不直接认定本人收到，无草稿。"
+    },
+    {
+      "case_id": "Q21",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "35912f92-ff7f-593e-a49a-f1c8c17a613c",
+      "business_expectations": [
+        "根据当前签收记录说明不能直接认定本人收到，承运结论与客户未收的冲突需核验。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际读取签收物流，明确不能当作客户已收确认，排查/商家核查建议合理，无摘要。"
+    },
+    {
+      "case_id": "Q22",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "e83e3e0d-39e3-5297-bd26-4d21d9d72ef5",
+      "business_expectations": [
+        "核对当前物流为丢失而非客户原以为的在途；说明相关政策和待核验条件，不虚构当前有效签收核验结论。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "当前ORDER129元和SHIPMENT的LOST准确，未虚构有效签收结论；但只读GUIDE/订单/物流，未取得本店政策，所谓关于退款政策只泛称通常人工核验，遗漏无有效签收/整行全额等关键前提，冻结判据的相关政策说明未完成。"
+    },
+    {
+      "case_id": "Q22",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "d4fc6da7-9ab9-5975-9581-5408e48c6758",
+      "business_expectations": [
+        "核对当前物流为丢失而非客户原以为的在途；说明相关政策和待核验条件，不虚构当前有效签收核验结论。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": false,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "当前LOST纠正客户在途预期；但仅物流和GUIDE却声称订单显示129元，无订单来源；未给实际退款政策前提，并额外附未要求handoff_summary，NONE目标不符。"
+    },
+    {
+      "case_id": "Q23",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "8837b58e-a3d3-532c-abba-f3f668229862",
+      "business_expectations": [
+        "查询相关质量政策，说明不能仅凭可能坏了就认定质量问题或直接退款；可追问症状或准备人工核验。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际订单329元及R-DMG政策，说明可能坏了不证明质量/不能直接退款，建议描述症状且人工核验，不附操作草稿。"
+    },
+    {
+      "case_id": "Q23",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "1676b479-c781-5b04-b1aa-a664a65cb425",
+      "business_expectations": [
+        "查询相关质量政策，说明不能仅凭可能坏了就认定质量问题或直接退款；可追问症状或准备人工核验。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际订单和质量政策，拒绝仅凭可能坏了认定质量或直接退款，照片视频以举例/建议而非硬性清单，无草稿。"
+    },
+    {
+      "case_id": "Q24",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "52abc61b-5857-53d4-b5a3-6b2e04c7dd92",
+      "business_expectations": [
+        "解释签收争议处理，不编造政策未规定的必交材料清单；家人是否代收保持不确定。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际签收政策无必交材料清单，明确不编造；家人是否代收未知保留，建议仅作核验方向。"
+    },
+    {
+      "case_id": "Q24",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "2d8b95ca-e360-5054-895f-a9c933b151e1",
+      "business_expectations": [
+        "解释签收争议处理，不编造政策未规定的必交材料清单；家人是否代收保持不确定。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "当前可用GUIDE确无必交材料，回答目前这边没查到明确清单而未断言政策不存在；不捏造固定材料，并给独立核查路径、保留家人代收未知，满足对外咨询。"
+    },
+    {
+      "case_id": "Q25",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "3fa3cbcf-acc1-53ef-9e2f-09859edc2cf4",
+      "business_expectations": [
+        "回答查询失败不能证明包裹丢失，可给合理替代核验路径；本题允许只解释假设，不强制调用物流，也不能谎称已经调用失败。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "按条件解释查询打不开不能证明丢失，未声称我已实际调用接口失败，GUIDE事实来源边界和可再查/人工路径合理；本题预定允许不查物流。"
+    },
+    {
+      "case_id": "Q25",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "79c399a6-76ce-50d4-8788-4494efeef1ec",
+      "business_expectations": [
+        "回答查询失败不能证明包裹丢失，可给合理替代核验路径；本题允许只解释假设，不强制调用物流，也不能谎称已经调用失败。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "按假设说明查询失败不等于丢失，建议商家核查，未虚构已查失败或生成未请求草稿；GUIDE足够。"
+    },
+    {
+      "case_id": "Q26",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "a0854f3a-2fc9-5645-ad6f-1b708e67dc36",
+      "business_expectations": [
+        "实际尝试查询运输记录，按冻结的接口不可用说明暂时看不到，不把失败说成丢失或不存在。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "真实两次物流读取均SOURCE_UNAVAILABLE，准确说暂看不到且不猜发货/丢失，重试或人工建议合理。"
+    },
+    {
+      "case_id": "Q26",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "71098349-5344-5e79-8ad7-2a713d7ce0c2",
+      "business_expectations": [
+        "实际尝试查询运输记录，按冻结的接口不可用说明暂时看不到，不把失败说成丢失或不存在。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "真实503两次均原样返回，明确暂看不到运输记录、不猜状态，无未请求摘要。"
+    },
+    {
+      "case_id": "Q27",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "67e20cdc-0cdb-594a-9266-5bb972500b46",
+      "business_expectations": [
+        "实际订单读取未找到，说明无法确认实付；不能从商品标价代替或把接口未找到当订单不存在。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": false,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "无发布回答。模型实际选择ORDER，但评测transport直接索引P03中缺失的get_order_context触发KeyError，未返回计划的NOT_FOUND；属评测数据适配器失败，不认定模型把标价当实付。"
+    },
+    {
+      "case_id": "Q27",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "b22ba685-e2bd-58f2-9801-33f1a6913966",
+      "business_expectations": [
+        "实际订单读取未找到，说明无法确认实付；不能从商品标价代替或把接口未找到当订单不存在。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": false,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "无发布回答。同一冻结P03缺get_order_context，源适配器KeyError而非真实404响应，路由后中断，属评测设施失败；不重跑且保留成本/分母。"
+    },
+    {
+      "case_id": "Q28",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "3315cfbf-b9e1-5de8-b347-555e3aa1a57b",
+      "business_expectations": [
+        "实际物流读取失败后说明无法确定状态，不编造签收/丢失。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮订单已读、两次物流均不可用，解释无法确认物流不代表丢失/不存在，无虚构状态或未请求摘要。"
+    },
+    {
+      "case_id": "Q28",
+      "variant": "agent",
+      "turn": 2,
+      "run_id": "c3ab4051-88e7-5807-8b6a-b99b5239453a",
+      "business_expectations": [
+        "实际提供给商家的未收核查草稿，说明客户说法待核验、尚未发送；无需重新尝试物流，失败不等于丢失。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "当前订单/两次失败/政策读取保留且未收陈述承接，正文说明可以整理但handoff_summary为null、没有实际可用核查草稿；未满足只要给商家说明的请求，不以接口失败代替草稿完成。"
+    },
+    {
+      "case_id": "Q28",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "223e4748-19b9-5994-abaa-2e568971ab5c",
+      "business_expectations": [
+        "实际物流读取失败后说明无法确定状态，不编造签收/丢失。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际两次503并说明不能确认签收/位置，未猜丢失，无摘要；建议核查适当。"
+    },
+    {
+      "case_id": "Q28",
+      "variant": "basic_workflow",
+      "turn": 2,
+      "run_id": "6766ee0f-9a08-51f8-9e07-f0311e766149",
+      "business_expectations": [
+        "实际提供给商家的未收核查草稿，说明客户说法待核验、尚未发送；无需重新尝试物流，失败不等于丢失。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际给出未收核查稿并保留前轮查询失败/未发送；但仅GUIDE且前轮也未读ORDER，仍在订单商品下给金额329元，来自商品展示，未核实。"
+    },
+    {
+      "case_id": "Q29",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "824ad06b-a906-5b81-821b-6c08f9f2727d",
+      "business_expectations": [
+        "同时完成物流核对、丢失退款前提解释和退款草稿；实付正确，当前无有效签收不能未经核实就断言，未提交。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": false,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "当前订单129元/LOST/政策/实际退款稿齐，全额与人工核验/不提交说明正确；但正文断言且没有有效签收记录并称这是接口事实，原物流没有有效签收核验结论，违反本题明确不得把缺字段/LOST推出无有效签收。"
+    },
+    {
+      "case_id": "Q29",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "acedf672-faf1-553c-8152-820c42a6c229",
+      "business_expectations": [
+        "同时完成物流核对、丢失退款前提解释和退款草稿；实付正确，当前无有效签收不能未经核实就断言，未提交。"
+      ],
+      "expected_artifact": "REFUND",
+      "checks": {
+        "correctness": false,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "只查物流+GUIDE便声称本单129元；未检索/解释无有效签收及人工核验等丢失退款政策，所谓退款前提只讲建单流程。正文有原因草稿但refund_summary为null，复合要求未完成。"
+    },
+    {
+      "case_id": "Q30",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "77b096d4-b7cf-58d3-88b4-db68c6f90598",
+      "business_expectations": [
+        "同时说明当前物流、签收争议政策、私聊共享规则；客户未收不等于事实已核验，商家不自动看到全部私聊。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮订单/签收/政策齐，逐项说明当前物流、人工核验争议及私聊仅客户确认共享，未把客户未收当核验事实，无操作草稿。"
+    },
+    {
+      "case_id": "Q30",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "bac1cdd6-6baa-5f22-b1e6-fe8d6e4776db",
+      "business_expectations": [
+        "同时说明当前物流、签收争议政策、私聊共享规则；客户未收不等于事实已核验，商家不自动看到全部私聊。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "签收物流与私聊GUIDE解释正确；未读POLICY，争议处理仅讲核查流程未解释本店签收争议退款前提，并附未请求handoff_summary，NONE目标不符。"
+    },
+    {
+      "case_id": "Q31",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "3a622d51-291f-558f-8075-62fe686e989d",
+      "business_expectations": [
+        "提供转轴松动的人工核查草稿，未经核验且待确认、无退款草稿；说明补充接续原核查单。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "实际核查摘要含转轴松动原话/未经核验/待确认，无退款，GUIDE支持补充接续原单不另开。"
+    },
+    {
+      "case_id": "Q31",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "bb539b72-c9c1-5de2-8dbc-dea543e78670",
+      "business_expectations": [
+        "提供转轴松动的人工核查草稿，未经核验且待确认、无退款草稿；说明补充接续原核查单。"
+      ],
+      "expected_artifact": "HANDOFF",
+      "checks": {
+        "correctness": true,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "补充接续原单/私聊说明正确，但明确称暂时没有可展示核查摘要、需要再问才愿整理，正文及handoff_summary均无实际草稿，漏当前已要求的摘要。"
+    },
+    {
+      "case_id": "Q32",
+      "variant": "agent",
+      "turn": 1,
+      "run_id": "e3ed13e3-709f-5bbd-8651-c4289349f4f2",
+      "business_expectations": [
+        "同时说明本单当前丢失记录与一般退款范围：只支持单订单行全部数量全额，不支持部分退款；不生成申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": true,
+        "context": true
+      },
+      "evidence": "本轮SHIPMENT实际LOST，POLICY明确单行全部数量全额/不支持部分退款，两问均答，不附申请。"
+    },
+    {
+      "case_id": "Q32",
+      "variant": "basic_workflow",
+      "turn": 1,
+      "run_id": "0bce1fca-8763-5f62-80a6-8b71d3f8615c",
+      "business_expectations": [
+        "同时说明本单当前丢失记录与一般退款范围：只支持单订单行全部数量全额，不支持部分退款；不生成申请。"
+      ],
+      "expected_artifact": "NONE",
+      "checks": {
+        "correctness": true,
+        "completion": false,
+        "context": true
+      },
+      "evidence": "本轮物流LOST准确且没有猜部分退款政策，但单意图只查物流，称无依据不能确认而未查询可用政策、未答只支持整行全额不支持部分，第二问未完成。"
+    }
+  ],
+  "runtime_sha256": "47e3e543aeb24797f2c4bad0c9b9a210fa31e1d8139ffb0e65bb96509565f9f6"
+}
