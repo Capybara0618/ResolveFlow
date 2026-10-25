@@ -1,0 +1,41 @@
+{
+  "version": "customer-rag-clause-v1",
+  "config": {
+    "rounds": 3,
+    "candidate_k": 20,
+    "rrf_constant": 60,
+    "seed_k": 3,
+    "max_chars": 8000,
+    "max_tokens": 4096,
+    "cpu_threads": 4,
+    "query_rewrite": false,
+    "child_unit": "original-parent-fragment; bound table header kept with body",
+    "parent_selection": "maximum child rank; distinct parents before TopK",
+    "primary_baseline": "packed-ce",
+    "primary_candidate": "clause-ce-grouped"
+  },
+  "variants": [
+    "packed-ce",
+    "clause-dense",
+    "clause-bm25",
+    "clause-rrf",
+    "clause-ce-naive",
+    "clause-ce-grouped"
+  ],
+  "parent_manifest_sha256": "8ecda17f83ed321cfe1c1c4ad20065ad97123756a53cbeb4bf3d4ba38713ddb1",
+  "files": {
+    "docs/customer-rag-clause-experiment-v1.md": "50112f1f219722d7d289d0df32bad1b169573d283e6518f85064e43755de604f",
+    "scripts/customer_rag_clause_experiment_v1.py": "c5325fbddfaa627cc59ae449fbf065cd003fd22fbcd2e531245721c9ad4a87c6",
+    "scripts/evaluation/customer_clause_retrieval_v1.py": "aee9067aff52de14fb6b7ba96e6b0c9b65ff7207553d524984c2a4cc03e84508",
+    "agent/tests/unit/test_customer_clause_retrieval_v1.py": "bd9c2ba48bb78be1619f4f4733fec8a3b01d906a7287b86ddd3b31400d3debe7",
+    "agent/tests/unit/test_customer_rag_clause_experiment_v1.py": "3b129df93cc8cc3c4bbd0db7bfa90308c3e97f8b825f4d5abada45bd8eec93ce",
+    "evals/customer-rag-clause-v1/children.json": "97ef5c4aaff702cef2189a82f1ef97dd1d2371ff0122641fb718fd9886f0b36a",
+    "tmp/customer-rag-clause-v1/vectors.json": "67c6c927fe434238ac227ee9444869cb1a2dcc42f6174787d6f25ef1fca69243",
+    "reports/customer-rag-clause-v1/preparation.json": "c9e5e9c978a49bd07992ef65a03ac2b7133d594cc92b834aa5e5053b42e8350b"
+  },
+  "questions_split": "development_only",
+  "questions": 40,
+  "answerable": 32,
+  "new_generation_api_calls": 0,
+  "production_adoption": false
+}

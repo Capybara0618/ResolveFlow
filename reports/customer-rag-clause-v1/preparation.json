@@ -1,0 +1,25 @@
+{
+  "children": 925,
+  "parents": 344,
+  "window_audit": {
+    "embedding_chunk_max_tokens": 340,
+    "embedding_query_max_tokens": 45,
+    "ce_pair_max_tokens": 316,
+    "ce_pairs_checked": 10755,
+    "tokenization_only_no_ce_forward": true,
+    "silent_truncations": 0
+  },
+  "embedding_build_ms": 10330.120899998292,
+  "new_generation_api_calls": 0,
+  "new_query_rankings": 0,
+  "new_ce_forwards": 0,
+  "by_subject": {
+    "EXTERNAL:APPLE_CN": 121,
+    "EXTERNAL:HUAWEI_CN": 78,
+    "EXTERNAL:IKEA_CN": 135,
+    "EXTERNAL:JD": 45,
+    "EXTERNAL:MIYOUPIN": 86,
+    "EXTERNAL:SAMSUNG_CN": 9,
+    "EXTERNAL:SONY_CN": 451
+  }
+}
