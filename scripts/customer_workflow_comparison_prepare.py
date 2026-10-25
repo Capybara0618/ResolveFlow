@@ -61,7 +61,7 @@ def audit():
         "planned_conversation_runs": len(data["cases"]) * 2, "planned_customer_turns": 100,
         "source_inputs_and_snapshots_unchanged": True,
         "scoring_scope": "customer-visible outcomes; no task/memory/Agent protocol requirements",
-        "baseline_implemented": False, "live_executor_implemented": False,
+        "baseline_implemented": True, "live_executor_implemented": False,
         "new_provider_requests": 0, "new_model_inferences": 0, "quality_measured": False}
 
 

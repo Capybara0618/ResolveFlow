@@ -35,7 +35,8 @@ def test_real_data_keeps_all_inputs_but_uses_only_customer_visible_rubrics():
     report = audit()
     assert report["cases"] == 32 and report["customer_inputs"] == 50
     assert report["complex_cases"] == 24 and report["planned_customer_turns"] == 100
-    assert not report["baseline_implemented"] and not report["quality_measured"]
+    assert report["baseline_implemented"] and not report["quality_measured"]
+    assert not report["live_executor_implemented"]
     q25 = next(c for c in data["cases"] if c["id"] == "Q25")["turns"][0]
     assert "不强制调用物流" in q25["business_expectations"][0]
     assert "required_sources" not in q25 and "criteria" not in q25

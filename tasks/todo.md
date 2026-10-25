@@ -1,4 +1,10 @@
-## 当前快照（2026-10-25，独立基础Workflow对照设计与离线评分准备完成）
+## 当前快照（2026-10-25，独立基础Workflow控制器完成，接Agent通用调用修复）
+
+- 独立scripts/evaluation/basic_customer_workflow.py已实现八分支/两次常规模型、一次格式修正、失败原样交回答/有限重试、模型直接摘要；不导入Agent内部模块/提示，不保留结构化事项记忆，不给模型追加取证循环。[准备报告](../reports/customer-workflow-comparison-v2/README.md)/E63。
+- 基线17+准备10共27检查与四文件Ruff通过，八分支脚本接线已保存；只证明控制器，不是模型效果。first_body_ms尚未测量保持null，真实客户端/共享接口/两组驱动/性能聚合仍未实现。0新模型/DB/服务启停，ledger3053，生产与简历保持。
+- 本步精确提交普通push核实后继续已授权下一小步：修复Agent已确认的通用批量动作合法组合/纠错合同，再接真实双组执行设施；不修改旧输入/Gold或正式结果，不自动付费测量。
+
+## 历史快照（2026-10-25，独立基础Workflow对照设计与离线评分准备完成）
 
 - 用户要求基础Workflow不借用Agent模块。已落[新规格](../docs/customer-workflow-comparison-v2.md)/[准备报告](../reports/customer-workflow-comparison-v2/README.md)：独立LLM路由→固定分支→LLM回答/摘要，只共用外部API/原始数据与中性测量设施；不共用理解、事项/记忆、Harness、grounding/摘要装配。旧全读对照/正式负向结果保持，E62记录比较目标与评分边界变化。
 - 保留原32场景/50客户输入和快照，另写对外correctness/completion/context判据，不要求Agent状态字段；Q25条件句不强制查询，对两组一致。主指标24复杂完整处理率，普通8/总体分列；首次一轮64会话/100客服轮，两组新跑，不拼旧分。
