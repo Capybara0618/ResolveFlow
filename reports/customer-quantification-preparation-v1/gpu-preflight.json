@@ -1,0 +1,33 @@
+{
+  "scope": "one generic preflight pair; not new dataset evaluation",
+  "gpu": {
+    "ready": true,
+    "environment": {
+      "python": "3.11.15",
+      "torch": "2.11.0+cu128",
+      "transformers": "5.14.1",
+      "device": "cuda:0",
+      "dtype": "torch.float32",
+      "cuda_build": "12.8",
+      "gpu_name": "NVIDIA GeForce RTX 5060 Laptop GPU",
+      "gpu_capability": [
+        12,
+        0
+      ],
+      "threads": 4,
+      "synchronized_timing": true,
+      "tf32": false,
+      "activation": "sigmoid-single-logit"
+    },
+    "model_load_including_import_ms": 41041.80090000045
+  },
+  "profile": {
+    "pairs": 1,
+    "max_pair_tokens": 21,
+    "elapsed_ms": 429.69239999911224,
+    "gpu_predict_ms": 409.30110000044806
+  },
+  "local_ce_forward_batches": 1,
+  "new_chat_api_calls": 0,
+  "new_acceptance_questions_run": 0
+}
