@@ -1,4 +1,10 @@
-## 当前快照（2026-10-25，用户冻结Agent文案，转RAG量化）
+## 当前快照（2026-10-25，Agent文案已冻结，RAG六路测量接通待执行）
+
+- Agent文案及RAG规格4b85662已普通push核实。Agent只冻结[正文](../docs/resume-agent-frozen-20261025.md)，总体46.9%→87.5%/服务端平均首正文3.37秒，不改PDF/旧结果。新RAG实现六路720本地请求，固定原40问/32可答/66子块，主对照BM25-direct与预定正分RRF-parent，BM25-parent强对照并列。[准备报告](../reports/customer-rag-quantification-v2/README.md)。
+- 新7+原组装9共16检查与两文件Ruff通过；实际表格测试先失败，恢复同一冻结原文kind/rows元数据后通过，文本/hash/Gold不改。检索与证据包/计时/标签分离，统一8000字符4096token；无CE网格/生成API/生产改动，尚未测新排名或速度。
+- 新manifest freeze/check后精确commit普通push核实，再执行一次六路本地测量及原PG实际Query只读补充；不改已冻结Agent文案，不为成绩换题/分母/挑对照。
+
+## 历史快照（2026-10-25，用户冻结Agent文案，转RAG量化）
 
 - Agent正式结果5f9560e已普通push核实。用户认可总体46.9%→87.5%与服务端平均首正文3.37秒，现按[冻结稿](../docs/resume-agent-frozen-20261025.md)固定Agent这一条；平均值来自49轮有保留正文，P50原3.05秒不变。未改桌面PDF或其他技术点/生产。
 - 已核查RAG旧40题600次：BM25直接@3 31/32、旧RRF26/32、CE31/32，不支持RRF提升。按[新测量规格](../docs/customer-rag-quantification-v2.md)，沿用原文/Gold/BM25主对照，比较词法正分过滤与预算内父级组装，保留BM25-parent强对照；720本地请求/不新增生成API/不改Agent或旧分数。
