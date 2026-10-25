@@ -1,0 +1,185 @@
+{
+  "mode": "offline_no_model_no_business_writes",
+  "new_provider_requests": 0,
+  "summary_quote_failure": {
+    "exact_recorded_rejections": [
+      {
+        "customer_quotes": [
+          "这盏灯一直没收到",
+          "先不准备退款了。我只问这个物流情况下，店铺规定必须提供哪些材料？"
+        ],
+        "invalid_elements": [
+          {
+            "quote": "先不准备退款了。我只问这个物流情况下，店铺规定必须提供哪些材料？",
+            "error": "摘要须摘取本轮或历史仍有效客户原话，不接受模型改写、助手文字或失效陈述。"
+          }
+        ]
+      },
+      {
+        "customer_quotes": [
+          "这盏灯一直没收到。查一下现在的物流，帮我准备退款原因草稿，我先核对，不提交。",
+          "先不准备退款了。我只问这个物流情况下，店铺规定必须提供哪些材料？",
+          "我决定请商家核查，先不要退款。请整理一份核查说明给我确认，等我同意再发送。"
+        ],
+        "invalid_elements": [
+          {
+            "quote": "这盏灯一直没收到。查一下现在的物流，帮我准备退款原因草稿，我先核对，不提交。",
+            "error": "摘要须摘取本轮或历史仍有效客户原话，不接受模型改写、助手文字或失效陈述。"
+          },
+          {
+            "quote": "先不准备退款了。我只问这个物流情况下，店铺规定必须提供哪些材料？",
+            "error": "摘要须摘取本轮或历史仍有效客户原话，不接受模型改写、助手文字或失效陈述。"
+          }
+        ]
+      }
+    ],
+    "legal_selection_passes_current_grounder": "客户陈述（未经核验）：\n- 历史有效陈述原话：\"这盏灯一直没收到\"\n- 本轮原话：\"我决定请商家核查，先不要退款。请整理一份核查说明给我确认，等我同意再发送。\"\n本摘要未附订单或物流的已读系统记录。\n核查摘要尚未发送，待本人核对、编辑并确认共享。",
+    "scope": "只证明原拒绝条件及合法候选存在，不是改提示后的真实模型成功或修复收益。",
+    "source": [
+      "agent/src/resolveflow/support/grounding.py",
+      "agent/src/resolveflow/support/engine.py"
+    ]
+  },
+  "incomplete_correction": {
+    "accepted_understanding": {
+      "kind": "TURN_UNDERSTANDING",
+      "focus": [
+        {
+          "id": "t1",
+          "intent": "LOGISTICS",
+          "request": "耳机订单物流显示已签收但未收到的情况已解决（客户已找到包裹），结束收货调查",
+          "needs": [],
+          "context_refs": [
+            "H7"
+          ],
+          "goal": "EXPLAIN",
+          "operation_request": null
+        },
+        {
+          "id": "t3",
+          "intent": "APPLICATION",
+          "request": "撤回整理耳机订单退款原因的请求，不再准备退款",
+          "needs": [],
+          "context_refs": [
+            "H7"
+          ],
+          "goal": "EXPLAIN",
+          "operation_request": null
+        },
+        {
+          "id": "t2",
+          "intent": "HANDOFF",
+          "request": "不再请商家人工核查",
+          "needs": [],
+          "context_refs": [
+            "H5"
+          ],
+          "goal": "EXPLAIN",
+          "operation_request": null
+        }
+      ],
+      "dialogue_events": [
+        {
+          "change": "RESOLVE",
+          "task_ids": [
+            "t1"
+          ],
+          "reference": "CURRENT",
+          "quote": "刚找到包裹了，之前没拿到的情况已经解决。"
+        },
+        {
+          "change": "CANCEL",
+          "task_ids": [
+            "t3"
+          ],
+          "reference": "CURRENT",
+          "quote": "不再准备退款"
+        },
+        {
+          "change": "CANCEL",
+          "task_ids": [
+            "t2"
+          ],
+          "reference": "CURRENT",
+          "quote": "也不用商家核查。"
+        }
+      ],
+      "customer_claims": [
+        {
+          "topic": "RECEIPT",
+          "reference": "CURRENT",
+          "quote": "刚找到包裹了，之前没拿到的情况已经解决。",
+          "change": "REPLACE",
+          "target": "c_1c1dcf18bf3c26f5aaaba2e2"
+        }
+      ]
+    },
+    "active_in_next_version_without_new_model": [
+      {
+        "id": "c_9b7dcffb5181a9b16089679f",
+        "topic": "RECEIPT",
+        "quote": "家里人其实还没回复我，刚才说他们没代收不准确",
+        "source": {
+          "message_id": null,
+          "sequence": 3,
+          "offset": 5,
+          "quote": "家里人其实还没回复我，刚才说他们没代收不准确"
+        },
+        "status": "ACTIVE",
+        "supersedes": [
+          "c_2a90f9de6d711f54f56ac657"
+        ],
+        "retracts": []
+      },
+      {
+        "id": "c_094f0c98c333746a5c3acdc9",
+        "topic": "RECEIPT",
+        "quote": "目前我还没有拿到",
+        "source": {
+          "message_id": null,
+          "sequence": 3,
+          "offset": 28,
+          "quote": "目前我还没有拿到"
+        },
+        "status": "ACTIVE",
+        "supersedes": [],
+        "retracts": []
+      },
+      {
+        "id": "c_a89e6e0f8066aedafc1e0dd5",
+        "topic": "RECEIPT",
+        "quote": "我还是没拿到",
+        "source": {
+          "message_id": null,
+          "sequence": 7,
+          "offset": 14,
+          "quote": "我还是没拿到"
+        },
+        "status": "ACTIVE",
+        "supersedes": [],
+        "retracts": []
+      },
+      {
+        "id": "c_cee6fa4a21272b0e5f2b7ca7",
+        "topic": "RECEIPT",
+        "quote": "刚找到包裹了，之前没拿到的情况已经解决。",
+        "source": {
+          "message_id": null,
+          "sequence": 9,
+          "offset": 0,
+          "quote": "刚找到包裹了，之前没拿到的情况已经解决。"
+        },
+        "status": "ACTIVE",
+        "supersedes": [
+          "c_1c1dcf18bf3c26f5aaaba2e2"
+        ],
+        "retracts": []
+      }
+    ],
+    "scope": "确认旧陈述会作为ACTIVE传入下一版本；未跑下一轮，不推测实际错答。",
+    "source": [
+      "agent/src/resolveflow/support/memory.py",
+      "agent/src/resolveflow/support/protocol.py"
+    ]
+  }
+}

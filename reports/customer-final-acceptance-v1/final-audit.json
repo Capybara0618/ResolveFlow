@@ -1,0 +1,88 @@
+{
+  "version": "customer-final-acceptance-v1",
+  "scope": "one finite service-side real model acceptance; no new Java/UI/business E2E",
+  "production_changes": 0,
+  "new_provider_requests": 29,
+  "provider_input_tokens": 108934,
+  "provider_output_tokens": 4517,
+  "local_guard_input_budget": 122824,
+  "usage_before": 2381,
+  "usage_after": 2410,
+  "unknown_usage_requests": 0,
+  "estimated_usage_requests": 0,
+  "ledger_lock_absent": true,
+  "public_tables_unchanged": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 199,
+      "sha256": "1cb491f5d060288b676afccb73d1975fcfa2cea1d6f592dd5f8567fe5148083b"
+    },
+    "support_agent_run": {
+      "rows": 34,
+      "sha256": "0747e93502101e86f98b20db0f756e6852a6a4e20d2e11dff2323481ddd57f18"
+    }
+  },
+  "isolated_schema_exported_and_dropped": "t_support_current_v1_c9b236776f60",
+  "frozen_source_files_unchanged": 132,
+  "embedding_files_unchanged": 12,
+  "historical_reports_unchanged": 188,
+  "protected_dirty_files_unchanged": {
+    "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+    "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+    "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+  },
+  "actual_provider_key_scan": "PASS",
+  "owned_containers": {
+    "resolveflow-review-demo-postgres-1": "exited",
+    "resolveflow-review-demo-mysql-1": "exited",
+    "resolveflow-review-demo-redis-1": "exited",
+    "resolveflow-review-demo-rocketmq-namesrv-1": "exited",
+    "resolveflow-review-demo-rocketmq-broker-1": "exited"
+  },
+  "docker_left_running": true,
+  "original_pg_volume_retained": true,
+  "report_hashes": {
+    "conversations.md": "59ce553d0398fa3d729d2599b56285be7f535ea893802d43d37030c1e33ec888",
+    "offline-diagnosis.json": "fbf1c634ac3a15284130193c553447e344b4e05ac658175a7833fd1edf56c1e3",
+    "preflight.json": "8cffd87b2ee19b3d823b9b3f69d9095f996da79579a3ed8549a6ba334be072a5",
+    "README.md": "d62a4ed99b2f0bf063b8083ad19278b93ba337de3f9b023c5ac544bfdcbff614",
+    "runtime-results.json": "22130e4ab138b45be93e4ab45922bc6e4b174e2819870acc660ae1aca0636957",
+    "source-review.json": "2e30cd5af3c66370dd776b5d62460f92d5bfbf1665a69a40ec5f4d6485535f3c"
+  }
+}

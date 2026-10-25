@@ -1,0 +1,1319 @@
+{
+  "reviewer": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_HUMAN_GOLD",
+  "summary": {
+    "scope": "source-visible synthetic regression; real model; frozen HTTP; no new UI/business E2E",
+    "conversations": 3,
+    "turns": 11,
+    "published": 10,
+    "criteria_pass": 8,
+    "criteria_partial": 1,
+    "criteria_fail": 2,
+    "blocking_turns": [
+      "F01/5",
+      "F03/3"
+    ],
+    "freeze_ready": false,
+    "new_provider_requests": 29,
+    "allowance": 40,
+    "usage_before": 2381,
+    "usage_after": 2410,
+    "input_tokens": 108934,
+    "output_tokens": 4517,
+    "estimated_usage_requests": 0,
+    "unknown_usage_requests": 0,
+    "successful_completion_ms": {
+      "n": 10,
+      "median": 3631.543650000026,
+      "min": 2663.863499999934,
+      "max": 6535.252000000128
+    },
+    "retained_first_body_ms": {
+      "n": 9,
+      "median": 2887.8597000000354,
+      "min": 2168.5317999999825,
+      "max": 5091.795100000127,
+      "not_included": "F01/1候选reset后最终发布，无保留首delta；F03/3失败，不进入成功分布。"
+    },
+    "timing_scope": "runtime event receiver; not browser timing, no stable SLA or population P95 claim",
+    "policy_calls": 3,
+    "policy_mode": "COMPLETE_SMALL_SET; six rules per merchant, not external corpus retrieval benchmark",
+    "public_unchanged": true,
+    "isolated_schema_dropped": true
+  },
+  "rows": [
+    {
+      "id": "F01",
+      "turn": 1,
+      "run_id": "e0e600a9-d758-5995-89b2-d5388cda2efe",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "实际读取当前签收物流，承运记录与客户未收到/家人未代收陈述分开",
+        "无退款或人工摘要，不承诺签收等于本人收到"
+      ],
+      "findings": [
+        "实际SHIPMENT为DELIVERED；区分承运记录与本人/家人未收陈述。",
+        "未生成退款/人工摘要。"
+      ],
+      "note": "候选正文1次reset，最终回答正常；不能用首候选冒充保留正文。",
+      "citations": [
+        {
+          "type": "SHIPMENT",
+          "id": "O2",
+          "version": 3
+        },
+        {
+          "type": "KNOWLEDGE",
+          "id": "O1",
+          "version": "2026.10.23-v3"
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "核对耳机订单物流记录显示已签收但本人及家人均未收到的情况",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O2",
+              "O1"
+            ],
+            "response_excerpt": "我核对了这笔耳机订单的物流记录：系统里承运方给出的结论是“已签收”，签收时间也有记录。但这只是承运方的记录，不能证明包裹实际到了您或家人手上；您说本人没拿到、家里人也说没有代收，这与物流显示的签收结论不一致。您明确说先不用申请退款，所以这里只做物流核对，不会提交退款申请。如果您需要商家进一步核查签收情况，可以在售后咨询里选择该订单商品，点“请商家核查”，预览并编辑要共享的原文和调查依据后确认提交；不申请退款也能请商家核查，转交前只有您确认的内容才会发给商家。\n\n物流状态：已签收。\n承运商记录结论：已签收。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "32f922fa-5f0b-5087-afac-fd69ce8f8bbe",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 1,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 3074.783499999967,
+        "first_retained_ms": null,
+        "resets": 1
+      }
+    },
+    {
+      "id": "F01",
+      "turn": 2,
+      "run_id": "886ce5cc-bd45-51f1-9faf-f66c6539d8a9",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "旧家人未代收陈述失效，新尚未回复仍未核验，不能继续说已排除家人代收",
+        "保留本人未收到事项，不无端生成退款/人工摘要"
+      ],
+      "findings": [
+        "家人未代收旧条目SUPERSEDED，尚未回复的新条目ACTIVE；正文没有沿用已排除代收。",
+        "本人未收事项保留且无操作摘要。"
+      ],
+      "note": null,
+      "citations": [
+        {
+          "type": "SHIPMENT",
+          "id": "O2",
+          "version": 3
+        },
+        {
+          "type": "KNOWLEDGE",
+          "id": "O1",
+          "version": "2026.10.23-v3"
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "更正家人尚未回复、本人尚未拿到，重新核对耳机订单物流显示已签收但未收到的情况",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O2",
+              "O1"
+            ],
+            "response_excerpt": "明白，我更正记录：您本人目前还没有拿到耳机；家里人是否代收，目前还没有回复，之前说“家人没代收”不准确，先不作为已核实的情况。我重新核对了这笔耳机订单的物流记录，承运方给出的结论仍是“已签收”，并有签收时间记录；但这只是承运方的记录，不能证明包裹实际到了您或家人手上，与您“本人尚未拿到”的陈述存在不一致，家人是否代收也仍待确认。您之前明确说先不申请退款，所以这里只做物流核对，不会提交退款申请。若需要商家进一步核查签收情况，可在售后咨询中选择该订单商品，点“请商家核查”，预览并编辑要共享的原文和调查依据后确认提交；不申请退款也能请商家核查，转交前只有您确认的内容才会发给商家。\n\n物流状态：已签收。\n承运商记录结论：已签收。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "32f922fa-5f0b-5087-afac-fd69ce8f8bbe",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 3,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_9b7dcffb5181a9b16089679f",
+            "topic": "RECEIPT",
+            "quote": "家里人其实还没回复我，刚才说他们没代收不准确",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 5,
+              "quote": "家里人其实还没回复我，刚才说他们没代收不准确"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_2a90f9de6d711f54f56ac657"
+            ],
+            "retracts": []
+          },
+          {
+            "id": "c_094f0c98c333746a5c3acdc9",
+            "topic": "RECEIPT",
+            "quote": "目前我还没有拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 28,
+              "quote": "目前我还没有拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 3413.0306999998083,
+        "first_retained_ms": 3413.0306999998083,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F01",
+      "turn": 3,
+      "run_id": "45fe8f3d-0c80-5803-ad8d-94925c99f3f6",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "收货调查暂停并保留，只解释独立人工咨询能力",
+        "使用真实GUIDE说明确认转交边界，无操作摘要或自动发送"
+      ],
+      "findings": [
+        "原t1=PAUSED，t2回答独立人工咨询能力，客户旧陈述保留。",
+        "真实GUIDE说明确认共享，无摘要/自动发送。"
+      ],
+      "note": null,
+      "citations": [
+        {
+          "type": "KNOWLEDGE",
+          "id": "O1",
+          "version": "2026.10.23-v3"
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "更正家人尚未回复、本人尚未拿到，重新核对耳机订单物流显示已签收但未收到的情况",
+            "status": "SUSPENDED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "PAUSED"
+          },
+          {
+            "id": "t2",
+            "intent": "HANDOFF",
+            "request": "不申请退款能否请商家人工核查（售后咨询中“请商家核查”的入口与条件）",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1"
+            ],
+            "response_excerpt": "可以。不申请退款也能请商家人工核查：在售后咨询里选择这笔耳机订单的商品，点“请商家核查”，预览并编辑要转交的摘要后确认提交即可，不需要填写退款金额，也不会因此提交退款申请。转交前由您选择共享哪些客户原文和调查依据，只有您确认的内容才会发给商家；转交后默认输入的是补充给商家，会进入原核查单，而询问智能助手的内容不会自动交给商家。您之前说先暂停收货调查、不申请退款，这个前提不变。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "32f922fa-5f0b-5087-afac-fd69ce8f8bbe",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 5,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_9b7dcffb5181a9b16089679f",
+            "topic": "RECEIPT",
+            "quote": "家里人其实还没回复我，刚才说他们没代收不准确",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 5,
+              "quote": "家里人其实还没回复我，刚才说他们没代收不准确"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_2a90f9de6d711f54f56ac657"
+            ],
+            "retracts": []
+          },
+          {
+            "id": "c_094f0c98c333746a5c3acdc9",
+            "topic": "RECEIPT",
+            "quote": "目前我还没有拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 28,
+              "quote": "目前我还没有拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 2312.055900000132,
+        "first_retained_ms": 2312.055900000132,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F01",
+      "turn": 4,
+      "run_id": "3b7fe661-46d7-579a-a609-673e2e2d843f",
+      "publication": "SUCCEEDED",
+      "review": "PARTIAL",
+      "criteria": [
+        "恢复原收货事项，退款草稿用途正确，不能从旧被纠正陈述推定已排除代收",
+        "当前ORDER/SHIPMENT/POLICY充分，解释签收争议人工核验条件，quote摘要未提交"
+      ],
+      "findings": [
+        "退款草稿正确保留尚未核实家人代收，但新建t3=APPLICATION，旧t1仍PAUSED，未落实预设恢复原事项。",
+        "实际读取本店ORDER/SHIPMENT/POLICY；签收争议/人工核验及329元、待确认用途正确。"
+      ],
+      "note": "业务草稿可用；事项恢复判据未全过，不在结果出来后放宽为完全通过。",
+      "citations": [
+        {
+          "type": "POLICY",
+          "id": "P3",
+          "version": "2026.10",
+          "title": "已签收争议",
+          "text": "存在有效签收记录时不能仅因客户主张未收到而退款，须人工核验签收争议；事实不足时要求补充材料或转人工调查。",
+          "merchant_id": "M-1001",
+          "retrieval_context": {
+            "mode": "COMPLETE_SMALL_SET",
+            "count": 6
+          }
+        },
+        {
+          "type": "POLICY",
+          "id": "P6",
+          "version": "2026.10",
+          "title": "单行全额与人工决定",
+          "text": "仅支持单订单行全部数量的全额模拟退款，同行最多一次成功，整单已退加预留不超过支付额，UNKNOWN 保留原操作和占用；不支持部分退款、补发或真实支付。模型建议与 confidence 均不是授权，不得自动审批。",
+          "merchant_id": "M-1001",
+          "retrieval_context": {
+            "mode": "COMPLETE_SMALL_SET",
+            "count": 6
+          }
+        },
+        {
+          "type": "ORDER",
+          "id": "O2",
+          "version": 1
+        },
+        {
+          "type": "SHIPMENT",
+          "id": "O3",
+          "version": 3
+        },
+        {
+          "type": "KNOWLEDGE",
+          "id": "O1",
+          "version": "2026.10.23-v3"
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "更正家人尚未回复、本人尚未拿到，重新核对耳机订单物流显示已签收但未收到的情况",
+            "status": "SUSPENDED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "PAUSED"
+          },
+          {
+            "id": "t2",
+            "intent": "HANDOFF",
+            "request": "不申请退款能否请商家人工核查（售后咨询中“请商家核查”的入口与条件）",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          },
+          {
+            "id": "t3",
+            "intent": "APPLICATION",
+            "request": "整理耳机订单退款原因供客户核对，先不提交",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "P3",
+              "P6",
+              "O2",
+              "O3",
+              "O1"
+            ],
+            "response_excerpt": "接着上轮讨论的“物流显示已签收、但您本人还没拿到、家人是否代收尚未确认”这个场景说：这类签收争议，政策的前提是存在有效签收记录时，不能仅凭客户主张未收到就退款，须由人工核验签收争议；事实不足时要求补充材料或转人工调查。另外退款只支持单订单行全部数量的全额模拟退款，同行最多一次成功，模型建议不构成授权，最终由售后专员决定。目前承运方记录结论与您“本人未拿到”的陈述不一致，家人是否代收也还没核实，所以这份退款原因只是供您核对的草稿，不代表已获得退款资格或批准，也不会提交。政策未规定此类争议必须提交的材料清单，您可先核对下方摘录的本人原话是否准确。\n\n退款草稿尚未提交。申请卡片准备好后，请核对整行实付金额和原因，可编辑后点击“确认提交申请”。确认后才创建申请，并可在当前会话或“我的售后”查看进度；私有聊天不会自动共享。\n\n订单状态：已付款。\n订单行实付：329.00 CNY。\n物流状态：已签收。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t3"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "32f922fa-5f0b-5087-afac-fd69ce8f8bbe",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 7,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_9b7dcffb5181a9b16089679f",
+            "topic": "RECEIPT",
+            "quote": "家里人其实还没回复我，刚才说他们没代收不准确",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 5,
+              "quote": "家里人其实还没回复我，刚才说他们没代收不准确"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_2a90f9de6d711f54f56ac657"
+            ],
+            "retracts": []
+          },
+          {
+            "id": "c_094f0c98c333746a5c3acdc9",
+            "topic": "RECEIPT",
+            "quote": "目前我还没有拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 28,
+              "quote": "目前我还没有拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_a89e6e0f8066aedafc1e0dd5",
+            "topic": "RECEIPT",
+            "quote": "我还是没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 7,
+              "offset": 14,
+              "quote": "我还是没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 5091.795100000127,
+        "first_retained_ms": 5091.795100000127,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F01",
+      "turn": 5,
+      "run_id": "1077791a-3f8b-5a27-b0ac-3b5f29dd11ee",
+      "publication": "SUCCEEDED",
+      "review": "FAIL",
+      "criteria": [
+        "记录找到及结束/撤回意愿，未收到陈述不再作为当前主张",
+        "无可操作退款或人工摘要，不声称已经取消真实退款工单"
+      ],
+      "findings": [
+        "找到包裹被采纳且t1=RESOLVED，但三条旧RECEIPT仍ACTIVE，其中两条仍称目前未拿到。",
+        "无可操作摘要，t2/t3=CANCELLED；没有声称撤销已存在退款工单。"
+      ],
+      "note": "阻断：关键纠正的有效记忆范围不完整；尚未实际执行后续轮，不声称已发生错误退款。",
+      "citations": [],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "耳机订单物流显示已签收但未收到的情况已解决（客户已找到包裹），结束收货调查",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": "收到，您已找到包裹，之前“物流显示已签收但本人未拿到”的收货调查到此结束，不再继续跟进。",
+            "lifecycle": "RESOLVED"
+          },
+          {
+            "id": "t2",
+            "intent": "HANDOFF",
+            "request": "不再请商家人工核查",
+            "status": "CANCELLED",
+            "evidence_refs": [],
+            "response_excerpt": "请商家核查的事项也一并取消，不会向商家转交任何内容；此前没有提交过核查单，因此无需撤回。",
+            "lifecycle": "CANCELLED"
+          },
+          {
+            "id": "t3",
+            "intent": "APPLICATION",
+            "request": "撤回整理耳机订单退款原因的请求，不再准备退款",
+            "status": "CANCELLED",
+            "evidence_refs": [],
+            "response_excerpt": "之前那份供您核对的退款原因草稿作废，不再准备退款，也不会提交任何退款申请。",
+            "lifecycle": "CANCELLED"
+          }
+        ],
+        "focus_ids": [
+          "t1",
+          "t3",
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "32f922fa-5f0b-5087-afac-fd69ce8f8bbe",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-a632f04b-83cf-4e75-b939-b0a19ca82afa",
+        "input_version": 9,
+        "entries": [
+          {
+            "id": "c_1c1dcf18bf3c26f5aaaba2e2",
+            "topic": "RECEIPT",
+            "quote": "耳机物流显示已签收，但我没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机物流显示已签收，但我没拿到"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2a90f9de6d711f54f56ac657",
+            "topic": "RECEIPT",
+            "quote": "家里人也说没有代收",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里人也说没有代收"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_9b7dcffb5181a9b16089679f",
+            "topic": "RECEIPT",
+            "quote": "家里人其实还没回复我，刚才说他们没代收不准确",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 5,
+              "quote": "家里人其实还没回复我，刚才说他们没代收不准确"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_2a90f9de6d711f54f56ac657"
+            ],
+            "retracts": []
+          },
+          {
+            "id": "c_094f0c98c333746a5c3acdc9",
+            "topic": "RECEIPT",
+            "quote": "目前我还没有拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 28,
+              "quote": "目前我还没有拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_a89e6e0f8066aedafc1e0dd5",
+            "topic": "RECEIPT",
+            "quote": "我还是没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 7,
+              "offset": 14,
+              "quote": "我还是没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_cee6fa4a21272b0e5f2b7ca7",
+            "topic": "RECEIPT",
+            "quote": "刚找到包裹了，之前没拿到的情况已经解决。",
+            "source": {
+              "message_id": null,
+              "sequence": 9,
+              "offset": 0,
+              "quote": "刚找到包裹了，之前没拿到的情况已经解决。"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_1c1dcf18bf3c26f5aaaba2e2"
+            ],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 2836.633100000199,
+        "first_retained_ms": 2836.633100000199,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F02",
+      "turn": 1,
+      "run_id": "90744ba4-31b7-5b0a-b7f9-256b450cacb2",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "输出待客户确认的handoff摘要，开线是未核验客户陈述，无无依据已核实事实",
+        "原核查可接续，私有助手消息不等于给商家发送，无退款摘要"
+      ],
+      "findings": [
+        "handoff摘要引用客户原话并标未经核验，无无依据订单事实。",
+        "实际GUIDE/可信交互快照说明已有已解决记录可补充接续，尚未发送且无退款摘要。"
+      ],
+      "note": null,
+      "citations": [
+        {
+          "type": "KNOWLEDGE",
+          "id": "O1",
+          "version": "2026.10.23-v3"
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "HANDOFF",
+            "request": "整理耳罩边缘开线问题给商家的核查说明，先不发送、不退款",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1"
+            ],
+            "response_excerpt": "这是给商家核查用的说明草稿，不是退款申请，也不会自动提交退款；按你的要求，目前只是整理内容，尚未发送给商家。转交前你可以选择共享哪些客户原文和调查依据，只有你确认的内容才会发给商家；转交后默认输入会作为补充发给商家，进入原核查单，而询问智能助手的内容不会自动交给商家。商家核查回复后不会自动视为已解决，你可以继续补充或确认解决。\n\n人工咨询：当前已有商家核查记录。在当前会话选择“补充给商家”，填写本次要咨询或补充的内容，点击“发送”，消息会进入原核查单。已解决的核查单也可通过再次补充接续，无需重新转交。只会共享本次发给商家的内容，私有助手对话不会自动全部共享；此操作不会自动提交退款申请。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "e2539c06-7d60-52e3-a1fa-18afb1e88278",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "input_version": 1,
+        "entries": [
+          {
+            "id": "c_b244e97fc4b22f38f7e521f4",
+            "topic": "OTHER",
+            "quote": "耳罩边缘开线",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳罩边缘开线"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 2375.188900000012,
+        "first_retained_ms": 2375.188900000012,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F02",
+      "turn": 2,
+      "run_id": "ebac8018-009c-50ab-8ce5-95a6922ccc90",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "开线旧主张失效，新掉皮陈述有效，摘要保留纠正语境且不认定已核验损坏",
+        "仍是人工核查摘要，无退款摘要或已转交承诺"
+      ],
+      "findings": [
+        "开线旧条目SUPERSEDED，掉皮新条目ACTIVE；摘要保留不是开线的纠正语境。",
+        "仍为未发送人工摘要，无退款摘要。"
+      ],
+      "note": null,
+      "citations": [
+        {
+          "type": "KNOWLEDGE",
+          "id": "O1",
+          "version": "2026.10.23-v3"
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "HANDOFF",
+            "request": "按更正后的情况（耳罩表面掉皮，撤回开线描述）重新整理给商家的核查说明，先不发送、不退款",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1"
+            ],
+            "response_excerpt": "已按更正后的情况重新整理：只保留“耳罩表面掉皮”，开线的描述已撤掉，不再作为核查依据。这份是给商家核查用的摘要草稿，不是退款申请，也不会自动提交退款；目前尚未发送给商家。转交前你可以选择共享哪些客户原文和调查依据，只有你确认的内容才会发给商家。\n\n人工咨询：当前已有商家核查记录。在当前会话选择“补充给商家”，填写本次要咨询或补充的内容，点击“发送”，消息会进入原核查单。已解决的核查单也可通过再次补充接续，无需重新转交。只会共享本次发给商家的内容，私有助手对话不会自动全部共享；此操作不会自动提交退款申请。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "e2539c06-7d60-52e3-a1fa-18afb1e88278",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "input_version": 3,
+        "entries": [
+          {
+            "id": "c_b244e97fc4b22f38f7e521f4",
+            "topic": "OTHER",
+            "quote": "耳罩边缘开线",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳罩边缘开线"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_3c99307d3ce308b36f7ecac2",
+            "topic": "OTHER",
+            "quote": "不是开线，是耳罩表面掉皮",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 3,
+              "quote": "不是开线，是耳罩表面掉皮"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_b244e97fc4b22f38f7e521f4"
+            ],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 2887.8597000000354,
+        "first_retained_ms": 2887.8597000000354,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F02",
+      "turn": 3,
+      "run_id": "68aadc55-7299-5804-a789-0e6e2c6e0d95",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "暂停/撤回摘要准备，无本轮可操作摘要",
+        "说明仅确认共享或后续明确发给商家的内容可见，私有对话不会自动全部共享；不混淆当前与默认接收人"
+      ],
+      "findings": [
+        "原摘要准备t1=PAUSED，无本轮操作摘要。",
+        "GUIDE说明只见确认共享/明确发给商家内容，私有助手历史不自动全共享；没有混同默认接收人。"
+      ],
+      "note": null,
+      "citations": [
+        {
+          "type": "KNOWLEDGE",
+          "id": "O1",
+          "version": "2026.10.23-v3"
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "HANDOFF",
+            "request": "按更正后的情况（耳罩表面掉皮，撤回开线描述）重新整理给商家的核查说明，先不发送、不退款",
+            "status": "SUSPENDED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "PAUSED"
+          },
+          {
+            "id": "t2",
+            "intent": "OTHER",
+            "request": "补充材料后商家是否会看到客户此前与机器人的全部聊天记录",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O1"
+            ],
+            "response_excerpt": "不会。补充材料发给商家后，商家只能看到你确认共享的客户原文、调查依据，以及你之后直接发给商家的消息；你与智能助手的私有咨询和助手回答不会自动全部交给商家。转交前你可以自行选择共享哪些原文和依据，调查依据默认不勾选，对话历史也不会随依据自动共享。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "e2539c06-7d60-52e3-a1fa-18afb1e88278",
+        "merchant_id": "M-1001",
+        "customer_id": "C-19464374118c6fd74a3b2a332b7f7bd7ae5354cb",
+        "line_id": "SHOP-e4666839-a03e-4b0b-890d-af8f5e1ad49d",
+        "input_version": 5,
+        "entries": [
+          {
+            "id": "c_b244e97fc4b22f38f7e521f4",
+            "topic": "OTHER",
+            "quote": "耳罩边缘开线",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳罩边缘开线"
+            },
+            "status": "SUPERSEDED",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_3c99307d3ce308b36f7ecac2",
+            "topic": "OTHER",
+            "quote": "不是开线，是耳罩表面掉皮",
+            "source": {
+              "message_id": null,
+              "sequence": 3,
+              "offset": 3,
+              "quote": "不是开线，是耳罩表面掉皮"
+            },
+            "status": "ACTIVE",
+            "supersedes": [
+              "c_b244e97fc4b22f38f7e521f4"
+            ],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 2168.5317999999825,
+        "first_retained_ms": 2168.5317999999825,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F03",
+      "turn": 1,
+      "run_id": "65806738-ae01-5fd2-a656-6f7f8d0bd511",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "读取本店当前订单与LOST物流及政策，金额129元有ORDER来源，客户陈述未核验",
+        "退款quote摘要可核对，保留丢失/无有效签收/人工核验条件，无假提交"
+      ],
+      "findings": [
+        "绑定M-1002当前ORDER为129元、SHIPMENT为LOST，本店政策及未经核验原话分开。",
+        "退款quote摘要待确认；解释无有效签收与人工核验前提，没有假提交。"
+      ],
+      "note": null,
+      "citations": [
+        {
+          "type": "SHIPMENT",
+          "id": "O3",
+          "version": 3
+        },
+        {
+          "type": "POLICY",
+          "id": "P2",
+          "version": "2026.10",
+          "title": "承运商判定丢失",
+          "text": "承运商结论为 LOST 且无有效签收记录时，经人工核验可按该订单行全部数量的实付金额退款；本地模拟在途不代表承运商丢失。",
+          "merchant_id": "M-1002",
+          "retrieval_context": {
+            "mode": "COMPLETE_SMALL_SET",
+            "count": 6
+          }
+        },
+        {
+          "type": "POLICY",
+          "id": "P6",
+          "version": "2026.10",
+          "title": "单行全额与人工决定",
+          "text": "仅支持单订单行全部数量的全额模拟退款，同行最多一次成功，整单已退加预留不超过支付额，UNKNOWN 保留原操作和占用；不支持部分退款、补发或真实支付。模型建议与 confidence 均不是授权，不得自动审批。",
+          "merchant_id": "M-1002",
+          "retrieval_context": {
+            "mode": "COMPLETE_SMALL_SET",
+            "count": 6
+          }
+        },
+        {
+          "type": "ORDER",
+          "id": "O2",
+          "version": 1
+        },
+        {
+          "type": "KNOWLEDGE",
+          "id": "O1",
+          "version": "2026.10.23-v3"
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "查询这盏桌面台灯当前物流状态",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O3"
+            ],
+            "response_excerpt": "这盏桌面台灯的物流记录显示承运商已给出丢失结论，并非仍在正常运输途中；该结论来自物流接口的当前记录，可作为后续核查的依据。\n\n物流状态：丢失。\n承运商记录结论：丢失。",
+            "lifecycle": "OPEN"
+          },
+          {
+            "id": "t2",
+            "intent": "APPLICATION",
+            "request": "准备退款原因草稿供客户核对，不提交",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "P2",
+              "P6",
+              "O2",
+              "O3",
+              "O1"
+            ],
+            "response_excerpt": "退款原因草稿已按你“一直没收到”的陈述整理，供你先核对，尚未提交，也不代表已获得退款资格或批准。按平台政策，承运商判定丢失且无有效签收记录的情形，需经人工核验后才可按该订单行全部数量办理全额退款；目前丢失结论与签收情况仍需售后专员复核，且同一订单行仅支持一次全额退款。政策未规定必须提交的材料清单，如后续需要补充，会另行告知。\n\n退款草稿尚未提交。申请卡片准备好后，请核对整行实付金额和原因，可编辑后点击“确认提交申请”。确认后才创建申请，并可在当前会话或“我的售后”查看进度；私有聊天不会自动共享。\n\n订单状态：已付款。\n订单行实付：129.00 CNY。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1",
+          "t2"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "2cfea5c7-6f79-5359-bbe0-cea6c2410e25",
+        "merchant_id": "M-1002",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "input_version": 1,
+        "entries": [
+          {
+            "id": "c_5c40815a700bbb4fae678726",
+            "topic": "RECEIPT",
+            "quote": "这盏灯一直没收到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "这盏灯一直没收到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 3319.1947999998774,
+        "first_retained_ms": 3319.1947999998774,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F03",
+      "turn": 2,
+      "run_id": "668b93e6-b883-5ac1-ba51-1679044a6eff",
+      "publication": "SUCCEEDED",
+      "review": "PASS",
+      "criteria": [
+        "暂停退款准备，无本轮退款或人工摘要",
+        "承接LOST具体政策主题并引用本店条款，不编造必交材料清单或用应用GUIDE回答政策要求"
+      ],
+      "findings": [
+        "退款t2=CANCELLED、无操作摘要，符合先不准备退款的即时效果。",
+        "真实本店POLICY承接LOST/签收争议，无虚构必交材料清单，未用应用GUIDE冒充政策。"
+      ],
+      "note": "多选了正文未使用的P5在途条款；未列固定清单不能推广为商家以后永不要求补充。",
+      "citations": [
+        {
+          "type": "POLICY",
+          "id": "P2",
+          "version": "2026.10",
+          "title": "承运商判定丢失",
+          "text": "承运商结论为 LOST 且无有效签收记录时，经人工核验可按该订单行全部数量的实付金额退款；本地模拟在途不代表承运商丢失。",
+          "merchant_id": "M-1002",
+          "retrieval_context": {
+            "mode": "COMPLETE_SMALL_SET",
+            "count": 6
+          }
+        },
+        {
+          "type": "POLICY",
+          "id": "P3",
+          "version": "2026.10",
+          "title": "已签收争议",
+          "text": "存在有效签收记录时不能仅因客户主张未收到而退款，须人工核验签收争议；事实不足时要求补充材料或转人工调查。",
+          "merchant_id": "M-1002",
+          "retrieval_context": {
+            "mode": "COMPLETE_SMALL_SET",
+            "count": 6
+          }
+        },
+        {
+          "type": "POLICY",
+          "id": "P5",
+          "version": "2026.10",
+          "title": "普通在途",
+          "text": "IN_TRANSIT 本身不构成物流丢失或退款资格；尚无承运商异常结论且无其他经核验的退款理由时，要求补充信息或转人工，不按未发货规则退款。",
+          "merchant_id": "M-1002",
+          "retrieval_context": {
+            "mode": "COMPLETE_SMALL_SET",
+            "count": 6
+          }
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "查询这盏桌面台灯当前物流状态",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          },
+          {
+            "id": "t2",
+            "intent": "APPLICATION",
+            "request": "准备退款原因草稿供客户核对，不提交",
+            "status": "CANCELLED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "CANCELLED"
+          },
+          {
+            "id": "t3",
+            "intent": "OTHER",
+            "request": "在承运商判定丢失的物流情况下，店铺规定必须提供哪些材料",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "P2",
+              "P3",
+              "P5"
+            ],
+            "response_excerpt": "承接上轮讨论的“承运商判定丢失、客户称一直没收到”这一场景：按平台政策，承运商结论为丢失且无有效签收记录时，需经人工核验后才可按该订单行全部数量办理全额退款；若存在有效签收记录，则不能仅因客户主张未收到而退款，须人工核验签收争议。政策并未规定必须提交的材料清单，因此店铺没有强制要求你预先提供特定材料；如人工核验中需要补充，会另行告知。以上是政策条件说明，不代表当前订单已认定符合退款资格或已获批准。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t3"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "2cfea5c7-6f79-5359-bbe0-cea6c2410e25",
+        "merchant_id": "M-1002",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "input_version": 3,
+        "entries": [
+          {
+            "id": "c_5c40815a700bbb4fae678726",
+            "topic": "RECEIPT",
+            "quote": "这盏灯一直没收到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "这盏灯一直没收到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 2971.814100000074,
+        "first_retained_ms": 2971.814100000074,
+        "resets": 0
+      }
+    },
+    {
+      "id": "F03",
+      "turn": 3,
+      "run_id": "1f5d0692-a097-514d-9fd6-c02dd5bd4f10",
+      "publication": "FAILED",
+      "review": "FAIL",
+      "criteria": [
+        "选择独立人工核查用途并提供handoff摘要，不输出退款摘要",
+        "使用本人本店上下文与有效客户陈述，未核验标记及确认共享边界清楚，没有已发送/自动退款承诺"
+      ],
+      "findings": [
+        "正确理解MERCHANT_REVIEW且非退款，但两个RESPOND均含不合法历史quote，最终INVALID_DECISION，无回答/摘要。",
+        "没有实际发送/退款；失败前仅GUIDE，本轮未读物流/政策，候选旧政策重述不能算新取证。"
+      ],
+      "note": "阻断：原话选择合同与原始历史可见范围不同，通用纠错未定位非法元素，有限修复后仍失败。",
+      "citations": [],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "LOGISTICS",
+            "request": "查询这盏桌面台灯当前物流状态",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          },
+          {
+            "id": "t2",
+            "intent": "APPLICATION",
+            "request": "准备退款原因草稿供客户核对，不提交",
+            "status": "CANCELLED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "CANCELLED"
+          },
+          {
+            "id": "t3",
+            "intent": "OTHER",
+            "request": "在承运商判定丢失的物流情况下，店铺规定必须提供哪些材料",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          },
+          {
+            "id": "t4",
+            "intent": "HANDOFF",
+            "request": "整理一份请商家核查的转交说明供客户确认，暂不发送、不退款",
+            "status": "PENDING",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": []
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "2cfea5c7-6f79-5359-bbe0-cea6c2410e25",
+        "merchant_id": "M-1002",
+        "customer_id": "C-0fc172994f94cd27eb0bcdc7c752101a1b811cf1",
+        "line_id": "SHOP-b9dbad28-81cd-435a-881f-b3f8ef4115b9",
+        "input_version": 5,
+        "entries": [
+          {
+            "id": "c_5c40815a700bbb4fae678726",
+            "topic": "RECEIPT",
+            "quote": "这盏灯一直没收到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "这盏灯一直没收到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "stream_times": {
+        "first_provisional_ms": 2347.385099999883,
+        "first_retained_ms": null,
+        "resets": 2
+      }
+    }
+  ]
+}

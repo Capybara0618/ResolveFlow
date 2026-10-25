@@ -1,4 +1,10 @@
-## 当前快照（2026-10-25，固定3组11轮收口验收准备完成）
+## 当前快照（2026-10-25，固定收口验收完成：架构保留，两个边界未过）
+
+- 准备6ad2853已普通push核实，固定3组11轮只执行一次，真实29模型、供应商108934输入/4517输出、未知/估算0，usage2381→2410。[报告](../reports/customer-final-acceptance-v1/README.md)/[全部会话](../reports/customer-final-acceptance-v1/conversations.md)/[源审](../reports/customer-final-acceptance-v1/source-review.json)。10/11发布，严格判据8通过/1部分/2阻断，不改输入/提示/业务、不追加真实轮；0业务/新页面/简历。
+- 已定位F01找到包裹仅替换一条未收旧记忆，其余同义旧条目仍ACTIVE；F03转人工摘要两次选入不合法历史quote，原有限修正后INVALID_DECISION。[离线复现](../reports/customer-final-acceptance-v1/offline-diagnosis.json)确认原拒绝/合法候选存在及下一版本携带旧ACTIVE，不把离线替换报真实成功。另恢复问题后新APPLICATION完成而原LOGISTICS仍PAUSED，判部分；E58记录职责根因/未实施方案。RAG本批3次6条本店全读，非失败根因/大语料新评测。
+- 成功完成中位3.63秒，9个保留正文首delta中位2.89秒；范围/候选reset/失败/服务端非UI边界完整保留，不报稳定SLA。原public11表/索引、188历史报告、四脏文件保持，临时schema已导出清理，所属项目资源恢复关闭、Docker/原卷保留，见最终审计。新驱动7测/Ruff与离线诊断断言通过；结果精确commit普通push核实后停止本批写入，暂缓简历成功率，不自动追加付费修复。
+
+## 历史快照（2026-10-25，固定3组11轮收口验收准备完成）
 
 - 用户认可有限代表性多轮验收后转指标/演示，按[规格](../docs/customer-final-acceptance-v1.md)/[报告](../reports/customer-final-acceptance-v1/README.md)冻结当前生产实现，新输入开发可见合成3组11轮，涵盖纠正/暂停恢复/隐私/跨店政策/退款转人工。最多40新模型请求，不改提示/业务、不重跑补分；技术成功与业务完整源审分开。
 - 新驱动复用实际已接受状态及流式计量，7单元/Ruff通过；freeze/check确认原PG原卷/政策索引，0新模型、usage2381。只启动原PG，Java/UI/worker保持关闭；临时schema隔离并导出清理。准备精确commit普通push核实后执行一次，若有阻断先报告根因、不自动追加付费修复；无阻断则工程收口转指标及演示。四历史脏文件保持，不更新简历。
