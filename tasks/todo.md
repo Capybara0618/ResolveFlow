@@ -1,4 +1,10 @@
-## 当前快照（2026-10-25，真实等待分解单轮准备）
+## 当前快照（2026-10-25，单轮真实等待分解完成，当前架构保留）
+
+- 准备d310e7d普通push核实后，冻结原问题实际Vue/Java/Python/DeepSeek一次3模型，10706输入/545输出、未知/估算0，usage2378→2381，无追加题/确认建单/转交。[本批报告](../reports/customer-wait-profile-live-v1/README.md)/[时延分解](../reports/customer-wait-profile-live-v1/timing-analysis.json)/[源审](../reports/customer-wait-profile-live-v1/source-review.json)。5个可见中间正文、15delta/reset0，两模型段落保留，329元DRAFT待确认，原程序重复物流块/旧入口指引已实际消除，模型语义冗长仍保留。
+- UI首反馈307ms/首正文3970ms/完成5340ms，服务端首delta3627.908ms/commit5158.096ms；4秒单例过但仅余30ms，不当稳定SLA/受控提升。UNDERSTAND/INVESTIGATE/COMPOSE模型全程1.20/0.81/2.12秒，合计4.13秒约占commit80%；订单/物流/政策源约24/30/22ms，政策为本店6条小集合全读，不是本例主要等待。接收至首模型约596ms未全部细分，不擅自归为TLS，E57记录。
+- [最终审计](../reports/customer-wait-profile-live-v1/final-audit.json)：旧业务/旧run/索引、188历史报告/冻结源码/四脏文件保持，公共PG仅本run/7call、其余9表保持；无Case/核查/授权/退款，支付32900/0/0，密钥扫描通过、锁释放。正式stop恢复所属资源关闭，原卷/Docker保留；本轮无业务代码改动/全仓/简历。结果精确commit普通push核实后本轮收口，不自动扩大重构或付费追题，后续按用户指示量初始化或评估输出取舍。
+
+## 历史快照（2026-10-25，真实等待分解单轮准备）
 
 - 用户要求开始Agent优化主线，按[本批说明](../docs/customer-wait-profile-live-v1.md)/[报告](../reports/customer-wait-profile-live-v1/README.md)冻结一个新合成LOST订单/空会话，原问题只发一次、最多12新模型请求、不确认/转交/Case。复用已验证准备/计账路径，新wrapper Ruff过，0模型、usage2378，未发送问题。
 - 原四类队列0后正式start -SkipBuild -NoBrowser保留原数据/精确索引；计数器启动READY360.962ms、embedding/BM25预热31388.657ms单列，非客户等待。精确commit普通push核实后CUA实际渐进正文与同run模型/工具日志对齐，按实测决定优化，不追题或更换框架；原四历史脏文件保持。

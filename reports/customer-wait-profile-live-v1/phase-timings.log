@@ -1,0 +1,11 @@
+INFO:     support_counter_warmup status=READY elapsed_ms=360.961599999996
+INFO:     support_embedding_warmup status=WARMING; waiting before startup readiness
+INFO:     support_embedding_warmup status=READY elapsed_ms=31388.657
+INFO:     support_tool_timing run=4fc321aa-f136-4d77-9f12-e60bc276ff59 step=1 tool=get_support_guide source_ms=1.455
+INFO:     support_model_timing run=4fc321aa-f136-4d77-9f12-e60bc276ff59 step=1 phase=UNDERSTAND cached=False prepare_ms=23.133 current_ms=11.815 journal_ms=5.799 provider_ms=1198.529 first_content_ms=276.89650000002075 outcome=COMPLETE
+INFO:     support_model_timing run=4fc321aa-f136-4d77-9f12-e60bc276ff59 step=2 phase=INVESTIGATE cached=False prepare_ms=22.702 current_ms=24.806 journal_ms=7.872 provider_ms=810.829 first_content_ms=405.5531000000201 outcome=COMPLETE
+INFO:     support_tool_timing run=4fc321aa-f136-4d77-9f12-e60bc276ff59 step=2 tool=get_order_context source_ms=23.663
+INFO:     support_tool_timing run=4fc321aa-f136-4d77-9f12-e60bc276ff59 step=3 tool=get_shipment_trace source_ms=29.639
+INFO:     support_policy_search run_id=4fc321aa-f136-4d77-9f12-e60bc276ff59 query_sha256=a0bf65278b2f15a402fd4198910f0695208f9ca6ae7103bbddb4d18a2c8d2959 stages={} source_total_ms=21.675
+INFO:     support_tool_timing run=4fc321aa-f136-4d77-9f12-e60bc276ff59 step=4 tool=search_policy source_ms=22.044
+INFO:     support_model_timing run=4fc321aa-f136-4d77-9f12-e60bc276ff59 step=3 phase=COMPOSE cached=False prepare_ms=61.220 current_ms=11.689 journal_ms=6.713 provider_ms=2121.373 first_content_ms=495.44430000003103 outcome=COMPLETE
