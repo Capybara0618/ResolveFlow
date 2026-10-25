@@ -6,3 +6,4 @@
 /agent/src/resolveflow/assets/deepseek-v41/tokenizer.json.gz -text
 /evals/resume-quantification-v1/** -text whitespace=cr-at-eol
 /reports/resume-quantification-v1/** -text whitespace=cr-at-eol
+/reports/customer-quantification-v1/** -text whitespace=cr-at-eol

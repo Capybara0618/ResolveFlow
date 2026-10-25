@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-25",
+  "formal_agent_matrix": "128 conversation runs / 200 turns; all source reviewed",
+  "agent_rows": 200,
+  "exported_run_rows": 200,
+  "exported_call_rows": 1210,
+  "formal_rag_matrix": "40 queries x 5 paths x 3 rounds = 600",
+  "agent_summary_recomputed_equal": true,
+  "rag_source_coverage_recomputed_equal_rows": 600,
+  "frozen_agent_files_verified": 154,
+  "frozen_rag_files_verified": 19,
+  "frozen_embedding_and_reranker_weights_verified": true,
+  "new_provider_requests": 606,
+  "provider_request_ceiling": 800,
+  "ledger_before": 2447,
+  "ledger_after": 3053,
+  "ledger_lock_absent": true,
+  "known_input_tokens": 2085768,
+  "known_output_tokens": 67992,
+  "unknown_usage_calls": 0,
+  "estimated_usage_calls": 0,
+  "new_rag_generation_api_calls": 0,
+  "formal_timed_rag_requests": 600,
+  "formal_reranker_pairs_excluding_generic_warmups": 3060,
+  "maximum_reranker_pair_tokens": 319,
+  "public_tables_unchanged": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 209,
+      "sha256": "c7a86c525caeb890f59c95267c98f75d9b8325763a98a31dcf3c2ed422ee6d55"
+    },
+    "support_agent_run": {
+      "rows": 36,
+      "sha256": "409ec018b789a069d2a91c95916be19d2783bb4c1a1fb757836c7d996e63f7ee"
+    }
+  },
+  "owned_schema_exported_and_dropped": "t_support_current_v1_9a011f47524f",
+  "remaining_support_temporary_schemas": [],
+  "historical_reports_unchanged": 188,
+  "protected_dirty_files_unchanged": {
+    "docs/engineering.md": "853989d247c77be4821783ba12438a8215cd0af7f36056987c2dc8d495c9f7f7",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/refund/RefundAcceptanceApiTest.java": "aa7aa26eba97869a44dcd3773eef9c2caad5dff7f303a646662103e5bc799b08",
+    "scripts/verify.ps1": "97d80c6cbb097e10b39ad8d19d64cf7065a9a2978596df8de325c1ced3e2ef85",
+    "scripts/verify.sh": "35c60aa66e0e6fb8074fb9a45895ccc829e299bc6d438b57401ebbd1438a790a"
+  },
+  "actual_provider_key_scan": "PASS",
+  "original_pg_container_id_retained": "2697eb86cf0bfdd25e53fa2b9ebdfd5fbb08624d6738b23207e940d374a9e875",
+  "original_pg_volume_retained": true,
+  "containers_running_at_finish": [
+    "resolveflow-review-demo-redis-1:running",
+    "resolveflow-review-demo-rocketmq-broker-1:running",
+    "resolveflow-review-demo-rocketmq-namesrv-1:running",
+    "resolveflow-review-demo-postgres-1:running",
+    "resolveflow-review-demo-mysql-1:running"
+  ],
+  "ports_listening_at_finish": [
+    55433
+  ],
+  "business_lifecycle_commands_this_batch": 0,
+  "production_code_changes": 0,
+  "resume_changes": 0,
+  "new_java_ui_refund_end_to_end": false,
+  "report_hashes": {
+    "agent-runtime.json": "6d70a433e4cbfeda232ca52a418088615e708c2c4f45ce1c5b3e91f97c68659b",
+    "agent-summary.json": "d610c603bd786b3dd05a86379af889bf54ad4e8ab8d8f8cc21e89d14b13d5598",
+    "analysis.json": "c700c84b761596c5cac49e1a1e3667ed5d138fbd24715e63483a4ea89b295465",
+    "conversations.md": "b7de8f8230c9c8bdeb569f4d3f9608dfce0e698fbb14b46232ba72076e088f74",
+    "failure-traces.json": "c20803f3a09993ee0ef14d0482963da2e8d21f556c6809a8954704904aee44fd",
+    "preflight.json": "170de95383f58d0c0483f080fcad5f8c2e7c52f80a0375562a95f384851cc0cc",
+    "rag-results.gpu.log": "bdfda4b578f6657ad92a29053c02071dda0b2eb27c2f7c5d9e26a613b15d1f41",
+    "rag-results.json": "f24074abb4280862396551928a77dc70d233de6ad55fab494559e4a796017bc9",
+    "README.md": "410a03dc9c0df45912d3a4008437823bfdd0fa63dc599eed63abbd6d23f4ef3f",
+    "retrieval-diagnostics.json": "fd73069c90eaaa4362ae445d73d7d298b523b40f8362247d192380f67a6b4b15",
+    "source-review.json": "ad2723637800878b9ab341f623de8af0a3ab5df6670e6d753e96fbf0c7f576a1"
+  }
+}

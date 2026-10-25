@@ -4,6 +4,84 @@
 
 Agent32场景×动态/固定×2次=128会话运行/200客服轮。复杂24组每组48运行，以完整会话的来源审查判完成；失败/预算耗尽保留全部分母和费用。RAG40问×5方案×3次=600本地检索，主候选RRF事前选定，直接/展开证据覆盖分开。两套测量顺序运行避免资源互相干扰；来源可见合成工程验收，非独立真实用户数据。
 
-正式命令：`python -m scripts.customer_quantification_agent execute --live --max-provider-requests 800 --output reports/customer-quantification-v1/agent-runtime.json`；随后`python -m scripts.customer_quantification_rag execute --output reports/customer-quantification-v1/rag-results.json`。运行结束后生成完整源审模板、核对实际事实/政策/摘要/记忆/状态并汇总，不把SUCCEEDED等同语义正确。此页后续追加真实结果，不先填简历数字。
+正式命令：`python -m scripts.customer_quantification_agent execute --live --max-provider-requests 800 --output reports/customer-quantification-v1/agent-runtime.json`；随后`python -m scripts.customer_quantification_rag execute --output reports/customer-quantification-v1/rag-results.json`。现已全部执行并源审，不把SUCCEEDED等同语义正确。
 
 本批不改生产实现/基线、简历或旧结果，不启业务应用/Java worker；仅用原PG只读政策与所属临时schema，真实模型+冻结HTTP事实，不冒充新Java/UI退款验收。原数据、历史报告和四历史脏文件保持。当前通过/失败/未运行及环境限制将完整记录。
+
+## 实际结论
+
+本批证明了按需读取能减少业务HTTP，但没有证明动态Agent的复杂会话完成率优于固定全量调查；预选RRF也没有优于BM25。保留负向结果，不改题、不换分母、不补跑追分、不事后把CE称为预选主方案。当前不应据此在简历写“复杂完成率提升”或“RRF较BM25提升”。
+
+## Agent：全部128会话、200轮
+
+同DeepSeek Flash（实际请求deepseek-flash，temperature=0、关闭thinking、JSON）、同理解/记忆/摘要/校验/预算。固定组只有调查顺序固定全读ORDER→SHIPMENT→政策Query/POLICY，保留当前多轮理解能力；不是所有Workflow的代表。动态组使用当前生产SDK循环。政策来自原PG绑定商家/版本的小规则集，实际为COMPLETE_SMALL_SET；本节不是下面外部长文RRF试验的集成测量。
+
+| 指标 | 动态Agent | 固定全量调查 |
+| --- | ---: | ---: |
+| 复杂完整会话（主指标） | 32/48，66.7% | 40/48，83.3% |
+| 全部完整会话 | 48/64，75.0% | 55/64，85.9% |
+| 普通完整会话 | 16/16 | 15/16 |
+| 唯一32场景两次均完成 | 22/32 | 26/32 |
+| 唯一24复杂场景两次均完成 | 14/24 | 19/24 |
+| 发布 / 源审通过客户轮 | 89/100 / 84/100 | 93/100 / 89/100 |
+| 业务HTTP总数 / 每会话均值 | 80 / 1.250 | 200 / 3.125 |
+| 政策读取 / 指南读取 | 24 / 100 | 100 / 100 |
+| 模型请求 | 300 | 306 |
+| 输入 / 输出token | 919848 / 33066 | 1165920 / 34926 |
+| 所有轮服务端最终耗时P50 / P95 | 3893 / 5876 ms | 4035 / 5125 ms |
+| 有记录且发布的保留首正文P50 / P95 | 3011 / 4602 ms（88轮） | 3210 / 4018 ms（93轮） |
+
+复杂完成率差为**-16.7个百分点**，两轮分别都是动态16/24、固定20/24。业务HTTP均值减少**60.0%**；双方都完成的42个配对运行中，每会话1.190对3.286，减少**63.8%**。42是“场景×重复”的筛选样本，不是42名用户；失败所有成本仍在全量均值。业务HTTP只算订单/物流/历史，排除current fence检查、政策和本地指南。
+
+完成要求每轮来源、语义、记忆/状态及所需摘要都满足，任何一轮未通过则整个会话未完成；合理补证或人工核验可通过，不要求退款获批。实际606模型请求，ledger2447→3053，低于800；合计2085768输入/67992输出token，未知与估算usage均0。没有重跑失败。流式是服务端事件测量，存在撤回/reset；动态一个已发布但未通过源审的回答没有保留首正文时间，未伪填0。这里不含浏览器渲染/网络及真实HTTP时延，不能直接说用户页面P95约5秒。
+
+### 失败根因与证据
+
+全部27个未通过轮中18个技术未发布、9个已发布但不完整，见[逐轮源审](source-review.json)、[失败决策和反馈](failure-traces.json)和[全部实际对话](conversations.md)。
+
+- 动态11个技术失败中，**10个是READ_FACTS合同错误反复未纠正**：单个事实+POLICY误用仅允许ORDER+SHIPMENT的batch，未缺POLICY仍加policy_query，或取未列入missing的事实。错误响应及反馈均已保存，出现在Q12/13/18/21/23/32。原事项恢复后状态实际已OPEN，不能把这类失败泛称记忆丢失。根因可定位到[固定形状批量协议](../../agent/src/resolveflow/support/orchestration.py)及[调查校验/纠错](../../agent/src/resolveflow/support/engine.py)，不是模型服务超时或政策没有召回。另1个Q22-r2有RESPOND.parts额外citations_note字段，严格协议拒绝。
+- 动态已发布的5个未通过：Q22-r1未读必要政策；Q25两次未实际验证SHIPMENT；Q29-r1把“无有效签收”写成事实；Q28-r2文本承诺整理却没有handoff_summary。保留“未读来源”“读后错误推断”“缺操作产物”三个不同问题，不能全归于RAG效果差。
+- 固定7个技术未发布：Q06-r1共同理解误判为退款，目标复核形状/缺operation_request失败（不归因于固定读工具）；Q26两次、Q28四轮尝试追加读取，被冻结的固定流程拒绝。后者体现这个全读一次基线的限制，不代表所有工作流无法做故障分支。另4个发布但未通过均错误断言当前不存在有效签收记录。
+- “当前无有效签收”的5个跨组错误依据实际SHIPMENT只有LOST和事件，缺有效签收核验字段；政策条件不是当前事实。即使同时说“待人工核验”，也不能把尚未证实的前提标成接口事实。
+
+判据限制：Q25的原话是“物流查询打不开时，能否认定丢失”，本可以只作假设解释，但冻结required_sources指定SHIPMENT。主分保留；若仅作敏感性分析接受动态两次条件式解释，复杂完成率变为34/48=70.8%，仍低于固定83.3%。这不是改分或新主指标。数据来自作者已见来源的合成会话、原事实快照复用；Codex源审非独立人审，两次重复不当成独立48个复杂业务场景。
+
+## RAG：40题、五路径、600次本地检索
+
+4份原始外部HTML、66子块；32可答+8语料外。完整覆盖@3要求找齐任一充分证据集合，非“找到任一相关块”。质量用首轮32题，三轮只提供计时和稳定性。五路径均执行120次，三次的全部排名一致。
+
+| 路径 | 直接完整@3 | 直接完整@5 | 父章节展开完整@3 | 热P50 / P95 |
+| --- | ---: | ---: | ---: | ---: |
+| BM25 | 31/32，96.9% | 31/32 | 32/32 | 9.2 / 25.3 ms |
+| BGE dense | 29/32，90.6% | 31/32 | 32/32 | 14.0 / 26.0 ms |
+| 三路RRF（事前主候选） | 26/32，81.3% | 27/32 | 31/32 | 21.7 / 42.0 ms |
+| BM25 + CrossEncoder | 31/32，96.9% | 32/32 | 32/32 | 171.8 / 205.4 ms |
+| RRF + CrossEncoder | 31/32，96.9% | 32/32 | 32/32 | 142.7 / 217.7 ms |
+
+预选RRF较BM25**下降15.6个百分点**；CE修回RRF漏掉的5题，但@3仍与BM25持平，没有显示相对BM25的质量收益。@5的CE多找齐R18一题，是探索结果，不能拿@5与基线@3相比。父章节展开增加上下文字符，不与直接前三子块命中混为一个指标；BM25展开@3平均2391字，RRF2531字，RRF+CE2460字。
+
+速度包括每次需要的Query编码、筛选/召回/融合/重排及K3/K5两份上下文组包；不含模型加载、HTTP/PG、回答生成。CPU BGE编码，现有RTX5060 Laptop GPU / FP32 / TF32关闭进行CE，真实3060个重排pair（另有3个通用预热pair），最长319 tokens/512，无截断；总加载与预热另计22981 ms。小语料下的9.2 ms不能冒充线上API耗时或大库性能。8语料外题仅记录候选，未测拒答或答案正确率；本批没有新增旧29问/18改写/业务60问重测。
+
+### 检索失败复核
+
+[来源与排名诊断](retrieval-diagnostics.json)显示：RRF相较BM25丢掉R22赠品冲突及R25/26/27/29宜家条款，R27连父章节展开也未补齐。R25标题路35块得分全部0，仍按id排出前20并获得融合票；R26/27/29的标题只有1或5块正分，泛标题/零分候选继续占票。正文和标题相关性、重复/缺细标题也会影响排名；已确认零分投票机制和具体漏召回，尚未通过新消融确认其对全部差距的因果份额，不宣称这是唯一根因。
+
+R18需要起算总则b0007和缺签收日期处理b0038，所有路径@3只直接覆盖后者，展开能补齐；CE在@5补齐。当前数据来源清晰可核验，同时与原文关键词重叠、语料很小，BM25本已很强，未证明“更复杂结构必然更好”。检索实验仍在评测入口，生产政策路线未切为RRF或CE。
+
+## 后续取舍
+
+先修复Agent批量动作暴露条件与反馈可执行性、来源完备和事实/条件区分，再用本批保存的失败响应做离线验证；不继续扩多Agent或整体换框架。这个建议尚未实施或复测，不能提前说问题已修复。本次不自动继续付费。
+
+外部长文在此数据上优先保留BM25作为质量/效率基线，RRF标题零分/弱信号与结构作下一轮受控消融；CE有修回能力但成本更高，未达到替换BM25的证据。选择这些方向是本次结果之后的判断，不改冻结主候选或当前生产配置。简历暂不更新。
+
+## 复算与保留核验
+
+解释器为原agent/.venv，PYTHONPATH为仓库和agent/src。实际先运行上述两条execute，再用`python -m scripts.customer_quantification_prepare review-template --runtime reports/customer-quantification-v1/agent-runtime.json --output 新源审.json`生成身份/hash绑定模板。Codex逐轮按实际原文、来源、记忆、产物填写现有source-review.json，随后执行：
+
+```powershell
+python -m scripts.customer_quantification_prepare summarize --runtime reports/customer-quantification-v1/agent-runtime.json --review reports/customer-quantification-v1/source-review.json --output 新汇总.json
+```
+
+主要原始证据：[Agent全记录](agent-runtime.json)、[Agent汇总](agent-summary.json)、[RAG全记录](rag-results.json)、[分组/分轮/计时分析](analysis.json)。分析均由保存结果确定性导出，未再次推理；最终检查重新计算Agent汇总和600条RAG来源覆盖/packet hash，冻结154个Agent文件/19个RAG文件及权重保持。[最终审计](final-audit.json)记录ledger、11张public表、导出/清理、188旧报告、四脏文件和容器保留；本轮未新跑全仓测试或Java/UI业务验收。
+
+只读诊断时有一次把POLICY列表当字典导致打印失败、一次rg路径错误，均改为正确只读方式完成，未影响评测/触发新模型。当前应用端口5174/8180–8183无监听，PG55433保留；本轮没有启停业务服务，不将评测完成说成页面已启动。

@@ -1,0 +1,2994 @@
+{
+  "origin": "CODEX_SOURCE_REVIEW_NOT_INDEPENDENT_HUMAN_GOLD",
+  "rows": [
+    {
+      "id": "Q01-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "使用当前签收记录，不能等同本人已收到",
+        "无退款/人工摘要"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "fbb6f18c-1ac0-5675-ba24-4b957b735515",
+      "pass": true,
+      "evidence": "当前SHIPMENT签收记录；未将承运签收认定本人已收，无操作产物。"
+    },
+    {
+      "id": "Q01-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "使用当前签收记录，不能等同本人已收到",
+        "无退款/人工摘要"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "05d47e02-17ce-599c-8a28-6e4a4909a980",
+      "pass": true,
+      "evidence": "当前SHIPMENT签收，说明无更细位置/签收人；无操作产物。"
+    },
+    {
+      "id": "Q02-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "当前LOST与客户陈述分开",
+        "不自动申请退款"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "1c3cf9d6-9048-5bca-bbe0-404b8cc578bb",
+      "pass": true,
+      "evidence": "SHIPMENT为LOST，额外相关POLICY保留无有效签收/人工核验前提，未自动申请。"
+    },
+    {
+      "id": "Q02-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "当前LOST与客户陈述分开",
+        "不自动申请退款"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "b8a818c4-021f-59c7-bd72-784c3c417b50",
+      "pass": true,
+      "evidence": "实际LOST来自物流，明确不代表退款/补发，无摘要。"
+    },
+    {
+      "id": "Q03-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "金额须订单当前来源，不能只引用商品展示",
+        "无操作产物"
+      ],
+      "required_sources": [
+        "ORDER"
+      ],
+      "artifact": "NONE",
+      "run_id": "2a31aaa6-abb1-5b3d-bc2b-5ffbe9f4e125",
+      "pass": true,
+      "evidence": "ORDER实付329元，未从商品展示推断；无申请/转交。"
+    },
+    {
+      "id": "Q03-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "金额须订单当前来源，不能只引用商品展示",
+        "无操作产物"
+      ],
+      "required_sources": [
+        "ORDER"
+      ],
+      "artifact": "NONE",
+      "run_id": "fe17d2f5-df0d-5845-94e4-faa790f233de",
+      "pass": true,
+      "evidence": "当前ORDER实付329元，正文与程序事实一致，无操作。"
+    },
+    {
+      "id": "Q04-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "独立人工咨询不要求退款金额",
+        "GUIDE不是政策资格"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "2234a075-8302-589a-a2e1-ea9543c1a15c",
+      "pass": true,
+      "evidence": "GUIDE明确独立核查不填退款金额，待本人确认共享。"
+    },
+    {
+      "id": "Q04-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "独立人工咨询不要求退款金额",
+        "GUIDE不是政策资格"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "623ca388-289c-5e0a-82e4-d368f4a42174",
+      "pass": true,
+      "evidence": "GUIDE分开核查和申请，隐私/确认共享清楚，无操作摘要。"
+    },
+    {
+      "id": "Q05-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "仅确认共享内容，不自动全历史",
+        "无代发承诺"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "992610e0-edd8-5e29-bda1-92bcffdbe682",
+      "pass": true,
+      "evidence": "GUIDE说明用户选择原话与依据，历史不自动全共享，无代发。"
+    },
+    {
+      "id": "Q05-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "仅确认共享内容，不自动全历史",
+        "无代发承诺"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "ed700aee-3348-56d5-86b2-39d416eebeee",
+      "pass": true,
+      "evidence": "GUIDE选择原话/依据，默认不勾依据，不自动转交。"
+    },
+    {
+      "id": "Q06-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "故障为未经核验客户陈述",
+        "人工摘要待确认、无退款产物"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "888ee5a2-cb40-5141-8274-70e09ffb2c5c",
+      "pass": false,
+      "evidence": "技术FAILED INVALID_DECISION，未发布所需人工摘要；具体协议根因另审。 实际理解先误选退款，候选人工产物触发复核，随后REVIEW_GOAL形状/缺operation_request两次失败；非固定工具读取本身失败，不将此例差异归因纯自主调度。"
+    },
+    {
+      "id": "Q06-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "故障为未经核验客户陈述",
+        "人工摘要待确认、无退款产物"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "68b01ca3-62b2-56d4-9413-cb66866fe7a0",
+      "pass": true,
+      "evidence": "人工quote摘要标未经核验，按键陈述正确，待客户确认，无退款；包含式重复作为次要。"
+    },
+    {
+      "id": "Q07-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "签收争议人工核验及事实不足处理",
+        "假设不认定本单资格"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "45ef3aaf-7f41-555d-8e48-10eb20c9adac",
+      "pass": true,
+      "evidence": "实际签收争议POLICY保留人工核验/事实不足，不认定本单资格。"
+    },
+    {
+      "id": "Q07-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "签收争议人工核验及事实不足处理",
+        "假设不认定本单资格"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "8a484c80-7e35-581b-a177-d80abf3ced08",
+      "pass": true,
+      "evidence": "签收争议POLICY保留人工核验/事实不足及假设边界，不判断本单资格。"
+    },
+    {
+      "id": "Q08-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "无有效签收且人工核验，整行全额",
+        "政策不证明本单实际无签收"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "a0400932-b4c3-556b-bdca-b034eef1b9bb",
+      "pass": true,
+      "evidence": "LOST/无有效签收/人工核验/整行全额均有本店POLICY，未将假设认定当前资格。"
+    },
+    {
+      "id": "Q08-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "无有效签收且人工核验，整行全额",
+        "政策不证明本单实际无签收"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "b4e04565-b6f2-5b17-a7e3-84f2ad7a2382",
+      "pass": true,
+      "evidence": "丢失和签收两前提及人工核验/全额限制有POLICY，当前事实未判定。"
+    },
+    {
+      "id": "Q09-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "分开本人未收和代收点排查",
+        "未核验标识"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "e38620f5-0937-5d8b-a68c-29636fccf193",
+      "pass": true,
+      "evidence": "实际签收SHIPMENT与客户未收/代收点排查陈述分开，无摘要。"
+    },
+    {
+      "id": "Q09-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "旧已问过/没有失效，未询问有效",
+        "不再以排除代收点为依据"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "bc3fe6ac-3621-58e4-8de5-7938d0390aaf",
+      "pass": true,
+      "evidence": "旧已问代收点条目SUPERSEDED、新未开门未询问ACTIVE，正文采纳纠正且重新读取SHIPMENT。"
+    },
+    {
+      "id": "Q09-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "分开本人未收和代收点排查",
+        "未核验标识"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "48c7d44b-b69d-571d-871b-a22b64b466c1",
+      "pass": true,
+      "evidence": "签收来源与未收客户陈述冲突保留，本店政策人工核验，未认定资格。"
+    },
+    {
+      "id": "Q09-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "旧已问过/没有失效，未询问有效",
+        "不再以排除代收点为依据"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "f0c2d348-64b6-50b3-b315-9ce9df25f23e",
+      "pass": true,
+      "evidence": "旧排除代收点条目SUPERSEDED，未问到ACTIVE，回答没有沿用旧排除结论。"
+    },
+    {
+      "id": "Q10-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "人工草稿待确认，右边不响为客户陈述"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "f21595d5-463d-5849-90b8-8de524f36137",
+      "pass": true,
+      "evidence": "人工quote摘要将右耳不响标未核验，待共享确认，无退款；正文额外质量政策未引用列为次要。"
+    },
+    {
+      "id": "Q10-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "完全不响失效，间歇异常有效",
+        "摘要保留纠正与未经核验，不伪造事实"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "06a96a0d-6671-544b-8ec2-dd9462b7cab8",
+      "pass": true,
+      "evidence": "原完全不响SUPERSEDED，左右能响/右耳间歇ACTIVE，人工摘要保留更正/未核验，无退款。"
+    },
+    {
+      "id": "Q10-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "人工草稿待确认，右边不响为客户陈述"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "a9871ba2-57ea-5ac3-86a3-ac53f2bdd338",
+      "pass": true,
+      "evidence": "HANDOFF quote摘要原话/未核验/待确认，无退款或已转交承诺。"
+    },
+    {
+      "id": "Q10-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "完全不响失效，间歇异常有效",
+        "摘要保留纠正与未经核验，不伪造事实"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "51b605fc-ee4f-5ae8-9ce1-d2ee90958ca3",
+      "pass": true,
+      "evidence": "旧完全不响SUPERSEDED，新间歇故障ACTIVE，摘要纠正原话完整，未实际发送。"
+    },
+    {
+      "id": "Q11-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "LOST来自实际物流，未收为客户陈述"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "567c3218-cf80-5985-b844-a3141d8178bc",
+      "pass": true,
+      "evidence": "当前LOST/承运结论正确，未创建申请；初轮未提取客户记忆但原话仍在历史，当前判据满足。"
+    },
+    {
+      "id": "Q11-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "保留补充陈述，不生成操作摘要"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "ed11cbc9-4f21-5b84-a398-07b42a622ff7",
+      "pass": true,
+      "evidence": "补充未收到ACTIVE，无操作摘要，实际重读物流并分开承运记录。"
+    },
+    {
+      "id": "Q11-dynamic-r1",
+      "turn": 3,
+      "criteria": [
+        "所有本人未收同义陈述失效，找到有效",
+        "事项结束，无操作产物"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "54eb33f3-efd1-555e-aa07-f691eaffab0d",
+      "pass": true,
+      "evidence": "唯一旧本人未收ACTIVE已SUPERSEDED，物业送达ACTIVE，原事项RESOLVED，无摘要。"
+    },
+    {
+      "id": "Q11-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "LOST来自实际物流，未收为客户陈述"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "c364353a-b854-5fef-83c7-09425c15e05b",
+      "pass": true,
+      "evidence": "当前LOST来源，未收为客户原话，未生成操作。"
+    },
+    {
+      "id": "Q11-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "保留补充陈述，不生成操作摘要"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "95a4186e-9fd2-52cd-9582-c36577267366",
+      "pass": true,
+      "evidence": "旧未收被新同义有效陈述替代，未生成操作产物。"
+    },
+    {
+      "id": "Q11-fixed-r1",
+      "turn": 3,
+      "criteria": [
+        "所有本人未收同义陈述失效，找到有效",
+        "事项结束，无操作产物"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "e5d6f4fa-dfea-585d-88b8-6012a63ca62a",
+      "pass": true,
+      "evidence": "所有未收条目SUPERSEDED、找到有效，事项RESOLVED，无摘要；仍有固定全量读成本。"
+    },
+    {
+      "id": "Q12-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "分开邻居与家人状态",
+        "不把未联系当无人代收"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "3a5cbff8-7729-53d0-8549-6b669112b6d3",
+      "pass": true,
+      "evidence": "三条客户排查陈述分别保存，家人未联系不等于无人代收，SHIPMENT签收来源独立。"
+    },
+    {
+      "id": "Q12-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "邻居否认失效，承认代收有效",
+        "家人未联系独立陈述保留，不按RECEIPT全清空"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "3ab57a28-a532-57f4-8824-e62cbef4725c",
+      "pass": true,
+      "evidence": "邻居否认失效/承认代收有效，家人未联系虽换成新同义条目仍ACTIVE保留，未按主题全清。"
+    },
+    {
+      "id": "Q12-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "分开邻居与家人状态",
+        "不把未联系当无人代收"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "b58149a7-3f8a-5bac-85d6-cc16ba7233bf",
+      "pass": true,
+      "evidence": "邻居/家人/本人三项独立ACTIVE，当前签收不等于实际收货，无操作摘要。"
+    },
+    {
+      "id": "Q12-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "邻居否认失效，承认代收有效",
+        "家人未联系独立陈述保留，不按RECEIPT全清空"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "106324ad-d0f3-5004-ba3d-1e7f37691150",
+      "pass": true,
+      "evidence": "邻居否认失效/承认有效，家人未联系同义更新后仍ACTIVE，不全主题清空，无申请。"
+    },
+    {
+      "id": "Q13-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "当前签收与客户主张分开"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "2e120aab-a183-5c5d-a298-ec6e85163591",
+      "pass": true,
+      "evidence": "当前订单/签收来源与客户未收分开，无自动核查或退款。"
+    },
+    {
+      "id": "Q13-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "旧事项暂停，新问题有GUIDE",
+        "回复不等于解决"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "d5c7df56-5102-5355-a5fa-1aa2a3b08dde",
+      "pass": true,
+      "evidence": "原t1 PAUSED、新指南问题OPEN，商家回复不等于客户确认解决，无摘要。"
+    },
+    {
+      "id": "Q13-dynamic-r1",
+      "turn": 3,
+      "criteria": [
+        "原事项恢复，不重复创建同一问题",
+        "实际重新读当前物流，不复用旧run引用"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "d8b2b9d1-c106-55b9-bd6e-28d4af31abf4",
+      "pass": false,
+      "evidence": "原t1已OPEN但发布FAILED INVALID_DECISION，无当前所需物流答复；计整组未完成。"
+    },
+    {
+      "id": "Q13-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "当前签收与客户主张分开"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "7295af9f-182f-521e-91da-d0259fa8a7f9",
+      "pass": true,
+      "evidence": "实际订单/签收与政策保留争议核验，不认定本人已收，无操作。"
+    },
+    {
+      "id": "Q13-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "旧事项暂停，新问题有GUIDE",
+        "回复不等于解决"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "57a55fd9-9dd6-55ef-a717-0a876b13c87e",
+      "pass": true,
+      "evidence": "原t1暂停，GUIDE解释人工回复不自动解决，无操作。"
+    },
+    {
+      "id": "Q13-fixed-r1",
+      "turn": 3,
+      "criteria": [
+        "原事项恢复，不重复创建同一问题",
+        "实际重新读当前物流，不复用旧run引用"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "b48457b9-a630-5aed-948b-62c01953e02f",
+      "pass": true,
+      "evidence": "原t1恢复OPEN、当前SHIPMENT重新读取，有签收争议解释，无新重复事项。"
+    },
+    {
+      "id": "Q14-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "核查草稿待确认"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "1c7e3166-66df-59b6-834b-21682c2039ae",
+      "pass": true,
+      "evidence": "接口松动人工原话摘要标未核验，等待核对/确认，无退款。"
+    },
+    {
+      "id": "Q14-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "旧事项暂停，无操作摘要",
+        "每行独立记录且历史保留"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "4b3eae7f-55b5-57e2-b6eb-6df71df034d7",
+      "pass": true,
+      "evidence": "原人工t1 PAUSED、插问t2 OPEN，GUIDE说明订单行独立与历史保留，无操作摘要。"
+    },
+    {
+      "id": "Q14-fixed-r1",
+      "turn": 3,
+      "criteria": [
+        "恢复原事项和有效陈述",
+        "人工摘要待确认"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "b9f8aedf-fbaf-5fea-b74b-c80532162599",
+      "pass": true,
+      "evidence": "原HANDOFF t1恢复OPEN，接口松动原话ACTIVE，人工摘要待确认，无退款；多余政策正文但本run有实际条款引用。"
+    },
+    {
+      "id": "Q14-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "核查草稿待确认"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "be22d9d5-3aa0-5799-9f96-901d1aa4518d",
+      "pass": true,
+      "evidence": "GUIDE与人工quote草稿，客户症状未经核验，待确认，无退款。"
+    },
+    {
+      "id": "Q14-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "旧事项暂停，无操作摘要",
+        "每行独立记录且历史保留"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "3b0d7b14-a3fa-5d0e-8328-b925a78769c9",
+      "pass": true,
+      "evidence": "原t1暂停、新订单行切换问题独立，GUIDE说明原记录保留，无摘要。"
+    },
+    {
+      "id": "Q14-dynamic-r1",
+      "turn": 3,
+      "criteria": [
+        "恢复原事项和有效陈述",
+        "人工摘要待确认"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "61e3e333-86e5-5334-8011-cc9af0c994e3",
+      "pass": true,
+      "evidence": "原t1恢复OPEN，同一有效接口松动陈述生成人工摘要，待确认。"
+    },
+    {
+      "id": "Q15-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "订单/物流/政策与退款产物一致"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "ea20b34e-1109-58ca-9587-1bfaaa0a38be",
+      "pass": true,
+      "evidence": "ORDER129/SHIPMENT LOST/相关政策实际读取，退款quote草稿未提交，人工核验/无签收条件保留。"
+    },
+    {
+      "id": "Q15-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "退款暂停，新GUIDE问题活跃，无退款摘要"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "03e7e494-f8cd-5bdd-b511-ffe615f9f3c3",
+      "pass": true,
+      "evidence": "退款t1 PAUSED，GUIDE进度说明与未转交状态一致，无退款摘要。"
+    },
+    {
+      "id": "Q15-dynamic-r1",
+      "turn": 3,
+      "criteria": [
+        "恢复原退款事项，最新有效陈述",
+        "当前订单与物流及政策须重读"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "622c546c-09f2-5f37-9063-60374104cc16",
+      "pass": true,
+      "evidence": "原退款t1恢复OPEN，重新读当前ORDER/SHIPMENT/POLICY，未收有效，退款草稿待确认。"
+    },
+    {
+      "id": "Q15-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "订单/物流/政策与退款产物一致"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "e89ef926-0c8b-5d4d-bc05-f466a0a47f57",
+      "pass": true,
+      "evidence": "实际ORDER129/SHIPMENT LOST与政策，草稿用途正确，保留人工核验及无有效签收前提，无假批准。"
+    },
+    {
+      "id": "Q15-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "退款暂停，新GUIDE问题活跃，无退款摘要"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "1300ac2f-7821-5fcd-9fd4-068961de3cf1",
+      "pass": true,
+      "evidence": "退款t1 PAUSED，GUIDE进度回答明确未转交/未提交，无本轮摘要。"
+    },
+    {
+      "id": "Q15-fixed-r1",
+      "turn": 3,
+      "criteria": [
+        "恢复原退款事项，最新有效陈述",
+        "当前订单与物流及政策须重读"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "4b4f73f0-1fe2-5a63-8b3f-58eb28aa8117",
+      "pass": true,
+      "evidence": "原t1恢复OPEN，当前ORDER/SHIPMENT/POLICY重读，退款草稿仅有效未收原话，未提交。"
+    },
+    {
+      "id": "Q16-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "读取当前物流"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "a6a94d9f-bc87-5064-bcff-565d9d7fb99d",
+      "pass": true,
+      "evidence": "SHIPMENT当前签收，承运与本人主张分开，无操作。"
+    },
+    {
+      "id": "Q16-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "旧调查暂停，政策假设独立",
+        "IN_TRANSIT不等于LOST，不判断当前资格"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "2d5b97d8-d260-5cef-aa44-2969f7f9ce9b",
+      "pass": true,
+      "evidence": "原调查暂停，独立POLICY说明IN_TRANSIT不等于丢失及人工核验，未把假设当当前事实。"
+    },
+    {
+      "id": "Q16-fixed-r1",
+      "turn": 3,
+      "criteria": [
+        "原问题恢复可更新APPLICATION",
+        "不能继承假设在途为当前事实"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "62e34375-0480-5d58-b244-f2cc5ef840c1",
+      "pass": true,
+      "evidence": "原t1恢复并更新APPLICATION/OPEN，当前ORDER/签收POLICY，未继承上轮在途假设，退款摘要正确。"
+    },
+    {
+      "id": "Q16-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "读取当前物流"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "894750b4-4ece-5ace-9ca3-19bd60ad37bf",
+      "pass": true,
+      "evidence": "当前ORDER/SHIPMENT，客户未收ACTIVE，未自动申请。"
+    },
+    {
+      "id": "Q16-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "旧调查暂停，政策假设独立",
+        "IN_TRANSIT不等于LOST，不判断当前资格"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "40f6c6f2-c1c6-584f-b47b-e7055338d58f",
+      "pass": true,
+      "evidence": "原调查暂停，新POLICY假设问题独立，未把在途当丢失，无摘要。"
+    },
+    {
+      "id": "Q16-dynamic-r1",
+      "turn": 3,
+      "criteria": [
+        "原问题恢复可更新APPLICATION",
+        "不能继承假设在途为当前事实"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "b9b596ec-8657-572a-a257-c0db092d8243",
+      "pass": true,
+      "evidence": "原t1恢复APPLICATION/OPEN，当前签收与未收保留，退款草稿和核验政策正确，无人工产物。"
+    },
+    {
+      "id": "Q17-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "退款草稿/LOST处理前提"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "57093773-6ea2-5f41-810b-3e3299d4111a",
+      "pass": true,
+      "evidence": "本店ORDER129/LOST/政策齐，退款quote草稿待确认，核验前提保留。"
+    },
+    {
+      "id": "Q17-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "人工而非退款摘要，旧退款停止",
+        "有效未收陈述保留，未发送"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "1cb22dcb-3607-567f-a179-cfa056b38e7c",
+      "pass": true,
+      "evidence": "同t1改HANDOFF，只有人工摘要且保留未收有效陈述，未发/无退款。"
+    },
+    {
+      "id": "Q17-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "退款草稿/LOST处理前提"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "ad37be16-4dca-5663-a41b-415e046a10d4",
+      "pass": true,
+      "evidence": "当前订单/物流/政策齐，退款草稿及人工核验/无有效签收前提完整。"
+    },
+    {
+      "id": "Q17-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "人工而非退款摘要，旧退款停止",
+        "有效未收陈述保留，未发送"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "796a14b9-34e8-5538-aa1c-12fff96b2d8b",
+      "pass": true,
+      "evidence": "同t1改HANDOFF，仅人工摘要，原有效未收保留，待确认共享。"
+    },
+    {
+      "id": "Q18-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "只生成人工待确认摘要"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "bb92b27a-5748-5187-bad4-4ba69c71cb58",
+      "pass": true,
+      "evidence": "人工摘要与当前签收事实分开，未收标未核验，非退款。"
+    },
+    {
+      "id": "Q18-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "按本轮意愿改为退款摘要",
+        "签收争议人工核验，草稿非批准"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "59ca36ba-4709-5303-9fcb-3149b6340a0c",
+      "pass": true,
+      "evidence": "原t1改APPLICATION，退款草稿/当前订单物流政策齐，签收人工核验，待确认而非批准。"
+    },
+    {
+      "id": "Q18-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "只生成人工待确认摘要"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "3beec696-48bb-590e-8455-618b34a58495",
+      "pass": true,
+      "evidence": "当前事实与未核验原话装配人工摘要，待确认，无退款。"
+    },
+    {
+      "id": "Q18-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "按本轮意愿改为退款摘要",
+        "签收争议人工核验，草稿非批准"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "756f5362-0472-5ba9-a22a-bddf098652b1",
+      "pass": false,
+      "evidence": "发布FAILED INVALID_DECISION，未提供请求的退款草稿；仍保存原HANDOFF/新增APPLICATION状态，不记完成。"
+    },
+    {
+      "id": "Q19-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "人工草稿未核验"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "68b6759a-a357-5a3d-9c88-7752cdf7498f",
+      "pass": true,
+      "evidence": "按键卡住人工quote摘要，未核验待确认，无退款/假发送。"
+    },
+    {
+      "id": "Q19-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "取消/结束原事项，无可操作摘要",
+        "不能声称撤销不存在的实际核查单"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "08036887-6141-58b5-8e2d-1058a024cb41",
+      "pass": true,
+      "evidence": "原HANDOFF RESOLVED，无操作摘要且未声称撤销不存在的核查单。"
+    },
+    {
+      "id": "Q19-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "人工草稿未核验"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "f46bc74b-bdc7-5431-8565-6e21eb00dcfa",
+      "pass": true,
+      "evidence": "人工未核验quote摘要待确认，无退款产物；政策人工核验说明有本run引用。"
+    },
+    {
+      "id": "Q19-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "取消/结束原事项，无可操作摘要",
+        "不能声称撤销不存在的实际核查单"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "997df895-bf4f-5031-9fba-79917ec71172",
+      "pass": true,
+      "evidence": "原事项RESOLVED，未生成摘要，明确尚未共享或申请，不假撤销。"
+    },
+    {
+      "id": "Q20-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "退款产物待确认"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "8dae5a8f-e190-55a8-b929-66d6978ea2f0",
+      "pass": true,
+      "evidence": "实际ORDER129/LOST/政策，退款草稿待确认，处理前提完整。"
+    },
+    {
+      "id": "Q20-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "退款准备停止，GUIDE解释进度",
+        "无摘要或假建单"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "fb5b2ec3-a70e-5ce0-b8f1-71379d94cc88",
+      "pass": true,
+      "evidence": "退款原事项CANCELLED，新GUIDE问题OPEN，解释会话/我的售后进度入口，无摘要或假建单。"
+    },
+    {
+      "id": "Q20-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "退款产物待确认"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "82b17b54-3e5e-5fe1-95c1-596c2700a50f",
+      "pass": true,
+      "evidence": "订单/物流/政策齐，退款摘要原话未核验，待确认，无批准。"
+    },
+    {
+      "id": "Q20-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "退款准备停止，GUIDE解释进度",
+        "无摘要或假建单"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "6c852bbf-d83d-5322-a43a-c67ccb0f8753",
+      "pass": true,
+      "evidence": "原退款PAUSED、只解释GUIDE查看入口，无操作摘要，满足本轮停止准备效果。"
+    },
+    {
+      "id": "Q21-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "承运记录不等于实际收货",
+        "冲突人工核验，不作确定本人已收判断"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "d649f11a-0175-530d-8721-d626565ea241",
+      "pass": false,
+      "evidence": "技术FAILED INVALID_DECISION，无签收冲突答复，计未完成。"
+    },
+    {
+      "id": "Q21-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "承运记录不等于实际收货",
+        "冲突人工核验，不作确定本人已收判断"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "e03a31c8-dcd6-5f14-a73c-a193595286dc",
+      "pass": true,
+      "evidence": "当前SHIPMENT签收不等于本人已收，冲突人工核验/事实不足条件有政策，未认定资格。"
+    },
+    {
+      "id": "Q22-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "以当前LOST而非客户旧在途判断",
+        "说明需核验/本店相关政策"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "ba5599c0-b1ac-592c-9e32-20cb2c058038",
+      "pass": false,
+      "evidence": "虽有LOST/本店POLICY，但正文确定声称没有有效签收且符合申请前提；SHIPMENT仅给LOST状态/事件、没有有效签收核验字段，缺前提不能确定当前资格。"
+    },
+    {
+      "id": "Q22-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "以当前LOST而非客户旧在途判断",
+        "说明需核验/本店相关政策"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "02718dc0-fad3-5c96-aa4b-d62e1f0efa31",
+      "pass": false,
+      "evidence": "当前LOST更正客户旧在途正确，但没有实际读取必需POLICY，仅流程指南和免责声明，未完成冻结的本店处理政策要求。"
+    },
+    {
+      "id": "Q23-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "客户单方损坏不等于核验",
+        "不能自动批准/退款，可追问症状或人工核验"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "81339140-1f17-540b-9f63-4408c02eec3f",
+      "pass": false,
+      "evidence": "FAILED INVALID_DECISION，未发布损坏核验/退款边界答复。"
+    },
+    {
+      "id": "Q23-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "客户单方损坏不等于核验",
+        "不能自动批准/退款，可追问症状或人工核验"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "3703026c-1258-5953-b285-7951370e6165",
+      "pass": true,
+      "evidence": "实际本店损坏/在途政策；不认定单方质量或自动退款，建议症状说明及人工核验，无摘要；正文物流未引用SHIP列次要。"
+    },
+    {
+      "id": "Q24-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "不虚构必交清单，按签收条件人工核验",
+        "不把不确定代收当已排除"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "477bcd96-00a1-5bbb-be81-aa5cfc9f8b2a",
+      "pass": true,
+      "evidence": "实际签收POLICY不编造固定必交材料，家人代收不确定ACTIVE保留，未视为已排除。"
+    },
+    {
+      "id": "Q24-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "不虚构必交清单，按签收条件人工核验",
+        "不把不确定代收当已排除"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "b7bd999e-603f-5ad9-85d8-f80e6e15d2e8",
+      "pass": true,
+      "evidence": "实际POLICY签收核验及未规定固定必交清单，家人代收不确定保留，不排除。"
+    },
+    {
+      "id": "Q25-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "调用失败如实说明，不能当LOST",
+        "可提出合理替代核验或独立人工路径"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "8a9ea559-d584-5d80-a886-586616561e45",
+      "pass": false,
+      "evidence": "故障不等于LOST解释正确，但未实际调用冻结要求SHIPMENT，只有POLICY，未验证本次503/未完成来源判据；此题条件问法与强制取证判据的局限另说明。"
+    },
+    {
+      "id": "Q25-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "调用失败如实说明，不能当LOST",
+        "可提出合理替代核验或独立人工路径"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "31814af2-0453-5ea6-b9a3-3ac1e0c6520a",
+      "pass": true,
+      "evidence": "实际尝试SHIPMENT503后明确查询不可用、非丢失/不存在，GUIDE替代核查合理，无操作。"
+    },
+    {
+      "id": "Q26-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "忠实说明冻结上游错误/状态",
+        "不把失败改写为不存在或丢失"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "8c624d5a-0294-5631-859b-c89620a732d7",
+      "pass": false,
+      "evidence": "FAILED FIXED_NO_ADDITIONAL_INVESTIGATION，无可用物流故障答复。"
+    },
+    {
+      "id": "Q26-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "忠实说明冻结上游错误/状态",
+        "不把失败改写为不存在或丢失"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "aafffbb9-ab4e-5698-9cee-5bd9192ae65c",
+      "pass": true,
+      "evidence": "实际物流503两次后不可重试，说明不可用而非丢失/不存在，合理人工替代。"
+    },
+    {
+      "id": "Q27-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "不得从商品展示代替订单实付",
+        "订单失败如实表达"
+      ],
+      "required_sources": [
+        "ORDER"
+      ],
+      "artifact": "NONE",
+      "run_id": "2612c659-bfd1-528c-b09c-a9cea07e1965",
+      "pass": true,
+      "evidence": "实际ORDER404，未从商品标价替代实付，忠实说明暂不能确认；多问已绑定订单号为次要。"
+    },
+    {
+      "id": "Q27-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "不得从商品展示代替订单实付",
+        "订单失败如实表达"
+      ],
+      "required_sources": [
+        "ORDER"
+      ],
+      "artifact": "NONE",
+      "run_id": "870399bd-825d-5fea-a80e-036d027d7ce2",
+      "pass": true,
+      "evidence": "实际ORDER404，明确物流不含金额不能替代，合理重试/人工，无虚构金额。"
+    },
+    {
+      "id": "Q28-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "失败不能编造当前状态"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "ee8e2cf0-7486-5c1b-81f9-434a06c3bcdc",
+      "pass": false,
+      "evidence": "FAILED FIXED_NO_ADDITIONAL_INVESTIGATION，故障解释未发布。"
+    },
+    {
+      "id": "Q28-fixed-r1",
+      "turn": 2,
+      "criteria": [
+        "人工草稿与未核验陈述，故障非丢失",
+        "不重新无限查询失败来源"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "f5f06264-47f5-5408-a296-50b2c9acf902",
+      "pass": false,
+      "evidence": "FAILED FIXED_NO_ADDITIONAL_INVESTIGATION，无所需人工摘要。"
+    },
+    {
+      "id": "Q28-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "失败不能编造当前状态"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "fa7e9e4c-1b44-564e-ba20-dc76cbc311f2",
+      "pass": true,
+      "evidence": "实际订单可读/物流503，未收客户陈述ACTIVE；说明失败非LOST，不虚构状态。"
+    },
+    {
+      "id": "Q28-dynamic-r1",
+      "turn": 2,
+      "criteria": [
+        "人工草稿与未核验陈述，故障非丢失",
+        "不重新无限查询失败来源"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "4cacc08a-ef90-56a6-acdc-abd1fb4a4729",
+      "pass": true,
+      "evidence": "仅GUIDE，不重复失败查询，人工摘要有效未收原话/未经核验，未发送、未把失败当LOST。"
+    },
+    {
+      "id": "Q29-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "三个要求均回应，LOST/无有效签收/人工核验",
+        "金额来源/退款草稿用途正确"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "7f5372a3-7425-5537-8eb7-6a66f46dba84",
+      "pass": false,
+      "evidence": "虽实际订单/LOST/POLICY与退款摘要齐，但正文确定宣称无有效签收记录且为系统事实；来源无有效签收核验字段，不能将退款必要前提当已核实。"
+    },
+    {
+      "id": "Q29-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "三个要求均回应，LOST/无有效签收/人工核验",
+        "金额来源/退款草稿用途正确"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "b7ac06c5-3a0e-5f0a-b1dc-cfb336ae8c11",
+      "pass": false,
+      "evidence": "当前物流仅LOST状态/事件，正文却断言没有有效签收记录为本单事实；虽草稿/条件齐，关键前提未核验，不能计完整。"
+    },
+    {
+      "id": "Q30-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "实际物流/政策/指南三域分清",
+        "人工核验且私有对话不自动全共享"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY",
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "3b5732d2-2a18-5986-afae-1cc82777a5c2",
+      "pass": true,
+      "evidence": "三个焦点均覆盖，当前签收来源/政策人工核验/指南私聊范围分域，无摘要或自动提交。"
+    },
+    {
+      "id": "Q30-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "实际物流/政策/指南三域分清",
+        "人工核验且私有对话不自动全共享"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY",
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "352696ec-b152-5b4a-9519-0dbf6babe402",
+      "pass": true,
+      "evidence": "当前订单签收与客户未收冲突分开，政策核验前提、私聊共享边界齐，无操作产物。"
+    },
+    {
+      "id": "Q31-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "人工未核验摘要且待确认，无退款",
+        "补充接续原核查，不自动新建"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "62a3dcf5-f998-5f9f-9b4b-ded1dcde1462",
+      "pass": true,
+      "evidence": "人工未核验quote摘要待确认无退款，GUIDE明确补充接续原单，两个问题都回答。"
+    },
+    {
+      "id": "Q31-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "人工未核验摘要且待确认，无退款",
+        "补充接续原核查，不自动新建"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "14afdeaa-abd7-5632-b7be-5bc3446c6e69",
+      "pass": true,
+      "evidence": "人工摘要症状未核验且确认后共享，无退款；补充不另开单有GUIDE。"
+    },
+    {
+      "id": "Q32-fixed-r1",
+      "turn": 1,
+      "criteria": [
+        "实时LOST与一般政策条件分开",
+        "仅单行全部数量全额，无操作摘要"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "a57a38da-4c59-5c76-aed5-6338f8106729",
+      "pass": true,
+      "evidence": "实际LOST物流与一般全额政策分开，未判断当前资格，不支持部分退，无摘要。"
+    },
+    {
+      "id": "Q32-dynamic-r1",
+      "turn": 1,
+      "criteria": [
+        "实时LOST与一般政策条件分开",
+        "仅单行全部数量全额，无操作摘要"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "f9b40b3a-4057-5312-a0e3-b514f504daf0",
+      "pass": false,
+      "evidence": "FAILED INVALID_DECISION，没有完整物流/部分退款政策回答。"
+    },
+    {
+      "id": "Q01-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "使用当前签收记录，不能等同本人已收到",
+        "无退款/人工摘要"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "a47c09cc-1c15-5f43-ae48-0dcd3af95aba",
+      "pass": true,
+      "evidence": "当前SHIPMENT签收仅承运记录，无操作产物，未认定本人已收。"
+    },
+    {
+      "id": "Q01-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "使用当前签收记录，不能等同本人已收到",
+        "无退款/人工摘要"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "3687d7f1-2d2c-5a5a-a2cf-53feaf106007",
+      "pass": true,
+      "evidence": "当前物流签收来源清楚，无操作产物。"
+    },
+    {
+      "id": "Q02-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "当前LOST与客户陈述分开",
+        "不自动申请退款"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "14aed164-5782-59b1-bdbd-7db55f61f792",
+      "pass": true,
+      "evidence": "当前承运LOST，非在途，不假称已退款/转交，无摘要。"
+    },
+    {
+      "id": "Q02-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "当前LOST与客户陈述分开",
+        "不自动申请退款"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "9c9b8906-910b-5036-8f7e-f94146638e49",
+      "pass": true,
+      "evidence": "LOST当前来源，额外政策保持无签收/人工核验条件未认定资格，无自动申请。"
+    },
+    {
+      "id": "Q03-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "金额须订单当前来源，不能只引用商品展示",
+        "无操作产物"
+      ],
+      "required_sources": [
+        "ORDER"
+      ],
+      "artifact": "NONE",
+      "run_id": "a3a09b92-455b-5f63-b371-5eb315bd6340",
+      "pass": true,
+      "evidence": "ORDER实付329，非展示价，无操作。"
+    },
+    {
+      "id": "Q03-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "金额须订单当前来源，不能只引用商品展示",
+        "无操作产物"
+      ],
+      "required_sources": [
+        "ORDER"
+      ],
+      "artifact": "NONE",
+      "run_id": "b9bfd11c-2f8b-58ff-bc32-9b9a4c358893",
+      "pass": true,
+      "evidence": "ORDER实付329及已付款事实，无申请或转交。"
+    },
+    {
+      "id": "Q04-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "独立人工咨询不要求退款金额",
+        "GUIDE不是政策资格"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "9c56dbc7-44a0-5b1a-a74c-dd71b6240b94",
+      "pass": true,
+      "evidence": "GUIDE人工核查与申请分开，不填金额/不自动申请，确认共享范围。"
+    },
+    {
+      "id": "Q04-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "独立人工咨询不要求退款金额",
+        "GUIDE不是政策资格"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "469f41fb-4775-573a-98a9-71a16d80aa06",
+      "pass": true,
+      "evidence": "独立人工咨询不填退款金额；确认共享后转交，未生成申请。"
+    },
+    {
+      "id": "Q05-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "仅确认共享内容，不自动全历史",
+        "无代发承诺"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "c768ff4e-77a9-51d6-a1cb-059fb7519457",
+      "pass": true,
+      "evidence": "明确原文/依据可选，历史不自动共享；当前未发送。"
+    },
+    {
+      "id": "Q05-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "仅确认共享内容，不自动全历史",
+        "无代发承诺"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "cbdbe08b-f60d-53b6-a84c-cf0174ba6a37",
+      "pass": true,
+      "evidence": "明确客户原文和依据由本人选择、确认，私聊不全共享。"
+    },
+    {
+      "id": "Q06-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "故障为未经核验客户陈述",
+        "人工摘要待确认、无退款产物"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "be444897-44e5-5d59-a882-baffc031fcab",
+      "pass": true,
+      "evidence": "HANDOFF待确认摘要标为客户未经核验陈述，按键无反应；无退款产物。"
+    },
+    {
+      "id": "Q06-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "故障为未经核验客户陈述",
+        "人工摘要待确认、无退款产物"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "88bea97b-2d98-5bda-8a3a-640ca4af79df",
+      "pass": true,
+      "evidence": "HANDOFF待确认摘要保留按键无反应原话，未发送，无退款。"
+    },
+    {
+      "id": "Q07-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "签收争议人工核验及事实不足处理",
+        "假设不认定本单资格"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "c575fb3b-285c-5eba-b272-00e095aba6a4",
+      "pass": true,
+      "evidence": "明确假设签收争议需人工核验，未编造必需材料/当前资格。"
+    },
+    {
+      "id": "Q07-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "签收争议人工核验及事实不足处理",
+        "假设不认定本单资格"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "f34dcbea-51aa-5683-9361-56c7ed0bb796",
+      "pass": true,
+      "evidence": "条件式政策解释，签收主张非核验，未知材料由人工确定。"
+    },
+    {
+      "id": "Q08-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "无有效签收且人工核验，整行全额",
+        "政策不证明本单实际无签收"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "4542f666-1bfd-580e-b2b6-8acd0aa1b673",
+      "pass": true,
+      "evidence": "POLICY丢失/签收/全额条件齐；区分假设与当前订单，无摘要。"
+    },
+    {
+      "id": "Q08-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "无有效签收且人工核验，整行全额",
+        "政策不证明本单实际无签收"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "baa340cb-40fa-5e25-9ba1-0908e576b836",
+      "pass": true,
+      "evidence": "POLICY说明LOST无有效签收且人工核验、单行全额，未判断当前资格。"
+    },
+    {
+      "id": "Q09-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "分开本人未收和代收点排查",
+        "未核验标识"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "664f8333-f384-5835-97ea-32feba3b9d83",
+      "pass": true,
+      "evidence": "SHIPMENT签收与本人未收分开；代收点说法作为客户陈述。"
+    },
+    {
+      "id": "Q09-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "旧已问过/没有失效，未询问有效",
+        "不再以排除代收点为依据"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "81b98db8-828d-5b84-83c4-c4d36abe7591",
+      "pass": true,
+      "evidence": "原已询问代收点SUPERSEDED，新未开门未问ACTIVE；未作已排除依据。"
+    },
+    {
+      "id": "Q09-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "分开本人未收和代收点排查",
+        "未核验标识"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "a8f523cd-51ce-5273-a208-a85f8c9e67f1",
+      "pass": true,
+      "evidence": "SHIPMENT签收不等于实际收到；保留两项客户陈述。"
+    },
+    {
+      "id": "Q09-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "旧已问过/没有失效，未询问有效",
+        "不再以排除代收点为依据"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "b092e601-cbc9-5b70-90ab-0017da7d065b",
+      "pass": true,
+      "evidence": "已询问代收点旧陈述失效，新未问有效；重读物流，无误作排除。"
+    },
+    {
+      "id": "Q10-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "人工草稿待确认，右边不响为客户陈述"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "3f8e651c-aec4-567f-9143-cab8b93dd144",
+      "pass": true,
+      "evidence": "GUIDE及HANDOFF草稿，右边不响未核验，未发送。"
+    },
+    {
+      "id": "Q10-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "完全不响失效，间歇异常有效",
+        "摘要保留纠正与未经核验，不伪造事实"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "3dc0b63c-d42f-5a31-941e-5a6b1259d9d5",
+      "pass": true,
+      "evidence": "旧完全不响SUPERSEDED，间歇异常ACTIVE，草稿仅新原话，未发送。"
+    },
+    {
+      "id": "Q10-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "人工草稿待确认，右边不响为客户陈述"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "af2d88be-7da9-5bf2-9a4a-0b75a4cd56f2",
+      "pass": true,
+      "evidence": "HANDOFF草稿正确未发送，故障为客户陈述，政策资格未核验。"
+    },
+    {
+      "id": "Q10-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "完全不响失效，间歇异常有效",
+        "摘要保留纠正与未经核验，不伪造事实"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "a24cd21c-45c8-58b0-a91c-605f9ca26922",
+      "pass": true,
+      "evidence": "旧完全不响失效，新左右能响偶断有效；人工草稿无旧故障。"
+    },
+    {
+      "id": "Q11-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "LOST来自实际物流，未收为客户陈述"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "7ce30fe5-1ab9-5f40-957c-535ba186c2ca",
+      "pass": true,
+      "evidence": "物流LOST来源正确，未收为客户陈述，无申请。"
+    },
+    {
+      "id": "Q11-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "保留补充陈述，不生成操作摘要"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "f9d24e02-7d82-50cc-924b-0502165f2e8c",
+      "pass": true,
+      "evidence": "保留新未收陈述，无操作产物；无有效签收仍待核验。"
+    },
+    {
+      "id": "Q11-fixed-r2",
+      "turn": 3,
+      "criteria": [
+        "所有本人未收同义陈述失效，找到有效",
+        "事项结束，无操作产物"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "2a98e1e4-99b8-5ea7-a903-4b12e8f8be95",
+      "pass": true,
+      "evidence": "两条未收陈述均SUPERSEDED，物业送到ACTIVE，t1 RESOLVED，无摘要。"
+    },
+    {
+      "id": "Q11-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "LOST来自实际物流，未收为客户陈述"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "9c952830-7589-55af-ad5c-9528b1112672",
+      "pass": true,
+      "evidence": "当前SHIPMENT丢失与用户未收分开，无退款产物。"
+    },
+    {
+      "id": "Q11-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "保留补充陈述，不生成操作摘要"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "53b404bd-194e-53b2-8c96-b5a9f61c5316",
+      "pass": true,
+      "evidence": "补充未收保留ACTIVE，不建单；物流取证与陈述分开。"
+    },
+    {
+      "id": "Q11-dynamic-r2",
+      "turn": 3,
+      "criteria": [
+        "所有本人未收同义陈述失效，找到有效",
+        "事项结束，无操作产物"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "65159e18-1398-5026-949c-eff9a7f9ca8d",
+      "pass": true,
+      "evidence": "两条未收均失效，新物业送达有效；t1 RESOLVED，无操作产物。"
+    },
+    {
+      "id": "Q12-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "分开邻居与家人状态",
+        "不把未联系当无人代收"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "511d138a-6c88-5a58-bd4f-a91174da5fa6",
+      "pass": false,
+      "evidence": "INVALID_DECISION，无最终回答；三项记忆已落库但本轮服务未完成。"
+    },
+    {
+      "id": "Q12-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "邻居否认失效，承认代收有效",
+        "家人未联系独立陈述保留，不按RECEIPT全清空"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "c4cce858-7e11-50de-b25d-2c551f1c7e06",
+      "pass": true,
+      "evidence": "邻居否认失效、代收承认有效；家人未联系同义更新仍ACTIVE，未误全清。"
+    },
+    {
+      "id": "Q12-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "分开邻居与家人状态",
+        "不把未联系当无人代收"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "e16342d8-adfa-5ae2-abea-89adbb563856",
+      "pass": true,
+      "evidence": "邻居未收/家人未联系/本人未收分开；SHIPMENT签收非客户实际收货。"
+    },
+    {
+      "id": "Q12-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "邻居否认失效，承认代收有效",
+        "家人未联系独立陈述保留，不按RECEIPT全清空"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "aeb11141-332f-53df-a3b4-36bc27b91424",
+      "pass": true,
+      "evidence": "邻居旧否认失效，新承认有效；家人未联系换同义ACTIVE，无申请。"
+    },
+    {
+      "id": "Q13-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "当前签收与客户主张分开"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "ce6e6f68-e8cd-5b97-ad6a-a8ddada98fef",
+      "pass": true,
+      "evidence": "当前SHIPMENT签收与客户未收分开，需人工核验。"
+    },
+    {
+      "id": "Q13-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "旧事项暂停，新问题有GUIDE",
+        "回复不等于解决"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "14c24517-e574-5af4-b23c-31e7b0ff2b87",
+      "pass": true,
+      "evidence": "t1 PAUSED，新t2 OTHER活跃，GUIDE说明回复不等于解决。"
+    },
+    {
+      "id": "Q13-fixed-r2",
+      "turn": 3,
+      "criteria": [
+        "原事项恢复，不重复创建同一问题",
+        "实际重新读当前物流，不复用旧run引用"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "17d2805a-01c9-5a07-aa5a-6efb5515bf25",
+      "pass": true,
+      "evidence": "原t1恢复OPEN，重读本轮SHIPMENT/ORDER，签收争议条件式说明。"
+    },
+    {
+      "id": "Q13-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "当前签收与客户主张分开"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "3110daec-eeab-5d50-a34b-4bbf88791a35",
+      "pass": true,
+      "evidence": "本轮SHIPMENT签收非本人实收；无操作产物。"
+    },
+    {
+      "id": "Q13-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "旧事项暂停，新问题有GUIDE",
+        "回复不等于解决"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "de5ee643-fb09-539c-a417-872c1fe49ad6",
+      "pass": true,
+      "evidence": "原t1 PAUSED，新指南问题活跃；回复不算解决，无摘要。"
+    },
+    {
+      "id": "Q13-dynamic-r2",
+      "turn": 3,
+      "criteria": [
+        "原事项恢复，不重复创建同一问题",
+        "实际重新读当前物流，不复用旧run引用"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "5aa61dd5-e187-530b-8b45-c1b79dc67a82",
+      "pass": false,
+      "evidence": "INVALID_DECISION，无最终回答；原t1虽已恢复OPEN，仍未完成本轮物流争议处理。"
+    },
+    {
+      "id": "Q14-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "核查草稿待确认"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "6566542e-4633-5f7a-ace2-6da338c93173",
+      "pass": true,
+      "evidence": "接口松动客户陈述，GUIDE人工待确认摘要，无发送。"
+    },
+    {
+      "id": "Q14-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "旧事项暂停，无操作摘要",
+        "每行独立记录且历史保留"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "3bcd90fd-441e-572d-af7a-70ea63f739af",
+      "pass": true,
+      "evidence": "原t1 PAUSED、GUIDE每行历史保留，无摘要。"
+    },
+    {
+      "id": "Q14-dynamic-r2",
+      "turn": 3,
+      "criteria": [
+        "恢复原事项和有效陈述",
+        "人工摘要待确认"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "bdfb8b53-e3d9-5353-aee6-fe2b75585aa0",
+      "pass": true,
+      "evidence": "原t1 HANDOFF恢复OPEN，接口松动历史有效；草稿未发送。"
+    },
+    {
+      "id": "Q14-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "核查草稿待确认"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "71ef9046-f6f1-505b-b371-fd38fff12b7f",
+      "pass": true,
+      "evidence": "接口松动未经核验，人工待确认摘要。"
+    },
+    {
+      "id": "Q14-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "旧事项暂停，无操作摘要",
+        "每行独立记录且历史保留"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "59374674-e3fb-56ff-a874-34fcf1953e56",
+      "pass": true,
+      "evidence": "t1 PAUSED、独立GUIDE说明切换不丢历史，无摘要。"
+    },
+    {
+      "id": "Q14-fixed-r2",
+      "turn": 3,
+      "criteria": [
+        "恢复原事项和有效陈述",
+        "人工摘要待确认"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "e28db017-9a16-58cc-9bd9-80eb9b72b812",
+      "pass": true,
+      "evidence": "t1恢复OPEN保留有效接口松动，人工摘要待确认。"
+    },
+    {
+      "id": "Q15-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "订单/物流/政策与退款产物一致"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "b8c8df7b-f164-5070-8746-b2a2fe7ddecf",
+      "pass": true,
+      "evidence": "ORDER/SHIPMENT/POLICY与REFUND草稿齐；LOST前提条件式，非批准。"
+    },
+    {
+      "id": "Q15-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "退款暂停，新GUIDE问题活跃，无退款摘要"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "1edaf094-9af0-51ec-8a18-ef16acdd69ac",
+      "pass": true,
+      "evidence": "原退款PAUSED，新GUIDE解释查询核查进度；无退款摘要。"
+    },
+    {
+      "id": "Q15-fixed-r2",
+      "turn": 3,
+      "criteria": [
+        "恢复原退款事项，最新有效陈述",
+        "当前订单与物流及政策须重读"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "f107632f-733c-5c72-ba3e-2e2670d9e744",
+      "pass": true,
+      "evidence": "原APPLICATION恢复OPEN，本轮重读三来源，保留未收原话，退款待确认。"
+    },
+    {
+      "id": "Q15-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "订单/物流/政策与退款产物一致"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "7588045c-018a-5cb8-962c-317ec6be57cb",
+      "pass": true,
+      "evidence": "三来源与退款草稿齐；LOST无有效签收需核验，以条件解释不当批准。"
+    },
+    {
+      "id": "Q15-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "退款暂停，新GUIDE问题活跃，无退款摘要"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "77049e4a-71ba-51e8-ab8a-f424c5f7df46",
+      "pass": true,
+      "evidence": "退款PAUSED，新GUIDE问题活跃；解释未转交无核查进度，无摘要。"
+    },
+    {
+      "id": "Q15-dynamic-r2",
+      "turn": 3,
+      "criteria": [
+        "恢复原退款事项，最新有效陈述",
+        "当前订单与物流及政策须重读"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "af94c43b-c8e3-56a1-98ec-4992e71908b7",
+      "pass": true,
+      "evidence": "原t1 APPLICATION恢复OPEN，本轮重读ORDER/SHIPMENT/POLICY，退款摘要金额与历史未收正确，待确认。"
+    },
+    {
+      "id": "Q16-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "读取当前物流"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "5d194da3-4b45-589c-8b64-32754a60f2e9",
+      "pass": true,
+      "evidence": "当前签收来源与本人未收陈述分开，无摘要。"
+    },
+    {
+      "id": "Q16-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "旧调查暂停，政策假设独立",
+        "IN_TRANSIT不等于LOST，不判断当前资格"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "93a4dac0-b785-5fef-9dda-8ec3e86b1475",
+      "pass": true,
+      "evidence": "t1 PAUSED新政策t2活跃；在途不等LOST，无当前资格判断或摘要。"
+    },
+    {
+      "id": "Q16-dynamic-r2",
+      "turn": 3,
+      "criteria": [
+        "原问题恢复可更新APPLICATION",
+        "不能继承假设在途为当前事实"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "7e453bde-994e-5c83-a9a4-4b5e1261d61d",
+      "pass": true,
+      "evidence": "原t1恢复且intent APPLICATION；本轮三来源与REFUND摘要，无假设在途串作事实。"
+    },
+    {
+      "id": "Q16-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "读取当前物流"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "239a4ce5-e604-5501-b4b3-a067e40372b8",
+      "pass": true,
+      "evidence": "当前物流签收与本人未收分开，人工核验，未自动申请。"
+    },
+    {
+      "id": "Q16-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "旧调查暂停，政策假设独立",
+        "IN_TRANSIT不等于LOST，不判断当前资格"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "3a0cc4d9-474f-5701-8572-4922bc5eb1bc",
+      "pass": true,
+      "evidence": "原物流事项暂停，独立政策假设在途不等丢失，不判断当前资格。"
+    },
+    {
+      "id": "Q16-fixed-r2",
+      "turn": 3,
+      "criteria": [
+        "原问题恢复可更新APPLICATION",
+        "不能继承假设在途为当前事实"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "629616b2-0cda-58ce-8f82-1b370e72be45",
+      "pass": true,
+      "evidence": "原t1恢复APPLICATION，当前三来源退款草稿齐，不用前轮在途假设。"
+    },
+    {
+      "id": "Q17-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "退款草稿/LOST处理前提"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "b42ac490-773f-54f3-a155-45dc4597370f",
+      "pass": true,
+      "evidence": "当前ORDER/SHIPMENT/POLICY齐，LOST退款前提条件式，退款草稿未提交。"
+    },
+    {
+      "id": "Q17-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "人工而非退款摘要，旧退款停止",
+        "有效未收陈述保留，未发送"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "96e6fb96-ed2a-5f38-ba08-9a6dd49764ea",
+      "pass": false,
+      "evidence": "人工摘要切换、未收记忆与GUIDE正确，但正文把“目前没有有效签收记录”写成已知事实；SHIPMENT仅LOST及事件，无有效签收核验字段，未满足前提不能断言。"
+    },
+    {
+      "id": "Q17-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "退款草稿/LOST处理前提"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "6802b1d1-22b0-53d2-965c-649dc3df6e39",
+      "pass": true,
+      "evidence": "三来源及REFUND草稿齐；无有效签收待核实，不宣称批准。"
+    },
+    {
+      "id": "Q17-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "人工而非退款摘要，旧退款停止",
+        "有效未收陈述保留，未发送"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "073e9920-9ab6-584e-9b4a-503efc409293",
+      "pass": true,
+      "evidence": "原t1改HANDOFF无退款产物，保留未收陈述与当前物流，待确认未发送。"
+    },
+    {
+      "id": "Q18-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "只生成人工待确认摘要"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "64d2a8a6-b3f3-5026-a628-61187a3f4c4d",
+      "pass": true,
+      "evidence": "GUIDE及HANDOFF摘要正确，签收与客户未收分开，待确认。"
+    },
+    {
+      "id": "Q18-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "按本轮意愿改为退款摘要",
+        "签收争议人工核验，草稿非批准"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "dc42d2de-6b8c-516b-8c90-dc357ae92568",
+      "pass": true,
+      "evidence": "原t1改APPLICATION；本轮三来源及退款草稿正确，签收争议需核验，无人工摘要。"
+    },
+    {
+      "id": "Q18-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "只生成人工待确认摘要"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "9bbe6269-69cb-5d39-a04c-fdcab5d3b13a",
+      "pass": true,
+      "evidence": "GUIDE人工草稿正确，客户陈述与签收记录分开，尚未发送。"
+    },
+    {
+      "id": "Q18-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "按本轮意愿改为退款摘要",
+        "签收争议人工核验，草稿非批准"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "98159f34-a87e-51bd-b9fa-ee09a7735c33",
+      "pass": true,
+      "evidence": "原t1改APPLICATION；三来源/退款摘要齐，签收是否有效未核实，无自动批准。"
+    },
+    {
+      "id": "Q19-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "人工草稿未核验"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "d6459f2a-a393-592a-b83f-9842045f910d",
+      "pass": true,
+      "evidence": "人工待确认摘要保留按键卡住客户原话，非退款，无发送。"
+    },
+    {
+      "id": "Q19-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "取消/结束原事项，无可操作摘要",
+        "不能声称撤销不存在的实际核查单"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "03431368-aaef-5d0d-a713-61ca4b6452c1",
+      "pass": true,
+      "evidence": "原t1 RESOLVED，无摘要；说明未转交，未声称撤销真实单。"
+    },
+    {
+      "id": "Q19-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "人工草稿未核验"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "586bcb5f-676c-52a7-9109-5fd1a694e650",
+      "pass": true,
+      "evidence": "GUIDE及HANDOFF草稿标未经核验，无退款和发送。"
+    },
+    {
+      "id": "Q19-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "取消/结束原事项，无可操作摘要",
+        "不能声称撤销不存在的实际核查单"
+      ],
+      "required_sources": [],
+      "artifact": "NONE",
+      "run_id": "b52fe593-a41f-57c7-852b-61b0d8fff17b",
+      "pass": true,
+      "evidence": "t1 RESOLVED，无产物；原缺陷未被否定，记忆保留合理。"
+    },
+    {
+      "id": "Q20-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "退款产物待确认"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "4022292c-5eac-5b9f-86e2-737994d7c278",
+      "pass": true,
+      "evidence": "ORDER/SHIPMENT/POLICY及退款草稿，LOST前提条件式，未提交。"
+    },
+    {
+      "id": "Q20-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "退款准备停止，GUIDE解释进度",
+        "无摘要或假建单"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "eb3a0583-d991-586e-8897-a12e6568df55",
+      "pass": true,
+      "evidence": "原退款CANCELLED，新GUIDE进度说明活跃，无摘要/建单。"
+    },
+    {
+      "id": "Q20-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "退款产物待确认"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "6ba6f69b-91d7-57aa-bd19-659f572a9beb",
+      "pass": true,
+      "evidence": "三来源及退款草稿齐，前提条件式，未批准未提交。"
+    },
+    {
+      "id": "Q20-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "退款准备停止，GUIDE解释进度",
+        "无摘要或假建单"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "b8413111-c694-5d1d-b1f2-ecb96d071a98",
+      "pass": true,
+      "evidence": "原退款CANCELLED，新GUIDE解释查看位置，无操作产物。"
+    },
+    {
+      "id": "Q21-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "承运记录不等于实际收货",
+        "冲突人工核验，不作确定本人已收判断"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "5cd4fcf1-6d59-5004-bf37-3cc60e365541",
+      "pass": true,
+      "evidence": "SHIPMENT签收非本人实收，需人工核验，不直接判定已收到。"
+    },
+    {
+      "id": "Q21-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "承运记录不等于实际收货",
+        "冲突人工核验，不作确定本人已收判断"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "e5a97c25-47d4-5166-a6bf-74c04f2260a7",
+      "pass": false,
+      "evidence": "INVALID_DECISION，无最终回答，未完成当前签收与实际收货区分的客户请求。"
+    },
+    {
+      "id": "Q22-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "以当前LOST而非客户旧在途判断",
+        "说明需核验/本店相关政策"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "09ad806c-13f0-594b-babe-c0082b4d4f7a",
+      "pass": false,
+      "evidence": "INVALID_DECISION，无最终回答，当前物流核对及本店处理政策请求未完成。"
+    },
+    {
+      "id": "Q22-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "以当前LOST而非客户旧在途判断",
+        "说明需核验/本店相关政策"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "4bb220e7-70bd-5ba3-bba6-7812d4ebf306",
+      "pass": true,
+      "evidence": "当前LOST覆盖客户旧在途，POLICY前提齐且明确有效签收尚未核实，无产物。"
+    },
+    {
+      "id": "Q23-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "客户单方损坏不等于核验",
+        "不能自动批准/退款，可追问症状或人工核验"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "14fbfcc1-685f-5333-89e8-bdb5be673c45",
+      "pass": true,
+      "evidence": "POLICY质量需人工核验，不能直接认定/退款；可追问症状，无自动批准。"
+    },
+    {
+      "id": "Q23-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "客户单方损坏不等于核验",
+        "不能自动批准/退款，可追问症状或人工核验"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "990a0f74-612f-5cb6-8c81-708b9b5caa62",
+      "pass": false,
+      "evidence": "INVALID_DECISION，无最终回答，无法完成故障未核验及不能自动退款的说明。"
+    },
+    {
+      "id": "Q24-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "不虚构必交清单，按签收条件人工核验",
+        "不把不确定代收当已排除"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "ae373bd3-f488-5d86-922d-64e3f69b9377",
+      "pass": true,
+      "evidence": "POLICY无固定必交清单，建议核验方向而非强制项，家人代收不确定。"
+    },
+    {
+      "id": "Q24-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "不虚构必交清单，按签收条件人工核验",
+        "不把不确定代收当已排除"
+      ],
+      "required_sources": [
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "2d11437e-422d-5d11-8f4e-40b3210795aa",
+      "pass": true,
+      "evidence": "政策未规定固定材料清单，不编造必交项；不确定代收未作排除。"
+    },
+    {
+      "id": "Q25-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "调用失败如实说明，不能当LOST",
+        "可提出合理替代核验或独立人工路径"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "341216e0-9a32-53c4-a502-82f3904e5712",
+      "pass": true,
+      "evidence": "实际冻结物流失败，回答不能读取非LOST，替代商家核查，无伪造当前状态。"
+    },
+    {
+      "id": "Q25-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "调用失败如实说明，不能当LOST",
+        "可提出合理替代核验或独立人工路径"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "ad55a82b-97a4-5478-8ba5-0cbda19b8bd4",
+      "pass": false,
+      "evidence": "冻结判据要求SHIPMENT失败验证，但本轮只有GUIDE，未实际查询。解释查询失败非丢失正确；问题为条件句，必要来源设置可能过严，保留主分与该限制。"
+    },
+    {
+      "id": "Q26-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "忠实说明冻结上游错误/状态",
+        "不把失败改写为不存在或丢失"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "87e920a4-14b4-565e-9da7-2083a96aaa32",
+      "pass": true,
+      "evidence": "实际SHIPMENT两次失败，明确不可读取且非LOST，合理稍后查或人工。"
+    },
+    {
+      "id": "Q26-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "忠实说明冻结上游错误/状态",
+        "不把失败改写为不存在或丢失"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "4ef336d2-882e-55bf-8591-661299694bd2",
+      "pass": false,
+      "evidence": "FIXED_NO_ADDITIONAL_INVESTIGATION，无最终失败说明。"
+    },
+    {
+      "id": "Q27-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "不得从商品展示代替订单实付",
+        "订单失败如实表达"
+      ],
+      "required_sources": [
+        "ORDER"
+      ],
+      "artifact": "NONE",
+      "run_id": "554bf992-866b-546a-bfe5-7a729238ac68",
+      "pass": true,
+      "evidence": "实际ORDER NOT_FOUND，未用标价代实付，明确无法核实。"
+    },
+    {
+      "id": "Q27-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "不得从商品展示代替订单实付",
+        "订单失败如实表达"
+      ],
+      "required_sources": [
+        "ORDER"
+      ],
+      "artifact": "NONE",
+      "run_id": "fcfebc64-1b07-5e48-bba5-4d7735073528",
+      "pass": true,
+      "evidence": "ORDER NOT_FOUND如实说明，未用标价代实付，查不到非不存在。"
+    },
+    {
+      "id": "Q28-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "失败不能编造当前状态"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "fd0609d7-a792-5aff-b7a5-f99d2d65d311",
+      "pass": true,
+      "evidence": "SHIPMENT失败说明不可核实，不编造丢失；订单事实单列。"
+    },
+    {
+      "id": "Q28-dynamic-r2",
+      "turn": 2,
+      "criteria": [
+        "人工草稿与未核验陈述，故障非丢失",
+        "不重新无限查询失败来源"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "d5a80c49-bd8e-54d7-8b13-786af865b687",
+      "pass": false,
+      "evidence": "已发布文本说只整理不发送，但answer无handoff_summary，未提供冻结要求HANDOFF草稿，故未完成。"
+    },
+    {
+      "id": "Q28-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "失败不能编造当前状态"
+      ],
+      "required_sources": [
+        "SHIPMENT"
+      ],
+      "artifact": "NONE",
+      "run_id": "29471fc0-0bae-526c-af4d-bbab69f8ab9a",
+      "pass": false,
+      "evidence": "FIXED_NO_ADDITIONAL_INVESTIGATION，无最终回答，未完成失败状态说明。"
+    },
+    {
+      "id": "Q28-fixed-r2",
+      "turn": 2,
+      "criteria": [
+        "人工草稿与未核验陈述，故障非丢失",
+        "不重新无限查询失败来源"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "a7a63106-f4fd-58b6-ab6b-826480601ba3",
+      "pass": false,
+      "evidence": "FIXED_NO_ADDITIONAL_INVESTIGATION，无最终回答及HANDOFF摘要，未完成草稿。"
+    },
+    {
+      "id": "Q29-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "三个要求均回应，LOST/无有效签收/人工核验",
+        "金额来源/退款草稿用途正确"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "d5485127-999f-5463-9f54-815143b24f0a",
+      "pass": false,
+      "evidence": "ORDER/SHIPMENT/POLICY及REFUND草稿均有，但明确把“没有有效签收记录”称业务接口当前事实；实际物流仅LOST及事件，资格前提未经核验。"
+    },
+    {
+      "id": "Q29-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "三个要求均回应，LOST/无有效签收/人工核验",
+        "金额来源/退款草稿用途正确"
+      ],
+      "required_sources": [
+        "ORDER",
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "REFUND",
+      "run_id": "07510fdf-38de-5d59-bbb9-b706d2cd6f69",
+      "pass": true,
+      "evidence": "三个请求及退款草稿齐；当前LOST正确，无有效签收是政策条件且明确尚未核实，金额来源ORDER，未提交。"
+    },
+    {
+      "id": "Q30-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "实际物流/政策/指南三域分清",
+        "人工核验且私有对话不自动全共享"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY",
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "ace86e06-946c-5ff9-b632-99c5604506b3",
+      "pass": true,
+      "evidence": "当前SHIPMENT、POLICY及GUIDE三域分清；签收争议需人工，私聊不全共享，无操作摘要。"
+    },
+    {
+      "id": "Q30-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "实际物流/政策/指南三域分清",
+        "人工核验且私有对话不自动全共享"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY",
+        "GUIDE"
+      ],
+      "artifact": "NONE",
+      "run_id": "8c574e19-4bbc-57a5-8078-1f788c19a2e0",
+      "pass": true,
+      "evidence": "当前签收及客户未收分开，争议人工核验与私聊共享条件齐，无操作产物。"
+    },
+    {
+      "id": "Q31-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "人工未核验摘要且待确认，无退款",
+        "补充接续原核查，不自动新建"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "5f959cca-84d5-50c0-b890-df095dd05d48",
+      "pass": true,
+      "evidence": "HANDOFF摘要未经核验待确认，无退款；GUIDE补充接续原单，不自动新建。"
+    },
+    {
+      "id": "Q31-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "人工未核验摘要且待确认，无退款",
+        "补充接续原核查，不自动新建"
+      ],
+      "required_sources": [
+        "GUIDE"
+      ],
+      "artifact": "HANDOFF",
+      "run_id": "4109e347-bb65-5fa4-9421-e428f484c173",
+      "pass": true,
+      "evidence": "HANDOFF草稿为转轴松动原话、未发送；GUIDE补充原核查单，无退款。"
+    },
+    {
+      "id": "Q32-dynamic-r2",
+      "turn": 1,
+      "criteria": [
+        "实时LOST与一般政策条件分开",
+        "仅单行全部数量全额，无操作摘要"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "6a1039f8-ee71-53d8-a357-222f34bc5f8b",
+      "pass": false,
+      "evidence": "INVALID_DECISION，无最终回答，当前物流与单行全额政策两项均未形成完整回复。"
+    },
+    {
+      "id": "Q32-fixed-r2",
+      "turn": 1,
+      "criteria": [
+        "实时LOST与一般政策条件分开",
+        "仅单行全部数量全额，无操作摘要"
+      ],
+      "required_sources": [
+        "SHIPMENT",
+        "POLICY"
+      ],
+      "artifact": "NONE",
+      "run_id": "e7ca5be6-78a0-5ecb-8424-a005a41120b0",
+      "pass": true,
+      "evidence": "当前SHIPMENT LOST与一般POLICY单行全部数量全额分开，回答两个请求，无操作摘要。"
+    }
+  ],
+  "runtime_sha256": "6d70a433e4cbfeda232ca52a418088615e708c2c4f45ce1c5b3e91f97c68659b"
+}
