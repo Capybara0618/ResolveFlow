@@ -43,3 +43,13 @@ python -m ruff check scripts/customer_workflow_comparison_prepare.py agent/tests
 两个旧“未声明需要就拒绝批量读取”的测试按新权限一致性合同更新，改为验证实际调用/费用/模型不触发修正，未删除重复/越主体/写工具/预算/未落库重发等失败断言。[旧真实输出的合同检查](batch-contract-check.json)覆盖11个失败轮/22个保存批量决策，全部新形状合法；它不是完整对话回放，也没有新模型回答。Q22-r2终局多字段失败之前同样发生过batch拒绝，但不能据此提前宣称其发布已修复。
 
 原public11表前后hash一致，临时测试schema清理，ledger3053不增；未重启业务或消费旧run。生产三文件有意变化，v1旧源码manifest不再匹配当前工作区，保持旧manifest/结果不重写，新执行入口需另建manifest。政策遗漏/条件当事实/人工摘要等业务质量须新对照源审确认，不以解析通过冒充成功。一次只读rg通配路径和不存在历史测试名查找失败，已定位实际文件，不影响测试执行。
+
+## 中性源服务与独立模型传输（2026-10-25接续）
+
+新增scripts/evaluation/customer_comparison_environment.py，不导入生产Agent。PlainChatClient直接使用httpx/SSE，固定DeepSeek Flash/temperature0/非thinking/JSON；与Agent只共享API及原始资源。RequestAllowance在发送前持久化实际尝试数，失败仍计费计数、发送前额度拦截另记未发送；未知usage不估算。GUIDE独立读取已版本化公共原文，订单/物流mock只返回冻结HTTP状态/原始体，拒绝跨run/写入口；历史只返回要求之前的原文。
+
+RawPolicyService只验证当前主体/manifest/固定generation后调用索引的small_context返回完整原文，超出小集合明确失败，不替基线增加Query改写或Agent模块。[原PG只读核验](environment-check.json)确认32场景均六条，逐条与生产BoundSources相同，GUIDE相同，public11表前后相同。该脚本位于忽略的tmp/customer-workflow-comparison-v2/check_environment.py；可复用check命令会在下一步双组入口提供。
+
+实际`pytest agent/tests/unit/test_customer_comparison_environment.py agent/tests/unit/test_basic_customer_workflow.py agent/tests/unit/test_customer_workflow_comparison_prepare.py -q`为44通过（15环境+19基线+10准备）；四文件Ruff通过。先模块缺失收集失败，落实现后通过；Ruff导入/循环lambda捕获两项修正后通过。含SSE真实usage/未知usage/连接失败/额度发送拦截、正文JSON前缀/半转义解析、截断及length结束拒绝发布、最终保留正文计时、原始故障/原文分页/主体与generation隔离。首正文计时是服务端JSON可见text，格式修正被丢弃的回答不算保留正文，尚未测真实耗时或页面速度。
+
+首次PG核验连接池超时，核实原容器2697eb86cf0b已Exited且55433无监听，执行docker start原容器后只读核验成功；原卷resolveflow-review-demo_demo-postgres-data保留，无端口改动/清库/Java或前端启停。0供应商/本地模型、ledger3053；新客户端只用HTTP桩测试，未验证供应商当前网络。双组驱动及性能聚合接下一步，不称正式可执行已冻结。

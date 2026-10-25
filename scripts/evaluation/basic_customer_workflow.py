@@ -58,6 +58,7 @@ class ModelReply:
     text: str
     usage: dict | None = None
     mode: str = "UNKNOWN"
+    first_text_ms: float | None = None
 
 
 class WorkflowFailure(RuntimeError):
@@ -118,11 +119,17 @@ def run_turn(*, current_request, history, subject, model, read, timeout_seconds=
                 reply = model.complete(stage=stage, messages=deepcopy(messages), max_output_tokens=max_output_tokens)
             except Exception as error:
                 record.update(state="ERROR", error_type=type(error).__name__,
-                    elapsed_ms=(time.monotonic() - at) * 1000)
+                    elapsed_ms=(time.monotonic() - at) * 1000,
+                    provider_sent=getattr(model, "last_sent", None))
                 save()
+                if str(error) == "BUDGET_EXHAUSTED":
+                    raise WorkflowFailure("BUDGET_EXHAUSTED") from None
                 raise
             record.update(state="COMPLETE", raw_response=reply.text, usage=deepcopy(reply.usage), mode=reply.mode,
                 elapsed_ms=(time.monotonic() - at) * 1000)
+            record["provider_sent"] = getattr(model, "last_sent", None)
+            record["first_text_ms"] = reply.first_text_ms
+            record["started_ms"] = (at - started) * 1000
             save()
             check_deadline()
             try:
@@ -152,6 +159,10 @@ def run_turn(*, current_request, history, subject, model, read, timeout_seconds=
         answer = complete("ANSWER", ANSWER_PROMPT, Answer, {**packet, "route": result["route"],
             "observations": deepcopy(result["tools"])})
         result.update(status="SUCCEEDED", answer=answer.model_dump(exclude_unset=True))
+        retained = result["models"][-1]
+        if answer.text.strip() and retained.get("first_text_ms") is not None:
+            result.update(first_body_ms=retained["started_ms"] + retained["first_text_ms"],
+                first_body_scope="SERVER_RETAINED_JSON_TEXT")
     except WorkflowFailure as error:
         reason = str(error)
         result.update(status=reason if reason in {"TIMEOUT", "BUDGET_EXHAUSTED"} else "FAILED", reason=reason)

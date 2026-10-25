@@ -145,3 +145,27 @@ def test_transport_exception_is_one_recorded_attempt_with_unknown_usage():
     assert result["status"] == "FAILED" and len(result["models"]) == 1
     assert result["models"][0]["state"] == "ERROR" and result["models"][0]["usage"] is None
     assert snapshots[-1] == result
+
+
+def test_allowance_block_is_not_recorded_as_a_provider_transmission():
+    class Blocked:
+        last_sent = False
+
+        def complete(self, **_):
+            raise RuntimeError("BUDGET_EXHAUSTED")
+
+    result = baseline.run_turn(current_request="物流", history=[], subject={}, model=Blocked(), read=Sources())
+    assert result["status"] == "BUDGET_EXHAUSTED"
+    assert result["models"][0]["provider_sent"] is False
+
+
+def test_retained_timer_uses_only_successful_answer_after_format_repair():
+    class Timed(Model):
+        def complete(self, **kwargs):
+            reply = super().complete(**kwargs)
+            return baseline.ModelReply(reply.text, reply.usage, reply.mode, 20.0)
+
+    model = Timed([{"intent": "GUIDE"}, "bad", {"text": "实际正文"}])
+    result = baseline.run_turn(current_request="流程", history=[], subject={}, model=model, read=Sources())
+    assert result["status"] == "SUCCEEDED" and len(result["models"]) == 3
+    assert result["first_body_ms"] == result["models"][-1]["started_ms"] + 20.0
