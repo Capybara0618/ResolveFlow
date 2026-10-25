@@ -1,0 +1,965 @@
+{
+  "version": "customer-rag-quantification-v2",
+  "manifest_sha256": "a2784f7b8b80a9296d55a361ce0f10762afde7a98e601cd08d82e1261ccd3365",
+  "agent_runtime_sha256": "47e3e543aeb24797f2c4bad0c9b9a210fa31e1d8139ffb0e65bb96509565f9f6",
+  "scope": "actual PG BoundSources.search tiny policy set; no HTTP/embedding/answer generation",
+  "source_parity_with_actual_agent": true,
+  "query_tool_calls": 22,
+  "timed_requests": 66,
+  "mean_ms": 4.93448939397984,
+  "p50_ms": 4.4904000023962,
+  "p95_ms": 6.237900000996888,
+  "public_before": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 209,
+      "sha256": "c7a86c525caeb890f59c95267c98f75d9b8325763a98a31dcf3c2ed422ee6d55"
+    },
+    "support_agent_run": {
+      "rows": 36,
+      "sha256": "409ec018b789a069d2a91c95916be19d2783bb4c1a1fb757836c7d996e63f7ee"
+    }
+  },
+  "public_after": {
+    "agent_callback_outbox": {
+      "rows": 18,
+      "sha256": "06707fb694b2a9fa9429b5f71cf406ef777631de8557c56b4275566993a0afba"
+    },
+    "agent_model_attempt": {
+      "rows": 39,
+      "sha256": "ef33ba6e100cecc298eecc6531954868e585e5b33c5087984ade5be3f4c13f3f"
+    },
+    "agent_model_call": {
+      "rows": 39,
+      "sha256": "29b446c4fdd971ca4ce4613d2538a31e963c4acfd7f62c9f45ca967d24ca2679"
+    },
+    "agent_run": {
+      "rows": 9,
+      "sha256": "8362a30065051e1f496de4dcf84a1512ae97389d9ce912f06945dd426c5ed2e9"
+    },
+    "agent_run_model_budget": {
+      "rows": 9,
+      "sha256": "bef76a0f5fffa6f14a284ce9bbfca158b8ca628af290d4b35b418ee192390f83"
+    },
+    "agent_tool_call": {
+      "rows": 28,
+      "sha256": "9014d98dda7b35326144df7b71b9cdcc9521c1f850f6adc349978dcbba99aded"
+    },
+    "policy_index_child": {
+      "rows": 36,
+      "sha256": "3dbc5d1d430ef7037f585c596d40be861ab12fe3f76da15a89ed17d655ae8b39"
+    },
+    "policy_index_chunk": {
+      "rows": 180,
+      "sha256": "7ca28b2944b778b59b3ca4b2d1c0c1b02511da91736a93dc9a07959b20572edc"
+    },
+    "policy_index_generation": {
+      "rows": 30,
+      "sha256": "400adb97528b363b42900ceb3a7864a5fa878e77927200f891880b7b334df0fa"
+    },
+    "support_agent_call": {
+      "rows": 209,
+      "sha256": "c7a86c525caeb890f59c95267c98f75d9b8325763a98a31dcf3c2ed422ee6d55"
+    },
+    "support_agent_run": {
+      "rows": 36,
+      "sha256": "409ec018b789a069d2a91c95916be19d2783bb4c1a1fb757836c7d996e63f7ee"
+    }
+  },
+  "new_generation_api_calls": 0,
+  "rows": [
+    {
+      "case_id": "Q07",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "签收记录存在但客户称未收到时，店家核查与处理的条件和原则",
+      "elapsed_ms": 17.596199999388773,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q07",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "签收记录存在但客户称未收到时，店家核查与处理的条件和原则",
+      "elapsed_ms": 5.055499997979496,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q07",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "签收记录存在但客户称未收到时，店家核查与处理的条件和原则",
+      "elapsed_ms": 4.148799998802133,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q08",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "承运商已判丢且无有效签收时，本店退款的前提条件与核验要求",
+      "elapsed_ms": 5.202000000281259,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q08",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "承运商已判丢且无有效签收时，本店退款的前提条件与核验要求",
+      "elapsed_ms": 4.07660000200849,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q08",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "承运商已判丢且无有效签收时，本店退款的前提条件与核验要求",
+      "elapsed_ms": 3.8559000022360124,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q09",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "客户称未收到耳机且已向门口代收点确认没有，签收争议与丢失等前提下的核验条件",
+      "elapsed_ms": 5.153300000529271,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q09",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "客户称未收到耳机且已向门口代收点确认没有，签收争议与丢失等前提下的核验条件",
+      "elapsed_ms": 4.483199998503551,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q09",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "客户称未收到耳机且已向门口代收点确认没有，签收争议与丢失等前提下的核验条件",
+      "elapsed_ms": 4.410599998664111,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q09",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "签收争议：物流显示已签收但客户称未收到、代收点未开门无法核实，退款核验条件与例外",
+      "elapsed_ms": 6.59050000103889,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q09",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "签收争议：物流显示已签收但客户称未收到、代收点未开门无法核实，退款核验条件与例外",
+      "elapsed_ms": 4.481599993596319,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q09",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "签收争议：物流显示已签收但客户称未收到、代收点未开门无法核实，退款核验条件与例外",
+      "elapsed_ms": 4.614400000718888,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q12",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "客户称未收到货、邻居称未代收、家人未联系上，签收争议与丢失等前提的核验条件",
+      "elapsed_ms": 7.2615000026416965,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q12",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "客户称未收到货、邻居称未代收、家人未联系上，签收争议与丢失等前提的核验条件",
+      "elapsed_ms": 6.237300003704149,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q12",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "客户称未收到货、邻居称未代收、家人未联系上，签收争议与丢失等前提的核验条件",
+      "elapsed_ms": 6.036999999196269,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q12",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "邻居代收后本人未拿到、家人未联系上的签收争议核验条件",
+      "elapsed_ms": 6.08020000072429,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q12",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "邻居代收后本人未拿到、家人未联系上的签收争议核验条件",
+      "elapsed_ms": 5.946199999016244,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q12",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "邻居代收后本人未拿到、家人未联系上的签收争议核验条件",
+      "elapsed_ms": 5.473699995491188,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q13",
+      "turn": 3,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "签收争议中客户称未收到但承运商显示已签收的核验条件与处理前提",
+      "elapsed_ms": 6.237900000996888,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q13",
+      "turn": 3,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "签收争议中客户称未收到但承运商显示已签收的核验条件与处理前提",
+      "elapsed_ms": 5.409500001405831,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q13",
+      "turn": 3,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "签收争议中客户称未收到但承运商显示已签收的核验条件与处理前提",
+      "elapsed_ms": 5.439799999294337,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q15",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "台灯未收到（未签收/丢失等前提）申请退款草稿的核验条件与处理规则",
+      "elapsed_ms": 6.001499998092186,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q15",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "台灯未收到（未签收/丢失等前提）申请退款草稿的核验条件与处理规则",
+      "elapsed_ms": 4.1552999973646365,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q15",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "台灯未收到（未签收/丢失等前提）申请退款草稿的核验条件与处理规则",
+      "elapsed_ms": 5.3703000012319535,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q15",
+      "turn": 3,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "台灯未收到退款：承运商判定丢失且无有效签收记录、存在有效签收争议等不同前提下的核验条件与退款资格",
+      "elapsed_ms": 5.253600000287406,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q15",
+      "turn": 3,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "台灯未收到退款：承运商判定丢失且无有效签收记录、存在有效签收争议等不同前提下的核验条件与退款资格",
+      "elapsed_ms": 4.098999997950159,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q15",
+      "turn": 3,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "台灯未收到退款：承运商判定丢失且无有效签收记录、存在有效签收争议等不同前提下的核验条件与退款资格",
+      "elapsed_ms": 4.81739999668207,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q16",
+      "turn": 2,
+      "tool_index": 2,
+      "repeat": 1,
+      "query": "一直运输中未签收是否可按丢失退款？丢失认定与退款条件（含签收争议、运输中、丢失等不同前提）",
+      "elapsed_ms": 4.905800000415184,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q16",
+      "turn": 2,
+      "tool_index": 2,
+      "repeat": 2,
+      "query": "一直运输中未签收是否可按丢失退款？丢失认定与退款条件（含签收争议、运输中、丢失等不同前提）",
+      "elapsed_ms": 4.36930000432767,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q16",
+      "turn": 2,
+      "tool_index": 2,
+      "repeat": 3,
+      "query": "一直运输中未签收是否可按丢失退款？丢失认定与退款条件（含签收争议、运输中、丢失等不同前提）",
+      "elapsed_ms": 4.026900001917966,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q16",
+      "turn": 3,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "签收争议（客户称未收到但承运商记录已签收）情形下的退款核验条件与处理前提",
+      "elapsed_ms": 4.593799996655434,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q16",
+      "turn": 3,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "签收争议（客户称未收到但承运商记录已签收）情形下的退款核验条件与处理前提",
+      "elapsed_ms": 4.1185000009136274,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q16",
+      "turn": 3,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "签收争议（客户称未收到但承运商记录已签收）情形下的退款核验条件与处理前提",
+      "elapsed_ms": 4.408299995702691,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q17",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "未收到货（未签收/丢失）情形下准备退款原因的核验条件与政策依据",
+      "elapsed_ms": 4.712699999799952,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q17",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "未收到货（未签收/丢失）情形下准备退款原因的核验条件与政策依据",
+      "elapsed_ms": 4.106000000319909,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q17",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "未收到货（未签收/丢失）情形下准备退款原因的核验条件与政策依据",
+      "elapsed_ms": 4.028900002595037,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q17",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "未收到货请商家核查时，签收争议、丢失等不同前提下的核验条件",
+      "elapsed_ms": 4.710599998361431,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q17",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "未收到货请商家核查时，签收争议、丢失等不同前提下的核验条件",
+      "elapsed_ms": 4.088300003786571,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q17",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "未收到货请商家核查时，签收争议、丢失等不同前提下的核验条件",
+      "elapsed_ms": 4.4904000023962,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q18",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "未收到货（签收争议/丢失）情形下申请退款的核验条件与处理前提",
+      "elapsed_ms": 4.257000000507105,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q18",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "未收到货（签收争议/丢失）情形下申请退款的核验条件与处理前提",
+      "elapsed_ms": 4.123200000321958,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q18",
+      "turn": 2,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "未收到货（签收争议/丢失）情形下申请退款的核验条件与处理前提",
+      "elapsed_ms": 4.2169999942416325,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q20",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "未收到货（物流显示未签收或丢失）情形下退款申请的核验条件与处理规则",
+      "elapsed_ms": 4.753000001073815,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q20",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "未收到货（物流显示未签收或丢失）情形下退款申请的核验条件与处理规则",
+      "elapsed_ms": 3.8443000012193806,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q20",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "未收到货（物流显示未签收或丢失）情形下退款申请的核验条件与处理规则",
+      "elapsed_ms": 4.048399998282548,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q21",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "物流显示签收但客户称本人未收到包裹，签收争议与包裹丢失等不同前提下的核验条件与处理规则",
+      "elapsed_ms": 4.647699999623001,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q21",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "物流显示签收但客户称本人未收到包裹，签收争议与包裹丢失等不同前提下的核验条件与处理规则",
+      "elapsed_ms": 4.147500003455207,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q21",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "物流显示签收但客户称本人未收到包裹，签收争议与包裹丢失等不同前提下的核验条件与处理规则",
+      "elapsed_ms": 4.032500000903383,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q23",
+      "turn": 1,
+      "tool_index": 2,
+      "repeat": 1,
+      "query": "耳机疑似质量问题的退款资格条件与签收争议、丢失等前提的核验条件",
+      "elapsed_ms": 4.524000003584661,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q23",
+      "turn": 1,
+      "tool_index": 2,
+      "repeat": 2,
+      "query": "耳机疑似质量问题的退款资格条件与签收争议、丢失等前提的核验条件",
+      "elapsed_ms": 4.058100006659515,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q23",
+      "turn": 1,
+      "tool_index": 2,
+      "repeat": 3,
+      "query": "耳机疑似质量问题的退款资格条件与签收争议、丢失等前提的核验条件",
+      "elapsed_ms": 4.028599993034732,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q24",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "签收争议（本人未收到但显示已签收、可能由家人代收）需提交的必需材料与核验条件",
+      "elapsed_ms": 5.164300004253164,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q24",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "签收争议（本人未收到但显示已签收、可能由家人代收）需提交的必需材料与核验条件",
+      "elapsed_ms": 4.427899999427609,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q24",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "签收争议（本人未收到但显示已签收、可能由家人代收）需提交的必需材料与核验条件",
+      "elapsed_ms": 4.323900000599679,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q28",
+      "turn": 2,
+      "tool_index": 4,
+      "repeat": 1,
+      "query": "客户尚未收到货、物流查询不可用情形下，商家核查说明应包含的核验条件与签收争议、丢失等前提",
+      "elapsed_ms": 5.182900000363588,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q28",
+      "turn": 2,
+      "tool_index": 4,
+      "repeat": 2,
+      "query": "客户尚未收到货、物流查询不可用情形下，商家核查说明应包含的核验条件与签收争议、丢失等前提",
+      "elapsed_ms": 5.273800001305062,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q28",
+      "turn": 2,
+      "tool_index": 4,
+      "repeat": 3,
+      "query": "客户尚未收到货、物流查询不可用情形下，商家核查说明应包含的核验条件与签收争议、丢失等前提",
+      "elapsed_ms": 4.211299994494766,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q29",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "台灯未收到/物流丢失情形下退款的前提条件与核验要求",
+      "elapsed_ms": 5.048300001362804,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q29",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "台灯未收到/物流丢失情形下退款的前提条件与核验要求",
+      "elapsed_ms": 3.9879000032669865,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q29",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "台灯未收到/物流丢失情形下退款的前提条件与核验要求",
+      "elapsed_ms": 3.944900003261864,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q30",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 1,
+      "query": "签收争议中客户称未收到货，物流显示已签收时如何核验处理？丢失与签收争议的前提条件有何不同？",
+      "elapsed_ms": 5.3296999976737425,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q30",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 2,
+      "query": "签收争议中客户称未收到货，物流显示已签收时如何核验处理？丢失与签收争议的前提条件有何不同？",
+      "elapsed_ms": 4.343699998571537,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q30",
+      "turn": 1,
+      "tool_index": 3,
+      "repeat": 3,
+      "query": "签收争议中客户称未收到货，物流显示已签收时如何核验处理？丢失与签收争议的前提条件有何不同？",
+      "elapsed_ms": 4.6278000008896925,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1001-2026.10": "7ce107351b7447429fa074520821976f"
+      }
+    },
+    {
+      "case_id": "Q32",
+      "turn": 1,
+      "tool_index": 2,
+      "repeat": 1,
+      "query": "退款是否支持部分退款：整行退款与部分金额退款的条件、签收争议或商品丢失等不同前提下的处理规则",
+      "elapsed_ms": 4.640200000721961,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q32",
+      "turn": 1,
+      "tool_index": 2,
+      "repeat": 2,
+      "query": "退款是否支持部分退款：整行退款与部分金额退款的条件、签收争议或商品丢失等不同前提下的处理规则",
+      "elapsed_ms": 4.0129999979399145,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    },
+    {
+      "case_id": "Q32",
+      "turn": 1,
+      "tool_index": 2,
+      "repeat": 3,
+      "query": "退款是否支持部分退款：整行退款与部分金额退款的条件、签收争议或商品丢失等不同前提下的处理规则",
+      "elapsed_ms": 4.427100000611972,
+      "rules": 6,
+      "mode": "COMPLETE_SMALL_SET",
+      "generation_ids": {
+        "policy-foundation-m1002-2026.10": "d9d32d578f8d4377b23a8ee257f49f5b"
+      }
+    }
+  ]
+}

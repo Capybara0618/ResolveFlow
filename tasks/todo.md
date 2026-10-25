@@ -1,4 +1,11 @@
-## 当前快照（2026-10-25，Agent文案已冻结，RAG六路测量接通待执行）
+## 当前快照（2026-10-25，Agent文案冻结、RAG测量完成待文案取舍）
+
+- Agent文案冻结4b85662、RAG设施8e92e54已普通push核实。[Agent正文](../docs/resume-agent-frozen-20261025.md)保留46.9%→87.5%/服务端平均首正文3.37秒，未改PDF。RAG六路720本地请求已完成，原40题32可答/8语料外及标签不变，三轮排名/包hash稳定。[正式RAG报告](../reports/customer-rag-quantification-v2/README.md)/E69。
+- 预选正分RRF-parent31/32与BM25-direct31/32持平，无主对照提升；BM25-parent强对照32/32=100%、平均22.48ms，纯向量direct29/32=90.6%。简单父级补齐是事后探索性采用建议，尚未切线上/RAG文案未冻结。正分过滤26→27也有两题退化，不能只写收益；补齐多传正文tokens，不是答案准确率。
+- 22条实际Agent政策Query×3=66原PG只读小库工具调用，六规则全读与原结果一致，平均4.93ms，独立于外部文档速度。16检查/两文件Ruff、720矩阵/480首轮证据包原文与评分复算通过；原manifest32文件/权重/PG11表/旧正式/Agent结果与冻结稿/四脏文件保持，ledger3289/0新生成API，未改生产/启停Java/UI。
+- 本批结果/分析/复盘精确commit普通push核实后停止新增测量。下一步与用户讨论RAG技术点采用/指标口径，再决定是否实施长文方案；不自动切生产、重测刷分或改已冻结Agent。
+
+## 历史快照（2026-10-25，Agent文案已冻结，RAG六路测量接通待执行）
 
 - Agent文案及RAG规格4b85662已普通push核实。Agent只冻结[正文](../docs/resume-agent-frozen-20261025.md)，总体46.9%→87.5%/服务端平均首正文3.37秒，不改PDF/旧结果。新RAG实现六路720本地请求，固定原40问/32可答/66子块，主对照BM25-direct与预定正分RRF-parent，BM25-parent强对照并列。[准备报告](../reports/customer-rag-quantification-v2/README.md)。
 - 新7+原组装9共16检查与两文件Ruff通过；实际表格测试先失败，恢复同一冻结原文kind/rows元数据后通过，文本/hash/Gold不改。检索与证据包/计时/标签分离，统一8000字符4096token；无CE网格/生成API/生产改动，尚未测新排名或速度。
