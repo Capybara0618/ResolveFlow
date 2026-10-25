@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from collections import Counter
 from pathlib import Path
 from statistics import mean
@@ -61,7 +62,7 @@ def audit():
         "planned_conversation_runs": len(data["cases"]) * 2, "planned_customer_turns": 100,
         "source_inputs_and_snapshots_unchanged": True,
         "scoring_scope": "customer-visible outcomes; no task/memory/Agent protocol requirements",
-        "baseline_implemented": True, "live_executor_implemented": False,
+        "baseline_implemented": True, "live_executor_implemented": True,
         "new_provider_requests": 0, "new_model_inferences": 0, "quality_measured": False}
 
 
@@ -88,10 +89,51 @@ def runtime_rows(data, runtime, dataset_hash):
             raise ValueError("published result lacks a customer-visible answer")
         if row.get("elapsed_ms") is not None and row["elapsed_ms"] < 0:
             raise ValueError("negative latency")
+        first, elapsed = row.get("first_body_ms"), row.get("elapsed_ms")
+        if first is not None and (row['status'] != 'SUCCEEDED' or elapsed is None
+                or not isinstance(first, (int, float)) or not math.isfinite(first) or not 0 <= first <= elapsed):
+            raise ValueError("invalid first body latency")
+        if row['status'] == 'NOT_RUN' and (row['tools'] or row['models'] or elapsed is not None or first is not None):
+            raise ValueError("unrun turn cannot contribute costs or fake latency")
         for tool in row["tools"]:
             if tool["category"] not in {"ORDER", "SHIPMENT", "POLICY", "GUIDE", "HISTORY"}:
                 raise ValueError("unknown tool category")
     return dict(zip(actual, rows, strict=True))
+
+
+def sent_models(rows):
+    return [model for row in rows for model in row['models'] if model.get('provider_sent') is not False]
+
+
+def distribution(values):
+    values = sorted(v for v in values if v is not None)
+    return {'n': len(values), 'method': 'NEAREST_RANK',
+        **{key: values[max(0, math.ceil(p * len(values)) - 1)] if values else None
+            for key, p in (('p50', .5), ('p95', .95))}}
+
+
+def performance(rows):
+    models = sent_models(rows)
+    known, estimated = [], []
+    for model in models:
+        usage = model.get('usage')
+        if isinstance(usage, dict) and all(type(usage.get(k)) is int and usage[k] >= 0
+                for k in ('input_tokens', 'output_tokens')):
+            (estimated if usage.get('estimated', False) else known).append(usage)
+    return {'provider_attempts': len(models), 'blocked_model_attempts': sum(
+            model.get('provider_sent') is False for row in rows for model in row['models']),
+        'known_input_tokens': sum(u['input_tokens'] for u in known),
+        'known_output_tokens': sum(u['output_tokens'] for u in known),
+        'estimated_input_tokens': sum(u['input_tokens'] for u in estimated),
+        'estimated_output_tokens': sum(u['output_tokens'] for u in estimated),
+        'unknown_usage_calls': len(models) - len(known) - len(estimated), 'estimated_usage_calls': len(estimated),
+        'first_body_ms': distribution(r.get('first_body_ms') for r in rows if r['status'] == 'SUCCEEDED'),
+        'completion_ms_successful_publications': distribution(r.get('elapsed_ms') for r in rows
+            if r['status'] == 'SUCCEEDED'),
+        'completion_ms_all_attempted': distribution(r.get('elapsed_ms') for r in rows if r['status'] != 'NOT_RUN'),
+        'attempted_turns': sum(r['status'] != 'NOT_RUN' for r in rows),
+        'unrun_turns': sum(r['status'] == 'NOT_RUN' for r in rows),
+        'timing_scope': 'SERVER; retained decoded text, not progress/JSON bytes/browser rendering'}
 
 
 def review_template(data, runtime, dataset_hash):
@@ -138,7 +180,7 @@ def summarize(data, runtime, review, dataset_hash):
                 "complex": case["complex"], "passed": all(passes), "passed_turns": sum(passes),
                 "customer_turns": len(selected), "business_http": sum(t["category"] in {
                     "ORDER", "SHIPMENT", "HISTORY"} for row in selected for t in row["tools"]),
-                "model_requests": sum(len(row["models"]) for row in selected)})
+                "model_requests": len(sent_models(selected))})
     groups = {}
     for variant in VARIANTS:
         selected = [r for r in records if r["variant"] == variant]
@@ -151,8 +193,19 @@ def summarize(data, runtime, review, dataset_hash):
             "customer_turns": sum(r["customer_turns"] for r in selected),
             "passed_turns": sum(r["passed_turns"] for r in selected),
             "mean_business_http_all_conversations": mean(r["business_http"] for r in selected),
-            "model_requests": sum(r["model_requests"] for r in selected)}
+            "model_requests": sum(r["model_requests"] for r in selected),
+            "performance": performance([r for r in rows.values() if r['variant'] == variant])}
+    paired = {r['case_id'] for r in records if r['passed'] and r['variant'] == 'agent'} & {
+        r['case_id'] for r in records if r['passed'] and r['variant'] == 'basic_workflow'}
+    paired_efficiency = {variant: {
+        'mean_business_http': mean(r['business_http'] for r in records if r['variant'] == variant
+            and r['case_id'] in paired),
+        'mean_model_requests': mean(r['model_requests'] for r in records if r['variant'] == variant
+            and r['case_id'] in paired),
+        'performance': performance([r for r in rows.values() if r['variant'] == variant and r['case_id'] in paired])}
+        for variant in VARIANTS} if paired else None
     return {"version": data["version"], "groups": groups, "records": records,
+        'both_completed_pairs': len(paired), 'paired_efficiency': paired_efficiency,
         "complex_improvement_percentage_points": 100 * (groups["agent"]["complex_completion_rate"]
             - groups["basic_workflow"]["complex_completion_rate"])}
 

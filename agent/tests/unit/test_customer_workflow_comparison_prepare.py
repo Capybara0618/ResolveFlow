@@ -36,7 +36,7 @@ def test_real_data_keeps_all_inputs_but_uses_only_customer_visible_rubrics():
     assert report["cases"] == 32 and report["customer_inputs"] == 50
     assert report["complex_cases"] == 24 and report["planned_customer_turns"] == 100
     assert report["baseline_implemented"] and not report["quality_measured"]
-    assert not report["live_executor_implemented"]
+    assert report["live_executor_implemented"]
     q25 = next(c for c in data["cases"] if c["id"] == "Q25")["turns"][0]
     assert "不强制调用物流" in q25["business_expectations"][0]
     assert "required_sources" not in q25 and "criteria" not in q25
@@ -106,6 +106,38 @@ def test_timeouts_and_unrun_cases_remain_in_denominator():
     for status, variant in (("TIMEOUT", "agent"), ("NOT_RUN", "basic_workflow")):
         row = next(r for r in runtime["rows"] if r["variant"] == variant and r["case_id"] == "O")
         row.update(status=status, answer=None)
+        if status == "NOT_RUN":
+            row.update(tools=[], models=[], elapsed_ms=None)
         next(r for r in review["rows"] if r["run_id"] == row["run_id"])["checks"]["completion"] = False
     result = summarize(data, runtime, review, "dataset")
     assert all(g["conversations"] == 2 and g["completed"] == 1 for g in result["groups"].values())
+
+
+def test_performance_retains_failures_but_never_counts_blocked_sends_or_unrun_zero_latency():
+    data, runtime, review = fixture()
+    row = runtime['rows'][0]
+    row['models'] = [{'provider_sent': True, 'usage': None},
+        {'provider_sent': False, 'usage': None},
+        {'provider_sent': True, 'usage': {'input_tokens': 100, 'output_tokens': 2, 'estimated': True}}]
+    row['first_body_ms'] = 10
+    failed = runtime['rows'][1]
+    failed.update(status='FAILED', answer=None, elapsed_ms=80)
+    next(r for r in review['rows'] if r['run_id'] == failed['run_id'])['checks']['completion'] = False
+    result = summarize(data, runtime, review, 'dataset')
+    stats = result['groups']['agent']['performance']
+    assert stats['provider_attempts'] == 4 and stats['blocked_model_attempts'] == 1
+    assert stats['unknown_usage_calls'] == 1 and stats['estimated_usage_calls'] == 1
+    assert stats['known_input_tokens'] == 20 and stats['estimated_input_tokens'] == 100
+    assert stats['first_body_ms']['n'] == 1 and stats['first_body_ms']['p50'] == 10
+    assert stats['completion_ms_all_attempted']['n'] == 3 and stats['completion_ms_all_attempted']['p95'] == 80
+    assert result['both_completed_pairs'] == 1
+
+
+def test_impossible_first_body_or_fake_unrun_costs_are_rejected():
+    data, runtime, _ = fixture()
+    runtime['rows'][0]['first_body_ms'] = 50
+    with pytest.raises(ValueError, match='first body'):
+        review_template(data, runtime, 'dataset')
+    runtime['rows'][0].update(first_body_ms=None, status='NOT_RUN', answer=None, elapsed_ms=0)
+    with pytest.raises(ValueError, match='unrun'):
+        review_template(data, runtime, 'dataset')

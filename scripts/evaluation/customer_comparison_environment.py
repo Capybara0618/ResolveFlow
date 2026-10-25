@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import time
+from functools import lru_cache
 from pathlib import Path
 
 import httpx
@@ -12,6 +14,25 @@ import httpx
 from scripts.evaluation.basic_customer_workflow import ModelReply
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+@lru_cache(maxsize=1)
+def wire_tokenizer():
+    from tokenizers import Tokenizer
+    compressed = (ROOT / "agent/src/resolveflow/assets/deepseek-v41/tokenizer.json.gz").read_bytes()
+    if hashlib.sha256(compressed).hexdigest() != "a06de40d7aa5f5f2486dea7d0d516420edfe07e1d946b5ad2c57e73851de3008":
+        raise ValueError("shared tokenizer asset differs")
+    tokenizer = Tokenizer.from_str(gzip.decompress(compressed).decode("utf-8"))
+    tokenizer.no_truncation()
+    tokenizer.no_padding()
+    return tokenizer
+
+
+def wire_tokens(body):
+    tokenizer = wire_tokenizer()
+    wire = json.dumps(body, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return max(len(tokenizer.encode(wire, add_special_tokens=False).ids),
+        sum(len(tokenizer.encode(m['content'], add_special_tokens=False).ids) for m in body['messages']))
 
 
 class RequestAllowance:
@@ -81,6 +102,8 @@ class PlainChatClient:
             "temperature": 0, "thinking": {"type": "disabled"}, "response_format": {"type": "json_object"},
             "stream": True, "stream_options": {"include_usage": True}}
         self.last_request = body
+        if wire_tokens(body) > 8192:
+            raise ValueError("INPUT_WINDOW_EXCEEDED")
         self.allowance.consume()
         self.last_sent = True
         started, text, usage, first, finished, done = time.monotonic(), "", None, None, False, False

@@ -1,4 +1,10 @@
-## 当前快照（2026-10-25，中性源/独立SSE计量完成，接双组执行驱动）
+## 当前快照（2026-10-25，独立双组驱动/计量完成，待新manifest核验）
+
+- 中性源批8eff882已普通push核实。双组分别调生产AgentScope与独立Workflow，不继承构造基线；100轮独立历史/实际草稿、全局发送上限、原PG只读+临时schema导出清理接通。8192/1024输入输出统一，tokenizer原始资产共享但基线无Agent上下文依赖。[报告](../reports/customer-workflow-comparison-v2/README.md)/E66。
+- 56相关检查（含3原PG集成）及九文件Ruff通过：两轮两组SDK/PG/SSE桩成功、原输入恢复0新调用、完整驱动1/3请求停且100分母保留、public保持。性能汇总有实际发送/未知估算usage/首正文及最终P50/P95/成功配对，未运行无0耗时。一次测试transport=None漏桩持假凭据请求被拒，已修正后全MockTransport，单列1拒绝网络尝试；有效账号新生成/付费0，真实ledger3053。
+- 本步精确提交普通push核实后完成已授权新manifest冻结/原PG只读check/最终保留审计；不自动发起新付费评测。旧Agent/RAG结果与数据保持，政策遗漏/事实条件/草稿质量仍待新源审，不预先宣称Agent提升。
+
+## 历史快照（2026-10-25，中性源/独立SSE计量完成，接双组执行驱动）
 
 - 前批fc66e72已普通push核实。新增不导入生产Agent的原始源服务/独立模型SSE客户端、共享请求计数；真实usage未知保留、首正文按最终保留text计，格式字符/丢弃片段不充数。[报告](../reports/customer-workflow-comparison-v2/README.md)/E65。
 - 44离线检查及四文件Ruff通过；原PG32场景政策逐条与生产一致（每场景六条），指南一致/public11表保持。首次PG超时后核实原容器Exited，启动原容器/原卷核验成功，55433不改。0模型/ledger3053，无Java/UI/简历操作。

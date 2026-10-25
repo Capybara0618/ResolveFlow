@@ -127,3 +127,22 @@ def test_neutral_environment_does_not_import_production_agent():
     names = [n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)]
     names += [a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names]
     assert not any(n.startswith('resolveflow') for n in names)
+
+
+def test_shared_tokenizer_counts_like_agent_but_does_not_apply_agent_context_logic():
+    from scripts.evaluation.customer_comparison_environment import wire_tokens
+
+    from resolveflow.harness.token_counting import FLASH_VERSION, InputCounter
+    body = {'model': 'deepseek-flash', 'messages': [{'role': 'user', 'content': '核查物流 signed；金额123.00'}],
+        'max_tokens': 1024}
+    assert wire_tokens(body) == InputCounter(FLASH_VERSION).count(body)
+
+
+def test_input_window_overflow_does_not_consume_provider_allowance():
+    ledger = {'used': 0, 'save': lambda: None}
+    with httpx.Client(transport=httpx.MockTransport(lambda _: pytest.fail('must not send'))) as http:
+        model = PlainChatClient(http, 'https://provider.test/chat', 'test', RequestAllowance(ledger, 0, 1))
+        with pytest.raises(ValueError, match='INPUT_WINDOW_EXCEEDED'):
+            model.complete(stage='ANSWER', messages=[{'role': 'user', 'content': '测试文本' * 10000}],
+                max_output_tokens=1024)
+    assert ledger['used'] == 0 and not model.last_sent

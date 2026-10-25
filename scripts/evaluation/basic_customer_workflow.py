@@ -120,7 +120,8 @@ def run_turn(*, current_request, history, subject, model, read, timeout_seconds=
             except Exception as error:
                 record.update(state="ERROR", error_type=type(error).__name__,
                     elapsed_ms=(time.monotonic() - at) * 1000,
-                    provider_sent=getattr(model, "last_sent", None))
+                    provider_sent=getattr(model, "last_sent", None),
+                    body=deepcopy(getattr(model, "last_request", None)))
                 save()
                 if str(error) == "BUDGET_EXHAUSTED":
                     raise WorkflowFailure("BUDGET_EXHAUSTED") from None
@@ -128,6 +129,7 @@ def run_turn(*, current_request, history, subject, model, read, timeout_seconds=
             record.update(state="COMPLETE", raw_response=reply.text, usage=deepcopy(reply.usage), mode=reply.mode,
                 elapsed_ms=(time.monotonic() - at) * 1000)
             record["provider_sent"] = getattr(model, "last_sent", None)
+            record["body"] = deepcopy(getattr(model, "last_request", None))
             record["first_text_ms"] = reply.first_text_ms
             record["started_ms"] = (at - started) * 1000
             save()

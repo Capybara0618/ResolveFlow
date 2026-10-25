@@ -53,3 +53,17 @@ RawPolicyService只验证当前主体/manifest/固定generation后调用索引�
 实际`pytest agent/tests/unit/test_customer_comparison_environment.py agent/tests/unit/test_basic_customer_workflow.py agent/tests/unit/test_customer_workflow_comparison_prepare.py -q`为44通过（15环境+19基线+10准备）；四文件Ruff通过。先模块缺失收集失败，落实现后通过；Ruff导入/循环lambda捕获两项修正后通过。含SSE真实usage/未知usage/连接失败/额度发送拦截、正文JSON前缀/半转义解析、截断及length结束拒绝发布、最终保留正文计时、原始故障/原文分页/主体与generation隔离。首正文计时是服务端JSON可见text，格式修正被丢弃的回答不算保留正文，尚未测真实耗时或页面速度。
 
 首次PG核验连接池超时，核实原容器2697eb86cf0b已Exited且55433无监听，执行docker start原容器后只读核验成功；原卷resolveflow-review-demo_demo-postgres-data保留，无端口改动/清库/Java或前端启停。0供应商/本地模型、ledger3053；新客户端只用HTTP桩测试，未验证供应商当前网络。双组驱动及性能聚合接下一步，不称正式可执行已冻结。
+
+## 双组执行与性能汇总（2026-10-25接续）
+
+新增scripts/customer_workflow_comparison_live.py，Agent组直接运行当前生产SupportRuntime/AgentScope；Workflow组直接运行独立控制器/httpx。不继承Agent构造基线、不patch生产理解/调查/回答逻辑；只替换冻结HTTP源与接收进度的传输。分别保留实际对话原文及草稿，失败不虚构助手回答；Agent按原机制继承实际已接受的状态，Workflow无状态。Gold/评语不进两组模型；32场景交替两组先后，每个场景各组依序进行全部轮次，共64会话/100轮。
+
+实际固定DeepSeek Flash、temperature0、非thinking/JSON、32768容量、8192输入、1024输出、12模型/120秒。输入计数是共享官方tokenizer原始资产的独立计量实现，已比较与Agent计数一致，不导入Agent上下文逻辑；两边计时前预热。每轮保留实际请求body、usage、原始结果/工具结果、流式事件与首正文时间；草稿仅字段映射，不补内容。Agent进度投影的保留正文与Workflow的有效JSON text均为服务端时间，不能写成浏览器实测速度。
+
+prepare汇总新增真实发送计数、被拦截调用、已知/估算/未知usage、首正文及最终时间P50/P95（NEAREST_RANK，附n）、全量业务HTTP和双方均成功配对成本。失败成本全部保留；未运行仍计主指标分母，但不能填0耗时或虚构请求。实际业务评分仍逐轮源审，三个布尔判据+证据完整后才出完整处理率，不用技术SUCCEEDED替代业务正确。
+
+实际命令：`pytest agent/tests/unit/test_customer_workflow_comparison_prepare.py agent/tests/unit/test_customer_workflow_comparison_live.py agent/tests/unit/test_customer_comparison_environment.py agent/tests/unit/test_basic_customer_workflow.py agent/tests/integration/test_customer_workflow_comparison_live.py -q`，56通过（12准备+5驱动+17环境+19基线+3PG集成），九文件Ruff通过。PG使用原55433：两轮两组真实SDK/PG/SSE桩成功、独立历史不串、真实请求输出上限1024、首正文可测，同run用原输入快照恢复不产生新请求。完整execute分别在1/3次桩请求上限停止，99/98轮NOT_RUN保留100分母，provider次数准确且无凭据入输出，实际run/call导出后清理自有schema，public保持；不是新质量分数。
+
+测试过程中先模块缺失收集失败；独立矩阵测试datetime序列化修正；第二轮测试脚本错误ADD与旧事项冲突后改CONTINUE；恢复测试重建deadline触发INPUT_MISMATCH后改用原持久输入，没有放松生产fence/输入合同。性能新增关键检查先3失败/9通过，补实现后通过；Ruff导入/行长修正。一次全驱动测试对transport=None使用setdefault没覆盖，Agent持测试假凭据尝试供应商并被ModelRefusedError拒绝（非有效账号生成，无法确认具体HTTP码）；修复为显式覆盖None，随后1/3上限测试全部由MockTransport接管。该次拒绝网络尝试1单列，不能宣称绝对零网络；真实计费账本仍3053，没有使用有效凭据的新生成或付费评测。
+
+[驱动预检](driver-preflight.json)已通过原PG32场景/每场景六政策/public一致（当时尚未冻结，manifest_checked=false）；[当前审计](driver-audit.json)记录基线及Live执行器已实现、质量未测。旧设计审计、旧正式128会话/600检索及负向结论不回写。下一步仅完成新manifest冻结核验和保留审计，再等待正式测量要求；既有RAG对照独立保留，不自动重跑检索或选择有利主候选。
