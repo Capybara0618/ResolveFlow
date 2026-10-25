@@ -1,0 +1,646 @@
+{
+  "version": "customer-workflow-comparison-v2",
+  "scope": "whole-customer-agent-vs-independent-basic-workflow",
+  "origin": "CODEX_SOURCE_AWARE_SYNTHETIC_REUSED_INPUTS",
+  "independent_holdout": false,
+  "source_cases": {
+    "path": "evals/customer-quantification-v1/agent-cases.json",
+    "sha256": "b10e0c3d47c8acfbbc9ff2b4bcb03cdcdbe7f244f25f103f850c303da135944d"
+  },
+  "snapshot_source": {
+    "path": "evals/customer-agent-live-v3/cases.json",
+    "sha256": "5a3901e63bf02ac7ee2d50286bd3e176f6e889f18b22a212cb82facf769ed4cc"
+  },
+  "variants": [
+    "agent",
+    "basic_workflow"
+  ],
+  "repeats": 1,
+  "review_checks": [
+    "correctness",
+    "completion",
+    "context"
+  ],
+  "cases": [
+    {
+      "id": "Q01",
+      "family": "ordinary",
+      "complex": false,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "我这副耳机现在送到哪里了？先查物流就好。",
+          "business_expectations": [
+            "说明承运记录为已签收，但不等于本人实际收到；不生成操作草稿。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q02",
+      "family": "ordinary",
+      "complex": false,
+      "snapshot_id": "P02",
+      "turns": [
+        {
+          "text": "台灯运输有没有异常？帮我确认承运商记录。",
+          "business_expectations": [
+            "准确说明本单承运商结论为丢失，区分系统记录与客户陈述；不自动申请退款。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q03",
+      "family": "ordinary",
+      "complex": false,
+      "snapshot_id": "G01",
+      "turns": [
+        {
+          "text": "请告诉我这件商品的实付金额，先不处理售后。",
+          "business_expectations": [
+            "实付金额来自实际订单付款信息，不能以商品标价替代；不生成操作草稿。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q04",
+      "family": "ordinary",
+      "complex": false,
+      "snapshot_id": "G02",
+      "turns": [
+        {
+          "text": "如果只需要商家帮忙核查，也一定要填退款金额吗？",
+          "business_expectations": [
+            "说明独立商家核查不要求退款金额、不自动创建退款申请；不把操作指南当退款资格。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q05",
+      "family": "ordinary",
+      "complex": false,
+      "snapshot_id": "G03",
+      "turns": [
+        {
+          "text": "给商家发核查材料之前，我能选哪些聊天记录给他看吗？",
+          "business_expectations": [
+            "说明客户可以选择并确认共享原文和调查依据，私聊不自动全共享，当前未发送。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q06",
+      "family": "ordinary",
+      "complex": false,
+      "snapshot_id": "G05",
+      "turns": [
+        {
+          "text": "我只想看给商家的说明草稿：耳机按键按了没反应。",
+          "business_expectations": [
+            "实际提供按键无反应的人工核查草稿，标明未经核验、待确认，不生成退款草稿。"
+          ],
+          "expected_artifact": "HANDOFF"
+        }
+      ]
+    },
+    {
+      "id": "Q07",
+      "family": "ordinary",
+      "complex": false,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "假如签收记录存在，客户说没收到，店里的处理原则是什么？",
+          "business_expectations": [
+            "解释假设签收争议需人工核验、事实不足可补充或调查；不认定本单退款资格。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q08",
+      "family": "ordinary",
+      "complex": false,
+      "snapshot_id": "P02",
+      "turns": [
+        {
+          "text": "承运商已经判丢又没有有效签收时，本店退款有什么前提？",
+          "business_expectations": [
+            "解释丢失且无有效签收须人工核验、按单行全额处理；不声称本单前提已经满足。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q09",
+      "family": "correction",
+      "complex": true,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "耳机没拿到，我已经问过门口代收点，说没有。",
+          "business_expectations": [
+            "本人未收到与代收点排查是两条客户说法，不能当作已核实事实；实时物流说明准确。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "刚才讲错了，代收点还没开门，实际没有问到。请按这个情况继续。",
+          "business_expectations": [
+            "采纳代收点尚未开门、实际没问到的纠正，后续不再以已排除代收点为依据。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q10",
+      "family": "correction",
+      "complex": true,
+      "snapshot_id": "G05",
+      "turns": [
+        {
+          "text": "耳机右边完全不响，我想先整理核查说明。",
+          "business_expectations": [
+            "提供人工核查草稿，右边完全不响是客户陈述且待确认。"
+          ],
+          "expected_artifact": "HANDOFF"
+        },
+        {
+          "text": "改一下：左右都能响，是右边偶尔断断续续。重新整理，别发送。",
+          "business_expectations": [
+            "新草稿采用左右能响、右边偶尔断续的说法，不继续描述完全不响，不发送。"
+          ],
+          "expected_artifact": "HANDOFF"
+        }
+      ]
+    },
+    {
+      "id": "Q11",
+      "family": "correction",
+      "complex": true,
+      "snapshot_id": "P02",
+      "turns": [
+        {
+          "text": "台灯还没收到。请查物流，不准备申请。",
+          "business_expectations": [
+            "按实时记录说明承运商判定丢失，客户未收单列；不准备申请。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "我仍然没有拿到，只是补充一句，不用办理。",
+          "business_expectations": [
+            "承接仍未拿到的补充，不误认为问题解决、不生成操作草稿。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "物业送过来了，未收到这件事已经结束，不用再查。",
+          "business_expectations": [
+            "确认客户已收到并结束问题，不再用旧未收说法建议退款或继续调查，不生成操作草稿。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q12",
+      "family": "correction",
+      "complex": true,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "邻居说没有收，家里人还没有联系上，我自己没拿到。",
+          "business_expectations": [
+            "区分邻居否认、家人未联系上、本人未收到；不把未联系上等同无人代收。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "邻居刚说替我收了，家人依然没联系上；先别申请。",
+          "business_expectations": [
+            "采纳邻居承认代收；仍保留家人未联系上的不确定，不再说邻居已排除，不准备申请。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q13",
+      "family": "interrupt_resume",
+      "complex": true,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "耳机签收可我没收到，请核对一下。",
+          "business_expectations": [
+            "当前签收记录与客户未收主张分开解释。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "这件事暂缓，我先问：人工回复以后就会自动显示解决吗？",
+          "business_expectations": [
+            "本轮回答商家回复不等于自动解决，不继续推进暂缓的物流事项，不生成操作草稿。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "回到刚才那笔耳机，继续查签收争议。",
+          "business_expectations": [
+            "继续原耳机签收争议，取得本轮当前物流依据，不强迫客户重复描述原问题。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q14",
+      "family": "interrupt_resume",
+      "complex": true,
+      "snapshot_id": "G05",
+      "turns": [
+        {
+          "text": "帮我准备核查说明：耳机充电接口松动，先给我看。",
+          "business_expectations": [
+            "提供接口松动的人工核查草稿，标明客户陈述、待确认。"
+          ],
+          "expected_artifact": "HANDOFF"
+        },
+        {
+          "text": "先暂停说明。用户换商品咨询会丢失之前记录吗？",
+          "business_expectations": [
+            "回答切换商品不会丢失各订单行历史，本轮暂停草稿、不附可操作摘要。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "继续整理刚才接口松动的核查说明，仍先不发。",
+          "business_expectations": [
+            "沿用原接口松动描述重新提供人工核查草稿，仍未发送、不要求重复问题。"
+          ],
+          "expected_artifact": "HANDOFF"
+        }
+      ]
+    },
+    {
+      "id": "Q15",
+      "family": "interrupt_resume",
+      "complex": true,
+      "snapshot_id": "P02",
+      "turns": [
+        {
+          "text": "请先帮我准备台灯没收到的退款草稿。",
+          "business_expectations": [
+            "按订单实付、当前物流和本店政策提供退款草稿，前提待核验、未提交。"
+          ],
+          "expected_artifact": "REFUND"
+        },
+        {
+          "text": "草稿先放一放，怎么查看商家核查进度？",
+          "business_expectations": [
+            "回答商家核查进度查看方式，本轮不继续生成暂停的退款草稿。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "现在接着准备台灯那份退款原因，我核对后再提交。",
+          "business_expectations": [
+            "继续原台灯未收的退款准备，核对当前订单/物流并按政策给出草稿，客户确认后才提交。"
+          ],
+          "expected_artifact": "REFUND"
+        }
+      ]
+    },
+    {
+      "id": "Q16",
+      "family": "interrupt_resume",
+      "complex": true,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "查一下耳机签收记录，我没收到。",
+          "business_expectations": [
+            "当前签收记录与客户未收分开说明。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "先不查签收了，我问一下一直运输中是不是就能按丢失退款？",
+          "business_expectations": [
+            "仅解释假设在途不等于丢失和退款资格，本轮不继续原签收调查或生成申请。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "还是回到耳机签收的事，给我退款原因草稿，先不提交。",
+          "business_expectations": [
+            "恢复耳机签收争议并提供退款原因草稿，金额和物流有当前依据，不把前轮假设在途当本单事实。"
+          ],
+          "expected_artifact": "REFUND"
+        }
+      ]
+    },
+    {
+      "id": "Q17",
+      "family": "goal_switch",
+      "complex": true,
+      "snapshot_id": "P02",
+      "turns": [
+        {
+          "text": "台灯没收到，请准备退款原因供核对。",
+          "business_expectations": [
+            "依据订单、物流与政策提供未收退款草稿；草稿不等于退款批准。"
+          ],
+          "expected_artifact": "REFUND"
+        },
+        {
+          "text": "我改成只让商家调查，先别准备退款，帮我写核查说明。",
+          "business_expectations": [
+            "本轮只提供人工核查草稿，保留未收描述、不再附退款草稿，未发送。"
+          ],
+          "expected_artifact": "HANDOFF"
+        }
+      ]
+    },
+    {
+      "id": "Q18",
+      "family": "goal_switch",
+      "complex": true,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "耳机没收到，先整理给商家的核查说明。",
+          "business_expectations": [
+            "仅提供未收的人工核查草稿，未经核验、待确认。"
+          ],
+          "expected_artifact": "HANDOFF"
+        },
+        {
+          "text": "现在想申请退款，请整理退款原因给我核对，不是人工说明。",
+          "business_expectations": [
+            "本轮改为退款草稿，有订单金额、当前物流及政策依据；签收争议需人工核验，不再附人工摘要。"
+          ],
+          "expected_artifact": "REFUND"
+        }
+      ]
+    },
+    {
+      "id": "Q19",
+      "family": "goal_switch",
+      "complex": true,
+      "snapshot_id": "G05",
+      "turns": [
+        {
+          "text": "耳机按键卡住了，先准备给商家看的说明。",
+          "business_expectations": [
+            "提供按键卡住的人工核查草稿，客户说法尚未经核验。"
+          ],
+          "expected_artifact": "HANDOFF"
+        },
+        {
+          "text": "不需要那份说明了，也不用发出去，这个问题结束。",
+          "business_expectations": [
+            "结束草稿准备，不附可操作摘要；不声称撤销已经创建的核查单或申请。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q20",
+      "family": "goal_switch",
+      "complex": true,
+      "snapshot_id": "P02",
+      "turns": [
+        {
+          "text": "台灯没到，先帮我写申请原因。",
+          "business_expectations": [
+            "提供台灯未收的退款草稿，未提交、资格待人工核验。"
+          ],
+          "expected_artifact": "REFUND"
+        },
+        {
+          "text": "不写申请了。只告诉我申请之后在哪查看状态？",
+          "business_expectations": [
+            "只说明正式申请提交后的状态查看位置，不再附退款草稿或声称已建单。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q21",
+      "family": "conflict_missing",
+      "complex": true,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "耳机物流是签收，但本人没有包裹。你能直接认定已经收到吗？",
+          "business_expectations": [
+            "根据当前签收记录说明不能直接认定本人收到，承运结论与客户未收的冲突需核验。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q22",
+      "family": "conflict_missing",
+      "complex": true,
+      "snapshot_id": "P02",
+      "turns": [
+        {
+          "text": "我以为台灯还在路上，麻烦核对现在状态并说说能怎样处理。",
+          "business_expectations": [
+            "核对当前物流为丢失而非客户原以为的在途；说明相关政策和待核验条件，不虚构当前有效签收核验结论。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q23",
+      "family": "conflict_missing",
+      "complex": true,
+      "snapshot_id": "G05",
+      "turns": [
+        {
+          "text": "耳机可能坏了，你能确定是质量问题并直接帮我退款吗？",
+          "business_expectations": [
+            "查询相关质量政策，说明不能仅凭可能坏了就认定质量问题或直接退款；可追问症状或准备人工核验。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q24",
+      "family": "conflict_missing",
+      "complex": true,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "我不知道有没有家人收，先问签收争议要提交哪几样必需材料。",
+          "business_expectations": [
+            "解释签收争议处理，不编造政策未规定的必交材料清单；家人是否代收保持不确定。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q25",
+      "family": "tool_failure",
+      "complex": true,
+      "snapshot_id": "P01",
+      "snapshot_override": {
+        "tool": "get_shipment_trace",
+        "status": 503,
+        "body": {
+          "error": "SOURCE_UNAVAILABLE"
+        }
+      },
+      "turns": [
+        {
+          "text": "物流查询打不开时，你能断定我的包裹丢了吗？",
+          "business_expectations": [
+            "回答查询失败不能证明包裹丢失，可给合理替代核验路径；本题允许只解释假设，不强制调用物流，也不能谎称已经调用失败。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q26",
+      "family": "tool_failure",
+      "complex": true,
+      "snapshot_id": "F02",
+      "turns": [
+        {
+          "text": "帮我查台灯运输记录，看不到就告诉我看不到，不要猜。",
+          "business_expectations": [
+            "实际尝试查询运输记录，按冻结的接口不可用说明暂时看不到，不把失败说成丢失或不存在。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q27",
+      "family": "tool_failure",
+      "complex": true,
+      "snapshot_id": "P03",
+      "turns": [
+        {
+          "text": "耳机这笔实付多少钱？如果订单接口读不到，请说明原因。",
+          "business_expectations": [
+            "实际订单读取未找到，说明无法确认实付；不能从商品标价代替或把接口未找到当订单不存在。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q28",
+      "family": "tool_failure",
+      "complex": true,
+      "snapshot_id": "P01",
+      "snapshot_override": {
+        "tool": "get_shipment_trace",
+        "status": 503,
+        "body": {
+          "error": "SOURCE_UNAVAILABLE"
+        }
+      },
+      "turns": [
+        {
+          "text": "先核对物流，我还没拿到。",
+          "business_expectations": [
+            "实际物流读取失败后说明无法确定状态，不编造签收/丢失。"
+          ],
+          "expected_artifact": "NONE"
+        },
+        {
+          "text": "既然查不出来，只帮我整理给商家的核查说明，先别发送。",
+          "business_expectations": [
+            "实际提供给商家的未收核查草稿，说明客户说法待核验、尚未发送；无需重新尝试物流，失败不等于丢失。"
+          ],
+          "expected_artifact": "HANDOFF"
+        }
+      ]
+    },
+    {
+      "id": "Q29",
+      "family": "compound",
+      "complex": true,
+      "snapshot_id": "P02",
+      "turns": [
+        {
+          "text": "台灯一直没收到，查物流、说明丢失退款前提，再给我原因草稿，不提交。",
+          "business_expectations": [
+            "同时完成物流核对、丢失退款前提解释和退款草稿；实付正确，当前无有效签收不能未经核实就断言，未提交。"
+          ],
+          "expected_artifact": "REFUND"
+        }
+      ]
+    },
+    {
+      "id": "Q30",
+      "family": "compound",
+      "complex": true,
+      "snapshot_id": "P01",
+      "turns": [
+        {
+          "text": "签收的耳机我没收到：核对物流，再解释争议怎么处理，以及商家能不能看到全部私聊。",
+          "business_expectations": [
+            "同时说明当前物流、签收争议政策、私聊共享规则；客户未收不等于事实已核验，商家不自动看到全部私聊。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    },
+    {
+      "id": "Q31",
+      "family": "compound",
+      "complex": true,
+      "snapshot_id": "G05",
+      "turns": [
+        {
+          "text": "耳机转轴松了；我不要退款，想先看核查摘要，也想知道补充后是不是另开一单。",
+          "business_expectations": [
+            "提供转轴松动的人工核查草稿，未经核验且待确认、无退款草稿；说明补充接续原核查单。"
+          ],
+          "expected_artifact": "HANDOFF"
+        }
+      ]
+    },
+    {
+      "id": "Q32",
+      "family": "compound",
+      "complex": true,
+      "snapshot_id": "P02",
+      "turns": [
+        {
+          "text": "我问两件事：物流现在怎样；如果以后要退款，是否每笔都能部分退一点？先别申请。",
+          "business_expectations": [
+            "同时说明本单当前丢失记录与一般退款范围：只支持单订单行全部数量全额，不支持部分退款；不生成申请。"
+          ],
+          "expected_artifact": "NONE"
+        }
+      ]
+    }
+  ]
+}

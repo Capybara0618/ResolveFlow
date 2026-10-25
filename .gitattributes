@@ -7,3 +7,5 @@
 /evals/resume-quantification-v1/** -text whitespace=cr-at-eol
 /reports/resume-quantification-v1/** -text whitespace=cr-at-eol
 /reports/customer-quantification-v1/** -text whitespace=cr-at-eol
+/evals/customer-workflow-comparison-v2/** -text whitespace=cr-at-eol
+/reports/customer-workflow-comparison-v2/** -text whitespace=cr-at-eol
