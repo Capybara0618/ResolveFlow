@@ -1,8 +1,10 @@
-# 后端四项技术点：开发方案 v1
+# 后端四项技术点：开发方案 v1.1
 
 2026-10-26。依据用户确认的七条简历结构，本方案只覆盖第1、4、5、7条；第1条原简历文字保持，第4、5、7条以用户认可的凝练版为目标。配套[评测方案](backend-resume-evaluation-v1.md)固定如何验证和填数。
 
-本次交付为开发和评测文档，未执行下述功能开发或新评测。执行进度仍只在[tasks/todo.md](../tasks/todo.md)顶部维护。当前另有Harness/上下文评测工作，业务实施前按[交接约定](../tasks/handoff-current.md)确认唯一写入者；本方案不接续或修改那批源码、实验和进度。
+2026-10-26修订：用户确认第7条加入Redisson分布式锁，明确以双Commerce实例的评价热点缓存重建为落点，替代原D4“测后决定是否合并同实例加载”的可选方案。第1、4、5条不变，Agent侧三条保持冻结。本次只更新方案；Redisson尚未引入，新增对照及故障矩阵尚未执行。
+
+执行进度仍只在[tasks/todo.md](../tasks/todo.md)顶部维护，实施按[交接约定](../tasks/handoff-current.md)保持唯一写入者。D0已开始编写隔离工具，现有未提交脚本及其测试保留，不能把局部工具测试当作D0整链完成。
 
 ## 1. 目标正文
 
@@ -10,7 +12,7 @@
 
 - **4．多商家交易与并发一致性：**实现按店购物车与多商品结算，通过版本校验和行锁处理并发修改，下单时复核价格与商品状态；付款请求幂等处理，订单与账本同事务生成，响应丢失后查询原付款结果。在【并发数】并发、【轮次】轮竞争测试中，重复订单与重复模拟扣款均为【数量】笔。
 - **5．版本化授权与异步可靠退款：**审批授权绑定材料版本，补证后旧授权自动失效；通过 RocketMQ、Outbox/Inbox 和操作幂等处理重复消息与服务中断，预留金额防止超退，结果未知时保留占用并按原操作对账。在【类别数】类【次数】次故障测试中，重复退款与超额退款均为【数量】笔。
-- **7．SQL查询与Redis缓存优化：**通过复合索引、游标分页和批量查询优化工作台与商城列表，使用 Redis 缓存审核队列及评价、Lua限制账号写入频率，并控制缓存故障时的数据库回源并发。在【工单数】工单、【并发数】并发下，接口p95由【优化前】ms降至【优化后】ms，数据库查询量减少【比例】%。
+- **7．SQL查询与Redis缓存优化：**通过复合索引、游标分页和批量查询优化工作台与商城列表，使用Redis缓存审核队列及评价，结合Redisson分布式锁减少热点缓存重建时的重复查询，并通过Lua账号限流与有界回源保护数据库。在【工单数】工单、【并发数】并发下，接口p95由【优化前】ms降至【优化后】ms，数据库查询量减少【比例】%。
 
 这三条是交付目标。占位结果不预设为0或某个提升比例，正文中的工作台、商城列表等范围最终与对应评测逐一关联。
 
@@ -23,7 +25,7 @@
 | Commerce | 商品/购物车/结算/订单/模拟付款、评价、资金账本、退款执行与结果Outbox | commerce_db |
 | Python Agent | 保留已有服务边界；本批用明确合成的建议/资格来源准备后端场景 | 本批不改PG运行逻辑或模型循环 |
 
-购物和退款为模拟交易。沿用Java21、Spring、MyBatis/JdbcTemplate、MySQL、Redis、RocketMQ及现有锁定依赖；不新增库存、补发、跨动作Saga、真实支付、新MQ或微服务。不更换现有Agent/RAG/Harness实现，不产生收费模型请求，不修改桌面简历。
+购物和退款为模拟交易。沿用Java21、Spring、MyBatis/JdbcTemplate、MySQL、Redis、RocketMQ及现有锁定依赖；按本次用户授权仅追加Redisson所需依赖并锁定兼容版本，不升级既有框架或更换Redis部署。不新增库存、补发、跨动作Saga、真实支付、新MQ或微服务。不更换现有Agent/RAG/Harness实现，不产生收费模型请求，不修改桌面简历。
 
 资金与事务约束：同一订单行最多一次成功退款；整单已退+预留不超过支付额；UNKNOWN不释放占用、不换ID重付。授权消费后不修改材料或取消。Inbox、业务效果和本地事件在本地事务提交，外部网络调用在事务外。
 
@@ -38,7 +40,7 @@
 | 付款提供方 | [SimulatedCheckoutProvider](../java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/SimulatedCheckoutProvider.java)以REQUIRES_NEW事务存收据 | 本机模拟器，与退款SQLite provider不同；HTTP响应丢失通过独立代理制造，不称真实外部支付 |
 | 授权/退款 | 已有revision、授权消费、双向Outbox/Inbox、操作幂等、预留与对账 | 复用生产链路，补当前版本整链、MQ停机恢复及关联诊断 |
 | 订单列表 | [PurchaseReads.list](../java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/PurchaseReads.java)先取ID再逐条read；[BuyerPurchaseService](../java/case-service/src/main/java/com/resolveflow/caseservice/shopping/BuyerPurchaseService.java)按店分页归并 | 明确存在逐订单组装；优先改Commerce批量读取，保持Case跨店合并与游标语义 |
-| 商品/缓存 | 商品列表已有批量SKU；工作台2秒缓存、评价30秒epoch缓存、Lua限流、有界回源 | 不重复实施；补实际入口收益、冷缓存/热点/故障及双实例验证 |
+| 商品/缓存 | 商品列表已有批量SKU；工作台2秒缓存、评价30秒epoch缓存、Lua限流、有界回源；尚无Redisson | 复用现有能力，新增双Commerce实例热点重建锁及对照；保留锁关闭条件，分别测缓存、锁的收益 |
 | 旧评测 | [退款脚本](../scripts/resume_refund_benchmark.py)、[查询脚本](../scripts/resume_review_benchmark.py)、[隔离验收驱动](../scripts/backend_deepening_acceptance.py) | 复用逻辑前参数化新库、端口、运行标识；旧退款脚本固定历史库名，不能直接运行 |
 
 已有[后端深化报告](../reports/backend-deepening-v1.md)和[历史量化报告](../reports/resume-quantification-v1/README.md)作为实现/实验参考；新结果另建目录，不覆盖旧结果或继承旧延迟。
@@ -94,10 +96,33 @@
 | 工作台索引 | 对正式workspace各主筛选、搜索和游标执行EXPLAIN ANALYZE；仅为有证据的瓶颈追加索引迁移 | 前后行数/扫描/排序及HTTP正确性；不机械复制旧list索引 |
 | 已有缓存 | 保留2秒展示缓存和30秒评价epoch，校验身份/过滤/游标隔离 | 公共输出无私有字段；权限/金额/资格不取缓存 |
 | 缓存指标 | 真实记录hit/miss/error/DB调用/inflight/拒绝，Redis I/O在DB事务外 | 指标在真实调用点增长；命中仍查epoch明确计入DB次数 |
-| 热点重建 | 先用同key突发测重复回源；若明显，独立子步合并同实例加载请求 | 原异常/超时正确传播、waiter有界、无跨键/主体串数据；无收益则不加 |
+| Redisson热点重建 | 双Commerce实例按评价商品/epoch共享RLock；获取后再次检查缓存，仍缺失才重建 | 同key正常重建跨实例互斥、不同key独立、等待有界；异常/宕机后锁可恢复，旧epoch不污染新代 |
 | Lua限流 | 保留WRITE/REPLY每账号各6次/60秒 | 两Case实例共用Redis，窗口合计6放行，其他账号/动作隔离；429/503在Commerce写入前返回 |
 
-Semaphore=8/100ms为单服务实例DB门控；双Commerce实例总上限可以为16，不能宣称全局8。Redis读故障可有限回源，账号写限流故障503；固定窗口允许边界突发，实验分别记录。热点商品缓存、分布式锁、多级缓存不是本批必做项。
+Semaphore=8/100ms为单服务实例DB门控；双Commerce实例总上限可以为16，不能宣称全局8。Redis读故障可有限回源，账号写限流故障503；固定窗口允许边界突发，实验分别记录。新增Redisson用于重建协调，Spring Data Redis继续执行缓存读写和Lua限流。热点商品详情缓存、多级缓存与资金路径分布式锁不在本批范围。
+
+#### D4.1：依赖与开关
+
+先核对锁定的Boot4/Spring Data Redis/Netty版本，在最小集成测试中验证Redisson同步RLock、超时、连接关闭与序列化边界；固定可用版本并记录dependency tree，不直接引入会替换现有Redis配置的starter。两个客户端显式指向同一自有Redis，连接池规模、命令超时、客户端重试和关闭生命周期均记录。保留独立重建锁开关，便于在同一候选构建上比较缓存开但锁关/缓存开且锁开。
+
+#### D4.2：重建流程与失败策略
+
+仅对已缓存的公开评价默认首页和统计启用，锁key含namespace、product_id和epoch，与缓存key一一对应；不同商品/代际不共享锁。沿用数据库公开可见性与epoch校验，缓存命中直接返回，不获取锁。
+
+1. 缓存miss后尝试获取RLock，初始锁等待100ms、显式租约2秒。显式leaseTime意味着本方案不依靠watchdog续期；租约与数据库查询预算需在冒烟中核对后冻结。
+2. 获取锁后再次读缓存；已由其他实例填好则返回。仍miss才申请原DB门控，执行只读快照查询，在事务结束后写入原epoch缓存key。
+3. 未获得锁时在等待结束后再读一次缓存；仍miss返回可重试503，不让所有等待者直接查库。限制客户端重试，不循环续等，不持有DB许可或事务等待Redis锁。
+4. 重建异常仍在finally释放自己持有的锁；租约已过期时不得误解锁新持有者。数据库查询设置有界statement/事务预算；获取、等待、超时、租约丢失、重建开始/结束和异常解锁单独计量。
+5. Redis连接/命令异常时走原有单实例受限DB回源，不继续依赖失效的重建锁；此分支不宣称跨实例互斥。缓存/锁的失败路径共享原DB门控，避免双重释放许可或额外无界查询。
+6. owner暂停超过租约时，另一个实例可能合法获取锁，已经发出的SQL未必能取消，因此恢复期允许短暂重叠。旧owner不得绕过epoch写入新代，释放只能作用于原owner；正常持锁峰值与租约失效窗口分别测量。此锁减少重复重建，不承担订单/资金正确性。
+
+仍由MySQL中的事务epoch负责评价修改与缓存版本关联，Redisson锁负责相同版本重建互斥；锁不替代数据库唯一约束、付款/退款行锁、操作幂等或Agent fence。工作台继续沿用原短期缓存，不把评价收益套给工作台。
+
+#### D4.3：失败测试和完成标准
+
+先用两个实际Commerce实例验证同key冷缓存/TTL到期、不同key、重建异常、owner进程退出、超过租约停顿、重建期间评价修改及Redis断连。测试点在真实DB查询/缓存写入/锁owner处取证，不能只mock RLock为成功。
+
+完成标准：正常有效租约下同key实际并发重建峰值为1；等待者缓存命中或有界拒绝；异常后正常请求可继续填充；进程退出后租约到期可恢复；旧owner不释放新owner锁，旧代回填不影响新代；Redis异常仍受原DB门控保护。性能收益由P3和R矩阵独立对照，不预设下降比例。
 
 ### D5：正式评测与归档
 
@@ -111,4 +136,4 @@ Semaphore=8/100ms为单服务实例DB门控；双Commerce实例总上限可以�
 
 新脚本按现有Python venv运行pytest/Ruff；API/类型有变化时再跑对应契约与前端测试/构建。只改查询时不为凑数量启动收费Agent质量评测。
 
-2026-10-26文档准备：已读核心范围/当前记录，检查PurchaseReads、BuyerPurchaseService、CheckoutPayments、CheckoutRecoveryService和SimulatedCheckoutProvider，以及旧查询/退款评测器和报告。确认订单逐条组装与旧脚本固定库名是直接代码事实；热点合并是否有收益仍待测。仅新增本开发文档及评测文档，链接与git差异检查另随提交记录；未运行数据库、业务、模型或性能测试。
+2026-10-26原文档准备：已读核心范围/当前记录，检查PurchaseReads、BuyerPurchaseService、CheckoutPayments、CheckoutRecoveryService和SimulatedCheckoutProvider，以及旧查询/退款评测器和报告。确认订单逐条组装与旧脚本固定库名是直接代码事实；当时热点合并为待测可选项。v1.1按用户确认纳入Redisson双实例重建方案，评测同步追加独立对照与失败窗口；此修订未修改业务实现或运行新性能测试。

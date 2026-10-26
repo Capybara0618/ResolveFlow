@@ -1,4 +1,10 @@
-## 当前快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
+## 当前快照（2026-10-26，后端D0准备中，Redisson计划v1.1修订）
+
+- 用户确认后端第1/4/5/7条，要求按文档开发，随后明确第7条引入Redisson并先修订计划。[开发v1.1](../docs/backend-resume-development-v1.md)/[评测v1.1](../docs/backend-resume-evaluation-v1.md)现纳入双Commerce评价热点重建、锁内二次检查、100ms等待/2秒显式租约、异常释放及有限回源；P3三条件使正常窗口42→48，新增6场景两条件120轮。数字仅计划，新增Redisson依赖/业务实现/正式矩阵均未执行；[E77](../docs/architecture-evolution.md)记录职责和取舍。
+- D0已开始：scripts/evaluation/backend_lab.py及agent/tests/unit/test_backend_resume_lab.py为本执行者未提交准备；先缺模块失败，补运行标识/归属/端口/基线保护后11单元通过、Ruff通过，尚无完整CLI、冻结JAR或整链冒烟。本次计划修订只提交文档，不夹带这两个准备文件；之后先收口D0再按D1–D5推进。
+- 本次文档链接/场景计数/git差异检查通过；0模型/收费/数据库/服务启动及Redisson实测。四历史脏文件保持，Agent侧三条及其PDF/评测冻结。精确commit普通push核实后本次修订收口；下一实施者先核验本批D0准备归属及交接，不覆盖或误认已完成整链。
+
+## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 
 - 按用户确认的人话版，仅替换桌面量化实验版PDF及既有TeX第122行的Harness条目；[Agent侧三条冻结正文及口径](../docs/resume-agent-side-frozen-20261026.md)。Agent46.9%→87.5%/平均首正文3.37秒、RAG75.0%→84.4%/135ms保持；Harness/上下文采用68.8%→90.6%，已保存结果中断对照恢复新增请求减少50%，旧16.4%/12.2%/18包从该条移除，原报告不改。
 - 只改该条，pypdf核对其余全文一致；仍1页/原字体/0 Overfull，Poppler全页目视通过。桌面与output/pdf冻结副本hash一致，旧PDF/TeX及日志/预览/审计备份留tmp/pdfs/harness-freeze-20261026，不提交个人简历。其余后端四条与所有非项目内容不动。
