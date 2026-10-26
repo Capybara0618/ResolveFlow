@@ -1,0 +1,19 @@
+{
+  "sources": {
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/ProductReviewReadCache.java": "c856d8f3dd348633f44260b5cef5edeb52c7d3d9b1d7838c0658d0cbfb4ad2fd",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/ReviewRebuildLock.java": "0b83f2e8c02f58ab6470163ee36f512b3f841a1e435dcdcd784d114a6c06bc8d",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/ProductReviewService.java": "58f565063788f595c2ff7568127fb461af0e90aef2e175be84d192fbcbb5edb5"
+  },
+  "integration_passed": 16,
+  "additional_final_unit_passed": 6,
+  "duplicates_between_suites": 5,
+  "distinct_tests": 17,
+  "test_logs": {
+    "backend-d4-cache-before.log": "aebebf8705864b168181cd42a7cd0e3f274ff03d9cd726da1f4ca4f7f6b68db1",
+    "backend-d4-cache-after.log": "2be28e73ecab94529f65a500638aa418b7b4f1b705a73a46d2672d4355f2c103",
+    "backend-d4-cache-after-02.log": "550674daaff979b74cc7ac108318e8a21598b587dbc83f4e8c88680e32e421ac",
+    "backend-d4-cache-unit-final.log": "608ec6410e8132c66f9f72f2c2c866608f1fba4fcce6c3298591910e590b2ca7"
+  },
+  "model_requests": 0,
+  "boundary": "existing real MySQL/Redis integration plus unit owner/waiter tests; real dual Commerce validation next"
+}

@@ -1,8 +1,9 @@
-## 当前快照（2026-10-26，D4.1兼容通过，继续接缓存与双实例故障）
+## 当前快照（2026-10-26，D4缓存锁接线通过，继续真实双进程/SQL/限流）
 
-- 第4/5条冻结67135baa、D3批量SQL b8e4be3e均普通push核实；原三条Agent/PDF及四历史脏文件保持。用户授权完成D4，0模型/费用。
-- [D4.1兼容](../reports/backend-resume-v1/redisson-d4-compat-01/README.md)/E91：独立Redisson4.7.0、无starter；Boot4.0.8/Netty4.2.17.Final/Lettuce6.8.2保持。先缺类编译失败，真实Redis两客户端显式2秒租约/100ms等待、旧owner不误解锁及Lettuce共存1检查通过，依赖树与配置冻结；临时Redis退出回收。
-- 当前仅依赖/条件lazy客户端Bean就绪，ProductReviewReadCache尚未接锁，双Commerce/MQ不启动。精确commit正常push后继续锁内二查、等待后命中或503、Redis异常有限回源、指标/DB预算，再做工作台SQL与双实例锁/限流实际验证；R01–R06及D5性能未运行，不能称D4完成或填简历第7条。
+- 第4/5冻结及D3保持，D4.1依赖兼容fb01f141已普通push核实；原四脏文件/PDF/Agent/原数据不动，0模型/费用。
+- [D4.2缓存锁](../reports/backend-resume-v1/redisson-d4-cache-01/README.md)/E92：锁内二查、等待后命中或503、基础设施异常有限回源、业务错误不重读、失去租约不写/不误解锁。publicPage只读1秒预算，Redis写入在事务及本机许可外；epoch/page/锁等待/重建/DB inflight指标及DEBUG事件已接真实调用点。
+- 先缺类/后null重载歧义编译失败保留；16相关集成/单元通过，追加过期owner后的单元6通过，独立合计17（重复不加总）。限定Spotless通过。仅临时Testcontainers，退出回收。
+- 精确commit正常push后继续两个独立Commerce JVM实际读缓存/锁/门控、退出/租约/epoch/Redis故障，工作台SQL计划及共享Lua验证；R矩阵及D5性能尚未完成，不能称D4全部通过或填第7条指标。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

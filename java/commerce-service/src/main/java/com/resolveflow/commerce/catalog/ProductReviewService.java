@@ -225,7 +225,7 @@ public class ProductReviewService {
         return new Page(shown, totals, rows.size() > size ? shown.getLast().reviewId() : null);
     }
 
-    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ, timeout = 1)
     public Page publicPage(String product, Long before, Integer limit) {
         int size = limit(before, limit);
         publicEpoch(product);
