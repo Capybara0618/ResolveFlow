@@ -1,4 +1,10 @@
-## 当前快照（2026-10-26，Harness/上下文材料与无模型接线准备完成）
+## 当前快照（2026-10-26，客服计量与真实进程故障接线通过，待集中矩阵）
+
+- 准备d8182f0已普通push核实。用户授权继续，新增[计量/故障接线说明](../docs/customer-harness-context-wiring-v1.md)：实际Streaming客户端请求/usage/发送上限，原SupportRuntime/Store持久化，跨检查点状态身份检查；CLI仅MOCK_SSE，无收费execute，原16段/Gold/54文件准备hash不变。
+- 新7无网络计量检查+5独立PG集成共12通过，含三窗口真实os._exit73/新进程接管和旧fence拒绝、已保存结果复用、UNKNOWN_MODEL_RESULT保留、从头组新run继承spend/deadline。只启动既有独立测试PG65433，业务55433/卷不动；临时t_hctx_ schema由fixture清理，非生产崩溃。
+- 本小步0收费/真实provider，SSE/业务/政策为明确合成桩，不把脚本usage当token收益。原4脏文件及冻结Agent/RAG/旧恢复成绩保持。精确commit正常push核实后，在新manifest下执行64上下文+30故障前缀的集中MOCK矩阵及保留审计；正式真实模型仍须明确发送上限/账本起点与入口，不能宣称已测指标。
+
+## 历史快照（2026-10-26，Harness/上下文材料与无模型接线准备完成）
 
 - 用户批准合并Harness与上下文并开始准备；已落[新协议](../docs/customer-harness-context-v1.md)、16段原始对话/32检查点与五恢复任务、[准备记录](../reports/customer-harness-context-v1/README.md)。raw基线同SDK/提示/8192预算，拼历史超限删最早；layered只继承本组前一检查点生产逻辑接受的状态，rubric不进入模型。
 - 新9检查先缺模块失败后通过，连同原上下文/记忆共32检查通过；64脚本SDK轮全部完成/128本地mock决策，仅接线不计语义分。初次第二layered轮脚本误ADD已有事项被INVALID_DECISION拒，改CONTINUE后完成，生产不变。两文件Ruff及54文件hash check通过；详细失败/命令和未运行边界见准备记录。
