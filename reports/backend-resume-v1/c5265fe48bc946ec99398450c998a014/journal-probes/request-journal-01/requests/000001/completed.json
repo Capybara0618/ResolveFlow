@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "body": {
+    "store_id": "M-1001",
+    "revision": 106
+  },
+  "request_id": "000001",
+  "started_ns": 97355778762700,
+  "finished_ns": 97355870539000,
+  "clock_session": "e4e4366ed18d41cf8506c9bb02563c0d",
+  "intent_sha256": "2266efe781d91fbdb7f42b2b36a9ec3fada310153f85c3402b5d1d918ae88c67"
+}

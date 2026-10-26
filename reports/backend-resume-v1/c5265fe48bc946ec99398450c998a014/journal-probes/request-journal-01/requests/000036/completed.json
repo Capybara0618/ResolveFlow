@@ -1,0 +1,22 @@
+{
+  "status": 200,
+  "body": {
+    "payment": {
+      "attempt_id": "583dc049-9610-4962-9174-efc70265055c",
+      "draft_id": "3d25320a-6a58-47d3-b6b9-a36881d0dc00",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T05:18:20.339578Z",
+      "finished_at": "2026-10-26T05:18:20.445438Z",
+      "order_id": "8f0235cf-71ff-4619-9ee0-aacbe7077928",
+      "line_id": "SHOP-a59a50ac-133c-44a9-bc11-a6b6eb575ca4",
+      "paid_at": "2026-10-26T05:18:20.399933Z"
+    }
+  },
+  "request_id": "000036",
+  "started_ns": 97357229517800,
+  "finished_ns": 97357257438200,
+  "clock_session": "e4e4366ed18d41cf8506c9bb02563c0d",
+  "intent_sha256": "93931fbfeec2fddfd234c4f365e7ba0b2090fde6c4c4f437b576dbcf29807eb3"
+}

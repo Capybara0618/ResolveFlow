@@ -1,0 +1,17 @@
+{
+  "request_id": "000003",
+  "method": "POST",
+  "path": "/api/v1/shop/cart/M-1001/items",
+  "actor": "demo-buyer",
+  "index": 0,
+  "body": {
+    "sku_id": "SKU-1002-WHITE",
+    "quantity": 1,
+    "expected_revision": 106,
+    "expected_sku_version": 1
+  },
+  "idempotency_key": "a5f81daec943449b99e860b2159a0e68",
+  "body_sha256": "0b476a7270811e79af61ea187506b6c5ffecef3f2c08e6f47211210833a8b39a",
+  "clock_session": "e4e4366ed18d41cf8506c9bb02563c0d",
+  "state": "MAY_HAVE_BEEN_SENT"
+}

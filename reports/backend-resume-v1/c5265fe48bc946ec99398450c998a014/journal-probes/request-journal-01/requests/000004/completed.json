@@ -1,0 +1,111 @@
+{
+  "status": 200,
+  "body": {
+    "stores": [
+      {
+        "store_id": "M-1001",
+        "store_name": "松间数码",
+        "revision": 107,
+        "currency": "CNY",
+        "items": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "asset_key": "headphones",
+            "quantity": 1,
+            "unit_amount": 32900,
+            "total_amount": 32900,
+            "max_quantity": 10,
+            "sku_version": 1,
+            "price_changed": false,
+            "availability": "AVAILABLE"
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "product_id": "P-1002",
+            "product_name": "机械键盘",
+            "variant": "白色",
+            "asset_key": "keyboard",
+            "quantity": 1,
+            "unit_amount": 19900,
+            "total_amount": 19900,
+            "max_quantity": 10,
+            "sku_version": 1,
+            "price_changed": false,
+            "availability": "AVAILABLE"
+          },
+          {
+            "sku_id": "SKU-65992672-2fca-4f3f-b370-6001e88674e8",
+            "product_id": "P-cfbe0c62-f8c8-488d-a2cd-08d671a61691",
+            "product_name": "D1 boundary 2d051e68",
+            "variant": "first",
+            "asset_key": "headphones",
+            "quantity": 1,
+            "unit_amount": 2000,
+            "total_amount": 2000,
+            "max_quantity": 10,
+            "sku_version": 2,
+            "price_changed": true,
+            "availability": "DELISTED"
+          },
+          {
+            "sku_id": "SKU-689ae694-18fe-42e2-bd38-2bbc5a4d376e",
+            "product_id": "P-cfbe0c62-f8c8-488d-a2cd-08d671a61691",
+            "product_name": "D1 boundary 2d051e68",
+            "variant": "second",
+            "asset_key": "headphones",
+            "quantity": 1,
+            "unit_amount": 3000,
+            "total_amount": 3000,
+            "max_quantity": 10,
+            "sku_version": 2,
+            "price_changed": true,
+            "availability": "DELISTED"
+          },
+          {
+            "sku_id": "SKU-7811adf6-71f9-44fb-a0b7-3e931a86d7a5",
+            "product_id": "P-223be9ed-b18f-4ef2-b38b-5881a35fea2f",
+            "product_name": "D1 boundary 7e676c95",
+            "variant": "first",
+            "asset_key": "headphones",
+            "quantity": 1,
+            "unit_amount": 2000,
+            "total_amount": 2000,
+            "max_quantity": 10,
+            "sku_version": 2,
+            "price_changed": true,
+            "availability": "DELISTED"
+          },
+          {
+            "sku_id": "SKU-9da94fda-382c-4680-8e14-fc6baee1903f",
+            "product_id": "P-223be9ed-b18f-4ef2-b38b-5881a35fea2f",
+            "product_name": "D1 boundary 7e676c95",
+            "variant": "second",
+            "asset_key": "headphones",
+            "quantity": 1,
+            "unit_amount": 3000,
+            "total_amount": 3000,
+            "max_quantity": 10,
+            "sku_version": 2,
+            "price_changed": true,
+            "availability": "DELISTED"
+          }
+        ]
+      },
+      {
+        "store_id": "M-1002",
+        "store_name": "拾光家居",
+        "revision": 0,
+        "currency": "CNY",
+        "items": []
+      }
+    ]
+  },
+  "request_id": "000004",
+  "started_ns": 97355981864900,
+  "finished_ns": 97356015247300,
+  "clock_session": "e4e4366ed18d41cf8506c9bb02563c0d",
+  "intent_sha256": "4333597960491dab7da779b84619692647e6bdd385aa2c632d3ae5787d3d2532"
+}

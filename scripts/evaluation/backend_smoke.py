@@ -22,11 +22,26 @@ def api(settings, method, path, token=None, body=None, headers=None, expected=20
         data=None if body is None else json.dumps(body).encode(), method=method,
         headers={"Content-Type": "application/json", **({"Authorization": "Bearer " + token} if token else {}),
                  **(headers or {})})
+    journal = getattr(settings, "request_journal", None)
+    ticket = None
+    if journal and path.startswith(("/api/v1/shop/", "/api/v1/merchant/products")):
+        ticket = journal.prepare(path, journal.actor(token), [(body, (headers or {}).get("Idempotency-Key"))], method)[0]
+        journal.start(ticket)
     try:
         with urllib.request.urlopen(request, timeout=20) as response:
             status, content = response.status, response.read()
     except urllib.error.HTTPError as response:
         status, content = response.code, response.read()
+    except OSError as error:
+        if ticket:
+            journal.finish(ticket, {"status": 0, "body": {"transport_error": type(error).__name__}})
+        raise
+    if ticket:
+        try:
+            value = json.loads(content)
+        except ValueError:
+            value = {"protocol_error": "INVALID_JSON", "response_sha256": hashlib.sha256(content).hexdigest()}
+        journal.finish(ticket, {"status": status, "body": value})
     entry = {"at": datetime.now(UTC).isoformat(), "method": method, "path": path,
              "gateway_port": state["ports"]["gateway"], "status": status,
              "response_sha256": hashlib.sha256(content).hexdigest()}
@@ -38,7 +53,11 @@ def api(settings, method, path, token=None, body=None, headers=None, expected=20
 
 
 def login(settings, username, password):
-    return api(settings, "POST", "/api/v1/auth/login", body={"username": username, "password": password})["access_token"]
+    token = api(settings, "POST", "/api/v1/auth/login", body={"username": username, "password": password})["access_token"]
+    journal = getattr(settings, "request_journal", None)
+    if journal:
+        journal.register(token, username)
+    return token
 
 
 def save(settings, smoke):

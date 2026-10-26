@@ -14,6 +14,7 @@ import urllib.error
 import urllib.request
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -52,6 +53,8 @@ def validate_payment(rows, attempt, counts, expected_lines):
 def burst(settings, path, token, inputs):
     port = settings.load()["ports"]["gateway"]
     gate = threading.Barrier(len(inputs))
+    journal = getattr(settings, "request_journal", None)
+    tickets = journal.prepare(path, journal.actor(token), inputs) if journal else None
 
     def one(index, payload):
         body, key = payload
@@ -60,6 +63,8 @@ def burst(settings, path, token, inputs):
             headers={"Authorization": "Bearer " + token, "Content-Type": "application/json", "Idempotency-Key": key})
         gate.wait(timeout=10)
         started = time.monotonic()
+        if journal:
+            journal.start(tickets[index])
         try:
             with urllib.request.urlopen(request, timeout=20) as response:
                 status, value = response.status, json.load(response)
@@ -67,12 +72,17 @@ def burst(settings, path, token, inputs):
             status, value = response.code, json.loads(response.read())
         except OSError as error:
             status, value = 0, {"transport_error": type(error).__name__}
-        return {"index": index, "status": status, "classification": classify(status), "body": value,
+        row = {"index": index, "status": status, "classification": classify(status), "body": value,
                 "quantity": body.get("quantity"), "elapsed_ms": (time.monotonic() - started) * 1000,
                 "started_monotonic": started, "request_sha256": hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()}
+        return journal.finish(tickets[index], row) if journal else row
 
-    with ThreadPoolExecutor(max_workers=len(inputs)) as pool:
+    factory = getattr(settings, "burst_gate", None)
+    with (factory(path) if factory else nullcontext(None)) as release, ThreadPoolExecutor(max_workers=len(inputs)) as pool:
         futures = [pool.submit(one, i, payload) for i, payload in enumerate(inputs)]
+        if release:
+            journal.wait_active(path, len(inputs))
+            release()
         return [future.result(timeout=40) for future in futures]
 
 

@@ -1,0 +1,18 @@
+{
+  "run_id": "c5265fe48bc946ec99398450c998a014",
+  "jars": {
+    "gateway": "f4bdc94a4817eabdde470a01a889c67db6f5f503f87152414aac5274b273580a",
+    "case": "fda4ffa745a9019fe696658f182c0d9b2f5cada39abb0b5c6533c6898d3e8745",
+    "commerce": "dcd61011e00a3851cbfe6d74f2a0490cbcbc605d233c4b80d7d89ac6bdd63288"
+  },
+  "sources": {
+    "scripts/evaluation/trade_journal_probe.py": "b14180ffc4fdba7fc61cce12b2a67c227675a65e545ca3c4ba8205c7fc39390b",
+    "scripts/evaluation/trade_request_journal.py": "13faa73590d27981c796b5916bc771dc16e0ba319f658022f1fbc2a6c0e343e5",
+    "scripts/evaluation/backend_trade.py": "53fa6a865bafc78de7e885c30e862506f4eeca0271ff6dc18b389bbbe1f19a8a",
+    "scripts/evaluation/backend_smoke.py": "80354883b7975524346e396f85f9cc3f6628d213463299b3c8691d234df21561",
+    "scripts/evaluation/backend_trade_faults.py": "39a567f2bcfb48942a787016899ff1013afc637bd88df4aff5d1da78883f503d",
+    "scripts/evaluation/backend_lab.py": "89112e520d9488793ab30da7adcf7665403b7aac1fe4e67f33fe453ce4c84138",
+    "scripts/backend_resume_lab.py": "0c97e5fb79f8e22c7c7e6aed4b0aec8dadecf295061e8c1a085c329fded22ddb"
+  },
+  "phase": "recorder wiring, not formal"
+}
