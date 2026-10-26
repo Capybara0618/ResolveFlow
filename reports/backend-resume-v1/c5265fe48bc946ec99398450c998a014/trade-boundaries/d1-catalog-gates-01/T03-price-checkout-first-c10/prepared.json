@@ -1,0 +1,74 @@
+{
+  "scenario": "T03",
+  "factor": "price",
+  "order": "checkout-first",
+  "concurrency": 10,
+  "product": {
+    "product_id": "P-9851f870-581e-4e47-9b4b-dbaab99f4b57",
+    "store_id": "M-1001",
+    "name": "D1 boundary e3202178",
+    "description": "Synthetic evaluation product",
+    "category": "electronics",
+    "asset_key": "headphones",
+    "listed": true,
+    "version": 1,
+    "skus": [
+      {
+        "sku_id": "SKU-a65d63a9-6fab-409f-8208-3452d00177f2",
+        "variant": "first",
+        "unit_amount": 2000,
+        "max_quantity": 10,
+        "listed": true,
+        "version": 1
+      },
+      {
+        "sku_id": "SKU-b9be70e2-450b-430b-b473-c8884c1535c5",
+        "variant": "second",
+        "unit_amount": 3000,
+        "max_quantity": 10,
+        "listed": true,
+        "version": 1
+      }
+    ]
+  },
+  "update": {
+    "name": "D1 boundary e3202178",
+    "description": "Synthetic evaluation product",
+    "category": "electronics",
+    "asset_key": "headphones",
+    "listed": true,
+    "expected_version": 1,
+    "skus": [
+      {
+        "sku_id": "SKU-a65d63a9-6fab-409f-8208-3452d00177f2",
+        "variant": "first",
+        "unit_amount": 2777,
+        "max_quantity": 10,
+        "listed": true
+      },
+      {
+        "sku_id": "SKU-b9be70e2-450b-430b-b473-c8884c1535c5",
+        "variant": "second",
+        "unit_amount": 3000,
+        "max_quantity": 10,
+        "listed": true
+      }
+    ]
+  },
+  "draft_body": {
+    "expected_revision": 92,
+    "lines": [
+      {
+        "sku_id": "SKU-a65d63a9-6fab-409f-8208-3452d00177f2",
+        "quantity": 1,
+        "expected_sku_version": 1
+      },
+      {
+        "sku_id": "SKU-b9be70e2-450b-430b-b473-c8884c1535c5",
+        "quantity": 1,
+        "expected_sku_version": 1
+      }
+    ]
+  },
+  "draft_key": "feadfac73f264e249f0c0ef4046bb622"
+}

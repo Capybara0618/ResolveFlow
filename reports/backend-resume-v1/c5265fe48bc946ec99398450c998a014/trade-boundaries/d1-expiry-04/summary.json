@@ -1,0 +1,37 @@
+{
+  "run_id": "c5265fe48bc946ec99398450c998a014",
+  "phase": "development, not formal matrix",
+  "completed_rounds": 1,
+  "planned_rounds": 1,
+  "rows": [
+    {
+      "scenario": "T08",
+      "order": "reserve-first",
+      "concurrency": 30,
+      "status": "PASSED",
+      "draft_id": "dc0196c9-2679-4e43-9f04-1f8a8a49a8e5",
+      "final_state": {
+        "orders": 1,
+        "status": "PAID",
+        "attempts": 1,
+        "receipts": 1,
+        "close_reason": null
+      },
+      "counts": {
+        "paid": 52800,
+        "lines": 2,
+        "slots": 2,
+        "orders": 1,
+        "attempts": 1,
+        "receipts": 1,
+        "refunded": 0,
+        "reserved": 0,
+        "line_total": 52800,
+        "draft_total": 52800,
+        "receipt_total": 52800
+      },
+      "http_200": 30,
+      "http_409": 0
+    }
+  ]
+}

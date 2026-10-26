@@ -1,0 +1,28 @@
+{
+  "product_id": "P-223be9ed-b18f-4ef2-b38b-5881a35fea2f",
+  "store_id": "M-1001",
+  "name": "D1 boundary 7e676c95",
+  "description": "Synthetic evaluation product",
+  "category": "electronics",
+  "asset_key": "headphones",
+  "listed": false,
+  "version": 2,
+  "skus": [
+    {
+      "sku_id": "SKU-7811adf6-71f9-44fb-a0b7-3e931a86d7a5",
+      "variant": "first",
+      "unit_amount": 2000,
+      "max_quantity": 10,
+      "listed": true,
+      "version": 2
+    },
+    {
+      "sku_id": "SKU-9da94fda-382c-4680-8e14-fc6baee1903f",
+      "variant": "second",
+      "unit_amount": 3000,
+      "max_quantity": 10,
+      "listed": true,
+      "version": 2
+    }
+  ]
+}

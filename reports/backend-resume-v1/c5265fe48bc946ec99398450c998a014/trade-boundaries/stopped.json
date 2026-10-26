@@ -1,0 +1,48 @@
+{
+  "ports_closed": {
+    "mysql": true,
+    "redis": true,
+    "namesrv": true,
+    "broker": true,
+    "broker_ha": true,
+    "gateway": true,
+    "case": true,
+    "commerce": true,
+    "provider": true,
+    "broker_vip": true
+  },
+  "containers": {
+    "mysql": {
+      "Status": "exited",
+      "ExitCode": 0,
+      "OOMKilled": false
+    },
+    "redis": {
+      "Status": "exited",
+      "ExitCode": 0,
+      "OOMKilled": false
+    },
+    "namesrv": {
+      "Status": "exited",
+      "ExitCode": 137,
+      "OOMKilled": false
+    },
+    "broker": {
+      "Status": "exited",
+      "ExitCode": 137,
+      "OOMKilled": false
+    },
+    "broker-init": {
+      "Status": "exited",
+      "ExitCode": 0,
+      "OOMKilled": false
+    }
+  },
+  "volumes_retained": true,
+  "audit_hashes_valid": true,
+  "jars": {
+    "gateway": "f4bdc94a4817eabdde470a01a889c67db6f5f503f87152414aac5274b273580a",
+    "case": "fda4ffa745a9019fe696658f182c0d9b2f5cada39abb0b5c6533c6898d3e8745",
+    "commerce": "dcd61011e00a3851cbfe6d74f2a0490cbcbc605d233c4b80d7d89ac6bdd63288"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "scenario": "T03",
+  "order": "update-first",
+  "factor": "variant",
+  "concurrency": 30,
+  "status": "PASSED",
+  "original_key_drafts": 0,
+  "http_200": 0,
+  "http_409": 30
+}

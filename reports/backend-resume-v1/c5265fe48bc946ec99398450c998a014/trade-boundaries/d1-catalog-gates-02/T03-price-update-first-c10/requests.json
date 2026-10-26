@@ -1,0 +1,152 @@
+[
+  {
+    "index": 0,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "838b26f4-32de-4403-b449-d66a7dee721b"
+    },
+    "quantity": null,
+    "elapsed_ms": 485.0000000005821,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  },
+  {
+    "index": 1,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "e582b769-fcd0-4c13-baf0-e68c552910a1"
+    },
+    "quantity": null,
+    "elapsed_ms": 485.0000000005821,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  },
+  {
+    "index": 2,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "b854dd4c-9b20-49d6-bf1a-6151a2070e5d"
+    },
+    "quantity": null,
+    "elapsed_ms": 500.0,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  },
+  {
+    "index": 3,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "ed1c945c-9b8c-499b-af06-0cd8ab4b9984"
+    },
+    "quantity": null,
+    "elapsed_ms": 421.99999999138527,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  },
+  {
+    "index": 4,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "8b0550e3-598d-4b66-90a6-375a90a3a3c3"
+    },
+    "quantity": null,
+    "elapsed_ms": 468.99999999732245,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  },
+  {
+    "index": 5,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "2d068d06-171d-46e4-867c-6d00b24c158f"
+    },
+    "quantity": null,
+    "elapsed_ms": 437.9999999946449,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  },
+  {
+    "index": 6,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "5e5ba8b4-1e08-4422-83bf-62f47d627f4a"
+    },
+    "quantity": null,
+    "elapsed_ms": 468.99999999732245,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  },
+  {
+    "index": 7,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "ee8637cf-7d33-4b1b-aed1-3ca9611ec4a2"
+    },
+    "quantity": null,
+    "elapsed_ms": 453.9999999979045,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  },
+  {
+    "index": 8,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "60f415ea-600c-439f-9d21-a69498f1cd72"
+    },
+    "quantity": null,
+    "elapsed_ms": 421.99999999138527,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  },
+  {
+    "index": 9,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "PRICE_CHANGED",
+      "message": "\u5546\u54c1\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u786e\u8ba4\u62a5\u4ef7",
+      "retryable": false,
+      "trace_id": "3e593097-8fd8-4622-8ab1-54aebb6d71e4"
+    },
+    "quantity": null,
+    "elapsed_ms": 437.9999999946449,
+    "started_monotonic": 94980.421,
+    "request_sha256": "c24031b5380542986ae5f0ccb707e7620d2489c8277a7eed3172f706c8876ee1"
+  }
+]

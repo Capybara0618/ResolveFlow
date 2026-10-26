@@ -81,7 +81,9 @@ def resume(settings):
     print(json.dumps({"run_id": settings.identity, "gateway": f"http://127.0.0.1:{state['ports']['gateway']}"}))
 
 
-def start_java_services(settings, state, roles=("commerce", "case", "gateway")):
+def start_java_services(settings, state, roles=("commerce", "case", "gateway"), checkout_poll_ms=2000):
+    if type(checkout_poll_ms) is not int or not 1000 <= checkout_poll_ms <= 60000:
+        raise ValueError("invalid laboratory checkout poll interval")
     require_free({role: state["ports"][role] for role in roles})
     java = Path(os.environ.get("JAVA_HOME", str(Path.home() / ".jdks/jdk-21.0.12.1+1"))) / "bin/java.exe"
     for role in roles:
@@ -105,7 +107,8 @@ def start_java_services(settings, state, roles=("commerce", "case", "gateway")):
                          "--resolveflow.events.producer.group=" + settings.project + "-" + role + "-outbox"])
         if role == "commerce":
             args.extend(["--resolveflow.refund.dispatch-enabled=true", "--resolveflow.refund.reconcile-enabled=true",
-                         "--resolveflow.refund.poll-interval-ms=1000"])
+                         "--resolveflow.refund.poll-interval-ms=1000",
+                         f"--resolveflow.checkout.recovery-poll-ms={checkout_poll_ms}"])
         elif role == "case":
             args.extend(["--resolveflow.dispatch.enabled=true", "--resolveflow.dispatch.poll-interval-ms=500",
                          "--resolveflow.agent.dispatch-enabled=false", "--resolveflow.support.dispatch-enabled=false"])

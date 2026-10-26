@@ -1,0 +1,3 @@
+{
+  "blocked_statement": "SELECT k.sku_id FROM catalog_sku"
+}

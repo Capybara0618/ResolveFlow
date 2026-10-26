@@ -1,0 +1,131 @@
+{
+  "run_id": "c5265fe48bc946ec99398450c998a014",
+  "phase": "development, not formal matrix",
+  "completed_rounds": 12,
+  "planned_rounds": 16,
+  "rows": [
+    {
+      "scenario": "T03",
+      "order": "checkout-first",
+      "factor": "price",
+      "concurrency": 10,
+      "status": "PASSED",
+      "original_key_drafts": 1,
+      "http_200": 10,
+      "http_409": 0
+    },
+    {
+      "scenario": "T03",
+      "order": "checkout-first",
+      "factor": "price",
+      "concurrency": 30,
+      "status": "PASSED",
+      "original_key_drafts": 1,
+      "http_200": 30,
+      "http_409": 0
+    },
+    {
+      "scenario": "T03",
+      "order": "update-first",
+      "factor": "price",
+      "concurrency": 10,
+      "status": "PASSED",
+      "original_key_drafts": 0,
+      "http_200": 0,
+      "http_409": 10
+    },
+    {
+      "scenario": "T03",
+      "order": "update-first",
+      "factor": "price",
+      "concurrency": 30,
+      "status": "PASSED",
+      "original_key_drafts": 0,
+      "http_200": 0,
+      "http_409": 30
+    },
+    {
+      "scenario": "T03",
+      "order": "checkout-first",
+      "factor": "variant",
+      "concurrency": 10,
+      "status": "PASSED",
+      "original_key_drafts": 1,
+      "http_200": 10,
+      "http_409": 0
+    },
+    {
+      "scenario": "T03",
+      "order": "checkout-first",
+      "factor": "variant",
+      "concurrency": 30,
+      "status": "PASSED",
+      "original_key_drafts": 1,
+      "http_200": 30,
+      "http_409": 0
+    },
+    {
+      "scenario": "T03",
+      "order": "update-first",
+      "factor": "variant",
+      "concurrency": 10,
+      "status": "PASSED",
+      "original_key_drafts": 0,
+      "http_200": 0,
+      "http_409": 10
+    },
+    {
+      "scenario": "T03",
+      "order": "update-first",
+      "factor": "variant",
+      "concurrency": 30,
+      "status": "PASSED",
+      "original_key_drafts": 0,
+      "http_200": 0,
+      "http_409": 30
+    },
+    {
+      "scenario": "T03",
+      "order": "checkout-first",
+      "factor": "unlisted",
+      "concurrency": 10,
+      "status": "PASSED",
+      "original_key_drafts": 1,
+      "http_200": 10,
+      "http_409": 0
+    },
+    {
+      "scenario": "T03",
+      "order": "checkout-first",
+      "factor": "unlisted",
+      "concurrency": 30,
+      "status": "PASSED",
+      "original_key_drafts": 1,
+      "http_200": 30,
+      "http_409": 0
+    },
+    {
+      "scenario": "T03",
+      "order": "update-first",
+      "factor": "unlisted",
+      "concurrency": 10,
+      "status": "PASSED",
+      "original_key_drafts": 0,
+      "http_404": 10,
+      "http_200": 0,
+      "http_409": 0,
+      "resumed_read_only_validation": true
+    },
+    {
+      "scenario": "T03",
+      "order": "update-first",
+      "factor": "unlisted",
+      "concurrency": 30,
+      "status": "PASSED",
+      "original_key_drafts": 0,
+      "http_200": 0,
+      "http_409": 0,
+      "http_404": 30
+    }
+  ]
+}

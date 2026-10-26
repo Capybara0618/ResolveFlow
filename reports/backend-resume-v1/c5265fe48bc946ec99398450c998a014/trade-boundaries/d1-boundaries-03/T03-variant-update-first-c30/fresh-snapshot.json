@@ -1,0 +1,22 @@
+{
+  "draft_id": "ebceef47-d2bf-4c14-8b67-863cf3e5b48d",
+  "lines": [
+    {
+      "sku_id": "SKU-2049676d-59b8-4a0d-a2de-a338d13d1841",
+      "variant": "updated variant",
+      "quantity": 1,
+      "line_amount": 2000,
+      "sku_version": 2,
+      "unit_amount": 2000
+    },
+    {
+      "sku_id": "SKU-8aa34ca7-0a0b-4bbe-bdd5-15c8a6c10766",
+      "variant": "second",
+      "quantity": 1,
+      "line_amount": 3000,
+      "sku_version": 2,
+      "unit_amount": 3000
+    }
+  ],
+  "total": 5000
+}

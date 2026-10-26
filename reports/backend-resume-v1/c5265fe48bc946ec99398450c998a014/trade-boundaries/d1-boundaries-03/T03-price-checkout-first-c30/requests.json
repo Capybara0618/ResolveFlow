@@ -1,0 +1,1352 @@
+[
+  {
+    "index": 0,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 952.9999999940628,
+    "started_monotonic": 94581.562,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 1,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 906.0000000026776,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 2,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 952.9999999940628,
+    "started_monotonic": 94581.562,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 3,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 937.0000000053551,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 4,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 937.0000000053551,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 5,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 922.0000000059372,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 6,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 906.0000000026776,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 7,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 889.9999999994179,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 8,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 906.0000000026776,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 9,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 922.0000000059372,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 10,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 922.0000000059372,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 11,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 906.0000000026776,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 12,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 937.0000000053551,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 13,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 937.0000000053551,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 14,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 906.0000000026776,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 15,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 889.9999999994179,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 16,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 937.0000000053551,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 17,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 937.0000000053551,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 18,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 922.0000000059372,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 19,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 906.0000000026776,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 20,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 889.9999999994179,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 21,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 937.0000000053551,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 22,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 953.0000000086147,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 23,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 922.0000000059372,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 24,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 937.0000000053551,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 25,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 922.0000000059372,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 26,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 922.0000000059372,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 27,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 937.0000000053551,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 28,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 922.0000000059372,
+    "started_monotonic": 94581.578,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  },
+  {
+    "index": 29,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "draft_id": "e3c17142-f189-48a5-aa5c-1fcd0b1a273a",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 5000,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:32:08.667687Z",
+      "expires_at": "2026-10-26T04:47:08.667687Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-27baabe6-8aaf-4944-a13f-03936e21f071",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "second",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 3000,
+          "line_amount": 3000
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-b9640081-161f-4ddb-8ddd-67384a8a82f5",
+          "product_name": "D1 boundary 5f12a328",
+          "variant": "first",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 2000,
+          "line_amount": 2000
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 905.9999999881256,
+    "started_monotonic": 94581.562,
+    "request_sha256": "6a02f4f8d83151fbcf9784f473eac5142a61fdbf8fd037c52f7eb0fde4b2693e"
+  }
+]

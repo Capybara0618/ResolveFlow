@@ -1,0 +1,22 @@
+{
+  "scenario": "T08",
+  "order": "reserve-first",
+  "concurrency": 30,
+  "draft_key": "8a4cd14574d342b095df63c1d7acc041",
+  "pay_key": "e5fbb1f559604026a9fb172580d325a5",
+  "draft_body": {
+    "expected_revision": 95,
+    "lines": [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 1,
+        "expected_sku_version": 1
+      },
+      {
+        "sku_id": "SKU-1002-WHITE",
+        "quantity": 1,
+        "expected_sku_version": 1
+      }
+    ]
+  }
+}

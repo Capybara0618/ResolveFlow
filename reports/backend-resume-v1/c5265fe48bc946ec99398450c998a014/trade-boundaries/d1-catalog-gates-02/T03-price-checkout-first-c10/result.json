@@ -1,0 +1,11 @@
+{
+  "scenario": "T03",
+  "order": "checkout-first",
+  "factor": "price",
+  "concurrency": 10,
+  "status": "PASSED",
+  "original_key_drafts": 1,
+  "http_200": 10,
+  "http_409": 0,
+  "http_404": 0
+}

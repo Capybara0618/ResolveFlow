@@ -1,0 +1,5 @@
+{
+  "checkout_poll_ms": 10000,
+  "purpose": "initial preparation window",
+  "frozen_jar": true
+}
