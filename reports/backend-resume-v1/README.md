@@ -55,3 +55,8 @@ agent/.venv/Scripts/python.exe scripts/backend_resume_lab.py resume --run-id c52
 ## 本轮收尾
 
 D1基础预检后已停止本run所有Java/provider及Compose资源，[stopped.json](c5265fe48bc946ec99398450c998a014/stopped.json)记录10个端口（含Broker VIP）全部关闭；MySQL/Redis/初始化容器exit0，Broker/namesrv在停止宽限后exit137、OOM均false，容器与数据卷保留。此前stop→resume实际完成并核对同一消息/操作/资金；不把镜像启动包装器的强制停止写成全部优雅退出。[D1预检](trade-preflight.md)单独记录，未覆盖D0结果。
+
+
+## D2正式证据入口（2026-10-26）
+
+[当前版本授权90轮](authorization-d2.md)、[可靠退款正式审计](refund-formal-01/README.md)：70原计划/67个完整故障窗口，70订单80退款行各一次成功、重复/超退0；两次运行器中断和一次窗口干扰保留，不作70/70主张。911文件归档完整解压复算一致，自有环境已停并保留数据。当前任务位置仍只看todo顶部。
