@@ -1,0 +1,860 @@
+{
+  "refund-wiring-01": {
+    "profile": "wiring",
+    "planned": 9,
+    "completed": 4,
+    "passed": 4,
+    "rows": [
+      {
+        "id": "S00-smoke",
+        "scenario": "S00",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "bd64f4cf-9742-428d-b062-0c107bdc67c5",
+          "lines": [
+            "SHOP-7d987c75-3620-423e-9321-751a2ddcfce6"
+          ],
+          "cases": [
+            "196a5b8f-aacf-4ef2-bb7f-851dbd2df545"
+          ],
+          "operations": [
+            "a10e5dff-5153-4004-9f4e-e5a41dd4dd29"
+          ],
+          "amount": 32900
+        },
+        "final": {
+          "paid": 32900,
+          "refunded": 32900,
+          "reserved": 0,
+          "operations": [
+            {
+              "state": "SUCCEEDED",
+              "version": 3,
+              "retry_at": null,
+              "amount_minor": 32900,
+              "operation_id": "a10e5dff-5153-4004-9f4e-e5a41dd4dd29",
+              "provider_key": "a10e5dff-5153-4004-9f4e-e5a41dd4dd29"
+            }
+          ],
+          "operation_count": 1,
+          "operation_states": [
+            "SUCCEEDED"
+          ],
+          "line_states": [
+            "CONSUMED"
+          ],
+          "case_states": [
+            "CLOSED_SUCCESS"
+          ],
+          "closed_events": [
+            1
+          ],
+          "provider_successes": [
+            1
+          ],
+          "provider_attempts": [
+            1
+          ],
+          "commands": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "b567e340-5de1-4e8d-8386-3d4ee69986eb",
+              "last_error": null,
+              "next_attempt_at": null
+            }
+          ],
+          "results": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "172d0a69-881e-4646-b3c7-4bdb20a43333"
+            }
+          ],
+          "provider_http": [
+            {
+              "stage": "request",
+              "operation_id": "a10e5dff-5153-4004-9f4e-e5a41dd4dd29",
+              "monotonic": 102490.484
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "a10e5dff-5153-4004-9f4e-e5a41dd4dd29",
+              "monotonic": 102492.781,
+              "state": "SUCCEEDED"
+            }
+          ]
+        },
+        "recovery_seconds": null,
+        "elapsed_seconds": 12.812000000005355
+      },
+      {
+        "id": "F01-r01",
+        "scenario": "F01",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "645222b0-1db3-421a-a2a4-dee1dba504d9",
+          "lines": [
+            "SHOP-692e03ed-6c9c-4c2d-9a56-10a547d332a0"
+          ],
+          "cases": [
+            "1eab9097-818a-4508-8cec-c8f7875e8f15"
+          ],
+          "operations": [
+            "8e8b2c5c-03e5-4663-a0a7-6a641d621954"
+          ],
+          "amount": 32900
+        },
+        "final": {
+          "paid": 32900,
+          "refunded": 32900,
+          "reserved": 0,
+          "operations": [
+            {
+              "state": "SUCCEEDED",
+              "version": 3,
+              "retry_at": null,
+              "amount_minor": 32900,
+              "operation_id": "8e8b2c5c-03e5-4663-a0a7-6a641d621954",
+              "provider_key": "8e8b2c5c-03e5-4663-a0a7-6a641d621954"
+            }
+          ],
+          "operation_count": 1,
+          "operation_states": [
+            "SUCCEEDED"
+          ],
+          "line_states": [
+            "CONSUMED"
+          ],
+          "case_states": [
+            "CLOSED_SUCCESS"
+          ],
+          "closed_events": [
+            1
+          ],
+          "provider_successes": [
+            1
+          ],
+          "provider_attempts": [
+            1
+          ],
+          "commands": [
+            {
+              "status": "PENDING",
+              "attempts": 0,
+              "event_id": "ad60522f-8c07-4a0f-ab25-a20a568d0d79",
+              "last_error": null,
+              "next_attempt_at": null
+            }
+          ],
+          "results": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "9038877f-893c-4b60-a46b-f0143accab14"
+            }
+          ],
+          "provider_http": [
+            {
+              "stage": "request",
+              "operation_id": "8e8b2c5c-03e5-4663-a0a7-6a641d621954",
+              "monotonic": 102531.64
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "8e8b2c5c-03e5-4663-a0a7-6a641d621954",
+              "monotonic": 102535.531,
+              "state": "SUCCEEDED"
+            }
+          ]
+        },
+        "recovery_seconds": null,
+        "elapsed_seconds": 23.843000000008033
+      },
+      {
+        "id": "F02-r01",
+        "scenario": "F02",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "aeff9db9-7a4f-4bf2-8dce-ae2e126341c2",
+          "lines": [
+            "SHOP-c81a33d6-da5e-430d-b2bf-0b1d83c3bcea"
+          ],
+          "cases": [
+            "40ec5a58-f534-45ef-902d-ff986db92be2"
+          ],
+          "operations": [
+            "2e75936f-d4a0-486f-9b19-df586a0c0db8"
+          ],
+          "amount": 32900
+        },
+        "final": {
+          "paid": 32900,
+          "refunded": 32900,
+          "reserved": 0,
+          "operations": [
+            {
+              "state": "SUCCEEDED",
+              "version": 3,
+              "retry_at": null,
+              "amount_minor": 32900,
+              "operation_id": "2e75936f-d4a0-486f-9b19-df586a0c0db8",
+              "provider_key": "2e75936f-d4a0-486f-9b19-df586a0c0db8"
+            }
+          ],
+          "operation_count": 1,
+          "operation_states": [
+            "SUCCEEDED"
+          ],
+          "line_states": [
+            "CONSUMED"
+          ],
+          "case_states": [
+            "CLOSED_SUCCESS"
+          ],
+          "closed_events": [
+            1
+          ],
+          "provider_successes": [
+            1
+          ],
+          "provider_attempts": [
+            1
+          ],
+          "commands": [
+            {
+              "status": "PENDING",
+              "attempts": 0,
+              "event_id": "7627f626-e02e-412d-a099-0b8bda93cb9d",
+              "last_error": null,
+              "next_attempt_at": null
+            }
+          ],
+          "results": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "0ef5088b-28fa-45dd-9712-05ee1dcb2bca"
+            }
+          ],
+          "provider_http": [
+            {
+              "stage": "request",
+              "operation_id": "2e75936f-d4a0-486f-9b19-df586a0c0db8",
+              "monotonic": 102548.687
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "2e75936f-d4a0-486f-9b19-df586a0c0db8",
+              "monotonic": 102553.0,
+              "state": "SUCCEEDED"
+            }
+          ]
+        },
+        "recovery_seconds": null,
+        "elapsed_seconds": 16.64100000000326
+      },
+      {
+        "id": "F03-r01",
+        "scenario": "F03",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "83f69127-8a52-4d74-8d2b-70bd3f7c9c05",
+          "lines": [
+            "SHOP-952d56e9-e486-4f18-a1ab-8a283e2876c2",
+            "SHOP-2da7b086-779a-40c4-89ef-71e18a2f1b2e"
+          ],
+          "cases": [
+            "1a0c2c73-46a8-45b3-8626-a5889cf92ff7",
+            "9a2a218b-d0a4-417a-822f-f82e270ddbb4"
+          ],
+          "operations": [
+            "8452bdbd-0c93-441b-a694-1410cb48558f",
+            "f6d13956-26c6-4f09-889a-9acd48dd5c5b"
+          ],
+          "amount": 52800
+        },
+        "final": {
+          "paid": 52800,
+          "refunded": 52800,
+          "reserved": 0,
+          "operations": [
+            {
+              "state": "SUCCEEDED",
+              "version": 3,
+              "retry_at": null,
+              "amount_minor": 19900,
+              "operation_id": "f6d13956-26c6-4f09-889a-9acd48dd5c5b",
+              "provider_key": "f6d13956-26c6-4f09-889a-9acd48dd5c5b"
+            },
+            {
+              "state": "SUCCEEDED",
+              "version": 3,
+              "retry_at": null,
+              "amount_minor": 32900,
+              "operation_id": "8452bdbd-0c93-441b-a694-1410cb48558f",
+              "provider_key": "8452bdbd-0c93-441b-a694-1410cb48558f"
+            }
+          ],
+          "operation_count": 2,
+          "operation_states": [
+            "SUCCEEDED",
+            "SUCCEEDED"
+          ],
+          "line_states": [
+            "CONSUMED",
+            "CONSUMED"
+          ],
+          "case_states": [
+            "CLOSED_SUCCESS",
+            "CLOSED_SUCCESS"
+          ],
+          "closed_events": [
+            1,
+            1
+          ],
+          "provider_successes": [
+            1,
+            1
+          ],
+          "provider_attempts": [
+            1,
+            1
+          ],
+          "commands": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "2ded75b1-5a52-4aac-a357-8afdaf3195a0",
+              "last_error": null,
+              "next_attempt_at": null
+            },
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "438e8bc9-a6b1-4b58-9507-b38fa6f117de",
+              "last_error": null,
+              "next_attempt_at": null
+            }
+          ],
+          "results": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "c534b3d7-7034-49bc-be04-00300f12cedf"
+            },
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "04a117d8-9bbf-43f3-b1e9-9bf0afcff5c7"
+            }
+          ],
+          "provider_http": [
+            {
+              "stage": "request",
+              "operation_id": "8452bdbd-0c93-441b-a694-1410cb48558f",
+              "monotonic": 102584.343
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "8452bdbd-0c93-441b-a694-1410cb48558f",
+              "monotonic": 102586.593,
+              "state": "SUCCEEDED"
+            },
+            {
+              "stage": "request",
+              "operation_id": "f6d13956-26c6-4f09-889a-9acd48dd5c5b",
+              "monotonic": 102586.656
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "f6d13956-26c6-4f09-889a-9acd48dd5c5b",
+              "monotonic": 102586.687,
+              "state": "SUCCEEDED"
+            }
+          ]
+        },
+        "recovery_seconds": null,
+        "elapsed_seconds": 15.547000000005937
+      }
+    ],
+    "manifest_sha256": "a5d2d35878e2bb936a53e71429c2ab9cd30681a94b8fd47acef1d5fd27bc8083"
+  },
+  "refund-wiring-02": {
+    "profile": "wiring",
+    "planned": 5,
+    "completed": 5,
+    "passed": 5,
+    "rows": [
+      {
+        "id": "F04-r01",
+        "scenario": "F04",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "eaf199a4-7a82-49c2-b974-7a536fd01cdd",
+          "lines": [
+            "SHOP-523bba2d-d09a-4ada-b16f-1805f7de86fc"
+          ],
+          "cases": [
+            "cc4783ff-426d-4a8b-a931-abf24794f571"
+          ],
+          "operations": [
+            "dba13d7a-3372-4f5e-9db8-daa11dbc464a"
+          ],
+          "amount": 32900
+        },
+        "final": {
+          "paid": 32900,
+          "refunded": 32900,
+          "reserved": 0,
+          "operations": [
+            {
+              "state": "SUCCEEDED",
+              "version": 4,
+              "retry_at": null,
+              "amount_minor": 32900,
+              "operation_id": "dba13d7a-3372-4f5e-9db8-daa11dbc464a",
+              "provider_key": "dba13d7a-3372-4f5e-9db8-daa11dbc464a"
+            }
+          ],
+          "operation_count": 1,
+          "operation_states": [
+            "SUCCEEDED"
+          ],
+          "line_states": [
+            "CONSUMED"
+          ],
+          "case_states": [
+            "CLOSED_SUCCESS"
+          ],
+          "closed_events": [
+            1
+          ],
+          "provider_successes": [
+            1
+          ],
+          "provider_attempts": [
+            1
+          ],
+          "commands": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "48e1eab2-01bf-4067-901a-66cb440b2450",
+              "last_error": null,
+              "next_attempt_at": null
+            }
+          ],
+          "results": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "091bebd3-437d-4766-9369-b50fc0d0ae26"
+            }
+          ],
+          "provider_http": [
+            {
+              "stage": "request",
+              "operation_id": "dba13d7a-3372-4f5e-9db8-daa11dbc464a",
+              "monotonic": 102736.359
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "dba13d7a-3372-4f5e-9db8-daa11dbc464a",
+              "monotonic": 102737.921,
+              "state": "SUCCEEDED"
+            },
+            {
+              "stage": "socket_lost",
+              "operation_id": "dba13d7a-3372-4f5e-9db8-daa11dbc464a",
+              "monotonic": 102737.937,
+              "visibility_delay_seconds": 10,
+              "visible_monotonic": 102747.937
+            },
+            {
+              "stage": "query",
+              "operation_id": "dba13d7a-3372-4f5e-9db8-daa11dbc464a",
+              "monotonic": 102768.14,
+              "state": "SUCCEEDED"
+            }
+          ]
+        },
+        "recovery_seconds": 25.73399999999674,
+        "elapsed_seconds": 42.13999999999942
+      },
+      {
+        "id": "F05-r01",
+        "scenario": "F05",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "20024c56-86b9-4d75-9db8-63cdbba61212",
+          "lines": [
+            "SHOP-78f46869-a838-4ce5-86a8-58bd0c15f637"
+          ],
+          "cases": [
+            "a57de79d-2913-417a-ab4e-2ce320c1d3b0"
+          ],
+          "operations": [
+            "4f7e211b-92a1-4668-ad4a-0f7f48b55053"
+          ],
+          "amount": 32900
+        },
+        "final": {
+          "paid": 32900,
+          "refunded": 32900,
+          "reserved": 0,
+          "operations": [
+            {
+              "state": "SUCCEEDED",
+              "version": 3,
+              "retry_at": null,
+              "amount_minor": 32900,
+              "operation_id": "4f7e211b-92a1-4668-ad4a-0f7f48b55053",
+              "provider_key": "4f7e211b-92a1-4668-ad4a-0f7f48b55053"
+            }
+          ],
+          "operation_count": 1,
+          "operation_states": [
+            "SUCCEEDED"
+          ],
+          "line_states": [
+            "CONSUMED"
+          ],
+          "case_states": [
+            "CLOSED_SUCCESS"
+          ],
+          "closed_events": [
+            1
+          ],
+          "provider_successes": [
+            1
+          ],
+          "provider_attempts": [
+            1
+          ],
+          "commands": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "cbabb567-5fea-494c-9c7b-367cbc7d9257",
+              "last_error": null,
+              "next_attempt_at": null
+            }
+          ],
+          "results": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "363e18e8-4de7-494b-b1d4-0a675f0b913e"
+            }
+          ],
+          "provider_http": [
+            {
+              "stage": "request",
+              "operation_id": "4f7e211b-92a1-4668-ad4a-0f7f48b55053",
+              "monotonic": 102804.328
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "4f7e211b-92a1-4668-ad4a-0f7f48b55053",
+              "monotonic": 102805.421,
+              "state": "SUCCEEDED"
+            }
+          ]
+        },
+        "recovery_seconds": 4.422000000005937,
+        "elapsed_seconds": 23.25
+      },
+      {
+        "id": "F06-r01",
+        "scenario": "F06",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "9cd0c4eb-2cfa-42af-975f-f4e555b4dec1",
+          "lines": [
+            "SHOP-d5ff837e-f39d-45fd-99fe-0092718fc279"
+          ],
+          "cases": [
+            "806deb04-cd84-4ae3-9229-5a799cc4563a"
+          ],
+          "operations": [
+            "79781d3f-c791-40a1-92fb-ae645a858f0e"
+          ],
+          "amount": 32900
+        },
+        "final": {
+          "paid": 32900,
+          "refunded": 32900,
+          "reserved": 0,
+          "operations": [
+            {
+              "state": "SUCCEEDED",
+              "version": 3,
+              "retry_at": null,
+              "amount_minor": 32900,
+              "operation_id": "79781d3f-c791-40a1-92fb-ae645a858f0e",
+              "provider_key": "79781d3f-c791-40a1-92fb-ae645a858f0e"
+            }
+          ],
+          "operation_count": 1,
+          "operation_states": [
+            "SUCCEEDED"
+          ],
+          "line_states": [
+            "CONSUMED"
+          ],
+          "case_states": [
+            "CLOSED_SUCCESS"
+          ],
+          "closed_events": [
+            1
+          ],
+          "provider_successes": [
+            1
+          ],
+          "provider_attempts": [
+            1
+          ],
+          "commands": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "b08b628a-9d75-4214-b01a-ebc48aa36f67",
+              "last_error": null,
+              "next_attempt_at": null
+            }
+          ],
+          "results": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "5b45beca-3c89-4e28-9a80-e30a4ed20dac"
+            }
+          ],
+          "provider_http": [
+            {
+              "stage": "request",
+              "operation_id": "79781d3f-c791-40a1-92fb-ae645a858f0e",
+              "monotonic": 102850.64
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "79781d3f-c791-40a1-92fb-ae645a858f0e",
+              "monotonic": 102852.89,
+              "state": "SUCCEEDED"
+            }
+          ]
+        },
+        "recovery_seconds": null,
+        "elapsed_seconds": 21.421999999991385
+      },
+      {
+        "id": "F07-r01",
+        "scenario": "F07",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "e71d1f1e-a790-46e6-8d54-ce21dc94055a",
+          "lines": [
+            "SHOP-2dade559-d17a-485b-8902-e284c04cc740"
+          ],
+          "cases": [
+            "9bbc459c-8f17-43ea-af75-b9e3fd907270"
+          ],
+          "operations": [
+            "2a84abce-9bcf-451e-b2b5-8d4360cbf274"
+          ],
+          "amount": 32900
+        },
+        "final": {
+          "paid": 32900,
+          "refunded": 32900,
+          "reserved": 0,
+          "operations": [
+            {
+              "state": "SUCCEEDED",
+              "version": 3,
+              "retry_at": null,
+              "amount_minor": 32900,
+              "operation_id": "2a84abce-9bcf-451e-b2b5-8d4360cbf274",
+              "provider_key": "2a84abce-9bcf-451e-b2b5-8d4360cbf274"
+            }
+          ],
+          "operation_count": 1,
+          "operation_states": [
+            "SUCCEEDED"
+          ],
+          "line_states": [
+            "CONSUMED"
+          ],
+          "case_states": [
+            "CLOSED_SUCCESS"
+          ],
+          "closed_events": [
+            1
+          ],
+          "provider_successes": [
+            1
+          ],
+          "provider_attempts": [
+            1
+          ],
+          "commands": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 4,
+              "event_id": "1b8184bb-c8d9-4434-8b28-6b5220ad8864",
+              "last_error": null,
+              "next_attempt_at": null
+            }
+          ],
+          "results": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "29b75b60-eac9-43d5-ba86-2a0a0f078356"
+            }
+          ],
+          "provider_http": [
+            {
+              "stage": "request",
+              "operation_id": "2a84abce-9bcf-451e-b2b5-8d4360cbf274",
+              "monotonic": 102913.328
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "2a84abce-9bcf-451e-b2b5-8d4360cbf274",
+              "monotonic": 102914.578,
+              "state": "SUCCEEDED"
+            }
+          ]
+        },
+        "recovery_seconds": 22.0,
+        "elapsed_seconds": 58.562999999994645
+      },
+      {
+        "id": "U00-control",
+        "scenario": "U00",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "dddc2d70-ff9e-4058-be7e-5b72ef8965d1",
+          "lines": [
+            "SHOP-32bfb5d5-5d0d-4a6c-a2a3-095d2bcaaa32"
+          ],
+          "cases": [
+            "100cc03b-2183-46dd-9862-db486f5a23ba"
+          ],
+          "operations": [
+            "e937a7cd-74d1-4763-8f92-8a4f1342544a"
+          ],
+          "amount": 32900
+        },
+        "meaning": "no receipt; original reservation retained; not a converged success",
+        "provider_http": [
+          {
+            "stage": "request",
+            "operation_id": "e937a7cd-74d1-4763-8f92-8a4f1342544a",
+            "monotonic": 102929.703
+          },
+          {
+            "stage": "no_receipt",
+            "operation_id": "e937a7cd-74d1-4763-8f92-8a4f1342544a",
+            "monotonic": 102931.968
+          }
+        ]
+      }
+    ],
+    "manifest_sha256": "0fb2c93b166ff0a5db251480eeb563e4903ea0e3a738d945148d4ea2f6a84399"
+  },
+  "refund-wiring-03": {
+    "profile": "wiring",
+    "planned": 1,
+    "completed": 1,
+    "passed": 1,
+    "rows": [
+      {
+        "id": "S00-smoke",
+        "scenario": "S00",
+        "status": "PASSED",
+        "entities": {
+          "order_id": "3eccb936-0882-4884-ad62-7d24298e5ede",
+          "lines": [
+            "SHOP-37eaf909-065b-4958-9466-d810b4c58277"
+          ],
+          "cases": [
+            "701246bf-2ee4-4573-870a-962bef904d73"
+          ],
+          "operations": [
+            "de89ccfd-b4ce-4178-89e0-58e67c91d87d"
+          ],
+          "amount": 32900
+        },
+        "final": {
+          "paid": 32900,
+          "refunded": 32900,
+          "reserved": 0,
+          "operations": [
+            {
+              "state": "SUCCEEDED",
+              "version": 3,
+              "retry_at": null,
+              "amount_minor": 32900,
+              "operation_id": "de89ccfd-b4ce-4178-89e0-58e67c91d87d",
+              "provider_key": "de89ccfd-b4ce-4178-89e0-58e67c91d87d"
+            }
+          ],
+          "operation_count": 1,
+          "operation_states": [
+            "SUCCEEDED"
+          ],
+          "line_states": [
+            "CONSUMED"
+          ],
+          "case_states": [
+            "CLOSED_SUCCESS"
+          ],
+          "closed_events": [
+            1
+          ],
+          "provider_successes": [
+            1
+          ],
+          "provider_attempts": [
+            1
+          ],
+          "commands": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "03998835-be6c-43c6-b840-208f80435520",
+              "last_error": null,
+              "next_attempt_at": null
+            }
+          ],
+          "results": [
+            {
+              "status": "PUBLISHED",
+              "attempts": 1,
+              "event_id": "88dc5e57-6b44-4b10-865a-a4cf2c29bf3b"
+            }
+          ],
+          "provider_http": [
+            {
+              "stage": "request",
+              "operation_id": "de89ccfd-b4ce-4178-89e0-58e67c91d87d",
+              "monotonic": 103028.609
+            },
+            {
+              "stage": "receipt",
+              "operation_id": "de89ccfd-b4ce-4178-89e0-58e67c91d87d",
+              "monotonic": 103030.296,
+              "state": "SUCCEEDED"
+            }
+          ]
+        },
+        "recovery_seconds": null,
+        "elapsed_seconds": 15.280999999988126
+      }
+    ],
+    "manifest_sha256": "072c8e019926cdf1d302c5ab646c803f8f8244c443fdbd885e00068d6267b1b3"
+  }
+}

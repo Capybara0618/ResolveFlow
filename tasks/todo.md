@@ -1,9 +1,9 @@
-## 当前快照（2026-10-26，D2授权90轮及93项Java检查通过，退款故障待接线）
+## 当前快照（2026-10-26，D2授权完成、七类退款故障接线通过，待正式70轮）
 
-- D1正式160轮1fa565c已普通push核实，结果冻结不重做。当前只推进后端1/4/5/7，Agent侧三条/PDF/原数据及四历史脏文件保持，0模型/费用。
-- 本步[D2授权报告](../reports/backend-resume-v1/authorization-d2.md)/E85：执行前冻结实际V1–V8动作及consume-wins；新Testcontainers MySQL/真实Case HTTP/生产消费事务，Commerce资格显式stub。90轮记录：旧审批拒绝60+旧消费拒绝30=90，非法消费/旧命令/退款Outbox0；旧callback STALE10另列。90有效消费各一命令/Outbox，消费后修改/撤销各10拒绝且revision保持。
-- Java93通过/0跳过（矩阵90+继承3），新3离线计分检查通过，Ruff/针对性Spotless通过。首次Python相对路径误在java目录未执行已回根修正，无矩阵重跑。Testcontainers已自动退出，原业务及D0/D1库未连接。结果/源码/复盘精确commit正常push后接F01–F07真实退款链。
-- 尚有本轮provider故障准备未提交：scripts/evaluation/backend_provider.py及新test_backend_refund_provider_faults.py，两项真实socket丢成功响应/无收据UNKNOWN检查先失败后通过；与原相关43Python通过/1旧警告。无公开故障路由，后续独立提交。F01–F07接线/70轮未执行，D3查询、D4 Redisson/性能未完成，不改简历数字。
+- D1正式160轮1fa565c、D2授权daf57500及CRLF证据属性修正50257a43均已普通push核实。授权90轮/93 Java通过：旧审批60+消费30拒绝，消费后修改/撤销各10拒绝、90有效消费各一命令/Outbox；证据冻结不重做。Agent侧三条/PDF/原数据/四历史脏文件保持，0模型/费用。
+- 本步[退款接线报告](../reports/backend-resume-v1/refund-wiring.md)/E86：真实MQ F01–F07各一轮通过，两自动冒烟+无收据UNKNOWN对照，共10通过开发场景；同命令与不同event_id同op的10消息均有实际ACK/消费记录，原占用/单次provider/关闭/金额核对。F05真实进程退出、F07 Broker停10.859秒且应用不重启自动恢复通过；U00仍UNKNOWN/原32900占用，不能算收敛成功。
+- 第一F04已成功后被错误要求隐藏10秒内GET判失败，原FAILED/收据/UNKNOWN/30秒后查询保持，只读原op审计无重发；显式新业务修正验证。三目录4/9停止、5/5、1/1及170原文件hash压缩归档，不混正式分母。发现lab假开关未生效，改实际support开关并将Agent地址固定为仅退款自有provider返回404，未改Agent生产逻辑。
+- 新7检查与相关48Python通过/1旧警告、Ruff通过；MQ Java发送器实际执行；只读operation诊断已核对F04和U00。业务/迁移/JAR未变。结果/工具/复盘精确commit普通push核实后冻结refund-formal-01，F01–F07各10轮=70一次，计划80行以实际为准；当前自有环境运行、U00占用有意保留。D3查询、D4 Redisson/性能未做，不改简历。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

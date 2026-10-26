@@ -81,9 +81,12 @@ def resume(settings):
     print(json.dumps({"run_id": settings.identity, "gateway": f"http://127.0.0.1:{state['ports']['gateway']}"}))
 
 
-def start_java_services(settings, state, roles=("commerce", "case", "gateway"), checkout_poll_ms=2000):
+def start_java_services(settings, state, roles=("commerce", "case", "gateway"), checkout_poll_ms=2000,
+                        outbox_delivery=True):
     if type(checkout_poll_ms) is not int or not 1000 <= checkout_poll_ms <= 60000:
         raise ValueError("invalid laboratory checkout poll interval")
+    if type(outbox_delivery) is not bool:
+        raise ValueError("invalid laboratory outbox switch")
     require_free({role: state["ports"][role] for role in roles})
     java = Path(os.environ.get("JAVA_HOME", str(Path.home() / ".jdks/jdk-21.0.12.1+1"))) / "bin/java.exe"
     for role in roles:
@@ -92,6 +95,7 @@ def start_java_services(settings, state, roles=("commerce", "case", "gateway"), 
                    PRODUCT_REVIEW_CACHE_ENABLED="true", PRODUCT_REVIEW_RATE_LIMIT_ENABLED="true",
                    REVIEW_CACHE_ENABLED="true", CHECKOUT_RECOVERY_ENABLED="true",
                    REFUND_PROVIDER_URL=f"http://127.0.0.1:{state['ports']['provider']}",
+                   AGENT_BASE_URL=f"http://127.0.0.1:{state['ports']['provider']}",
                    COMMERCE_BASE_URL=f"http://127.0.0.1:{state['ports']['commerce']}")
         args = [str(java), "-Xms128m", "-Xmx512m", "-Drf.backend.run=" + settings.identity,
                 "-jar", str(settings.folder / "baseline" / (role + ".jar")),
@@ -102,16 +106,18 @@ def start_java_services(settings, state, roles=("commerce", "case", "gateway"), 
                         role.upper() + "_DB_USER": account, role.upper() + "_DB_PASSWORD": account})
             args.extend([f"--resolveflow.events.namesrv=127.0.0.1:{state['ports']['namesrv']}",
                          "--resolveflow.events.consumer.enabled=true", "--resolveflow.events.publisher.enabled=true",
-                         "--resolveflow.events.outbox.delivery-enabled=true", "--resolveflow.events.outbox.poll-interval-ms=300",
+                         "--resolveflow.events.outbox.delivery-enabled=" + str(outbox_delivery).lower(),
+                         "--resolveflow.events.outbox.poll-interval-ms=300",
                          "--resolveflow.events.consumer.group=" + settings.project + "-" + role,
                          "--resolveflow.events.producer.group=" + settings.project + "-" + role + "-outbox"])
         if role == "commerce":
             args.extend(["--resolveflow.refund.dispatch-enabled=true", "--resolveflow.refund.reconcile-enabled=true",
                          "--resolveflow.refund.poll-interval-ms=1000",
+                         "--logging.level.com.resolveflow.commerce.messaging.RefundCommandListener=DEBUG",
                          f"--resolveflow.checkout.recovery-poll-ms={checkout_poll_ms}"])
         elif role == "case":
             args.extend(["--resolveflow.dispatch.enabled=true", "--resolveflow.dispatch.poll-interval-ms=500",
-                         "--resolveflow.agent.dispatch-enabled=false", "--resolveflow.support.dispatch-enabled=false"])
+                         "--resolveflow.support-agent.enabled=false"])
         else:
             args.append(f"--resolveflow.case.base-url=http://127.0.0.1:{state['ports']['case']}")
         settings.start_child(role, args, env, state)
