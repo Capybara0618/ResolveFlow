@@ -1,0 +1,9 @@
+{
+  "rejected_mutations": [
+    "unbounded fallback",
+    "limiter over-admission",
+    "cross-owner unlock"
+  ],
+  "changed_files": 0,
+  "network_requests": 0
+}

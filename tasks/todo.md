@@ -1,9 +1,10 @@
-## 当前快照（2026-10-26，D4缓存锁接线通过，继续真实双进程/SQL/限流）
+## 当前快照（2026-10-26，D4功能验收完成，待D5正式量化）
 
-- 第4/5冻结及D3保持，D4.1依赖兼容fb01f141已普通push核实；原四脏文件/PDF/Agent/原数据不动，0模型/费用。
-- [D4.2缓存锁](../reports/backend-resume-v1/redisson-d4-cache-01/README.md)/E92：锁内二查、等待后命中或503、基础设施异常有限回源、业务错误不重读、失去租约不写/不误解锁。publicPage只读1秒预算，Redis写入在事务及本机许可外；epoch/page/锁等待/重建/DB inflight指标及DEBUG事件已接真实调用点。
-- 先缺类/后null重载歧义编译失败保留；16相关集成/单元通过，追加过期owner后的单元6通过，独立合计17（重复不加总）。限定Spotless通过。仅临时Testcontainers，退出回收。
-- 精确commit正常push后继续两个独立Commerce JVM实际读缓存/锁/门控、退出/租约/epoch/Redis故障，工作台SQL计划及共享Lua验证；R矩阵及D5性能尚未完成，不能称D4全部通过或填第7条指标。
+- 第4/5冻结67135baa、D3 b8e4be3e保持；D4独立Redisson兼容fb01f141/缓存锁接线a7e1885a已普通push核实。原三条Agent/PDF/原业务数据及四历史脏文件未动，0模型/费用。
+- [D4功能报告](../reports/backend-resume-v1/d4-functional-01/README.md)/E93：两个独立Commerce JVM共用自有MySQL/Redis，锁关/开16个开发条件场景覆盖冷态/真实TTL/30请求/不同key、异常、真实退出/超租约暂停、合法回复推进epoch、Redis暂停/断连恢复。锁正常窗口峰值1；Redis故障各实例许可峰值8并归零，不称全局8/所有故障互斥。受控TTL突发锁开1个200+29个503必须与重建减少一起报告，非性能收益。
+- 两实际Case JVM三次真实60秒窗口，WRITE/REPLY各12均6放行6限流，72请求36放行36限流；Redis超时503且下游未接请求，显式Commerce响应桩边界保持。2万工单/7工作台条件每页3业务SQL+3诊断EXPLAIN，待审分页用原索引，不新增无证据索引；最终七投影一致。
+- 最终58独立Java/3离线反例通过，限定Spotless/两服务package通过；新增仅本类临时夹具清理后原商城8检查正常。211结构化文件归档完整解压审计一致（一次JSON key类型比较失败已规范化，首包留tmp），失败开发记录不抹除；候选JAR留tmp/backend-resume-candidates/d4-functional-01并有hash，测试门控未打正式包。
+- 无本轮Java遗留，31观察端口关闭，Testcontainers回收，原卷保留。精确commit正常push核实后本执行者停止写入；下一步D5先冻结正式数据/JAR/参数/评分器，再R120/配对HTTP矩阵。D4功能数据不替代正式分母，简历第7条p95与DB降幅尚未填入，不重跑已冻结交易/退款或改PDF。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

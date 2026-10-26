@@ -1,0 +1,245 @@
+{
+  "base_commit": "a7e1885a",
+  "final_sources": {
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/ProductReviewReadCache.java": "c856d8f3dd348633f44260b5cef5edeb52c7d3d9b1d7838c0658d0cbfb4ad2fd",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/ProductReviewService.java": "69f0844957a20b3f560dc927f0e2f19ca607b9807729928890fffcbcd785cb1b",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/ReviewRebuildLock.java": "0b83f2e8c02f58ab6470163ee36f512b3f841a1e435dcdcd784d114a6c06bc8d",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/ReviewRebuildConfiguration.java": "fd360b41c8a56dbcf7c77cfc82cb23a00f9f5030c14db3ec06009d4a78e964d4",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/catalog/ReviewCacheDualProcessTest.java": "18d9fad4b2bbafd916f810e171e4e905b303b9f22ff3b2ea101bc28d9aed319e",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/catalog/ReviewCacheLabProcess.java": "a94291f42e056b2e8e48f4da9d5bcb710a0bed33948e424146e79e15c4a82eb4",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/catalog/ReviewRebuildRedisTest.java": "4fc2ea3b717e9e614e3d9da860a0b35f85e9288e0037168da065498f76f614c0",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/catalog/ProductReviewReadCacheTest.java": "9ade601cd6508f160beda897bc69f45e9b296dd36c08e407c4bf06e1a37c0888",
+    "java/case-service/src/test/java/com/resolveflow/caseservice/shopping/ReviewLimiterDualProcessTest.java": "1e8296642dbd28d15433ff7bf3ddf7e5ce3fa874755d7590399e4abd06b951f3",
+    "java/case-service/src/test/java/com/resolveflow/caseservice/shopping/ReviewLimiterLabProcess.java": "944cbcc5ebb57c9126fe5da4bd40f21b20133d1787168c7f00f90c342ebfd88a",
+    "java/case-service/src/test/java/com/resolveflow/caseservice/casefile/WorkspaceSqlPlanDatabaseTest.java": "4174a629b99ba5dc3117446f186a2911a9e0d3cbc6def270c89cead8a5f900c4",
+    "java/commerce-service/pom.xml": "8f9f09d4fb978b767f45f060f05ea6cffd9f4a72fde0ffe5cb96733e5fd992ef",
+    "java/commerce-service/src/main/resources/application.yml": "f2175b5b8c87d1b76b69baf87715f1d670c01007b14c66297e35423942665f2c",
+    "infra/versions.lock.yaml": "1059a72be1c0236480b79e38047232e1eaa712150a6b5b42fecc927066cea86b"
+  },
+  "jars": {
+    "commerce": {
+      "sha256": "f9f0798cd50af67bfbe8301fc1198265e3edfe92216089031616e38bf4356c32",
+      "local_path": "tmp/backend-resume-candidates/d4-functional-01/commerce.jar",
+      "test_probes_absent": true
+    },
+    "case": {
+      "sha256": "fda4ffa745a9019fe696658f182c0d9b2f5cada39abb0b5c6533c6898d3e8745",
+      "local_path": "tmp/backend-resume-candidates/d4-functional-01/case.jar",
+      "test_probes_absent": true
+    }
+  },
+  "logs": {
+    "backend-d4-dual-smoke-01.log": {
+      "sha256": "a9fedd05cc2cbdb90dff9b7f9de2c76a379230f3d6183e45bcf3def5b454cf25",
+      "build_success": false,
+      "last_test_summary": null
+    },
+    "backend-d4-dual-smoke-02.log": {
+      "sha256": "4deb95c32ff0c823fb2f114c5fc98b43223bd50097a161cb64939f9b13a9a670",
+      "build_success": false,
+      "last_test_summary": [
+        "1",
+        "1",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-dual-smoke-03.log": {
+      "sha256": "30ae834b670b85e5cc1ff0aac605f7a928bc1c42a378d754680f052197807171",
+      "build_success": false,
+      "last_test_summary": [
+        "1",
+        "0",
+        "1",
+        "0"
+      ]
+    },
+    "backend-d4-dual-smoke-04.log": {
+      "sha256": "20833d6ce73fd4c26257f67664c1f1a634f53bf6648c9e94a7420e71bcdfed40",
+      "build_success": true,
+      "last_test_summary": [
+        "1",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-dual-faults-01.log": {
+      "sha256": "b50ff8e5b4f236c5eab6d0083432dc9141140b14f5d496611d81950caeeba90f",
+      "build_success": false,
+      "last_test_summary": [
+        "1",
+        "1",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-dual-faults-02.log": {
+      "sha256": "0065585299f106d131a338c22206190fa9da3b71847270f216e83eb642cda2c1",
+      "build_success": true,
+      "last_test_summary": [
+        "1",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-dual-extra-01.log": {
+      "sha256": "c7b92e5035bf7b3368c3852ec474ebc318fd2aa35417f0594d88b440cbf7ebc4",
+      "build_success": true,
+      "last_test_summary": [
+        "1",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-case-dual-01.log": {
+      "sha256": "9029a7a423476fcc4a9b74e884b1314c0a52fd69e6f0709943c6850a6932dd8b",
+      "build_success": true,
+      "last_test_summary": [
+        "11",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-workspace-01.log": {
+      "sha256": "e8ccd5288ffa8ebf3ab6664f81faed9a85787c1196e6e066829a93ffc8172bf9",
+      "build_success": true,
+      "last_test_summary": [
+        "1",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-final-commerce.log": {
+      "sha256": "6e292257bf88d52fa0d5aeb843279bc85ac94f4911fc38a7043c3c46f6f6f037",
+      "build_success": true,
+      "last_test_summary": [
+        "20",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-final-format.log": {
+      "sha256": "648e6e2dfeff5be187babf88445e0d494ec0922acc57ae26ceb27cea18afbfba",
+      "build_success": true,
+      "last_test_summary": null
+    },
+    "backend-d4-final-spotless.log": {
+      "sha256": "a37a7205ec064ce632ab005bbe7b1bde446fbe1b6a6e73698c96f14bebca97b0",
+      "build_success": true,
+      "last_test_summary": null
+    },
+    "backend-d4-final-package.log": {
+      "sha256": "443437c5a0e55d23c5e45bf409bfbf2961ad20177704ccd4d9d7204ee3928cd3",
+      "build_success": true,
+      "last_test_summary": null
+    },
+    "backend-d4-final-case-cache.log": {
+      "sha256": "f58eacc9593abdccb351e32965afd0fd80d3a46a1e5a4f8ef81b7c6fb1cf5436",
+      "build_success": true,
+      "last_test_summary": [
+        "16",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-final-dual-regression.log": {
+      "sha256": "e58c5d1fe7831fc1047645ccdbff5780989db40942057eade933078573efbc92",
+      "build_success": true,
+      "last_test_summary": [
+        "10",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    "backend-d4-workspace-final.log": {
+      "sha256": "b170f43ee6a4cb78150de820f627873087699d6d18045e2b25c1fe6a4eba69ce",
+      "build_success": true,
+      "last_test_summary": [
+        "1",
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  },
+  "group_sources": "faults02 and extra01 contain execution helper snapshots; fault02 production snapshot predates additional publicEpoch one-second transaction timeout, extra01 includes it; final sources after formatting",
+  "scope": "development functionality; snapshots preserved after runs, not a pre-frozen formal R120 matrix",
+  "model_requests": 0,
+  "checks": {
+    "distinct_java": 58,
+    "offline_mutations": 3,
+    "formal_R120_executed": false,
+    "formal_http_windows_executed": false,
+    "shopping_cleanup_regression": 8
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13",
+    "cpu_count": 32,
+    "images": {
+      "mysql:8.4": {
+        "id": "sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a",
+        "digests": [
+          "mysql@sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a",
+          "docker.m.daocloud.io/library/mysql@sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a"
+        ]
+      },
+      "redis:7.4-alpine": {
+        "id": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+        "digests": [
+          "redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+          "docker.m.daocloud.io/library/redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf"
+        ]
+      }
+    }
+  },
+  "stopped": {
+    "d4_marked_java_processes": 0,
+    "observed_application_ports_closed": {
+      "49373": true,
+      "49401": true,
+      "49432": true,
+      "49467": true,
+      "49768": true,
+      "49808": true,
+      "49820": true,
+      "49837": true,
+      "50478": true,
+      "50510": true,
+      "53347": true,
+      "53361": true,
+      "53408": true,
+      "53468": true,
+      "53474": true,
+      "53488": true,
+      "53495": true,
+      "54308": true,
+      "54325": true,
+      "54344": true,
+      "55180": true,
+      "56810": true,
+      "56833": true,
+      "56872": true,
+      "59740": true,
+      "59766": true,
+      "59966": true,
+      "59996": true,
+      "60048": true,
+      "62805": true,
+      "62827": true
+    },
+    "running_container_names_at_check": [],
+    "temporary_testcontainers_reaped": true,
+    "original_business_resources": "never started, volumes retained",
+    "model_requests": 0
+  },
+  "workspace_final_projection_identical": 7
+}

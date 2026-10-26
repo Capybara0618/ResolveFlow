@@ -1,0 +1,49 @@
+{
+  "functional_rows": 16,
+  "conditions": [
+    "B cache on lock off",
+    "C cache on lock on"
+  ],
+  "business_load_windows": [
+    {
+      "condition": "B",
+      "scenario": "cold-smoke",
+      "calls": 2,
+      "peak_business_load_windows": 2
+    },
+    {
+      "condition": "C",
+      "scenario": "cold-smoke",
+      "calls": 1,
+      "peak_business_load_windows": 1
+    },
+    {
+      "condition": "B",
+      "scenario": "R01-ttl-burst",
+      "calls": 27,
+      "peak_business_load_windows": 14,
+      "statuses": {
+        "200": 30
+      }
+    },
+    {
+      "condition": "C",
+      "scenario": "R01-ttl-burst",
+      "calls": 2,
+      "peak_business_load_windows": 1,
+      "statuses": {
+        "200": 1,
+        "503": 29
+      }
+    }
+  ],
+  "limiter_windows": 3,
+  "limited_requests": 36,
+  "allowed_window_requests": 36,
+  "downstream_http_calls_including_other_account_controls": 38,
+  "workspace_cases": 20000,
+  "workspace_profiles": 7,
+  "workspace_statements_per_page": 3,
+  "model_requests": 0,
+  "boundary": "development functional evidence, not formal R120 or HTTP p95; business-load windows include explicit post-query gates; Redis failure allows bounded fallback overlap"
+}

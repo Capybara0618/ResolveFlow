@@ -180,6 +180,7 @@ public class ProductReviewService {
         return read(id);
     }
 
+    @Transactional(readOnly = true, timeout = 1)
     public long publicEpoch(String product) {
         var rows = jdbc.queryForList(
                 "SELECT COALESCE(e.version,0) AS epoch FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id LEFT JOIN product_review_epoch e ON e.product_id=p.product_id WHERE p.product_id=? AND p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)",
