@@ -34,3 +34,5 @@ agent/.venv/Scripts/ruff.exe check scripts/evaluation/backend_authorization.py a
 ```
 
 首次Python检查误在java目录使用根目录相对路径导致命令未找到，回到根目录执行3通过；没有因此重跑Java矩阵。编译保留既有弃用/ByteBuddy动态代理警告。原90条/manifest只写一次，禁止覆盖；分析如需复算应使用新输出。后续F01–F07的70轮真实退款故障尚未执行，第5条简历金额/故障指标仍待该批，而非从本授权矩阵推导。
+
+提交格式检查首次将Java证据原生CRLF识别为行尾空白，命令链未按失败终止，已经继续生成本地提交。随后追加与既有冻结报告相同的精确路径`.gitattributes`规则（保留原字节、CR仅作换行），重新核对原90文件hash及整个授权提交差异；没有改证据、amend或重写历史。此失误和修正另作正常提交，不掩盖首次检查失败。
