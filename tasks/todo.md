@@ -1,9 +1,9 @@
-## 当前快照（2026-10-26，D2正式退款41通过、F05第二轮门控失败，待原ID接续）
+## 当前快照（2026-10-26，D2退款两次测量中断已核验，接续最后四个原ID）
 
-- D1/授权结果及退款接线7f1c0d22均普通push核实，Agent/PDF/原数据及四历史脏文件保持，0模型/费用。授权90轮/93 Java通过，开发七类接线/UNKNOWN对照证据冻结不重做。
-- 原refund-formal-01计划70：F01–F04各10及F05-r01共41通过；F05-r02已退款成功但结果已发布，原failure/summary保留停止，无重发。[中断与接续说明](../reports/backend-resume-v1/refund-formal-interruption.md)/E87。原因是F05恢复启用投递器后运行器缓存仍false，下一轮跳过关闭；连续两轮回归先失败后修复，生产业务不改。
-- 新接续只取未开始28原ID（F05-r03..r10/F06/F07），保留失败不替换。修复/5检查及文档精确commit普通push核实后再冻结refund-formal-02 --continue-from refund-formal-01，并逐文件校验原父批。最终上限为69故障轮通过+1未到达，不能写70/70；80个实际资金行单独核对，禁止补跑前轮刷分。
-- 原批额外存在provider门控>5秒读超时的传输中止，成功后按原op查询，最终审计需列实际轮数/时长；初步误归因Agent已纠正。自有环境运行，U00原32900占用保持；两份未提交只读审计程序留reports/backend-resume-v1/refund-formal-01，需按父/子批及失败行完善后运行。D2最终审计/D3/D4未完成，不改简历。
+- 原授权90轮/93 Java与D1结果冻结，Agent/PDF/原数据及四历史脏文件保持，0模型/费用。efbff3e6已普通push核实。
+- refund-formal-01通过41轮，F05-r02窗口未到达；refund-formal-02通过23轮，F07-r06管理探针10秒超时中断。两次原operation均已退款成功且Case关闭，SELECT/只读SQLite诊断留各原批，未重发。[中断说明](../reports/backend-resume-v1/refund-formal-interruption.md)/E88。前者配置缓存错误确认，后者探针变慢原因未确认，不能统一归因外网。
+- 新回归先失败后六项通过/Ruff通过，修复仅使探针超时留在原120秒有界等待内。精确commit普通push核实后冻结refund-formal-03，只取F07-r07..r10四个未开始原ID；已有64通过/2测量失败保持。最终故障轮最多68/70，80个资金行另作全局审计，不重跑失败刷分。
+- 最终只读审计/归档/停机及D3/D4尚未完成。原provider门控>5秒附加超时需列数；U00无收据32900预留保持。只读审计源码暂留reports/backend-resume-v1/refund-formal-01，需适配三批及两失败，不改简历。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

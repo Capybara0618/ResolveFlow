@@ -9,3 +9,9 @@
 保持原70轮及原始字节，新建版本化接续`refund-formal-02`，只取尚未开始的28个原ID（F05-r03至r10、F06十轮、F07十轮）。原F05-r02保留为未到达窗口，不用新样本替换；因此即使余下全部通过，正式报告也必须是**70个计划尝试、69个故障轮通过、1个门控未到达**，不可写70/70故障通过。资金效果独立按全部80个实际退款行核对。该数值差异不阻止诚实完成个人项目目标，但不得为了整齐数字补跑刷分。
 
 只读诊断确认原失败operation已SUCCEEDED且结果PUBLISHED，后续按原记录核对。原41轮、failure、manifest及summary将写入接续manifest的preserved_files并逐文件验证，原JAR不换。接续结果、最终全局SQL/SQLite与签名/资金审计尚待执行。
+
+## 第二次中断：本机管理探针超时
+
+refund-formal-02完成23轮（F05八轮、F06十轮、F07五轮）后，F07-r06的docker exec/mqadmin updateTopic探针超过10秒抛出subprocess.TimeoutExpired，外层等待未捕获而提前停止。只读核验原operation已SUCCEEDED、Case CLOSED_SUCCESS、32900分全部退款且reserved=0；诊断落在原批failed-window-readonly-diagnostic.json，未重发。这里可确认运行器没有容忍探针超时，探针为何变慢尚未证明；不能统一归因用户外网，也没有证据表明退款业务失败。
+
+新增探针超时回归先失败后修复，六项检查及Ruff通过。仅将该超时视为本次探测未就绪，仍受原120秒等待上限约束；生产退款代码不变。第三批只接续F07-r07至r10四个未开始原ID，保存两级父批hash。正式最终上限修正为68个完整故障轮通过、1个F05窗口未到达、1个F07观测超时；全部80行资金效果单列审计，不能写70/70故障通过。原始失败和进程日志保留。

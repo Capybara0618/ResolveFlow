@@ -105,3 +105,32 @@ def test_continuation_keeps_failed_and_completed_parent_rounds(tmp_path, monkeyp
     with pytest.raises(ValueError, match="unknown partial"):
         matrix.freeze(Lab(), tmp_path / "must-not-exist", "formal", parent="original")
     assert not (tmp_path / "must-not-exist").exists()
+
+
+def test_broker_readiness_retries_admin_timeout_without_claiming_ready(monkeypatch):
+    import subprocess
+
+    from evaluation import backend_refund_matrix as matrix
+
+    class Lab:
+        def assert_owned(self, role):
+            assert role == "broker"
+        def container(self, role):
+            return "owned-" + role
+        def load(self):
+            return {"ports": {"broker": 53951}}
+    probes = []
+    def run(args, **kwargs):
+        if args[1] == "start":
+            return "started"
+        probes.append(args)
+        if len(probes) == 1:
+            raise subprocess.TimeoutExpired(args, kwargs["timeout"])
+        return "update topic success"
+    def wait(label, predicate):
+        assert predicate() is False
+        assert predicate() is True
+    monkeypatch.setattr(matrix, "run", run)
+    monkeypatch.setattr(matrix, "wait", wait)
+    matrix.broker_up(Lab())
+    assert len(probes) == 2

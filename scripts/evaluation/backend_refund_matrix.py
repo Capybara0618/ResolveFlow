@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 import sqlite3
+import subprocess
 import sys
 import time
 import uuid
@@ -245,8 +246,15 @@ def broker_up(settings):
     port = settings.load()["ports"]["broker"]
     command = ("exec /home/rocketmq/rocketmq-*/bin/mqadmin updateTopic -n namesrv:9876 "
                f"-b 127.0.0.1:{port} -t rf-case-core-v2")
-    wait("Broker available", lambda: "success" in run(
-        ["docker", "exec", settings.container("broker"), "sh", "-c", command], timeout=10).lower())
+    def ready():
+        try:
+            return "success" in run(
+                ["docker", "exec", settings.container("broker"), "sh", "-c", command], timeout=10).lower()
+        except subprocess.TimeoutExpired:
+            # A timed-out administrative JVM is an unsuccessful readiness probe;
+            # retain the outer bounded wait instead of abandoning the original refund.
+            return False
+    wait("Broker available", ready)
 
 
 def round_fault(settings, provider, buyer, admin, scenario, folder):
