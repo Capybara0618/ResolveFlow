@@ -36,3 +36,72 @@ def test_final_requires_one_success_per_line_and_one_case_close():
                          ("provider_attempts", [2]), ("line_states", ["FREE"])):
         with pytest.raises(AssertionError):
             validate_final({**good, field: value}, 1, 100)
+
+
+def test_each_repeated_f05_starts_with_delivery_disabled(tmp_path, monkeypatch):
+    import json
+
+    from evaluation import backend_refund_matrix as matrix
+
+    state = {"pids": {"provider": 1}, "ports": {"provider": 2}}
+    class Lab:
+        identity = "a" * 32
+        folder = tmp_path
+        def load(self):
+            return state
+        def freeze(self):
+            return {"jars": {}}
+        def stop_children(self, _):
+            pass
+        def start_child(self, *_):
+            pass
+    class FakeProvider:
+        def __init__(self, *_args, **_kwargs):
+            pass
+        def close(self):
+            pass
+    delivery = {"commerce": True}
+    monkeypatch.setattr(matrix, "Provider", FakeProvider)
+    monkeypatch.setattr(matrix, "login", lambda *_: "demo")
+    monkeypatch.setattr(matrix, "healthy", lambda *_: True)
+    def restart(_settings, role, enabled):
+        delivery[role] = enabled
+    monkeypatch.setattr(matrix, "restart", restart)
+    def fault(settings, provider, buyer, admin, scenario, output):
+        assert delivery["commerce"] is False, "next F05 inherited delivery enabled from previous recovery"
+        restart(settings, "commerce", True)
+        return {"scenario": scenario, "status": "PASSED"}
+    monkeypatch.setattr(matrix, "round_fault", fault)
+    (tmp_path / "manifest.json").write_text(json.dumps({"run_id": Lab.identity, "profile": "wiring", "jars": {},
+        "sources": {}, "plan": [{"id": "F05-r01", "scenario": "F05"}, {"id": "F05-r02", "scenario": "F05"}]}))
+    matrix.execute(Lab(), tmp_path)
+    assert json.loads((tmp_path / "summary.json").read_text())["passed"] == 2
+
+
+def test_continuation_keeps_failed_and_completed_parent_rounds(tmp_path, monkeypatch):
+    import json
+
+    from evaluation import backend_refund_matrix as matrix
+
+    parent = tmp_path / "original"
+    parent.mkdir()
+    rows = [{"id": f"F05-r0{i}", "scenario": "F05"} for i in (1, 2, 3)]
+    (parent / "manifest.json").write_text(json.dumps({"profile": "formal", "run_id": "a" * 32,
+                                                    "jars": {}, "plan": rows}))
+    for number, name in ((1, "outcome"), (2, "failure")):
+        directory = parent / "rounds" / f"F05-r0{number}"
+        directory.mkdir(parents=True)
+        (directory / (name + ".json")).write_text('{}')
+    class Lab:
+        identity = "a" * 32
+        def freeze(self):
+            return {"jars": {}}
+    monkeypatch.setattr(matrix, "SOURCES", [])
+    matrix.freeze(Lab(), tmp_path / "continuation", "formal", parent="original")
+    manifest = json.loads((tmp_path / "continuation/manifest.json").read_text())
+    assert manifest["plan"] == rows[2:]
+    assert "rounds/F05-r02/failure.json" in {p.replace("\\", "/") for p in manifest["lineage"]["preserved_files"]}
+    (parent / "rounds/F05-r03").mkdir()
+    with pytest.raises(ValueError, match="unknown partial"):
+        matrix.freeze(Lab(), tmp_path / "must-not-exist", "formal", parent="original")
+    assert not (tmp_path / "must-not-exist").exists()

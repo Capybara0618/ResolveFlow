@@ -366,11 +366,8 @@ SOURCES = ["scripts/evaluation/" + name for name in (
 SOURCES += ["scripts/backend_resume_lab.py", "docs/backend-resume-evaluation-v1.md"]
 
 
-def freeze(settings, folder, profile, scenarios=None):
+def freeze(settings, folder, profile, scenarios=None, parent=None):
     baseline = settings.freeze()
-    folder.mkdir(parents=True, exist_ok=False)
-    for name in SOURCES:
-        freeze_file(ROOT / name, folder / "execution-sources" / name)
     repetitions = 10 if profile == "formal" else 1
     rows = [{"id": f"F{i:02d}-r{n + 1:02d}", "scenario": f"F{i:02d}"} for i in range(1, 8) for n in range(repetitions)]
     if profile == "wiring":
@@ -379,12 +376,36 @@ def freeze(settings, folder, profile, scenarios=None):
         if profile != "wiring" or not set(scenarios) <= {r["scenario"] for r in rows}:
             raise ValueError("scenario filter is only for explicit development wiring")
         rows = [r for r in rows if r["scenario"] in scenarios]
+    lineage = None
+    if parent:
+        if profile != "formal" or scenarios or not re.fullmatch(r"[a-z0-9_-]{1,64}", parent):
+            raise ValueError("formal continuation needs an explicit parent and no replacement/filter")
+        previous = folder.parent / parent
+        original = json.loads((previous / "manifest.json").read_text(encoding="utf-8"))
+        assert original["profile"] == "formal" and original["run_id"] == settings.identity
+        assert original["jars"] == baseline["jars"]
+        rows = []
+        for spec in original["plan"]:
+            started = previous / "rounds" / spec["id"]
+            if (started / "outcome.json").exists() or (started / "failure.json").exists():
+                continue
+            if started.exists():
+                raise ValueError("unknown partial round cannot be continued or replaced: " + spec["id"])
+            rows.append(spec)
+        assert rows, "no unstarted rounds remain"
+        lineage = {"parent": parent, "policy": "only previously unstarted IDs; failed round retained without replacement",
+                   "original_plan": original["plan"], "preserved_files": {
+                       str(p.relative_to(previous)): sha256(p) for p in previous.rglob("*") if p.is_file()}}
+    folder.mkdir(parents=True, exist_ok=False)
+    for name in SOURCES:
+        freeze_file(ROOT / name, folder / "execution-sources" / name)
     durable(folder / "manifest.json", {"run_id": settings.identity, "profile": profile, "plan": rows,
             "sources": {name: sha256(ROOT / name) for name in SOURCES}, "jars": baseline["jars"],
             "provider": "persistent simulated refund; actual loopback HTTP/socket loss; no real money",
             "expected_success_lines": sum(2 if r["scenario"] == "F03" else 0 if r["scenario"] == "U00" else 1 for r in rows),
             "case_commands": "F01/F02 pause Case outbox and lab-send signed original; others automatic",
             "commerce_results": "F05 temporarily pause own result delivery, then real process exit; others automatic",
+            "lineage": lineage,
             "model_requests": 0})
 
 
@@ -393,6 +414,11 @@ def execute(settings, folder):
     assert manifest["run_id"] == settings.identity and manifest["jars"] == settings.freeze()["jars"]
     for name, digest in manifest["sources"].items():
         assert sha256(ROOT / name) == digest, name
+    lineage = manifest.get("lineage")
+    if lineage:
+        previous = folder.parent / lineage["parent"]
+        for name, digest in lineage["preserved_files"].items():
+            assert sha256(previous / name) == digest
     durable(folder / "execution-started.json", {"manifest_sha256": sha256(folder / "manifest.json")})
     settings.stop_children({"pids": {"provider": settings.load()["pids"]["provider"]}})
     provider = Provider(settings.folder / "provider.sqlite3", settings.load()["ports"]["provider"], trace_path=folder / "provider-http.jsonl")
@@ -413,6 +439,10 @@ def execute(settings, folder):
             output.mkdir(parents=True)
             try:
                 row = round_fault(settings, provider, buyer, admin, scenario, output)
+                # F05 recovery enables publication. Reflect the real state so the next
+                # F05 round disables it again rather than trusting a stale desired value.
+                if scenario == "F05":
+                    configuration = (desired[0], True)
             except Exception as error:
                 durable(output / "failure.json", {**spec, "status": "FAILED", "error": type(error).__name__ + ": " + str(error)[:1200]})
                 raise  # Uncertain money/window needs inspection; never blindly issue a fresh replacement.
@@ -439,6 +469,7 @@ def main():
     parser.add_argument("--experiment-id", required=True)
     parser.add_argument("--profile", choices=("wiring", "formal"), default="wiring")
     parser.add_argument("--scenarios", help="comma-separated explicit wiring subset; never changes formal denominator")
+    parser.add_argument("--continue-from", help="freeze only unstarted parent IDs; never replaces failures")
     args = parser.parse_args()
     if not re.fullmatch(r"[a-z0-9_-]{1,64}", args.experiment_id):
         raise ValueError("invalid experiment identifier")
@@ -446,7 +477,8 @@ def main():
     with settings.operation_lock():
         folder = settings.report / "refund-matrices" / args.experiment_id
         scenarios = args.scenarios.split(",") if args.scenarios else None
-        {"freeze": lambda: freeze(settings, folder, args.profile, scenarios), "execute": lambda: execute(settings, folder)}[args.action]()
+        {"freeze": lambda: freeze(settings, folder, args.profile, scenarios, args.continue_from),
+         "execute": lambda: execute(settings, folder)}[args.action]()
 
 
 if __name__ == "__main__":
