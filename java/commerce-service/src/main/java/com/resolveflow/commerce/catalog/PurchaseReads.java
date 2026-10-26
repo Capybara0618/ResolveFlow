@@ -54,7 +54,7 @@ public class PurchaseReads {
         return new ShoppingService.Refused(404, "NOT_FOUND", "商品或订单不存在");
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
     public Purchases list(String merchant, String customer, String filter, String after, Integer size) {
         int limit = size == null ? 24 : size;
         if (merchant == null || merchant.isBlank() || customer == null || customer.isBlank() || limit < 1 || limit > 48)
@@ -62,6 +62,7 @@ public class PurchaseReads {
         if (filter != null
                 && !List.of("WAITING_PAYMENT", "PAYMENT_PENDING", "PAID", "CANCELLED", "EXPIRED")
                         .contains(filter)) throw new IllegalArgumentException("交易状态无效");
+        Instant now = Instant.now(clock);
         var at = anchor(after);
         String sql = """
             SELECT id FROM (
@@ -75,8 +76,7 @@ public class PurchaseReads {
                     AND NOT EXISTS(SELECT 1 FROM checkout_draft d WHERE d.order_id=o.order_id)
             ) t WHERE 1=1
             """;
-        var args = new ArrayList<Object>(
-                List.of(java.sql.Timestamp.from(Instant.now(clock)), merchant, customer, merchant, customer));
+        var args = new ArrayList<Object>(List.of(java.sql.Timestamp.from(now), merchant, customer, merchant, customer));
         if (filter != null) {
             sql += " AND state=?";
             args.add(filter);
@@ -91,9 +91,8 @@ public class PurchaseReads {
         sql += " ORDER BY created_at DESC,id DESC LIMIT ?";
         args.add(limit + 1);
         var ids = jdbc.queryForList(sql, String.class, args.toArray());
-        var items = ids.subList(0, Math.min(limit, ids.size())).stream()
-                .map(id -> read(id, merchant, customer))
-                .toList();
+        var items = new PurchasePageReader(jdbc, lines)
+                .read(ids.subList(0, Math.min(limit, ids.size())), merchant, customer, now);
         return new Purchases(items, ids.size() > limit ? cursor(items.getLast()) : null);
     }
 
@@ -192,6 +191,10 @@ public class PurchaseReads {
         long paid = ((Number) row.get("paid_amount")).longValue(),
                 refunded = ((Number) row.get("refunded_amount")).longValue(),
                 reserved = ((Number) row.get("reserved_refund_amount")).longValue();
+        return refundStatus(paid, refunded, reserved);
+    }
+
+    static String refundStatus(long paid, long refunded, long reserved) {
         if (paid <= 0 || refunded < 0 || reserved < 0 || refunded > paid || reserved > paid - refunded)
             throw new IllegalStateException("paid purchase ledger is inconsistent");
         return refunded == paid
@@ -199,7 +202,7 @@ public class PurchaseReads {
                 : reserved > 0 ? "IN_PROGRESS" : refunded > 0 ? "PARTIALLY_REFUNDED" : "NONE";
     }
 
-    private static Purchase paid(ResultSet rs, String id) throws SQLException {
+    static Purchase paid(ResultSet rs, String id) throws SQLException {
         return new Purchase(
                 id,
                 null,

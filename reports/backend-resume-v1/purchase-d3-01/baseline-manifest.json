@@ -1,0 +1,17 @@
+{
+  "git_sha": "67135baa",
+  "sources": {
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/PurchaseReads.java": "c44bf41e5066c1cab5a298508774af1ee74207d7807907bf604b48d3c4890a45",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/DraftLines.java": "4a344f264e33cbcd0d0a14a95bda7be5b9c5e7d83bee88e111df073b21179de2",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/CheckoutPayments.java": "d03de7ebfd5af093bd94203fe782dd873413e8be0e0f44eac21c61fcc21e26e3",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/ShoppingService.java": "16b4df2009ea7e3ac4be5073b6002ba18eece5bbaf3e5c1810da9b0559280c3a",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/catalog/PurchaseBatchDatabaseTest.java": "d8c58b986d0f2ff93f95c6f7e45007b5dfc8c50b99a0e372211f84c519ff71ad",
+    "java/shared-kernel/src/main/java/com/resolveflow/shared/shopping/CheckoutWire.java": "4411205562754abb07bd73a44f9acaaaf5790a20d19eb4744eb1b016e0c76150"
+  },
+  "scope": "fresh Testcontainers MySQL8.4; deterministic synthetic fixture; actual PreparedStatement execute count; frozen original detail projection",
+  "baseline_files": {
+    "baseline.json": "bff0dceeb4067fec3e75447b70a038a20b5f00e222f412de26ea58c16ee818ea",
+    "baseline-verified.json": "a5874a664f627ba5b7d2a63c80fb4bb748bc9b5e01f1a0aad6670041c6892508"
+  },
+  "model_requests": 0
+}

@@ -1,6 +1,8 @@
 package com.resolveflow.commerce.catalog;
 
 import com.resolveflow.shared.shopping.MultiCheckoutWire.Line;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,18 +32,26 @@ public class DraftLines {
                     ((Number) draft.get("sku_version")).longValue()));
         var lines = jdbc.query(
                 "SELECT * FROM checkout_draft_line WHERE draft_id=? ORDER BY sku_id",
-                (rs, n) -> new Line(
-                        rs.getString("sku_id"),
-                        rs.getString("product_id"),
-                        rs.getString("product_name"),
-                        rs.getString("variant"),
-                        rs.getString("asset_key"),
-                        rs.getString("category"),
-                        rs.getInt("quantity"),
-                        rs.getLong("unit_amount"),
-                        rs.getLong("line_amount"),
-                        rs.getLong("sku_version")),
+                (rs, n) -> row(rs),
                 draft.get("draft_id"));
+        return checked(draft, lines);
+    }
+
+    static Line row(ResultSet rs) throws SQLException {
+        return new Line(
+                rs.getString("sku_id"),
+                rs.getString("product_id"),
+                rs.getString("product_name"),
+                rs.getString("variant"),
+                rs.getString("asset_key"),
+                rs.getString("category"),
+                rs.getInt("quantity"),
+                rs.getLong("unit_amount"),
+                rs.getLong("line_amount"),
+                rs.getLong("sku_version"));
+    }
+
+    static List<Line> checked(Map<String, Object> draft, List<Line> lines) {
         if (lines.size() != ((Number) draft.get("line_count")).intValue()
                 || lines.isEmpty()
                 || lines.stream().mapToLong(Line::lineAmount).sum() != ((Number) draft.get("total_amount")).longValue())

@@ -1,0 +1,48 @@
+{
+  "git_base": "67135baa",
+  "sources": {
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/PurchaseReads.java": "23aa7bd2f725deda9303e9e94bb4e28efce38c21a14ccd225a232efed46de7e1",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/PurchasePageReader.java": "d1e21296ab9812e8423d56cfeb016ced1dfeff576c163635c29753002faf900d",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/DraftLines.java": "7895cacfd6fe5c2021bc4d44c50757ee2ef65308c83f9ecb31b91c09ed075e08",
+    "java/commerce-service/src/main/java/com/resolveflow/commerce/catalog/CheckoutPayments.java": "d8c17e9d6297847ae78e1d8cab84ecc83341b6fda4d285cdb00d1434e6a5f3a8",
+    "java/commerce-service/src/test/java/com/resolveflow/commerce/catalog/PurchaseBatchDatabaseTest.java": "f3d3a7f78d5e6335c95b8b62fdf0a5da1e42c981da1c8fcbe043d67f9348629d",
+    "java/case-service/src/test/java/com/resolveflow/caseservice/shopping/BuyerPurchaseHttpFanoutTest.java": "a4ffefad156179b2b001e0115baab28b35b939185cf19e31f47de86261d966a4"
+  },
+  "candidate_jar_sha256": "5ff2f3f038c05a56f1ad4992435c3e3cfd3ce35403573e03479c11129b0212fc",
+  "candidate_jar_path": "tmp/backend-resume-candidates/purchase-d3-01/commerce.jar",
+  "locks": {
+    "java/pom.xml": "3f8a50701e1185cf0d6f27e6f21486ceb6c87967a25ff0cfc2b4e3c52fe7857f",
+    "java/commerce-service/pom.xml": "8322fe56222f849400fd0b0246ffc2ed05dbd829f49fdebf4f80ce89661bd22f",
+    "infra/versions.lock.yaml": "e66ba8aef4c18080e66abd1af81a17dc19ec4aede3d01ebec7c6f58434c98a55"
+  },
+  "verification": {
+    "backend-purchase-d3-regression.log": {
+      "sha256": "c7261b8eb11a090c202acce303783a07ec435bab346b6aa6d198ddfe14f84bfd",
+      "tests": 49,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "backend-purchase-d3-plans.log": {
+      "sha256": "d4929820a12b405dd3eb6e202e7a1946dccac25d8a07fa9974bbe72d28559133",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "backend-purchase-d3-case.log": {
+      "sha256": "eff2c97b407d355936c5f1d2fbfbbc407eb3b31c758908149fe270206562e030",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "package": {
+    "sha256": "0a310088b8604fcd73ace7bb7c60b20af356cf8b59de406297fcbe26f3678703",
+    "tests_skipped": true
+  },
+  "runtime": "Java21 / MySQL8.4 / Windows; isolated Testcontainers only",
+  "no_business_schema_or_mq_started": true,
+  "model_requests": 0
+}

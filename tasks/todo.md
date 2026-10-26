@@ -1,8 +1,9 @@
-## 当前快照（2026-10-26，第4/5条正文冻结，开始D3订单列表批量读取）
+## 当前快照（2026-10-26，第4/5条已冻结，D3批量SQL完成，待D4）
 
-- 用户确认[交易/退款两条冻结稿](../docs/resume-backend-trade-refund-frozen-20261026.md)：10/30并发8类160轮，重复订单/模拟扣款0；80笔模拟退款重复/超额0。D1/D2证据保持，D2最终05202635已普通push核实，不改PDF及Agent/RAG/Harness/第1条。
-- 用户授权进入D3完成第7条。按既有开发/评测v1.1，先记录真实MySQL/JDBC的1/24/48页及新旧订单混合投影，再按可信merchant/customer批量读取，保持游标/状态/行序/快照；后续D4 Redis/Redisson及配对性能仍需完成，当前不填第7条数字。
-- 接管只读核验：main、四历史脏文件保持、D2自有环境已停留卷，尚无新的业务代码修改/运行或模型费用。先精确commit/push冻结稿，再先失败测试与D3实施；不重跑已冻结交易/退款。
+- [交易/退款正文](../docs/resume-backend-trade-refund-frozen-20261026.md)冻结67135baa已普通push核实，10/30并发8类160轮与80笔模拟退款两条不变；D1/D2/Agent三条/PDF不动，0模型/费用。
+- [D3正式结构计量](../reports/backend-resume-v1/purchase-d3-01/README.md)/E90：1/24/48混合页各10次SQL从4/110/238降为4/8/8，30组全DTO/游标原字节基线一致；实际PreparedStatement计量，不是HTTP延迟。53相关检查通过/0跳过，含默认RC连接下只读RR快照、残缺数据拒绝、各状态/跨主体/同时间分页。原版SQL上界先失败；原详情/支付资金路径不改。
+- 实际8条SQL/绑定/EXPLAIN保留，Case真实HTTP扇出180逻辑页/270请求、空列表桩明确；20文件前后源码/数据归档解压审计一致。新Commerce JAR留tmp/backend-resume-candidates/purchase-d3-01/commerce.jar/hash已记，原D0基线保持。只用新Testcontainers MySQL，退出自动回收，原业务环境保持停机；四历史脏文件不动。
+- 本小步精确commit正常push核实后进入D4：工作台SQL核对、Redis/Redisson双Commerce锁与门控、限流验证，随后正式数据/配对HTTP性能。第7条尚未定稿，不能将24页92.73%套给工作台/缓存，也未引入Redisson或宣称p95收益；不重测已冻结交易/退款。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

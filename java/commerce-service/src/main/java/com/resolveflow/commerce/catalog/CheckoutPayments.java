@@ -75,7 +75,7 @@ public class CheckoutPayments {
                 : ((java.time.LocalDateTime) value).toInstant(java.time.ZoneOffset.UTC);
     }
 
-    private static Payment payment(ResultSet rs) throws SQLException {
+    static Payment payment(ResultSet rs) throws SQLException {
         boolean success = rs.getString("status").equals("SUCCEEDED");
         Timestamp finished = rs.getTimestamp("finished_at"), paid = rs.getTimestamp("paid_at");
         return new Payment(
