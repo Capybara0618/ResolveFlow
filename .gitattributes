@@ -15,3 +15,5 @@
 /reports/customer-rag-quantification-v3/** -text whitespace=cr-at-eol
 /evals/customer-rag-clause-v1/** -text whitespace=cr-at-eol
 /reports/customer-rag-clause-v1/** -text whitespace=cr-at-eol
+/evals/customer-harness-context-v1/** -text whitespace=cr-at-eol
+/reports/customer-harness-context-v1/** -text whitespace=cr-at-eol

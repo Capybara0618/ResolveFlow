@@ -1,4 +1,11 @@
-## 当前快照（2026-10-26，Agent/RAG简历两条已局部替换）
+## 当前快照（2026-10-26，Harness/上下文材料与无模型接线准备完成）
+
+- 用户批准合并Harness与上下文并开始准备；已落[新协议](../docs/customer-harness-context-v1.md)、16段原始对话/32检查点与五恢复任务、[准备记录](../reports/customer-harness-context-v1/README.md)。raw基线同SDK/提示/8192预算，拼历史超限删最早；layered只继承本组前一检查点生产逻辑接受的状态，rubric不进入模型。
+- 新9检查先缺模块失败后通过，连同原上下文/记忆共32检查通过；64脚本SDK轮全部完成/128本地mock决策，仅接线不计语义分。初次第二layered轮脚本误ADD已有事项被INVALID_DECISION拒，改CONTINUE后完成，生产不变。两文件Ruff及54文件hash check通过；详细失败/命令和未运行边界见准备记录。
+- 当前SupportStore的STARTED模型恢复明确UNKNOWN_MODEL_RESULT，COMPLETE可复用；不同于旧DurableRun，不直接沿用16.4%。真实PG/退出/fence及真实模型驱动尚未完成，无新质量/token节省/恢复成绩；本批0收费/业务DB/应用启停，Docker只读未显示运行容器，原4脏文件/旧结果保持。
+- 本准备小步精确commit正常push核实后接真实计量及SupportStore故障接线；先无网络桩/隔离PG，再确定实际发送上限与累计起点后运行真实模型，不默认收费或改简历。原Agent/RAG正文及指标冻结不动。
+
+## 历史快照（2026-10-26，Agent/RAG简历两条已局部替换）
 
 - 按用户最终确认文案，仅更新桌面量化实验版PDF及其既有TeX的Agent、RAG两条，[正文与证据口径](../docs/resume-agent-rag-frozen-20261026.md)。Agent46.9%→87.5%/平均首正文3.37秒；RAG严格Top3完整证据75.0%→84.4%/本地热态约135ms，保留“构建并评测”与生产默认路径区别，不改原实验/Gold/评分。
 - 原TeX仅118/119两行变化；其余五条/项目介绍/技术栈与非项目PDF全文一致。既有XeLaTeX编译0退出/0 Overfull/一页，Poppler全页目视通过；桌面文件及output/pdf副本哈希一致，修改前PDF和TeX备份/审计留tmp/pdfs/agent-rag-20261026，个人简历不提交Git。
