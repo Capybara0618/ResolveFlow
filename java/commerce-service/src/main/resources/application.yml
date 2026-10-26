@@ -41,6 +41,8 @@ resolveflow:
     recovery-poll-ms: 2000
   product-reviews:
     cache-enabled: ${PRODUCT_REVIEW_CACHE_ENABLED:false}
+    rebuild-lock-enabled: ${PRODUCT_REVIEW_REBUILD_LOCK_ENABLED:true}
+    cache-namespace: ${PRODUCT_REVIEW_CACHE_NAMESPACE:rf:reviews:first:v1}
   identity:
     jwt:
       secret: resolveflow-core-demo-identity-secret

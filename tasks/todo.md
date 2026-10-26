@@ -1,9 +1,8 @@
-## 当前快照（2026-10-26，第4/5条已冻结，D3批量SQL完成，待D4）
+## 当前快照（2026-10-26，D4.1兼容通过，继续接缓存与双实例故障）
 
-- [交易/退款正文](../docs/resume-backend-trade-refund-frozen-20261026.md)冻结67135baa已普通push核实，10/30并发8类160轮与80笔模拟退款两条不变；D1/D2/Agent三条/PDF不动，0模型/费用。
-- [D3正式结构计量](../reports/backend-resume-v1/purchase-d3-01/README.md)/E90：1/24/48混合页各10次SQL从4/110/238降为4/8/8，30组全DTO/游标原字节基线一致；实际PreparedStatement计量，不是HTTP延迟。53相关检查通过/0跳过，含默认RC连接下只读RR快照、残缺数据拒绝、各状态/跨主体/同时间分页。原版SQL上界先失败；原详情/支付资金路径不改。
-- 实际8条SQL/绑定/EXPLAIN保留，Case真实HTTP扇出180逻辑页/270请求、空列表桩明确；20文件前后源码/数据归档解压审计一致。新Commerce JAR留tmp/backend-resume-candidates/purchase-d3-01/commerce.jar/hash已记，原D0基线保持。只用新Testcontainers MySQL，退出自动回收，原业务环境保持停机；四历史脏文件不动。
-- 本小步精确commit正常push核实后进入D4：工作台SQL核对、Redis/Redisson双Commerce锁与门控、限流验证，随后正式数据/配对HTTP性能。第7条尚未定稿，不能将24页92.73%套给工作台/缓存，也未引入Redisson或宣称p95收益；不重测已冻结交易/退款。
+- 第4/5条冻结67135baa、D3批量SQL b8e4be3e均普通push核实；原三条Agent/PDF及四历史脏文件保持。用户授权完成D4，0模型/费用。
+- [D4.1兼容](../reports/backend-resume-v1/redisson-d4-compat-01/README.md)/E91：独立Redisson4.7.0、无starter；Boot4.0.8/Netty4.2.17.Final/Lettuce6.8.2保持。先缺类编译失败，真实Redis两客户端显式2秒租约/100ms等待、旧owner不误解锁及Lettuce共存1检查通过，依赖树与配置冻结；临时Redis退出回收。
+- 当前仅依赖/条件lazy客户端Bean就绪，ProductReviewReadCache尚未接锁，双Commerce/MQ不启动。精确commit正常push后继续锁内二查、等待后命中或503、Redis异常有限回源、指标/DB预算，再做工作台SQL与双实例锁/限流实际验证；R01–R06及D5性能未运行，不能称D4完成或填简历第7条。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

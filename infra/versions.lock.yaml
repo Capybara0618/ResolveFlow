@@ -122,6 +122,12 @@ java:
         gRPC proxy. There is no 'spring-cloud-starter-alibaba-rocketmq' artifact
         in any published version; the SCA RocketMQ starters are Stream binders.
 
+  redis_coordination:
+    org.redisson:redisson:
+      version: "4.7.0"
+      status: verified
+      note: "Standalone core client only; no starter. Real Redis7.4 two-client explicit lease/ownership and Lettuce coexistence verified on Boot4.0.8 / Netty4.2.17.Final; lock integration/fault matrix separate."
+
   serialization:
     tools.jackson.core:jackson-databind: {version: "3.1.5", status: verified, note: "Boot 4 default"}
     com.fasterxml.jackson.core:jackson-databind: {version: "2.21.5", status: resolved, note: "pulled in by Flyway; coexists with Jackson 3"}
