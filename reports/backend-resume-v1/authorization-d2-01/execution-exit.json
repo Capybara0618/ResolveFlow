@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "command": [
+    "E:\\Code\\Agent+Backend\\java\\mvnw.cmd",
+    "-B",
+    "-pl",
+    "case-service",
+    "-am",
+    "-Dtest=ResumeAuthorizationMatrixApiTest",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dresolveflow.resume.authorization.report-dir=reports/backend-resume-v1/authorization-d2-01/rounds",
+    "test"
+  ],
+  "log_sha256": "956a6e482fdca17493ab9ed91a5666ade17cf404b2302b652f82734188f074ea",
+  "java_home": "C:\\Users\\hjn\\.jdks\\jdk-21.0.12.1+1"
+}

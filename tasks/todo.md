@@ -1,9 +1,9 @@
-## 当前快照（2026-10-26，后端D1正式160轮完成并独立审计通过）
+## 当前快照（2026-10-26，D2授权90轮及93项Java检查通过，退款故障待接线）
 
-- 逐请求5fb0dbc、运行器接线2f5a334及先前D0/D1开发提交均已普通push核实。按后端1/4/5/7推进，Agent侧三条/PDF/原业务数据与四个历史脏文件不动，0模型/费用。
-- [正式交易报告](../reports/backend-resume-v1/trade-formal.md)/E84：同源码/JAR固定matrix-formal-01一次执行8类×10/30两档×10轮=160/160通过，不补跑/替换，开发/wiring不混入正式分母。3200选定请求，10/30并发各80轮，每轮独立验证全部C实际区间共同交集；200=1840、409=1280、下架404=80。
-- 90成功模拟付款组→90attempt/成功收据/订单、180行/槽，逐组草稿/收据/行/账本52800分一致、预留/已退0；最终全局集合差分与逐轮并集一致，重复订单/成功收据均0。4256完整记录包含20真实丢响应status0、20收据后终止首请求503，另行保留；无缺失测量尾部，不将业务UNKNOWN窗口抹掉或宣称全部HTTP零失败。
-- 59相关检查/1旧警告与Ruff通过后冻结执行，新增只读SQL采集/离线独立审计实际通过。10004原文件全部hash核验后压缩归档，原目录保留；自有环境stop，10端口关闭，卷保留，MQ容器宽限后exit137/OOM=false。第4条指标已有证据，尚未改PDF；本批结果/复盘精确commit正常push核实后接D2版本授权与异步退款（原授权矩阵现版重测、F01–F07），随后D3查询与D4 Redisson/性能。不要重做正式160轮或用D1付款恢复代替退款故障成绩。
+- D1正式160轮1fa565c已普通push核实，结果冻结不重做。当前只推进后端1/4/5/7，Agent侧三条/PDF/原数据及四历史脏文件保持，0模型/费用。
+- 本步[D2授权报告](../reports/backend-resume-v1/authorization-d2.md)/E85：执行前冻结实际V1–V8动作及consume-wins；新Testcontainers MySQL/真实Case HTTP/生产消费事务，Commerce资格显式stub。90轮记录：旧审批拒绝60+旧消费拒绝30=90，非法消费/旧命令/退款Outbox0；旧callback STALE10另列。90有效消费各一命令/Outbox，消费后修改/撤销各10拒绝且revision保持。
+- Java93通过/0跳过（矩阵90+继承3），新3离线计分检查通过，Ruff/针对性Spotless通过。首次Python相对路径误在java目录未执行已回根修正，无矩阵重跑。Testcontainers已自动退出，原业务及D0/D1库未连接。结果/源码/复盘精确commit正常push后接F01–F07真实退款链。
+- 尚有本轮provider故障准备未提交：scripts/evaluation/backend_provider.py及新test_backend_refund_provider_faults.py，两项真实socket丢成功响应/无收据UNKNOWN检查先失败后通过；与原相关43Python通过/1旧警告。无公开故障路由，后续独立提交。F01–F07接线/70轮未执行，D3查询、D4 Redisson/性能未完成，不改简历数字。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

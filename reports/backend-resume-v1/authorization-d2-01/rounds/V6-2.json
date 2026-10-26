@@ -1,0 +1,30 @@
+{
+  "case_id" : "14bd5d18-85a6-43cf-9db5-04772d6f2cfc",
+  "authorization_id" : "4b0e0cb8-7f86-4d0f-81ef-6bd21efdd617",
+  "old_revision" : 2,
+  "final_revision" : 2,
+  "attempt_records" : [ {
+    "action" : "CONSUME",
+    "reason" : "the authorisation is REVOKED, not APPROVED",
+    "authorization_id" : "4b0e0cb8-7f86-4d0f-81ef-6bd21efdd617",
+    "dispatched" : false
+  } ],
+  "old_command_count" : 0,
+  "old_outbox_count" : 0,
+  "control_case_id" : "225256a5-4b47-44a0-bdf5-94af53dcf285",
+  "control_operation_id" : "dfbed734-965b-4a13-a2c8-52f3bc061293",
+  "control_event_id" : "daf86e0f-aa40-4ae0-8646-21780526e98d",
+  "control_status" : "CONSUMED",
+  "control_command_count" : 1,
+  "control_outbox_count" : 1,
+  "callback_disposition" : "NOT_APPLICABLE",
+  "scenario" : "V6",
+  "trial" : 2,
+  "expired_attempts" : 1,
+  "expired_rejected" : 1,
+  "illegal_consumptions" : 0,
+  "valid_consumptions" : 1,
+  "old_authorization_status" : "REVOKED",
+  "real_mysql" : true,
+  "commerce_context" : "explicit eligibility fixture stub"
+}

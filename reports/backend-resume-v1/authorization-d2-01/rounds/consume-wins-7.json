@@ -1,0 +1,14 @@
+{
+  "scenario" : "consume-wins",
+  "trial" : 7,
+  "case_id" : "e98bafde-003d-4654-be5d-ce2f05161c43",
+  "authorization_id" : "343ede87-809c-44c5-8286-cdc4b0366ffe",
+  "operation_id" : "225da6c6-92db-4b70-9a36-f85c3af589ce",
+  "event_id" : "f323295b-b1db-42f8-a5bc-6b1d9af7339d",
+  "revision_before" : 2,
+  "revision_after" : 2,
+  "update_rejected" : true,
+  "cancel_rejected" : true,
+  "command_count" : 1,
+  "outbox_count" : 1
+}
