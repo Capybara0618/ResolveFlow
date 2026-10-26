@@ -1,4 +1,11 @@
-## 当前快照（2026-10-26，客服计量与真实进程故障接线通过，待集中矩阵）
+## 当前快照（2026-10-26，客服计量/PG/真实进程集中接线验证完成）
+
+- c3aaf9c计量/故障实现已普通push核实。[集中记录](../reports/customer-harness-context-v1/wiring-v1/README.md)：新manifest134文件，一次64上下文轮/128本地SSE发送，五任务×三窗口×两组30次真实os._exit73/30新进程；所有请求与PG相同且8192输入cap保持，原16段/54准备hash不变。
+- 恢复已保存窗口10/10脚本完成；未保存窗口5/5明确UNKNOWN_MODEL_RESULT，不能算成功恢复或少调用收益；从头对照15/15完成。30条原deadline/spend/旧fence门禁保持、恢复fence递增、manifest不换。另12计量/独立PG检查通过，完整导出109run/422call，实际模型质量/真实usage收益/新版strict均未测。
+- public及schema集合恢复，134输入和9保留hash保持，旧4脏文件/收费账本3289/Agent-RAG-旧恢复成绩不变；仅新建自有t_hctx_ schema，导出后清理。既有独立65433测试PG临时启动后已恢复停止，业务55433/卷/Java/UI未操作，无故障子进程遗留。0真实provider/付费。
+- 本结果/复盘精确commit普通push核实后收口本次接线。正式模型还需共享收费账本/单写锁、明确发送上限及起点、正式manifest/逐轮保留与源审；当前CLI仅offline，不自动收费或拿脚本结果改简历。
+
+## 历史快照（2026-10-26，客服计量与真实进程故障接线通过，待集中矩阵）
 
 - 准备d8182f0已普通push核实。用户授权继续，新增[计量/故障接线说明](../docs/customer-harness-context-wiring-v1.md)：实际Streaming客户端请求/usage/发送上限，原SupportRuntime/Store持久化，跨检查点状态身份检查；CLI仅MOCK_SSE，无收费execute，原16段/Gold/54文件准备hash不变。
 - 新7无网络计量检查+5独立PG集成共12通过，含三窗口真实os._exit73/新进程接管和旧fence拒绝、已保存结果复用、UNKNOWN_MODEL_RESULT保留、从头组新run继承spend/deadline。只启动既有独立测试PG65433，业务55433/卷不动；临时t_hctx_ schema由fixture清理，非生产崩溃。

@@ -34,3 +34,7 @@ agent/.venv/Scripts/python.exe -m scripts.evaluation.customer_harness_context_v1
 本批没有真实provider/付费请求，没有访问或启动业务数据库/Java/网页，没有进程崩溃实验，没有新strict回放。`docker ps`只读检查未显示运行中容器；未启动容器。PG持久化/真实退出/fence仍须下一步验证，不能用这里的桩冒充真实恢复。
 
 下一步先实现逐轮真实请求计量/写入与SupportStore进程故障驱动，以无网络桩和隔离PG验证；根据执行路径确定收费发送上限与累计起点后再运行真实模型。不自动调用付费API、不改原Agent/RAG或简历，也不为得到旧16.4%修改生产恢复语义。
+
+## 后续接线完成记录（2026-10-26）
+
+计量/故障实现c3aaf9c正常push后，已完成[集中验证](wiring-v1/README.md)：12计量/PG检查，64上下文轮/128本地SSE发送，30真实进程退出/30接续。10已保存窗口恢复完成，5未保存窗口明确UNKNOWN_MODEL_RESULT，15从头对照完成；均为脚本合同验证，不能当作模型效果。public/schema/输入hash及原4脏文件/累计收费3289保持，独立65433测试PG已恢复停止。原preparation.json及54文件hash不改；正式模型共享账本/上限/入口和源审仍待接入。
