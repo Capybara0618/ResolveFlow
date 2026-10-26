@@ -1,4 +1,11 @@
-## 当前快照（2026-10-26，客服计量/PG/真实进程集中接线验证完成）
+## 当前快照（2026-10-26，Harness/上下文正式入口冻结，待确认收费范围）
+
+- 用户授权进入下一步，已补[正式运行边界](../docs/customer-harness-live-v1.md)/[准备记录](../reports/customer-harness-context-v1/live-preparation/README.md)与新137文件manifest：原64上下文轮最多400模型，15恢复配对最多300，合计上限700；真实账本原起点3289若保持则绝对3989。当前只freeze/check，0真实provider，未读取/注入真实凭据，无新效果指标。
+- 父进程持有原全局账本锁，子进程共用session及短互斥，起点/plan/上限固定、重启不重置；完成前缀可复用，STARTED/已有未收录job需核查，不静默重发。错误/预算停止导出并保留自有schema，完整运行后才清理。恢复申请题合成事实矛盾已在新评测适配改为PAID/NOT_SHIPPED，原材料/报告/生产不改。
+- 新9单元+5独立PG集成+7原计量共21通过/0跳过、四文件Ruff通过；原54/134与新137文件hash、旧9保护文件保持。测试仅临时账本，真实used3289无lock/live输出/执行进程；既有独立65433测试PG已恢复停止，业务55433/卷/Java/UI/简历不动。
+- 本准备结果/复盘精确commit普通push核实后等待用户确认固定收费范围，再一次正式执行/源审；不自动消费700上限或重开旧CXX。Agent/RAG冻结指标及旧16.4%保持，真实量化尚未开始。
+
+## 历史快照（2026-10-26，客服计量/PG/真实进程集中接线验证完成）
 
 - c3aaf9c计量/故障实现已普通push核实。[集中记录](../reports/customer-harness-context-v1/wiring-v1/README.md)：新manifest134文件，一次64上下文轮/128本地SSE发送，五任务×三窗口×两组30次真实os._exit73/30新进程；所有请求与PG相同且8192输入cap保持，原16段/54准备hash不变。
 - 恢复已保存窗口10/10脚本完成；未保存窗口5/5明确UNKNOWN_MODEL_RESULT，不能算成功恢复或少调用收益；从头对照15/15完成。30条原deadline/spend/旧fence门禁保持、恢复fence递增、manifest不换。另12计量/独立PG检查通过，完整导出109run/422call，实际模型质量/真实usage收益/新版strict均未测。
