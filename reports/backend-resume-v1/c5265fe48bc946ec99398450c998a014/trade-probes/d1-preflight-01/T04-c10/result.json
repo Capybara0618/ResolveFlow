@@ -1,0 +1,30 @@
+{
+  "scenario": "T04",
+  "concurrency": 10,
+  "phase": "D1 development probe",
+  "status": "PASSED",
+  "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+  "path": "/api/v1/shop/drafts/aa27500c-6666-46b9-9dd5-ca017a76046a/payment",
+  "input_sha256": "5267791c4aa5268b70f21b488775f3aaab1e3de9558e67ad7e02c2659a8f538e",
+  "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+  "counts": {
+    "paid": 52800,
+    "lines": 2,
+    "slots": 2,
+    "orders": 1,
+    "attempts": 1,
+    "receipts": 1,
+    "refunded": 0,
+    "reserved": 0,
+    "line_total": 52800,
+    "draft_total": 52800,
+    "receipt_total": 52800
+  },
+  "http_counts": {
+    "success": 10,
+    "conflict": 0,
+    "unexpected": 0
+  },
+  "requests_sha256": "84ea2fc429c6c862f9d3a3311d8aaf61154f1159d0f4cd7f2a79e34dace28503",
+  "prepared_sha256": "37235b1beec5dab47f9c4a595ff06310f7366a1a6a2e7ac489841d0f6f166f9c"
+}

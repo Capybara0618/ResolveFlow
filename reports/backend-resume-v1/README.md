@@ -49,3 +49,7 @@ agent/.venv/Scripts/python.exe scripts/backend_resume_lab.py resume --run-id c52
 状态、幂等键、原HTTP轨迹、进程日志、JAR和provider SQLite留忽略tmp；提交脱敏摘要/hash，不提交密钥、数据库快照或原始敏感日志。stop只终止带本run标识的PID及label匹配的容器，保留数据和Broker卷。Agent侧冻结/PDF与四历史脏文件保持。本批0模型请求/费用，无原业务数据库或服务修改。
 
 后续按D1补交易竞争与恢复反例，再D2/D3/D4；Redisson尚未引入，正式评测尚未开始。
+
+## 本轮收尾
+
+D1基础预检后已停止本run所有Java/provider及Compose资源，[stopped.json](c5265fe48bc946ec99398450c998a014/stopped.json)记录10个端口（含Broker VIP）全部关闭；MySQL/Redis/初始化容器exit0，Broker/namesrv在停止宽限后exit137、OOM均false，容器与数据卷保留。此前stop→resume实际完成并核对同一消息/操作/资金；不把镜像启动包装器的强制停止写成全部优雅退出。[D1预检](trade-preflight.md)单独记录，未覆盖D0结果。

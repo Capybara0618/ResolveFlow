@@ -1,0 +1,43 @@
+{
+  "run_id": "c5265fe48bc946ec99398450c998a014",
+  "ports_closed": {
+    "mysql": 53946,
+    "redis": 53947,
+    "namesrv": 53948,
+    "broker": 53951,
+    "broker_ha": 53952,
+    "gateway": 53953,
+    "case": 53954,
+    "commerce": 53955,
+    "provider": 53956,
+    "broker_vip": 53949
+  },
+  "containers_retained": {
+    "mysql": {
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    "redis": {
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    "namesrv": {
+      "running": false,
+      "exit_code": 137,
+      "oom_killed": false
+    },
+    "broker": {
+      "running": false,
+      "exit_code": 137,
+      "oom_killed": false
+    },
+    "broker-init": {
+      "running": false,
+      "exit_code": 0,
+      "oom_killed": false
+    }
+  },
+  "model_requests": 0
+}

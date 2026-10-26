@@ -1,0 +1,16 @@
+{
+  "scenario": "T01",
+  "concurrency": 30,
+  "phase": "D1 development probe",
+  "status": "PASSED",
+  "before_revision": 1,
+  "path": "/api/v1/shop/cart/M-1001/items",
+  "input_sha256": "04ff4a03ff0c5280e010d141b2198117ab58c0f5e008f57a2df0fcdafff5668b",
+  "after_revision": 2,
+  "saved_quantity": 5,
+  "http_counts": {
+    "success": 1,
+    "conflict": 29,
+    "unexpected": 0
+  }
+}

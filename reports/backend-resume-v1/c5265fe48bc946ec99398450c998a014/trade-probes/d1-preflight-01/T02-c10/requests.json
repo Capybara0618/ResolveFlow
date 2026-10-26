@@ -1,0 +1,302 @@
+[
+  {
+    "index": 0,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "draft_id": "bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:40.332280Z",
+      "expires_at": "2026-10-26T04:17:40.332280Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-1001-BLACK",
+          "product_name": "\u65e0\u7ebf\u964d\u566a\u8033\u673a",
+          "variant": "\u9ed1\u8272",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 32900,
+          "line_amount": 32900
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-1002-WHITE",
+          "product_name": "\u673a\u68b0\u952e\u76d8",
+          "variant": "\u767d\u8272",
+          "asset_key": "keyboard",
+          "quantity": 1,
+          "unit_amount": 19900,
+          "line_amount": 19900
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 125.0,
+    "started_monotonic": 92813.203,
+    "request_sha256": "8d92e9c4344995e2b35c8b2295e5628d7fa9849e5de73e66b28be24d93bfd66c"
+  },
+  {
+    "index": 1,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "draft_id": "bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:40.332280Z",
+      "expires_at": "2026-10-26T04:17:40.332280Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-1001-BLACK",
+          "product_name": "\u65e0\u7ebf\u964d\u566a\u8033\u673a",
+          "variant": "\u9ed1\u8272",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 32900,
+          "line_amount": 32900
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-1002-WHITE",
+          "product_name": "\u673a\u68b0\u952e\u76d8",
+          "variant": "\u767d\u8272",
+          "asset_key": "keyboard",
+          "quantity": 1,
+          "unit_amount": 19900,
+          "line_amount": 19900
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 109.00000001129229,
+    "started_monotonic": 92813.203,
+    "request_sha256": "8d92e9c4344995e2b35c8b2295e5628d7fa9849e5de73e66b28be24d93bfd66c"
+  },
+  {
+    "index": 2,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "draft_id": "bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:40.332280Z",
+      "expires_at": "2026-10-26T04:17:40.332280Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-1001-BLACK",
+          "product_name": "\u65e0\u7ebf\u964d\u566a\u8033\u673a",
+          "variant": "\u9ed1\u8272",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 32900,
+          "line_amount": 32900
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-1002-WHITE",
+          "product_name": "\u673a\u68b0\u952e\u76d8",
+          "variant": "\u767d\u8272",
+          "asset_key": "keyboard",
+          "quantity": 1,
+          "unit_amount": 19900,
+          "line_amount": 19900
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 109.00000001129229,
+    "started_monotonic": 92813.203,
+    "request_sha256": "8d92e9c4344995e2b35c8b2295e5628d7fa9849e5de73e66b28be24d93bfd66c"
+  },
+  {
+    "index": 3,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "draft_id": "bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:40.332280Z",
+      "expires_at": "2026-10-26T04:17:40.332280Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-1001-BLACK",
+          "product_name": "\u65e0\u7ebf\u964d\u566a\u8033\u673a",
+          "variant": "\u9ed1\u8272",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 32900,
+          "line_amount": 32900
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-1002-WHITE",
+          "product_name": "\u673a\u68b0\u952e\u76d8",
+          "variant": "\u767d\u8272",
+          "asset_key": "keyboard",
+          "quantity": 1,
+          "unit_amount": 19900,
+          "line_amount": 19900
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 139.99999999941792,
+    "started_monotonic": 92813.203,
+    "request_sha256": "8d92e9c4344995e2b35c8b2295e5628d7fa9849e5de73e66b28be24d93bfd66c"
+  },
+  {
+    "index": 4,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "purchase_id": "draft:bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "draft_id": "bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+      "store_id": "M-1001",
+      "store_name": "\u677e\u95f4\u6570\u7801",
+      "status": "WAITING_PAYMENT",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:40.332280Z",
+      "expires_at": "2026-10-26T04:17:40.332280Z",
+      "paid_at": null,
+      "order_id": null,
+      "lines": [
+        {
+          "line_id": null,
+          "sku": "SKU-1001-BLACK",
+          "product_name": "\u65e0\u7ebf\u964d\u566a\u8033\u673a",
+          "variant": "\u9ed1\u8272",
+          "asset_key": "headphones",
+          "quantity": 1,
+          "unit_amount": 32900,
+          "line_amount": 32900
+        },
+        {
+          "line_id": null,
+          "sku": "SKU-1002-WHITE",
+          "product_name": "\u673a\u68b0\u952e\u76d8",
+          "variant": "\u767d\u8272",
+          "asset_key": "keyboard",
+          "quantity": 1,
+          "unit_amount": 19900,
+          "line_amount": 19900
+        }
+      ],
+      "payment": null
+    },
+    "quantity": null,
+    "elapsed_ms": 139.99999999941792,
+    "started_monotonic": 92813.203,
+    "request_sha256": "8d92e9c4344995e2b35c8b2295e5628d7fa9849e5de73e66b28be24d93bfd66c"
+  },
+  {
+    "index": 5,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "IDEMPOTENCY_CONFLICT",
+      "message": "\u8bf7\u6c42\u6807\u8bc6\u5df2\u7528\u4e8e\u53e6\u4e00\u4efd\u8ba2\u5355\uff0c\u8bf7\u67e5\u9605\u539f\u8ba2\u5355",
+      "retryable": false,
+      "trace_id": "a4c00057-1130-42bb-b5fe-b41c689a82c3"
+    },
+    "quantity": null,
+    "elapsed_ms": 109.00000001129229,
+    "started_monotonic": 92813.203,
+    "request_sha256": "78082b173a2f1de524bb9b0bc14bfbc9ae775fdf853d83522f5072c91e846d76"
+  },
+  {
+    "index": 6,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "IDEMPOTENCY_CONFLICT",
+      "message": "\u8bf7\u6c42\u6807\u8bc6\u5df2\u7528\u4e8e\u53e6\u4e00\u4efd\u8ba2\u5355\uff0c\u8bf7\u67e5\u9605\u539f\u8ba2\u5355",
+      "retryable": false,
+      "trace_id": "77d8deb7-7930-4637-8b29-3e0fa9de726b"
+    },
+    "quantity": null,
+    "elapsed_ms": 139.99999999941792,
+    "started_monotonic": 92813.203,
+    "request_sha256": "78082b173a2f1de524bb9b0bc14bfbc9ae775fdf853d83522f5072c91e846d76"
+  },
+  {
+    "index": 7,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "CART_CHANGED",
+      "message": "\u8d2d\u7269\u8f66\u6570\u91cf\u5df2\u66f4\u65b0\uff0c\u8bf7\u91cd\u65b0\u8bfb\u53d6",
+      "retryable": false,
+      "trace_id": "8c23af16-6690-45d3-9c2d-1d641704a656"
+    },
+    "quantity": null,
+    "elapsed_ms": 78.00000000861473,
+    "started_monotonic": 92813.203,
+    "request_sha256": "78082b173a2f1de524bb9b0bc14bfbc9ae775fdf853d83522f5072c91e846d76"
+  },
+  {
+    "index": 8,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "IDEMPOTENCY_CONFLICT",
+      "message": "\u8bf7\u6c42\u6807\u8bc6\u5df2\u7528\u4e8e\u53e6\u4e00\u4efd\u8ba2\u5355\uff0c\u8bf7\u67e5\u9605\u539f\u8ba2\u5355",
+      "retryable": false,
+      "trace_id": "5a5c889e-07e4-448b-98da-a87424fd4d23"
+    },
+    "quantity": null,
+    "elapsed_ms": 139.99999999941792,
+    "started_monotonic": 92813.203,
+    "request_sha256": "78082b173a2f1de524bb9b0bc14bfbc9ae775fdf853d83522f5072c91e846d76"
+  },
+  {
+    "index": 9,
+    "status": 409,
+    "classification": "conflict",
+    "body": {
+      "code": "IDEMPOTENCY_CONFLICT",
+      "message": "\u8bf7\u6c42\u6807\u8bc6\u5df2\u7528\u4e8e\u53e6\u4e00\u4efd\u8ba2\u5355\uff0c\u8bf7\u67e5\u9605\u539f\u8ba2\u5355",
+      "retryable": false,
+      "trace_id": "b5a4d078-dd4c-4ab5-8a4f-3e1a74d2517b"
+    },
+    "quantity": null,
+    "elapsed_ms": 125.0,
+    "started_monotonic": 92813.203,
+    "request_sha256": "78082b173a2f1de524bb9b0bc14bfbc9ae775fdf853d83522f5072c91e846d76"
+  }
+]

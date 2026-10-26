@@ -1,0 +1,283 @@
+{
+  "round": {
+    "scenario": "T01",
+    "concurrency": 30,
+    "phase": "D1 development probe",
+    "status": "STARTED",
+    "before_revision": 1,
+    "path": "/api/v1/shop/cart/M-1001/items",
+    "input_sha256": "04ff4a03ff0c5280e010d141b2198117ab58c0f5e008f57a2df0fcdafff5668b"
+  },
+  "inputs": [
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 1,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "eb94b26ada004840a94c37e128d7ee4c"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 2,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "d7f4b82eb06940d1b4eb81400b45b56d"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 3,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "f24b822fbead4321832dffb276eb6f97"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 4,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "3da7f38ed53946589b1b030c440d3677"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 5,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "7e5faab0a0cc4d9da48acc6767dd3420"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 1,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "f565e37833d84ec486c5f82928328e1d"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 2,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "0f373593cf8f4556b0a61813db8fb63b"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 3,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "30cf98f042464105867179cc9cb75f6d"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 4,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "d413d8fc4e41407382b833d8b2c6cf8d"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 5,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "2741f1600dc944d9922589ab30cc156b"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 1,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "6c9e4eace4234d06a808c27398866fdf"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 2,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "4e1210a3ee8041c2b2defffe55762079"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 3,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "f94f7e9ef7084b6fa95668fd0f0dd5dc"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 4,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "65cf3c22338c4f68925507aca42808d6"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 5,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "69ca992aa8b64821ae584d0f60115138"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 1,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "ad581fab4c6e4191ac48730ad65c1acf"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 2,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "4b87708696c44e059f224a58c57a63a6"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 3,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "b2b53df9e09040f4b6a7afd33411d9e1"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 4,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "6e4b27a1a89f48c1b8c3b09d4b58f569"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 5,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "da171d9d5620438a895b5e17a651a852"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 1,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "6328e72650ae49a79cab2ce074620bdd"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 2,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "a48947ee88414ce8a0c381e44f5a4cd8"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 3,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "674134dda3374affb00fd8c3322f6617"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 4,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "0c4835aac32e4317ba8c93cbee868eb7"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 5,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "5e0bafb77c6342f4a03680e5a7a79456"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 1,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "860cb9dd87fe45a6a93a3d1dcae09ab9"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 2,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "d502524f7b5a4c469c6dcfdb706f7af5"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 3,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "dccbc461d80d4696a94d69ff6b0adbf5"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 4,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "eeddd387d37e4f9e92a6f6142969f879"
+    ],
+    [
+      {
+        "sku_id": "SKU-1001-BLACK",
+        "quantity": 5,
+        "expected_revision": 1,
+        "expected_sku_version": 1
+      },
+      "8f756a5f4fd34743863faf6c9284679a"
+    ]
+  ]
+}

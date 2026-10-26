@@ -1,0 +1,15 @@
+{
+  "scenario": "T02",
+  "concurrency": 10,
+  "phase": "D1 development probe",
+  "status": "PASSED",
+  "path": "/api/v1/shop/cart/M-1001/drafts",
+  "input_sha256": "15b5538f1d38a868561a6d606c990fa450e6dc22fd2114015ba8a351cc8b3098",
+  "draft_id": "bff5c684-fb89-4e1f-acb0-05877c6a38c3",
+  "drafts_for_key": 1,
+  "http_counts": {
+    "success": 5,
+    "conflict": 5,
+    "unexpected": 0
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "round": {
+    "scenario": "T02",
+    "concurrency": 10,
+    "phase": "D1 development probe",
+    "status": "STARTED",
+    "path": "/api/v1/shop/cart/M-1001/drafts",
+    "input_sha256": "15b5538f1d38a868561a6d606c990fa450e6dc22fd2114015ba8a351cc8b3098"
+  },
+  "inputs": [
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 1,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 1,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ],
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 1,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 1,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ],
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 1,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 1,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ],
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 1,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 1,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ],
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 1,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 1,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ],
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 2,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 2,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ],
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 2,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 2,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ],
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 2,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 2,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ],
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 2,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 2,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ],
+    [
+      {
+        "expected_revision": 4,
+        "lines": [
+          {
+            "sku_id": "SKU-1001-BLACK",
+            "quantity": 2,
+            "expected_sku_version": 1
+          },
+          {
+            "sku_id": "SKU-1002-WHITE",
+            "quantity": 2,
+            "expected_sku_version": 1
+          }
+        ]
+      },
+      "f0f4a772ce3045b3adc7c57fd4173c63"
+    ]
+  ]
+}

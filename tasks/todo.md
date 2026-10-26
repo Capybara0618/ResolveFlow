@@ -1,9 +1,9 @@
-## 当前快照（2026-10-26，后端D0隔离运行与基线冒烟通过）
+## 当前快照（2026-10-26，后端D0完成，D1交易基础预检通过）
 
-- 按用户“开始”授权，完成独立运行入口/持久模拟provider/全链冒烟，[实际报告](../reports/backend-resume-v1/README.md)。32位run-id+容器label+OS命令互斥+冻结JAR，显式loopback端口；实际Gateway→Case→Commerce购物付款、发货/受控LOST、人工方案审批、自动MQ退款/结果回传15检查通过。32900支付/32900退款/0预留、provider成功/处理尝试/工单关闭各1，跨库拒绝/健康8检查通过；stop→resume再核对同ID结果通过。
-- 工具13项及原provider相关共38通过/1旧弃用警告，五文件Ruff通过；三Java构建20.136秒通过（明确跳过测试）。保留Broker卷归属失败、缺政策422、verify误用Inbox枚举、Maven参数引用及测试方法名错误，修正和实际命令见报告；无业务源码改动/正式矩阵成绩。
-- run c5265fe48bc946ec99398450c998a014的冻结生产JAR/原始状态/日志/SQLite在忽略tmp，脱敏setup/smoke/environment已归档；容器和数据库卷保留供下一步。四历史脏文件与Agent侧三条/PDF/旧实验保持，本轮0模型/费用/原数据修改。
-- 当前路线为[开发v1.1](../docs/backend-resume-development-v1.md)/[评测v1.1](../docs/backend-resume-evaluation-v1.md)。本步精确提交普通push核实后继续D1交易竞争/原付款恢复；Redisson归D4，48正常窗口/120重建轮等正式矩阵尚未执行。只此顶部维护进度。
+- D0 0d648c1已普通push核实：[隔离运行/冻结基线报告](../reports/backend-resume-v1/README.md)。Gateway/Case/Commerce/MySQL/Redis/真实MQ/持久provider基础15检查通过，跨库拒绝及就绪8通过；实际stop→resume原订单/工单/操作/收据保持。单次32900退款/provider处理/工单关闭各1，0模型/费用/原数据修改。
+- 本步新增D1.1 HTTP竞争预检及计分/续接检查，[报告](../reports/backend-resume-v1/trade-preflight.md)/E79。T01/T02/T04/T05各10/30并发1轮，共8轮160竞争请求：64成功、96预期409、意外0；4付款组各一attempt/收据/订单，每单2行52800分，账本一致。不是8场景160轮正式矩阵，不回填简历。
+- T04-c10已付款后因新汇总SQL括号遗漏中断；修复只读核对原记录，原4通过轮/请求/首summary的hash保持，另存resumed汇总，无重做该付款。新5检查先失败后通过，相关合计43通过/1旧弃用警告、Ruff通过。无生产代码变化，四历史脏文件/Agent侧三条/PDF/旧实验保持。
+- 自有测试环境执行stop保留容器/数据库/Broker卷，已核实10端口关闭、MySQL/Redis/初始化exit0，Broker/namesrv停止宽限后exit137且OOM=false，退出记录已归档。本步精确提交正常push核实后按[开发v1.1](../docs/backend-resume-development-v1.md)/[评测v1.1](../docs/backend-resume-evaluation-v1.md)接D1其余T03/T06/T07/T08门控；D2正式故障、D3订单批量查询、D4 Redisson与性能矩阵未完成。当前只此顶部维护进度。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

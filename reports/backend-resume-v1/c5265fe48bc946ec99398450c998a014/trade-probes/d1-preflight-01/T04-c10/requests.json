@@ -1,0 +1,212 @@
+[
+  {
+    "index": 0,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 92.99999999348074,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "index": 1,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 108.99999999674037,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "index": 2,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 92.99999999348074,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "index": 3,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 108.99999999674037,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "index": 4,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 108.99999999674037,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "index": 5,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 92.99999999348074,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "index": 6,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 125.0,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "index": 7,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 92.99999999348074,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "index": 8,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 108.99999999674037,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "index": 9,
+    "status": 200,
+    "classification": "success",
+    "body": {
+      "attempt_id": "08d81e93-303a-4177-9ebd-2b4ab657b5f6",
+      "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+      "status": "SUCCEEDED",
+      "total_amount": 52800,
+      "currency": "CNY",
+      "created_at": "2026-10-26T04:02:42.084919Z",
+      "finished_at": "2026-10-26T04:02:42.134925Z",
+      "order_id": "26ac6b32-5f7a-4284-aacf-13420120515c",
+      "line_id": "SHOP-4cdb1a86-17e7-4fa8-9495-7653db71164b",
+      "paid_at": "2026-10-26T04:02:42.098419Z"
+    },
+    "quantity": null,
+    "elapsed_ms": 108.99999999674037,
+    "started_monotonic": 92815.0,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  }
+]

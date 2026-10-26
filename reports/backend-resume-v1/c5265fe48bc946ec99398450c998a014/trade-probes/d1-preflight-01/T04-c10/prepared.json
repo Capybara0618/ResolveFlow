@@ -1,0 +1,53 @@
+{
+  "round": {
+    "scenario": "T04",
+    "concurrency": 10,
+    "phase": "D1 development probe",
+    "status": "STARTED",
+    "draft_id": "aa27500c-6666-46b9-9dd5-ca017a76046a",
+    "path": "/api/v1/shop/drafts/aa27500c-6666-46b9-9dd5-ca017a76046a/payment",
+    "input_sha256": "5267791c4aa5268b70f21b488775f3aaab1e3de9558e67ad7e02c2659a8f538e"
+  },
+  "inputs": [
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ],
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ],
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ],
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ],
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ],
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ],
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ],
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ],
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ],
+    [
+      {},
+      "35a68ce71fa8458d9a9236c292661fdc"
+    ]
+  ]
+}
