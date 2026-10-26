@@ -1,8 +1,9 @@
-## 当前快照（2026-10-26，后端D0准备中，Redisson计划v1.1修订）
+## 当前快照（2026-10-26，后端D0隔离运行与基线冒烟通过）
 
-- 用户确认后端第1/4/5/7条，要求按文档开发，随后明确第7条引入Redisson并先修订计划。[开发v1.1](../docs/backend-resume-development-v1.md)/[评测v1.1](../docs/backend-resume-evaluation-v1.md)现纳入双Commerce评价热点重建、锁内二次检查、100ms等待/2秒显式租约、异常释放及有限回源；P3三条件使正常窗口42→48，新增6场景两条件120轮。数字仅计划，新增Redisson依赖/业务实现/正式矩阵均未执行；[E77](../docs/architecture-evolution.md)记录职责和取舍。
-- D0已开始：scripts/evaluation/backend_lab.py及agent/tests/unit/test_backend_resume_lab.py为本执行者未提交准备；先缺模块失败，补运行标识/归属/端口/基线保护后11单元通过、Ruff通过，尚无完整CLI、冻结JAR或整链冒烟。本次计划修订只提交文档，不夹带这两个准备文件；之后先收口D0再按D1–D5推进。
-- 本次文档链接/场景计数/git差异检查通过；0模型/收费/数据库/服务启动及Redisson实测。四历史脏文件保持，Agent侧三条及其PDF/评测冻结。精确commit普通push核实后本次修订收口；下一实施者先核验本批D0准备归属及交接，不覆盖或误认已完成整链。
+- 按用户“开始”授权，完成独立运行入口/持久模拟provider/全链冒烟，[实际报告](../reports/backend-resume-v1/README.md)。32位run-id+容器label+OS命令互斥+冻结JAR，显式loopback端口；实际Gateway→Case→Commerce购物付款、发货/受控LOST、人工方案审批、自动MQ退款/结果回传15检查通过。32900支付/32900退款/0预留、provider成功/处理尝试/工单关闭各1，跨库拒绝/健康8检查通过；stop→resume再核对同ID结果通过。
+- 工具13项及原provider相关共38通过/1旧弃用警告，五文件Ruff通过；三Java构建20.136秒通过（明确跳过测试）。保留Broker卷归属失败、缺政策422、verify误用Inbox枚举、Maven参数引用及测试方法名错误，修正和实际命令见报告；无业务源码改动/正式矩阵成绩。
+- run c5265fe48bc946ec99398450c998a014的冻结生产JAR/原始状态/日志/SQLite在忽略tmp，脱敏setup/smoke/environment已归档；容器和数据库卷保留供下一步。四历史脏文件与Agent侧三条/PDF/旧实验保持，本轮0模型/费用/原数据修改。
+- 当前路线为[开发v1.1](../docs/backend-resume-development-v1.md)/[评测v1.1](../docs/backend-resume-evaluation-v1.md)。本步精确提交普通push核实后继续D1交易竞争/原付款恢复；Redisson归D4，48正常窗口/120重建轮等正式矩阵尚未执行。只此顶部维护进度。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

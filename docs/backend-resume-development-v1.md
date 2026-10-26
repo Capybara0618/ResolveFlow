@@ -4,7 +4,7 @@
 
 2026-10-26修订：用户确认第7条加入Redisson分布式锁，明确以双Commerce实例的评价热点缓存重建为落点，替代原D4“测后决定是否合并同实例加载”的可选方案。第1、4、5条不变，Agent侧三条保持冻结。本次只更新方案；Redisson尚未引入，新增对照及故障矩阵尚未执行。
 
-执行进度仍只在[tasks/todo.md](../tasks/todo.md)顶部维护，实施按[交接约定](../tasks/handoff-current.md)保持唯一写入者。D0已开始编写隔离工具，现有未提交脚本及其测试保留，不能把局部工具测试当作D0整链完成。
+执行进度仍只在[tasks/todo.md](../tasks/todo.md)顶部维护，实施按[交接约定](../tasks/handoff-current.md)保持唯一写入者。D0运行入口、冻结构建及真实基础链路已完成，实际命令、失败修正和证据见[D0报告](../reports/backend-resume-v1/README.md)；后续功能及正式矩阵分别验收。
 
 ## 1. 目标正文
 

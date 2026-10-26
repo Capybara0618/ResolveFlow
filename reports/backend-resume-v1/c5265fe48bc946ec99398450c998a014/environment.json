@@ -1,0 +1,38 @@
+{
+  "phase": "D0 only",
+  "date": "2026-10-26",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.13",
+  "ports": {
+    "mysql": 53946,
+    "redis": 53947,
+    "namesrv": 53948,
+    "broker": 53951,
+    "broker_ha": 53952,
+    "gateway": 53953,
+    "case": 53954,
+    "commerce": 53955,
+    "provider": 53956
+  },
+  "policy_snapshot": {
+    "policy-damage-2026.08.yaml": "2668441fac7da3f512f751c905c674721d6a1ea93cef17dff3d908901317a5eb",
+    "policy-damage-2026.09.yaml": "33ec7b5bc5065860d64a9aef3d431c902a6eec85de5f49b8935dd4f0ba75a726",
+    "policy-demo-m1002-logistics-2026.08.yaml": "e605c430988a1995edad2cbdc668414dc0f67cd97bf743ca844a9140f7dd4fb4",
+    "policy-demo-m1002-logistics-2026.09.yaml": "5966581d4cfb747d39262f8b9f67353811f79bf3c227aae30aa0afa8f2c6017f",
+    "policy-demo-m1002-logistics-2026.10.yaml": "ca414e5ab86dd94cf246b042281f01fbe9e7c71b90edb8f4ce062a8dadb81996",
+    "policy-logistics-2026.08.yaml": "67e302a73fe4c27e62bf6932a1dda3b341c2eb6345b7e04011048b3c6cb755f9",
+    "policy-logistics-2026.09.yaml": "6b8c91b0d1c2e9136a704fcb369f854674553779df3a1395b1dc51dd3a31f972",
+    "policy-logistics-2026.10.yaml": "dd84843e2ce9a526819817a1c7b2c6ae52e7489556702687ab39e6afa96800b2"
+  },
+  "compose_sha256": "9ee95b62def14cc6ac562cee43e433fea817c53aed0bbb2394229137a6d459b4",
+  "images": {
+    "mysql": "sha256:85b9bf2e29cf836ecb8c2a15a935d4ba0c606631dff1dd79531a11983c638f2a",
+    "redis": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+    "namesrv": "sha256:455287638deddbbcd6cf48cdf988ed4d05bbac7265acc0c399d9d8228862a7d7",
+    "broker": "sha256:455287638deddbbcd6cf48cdf988ed4d05bbac7265acc0c399d9d8228862a7d7"
+  },
+  "http_trace_sha256": "da71c50a8785063e6db3bafce40177c2795e04845031366482e15db51884b476",
+  "baseline_jars_verified": true,
+  "repeat_after_stop_resume_same_ids": true,
+  "model_requests": 0
+}

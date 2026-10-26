@@ -1,0 +1,42 @@
+{
+  "run_id": "c5265fe48bc946ec99398450c998a014",
+  "phase": "D0 real-service smoke, not formal evaluation",
+  "model_requests": 0,
+  "money": {
+    "paid": 32900,
+    "refunded": 32900,
+    "reserved": 0
+  },
+  "fixture": "actual purchase/payment/shipment, controlled logistics LOST; explicit synthetic manual evidence/proposal",
+  "ids": {
+    "case": "17f0a2da-bb9b-4868-9e48-cd5659b4ec61",
+    "order": "a60bb967-cb92-4a1c-94bd-a56abb9598a4",
+    "line": "SHOP-c4d5e677-42ab-4356-b64c-a61f31fc730e",
+    "operation": "9622f8a5-b66b-46bd-8cd5-01f3ce8907ec",
+    "command_event": "7f650b8f-5c30-4efd-a15b-d5da2ddf3f31",
+    "result_event": "f2e27a14-9563-4c2c-bbb3-59bc1c7336e2"
+  },
+  "checks": {
+    "gateway_public_http": true,
+    "purchase_paid": true,
+    "controlled_shipment_lost": true,
+    "manual_authorization": true,
+    "automatic_command_outbox": true,
+    "mq_command_inbox": true,
+    "single_provider_success": true,
+    "single_provider_attempt": true,
+    "single_refund_operation": true,
+    "ledger_balanced": true,
+    "line_consumed": true,
+    "automatic_result_outbox": true,
+    "mq_result_projected": true,
+    "single_case_close": true,
+    "buyer_order_visible": true
+  },
+  "runtime_source_sha256": {
+    "scripts/backend_resume_lab.py": "b8277d6f8b04f3e4979831374bd6945d9e6cf16d06cbdcb988cb9cce612def30",
+    "scripts/evaluation/backend_lab.py": "89112e520d9488793ab30da7adcf7665403b7aac1fe4e67f33fe453ce4c84138",
+    "scripts/evaluation/backend_smoke.py": "412d6d7ed96d15c90812eb561b027d7c1df2d820c471d8c0d1095c88621edc12",
+    "scripts/evaluation/backend_provider.py": "69bb8f0bc12d6b7bead94e309ec59fec894bcdfb761ba6c395eb5cf4be816c34"
+  }
+}

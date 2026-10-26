@@ -202,6 +202,6 @@ R03从进程终止起至存活实例成功填充的观察上限5秒；R02/R04/R0
 
 本次2026-10-26只做只读核对及文档编写：旧退款脚本硬编码schema、旧工作台压测侧重历史查询入口、现订单逐条read、模拟付款提供方独立收据事务均已在源码定位。已有[授权报告](../reports/resume-quantification-v1/authorization/README.md)、[退款报告](../reports/resume-quantification-v1/refund/README.md)、[查询报告](../reports/resume-quantification-v1/review/README.md)和[后端深化验收](../reports/backend-deepening-v1.md)保持。
 
-统一本批CLI尚未实现，不提供虚构可执行命令。D0完成后，先提交实际prepare/check/run/resume/verify/stop命令及冒烟结果，冻结本协议对应manifest再跑正式矩阵。本次仅检查Markdown链接、数量/定义一致性及git diff，无模型、数据库、Java业务测试或新性能成绩。
+原文档准备时统一本批CLI尚未实现，没有提供虚构命令。2026-10-26 D0已完成prepare/resume/check/exercise/verify/stop，真实命令及基础链路见[D0报告](../reports/backend-resume-v1/README.md)。命令当前仅负责准备与单链冒烟，正式矩阵执行器/完整manifest仍需按各子步接入；本基础冒烟不提供新的性能或故障矩阵成绩。
 
 v1.1修订时D0已有未提交的运行工具与11项单元检查，尚无整链入口或正式成绩；本修订不夹带这些代码。旧42窗口/可选同实例合并方案由本文顶部修订记录保留，新48窗口和120重建轮不与旧结果混算。
