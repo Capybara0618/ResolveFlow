@@ -1,0 +1,17 @@
+[
+  {
+    "index": 0,
+    "status": 503,
+    "classification": "unexpected",
+    "body": {
+      "code": "SERVICE_UNAVAILABLE",
+      "message": "the order service is temporarily unavailable",
+      "retryable": true,
+      "trace_id": "89fa6167-2bb1-47fb-bb03-11a94b270740"
+    },
+    "quantity": null,
+    "elapsed_ms": 2359.0000000112923,
+    "started_monotonic": 94147.578,
+    "request_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  }
+]

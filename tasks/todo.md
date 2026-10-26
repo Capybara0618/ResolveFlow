@@ -1,9 +1,9 @@
-## 当前快照（2026-10-26，后端D0完成，D1交易基础预检通过）
+## 当前快照（2026-10-26，后端D1付款响应丢失与崩溃预检通过）
 
-- D0 0d648c1已普通push核实：[隔离运行/冻结基线报告](../reports/backend-resume-v1/README.md)。Gateway/Case/Commerce/MySQL/Redis/真实MQ/持久provider基础15检查通过，跨库拒绝及就绪8通过；实际stop→resume原订单/工单/操作/收据保持。单次32900退款/provider处理/工单关闭各1，0模型/费用/原数据修改。
-- 本步新增D1.1 HTTP竞争预检及计分/续接检查，[报告](../reports/backend-resume-v1/trade-preflight.md)/E79。T01/T02/T04/T05各10/30并发1轮，共8轮160竞争请求：64成功、96预期409、意外0；4付款组各一attempt/收据/订单，每单2行52800分，账本一致。不是8场景160轮正式矩阵，不回填简历。
-- T04-c10已付款后因新汇总SQL括号遗漏中断；修复只读核对原记录，原4通过轮/请求/首summary的hash保持，另存resumed汇总，无重做该付款。新5检查先失败后通过，相关合计43通过/1旧弃用警告、Ruff通过。无生产代码变化，四历史脏文件/Agent侧三条/PDF/旧实验保持。
-- 自有测试环境执行stop保留容器/数据库/Broker卷，已核实10端口关闭、MySQL/Redis/初始化exit0，Broker/namesrv停止宽限后exit137且OOM=false，退出记录已归档。本步精确提交正常push核实后按[开发v1.1](../docs/backend-resume-development-v1.md)/[评测v1.1](../docs/backend-resume-evaluation-v1.md)接D1其余T03/T06/T07/T08门控；D2正式故障、D3订单批量查询、D4 Redisson与性能矩阵未完成。当前只此顶部维护进度。
+- D0 0d648c1、D1基础3882cab均已普通push核实。继续沿[开发v1.1](../docs/backend-resume-development-v1.md)/[评测v1.1](../docs/backend-resume-evaluation-v1.md)，Agent侧三条/PDF/旧数据与四个历史脏文件不动；0模型/费用。
+- 本步T06/T07各10、30并发一轮共4轮通过，[报告](../reports/backend-resume-v1/trade-payment-faults.md)/E80：真实HTTP代理两次丢成功响应；两次收据已提交且订单为0时终止Commerce、重启原JAR。80次原key恢复全部200，四组各一attempt/收据/订单、两行/两槽、52800分一致，原attempt及预定order_id保持。两次首次付款503和两次丢响应是故障证据，单列保留，不称整批HTTP零错误。
+- 新3检查先缺模块失败，相关合计46通过/1旧弃用警告、Ruff通过。首次login拒绝连接发现中断后Java已退出、Docker数据仍在；仅恢复原独立环境，新probe执行，无首目录付款。业务代码/JAR未变，只抽取自有Commerce重启及新增lab锁门控/代理。
+- 本步精确commit正常push核实后接T03商品更新、T08到期竞争；正式160轮、D2退款故障、D3查询与D4 Redisson/性能尚未完成。当前自有环境运行，后续仅按本顶部接续；不重做已付款组或用开发预检填简历。
 
 ## 历史快照（2026-10-26，简历Harness已替换，Agent侧三条冻结）
 

@@ -1,0 +1,30 @@
+{
+  "scenario": "T07",
+  "concurrency": 10,
+  "status": "PASSED",
+  "draft_id": "0819ac0c-7fbe-43ac-941b-0c91141f6557",
+  "attempt_id": "abcbf9f5-f894-4ed4-8121-4a1a448f2f1a",
+  "order_id": "2b0b1e4f-7f73-4543-98fc-9de43b950ea2",
+  "counts": {
+    "paid": 52800,
+    "lines": 2,
+    "slots": 2,
+    "orders": 1,
+    "attempts": 1,
+    "receipts": 1,
+    "refunded": 0,
+    "reserved": 0,
+    "line_total": 52800,
+    "draft_total": 52800,
+    "receipt_total": 52800
+  },
+  "artifacts": {
+    "before-crash.json": "8353407d7045c3d77e13ba322f12424b36bf92ec7b848afd430bfc7bc358c7fb",
+    "draft.json": "4ea21daa61a4bb0ceceee2a3436780fda7643e9759c76f2ef2a8fa45ab9dac2c",
+    "interrupted-request.json": "4c6ef8d26724b44d419a375f9f00faf503d10fbbfac8201804592972070a0887",
+    "prepared.json": "655de641a28f457b641b00513e451a88af62c5bc3990b2deb1e1e35eeca3a626",
+    "process-exit.json": "0b596de29841e785ca3636da70c17afc2c740251e55c37ec735180711117ff0a",
+    "recovery-requests.json": "2ad8ccd6b2a8a0d7907385e073beced809ef13361fa5a7ab725da7e62673d1d0",
+    "restart.json": "f8119ae47b17de7db8bc3a74a6bbc39730d292d9bd65e2aeca52cd76d9468c09"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "upstream_status": 200,
+  "discarded_bytes": 393,
+  "response_sha256": "3c136c6fcf399b9e7e3cddfaf055710c23dafc37eb6e5b021ad2efc4d90d2a84",
+  "attempt_id": "5d2f6052-def9-4ccd-94e7-48e9852b4cad",
+  "client_status": 0,
+  "client_error": "RemoteDisconnected"
+}

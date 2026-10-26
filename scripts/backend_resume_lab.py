@@ -75,8 +75,16 @@ def resume(settings):
     env["PYTHONPATH"] = str(ROOT / "scripts")
     settings.start_child("provider", [sys.executable, "-m", "evaluation.backend_provider", "--run-id=" + settings.identity], env, state)
     wait("provider", lambda: healthy(state["ports"]["provider"], "/health"))
+    start_java_services(settings, state)
+    state["stopped"] = False
+    settings.save(state)
+    print(json.dumps({"run_id": settings.identity, "gateway": f"http://127.0.0.1:{state['ports']['gateway']}"}))
+
+
+def start_java_services(settings, state, roles=("commerce", "case", "gateway")):
+    require_free({role: state["ports"][role] for role in roles})
     java = Path(os.environ.get("JAVA_HOME", str(Path.home() / ".jdks/jdk-21.0.12.1+1"))) / "bin/java.exe"
-    for role in ("commerce", "case", "gateway"):
+    for role in roles:
         env = child_env()
         env.update(REDIS_HOST="127.0.0.1", REDIS_PORT=str(state["ports"]["redis"]),
                    PRODUCT_REVIEW_CACHE_ENABLED="true", PRODUCT_REVIEW_RATE_LIMIT_ENABLED="true",
@@ -105,9 +113,6 @@ def resume(settings):
             args.append(f"--resolveflow.case.base-url=http://127.0.0.1:{state['ports']['case']}")
         settings.start_child(role, args, env, state)
         wait(role, lambda r=role: healthy(state["ports"][r]))
-    state["stopped"] = False
-    settings.save(state)
-    print(json.dumps({"run_id": settings.identity, "gateway": f"http://127.0.0.1:{state['ports']['gateway']}"}))
 
 
 def import_policies(settings, state):
