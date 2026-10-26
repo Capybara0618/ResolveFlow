@@ -2,6 +2,8 @@
 
 2026-10-26，按[开发v1.1](../../docs/backend-resume-development-v1.md)与[评测v1.1](../../docs/backend-resume-evaluation-v1.md)完成第一步准备。当前任务进度只在tasks/todo.md顶部，本报告记录实际实现和证据。
 
+后续独立证据：[逐请求记录接线](request-journal.md)、[完整运行器接线](matrix-wiring.md)、[正式交易160轮与源审](trade-formal.md)。后续结果不回写或替换本报告的D0基础成绩。
+
 ## 本步交付
 
 - `scripts/backend_resume_lab.py`：显式run-id的prepare/resume/check/exercise/verify/stop，不回落到原演示库。
