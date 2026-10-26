@@ -40,6 +40,14 @@ def validate_checkout(rows, database_count):
     return winners[0]
 
 
+def bound_payload(rows, inputs):
+    winner = next(r for r in rows if r["status"] == 200)
+    winning = inputs[winner["index"]][0]
+    losing = next(body for body, _ in inputs if body != winning)
+    assert all(r["status"] == (200 if inputs[r["index"]][0] == winning else 409) for r in rows)
+    return winning, losing
+
+
 def validate_payment(rows, attempt, counts, expected_lines):
     assert any(r["status"] == 200 for r in rows)
     assert all(r["status"] in (200, 409) for r in rows)
@@ -133,7 +141,9 @@ def prepare_round(settings, token, scenario, concurrency, folder):
         body = setup_cart(settings, token)
         if scenario == "T02":
             path = "/api/v1/shop/cart/M-1001/drafts"
-            changed = {**body, "lines": [{**line, "quantity": 2} for line in body["lines"]]}
+            # Both payloads are valid against the same original cart. Quantity changes
+            # would otherwise be rejected independently of idempotency binding.
+            changed = {**body, "lines": body["lines"][:1]}
             inputs = [(body if i < concurrency // 2 else changed, key) for i in range(concurrency)]
         else:
             purchase = api(settings, "POST", "/api/v1/shop/cart/M-1001/drafts", token, body, {"Idempotency-Key": key})
@@ -169,11 +179,18 @@ def round_probe(settings, token, scenario, concurrency, folder):
             row.update(after_revision=group["revision"], saved_quantity=quantity)
             validate_cart(rows, row["before_revision"], group["revision"], quantity)
         elif scenario == "T02":
-            key, changed = inputs[0][1], inputs[-1][0]
+            key = inputs[0][1]
             count = int(settings.sql(f"SELECT COUNT(*) FROM commerce_db.checkout_draft WHERE idempotency_key='{key}';"))
             row["draft_id"] = validate_checkout(rows, count)
             row["drafts_for_key"] = count
-            api(settings, "POST", "/api/v1/shop/cart/M-1001/drafts", token, changed,
+            winning, losing = bound_payload(rows, inputs)
+            actual = settings.sql("SELECT CONCAT(sku_id,':',quantity) FROM commerce_db.checkout_draft_line "
+                                  f"WHERE draft_id='{row['draft_id']}' ORDER BY sku_id;").splitlines()
+            assert actual == sorted(f"{line['sku_id']}:{line['quantity']}" for line in winning["lines"])
+            row["bound_body"] = winning
+            replay = api(settings, "POST", "/api/v1/shop/cart/M-1001/drafts", token, winning, {"Idempotency-Key": key})
+            assert replay["draft_id"] == row["draft_id"]
+            api(settings, "POST", "/api/v1/shop/cart/M-1001/drafts", token, losing,
                 {"Idempotency-Key": key}, expected=409)
         else:
             draft = row["draft_id"]

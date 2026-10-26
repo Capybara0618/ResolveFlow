@@ -117,6 +117,9 @@ def catalog_round(settings, buyer, merchant, factor, order, concurrency, folder)
             f"ON t.THREAD_ID=w.REQUESTING_THREAD_ID WHERE t.PROCESSLIST_INFO LIKE '{second_statement}%';")) > 0, seconds=15)
         save(folder, "second-actor", {"blocked_statement": second_statement})
         rest = pool.submit(checkout, concurrency - 1) if order == "checkout-first" else None
+        journal = getattr(settings, "request_journal", None)
+        if journal:
+            journal.wait_active(path, concurrency)
         gate.execute("UNLOCK TABLES")
         a, b = first.result(timeout=30), second.result(timeout=30)
         if rest:
@@ -159,12 +162,13 @@ def expiry_state(settings, draft):
       FROM commerce_db.checkout_draft d WHERE draft_id='{draft}';"""))
 
 
-def expiry_round(settings, token, order, concurrency, folder):
-    if order == "reserve-first":
+def expiry_round(settings, token, order, concurrency, folder, reset_scheduler=False):
+    if order == "reserve-first" or reset_scheduler:
         state = settings.load()
         settings.stop_children({"pids": {"commerce": state["pids"]["commerce"]}})
-        start_java_services(settings, settings.load(), ("commerce",), checkout_poll_ms=10000)
-        save(folder, "scheduler-config", {"checkout_poll_ms": 10000, "purpose": "initial preparation window", "frozen_jar": True})
+        interval = 10000 if order == "reserve-first" else 2000
+        start_java_services(settings, settings.load(), ("commerce",), checkout_poll_ms=interval)
+        save(folder, "scheduler-config", {"checkout_poll_ms": interval, "purpose": "initial preparation window", "frozen_jar": True})
     body = setup_cart(settings, token)
     draft_key, pay_key = uuid.uuid4().hex, uuid.uuid4().hex
     save(folder, "prepared", {"scenario": "T08", "order": order, "concurrency": concurrency,
@@ -187,6 +191,9 @@ def expiry_round(settings, token, order, concurrency, folder):
             pending = pool.submit(burst, settings, path, token, [({}, pay_key) for _ in range(concurrency)])
             wait("expiry and payment queued", lambda: int(settings.sql(
                 "SELECT COUNT(*) FROM performance_schema.data_lock_waits;")) >= 2, seconds=15)
+            journal = getattr(settings, "request_journal", None)
+            if journal:
+                journal.wait_active(path, concurrency)
             gate.execute("COMMIT")
             rows = pending.result(timeout=30)
         else:
@@ -210,6 +217,9 @@ def expiry_round(settings, token, order, concurrency, folder):
             rest = pool.submit(burst, settings, path, token, [({}, pay_key) for _ in range(concurrency - 1)])
             wait("remaining payment actor reached provider", lambda: actor_pending(
                 settings, "INSERT INTO simulated_checkout_receipt") >= 2, seconds=10)
+            journal = getattr(settings, "request_journal", None)
+            if journal:
+                journal.wait_active(path, concurrency)
             gate.execute("UNLOCK TABLES")
             rows = pending.result(timeout=30) + [{**r, "index": r["index"] + 1} for r in rest.result(timeout=30)]
     save(folder, "requests", rows)

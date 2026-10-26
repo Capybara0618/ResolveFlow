@@ -135,6 +135,10 @@ def discard_payment_response(settings, token, path, key):
     worker = threading.Thread(target=server.handle_request)
     worker.start()
     client = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=25)
+    journal = getattr(settings, "request_journal", None)
+    ticket = journal.prepare(path, journal.actor(token), [({}, key)])[0] if journal else None
+    if ticket:
+        journal.start(ticket)
     try:
         client.request("POST", path, b"{}", {"Authorization": "Bearer " + token,
                        "Content-Type": "application/json", "Idempotency-Key": key})
@@ -145,6 +149,9 @@ def discard_payment_response(settings, token, path, key):
         client.close()
         worker.join(timeout=30)
         server.server_close()
+    if ticket:
+        journal.finish(ticket, {"status": evidence.get("client_status", 0), "body": evidence,
+                                "phase": "intentional first response loss"})
     validate_loss(evidence)
     return evidence
 
