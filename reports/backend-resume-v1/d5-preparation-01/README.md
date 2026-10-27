@@ -57,3 +57,5 @@ R02异常明确发生在查询快照完成后，不称数据库SQL异常；R04�
 开发cohort隔离反例：先用两份临时目录/SQL响应桩调用开发数据准备，新批次仍生成相同产品ID，目标检查按预期1 failed（8.11秒，日志tmp/backend-d5-cohort-identity-first-fail.log），未访问真实数据库。修正UUID标签加入data-cohort、gate标记绑定完整cohort/round路径；新两批各56产品ID完全不重合、同轮gate在不同批次不同，目标1 passed/9 deselected及Ruff通过（累计22不同检查）。原开始/完整标记仍拒绝同批重复执行，不借新cohort重跑正式失败；本修正只在正式故障冻结前开发，normal-v1不变。
 
 恢复验收补充真实缓存命中证据：HTTP200可能仍来自降级数据库读取，不能据此称缓存已恢复。先新增目标反例，旧签名1 failed（TypeError，日志tmp/backend-d5-cache-recovery-first-fail.log）；新故障观察器在实际解除事件后5秒内分别记录first_success与first_cache_hit，命中计量来自服务实际cache hit counter，之后再10次完整投影读。目标与原时间起点检查2 passed/5 deselected；首次Ruff指出回调loop变量绑定，显式绑定后通过，未改正常批次（累计23不同检查）。新故障入口仍未执行真实15窗。
+
+归档/完整投影留证入口已准备：backend_d5_evidence.py复用冻结评分器离线重算正常48窗、预热、冷读、SQL及双实例入站计数；只收六个明确窗口文件，拒绝夹带未知文件，分P1/P2/P3压缩归档，保留原字节hash，JAR/数据库卷不入报告。capture仅在完整48窗审计后启动自有只读服务，再抓183变体完整JSON并匹配开跑前hash；不把新响应替换成Gold、不计新性能样本。实际本地HTTP反例验证正确样本、同目录拒绝覆盖、错误hash失败且原响应保留：1 passed；首次Ruff未用变量清理后通过（累计24不同检查）。当前只验证归档工具局部行为，尚未实际归档或抓正式样本。
