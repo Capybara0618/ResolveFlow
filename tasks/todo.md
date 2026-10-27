@@ -1,9 +1,10 @@
-## 当前快照（2026-10-27，D5正式正常窗口执行中）
+## 当前快照（2026-10-27，D5正常HTTP矩阵执行中，等待全量审计）
 
-- 用户授权开始D5并已恢复Docker；沿用D4冻结构建44307e4c及D0基线，原第4/5条、Agent/PDF、业务数据与四历史脏文件保持。
-- [D5准备记录](../reports/backend-resume-v1/d5-preparation-01/README.md)：自有run56a1dc2143e44062bda79849e82cac3c仅MySQL/Redis，2万工单/4000待审、1万已付/2千未付、30商品45SKU6000评价，9项数据检查符合预期；Docker重启后原卷工单/评价计数保持，不重播种子。
-- 新独立Java启动探针计量真实JDBC execute/行数/并发，原应用class/lib逐字节解包不重编译；Commerce和Case实际启动计量通过。首次Case本机SocketException失败保留，同构建单独再启动成功，根因未证实。4单元/Ruff通过，0模型/费用/退款执行。
-- 此准备小步精确commit正常push后继续执行器、正确集合、双Commerce分流和故障注入冒烟；v2探针已修正多加载标记并实际重启通过，原快照保留。183变体独立事实验证、1725短窗请求投影一致、9单元/Ruff通过；旧构建183完整投影一致；双Commerce固定轮转/自有Redis断连超时代理、八开关短窗及v3实际RLock事件接线通过，11单元通过。正式freeze绑定JAR/源/评分器/探针/端口。[48正常窗口](../reports/backend-resume-v1/d5-normal-01/README.md)的normal-v1已冻结13b6a63a并普通push后一次执行中；本快照已完成20/48，原始逐请求和SQL快照留本轮tmp，已有503/超时保留，未发现投影差异。新15故障/R120执行器及9离线反例已准备、未真实接线/未正式执行，先等正常48窗结束审计再独立样本验证；不切换探针或污染当前数据。v3 rows_returned未覆盖MyBatis结果，不当总返回/扫描行；实际execute计数保持。故障恢复计时已在冻结前绑定实际解除事件，新增1目标检查通过（累计21不同检查）。第7条暂不填数字。四条实现与面试解释已整理[导航](../docs/backend-interview-map-v1.md)，不改冻结正文。进度仅本顶部；原tmp快照不覆盖，不重跑D1/D2。
+- 用户授权D5并恢复Docker；唯一写入者继续，自有run56a1dc2143e44062bda79849e82cac3c仅MySQL/Redis，业务库/卷、Agent/PDF、第1/4/5冻结稿及四历史脏文件保持，0模型/费用/退款执行。
+- [正常48窗](../reports/backend-resume-v1/d5-normal-01/README.md)normal-v1已在13b6a63a冻结并普通push后一次执行；本快照完成37/48、599071请求，工作台18/订单12均完成，公开评价双Commerce固定轮转执行中。已有超时/503保留，无投影差异；尚未全量离线审计，不填第7条。入口/数据/评分器/v3探针均未在采样中改动。
+- [准备记录](../reports/backend-resume-v1/d5-preparation-01/README.md)/E94–E101：2万工单/4000待审、1万已付/2千未付、30商品45SKU6000评价九项检查符合预期；183旧/新完整投影一致、八开关开发窗及v3真实锁事件验证完成。v3 rows_returned只覆盖executeQuery，未含全部MyBatis结果，不能当总返回/扫描行；实际JDBC execute计数保持。
+- 故障15窗/R120及独立原始归档/完整投影抓取工具已准备，24项不同离线/本地HTTP检查通过；R数据cohort/gate隔离与HTTP/缓存恢复分别观察的反例先失败后修复，失败留tmp。新SQL写前R探针尚未编译/运行，故障真实接线和正式矩阵均未开始；正常结束审计并抓183完整样本后，先独立开发样本再冻结正式故障/R样本，不重播已有正式轮。
+- 预定正常执行进程由本轮运行器持operation.lock；其他命令不得争锁启动第二套应用。矩阵结束先normal audit/evidence capture/archive，集中审计前不宣称正式收益。最新工具修正及[面试实现导航](../docs/backend-interview-map-v1.md)已精确commit普通push核实，后续保持每验证小步推送；不重跑D1/D2或改个人PDF。当前进度仅本顶部。
 
 ## 历史快照（2026-10-26，D4功能验收完成，待D5正式量化）
 
