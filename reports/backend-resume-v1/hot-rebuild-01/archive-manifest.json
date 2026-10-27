@@ -1,0 +1,31 @@
+{
+  "files": {
+    "r0-B/cold.json": "85500e0e3fc7c6fb14f01f91abad9c19b2b3588149ba863d77d1f67458757614",
+    "r0-B/complete.json": "e98d5fc3d110d54cd5673aa064bbce631163db024ecfafc734fb922f3fb10318",
+    "r0-B/started.json": "227d33b8c9d8c134a39a72c92ff890d076a0bf8145b3d25356bfcff7a1cbb578",
+    "r0-B/warm.json": "6bbe3c8c3050489edff56d85d5aab47b359996d08b24016e656daafca9031e34",
+    "r0-C/cold.json": "6b699ba70a38fedfb51aa7088dfaaeaf2e8e20421a5ad6e77386e689bdd37b2c",
+    "r0-C/complete.json": "93b7079e05f67363c633862fc3e4f6d08342ac42a9bb5e65da89d64143244307",
+    "r0-C/started.json": "d920708c069dcf8b944eff2e02eeb8edfd9ca1e6a7838debe58e37e55979669d",
+    "r0-C/warm.json": "98fefd369178f98aeaec59e391bcfce8e71efcb12b8df30310fb483668034ede",
+    "r1-C/cold.json": "8050ebcda15a9af677a6284341fb811a4bdebe3a017b23f1d5b24aefa2a4f2b9",
+    "r1-C/complete.json": "f4238df45617451259f22338405252a8042d9de6f145abe9a46fad4b5f5995e4",
+    "r1-C/started.json": "86a8dd09b339fd6975b570e5856c8bcb7b7cb22a6b770c91b43f85d5bca54699",
+    "r1-C/warm.json": "ae498168d5019729b6a25fa3bd127dd02dbb2078fbf39a065d92b68daa80a336",
+    "r1-B/cold.json": "ed39545c8b698736e95d5e71768a13fd0b37c48a48ae0d67155053900c7407cd",
+    "r1-B/complete.json": "54aa6a26d173b7cdd3b5d844c1ecb5420d5bb6429b91014ea3488a09b5fc753b",
+    "r1-B/started.json": "a67b792156f977a8cbd2b5553822a5ae20223e465167e0fde2bb3e31b253e576",
+    "r1-B/warm.json": "bb6fe6871d50671cf71cf941f53660e08f9a8fc647784a0a98cf0a2634a60e3b",
+    "r2-B/cold.json": "f35687e34b847dc23c12eea81515edddb70b8984cc6eb0fadf9b8cdb58a5affb",
+    "r2-B/complete.json": "96b34c4c22876aaa8f72cc3123975f65276571a6505a422727b7d4954a70714b",
+    "r2-B/started.json": "35f979477bf51bda3b144f138b102ab4f5288a304ffb8ba6f11a212b23560df7",
+    "r2-B/warm.json": "9259e579fd1a57e9f04af583867c8e7894d0a97a07881987259d8a9286be7dcf",
+    "r2-C/cold.json": "2015dce9c48062f4920992b2f2ab18b67064bda8a1dbc11d4a638d7644a90d9a",
+    "r2-C/complete.json": "50ab2f97917a7b21f052a232bee4e925cf2bb03f776c30334157455ff33aba15",
+    "r2-C/started.json": "0bc22e86452ce23735e621e7ceacb5dbb3775f21e7f70e1b7c87e3cbfb26242a",
+    "r2-C/warm.json": "f2a0aedd3845045fce5969e0e7968ca6dc382aa10d65e10b33e5e954a004612e"
+  },
+  "archive_sha256": "dcbb38546a6430de28eec145c9b7b25813e6c524d0c025ca9fe9ee3810662db5",
+  "run_id": "56a1dc2143e44062bda79849e82cac3c",
+  "scope": "six natural cold-cache bursts, fixed 3 pairs; no gates or faults"
+}
