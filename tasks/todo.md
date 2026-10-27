@@ -3,7 +3,7 @@
 - 用户授权开始D5并已恢复Docker；沿用D4冻结构建44307e4c及D0基线，原第4/5条、Agent/PDF、业务数据与四历史脏文件保持。
 - [D5准备记录](../reports/backend-resume-v1/d5-preparation-01/README.md)：自有run56a1dc2143e44062bda79849e82cac3c仅MySQL/Redis，2万工单/4000待审、1万已付/2千未付、30商品45SKU6000评价，9项数据检查符合预期；Docker重启后原卷工单/评价计数保持，不重播种子。
 - 新独立Java启动探针计量真实JDBC execute/行数/并发，原应用class/lib逐字节解包不重编译；Commerce和Case实际启动计量通过。首次Case本机SocketException失败保留，同构建单独再启动成功，根因未证实。4单元/Ruff通过，0模型/费用/退款执行。
-- 此准备小步精确commit正常push后继续执行器、正确集合、双Commerce分流和故障注入冒烟；v2探针已修正多加载标记并实际重启通过，原快照保留。183变体独立事实验证、1725短窗请求投影一致、9单元/Ruff通过；旧构建183完整投影一致；双Commerce固定轮转/自有Redis断连超时代理、八开关短窗及v3实际RLock事件接线通过，11单元通过。正式freeze绑定JAR/源/评分器/探针/端口。48正常/15故障/R120均未开始，无可填简历第7条的新p95或DB降幅。进度仅本顶部；原tmp快照不覆盖，不重跑D1/D2。
+- 此准备小步精确commit正常push后继续执行器、正确集合、双Commerce分流和故障注入冒烟；v2探针已修正多加载标记并实际重启通过，原快照保留。183变体独立事实验证、1725短窗请求投影一致、9单元/Ruff通过；旧构建183完整投影一致；双Commerce固定轮转/自有Redis断连超时代理、八开关短窗及v3实际RLock事件接线通过，11单元通过。正式freeze绑定JAR/源/评分器/探针/端口。[48正常窗口](../reports/backend-resume-v1/d5-normal-01/README.md)的normal-v1 manifest已冻结，精确commit普通push后执行一次；15故障/R120尚未开始，无可填简历第7条的新p95或DB降幅。进度仅本顶部；原tmp快照不覆盖，不重跑D1/D2。
 
 ## 历史快照（2026-10-26，D4功能验收完成，待D5正式量化）
 
