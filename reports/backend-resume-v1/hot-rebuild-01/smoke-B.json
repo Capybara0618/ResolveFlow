@@ -1,0 +1,5074 @@
+{
+  "round": {
+    "id": "r0-B",
+    "repeat": 0,
+    "condition": "B",
+    "requests": 30,
+    "product": "P-1001"
+  },
+  "before": {
+    "commerce": {
+      "failed_sql": 1,
+      "sql": 27,
+      "node": "commerce",
+      "rows_returned": 48,
+      "pid": 5580,
+      "sql_inflight": 0,
+      "meters": {
+        "resolveflow.product_reviews.cache.write[tag(outcome=stored)]:COUNT": 1.0,
+        "resolveflow.product_reviews.cache[tag(outcome=miss)]:COUNT": 1.0,
+        "resolveflow.product_reviews.database.calls[tag(operation=epoch)]:COUNT": 1.0,
+        "resolveflow.product_reviews.database.calls[tag(operation=page)]:COUNT": 1.0,
+        "resolveflow.product_reviews.database.inflight[]:VALUE": 0.0,
+        "resolveflow.product_reviews.database.peak[]:VALUE": 1.0,
+        "resolveflow.product_reviews.database.reads[]:COUNT": 2.0,
+        "resolveflow.product_reviews.rebuild.inflight[]:VALUE": 0.0,
+        "resolveflow.product_reviews.rebuild.loads[tag(outcome=started)]:COUNT": 1.0,
+        "resolveflow.product_reviews.rebuild.peak[]:VALUE": 1.0
+      },
+      "sampled_sql": [],
+      "sql_peak": 0
+    },
+    "commerce2": {
+      "node": "commerce2",
+      "rows_returned": 31,
+      "pid": 26552,
+      "sql_inflight": 0,
+      "meters": {
+        "resolveflow.product_reviews.cache[tag(outcome=hit)]:COUNT": 1.0,
+        "resolveflow.product_reviews.database.calls[tag(operation=epoch)]:COUNT": 1.0,
+        "resolveflow.product_reviews.database.inflight[]:VALUE": 0.0,
+        "resolveflow.product_reviews.database.peak[]:VALUE": 1.0,
+        "resolveflow.product_reviews.database.reads[]:COUNT": 1.0,
+        "resolveflow.product_reviews.rebuild.inflight[]:VALUE": 0.0,
+        "resolveflow.product_reviews.rebuild.peak[]:VALUE": 0.0
+      },
+      "sampled_sql": [],
+      "sql_peak": 0,
+      "failed_sql": 1,
+      "sql": 24
+    }
+  },
+  "after": {
+    "commerce": {
+      "failed_sql": 1,
+      "sql": 87,
+      "node": "commerce",
+      "rows_returned": 318,
+      "pid": 5580,
+      "sql_inflight": 0,
+      "meters": {
+        "resolveflow.product_reviews.cache.write[tag(outcome=stored)]:COUNT": 16.0,
+        "resolveflow.product_reviews.cache[tag(outcome=miss)]:COUNT": 16.0,
+        "resolveflow.product_reviews.database.calls[tag(operation=epoch)]:COUNT": 16.0,
+        "resolveflow.product_reviews.database.calls[tag(operation=page)]:COUNT": 16.0,
+        "resolveflow.product_reviews.database.inflight[]:VALUE": 0.0,
+        "resolveflow.product_reviews.database.peak[]:VALUE": 8.0,
+        "resolveflow.product_reviews.database.reads[]:COUNT": 32.0,
+        "resolveflow.product_reviews.rebuild.inflight[]:VALUE": 0.0,
+        "resolveflow.product_reviews.rebuild.loads[tag(outcome=started)]:COUNT": 16.0,
+        "resolveflow.product_reviews.rebuild.peak[]:VALUE": 8.0
+      },
+      "sampled_sql": [
+        "SELECT COALESCE(e.version,0) AS epoch FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id LEFT JOIN product_review_epoch e ON e.product_id=p.product_id WHERE p.product_id=? AND p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)",
+        "SELECT * FROM product_review WHERE product_id=? ORDER BY review_id DESC LIMIT ?",
+        "SELECT rating,COUNT(*) AS total FROM product_review WHERE product_id=? GROUP BY rating"
+      ],
+      "sql_peak": 4
+    },
+    "commerce2": {
+      "node": "commerce2",
+      "rows_returned": 301,
+      "pid": 26552,
+      "sql_inflight": 0,
+      "meters": {
+        "resolveflow.product_reviews.cache.write[tag(outcome=stored)]:COUNT": 15.0,
+        "resolveflow.product_reviews.cache[tag(outcome=hit)]:COUNT": 1.0,
+        "resolveflow.product_reviews.cache[tag(outcome=miss)]:COUNT": 15.0,
+        "resolveflow.product_reviews.database.calls[tag(operation=epoch)]:COUNT": 16.0,
+        "resolveflow.product_reviews.database.calls[tag(operation=page)]:COUNT": 15.0,
+        "resolveflow.product_reviews.database.inflight[]:VALUE": 0.0,
+        "resolveflow.product_reviews.database.peak[]:VALUE": 8.0,
+        "resolveflow.product_reviews.database.reads[]:COUNT": 31.0,
+        "resolveflow.product_reviews.rebuild.inflight[]:VALUE": 0.0,
+        "resolveflow.product_reviews.rebuild.loads[tag(outcome=started)]:COUNT": 15.0,
+        "resolveflow.product_reviews.rebuild.peak[]:VALUE": 8.0
+      },
+      "sampled_sql": [
+        "SELECT COALESCE(e.version,0) AS epoch FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id LEFT JOIN product_review_epoch e ON e.product_id=p.product_id WHERE p.product_id=? AND p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)",
+        "SELECT COALESCE(e.version,0) AS epoch FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id LEFT JOIN product_review_epoch e ON e.product_id=p.product_id WHERE p.product_id=? AND p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)",
+        "SELECT * FROM product_review WHERE product_id=? ORDER BY review_id DESC LIMIT ?",
+        "SELECT rating,COUNT(*) AS total FROM product_review WHERE product_id=? GROUP BY rating"
+      ],
+      "sql_peak": 5,
+      "failed_sql": 1,
+      "sql": 84
+    }
+  },
+  "requests": [
+    {
+      "index": 0,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279931021900,
+      "status": 200,
+      "request_id": "commerce-177739794206000",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 137.70709998789243,
+      "ended_ns": 1793072280068312100
+    },
+    {
+      "index": 1,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279931521700,
+      "status": 200,
+      "request_id": "commerce2-177739794956000",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 187.1975000249222,
+      "ended_ns": 1793072280118845600
+    },
+    {
+      "index": 2,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279932024600,
+      "status": 200,
+      "request_id": "commerce-177739795452300",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 115.40770001010969,
+      "ended_ns": 1793072280047602600
+    },
+    {
+      "index": 3,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279932525000,
+      "status": 200,
+      "request_id": "commerce2-177739795924900",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 186.47079999209382,
+      "ended_ns": 1793072280118845600
+    },
+    {
+      "index": 4,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279933026100,
+      "status": 200,
+      "request_id": "commerce-177739796384500",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 145.38159998483025,
+      "ended_ns": 1793072280078335300
+    },
+    {
+      "index": 5,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279933524800,
+      "status": 200,
+      "request_id": "commerce2-177739796885500",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 184.72759998985566,
+      "ended_ns": 1793072280118345400
+    },
+    {
+      "index": 6,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279934024900,
+      "status": 200,
+      "request_id": "commerce-177739797397900",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 113.32230002153665,
+      "ended_ns": 1793072280047105400
+    },
+    {
+      "index": 7,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279934524800,
+      "status": 200,
+      "request_id": "commerce2-177739797864300",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 183.2052000099793,
+      "ended_ns": 1793072280117845900
+    },
+    {
+      "index": 8,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279935024600,
+      "status": 200,
+      "request_id": "commerce-177739798320000",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 138.8753000064753,
+      "ended_ns": 1793072280073825700
+    },
+    {
+      "index": 9,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279935524600,
+      "status": 200,
+      "request_id": "commerce2-177739798771100",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 182.494200009387,
+      "ended_ns": 1793072280117845900
+    },
+    {
+      "index": 10,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279936024700,
+      "status": 200,
+      "request_id": "commerce-177739799277700",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 111.69179997523315,
+      "ended_ns": 1793072280047602600
+    },
+    {
+      "index": 11,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279936524800,
+      "status": 200,
+      "request_id": "commerce2-177739799737700",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 183.50850002025254,
+      "ended_ns": 1793072280119858900
+    },
+    {
+      "index": 12,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279937024600,
+      "status": 200,
+      "request_id": "commerce-177739800202700",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 110.18459999468178,
+      "ended_ns": 1793072280047105400
+    },
+    {
+      "index": 13,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279937524700,
+      "status": 200,
+      "request_id": "commerce2-177739800654200",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 181.1236000212375,
+      "ended_ns": 1793072280118345400
+    },
+    {
+      "index": 14,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279937524700,
+      "status": 200,
+      "request_id": "commerce-177739801122600",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 131.31920000887476,
+      "ended_ns": 1793072280068818400
+    },
+    {
+      "index": 15,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279938524900,
+      "status": 200,
+      "request_id": "commerce2-177739801752800",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 182.22750001586974,
+      "ended_ns": 1793072280120846300
+    },
+    {
+      "index": 16,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279939024800,
+      "status": 200,
+      "request_id": "commerce-177739802269400",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 134.01030001114123,
+      "ended_ns": 1793072280072818800
+    },
+    {
+      "index": 17,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279939524600,
+      "status": 200,
+      "request_id": "commerce2-177739802796700",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 177.8344000049401,
+      "ended_ns": 1793072280117350700
+    },
+    {
+      "index": 18,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279940026200,
+      "status": 200,
+      "request_id": "commerce-177739803278500",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 154.53870000783354,
+      "ended_ns": 1793072280094351300
+    },
+    {
+      "index": 19,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279940525000,
+      "status": 200,
+      "request_id": "commerce2-177739803732500",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 179.0706999890972,
+      "ended_ns": 1793072280119347700
+    },
+    {
+      "index": 20,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279941025000,
+      "status": 200,
+      "request_id": "commerce-177739804253400",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 157.92979998514056,
+      "ended_ns": 1793072280098848000
+    },
+    {
+      "index": 21,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279941524600,
+      "status": 200,
+      "request_id": "commerce2-177739804721600",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 178.66200002026744,
+      "ended_ns": 1793072280119858900
+    },
+    {
+      "index": 22,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279942024900,
+      "status": 200,
+      "request_id": "commerce-177739805379300",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 154.52159999404103,
+      "ended_ns": 1793072280096347200
+    },
+    {
+      "index": 23,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279942524900,
+      "status": 200,
+      "request_id": "commerce2-177739805858400",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 176.76279999432154,
+      "ended_ns": 1793072280119347700
+    },
+    {
+      "index": 24,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279943024700,
+      "status": 200,
+      "request_id": "commerce-177739806326400",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 172.71720001008362,
+      "ended_ns": 1793072280115845000
+    },
+    {
+      "index": 25,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279943524700,
+      "status": 200,
+      "request_id": "commerce2-177739806790700",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 177.05890000797808,
+      "ended_ns": 1793072280120347200
+    },
+    {
+      "index": 26,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279944024600,
+      "status": 200,
+      "request_id": "commerce-177739807252400",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 153.68790001957677,
+      "ended_ns": 1793072280097345700
+    },
+    {
+      "index": 27,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279944546900,
+      "status": 200,
+      "request_id": "commerce2-177739807832200",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 175.9019999881275,
+      "ended_ns": 1793072280120347200
+    },
+    {
+      "index": 28,
+      "node": "commerce",
+      "product": "P-1001",
+      "started_ns": 1793072279945024600,
+      "status": 200,
+      "request_id": "commerce-177739808297700",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 150.009000004502,
+      "ended_ns": 1793072280094847400
+    },
+    {
+      "index": 29,
+      "node": "commerce2",
+      "product": "P-1001",
+      "started_ns": 1793072279945524700,
+      "status": 200,
+      "request_id": "commerce2-177739808817200",
+      "body": {
+        "items": [
+          {
+            "review_id": 200,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 199",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 199,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 198",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 198,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 197",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 197,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 2,
+            "body": "D5 synthetic review 196",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 196,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 195",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 195,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 5,
+            "body": "D5 synthetic review 194",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 194,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 4,
+            "body": "D5 synthetic review 193",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 193,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "黑色",
+            "rating": 3,
+            "body": "D5 synthetic review 192",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 192,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 2,
+            "body": "D5 synthetic review 191",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          },
+          {
+            "review_id": 191,
+            "product_id": "P-1001",
+            "product_name": "无线降噪耳机",
+            "variant": "银色",
+            "rating": 1,
+            "body": "D5 synthetic review 190",
+            "reply": null,
+            "version": 1,
+            "created_at": "2026-10-20T00:00:00Z",
+            "updated_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "summary": {
+          "count": 200,
+          "average": 3.0,
+          "stars": [
+            40,
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        "next_before": 191
+      },
+      "body_sha256": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+      "elapsed_ms": 174.68500000541098,
+      "ended_ns": 1793072280120347200
+    }
+  ],
+  "events": [
+    {
+      "product": "P-1001",
+      "call": "281065c0-41aa-488c-ac1f-d1416e8f4650",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:37:59.996050200Z",
+      "nano": 177739859568200
+    },
+    {
+      "product": "P-1001",
+      "call": "9b9f880b-a9df-473f-addd-23a463657bdf",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.000059Z",
+      "nano": 177739863384300
+    },
+    {
+      "product": "P-1001",
+      "call": "1c853dd2-b7b5-4e3d-b033-ecee779fadc7",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.001576100Z",
+      "nano": 177739864810600
+    },
+    {
+      "product": "P-1001",
+      "call": "d53ac385-9351-4538-99b8-936f0bda9126",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.002589700Z",
+      "nano": 177739865872700
+    },
+    {
+      "product": "P-1001",
+      "call": "460e13d4-4e66-4a2b-838f-ee5cf38b4a66",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.007629Z",
+      "nano": 177739871264600
+    },
+    {
+      "product": "P-1001",
+      "call": "883c21c1-3e16-4433-871c-d3cc34d9c876",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.010603100Z",
+      "nano": 177739874071500
+    },
+    {
+      "product": "P-1001",
+      "call": "c4a04152-9bef-4f8a-966a-c181c5940d7d",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.011601900Z",
+      "nano": 177739875152200
+    },
+    {
+      "product": "P-1001",
+      "call": "85b0dd60-eb7c-4ad5-b4d9-57911d0062dd",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.012602300Z",
+      "nano": 177739876090900
+    },
+    {
+      "product": "P-1001",
+      "call": "9b9f880b-a9df-473f-addd-23a463657bdf",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.037601800Z",
+      "nano": 177739900861900
+    },
+    {
+      "product": "P-1001",
+      "call": "460e13d4-4e66-4a2b-838f-ee5cf38b4a66",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.038602100Z",
+      "nano": 177739901958300
+    },
+    {
+      "product": "P-1001",
+      "call": "281065c0-41aa-488c-ac1f-d1416e8f4650",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.039102200Z",
+      "nano": 177739902746900
+    },
+    {
+      "product": "P-1001",
+      "call": "1c853dd2-b7b5-4e3d-b033-ecee779fadc7",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.040105900Z",
+      "nano": 177739903677700
+    },
+    {
+      "product": "P-1001",
+      "call": "cc007390-b371-4848-8180-05bddf274467",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.041106900Z",
+      "nano": 177739904563600
+    },
+    {
+      "product": "P-1001",
+      "call": "3a377bb3-47e5-44eb-bc2d-659f87a90963",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.042103800Z",
+      "nano": 177739905665400
+    },
+    {
+      "product": "P-1001",
+      "call": "2073f249-2215-4101-9ee6-e0eb4c49521b",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.043102600Z",
+      "nano": 177739906622200
+    },
+    {
+      "product": "P-1001",
+      "call": "be00be54-5840-4666-b64f-221a6e19c779",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.044101700Z",
+      "nano": 177739907693100
+    },
+    {
+      "product": "P-1001",
+      "call": "d53ac385-9351-4538-99b8-936f0bda9126",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.055606Z",
+      "nano": 177739919086900
+    },
+    {
+      "product": "P-1001",
+      "call": "dcdf9ae9-0978-42ab-a899-1e92ff8dfb76",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.058732700Z",
+      "nano": 177739922226900
+    },
+    {
+      "product": "P-1001",
+      "call": "85b0dd60-eb7c-4ad5-b4d9-57911d0062dd",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.060764300Z",
+      "nano": 177739924379300
+    },
+    {
+      "product": "P-1001",
+      "call": "883c21c1-3e16-4433-871c-d3cc34d9c876",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.062271500Z",
+      "nano": 177739925476300
+    },
+    {
+      "product": "P-1001",
+      "call": "c4a04152-9bef-4f8a-966a-c181c5940d7d",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.063280900Z",
+      "nano": 177739926747500
+    },
+    {
+      "product": "P-1001",
+      "call": "ecb76bb1-c53d-4ebf-901c-b58ce1762414",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.065286Z",
+      "nano": 177739928701400
+    },
+    {
+      "product": "P-1001",
+      "call": "e0d83133-0614-4795-948a-03817f100fce",
+      "stage": "load_start",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.066288200Z",
+      "nano": 177739929928100
+    },
+    {
+      "product": "P-1001",
+      "call": "cc007390-b371-4848-8180-05bddf274467",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.068312100Z",
+      "nano": 177739931526500
+    },
+    {
+      "product": "P-1001",
+      "call": "3a377bb3-47e5-44eb-bc2d-659f87a90963",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.084348900Z",
+      "nano": 177739947885100
+    },
+    {
+      "product": "P-1001",
+      "call": "dcdf9ae9-0978-42ab-a899-1e92ff8dfb76",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.086344700Z",
+      "nano": 177739949914500
+    },
+    {
+      "product": "P-1001",
+      "call": "2073f249-2215-4101-9ee6-e0eb4c49521b",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.088348Z",
+      "nano": 177739951895600
+    },
+    {
+      "product": "P-1001",
+      "call": "be00be54-5840-4666-b64f-221a6e19c779",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.089846300Z",
+      "nano": 177739953282500
+    },
+    {
+      "product": "P-1001",
+      "call": "ecb76bb1-c53d-4ebf-901c-b58ce1762414",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.092846900Z",
+      "nano": 177739956480500
+    },
+    {
+      "product": "P-1001",
+      "call": "e0d83133-0614-4795-948a-03817f100fce",
+      "stage": "load_end",
+      "node": "commerce",
+      "pid": 5580,
+      "at": "2026-10-27T03:38:00.104851600Z",
+      "nano": 177739968326900
+    },
+    {
+      "call": "955efc85-8e4c-43d1-806b-b89f53ce138b",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:37:59.997549800Z",
+      "nano": 177739860752700
+    },
+    {
+      "call": "391c1ecf-0503-4bdb-99f4-f725cf9ed3d5",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.000059Z",
+      "nano": 177739863607100
+    },
+    {
+      "call": "369817dd-5543-4fcc-88b8-6276aa516966",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.001576100Z",
+      "nano": 177739864782400
+    },
+    {
+      "call": "367b539b-09c8-4a96-8c44-4f18d5b03d91",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.002085800Z",
+      "nano": 177739865677200
+    },
+    {
+      "call": "e304a0b9-11e0-43a9-b7da-3e612bc6bcfb",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.009608100Z",
+      "nano": 177739872837300
+    },
+    {
+      "call": "829b070a-b596-4a84-a2bb-c58d5da0acd9",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.013103800Z",
+      "nano": 177739876508300
+    },
+    {
+      "call": "a377cf4c-0368-4e5e-a70a-da84a48ef7f9",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.014102400Z",
+      "nano": 177739877581200
+    },
+    {
+      "call": "1afd8d11-e2b1-4f4f-8ca1-a477feb58a95",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.016104400Z",
+      "nano": 177739879626300
+    },
+    {
+      "call": "367b539b-09c8-4a96-8c44-4f18d5b03d91",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.050603600Z",
+      "nano": 177739914034700
+    },
+    {
+      "call": "391c1ecf-0503-4bdb-99f4-f725cf9ed3d5",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.051606300Z",
+      "nano": 177739915040200
+    },
+    {
+      "call": "955efc85-8e4c-43d1-806b-b89f53ce138b",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.053103800Z",
+      "nano": 177739916349500
+    },
+    {
+      "call": "369817dd-5543-4fcc-88b8-6276aa516966",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.054102100Z",
+      "nano": 177739917579100
+    },
+    {
+      "call": "c51d54fd-d028-4e49-8ba6-ad84ed0e3a6a",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.055100800Z",
+      "nano": 177739918563500
+    },
+    {
+      "call": "6bf70270-70d0-466b-9353-498826d5b98b",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.056102100Z",
+      "nano": 177739919492100
+    },
+    {
+      "call": "dd52a1fa-6243-43ff-a1ba-5e9bb2bce2f9",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.057627500Z",
+      "nano": 177739921383300
+    },
+    {
+      "call": "e304a0b9-11e0-43a9-b7da-3e612bc6bcfb",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.060266Z",
+      "nano": 177739923654800
+    },
+    {
+      "call": "f37601da-9760-4fc6-8fe3-d4c7f5f9b89d",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.061264700Z",
+      "nano": 177739925012600
+    },
+    {
+      "call": "709abd35-04a6-45a6-9524-3b1e5fdee946",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.062780400Z",
+      "nano": 177739926068300
+    },
+    {
+      "call": "829b070a-b596-4a84-a2bb-c58d5da0acd9",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.081348Z",
+      "nano": 177739944629400
+    },
+    {
+      "call": "a377cf4c-0368-4e5e-a70a-da84a48ef7f9",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.082345800Z",
+      "nano": 177739945726500
+    },
+    {
+      "call": "1afd8d11-e2b1-4f4f-8ca1-a477feb58a95",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.084348900Z",
+      "nano": 177739947686600
+    },
+    {
+      "call": "f8735266-80ab-456f-af7e-d0a44fe25c9f",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.085346600Z",
+      "nano": 177739948561500
+    },
+    {
+      "call": "831a897f-2598-475a-b547-18be4aca57bd",
+      "stage": "load_start",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.086344700Z",
+      "nano": 177739949580000
+    },
+    {
+      "call": "6bf70270-70d0-466b-9353-498826d5b98b",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.087345500Z",
+      "nano": 177739950552300
+    },
+    {
+      "call": "c51d54fd-d028-4e49-8ba6-ad84ed0e3a6a",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.088348Z",
+      "nano": 177739951671600
+    },
+    {
+      "call": "f37601da-9760-4fc6-8fe3-d4c7f5f9b89d",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.102845800Z",
+      "nano": 177739966524200
+    },
+    {
+      "call": "709abd35-04a6-45a6-9524-3b1e5fdee946",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.104346100Z",
+      "nano": 177739967560800
+    },
+    {
+      "call": "dd52a1fa-6243-43ff-a1ba-5e9bb2bce2f9",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.105350300Z",
+      "nano": 177739968631800
+    },
+    {
+      "call": "f8735266-80ab-456f-af7e-d0a44fe25c9f",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.107363800Z",
+      "nano": 177739970927800
+    },
+    {
+      "call": "831a897f-2598-475a-b547-18be4aca57bd",
+      "stage": "load_end",
+      "product": "P-1001",
+      "node": "commerce2",
+      "pid": 26552,
+      "at": "2026-10-27T03:38:00.109846100Z",
+      "nano": 177739973025600
+    }
+  ],
+  "summary": {
+    "rebuilds": 30,
+    "peak": 16,
+    "sql": 120,
+    "success": 30,
+    "rejected": 0,
+    "errors": 0,
+    "requests": 30
+  },
+  "expected": "2347cbba81efb02996cb30172e95c122ad9960e4b5d9a8b6c515fbdb00d8df2d",
+  "namespace": "rf:hot:56a1dc2143e44062bda79849e82cac3c:hot-smoke-01:r0-B",
+  "at_ns": 1793072280206168200
+}

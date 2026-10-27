@@ -1,0 +1,70 @@
+{
+  "run_id": "56a1dc2143e44062bda79849e82cac3c",
+  "plan": [
+    {
+      "id": "r0-B",
+      "repeat": 0,
+      "condition": "B",
+      "requests": 30,
+      "product": "P-1001"
+    },
+    {
+      "id": "r0-C",
+      "repeat": 0,
+      "condition": "C",
+      "requests": 30,
+      "product": "P-1001"
+    },
+    {
+      "id": "r1-C",
+      "repeat": 1,
+      "condition": "C",
+      "requests": 30,
+      "product": "P-1001"
+    },
+    {
+      "id": "r1-B",
+      "repeat": 1,
+      "condition": "B",
+      "requests": 30,
+      "product": "P-1001"
+    },
+    {
+      "id": "r2-B",
+      "repeat": 2,
+      "condition": "B",
+      "requests": 30,
+      "product": "P-1001"
+    },
+    {
+      "id": "r2-C",
+      "repeat": 2,
+      "condition": "C",
+      "requests": 30,
+      "product": "P-1001"
+    }
+  ],
+  "created_ns": 1793072355778101600,
+  "files": {
+    "scripts/evaluation/backend_hot_rebuild.py": "aaac726eb3ea8662923b8e8177d33eb79636213820eb05cad922ab6f17fcb11e",
+    "scripts/evaluation/backend_d5_http.py": "0825d7f1d57da317274f92ff923195dd473e3ad2557f60690291bce81101f961",
+    "scripts/evaluation/backend_d5_rebuild.py": "74f80a4dc18eca23692f66d29cee0c006db921c5a5e8018a5f316b2d9a99b498",
+    "scripts/evaluation/backend_d5_rebuild_audit.py": "c81d24122f4104a834385e1c765d81114ff5894f58d7f0e7121de61a30771a66",
+    "scripts/evaluation/backend_d5_rebuild_support.py": "cc70c5bec347f6dda3a247ce07019496b3d7dca1cee2f09c5b3272e525517e74",
+    "scripts/evaluation/backend_d5_faults.py": "ff5a9fd3b8bfe88a0d7aac88b4f35b21f892c125ff664ac3ecc941d713dda8ab",
+    "scripts/evaluation/backend_d5_normal.py": "93dc23c0c6d2146b9a09b0a37b616461189362560d18ac96263f457783cdffc6",
+    "scripts/evaluation/backend_d5_runtime.py": "1689cdea21579e427acb2c5601e2524b825fdb20eb8c08fa2cea89f2dd325eb1",
+    "scripts/evaluation/backend_lab.py": "89112e520d9488793ab30da7adcf7665403b7aac1fe4e67f33fe453ce4c84138",
+    "scripts/evaluation/trade_request_journal.py": "fe5cb7785f25f4a0ca83b30fc21fabd8b66c8cd0c8b3979cbd5abcd276d2ef6d",
+    "tmp/backend-resume-v1/56a1dc2143e44062bda79849e82cac3c/probe-classes-v3/com/resolveflow/evaluation/D5Probe$1.class": "771815a013ecf55aa8bcca5ea8407f4a5c4ee9a31726e321580810c49727b20d",
+    "tmp/backend-resume-v1/56a1dc2143e44062bda79849e82cac3c/probe-classes-v3/com/resolveflow/evaluation/D5Probe$CountedSource.class": "88d169a69bca14698d3faf33c40d3874308f6712bfdf59e90964e18caf878b57",
+    "tmp/backend-resume-v1/56a1dc2143e44062bda79849e82cac3c/probe-classes-v3/com/resolveflow/evaluation/D5Probe$Gate.class": "838dc895436b8f64488ef5762f1107a52c5149308bb53aab7d7afe5264e487dc",
+    "tmp/backend-resume-v1/56a1dc2143e44062bda79849e82cac3c/probe-classes-v3/com/resolveflow/evaluation/D5Probe.class": "03f82867ba632216cf1f12d196b4de5db249ba17038017791de889de944c770c",
+    "tmp/backend-resume-v1/56a1dc2143e44062bda79849e82cac3c/d5-builds.json": "311ae253e9d2af38307a7ca45ca1710e7c652c296f72912f0019d9e16cecff6b",
+    "tmp/backend-resume-v1/56a1dc2143e44062bda79849e82cac3c/dataset-checked.json": "94259054edf396c83403e04ab62d11a626b96672c7d8dc3419e2264bb43bc42e",
+    "tmp/backend-resume-v1/56a1dc2143e44062bda79849e82cac3c/http-oracle-development-01.json": "f3ef8176e237ff71e84e131a3f994fb03621350996863f5a9782881ed4bce0cd"
+  },
+  "probe_group": "probe-classes-v3",
+  "model_requests": 0,
+  "method": "natural cold namespace; same D4 Commerce bytes, cache on, only lock switch differs; no artificial gate, no retry, fixed 3 pairs"
+}
