@@ -280,12 +280,6 @@ async def exercise(settings, item, folder, products):
             if scenario == "R04":
                 paused = Paused(settings, "commerce")
                 facts["suspended"] = {"pid": paused.pid, "at_ns": paused.suspended_ns}
-            jobs += [
-                asyncio.create_task(
-                    request(client, settings, NODES[index % 2], product, index)
-                )
-                for index in range(1, count)
-            ]
             if scenario == "R01":
                 controls = await asyncio.gather(
                     *(
@@ -302,6 +296,14 @@ async def exercise(settings, item, folder, products):
                 assert (
                     all(row["status"] == 200 for row in controls) and not first.done()
                 )
+            # Prove different-key isolation before the N30 hot burst fills local DB permits.
+            jobs += [
+                asyncio.create_task(
+                    request(client, settings, NODES[index % 2], product, index)
+                )
+                for index in range(1, count)
+            ]
+            if scenario == "R01":
                 await asyncio.sleep(0.05)
             elif scenario == "R03":
                 await asyncio.sleep(0.05)
