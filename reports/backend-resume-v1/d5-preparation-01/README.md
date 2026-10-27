@@ -29,3 +29,11 @@
 实际命令：模块 freeze_requests 生成 http-oracle-development-01.json；window+score 对P1/P2/P3各10并发2秒，分别226/346/1153，共1725请求全部200且投影一致。只是短开发冒烟，p95不作正式收益。9项单元（runtime4/http5）通过，两模块及测试Ruff通过；真实HTTP反例检查500错误保留实际延迟，不填配置超时值。
 
 门控改为每gate仅首个加载写entered标记，多个加载共享等待，避免无锁组因重复CREATE_NEW误报异常；原探针快照保留，新v2实际编译并启动两服务及Gateway通过。运行器增加独立commerce2、可指定自有Redis/Commerce代理端口与按marker归属停单进程，双实例/代理正式接线尚待下步。0模型/退款执行。
+
+## 双实例与正式入口接线（2026-10-27）
+
+旧Commerce A重新启动后183完整投影与开发候选oracle全部一致。新增 backend_d5_relay.py 为自有连接提供固定双实例HTTP轮转及Redis drop/stall/normal控制；真实网络反例验证分流2/2、未授权控制403、暂停转发/恢复和断连EOF。backend_d5_normal.py固定48窗口及ABC/BCA/CAB、AB/BA/AB顺序，正式30秒预热/60秒采样，逐窗口独立namespace、冷读、warmup、SQL前后快照、路由计数及hash；已开始未完成窗口拒绝重做。
+
+实际 `python -m evaluation.backend_d5_normal smoke --run-id 56a1dc2143e44062bda79849e82cac3c --cohort normal-development-01`：八构建/开关组合各10并发、1秒预热+2秒采样全部正确；数值见 normal-development-summary.json，只属开发接线，不宣称性能改善。正式入口和评分器hash/运行端口/探针版本在freeze中绑定，运行前逐项复核，后续新增故障模块使用独立manifest。
+
+新v3探针仅在开启事件时记录真实RLock tryLock等待/结果、owns与unlock，不改原调用参数或业务结果。实际双Commerce受控冷态10请求为1个200+9个503（首次客户端冷启动约1秒），事件仅一次页面加载；释放后10秒预热1480/1480正确、2秒采样147/147正确。门控事件和正式热态指标分开，503保留。v1/v2构建与记录不覆盖。11单元/Ruff通过，0收费/退款执行。正式48窗口/15故障/R120仍未开始。

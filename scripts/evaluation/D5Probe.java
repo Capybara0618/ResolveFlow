@@ -41,6 +41,29 @@ public final class D5Probe {
     static Object invoke(Object target,Method method,Object[] args)throws Throwable {
         try{return method.invoke(target,args);}catch(InvocationTargetException error){throw error.getCause();}
     }
+    static Object measuredClient(Object bean,String name) {
+        if(!name.equals("reviewRebuildClient"))return bean;
+        try {
+            Class<?> client=Class.forName("org.redisson.api.RedissonClient"),lock=Class.forName("org.redisson.api.RLock");
+            return Proxy.newProxyInstance(client.getClassLoader(),new Class<?>[]{client},(p,m,a)->{
+                Object value=invoke(bean,m,a);
+                if(!m.getName().equals("getLock"))return value;
+                String key=(String)a[0];Object delegate=value;
+                return Proxy.newProxyInstance(lock.getClassLoader(),new Class<?>[]{lock},(p2,m2,a2)->{
+                    String operation=m2.getName();long begin=System.nanoTime();
+                    try {
+                        Object result=invoke(delegate,m2,a2);
+                        if(List.of("tryLock","unlock","isHeldByCurrentThread").contains(operation))
+                            event(Map.of("stage","lock_"+operation,"key",key,"thread",Thread.currentThread().threadId(),"result",String.valueOf(result),"wait_ns",System.nanoTime()-begin));
+                        return result;
+                    }catch(Throwable error){
+                        event(Map.of("stage","lock_error","operation",operation,"key",key,"thread",Thread.currentThread().threadId(),"error",error.getClass().getSimpleName(),"wait_ns",System.nanoTime()-begin));
+                        throw error;
+                    }
+                });
+            });
+        }catch(ClassNotFoundException absent){throw new IllegalStateException("lock bean without lock API",absent);}
+    }
     static class CountedSource extends DelegatingDataSource implements AutoCloseable {
         CountedSource(DataSource target){super(target);}
         @Override public void close()throws Exception {if(getTargetDataSource() instanceof AutoCloseable target)target.close();}
@@ -105,7 +128,7 @@ public final class D5Probe {
         if(identity==null||!identity.matches("[a-f0-9]{32}")||node==null||!node.matches("[a-z0-9_-]{1,40}")||!Files.isDirectory(folder))throw new IllegalArgumentException("explicit owned D5 bootstrap arguments required");
         var app=new SpringApplication(Class.forName(args[0]));
         app.addInitializers(ctx->ctx.getBeanFactory().addBeanPostProcessor(new BeanPostProcessor(){
-            @Override public Object postProcessAfterInitialization(Object bean,String name){return bean instanceof DataSource ds?new CountedSource(ds):bean;}
+            @Override public Object postProcessAfterInitialization(Object bean,String name){return bean instanceof DataSource ds?new CountedSource(ds):measuredClient(bean,name);}
         }));
         context=app.run(Arrays.copyOfRange(args,1,args.length));attachReviewProbe();
         var server=HttpServer.create(new InetSocketAddress("127.0.0.1",Integer.getInteger("rf.d5.probe-port")),0);
