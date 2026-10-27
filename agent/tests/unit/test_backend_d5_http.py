@@ -95,3 +95,33 @@ def test_real_http_failure_keeps_actual_latency_and_denominator(tmp_path):
             await window("http://127.0.0.1:1", cohort(), "P1", 1, 0.01, path)
 
     asyncio.run(exercise())
+
+
+def test_fault_recovery_clock_includes_time_since_actual_restore():
+    import time
+
+    from evaluation.backend_d5_faults import recovery
+
+    async def exercise():
+        async def answer(request):
+            return web.json_response({"answer": 42})
+
+        app = web.Application()
+        app.router.add_get("/a", answer)
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, "127.0.0.1", 0)
+        await site.start()
+        port = site._server.sockets[0].getsockname()[1]
+        anchor = time.time_ns() - 2_000_000_000
+        try:
+            result = await recovery(f"http://127.0.0.1:{port}", cohort(), "P1", anchor)
+            assert result["anchor_ns"] == anchor
+            assert 2 <= result["first_success_seconds"] < 5
+            assert len(result["followup"]) == 10 and all(r["correct"] for r in result["followup"])
+            expired = await recovery(f"http://127.0.0.1:{port}", cohort(), "P1", time.time_ns() - 6_000_000_000)
+            assert expired["first_success_seconds"] is None and expired["observations"] == []
+        finally:
+            await runner.cleanup()
+
+    asyncio.run(exercise())

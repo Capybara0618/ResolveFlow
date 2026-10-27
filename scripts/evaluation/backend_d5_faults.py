@@ -85,21 +85,33 @@ def check_inputs(settings, folder, expected):
     return manifest
 
 
-async def recovery(base, cohort, profile):
+async def recovery(base, cohort, profile, anchor_ns=None):
     spec = cohort["specs"][cohort["profiles"][profile][0]]
     tokens = {spec["actor"]: fixture_token(spec["actor"])} if spec.get("actor") else {}
     started = time.perf_counter()
+    anchor_ns = anchor_ns or time.time_ns()
     rows, first = [], None
     async with session(1) as client:
-        while time.perf_counter() - started < 5 and first is None:
+        while (time.time_ns() - anchor_ns) / 1e9 < 5 and first is None:
             row, _ = await fetch(client, base, spec, tokens)
-            rows.append({"offset_seconds": time.perf_counter() - started, **row})
+            rows.append(
+                {
+                    "offset_seconds": time.perf_counter() - started,
+                    "completed_ns": time.time_ns(),
+                    **row,
+                }
+            )
             if row["correct"]:
-                first = time.perf_counter() - started
+                first = (time.time_ns() - anchor_ns) / 1e9
             else:
                 await asyncio.sleep(0.05)
         follow = [(await fetch(client, base, spec, tokens))[0] for _ in range(10)]
-    return {"observations": rows, "first_success_seconds": first, "followup": follow}
+    return {
+        "observations": rows,
+        "first_success_seconds": first,
+        "followup": follow,
+        "anchor_ns": anchor_ns,
+    }
 
 
 def execute(settings, folder, smoke=False):
@@ -166,7 +178,9 @@ def execute(settings, folder, smoke=False):
         )
         after = {role: probe(settings, role) for role in roles}
         restored = relay_control(settings, "normal")
-        recovered = asyncio.run(recovery(base, cohort, item["profile"]))
+        recovered = asyncio.run(
+            recovery(base, cohort, item["profile"], restored["history"][-1]["at_ns"])
+        )
         settled = {role: probe(settings, role) for role in roles}
         result = score(target / "requests.jsonl.gz", cohort, item["profile"], measured)
         sql = sum(after[r]["sql"] - before[r]["sql"] for r in roles)
@@ -177,6 +191,9 @@ def execute(settings, folder, smoke=False):
         )
         passed = (
             not result["errors"].get("PROJECTION_MISMATCH")
+            and not any(
+                status not in ("200", "503", "0") for status in result["statuses"]
+            )
             and recovered["first_success_seconds"] is not None
             and recovered["first_success_seconds"] <= 5
             and all(r["correct"] for r in recovered["followup"])
