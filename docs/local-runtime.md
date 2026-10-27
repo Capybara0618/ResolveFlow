@@ -59,3 +59,18 @@ $env:RESOLVEFLOW_MODEL_API_KEY = '你的模型密钥'
 买家浏览商品、按店结算/模拟付款；从订单行咨询Agent，核对并确认人工核查或退款摘要。商家查看事实和建议、核验/审批，Java执行模拟退款，买家查看进度。商家只访问本店，平台管理账号而非代审批。签收后可评价；受控履约工具见 `scripts/logistics_simulator.py --help`。
 
 仅验证源码/核心服务且不调用模型，按[开发验证](development.md)操作，不等同真实模型质量或完整商城初始化验收。
+
+## 精选商品与保留数据更新
+
+当前新初始化目录采用三店、12款商品、15个在售SKU，清单在 `fixtures/catalog/collection-v1.json`。每家四款，耳机/键盘/双肩包双规格，其他单规格。价格单位仍为整数分；限购沿用原规则。
+
+已有30款商品的本机环境不要重新初始化。三Java服务就绪后执行：
+
+```powershell
+agent/.venv/Scripts/python.exe scripts/catalog_collection.py
+agent/.venv/Scripts/python.exe scripts/catalog_collection.py --apply
+```
+
+默认仅预览；apply通过本机8180的商家登录/商品管理API更新，先完整校验基础商品身份，再按expected_version写入，失败即停止，重新执行只处理剩余差异。原商品快照自动留在忽略的 `tmp/catalog-collection/`。只下架非精选基础商品及规格，保留全部原SKU、当前价格、用户自建商品、购物车、订单和退款数据；商品被改名或规格身份变化时拒绝自动覆盖。
+
+维护命令不调用模型、不生成交易、不触发退款，也不自动启动调查worker。新初始化与已有数据更新是两条独立路径，普通start不重复执行目录更新。

@@ -40,16 +40,16 @@ def test_merge_backup_failure_never_converts_or_rebuilds():
 
 def test_baseline_counts_and_independent_store_accounts():
     data = foundation_data.catalog()
-    assert (len(data["stores"]), len(data["products"]), len(data["skus"])) == (3, 30, 45)
-    assert len({s["sku_id"] for s in data["skus"]}) == 45
-    assert len({p["product_id"] for p in data["products"]}) == 30
+    assert (len(data["stores"]), len(data["products"]), len(data["skus"])) == (3, 12, 15)
+    assert len({s["sku_id"] for s in data["skus"]}) == 15
+    assert len({p["product_id"] for p in data["products"]}) == 12
     rows = foundation_data.accounts()
     assert len(rows) == len({a["username"] for a in rows}) == 14
     assert sum(a["role"] == "CUSTOMER" for a in rows) == 10
     for store in data["stores"]:
         owned = [a for a in rows if a["merchant_id"] == store["store_id"]]
         assert sorted(a["role"] for a in owned) == ["MERCHANT_ADMIN"]
-        assert sum(p["store_id"] == store["store_id"] for p in data["products"]) == 10
+        assert sum(p["store_id"] == store["store_id"] for p in data["products"]) == 4
 
 
 def test_reset_without_explicit_flag_never_stops_or_clears():

@@ -281,8 +281,8 @@ def verify(settings: demo.Settings) -> dict:
         "case_db.platform_buyer": 10,
         "case_db.buyer_customer_binding": 30,
         "commerce_db.catalog_store": 3,
-        "commerce_db.catalog_product": 30,
-        "commerce_db.catalog_sku": 45,
+        "commerce_db.catalog_product": len(catalog()["products"]),
+        "commerce_db.catalog_sku": len(catalog()["skus"]),
     }
     observed = {
         table: int(demo.mysql_scalar(f"SELECT COUNT(*) FROM {table}", settings) or -1)

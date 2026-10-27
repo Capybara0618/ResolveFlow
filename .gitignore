@@ -237,3 +237,7 @@ tmp/
 /agent/tests/unit/test_support_policy_batch_live_driver.py
 /agent/tests/unit/test_support_summary_live_driver.py
 /agent/tests/unit/test_trade_request_journal.py
+
+# Curated catalog maintenance and regression checks
+!/scripts/catalog_collection.py
+!/agent/tests/unit/test_catalog_collection.py

@@ -47,7 +47,7 @@ PRODUCTS = [
 ]
 
 
-def catalog() -> dict:
+def catalog(*, curated: bool = True) -> dict:
     stores, products, skus = [], [], []
     for index, (merchant, name, description, category) in enumerate(STORES, 1):
         stores.append({"store_id": merchant, "name": name, "description": description})
@@ -77,6 +77,22 @@ def catalog() -> dict:
                         "max_quantity": 10,
                     }
                 )
+    if curated:
+        import json
+        from pathlib import Path
+
+        selected = json.loads(
+            (
+                Path(__file__).resolve().parents[1]
+                / "fixtures/catalog/collection-v1.json"
+            ).read_text(encoding="utf-8")
+        )["products"]
+        products = [{k: v for k, v in p.items() if k != "skus"} for p in selected]
+        skus = [
+            {k: v for k, v in s.items() if k != "image"}
+            for p in selected
+            for s in p["skus"]
+        ]
     return {"stores": stores, "products": products, "skus": skus}
 
 

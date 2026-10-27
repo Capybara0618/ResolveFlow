@@ -1,0 +1,246 @@
+{
+  "version": "collection-v1",
+  "description": "三店十二款精选演示商品；AI商品视觉素材，不代表真实品牌或实物测评。",
+  "products": [
+    {
+      "product_id": "P-1001",
+      "store_id": "M-1001",
+      "name": "无线降噪耳机",
+      "description": "包耳式轮廓与柔软耳垫，黑色沉稳，银色轻盈，适合日常聆听与桌面搭配。",
+      "category": "electronics",
+      "asset_key": "headphones",
+      "skus": [
+        {
+          "sku_id": "SKU-1001-01",
+          "product_id": "P-1001",
+          "variant": "黑色",
+          "unit_amount": 32900,
+          "max_quantity": 10,
+          "image": "headphones-black"
+        },
+        {
+          "sku_id": "SKU-1001-02",
+          "product_id": "P-1001",
+          "variant": "银色",
+          "unit_amount": 34900,
+          "max_quantity": 10,
+          "image": "headphones-silver"
+        }
+      ]
+    },
+    {
+      "product_id": "P-1002",
+      "store_id": "M-1001",
+      "name": "机械键盘",
+      "description": "紧凑键位与简洁配色，保留日常输入所需的清晰布局，搭配干净的工作台。",
+      "category": "electronics",
+      "asset_key": "keyboard",
+      "skus": [
+        {
+          "sku_id": "SKU-1002-01",
+          "product_id": "P-1002",
+          "variant": "白色",
+          "unit_amount": 19900,
+          "max_quantity": 10,
+          "image": "keyboard-white"
+        },
+        {
+          "sku_id": "SKU-1002-02",
+          "product_id": "P-1002",
+          "variant": "深灰色",
+          "unit_amount": 21900,
+          "max_quantity": 10,
+          "image": "keyboard-gray"
+        }
+      ]
+    },
+    {
+      "product_id": "P-1004",
+      "store_id": "M-1001",
+      "name": "蓝牙音箱",
+      "description": "织物包覆的简洁机身，让音乐自然融入桌面与日常生活。",
+      "category": "electronics",
+      "asset_key": "speaker",
+      "skus": [
+        {
+          "sku_id": "SKU-1004-01",
+          "product_id": "P-1004",
+          "variant": "黑色",
+          "unit_amount": 15900,
+          "max_quantity": 10,
+          "image": "speaker-black"
+        }
+      ]
+    },
+    {
+      "product_id": "P-1008",
+      "store_id": "M-1001",
+      "name": "便携充电宝",
+      "description": "银色金属质感与便携轮廓，收纳轻松，适合日常通勤携带。",
+      "category": "electronics",
+      "asset_key": "powerbank",
+      "skus": [
+        {
+          "sku_id": "SKU-1008-01",
+          "product_id": "P-1008",
+          "variant": "10000mAh",
+          "unit_amount": 14900,
+          "max_quantity": 10,
+          "image": "powerbank"
+        }
+      ]
+    },
+    {
+      "product_id": "P-2001",
+      "store_id": "M-1002",
+      "name": "桌面台灯",
+      "description": "米白灯罩与简洁底座，为阅读角与工作台增添温柔的光线。",
+      "category": "home",
+      "asset_key": "lamp",
+      "skus": [
+        {
+          "sku_id": "SKU-2001-01",
+          "product_id": "P-2001",
+          "variant": "米白色",
+          "unit_amount": 12900,
+          "max_quantity": 10,
+          "image": "lamp"
+        }
+      ]
+    },
+    {
+      "product_id": "P-2002",
+      "store_id": "M-1002",
+      "name": "保温杯",
+      "description": "银色杯身与简洁杯盖，适合桌面使用与日常随行。",
+      "category": "home",
+      "asset_key": "cup",
+      "skus": [
+        {
+          "sku_id": "SKU-2002-01",
+          "product_id": "P-2002",
+          "variant": "银色",
+          "unit_amount": 8900,
+          "max_quantity": 10,
+          "image": "cup"
+        }
+      ]
+    },
+    {
+      "product_id": "P-2003",
+      "store_id": "M-1002",
+      "name": "棉麻靠枕",
+      "description": "细腻棉麻纹理与柔和米色，让沙发和休息角更舒适。",
+      "category": "home",
+      "asset_key": "pillow",
+      "skus": [
+        {
+          "sku_id": "SKU-2003-01",
+          "product_id": "P-2003",
+          "variant": "米色",
+          "unit_amount": 5900,
+          "max_quantity": 10,
+          "image": "pillow"
+        }
+      ]
+    },
+    {
+      "product_id": "P-2004",
+      "store_id": "M-1002",
+      "name": "编织收纳篮",
+      "description": "自然编织纹理与开放式收纳，适合归置桌边与日常小物。",
+      "category": "home",
+      "asset_key": "basket",
+      "skus": [
+        {
+          "sku_id": "SKU-2004-01",
+          "product_id": "P-2004",
+          "variant": "小号",
+          "unit_amount": 3900,
+          "max_quantity": 10,
+          "image": "basket"
+        }
+      ]
+    },
+    {
+      "product_id": "P-3001",
+      "store_id": "M-1003",
+      "name": "轻量双肩包",
+      "description": "轻量轮廓与分区口袋，深蓝沉稳、橄榄绿自然，适合通勤与短途出行。",
+      "category": "outdoor",
+      "asset_key": "backpack",
+      "skus": [
+        {
+          "sku_id": "SKU-3001-01",
+          "product_id": "P-3001",
+          "variant": "深蓝色",
+          "unit_amount": 16900,
+          "max_quantity": 10,
+          "image": "backpack-navy"
+        },
+        {
+          "sku_id": "SKU-3001-02",
+          "product_id": "P-3001",
+          "variant": "橄榄绿",
+          "unit_amount": 18900,
+          "max_quantity": 10,
+          "image": "backpack-olive"
+        }
+      ]
+    },
+    {
+      "product_id": "P-3002",
+      "store_id": "M-1003",
+      "name": "双人露营帐篷",
+      "description": "简洁穹顶结构与自然配色，为双人轻露营准备一处休息空间。",
+      "category": "outdoor",
+      "asset_key": "tent",
+      "skus": [
+        {
+          "sku_id": "SKU-3002-01",
+          "product_id": "P-3002",
+          "variant": "标准款",
+          "unit_amount": 39900,
+          "max_quantity": 10,
+          "image": "tent"
+        }
+      ]
+    },
+    {
+      "product_id": "P-3003",
+      "store_id": "M-1003",
+      "name": "便携折叠椅",
+      "description": "黑色布面与折叠支架，收起便携，展开后享受户外片刻。",
+      "category": "outdoor",
+      "asset_key": "chair",
+      "skus": [
+        {
+          "sku_id": "SKU-3003-01",
+          "product_id": "P-3003",
+          "variant": "黑色",
+          "unit_amount": 12900,
+          "max_quantity": 10,
+          "image": "chair"
+        }
+      ]
+    },
+    {
+      "product_id": "P-3006",
+      "store_id": "M-1003",
+      "name": "充电露营灯",
+      "description": "暖光灯罩与提手设计，适合营地桌面与帐篷旁的夜间氛围。",
+      "category": "outdoor",
+      "asset_key": "lantern",
+      "skus": [
+        {
+          "sku_id": "SKU-3006-01",
+          "product_id": "P-3006",
+          "variant": "暖光款",
+          "unit_amount": 8900,
+          "max_quantity": 10,
+          "image": "lantern"
+        }
+      ]
+    }
+  ]
+}
