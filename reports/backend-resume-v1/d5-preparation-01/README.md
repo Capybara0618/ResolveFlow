@@ -55,3 +55,5 @@ R02异常明确发生在查询快照完成后，不称数据库SQL异常；R04�
 故障开发样本计划补齐真实TTL和超时：R开发16条件=六场景B/C首轮12条件+R01真实30秒到期/N30两条件+R06命令超时/N30两条件，独立于正式R120。避免仅用冷态/断连冒烟后直接进入到期/超时正式轮；新增断言并目标运行 `pytest .../test_backend_d5_rebuild.py -q -k 120_rebuild`：1 passed/8 deselected，相关Ruff通过（仍累计21不同检查）。尚未实际创建这些开发样本或运行新探针；正常48窗继续沿原manifest。
 
 开发cohort隔离反例：先用两份临时目录/SQL响应桩调用开发数据准备，新批次仍生成相同产品ID，目标检查按预期1 failed（8.11秒，日志tmp/backend-d5-cohort-identity-first-fail.log），未访问真实数据库。修正UUID标签加入data-cohort、gate标记绑定完整cohort/round路径；新两批各56产品ID完全不重合、同轮gate在不同批次不同，目标1 passed/9 deselected及Ruff通过（累计22不同检查）。原开始/完整标记仍拒绝同批重复执行，不借新cohort重跑正式失败；本修正只在正式故障冻结前开发，normal-v1不变。
+
+恢复验收补充真实缓存命中证据：HTTP200可能仍来自降级数据库读取，不能据此称缓存已恢复。先新增目标反例，旧签名1 failed（TypeError，日志tmp/backend-d5-cache-recovery-first-fail.log）；新故障观察器在实际解除事件后5秒内分别记录first_success与first_cache_hit，命中计量来自服务实际cache hit counter，之后再10次完整投影读。目标与原时间起点检查2 passed/5 deselected；首次Ruff指出回调loop变量绑定，显式绑定后通过，未改正常批次（累计23不同检查）。新故障入口仍未执行真实15窗。

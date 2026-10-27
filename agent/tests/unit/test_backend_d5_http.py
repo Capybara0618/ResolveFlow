@@ -125,3 +125,30 @@ def test_fault_recovery_clock_includes_time_since_actual_restore():
             await runner.cleanup()
 
     asyncio.run(exercise())
+
+
+def test_http_success_alone_does_not_prove_cache_recovery():
+    from evaluation.backend_d5_faults import recovery
+
+    async def exercise():
+        async def answer(request):
+            return web.json_response({"answer": 42})
+
+        app = web.Application()
+        app.router.add_get("/a", answer)
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, "127.0.0.1", 0)
+        await site.start()
+        port = site._server.sockets[0].getsockname()[1]
+        observations = iter([0, 0, 1])
+        try:
+            result = await recovery(
+                f"http://127.0.0.1:{port}", cohort(), "P1", cache_hit_observer=lambda: next(observations)
+            )
+            assert len(result["observations"]) == 2
+            assert result["first_cache_hit_seconds"] >= result["first_success_seconds"]
+        finally:
+            await runner.cleanup()
+
+    asyncio.run(exercise())

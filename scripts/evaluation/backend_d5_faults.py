@@ -85,14 +85,15 @@ def check_inputs(settings, folder, expected):
     return manifest
 
 
-async def recovery(base, cohort, profile, anchor_ns=None):
+async def recovery(base, cohort, profile, anchor_ns=None, cache_hit_observer=None):
     spec = cohort["specs"][cohort["profiles"][profile][0]]
     tokens = {spec["actor"]: fixture_token(spec["actor"])} if spec.get("actor") else {}
     started = time.perf_counter()
     anchor_ns = anchor_ns or time.time_ns()
-    rows, first = [], None
+    rows, first, cache_first = [], None, None
+    initial_hits = cache_hit_observer() if cache_hit_observer else None
     async with session(1) as client:
-        while (time.time_ns() - anchor_ns) / 1e9 < 5 and first is None:
+        while (time.time_ns() - anchor_ns) / 1e9 < 5:
             row, _ = await fetch(client, base, spec, tokens)
             rows.append(
                 {
@@ -102,7 +103,13 @@ async def recovery(base, cohort, profile, anchor_ns=None):
                 }
             )
             if row["correct"]:
-                first = (time.time_ns() - anchor_ns) / 1e9
+                if first is None:
+                    first = (time.time_ns() - anchor_ns) / 1e9
+                if cache_hit_observer is None:
+                    break
+                if cache_hit_observer() > initial_hits:
+                    cache_first = (time.time_ns() - anchor_ns) / 1e9
+                    break
             else:
                 await asyncio.sleep(0.05)
         follow = [(await fetch(client, base, spec, tokens))[0] for _ in range(10)]
@@ -111,7 +118,27 @@ async def recovery(base, cohort, profile, anchor_ns=None):
         "first_success_seconds": first,
         "followup": follow,
         "anchor_ns": anchor_ns,
+        "first_cache_hit_seconds": cache_first,
     }
+
+
+def cache_hits(settings, roles, profile):
+    name = (
+        "resolveflow.review.cache"
+        if profile == "P1"
+        else "resolveflow.product_reviews.cache"
+    )
+    nodes = (
+        ["case"] if profile == "P1" else [r for r in roles if r.startswith("commerce")]
+    )
+    return sum(
+        value
+        for node in nodes
+        for key, value in probe(settings, node)["meters"].items()
+        if key.startswith(name + "[")
+        and "outcome=hit" in key
+        and key.endswith(":COUNT")
+    )
 
 
 def execute(settings, folder, smoke=False):
@@ -179,7 +206,15 @@ def execute(settings, folder, smoke=False):
         after = {role: probe(settings, role) for role in roles}
         restored = relay_control(settings, "normal")
         recovered = asyncio.run(
-            recovery(base, cohort, item["profile"], restored["history"][-1]["at_ns"])
+            recovery(
+                base,
+                cohort,
+                item["profile"],
+                restored["history"][-1]["at_ns"],
+                cache_hit_observer=lambda nodes=roles, profile=item["profile"]: (
+                    cache_hits(settings, nodes, profile)
+                ),
+            )
         )
         settled = {role: probe(settings, role) for role in roles}
         result = score(target / "requests.jsonl.gz", cohort, item["profile"], measured)
@@ -196,6 +231,8 @@ def execute(settings, folder, smoke=False):
             )
             and recovered["first_success_seconds"] is not None
             and recovered["first_success_seconds"] <= 5
+            and recovered["first_cache_hit_seconds"] is not None
+            and recovered["first_cache_hit_seconds"] <= 5
             and all(r["correct"] for r in recovered["followup"])
             and all(r["sql_inflight"] == 0 for r in settled.values())
         )
