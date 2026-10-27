@@ -1,8 +1,8 @@
 # Agent业务与执行规格 · v1.3（业务沿用v1.2）
 
-主线见[Harness](agent-harness.md)。Python/FastAPI保留现有锁，Agent框架目标改为AgentScope 2.x SDK，先按[迁移规格](agentscope-migration.md)验证后锁定；单Agent按Observation选择下一行动，Java独立执行退款。核心不是固定workflow，也不是通用Agent产品。
+主线见[Harness](agent-harness.md)。Python/FastAPI保留现有锁，Agent框架目标改为AgentScope 2.x SDK，先按迁移规格（本地历史资料）验证后锁定；单Agent按Observation选择下一行动，Java独立执行退款。核心不是固定workflow，也不是通用Agent产品。
 
-2026-10-05当前调查/终止约束见[第三批规格](agent-investigation-batch3.md)：扁平模型动作/一次修复不变，ASK客户前拒绝六类已绑定编号字段；命名丢失/质量条款的退款建议必须引用对应当前来源和关联人工核验。来源检查不等于全部自然语言条件判定或Java授权。当前context v8/verifier v4，版本不兼容仍不静默迁移；实际质量限制见本批报告。
+2026-10-05当前调查/终止约束见第三批规格（本地历史资料）：扁平模型动作/一次修复不变，ASK客户前拒绝六类已绑定编号字段；命名丢失/质量条款的退款建议必须引用对应当前来源和关联人工核验。来源检查不等于全部自然语言条件判定或Java授权。当前context v8/verifier v4，版本不兼容仍不静默迁移；实际质量限制见本批报告。
 
 ## 1. 状态与输入
 
@@ -23,7 +23,7 @@ run状态沿用QUEUED/RUNNING/CALLBACK_PENDING/WAITING_INPUT/COMPLETED/FAILED/CA
 
 损坏/签收争议即使模型建议退款也必须Java人工路由。未知动作、身份字段、任意URL或写工具拒绝。
 
-2026-10-05模型输入协议增加当前run的O/P短引用，见[规则与引用规格](agent-context-protocol.md)。五MCP直接可用，动作/建议字段仍常驻；短引用在严格ABI验证前确定性展开为原有完整契约对象，模型账保留原始响应，SDK/最终回调使用完整身份。事实、版本、冲突、政策条件和后台hash校验不删，不允许模型创建映射；旧完整对象兼容，旧run不静默换manifest。
+2026-10-05模型输入协议增加当前run的O/P短引用，见规则与引用规格（本地历史资料）。五MCP直接可用，动作/建议字段仍常驻；短引用在严格ABI验证前确定性展开为原有完整契约对象，模型账保留原始响应，SDK/最终回调使用完整身份。事实、版本、冲突、政策条件和后台hash校验不删，不允许模型创建映射；旧完整对象兼容，旧run不静默换manifest。
 
 ## 3. MCP白名单
 
@@ -41,7 +41,7 @@ run状态沿用QUEUED/RUNNING/CALLBACK_PENDING/WAITING_INPUT/COMPLETED/FAILED/CA
 
 ## 4. 预算
 
-默认每run最多12次模型调用（含修复/网络重试）、16次外部工具/检索attempt、8次本地读，用于终止和防循环；新run累计输入/输出token只记录、不设消费上限（2026-10-05用户授权，见[用量规则](model-usage-policy.md)）。单步输入8192/输出1024、单模型timeout30秒继续控制请求大小和时间。工具最多额外重试2次、模型1次，只有一层负责重试，所有attempt记录；旧run保留原冻结配置。
+默认每run最多12次模型调用（含修复/网络重试）、16次外部工具/检索attempt、8次本地读，用于终止和防循环；新run累计输入/输出token只记录、不设消费上限（2026-10-05用户授权，见用量规则（本地历史资料））。单步输入8192/输出1024、单模型timeout30秒继续控制请求大小和时间。工具最多额外重试2次、模型1次，只有一层负责重试，所有attempt记录；旧run保留原冻结配置。
 
 case提交控制面deadline默认10分钟；首次开始调查固化active_deadline=min(deadline,开始+120秒)。同run恢复不延期，停机/重试消耗窗口。落库方案的回调重试不受调查窗口限制，但仍查revision。
 

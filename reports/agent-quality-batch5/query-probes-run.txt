@@ -1,5 +1,0 @@
-Building prefix dict from the default dictionary ...
-Loading model from cache C:\Users\hjn\AppData\Local\Temp\jieba.cache
-Loading model cost 0.373 seconds.
-Prefix dict has been built successfully.
-{"external_faq_diagnostic/dense": {"n": 33, "unscored_n": 33, "accuracy": null, "errors": 0, "filter_violations": 0, "mean_returned_chars_at_2": 225.45}, "external_faq_diagnostic/bm25": {"n": 33, "unscored_n": 33, "accuracy": null, "errors": 0, "filter_violations": 0, "mean_returned_chars_at_2": 222.06}, "current_live_query_probe/dense": {"n": 33, "unscored_n": 33, "accuracy": null, "errors": 0, "filter_violations": 0, "mean_returned_chars_at_2": 223.45}, "current_live_query_probe/bm25": {"n": 33, "unscored_n": 33, "accuracy": null, "errors": 0, "filter_violations": 0, "mean_returned_chars_at_2": 212.7}}

@@ -1,2 +1,0 @@
-All checks passed!
-mypy --strict --follow-imports=silent: Success: no issues found in 3 source files

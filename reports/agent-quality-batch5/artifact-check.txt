@@ -1,1 +1,0 @@
-{"owned_files": 49, "missing_links": [], "detected_key_leaks": [], "key_values_checked": 1, "original_live_dependency_hashes_unchanged": true, "final_analysis_script_hashes_match": true}

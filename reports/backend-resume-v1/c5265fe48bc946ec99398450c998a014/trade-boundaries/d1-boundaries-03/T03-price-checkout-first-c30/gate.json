@@ -1,5 +1,0 @@
-{
-  "table": "checkout_draft_line",
-  "first_actor_pending_statement": "INSERT INTO checkout_draft(",
-  "order": "checkout-first"
-}

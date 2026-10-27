@@ -113,10 +113,3 @@ def test_four_real_runtime_turns_and_saved_decisions_reconstruct_identical_memor
     assert results[-1]["answer"]["task_state"]["tasks"][0]["status"] == "CANCELLED"
     active_ids = [e["id"] for e in results[-1]["answer"]["customer_memory"]["entries"] if e["status"] == "ACTIVE"]
     assert active_ids == ["found"]
-
-
-def test_previous_frozen_readiness_manifest_is_not_silently_rewritten():
-    from scripts.customer_agent_readiness import load_plan
-
-    with pytest.raises(ValueError, match="frozen source changed"):
-        load_plan()

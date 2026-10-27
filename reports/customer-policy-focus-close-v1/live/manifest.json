@@ -1,9 +1,0 @@
-{
-  "scope": "Three targeted real-model policy confirmations on synthetic saved history and pinned local policies; not a resume benchmark",
-  "total_model_attempt_limit": 12,
-  "cases": {
-    "original-followup": "03d9395797abf4a52d0f2f174a84f9fd9f7bc869c8df6da1964f081ded98766d",
-    "topic-switch-quality": "68303293b34d7fcc5a5f71480c9f8730ede83bf24e2250f3ab974e5384ddc278",
-    "hypothetical-loss": "6e3cd7a03efb87cbc36a77c3a7913b46e339efe24a714361697d4361f5d1eecb"
-  }
-}

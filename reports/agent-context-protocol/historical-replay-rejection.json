@@ -1,6 +1,0 @@
-{
-  "pack": "evals/replay/context-v3/manual_review",
-  "expected": "PACK_INVALID",
-  "actual": "PACK_INVALID: incompatible harness manifest/state/code",
-  "network_calls": 0
-}

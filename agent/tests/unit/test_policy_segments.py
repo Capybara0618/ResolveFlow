@@ -1,8 +1,9 @@
 from types import SimpleNamespace
 
 import pytest
-from agent.tests.unit.test_policy_chunks import CharacterTokenizer
+
 from resolveflow.policies.segments import split_for_encoder
+from tests.tokenizers import CharacterTokenizer
 
 
 def test_segments_preserve_full_rule_including_trailing_exception():

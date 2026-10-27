@@ -1,8 +1,8 @@
 # 核心版协议目标 · v1.2
 
-2026-10-20：本地[物流模拟器](logistics-simulator.md)通过V16事务过程追加已发货整单的物流事实/版本，独立保存幂等收据和可恢复查询故障；没有新增用户HTTP写接口/Agent写工具。现有`GET /internal/v1/order-lines/{line_id}/shipment`补充503响应，使用统一ApiError、`code=UPSTREAM_UNAVAILABLE`/`retryable=true`；成功ShipmentSnapshot不增加字段。查询在同一只读快照中取得状态与事件，模拟故障不更改物流结论。
+2026-10-20：本地物流模拟器（本地历史资料）通过V16事务过程追加已发货整单的物流事实/版本，独立保存幂等收据和可恢复查询故障；没有新增用户HTTP写接口/Agent写工具。现有`GET /internal/v1/order-lines/{line_id}/shipment`补充503响应，使用统一ApiError、`code=UPSTREAM_UNAVAILABLE`/`retryable=true`；成功ShipmentSnapshot不增加字段。查询在同一只读快照中取得状态与事件，模拟故障不更改物流结论。
 
-2026-10-03：单账号商家登录/本人身份可选`single_operator: true`（仅MERCHANT_ADMIN）。工单创建事务记录AUTO_ASSIGN/SYSTEM、负责人版本1；该动作只用于历史事件，不允许客户端请求。单账号商家拒绝人员变更和领取/释放/转交/接管；人工写入口继续校验身份/负责人/工单版本/协作版本，路由数不变。旧多人兼容保留，产品角色见[当前规格](merchant-role-merge.md)。
+2026-10-03：单账号商家登录/本人身份可选`single_operator: true`（仅MERCHANT_ADMIN）。工单创建事务记录AUTO_ASSIGN/SYSTEM、负责人版本1；该动作只用于历史事件，不允许客户端请求。单账号商家拒绝人员变更和领取/释放/转交/接管；人工写入口继续校验身份/负责人/工单版本/协作版本，路由数不变。旧多人兼容保留，产品角色见当前规格（本地历史资料）。
 
 这是C00要落地的协议目标，不表示目标Schema/OpenAPI已实现。[contracts.md](contracts.md)及现有根目录Schema/OpenAPI继续作为T02已验证的旧基线。不要直接改其语义后沿用旧版本号。
 
@@ -24,7 +24,7 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 
 ## 3. 核心路由
 
-用户角色来自Case持久账号。REVIEWER/MERCHANT_ADMIN/原OPERATOR读取本商家工单；人工写入必须是当前负责人并携带原业务及协作版本，管理员须显式接管。CUSTOMER分旧商家客户和平台买家两种互斥身份，后者只携带buyer_id，经可信(merchant,customer)映射汇总本人订单/申请及限定实际资源的售后操作；客户不能修改映射、扩大工作人员或Agent范围。仅MERCHANT_ADMIN可维护本商家账号，平台买家不属于商家管理员维护范围。内部订单keyset由共享v2游标保留微秒，兼容旧毫秒编码；平台外层游标绑定买家和启用归属。见[平台买家](platform-buyer.md)、[持久身份](persistent-identity.md)、[协作](case-collaboration.md)及[人员管理](staff-management.md)。
+用户角色来自Case持久账号。REVIEWER/MERCHANT_ADMIN/原OPERATOR读取本商家工单；人工写入必须是当前负责人并携带原业务及协作版本，管理员须显式接管。CUSTOMER分旧商家客户和平台买家两种互斥身份，后者只携带buyer_id，经可信(merchant,customer)映射汇总本人订单/申请及限定实际资源的售后操作；客户不能修改映射、扩大工作人员或Agent范围。仅MERCHANT_ADMIN可维护本商家账号，平台买家不属于商家管理员维护范围。内部订单keyset由共享v2游标保留微秒，兼容旧毫秒编码；平台外层游标绑定买家和启用归属。见平台买家（本地历史资料）、持久身份（本地历史资料）、协作（本地历史资料）及人员管理（本地历史资料）。
 
 | 所属 | 方法与路由 | 行为 |
 | --- | --- | --- |
@@ -201,7 +201,7 @@ command仅action=REFUND、target_service=commerce-service；由Case签名，Comm
 
 `GET /api/v1/cases/{case_id}/review-context` 仅商户人员可读，返回当前工单版本、允许动作、绑定政策原文、人工决定记录和当前授权对应的执行结果。无政策明确 UNAVAILABLE，不推断资格；跨商户与不存在同为404。
 
-`POST /api/v1/cases/{case_id}/review-actions` 必须携带 If-Match。MANUAL_PROPOSAL 接受本工单可读材料的完整来源及绑定政策引用；也可用 `use_order_facts=true`，由服务端重新读取本订单行付款与履约事实、绑定的唯一 `R-UNSHIPPED-001` 并复核全量金额，此模式不得携带客户端引用。原始事实及来源/版本/hash、人工方案、新修订和待审授权同事务写入，只读准备结果不作为提交凭证。其他场景仍人工选择真实材料及政策；金额仍由Java重算，形成授权后单独审批，详见 [处理弹窗合同](merchant-decision-dialogs.md)。REJECT/REQUEST_INFO用于没有有效待审授权的工单，不伪造授权；输入修订与状态同事务更新，使旧Agent结果失效。有授权与无授权的REQUEST_INFO共用同一规则：写稳定`question_id`与问题正文，最多两轮，等待中不重复追问，已到期不再追问；客户回答必须带当前`question_id`，回答推进revision并创建新run绑定。已消费授权禁止全部输入修改。
+`POST /api/v1/cases/{case_id}/review-actions` 必须携带 If-Match。MANUAL_PROPOSAL 接受本工单可读材料的完整来源及绑定政策引用；也可用 `use_order_facts=true`，由服务端重新读取本订单行付款与履约事实、绑定的唯一 `R-UNSHIPPED-001` 并复核全量金额，此模式不得携带客户端引用。原始事实及来源/版本/hash、人工方案、新修订和待审授权同事务写入，只读准备结果不作为提交凭证。其他场景仍人工选择真实材料及政策；金额仍由Java重算，形成授权后单独审批，详见 处理弹窗合同（本地历史资料）。REJECT/REQUEST_INFO用于没有有效待审授权的工单，不伪造授权；输入修订与状态同事务更新，使旧Agent结果失效。有授权与无授权的REQUEST_INFO共用同一规则：写稳定`question_id`与问题正文，最多两轮，等待中不重复追问，已到期不再追问；客户回答必须带当前`question_id`，回答推进revision并创建新run绑定。已消费授权禁止全部输入修改。
 
 队列原参数行为保留；新增 view=REVIEW/WAITING/PROCESSING/ATTENTION/CLOSED/ALL 和 query（工单/订单精确ID或问题描述，最长100字符）。新视图按商户隔离并使用游标分页，过滤变化时前端重置游标；绕开仅服务旧待审列表的缓存。退款结果来自已持久事件并排除标记过期的事件，不将批准视为到账。契约见 core OpenAPI；样例见 `contracts/core/fixtures/reviewer-context.json`（仓库根目录相对路径）。
 ## 审核调查分项输出（2026-09-28增量）

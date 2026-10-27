@@ -1,9 +1,0 @@
-{
-  "orders": 0,
-  "attempts": 1,
-  "receipts": 1,
-  "attempt_id": "e79068f8-5b28-4176-9d25-8fc20388a01d",
-  "draft_status": "PAYMENT_PENDING",
-  "attempt_status": "UNKNOWN",
-  "planned_order_id": "36d5ad76-04ff-458f-a286-8110a44bec21"
-}

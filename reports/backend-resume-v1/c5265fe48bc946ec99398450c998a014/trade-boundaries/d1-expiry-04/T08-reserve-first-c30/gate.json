@@ -1,6 +1,0 @@
-{
-  "status": "PAYMENT_PENDING",
-  "expired": true,
-  "actual_scheduler_claimed_original_attempt": true,
-  "reconcile_count_before_expiry": 0
-}

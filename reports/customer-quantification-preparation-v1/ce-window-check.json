@@ -1,8 +1,0 @@
-{
-  "pairs_checked": 660,
-  "max_pair_tokens": 319,
-  "over_limit": [],
-  "new_model_forward_calls": 0,
-  "new_chat_api_calls": 0,
-  "no_silent_truncation": true
-}

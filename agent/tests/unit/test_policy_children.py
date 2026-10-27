@@ -4,10 +4,11 @@ from types import SimpleNamespace
 
 import pytest
 from agent.tests.conftest import StubEmbedder
-from agent.tests.unit.test_policy_chunks import CharacterTokenizer
+
 from resolveflow.policies.child_index import fingerprint, prepare, validate_children
 from resolveflow.policies.chunking import chunk_of
 from resolveflow.policies.segments import split_for_encoder
+from tests.tokenizers import CharacterTokenizer
 
 
 class Segmented(StubEmbedder):

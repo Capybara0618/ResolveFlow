@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="1.723" timestamp="2026-10-06T18:09:59.839020+08:00" hostname="capykare"><testcase classname="tests.integration.test_replay_golden" name="test_golden_trajectory[alternating_no_progress]" time="0.442" /></testsuite></testsuites>

@@ -1,6 +1,6 @@
 # 系统架构 · v1.3 AgentScope目标版
 
-按[核心范围](core-scope.md)保留v1.2部署与业务；仅Agent框架按[迁移规格](agentscope-migration.md)替换，其他T00实测版本不重选。本页是目标架构，不代表AgentScope代码已实现。
+按[核心范围](core-scope.md)保留v1.2部署与业务；仅Agent框架按迁移规格（本地历史资料）替换，其他T00实测版本不重选。本页是目标架构，不代表AgentScope代码已实现。
 
 ## 1. 部署单元
 

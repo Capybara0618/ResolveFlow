@@ -1,8 +1,0 @@
-{
-  "scope": "Two unchanged retained controls on the same final production policy source as scope-v6-final; no original-followup rerun or resume benchmark",
-  "total_model_attempt_limit": 8,
-  "cases": {
-    "topic-switch-quality": "e53cd5a081f7447ff79d212d117c22e7bcb571d6ace70bad56fc5abbd9a4a1bd",
-    "hypothetical-loss": "45c55bfda279329803b9fe8bfeec40bfb2e8aa817a5ee52432a942c489e2cbc5"
-  }
-}

@@ -1,5 +1,0 @@
-{
-  "table": "catalog_management_audit",
-  "first_actor_pending_statement": "INSERT INTO catalog_management_audit(",
-  "order": "update-first"
-}
