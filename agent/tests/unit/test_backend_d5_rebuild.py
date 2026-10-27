@@ -7,7 +7,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
 from evaluation.backend_d5_faults import plan as faults_plan
-from evaluation.backend_d5_rebuild import plan, rebuild_peak
+from evaluation.backend_d5_rebuild import plan, rebuild_peak, smoke_plan
 from evaluation.backend_d5_rebuild_support import redis, resp
 
 
@@ -31,6 +31,10 @@ def test_120_rebuild_rounds_keep_rotation_load_and_real_ttl_plan():
     assert sum(r["concurrency"] == 10 for r in rows) == sum(r["concurrency"] == 30 for r in rows) == 60
     assert sum(r["ttl"] for r in rows) == 10
     assert Counter(r["redis_fault"] for r in rows if r["scenario"] == "R06") == {"drop": 10, "stall": 10}
+    development = smoke_plan()
+    assert len(development) == 16
+    assert sum(r["ttl"] for r in development) == 2
+    assert sum(r["redis_fault"] == "stall" for r in development) == 2
 
 
 def test_15_fault_windows_have_original_full_duration_and_denominators():

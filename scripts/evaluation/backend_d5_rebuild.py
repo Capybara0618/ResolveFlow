@@ -58,6 +58,16 @@ def plan():
     ]
 
 
+def smoke_plan():
+    return [
+        {**row, "id": "smoke-" + row["id"]}
+        for row in plan()
+        if row["repeat"] == 0
+        or row["repeat"] == 5
+        and row["scenario"] in ("R01", "R06")
+    ]
+
+
 def namespace(settings):
     return "rf:d5:" + settings.identity + ":rebuild-v1"
 
@@ -449,11 +459,7 @@ def prepare_data(settings, folder, smoke=False):
     durable(
         folder / "started.json", {"at_ns": time.time_ns(), "run_id": settings.identity}
     )
-    windows = (
-        [{**r, "id": "smoke-" + r["id"]} for r in plan() if r["repeat"] == 0]
-        if smoke
-        else plan()
-    )
+    windows = smoke_plan() if smoke else plan()
     rows = {}
     for item in windows:
         labels = ["hot", "warm-a", "warm-b"] + (
@@ -480,11 +486,7 @@ def prepare_data(settings, folder, smoke=False):
 def execute(settings, folder, data_folder, smoke=False):
     if not smoke:
         check_inputs(settings, folder, plan())
-    windows = (
-        [{**r, "id": "smoke-" + r["id"]} for r in plan() if r["repeat"] == 0]
-        if smoke
-        else plan()
-    )
+    windows = smoke_plan() if smoke else plan()
     dataset = json.loads((data_folder / "manifest.json").read_text(encoding="utf-8"))
     assert dataset["run_id"] == settings.identity
     for name, wanted in dataset["files"].items():
