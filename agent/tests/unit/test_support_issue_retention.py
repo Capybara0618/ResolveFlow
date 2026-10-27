@@ -15,7 +15,7 @@ from tests.unit.test_support_tasks import task
 
 
 def saved(turn):
-    raw = Path(__file__).resolve().parents[3] / 'reports/customer-agent-experience-v3/runtime-results.json'
+    raw = Path(__file__).resolve().parents[3] / 'agent/tests/fixtures/regressions/customer-agent-experience-v3/runtime-results.json'
     rows = json.loads(raw.read_text(encoding='utf-8'))['rows']
     return next(r for r in rows if r['id'] == 'U05' and r['turn'] == turn)
 

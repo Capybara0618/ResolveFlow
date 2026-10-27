@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from scripts.diagnose_support_boundary_v1 import SavedSources
+from tests.recorded_sources import SavedSources
 
 from resolveflow.runtime.factory import DeploymentConfig
 from resolveflow.support.protocol import SupportInput
@@ -15,7 +15,7 @@ from tests.unit.test_support_agent import request
 
 def test_q01_quote_draft_and_fact_manifest_survive_real_pg_recovery(agent_db):
     root = Path(__file__).resolve().parents[3]
-    row = json.loads((root / "reports/customer-agent-goal-confirm-v1/runtime-results.json").read_text(
+    row = json.loads((root / "agent/tests/fixtures/regressions/customer-agent-goal-confirm-v1/runtime-results.json").read_text(
         encoding="utf-8"))["rows"][0]
     req = SupportInput.model_validate({**row["input"], "deadline_at": request().deadline_at})
     saved = [m["decision"] for m in row["models"]]

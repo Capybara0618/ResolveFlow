@@ -40,7 +40,7 @@ def test_live_unannotated_read_executes_without_repair_then_final_declares_tasks
 
 def test_saved_extra_field_is_rejected_but_valid_read_after_feedback_needs_no_annotations():
     root = Path(__file__).resolve().parents[3]
-    old = json.loads((root / 'reports/customer-agent-answer-parts-v1/runtime-results.json').read_text(
+    old = json.loads((root / 'agent/tests/fixtures/regressions/customer-agent-answer-parts-v1/runtime-results.json').read_text(
         encoding='utf-8'))['rows'][1]['models'][0]['decision']
     req = request()
     model = MockModelClient(mode='live', script=[old, read(), final(req)])

@@ -17,7 +17,7 @@ from tests.unit.test_support_tasks import task
 
 def saved_reference_failure():
     root = Path(__file__).resolve().parents[3]
-    path = root / "reports/customer-agent-action-smoke-v1/runtime-results.json"
+    path = root / "agent/tests/fixtures/regressions/customer-agent-action-smoke-v1/runtime-results.json"
     saved = json.loads(path.read_text(encoding="utf-8"))
     return saved["rows"][0]["models"][0]["decision"]
 

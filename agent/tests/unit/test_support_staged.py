@@ -125,7 +125,7 @@ def test_policy_phase_can_refine_to_current_case_in_the_same_sdk_loop():
 
 def test_saved_policy_paragraphs_get_precise_duplicate_part_feedback_and_repair_without_weakening_coverage():
     root = Path(__file__).resolve().parents[3]
-    saved = json.loads((root / 'reports/customer-policy-focus-close-v1/scope-v5/runtime-results.json').read_text(
+    saved = json.loads((root / 'agent/tests/fixtures/regressions/customer-policy-focus-close-v1/scope-v5/runtime-results.json').read_text(
         encoding='utf-8'))
     original = json.dumps(saved['models'][2]['decision'], ensure_ascii=False, sort_keys=True)
     bad = saved['models'][2]['decision']

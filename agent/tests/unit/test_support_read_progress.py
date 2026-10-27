@@ -10,7 +10,7 @@ from tests.unit.test_support_agent import Reads, answer, read, request
 
 def test_saved_signed_dispute_sees_repeated_read_progress_without_losing_raw_sources():
     raw = json.loads((Path(__file__).resolve().parents[3]
-                      / 'reports/customer-agent-experience-v1/runtime-results.json').read_text(encoding='utf-8'))
+                      / 'agent/tests/fixtures/regressions/customer-agent-experience-v1/runtime-results.json').read_text(encoding='utf-8'))
     saved = next(r for r in raw['rows'] if r['id'] == 'U05' and r['turn'] == 1)
     original = {**saved['input'], 'deadline_at': dt.datetime.now(dt.UTC) + dt.timedelta(seconds=120)}
 

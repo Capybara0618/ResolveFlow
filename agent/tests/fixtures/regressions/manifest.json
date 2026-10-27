@@ -1,0 +1,152 @@
+{
+  "scope": "minimal synthetic source/model regression inputs; historical metrics/prompts/database dumps remain local; no new quality scores",
+  "sources": {
+    "reports/chat-refund-live-v1/manual-continuation/diagnostic.json": {
+      "source_sha256": "01291ffe6129371fb30284bc2de801bb828e8c6fb0a45c38933b77792b3fe452",
+      "fixture": "chat-refund-live-v1/manual-continuation/diagnostic.json",
+      "fixture_sha256": "0fd494be85a3832bbc6c0334d764b2042f7d41adfbb759be2141563c862d221f",
+      "source_bytes": 110510,
+      "fixture_bytes": 4308
+    },
+    "reports/chat-refund-live-v1/manual-continuation/runtime-results.json": {
+      "source_sha256": "a4dbb91833d017b5d7b960891a665061d363143450b1818068c9ef4355e28c24",
+      "fixture": "chat-refund-live-v1/manual-continuation/runtime-results.json",
+      "fixture_sha256": "a92320111875f7f762b1adab3cf53fb5d682a1d9f84306744953bdb51617910f",
+      "source_bytes": 12160,
+      "fixture_bytes": 3936
+    },
+    "reports/chat-refund-live-v1/runtime-results.json": {
+      "source_sha256": "826bb122e90e7e33a304c19a247c6f4bbd98e43071b75521e60ad696397d253a",
+      "fixture": "chat-refund-live-v1/runtime-results.json",
+      "fixture_sha256": "8a26d1f6c92e90c7cbfaaff9c50335bb325df1489ce8746c7d774d902c92428b",
+      "source_bytes": 195639,
+      "fixture_bytes": 20292
+    },
+    "reports/chat-stream-live-v3/runtime-results.json": {
+      "source_sha256": "a73b061fdb15e8c48fa7a2f64031b337591883a396bba601c10134a083e2d5b9",
+      "fixture": "chat-stream-live-v3/runtime-results.json",
+      "fixture_sha256": "113aca0906c6d2481b4eefca20103bbd227155dd4d532b71ca8dd0cbf7248b1a",
+      "source_bytes": 87010,
+      "fixture_bytes": 29195
+    },
+    "reports/current-evaluation/live-baseline.json": {
+      "source_sha256": "ca4639079694354b14929a5fd06b20b8b24b04fe5a81344bca59e33470d56f89",
+      "fixture": "current-evaluation/live-baseline.json",
+      "fixture_sha256": "6a9284f930f454e01dd8dfc6e03f5b469cd3296c232272d9605a2350f5bef1d4",
+      "source_bytes": 172943,
+      "fixture_bytes": 146169
+    },
+    "reports/customer-agent-acceptance-gate-v1/primary/runtime-results.json": {
+      "source_sha256": "94d76f7489266803f8d4b89c5e91eaddf1c5f165b4a5e8c3eeb4e8e4da795014",
+      "fixture": "customer-agent-acceptance-gate-v1/primary/runtime-results.json",
+      "fixture_sha256": "3e67daa0dc64d966f4d222a5a4fa4f0719ebab0b735ccde249427aadb90902f3",
+      "source_bytes": 61049,
+      "fixture_bytes": 4170
+    },
+    "reports/customer-agent-action-smoke-v1/runtime-results.json": {
+      "source_sha256": "63741033d7d75c6eff6428124462d1a2c5bb3b90d132169174c96e91c75fd587",
+      "fixture": "customer-agent-action-smoke-v1/runtime-results.json",
+      "fixture_sha256": "da33c81e93b21586d610fa89c0267446192e3fa5b529fae11ffee848c73bde94",
+      "source_bytes": 1032991,
+      "fixture_bytes": 102589
+    },
+    "reports/customer-agent-annotation-check-v1/runtime-results.json": {
+      "source_sha256": "2169892d54fe304ba20cfe4069d991ff61a6b0fc1d74470833274cee10a7f4c0",
+      "fixture": "customer-agent-annotation-check-v1/runtime-results.json",
+      "fixture_sha256": "6f8de45b1dbff7384aa2101889df3f580fb9024028e684271424fdbedb5ef742",
+      "source_bytes": 184884,
+      "fixture_bytes": 23875
+    },
+    "reports/customer-agent-answer-parts-v1/runtime-results.json": {
+      "source_sha256": "cd83667dc992a735a0a138603cb3c44dae08d89cd5a00dbe98bde2340f00e8d0",
+      "fixture": "customer-agent-answer-parts-v1/runtime-results.json",
+      "fixture_sha256": "32bc19817839ce79ad360e1b1d57582ca8aa04e94384341945d28abe1e74fc31",
+      "source_bytes": 99693,
+      "fixture_bytes": 4306
+    },
+    "reports/customer-agent-answer-tasks-v1/runtime-results.json": {
+      "source_sha256": "ffd23d0d87f3c40c24f1c0cb35674f1108a77c1bb3d859a55280b90e348991d4",
+      "fixture": "customer-agent-answer-tasks-v1/runtime-results.json",
+      "fixture_sha256": "728b1ee15239482423e41ca57c56d6cb5b6be100fe1170adc1d3bc4307bc91ed",
+      "source_bytes": 86817,
+      "fixture_bytes": 4844
+    },
+    "reports/customer-agent-boundary-live-v1/runtime-results.json": {
+      "source_sha256": "f69e7998b767d07ec28af793b562fddedb53443a06b0d45bd40708ffe27b0e3b",
+      "fixture": "customer-agent-boundary-live-v1/runtime-results.json",
+      "fixture_sha256": "52326b757604a16fbac563b8917f5c3c56d44bfcb7ff47c359cf6abc6125bc8f",
+      "source_bytes": 1061836,
+      "fixture_bytes": 94842
+    },
+    "reports/customer-agent-close-v1/runtime-results.json": {
+      "source_sha256": "f12b665fd84b902a8370c809277e7d820849705d50bdedafc7e3a8e4bb16426e",
+      "fixture": "customer-agent-close-v1/runtime-results.json",
+      "fixture_sha256": "d6ed50f8019266588ad409aed22951c16558a6992cc9a65829b0ea10555ced31",
+      "source_bytes": 2132267,
+      "fixture_bytes": 205278
+    },
+    "reports/customer-agent-eval-v2/runtime-results.json": {
+      "source_sha256": "12cff28bf929ee1f6339d5df987e18968379c3f78f8bf1f6ba7e1e589d2c5f35",
+      "fixture": "customer-agent-eval-v2/runtime-results.json",
+      "fixture_sha256": "db7b7385479fc7aa5af1dcad777432593f7a353111e219b69d3119fcea6d5c82",
+      "source_bytes": 6590604,
+      "fixture_bytes": 703989
+    },
+    "reports/customer-agent-event-groups-v1/runtime-results.json": {
+      "source_sha256": "b9cda3a646cebad109e4703dbd78fa77b956114da2ae1552ba78201a60f0e115",
+      "fixture": "customer-agent-event-groups-v1/runtime-results.json",
+      "fixture_sha256": "3d6e9502be0b73c8748083c2e73b040c0d78d2de607d37e27a223481e1fd2269",
+      "source_bytes": 205758,
+      "fixture_bytes": 24728
+    },
+    "reports/customer-agent-experience-v1/runtime-results.json": {
+      "source_sha256": "03c65ebbe42af44d98744c1611953b32e6f25e640ad767e6a10c581524682cbe",
+      "fixture": "customer-agent-experience-v1/runtime-results.json",
+      "fixture_sha256": "acdda4ce3c7afc41d03729f1d2518eea0e0420879834fe5918b4c0580a06ea86",
+      "source_bytes": 761237,
+      "fixture_bytes": 64871
+    },
+    "reports/customer-agent-experience-v2/runtime-results.json": {
+      "source_sha256": "9da0120d436f2677ff884c2129b44137c508bb7d143d81de36cfe1ea5619aac7",
+      "fixture": "customer-agent-experience-v2/runtime-results.json",
+      "fixture_sha256": "c7a90a11c572c3ef793005c87b0f82a5323118132658f97625faad2bbc8d4de5",
+      "source_bytes": 903968,
+      "fixture_bytes": 79352
+    },
+    "reports/customer-agent-experience-v3/runtime-results.json": {
+      "source_sha256": "68c6578ec8eadeefa94b8d652d6cb06a5815136a258f2639bb6d52469bb920f3",
+      "fixture": "customer-agent-experience-v3/runtime-results.json",
+      "fixture_sha256": "64fb7daea74bc7a92cf6d7371e78b031c8dc0a4c41d654f508e9ab1c33e39675",
+      "source_bytes": 636143,
+      "fixture_bytes": 59186
+    },
+    "reports/customer-agent-goal-confirm-v1/runtime-results.json": {
+      "source_sha256": "304e31bc9a56b9559bd8df0244db60d04cf2defd03e71850166fb1f620439fdc",
+      "fixture": "customer-agent-goal-confirm-v1/runtime-results.json",
+      "fixture_sha256": "9d40ac14d0818341789d9dfbd888c27470ddf7e3c6df776593db689e3d90dd12",
+      "source_bytes": 814561,
+      "fixture_bytes": 73728
+    },
+    "reports/customer-agent-read-first-v1/runtime-results.json": {
+      "source_sha256": "5eebebf982b6845c269cb7a9fe59144011c2f708c749c1aab03b68a6a645bbaf",
+      "fixture": "customer-agent-read-first-v1/runtime-results.json",
+      "fixture_sha256": "a39a8078910b9ba932df09950355744108f6c3bc6b95281f711350db16249520",
+      "source_bytes": 155020,
+      "fixture_bytes": 13458
+    },
+    "reports/customer-agent-summary-live-v1/runtime-results.json": {
+      "source_sha256": "79c3c3be204494ec9ae4e88dddfa7e991527911d98458929b1aa436c7119fdd5",
+      "fixture": "customer-agent-summary-live-v1/runtime-results.json",
+      "fixture_sha256": "2069369ad79bd940eaad8dc090ea73043e91bc0ffdd43347e7b6d38fb3ec2ce0",
+      "source_bytes": 1012307,
+      "fixture_bytes": 85710
+    },
+    "reports/customer-policy-focus-close-v1/scope-v5/runtime-results.json": {
+      "source_sha256": "572569e12813d9f6f853bce51ea66d7ada2ca9f2a7361be5ac237994eabfa38d",
+      "fixture": "customer-policy-focus-close-v1/scope-v5/runtime-results.json",
+      "fixture_sha256": "db229d1a74f36acd572ed9484bd07dcbd51d72cc4062678f70f401fe4eccfe92",
+      "source_bytes": 193948,
+      "fixture_bytes": 15008
+    }
+  }
+}

@@ -13,7 +13,7 @@ from tests.unit.test_support_orchestration import plan
 
 def test_saved_capability_question_cannot_accept_unexplained_operation_goal():
     raw = json.loads((Path(__file__).resolve().parents[3]
-        / "reports/customer-agent-boundary-live-v1/runtime-results.json").read_text(encoding="utf-8"))
+        / "agent/tests/fixtures/regressions/customer-agent-boundary-live-v1/runtime-results.json").read_text(encoding="utf-8"))
     row = next(r for r in raw["rows"] if r["id"] == "B02")
     with pytest.raises(ValueError, match="operation_request"):
         TurnPlan.model_validate(row["models"][0]["decision"])

@@ -27,7 +27,7 @@ def tasks(values):
 
 def test_saved_three_task_failure_reports_exact_missing_ids_and_does_not_commit():
     root = Path(__file__).resolve().parents[3]
-    report = json.loads((root / 'reports/customer-agent-answer-tasks-v1/runtime-results.json').read_text(
+    report = json.loads((root / 'agent/tests/fixtures/regressions/customer-agent-answer-tasks-v1/runtime-results.json').read_text(
         encoding='utf-8'))
     raw = deepcopy(report['rows'][1]['models'][0]['decision'])
     original = deepcopy(raw)

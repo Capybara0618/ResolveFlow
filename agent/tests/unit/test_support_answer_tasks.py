@@ -20,7 +20,7 @@ from tests.unit.test_support_tasks import task
 
 def saved_row():
     root = Path(__file__).resolve().parents[3]
-    return json.loads((root / 'reports/customer-agent-annotation-check-v1/runtime-results.json').read_text(
+    return json.loads((root / 'agent/tests/fixtures/regressions/customer-agent-annotation-check-v1/runtime-results.json').read_text(
         encoding='utf-8'))['rows'][1]
 
 

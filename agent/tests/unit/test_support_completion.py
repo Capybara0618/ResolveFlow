@@ -34,7 +34,7 @@ def first(req, tasks, *values):
 @pytest.mark.parametrize('case_id', ['U02', 'U03'])
 def test_saved_incomplete_process_answers_do_not_publish_and_can_read_guide_after_feedback(case_id):
     report = json.loads((Path(__file__).resolve().parents[3]
-                         / 'reports/customer-agent-experience-v1/runtime-results.json').read_text(encoding='utf-8'))
+                         / 'agent/tests/fixtures/regressions/customer-agent-experience-v1/runtime-results.json').read_text(encoding='utf-8'))
     row = next(r for r in report['rows'] if r['id'] == case_id)
     req = SupportInput.model_validate({**row['input'],
                                       'deadline_at': dt.datetime.now(dt.UTC) + dt.timedelta(seconds=120)})

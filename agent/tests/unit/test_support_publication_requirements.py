@@ -14,7 +14,7 @@ from tests.unit.test_support_staged import staged, understand
 
 def recorded():
     root = Path(__file__).resolve().parents[3]
-    run = json.loads((root / "reports/customer-agent-acceptance-gate-v1/primary/runtime-results.json").read_text(
+    run = json.loads((root / "agent/tests/fixtures/regressions/customer-agent-acceptance-gate-v1/primary/runtime-results.json").read_text(
         encoding="utf-8"))["support_runs"][0]
     req = SupportInput.model_validate({**run["input_json"],
         "deadline_at": dt.datetime.now(dt.UTC) + dt.timedelta(seconds=120)})

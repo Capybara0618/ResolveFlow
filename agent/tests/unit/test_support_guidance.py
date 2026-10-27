@@ -76,7 +76,7 @@ def test_trusted_channel_state_is_sent_while_customer_claims_do_not_manufacture_
 
 def saved_missing_kind_decisions():
     root = Path(__file__).resolve().parents[3]
-    data = json.loads((root / "reports/customer-agent-eval-v2/runtime-results.json").read_text(encoding="utf-8"))
+    data = json.loads((root / "agent/tests/fixtures/regressions/customer-agent-eval-v2/runtime-results.json").read_text(encoding="utf-8"))
     return [m["decision"] for row in data["rows"] for m in row["models"]]
 
 

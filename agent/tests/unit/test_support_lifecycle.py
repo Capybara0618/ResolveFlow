@@ -25,7 +25,7 @@ def carry(req, result):
 @pytest.mark.parametrize('turn,expected', [(2, 'PAUSED'), (4, 'CANCELLED')])
 def test_saved_answered_topic_can_be_paused_or_cancelled_without_editing_the_saved_decision(turn, expected):
     raw = json.loads((Path(__file__).resolve().parents[3]
-                      / 'reports/customer-agent-experience-v2/runtime-results.json').read_text(encoding='utf-8'))
+                      / 'agent/tests/fixtures/regressions/customer-agent-experience-v2/runtime-results.json').read_text(encoding='utf-8'))
     row = next(r for r in raw['rows'] if r['id'] == 'U05' and r['turn'] == turn)
     decision = deepcopy(row['models'][0]['decision'])
     original = deepcopy(decision)

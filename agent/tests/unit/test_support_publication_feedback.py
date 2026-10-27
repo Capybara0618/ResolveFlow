@@ -12,7 +12,7 @@ from tests.unit.test_support_event_groups import group
 
 def decisions():
     root = Path(__file__).resolve().parents[3]
-    report = json.loads((root / 'reports/customer-agent-read-first-v1/runtime-results.json').read_text(
+    report = json.loads((root / 'agent/tests/fixtures/regressions/customer-agent-read-first-v1/runtime-results.json').read_text(
         encoding='utf-8'))
     return deepcopy(report['rows'][0]['models'][1]['decision']), deepcopy(report['rows'][0]['models'][2]['decision'])
 

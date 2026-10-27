@@ -1,7 +1,7 @@
 """Saved-candidate checks cannot become live calls or fabricated tool results."""
 
 import pytest
-from scripts.diagnose_support_boundary_v1 import SavedSources, diagnose
+from tests.recorded_sources import SavedSources, diagnose
 
 
 def test_saved_candidate_diagnostic_preserves_text_without_updating_historical_scores():

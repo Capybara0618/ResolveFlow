@@ -17,7 +17,7 @@ from tests.unit.test_support_staged import staged, understand
 
 def recorded_invalid_summaries():
     root = Path(__file__).resolve().parents[3]
-    report = json.loads((root / 'reports/chat-refund-live-v1/runtime-results.json').read_text(encoding='utf-8'))
+    report = json.loads((root / 'agent/tests/fixtures/regressions/chat-refund-live-v1/runtime-results.json').read_text(encoding='utf-8'))
     return [c['response_json']['decision'] for r in report['support_runs'] if r['status'] == 'FAILED'
             for c in r['calls'] if c['kind'] == 'model' and c['position'] in {6, 7}]
 

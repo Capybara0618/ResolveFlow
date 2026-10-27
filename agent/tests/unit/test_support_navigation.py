@@ -198,7 +198,7 @@ def test_saved_live_handoff_is_rendered_for_its_actual_existing_ticket():
 
     from resolveflow.support.navigation import render_navigation
 
-    path = Path(__file__).resolve().parents[3] / 'reports/chat-stream-live-v3/runtime-results.json'
+    path = Path(__file__).resolve().parents[3] / 'agent/tests/fixtures/regressions/chat-stream-live-v3/runtime-results.json'
     run = json.loads(path.read_text(encoding='utf-8'))['runs'][0]
     reply = next(c['response_json']['decision'] for c in reversed(run['calls'])
                  if c['kind'] == 'model' and c['response_json']['decision']['kind'] == 'ANSWER_PARTS')

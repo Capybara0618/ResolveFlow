@@ -12,7 +12,7 @@ from tests.unit.test_support_context import message
 
 def test_saved_actual_quotes_are_located_without_changing_the_model_outputs():
     raw = json.loads((Path(__file__).resolve().parents[3]
-                      / 'reports/customer-agent-experience-v2/runtime-results.json').read_text(encoding='utf-8'))
+                      / 'agent/tests/fixtures/regressions/customer-agent-experience-v2/runtime-results.json').read_text(encoding='utf-8'))
     original = deepcopy(raw)
     positions = []
     for row in raw['rows']:

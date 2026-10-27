@@ -279,7 +279,7 @@ def test_rescore_keeps_execution_provenance_and_calls_no_model(tmp_path):
 def load_live_fixture():
     import json
 
-    return json.loads((ROOT / "reports/current-evaluation/live-baseline.json").read_text(encoding="utf-8"))
+    return json.loads((ROOT / "agent/tests/fixtures/regressions/current-evaluation/live-baseline.json").read_text(encoding="utf-8"))
 
 
 def test_unfinished_comparison_is_not_completion():

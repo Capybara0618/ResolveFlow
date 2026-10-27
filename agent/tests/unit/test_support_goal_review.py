@@ -6,7 +6,7 @@ from pathlib import Path
 
 import httpx
 import pytest
-from scripts.diagnose_support_boundary_v1 import SavedSources
+from tests.recorded_sources import SavedSources
 
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.orchestration import Orchestration, Response
@@ -32,7 +32,7 @@ def conflict(flow, meaning, refs=None):
 
 def test_saved_wrong_refund_goal_keeps_handoff_purpose_with_new_quote_draft_contract():
     raw = json.loads((Path(__file__).resolve().parents[3]
-        / "reports/customer-agent-close-v1/runtime-results.json").read_text(encoding="utf-8"))
+        / "agent/tests/fixtures/regressions/customer-agent-close-v1/runtime-results.json").read_text(encoding="utf-8"))
     row = next(r for r in raw["rows"] if (r["id"], r["turn"]) == ("M02", 2))
     req = SupportInput.model_validate({**row["input"], "deadline_at": request().deadline_at})
     decisions = deepcopy([m["decision"] for m in row["models"][:3]])

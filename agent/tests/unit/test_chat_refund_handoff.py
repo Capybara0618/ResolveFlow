@@ -18,7 +18,7 @@ from tests.unit.test_context_builder import build
 from tests.unit.test_harness_loop import StubTools
 
 ROOT = Path(__file__).resolve().parents[3]
-SAVED = ROOT / "reports/chat-refund-live-v1/manual-continuation"
+SAVED = ROOT / "agent/tests/fixtures/regressions/chat-refund-live-v1/manual-continuation"
 
 
 def saved():

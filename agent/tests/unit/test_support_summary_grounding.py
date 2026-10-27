@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
-from scripts.diagnose_support_boundary_v1 import SavedSources
+from tests.recorded_sources import SavedSources
 
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.orchestration import Orchestration, Response
@@ -29,7 +29,7 @@ def compose(req, reason, *, refs=None, needs=None, claims=None):
 
 def test_original_q01_free_summary_is_rejected_then_customer_quote_repairs_without_order_read():
     raw = json.loads((Path(__file__).resolve().parents[3]
-        / "reports/customer-agent-goal-confirm-v1/runtime-results.json").read_text(encoding="utf-8"))
+        / "agent/tests/fixtures/regressions/customer-agent-goal-confirm-v1/runtime-results.json").read_text(encoding="utf-8"))
     row = raw["rows"][0]
     req = SupportInput.model_validate({**row["input"], "deadline_at": request().deadline_at})
     decisions = [m["decision"] for m in row["models"]]

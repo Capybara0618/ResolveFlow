@@ -97,7 +97,7 @@ def test_combined_answer_still_obeys_public_length_limit_and_duplicate_initial_t
 
 def test_saved_wrong_search_shape_is_now_an_explicit_valid_tool_contract():
     root = Path(__file__).resolve().parents[3]
-    report = json.loads((root / 'reports/customer-agent-event-groups-v1/runtime-results.json').read_text(
+    report = json.loads((root / 'agent/tests/fixtures/regressions/customer-agent-event-groups-v1/runtime-results.json').read_text(
         encoding='utf-8'))
     payload = deepcopy(report['rows'][1]['models'][2]['decision'])
     original = deepcopy(payload)

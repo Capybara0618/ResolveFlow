@@ -6,7 +6,7 @@ from pathlib import Path
 
 import httpx
 import pytest
-from scripts.diagnose_support_boundary_v1 import SavedSources
+from tests.recorded_sources import SavedSources
 
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.orchestration import Orchestration, Response
@@ -92,7 +92,7 @@ def test_inactive_preparation_does_not_force_new_policy_reads(life):
 
 
 def test_old_real_s02_response_cannot_publish_before_policy_read_or_stream_candidate():
-    path = Path(__file__).resolve().parents[3] / "reports/customer-agent-summary-live-v1/runtime-results.json"
+    path = Path(__file__).resolve().parents[3] / "agent/tests/fixtures/regressions/customer-agent-summary-live-v1/runtime-results.json"
     row = next(r for r in json.loads(path.read_text(encoding="utf-8"))["rows"]
                if (r["id"], r["turn"]) == ("S02", 1))
     req = SupportInput.model_validate({**row["input"], "deadline_at": request().deadline_at})
