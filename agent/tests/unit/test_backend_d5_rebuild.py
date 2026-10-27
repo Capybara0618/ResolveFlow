@@ -155,3 +155,22 @@ def test_request_journal_rejects_unresolved_or_forged_response(tmp_path):
     path.write_text(json.dumps(start) + "\n" + json.dumps(end) + "\n", encoding="utf-8")
     with pytest.raises(ValueError, match="body hash"):
         journal_audit(path)
+
+
+def test_new_development_cohort_does_not_reuse_fixture_or_gate_identity(tmp_path):
+    import json
+    from types import SimpleNamespace
+
+    from evaluation.backend_d5_rebuild import gate_name, prepare_data
+
+    fake = SimpleNamespace(identity="a" * 32, sql=lambda query: "17" if query.lstrip().startswith("SELECT") else "")
+    cohorts = [tmp_path / "development-one", tmp_path / "development-two"]
+    identities = []
+    for folder in cohorts:
+        prepare_data(fake, folder, smoke=True)
+        data = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
+        identities.append({p["product"] for rows in data["rounds"].values() for p in rows})
+    assert len(identities[0]) == len(identities[1]) == 56
+    assert not identities[0] & identities[1]
+    assert gate_name(cohorts[0] / "same-round") != gate_name(cohorts[1] / "same-round")
+    assert gate_name(cohorts[0] / "same-round") == gate_name(cohorts[0] / "same-round")

@@ -72,6 +72,10 @@ def namespace(settings):
     return "rf:d5:" + settings.identity + ":rebuild-v1"
 
 
+def gate_name(folder):
+    return "g-" + digest(str(folder))[:24]
+
+
 def configure(settings, condition):
     for role in NODES:
         stop_role(settings, role)
@@ -197,7 +201,7 @@ async def exercise(settings, item, folder, products):
     product = hot["product"]
     key = namespace(settings) + ":" + product + ":1"
     lock_key = key + ":rebuild"
-    gate_label = label.replace("smoke-", "s-")
+    gate_label = gate_name(folder)
     facts, requests, controls, paused, terminal, new_projection = (
         {},
         [],
@@ -466,7 +470,8 @@ def prepare_data(settings, folder, smoke=False):
             ["independent-a", "independent-b"] if item["scenario"] == "R01" else []
         )
         rows[item["id"]] = [
-            fixture(settings, folder, item["id"] + "-" + name) for name in labels
+            fixture(settings, folder, folder.name + "-" + item["id"] + "-" + name)
+            for name in labels
         ]
         print("PREPARED " + item["id"], flush=True)
     durable(
