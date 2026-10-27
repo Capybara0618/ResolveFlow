@@ -1,0 +1,82 @@
+{
+  "version": "product-images-v1",
+  "generator": "built-in imagegen",
+  "disclosure": "AI-generated demonstration product imagery. No real brand affiliation.",
+  "assets": [
+    {
+      "key": "headphones-black",
+      "file": "web/public/products/v1/headphones-black.webp",
+      "prompt": "Use case: product-mockup. Create one premium ecommerce catalog photograph for a fictional unbranded wireless over-ear noise-cancelling headphone, matte graphite BLACK, padded rounded earcups, refined brushed metal yokes. Entire SINGLE product centered in a square 1:1 frame, three-quarter front view, occupies 72% frame with ample clear margins. Seamless pale cool gray studio surface and backdrop, soft large window light from upper left, subtle realistic contact shadow, tactile leather/metal, restrained luxury editorial product photography. Realistic plausible construction. No text, letters, logos, packaging, extra objects, people, collages, borders, gradients or decorative graphic shapes. This is product asset headphones-black for ResolveFlow digital store."
+    },
+    {
+      "key": "keyboard-white",
+      "file": "web/public/products/v1/keyboard-white.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a compact 75 percent mechanical keyboard with ivory WHITE keycaps, slightly darker beige modifier keys, silver aluminum case, realistic neutral key legends. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless cool pale gray studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset keyboard-white for ResolveFlow demo catalog."
+    },
+    {
+      "key": "speaker-black",
+      "file": "web/public/products/v1/speaker-black.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single compact cylindrical Bluetooth speaker, charcoal BLACK woven acoustic mesh and matte black end caps. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless cool pale gray studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset speaker-black for ResolveFlow demo catalog."
+    },
+    {
+      "key": "powerbank",
+      "file": "web/public/products/v1/powerbank.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single slim rectangular portable power bank, satin SILVER aluminum body, rounded edges, two small USB ports visibly on top, no capacity text. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless cool pale gray studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset powerbank for ResolveFlow demo catalog."
+    },
+    {
+      "key": "lamp",
+      "file": "web/public/products/v1/lamp.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single minimalist desk lamp, warm IVORY white, rounded dome shade, slim stem and circular base, warm light softly illuminating beneath shade. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless warm ivory studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset lamp for ResolveFlow demo catalog."
+    },
+    {
+      "key": "cup",
+      "file": "web/public/products/v1/cup.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single SILVER stainless steel insulated travel tumbler, sealed silver screw lid, slim elegant straight cylinder, no handle. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless warm ivory studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset cup for ResolveFlow demo catalog."
+    },
+    {
+      "key": "pillow",
+      "file": "web/public/products/v1/pillow.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single square BEIGE linen cushion, plump rounded corners, visible woven fabric and understated seam, upright slight three quarter angle. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless warm ivory studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset pillow for ResolveFlow demo catalog."
+    },
+    {
+      "key": "basket",
+      "file": "web/public/products/v1/basket.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single small round handwoven natural straw storage basket with two short integral loop handles, open top, no contents. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless warm ivory studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset basket for ResolveFlow demo catalog."
+    },
+    {
+      "key": "backpack-navy",
+      "file": "web/public/products/v1/backpack-navy.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single lightweight NAVY BLUE commuter backpack, two adjustable shoulder straps, simple front zip pocket and top carry handle, realistic woven nylon, upright three quarter front angle. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless pale sage gray studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset backpack-navy for ResolveFlow demo catalog."
+    },
+    {
+      "key": "tent",
+      "file": "web/public/products/v1/tent.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single fully erected STANDARD two-person dome camping tent, muted sage green flysheet, beige inner door panel, structurally plausible poles, floor and guy lines, entrance partially unzipped, entire product visible. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless pale sage gray studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset tent for ResolveFlow demo catalog."
+    },
+    {
+      "key": "chair",
+      "file": "web/public/products/v1/chair.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single BLACK portable folding camping chair, durable black canvas seat and back with plausible slim black metal folding frame, complete legs and feet visible. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless pale sage gray studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset chair for ResolveFlow demo catalog."
+    },
+    {
+      "key": "lantern",
+      "file": "web/public/products/v1/lantern.webp",
+      "prompt": "Use case: product-mockup. Premium ecommerce catalog studio photograph for a fictional unbranded product. Subject: a single portable rechargeable camping lantern, warm glowing frosted cylindrical diffuser, sage green metal base and cap, thin arch carry handle, simple refined realistic construction. One SINGLE product only, entire product centered with clear margins in square 1:1 frame, three-quarter view occupying about 70 percent of frame. Seamless pale sage gray studio surface and backdrop. Broad soft window light from upper left, soft realistic contact shadow. Refined tactile materials, editorial product photography, believable proportions. No text except subtle plausible keyboard legends, no logo, no brand, no packaging, people, extra objects, collage, borders or graphic decoration. Intended asset lantern for ResolveFlow demo catalog."
+    },
+    {
+      "key": "headphones-silver",
+      "file": "web/public/products/v1/headphones-silver.webp",
+      "prompt": "Change ONLY the colorway of this exact headphone from black to SILVER: satin silver metal exterior earcup shells and yokes, pale gray cushions and headband padding. Preserve exact physical design, dimensions, viewpoint, pose, shadow, studio background, lighting, framing, and all details. Same product in its silver SKU. No text or logos."
+    },
+    {
+      "key": "keyboard-gray",
+      "file": "web/public/products/v1/keyboard-gray.webp",
+      "prompt": "Change ONLY the keycap colorway of this exact keyboard to deep CHARCOAL GRAY, with medium gray modifier keys and muted light key legends. Keep the same silver case, identical physical keyboard design/key positions, angle, lighting, background, shadow and framing. Same product in dark gray SKU. No added text, logos or objects."
+    },
+    {
+      "key": "backpack-olive",
+      "file": "web/public/products/v1/backpack-olive.webp",
+      "prompt": "Change ONLY the fabric color of this exact navy backpack to muted OLIVE GREEN. Keep same black zips, identical pocket layout, straps, proportions, camera angle, fabric weave, background, shadow, lighting and framing. Same product in olive green SKU. No added labels, logos, text or objects."
+    }
+  ]
+}

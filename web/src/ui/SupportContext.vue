@@ -19,7 +19,7 @@ const guides = computed(() => report.value?.citations.filter(c => c.source_type 
 <template>
   <aside class="support-context" aria-label="订单与调查依据">
     <section class="context-card support-product"><header><h2>{{ merchant ? '订单信息' : '当前咨询商品' }}</h2><button v-if="!merchant" class="text-action" :disabled="disabled" @click="$emit('changeOrder')">更换</button></header>
-      <div class="context-product"><ProductArt :asset="conversation.product.asset_key || ''" :name="conversation.product.name" /><div><h3>{{ conversation.product.name }}</h3><p>{{ conversation.product.variant || '默认规格' }} · {{ conversation.product.quantity }}件</p><strong>¥{{ formatMinorUnits(conversation.product.amount_minor).replace(' CNY', '') }}</strong></div></div>
+      <div class="context-product"><ProductArt :asset="conversation.product.asset_key || ''" :name="conversation.product.name" :variant="conversation.product.variant ?? ''" /><div><h3>{{ conversation.product.name }}</h3><p>{{ conversation.product.variant || '默认规格' }} · {{ conversation.product.quantity }}件</p><strong>¥{{ formatMinorUnits(conversation.product.amount_minor).replace(' CNY', '') }}</strong></div></div>
       <div class="context-product-meta"><span>{{ conversation.store_name }}</span><small>订单尾号 {{ tail(conversation.order_id) }}</small></div>
       <details class="support-source"><summary>订单与核查编号</summary><p>订单：{{ conversation.order_id }}</p><p>商品行：{{ conversation.line_id }}</p><p v-if="conversation.ticket">核查单：{{ conversation.ticket.ticket_id }}</p></details>
     </section>

@@ -1,0 +1,148 @@
+{
+  "version": "product-images-v1",
+  "generator": "built-in imagegen",
+  "encoding": {
+    "codec": "webp",
+    "quality": 90,
+    "resize": false,
+    "sharp": "0.35.5"
+  },
+  "disclosure": "AI-generated demonstration products; no real brand affiliation.",
+  "assets": [
+    {
+      "key": "headphones-black",
+      "file": "web/public/products/v1/headphones-black.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 112180,
+      "sha256": "9baba32cff9232231e1c4666d3dffeb6263457e4d9622522b7b97db3982aaf77",
+      "sourceSha256": "f7fef12f1b3979f6be44c4388e71be06daa71f64bcf73713e89deeb252cca850"
+    },
+    {
+      "key": "keyboard-white",
+      "file": "web/public/products/v1/keyboard-white.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 85058,
+      "sha256": "5fea239316b62b33bfc98433af0b7296b6813d78fe897ee34f7ce682b0ed6ffe",
+      "sourceSha256": "23f2147cc7289fa8d227bf6d06bdfdbb8fb6b14b2ae19e3ae3a7c4acfd31b152"
+    },
+    {
+      "key": "speaker-black",
+      "file": "web/public/products/v1/speaker-black.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 178662,
+      "sha256": "23c7c2a9da7813c4724ab76f6d2c8473ae81ff4d2cb868fc1f9bd7c883e9cc2f",
+      "sourceSha256": "2efb5eb237acddb7307066dbae640bd75230d0612cb402362215c47545454905"
+    },
+    {
+      "key": "powerbank",
+      "file": "web/public/products/v1/powerbank.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 117338,
+      "sha256": "b81f21493ba70edbcc64a8adbc7106d321bedb074e8c768f81f8e3d483567cf2",
+      "sourceSha256": "ae9f759ad729d0d760260fa1aed90ee1794aa9d0b4696b1782b2f85f938315da"
+    },
+    {
+      "key": "lamp",
+      "file": "web/public/products/v1/lamp.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 30038,
+      "sha256": "1212ba79a832b16d0b6abb2532a26afbf7aed78291f7f8a9747196ce4252f400",
+      "sourceSha256": "d415d4d4fda7395c5ef83c6e2ab05cbbdaa17912545448c7f191972a2c0cb54d"
+    },
+    {
+      "key": "cup",
+      "file": "web/public/products/v1/cup.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 58116,
+      "sha256": "4317876dfcfe87af060ed83d1b41dd2e06d0aa9118fb70c0420f919b7e41e21e",
+      "sourceSha256": "d344062fc6bc8c0bcd69f4e8d1340712a23422638dfa4df09e03993549c489b9"
+    },
+    {
+      "key": "pillow",
+      "file": "web/public/products/v1/pillow.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 360048,
+      "sha256": "08727e4e4f61681f6cf829ced2d3014a16f6e9ab08dbaee289daad0638f89adc",
+      "sourceSha256": "a8f398c434b3d1186d78f55dae91df3b64f2b687d1719a160d1bc81aeed87cbe"
+    },
+    {
+      "key": "basket",
+      "file": "web/public/products/v1/basket.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 238948,
+      "sha256": "f16fb10516d0bebe658c404343ed7c8a79e906eddd4b85c2bc842a0a446de9c7",
+      "sourceSha256": "46a91f8ff49e664aa71afee7ff64f77c009158c3632df2f56228c1edca129002"
+    },
+    {
+      "key": "backpack-navy",
+      "file": "web/public/products/v1/backpack-navy.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 224400,
+      "sha256": "6146aac643472a5aa42bbcf3b2a21ae02fadc32a2f595c2faec77c123d95685a",
+      "sourceSha256": "51a9a987ba74aa3469de697f8a089d984812f16ffcdefeb9083ea5719a4f732d"
+    },
+    {
+      "key": "tent",
+      "file": "web/public/products/v1/tent.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 87354,
+      "sha256": "c7eb7063da26c3370a6fc85236a8dc28739a4312d0c03d90389280b5ff73dac9",
+      "sourceSha256": "4da5104ddc929f728397807ad2ec812c80d8374cd5f6907a27728459c5639dd9"
+    },
+    {
+      "key": "chair",
+      "file": "web/public/products/v1/chair.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 141642,
+      "sha256": "e880b9b5cc32d665ef516dd84f567b799e491813e70c0ef199ad38f33b304e8a",
+      "sourceSha256": "0c0eaee43503590aba5076031c006addfa81e02525345019a5860ae48bc1fa1f"
+    },
+    {
+      "key": "lantern",
+      "file": "web/public/products/v1/lantern.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 68994,
+      "sha256": "c3e862ef8789dfd6437912e60df9a3bb5a6e620a229e26a1251a67bc7477369c",
+      "sourceSha256": "c447151578d1d7c1aaaa206536652f5070ef9b0337dade817e71553ed39dcb0c"
+    },
+    {
+      "key": "headphones-silver",
+      "file": "web/public/products/v1/headphones-silver.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 124150,
+      "sha256": "ce748019063fdaee28cd05fac0e97169356b5a39e285a8ddf69f5d4989e0d32a",
+      "sourceSha256": "f5555d3eb0aca9ed6d7eea58754d8450aa2835092f2b9cd7e7c1269f5a9b8821"
+    },
+    {
+      "key": "keyboard-gray",
+      "file": "web/public/products/v1/keyboard-gray.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 72744,
+      "sha256": "2967e5cc4a3e3e2d2848f1403ed759310478db27d428ccdbf074583296b9664c",
+      "sourceSha256": "5400187c518028986e460b673113121cb4519b54ddf548909f189e54eb5bb2e7"
+    },
+    {
+      "key": "backpack-olive",
+      "file": "web/public/products/v1/backpack-olive.webp",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 206206,
+      "sha256": "7a4691f155e7e0ab8594903e0f796ab55f4e231e93be339011df9596f5afd1b6",
+      "sourceSha256": "1837f910db4d311f2840a4c98797e0e0b1af54166cb2652406a5ddafcb337ce8"
+    }
+  ]
+}

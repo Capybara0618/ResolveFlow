@@ -11,7 +11,7 @@ withDefaults(defineProps<{ line?: OrderLine | null; loading?: boolean; unavailab
 <template>
   <div class="aftercare-product" :aria-busy="loading">
     <div class="aftercare-product-image">
-      <ProductArt v-if="line?.asset_key" :asset="line.asset_key" :name="productTitle(line)" />
+      <ProductArt v-if="line?.asset_key" :asset="line.asset_key" :name="productTitle(line)" :variant="variantOf(line) || ''" />
       <span v-else class="aftercare-product-placeholder" aria-label="商品图片未提供"><Icon name="box" :size="32" /><span>{{ loading ? '读取中' : '图片未提供' }}</span></span>
     </div>
     <div class="aftercare-product-copy">

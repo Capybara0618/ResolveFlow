@@ -95,7 +95,7 @@ onBeforeUnmount(() => { alive = false; ++generation; emit('busy', false) })
       <button class="shop-back" :disabled="blocked" @click="quote = null">← 返回购物车</button><h1>确认订单</h1>
       <section class="checkout-address"><h2>演示收货信息</h2><p>演示买家 · 杭州市演示路 100 号</p></section>
       <section class="checkout-panel"><h2>{{ quote.store_name }}</h2>
-        <div v-for="line in quote.lines" :key="line.sku_id" class="checkout-line"><ProductArt :asset="line.asset_key" :name="line.product_name" /><div><h2>{{ line.product_name }}</h2><p>{{ line.variant }}</p></div><div><p>单价</p><strong>{{ money(line.unit_amount) }}</strong></div><div><p>数量</p><strong>{{ line.quantity }}</strong></div><div><p>小计</p><strong>{{ money(line.line_amount) }}</strong></div></div>
+        <div v-for="line in quote.lines" :key="line.sku_id" class="checkout-line"><ProductArt :asset="line.asset_key" :name="line.product_name" :variant="line.variant" /><div><h2>{{ line.product_name }}</h2><p>{{ line.variant }}</p></div><div><p>单价</p><strong>{{ money(line.unit_amount) }}</strong></div><div><p>数量</p><strong>{{ line.quantity }}</strong></div><div><p>小计</p><strong>{{ money(line.line_amount) }}</strong></div></div>
         <div class="checkout-total"><span>应付合计</span><strong>{{ money(quote.total_amount) }}</strong></div>
         <button v-if="!pending" class="shop-primary cart-submit" :disabled="writing" @click="submit">提交订单</button>
       </section>
@@ -109,7 +109,7 @@ onBeforeUnmount(() => { alive = false; ++generation; emit('busy', false) })
         <div class="cart-columns" aria-hidden="true"><span></span><span>商品</span><span>单价</span><span>数量</span><span>小计</span><span>操作</span></div>
         <div v-for="i in s.items" :key="i.sku_id" class="cart-row" :data-sku="i.sku_id">
           <input v-model="selected" type="checkbox" :value="i.sku_id" :aria-label="`选择${i.product_name}`" :disabled="blocked || loading || i.availability !== 'AVAILABLE'" />
-          <div class="cart-product"><ProductArt :asset="i.asset_key" :name="i.product_name" /><div><h2>{{ i.product_name }}</h2><p>{{ i.variant }}</p><p v-if="i.availability !== 'AVAILABLE'" class="cart-unavailable">{{ reasons[i.availability] }}</p><p v-else-if="i.price_changed" class="cart-unavailable">价格已更新，请结算时确认新报价。</p></div></div>
+          <div class="cart-product"><ProductArt :asset="i.asset_key" :name="i.product_name" :variant="i.variant" /><div><h2>{{ i.product_name }}</h2><p>{{ i.variant }}</p><p v-if="i.availability !== 'AVAILABLE'" class="cart-unavailable">{{ reasons[i.availability] }}</p><p v-else-if="i.price_changed" class="cart-unavailable">价格已更新，请结算时确认新报价。</p></div></div>
           <strong>{{ money(i.unit_amount) }}</strong>
           <div class="cart-quantity"><button :aria-label="`减少${i.product_name}数量`" :disabled="blocked || loading || i.quantity <= 1 || i.availability !== 'AVAILABLE'" @click="change(s, i, i.quantity - 1)">−</button><span>{{ i.quantity }}</span><button :aria-label="`增加${i.product_name}数量`" :disabled="blocked || loading || i.quantity >= i.max_quantity || i.availability !== 'AVAILABLE'" @click="change(s, i, i.quantity + 1)">＋</button></div>
           <strong>{{ money(i.total_amount) }}</strong><button class="cart-remove" :aria-label="`移除${i.product_name}`" :disabled="blocked || loading" @click="change(s, i, 0)">移除</button>

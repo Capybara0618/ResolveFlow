@@ -74,3 +74,11 @@ it('drops a late product response after navigation', async () => {
   await w.get('.shop-nav a').trigger('click'); await flushPromises(); resolve(product); await flushPromises()
   expect(w.find('.shop-product-detail').exists()).toBe(false); expect(w.find('.shop-grid').exists()).toBe(true)
 })
+
+it('shows the selected SKU image and price in the actual product detail', async () => {
+  await open()
+  expect(w.get('.detail-image img').attributes('src')).toContain('headphones-black.webp')
+  await w.findAll('fieldset button')[1].trigger('click')
+  expect(w.get('.detail-image img').attributes('src')).toContain('headphones-silver.webp')
+  expect(w.get('.detail-price').text()).toContain('349.00')
+})

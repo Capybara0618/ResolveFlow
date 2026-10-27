@@ -1,8 +1,14 @@
 <script setup lang="ts">
-defineProps<{ asset: string; name: string }>()
+import { computed, ref } from 'vue'
+import { productImage } from './product-media'
+
+const props = defineProps<{ asset: string; name: string; variant?: string }>()
+const photo = computed(() => productImage(props.asset, props.name, props.variant))
+const failedSource = ref('')
 </script>
 <template>
-  <svg class="product-art" viewBox="0 0 400 300" role="img" :aria-label="`${name}商品插画`">
+  <img v-if="photo && failedSource !== photo.src" class="product-art product-photo" :src="photo.src" :alt="`${name} · ${photo.variant}商品图`" width="1254" height="1254" loading="lazy" decoding="async" @error="failedSource = photo!.src" />
+  <svg v-else class="product-art" viewBox="0 0 400 300" role="img" :aria-label="`${name}商品插画`">
     <ellipse cx="200" cy="255" rx="100" ry="13" fill="#182a42" opacity=".08" />
     <g v-if="asset === 'headphones'" stroke="#26344a" stroke-linecap="round">
       <path d="M114 173V135a86 86 0 0 1 172 0v38" fill="none" stroke-width="19" />
@@ -59,3 +65,6 @@ defineProps<{ asset: string; name: string }>()
     <g v-else><rect x="120" y="80" width="160" height="160" rx="20" fill="#d8e5fb" /><path d="M160 160h80" stroke="#7297d6" stroke-width="8" /></g>
   </svg>
 </template>
+<style scoped>
+.product-photo { display: block; object-fit: contain; height: auto; aspect-ratio: 1; border-radius: inherit; }
+</style>
