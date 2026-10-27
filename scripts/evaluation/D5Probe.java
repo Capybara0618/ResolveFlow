@@ -31,7 +31,7 @@ public final class D5Probe {
     static volatile boolean events;
     static Path folder;
     static String identity,node;
-    record Gate(String id,String product,String mode,CountDownLatch release) {}
+    record Gate(String id,String product,String mode,CountDownLatch release,AtomicBoolean entered) {}
     static synchronized void event(Map<String,Object> record) {
         if(!events)return;
         var row=new LinkedHashMap<>(record);row.put("node",node);row.put("pid",ProcessHandle.current().pid());row.put("at",Instant.now().toString());row.put("nano",System.nanoTime());
@@ -85,7 +85,7 @@ public final class D5Probe {
                 if(control!=null&&control.product().equals(product)) {
                     if(TransactionSynchronizationManager.isActualTransactionActive())throw new AssertionError("fault gate inside business transaction");
                     event(Map.of("stage","snapshot_ready","product",product,"call",id,"gate_id",control.id()));
-                    Files.writeString(folder.resolve(node+"-"+control.id()+".entered"),id,StandardOpenOption.CREATE_NEW);
+                    if(control.entered().compareAndSet(false,true))Files.writeString(folder.resolve(node+"-"+control.id()+".entered"),id,StandardOpenOption.CREATE_NEW);
                     if(!control.release().await(15,TimeUnit.SECONDS))throw new AssertionError("lab gate expired");
                     if(control.mode().equals("fail"))throw new IllegalStateException("explicit D5 post-query test fault");
                 }
@@ -120,7 +120,7 @@ public final class D5Probe {
                     case "/events/on" -> events=true;
                     case "/events/off" -> events=false;
                     case "/release" -> {Gate old=gate.getAndSet(null);if(old!=null)old.release().countDown();}
-                    case "/gate" -> {var v=JSON.readTree(exchange.getRequestBody());String id=v.path("id").asString(),product=v.path("product").asString(),mode=v.path("mode").asString();if(!id.matches("[A-Za-z0-9_-]{1,64}")||!product.matches("[A-Za-z0-9_-]{1,64}")||!List.of("hold","fail").contains(mode)||gate.get()!=null)throw new IllegalArgumentException("invalid or overlapping fault gate");gate.set(new Gate(id,product,mode,new CountDownLatch(1)));}
+                    case "/gate" -> {var v=JSON.readTree(exchange.getRequestBody());String id=v.path("id").asString(),product=v.path("product").asString(),mode=v.path("mode").asString();if(!id.matches("[A-Za-z0-9_-]{1,64}")||!product.matches("[A-Za-z0-9_-]{1,64}")||!List.of("hold","fail").contains(mode)||gate.get()!=null)throw new IllegalArgumentException("invalid or overlapping fault gate");gate.set(new Gate(id,product,mode,new CountDownLatch(1),new AtomicBoolean()));}
                     case "/snapshot" -> {}
                     default -> throw new IllegalArgumentException("unknown control");
                 }

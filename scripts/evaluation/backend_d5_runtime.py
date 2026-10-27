@@ -157,12 +157,29 @@ def probe(settings, role, action="snapshot", body=None):
         return json.loads(response.read())
 
 
-def start(settings, role, condition="B", *, cache=False, locking=False, namespace=None):
+def start(
+    settings,
+    role,
+    condition="B",
+    *,
+    cache=False,
+    locking=False,
+    namespace=None,
+    commerce_port=None,
+    redis_port=None,
+):
     state = settings.load()
-    if role not in ("case", "commerce", "gateway") or condition not in ("A", "B"):
+    if role not in ("case", "commerce", "commerce2", "gateway") or condition not in (
+        "A",
+        "B",
+    ):
         raise ValueError("unsupported explicitly owned service")
+    service = "commerce" if role == "commerce2" else role
+    port = (
+        state["d5_service_ports"][role] if role == "commerce2" else state["ports"][role]
+    )
     with socket.socket() as check:
-        if check.connect_ex(("127.0.0.1", state["ports"][role])) == 0:
+        if check.connect_ex(("127.0.0.1", port)) == 0:
             raise ValueError("service port occupied")
     env = child_env()
     java = str(
@@ -187,11 +204,15 @@ def start(settings, role, condition="B", *, cache=False, locking=False, namespac
         if ready.exists():
             # Historical ready records are retained under a fresh name; no stale readiness reuse.
             ready.rename(settings.folder / (role + f"-{time.time_ns()}.ready"))
-        group = settings.folder / f"unpacked/{condition}/{role}"
+        group = settings.folder / f"unpacked/{condition}/{service}"
         classpath = os.pathsep.join(
             map(
                 str,
-                [settings.folder / "probe-classes", group / "classes", group / "lib/*"],
+                [
+                    settings.folder / state.get("d5_probe_group", "probe-classes"),
+                    group / "classes",
+                    group / "lib/*",
+                ],
             )
         )
         application = "com.resolveflow." + (
@@ -211,18 +232,19 @@ def start(settings, role, condition="B", *, cache=False, locking=False, namespac
         ]
         account = "case_svc" if role == "case" else "commerce"
         args += [
-            f"--spring.datasource.url=jdbc:mysql://127.0.0.1:{state['ports']['mysql']}/{role}_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false",
+            f"--spring.datasource.url=jdbc:mysql://127.0.0.1:{state['ports']['mysql']}/{service}_db?connectionTimeZone=UTC&preserveInstants=true&allowPublicKeyRetrieval=true&useSSL=false",
             "--spring.datasource.username=" + account,
             "--spring.datasource.password=" + account,
             "--spring.datasource.hikari.maximum-pool-size=10",
             "--spring.datasource.hikari.minimum-idle=2",
             "--spring.data.redis.host=127.0.0.1",
-            "--spring.data.redis.port=" + str(state["ports"]["redis"]),
+            "--spring.data.redis.port=" + str(redis_port or state["ports"]["redis"]),
             "--resolveflow.review-cache.enabled=" + str(cache).lower(),
             "--resolveflow.product-reviews.cache-enabled=" + str(cache).lower(),
             "--resolveflow.product-reviews.rebuild-lock-enabled="
             + str(locking).lower(),
             "--resolveflow.product-reviews.rate-limit-enabled=false",
+            "--resolveflow.identity.jwt.ttl-seconds=86400",
             "--resolveflow.dispatch.enabled=false",
             "--resolveflow.support-agent.enabled=false",
             "--resolveflow.refund.dispatch-enabled=false",
@@ -233,19 +255,19 @@ def start(settings, role, condition="B", *, cache=False, locking=False, namespac
         ]
         if role == "case":
             args += [
-                f"--resolveflow.commerce.base-url=http://127.0.0.1:{state['ports']['commerce']}"
+                f"--resolveflow.commerce.base-url=http://127.0.0.1:{commerce_port or state['ports']['commerce']}"
             ]
         if namespace:
             args += [
                 "--resolveflow.review-cache.namespace=" + namespace,
                 "--resolveflow.product-reviews.cache-namespace=" + namespace,
             ]
-    args += ["--server.address=127.0.0.1", "--server.port=" + str(state["ports"][role])]
+    args += ["--server.address=127.0.0.1", "--server.port=" + str(port)]
     settings.start_child(role, args, env, state)
 
     def healthy():
         with urllib.request.urlopen(
-            f"http://127.0.0.1:{state['ports'][role]}/actuator/health", timeout=3
+            f"http://127.0.0.1:{port}/actuator/health", timeout=3
         ) as response:
             return response.status == 200
 
@@ -256,6 +278,61 @@ def start(settings, role, condition="B", *, cache=False, locking=False, namespac
             lambda: probe(settings, role)["pid"] == settings.load()["pids"][role],
         )
     print(role + ": frozen " + condition + " ready", flush=True)
+
+
+def stop_role(settings, role):
+    if role not in ("case", "commerce", "commerce2", "gateway", "relay"):
+        raise ValueError("unknown owned D5 role")
+    state = settings.load()
+    pid = state.get("pids", {}).get(role)
+    if pid is None:
+        return
+    if type(pid) is not int or pid < 1:
+        raise ValueError("invalid owned PID")
+    marker = (
+        "--run-id=" if role == "relay" else "-Drf.backend.run="
+    ) + settings.identity
+    command = (
+        f"$p=Get-CimInstance Win32_Process -Filter 'ProcessId={pid}'; "
+        f"if ($p -and $p.CommandLine.Contains('{marker}')) {{ Stop-Process -Id {pid} -ErrorAction Stop }} "
+        "elseif ($p) { throw 'process ownership mismatch' }"
+    )
+    run(["powershell", "-NoProfile", "-Command", command])
+    state["pids"].pop(role)
+    settings.save(state)
+
+
+def upgrade_probe(settings, version):
+    if not version.isalnum():
+        raise ValueError("explicit probe version required")
+    target = settings.folder / ("probe-classes-" + version)
+    target.mkdir(exist_ok=False)
+    source = settings.folder / ("D5Probe-" + version + ".java")
+    freeze_file(ROOT / "scripts/evaluation/D5Probe.java", source)
+    # javac requires the public class filename even when the immutable snapshot has a version.
+    compile_source = target / "source/D5Probe.java"
+    freeze_file(source, compile_source)
+    java = Path(os.environ.get("JAVA_HOME", str(Path.home() / ".jdks/jdk-21.0.12.1+1")))
+    output = run(
+        [
+            str(java / "bin/javac.exe"),
+            "-encoding",
+            "UTF-8",
+            "-cp",
+            str(settings.folder / "unpacked/B/commerce/lib/*"),
+            "-d",
+            str(target),
+            str(compile_source),
+        ]
+    )
+    (target / "compile.log").write_bytes(output.encode())
+    state = settings.load()
+    state["d5_probe_group"] = target.name
+    settings.save(state)
+    return {
+        p.relative_to(settings.folder).as_posix(): sha256(p)
+        for p in target.rglob("*.class")
+    }
 
 
 def prepare(settings):
