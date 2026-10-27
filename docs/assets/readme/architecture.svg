@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1010" viewBox="0 0 1280 1010" role="img" aria-labelledby="title desc">
+<title id="title">ResolveFlow 四服务架构</title><desc id="desc">Vue经Gateway访问Case。Case通过HTTP调用Commerce和Python Agent。Agent经限定入口读取事实并回调。Case与Commerce通过RocketMQ传递退款命令和结果。Case与Commerce各有MySQL库并使用共享Redis，Agent使用PostgreSQL和pgvector。</desc>
+<g font-family="Microsoft YaHei, PingFang SC, Noto Sans CJK SC, Arial, sans-serif">
+<rect x="1" y="1" width="1278" height="1008" rx="20" fill="#f7fafc" stroke="#dce6ef"/>
+<text x="36" y="49" font-size="30" fill="#152d46" font-weight="700" text-anchor="start">四个服务，一条可追踪的售后链路</text>
+<text x="36" y="82" font-size="21" fill="#596f85" font-weight="400" text-anchor="start">HTTP 连接用户操作与调查，RocketMQ 连接授权后的可靠执行。</text>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7292ac"/></marker><marker id="mq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9386"/></marker></defs>
+<path d="M 335 170 H 470" fill="none" stroke="#7292ac" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="402" y="150" font-size="18" fill="#668099" font-weight="400" text-anchor="middle">HTTP</text>
+<path d="M 640 217 V 320" fill="none" stroke="#7292ac" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="659" y="278" font-size="19" fill="#668099" font-weight="400" text-anchor="start">/api/v1/**</text>
+<path d="M 470 445 H 360" fill="none" stroke="#0d9386" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#mq)" marker-start="url(#mq)"/>
+<path d="M 210 502 V 655" fill="none" stroke="#0d9386" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#mq)" marker-start="url(#mq)"/>
+<text x="74" y="567" font-size="20" fill="#087f79" font-weight="400" text-anchor="start">命令 / 结果</text>
+<path d="M 500 510 V 604 H 430 V 655" fill="none" stroke="#7292ac" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<text x="446" y="580" font-size="20" fill="#526e86" font-weight="400" text-anchor="middle">HTTP · 订单 / 交易</text>
+<path d="M 810 406 H 970 V 655" fill="none" stroke="#7292ac" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<text x="997" y="467" font-size="21" fill="#526e86" font-weight="400" text-anchor="start">HTTP</text>
+<text x="997" y="503" font-size="20" fill="#526e86" font-weight="400" text-anchor="start">调度 / 回调</text>
+<text x="997" y="539" font-size="20" fill="#526e86" font-weight="400" text-anchor="start">限定事实读取</text>
+<rect x="50" y="123" width="285" height="94" rx="14" fill="#ffffff" stroke="#d6e2ed"/>
+<text x="73" y="159" font-size="25" fill="#152d46" font-weight="700" text-anchor="start">Vue 3 · TypeScript</text>
+<text x="73" y="193" font-size="20" fill="#5d7188" font-weight="400" text-anchor="start">买家 / 商家 / 平台</text>
+<rect x="470" y="123" width="340" height="94" rx="14" fill="#edf5ff" stroke="#b5cfee"/>
+<text x="493" y="160" font-size="27" fill="#152d46" font-weight="700" text-anchor="start">Gateway</text>
+<text x="493" y="194" font-size="18" fill="#526e86" font-weight="400" text-anchor="start">Spring Cloud Gateway · API 路由</text>
+<rect x="906" y="123" width="324" height="94" rx="14" fill="#eafaf6" stroke="#b7e6da"/>
+<text x="930" y="159" font-size="24" fill="#087f79" font-weight="700" text-anchor="start">按商家隔离</text>
+<text x="930" y="192" font-size="20" fill="#526e86" font-weight="400" text-anchor="start">数据 · 政策 · 访问权限</text>
+<rect x="470" y="320" width="340" height="190" rx="14" fill="#ffffff" stroke="#b5cfee"/>
+<text x="494" y="362" font-size="30" fill="#152d46" font-weight="700" text-anchor="start">Case</text>
+<text x="494" y="399" font-size="22" fill="#425e78" font-weight="400" text-anchor="start">身份 / 咨询 / 工单 / 授权</text>
+<path d="M 494 421 H 786" stroke="#e0e9f0"/>
+<text x="494" y="452" font-size="21" fill="#526e86" font-weight="400" text-anchor="start">MySQL · case_db</text>
+<text x="494" y="484" font-size="19" fill="#526e86" font-weight="400" text-anchor="start">Redis · 工作台缓存 / 限流</text>
+<rect x="60" y="396" width="300" height="106" rx="14" fill="#eafaf6" stroke="#a9ded2"/>
+<text x="85" y="436" font-size="26" fill="#087f79" font-weight="700" text-anchor="start">RocketMQ</text>
+<text x="85" y="474" font-size="19" fill="#52776f" font-weight="400" text-anchor="start">Outbox / Inbox · 至少一次</text>
+<rect x="50" y="655" width="530" height="225" rx="14" fill="#ffffff" stroke="#b5cfee"/>
+<text x="76" y="698" font-size="30" fill="#152d46" font-weight="700" text-anchor="start">Commerce</text>
+<text x="76" y="738" font-size="23" fill="#425e78" font-weight="400" text-anchor="start">商品 / 结算 / 订单 / 评价</text>
+<text x="76" y="776" font-size="22" fill="#425e78" font-weight="400" text-anchor="start">资金预留 / 退款执行 / 未知结果对账</text>
+<path d="M 76 798 H 554" stroke="#e0e9f0"/>
+<text x="76" y="831" font-size="21" fill="#526e86" font-weight="400" text-anchor="start">MySQL · commerce_db</text>
+<text x="76" y="862" font-size="20" fill="#526e86" font-weight="400" text-anchor="start">Redis · 评价缓存 / Redisson 热点协调</text>
+<rect x="700" y="655" width="530" height="225" rx="14" fill="#ffffff" stroke="#a9ded2"/>
+<text x="726" y="698" font-size="30" fill="#152d46" font-weight="700" text-anchor="start">Python Agent</text>
+<text x="726" y="738" font-size="22" fill="#425e78" font-weight="400" text-anchor="start">FastAPI / AgentScope / 受限工具</text>
+<text x="726" y="776" font-size="22" fill="#425e78" font-weight="400" text-anchor="start">政策检索 / 上下文 / 持久化恢复</text>
+<path d="M 726 798 H 1204" stroke="#e0e9f0"/>
+<text x="726" y="831" font-size="21" fill="#526e86" font-weight="400" text-anchor="start">PostgreSQL / pgvector</text>
+<text x="726" y="862" font-size="20" fill="#526e86" font-weight="400" text-anchor="start">run / checkpoint / 调用记录 / 政策索引</text>
+<text x="640" y="930" font-size="23" fill="#254863" font-weight="700" text-anchor="middle">Java 掌握权限、授权与资金；Agent 负责调查与建议。</text>
+<text x="640" y="969" font-size="19" fill="#61788d" font-weight="400" text-anchor="middle">各服务卡片标注数据归属；Redis 为共享基础设施。支付、物流与退款均为本地模拟。</text>
+</g></svg>

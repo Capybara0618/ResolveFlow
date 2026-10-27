@@ -56,6 +56,13 @@ tmp/
 !/docs/product-spec.md
 !/docs/repository.md
 !/docs/system-design.md
+!/docs/assets/
+/docs/assets/*
+!/docs/assets/readme/
+/docs/assets/readme/*
+!/docs/assets/readme/hero.png
+!/docs/assets/readme/workflow.svg
+!/docs/assets/readme/architecture.svg
 /scripts/*
 !/scripts/agent_eval.py
 !/scripts/c11_core_smoke.py

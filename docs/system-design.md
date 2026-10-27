@@ -2,6 +2,10 @@
 
 多商家商城与智能售后个人项目，支付、发货和退款均为本地模拟。
 
+![四服务架构与通信边界](assets/readme/architecture.svg)
+
+当前公共`/api/v1/**`统一经Gateway转发Case，由Case完成业务鉴权并调用Commerce或Agent。Agent通过Case限定范围的事实入口读取订单、物流与会话；退款命令及结果由RocketMQ连接Case与Commerce。图中的缓存标注表示用途，Redis是共享基础设施；Case与Commerce分别持有自己的MySQL业务库。入口实现见[网关路由](../java/gateway/src/main/java/com/resolveflow/gateway/CoreRoutes.java)、[Agent调度](../java/case-service/src/main/java/com/resolveflow/caseservice/support/SupportAgentClient.java)与[事实读取](../agent/src/resolveflow/support/sources.py)。
+
 | 组件 | 职责 | 数据 |
 | --- | --- | --- |
 | Gateway | 公共HTTP路由 | 无业务库 |
