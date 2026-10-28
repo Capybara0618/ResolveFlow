@@ -77,6 +77,20 @@ def test_new_acceptance_inputs_do_not_replace_the_original_failed_cohort():
         t for c in smoke.CASES_V2 for t in c["turns"])
 
 
+def test_followup_shares_the_original_absolute_ceiling_instead_of_resetting_allowance(tmp_path):
+    ledger = tmp_path / "ledger.json"
+    ledger.write_text(json.dumps({"used": 28}))
+    allowance = smoke.Allowance(ledger, batch_start=0)
+    allowance.consume()
+    allowance.consume()
+    with pytest.raises(SupportFailure, match="SMOKE_REQUEST_LIMIT"):
+        allowance.consume()
+    assert json.loads(ledger.read_text())["used"] == 30
+    for invalid_start in [31, -1, 0.5]:
+        with pytest.raises(ValueError):
+            smoke.Allowance(ledger, batch_start=invalid_start)
+
+
 def test_recorded_failed_logistics_answer_can_use_observed_order_without_claiming_logistics_success():
     from resolveflow.harness.model import MockModelClient
     from resolveflow.support.engine import SupportAgent

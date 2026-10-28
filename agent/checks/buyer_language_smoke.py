@@ -76,11 +76,13 @@ def ledger_lock(path: Path):
 
 
 class Allowance:
-    def __init__(self, path: Path, limit: int = LIMIT):
+    def __init__(self, path: Path, limit: int = LIMIT, *, batch_start: int | None = None):
         self.path, self.limit = path, limit
         self.value = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"used": 0}
-        self.start = self.value["used"]
-        if type(self.start) is not int or self.start < 0 or not 0 <= limit <= LIMIT:
+        used = self.value["used"]
+        self.start = used if batch_start is None else batch_start
+        if (type(used) is not int or type(self.start) is not int or not 0 <= self.start <= used
+                or used - self.start > limit or not 0 <= limit <= LIMIT):
             raise ValueError("invalid request allowance")
 
     def consume(self) -> None:
@@ -175,7 +177,7 @@ def request_for(case: dict[str, Any], index: int, history: list[dict[str, Any]],
         deadline_at=datetime.now(UTC) + timedelta(seconds=120), context=context)
 
 
-def execute(output: Path, *, cases: list[dict[str, Any]] | None = None) -> None:
+def execute(output: Path, *, cases: list[dict[str, Any]] | None = None, batch_start: int | None = None) -> None:
     if output.exists():
         raise FileExistsError("existing run retained; never automatically repeat paid checks")
     key = os.environ.get("RESOLVEFLOW_MODEL_API_KEY") or os.environ.get("Deepseek_API_KEY")
@@ -190,8 +192,8 @@ def execute(output: Path, *, cases: list[dict[str, Any]] | None = None) -> None:
         "files": {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}
     persist(output, report)
     with ledger_lock(LEDGER):
-        allowance = Allowance(LEDGER)
-        report.update(state="RUNNING", usage_before=allowance.start)
+        allowance = Allowance(LEDGER, batch_start=batch_start)
+        report.update(state="RUNNING", usage_before=allowance.value["used"], batch_start=allowance.start)
         try:
             for case in selected:
                 history: list[dict[str, Any]] = []
@@ -236,7 +238,8 @@ def execute(output: Path, *, cases: list[dict[str, Any]] | None = None) -> None:
             report["state"] = "FINISHED"
         finally:
             report["usage_after"] = allowance.value["used"]
-            report["new_attempts"] = allowance.value["used"] - allowance.start
+            report["new_attempts"] = allowance.value["used"] - report["usage_before"]
+            report["batch_attempts"] = allowance.value["used"] - allowance.start
             persist(output, report)
 
 
@@ -245,12 +248,20 @@ if __name__ == "__main__":
     parser.add_argument("--execute", action="store_true", help="explicitly permit at most 30 paid model requests")
     parser.add_argument("--profile", choices=["v1", "v2"], default="v1")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--case", action="append", dest="case_ids", help="explicit named subset; no implicit reruns")
+    parser.add_argument("--batch-start", type=int, help="preserve the original batch's absolute request ceiling")
     arguments = parser.parse_args()
     selected = CASES if arguments.profile == "v1" else CASES_V2
+    if arguments.case_ids:
+        if len(set(arguments.case_ids)) != len(arguments.case_ids) or not set(arguments.case_ids) <= {
+            case["id"] for case in selected
+        }:
+            parser.error("unknown or repeated case")
+        selected = [case for case in selected if case["id"] in arguments.case_ids]
     output = arguments.output or (DEFAULT_OUTPUT if arguments.profile == "v1" else
                                   ROOT / "tmp/buyer-language-smoke-v2/runtime-results.json")
     if arguments.execute:
-        execute(output, cases=selected)
+        execute(output, cases=selected, batch_start=arguments.batch_start)
     else:
         print(json.dumps({"cases": len(selected), "turns": sum(len(c["turns"]) for c in selected),
                           "max_paid_requests": LIMIT, "paid_requests_sent": 0}))
