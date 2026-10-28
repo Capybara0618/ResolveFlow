@@ -240,12 +240,14 @@ class SupportAgent:
                            + "\n有缺客户信息的真实阻碍时按状态省略原因，不虚构；示例内容须实际生成，不原样照抄。")
                 system += ("\n最后检查买家实际看到的parts.text：直接说结论和必要条件，不写问题分类或调查报告。"
                            "例如说‘签收情况还需要商家核实’，不要说‘签收争议、人工核验’。"
-                           "只给买家当前需要的一步，没问到的退款、付款、共享和提交流程不要展开。")
+                           "只给买家当前需要的一步，没问到的退款、付款、共享和提交流程不要展开。"
+                           "条款只写客户材料时，就说‘商家需要核实你提供的情况和订单’，不自行具体化材料清单。")
                 if contract["reason_fields"]:
                     system += ("\n以下事项的原因、金额和确认操作由独立卡片展示："
                                + canonical_json([field["task_id"] for field in contract["reason_fields"]])
                                + "。这些事项的text只写相关事实与处理条件；不要复述原因、预告已整理好，"
-                               "也不要写‘核对后再提交’等办理说明。原因原话只放独立reason字段。")
+                               "也不要写‘核对后再提交’等办理说明。原因原话只放独立reason字段。"
+                               "退款范围用日常说法‘退还这件商品的实付金额’，正文无需重报卡片金额。")
                 system += "\n本轮完整输出示例：\n" + canonical_json(contract["example"])
         messages = [raw_text_message(system, role="system"), messenger_message(packet)]
         ceiling = self.budget.step_output_tokens
