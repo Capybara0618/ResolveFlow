@@ -114,7 +114,7 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
         <button v-else-if="!outdated" data-refund="confirm" class="primary" :disabled="busy || !!pending" @click="send('confirm')">确认提交申请</button>
       </footer>
     </article>
-    <div v-if="!showDraft && !blockingApplication && !pending" class="refund-entry"><span>{{ loaded ? '需要正式退款？核对原因后再提交。' : '正在读取退款信息…' }}</span><button data-refund="start" :disabled="busy || !loaded" @click="start">申请退款</button></div>
+    <div v-if="!showDraft && !blockingApplication && !pending" class="refund-entry"><span v-if="!loaded">正在读取退款信息…</span><button data-refund="start" :disabled="busy || !loaded" @click="start">申请退款</button></div>
   </section>
 </template>
 

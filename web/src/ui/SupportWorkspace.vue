@@ -284,15 +284,14 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
             <p v-if="!selected.messages.length && merchant && !selected.ticket?.shared_messages.length" class="support-list-empty">客户补充与商家回复将显示在这里。</p>
             <article v-for="m in selected.messages" :key="m.message_id" :class="['support-message', m.author.toLowerCase(), { 'message-ledger': historyTab }]">
               <span v-if="m.author !== 'CUSTOMER' || merchant" :class="['support-avatar', m.author.toLowerCase()]"><Icon :name="m.author === 'ASSISTANT' ? 'sparkle' : m.author === 'MERCHANT' ? 'box' : 'user'" /></span>
-              <div class="support-message-content"><strong class="support-author">{{ m.author === 'ASSISTANT' ? '售后助手' : m.author === 'MERCHANT' ? '商家' : merchant ? '客户' : '我' }}</strong><div class="support-message-bubble"><p>{{ m.text }}</p></div>
-                <small class="support-message-meta">{{ stamp(m.created_at, true) }}<template v-if="m.author === 'ASSISTANT' && m.assistant?.mode === 'mock'"> · 脚本模型演示</template><template v-else-if="m.author !== 'ASSISTANT'"> · {{ m.recipient === 'ASSISTANT' ? '仅你和助手可见' : '商家核查记录' }}</template></small>
+              <div class="support-message-content"><strong v-if="merchant || m.author === 'MERCHANT'" class="support-author">{{ m.author === 'ASSISTANT' ? '售后助手' : m.author === 'MERCHANT' ? '商家' : '客户' }}</strong><div class="support-message-bubble"><p>{{ m.text }}</p></div>
+                <small class="support-message-meta"><time :datetime="m.created_at">{{ stamp(m.created_at, true) }}</time><template v-if="m.author === 'ASSISTANT' && m.assistant?.mode === 'mock'"> · 脚本模型演示</template><template v-else-if="m.author !== 'ASSISTANT' && (merchant || m.recipient === 'MERCHANT')"> · {{ m.recipient === 'ASSISTANT' ? '仅你和助手可见' : '商家核查记录' }}</template></small>
                 <BuyerSources v-if="m.assistant && !merchant" :citations="m.assistant.citations" /><SupportSources v-else-if="m.assistant" :citations="m.assistant.citations" compact />
               </div>
-              <span v-if="m.author === 'CUSTOMER' && !merchant" class="support-avatar customer"><Icon name="user" /></span>
             </article>
             <article v-if="!merchant && selected.generation?.attempt_id" class="support-message assistant" data-generation>
               <span class="support-avatar assistant"><Icon name="sparkle" /></span>
-              <div class="support-message-content"><strong class="support-author">售后助手</strong>
+              <div class="support-message-content">
                 <div class="support-message-bubble"><p>{{ generationText || '正在完善回答…' }}<span aria-hidden="true" class="support-stream-caret">▍</span></p></div>
                 <small class="support-message-meta">正在生成…</small>
               </div>
@@ -308,7 +307,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
             <div v-else-if="selected.ticket" class="support-recipient"><button :class="{ current: recipient === 'MERCHANT' }" :disabled="busy || !!pending" @click="recipient = 'MERCHANT'">补充给商家</button><button :class="{ current: recipient === 'ASSISTANT' }" :disabled="busy || !!pending" @click="recipient = 'ASSISTANT'">询问智能助手</button></div>
             <div class="support-input-box"><textarea v-model="draft" aria-label="咨询消息" maxlength="4000" :disabled="busy || !!pending || (merchant && selected.ticket?.status === 'RESOLVED')" :placeholder="merchant ? '填写核查回复或需要客户补充的问题…' : recipient === 'MERCHANT' ? '补充给当前商家核查单…' : '继续描述问题，或补充、纠正之前的信息…'" @keydown.enter.exact="enter" />
               <div class="support-actions"><small v-if="merchant">客户将在原咨询中看到回复</small><button v-if="!merchant && selected.ticket?.status === 'REPLIED'" :disabled="busy || !!pending" @click="submit({ kind: 'resolve', id: selected.conversation_id, body: { expected_version: selected.version } })">确认问题已解决</button><button data-action="send" class="primary" :disabled="!draft.trim() || busy || !!pending || (merchant && selected.ticket?.status === 'RESOLVED')" @click="send">{{ busy ? '提交中…' : merchant ? '发送回复' : '发送' }}<Icon v-if="!merchant" name="arrow" :size="16" /></button></div>
-            </div><div class="support-compose-meta"><small v-if="!merchant">{{ recipient === 'MERCHANT' ? '补充给商家核查' : '仅共享你确认的申请或核查内容' }}</small><button class="text-action support-refresh" :disabled="busy || !!pending" @click="refresh()">刷新进度</button></div>
+            </div><div class="support-compose-meta"><small v-if="!merchant">{{ recipient === 'MERCHANT' ? '正在补充给商家核查' : '正在与售后助手对话' }}</small><button class="text-action support-refresh" :disabled="busy || !!pending" @click="refresh()">刷新进度</button></div>
           </div>
         </template>
         <div v-else class="support-empty"><span class="support-avatar assistant"><Icon :name="loading ? 'clock' : 'queue'" :size="32" /></span><h2>{{ loading ? '正在读取咨询…' : merchant ? '本店咨询，集中核查' : '售后咨询，从这件商品开始' }}</h2><p>{{ loading ? '请稍候' : merchant ? '选择左侧核查单，查看客户诉求与调查依据。' : '选择需要咨询的订单商品，历史记录会独立保留。' }}</p><button v-if="!merchant && !loading" class="primary" @click="pickOrder">选择订单商品</button></div>
