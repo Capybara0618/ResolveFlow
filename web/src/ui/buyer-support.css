@@ -92,6 +92,13 @@
 .workbench .buyer-support.buyer-support button.support-heading-handoff { padding: 6px 9px; font-size: 12px; }
 .workbench .buyer-support .support-tag.blue { background: #edf5ef; color: #176b5c; }
 .workbench .buyer-support .support-agent-state { color: #727f77; }
+.workbench .buyer-support .support-agent-waiting { width: fit-content; max-width: calc(100% - 32px); margin: 18px 0 18px 32px; padding: 10px 14px; border-radius: 8px; background: #f5f7f0; gap: 12px; font-size: 14px; line-height: 1.7; color: #526659; }
+.support-waiting-dots { display: inline-flex; gap: 4px; flex-shrink: 0; }
+.support-waiting-dots i { width: 4px; height: 4px; border-radius: 50%; background: #39715e; animation: support-waiting 1.4s ease-in-out infinite; }
+.support-waiting-dots i:nth-child(2) { animation-delay: .15s; }
+.support-waiting-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes support-waiting { 0%, 70%, 100% { opacity: .35; } 35% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .support-waiting-dots i { animation: none; opacity: .7; } }
 .workbench .buyer-support .support-ticket { background: #edf5ef; color: #176b5c; }
 .workbench .buyer-support .support-ticket p { color: #45634f; }
 .workbench .buyer-support .support-handoff-card { background: #f2f7f0; border-color: #dbe8d6; color: #176b5c; }

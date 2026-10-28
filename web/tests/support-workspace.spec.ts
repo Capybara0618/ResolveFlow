@@ -106,7 +106,7 @@ it('keeps corrections and human handoff available while the assistant is running
   vi.mocked(supportApi.read).mockResolvedValue(conversation)
   const mutate = vi.spyOn(supportApi, 'mutate').mockResolvedValue(conversation)
   await open()
-  expect(wrapper.text()).toContain('助手正在处理你的问题')
+  expect(wrapper.get('[data-buyer-waiting]').text()).toContain('正在帮你查看，请稍候')
   expect(wrapper.get('[data-action="handoff"]').attributes('disabled')).toBeUndefined()
   await wrapper.get('[aria-label="咨询消息"]').setValue('更正，已经找到了')
   await wrapper.get('[data-action="send"]').trigger('click'); await flushPromises()
@@ -150,6 +150,23 @@ function completed(c: SupportConversation): SupportStreamEvent {
       assistant: { run_id: c.assistant_turn!.run_id, mode: 'mock', citations: [], handoff_summary: null } } }
 }
 
+it.each([
+  ['ORDER', '正在核对订单'], ['SHIPMENT', '正在查看物流'], ['POLICY', '正在查阅售后政策'],
+  ['FUTURE_INTERNAL_TOOL', '正在帮你查看'],
+])('shows buyer-facing activity for %s without exposing tool names or invented completion', async (category, label) => {
+  const c: SupportConversation = { ...original(), assistant_turn: { run_id: 'stream-run', status: 'RUNNING', reason: null } }
+  vi.mocked(supportApi.read).mockResolvedValue(c)
+  await open()
+  const deliver = vi.mocked(streamEvents.watchSupportEvents).mock.calls.at(-1)![2]
+  deliver({ ...completed(c), kind: 'activity.started', payload: { category } }); await flushPromises()
+  expect(wrapper.get('[data-buyer-waiting]').text()).toContain(label)
+  expect(wrapper.get('[data-buyer-waiting]').text()).not.toContain(category)
+  expect(wrapper.find('[role="progressbar"]').exists()).toBe(false)
+  deliver({ ...completed(c), kind: 'answer.failed', payload: {} }); await flushPromises()
+  expect(wrapper.find('[data-buyer-waiting]').exists()).toBe(false)
+  expect(wrapper.text()).toContain('可重新提问或请商家核查')
+})
+
 it('shows one provisional bubble, clears rejected text and replaces it with the committed answer', async () => {
   const c: SupportConversation = { ...original(), assistant_turn: { run_id: 'stream-run', status: 'RUNNING', reason: null } }
   vi.mocked(supportApi.read).mockResolvedValue(c)
@@ -158,7 +175,7 @@ it('shows one provisional bubble, clears rejected text and replaces it with the 
   const event = (kind: SupportStreamEvent['kind'], payload: Record<string, unknown>, attempt: string | null = 'model-3') =>
     deliver({ ...completed(c), kind, payload, attempt_id: attempt })
   event('activity.started', { category: 'SHIPMENT' }, null); await flushPromises()
-  expect(wrapper.text()).toContain('正在帮你查看，请稍候')
+  expect(wrapper.text()).toContain('正在查看物流')
   event('activity.completed', { category: 'SHIPMENT' }, null)
   event('answer.started', {})
   event('answer.delta', { part_id: 'part-0', offset: 0, text: '第一段生成文字' }); await flushPromises()
@@ -167,7 +184,8 @@ it('shows one provisional bubble, clears rejected text and replaces it with the 
   expect(wrapper.find('[data-action="preview-handoff"]').exists()).toBe(false)
   event('answer.reset', {}, 'model-4'); await flushPromises()
   expect(wrapper.text()).not.toContain('第一段生成文字')
-  expect(wrapper.get('[data-generation]').text()).toContain('正在完善回答')
+  expect(wrapper.find('[data-generation]').exists()).toBe(false)
+  expect(wrapper.get('[data-buyer-waiting]').text()).toContain('正在完善回答')
   event('answer.started', {}, 'model-4')
   event('answer.delta', { part_id: 'part-0', offset: 0, text: '修复后的生成文字' }, 'model-4')
   deliver(completed(c)); await flushPromises()

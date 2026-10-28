@@ -41,13 +41,14 @@ const visibleItems = computed(() => matching.value.filter(c => !merchant.value |
 const visibleOrders = computed(() => orders.value.filter(o => [o.product_name, o.sku, o.merchant_name, o.order_id].join(' ').toLocaleLowerCase().includes(orderSearch.value.trim().toLocaleLowerCase())))
 const latestAssistant = computed(() => selected.value?.messages.find(m => m.author === 'ASSISTANT' && m.sequence === selected.value?.version && m.assistant))
 const sharedCitations = computed(() => latestAssistant.value?.assistant?.citations.filter(c => c.source_type !== 'CONVERSATION') ?? [])
+const assistantBusy = computed(() => !merchant.value && ['PENDING', 'RUNNING'].includes(selected.value?.assistant_turn?.status ?? ''))
 const assistantState = computed(() => {
   const turn = selected.value?.assistant_turn
   if (!turn || merchant.value) return ''
   const category = selected.value?.generation?.activity
-  if (turn.status === 'RUNNING' && category) return '正在帮你查看，请稍候…'
-  if (selected.value?.generation?.attempt_id) return ''
-  return { PENDING: '助手正在等待处理，你可以继续补充问题。', RUNNING: '助手正在处理你的问题，可以继续补充或纠正。', SUCCEEDED: '', FAILED: '助手本次未能完成回答，可重新提问或请商家核查。', STALE: '问题已更新，旧回复不会发布。' }[turn.status]
+  if (turn.status === 'RUNNING' && category) return ({ ORDER: '正在核对订单…', SHIPMENT: '正在查看物流…', POLICY: '正在查阅售后政策…', GUIDE: '正在查找处理方式…', HISTORY: '正在查看之前的沟通…' } as Record<string, string>)[category] || '正在帮你查看，请稍候…'
+  if (turn.status === 'RUNNING' && selected.value?.generation?.attempt_id) return generationText.value ? '' : '正在完善回答…'
+  return { PENDING: '问题已收到，正在准备查看…', RUNNING: '正在帮你查看，请稍候…', SUCCEEDED: '', FAILED: '助手本次未能完成回答，可重新提问或请商家核查。', STALE: '问题已更新，旧回复不会发布。' }[turn.status]
 })
 const generationText = computed(() => Object.entries(selected.value?.generation?.parts ?? {}).sort(([a], [b]) => a.localeCompare(b)).map(([, text]) => text).join('\n\n'))
 const pending = ref<SupportPending | null>(readSupportPending(owner))
@@ -291,14 +292,14 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
                 <BuyerSources v-if="m.assistant && !merchant" :citations="m.assistant.citations" /><SupportSources v-else-if="m.assistant" :citations="m.assistant.citations" compact />
               </div>
             </article>
-            <article v-if="!merchant && selected.generation?.attempt_id" class="support-message assistant" data-generation>
+            <article v-if="!merchant && selected.generation?.attempt_id && generationText" class="support-message assistant" data-generation>
               <span class="support-avatar assistant"><Icon name="sparkle" /></span>
               <div class="support-message-content">
                 <div class="support-message-bubble"><p>{{ generationText || '正在完善回答…' }}<span aria-hidden="true" class="support-stream-caret">▍</span></p></div>
                 <small class="support-message-meta">正在生成…</small>
               </div>
             </article>
-            <p v-if="assistantState" role="status" class="support-agent-state"><Icon name="clock" :size="16" />{{ assistantState }}</p>
+            <div v-if="assistantState" role="status" class="support-agent-state" :class="{ 'support-agent-waiting': assistantBusy }" :data-buyer-waiting="assistantBusy ? '' : undefined"><span v-if="assistantBusy" class="support-waiting-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>{{ assistantState }}</span></div>
             <SupportRefundCard v-if="!merchant && !historyTab" :key="`${owner}:${selected.conversation_id}`" :token="token" :owner="owner" :conversation="selected" @layout-change="refundLayout" @expired="emit('expired')" />
             <section v-if="!merchant && !selected.ticket && latestAssistant && assistantOffers(latestAssistant, 'MERCHANT_REVIEW')" class="support-handoff-card"><Icon name="file" :size="25" /><div><h3>需要商家进一步核查</h3><p>将你的问题与相关依据整理给商家。</p><blockquote>{{ latestAssistant.assistant!.handoff_summary }}</blockquote><div><small>可编辑 · 确认后共享</small><button class="primary" data-action="preview-handoff" :disabled="busy || !!pending" @click="handoff">预览并转交商家</button></div></div></section>
           </div>

@@ -28,6 +28,27 @@ beforeEach(() => {
 afterEach(() => { wrappers.splice(0).forEach(w => w.unmount()); vi.restoreAllMocks(); vi.unstubAllGlobals() })
 
 describe('customer application workspace', () => {
+  it('uses the common buyer result in application detail and discovers success through the existing read', async () => {
+    window.history.replaceState(null, '', '/#/customer/applications/case-1')
+    const view = detail(); view.case.status = 'RECONCILING'; view.result.status = 'RECONCILING'
+    view.result.amount_minor = 32900; view.questions = []; view.allowed_actions = []
+    vi.mocked(coreApi.customerCase).mockResolvedValue(view)
+    const w = mount(CustomerWorkspace, { props: { account: { ...account, buyer_id: 'buyer-1' } } }); wrappers.push(w)
+    await flushPromises()
+    expect(w.classes()).toContain('buyer-application-chain')
+    expect(w.get('.buyer-progress').text()).toContain('退款结果待确认')
+    expect(w.find('[data-refund-success]').exists()).toBe(false)
+    expect(w.find('[data-test="cancel-case"]').exists()).toBe(false)
+    const completed = structuredClone(view)
+    completed.case.status = 'CLOSED_SUCCESS'; completed.case.version++
+    completed.result.status = 'CLOSED_SUCCESS'; completed.result.message = '模拟退款已完成'
+    vi.mocked(coreApi.customerCase).mockResolvedValue(completed)
+    await w.findAll('button').find(b => b.text() === '刷新')!.trigger('click'); await flushPromises()
+    expect(w.get('[data-refund-success]').text()).toContain('退款完成')
+    expect(w.get('[data-refund-result-amount]').text()).toContain('329.00')
+    expect(w.get<HTMLDetailsElement>('.buyer-progress-records').element.open).toBe(false)
+  })
+
   it('keeps the buyer application readable when its independent product lookup fails', async () => {
     window.history.replaceState(null, '', '/#/customer/applications')
     vi.mocked(coreApi.orderLine).mockRejectedValueOnce(new Error('Commerce offline')).mockResolvedValueOnce({ ...line, asset_key: 'cup' })

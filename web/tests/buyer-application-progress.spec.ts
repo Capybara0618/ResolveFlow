@@ -58,6 +58,7 @@ describe('buyer application progress', () => {
     detail.blocked_reason = '当前申请不能继续操作。'
     const w = mount(BuyerApplicationProgress, { props: { application: detail } })
     expect(w.find('[data-refund-success]').exists()).toBe(false)
+    expect(w.find('[aria-current="step"]').exists()).toBe(false)
     expect(w.text()).toContain(detail.blocked_reason)
   })
 })

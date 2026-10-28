@@ -24,6 +24,7 @@ const note = computed(() => notes[state.value] || '')
 const stages = ['申请已提交', '核查与审核', '退款结果']
 const stage = computed(() => succeeded.value ? 3 : ['AUTHORIZED', 'EXECUTING', 'RECONCILING'].includes(state.value) ? 2
   : ['QUEUED', 'ANALYZING', 'WAITING_CUSTOMER', 'PENDING_REVIEW', 'CLOSED_REJECTED'].includes(state.value) ? 1 : -1)
+const activeStage = computed(() => ['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(state.value) ? -1 : stage.value)
 const amount = computed(() => {
   const value = props.application.result.amount_minor
   return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
@@ -42,14 +43,14 @@ const message = computed(() => props.application.result.message !== title.value 
   <section class="buyer-progress" :class="{ compact, success: succeeded, attention: ['WAITING_CUSTOMER', 'RECONCILING', 'CLOSED_REJECTED'].includes(state) }" aria-label="申请当前进展">
     <header :data-refund-success="succeeded ? '' : undefined">
       <span class="buyer-progress-symbol"><Icon :name="succeeded ? 'check' : ['CLOSED_REJECTED', 'CANCELLED'].includes(state) ? 'file' : 'clock'" :size="22" /></span>
-      <div><strong>{{ title }}</strong><small v-if="updated">更新于 {{ updated }}</small></div>
+      <div><strong>{{ title }}</strong><small>{{ updated ? `模拟退款 · 更新于 ${updated}` : '模拟退款' }}</small></div>
     </header>
     <div v-if="amount" class="buyer-result-amount" data-refund-result-amount><span>{{ succeeded ? '已退金额（模拟）' : '本次批准金额' }}</span><strong>{{ amount }}</strong></div>
     <p v-if="note" class="buyer-progress-note">{{ note }}</p>
     <p v-if="message && !note" class="buyer-progress-message">{{ message }}</p>
     <p v-if="application.result.public_reason" class="buyer-progress-reason">{{ application.result.public_reason }}</p>
     <p v-if="application.blocked_reason && application.blocked_reason !== application.result.public_reason" class="buyer-progress-blocked">{{ application.blocked_reason }}</p>
-    <ol v-if="stage >= 0" class="buyer-progress-stages" aria-label="申请处理阶段"><li v-for="(label, index) in stages" :key="label" :class="{ done: index < stage, current: index === stage }" :aria-current="index === stage ? 'step' : undefined"><span aria-hidden="true"></span>{{ label }}</li></ol>
+    <ol v-if="stage >= 0" class="buyer-progress-stages" aria-label="申请处理阶段"><li v-for="(label, index) in stages" :key="label" :class="{ done: index < stage, current: index === activeStage }" :aria-current="index === activeStage ? 'step' : undefined"><span aria-hidden="true"></span>{{ label }}</li></ol>
     <details class="buyer-progress-records"><summary>处理记录</summary><ol v-if="application.timeline.length"><li v-for="(event, index) in application.timeline" :key="index"><span>{{ event.summary }}</span><time v-if="stamp(event.occurred_at)" :datetime="event.occurred_at">{{ stamp(event.occurred_at) }}</time></li></ol><p v-else>暂无处理记录。</p><small>申请编号 {{ application.case.case_id }}</small></details>
     <footer v-if="$slots.default"><slot /></footer>
   </section>
@@ -69,7 +70,8 @@ const message = computed(() => props.application.result.message !== title.value 
 .buyer-progress-blocked { padding: 10px 12px !important; background: #f8f4e9; border-radius: 6px; font-size: 13px; color: #7a6239; }
 .buyer-result-amount { display: flex; flex-direction: column; gap: 5px; margin: 22px 0 0; }
 .buyer-result-amount span { font-size: 12px; color: #6a756b; }
-.buyer-result-amount strong { font-size: 30px; font-weight: 500; line-height: 1.3; letter-spacing: -.5px; color: #176b5c; }
+.buyer-result-amount strong { font-size: 30px; font-weight: 500; line-height: 1.3; letter-spacing: -.5px; color: #25322c; }
+.success .buyer-result-amount strong { color: #176b5c; }
 .buyer-progress .buyer-progress-stages { display: flex; list-style: none; margin-top: 22px; gap: 12px; }
 .buyer-progress-stages li { flex: 1; color: #81897f; font-size: 12px; }
 .buyer-progress-stages li > span { display: block; height: 3px; background: #e7ebe3; margin-bottom: 7px; border-radius: 2px; }
