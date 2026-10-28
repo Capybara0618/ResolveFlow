@@ -134,7 +134,7 @@ public class SupportOperationsController {
                 Set.of("live", "mock").contains(mode) ? mode : null,
                 reason == null ? null : REASONS.contains(reason) ? reason : "UNAVAILABLE",
                 r.getTimestamp("created_at").toInstant(),
-                count(result, "model_requests"),
+                count(result, "model_calls"),
                 count(result, "tool_attempts"),
                 count(result, "local_reads"),
                 counts);

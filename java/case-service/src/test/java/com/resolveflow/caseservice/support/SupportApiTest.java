@@ -1228,7 +1228,7 @@ class SupportApiTest extends CaseDatabaseTest {
         jdbc.update(
                 "UPDATE support_agent_turn SET status='FAILED',reason=?,result_json=? WHERE run_id=?",
                 "PRIVATE-FAILURE-DETAIL",
-                "{\"mode\":\"mock\",\"spend\":{\"model_requests\":3},"
+                "{\"mode\":\"mock\",\"spend\":{\"model_calls\":3},"
                         + "\"answer\":{\"text\":\"PRIVATE-ANSWER\",\"citations\":[{\"source_type\":\"POLICY\","
                         + "\"data\":{\"text\":\"PRIVATE-POLICY-QUERY\"}}]}}",
                 run);
