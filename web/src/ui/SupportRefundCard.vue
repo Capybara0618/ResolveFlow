@@ -104,7 +104,7 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
       <header><strong><Icon name="file" :size="18" />退款申请</strong><small>{{ outdated ? '请重新核对' : '待你确认' }}</small></header>
       <div class="refund-overview"><div class="refund-product"><ProductArt :asset="conversation.product.asset_key || ''" :name="conversation.product.name" :variant="conversation.product.variant ?? ''" /><div><strong>{{ conversation.product.name }}</strong><p>{{ conversation.product.variant || '默认规格' }} · {{ d?.quantity ?? conversation.product.quantity }}件</p><span class="refund-store"><Icon name="store" :size="14" />{{ conversation.store_name }}</span></div></div>
       <p class="refund-amount"><span>退款金额</span><strong>{{ d ? `¥${formatMinorUnits(d.amount_minor).replace(' CNY', '')}` : '核对后显示' }}</strong></p></div>
-      <div class="refund-reason"><div><span>申请原因</span><button v-if="!editing" data-refund="edit" :disabled="busy || !!pending" @click="editing = true">{{ outdated ? '重新核对' : '编辑' }}</button></div>
+      <div class="refund-reason"><div><span>你的申请原因</span><button v-if="!editing" data-refund="edit" :disabled="busy || !!pending" @click="editing = true">{{ outdated ? '重新核对' : '编辑' }}</button></div>
         <label v-if="editing">确认要提交给商家的原因<textarea v-model="reason" aria-label="退款申请原因" maxlength="4000" rows="3" :disabled="busy || !!pending" /></label><p v-else tabindex="0">{{ d?.reason }}</p>
       </div>
       <p class="refund-note">确认后提交给商家审核，私有聊天不会自动共享。</p>

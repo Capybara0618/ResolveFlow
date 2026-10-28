@@ -392,8 +392,9 @@ class Orchestration:
                 task_id = next(task["task_id"] for task in state["tasks"] if task["goal"] == goal)
                 summary_part = next(piece for piece in parts if piece.task_id == task_id)
                 quotes = reason.quotes(self.quote_candidates(customer_claims or []))
-                summaries[field] = ground_summary(quotes, summary_part.facts, self.request, refs,
-                                                  customer_claims or [], refund=goal == "PREPARE_REFUND")
+                summaries[field] = ground_summary(
+                    quotes, summary_part.facts, self.request, refs, customer_claims or [],
+                    refund=goal == "PREPARE_REFUND", buyer_view=True)
             elif reason is not None:
                 raise ValueError(f"{field}仅用于本轮仍可办理的明确操作目标")
         return AnswerParts(kind="ANSWER_PARTS", fact_rendering="fields-v1", parts=parts,

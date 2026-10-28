@@ -133,3 +133,24 @@ it('prepares only the accepted current assistant summary and never auto-confirms
   wrapper = mount(SupportRefundCard, { props: input }); await flushPromises()
   expect(mutate).toHaveBeenCalledTimes(1)
 })
+
+it('keeps the buyer reason separate from source records and displays only the Java-checked amount', async () => {
+  const input = props(), plainReason = '耳机一直没有收到，希望申请退款。'
+  input.conversation.product.amount_minor = 99900
+  input.conversation.messages = [{ message_id: 'plain-offer', sequence: 1, author: 'ASSISTANT', recipient: 'CUSTOMER', text: '请核对下方申请。', ticket_id: null, created_at: '', assistant: {
+    run_id: 'run', mode: 'live', handoff_summary: null, refund_summary: plainReason,
+    citations: [{ source_id: 'O-internal', source_type: 'SHIPMENT', content_hash: 'internal-hash', version: 'internal-version', data: { status: 'LOST', carrier_conclusion: 'LOST' } }],
+  } }]
+  vi.mocked(refundApi.read).mockResolvedValue({ draft: null, application: null })
+  const prepared = current()
+  prepared.draft = { ...prepared.draft!, reason: plainReason, amount_minor: 32900 }
+  const mutate = vi.spyOn(refundApi, 'mutate').mockResolvedValue(prepared)
+  wrapper = mount(SupportRefundCard, { props: input }); await flushPromises()
+  expect(wrapper.get('.refund-reason').text()).toContain('你的申请原因')
+  expect(wrapper.get('.refund-reason p').text()).toBe(plainReason)
+  expect(wrapper.get('.refund-amount').text()).toContain('329.00')
+  expect(wrapper.text()).not.toMatch(/O-internal|internal-version|LOST|999\.00/)
+  expect(mutate.mock.calls.map(([, request]) => request.kind)).toEqual(['prepare'])
+  expect(mutate.mock.calls[0]![1]).toMatchObject({ body: { expected_version: 1, reason: plainReason } })
+  expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(true)
+})

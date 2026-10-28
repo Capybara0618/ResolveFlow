@@ -42,7 +42,10 @@ def test_pair_keeps_answer_evidence_and_two_tool_charges_with_one_less_model_dec
     assert {c["source_type"] for c in result["answer"]["citations"]} == {"ORDER", "SHIPMENT", "POLICY", "KNOWLEDGE"}
     assert {name for name, _ in sources.calls} == {"get_support_guide", "get_order_context",
                                                   "get_shipment_trace", "search_policy"}
-    assert "实付123.45元" in result["answer"]["text"] and "123.45 CNY" in result["answer"]["refund_summary"]
+    assert "实付123.45元" in result["answer"]["text"]
+    assert result["answer"]["refund_summary"] == request().context["current_request"]
+    order = next(c for c in result["answer"]["citations"] if c["source_type"] == "ORDER")
+    assert order["data"]["order_line"]["line_paid_amount"] == 12345
 
 
 @pytest.mark.parametrize("invalid", [

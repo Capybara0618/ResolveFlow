@@ -24,7 +24,7 @@ class GroundingError(ValueError):
 
 def ground_summary(quotes: list[str], facts: list[AnswerFact], request: SupportInput,
                    citations: dict[str, dict[str, Any]], customer_claims: list[dict[str, Any]], *,
-                   refund: bool) -> str:
+                   refund: bool, buyer_view: bool = False) -> str:
     """Quote customer evidence; render business fields only from this goal's observed facts."""
     current = str(request.context.get("current_request", ""))
     lines = ["客户陈述（未经核验）："]
@@ -49,7 +49,15 @@ def ground_summary(quotes: list[str], facts: list[AnswerFact], request: SupportI
         lines.append("本摘要未附订单或物流的已读系统记录。")
     lines.append("退款原因草稿尚未提交，待本人核对、编辑并确认。" if refund else
                  "核查摘要尚未发送，待本人核对、编辑并确认共享。")
-    result = "\n".join(lines)
+    # This is a buyer-authored reason, not a report. Preserve literal, source-checked words;
+    # authoritative observations stay in citations and the run record, not in this editable string.
+    # All facts above are still validated even though they are not printed in buyer_view.
+    selected = list(dict.fromkeys(quotes))
+    if buyer_view:
+        selected = [quote for quote in selected if not any(quote != other and quote in other for other in selected)]
+    result = "\n".join(selected if buyer_view else lines)
+    if not result.strip():
+        raise GroundingError("申请原因须包含可核对的客户原话。")
     if len(result) > 2000:
         raise GroundingError("摘要超过2000字符，请选择更少、更短且保留原意的客户原话，不能裁掉事实来源。")
     return result

@@ -5102,11 +5102,12 @@ components:
           - string
           - 'null'
           maxLength: 2000
+          description: Editable customer-stated review request; citations carry separate observed facts. This text is not verified evidence or permission to share.
         refund_summary:
           type: string
           minLength: 1
           maxLength: 2000
-          description: Optional accepted application reason proposal; customer confirmation is still required.
+          description: Optional editable reason quoting active customer statements; observed facts remain in citations, never inferred from this text. Java independently checks money and customer confirmation is still required. Historical report-style strings remain readable.
     SupportAssistantTurn:
       type: object
       additionalProperties: false

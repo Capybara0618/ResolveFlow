@@ -80,7 +80,8 @@ def test_summary_selects_only_bound_program_candidates_and_resolves_original_quo
         {"task_id": "trace", "text": "核查内容待您确认，不会自动共享。"}],
         "handoff_reason": {"customer_refs": [old["id"], "CURRENT"]}}),
         p.meaning(), source_refs(), [], {}, customer_claims=mem.packet()["active"])
-    assert old["quote"] in result.handoff_summary and "未经核验" in result.handoff_summary
+    assert old["quote"] in result.handoff_summary and "未经核验" not in result.handoff_summary
+    assert old["quote"] == old["source"]["quote"]
     assert "CURRENT" not in result.handoff_summary
 
 
@@ -122,7 +123,7 @@ def test_real_loop_carries_candidates_and_repairs_an_unknown_ref_without_guessin
     refs = [c["ref"] for c in model.packets[-1]["summary_candidates"]]
     assert "CURRENT" in refs and mem.entries[0]["id"] not in refs
     assert "H1" in model.packets[-1]["feedback"] and "CURRENT" in model.packets[-1]["feedback"]
-    assert "本轮原话" in result["answer"]["handoff_summary"]
+    assert req.context["current_request"] in result["answer"]["handoff_summary"]
     assert source.calls == [("get_support_guide", {})]
 
 

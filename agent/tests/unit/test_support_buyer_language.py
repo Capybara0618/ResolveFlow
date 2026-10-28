@@ -65,7 +65,9 @@ def test_production_composition_does_not_append_amount_status_and_click_tutorial
     assert "订单状态：" not in text and "订单行实付：" not in text
     assert "退款申请还没提交" in text and "核对" in text and "确认" in text
     assert len(text) < 110
-    assert "123.45 CNY" in result["answer"]["refund_summary"]
+    assert result["answer"]["refund_summary"] == request().context["current_request"]
+    order = next(c for c in result["answer"]["citations"] if c["source_type"] == "ORDER")
+    assert order["data"]["order_line"]["line_paid_amount"] == 12345
     assert result["answer"]["citations"] and agent.repairs == 0 and model.calls == 3
 
 

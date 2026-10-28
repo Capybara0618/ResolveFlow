@@ -42,6 +42,19 @@ CASES = [
         "帮我看看耳机的物流，包裹一直没收到。",
         "更正一下，包裹刚找到了，之前说没收到已经不准确了，先不用查，也不用退款。"]},
 ]
+CASES_V2 = [
+    {"id": "signed-v2", "shipment": "DELIVERED", "turns": [
+        "耳机显示送到了，可我和家里人都没拿到，驿站也说没有。接下来我该找谁处理？"]},
+    {"id": "transit-v2", "shipment": "IN_TRANSIT", "turns": [
+        "这副耳机还没送到，能看出运到哪里、什么时候能到吗？"]},
+    {"id": "policy-v2", "shipment": "DELIVERED", "turns": [
+        "我先了解一下：如果收到耳机发现外壳开裂，通常能申请退款吗？现在先别申请。"]},
+    {"id": "refund-v2", "shipment": "LOST", "turns": [
+        "耳机一直没收到，物流说丢了。请帮我准备退款原因，等我核对后再提交。"]},
+    {"id": "failure-correction-v2", "shipment": "UNKNOWN", "fail_shipment": True, "turns": [
+        "我的耳机还没收到，查查最新配送情况。",
+        "找到了，刚才邻居送过来了。更正之前没收到的情况，别再查了，也不用退款。"]},
+]
 
 
 def persist(path: Path, value: Any) -> None:
@@ -162,7 +175,7 @@ def request_for(case: dict[str, Any], index: int, history: list[dict[str, Any]],
         deadline_at=datetime.now(UTC) + timedelta(seconds=120), context=context)
 
 
-def execute(output: Path) -> None:
+def execute(output: Path, *, cases: list[dict[str, Any]] | None = None) -> None:
     if output.exists():
         raise FileExistsError("existing run retained; never automatically repeat paid checks")
     key = os.environ.get("RESOLVEFLOW_MODEL_API_KEY") or os.environ.get("Deepseek_API_KEY")
@@ -171,15 +184,16 @@ def execute(output: Path) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     files = [Path(__file__), POLICY, *sorted((ROOT / "agent/src/resolveflow/support").glob("*.py")),
              *sorted((ROOT / "agent/src/resolveflow/harness").glob("*.py"))]
+    selected = CASES if cases is None else cases
     report: dict[str, Any] = {"scope": "real model + production SDK loop; synthetic sources; no business writes",
-        "limit": LIMIT, "cases": CASES, "rows": [], "state": "PREPARED",
+        "limit": LIMIT, "cases": selected, "rows": [], "state": "PREPARED",
         "files": {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}
     persist(output, report)
     with ledger_lock(LEDGER):
         allowance = Allowance(LEDGER)
         report.update(state="RUNNING", usage_before=allowance.start)
         try:
-            for case in CASES:
+            for case in selected:
                 history: list[dict[str, Any]] = []
                 previous = None
                 for index in range(len(case["turns"])):
@@ -229,10 +243,14 @@ def execute(output: Path) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--execute", action="store_true", help="explicitly permit at most 30 paid model requests")
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--profile", choices=["v1", "v2"], default="v1")
+    parser.add_argument("--output", type=Path)
     arguments = parser.parse_args()
+    selected = CASES if arguments.profile == "v1" else CASES_V2
+    output = arguments.output or (DEFAULT_OUTPUT if arguments.profile == "v1" else
+                                  ROOT / "tmp/buyer-language-smoke-v2/runtime-results.json")
     if arguments.execute:
-        execute(arguments.output)
+        execute(output, cases=selected)
     else:
-        print(json.dumps({"cases": len(CASES), "turns": sum(len(c["turns"]) for c in CASES),
+        print(json.dumps({"cases": len(selected), "turns": sum(len(c["turns"]) for c in selected),
                           "max_paid_requests": LIMIT, "paid_requests_sent": 0}))

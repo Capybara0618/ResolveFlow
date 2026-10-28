@@ -70,6 +70,13 @@ def test_synthetic_failure_and_correction_preserve_real_previous_answer_not_a_te
     assert len(smoke.CASES) == 5 and sum(len(c["turns"]) for c in smoke.CASES) == 6
 
 
+def test_new_acceptance_inputs_do_not_replace_the_original_failed_cohort():
+    assert len(smoke.CASES_V2) == 5 and sum(len(c["turns"]) for c in smoke.CASES_V2) == 6
+    assert {c["id"] for c in smoke.CASES}.isdisjoint(c["id"] for c in smoke.CASES_V2)
+    assert {t for c in smoke.CASES for t in c["turns"]}.isdisjoint(
+        t for c in smoke.CASES_V2 for t in c["turns"])
+
+
 def test_recorded_failed_logistics_answer_can_use_observed_order_without_claiming_logistics_success():
     from resolveflow.harness.model import MockModelClient
     from resolveflow.support.engine import SupportAgent

@@ -6,13 +6,13 @@ from pathlib import Path
 
 import httpx
 import pytest
-from tests.recorded_sources import SavedSources
 
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.orchestration import Orchestration, Response
 from resolveflow.support.progress import ProgressReporter
 from resolveflow.support.protocol import SupportInput
 from tests.integration.test_support_dialogue_api import TokenizedScript
+from tests.recorded_sources import SavedSources
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_orchestration import plan, source_refs
 
@@ -57,7 +57,8 @@ def test_saved_wrong_refund_goal_keeps_handoff_purpose_with_new_quote_draft_cont
         reporter.close()
     assert result["status"] == "SUCCEEDED", result["reason"]
     assert "新发现耳机外壳有损坏" in result["answer"]["handoff_summary"]
-    assert "未经核验" in result["answer"]["handoff_summary"]
+    assert "已读系统记录" not in result["answer"]["handoff_summary"]
+    assert result["answer"]["customer_memory"]["origin"] == "GROUNDED_CUSTOMER_CLAIMS"
     assert "refund_summary" not in result["answer"] and "正式退款：" not in result["answer"]["text"]
     assert "补充给商家" in result["answer"]["text"]
     assert agent.repairs == 0 and len(agent.orchestration.goal_reviews) == 1

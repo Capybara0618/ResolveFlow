@@ -48,9 +48,10 @@ def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_
     assert result["spend"]["local_reads"] == 2 and result["spend"]["tool_attempts"] == 2
     assert model.packets[3]["orchestration"]["tasks"][0]["missing"] == ["ORDER", "POLICY"]
     assert model.packets[-1]["orchestration"]["phase"] == "COMPOSE"
-    assert result["answer"]["refund_summary"].startswith("客户陈述")
+    assert result["answer"]["refund_summary"] == req.context["current_request"]
     assert "实付123.45元，承运记录显示丢失" in result["answer"]["text"]
-    assert "123.45 CNY" in result["answer"]["refund_summary"]
+    order = next(c for c in result["answer"]["citations"] if c["source_type"] == "ORDER")
+    assert order["data"]["order_line"]["line_paid_amount"] == 12345
     assert {c["source_type"] for c in result["answer"]["citations"]} == {"ORDER", "SHIPMENT", "POLICY", "KNOWLEDGE"}
 
 

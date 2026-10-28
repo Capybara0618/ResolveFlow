@@ -67,7 +67,7 @@ def test_program_assembles_steps_amount_facts_and_summary_from_one_accepted_goal
     assert result.fact_rendering == "fields-v1"
     assert result.parts[0].next_steps[0].model_dump() == {"action": "REFUND_APPLICATION", "source": "O1"}
     assert {f.field for f in result.parts[0].facts} == {"ORDER_STATUS", "PAID_AMOUNT"}
-    assert result.refund_summary.startswith("客户陈述")
+    assert result.refund_summary == req.context["current_request"]
     assert result.parts[0].citations == ["O3", "O1"]
 
 
