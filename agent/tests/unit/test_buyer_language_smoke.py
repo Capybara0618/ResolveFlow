@@ -77,6 +77,15 @@ def test_new_acceptance_inputs_do_not_replace_the_original_failed_cohort():
         t for c in smoke.CASES_V2 for t in c["turns"])
 
 
+def test_buyer_view_acceptance_freezes_new_inputs_and_an_independent_multi_issue_question():
+    cases = smoke.CASES_BUYER_VIEW
+    assert len(cases) == 6 and sum(len(c['turns']) for c in cases) == 7
+    old = {text for c in [*smoke.CASES, *smoke.CASES_V2] for text in c['turns']}
+    assert not old.intersection(text for c in cases for text in c['turns'])
+    assert cases[-2]['fail_shipment'] is True and len(cases[-2]['turns']) == 2
+    assert cases[-1]['shipment'] == 'LOST' and '另外问一下' in cases[-1]['turns'][0]
+
+
 def test_followup_shares_the_original_absolute_ceiling_instead_of_resetting_allowance(tmp_path):
     ledger = tmp_path / "ledger.json"
     ledger.write_text(json.dumps({"used": 28}))

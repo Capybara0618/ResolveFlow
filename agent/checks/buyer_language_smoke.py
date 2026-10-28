@@ -55,6 +55,21 @@ CASES_V2 = [
         "我的耳机还没收到，查查最新配送情况。",
         "找到了，刚才邻居送过来了。更正之前没收到的情况，别再查了，也不用退款。"]},
 ]
+CASES_BUYER_VIEW = [
+    {"id": "buyer-view-signed", "shipment": "DELIVERED", "turns": [
+        "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？"]},
+    {"id": "buyer-view-transit", "shipment": "IN_TRANSIT", "turns": [
+        "能帮我看下这副耳机现在到哪个地方了，大概哪天送到？"]},
+    {"id": "buyer-view-policy", "shipment": "DELIVERED", "turns": [
+        "假如耳机送来时外壳就是裂的，能不能退款？我只是提前了解，不要替我办理。"]},
+    {"id": "buyer-view-refund", "shipment": "LOST", "turns": [
+        "耳机没收到，快递那边说弄丢了。先帮我写退款原因，我自己看过再确认。"]},
+    {"id": "buyer-view-failure-correction", "shipment": "UNKNOWN", "fail_shipment": True, "turns": [
+        "查一下我这副耳机的配送进展，一直没见到包裹。",
+        "不用继续查了，楼下邻居刚把耳机拿给我，之前说没收到的情况更正一下，也不退款了。"]},
+    {"id": "buyer-view-multiple", "shipment": "LOST", "turns": [
+        "耳机没送到，快递说包裹丢了，帮我准备退款原因，先不提交。另外问一下：把问题交给商家时，我能自己选哪些聊天原文给商家看吗，具体怎么选？"]},
+]
 
 
 def persist(path: Path, value: Any) -> None:
@@ -247,7 +262,7 @@ def execute(output: Path, *, cases: list[dict[str, Any]] | None = None, batch_st
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--execute", action="store_true", help="explicitly permit at most 30 paid model requests")
-    parser.add_argument("--profile", choices=["v1", "v2"], default="v1")
+    parser.add_argument("--profile", choices=["v1", "v2", "buyer-view"], default="v1")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--case", action="append", dest="case_ids", help="explicit named subset; no implicit reruns")
     parser.add_argument("--batch-start", type=int, help="preserve the original batch's absolute request ceiling")
@@ -255,15 +270,16 @@ if __name__ == "__main__":
     arguments = parser.parse_args()
     if not 1 <= arguments.max_requests <= LIMIT:
         parser.error("max-requests must be between 1 and 30")
-    selected = CASES if arguments.profile == "v1" else CASES_V2
+    selected = {"v1": CASES, "v2": CASES_V2, "buyer-view": CASES_BUYER_VIEW}[arguments.profile]
     if arguments.case_ids:
         if len(set(arguments.case_ids)) != len(arguments.case_ids) or not set(arguments.case_ids) <= {
             case["id"] for case in selected
         }:
             parser.error("unknown or repeated case")
         selected = [case for case in selected if case["id"] in arguments.case_ids]
-    output = arguments.output or (DEFAULT_OUTPUT if arguments.profile == "v1" else
-                                  ROOT / "tmp/buyer-language-smoke-v2/runtime-results.json")
+    output = arguments.output or {"v1": DEFAULT_OUTPUT,
+        "v2": ROOT / "tmp/buyer-language-smoke-v2/runtime-results.json",
+        "buyer-view": ROOT / "tmp/buyer-view-live-v1/runtime-results.json"}[arguments.profile]
     if arguments.execute:
         execute(output, cases=selected, batch_start=arguments.batch_start, limit=arguments.max_requests)
     else:
