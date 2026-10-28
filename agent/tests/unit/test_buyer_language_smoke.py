@@ -86,6 +86,20 @@ def test_buyer_view_acceptance_freezes_new_inputs_and_an_independent_multi_issue
     assert cases[-1]['shipment'] == 'LOST' and '另外问一下' in cases[-1]['turns'][0]
 
 
+def test_request_check_retest_keeps_original_failure_and_freezes_four_new_expressions_without_gold_in_context():
+    cases = smoke.CASES_REQUEST_CHECK
+    assert len(cases) == 5 and all(len(c['turns']) == 1 for c in cases)
+    assert cases[0]['turns'] == smoke.CASES_BUYER_VIEW[0]['turns']
+    assert len({c['id'] for c in cases}) == 5
+    old = {t for c in [*smoke.CASES, *smoke.CASES_V2, *smoke.CASES_BUYER_VIEW] for t in c['turns']}
+    assert not old.intersection(c['turns'][0] for c in cases[1:])
+    assert '能帮我整理' in cases[1]['turns'][0] and '先别发送' in cases[1]['turns'][0]
+    assert '帮我申请退款' in cases[2]['turns'][0] and '先不要' in cases[3]['turns'][0]
+    assert '另外' in cases[4]['turns'][0]
+    req = smoke.request_for(cases[0], 0, [], None)
+    assert not any(key in json.dumps(req.context) for key in ['expected_goal', 'criteria', 'expected_action'])
+
+
 def test_followup_shares_the_original_absolute_ceiling_instead_of_resetting_allowance(tmp_path):
     ledger = tmp_path / "ledger.json"
     ledger.write_text(json.dumps({"used": 28}))

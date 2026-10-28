@@ -70,6 +70,18 @@ CASES_BUYER_VIEW = [
     {"id": "buyer-view-multiple", "shipment": "LOST", "turns": [
         "耳机没送到，快递说包裹丢了，帮我准备退款原因，先不提交。另外问一下：把问题交给商家时，我能自己选哪些聊天原文给商家看吗，具体怎么选？"]},
 ]
+CASES_REQUEST_CHECK = [
+    {"id": "request-check-signed", "shipment": "DELIVERED", "turns": [
+        "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？"]},
+    {"id": "request-check-merchant", "shipment": "DELIVERED", "turns": [
+        "耳机还没收到，家里和驿站都找过了。能帮我整理一份给商家核查的情况吗？先别发送，我想先看看。"]},
+    {"id": "request-check-refund", "shipment": "LOST", "turns": [
+        "耳机一直没到，快递已经告诉我包裹丢失。帮我申请退款，我先核对，再由我确认提交。"]},
+    {"id": "request-check-paused", "shipment": "DELIVERED", "turns": [
+        "先不要帮我准备退款或核查内容。我只想知道：如果以后请商家处理，我能自己选择哪些聊天原文给商家看吗？"]},
+    {"id": "request-check-multiple", "shipment": "LOST", "turns": [
+        "快递说耳机丢失了，我也没收到，帮我整理退款原因，先别提交。另外，想请商家核查时，能不能只共享我选中的聊天原文？怎么选？"]},
+]
 
 
 def persist(path: Path, value: Any) -> None:
@@ -262,7 +274,7 @@ def execute(output: Path, *, cases: list[dict[str, Any]] | None = None, batch_st
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--execute", action="store_true", help="explicitly permit at most 30 paid model requests")
-    parser.add_argument("--profile", choices=["v1", "v2", "buyer-view"], default="v1")
+    parser.add_argument("--profile", choices=["v1", "v2", "buyer-view", "request-check"], default="v1")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--case", action="append", dest="case_ids", help="explicit named subset; no implicit reruns")
     parser.add_argument("--batch-start", type=int, help="preserve the original batch's absolute request ceiling")
@@ -270,7 +282,10 @@ if __name__ == "__main__":
     arguments = parser.parse_args()
     if not 1 <= arguments.max_requests <= LIMIT:
         parser.error("max-requests must be between 1 and 30")
-    selected = {"v1": CASES, "v2": CASES_V2, "buyer-view": CASES_BUYER_VIEW}[arguments.profile]
+    if arguments.profile == "request-check" and arguments.max_requests > 20:
+        parser.error("request-check profile is limited to at most 20 requests")
+    selected = {"v1": CASES, "v2": CASES_V2, "buyer-view": CASES_BUYER_VIEW,
+                "request-check": CASES_REQUEST_CHECK}[arguments.profile]
     if arguments.case_ids:
         if len(set(arguments.case_ids)) != len(arguments.case_ids) or not set(arguments.case_ids) <= {
             case["id"] for case in selected
@@ -279,7 +294,8 @@ if __name__ == "__main__":
         selected = [case for case in selected if case["id"] in arguments.case_ids]
     output = arguments.output or {"v1": DEFAULT_OUTPUT,
         "v2": ROOT / "tmp/buyer-language-smoke-v2/runtime-results.json",
-        "buyer-view": ROOT / "tmp/buyer-view-live-v1/runtime-results.json"}[arguments.profile]
+        "buyer-view": ROOT / "tmp/buyer-view-live-v1/runtime-results.json",
+        "request-check": ROOT / "tmp/operation-request-gate-live-v1/runtime-results.json"}[arguments.profile]
     if arguments.execute:
         execute(output, cases=selected, batch_start=arguments.batch_start, limit=arguments.max_requests)
     else:
