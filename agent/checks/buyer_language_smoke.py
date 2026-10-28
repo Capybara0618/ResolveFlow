@@ -177,7 +177,8 @@ def request_for(case: dict[str, Any], index: int, history: list[dict[str, Any]],
         deadline_at=datetime.now(UTC) + timedelta(seconds=120), context=context)
 
 
-def execute(output: Path, *, cases: list[dict[str, Any]] | None = None, batch_start: int | None = None) -> None:
+def execute(output: Path, *, cases: list[dict[str, Any]] | None = None, batch_start: int | None = None,
+            limit: int = LIMIT) -> None:
     if output.exists():
         raise FileExistsError("existing run retained; never automatically repeat paid checks")
     key = os.environ.get("RESOLVEFLOW_MODEL_API_KEY") or os.environ.get("Deepseek_API_KEY")
@@ -188,18 +189,18 @@ def execute(output: Path, *, cases: list[dict[str, Any]] | None = None, batch_st
              *sorted((ROOT / "agent/src/resolveflow/harness").glob("*.py"))]
     selected = CASES if cases is None else cases
     report: dict[str, Any] = {"scope": "real model + production SDK loop; synthetic sources; no business writes",
-        "limit": LIMIT, "cases": selected, "rows": [], "state": "PREPARED",
+        "limit": limit, "cases": selected, "rows": [], "state": "PREPARED",
         "files": {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}
     persist(output, report)
     with ledger_lock(LEDGER):
-        allowance = Allowance(LEDGER, batch_start=batch_start)
+        allowance = Allowance(LEDGER, limit=limit, batch_start=batch_start)
         report.update(state="RUNNING", usage_before=allowance.value["used"], batch_start=allowance.start)
         try:
             for case in selected:
                 history: list[dict[str, Any]] = []
                 previous = None
                 for index in range(len(case["turns"])):
-                    if allowance.value["used"] - allowance.start >= LIMIT:
+                    if allowance.value["used"] - allowance.start >= allowance.limit:
                         report["stopped_at_limit"] = True
                         break
                     request = request_for(case, index, history, previous)
@@ -250,7 +251,10 @@ if __name__ == "__main__":
     parser.add_argument("--output", type=Path)
     parser.add_argument("--case", action="append", dest="case_ids", help="explicit named subset; no implicit reruns")
     parser.add_argument("--batch-start", type=int, help="preserve the original batch's absolute request ceiling")
+    parser.add_argument("--max-requests", type=int, default=LIMIT, help="authorized request ceiling, at most 30")
     arguments = parser.parse_args()
+    if not 1 <= arguments.max_requests <= LIMIT:
+        parser.error("max-requests must be between 1 and 30")
     selected = CASES if arguments.profile == "v1" else CASES_V2
     if arguments.case_ids:
         if len(set(arguments.case_ids)) != len(arguments.case_ids) or not set(arguments.case_ids) <= {
@@ -261,7 +265,7 @@ if __name__ == "__main__":
     output = arguments.output or (DEFAULT_OUTPUT if arguments.profile == "v1" else
                                   ROOT / "tmp/buyer-language-smoke-v2/runtime-results.json")
     if arguments.execute:
-        execute(output, cases=selected, batch_start=arguments.batch_start)
+        execute(output, cases=selected, batch_start=arguments.batch_start, limit=arguments.max_requests)
     else:
         print(json.dumps({"cases": len(selected), "turns": sum(len(c["turns"]) for c in selected),
-                          "max_paid_requests": LIMIT, "paid_requests_sent": 0}))
+                          "max_paid_requests": arguments.max_requests, "paid_requests_sent": 0}))

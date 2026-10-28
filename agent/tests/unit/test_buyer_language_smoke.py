@@ -91,6 +91,16 @@ def test_followup_shares_the_original_absolute_ceiling_instead_of_resetting_allo
             smoke.Allowance(ledger, batch_start=invalid_start)
 
 
+def test_new_twenty_request_authorization_does_not_inherit_the_old_thirty_request_ceiling(tmp_path):
+    ledger = tmp_path / "ledger.json"
+    ledger.write_text(json.dumps({"used": 3618, "previous_batch_unchanged": 3599}))
+    allowance = smoke.Allowance(ledger, limit=20, batch_start=3599)
+    allowance.consume()
+    with pytest.raises(SupportFailure, match="SMOKE_REQUEST_LIMIT"):
+        allowance.consume()
+    assert json.loads(ledger.read_text()) == {"used": 3619, "previous_batch_unchanged": 3599}
+
+
 def test_recorded_failed_logistics_answer_can_use_observed_order_without_claiming_logistics_success():
     from resolveflow.harness.model import MockModelClient
     from resolveflow.support.engine import SupportAgent
