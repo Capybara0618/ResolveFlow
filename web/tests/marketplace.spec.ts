@@ -15,6 +15,7 @@ beforeEach(() => {
   vi.spyOn(shopApi, 'product').mockResolvedValue(product)
   vi.spyOn(shopApi, 'products').mockResolvedValue({ items: [product], next_after: null })
   vi.spyOn(shopApi, 'stores').mockResolvedValue([{ store_id: 'M-1001', name: '松间数码', description: '日常数码' }])
+  vi.spyOn(shopApi, 'store').mockResolvedValue({ store_id: 'M-1001', name: '松间数码', description: '日常数码' })
   vi.spyOn(shopApi, 'quote').mockResolvedValue({ product, sku: product.skus[0], quantity: 2, total_amount: 65800, currency: 'CNY' })
   vi.spyOn(shopApi, 'draft').mockResolvedValue(draft)
   vi.spyOn(shopApi, 'purchase').mockResolvedValue(purchase)
@@ -81,4 +82,39 @@ it('shows the selected SKU image and price in the actual product detail', async 
   await w.findAll('fieldset button')[1].trigger('click')
   expect(w.get('.detail-image img').attributes('src')).toContain('headphones-silver.webp')
   expect(w.get('.detail-price').text()).toContain('349.00')
+})
+
+it('opens the product store from its labelled storefront link without quoting a purchase', async () => {
+  window.history.replaceState(null, '', '/#/shop')
+  w = mount(MarketplaceWorkspace, { props: { account: null } }); await flushPromises()
+  await w.get('a[aria-label="进入松间数码店铺"]').trigger('click'); await flushPromises()
+  expect(shopApi.store).toHaveBeenCalledWith('M-1001')
+  expect(shopApi.products).toHaveBeenLastCalledWith({ store_id: 'M-1001' })
+  expect(w.get('.shop-store-banner').text()).toContain('松间数码')
+  expect(shopApi.quote).not.toHaveBeenCalled()
+})
+
+it('preserves query and category when entering a store and returning to all stores', async () => {
+  window.history.replaceState(null, '', '/#/shop/search?query=耳机&category=electronics')
+  await open()
+  await w.get('select[aria-label="选择店铺"]').setValue('M-1001'); await flushPromises()
+  expect(shopApi.products).toHaveBeenLastCalledWith({ store_id: 'M-1001', query: '耳机', category: 'electronics' })
+  await w.get('select[aria-label="选择店铺"]').setValue(''); await flushPromises()
+  expect(shopApi.products).toHaveBeenLastCalledWith({ query: '耳机', category: 'electronics' })
+  expect(w.get<HTMLInputElement>('input[aria-label="搜索商品"]').element.value).toBe('耳机')
+})
+
+it('keeps buyer logout available in the account menu', async () => {
+  await open()
+  await w.get('.shop-account button').trigger('click')
+  expect(w.emitted('logout')).toHaveLength(1)
+})
+
+it('requires login when an anonymous visitor opens a private buyer route', async () => {
+  window.history.replaceState(null, '', '/#/shop')
+  w = mount(MarketplaceWorkspace, { props: { account: null } }); await flushPromises()
+  await w.get('a[href="#/shop/orders"]').trigger('click'); await flushPromises()
+  expect(w.emitted('login')).toHaveLength(1)
+  expect(shopApi.purchase).not.toHaveBeenCalled()
+  expect(shopApi.quote).not.toHaveBeenCalled()
 })

@@ -1,6 +1,7 @@
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { afterEach, expect, it, vi } from 'vitest'
 import App from '../src/App.vue'
+import MarketplaceWorkspace from '../src/ui/MarketplaceWorkspace.vue'
 import { readTabSession, saveTabSession } from '../src/tab-session'
 
 let wrapper: VueWrapper | undefined
@@ -20,7 +21,7 @@ it('refresh restores the same buyer and private route without submitting login o
   expect(wrapper.get('[data-session-buyer]').text()).toBe('B-1')
   expect(window.location.hash).toBe('#/shop/support')
   expect(fetcher).not.toHaveBeenCalled()
-  await wrapper.get('.logout-button').trigger('click')
+  wrapper.findComponent(MarketplaceWorkspace).vm.$emit('logout'); await flushPromises()
   expect(readTabSession()).toBeNull()
   expect(window.location.hash).toBe('')
 })

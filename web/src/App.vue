@@ -511,7 +511,7 @@ onUnmounted(() => { stopStream(); products.reset() })
 
 <template>
   <div class="workbench" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor, 'aftercare-workbench': isSingleMerchant }">
-    <header class="topbar">
+    <header v-if="!((!account && shopVisitor) || account?.buyer_id)" class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
       <span class="demo-tag">{{ account?.buyer_id || shopVisitor ? '本地演示 · 合成商品与模拟交易' : '合成数据 · 模拟退款' }}</span>
       <div v-if="account" class="session"><span class="avatar">{{ account.display_name?.trim().slice(0, 1) || (isReviewer ? '审' : '客') }}</span><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后专员' : '客户工作台') }}</strong><small>{{ account.role === 'PLATFORM_ADMIN' ? '平台管理员' : account.buyer_id ? '平台买家' : `${account.merchant_name || account.merchant_id} · ${account.role === 'MERCHANT_ADMIN' ? (isSingleMerchant ? '商家' : '商家管理员') : account.role === 'REVIEWER' ? '售后专员' : account.role === 'OPERATOR' ? '兼容运维账号' : '客户'}` }}</small></span>
@@ -532,7 +532,7 @@ onUnmounted(() => { stopStream(); products.reset() })
       </form>
     </main>
     <PlatformWorkspace v-else-if="account.role === 'PLATFORM_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
-    <MarketplaceWorkspace v-else-if="account.buyer_id" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
+    <MarketplaceWorkspace v-else-if="account.buyer_id" :key="account.access_token" :account="account" @logout="logout" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <div v-else class="app-shell" :class="{ 'support-shell': merchantPage === 'support' && account.role === 'MERCHANT_ADMIN' }">
       <nav class="sidebar" aria-label="工作台导航">

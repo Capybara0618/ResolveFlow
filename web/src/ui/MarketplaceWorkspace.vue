@@ -4,6 +4,7 @@ import { ApiError, type LoginResponse } from '../client'
 import { shopApi, type ShopProduct, type ShopStore, type ShopQuote, type ShopDraft, type ShopDraftRequest } from '../shop-client'
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
+import Icon from './ReviewIcon.vue'
 import CustomerWorkspace from './CustomerWorkspace.vue'
 import SupportWorkspace from './SupportWorkspace.vue'
 import BuyerOrders from './BuyerOrders.vue'
@@ -13,9 +14,10 @@ import { readCartPending, saveCartPending, clearCartPending, type CartPending } 
 import './marketplace.css'
 
 const props = defineProps<{ account: LoginResponse | null }>()
-const emit = defineEmits<{ expired: []; login: [] }>()
+const emit = defineEmits<{ expired: []; login: []; logout: [] }>()
 type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support'
 const screen = ref<Screen>('home'), query = ref(''), category = ref(''), stores = ref<ShopStore[]>([])
+const workspaceCatalog = ref<HTMLElement>()
 const ordersRoute = ref(''), cartBusy = ref(false), added = ref(false)
 let pendingAdd: Extract<CartPending, { kind: 'mutation' }> | null = null
 const products = ref<ShopProduct[]>([]), store = ref<ShopStore | null>(null), product = ref<ShopProduct | null>(null)
@@ -24,6 +26,13 @@ const loading = ref(false), writing = ref(false), uncertain = ref(false), error 
 let generation = 0, quoteGeneration = 0, alive = true, pending: { key: string; request: ShopDraftRequest } | null = null
 const selectedSku = computed(() => product.value?.skus.find(s => s.sku_id === sku.value))
 const money = (amount: number) => `¥ ${formatMinorUnits(amount).replace(' CNY', '')}`
+const catalogMoney = (amount: number) => `¥${formatMinorUnits(amount).replace(' CNY', '').replace(/\.00$/, '')}`
+const listingScreen = computed(() => ['home', 'search', 'store'].includes(screen.value))
+const featuredOrder = ['P-1001', 'P-2001', 'P-3001', 'P-1002', 'P-1004', 'P-2002', 'P-3002', 'P-2003']
+const displayedProducts = computed(() => screen.value !== 'home' ? products.value : [...products.value].sort((a, b) => {
+  const rank = (id: string) => { const index = featuredOrder.indexOf(id); return index < 0 ? featuredOrder.length : index }
+  return rank(a.product_id) - rank(b.product_id)
+}))
 function failure(cause: unknown) {
   if (cause instanceof ApiError && cause.status === 401) { emit('expired'); return }
   error.value = cause instanceof ApiError && cause.status === 404 ? '商品已下架，或当前账号无法查看这份订单。'
@@ -35,6 +44,11 @@ function go(hash: string) {
   window.history.pushState(null, '', hash); void route()
 }
 function search() { go(`${store.value ? `#/shop/stores/${encodeURIComponent(store.value.store_id)}` : '#/shop/search'}?${new URLSearchParams({ ...(query.value.trim() ? { query: query.value.trim() } : {}), ...(category.value ? { category: category.value } : {}) })}`) }
+function changeStore(event: Event) {
+  const id = (event.target as HTMLSelectElement).value
+  const params = new URLSearchParams({ ...(query.value.trim() ? { query: query.value.trim() } : {}), ...(category.value ? { category: category.value } : {}) }).toString()
+  go(`${id ? `#/shop/stores/${encodeURIComponent(id)}` : params ? '#/shop/search' : '#/shop'}${params ? `?${params}` : ''}`)
+}
 async function route() {
   if (writing.value || uncertain.value || cartBusy.value) return
   const g = ++generation; ++quoteGeneration
@@ -144,12 +158,16 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
 <template>
   <div class="marketplace" :class="{ 'buyer-aftercare': screen === 'customer', 'support-marketplace': screen === 'support' }">
     <nav class="shop-nav" aria-label="买家导航">
-      <a href="#/shop" :class="{ current: !['customer','orders','cart','support'].includes(screen) }" @click.prevent="go('#/shop')">商城</a>
-      <a v-if="account" href="#/shop/cart" :class="{ current: screen === 'cart' }" @click.prevent="go('#/shop/cart')">购物车</a>
-      <a v-if="account" href="#/shop/orders" :class="{ current: screen === 'orders' }" @click.prevent="go('#/shop/orders')">我的订单</a>
-      <a v-if="account" href="#/shop/support" :class="{ current: screen === 'support' }" @click.prevent="go('#/shop/support')">售后咨询</a>
-      <a v-if="account" href="#/customer/applications" :class="{ current: screen === 'customer' }" @click.prevent="go('#/customer/applications')">我的售后</a>
-      <button v-if="!account" class="shop-login" @click="emit('login')">登录</button>
+      <a href="#/shop" class="shop-brand" aria-label="ResolveFlow 商城首页" @click.prevent="go('#/shop')"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></a>
+      <form v-if="listingScreen || screen === 'product'" class="shop-search" role="search" @submit.prevent="search"><input v-model="query" type="search" aria-label="搜索商品" placeholder="搜索商品" maxlength="80" /><button type="submit" aria-label="搜索"><Icon name="search" :size="20" /></button></form>
+      <span v-else class="shop-nav-space" />
+      <div class="shop-utilities">
+        <a href="#/shop/orders" :class="{ current: screen === 'orders' }" @click.prevent="go('#/shop/orders')">我的订单</a>
+        <a href="#/shop/support" :class="{ current: screen === 'support' }" @click.prevent="go('#/shop/support')">售后咨询</a>
+        <a href="#/shop/cart" :class="{ current: screen === 'cart' }" aria-label="购物车" title="购物车" @click.prevent="go('#/shop/cart')"><Icon name="cart" :size="23" /></a>
+        <details v-if="account" class="shop-account"><summary aria-label="账户菜单"><Icon name="user" :size="21" /><span>{{ account.display_name || '我的账户' }}</span></summary><div><a href="#/customer/applications" @click.prevent="go('#/customer/applications')">我的售后</a><button type="button" @click="emit('logout')">退出登录</button></div></details>
+        <button v-else class="shop-login" @click="emit('login')">登录</button>
+      </div>
     </nav>
     <p v-if="error" class="shop-error shop-global-error" role="alert">{{ error }}</p>
     <SupportWorkspace v-if="screen === 'support' && account" :key="account.access_token" :account="account" @expired="emit('expired')" />
@@ -158,24 +176,22 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
     <BuyerOrders v-else-if="screen === 'orders' && account" :key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
     <main v-else class="shop-content">
 
-      <form v-if="['home','search','store'].includes(screen)" class="shop-search" @submit.prevent="search"><input v-model="query" aria-label="搜索商品" placeholder="搜索商品，发现喜欢的好物" maxlength="80" /><button type="submit">搜索</button></form>
-      <div v-if="screen === 'home'" class="shop-hero"><div><p>数码 · 家居 · 户外</p><h1>选喜欢的好物，<br />让日常更舒适。</h1><p>逛逛不同店铺，从这里开始。</p><button @click="category = 'electronics'; search()">浏览数码商品 →</button></div><div class="hero-art"><ProductArt asset="headphones" name="无线降噪耳机" /><ProductArt asset="lamp" name="桌面台灯" /></div></div>
-      <template v-if="['home','search','store'].includes(screen)">
-        <section v-if="store" class="shop-store-banner"><span class="store-symbol">{{ store.name.slice(0,1) }}</span><div><h1>{{ store.name }}</h1><p>{{ store.description }}</p></div><a href="#/shop" @click.prevent="go('#/shop')">返回全站商城 →</a></section>
-        <div class="shop-section-title"><h1 v-if="screen === 'search'">{{ query ? `“${query}”的搜索结果` : '商品分类' }}</h1><h2 v-else>{{ store ? '店铺商品' : '发现好物' }}</h2><div class="shop-categories"><button v-for="c in [{ id: '', name: '全部' }, { id: 'electronics', name: '数码' }, { id: 'home', name: '家居' }, { id: 'outdoor', name: '户外' }]" :key="c.id" :class="{ current: category === c.id }" @click="category = c.id; search()">{{ c.name }}</button></div></div>
+      <section v-if="screen === 'home'" class="shop-hero"><h1>选喜欢的好物，<br />让日常更舒适。</h1><a href="#shop-catalog" @click.prevent="workspaceCatalog?.scrollIntoView({ behavior: 'smooth', block: 'start' })">浏览全部 <Icon name="arrow" :size="18" /></a></section>
+      <template v-if="listingScreen">
+        <section v-if="store" class="shop-store-banner"><Icon name="store" :size="32" /><div><h1>{{ store.name }}</h1><p>{{ store.description }}</p></div><a href="#/shop" @click.prevent="go('#/shop')">返回商城</a></section>
+        <div id="shop-catalog" ref="workspaceCatalog" class="shop-section-title"><h1 v-if="screen === 'search'">{{ query ? `“${query}”的搜索结果` : '全部商品' }}</h1><h2 v-else>{{ store ? '店铺商品' : '精选好物' }}</h2><div class="shop-categories" aria-label="商品分类"><button v-for="c in [{ id: '', name: '全部' }, { id: 'electronics', name: '数码' }, { id: 'home', name: '家居' }, { id: 'outdoor', name: '户外' }]" :key="c.id" :class="{ current: category === c.id }" :aria-pressed="category === c.id" @click="category = c.id; search()">{{ c.name }}</button></div><div class="shop-store-select"><Icon name="store" :size="18" /><select :value="store?.store_id ?? ''" aria-label="选择店铺" :disabled="loading" @change="changeStore"><option value="">全部店铺</option><option v-for="s in stores" :key="s.store_id" :value="s.store_id">{{ s.name }}</option></select></div></div>
         <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
         <p v-else-if="!products.length && !error" class="shop-empty">没有找到商品，请换个关键词或分类。</p>
-        <div v-else class="shop-grid"><article v-for="p in products" :key="p.product_id" class="product-card">
+        <div v-else class="shop-grid"><article v-for="p in displayedProducts" :key="p.product_id" class="product-card">
           <a :href="`#/shop/products/${p.product_id}`" class="product-image" @click.prevent="go(`#/shop/products/${p.product_id}`)"><ProductArt :asset="p.asset_key" :name="p.name" :variant="p.skus[0]?.variant" /></a>
-          <div class="product-copy"><a :href="`#/shop/products/${p.product_id}`" class="product-name" @click.prevent="go(`#/shop/products/${p.product_id}`)">{{ p.name }}</a><a :href="`#/shop/stores/${p.store_id}`" class="product-store" @click.prevent="go(`#/shop/stores/${p.store_id}`)">{{ p.store_name }} →</a><strong class="product-price">{{ money(p.from_amount) }}<span v-if="p.skus.length > 1">起</span></strong></div>
+          <div class="shop-product-copy"><a :href="`#/shop/products/${p.product_id}`" class="product-name" @click.prevent="go(`#/shop/products/${p.product_id}`)">{{ p.name }}</a><strong class="product-price">{{ catalogMoney(p.from_amount) }}<span v-if="p.skus.length > 1">起</span></strong><a :href="`#/shop/stores/${p.store_id}`" class="product-store" :aria-label="`进入${p.store_name}店铺`" @click.prevent="go(`#/shop/stores/${p.store_id}`)"><Icon name="store" :size="16" />{{ p.store_name }}</a></div>
         </article></div>
         <button v-if="next" class="shop-secondary shop-load" :disabled="loading" @click="more">加载更多商品</button>
-        <section v-if="screen === 'home'" class="shop-stores"><h2>逛逛店铺</h2><div><a v-for="s in stores" :key="s.store_id" :href="`#/shop/stores/${s.store_id}`" @click.prevent="go(`#/shop/stores/${s.store_id}`)"><span class="store-symbol">{{ s.name.slice(0,1) }}</span><span><strong>{{ s.name }}</strong><p>{{ s.description }}</p></span><span>→</span></a></div></section>
       </template>
       <template v-else-if="screen === 'product'">
         <button class="shop-back" @click="go('#/shop')">← 返回商城</button>
         <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
-        <section v-if="product" class="shop-product-detail"><div class="detail-image"><ProductArt :asset="product.asset_key" :name="product.name" :variant="selectedSku?.variant" /></div><div class="detail-copy"><a :href="`#/shop/stores/${product.store_id}`" @click.prevent="go(`#/shop/stores/${product.store_id}`)">{{ product.store_name }} →</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><p>已加入购物车</p><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车 →</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route">重新读取商品</button></div></section>
+        <section v-if="product" class="shop-product-detail"><div class="detail-image"><ProductArt :asset="product.asset_key" :name="product.name" :variant="selectedSku?.variant" /></div><div class="detail-copy"><a class="product-store" :href="`#/shop/stores/${product.store_id}`" :aria-label="`进入${product.store_name}店铺`" @click.prevent="go(`#/shop/stores/${product.store_id}`)"><Icon name="store" :size="17" />{{ product.store_name }}</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><p>已加入购物车</p><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车 →</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route">重新读取商品</button></div></section>
         <ProductReviews v-if="product" :key="product.product_id" :product="product.product_id" />
       </template>
       <template v-else-if="screen === 'checkout' && quote">
@@ -184,5 +200,6 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
         <section class="checkout-panel"><h2>{{ quote.product.store_name }}</h2><div class="checkout-line"><ProductArt :asset="quote.product.asset_key" :name="quote.product.name" :variant="quote.sku.variant" /><div><h2>{{ quote.product.name }}</h2><p>{{ quote.sku.variant }}</p></div><div><p>单价</p><strong>{{ money(quote.sku.unit_amount) }}</strong></div><div><p>数量</p><strong>{{ quote.quantity }}</strong></div><div><p>小计</p><strong>{{ money(quote.total_amount) }}</strong></div></div><div class="checkout-total"><span>应付合计</span><strong>{{ money(quote.total_amount) }}</strong></div><button class="shop-primary" :disabled="writing" @click="submit">{{ writing ? '正在确认…' : uncertain ? '用原请求确认结果' : '提交订单' }}</button></section>
       </template>
     </main>
+    <footer class="shop-footer">ResolveFlow · 本地演示，商品为合成素材，交易与退款均为模拟。</footer>
   </div>
 </template>
