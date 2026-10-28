@@ -1,0 +1,486 @@
+{
+  "source_report_sha256": "1ebd886fa63b18fd2cefbfe6baf553ea65bd57de230ef441b5f2022545088029",
+  "scope": "Recorded live strict-style shortfalls with correct operation gates; non-blocking after user acceptance review; synthetic sources, not passing style regressions.",
+  "source_files": {
+    "agent/checks/buyer_language_smoke.py": "b0be3419c615f4b2e582e35b96f279858321795021f1a4343518eb12d160adc2",
+    "fixtures/policies/bundles/policy-logistics-2026.10.yaml": "dd84843e2ce9a526819817a1c7b2c6ae52e7489556702687ab39e6afa96800b2",
+    "agent/src/resolveflow/support/__init__.py": "1f35e5cef0d04b2a5785cf9f904215cfa269558b0f098698f71352d74650fa81",
+    "agent/src/resolveflow/support/activity.py": "ab46a06fb40d4667505ff50d2db62f15a31aaa362d2d8e779b21eb3ea02a25bb",
+    "agent/src/resolveflow/support/api.py": "e70129cb0e163649ab890c6e057fd873afcf32397c159ea7fe58cf858b8018a2",
+    "agent/src/resolveflow/support/completion.py": "633980962855bff107b423a85cd4c214f5fd4eba9a2c0626e65f9cc2ec41355b",
+    "agent/src/resolveflow/support/context.py": "9d3c953950728583734f622f4d26aa29dbb43a902f1389323109fea60f091f2f",
+    "agent/src/resolveflow/support/dialogue.py": "a2d5a5800887ab8a3f0c8dca852c689fa5c80882c222d50efcb019cbeef43f47",
+    "agent/src/resolveflow/support/embeddings.py": "5e827e2ab1edc3fa2ce4449ba1c514131aeb3db78b455f9b77b3ef40831a844e",
+    "agent/src/resolveflow/support/engine.py": "adbab440ceecba388cb362a11e80d82ece1382a3da3335701298956547bcef59",
+    "agent/src/resolveflow/support/grounding.py": "f4a1e43cfa9d858fbc92e44eb5443a5584fbeb4d5fc14efa15329746d4f189fa",
+    "agent/src/resolveflow/support/guidance.py": "5f02fa979f41ddd558a6252e2c9ec5119b1f076c9b7311b7a3f32d15198004dc",
+    "agent/src/resolveflow/support/guide.py": "fb45cff6d90c7e92f8ef720fb1c0477935183e5b684d49dce4eadbb3f49a2585",
+    "agent/src/resolveflow/support/memory.py": "2d15abecb67a38a9c78848cf6ef1f1b2c0fa95a220a7c43fd3e7f79193e853c9",
+    "agent/src/resolveflow/support/navigation.py": "c01a4728cbcaca726c30b4cbe736bb0bdaca400809ad307511d1589fc3a21691",
+    "agent/src/resolveflow/support/orchestration.py": "9ec4944e4f99f23c90e1ef9bf1b611635f6d84569859ed26a1c66706f9e277d7",
+    "agent/src/resolveflow/support/orchestration_prompts.py": "64841583ff7c4d473cc127c031c89c93da953dab0e60232455ca58e90c66c609",
+    "agent/src/resolveflow/support/presentation.py": "74ab1942cabaf46d9abf40e207852aacfafba92dcd9a929d33d0b89f42963e9d",
+    "agent/src/resolveflow/support/progress.py": "7301015e39f687e0a93774a83ee1d0f0e21dc821f05a2865b4dd766fc87b858c",
+    "agent/src/resolveflow/support/protocol.py": "a551c8756c76170e7b911d725d47ad1fd7dd77b9b95a9c9b06447bec5ecc9f30",
+    "agent/src/resolveflow/support/query.py": "149396d9bae2b4adc9b7851bc0d945de646b0e8bd7511d4d87efa7356c88136c",
+    "agent/src/resolveflow/support/recovery.py": "8fa01771a898afec926189054975355057a4b5072a11eb5bcceaabf6e1b974ff",
+    "agent/src/resolveflow/support/request_check.py": "51019e0dc47a2bdc638da8707dd26361d9fd8e79d337028c013dfe3d36ded36d",
+    "agent/src/resolveflow/support/retrieval.py": "ef8343717851b64285dce82c4319f80c247e49017506a1b4af0f09982209d04d",
+    "agent/src/resolveflow/support/service.py": "ea6231fcde4dad71b445e41417a3d449808cef36f34222d5d158ccfaa73ac1f8",
+    "agent/src/resolveflow/support/sources.py": "e8af6bc0295151b1623a2eab2dc3c52ad112af33e6a06abcf87ade24b71f59e8",
+    "agent/src/resolveflow/support/stages.py": "7479fe18de383c754ed28c3e383c3fc0773e2c21736bd9101c0abf3610bbaf66",
+    "agent/src/resolveflow/support/store.py": "5a21edcfbff18a1c10632334c2d3987f83dcca2d808326800187e2cf53fb0702",
+    "agent/src/resolveflow/support/stream_projection.py": "b6edd00631c4ff908e1781a59e713f11ffeab392f18d36487befb7681b6d6e01",
+    "agent/src/resolveflow/support/tasks.py": "46187aa3595583118ac6793f96a10a3ae8d513eafe75c7ea3ec49f6b4a5278e0",
+    "agent/src/resolveflow/harness/__init__.py": "fb556adf1332d5a33aaa0a1e544037a289c34fe9cfea58a3373253b8e19b73e0",
+    "agent/src/resolveflow/harness/actions.py": "9a2a5d4655f2d0c34a4d9797df713b77ef8e833fb67ce5181bfca73ee9e282ce",
+    "agent/src/resolveflow/harness/budget.py": "1aa4cad28a72dcbbc0dce69c0a4b7a931e6ebfb2e3f642954aae6527f33278e2",
+    "agent/src/resolveflow/harness/claim_checks.py": "bc5da0f1a0921cf3bee60ed5488e3c41a3b463d0792506149efff54daea5b1b6",
+    "agent/src/resolveflow/harness/context.py": "65202fbcb0062aec810c584fe758292d730844d5b50ac3dce6e2f471e57b9f57",
+    "agent/src/resolveflow/harness/control.py": "ea6bc210624f468ded83f58f4ebada84badb100e23e460e4dc81fc2d8a5e59c8",
+    "agent/src/resolveflow/harness/correction.py": "1f65aaa228eca18e1584eb18c56b8cad4c02937906323531d73900704bfb3939",
+    "agent/src/resolveflow/harness/facts.py": "843199acd6e642ec6f64ef340a3ae4fbefe6ece31949b1341b54754dbeb964ca",
+    "agent/src/resolveflow/harness/live_model.py": "2666f3c25743c1117cb287ed531b90e468d21cf9ee88c2f6260ef97d7fb81215",
+    "agent/src/resolveflow/harness/local_reads.py": "aab9e5d8aa6b841f17320bebaf0abe8512566c1e2e5882980c275503a57e617f",
+    "agent/src/resolveflow/harness/manifest.py": "e29f847020fe7767fdbd99ae1c5fb7605dbf3d20282d325385e728e1cfdf4fc4",
+    "agent/src/resolveflow/harness/mcp_client.py": "c1ba774e0fded1b40de67f603a622769c0f079185e9efc35b6b9a2eabd9ee7f3",
+    "agent/src/resolveflow/harness/model.py": "03b039b1a64a5f4b8fbdfe9d8b5ffd9d38234f7739b6a99e85652263397b9ba0",
+    "agent/src/resolveflow/harness/observation_read.py": "dcd122018911689f76880ebfdf4ea322537b375a97db29bd27fed60286e064a0",
+    "agent/src/resolveflow/harness/references.py": "5829e241b412b6d19520621467e5f802683f2f54a59dfbb0b835cbed835cb1c4",
+    "agent/src/resolveflow/harness/runner.py": "1dca5a4e41ea220bfa65fcf5f9ce3e67516396a56a5b388274f26d842f95a25d",
+    "agent/src/resolveflow/harness/sdk_adapter.py": "2f9386963b2e9b1b22f7b791fc04d369089d953f5a806c657c854ab8ae9fe997",
+    "agent/src/resolveflow/harness/sdk_runner.py": "9e7bace14121da7f06e0ae0df187ec12f7a34ab5c80f235c0da00c111974e51b",
+    "agent/src/resolveflow/harness/streaming_model.py": "fab6b0262a1a7bf90c55fdfb6acbcb288561c342fccfa91cdbae48120808956b",
+    "agent/src/resolveflow/harness/token_counting.py": "e7754168c5723489c3aa3f10619e3b4117a7cde78375e92a3336e9701d7be52e",
+    "agent/src/resolveflow/harness/verifier.py": "e0fd63270546afbd99b301e745c9795d0333b6f41fbbda69aa9c03511b7f03ea",
+    "agent/src/resolveflow/harness/vocabulary.py": "58fc7adcd4487881691439384c41ecbf0dcb41c157fdb8e4f78eea418e4142cd"
+  },
+  "rows": [
+    {
+      "case": "request-check-signed",
+      "input": {
+        "run_id": "d4bf18a7-3911-4ca3-a832-15de900bdd2e",
+        "conversation_id": "ea3f0483-f6bc-50fe-8094-323429fcdd30",
+        "input_version": 1,
+        "merchant_id": "M-1001",
+        "customer_id": "C-SYNTHETIC-SMOKE",
+        "line_id": "buyer-language-synthetic-line",
+        "deadline_at": "2026-10-28T08:39:28.575800Z",
+        "context": {
+          "product": {
+            "name": "无线降噪耳机",
+            "quantity": 1,
+            "amount_minor": 32900,
+            "currency": "CNY"
+          },
+          "policy_manifest": {
+            "merchant_id": "M-1001",
+            "bundle_ids": [
+              "policy-logistics-2026.10"
+            ],
+            "manifest_hash": "dd84843e2ce9a526819817a1c7b2c6ae52e7489556702687ab39e6afa96800b2"
+          },
+          "current_request": "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？",
+          "history": [
+            {
+              "message_id": "8fc737de-9f4d-4057-ab90-e82802aa3b8a",
+              "sequence": 1,
+              "author": "CUSTOMER",
+              "recipient": "ASSISTANT",
+              "text": "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？"
+            }
+          ],
+          "conversation_state": {
+            "has_ticket": false,
+            "ticket_status": "NONE",
+            "current_recipient": "ASSISTANT",
+            "default_recipient": "ASSISTANT"
+          }
+        }
+      },
+      "source_case": {
+        "id": "request-check-signed",
+        "shipment": "DELIVERED",
+        "turns": [
+          "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？"
+        ]
+      },
+      "decisions": [
+        {
+          "kind": "TURN_UNDERSTANDING",
+          "focus": [
+            {
+              "id": "t1",
+              "intent": "HANDOFF",
+              "request": "耳机显示已送达但本人未收到、家中和快递站均无，应找谁协助核查",
+              "needs": [
+                "ORDER",
+                "SHIPMENT",
+                "GUIDE"
+              ],
+              "context_refs": [],
+              "goal": "MERCHANT_REVIEW",
+              "operation_request": "现在应该找谁帮我？"
+            }
+          ],
+          "dialogue_events": [
+            {
+              "change": "ADD",
+              "task_ids": [
+                "t1"
+              ],
+              "reference": "CURRENT",
+              "quote": "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？"
+            }
+          ],
+          "customer_claims": [
+            {
+              "topic": "RECEIPT",
+              "reference": "CURRENT",
+              "quote": "耳机标着已经送达，我本人没拿到",
+              "change": "APPEND"
+            },
+            {
+              "topic": "CHECKS",
+              "reference": "CURRENT",
+              "quote": "家里和快递站都问过了也没有",
+              "change": "APPEND"
+            }
+          ]
+        },
+        {
+          "kind": "CHECK_REQUEST",
+          "assessments": [
+            {
+              "task_id": "t1",
+              "purpose": "INFORMATION",
+              "quote": "现在应该找谁帮我？",
+              "reason": "买家在询问应联系谁协助处理未收到货的问题，属于咨询协助对象，未请求准备退款或商家核查材料。"
+            }
+          ]
+        },
+        {
+          "kind": "READ_FACTS",
+          "tools": [
+            "get_order_context",
+            "get_shipment_trace"
+          ]
+        },
+        {
+          "kind": "RESPOND",
+          "parts": [
+            {
+              "citations": [
+                "O3",
+                "O1"
+              ],
+              "task_id": "t1",
+              "text": "物流显示已送达，但具体签收情况还需要商家核实。你可以点“请商家核查”跟进，提交前会先让你确认要共享的内容。"
+            }
+          ]
+        }
+      ],
+      "buyer_view": {
+        "version": "buyer-view-v1",
+        "parts": [
+          {
+            "task_id": "t1",
+            "text": "物流显示已送达，但具体签收情况还需要商家核实。你可以点“请商家核查”跟进，提交前会先让你确认要共享的内容。"
+          }
+        ]
+      },
+      "refund_summary": null,
+      "handoff_summary": null,
+      "review": "仅问找谁，正文却附带未询问的共享确认说明。操作意图门禁正确，语言未达标。"
+    },
+    {
+      "case": "request-check-merchant",
+      "input": {
+        "run_id": "b5d07f67-ee6a-4d63-844a-ec5d8e85530e",
+        "conversation_id": "9843b8b9-51d7-52ac-a92a-4cb6c4beaafb",
+        "input_version": 1,
+        "merchant_id": "M-1001",
+        "customer_id": "C-SYNTHETIC-SMOKE",
+        "line_id": "buyer-language-synthetic-line",
+        "deadline_at": "2026-10-28T08:39:33.729901Z",
+        "context": {
+          "product": {
+            "name": "无线降噪耳机",
+            "quantity": 1,
+            "amount_minor": 32900,
+            "currency": "CNY"
+          },
+          "policy_manifest": {
+            "merchant_id": "M-1001",
+            "bundle_ids": [
+              "policy-logistics-2026.10"
+            ],
+            "manifest_hash": "dd84843e2ce9a526819817a1c7b2c6ae52e7489556702687ab39e6afa96800b2"
+          },
+          "current_request": "耳机还没收到，家里和驿站都找过了。能帮我整理一份给商家核查的情况吗？先别发送，我想先看看。",
+          "history": [
+            {
+              "message_id": "ccb8a7f3-132c-4c26-9a92-17552a591fda",
+              "sequence": 1,
+              "author": "CUSTOMER",
+              "recipient": "ASSISTANT",
+              "text": "耳机还没收到，家里和驿站都找过了。能帮我整理一份给商家核查的情况吗？先别发送，我想先看看。"
+            }
+          ],
+          "conversation_state": {
+            "has_ticket": false,
+            "ticket_status": "NONE",
+            "current_recipient": "ASSISTANT",
+            "default_recipient": "ASSISTANT"
+          }
+        }
+      },
+      "source_case": {
+        "id": "request-check-merchant",
+        "shipment": "DELIVERED",
+        "turns": [
+          "耳机还没收到，家里和驿站都找过了。能帮我整理一份给商家核查的情况吗？先别发送，我想先看看。"
+        ]
+      },
+      "decisions": [
+        {
+          "kind": "TURN_UNDERSTANDING",
+          "focus": [
+            {
+              "id": "t1",
+              "intent": "HANDOFF",
+              "request": "整理一份给商家核查耳机未收到（家里和驿站均已找过）的情况摘要，先不发送",
+              "needs": [
+                "ORDER",
+                "SHIPMENT",
+                "GUIDE"
+              ],
+              "context_refs": [],
+              "goal": "MERCHANT_REVIEW",
+              "operation_request": "能帮我整理一份给商家核查的情况吗？先别发送，我想先看看。"
+            }
+          ],
+          "dialogue_events": [
+            {
+              "change": "ADD",
+              "task_ids": [
+                "t1"
+              ],
+              "reference": "CURRENT",
+              "quote": "耳机还没收到，家里和驿站都找过了。能帮我整理一份给商家核查的情况吗？先别发送，我想先看看。"
+            }
+          ],
+          "customer_claims": [
+            {
+              "topic": "RECEIPT",
+              "reference": "CURRENT",
+              "quote": "耳机还没收到",
+              "change": "APPEND"
+            },
+            {
+              "topic": "CHECKS",
+              "reference": "CURRENT",
+              "quote": "家里和驿站都找过了",
+              "change": "APPEND"
+            }
+          ]
+        },
+        {
+          "kind": "CHECK_REQUEST",
+          "assessments": [
+            {
+              "task_id": "t1",
+              "purpose": "MERCHANT_REVIEW",
+              "quote": "能帮我整理一份给商家核查的情况吗？先别发送，我想先看看。",
+              "reason": "买家明确请求整理一份给商家核查的情况，先别发送只是暂缓提交，不否定准备意愿。"
+            }
+          ]
+        },
+        {
+          "kind": "READ_FACTS",
+          "tools": [
+            "get_order_context",
+            "get_shipment_trace"
+          ],
+          "policy_query": "耳机未收到、家里和驿站均已找过，商家核查签收争议与丢失等前提的核验条件"
+        },
+        {
+          "handoff_reason": {
+            "customer_refs": [
+              "c_a26dc0bd71a3f3a98b76b706",
+              "c_f6ca2c5c93f2bb6176905a59"
+            ]
+          },
+          "kind": "RESPOND",
+          "parts": [
+            {
+              "citations": [
+                "O3",
+                "P3"
+              ],
+              "task_id": "t1",
+              "text": "物流记录显示已签收，但你说耳机还没收到，家里和驿站也都找过了，签收情况还需要商家核实。可以先整理一份情况给商家核查，发送前你可以预览确认。"
+            }
+          ]
+        }
+      ],
+      "buyer_view": {
+        "version": "buyer-view-v1",
+        "parts": [
+          {
+            "task_id": "t1",
+            "text": "物流记录显示已签收，但你说耳机还没收到，家里和驿站也都找过了，签收情况还需要商家核实。可以先整理一份情况给商家核查，发送前你可以预览确认。",
+            "action": "MERCHANT_REVIEW"
+          }
+        ]
+      },
+      "refund_summary": null,
+      "handoff_summary": "耳机还没收到\n家里和驿站都找过了",
+      "review": "正文重复买家问题摘要和发送前预览确认说明，原因/操作职责仍混入正文。"
+    },
+    {
+      "case": "request-check-refund",
+      "input": {
+        "run_id": "da060ac4-c377-41fd-87c4-e2c7fd2fb693",
+        "conversation_id": "84aa24ec-c4b3-5cb4-95e4-6def40fbbec5",
+        "input_version": 1,
+        "merchant_id": "M-1001",
+        "customer_id": "C-SYNTHETIC-SMOKE",
+        "line_id": "buyer-language-synthetic-line",
+        "deadline_at": "2026-10-28T08:39:38.919544Z",
+        "context": {
+          "product": {
+            "name": "无线降噪耳机",
+            "quantity": 1,
+            "amount_minor": 32900,
+            "currency": "CNY"
+          },
+          "policy_manifest": {
+            "merchant_id": "M-1001",
+            "bundle_ids": [
+              "policy-logistics-2026.10"
+            ],
+            "manifest_hash": "dd84843e2ce9a526819817a1c7b2c6ae52e7489556702687ab39e6afa96800b2"
+          },
+          "current_request": "耳机一直没到，快递已经告诉我包裹丢失。帮我申请退款，我先核对，再由我确认提交。",
+          "history": [
+            {
+              "message_id": "27e2937c-f56d-4b6e-a159-6790b2b6ca89",
+              "sequence": 1,
+              "author": "CUSTOMER",
+              "recipient": "ASSISTANT",
+              "text": "耳机一直没到，快递已经告诉我包裹丢失。帮我申请退款，我先核对，再由我确认提交。"
+            }
+          ],
+          "conversation_state": {
+            "has_ticket": false,
+            "ticket_status": "NONE",
+            "current_recipient": "ASSISTANT",
+            "default_recipient": "ASSISTANT"
+          }
+        }
+      },
+      "source_case": {
+        "id": "request-check-refund",
+        "shipment": "LOST",
+        "turns": [
+          "耳机一直没到，快递已经告诉我包裹丢失。帮我申请退款，我先核对，再由我确认提交。"
+        ]
+      },
+      "decisions": [
+        {
+          "kind": "TURN_UNDERSTANDING",
+          "focus": [
+            {
+              "id": "t1",
+              "intent": "APPLICATION",
+              "request": "耳机包裹被快递告知丢失，客户要求准备退款申请（先核对，再由客户确认提交）",
+              "needs": [
+                "ORDER",
+                "SHIPMENT",
+                "POLICY"
+              ],
+              "context_refs": [],
+              "goal": "PREPARE_REFUND",
+              "operation_request": "帮我申请退款，我先核对，再由我确认提交"
+            }
+          ],
+          "dialogue_events": [
+            {
+              "change": "ADD",
+              "task_ids": [
+                "t1"
+              ],
+              "reference": "CURRENT",
+              "quote": "耳机一直没到，快递已经告诉我包裹丢失。帮我申请退款，我先核对，再由我确认提交。"
+            }
+          ],
+          "customer_claims": [
+            {
+              "topic": "OTHER",
+              "reference": "CURRENT",
+              "quote": "快递已经告诉我包裹丢失",
+              "change": "APPEND"
+            }
+          ]
+        },
+        {
+          "kind": "CHECK_REQUEST",
+          "assessments": [
+            {
+              "task_id": "t1",
+              "purpose": "PREPARE_REFUND",
+              "quote": "帮我申请退款，我先核对，再由我确认提交",
+              "reason": "买家明确请求帮忙申请退款，并说明先核对后由本人确认提交，属于请求准备退款申请。"
+            }
+          ]
+        },
+        {
+          "kind": "READ_FACTS",
+          "tools": [
+            "get_order_context",
+            "get_shipment_trace"
+          ],
+          "policy_query": "包裹被快递告知丢失情形下申请退款的核验条件与处理前提"
+        },
+        {
+          "kind": "RESPOND",
+          "parts": [
+            {
+              "citations": [
+                "O3",
+                "P2"
+              ],
+              "task_id": "t1",
+              "text": "物流记录显示承运商已判定包裹丢失，但丢失情况还需要商家核实，确认符合条件后才能退还这件商品的实付金额。你可以先核对退款信息，确认无误后再提交。"
+            }
+          ],
+          "refund_reason": {
+            "customer_refs": [
+              "c_519708917d8473e266c5d658"
+            ]
+          }
+        }
+      ],
+      "buyer_view": {
+        "version": "buyer-view-v1",
+        "parts": [
+          {
+            "task_id": "t1",
+            "text": "物流记录显示承运商已判定包裹丢失，但丢失情况还需要商家核实，确认符合条件后才能退还这件商品的实付金额。你可以先核对退款信息，确认无误后再提交。",
+            "action": "REFUND_APPLICATION"
+          }
+        ]
+      },
+      "refund_summary": "快递已经告诉我包裹丢失",
+      "handoff_summary": null,
+      "review": "退款正文仍有核对后提交说明，与确认卡重复。"
+    }
+  ],
+  "acceptance_review": {
+    "timing": "After generation, user questioned overly strict wording acceptance",
+    "functional_intent": "5/5 passed in the full batch",
+    "original_strict_style": "2/5 passed; three retained shortfalls",
+    "classification": "Non-blocking presentation suggestions; no further paid retries for wording"
+  }
+}
