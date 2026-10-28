@@ -235,6 +235,7 @@ watch(() => [selected.value?.messages.at(-1)?.message_id, generationText.value],
 })
 onMounted(() => {
   void load(); void nextTick(fit); window.addEventListener('resize', fit)
+  document.fonts?.addEventListener('loadingdone', refundLayout)
   timer = setInterval(() => {
     if (document.hidden) return
     const active = ['PENDING', 'RUNNING'].includes(selected.value?.assistant_turn?.status ?? '')
@@ -244,7 +245,7 @@ onMounted(() => {
     }
   }, 2000)
 })
-onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); window.removeEventListener('resize', fit); if (timer) clearInterval(timer) })
+onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); window.removeEventListener('resize', fit); document.fonts?.removeEventListener('loadingdone', refundLayout); if (timer) clearInterval(timer) })
 </script>
 
 <template>
@@ -307,7 +308,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
             <div v-if="merchant" class="support-recipient"><button :class="{ current: replyKind === 'REPLY' }" @click="replyKind = 'REPLY'">核查回复</button><button :class="{ current: replyKind === 'REQUEST_INFO' }" @click="replyKind = 'REQUEST_INFO'">请求客户补充</button></div>
             <div v-else-if="selected.ticket" class="support-recipient"><button :class="{ current: recipient === 'MERCHANT' }" :disabled="busy || !!pending" @click="recipient = 'MERCHANT'">补充给商家</button><button :class="{ current: recipient === 'ASSISTANT' }" :disabled="busy || !!pending" @click="recipient = 'ASSISTANT'">询问智能助手</button></div>
             <div class="support-input-box"><textarea v-model="draft" aria-label="咨询消息" maxlength="4000" :disabled="busy || !!pending || (merchant && selected.ticket?.status === 'RESOLVED')" :placeholder="merchant ? '填写核查回复或需要客户补充的问题…' : recipient === 'MERCHANT' ? '补充给当前商家核查单…' : '继续描述问题，或补充、纠正之前的信息…'" @keydown.enter.exact="enter" />
-              <div class="support-actions"><small v-if="merchant">客户将在原咨询中看到回复</small><button v-if="!merchant && selected.ticket?.status === 'REPLIED'" :disabled="busy || !!pending" @click="submit({ kind: 'resolve', id: selected.conversation_id, body: { expected_version: selected.version } })">确认问题已解决</button><button data-action="send" class="primary" :disabled="!draft.trim() || busy || !!pending || (merchant && selected.ticket?.status === 'RESOLVED')" @click="send">{{ busy ? '提交中…' : merchant ? '发送回复' : '发送' }}<Icon v-if="!merchant" name="arrow" :size="16" /></button></div>
+              <div class="support-actions"><small v-if="merchant">客户将在原咨询中看到回复</small><button v-if="!merchant && selected.ticket?.status === 'REPLIED'" :disabled="busy || !!pending" @click="submit({ kind: 'resolve', id: selected.conversation_id, body: { expected_version: selected.version } })">确认问题已解决</button><button data-action="send" class="primary" :disabled="!draft.trim() || busy || !!pending || (merchant && selected.ticket?.status === 'RESOLVED')" @click="send">{{ busy ? '提交中…' : merchant ? '发送回复' : '发送' }}</button></div>
             </div><div class="support-compose-meta"><small v-if="!merchant">{{ recipient === 'MERCHANT' ? '正在补充给商家核查' : '正在与售后助手对话' }}</small><button class="text-action support-refresh" :disabled="busy || !!pending" @click="refresh()">刷新进度</button></div>
           </div>
         </template>
@@ -320,7 +321,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
     <SupportDialog v-if="choosing" title="选择需要咨询的商品" subtitle="按订单商品独立咨询，切换后仍能恢复历史记录。" @close="choosing = false">
       <label class="support-search"><Icon name="search" /><input v-model="orderSearch" data-autofocus aria-label="搜索已加载订单商品" placeholder="搜索商品、店铺或订单号" /></label>
       <p v-if="orderLoading" role="status" class="support-list-empty">正在读取订单…</p><p v-if="orderError" role="alert" class="support-error">{{ orderError }} <button @click="readOrders().catch(fail)">重试读取订单</button></p>
-      <div class="support-order-grid"><button v-for="line in visibleOrders" :key="line.line_id" class="support-order" :data-line-id="line.line_id" :disabled="loading || busy || !!pending" @click="choose(line)"><ProductArt :asset="line.asset_key || ''" :name="line.product_name || line.sku" :variant="line.variant_text ?? ''" /><div><strong>{{ line.product_name || line.sku }}</strong><p>{{ line.merchant_name }} · {{ line.variant_text || '默认规格' }} · {{ line.quantity }}件</p><small>{{ stamp(line.paid_at, true) || '历史订单' }} · 尾号 {{ tail(line.order_id) }}</small></div><span>¥{{ formatMinorUnits(line.line_paid_amount).replace(' CNY', '') }}<small>咨询这件商品 →</small></span></button></div>
+      <div class="support-order-grid"><button v-for="line in visibleOrders" :key="line.line_id" class="support-order" :data-line-id="line.line_id" :disabled="loading || busy || !!pending" @click="choose(line)"><ProductArt :asset="line.asset_key || ''" :name="line.product_name || line.sku" :variant="line.variant_text ?? ''" /><div><strong>{{ line.product_name || line.sku }}</strong><p>{{ line.merchant_name }} · {{ line.variant_text || '默认规格' }} · {{ line.quantity }}件</p><small>{{ stamp(line.paid_at, true) || '历史订单' }} · 尾号 {{ tail(line.order_id) }}</small></div><span>¥{{ formatMinorUnits(line.line_paid_amount).replace(' CNY', '') }}<small>咨询这件商品</small></span></button></div>
       <p v-if="!visibleOrders.length && !orderLoading && !orderError" class="support-list-empty">{{ orderSearch ? '当前已加载订单中没有匹配商品。' : '暂无已付款订单，可以先在商城购买商品。' }}</p><button v-if="orderCursor" class="support-more" :disabled="orderLoading" @click="readOrders(true).catch(fail)">更多订单商品</button>
     </SupportDialog>
     <SupportDialog v-if="preview && selected" title="确认转交商家核查" subtitle="商家仅收到你确认的摘要和共享材料；不会提交退款申请。" @close="!busy && !pending && (preview = false)">

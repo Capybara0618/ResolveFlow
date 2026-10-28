@@ -1,0 +1,58 @@
+{
+  "noto-sans-sc-ui.woff2": {
+    "source_sha256": "763146584cf0710223441356b4395e279021b0806c196614377a7a0174ae074a",
+    "output_sha256": "58e8816863d22dd3696f17b9832ded30dc1d0248f397e9eb1418b4d8e5785867",
+    "bytes": 7382460,
+    "codepoints": 30890,
+    "metadata": {
+      "0": "© 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'.",
+      "5": "Version 2.04;241114210130;non-release",
+      "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This Font Software is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the SIL Open Font License for the specific language, permissions and limitations governing your use of this Font Software.",
+      "14": "http://scripts.sil.org/OFL"
+    },
+    "subsets": [
+      {
+        "file": "sans-sc/common.woff2",
+        "sha256": "ca7f7debb5c7f9f82311b2a23cc8631e9864cc2072114a5238d904fea84852e5",
+        "bytes": 1118796,
+        "codepoints": 4684,
+        "retained_aliases": 2
+      },
+      {
+        "file": "sans-sc/extended.woff2",
+        "sha256": "58e8816863d22dd3696f17b9832ded30dc1d0248f397e9eb1418b4d8e5785867",
+        "bytes": 7382460,
+        "codepoints": 26206,
+        "retained_aliases": 4684
+      }
+    ]
+  },
+  "noto-serif-sc-reading.woff2": {
+    "source_sha256": "a4aed9985a5916fbf6690456f8732a9fccd517938e353165d4142b4f11a39280",
+    "output_sha256": "933afff4221faeaa532022bad65a9ebbd299531c5f810df00612ffd82fb1226b",
+    "bytes": 5729676,
+    "codepoints": 30928,
+    "metadata": {
+      "0": "© 2017-2023 Adobe (http://www.adobe.com/).",
+      "5": "Version 2.02;241114204558;non-release",
+      "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This Font Software is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the SIL Open Font License for the specific language, permissions and limitations governing your use of this Font Software.",
+      "14": "http://scripts.sil.org/OFL"
+    },
+    "subsets": [
+      {
+        "file": "serif-sc/common.woff2",
+        "sha256": "b8ef51ec7d53fb036dde853a6d881ef5dccc054636f4b363a3cf79d28e555e66",
+        "bytes": 845088,
+        "codepoints": 4684,
+        "retained_aliases": 2
+      },
+      {
+        "file": "serif-sc/extended.woff2",
+        "sha256": "933afff4221faeaa532022bad65a9ebbd299531c5f810df00612ffd82fb1226b",
+        "bytes": 5729676,
+        "codepoints": 26244,
+        "retained_aliases": 4684
+      }
+    ]
+  }
+}

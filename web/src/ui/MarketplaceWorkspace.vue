@@ -156,7 +156,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
 </script>
 
 <template>
-  <div class="marketplace" :class="{ 'buyer-aftercare': screen === 'customer', 'support-marketplace': screen === 'support' }">
+  <div class="marketplace" :class="{ 'buyer-aftercare': screen === 'customer', 'support-marketplace': screen === 'support', 'display-chain-marketplace': listingScreen || screen === 'support' }">
     <nav class="shop-nav" aria-label="买家导航">
       <a href="#/shop" class="shop-brand" aria-label="ResolveFlow 商城首页" @click.prevent="go('#/shop')"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></a>
       <form v-if="listingScreen || screen === 'product'" class="shop-search" role="search" @submit.prevent="search"><input v-model="query" type="search" aria-label="搜索商品" placeholder="搜索商品" maxlength="80" /><button type="submit" aria-label="搜索"><Icon name="search" :size="20" /></button></form>
@@ -176,7 +176,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
     <BuyerOrders v-else-if="screen === 'orders' && account" :key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
     <main v-else class="shop-content">
 
-      <section v-if="screen === 'home'" class="shop-hero"><h1>选喜欢的好物，<br />让日常更舒适。</h1><a href="#shop-catalog" @click.prevent="workspaceCatalog?.scrollIntoView({ behavior: 'smooth', block: 'start' })">浏览全部 <Icon name="arrow" :size="18" /></a></section>
+      <section v-if="screen === 'home'" class="shop-hero"><h1>选喜欢的好物，<br />让日常更舒适。</h1><a href="#shop-catalog" @click.prevent="workspaceCatalog?.scrollIntoView({ behavior: 'smooth', block: 'start' })">浏览全部</a></section>
       <template v-if="listingScreen">
         <section v-if="store" class="shop-store-banner"><Icon name="store" :size="32" /><div><h1>{{ store.name }}</h1><p>{{ store.description }}</p></div><a href="#/shop" @click.prevent="go('#/shop')">返回商城</a></section>
         <div id="shop-catalog" ref="workspaceCatalog" class="shop-section-title"><h1 v-if="screen === 'search'">{{ query ? `“${query}”的搜索结果` : '全部商品' }}</h1><h2 v-else>{{ store ? '店铺商品' : '精选好物' }}</h2><div class="shop-categories" aria-label="商品分类"><button v-for="c in [{ id: '', name: '全部' }, { id: 'electronics', name: '数码' }, { id: 'home', name: '家居' }, { id: 'outdoor', name: '户外' }]" :key="c.id" :class="{ current: category === c.id }" :aria-pressed="category === c.id" @click="category = c.id; search()">{{ c.name }}</button></div><div class="shop-store-select"><Icon name="store" :size="18" /><select :value="store?.store_id ?? ''" aria-label="选择店铺" :disabled="loading" @change="changeStore"><option value="">全部店铺</option><option v-for="s in stores" :key="s.store_id" :value="s.store_id">{{ s.name }}</option></select></div></div>

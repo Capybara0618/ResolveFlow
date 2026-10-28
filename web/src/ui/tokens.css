@@ -1,3 +1,5 @@
+@import '/src/ui/display-typography.css';
+
 :root {
   font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
   color: #14233e;

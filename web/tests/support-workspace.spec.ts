@@ -80,6 +80,27 @@ it.each([true, false])('reveals a delayed refund summary while respecting whethe
   }
 })
 
+it.each([true, false])('respects the reading position after webfonts finish loading: %s', async atBottom => {
+  const previousFonts = Object.getOwnPropertyDescriptor(document, 'fonts')
+  const fonts = new EventTarget()
+  Object.defineProperty(document, 'fonts', { configurable: true, value: fonts })
+  try {
+    await open()
+    const pane = wrapper.get<HTMLElement>('.support-messages')
+    Object.defineProperties(pane.element, { scrollHeight: { value: 1000, configurable: true }, clientHeight: { value: 500, configurable: true } })
+    pane.element.scrollTop = atBottom ? 500 : 30
+    await pane.trigger('scroll')
+    Object.defineProperty(pane.element, 'scrollHeight', { value: 1200, configurable: true })
+    fonts.dispatchEvent(new Event('loadingdone'))
+    await flushPromises()
+    expect(pane.element.scrollTop).toBe(atBottom ? 1200 : 30)
+  } finally {
+    wrapper?.unmount()
+    if (previousFonts) Object.defineProperty(document, 'fonts', previousFonts)
+    else Reflect.deleteProperty(document, 'fonts')
+  }
+})
+
 it('keeps corrections and human handoff available while the assistant is running', async () => {
   const conversation = { ...original(), assistant_turn: { run_id: 'running', status: 'RUNNING' as const, reason: null } }
   vi.mocked(supportApi.read).mockResolvedValue(conversation)

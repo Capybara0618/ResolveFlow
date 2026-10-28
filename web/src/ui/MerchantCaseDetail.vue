@@ -88,13 +88,13 @@ async function focusPolicy(key: string) {
 <template>
   <section id="case-panel" class="merchant-detail-v4" aria-label="工单内容" :aria-busy="busy">
     <header class="merchant-detail-heading">
-      <button type="button" class="text-button" data-test="back-to-list" :disabled="busy" @click="emit('back')">← 返回工单列表</button>
+      <button type="button" class="text-button" data-test="back-to-list" :disabled="busy" @click="emit('back')">返回工单列表</button>
       <h2>退款申请</h2><span class="status-tag" :class="{ waiting: snapshot.case.status === 'PENDING_REVIEW', success: snapshot.case.status === 'CLOSED_SUCCESS' }">{{ statusLabel }}</span>
     </header>
     <section class="merchant-detail-card merchant-product" aria-label="商品与订单">
       <div class="merchant-product-row">
         <AftercareProduct :line="line" :loading="productState === 'loading'" :unavailable="productState === 'unavailable'" />
-        <div class="merchant-product-links"><span class="status-tag">{{ fulfillment }}</span><button class="text-button" type="button" :disabled="busy" @click="emit('order')">查看订单 →</button></div>
+        <div class="merchant-product-links"><span class="status-tag">{{ fulfillment }}</span><button class="text-button" type="button" :disabled="busy" @click="emit('order')">查看订单</button></div>
       </div>
       <button v-if="productState === 'unavailable'" type="button" class="text-button" @click="emit('retryProduct')">重试商品资料</button>
       <button v-if="tradeState === 'unavailable'" type="button" class="text-button" @click="emit('retryTrade')">重试履约资料</button>
@@ -110,7 +110,7 @@ async function focusPolicy(key: string) {
             <div class="merchant-advice-title" :class="{ 'needs-attention': stale || currentFailure || awaitingVerification }"><strong>{{ advice }}</strong></div></div>
           <template v-if="!stale && !currentFailure">
             <details v-if="typeof proposal?.summary === 'string' || reasons.length" :key="`${snapshot.case.case_id}:${snapshot.case.input_revision}`" class="merchant-full-advice">
-              <summary>查看完整{{ proposal?.origin === 'HUMAN' ? '方案理由' : '调查建议' }}</summary>
+              <summary>完整{{ proposal?.origin === 'HUMAN' ? '方案理由' : '调查建议' }}</summary>
               <p v-if="typeof proposal?.summary === 'string'" class="merchant-advice-summary">{{ proposal.summary }}</p>
               <ul v-else class="merchant-advice-reasons"><li v-for="(finding, index) in reasons" :key="index">{{ finding.kind === 'INFERENCE' ? '模型判断：' : 'Agent整理：' }}{{ finding.text }}</li></ul>
             </details>
@@ -122,7 +122,7 @@ async function focusPolicy(key: string) {
           <p v-for="(item, index) in missing" :key="index" class="merchant-warning">待确认：{{ item }}</p>
           <p v-if="proposal?.origin === 'AGENT' && !stale && !refs('policy_refs').length" class="merchant-warning">此建议未引用政策，请先核对适用条款。</p>
           <InvestigationSources summary-only :token="token" :snapshot="snapshot" />
-          <button class="merchant-source-entry text-button" type="button" @click="openDetails"><Icon name="file" :size="18" /><span>订单、物流与材料记录</span><Icon name="chevron" :size="16" /></button>
+          <button class="merchant-source-entry text-button" type="button" @click="openDetails"><Icon name="file" :size="18" /><span>订单、物流与材料记录</span></button>
           <PolicyCitations compact :evidence-refs="[]" :policy-refs="refs('policy_refs')" :policy-rules="context?.policy_rules ?? []" :policy-status="context?.policy_status ?? null" @focus="focusPolicy" />
         </section>
       </div>
@@ -145,7 +145,7 @@ async function focusPolicy(key: string) {
         <ReviewerWorkspace mode="actions" :line="line" :token="token" :snapshot="snapshot" :context="context" :collaboration="collaboration" :busy="busy || !actionsAvailable" @changed="emit('refresh')" @working="emit('working', $event)" @expired="emit('expired')" />
       </aside>
     </div>
-    <button class="merchant-details-link text-button" type="button" :aria-expanded="detailsOpen" aria-controls="merchant-detail-evidence" @click="detailsOpen = !detailsOpen"><Icon name="file" :size="18" /><span>详细材料与处理记录</span><Icon :name="detailsOpen ? 'down' : 'chevron'" :size="18" /></button>
+    <button class="merchant-details-link text-button" type="button" :aria-expanded="detailsOpen" aria-controls="merchant-detail-evidence" @click="detailsOpen = !detailsOpen"><Icon name="file" :size="18" /><span>详细材料与处理记录</span><small>{{ detailsOpen ? '收起' : '展开' }}</small></button>
     <section v-if="detailsOpen" id="merchant-detail-evidence" ref="detailsPanel" class="merchant-detail-card merchant-detail-evidence" aria-label="详细依据">
       <div class="merchant-evidence-heading"><h3>详细依据</h3><button class="text-button" type="button" @click="detailsOpen = false">收起</button></div>
       <slot name="materials" />
