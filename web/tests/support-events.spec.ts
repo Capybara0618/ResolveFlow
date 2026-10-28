@@ -13,10 +13,12 @@ it('applies current status and committed message once while rejecting old run/in
   const running = { ...accepted(), kind: 'turn.started' as const }
   expect(applySupportEvent(c, running)?.assistant_turn?.status).toBe('RUNNING')
   const done: SupportStreamEvent = { ...accepted(), event_id: '3', kind: 'answer.committed', payload: {
-    message_id: 'assistant-message', sequence: 3, text: '当前已审核回答', assistant: { run_id: c.assistant_turn.run_id, mode: 'mock', citations: [], handoff_summary: null },
+    message_id: 'assistant-message', sequence: 3, text: '当前已审核回答', assistant: { run_id: c.assistant_turn.run_id, mode: 'mock', citations: [], handoff_summary: null,
+      buyer_view: { version: 'buyer-view-v1', parts: [{ task_id: 'trace', text: '当前已审核回答' }] } },
   } }
   const committed = applySupportEvent(c, done)!
   expect(committed.messages.at(-1)?.text).toBe('当前已审核回答')
+  expect(committed.messages.at(-1)?.assistant?.buyer_view).toEqual((done.payload.assistant as { buyer_view: unknown }).buyer_view)
   expect(committed.version).toBe(3)
   expect(applySupportEvent(committed, done)).toBe(committed)
   expect(applySupportEvent(c, { ...running, conversation_id: 'other' })).toBe(c)

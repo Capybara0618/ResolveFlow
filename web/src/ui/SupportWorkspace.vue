@@ -9,8 +9,9 @@ import BuyerSources from './BuyerSources.vue'
 import SupportContext from './SupportContext.vue'
 import SupportDialog from './SupportDialog.vue'
 import SupportRefundCard from './SupportRefundCard.vue'
+import SupportBuyerReply from './SupportBuyerReply.vue'
 import Icon from './ReviewIcon.vue'
-import { conversationTitle, stamp, tail } from '../support-view'
+import { assistantOffers, conversationTitle, stamp, tail } from '../support-view'
 import { applySupportEvent, mergeSupportConversation, watchSupportEvents } from '../support-events'
 import { readSupportSelection, saveSupportSelection } from '../tab-session'
 import './support-workspace.css'
@@ -284,7 +285,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
             <p v-if="!selected.messages.length && merchant && !selected.ticket?.shared_messages.length" class="support-list-empty">客户补充与商家回复将显示在这里。</p>
             <article v-for="m in selected.messages" :key="m.message_id" :class="['support-message', m.author.toLowerCase(), { 'message-ledger': historyTab }]">
               <span v-if="m.author !== 'CUSTOMER' || merchant" :class="['support-avatar', m.author.toLowerCase()]"><Icon :name="m.author === 'ASSISTANT' ? 'sparkle' : m.author === 'MERCHANT' ? 'box' : 'user'" /></span>
-              <div class="support-message-content"><strong v-if="merchant || m.author === 'MERCHANT'" class="support-author">{{ m.author === 'ASSISTANT' ? '售后助手' : m.author === 'MERCHANT' ? '商家' : '客户' }}</strong><div class="support-message-bubble"><p>{{ m.text }}</p></div>
+              <div class="support-message-content"><strong v-if="merchant || m.author === 'MERCHANT'" class="support-author">{{ m.author === 'ASSISTANT' ? '售后助手' : m.author === 'MERCHANT' ? '商家' : '客户' }}</strong><div class="support-message-bubble"><SupportBuyerReply v-if="!merchant && m.author === 'ASSISTANT'" :message="m" /><p v-else>{{ m.text }}</p></div>
                 <small class="support-message-meta"><time :datetime="m.created_at">{{ stamp(m.created_at, true) }}</time><template v-if="m.author === 'ASSISTANT' && m.assistant?.mode === 'mock'"> · 脚本模型演示</template><template v-else-if="m.author !== 'ASSISTANT' && (merchant || m.recipient === 'MERCHANT')"> · {{ m.recipient === 'ASSISTANT' ? '仅你和助手可见' : '商家核查记录' }}</template></small>
                 <BuyerSources v-if="m.assistant && !merchant" :citations="m.assistant.citations" /><SupportSources v-else-if="m.assistant" :citations="m.assistant.citations" compact />
               </div>
@@ -298,7 +299,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
             </article>
             <p v-if="assistantState" role="status" class="support-agent-state"><Icon name="clock" :size="16" />{{ assistantState }}</p>
             <SupportRefundCard v-if="!merchant && !historyTab" :key="`${owner}:${selected.conversation_id}`" :token="token" :owner="owner" :conversation="selected" @layout-change="refundLayout" @expired="emit('expired')" />
-            <section v-if="!merchant && !selected.ticket && latestAssistant?.assistant?.handoff_summary" class="support-handoff-card"><Icon name="file" :size="25" /><div><h3>需要商家进一步核查</h3><p>将你的问题与相关依据整理给商家。</p><blockquote>{{ latestAssistant.assistant.handoff_summary }}</blockquote><div><small>可编辑 · 确认后共享</small><button class="primary" data-action="preview-handoff" :disabled="busy || !!pending" @click="handoff">预览并转交商家</button></div></div></section>
+            <section v-if="!merchant && !selected.ticket && latestAssistant && assistantOffers(latestAssistant, 'MERCHANT_REVIEW')" class="support-handoff-card"><Icon name="file" :size="25" /><div><h3>需要商家进一步核查</h3><p>将你的问题与相关依据整理给商家。</p><blockquote>{{ latestAssistant.assistant!.handoff_summary }}</blockquote><div><small>可编辑 · 确认后共享</small><button class="primary" data-action="preview-handoff" :disabled="busy || !!pending" @click="handoff">预览并转交商家</button></div></div></section>
           </div>
 
           <button v-if="newContent" class="text-action" data-action="latest-messages" @click="latest">有新内容 · 回到最新</button>

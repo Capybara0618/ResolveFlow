@@ -154,3 +154,47 @@ it('keeps the buyer reason separate from source records and displays only the Ja
   expect(mutate.mock.calls[0]![1]).toMatchObject({ body: { expected_version: 1, reason: plainReason } })
   expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(true)
 })
+
+it('does not prepare from a structured display action alone or a mismatched structured offer', async () => {
+  vi.mocked(refundApi.read).mockResolvedValue({ draft: null, application: null })
+  const mutate = vi.spyOn(refundApi, 'mutate').mockResolvedValue(current())
+  const input = props()
+  input.conversation.messages = [{ message_id: 'display-only', sequence: 1, author: 'ASSISTANT', recipient: 'CUSTOMER', text: '需要商家核实。', ticket_id: null, created_at: '', assistant: {
+    run_id: 'run', mode: 'mock', citations: [], handoff_summary: null,
+    buyer_view: { version: 'buyer-view-v1', parts: [{ task_id: 'refund', text: '需要商家核实。', action: 'REFUND_APPLICATION' }] },
+  } }]
+  wrapper = mount(SupportRefundCard, { props: input }); await flushPromises()
+  expect(mutate).not.toHaveBeenCalled()
+  wrapper.unmount()
+  input.conversation.messages[0]!.assistant!.refund_summary = '耳机没有收到。'
+  input.conversation.messages[0]!.assistant!.buyer_view!.parts[0]!.action = undefined
+  wrapper = mount(SupportRefundCard, { props: input }); await flushPromises()
+  expect(mutate).not.toHaveBeenCalled()
+  expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(false)
+})
+
+it('shows Java verification and preparation states before a structured offer becomes confirmable', async () => {
+  let releaseRead!: (view: RefundView) => void, releasePrepare!: (view: RefundView) => void
+  vi.mocked(refundApi.read).mockImplementationOnce(() => new Promise(resolve => { releaseRead = resolve }))
+  const mutate = vi.spyOn(refundApi, 'mutate').mockImplementationOnce(() => new Promise(resolve => { releasePrepare = resolve }))
+  const input = props()
+  input.conversation.product.amount_minor = 99900
+  input.conversation.messages = [{ message_id: 'structured-offer', sequence: 1, author: 'ASSISTANT', recipient: 'CUSTOMER', text: '需要商家核实。', ticket_id: null, created_at: '', assistant: {
+    run_id: 'run', mode: 'mock', citations: [], handoff_summary: null, refund_summary: '耳机没有收到。',
+    buyer_view: { version: 'buyer-view-v1', parts: [{ task_id: 'refund', text: '需要商家核实。', action: 'REFUND_APPLICATION' }] },
+  } }]
+  wrapper = mount(SupportRefundCard, { props: input }); await flushPromises()
+  expect(wrapper.text()).toContain('正在核对退款信息')
+  expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(false)
+  expect(mutate).not.toHaveBeenCalled()
+  releaseRead({ draft: null, application: null }); await flushPromises()
+  expect(wrapper.text()).toContain('正在保存')
+  expect(mutate.mock.calls.map(([, command]) => command.kind)).toEqual(['prepare'])
+  expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(false)
+  const prepared = current(); prepared.draft!.reason = '耳机没有收到。'
+  releasePrepare(prepared); await flushPromises()
+  expect(wrapper.get('.refund-amount').text()).toContain('329.00')
+  expect(wrapper.text()).not.toContain('999.00')
+  expect(wrapper.get('[data-refund="confirm"]').isVisible()).toBe(true)
+  expect(mutate).toHaveBeenCalledTimes(1)
+})

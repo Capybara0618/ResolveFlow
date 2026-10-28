@@ -46,6 +46,21 @@ it('renders assistant sources and shares its editable summary only after explici
   expect(mutate.mock.calls[0][1]).toMatchObject({ kind: 'handoff', body: { summary: '我确认：只核查', assistant_message_id: conversation.messages[1].message_id, shared_message_ids: [] } })
 })
 
+it('renders a buyer-requested guide separately without creating an action or sharing messages', async () => {
+  const conversation = original()
+  conversation.messages = [{ message_id: 'guide', sequence: conversation.version, author: 'ASSISTANT', recipient: 'CUSTOMER', ticket_id: null, created_at: '', text: '可以请商家核查。\n\n先核对共享的原文。', assistant: {
+    run_id: 'guide-run', mode: 'mock', citations: [], handoff_summary: null,
+    buyer_view: { version: 'buyer-view-v1', parts: [{ task_id: 'how', text: '可以请商家核查。', guidance: '先核对共享的原文。' }] },
+  } }]
+  vi.mocked(supportApi.read).mockResolvedValue(conversation)
+  const mutate = vi.spyOn(supportApi, 'mutate').mockResolvedValue(conversation)
+  await open()
+  expect(wrapper.get('.support-reply-part > p').text()).toBe('可以请商家核查。')
+  expect(wrapper.get('.support-reply-guidance').text()).toBe('先核对共享的原文。')
+  expect(wrapper.find('.support-handoff-card').exists()).toBe(false)
+  expect(mutate).not.toHaveBeenCalled()
+})
+
 it.each([true, false])('reveals a delayed refund summary while respecting whether the buyer is at the bottom: %s', async atBottom => {
   let release!: (value: RefundView) => void
   vi.mocked(refundApi.read).mockImplementationOnce(() => new Promise(resolve => { release = resolve }))

@@ -6,6 +6,7 @@ import { refundApi, refundStatus, clearRefundRequest, readRefundRequest, saveRef
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
 import Icon from './ReviewIcon.vue'
+import { assistantOffers } from '../support-view'
 
 const props = defineProps<{ token: string; owner: string; conversation: SupportConversation }>()
 const emit = defineEmits<{ expired: []; 'layout-change': [] }>()
@@ -16,7 +17,7 @@ const error = ref(''), expanded = ref(false), editing = ref(false), reason = ref
 const dismissed = ref(false), now = ref(Date.now())
 let alive = true, timer: ReturnType<typeof setInterval> | undefined, readSequence = 0
 let offeredMessage = ''
-const offer = computed(() => [...props.conversation.messages].reverse().find(m => m.author === 'ASSISTANT' && m.sequence === props.conversation.version && m.assistant?.refund_summary?.trim()))
+const offer = computed(() => [...props.conversation.messages].reverse().find(m => m.author === 'ASSISTANT' && m.sequence === props.conversation.version && assistantOffers(m, 'REFUND_APPLICATION')))
 const d = computed(() => value.value.draft)
 const application = computed(() => value.value.application)
 const blockingApplication = computed(() => application.value && !['CLOSED_REJECTED', 'CANCELLED'].includes(application.value.case.status))
@@ -114,7 +115,7 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
         <button v-else-if="!outdated" data-refund="confirm" class="primary" :disabled="busy || !!pending" @click="send('confirm')">确认提交申请</button>
       </footer>
     </article>
-    <div v-if="!showDraft && !blockingApplication && !pending" class="refund-entry"><span v-if="!loaded">正在读取退款信息…</span><button data-refund="start" :disabled="busy || !loaded" @click="start">申请退款</button></div>
+    <div v-if="!showDraft && !blockingApplication && !pending" class="refund-entry"><span v-if="!loaded">{{ reading ? offer ? '正在核对退款信息，请稍候…' : '正在读取退款信息…' : '未能核对退款信息，请重试读取。' }}</span><button data-refund="start" :disabled="busy || !loaded" @click="start">申请退款</button></div>
   </section>
 </template>
 

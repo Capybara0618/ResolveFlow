@@ -227,3 +227,8 @@ Case复核响应的run/case/revision后白名单投影；读连接/响应超时�
 Agent拒绝未来修订或不在本次evidence_refs中的材料。非空快照纳入请求hash并持久化，恢复时使用原快照，修改同run输入返回409。旧请求未携带快照时保持原hash。模型P1保留此输入，不静默裁剪问答；必需输入超限明确转人工。核心OpenAPI定义界限，旧v1兼容模型保留原协议。
 
 人工写入口（2026-10-02）：工作人员核验、材料追加、取消、人工方案、review-actions与reviews均要求当前负责人和原始读取的`If-Match`/`If-Collaboration-Match`。管理员必须先显式接管；角色本身不允许代批。客户材料/取消不要求协作凭证。订单复核在写事务外，随后工单锁内重查业务/协作/签名身份版本，变化即409，不记录过期方案或审批。
+
+
+### 2026-10-28 买家展示分层补充
+
+SupportAssistant可选buyer_view（buyer-view-v1）：1–8个task_id唯一事项，每项text及可选guidance或action，二者不同时出现。action仅REFUND_APPLICATION/MERCHANT_REVIEW，是已接受目标的展示提示，必须有相应有效原因，不授权prepare/confirm或退款。Java继续拥有金额、版本、状态与显式确认。顶层消息text必须等于各事项实际可见text/guidance按顺序以双换行连接，禁止隐藏替换。guidance仅对活跃、可答、已声明GUIDE的EXPLAIN事项可见；操作/失败/暂停/结束无guidance，必要客户追问必须在正文。未知字段/版本/动作拒绝，旧消息缺字段保持。新字段随已发布消息持久及answer.committed投影，流式只parts.text；商家共享报告不带buyer_view/退款原因。权威Schema/fixture见contracts/core/openapi-case.yaml与fixtures/support-buyer-view.json，实现验证见agent/checks/buyer-view-v1.md。

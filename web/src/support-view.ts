@@ -1,4 +1,20 @@
-import type { SupportAssistant, SupportCitation, SupportConversation, SupportMessage } from './support-client'
+import type { SupportAssistant, SupportBuyerPart, SupportCitation, SupportConversation, SupportMessage } from './support-client'
+
+/** A presentation never replaces history text or grants permission to submit an application. */
+export function buyerParts(message: SupportMessage): SupportBuyerPart[] | null {
+  const view = message.assistant?.buyer_view
+  if (!view || view.version !== 'buyer-view-v1' || !Array.isArray(view.parts) || !view.parts.length || view.parts.length > 8) return null
+  if (view.parts.some(p => !p || typeof p.text !== 'string' || !p.text.trim() || typeof p.task_id !== 'string' ||
+    (p.guidance !== undefined && (typeof p.guidance !== 'string' || !p.guidance.trim() || !!p.action)))) return null
+  return view.parts.flatMap(p => p.guidance ? [p.text, p.guidance] : [p.text]).join('\n\n') === message.text ? view.parts : null
+}
+export function assistantOffers(message: SupportMessage, action: 'REFUND_APPLICATION' | 'MERCHANT_REVIEW'): boolean {
+  const assistant = message.assistant
+  const reason = action === 'REFUND_APPLICATION' ? assistant?.refund_summary : assistant?.handoff_summary
+  if (!reason?.trim()) return false
+  if (!assistant?.buyer_view) return true // Historical offers keep their existing confirmation flow.
+  return buyerParts(message)?.some(p => p.action === action) ?? false
+}
 
 export const sourceLabels = { ORDER: '订单事实', SHIPMENT: '物流事实', POLICY: '店铺政策', CONVERSATION: '对话原文', KNOWLEDGE: '使用指南' }
 export const shipmentLabel = (value: unknown) => {
