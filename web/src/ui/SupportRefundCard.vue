@@ -96,19 +96,19 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
     <article v-if="application" class="refund-progress">
       <header><strong>{{ refundStatus(application.case.status, application.result.message) }}</strong><small>模拟退款</small></header>
       <p>{{ application.result.message }}</p>
-      <small>申请编号 {{ application.case.case_id }}</small>
-      <ol v-if="application.timeline.length"><li v-for="(event, index) in application.timeline.slice(-3)" :key="index">{{ event.summary }}</li></ol>
+      <details class="buyer-progress-details"><summary>查看处理记录</summary><small>申请编号 {{ application.case.case_id }}</small>
+      <ol v-if="application.timeline.length"><li v-for="(event, index) in application.timeline.slice(-3)" :key="index">{{ event.summary }}</li></ol></details>
       <footer><a :href="`#/customer/applications/${encodeURIComponent(application.case.case_id)}`">查看申请详情{{ application.case.status === 'WAITING_CUSTOMER' ? '并补充材料' : '' }} →</a><button :disabled="busy || reading" @click="read">刷新进度</button></footer>
     </article>
     <article v-if="showDraft" class="refund-summary">
       <header><strong><Icon name="file" :size="18" />退款申请</strong><small>{{ outdated ? '请重新核对' : '待你确认' }}</small></header>
       <div class="refund-overview"><div class="refund-product"><ProductArt :asset="conversation.product.asset_key || ''" :name="conversation.product.name" :variant="conversation.product.variant ?? ''" /><div><strong>{{ conversation.product.name }}</strong><p>{{ conversation.product.variant || '默认规格' }} · {{ d?.quantity ?? conversation.product.quantity }}件</p><span class="refund-store"><Icon name="store" :size="14" />{{ conversation.store_name }}</span></div></div>
-      <p class="refund-amount"><span>整行申请金额</span><strong>{{ d ? `¥${formatMinorUnits(d.amount_minor).replace(' CNY', '')}` : '核对后显示' }} <small v-if="d">{{ d.currency }}</small></strong></p></div>
+      <p class="refund-amount"><span>退款金额</span><strong>{{ d ? `¥${formatMinorUnits(d.amount_minor).replace(' CNY', '')}` : '核对后显示' }}</strong></p></div>
       <div class="refund-reason"><div><span>申请原因</span><button v-if="!editing" data-refund="edit" :disabled="busy || !!pending" @click="editing = true">{{ outdated ? '重新核对' : '编辑' }}</button></div>
         <label v-if="editing">确认要提交给商家的原因<textarea v-model="reason" aria-label="退款申请原因" maxlength="4000" rows="3" :disabled="busy || !!pending" /></label><p v-else tabindex="0">{{ d?.reason }}</p>
       </div>
       <p class="refund-note">确认后提交给商家审核，私有聊天不会自动共享。</p>
-      <p v-if="outdated" class="refund-note">摘要或咨询已更新，请重新核对金额和原因后再确认。</p>
+      <p v-if="outdated" class="refund-note">申请内容已更新或过期，请重新核对金额和原因。</p>
       <footer><button :disabled="busy || !!pending" @click="d?.status === 'DRAFT' && !outdated ? send('cancel') : (expanded = false, editing = false, dismissed = true)">暂不申请</button>
         <button v-if="editing" data-refund="save" class="primary" :disabled="!reason.trim() || busy || !!pending" @click="save">{{ d && !outdated ? '保存原因' : '核对申请摘要' }}</button>
         <button v-else-if="!outdated" data-refund="confirm" class="primary" :disabled="busy || !!pending" @click="send('confirm')">确认提交申请</button>
@@ -153,6 +153,9 @@ label { display: block; font-size: 12px; color: #6a786f; }
 .chat-refund .refund-progress > p, .chat-refund .refund-progress > small, .chat-refund .refund-progress > ol { display: block; margin: 12px 16px; }
 .refund-progress > small { overflow-wrap: anywhere; color: #727f77; }
 .refund-progress ol { padding-left: 18px; line-height: 1.9; color: #727f77; }
+.buyer-progress-details { margin: 12px 16px; color: #727f77; font-size: 12px; }
+.buyer-progress-details summary { cursor: pointer; width: fit-content; }
+.buyer-progress-details small { display: block; margin-top: 10px; overflow-wrap: anywhere; }
 .refund-progress footer { justify-content: space-between; }
 a { color: #176b5c; text-decoration: none; }
 .refund-error, .refund-pending { padding: 12px; border-radius: 8px; background: #fff5e3; line-height: 1.7; margin: 8px 0; }

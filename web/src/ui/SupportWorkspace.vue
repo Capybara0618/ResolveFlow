@@ -5,6 +5,7 @@ import { supportApi, saveSupportPending, readSupportPending, clearSupportPending
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
 import SupportSources from './SupportSources.vue'
+import BuyerSources from './BuyerSources.vue'
 import SupportContext from './SupportContext.vue'
 import SupportDialog from './SupportDialog.vue'
 import SupportRefundCard from './SupportRefundCard.vue'
@@ -43,7 +44,7 @@ const assistantState = computed(() => {
   const turn = selected.value?.assistant_turn
   if (!turn || merchant.value) return ''
   const category = selected.value?.generation?.activity
-  if (turn.status === 'RUNNING' && category) return ({ ORDER: '正在读取订单信息…', SHIPMENT: '正在查询物流记录…', POLICY: '正在检索本店政策…', GUIDE: '正在核对办理指引…', HISTORY: '正在查阅相关记录…' } as Record<string, string>)[category] ?? '正在处理你的问题…'
+  if (turn.status === 'RUNNING' && category) return '正在帮你查看，请稍候…'
   if (selected.value?.generation?.attempt_id) return ''
   return { PENDING: '助手正在等待处理，你可以继续补充问题。', RUNNING: '助手正在处理你的问题，可以继续补充或纠正。', SUCCEEDED: '', FAILED: '助手本次未能完成回答，可重新提问或请商家核查。', STALE: '问题已更新，旧回复不会发布。' }[turn.status]
 })
@@ -261,7 +262,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
         <p v-if="merchant" class="support-list-hint">本店核查记录<span>{{ next ? '已加载 ' : '' }}{{ items.length }}条</span></p>
         <div class="support-history-scroll">
           <button v-for="item in visibleItems" :key="item.conversation_id" data-conversation :data-line-id="item.line_id" :aria-current="selected?.conversation_id === item.conversation_id ? 'true' : undefined" :disabled="busy || !!pending" :class="['support-history-item', { current: selected?.conversation_id === item.conversation_id }]" @click="open(item)">
-            <ProductArt :asset="item.product.asset_key || ''" :name="item.product.name" :variant="item.product.variant ?? ''" /><div><strong :title="conversationTitle(item)">{{ conversationTitle(item) }}</strong><span><Icon v-if="!merchant" name="store" :size="13" />{{ item.store_name }}<template v-if="merchant || conversationTitle(item) !== item.product.name"> · {{ item.product.name }}</template></span><small>{{ merchant ? `订单尾号 ${tail(item.order_id)}` : stamp(item.messages.at(-1)?.created_at, true) }}</small><em v-if="merchant || item.ticket" :class="['support-tag', item.ticket?.status === 'PENDING' ? 'amber' : 'blue']">{{ item.ticket ? labels[item.ticket.status] : '咨询中' }}</em></div>
+            <ProductArt :asset="item.product.asset_key || ''" :name="item.product.name" :variant="item.product.variant ?? ''" /><div><strong :title="merchant ? conversationTitle(item) : item.product.name">{{ merchant ? conversationTitle(item) : item.product.name }}</strong><span><Icon v-if="!merchant" name="store" :size="13" />{{ item.store_name }}<template v-if="merchant"> · {{ item.product.name }}</template></span><small v-if="!merchant && conversationTitle(item) !== item.product.name" class="buyer-history-preview" :title="conversationTitle(item)">{{ conversationTitle(item) }}</small><small v-if="merchant">订单尾号 {{ tail(item.order_id) }}</small><em v-if="merchant || item.ticket" :class="['support-tag', item.ticket?.status === 'PENDING' ? 'amber' : 'blue']">{{ item.ticket ? labels[item.ticket.status] : '咨询中' }}</em></div>
           </button>
           <p v-if="!visibleItems.length && !loading" class="support-list-empty">{{ search ? '当前已加载记录中没有匹配项。' : merchant ? '当前筛选下暂无核查单。' : '选择订单，开始一次咨询。' }}</p>
           <button v-if="next" class="support-more" :disabled="loading" @click="list(true).catch(fail)">加载更多咨询</button>
@@ -284,8 +285,8 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
             <article v-for="m in selected.messages" :key="m.message_id" :class="['support-message', m.author.toLowerCase(), { 'message-ledger': historyTab }]">
               <span v-if="m.author !== 'CUSTOMER' || merchant" :class="['support-avatar', m.author.toLowerCase()]"><Icon :name="m.author === 'ASSISTANT' ? 'sparkle' : m.author === 'MERCHANT' ? 'box' : 'user'" /></span>
               <div class="support-message-content"><strong class="support-author">{{ m.author === 'ASSISTANT' ? '售后助手' : m.author === 'MERCHANT' ? '商家' : merchant ? '客户' : '我' }}</strong><div class="support-message-bubble"><p>{{ m.text }}</p></div>
-                <small class="support-message-meta">{{ stamp(m.created_at, true) }} · {{ m.author === 'ASSISTANT' ? (m.assistant?.mode === 'mock' ? '脚本模型演示' : '智能回答') : m.recipient === 'ASSISTANT' ? '与助手的私有咨询' : '商家核查记录' }}</small>
-                <SupportSources v-if="m.assistant" :citations="m.assistant.citations" compact />
+                <small class="support-message-meta">{{ stamp(m.created_at, true) }}<template v-if="m.author === 'ASSISTANT' && m.assistant?.mode === 'mock'"> · 脚本模型演示</template><template v-else-if="m.author !== 'ASSISTANT'"> · {{ m.recipient === 'ASSISTANT' ? '仅你和助手可见' : '商家核查记录' }}</template></small>
+                <BuyerSources v-if="m.assistant && !merchant" :citations="m.assistant.citations" /><SupportSources v-else-if="m.assistant" :citations="m.assistant.citations" compact />
               </div>
               <span v-if="m.author === 'CUSTOMER' && !merchant" class="support-avatar customer"><Icon name="user" /></span>
             </article>

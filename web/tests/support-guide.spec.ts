@@ -16,11 +16,11 @@ it('renders application instructions as a versioned guide rather than store poli
   expect(wrapper.text()).not.toContain('订单状态')
 })
 
-it('shows the buyer cited guide and the merchant confirmed guide with the same source text', () => {
+it('keeps the confirmed guide in merchant materials without adding an internal guide panel for buyers', () => {
   const c = structuredClone(fixture.Conversation) as SupportConversation
-  for (const merchant of [false, true]) {
-    const wrapper = mount(SupportContext, { props: { conversation: c, merchant } })
-    expect(wrapper.text()).toContain('使用指南')
-    expect(wrapper.text()).toContain('请商家核查不需要先申请退款')
-  }
+  const merchant = mount(SupportContext, { props: { conversation: c, merchant: true } })
+  expect(merchant.text()).toContain('使用指南')
+  expect(merchant.text()).toContain('请商家核查不需要先申请退款')
+  expect(mount(SupportContext, { props: { conversation: c, merchant: false } }).text()).not.toContain('使用指南')
+  expect(c.messages.flatMap(m => m.assistant?.citations ?? []).find(s => s.source_type === 'KNOWLEDGE')!.data.text).toContain('请商家核查不需要先申请退款')
 })

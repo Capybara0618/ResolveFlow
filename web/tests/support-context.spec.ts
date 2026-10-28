@@ -27,3 +27,15 @@ it('does not invent logistics, originals or an investigation when none were shar
 it('keeps recorded event order and explicit unknown status instead of fabricating a delivery', () => {
   expect(shipmentEvents({ source_id: 'O1', source_type: 'SHIPMENT', content_hash: 'hash', version: 3, data: { lines: [{ events: [{ code: 'IN_TRANSIT', occurred_at: '2026-10-20T10:00:00Z' }, { code: 'UNKNOWN', occurred_at: '2026-10-20T11:00:00Z' }] }] } }).map(e => e.code)).toEqual(['UNKNOWN', 'IN_TRANSIT'])
 })
+
+it('keeps the buyer context short and omits internal identifiers and empty policy panels', () => {
+  const c = structuredClone(fixture.Conversation) as SupportConversation
+  c.messages[1].assistant!.citations = c.messages[1].assistant!.citations.filter(cite => cite.source_type === 'SHIPMENT')
+  const wrapper = mount(SupportContext, { props: { conversation: c, merchant: false } })
+  expect(wrapper.text()).toContain(c.product.name)
+  expect(wrapper.text()).toContain('记录显示已签收')
+  expect(wrapper.text()).not.toContain(c.line_id)
+  expect(wrapper.text()).not.toContain('相关政策')
+  expect(wrapper.text()).not.toContain('使用指南')
+  expect(wrapper.get<HTMLDetailsElement>('[data-logistics-details]').element.open).toBe(false)
+})

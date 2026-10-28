@@ -34,7 +34,8 @@ it('renders assistant sources and shares its editable summary only after explici
   await open()
   expect(wrapper.text()).toContain('售后助手')
   expect(wrapper.text()).toContain('脚本模型演示')
-  expect(wrapper.get('.support-message.assistant').text()).toContain('物流事实')
+  expect(wrapper.get('.support-message.assistant').text()).toContain('物流记录')
+  expect(wrapper.get<HTMLDetailsElement>('.support-message.assistant .buyer-evidence').element.open).toBe(false)
   await wrapper.get('[data-action="handoff"]').trigger('click')
   expect((wrapper.get('[aria-label="核查摘要"]').element as HTMLTextAreaElement).value).toBe(conversation.messages[1].assistant!.handoff_summary)
   expect(mutate).not.toHaveBeenCalled()
@@ -121,7 +122,7 @@ it('shows one provisional bubble, clears rejected text and replaces it with the 
   const event = (kind: SupportStreamEvent['kind'], payload: Record<string, unknown>, attempt: string | null = 'model-3') =>
     deliver({ ...completed(c), kind, payload, attempt_id: attempt })
   event('activity.started', { category: 'SHIPMENT' }, null); await flushPromises()
-  expect(wrapper.text()).toContain('正在查询物流记录')
+  expect(wrapper.text()).toContain('正在帮你查看，请稍候')
   event('activity.completed', { category: 'SHIPMENT' }, null)
   event('answer.started', {})
   event('answer.delta', { part_id: 'part-0', offset: 0, text: '第一段生成文字' }); await flushPromises()

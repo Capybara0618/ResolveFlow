@@ -6,6 +6,9 @@ export const shipmentLabel = (value: unknown) => {
   return typeof value === 'string' ? labels[value] || value : '待核实'
 }
 export const rows = (value: unknown): Record<string, unknown>[] => Array.isArray(value) ? value.filter(v => v && typeof v === 'object' && !Array.isArray(v)) : []
+export function buyerShipmentLabel(value: unknown) {
+  return typeof value === 'string' && ['IN_TRANSIT', 'DELAYED', 'DELIVERED', 'LOST', 'UNKNOWN', 'NOT_SHIPPED', 'ORDER_PAID', 'SIMULATED_SHIPPED'].includes(value) ? shipmentLabel(value) : '暂未确认'
+}
 export const stamp = (value: unknown, short = false) => {
   if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) return ''
   return new Date(value).toLocaleString('zh-CN', short ? { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false } : { hour12: false })

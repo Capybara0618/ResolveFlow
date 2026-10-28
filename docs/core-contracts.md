@@ -47,6 +47,8 @@ JSON用snake_case。Authorization JWT；service JWT独立aud/scope。外部写�
 | Case | POST /api/v1/support/conversations/{id}/tickets | docs/customer-support-contract-v1.md；独立咨询与人工接续，不创建退款授权 |
 | Case | POST /api/v1/support/conversations/{id}/resolve | docs/customer-support-contract-v1.md；独立咨询与人工接续，不创建退款授权 |
 | Case | GET /api/v1/support/tickets | docs/customer-support-contract-v1.md；独立咨询与人工接续，不创建退款授权 |
+| Case | GET /api/v1/platform/support-runs | docs/core-scope.md；平台管理员只读最近50次脱敏咨询运行，不返回私聊或原始调用内容 |
+| Case | GET /api/v1/platform/support-runs/{id} | docs/core-scope.md；平台管理员只读最多200条允许展示的过程事件，缺失指标保持未知 |
 | Case | GET /api/v1/support/tickets/{id} | docs/customer-support-contract-v1.md；独立咨询与人工接续，不创建退款授权 |
 | Case | POST /api/v1/support/tickets/{id}/messages | docs/customer-support-contract-v1.md；独立咨询与人工接续，不创建退款授权 |
 | Case | GET /api/v1/platform/merchants | docs/demo-foundation.md；仅平台管理员维护基础身份，不进入交易与审批 |
