@@ -35,6 +35,27 @@ it('requires an explicit confirm and displays the same application after submiss
   expect(wrapper.get('a').attributes('href')).toBe('#/customer/applications/one-case')
 })
 
+it('shows the purchased color in the refund summary and not a default product image', async () => {
+  const input = props()
+  input.conversation.product = { ...input.conversation.product, name: '无线降噪耳机', asset_key: 'headphones', variant: '银色' }
+  const mutate = vi.spyOn(refundApi, 'mutate')
+  wrapper = mount(SupportRefundCard, { props: input }); await flushPromises()
+  expect(wrapper.get('.refund-product img').attributes('src')).toContain('headphones-silver.webp')
+  expect(wrapper.get('.refund-product').text()).toContain('银色')
+  expect(mutate).not.toHaveBeenCalled()
+})
+
+it('notifies the message pane when a delayed refund summary becomes available', async () => {
+  let release!: (view: RefundView) => void
+  vi.mocked(refundApi.read).mockImplementationOnce(() => new Promise(resolve => { release = resolve }))
+  wrapper = mount(SupportRefundCard, { props: props() }); await flushPromises()
+  expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(false)
+  const before = wrapper.emitted('layout-change')?.length ?? 0
+  release(current()); await flushPromises()
+  expect(wrapper.emitted('layout-change')!.length).toBeGreaterThan(before)
+  expect(wrapper.get('[data-refund="confirm"]').attributes('disabled')).toBeUndefined()
+})
+
 it('edits and saves the reason before allowing confirmation', async () => {
   const mutate = vi.spyOn(refundApi, 'mutate').mockResolvedValue({ ...current(), draft: { ...current().draft!, reason: '客户修改原因', revision: 2 } })
   wrapper = mount(SupportRefundCard, { props: props() }); await flushPromises()

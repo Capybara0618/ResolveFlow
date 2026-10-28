@@ -1,0 +1,101 @@
+/* Buyer consultation uses the storefront visual system; merchant styling stays separate. */
+.workbench .support-marketplace > .shop-footer { display: none; }
+.workbench .support-workspace.buyer-support.buyer-support button { padding: 8px 13px; border: 1px solid #d9e2d7; border-radius: 7px; background: white; color: #202c2a; font: inherit; line-height: 1.5; box-shadow: none; }
+.workbench .support-workspace.buyer-support {
+  --support-blue: #176b5c;
+  --support-ink: #202c2a;
+  --support-muted: #727f77;
+  --support-line: #e3e8e1;
+  padding: 18px 24px 20px;
+  background: #fafaf7;
+  font-family: inherit;
+  font-size: 14px;
+}
+.workbench .buyer-support .support-grid { grid-template-columns: 224px minmax(0, 1fr) 280px; gap: 16px; }
+.workbench .buyer-support :is(.support-history, .support-main) { border-radius: 10px; }
+.workbench .buyer-support .support-history { padding: 20px 10px 10px; }
+.workbench .buyer-support .support-queue-heading { margin-bottom: 18px; }
+.workbench .buyer-support .support-queue-heading h1 { font-size: 21px; font-weight: 600; }
+.workbench .buyer-support.buyer-support button.primary { background: #176b5c; border-color: #176b5c; color: white; }
+.workbench .buyer-support.buyer-support button.primary:hover { background: #12584c; border-color: #12584c; }
+.workbench .buyer-support.buyer-support button:hover { background: #f0f5ef; border-color: #c7d9cc; color: #176b5c; }
+.workbench .buyer-support.buyer-support button.support-new { color: #176b5c; background: white; border-color: #9bbcaf; margin-bottom: 14px; }
+.workbench .buyer-support.buyer-support button.support-new:hover { background: #eff6f1; }
+.workbench .buyer-support :is(button, input, textarea, summary):focus-visible { outline: 2px solid #176b5c; outline-offset: 3px; }
+.workbench .buyer-support .support-search { background: #fafbf8; border-color: #e0e6dc; margin-bottom: 16px; }
+.workbench .buyer-support .support-search:focus-within { border-color: #6f9e8a; box-shadow: 0 0 0 2px #176b5c12; }
+.workbench .buyer-support.buyer-support .support-history-item { gap: 10px; padding: 12px 9px; border-radius: 6px; margin-bottom: 7px; }
+.workbench .buyer-support.buyer-support .support-history-item.current { border-left-color: #176b5c; background: #edf5ef; }
+.workbench .buyer-support .support-history-item > .product-art { display: block; width: 46px; height: 46px; flex: 0 0 46px; border-radius: 6px; object-fit: cover; }
+.workbench .buyer-support .support-history-item strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; font-weight: 550; line-height: 1.55; }
+.workbench .buyer-support .support-history-item span { display: flex; align-items: center; gap: 4px; color: #727f77; }
+.workbench .buyer-support .support-history-item small:empty { display: none; }
+.workbench .buyer-support .support-history-item small { color: #879087; margin: 3px 0 0; }
+.workbench .buyer-support .support-chat-heading { min-height: 72px; padding: 14px 20px; }
+.workbench .buyer-support .support-chat-identity h2 { font-size: 18px; font-weight: 600; }
+.workbench .buyer-support .support-chat-identity p { color: #727f77; }
+.workbench .buyer-support .support-avatar.assistant { color: #176b5c; background: #eaf4ed; }
+.workbench .buyer-support .support-avatar.customer { color: #6e7d70; background: #f0f2ed; }
+.workbench .buyer-support .support-messages { padding: 20px; scrollbar-color: #cfd9cd transparent; }
+.workbench .buyer-support .support-message { margin-bottom: 18px; }
+.workbench .buyer-support .support-message-content { max-width: min(calc(100% - 44px), 720px); }
+.workbench .buyer-support .support-message-bubble { color: #26362f; background: #f7f8f4; border: 1px solid #e9ede5; border-radius: 9px; font-size: 15px; line-height: 1.75; padding: 10px 13px; }
+.workbench .buyer-support .support-message.customer .support-message-bubble { background: #edf5ef; border-color: #e3eee5; }
+.workbench .buyer-support .support-message.customer .support-author { display: none; }
+.workbench .buyer-support .support-message-meta { color: #879087; font-size: 11px; }
+.workbench .buyer-support .support-message .support-author { color: #67756c; }
+.workbench .buyer-support .support-compose { padding: 10px 14px 8px; }
+.workbench .buyer-support .support-input-box { display: flex; align-items: flex-end; gap: 12px; padding: 8px 10px; border-color: #d4dfd4; border-radius: 8px; }
+.workbench .buyer-support .support-input-box:focus-within { border-color: #6f9e8a; box-shadow: 0 0 0 2px #176b5c12; }
+.workbench .buyer-support .support-input-box > textarea { flex: 1; width: 0; min-height: 32px; height: 32px; max-height: 100px; resize: vertical; padding: 0; margin: 0; color: #26362f; font-size: 14px; }
+.workbench .buyer-support .support-input-box > textarea::placeholder { color: #8d978e; }
+.workbench .buyer-support .support-actions { flex: none; flex-wrap: wrap; gap: 6px; margin: 0; max-width: 170px; }
+.workbench .buyer-support.buyer-support .support-actions > button { padding: 6px 10px; font-size: 13px; }
+.workbench .buyer-support .support-compose-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 5px; color: #879087; }
+.workbench .buyer-support .support-compose-meta > small { font-size: 11px; }
+.workbench .buyer-support.buyer-support button.support-refresh { margin: 0; padding: 0; border: 0; background: transparent; font-size: 11px; color: #727f77; }
+.workbench .buyer-support .context-card { padding: 17px; border-radius: 10px; border-color: #e3e8e1; margin-bottom: 14px; }
+.workbench .buyer-support .context-card h2 { font-size: 16px; font-weight: 600; }
+.workbench .buyer-support .context-product { align-items: center; gap: 12px; }
+.workbench .buyer-support .context-product > .product-art { display: block; width: 70px; height: 70px; flex: 0 0 70px; border-radius: 7px; object-fit: cover; }
+.workbench .buyer-support .context-product h3 { font-weight: 550; }
+.workbench .buyer-support .context-product p { color: #727f77; }
+.workbench .buyer-support .context-product strong { color: #202c2a; font-size: 20px; font-weight: 600; }
+.workbench .buyer-support .context-product-meta { color: #727f77; border-top-color: #e3e8e1; flex-wrap: wrap; }
+.workbench .buyer-support .context-product-meta > span { display: inline-flex; align-items: center; gap: 5px; }
+.workbench .buyer-support .context-product-meta small { color: #879087; }
+.workbench .buyer-support .support-source summary { color: #727f77; font-size: 12px; }
+.workbench .buyer-support .support-source p { font-size: 11px; }
+.workbench .buyer-support .context-muted { color: #879087; line-height: 1.7; }
+.workbench .buyer-support .source-version { color: #879087; }
+.workbench .buyer-support .support-stream-caret { color: #176b5c; }
+.workbench .buyer-support .support-citation { border-color: #e0e7dd; }
+.workbench .buyer-support .support-citation summary { color: #45634f; }
+.workbench .buyer-support .support-citation summary > svg { color: #176b5c; }
+.workbench .buyer-support .source-body { background: #f6f8f2; border-color: #e3e9df; }
+.workbench .buyer-support .source-chips { gap: 7px; }
+.workbench .buyer-support .source-chips .support-citation { border-radius: 6px; }
+.workbench .buyer-support .source-chips .support-citation summary { padding: 6px 9px; font-size: 12px; }
+.workbench .buyer-support.buyer-support button.text-action { padding: 0; border: 0; background: transparent; color: #176b5c; font-size: 12px; }
+.workbench .buyer-support.buyer-support button.icon-action { padding: 7px; border-color: transparent; background: transparent; color: #727f77; }
+.workbench .buyer-support.buyer-support button.support-heading-handoff { padding: 6px 9px; font-size: 12px; }
+.workbench .buyer-support .support-tag.blue { background: #edf5ef; color: #176b5c; }
+.workbench .buyer-support .support-agent-state { color: #727f77; }
+.workbench .buyer-support .support-ticket { background: #edf5ef; color: #176b5c; }
+.workbench .buyer-support .support-ticket p { color: #45634f; }
+.workbench .buyer-support .support-handoff-card { background: #f2f7f0; border-color: #dbe8d6; color: #176b5c; }
+.workbench .buyer-support .support-welcome h2 { color: #26362f; font-size: 20px; }
+.workbench .buyer-support .support-order > .product-art { display: block; width: 58px; height: 58px; flex: 0 0 58px; object-fit: cover; border-radius: 7px; }
+.workbench .buyer-support .support-order > span small { color: #176b5c; }
+.workbench .buyer-support .support-dialog { border: 1px solid #dbe3d6; box-shadow: 0 24px 70px #202c2a22; }
+.workbench .buyer-support .support-dialog-backdrop { background: #202c2a55; }
+.workbench .buyer-support .support-check input { accent-color: #176b5c; }
+.workbench .buyer-support .refund-summary { border-color: #cddfd8; }
+.workbench .buyer-support .refund-summary > header { padding: 11px 16px; }
+.workbench .buyer-support .refund-summary .refund-reason button { padding: 2px 4px; background: transparent; color: #176b5c; }
+.workbench .buyer-support .refund-summary footer > button:first-child { border: 0; background: transparent; color: #727f77; }
+.workbench .buyer-support .refund-progress a { color: #176b5c; }
+@media (min-width: 1500px) { .workbench .buyer-support .support-grid { grid-template-columns: 248px minmax(0, 1fr) 300px; }.workbench .buyer-support .support-messages { padding: 24px; } }
+@media (max-width: 1200px) { .workbench .support-workspace.buyer-support { padding: 12px; }.workbench .buyer-support .support-grid { grid-template-columns: 198px minmax(0, 1fr) 246px; gap: 12px; }.workbench .buyer-support .support-messages { padding: 16px; }.workbench .buyer-support .support-chat-heading { padding: 12px 16px; }.workbench .buyer-support .context-card { padding: 14px; } }
+@media (max-width: 1000px) { .workbench .buyer-support .support-grid { grid-template-columns: 190px minmax(0, 1fr); }.workbench .buyer-support .support-context { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; grid-column: 1 / -1; max-height: 220px; }.workbench .buyer-support .support-grid { grid-template-rows: minmax(0, 1fr) auto; }.workbench .buyer-support .context-card { margin: 0; } }
+@media (max-width: 760px) { .workbench .support-workspace.buyer-support { height: auto; padding: 10px; }.workbench .buyer-support .support-grid { display: flex; flex-direction: column; }.workbench .buyer-support .support-history { max-height: 210px; }.workbench .buyer-support .support-main { height: 650px; }.workbench .buyer-support .support-context { display: block; max-height: 420px; }.workbench .buyer-support .context-card { margin-bottom: 12px; } }

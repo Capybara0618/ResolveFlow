@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ApiError } from '../client'
 import type { SupportConversation } from '../support-client'
 import { refundApi, refundStatus, clearRefundRequest, readRefundRequest, saveRefundRequest, type RefundRequest, type RefundView } from '../support-refund'
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
+import Icon from './ReviewIcon.vue'
 
 const props = defineProps<{ token: string; owner: string; conversation: SupportConversation }>()
-const emit = defineEmits<{ expired: [] }>()
+const emit = defineEmits<{ expired: []; 'layout-change': [] }>()
 const id = props.conversation.conversation_id
 const value = ref<RefundView>({ draft: null, application: null })
 const pending = ref(readRefundRequest(props.owner, id)), busy = ref(false), reading = ref(false), loaded = ref(false)
@@ -69,6 +70,10 @@ async function send(kind: RefundRequest['kind']) {
 }
 function save() { return send(!d.value || outdated.value ? 'prepare' : 'edit') }
 watch(() => props.conversation.version, () => { void read() })
+watch(() => [showDraft.value, editing.value, d.value?.draft_id, d.value?.revision, application.value?.case.status], async () => {
+  await nextTick()
+  if (alive) emit('layout-change')
+})
 watch(() => [loaded.value, offer.value?.message_id], () => {
   const message = offer.value
   if (!loaded.value || !message || offeredMessage === message.message_id || d.value || blockingApplication.value || busy.value || pending.value) return
@@ -96,13 +101,13 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
       <footer><a :href="`#/customer/applications/${encodeURIComponent(application.case.case_id)}`">查看申请详情{{ application.case.status === 'WAITING_CUSTOMER' ? '并补充材料' : '' }} →</a><button :disabled="busy || reading" @click="read">刷新进度</button></footer>
     </article>
     <article v-if="showDraft" class="refund-summary">
-      <header><strong>退款申请</strong><small>{{ outdated ? '请重新核对' : '待你确认' }}</small></header>
-      <div class="refund-product"><ProductArt :asset="conversation.product.asset_key || ''" :name="conversation.product.name" /><div><strong>{{ conversation.product.name }}</strong><p>{{ conversation.product.variant || '默认规格' }} · {{ d?.quantity ?? conversation.product.quantity }}件 · {{ conversation.store_name }}</p></div></div>
-      <p class="refund-amount"><span>整行申请金额</span><strong>{{ d ? `¥${formatMinorUnits(d.amount_minor).replace(' CNY', '')}` : '核对后显示' }} <small v-if="d">{{ d.currency }}</small></strong></p>
+      <header><strong><Icon name="file" :size="18" />退款申请</strong><small>{{ outdated ? '请重新核对' : '待你确认' }}</small></header>
+      <div class="refund-overview"><div class="refund-product"><ProductArt :asset="conversation.product.asset_key || ''" :name="conversation.product.name" :variant="conversation.product.variant ?? ''" /><div><strong>{{ conversation.product.name }}</strong><p>{{ conversation.product.variant || '默认规格' }} · {{ d?.quantity ?? conversation.product.quantity }}件</p><span class="refund-store"><Icon name="store" :size="14" />{{ conversation.store_name }}</span></div></div>
+      <p class="refund-amount"><span>整行申请金额</span><strong>{{ d ? `¥${formatMinorUnits(d.amount_minor).replace(' CNY', '')}` : '核对后显示' }} <small v-if="d">{{ d.currency }}</small></strong></p></div>
       <div class="refund-reason"><div><span>申请原因</span><button v-if="!editing" data-refund="edit" :disabled="busy || !!pending" @click="editing = true">{{ outdated ? '重新核对' : '编辑' }}</button></div>
-        <label v-if="editing">确认要提交给商家的原因<textarea v-model="reason" aria-label="退款申请原因" maxlength="4000" rows="3" :disabled="busy || !!pending" /></label><p v-else>{{ d?.reason }}</p>
+        <label v-if="editing">确认要提交给商家的原因<textarea v-model="reason" aria-label="退款申请原因" maxlength="4000" rows="3" :disabled="busy || !!pending" /></label><p v-else tabindex="0">{{ d?.reason }}</p>
       </div>
-      <p class="refund-note">仅提交你确认的申请原因，私有聊天不会自动共享。提交后进入核查流程。</p>
+      <p class="refund-note">确认后提交给商家审核，私有聊天不会自动共享。</p>
       <p v-if="outdated" class="refund-note">摘要或咨询已更新，请重新核对金额和原因后再确认。</p>
       <footer><button :disabled="busy || !!pending" @click="d?.status === 'DRAFT' && !outdated ? send('cancel') : (expanded = false, editing = false, dismissed = true)">暂不申请</button>
         <button v-if="editing" data-refund="save" class="primary" :disabled="!reason.trim() || busy || !!pending" @click="save">{{ d && !outdated ? '保存原因' : '核对申请摘要' }}</button>
@@ -114,19 +119,43 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
 </template>
 
 <style scoped>
-.chat-refund { margin: 18px 0 4px 46px; max-width: 620px; color: #243957; font-size: 14px; }
-.refund-summary,.refund-progress { border: 1px solid #d9e3fa; border-radius: 12px; overflow: hidden; background: white; margin-bottom: 12px; }
-header,footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 20px; }
-header { background:#f6f9ff; } header small { color:#8d671f; background:#fff4dc; padding:4px 8px; border-radius:5px; }
-footer { border-top:1px solid #e7edf6; } button { padding:7px 10px; border-radius:7px; border:1px solid #dce5f5; background:white; color:#31517c; cursor:pointer; }
-button.primary { background:#2563eb; color:white; border-color:#2563eb; padding:10px 15px; } button:disabled { opacity:.5; cursor:default; }
-.refund-product { display:flex; align-items:center; gap:14px; padding:18px 20px 4px; } .refund-product :deep(.product-art) { width:54px; height:54px; flex-shrink:0; }
-p { line-height:1.7; white-space:pre-wrap; overflow-wrap:anywhere; } .refund-product p { margin:4px 0; color:#7486a2; font-size:12px; }
-.chat-refund .refund-amount { display:flex; justify-content:space-between; align-items:center; padding:8px 20px 16px; margin:0; } .refund-amount strong { font-size:22px; } .refund-amount small { font-size:11px; font-weight:400; }
-.refund-reason { margin:0 20px; padding:12px 0; border-top:1px solid #e7edf6; } .refund-reason>div { display:flex; align-items:center; justify-content:space-between; }
-.refund-reason button { border:0; color:#2563eb; } .refund-reason p { margin:6px 0; } label { display:block; font-size:12px; color:#7185a0; } textarea { display:block; box-sizing:border-box; width:100%; margin-top:8px; border:1px solid #ccd9ef; border-radius:8px; padding:10px; resize:vertical; font:inherit; color:#243957; }
-.chat-refund .refund-note { margin:0 20px 16px; font-size:12px; color:#7a8da7; } .refund-entry { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; color:#788ca8; }
-.chat-refund .refund-progress>p,.chat-refund .refund-progress>small,.chat-refund .refund-progress>ol { display:block; margin:12px 20px; } .refund-progress>small { overflow-wrap:anywhere; color:#7890a9; } .refund-progress ol { padding-left:18px; line-height:1.9; color:#7286a2; }
-a { color:#2563eb; text-decoration:none; } .refund-error,.refund-pending { padding:12px; border-radius:8px; background:#fff5e3; line-height:1.7; margin:8px 0; }
-@media(max-width:1100px) { .chat-refund { margin-left:0; } }
+.chat-refund { margin: 16px 0 4px; color: var(--support-ink, #202c2a); font-size: 14px; }
+.refund-summary, .refund-progress { border: 1px solid #cddfd8; border-radius: 10px; overflow: hidden; background: white; margin-bottom: 10px; }
+header, footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; }
+header { background: #f0f7f4; }
+header > strong { display: inline-flex; align-items: center; gap: 7px; color: #176b5c; font-size: 16px; font-weight: 600; }
+header small { color: #94611d; background: #fff3dd; padding: 3px 8px; border-radius: 5px; }
+footer { border-top: 1px solid #e5ebe6; justify-content: flex-end; flex-wrap: wrap; }
+button { padding: 7px 10px; border-radius: 6px; border: 1px solid #d9e1da; background: white; color: #3f5c52; cursor: pointer; }
+button.primary { background: #176b5c; color: white; border-color: #176b5c; padding: 9px 15px; }
+button:disabled { opacity: .5; cursor: default; }
+.refund-overview { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+.refund-product { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.refund-product > div { min-width: 0; }
+.refund-product strong { font-size: 15px; font-weight: 600; }
+.refund-product :deep(.product-art) { display: block; width: 58px; height: 58px; flex: 0 0 58px; border-radius: 7px; object-fit: cover; }
+p { line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+.refund-product p { margin: 3px 0; color: #727f77; font-size: 12px; }
+.refund-store { display: inline-flex; align-items: center; gap: 5px; color: #727f77; font-size: 12px; }
+.chat-refund .refund-amount { display: flex; flex: none; flex-direction: column; align-items: flex-end; gap: 3px; margin: 0; padding: 0; white-space: nowrap; }
+.refund-amount > span { color: #727f77; font-size: 12px; }
+.refund-amount strong { font-size: 24px; font-weight: 600; letter-spacing: -.6px; }
+.refund-amount small { font-size: 10px; font-weight: 400; letter-spacing: 0; }
+.refund-reason { margin: 0 16px 12px; padding: 10px 12px; background: #f6f7f3; border-radius: 6px; }
+.refund-reason > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: #6a786f; }
+.refund-reason button { border: 0; color: #176b5c; }
+.refund-reason p { margin: 5px 0 0; max-height: 180px; overflow: auto; }
+.refund-reason p:focus-visible { outline: 2px solid #176b5c; outline-offset: 3px; }
+label { display: block; font-size: 12px; color: #6a786f; }
+.chat-refund .refund-reason textarea { display: block; box-sizing: border-box; width: 100%; min-height: 82px; max-height: 180px; margin-top: 7px; border: 1px solid #c9d6cd; border-radius: 6px; padding: 9px; background: white; resize: vertical; font: inherit; color: #202c2a; }
+.chat-refund .refund-note { margin: 0 16px 12px; font-size: 12px; color: #727f77; }
+.refund-entry { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid #e5ebe6; font-size: 12px; color: #727f77; }
+.chat-refund .refund-progress > p, .chat-refund .refund-progress > small, .chat-refund .refund-progress > ol { display: block; margin: 12px 16px; }
+.refund-progress > small { overflow-wrap: anywhere; color: #727f77; }
+.refund-progress ol { padding-left: 18px; line-height: 1.9; color: #727f77; }
+.refund-progress footer { justify-content: space-between; }
+a { color: #176b5c; text-decoration: none; }
+.refund-error, .refund-pending { padding: 12px; border-radius: 8px; background: #fff5e3; line-height: 1.7; margin: 8px 0; }
+@media(max-width:1100px) { .refund-overview { gap: 10px; }.refund-product :deep(.product-art) { width: 46px; height: 46px; flex-basis: 46px; }.refund-amount strong { font-size: 21px; } }
+@media(max-width:520px) { .refund-overview { flex-wrap: wrap; }.chat-refund .refund-amount { flex-direction: row; flex-basis: 100%; align-items: center; justify-content: space-between; } }
 </style>

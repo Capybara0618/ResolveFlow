@@ -8,6 +8,8 @@ import assistantFixture from '../../contracts/core/fixtures/support-assistant.js
 import * as streamEvents from '../src/support-events'
 import type { SupportStreamEvent } from '../src/support-events'
 import { refundApi } from '../src/support-refund'
+import type { RefundView } from '../src/support-refund'
+import refundFixture from '../../contracts/core/fixtures/support-refund.json'
 
 const buyer = { access_token: 'buyer-token', role: 'CUSTOMER' as const, buyer_id: 'B-1', expires_in: 3600 }
 let wrapper: VueWrapper
@@ -41,6 +43,25 @@ it('renders assistant sources and shares its editable summary only after explici
   await wrapper.get('[aria-label="核查摘要"]').setValue('我确认：只核查')
   await wrapper.get('[data-action="confirm-handoff"]').trigger('click'); await flushPromises()
   expect(mutate.mock.calls[0][1]).toMatchObject({ kind: 'handoff', body: { summary: '我确认：只核查', assistant_message_id: conversation.messages[1].message_id, shared_message_ids: [] } })
+})
+
+it.each([true, false])('reveals a delayed refund summary while respecting whether the buyer is at the bottom: %s', async atBottom => {
+  let release!: (value: RefundView) => void
+  vi.mocked(refundApi.read).mockImplementationOnce(() => new Promise(resolve => { release = resolve }))
+  wrapper = mount(SupportWorkspace, { props: { account: buyer } }); await flushPromises()
+  const pane = wrapper.get<HTMLElement>('.support-messages')
+  Object.defineProperties(pane.element, { scrollHeight: { value: 1600, configurable: true }, clientHeight: { value: 500, configurable: true } })
+  pane.element.scrollTop = atBottom ? 1100 : 30
+  await pane.trigger('scroll')
+  release({ draft: { ...structuredClone(refundFixture.Draft), expected_version: original().version, expires_at: new Date(Date.now() + 1800000).toISOString(), status: 'DRAFT' }, application: null })
+  await flushPromises()
+  expect(wrapper.get('[data-refund="confirm"]').attributes('disabled')).toBeUndefined()
+  if (atBottom) expect(pane.element.scrollTop).toBe(1600)
+  else {
+    expect(pane.element.scrollTop).toBe(30)
+    await wrapper.get('[data-action="latest-messages"]').trigger('click')
+    expect(pane.element.scrollTop).toBe(1600)
+  }
 })
 
 it('keeps corrections and human handoff available while the assistant is running', async () => {
