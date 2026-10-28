@@ -31,7 +31,8 @@ def render_answer(decision: AnswerParts, accepted: list[SupportTask]) -> Answer:
         if part.assessment is not None:
             data["assessment"] = part.assessment
         tasks.append(SupportTask.model_validate(data))
-    return Answer(kind="ANSWER", text="\n\n".join(p.text for p in decision.parts), tasks=tasks,
+    text = "\n\n".join(t for p in decision.parts for t in (p.text, p.guidance) if t)
+    return Answer(kind="ANSWER", text=text, tasks=tasks,
                   citations=list(dict.fromkeys(ref for p in decision.parts for ref in p.citations)),
                   handoff_summary=decision.handoff_summary, memory_updates=decision.memory_updates,
                   refund_summary=decision.refund_summary,

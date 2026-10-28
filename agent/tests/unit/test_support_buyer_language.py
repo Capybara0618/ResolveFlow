@@ -63,7 +63,8 @@ def test_production_composition_does_not_append_amount_status_and_click_tutorial
     assert result["status"] == "SUCCEEDED", result["reason"]
     text = result["answer"]["text"]
     assert "订单状态：" not in text and "订单行实付：" not in text
-    assert "退款申请还没提交" in text and "核对" in text and "确认" in text
+    assert text == "请先核对申请原因。"
+    assert result["answer"]["buyer_view"]["parts"][0]["action"] == "REFUND_APPLICATION"
     assert len(text) < 110
     assert result["answer"]["refund_summary"] == request().context["current_request"]
     order = next(c for c in result["answer"]["citations"] if c["source_type"] == "ORDER")

@@ -64,5 +64,6 @@ def test_production_reason_and_citations_stay_separate_without_widening_refund_p
     order = next(c for c in result["answer"]["citations"] if c["source_type"] == "ORDER")
     assert order["data"]["order_line"]["line_paid_amount"] == 12345
     assert result["answer"]["customer_memory"]["origin"] == "GROUNDED_CUSTOMER_CLAIMS"
-    assert "还没提交" in result["answer"]["text"] and "商家审核" in result["answer"]["text"]
+    assert result["answer"]["text"] == respond()["parts"][0]["text"]
+    assert result["answer"]["buyer_view"]["parts"][0]["action"] == "REFUND_APPLICATION"
     assert agent.repairs == 0 and model.calls == 3

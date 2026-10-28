@@ -60,7 +60,8 @@ def test_saved_wrong_refund_goal_keeps_handoff_purpose_with_new_quote_draft_cont
     assert "已读系统记录" not in result["answer"]["handoff_summary"]
     assert result["answer"]["customer_memory"]["origin"] == "GROUNDED_CUSTOMER_CLAIMS"
     assert "refund_summary" not in result["answer"] and "正式退款：" not in result["answer"]["text"]
-    assert "补充给商家" in result["answer"]["text"]
+    assert result["answer"]["buyer_view"]["parts"][0]["action"] == "MERCHANT_REVIEW"
+    assert result["answer"]["text"] == result["answer"]["buyer_view"]["parts"][0]["text"]
     assert agent.repairs == 0 and len(agent.orchestration.goal_reviews) == 1
     assert "REVIEW_GOAL" not in model.conversations[1][0].get_content_blocks()[0].text
     assert "REVIEW_GOAL" in model.conversations[3][0].get_content_blocks()[0].text

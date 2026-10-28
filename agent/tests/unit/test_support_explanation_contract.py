@@ -36,8 +36,8 @@ def test_explicit_handoff_preserves_direct_explanation_even_with_only_guide_evid
              "handoff_reason": {"customer_quotes": [req.context["current_request"]]}}
     result, agent, _, _ = run([opening, final], req)
     assert result["status"] == "SUCCEEDED", result["reason"]
-    assert result["answer"]["text"].startswith(text + "\n\n")
-    assert result["answer"]["text"].count("补充给商家") == 1
+    assert result["answer"]["text"] == text
+    assert result["answer"]["buyer_view"]["parts"][0]["action"] == "MERCHANT_REVIEW"
     assert "请商家核查" not in result["answer"]["text"] and agent.repairs == 0
 
 
@@ -70,7 +70,7 @@ def test_only_accepted_operation_goals_require_steps_and_cancelled_goals_require
         assert flow.required_actions({"trace": "PAUSED"}) == {}
 
 
-def test_streamed_direct_explanation_is_preserved_when_program_appends_handoff_instructions():
+def test_streamed_direct_explanation_matches_final_body_with_a_separate_handoff_action():
     import json
 
     import httpx
@@ -103,5 +103,5 @@ def test_streamed_direct_explanation_is_preserved_when_program_appends_handoff_i
     assert result["status"] == "SUCCEEDED", result["reason"]
     events = [event for batch in batches for event in batch["events"]]
     streamed = "".join(e["payload"]["text"] for e in events if e["kind"] == "answer.delta")
-    assert streamed == text and result["answer"]["text"].startswith(streamed + "\n\n")
-    assert "确认后才转交商家" in result["answer"]["text"]
+    assert streamed == text == result["answer"]["text"]
+    assert result["answer"]["buyer_view"]["parts"][0]["action"] == "MERCHANT_REVIEW"

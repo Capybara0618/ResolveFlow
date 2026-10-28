@@ -101,7 +101,7 @@ class SupportRuntime:
         manifest = {
             "version": "support-agent-v1",
             "answer_fact_rendering": FACT_RENDERING_VERSION,
-            "buyer_presentation": "plain-language-v2" if self.architecture == "orchestrated-v1" else "legacy",
+            "buyer_presentation": "buyer-view-v1" if self.architecture == "orchestrated-v1" else "legacy",
             "architecture": self.architecture,
             "streaming": isinstance(model, StreamingLiveModelClient),
             "sdk": version("agentscope"),
@@ -150,6 +150,7 @@ class SupportRuntime:
                     "orchestration_prompts.py",
                     "grounding.py",
                     "navigation.py",
+                    "presentation.py",
                     "../harness/token_counting.py",
                     "../assets/support-guide-v3.json",
                     "../policies/retrieval.py",

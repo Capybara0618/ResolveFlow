@@ -7,7 +7,7 @@ import re
 from decimal import Decimal
 from typing import Any
 
-from resolveflow.support.protocol import Answer, AnswerFact, AnswerParts, SupportInput
+from resolveflow.support.protocol import Answer, AnswerFact, AnswerPart, AnswerParts, SupportInput
 
 MONEY = re.compile(r"[¥￥]\s*(-?\d[\d,]*(?:\.\d+)?)|(-?\d[\d,]*(?:\.\d+)?)\s*(?:CNY|元)", re.I)
 FACT_RENDERING_VERSION = "fields-v1"
@@ -139,7 +139,10 @@ def ground_answer(
         parts = []
         for part in decision.parts:
             text, refs = render(part.text, part.facts, part.citations)
-            parts.append(part.model_copy(update={"text": text, "citations": refs}))
+            guidance = part.guidance
+            if guidance is not None:
+                guidance, refs = render(guidance, part.facts, refs)
+            parts.append(part.model_copy(update={"text": text, "guidance": guidance, "citations": refs}))
         return decision.model_copy(update={"parts": parts})
     text, refs = render(decision.text, decision.facts, decision.citations)
     return decision.model_copy(update={"text": text, "citations": refs})
@@ -169,7 +172,8 @@ def diagnostic_fact_references(
 def check_amounts(decision: Answer | AnswerParts, request: SupportInput,
                   citations: dict[str, dict[str, Any]]) -> None:
     for part in decision.parts if isinstance(decision, AnswerParts) else [decision]:
-        amounts = [Decimal((m.group(1) or m.group(2)).replace(",", "")) for m in MONEY.finditer(part.text)]
+        visible = part.text + ("\n" + part.guidance if isinstance(part, AnswerPart) and part.guidance else "")
+        amounts = [Decimal((m.group(1) or m.group(2)).replace(",", "")) for m in MONEY.finditer(visible)]
         if not amounts:
             continue
         allowed = set()

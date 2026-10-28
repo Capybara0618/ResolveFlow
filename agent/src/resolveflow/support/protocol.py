@@ -190,6 +190,7 @@ class AnswerPart(Closed):
     task_id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
     status: Literal["ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT", "UNAVAILABLE", "CANCELLED", "SUSPENDED"]
     text: str = Field(min_length=1, max_length=4000)
+    guidance: str | None = Field(default=None, min_length=1, max_length=1000, exclude_if=lambda v: v is None)
     citations: list[str] = Field(default_factory=list, max_length=8)
     blocker: TaskBlocker | None = Field(default=None, exclude_if=lambda v: v is None)
     facts: list[AnswerFact] = Field(default_factory=list, max_length=8)

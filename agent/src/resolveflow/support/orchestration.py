@@ -76,6 +76,7 @@ class TurnPlan(Understanding):
 class ResponsePart(Closed):
     task_id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
     text: str = Field(min_length=1, max_length=4000)
+    guidance: str | None = Field(default=None, min_length=1, max_length=1000)
     citations: list[Annotated[str, Field(pattern=r"^[OP][1-9][0-9]*$")]] = Field(
         default_factory=list, max_length=8)
     status: Literal["ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT"] = "ANSWERED"
@@ -368,7 +369,12 @@ class Orchestration:
             assessment = None
             if focus.intent == "ELIGIBILITY" and active:
                 assessment = "CASE_ASSESSMENT" if "ORDER" in focus.needs else "CONDITIONS"
+            # Application instructions are visible only for a guide-focused explanation. Accepted
+            # operations have their own confirmed cards; a source failure/paused task has no UI advice.
+            guidance = (part.guidance if active and status in {"ANSWERED", "NEEDS_MERCHANT"}
+                        and task["goal"] == "EXPLAIN" and "GUIDE" in self.required(focus) else None)
             parts.append(AnswerPart.model_validate({"task_id": focus.id, "status": status, "text": part.text,
+                         "guidance": guidance,
                          "citations": citations, "facts": facts, "next_steps": steps,
                          "blocker": blocker, "assessment": assessment}))
         reasons = [("refund_reason", "PREPARE_REFUND"), ("handoff_reason", "MERCHANT_REVIEW")]

@@ -35,6 +35,7 @@ from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.navigation import RefundSummaryError, navigation_references, render_navigation
 from resolveflow.support.orchestration import FactReadBatch, GoalConflict, Orchestration, Response, TurnPlan
 from resolveflow.support.orchestration_prompts import system_for
+from resolveflow.support.presentation import buyer_view
 from resolveflow.support.protocol import DECISION, Answer, AnswerParts, Read, Search, SupportFailure, SupportInput
 from resolveflow.support.recovery import SourceRecovery
 from resolveflow.support.stages import StageError, TurnStage, Understanding
@@ -73,6 +74,7 @@ class SupportAgent:
         progress: Any = None,
     ) -> None:
         self.stage = TurnStage(architecture)
+        self.buyer_view: dict[str, Any] | None = None
         self.orchestration = Orchestration(request) if architecture == "orchestrated-v1" else None
         self.request, self.model, self.sources, self.journal = request, model, sources, journal
         self.progress = progress
@@ -135,6 +137,7 @@ class SupportAgent:
             if reason or final is None
             else {
                 "text": final.text,
+                **({"buyer_view": self.buyer_view} if self.buyer_view is not None else {}),
                 "handoff_summary": final.handoff_summary,
                 **({"refund_summary": final.refund_summary} if final.refund_summary else {}),
                 "citations": [self.citations[c] for c in dict.fromkeys(final.citations)],
@@ -246,7 +249,8 @@ class SupportAgent:
                     system += ("\n以下事项的原因、金额和确认操作由独立卡片展示："
                                + canonical_json([field["task_id"] for field in contract["reason_fields"]])
                                + "。这些事项的text只写相关事实与处理条件；不要复述原因、预告已整理好，"
-                               "也不要写‘核对后再提交’等办理说明。原因原话只放独立reason字段。"
+                               "也不要写‘核对后再提交’等办理说明；如有办理指引只放guidance，程序不会在这些事项展示。"
+                               "原因原话只放独立reason字段。"
                                "退款范围用日常说法‘退还这件商品的实付金额’，正文无需重报卡片金额。")
                 system += "\n本轮完整输出示例：\n" + canonical_json(contract["example"])
         messages = [raw_text_message(system, role="system"), messenger_message(packet)]
@@ -406,18 +410,22 @@ class SupportAgent:
                 ):
                     raise RefundSummaryError('refund_summary仅用于已选择REFUND_APPLICATION并读取指南的非空申请摘要。')
             grounded = None
+            presentation = None
             if isinstance(decision, (Answer, AnswerParts)):
                 required = (self.orchestration.required_actions(self.dialogue.lifecycles)
                             if self.orchestration is not None else
                             self.stage.required_actions(self.dialogue.lifecycles))
                 decision = render_navigation(decision, self.citations, strict=self.stage.enabled, required=required,
                                              conversation_state=self.request.context.get('conversation_state'),
-                                             program_owned=self.orchestration is not None)
+                                             program_owned=self.orchestration is not None,
+                                             separate=self.orchestration is not None)
                 grounded = ground_answer(decision, self.request, self.citations,
                                          deduplicate=self.orchestration is not None,
                                          buyer_view=self.orchestration is not None)
                 decision = grounded
             if isinstance(decision, AnswerParts):
+                if self.orchestration is not None:
+                    presentation = buyer_view(decision)
                 decision = render_answer(decision, self.tasks.tasks)
                 if self.stage.understanding is not None:
                     decision = decision.model_copy(update={"tasks": event_outcomes(
@@ -453,6 +461,7 @@ class SupportAgent:
             self.dialogue = dialogue
             if isinstance(decision, Answer):
                 self.final = decision
+                self.buyer_view = presentation
             if isinstance(decision, Search):
                 reply = replace(reply, decision={**decision.model_dump(), "arguments": {"top_k": decision.top_k}})
             return reply

@@ -80,14 +80,18 @@ def render_navigation(
     required: dict[str, str] | None = None,
     conversation_state: dict[str, Any] | None = None,
     program_owned: bool = False,
+    separate: bool = False,
 ) -> Answer | AnswerParts:
+    if separate and not program_owned:
+        raise NavigationError('分层展示仅由已接受的程序目标生成。')
     decision = navigation_references(decision, citations)
     rendered = []
     for piece in decision.parts if isinstance(decision, AnswerParts) else [decision]:
         actions = [step.action for step in piece.next_steps]
         refs = list(piece.citations)
         if strict:
-            if program_owned and any(label in piece.text for label in PAGE_LABELS):
+            prose = piece.text + ('\n' + piece.guidance if isinstance(piece, AnswerPart) and piece.guidance else '')
+            if program_owned and any(label in prose for label in PAGE_LABELS):
                 trusted = guide_source()
                 guide_ref = next((ref for ref, source in citations.items() if all(
                     source.get(key) == trusted[key] for key in ('source_type', 'version', 'data')
@@ -97,11 +101,11 @@ def render_navigation(
                 if guide_ref not in refs:
                     refs.append(guide_ref)
             for label in PAGE_LABELS:
-                if not program_owned and label in piece.text and not PAGE_ACTIONS[label].intersection(actions):
+                if not program_owned and label in prose and not PAGE_ACTIONS[label].intersection(actions):
                     choices = sorted(PAGE_ACTIONS[label])
                     raise NavigationError(f'页面“{label}”须对应next_steps.action={choices}及本run指南。')
             # Finite direct UI pairs, not a general classifier of prose or negation.
-            if any(re.search(pattern, piece.text) for pattern in DIRECT_CROSSED_ROUTES):
+            if any(re.search(pattern, prose) for pattern in DIRECT_CROSSED_ROUTES):
                 raise NavigationError('页面与直接操作错配：请商家核查须在售后咨询；退款可在当前会话确认。')
         if len(actions) != len(set(actions)):
             raise NavigationError('同一段next_steps.action不可重复。')
@@ -129,10 +133,12 @@ def render_navigation(
                 instruction = (BUYER_EXISTING_REVIEW if existing_ticket and step.action == 'MERCHANT_REVIEW'
                                else BUYER_PREPARED_REFUND if decision.refund_summary
                                and step.action == 'REFUND_APPLICATION' else BUYER_INSTRUCTIONS[step.action])
-            text += ('\n\n' if text else '') + instruction
+            if not separate:
+                text += ('\n\n' if text else '') + instruction
         if len(text) > 4000 or len(refs) > 8:
             raise NavigationError('生成步骤后仍须满足4000字符和8引用限制。')
-        rendered.append(piece.model_copy(update={'text': text, 'citations': refs, 'next_steps': []}))
+        rendered.append(piece.model_copy(update={'text': text, 'citations': refs,
+                                                'next_steps': piece.next_steps if separate else []}))
     if isinstance(decision, AnswerParts):
         return decision.model_copy(update={'parts': rendered})
     single = rendered[0]
