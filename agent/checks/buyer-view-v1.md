@@ -31,3 +31,9 @@ SupportBuyerReply按事项显示实际正文和程序允许的guidance，不生�
 本机tmp/buyer-view-v1记录隔离正式组件1280×720的退款确认、核对中、失败、明确询问操作四状态截图/DOM；隔离页不连业务服务，示例文案不作为真实模型生成。确认按钮底546.9px小于消息区底597.8px；核对/失败无确认按钮且申请入口禁用，指南正文独立且不自动转交。实际新版Case正常package后只重启核实归属的自有进程，模型调查/MQ/退款仍关闭；真实buyer01历史只读可打开，过期草稿不出现确认按钮，旧回复不改写。12业务表CHECKSUM前后相同、模型账本保持3619。
 
 本批工程职责分层已打通Python→契约→Java持久/事件→Vue；现有SDK/预算/来源/金额/明确确认职责保持。未新增真实模型请求，也没有把旧坏回复手动拆分后冒充自然表达通过。新模型是否稳定把办理说明放入guidance、是否通俗且不漏条件，仍须后续独立实测；当前只证明程序不再自动重复拼接、字段分工及展示门控有效。
+
+## 发布与持久恢复补充验收
+
+用户要求继续后，补两项FastAPI→生产SupportRuntime/AgentScope→真实PostgreSQL隔离schema检查，分别覆盖退款与明确的指南问题。正式API返回和数据库result_json的buyer_view一致；manifest记录buyer-view-v1及presentation.py，raw模型guidance仍在内部调用记录；已完成结果可复用，模拟过期租约从已落库调用恢复后fence递增、结果完全相同，0新增模型/工具调用。使用脚本决策，不是真实provider生成。临时启动已有演示PostgreSQL、仅用测试自有schema，fixture清理后恢复原停止状态；未清理业务库。
+
+`RESOLVEFLOW_AGENT_DB=...:55433/agent_db python -m pytest agent/tests/integration/test_support_buyer_view_runtime.py -q -rs`实际2通过、0跳过。另为Java持久HTTP测试增加answer.committed事件日志断言，确认事件assistant.buyer_view与读取历史返回完全一致；限定该方法再跑1通过、0跳过，原未建草稿/Case与共享不泄漏断言保持。限定Spotless/Ruff/diff通过，日志tmp/buyer-view-v1/runtime-integration.log及event-publication-test.log。没有新增provider请求或更改本批费用口径。

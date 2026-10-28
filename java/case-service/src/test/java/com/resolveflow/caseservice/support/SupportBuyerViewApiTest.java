@@ -50,6 +50,13 @@ class SupportBuyerViewApiTest extends SupportApiTest {
         var answer = current.path("messages").get(1).path("assistant");
         assertThat(answer.path("buyer_view").path("parts").get(0).path("action").asString())
                 .isEqualTo("REFUND_APPLICATION");
+        var committed = json.readTree(jdbc.queryForObject(
+                "SELECT payload_json FROM support_stream_event WHERE conversation_id=? AND kind='answer.committed'",
+                String.class,
+                c.path("conversation_id").asString()));
+        assertThat(committed.path("assistant").path("buyer_view")).isEqualTo(answer.path("buyer_view"));
+        assertThat(committed.path("text").asString())
+                .isEqualTo(current.path("messages").get(1).path("text").asString());
         assertThat(count("support_refund_draft")).isZero();
         assertThat(count("aftersale_case")).isZero();
         get(path(c), merchant, 403);
