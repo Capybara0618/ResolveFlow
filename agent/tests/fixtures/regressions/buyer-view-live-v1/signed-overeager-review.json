@@ -1,0 +1,455 @@
+{
+  "source_report_sha256": "e63101dcc6f302e173040f320e8b47438989df3699f64707bf9c625c0648e197",
+  "scope": "Recorded live failure; synthetic facts; not a passing regression",
+  "input": {
+    "run_id": "f0bea0fa-15f9-46e0-b7ea-f5453a72cf61",
+    "conversation_id": "e72b2575-50a1-559b-9cb9-409be66c3693",
+    "input_version": 1,
+    "merchant_id": "M-1001",
+    "customer_id": "C-SYNTHETIC-SMOKE",
+    "line_id": "buyer-language-synthetic-line",
+    "deadline_at": "2026-10-28T07:56:36.846908Z",
+    "context": {
+      "product": {
+        "name": "无线降噪耳机",
+        "quantity": 1,
+        "amount_minor": 32900,
+        "currency": "CNY"
+      },
+      "policy_manifest": {
+        "merchant_id": "M-1001",
+        "bundle_ids": [
+          "policy-logistics-2026.10"
+        ],
+        "manifest_hash": "dd84843e2ce9a526819817a1c7b2c6ae52e7489556702687ab39e6afa96800b2"
+      },
+      "current_request": "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？",
+      "history": [
+        {
+          "message_id": "a450cc38-8308-4c78-8d5f-f0cb724b5150",
+          "sequence": 1,
+          "author": "CUSTOMER",
+          "recipient": "ASSISTANT",
+          "text": "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？"
+        }
+      ],
+      "conversation_state": {
+        "has_ticket": false,
+        "ticket_status": "NONE",
+        "current_recipient": "ASSISTANT",
+        "default_recipient": "ASSISTANT"
+      }
+    }
+  },
+  "decisions": [
+    {
+      "kind": "TURN_UNDERSTANDING",
+      "focus": [
+        {
+          "id": "t1",
+          "intent": "HANDOFF",
+          "request": "耳机显示已送达但本人未收到，家里和快递站均无，应找谁协助核查",
+          "needs": [
+            "ORDER",
+            "SHIPMENT",
+            "GUIDE"
+          ],
+          "context_refs": [],
+          "goal": "MERCHANT_REVIEW",
+          "operation_request": "现在应该找谁帮我"
+        }
+      ],
+      "dialogue_events": [
+        {
+          "change": "ADD",
+          "task_ids": [
+            "t1"
+          ],
+          "reference": "CURRENT",
+          "quote": "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？"
+        }
+      ],
+      "customer_claims": [
+        {
+          "topic": "RECEIPT",
+          "reference": "CURRENT",
+          "quote": "耳机标着已经送达，我本人没拿到",
+          "change": "APPEND"
+        },
+        {
+          "topic": "CHECKS",
+          "reference": "CURRENT",
+          "quote": "家里和快递站都问过了也没有",
+          "change": "APPEND"
+        }
+      ]
+    },
+    {
+      "kind": "READ_FACTS",
+      "tools": [
+        "get_order_context",
+        "get_shipment_trace"
+      ],
+      "policy_query": "已显示送达但本人未收到、家中与快递站均无的签收争议核验条件"
+    },
+    {
+      "handoff_reason": {
+        "customer_refs": [
+          "c_07cc203f33c52e1f4897d53b",
+          "c_2afb11c8630cd933bcd6edd0"
+        ]
+      },
+      "kind": "RESPOND",
+      "parts": [
+        {
+          "citations": [
+            "O3",
+            "P3"
+          ],
+          "task_id": "t1",
+          "text": "物流显示已送达，但具体签收情况还需要商家核实。你可以点“请商家核查”，把“本人没拿到、家里和快递站都问过也没有”的情况转给商家跟进。"
+        }
+      ]
+    }
+  ],
+  "result": {
+    "run_id": "f0bea0fa-15f9-46e0-b7ea-f5453a72cf61",
+    "conversation_id": "e72b2575-50a1-559b-9cb9-409be66c3693",
+    "input_version": 1,
+    "status": "SUCCEEDED",
+    "reason": null,
+    "mode": "live",
+    "spend": {
+      "model_calls": 3,
+      "tool_attempts": 2,
+      "local_reads": 2,
+      "input_tokens": 11404,
+      "output_tokens": 373,
+      "no_progress_rounds": 0
+    },
+    "conversation_update": {
+      "version": "support-state-v1",
+      "run_id": "f0bea0fa-15f9-46e0-b7ea-f5453a72cf61",
+      "conversation_id": "e72b2575-50a1-559b-9cb9-409be66c3693",
+      "input_version": 1,
+      "merchant_id": "M-1001",
+      "customer_id": "C-SYNTHETIC-SMOKE",
+      "line_id": "buyer-language-synthetic-line",
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "HANDOFF",
+            "request": "耳机显示已送达但本人未收到，家里和快递站均无，应找谁协助核查",
+            "status": "ANSWERED",
+            "evidence_refs": [],
+            "response_excerpt": null,
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": []
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "e72b2575-50a1-559b-9cb9-409be66c3693",
+        "merchant_id": "M-1001",
+        "customer_id": "C-SYNTHETIC-SMOKE",
+        "line_id": "buyer-language-synthetic-line",
+        "input_version": 1,
+        "entries": [
+          {
+            "id": "c_07cc203f33c52e1f4897d53b",
+            "topic": "RECEIPT",
+            "quote": "耳机标着已经送达，我本人没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机标着已经送达，我本人没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2afb11c8630cd933bcd6edd0",
+            "topic": "CHECKS",
+            "quote": "家里和快递站都问过了也没有",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里和快递站都问过了也没有"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "dialogue_state": {
+        "origin": "MODEL_WITH_CUSTOMER_ANCHORS",
+        "events": [
+          {
+            "change": "ADD",
+            "task_id": "t1",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？"
+            }
+          }
+        ],
+        "carried_tasks": {
+          "t1": "ANSWERED"
+        },
+        "lifecycles": {
+          "t1": "OPEN"
+        }
+      },
+      "memory_warnings": []
+    },
+    "answer": {
+      "text": "物流显示已送达，但具体签收情况还需要商家核实。你可以点“请商家核查”，把“本人没拿到、家里和快递站都问过也没有”的情况转给商家跟进。",
+      "buyer_view": {
+        "version": "buyer-view-v1",
+        "parts": [
+          {
+            "task_id": "t1",
+            "text": "物流显示已送达，但具体签收情况还需要商家核实。你可以点“请商家核查”，把“本人没拿到、家里和快递站都问过也没有”的情况转给商家跟进。",
+            "action": "MERCHANT_REVIEW"
+          }
+        ]
+      },
+      "handoff_summary": "耳机标着已经送达，我本人没拿到\n家里和快递站都问过了也没有",
+      "citations": [
+        {
+          "source_type": "SHIPMENT",
+          "version": 3,
+          "data": {
+            "synthetic": true,
+            "line_id": "buyer-language-synthetic-line",
+            "status": "DELIVERED",
+            "carrier_conclusion": "DELIVERED",
+            "events": []
+          },
+          "source_id": "O3",
+          "content_hash": "dba6e91ebdecaff48022d6be76d0799252392dada935f05e142ddbf6b49ee311"
+        },
+        {
+          "source_type": "POLICY",
+          "version": "2026.10",
+          "title": "已签收争议",
+          "data": {
+            "rule_id": "R-SIGNED-001",
+            "text": "存在有效签收记录时不能仅因客户主张未收到而退款，须人工核验签收争议；事实不足时要求补充材料或转人工调查。",
+            "synthetic": true
+          },
+          "source_id": "P3",
+          "content_hash": "84e07caa431bd853ff6647e6665b1d3daa37b705d07336ec4e5fc9a2652f6f5f"
+        },
+        {
+          "source_type": "ORDER",
+          "version": 2,
+          "data": {
+            "synthetic": true,
+            "order_line": {
+              "line_id": "buyer-language-synthetic-line",
+              "product_name": "无线降噪耳机",
+              "quantity": 1,
+              "status": "PAID",
+              "line_paid_amount": 32900,
+              "currency": "CNY"
+            }
+          },
+          "source_id": "O2",
+          "content_hash": "2922228cbccaa24615efb9ca1857355ac365532c844b5e1d2eae9a28dd4a11af"
+        },
+        {
+          "source_type": "KNOWLEDGE",
+          "version": "2026.10.23-v3",
+          "title": "售后咨询使用指南",
+          "data": {
+            "guide_id": "support-guide-v3",
+            "authority": "APPLICATION_GUIDE",
+            "text": "选择订单商品与独立咨询\n打开售后咨询后选择本人已付款订单中的商品。每个订单行独立保存咨询消息，更换商品会切换到对应商品的会话，原咨询记录保留。\n\n不申请退款也能请商家核查\n需要人工帮助时，可点击请商家核查，预览并编辑转交摘要后确认提交。不需要填写退款金额，也不会因此提交退款申请。\n\n转交前选择共享原文和调查依据\n转交商家前，客户选择共享哪些客户原文，以及本回答的订单、物流或政策依据。调查依据默认不勾选；对话历史不会随依据自动共享。只有客户确认的内容才发给商家。\n\n私有助手咨询与补充给商家的区别\n转交后默认输入补充给商家，消息进入原核查单。可切换询问智能助手，这类咨询和助手回答不自动交给商家。商家只能读取客户确认共享及后续发给商家的消息。\n\n商家回复与客户确认解决\n商家可以核查回复或请求客户补充。已回复不会自动变成已解决，客户可继续补充或确认解决。解决后客户再次补充会接续原核查单，咨询不限制为两轮补充。\n\n查看核查进度和历史消息\n咨询记录会自动检查进度，也可手动刷新。读取更早消息时暂停自动刷新，避免打断阅读。商家在本店咨询核查工作台查看已确认的共享材料并回复。\n\n发送结果不明确与版本冲突\n网络结果尚未确认时，使用原请求确认结果，刷新同一浏览器标签页后保留原请求标识。版本冲突时保留输入并提示刷新，不自动提交过时的转交摘要。\n\n正式退款申请与咨询入口\n当前会话点击申请退款，核对整行金额、编辑原因，确认提交才建单；暂不申请保留原因。提交后查看会话进度，或到我的售后补证。聊天中表达退款意愿或请商家核查并不会自动创建退款工单。\n\n助手回答来源与实时事实\n助手按问题选择读取订单、物流、历史或绑定版本的本店政策。回答来源可展开查看版本和原文；订单当前物流状态、退款执行结果须从业务接口读取，知识文档不能证明某笔订单已发货、已丢失或已退款。\n\n补充纠正与过时回答\n客户生成期间可以继续补充、纠正情况或更换商品。旧输入对应的回复不会发布成最新回答；失败后可以重新提问或请商家核查。",
+            "text_sha256": "841179039a0f6e67e476c400b8b3b83bfc3d6dda8378b457b27759a93836f727",
+            "sources": [
+              {
+                "ref": "s0",
+                "path": "docs/customer-support-workspace.md",
+                "sha256_at_import": "7787fc6a8e2fc326c52d3f131a97ee3445ca00f35906eb2691bff7e107701a89"
+              },
+              {
+                "ref": "s1",
+                "path": "docs/customer-agent-implementation-v1.md",
+                "sha256_at_import": "c908aba9df412d7f8b699226242a14794e32c09297ace4defc0b7fd85a6051eb"
+              },
+              {
+                "ref": "s2",
+                "path": "docs/customer-chat-refund-implementation-v1.md",
+                "sha256_at_import": "196da30c6e3486f78d04a82dbe517598cd5bcddbd5c2414039711a47b942c52c"
+              }
+            ],
+            "sections": [
+              {
+                "id": "K-ORDER",
+                "title": "选择订单商品与独立咨询",
+                "source_ref": "s0",
+                "content_sha256": "c631cba91eee5655714b0a38aa66f554d49c5235d048640d55ba67e46c0f7e79"
+              },
+              {
+                "id": "K-HANDOFF",
+                "title": "不申请退款也能请商家核查",
+                "source_ref": "s0",
+                "content_sha256": "d9c867aeeca73054f0108001d4611ee3c4ff3208925b52afa7ca1a5090cb6e6a"
+              },
+              {
+                "id": "K-SHARE",
+                "title": "转交前选择共享原文和调查依据",
+                "source_ref": "s0",
+                "content_sha256": "2d9bbe2a87676e07114c12d0b550c8124c71e8e5510dc59bbecf85f04aca4632"
+              },
+              {
+                "id": "K-PRIVATE",
+                "title": "私有助手咨询与补充给商家的区别",
+                "source_ref": "s0",
+                "content_sha256": "a4932d3b60e8f097d87ace5dc9c12c132bdf56e2d9a75b31f3a569399c40dc42"
+              },
+              {
+                "id": "K-RESOLVE",
+                "title": "商家回复与客户确认解决",
+                "source_ref": "s0",
+                "content_sha256": "de141814fbd67517d588ba910555fe7630c34de8c2f8888a202a4e8e01dff78f"
+              },
+              {
+                "id": "K-STATUS",
+                "title": "查看核查进度和历史消息",
+                "source_ref": "s0",
+                "content_sha256": "74ed943abdeefb5ba077003dd788b430c8edb5db5c74ee6c102e3be40e252623"
+              },
+              {
+                "id": "K-RETRY",
+                "title": "发送结果不明确与版本冲突",
+                "source_ref": "s0",
+                "content_sha256": "e1621c139e40d7f3f7b40db629fdd7b57ecf3f47b69872f2741ea7fd7fd8f57d"
+              },
+              {
+                "id": "K-ENTRY",
+                "title": "正式退款申请与咨询入口",
+                "source_ref": "s2",
+                "content_sha256": "41bd2930358227fe9384992793f1b0950b0b07d8853901112642a2f8101adbca"
+              },
+              {
+                "id": "K-SOURCES",
+                "title": "助手回答来源与实时事实",
+                "source_ref": "s1",
+                "content_sha256": "650cc96d94c3efd0e2b393be8c41e8e154bf6322feb49c97731e0ede19d40717"
+              },
+              {
+                "id": "K-STALE",
+                "title": "补充纠正与过时回答",
+                "source_ref": "s0",
+                "content_sha256": "cfd89b559b77a2199fe4c4988bca1f5486fbb0361442f2f7de9b0de1dca3da31"
+              }
+            ],
+            "knowledge_sha256": "cc3890b0616f8b1a50fcb0597d74498f30265ee59c7f445f556ed10b89bfcffb"
+          },
+          "source_id": "O1",
+          "content_hash": "0ae94d263251abc9c426b58f3b793eabf511c8c8cdb3d14230f9e9e766c61120"
+        }
+      ],
+      "task_state": {
+        "origin": "MODEL",
+        "tasks": [
+          {
+            "id": "t1",
+            "intent": "HANDOFF",
+            "request": "耳机显示已送达但本人未收到，家里和快递站均无，应找谁协助核查",
+            "status": "ANSWERED",
+            "evidence_refs": [
+              "O3",
+              "P3",
+              "O2",
+              "O1"
+            ],
+            "response_excerpt": "物流显示已送达，但具体签收情况还需要商家核实。你可以点“请商家核查”，把“本人没拿到、家里和快递站都问过也没有”的情况转给商家跟进。",
+            "lifecycle": "OPEN"
+          }
+        ],
+        "focus_ids": [
+          "t1"
+        ]
+      },
+      "customer_memory": {
+        "version": "support-claims-v1",
+        "origin": "GROUNDED_CUSTOMER_CLAIMS",
+        "conversation_id": "e72b2575-50a1-559b-9cb9-409be66c3693",
+        "merchant_id": "M-1001",
+        "customer_id": "C-SYNTHETIC-SMOKE",
+        "line_id": "buyer-language-synthetic-line",
+        "input_version": 1,
+        "entries": [
+          {
+            "id": "c_07cc203f33c52e1f4897d53b",
+            "topic": "RECEIPT",
+            "quote": "耳机标着已经送达，我本人没拿到",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机标着已经送达，我本人没拿到"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          },
+          {
+            "id": "c_2afb11c8630cd933bcd6edd0",
+            "topic": "CHECKS",
+            "quote": "家里和快递站都问过了也没有",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 16,
+              "quote": "家里和快递站都问过了也没有"
+            },
+            "status": "ACTIVE",
+            "supersedes": [],
+            "retracts": []
+          }
+        ]
+      },
+      "memory_warnings": [],
+      "dialogue_state": {
+        "origin": "MODEL_WITH_CUSTOMER_ANCHORS",
+        "events": [
+          {
+            "change": "ADD",
+            "task_id": "t1",
+            "source": {
+              "message_id": null,
+              "sequence": 1,
+              "offset": 0,
+              "quote": "耳机标着已经送达，我本人没拿到，家里和快递站都问过了也没有。现在应该找谁帮我？"
+            }
+          }
+        ],
+        "carried_tasks": {
+          "t1": "ANSWERED"
+        },
+        "lifecycles": {
+          "t1": "OPEN"
+        }
+      }
+    }
+  },
+  "review": {
+    "expected_goal": "EXPLAIN",
+    "expected_operation_reason": null,
+    "failure": "Question about who can help was classified as a request to prepare a merchant review; actual handoff never executed"
+  }
+}
