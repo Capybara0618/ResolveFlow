@@ -62,7 +62,8 @@ def test_prepared_summary_guidance_does_not_send_user_back_to_entry_button():
     result = render_navigation(candidate(), {"O2": guide_source()}, program_owned=True)
     text = result.parts[1].text
     assert '点击“申请退款”' not in text
-    assert "卡片" in text and "确认提交申请" in text
+    assert "确认后" in text and "私有聊天不会自动共享" in text
+    assert "下方卡片准备好" not in text
     assert "还没提交" in text and "商家审核" in text
 
 

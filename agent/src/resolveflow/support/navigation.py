@@ -35,8 +35,7 @@ BUYER_INSTRUCTIONS = {
 }
 BUYER_EXISTING_REVIEW = ('你可以在这里选择“补充给商家”，发送需要核查的情况。'
                          '只会发送你本次填写的内容，不会共享私有聊天，也不会申请退款。')
-BUYER_PREPARED_REFUND = ('退款申请还没提交。下方卡片准备好后，请核对金额和原因，再点击“确认提交申请”交给商家审核。'
-                         '私有聊天不会自动共享。')
+BUYER_PREPARED_REFUND = '退款申请还没提交，确认后交商家审核；私有聊天不会自动共享。'
 
 
 class NavigationError(GroundingError):

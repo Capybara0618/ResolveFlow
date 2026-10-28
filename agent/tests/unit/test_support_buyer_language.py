@@ -114,3 +114,16 @@ def test_stream_never_exposes_fact_slots_and_final_answer_uses_the_observed_valu
     assert "{{" not in streamed and "PAID_AMOUNT" not in streamed
     assert result["status"] == "SUCCEEDED" and result["answer"]["text"].startswith("这件商品实付123.45元。")
     assert model.calls == 3
+
+
+def test_prepared_refund_status_does_not_repeat_the_confirmation_card_walkthrough():
+    from resolveflow.support.guide import guide_source
+    from tests.unit.test_support_navigation import decision
+
+    raw = decision(["REFUND_APPLICATION"]).model_copy(update={"refund_summary": "耳机一直没收到"})
+    rendered = render_navigation(raw, {"O1": guide_source()}, program_owned=True)
+    text = rendered.parts[0].text
+    assert text.endswith("退款申请还没提交，确认后交商家审核；私有聊天不会自动共享。")
+    assert "下方卡片准备好" not in text and "再点击" not in text
+    assert rendered.refund_summary == "耳机一直没收到"
+    assert rendered.parts[0].next_steps == []
