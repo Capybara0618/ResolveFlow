@@ -1,0 +1,112 @@
+{
+  "scope": "Recorded real response; synthetic facts; offline regression only",
+  "source_result_sha256": "0c682459c13aefeabcf276c993622fdda9674d7d34fff771cd28e909b38c3f2f",
+  "input": {
+    "run_id": "030ba6a6-6533-4637-bc07-6828fa4213c5",
+    "conversation_id": "6372833b-69a7-5b72-b97a-4b989965dadf",
+    "input_version": 1,
+    "merchant_id": "M-1001",
+    "customer_id": "C-SYNTHETIC-SMOKE",
+    "line_id": "buyer-language-synthetic-line",
+    "deadline_at": "2026-10-28T03:57:07.968059Z",
+    "context": {
+      "product": {
+        "name": "无线降噪耳机",
+        "quantity": 1,
+        "amount_minor": 32900,
+        "currency": "CNY"
+      },
+      "policy_manifest": {
+        "merchant_id": "M-1001",
+        "bundle_ids": [
+          "policy-logistics-2026.10"
+        ],
+        "manifest_hash": "dd84843e2ce9a526819817a1c7b2c6ae52e7489556702687ab39e6afa96800b2"
+      },
+      "current_request": "帮我看看耳机的物流，包裹一直没收到。",
+      "history": [
+        {
+          "message_id": "21bae08d-c7f7-49a3-8b3e-b62f3bc90c6d",
+          "sequence": 1,
+          "author": "CUSTOMER",
+          "recipient": "ASSISTANT",
+          "text": "帮我看看耳机的物流，包裹一直没收到。"
+        }
+      ],
+      "conversation_state": {
+        "has_ticket": false,
+        "ticket_status": "NONE",
+        "current_recipient": "ASSISTANT",
+        "default_recipient": "ASSISTANT"
+      }
+    }
+  },
+  "decisions": [
+    {
+      "kind": "TURN_UNDERSTANDING",
+      "focus": [
+        {
+          "id": "t1",
+          "intent": "LOGISTICS",
+          "request": "查询耳机订单的物流状态，包裹一直未收到",
+          "needs": [
+            "ORDER",
+            "SHIPMENT"
+          ],
+          "context_refs": [],
+          "goal": "EXPLAIN",
+          "operation_request": null
+        }
+      ],
+      "dialogue_events": [
+        {
+          "change": "ADD",
+          "task_ids": [
+            "t1"
+          ],
+          "reference": "CURRENT",
+          "quote": "帮我看看耳机的物流，包裹一直没收到。"
+        }
+      ],
+      "customer_claims": [
+        {
+          "topic": "RECEIPT",
+          "reference": "CURRENT",
+          "quote": "包裹一直没收到",
+          "change": "APPEND"
+        }
+      ]
+    },
+    {
+      "kind": "READ_FACTS",
+      "tools": [
+        "get_order_context",
+        "get_shipment_trace"
+      ]
+    },
+    {
+      "kind": "RESPOND",
+      "parts": [
+        {
+          "citations": [
+            "O2"
+          ],
+          "task_id": "t1",
+          "text": "我这边暂时查不到这单耳机的物流记录，系统读取物流信息时出错了，所以现在没法确认包裹走到哪一步。订单本身显示已付款，商品是无线降噪耳机，实付{{PAID_AMOUNT}}。物流查不到不代表包裹丢了，建议稍后再让我查一次，或者直接请商家帮忙核实发货和签收情况。"
+        }
+      ]
+    },
+    {
+      "kind": "RESPOND",
+      "parts": [
+        {
+          "citations": [
+            "O2"
+          ],
+          "task_id": "t1",
+          "text": "我查到了你的耳机订单（无线降噪耳机，1件，实付{{PAID_AMOUNT}}），但物流信息这次没能读取出来，所以暂时没法告诉你包裹现在到哪了。这不代表包裹丢失，只是物流查询暂时不可用。你可以稍后再问我一次，或者点“请商家核查”，让商家帮你查一下实际物流情况。"
+        }
+      ]
+    }
+  ]
+}

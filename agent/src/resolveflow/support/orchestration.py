@@ -285,7 +285,7 @@ class Orchestration:
             raise ValueError("response contract requires evidence readiness")
         example: dict[str, Any] = {"kind": "RESPOND", "parts": [
             {"task_id": focus.id, "text": (
-                "解释本事项相关政策的前提和核验条件，草稿不等于资格认定或批准；选择实际相关条款引用。"
+                "用日常中文回答买家的问题，仅说明相关条件与待核实处；选择实际相关条款引用。"
                 if "POLICY" in self.required(focus) else "替换为本事项的直接解释，不将待共享原因只写在正文。"),
              "citations": []}
             for focus in meaning.focus]}
@@ -338,13 +338,15 @@ class Orchestration:
             facts: list[AnswerFact] = []
             steps = []
             active = life not in INACTIVE and task["state"] != "BLOCKED"
-            if active:
+            # A failed required source blocks completion/actions, not independently observed facts.
+            # Keep valid partial fields available for an honest unavailable answer; never invent the missing ones.
+            if life not in INACTIVE:
                 for need in ("ORDER", "SHIPMENT", "POLICY", "GUIDE"):
                     sources = task["refs_by_need"].get(need)
                     if not sources:
                         continue
                     if need == "POLICY":
-                        if not set(sources).intersection(citations):
+                        if active and not set(sources).intersection(citations):
                             raise ValueError("POLICY须选择与本轮问题相关的实际条款引用")
                         continue
                     ref = sources[-1]
@@ -358,7 +360,7 @@ class Orchestration:
                         except GroundingError:
                             continue
                         facts.append(AnswerFact.model_validate({"field": field, "source": ref}))
-                if status in {"ANSWERED", "NEEDS_MERCHANT"}:
+                if active and status in {"ANSWERED", "NEEDS_MERCHANT"}:
                     action = self.required_actions(lives).get(focus.id)
                     if action:
                         steps = [{"action": action, "source": task["refs_by_need"]["GUIDE"][-1]}]

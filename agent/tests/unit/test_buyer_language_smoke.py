@@ -1,5 +1,6 @@
 import importlib.util
 import json
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import httpx
@@ -67,3 +68,27 @@ def test_synthetic_failure_and_correction_preserve_real_previous_answer_not_a_te
     assert second.context["history"][1]["text"] == "实际保存的上一轮答复"
     assert "包裹刚找到了" in second.context["current_request"]
     assert len(smoke.CASES) == 5 and sum(len(c["turns"]) for c in smoke.CASES) == 6
+
+
+def test_recorded_failed_logistics_answer_can_use_observed_order_without_claiming_logistics_success():
+    from resolveflow.harness.model import MockModelClient
+    from resolveflow.support.engine import SupportAgent
+    from resolveflow.support.protocol import SupportInput
+
+    class Script(MockModelClient):
+        provider = "deepseek"
+        model_id = "deepseek-flash"
+
+    path = PATH.parents[1] / "tests/fixtures/regressions/buyer-language-smoke-v1/failure-partial-facts.json"
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    request = SupportInput.model_validate({**saved["input"],
+        "deadline_at": datetime.now(UTC) + timedelta(seconds=120)})
+    model = Script(script=saved["decisions"], mode="live")
+    result = SupportAgent(request, model, smoke.SyntheticSources(smoke.CASES[-1], request, {"tools": []}),
+        architecture="orchestrated-v1", provider_capacity=32768).run()
+    assert result["status"] == "SUCCEEDED", result["reason"]
+    assert "329.00元" in result["answer"]["text"]
+    task = result["answer"]["task_state"]["tasks"][0]
+    assert task["status"] == "UNAVAILABLE" and task["blocker"]["tool_name"] == "get_shipment_trace"
+    assert "refund_summary" not in result["answer"] and not result["answer"]["handoff_summary"]
+    assert model.calls == 3  # Saved third response is now valid, no fourth correction or new provider request.
