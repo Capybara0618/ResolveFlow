@@ -81,7 +81,7 @@ def test_actual_sdk_support_run_reuses_session_and_closes_after_final_answer():
     model = model_for(transport)
     result = SupportAgent(request(), model, Sources(), architecture="orchestrated-v1").run()
     assert result["status"] == "SUCCEEDED", result["reason"]
-    assert model.calls == 3 and transport.close_count == 1
+    assert model.calls == 4 and transport.close_count == 1
     assert all(req.headers["accept"] == "text/event-stream" for req in transport.calls)
 
 

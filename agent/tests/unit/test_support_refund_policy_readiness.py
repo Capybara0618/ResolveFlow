@@ -6,13 +6,14 @@ from pathlib import Path
 
 import httpx
 import pytest
-from tests.recorded_sources import SavedSources
 
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.orchestration import Orchestration, Response
 from resolveflow.support.progress import ProgressReporter
 from resolveflow.support.protocol import SupportInput
 from tests.integration.test_support_dialogue_api import TokenizedScript
+from tests.recorded_sources import SavedSources
+from tests.support_request_checks import approve_requests, checked_script
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_orchestrated_engine import Sources, respond, run
 from tests.unit.test_support_orchestration import plan, source_refs
@@ -23,6 +24,7 @@ def prepared():
     p = plan(req, needs=["SHIPMENT"])
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     return req, p, flow
 
 
@@ -44,6 +46,7 @@ def test_later_shipment_refinement_also_adds_policy_requirement():
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     meaning = p.meaning()
     assert flow.snapshot(meaning, source_refs(), [], {})["phase"] == "COMPOSE"
     meaning.focus[0].needs.append("SHIPMENT")
@@ -82,6 +85,7 @@ def test_other_goals_do_not_inherit_refund_policy_floor(goal, intent):
     p = plan(req, goal=goal, intent=intent, needs=["SHIPMENT"])
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     assert flow.snapshot(p.meaning(), source_refs(), [], {})["phase"] == "COMPOSE"
 
 
@@ -92,7 +96,8 @@ def test_inactive_preparation_does_not_force_new_policy_reads(life):
 
 
 def test_old_real_s02_response_cannot_publish_before_policy_read_or_stream_candidate():
-    path = Path(__file__).resolve().parents[3] / "agent/tests/fixtures/regressions/customer-agent-summary-live-v1/runtime-results.json"
+    path = (Path(__file__).resolve().parents[3]
+            / "agent/tests/fixtures/regressions/customer-agent-summary-live-v1/runtime-results.json")
     row = next(r for r in json.loads(path.read_text(encoding="utf-8"))["rows"]
                if (r["id"], r["turn"]) == ("S02", 1))
     req = SupportInput.model_validate({**row["input"], "deadline_at": request().deadline_at})
@@ -106,7 +111,7 @@ def test_old_real_s02_response_cannot_publish_before_policy_read_or_stream_candi
             reporter.content(json.dumps(reply.decision, ensure_ascii=False))
             return reply
 
-    model = Stream(mode="live", script=deepcopy([m["decision"] for m in row["models"]]))
+    model = Stream(mode="live", script=checked_script(deepcopy([m["decision"] for m in row["models"]])))
     agent = SupportAgent(req, model, SavedSources(row["calls"]), architecture="orchestrated-v1", progress=reporter)
     result = agent.run()
     reporter.close()
@@ -126,7 +131,7 @@ def test_sdk_continues_to_model_chosen_policy_and_requires_cited_explanation():
                               "citations": ["P1"]}])]
     result, agent, model, sources = run(script, req, Sources())
     assert result["status"] == "SUCCEEDED", result["reason"]
-    assert agent.repairs == 0 and model.calls == 6
-    assert model.packets[4]["orchestration"]["tasks"][0]["missing"] == ["POLICY"]
+    assert agent.repairs == 0 and model.calls == 7
+    assert model.packets[5]["orchestration"]["tasks"][0]["missing"] == ["POLICY"]
     assert sources.calls[-1][0] == "search_policy"
     assert "P1" in [c["source_id"] for c in result["answer"]["citations"]]

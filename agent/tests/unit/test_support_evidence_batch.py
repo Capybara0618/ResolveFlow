@@ -3,6 +3,7 @@
 import pytest
 
 from resolveflow.harness.budget import RunBudget
+from tests.support_request_checks import checked_script
 from tests.unit.test_support_agent import read, request
 from tests.unit.test_support_fact_batch import batch, final, script
 from tests.unit.test_support_orchestrated_engine import Sources, respond, run
@@ -16,14 +17,14 @@ def evidence_batch(query=QUERY):
 
 
 def fast_script():
-    return [plan(request(), needs=["SHIPMENT"]).model_dump(), evidence_batch(), final()]
+    return checked_script([plan(request(), needs=["SHIPMENT"]).model_dump(), evidence_batch(), final()])
 
 
 def test_same_evidence_and_answer_need_three_decisions_instead_of_four():
     previous, _, old_model, _ = run(script())
     result, agent, model, sources = run(fast_script())
     assert result["status"] == previous["status"] == "SUCCEEDED", result["reason"]
-    assert model.calls == 3 and old_model.calls == 4 and agent.repairs == 0
+    assert model.calls == 4 and old_model.calls == 5 and agent.repairs == 0
     assert result["spend"]["tool_attempts"] == previous["spend"]["tool_attempts"] == 2
     assert result["spend"]["local_reads"] == previous["spend"]["local_reads"] == 2
     assert [n for n, _ in sources.calls] == ["get_support_guide", "get_order_context",
@@ -70,7 +71,7 @@ def test_one_fact_and_one_policy_are_two_independent_guarded_reads(tool, intent,
 def test_guide_and_policy_have_separate_local_budget_charges():
     result, _, model, sources = run(fast_script(), budget=RunBudget(local_reads=1))
     assert result["reason"] == "BUDGET_LOCAL_READS"
-    assert model.calls == 2 and result["spend"]["tool_attempts"] == 2
+    assert model.calls == 3 and result["spend"]["tool_attempts"] == 2
     assert [n for n, _ in sources.calls] == ["get_support_guide", "get_order_context", "get_shipment_trace"]
 
 
@@ -83,7 +84,7 @@ def test_policy_failure_stays_unavailable_without_prepared_action():
     unavailable = respond(parts=[{"task_id": "trace", "text": "政策来源暂不可用，无法完整解释处理条件。"}],
                           refund_reason=None)
     result, _, model, _ = run([fast_script()[0], evidence_batch(), unavailable], sources=Failed())
-    assert result["status"] == "SUCCEEDED" and model.calls == 3
+    assert result["status"] == "SUCCEEDED" and model.calls == 4
     assert result["answer"]["task_state"]["tasks"][0]["status"] == "UNAVAILABLE"
     assert not result["answer"].get("refund_summary")
 
@@ -94,6 +95,6 @@ def test_model_can_refine_query_after_actual_facts_disagree_with_original_premis
     result, _, model, sources = run([fast_script()[0], evidence_batch("签收争议退款条件"),
                                      read("search_policy", query=revised), final()])
     assert result["status"] == "SUCCEEDED", result["reason"]
-    assert model.calls == 4
+    assert model.calls == 5
     assert [args["query"] for name, args in sources.calls if name == "search_policy"] == [
         "签收争议退款条件", revised]

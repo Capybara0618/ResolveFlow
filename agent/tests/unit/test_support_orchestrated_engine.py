@@ -8,6 +8,7 @@ from resolveflow.support.engine import SupportAgent
 from resolveflow.support.guide import guide_source
 from resolveflow.support.progress import ProgressReporter
 from tests.integration.test_support_dialogue_api import TokenizedScript
+from tests.support_request_checks import checked_script
 from tests.unit.test_support_agent import read, request
 from tests.unit.test_support_grounding import FactReads
 from tests.unit.test_support_orchestration import plan
@@ -27,7 +28,7 @@ def respond(**kwargs):
 
 
 def run(script, req=None, sources=None, **kwargs):
-    model = TokenizedScript(mode="live", script=script)
+    model = TokenizedScript(mode="live", script=checked_script(script))
     source = sources or Sources()
     agent = SupportAgent(req or request(), model, source, architecture="orchestrated-v1", **kwargs)
     return agent.run(), agent, model, source
@@ -42,11 +43,11 @@ def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_
                                                   "须按条款核验争议，核对原因后再确认。",
                         "citations": ["P1"]}])], req)
     assert result["status"] == "SUCCEEDED", result["reason"]
-    assert agent.repairs == 0 and model.calls == 6
+    assert agent.repairs == 0 and model.calls == 7
     assert [name for name, _ in source.calls] == ["get_support_guide", "get_shipment_trace", "get_order_context",
                                                "search_policy"]
     assert result["spend"]["local_reads"] == 2 and result["spend"]["tool_attempts"] == 2
-    assert model.packets[3]["orchestration"]["tasks"][0]["missing"] == ["ORDER", "POLICY"]
+    assert model.packets[4]["orchestration"]["tasks"][0]["missing"] == ["ORDER", "POLICY"]
     assert model.packets[-1]["orchestration"]["phase"] == "COMPOSE"
     assert result["answer"]["refund_summary"] == req.context["current_request"]
     assert "实付123.45元，承运记录显示丢失" in result["answer"]["text"]
@@ -58,7 +59,7 @@ def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_
 def test_repeated_early_finish_cannot_publish_or_reset_the_budget():
     result, agent, model, _ = run([plan(request()).model_dump(), respond(), respond(), respond()])
     assert result["status"] == "FAILED" and result["reason"] == "NO_PROGRESS"
-    assert result["answer"] is None and agent.repairs == 0 and model.calls == 4
+    assert result["answer"] is None and agent.repairs == 0 and model.calls == 5
 
 
 def test_pure_policy_uses_common_application_context_without_forcing_business_reads():
@@ -101,8 +102,8 @@ def test_stream_hides_investigation_candidate_and_only_projects_ready_compositio
             reporter.content(json.dumps(reply.decision, ensure_ascii=False))
             return reply
 
-    model = StreamingScript(mode="live", script=[plan(request()).model_dump(),
-        respond(parts=[{"task_id": "trace", "text": "不应展示的提前正文"}]), read("get_order_context"), respond()])
+    model = StreamingScript(mode="live", script=checked_script([plan(request()).model_dump(),
+        respond(parts=[{"task_id": "trace", "text": "不应展示的提前正文"}]), read("get_order_context"), respond()]))
     agent = SupportAgent(request(), model, Sources(), architecture="orchestrated-v1", progress=reporter)
     result = agent.run()
     reporter.close()
@@ -110,14 +111,14 @@ def test_stream_hides_investigation_candidate_and_only_projects_ready_compositio
     events = [event for batch in batches for event in batch["events"]]
     text = "".join(event["payload"]["text"] for event in events if event["kind"] == "answer.delta")
     assert text == "请核对原因后再确认。"
-    assert [event["attempt_id"] for event in events if event["kind"] == "answer.started"] == ["model-4"]
+    assert [event["attempt_id"] for event in events if event["kind"] == "answer.started"] == ["model-5"]
 
 
 def test_fabricated_amount_is_still_rejected_after_program_compilation():
     bad = respond(parts=[{"task_id": "trace", "text": "本单实付999元。"}])
     result, agent, model, _ = run([plan(request()).model_dump(), read("get_order_context"), bad, bad])
     assert result["reason"] == "INVALID_DECISION" and result["answer"] is None
-    assert agent.repairs == 1 and model.calls == 4
+    assert agent.repairs == 1 and model.calls == 5
 
 
 def test_explain_entry_generates_guide_but_no_refund_reason_or_current_order_read():

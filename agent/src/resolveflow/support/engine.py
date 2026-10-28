@@ -218,7 +218,17 @@ class SupportAgent:
             packet["application_context"] = self.orchestration.application_context(self.citations)
             packet["orchestration"] = self._readiness()
             packet["stage"]["phase"] = packet["orchestration"]["phase"]
-            if packet["stage"]["phase"] == "COMPOSE":
+            if packet["stage"]["phase"] == "CHECK_REQUEST":
+                # Assess raw buyer language without anchoring on the planner's intent/goal,
+                # paraphrase, prior candidate answer or evidence suggesting an operation.
+                packet = {key: packet[key] for key in ("current_request", "recent_messages", "history_index",
+                          "history_read_refs", "feedback") if key in packet}
+                if self.feedback is not None:
+                    error = json.loads(self.feedback)
+                    packet["feedback"] = {key: error[key] for key in ("code", "detail") if key in error}
+                packet["orchestration"] = {"phase": "CHECK_REQUEST", "request_check":
+                                           self._readiness()["request_check"]}
+            elif packet["stage"]["phase"] == "COMPOSE":
                 packet["summary_candidates"] = self.orchestration.quote_candidates(self.memory.packet()["active"])
             packet.pop("answer_requirements", None)
         return packet
@@ -357,6 +367,13 @@ class SupportAgent:
                 return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
                                                "arguments": {}})
             if self.stage.enabled:
+                if self.orchestration is not None and self._readiness()["phase"] == "CHECK_REQUEST":
+                    assert self.stage.understanding is not None
+                    self.orchestration.check_requests(reply.decision, self.stage.understanding,
+                                                       self.dialogue.lifecycles)
+                    self.feedback = None
+                    return replace(reply, decision={"kind": "READ_TOOL", "tool_name": "__support_stage_ready",
+                                                   "arguments": {}})
                 if (self.orchestration is not None and self.orchestration.goal_review is not None
                         and reply.decision.get("kind") != "REVIEW_GOAL"):
                     raise ValueError("目标冲突期间先REVIEW_GOAL核对本轮用途，不读新工具或按旧目标发布")

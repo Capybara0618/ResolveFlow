@@ -10,6 +10,7 @@ from resolveflow.support.orchestration import Orchestration, Response
 from resolveflow.support.protocol import SupportInput
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.recorded_sources import SavedSources
+from tests.support_request_checks import approve_requests, checked_script
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_orchestration import plan, source_refs
 
@@ -22,6 +23,7 @@ def compose(req, reason, *, refs=None, needs=None, claims=None):
     flow = Orchestration(req)
     p = plan(req, intent="HANDOFF", goal="MERCHANT_REVIEW", needs=needs)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     return flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [
         {"task_id": "trace", "text": "请先核对待共享内容。"}], "handoff_reason": reason}),
         p.meaning(), refs or {"O1": source_refs()["O1"]}, [], {}, customer_claims=claims or [])
@@ -35,7 +37,7 @@ def test_original_q01_free_summary_is_rejected_then_customer_quote_repairs_witho
     req = SupportInput.model_validate({**row["input"], "deadline_at": request().deadline_at})
     decisions = [m["decision"] for m in row["models"]]
     corrected = {**decisions[-1], "handoff_reason": draft("耳机外壳有裂痕")}
-    model = TokenizedScript(mode="live", script=[*decisions, corrected])
+    model = TokenizedScript(mode="live", script=checked_script([*decisions, corrected]))
     sources = SavedSources(row["calls"])
     agent = SupportAgent(req, model, sources, architecture="orchestrated-v1")
     result = agent.run()
@@ -44,7 +46,7 @@ def test_original_q01_free_summary_is_rejected_then_customer_quote_repairs_witho
     assert summary == "耳机外壳有裂痕"
     assert "已付款" not in summary and "已核实事实" not in summary
     assert "摘要尚未发送" in result["answer"]["text"] and "确认" in result["answer"]["text"]
-    assert model.calls == 3 and agent.repairs == 1
+    assert model.calls == 4 and agent.repairs == 1
     assert result["spend"]["tool_attempts"] == 0
 
 

@@ -69,7 +69,7 @@ def test_production_composition_does_not_append_amount_status_and_click_tutorial
     assert result["answer"]["refund_summary"] == request().context["current_request"]
     order = next(c for c in result["answer"]["citations"] if c["source_type"] == "ORDER")
     assert order["data"]["order_line"]["line_paid_amount"] == 12345
-    assert result["answer"]["citations"] and agent.repairs == 0 and model.calls == 3
+    assert result["answer"]["citations"] and agent.repairs == 0 and model.calls == 4
 
 
 def test_buyer_navigation_keeps_confirmation_and_privacy_without_internal_terms():
@@ -105,7 +105,10 @@ def test_stream_never_exposes_fact_slots_and_final_answer_uses_the_observed_valu
             return reply
 
     final = respond(parts=[{"task_id": "trace", "text": "这件商品实付{{PAID_AMOUNT}}。"}])
-    model = StreamingScript(mode="live", script=[plan(request()).model_dump(), read("get_order_context"), final])
+    from tests.support_request_checks import checked_script
+
+    model = StreamingScript(mode="live", script=checked_script([
+        plan(request()).model_dump(), read("get_order_context"), final]))
     try:
         result = SupportAgent(request(), model, Sources(), architecture="orchestrated-v1", progress=reporter).run()
     finally:
@@ -114,7 +117,7 @@ def test_stream_never_exposes_fact_slots_and_final_answer_uses_the_observed_valu
                        if event["kind"] == "answer.delta")
     assert "{{" not in streamed and "PAID_AMOUNT" not in streamed
     assert result["status"] == "SUCCEEDED" and result["answer"]["text"].startswith("这件商品实付123.45元。")
-    assert model.calls == 3
+    assert model.calls == 4
 
 
 def test_prepared_refund_status_does_not_repeat_the_confirmation_card_walkthrough():

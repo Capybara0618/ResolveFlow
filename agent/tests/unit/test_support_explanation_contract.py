@@ -3,6 +3,7 @@
 import pytest
 
 from resolveflow.support.navigation import NavigationError, render_navigation
+from tests.support_request_checks import approve_requests, checked_script
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_orchestrated_engine import run
 from tests.unit.test_support_orchestration import plan
@@ -65,7 +66,9 @@ def test_only_accepted_operation_goals_require_steps_and_cancelled_goals_require
                                    ("MERCHANT_REVIEW", "HANDOFF", {"trace": "MERCHANT_REVIEW"}),
                                    ("PREPARE_REFUND", "APPLICATION", {"trace": "REFUND_APPLICATION"})]:
         flow = Orchestration(req)
-        flow.accept(plan(req, goal=goal, intent=intent))
+        p = plan(req, goal=goal, intent=intent)
+        flow.accept(p)
+        approve_requests(flow, p.meaning())
         assert flow.required_actions({}) == expected
         assert flow.required_actions({"trace": "PAUSED"}) == {}
 
@@ -95,7 +98,7 @@ def test_streamed_direct_explanation_matches_final_body_with_a_separate_handoff_
             reporter.content(json.dumps(reply.decision, ensure_ascii=False))
             return reply
 
-    model = Script(script=[opening, final], mode="live")
+    model = Script(script=checked_script([opening, final]), mode="live")
     try:
         result = SupportAgent(req, model, Sources(), architecture="orchestrated-v1", progress=reporter).run()
     finally:

@@ -7,6 +7,7 @@ import pytest
 from resolveflow.support.grounding import GroundingError, check_amounts, ground_answer
 from resolveflow.support.protocol import AnswerParts
 from resolveflow.support.stream_projection import AnswerProjection
+from tests.support_request_checks import approve_requests
 from tests.unit.test_support_agent import read, request
 from tests.unit.test_support_orchestrated_engine import respond, run
 from tests.unit.test_support_orchestration import plan, source_refs
@@ -23,7 +24,7 @@ def test_refund_body_is_separate_from_the_card_and_unsolicited_model_guidance():
     assert answer['buyer_view'] == {'version': 'buyer-view-v1', 'parts': [
         {'task_id': 'trace', 'text': answer['text'], 'action': 'REFUND_APPLICATION'}]}
     assert answer['refund_summary'] == req.context['current_request']
-    assert model.calls == 3 and agent.repairs == 0
+    assert model.calls == 4 and agent.repairs == 0
 
 
 def test_explicit_application_question_keeps_its_guide_answer_without_an_action():
@@ -101,6 +102,7 @@ def test_inactive_guide_task_does_not_expose_steps_or_an_action(life):
     p = plan(req, goal='EXPLAIN', intent='OTHER', needs=['GUIDE'])
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     result = flow.compose(Response.model_validate({'kind': 'RESPOND', 'parts': [
         {'task_id': 'trace', 'text': '收到，已停止。', 'guidance': '确认后提交。'}]}),
         p.meaning(), source_refs(), [], {'trace': life})
@@ -114,6 +116,7 @@ def test_source_failure_preserves_explanation_and_blocker_but_never_application_
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     failed = [{'tool_name': 'get_order_context', 'error': 'SOURCE_UNAVAILABLE', 'retry_allowed': False}]
     result = flow.compose(Response.model_validate({'kind': 'RESPOND', 'parts': [
         {'task_id': 'trace', 'text': '暂时查不到订单情况。', 'guidance': '先确认提交。'}]}),
@@ -135,6 +138,7 @@ def test_multi_issue_refund_card_does_not_suppress_an_independent_explicit_guide
     p = TurnPlan.model_validate(value)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     result = flow.compose(Response.model_validate({'kind': 'RESPOND', 'parts': [
         {'task_id': 'trace', 'text': '还需要商家核实。', 'guidance': '重复退款教程'},
         {'task_id': 'privacy', 'text': '你可以选择共享范围。', 'guidance': '勾选本次要共享的原文再确认。'}],

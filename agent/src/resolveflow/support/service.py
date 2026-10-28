@@ -22,9 +22,16 @@ from resolveflow.support.engine import SYSTEM, SupportAgent
 from resolveflow.support.grounding import FACT_RENDERING_VERSION
 from resolveflow.support.guide import GUIDE_VERSION
 from resolveflow.support.orchestration import GoalReview, Response, TurnPlan
-from resolveflow.support.orchestration_prompts import COMPOSE_SYSTEM, INVESTIGATE_SYSTEM, PLAN_SYSTEM
+from resolveflow.support.orchestration_prompts import (
+    COMPOSE_SYSTEM,
+    GOAL_REVIEW_SYSTEM,
+    INVESTIGATE_SYSTEM,
+    PLAN_SYSTEM,
+    REQUEST_CHECK_SYSTEM,
+)
 from resolveflow.support.progress import ProgressReporter
 from resolveflow.support.protocol import DECISION, SupportFailure, SupportInput
+from resolveflow.support.request_check import RequestCheck
 from resolveflow.support.retrieval import CANDIDATE_K, RETRIEVAL_VERSION, RRF_CONSTANT
 from resolveflow.support.sources import BoundSources
 from resolveflow.support.stages import (
@@ -78,6 +85,8 @@ class SupportRuntime:
                     Response.model_validate(decision)
                 elif self.architecture == "orchestrated-v1" and decision.get("kind") == "REVIEW_GOAL":
                     GoalReview.model_validate(decision)
+                elif self.architecture == "orchestrated-v1" and decision.get("kind") == "CHECK_REQUEST":
+                    RequestCheck.model_validate(decision)
                 else:
                     DECISION.validate_python(decision)
             return MockModelClient(script=script)
@@ -102,6 +111,7 @@ class SupportRuntime:
             "version": "support-agent-v1",
             "answer_fact_rendering": FACT_RENDERING_VERSION,
             "buyer_presentation": "buyer-view-v1" if self.architecture == "orchestrated-v1" else "legacy",
+            "operation_request_check": "request-check-v1" if self.architecture == "orchestrated-v1" else "legacy",
             "architecture": self.architecture,
             "streaming": isinstance(model, StreamingLiveModelClient),
             "sdk": version("agentscope"),
@@ -148,6 +158,7 @@ class SupportRuntime:
                     "stages.py",
                     "orchestration.py",
                     "orchestration_prompts.py",
+                    "request_check.py",
                     "grounding.py",
                     "navigation.py",
                     "presentation.py",
@@ -158,7 +169,8 @@ class SupportRuntime:
                     "../policies/child_index.py",
                 ]
             },
-            "prompt_hash": hashlib.sha256((PLAN_SYSTEM + INVESTIGATE_SYSTEM + COMPOSE_SYSTEM
+            "prompt_hash": hashlib.sha256((PLAN_SYSTEM + REQUEST_CHECK_SYSTEM + INVESTIGATE_SYSTEM
+                                           + GOAL_REVIEW_SYSTEM + COMPOSE_SYSTEM
                                            if self.architecture == "orchestrated-v1"
                                            else UNDERSTANDING_SYSTEM + INVESTIGATION_SYSTEM + POLICY_SYSTEM
                                            if self.architecture == "staged-v1" else SYSTEM).encode()).hexdigest(),

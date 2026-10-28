@@ -232,3 +232,5 @@ Agent拒绝未来修订或不在本次evidence_refs中的材料。非空快照�
 ### 2026-10-28 买家展示分层补充
 
 SupportAssistant可选buyer_view（buyer-view-v1）：1–8个task_id唯一事项，每项text及可选guidance或action，二者不同时出现。action仅REFUND_APPLICATION/MERCHANT_REVIEW，是已接受目标的展示提示，必须有相应有效原因，不授权prepare/confirm或退款。Java继续拥有金额、版本、状态与显式确认。顶层消息text必须等于各事项实际可见text/guidance按顺序以双换行连接，禁止隐藏替换。guidance仅对活跃、可答、已声明GUIDE的EXPLAIN事项可见；操作/失败/暂停/结束无guidance，必要客户追问必须在正文。未知字段/版本/动作拒绝，旧消息缺字段保持。新字段随已发布消息持久及answer.committed投影，流式只parts.text；商家共享报告不带buyer_view/退款原因。权威Schema/fixture见contracts/core/openapi-case.yaml与fixtures/support-buyer-view.json，实现验证见agent/checks/buyer-view-v1.md。
+
+2026-10-28：orchestrated-v1 内部操作准入新增 request-check-v1。非 EXPLAIN 候选先用 CHECK_REQUEST 独立核对本轮用途；完整逐项核对、quote 来自本轮且 purpose 与候选操作一致后，才可生成原因/展示 action。INFORMATION/UNCLEAR/DECLINED 或操作不匹配降为 EXPLAIN，不凭原文出处继承操作意愿。目标核对改变操作时须重新准入，同 run 最多两轮，沿原 SDK 调用预算/journal/fence；不新增公开 HTTP 字段或执行权限。模型语义仍可能误判，本门禁不等于人工授权或零误判保证。实现、失败及验证边界见 agent/checks/operation-request-gate-v1.md。

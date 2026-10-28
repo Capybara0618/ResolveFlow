@@ -13,6 +13,7 @@ from resolveflow.support.progress import ProgressReporter
 from resolveflow.support.protocol import SupportInput
 from tests.integration.test_support_dialogue_api import TokenizedScript
 from tests.recorded_sources import SavedSources
+from tests.support_request_checks import approve_requests, checked_script
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_orchestration import plan, source_refs
 
@@ -49,7 +50,7 @@ def test_saved_wrong_refund_goal_keeps_handoff_purpose_with_new_quote_draft_cont
             reporter.content(json.dumps(reply.decision, ensure_ascii=False))
             return reply
 
-    model = Script(mode="live", script=[*deepcopy(decisions), corrected, deepcopy(decisions[-1])])
+    model = Script(mode="live", script=checked_script([*deepcopy(decisions), corrected, deepcopy(decisions[-1])]))
     agent = SupportAgent(req, model, SavedSources(row["calls"]), architecture="orchestrated-v1", progress=reporter)
     try:
         result = agent.run()
@@ -64,14 +65,15 @@ def test_saved_wrong_refund_goal_keeps_handoff_purpose_with_new_quote_draft_cont
     assert result["answer"]["text"] == result["answer"]["buyer_view"]["parts"][0]["text"]
     assert agent.repairs == 0 and len(agent.orchestration.goal_reviews) == 1
     assert "REVIEW_GOAL" not in model.conversations[1][0].get_content_blocks()[0].text
-    assert "REVIEW_GOAL" in model.conversations[3][0].get_content_blocks()[0].text
+    assert "REVIEW_GOAL" in model.conversations[4][0].get_content_blocks()[0].text
     assert agent.tasks.tasks[0].intent == "HANDOFF"
-    assert model.packets[3]["orchestration"]["goal_review"]["candidate_goals"] == ["MERCHANT_REVIEW"]
-    assert model.calls == 5 and result["spend"]["model_calls"] == 5
+    assert model.packets[4]["orchestration"]["goal_review"]["candidate_goals"] == ["MERCHANT_REVIEW"]
+    assert model.packets[1]["orchestration"]["phase"] == model.packets[5]["orchestration"]["phase"] == "CHECK_REQUEST"
+    assert model.calls == 7 and result["spend"]["model_calls"] == 7
     events = [e for batch in batches for e in batch["events"]]
-    assert [e["attempt_id"] for e in events if e["kind"] == "answer.started"] == ["model-3", "model-5"]
-    assert [e["attempt_id"] for e in events if e["kind"] == "answer.reset"] == ["model-4", "model-5"]
-    assert all(e["attempt_id"] in {"model-3", "model-5"}
+    assert [e["attempt_id"] for e in events if e["kind"] == "answer.started"] == ["model-4", "model-7"]
+    assert [e["attempt_id"] for e in events if e["kind"] == "answer.reset"] == ["model-5", "model-6", "model-7"]
+    assert all(e["attempt_id"] in {"model-4", "model-7"}
                for e in events if e["kind"] == "answer.delta")
 
 
@@ -80,6 +82,7 @@ def test_review_keeps_evidence_and_lifecycle_and_rejects_stale_or_other_task_req
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     meaning = p.meaning()
     conflict(flow, meaning)
     before = deepcopy(meaning)
@@ -99,6 +102,7 @@ def test_review_cannot_run_without_conflict_and_does_not_loop():
     p = plan(request())
     flow = Orchestration(request())
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     with pytest.raises(ValueError):
         flow.review_goal(review(), p.meaning(), {})
     conflict(flow, p.meaning())
@@ -111,6 +115,7 @@ def test_review_can_confirm_original_refund_goal_if_candidate_artifact_was_wrong
     p = plan(request())
     flow = Orchestration(request())
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     conflict(flow, p.meaning())
     updated = flow.review_goal(review(goal="PREPARE_REFUND"), p.meaning(), {})
     assert flow.goals == {"trace": "PREPARE_REFUND"} and updated.focus[0].intent == "APPLICATION"
@@ -120,6 +125,7 @@ def test_goal_review_is_investigation_not_user_visible_composition():
     p = plan(request())
     flow = Orchestration(request())
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     conflict(flow, p.meaning())
     state = flow.snapshot(p.meaning(), source_refs(), [], {})
     assert state["phase"] == "INVESTIGATE" and state["goal_review"]["task_ids"] == ["trace"]
@@ -131,6 +137,7 @@ def test_second_artifact_conflict_stops_without_another_review():
     p = plan(request())
     flow = Orchestration(request())
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     conflict(flow, p.meaning())
     updated = flow.review_goal(review(goal="PREPARE_REFUND"), p.meaning(), {})
     with pytest.raises(SupportFailure, match="GOAL_REVIEW_EXHAUSTED"):
@@ -145,6 +152,7 @@ def test_review_to_refund_reopens_evidence_readiness_instead_of_skipping_order()
     p = plan(req, intent="HANDOFF", goal="MERCHANT_REVIEW")
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     refs = {"O1": source_refs()["O1"]}
     with pytest.raises(ValueError, match="GOAL_CONFLICT"):
         flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [

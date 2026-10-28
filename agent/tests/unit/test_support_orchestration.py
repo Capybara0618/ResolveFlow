@@ -5,6 +5,7 @@ import pytest
 from resolveflow.support.guide import guide_source
 from resolveflow.support.orchestration import Orchestration, Response, TurnPlan
 from resolveflow.support.protocol import SupportFailure
+from tests.support_request_checks import approve_requests
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_grounding import FactReads
 from tests.unit.test_support_staged import understand
@@ -30,6 +31,7 @@ def test_program_contract_keeps_order_required_and_does_not_require_model_to_rea
     flow = Orchestration(req)
     meaning = p.meaning()
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     assert meaning.focus[0].needs == ["ORDER"]
     state = flow.snapshot(meaning, {}, [], {})
     assert state["phase"] == "INVESTIGATE"
@@ -42,6 +44,7 @@ def test_missing_evidence_is_a_normal_state_until_ready_and_early_finish_is_boun
     p = plan(req, needs=["SHIPMENT"])
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     meaning = p.meaning()
     refs = source_refs()
     state = flow.snapshot(meaning, {"O1": refs["O1"], "O2": refs["O2"]}, [], {})
@@ -60,6 +63,7 @@ def test_program_assembles_steps_amount_facts_and_summary_from_one_accepted_goal
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     refs = source_refs()
     result = flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [
         {"task_id": "trace", "text": "请核对申请原因，确认后再提交。"}],
@@ -76,6 +80,7 @@ def test_pure_policy_requires_relevant_model_citation_and_no_business_or_ui_read
     p = plan(req, intent="ELIGIBILITY", goal="EXPLAIN", needs=["POLICY"])
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     refs = {"P1": {"source_type": "POLICY", "version": "v1", "data": {"text": "须核验条件"}}}
     assert not flow.needs_ui(p.meaning(), refs, {})
     assert flow.snapshot(p.meaning(), refs, [], {})["phase"] == "COMPOSE"
@@ -93,6 +98,7 @@ def test_real_nonretryable_order_failure_is_blocked_not_a_fabricated_customer_qu
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     failures = [{"tool_name": "get_order_context", "arguments": {}, "error": "UNAVAILABLE",
                  "retry_allowed": False}]
     refs = {"O1": guide_source()}
@@ -110,6 +116,7 @@ def test_cancelled_goal_does_not_read_facts_or_offer_a_new_application():
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     lifecycle = {"trace": "CANCELLED"}
     assert flow.snapshot(p.meaning(), {}, [], lifecycle)["phase"] == "COMPOSE"
     result = flow.compose(Response.model_validate({"kind": "RESPOND", "parts": [
@@ -133,6 +140,7 @@ def test_wrong_line_or_missing_payment_does_not_make_refund_ready():
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     refs = source_refs()
     refs["O3"]["data"]["order_line"]["line_id"] = "another-line"
     assert flow.snapshot(p.meaning(), refs, [], {})["tasks"][0]["missing"] == ["ORDER"]
@@ -146,6 +154,7 @@ def test_retryable_failure_stays_in_investigation_and_evidence_supersedes_failur
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     failures = [{"tool_name": "get_order_context", "error": "UPSTREAM_UNAVAILABLE", "retry_allowed": True}]
     assert flow.snapshot(p.meaning(), {"O1": guide_source()}, failures, {})["phase"] == "INVESTIGATE"
     failures[0]["retry_allowed"] = False
@@ -157,6 +166,7 @@ def test_prepared_refund_requires_reason_and_rejects_unobserved_references():
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     value = {"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "待本人核对。"}]}
     with pytest.raises(ValueError, match="refund_reason"):
         flow.compose(Response.model_validate(value), p.meaning(), source_refs(), [], {})
@@ -176,6 +186,7 @@ def test_output_contract_for_inactive_goal_does_not_request_a_reason(life):
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     contract = flow.response_contract(p.meaning(), {}, [], {"trace": life})
     assert set(contract["example"]) == {"kind", "parts"}
     assert contract["reason_fields"] == []
@@ -186,6 +197,7 @@ def test_output_contract_for_blocked_goal_does_not_suggest_a_usable_application(
     p = plan(req)
     flow = Orchestration(req)
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     failures = [{"tool_name": "get_order_context", "error": "NOT_FOUND", "retry_allowed": False}]
     contract = flow.response_contract(p.meaning(), {"O1": guide_source()}, failures, {})
     assert "refund_reason" not in contract["example"]

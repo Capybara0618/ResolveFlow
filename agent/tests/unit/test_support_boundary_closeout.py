@@ -6,6 +6,7 @@ import pytest
 
 from resolveflow.support.memory import CustomerMemory
 from resolveflow.support.orchestration import Orchestration, Response
+from tests.support_request_checks import approve_requests
 from tests.unit.test_support_agent import request
 from tests.unit.test_support_orchestrated_engine import run
 from tests.unit.test_support_orchestration import plan, source_refs
@@ -72,6 +73,7 @@ def test_summary_selects_only_bound_program_candidates_and_resolves_original_quo
     flow = Orchestration(req)
     p = plan(req, intent="HANDOFF", goal="MERCHANT_REVIEW")
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     candidates = flow.quote_candidates(mem.packet()["active"])
     assert candidates[0] == {"ref": "CURRENT", "quote": req.context["current_request"]}
     old = mem.entries[0]
@@ -91,6 +93,7 @@ def test_unknown_or_inactive_summary_reference_has_specific_feedback_and_cannot_
     flow = Orchestration(req)
     p = plan(req, intent="HANDOFF", goal="MERCHANT_REVIEW")
     flow.accept(p)
+    approve_requests(flow, p.meaning())
     response = Response.model_validate({"kind": "RESPOND", "parts": [{"task_id": "trace", "text": "待确认"}],
                                        "handoff_reason": {"customer_refs": [bad]}})
     with pytest.raises(ValueError, match="CURRENT") as error:
@@ -119,7 +122,7 @@ def test_real_loop_carries_candidates_and_repairs_an_unknown_ref_without_guessin
     bad = deepcopy(final)
     bad["handoff_reason"]["customer_refs"] = ["H1"]
     result, agent, model, source = run([opening, bad, final], req)
-    assert result["status"] == "SUCCEEDED" and agent.repairs == 1 and model.calls == 3
+    assert result["status"] == "SUCCEEDED" and agent.repairs == 1 and model.calls == 4
     refs = [c["ref"] for c in model.packets[-1]["summary_candidates"]]
     assert "CURRENT" in refs and mem.entries[0]["id"] not in refs
     assert "H1" in model.packets[-1]["feedback"] and "CURRENT" in model.packets[-1]["feedback"]
@@ -140,7 +143,7 @@ def test_resume_reuses_original_issue_while_changing_intent_and_goal():
     from tests.unit.test_support_agent import read
 
     result, agent, model, _ = run([opening, read("get_order_context"), final], req)
-    assert result["status"] == "SUCCEEDED" and agent.repairs == 0 and model.calls == 3
+    assert result["status"] == "SUCCEEDED" and agent.repairs == 0 and model.calls == 4
     tasks = result["answer"]["task_state"]["tasks"]
     assert [(t["id"], t["intent"], t["lifecycle"]) for t in tasks] == [("trace", "APPLICATION", "OPEN")]
 

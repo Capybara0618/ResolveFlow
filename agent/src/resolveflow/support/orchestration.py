@@ -18,6 +18,7 @@ from resolveflow.support.protocol import (
     SupportInput,
     TaskBlocker,
 )
+from resolveflow.support.request_check import RequestCheck
 from resolveflow.support.stages import Focus, Understanding
 
 TOOLS = {"ORDER": "get_order_context", "SHIPMENT": "get_shipment_trace",
@@ -153,12 +154,50 @@ class Orchestration:
         self.operation_requests: dict[str, str | None] = {}
         self.goal_review: dict[str, Any] | None = None
         self.goal_reviews: list[dict[str, Any]] = []
+        self.request_checks: list[dict[str, Any]] = []
+        self.checked_requests: set[tuple[str, str, str | None]] = set()
+        self.request_check_rounds = 0
 
     def accept(self, plan: TurnPlan) -> None:
         if self.goals:
             raise ValueError("turn plan already accepted")
         self.goals = {f.id: f.goal for f in plan.focus}
         self.operation_requests = {f.id: f.operation_request for f in plan.focus}
+
+    def pending_requests(self, meaning: Understanding, lives: dict[str, str]) -> list[dict[str, Any]]:
+        return [{"task_id": f.id, "quote": self.operation_requests[f.id]}
+                for f in meaning.focus if self.goals[f.id] in GOAL_ACTIONS
+                and lives.get(f.id) not in INACTIVE
+                and (f.id, self.goals[f.id], self.operation_requests[f.id]) not in self.checked_requests]
+
+    def check_requests(self, payload: dict[str, Any], meaning: Understanding, lives: dict[str, str]) -> None:
+        """Gate every proposed operation, including later goal corrections, before composition.
+
+        The separate assessment is still model reasoning, not proof of human intent. Code can
+        enforce coverage, provenance, compatible purpose and fail-closed uncertainty, not semantics.
+        """
+        check = RequestCheck.model_validate(payload)
+        pending = {item["task_id"] for item in self.pending_requests(meaning, lives)}
+        ids = [item.task_id for item in check.assessments]
+        if not pending or len(set(ids)) != len(ids) or set(ids) != pending:
+            raise ValueError("CHECK_REQUEST须且仅须逐一核对当前待核对事项，不重复、不遗漏")
+        if self.request_check_rounds >= 2:
+            raise SupportFailure("REQUEST_CHECK_EXHAUSTED")
+        current = str(self.request.context.get("current_request", ""))
+        if any(not item.quote.strip() or item.quote not in current for item in check.assessments):
+            raise ValueError("核对quote须为客户本轮原文，历史意愿和助手建议不能代替本轮请求")
+        # Validate the entire batch first; an invalid sibling must not partially approve another task.
+        for item in check.assessments:
+            goal = self.goals[item.task_id]
+            approved = item.purpose == goal
+            self.request_checks.append({**item.model_dump(), "proposed_goal": goal,
+                                        "applied_goal": goal if approved else "EXPLAIN"})
+            if approved:
+                self.checked_requests.add((item.task_id, goal, self.operation_requests[item.task_id]))
+            else:
+                self.goals[item.task_id] = "EXPLAIN"
+                self.operation_requests[item.task_id] = None
+        self.request_check_rounds += 1
 
     def quote_candidates(self, claims: list[dict[str, Any]]) -> list[dict[str, str]]:
         """Only current text and source-checked active claims can become operation reasons."""
@@ -237,8 +276,14 @@ class Orchestration:
                           "state": "WAITING" if waiting else "BLOCKED" if missing else "READY",
                           "missing": missing, "refs_by_need": found,
                           "blocked": [value for value in blocked.values() if value is not None]})
-        return {"phase": "INVESTIGATE" if self.goal_review or any(t["state"] == "WAITING" for t in tasks)
+        pending = self.pending_requests(meaning, lives)
+        if pending and self.request_check_rounds >= 2:
+            raise SupportFailure("REQUEST_CHECK_EXHAUSTED")
+        return {"phase": "INVESTIGATE" if self.goal_review else "CHECK_REQUEST" if pending else
+                "INVESTIGATE" if any(t["state"] == "WAITING" for t in tasks)
                 else "COMPOSE", "tasks": tasks,
+                **({"request_check": {"tasks": pending}} if pending else {}),
+                **({"request_checks": self.request_checks} if self.request_checks else {}),
                 **({"goal_review": self.goal_review} if self.goal_review is not None else {}),
                 **({"goal_reviews": self.goal_reviews} if self.goal_reviews else {})}
 
@@ -276,7 +321,8 @@ class Orchestration:
 
     def required_actions(self, lives: dict[str, str]) -> dict[str, str]:
         return {task_id: GOAL_ACTIONS[goal] for task_id, goal in self.goals.items()
-                if goal in GOAL_ACTIONS and lives.get(task_id) not in INACTIVE}
+                if goal in GOAL_ACTIONS and lives.get(task_id) not in INACTIVE
+                and (task_id, goal, self.operation_requests[task_id]) in self.checked_requests}
 
     def response_contract(self, meaning: Understanding, refs: dict[str, dict[str, Any]],
                           failures: list[dict[str, Any]], lives: dict[str, str]) -> dict[str, Any]:

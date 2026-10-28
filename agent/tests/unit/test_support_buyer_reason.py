@@ -66,4 +66,4 @@ def test_production_reason_and_citations_stay_separate_without_widening_refund_p
     assert result["answer"]["customer_memory"]["origin"] == "GROUNDED_CUSTOMER_CLAIMS"
     assert result["answer"]["text"] == respond()["parts"][0]["text"]
     assert result["answer"]["buyer_view"]["parts"][0]["action"] == "REFUND_APPLICATION"
-    assert agent.repairs == 0 and model.calls == 3
+    assert agent.repairs == 0 and model.calls == 4

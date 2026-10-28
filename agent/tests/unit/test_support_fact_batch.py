@@ -9,6 +9,7 @@ from resolveflow.harness.budget import RunBudget
 from resolveflow.support.engine import SupportAgent
 from resolveflow.support.progress import ProgressReporter
 from tests.integration.test_support_dialogue_api import TokenizedScript
+from tests.support_request_checks import checked_script
 from tests.unit.test_support_agent import read, request
 from tests.unit.test_support_orchestrated_engine import Sources, respond, run
 from tests.unit.test_support_orchestration import plan
@@ -26,8 +27,8 @@ def final():
 def script(*, paired=True, reverse=False):
     actions = [batch(["get_shipment_trace", "get_order_context"] if reverse else None)] if paired else [
         read("get_order_context"), read()]
-    return [plan(request(), needs=["SHIPMENT"]).model_dump(), *actions,
-            read("search_policy", query="物流争议的核验条件"), final()]
+    return checked_script([plan(request(), needs=["SHIPMENT"]).model_dump(), *actions,
+            read("search_policy", query="物流争议的核验条件"), final()])
 
 
 @pytest.mark.parametrize("reverse", [True, False])
@@ -35,7 +36,7 @@ def test_pair_keeps_answer_evidence_and_two_tool_charges_with_one_less_model_dec
     regular, _, regular_model, _ = run(script(paired=False))
     result, agent, model, sources = run(script(reverse=reverse))
     assert result["status"] == regular["status"] == "SUCCEEDED", result["reason"]
-    assert model.calls == 4 and regular_model.calls == 5
+    assert model.calls == 5 and regular_model.calls == 6
     assert agent.repairs == 0
     assert result["spend"]["tool_attempts"] == regular["spend"]["tool_attempts"] == 2
     assert result["spend"]["local_reads"] == regular["spend"]["local_reads"] == 2
@@ -74,7 +75,7 @@ def test_pair_uses_same_bound_read_permissions_even_when_order_was_not_a_declare
 def test_each_fact_still_consumes_budget_and_second_read_cannot_bypass_limit():
     result, _, model, sources = run(script(), budget=RunBudget(tool_attempts=1))
     assert result["status"] == "FAILED"
-    assert model.calls == 2
+    assert model.calls == 3
     assert [name for name, _ in sources.calls] == ["get_support_guide", "get_order_context"]
     assert result["spend"]["tool_attempts"] == 1
 
@@ -109,6 +110,6 @@ def test_batch_investigation_does_not_leak_candidate_body_into_stream():
     reporter.close()
     assert result["status"] == "SUCCEEDED", result["reason"]
     events = [e for b in batches for e in b["events"]]
-    assert {e["attempt_id"] for e in events if e["kind"] == "answer.delta"} == {"model-4"}
+    assert {e["attempt_id"] for e in events if e["kind"] == "answer.delta"} == {"model-5"}
     assert [e["payload"]["category"] for e in events if e["kind"] == "activity.started"] == [
         "GUIDE", "ORDER", "SHIPMENT", "POLICY"]

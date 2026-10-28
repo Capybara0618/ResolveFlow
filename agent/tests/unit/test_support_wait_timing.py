@@ -60,12 +60,13 @@ def test_corrupt_counter_asset_refuses_ready_without_starting_workers(monkeypatc
 def test_phase_and_tool_timings_have_no_customer_text_or_credentials(caplog):
     caplog.set_level(logging.INFO, logger="resolveflow.support.engine")
     result, _, model, _ = run([plan(request()).model_dump(), read("get_order_context"), respond()])
-    assert result["status"] == "SUCCEEDED" and model.calls == 3
+    assert result["status"] == "SUCCEEDED" and model.calls == 4
     messages = [r.message for r in caplog.records if r.name == "resolveflow.support.engine"]
     phases = [m for m in messages if "support_model_timing" in m]
-    assert len(phases) == 3
+    assert len(phases) == 4
     assert all("prepare_ms=" in m and "provider_ms=" in m and "current_ms=" in m for m in phases)
-    assert all(any("phase=" + p in m for m in phases) for p in ["UNDERSTAND", "INVESTIGATE", "COMPOSE"])
+    expected = ["UNDERSTAND", "CHECK_REQUEST", "INVESTIGATE", "COMPOSE"]
+    assert all(any("phase=" + p in m for m in phases) for p in expected)
     assert sum("support_tool_timing" in m for m in messages) == 2
     assert not any(request().context["current_request"] in m for m in messages)
 
@@ -101,9 +102,9 @@ def test_real_stream_transport_timing_reports_current_request_first_content_only
     caplog.set_level(logging.INFO, logger="resolveflow.support.engine")
     model = model_for(Tracked(fast_script()))
     result = SupportAgent(request(), model, Sources(), architecture="orchestrated-v1").run()
-    assert result["status"] == "SUCCEEDED" and model.calls == 3
+    assert result["status"] == "SUCCEEDED" and model.calls == 4
     messages = [r.message for r in caplog.records if "support_model_timing" in r.message]
-    assert len(messages) == 3 and all("first_content_ms=None" not in m for m in messages)
+    assert len(messages) == 4 and all("first_content_ms=None" not in m for m in messages)
     assert not any("test-only" in m or "Bearer" in m for m in messages)
 
 
