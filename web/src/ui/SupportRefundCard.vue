@@ -2,11 +2,12 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ApiError } from '../client'
 import type { SupportConversation } from '../support-client'
-import { refundApi, refundStatus, clearRefundRequest, readRefundRequest, saveRefundRequest, type RefundRequest, type RefundView } from '../support-refund'
+import { refundApi, clearRefundRequest, readRefundRequest, saveRefundRequest, type RefundRequest, type RefundView } from '../support-refund'
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
 import Icon from './ReviewIcon.vue'
 import { assistantOffers } from '../support-view'
+import BuyerApplicationProgress from './BuyerApplicationProgress.vue'
 
 const props = defineProps<{ token: string; owner: string; conversation: SupportConversation }>()
 const emit = defineEmits<{ expired: []; 'layout-change': [] }>()
@@ -95,11 +96,9 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
     <p v-if="error" role="alert" class="refund-error">{{ error }} <button :disabled="busy || reading" @click="read">重新读取</button></p>
     <div v-if="pending" class="refund-pending" role="status">{{ busy ? '正在保存，请稍候…' : '提交结果尚未确认，请使用原请求确认结果。' }}<button v-if="!busy" data-refund="retry" @click="retry">确认原请求结果</button></div>
     <article v-if="application" class="refund-progress">
-      <header><strong>{{ refundStatus(application.case.status, application.result.message) }}</strong><small>模拟退款</small></header>
-      <p>{{ application.result.message }}</p>
-      <details class="buyer-progress-details"><summary>查看处理记录</summary><small>申请编号 {{ application.case.case_id }}</small>
-      <ol v-if="application.timeline.length"><li v-for="(event, index) in application.timeline.slice(-3)" :key="index">{{ event.summary }}</li></ol></details>
-      <footer><a :href="`#/customer/applications/${encodeURIComponent(application.case.case_id)}`">查看申请详情{{ application.case.status === 'WAITING_CUSTOMER' ? '并补充材料' : '' }} →</a><button :disabled="busy || reading" @click="read">刷新进度</button></footer>
+      <BuyerApplicationProgress :application="application" compact>
+        <a :href="`#/customer/applications/${encodeURIComponent(application.case.case_id)}`">{{ application.case.status === 'WAITING_CUSTOMER' ? '补充说明' : '查看申请详情' }}</a><button :disabled="busy || reading" @click="read">刷新进度</button>
+      </BuyerApplicationProgress>
     </article>
     <article v-if="showDraft" class="refund-summary">
       <header><strong><Icon name="file" :size="18" />退款申请</strong><small>{{ outdated ? '请重新核对' : '待你确认' }}</small></header>
@@ -122,6 +121,7 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
 <style scoped>
 .chat-refund { margin: 16px 0 4px; color: var(--support-ink, #202c2a); font-size: 14px; }
 .refund-summary, .refund-progress { border: 1px solid #cddfd8; border-radius: 10px; overflow: hidden; background: white; margin-bottom: 10px; }
+.refund-progress { padding: 16px; }
 header, footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; }
 header { background: #f0f7f4; }
 header > strong { display: inline-flex; align-items: center; gap: 7px; color: #176b5c; font-size: 16px; font-weight: 600; }
