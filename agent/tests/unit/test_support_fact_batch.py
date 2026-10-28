@@ -19,7 +19,7 @@ def batch(tools=None):
 
 
 def final():
-    return respond(parts=[{"task_id": "trace", "text": "按相关条款需核验争议，草稿不等于批准。",
+    return respond(parts=[{"task_id": "trace", "text": "实付{{PAID_AMOUNT}}。按相关条款需核验争议，草稿不等于批准。",
                            "citations": ["P1"]}])
 
 
@@ -42,7 +42,7 @@ def test_pair_keeps_answer_evidence_and_two_tool_charges_with_one_less_model_dec
     assert {c["source_type"] for c in result["answer"]["citations"]} == {"ORDER", "SHIPMENT", "POLICY", "KNOWLEDGE"}
     assert {name for name, _ in sources.calls} == {"get_support_guide", "get_order_context",
                                                   "get_shipment_trace", "search_policy"}
-    assert "123.45 CNY" in result["answer"]["text"] and result["answer"]["refund_summary"]
+    assert "实付123.45元" in result["answer"]["text"] and "123.45 CNY" in result["answer"]["refund_summary"]
 
 
 @pytest.mark.parametrize("invalid", [

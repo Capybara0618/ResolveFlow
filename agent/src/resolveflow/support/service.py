@@ -101,6 +101,7 @@ class SupportRuntime:
         manifest = {
             "version": "support-agent-v1",
             "answer_fact_rendering": FACT_RENDERING_VERSION,
+            "buyer_presentation": "plain-language-v1" if self.architecture == "orchestrated-v1" else "legacy",
             "architecture": self.architecture,
             "streaming": isinstance(model, StreamingLiveModelClient),
             "sdk": version("agentscope"),

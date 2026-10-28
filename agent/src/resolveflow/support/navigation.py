@@ -29,6 +29,14 @@ EXISTING_REVIEW = ('人工咨询：当前已有商家核查记录。在当前会
                    '此操作不会自动提交退款申请。')
 PREPARED_REFUND = ('退款草稿尚未提交。申请卡片准备好后，请核对整行实付金额和原因，可编辑后点击“确认提交申请”。'
                    '确认后才创建申请，并可在当前会话或“我的售后”查看进度；私有聊天不会自动共享。')
+BUYER_INSTRUCTIONS = {
+    'MERCHANT_REVIEW': '还没转交商家。请先核对要发送的内容，确认后才转交商家；私有聊天不会自动共享，也不会申请退款。',
+    'REFUND_APPLICATION': '退款申请还没提交。请点击“申请退款”，核对金额和原因后确认提交，之后由商家审核。',
+}
+BUYER_EXISTING_REVIEW = ('你可以在这里选择“补充给商家”，发送需要核查的情况。'
+                         '只会发送你本次填写的内容，不会共享私有聊天，也不会申请退款。')
+BUYER_PREPARED_REFUND = ('退款申请还没提交。下方卡片准备好后，请核对金额和原因，再点击“确认提交申请”交给商家审核。'
+                         '私有聊天不会自动共享。')
 
 
 class NavigationError(GroundingError):
@@ -118,6 +126,10 @@ def render_navigation(
                 # A finalized summary triggers asynchronous Java draft preparation, not Case creation.
                 # Do not promise the card already exists or route back to the generic entry button.
                 instruction = PREPARED_REFUND
+            if program_owned:
+                instruction = (BUYER_EXISTING_REVIEW if existing_ticket and step.action == 'MERCHANT_REVIEW'
+                               else BUYER_PREPARED_REFUND if decision.refund_summary
+                               and step.action == 'REFUND_APPLICATION' else BUYER_INSTRUCTIONS[step.action])
             text += ('\n\n' if text else '') + instruction
         if len(text) > 4000 or len(refs) > 8:
             raise NavigationError('生成步骤后仍须满足4000字符和8引用限制。')

@@ -63,7 +63,7 @@ def test_prepared_summary_guidance_does_not_send_user_back_to_entry_button():
     text = result.parts[1].text
     assert '点击“申请退款”' not in text
     assert "卡片" in text and "确认提交申请" in text
-    assert "尚未提交" in text and "我的售后" in text
+    assert "还没提交" in text and "商家审核" in text
 
 
 def test_no_summary_keeps_generic_entry_and_merchant_guidance_separate():

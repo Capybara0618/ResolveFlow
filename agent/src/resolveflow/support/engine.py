@@ -404,7 +404,8 @@ class SupportAgent:
                                              conversation_state=self.request.context.get('conversation_state'),
                                              program_owned=self.orchestration is not None)
                 grounded = ground_answer(decision, self.request, self.citations,
-                                         deduplicate=self.orchestration is not None)
+                                         deduplicate=self.orchestration is not None,
+                                         buyer_view=self.orchestration is not None)
                 decision = grounded
             if isinstance(decision, AnswerParts):
                 decision = render_answer(decision, self.tasks.tasks)

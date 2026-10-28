@@ -38,7 +38,8 @@ def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_
     opening = plan(req, needs=["SHIPMENT"]).model_dump()
     result, agent, model, source = run([opening, read(), respond(), read("get_order_context"),
         read("search_policy", query="物流争议退款的核验条件"),
-        respond(parts=[{"task_id": "trace", "text": "须按条款核验争议，核对原因后再确认。",
+        respond(parts=[{"task_id": "trace", "text": "实付{{PAID_AMOUNT}}，承运记录显示{{CARRIER_CONCLUSION}}。"
+                                                  "须按条款核验争议，核对原因后再确认。",
                         "citations": ["P1"]}])], req)
     assert result["status"] == "SUCCEEDED", result["reason"]
     assert agent.repairs == 0 and model.calls == 6
@@ -48,8 +49,9 @@ def test_early_finish_continues_with_all_gaps_without_format_repair_or_model_ui_
     assert model.packets[3]["orchestration"]["tasks"][0]["missing"] == ["ORDER", "POLICY"]
     assert model.packets[-1]["orchestration"]["phase"] == "COMPOSE"
     assert result["answer"]["refund_summary"].startswith("客户陈述")
-    assert "123.45 CNY" in result["answer"]["text"]
-    assert "承运商记录结论：丢失" in result["answer"]["text"]
+    assert "实付123.45元，承运记录显示丢失" in result["answer"]["text"]
+    assert "123.45 CNY" in result["answer"]["refund_summary"]
+    assert {c["source_type"] for c in result["answer"]["citations"]} == {"ORDER", "SHIPMENT", "POLICY", "KNOWLEDGE"}
 
 
 def test_repeated_early_finish_cannot_publish_or_reset_the_budget():

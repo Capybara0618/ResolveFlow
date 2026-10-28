@@ -82,7 +82,7 @@ def value_for(field: str, source: dict[str, Any], request: SupportInput) -> str:
 
 def ground_answer(
     decision: Answer | AnswerParts, request: SupportInput, citations: dict[str, dict[str, Any]], *,
-    deduplicate: bool = False,
+    deduplicate: bool = False, buyer_view: bool = False,
 ) -> Answer | AnswerParts:
     structured = decision.fact_rendering == FACT_RENDERING_VERSION
     displayed: set[tuple[str, str]] = set()
@@ -91,7 +91,7 @@ def ground_answer(
         refs = list(refs)
         fields = set()
         lines = []
-        if structured and ("{{" in text or "}}" in text):
+        if structured and not buyer_view and ("{{" in text or "}}" in text):
             raise GroundingError("fields-v1正文仅写解释，不混用旧事实占位符；facts独立选field/source。")
         for fact in facts:
             marker = "{{" + fact.field + "}}"
@@ -101,7 +101,13 @@ def ground_answer(
                 raise GroundingError("facts.field须唯一且在对应text中有{{FIELD}}占位符。")
             fields.add(fact.field)
             value = value_for(fact.field, citations.get(fact.source, {}), request)
-            if structured:
+            if structured and buyer_view:
+                # Validate every retained fact, but surface only fields used in this answer.
+                # Unknown enum values remain available in citations, never printed as jargon.
+                display = (value.removesuffix(" CNY") + "元" if fact.field == "PAID_AMOUNT"
+                           else STATUS_LABELS.get(value, "暂未确认"))
+                text = text.replace(marker, display)
+            elif structured:
                 display = value if fact.field == "PAID_AMOUNT" else STATUS_LABELS.get(value, value)
                 identity = (fact.field, fact.source)
                 # Suppress only repeated presentation of the same observed field. Each task still
