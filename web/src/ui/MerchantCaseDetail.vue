@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import type { CaseCollaboration, CaseSnapshot, OrderLine, ReviewContext } from '../client'
 import { formatMinorUnits } from '../money'
 import AftercareProduct from './AftercareProduct.vue'
@@ -21,6 +21,7 @@ const emit = defineEmits<{
 const detailsOpen = ref(false)
 const focusKey = ref<string | null>(null)
 const focusNonce = ref(0)
+const detailsPanel = ref<HTMLElement | null>(null)
 watch(() => props.snapshot.case.case_id, () => { detailsOpen.value = false; focusKey.value = null })
 watch(detailsOpen, open => { if (!open) focusKey.value = null })
 const proposal = computed(() => props.snapshot.proposal)
@@ -72,7 +73,16 @@ const executionText = computed(() => {
   if (awaitingVerification.value) return '请核验客户陈述并记录结论，之后会重新调查。'
   return ''
 })
-function focusPolicy(key: string) { focusKey.value = key; focusNonce.value++ }
+async function openDetails() {
+  detailsOpen.value = true
+  await nextTick()
+  detailsPanel.value?.scrollIntoView?.({ block: 'start', behavior: 'smooth' })
+}
+async function focusPolicy(key: string) {
+  detailsOpen.value = true
+  await nextTick()
+  focusKey.value = key; focusNonce.value++
+}
 </script>
 
 <template>
@@ -81,37 +91,39 @@ function focusPolicy(key: string) { focusKey.value = key; focusNonce.value++ }
       <button type="button" class="text-button" data-test="back-to-list" :disabled="busy" @click="emit('back')">← 返回工单列表</button>
       <h2>退款申请</h2><span class="status-tag" :class="{ waiting: snapshot.case.status === 'PENDING_REVIEW', success: snapshot.case.status === 'CLOSED_SUCCESS' }">{{ statusLabel }}</span>
     </header>
+    <section class="merchant-detail-card merchant-product" aria-label="商品与订单">
+      <div class="merchant-product-row">
+        <AftercareProduct :line="line" :loading="productState === 'loading'" :unavailable="productState === 'unavailable'" />
+        <div class="merchant-product-links"><span class="status-tag">{{ fulfillment }}</span><button class="text-button" type="button" :disabled="busy" @click="emit('order')">查看订单 →</button></div>
+      </div>
+      <button v-if="productState === 'unavailable'" type="button" class="text-button" @click="emit('retryProduct')">重试商品资料</button>
+      <button v-if="tradeState === 'unavailable'" type="button" class="text-button" @click="emit('retryTrade')">重试履约资料</button>
+    </section>
     <div class="merchant-detail-grid">
       <div class="merchant-detail-main">
-        <section class="merchant-detail-card merchant-product" aria-label="商品与订单">
-          <h3>商品与订单</h3>
-          <div class="merchant-product-row">
-            <AftercareProduct :line="line" :loading="productState === 'loading'" :unavailable="productState === 'unavailable'" />
-            <div class="merchant-product-links"><span class="status-tag">{{ fulfillment }}</span><button class="text-button" type="button" :disabled="busy" @click="emit('order')">查看订单 →</button></div>
-          </div>
-          <button v-if="productState === 'unavailable'" type="button" class="text-button" @click="emit('retryProduct')">重试商品资料</button>
-          <button v-if="tradeState === 'unavailable'" type="button" class="text-button" @click="emit('retryTrade')">重试履约资料</button>
-        </section>
         <section class="merchant-detail-card merchant-request" aria-label="客户申请">
-          <h3>客户申请</h3><p>{{ snapshot.case.description || '原申请未记录情况说明' }}</p>
-          <p class="muted">{{ snapshot.evidence.length ? `已记录 ${snapshot.evidence.length} 项材料，可在详细依据中核对与核验。` : '客户未提交额外材料' }}</p>
+          <div class="merchant-section-heading"><h3>客户申请</h3><span class="muted">{{ snapshot.evidence.length ? `${snapshot.evidence.length} 项材料` : '无额外材料' }}</span></div>
+          <p>{{ snapshot.case.description || '原申请未记录情况说明' }}</p>
         </section>
         <section class="merchant-detail-card merchant-advice" aria-label="调查建议">
-          <h3>{{ proposal?.origin === 'HUMAN' ? '人工方案' : 'Agent建议' }}</h3>
-          <div class="merchant-advice-title"><Icon name="sparkle" :size="26" /><strong>{{ advice }}</strong></div>
+          <div class="merchant-section-heading"><h3>{{ proposal?.origin === 'HUMAN' ? '人工方案' : '调查建议' }}</h3>
+            <div class="merchant-advice-title" :class="{ 'needs-attention': stale || currentFailure || awaitingVerification }"><strong>{{ advice }}</strong></div></div>
           <template v-if="!stale && !currentFailure">
-            <p v-if="typeof proposal?.summary === 'string'" class="merchant-advice-summary">{{ proposal.summary }}</p>
-            <ul v-else-if="reasons.length" class="merchant-advice-reasons"><li v-for="(finding, index) in reasons" :key="index">{{ finding.kind === 'INFERENCE' ? '模型判断：' : 'Agent整理：' }}{{ finding.text }}</li></ul>
+            <details v-if="typeof proposal?.summary === 'string' || reasons.length" :key="`${snapshot.case.case_id}:${snapshot.case.input_revision}`" class="merchant-full-advice">
+              <summary>查看完整{{ proposal?.origin === 'HUMAN' ? '方案理由' : '调查建议' }}</summary>
+              <p v-if="typeof proposal?.summary === 'string'" class="merchant-advice-summary">{{ proposal.summary }}</p>
+              <ul v-else class="merchant-advice-reasons"><li v-for="(finding, index) in reasons" :key="index">{{ finding.kind === 'INFERENCE' ? '模型判断：' : 'Agent整理：' }}{{ finding.text }}</li></ul>
+            </details>
           </template>
           <p v-if="currentFailure" class="merchant-warning" role="status">本次未形成有效调查建议，需商家结合材料继续核查。</p>
-          <button v-if="(awaitingVerification || currentFailure) && unverifiedStatement && !frozen" data-test="verify-application" class="secondary-button" type="button" @click="detailsOpen = true">核验申请陈述</button>
           <p v-if="stale" class="merchant-warning" role="status">材料已更新，旧建议仅供追溯，请等待新调查或形成人工方案。</p>
           <p v-if="proposal?.refusal_reason" class="merchant-warning">服务端复核未通过：{{ proposal.refusal_reason }}</p>
           <p v-for="(finding, index) in conflicts" :key="index" class="merchant-warning">信息冲突：{{ finding.text }}</p>
           <p v-for="(item, index) in missing" :key="index" class="merchant-warning">待确认：{{ item }}</p>
           <p v-if="proposal?.origin === 'AGENT' && !stale && !refs('policy_refs').length" class="merchant-warning">此建议未引用政策，请先核对适用条款。</p>
           <InvestigationSources summary-only :token="token" :snapshot="snapshot" />
-          <button class="text-button merchant-details-link" type="button" :aria-expanded="detailsOpen" aria-controls="merchant-detail-evidence" @click="detailsOpen = !detailsOpen">{{ detailsOpen ? '收起详细依据' : '查看详细依据' }} →</button>
+          <button class="merchant-source-entry text-button" type="button" @click="openDetails"><Icon name="file" :size="18" /><span>订单、物流与材料记录</span><Icon name="chevron" :size="16" /></button>
+          <PolicyCitations compact :evidence-refs="[]" :policy-refs="refs('policy_refs')" :policy-rules="context?.policy_rules ?? []" :policy-status="context?.policy_status ?? null" @focus="focusPolicy" />
         </section>
       </div>
       <aside class="merchant-detail-card merchant-treatment" aria-label="退款处理">
@@ -121,6 +133,7 @@ function focusPolicy(key: string) { focusKey.value = key; focusNonce.value++ }
         <p v-if="oldAuthorization" class="merchant-warning">退款授权已失效，请等待重新核对。</p>
         <p v-if="contextLoading" class="muted">正在核对可用操作…</p>
         <p v-if="contextError" class="merchant-warning" role="alert">{{ contextError }}</p>
+        <button v-if="(awaitingVerification || currentFailure) && unverifiedStatement && !frozen" data-test="verify-application" type="button" :disabled="busy" @click="openDetails">核验申请陈述</button>
         <section v-if="canReview" class="review-section" aria-label="审核操作">
           <div class="actions">
             <button data-test="approve" type="button" :disabled="busy" @click="emit('review', 'APPROVE')">批准退款</button>
@@ -132,7 +145,8 @@ function focusPolicy(key: string) { focusKey.value = key; focusNonce.value++ }
         <ReviewerWorkspace mode="actions" :line="line" :token="token" :snapshot="snapshot" :context="context" :collaboration="collaboration" :busy="busy || !actionsAvailable" @changed="emit('refresh')" @working="emit('working', $event)" @expired="emit('expired')" />
       </aside>
     </div>
-    <section v-if="detailsOpen" id="merchant-detail-evidence" class="merchant-detail-card merchant-detail-evidence" aria-label="详细依据">
+    <button class="merchant-details-link text-button" type="button" :aria-expanded="detailsOpen" aria-controls="merchant-detail-evidence" @click="detailsOpen = !detailsOpen"><Icon name="file" :size="18" /><span>详细材料与处理记录</span><Icon :name="detailsOpen ? 'down' : 'chevron'" :size="18" /></button>
+    <section v-if="detailsOpen" id="merchant-detail-evidence" ref="detailsPanel" class="merchant-detail-card merchant-detail-evidence" aria-label="详细依据">
       <div class="merchant-evidence-heading"><h3>详细依据</h3><button class="text-button" type="button" @click="detailsOpen = false">收起</button></div>
       <slot name="materials" />
       <PolicyCitations :evidence-refs="refs('evidence_refs')" :policy-refs="refs('policy_refs')" :policy-rules="context?.policy_rules ?? []" :policy-status="context?.policy_status ?? null" @focus="focusPolicy" />
@@ -143,55 +157,3 @@ function focusPolicy(key: string) { focusKey.value = key; focusNonce.value++ }
     </section>
   </section>
 </template>
-
-<style>
-.aftercare-workbench .merchant-aftercare.merchant-case-view { display: block; max-width: 1400px; }
-.merchant-detail-v4 { min-width: 0; color: #172b47; }
-.aftercare-workbench .merchant-aftercare .merchant-detail-v4 :is(p, span, small, summary, label, input, select, textarea, button, dt, dd, pre, time) { font-size: 18px; }
-.aftercare-workbench .merchant-aftercare .merchant-detail-v4 legend { font-size: 18px; }
-.merchant-detail-heading { display: flex; align-items: center; gap: 24px; margin-bottom: 26px; flex-wrap: wrap; }
-.merchant-detail-heading h2 { margin: 0; font-size: 32px; }
-.merchant-detail-heading .status-tag { padding: 8px 14px; }
-.merchant-detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
-.merchant-detail-main { display: grid; gap: 20px; min-width: 0; }
-.merchant-detail-card { border: 1px solid #e3eaf3; border-radius: 14px; background: white; padding: 24px; min-width: 0; }
-.merchant-detail-card h3 { margin: 0 0 20px; font-size: 24px; }
-.merchant-detail-v4 p { line-height: 1.65; overflow-wrap: anywhere; margin: 12px 0; }
-.merchant-product-row { display: flex; align-items: center; gap: 18px; }
-.merchant-product-row .aftercare-product { flex: 1; }
-.merchant-detail-v4 .aftercare-product-copy strong { font-size: 22px; }
-.merchant-detail-v4 .aftercare-product-amount b { font-size: 26px; }
-.merchant-product-links { display: grid; justify-items: end; gap: 24px; flex-shrink: 0; }
-.merchant-product-links .status-tag { background: #eef1f6; padding: 8px 12px; color: #52647d; }
-.merchant-request > p:first-of-type { font-weight: 500; white-space: pre-wrap; }
-.merchant-detail-v4 .muted { color: #63748b; }
-.merchant-advice { background: #edf5ff; border-color: #deebfd; }
-.merchant-advice-title { display: flex; align-items: center; gap: 12px; color: #075af5; }
-.merchant-advice-title strong { font-size: 24px; }
-.merchant-advice-summary { white-space: pre-wrap; }
-.merchant-advice .investigation-sources { border: 0; padding: 0; }
-.merchant-advice .investigation-sources p { margin: 8px 0; }
-.merchant-advice-reasons { padding-left: 24px; line-height: 1.8; }
-.merchant-warning { background: #fff5e7; border-radius: 8px; padding: 12px; color: #8b4c12; }
-.merchant-details-link { margin-top: 10px; }
-.merchant-treatment-amount { display: block; font-size: 36px; margin: 12px 0 24px; overflow-wrap: anywhere; }
-.aftercare-workbench .merchant-treatment .review-section { padding: 0; border: 0; }
-.aftercare-workbench .merchant-treatment :is(.review-section .actions, .handoff-actions) { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-.aftercare-workbench .merchant-treatment .actions button { width: 100%; padding: 16px 12px; font-size: 20px; min-height: 60px; }
-.merchant-treatment .reviewer-workspace { margin: 0; padding: 0; }
-.merchant-treatment .reviewer-workspace > .muted { margin-bottom: 0; }
-.merchant-detail-evidence { margin-top: 24px; }
-.merchant-evidence-heading { display: flex; justify-content: space-between; gap: 20px; }
-.merchant-detail-evidence pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-.aftercare-workbench .merchant-aftercare .merchant-detail-evidence :is(strong, h4, legend, li) { font-size: 18px; }
-.aftercare-workbench .merchant-aftercare .merchant-detail-evidence h3 { font-size: 22px; }
-.merchant-detail-evidence .detail-section { margin-bottom: 24px; }
-.merchant-detail-evidence details { margin: 18px 0; }
-.merchant-detail-card > p:last-child { margin-bottom: 0; }
-.merchant-full-timeline { padding-left: 24px; }
-@media (max-width: 1350px) {
-  .merchant-detail-grid { grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; }
-  .merchant-detail-card { padding: 22px; }
-  .merchant-product-row .aftercare-product-image { width: 96px; height: 96px; flex-basis: 96px; }
-}
-</style>

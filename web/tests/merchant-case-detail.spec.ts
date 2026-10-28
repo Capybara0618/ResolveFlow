@@ -66,6 +66,41 @@ describe('merchant detail design and permissions', () => {
     wrapper.unmount()
   })
 
+  it('keeps the full original recommendation accessible without crowding the decision area', async () => {
+    const props = inputs()
+    const original = '订单尚未发货，具体条件仍需结合政策核对。'.repeat(20)
+    props.snapshot.proposal!.summary = original
+    const wrapper = mount(MerchantCaseDetail, { props })
+    const disclosure = wrapper.get('details.merchant-full-advice')
+    expect(disclosure.attributes('open')).toBeUndefined()
+    expect(disclosure.get('p').text()).toBe(original)
+    expect(wrapper.find('[data-test="approve"]').exists()).toBe(true)
+    expect(wrapper.get('.merchant-product').element.parentElement).toBe(wrapper.element)
+    await wrapper.setProps({ snapshot: { ...props.snapshot, proposal: { ...props.snapshot.proposal, input_revision: 1 } } })
+    expect(wrapper.find('details.merchant-full-advice').exists()).toBe(false)
+    expect(wrapper.text()).toContain('旧建议已失效')
+    wrapper.unmount()
+  })
+
+  it('opens the exact bound policy from the decision overview without substituting a newer clause', async () => {
+    const props = inputs()
+    const identity = { bundle_id: 'logistics', version: 'v1', rule_id: 'lost', chunk_id: 'c1', content_hash: 'hash-1' }
+    props.snapshot.proposal!.policy_refs = [identity]
+    props.context.policy_rules = [{ ...identity, title: '物流丢失处理', text: '核实丢失后处理。' }]
+    const wrapper = mount(MerchantCaseDetail, { props })
+    expect(wrapper.find('[aria-label="详细依据"]').exists()).toBe(false)
+    await wrapper.get('.merchant-advice [data-test="policy-citation"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('[aria-label="详细依据"]').text()).toContain('核实丢失后处理')
+    expect(wrapper.get('.merchant-advice [data-test="policy-citation"]').text()).toContain('物流丢失处理')
+    await wrapper.setProps({ context: { ...props.context, policy_rules: [{ ...props.context.policy_rules[0]!,
+      version: 'v2', content_hash: 'hash-2', title: '新政策不得替代' }] } })
+    expect(wrapper.find('.merchant-advice [data-test="policy-citation"]').exists()).toBe(false)
+    expect(wrapper.get('.merchant-advice').text()).not.toContain('新政策不得替代')
+    expect(wrapper.get('.merchant-advice').text()).toContain('未能匹配')
+    wrapper.unmount()
+  })
+
   it.each(['old-auth', 'old-proposal', 'other-owner', 'old-context', 'loading', 'context-error', 'consumed', 'unknown', 'closed'])('prevents approval for %s', kind => {
     const props = inputs()
     if (kind === 'old-auth') props.snapshot.authorization!.input_revision = 1

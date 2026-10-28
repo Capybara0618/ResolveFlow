@@ -24,6 +24,7 @@ import { paidAtOf, productNameMissing, productTitle, variantOf } from './ui/orde
 import './ui/workbench.css'
 import './ui/admin-workspace.css'
 import './ui/aftercare.css'
+import './ui/merchant-review.css'
 import AftercareProduct from './ui/AftercareProduct.vue'
 import MerchantCaseDetail from './ui/MerchantCaseDetail.vue'
 import { useAftercareProducts } from './ui/aftercare-products'
@@ -510,7 +511,7 @@ onUnmounted(() => { stopStream(); products.reset() })
 </script>
 
 <template>
-  <div class="workbench" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor, 'aftercare-workbench': isSingleMerchant }">
+  <div class="workbench" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor, 'aftercare-workbench': isSingleMerchant, 'merchant-review-workbench': isSingleMerchant && merchantPage === 'review' }">
     <header v-if="!((!account && shopVisitor) || account?.buyer_id)" class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
       <span class="demo-tag">{{ account?.buyer_id || shopVisitor ? '本地演示 · 合成商品与模拟交易' : '合成数据 · 模拟退款' }}</span>
