@@ -1,0 +1,11 @@
+{
+  "SupportOperationsPage": {
+    "items": [{"run_id":"00000000-0000-4000-8000-000000009001","merchant_id":"M-1001","status":"SUCCEEDED","mode":"mock","reason":null,"created_at":"2026-10-28T02:00:00Z","model_requests":3,"tool_attempts":1,"local_reads":1,"source_counts":{"SHIPMENT":1}}],
+    "limit":50
+  },
+  "SupportOperationsDetail": {
+    "run":{"run_id":"00000000-0000-4000-8000-000000009001","merchant_id":"M-1001","status":"SUCCEEDED","mode":"mock","reason":null,"created_at":"2026-10-28T02:00:00Z","model_requests":3,"tool_attempts":1,"local_reads":1,"source_counts":{"SHIPMENT":1}},
+    "events":[{"kind":"activity.started","category":"SHIPMENT","created_at":"2026-10-28T02:00:01Z"},{"kind":"activity.completed","category":"SHIPMENT","created_at":"2026-10-28T02:00:02Z"},{"kind":"answer.committed","category":null,"created_at":"2026-10-28T02:00:03Z"}],
+    "events_truncated":false
+  }
+}

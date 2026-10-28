@@ -4530,6 +4530,47 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ManagedProductWrite'
+  /api/v1/platform/support-runs:
+    get:
+      operationId: listSupportOperations
+      summary: Platform-only sanitized latest 50 consultation runs
+      description: 'Per docs/core-scope.md and the support module README: read-only counts and process status. No private messages, prompts, queries or raw event payloads.'
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Latest persisted runs; absent metrics are null, not zero.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportOperationsPage'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+  /api/v1/platform/support-runs/{id}:
+    get:
+      operationId: readSupportOperations
+      summary: Platform-only bounded observable activity for one run
+      description: 'Per docs/core-scope.md and the support module README: only current PLATFORM_ADMIN sessions may read the sanitized process projection.'
+      security: [{bearerAuth: []}]
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Last 200 allowlisted process events, chronological; not model reasoning or private source content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportOperationsDetail'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/ForbiddenScope'
+        '404':
+          description: Run does not exist
 components:
   securitySchemes:
     bearerAuth:
@@ -4758,6 +4799,52 @@ components:
             retryable: true
             trace_id: 0af7651916cd43dd8448eb211c80319c
   schemas:
+    SupportOperationsRun:
+      type: object
+      additionalProperties: false
+      required: [run_id, merchant_id, status, mode, reason, created_at, model_requests, tool_attempts, local_reads, source_counts]
+      properties:
+        run_id: {type: string, format: uuid}
+        merchant_id: {type: string}
+        status: {enum: [PENDING, RUNNING, SUCCEEDED, FAILED, STALE]}
+        mode: {enum: [live, mock, null]}
+        reason: {enum: [null, NO_PROGRESS, INVALID_DECISION, CONTEXT_REQUIRED_OVERFLOW, UNKNOWN_MODEL_RESULT, INTERRUPTED_TOOL_RESULT, INPUT_CHANGED, ASSISTANT_FAILED, DEADLINE_EXCEEDED, UNAVAILABLE]}
+        created_at: {type: string, format: date-time}
+        model_requests: {type: [integer, 'null'], minimum: 0}
+        tool_attempts: {type: [integer, 'null'], minimum: 0}
+        local_reads: {type: [integer, 'null'], minimum: 0}
+        source_counts:
+          type: object
+          additionalProperties: false
+          properties:
+            ORDER: {type: integer, minimum: 1}
+            SHIPMENT: {type: integer, minimum: 1}
+            POLICY: {type: integer, minimum: 1}
+            KNOWLEDGE: {type: integer, minimum: 1}
+            CONVERSATION: {type: integer, minimum: 1}
+    SupportOperationsEvent:
+      type: object
+      additionalProperties: false
+      required: [kind, category, created_at]
+      properties:
+        kind: {enum: [turn.accepted, activity.started, activity.completed, answer.started, answer.reset, answer.committed, answer.failed, answer.stale]}
+        category: {enum: [null, ORDER, SHIPMENT, POLICY, GUIDE, HISTORY]}
+        created_at: {type: string, format: date-time}
+    SupportOperationsPage:
+      type: object
+      additionalProperties: false
+      required: [items, limit]
+      properties:
+        items: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/SupportOperationsRun'}}
+        limit: {const: 50}
+    SupportOperationsDetail:
+      type: object
+      additionalProperties: false
+      required: [run, events, events_truncated]
+      properties:
+        run: {$ref: '#/components/schemas/SupportOperationsRun'}
+        events: {type: array, maxItems: 200, items: {$ref: '#/components/schemas/SupportOperationsEvent'}}
+        events_truncated: {type: boolean}
     ProductReview:
       type: object
       additionalProperties: false

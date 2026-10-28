@@ -106,6 +106,8 @@ class SupportApiTest extends CaseDatabaseTest {
                 "support_receipt", "support_message", "support_ticket", "support_agent_turn", "support_conversation"))
             jdbc.update("DELETE FROM " + t);
         jdbc.update("INSERT IGNORE INTO platform_buyer(buyer_id) VALUES ('B-support-other')");
+        jdbc.update(
+                "INSERT IGNORE INTO identity_account(username,role,display_name,password_hash) SELECT 'support-platform','PLATFORM_ADMIN','Process admin',password_hash FROM identity_account WHERE username='demo-buyer'");
         jdbc.update("""
             INSERT IGNORE INTO identity_account(username,role,buyer_id,display_name,password_hash)
             SELECT 'support-other','CUSTOMER','B-support-other','Other',password_hash
@@ -1217,6 +1219,95 @@ class SupportApiTest extends CaseDatabaseTest {
                     .containsExactlyInAnyOrder(200, 409);
         }
         assertThat(count("support_message")).isEqualTo(2);
+    }
+
+    @Test
+    void platformProcessViewIsReadOnlyAndNeverIncludesPrivateTextOrEventPayloads() {
+        var c = message(open("support-A"), "process-private", "PRIVATE-BUYER-TEXT", "ASSISTANT");
+        String run = c.path("assistant_turn").path("run_id").asString();
+        jdbc.update(
+                "UPDATE support_agent_turn SET status='FAILED',reason=?,result_json=? WHERE run_id=?",
+                "PRIVATE-FAILURE-DETAIL",
+                "{\"mode\":\"mock\",\"spend\":{\"model_requests\":3},"
+                        + "\"answer\":{\"text\":\"PRIVATE-ANSWER\",\"citations\":[{\"source_type\":\"POLICY\","
+                        + "\"data\":{\"text\":\"PRIVATE-POLICY-QUERY\"}}]}}",
+                run);
+        String conversation = c.path("conversation_id").asString();
+        jdbc.update(
+                "INSERT INTO support_stream_event(conversation_id,event_id,run_id,input_version,fence,kind,payload_json) VALUES(?,100,?,2,0,'activity.started',?)",
+                conversation,
+                run,
+                "{\"category\":\"SHIPMENT\",\"text\":\"PRIVATE-TOOL-REQUEST\"}");
+        jdbc.update(
+                "INSERT INTO support_stream_event(conversation_id,event_id,run_id,input_version,fence,kind,payload_json) VALUES(?,101,?,2,0,'answer.delta',?)",
+                conversation,
+                run,
+                "{\"text\":\"PRIVATE-STREAM\"}");
+        String platform = login("support-platform", "demo-pass-4001");
+        var before = jdbc.queryForList("SELECT run_id,status,fence FROM support_agent_turn");
+        var list = platformGet("", platform, 200);
+        assertThat(list.path("items").size()).isEqualTo(1);
+        var view = platformGet("/" + run, platform, 200);
+        assertThat(view.path("run").path("model_requests").asInt()).isEqualTo(3);
+        assertThat(view.path("events").toString()).contains("SHIPMENT").doesNotContain("answer.delta");
+        assertThat(view.path("run").path("source_counts").path("POLICY").asInt())
+                .isEqualTo(1);
+        assertThat(list.toString() + view).doesNotContain("PRIVATE-", "context_json", "customer_id", "conversation_id");
+        assertThat(view.path("run").path("reason").asString()).isEqualTo("UNAVAILABLE");
+        assertThat(jdbc.queryForList("SELECT run_id,status,fence FROM support_agent_turn"))
+                .isEqualTo(before);
+        verifyNoInteractions(assistant);
+    }
+
+    @Test
+    void processViewRejectsBuyerMerchantAndInvalidatedPlatformIdentity() {
+        var c = message(open("support-A"), "process-scope", "private", "ASSISTANT");
+        String path = "/" + c.path("assistant_turn").path("run_id").asString();
+        for (String token : List.of(buyer, merchant, otherMerchant)) {
+            platformGet("", token, 403);
+            platformGet(path, token, 403);
+        }
+        platformGet("", null, 401);
+        String platform = login("support-platform", "demo-pass-4001");
+        platformGet("/00000000-0000-4000-8000-000000000000", platform, 404);
+        jdbc.update(
+                "UPDATE identity_account SET identity_version=identity_version+1 WHERE username='support-platform'");
+        platformGet(path, platform, 401);
+    }
+
+    JsonNode platformGet(String suffix, String auth, int status) {
+        var req = rest.get().uri("/api/v1/platform/support-runs" + suffix);
+        if (auth != null) req.header("Authorization", auth);
+        return json.readTree(req.exchange()
+                .expectStatus()
+                .isEqualTo(status)
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody());
+    }
+
+    @Test
+    void processHistoryIsBoundedChronologicalAndMissingMetricsStayUnknown() {
+        var c = message(open("support-A"), "process-bound", "private", "ASSISTANT");
+        String run = c.path("assistant_turn").path("run_id").asString();
+        for (int i = 0; i < 201; i++) {
+            jdbc.update(
+                    "INSERT INTO support_stream_event(conversation_id,event_id,run_id,input_version,fence,kind,payload_json,created_at) VALUES(?,?,?,2,0,'activity.completed',?,?)",
+                    c.path("conversation_id").asString(),
+                    100 + i,
+                    run,
+                    i % 2 == 0 ? "{\"category\":\"ORDER\"}" : "{\"category\":\"POLICY\"}",
+                    java.sql.Timestamp.from(
+                            Instant.parse("2026-10-01T00:00:00Z").plusSeconds(i)));
+        }
+        var view = platformGet("/" + run, login("support-platform", "demo-pass-4001"), 200);
+        assertThat(view.path("events_truncated").asBoolean()).isTrue();
+        assertThat(view.path("events").size()).isEqualTo(200);
+        assertThat(view.path("events").get(0).path("category").asString()).isEqualTo("POLICY");
+        assertThat(view.path("events").get(199).path("category").asString()).isEqualTo("ORDER");
+        assertThat(view.path("run").path("model_requests").isNull()).isTrue();
+        assertThat(view.path("run").path("mode").isNull()).isTrue();
+        verifyNoInteractions(assistant);
     }
 
     @Test
