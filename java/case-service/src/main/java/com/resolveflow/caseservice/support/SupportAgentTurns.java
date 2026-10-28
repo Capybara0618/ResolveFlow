@@ -570,6 +570,7 @@ public class SupportAgentTurns {
         }
         var summary = answer.get("handoff_summary");
         var refundSummary = answer.get("refund_summary");
+        if (!SupportBuyerView.valid(answer)) return false;
         if (refundSummary != null
                 && !refundSummary.isNull()
                 && (!refundSummary.isString()
@@ -634,6 +635,7 @@ public class SupportAgentTurns {
             metadata.set(
                     "handoff_summary", answer.has("handoff_summary") ? answer.get("handoff_summary") : json.nullNode());
             if (answer.hasNonNull("refund_summary")) metadata.set("refund_summary", answer.get("refund_summary"));
+            if (answer.has("buyer_view")) metadata.set("buyer_view", answer.get("buyer_view"));
             String messageId = UUID.randomUUID().toString();
             db.update(
                     "INSERT INTO support_message(message_id,conversation_id,sequence,author,recipient,actor,text,assistant_json) VALUES(?,?,?,'ASSISTANT','CUSTOMER','agent-service',?,?)",

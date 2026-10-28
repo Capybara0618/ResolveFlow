@@ -1,0 +1,14 @@
+{
+  "Refund": {
+    "version": "buyer-view-v1",
+    "parts": [{"task_id": "refund", "text": "物流记录显示包裹丢失，商家还需要核实具体情况。", "action": "REFUND_APPLICATION"}]
+  },
+  "Guide": {
+    "version": "buyer-view-v1",
+    "parts": [{"task_id": "guide", "text": "你可以在这次咨询里请商家核查。", "guidance": "先查看要共享的内容，确认后转交商家。"}]
+  },
+  "Unavailable": {
+    "version": "buyer-view-v1",
+    "parts": [{"task_id": "trace", "text": "暂时查不到最新配送情况，可以请商家核实。"}]
+  }
+}

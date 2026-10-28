@@ -65,11 +65,22 @@ public final class SupportWire {
             @JsonProperty("handoff_summary") String handoffSummary,
 
             @JsonProperty("refund_summary") @JsonInclude(JsonInclude.Include.NON_NULL)
-            String refundSummary) {
+            String refundSummary,
+
+            @JsonProperty("buyer_view") @JsonInclude(JsonInclude.Include.NON_NULL)
+            BuyerView buyerView) {
         public Assistant(String runId, String mode, List<Map<String, Object>> citations, String handoffSummary) {
-            this(runId, mode, citations, handoffSummary, null);
+            this(runId, mode, citations, handoffSummary, null, null);
         }
     }
+
+    public record BuyerView(String version, List<BuyerPart> parts) {}
+
+    public record BuyerPart(
+            @JsonProperty("task_id") String taskId,
+            String text,
+            @JsonInclude(JsonInclude.Include.NON_NULL) String guidance,
+            @JsonInclude(JsonInclude.Include.NON_NULL) String action) {}
 
     public record AssistantTurn(@JsonProperty("run_id") String runId, String status, String reason) {}
 

@@ -5076,6 +5076,42 @@ components:
           type: object
         title:
           type: string
+    SupportBuyerView:
+      type: object
+      additionalProperties: false
+      required: [version, parts]
+      properties:
+        version:
+          const: buyer-view-v1
+        parts:
+          type: array
+          minItems: 1
+          maxItems: 8
+          items:
+            $ref: '#/components/schemas/SupportBuyerPart'
+      description: Optional program-assembled buyer presentation. It grants no permission, creates no draft, and does not replace Java refund state. Historical messages without this field retain their original text.
+    SupportBuyerPart:
+      type: object
+      additionalProperties: false
+      required: [task_id, text]
+      not:
+        required: [action, guidance]
+      properties:
+        task_id:
+          type: string
+          pattern: '^[a-zA-Z0-9_-]{1,32}$'
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        guidance:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: Buyer-requested application guidance grounded in the observed guide; omitted for action cards, blocked or inactive tasks. Never projected as streaming candidate text.
+        action:
+          enum: [REFUND_APPLICATION, MERCHANT_REVIEW]
+          description: Display hint derived from an accepted active goal and observed guide. It never authorizes a write or means a card is already ready.
     SupportAssistant:
       type: object
       additionalProperties: false
@@ -5108,6 +5144,8 @@ components:
           minLength: 1
           maxLength: 2000
           description: Optional editable reason quoting active customer statements; observed facts remain in citations, never inferred from this text. Java independently checks money and customer confirmation is still required. Historical report-style strings remain readable.
+        buyer_view:
+          $ref: '#/components/schemas/SupportBuyerView'
     SupportAssistantTurn:
       type: object
       additionalProperties: false
