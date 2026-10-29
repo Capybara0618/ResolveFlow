@@ -26,7 +26,8 @@ ASSERTIONS = (
      "get_refund_status", "state", {"SUCCEEDED"}),
 )
 QUALIFIER = re.compile(r"未确认|没有确认|尚未|并未|并非|不能确认|不代表|未证明|无法确认|是否|若|如果|假设|"
-                       r"客户(?:称|说|表示|声称)|买家(?:称|说|表示)|待核实|可能|据称|"
+                       r"客户(?:称|说|表示|声称|陈述)|买家(?:称|说|表示)|复核材料CONFIRMED[:：]|"
+                       r"申请退回|待核实|可能|据称|"
                        r"\b(?:not|if|whether|may|might|customer says|buyer says)\b", re.I)
 PAID_AMOUNT = re.compile(r"(?P<scope>订单行|商品行|本行|整单|订单)?实付(?:金额)?(?:为|是|：|:)?"
                          r"\s*[¥￥]?\s*(?P<amount>\d+(?:\.\d{1,2})?)\s*元")

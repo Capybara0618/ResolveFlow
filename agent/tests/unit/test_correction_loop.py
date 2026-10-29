@@ -174,11 +174,32 @@ def test_finding_feedback_locates_customer_only_payment_claim():
     result = ProposalVerifier([order, material], frozenset()).verify_content(
         summary="请商家核验后处理。",
         evidence_refs=[{"observation_id": s.observation_id} for s in (order, material)],
-        review_findings=[{"text": "申请退回实付329元。", "observation_ids": [material.observation_id]}],
+        review_findings=[{"text": "本行实付329元。", "observation_ids": [material.observation_id]}],
     )
     assert not result.ok
     assert "review_findings.0" in result.detail()
     assert "get_order_context.line_paid_amount" in result.detail()
+
+
+@pytest.mark.parametrize("text", ["客户陈述实付329元。", "复核材料CONFIRMED：实付329元。",
+                                  "申请退回实付329元。"])
+def test_attributed_material_and_refund_request_are_not_current_payment_assertions(text):
+    material = observation("get_case_evidence", evidence=[])
+    result = ProposalVerifier([material], frozenset()).verify_content(
+        summary="请商家核验后处理。",
+        evidence_refs=[{"observation_id": material.observation_id}],
+        review_findings=[{"text": text, "observation_ids": [material.observation_id]}],
+    )
+    assert result.ok
+
+
+@pytest.mark.parametrize("text", ["复核材料CONFIRMED：实付329元；退款已到账。",
+                                  "客户陈述实付329元，但订单实付999元。"])
+def test_material_attribution_does_not_hide_an_independent_system_assertion(text):
+    result = ProposalVerifier([], frozenset()).verify_content(
+        summary=text, evidence_refs=[], review_findings=[],
+    )
+    assert not result.ok
 
 
 @pytest.mark.parametrize("text,ok", [("整单实付52.99元，本行实付25.99元。", True),
