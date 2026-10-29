@@ -1,0 +1,25 @@
+{
+  "ProductPresentation": {
+    "product_id": "P-1001",
+    "version": 1,
+    "images": [
+      "00000000-0000-4000-8000-000000000601"
+    ],
+    "specifications": [
+      {
+        "name": "材质",
+        "value": "合成测试材质"
+      }
+    ],
+    "shipping_note": "合成配送说明",
+    "aftercare_note": "合成售后说明"
+  },
+  "StorePresentation": {
+    "store_id": "M-1001",
+    "version": 1,
+    "introduction": "测试店铺",
+    "logo_id": null,
+    "contact_phone": "13000000000",
+    "service_hours": "9:00–18:00"
+  }
+}

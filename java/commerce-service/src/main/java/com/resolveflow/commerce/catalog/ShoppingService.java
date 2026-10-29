@@ -62,7 +62,7 @@ public class ShoppingService {
         if (category != null && !List.of("electronics", "home", "outdoor").contains(category))
             throw new IllegalArgumentException("分类无效");
         String sql =
-                "SELECT p.*,s.name AS store_name FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id WHERE p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)";
+                "SELECT p.*,s.name AS store_name,JSON_UNQUOTE(JSON_EXTRACT(presentation.images,'$[0]')) AS cover_image_id FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id LEFT JOIN catalog_product_presentation presentation ON presentation.product_id=p.product_id WHERE p.listed=TRUE AND s.enabled=TRUE AND EXISTS(SELECT 1 FROM catalog_sku k WHERE k.product_id=p.product_id AND k.listed=TRUE)";
         List<Object> args = new ArrayList<>();
         if (query != null && !query.isBlank()) {
             sql += " AND LOCATE(?,p.name)>0";
@@ -110,7 +110,8 @@ public class ShoppingService {
                 rs.getString("asset_key"),
                 0,
                 "CNY",
-                List.of());
+                List.of(),
+                rs.getString("cover_image_id"));
     }
 
     private static Sku skuRow(ResultSet rs) throws SQLException {
@@ -134,12 +135,13 @@ public class ShoppingService {
                 p.assetKey(),
                 skus.stream().mapToLong(Sku::unitAmount).min().orElseThrow(),
                 "CNY",
-                List.copyOf(skus));
+                List.copyOf(skus),
+                p.coverImageId());
     }
 
     public Product product(String id) {
         var rows = jdbc.query(
-                "SELECT p.*,s.name AS store_name FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id WHERE p.product_id=? AND p.listed=TRUE AND s.enabled=TRUE",
+                "SELECT p.*,s.name AS store_name,JSON_UNQUOTE(JSON_EXTRACT(presentation.images,'$[0]')) AS cover_image_id FROM catalog_product p JOIN catalog_store s ON s.store_id=p.store_id LEFT JOIN catalog_product_presentation presentation ON presentation.product_id=p.product_id WHERE p.product_id=? AND p.listed=TRUE AND s.enabled=TRUE",
                 (rs, n) -> productRow(rs),
                 id);
         if (rows.isEmpty()) throw missing();

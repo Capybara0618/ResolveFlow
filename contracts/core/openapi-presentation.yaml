@@ -1,0 +1,617 @@
+openapi: 3.1.0
+info:
+  title: ResolveFlow 商品与店铺展示资料
+  version: '2026-10-29'
+security:
+- bearerAuth: []
+paths:
+  /api/v1/shop/products/{id}/presentation:
+    get:
+      summary: 读取在售商品多图、参数及说明
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security: []
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /api/v1/shop/stores/{id}/presentation:
+    get:
+      summary: 读取启用店铺资料
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security: []
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /api/v1/merchant/products/{id}/presentation:
+    get:
+      summary: 读取本店商品详细资料
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+    post:
+      summary: 更新本店商品资料，图片必须归属本店
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPresentationWrite'
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /api/v1/merchant/store/presentation:
+    get:
+      summary: 读取本店资料
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+    post:
+      summary: 更新本店简介、头像、联系电话及营业时间
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePresentationWrite'
+  /api/v1/merchant/media:
+    post:
+      summary: 上传PNG/JPEG，2MB/4096边长以内，去除元数据并等比缩放至1600边长
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+  /api/v1/merchant/media/{id}:
+    get:
+      summary: 本店未发布图片预览
+      responses:
+        '200':
+          description: 成功
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /api/v1/shop/media/{id}:
+    get:
+      summary: 读取当前已发布且所属商品或店铺可见的图片
+      responses:
+        '200':
+          description: 成功
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security: []
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /internal/v1/shop/presentation/products/{id}:
+    get:
+      summary: 读取在售商品多图、参数及说明
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security:
+      - serviceToken: []
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /internal/v1/shop/presentation/stores/{id}:
+    get:
+      summary: 读取启用店铺资料
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security:
+      - serviceToken: []
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /internal/v1/catalog-management/presentation/products/{id}:
+    get:
+      summary: 读取本店商品详细资料
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security:
+      - serviceToken: []
+      parameters:
+      - name: merchant_id
+        in: query
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+    post:
+      summary: 更新本店商品资料，图片必须归属本店
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPresentationCommand'
+      security:
+      - serviceToken: []
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /internal/v1/catalog-management/presentation/store:
+    get:
+      summary: 读取本店资料
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security:
+      - serviceToken: []
+      parameters:
+      - name: merchant_id
+        in: query
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+    post:
+      summary: 更新本店简介、头像、联系电话及营业时间
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorePresentation'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorePresentationCommand'
+      security:
+      - serviceToken: []
+    parameters: []
+  /internal/v1/shop/presentation/media/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema: &id001
+        type: string
+        format: uuid
+    get:
+      summary: 内部读取该图片是否当前公开发布
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Published'
+        '400':
+          description: 输入无效
+        '401':
+          description: 需要当前登录
+        '403':
+          description: 主体无权限
+        '404':
+          description: 不可见或不存在
+        '409':
+          description: 版本已变化
+      security:
+      - serviceToken: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    serviceToken:
+      type: http
+      scheme: bearer
+  schemas:
+    Specification:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - value
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 40
+        value:
+          type: string
+          minLength: 1
+          maxLength: 160
+    ProductPresentation:
+      type: object
+      additionalProperties: false
+      required:
+      - product_id
+      - version
+      - images
+      - specifications
+      - shipping_note
+      - aftercare_note
+      properties:
+        product_id:
+          type: string
+          maxLength: 64
+        version:
+          type: integer
+          minimum: 0
+        images: &id002
+          type: array
+          uniqueItems: true
+          maxItems: 8
+          items: *id001
+        specifications: &id003
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/Specification'
+        shipping_note: &id004
+          type: string
+          maxLength: 500
+        aftercare_note: &id005
+          type: string
+          maxLength: 1000
+    ProductPresentationWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_version
+      - images
+      - specifications
+      - shipping_note
+      - aftercare_note
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0
+        images: *id002
+        specifications: *id003
+        shipping_note: *id004
+        aftercare_note: *id005
+    StorePresentation:
+      type: object
+      additionalProperties: false
+      required:
+      - store_id
+      - version
+      - introduction
+      - logo_id
+      - contact_phone
+      - service_hours
+      properties:
+        store_id:
+          type: string
+          maxLength: 64
+        version:
+          type: integer
+          minimum: 0
+        introduction: &id006
+          type: string
+          maxLength: 500
+        logo_id: &id007
+          type:
+          - string
+          - 'null'
+          format: uuid
+        contact_phone: &id008
+          type: string
+          maxLength: 32
+        service_hours: &id009
+          type: string
+          maxLength: 80
+    StorePresentationWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_version
+      - introduction
+      - logo_id
+      - contact_phone
+      - service_hours
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0
+        introduction: *id006
+        logo_id: *id007
+        contact_phone: *id008
+        service_hours: *id009
+    Media:
+      type: object
+      additionalProperties: false
+      required:
+      - media_id
+      properties:
+        media_id: *id001
+    Published:
+      type: object
+      additionalProperties: false
+      required:
+      - published
+      properties:
+        published:
+          type: boolean
+    ProductPresentationCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - actor
+      - request
+      properties:
+        merchant_id:
+          type: string
+          maxLength: 64
+        actor:
+          type: string
+          maxLength: 120
+        request:
+          $ref: '#/components/schemas/ProductPresentationWrite'
+    StorePresentationCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - merchant_id
+      - actor
+      - request
+      properties:
+        merchant_id:
+          type: string
+          maxLength: 64
+        actor:
+          type: string
+          maxLength: 120
+        request:
+          $ref: '#/components/schemas/StorePresentationWrite'

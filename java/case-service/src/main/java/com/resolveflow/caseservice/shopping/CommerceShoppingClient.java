@@ -143,6 +143,60 @@ public class CommerceShoppingClient {
         }
     }
 
+    public com.resolveflow.shared.shopping.PresentationWire.Product presentationProduct(String id, String merchant) {
+        return call(
+                rest.get().uri(u -> {
+                    var b = u.path(
+                            merchant == null
+                                    ? "/internal/v1/shop/presentation/products/{id}"
+                                    : "/internal/v1/catalog-management/presentation/products/{id}");
+                    if (merchant != null) b.queryParam("merchant_id", merchant);
+                    return b.build(id);
+                }),
+                merchant == null ? ServiceScopes.COMMERCE_READ : ServiceScopes.COMMERCE_CATALOG,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.PresentationWire.Product savePresentation(
+            String id, com.resolveflow.shared.shopping.PresentationWire.ProductCommand command) {
+        return call(
+                rest.post()
+                        .uri("/internal/v1/catalog-management/presentation/products/{id}", id)
+                        .body(command),
+                ServiceScopes.COMMERCE_CATALOG,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.PresentationWire.Store presentationStore(String id, boolean managed) {
+        return call(
+                rest.get()
+                        .uri(u -> managed
+                                ? u.path("/internal/v1/catalog-management/presentation/store")
+                                        .queryParam("merchant_id", id)
+                                        .build()
+                                : u.path("/internal/v1/shop/presentation/stores/{id}")
+                                        .build(id)),
+                managed ? ServiceScopes.COMMERCE_CATALOG : ServiceScopes.COMMERCE_READ,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.PresentationWire.Store saveStorePresentation(
+            com.resolveflow.shared.shopping.PresentationWire.StoreCommand command) {
+        return call(
+                rest.post()
+                        .uri("/internal/v1/catalog-management/presentation/store")
+                        .body(command),
+                ServiceScopes.COMMERCE_CATALOG,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.PresentationWire.Published publishedMedia(String id) {
+        return call(
+                rest.get().uri("/internal/v1/shop/presentation/media/{id}", id),
+                false,
+                new ParameterizedTypeReference<>() {});
+    }
+
     public List<Store> stores() {
         return call(rest.get().uri("/internal/v1/shop/stores"), false, new ParameterizedTypeReference<>() {});
     }

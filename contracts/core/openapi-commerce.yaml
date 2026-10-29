@@ -3029,6 +3029,9 @@ components:
       - currency
       - skus
       properties:
+        cover_image_id:
+          type: string
+          format: uuid
         product_id:
           type: string
           minLength: 1

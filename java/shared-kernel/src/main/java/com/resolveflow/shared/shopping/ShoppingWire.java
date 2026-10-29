@@ -27,7 +27,36 @@ public final class ShoppingWire {
             @JsonProperty("asset_key") String assetKey,
             @JsonProperty("from_amount") long fromAmount,
             String currency,
-            List<Sku> skus) {}
+            List<Sku> skus,
+
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            @JsonProperty("cover_image_id")
+            String coverImageId) {
+        public Product(
+                String productId,
+                String storeId,
+                String storeName,
+                String name,
+                String description,
+                String category,
+                String assetKey,
+                long fromAmount,
+                String currency,
+                List<Sku> skus) {
+            this(
+                    productId,
+                    storeId,
+                    storeName,
+                    name,
+                    description,
+                    category,
+                    assetKey,
+                    fromAmount,
+                    currency,
+                    skus,
+                    null);
+        }
+    }
 
     public record Products(
             List<Product> items, @JsonProperty("next_after") String nextAfter) {}

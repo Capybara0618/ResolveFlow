@@ -20,6 +20,14 @@ public class AvatarStore {
     }
 
     public String save(byte[] bytes) {
+        return save(bytes, true);
+    }
+
+    public String saveCatalog(byte[] bytes) {
+        return save(bytes, false);
+    }
+
+    private String save(byte[] bytes, boolean square) {
         if (bytes == null || bytes.length == 0 || bytes.length > 2 * 1024 * 1024) throw invalid();
         try (var input = ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {
             var readers = ImageIO.getImageReaders(input);
@@ -35,7 +43,10 @@ public class AvatarStore {
                         || w > 4096
                         || h > 4096) throw invalid();
                 var image = reader.read(0);
-                var output = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
+                double scale = Math.min(1.0, 1600.0 / Math.max(w, h));
+                int width = square ? 256 : Math.max(1, (int) Math.round(w * scale)),
+                        height = square ? 256 : Math.max(1, (int) Math.round(h * scale));
+                var output = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                 var graphics = output.createGraphics();
                 try {
                     graphics.setRenderingHint(
@@ -45,12 +56,12 @@ public class AvatarStore {
                             image,
                             0,
                             0,
-                            256,
-                            256,
-                            (w - side) / 2,
-                            (h - side) / 2,
-                            (w + side) / 2,
-                            (h + side) / 2,
+                            width,
+                            height,
+                            square ? (w - side) / 2 : 0,
+                            square ? (h - side) / 2 : 0,
+                            square ? (w + side) / 2 : w,
+                            square ? (h + side) / 2 : h,
                             null);
                 } finally {
                     graphics.dispose();
