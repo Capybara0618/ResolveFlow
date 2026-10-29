@@ -27,6 +27,28 @@ beforeEach(() => {
 })
 afterEach(() => { wrapper?.unmount(); vi.restoreAllMocks(); sessionStorage.clear() })
 
+it('lets the buyer hide order context without losing the selected conversation or draft', async () => {
+  wrapper = mount(SupportWorkspace, { props: { account: buyer }, attachTo: document.body }); await flushPromises()
+  const toggle = wrapper.get('[data-action="toggle-context"]')
+  await wrapper.get('[aria-label="咨询消息"]').setValue('我补充一点信息')
+  await toggle.trigger('click')
+  await flushPromises()
+  const visible = toggle.attributes('aria-expanded') === 'true'
+  expect(wrapper.get('[aria-label="订单与调查依据"]').isVisible()).toBe(visible)
+  await toggle.trigger('click')
+  await flushPromises()
+  expect(wrapper.get('[aria-label="订单与调查依据"]').isVisible()).toBe(!visible)
+  expect(wrapper.get<HTMLTextAreaElement>('[aria-label="咨询消息"]').element.value).toBe('我补充一点信息')
+  expect(supportApi.read).toHaveBeenCalledTimes(1)
+})
+
+it('keeps manual refund access in the composer while the assistant waits', async () => {
+  vi.mocked(supportApi.read).mockResolvedValue({ ...original(), assistant_turn: { run_id: 'waiting-run', status: 'RUNNING', reason: null } })
+  await open()
+  expect(wrapper.find('.support-compose [data-refund="start"]').exists()).toBe(true)
+  expect(wrapper.find('.support-messages [data-refund="start"]').exists()).toBe(false)
+})
+
 it('renders assistant sources and shares its editable summary only after explicit confirmation', async () => {
   const conversation = { ...structuredClone(assistantFixture.Conversation), ticket: null } as SupportConversation
   vi.mocked(supportApi.read).mockResolvedValue(conversation)

@@ -9,7 +9,7 @@ import Icon from './ReviewIcon.vue'
 import { assistantOffers } from '../support-view'
 import BuyerApplicationProgress from './BuyerApplicationProgress.vue'
 
-const props = defineProps<{ token: string; owner: string; conversation: SupportConversation }>()
+const props = defineProps<{ token: string; owner: string; conversation: SupportConversation; entryTarget?: HTMLElement }>()
 const emit = defineEmits<{ expired: []; 'layout-change': [] }>()
 const id = props.conversation.conversation_id
 const value = ref<RefundView>({ draft: null, application: null })
@@ -116,7 +116,7 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
         <button v-else-if="!outdated" data-refund="confirm" class="primary" :disabled="busy || !!pending" @click="send('confirm')">确认提交申请</button>
       </footer>
     </article>
-    <div v-if="!showDraft && !blockingApplication && !pending" class="refund-entry"><span v-if="!loaded">{{ reading ? offer ? '正在核对退款信息，请稍候…' : '正在读取退款信息…' : '未能核对退款信息，请重试读取。' }}</span><button data-refund="start" :disabled="busy || !loaded" @click="start">申请退款</button></div>
+    <Teleport :to="entryTarget || 'body'" :disabled="!entryTarget"><div v-if="!showDraft && !blockingApplication && !pending" class="refund-entry"><span v-if="!loaded">{{ reading ? offer ? '正在核对退款信息，请稍候…' : '正在读取退款信息…' : '未能核对退款信息，请重试读取。' }}</span><button data-refund="start" :disabled="busy || !loaded" @click="start">申请退款</button></div></Teleport>
   </section>
 </template>
 

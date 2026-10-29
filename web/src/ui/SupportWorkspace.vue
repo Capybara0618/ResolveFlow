@@ -29,6 +29,7 @@ const selected = ref<SupportConversation | null>(null), choosing = ref(false)
 const search = ref(''), orderSearch = ref(''), filter = ref('ALL'), historyTab = ref(false)
 const cache = reactive(new Map<string, SupportConversation>())
 const workspace = ref<HTMLElement>(), messagePane = ref<HTMLElement>()
+const refundEntry = ref<HTMLElement>(), contextOpen = ref(window.innerWidth > 1100)
 const loading = ref(false), busy = ref(false), error = ref(''), notice = ref(''), draft = ref('')
 const recipient = ref<'ASSISTANT' | 'MERCHANT'>('ASSISTANT'), replyKind = ref<'REPLY' | 'REQUEST_INFO'>('REPLY')
 const preview = ref(false), summary = ref(''), share = ref<string[]>([]), previewVersion = ref(0)
@@ -256,7 +257,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
       <p v-if="notice" role="status" class="support-notice">{{ notice }}</p>
       <p v-if="pending" role="status" class="support-notice">“{{ pending.label }}”的提交结果尚待确认。<button data-action="retry" :disabled="busy" @click="retry">{{ busy ? '正在确认…' : '用原请求确认结果' }}</button></p>
     </div>
-    <div class="support-grid" :inert="choosing || preview ? true : undefined">
+    <div class="support-grid" :class="{ 'context-collapsed': !merchant && !contextOpen }" :inert="choosing || preview ? true : undefined">
       <aside class="support-history" aria-label="咨询列表">
         <header class="support-queue-heading"><h1>{{ merchant ? '咨询核查' : '售后咨询' }} <small v-if="merchant">{{ items.length }}</small></h1><button class="icon-action" aria-label="刷新咨询列表" :disabled="loading || busy || !!pending" @click="load"><Icon name="clock" :size="17" /></button></header>
         <button v-if="!merchant" class="primary support-new" :disabled="loading || busy || !!pending" @click="pickOrder"><span>＋</span> 选择订单</button>
@@ -276,6 +277,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
         <template v-if="selected">
           <header class="support-chat-heading"><div class="support-chat-identity"><span class="support-avatar assistant"><Icon :name="merchant ? 'queue' : 'sparkle'" :size="22" /></span><div><h2 :title="merchant ? conversationTitle(selected) : '售后助手'">{{ merchant ? conversationTitle(selected) : '售后助手' }}</h2><p>{{ selected.store_name }} · {{ merchant ? `核查单 #${tail(selected.ticket!.ticket_id)}` : selected.product.name }}</p></div></div>
             <span v-if="selected.ticket" class="support-tag amber">{{ labels[selected.ticket.status] }}</span><button v-if="!merchant && !selected.ticket" data-action="handoff" class="support-heading-handoff" :disabled="busy || !!pending" @click="handoff"><Icon name="file" :size="16" />请商家核查</button>
+            <button v-if="!merchant" class="support-context-toggle" data-action="toggle-context" :aria-expanded="contextOpen" aria-controls="support-order-context" @click="contextOpen = !contextOpen; refundLayout()">{{ contextOpen ? '收起资料' : '订单与物流' }}</button>
           </header>
           <div v-if="merchant" class="support-chat-tabs"><button :class="{ current: !historyTab }" @click="historyTab = false">客户沟通</button><button :class="{ current: historyTab }" @click="historyTab = true">消息记录</button></div>
 
@@ -300,7 +302,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
               </div>
             </article>
             <div v-if="assistantState" role="status" class="support-agent-state" :class="{ 'support-agent-waiting': assistantBusy }" :data-buyer-waiting="assistantBusy ? '' : undefined"><span v-if="assistantBusy" class="support-waiting-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>{{ assistantState }}</span></div>
-            <SupportRefundCard v-if="!merchant && !historyTab" :key="`${owner}:${selected.conversation_id}`" :token="token" :owner="owner" :conversation="selected" @layout-change="refundLayout" @expired="emit('expired')" />
+            <SupportRefundCard v-if="!merchant && !historyTab" :key="`${owner}:${selected.conversation_id}`" :token="token" :owner="owner" :conversation="selected" :entry-target="refundEntry" @layout-change="refundLayout" @expired="emit('expired')" />
             <section v-if="!merchant && !selected.ticket && latestAssistant && assistantOffers(latestAssistant, 'MERCHANT_REVIEW')" class="support-handoff-card"><Icon name="file" :size="25" /><div><h3>需要商家进一步核查</h3><p>将你的问题与相关依据整理给商家。</p><blockquote>{{ latestAssistant.assistant!.handoff_summary }}</blockquote><div><small>可编辑 · 确认后共享</small><button class="primary" data-action="preview-handoff" :disabled="busy || !!pending" @click="handoff">预览并转交商家</button></div></div></section>
           </div>
 
@@ -310,12 +312,12 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
             <div v-else-if="selected.ticket" class="support-recipient"><button :class="{ current: recipient === 'MERCHANT' }" :disabled="busy || !!pending" @click="recipient = 'MERCHANT'">补充给商家</button><button :class="{ current: recipient === 'ASSISTANT' }" :disabled="busy || !!pending" @click="recipient = 'ASSISTANT'">询问智能助手</button></div>
             <div class="support-input-box"><textarea v-model="draft" aria-label="咨询消息" maxlength="4000" :disabled="busy || !!pending || (merchant && selected.ticket?.status === 'RESOLVED')" :placeholder="merchant ? '填写核查回复或需要客户补充的问题…' : recipient === 'MERCHANT' ? '补充给当前商家核查单…' : '继续描述问题，或补充、纠正之前的信息…'" @keydown.enter.exact="enter" />
               <div class="support-actions"><small v-if="merchant">客户将在原咨询中看到回复</small><button v-if="!merchant && selected.ticket?.status === 'REPLIED'" :disabled="busy || !!pending" @click="submit({ kind: 'resolve', id: selected.conversation_id, body: { expected_version: selected.version } })">确认问题已解决</button><button data-action="send" class="primary" :disabled="!draft.trim() || busy || !!pending || (merchant && selected.ticket?.status === 'RESOLVED')" @click="send">{{ busy ? '提交中…' : merchant ? '发送回复' : '发送' }}</button></div>
-            </div><div class="support-compose-meta"><small v-if="!merchant">{{ recipient === 'MERCHANT' ? '正在补充给商家核查' : '正在与售后助手对话' }}</small><button class="text-action support-refresh" :disabled="busy || !!pending" @click="refresh()">刷新进度</button></div>
+            </div><div class="support-compose-meta"><small v-if="!merchant && selected.ticket">{{ recipient === 'MERCHANT' ? '补充给商家核查' : '仅你和助手可见' }}</small><div v-if="!merchant" ref="refundEntry" class="support-refund-shortcut"></div><button class="text-action support-refresh" :disabled="busy || !!pending" @click="refresh()">刷新记录</button></div>
           </div>
         </template>
         <div v-else class="support-empty"><span class="support-avatar assistant"><Icon :name="loading ? 'clock' : 'queue'" :size="32" /></span><h2>{{ loading ? '正在读取咨询…' : merchant ? '本店咨询，集中核查' : '售后咨询，从这件商品开始' }}</h2><p>{{ loading ? '请稍候' : merchant ? '选择左侧核查单，查看客户诉求与调查依据。' : '选择需要咨询的订单商品，历史记录会独立保留。' }}</p><button v-if="!merchant && !loading" class="primary" @click="pickOrder">选择订单商品</button></div>
       </main>
-      <SupportContext v-if="selected" :conversation="selected" :merchant="merchant" :disabled="loading || busy || !!pending" @change-order="pickOrder" />
+      <SupportContext v-if="selected" id="support-order-context" :collapsed="!merchant && !contextOpen" :conversation="selected" :merchant="merchant" :disabled="loading || busy || !!pending" @change-order="pickOrder" />
       <aside v-else class="support-context support-context-empty"><Icon name="box" :size="28" /><p>选择咨询后查看订单与相关依据</p></aside>
     </div>
 

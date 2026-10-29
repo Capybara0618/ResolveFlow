@@ -14,7 +14,7 @@ const parts = computed(() => buyerParts(props.message))
       <p v-if="part.guidance" class="support-reply-guidance">{{ part.guidance }}</p>
     </div>
   </template>
-  <p v-else>{{ message.text }}</p>
+  <template v-else><p v-for="(paragraph, index) in message.text.split(/\n{2,}/)" :key="index">{{ paragraph }}</p></template>
 </template>
 
 <style scoped>

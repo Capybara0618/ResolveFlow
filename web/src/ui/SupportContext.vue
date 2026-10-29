@@ -8,7 +8,7 @@ import SupportSources from './SupportSources.vue'
 import BuyerSources from './BuyerSources.vue'
 import Icon from './ReviewIcon.vue'
 
-const props = defineProps<{ conversation: SupportConversation; merchant: boolean; disabled?: boolean }>()
+const props = defineProps<{ conversation: SupportConversation; merchant: boolean; disabled?: boolean; collapsed?: boolean }>()
 defineEmits<{ changeOrder: [] }>()
 const report = computed(() => reportFor(props.conversation, props.merchant))
 const shipment = computed(() => shipmentIn(report.value?.citations ?? []))
@@ -17,7 +17,7 @@ const policies = computed(() => report.value?.citations.filter(c => c.source_typ
 </script>
 
 <template>
-  <aside class="support-context" aria-label="订单与调查依据">
+  <aside v-show="!collapsed" class="support-context" aria-label="订单与调查依据">
     <section class="context-card support-product"><header><h2>{{ merchant ? '订单信息' : '当前咨询商品' }}</h2><button v-if="!merchant" class="text-action" :disabled="disabled" @click="$emit('changeOrder')">更换</button></header>
       <div class="context-product"><ProductArt :asset="conversation.product.asset_key || ''" :name="conversation.product.name" :variant="conversation.product.variant ?? ''" /><div><h3>{{ conversation.product.name }}</h3><p>{{ conversation.product.variant || '默认规格' }} · {{ conversation.product.quantity }}件</p><strong>¥{{ formatMinorUnits(conversation.product.amount_minor).replace(' CNY', '') }}</strong></div></div>
       <div class="context-product-meta"><span><Icon v-if="!merchant" name="store" :size="14" />{{ conversation.store_name }}</span><small>订单尾号 {{ tail(conversation.order_id) }}</small></div>

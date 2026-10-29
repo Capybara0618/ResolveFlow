@@ -34,7 +34,7 @@ it('preserves legacy text and line breaks when a presentation is absent', () => 
   const input = message()
   delete input.assistant!.buyer_view
   const wrapper = mount(SupportBuyerReply, { props: { message: input } })
-  expect(wrapper.get('p').element.textContent).toBe(input.text)
+  expect(wrapper.findAll('p').map(p => p.element.textContent).join('\n\n')).toBe(input.text)
   expect(wrapper.find('.support-reply-part').exists()).toBe(false)
   wrapper.unmount()
 })
