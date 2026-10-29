@@ -342,6 +342,7 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
         var detail = json.readTree(read("/api/v1/customer/cases/" + id, own()));
         assertThat(detail.get("allowed_actions").size()).isZero();
         assertThat(detail.get("result").get("message").stringValue()).contains("执行失败");
+        assertThat(detail.get("blocked_reason").stringValue()).contains("进入执行阶段");
         for (String route : new String[] {"evidence", "cancel"}) {
             var body = route.equals("evidence")
                     ? Map.of("text", "不能修改", "evidence_kind", "CUSTOMER_STATEMENT")
@@ -380,6 +381,11 @@ class CustomerWorkspaceApiTest extends CaseDatabaseTest {
                 .isEqualTo(409);
         assertThat(jdbc.queryForObject("SELECT input_revision FROM aftersale_case WHERE case_id=?", Integer.class, id))
                 .isEqualTo(1);
+        jdbc.update("UPDATE aftersale_case SET status='CLOSED_SUCCESS' WHERE case_id=?", id);
+        var completed = json.readTree(read("/api/v1/customer/cases/" + id, own()));
+        assertThat(completed.get("allowed_actions").size()).isZero();
+        assertThat(completed.get("blocked_reason").stringValue()).isEqualTo("申请已结束，仅可查看记录");
+        assertThat(completed.get("result").get("amount_minor").longValue()).isEqualTo(2599);
     }
 
     @Test

@@ -300,10 +300,10 @@ public class CustomerCaseService {
                 if (pending) allowed.add("ANSWER");
             } else allowed.add("APPEND_EVIDENCE");
         }
-        String blocked = consumed
-                ? "退款已进入执行阶段，不能撤销或修改材料"
-                : row.status().isTerminal()
-                        ? "申请已结束，仅可查看记录"
+        String blocked = row.status().isTerminal()
+                ? "申请已结束，仅可查看记录"
+                : consumed
+                        ? "退款已进入执行阶段，不能撤销或修改材料"
                         : row.status() == CaseStatus.WAITING_CUSTOMER && !pending ? "当前问题已过期或缺少可回答记录，请等待商家处理" : "";
         Long amount = null;
         String reason = null;
