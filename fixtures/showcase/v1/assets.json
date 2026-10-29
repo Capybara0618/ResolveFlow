@@ -155,6 +155,141 @@
       "width": 384,
       "height": 384,
       "sha256": "36c91a0f214b77c27f987e57918427a7b4bf0b8d4d99e5a8aa4afc2478d0099d"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/headphones-black.jpg",
+      "source": "web/public/products/v1/headphones-black.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 156638,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "899e7e5c28f9a4b970351a60244a7fef7280ad547d296a4401cfd71481aa239b"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/headphones-silver.jpg",
+      "source": "web/public/products/v1/headphones-silver.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 172666,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "916fc7e7d715a3afbaaaf88e61db500bf4e0adde623d719fe8c889642d96f3dc"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/keyboard-white.jpg",
+      "source": "web/public/products/v1/keyboard-white.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 148993,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "8844bbf15b6d87ef7acc2f0a6d9067a83cd7a5a90cdfde48e9faa89f27b19efa"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/keyboard-gray.jpg",
+      "source": "web/public/products/v1/keyboard-gray.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 135360,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "ff9a83231a5d74ef4927bdbe76cb1663ad42d48b47bb370134bd555c18e34c14"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/speaker-black.jpg",
+      "source": "web/public/products/v1/speaker-black.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 221959,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "cf061ffd857d3ba46852daac407c356d4cb37e285ed1f4c214c25db2dc68706f"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/powerbank.jpg",
+      "source": "web/public/products/v1/powerbank.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 154610,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "3fd99dcb7e37a879de0e2652fee78cd3ae45749527e05934ac85d29b0590cf8e"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/lamp.jpg",
+      "source": "web/public/products/v1/lamp.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 72642,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "4575150bbfce89e4b1bd9ab084d4dc4dc2b7a106aba3f1142d52262529ca9b81"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/cup.jpg",
+      "source": "web/public/products/v1/cup.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 102186,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "1c8f49374789ec3c82550613ce166044b46808f37601921870d38cc3439a5643"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/pillow.jpg",
+      "source": "web/public/products/v1/pillow.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 375517,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "f86e96c47623ce007fac1f349f360b739aa723ac12aac2d6e6a61e8d259f07ce"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/basket.jpg",
+      "source": "web/public/products/v1/basket.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 303903,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "a13fa4ce0edc2fb05eb86b443e82640b215d761248b0f8f11c98aeac9f4c1016"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/backpack-navy.jpg",
+      "source": "web/public/products/v1/backpack-navy.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 252714,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "01045658532f175f0be11d2ce1fdd3cb8ad463aa8638151d80c5d14774a00c71"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/backpack-olive.jpg",
+      "source": "web/public/products/v1/backpack-olive.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 234351,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "02639aa9bccb781d0e92d744cc89c0c7db6be90e5d86e00f45c1e0d050d0fd5c"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/tent.jpg",
+      "source": "web/public/products/v1/tent.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 143023,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "b2d3986806477095b06e5b0b97dad34991f3543e622421052e497448f286f1c6"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/chair.jpg",
+      "source": "web/public/products/v1/chair.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 195544,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "e7374d92e816ea56718284e34245277adfe1deb05ddf0711d6d0b9d5b2e9f41f"
+    },
+    {
+      "file": "fixtures/showcase/v1/products/lantern.jpg",
+      "source": "web/public/products/v1/lantern.webp",
+      "encoding": "JPEG quality 93, same dimensions and composition",
+      "bytes": 108452,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "ea8df0ea161a335db639eeb522dcead4b9d3a93d6feb3ecb0eadca87702cfd81"
     }
   ]
 }

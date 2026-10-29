@@ -1,0 +1,291 @@
+{
+  "version": "showcase-v1",
+  "account": {
+    "username": "demo_showcase",
+    "display_name": "卡皮巴拉",
+    "avatar": "capybara.jpg"
+  },
+  "stores": [
+    {
+      "store_id": "M-1001",
+      "username": "admin01",
+      "name": "松间数码",
+      "logo": "store-digital.jpg",
+      "introduction": "为日常工作与聆听挑选顺手的数码用品。简洁的设计，让桌面和通勤更自在。",
+      "contact_phone": "",
+      "service_hours": "每日 09:00–18:00"
+    },
+    {
+      "store_id": "M-1002",
+      "username": "admin02",
+      "name": "拾光家居",
+      "logo": "store-home.jpg",
+      "introduction": "从一盏灯、一只杯子开始，照顾日常的小细节。挑选温润、耐看的家居用品，让家多一份舒适。",
+      "contact_phone": "",
+      "service_hours": "每日 09:00–18:00"
+    },
+    {
+      "store_id": "M-1003",
+      "username": "admin03",
+      "name": "轻行户外",
+      "logo": "store-outdoor.jpg",
+      "introduction": "从短途出行到周末露营，挑选容易携带、使用顺手的户外用品，轻装享受户外时光。",
+      "contact_phone": "",
+      "service_hours": "每日 09:00–18:00"
+    }
+  ],
+  "products": [
+    {
+      "product_id": "P-1001",
+      "store_id": "M-1001",
+      "name": "无线降噪耳机",
+      "images": [
+        "products/headphones-black.jpg",
+        "products/headphones-silver.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "佩戴方式",
+          "value": "头戴包耳式"
+        },
+        {
+          "name": "可选颜色",
+          "value": "黑色 / 银色"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-1002",
+      "store_id": "M-1001",
+      "name": "机械键盘",
+      "images": [
+        "products/keyboard-white.jpg",
+        "products/keyboard-gray.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "键盘类型",
+          "value": "机械键盘"
+        },
+        {
+          "name": "可选颜色",
+          "value": "白色 / 深灰色"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-1004",
+      "store_id": "M-1001",
+      "name": "蓝牙音箱",
+      "images": [
+        "products/speaker-black.jpg",
+        "speaker-detail.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "颜色",
+          "value": "黑色"
+        },
+        {
+          "name": "外观",
+          "value": "织物包覆圆筒机身"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-1008",
+      "store_id": "M-1001",
+      "name": "便携充电宝",
+      "images": [
+        "products/powerbank.jpg",
+        "powerbank-detail.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "标称容量",
+          "value": "10000mAh"
+        },
+        {
+          "name": "颜色",
+          "value": "银色"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-2001",
+      "store_id": "M-1002",
+      "name": "桌面台灯",
+      "images": [
+        "products/lamp.jpg",
+        "lamp-detail.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "颜色",
+          "value": "米白色"
+        },
+        {
+          "name": "造型",
+          "value": "半球灯罩与圆形底座"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-2002",
+      "store_id": "M-1002",
+      "name": "保温杯",
+      "images": [
+        "products/cup.jpg",
+        "cup-detail.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "颜色",
+          "value": "银色"
+        },
+        {
+          "name": "杯盖",
+          "value": "旋盖式"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-2003",
+      "store_id": "M-1002",
+      "name": "棉麻靠枕",
+      "images": [
+        "products/pillow.jpg",
+        "pillow-detail.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "面料",
+          "value": "棉麻"
+        },
+        {
+          "name": "颜色",
+          "value": "米色"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-2004",
+      "store_id": "M-1002",
+      "name": "编织收纳篮",
+      "images": [
+        "products/basket.jpg",
+        "basket-detail.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "规格",
+          "value": "小号"
+        },
+        {
+          "name": "结构",
+          "value": "开放式篮口与双提手"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-3001",
+      "store_id": "M-1003",
+      "name": "轻量双肩包",
+      "images": [
+        "products/backpack-navy.jpg",
+        "products/backpack-olive.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "可选颜色",
+          "value": "深蓝色 / 橄榄绿"
+        },
+        {
+          "name": "结构",
+          "value": "主仓与前置口袋"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-3002",
+      "store_id": "M-1003",
+      "name": "双人露营帐篷",
+      "images": [
+        "products/tent.jpg",
+        "tent-detail.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "适用人数",
+          "value": "双人"
+        },
+        {
+          "name": "规格",
+          "value": "标准款"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-3003",
+      "store_id": "M-1003",
+      "name": "便携折叠椅",
+      "images": [
+        "products/chair.jpg",
+        "chair-detail.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "颜色",
+          "value": "黑色"
+        },
+        {
+          "name": "结构",
+          "value": "布面座椅与折叠支架"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    },
+    {
+      "product_id": "P-3006",
+      "store_id": "M-1003",
+      "name": "充电露营灯",
+      "images": [
+        "products/lantern.jpg",
+        "lantern-detail.jpg"
+      ],
+      "specifications": [
+        {
+          "name": "光色",
+          "value": "暖光"
+        },
+        {
+          "name": "携带方式",
+          "value": "提手式"
+        }
+      ],
+      "shipping_note": "下单前请核对收货地址。发货后可在“我的订单”查看物流进度，配送问题可从订单联系店铺。",
+      "aftercare_note": "收到商品后请核对款式与外观。如遇商品损坏或配送异常，可从订单发起售后咨询，并补充问题描述和相关材料。申请及处理进度可在“我的售后”查看。"
+    }
+  ]
+}
