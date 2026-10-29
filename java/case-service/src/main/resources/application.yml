@@ -4,6 +4,10 @@ server:
   port: 8083
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 3MB
   application:
     name: case-service
   jackson:
@@ -38,6 +42,7 @@ mybatis:
     arg-name-based-constructor-auto-mapping: true
 
 resolveflow:
+  user-media-dir: ${RESOLVEFLOW_USER_MEDIA_DIR:tmp/user-media}
   product-reviews:
     rate-limit-enabled: ${PRODUCT_REVIEW_RATE_LIMIT_ENABLED:false}
   review-cache:

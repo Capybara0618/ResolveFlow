@@ -38,6 +38,24 @@ Commerce保存订单收货快照。Case校验地址属于当前买家后，向Co
 
 ## 实施顺序与验收
 
+### 已定义的资料与地址接口
+
+接口通过当前登录会话确定账号；响应均使用JSON，头像读取返回PNG。资料`version`、地址`version`与登录身份版本独立。
+
+| 接口 | 请求及响应 |
+| --- | --- |
+| GET /api/v1/account/profile | 返回username、display_name、avatar_id（可空）、version |
+| POST /api/v1/account/profile | display_name、expected_version；返回当前资料 |
+| POST /api/v1/account/avatar | multipart file、expected_version；返回当前资料 |
+| POST /api/v1/account/avatar/reset | expected_version；恢复默认头像 |
+| GET /api/v1/account/avatar | 本人当前PNG头像；未设置时404，前端显示默认头像 |
+| GET /api/v1/account/addresses | items地址列表，包含address_id、recipient、phone、province、city、district、detail、is_default、version |
+| POST /api/v1/account/addresses | 收货字段与is_default，新增地址 |
+| POST /api/v1/account/addresses/{id} | 收货字段、is_default、expected_version，更新本人地址 |
+| POST /api/v1/account/addresses/{id}/delete | expected_version；软删除，成功204 |
+
+版本冲突409、未登录401、地址越权404；非买家操作地址403。地址最多20条。默认切换使受影响地址版本递增；删除默认地址后从剩余地址选一条作为默认。头像通过RESOLVEFLOW_USER_MEDIA_DIR配置持久目录，默认tmp/user-media；备份时包含此目录与数据库。
+
 1. 个人资料、图片头像存储与鉴权接口；前端资料编辑及公共头像组件。
 2. 买家、商家、助手聊天头像和昵称接线，覆盖历史消息、共享消息、生成中状态及图片加载失败。
 3. 地址簿持久化、归属校验、版本控制、默认地址及前端管理。
