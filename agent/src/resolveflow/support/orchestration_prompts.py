@@ -18,6 +18,7 @@ application_context.guide_refs是程序已读取的公开应用指南，先按�
 隐私、共享范围、默认接收对象、已有核查单接续及页面含义属于GUIDE；退款资格/政策材料条件才用POLICY，不因提到商家或材料就混用。
 application_context.interaction来自可信会话快照：current_recipient是当前这条消息的对象，default_recipient是界面默认对象；两者可能不同。
 has_ticket不等于当前在给商家发送；未知字段保持未知，客户自述和旧助手文字不能填成已核实状态。
+has_ticket仅指独立咨询核查单，不代表退款申请。查询退款提交/进度/结果/已退金额须声明ORDER并读取get_order_context的refund_application；旧助手文字和付款状态不能证明当前退款结果。
 指南已在理解前提供，按问题声明GUIDE即可，不必再用模型决策读取；ORDER/SHIPMENT/POLICY仍按问题自主选择。
 准备退款同时涉及当前物流判断时，声明SHIPMENT及POLICY；程序也会为这种准备事项补足POLICY要求，不能只解释页面入口。只问入口仍用EXPLAIN，不因此强查政策或实时物流。
 customer_claims.topic仅RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER，物流不是topic枚举。
@@ -34,6 +35,7 @@ tools选get_order_context/get_shipment_trace的1–2个不同工具；可选poli
 missing用于判断回答是否齐备，不是只读权限清单；可按观察追加相关读取，无需仅为发起合法读取重声明needs。避免无关或重复读取，source_status禁止重试的来源不能绕过。
 程序仍逐项执行绑定读取、计费预算、持久记录和检查当前run；READ_FACTS不接受主体、额外参数或业务写入。只有一项用READ_TOOL；若query需依赖事实结果则逐项读取，假设不能当本单事实。
 订单付款用get_order_context，物流用get_shipment_trace，政策用search_policy；应用指南由程序提供。
+get_order_context同时提供当前订单行的refund_application买家投影。退款进度/结果用此来源，不从has_ticket、物流或政策推断；缺字段保持未知，不等于没有申请。
 政策query保留focus.request和context_refs所承接的具体讨论主题；历史助手不是当前事实。
 独立的两个政策条件分支可用一次search_policy的sub_queries两条完整问题和top_k>=2，普通问题省略。
 若调查发现原需求缺少必要依据，用{"kind":"REFINE_NEEDS","task_id":"t1","add":["ORDER"],"reason":"核实当前订单"}，最多2次，仅追加尚未声明项。
@@ -91,6 +93,7 @@ guidance是可选的页面操作说明，例如点击哪里、选择共享内容
 
 事实与条件：
 需要具体系统状态/金额时只能用对应占位符{{PAID_AMOUNT}}、{{ORDER_STATUS}}、{{SHIPMENT_STATUS}}、{{CARRIER_CONCLUSION}}，并选择本事项已读取的ORDER/SHIPMENT引用；不需要就不写，不罗列字段。
+退款进度用{{REFUND_STATUS}}，已退金额用{{REFUNDED_AMOUNT}}，均须本事项已读ORDER.refund_application。只有CLOSED_SUCCESS表示模拟退款完成；AUTHORIZED/EXECUTING/RECONCILING不能说已退，批准金额不是到账金额。present=false/status=NONE才是没有申请；缺字段或读取失败只说暂时查不到。已完成后不再套用申请前的商家核实条件，不引导重复申请；模拟退款不代表真实资金到账。
 POLICY从本run已读P编号选择相关条款，命中不等于适用。物流退款必须说明相关政策前提和仍需商家核实之处，不能只给入口；但不用重复确认卡说明。
 只问条件不判断本单资格；假设保持假设，历史助手不是实时事实。承接追问说明上轮具体场景的条件。照片等建议不升级为必交材料，条款未规定的清单不编造。
 

@@ -12,7 +12,9 @@ from resolveflow.support.protocol import Answer, AnswerFact, AnswerPart, AnswerP
 MONEY = re.compile(r"[¥￥]\s*(-?\d[\d,]*(?:\.\d+)?)|(-?\d[\d,]*(?:\.\d+)?)\s*(?:CNY|元)", re.I)
 FACT_RENDERING_VERSION = "fields-v1"
 FACT_LABELS = {"PAID_AMOUNT": "订单行实付", "ORDER_STATUS": "订单状态",
-               "SHIPMENT_STATUS": "物流状态", "CARRIER_CONCLUSION": "承运商记录结论"}
+               "SHIPMENT_STATUS": "物流状态", "CARRIER_CONCLUSION": "承运商记录结论",
+               "REFUND_STATUS": "退款申请进展", "REFUNDED_AMOUNT": "已退金额（模拟）"}
+MONEY_FIELDS = {"PAID_AMOUNT", "REFUNDED_AMOUNT"}
 STATUS_LABELS = {"PAID": "已付款", "SHIPPED": "已发货", "IN_TRANSIT": "运输中",
                  "DELIVERED": "已签收", "LOST": "丢失", "DELAYED": "延迟",
                  "UNKNOWN": "未知", "NOT_SHIPPED": "未发货", "DAMAGED": "损坏"}
@@ -43,7 +45,7 @@ def ground_summary(quotes: list[str], facts: list[AnswerFact], request: SupportI
         lines.append("已读系统记录（不代表客户陈述已核验）：")
         for fact in facts:
             value = value_for(fact.field, citations.get(fact.source, {}), request)
-            display = value if fact.field == "PAID_AMOUNT" else STATUS_LABELS.get(value, value)
+            display = value if fact.field in MONEY_FIELDS else STATUS_LABELS.get(value, value)
             lines.append(f"- {FACT_LABELS[fact.field]}：{display}。[{fact.source}]")
     else:
         lines.append("本摘要未附订单或物流的已读系统记录。")
@@ -64,7 +66,7 @@ def ground_summary(quotes: list[str], facts: list[AnswerFact], request: SupportI
 
 
 def value_for(field: str, source: dict[str, Any], request: SupportInput) -> str:
-    expected = "ORDER" if field in {"PAID_AMOUNT", "ORDER_STATUS"} else "SHIPMENT"
+    expected = "ORDER" if field in {"PAID_AMOUNT", "ORDER_STATUS", "REFUND_STATUS", "REFUNDED_AMOUNT"} else "SHIPMENT"
     if source.get("source_type") != expected or source.get("version") is None or "error" in source:
         raise GroundingError(f"{field}须当前{expected}来源，商品展示/历史助手/政策不是该字段的权威。")
     data = source.get("data", {})
@@ -76,6 +78,27 @@ def value_for(field: str, source: dict[str, Any], request: SupportInput) -> str:
         row = data
     if row.get("line_id") != request.line_id:
         raise GroundingError("事实来源须对应当前订单行。")
+    if field in {"REFUND_STATUS", "REFUNDED_AMOUNT"}:
+        application = data.get("refund_application")
+        if not isinstance(application, dict):
+            raise GroundingError("退款事实须当前ORDER的refund_application，未提供不等于没有申请。")
+        if application.get("present") is False and application.get("status") == "NONE":
+            if field == "REFUND_STATUS":
+                return "尚未提交退款申请"
+            raise GroundingError("尚无退款申请，不能补造已退金额。")
+        if (application.get("present") is not True or application.get("line_id") != request.line_id
+                or type(application.get("version")) is not int or application["version"] < 1):
+            raise GroundingError("退款事实须当前订单行的版本化买家投影。")
+        if field == "REFUND_STATUS":
+            message = application.get("message")
+            if not isinstance(message, str) or not message.strip() or len(message) > 400:
+                raise GroundingError("退款状态须Java公开进展说明。")
+            return message
+        amount = application.get("amount_minor")
+        if (application.get("status") != "CLOSED_SUCCESS" or type(amount) is not int or amount <= 0
+                or application.get("currency") != "CNY"):
+            raise GroundingError("已退金额须CLOSED_SUCCESS及Java整数分金额；批准/执行中/未知不是已退。")
+        return f"{amount // 100}.{amount % 100:02d} CNY"
     if field == "PAID_AMOUNT":
         amount = row.get("line_paid_amount")
         if type(amount) is not int or amount < 0 or row.get("currency") != "CNY":
@@ -112,11 +135,11 @@ def ground_answer(
             if structured and buyer_view:
                 # Validate every retained fact, but surface only fields used in this answer.
                 # Unknown enum values remain available in citations, never printed as jargon.
-                display = (value.removesuffix(" CNY") + "元" if fact.field == "PAID_AMOUNT"
-                           else STATUS_LABELS.get(value, "暂未确认"))
+                display = (value.removesuffix(" CNY") + "元" if fact.field in MONEY_FIELDS
+                           else value if fact.field == "REFUND_STATUS" else STATUS_LABELS.get(value, "暂未确认"))
                 text = text.replace(marker, display)
             elif structured:
-                display = value if fact.field == "PAID_AMOUNT" else STATUS_LABELS.get(value, value)
+                display = value if fact.field in MONEY_FIELDS else STATUS_LABELS.get(value, value)
                 identity = (fact.field, fact.source)
                 # Suppress only repeated presentation of the same observed field. Each task still
                 # validates and retains its facts/citations; different observations remain distinct.
@@ -181,5 +204,9 @@ def check_amounts(decision: Answer | AnswerParts, request: SupportInput,
             source = citations.get(ref, {})
             if source.get("source_type") == "ORDER":
                 allowed.add(Decimal(value_for("PAID_AMOUNT", source, request).split()[0]))
+                try:
+                    allowed.add(Decimal(value_for("REFUNDED_AMOUNT", source, request).split()[0]))
+                except GroundingError:
+                    pass
         if any(value not in allowed for value in amounts):
-            raise GroundingError("具体CNY金额须引用当前ORDER实付来源且数值一致；可先读取订单，或只说明一般政策。")
+            raise GroundingError("具体CNY金额须引用当前ORDER实付或已完成退款来源且数值一致；不能从批准金额推断已退。")

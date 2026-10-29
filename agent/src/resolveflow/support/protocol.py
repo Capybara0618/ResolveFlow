@@ -166,7 +166,8 @@ class Search(TaskAction, SearchArguments):
 
 
 class AnswerFact(Closed):
-    field: Literal["PAID_AMOUNT", "ORDER_STATUS", "SHIPMENT_STATUS", "CARRIER_CONCLUSION"]
+    field: Literal["PAID_AMOUNT", "ORDER_STATUS", "SHIPMENT_STATUS", "CARRIER_CONCLUSION",
+                   "REFUND_STATUS", "REFUNDED_AMOUNT"]
     source: str = Field(pattern=r"^O[1-9][0-9]*$")
 
 

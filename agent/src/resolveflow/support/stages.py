@@ -51,7 +51,7 @@ stage.policy_scope的CONDITIONS只解释focus主题下的条件：先辨相关�
 承接问题按focus.context_refs限定的主题回答，历史可以限制话题但不证明现状。正文简短：先答该主题及必要的后续条件，再答材料；未明确问全部政策时不列全类目或通用资金/实现机制，其他规则仅在对照条件确有必要时解释。
 资格part注明assessment：CONDITIONS只解释一般条件并保留尚未核实前提；CASE_ASSESSMENT判断当前订单是否符合条件，须引用ORDER与POLICY，再按具体前提取证，不代替商家批准。
 回答根级fact_rendering="fields-v1"。关键事实仅在对应part.facts选field/source；text写解释，不使用占位符或重复字段值，程序从来源追加事实段并合并引用，无需在两处表达同一事实。
-field=PAID_AMOUNT/ORDER_STATUS/SHIPMENT_STATUS/CARRIER_CONCLUSION；前两项须本run当前ORDER，后两项须当前SHIPMENT。示例facts:[{field:SHIPMENT_STATUS,source:O1}]仅在O1已读且确为物流来源时有效，不传value。未选事实可省略facts；不从商品展示猜实付。needs中的GUIDE须本run读取并引用，历史助手指引不能替代本轮来源。
+field=PAID_AMOUNT/ORDER_STATUS/SHIPMENT_STATUS/CARRIER_CONCLUSION/REFUND_STATUS/REFUNDED_AMOUNT；物流两项须当前SHIPMENT，其余须本run当前ORDER。退款状态须refund_application公开投影，已退金额还须CLOSED_SUCCESS；has_ticket仅指咨询核查单。示例facts:[{field:SHIPMENT_STATUS,source:O1}]仅在O1已读且确为物流来源时有效，不传value。未选事实可省略facts；不从商品展示猜实付。needs中的GUIDE须本run读取并引用，历史助手指引不能替代本轮来源。
 取消/结束/暂停只确认该变化，不替客户提交商家核查或退款；其他问题先查完能查的事项再答。
 status=ANSWERED/NEEDS_CUSTOMER/NEEDS_MERCHANT/UNAVAILABLE；缺客户材料用blocker={kind:CUSTOMER_INFO,detail:缺口,question:本段提问原句}；源失败用{kind:SOURCE_FAILURE,detail:原因,tool_name:失败工具}。
 可追加遗漏依据：{"kind":"REFINE_NEEDS","task_id":"t1","add":["ORDER"],"reason":"需核实实付金额"}；最多2次，仅增不减，不改事项/事件。

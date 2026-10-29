@@ -399,7 +399,7 @@ class Orchestration:
                     ref = sources[-1]
                     if ref not in citations:
                         citations.append(ref)
-                    fields = {"ORDER": ["ORDER_STATUS", "PAID_AMOUNT"],
+                    fields = {"ORDER": ["ORDER_STATUS", "PAID_AMOUNT", "REFUND_STATUS", "REFUNDED_AMOUNT"],
                               "SHIPMENT": ["SHIPMENT_STATUS", "CARRIER_CONCLUSION"]}.get(need, [])
                     for field in fields:
                         try:
