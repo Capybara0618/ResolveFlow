@@ -34,4 +34,6 @@ it('connects personal-center stages to server-side order filters', async () => {
   w = mount(PersonalCenter, { props: { account: { access_token: 'owner', role: 'CUSTOMER', buyer_id: 'b', expires_in: 3600 } } })
   await w.get('.personal-orders button:nth-child(2)').trigger('click')
   expect(w.emitted('navigate')?.[0]).toEqual(['#/shop/orders?status=AWAITING_SHIPMENT'])
+  await w.findAll('.personal-orders button').at(-1)!.trigger('click')
+  expect(w.emitted('navigate')?.at(-1)).toEqual(['#/customer/applications'])
 })

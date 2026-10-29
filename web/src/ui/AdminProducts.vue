@@ -3,11 +3,13 @@ import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { managementApi, type ManagedProduct, type ProductWrite } from '../management-client'
 import ProductArt from './ProductArt.vue'
+import PresentationEditor from './PresentationEditor.vue'
 import './foundation.css'
 
 const props = defineProps<{ account: LoginResponse }>()
 const emit = defineEmits<{ expired: []; working: [value: boolean] }>()
 const rows = ref<ManagedProduct[]>([]), after = ref<string | null>(null), busy = ref(false), error = ref(''), notice = ref('')
+const presentation = ref<{ product?: string } | null>(null)
 const edit = ref(false), selected = ref<ManagedProduct | null>(null), name = ref(''), description = ref(''), category = ref('electronics'), asset = ref('headphones'), listed = ref(true)
 const skus = ref<Array<{ sku_id: string | null; variant: string; price: string; max_quantity: number; listed: boolean }>>([])
 const assets = ['headphones', 'keyboard', 'mouse', 'lamp', 'cup', 'pillow', 'speaker', 'charger', 'monitor', 'hub', 'powerbank', 'stand', 'webcam', 'basket', 'clock', 'blanket', 'vase', 'tray', 'backpack', 'tent', 'chair', 'mat', 'bottle', 'lantern', 'umbrella', 'bag', 'pole', 'hat']
@@ -39,8 +41,9 @@ onMounted(() => { void act(() => load()) })
 </script>
 <template>
   <main class="foundation-main">
-    <header class="foundation-heading"><div><h1>商品管理</h1><p>维护 {{ account.merchant_name || '本店' }} 的商品与规格</p></div><div class="foundation-actions"><button :disabled="busy" @click="edit = false; act(() => load())">刷新</button><button class="primary-button" :disabled="busy" @click="open(null)">新增商品</button></div></header>
+    <header class="foundation-heading"><div><h1>商品管理</h1><p>维护 {{ account.merchant_name || '本店' }} 的商品与规格</p></div><div class="foundation-actions"><button :disabled="busy" @click="edit = false; act(() => load())">刷新</button><button class="primary-button" :disabled="busy" @click="open(null)">新增商品</button><button :disabled="busy" @click="presentation = {}; edit = false">店铺资料</button></div></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
+    <PresentationEditor v-if="presentation" :key="presentation.product ?? 'store'" :account="account" :product="presentation.product" @working="busy = $event; emit('working', $event)" @expired="emit('expired')" @close="presentation = null" />
     <form v-if="edit" class="foundation-editor" @submit.prevent="save">
       <h2>{{ selected ? '编辑商品' : '新增商品' }}</h2><div class="foundation-fields">
         <label>商品名称<input v-model="name" required maxlength="120" /></label><label>商品分类<select v-model="category"><option value="electronics">数码</option><option value="home">家居</option><option value="outdoor">户外</option></select></label>
@@ -48,7 +51,7 @@ onMounted(() => { void act(() => load()) })
       </div><h3>规格与价格</h3><div v-for="(sku, index) in skus" :key="sku.sku_id || index" class="foundation-sku-row"><label>规格<input v-model="sku.variant" required maxlength="120" /></label><label>单价（元）<input v-model="sku.price" inputmode="decimal" required /></label><label>限购数量<input v-model.number="sku.max_quantity" type="number" min="1" max="100" required /></label><label class="foundation-check"><input v-model="sku.listed" type="checkbox" />规格上架</label><button v-if="!sku.sku_id && skus.length > 1" type="button" :disabled="busy" @click="skus.splice(index, 1)">移除</button></div>
       <div class="foundation-actions"><button type="button" :disabled="busy || skus.length >= 20" @click="skus.push({ sku_id: null, variant: '', price: '', max_quantity: 10, listed: true })">添加规格</button><button type="submit" class="primary-button" :disabled="busy || !valid">{{ busy ? '正在保存…' : '保存商品' }}</button><button type="button" :disabled="busy" @click="edit = false">取消</button></div>
     </form>
-    <table class="foundation-table"><thead><tr><th>商品</th><th>价格</th><th>规格</th><th>状态</th><th>操作</th></tr></thead><tbody><tr v-for="row in rows" :key="row.product_id"><td><div class="foundation-product-name"><ProductArt :asset="row.asset_key" :name="row.name" :variant="row.skus.find(s => s.listed)?.variant || row.skus[0]?.variant" /><strong>{{ row.name }}</strong></div></td><td>¥ {{ (Math.min(...row.skus.map(s => s.unit_amount)) / 100).toFixed(2) }}</td><td>{{ row.skus.length }} 个</td><td>{{ row.listed ? '已上架' : '已下架' }}</td><td><button :disabled="busy" @click="open(row)">编辑</button></td></tr></tbody></table>
+    <table class="foundation-table"><thead><tr><th>商品</th><th>价格</th><th>规格</th><th>状态</th><th>操作</th></tr></thead><tbody><tr v-for="row in rows" :key="row.product_id"><td><div class="foundation-product-name"><ProductArt :asset="row.asset_key" :name="row.name" :variant="row.skus.find(s => s.listed)?.variant || row.skus[0]?.variant" /><strong>{{ row.name }}</strong></div></td><td>¥ {{ (Math.min(...row.skus.map(s => s.unit_amount)) / 100).toFixed(2) }}</td><td>{{ row.skus.length }} 个</td><td>{{ row.listed ? '已上架' : '已下架' }}</td><td><button :disabled="busy" @click="open(row)">编辑</button><button :disabled="busy" @click="presentation = { product: row.product_id }; edit = false">图片与详情</button></td></tr></tbody></table>
     <button v-if="after" :disabled="busy" @click="act(() => load(true))">加载更多</button><p v-if="!busy && rows.length === 0" class="empty">本店还没有商品，可以新增第一件。</p>
   </main>
 </template>

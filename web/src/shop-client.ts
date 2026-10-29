@@ -2,7 +2,7 @@ import { apiRequest } from './client'
 
 export interface ShopStore { store_id: string; name: string; description: string }
 export interface ShopSku { sku_id: string; variant: string; unit_amount: number; max_quantity: number; version: number }
-export interface ShopProduct { product_id: string; store_id: string; store_name: string; name: string; description: string
+export interface ShopProduct { cover_image_id?: string; product_id: string; store_id: string; store_name: string; name: string; description: string
   category: 'electronics' | 'home' | 'outdoor'; asset_key: string; from_amount: number; currency: 'CNY'; skus: ShopSku[] }
 export interface ShopProducts { items: ShopProduct[]; next_after: string | null }
 export interface ShopQuote { product: ShopProduct; sku: ShopSku; quantity: number; total_amount: number; currency: 'CNY' }

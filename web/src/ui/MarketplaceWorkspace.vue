@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import StoreMark from './StoreMark.vue'
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { shopApi, type ShopProduct, type ShopStore, type ShopQuote, type ShopDraft, type ShopDraftRequest } from '../shop-client'
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
+import ProductGallery from './ProductGallery.vue'
+import StoreProfile from './StoreProfile.vue'
+import CatalogImage from './CatalogImage.vue'
 import Icon from './ReviewIcon.vue'
 import CustomerWorkspace from './CustomerWorkspace.vue'
 import SupportWorkspace from './SupportWorkspace.vue'
@@ -13,6 +17,7 @@ import CartWorkspace from './CartWorkspace.vue'
 import AccountWorkspace from './AccountWorkspace.vue'
 import NotificationCenter from './NotificationCenter.vue'
 import PersonalCenter from './PersonalCenter.vue'
+import EnrollmentForm from './EnrollmentForm.vue'
 import type { Notification } from '../notification-client'
 import UserAvatar from './UserAvatar.vue'
 import AddressPicker from './AddressPicker.vue'
@@ -22,7 +27,7 @@ import './marketplace.css'
 
 const props = defineProps<{ account: LoginResponse | null }>()
 const emit = defineEmits<{ expired: []; login: []; logout: []; profile: [value: AccountProfile] }>()
-type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support' | 'profile' | 'addresses' | 'me' | 'messages'
+type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support' | 'profile' | 'addresses' | 'me' | 'messages' | 'security'
 const windowHash = ref(window.location.hash)
 const supportInitialId = computed(() => new URLSearchParams(windowHash.value.split('?')[1] ?? '').get('conversation') ?? undefined)
 const screen = ref<Screen>('home'), query = ref(''), category = ref(''), stores = ref<ShopStore[]>([])
@@ -67,6 +72,7 @@ async function route() {
   products.value = []; next.value = null
   let hash = window.location.hash; windowHash.value = hash
   if (hash === '#/shop/profile' || hash === '#/shop/addresses') { screen.value = hash.endsWith('/profile') ? 'profile' : 'addresses'; loading.value = false; if (!props.account) emit('login'); return }
+  if (hash === '#/shop/security') { screen.value = 'security'; loading.value = false; if (!props.account) emit('login'); return }
   if (hash === '#/shop/me' || hash === '#/shop/messages') { screen.value = hash.endsWith('/me') ? 'me' : 'messages'; loading.value = false; if (!props.account) emit('login'); return }
   if (hash.startsWith('#/shop/support')) { screen.value = 'support'; loading.value = false; if (!props.account) emit('login'); return }
   if (hash.startsWith('#/customer/')) { screen.value = 'customer'; loading.value = false; return }
@@ -185,6 +191,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
     </nav>
     <p v-if="error" class="shop-error shop-global-error" role="alert">{{ error }}</p>
     <AccountWorkspace :key="account.access_token" v-if="(screen === 'profile' || screen === 'addresses') && account" :account="account" :mode="screen" @saved="emit('profile', $event)" @working="cartBusy = $event" @expired="emit('expired')" />
+    <EnrollmentForm v-else-if="screen === 'security' && account" mode="rotate" :token="account.access_token" @working="cartBusy = $event" @close="go('#/shop/me')" @expired="emit('expired')" />
     <PersonalCenter v-else-if="screen === 'me' && account" :account="account" @navigate="go" />
     <NotificationCenter v-else-if="screen === 'messages' && account" :token="account.access_token" expanded @expired="emit('expired')" @open="openNotification" />
     <SupportWorkspace v-else-if="screen === 'support' && account" :key="account.access_token + windowHash" :initial-id="supportInitialId" :account="account" @expired="emit('expired')" />
@@ -195,20 +202,20 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
 
       <section v-if="screen === 'home'" class="shop-hero"><h1>选喜欢的好物，<br />让日常更舒适。</h1><a href="#shop-catalog" @click.prevent="workspaceCatalog?.scrollIntoView({ behavior: 'smooth', block: 'start' })">浏览全部</a></section>
       <template v-if="listingScreen">
-        <section v-if="store" class="shop-store-banner"><Icon name="store" :size="32" /><div><h1>{{ store.name }}</h1><p>{{ store.description }}</p></div><a href="#/shop" @click.prevent="go('#/shop')">返回商城</a></section>
+        <StoreProfile v-if="store" :id="store.store_id" :name="store.name" :description="store.description" @contact="go('#/shop/support')" />
         <div id="shop-catalog" ref="workspaceCatalog" class="shop-section-title"><h1 v-if="screen === 'search'">{{ query ? `“${query}”的搜索结果` : '全部商品' }}</h1><h2 v-else>{{ store ? '店铺商品' : '精选好物' }}</h2><div class="shop-categories" aria-label="商品分类"><button v-for="c in [{ id: '', name: '全部' }, { id: 'electronics', name: '数码' }, { id: 'home', name: '家居' }, { id: 'outdoor', name: '户外' }]" :key="c.id" :class="{ current: category === c.id }" :aria-pressed="category === c.id" @click="category = c.id; search()">{{ c.name }}</button></div><div class="shop-store-select"><Icon name="store" :size="18" /><select :value="store?.store_id ?? ''" aria-label="选择店铺" :disabled="loading" @change="changeStore"><option value="">全部店铺</option><option v-for="s in stores" :key="s.store_id" :value="s.store_id">{{ s.name }}</option></select></div></div>
         <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
         <p v-else-if="!products.length && !error" class="shop-empty">没有找到商品，请换个关键词或分类。</p>
         <div v-else class="shop-grid"><article v-for="p in displayedProducts" :key="p.product_id" class="product-card">
-          <a :href="`#/shop/products/${p.product_id}`" class="product-image" @click.prevent="go(`#/shop/products/${p.product_id}`)"><ProductArt :asset="p.asset_key" :name="p.name" :variant="p.skus[0]?.variant" /></a>
-          <div class="shop-product-copy"><a :href="`#/shop/products/${p.product_id}`" class="product-name" @click.prevent="go(`#/shop/products/${p.product_id}`)">{{ p.name }}</a><strong class="product-price">{{ catalogMoney(p.from_amount) }}<span v-if="p.skus.length > 1">起</span></strong><a :href="`#/shop/stores/${p.store_id}`" class="product-store" :aria-label="`进入${p.store_name}店铺`" @click.prevent="go(`#/shop/stores/${p.store_id}`)"><Icon name="store" :size="16" />{{ p.store_name }}</a></div>
+          <a :href="`#/shop/products/${p.product_id}`" class="product-image" @click.prevent="go(`#/shop/products/${p.product_id}`)"><CatalogImage v-if="p.cover_image_id" :id="p.cover_image_id" :name="p.name" /><ProductArt v-else :asset="p.asset_key" :name="p.name" :variant="p.skus[0]?.variant" /></a>
+          <div class="shop-product-copy"><a :href="`#/shop/products/${p.product_id}`" class="product-name" @click.prevent="go(`#/shop/products/${p.product_id}`)">{{ p.name }}</a><strong class="product-price">{{ catalogMoney(p.from_amount) }}<span v-if="p.skus.length > 1">起</span></strong><a :href="`#/shop/stores/${p.store_id}`" class="product-store" :aria-label="`进入${p.store_name}店铺`" @click.prevent="go(`#/shop/stores/${p.store_id}`)"><StoreMark :id="p.store_id" :size="16" />{{ p.store_name }}</a></div>
         </article></div>
         <button v-if="next" class="shop-secondary shop-load" :disabled="loading" @click="more">加载更多商品</button>
       </template>
       <template v-else-if="screen === 'product'">
         <button class="shop-back" @click="go('#/shop')">返回商城</button>
         <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
-        <section v-if="product" class="shop-product-detail"><div class="detail-image"><ProductArt :asset="product.asset_key" :name="product.name" :variant="selectedSku?.variant" /></div><div class="detail-copy"><a class="product-store" :href="`#/shop/stores/${product.store_id}`" :aria-label="`进入${product.store_name}店铺`" @click.prevent="go(`#/shop/stores/${product.store_id}`)"><Icon name="store" :size="17" />{{ product.store_name }}</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :aria-pressed="sku === s.sku_id" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><p>已加入购物车</p><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route">重新读取商品</button></div></section>
+        <section v-if="product" class="shop-product-detail"><ProductGallery :product="product.product_id" :asset="product.asset_key" :name="product.name" :variant="selectedSku?.variant" /><div class="detail-copy"><a class="product-store" :href="`#/shop/stores/${product.store_id}`" :aria-label="`进入${product.store_name}店铺`" @click.prevent="go(`#/shop/stores/${product.store_id}`)"><StoreMark :id="product.store_id" :size="17" />{{ product.store_name }}</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :aria-pressed="sku === s.sku_id" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><p>已加入购物车</p><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route">重新读取商品</button></div></section>
         <ProductReviews v-if="product" :key="product.product_id" :product="product.product_id" />
       </template>
       <template v-else-if="screen === 'checkout' && quote">

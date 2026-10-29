@@ -80,9 +80,9 @@ it('drops a late product response after navigation', async () => {
 
 it('shows the selected SKU image and price in the actual product detail', async () => {
   await open()
-  expect(w.get('.detail-image img').attributes('src')).toContain('headphones-black.webp')
+  expect(w.get('.gallery-main img').attributes('src')).toContain('headphones-black.webp')
   await w.findAll('fieldset button')[1].trigger('click')
-  expect(w.get('.detail-image img').attributes('src')).toContain('headphones-silver.webp')
+  expect(w.get('.gallery-main img').attributes('src')).toContain('headphones-silver.webp')
   expect(w.get('.detail-price').text()).toContain('349.00')
 })
 
@@ -101,7 +101,7 @@ it('opens the product store from its labelled storefront link without quoting a 
   await w.get('a[aria-label="进入松间数码店铺"]').trigger('click'); await flushPromises()
   expect(shopApi.store).toHaveBeenCalledWith('M-1001')
   expect(shopApi.products).toHaveBeenLastCalledWith({ store_id: 'M-1001' })
-  expect(w.get('.shop-store-banner').text()).toContain('松间数码')
+  expect(w.get('.store-profile').text()).toContain('松间数码')
   expect(shopApi.quote).not.toHaveBeenCalled()
 })
 

@@ -6,6 +6,7 @@ import { formatMinorUnits } from './money'
 import Icon from './ui/ReviewIcon.vue'
 import UserAvatar from './ui/UserAvatar.vue'
 import NotificationCenter from './ui/NotificationCenter.vue'
+import EnrollmentForm from './ui/EnrollmentForm.vue'
 import type { Notification } from './notification-client'
 import AccountWorkspace from './ui/AccountWorkspace.vue'
 import type { AccountProfile } from './account-client'
@@ -54,6 +55,8 @@ const merchantCaseOpen = ref(false)
 const merchantTrade = ref<MerchantTrade | null>(null)
 const tradeReadState = ref<'idle' | 'loading' | 'unavailable'>('idle')
 const shopVisitor = ref(window.location.hash.startsWith('#/shop'))
+const enrollmentMode = ref<'register' | 'recover' | null>(null), enrollmentBusy = ref(false)
+function finishEnrollment(name?: string) { enrollmentMode.value = null; if (name) username.value = name; password.value = ''; error.value = '' }
 const shopReturn = ref('')
 function updateShopVisitor() { shopVisitor.value = window.location.hash.startsWith('#/shop') }
 function shopLogin() { shopReturn.value = window.location.hash; window.history.pushState(null, '', '#/login'); shopVisitor.value = false }
@@ -459,6 +462,7 @@ onMounted(() => {
   if (session) void act(() => enterSession(session))
 })
 function logout() {
+  enrollmentMode.value = null
   profileOpen.value = false; profileBusy.value = false; notificationTicket.value = undefined
   clearTabSession()
   // An explicit account boundary must not reopen the previous customer's private route.
@@ -537,7 +541,8 @@ onUnmounted(() => { stopStream(); products.reset() })
     <MarketplaceWorkspace v-if="!account && shopVisitor" :account="null" @login="shopLogin" />
     <main v-else-if="!account" class="login-stage">
       <div class="login-intro"><h1>每一次售后，<br />都有据可循。</h1><p>从客户诉求到处理结果，<br />清楚了解每一步进展。</p></div>
-      <form class="panel login-panel" @submit.prevent="login">
+      <EnrollmentForm v-if="enrollmentMode" :mode="enrollmentMode" @working="enrollmentBusy = $event" @close="finishEnrollment" />
+      <form v-else class="panel login-panel" @submit.prevent="login">
         <h2>登录工作台</h2>
         <p class="muted">使用本地演示账户，继续处理售后事务。</p>
         <label>用户名 <input v-model="username" name="username" autocomplete="username" placeholder="请输入用户名" /></label>
@@ -545,7 +550,7 @@ onUnmounted(() => { stopStream(); products.reset() })
         <button data-test="login" type="submit" :disabled="busy">{{ busy ? '正在登录…' : '登录工作台' }}</button>
         <p v-if="error" class="message error" role="alert">{{ error }}</p>
         <small class="login-note"><Icon name="shield" :size="14" />数据与操作范围由账户身份决定</small>
-        <a href="#/shop">先逛逛商城</a>
+        <div class="login-account-links"><button type="button" :disabled="busy" @click="enrollmentMode = 'register'">注册买家账号</button><button type="button" :disabled="busy" @click="enrollmentMode = 'recover'">忘记密码</button></div><a href="#/shop">先逛逛商城</a>
       </form>
     </main>
     <PlatformWorkspace v-else-if="account.role === 'PLATFORM_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
@@ -675,3 +680,5 @@ onUnmounted(() => { stopStream(); products.reset() })
 .profile-avatar-button{border:0;background:transparent;padding:0;display:inline-flex;cursor:pointer;border-radius:50%}
 .profile-avatar-button:focus-visible{outline:2px solid #205e50;outline-offset:4px}
 </style>
+
+<style scoped>.login-account-links{display:flex;justify-content:space-between;gap:16px}.login-account-links button{border:0;background:none;color:#205e50;padding:5px 0;font:inherit;font-size:14px;cursor:pointer}</style>
