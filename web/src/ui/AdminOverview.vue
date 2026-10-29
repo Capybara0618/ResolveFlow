@@ -31,12 +31,12 @@ onBeforeUnmount(() => { alive = false; ++generation; clearInterval(timer) })
 
 <template>
   <main v-if="account.single_operator" class="admin-workspace single-merchant-workspace" aria-label="商家工作台">
-    <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name }}</span><h1>商家工作台</h1><p>管理商品、订单和售后，新申请自动归属本店商家。</p></div><button type="button" class="secondary-button" :disabled="loading" @click="load">刷新概览</button></header>
+    <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name }}</span><h1>商家工作台</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load">刷新概览</button></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p>
     <p v-if="loading && !data" role="status">正在读取本店售后…</p>
     <div class="overview-metrics">
-      <button class="overview-metric" :disabled="!data" @click="emit('queue','ALL','PUBLIC')"><span class="metric-icon"><Icon name="queue" :size="22" /></span><span><small>未结束售后</small><strong>{{ data?.mine ?? '—' }}</strong></span><Icon name="chevron" /></button>
-      <button class="overview-metric attention-metric" :disabled="!data" @click="focusCoordination"><span class="metric-icon"><Icon name="shield" :size="22" /></span><span><small>需要关注</small><strong>{{ data?.attention ?? '—' }}</strong></span><Icon name="chevron" /></button>
+      <button class="overview-metric" :disabled="!data" @click="emit('queue','ALL','PUBLIC')"><span class="metric-icon"><Icon name="queue" :size="22" /></span><span><small>未结束售后</small><strong>{{ data?.mine ?? '—' }}</strong></span></button>
+      <button class="overview-metric attention-metric" :disabled="!data" @click="focusCoordination"><span class="metric-icon"><Icon name="shield" :size="22" /></span><span><small>需要关注</small><strong>{{ data?.attention ?? '—' }}</strong></span></button>
     </div>
     <section class="panel admin-card"><h2>日常经营</h2><div class="foundation-actions"><button class="secondary-button" @click="emit('navigate','products')">管理商品</button><button class="secondary-button" @click="emit('navigate','orders')">处理订单</button><button class="secondary-button" @click="emit('queue','ALL','PUBLIC')">处理售后</button><button class="secondary-button" @click="emit('navigate','policies')">查看售后政策</button></div></section>
     <section id="coordination-list" class="panel admin-card"><h2>售后关注事项</h2><article v-for="item in data?.items ?? []" :key="item.case_id" class="merchant-attention"><strong>{{ item.description || '售后申请' }}</strong><p>{{ item.reasons.map(r => r === 'OWNER_UNAVAILABLE' || r === 'UNCLAIMED' ? '商家处理身份需核对' : reasons[r]).join(' · ') }}</p><button class="secondary-button" @click="emit('open',item.case_id)">查看售后</button></article><p v-if="data && data.items.length === 0">暂无异常，进入售后工单查看申请进展。</p></section>
@@ -46,9 +46,9 @@ onBeforeUnmount(() => { alive = false; ++generation; clearInterval(timer) })
     <p v-if="error" class="message error" role="alert">{{ error }}</p>
     <p v-if="loading && !data" class="admin-loading" role="status">正在读取本商家工单…</p>
     <div class="overview-metrics">
-      <button type="button" class="overview-metric" :disabled="!data" @click="emit('queue', 'ALL', 'UNCLAIMED')"><span class="metric-icon"><Icon name="queue" :size="22" /></span><span><small>未领取工单</small><strong>{{ data?.unclaimed ?? '—' }}</strong><span>尚未归属、未消费的可处理工单</span></span><Icon name="chevron" /></button>
-      <button type="button" class="overview-metric" :disabled="!data" @click="emit('queue', 'ALL', 'MINE')"><span class="metric-icon"><Icon name="user" :size="22" /></span><span><small>我的待办</small><strong>{{ data?.mine ?? '—' }}</strong><span>由我负责的未结束工单</span></span><Icon name="chevron" /></button>
-      <button type="button" class="overview-metric attention-metric" :disabled="!data" @click="focusCoordination"><span class="metric-icon"><Icon name="shield" :size="22" /></span><span><small>需关注工单</small><strong>{{ data?.attention ?? '—' }}</strong><span>结果待确认、人员或调查异常</span></span><Icon name="chevron" /></button>
+      <button type="button" class="overview-metric" :disabled="!data" @click="emit('queue', 'ALL', 'UNCLAIMED')"><span class="metric-icon"><Icon name="queue" :size="22" /></span><span><small>未领取工单</small><strong>{{ data?.unclaimed ?? '—' }}</strong><span>尚未归属、未消费的可处理工单</span></span></button>
+      <button type="button" class="overview-metric" :disabled="!data" @click="emit('queue', 'ALL', 'MINE')"><span class="metric-icon"><Icon name="user" :size="22" /></span><span><small>我的待办</small><strong>{{ data?.mine ?? '—' }}</strong><span>由我负责的未结束工单</span></span></button>
+      <button type="button" class="overview-metric attention-metric" :disabled="!data" @click="focusCoordination"><span class="metric-icon"><Icon name="shield" :size="22" /></span><span><small>需关注工单</small><strong>{{ data?.attention ?? '—' }}</strong><span>结果待确认、人员或调查异常</span></span></button>
     </div>
     <div class="overview-body">
       <section id="coordination-list" class="panel admin-card" aria-label="待协调工单"><div class="admin-card-heading"><div><h2>待协调工单 <span v-if="data">（{{ data.coordination_total }}）</span></h2><p>异常优先，同类按更新时间从旧到新排列。</p></div><span class="admin-chip">当前商家</span></div>
@@ -56,7 +56,7 @@ onBeforeUnmount(() => { alive = false; ++generation; clearInterval(timer) })
         <div v-else-if="data" class="admin-empty"><Icon name="check" :size="32" /><h3>暂时没有待协调工单</h3><p>可以进入公共队列查看本商家的全部进展。</p><button type="button" class="secondary-button" @click="emit('queue', 'ALL', 'PUBLIC')">查看公共队列</button></div>
         <footer v-if="data" class="admin-card-footer"><span>已显示 {{ data.items.length }} / {{ data.coordination_total }} 条；完整工单可在队列查询。</span><button type="button" class="text-button" @click="emit('queue', 'ALL', 'PUBLIC')">进入工作队列<Icon name="arrow" :size="14" /></button></footer>
       </section>
-      <aside class="overview-aside"><section class="panel admin-card"><span class="metric-icon"><Icon name="user" :size="24" /></span><h2>本商家工作人员</h2><div class="staff-total">{{ data?.enabled_staff ?? '—' }}<small>位已启用</small></div><p>包含售后专员、商家管理员及兼容运维账号。</p><button type="button" class="secondary-button" @click="emit('people')">管理人员<Icon name="arrow" :size="15" /></button></section><section class="admin-coordination-note"><Icon name="shield" :size="22" /><h3>协调后，由负责人处理</h3><p>管理员进入工单后可领取或显式接管。审核权限仍由当前归属和工单状态决定。</p><p>退款结果待确认时，只跟踪原退款操作，不能重复付款。</p></section></aside>
+      <aside class="overview-aside"><section class="panel admin-card"><span class="metric-icon"><Icon name="user" :size="24" /></span><h2>本商家工作人员</h2><div class="staff-total">{{ data?.enabled_staff ?? '—' }}<small>位已启用</small></div><p>包含售后专员、商家管理员及兼容运维账号。</p><button type="button" class="secondary-button" @click="emit('people')">管理人员</button></section><section class="admin-coordination-note"><Icon name="shield" :size="22" /><h3>协调后，由负责人处理</h3><p>管理员进入工单后可领取或显式接管。审核权限仍由当前归属和工单状态决定。</p><p>退款结果待确认时，只跟踪原退款操作，不能重复付款。</p></section></aside>
     </div>
     <p v-if="data" class="admin-update-time">读取时间 {{ date(data.observed_at) }} · 可见页面每30秒更新 · 合成演示数据</p>
   </main>
