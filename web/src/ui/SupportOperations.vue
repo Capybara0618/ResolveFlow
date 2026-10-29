@@ -57,16 +57,16 @@ watch(() => props.token, () => { ++opening; selected.value = ''; detail.value = 
 </template>
 
 <style scoped>
-.operations-layout { display: grid; grid-template-columns: minmax(420px, 1.2fr) minmax(320px, 1fr); gap: 24px; align-items: start; }
+.operations-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, 1fr); gap: 24px; align-items: start; }
 .operations-list { overflow: auto; max-height: 70vh; }
 .operations-list table { margin: 0; }
-.operations-list button { text-align: left; background: transparent; border: 0; cursor: pointer; color: #244b78; }
-.operations-list button small { display: block; margin-top: 4px; color: #77859a; }
-tr.selected { background: #eef4fa; }
-.operations-detail { background: white; border: 1px solid #e1e7ee; border-radius: 10px; padding: 22px; max-height: 70vh; overflow: auto; }
+.operations-list button { text-align: left; background: transparent; border: 0; cursor: pointer; color: var(--rf-muted); }
+.operations-list button small { display: block; margin-top: 4px; color: var(--rf-muted); }
+tr.selected { background: var(--rf-accent-soft); }
+.operations-detail { background: white; border: 1px solid var(--rf-line); border-radius: 10px; padding: 22px; max-height: 70vh; overflow: auto; }
 .operations-detail h2 { font-size: 18px; margin: 0; }.operations-detail h3 { font-size: 15px; margin-top: 24px; }
-.operations-detail p { font-size: 12px; color: #6e7e91; line-height: 1.7; overflow-wrap: anywhere; }
-.operations-id { font-family: monospace; }dl { display: flex; flex-wrap: wrap; gap: 24px; margin: 20px 0; }dt { color: #6e7e91; font-size: 12px; }dd { font-size: 20px; margin: 5px 0; }
-.operations-sources span { display: inline-block; margin-right: 12px; }ol { padding-left: 20px; }li { padding: 8px 0; font-size: 14px; }li small { display: block; color: #77859a; margin-top: 4px; font-size: 11px; }.operations-empty { color: #77859a; }
+.operations-detail p { font-size: 14px; color: var(--rf-muted); line-height: 1.7; overflow-wrap: anywhere; }
+.operations-id { font-family: monospace; }dl { display: flex; flex-wrap: wrap; gap: 24px; margin: 20px 0; }dt { color: var(--rf-muted); font-size: 14px; }dd { font-size: 20px; margin: 5px 0; }
+.operations-sources span { display: inline-block; margin-right: 12px; }ol { padding-left: 20px; }li { padding: 8px 0; font-size: 14px; }li small { display: block; color: var(--rf-muted); margin-top: 4px; font-size: 12px; }.operations-empty { color: var(--rf-muted); }
 @media(max-width:1100px) { .operations-layout { grid-template-columns: 1fr; } }
 </style>
