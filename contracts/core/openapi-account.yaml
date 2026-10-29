@@ -346,6 +346,89 @@ paths:
           description: 登录失效
         '404':
           description: 消息不可见或不存在
+  /api/v1/auth/register:
+    post:
+      summary: 注册买家并生成恢复密钥
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationRequest'
+      responses:
+        '201':
+          description: 成功
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryReceipt'
+        '400':
+          description: 输入无效或验证不通过
+        '409':
+          description: 账号不可用
+        '429':
+          description: 操作过于频繁
+      security: []
+  /api/v1/auth/recover:
+    post:
+      summary: 凭恢复密钥重设密码，同时轮换密钥并使原登录失效
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoveryRequest'
+      responses:
+        '200':
+          description: 成功
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryReceipt'
+        '400':
+          description: 输入无效或验证不通过
+        '409':
+          description: 账号不可用
+        '429':
+          description: 操作过于频繁
+      security: []
+  /api/v1/account/recovery-key:
+    post:
+      summary: 本人验证当前密码并重新生成恢复密钥
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoveryRotate'
+      responses:
+        '200':
+          description: 成功
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryReceipt'
+        '400':
+          description: 输入无效或验证不通过
+        '409':
+          description: 账号不可用
+        '429':
+          description: 操作过于频繁
 components:
   securitySchemes:
     bearerAuth:
@@ -530,3 +613,61 @@ components:
           type:
           - string
           - 'null'
+    RegistrationRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - username
+      - display_name
+      - password
+      properties:
+        username: &id009
+          type: string
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9_-]{2,59}$
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        password: &id010
+          type: string
+          minLength: 8
+          maxLength: 200
+          writeOnly: true
+    RecoveryRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - username
+      - recovery_key
+      - new_password
+      properties:
+        username: *id009
+        recovery_key:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          writeOnly: true
+        new_password: *id010
+    RecoveryReceipt:
+      type: object
+      additionalProperties: false
+      required:
+      - username
+      - recovery_key
+      properties:
+        username: *id009
+        recovery_key:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          readOnly: true
+      description: 一次性展示的新恢复密钥，请妥善保存；服务端仅持久化哈希。
+    RecoveryRotate:
+      type: object
+      additionalProperties: false
+      required:
+      - current_password
+      properties:
+        current_password:
+          type: string
+          minLength: 1
+          maxLength: 200
+          writeOnly: true
