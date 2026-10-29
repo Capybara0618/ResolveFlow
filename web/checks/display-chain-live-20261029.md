@@ -51,3 +51,5 @@ Python子步：沿既有ORDER需要/来源与AnswerFact渲染，新增REFUND_STA
 剩余质量项：首轮人工建议的条款适用解释不正确，尚未修复检索/调查质量；最终答复末尾“后续可以留意退款到账情况”不够贴合模拟场景，但正文已明确模拟完成，回执持续标注不涉及真实资金，没有编造到账日期。按本轮口径，当前操作、金额、权限和主状态可演示通过；不据此宣称所有表达/政策质量已通过，也未扩大固定评测、全项目换肤或并发/UNKNOWN故障实验。原工程说明/Commerce退款测试/verify四文件未夹带。
 
 实际验证命令：`mvnw -f java/pom.xml -pl case-service -am -Dtest=CustomerWorkspaceApiTest -Dsurefire.failIfNoSpecifiedTests=false test`（9过）；`-Dtest=SupportRefundApiTest,SupportApiTest#consultationCredentialCannotReadOtherRunAndOldFenceCannotReadCurrentFacts`（49过）；当前文件正则限定Spotless及package过。`python -m pytest`客服unit文件577过，最终prompt后针对30过/Ruff过；`pnpm --dir web test`299过、`pnpm --dir web build`过。未重跑无关Java全项目、整套并发/未知退款或新批量模型质量评测。
+
+记录格式补记：最终报告序列化时Windows默认CRLF导致diff-check报行尾空白，命令串未及时停止并已提交；随后的独立提交仅规范本批报告与JSON为LF并重新检查，不重写历史、不改变业务或模型证据。
