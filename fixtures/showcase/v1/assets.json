@@ -1,0 +1,160 @@
+{
+  "version": "showcase-assets-v1",
+  "date": "2026-10-29",
+  "generator": "built-in imagegen",
+  "encoding": "JPEG quality 93; original generated images retained in Codex image output; user photo unchanged",
+  "assets": [
+    {
+      "file": "fixtures\\showcase\\v1\\assistant.jpg",
+      "source": "built-in imagegen",
+      "source_sha256": "88de0e6361c05319a2888888b611b833ebe29b9e19310b5e5e7e9df48093c527",
+      "bytes": 136398,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "ddd2be550632b9bb97de258662046cc7d38d49fe89c57cb5d04021b6716f4fb1"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\store-digital.jpg",
+      "source": "built-in imagegen",
+      "source_sha256": "9695f8360a1bbce5fc2bec618ad9f3daf7c9b9b0b0aa159f6c02b4ef481ec24e",
+      "bytes": 138801,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "f385a906cee9cea83eecdee3e74bc38de37b8615c1b7f35f687c5367389ee96b"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\store-home.jpg",
+      "source": "built-in imagegen",
+      "source_sha256": "5a72049463b65309a50c56ad1b840a82b46b4a2d6ba96f9812d85c767b40b438",
+      "bytes": 115684,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "e65e77999c63400dc77ae525cf4e27aca83b35f70f37f7209c9e951c569e6514"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\store-outdoor.jpg",
+      "source": "built-in imagegen",
+      "source_sha256": "e5c9079090dc2e591ec3d6eb098eb15930cf1b9cedc12452d59ff1727950c843",
+      "bytes": 117816,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "857b9370f545f5496b32d0576c28678e551a672bd9685ee2426083270a7bd326"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\speaker-detail.jpg",
+      "source": "built-in imagegen",
+      "reference": "web/public/products/v1/speaker-black.webp",
+      "prompt": "Use case: precise-object-edit. Create a second square ecommerce gallery photo of the EXACT black cylindrical fabric bluetooth speaker in the reference. Keep its black woven grille, circular end radiator, shape and top rubber controls identical, no logos. Change viewpoint and scene only: placed on a pale oak desk in a quiet warm ivory room, speaker viewed at a slightly higher angle from the other end, soft daylight from left. Product occupies 70 percent frame, entire product visible, elegant restrained lifestyle product photography. No extra product accessories, no text, no people, no watermark. This is one additional product photo, not a grid.",
+      "source_sha256": "f333d3e981732c62ba438a9423198f75ddb2bc2ac2cf99f453be9067fab575f4",
+      "bytes": 328182,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "bdac7b5ae7a978d80c434b8e3406633fe3f08d1538fe6757a1b32c19e690d047"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\powerbank-detail.jpg",
+      "source": "built-in imagegen",
+      "reference": "web/public/products/v1/powerbank.webp",
+      "prompt": "Use case: precise-object-edit. One second square ecommerce gallery photograph of the EXACT silver powerbank in reference. Preserve slim rectangular aluminum shape, rounded corners, dark top panel, two USB-A ports and central small port with four indicator dots, same proportions and silver color. Only change camera and placement: lying flat diagonally on a warm ivory tabletop, slightly elevated three-quarter viewpoint shows top port panel and brushed silver front. Soft daylight, refined neutral product photography, object occupies 65 percent frame, entirely visible. No cables, no phone, no additional ports, no invented text, no logos, no watermarks, no collage.",
+      "source_sha256": "908b8c0183912ca4c6d93653a424551a847670ca563d6f94b5941e7849e31103",
+      "bytes": 218177,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "b9b6f5fc189611d287252a2310a6d9ac8a325bdaeda032247b84bc3bd6e6b35d"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\lamp-detail.jpg",
+      "source": "built-in imagegen",
+      "reference": "web/public/products/v1/lamp.webp",
+      "prompt": "Use case: precise-object-edit. Additional square gallery photo of the EXACT warm ivory table lamp shown in reference. Preserve its hemispherical dome shade, narrow straight single stem and flat circular base, warm light, exact silhouette and ivory finish. Change only viewpoint and setting: lamp on a pale oak bedside table against warm off-white plaster wall, soft side daylight and gentle warm glow under shade, one closed cream book beside it for scale. Full lamp visible centered, 70 percent frame, tasteful calm home editorial product photography. No people, no other lamps, no text, no logos, no watermark, no grid.",
+      "source_sha256": "1ff67682322501bcb075853461441a739b8a58b048d8376be20c6c3887cadca1",
+      "bytes": 169139,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "7264560d2dbda6eca23f38b995146fc15aa70257a7b297393a060925358b7855"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\cup-detail.jpg",
+      "source": "built-in imagegen",
+      "reference": "web/public/products/v1/cup.webp",
+      "prompt": "Use case: precise-object-edit. Second square ecommerce gallery photograph of the EXACT tall silver insulated cup shown in reference. Keep smooth cylindrical silver brushed metal body, slightly rounded bottom, flat silver screw lid and original proportions. Change only composition and camera: lay the closed cup diagonally on a warm ivory tabletop with a folded natural linen cloth underneath, overhead three-quarter view, close enough to show brushed surface and lid seam but full cup in frame. Refined soft daylight, gentle shadows. No new handles, no logos, no text, no cutaway, no extra cups, no watermark.",
+      "source_sha256": "007c95f29faf886027724207164668c1cd52958d5236578f6fe9b2840c05eb70",
+      "bytes": 378582,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "c225aa0e1ef9d22a798314354ad2e8493e7372a078e98c2ab684be373ea2f738"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\pillow-detail.jpg",
+      "source": "built-in imagegen",
+      "reference": "web/public/products/v1/pillow.webp",
+      "prompt": "Use case: precise-object-edit. Additional square product gallery photograph of the EXACT beige square linen cushion in reference. Keep its same plain woven beige fabric, shape, subtle perimeter piping, no buttons and no patterns. Scene only changes: one cushion resting against arm of a warm ivory sofa, close angled view emphasizing natural woven texture and soft corners, quiet daylight, restrained neutral room background, cushion occupies 75 percent frame. Premium home editorial photography. No other cushions, no text, no brand labels, no people, no watermark, no collage.",
+      "source_sha256": "84bcf88c6480377164c26edc3875db35925cedd6030abcf8d2d0073951b9c44a",
+      "bytes": 457109,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "92fced2ee4c523d187fe61ff9e76b03d96c6cbd1f8eda6978a71e2d1f739d12b"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\basket-detail.jpg",
+      "source": "built-in imagegen",
+      "reference": "web/public/products/v1/basket.webp",
+      "prompt": "Use case: precise-object-edit. Additional square gallery photograph of the EXACT natural woven round basket in the reference. Preserve golden straw weave, open cylindrical bowl, thick braided rim and two short loop handles. Only change viewpoint and setting: elevated three-quarter view on a warm ivory shelf, a folded cream linen cloth inside the basket, basket fully visible with handles and inside weave clear. Soft natural side light, calm home goods editorial photography. No other baskets, no plants obscuring it, no labels, no logos, no text, no watermark, no collage.",
+      "source_sha256": "f45daef1f187af5e6ec8c7b65e4400be5a52fad33bb9e606cb254b3ab542b2a6",
+      "bytes": 311560,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "f46ecc6892e60e5e46318d7f1ecfb3c9cff479022188695f80dd2dd049894926"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\tent-detail.jpg",
+      "source": "built-in imagegen",
+      "reference": "web/public/products/v1/tent.webp",
+      "prompt": "Use case: precise-object-edit. One second square ecommerce gallery photograph of the EXACT sage olive dome camping tent shown in reference. Preserve crossed-pole dome, beige inner entrance with black mesh at bottom, olive rainfly, black floor skirt and guy lines; no new windows or extra doors. Only change setting and camera: same tent pitched on a level short grass clearing, softly blurred quiet trees in background, early morning diffused daylight, slightly higher three-quarter camera from entrance side, full tent and guy lines visible with margin. Calm premium outdoor product photography, tent dominates frame. No people, no other gear, no text, no logos, no watermark.",
+      "source_sha256": "8e795cedf4c003106a9e6a70b8ada5a0f23bd4b84e3a9501a47021eaefcd676b",
+      "bytes": 426075,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "d796a7dd070d74d1c51cfcf46b3960c79aa6792dc4d39913723b3762c8fdf136"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\chair-detail.jpg",
+      "source": "built-in imagegen",
+      "reference": "web/public/products/v1/chair.webp",
+      "prompt": "Use case: precise-object-edit. Additional square gallery photograph of the EXACT black fabric folding camping chair in reference. Keep black sling backrest, fabric seat and arm rests, single mesh cup holder on left side in reference, crossed tubular black frame and foot caps, exact construction. Change only setting and viewpoint: chair placed on short green grass in quiet tree shade, camera slightly more frontal and lower, full chair including all feet visible with generous margin. Calm outdoor lifestyle photography, soft daylight, blurred natural green background. No people, no additional gear, no new chair features, no text, no logos, no watermark.",
+      "source_sha256": "a6e7bee812c532c3bf4cc2c4b0a6003dc3f56f0fc7d02d03a984358bcbf171f4",
+      "bytes": 438081,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "d05a6fe5bf401b2bf2d0b2a1c168659b6352333f2b3c8bc60948a03de2b62d5f"
+    },
+    {
+      "file": "fixtures\\showcase\\v1\\lantern-detail.jpg",
+      "source": "built-in imagegen",
+      "reference": "web/public/products/v1/lantern.webp",
+      "prompt": "Use case: precise-object-edit. Additional square product gallery photo of the EXACT olive-green rechargeable camping lantern in reference. Preserve cylindrical frosted warm glowing diffuser, rounded olive top and base, arched carry handle, one round front button and small indicator dot above. Only change scene and viewpoint: lantern standing on a natural wooden camp table at blue hour, soft blurred dark green woods behind, warm cozy glow clearly visible, full handle and base visible, product fills 65 percent frame. Premium restrained outdoor product photography, realistic lighting and materials. No other lanterns, no people, no flames, no tent added, no text, no logos, no watermark.",
+      "source_sha256": "c38f1159e707f5ccfbb310e36ce04878232bbc52cc5a6c191ee6e065237b5a2d",
+      "bytes": 190243,
+      "width": 1254,
+      "height": 1254,
+      "sha256": "a67c4f06d078b24175abaa7758e2a944dcdd6283708a61de9e5021f2f76c5a0b"
+    },
+    {
+      "file": "fixtures/showcase/v1/capybara.jpg",
+      "source": "user-supplied photograph, selected 2026-10-29; copied without visual changes",
+      "bytes": 125662,
+      "width": 899,
+      "height": 900,
+      "sha256": "20f71ab472c4a5528eb9146dbea5244a142681becb95cf76f62284339ab76393"
+    },
+    {
+      "file": "web/public/identity/v1/assistant.webp",
+      "source": "fixtures/showcase/v1/assistant.jpg",
+      "encoding": "384x384 WebP quality 90 from original generated PNG",
+      "bytes": 8234,
+      "width": 384,
+      "height": 384,
+      "sha256": "36c91a0f214b77c27f987e57918427a7b4bf0b8d4d99e5a8aa4afc2478d0099d"
+    }
+  ]
+}
