@@ -239,7 +239,13 @@ public class ShoppingService {
                 command.merchantId(),
                 command.customerId(),
                 command.idempotencyKey());
-        if (!existing.isEmpty()) return replay(existing.getFirst(), r);
+        var shipping = new CheckoutShipping(jdbc);
+        if (!existing.isEmpty()) {
+            var prior = replay(existing.getFirst(), r);
+            shipping.freeze(prior.draftId(), r.shipping(), command.shippingSnapshot(), false);
+            return prior;
+        }
+        shipping.requireSnapshot(r.shipping(), command.shippingSnapshot());
         // Lock all pricing/listing authorities; no external calls inside the transaction.
         var locked = jdbc.queryForList(
                 "SELECT k.sku_id FROM catalog_sku k JOIN catalog_product p ON p.product_id=k.product_id JOIN catalog_store s ON s.store_id=p.store_id WHERE k.sku_id=? FOR UPDATE",
@@ -279,6 +285,8 @@ public class ShoppingService {
                         command.customerId(),
                         command.idempotencyKey())
                 .getFirst();
-        return replay(finalRow, r);
+        var result = replay(finalRow, r);
+        shipping.freeze(result.draftId(), r.shipping(), command.shippingSnapshot(), true);
+        return result;
     }
 }

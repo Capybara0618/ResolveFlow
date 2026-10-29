@@ -14,11 +14,17 @@ public class CartController {
     private final CommerceShoppingClient commerce;
     private final BuyerScopes scopes;
     private final RequestPrincipalResolver principals;
+    private final com.resolveflow.caseservice.auth.AccountService accounts;
 
-    public CartController(CommerceShoppingClient commerce, BuyerScopes scopes, RequestPrincipalResolver principals) {
+    public CartController(
+            CommerceShoppingClient commerce,
+            BuyerScopes scopes,
+            RequestPrincipalResolver principals,
+            com.resolveflow.caseservice.auth.AccountService accounts) {
         this.commerce = commerce;
         this.scopes = scopes;
         this.principals = principals;
+        this.accounts = accounts;
     }
 
     private AuthenticatedPrincipal buyer(String authorization) {
@@ -80,10 +86,20 @@ public class CartController {
         var s = store(authorization, store);
         if (key == null || !key.matches("[A-Za-z0-9_-]{1,128}"))
             throw new CommerceShoppingClient.Refused(400, "INVALID_ARGUMENT", "缺少有效请求标识");
-        return commerce.cartDraft(
-                store,
-                new com.resolveflow.shared.shopping.MultiCheckoutWire.Command(
-                        s.merchantId(), s.customerId(), key, request));
+        if (request.shipping() == null) throw new CommerceShoppingClient.Refused(400, "ADDRESS_REQUIRED", "请选择收货地址");
+        try {
+            return commerce.cartDraft(
+                    store,
+                    new com.resolveflow.shared.shopping.MultiCheckoutWire.Command(
+                            s.merchantId(), s.customerId(), key, request));
+        } catch (CommerceShoppingClient.Refused e) {
+            if (!e.code.equals("SHIPPING_NOT_CAPTURED")) throw e;
+            var snapshot = accounts.shipping(principals.session(authorization), request.shipping());
+            return commerce.cartDraft(
+                    store,
+                    new com.resolveflow.shared.shopping.MultiCheckoutWire.Command(
+                            s.merchantId(), s.customerId(), key, request, snapshot));
+        }
     }
 
     @ExceptionHandler(CommerceShoppingClient.Refused.class)

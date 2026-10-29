@@ -44,6 +44,12 @@ public class MerchantTradeController {
         return commerce.merchantOrder(id, admin(auth).merchantId());
     }
 
+    @GetMapping("/api/v1/merchant/orders/{order_id}/shipping")
+    public com.resolveflow.shared.shopping.ShippingWire.View shipping(
+            @RequestHeader(name = "Authorization", required = false) String auth, @PathVariable("order_id") String id) {
+        return commerce.merchantShipping(id, admin(auth).merchantId());
+    }
+
     @PostMapping("/api/v1/merchant/orders/{order_id}/simulated-shipment")
     public Fulfillment ship(
             @RequestHeader(name = "Authorization", required = false) String auth,

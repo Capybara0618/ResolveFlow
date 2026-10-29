@@ -160,6 +160,26 @@ public class AccountService {
                 .orElseThrow(AccountService::missing);
     }
 
+    public com.resolveflow.shared.shopping.ShippingWire.Snapshot shipping(
+            Session s, com.resolveflow.shared.shopping.ShippingWire.Selection choice) {
+        if (choice == null || choice.address_id() == null || choice.expected_version() == null)
+            throw invalid("请选择收货地址");
+        return tx.execute(st -> {
+            lock(s);
+            var a = address(s, choice.address_id());
+            version(a.version(), choice.expected_version());
+            return new com.resolveflow.shared.shopping.ShippingWire.Snapshot(
+                    a.address_id(),
+                    a.version(),
+                    a.recipient(),
+                    a.phone(),
+                    a.province(),
+                    a.city(),
+                    a.district(),
+                    a.detail());
+        });
+    }
+
     public Address saveAddress(Session s, String id, EditAddress b) {
         String owner = buyer(s);
         String recipient = text(b.recipient(), 80, "收货人"),

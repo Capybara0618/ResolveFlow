@@ -11,10 +11,27 @@ import org.springframework.web.bind.annotation.*;
 public class CheckoutController {
     private final CheckoutPayments payments;
     private final PurchaseReads purchases;
+    private final CheckoutShipping shipping;
 
-    public CheckoutController(CheckoutPayments payments, PurchaseReads purchases) {
+    public CheckoutController(
+            CheckoutPayments payments, PurchaseReads purchases, org.springframework.jdbc.core.JdbcTemplate db) {
         this.payments = payments;
         this.purchases = purchases;
+        this.shipping = new CheckoutShipping(db);
+    }
+
+    @GetMapping("/purchases/{purchase}/shipping")
+    public com.resolveflow.shared.shopping.ShippingWire.View shipping(
+            @PathVariable String purchase,
+            @RequestParam("merchant_id") String merchant,
+            @RequestParam("customer_id") String customer) {
+        return shipping.buyer(purchase, merchant, customer);
+    }
+
+    @GetMapping("/orders/{order}/shipping")
+    public com.resolveflow.shared.shopping.ShippingWire.View merchantShipping(
+            @PathVariable String order, @RequestParam("merchant_id") String merchant) {
+        return shipping.merchant(order, merchant);
     }
 
     @PostMapping("/drafts/{draft_id}/payment")

@@ -89,6 +89,11 @@ public class MultiCheckoutService {
 
     private static String fingerprint(Request r, List<DraftRequest> sorted) {
         StringBuilder text = new StringBuilder().append(r.expectedRevision());
+        if (r.shipping() != null)
+            text.append("\nshipping:")
+                    .append(r.shipping().address_id())
+                    .append(':')
+                    .append(r.shipping().expected_version());
         for (var line : sorted)
             text.append('\n')
                     .append(line.skuId())
@@ -144,7 +149,12 @@ public class MultiCheckoutService {
                 .toList();
         String hash = fingerprint(r, sorted);
         var prior = replay(c, hash);
-        if (prior != null) return prior;
+        var shipping = new CheckoutShipping(jdbc);
+        if (prior != null) {
+            shipping.freeze(prior.draftId(), r.shipping(), c.shippingSnapshot(), false);
+            return prior;
+        }
+        shipping.requireSnapshot(r.shipping(), c.shippingSnapshot());
         var locked = jdbc.queryForList(
                 "SELECT revision FROM shopping_cart WHERE merchant_id=? AND customer_id=? FOR UPDATE",
                 Long.class,
@@ -152,7 +162,10 @@ public class MultiCheckoutService {
                 c.customerId());
         if (locked.isEmpty()) throw changed("CART_CHANGED", "购物车已更新，请重新读取");
         prior = replay(c, hash);
-        if (prior != null) return prior;
+        if (prior != null) {
+            shipping.freeze(prior.draftId(), r.shipping(), c.shippingSnapshot(), false);
+            return prior;
+        }
         if (locked.getFirst() != r.expectedRevision().longValue()) throw changed("CART_CHANGED", "购物车已更新，请重新读取");
         for (String sku : ids)
             jdbc.queryForList(
@@ -220,6 +233,7 @@ public class MultiCheckoutService {
                 "UPDATE shopping_cart SET revision=revision+1 WHERE merchant_id=? AND customer_id=?",
                 c.merchantId(),
                 c.customerId());
+        shipping.freeze(id, r.shipping(), c.shippingSnapshot(), true);
         return reads.read("draft:" + id, c.merchantId(), c.customerId());
     }
 }

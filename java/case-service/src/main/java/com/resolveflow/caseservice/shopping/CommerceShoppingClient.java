@@ -76,6 +76,28 @@ public class CommerceShoppingClient {
     private final RestClient rest;
     private final JwtCodec codec;
 
+    public com.resolveflow.shared.shopping.ShippingWire.View shipping(
+            String purchase, String merchant, String customer) {
+        return call(
+                rest.get()
+                        .uri(u -> u.path("/internal/v1/shop/purchases/{id}/shipping")
+                                .queryParam("merchant_id", merchant)
+                                .queryParam("customer_id", customer)
+                                .build(purchase)),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
+    public com.resolveflow.shared.shopping.ShippingWire.View merchantShipping(String order, String merchant) {
+        return call(
+                rest.get()
+                        .uri(u -> u.path("/internal/v1/shop/orders/{id}/shipping")
+                                .queryParam("merchant_id", merchant)
+                                .build(order)),
+                true,
+                new ParameterizedTypeReference<>() {});
+    }
+
     public CommerceShoppingClient(
             RestClient.Builder builder, JwtCodec codec, @Value("${resolveflow.commerce.base-url}") String base) {
         this.rest = builder.baseUrl(base).build();

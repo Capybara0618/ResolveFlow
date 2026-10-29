@@ -15,11 +15,17 @@ public class ShopController {
     private final CommerceShoppingClient commerce;
     private final RequestPrincipalResolver principals;
     private final BuyerScopes scopes;
+    private final com.resolveflow.caseservice.auth.AccountService accounts;
 
-    public ShopController(CommerceShoppingClient commerce, RequestPrincipalResolver principals, BuyerScopes scopes) {
+    public ShopController(
+            CommerceShoppingClient commerce,
+            RequestPrincipalResolver principals,
+            BuyerScopes scopes,
+            com.resolveflow.caseservice.auth.AccountService accounts) {
         this.commerce = commerce;
         this.principals = principals;
         this.scopes = scopes;
+        this.accounts = accounts;
     }
 
     @GetMapping("/stores")
@@ -64,6 +70,7 @@ public class ShopController {
             @RequestHeader(name = "Idempotency-Key", required = false) String key,
             @RequestBody DraftRequest request) {
         var p = buyer(authorization);
+        if (request.shipping() == null) throw new CommerceShoppingClient.Refused(400, "ADDRESS_REQUIRED", "请选择收货地址");
         if (key == null || !key.matches("[A-Za-z0-9_-]{1,128}"))
             throw new CommerceShoppingClient.Refused(400, "INVALID_ARGUMENT", "缺少有效的请求标识");
         // Only trusted bindings become private commands; Commerce matches the actual SKU store.
@@ -74,7 +81,15 @@ public class ShopController {
             try {
                 return commerce.create(new DraftCommand(s.merchantId(), s.customerId(), key, request));
             } catch (CommerceShoppingClient.Refused e) {
-                if (e.status != 404) throw e;
+                if (e.code.equals("SHIPPING_NOT_CAPTURED")) {
+                    var snapshot = accounts.shipping(principals.session(authorization), request.shipping());
+                    try {
+                        return commerce.create(
+                                new DraftCommand(s.merchantId(), s.customerId(), key, request, snapshot));
+                    } catch (CommerceShoppingClient.Refused retry) {
+                        if (retry.status != 404) throw retry;
+                    }
+                } else if (e.status != 404) throw e;
             }
         }
         throw new CommerceShoppingClient.Refused(404, "NOT_FOUND", "商品或订单不存在");

@@ -74,6 +74,10 @@ class ShopApiTest extends CaseDatabaseTest {
             DraftCommand c = inv.getArgument(0);
             if (!c.merchantId().equals("M-1002")) throw new CommerceShoppingClient.Refused(404, "NOT_FOUND", "missing");
             org.assertj.core.api.Assertions.assertThat(c.customerId()).isEqualTo("C-B3001-M1002");
+            if (c.shippingSnapshot() == null)
+                throw new CommerceShoppingClient.Refused(404, "SHIPPING_NOT_CAPTURED", "missing");
+            org.assertj.core.api.Assertions.assertThat(c.shippingSnapshot().recipient())
+                    .isEqualTo("测试收货人");
             return draft;
         });
         when(commerce.read(anyString(), anyString(), anyString()))
@@ -113,12 +117,41 @@ class ShopApiTest extends CaseDatabaseTest {
     @Test
     void checkoutScopeComesOnlyFromPersistedCompositeBinding() {
         String token = login("demo-buyer", "demo-pass-4001");
+        String addressText = rest.post()
+                .uri("/api/v1/account/addresses")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(java.util.Map.of(
+                        "recipient",
+                        "测试收货人",
+                        "phone",
+                        "13000000000",
+                        "province",
+                        "测试省",
+                        "city",
+                        "测试市",
+                        "district",
+                        "测试区",
+                        "detail",
+                        "测试路1号",
+                        "is_default",
+                        true))
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+        var address = new ObjectMapper().readTree(addressText);
+        var choice = new com.resolveflow.shared.shopping.ShippingWire.Selection(
+                address.get("address_id").asString(), address.get("version").asLong());
+
         rest.post()
                 .uri("/api/v1/shop/drafts?merchant_id=M-evil&customer_id=C-evil")
                 .header("Authorization", "Bearer " + token)
                 .header("Idempotency-Key", "test-key")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body("{\"sku_id\":\"SKU-2001-CREAM\",\"quantity\":2,\"expected_sku_version\":1}")
+                .body(new DraftRequest("SKU-2001-CREAM", 2, 1L, choice))
                 .exchange()
                 .expectStatus()
                 .isOk()
@@ -131,7 +164,7 @@ class ShopApiTest extends CaseDatabaseTest {
                 .doesNotExist();
         verify(commerce)
                 .create(new DraftCommand(
-                        "M-1002", "C-B3001-M1002", "test-key", new DraftRequest("SKU-2001-CREAM", 2, 1L)));
+                        "M-1002", "C-B3001-M1002", "test-key", new DraftRequest("SKU-2001-CREAM", 2, 1L, choice)));
     }
 
     @Test

@@ -63,7 +63,11 @@
   "ShopDraftRequest": {
     "sku_id": "SKU-1001-BLACK",
     "quantity": 2,
-    "expected_sku_version": 1
+    "expected_sku_version": 1,
+    "shipping": {
+      "address_id": "00000000-0000-4000-8000-000000000501",
+      "expected_version": 1
+    }
   },
   "ShopQuote": {
     "product": {

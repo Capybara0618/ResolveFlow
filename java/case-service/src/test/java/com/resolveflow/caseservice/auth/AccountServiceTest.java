@@ -77,6 +77,28 @@ class AccountServiceTest extends CaseDatabaseTest {
     }
 
     @Test
+    void shippingRequiresAnOwnedCurrentAddressAndFreezesItsContents() {
+        var owner = session("profile-test-one");
+        var a = service.saveAddress(owner, null, address(true, null));
+        var selection = new com.resolveflow.shared.shopping.ShippingWire.Selection(a.address_id(), a.version());
+        var frozen = service.shipping(owner, selection);
+        assertThatThrownBy(() -> service.shipping(session("profile-test-two"), selection))
+                .isInstanceOf(Refused.class);
+        var changed = service.saveAddress(
+                owner,
+                a.address_id(),
+                new AccountService.EditAddress("新收货人", "13000000001", "测试省", "测试市", "测试区", "新地址", true, a.version()));
+        assertThatThrownBy(() -> service.shipping(owner, selection)).isInstanceOf(Refused.class);
+        assertThat(frozen.recipient()).isEqualTo(a.recipient());
+        service.deleteAddress(owner, changed.address_id(), changed.version());
+        assertThatThrownBy(() -> service.shipping(
+                        owner,
+                        new com.resolveflow.shared.shopping.ShippingWire.Selection(
+                                changed.address_id(), changed.version())))
+                .isInstanceOf(Refused.class);
+    }
+
+    @Test
     void concurrentDefaultCreatesSerializeOnTheAccount() throws Exception {
         var s = session("profile-test-one");
         try (var pool = Executors.newFixedThreadPool(2)) {

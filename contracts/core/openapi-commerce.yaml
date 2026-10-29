@@ -2311,7 +2311,10 @@ components:
       required:
       - expected_revision
       - lines
+      - shipping
       properties:
+        shipping:
+          $ref: '#/components/schemas/ShippingSelection'
         expected_revision:
           type: integer
           minimum: 0
@@ -2322,7 +2325,7 @@ components:
           maxItems: 20
           uniqueItems: true
           items:
-            $ref: '#/components/schemas/ShopDraftRequest'
+            $ref: '#/components/schemas/CartDraftLine'
     CartQuoteLine:
       type: object
       additionalProperties: false
@@ -2434,6 +2437,8 @@ components:
       - idempotency_key
       - request
       properties:
+        shipping_snapshot:
+          $ref: '#/components/schemas/ShippingSnapshot'
         merchant_id:
           type: string
           pattern: ^[A-Za-z0-9_-]{1,64}$
@@ -3096,7 +3101,7 @@ components:
           type: integer
           minimum: 1
           maximum: 100
-    ShopDraftRequest:
+    CartDraftLine:
       type: object
       additionalProperties: false
       required:
@@ -3104,6 +3109,30 @@ components:
       - quantity
       - expected_sku_version
       properties:
+        sku_id:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]+$
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        expected_sku_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    ShopDraftRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - sku_id
+      - quantity
+      - expected_sku_version
+      - shipping
+      properties:
+        shipping:
+          $ref: '#/components/schemas/ShippingSelection'
         sku_id:
           type: string
           minLength: 1
@@ -3233,6 +3262,8 @@ components:
       - idempotency_key
       - request
       properties:
+        shipping_snapshot:
+          $ref: '#/components/schemas/ShippingSnapshot'
         merchant_id:
           type: string
           minLength: 1
@@ -4208,5 +4239,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PlatformBuyer'
+    ShippingSelection:
+      type: object
+      additionalProperties: false
+      required: [address_id, expected_version]
+      properties:
+        address_id:
+          type: string
+          format: uuid
+        expected_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+    ShippingSnapshot:
+      type: object
+      additionalProperties: false
+      required: [address_id, version, recipient, phone, province, city, district, detail]
+      properties:
+        address_id: {type: string, format: uuid}
+        version: {type: integer, minimum: 1}
+        recipient: {type: string, maxLength: 80}
+        phone: {type: string, maxLength: 32}
+        province: {type: string, maxLength: 80}
+        city: {type: string, maxLength: 80}
+        district: {type: string, maxLength: 80}
+        detail: {type: string, maxLength: 300}
+
+
 security:
   - serviceToken: []

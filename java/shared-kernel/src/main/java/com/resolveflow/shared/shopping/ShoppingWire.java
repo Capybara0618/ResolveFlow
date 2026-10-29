@@ -37,7 +37,14 @@ public final class ShoppingWire {
     public record DraftRequest(
             @JsonProperty("sku_id") String skuId,
             Integer quantity,
-            @JsonProperty("expected_sku_version") Long expectedSkuVersion) {}
+            @JsonProperty("expected_sku_version") Long expectedSkuVersion,
+
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            ShippingWire.Selection shipping) {
+        public DraftRequest(String skuId, Integer quantity, Long expectedSkuVersion) {
+            this(skuId, quantity, expectedSkuVersion, null);
+        }
+    }
 
     public record Quote(
             Product product,
@@ -67,5 +74,13 @@ public final class ShoppingWire {
             @JsonProperty("merchant_id") String merchantId,
             @JsonProperty("customer_id") String customerId,
             @JsonProperty("idempotency_key") String idempotencyKey,
-            DraftRequest request) {}
+            DraftRequest request,
+
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            @JsonProperty("shipping_snapshot")
+            ShippingWire.Snapshot shippingSnapshot) {
+        public DraftCommand(String merchantId, String customerId, String idempotencyKey, DraftRequest request) {
+            this(merchantId, customerId, idempotencyKey, request, null);
+        }
+    }
 }

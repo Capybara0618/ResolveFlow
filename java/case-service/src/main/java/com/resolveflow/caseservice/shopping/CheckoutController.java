@@ -18,6 +18,13 @@ public class CheckoutController {
     private final BuyerScopes scopes;
     private final BuyerPurchaseService purchases;
 
+    @GetMapping("/purchases/{purchase_id}/shipping")
+    public com.resolveflow.shared.shopping.ShippingWire.View shipping(
+            @RequestHeader(name = "Authorization", required = false) String auth,
+            @PathVariable("purchase_id") String id) {
+        return owned(buyer(auth), s -> commerce.shipping(id, s.merchantId(), s.customerId()));
+    }
+
     public CheckoutController(
             CommerceShoppingClient commerce,
             RequestPrincipalResolver principals,

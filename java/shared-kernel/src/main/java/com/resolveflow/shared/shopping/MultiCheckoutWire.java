@@ -11,13 +11,30 @@ public final class MultiCheckoutWire {
             @JsonProperty("expected_revision") Long expectedRevision,
             @JsonProperty("sku_ids") List<String> skuIds) {}
 
-    public record Request(@JsonProperty("expected_revision") Long expectedRevision, List<DraftRequest> lines) {}
+    public record Request(
+            @JsonProperty("expected_revision") Long expectedRevision,
+            List<DraftRequest> lines,
+
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            ShippingWire.Selection shipping) {
+        public Request(Long expectedRevision, List<DraftRequest> lines) {
+            this(expectedRevision, lines, null);
+        }
+    }
 
     public record Command(
             @JsonProperty("merchant_id") String merchantId,
             @JsonProperty("customer_id") String customerId,
             @JsonProperty("idempotency_key") String idempotencyKey,
-            Request request) {}
+            Request request,
+
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            @JsonProperty("shipping_snapshot")
+            ShippingWire.Snapshot shippingSnapshot) {
+        public Command(String merchantId, String customerId, String idempotencyKey, Request request) {
+            this(merchantId, customerId, idempotencyKey, request, null);
+        }
+    }
 
     public record QuoteCommand(
             @JsonProperty("merchant_id") String merchantId,
