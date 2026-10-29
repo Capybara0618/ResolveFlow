@@ -17,6 +17,22 @@ function inputs() {
 }
 
 describe('merchant detail design and permissions', () => {
+  it('makes verification the current step and keeps alternatives available behind one disclosure', async () => {
+    const props = inputs()
+    props.snapshot.authorization = undefined
+    props.snapshot.proposal!.recommended_action = 'MANUAL_REVIEW'
+    props.snapshot.evidence = [{ observation_id: 'statement-1', evidence_kind: 'CUSTOMER_STATEMENT', content: '没有收到商品' }]
+    props.context.allowed_actions = ['MANUAL_PROPOSAL', 'REQUEST_INFO', 'REJECT']
+    const w = mount(MerchantCaseDetail, { props })
+    expect(w.get('.merchant-detail-heading .status-tag').text()).toBe('待核验')
+    expect(w.get<HTMLDetailsElement>('.merchant-alternative-actions').element.open).toBe(false)
+    expect(w.find('[data-test="approve"]').exists()).toBe(false)
+    expect(w.get('[data-test="verify-application"]').text()).toBe('核验申请陈述')
+    await w.get('.merchant-alternative-actions summary').trigger('click')
+    expect(w.find('[data-test="manual-proposal"]').exists()).toBe(true)
+    w.unmount()
+  })
+
   beforeEach(() => vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ case_version: 7, input_revision: 2, availability: 'NOT_SCHEDULED', investigation: null })))))
 
   it('opens the confirmed customer statement for verification without granting refund approval', async () => {
@@ -24,7 +40,7 @@ describe('merchant detail design and permissions', () => {
     props.snapshot.proposal = { origin: 'AGENT', status: 'VALIDATED', input_revision: 2, recommended_action: 'MANUAL_REVIEW', summary: '承运丢失记录已查，等待商家核验客户陈述。', policy_refs: [{ rule_id: 'lost' }] }
     props.snapshot.evidence = [{ observation_id: 'claim-1', evidence_kind: 'CUSTOMER_STATEMENT', content: '本人未收到商品，请核实后退款。', input_revision: 1 }]
     const wrapper = mount(MerchantCaseDetail, { props, slots: { materials: '<p>本人未收到商品，等待核验</p>' } })
-    expect(wrapper.get('.merchant-advice-title').text()).toContain('等待商家核验')
+    expect(wrapper.get('.merchant-detail-heading .status-tag').text()).toBe('待核验')
     expect(wrapper.find('[data-test="approve"]').exists()).toBe(false)
     await wrapper.get('[data-test="verify-application"]').trigger('click')
     expect(wrapper.get('[aria-label="详细依据"]').text()).toContain('本人未收到商品，等待核验')

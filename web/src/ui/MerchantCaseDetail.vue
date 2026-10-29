@@ -47,6 +47,9 @@ const awaitingVerification = computed(() => !currentFailure.value && !stale.valu
   && proposal.value?.status === 'VALIDATED' && proposal.value.recommended_action === 'MANUAL_REVIEW')
 const unverifiedStatement = computed(() => props.snapshot.evidence.some(item => item.evidence_kind === 'CUSTOMER_STATEMENT'
   && !props.snapshot.evidence.some(check => check.reviewed_evidence_id === item.observation_id && check.verification_result)))
+const verificationAction = computed(() => (awaitingVerification.value || currentFailure.value) && unverifiedStatement.value && !frozen.value)
+const reviewStage = computed(() => frozen.value ? props.statusLabel : stale.value || oldAuthorization.value ? '待重新核对'
+  : verificationAction.value ? '待核验' : currentFailure.value ? '需人工核查' : canReview.value ? '待你审批' : props.statusLabel)
 const advice = computed(() => currentFailure.value ? '本次调查未完成' : stale.value ? '旧建议已失效'
   : awaitingVerification.value ? '等待商家核验' : actionLabels[String(proposal.value?.recommended_action)] || '等待调查建议')
 type Finding = { kind: string; text: string }
@@ -89,7 +92,7 @@ async function focusPolicy(key: string) {
   <section id="case-panel" class="merchant-detail-v4" aria-label="工单内容" :aria-busy="busy">
     <header class="merchant-detail-heading">
       <button type="button" class="text-button" data-test="back-to-list" :disabled="busy" @click="emit('back')">返回工单列表</button>
-      <h2>退款申请</h2><span class="status-tag" :class="{ waiting: snapshot.case.status === 'PENDING_REVIEW', success: snapshot.case.status === 'CLOSED_SUCCESS' }">{{ statusLabel }}</span>
+      <h2>退款申请</h2><span class="status-tag" :class="{ waiting: snapshot.case.status === 'PENDING_REVIEW', success: snapshot.case.status === 'CLOSED_SUCCESS' }">{{ reviewStage }}</span>
     </header>
     <section class="merchant-detail-card merchant-product" aria-label="商品与订单">
       <div class="merchant-product-row">
@@ -107,7 +110,7 @@ async function focusPolicy(key: string) {
         </section>
         <section class="merchant-detail-card merchant-advice" aria-label="调查建议">
           <div class="merchant-section-heading"><h3>{{ proposal?.origin === 'HUMAN' ? '人工方案' : '调查建议' }}</h3>
-            <div class="merchant-advice-title" :class="{ 'needs-attention': stale || currentFailure || awaitingVerification }"><strong>{{ advice }}</strong></div></div>
+            <div v-if="!verificationAction" class="merchant-advice-title" :class="{ 'needs-attention': stale || currentFailure || awaitingVerification }"><strong>{{ advice }}</strong></div></div>
           <template v-if="!stale && !currentFailure">
             <details v-if="typeof proposal?.summary === 'string' || reasons.length" :key="`${snapshot.case.case_id}:${snapshot.case.input_revision}`" class="merchant-full-advice">
               <summary>完整{{ proposal?.origin === 'HUMAN' ? '方案理由' : '调查建议' }}</summary>
@@ -127,13 +130,15 @@ async function focusPolicy(key: string) {
         </section>
       </div>
       <aside class="merchant-detail-card merchant-treatment" aria-label="退款处理">
-        <h3>退款处理</h3><p>{{ context?.execution?.amount_minor != null ? '退款金额' : '申请退款' }}</p>
+        <h3>{{ canReview ? '审核退款' : frozen ? '处理结果' : '下一步处理' }}</h3><p>{{ context?.execution?.amount_minor != null ? '退款金额' : '申请退款' }}</p>
         <strong class="merchant-treatment-amount">{{ amount !== null ? formatMinorUnits(amount, line?.currency || 'CNY') : '金额待核对' }}</strong>
         <p v-if="executionText" class="merchant-result" :class="{ 'merchant-warning': unknown || context?.execution?.outcome === 'FAILED' }" role="status">{{ executionText }}</p>
         <p v-if="oldAuthorization" class="merchant-warning">退款授权已失效，请等待重新核对。</p>
         <p v-if="contextLoading" class="muted">正在核对可用操作…</p>
         <p v-if="contextError" class="merchant-warning" role="alert">{{ contextError }}</p>
-        <button v-if="(awaitingVerification || currentFailure) && unverifiedStatement && !frozen" data-test="verify-application" type="button" :disabled="busy" @click="openDetails">核验申请陈述</button>
+        <p v-if="context?.blocked_reason" class="merchant-warning" role="status">{{ context.blocked_reason }}</p>
+        <p v-if="canReview" class="merchant-next-step">核对申请金额和依据后，决定是否批准退款。</p>
+        <button v-if="verificationAction" data-test="verify-application" type="button" :disabled="busy" @click="openDetails">核验申请陈述</button>
         <section v-if="canReview" class="review-section" aria-label="审核操作">
           <div class="actions">
             <button data-test="approve" type="button" :disabled="busy" @click="emit('review', 'APPROVE')">批准退款</button>
@@ -142,7 +147,7 @@ async function focusPolicy(key: string) {
           </div><p class="muted">批准后执行模拟退款</p>
         </section>
         <p v-else-if="!executionText && !contextLoading && !contextError" class="review-unavailable muted">{{ snapshot.authorization?.status === 'CONSUMED' ? '退款已处理，不能再次审批。' : '当前不能直接批准退款，请核对材料与政策。' }}</p>
-        <ReviewerWorkspace mode="actions" :line="line" :token="token" :snapshot="snapshot" :context="context" :collaboration="collaboration" :busy="busy || !actionsAvailable" @changed="emit('refresh')" @working="emit('working', $event)" @expired="emit('expired')" />
+        <details v-if="context?.allowed_actions.length" class="merchant-alternative-actions" :open="!verificationAction && !canReview"><summary>其他处理方式</summary><ReviewerWorkspace mode="actions" :line="line" :token="token" :snapshot="snapshot" :context="context" :collaboration="collaboration" :busy="busy || !actionsAvailable" @changed="emit('refresh')" @working="emit('working', $event)" @expired="emit('expired')" /></details>
       </aside>
     </div>
     <button class="merchant-details-link text-button" type="button" :aria-expanded="detailsOpen" aria-controls="merchant-detail-evidence" @click="detailsOpen = !detailsOpen"><Icon name="file" :size="18" /><span>详细材料与处理记录</span><small>{{ detailsOpen ? '收起' : '展开' }}</small></button>

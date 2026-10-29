@@ -70,6 +70,11 @@
 .merchant-review-workbench .merchant-warning { background: #fff6e7; border-radius: 6px; padding: 10px 12px; color: #805a27; }
 .merchant-review-workbench .merchant-advice .investigation-sources { padding: 0; border: 0; }
 .merchant-review-workbench .merchant-advice .investigation-sources p { font-size: 14px; color: #69766b; margin: 8px 0; }
+.merchant-review-workbench .merchant-advice .investigation-sources .source-unavailable { padding: 10px 12px; border-radius: 6px; color: #805a27; background: #fff6e7; }
+.merchant-review-workbench .merchant-next-step { font-size: 14px; color: #526659; line-height: 1.7; }
+.merchant-review-workbench .merchant-alternative-actions { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e3e8e0; }
+.merchant-review-workbench .merchant-alternative-actions summary { color: #526659; font-size: 13px; cursor: pointer; }
+.merchant-review-workbench .merchant-alternative-actions .handoff-actions { margin-bottom: 0; }
 .merchant-review-workbench .merchant-source-entry { display: flex; width: 100%; justify-content: start; padding: 6px 0; gap: 10px; }
 .merchant-review-workbench .merchant-source-entry span { flex: 1; text-align: left; }
 .merchant-review-workbench .merchant-advice .citation-block { margin: 6px 0 0; }

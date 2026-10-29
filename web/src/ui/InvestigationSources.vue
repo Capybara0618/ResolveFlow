@@ -52,9 +52,9 @@ function facts(item: NonNullable<InvestigationView['investigation']>['observatio
   <section class="investigation-sources" aria-label="调查原始记录">
     <template v-if="summaryOnly">
       <p v-if="loading">正在读取调查来源…</p>
-      <p v-else-if="error" role="status">{{ error }}<button type="button" @click="reload">重试</button></p>
-      <p v-else-if="view?.availability === 'NOT_SCHEDULED'">当前材料没有关联调查记录。</p>
-      <p v-else-if="view?.availability === 'UNAVAILABLE'">调查记录暂不可用，请结合原始材料核对。</p>
+      <p v-else-if="error" class="source-unavailable" role="status">{{ error }}<button type="button" @click="reload">重试</button></p>
+      <p v-else-if="view?.availability === 'NOT_SCHEDULED'" class="source-unavailable">当前材料没有关联调查记录。</p>
+      <p v-else-if="view?.availability === 'UNAVAILABLE'" class="source-unavailable">调查记录暂不可用，请结合原始材料核对。</p>
       <template v-else-if="view?.investigation">
         <p>{{ view.investigation.model_provider === 'mock' ? 'mock 合成建议' : view.investigation.model_provider ? '真实模型建议' : '模型来源未记录' }} · {{ statusLabels[view.investigation.status] || view.investigation.status }}</p>
         <p v-if="view.investigation.truncated || view.investigation.observations.some(item => item.error_code || item.body_omitted)">调查记录有缺失或读取失败，请核对详细依据。</p>

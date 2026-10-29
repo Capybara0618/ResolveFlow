@@ -281,7 +281,7 @@ onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); wind
           </header>
           <div v-if="merchant" class="support-chat-tabs"><button :class="{ current: !historyTab }" @click="historyTab = false">客户沟通</button><button :class="{ current: historyTab }" @click="historyTab = true">消息记录</button></div>
 
-          <div ref="messagePane" class="support-messages" :role="historyTab ? undefined : 'log'" aria-label="咨询消息记录" @scroll="reading">
+          <div ref="messagePane" class="support-messages" tabindex="0" :role="historyTab ? undefined : 'log'" aria-label="咨询消息记录" @scroll="reading">
             <button v-if="selected.next_before_sequence" class="support-older" :disabled="loading" @click="older">读取更早消息</button>
             <section v-if="selected.ticket" class="support-ticket"><Icon name="file" :size="22" /><div><h3>{{ merchant ? '客户已确认转交' : '已转交商家核查' }}</h3><p>{{ selected.ticket.summary }}</p><small>{{ merchant ? '以下为客户确认共享的内容及后续核查消息。' : '商家仅能查看你确认共享的内容。' }}</small></div></section>
             <template v-if="merchant && !historyTab"><div v-if="selected.ticket?.shared_messages.length" class="support-date-divider">客户共享原文</div><article v-for="m in selected.ticket?.shared_messages" :key="m.message_id" class="support-message shared-original"><span class="support-avatar customer"><Icon name="user" /></span><div class="support-message-content"><div class="support-message-bubble"><p>{{ m.text }}</p></div><small class="support-message-meta">客户共享原文 · {{ stamp(m.created_at, true) }}</small></div></article></template>
