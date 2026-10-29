@@ -233,10 +233,25 @@ class ProposalVerifier:
             confirmed = self._confirmed_material(successful)
             if (not paid or not confirmed or occupied or conflicting_delivery or ("R-LOST-001" in rules and not lost)
                     or ("R-DMG-001" in rules and not delivered)):
+                gaps: list[str] = []
+                if not paid:
+                    gaps.append("get_order_context: 未引用当前已付、FREE且余额足够的订单行")
+                if not confirmed:
+                    gaps.append("get_case_evidence: 未引用本revision登记且关联客户材料的CONFIRMED核验")
+                if occupied:
+                    gaps.append("get_refund_status: 当前失败、未知或占用，不能建议退款，需人工核对")
+                if conflicting_delivery:
+                    gaps.append("get_shipment_trace: 当前读取与送达条件冲突或失败，不能忽略")
+                if "R-LOST-001" in rules and not lost:
+                    traces = [item for item in latest.values() if item.tool_name == "get_shipment_trace"]
+                    state = ("未读取" if not traces else "已读取但未引用当前成功来源"
+                             if not bodies else "已引用但未确立承运LOST且无有效签收")
+                    gaps.append(f"get_shipment_trace: {state}；订单履约和核验陈述不能替代承运来源")
+                if "R-DMG-001" in rules and not delivered:
+                    gaps.append("get_order_context/get_shipment_trace: 未引用已送达事实")
                 refusals.append(CitationRefusal(
                     INVESTIGATION_FACTS_REQUIRED,
-                    "退款须引用当前已付可退订单及get_case_evidence外层核验；丢失另需承运LOST，质量需送达。"
-                    "核验须关联本案客户材料并为CONFIRMED；缺口补查或转人工",
+                    "；".join(gaps) + "。缺失来源可补查并引用；条件不满足或冲突则转人工，不据此拒绝整个申请",
                 ))
         if recommended_action == "REJECT":
             if not evidence_refs or not policy_refs:

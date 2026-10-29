@@ -5,8 +5,8 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from resolveflow.harness.verifier import ProposalVerifier
 
+from resolveflow.harness.verifier import ProposalVerifier
 from tests.unit.test_harness_loop import observation
 from tests.unit.test_proposal_verifier import BUNDLE, RULE, search
 
@@ -53,6 +53,31 @@ def test_procedural_clause_cannot_substitute_for_refund_entitlement(rule):
 def test_order_or_snapshot_alone_cannot_replace_missing_loss_source(name):
     result = verify(scenario(), omitted=(name,))
     assert not result.ok and "INVESTIGATION_FACTS_REQUIRED" in result.reason_codes
+
+
+def test_loss_feedback_identifies_missing_carrier_without_claiming_confirmation_is_missing():
+    result = verify(scenario(), omitted=("get_shipment_trace",))
+    detail = next(r.detail for r in result.refusals if r.reason_code == "INVESTIGATION_FACTS_REQUIRED")
+    assert "get_shipment_trace" in detail and "未读取" in detail
+    assert "get_case_evidence" not in detail
+
+
+def test_loss_feedback_distinguishes_read_conflict_from_missing_source():
+    case = scenario()
+    case["backend"]["shipment"].update(status="IN_TRANSIT", carrier_conclusion="UNKNOWN")
+    result = verify(case)
+    detail = next(r.detail for r in result.refusals if r.reason_code == "INVESTIGATION_FACTS_REQUIRED")
+    assert "get_shipment_trace" in detail and "未确立" in detail
+    assert "未读取" not in detail
+
+
+def test_loss_feedback_reports_only_missing_registered_confirmation():
+    case = scenario()
+    case["review_context"]["materials"][-1]["verification_result"] = "INCONCLUSIVE"
+    result = verify(case)
+    detail = next(r.detail for r in result.refusals if r.reason_code == "INVESTIGATION_FACTS_REQUIRED")
+    assert "get_case_evidence" in detail and "CONFIRMED" in detail
+    assert "get_shipment_trace" not in detail
 
 
 @pytest.mark.parametrize("mutation", ["unknown", "different_target", "different_hash", "different_case",
