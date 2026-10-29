@@ -660,7 +660,8 @@ def _protected_policy(hit: Any) -> dict[str, str] | None:
         return None
     if any(not isinstance(hit.get(key), str) or not hit[key] for key in POLICY_PROTECTED_FIELDS):
         return None
-    return {key: hit[key] for key in POLICY_PROTECTED_FIELDS}
+    return {key: hit[key] for key in POLICY_PROTECTED_FIELDS} | (
+        {"title": hit["title"]} if isinstance(hit.get("title"), str) and hit["title"] else {})
 
 
 def _investigation_progress(observations: list[ToolObservation]) -> str:
@@ -715,6 +716,9 @@ def _domain_guidance(observations: list[ToolObservation], snapshot: dict[str, An
         rules.append("物流NOT_FOUND≠未发货；DELIVERED≠客户确认。")
     if "search_policy" in tools:
         rules.append("无候选≠无退款权；条款不适用≠拒绝申请。说明适用条件和例外。")
+        rules.append("按条款原文及标题辨别适用范围，不能扩大条款的适用对象或情形；"
+                     "损坏、丢失、在途和签收争议不能相互套用。完整小集是候选而非全部适用。"
+                     "未找到适用依据时继续检索或明确缺口转人工，不借其他条款支持结论。")
         rule_ids = {hit.get("rule_id") for item in observations if item.tool_name == "search_policy"
                     for hit in (item.result or {}).get("hits", []) if isinstance(hit, dict)}
         if rule_ids & {"R-LOST-001", "R-DMG-001"}:

@@ -17,6 +17,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 import pytest
+
 from resolveflow.harness.budget import RunBudget
 from resolveflow.harness.control import REASON_POLICY_INDEX_UNAVAILABLE
 from resolveflow.harness.model import MockModelClient
@@ -24,7 +25,6 @@ from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.vocabulary import RunFacts
 from resolveflow.policies import PolicyIndex, ServedBundle
 from resolveflow.runtime.db import Database
-
 from tests.conftest import input_text_of
 
 BUNDLE = ServedBundle(
@@ -183,6 +183,18 @@ def test_a_search_spends_a_local_read_and_a_search_attempt(
     assert result.spend.local_reads == 1  # type: ignore[attr-defined]
 
 
+def test_small_bound_set_reaches_investigation_whole_even_when_topk_is_one(index, stub_embedder):
+    model = MockModelClient(script=[search("普通在途", top_k=1), propose()])
+    result = run(index, model, stub_embedder)
+    observation = result.observations[0]
+    assert observation.result["retrieval_context"] == {"mode": "COMPLETE_SMALL_SET", "count": 2}
+    assert {hit["rule_id"] for hit in observation.result["hits"]} == {"R-LOST-001", "R-SIGNED-001"}
+    sent = input_text_of(model, 1)
+    assert all(rule["text"] in sent and rule["title"] in sent for rule in BUNDLE.rules)
+    assert "不能扩大条款的适用对象或情形" in sent
+    assert result.spend.local_reads == 1 and result.spend.tool_attempts == 1
+
+
 def test_the_budget_position_reaches_the_client_but_not_the_provider_request(
     index: PolicyIndex, stub_embedder: object
 ) -> None:
@@ -297,9 +309,24 @@ def test_the_model_cannot_choose_which_merchant_or_version_is_searched(
 
 
 def test_encoder_mismatch_becomes_named_safe_handover(index, stub_embedder):
+    # A complete small-set read does not use an encoder. Exercise the ranked path
+    # with a genuinely larger policy rather than requiring irrelevant embedding.
+    index.build(replace(BUNDLE, rules=[{**BUNDLE.rules[0], "rule_id": f"large-{i}"}
+                                      for i in range(9)]), embedder=stub_embedder)
     model = MockModelClient(script=[search("物流没送到")])
     result = run(index, model, replace(stub_embedder, revision="mismatched-query-model"))
     assert result.completed is False
     assert result.reason_code == REASON_POLICY_INDEX_UNAVAILABLE
     assert model.calls == 1
     assert not result.observations
+
+
+def test_large_set_keeps_dense_topk_and_original_rule_bytes(index, stub_embedder):
+    rules = [{**BUNDLE.rules[0], "rule_id": f"large-{i}"} for i in range(9)]
+    index.build(replace(BUNDLE, rules=rules), embedder=stub_embedder)
+    model = MockModelClient(script=[search("丢失", top_k=1), propose()])
+    result = run(index, model, stub_embedder)
+    observation = result.observations[0]
+    assert observation.result["retrieval_context"] == {"mode": "RANKED"}
+    assert len(observation.result["hits"]) == 1
+    assert observation.result["hits"][0]["text"] == BUNDLE.rules[0]["text"]

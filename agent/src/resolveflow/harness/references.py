@@ -60,7 +60,8 @@ class ReferenceCatalog:
     def policy(self, hit: dict[str, Any]) -> dict[str, Any]:
         alias = self._policies[tuple(hit[k] for k in POLICY_FIELDS)]
         self.references[alias] = {"kind": "policy", "ref": {k: hit[k] for k in POLICY_FIELDS}}
-        return {"ref": alias, **{k: hit[k] for k in ("bundle_id", "version", "rule_id", "text")}}
+        return {"ref": alias, **{k: hit[k] for k in ("bundle_id", "version", "rule_id", "text")},
+                **({"title": hit["title"]} if hit.get("title") else {})}
 
     def read_alias(self, observation_id: str) -> str:
         return next((key for key, value in self.read_ids.items() if value == observation_id), observation_id)

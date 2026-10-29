@@ -300,17 +300,24 @@ class PolicySearchBridge(LocalReadBridge):
         query = str(kwargs.get("query") or "")
         top_k = kwargs.get("top_k")
         pinned = self._facts.policy_manifest
-        hits = self._index.search(
+        scope = dict(
             merchant_id=str(pinned.get("merchant_id") or self._facts.merchant_id or ""),
             bundle_ids=[str(bundle) for bundle in (pinned.get("bundle_ids") or [])],
             manifest_hash=str(pinned.get("manifest_hash") or ""),
-            query=query,
-            path="dense",
-            top_k=int(top_k) if isinstance(top_k, int) and not isinstance(top_k, bool) else MAX_POLICY_TOP_K,
-            embedder=self._embedder,
             **({"generation_ids": self._generation_ids} if self._generation_ids is not None else {}),
         )
-        return _policy_observation(hits, self._facts, query, self._now())
+        # Use the same bounded, pinned complete read as consultation. No new lookup,
+        # ranking or eligibility inference: large sets retain the existing dense path.
+        hits = self._index.small_context(**scope) if self._generation_ids is not None else None
+        complete = hits is not None
+        if hits is None:
+            hits = self._index.search(**scope, query=query, path="dense",
+                top_k=int(top_k) if isinstance(top_k, int) and not isinstance(top_k, bool) else MAX_POLICY_TOP_K,
+                embedder=self._embedder)
+        observation = _policy_observation(hits, self._facts, query, self._now())
+        observation.result["retrieval_context"] = ({"mode": "COMPLETE_SMALL_SET", "count": len(hits)}
+                                                   if complete else {"mode": "RANKED"})
+        return observation
 
     def trajectory_detail(self) -> dict[str, Any]:
         observation = getattr(self, "_last_observation", None)
