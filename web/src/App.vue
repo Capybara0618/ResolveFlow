@@ -25,6 +25,7 @@ import './ui/workbench.css'
 import './ui/admin-workspace.css'
 import './ui/aftercare.css'
 import './ui/merchant-review.css'
+import './ui/interface.css'
 import AftercareProduct from './ui/AftercareProduct.vue'
 import MerchantCaseDetail from './ui/MerchantCaseDetail.vue'
 import { useAftercareProducts } from './ui/aftercare-products'
@@ -511,25 +512,25 @@ onUnmounted(() => { stopStream(); products.reset() })
 </script>
 
 <template>
-  <div class="workbench" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor, 'aftercare-workbench': isSingleMerchant, 'merchant-review-workbench': isSingleMerchant && merchantPage === 'review' }">
+  <div class="workbench unified-interface" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor, 'aftercare-workbench': isSingleMerchant, 'merchant-review-workbench': isSingleMerchant && merchantPage === 'review' }">
     <header v-if="!((!account && shopVisitor) || account?.buyer_id)" class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
       <span class="demo-tag">{{ account?.buyer_id || shopVisitor ? '本地演示 · 合成商品与模拟交易' : '合成数据 · 模拟退款' }}</span>
       <div v-if="account" class="session"><span class="avatar">{{ account.display_name?.trim().slice(0, 1) || (isReviewer ? '审' : '客') }}</span><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后专员' : '客户工作台') }}</strong><small>{{ account.role === 'PLATFORM_ADMIN' ? '平台管理员' : account.buyer_id ? '平台买家' : `${account.merchant_name || account.merchant_id} · ${account.role === 'MERCHANT_ADMIN' ? (isSingleMerchant ? '商家' : '商家管理员') : account.role === 'REVIEWER' ? '售后专员' : account.role === 'OPERATOR' ? '兼容运维账号' : '客户'}` }}</small></span>
-        <button type="button" class="text-button logout-button" @click="logout">退出<Icon name="arrow" :size="15" /></button></div>
+        <button type="button" class="text-button logout-button" @click="logout">退出</button></div>
     </header>
     <MarketplaceWorkspace v-if="!account && shopVisitor" :account="null" @login="shopLogin" />
     <main v-else-if="!account" class="login-stage">
-      <div class="login-intro"><span class="login-symbol"><Icon name="shield" :size="38" /></span><p class="eyebrow">RESOLVE WITH CONFIDENCE</p><h1>每一次售后，<br />都有据可循。</h1><p>从客户诉求到调查建议，<br />让证据、判断与处理进展清晰可见。</p><div class="login-features"><span><Icon name="file" />证据可追溯</span><span><Icon name="shield" />人工审核</span><span><Icon name="clock" />进展可查看</span></div></div>
+      <div class="login-intro"><h1>每一次售后，<br />都有据可循。</h1><p>从客户诉求到处理结果，<br />清楚了解每一步进展。</p></div>
       <form class="panel login-panel" @submit.prevent="login">
-        <p class="eyebrow">欢迎使用 ResolveFlow</p><h2>登录工作台</h2>
+        <h2>登录工作台</h2>
         <p class="muted">使用本地演示账户，继续处理售后事务。</p>
         <label>用户名 <input v-model="username" name="username" autocomplete="username" placeholder="请输入用户名" /></label>
         <label>密码 <input v-model="password" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" /></label>
-        <button data-test="login" type="submit" :disabled="busy">{{ busy ? '正在登录…' : '登录工作台' }}<Icon name="arrow" :size="17" /></button>
+        <button data-test="login" type="submit" :disabled="busy">{{ busy ? '正在登录…' : '登录工作台' }}</button>
         <p v-if="error" class="message error" role="alert">{{ error }}</p>
         <small class="login-note"><Icon name="shield" :size="14" />数据与操作范围由账户身份决定</small>
-        <a href="#/shop">先逛逛商城 →</a>
+        <a href="#/shop">先逛逛商城</a>
       </form>
     </main>
     <PlatformWorkspace v-else-if="account.role === 'PLATFORM_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />

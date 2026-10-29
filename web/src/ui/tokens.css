@@ -1,17 +1,24 @@
 @import '/src/ui/display-typography.css';
 
 :root {
-  font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
-  color: #14233e;
-  background: #f7faff;
+  font-family: "Resolve Sans", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  color: #26332e;
+  background: #fafaf7;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --rf-blue: #165dff;
-  --rf-ink: #14233e;
-  --rf-muted: #7b89a2;
-  --rf-line: #e5ebf4;
-  --rf-canvas: #f7faff;
+  --rf-font-ui: "Resolve Sans", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --rf-font-reading: "Resolve Reading", "Noto Serif SC", "Songti SC", serif;
+  --rf-accent: #176b5c;
+  --rf-accent-hover: #125749;
+  --rf-accent-soft: #edf4ee;
+  --rf-blue: var(--rf-accent);
+  --rf-ink: #26332e;
+  --rf-muted: #69766e;
+  --rf-line: #dfe5dc;
+  --rf-canvas: #fafaf7;
+  --rf-surface: #fff;
+  --rf-subtle: #f3f5ef;
   --rf-radius: 8px;
 }
 body { margin: 0; }
