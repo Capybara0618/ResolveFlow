@@ -309,6 +309,43 @@ paths:
       required: true
       schema:
         type: string
+  /api/v1/account/notifications:
+    get:
+      summary: 读取本人的站内提醒，按时间倒序分页
+      parameters:
+      - in: query
+        name: cursor
+        schema:
+          type: string
+          maxLength: 512
+      responses:
+        '200':
+          description: 消息和全部未读数
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notifications'
+        '401':
+          description: 登录失效
+        '403':
+          description: 无此角色消息
+  /api/v1/account/notifications/{id}/read:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: string
+        maxLength: 80
+    post:
+      summary: 本人可见消息标为已读，重复操作幂等
+      responses:
+        '204':
+          description: 已读
+        '401':
+          description: 登录失效
+        '404':
+          description: 消息不可见或不存在
 components:
   securitySchemes:
     bearerAuth:
@@ -438,3 +475,58 @@ components:
           oneOf:
           - $ref: ./openapi-case.yaml#/components/schemas/ShippingSnapshot
           - type: 'null'
+    Notification:
+      type: object
+      additionalProperties: false
+      required:
+      - notification_id
+      - title
+      - target
+      - target_id
+      - conversation_id
+      - created_at
+      - read
+      properties:
+        notification_id:
+          type: string
+          maxLength: 80
+        title:
+          type: string
+        target:
+          type: string
+          enum:
+          - SUPPORT
+          - TICKET
+          - APPLICATION
+          - CASE
+        target_id:
+          type: string
+        conversation_id:
+          type:
+          - string
+          - 'null'
+        created_at:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+    Notifications:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - unread_count
+      - next_cursor
+      properties:
+        items:
+          type: array
+          maxItems: 24
+          items:
+            $ref: '#/components/schemas/Notification'
+        unread_count:
+          type: integer
+          minimum: 0
+        next_cursor:
+          type:
+          - string
+          - 'null'

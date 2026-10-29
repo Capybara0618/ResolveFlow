@@ -15,5 +15,20 @@
     "detail": "测试路1号",
     "is_default": true,
     "version": 1
+  },
+  "Notifications": {
+    "items": [
+      {
+        "notification_id": "message:00000000-0000-4000-8000-000000000502",
+        "title": "商家回复了你的咨询",
+        "target": "SUPPORT",
+        "target_id": "00000000-0000-4000-8000-000000000503",
+        "conversation_id": "00000000-0000-4000-8000-000000000503",
+        "created_at": "2026-10-29T08:00:00Z",
+        "read": false
+      }
+    ],
+    "unread_count": 1,
+    "next_cursor": null
   }
 }

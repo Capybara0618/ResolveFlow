@@ -490,7 +490,7 @@ public class SupportService {
                         value.handoffSummary());
             }
             db.update(
-                    "INSERT INTO support_ticket(ticket_id,conversation_id,merchant_id,status,summary,shared_json) VALUES(?,?,?,'PENDING',?,?)",
+                    "INSERT INTO support_ticket(ticket_id,conversation_id,merchant_id,status,summary,shared_json,created_at) VALUES(?,?,?,'PENDING',?,?,CURRENT_TIMESTAMP(6))",
                     uuid(),
                     id,
                     r.merchant,
