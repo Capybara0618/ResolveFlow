@@ -84,6 +84,15 @@ it('shows the selected SKU image and price in the actual product detail', async 
   expect(w.get('.detail-price').text()).toContain('349.00')
 })
 
+it('exposes the current variant selection without issuing a purchase request', async () => {
+  await open()
+  expect(w.findAll('fieldset button').map(b => b.attributes('aria-pressed'))).toEqual(['true', 'false'])
+  await w.findAll('fieldset button')[1].trigger('click')
+  expect(w.findAll('fieldset button').map(b => b.attributes('aria-pressed'))).toEqual(['false', 'true'])
+  expect(shopApi.quote).not.toHaveBeenCalled()
+  expect(shopApi.draft).not.toHaveBeenCalled()
+})
+
 it('opens the product store from its labelled storefront link without quoting a purchase', async () => {
   window.history.replaceState(null, '', '/#/shop')
   w = mount(MarketplaceWorkspace, { props: { account: null } }); await flushPromises()
