@@ -11,6 +11,9 @@ import BuyerOrders from './BuyerOrders.vue'
 import ProductReviews from './ProductReviews.vue'
 import CartWorkspace from './CartWorkspace.vue'
 import AccountWorkspace from './AccountWorkspace.vue'
+import NotificationCenter from './NotificationCenter.vue'
+import PersonalCenter from './PersonalCenter.vue'
+import type { Notification } from '../notification-client'
 import UserAvatar from './UserAvatar.vue'
 import AddressPicker from './AddressPicker.vue'
 import type { AccountProfile, ShippingSelection } from '../account-client'
@@ -19,7 +22,9 @@ import './marketplace.css'
 
 const props = defineProps<{ account: LoginResponse | null }>()
 const emit = defineEmits<{ expired: []; login: []; logout: []; profile: [value: AccountProfile] }>()
-type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support' | 'profile' | 'addresses'
+type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support' | 'profile' | 'addresses' | 'me' | 'messages'
+const windowHash = ref(window.location.hash)
+const supportInitialId = computed(() => new URLSearchParams(windowHash.value.split('?')[1] ?? '').get('conversation') ?? undefined)
 const screen = ref<Screen>('home'), query = ref(''), category = ref(''), stores = ref<ShopStore[]>([])
 const workspaceCatalog = ref<HTMLElement>()
 const ordersRoute = ref(''), cartBusy = ref(false), added = ref(false)
@@ -48,6 +53,7 @@ function go(hash: string) {
   if (writing.value || uncertain.value || cartBusy.value || addressBusy.value) { error.value = '请先确认本次订单提交结果。'; return }
   window.history.pushState(null, '', hash); void route()
 }
+function openNotification(item: Notification) { go(item.target === 'APPLICATION' ? `#/customer/applications/${encodeURIComponent(item.target_id)}` : `#/shop/support?conversation=${encodeURIComponent(item.target_id)}`) }
 function search() { go(`${store.value ? `#/shop/stores/${encodeURIComponent(store.value.store_id)}` : '#/shop/search'}?${new URLSearchParams({ ...(query.value.trim() ? { query: query.value.trim() } : {}), ...(category.value ? { category: category.value } : {}) })}`) }
 function changeStore(event: Event) {
   const id = (event.target as HTMLSelectElement).value
@@ -59,9 +65,10 @@ async function route() {
   const g = ++generation; ++quoteGeneration
   error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; pending = null
   products.value = []; next.value = null
-  let hash = window.location.hash
+  let hash = window.location.hash; windowHash.value = hash
   if (hash === '#/shop/profile' || hash === '#/shop/addresses') { screen.value = hash.endsWith('/profile') ? 'profile' : 'addresses'; loading.value = false; if (!props.account) emit('login'); return }
-  if (hash === '#/shop/support') { screen.value = 'support'; loading.value = false; if (!props.account) emit('login'); return }
+  if (hash === '#/shop/me' || hash === '#/shop/messages') { screen.value = hash.endsWith('/me') ? 'me' : 'messages'; loading.value = false; if (!props.account) emit('login'); return }
+  if (hash.startsWith('#/shop/support')) { screen.value = 'support'; loading.value = false; if (!props.account) emit('login'); return }
   if (hash.startsWith('#/customer/')) { screen.value = 'customer'; loading.value = false; return }
   loading.value = true
   try {
@@ -171,13 +178,16 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
         <a href="#/shop/orders" :class="{ current: screen === 'orders' }" @click.prevent="go('#/shop/orders')">我的订单</a>
         <a href="#/shop/support" :class="{ current: screen === 'support' }" @click.prevent="go('#/shop/support')">售后咨询</a>
         <a href="#/shop/cart" :class="{ current: screen === 'cart' }" aria-label="购物车" title="购物车" @click.prevent="go('#/shop/cart')"><Icon name="cart" :size="23" /></a>
-        <details v-if="account" class="shop-account"><summary aria-label="账户菜单"><UserAvatar :token="account.access_token" source="/api/v1/account/avatar" :name="account.display_name" :size="32" /><span>{{ account.display_name || '我的账户' }}</span></summary><div><a href="#/shop/profile" @click.prevent="go('#/shop/profile')">个人资料</a><a href="#/shop/addresses" @click.prevent="go('#/shop/addresses')">收货地址</a><a href="#/customer/applications" @click.prevent="go('#/customer/applications')">我的售后</a><button type="button" @click="emit('logout')">退出登录</button></div></details>
+        <NotificationCenter v-if="account" :token="account.access_token" :disabled="writing || uncertain || cartBusy || addressBusy" @expired="emit('expired')" @open="openNotification" />
+        <details v-if="account" class="shop-account"><summary aria-label="账户菜单"><UserAvatar :token="account.access_token" source="/api/v1/account/avatar" :name="account.display_name" :size="32" /><span>{{ account.display_name || '我的账户' }}</span></summary><div><a href="#/shop/me" @click.prevent="go('#/shop/me')">个人中心</a><a href="#/shop/profile" @click.prevent="go('#/shop/profile')">个人资料</a><a href="#/shop/addresses" @click.prevent="go('#/shop/addresses')">收货地址</a><a href="#/customer/applications" @click.prevent="go('#/customer/applications')">我的售后</a><button type="button" @click="emit('logout')">退出登录</button></div></details>
         <button v-else class="shop-login" @click="emit('login')">登录</button>
       </div>
     </nav>
     <p v-if="error" class="shop-error shop-global-error" role="alert">{{ error }}</p>
     <AccountWorkspace :key="account.access_token" v-if="(screen === 'profile' || screen === 'addresses') && account" :account="account" :mode="screen" @saved="emit('profile', $event)" @working="cartBusy = $event" @expired="emit('expired')" />
-    <SupportWorkspace v-else-if="screen === 'support' && account" :key="account.access_token" :account="account" @expired="emit('expired')" />
+    <PersonalCenter v-else-if="screen === 'me' && account" :account="account" @navigate="go" />
+    <NotificationCenter v-else-if="screen === 'messages' && account" :token="account.access_token" expanded @expired="emit('expired')" @open="openNotification" />
+    <SupportWorkspace v-else-if="screen === 'support' && account" :key="account.access_token + windowHash" :initial-id="supportInitialId" :account="account" @expired="emit('expired')" />
     <CartWorkspace v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
     <CustomerWorkspace v-else-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
     <BuyerOrders v-else-if="screen === 'orders' && account" :key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />

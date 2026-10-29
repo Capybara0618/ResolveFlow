@@ -60,7 +60,44 @@ public final class CheckoutWire {
 
             @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
             @JsonProperty("refund_status")
-            String refundStatus) {
+            String refundStatus,
+
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            @JsonProperty("shopping_stage")
+            String shoppingStage) {
+        public Purchase(
+                String purchaseId,
+                String draftId,
+                String storeId,
+                String storeName,
+                String status,
+                long totalAmount,
+                String currency,
+                Instant createdAt,
+                Instant expiresAt,
+                Instant paidAt,
+                String orderId,
+                List<Line> lines,
+                Payment payment,
+                String refundStatus) {
+            this(
+                    purchaseId,
+                    draftId,
+                    storeId,
+                    storeName,
+                    status,
+                    totalAmount,
+                    currency,
+                    createdAt,
+                    expiresAt,
+                    paidAt,
+                    orderId,
+                    lines,
+                    payment,
+                    refundStatus,
+                    null);
+        }
+
         public Purchase(
                 String purchaseId,
                 String draftId,

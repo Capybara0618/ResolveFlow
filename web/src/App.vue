@@ -5,6 +5,8 @@ import { watchCaseEvents } from './events'
 import { formatMinorUnits } from './money'
 import Icon from './ui/ReviewIcon.vue'
 import UserAvatar from './ui/UserAvatar.vue'
+import NotificationCenter from './ui/NotificationCenter.vue'
+import type { Notification } from './notification-client'
 import AccountWorkspace from './ui/AccountWorkspace.vue'
 import type { AccountProfile } from './account-client'
 import ReviewDialog from './ui/ReviewDialog.vue'
@@ -38,6 +40,12 @@ import { clearTabSession, readTabSession, saveTabSession } from './tab-session'
 const username = ref('')
 const password = ref('')
 const account = ref<LoginResponse | null>(null)
+const notificationTicket = ref<string | undefined>()
+function openNotification(item: Notification) {
+  if (busy.value) return
+  if (item.target === 'TICKET') { notificationTicket.value = item.target_id; changeMerchantPage('support') }
+  else if (item.target === 'CASE') overviewCase(item.target_id)
+}
 const profileOpen = ref(false), profileBusy = ref(false)
 function updateProfile(value: AccountProfile) { if (account.value) { account.value = { ...account.value, display_name: value.display_name }; saveTabSession(account.value) } }
 const products = useAftercareProducts(() => account.value?.access_token)
@@ -428,7 +436,7 @@ async function enterSession(session: LoginResponse) {
   products.reset(); merchantCaseOpen.value = false; merchantTrade.value = null
   account.value = session
   if (session.single_operator) merchantPage.value = 'overview'
-  if (session.buyer_id && !window.location.hash.startsWith('#/shop') && !window.location.hash.startsWith('#/customer/')) window.history.replaceState(null, '', shopReturn.value.startsWith('#/shop') ? shopReturn.value : '#/shop')
+  if (session.buyer_id && !window.location.hash.startsWith('#/shop') && !window.location.hash.startsWith('#/customer/')) window.history.replaceState(null, '', (shopReturn.value.startsWith('#/shop') || shopReturn.value.startsWith('#/customer/')) ? shopReturn.value : '#/shop')
   shopReturn.value = ''
   password.value = ''
   reviewItems.value = []; reviewCounts.value = null; reviewCursor.value = undefined
@@ -451,7 +459,7 @@ onMounted(() => {
   if (session) void act(() => enterSession(session))
 })
 function logout() {
-  profileOpen.value = false; profileBusy.value = false
+  profileOpen.value = false; profileBusy.value = false; notificationTicket.value = undefined
   clearTabSession()
   // An explicit account boundary must not reopen the previous customer's private route.
   window.history.replaceState(null, '', window.location.pathname + window.location.search)
@@ -523,6 +531,7 @@ onUnmounted(() => { stopStream(); products.reset() })
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
       <span class="demo-tag">{{ account?.buyer_id || shopVisitor ? '本地演示 · 合成商品与模拟交易' : '合成数据 · 模拟退款' }}</span>
       <div v-if="account" class="session"><button class="profile-avatar-button" aria-label="编辑个人资料" @click="profileOpen = true"><UserAvatar :token="account.access_token" source="/api/v1/account/avatar" :name="account.display_name" :kind="account.role === 'MERCHANT_ADMIN' ? 'MERCHANT' : 'CUSTOMER'" /></button><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后专员' : '客户工作台') }}</strong><small>{{ account.role === 'PLATFORM_ADMIN' ? '平台管理员' : account.buyer_id ? '平台买家' : `${account.merchant_name || account.merchant_id} · ${account.role === 'MERCHANT_ADMIN' ? (isSingleMerchant ? '商家' : '商家管理员') : account.role === 'REVIEWER' ? '售后专员' : account.role === 'OPERATOR' ? '兼容运维账号' : '客户'}` }}</small></span>
+        <NotificationCenter v-if="account.role === 'MERCHANT_ADMIN'" :token="account.access_token" :disabled="busy" @expired="logout" @open="openNotification" />
         <button type="button" class="text-button logout-button" @click="logout">退出</button></div>
     </header>
     <MarketplaceWorkspace v-if="!account && shopVisitor" :account="null" @login="shopLogin" />
@@ -562,7 +571,7 @@ onUnmounted(() => { stopStream(); products.reset() })
         <div class="sidebar-note"><p>让售后更简单<br />让每一次服务都有结果</p><small>单订单行 · 全量模拟退款</small><span>© 2026 ResolveFlow</span></div>
       </nav>
       <MerchantReviews v-if="merchantPage === 'reviews' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
-      <SupportWorkspace v-else-if="merchantPage === 'support' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
+      <SupportWorkspace v-else-if="merchantPage === 'support' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token + (notificationTicket ?? '')" :initial-id="notificationTicket" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <AdminProducts v-else-if="merchantPage === 'products' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <AdminTrades v-else-if="merchantPage === 'orders' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" @aftercare="tradeAftercare" />
       <AdminPeople v-else-if="merchantPage === 'people' && account.role === 'MERCHANT_ADMIN' && !isSingleMerchant" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '账号状态或权限已变化，请重新登录。'" @renamed="account.display_name = $event" />

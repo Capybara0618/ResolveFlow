@@ -85,7 +85,7 @@ it('list filters and details go through real marketplace routing instead of a de
   window.history.replaceState(null, '', '/#/shop/orders')
   w = mount(MarketplaceWorkspace, { props: { account: buyer } }); await flushPromises()
   expect(shopApi.purchases).toHaveBeenCalledWith('buyer-token', {})
-  await w.findAll('.purchase-filters button').find(b => b.text() === '已付款')!.trigger('click'); await flushPromises()
+  await w.get('[aria-label="更多订单状态"]').setValue('PAID'); await flushPromises()
   expect(shopApi.purchases).toHaveBeenLastCalledWith('buyer-token', { status: 'PAID' })
   await w.findAll('.purchase-card button')[0].trigger('click'); await flushPromises()
   expect(shopApi.purchase).toHaveBeenCalledWith('buyer-token', item.purchase_id)

@@ -10,12 +10,14 @@ export interface ShopDraftRequest { sku_id: string; quantity: number; expected_s
 export interface ShopDraft { draft_id: string; store_id: string; store_name: string; product_id: string; product_name: string
   asset_key: string; sku_id: string; variant: string; quantity: number; unit_amount: number; total_amount: number
   currency: 'CNY'; status: PurchaseStatus; created_at: string; expires_at: string }
+export type ShoppingStage = 'AWAITING_SHIPMENT' | 'AWAITING_RECEIPT' | 'COMPLETED' | 'AFTER_SALES' | 'LOGISTICS_UNKNOWN'
+export type PurchaseFilter = PurchaseStatus | ShoppingStage
 export type PurchaseStatus = 'WAITING_PAYMENT' | 'PAYMENT_PENDING' | 'PAID' | 'CANCELLED' | 'EXPIRED'
 export interface CheckoutPayment { attempt_id: string; draft_id: string; status: 'UNKNOWN' | 'SUCCEEDED' | 'FAILED'
   total_amount: number; currency: 'CNY'; created_at: string; finished_at: string | null; order_id: string | null; line_id: string | null; paid_at: string | null }
 export interface PurchaseLine { line_id: string | null; sku: string; product_name: string | null; variant: string | null
   asset_key: string | null; quantity: number; unit_amount: number | null; line_amount: number }
-export interface Purchase { purchase_id: string; draft_id: string | null; store_id: string; store_name: string; status: PurchaseStatus
+export interface Purchase { shopping_stage?: PurchaseFilter; purchase_id: string; draft_id: string | null; store_id: string; store_name: string; status: PurchaseStatus
   total_amount: number; currency: 'CNY'; created_at: string; expires_at: string | null; paid_at: string | null
   order_id: string | null; lines: PurchaseLine[]; payment: CheckoutPayment | null; refund_status?: 'NONE' | 'IN_PROGRESS' | 'PARTIALLY_REFUNDED' | 'REFUNDED' }
 export interface CartItem { sku_id: string; product_id: string; product_name: string; variant: string; asset_key: string
@@ -49,6 +51,6 @@ export const shopApi = {
   payment: (token: string, id: string) => apiRequest<{ payment: CheckoutPayment | null }>(`/api/v1/shop/drafts/${encodeURIComponent(id)}/payment`, token),
   cancel: (token: string, id: string) => post<ShopDraft>(`/api/v1/shop/drafts/${encodeURIComponent(id)}/cancel`, token, {}),
   purchase: (token: string, id: string) => apiRequest<Purchase>(`/api/v1/shop/purchases/${encodeURIComponent(id)}`, token),
-  purchases: (token: string, filter: { store_id?: string; status?: PurchaseStatus; cursor?: string } = {}) =>
+  purchases: (token: string, filter: { store_id?: string; status?: PurchaseFilter; cursor?: string } = {}) =>
     apiRequest<{ items: Purchase[]; next_cursor: string | null }>(`/api/v1/shop/purchases?${new URLSearchParams({ ...filter, limit: '24' })}`, token),
 }

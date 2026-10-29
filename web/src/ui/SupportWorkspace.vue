@@ -19,7 +19,7 @@ import { readSupportSelection, saveSupportSelection } from '../tab-session'
 import './support-workspace.css'
 import './buyer-support.css'
 
-const props = defineProps<{ account: LoginResponse }>()
+const props = defineProps<{ account: LoginResponse; initialId?: string }>()
 const emit = defineEmits<{ expired: [] }>()
 const merchant = computed(() => props.account.role === 'MERCHANT_ADMIN')
 const owner = `${props.account.role}:${props.account.buyer_id ?? props.account.merchant_id}`
@@ -103,7 +103,7 @@ async function load() {
   try { await Promise.all([list(), merchant.value ? Promise.resolve() : readOrders()]) }
   catch (cause) { if (alive) fail(cause) } finally { if (alive) loading.value = false }
   if (alive && !selected.value && !pending.value && !error.value) {
-    const remembered = readSupportSelection(owner)
+    const remembered = props.initialId ?? readSupportSelection(owner)
     if (remembered) {
       const g = generation
       try {

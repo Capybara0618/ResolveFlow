@@ -61,34 +61,37 @@ public class PurchaseReads {
             throw new IllegalArgumentException("交易范围或分页参数无效");
         if (filter != null
                 && !List.of("WAITING_PAYMENT", "PAYMENT_PENDING", "PAID", "CANCELLED", "EXPIRED")
-                        .contains(filter)) throw new IllegalArgumentException("交易状态无效");
+                        .contains(filter)
+                && !PurchaseStages.FILTERS.contains(filter)) throw new IllegalArgumentException("交易状态无效");
         Instant now = Instant.now(clock);
         var at = anchor(after);
         String sql = """
             SELECT id FROM (
-                SELECT CONCAT('draft:',draft_id) AS id,created_at,
+                SELECT CONCAT('draft:',draft_id) AS id,created_at,order_id,
                     CASE WHEN close_reason='EXPIRED' OR (status='WAITING_PAYMENT' AND expires_at<=?) THEN 'EXPIRED' ELSE status END AS state
                 FROM checkout_draft WHERE merchant_id=? AND customer_id=?
                 UNION ALL
-                SELECT CONCAT('order:',o.order_id) AS id,o.created_at,'PAID' AS state
+                SELECT CONCAT('order:',o.order_id) AS id,o.created_at,o.order_id,'PAID' AS state
                 FROM orders o JOIN payment_ledger g ON g.order_id=o.order_id
                 WHERE o.merchant_id=? AND o.customer_id=?
                     AND NOT EXISTS(SELECT 1 FROM checkout_draft d WHERE d.order_id=o.order_id)
-            ) t WHERE 1=1
+            ) t LEFT JOIN (""" + PurchaseStages.TABLE + """
+) shopping ON shopping.order_id=t.order_id WHERE 1=1
             """;
-        var args = new ArrayList<Object>(List.of(java.sql.Timestamp.from(now), merchant, customer, merchant, customer));
+        var args = new ArrayList<Object>(
+                List.of(java.sql.Timestamp.from(now), merchant, customer, merchant, customer, merchant, customer));
         if (filter != null) {
-            sql += " AND state=?";
+            sql += PurchaseStages.FILTERS.contains(filter) ? " AND state='PAID' AND shopping.stage=?" : " AND state=?";
             args.add(filter);
         }
         if (at != null) {
-            sql += " AND (created_at<? OR (created_at=? AND id<?))";
+            sql += " AND (t.created_at<? OR (t.created_at=? AND t.id<?))";
             var time = java.sql.Timestamp.from(Instant.parse(at[0]));
             args.add(time);
             args.add(time);
             args.add(at[1]);
         }
-        sql += " ORDER BY created_at DESC,id DESC LIMIT ?";
+        sql += " ORDER BY t.created_at DESC,t.id DESC LIMIT ?";
         args.add(limit + 1);
         var ids = jdbc.queryForList(sql, String.class, args.toArray());
         var items = new PurchasePageReader(jdbc, lines)
@@ -98,6 +101,11 @@ public class PurchaseReads {
 
     @Transactional(readOnly = true)
     public Purchase read(String id, String merchant, String customer) {
+        return PurchaseStages.enrich(List.of(readUnstaged(id, merchant, customer)), merchant, customer, jdbc)
+                .getFirst();
+    }
+
+    private Purchase readUnstaged(String id, String merchant, String customer) {
         if (merchant == null || merchant.isBlank() || customer == null || customer.isBlank())
             throw new IllegalArgumentException("需要可信买家归属");
         if (id != null && id.startsWith("draft:")) {

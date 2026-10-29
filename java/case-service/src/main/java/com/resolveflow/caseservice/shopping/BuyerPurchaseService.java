@@ -35,7 +35,17 @@ public class BuyerPurchaseService {
                 || limit > 48
                 || store != null && (store.isBlank() || store.length() > 64)
                 || status != null
-                        && !List.of("WAITING_PAYMENT", "PAYMENT_PENDING", "PAID", "CANCELLED", "EXPIRED")
+                        && !List.of(
+                                        "WAITING_PAYMENT",
+                                        "PAYMENT_PENDING",
+                                        "PAID",
+                                        "CANCELLED",
+                                        "EXPIRED",
+                                        "AWAITING_SHIPMENT",
+                                        "AWAITING_RECEIPT",
+                                        "COMPLETED",
+                                        "AFTER_SALES",
+                                        "LOGISTICS_UNKNOWN")
                                 .contains(status)) throw invalid();
         var bindings = scopes.list(buyer);
         if (bindings.size() > 20)

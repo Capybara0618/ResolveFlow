@@ -3894,6 +3894,11 @@ paths:
           - PAID
           - CANCELLED
           - EXPIRED
+          - AWAITING_SHIPMENT
+          - AWAITING_RECEIPT
+          - COMPLETED
+          - AFTER_SALES
+          - LOGISTICS_UNKNOWN
       - name: cursor
         in: query
         required: false
@@ -6103,6 +6108,9 @@ components:
             status:
               const: PAID
       properties:
+        shopping_stage:
+          type: string
+          enum: [WAITING_PAYMENT, PAYMENT_PENDING, PAID, CANCELLED, EXPIRED, AWAITING_SHIPMENT, AWAITING_RECEIPT, COMPLETED, AFTER_SALES, LOGISTICS_UNKNOWN]
         refund_status:
           type: string
           enum: [NONE, IN_PROGRESS, PARTIALLY_REFUNDED, REFUNDED]

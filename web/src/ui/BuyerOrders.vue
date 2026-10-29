@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { ApiError, coreApi, type CustomerOrderLine, type LoginResponse } from '../client'
-import { shopApi, type Purchase, type PurchaseStatus, type ShopStore } from '../shop-client'
+import { shopApi, type Purchase, type PurchaseStatus, type PurchaseFilter, type ShopStore } from '../shop-client'
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
 import ShippingSummary from './ShippingSummary.vue'
@@ -17,12 +17,15 @@ const emit = defineEmits<{ expired: []; navigate: [hash: string] }>()
 const fulfillment = ref<OrderFulfillment | null>(null), fulfillmentLoading = ref(false), fulfillmentError = ref('')
 const items = ref<Purchase[]>([]), detail = ref<Purchase | null>(null), stores = ref<ShopStore[]>([])
 const reviewTarget = ref<{ line: string; name: string } | null>(null)
-const store = ref(''), status = ref<PurchaseStatus | ''>(''), next = ref<string | null>(null)
+const store = ref(''), status = ref<PurchaseFilter | ''>(''), next = ref<string | null>(null)
 const loading = ref(false), writing = ref(false), uncertain = ref(false), cancelUnknown = ref(false), cancelOpen = ref(false)
 const error = ref(''), notice = ref(''), mode = ref<'list' | 'detail' | 'payment'>('list'), now = ref(Date.now())
 const eligibility = ref<Record<string, CustomerOrderLine | null>>({}), eligibilityErrors = ref<Record<string, boolean>>({})
 let fulfillmentGeneration = 0
 let generation = 0, alive = true, timer: ReturnType<typeof setInterval> | undefined, memoryKey = ''
+const shoppingLabels: Record<string,string> = { AWAITING_SHIPMENT: '待发货', AWAITING_RECEIPT: '待收货', COMPLETED: '已完成', AFTER_SALES: '售后', LOGISTICS_UNKNOWN: '物流待确认' }
+const stageLabel = (p: Purchase) => shoppingLabels[p.shopping_stage ?? ''] ?? labels[p.status]
+const returnHash = ref('#/shop/orders')
 const labels: Record<PurchaseStatus, string> = { WAITING_PAYMENT: '待付款', PAYMENT_PENDING: '付款结果待确认', PAID: '已付款', CANCELLED: '已取消', EXPIRED: '已到期' }
 const refundLabels = { NONE: '无退款', IN_PROGRESS: '退款处理中', PARTIALLY_REFUNDED: '部分商品已退款', REFUNDED: '已全部退款' }
 const money = (n: number) => `¥ ${formatMinorUnits(n).replace(' CNY', '')}`
@@ -70,10 +73,11 @@ async function route() {
   ++fulfillmentGeneration; fulfillment.value = null; fulfillmentError.value = ''; fulfillmentLoading.value = false
   eligibility.value = {}; eligibilityErrors.value = {}; uncertain.value = false; cancelUnknown.value = false; cancelOpen.value = false; error.value = ''; notice.value = ''; loading.value = true
   try {
-    const hash = window.location.hash
-    if (hash.startsWith('#/shop/drafts/')) { mode.value = 'payment'; await readDetail(`draft:${decodeURIComponent(hash.slice('#/shop/drafts/'.length))}`, g) }
-    else if (hash.startsWith('#/shop/orders/')) { mode.value = 'detail'; await readDetail(decodeURIComponent(hash.slice('#/shop/orders/'.length)), g) }
-    else { mode.value = 'list'; const params = new URLSearchParams(hash.split('?')[1] ?? ''); store.value = params.get('store_id') ?? ''; status.value = (params.get('status') ?? '') as PurchaseStatus
+    const hash = window.location.hash, path = hash.split('?')[0]
+    const back = new URLSearchParams(hash.split('?')[1] ?? '').get('return'); if (back?.startsWith('#/shop/orders') && !back.startsWith('#/shop/orders/')) returnHash.value = back
+    if (hash.startsWith('#/shop/drafts/')) { mode.value = 'payment'; await readDetail(`draft:${decodeURIComponent(path.slice('#/shop/drafts/'.length))}`, g) }
+    else if (hash.startsWith('#/shop/orders/')) { mode.value = 'detail'; await readDetail(decodeURIComponent(path.slice('#/shop/orders/'.length)), g) }
+    else { returnHash.value = hash; mode.value = 'list'; const params = new URLSearchParams(hash.split('?')[1] ?? ''); store.value = params.get('store_id') ?? ''; status.value = (params.get('status') ?? '') as PurchaseFilter
       const [allStores] = await Promise.all([shopApi.stores(), load()]); if (valid(g)) stores.value = allStores
     }
   } catch (cause) { if (valid(g)) failure(cause) } finally { if (valid(g)) loading.value = false }
@@ -114,20 +118,20 @@ onBeforeUnmount(() => { alive = false; ++generation; if (timer) clearInterval(ti
 
 <template>
   <div class="buyer-orders" :class="{ 'payment-page': mode === 'payment' }">
-    <aside v-if="mode !== 'payment'" class="purchase-sidebar"><button class="current" @click="navigate('#/shop/orders')">▤ 我的订单</button><button @click="navigate('#/customer/applications')">◎ 我的售后</button></aside>
+    <aside v-if="mode !== 'payment'" class="purchase-sidebar"><button class="current" @click="navigate('#/shop/orders')">我的订单</button><button @click="navigate('#/customer/applications')">我的售后</button></aside>
     <main class="purchase-main">
       <header class="purchase-heading"><h1>{{ mode === 'list' ? '我的订单' : mode === 'payment' ? '模拟付款' : '订单详情' }}</h1><button class="shop-secondary" :disabled="writing || loading" @click="refresh">刷新状态</button></header>
       <p v-if="error" class="shop-error" role="alert">{{ error }}</p><p v-if="notice" class="purchase-notice" role="status">{{ notice }}</p>
-      <div v-if="mode === 'list'" class="purchase-filters"><div><button v-for="s in [{ id: '', name: '全部' }, { id: 'WAITING_PAYMENT', name: '待付款' }, { id: 'PAYMENT_PENDING', name: '结果待确认' }, { id: 'PAID', name: '已付款' }, { id: 'CANCELLED', name: '已取消' }, { id: 'EXPIRED', name: '已到期' }]" :key="s.id" :class="{ current: status === s.id }" :disabled="loading" @click="status = s.id as PurchaseStatus | ''; filter()">{{ s.name }}</button></div><select v-model="store" aria-label="按店铺筛选" :disabled="loading" @change="filter"><option value="">全部店铺</option><option v-for="s in stores" :key="s.store_id" :value="s.store_id">{{ s.name }}</option></select></div>
+      <div v-if="mode === 'list'" class="purchase-filters"><div><button v-for="s in [{ id: '', name: '全部' }, { id: 'WAITING_PAYMENT', name: '待付款' }, { id: 'AWAITING_SHIPMENT', name: '待发货' }, { id: 'AWAITING_RECEIPT', name: '待收货' }, { id: 'COMPLETED', name: '已完成' }, { id: 'AFTER_SALES', name: '售后' }]" :key="s.id" :class="{ current: status === s.id }" :disabled="loading" @click="status = s.id as PurchaseFilter | ''; filter()">{{ s.name }}</button></div><select aria-label="更多订单状态" :value="['PAID','PAYMENT_PENDING','CANCELLED','EXPIRED','LOGISTICS_UNKNOWN'].includes(status) ? status : ''" :disabled="loading" @change="status = ($event.target as HTMLSelectElement).value as PurchaseFilter; filter()"><option value="">更多状态</option><option value="PAID">已付款</option><option value="PAYMENT_PENDING">付款结果待确认</option><option value="CANCELLED">已取消</option><option value="EXPIRED">已到期</option><option value="LOGISTICS_UNKNOWN">物流待确认</option></select><select v-model="store" aria-label="按店铺筛选" :disabled="loading" @change="filter"><option value="">全部店铺</option><option v-for="s in stores" :key="s.store_id" :value="s.store_id">{{ s.name }}</option></select></div>
       <p v-if="loading && !detail && !items.length" class="shop-empty" role="status">正在读取订单…</p><p v-else-if="mode === 'list' && !items.length && !error" class="shop-empty">当前筛选下没有订单。</p>
       <template v-if="mode === 'list'">
-        <article v-for="item in items" :key="item.purchase_id" class="purchase-card"><header><a :href="`#/shop/stores/${item.store_id}`" @click.prevent="navigate(`#/shop/stores/${item.store_id}`)"><Icon name="store" :size="16" />{{ item.store_name }}</a><span class="purchase-status" :class="item.status.toLowerCase()">{{ labels[item.status] }}</span></header><div class="purchase-card-body"><div class="purchase-goods"><div v-for="line in item.lines" :key="line.sku" class="purchase-item"><ProductArt v-if="line.asset_key" :asset="line.asset_key" :name="line.product_name || line.sku" :variant="line.variant ?? ''" /><span v-else class="purchase-no-art" aria-label="商品图片未提供">▢</span><div><h2>{{ line.product_name || line.sku }}</h2><p>{{ line.variant }} · 数量 × {{ line.quantity }}</p><strong>{{ money(line.line_amount) }}</strong></div></div></div><div class="purchase-card-total"><span>{{ item.status === 'PAID' ? '原实付' : '订单合计' }}</span><strong>{{ money(item.total_amount) }}</strong><button class="shop-secondary" @click="navigate(`#/shop/orders/${encodeURIComponent(item.purchase_id)}`)">{{ item.status === 'WAITING_PAYMENT' ? '查看并付款' : '查看订单' }}</button></div></div></article>
+        <article v-for="item in items" :key="item.purchase_id" class="purchase-card"><header><a :href="`#/shop/stores/${item.store_id}`" @click.prevent="navigate(`#/shop/stores/${item.store_id}`)"><Icon name="store" :size="16" />{{ item.store_name }}</a><span class="purchase-status" :class="item.status.toLowerCase()">{{ stageLabel(item) }}</span></header><div class="purchase-card-body"><div class="purchase-goods"><div v-for="line in item.lines" :key="line.sku" class="purchase-item"><ProductArt v-if="line.asset_key" :asset="line.asset_key" :name="line.product_name || line.sku" :variant="line.variant ?? ''" /><span v-else class="purchase-no-art" aria-label="商品图片未提供">▢</span><div><h2>{{ line.product_name || line.sku }}</h2><p>{{ line.variant }} · 数量 × {{ line.quantity }}</p><strong>{{ money(line.line_amount) }}</strong></div></div></div><div class="purchase-card-total"><span>{{ item.status === 'PAID' ? '原实付' : '订单合计' }}</span><strong>{{ money(item.total_amount) }}</strong><button class="shop-secondary" @click="navigate(`#/shop/orders/${encodeURIComponent(item.purchase_id)}?return=${encodeURIComponent(returnHash)}`)">{{ item.status === 'WAITING_PAYMENT' ? '查看并付款' : '查看订单' }}</button></div></div></article>
         <button v-if="next" class="shop-secondary shop-load" :disabled="loading" @click="more">加载更多订单</button>
       </template>
       <template v-else-if="detail">
         <ShippingSummary :token="account.access_token" :purchase="detail.purchase_id" @expired="emit('expired')" />
-        <button class="shop-back" :disabled="writing" @click="navigate('#/shop/orders')">返回我的订单</button>
-        <section class="purchase-summary" :class="detail.status.toLowerCase()"><span class="purchase-symbol"><Icon :name="detail.status === 'PAID' ? 'check' : 'clock'" :size="22" /></span><div><h2>{{ unknown ? '付款结果待确认' : deadlinePassed ? '付款期限已过' : labels[detail.status] }}</h2><p>{{ detail.store_name }}</p></div><div class="purchase-sum"><span>{{ detail.status === 'PAID' ? '原实付' : '订单合计' }}</span><strong>{{ money(detail.total_amount) }}</strong></div></section>
+        <button class="shop-back" :disabled="writing" @click="navigate(returnHash)">返回我的订单</button>
+        <section class="purchase-summary" :class="detail.status.toLowerCase()"><span class="purchase-symbol"><Icon :name="detail.status === 'PAID' ? 'check' : 'clock'" :size="22" /></span><div><h2>{{ unknown ? '付款结果待确认' : deadlinePassed ? '付款期限已过' : stageLabel(detail) }}</h2><p>{{ detail.store_name }}</p></div><div class="purchase-sum"><span>{{ detail.status === 'PAID' ? '原实付' : '订单合计' }}</span><strong>{{ money(detail.total_amount) }}</strong></div></section>
         <section class="purchase-detail-panel"><h2>订单商品</h2><div v-for="line in detail.lines" :key="line.sku" class="purchase-detail-line"><ProductArt v-if="line.asset_key" :asset="line.asset_key" :name="line.product_name || line.sku" :variant="line.variant ?? ''" /><span v-else class="purchase-no-art" aria-label="商品图片未提供">▢</span><div class="purchase-line-copy"><h2>{{ line.product_name || line.sku }}</h2><p>{{ line.variant }} · 数量 × {{ line.quantity }}</p><p v-if="line.unit_amount !== null">单价 {{ money(line.unit_amount) }}</p></div><strong>{{ money(line.line_amount) }}</strong></div></section>
         <section v-if="detail.status === 'WAITING_PAYMENT' || unknown" class="purchase-payment-panel"><h2>本地模拟付款</h2><p v-if="detail.expires_at && !unknown">付款截止 {{ time(detail.expires_at) }}</p><p v-if="unknown">只查询原付款尝试，确认后再进行下一步。</p><div class="purchase-actions"><button v-if="canPay" class="shop-primary" data-test="pay" :disabled="writing || loading" @click="pay">{{ writing ? '正在确认…' : unknown || key() ? '重试原付款请求' : '确认模拟付款' }}</button><button v-if="unknown" class="shop-secondary" :disabled="writing || loading" @click="refresh">查询原付款结果</button><button v-if="detail.status === 'WAITING_PAYMENT' && !unknown && !deadlinePassed && !cancelUnknown" class="shop-secondary" :disabled="writing || loading" @click="cancelOpen = true">取消订单</button></div></section>
         <FulfillmentPanel v-if="detail.status === 'PAID'" :fact="fulfillment" :lines="detail.lines" :loading="fulfillmentLoading" :error="fulfillmentError" @retry="readFulfillment()" />

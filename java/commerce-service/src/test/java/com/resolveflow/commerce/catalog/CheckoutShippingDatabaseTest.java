@@ -102,4 +102,34 @@ class CheckoutShippingDatabaseTest extends CommerceDatabaseTest {
                         .purchaseId())
                 .isEqualTo(purchase.purchaseId());
     }
+
+    @Autowired
+    PurchaseReads purchases;
+
+    @Test
+    void shoppingStageTracksShippingAndRefundFactsWithoutChangingPaymentState() {
+        var d = shop.create(command(UUID.randomUUID().toString(), choice, address));
+        var paid = payments.pay(
+                d.draftId(), new PayCommand(MERCHANT, BUYER, UUID.randomUUID().toString()));
+        String id = "draft:" + d.draftId();
+        assertThat(purchases.read(id, MERCHANT, BUYER).shoppingStage()).isEqualTo("AWAITING_SHIPMENT");
+        assertThat(purchases
+                        .list(MERCHANT, BUYER, "AWAITING_SHIPMENT", null, 48)
+                        .items())
+                .extracting(com.resolveflow.shared.shopping.CheckoutWire.Purchase::purchaseId)
+                .contains(id);
+        db.update(
+                "UPDATE shipment SET status='IN_TRANSIT',carrier_conclusion='IN_TRANSIT' WHERE line_id=?",
+                paid.lineId());
+        assertThat(purchases.read(id, MERCHANT, BUYER).shoppingStage()).isEqualTo("AWAITING_RECEIPT");
+        db.update(
+                "UPDATE shipment SET status='DELIVERED',carrier_conclusion='DELIVERED' WHERE line_id=?", paid.lineId());
+        assertThat(purchases.read(id, MERCHANT, BUYER).shoppingStage()).isEqualTo("COMPLETED");
+        db.update("UPDATE payment_ledger SET refunded_amount=paid_amount WHERE order_id=?", paid.orderId());
+        assertThat(purchases.read(id, MERCHANT, BUYER).shoppingStage()).isEqualTo("AFTER_SALES");
+        assertThat(purchases.read(id, MERCHANT, BUYER).status()).isEqualTo("PAID");
+        assertThat(purchases.list(MERCHANT, BUYER, "COMPLETED", null, 48).items())
+                .extracting(com.resolveflow.shared.shopping.CheckoutWire.Purchase::purchaseId)
+                .doesNotContain(id);
+    }
 }

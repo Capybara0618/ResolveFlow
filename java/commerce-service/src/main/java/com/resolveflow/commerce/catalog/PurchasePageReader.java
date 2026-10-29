@@ -100,17 +100,25 @@ final class PurchasePageReader {
                 .map(Payment::orderId)
                 .forEach(orders::add);
         var refunds = new HashMap<String, String>();
+        var stages = new HashMap<String, String>();
         if (!orders.isEmpty()) {
             args.put("orders", orders);
             jdbc.query(
-                    "SELECT g.* FROM payment_ledger g JOIN orders o ON o.order_id=g.order_id WHERE o.merchant_id=:merchant AND o.customer_id=:customer AND o.order_id IN (:orders)",
+                    "SELECT g.*,shopping.stage FROM payment_ledger g JOIN orders o ON o.order_id=g.order_id JOIN ("
+                            + PurchaseStages.TABLE.replace(
+                                    "o.merchant_id=? AND o.customer_id=?",
+                                    "o.merchant_id=:merchant AND o.customer_id=:customer AND o.order_id IN (:orders)")
+                            + ") shopping ON shopping.order_id=o.order_id WHERE o.merchant_id=:merchant AND o.customer_id=:customer AND o.order_id IN (:orders)",
                     args,
-                    (RowCallbackHandler) rs -> refunds.put(
-                            rs.getString("order_id"),
-                            PurchaseReads.refundStatus(
-                                    rs.getLong("paid_amount"),
-                                    rs.getLong("refunded_amount"),
-                                    rs.getLong("reserved_refund_amount"))));
+                    (RowCallbackHandler) rs -> {
+                        stages.put(rs.getString("order_id"), rs.getString("stage"));
+                        refunds.put(
+                                rs.getString("order_id"),
+                                PurchaseReads.refundStatus(
+                                        rs.getLong("paid_amount"),
+                                        rs.getLong("refunded_amount"),
+                                        rs.getLong("reserved_refund_amount")));
+                    });
         }
         return selected.stream()
                 .map(id -> {
@@ -131,7 +139,8 @@ final class PurchasePageReader {
                                 row.orderId(),
                                 List.copyOf(oldLines.getOrDefault(row.orderId(), List.of())),
                                 null,
-                                refund(refunds, row.orderId()));
+                                refund(refunds, row.orderId()),
+                                stages.get(row.orderId()));
                     }
                     var row = headers.get(id.substring(6));
                     if (row == null) throw new ShoppingService.Refused(404, "NOT_FOUND", "商品或订单不存在");
@@ -180,7 +189,8 @@ final class PurchasePageReader {
                             order,
                             projection,
                             payment,
-                            order == null ? null : refund(refunds, order));
+                            order == null ? null : refund(refunds, order),
+                            order == null ? state : stages.get(order));
                 })
                 .toList();
     }
