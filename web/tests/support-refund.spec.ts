@@ -14,6 +14,17 @@ const application = (status = 'QUEUED') => ({ case: { case_id: 'one-case', statu
 beforeEach(() => { sessionStorage.clear(); vi.spyOn(refundApi, 'read').mockResolvedValue(current()) })
 afterEach(() => { wrapper?.unmount(); vi.restoreAllMocks(); sessionStorage.clear() })
 
+it('presents a finished refund as a receipt, without a progress refresh action', async () => {
+  const view = application('CLOSED_SUCCESS')
+  view.result.amount_minor = 32900; view.result.currency = 'CNY'
+  vi.mocked(refundApi.read).mockResolvedValue({ draft: null, application: view })
+  wrapper = mount(SupportRefundCard, { props: props() }); await flushPromises()
+  expect(wrapper.get('.buyer-receipt-product').text()).toContain(props().conversation.product.name)
+  expect(wrapper.get('[data-refund-result-amount]').text()).toContain('329.00')
+  expect(wrapper.text()).not.toContain('刷新进度')
+  expect(wrapper.find('[data-refund="start"]').exists()).toBe(false)
+})
+
 it.each(['等待商家核验申请情况', '本次调查未完成，已转商家继续核查', '退款方案已生成，等待商家审批'])('shows the server-projected pending-review stage: %s', async message => {
   const view = application('PENDING_REVIEW'); view.result.message = message
   vi.mocked(refundApi.read).mockResolvedValue({ draft: null, application: view })

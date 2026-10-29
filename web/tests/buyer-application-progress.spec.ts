@@ -41,6 +41,13 @@ describe('buyer application progress', () => {
     expect(w.text()).toContain('模拟退款')
     expect(w.text()).not.toContain('原路到账')
     expect(w.find('[aria-current="step"]').exists()).toBe(false)
+    expect(w.find('.buyer-progress-stages').exists()).toBe(false)
+  })
+
+  it('keeps product context inside the receipt instead of requiring a separate overview panel', () => {
+    const w = mount(BuyerApplicationProgress, { props: { application: application('CLOSED_SUCCESS', 32900) }, slots: { product: '<span>无线降噪耳机 · 银色 · 松间数码</span>' } })
+    expect(w.get('.buyer-receipt-product').text()).toContain('无线降噪耳机')
+    expect(w.get<HTMLDetailsElement>('details').element.open).toBe(false)
   })
 
   it('does not invent a paid amount or a success date when the result omits them', () => {

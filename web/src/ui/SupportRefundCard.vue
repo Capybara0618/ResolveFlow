@@ -21,6 +21,7 @@ let offeredMessage = ''
 const offer = computed(() => [...props.conversation.messages].reverse().find(m => m.author === 'ASSISTANT' && m.sequence === props.conversation.version && assistantOffers(m, 'REFUND_APPLICATION')))
 const d = computed(() => value.value.draft)
 const application = computed(() => value.value.application)
+const finished = computed(() => ['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(application.value?.case.status ?? ''))
 const blockingApplication = computed(() => application.value && !['CLOSED_REJECTED', 'CANCELLED'].includes(application.value.case.status))
 const showDraft = computed(() => !dismissed.value && !blockingApplication.value && (expanded.value || ['DRAFT', 'EXPIRED', 'STALE'].includes(d.value?.status ?? '')))
 const outdated = computed(() => !!d.value && (d.value.status !== 'DRAFT' || d.value.expected_version !== props.conversation.version || now.value >= Date.parse(d.value.expires_at)))
@@ -97,7 +98,8 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
     <div v-if="pending" class="refund-pending" role="status">{{ busy ? '正在保存，请稍候…' : '提交结果尚未确认，请使用原请求确认结果。' }}<button v-if="!busy" data-refund="retry" @click="retry">确认原请求结果</button></div>
     <article v-if="application" class="refund-progress">
       <BuyerApplicationProgress :application="application" compact>
-        <a :href="`#/customer/applications/${encodeURIComponent(application.case.case_id)}`">{{ application.case.status === 'WAITING_CUSTOMER' ? '补充说明' : '查看申请详情' }}</a><button :disabled="busy || reading" @click="read">刷新进度</button>
+        <template #product><div class="receipt-product"><ProductArt :asset="conversation.product.asset_key || ''" :name="conversation.product.name" :variant="conversation.product.variant ?? ''" /><div><strong>{{ conversation.product.name }}</strong><span>{{ conversation.product.variant || '默认规格' }} · {{ conversation.product.quantity }}件</span><span><Icon name="store" :size="13" />{{ conversation.store_name }}</span></div></div></template>
+        <a :href="`#/customer/applications/${encodeURIComponent(application.case.case_id)}`">{{ application.case.status === 'WAITING_CUSTOMER' ? '补充说明' : '查看申请详情' }}</a><button v-if="!finished" :disabled="busy || reading" @click="read">刷新进度</button>
       </BuyerApplicationProgress>
     </article>
     <article v-if="showDraft" class="refund-summary">
@@ -122,6 +124,11 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
 .chat-refund { margin: 16px 0 4px; color: var(--support-ink, #202c2a); font-size: 14px; }
 .refund-summary, .refund-progress { border: 1px solid #cddfd8; border-radius: 10px; overflow: hidden; background: white; margin-bottom: 10px; }
 .refund-progress { padding: 16px; }
+.receipt-product { display: flex; align-items: center; gap: 12px; }
+.receipt-product :deep(.product-art) { width: 44px; height: 44px; flex: 0 0 44px; border-radius: 6px; object-fit: cover; }
+.receipt-product > div { display: grid; gap: 3px; min-width: 0; }
+.receipt-product strong { font-size: 14px; font-weight: 500; }
+.receipt-product span { display: flex; align-items: center; gap: 4px; color: #606f64; font-size: 12px; }
 header, footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; }
 header { background: #f0f7f4; }
 header > strong { display: inline-flex; align-items: center; gap: 7px; color: #176b5c; font-size: 16px; font-weight: 600; }

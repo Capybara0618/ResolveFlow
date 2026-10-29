@@ -1,5 +1,4 @@
 /* Only the buyer's display-chain application detail adopts this theme. */
-.customer-detail-grid > .buyer-application-product { grid-column: 1 / -1; }
 .workbench .buyer-application-chain.buyer-application-chain {
   --display-font-ui: "Resolve Sans", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   --display-font-reading: "Resolve Reading", "Noto Serif SC", "SimSun", serif;
@@ -7,7 +6,7 @@
 }
 .workbench .marketplace:has(.buyer-application-chain) nav.shop-nav { font-family: "Resolve Sans", "Microsoft YaHei", sans-serif; }
 .workbench .marketplace:has(.buyer-application-chain) nav.shop-nav a.shop-brand { font-size: 22px; font-weight: 500; letter-spacing: -.4px; }
-.workbench .buyer-application-chain .customer-main { max-width: 1180px; padding: 28px 32px 44px; }
+.workbench .buyer-application-chain .customer-main { max-width: 850px; padding: 28px 32px 44px; }
 .workbench .buyer-application-chain .customer-heading { margin-bottom: 12px; }
 .workbench .buyer-application-chain .customer-heading h1 { margin: 0; font-size: 22px; font-weight: 500; color: #25322c; }
 .workbench .buyer-application-chain .customer-heading p { display: none; }
@@ -18,12 +17,15 @@
 .workbench .buyer-application-chain .text-button { font-size: 14px; color: #39715e; }
 .workbench .buyer-application-chain .customer-back { margin: 0 0 18px; }
 .workbench .buyer-application-chain .panel { border: 1px solid #e1e6dc; border-radius: 10px; padding: 22px; background: white; }
-.workbench .buyer-application-chain .customer-detail-grid { grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; }
-.workbench .buyer-application-chain .buyer-application-product { grid-column: 1 / -1; padding: 16px 20px; }
+.workbench .buyer-application-chain .customer-detail-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+.workbench .buyer-application-chain .buyer-application-result { padding: 28px; }
+.workbench .buyer-application-chain .buyer-application-more { padding: 0 4px; }
+.workbench .buyer-application-chain .buyer-original-request > p { margin-top: 16px; }
+.workbench .buyer-application-chain .buyer-application-links { display: flex; justify-content: space-between; gap: 16px; margin-top: 18px; }
 .workbench .buyer-application-chain :is(.customer-detail-content, .customer-detail-aside) { gap: 16px; }
 .workbench .buyer-application-chain h2 { font-size: 17px; font-weight: 500; color: #25322c; margin: 0 0 14px; }
 .workbench .buyer-application-chain .aftercare-product { gap: 16px; }
-.workbench .buyer-application-chain .aftercare-product-image { width: 64px; height: 64px; flex-basis: 64px; border-radius: 7px; }
+.workbench .buyer-application-chain .aftercare-product-image { width: 48px; height: 48px; flex-basis: 48px; border-radius: 7px; }
 .workbench .buyer-application-chain .aftercare-product-copy { gap: 3px; }
 .workbench .buyer-application-chain .aftercare-product-copy strong { font-size: 16px; font-weight: 500; color: #25322c; }
 .workbench .buyer-application-chain :is(.aftercare-product-store, .aftercare-product-variant, .aftercare-product-amount) { font-size: 12px; font-weight: 400; color: #6a756b; }
@@ -48,5 +50,5 @@
 .workbench .buyer-application-chain .buyer-progress :is(small, time, summary, li, .buyer-result-amount > span) { font-size: 12px; }
 .workbench .buyer-application-chain .buyer-progress header strong { font-size: 20px; font-weight: 500; }
 .workbench .buyer-application-chain .buyer-progress .buyer-progress-blocked { font-size: 13px; }
-@media (max-width: 900px) { .workbench .buyer-application-chain .customer-main { padding: 22px; }.workbench .buyer-application-chain .customer-detail-grid { grid-template-columns: minmax(0, 1fr) 240px; gap: 14px; }.workbench .buyer-application-chain .panel { padding: 18px; } }
+@media (max-width: 900px) { .workbench .buyer-application-chain .customer-main { padding: 22px; }.workbench .buyer-application-chain .customer-detail-grid { gap: 14px; }.workbench .buyer-application-chain .panel { padding: 22px; } }
 @media (max-width: 680px) { .workbench .buyer-application-chain .customer-main { padding: 18px 14px; }.workbench .buyer-application-chain .customer-detail-grid { grid-template-columns: minmax(0, 1fr); }.workbench .buyer-application-chain .buyer-application-product { grid-column: auto; } }

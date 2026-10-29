@@ -335,9 +335,10 @@ onBeforeUnmount(() => {
         <button type="button" class="text-button customer-back" :disabled="writing" @click="navigate('applications')">返回我的售后</button>
         <div v-if="!detail" class="panel customer-empty"><h3>{{ loading ? '正在读取申请…' : '暂时无法查看申请' }}</h3><p>请点击刷新重试。</p></div>
         <div v-else data-test="application-detail" class="customer-detail-grid">
-          <section class="panel buyer-application-product" aria-label="申请商品"><AftercareProduct :line="detailLine" :loading="!detailLine && loading" :unavailable="!detailLine && !loading" /><button v-if="!detailLine && !loading" class="text-button" type="button" @click="readDetail">重试商品资料</button></section>
           <div class="customer-detail-content">
-            <BuyerApplicationProgress class="panel buyer-application-result" :application="detail" />
+            <BuyerApplicationProgress class="panel buyer-application-result" :application="detail">
+              <template #product><div aria-label="申请商品"><AftercareProduct :line="detailLine" :show-amount="false" :loading="!detailLine && loading" :unavailable="!detailLine && !loading" /><button v-if="!detailLine && !loading" class="text-button" type="button" @click="readDetail">重试商品资料</button></div></template>
+            </BuyerApplicationProgress>
             <section v-if="currentQuestion" class="panel customer-questions" aria-label="当前补证问题">
               <h2>需要您补充说明</h2><p v-for="(prompt, i) in currentQuestion.prompts" :key="i" class="customer-text-block">{{ prompt }}</p><p v-if="!currentQuestion.prompts.length" class="muted">问题正文未提供，当前无法回答。</p><p class="customer-inline-note">回答截止 {{ formatTime(currentQuestion.expires_at) }}</p>
               <form v-if="canAnswer" @submit.prevent="answer"><label>您的回答<textarea v-model="answerText" data-test="answer-text" rows="4" maxlength="8000" :disabled="writing" placeholder="请针对当前问题补充说明" /></label><div class="customer-form-footer"><button type="submit" data-test="submit-answer" :disabled="writing || !answerText.trim()">{{ writing ? '正在保存…' : '提交回答' }}</button></div></form>
@@ -348,10 +349,10 @@ onBeforeUnmount(() => {
               <form v-if="canAppend" class="customer-material-form" @submit.prevent="saveMaterial()"><label>追加文本材料<textarea v-model="materialText" data-test="material-text" rows="3" maxlength="8000" :disabled="writing || uncertainMaterial" placeholder="补充新的文字说明，保存后重新调查" /></label><p v-if="uncertainMaterial" class="customer-info">保存结果待确认，请刷新核对已提交记录。当前禁止再次提交同一文本。</p><div class="customer-form-footer"><button data-test="append-evidence" type="submit" :disabled="writing || uncertainMaterial || !materialText.trim()">{{ writing ? '正在保存…' : '提交材料' }}</button></div></form><p v-else-if="materialText" class="customer-info">未保存的文本仍在本登录会话保留；当前状态不允许追加。</p>
             </section>
           </div>
-          <aside class="customer-detail-aside">
-            <section class="panel" aria-label="原始申请"><h2>我的申请</h2><p class="customer-text-block">{{ detail.case.description || '原始说明未提供' }}</p></section>
-            <section class="panel"><h2>申请信息</h2><a class="text-button" href="#/shop/orders">查看我的订单</a><button v-if="detail.allowed_actions.includes('CANCEL')" data-test="cancel-case" class="danger-button" type="button" :disabled="writing" @click="cancelOpen = true; cancelReason = ''">撤销申请</button><details class="customer-history customer-identifiers"><summary>申请与订单编号</summary><dl class="customer-facts"><dt>申请号</dt><dd>{{ detail.case.case_id }}</dd><dt>订单号</dt><dd>{{ detail.case.order_id || '未提供' }}</dd><dt>提交时间</dt><dd>{{ formatTime(detail.case.created_at) }}</dd><dt v-if="detailLine?.paid_at">支付时间</dt><dd v-if="detailLine?.paid_at">{{ formatTime(detailLine.paid_at) }}</dd></dl></details></section>
-          </aside>
+          <section class="buyer-application-more" aria-label="申请信息">
+            <details class="customer-history buyer-original-request"><summary>申请原因与订单信息</summary><p class="customer-text-block">{{ detail.case.description || '原始说明未提供' }}</p><dl class="customer-facts"><dt>申请号</dt><dd>{{ detail.case.case_id }}</dd><dt>订单号</dt><dd>{{ detail.case.order_id || '未提供' }}</dd><dt>提交时间</dt><dd>{{ formatTime(detail.case.created_at) }}</dd><dt v-if="detailLine?.paid_at">支付时间</dt><dd v-if="detailLine?.paid_at">{{ formatTime(detailLine.paid_at) }}</dd></dl></details>
+            <div class="buyer-application-links"><a class="text-button" href="#/shop/orders">查看我的订单</a><button v-if="detail.allowed_actions.includes('CANCEL')" data-test="cancel-case" class="text-button" type="button" :disabled="writing" @click="cancelOpen = true; cancelReason = ''">撤销申请</button></div>
+          </section>
         </div>
       </template>
     </main>

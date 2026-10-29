@@ -21,10 +21,6 @@ const notes: Record<string, string> = {
   CANCELLED: '本次申请已结束，处理记录仍可查看。',
 }
 const note = computed(() => notes[state.value] || '')
-const stages = ['申请已提交', '核查与审核', '退款结果']
-const stage = computed(() => succeeded.value ? 3 : ['AUTHORIZED', 'EXECUTING', 'RECONCILING'].includes(state.value) ? 2
-  : ['QUEUED', 'ANALYZING', 'WAITING_CUSTOMER', 'PENDING_REVIEW', 'CLOSED_REJECTED'].includes(state.value) ? 1 : -1)
-const activeStage = computed(() => ['CLOSED_SUCCESS', 'CLOSED_REJECTED', 'CANCELLED'].includes(state.value) ? -1 : stage.value)
 const amount = computed(() => {
   const value = props.application.result.amount_minor
   return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
@@ -50,7 +46,7 @@ const message = computed(() => props.application.result.message !== title.value 
     <p v-if="message && !note" class="buyer-progress-message">{{ message }}</p>
     <p v-if="application.result.public_reason" class="buyer-progress-reason">{{ application.result.public_reason }}</p>
     <p v-if="application.blocked_reason && application.blocked_reason !== application.result.public_reason" class="buyer-progress-blocked">{{ application.blocked_reason }}</p>
-    <ol v-if="stage >= 0" class="buyer-progress-stages" aria-label="申请处理阶段"><li v-for="(label, index) in stages" :key="label" :class="{ done: index < stage, current: index === activeStage }" :aria-current="index === activeStage ? 'step' : undefined"><span aria-hidden="true"></span>{{ label }}</li></ol>
+    <div v-if="$slots.product" class="buyer-receipt-product"><slot name="product" /></div>
     <details class="buyer-progress-records"><summary>处理记录</summary><ol v-if="application.timeline.length"><li v-for="(event, index) in application.timeline" :key="index"><span>{{ event.summary }}</span><time v-if="stamp(event.occurred_at)" :datetime="event.occurred_at">{{ stamp(event.occurred_at) }}</time></li></ol><p v-else>暂无处理记录。</p><small>申请编号 {{ application.case.case_id }}</small></details>
     <footer v-if="$slots.default"><slot /></footer>
   </section>
@@ -72,12 +68,7 @@ const message = computed(() => props.application.result.message !== title.value 
 .buyer-result-amount span { font-size: 12px; color: #6a756b; }
 .buyer-result-amount strong { font-size: 30px; font-weight: 500; line-height: 1.3; letter-spacing: -.5px; color: #25322c; }
 .success .buyer-result-amount strong { color: #176b5c; }
-.buyer-progress .buyer-progress-stages { display: flex; list-style: none; margin-top: 22px; gap: 12px; }
-.buyer-progress-stages li { flex: 1; color: #81897f; font-size: 12px; }
-.buyer-progress-stages li > span { display: block; height: 3px; background: #e7ebe3; margin-bottom: 7px; border-radius: 2px; }
-.buyer-progress-stages .done > span { background: #75a28d; }
-.buyer-progress-stages .current { color: #176b5c; }
-.buyer-progress-stages .current > span { background: #176b5c; }
+.buyer-receipt-product { margin-top: 22px; padding-top: 18px; border-top: 1px solid #e6eae2; }
 .buyer-progress-records { margin-top: 20px; padding-top: 14px; border-top: 1px solid #e6eae2; font-size: 12px; color: #6a756b; }
 .buyer-progress-records summary { display: flex; justify-content: space-between; gap: 14px; list-style: none; cursor: pointer; }
 .buyer-progress-records summary::-webkit-details-marker { display: none; }

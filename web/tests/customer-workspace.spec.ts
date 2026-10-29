@@ -47,6 +47,9 @@ describe('customer application workspace', () => {
     expect(w.get('[data-refund-success]').text()).toContain('退款完成')
     expect(w.get('[data-refund-result-amount]').text()).toContain('329.00')
     expect(w.get<HTMLDetailsElement>('.buyer-progress-records').element.open).toBe(false)
+    expect(w.get('.buyer-receipt-product').text()).toContain('保温杯')
+    expect(w.get<HTMLDetailsElement>('.buyer-original-request').element.open).toBe(false)
+    expect(w.find('.customer-detail-aside').exists()).toBe(false)
   })
 
   it('keeps the buyer application readable when its independent product lookup fails', async () => {
