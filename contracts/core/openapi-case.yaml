@@ -424,9 +424,14 @@ paths:
     get:
       operationId: readSupportCurrentInput
       summary: Read only this consultation input and permitted facts
-      description: 'Authority: docs/customer-agent-implementation-v1.md. support:read
-        credential bound to run/conversation/input/fence/merchant/customer/line; no
-        Case/refund scope.'
+      description: 'support:read credential bound to run/conversation/input/fence/merchant/customer/line.
+        order includes refund_application from the existing buyer projection for only this line:
+        present/status, case_id/line_id/version, public message, nullable amount_minor/currency,
+        allowed_actions and blocked_reason. present=false/status=NONE is an authoritative negative;
+        missing facts are not a negative. Source version includes order and application identity/version.
+        No investigation, authorization identity, staff data, cross-subject reads or business write scope.
+        has_ticket remains the independent inquiry ticket, never refund state. Fixture:
+        fixtures/support-order-refund-facts.json.'
       security:
       - serviceToken: []
       parameters:

@@ -1,5 +1,7 @@
 # 咨询运行记录与角色边界
 
+2026-10-29真实联调发现：退款完成后客服仍说未办理，根因是咨询order事实只有原付款商品，has_ticket又仅代表咨询核查单。`facts/order`现复用CustomerCaseRepository.related与CustomerCaseService.read，按绑定merchant/customer/line提供refund_application字段白名单；来源版本组合订单版本与申请id/version。无申请明确present=false/status=NONE，读取失败或缺字段不是否定事实。只返回买家公开进展、可空金额及操作限制，不提供调查原文/政策引用/审批授权身份/未共享材料，不赋予任何写权限。协议见contracts/core/openapi-case.yaml，合成fixture见fixtures/support-order-refund-facts.json；这与has_ticket独立，不从历史助手回答恢复当前退款事实。
+
 2026-10-28：`GET /api/v1/platform/support-runs` 读取最近50次客服运行；`GET /api/v1/platform/support-runs/{id}` 返回运行摘要及最近200条允许展示的过程事件，按原事件序号排列，截断明确标记。沿用当前持久账号校验，仅 PLATFORM_ADMIN 可读；买家和商家403，失效会话401。接口不调用模型、不重试业务、不新增表或迁移。
 
 运行摘要仅包含 run_id、merchant_id、受控状态/失败分类、mock/live、创建时间、已记录的模型/工具/本地读取计数及已发布答复的来源类型数量。指标缺失为 null，不能补0；来源数量不代表全部检索候选或召回效果。过程来自 Case 原事件日志，包含接收咨询、读取资料、生成/重置/提交答复、失败或过期；“已返回”不冒充工具业务成功。未记录的耗时或模型内部步骤不推算。

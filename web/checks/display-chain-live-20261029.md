@@ -22,6 +22,8 @@ buyer09通过正式网页新买无线降噪耳机黑色一件，实付32900分�
 
 新增阻塞：退款完成后问“现在这笔退款办好了吗？退了多少钱，还需要我做什么？”，run `0a70b285-aaed-4086-ab8f-e072eadb8bcd`回答“还没有办好，目前没有已提交或已退款的记录”，与真实CLOSED_SUCCESS相反。实际工具order仅有原付款商品信息，shipment/policy没有退款执行事实；conversation_state.has_ticket指独立咨询核查单，并非退款申请。正在核对只读事实接入与答复约束，不能仅改措辞或将has_ticket=false解释为没有退款。
 
+事实接线子步：SupportAgentTurns复用CustomerCaseRepository.related与CustomerCaseService.read，沿绑定商家/买家/订单行只返回公开refund_application白名单，来源版本组合订单版本与申请id/version；不传调查、授权身份或材料。Java两项新增接口检查先失败；实现后2项及原fence检查通过，去掉一项错误的消息数量夹具假设后，完整SupportRefundApiTest及fence共49项通过。覆盖无申请、同line但他人/他店申请隔离、当前状态变化、金额缺失不捏造及来源版本变化。OpenAPI说明、Java边界说明和合成fixture同步。Python渲染/来源校验和部署后的真实复验仍在后续子步；此处不把接口绿灯等同模型已修好。
+
 截至前两咨询+两调查共17次真实DeepSeek请求，provider报告input42174/output1662 tokens、非估算；第三次追问另计，最终汇总后追加。真实模型、模拟资金及合成物流明确区分。
 
 实际失败命令：初次Maven参数未整体引用导致生命周期解析失败；全模块Spotless发现ReviewerRunInput、ReviewerRunInputTest、OrderApiTest既有格式问题，未顺手修改；定向参数先误用glob后改正则；首次package因Windows运行JAR锁失败，仅停止所属Case后重建成功。Case启动中一次刷新返回500，健康后恢复。原始失败日志保留，不算业务或模型成功。

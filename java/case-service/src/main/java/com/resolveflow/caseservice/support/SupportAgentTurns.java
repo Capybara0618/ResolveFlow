@@ -1,5 +1,7 @@
 package com.resolveflow.caseservice.support;
 
+import com.resolveflow.caseservice.casefile.CustomerCaseRepository;
+import com.resolveflow.caseservice.casefile.CustomerCaseService;
 import com.resolveflow.caseservice.order.CommerceOrderLineClient;
 import com.resolveflow.caseservice.order.RequestPrincipalResolver.Session;
 import com.resolveflow.caseservice.policy.PolicySelectionService;
@@ -36,6 +38,8 @@ public class SupportAgentTurns {
     private final Clock clock;
     private final SupportStreamEvents events;
     private final SupportProgress progress;
+    private final CustomerCaseRepository customerCases;
+    private final CustomerCaseService buyerCases;
     private final org.springframework.context.ApplicationEventPublisher publisher;
 
     public record Queued() {}
@@ -52,6 +56,8 @@ public class SupportAgentTurns {
             Clock clock,
             SupportStreamEvents events,
             SupportProgress progress,
+            CustomerCaseRepository customerCases,
+            CustomerCaseService buyerCases,
             org.springframework.context.ApplicationEventPublisher publisher) {
         this.db = db;
         this.tx = new TransactionTemplate(manager);
@@ -65,6 +71,8 @@ public class SupportAgentTurns {
         this.clock = clock;
         this.events = events;
         this.progress = progress;
+        this.customerCases = customerCases;
+        this.buyerCases = buyerCases;
         this.publisher = publisher;
     }
 
@@ -698,15 +706,38 @@ public class SupportAgentTurns {
         if (kind.equals("order")) {
             var lines = commerce.listByLine(principal(t), t.line).items();
             if (lines.size() != 1) throw stale();
+            // The independent inquiry ticket says nothing about a refund application.
+            // Reuse the buyer projection, scoped to this credential's merchant/customer/line.
+            var related = customerCases.related(t.merchant, t.customer, t.line);
+            Map<String, Object> application = new LinkedHashMap<>();
+            application.put("present", related != null);
+            application.put("status", "NONE");
+            String applicationVersion = "none";
+            if (related != null) {
+                var detail = buyerCases.read(principal(t), related.caseId());
+                var summary = detail.caseSummary();
+                applicationVersion = summary.caseId() + ":" + summary.version();
+                application.put("case_id", summary.caseId());
+                application.put("line_id", summary.lineId());
+                application.put("version", summary.version());
+                application.put("status", detail.result().status().name());
+                application.put("message", detail.result().message());
+                application.put("amount_minor", detail.result().amountMinor());
+                application.put("currency", detail.result().currency());
+                application.put("allowed_actions", detail.allowedActions());
+                application.put("blocked_reason", detail.blockedReason());
+            }
             return Map.of(
                     "merchant_id",
                     t.merchant,
                     "line_id",
                     t.line,
                     "version",
-                    lines.getFirst().version(),
+                    "order-" + lines.getFirst().version() + ":refund-" + applicationVersion,
                     "order_line",
-                    lines.getFirst());
+                    lines.getFirst(),
+                    "refund_application",
+                    application);
         }
         if (kind.equals("shipment")) {
             var result = shopping.fulfillment(t.order, t.merchant, t.customer);

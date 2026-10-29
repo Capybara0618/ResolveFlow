@@ -19,6 +19,86 @@ class SupportRefundApiTest extends SupportApiTest {
     @org.springframework.beans.factory.annotation.Autowired
     SupportRefundService refunds;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    com.resolveflow.caseservice.casefile.CaseRepository cases;
+
+    @Test
+    void assistantOrderFactsReadCurrentRefundApplicationWithoutLeakingInvestigation() {
+        var c = open("support-A");
+        var created = confirmDraft(c, prepareDraft(c, "facts-draft"), "facts-confirm", 200);
+        String caseId = created.path("application").path("case").path("case_id").asString();
+        var current = message(get(path(c), buyer, 200), "facts-question", "退款到哪里了？", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> request = i.getArgument(1);
+            String route = "/internal/v1/support/turns/" + request.get("run_id") + "/facts/order";
+            String credential = "Bearer " + request.get("tool_token");
+            String previousVersion = null;
+            for (String status : java.util.List.of("QUEUED", "AUTHORIZED", "RECONCILING", "CLOSED_SUCCESS")) {
+                jdbc.update("UPDATE aftersale_case SET status=?,version=version+1 WHERE case_id=?", status, caseId);
+                var fact = json.readTree(rest.get()
+                        .uri(route)
+                        .header("Authorization", credential)
+                        .exchange()
+                        .expectStatus()
+                        .isOk()
+                        .expectBody(String.class)
+                        .returnResult()
+                        .getResponseBody());
+                var application = fact.path("refund_application");
+                assertThat(application.path("present").asBoolean()).isTrue();
+                assertThat(application.path("case_id").asString()).isEqualTo(caseId);
+                assertThat(application.path("line_id").asString()).isEqualTo("support-A");
+                assertThat(application.path("status").asString()).isEqualTo(status);
+                assertThat(application.path("message").asString()).isNotBlank();
+                assertThat(application.path("amount_minor").isNull())
+                        .isTrue(); // No authorization: never invent an amount.
+                assertThat(application.toString())
+                        .doesNotContain("proposal", "policy_refs", "evidence_refs", "materials");
+                assertThat(fact.path("version").asString()).isNotEqualTo(previousVersion);
+                previousVersion = fact.path("version").asString();
+            }
+            return json.readTree("{\"status\":\"FAILED\",\"reason\":\"TEST_COMPLETE\"}");
+        });
+        turns.dispatchOne();
+        assertThat(get(path(current), buyer, 200).path("messages").size()).isEqualTo(1);
+    }
+
+    @Test
+    void assistantOrderFactsDoNotEquateMissingInquiryTicketWithMissingRefundApplication() {
+        cases.insertCase(
+                java.util.UUID.randomUUID().toString(),
+                "M-1002",
+                "C-foreign",
+                java.util.UUID.randomUUID().toString(),
+                "support-A",
+                "foreign private refund",
+                "CLOSED_SUCCESS",
+                1,
+                1,
+                null,
+                Instant.now(),
+                Instant.now());
+        var c = message(open("support-A"), "facts-none-question", "有退款申请吗？", "ASSISTANT");
+        when(assistant.execute(anyString(), any())).thenAnswer(i -> {
+            Map<String, Object> request = i.getArgument(1);
+            var fact = json.readTree(rest.get()
+                    .uri("/internal/v1/support/turns/" + request.get("run_id") + "/facts/order")
+                    .header("Authorization", "Bearer " + request.get("tool_token"))
+                    .exchange()
+                    .expectStatus()
+                    .isOk()
+                    .expectBody(String.class)
+                    .returnResult()
+                    .getResponseBody());
+            assertThat(fact.path("refund_application").path("present").asBoolean())
+                    .isFalse();
+            assertThat(fact.path("refund_application").path("status").asString())
+                    .isEqualTo("NONE");
+            return json.readTree("{\"status\":\"FAILED\",\"reason\":\"TEST_COMPLETE\"}");
+        });
+        turns.dispatchOne();
+    }
+
     @Test
     void publishedSummaryIsPrivateAndDoesNotCreateApplicationOrDraft() {
         var c = message(open("support-A"), "summary-question", "请整理退款申请原因", "ASSISTANT");
