@@ -17,3 +17,5 @@
 失败记录：首轮模板直接使用URLSearchParams触发vue-tsc不可见全局，改script计算属性；阶段候选SQL别名改变导致原注入时点未命中，恢复原SELECT id前缀并保持一致性检查；首次协议字段插入位置误命中dependentSchemas，YAML解析先报错，修正为精确同级properties后23通过。所有原日志保留tmp/shopping-batch2-*。
 
 三批代码完成后统一真实场景验收，当前未启动项目服务、未新模型/订单/录制，不能以自动化结果宣称实机完成。
+
+最终兼容检查：历史case_timeline.detail可能不是合法JSON，通知投影先JSON_VALID判断后取字段，未知旧详情只给普通结果提醒，不返回原文。新增历史非结构化详情断言后NotificationServiceTest3通过，日志tmp/shopping-notifications-compat-test.log。

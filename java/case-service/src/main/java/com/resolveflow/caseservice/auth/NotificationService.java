@@ -46,13 +46,13 @@ public class NotificationService {
             WHERE c.buyer_id=? AND m.author='MERCHANT' AND m.recipient='CUSTOMER'
             UNION ALL
             SELECT CONCAT('case:',t.event_id),CASE WHEN t.kind='QUESTION_REQUIRED' THEN '售后申请需要补充说明'
-              WHEN JSON_UNQUOTE(JSON_EXTRACT(t.detail,'$.outcome'))='SUCCEEDED' THEN '模拟退款已完成' ELSE '售后申请有处理结果' END,
+              WHEN JSON_UNQUOTE(JSON_EXTRACT(CASE WHEN JSON_VALID(t.detail) THEN t.detail ELSE '{}' END,'$.outcome'))='SUCCEEDED' THEN '模拟退款已完成' ELSE '售后申请有处理结果' END,
               'APPLICATION',c.case_id,NULL,t.occurred_at
             FROM case_timeline t JOIN aftersale_case c ON c.case_id=t.case_id
             JOIN buyer_customer_binding b ON b.merchant_id=c.merchant_id AND b.customer_id=c.customer_id
             JOIN identity_merchant store ON store.merchant_id=b.merchant_id AND store.enabled=TRUE
             WHERE b.buyer_id=? AND t.kind IN ('QUESTION_REQUIRED','CASE_CLOSED')
-              AND COALESCE(JSON_UNQUOTE(JSON_EXTRACT(t.detail,'$.ignored_as_stale')),'false')<>'true'
+              AND COALESCE(JSON_UNQUOTE(JSON_EXTRACT(CASE WHEN JSON_VALID(t.detail) THEN t.detail ELSE '{}' END,'$.ignored_as_stale')),'false')<>'true'
             """, List.of(p.buyerId(), p.buyerId()));
         if (p.role() == Role.MERCHANT_ADMIN)
             return new Query("""

@@ -135,6 +135,12 @@ class NotificationServiceTest extends CaseDatabaseTest {
         assertThat(result.title()).isEqualTo("模拟退款已完成");
         assertThat(result.target_id()).isEqualTo(id);
         assertThat(result.toString()).doesNotContain("private-operation");
+        String historical = UUID.randomUUID().toString();
+        cases.insertTimeline(id, historical, 3, "CASE_CLOSED", "historical-unstructured-detail", now, 1);
+        assertThat(service.list(buyer(), null).items())
+                .filteredOn(n -> n.notification_id().equals("case:" + historical))
+                .extracting(NotificationService.Item::title)
+                .containsExactly("售后申请有处理结果");
         cases.insertTimeline(id, UUID.randomUUID().toString(), 2, "QUESTION_REQUIRED", "{}", now, 1);
         assertThat(service.list(buyer(), null).items())
                 .extracting(NotificationService.Item::title)
