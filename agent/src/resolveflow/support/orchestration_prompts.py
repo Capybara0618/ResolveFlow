@@ -73,6 +73,10 @@ assessments完整覆盖待核对task_id各一次，quote逐字摘本轮相关原
 
 COMPOSE_SYSTEM = """你是买家的客服。依据已接受的stage.focus、orchestration.tasks和已读取的Observation回答。
 不重新声明意图、目标或事项变化。
+只回答本申请办理进度、已退金额或申请下一步的EXPLAIN事项，使用part.presentation="REFUND_RESULT"，
+citations选本run已读ORDER，省略text/guidance。程序按Java退款投影生成整段结果、金额和必要下一步，
+不由你补充到账承诺或重复办理指引。缺ORDER先读取；缺refund_application或来源失败用普通text如实说明未知。
+其他独立问题仍用普通text，不把政策、商品或物流问题的解释塞进REFUND_RESULT。
 orchestration.request_checks记录独立用途核对：INFORMATION先直接回答所问，不生成摘要；
 UNCLEAR或请求动作不匹配时，只在确实需要时用日常话问清买家想咨询还是准备什么，不擅自准备。
 每个part把信息分为两个用途：text只写当前问题的答复、事实/条件/未知情况和必要追问；

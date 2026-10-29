@@ -18,6 +18,7 @@ from resolveflow.support.protocol import (
     SupportInput,
     TaskBlocker,
 )
+from resolveflow.support.refund_result import render_refund_result
 from resolveflow.support.request_check import RequestCheck
 from resolveflow.support.stages import Focus, Understanding
 
@@ -76,12 +77,24 @@ class TurnPlan(Understanding):
 
 class ResponsePart(Closed):
     task_id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,32}$")
-    text: str = Field(min_length=1, max_length=4000)
+    text: str | None = Field(default=None, min_length=1, max_length=4000)
+    presentation: Literal["REFUND_RESULT"] | None = None
     guidance: str | None = Field(default=None, min_length=1, max_length=1000)
     citations: list[Annotated[str, Field(pattern=r"^[OP][1-9][0-9]*$")]] = Field(
         default_factory=list, max_length=8)
     status: Literal["ANSWERED", "NEEDS_CUSTOMER", "NEEDS_MERCHANT"] = "ANSWERED"
     blocker: TaskBlocker | None = None
+
+    @model_validator(mode="after")
+    def result_or_model_text(self) -> ResponsePart:
+        if self.presentation == "REFUND_RESULT":
+            if (self.text is not None or self.guidance is not None or self.blocker is not None
+                    or self.status != "ANSWERED"):
+                raise ValueError("REFUND_RESULT由程序生成正文及下一步，不接受text/guidance/blocker。"
+                                 "其他问题单独用普通part。")
+        elif not self.text or not self.text.strip():
+            raise ValueError("普通答复须非空text。")
+        return self
 
 
 class SummaryDraft(Closed):
@@ -347,7 +360,10 @@ class Orchestration:
                                "omit_for_status": ["NEEDS_CUSTOMER"]})
                 candidates = self.quote_candidates([])
                 example[field] = {"customer_refs": [candidates[0]["ref"]] if candidates else []}
-        return {"reason_fields": fields, "example": example}
+        return {"reason_fields": fields, "example": example,
+                "refund_result_option": {"when": "只回答当前退款办理进度/已退金额/该申请下一步的EXPLAIN事项",
+                    "shape": {"task_id": "实际id", "presentation": "REFUND_RESULT", "citations": ["已读ORDER编号"]},
+                    "rule": "程序读取refund_application生成整段，不提供text/guidance；其他问题仍用普通text"}}
 
     def compose(self, response: Response, meaning: Understanding, refs: dict[str, dict[str, Any]],
                 failures: list[dict[str, Any]], lives: dict[str, str], *,
@@ -362,6 +378,7 @@ class Orchestration:
         usable_goals = set()
         for focus, task in zip(meaning.focus, state["tasks"], strict=True):
             part = by_id[focus.id]
+            text = part.text or ""
             if not set(part.citations) <= refs.keys():
                 raise ValueError("citations须本run已读O/P编号")
             status: Any = part.status
@@ -377,7 +394,7 @@ class Orchestration:
                                       tool_name=failure["tool_name"])
             elif status == "NEEDS_CUSTOMER":
                 if (blocker is None or blocker.kind != "CUSTOMER_INFO"
-                        or blocker.question is None or blocker.question not in part.text):
+                        or blocker.question is None or blocker.question not in text):
                     raise ValueError("NEEDS_CUSTOMER须在正文询问实际缺少的客户信息")
             elif blocker is not None:
                 raise ValueError("blocker须匹配NEEDS_CUSTOMER或实际来源失败")
@@ -385,6 +402,11 @@ class Orchestration:
             facts: list[AnswerFact] = []
             steps = []
             active = life not in INACTIVE and task["state"] != "BLOCKED"
+            if part.presentation == "REFUND_RESULT":
+                orders = task["refs_by_need"].get("ORDER", [])
+                if not active or task["goal"] != "EXPLAIN" or not orders:
+                    raise ValueError("REFUND_RESULT须活动EXPLAIN事项和本run已读ORDER，不执行准备或修改申请。")
+                text = render_refund_result(refs[orders[-1]], self.request)
             # A failed required source blocks completion/actions, not independently observed facts.
             # Keep valid partial fields available for an honest unavailable answer; never invent the missing ones.
             if life not in INACTIVE:
@@ -419,7 +441,7 @@ class Orchestration:
             # operations have their own confirmed cards; a source failure/paused task has no UI advice.
             guidance = (part.guidance if active and status in {"ANSWERED", "NEEDS_MERCHANT"}
                         and task["goal"] == "EXPLAIN" and "GUIDE" in self.required(focus) else None)
-            parts.append(AnswerPart.model_validate({"task_id": focus.id, "status": status, "text": part.text,
+            parts.append(AnswerPart.model_validate({"task_id": focus.id, "status": status, "text": text,
                          "guidance": guidance,
                          "citations": citations, "facts": facts, "next_steps": steps,
                          "blocker": blocker, "assessment": assessment}))
