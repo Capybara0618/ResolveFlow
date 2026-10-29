@@ -197,8 +197,13 @@
 .workbench.unified-interface .merchant-support .support-grid { grid-template-columns: 210px minmax(0,1fr) 250px; border: 1px solid var(--rf-line); border-radius: 10px; overflow: hidden; }
 .workbench.unified-interface .merchant-support .support-message-bubble { font-family: var(--rf-font-reading); font-size: 16px; line-height: 1.85; }
 .workbench.unified-interface .merchant-support .support-chat-identity h2 { font-size: 17px; font-weight: 500; }
+.workbench.unified-interface .merchant-support .support-history-item .product-art { width: 38px; height: 38px; flex: 0 0 38px; object-fit: contain; border-radius: 6px; }
+.workbench.unified-interface .merchant-support .context-product .product-art { width: 64px; height: 64px; flex: 0 0 64px; object-fit: contain; border-radius: 7px; }
+.workbench.unified-interface .merchant-support .support-grid { flex: 1; min-height: 0; }
+.workbench.unified-interface .merchant-support .support-main { min-height: 0; }
 .workbench.unified-interface .merchant-support .support-history-item strong { font-size: 14px; font-weight: 500; }
 .workbench.unified-interface .merchant-support .support-history-item :is(small,time) { font-size: 12px; }
 .workbench.unified-interface .merchant-support :is(input,textarea) { font-family: var(--rf-font-ui); font-size: 15px; }
-@media(max-width: 1320px) { .workbench.unified-interface .merchant-support .support-grid { grid-template-columns: 200px minmax(0,1fr); }.workbench.unified-interface .merchant-support .support-context { grid-column: 1 / -1; max-height: 240px; } }
+.workbench.unified-interface .merchant-support .support-context { grid-column: auto; max-height: none; }
+@media(max-width: 1120px) { .workbench.unified-interface .merchant-support .support-grid { grid-template-columns: 200px minmax(0,1fr); grid-template-rows: minmax(0,1fr) 140px; }.workbench.unified-interface .merchant-support .support-context { grid-column: 1 / -1; max-height: 140px; } }
 @media(max-width: 850px) { .workbench.unified-interface .merchant-support { height: auto; min-height: 600px; }.workbench.unified-interface .merchant-support .support-grid { display: flex; flex-direction: column; }.workbench.unified-interface .merchant-support .support-history { max-height: 200px; }.workbench.unified-interface .merchant-support .support-main { min-height: 560px; } }

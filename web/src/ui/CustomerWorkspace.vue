@@ -322,7 +322,7 @@ onBeforeUnmount(() => {
         <div v-if="applicationCursor" class="customer-pagination"><button type="button" class="secondary-button" :disabled="loading" @click="more('applications')">加载更多申请</button></div>
       </section>
       <form v-else-if="screen === 'apply' && selectedLine" class="customer-apply" @submit.prevent="create">
-        <button class="text-button customer-back" type="button" :disabled="writing || createUncertain" @click="navigate('orders')">← 返回我的订单</button>
+        <button class="text-button customer-back" type="button" :disabled="writing || createUncertain" @click="navigate('orders')">返回我的订单</button>
         <div class="customer-detail-grid">
           <section class="panel"><h2>确认申请订单</h2><AftercareProduct :line="selectedLine.order_line" :show-amount="false" />
             <label>情况说明 <span class="customer-required">必填</span><textarea v-model="description" data-test="application-description" rows="5" maxlength="4000" :readonly="writing || createUncertain" placeholder="请说明退款原因和已经尝试的处理方式" /></label>
