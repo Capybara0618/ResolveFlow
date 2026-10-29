@@ -276,6 +276,24 @@ it('uses read-only fallback for an active disconnected turn and never retries a 
     expect(mutate).not.toHaveBeenCalled()
   } finally { vi.useRealTimers() }
 })
+
+it('converges a connected but silent active stream to the server terminal state without retrying writes', async () => {
+  vi.useFakeTimers()
+  try {
+    const c: SupportConversation = { ...original(), assistant_turn: { run_id: 'silent-run', status: 'RUNNING', reason: null } }
+    vi.mocked(supportApi.read).mockResolvedValue(c)
+    const mutate = vi.spyOn(supportApi, 'mutate')
+    await open()
+    const before = vi.mocked(supportApi.read).mock.calls.length
+    vi.mocked(supportApi.read).mockResolvedValue({ ...c, assistant_turn: { run_id: 'silent-run', status: 'FAILED', reason: 'INVALID_DECISION' } })
+    await vi.advanceTimersByTimeAsync(10000)
+    expect(wrapper.text()).toContain('助手本次未能完成回答')
+    expect(supportApi.read).toHaveBeenCalledTimes(before + 1)
+    await vi.advanceTimersByTimeAsync(10000)
+    expect(supportApi.read).toHaveBeenCalledTimes(before + 1)
+    expect(mutate).not.toHaveBeenCalled()
+  } finally { vi.useRealTimers() }
+})
 it('requires preview confirmation and passes selected original ids instead of text copies', async () => {
   const mutate = vi.spyOn(supportApi, 'mutate').mockResolvedValue(fixture.Conversation as SupportConversation)
   await open(); await wrapper.get('[data-action="handoff"]').trigger('click'); await flushPromises()

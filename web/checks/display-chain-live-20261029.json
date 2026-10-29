@@ -1,0 +1,555 @@
+{
+  "scope": "one local simulated order; real DeepSeek; five display scenes plus completed-refund follow-up",
+  "case_id": "80ac23d2-2fbd-4b4c-88ec-a6a1e41a9534",
+  "order_id": "bb1eb1cf-4720-428c-8179-6ef93ce6fe70",
+  "line_id": "SHOP-6ec5216c-61b5-431a-8a9f-e87dc05d1f2d",
+  "captured_at": "2026-10-29T03:34:08.447050+00:00",
+  "old_rows_preserved": {
+    "cases": true,
+    "commerce_refunds": true,
+    "support_runs": true
+  },
+  "model_requests": 27,
+  "provider_reported_usage": {
+    "input_tokens": 90817,
+    "output_tokens": 2459
+  },
+  "models": {
+    "support": [
+      {
+        "run_id": "0a70b285-aaed-4086-ab8f-e072eadb8bcd",
+        "position": 1,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 3565,
+          "output_tokens": 129
+        }
+      },
+      {
+        "run_id": "0a70b285-aaed-4086-ab8f-e072eadb8bcd",
+        "position": 2,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 3148,
+          "output_tokens": 49
+        }
+      },
+      {
+        "run_id": "0a70b285-aaed-4086-ab8f-e072eadb8bcd",
+        "position": 3,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 6720,
+          "output_tokens": 86
+        }
+      },
+      {
+        "run_id": "1bb4c0d9-546c-4123-9f6a-f3eb7e320ca9",
+        "position": 1,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 3868,
+          "output_tokens": 129
+        }
+      },
+      {
+        "run_id": "1bb4c0d9-546c-4123-9f6a-f3eb7e320ca9",
+        "position": 2,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 3427,
+          "output_tokens": 51
+        }
+      },
+      {
+        "run_id": "1bb4c0d9-546c-4123-9f6a-f3eb7e320ca9",
+        "position": 3,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 7312,
+          "output_tokens": 62
+        }
+      },
+      {
+        "run_id": "1bb4c0d9-546c-4123-9f6a-f3eb7e320ca9",
+        "position": 4,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 7476,
+          "output_tokens": 68
+        }
+      },
+      {
+        "run_id": "63039021-5b0e-4847-b6a8-8ae561a641c3",
+        "position": 1,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2718,
+          "output_tokens": 130
+        }
+      },
+      {
+        "run_id": "63039021-5b0e-4847-b6a8-8ae561a641c3",
+        "position": 2,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2299,
+          "output_tokens": 23
+        }
+      },
+      {
+        "run_id": "63039021-5b0e-4847-b6a8-8ae561a641c3",
+        "position": 3,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 3945,
+          "output_tokens": 54
+        }
+      },
+      {
+        "run_id": "bdc87acb-543e-4491-bd97-047cbdab15b3",
+        "position": 1,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 3196,
+          "output_tokens": 184
+        }
+      },
+      {
+        "run_id": "bdc87acb-543e-4491-bd97-047cbdab15b3",
+        "position": 2,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 736,
+          "output_tokens": 68
+        }
+      },
+      {
+        "run_id": "bdc87acb-543e-4491-bd97-047cbdab15b3",
+        "position": 3,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 3004,
+          "output_tokens": 45
+        }
+      },
+      {
+        "run_id": "bdc87acb-543e-4491-bd97-047cbdab15b3",
+        "position": 4,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 6758,
+          "output_tokens": 85
+        }
+      },
+      {
+        "run_id": "d51a332f-650c-4309-ba12-431539c06750",
+        "position": 1,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 4041,
+          "output_tokens": 130
+        }
+      },
+      {
+        "run_id": "d51a332f-650c-4309-ba12-431539c06750",
+        "position": 2,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 3547,
+          "output_tokens": 23
+        }
+      },
+      {
+        "run_id": "d51a332f-650c-4309-ba12-431539c06750",
+        "position": 3,
+        "status": "COMPLETE",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 5539,
+          "output_tokens": 70
+        }
+      }
+    ],
+    "investigation": [
+      {
+        "run_id": "9e620607-c345-5855-b034-cb8bd8eb2876",
+        "call_id": "model-0",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1368,
+          "output_tokens": 107
+        }
+      },
+      {
+        "run_id": "9e620607-c345-5855-b034-cb8bd8eb2876",
+        "call_id": "model-1",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1750,
+          "output_tokens": 18
+        }
+      },
+      {
+        "run_id": "9e620607-c345-5855-b034-cb8bd8eb2876",
+        "call_id": "model-2",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2154,
+          "output_tokens": 33
+        }
+      },
+      {
+        "run_id": "9e620607-c345-5855-b034-cb8bd8eb2876",
+        "call_id": "model-3",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2442,
+          "output_tokens": 40
+        }
+      },
+      {
+        "run_id": "9e620607-c345-5855-b034-cb8bd8eb2876",
+        "call_id": "model-4",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2576,
+          "output_tokens": 254
+        }
+      },
+      {
+        "run_id": "e7d27170-126f-5229-a6f9-42744ec65a4b",
+        "call_id": "model-0",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1184,
+          "output_tokens": 107
+        }
+      },
+      {
+        "run_id": "e7d27170-126f-5229-a6f9-42744ec65a4b",
+        "call_id": "model-1",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1468,
+          "output_tokens": 36
+        }
+      },
+      {
+        "run_id": "e7d27170-126f-5229-a6f9-42744ec65a4b",
+        "call_id": "model-2",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 1872,
+          "output_tokens": 32
+        }
+      },
+      {
+        "run_id": "e7d27170-126f-5229-a6f9-42744ec65a4b",
+        "call_id": "model-3",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2285,
+          "output_tokens": 40
+        }
+      },
+      {
+        "run_id": "e7d27170-126f-5229-a6f9-42744ec65a4b",
+        "call_id": "model-4",
+        "attempt_no": 0,
+        "state": "SAVED",
+        "mode": "live",
+        "usage": {
+          "estimated": false,
+          "input_tokens": 2419,
+          "output_tokens": 406
+        }
+      }
+    ]
+  },
+  "checks": {
+    "case": [
+      [
+        "80ac23d2-2fbd-4b4c-88ec-a6a1e41a9534",
+        "CLOSED_SUCCESS",
+        "2",
+        "9"
+      ]
+    ],
+    "refund": [
+      [
+        "c3dbfd77-0d9c-4ec4-b6e9-e62c8636cff9",
+        "SUCCEEDED",
+        "32900",
+        "c3dbfd77-0d9c-4ec4-b6e9-e62c8636cff9",
+        "prv-c835d3d3-c651-47b9-9a5a-235d2a16ad7c",
+        "2026-10-29 03:01:54.466077",
+        "3"
+      ]
+    ],
+    "line": [
+      [
+        "SHOP-6ec5216c-61b5-431a-8a9f-e87dc05d1f2d",
+        "1",
+        "32900",
+        "CNY"
+      ]
+    ],
+    "ledger": [
+      [
+        "32900",
+        "32900",
+        "0",
+        "3"
+      ]
+    ],
+    "case_count_for_line": [
+      [
+        "1"
+      ]
+    ],
+    "authorization": [
+      [
+        "CONSUMED",
+        "32900",
+        "2",
+        "c3dbfd77-0d9c-4ec4-b6e9-e62c8636cff9"
+      ]
+    ],
+    "case_outbox": [
+      [
+        "PUBLISHED",
+        "6"
+      ]
+    ],
+    "commerce_outbox": [
+      [
+        "PUBLISHED",
+        "6"
+      ]
+    ],
+    "stream_events": [
+      [
+        "activity.completed",
+        "18"
+      ],
+      [
+        "activity.started",
+        "18"
+      ],
+      [
+        "answer.committed",
+        "4"
+      ],
+      [
+        "answer.delta",
+        "19"
+      ],
+      [
+        "answer.failed",
+        "1"
+      ],
+      [
+        "answer.reset",
+        "2"
+      ],
+      [
+        "answer.started",
+        "6"
+      ],
+      [
+        "turn.accepted",
+        "5"
+      ],
+      [
+        "turn.started",
+        "5"
+      ]
+    ],
+    "consultations": [
+      {
+        "run_id": "63039021-5b0e-4847-b6a8-8ae561a641c3",
+        "status": "SUCCEEDED",
+        "spend_json": {
+          "local_reads": 1,
+          "model_calls": 3,
+          "input_tokens": 10369,
+          "output_tokens": 207,
+          "tool_attempts": 2,
+          "no_progress_rounds": 0
+        }
+      },
+      {
+        "run_id": "bdc87acb-543e-4491-bd97-047cbdab15b3",
+        "status": "SUCCEEDED",
+        "spend_json": {
+          "local_reads": 2,
+          "model_calls": 4,
+          "input_tokens": 15571,
+          "output_tokens": 382,
+          "tool_attempts": 2,
+          "no_progress_rounds": 0
+        }
+      },
+      {
+        "run_id": "0a70b285-aaed-4086-ab8f-e072eadb8bcd",
+        "status": "SUCCEEDED",
+        "spend_json": {
+          "local_reads": 2,
+          "model_calls": 3,
+          "input_tokens": 14953,
+          "output_tokens": 264,
+          "tool_attempts": 2,
+          "no_progress_rounds": 0
+        }
+      },
+      {
+        "run_id": "1bb4c0d9-546c-4123-9f6a-f3eb7e320ca9",
+        "status": "FAILED",
+        "spend_json": {
+          "local_reads": 2,
+          "model_calls": 4,
+          "input_tokens": 24290,
+          "output_tokens": 310,
+          "tool_attempts": 2,
+          "no_progress_rounds": 0
+        }
+      },
+      {
+        "run_id": "d51a332f-650c-4309-ba12-431539c06750",
+        "status": "SUCCEEDED",
+        "spend_json": {
+          "local_reads": 1,
+          "model_calls": 3,
+          "input_tokens": 14636,
+          "output_tokens": 223,
+          "tool_attempts": 2,
+          "no_progress_rounds": 0
+        }
+      }
+    ],
+    "investigations": [
+      {
+        "run_id": "e7d27170-126f-5229-a6f9-42744ec65a4b",
+        "status": "COMPLETED",
+        "budget_spent": {
+          "local_reads": 1,
+          "model_calls": 5,
+          "input_tokens": 9228,
+          "output_tokens": 621,
+          "tool_attempts": 4,
+          "no_progress_rounds": 0
+        }
+      },
+      {
+        "run_id": "9e620607-c345-5855-b034-cb8bd8eb2876",
+        "status": "COMPLETED",
+        "budget_spent": {
+          "local_reads": 1,
+          "model_calls": 5,
+          "input_tokens": 10290,
+          "output_tokens": 452,
+          "tool_attempts": 4,
+          "no_progress_rounds": 0
+        }
+      }
+    ]
+  },
+  "provider": [
+    [
+      "c3dbfd77-0d9c-4ec4-b6e9-e62c8636cff9",
+      "SHOP-6ec5216c-61b5-431a-8a9f-e87dc05d1f2d",
+      "SUCCEEDED",
+      32900,
+      1
+    ]
+  ],
+  "baseline_sha256": "2e3010f5fc7a7801d00fa7f43fa71d5797f1c4a6aa9ad3b2e78179aea28940e9",
+  "after_sha256": "fd9a8dbfe9dba1ce085f226467201c3be866faf3b04de035e922a8578b6e69da",
+  "remaining_quality_findings": [
+    "initial investigation missed LOST policy and overgeneralized DMG for manual review",
+    "last correct status answer still suggests watching for arrival despite simulation label"
+  ],
+  "source_sha256": {
+    "agent/src/resolveflow/support/orchestration_prompts.py": "20e70f7b9b4cbce8d4b3a826086e85677e4937ce41e7f19e3d9f2a7c85d8a771",
+    "agent/src/resolveflow/support/grounding.py": "c31fb71d8f31db15878d05a28a89b1967fc5456c476aba119534900906d89409",
+    "java/case-service/src/main/java/com/resolveflow/caseservice/support/SupportAgentTurns.java": "ee2613406f640d37c1f8826f98f8223a8daf41e0a5cce4e980bd2476bf48c323"
+  },
+  "verdict": "functional demonstration chain passed after fixes; quality findings retained, not an all-scenarios model-quality pass",
+  "validation": {
+    "buyer_java_tests": 9,
+    "support_java_tests_including_inherited": 49,
+    "python_support_unit_tests": 577,
+    "python_final_targeted": 30,
+    "web_tests": 299,
+    "web_build": "passed",
+    "silent_connected_stream_test": "failed before fix; passed after fix; read-only fallback stops at terminal"
+  },
+  "observed_totals": {
+    "orders": 26,
+    "order_lines": 26,
+    "cases": 9,
+    "refund_operations": 6,
+    "support_turns": 41
+  }
+}

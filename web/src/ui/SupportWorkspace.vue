@@ -241,7 +241,7 @@ onMounted(() => {
   timer = setInterval(() => {
     if (document.hidden) return
     const active = ['PENDING', 'RUNNING'].includes(selected.value?.assistant_turn?.status ?? '')
-    const fallback = merchant.value || !!selected.value?.ticket
+    const fallback = merchant.value || !!selected.value?.ticket || active
     if (streamRefreshNeeded || (!merchant.value && !streamConnected.value && active) || (fallback && Date.now() - lastFallback >= 8000)) {
       lastFallback = Date.now(); void refresh(true)
     }

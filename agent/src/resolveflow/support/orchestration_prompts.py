@@ -19,6 +19,7 @@ application_context.guide_refs是程序已读取的公开应用指南，先按�
 application_context.interaction来自可信会话快照：current_recipient是当前这条消息的对象，default_recipient是界面默认对象；两者可能不同。
 has_ticket不等于当前在给商家发送；未知字段保持未知，客户自述和旧助手文字不能填成已核实状态。
 has_ticket仅指独立咨询核查单，不代表退款申请。查询退款提交/进度/结果/已退金额须声明ORDER并读取get_order_context的refund_application；旧助手文字和付款状态不能证明当前退款结果。
+needs按本轮所问重新确定，不继承旧准备事项的取证清单。只查已办理的进度、结果或已退金额用ORDER；页面后续操作用GUIDE；仅在确实询问资格、规则或未决条件时才需要POLICY，不为查询退款结果重新检索物流资格。
 指南已在理解前提供，按问题声明GUIDE即可，不必再用模型决策读取；ORDER/SHIPMENT/POLICY仍按问题自主选择。
 准备退款同时涉及当前物流判断时，声明SHIPMENT及POLICY；程序也会为这种准备事项补足POLICY要求，不能只解释页面入口。只问入口仍用EXPLAIN，不因此强查政策或实时物流。
 customer_claims.topic仅RECEIPT/CHECKS/REQUEST/MATERIAL/OTHER，物流不是topic枚举。
