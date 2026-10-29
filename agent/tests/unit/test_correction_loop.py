@@ -3,12 +3,12 @@
 from dataclasses import replace
 
 import pytest
+
 from resolveflow.harness.live_model import _decision_of
 from resolveflow.harness.model import MockModelClient
 from resolveflow.harness.sdk_runner import AgentScopeRunner
 from resolveflow.harness.verifier import ProposalVerifier
 from resolveflow.tools import catalog
-
 from tests.unit.test_harness_loop import FACTS, StubTools, failed_observation, observation, propose, read
 from tests.unit.test_tool_catalog import client_for, context
 
@@ -152,6 +152,33 @@ def test_payment_claim_uses_integer_minor_units(text, ok):
 def test_final_wire_callback_rechecks_the_same_false_claim():
     from tests.unit.test_proposal_verifier import proposal, verifier
     assert not verifier().verify_proposal(proposal(summary="承运商已确认正常签收，退款已到账329元。")).ok
+
+
+def test_one_repair_receives_citation_and_content_failures_together():
+    from resolveflow.harness.actions import validate_decision
+    from resolveflow.harness.sdk_runner import ActionGateMiddleware
+
+    gate = ActionGateMiddleware()
+    gate.verifier = ProposalVerifier([], frozenset())
+    gate._verify_proposal(validate_decision(propose("REFUND", summary="退款已到账329元。")))
+    detail = gate.refusals[0]["detail"]
+    assert "REFUND_CITATION_REQUIRED" in detail
+    assert "FACT_CLAIM_UNSUPPORTED" in detail
+    assert "summary" in detail
+    assert len(gate.refusals) == 1
+
+
+def test_finding_feedback_locates_customer_only_payment_claim():
+    order = observation(line_paid_amount=32900)
+    material = observation("get_case_evidence", evidence=[])
+    result = ProposalVerifier([order, material], frozenset()).verify_content(
+        summary="请商家核验后处理。",
+        evidence_refs=[{"observation_id": s.observation_id} for s in (order, material)],
+        review_findings=[{"text": "申请退回实付329元。", "observation_ids": [material.observation_id]}],
+    )
+    assert not result.ok
+    assert "review_findings.0" in result.detail()
+    assert "get_order_context.line_paid_amount" in result.detail()
 
 
 @pytest.mark.parametrize("text,ok", [("整单实付52.99元，本行实付25.99元。", True),

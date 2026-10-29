@@ -100,7 +100,7 @@ from resolveflow.harness.sdk_adapter import (
     raw_text_message,
 )
 from resolveflow.harness.token_counting import counter_for
-from resolveflow.harness.verifier import ProposalVerifier
+from resolveflow.harness.verifier import ProposalVerifier, VerificationResult
 from resolveflow.harness.vocabulary import HARNESS_SYSTEM_PROMPT, RunFacts, RunResult, ToolExecutor
 from resolveflow.tools.catalog import ToolContext, _failed
 
@@ -238,10 +238,11 @@ class ActionGateMiddleware(MiddlewareBase):
             policy_refs=[ref.model_dump() for ref in decision.policy_refs],
             missing_evidence=decision.missing_evidence,
         )
-        if result.ok:
-            result = self.verifier.verify_content(summary=decision.summary or "",
-                        review_findings=[f.model_dump() for f in decision.review_findings],
-                        evidence_refs=[ref.model_dump() for ref in decision.evidence_refs])
+        content = self.verifier.verify_content(summary=decision.summary or "",
+                    review_findings=[f.model_dump() for f in decision.review_findings],
+                    evidence_refs=[ref.model_dump() for ref in decision.evidence_refs])
+        # One repair must see every failed check, just as the final wire verifier does.
+        result = VerificationResult(refusals=(*result.refusals, *content.refusals))
         if not result.ok:
             self._refuse(result.reason_codes[0], result.detail())
             return result

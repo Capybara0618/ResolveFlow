@@ -40,10 +40,11 @@ def unsupported_claims(*, summary: str, findings: Sequence[Mapping[str, Any]],
     # A newer failure invalidates the prior successful read for an asserted current fact.
     for item in observations:
         latest[item.tool_name] = item
-    texts = [(summary, refs), *((str(f.get("text", "")), refs.intersection(f.get("observation_ids", [])))
-                              for f in findings)]
+    texts = [("summary", summary, refs),
+             *((f"review_findings.{i}", str(f.get("text", "")),
+                refs.intersection(f.get("observation_ids", []))) for i, f in enumerate(findings))]
     failures: list[str] = []
-    for text, cited_ids in texts:
+    for path, text, cited_ids in texts:
         for clause in re.split(r"[。；;\n!?！？]|(?<!\d)\.|\.(?!\d)|，|,|但|\bbut\b", text):
             for pattern, tool, key, allowed in ASSERTIONS:
                 match = pattern.search(clause)
@@ -54,7 +55,7 @@ def unsupported_claims(*, summary: str, findings: Sequence[Mapping[str, Any]],
                 # Legacy shipment observations used conclusion; it is still a pinned source value.
                 value = body.get(key, body.get("conclusion") if key == "carrier_conclusion" else None)
                 if not obs or obs.error or obs.observation_id not in cited_ids or value not in allowed:
-                    failures.append(f"{tool}.{key}: assertion requires cited value {'/'.join(sorted(allowed))}; "
+                    failures.append(f"{path}: {tool}.{key}: requires cited value {'/'.join(sorted(allowed))}; "
                                     "source missing, failed, uncited or inconsistent")
             amount = PAID_AMOUNT.search(clause)
             if amount and not QUALIFIER.search(clause[:amount.end()]):
@@ -64,6 +65,6 @@ def unsupported_claims(*, summary: str, findings: Sequence[Mapping[str, Any]],
                 key = "order_paid_amount" if amount.group("scope") in {"订单", "整单"} else "line_paid_amount"
                 if (not obs or obs.error or obs.observation_id not in cited_ids
                         or body.get(key) != claimed):
-                    failures.append(f"get_order_context.{key}: stated yuan amount must equal "
+                    failures.append(f"{path}: get_order_context.{key}: stated yuan amount must equal "
                                     "the cited current integer minor-unit payment; correct the amount or hand over")
     return list(dict.fromkeys(failures))
