@@ -1006,6 +1006,34 @@ class SupportApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void messageIdentityRespectsPrivateAndExplicitlySharedHistory() {
+        var c = message(open("support-A"), "identity-private", "私人咨询", "ASSISTANT");
+        String privateId = c.path("messages").get(0).path("message_id").asString();
+        String privatePath = path(c) + "/messages/" + privateId + "/identity";
+        get(privatePath, buyer, 200);
+        get(privatePath, otherBuyer, 404);
+        get(privatePath, merchant, 404);
+        var publicMessage = message(c, "identity-public", "请商家查看", "ASSISTANT");
+        var shared = post(
+                path(publicMessage) + "/tickets",
+                buyer,
+                "identity-share",
+                Map.of(
+                        "expected_version",
+                        publicMessage.path("version").asLong(),
+                        "summary",
+                        "核查",
+                        "shared_message_ids",
+                        List.of(privateId)),
+                200);
+        get(privatePath, merchant, 200);
+        get(privatePath, otherMerchant, 404);
+        var after = message(shared, "identity-after", "仍是私人咨询", "ASSISTANT");
+        var last = after.path("messages").get(after.path("messages").size() - 1);
+        get(path(after) + "/messages/" + last.path("message_id").asString() + "/identity", merchant, 404);
+    }
+
+    @Test
     void requiresOwnershipAndResumesOneConversationPerLine() {
         post("/conversations", null, null, Map.of("line_id", "support-A"), 401);
         post("/conversations", merchant, null, Map.of("line_id", "support-A"), 403);

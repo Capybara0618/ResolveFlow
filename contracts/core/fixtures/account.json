@@ -1,0 +1,19 @@
+{
+  "Profile": {
+    "username": "test-buyer",
+    "display_name": "测试买家",
+    "avatar_id": null,
+    "version": 1
+  },
+  "Address": {
+    "address_id": "00000000-0000-4000-8000-000000000501",
+    "recipient": "测试收货人",
+    "phone": "13000000000",
+    "province": "测试省",
+    "city": "测试市",
+    "district": "测试区",
+    "detail": "测试路1号",
+    "is_default": true,
+    "version": 1
+  }
+}

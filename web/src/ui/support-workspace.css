@@ -207,3 +207,11 @@
 .workbench.unified-interface .merchant-support .support-context { grid-column: auto; max-height: none; }
 @media(max-width: 1120px) { .workbench.unified-interface .merchant-support .support-grid { grid-template-columns: 200px minmax(0,1fr); grid-template-rows: minmax(0,1fr) 140px; }.workbench.unified-interface .merchant-support .support-context { grid-column: 1 / -1; max-height: 140px; } }
 @media(max-width: 850px) { .workbench.unified-interface .merchant-support { height: auto; min-height: 600px; }.workbench.unified-interface .merchant-support .support-grid { display: flex; flex-direction: column; }.workbench.unified-interface .merchant-support .support-history { max-height: 200px; }.workbench.unified-interface .merchant-support .support-main { min-height: 560px; } }
+
+.workbench .support-workspace .support-message.customer{flex-direction:row-reverse}
+.workbench .support-workspace .support-message.shared-original{flex-direction:row;justify-content:flex-start}
+
+.workbench .support-workspace .support-message.customer:not(.outgoing){flex-direction:row;justify-content:flex-start}
+.workbench .support-workspace .support-message.customer:not(.outgoing) :is(.support-message-meta,.support-author){text-align:left}
+.workbench .support-workspace .support-message.outgoing{flex-direction:row-reverse;justify-content:flex-start}
+.workbench .support-workspace .support-message.outgoing .support-message-meta{text-align:right}

@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { ApiError } from '../client'
 import { reviewApi, type OwnReview, type ReviewWrite } from '../review-client'
 import './product-reviews.css'
+import UserAvatar from './UserAvatar.vue'
 const props = defineProps<{ token: string; line: string; name: string }>()
 const emit = defineEmits<{ expired: []; working: [value: boolean]; close: [] }>()
 const state = ref<OwnReview | null>(null), body = ref(''), rating = ref(5), error = ref(''), notice = ref('')
@@ -48,7 +49,7 @@ onBeforeUnmount(() => { alive = false; ++generation; emit('working', false) })
 </script>
 <template>
   <section class="product-reviews review-editor" aria-label="评价商品">
-    <h2>{{ name }} · 商品评价</h2>
+    <h2 class="review-editor-heading"><UserAvatar :token="token" source="/api/v1/account/avatar" name="我" :size="32" />{{ name }} · 商品评价</h2>
     <p v-if="loading" role="status">正在读取本人评价与资格…</p>
     <p v-if="notice" class="review-notice" role="status">{{ notice }}</p>
     <p v-if="error" class="review-error" role="alert">{{ error }}</p>
@@ -67,3 +68,5 @@ onBeforeUnmount(() => { alive = false; ++generation; emit('working', false) })
     <p class="review-muted">公开展示为“已购用户”。每个已签收订单行一条评价，可修改；退款后已发表评价保留。</p>
   </section>
 </template>
+
+<style scoped>.review-editor-heading{display:flex;align-items:center;gap:12px}</style>

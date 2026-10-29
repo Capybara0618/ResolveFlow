@@ -10,15 +10,20 @@ import SupportWorkspace from './SupportWorkspace.vue'
 import BuyerOrders from './BuyerOrders.vue'
 import ProductReviews from './ProductReviews.vue'
 import CartWorkspace from './CartWorkspace.vue'
+import AccountWorkspace from './AccountWorkspace.vue'
+import UserAvatar from './UserAvatar.vue'
+import AddressPicker from './AddressPicker.vue'
+import type { AccountProfile, ShippingSelection } from '../account-client'
 import { readCartPending, saveCartPending, clearCartPending, type CartPending } from '../cart-pending'
 import './marketplace.css'
 
 const props = defineProps<{ account: LoginResponse | null }>()
-const emit = defineEmits<{ expired: []; login: []; logout: [] }>()
-type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support'
+const emit = defineEmits<{ expired: []; login: []; logout: []; profile: [value: AccountProfile] }>()
+type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support' | 'profile' | 'addresses'
 const screen = ref<Screen>('home'), query = ref(''), category = ref(''), stores = ref<ShopStore[]>([])
 const workspaceCatalog = ref<HTMLElement>()
 const ordersRoute = ref(''), cartBusy = ref(false), added = ref(false)
+const shipping = ref<ShippingSelection | null>(null), addressBusy = ref(false)
 let pendingAdd: Extract<CartPending, { kind: 'mutation' }> | null = null
 const products = ref<ShopProduct[]>([]), store = ref<ShopStore | null>(null), product = ref<ShopProduct | null>(null)
 const sku = ref(''), quantity = ref(1), quote = ref<ShopQuote | null>(null), draft = ref<ShopDraft | null>(null)
@@ -40,7 +45,7 @@ function failure(cause: unknown) {
     : cause instanceof ApiError ? cause.message : '连接暂时中断，请重试。'
 }
 function go(hash: string) {
-  if (writing.value || uncertain.value || cartBusy.value) { error.value = '请先确认本次订单提交结果。'; return }
+  if (writing.value || uncertain.value || cartBusy.value || addressBusy.value) { error.value = '请先确认本次订单提交结果。'; return }
   window.history.pushState(null, '', hash); void route()
 }
 function search() { go(`${store.value ? `#/shop/stores/${encodeURIComponent(store.value.store_id)}` : '#/shop/search'}?${new URLSearchParams({ ...(query.value.trim() ? { query: query.value.trim() } : {}), ...(category.value ? { category: category.value } : {}) })}`) }
@@ -50,11 +55,12 @@ function changeStore(event: Event) {
   go(`${id ? `#/shop/stores/${encodeURIComponent(id)}` : params ? '#/shop/search' : '#/shop'}${params ? `?${params}` : ''}`)
 }
 async function route() {
-  if (writing.value || uncertain.value || cartBusy.value) return
+  if (writing.value || uncertain.value || cartBusy.value || addressBusy.value) return
   const g = ++generation; ++quoteGeneration
   error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; pending = null
   products.value = []; next.value = null
   let hash = window.location.hash
+  if (hash === '#/shop/profile' || hash === '#/shop/addresses') { screen.value = hash.endsWith('/profile') ? 'profile' : 'addresses'; loading.value = false; if (!props.account) emit('login'); return }
   if (hash === '#/shop/support') { screen.value = 'support'; loading.value = false; if (!props.account) emit('login'); return }
   if (hash.startsWith('#/customer/')) { screen.value = 'customer'; loading.value = false; return }
   loading.value = true
@@ -105,8 +111,8 @@ async function buy() {
   } catch (cause) { if (alive && g === quoteGeneration) failure(cause) } finally { if (alive && g === quoteGeneration) loading.value = false }
 }
 async function submit() {
-  if (!props.account || !quote.value || writing.value) return
-  if (!pending) pending = { key: crypto.randomUUID(), request: { sku_id: quote.value.sku.sku_id, quantity: quote.value.quantity, expected_sku_version: quote.value.sku.version } }
+  if (!props.account || !quote.value || writing.value || addressBusy.value || !shipping.value && !pending) return
+  if (!pending) pending = { key: crypto.randomUUID(), request: { sku_id: quote.value.sku.sku_id, quantity: quote.value.quantity, expected_sku_version: quote.value.sku.version, shipping: shipping.value! } }
   const request = pending; writing.value = true; error.value = ''
   try {
     const result = await shopApi.draft(props.account.access_token, request.request, request.key)
@@ -165,12 +171,13 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
         <a href="#/shop/orders" :class="{ current: screen === 'orders' }" @click.prevent="go('#/shop/orders')">我的订单</a>
         <a href="#/shop/support" :class="{ current: screen === 'support' }" @click.prevent="go('#/shop/support')">售后咨询</a>
         <a href="#/shop/cart" :class="{ current: screen === 'cart' }" aria-label="购物车" title="购物车" @click.prevent="go('#/shop/cart')"><Icon name="cart" :size="23" /></a>
-        <details v-if="account" class="shop-account"><summary aria-label="账户菜单"><Icon name="user" :size="21" /><span>{{ account.display_name || '我的账户' }}</span></summary><div><a href="#/customer/applications" @click.prevent="go('#/customer/applications')">我的售后</a><button type="button" @click="emit('logout')">退出登录</button></div></details>
+        <details v-if="account" class="shop-account"><summary aria-label="账户菜单"><UserAvatar :token="account.access_token" source="/api/v1/account/avatar" :name="account.display_name" :size="32" /><span>{{ account.display_name || '我的账户' }}</span></summary><div><a href="#/shop/profile" @click.prevent="go('#/shop/profile')">个人资料</a><a href="#/shop/addresses" @click.prevent="go('#/shop/addresses')">收货地址</a><a href="#/customer/applications" @click.prevent="go('#/customer/applications')">我的售后</a><button type="button" @click="emit('logout')">退出登录</button></div></details>
         <button v-else class="shop-login" @click="emit('login')">登录</button>
       </div>
     </nav>
     <p v-if="error" class="shop-error shop-global-error" role="alert">{{ error }}</p>
-    <SupportWorkspace v-if="screen === 'support' && account" :key="account.access_token" :account="account" @expired="emit('expired')" />
+    <AccountWorkspace :key="account.access_token" v-if="(screen === 'profile' || screen === 'addresses') && account" :account="account" :mode="screen" @saved="emit('profile', $event)" @working="cartBusy = $event" @expired="emit('expired')" />
+    <SupportWorkspace v-else-if="screen === 'support' && account" :key="account.access_token" :account="account" @expired="emit('expired')" />
     <CartWorkspace v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
     <CustomerWorkspace v-else-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
     <BuyerOrders v-else-if="screen === 'orders' && account" :key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
@@ -195,9 +202,9 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
         <ProductReviews v-if="product" :key="product.product_id" :product="product.product_id" />
       </template>
       <template v-else-if="screen === 'checkout' && quote">
-        <button class="shop-back" :disabled="writing || uncertain" @click="screen = 'product'; quote = null">修改规格与数量</button><h1>确认订单</h1>
-        <section class="checkout-address" aria-label="收货信息"><h2>演示收货信息</h2><p>演示买家 · 杭州市演示路 100 号</p></section>
-        <section class="checkout-panel"><h2>{{ quote.product.store_name }}</h2><div class="checkout-line"><ProductArt :asset="quote.product.asset_key" :name="quote.product.name" :variant="quote.sku.variant" /><div><h2>{{ quote.product.name }}</h2><p>{{ quote.sku.variant }}</p></div><div><p>单价</p><strong>{{ money(quote.sku.unit_amount) }}</strong></div><div><p>数量</p><strong>{{ quote.quantity }}</strong></div><div><p>小计</p><strong>{{ money(quote.total_amount) }}</strong></div></div><div class="checkout-total"><span>应付合计</span><strong>{{ money(quote.total_amount) }}</strong></div><button class="shop-primary" :disabled="writing" @click="submit">{{ writing ? '正在确认…' : uncertain ? '用原请求确认结果' : '提交订单' }}</button></section>
+        <button class="shop-back" :disabled="writing || uncertain || addressBusy" @click="screen = 'product'; quote = null">修改规格与数量</button><h1>确认订单</h1>
+        <AddressPicker v-if="account" v-model="shipping" :account="account" :disabled="writing || uncertain" @working="addressBusy = $event" @expired="emit('expired')" />
+        <section class="checkout-panel"><h2>{{ quote.product.store_name }}</h2><div class="checkout-line"><ProductArt :asset="quote.product.asset_key" :name="quote.product.name" :variant="quote.sku.variant" /><div><h2>{{ quote.product.name }}</h2><p>{{ quote.sku.variant }}</p></div><div><p>单价</p><strong>{{ money(quote.sku.unit_amount) }}</strong></div><div><p>数量</p><strong>{{ quote.quantity }}</strong></div><div><p>小计</p><strong>{{ money(quote.total_amount) }}</strong></div></div><div class="checkout-total"><span>应付合计</span><strong>{{ money(quote.total_amount) }}</strong></div><button class="shop-primary" :disabled="writing || addressBusy || (!shipping && !uncertain)" @click="submit">{{ writing ? '正在确认…' : uncertain ? '用原请求确认结果' : '提交订单' }}</button></section>
       </template>
     </main>
     <footer class="shop-footer">ResolveFlow · 本地演示，商品为合成素材，交易与退款均为模拟。</footer>

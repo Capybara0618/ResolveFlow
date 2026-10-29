@@ -1,0 +1,440 @@
+openapi: 3.1.0
+info:
+  title: ResolveFlow 购物基础功能
+  version: '2026-10-29'
+security:
+- bearerAuth: []
+paths:
+  /api/v1/account/profile:
+    get:
+      summary: 读取本人资料
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+    post:
+      summary: 修改本人昵称
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditProfile'
+  /api/v1/account/avatar:
+    get:
+      summary: 读取本人当前头像，未设置时404
+      responses:
+        '200':
+          description: 成功
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+    post:
+      summary: 上传PNG或JPEG头像，最大2MB及4096像素边长
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              - expected_version
+              properties:
+                file:
+                  type: string
+                  format: binary
+                expected_version: &id001
+                  type: integer
+                  minimum: 1
+                  maximum: 9007199254740991
+  /api/v1/account/avatar/reset:
+    post:
+      summary: 使用默认头像
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Version'
+  /api/v1/account/addresses:
+    get:
+      summary: 读取本人地址簿
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Address'
+                    maxItems: 20
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+    post:
+      summary: 新增本人地址
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditAddress'
+  /api/v1/account/addresses/{id}:
+    post:
+      summary: 更新本人地址，需expected_version
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditAddress'
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: string
+  /api/v1/account/addresses/{id}/delete:
+    post:
+      summary: 删除本人地址
+      responses:
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+        '204':
+          description: 已删除
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Version'
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: string
+  /api/v1/support/conversations/{conversation}/messages/{message}/identity:
+    get:
+      summary: 读取本人可见消息的作者昵称和头像标识
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageIdentity'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+    parameters:
+    - in: path
+      name: conversation
+      required: true
+      schema:
+        type: string
+    - in: path
+      name: message
+      required: true
+      schema:
+        type: string
+  /api/v1/support/conversations/{conversation}/messages/{message}/identity/avatar:
+    get:
+      summary: 读取本人可见消息的作者当前头像
+      responses:
+        '200':
+          description: 成功
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+    parameters:
+    - in: path
+      name: conversation
+      required: true
+      schema:
+        type: string
+    - in: path
+      name: message
+      required: true
+      schema:
+        type: string
+  /api/v1/shop/purchases/{purchase_id}/shipping:
+    get:
+      summary: 读取本人订单或草稿的固定收货信息
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShippingView'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+    parameters:
+    - in: path
+      name: purchase_id
+      required: true
+      schema:
+        type: string
+  /api/v1/merchant/orders/{order_id}/shipping:
+    get:
+      summary: 读取本店订单的固定收货信息
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShippingView'
+        '401':
+          description: 登录失效
+        '404':
+          description: 记录不可见或不存在
+        '409':
+          description: 版本已变化
+    parameters:
+    - in: path
+      name: order_id
+      required: true
+      schema:
+        type: string
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Profile:
+      type: object
+      required:
+      - username
+      - display_name
+      - avatar_id
+      - version
+      properties:
+        username:
+          type: string
+          maxLength: 120
+        display_name:
+          type: string
+          maxLength: 120
+        avatar_id:
+          type:
+          - string
+          - 'null'
+        version: *id001
+    EditProfile:
+      type: object
+      additionalProperties: false
+      required:
+      - display_name
+      - expected_version
+      properties:
+        display_name:
+          type: string
+          maxLength: 120
+        expected_version: *id001
+    Address:
+      type: object
+      required:
+      - address_id
+      - recipient
+      - phone
+      - province
+      - city
+      - district
+      - detail
+      - is_default
+      - version
+      properties:
+        address_id:
+          type: string
+          format: uuid
+        recipient: &id002
+          type: string
+          maxLength: 80
+        phone: &id003
+          type: string
+          maxLength: 32
+        province: &id004
+          type: string
+          maxLength: 80
+        city: &id005
+          type: string
+          maxLength: 80
+        district: &id006
+          type: string
+          maxLength: 80
+        detail: &id007
+          type: string
+          maxLength: 300
+        is_default: &id008
+          type: boolean
+        version: *id001
+    EditAddress:
+      type: object
+      additionalProperties: false
+      required:
+      - recipient
+      - phone
+      - province
+      - city
+      - district
+      - detail
+      properties:
+        recipient: *id002
+        phone: *id003
+        province: *id004
+        city: *id005
+        district: *id006
+        detail: *id007
+        is_default: *id008
+        expected_version: *id001
+    Version:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_version
+      properties:
+        expected_version: *id001
+    MessageIdentity:
+      type: object
+      required:
+      - display_name
+      - avatar_id
+      - author
+      properties:
+        display_name:
+          type: string
+          maxLength: 120
+        avatar_id:
+          type:
+          - string
+          - 'null'
+        author:
+          type: string
+          enum:
+          - CUSTOMER
+          - MERCHANT
+          - ASSISTANT
+    ShippingView:
+      type: object
+      required:
+      - shipping
+      properties:
+        shipping:
+          oneOf:
+          - $ref: ./openapi-case.yaml#/components/schemas/ShippingSnapshot
+          - type: 'null'

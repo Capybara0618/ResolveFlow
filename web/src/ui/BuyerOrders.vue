@@ -4,6 +4,7 @@ import { ApiError, coreApi, type CustomerOrderLine, type LoginResponse } from '.
 import { shopApi, type Purchase, type PurchaseStatus, type ShopStore } from '../shop-client'
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
+import ShippingSummary from './ShippingSummary.vue'
 import Icon from './ReviewIcon.vue'
 import ReviewDialog from './ReviewDialog.vue'
 import ProductReviewEditor from './ProductReviewEditor.vue'
@@ -124,6 +125,7 @@ onBeforeUnmount(() => { alive = false; ++generation; if (timer) clearInterval(ti
         <button v-if="next" class="shop-secondary shop-load" :disabled="loading" @click="more">加载更多订单</button>
       </template>
       <template v-else-if="detail">
+        <ShippingSummary :token="account.access_token" :purchase="detail.purchase_id" @expired="emit('expired')" />
         <button class="shop-back" :disabled="writing" @click="navigate('#/shop/orders')">返回我的订单</button>
         <section class="purchase-summary" :class="detail.status.toLowerCase()"><span class="purchase-symbol"><Icon :name="detail.status === 'PAID' ? 'check' : 'clock'" :size="22" /></span><div><h2>{{ unknown ? '付款结果待确认' : deadlinePassed ? '付款期限已过' : labels[detail.status] }}</h2><p>{{ detail.store_name }}</p></div><div class="purchase-sum"><span>{{ detail.status === 'PAID' ? '原实付' : '订单合计' }}</span><strong>{{ money(detail.total_amount) }}</strong></div></section>
         <section class="purchase-detail-panel"><h2>订单商品</h2><div v-for="line in detail.lines" :key="line.sku" class="purchase-detail-line"><ProductArt v-if="line.asset_key" :asset="line.asset_key" :name="line.product_name || line.sku" :variant="line.variant ?? ''" /><span v-else class="purchase-no-art" aria-label="商品图片未提供">▢</span><div class="purchase-line-copy"><h2>{{ line.product_name || line.sku }}</h2><p>{{ line.variant }} · 数量 × {{ line.quantity }}</p><p v-if="line.unit_amount !== null">单价 {{ money(line.unit_amount) }}</p></div><strong>{{ money(line.line_amount) }}</strong></div></section>

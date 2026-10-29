@@ -4,6 +4,9 @@ import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type Logi
 import { watchCaseEvents } from './events'
 import { formatMinorUnits } from './money'
 import Icon from './ui/ReviewIcon.vue'
+import UserAvatar from './ui/UserAvatar.vue'
+import AccountWorkspace from './ui/AccountWorkspace.vue'
+import type { AccountProfile } from './account-client'
 import ReviewDialog from './ui/ReviewDialog.vue'
 import MerchantDecisionForm from './ui/MerchantDecisionForm.vue'
 import ReviewerWorkspace from './ui/ReviewerWorkspace.vue'
@@ -35,6 +38,8 @@ import { clearTabSession, readTabSession, saveTabSession } from './tab-session'
 const username = ref('')
 const password = ref('')
 const account = ref<LoginResponse | null>(null)
+const profileOpen = ref(false), profileBusy = ref(false)
+function updateProfile(value: AccountProfile) { if (account.value) { account.value = { ...account.value, display_name: value.display_name }; saveTabSession(account.value) } }
 const products = useAftercareProducts(() => account.value?.access_token)
 const productLines = products.lines, productStates = products.states
 const merchantCaseOpen = ref(false)
@@ -446,6 +451,7 @@ onMounted(() => {
   if (session) void act(() => enterSession(session))
 })
 function logout() {
+  profileOpen.value = false; profileBusy.value = false
   clearTabSession()
   // An explicit account boundary must not reopen the previous customer's private route.
   window.history.replaceState(null, '', window.location.pathname + window.location.search)
@@ -516,7 +522,7 @@ onUnmounted(() => { stopStream(); products.reset() })
     <header v-if="!((!account && shopVisitor) || account?.buyer_id)" class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
       <span class="demo-tag">{{ account?.buyer_id || shopVisitor ? '本地演示 · 合成商品与模拟交易' : '合成数据 · 模拟退款' }}</span>
-      <div v-if="account" class="session"><span class="avatar">{{ account.display_name?.trim().slice(0, 1) || (isReviewer ? '审' : '客') }}</span><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后专员' : '客户工作台') }}</strong><small>{{ account.role === 'PLATFORM_ADMIN' ? '平台管理员' : account.buyer_id ? '平台买家' : `${account.merchant_name || account.merchant_id} · ${account.role === 'MERCHANT_ADMIN' ? (isSingleMerchant ? '商家' : '商家管理员') : account.role === 'REVIEWER' ? '售后专员' : account.role === 'OPERATOR' ? '兼容运维账号' : '客户'}` }}</small></span>
+      <div v-if="account" class="session"><button class="profile-avatar-button" aria-label="编辑个人资料" @click="profileOpen = true"><UserAvatar :token="account.access_token" source="/api/v1/account/avatar" :name="account.display_name" :kind="account.role === 'MERCHANT_ADMIN' ? 'MERCHANT' : 'CUSTOMER'" /></button><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后专员' : '客户工作台') }}</strong><small>{{ account.role === 'PLATFORM_ADMIN' ? '平台管理员' : account.buyer_id ? '平台买家' : `${account.merchant_name || account.merchant_id} · ${account.role === 'MERCHANT_ADMIN' ? (isSingleMerchant ? '商家' : '商家管理员') : account.role === 'REVIEWER' ? '售后专员' : account.role === 'OPERATOR' ? '兼容运维账号' : '客户'}` }}</small></span>
         <button type="button" class="text-button logout-button" @click="logout">退出</button></div>
     </header>
     <MarketplaceWorkspace v-if="!account && shopVisitor" :account="null" @login="shopLogin" />
@@ -534,7 +540,7 @@ onUnmounted(() => { stopStream(); products.reset() })
       </form>
     </main>
     <PlatformWorkspace v-else-if="account.role === 'PLATFORM_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
-    <MarketplaceWorkspace v-else-if="account.buyer_id" :key="account.access_token" :account="account" @logout="logout" @expired="logout(); error = '登录已失效，请重新登录。'" />
+    <MarketplaceWorkspace v-else-if="account.buyer_id" :key="account.access_token" :account="account" @profile="updateProfile" @logout="logout" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <div v-else class="app-shell" :class="{ 'support-shell': merchantPage === 'support' && account.role === 'MERCHANT_ADMIN' }">
       <nav class="sidebar" aria-label="工作台导航">
@@ -649,8 +655,14 @@ onUnmounted(() => { stopStream(); products.reset() })
         </div>
       </main>
     </div>
+    <ReviewDialog v-if="profileOpen && account" title="个人资料" :busy="profileBusy" @close="profileOpen = false"><AccountWorkspace :key="account.access_token" :account="account" @saved="updateProfile" @working="profileBusy = $event" @expired="profileOpen = false; logout()" /></ReviewDialog>
     <ReviewDialog v-if="reviewDecision && reviewTarget" :title="decisionLabels[reviewDecision]" :merchant="true" :busy="busy" @close="closeReview">
       <MerchantDecisionForm v-model="decisionReason" :kind="reviewDecision" :line="reviewLine"><div v-if="reviewDecision === 'APPROVE'" class="dialog-refund-amount">退款金额 <strong>{{ reviewAmount !== null ? formatMinorUnits(reviewAmount, 'CNY') : '金额待核对' }}</strong></div></MerchantDecisionForm><p v-if="error" class="message error" role="alert">{{ error }}</p><div class="dialog-actions"><button type="button" class="secondary-button" :disabled="busy" @click="closeReview">取消</button><button type="button" data-test="confirm-review" :disabled="busy || !decisionReason.trim() || decisionReason.trim().length > 1000" @click="review(reviewDecision)">{{ busy ? '正在提交…' : reviewSubmitLabels[reviewDecision] }}</button></div>
     </ReviewDialog>
   </div>
 </template>
+
+<style scoped>
+.profile-avatar-button{border:0;background:transparent;padding:0;display:inline-flex;cursor:pointer;border-radius:50%}
+.profile-avatar-button:focus-visible{outline:2px solid #205e50;outline-offset:4px}
+</style>

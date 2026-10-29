@@ -1,3 +1,4 @@
+import { accountApi } from '../src/account-client'
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { beforeEach, afterEach, it, expect, vi } from 'vitest'
 import MarketplaceWorkspace from '../src/ui/MarketplaceWorkspace.vue'
@@ -10,6 +11,7 @@ const draft: ShopDraft = { draft_id: 'draft-1', store_id: 'M-1001', store_name: 
 const purchase: Purchase = { purchase_id: 'draft:draft-1', draft_id: draft.draft_id, store_id: draft.store_id, store_name: draft.store_name, status: draft.status, total_amount: draft.total_amount, currency: 'CNY', created_at: draft.created_at, expires_at: draft.expires_at, paid_at: null, order_id: null, payment: null, lines: [{ line_id: null, sku: draft.sku_id, product_name: draft.product_name, variant: draft.variant, asset_key: draft.asset_key, quantity: draft.quantity, unit_amount: draft.unit_amount, line_amount: draft.total_amount }] }
 let w: VueWrapper
 beforeEach(() => {
+  vi.spyOn(accountApi,'addresses').mockResolvedValue({items:[{address_id:'address-1',recipient:'测试收货人',phone:'13000000000',province:'测试省',city:'测试市',district:'测试区',detail:'测试路1号',is_default:true,version:1}]})
   sessionStorage.clear()
   window.history.replaceState(null, '', '/#/shop/products/P-1001')
   vi.spyOn(shopApi, 'product').mockResolvedValue(product)
@@ -49,7 +51,7 @@ it('retries an uncertain creation with the exact same key and immutable payload'
   await w.get('.checkout-panel > button').trigger('click'); await flushPromises()
   expect(w.text()).toContain('原请求'); await w.get('.checkout-panel > button').trigger('click'); await flushPromises()
   const calls = vi.mocked(shopApi.draft).mock.calls
-  expect(calls[0]).toEqual(calls[1]); expect(calls[0][1]).toEqual({ sku_id: 'black', quantity: 2, expected_sku_version: 1 })
+  expect(calls[0]).toEqual(calls[1]); expect(calls[0][1]).toEqual({ sku_id: 'black', quantity: 2, expected_sku_version: 1, shipping: {address_id:'address-1',expected_version:1} })
   expect(w.text()).toContain('待付款'); expect(w.text()).not.toContain('模拟付款完成于')
 })
 it('does not submit a stale quote after a price conflict', async () => {
@@ -127,3 +129,5 @@ it('requires login when an anonymous visitor opens a private buyer route', async
   expect(shopApi.purchase).not.toHaveBeenCalled()
   expect(shopApi.quote).not.toHaveBeenCalled()
 })
+
+it('requires an address before submitting a direct purchase',async()=>{vi.mocked(accountApi.addresses).mockResolvedValue({items:[]});await open();await w.get('.buy-button').trigger('click');await flushPromises();expect(w.get('.checkout-panel > button').attributes('disabled')).toBeDefined();await w.get('.checkout-panel > button').trigger('click');expect(shopApi.draft).not.toHaveBeenCalled()})

@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { shopApi, type CartGroup, type CartItem, type CartQuote } from '../shop-client'
 import { readCartPending, saveCartPending, clearCartPending, type CartPending } from '../cart-pending'
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
+import AddressPicker from './AddressPicker.vue'
+import type { ShippingSelection } from '../account-client'
 import Icon from './ReviewIcon.vue'
 
 const props = defineProps<{ account: LoginResponse }>()
 const emit = defineEmits<{ expired: []; navigate: [hash: string]; busy: [blocked: boolean] }>()
 const stores = ref<CartGroup[]>([]), selected = ref<string[]>([]), loading = ref(false), writing = ref(false)
 const error = ref(''), quote = ref<CartQuote | null>(null), pending = ref<CartPending | null>(null)
+const shipping = ref<ShippingSelection | null>(null), addressBusy = ref(false)
 let alive = true, generation = 0, initialized = false
-const blocked = computed(() => writing.value || !!pending.value)
+const blocked = computed(() => writing.value || !!pending.value || addressBusy.value)
 const money = (v: number) => `¥ ${formatMinorUnits(v).replace(' CNY', '')}`
 const reasons = { DELISTED: '商品已下架', STORE_DISABLED: '店铺暂不可购买', QUANTITY_EXCEEDED: '数量超过当前购买上限', AVAILABLE: '' }
 const chosen = (s: CartGroup) => s.items.filter(i => selected.value.includes(i.sku_id) && i.availability === 'AVAILABLE')
@@ -22,6 +25,7 @@ function fail(cause: unknown) {
   error.value = cause instanceof ApiError ? cause.message : cause instanceof Error && cause.message.startsWith('保存的') ? cause.message : '连接暂时中断，请重试。'
 }
 function busy() { emit('busy', blocked.value) }
+watch(addressBusy, busy)
 async function load() {
   const g = ++generation; loading.value = true
   try {
@@ -75,10 +79,10 @@ async function checkout(s: CartGroup) {
   finally { if (alive) { writing.value = false; busy() } }
 }
 async function submit() {
-  if (!quote.value || blocked.value) return
+  if (!quote.value || blocked.value || addressBusy.value || !shipping.value) return
   const q = quote.value
   const p: CartPending = { kind: 'draft', key: crypto.randomUUID(), store: q.store_id, quote: q,
-    request: { expected_revision: q.revision, lines: q.lines.map(l => ({ sku_id: l.sku_id, quantity: l.quantity, expected_sku_version: l.sku_version })) } }
+    request: { expected_revision: q.revision, lines: q.lines.map(l => ({ sku_id: l.sku_id, quantity: l.quantity, expected_sku_version: l.sku_version })), shipping: shipping.value } }
   try { saveCartPending(props.account.buyer_id!, p); pending.value = p; await retry() } catch (e) { fail(e) }
 }
 onMounted(() => {
@@ -94,11 +98,11 @@ onBeforeUnmount(() => { alive = false; ++generation; emit('busy', false) })
     <div v-if="pending" class="cart-recovery" role="status"><p>上次{{ pending.kind === 'draft' ? '订单提交' : '购物车操作' }}结果待确认。</p><button class="shop-primary" :disabled="writing" @click="retry">{{ writing ? '正在确认…' : '用原请求确认结果' }}</button></div>
     <template v-if="quote">
       <button class="shop-back" :disabled="blocked" @click="quote = null">返回购物车</button><h1>确认订单</h1>
-      <section class="checkout-address" aria-label="收货信息"><h2>演示收货信息</h2><p>演示买家 · 杭州市演示路 100 号</p></section>
+      <AddressPicker v-model="shipping" :account="account" :disabled="blocked" @working="addressBusy = $event" @expired="emit('expired')" />
       <section class="checkout-panel"><h2>{{ quote.store_name }}</h2>
         <div v-for="line in quote.lines" :key="line.sku_id" class="checkout-line"><ProductArt :asset="line.asset_key" :name="line.product_name" :variant="line.variant" /><div><h2>{{ line.product_name }}</h2><p>{{ line.variant }}</p></div><div><p>单价</p><strong>{{ money(line.unit_amount) }}</strong></div><div><p>数量</p><strong>{{ line.quantity }}</strong></div><div><p>小计</p><strong>{{ money(line.line_amount) }}</strong></div></div>
         <div class="checkout-total"><span>应付合计</span><strong>{{ money(quote.total_amount) }}</strong></div>
-        <button v-if="!pending" class="shop-primary cart-submit" :disabled="writing" @click="submit">提交订单</button>
+        <button v-if="!pending" class="shop-primary cart-submit" :disabled="writing || addressBusy || !shipping" @click="submit">提交订单</button>
       </section>
     </template>
     <template v-else>

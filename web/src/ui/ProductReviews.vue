@@ -2,6 +2,7 @@
 import { onBeforeUnmount, ref, watch } from 'vue'
 import { reviewApi, type ProductReview, type ReviewSummary } from '../review-client'
 import './product-reviews.css'
+import UserAvatar from './UserAvatar.vue'
 const props = defineProps<{ product: string }>()
 const items = ref<ProductReview[]>([]), summary = ref<ReviewSummary | null>(null), next = ref<number | null>(null)
 const loading = ref(false), error = ref('')
@@ -32,7 +33,7 @@ onBeforeUnmount(() => { alive = false; ++generation })
     </div>
     <p v-else-if="summary && !summary.count" class="review-muted">暂无评价，期待买家分享使用体验。</p>
     <article v-for="item in items" :key="item.review_id" class="review-entry">
-      <div class="review-meta"><span>已购用户 · {{ item.variant }}</span><time>{{ new Date(item.updated_at).toLocaleDateString('zh-CN') }}</time></div>
+      <div class="review-meta"><span class="review-buyer"><UserAvatar name="已购用户" :size="30" />已购用户 · {{ item.variant }}</span><time>{{ new Date(item.updated_at).toLocaleDateString('zh-CN') }}</time></div>
       <p class="review-stars" :aria-label="`${item.rating}星`">{{ '★'.repeat(item.rating) }}{{ '☆'.repeat(5 - item.rating) }}</p>
       <p class="review-body">{{ item.body }}</p>
       <div v-if="item.reply" class="review-reply"><strong>商家回复</strong><p>{{ item.reply }}</p></div>
@@ -41,3 +42,5 @@ onBeforeUnmount(() => { alive = false; ++generation })
     <button v-else-if="next" class="review-button" :disabled="loading" @click="load(false)">{{ loading ? '正在读取…' : '加载更多评价' }}</button>
   </section>
 </template>
+
+<style scoped>.review-buyer{display:inline-flex;align-items:center;gap:10px}</style>

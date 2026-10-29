@@ -6,7 +6,7 @@ export interface ShopProduct { product_id: string; store_id: string; store_name:
   category: 'electronics' | 'home' | 'outdoor'; asset_key: string; from_amount: number; currency: 'CNY'; skus: ShopSku[] }
 export interface ShopProducts { items: ShopProduct[]; next_after: string | null }
 export interface ShopQuote { product: ShopProduct; sku: ShopSku; quantity: number; total_amount: number; currency: 'CNY' }
-export interface ShopDraftRequest { sku_id: string; quantity: number; expected_sku_version: number }
+export interface ShopDraftRequest { sku_id: string; quantity: number; expected_sku_version: number; shipping?: import('./account-client').ShippingSelection }
 export interface ShopDraft { draft_id: string; store_id: string; store_name: string; product_id: string; product_name: string
   asset_key: string; sku_id: string; variant: string; quantity: number; unit_amount: number; total_amount: number
   currency: 'CNY'; status: PurchaseStatus; created_at: string; expires_at: string }
@@ -26,7 +26,7 @@ export interface CartRequest { sku_id: string; quantity: number; expected_revisi
 export interface CartQuoteLine { sku_id: string; product_id: string; product_name: string; variant: string; asset_key: string
   category: string; quantity: number; unit_amount: number; line_amount: number; sku_version: number }
 export interface CartQuote { store_id: string; store_name: string; revision: number; currency: 'CNY'; lines: CartQuoteLine[]; total_amount: number }
-export interface CartDraftRequest { expected_revision: number; lines: ShopDraftRequest[] }
+export interface CartDraftRequest { expected_revision: number; lines: ShopDraftRequest[]; shipping?: import('./account-client').ShippingSelection }
 function post<T>(path: string, token: string | null, body: unknown, key?: string) {
   return apiRequest<T>(path, token, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(key ? { 'Idempotency-Key': key } : {}) }, body: JSON.stringify(body) })
 }

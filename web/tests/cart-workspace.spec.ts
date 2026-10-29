@@ -1,3 +1,4 @@
+import { accountApi } from '../src/account-client'
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { beforeEach, afterEach, it, expect, vi } from 'vitest'
 import CartWorkspace from '../src/ui/CartWorkspace.vue'
@@ -12,6 +13,7 @@ const quote: CartQuote = { store_id: 'M-1001', store_name: '松间数码', revis
 const purchase: Purchase = { purchase_id: 'draft:owned', draft_id: 'owned', store_id: 'M-1001', store_name: '松间数码', status: 'WAITING_PAYMENT', total_amount: 72700, currency: 'CNY', created_at: '2026-10-03T04:00:00Z', expires_at: '2099-10-03T04:15:00Z', paid_at: null, order_id: null, lines: quote.lines.map(i => ({ ...i, sku: i.sku_id, line_id: null })), payment: null }
 let w: VueWrapper
 beforeEach(() => {
+  vi.spyOn(accountApi,'addresses').mockResolvedValue({items:[{address_id:'address-1',recipient:'测试收货人',phone:'13000000000',province:'测试省',city:'测试市',district:'测试区',detail:'测试路1号',is_default:true,version:1}]})
   sessionStorage.clear()
   vi.spyOn(shopApi, 'cart').mockResolvedValue({ stores: structuredClone(groups) })
   vi.spyOn(shopApi, 'cartWrite').mockResolvedValue({ store_id: 'M-1001', revision: 3 })
@@ -29,7 +31,7 @@ it('groups stores with explicit unit quantity and subtotal columns and submits o
   expect(shopApi.cartQuote).toHaveBeenCalledWith('buyer-token', 'M-1001', 2, ['ear'])
   expect(w.findAll('.checkout-line')).toHaveLength(1)
   await w.get('.cart-submit').trigger('click'); await flushPromises()
-  expect(shopApi.cartDraft).toHaveBeenCalledWith('buyer-token', 'M-1001', { expected_revision: 2, lines: [{ sku_id: 'ear', quantity: 1, expected_sku_version: 1 }] }, expect.any(String))
+  expect(shopApi.cartDraft).toHaveBeenCalledWith('buyer-token', 'M-1001', { expected_revision: 2, lines: [{ sku_id: 'ear', quantity: 1, expected_sku_version: 1 }], shipping: {address_id:'address-1',expected_version:1} }, expect.any(String))
   expect(w.emitted('navigate')?.[0]).toEqual(['#/shop/drafts/owned'])
   expect(readCartPending('B-3001')).toBeNull()
 })
@@ -97,3 +99,5 @@ it('late quote after unmount cannot submit, navigate or persist a draft', async 
   await open(); await w.findAll('.cart-checkout')[0].trigger('click'); w.unmount(); resolve(quote); await flushPromises()
   expect(shopApi.cartDraft).not.toHaveBeenCalled(); expect(w.emitted('navigate')).toBeUndefined(); expect(readCartPending('B-3001')).toBeNull()
 })
+
+it('requires an address before submitting the cart order',async()=>{vi.mocked(accountApi.addresses).mockResolvedValue({items:[]});await confirm();expect(w.get('.cart-submit').attributes('disabled')).toBeDefined();await w.get('.cart-submit').trigger('click');expect(shopApi.cartDraft).not.toHaveBeenCalled()})

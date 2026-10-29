@@ -5,6 +5,7 @@ import { fulfillmentApi, fulfillmentLabels, type MerchantTrade, type Fulfillment
 import { shipmentOwner, readShipmentPending, saveShipmentPending, clearShipmentPending, type ShipmentPending } from '../shipment-pending'
 import { formatMinorUnits } from '../money'
 import ProductArt from './ProductArt.vue'
+import ShippingSummary from './ShippingSummary.vue'
 import FulfillmentPanel from './FulfillmentPanel.vue'
 import ReviewDialog from './ReviewDialog.vue'
 import './admin-trades.css'
@@ -72,6 +73,7 @@ onBeforeUnmount(() => { alive = false; ++generation; emit('working', false) })
     <section v-if="pending" class="trade-recovery" aria-label="原发货请求"><h2>发货结果待确认</h2><p>保留原请求，确认后才能继续发货。</p><div class="trade-actions"><button class="secondary-button" :disabled="loading || writing" @click="open(pending.order)">读取原订单</button><button class="primary-button" :disabled="loading || writing || !!storageError" data-test="retry-shipment" @click="ship(pending)">重试原发货请求</button></div></section>
     <p v-if="loading" role="status" class="trade-loading">正在读取订单…</p>
     <template v-if="detail">
+      <ShippingSummary v-if="detail.purchase.order_id" :token="account.access_token" :purchase="detail.purchase.order_id" merchant @expired="emit('expired')" />
       <button class="text-button trade-back" :disabled="loading || writing" @click="list()">← 返回交易订单</button>
       <section class="trade-summary"><div><h2>已付款</h2><p>{{ detail.purchase.paid_at ? date(detail.purchase.paid_at) : '支付时间未提供' }}</p></div><div><span>原实付</span><strong>{{ money(detail.purchase.total_amount) }}</strong></div><div><span>售后汇总</span><strong class="trade-refund">{{ refunds[detail.purchase.refund_status || 'NONE'] }}</strong></div></section>
       <div class="trade-detail-layout"><section class="trade-goods"><h2>订单商品</h2><article v-for="line in detail.purchase.lines" :key="line.line_id || line.sku" class="trade-product"><ProductArt v-if="line.asset_key" :asset="line.asset_key" :name="line.product_name || line.sku" :variant="line.variant ?? ''" /><div><h3>{{ line.product_name || line.sku }}</h3><p>{{ line.variant || '规格未提供' }} · 数量 × {{ line.quantity }}</p><strong>实付 {{ money(line.line_amount) }}</strong><template v-for="fact in detail.line_aftercare.filter(f => f.line_id === line.line_id)" :key="fact.line_id"><p class="trade-line-refund">{{ aftercare[fact.state] }}<span v-if="fact.reserved_amount"> · {{ money(fact.reserved_amount) }}</span></p></template></div></article><button class="text-button" :disabled="writing" @click="emit('aftercare', detail.purchase.order_id!)">查看此订单的售后工单 →</button><details class="trade-ids"><summary>查看订单编号</summary><p>{{ detail.purchase.order_id }}</p><p v-for="line in detail.purchase.lines" :key="line.sku">商品行 {{ line.line_id }}</p></details></section>
