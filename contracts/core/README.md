@@ -112,3 +112,5 @@
 ## 购物基础功能
 
 2026-10-29补充[资料、地址、聊天身份及订单收货接口](openapi-account.yaml)，合成fixture见[account.json](fixtures/account.json)。结算shipping字段与ShippingSelection/ShippingSnapshot同步于Case、Commerce主协议；范围与权限见[购物基础规格](../../docs/shopping-basics.md)。
+
+2026-10-29补充[商品与店铺资料协议](openapi-presentation.yaml)及[presentation.json](fixtures/presentation.json)，含公开展示、本店版本化写入与图片预览/发布读取；注册、恢复密钥与站内消息纳入openapi-account.yaml。shopping_stage与cover_image_id为共享商品/订单可选字段，不改变付款状态或退款权限。
