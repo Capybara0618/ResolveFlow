@@ -3,7 +3,7 @@ import { fulfillmentLabels, type OrderFulfillment } from '../fulfillment-client'
 import type { PurchaseLine } from '../shop-client'
 const props = defineProps<{ fact: OrderFulfillment | null; lines: PurchaseLine[]; loading?: boolean; error?: string }>()
 const emit = defineEmits<{ retry: [] }>()
-const events: Record<string, string> = { ORDER_PAID: '付款完成，等待发货', SIMULATED_SHIPPED: '已模拟发货', DELIVERED: '承运商记录签收', LOST: '承运商记录丢失' }
+const events: Record<string, string> = { ORDER_PAID: '付款完成，等待发货', SIMULATED_SHIPPED: '已模拟发货', SHIPMENT_CREATED: '物流信息已创建', IN_TRANSIT: '包裹运输中', EXCEPTION_DELAYED: '配送出现延误', HANDOVER_UNCERTAIN: '包裹交接情况待核实', DELIVERED: '承运商记录签收', LOST: '承运商记录丢失' }
 const date = (s: string) => new Date(s).toLocaleString('zh-CN', { hour12: false })
 const title = (id: string) => props.lines.find(l => l.line_id === id)?.product_name || props.lines.find(l => l.line_id === id)?.sku || '订单商品'
 </script>
@@ -17,7 +17,7 @@ const title = (id: string) => props.lines.find(l => l.line_id === id)?.product_n
       <p v-else-if="fact.status === 'IN_TRANSIT'">商品已发出。本项目记录的是本地模拟物流。</p>
       <p v-else-if="fact.status === 'UNKNOWN'">暂无可确认的物流状态；缺失记录不表示未发货。</p>
       <div v-for="line in fact.lines" :key="line.line_id" class="fulfillment-line"><h3>{{ title(line.line_id) }}</h3><p>{{ fulfillmentLabels[line.status] }}</p>
-        <ol v-if="line.events.length" class="fulfillment-events"><li v-for="event in line.events" :key="event.source_version"><strong>{{ events[event.code] || event.code }}</strong><time>{{ date(event.occurred_at) }}</time></li></ol>
+        <ol v-if="line.events.length" class="fulfillment-events"><li v-for="event in line.events" :key="event.source_version"><strong>{{ events[event.code] || '物流记录已更新' }}</strong><time>{{ date(event.occurred_at) }}</time></li></ol>
         <p v-else>尚无物流轨迹记录。</p>
       </div>
     </template>
