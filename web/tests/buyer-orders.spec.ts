@@ -36,10 +36,12 @@ it('opens order-line reviews only on demand and displays authoritative delivery 
   expect(w.text()).toContain('签收后可评价')
 })
 it('records no client amount and confirms success only after owned purchase is published', async () => {
-  await open(); vi.mocked(shopApi.purchase).mockResolvedValue(paid)
+  await open(); expect(w.get('h1').text()).toBe('模拟付款')
+  vi.mocked(shopApi.purchase).mockResolvedValue(paid)
   await w.get('[data-test="pay"]').trigger('click'); await flushPromises()
   expect(shopApi.pay).toHaveBeenCalledWith('buyer-token', 'one', expect.any(String)); expect(w.text()).toContain('模拟付款完成于')
   expect(w.find('[data-test="pay"]').exists()).toBe(false); expect(window.sessionStorage.length).toBe(0)
+  expect(w.get('h1').text()).toBe('订单详情')
   expect(w.text()).toContain('658.00'); expect(w.text()).toContain('商家审核')
 })
 it('after a lost response queries the original attempt and never automatically starts another payment', async () => {

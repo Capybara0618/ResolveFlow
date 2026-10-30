@@ -113,3 +113,21 @@
 ## 集中离线回归（M8开始前）
 
 最终全前端46文件380项通过；新增平台测试把get().exists()改为find().exists()后，vue-tsc与最终build通过。修正上段未等build返回即记录通过的错误；失败日志保留tmp/modern-operations-web-build.log，最终证据tmp/modern-commerce-full-web-tests.log、modern-commerce-final-build.log。至此M1至M7代码与离线检查完成，下一步按用户节奏只做一轮集中真实验收。
+
+
+## M8 集中实机验收：第一段与两项订单修正（2026-10-30）
+
+本批仅在M1至M7代码完成后集中启动。Case打包首次因旧进程占用jar重命名失败，确认归属后停止所属Case，再用JDK21重新package通过；正式`start.ps1 -SkipBuild -NoBrowser`完成，10项状态PASS。原卷、订单与政策版本保留；启动复用既有索引，没有重新导入政策。日志tmp/modern-commerce-package.log（失败）、modern-commerce-package-final.log、modern-commerce-start-final.log。
+
+已真实登录并操作：1280×720下登录、商城首页、耳机详情银色切图/数量2与698元报价、购物车单店结算、地址嵌套编辑取消/焦点恢复、资料刷新及跨页返回保留未保存昵称。buyer01资料草稿没有提交到服务端。buyer10通过正式页面新增一份合成收货地址，并从原购物车完成一笔329元模拟付款；样本draft_id/order_id/line_id保留在忽略的tmp/modern-commerce-live-20261030/sample.json，不重新造单代替后续验收。本段没有提交退款、商家审批、公开评价或新模型请求。
+
+平台商家、买家、运行记录三组正式HTTP检查：limit=1两页不重复、服务端搜索命中、LIKE字面通配符不扩大匹配，商家角色不能读取平台账号管理；均经过实际Gateway、Case与SQL。证据tmp/modern-commerce-live-20261030/api-pagination.json。它证明接口分页与隔离，不等于商家/平台页面实机验收通过。
+
+实机发现买家订单仍每页读取24条，单页过长；改为8条。正式HTTP核对buyer10两页8/7条且无重复。付款成功后仍处于原草稿路由，页标题只看路由mode而保持“模拟付款”；改为同时依据权威Purchase.status，PAID后显示“订单详情”，付款区域去掉冗余“本地”二字，保留“模拟付款”事实。原付款成功/不传客户端金额/清原幂等键回归中增加付款前后标题断言，不放宽UNKNOWN处理。
+
+- 最终`pnpm --dir web test -- tests/buyer-orders.spec.ts tests/notifications.spec.ts`：2文件27项通过。
+- 最终`pnpm --dir web build`：类型检查与构建通过。日志tmp/modern-commerce-orders-final-tests.log、modern-commerce-orders-final-build.log。
+- 实际订单API读回：两页8/7条不重复，验收订单PAID、32900分，未退款；证据tmp/modern-commerce-live-20261030/orders-api.json。首次误用系统Python（不支持datetime.UTC）启动脚本失败，没有业务请求；改为项目agent/.venv/Scripts/python.exe后通过。
+- 截图保留在tmp/modern-commerce-live-20261030：login-1280.jpg、storefront-1280.jpg、product-silver-1280.jpg、cart-1280.jpg、checkout-1280.jpg、profile-1280.jpg。收货截图使用本批合成资料；不提交账号令牌或个人原始资料。
+
+继续操作时浏览器工具返回“Local browser use is disabled in Work settings”，因此没有把后续项目标通过，也不绕过设置。尚待：修正后订单页视觉/翻页返回；真实Agent流式、调查等待与确认→商家审批→退款结果；评价与回复；商家/平台界面；1440/1920及390边界、最终控制台检查。本轮380项全前端回归为上述两项小修正前的集中证据，修正后运行27相关及构建，不将两者相加。服务和样本保留，M8仍未完成，不更新README录制素材。

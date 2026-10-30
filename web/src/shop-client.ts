@@ -52,5 +52,5 @@ export const shopApi = {
   cancel: (token: string, id: string) => post<ShopDraft>(`/api/v1/shop/drafts/${encodeURIComponent(id)}/cancel`, token, {}),
   purchase: (token: string, id: string) => apiRequest<Purchase>(`/api/v1/shop/purchases/${encodeURIComponent(id)}`, token),
   purchases: (token: string, filter: { store_id?: string; status?: PurchaseFilter; cursor?: string } = {}) =>
-    apiRequest<{ items: Purchase[]; next_cursor: string | null }>(`/api/v1/shop/purchases?${new URLSearchParams({ ...filter, limit: '24' })}`, token),
+    apiRequest<{ items: Purchase[]; next_cursor: string | null }>(`/api/v1/shop/purchases?${new URLSearchParams({ ...filter, limit: '8' })}`, token),
 }
