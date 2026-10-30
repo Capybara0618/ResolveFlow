@@ -223,7 +223,12 @@ public class EnrollmentService {
                     s.identityVersion());
             if (hashes.isEmpty()) throw new Refused(401, "UNAUTHENTICATED", "登录已失效，请重新登录");
             if (!DemoAccounts.verify(r.current_password(), hashes.getFirst())) throw invalid("当前密码不正确");
-            return key(s.principal().subject());
+            var receipt = key(s.principal().subject());
+            String loginName = db.queryForObject(
+                    "SELECT login_key FROM identity_account WHERE username=?",
+                    String.class,
+                    s.principal().subject());
+            return new Receipt(loginName, receipt.recovery_key());
         });
     }
 }

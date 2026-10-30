@@ -54,8 +54,12 @@ class EnrollmentServiceTest extends CaseDatabaseTest {
                 .isInstanceOf(com.resolveflow.shared.security.JwtCodec.TokenException.class);
         assertThatThrownBy(() -> service.register(new EnrollmentService.Register(alias, "冲突", "password-test"), peer))
                 .isInstanceOf(Refused.class);
+        var rotated = service.rotate(
+                new Session(principal, identityVersion + 1), new EnrollmentService.Rotate("password-test"));
+        assertThat(rotated.username()).isEqualTo(alias);
+        assertThat(rotated.recovery_key()).isNotEqualTo(receipt.recovery_key());
         var recovered =
-                service.recover(new EnrollmentService.Recover(alias, receipt.recovery_key(), "new-password"), peer);
+                service.recover(new EnrollmentService.Recover(alias, rotated.recovery_key(), "new-password"), peer);
         assertThat(recovered.username()).isEqualTo(alias);
         assertThat(accounts.login(alias, "new-password", java.time.Instant.now())
                         .buyerId())
