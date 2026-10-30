@@ -54,19 +54,19 @@ const message = computed(() => !succeeded.value && props.application.result.mess
 
 <style scoped>
 .buyer-progress { color: #25322c; font-family: var(--display-font-ui, "Resolve Sans", "Microsoft YaHei", sans-serif); font-size: 14px; }
-.buyer-progress header { display: flex; align-items: center; gap: 12px; padding: 0; background: none; }
+.buyer-progress header { display: flex; align-items: center; gap: 14px; padding: 0; background: none; }
 .buyer-progress-symbol { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 42px; border-radius: 50%; background: #edf2e9; color: #39715e; }
 .attention .buyer-progress-symbol { background: #f8efdc; color: #8b622c; }
 .buyer-progress header strong { display: block; font-size: 20px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
 .buyer-progress header small { display: block; margin-top: 3px; font-size: 12px; color: #737d73; }
 .buyer-progress :is(p, ol) { margin: 16px 0 0; padding: 0; }
 .buyer-progress :is(p, li) { line-height: 1.8; overflow-wrap: anywhere; }
-.buyer-progress-note, .buyer-progress-message, .buyer-progress-reason { font: 400 16px/1.85 var(--display-font-reading, "Resolve Reading", "SimSun", serif); }
+.buyer-progress-note, .buyer-progress-message, .buyer-progress-reason { font: 400 15px/1.8 var(--display-font-reading, "Resolve Reading", "SimSun", serif); }
 .buyer-progress-note { color: #606c62; }
 .buyer-progress-blocked { padding: 10px 12px !important; background: #f8f4e9; border-radius: 6px; font-size: 13px; color: #7a6239; }
 .buyer-result-amount { display: flex; flex-direction: column; gap: 5px; margin: 22px 0 0; }
 .buyer-result-amount span { font-size: 12px; color: #6a756b; }
-.buyer-result-amount strong { font-size: 30px; font-weight: 500; line-height: 1.3; letter-spacing: -.5px; color: #25322c; }
+.buyer-result-amount strong { font-size: 30px; font-weight: 500; font-variant-numeric:tabular-nums; line-height: 1.3; letter-spacing: -.5px; color: #25322c; }
 .success .buyer-result-amount strong { color: #176b5c; }
 .buyer-receipt-product { margin-top: 22px; padding-top: 18px; border-top: 1px solid #e6eae2; }
 .buyer-progress-records { margin-top: 20px; padding-top: 14px; border-top: 1px solid #e6eae2; font-size: 12px; color: #6a756b; }
@@ -75,7 +75,7 @@ const message = computed(() => !succeeded.value && props.application.result.mess
 .buyer-progress-records summary::marker { content: ''; }
 .buyer-progress-records summary::after { content: '展开'; }
 .buyer-progress-records[open] summary::after { content: '收起'; }
-.buyer-progress-records ol { list-style: none; display: grid; gap: 12px; }
+.buyer-progress-records ol { list-style: none; display: grid; gap: 14px; }
 .buyer-progress-records time { display: block; font-size: 12px; color: #7b847a; }
 .buyer-progress-records > small { display: block; margin-top: 14px; font-size: 12px; overflow-wrap: anywhere; }
 .buyer-progress footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-top: 1px solid #e6eae2; margin-top: 16px; padding-top: 14px; }

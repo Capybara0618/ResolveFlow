@@ -68,7 +68,7 @@ async function readFulfillment(g = generation) {
   const current = () => valid(g) && f === fulfillmentGeneration
   fulfillmentLoading.value = true; fulfillmentError.value = ''; fulfillment.value = null
   try { const result = await fulfillmentApi.buyer(props.account.access_token, detail.value.purchase_id); if (current()) fulfillment.value = result }
-  catch (cause) { if (current()) { fulfillmentError.value = '暂时无法确认物流，请重新读取；未读取成功不表示未发货。'; if (cause instanceof ApiError && cause.status === 401) failure(cause) } }
+  catch (cause) { if (current()) { fulfillmentError.value = '物流暂时无法读取，请重试。'; if (cause instanceof ApiError && cause.status === 401) failure(cause) } }
   finally { if (current()) fulfillmentLoading.value = false }
 }
 async function readDetail(id: string, g = generation) {

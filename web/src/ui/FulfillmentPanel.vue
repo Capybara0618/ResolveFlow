@@ -9,13 +9,13 @@ const title = (id: string) => props.lines.find(l => l.line_id === id)?.product_n
 </script>
 <template>
   <section class="fulfillment-panel" aria-label="订单履约">
-    <header><h2>订单履约</h2><span v-if="fact" class="fulfillment-chip" :class="fact.status.toLowerCase()">{{ fulfillmentLabels[fact.status] }}</span></header>
+    <header><h2>物流进度</h2><span v-if="fact" class="fulfillment-chip" :class="fact.status.toLowerCase()">{{ fulfillmentLabels[fact.status] }}</span></header>
     <p v-if="loading" role="status">正在读取物流…</p>
     <div v-else-if="error" role="alert"><p>{{ error }}</p><button type="button" class="secondary-button shop-secondary" @click="emit('retry')">重新读取物流</button></div>
     <template v-else-if="fact">
       <p v-if="fact.status === 'NOT_SHIPPED'">付款已完成，商家尚未发货。</p>
       <p v-else-if="fact.status === 'IN_TRANSIT'">商品已发出。</p>
-      <p v-else-if="fact.status === 'UNKNOWN'">暂无可确认的物流状态；缺失记录不表示未发货。</p>
+      <p v-else-if="fact.status === 'UNKNOWN'">物流状态暂未确认。</p>
       <div v-for="line in fact.lines" :key="line.line_id" class="fulfillment-line"><h3>{{ title(line.line_id) }}</h3><p>{{ fulfillmentLabels[line.status] }}</p>
         <ol v-if="line.events.length" class="fulfillment-events"><li v-for="event in line.events" :key="event.source_version"><strong>{{ events[event.code] || '物流记录已更新' }}</strong><time>{{ date(event.occurred_at) }}</time></li></ol>
         <p v-else>尚无物流轨迹记录。</p>
@@ -25,15 +25,15 @@ const title = (id: string) => props.lines.find(l => l.line_id === id)?.product_n
   </section>
 </template>
 <style>
-.fulfillment-panel { border: 1px solid var(--rf-line); border-radius: 14px; background: white; padding: 26px; margin-bottom: 22px; font-size: 16px; }
+.fulfillment-panel { border: 1px solid var(--rf-line); border-radius: var(--rf-radius-surface); background: var(--rf-surface); padding: 24px; margin-bottom: 20px; font-size: 14px; }
 .fulfillment-panel header { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-.fulfillment-panel h2 { font-size: 22px !important; margin: 0 !important; }.fulfillment-panel h3 { font-size: 18px !important; margin: 0 0 12px !important; }
-.fulfillment-panel p { font-size: 16px !important; color: var(--rf-muted); margin: 16px 0; line-height: 1.65; }
-.fulfillment-chip { font-size: 16px; padding: 8px 14px; border-radius: 8px; background: var(--rf-accent-soft); color: var(--rf-accent); white-space: nowrap; }
+.fulfillment-panel h2 { font-size: 17px !important; margin: 0 !important; }.fulfillment-panel h3 { font-size: 18px !important; margin: 0 0 12px !important; }
+.fulfillment-panel p { font-size: 14px !important; color: var(--rf-muted); margin: 16px 0; line-height: 1.65; }
+.fulfillment-chip { font-size: 12px; padding: 5px 9px; border-radius: 8px; background: var(--rf-accent-soft); color: var(--rf-accent); white-space: nowrap; }
 .fulfillment-chip.delivered { color: #168458; background: #e9f7ef; }.fulfillment-chip.unknown,.fulfillment-chip.lost { color: #95600a; background: #fff4dd; }
 .fulfillment-line { border-top: 1px solid var(--rf-line); padding-top: 22px; margin-top: 22px; }
-.fulfillment-events { list-style: none; padding: 0 0 0 14px; margin: 18px 0 0 6px; border-left: 2px solid var(--rf-line); display: grid; gap: 22px; }
-.fulfillment-events li { position: relative; display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between; font-size: 16px; }
+.fulfillment-events { list-style: none; padding: 0 0 0 14px; margin: 18px 0 0 6px; border-left: 2px solid var(--rf-line); display: grid; gap: 18px; }
+.fulfillment-events li { position: relative; display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between; font-size: 14px; }
 .fulfillment-events li::before { content: ''; position: absolute; background: var(--rf-accent); border: 3px solid white; width: 12px; height: 12px; border-radius: 50%; left: -22px; top: 2px; }
 .fulfillment-events time { color: var(--rf-muted); }
 </style>

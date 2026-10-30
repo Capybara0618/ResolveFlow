@@ -133,7 +133,7 @@ it('paid order displays authoritative unshipped facts and never guesses a missin
   expect(w.get('[aria-label="订单履约"]').text()).toContain('商家尚未发货')
   vi.mocked(fulfillmentApi.buyer).mockRejectedValue(new ApiError(503, 'UNAVAILABLE', 'offline'))
   await w.findAll('button').find(b => b.text() === '刷新状态')!.trigger('click'); await flushPromises()
-  expect(w.get('[aria-label="订单履约"]').text()).toContain('未读取成功不表示未发货')
+  expect(w.get('[aria-label="订单履约"]').text()).toContain('物流暂时无法读取')
   expect(w.get('[aria-label="订单履约"]').text()).not.toContain('商家尚未发货')
 })
 
