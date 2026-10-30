@@ -2,6 +2,7 @@
 import { ref, watch, onBeforeUnmount } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { accountApi, type Address, type ShippingSelection } from '../account-client'
+import ReviewDialog from './ReviewDialog.vue'
 import AccountWorkspace from './AccountWorkspace.vue'
 const props = defineProps<{ account: LoginResponse; modelValue: ShippingSelection | null; disabled?: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [value: ShippingSelection | null]; expired: []; working: [value: boolean] }>()
@@ -21,6 +22,6 @@ onBeforeUnmount(() => { generation++ })
 <template><section class="shipping-picker" aria-label="选择收货地址"><div class="shipping-picker-head"><h2>收货信息</h2><button type="button" :disabled="disabled || saving || loading" @click="managing = !managing">{{ managing ? '收起地址管理' : rows.length ? '管理地址' : '添加收货地址' }}</button></div>
   <p v-if="loading">正在读取地址…</p><p v-if="error" role="alert">{{ error }} <button type="button" :disabled="disabled || saving || loading" @click="load">重试</button></p><p v-if="!loading && !error && !rows.length">请添加收货地址后提交订单。</p>
   <label v-for="row in rows" :key="row.address_id" class="shipping-choice"><input type="radio" name="checkout-address" :value="row.address_id" :checked="modelValue?.address_id === row.address_id" :disabled="disabled || saving || loading" @change="choose(row.address_id)" /><span><strong>{{ row.recipient }}</strong>　{{ row.phone }}<small v-if="row.is_default">默认</small><span class="shipping-location">{{ row.province }} {{ row.city }} {{ row.district }} {{ row.detail }}</span></span></label>
-  <AccountWorkspace :key="account.access_token" v-if="managing" :account="account" mode="addresses" @changed="load" @working="saving = $event; emit('working', $event)" @expired="emit('expired')" />
+  <ReviewDialog v-if="managing" title="管理收货地址" :busy="saving" merchant @close="managing = false"><AccountWorkspace embedded :key="account.access_token" :account="account" mode="addresses" @changed="load" @working="saving = $event; emit('working', $event)" @expired="emit('expired')" /></ReviewDialog>
 </section></template>
 <style scoped>.shipping-picker{border:1px solid #dfe5da;border-radius:12px;background:#fff;padding:24px;margin:20px 0}.shipping-picker-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.shipping-picker h2{font-size:18px;margin:0}.shipping-picker button{font:inherit;font-size:14px;background:white;color:#205e50;border:1px solid #cedacd;border-radius:7px;padding:8px 12px;cursor:pointer}.shipping-choice{display:flex;gap:14px;align-items:flex-start;padding:17px 0;cursor:pointer}.shipping-choice input{accent-color:#205e50;margin-top:5px}.shipping-location{display:block;line-height:1.7;color:#5c6b60;margin-top:5px}.shipping-choice small{display:inline-block;font-size:12px;background:#edf4e9;color:#205e50;padding:2px 6px;margin-left:10px;border-radius:4px}</style>

@@ -3,6 +3,7 @@ import { beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { accountApi } from '../src/account-client'
 import { enrollmentApi } from '../src/enrollment-client'
 import { ApiError } from '../src/client'
+import type { AccountEditMemory } from '../src/ui/account-edit-memory'
 import AccountWorkspace from '../src/ui/AccountWorkspace.vue'
 import AddressPicker from '../src/ui/AddressPicker.vue'
 
@@ -67,4 +68,49 @@ it('requests login with the new account name after a successful change and clear
   await w.get('.account-login-row button').trigger('click'); await w.get('input[autocomplete="username"]').setValue('renamed-buyer'); await w.get('input[type="password"]').setValue('current-password')
   await w.get('.login-name-form').trigger('submit'); await flushPromises()
   expect(w.emitted('reauthenticate')?.[0]).toEqual(['renamed-buyer']); expect(w.emitted('expired')).toBeUndefined(); expect(w.find('input[type="password"]').exists()).toBe(false)
+})
+
+
+it('keeps unsaved profile edits during an ordinary refresh', async () => {
+  w=mount(AccountWorkspace,{props:{account}});await flushPromises()
+  await w.get('input[autocomplete="nickname"]').setValue('正在编辑')
+  await w.get('header button').trigger('click');await flushPromises()
+  expect(w.get<HTMLInputElement>('input[autocomplete="nickname"]').element.value).toBe('正在编辑')
+})
+
+it('edits addresses inside a dialog and retains fields after outside dismissal', async () => {
+  w=mount(AccountWorkspace,{props:{account,mode:'addresses'}});await flushPromises()
+  await w.get('.address-row .account-actions button').trigger('click');await flushPromises()
+  expect(w.find('[role="dialog"]').exists()).toBe(true)
+  await w.get('input[autocomplete="name"]').setValue('未保存姓名')
+  await w.get('.rf-dialog-backdrop').trigger('click');await flushPromises()
+  await w.findAll('button').find(b=>b.text()==='继续编辑地址')!.trigger('click');await flushPromises()
+  expect(w.get<HTMLInputElement>('input[autocomplete="name"]').element.value).toBe('未保存姓名')
+})
+
+
+it('restores workspace-owned profile edits without silently adopting a newer version', async () => {
+  const memory: AccountEditMemory = {}
+  vi.spyOn(accountApi,'save').mockResolvedValue({...profile,display_name:'草稿昵称',version:5})
+  w=mount(AccountWorkspace,{props:{account,memory}});await flushPromises()
+  await w.get('input[autocomplete="nickname"]').setValue('草稿昵称');w.unmount()
+  vi.mocked(accountApi.profile).mockResolvedValue({...profile,version:4})
+  w=mount(AccountWorkspace,{props:{account,memory}});await flushPromises()
+  expect(w.get<HTMLInputElement>('input[autocomplete="nickname"]').element.value).toBe('草稿昵称')
+  expect(w.get('.profile-form .shop-primary').attributes('disabled')).toBeDefined()
+  await w.findAll('button').find(b=>b.text()==='保留我的修改')!.trigger('click')
+  await w.get('.profile-form').trigger('submit');await flushPromises()
+  expect(accountApi.save).toHaveBeenCalledWith('owner','草稿昵称',4,{phone:'',gender:'UNDISCLOSED',birth_date:null})
+  expect(memory.profile).toBeUndefined()
+})
+
+it('retains an address draft across workspace remounts with its original expected version', async () => {
+  const memory: AccountEditMemory = {}
+  w=mount(AccountWorkspace,{props:{account,mode:'addresses',memory}});await flushPromises()
+  await w.get('.address-row .account-actions button').trigger('click')
+  await w.get('input[autocomplete="name"]').setValue('地址草稿');w.unmount()
+  w=mount(AccountWorkspace,{props:{account,mode:'addresses',memory}});await flushPromises()
+  await w.findAll('button').find(b=>b.text()==='继续编辑地址')!.trigger('click')
+  expect(w.get<HTMLInputElement>('input[autocomplete="name"]').element.value).toBe('地址草稿')
+  expect(memory.address?.form.expected_version).toBe(4)
 })

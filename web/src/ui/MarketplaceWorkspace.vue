@@ -2,7 +2,7 @@
 import { beginBuyerNavigation, pushBuyerNavigation, hasBuyerPrevious } from '../buyer-navigation'
 import StoreMark from './StoreMark.vue'
 import { useDismissible } from './useDismissible'
-import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch, reactive } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { shopApi, type ShopProduct, type ShopStore, type ShopQuote, type ShopDraft, type ShopDraftRequest } from '../shop-client'
 import { formatMinorUnits } from '../money'
@@ -20,6 +20,7 @@ import CartWorkspace from './CartWorkspace.vue'
 import OrderSummary from './OrderSummary.vue'
 import './purchase-layout.css'
 import AccountWorkspace from './AccountWorkspace.vue'
+import type { AccountEditMemory } from './account-edit-memory'
 import NotificationCenter from './NotificationCenter.vue'
 import PersonalCenter from './PersonalCenter.vue'
 import EnrollmentForm from './EnrollmentForm.vue'
@@ -30,6 +31,7 @@ import type { AccountProfile, ShippingSelection } from '../account-client'
 import { readCartPending, saveCartPending, clearCartPending, type CartPending } from '../cart-pending'
 import './marketplace.css'
 
+const accountEditMemory = reactive<AccountEditMemory>({})
 const props = defineProps<{ account: LoginResponse | null }>()
 const emit = defineEmits<{ expired: []; reauthenticate: [loginName: string]; login: []; logout: []; profile: [value: AccountProfile] }>()
 type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support' | 'profile' | 'addresses' | 'me' | 'messages' | 'security'
@@ -257,7 +259,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; clearTim
       </div>
     </nav>
     <p v-if="error" class="shop-error shop-global-error" role="alert">{{ error }}</p>
-    <AccountWorkspace :key="account.access_token" v-if="(screen === 'profile' || screen === 'addresses') && account" :account="account" :mode="screen" @reauthenticate="emit('reauthenticate', $event)" @saved="emit('profile', $event)" @working="cartBusy = $event" @expired="emit('expired')" />
+    <AccountWorkspace :key="account.access_token" v-if="(screen === 'profile' || screen === 'addresses') && account" :account="account" :mode="screen" :memory="accountEditMemory" @reauthenticate="emit('reauthenticate', $event)" @saved="emit('profile', $event)" @working="cartBusy = $event" @expired="emit('expired')" />
     <EnrollmentForm v-else-if="screen === 'security' && account" mode="rotate" :token="account.access_token" @working="cartBusy = $event" @close="go('#/shop/me')" @expired="emit('expired')" />
     <PersonalCenter v-else-if="screen === 'me' && account" :account="account" @navigate="go" @expired="emit('expired')" />
     <NotificationCenter v-else-if="screen === 'messages' && account" :token="account.access_token" expanded @expired="emit('expired')" @open="openNotification" />

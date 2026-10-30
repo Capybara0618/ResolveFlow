@@ -52,3 +52,11 @@
 ## M4 复合编辑的弹窗基础（仅离线）
 
 地址管理内编辑需要多层弹窗，原每实例各自恢复overflow会在父层先卸载时提前解锁/残留锁，Esc还会冒泡关闭两层。新增同Document计数锁，最后一层退出才恢复背景；ReviewDialog与SupportDialog共享，Esc停止冒泡，恢复焦点不滚动。两个关键回归先红后绿，相关50项与build过，日志tmp/modern-dialog-stack-red.log、modern-dialog-stack-tests.log、modern-dialog-stack-build.log。未实机，下一步用于账户/地址编辑。
+
+
+## M4 资料与地址编辑（仅离线）
+
+地址新增/编辑、删除和修改登录账号接共享弹窗及独立操作底部，结算中的地址管理使用嵌入式管理层，不再展开撑长页面。资料表单两列、头像72px，统一40/44px控件、边框和局部反馈。普通刷新保留未保存资料；买家工作区拥有资料/地址草稿，退出页面后可继续，不保存密码。读取新版资料时不自动替换原expected version，用户明确选择最新或保留修改后才可提交；地址冲突保留输入并提供明确放弃修改/读取最新入口。
+
+- 刷新丢草稿/地址未弹层两项先红后绿；补跨挂载草稿及新版资料显式选择回归。account/review-dialog/cart共33项通过，build通过；日志tmp/modern-account-red.log、modern-account-final-tests.log、modern-account-build.log。
+- 原密码错误、版本冲突、地址选择版本和保存时关闭禁用断言保留。未启动/实机/真实账号修改，视觉和跨路由体验待M8。
