@@ -20,6 +20,41 @@ class PresentationDatabaseTest extends CommerceDatabaseTest {
     ShoppingService shop;
 
     @Test
+    void variantMappingSurvivesReorderingAndRejectsOtherProductVariantsOrPhotos() {
+        String a = UUID.randomUUID().toString(), b = UUID.randomUUID().toString();
+        var old = service.product("P-1001", "M-1001");
+        var value = service.saveProduct(
+                "P-1001",
+                new ProductCommand(
+                        "M-1001",
+                        "admin",
+                        new ProductWrite(old.version(), List.of(b, a), List.of(), "", "", Map.of("黑色", a, "银色", b))));
+        assertThat(service.product("P-1001", null).variant_images())
+                .containsEntry("黑色", a)
+                .containsEntry("银色", b);
+        assertThatThrownBy(() -> service.saveProduct(
+                        "P-1001",
+                        new ProductCommand(
+                                "M-1001",
+                                "admin",
+                                new ProductWrite(
+                                        value.version(), List.of(a, b), List.of(), "", "", Map.of("无此款式", a)))))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> service.saveProduct(
+                        "P-1001",
+                        new ProductCommand(
+                                "M-1001",
+                                "admin",
+                                new ProductWrite(value.version(), List.of(a), List.of(), "", "", Map.of("黑色", b)))))
+                .isInstanceOf(IllegalArgumentException.class);
+        var next = service.saveProduct(
+                "P-1001",
+                new ProductCommand(
+                        "M-1001", "admin", new ProductWrite(value.version(), List.of(a), List.of(), "", "")));
+        assertThat(next.variant_images()).containsExactlyEntriesOf(Map.of("黑色", a));
+    }
+
+    @Test
     void orderedImagesAndNotesPersistWithOwnershipVersionAndPublicationChecks() {
         String a = UUID.randomUUID().toString(), b = UUID.randomUUID().toString();
         var before = service.product("P-1001", "M-1001");

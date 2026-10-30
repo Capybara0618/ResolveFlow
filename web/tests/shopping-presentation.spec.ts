@@ -44,3 +44,12 @@ it('renders ordered gallery thumbnails and the supplied facts without inventing 
   await w.get('[aria-label="查看第2张商品图片"]').trigger('click'); expect(w.get('[aria-label="查看第2张商品图片"]').attributes('aria-pressed')).toBe('true')
   expect(w.get('.gallery-main img').attributes('src')).toContain('image-two')
 })
+
+it('selects uploaded variant images after load and variant changes without relying on image order', async () => {
+  vi.mocked(presentationApi.product).mockResolvedValue({ product_id: 'p', version: 1, images: ['silver-photo', 'black-photo'], variant_images: { 黑色: 'black-photo', 银色: 'silver-photo' }, specifications: [], shipping_note: '', aftercare_note: '' } as Awaited<ReturnType<typeof presentationApi.product>>)
+  w = mount(ProductGallery, { props: { product: 'p', asset: 'headphones', name: '无线降噪耳机', variant: '黑色' } }); await flushPromises()
+  expect(w.get('.gallery-main img').attributes('src')).toContain('black-photo')
+  await w.setProps({ variant: '银色' }); expect(w.get('.gallery-main img').attributes('src')).toContain('silver-photo')
+  await w.get('[aria-label="查看第2张商品图片"]').trigger('click'); expect(w.get('.gallery-main img').attributes('src')).toContain('black-photo')
+  await w.setProps({ variant: '黑色' }); expect(w.get('.gallery-main img').attributes('src')).toContain('black-photo')
+})

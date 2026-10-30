@@ -9,6 +9,8 @@ let generation = 0
 async function load() { const g = ++generation; details.value = null; selected.value = 0; error.value = false
   try { const value = await presentationApi.product(props.product); if (!Array.isArray(value.images) || !Array.isArray(value.specifications)) throw new Error('Invalid product details'); if (g === generation) details.value = value } catch { if (g === generation) error.value = true }
 }
+function selectVariant() { const image = props.variant && details.value?.variant_images?.[props.variant]; selected.value = Math.max(0, image ? details.value!.images.indexOf(image) : 0) }
+watch([() => props.variant, details], selectVariant)
 watch(() => props.product, load, { immediate: true }); onBeforeUnmount(() => { generation++ })
 </script>
 <template><div class="product-gallery"><div class="gallery-main"><CatalogImage v-if="details?.images.length" :id="details.images[selected]" :name="name" /><ProductArt v-else :asset="asset" :name="name" :variant="variant" /></div>

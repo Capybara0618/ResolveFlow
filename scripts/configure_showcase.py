@@ -27,7 +27,7 @@ def asset_path(value: str) -> Path:
 
 
 def require_owned(label: str, current: dict, owned: dict | None) -> None:
-    if owned is not None and current == owned:
+    if owned is not None and current == (dict(owned, variant_images={}) if "variant_images" in current and "variant_images" not in owned else owned):
         return
     empty = current.get("version") == 0 and all(
         value in (None, "", [], 0)
@@ -277,6 +277,7 @@ class Configuration:
                     "images": [
                         self.media(username, image) for image in product["images"]
                     ],
+                    "variant_images": { variant: self.media(username, image) for variant, image in product.get("variant_images", {}).items() },
                 },
             )
 

@@ -67,7 +67,13 @@ public class PresentationService {
                 Arrays.asList(json.readValue(r.get("images").toString(), String[].class)),
                 Arrays.asList(json.readValue(r.get("specifications").toString(), Spec[].class)),
                 r.get("shipping_note").toString(),
-                r.get("aftercare_note").toString());
+                r.get("aftercare_note").toString(),
+                variantImages(r.get("variant_images")));
+    }
+
+    private Map<String, String> variantImages(Object raw) {
+        if (raw == null) return Map.of();
+        return json.readValue(raw.toString(), new tools.jackson.core.type.TypeReference<Map<String, String>>() {});
     }
 
     @Transactional
@@ -95,14 +101,27 @@ public class PresentationService {
         productScope(id, command.merchant_id(), true);
         var current = product(id, command.merchant_id());
         version(current.version(), r.expected_version());
+        var mapping = new LinkedHashMap<String, String>();
+        if (r.variant_images() == null)
+            current.variant_images().forEach((variant, image) -> {
+                if (r.images().contains(image)) mapping.put(variant, image);
+            });
+        else mapping.putAll(r.variant_images());
+        var variants = db.queryForList("SELECT variant FROM catalog_sku WHERE product_id=?", String.class, id);
+        if (mapping.size() > variants.size()
+                || mapping.entrySet().stream()
+                        .anyMatch(e ->
+                                !variants.contains(e.getKey()) || !r.images().contains(e.getValue())))
+            throw new IllegalArgumentException("款式图片必须属于当前商品相册及有效款式");
         db.update(
-                "INSERT INTO catalog_product_presentation(product_id,version,images,specifications,shipping_note,aftercare_note) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE version=VALUES(version),images=VALUES(images),specifications=VALUES(specifications),shipping_note=VALUES(shipping_note),aftercare_note=VALUES(aftercare_note)",
+                "INSERT INTO catalog_product_presentation(product_id,version,images,specifications,shipping_note,aftercare_note,variant_images) VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE version=VALUES(version),images=VALUES(images),specifications=VALUES(specifications),shipping_note=VALUES(shipping_note),aftercare_note=VALUES(aftercare_note),variant_images=VALUES(variant_images)",
                 id,
                 current.version() + 1,
                 json.writeValueAsString(r.images()),
                 json.writeValueAsString(r.specifications()),
                 r.shipping_note(),
-                r.aftercare_note());
+                r.aftercare_note(),
+                json.writeValueAsString(mapping));
         return product(id, command.merchant_id());
     }
 

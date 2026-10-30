@@ -12,7 +12,8 @@
       }
     ],
     "shipping_note": "合成配送说明",
-    "aftercare_note": "合成售后说明"
+    "aftercare_note": "合成售后说明",
+    "variant_images": {}
   },
   "StorePresentation": {
     "store_id": "M-1001",

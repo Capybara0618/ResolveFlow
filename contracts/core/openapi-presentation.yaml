@@ -487,6 +487,13 @@ components:
         version:
           type: integer
           minimum: 0
+        variant_images: &variantImages
+          type: object
+          maxProperties: 100
+          additionalProperties:
+            type: string
+            format: uuid
+          description: 款式名称到相册图片标识的显式关联，顺序变化不影响关联
         images: &id002
           type: array
           uniqueItems: true
@@ -516,6 +523,7 @@ components:
         expected_version:
           type: integer
           minimum: 0
+        variant_images: *variantImages
         images: *id002
         specifications: *id003
         shipping_note: *id004

@@ -1,6 +1,6 @@
 import { apiRequest } from './client'
 export interface Specification { name: string; value: string }
-export interface ProductPresentation { product_id: string; version: number; images: string[]; specifications: Specification[]; shipping_note: string; aftercare_note: string }
+export interface ProductPresentation { product_id: string; version: number; images: string[]; variant_images?: Record<string, string>; specifications: Specification[]; shipping_note: string; aftercare_note: string }
 export interface StorePresentation { store_id: string; version: number; introduction: string; logo_id: string | null; contact_phone: string; service_hours: string }
 export type ProductPresentationWrite = Omit<ProductPresentation, 'product_id' | 'version'> & { expected_version: number }
 export type StorePresentationWrite = Omit<StorePresentation, 'store_id' | 'version'> & { expected_version: number }

@@ -13,3 +13,10 @@
 - `pnpm --dir web test -- tests/dismissible.spec.ts tests/marketplace.spec.ts tests/notifications.spec.ts`：20项通过，含外点/Escape/内部操作不关闭/卸载回归；`pnpm --dir web build`通过。
 - buyer01真实登录，消息与账户菜单外点关闭通过；背包参数dl为block，两行值宽460px，数量输入88px；加入购物车后独立浅绿反馈行出现，未创建订单。
 - 实看发现收紧input排除条件后其权重反而压过数量控件，已用:where降低基础规则权重并复查88px。首次编辑受Windows默认GBK阻断，已显式UTF-8并检查退出码。商品款式映射和整批最终验收仍待后续。
+
+### 第二步：商品款式相册
+
+- 相册增加显式variant_images映射，商家从当前相册选择每个款式的图片；排序不改关联，删除照片时清除相应关联。旧客户端未传映射时保留仍有效的关联，默认空映射兼容已有资料。
+- Commerce新增V21；拒绝其他商品款式/相册外图片，范围和版本检查沿用现有规则。协议、fixture及展示资料配置同步更新。
+- 上传相册款式回归先红后绿；前端5项、类型检查通过；`PresentationDatabaseTest`3项与契约4项通过，包构建最终通过。曾误指定不存在测试目录，0项不计通过；首次命令PowerShell参数拆分/旧Python不支持UTC，已改JDK21、引号参数和uv解释器。
+- 运行JAR锁导致首次package失败；停Commerce后重新package成功。正在重启并配置现有图库的显式款式映射，尚不称真实换图验收完成。

@@ -43,7 +43,7 @@ onMounted(() => { void act(() => load()) })
   <main class="foundation-main">
     <header class="foundation-heading"><div><h1>商品管理</h1></div><div class="foundation-actions"><button :disabled="busy" @click="edit = false; act(() => load())">刷新</button><button class="primary-button" :disabled="busy" @click="open(null)">新增商品</button><button :disabled="busy" @click="presentation = {}; edit = false">店铺资料</button></div></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
-    <PresentationEditor v-if="presentation" :key="presentation.product ?? 'store'" :account="account" :product="presentation.product" @working="busy = $event; emit('working', $event)" @expired="emit('expired')" @close="presentation = null" />
+    <PresentationEditor v-if="presentation" :key="presentation.product ?? 'store'" :account="account" :product="presentation.product" :variants="rows.find(row => row.product_id === presentation?.product)?.skus" @working="busy = $event; emit('working', $event)" @expired="emit('expired')" @close="presentation = null" />
     <form v-if="edit" class="foundation-editor" @submit.prevent="save">
       <h2>{{ selected ? '编辑商品' : '新增商品' }}</h2><div class="foundation-fields">
         <label>商品名称<input v-model="name" required maxlength="120" /></label><label>商品分类<select v-model="category"><option value="electronics">数码</option><option value="home">家居</option><option value="outdoor">户外</option></select></label>
