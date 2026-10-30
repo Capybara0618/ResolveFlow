@@ -25,7 +25,7 @@ beforeEach(() => {
   vi.spyOn(shopApi, 'cancel').mockResolvedValue({ ...item, draft_id: 'one', product_id: 'P1', product_name: '耳机', asset_key: 'headphones', sku_id: 'SKU', variant: '黑色', quantity: 2, unit_amount: 32900, expires_at: item.expires_at!, status: 'CANCELLED' })
   vi.spyOn(coreApi, 'customerOrderLine').mockResolvedValue(context)
 })
-afterEach(() => { w?.unmount(); vi.restoreAllMocks(); window.sessionStorage.clear() })
+afterEach(() => { w?.unmount(); vi.restoreAllMocks(); vi.useRealTimers(); window.sessionStorage.clear() })
 async function open() { w = mount(BuyerOrders, { props: { account: buyer } }); await flushPromises() }
 it('opens order-line reviews only on demand and displays authoritative delivery eligibility', async () => {
   vi.mocked(shopApi.purchase).mockResolvedValue(paid)
@@ -135,4 +135,36 @@ it('paid order displays authoritative unshipped facts and never guesses a missin
   await w.findAll('button').find(b => b.text() === '刷新状态')!.trigger('click'); await flushPromises()
   expect(w.get('[aria-label="订单履约"]').text()).toContain('未读取成功不表示未发货')
   expect(w.get('[aria-label="订单履约"]').text()).not.toContain('商家尚未发货')
+})
+
+it('returns to the same filtered, expanded list and reading position without recreating the orders module', async () => {
+  vi.useFakeTimers(); const scroll = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  vi.spyOn(window, 'scrollY', 'get').mockReturnValue(480)
+  const second = { ...paid, purchase_id: 'second-order', lines: [{ ...paid.lines[0], product_name: '第二笔商品' }] }
+  vi.mocked(shopApi.purchases).mockImplementation(async (_token, query) => query?.cursor ? { items: [second], next_cursor: null } : { items: [paid], next_cursor: 'page-two' })
+  vi.mocked(shopApi.purchase).mockResolvedValue(second)
+  window.history.replaceState(null, '', '/#/shop/orders?status=PAID')
+  w = mount(MarketplaceWorkspace, { props: { account: buyer } }); await flushPromises()
+  const instance = w.get('.buyer-orders').element
+  await w.findAll('button').find(b => b.text() === '加载更多订单')!.trigger('click'); await flushPromises()
+  await w.findAll('.purchase-card button')[1].trigger('click'); await flushPromises()
+  expect(w.get('.buyer-orders').element).toBe(instance)
+  expect(w.text()).toContain('订单详情')
+  await w.findAll('button').find(b => b.text() === '返回我的订单')!.trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(40)
+  expect(w.findAll('.purchase-card')).toHaveLength(2); expect(w.text()).toContain('第二笔商品')
+  expect(shopApi.purchases).toHaveBeenCalledTimes(2)
+  expect(w.get('[aria-label="更多订单状态"]').element).toHaveProperty('value', 'PAID')
+  expect(scroll).toHaveBeenLastCalledWith({ top: 480, behavior: 'auto' })
+  vi.useRealTimers()
+})
+
+it('shows a geometry placeholder only for slow initial reads and clears it when the order arrives', async () => {
+  vi.useFakeTimers(); let release!: (p: Purchase) => void
+  vi.mocked(shopApi.purchase).mockReturnValue(new Promise(r => { release = r }))
+  await open(); expect(w.find('[data-order-skeleton]').exists()).toBe(false)
+  await vi.advanceTimersByTimeAsync(180); expect(w.find('[data-order-skeleton]').exists()).toBe(true)
+  expect(w.find('[data-test="pay"]').exists()).toBe(false)
+  release(item); await flushPromises(); expect(w.find('[data-order-skeleton]').exists()).toBe(false)
+  expect(w.find('[data-test="pay"]').exists()).toBe(true)
+  vi.useRealTimers()
 })

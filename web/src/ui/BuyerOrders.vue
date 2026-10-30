@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import StoreMark from './StoreMark.vue'
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { ApiError, coreApi, type CustomerOrderLine, type LoginResponse } from '../client'
 import { shopApi, type Purchase, type PurchaseStatus, type PurchaseFilter, type ShopStore } from '../shop-client'
 import { formatMinorUnits } from '../money'
@@ -13,7 +13,7 @@ import './buyer-orders.css'
 import FulfillmentPanel from './FulfillmentPanel.vue'
 import { fulfillmentApi, type OrderFulfillment } from '../fulfillment-client'
 
-const props = defineProps<{ account: LoginResponse }>()
+const props = defineProps<{ account: LoginResponse; routeKey?: string }>()
 const emit = defineEmits<{ expired: []; navigate: [hash: string] }>()
 const fulfillment = ref<OrderFulfillment | null>(null), fulfillmentLoading = ref(false), fulfillmentError = ref('')
 const items = ref<Purchase[]>([]), detail = ref<Purchase | null>(null), stores = ref<ShopStore[]>([])
@@ -26,7 +26,22 @@ let fulfillmentGeneration = 0
 let generation = 0, alive = true, timer: ReturnType<typeof setInterval> | undefined, memoryKey = ''
 const shoppingLabels: Record<string,string> = { AWAITING_SHIPMENT: '待发货', AWAITING_RECEIPT: '待收货', COMPLETED: '已完成', AFTER_SALES: '售后', LOGISTICS_UNKNOWN: '物流待确认' }
 const stageLabel = (p: Purchase) => p.shopping_stage === 'AFTER_SALES' && p.refund_status && p.refund_status !== 'NONE' ? refundLabels[p.refund_status] : shoppingLabels[p.shopping_stage ?? ''] ?? labels[p.status]
-const returnHash = ref('#/shop/orders')
+const returnHash = ref('#/shop/orders'), currentRoute = ref(''), slowLoading = ref(false)
+const listMemory = new Map<string, { items: Purchase[]; next: string | null; scroll: number; savedAt: number }>()
+let loadingTimer: ReturnType<typeof setTimeout> | undefined, scrollFrame: number | undefined
+watch(loading, value => { clearTimeout(loadingTimer); slowLoading.value = false; if (value) loadingTimer = setTimeout(() => { slowLoading.value = true }, 150) })
+function saveList() {
+  if (mode.value !== 'list' || !currentRoute.value || !items.value.length) return
+  listMemory.delete(currentRoute.value)
+  listMemory.set(currentRoute.value, { items: [...items.value], next: next.value, scroll: window.scrollY, savedAt: Date.now() })
+  if (listMemory.size > 8) listMemory.delete(listMemory.keys().next().value!)
+}
+async function position(g: number, top: number) {
+  await nextTick()
+  if (!valid(g)) return
+  if (scrollFrame !== undefined) cancelAnimationFrame(scrollFrame)
+  scrollFrame = requestAnimationFrame(() => { if (valid(g)) window.scrollTo({ top, behavior: 'auto' }) })
+}
 const labels: Record<PurchaseStatus, string> = { WAITING_PAYMENT: '待付款', PAYMENT_PENDING: '付款结果待确认', PAID: '已付款', CANCELLED: '已取消', EXPIRED: '已到期' }
 const refundLabels = { NONE: '无退款', IN_PROGRESS: '退款处理中', PARTIALLY_REFUNDED: '部分商品已退款', REFUNDED: '已全部退款' }
 const money = (n: number) => `¥ ${formatMinorUnits(n).replace(' CNY', '')}`
@@ -69,20 +84,35 @@ async function load(cursor?: string) {
   if (valid(g)) { items.value = cursor ? [...items.value, ...result.items] : result.items; next.value = result.next_cursor }
 }
 async function route() {
-  if (writing.value) return
-  const g = ++generation; detail.value = null; memoryKey = ''; items.value = []; next.value = null; reviewTarget.value = null
+  if (writing.value || uncertain.value || cancelUnknown.value || window.location.hash === currentRoute.value) return
+  saveList()
+  const hash = window.location.hash, g = ++generation
+  currentRoute.value = hash
+  detail.value = null; memoryKey = ''; reviewTarget.value = null
   ++fulfillmentGeneration; fulfillment.value = null; fulfillmentError.value = ''; fulfillmentLoading.value = false
   eligibility.value = {}; eligibilityErrors.value = {}; uncertain.value = false; cancelUnknown.value = false; cancelOpen.value = false; error.value = ''; notice.value = ''; loading.value = true
+  let restoredScroll = 0
   try {
-    const hash = window.location.hash, path = hash.split('?')[0]
-    const back = new URLSearchParams(hash.split('?')[1] ?? '').get('return'); if (back?.startsWith('#/shop/orders') && !back.startsWith('#/shop/orders/')) returnHash.value = back
+    const path = hash.split('?')[0]
+    const back = new URLSearchParams(hash.split('?')[1] ?? '').get('return'); if (back && /^#\/shop\/orders(?:\?|$)/.test(back)) returnHash.value = back
     if (hash.startsWith('#/shop/drafts/')) { mode.value = 'payment'; await readDetail(`draft:${decodeURIComponent(path.slice('#/shop/drafts/'.length))}`, g) }
     else if (hash.startsWith('#/shop/orders/')) { mode.value = 'detail'; await readDetail(decodeURIComponent(path.slice('#/shop/orders/'.length)), g) }
-    else { returnHash.value = hash; mode.value = 'list'; const params = new URLSearchParams(hash.split('?')[1] ?? ''); store.value = params.get('store_id') ?? ''; status.value = (params.get('status') ?? '') as PurchaseFilter
-      const [allStores] = await Promise.all([shopApi.stores(), load()]); if (valid(g)) stores.value = allStores
+    else {
+      returnHash.value = hash; mode.value = 'list'
+      const params = new URLSearchParams(hash.split('?')[1] ?? ''); store.value = params.get('store_id') ?? ''; status.value = (params.get('status') ?? '') as PurchaseFilter
+      const memory = listMemory.get(hash)
+      if (memory && Date.now() - memory.savedAt < 300000) {
+        items.value = [...memory.items]; next.value = memory.next; restoredScroll = memory.scroll
+        if (!stores.value.length) { const all = await shopApi.stores(); if (valid(g)) stores.value = all }
+      } else {
+        items.value = []; next.value = null
+        const [allStores] = await Promise.all([shopApi.stores(), load()]); if (valid(g)) stores.value = allStores
+      }
     }
-  } catch (cause) { if (valid(g)) failure(cause) } finally { if (valid(g)) loading.value = false }
+  } catch (cause) { if (valid(g)) failure(cause) }
+  finally { if (valid(g)) { loading.value = false; void position(g, restoredScroll) } }
 }
+watch(() => props.routeKey, () => { void route() })
 function filter() { const params = new URLSearchParams({ ...(store.value ? { store_id: store.value } : {}), ...(status.value ? { status: status.value } : {}) }); navigate(`#/shop/orders${params.size ? `?${params}` : ''}`) }
 async function more() { if (!next.value || loading.value) return; const g = generation; loading.value = true; try { await load(next.value) } catch (cause) { if (valid(g)) failure(cause) } finally { if (valid(g)) loading.value = false } }
 async function refresh() {
@@ -99,6 +129,7 @@ async function pay() {
   const g = generation, id = detail.value.draft_id, original = key(); writing.value = true; error.value = ''; notice.value = ''
   try { const payment = await shopApi.pay(props.account.access_token, id, original); if (!valid(g)) return
     uncertain.value = payment.status === 'UNKNOWN'
+    listMemory.clear()
     await readDetail(`draft:${id}`, g)
     if (valid(g) && payment.status === 'FAILED') notice.value = '本次模拟付款未成功，可重新确认付款。'
   } catch (cause) { if (!valid(g)) return
@@ -109,25 +140,25 @@ async function pay() {
 async function cancel() {
   if (!detail.value?.draft_id || writing.value || loading.value || unknown.value || deadlinePassed.value) return
   const g = generation, id = detail.value.draft_id; writing.value = true; error.value = ''
-  try { await shopApi.cancel(props.account.access_token, id); if (valid(g)) { cancelOpen.value = false; await readDetail(`draft:${id}`, g) } }
+  try { await shopApi.cancel(props.account.access_token, id); if (valid(g)) { listMemory.clear(); cancelOpen.value = false; await readDetail(`draft:${id}`, g) } }
   catch (cause) { if (valid(g)) { cancelOpen.value = false; if (!(cause instanceof ApiError) || cause.status >= 500) { cancelUnknown.value = true; error.value = '取消结果尚未确认，请刷新订单状态。' } else failure(cause) } }
   finally { if (valid(g)) writing.value = false }
 }
 onMounted(() => { void route(); timer = setInterval(() => { now.value = Date.now() }, 1000); window.addEventListener('hashchange', route); window.addEventListener('popstate', route) })
-onBeforeUnmount(() => { alive = false; ++generation; if (timer) clearInterval(timer); window.removeEventListener('hashchange', route); window.removeEventListener('popstate', route) })
+onBeforeUnmount(() => { alive = false; ++generation; clearTimeout(loadingTimer); if (scrollFrame !== undefined) cancelAnimationFrame(scrollFrame); listMemory.clear(); if (timer) clearInterval(timer); window.removeEventListener('hashchange', route); window.removeEventListener('popstate', route) })
 defineExpose({ navigationBlocked: computed(() => writing.value || uncertain.value || cancelUnknown.value) })
 </script>
 
 <template>
   <div class="buyer-orders" :class="{ 'payment-page': mode === 'payment' }">
     <aside v-if="mode !== 'payment'" class="purchase-sidebar"><button class="current" @click="navigate('#/shop/orders')">我的订单</button><button @click="navigate('#/customer/applications')">我的售后</button></aside>
-    <main class="purchase-main">
+    <main class="purchase-main" :aria-busy="loading"><div :key="currentRoute" class="purchase-page-content">
       <header class="purchase-heading"><h1>{{ mode === 'list' ? '我的订单' : mode === 'payment' ? '模拟付款' : '订单详情' }}</h1><button class="shop-secondary" :disabled="writing || loading" @click="refresh">刷新状态</button></header>
       <p v-if="error" class="shop-error" role="alert">{{ error }}</p><p v-if="notice" class="purchase-notice" role="status">{{ notice }}</p>
       <div v-if="mode === 'list'" class="purchase-filters"><div><button v-for="s in [{ id: '', name: '全部' }, { id: 'WAITING_PAYMENT', name: '待付款' }, { id: 'AWAITING_SHIPMENT', name: '待发货' }, { id: 'AWAITING_RECEIPT', name: '待收货' }, { id: 'COMPLETED', name: '已完成' }, { id: 'AFTER_SALES', name: '退款' }]" :key="s.id" :class="{ current: status === s.id }" :disabled="loading" @click="status = s.id as PurchaseFilter | ''; filter()">{{ s.name }}</button></div><select aria-label="更多订单状态" :value="['PAID','PAYMENT_PENDING','CANCELLED','EXPIRED','LOGISTICS_UNKNOWN'].includes(status) ? status : ''" :disabled="loading" @change="status = ($event.target as HTMLSelectElement).value as PurchaseFilter; filter()"><option value="">更多状态</option><option value="PAID">已付款</option><option value="PAYMENT_PENDING">付款结果待确认</option><option value="CANCELLED">已取消</option><option value="EXPIRED">已到期</option><option value="LOGISTICS_UNKNOWN">物流待确认</option></select><select v-model="store" aria-label="按店铺筛选" :disabled="loading" @change="filter"><option value="">全部店铺</option><option v-for="s in stores" :key="s.store_id" :value="s.store_id">{{ s.name }}</option></select></div>
-      <p v-if="loading && !detail && !items.length" class="shop-empty" role="status">正在读取订单…</p><p v-else-if="mode === 'list' && !items.length && !error" class="shop-empty">当前筛选下没有订单。</p>
+      <div v-if="loading && slowLoading && !detail && (mode !== 'list' || !items.length)" class="purchase-skeleton" data-order-skeleton role="status" aria-label="正在读取订单"><div v-for="i in mode === 'list' ? 3 : 2" :key="i" class="purchase-skeleton-card" aria-hidden="true"><i></i><div><i></i><i></i><i></i></div></div></div><p v-else-if="mode === 'list' && !loading && !items.length && !error" class="shop-empty">当前筛选下没有订单。</p>
       <template v-if="mode === 'list'">
-        <article v-for="item in items" :key="item.purchase_id" class="purchase-card"><header><a :href="`#/shop/stores/${item.store_id}`" @click.prevent="navigate(`#/shop/stores/${item.store_id}`)"><StoreMark :id="item.store_id" :size="16" />{{ item.store_name }}</a><span class="purchase-status" :class="item.status.toLowerCase()">{{ stageLabel(item) }}</span></header><div class="purchase-card-body"><div class="purchase-goods"><div v-for="line in item.lines" :key="line.sku" class="purchase-item"><ProductArt v-if="line.asset_key" :asset="line.asset_key" :name="line.product_name || line.sku" :variant="line.variant ?? ''" /><span v-else class="purchase-no-art" aria-label="商品图片未提供">▢</span><div><h2>{{ line.product_name || line.sku }}</h2><p>{{ line.variant }} · 数量 × {{ line.quantity }}</p><strong>{{ money(line.line_amount) }}</strong></div></div></div><div class="purchase-card-total"><span>{{ item.status === 'PAID' ? '原实付' : '订单合计' }}</span><strong>{{ money(item.total_amount) }}</strong><button class="shop-secondary" @click="navigate(`#/shop/orders/${encodeURIComponent(item.purchase_id)}?return=${encodeURIComponent(returnHash)}`)">{{ item.status === 'WAITING_PAYMENT' ? '查看并付款' : '查看订单' }}</button></div></div></article>
+        <article v-for="item in items" :key="item.purchase_id" class="purchase-card"><header><a :href="`#/shop/stores/${item.store_id}`" @click.prevent="navigate(`#/shop/stores/${item.store_id}`)"><StoreMark :id="item.store_id" :size="16" />{{ item.store_name }}</a><span class="purchase-status" :class="item.status.toLowerCase()">{{ stageLabel(item) }}</span></header><div class="purchase-card-body"><div class="purchase-goods"><div v-for="line in item.lines" :key="line.sku" class="purchase-item"><ProductArt v-if="line.asset_key" :asset="line.asset_key" :name="line.product_name || line.sku" :variant="line.variant ?? ''" /><span v-else class="purchase-no-art" aria-label="商品图片未提供">▢</span><div><h2>{{ line.product_name || line.sku }}</h2><p>{{ line.variant }} · 数量 × {{ line.quantity }}</p><strong>{{ money(line.line_amount) }}</strong></div></div></div><div class="purchase-card-total"><span>{{ item.status === 'PAID' ? '原实付' : '订单合计' }}</span><strong>{{ money(item.total_amount) }}</strong><button class="shop-secondary" :disabled="loading" @click="navigate(`#/shop/orders/${encodeURIComponent(item.purchase_id)}?return=${encodeURIComponent(returnHash)}`)">{{ item.status === 'WAITING_PAYMENT' ? '查看并付款' : '查看订单' }}</button></div></div></article>
         <button v-if="next" class="shop-secondary shop-load" :disabled="loading" @click="more">加载更多订单</button>
       </template>
       <template v-else-if="detail">
@@ -141,7 +172,7 @@ defineExpose({ navigationBlocked: computed(() => writing.value || uncertain.valu
         <section class="purchase-detail-panel purchase-times"><p>提交于 {{ time(detail.created_at) }}</p><p v-if="['CANCELLED','EXPIRED'].includes(detail.status)">本订单没有付款，可回到商城重新购买。</p><details><summary>查看交易编号</summary><p>订单 {{ detail.order_id || detail.draft_id }}</p><p v-if="detail.payment">付款尝试 {{ detail.payment.attempt_id }} · {{ detail.payment.status }}</p></details></section>
       </template>
       <section v-if="detail?.status === 'PAID'" class="purchase-detail-panel"><h2>商品评价</h2><div v-for="line in detail.lines.filter(l => l.line_id)" :key="line.line_id!" class="purchase-aftercare"><strong>{{ line.product_name || line.sku }}</strong><button class="review-button" data-test="product-review" :disabled="writing" @click="reviewTarget = { line: line.line_id!, name: line.product_name || line.sku }">评价商品</button></div><ProductReviewEditor v-if="reviewTarget" :key="`${account.access_token}:${reviewTarget.line}`" :token="account.access_token" :line="reviewTarget.line" :name="reviewTarget.name" @expired="emit('expired')" @working="writing = $event" @close="reviewTarget = null" /></section>
-    </main>
+    </div></main>
     <ReviewDialog v-if="cancelOpen" title="取消待付款订单" workspace="我的订单" :busy="writing" @close="cancelOpen = false"><p>确认取消这份待付款订单？取消后需重新购买。</p><div class="purchase-actions"><button class="shop-secondary" :disabled="writing" @click="cancelOpen = false">返回</button><button class="shop-primary" :disabled="writing" @click="cancel">确认取消</button></div></ReviewDialog>
   </div>
 </template>
