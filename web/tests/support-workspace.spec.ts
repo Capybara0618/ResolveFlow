@@ -15,6 +15,7 @@ const buyer = { access_token: 'buyer-token', role: 'CUSTOMER' as const, buyer_id
 let wrapper: VueWrapper
 const original = (): SupportConversation => ({ ...structuredClone(fixture.Conversation), ticket: null } as SupportConversation)
 beforeEach(() => {
+  vi.useFakeTimers()
   sessionStorage.clear()
   vi.spyOn(refundApi, 'read').mockResolvedValue({ draft: null, application: null })
   vi.spyOn(streamEvents, 'watchSupportEvents').mockImplementation(async (_id, _token, _event, signal, connected) => {
@@ -25,7 +26,7 @@ beforeEach(() => {
   vi.spyOn(supportApi, 'conversations').mockResolvedValue({ items: [original()], next_before: null })
   vi.spyOn(supportApi, 'read').mockResolvedValue(original())
 })
-afterEach(() => { wrapper?.unmount(); vi.restoreAllMocks(); sessionStorage.clear() })
+afterEach(() => { wrapper?.unmount(); vi.restoreAllMocks(); vi.useRealTimers(); sessionStorage.clear() })
 
 it('lets the buyer hide order context without losing the selected conversation or draft', async () => {
   wrapper = mount(SupportWorkspace, { props: { account: buyer }, attachTo: document.body }); await flushPromises()
@@ -90,11 +91,11 @@ it.each([true, false])('reveals a delayed refund summary while respecting whethe
   const pane = wrapper.get<HTMLElement>('.support-messages')
   Object.defineProperties(pane.element, { scrollHeight: { value: 1600, configurable: true }, clientHeight: { value: 500, configurable: true } })
   pane.element.scrollTop = atBottom ? 1100 : 30
-  await pane.trigger('scroll')
+  await pane.trigger('wheel'); await pane.trigger('scroll')
   release({ draft: { ...structuredClone(refundFixture.Draft), expected_version: original().version, expires_at: new Date(Date.now() + 1800000).toISOString(), status: 'DRAFT' }, application: null })
   await flushPromises()
   expect(wrapper.get('[data-refund="confirm"]').attributes('disabled')).toBeUndefined()
-  if (atBottom) expect(pane.element.scrollTop).toBe(1600)
+  if (atBottom) expect(pane.element.scrollTop).toBe(1100)
   else {
     expect(pane.element.scrollTop).toBe(30)
     await wrapper.get('[data-action="latest-messages"]').trigger('click')
@@ -111,11 +112,11 @@ it.each([true, false])('respects the reading position after webfonts finish load
     const pane = wrapper.get<HTMLElement>('.support-messages')
     Object.defineProperties(pane.element, { scrollHeight: { value: 1000, configurable: true }, clientHeight: { value: 500, configurable: true } })
     pane.element.scrollTop = atBottom ? 500 : 30
-    await pane.trigger('scroll')
+    await pane.trigger('wheel'); await pane.trigger('scroll')
     Object.defineProperty(pane.element, 'scrollHeight', { value: 1200, configurable: true })
     fonts.dispatchEvent(new Event('loadingdone'))
-    await flushPromises()
-    expect(pane.element.scrollTop).toBe(atBottom ? 1200 : 30)
+    await flushPromises(); await vi.advanceTimersByTimeAsync(500)
+    expect(pane.element.scrollTop).toBeCloseTo(atBottom ? 700 : 30, 0)
   } finally {
     wrapper?.unmount()
     if (previousFonts) Object.defineProperty(document, 'fonts', previousFonts)
@@ -201,6 +202,9 @@ it('shows one provisional bubble, clears rejected text and replaces it with the 
   event('activity.completed', { category: 'SHIPMENT' }, null)
   event('answer.started', {})
   event('answer.delta', { part_id: 'part-0', offset: 0, text: '第一段生成文字' }); await flushPromises()
+  expect(wrapper.get('[data-generation]').text()).toContain('第')
+  expect(wrapper.get('[data-generation]').text()).not.toContain('第一段生成文字')
+  await vi.advanceTimersByTimeAsync(200)
   expect(wrapper.get('[data-generation]').text()).toContain('第一段生成文字')
   expect(wrapper.findAll('.support-message.assistant')).toHaveLength(1)
   expect(wrapper.find('[data-action="preview-handoff"]').exists()).toBe(false)
@@ -211,6 +215,9 @@ it('shows one provisional bubble, clears rejected text and replaces it with the 
   event('answer.started', {}, 'model-4')
   event('answer.delta', { part_id: 'part-0', offset: 0, text: '修复后的生成文字' }, 'model-4')
   deliver(completed(c)); await flushPromises()
+  expect(wrapper.find('[data-generation]').exists()).toBe(true)
+  expect(wrapper.text()).not.toContain('修复后的生成文字')
+  await vi.advanceTimersByTimeAsync(1300)
   expect(wrapper.find('[data-generation]').exists()).toBe(false)
   expect(wrapper.findAll('.support-message.assistant')).toHaveLength(1)
   expect(wrapper.text()).toContain('已收到实时发布的回答。')
@@ -224,7 +231,7 @@ it('receives a committed answer without an extra read or resubmitting the questi
   await open()
   const call = vi.mocked(streamEvents.watchSupportEvents).mock.calls.at(-1)!
   const before = vi.mocked(supportApi.read).mock.calls.length
-  call[2](completed(c)); await flushPromises()
+  call[2](completed(c)); await flushPromises(); await vi.advanceTimersByTimeAsync(1300)
   expect(wrapper.text()).toContain('已收到实时发布的回答。')
   expect(wrapper.text()).not.toContain('助手正在处理你的问题')
   expect(supportApi.read).toHaveBeenCalledTimes(before)
@@ -255,7 +262,7 @@ it('preserves the reading position for a new answer and offers a jump to latest'
   const pane = wrapper.get('.support-messages').element as HTMLElement
   Object.defineProperties(pane, { scrollHeight: { value: 1000, configurable: true }, clientHeight: { value: 100, configurable: true } })
   pane.scrollTop = 200
-  await wrapper.get('.support-messages').trigger('scroll')
+  await wrapper.get('.support-messages').trigger('wheel'); await wrapper.get('.support-messages').trigger('scroll')
   vi.mocked(streamEvents.watchSupportEvents).mock.calls.at(-1)![2](completed(c)); await flushPromises()
   expect(pane.scrollTop).toBe(200)
   await wrapper.get('[data-action="latest-messages"]').trigger('click')
@@ -455,4 +462,31 @@ it('pages the merchant ticket queue without losing the open conversation and use
   expect(wrapper.get('[data-conversation]').text()).toContain('第二页买家')
   expect(wrapper.get('.support-chat-heading h2').text()).toBe(originalHeading)
   expect(wrapper.text()).toContain('第 2 页')
+})
+
+it('smoothly follows layout growth and cancels that follow when the buyer scrolls up', async () => {
+  const previousFonts = Object.getOwnPropertyDescriptor(document, 'fonts'), fonts = new EventTarget()
+  Object.defineProperty(document, 'fonts', { configurable: true, value: fonts })
+  try {
+    await open(); const pane = wrapper.get<HTMLElement>('.support-messages')
+    Object.defineProperties(pane.element, { scrollHeight: { value: 1000, configurable: true }, clientHeight: { value: 500, configurable: true } })
+    pane.element.scrollTop = 500; await pane.trigger('wheel'); await pane.trigger('scroll')
+    Object.defineProperty(pane.element, 'scrollHeight', { value: 1400, configurable: true })
+    fonts.dispatchEvent(new Event('loadingdone')); await flushPromises(); await vi.advanceTimersByTimeAsync(16)
+    expect(pane.element.scrollTop).toBeGreaterThan(500); expect(pane.element.scrollTop).toBeLessThan(900)
+    await pane.trigger('wheel'); pane.element.scrollTop = 100; await pane.trigger('scroll')
+    await vi.advanceTimersByTimeAsync(800); expect(pane.element.scrollTop).toBe(100)
+  } finally { if (previousFonts) Object.defineProperty(document, 'fonts', previousFonts); else Reflect.deleteProperty(document, 'fonts') }
+})
+
+it('does not insert a layout-shifting alert for a normal assistant send or its acknowledgement', async () => {
+  let release!: (value: SupportConversation) => void
+  const c = { ...original(), assistant_turn: { run_id: 'send-run', status: 'PENDING' as const, reason: null } }
+  vi.spyOn(supportApi, 'mutate').mockImplementationOnce(() => new Promise(r => { release = r }))
+  await open(); await wrapper.get('[aria-label="咨询消息"]').setValue('请查物流')
+  await wrapper.get('[data-action="send"]').trigger('click'); await flushPromises()
+  expect(wrapper.find('.support-alerts').exists()).toBe(false)
+  release(c); await flushPromises()
+  expect(wrapper.find('.support-alerts').exists()).toBe(false)
+  expect(wrapper.get('[data-buyer-waiting]').text()).toContain('正在准备查看')
 })

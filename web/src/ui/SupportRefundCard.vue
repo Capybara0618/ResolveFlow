@@ -9,11 +9,12 @@ import Icon from './ReviewIcon.vue'
 import { assistantOffers } from '../support-view'
 import BuyerApplicationProgress from './BuyerApplicationProgress.vue'
 
-const props = defineProps<{ token: string; owner: string; conversation: SupportConversation; entryTarget?: HTMLElement }>()
+const props = defineProps<{ token: string; owner: string; conversation: SupportConversation; entryTarget?: HTMLElement; deferOffer?: boolean }>()
 const emit = defineEmits<{ expired: []; 'layout-change': [] }>()
 const id = props.conversation.conversation_id
 const value = ref<RefundView>({ draft: null, application: null })
 const pending = ref(readRefundRequest(props.owner, id)), busy = ref(false), reading = ref(false), loaded = ref(false)
+const autoPreparing = ref(false)
 const error = ref(''), expanded = ref(false), editing = ref(false), reason = ref('')
 const dismissed = ref(false), now = ref(Date.now())
 let alive = true, timer: ReturnType<typeof setInterval> | undefined, readSequence = 0
@@ -77,13 +78,14 @@ watch(() => [showDraft.value, editing.value, d.value?.draft_id, d.value?.revisio
   await nextTick()
   if (alive) emit('layout-change')
 })
-watch(() => [loaded.value, offer.value?.message_id], () => {
+watch(() => [loaded.value, offer.value?.message_id, props.deferOffer], () => {
   const message = offer.value
-  if (!loaded.value || !message || offeredMessage === message.message_id || d.value || blockingApplication.value || busy.value || pending.value) return
+  if (props.deferOffer || !loaded.value || !message || offeredMessage === message.message_id || d.value || blockingApplication.value || busy.value || pending.value) return
   offeredMessage = message.message_id
   reason.value = message.assistant!.refund_summary!
   // Only a finalized message can prepare a Java-checked draft; Case creation still needs the confirm button.
-  void send('prepare')
+  autoPreparing.value = true
+  void send('prepare').finally(() => { if (alive) autoPreparing.value = false })
 }, { immediate: true })
 onMounted(() => {
   void read()
@@ -95,7 +97,8 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
 <template>
   <section class="chat-refund" aria-label="退款申请">
     <p v-if="error" role="alert" class="refund-error">{{ error }} <button :disabled="busy || reading" @click="read">重新读取</button></p>
-    <div v-if="pending" class="refund-pending" role="status">{{ busy ? '正在保存，请稍候…' : '提交结果尚未确认，请使用原请求确认结果。' }}<button v-if="!busy" data-refund="retry" @click="retry">确认原请求结果</button></div>
+    <div v-if="pending && !autoPreparing" class="refund-pending" role="status">{{ busy ? '正在保存，请稍候…' : '提交结果尚未确认，请使用原请求确认结果。' }}<button v-if="!busy" data-refund="retry" @click="retry">确认原请求结果</button></div>
+    <div v-if="autoPreparing && !showDraft" class="refund-preparing" role="status" aria-label="正在核对退款信息"><i></i><i></i><i></i></div>
     <article v-if="application" class="refund-progress">
       <BuyerApplicationProgress :application="application" compact>
         <template #product><div class="receipt-product"><ProductArt :asset="conversation.product.asset_key || ''" :name="conversation.product.name" :variant="conversation.product.variant ?? ''" /><div><strong>{{ conversation.product.name }}</strong><span>{{ conversation.product.variant || '默认规格' }} · {{ conversation.product.quantity }}件</span><span><Icon name="store" :size="13" />{{ conversation.store_name }}</span></div></div></template>
@@ -122,6 +125,9 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
 
 <style scoped>
 .chat-refund { margin: 16px 0 4px; color: var(--support-ink, #202c2a); font-size: 14px; }
+.refund-preparing { min-height: 280px; padding: 24px; border: 1px solid #e5ebe6; border-radius: 10px; }
+.refund-preparing i { display: block; height: 18px; width: 65%; margin: 16px 0; border-radius: 5px; background: #f0f5f1; }
+.refund-preparing i:nth-child(2) { width: 85%; height: 80px; }
 .refund-summary, .refund-progress { border: 1px solid #cddfd8; border-radius: 10px; overflow: hidden; background: white; margin-bottom: 10px; }
 .refund-progress { padding: 16px; }
 .receipt-product { display: flex; align-items: center; gap: 12px; }

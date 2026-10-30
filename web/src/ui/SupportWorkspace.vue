@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ListPagination from './ListPagination.vue'
 import { useCursorPages } from '../cursor-pages'
+import { useSupportReveal } from '../support-reveal'
 import StoreMark from './StoreMark.vue'
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { ApiError, coreApi, type LoginResponse, type OrderLine } from '../client'
@@ -36,7 +37,7 @@ const orderLoading = ref(false), orderLoaded = ref(false), orderError = ref('')
 const selected = ref<SupportConversation | null>(null), choosing = ref(false)
 const search = ref(''), orderSearch = ref(''), filter = ref('ALL'), historyTab = ref(false)
 const cache = reactive(new Map<string, SupportConversation>())
-const workspace = ref<HTMLElement>(), messagePane = ref<HTMLElement>()
+const workspace = ref<HTMLElement>(), messagePane = ref<HTMLElement>(), messageContent = ref<HTMLElement>()
 const refundEntry = ref<HTMLElement>(), contextOpen = ref(window.innerWidth > 1100)
 const loading = ref(false), busy = ref(false), error = ref(''), notice = ref(''), draft = ref('')
 const buyerName = (c: SupportConversation) => c.buyer?.display_name || '买家'
@@ -63,7 +64,7 @@ const assistantState = computed(() => {
   if (turn.status === 'RUNNING' && selected.value?.generation?.attempt_id) return generationText.value ? '' : '正在完善回答…'
   return { PENDING: '问题已收到，正在准备查看…', RUNNING: '正在帮你查看，请稍候…', SUCCEEDED: '', FAILED: '助手本次未能完成回答，可重新提问或请商家核查。', STALE: '问题已更新，旧回复不会发布。' }[turn.status]
 })
-const generationText = computed(() => Object.entries(selected.value?.generation?.parts ?? {}).sort(([a], [b]) => a.localeCompare(b)).map(([, text]) => text).join('\n\n'))
+const { text: generationText, active: revealing, messages: shownMessages } = useSupportReveal(computed(() => merchant.value ? null : selected.value))
 const pending = ref<SupportPending | null>(readSupportPending(owner))
 let alive = true, generation = 0, timer: ReturnType<typeof setInterval> | undefined
 let expandedHistory = false
@@ -206,7 +207,7 @@ async function retry() {
     const value = await supportApi.mutate(token, p)
     clearSupportPending(owner)
     if (!alive) return
-    pending.value = null; setSelected(value); preview.value = false; draft.value = ''; notice.value = p.kind === 'handoff' ? '已转交商家核查，没有提交退款申请。' : p.kind === 'send' && p.body.recipient === 'ASSISTANT' ? '问题已发送，助手正在处理。' : '已保存。'
+    pending.value = null; setSelected(value); preview.value = false; draft.value = ''; notice.value = p.kind === 'handoff' ? '已转交商家核查，没有提交退款申请。' : p.kind === 'send' && p.body.recipient === 'ASSISTANT' ? '' : '已保存。'
     await list()
   } catch (cause) {
     if (!alive) return
@@ -223,21 +224,45 @@ async function send() {
 function pickOrder() { if (!busy.value && !pending.value && !loading.value) { orderSearch.value = ''; choosing.value = true; if (!orderLoaded.value) void readOrders().catch(fail) } }
 function enter(event: KeyboardEvent) { if (!event.isComposing && event.keyCode !== 229) { event.preventDefault(); void send() } }
 function fit() { if (workspace.value) workspace.value.style.setProperty('--support-height', `${Math.max(420, window.innerHeight - workspace.value.getBoundingClientRect().top)}px`) }
+let followFrame: number | undefined, scrollIntentUntil = 0
+let contentObserver: ResizeObserver | undefined
+function scrollIntent() { scrollIntentUntil = performance.now() + 600; if (followFrame !== undefined) cancelAnimationFrame(followFrame); followFrame = undefined }
 function reading() {
   const pane = messagePane.value
-  if (pane) nearBottom = pane.scrollHeight - pane.scrollTop - pane.clientHeight <= 80
+  // DOM growth and our own scrolling must not be mistaken for the buyer scrolling away.
+  if (pane && performance.now() < scrollIntentUntil) nearBottom = pane.scrollHeight - pane.scrollTop - pane.clientHeight <= 80
   if (nearBottom) newContent.value = false
 }
 function latest() {
-  expandedHistory = false; nearBottom = true; newContent.value = false
+  expandedHistory = false; nearBottom = true; newContent.value = false; scrollIntentUntil = 0
   if (messagePane.value) messagePane.value.scrollTop = messagePane.value.scrollHeight
 }
-function refundLayout() {
-  if (!expandedHistory && nearBottom) void nextTick(latest)
-  else if (selected.value) newContent.value = true
+function follow() {
+  followFrame = undefined
+  if (!alive || !nearBottom || expandedHistory || !messagePane.value) return
+  const pane = messagePane.value, gap = Math.max(0, pane.scrollHeight - pane.clientHeight - pane.scrollTop)
+  if (gap < 1) { pane.scrollTop += gap; return }
+  pane.scrollTop += window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? gap : Math.max(1, gap * .35)
+  if (gap > 1) followFrame = requestAnimationFrame(follow)
 }
+function refundLayout() {
+  const id = selected.value?.conversation_id
+  void nextTick(() => {
+    if (!alive || id !== selected.value?.conversation_id) return
+    if (!expandedHistory && nearBottom) { if (followFrame === undefined) followFrame = requestAnimationFrame(follow) }
+    else if (selected.value) newContent.value = true
+  })
+}
+watch(messageContent, content => {
+  contentObserver?.disconnect()
+  if (!content || typeof ResizeObserver === 'undefined') return
+  contentObserver = new ResizeObserver(refundLayout)
+  contentObserver.observe(content)
+  if (messagePane.value) contentObserver.observe(messagePane.value)
+}, { flush: 'post' })
 watch(() => selected.value?.conversation_id, id => {
   subscription?.abort(); streamConnected.value = false; streamRefreshNeeded = false
+  if (followFrame !== undefined) cancelAnimationFrame(followFrame); followFrame = undefined; scrollIntentUntil = 0
   nearBottom = true; newContent.value = false
   if (!id || merchant.value) return
   const controller = new AbortController(); subscription = controller
@@ -254,11 +279,7 @@ watch(() => selected.value?.conversation_id, id => {
       streamConnected.value = false
     })
 })
-watch(() => [selected.value?.messages.at(-1)?.message_id, generationText.value], async () => {
-  await nextTick()
-  if (!expandedHistory && nearBottom && messagePane.value) latest()
-  else if (selected.value) newContent.value = true
-})
+watch(() => [selected.value?.messages.at(-1)?.message_id, generationText.value, revealing.value], refundLayout)
 onMounted(() => {
   void load(); void nextTick(fit); window.addEventListener('resize', fit)
   document.fonts?.addEventListener('loadingdone', refundLayout)
@@ -271,16 +292,16 @@ onMounted(() => {
     }
   }, 2000)
 })
-onBeforeUnmount(() => { alive = false; ++generation; ++listGeneration; clearTimeout(searchTimer); subscription?.abort(); window.removeEventListener('resize', fit); document.fonts?.removeEventListener('loadingdone', refundLayout); if (timer) clearInterval(timer) })
+onBeforeUnmount(() => { alive = false; contentObserver?.disconnect(); if (followFrame !== undefined) cancelAnimationFrame(followFrame); ++generation; ++listGeneration; clearTimeout(searchTimer); subscription?.abort(); window.removeEventListener('resize', fit); document.fonts?.removeEventListener('loadingdone', refundLayout); if (timer) clearInterval(timer) })
 defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) })
 </script>
 
 <template>
   <section ref="workspace" :class="['support-workspace', { 'merchant-support': merchant, 'buyer-support': !merchant }]">
-    <div v-if="error || notice || pending" class="support-alerts">
+    <div v-if="error || notice || (pending && !busy)" class="support-alerts">
       <p v-if="error" role="alert" class="support-error">{{ error }} <button v-if="selected && !pending" @click="refresh()">刷新当前记录</button></p>
       <p v-if="notice" role="status" class="support-notice">{{ notice }}</p>
-      <p v-if="pending" role="status" class="support-notice">“{{ pending.label }}”的提交结果尚待确认。<button data-action="retry" :disabled="busy" @click="retry">{{ busy ? '正在确认…' : '用原请求确认结果' }}</button></p>
+      <p v-if="pending && !busy" role="status" class="support-notice">“{{ pending.label }}”的提交结果尚待确认。<button data-action="retry" :disabled="busy" @click="retry">{{ busy ? '正在确认…' : '用原请求确认结果' }}</button></p>
     </div>
     <div class="support-grid" :class="{ 'context-collapsed': !merchant && !contextOpen }" :inert="choosing || preview ? true : undefined">
       <aside class="support-history" aria-label="咨询列表">
@@ -307,29 +328,31 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
           </header>
           <div v-if="merchant" class="support-chat-tabs"><button :class="{ current: !historyTab }" @click="historyTab = false">客户沟通</button><button :class="{ current: historyTab }" @click="historyTab = true">消息记录</button></div>
 
-          <div ref="messagePane" class="support-messages" tabindex="0" :role="historyTab ? undefined : 'log'" aria-label="咨询消息记录" @scroll="reading">
+          <div ref="messagePane" class="support-messages" tabindex="0" :role="historyTab ? undefined : 'log'" :aria-busy="revealing" aria-label="咨询消息记录" @scroll="reading" @wheel.passive="scrollIntent" @touchstart.passive="scrollIntent" @pointerdown="scrollIntent" @keydown="scrollIntent">
+            <div ref="messageContent" class="support-message-list">
             <button v-if="selected.next_before_sequence" class="support-older" :disabled="loading" @click="older">读取更早消息</button>
             <section v-if="selected.ticket" class="support-ticket"><Icon name="file" :size="22" /><div><h3>{{ merchant ? '客户已确认转交' : '已转交商家核查' }}</h3><p>{{ selected.ticket.summary }}</p></div></section>
             <template v-if="merchant && !historyTab"><div v-if="selected.ticket?.shared_messages.length" class="support-date-divider">客户共享原文</div><article v-for="m in selected.ticket?.shared_messages" :key="m.message_id" class="support-message shared-original"><MessageIdentity :token="token" :conversation="selected.conversation_id" :message="m.message_id" :author="m.author" /><div class="support-message-content"><div class="support-message-bubble"><p>{{ m.text }}</p></div><small class="support-message-meta">客户共享原文 · {{ stamp(m.created_at, true) }}</small></div></article></template>
             <div v-if="!selected.messages.length && !merchant" class="support-welcome"><UserAvatar kind="ASSISTANT" name="售后助手" :size="40" /><h2>这件商品遇到了什么问题？</h2><div><button @click="draft = '请帮我查询这件商品的物流情况。'">查询物流</button><button @click="draft = '请说明这件商品适用的售后政策。'">了解售后政策</button></div></div>
             <p v-if="!selected.messages.length && merchant && !selected.ticket?.shared_messages.length" class="support-list-empty">客户补充与商家回复将显示在这里。</p>
-            <article v-for="m in selected.messages" :key="m.message_id" :class="['support-message', m.author.toLowerCase(), { 'message-ledger': historyTab, outgoing: m.author === (merchant ? 'MERCHANT' : 'CUSTOMER') }]">
+            <article v-for="m in merchant ? selected.messages : shownMessages" :key="m.message_id" :class="['support-message', m.author.toLowerCase(), { 'message-ledger': historyTab, outgoing: m.author === (merchant ? 'MERCHANT' : 'CUSTOMER') }]">
               <MessageIdentity :token="account.access_token" :conversation="selected.conversation_id" :message="m.message_id" :author="m.author" />
               <div class="support-message-content"><div class="support-message-bubble"><SupportBuyerReply v-if="!merchant && m.author === 'ASSISTANT'" :message="m" /><p v-else>{{ m.text }}</p></div>
                 <small class="support-message-meta"><time :datetime="m.created_at">{{ stamp(m.created_at, true) }}</time><template v-if="m.author === 'ASSISTANT' && m.assistant?.mode === 'mock'"> · 脚本模型演示</template><template v-else-if="m.author !== 'ASSISTANT' && (merchant || m.recipient === 'MERCHANT')"> · {{ m.recipient === 'ASSISTANT' ? '仅你和助手可见' : '商家核查记录' }}</template></small>
                 <BuyerSources v-if="m.assistant && !merchant" :citations="m.assistant.citations" /><SupportSources v-else-if="m.assistant" :citations="m.assistant.citations" compact />
               </div>
             </article>
-            <article v-if="!merchant && selected.generation?.attempt_id && generationText" class="support-message assistant" data-generation>
-              <UserAvatar kind="ASSISTANT" name="售后助手" :size="32" />
+            <article v-if="!merchant && revealing && generationText" class="support-message assistant" data-generation>
+              <span class="support-stream-identity"><UserAvatar kind="ASSISTANT" name="售后助手" :size="32" /></span>
               <div class="support-message-content">
-                <div class="support-message-bubble"><p>{{ generationText || '正在完善回答…' }}<span aria-hidden="true" class="support-stream-caret">▍</span></p></div>
-                <small class="support-message-meta">正在生成…</small>
+                <div class="support-message-bubble"><div v-for="(paragraph, index) in generationText.split(/\n{2,}/)" :key="index" class="support-stream-part"><p>{{ paragraph }}<span v-if="index === generationText.split(/\n{2,}/).length - 1" aria-hidden="true" class="support-stream-caret">▍</span></p></div></div>
+                <small class="support-message-meta" aria-hidden="true">&nbsp;</small>
               </div>
             </article>
             <div v-if="assistantState" role="status" class="support-agent-state" :class="{ 'support-agent-waiting': assistantBusy }" :data-buyer-waiting="assistantBusy ? '' : undefined"><span v-if="assistantBusy" class="support-waiting-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>{{ assistantState }}</span></div>
-            <SupportRefundCard v-if="!merchant && !historyTab" :key="`${owner}:${selected.conversation_id}`" :token="token" :owner="owner" :conversation="selected" :entry-target="refundEntry" @layout-change="refundLayout" @expired="emit('expired')" />
-            <section v-if="!merchant && !selected.ticket && latestAssistant && assistantOffers(latestAssistant, 'MERCHANT_REVIEW')" class="support-handoff-card"><Icon name="file" :size="25" /><div><h3>需要商家进一步核查</h3><p>将你的问题与相关依据整理给商家。</p><blockquote>{{ latestAssistant.assistant!.handoff_summary }}</blockquote><div><small>可编辑 · 确认后共享</small><button class="primary" data-action="preview-handoff" :disabled="busy || !!pending" @click="handoff">预览并转交商家</button></div></div></section>
+            <SupportRefundCard v-if="!merchant && !historyTab" :key="`${owner}:${selected.conversation_id}`" :token="token" :owner="owner" :conversation="selected" :defer-offer="revealing" :entry-target="refundEntry" @layout-change="refundLayout" @expired="emit('expired')" />
+            <section v-if="!merchant && !revealing && !selected.ticket && latestAssistant && assistantOffers(latestAssistant, 'MERCHANT_REVIEW')" class="support-handoff-card"><Icon name="file" :size="25" /><div><h3>需要商家进一步核查</h3><p>将你的问题与相关依据整理给商家。</p><blockquote>{{ latestAssistant.assistant!.handoff_summary }}</blockquote><div><small>可编辑 · 确认后共享</small><button class="primary" data-action="preview-handoff" :disabled="busy || !!pending" @click="handoff">预览并转交商家</button></div></div></section>
+            </div>
           </div>
 
           <button v-if="newContent" class="text-action" data-action="latest-messages" @click="latest">有新内容 · 回到最新</button>

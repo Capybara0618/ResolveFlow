@@ -142,3 +142,14 @@
 @media (max-width: 760px) { .workbench .support-workspace.buyer-support { height: auto; padding: 10px; }.workbench .buyer-support .support-grid { display: flex; flex-direction: column; }.workbench .buyer-support .support-history { max-height: 210px; }.workbench .buyer-support .support-main { height: 650px; border-inline: 0; border-block: 1px solid var(--support-line); }.workbench .buyer-support .support-context { display: block; max-height: 420px; }.workbench .buyer-support .support-context .context-card { margin-bottom: 0; }.workbench .buyer-support .chat-refund { margin-left: 0; } }
 .workbench .buyer-support .support-grid.context-collapsed { grid-template-columns: 190px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
 .workbench .buyer-support .support-grid.context-collapsed .support-main { border-right: 0; }
+
+/* One scroll owner; reserve composer geometry when the refund shortcut disappears. */
+.workbench .buyer-support .support-messages { overflow-anchor: none; scrollbar-gutter: stable; scroll-behavior: auto; }
+.workbench .buyer-support .support-refund-shortcut { min-height: 28px; }
+.workbench .buyer-support .support-stream-caret { display: inline-block; width: 6px; height: 16px; margin-left: 4px; border-radius: 3px; background: currentColor; font-size: 0; vertical-align: -2px; animation: support-caret 1s ease-in-out infinite; }
+@keyframes support-caret { 50% { opacity: .3; } }
+@media(prefers-reduced-motion:reduce) { .workbench .buyer-support .support-stream-caret { animation: none; } }
+
+.workbench .buyer-support .support-stream-identity { display:inline-flex;align-items:flex-start;justify-content:center;flex:0 0 36px;width:36px; }
+
+.workbench .buyer-support .support-stream-part + .support-stream-part { margin-top:18px; }

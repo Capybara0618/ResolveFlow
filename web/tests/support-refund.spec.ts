@@ -199,7 +199,7 @@ it('shows Java verification and preparation states before a structured offer bec
   expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(false)
   expect(mutate).not.toHaveBeenCalled()
   releaseRead({ draft: null, application: null }); await flushPromises()
-  expect(wrapper.text()).toContain('正在保存')
+  expect(wrapper.get('.refund-preparing').attributes('aria-label')).toBe('正在核对退款信息')
   expect(mutate.mock.calls.map(([, command]) => command.kind)).toEqual(['prepare'])
   expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(false)
   const prepared = current(); prepared.draft!.reason = '耳机没有收到。'
@@ -208,4 +208,15 @@ it('shows Java verification and preparation states before a structured offer bec
   expect(wrapper.text()).not.toContain('999.00')
   expect(wrapper.get('[data-refund="confirm"]').isVisible()).toBe(true)
   expect(mutate).toHaveBeenCalledTimes(1)
+})
+
+it('defers automatic draft preparation until the current reply is presented, without inventing confirmation', async () => {
+  const input = props(); input.conversation.messages = [{ message_id: 'offer', sequence: 1, author: 'ASSISTANT', recipient: 'CUSTOMER', ticket_id: null, text: '可以申请退款。', created_at: '', assistant: { run_id: 'r', mode: 'live', citations: [], handoff_summary: null, refund_summary: '商品未收到。' } }]
+  vi.mocked(refundApi.read).mockResolvedValue({ draft: null, application: null })
+  const mutate = vi.spyOn(refundApi, 'mutate').mockResolvedValue(current())
+  wrapper = mount(SupportRefundCard, { props: { ...input, deferOffer: true } }); await flushPromises()
+  expect(mutate).not.toHaveBeenCalled(); expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(false)
+  await wrapper.setProps({ deferOffer: false }); await flushPromises()
+  expect(mutate).toHaveBeenCalledTimes(1); expect(mutate.mock.calls[0][1].kind).toBe('prepare')
+  expect(wrapper.find('[data-refund="confirm"]').exists()).toBe(true)
 })
