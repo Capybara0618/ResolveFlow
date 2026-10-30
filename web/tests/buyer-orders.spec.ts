@@ -168,3 +168,16 @@ it('shows a geometry placeholder only for slow initial reads and clears it when 
   expect(w.find('[data-test="pay"]').exists()).toBe(true)
   vi.useRealTimers()
 })
+
+it('captures list position before parent navigation can move the viewport', async () => {
+  vi.useFakeTimers(); let y = 480
+  vi.spyOn(window, 'scrollY', 'get').mockImplementation(() => y)
+  const scroll = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  window.history.replaceState(null, '', '/#/shop/orders')
+  w = mount(BuyerOrders, { props: { account: buyer, routeKey: '#/shop/orders', onNavigate: (hash: string) => { y = 10; window.history.pushState(null, '', hash); void w.setProps({ routeKey: hash }) } } })
+  await flushPromises(); await vi.advanceTimersByTimeAsync(30)
+  await w.findAll('.purchase-card button')[0].trigger('click'); await flushPromises()
+  await w.findAll('button').find(b => b.text() === '返回我的订单')!.trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(30)
+  expect(scroll).toHaveBeenLastCalledWith({ top: 480, behavior: 'auto' })
+  vi.useRealTimers()
+})

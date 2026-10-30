@@ -27,6 +27,7 @@ let generation = 0, alive = true, timer: ReturnType<typeof setInterval> | undefi
 const shoppingLabels: Record<string,string> = { AWAITING_SHIPMENT: '待发货', AWAITING_RECEIPT: '待收货', COMPLETED: '已完成', AFTER_SALES: '售后', LOGISTICS_UNKNOWN: '物流待确认' }
 const stageLabel = (p: Purchase) => p.shopping_stage === 'AFTER_SALES' && p.refund_status && p.refund_status !== 'NONE' ? refundLabels[p.refund_status] : shoppingLabels[p.shopping_stage ?? ''] ?? labels[p.status]
 const returnHash = ref('#/shop/orders'), currentRoute = ref(''), slowLoading = ref(false)
+let listNavigationSaved = false
 const listMemory = new Map<string, { items: Purchase[]; next: string | null; scroll: number; savedAt: number }>()
 let loadingTimer: ReturnType<typeof setTimeout> | undefined, scrollFrame: number | undefined
 watch(loading, value => { clearTimeout(loadingTimer); slowLoading.value = false; if (value) loadingTimer = setTimeout(() => { slowLoading.value = true }, 150) })
@@ -54,7 +55,7 @@ function key() { try { return memoryKey || window.sessionStorage.getItem(storage
 function saveKey(value: string) { memoryKey = value; try { if (value) window.sessionStorage.setItem(storageName(), value); else window.sessionStorage.removeItem(storageName()) } catch { /* The server still prevents a second unknown attempt. */ } }
 function valid(g: number) { return alive && g === generation }
 function failure(cause: unknown) { if (cause instanceof ApiError && cause.status === 401) { emit('expired'); return }; error.value = cause instanceof ApiError ? cause.status === 404 ? '订单不存在，或当前账号无权查看。' : cause.message : '连接暂时中断，请重试读取。' }
-function navigate(hash: string) { if (writing.value) return; emit('navigate', hash) }
+function navigate(hash: string) { if (writing.value) return; if (mode.value === 'list' && hash !== window.location.hash) { saveList(); listNavigationSaved = true }; emit('navigate', hash) }
 async function readEligibility(line: string, g = generation) {
   try { const value = await coreApi.customerOrderLine(props.account.access_token, line); if (valid(g)) { eligibility.value[line] = value; delete eligibilityErrors.value[line] } }
   catch (cause) { if (valid(g)) { eligibility.value[line] = null; eligibilityErrors.value[line] = true; if (cause instanceof ApiError && cause.status === 401) failure(cause) } }
@@ -85,7 +86,8 @@ async function load(cursor?: string) {
 }
 async function route() {
   if (writing.value || uncertain.value || cancelUnknown.value || window.location.hash === currentRoute.value) return
-  saveList()
+  if (!listNavigationSaved) saveList()
+  listNavigationSaved = false
   const hash = window.location.hash, g = ++generation
   currentRoute.value = hash
   detail.value = null; memoryKey = ''; reviewTarget.value = null
@@ -173,6 +175,6 @@ defineExpose({ navigationBlocked: computed(() => writing.value || uncertain.valu
       </template>
       <section v-if="detail?.status === 'PAID'" class="purchase-detail-panel"><h2>商品评价</h2><div v-for="line in detail.lines.filter(l => l.line_id)" :key="line.line_id!" class="purchase-aftercare"><strong>{{ line.product_name || line.sku }}</strong><button class="review-button" data-test="product-review" :disabled="writing" @click="reviewTarget = { line: line.line_id!, name: line.product_name || line.sku }">评价商品</button></div><ProductReviewEditor v-if="reviewTarget" :key="`${account.access_token}:${reviewTarget.line}`" :token="account.access_token" :line="reviewTarget.line" :name="reviewTarget.name" @expired="emit('expired')" @working="writing = $event" @close="reviewTarget = null" /></section>
     </div></main>
-    <ReviewDialog v-if="cancelOpen" title="取消待付款订单" workspace="我的订单" :busy="writing" @close="cancelOpen = false"><p>确认取消这份待付款订单？取消后需重新购买。</p><div class="purchase-actions"><button class="shop-secondary" :disabled="writing" @click="cancelOpen = false">返回</button><button class="shop-primary" :disabled="writing" @click="cancel">确认取消</button></div></ReviewDialog>
+    <ReviewDialog :open="cancelOpen" title="取消待付款订单" workspace="我的订单" :busy="writing" @close="cancelOpen = false"><p>确认取消这份待付款订单？取消后需重新购买。</p><div class="purchase-actions"><button class="shop-secondary" :disabled="writing" @click="cancelOpen = false">返回</button><button class="shop-primary" :disabled="writing" @click="cancel">确认取消</button></div></ReviewDialog>
   </div>
 </template>

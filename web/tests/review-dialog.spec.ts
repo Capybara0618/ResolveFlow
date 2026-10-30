@@ -49,3 +49,16 @@ describe('review dialog keyboard access', () => {
     wrapper.unmount()
   })
 })
+
+it('keeps a closed reusable dialog out of the focus order and locks the page only when opened', async () => {
+  const opener = document.createElement('button'); document.body.append(opener); opener.focus()
+  const previous = document.body.style.overflow
+  const w = mount(ReviewDialog, { attachTo: document.body, props: { title: '确认操作', open: false } })
+  await flushPromises(); expect(w.find('[role="dialog"]').exists()).toBe(false)
+  expect(document.body.style.overflow).toBe(previous)
+  await w.setProps({ open: true }); await flushPromises()
+  expect(w.find('[role="dialog"]').exists()).toBe(true); expect(document.body.style.overflow).toBe('hidden')
+  await w.setProps({ open: false }); await flushPromises()
+  w.unmount(); expect(document.body.style.overflow).toBe(previous); expect(document.activeElement).toBe(opener)
+  opener.remove()
+})

@@ -1,20 +1,28 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onBeforeUnmount, ref } from 'vue'
+import { nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import Icon from './ReviewIcon.vue'
-withDefaults(defineProps<{ title: string; busy?: boolean; workspace?: string; merchant?: boolean }>(), { workspace: '审核工作台' })
+const props = withDefaults(defineProps<{ title: string; busy?: boolean; workspace?: string; merchant?: boolean; open?: boolean }>(), { workspace: '审核工作台', open: true })
 const emit = defineEmits<{ close: [] }>()
 const panel = ref<HTMLElement | null>(null)
-const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
-const previousOverflow = document.body.style.overflow
-onMounted(async () => {
-  document.body.style.overflow = 'hidden'
+let opener: HTMLElement | null = null, previousOverflow = '', locked = false, mounted = false
+async function engage() {
+  if (!locked) {
+    opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    previousOverflow = document.body.style.overflow; locked = true
+    document.body.style.overflow = 'hidden'
+  }
   await nextTick()
-  panel.value?.focus()
-})
-onBeforeUnmount(() => {
-  document.body.style.overflow = previousOverflow
-  if (opener?.isConnected) opener.focus()
-})
+  if (props.open) panel.value?.focus({ preventScroll: true })
+}
+function release(force = false) {
+  if (!locked || props.open && !force) return
+  document.body.style.overflow = previousOverflow; locked = false
+  if (opener?.isConnected) opener.focus({ preventScroll: true })
+}
+function close() { if (!props.busy) emit('close') }
+watch(() => props.open, open => { if (mounted && open) void engage() })
+onMounted(() => { mounted = true; if (props.open) void engage() })
+onBeforeUnmount(() => release(true))
 function trap(event: KeyboardEvent) {
   if (event.key !== 'Tab') return
   const items = Array.from(panel.value?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href], summary') ?? [])
@@ -29,14 +37,16 @@ function trap(event: KeyboardEvent) {
 </script>
 
 <template>
-  <div class="rf-dialog-backdrop" @click.self="!busy && emit('close')" @keydown.esc.prevent="!busy && emit('close')">
+  <Transition name="rf-dialog-presence" appear @after-leave="release()">
+  <div v-if="open" class="rf-dialog-backdrop" @click.self="close" @keydown.esc.prevent="close">
     <section ref="panel" class="rf-dialog" :class="{ 'merchant-dialog': merchant }" role="dialog" aria-modal="true" :aria-label="title" tabindex="-1" @keydown="trap">
       <header><div><small v-if="!merchant">ResolveFlow · {{ workspace }}</small><h2>{{ title }}</h2></div>
-        <button class="rf-dialog-close" type="button" aria-label="关闭弹窗" :disabled="busy" @click="emit('close')"><Icon name="close" :size="20" /></button>
+        <button class="rf-dialog-close" type="button" aria-label="关闭弹窗" :disabled="busy" @click="close"><Icon name="close" :size="20" /></button>
       </header>
       <div class="rf-dialog-content"><slot /></div>
     </section>
   </div>
+  </Transition>
 </template>
 
 <style scoped>
@@ -54,4 +64,13 @@ header h2 { margin: 8px 0 0; font-size: 21px; }
 .merchant-dialog :deep(.message) { font-size: 18px; }
 .merchant-dialog :deep(.dialog-refund-amount) { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px; background: #f0f7ff; border-radius: 12px; }
 .merchant-dialog :deep(.dialog-refund-amount strong) { font-size: 28px; }
+</style>
+
+<style scoped>
+.rf-dialog-presence-enter-active { transition: opacity 180ms ease; }
+.rf-dialog-presence-leave-active { transition: opacity 140ms ease; }
+.rf-dialog-presence-enter-active .rf-dialog,.rf-dialog-presence-leave-active .rf-dialog { transition: transform 180ms cubic-bezier(.2,.7,.2,1); }
+.rf-dialog-presence-enter-from,.rf-dialog-presence-leave-to { opacity: 0; }
+.rf-dialog-presence-enter-from .rf-dialog,.rf-dialog-presence-leave-to .rf-dialog { transform: translateY(6px); }
+@media(prefers-reduced-motion:reduce) { .rf-dialog-presence-enter-active,.rf-dialog-presence-leave-active,.rf-dialog-presence-enter-active .rf-dialog,.rf-dialog-presence-leave-active .rf-dialog { transition: none; } }
 </style>

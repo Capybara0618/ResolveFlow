@@ -10,3 +10,30 @@
 - `pnpm --dir web test -- tests/buyer-orders.spec.ts tests/buyer-navigation.spec.ts tests/marketplace.spec.ts`：39项通过。
 - 首次build因测试query参数可选而类型报错，修为query?.cursor；最终 `pnpm --dir web build`通过。
 - 本步尚未实机验收，继续统一弹窗与操作反馈后集中验收。无新业务操作/模型请求，旧4个无关脏文件保持。
+
+
+## 第二步：共享反馈与弹窗生命周期
+
+新增interaction-motion.css作为三个工作区的轻量反馈基线：按钮/链接颜色120ms过渡，已接入容器160ms淡入，账户与消息浮层140ms出现；固定滚动条占位，减少动态效果时关闭。页面动画不保留transform，避免动画结束后仍改变固定弹窗的定位上下文。
+
+ReviewDialog支持保持挂载的open属性；真正打开时捕获触发按钮并锁背景，退场完成后释放滚动、恢复焦点；原有提交中禁止关闭、Tab约束继续保留。订单取消确认改用open，实际具备入场180ms/退场140ms。其他旧v-if调用兼容且可入场，未逐一迁移为持久挂载，不称全站弹窗退场均已完成。列表位置在导航emit前保存，避免父级导航改变滚动后才记录。
+
+### 自动化
+
+- 闭合弹窗生命周期新回归先红；父级导航模拟scrollY从480改10的回归先红（实际恢复10），修正后恢复480。
+- `pnpm --dir web test -- tests/buyer-orders.spec.ts tests/review-dialog.spec.ts tests/buyer-navigation.spec.ts tests/marketplace.spec.ts`：44项通过。
+- 最终 `pnpm --dir web test`：46文件354项通过；jsdom的scrollTo未实现提示保留，真实位置另以浏览器验证。
+- 最终 `pnpm --dir web build`通过。日志分别tmp/interaction-final-tests.log、tmp/interaction-final-build.log；不把重叠测试相加。
+
+### 真实浏览器
+
+- buyer10订单已付款筛选14条：列表→新读详情→返回，筛选/14条保留；实际坐标鼠标点击前后scrollY均610.666687。此前语义定位器点击/按键前自动居中目标造成约14–19px变化，切为截图坐标实点后无差异，未把工具滚动当产品缺陷。前一轮12帧采样已看到opacity约0.399→0.892→0.971→1，列表始终14条，无空列表闪现。
+- 无当前待付款草稿，使用buyer01既有地址通过正式API创建1份专用未付款草稿，仅验收弹窗开关。最初省略地址被400 ADDRESS_REQUIRED拒绝，没有草稿；buyer10无地址，因此未新增/修改地址，改用buyer01。没有付款、确认取消、退款、业务消息或模型请求。
+- 实点取消订单入场采样opacity0.012→0.315→0.789→0.958→1，面板translateY5.5→2.1→0.46→0.08→0；点击空白退场0.984→0.552→0.081→移除。锁滚动直至退场完成，焦点恢复取消订单；Esc关闭同样通过。
+- 全程品牌x=32、根布局宽1264.666748不变。clientWidth因滚动条隐藏变化，不用它替代实际布局几何。
+- 390×844下订单列表15条、document.scrollWidth375无横溢；弹窗x20/宽334.67，返回与确认按钮均完整可见。结束reset视口。截图tmp/interaction-experience-20261030/dialog-desktop.png、dialog-mobile.png。
+- 浏览器最初连接拒绝，正常 `.\start.ps1 -SkipBuild -NoBrowser`恢复原数据/服务，最终10项状态PASS；不是浏览器权限问题。服务保留供用户体验。
+
+### 范围
+
+本批完成订单参考链及共享反馈基线，列表快照只在同账号订单组件内生效，离开模块后不跨页面持久保留。未声称所有复杂页面均已有独立状态保留/错误恢复/退场过渡；下一批沿此模式逐个接入，不以全局CSS代替业务连续性。减少动态效果CSS已实现，本轮未切换操作系统偏好进行实机复验。旧4个无关脏文件保持排除。
