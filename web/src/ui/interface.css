@@ -15,7 +15,8 @@
 .unified-interface .brand { color: var(--rf-ink); font-size: 21px; font-weight: 500; }
 .unified-interface .brand-mark i { background: var(--rf-accent); }
 .unified-interface .brand-mark i:last-child { background: #73a594; }
-.unified-interface .demo-tag { color: var(--rf-muted); font-size: 12px; }
+.unified-interface .login-shop-link { margin-left: auto; color: var(--rf-accent); text-decoration: none; font-size: 15px; }
+.unified-interface .login-shop-link:hover { text-decoration: underline; }
 .unified-interface .avatar { color: var(--rf-accent); background: var(--rf-accent-soft); }
 .unified-interface .session-copy strong { font-size: 14px; font-weight: 500; }
 .unified-interface .session-copy small { font-size: 12px; }
@@ -32,14 +33,18 @@
 .unified-interface .secondary-button:hover:not(:disabled) { background: var(--rf-subtle); }
 .unified-interface .text-button { color: var(--rf-accent); }
 .unified-interface :is(.primary-button, .login-panel > button):hover:not(:disabled) { background: var(--rf-accent-hover); }
-.unified-interface .login-stage { min-height: calc(100dvh - 72px); max-width: 1080px; margin: auto; padding: 56px 40px; gap: 100px; background: transparent; }
-.unified-interface .login-intro h1 { font-size: clamp(28px, 3.2vw, 42px); font-weight: 500; line-height: 1.55; letter-spacing: -.5px; color: var(--rf-ink); }
-.unified-interface .login-intro > p { color: var(--rf-muted); font-size: 16px; line-height: 1.9; }
-.unified-interface .login-panel { padding: 32px; border: 1px solid var(--rf-line); border-radius: 12px; background: var(--rf-surface); box-shadow: none; }
-.unified-interface .login-panel h2 { font-size: 24px; font-weight: 500; }
+.unified-interface .login-stage { min-height: calc(100dvh - 72px); max-width: 1220px; margin: auto; padding: 56px 40px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: clamp(48px, 7vw, 112px); background: transparent; }
+.unified-interface .login-intro { max-width: none; min-width: 0; }
+.unified-interface .login-intro h1 { font-size: clamp(36px, 3.4vw, 52px); font-weight: 500; line-height: 1.35; letter-spacing: -1.2px; color: var(--rf-ink); margin: 0 0 36px; }
+.login-still-life { position: relative; height: 310px; border-radius: 96px 12px 12px 12px; background: #ecebe2; overflow: hidden; }
+.login-still-life .login-room { width: 100%; height: 100%; object-fit: cover; object-position: 60% center; }
+.unified-interface .login-panel { width: 100%; padding: 36px; border: 1px solid var(--rf-line); border-radius: 16px; background: var(--rf-surface); box-shadow: 0 14px 50px #26332e05; }
+.unified-interface .login-panel h2 { font-size: 28px; font-weight: 500; margin-bottom: 32px; }
 .unified-interface .login-panel :is(label, input, button) { font-size: 15px; }
-.unified-interface .login-panel :is(.muted, .login-note) { color: var(--rf-muted); font-size: 13px; }
-.unified-interface .login-panel input { border-color: var(--rf-line); }
+.unified-interface .login-panel label { color: var(--rf-ink); margin-bottom: 22px; }
+.unified-interface .login-panel input { border-color: var(--rf-line); height: 48px; }
+.unified-interface .login-panel > button { height: 48px; margin-top: 8px; }
+.unified-interface .login-account-links { margin-top: 22px; }
 .unified-interface .login-panel > a { display: inline-block; margin-top: 20px; color: var(--rf-accent); font-size: 14px; }
 .unified-interface details:not(.shop-account) > summary { list-style: none; }
 .unified-interface details:not(.shop-account) > summary::-webkit-details-marker { display: none; }
@@ -49,5 +54,6 @@
 @media (max-width: 850px) {
   .unified-interface:not(.merchant-review-workbench) > .app-shell { grid-template-columns: minmax(0, 1fr); }
   .unified-interface:not(.merchant-review-workbench) .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 10px 16px; }
-  .unified-interface .login-stage { padding: 28px 20px; }
+  .unified-interface .login-stage { grid-template-columns: minmax(0, 420px); padding: 32px 20px; gap: 0; align-content: center; }
+  .unified-interface .login-panel { padding: 28px; }
 }

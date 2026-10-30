@@ -533,24 +533,22 @@ onUnmounted(() => { stopStream(); products.reset() })
   <div class="workbench unified-interface" :class="{ 'shopping-workbench': account?.buyer_id || shopVisitor, 'aftercare-workbench': isSingleMerchant, 'merchant-review-workbench': isSingleMerchant && merchantPage === 'review' }">
     <header v-if="!((!account && shopVisitor) || account?.buyer_id)" class="topbar">
       <div class="brand"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></div>
-      <span class="demo-tag">{{ account?.buyer_id || shopVisitor ? '本地演示 · 合成商品与模拟交易' : '合成数据 · 模拟退款' }}</span>
+      <a v-if="!account" class="login-shop-link" href="#/shop">逛逛商城</a>
       <div v-if="account" class="session"><button class="profile-avatar-button" aria-label="编辑个人资料" @click="profileOpen = true"><UserAvatar :token="account.access_token" source="/api/v1/account/avatar" :name="account.display_name" :kind="account.role === 'MERCHANT_ADMIN' ? 'MERCHANT' : 'CUSTOMER'" /></button><span class="session-copy"><strong>{{ account.display_name || (isReviewer ? '售后专员' : '客户工作台') }}</strong><small>{{ account.role === 'PLATFORM_ADMIN' ? '平台管理员' : account.buyer_id ? '平台买家' : `${account.merchant_name || account.merchant_id} · ${account.role === 'MERCHANT_ADMIN' ? (isSingleMerchant ? '商家' : '商家管理员') : account.role === 'REVIEWER' ? '售后专员' : account.role === 'OPERATOR' ? '兼容运维账号' : '客户'}` }}</small></span>
         <NotificationCenter v-if="account.role === 'MERCHANT_ADMIN'" :token="account.access_token" :disabled="busy" @expired="logout" @open="openNotification" />
         <button type="button" class="text-button logout-button" @click="logout">退出</button></div>
     </header>
     <MarketplaceWorkspace v-if="!account && shopVisitor" :account="null" @login="shopLogin" />
     <main v-else-if="!account" class="login-stage">
-      <div class="login-intro"><h1>每一次售后，<br />都有据可循。</h1><p>从客户诉求到处理结果，<br />清楚了解每一步进展。</p></div>
+      <div class="login-intro"><h1>好物与服务，<br />都在这里。</h1><div class="login-still-life" aria-hidden="true"><img class="login-room" :src="'/marketplace/hero-v1.webp'" alt="" /></div></div>
       <EnrollmentForm v-if="enrollmentMode" :mode="enrollmentMode" @working="enrollmentBusy = $event" @close="finishEnrollment" />
       <form v-else class="panel login-panel" @submit.prevent="login">
-        <h2>登录工作台</h2>
-        <p class="muted">使用本地演示账户，继续处理售后事务。</p>
+        <h2>欢迎回来</h2>
         <label>用户名 <input v-model="username" name="username" autocomplete="username" placeholder="请输入用户名" /></label>
         <label>密码 <input v-model="password" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" /></label>
         <button data-test="login" type="submit" :disabled="busy">{{ busy ? '正在登录…' : '登录工作台' }}</button>
         <p v-if="error" class="message error" role="alert">{{ error }}</p>
-        <small class="login-note"><Icon name="shield" :size="14" />数据与操作范围由账户身份决定</small>
-        <div class="login-account-links"><button type="button" :disabled="busy" @click="enrollmentMode = 'register'">注册买家账号</button><button type="button" :disabled="busy" @click="enrollmentMode = 'recover'">忘记密码</button></div><a href="#/shop">先逛逛商城</a>
+        <div class="login-account-links"><button type="button" :disabled="busy" @click="enrollmentMode = 'register'">注册账号</button><button type="button" :disabled="busy" @click="enrollmentMode = 'recover'">忘记密码</button></div>
       </form>
     </main>
     <PlatformWorkspace v-else-if="account.role === 'PLATFORM_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
@@ -573,7 +571,6 @@ onUnmounted(() => { stopStream(); products.reset() })
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#support" class="nav-link" :class="{ current: merchantPage === 'support' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('support')"><Icon name="queue" />咨询核查</a>
         <a v-if="account.role === 'MERCHANT_ADMIN' && !isSingleMerchant" href="#people" class="nav-link" :class="{ current: merchantPage === 'people' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('people')"><Icon name="user" />人员管理</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#policies" class="nav-link" :class="{ current: merchantPage === 'policies' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('policies')"><Icon name="file" />{{ isSingleMerchant ? '售后政策' : '政策与版本' }}</a>
-        <div class="sidebar-note"><p>让售后更简单<br />让每一次服务都有结果</p><small>单订单行 · 全量模拟退款</small><span>© 2026 ResolveFlow</span></div>
       </nav>
       <MerchantReviews v-if="merchantPage === 'reviews' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <SupportWorkspace v-else-if="merchantPage === 'support' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token + (notificationTicket ?? '')" :initial-id="notificationTicket" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
