@@ -328,7 +328,7 @@ onBeforeUnmount(() => {
             <label>情况说明 <span class="customer-required">必填</span><textarea v-model="description" data-test="application-description" rows="5" maxlength="4000" :readonly="writing || createUncertain" placeholder="请说明退款原因和已经尝试的处理方式" /></label>
             <label>文本材料 <span class="muted">可选</span><textarea v-model="initialMaterial" data-test="initial-material" rows="3" maxlength="8000" :readonly="writing || createUncertain" placeholder="可粘贴物流反馈或其他文字说明" /></label>
           </section>
-          <aside class="panel customer-apply-summary"><h2>退款金额</h2><strong class="customer-amount">{{ formatMinorUnits(selectedLine.order_line.line_paid_amount, selectedLine.order_line.currency) }}</strong><p>单个订单行全额模拟退款，由商家审核。</p><button data-test="create-case" type="submit" :disabled="writing || !description.trim()">{{ writing ? '正在提交…' : createUncertain ? '确认提交结果' : '提交退款申请' }}</button></aside>
+          <aside class="panel customer-apply-summary"><h2>退款金额（模拟）</h2><strong class="customer-amount">{{ formatMinorUnits(selectedLine.order_line.line_paid_amount, selectedLine.order_line.currency) }}</strong><button data-test="create-case" type="submit" :disabled="writing || !description.trim()">{{ writing ? '正在提交…' : createUncertain ? '确认提交结果' : '提交退款申请' }}</button></aside>
         </div>
       </form>
       <template v-else-if="screen === 'detail'">

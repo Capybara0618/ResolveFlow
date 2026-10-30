@@ -32,7 +32,7 @@ function stamp(value: string) {
 }
 const updated = computed(() => stamp(props.application.case.updated_at))
 // Java's buyer projection contains distinctions such as an execution failure after approval.
-const message = computed(() => props.application.result.message !== title.value ? props.application.result.message : '')
+const message = computed(() => !succeeded.value && props.application.result.message !== title.value ? props.application.result.message : '')
 </script>
 
 <template>
@@ -45,7 +45,7 @@ const message = computed(() => props.application.result.message !== title.value 
     <p v-if="note" class="buyer-progress-note">{{ note }}</p>
     <p v-if="message && !note" class="buyer-progress-message">{{ message }}</p>
     <p v-if="application.result.public_reason" class="buyer-progress-reason">{{ application.result.public_reason }}</p>
-    <p v-if="application.blocked_reason && application.blocked_reason !== application.result.public_reason" class="buyer-progress-blocked">{{ application.blocked_reason }}</p>
+    <p v-if="!succeeded && application.blocked_reason && application.blocked_reason !== application.result.public_reason" class="buyer-progress-blocked">{{ application.blocked_reason }}</p>
     <div v-if="$slots.product" class="buyer-receipt-product"><slot name="product" /></div>
     <details class="buyer-progress-records"><summary>处理记录</summary><ol v-if="application.timeline.length"><li v-for="(event, index) in application.timeline" :key="index"><span>{{ event.summary }}</span><time v-if="stamp(event.occurred_at)" :datetime="event.occurred_at">{{ stamp(event.occurred_at) }}</time></li></ol><p v-else>暂无处理记录。</p><small>申请编号 {{ application.case.case_id }}</small></details>
     <footer v-if="$slots.default"><slot /></footer>

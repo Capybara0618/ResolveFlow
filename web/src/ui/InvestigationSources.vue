@@ -75,7 +75,6 @@ function facts(item: NonNullable<InvestigationView['investigation']>['observatio
         <span v-if="view.investigation.model_provider === 'mock'"> · mock 合成决策</span>
         <span v-else-if="view.investigation.model_provider"> · 模型提供方：{{ view.investigation.model_provider }}</span>
         <span v-else> · 模型来源未记录</span></p>
-      <p class="sources-note">以下是调查当时保存的工具结果，可能与当前业务数据不同；记录存在不代表真实性已人工核验。</p>
       <p v-if="!view.investigation.observations.length">此调查没有可展示的已保存工具读取结果。</p>
       <details v-for="item in view.investigation.observations" :key="item.call_id">
         <summary>{{ toolLabel(item.tool_name) }} <span v-if="cited(item)">· 本方案引用</span><span v-if="item.error_code"> · 读取失败</span></summary>

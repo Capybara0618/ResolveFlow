@@ -44,7 +44,6 @@ const view = (id: string) => views.value.get(id) ?? sourceOf(id, props.snapshot,
     <p v-if="snapshot.proposal?.status === 'STALE'" class="finding-warning">这份建议对应旧版材料，已过期。请等待新调查或形成人工方案。</p>
     <p v-if="snapshot.proposal?.refusal_reason" class="finding-warning">服务端复核未通过：{{ snapshot.proposal.refusal_reason }}</p>
     <template v-if="findings.length">
-      <p class="finding-note">以下内容由 Agent 整理，请结合原始记录核对；来源陈述不等于真实性已核验。</p>
       <article v-for="(finding, index) in findings" :key="index" class="finding" :class="finding.kind.toLowerCase()">
         <strong>{{ labels[finding.kind] }}</strong><p>{{ finding.text }}</p>
         <details v-for="id in finding.observation_ids" :key="id">

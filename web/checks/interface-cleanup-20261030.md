@@ -33,3 +33,7 @@
 `App.vue`删除队列自动刷新机制解释、证据空状态的推论说明、方案后的重复执行说明及金额栏空支付信息脚注；`AdminProducts.vue`删除商品管理标题的复述；`AdminTrades.vue`删除发货按钮和确认框的重复物流实现说明，原“模拟发货/确认模拟发货”及本单发货数量保留；`FulfillmentPanel.vue`在途正文直接写商品已发出；`MerchantCaseDetail.vue`删除审批按钮下重复执行说明，确认弹窗仍说明批准后动作。
 
 `pnpm --dir web test -- tests/app.spec.ts tests/admin-trades.spec.ts tests/buyer-orders.spec.ts tests/merchant-case-detail.spec.ts tests/foundation.spec.ts`：65项通过。页面控制条件、原请求恢复、退款授权与审批动作未改。
+
+## 详情去重
+
+实机历史退款结果在“退款完成”标题后仍有服务端成功消息和“仅可查看”段落，进一步在成功态只显示标题/金额/公开处理理由；其他状态的失败或阻断原因仍显示。`CustomerWorkspace.vue`把长申请范围说明收敛为金额标题中的模式，`InvestigationFindings.vue`和`InvestigationSources.vue`移除常驻的来源解释段，实际来源标签、版本不匹配和缺失记录仍明确显示。相关进度、客户工作台与调查来源四组测试通过。卡皮巴拉既有成功会话实机读回329元和公开理由，重复两段不再出现，未修改历史消息、交易或模型答复。
