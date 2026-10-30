@@ -23,7 +23,7 @@ describe('foundation management', () => {
     try {
       await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
       expect(wrapper.find('[aria-label="商家工作台"]').exists()).toBe(true)
-      expect(wrapper.findAll('.nav-link').map(link => link.text())).toEqual(['商家概览', '交易订单', '商品管理', '商品评价', '售后工单', '咨询核查', '售后政策'])
+      expect(wrapper.findAll('.nav-link').map(link => link.text())).toEqual(['商家概览', '交易订单', '商品管理', '商品评价', '售后工单', '咨询核查', '退款规则'])
       await wrapper.findAll('.nav-link').find(link => link.text() === '商品评价')!.trigger('click'); await flushPromises()
       expect(wrapper.text()).toContain('本店暂无商品评价')
       expect(fetcher.mock.calls.some(([url]) => url.includes('/merchant/reviews'))).toBe(true)

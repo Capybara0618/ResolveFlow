@@ -1,0 +1,32 @@
+.workbench .single-merchant-workspace{width:100%;max-width:1320px;min-width:0;margin:0 auto}
+.workbench .merchant-task-metrics{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:24px}
+.workbench .merchant-task-metrics .overview-metric{min-height:112px;padding:22px 26px}
+.workbench .merchant-task-metrics strong{font-size:30px;font-weight:500;line-height:1.2}
+.workbench .merchant-task-metrics small{font-size:15px;margin-bottom:10px}
+.merchant-work-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+.workbench .merchant-work-panel{padding:24px;border-radius:12px;border:1px solid var(--rf-line);box-shadow:none;min-width:0}
+.merchant-work-panel>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.workbench .merchant-work-panel h2{margin:0;font-size:18px;font-weight:500}
+.workbench .merchant-work-panel p{font-size:15px;color:var(--rf-muted);padding:20px 0}
+.workbench .merchant-work-panel .text-button{font-size:14px;color:var(--rf-accent);padding:4px 0;white-space:nowrap}
+.workbench .merchant-work-panel :is(.merchant-order-task,.merchant-consultation-task,.merchant-attention-task){display:flex;align-items:center;gap:14px;width:100%;padding:18px 0;margin:0;border:0;border-bottom:1px solid var(--rf-line);border-radius:0;background:transparent;color:var(--rf-ink);text-align:left;box-shadow:none;font:inherit}
+.workbench .merchant-work-panel :is(.merchant-order-task,.merchant-consultation-task,.merchant-attention-task):last-child{border-bottom:0}
+.workbench .merchant-work-panel :is(.merchant-order-task,.merchant-consultation-task,.merchant-attention-task):hover{background:var(--rf-accent-soft)}
+.merchant-order-task>.product-art{width:54px;height:54px;flex:0 0 54px;object-fit:cover;border-radius:8px}
+.merchant-order-task>span,.merchant-consultation-task>span:not(.user-avatar),.merchant-attention-task>span{min-width:0;flex:1}
+.merchant-order-task strong,.merchant-consultation-task strong,.merchant-attention-task strong{font-size:15px;font-weight:500;display:block}
+.merchant-order-task small,.merchant-consultation-task small{display:block;font-size:14px;color:var(--rf-muted);margin-top:5px;font-weight:400}
+.workbench .merchant-order-task .task-amount{flex:0 0 auto;font-size:16px;color:var(--rf-accent)}
+.task-excerpt{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:14px;color:var(--rf-muted);margin-top:6px}
+.merchant-attention-panel{margin-top:22px}.merchant-attention-task time{font-size:13px;color:var(--rf-muted);flex-shrink:0}
+.workbench .merchant-shortcuts{display:flex;gap:24px;padding:20px 0;flex-wrap:wrap}
+.workbench .merchant-shortcuts button{font-size:14px;background:transparent;border:0;padding:4px 0;color:var(--rf-accent);box-shadow:none}
+@media(max-width:1100px){.merchant-work-grid{grid-template-columns:1fr}.workbench .merchant-task-metrics .overview-metric{padding:18px}.merchant-attention-task time{display:none}}
+@media(max-width:650px){.workbench .merchant-task-metrics{gap:10px}.workbench .merchant-task-metrics .overview-metric{padding:14px;min-height:100px}.workbench .merchant-task-metrics small{font-size:13px}.workbench .merchant-task-metrics strong{font-size:26px}.workbench .merchant-work-panel{padding:18px}}
+
+.workbench .single-merchant-workspace .merchant-task-metrics .overview-metric>span{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.workbench .single-merchant-workspace .merchant-task-metrics .overview-metric small{display:block;font-size:15px;margin:0;color:var(--rf-muted)}
+.workbench .single-merchant-workspace .merchant-task-metrics .overview-metric strong{display:block;font-size:30px;font-weight:500;line-height:1.2;color:var(--rf-ink)}
+.workbench .single-merchant-workspace .merchant-consultation-task>.user-avatar{flex:0 0 40px;width:40px;height:40px}
+
+@media(max-width:650px){.workbench .single-merchant-workspace .merchant-task-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.workbench .single-merchant-workspace .merchant-task-metrics .overview-metric{padding:12px 10px}.workbench .single-merchant-workspace .merchant-task-metrics .overview-metric small{font-size:13px;line-height:1.5}.workbench .single-merchant-workspace .merchant-task-metrics .overview-metric strong{font-size:26px}}

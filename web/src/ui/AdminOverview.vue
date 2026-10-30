@@ -1,11 +1,23 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { fulfillmentApi, type MerchantTrade } from '../fulfillment-client'
+import { supportApi, type SupportConversation } from '../support-client'
+import { formatMinorUnits } from '../money'
+import ProductArt from './ProductArt.vue'
+import UserAvatar from './UserAvatar.vue'
+import './merchant-overview.css'
 import { ApiError, coreApi, type LoginResponse, type MerchantOverview, type ReviewScope } from '../client'
 import Icon from './ReviewIcon.vue'
 
 const props = defineProps<{ account: LoginResponse }>()
-const emit = defineEmits<{ expired: []; queue: [view: string, scope: ReviewScope]; open: [id: string]; people: []; navigate: [page: 'products' | 'orders' | 'policies'] }>()
+const emit = defineEmits<{ expired: []; queue: [view: string, scope: ReviewScope]; open: [id: string]; people: []; navigate: [page: 'products' | 'orders' | 'policies' | 'reviews' | 'support']; order: [id: string]; support: [id?: string] }>()
 const data = ref<MerchantOverview | null>(null), loading = ref(false), error = ref('')
+const orders = ref<MerchantTrade[]>([]), consultations = ref<SupportConversation[]>([])
+const reviewCount = ref<number | null>(null), supportCount = ref<number | null>(null)
+const orderError = ref(''), supportError = ref(''), reviewError = ref('')
+const attentionItems = computed(() => (data.value?.items ?? []).filter(i => i.reasons.some(r => r !== 'UNCLAIMED')).slice(0, 3))
+const money = (amount: number) => '¥ ' + formatMinorUnits(amount).replace(' CNY', '')
+const buyerAvatar = (c: SupportConversation) => c.buyer?.avatar_id && c.ticket ? `/api/v1/support/tickets/${encodeURIComponent(c.ticket.ticket_id)}/buyer/avatar` : undefined
 let alive = true, generation = 0, timer: ReturnType<typeof setInterval> | undefined
 const reasons: Record<string, string> = { UNCLAIMED: '待领取', RESULT_UNKNOWN: '退款结果待确认', OWNER_UNAVAILABLE: '负责人不可用', INVESTIGATION_FAILED: '调查失败待人工处理' }
 const status: Record<string, string> = { QUEUED: '等待调查', ANALYZING: '调查中', WAITING_CUSTOMER: '待客户补证', PENDING_REVIEW: '待人工审核', AUTHORIZED: '已批准待执行', EXECUTING: '退款执行中', RECONCILING: '退款结果待确认' }
@@ -15,15 +27,35 @@ async function load() {
   const g = ++generation, token = props.account.access_token
   loading.value = true
   try {
-    const result = await coreApi.merchantOverview(token)
+    const [result, work] = await Promise.all([
+      coreApi.merchantOverview(token),
+      props.account.single_operator ? Promise.allSettled([
+        fulfillmentApi.orders(token, { status: 'NOT_SHIPPED' }),
+        supportApi.tickets(token, null, { status: 'PENDING', query: '' }),
+        coreApi.reviewQueue(token, undefined, 'REVIEW', '', 'PUBLIC'),
+      ]) : Promise.resolve(null),
+    ])
     if (!alive || g !== generation || token !== props.account.access_token) return
     data.value = result; error.value = ''
+    if (work) {
+      const [trade, support, queue] = work
+      for (const value of work) if (value.status === 'rejected' && value.reason instanceof ApiError && value.reason.status === 401) emit('expired')
+      orderError.value = trade.status === 'rejected' ? '订单暂时无法读取，请刷新重试。' : ''
+      orders.value = trade.status === 'fulfilled' ? trade.value.items.slice(0, 3) : []
+      supportError.value = support.status === 'rejected' ? '咨询暂时无法读取，请刷新重试。' : ''
+      consultations.value = support.status === 'fulfilled' ? support.value.items.slice(0, 3) : []
+      supportCount.value = support.status === 'fulfilled' ? support.value.counts?.PENDING ?? null : null
+      reviewError.value = queue.status === 'rejected' ? '售后数量暂时无法读取，请刷新重试。' : ''
+      reviewCount.value = queue.status === 'fulfilled' ? queue.value.counts?.total ?? null : null
+    }
+
   } catch (cause) {
     if (!alive || g !== generation || token !== props.account.access_token) return
     if (cause instanceof ApiError && cause.status === 401) emit('expired')
     else error.value = '概览暂时未能更新，请重试。' + (data.value ? ' 下方保留上次读取的数据。' : '')
   } finally { if (alive && g === generation) loading.value = false }
 }
+function focusAttention() { document.getElementById('merchant-attention-list')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }) }
 function focusCoordination() { document.getElementById('coordination-list')?.scrollIntoView?.({ block: 'start' }) }
 onMounted(() => { void load(); timer = setInterval(() => { if (!document.hidden) void load() }, 30000) })
 onBeforeUnmount(() => { alive = false; ++generation; clearInterval(timer) })
@@ -31,15 +63,30 @@ onBeforeUnmount(() => { alive = false; ++generation; clearInterval(timer) })
 
 <template>
   <main v-if="account.single_operator" class="admin-workspace single-merchant-workspace" aria-label="商家工作台">
-    <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name }}</span><h1>商家工作台</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load">刷新概览</button></header>
+    <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name }}</span><h1>商家概览</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load">刷新概览</button></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p>
-    <p v-if="loading && !data" role="status">正在读取本店售后…</p>
-    <div class="overview-metrics">
-      <button class="overview-metric" :disabled="!data" @click="emit('queue','ALL','PUBLIC')"><span class="metric-icon"><Icon name="queue" :size="22" /></span><span><small>未结束售后</small><strong>{{ data?.mine ?? '—' }}</strong></span></button>
-      <button class="overview-metric attention-metric" :disabled="!data" @click="focusCoordination"><span class="metric-icon"><Icon name="shield" :size="22" /></span><span><small>需要关注</small><strong>{{ data?.attention ?? '—' }}</strong></span></button>
+    <p v-if="loading && !data" role="status">正在读取店铺待办…</p>
+    <div class="overview-metrics merchant-task-metrics">
+      <button class="overview-metric" data-metric="review" @click="emit('queue', 'REVIEW', 'PUBLIC')"><span><small>待审核售后</small><strong>{{ reviewCount ?? '—' }}</strong></span></button>
+      <button class="overview-metric" data-metric="support" @click="emit('support', consultations[0]?.ticket?.ticket_id)"><span><small>待回复咨询</small><strong>{{ supportCount ?? '—' }}</strong></span></button>
+      <button class="overview-metric attention-metric" :disabled="!data" @click="focusAttention"><span><small>需要核实的售后</small><strong>{{ data?.attention ?? '—' }}</strong></span></button>
     </div>
-    <section class="panel admin-card"><h2>日常经营</h2><div class="foundation-actions"><button class="secondary-button" @click="emit('navigate','products')">管理商品</button><button class="secondary-button" @click="emit('navigate','orders')">处理订单</button><button class="secondary-button" @click="emit('queue','ALL','PUBLIC')">处理售后</button><button class="secondary-button" @click="emit('navigate','policies')">查看售后政策</button></div></section>
-    <section id="coordination-list" class="panel admin-card"><h2>售后关注事项</h2><article v-for="item in data?.items ?? []" :key="item.case_id" class="merchant-attention"><strong>{{ item.description || '售后申请' }}</strong><p>{{ item.reasons.map(r => r === 'OWNER_UNAVAILABLE' || r === 'UNCLAIMED' ? '商家处理身份需核对' : reasons[r]).join(' · ') }}</p><button class="secondary-button" @click="emit('open',item.case_id)">查看售后</button></article><p v-if="data && data.items.length === 0">暂无异常，进入售后工单查看申请进展。</p></section>
+    <p v-if="reviewError" class="message error" role="alert">{{ reviewError }}</p>
+    <div class="merchant-work-grid">
+      <section class="panel merchant-work-panel" aria-label="待发货订单"><header><h2>待发货订单</h2><button class="text-button" @click="emit('navigate','orders')">全部订单</button></header>
+        <p v-if="orderError" role="alert">{{ orderError }}</p><p v-else-if="data && !orders.length">暂无待发货订单</p>
+        <button v-for="trade in orders" :key="trade.purchase.order_id!" class="merchant-order-task" :data-overview-order="trade.purchase.order_id" @click="emit('order',trade.purchase.order_id!)"><ProductArt :asset="trade.purchase.lines[0]?.asset_key || ''" :name="trade.purchase.lines[0]?.product_name || '订单商品'" :variant="trade.purchase.lines[0]?.variant || ''" /><span><strong>{{ trade.purchase.lines[0]?.product_name || '订单商品' }}<template v-if="trade.purchase.lines.length > 1">等 {{ trade.purchase.lines.length }} 款</template></strong><small>{{ trade.purchase.lines[0]?.variant }} · {{ trade.purchase.lines.reduce((n,l) => n + l.quantity, 0) }} 件</small></span><span class="task-amount">{{ money(trade.purchase.total_amount) }}</span></button>
+      </section>
+      <section class="panel merchant-work-panel" aria-label="待回复咨询"><header><h2>待回复咨询</h2><button class="text-button" @click="emit('navigate','support')">全部咨询</button></header>
+        <p v-if="supportError" role="alert">{{ supportError }}</p><p v-else-if="data && !consultations.length">暂无待回复咨询</p>
+        <button v-for="item in consultations" :key="item.conversation_id" class="merchant-consultation-task" :data-overview-ticket="item.ticket?.ticket_id" @click="emit('support',item.ticket?.ticket_id)"><UserAvatar :token="account.access_token" :source="buyerAvatar(item)" :name="item.buyer?.display_name || '买家'" :size="40" /><span><strong>{{ item.buyer?.display_name || '买家' }}<small>{{ item.product.name }}</small></strong><span class="task-excerpt">{{ item.ticket?.summary }}</span></span></button>
+      </section>
+    </div>
+    <section id="merchant-attention-list" class="panel merchant-work-panel merchant-attention-panel"><header><h2>需要核实的售后</h2><button class="text-button" @click="emit('queue', 'ALL', 'PUBLIC')">全部售后</button></header>
+      <button v-for="item in attentionItems" :key="item.case_id" class="merchant-attention-task" @click="emit('open',item.case_id)"><span><strong>{{ item.reasons.filter(r => r !== 'UNCLAIMED').map(r => reasons[r]).join(' · ') }}</strong><span class="task-excerpt">{{ item.description || '售后申请' }}</span></span><time>{{ date(item.updated_at) }}</time></button>
+      <p v-if="data && !data.attention">暂无需要核实的售后</p>
+    </section>
+    <nav class="merchant-shortcuts" aria-label="店铺管理"><button @click="emit('navigate','products')">商品管理</button><button @click="emit('navigate','reviews')">商品评价</button><button @click="emit('navigate','policies')">退款规则</button></nav>
   </main>
   <main v-else class="admin-workspace" aria-label="商家工单概览">
     <header class="admin-heading"><div><span class="admin-eyebrow">{{ account.merchant_name ?? account.merchant_id }} · 商家管理</span><h1>商家工单概览</h1></div><button type="button" class="secondary-button" :disabled="loading" @click="load"><Icon name="clock" />{{ loading ? '更新中…' : '刷新概览' }}</button></header>

@@ -88,3 +88,10 @@ it('replaces order pages, preserves the current page on failed navigation and re
   expect(fulfillmentApi.orders).toHaveBeenLastCalledWith(token, {})
   expect(w.text()).toContain('第 1 页'); expect(w.text()).not.toContain('第二页商品')
 })
+
+it('opens the exact order selected from the overview without first loading an unrelated list', async () => {
+  w = mount(AdminTrades, { props: { account, initialId: id } }); await flushPromises()
+  expect(fulfillmentApi.order).toHaveBeenCalledWith(token, id)
+  expect(fulfillmentApi.orders).not.toHaveBeenCalled()
+  expect(w.get('h1').text()).toBe('订单详情')
+})

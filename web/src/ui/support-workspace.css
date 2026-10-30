@@ -223,3 +223,5 @@
 
 .workbench .merchant-support .support-history > .list-pagination { flex-shrink: 0; justify-content: center; gap: 8px; padding: 12px 8px; border-top: 1px solid var(--rf-line); font-size: 12px; }
 .workbench .merchant-support .support-history > .list-pagination button { padding: 6px 8px; }
+
+@media(max-width:850px){.workbench.unified-interface .merchant-support .support-history{height:360px;max-height:360px;min-height:360px}.workbench.unified-interface .merchant-support .support-history-scroll{min-height:0;flex:1}.workbench.unified-interface .merchant-support .support-chat-heading{flex-wrap:wrap}.workbench.unified-interface .merchant-support .support-chat-identity{min-width:0;flex:1}.workbench.unified-interface .merchant-support .support-chat-identity h2{max-width:100%}}

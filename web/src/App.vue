@@ -45,6 +45,7 @@ const username = ref('')
 const password = ref('')
 const account = ref<LoginResponse | null>(readTabSession())
 const notificationTicket = ref<string | undefined>()
+const overviewOrderId = ref<string | undefined>()
 function openNotification(item: Notification) {
   if (busy.value) return
   if (item.target === 'TICKET') { notificationTicket.value = item.target_id; changeMerchantPage('support') }
@@ -113,6 +114,7 @@ function changeMerchantPage(page: MerchantPage, query = false) {
   if (isSingleMerchant.value) closeMerchantCase()
   closeReview(); merchantPage.value = page; queryOpen.value = query
   if (page !== 'review') stopStream()
+  overviewOrderId.value = undefined
   if (returning) void act(async () => { if (!await loadReviewQueue()) return; if (!isSingleMerchant.value && snapshot.value) await openCase(snapshot.value.case.case_id) })
 }
 
@@ -129,6 +131,8 @@ function tradeAftercare(order: string) {
   filterQueue()
 }
 
+function overviewOrder(id: string) { if (busy.value) return; changeMerchantPage('orders'); overviewOrderId.value = id }
+function overviewSupport(id?: string) { if (busy.value) return; changeMerchantPage('support'); notificationTicket.value = id }
 function overviewCase(id: string) {
   if (busy.value) return
   merchantPage.value = 'review'; queryOpen.value = true
@@ -573,14 +577,14 @@ onUnmounted(() => { stopStream(); products.reset() })
         <a v-if="isSingleMerchant" href="#aftercare" class="nav-link" :class="{ current: merchantPage === 'review' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('review')"><Icon name="queue" />售后工单</a>
         <a v-if="account.role === 'MERCHANT_ADMIN'" href="#support" class="nav-link" :class="{ current: merchantPage === 'support' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('support')"><Icon name="queue" />咨询核查</a>
         <a v-if="account.role === 'MERCHANT_ADMIN' && !isSingleMerchant" href="#people" class="nav-link" :class="{ current: merchantPage === 'people' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('people')"><Icon name="user" />人员管理</a>
-        <a v-if="account.role === 'MERCHANT_ADMIN'" href="#policies" class="nav-link" :class="{ current: merchantPage === 'policies' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('policies')"><Icon name="file" />{{ isSingleMerchant ? '售后政策' : '政策与版本' }}</a>
+        <a v-if="account.role === 'MERCHANT_ADMIN'" href="#policies" class="nav-link" :class="{ current: merchantPage === 'policies' }" :aria-disabled="busy" @click.prevent="changeMerchantPage('policies')"><Icon name="file" />{{ isSingleMerchant ? '退款规则' : '政策与版本' }}</a>
       </nav>
       <MerchantReviews v-if="merchantPage === 'reviews' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <SupportWorkspace v-else-if="merchantPage === 'support' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token + (notificationTicket ?? '')" :initial-id="notificationTicket" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <AdminProducts v-else-if="merchantPage === 'products' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" />
-      <AdminTrades v-else-if="merchantPage === 'orders' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" @aftercare="tradeAftercare" />
+      <AdminTrades v-else-if="merchantPage === 'orders' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token + (overviewOrderId ?? '')" :account="account" :initial-id="overviewOrderId" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'" @aftercare="tradeAftercare" />
       <AdminPeople v-else-if="merchantPage === 'people' && account.role === 'MERCHANT_ADMIN' && !isSingleMerchant" :key="account.access_token" :account="account" @working="busy = $event" @expired="logout(); error = '账号状态或权限已变化，请重新登录。'" @renamed="account.display_name = $event" />
-      <AdminOverview v-else-if="merchantPage === 'overview' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" @queue="quickQueue" @open="overviewCase" @people="changeMerchantPage('people')" @navigate="changeMerchantPage($event)" />
+      <AdminOverview v-else-if="merchantPage === 'overview' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" @queue="quickQueue" @open="overviewCase" @order="overviewOrder" @support="overviewSupport" @people="changeMerchantPage('people')" @navigate="changeMerchantPage($event)" />
       <AdminPolicies v-else-if="merchantPage === 'policies' && account.role === 'MERCHANT_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
       <main v-else class="workspace" :class="{ 'reviewer-workspace': isReviewer }">
         <p v-if="error && !reviewDecision" class="message error workspace-message" role="alert">{{ error }}</p>

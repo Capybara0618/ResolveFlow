@@ -1,3 +1,5 @@
+import { fulfillmentApi } from '../src/fulfillment-client'
+import { supportApi } from '../src/support-client'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import AdminOverview from '../src/ui/AdminOverview.vue'
@@ -66,4 +68,39 @@ describe('read-only policies', () => {
     await w.findAll('button').find(b => b.text() === '刷新政策')!.trigger('click'); await flushPromises()
     expect(read).toHaveBeenCalledTimes(2); expect(w.text()).toContain('尚未导入政策')
   })
+})
+
+it('turns the single merchant overview into scoped work lists and opens the chosen buyer', async () => {
+  vi.spyOn(coreApi, 'merchantOverview').mockResolvedValue(overview())
+  vi.spyOn(coreApi, 'reviewQueue').mockResolvedValue({ items: [], page: { limit: 8 }, counts: { total: 9, public: 9, mine: 9, unclaimed: 0, stages: {} } })
+  vi.spyOn(fulfillmentApi, 'orders').mockResolvedValue({ items: [], next_cursor: null })
+  vi.spyOn(supportApi, 'tickets').mockResolvedValue({ items: [{ conversation_id: 'c', merchant_id: 'M-1', store_name: '店铺', order_id: 'o', line_id: 'l', product: { name: '耳机', variant: '黑色', asset_key: 'headphones', quantity: 1, amount_minor: 32900, currency: 'CNY' }, version: 1, buyer: { display_name: '卡皮巴拉', avatar_id: null }, ticket: { ticket_id: 'ticket-1', summary: '请核查物流', status: 'PENDING', shared_messages: [] }, messages: [], next_before_sequence: null }], next_before: null, counts: { ALL: 30, PENDING: 12, WAITING_CUSTOMER: 16, ANSWERED: 2 } })
+  const w = mount(AdminOverview, { props: { account: { ...account, single_operator: true } } }); wrappers.push(w); await flushPromises()
+  expect(w.get('[data-metric="review"]').text()).toContain('9')
+  expect(w.get('[data-metric="support"]').text()).toContain('12')
+  expect(w.get('[aria-label="待回复咨询"]').text()).toContain('卡皮巴拉')
+  await w.get('[data-overview-ticket="ticket-1"]').trigger('click')
+  expect(w.emitted('support')?.[0]).toEqual(['ticket-1'])
+  expect(w.text()).toContain('暂无待发货订单')
+  await w.findAll('button').find(b => b.text() === '全部售后')!.trigger('click')
+  expect(w.emitted('queue')?.[0]).toEqual(['ALL', 'PUBLIC'])
+  await w.get('.merchant-attention-task').trigger('click')
+  expect(w.emitted('open')?.[0]).toEqual(['case-unknown'])
+  vi.mocked(supportApi.tickets).mockRejectedValue(new Error('offline'))
+  await w.findAll('button').find(b => b.text() === '刷新概览')!.trigger('click'); await flushPromises()
+  expect(w.get('[data-metric="support"]').text()).toContain('—')
+  expect(w.get('[aria-label="待回复咨询"]').text()).toContain('暂时无法读取')
+})
+
+it('pages policy versions without losing any original clauses', async () => {
+  vi.spyOn(coreApi, 'adminPolicies').mockResolvedValue({ items: Array.from({ length: 9 }, (_, i) => policy('version-' + i)), truncated: false })
+  vi.spyOn(coreApi, 'adminPolicy').mockImplementation(async (_token, id) => detail(id))
+  const w = mount(AdminPolicies, { props: { account } }); wrappers.push(w); await flushPromises()
+  expect(w.findAll('.policy-version')).toHaveLength(6)
+  await w.findAll('button').find(b => b.text() === '下一页')!.trigger('click'); await flushPromises()
+  expect(w.findAll('.policy-version')).toHaveLength(3)
+  expect(w.get('[aria-label="政策原文"]').text()).toContain('version-6条件与例外原文')
+  expect(w.get('h1').text()).toBe('退款规则')
+  await w.findAll('button').find(b => b.text() === '上一页')!.trigger('click'); await flushPromises()
+  expect(w.findAll('.policy-version')).toHaveLength(6)
 })

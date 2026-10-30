@@ -12,7 +12,7 @@ import ShippingSummary from './ShippingSummary.vue'
 import FulfillmentPanel from './FulfillmentPanel.vue'
 import ReviewDialog from './ReviewDialog.vue'
 import './admin-trades.css'
-const props = defineProps<{ account: LoginResponse }>()
+const props = defineProps<{ account: LoginResponse; initialId?: string }>()
 const emit = defineEmits<{ expired: []; working: [value: boolean]; aftercare: [order: string] }>()
 const { pageIndex, pageCursor, acceptPage } = useCursorPages<string>()
 const items = ref<MerchantTrade[]>([]), detail = ref<MerchantTrade | null>(null), status = ref<FulfillmentStatus | ''>(''), next = ref<string | null>(null)
@@ -65,7 +65,7 @@ async function ship(original?: ShipmentPending) {
 onMounted(async () => {
   try { owner = shipmentOwner(props.account); pending.value = readShipmentPending(owner) }
   catch (cause) { storageError.value = cause instanceof Error ? cause.message : '原发货请求无法读取。' }
-  if (pending.value) await open(pending.value.order); else await list(pageIndex.value)
+  if (pending.value) await open(pending.value.order); else if (props.initialId) await open(props.initialId); else await list(pageIndex.value)
 })
 onBeforeUnmount(() => { alive = false; ++generation; emit('working', false) })
 </script>
