@@ -27,3 +27,9 @@
 `SupportWorkspace.vue`移除空状态重复介绍、已转交卡片重复共享说明和列表记录复述，保留查询按钮、双方头像、消息、时间及收件人；转交对话框直接写“确认共享给商家的内容”。`SupportRefundCard.vue`删除摘要下方重复说明，编辑、提交及过期提示保持；`BuyerApplicationProgress.vue`删除成功时额外一段资金说明与金额标签中的重复模式标注，模式仅在结果头部显示一次，仍为模拟退款；`SupportOperations.vue`删除标题下固定条数/脱敏说明，实际模式、调用数字和事件保持。
 
 `pnpm --dir web test -- tests/support-workspace.spec.ts tests/support-refund.spec.ts tests/support-operations.spec.ts tests/buyer-application-progress.spec.ts`：64项通过，包括确认共享、流式回复、恢复原请求、成功金额与模拟模式仍可见检查。没有删改原测试断言或发出新模型请求。
+
+## 交易与审批
+
+`App.vue`删除队列自动刷新机制解释、证据空状态的推论说明、方案后的重复执行说明及金额栏空支付信息脚注；`AdminProducts.vue`删除商品管理标题的复述；`AdminTrades.vue`删除发货按钮和确认框的重复物流实现说明，原“模拟发货/确认模拟发货”及本单发货数量保留；`FulfillmentPanel.vue`在途正文直接写商品已发出；`MerchantCaseDetail.vue`删除审批按钮下重复执行说明，确认弹窗仍说明批准后动作。
+
+`pnpm --dir web test -- tests/app.spec.ts tests/admin-trades.spec.ts tests/buyer-orders.spec.ts tests/merchant-case-detail.spec.ts tests/foundation.spec.ts`：65项通过。页面控制条件、原请求恢复、退款授权与审批动作未改。

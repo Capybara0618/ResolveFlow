@@ -14,7 +14,7 @@ const title = (id: string) => props.lines.find(l => l.line_id === id)?.product_n
     <div v-else-if="error" role="alert"><p>{{ error }}</p><button type="button" class="secondary-button shop-secondary" @click="emit('retry')">重新读取物流</button></div>
     <template v-else-if="fact">
       <p v-if="fact.status === 'NOT_SHIPPED'">付款已完成，商家尚未发货。</p>
-      <p v-else-if="fact.status === 'IN_TRANSIT'">商品已发出。本项目记录的是本地模拟物流。</p>
+      <p v-else-if="fact.status === 'IN_TRANSIT'">商品已发出。</p>
       <p v-else-if="fact.status === 'UNKNOWN'">暂无可确认的物流状态；缺失记录不表示未发货。</p>
       <div v-for="line in fact.lines" :key="line.line_id" class="fulfillment-line"><h3>{{ title(line.line_id) }}</h3><p>{{ fulfillmentLabels[line.status] }}</p>
         <ol v-if="line.events.length" class="fulfillment-events"><li v-for="event in line.events" :key="event.source_version"><strong>{{ events[event.code] || '物流记录已更新' }}</strong><time>{{ date(event.occurred_at) }}</time></li></ol>

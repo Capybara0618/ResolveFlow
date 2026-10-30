@@ -144,7 +144,7 @@ async function focusPolicy(key: string) {
             <button data-test="approve" type="button" :disabled="busy" @click="emit('review', 'APPROVE')">批准退款</button>
             <button type="button" class="secondary-button" :disabled="busy" @click="emit('review', 'REQUEST_INFO')">请客户补充说明</button>
             <button type="button" class="danger-button" :disabled="busy" @click="emit('review', 'REJECT')">拒绝申请</button>
-          </div><p class="muted">批准后执行模拟退款</p>
+          </div>
         </section>
         <p v-else-if="!executionText && !contextLoading && !contextError" class="review-unavailable muted">{{ snapshot.authorization?.status === 'CONSUMED' ? '退款已处理，不能再次审批。' : '当前不能直接批准退款，请核对材料与政策。' }}</p>
         <details v-if="context?.allowed_actions.length" class="merchant-alternative-actions" :open="!verificationAction && !canReview"><summary>其他处理方式</summary><ReviewerWorkspace mode="actions" :line="line" :token="token" :snapshot="snapshot" :context="context" :collaboration="collaboration" :busy="busy || !actionsAvailable" @changed="emit('refresh')" @working="emit('working', $event)" @expired="emit('expired')" /></details>

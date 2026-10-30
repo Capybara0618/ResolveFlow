@@ -41,7 +41,7 @@ onMounted(() => { void act(() => load()) })
 </script>
 <template>
   <main class="foundation-main">
-    <header class="foundation-heading"><div><h1>商品管理</h1><p>维护 {{ account.merchant_name || '本店' }} 的商品与规格</p></div><div class="foundation-actions"><button :disabled="busy" @click="edit = false; act(() => load())">刷新</button><button class="primary-button" :disabled="busy" @click="open(null)">新增商品</button><button :disabled="busy" @click="presentation = {}; edit = false">店铺资料</button></div></header>
+    <header class="foundation-heading"><div><h1>商品管理</h1></div><div class="foundation-actions"><button :disabled="busy" @click="edit = false; act(() => load())">刷新</button><button class="primary-button" :disabled="busy" @click="open(null)">新增商品</button><button :disabled="busy" @click="presentation = {}; edit = false">店铺资料</button></div></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
     <PresentationEditor v-if="presentation" :key="presentation.product ?? 'store'" :account="account" :product="presentation.product" @working="busy = $event; emit('working', $event)" @expired="emit('expired')" @close="presentation = null" />
     <form v-if="edit" class="foundation-editor" @submit.prevent="save">
