@@ -51,5 +51,31 @@
     "to_username": "admin01",
     "reason": "新申请自动归属本店商家",
     "occurred_at": "2026-10-03T10:00:00Z"
+  },
+  "PlatformMerchants": {
+    "items": [
+      {
+        "merchant_id": "M-1003",
+        "name": "轻行户外",
+        "description": "轻装出行",
+        "enabled": true,
+        "desired_enabled": true,
+        "version": 1,
+        "sync_state": "READY",
+        "policy_ready": true
+      }
+    ],
+    "next_after": "M-1003"
+  },
+  "PlatformBuyers": {
+    "items": [
+      {
+        "username": "buyer01",
+        "display_name": "买家01",
+        "enabled": true,
+        "version": 1
+      }
+    ],
+    "next_after": null
   }
 }

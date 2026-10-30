@@ -60,3 +60,21 @@ describe('foundation management', () => {
     wrapper.unmount()
   })
 })
+
+
+it('pages buyers on the server and keeps the current page when refreshing or a read fails', async () => {
+  vi.spyOn(managementApi,'merchants').mockResolvedValue({items:[],next_after:null})
+  const buyer={username:'first',display_name:'第一页',enabled:true,version:1}
+  const list=vi.spyOn(managementApi,'buyers').mockResolvedValueOnce({items:[buyer],next_after:'after-first'})
+    .mockResolvedValueOnce({items:[{...buyer,username:'second',display_name:'第二页'}],next_after:null}).mockRejectedValueOnce(new Error('lost'))
+  const w=mount(PlatformWorkspace,{props:{account:platform}});await flushPromises()
+  try {
+    await w.findAll('button').find(b=>b.text()==='买家账号')!.trigger('click');await flushPromises()
+    await w.findAll('button').find(b=>b.text()==='下一页')!.trigger('click');await flushPromises()
+    expect(list).toHaveBeenLastCalledWith('t',{after:'after-first',query:''})
+    expect(w.findAll('tbody tr')).toHaveLength(1);expect(w.text()).toContain('第 2 页')
+    await w.findAll('button').find(b=>b.text()==='刷新')!.trigger('click');await flushPromises()
+    expect(list).toHaveBeenLastCalledWith('t',{after:'after-first',query:''})
+    expect(w.text()).toContain('第二页');expect(w.text()).toContain('第 2 页');expect(w.get('[role="alert"]').exists()).toBe(true)
+  } finally {w.unmount()}
+})

@@ -39,9 +39,9 @@ public class PlatformManagementService {
 
     public record Buyer(String username, String display_name, boolean enabled, long version) {}
 
-    public record Merchants(List<Merchant> items) {}
+    public record Merchants(List<Merchant> items, String next_after) {}
 
-    public record Buyers(List<Buyer> items) {}
+    public record Buyers(List<Buyer> items, String next_after) {}
 
     public record MerchantCreate(
             String merchant_id,
@@ -145,23 +145,43 @@ public class PlatformManagementService {
         return rows.getFirst();
     }
 
-    public Merchants merchants(Session s) {
+    public Merchants merchants(Session s) { return merchants(s, null, "", 20); }
+
+    public Merchants merchants(Session s, String after, String query, int limit) {
         admin(s, false);
-        return new Merchants(
-                jdbc
-                        .queryForList(
-                                "SELECT merchant_id FROM identity_merchant ORDER BY merchant_id LIMIT 200",
-                                String.class)
-                        .stream()
-                        .map(this::merchant)
-                        .toList());
+        String pattern = search(query, after, limit);
+        var ids = jdbc.queryForList(
+                "SELECT merchant_id FROM identity_merchant WHERE merchant_id>? "
+                        + "AND (LOWER(merchant_id) LIKE ? ESCAPE '!' OR LOWER(display_name) LIKE ? ESCAPE '!') "
+                        + "ORDER BY merchant_id LIMIT ?",
+                String.class, after == null ? "" : after, pattern, pattern, limit + 1);
+        boolean more = ids.size() > limit;
+        var visible = ids.stream().limit(limit).toList();
+        return new Merchants(visible.stream().map(this::merchant).toList(), more ? visible.getLast() : null);
     }
 
-    public Buyers buyers(Session s) {
+    public Buyers buyers(Session s) { return buyers(s, null, "", 20); }
+
+    public Buyers buyers(Session s, String after, String query, int limit) {
         admin(s, false);
-        return new Buyers(jdbc.query(
-                "SELECT username,display_name,enabled,account_version FROM identity_account WHERE buyer_id IS NOT NULL ORDER BY username LIMIT 200",
-                (rs, n) -> new Buyer(rs.getString(1), rs.getString(2), rs.getBoolean(3), rs.getLong(4))));
+        String pattern = search(query, after, limit);
+        var found = jdbc.query(
+                "SELECT username,display_name,enabled,account_version FROM identity_account "
+                        + "WHERE buyer_id IS NOT NULL AND username>? "
+                        + "AND (LOWER(username) LIKE ? ESCAPE '!' OR LOWER(display_name) LIKE ? ESCAPE '!') "
+                        + "ORDER BY username LIMIT ?",
+                (rs, n) -> new Buyer(rs.getString(1), rs.getString(2), rs.getBoolean(3), rs.getLong(4)),
+                after == null ? "" : after, pattern, pattern, limit + 1);
+        boolean more = found.size() > limit;
+        var visible = found.stream().limit(limit).toList();
+        return new Buyers(visible, more ? visible.getLast().username() : null);
+    }
+
+    private static String search(String query, String after, int limit) {
+        if (limit < 1 || limit > 50 || after != null && (after.isBlank() || after.length() > 120)
+                || query != null && query.length() > 100) throw invalid("查询条件无效");
+        String value = query == null ? "" : query.trim().toLowerCase(java.util.Locale.ROOT);
+        return "%" + value.replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
     }
 
     private Buyer buyer(String name) {

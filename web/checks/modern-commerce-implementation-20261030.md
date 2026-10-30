@@ -90,5 +90,13 @@
 
 概览待办合并成有分隔的轻量指标区，次级读失败保留原任务并显示错误。交易状态/金额先于地址，筛选用下划线而非整排主按钮，数字和字段缩到公共尺度；发货确认使用统一footer。审批保留原客户诉求→核查事实→决定顺序，只调整阅读/表单字号与表面，退款规则继续完整展示原文/版本/来源不改政策。人员列表与操作历史使用原服务端游标分页替换，刷新/保存留当前页，筛选重开页，失败不提交新页号。
 
-- 4相关文件45项/build通过；补分页替换和失败原页回归后admin-people12项通过（重叠），日志tmp/modern-merchant-work-tests.log、modern-merchant-work-build.log、modern-merchant-people-final.log。
+- 4相关文件45项/build通过；补分页替换和失败原页回归后admin-people9项通过（重叠），日志tmp/modern-merchant-work-tests.log、modern-merchant-work-build.log、modern-merchant-people-final.log。
 - M6代码阶段结束，未新建人员/发货/审批或实机验收。继续M7平台；实际布局和三角色完整路径留M8。
+
+
+## M7 平台商家/买家正式分页（仅离线）
+
+发现平台接口固定LIMIT200且无后续游标，不能在前端切已加载200条来代替全量搜索。Case新增按稳定商家标识/用户名排序的服务端搜索与limit+1游标，查询先筛后分页、LIKE通配符转义，原身份/角色复核保持；相应OpenAPI两侧类型/fixture与客户端同步。平台两类页面各自保存搜索和页号，创建/密码表单与启停确认使用共享弹层，刷新/操作保留当前页，失败保留旧数据而不显示空记录。
+
+- Java独立Mockito3项通过，无Spring/数据库/服务启动；web平台4项通过，契约9项通过，build通过，日志tmp/modern-platform-java-tests.log、modern-platform-web-tests.log、modern-platform-contracts.log、modern-platform-web-build.log。初次Maven参数被PowerShell拆分、随后默认JDK17门禁拒绝，改引号参数与已锁JDK21后通过；未跳过Java版本门禁。定向Spotless仅格式化本步3文件。
+- 数据库真实SQL/HTTP分页、账号操作、视觉留M8集中验证；本步不称实机通过。纠正上步人员测试记录为实际9项，非12项。

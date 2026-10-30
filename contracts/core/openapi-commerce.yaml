@@ -4236,6 +4236,7 @@ components:
       required:
       - items
       properties:
+        next_after: {type: [string, 'null'], maxLength: 120}
         items:
           type: array
           items:
@@ -4246,6 +4247,7 @@ components:
       required:
       - items
       properties:
+        next_after: {type: [string, 'null'], maxLength: 120}
         items:
           type: array
           items:

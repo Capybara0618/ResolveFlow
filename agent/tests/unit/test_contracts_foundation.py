@@ -24,7 +24,7 @@ def test_automatic_ownership_is_audit_only_and_single_profile_is_merchant_only()
         )
 
 
-@pytest.mark.parametrize("name", ["PlatformMerchant", "PlatformBuyer", "ManagedProduct"])
+@pytest.mark.parametrize("name", ["PlatformMerchant", "PlatformBuyer", "ManagedProduct", "PlatformMerchants", "PlatformBuyers"])
 def test_management_fixture_matches_both_services(name):
     fixture = json.loads((REPO_ROOT / "contracts/core/fixtures/foundation.json").read_text(encoding="utf-8"))[name]
     for owner in ("case", "commerce"):
@@ -58,3 +58,12 @@ def test_product_write_refuses_fractional_cents_and_empty_skus():
         validator.validator.validate(wrong)
     with pytest.raises(ValidationError):
         validator.validator.validate({**body, "skus": []})
+
+
+def test_platform_lists_offer_server_search_and_pagination():
+    doc = load_openapi("case", "contracts/core")
+    for name in ("merchants", "buyers"):
+        operation = doc["paths"][f"/api/v1/platform/{name}"]["get"]
+        params = {p["name"]: p for p in operation["parameters"]}
+        assert {"after", "query", "limit"} <= params.keys()
+        assert params["limit"]["schema"]["maximum"] == 50

@@ -6,9 +6,10 @@ export interface ManagedSku { sku_id: string; variant: string; unit_amount: numb
 export interface ManagedProduct { product_id: string; store_id: string; name: string; description: string; category: string; asset_key: string; listed: boolean; version: number; skus: ManagedSku[] }
 export interface ProductWrite { name: string; description: string; category: string; asset_key: string; listed: boolean; expected_version: number | null; skus: Array<{ sku_id: string | null; variant: string; unit_amount: number; max_quantity: number; listed: boolean }> }
 function post<T>(path: string, token: string, body: unknown) { return apiRequest<T>(path, token, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }) }
+function platformQuery(options?: { after?: string; query?: string; limit?: number }) { const p = new URLSearchParams({ limit: String(options?.limit ?? 8) }); if (options?.after) p.set('after', options.after); if (options?.query?.trim()) p.set('query', options.query.trim()); return `?${p}` }
 export const managementApi = {
-  merchants: (token: string) => apiRequest<{ items: PlatformMerchant[] }>('/api/v1/platform/merchants', token),
-  buyers: (token: string) => apiRequest<{ items: PlatformBuyer[] }>('/api/v1/platform/buyers', token),
+  merchants: (token: string, options?: { after?: string; query?: string; limit?: number }) => apiRequest<{ items: PlatformMerchant[]; next_after?: string | null }>(`/api/v1/platform/merchants${platformQuery(options)}`, token),
+  buyers: (token: string, options?: { after?: string; query?: string; limit?: number }) => apiRequest<{ items: PlatformBuyer[]; next_after?: string | null }>(`/api/v1/platform/buyers${platformQuery(options)}`, token),
   createMerchant: (token: string, body: { merchant_id: string; name: string; description: string; username: string; display_name: string; password: string; reason: string }) => post<PlatformMerchant>('/api/v1/platform/merchants', token, body),
   updateMerchant: (token: string, row: PlatformMerchant) => post<PlatformMerchant>(`/api/v1/platform/merchants/${encodeURIComponent(row.merchant_id)}`, token, { name: row.name, description: row.description, enabled: !row.desired_enabled, expected_version: row.version, reason: '平台管理员调整商家状态' }),
   syncMerchant: (token: string, id: string) => post<PlatformMerchant>(`/api/v1/platform/merchants/${encodeURIComponent(id)}/sync`, token, {}),
