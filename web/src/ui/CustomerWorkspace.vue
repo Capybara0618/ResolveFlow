@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { pushBuyerNavigation } from '../buyer-navigation'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ApiError, coreApi, type CustomerCaseDetail, type CustomerCaseSummary, type CustomerOrderLine,
   type CustomerView, type LoginResponse, type OrderLine } from '../client'
@@ -76,7 +77,7 @@ function navigate(target: Screen, id = '') {
   if (writing.value || createUncertain.value) { error.value = '请先确认本次申请提交结果，再离开申请表。'; return }
   const hash = target === 'detail' ? `#/customer/applications/${encodeURIComponent(id)}`
     : target === 'applications' ? '#/customer/applications' : '#/customer/orders'
-  window.history.pushState(null, '', hash)
+  pushBuyerNavigation(hash, props.account.buyer_id ?? 'visitor')
   void show(target, id)
 }
 function browserNavigation() {
@@ -206,7 +207,7 @@ async function create() {
     if (!valid(g, token)) return
     pendingCreate = null; createUncertain.value = false
     resetPage(); screen.value = 'detail'; detailId.value = created.case_id
-    window.history.replaceState(null, '', `#/customer/applications/${encodeURIComponent(created.case_id)}`)
+    window.history.replaceState(window.history.state, '', `#/customer/applications/${encodeURIComponent(created.case_id)}`)
     notice.value = '申请已创建。'
     await readDetail()
     if (request.material) {
@@ -286,6 +287,7 @@ onBeforeUnmount(() => {
   alive = false; ++generation; products.reset(); clearInterval(timer); drafts.clear(); pendingCreate = null
   window.removeEventListener('popstate', browserNavigation); window.removeEventListener('hashchange', browserNavigation)
 })
+defineExpose({ navigationBlocked: computed(() => writing.value || createUncertain.value || uncertainMaterial.value) })
 </script>
 
 <template>

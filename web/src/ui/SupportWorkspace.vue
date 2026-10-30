@@ -251,6 +251,7 @@ onMounted(() => {
   }, 2000)
 })
 onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); window.removeEventListener('resize', fit); document.fonts?.removeEventListener('loadingdone', refundLayout); if (timer) clearInterval(timer) })
+defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) })
 </script>
 
 <template>

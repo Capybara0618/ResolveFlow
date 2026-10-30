@@ -41,7 +41,7 @@ import { clearTabSession, readTabSession, saveTabSession } from './tab-session'
 const loginNotice = ref('')
 const username = ref('')
 const password = ref('')
-const account = ref<LoginResponse | null>(null)
+const account = ref<LoginResponse | null>(readTabSession())
 const notificationTicket = ref<string | undefined>()
 function openNotification(item: Notification) {
   if (busy.value) return

@@ -171,3 +171,6 @@
 
 .workbench .marketplace .shop-utilities .notification-toggle{background:transparent;padding:8px 4px;border:0}
 @media(max-width:650px){.workbench .marketplace nav.shop-nav{padding:14px 12px;gap:10px}.shop-utilities{gap:6px}.workbench .marketplace .shop-utilities .notification-toggle{font-size:12px;padding:6px 2px}}
+
+.shop-brand-block{display:flex;align-items:center;gap:18px;min-width:0}.workbench .marketplace .shop-brand-block .shop-back{flex-shrink:0;background:transparent;color:#62746a;border:0;border-left:1px solid #dfe4da;border-radius:0;padding:4px 0 4px 16px;font-size:14px;line-height:24px;white-space:nowrap}.workbench .marketplace .shop-back:hover:not(:disabled){color:#176b5c;background:transparent}.shop-back:disabled{opacity:.35;cursor:default}
+@media(max-width:650px){.shop-brand-block{gap:8px}.workbench .marketplace nav.shop-nav .shop-brand-block a.shop-brand{font-size:16px}.workbench .marketplace .shop-brand-block .shop-back{font-size:12px;padding-left:8px}}

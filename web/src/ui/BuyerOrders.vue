@@ -115,6 +115,7 @@ async function cancel() {
 }
 onMounted(() => { void route(); timer = setInterval(() => { now.value = Date.now() }, 1000); window.addEventListener('hashchange', route); window.addEventListener('popstate', route) })
 onBeforeUnmount(() => { alive = false; ++generation; if (timer) clearInterval(timer); window.removeEventListener('hashchange', route); window.removeEventListener('popstate', route) })
+defineExpose({ navigationBlocked: computed(() => writing.value || uncertain.value || cancelUnknown.value) })
 </script>
 
 <template>

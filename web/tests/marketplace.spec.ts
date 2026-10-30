@@ -36,6 +36,7 @@ it('retries unknown add with frozen request instead of reading and incrementing 
   vi.spyOn(shopApi, 'cartWrite').mockRejectedValueOnce(new TypeError('lost')).mockResolvedValueOnce({ store_id: 'M-1001', revision: 1 })
   await open(); await w.get('.cart-add').trigger('click'); await flushPromises()
   expect(w.get('.buy-button').attributes('disabled')).toBeDefined()
+  expect(w.get('[aria-label="返回上一页"]').attributes('disabled')).toBeDefined()
   await w.get('.cart-add').trigger('click'); await flushPromises()
   expect(vi.mocked(shopApi.cartWrite).mock.calls[0]).toEqual(vi.mocked(shopApi.cartWrite).mock.calls[1])
   expect(shopApi.cart).toHaveBeenCalledTimes(1)
@@ -154,4 +155,19 @@ it('restores the catalogue cursor when returning from a product or refreshing', 
   await open()
   expect(shopApi.products).toHaveBeenLastCalledWith({ after: 'page-2-cursor' })
   expect(w.text()).toContain('第 2 页')
+})
+
+it('falls back to the storefront from a direct entry and unwinds checkout to the product first', async () => {
+  await open(); await w.get('.buy-button').trigger('click'); await flushPromises()
+  expect(w.find('.checkout-panel').exists()).toBe(true)
+  await w.get('[aria-label="返回上一页"]').trigger('click'); await flushPromises()
+  expect(w.find('.shop-product-detail').exists()).toBe(true)
+  await w.get('[aria-label="返回上一页"]').trigger('click'); await flushPromises()
+  expect(window.location.hash).toBe('#/shop'); expect(w.get('[aria-label="返回上一页"]').attributes('disabled')).toBeDefined()
+})
+
+it('uses browser history for the preceding app page rather than pushing a fixed destination', async () => {
+  const previous = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+  await open(); await w.get('a[href="#/shop/cart"]').trigger('click'); await flushPromises()
+  await w.get('[aria-label="返回上一页"]').trigger('click'); expect(previous).toHaveBeenCalledOnce()
 })

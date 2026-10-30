@@ -1,3 +1,4 @@
+import { defineComponent, onMounted } from 'vue'
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { afterEach, expect, it, vi } from 'vitest'
 import App from '../src/App.vue'
@@ -47,4 +48,16 @@ it('returns a renamed buyer to login with a success notice and no retained passw
   await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
   expect(wrapper.find('[role="status"]').exists()).toBe(false)
   expect(wrapper.get('[role="alert"]').text()).toContain('账号或密码不正确')
+})
+
+it('restores buyer identity before a private page can request visitor login and replace its history', async () => {
+  saveTabSession({ access_token: 'buyer-token', role: 'CUSTOMER', buyer_id: 'B-1', expires_in: 3600 })
+  window.history.replaceState({ resolveflow_buyer_navigation: { owner: 'B-1', depth: 2 } }, '', '#/shop/cart')
+  const pages = defineComponent({ props: { account: Object }, emits: ['login'], setup(props, { emit }) {
+    onMounted(() => { if (!props.account) emit('login') })
+    return {}
+  }, template: '<p>购物车</p>' })
+  wrapper = mount(App, { global: { stubs: { MarketplaceWorkspace: pages } } }); await flushPromises()
+  expect(window.location.hash).toBe('#/shop/cart')
+  expect(window.history.state.resolveflow_buyer_navigation).toEqual({ owner: 'B-1', depth: 2 })
 })

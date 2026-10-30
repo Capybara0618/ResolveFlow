@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { beginBuyerNavigation, pushBuyerNavigation, hasBuyerPrevious } from '../buyer-navigation'
 import StoreMark from './StoreMark.vue'
 import { useDismissible } from './useDismissible'
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
@@ -42,6 +43,17 @@ const products = ref<ShopProduct[]>([]), store = ref<ShopStore | null>(null), pr
 const sku = ref(''), quantity = ref(1), quote = ref<ShopQuote | null>(null), draft = ref<ShopDraft | null>(null)
 const loading = ref(false), writing = ref(false), uncertain = ref(false), error = ref(''), next = ref<string | null>(null)
 const pageIndex = ref(0), pageCursors = ref<Array<string | undefined>>([undefined])
+const activeWorkspace = ref<{ navigationBlocked: boolean }>()
+const navigationOwner = () => props.account?.buyer_id ?? 'visitor'
+const hasPrevious = ref(false)
+const navigationBlocked = computed(() => writing.value || uncertain.value || cartBusy.value || addressBusy.value || activeWorkspace.value?.navigationBlocked === true)
+function back() {
+  if (navigationBlocked.value) return
+  if (accountMenu.value) accountMenu.value.open = false
+  if (screen.value === 'checkout') { ++quoteGeneration; quote.value = null; screen.value = 'product'; error.value = ''; return }
+  if (hasBuyerPrevious(navigationOwner())) window.history.back()
+  else { window.history.replaceState(null, '', '#/shop'); void route() }
+}
 let generation = 0, quoteGeneration = 0, alive = true, pending: { key: string; request: ShopDraftRequest } | null = null
 watch([sku, quantity], () => { added.value = false })
 const selectedSku = computed(() => product.value?.skus.find(s => s.sku_id === sku.value))
@@ -61,8 +73,8 @@ function failure(cause: unknown) {
 }
 function go(hash: string) {
   if (accountMenu.value) accountMenu.value.open = false
-  if (writing.value || uncertain.value || cartBusy.value || addressBusy.value) { error.value = '请先确认本次订单提交结果。'; return }
-  window.history.pushState(null, '', hash); void route()
+  if (navigationBlocked.value) { error.value = '请先确认本次订单提交结果。'; return }
+  pushBuyerNavigation(hash, navigationOwner()); void route()
 }
 function openNotification(item: Notification) { go(item.target === 'APPLICATION' ? `#/customer/applications/${encodeURIComponent(item.target_id)}` : `#/shop/support?conversation=${encodeURIComponent(item.target_id)}`) }
 function search() { go(`${store.value ? `#/shop/stores/${encodeURIComponent(store.value.store_id)}` : '#/shop/search'}?${new URLSearchParams({ ...(query.value.trim() ? { query: query.value.trim() } : {}), ...(category.value ? { category: category.value } : {}) })}`) }
@@ -72,7 +84,8 @@ function changeStore(event: Event) {
   go(`${id ? `#/shop/stores/${encodeURIComponent(id)}` : params ? '#/shop/search' : '#/shop'}${params ? `?${params}` : ''}`)
 }
 async function route() {
-  if (writing.value || uncertain.value || cartBusy.value || addressBusy.value) return
+  if (navigationBlocked.value) return
+  beginBuyerNavigation(navigationOwner()); hasPrevious.value = hasBuyerPrevious(navigationOwner())
   const g = ++generation; ++quoteGeneration
   error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; pending = null
   products.value = []; next.value = null; pageIndex.value = 0; pageCursors.value = [undefined]
@@ -143,7 +156,7 @@ async function submit() {
     if (!alive) return
     uncertain.value = false; draft.value = result; pending = null
     ordersRoute.value = `#/shop/drafts/${encodeURIComponent(result.draft_id)}`
-    window.history.pushState(null, '', ordersRoute.value); screen.value = 'orders'
+    pushBuyerNavigation(ordersRoute.value, navigationOwner()); hasPrevious.value = hasBuyerPrevious(navigationOwner()); screen.value = 'orders'
   } catch (cause) {
     if (!alive) return
     if (!(cause instanceof ApiError) || cause.status >= 500) { uncertain.value = true; error.value = '提交结果尚未确认，请用原请求重试确认。' }
@@ -188,7 +201,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
 <template>
   <div class="marketplace" :class="{ 'buyer-aftercare': screen === 'customer', 'support-marketplace': screen === 'support', 'display-chain-marketplace': listingScreen || screen === 'support' }">
     <nav class="shop-nav" aria-label="买家导航">
-      <a href="#/shop" class="shop-brand" aria-label="ResolveFlow 商城首页" @click.prevent="go('#/shop')"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></a>
+      <div class="shop-brand-block"><a href="#/shop" class="shop-brand" aria-label="ResolveFlow 商城首页" @click.prevent="go('#/shop')"><span class="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span>ResolveFlow</span></a><button type="button" class="shop-back" aria-label="返回上一页" :disabled="navigationBlocked || (screen === 'home' && !hasPrevious)" @click="back">返回</button></div>
       <form v-if="listingScreen || screen === 'product'" class="shop-search" role="search" @submit.prevent="search"><input v-model="query" type="search" aria-label="搜索商品" placeholder="搜索商品" maxlength="80" /><button type="submit" aria-label="搜索"><Icon name="search" :size="20" /></button></form>
       <span v-else class="shop-nav-space" />
       <div class="shop-utilities">
@@ -205,10 +218,10 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
     <EnrollmentForm v-else-if="screen === 'security' && account" mode="rotate" :token="account.access_token" @working="cartBusy = $event" @close="go('#/shop/me')" @expired="emit('expired')" />
     <PersonalCenter v-else-if="screen === 'me' && account" :account="account" @navigate="go" @expired="emit('expired')" />
     <NotificationCenter v-else-if="screen === 'messages' && account" :token="account.access_token" expanded @expired="emit('expired')" @open="openNotification" />
-    <SupportWorkspace v-else-if="screen === 'support' && account" :key="account.access_token + windowHash" :initial-id="supportInitialId" :account="account" @expired="emit('expired')" />
+    <SupportWorkspace ref="activeWorkspace" v-else-if="screen === 'support' && account" :key="account.access_token + windowHash" :initial-id="supportInitialId" :account="account" @expired="emit('expired')" />
     <CartWorkspace v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
-    <CustomerWorkspace v-else-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
-    <BuyerOrders v-else-if="screen === 'orders' && account" :key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
+    <CustomerWorkspace ref="activeWorkspace" v-else-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
+    <BuyerOrders ref="activeWorkspace" v-else-if="screen === 'orders' && account" :key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
     <main v-else class="shop-content">
 
       <section v-if="screen === 'home'" class="shop-hero"><h1>选喜欢的好物，<br />让日常更舒适。</h1><a href="#shop-catalog" @click.prevent="workspaceCatalog?.scrollIntoView({ behavior: 'smooth', block: 'start' })">浏览全部</a></section>
