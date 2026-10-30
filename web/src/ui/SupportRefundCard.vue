@@ -109,7 +109,7 @@ onBeforeUnmount(() => { alive = false; ++readSequence; if (timer) clearInterval(
       <div class="refund-reason"><div><span>你的申请原因</span><button v-if="!editing" data-refund="edit" :disabled="busy || !!pending" @click="editing = true">{{ outdated ? '重新核对' : '编辑' }}</button></div>
         <label v-if="editing">确认要提交给商家的原因<textarea v-model="reason" aria-label="退款申请原因" maxlength="4000" rows="3" :disabled="busy || !!pending" /></label><p v-else tabindex="0">{{ d?.reason }}</p>
       </div>
-      <p class="refund-note">确认后提交给商家审核，私有聊天不会自动共享。</p>
+
       <p v-if="outdated" class="refund-note">申请内容已更新或过期，请重新核对金额和原因。</p>
       <footer><button :disabled="busy || !!pending" @click="d?.status === 'DRAFT' && !outdated ? send('cancel') : (expanded = false, editing = false, dismissed = true)">暂不申请</button>
         <button v-if="editing" data-refund="save" class="primary" :disabled="!reason.trim() || busy || !!pending" @click="save">{{ d && !outdated ? '保存原因' : '核对申请摘要' }}</button>

@@ -16,7 +16,7 @@ const notes: Record<string, string> = {
   AUTHORIZED: '商家已批准申请，退款完成后会在这里更新。',
   EXECUTING: '正在处理这笔退款，请耐心等待结果。',
   RECONCILING: '这笔退款的结果还在核实中，请勿重复申请。',
-  CLOSED_SUCCESS: '本次为模拟退款，不涉及真实资金到账。',
+  CLOSED_SUCCESS: '',
   CLOSED_REJECTED: '你可以在下方查看商家的处理说明。',
   CANCELLED: '本次申请已结束，处理记录仍可查看。',
 }
@@ -41,7 +41,7 @@ const message = computed(() => props.application.result.message !== title.value 
       <span class="buyer-progress-symbol"><Icon :name="succeeded ? 'check' : ['CLOSED_REJECTED', 'CANCELLED'].includes(state) ? 'file' : 'clock'" :size="22" /></span>
       <div><strong>{{ title }}</strong><small>{{ updated ? `模拟退款 · 更新于 ${updated}` : '模拟退款' }}</small></div>
     </header>
-    <div v-if="amount" class="buyer-result-amount" data-refund-result-amount><span>{{ succeeded ? '已退金额（模拟）' : '本次批准金额' }}</span><strong>{{ amount }}</strong></div>
+    <div v-if="amount" class="buyer-result-amount" data-refund-result-amount><span>{{ succeeded ? '已退金额' : '本次批准金额' }}</span><strong>{{ amount }}</strong></div>
     <p v-if="note" class="buyer-progress-note">{{ note }}</p>
     <p v-if="message && !note" class="buyer-progress-message">{{ message }}</p>
     <p v-if="application.result.public_reason" class="buyer-progress-reason">{{ application.result.public_reason }}</p>

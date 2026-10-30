@@ -44,7 +44,7 @@ watch(() => props.token, () => { ++opening; selected.value = ''; detail.value = 
 
 <template>
   <section class="support-operations">
-    <header class="foundation-heading"><div><h1>客服运行记录</h1><p>最近50次咨询的处理过程 · 已脱敏</p></div><button :disabled="loading" @click="load">{{ loading ? '读取中…' : '刷新' }}</button></header>
+    <header class="foundation-heading"><div><h1>客服运行记录</h1></div><button :disabled="loading" @click="load">{{ loading ? '读取中…' : '刷新' }}</button></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p>
     <div class="operations-layout">
       <div class="operations-list"><table class="foundation-table"><thead><tr><th>时间 / 运行</th><th>店铺</th><th>模式</th><th>结果</th></tr></thead><tbody><tr v-for="run in runs" :key="run.run_id" :class="{ selected: selected === run.run_id }"><td><button data-run :aria-pressed="selected === run.run_id" @click="open(run.run_id)">{{ stamp(run.created_at, true) }}<small>#{{ tail(run.run_id) }}</small></button></td><td>{{ run.merchant_id }}</td><td>{{ run.mode === 'mock' ? '脚本模型' : run.mode === 'live' ? '真实模型' : '未记录' }}</td><td>{{ status(run.status) }}</td></tr></tbody></table><p v-if="!loading && !runs.length" class="empty">暂无运行记录。</p></div>

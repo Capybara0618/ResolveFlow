@@ -21,3 +21,9 @@
 `pnpm --dir web test -- tests/admin-workspace.spec.ts tests/admin-people.spec.ts tests/foundation.spec.ts`：16项通过。实机admin01登录后概览/政策可进入，政策原文仍完整显示、版本来源可展开，全局标签不再出现。当前调查服务没有启动，政策索引状态显示暂不可用，保留实际状态。入口小步d9d03418已普通推送并核实远端同HEAD。
 
 管理页批量文本脚本在Windows将四文件写为CRLF，暂存差异检查报告trailing whitespace，但该次shell未在非零退出后停止，cabfee6e已提交推送。发现后立即恢复四文件原LF并单独提交修正，不重写历史；后续提交以显式检查退出码为门禁。此处保留失败经过，功能测试16项结论不受行尾修正影响。
+
+## 客服与结果
+
+`SupportWorkspace.vue`移除空状态重复介绍、已转交卡片重复共享说明和列表记录复述，保留查询按钮、双方头像、消息、时间及收件人；转交对话框直接写“确认共享给商家的内容”。`SupportRefundCard.vue`删除摘要下方重复说明，编辑、提交及过期提示保持；`BuyerApplicationProgress.vue`删除成功时额外一段资金说明与金额标签中的重复模式标注，模式仅在结果头部显示一次，仍为模拟退款；`SupportOperations.vue`删除标题下固定条数/脱敏说明，实际模式、调用数字和事件保持。
+
+`pnpm --dir web test -- tests/support-workspace.spec.ts tests/support-refund.spec.ts tests/support-operations.spec.ts tests/buyer-application-progress.spec.ts`：64项通过，包括确认共享、流式回复、恢复原请求、成功金额与模拟模式仍可见检查。没有删改原测试断言或发出新模型请求。
