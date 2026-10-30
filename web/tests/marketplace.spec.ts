@@ -1,3 +1,4 @@
+import { reviewApi } from '../src/review-client'
 import { accountApi } from '../src/account-client'
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { beforeEach, afterEach, it, expect, vi } from 'vitest'
@@ -170,4 +171,22 @@ it('uses browser history for the preceding app page rather than pushing a fixed 
   const previous = vi.spyOn(window.history, 'back').mockImplementation(() => {})
   await open(); await w.get('a[href="#/shop/cart"]').trigger('click'); await flushPromises()
   await w.get('[aria-label="返回上一页"]').trigger('click'); expect(previous).toHaveBeenCalledOnce()
+})
+
+it('shows the server review summary beside the product and opens its review section without an extra request', async () => {
+  const summary = { count: 3, average: 4.7, stars: [2, 1, 0, 0, 0] }
+  const read = vi.spyOn(reviewApi, 'public').mockResolvedValue({ items: [], summary, next_before: null })
+  await open()
+  const entry = w.get('[aria-label="查看买家评价"]')
+  expect(entry.text()).toContain('4.7')
+  expect(entry.text()).toContain('3 条评价')
+  await entry.trigger('click')
+  expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+  expect(read).toHaveBeenCalledTimes(1)
+  window.history.pushState({}, '', '/#/shop/products/P-2001')
+  vi.mocked(shopApi.product).mockResolvedValue({ ...product, product_id: 'P-2001' })
+  read.mockResolvedValue({ items: [], summary: { count: 0, average: null, stars: [0, 0, 0, 0, 0] }, next_before: null })
+  window.dispatchEvent(new HashChangeEvent('hashchange')); await flushPromises()
+  expect(w.find('[aria-label="查看买家评价"]').exists()).toBe(false)
+  expect(w.text()).not.toContain('4.7 分')
 })

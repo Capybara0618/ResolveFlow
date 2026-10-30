@@ -15,6 +15,7 @@ import CustomerWorkspace from './CustomerWorkspace.vue'
 import SupportWorkspace from './SupportWorkspace.vue'
 import BuyerOrders from './BuyerOrders.vue'
 import ProductReviews from './ProductReviews.vue'
+import type { ReviewSummary } from '../review-client'
 import CartWorkspace from './CartWorkspace.vue'
 import AccountWorkspace from './AccountWorkspace.vue'
 import NotificationCenter from './NotificationCenter.vue'
@@ -40,6 +41,7 @@ const ordersRoute = ref(''), cartBusy = ref(false), added = ref(false)
 const shipping = ref<ShippingSelection | null>(null), addressBusy = ref(false)
 let pendingAdd: Extract<CartPending, { kind: 'mutation' }> | null = null
 const products = ref<ShopProduct[]>([]), store = ref<ShopStore | null>(null), product = ref<ShopProduct | null>(null)
+const reviewSummary = ref<ReviewSummary | null>(null), reviewsAnchor = ref<HTMLElement>()
 const sku = ref(''), quantity = ref(1), quote = ref<ShopQuote | null>(null), draft = ref<ShopDraft | null>(null)
 const loading = ref(false), writing = ref(false), uncertain = ref(false), error = ref(''), next = ref<string | null>(null)
 const pageIndex = ref(0), pageCursors = ref<Array<string | undefined>>([undefined])
@@ -87,7 +89,7 @@ async function route() {
   if (navigationBlocked.value) return
   beginBuyerNavigation(navigationOwner()); hasPrevious.value = hasBuyerPrevious(navigationOwner())
   const g = ++generation; ++quoteGeneration
-  error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; pending = null
+  error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; reviewSummary.value = null; pending = null
   products.value = []; next.value = null; pageIndex.value = 0; pageCursors.value = [undefined]
   let hash = window.location.hash; windowHash.value = hash
   if (hash === '#/shop/profile' || hash === '#/shop/addresses') { screen.value = hash.endsWith('/profile') ? 'profile' : 'addresses'; loading.value = false; if (!props.account) emit('login'); return }
@@ -238,8 +240,8 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
       </template>
       <template v-else-if="screen === 'product'">
         <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
-        <section v-if="product" class="shop-product-detail"><ProductGallery :product="product.product_id" :asset="product.asset_key" :name="product.name" :variant="selectedSku?.variant" /><div class="detail-copy"><a class="product-store" :href="`#/shop/stores/${product.store_id}`" :aria-label="`进入${product.store_name}店铺`" @click.prevent="go(`#/shop/stores/${product.store_id}`)"><StoreMark :id="product.store_id" :size="17" />{{ product.store_name }}</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :aria-pressed="sku === s.sku_id" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><span>已加入购物车</span><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route">重新读取商品</button></div></section>
-        <ProductReviews v-if="product" :key="product.product_id" :product="product.product_id" />
+        <section v-if="product" class="shop-product-detail"><ProductGallery :product="product.product_id" :asset="product.asset_key" :name="product.name" :variant="selectedSku?.variant" /><div class="detail-copy"><a class="product-store" :href="`#/shop/stores/${product.store_id}`" :aria-label="`进入${product.store_name}店铺`" @click.prevent="go(`#/shop/stores/${product.store_id}`)"><StoreMark :id="product.store_id" :size="17" />{{ product.store_name }}</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><button v-if="reviewSummary?.count" class="product-review-entry" aria-label="查看买家评价" @click="reviewsAnchor?.scrollIntoView({ behavior: 'smooth', block: 'start' })"><span>{{ reviewSummary.average?.toFixed(1) }} 分</span><span>{{ reviewSummary.count }} 条评价</span></button><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :aria-pressed="sku === s.sku_id" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><span>已加入购物车</span><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route">重新读取商品</button></div></section>
+        <div v-if="product" ref="reviewsAnchor" class="product-review-anchor"><ProductReviews :key="product.product_id" :product="product.product_id" @summary="reviewSummary = $event" /></div>
       </template>
       <template v-else-if="screen === 'checkout' && quote">
         <button class="shop-back" :disabled="writing || uncertain || addressBusy" @click="screen = 'product'; quote = null">修改规格与数量</button><h1>确认订单</h1>

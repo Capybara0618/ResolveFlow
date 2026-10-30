@@ -4,6 +4,7 @@ import { reviewApi, type ProductReview, type ReviewSummary } from '../review-cli
 import './product-reviews.css'
 import UserAvatar from './UserAvatar.vue'
 const props = defineProps<{ product: string }>()
+const emit = defineEmits<{ summary: [value: ReviewSummary] }>()
 const items = ref<ProductReview[]>([]), summary = ref<ReviewSummary | null>(null), next = ref<number | null>(null)
 const loading = ref(false), error = ref('')
 let generation = 0, alive = true
@@ -17,6 +18,7 @@ async function load(reset = true) {
     if (!result.summary) throw new Error('missing summary')
     items.value = reset ? result.items : [...items.value, ...result.items]
     summary.value = result.summary; next.value = result.next_before
+    emit('summary', result.summary)
   } catch { if (alive && g === generation) error.value = '评价暂时无法读取，请重试。' }
   finally { if (alive && g === generation) loading.value = false }
 }

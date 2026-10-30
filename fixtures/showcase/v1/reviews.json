@@ -1,0 +1,31 @@
+{
+  "purpose": "商品评价功能与视频展示样例，不代表商用客户评价",
+  "product_id": "P-1001",
+  "store_id": "M-1001",
+  "reviews": [
+    {
+      "key": "capybara",
+      "account": "demo_showcase",
+      "variant": "黑色",
+      "rating": 5,
+      "body": "喜欢这种没有多余装饰的设计，黑色和桌面的数码设备放在一起很协调。",
+      "reply": "谢谢你的分享，有使用或售后问题，随时通过订单联系店铺。"
+    },
+    {
+      "key": "silver",
+      "account": "showcase_review_1030_a",
+      "variant": "银色",
+      "rating": 4,
+      "body": "银色和浅色桌面很搭。希望商品页再补一张折叠收纳图，方便了解收起来的大小。",
+      "reply": "谢谢建议。需要确认收纳尺寸或佩戴方式，可以通过订单联系店铺，我们会帮你核对。"
+    },
+    {
+      "key": "black",
+      "account": "showcase_review_1030_b",
+      "variant": "黑色",
+      "rating": 5,
+      "body": "黑色款外观简洁，头梁和耳罩的造型很协调。商品详情可以切换颜色，选款也方便。",
+      "reply": null
+    }
+  ]
+}

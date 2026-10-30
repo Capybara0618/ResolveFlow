@@ -2,9 +2,12 @@
 .workbench .product-reviews h2 { margin: 0 0 24px; font-size: 18px; font-weight: 500; }
 .review-summary { display: grid; grid-template-columns: 190px minmax(240px, 420px); gap: 32px; padding-bottom: 24px; }
 .review-score { font-size: 32px; font-weight: 500; color: var(--rf-accent); }
-.review-distribution { display: grid; gap: 8px; }
-.product-reviews .review-distribution label { display: grid; grid-template-columns: 44px minmax(100px, 1fr) 40px; align-items: center; gap: 12px; margin: 0; font-size: 16px; }
-.review-distribution meter { width: 100%; accent-color: var(--rf-accent); }
+.review-distribution { display: grid; gap: 4px; align-content: start; }
+.product-reviews .review-distribution label { display: grid; grid-template-columns: 44px minmax(100px, 1fr) 40px; align-items: center; gap: 12px; margin: 0; font-size: 14px; line-height: 18px; }
+.review-distribution meter { width: 100%; height: 6px; appearance: none; accent-color: var(--rf-accent); }
+.review-distribution meter::-webkit-meter-bar { background: var(--rf-subtle); border: 0; border-radius: 4px; box-shadow: none; }
+.review-distribution meter::-webkit-meter-optimum-value { background: var(--rf-accent); border-radius: 4px; }
+.review-distribution meter::-moz-meter-bar { background: var(--rf-accent); border-radius: 4px; }
 .review-entry { border-top: 1px solid var(--rf-line); padding: 24px 0; }
 .review-meta { display: flex; justify-content: space-between; gap: 18px; color: var(--rf-muted); }
 .review-body, .review-reply p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }

@@ -12,6 +12,7 @@ it('renders server scores, purchased review text and merchant reply without inte
   expect(wrapper.text()).toContain('5.0'); expect(wrapper.text()).toContain('已购用户')
   expect(wrapper.text()).toContain('<script>用户原文</script>'); expect(wrapper.find('script').exists()).toBe(false)
   expect(wrapper.text()).toContain('感谢反馈')
+  expect(wrapper.emitted('summary')).toEqual([[page.summary]])
 })
 it('empty results never invent a zero-star score', async () => {
   vi.mocked(reviewApi.public).mockResolvedValue({ items: [], summary: { count: 0, average: null, stars: [0, 0, 0, 0, 0] }, next_before: null })
@@ -33,4 +34,5 @@ it('ignores a late response after the product changes', async () => {
   await wrapper.setProps({ product: 'new' }); await flushPromises()
   finish(page); await flushPromises()
   expect(wrapper.text()).toContain('新商品评价'); expect(wrapper.text()).not.toContain('用户原文')
+  expect(wrapper.emitted('summary')).toHaveLength(1)
 })
