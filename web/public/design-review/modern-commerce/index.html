@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>ResolveFlow · 商城体验预期稿</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <aside class="review-bar" aria-label="设计审查工具">
+    <span><strong>交互预期稿</strong><span class="review-note">独立样板，操作不提交交易</span></span>
+    <nav aria-label="预期页面">
+      <button data-page="home">商城</button><button data-page="product">商品详情</button><button data-page="cart">购物车</button><button data-page="checkout">确认订单</button>
+    </nav>
+    <label>查看状态<select id="review-state"><option value="normal">正常</option><option value="loading">加载中</option><option value="empty">空结果</option><option value="error">读取失败</option></select></label>
+  </aside>
+  <div id="app"></div>
+  <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+  <div id="dialog-root"></div>
+  <script src="./app.js" defer></script>
+</body>
+</html>
