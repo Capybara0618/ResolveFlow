@@ -60,7 +60,7 @@ public class SupportOperationsController {
             Long local_reads,
             Map<String, Integer> source_counts) {}
 
-    public record Runs(List<Run> items, int limit) {}
+    public record Runs(List<Run> items, int limit, String next_before) {}
 
     public record Detail(Run run, List<Event> events, boolean events_truncated) {}
 
@@ -71,15 +71,52 @@ public class SupportOperationsController {
     }
 
     @GetMapping
-    public Runs list(@RequestHeader(name = "Authorization", required = false) String auth) {
+    public Runs list(
+            @RequestHeader(name = "Authorization", required = false) String auth,
+            @RequestParam(required = false) String before,
+            @RequestParam(defaultValue = "50") int limit,
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "") String status) {
         admin(auth);
-        return new Runs(
-                db.query(
-                        "SELECT t.run_id,c.merchant_id,t.status,t.reason,t.created_at,t.result_json "
-                                + "FROM support_agent_turn t JOIN support_conversation c ON c.conversation_id=t.conversation_id "
-                                + "ORDER BY t.created_at DESC,t.run_id DESC LIMIT 50",
-                        this::run),
-                50);
+        if (limit < 1
+                || limit > 50
+                || query.length() > 100
+                || before != null && !before.matches("[0-9a-f-]{36}")
+                || !Set.of("", "PENDING", "RUNNING", "SUCCEEDED", "FAILED", "STALE")
+                        .contains(status)) throw new SupportService.Refused(400, "INVALID_ARGUMENT", "查询条件无效");
+        var args = new ArrayList<Object>();
+        String sql = "SELECT t.run_id,c.merchant_id,t.status,t.reason,t.created_at,t.result_json "
+                + "FROM support_agent_turn t JOIN support_conversation c ON c.conversation_id=t.conversation_id WHERE 1=1 ";
+        if (before != null) {
+            var anchors = db.queryForList(
+                    "SELECT created_at FROM support_agent_turn WHERE run_id=?", java.sql.Timestamp.class, before);
+            if (anchors.isEmpty()) throw new SupportService.Refused(400, "INVALID_ARGUMENT", "记录位置已失效，请重新查询");
+            sql += "AND (t.created_at<? OR (t.created_at=? AND t.run_id<?)) ";
+            args.add(anchors.getFirst());
+            args.add(anchors.getFirst());
+            args.add(before);
+        }
+        if (!query.isBlank()) {
+            String value = "%"
+                    + query.trim()
+                            .toLowerCase(Locale.ROOT)
+                            .replace("!", "!!")
+                            .replace("%", "!%")
+                            .replace("_", "!_") + "%";
+            sql += "AND (LOWER(c.merchant_id) LIKE ? ESCAPE '!' OR LOWER(t.run_id) LIKE ? ESCAPE '!') ";
+            args.add(value);
+            args.add(value);
+        }
+        if (!status.isBlank()) {
+            sql += "AND t.status=? ";
+            args.add(status);
+        }
+        sql += "ORDER BY t.created_at DESC,t.run_id DESC LIMIT ?";
+        args.add(limit + 1);
+        var found = db.query(sql, this::run, args.toArray());
+        boolean more = found.size() > limit;
+        var visible = found.stream().limit(limit).toList();
+        return new Runs(visible, limit, more ? visible.getLast().run_id() : null);
     }
 
     @GetMapping("/{id}")

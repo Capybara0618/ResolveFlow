@@ -4,10 +4,10 @@ export interface OperationsRun {
   model_requests: number | null; tool_attempts: number | null; local_reads: number | null; source_counts: Record<string, number>
 }
 export interface OperationsEvent { kind: string; category: string | null; created_at: string }
-export interface OperationsPage { items: OperationsRun[]; limit: number }
+export interface OperationsPage { items: OperationsRun[]; limit: number; next_before?: string | null }
 export interface OperationsDetail { run: OperationsRun; events: OperationsEvent[]; events_truncated: boolean }
 const base = '/api/v1/platform/support-runs'
 export const operationsApi = {
-  list: (token: string) => apiRequest<OperationsPage>(base, token),
+  list: (token: string, options?: { before?: string; query?: string; status?: string; limit?: number }) => { const p = new URLSearchParams({ limit: String(options?.limit ?? 8) }); for (const key of ['before','query','status'] as const) if (options?.[key]) p.set(key, options[key]!); return apiRequest<OperationsPage>(`${base}?${p}`, token) },
   read: (token: string, id: string) => apiRequest<OperationsDetail>(`${base}/${encodeURIComponent(id)}`, token),
 }

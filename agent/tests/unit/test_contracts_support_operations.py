@@ -24,3 +24,13 @@ def test_operations_routes_are_read_only_and_require_a_current_user_session():
         assert operation["security"] == [{"bearerAuth": []}]
         assert {"401", "403"} <= operation["responses"].keys()
         assert operation["summary"] and "docs/" in operation["description"]
+
+
+def test_operations_history_has_formal_cursor_and_global_filters():
+    doc=load_openapi("case", "contracts/core")
+    operation=doc["paths"]["/api/v1/platform/support-runs"]["get"]
+    params={p["name"]:p for p in operation["parameters"]}
+    assert {"before","limit","query","status"} <= params.keys()
+    page=component_validator("case","SupportOperationsPage","contracts/core")
+    assert page.accepts({"items":[],"limit":8,"next_before":None})
+    assert not page.accepts({"items":[],"limit":51,"next_before":None})

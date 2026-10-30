@@ -34,3 +34,16 @@ it('expires the session on a rejected administrator identity', async () => {
   wrapper = mount(SupportOperations, { props: { token: 'expired' } }); await flushPromises()
   expect(wrapper.emitted('expired')).toHaveLength(1)
 })
+
+
+it('reads older runs with server cursors and keeps its page when refreshing', async () => {
+  const run=fixture.SupportOperationsPage.items[0]!
+  vi.spyOn(operationsApi,'list').mockResolvedValueOnce({...fixture.SupportOperationsPage,next_before:'older-run'})
+    .mockResolvedValue({...fixture.SupportOperationsPage,items:[{...run,run_id:'second-page-run'}],next_before:null})
+  wrapper=mount(SupportOperations,{props:{token:'platform'}});await flushPromises()
+  await wrapper.findAll('button').find(b=>b.text()==='下一页')!.trigger('click');await flushPromises()
+  expect(operationsApi.list).toHaveBeenLastCalledWith('platform',{before:'older-run',query:'',status:''})
+  expect(wrapper.findAll('[data-run]')).toHaveLength(1);expect(wrapper.text()).toContain('第 2 页')
+  await wrapper.findAll('button').find(b=>b.text()==='刷新')!.trigger('click');await flushPromises()
+  expect(operationsApi.list).toHaveBeenLastCalledWith('platform',{before:'older-run',query:'',status:''})
+})

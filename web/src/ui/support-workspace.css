@@ -193,7 +193,7 @@
 @keyframes support-stream-blink{to{opacity:0}}
 @media(prefers-reduced-motion:reduce){.support-stream-caret{animation:none}}
 
-.workbench.unified-interface .merchant-support { --support-blue: var(--rf-accent); --support-ink: var(--rf-ink); --support-muted: var(--rf-muted); --support-line: var(--rf-line); background: var(--rf-canvas); height: calc(100dvh - 72px); padding: 16px; }
+.workbench.unified-interface .merchant-support { --support-blue: var(--rf-accent); --support-ink: var(--rf-ink); --support-muted: var(--rf-muted); --support-line: var(--rf-line); background: var(--rf-canvas); height: calc(100dvh - 76px); padding: 16px; }
 .workbench.unified-interface .merchant-support .support-grid { grid-template-columns: 240px minmax(0,1fr); border: 1px solid var(--rf-line); border-radius: 10px; overflow: hidden; }
 .workbench.unified-interface .merchant-support .support-message-bubble { font-family: var(--rf-font-reading); font-size: 16px; line-height: 1.85; }
 .workbench.unified-interface .merchant-support .support-chat-identity h2 { font-size: 17px; font-weight: 500; }

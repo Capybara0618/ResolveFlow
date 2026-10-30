@@ -7,12 +7,12 @@
 }
 .unified-interface :is(button, input, select, textarea) { font-family: var(--rf-font-ui); }
 .unified-interface :is(h1, h2, h3, strong) { font-weight: 500; }
-.unified-interface h1 { font-size: 24px; line-height: 1.4; }
+.unified-interface h1 { font-size:26px;line-height:1.4; }
 .unified-interface :is(input, select, textarea) { accent-color: var(--rf-accent); }
 .unified-interface :is(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--rf-accent); outline-offset: 3px; }
 .unified-interface button:hover:not(:disabled) { box-shadow: none; }
-.unified-interface .topbar { height: 72px; background: #fafaf7f5; border-color: var(--rf-line); }
-.unified-interface .brand { color: var(--rf-ink); font-size: 21px; font-weight: 500; }
+.unified-interface .topbar { height:76px;background: #fafaf7f5; border-color: var(--rf-line); }
+.unified-interface .brand { color: var(--rf-ink); font-size:22px;font-weight:500; }
 .unified-interface .brand-mark i { background: var(--rf-accent); }
 .unified-interface .brand-mark i:last-child { background: #73a594; }
 .unified-interface .login-shop-link { margin-left: auto; color: var(--rf-accent); text-decoration: none; font-size: 15px; }
@@ -21,8 +21,8 @@
 .unified-interface .session-copy strong { font-size: 14px; font-weight: 500; }
 .unified-interface .session-copy small { font-size: 12px; }
 .unified-interface .logout-button { color: var(--rf-muted); font-size: 14px; }
-.unified-interface:not(.merchant-review-workbench) > .app-shell { min-height: calc(100dvh - 72px); grid-template-columns: 196px minmax(0, 1fr); }
-.unified-interface:not(.merchant-review-workbench) .sidebar { top: 72px; height: calc(100dvh - 72px); padding: 20px 12px; background: var(--rf-canvas); gap: 4px; }
+.unified-interface:not(.merchant-review-workbench) > .app-shell { min-height: calc(100dvh - 76px); grid-template-columns:176px minmax(0,1fr); }
+.unified-interface:not(.merchant-review-workbench) .sidebar { top:76px; height: calc(100dvh - 76px); padding: 20px 12px; background: var(--rf-canvas); gap: 4px; }
 .unified-interface:not(.merchant-review-workbench) .sidebar .nav-link { min-height: 44px; padding: 10px 12px; margin: 0; border: 0; border-radius: 7px; background: transparent; color: var(--rf-muted); font-size: 14px; font-weight: 400; }
 .unified-interface:not(.merchant-review-workbench) .sidebar .nav-link.current { background: var(--rf-accent-soft); color: var(--rf-accent); }
 .unified-interface:not(.merchant-review-workbench) .sidebar .nav-link:hover { background: var(--rf-subtle); color: var(--rf-accent); }
@@ -33,7 +33,7 @@
 .unified-interface .secondary-button:hover:not(:disabled) { background: var(--rf-subtle); }
 .unified-interface .text-button { color: var(--rf-accent); }
 .unified-interface :is(.primary-button, .login-panel > button):hover:not(:disabled) { background: var(--rf-accent-hover); }
-.unified-interface .login-stage { min-height: calc(100dvh - 72px); max-width: 1220px; margin: auto; padding: 56px 40px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: clamp(48px, 7vw, 112px); background: transparent; }
+.unified-interface .login-stage { min-height: calc(100dvh - 76px); max-width: 1220px; margin: auto; padding: 56px 40px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: clamp(48px, 7vw, 112px); background: transparent; }
 .unified-interface .login-intro { max-width: none; min-width: 0; }
 .unified-interface .login-intro h1 { font-size: clamp(36px, 3.4vw, 52px); font-weight: 500; line-height: 1.35; letter-spacing: -1.2px; color: var(--rf-ink); margin: 0 0 36px; }
 .login-still-life { position: relative; aspect-ratio: 4 / 3; height: auto; max-height: 430px; border-radius: 18px; background: #f3f0e7; overflow: hidden; }

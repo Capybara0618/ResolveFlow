@@ -4583,7 +4583,12 @@ paths:
   /api/v1/platform/support-runs:
     get:
       operationId: listSupportOperations
-      summary: Platform-only sanitized latest 50 consultation runs
+      parameters:
+      - {name: before, in: query, schema: {type: string, format: uuid}}
+      - {name: query, in: query, schema: {type: string, maxLength: 100}}
+      - {name: status, in: query, schema: {type: string, enum: ['', PENDING, RUNNING, SUCCEEDED, FAILED, STALE]}}
+      - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 50, default: 50}}
+      summary: Platform-only sanitized paged consultation runs
       description: 'Per docs/core-scope.md and the support module README: read-only counts and process status. No private messages, prompts, queries or raw event payloads.'
       security: [{bearerAuth: []}]
       responses:
@@ -4883,10 +4888,11 @@ components:
     SupportOperationsPage:
       type: object
       additionalProperties: false
-      required: [items, limit]
+      required: [items, limit, next_before]
       properties:
+        next_before: {type: [string, 'null'], format: uuid}
         items: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/SupportOperationsRun'}}
-        limit: {const: 50}
+        limit: {type: integer, minimum: 1, maximum: 50}
     SupportOperationsDetail:
       type: object
       additionalProperties: false
