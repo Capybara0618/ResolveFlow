@@ -175,6 +175,9 @@ defineExpose({ navigationBlocked: computed(() => writing.value || uncertain.valu
       </template>
       <section v-if="detail?.status === 'PAID'" class="purchase-detail-panel"><h2>商品评价</h2><div v-for="line in detail.lines.filter(l => l.line_id)" :key="line.line_id!" class="purchase-aftercare"><strong>{{ line.product_name || line.sku }}</strong><button class="review-button" data-test="product-review" :disabled="writing" @click="reviewTarget = { line: line.line_id!, name: line.product_name || line.sku }">评价商品</button></div><ProductReviewEditor v-if="reviewTarget" :key="`${account.access_token}:${reviewTarget.line}`" :token="account.access_token" :line="reviewTarget.line" :name="reviewTarget.name" @expired="emit('expired')" @working="writing = $event" @close="reviewTarget = null" /></section>
     </div></main>
-    <ReviewDialog :open="cancelOpen" title="取消待付款订单" workspace="我的订单" :busy="writing" @close="cancelOpen = false"><p>确认取消这份待付款订单？取消后需重新购买。</p><div class="purchase-actions"><button class="shop-secondary" :disabled="writing" @click="cancelOpen = false">返回</button><button class="shop-primary" :disabled="writing" @click="cancel">确认取消</button></div></ReviewDialog>
+    <ReviewDialog :open="cancelOpen" title="取消这笔订单？" compact :busy="writing" @close="cancelOpen = false">
+      <p>订单尚未付款，取消后可重新下单。</p>
+      <template #footer><button class="shop-secondary" :disabled="writing" @click="cancelOpen = false">暂不取消</button><button class="dialog-danger" :disabled="writing" @click="cancel">{{ writing ? '正在取消…' : '取消订单' }}</button></template>
+    </ReviewDialog>
   </div>
 </template>

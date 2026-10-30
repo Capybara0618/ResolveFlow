@@ -62,3 +62,14 @@ it('keeps a closed reusable dialog out of the focus order and locks the page onl
   w.unmount(); expect(document.body.style.overflow).toBe(previous); expect(document.activeElement).toBe(opener)
   opener.remove()
 })
+
+
+it('contains keyboard focus through the separate action footer', async () => {
+  const w = mount(ReviewDialog, { attachTo: document.body, props: { title: '取消这笔订单？', compact: true }, slots: { default: '<p>订单尚未付款</p>', footer: '<button>暂不取消</button><button id="footer-confirm">取消订单</button>' } })
+  await flushPromises()
+  await w.get('[role="dialog"]').trigger('keydown', { key: 'Tab', shiftKey: true })
+  expect(document.activeElement?.id).toBe('footer-confirm')
+  await w.get('[role="dialog"]').trigger('keydown', { key: 'Tab' })
+  expect(document.activeElement?.getAttribute('aria-label')).toBe('关闭弹窗')
+  w.unmount()
+})

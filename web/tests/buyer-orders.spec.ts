@@ -70,15 +70,15 @@ it('expiry is enforced in the page and cancellation requires explicit confirmati
   expect(w.find('[data-test="pay"]').exists()).toBe(false); expect(w.text()).not.toContain('取消订单'); w.unmount()
   vi.mocked(shopApi.purchase).mockResolvedValue(item); await open()
   await w.findAll('button').find(b => b.text() === '取消订单')!.trigger('click'); await flushPromises()
-  expect(shopApi.cancel).not.toHaveBeenCalled(); expect(w.get('[role="dialog"]').text()).toContain('确认取消')
+  expect(shopApi.cancel).not.toHaveBeenCalled(); expect(w.get('[role="dialog"]').text()).toContain('取消这笔订单？')
   vi.mocked(shopApi.purchase).mockResolvedValue({ ...item, status: 'CANCELLED' })
-  await w.findAll('button').find(b => b.text() === '确认取消')!.trigger('click'); await flushPromises()
+  await w.get('[role="dialog"] .dialog-danger').trigger('click'); await flushPromises()
   expect(shopApi.cancel).toHaveBeenCalledTimes(1); expect(w.text()).toContain('已取消'); expect(shopApi.pay).not.toHaveBeenCalled()
 })
 it('cancel response loss blocks payment until a read confirms the current status', async () => {
   vi.mocked(shopApi.cancel).mockRejectedValue(new TypeError('cancel lost')); await open()
   await w.findAll('button').find(b => b.text() === '取消订单')!.trigger('click'); await flushPromises()
-  await w.findAll('button').find(b => b.text() === '确认取消')!.trigger('click'); await flushPromises()
+  await w.get('[role="dialog"] .dialog-danger').trigger('click'); await flushPromises()
   expect(w.find('[data-test="pay"]').exists()).toBe(false); expect(w.text()).toContain('取消结果尚未确认')
 })
 it('list filters and details go through real marketplace routing instead of a dead button', async () => {
