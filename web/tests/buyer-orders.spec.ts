@@ -137,7 +137,7 @@ it('paid order displays authoritative unshipped facts and never guesses a missin
   expect(w.get('[aria-label="订单履约"]').text()).not.toContain('商家尚未发货')
 })
 
-it('returns to the same filtered, expanded list and reading position without recreating the orders module', async () => {
+it('returns to the same filtered page and reading position without recreating the orders module', async () => {
   vi.useFakeTimers(); const scroll = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
   vi.spyOn(window, 'scrollY', 'get').mockReturnValue(480)
   const second = { ...paid, purchase_id: 'second-order', lines: [{ ...paid.lines[0], product_name: '第二笔商品' }] }
@@ -146,12 +146,12 @@ it('returns to the same filtered, expanded list and reading position without rec
   window.history.replaceState(null, '', '/#/shop/orders?status=PAID')
   w = mount(MarketplaceWorkspace, { props: { account: buyer } }); await flushPromises()
   const instance = w.get('.buyer-orders').element
-  await w.findAll('button').find(b => b.text() === '加载更多订单')!.trigger('click'); await flushPromises()
-  await w.findAll('.purchase-card button')[1].trigger('click'); await flushPromises()
+  await w.get('[aria-label="订单分页"] button:last-child').trigger('click'); await flushPromises()
+  await w.findAll('.purchase-card button')[0].trigger('click'); await flushPromises()
   expect(w.get('.buyer-orders').element).toBe(instance)
   expect(w.text()).toContain('订单详情')
   await w.findAll('button').find(b => b.text() === '返回我的订单')!.trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(40)
-  expect(w.findAll('.purchase-card')).toHaveLength(2); expect(w.text()).toContain('第二笔商品')
+  expect(w.findAll('.purchase-card')).toHaveLength(1); expect(w.text()).toContain('第二笔商品'); expect(w.get('[aria-label="订单分页"]').text()).toContain('第 2 页')
   expect(shopApi.purchases).toHaveBeenCalledTimes(2)
   expect(w.get('[aria-label="更多订单状态"]').element).toHaveProperty('value', 'PAID')
   expect(scroll).toHaveBeenLastCalledWith({ top: 480, behavior: 'auto' })
@@ -180,4 +180,24 @@ it('captures list position before parent navigation can move the viewport', asyn
   await w.findAll('button').find(b => b.text() === '返回我的订单')!.trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(30)
   expect(scroll).toHaveBeenLastCalledWith({ top: 480, behavior: 'auto' })
   vi.useRealTimers()
+})
+
+
+it('keeps the current order page if the next page fails', async () => {
+  window.history.replaceState(null,'','/#/shop/orders')
+  vi.mocked(shopApi.purchases).mockResolvedValueOnce({items:[paid],next_cursor:'next'}).mockRejectedValueOnce(new ApiError(503,'OFFLINE','暂时无法读取'))
+  await open(); await w.get('[aria-label="订单分页"] button:last-child').trigger('click'); await flushPromises()
+  expect(w.get('[aria-label="订单分页"]').text()).toContain('第 1 页')
+  expect(w.findAll('.purchase-card')).toHaveLength(1)
+  expect(w.text()).toContain('暂时无法读取')
+})
+
+
+it('refreshes the current order page instead of resetting to page one', async () => {
+  window.history.replaceState(null,'','/#/shop/orders')
+  vi.mocked(shopApi.purchases).mockImplementation(async (_token,q) => q?.cursor ? {items:[{...paid,purchase_id:'second',store_name:'第二页店铺'}],next_cursor:null}:{items:[paid],next_cursor:'next'})
+  await open(); await w.get('[aria-label="订单分页"] button:last-child').trigger('click'); await flushPromises()
+  await w.findAll('button').find(b=>b.text()==='刷新状态')!.trigger('click'); await flushPromises()
+  expect(shopApi.purchases).toHaveBeenLastCalledWith('buyer-token',{cursor:'next'})
+  expect(w.get('[aria-label="订单分页"]').text()).toContain('第 2 页')
 })

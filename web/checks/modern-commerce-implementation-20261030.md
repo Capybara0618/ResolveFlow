@@ -30,3 +30,12 @@
 - 相关4文件50项通过（指定presentation.spec.ts未存在，不计为运行）；新增数量控件边界后marketplace27项通过。`pnpm --dir web build`通过，日志tmp/modern-catalog-tests.log、modern-catalog-final-tests.log、modern-catalog-build.log。
 - 原直接提交断言只改明确的checkout-submit定位，保留未知原key/冻结输入、价格冲突、无地址禁止提交、晚响应丢弃及历史状态测试。
 - 不启服务、不浏览器验收；主图是否完整、各桌面尺寸排版与手感留M8，不用静态CSS推断最终视觉通过。
+
+
+## M3 订单分页与评价弹窗（仅离线）
+
+买家订单从追加加载改上一页/下一页替换，服务端游标与页码在读取成功后提交；返回详情保留页号/筛选/游标/位置，刷新当前页，失败保留原页。订单抬头合并返回与刷新，状态与金额先于收货信息，筛选去重描边；评价按需读取放入统一弹窗，原保存/冲突/未知写入处理保持。
+
+- 分页返回/下一页失败新预期先红后绿；原“已加载两页合并”改为“第2页单页保留”，仍检查同一模块、仅两次列表读取与scroll480。补当前页刷新不重置回归。
+- 相关3文件26项通过；最终build通过，日志tmp/modern-orders-red.log、modern-orders-tests.log、modern-orders-build.log。
+- 用户要求整批统一验收，本步无启动/实机或业务请求，不能称视觉已验。
