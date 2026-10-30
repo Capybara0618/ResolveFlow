@@ -52,7 +52,7 @@ onMounted(() => { void act(load) })
     </nav>
     <main v-if="page === 'agent'" class="foundation-main"><SupportOperations :token="account.access_token" @expired="emit('expired')" /></main>
     <main v-else class="foundation-main">
-      <header class="foundation-heading"><div><h1>{{ page === 'merchants' ? '商家管理' : '买家账号' }}</h1><p>{{ page === 'merchants' ? '管理店铺与商家账号' : '管理可以跨店购物的平台买家' }}</p></div><div class="foundation-actions"><button :disabled="busy" @click="act(load)">刷新</button><button class="primary-button" :disabled="busy" @click="open(page === 'merchants' ? 'merchant' : 'buyer')">{{ page === 'merchants' ? '创建商家' : '创建买家' }}</button></div></header>
+      <header class="foundation-heading"><div><h1>{{ page === 'merchants' ? '商家管理' : '买家账号' }}</h1></div><div class="foundation-actions"><button :disabled="busy" @click="act(load)">刷新</button><button class="primary-button" :disabled="busy" @click="open(page === 'merchants' ? 'merchant' : 'buyer')">{{ page === 'merchants' ? '创建商家' : '创建买家' }}</button></div></header>
       <p v-if="error" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
       <form v-if="form" class="foundation-editor" @submit.prevent="submit">
         <h2>{{ form === 'merchant' ? '创建店铺与商家账号' : form === 'buyer' ? '创建买家' : `重置 ${selectedBuyer?.username} 的密码` }}</h2>

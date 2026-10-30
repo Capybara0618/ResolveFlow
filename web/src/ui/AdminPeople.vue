@@ -102,7 +102,7 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
 
 <template>
   <main class="people-workspace" aria-label="人员管理">
-    <header class="people-heading"><div><p class="eyebrow">商家管理 · {{ account.merchant_name ?? account.merchant_id }}</p><h1>人员管理</h1><p class="muted">维护本商家账号与权限，让每一位工作人员各司其职。</p></div><button type="button" :disabled="busy || loading" @click="openDialog('create')"><Icon name="user" :size="17" />新增工作人员</button></header>
+    <header class="people-heading"><div><p class="eyebrow">商家管理 · {{ account.merchant_name ?? account.merchant_id }}</p><h1>人员管理</h1></div><button type="button" :disabled="busy || loading" @click="openDialog('create')"><Icon name="user" :size="17" />新增工作人员</button></header>
     <p v-if="error" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
     <div class="people-columns" :class="{ 'with-details': selected }">
       <section class="panel people-list" aria-label="商家账号列表">
@@ -112,7 +112,7 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
         <div class="people-table-wrap"><table><thead><tr><th>姓名 / 用户名</th><th>角色</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead><tbody><tr v-for="row in rows" :key="row.username" :class="{ selected: selected?.username === row.username }"><td><strong>{{ row.display_name }}</strong><small>{{ row.username }}<span v-if="row.username === currentUsername"> · 当前账号</span></small></td><td>{{ labels[row.role] }}</td><td><span class="status-tag" :class="{ enabled: row.enabled }">{{ row.enabled ? '已启用' : '已停用' }}</span></td><td class="people-time">{{ date(row.updated_at) }}</td><td><button class="text-button" type="button" :aria-label="`维护 ${row.username}`" :disabled="busy || loading" @click="select(row)">维护账号</button></td></tr></tbody></table></div>
         <div v-if="!loading && !rows.length" class="empty"><Icon name="user" :size="30" /><strong>没有符合条件的账号</strong><p>可调整角色、状态或查询条件。</p></div>
         <footer class="people-footer"><span>已显示 {{ rows.length }}<template v-if="total !== null"> / {{ total }}</template> 个账号</span><button v-if="cursor" class="secondary-button" type="button" :disabled="busy || loading" @click="load(true)">加载更多</button></footer>
-        <p class="people-note"><Icon name="shield" :size="16" />账号归属保持固定。人员维护不会改变工单负责人，转交或接管需在工单中明确操作。</p>
+        
       </section>
       <aside v-if="selected" class="panel people-details" aria-label="维护账号">
         <div class="people-list-heading"><h2>维护账号</h2><button class="text-button" type="button" aria-label="关闭维护栏" :disabled="busy" @click="closeDetails"><Icon name="close" :size="18" /></button></div>
@@ -128,7 +128,7 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
           <div class="people-actions"><button type="submit" :disabled="!canSave">{{ busy ? '正在保存…' : '保存修改' }}</button><button type="button" class="secondary-button" :disabled="busy || stale || loading" @click="openDialog('password')">重置密码</button></div>
         </form>
         <section class="people-history" aria-label="账号操作记录"><div class="people-list-heading"><h3>操作记录（{{ historyTotal }}）</h3><button class="text-button" type="button" :disabled="historyLoading || busy" @click="loadHistory()">刷新</button></div>
-          <p v-if="historyLoading" class="muted">正在读取记录…</p><p v-else-if="historyError" class="message error">{{ historyError }}</p><p v-else-if="!history.length" class="muted">暂无维护记录。种子账号创建前的历史未记录。</p>
+          <p v-if="historyLoading" class="muted">正在读取记录…</p><p v-else-if="historyError" class="message error">{{ historyError }}</p><p v-else-if="!history.length" class="muted">暂无维护记录。</p>
           <ol><li v-for="event in history" :key="event.id"><strong>{{ { CREATED: '新增账号', UPDATED: '维护账号', PASSWORD_RESET: '重置密码' }[event.action] }}</strong><small>{{ date(event.occurred_at) }} · {{ event.actor_username }} · v{{ event.account_version }}</small><p>{{ event.reason }}</p><details v-if="event.action !== 'PASSWORD_RESET'"><summary>查看状态变化</summary><p v-if="event.before">之前：{{ event.before.display_name }} / {{ labels[event.before.role] }} / {{ event.before.enabled ? '启用' : '停用' }}</p><p>之后：{{ event.after.display_name }} / {{ labels[event.after.role] }} / {{ event.after.enabled ? '启用' : '停用' }}</p></details></li></ol>
           <button v-if="historyCursor" class="secondary-button" type="button" :disabled="historyLoading || busy" @click="loadHistory(true)">更多操作记录</button>
         </section>
@@ -138,7 +138,7 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
       <form class="people-maintenance" @submit.prevent="mutate(dialog === 'create' ? 'create' : 'password')">
         <p class="people-note">所属商家：{{ account.merchant_name ?? account.merchant_id }}。{{ dialog === 'create' ? '仅新增本商家工作人员，用户名创建后固定。' : `目标账号：${selected?.username}。成功后该账号的旧会话立即失效。` }}</p>
         <template v-if="dialog === 'create'"><label>用户名<input v-model="newUsername" autocomplete="off" maxlength="120" pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,119}" required :disabled="busy" /></label><label>工作人员姓名<input v-model="newName" maxlength="120" required :disabled="busy" /></label><label>工作人员角色<select v-model="newRole" :disabled="busy"><option value="REVIEWER">售后专员</option><option value="MERCHANT_ADMIN">商家管理员</option></select></label></template>
-        <label>{{ dialog === 'create' ? '初始密码' : '新密码' }}<input v-model="secret" type="password" autocomplete="new-password" minlength="6" maxlength="200" required :disabled="busy" /></label><small class="muted">6–200位；提交后清空，不会回显或保存在浏览器。</small>
+        <label>{{ dialog === 'create' ? '初始密码' : '新密码' }}<input v-model="secret" type="password" autocomplete="new-password" minlength="6" maxlength="200" placeholder="6–200位" required :disabled="busy" /></label>
         <label>操作理由<textarea v-model="dialogReason" rows="3" maxlength="1000" required :disabled="busy || stale && dialog === 'password'" /></label>
         <p v-if="error" class="message error" role="alert">{{ error }}</p>
         <div class="people-actions"><button type="button" class="secondary-button" :disabled="busy" @click="closeDialog">取消</button><button type="submit" :disabled="busy || !validPassword || !dialogReason.trim() || dialog === 'password' && stale || dialog === 'create' && (!newUsername.trim() || !newName.trim())">{{ busy ? '正在提交…' : dialog === 'create' ? '创建账号' : '确认重置' }}</button></div>
