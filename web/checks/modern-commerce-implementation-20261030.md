@@ -98,5 +98,5 @@
 
 发现平台接口固定LIMIT200且无后续游标，不能在前端切已加载200条来代替全量搜索。Case新增按稳定商家标识/用户名排序的服务端搜索与limit+1游标，查询先筛后分页、LIKE通配符转义，原身份/角色复核保持；相应OpenAPI两侧类型/fixture与客户端同步。平台两类页面各自保存搜索和页号，创建/密码表单与启停确认使用共享弹层，刷新/操作保留当前页，失败保留旧数据而不显示空记录。
 
-- Java独立Mockito3项通过，无Spring/数据库/服务启动；web平台4项通过，契约9项通过，build通过，日志tmp/modern-platform-java-tests.log、modern-platform-web-tests.log、modern-platform-contracts.log、modern-platform-web-build.log。初次Maven参数被PowerShell拆分、随后默认JDK17门禁拒绝，改引号参数与已锁JDK21后通过；未跳过Java版本门禁。定向Spotless仅格式化本步3文件。
+- Java独立Mockito3项通过，无Spring/数据库/服务启动；web平台4项通过，契约9项通过，build通过，日志tmp/modern-platform-java-tests.log、modern-platform-web-tests.log、modern-platform-contracts.log、modern-platform-web-build.log。初次Maven参数被PowerShell拆分、随后默认JDK17门禁拒绝，改引号参数与已锁JDK21后通过；未跳过Java版本门禁。初次定向Spotless把glob误当regex而失败；改为工具支持的正则后，仅本步3文件实际格式化通过（另1既有匹配文件缓存未改）。
 - 数据库真实SQL/HTTP分页、账号操作、视觉留M8集中验证；本步不称实机通过。纠正上步人员测试记录为实际9项，非12项。

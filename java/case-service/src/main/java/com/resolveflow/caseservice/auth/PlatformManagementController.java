@@ -19,8 +19,10 @@ public class PlatformManagementController {
     }
 
     @GetMapping("/merchants")
-    public Merchants merchants(@RequestHeader(name = "Authorization", required = false) String auth,
-            @RequestParam(required = false) String after, @RequestParam(defaultValue = "") String query,
+    public Merchants merchants(
+            @RequestHeader(name = "Authorization", required = false) String auth,
+            @RequestParam(required = false) String after,
+            @RequestParam(defaultValue = "") String query,
             @RequestParam(defaultValue = "20") int limit) {
         return service.merchants(principals.session(auth), after, query, limit);
     }
@@ -46,8 +48,10 @@ public class PlatformManagementController {
     }
 
     @GetMapping("/buyers")
-    public Buyers buyers(@RequestHeader(name = "Authorization", required = false) String auth,
-            @RequestParam(required = false) String after, @RequestParam(defaultValue = "") String query,
+    public Buyers buyers(
+            @RequestHeader(name = "Authorization", required = false) String auth,
+            @RequestParam(required = false) String after,
+            @RequestParam(defaultValue = "") String query,
             @RequestParam(defaultValue = "20") int limit) {
         return service.buyers(principals.session(auth), after, query, limit);
     }
