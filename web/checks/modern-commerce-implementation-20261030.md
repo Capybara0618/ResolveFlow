@@ -106,5 +106,10 @@
 
 客服运行记录不再止于最近50条：Case用既有run_id定位真实时间锚点，按created_at/run_id双键倒序，检索店铺/运行、状态先筛后limit+1；只返回原允许的投影字段，保留空指标null和真实mock/live区分。前端每页8条，当前页刷新，列表和过程分层；正式OpenAPI/fixture/类型同步。平台、商家外壳品牌22px、导航76px及176px侧栏基准对齐。
 
-- Java独立5项（含上步3，非相加）通过，web3文件15项通过，契约12项通过，最终build通过。日志tmp/modern-operations-java-tests.log、modern-operations-web-tests.log、modern-operations-contracts.log、modern-operations-web-build.log；定向Spotless通过。没有启动业务服务/数据库测试容器或调用模型。
+- Java独立5项（含上步3，非相加）通过，web3文件15项通过，契约12项通过；该轮build发现新增测试对get返回值调用exists的类型错误，见下方集中回归修正。日志tmp/modern-operations-java-tests.log、modern-operations-web-tests.log、modern-operations-contracts.log、modern-operations-web-build.log；定向Spotless通过。没有启动业务服务/数据库测试容器或调用模型。
 - M1至M7代码已实现；接下来全前端回归与一次集中启动/真实SQL、三角色业务和视觉验收。尚未把代码通过记为实际体验通过。
+
+
+## 集中离线回归（M8开始前）
+
+最终全前端46文件380项通过；新增平台测试把get().exists()改为find().exists()后，vue-tsc与最终build通过。修正上段未等build返回即记录通过的错误；失败日志保留tmp/modern-operations-web-build.log，最终证据tmp/modern-commerce-full-web-tests.log、modern-commerce-final-build.log。至此M1至M7代码与离线检查完成，下一步按用户节奏只做一轮集中真实验收。

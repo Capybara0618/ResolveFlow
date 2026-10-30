@@ -75,6 +75,6 @@ it('pages buyers on the server and keeps the current page when refreshing or a r
     expect(w.findAll('tbody tr')).toHaveLength(1);expect(w.text()).toContain('第 2 页')
     await w.findAll('button').find(b=>b.text()==='刷新')!.trigger('click');await flushPromises()
     expect(list).toHaveBeenLastCalledWith('t',{after:'after-first',query:''})
-    expect(w.text()).toContain('第二页');expect(w.text()).toContain('第 2 页');expect(w.get('[role="alert"]').exists()).toBe(true)
+    expect(w.text()).toContain('第二页');expect(w.text()).toContain('第 2 页');expect(w.find('[role="alert"]').exists()).toBe(true)
   } finally {w.unmount()}
 })
