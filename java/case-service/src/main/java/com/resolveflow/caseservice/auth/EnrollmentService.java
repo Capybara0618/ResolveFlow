@@ -36,6 +36,15 @@ public class EnrollmentService {
         }
     }
 
+    public record ChangeLogin(String login_name, String current_password, Long expected_version) {
+        @Override
+        public String toString() {
+            return "ChangeLogin[redacted]";
+        }
+    }
+
+    public record LoginChanged(String login_name) {}
+
     public record Receipt(String username, String recovery_key) {
         @Override
         public String toString() {
@@ -145,11 +154,12 @@ public class EnrollmentService {
         String next = hashPassword(r.new_password());
         return tx.execute(st -> {
             var accounts = db.queryForList(
-                    "SELECT username FROM identity_account WHERE username=? AND buyer_id IS NOT NULL AND enabled=TRUE FOR UPDATE",
+                    "SELECT username FROM identity_account WHERE login_key=? AND buyer_id IS NOT NULL AND enabled=TRUE FOR UPDATE",
                     String.class,
                     r.username());
+            String subject = accounts.isEmpty() ? r.username() : accounts.getFirst();
             var saved = db.queryForList(
-                    "SELECT token_hash FROM account_recovery WHERE username=? FOR UPDATE", String.class, r.username());
+                    "SELECT token_hash FROM account_recovery WHERE username=? FOR UPDATE", String.class, subject);
             String stored = saved.isEmpty() ? "0".repeat(64) : saved.getFirst();
             boolean match = MessageDigest.isEqual(
                     stored.getBytes(StandardCharsets.US_ASCII), digest(supplied).getBytes(StandardCharsets.US_ASCII));
@@ -157,9 +167,48 @@ public class EnrollmentService {
             db.update(
                     "UPDATE identity_account SET password_hash=?,identity_version=identity_version+1,account_version=account_version+1 WHERE username=?",
                     next,
-                    r.username());
-            return key(r.username());
+                    subject);
+            var receipt = key(subject);
+            return new Receipt(r.username(), receipt.recovery_key());
         });
+    }
+
+    public LoginChanged changeLogin(Session s, ChangeLogin r) {
+        if (!s.principal().isPlatformBuyer()) throw new Refused(403, "FORBIDDEN_SCOPE", "请使用买家账号");
+        limit("login-name:" + s.principal().subject(), 5);
+        username(r.login_name());
+        if (r.current_password() == null || r.current_password().length() > 200) throw invalid("请输入当前密码");
+        try {
+            return tx.execute(st -> {
+                var rows = db.queryForList(
+                        "SELECT password_hash,profile_version,login_key FROM identity_account WHERE username=? AND enabled=TRUE AND identity_version=? FOR UPDATE",
+                        s.principal().subject(),
+                        s.identityVersion());
+                if (rows.isEmpty()) throw new Refused(401, "UNAUTHENTICATED", "登录已失效，请重新登录");
+                var row = rows.getFirst();
+                if (r.expected_version() == null
+                        || ((Number) row.get("profile_version")).longValue() != r.expected_version())
+                    throw new Refused(409, "VERSION_CONFLICT", "资料已更新，请刷新后重试");
+                if (!DemoAccounts.verify(
+                        r.current_password(), row.get("password_hash").toString())) throw invalid("当前密码不正确");
+                // Lock the canonical-name index gap too: aliases cannot impersonate another immutable subject.
+                var reserved = db.queryForList(
+                        "SELECT username FROM identity_account WHERE username=? FOR UPDATE",
+                        String.class,
+                        r.login_name());
+                if (!reserved.isEmpty()
+                        && !reserved.getFirst().equals(s.principal().subject()))
+                    throw new Refused(409, "USERNAME_UNAVAILABLE", "该账号已被使用");
+                if (r.login_name().equals(row.get("login_key"))) return new LoginChanged(r.login_name());
+                db.update(
+                        "UPDATE identity_account SET login_name=?,profile_version=profile_version+1,identity_version=identity_version+1,account_version=account_version+1 WHERE username=?",
+                        r.login_name(),
+                        s.principal().subject());
+                return new LoginChanged(r.login_name());
+            });
+        } catch (DuplicateKeyException e) {
+            throw new Refused(409, "USERNAME_UNAVAILABLE", "该账号已被使用");
+        }
     }
 
     public Receipt rotate(Session s, Rotate r) {

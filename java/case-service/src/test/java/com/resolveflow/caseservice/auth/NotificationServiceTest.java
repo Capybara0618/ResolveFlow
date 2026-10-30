@@ -55,6 +55,27 @@ class NotificationServiceTest extends CaseDatabaseTest {
     }
 
     @Test
+    void buyerNotificationCarriesOnlyTheOwningStoreIdentity() {
+        String conv = conversation();
+        String ticket = UUID.randomUUID().toString();
+        jdbc.update(
+                "INSERT INTO support_ticket(ticket_id,conversation_id,merchant_id,status,summary,shared_json,created_at) VALUES(?,?,'M-1001','PENDING','核查','[]',CURRENT_TIMESTAMP(6))",
+                ticket,
+                conv);
+        String id = message(conv, "MERCHANT", "CUSTOMER", ticket);
+        var item = service.list(buyer(), null).items().stream()
+                .filter(x -> x.notification_id().equals(id))
+                .findFirst()
+                .orElseThrow();
+        assertThat(item.store_id()).isEqualTo("M-1001");
+        assertThat(item.sender_name())
+                .isEqualTo(jdbc.queryForObject(
+                        "SELECT display_name FROM identity_merchant WHERE merchant_id='M-1001'", String.class));
+        assertThat(item.sender_kind()).isEqualTo("MERCHANT");
+        assertThat(item.title()).doesNotContain("私人内容");
+    }
+
+    @Test
     void projectsOnlyVisibleBusinessEventsAndPersistsReadStateWithoutDuplicatingEvents() {
         var c = conversation();
         String ticket = UUID.randomUUID().toString();

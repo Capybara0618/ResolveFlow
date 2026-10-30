@@ -5,6 +5,33 @@ info:
 security:
 - bearerAuth: []
 paths:
+  /api/v1/account/login-name:
+    post:
+      operationId: changeBuyerLoginName
+      summary: 验证当前密码并修改买家登录账号，原身份和订单关联保持不变
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeLoginName'
+      responses:
+        '200':
+          description: 修改成功，旧会话失效，使用新账号重新登录
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginNameChanged'
+        '400':
+          description: 账号格式或当前密码错误
+        '401':
+          description: 会话失效
+        '403':
+          description: 非买家账号
+        '409':
+          description: 版本冲突或账号名已占用
+        '429':
+          description: 请求过于频繁
   /api/v1/account/profile:
     get:
       summary: 读取本人资料
@@ -436,6 +463,27 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    ChangeLoginName:
+      type: object
+      additionalProperties: false
+      required: [login_name, current_password, expected_version]
+      properties:
+        login_name:
+          type: string
+          pattern: '^[a-zA-Z0-9][a-zA-Z0-9_-]{2,59}$'
+        current_password:
+          type: string
+          maxLength: 200
+        expected_version:
+          type: integer
+          minimum: 1
+    LoginNameChanged:
+      type: object
+      additionalProperties: false
+      required: [login_name]
+      properties:
+        login_name:
+          type: string
     Profile:
       type: object
       required:
@@ -454,6 +502,18 @@ components:
           type:
           - string
           - 'null'
+        login_name:
+          type: string
+          maxLength: 120
+        phone: &profilePhone
+          type: [string, 'null']
+          maxLength: 32
+        gender: &profileGender
+          type: [string, 'null']
+          enum: [UNDISCLOSED, FEMALE, MALE, OTHER, null]
+        birth_date: &profileBirthday
+          type: [string, 'null']
+          format: date
         version: *id001
     EditProfile:
       type: object
@@ -465,6 +525,9 @@ components:
         display_name:
           type: string
           maxLength: 120
+        phone: *profilePhone
+        gender: *profileGender
+        birth_date: *profileBirthday
         expected_version: *id001
     Address:
       type: object
@@ -570,6 +633,13 @@ components:
       - created_at
       - read
       properties:
+        store_id:
+          type: [string, 'null']
+        sender_name:
+          type: string
+        sender_kind:
+          type: string
+          enum: [MERCHANT, CUSTOMER, ASSISTANT]
         notification_id:
           type: string
           maxLength: 80

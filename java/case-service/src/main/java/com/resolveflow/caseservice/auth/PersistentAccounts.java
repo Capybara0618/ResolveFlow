@@ -84,7 +84,9 @@ public class PersistentAccounts {
     }
 
     public LoginResponse login(String username, String password, Instant now) {
-        Account account = find(username);
+        var users =
+                jdbc.queryForList("SELECT username FROM identity_account WHERE login_key=?", String.class, username);
+        Account account = users.isEmpty() ? null : find(users.getFirst());
         boolean matches = DemoAccounts.verify(password, account == null ? DUMMY_HASH : account.passwordHash());
         if (!matches || account == null || !account.enabled()) throw new DemoAccounts.CredentialsRejectedException();
         String token = codec.issue(account.principal(), account.identityVersion(), now);

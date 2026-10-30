@@ -22,6 +22,50 @@ class EnrollmentServiceTest extends CaseDatabaseTest {
     }
 
     @Test
+    void loginNameChangesKeepTheBuyerSubjectRejectCollisionsAndInvalidateOldSessions() {
+        String user = name(),
+                alias = name(),
+                other = name(),
+                peer = UUID.randomUUID().toString();
+        var receipt = service.register(new EnrollmentService.Register(user, "测试改账号", "password-test"), peer);
+        service.register(new EnrollmentService.Register(other, "其他买家", "password-test"), peer);
+        String buyer = dbBuyer(user);
+        var principal =
+                new com.resolveflow.shared.security.AuthenticatedPrincipal(user, null, Role.CUSTOMER, null, buyer);
+        long identityVersion =
+                jdbc.queryForObject("SELECT identity_version FROM identity_account WHERE username=?", Long.class, user);
+        var session = new Session(principal, identityVersion);
+        assertThatThrownBy(() ->
+                        service.changeLogin(session, new EnrollmentService.ChangeLogin(alias, "wrong-password", 1L)))
+                .isInstanceOf(Refused.class)
+                .hasMessage("当前密码不正确");
+        assertThatThrownBy(() ->
+                        service.changeLogin(session, new EnrollmentService.ChangeLogin(other, "password-test", 1L)))
+                .isInstanceOf(Refused.class)
+                .hasMessage("该账号已被使用");
+        service.changeLogin(session, new EnrollmentService.ChangeLogin(alias, "password-test", 1L));
+        assertThat(dbBuyer(user)).isEqualTo(buyer);
+        assertThat(accounts.login(alias, "password-test", java.time.Instant.now())
+                        .buyerId())
+                .isEqualTo(buyer);
+        assertThatThrownBy(() -> accounts.login(user, "password-test", java.time.Instant.now()))
+                .isInstanceOf(com.resolveflow.shared.security.DemoAccounts.CredentialsRejectedException.class);
+        assertThatThrownBy(() -> accounts.requireCurrent(principal, identityVersion))
+                .isInstanceOf(com.resolveflow.shared.security.JwtCodec.TokenException.class);
+        assertThatThrownBy(() -> service.register(new EnrollmentService.Register(alias, "冲突", "password-test"), peer))
+                .isInstanceOf(Refused.class);
+        var recovered =
+                service.recover(new EnrollmentService.Recover(alias, receipt.recovery_key(), "new-password"), peer);
+        assertThat(recovered.username()).isEqualTo(alias);
+        assertThat(accounts.login(alias, "new-password", java.time.Instant.now())
+                        .buyerId())
+                .isEqualTo(buyer);
+        assertThatThrownBy(() ->
+                        service.changeLogin(session, new EnrollmentService.ChangeLogin(name(), "new-password", 2L)))
+                .isInstanceOf(Refused.class);
+    }
+
+    @Test
     void buyerRegistrationBindsStoresAndRecoveryRotatesTheKeyAndInvalidatesOldLogin() {
         String user = name(), peer = UUID.randomUUID().toString();
         var result = service.register(new EnrollmentService.Register(user, "测试新买家", "password-test"), peer);

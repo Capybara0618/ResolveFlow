@@ -2,8 +2,10 @@ package com.resolveflow.caseservice.auth;
 
 import com.resolveflow.caseservice.order.RequestPrincipalResolver.Session;
 import com.resolveflow.caseservice.shopping.CommerceShoppingClient.Refused;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -11,9 +13,22 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class AccountService {
-    public record Profile(String username, String display_name, String avatar_id, long version) {}
+    public record Profile(
+            String username,
+            String display_name,
+            String avatar_id,
+            long version,
+            String login_name,
+            String phone,
+            String gender,
+            LocalDate birth_date) {}
 
-    public record EditProfile(String display_name, Long expected_version) {}
+    public record EditProfile(
+            String display_name, Long expected_version, String phone, String gender, LocalDate birth_date) {
+        public EditProfile(String display_name, Long expected_version) {
+            this(display_name, expected_version, null, null, null);
+        }
+    }
 
     public record Address(
             String address_id,
@@ -82,8 +97,16 @@ public class AccountService {
 
     public Profile profile(Session s) {
         var values = db.query(
-                "SELECT username,display_name,avatar_id,profile_version FROM identity_account WHERE username=?",
-                (r, n) -> new Profile(r.getString(1), r.getString(2), r.getString(3), r.getLong(4)),
+                "SELECT username,display_name,avatar_id,profile_version,login_key,phone,gender,birth_date FROM identity_account WHERE username=?",
+                (r, n) -> new Profile(
+                        r.getString(1),
+                        r.getString(2),
+                        r.getString(3),
+                        r.getLong(4),
+                        r.getString(5),
+                        r.getString(6),
+                        r.getString(7),
+                        r.getObject(8, LocalDate.class)),
                 s.principal().subject());
         if (values.isEmpty()) throw new Refused(404, "NOT_FOUND", "账号不存在");
         return values.getFirst();
@@ -91,12 +114,24 @@ public class AccountService {
 
     public Profile edit(Session s, EditProfile body) {
         String name = text(body.display_name(), 120, "昵称");
+        String phone = body.phone() == null || body.phone().isBlank()
+                ? null
+                : body.phone().trim();
+        if (phone != null && !phone.matches("[+0-9() -]{6,32}")) throw invalid("请填写有效联系电话");
+        if (body.gender() != null
+                && !Set.of("UNDISCLOSED", "FEMALE", "MALE", "OTHER").contains(body.gender())) throw invalid("请选择有效性别");
+        if (body.birth_date() != null
+                && (body.birth_date().isBefore(LocalDate.of(1900, 1, 1))
+                        || body.birth_date().isAfter(LocalDate.now()))) throw invalid("请填写有效生日");
         return tx.execute(st -> {
             var row = lock(s);
             version(((Number) row.get("profile_version")).longValue(), body.expected_version());
             db.update(
-                    "UPDATE identity_account SET display_name=?,profile_version=profile_version+1,account_version=account_version+1 WHERE username=?",
+                    "UPDATE identity_account SET display_name=?,phone=?,gender=?,birth_date=?,profile_version=profile_version+1,account_version=account_version+1 WHERE username=?",
                     name,
+                    phone,
+                    body.gender(),
+                    body.birth_date(),
                     s.principal().subject());
             return profile(s);
         });

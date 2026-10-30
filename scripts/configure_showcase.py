@@ -26,6 +26,11 @@ def asset_path(value: str) -> Path:
     return path
 
 
+def profile_snapshot(profile: dict) -> dict:
+    # New optional fields are empty on migration; never ignore a user supplied value.
+    return {"login_name": profile["username"], "phone": None, "gender": None, "birth_date": None, **profile}
+
+
 def require_owned(label: str, current: dict, owned: dict | None) -> None:
     if owned is not None and current == (dict(owned, variant_images={}) if "variant_images" in current and "variant_images" not in owned else owned):
         return
@@ -146,7 +151,7 @@ class Configuration:
             if (owned is None and profile.get("avatar_id")) or (
                 owned is not None
                 and (
-                    profile != owned["profile"]
+                    profile_snapshot(profile) != profile_snapshot(owned["profile"])
                     or owned["source"] != digest(asset_path(image).read_bytes())
                 )
             ):
@@ -286,7 +291,7 @@ class Configuration:
             current = self.request("GET", "/api/v1/account/profile", username).json()
             encoded = self.request("GET", "/api/v1/account/avatar", username).content
             if (
-                current != entry["profile"]
+                profile_snapshot(current) != profile_snapshot(entry["profile"])
                 or digest(encoded) != entry["encoded_sha256"]
             ):
                 raise ValueError("头像读回不一致")

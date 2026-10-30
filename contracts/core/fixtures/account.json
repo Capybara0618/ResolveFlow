@@ -3,7 +3,11 @@
     "username": "test-buyer",
     "display_name": "测试买家",
     "avatar_id": null,
-    "version": 1
+    "version": 1,
+    "login_name": "test-buyer",
+    "phone": null,
+    "gender": null,
+    "birth_date": null
   },
   "Address": {
     "address_id": "00000000-0000-4000-8000-000000000501",
@@ -25,10 +29,21 @@
         "target_id": "00000000-0000-4000-8000-000000000503",
         "conversation_id": "00000000-0000-4000-8000-000000000503",
         "created_at": "2026-10-29T08:00:00Z",
-        "read": false
+        "read": false,
+        "store_id": "M-1001",
+        "sender_name": "松间数码",
+        "sender_kind": "MERCHANT"
       }
     ],
     "unread_count": 1,
     "next_cursor": null
+  },
+  "ChangeLoginName": {
+    "login_name": "buyer-renamed",
+    "current_password": "test-password",
+    "expected_version": 1
+  },
+  "LoginNameChanged": {
+    "login_name": "buyer-renamed"
   }
 }

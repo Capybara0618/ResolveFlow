@@ -20,3 +20,11 @@
 - Commerce新增V21；拒绝其他商品款式/相册外图片，范围和版本检查沿用现有规则。协议、fixture及展示资料配置同步更新。
 - 上传相册款式回归先红后绿；前端5项、类型检查通过；`PresentationDatabaseTest`3项与契约4项通过，包构建最终通过。曾误指定不存在测试目录，0项不计通过；首次命令PowerShell参数拆分/旧Python不支持UTC，已改JDK21、引号参数和uv解释器。
 - 运行JAR锁导致首次package失败；停Commerce后重新package成功。正在重启并配置现有图库的显式款式映射，尚不称真实换图验收完成。
+
+### 第三步：资料、登录账号与消息身份
+
+- Case V37增加私有电话/性别/生日及可修改登录名，年龄由生日计算。内部username和buyer_id不改；登录只匹配当前login_key，修改需当前密码、资料版本、买家身份、限频；唯一索引和原username占用检查防重名，identity_version递增撤销旧会话。恢复密钥按新登录名解析回内部主体，继续使用原关联。
+- 消息投影输出所属店铺ID/名称和发送者类型，沿用原可见性/已读/分页条件，不输出私聊正文或其他买家资料。
+- `AccountServiceTest,EnrollmentServiceTest,NotificationServiceTest,AccountApiTest,PresentationApiTest`16项通过；契约account/presentation10项通过。首次新增测试误写括号，随后测试会话假定identity_version=1和商家消息缺ticket导致失败，已按实际默认版本和有效路由补正；没有修改领域断言。
+- 新版Case/Commerce健康；独立qa_buyer_1030开头账号真实API验证资料和地址落库、错误密码400、占名409、改账号、旧token/旧账号401、新账号登录后同buyer_id与地址保留，通过。无新订单/退款/模型调用。
+- 展示资料读回4账号/3店/12商品/24图通过；新增字段按明确空默认值兼容旧配置快照，不忽略用户实际资料。实机buyer01背包橄榄绿主图、缩略图、189元同步，消息能看到各店名称及头像。此前只更新Commerce导致旧Case拒绝新字段400，已整体更新Case后复验通过。

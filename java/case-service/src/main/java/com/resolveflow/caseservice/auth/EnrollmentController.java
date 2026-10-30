@@ -34,6 +34,15 @@ public class EnrollmentController {
                 .body(service.recover(body, request.getRemoteAddr()));
     }
 
+    @PostMapping("/api/v1/account/login-name")
+    public ResponseEntity<EnrollmentService.LoginChanged> changeLogin(
+            @RequestHeader(name = "Authorization", required = false) String auth,
+            @RequestBody EnrollmentService.ChangeLogin body) {
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-store")
+                .body(service.changeLogin(principals.session(auth), body));
+    }
+
     @PostMapping("/api/v1/account/recovery-key")
     public ResponseEntity<EnrollmentService.Receipt> rotate(
             @RequestHeader(name = "Authorization", required = false) String auth,

@@ -39,6 +39,28 @@ class AccountServiceTest extends CaseDatabaseTest {
     }
 
     @Test
+    void optionalProfileFieldsPersistAndRejectInvalidValuesWithVersionProtection() {
+        var s = session("profile-test-one");
+        var value = service.edit(
+                s,
+                new AccountService.EditProfile(
+                        "测试买家", 1L, "13800000000", "FEMALE", java.time.LocalDate.of(2000, 2, 29)));
+        assertThat(service.profile(s)).isEqualTo(value);
+        assertThat(value.phone()).isEqualTo("13800000000");
+        assertThat(value.birth_date()).isEqualTo(java.time.LocalDate.of(2000, 2, 29));
+        assertThatThrownBy(() -> service.edit(s, new AccountService.EditProfile("测试", 2L, "bad", "FEMALE", null)))
+                .isInstanceOf(Refused.class);
+        assertThatThrownBy(() -> service.edit(s, new AccountService.EditProfile("测试", 2L, null, "INVALID", null)))
+                .isInstanceOf(Refused.class);
+        assertThatThrownBy(() -> service.edit(
+                        s,
+                        new AccountService.EditProfile(
+                                "测试", 2L, null, null, java.time.LocalDate.now().plusDays(1))))
+                .isInstanceOf(Refused.class);
+        assertThat(service.profile(session("profile-test-two")).phone()).isNull();
+    }
+
+    @Test
     void nicknamePersistsWithoutChangingIdentityAndRejectsStaleEdits() {
         var s = session("profile-test-one");
         assertThat(service.edit(s, new AccountService.EditProfile("卡皮巴拉", 1L)).display_name())

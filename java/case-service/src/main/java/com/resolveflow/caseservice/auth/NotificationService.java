@@ -22,7 +22,10 @@ public class NotificationService {
             String target_id,
             String conversation_id,
             Instant created_at,
-            boolean read) {}
+            boolean read,
+            String store_id,
+            String sender_name,
+            String sender_kind) {}
 
     public record Page(List<Item> items, long unread_count, String next_cursor) {}
 
@@ -39,7 +42,7 @@ public class NotificationService {
     private Query sources(Session s) {
         var p = s.principal();
         if (p.isPlatformBuyer()) return new Query("""
-            SELECT CONCAT('message:',m.message_id) id,'商家回复了你的咨询' title,'SUPPORT' target,c.conversation_id target_id,c.conversation_id,m.created_at
+            SELECT CONCAT('message:',m.message_id) id,'商家回复了你的咨询' title,'SUPPORT' target,c.conversation_id target_id,c.conversation_id,m.created_at,c.merchant_id store_id,store.display_name sender_name,'MERCHANT' sender_kind
             FROM support_message m JOIN support_conversation c ON c.conversation_id=m.conversation_id
             JOIN identity_merchant store ON store.merchant_id=c.merchant_id AND store.enabled=TRUE
             JOIN buyer_customer_binding binding ON binding.buyer_id=c.buyer_id AND binding.merchant_id=c.merchant_id AND binding.customer_id=c.customer_id
@@ -47,7 +50,7 @@ public class NotificationService {
             UNION ALL
             SELECT CONCAT('case:',t.event_id),CASE WHEN t.kind='QUESTION_REQUIRED' THEN '售后申请需要补充说明'
               WHEN JSON_UNQUOTE(JSON_EXTRACT(CASE WHEN JSON_VALID(t.detail) THEN t.detail ELSE '{}' END,'$.outcome'))='SUCCEEDED' THEN '模拟退款已完成' ELSE '售后申请有处理结果' END,
-              'APPLICATION',c.case_id,NULL,t.occurred_at
+              'APPLICATION',c.case_id,NULL,t.occurred_at,c.merchant_id,store.display_name,'MERCHANT'
             FROM case_timeline t JOIN aftersale_case c ON c.case_id=t.case_id
             JOIN buyer_customer_binding b ON b.merchant_id=c.merchant_id AND b.customer_id=c.customer_id
             JOIN identity_merchant store ON store.merchant_id=b.merchant_id AND store.enabled=TRUE
@@ -56,14 +59,14 @@ public class NotificationService {
             """, List.of(p.buyerId(), p.buyerId()));
         if (p.role() == Role.MERCHANT_ADMIN)
             return new Query("""
-            SELECT CONCAT('message:',m.message_id) id,'买家发来了补充消息' title,'TICKET' target,m.ticket_id target_id,c.conversation_id,m.created_at
+            SELECT CONCAT('message:',m.message_id) id,'买家发来了补充消息' title,'TICKET' target,m.ticket_id target_id,c.conversation_id,m.created_at,NULL store_id,'买家' sender_name,'CUSTOMER' sender_kind
             FROM support_message m JOIN support_conversation c ON c.conversation_id=m.conversation_id
             WHERE c.merchant_id=? AND m.author='CUSTOMER' AND m.recipient='MERCHANT' AND m.ticket_id IS NOT NULL
             UNION ALL
-            SELECT CONCAT('ticket:',t.ticket_id),'有新的咨询需要核查','TICKET',t.ticket_id,t.conversation_id,t.created_at
+            SELECT CONCAT('ticket:',t.ticket_id),'有新的咨询需要核查','TICKET',t.ticket_id,t.conversation_id,t.created_at,NULL,'买家','CUSTOMER'
             FROM support_ticket t WHERE t.merchant_id=? AND t.created_at IS NOT NULL
             UNION ALL
-            SELECT CONCAT('case:',t.event_id),'有售后申请需要处理','CASE',c.case_id,NULL,t.occurred_at
+            SELECT CONCAT('case:',t.event_id),'有售后申请需要处理','CASE',c.case_id,NULL,t.occurred_at,NULL,'ResolveFlow 客服','ASSISTANT'
             FROM case_timeline t JOIN aftersale_case c ON c.case_id=t.case_id
             WHERE c.merchant_id=? AND t.kind IN ('APPROVAL_REQUIRED','AGENT_FAILED')
             """, List.of(p.merchantId(), p.merchantId(), p.merchantId()));
@@ -107,7 +110,10 @@ public class NotificationService {
                         r.getString("target_id"),
                         r.getString("conversation_id"),
                         r.getTimestamp("created_at").toInstant(),
-                        r.getBoolean("is_read")),
+                        r.getBoolean("is_read"),
+                        r.getString("store_id"),
+                        r.getString("sender_name"),
+                        r.getString("sender_kind")),
                 args.toArray());
         String next = null;
         if (items.size() > 24) {
