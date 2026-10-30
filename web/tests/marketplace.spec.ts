@@ -190,3 +190,82 @@ it('shows the server review summary beside the product and opens its review sect
   expect(w.find('[aria-label="查看买家评价"]').exists()).toBe(false)
   expect(w.text()).not.toContain('4.7 分')
 })
+
+
+it('returns to the same catalogue page and scroll without an empty refetch', async () => {
+  vi.useFakeTimers()
+  const scroll = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  vi.spyOn(window, 'scrollY', 'get').mockReturnValue(460)
+  window.history.replaceState(null, '', '/#/shop/search?category=electronics')
+  vi.mocked(shopApi.products).mockResolvedValueOnce({items:[product],next_after:'p2'}).mockResolvedValueOnce({items:[{...product,name:'第二页耳机'}],next_after:null})
+  await open(); await w.get('[aria-label="下一页"]').trigger('click'); await flushPromises()
+  await w.get('.product-image').trigger('click'); await flushPromises()
+  window.history.back(); await vi.advanceTimersByTimeAsync(120); await flushPromises(); await vi.advanceTimersByTimeAsync(40)
+  expect(w.text()).toContain('第 2 页'); expect(w.text()).toContain('第二页耳机')
+  expect(shopApi.products).toHaveBeenCalledTimes(2)
+  expect(scroll).toHaveBeenLastCalledWith({top:460,behavior:'auto'})
+  vi.useRealTimers()
+})
+
+it('restores the chosen product variant and quantity after visiting the cart while re-reading its price', async () => {
+  vi.useFakeTimers()
+  vi.spyOn(shopApi,'cart').mockResolvedValue({stores:[]})
+  await open(); await w.findAll('fieldset button')[1].trigger('click'); await w.get('[aria-label="购买数量"]').setValue(3)
+  await w.get('a[href="#/shop/cart"]').trigger('click'); await flushPromises()
+  window.history.back(); await vi.advanceTimersByTimeAsync(120); await flushPromises()
+  expect(w.get<HTMLInputElement>('[aria-label="购买数量"]').element.value).toBe('3')
+  expect(w.findAll('fieldset button')[1].attributes('aria-pressed')).toBe('true')
+  expect(shopApi.product).toHaveBeenCalledTimes(2)
+  expect(shopApi.quote).not.toHaveBeenCalled(); expect(shopApi.draft).not.toHaveBeenCalled()
+  vi.useRealTimers()
+})
+
+
+it('keeps cart selections after opening a product and returning through history', async () => {
+  vi.useFakeTimers()
+  window.history.replaceState(null, '', '/#/shop/cart')
+  vi.spyOn(shopApi,'cart').mockResolvedValue({stores:[{store_id:'M-1001',store_name:'松间数码',revision:1,currency:'CNY',items:product.skus.map(s=>({sku_id:s.sku_id,product_id:product.product_id,product_name:product.name,variant:s.variant,asset_key:product.asset_key,quantity:1,unit_amount:s.unit_amount,total_amount:s.unit_amount,max_quantity:10,sku_version:s.version,price_changed:false,availability:'AVAILABLE'}))}]})
+  await open(); await w.findAll<HTMLInputElement>('.cart-row input[type=checkbox]')[1].setValue(false)
+  await w.get('a[aria-label="查看无线降噪耳机"]').trigger('click'); await flushPromises()
+  window.history.back(); await vi.advanceTimersByTimeAsync(120); await flushPromises()
+  expect(w.findAll<HTMLInputElement>('.cart-row input[type=checkbox]').map(c=>c.element.checked)).toEqual([true,false])
+  expect(shopApi.cart).toHaveBeenCalledTimes(2)
+  vi.useRealTimers()
+})
+
+it('delays the initial catalogue skeleton and never flashes an empty search result', async () => {
+  vi.useFakeTimers()
+  window.history.replaceState(null, '', '/#/shop/search')
+  let resolve!: (v:{items:ShopProduct[];next_after:null})=>void
+  vi.mocked(shopApi.products).mockReturnValue(new Promise(r=>{resolve=r}))
+  w = mount(MarketplaceWorkspace,{props:{account:buyer}}); await flushPromises()
+  expect(w.find('.catalog-skeleton').exists()).toBe(false); expect(w.text()).not.toContain('没有找到商品')
+  await vi.advanceTimersByTimeAsync(170)
+  expect(w.find('.catalog-skeleton').exists()).toBe(true)
+  resolve({items:[product],next_after:null}); await flushPromises()
+  expect(w.find('.catalog-skeleton').exists()).toBe(false); expect(w.findAll('.product-card')).toHaveLength(1)
+  vi.useRealTimers()
+})
+
+
+it('re-reads a catalogue snapshot after its five minute lifetime', async () => {
+  vi.useFakeTimers()
+  window.history.replaceState(null, '', '/#/shop/search')
+  await open(); await w.get('.product-image').trigger('click'); await flushPromises()
+  await vi.advanceTimersByTimeAsync(300001)
+  window.history.back(); await vi.advanceTimersByTimeAsync(120); await flushPromises()
+  expect(shopApi.products).toHaveBeenCalledTimes(2)
+  vi.useRealTimers()
+})
+
+it('does not turn a failed catalogue read into a cached empty result', async () => {
+  vi.useFakeTimers()
+  window.history.replaceState(null, '', '/#/shop/search?query=耳机')
+  vi.mocked(shopApi.products).mockRejectedValueOnce(new ApiError(503,'UNAVAILABLE','商品暂时无法读取'))
+  await open(); expect(w.text()).toContain('商品暂时无法读取')
+  await w.get('.shop-brand').trigger('click'); await flushPromises()
+  window.history.back(); await vi.advanceTimersByTimeAsync(120); await flushPromises()
+  expect(shopApi.products).toHaveBeenCalledTimes(3)
+  expect(w.findAll('.product-card')).toHaveLength(1)
+  vi.useRealTimers()
+})

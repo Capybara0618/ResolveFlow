@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onBeforeUnmount } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { shopApi, type CartGroup, type CartItem, type CartQuote } from '../shop-client'
 import { readCartPending, saveCartPending, clearCartPending, type CartPending } from '../cart-pending'
@@ -9,12 +9,19 @@ import AddressPicker from './AddressPicker.vue'
 import type { ShippingSelection } from '../account-client'
 import Icon from './ReviewIcon.vue'
 
-const props = defineProps<{ account: LoginResponse }>()
-const emit = defineEmits<{ expired: []; navigate: [hash: string]; busy: [blocked: boolean] }>()
-const stores = ref<CartGroup[]>([]), selected = ref<string[]>([]), loading = ref(false), writing = ref(false)
+const props = defineProps<{ account: LoginResponse; initialSelection?: string[] }>()
+const emit = defineEmits<{ expired: []; navigate: [hash: string]; busy: [blocked: boolean]; selection: [ids: string[]]; ready: [] }>()
+const stores = ref<CartGroup[]>([]), selected = ref<string[]>(props.initialSelection ?? []), loading = ref(false), writing = ref(false)
 const error = ref(''), quote = ref<CartQuote | null>(null), pending = ref<CartPending | null>(null)
 const shipping = ref<ShippingSelection | null>(null), addressBusy = ref(false)
-let alive = true, generation = 0, initialized = false
+let alive = true, generation = 0, initialized = props.initialSelection !== undefined
+const slowLoading = ref(false)
+let loadingTimer: ReturnType<typeof setTimeout> | undefined, positionFrame: number | undefined, listPosition = 0
+watch(loading, value => { clearTimeout(loadingTimer); slowLoading.value = false; if (value) loadingTimer = setTimeout(() => { slowLoading.value = true }, 150) })
+watch(selected, ids => emit('selection', [...ids]))
+async function position(top: number) { await nextTick(); cancelAnimationFrame(positionFrame ?? 0); positionFrame = requestAnimationFrame(() => { if (alive) window.scrollTo({top, behavior:'auto'}) }) }
+function backWithin() { if (!quote.value || blocked.value) return false; quote.value = null; void position(listPosition); return true }
+function openProduct(id: string) { if (!blocked.value && !loading.value) emit('navigate', `#/shop/products/${encodeURIComponent(id)}`) }
 const blocked = computed(() => writing.value || !!pending.value || addressBusy.value)
 const money = (v: number) => `¥ ${formatMinorUnits(v).replace(' CNY', '')}`
 const reasons = { DELISTED: '商品已下架', STORE_DISABLED: '店铺暂不可购买', QUANTITY_EXCEEDED: '数量超过当前购买上限', AVAILABLE: '' }
@@ -71,10 +78,11 @@ async function retry() {
 }
 async function checkout(s: CartGroup) {
   if (blocked.value || loading.value || !chosen(s).length) return
+  listPosition = window.scrollY
   const g = generation; writing.value = true; busy(); error.value = ''
   try {
     const q = await shopApi.cartQuote(props.account.access_token, s.store_id, s.revision, chosen(s).map(i => i.sku_id))
-    if (alive && g === generation) quote.value = q
+    if (alive && g === generation) { quote.value = q; void position(0) }
   } catch (e) { if (alive && g === generation) fail(e) }
   finally { if (alive) { writing.value = false; busy() } }
 }
@@ -87,17 +95,18 @@ async function submit() {
 }
 onMounted(() => {
   try { pending.value = readCartPending(props.account.buyer_id!); if (pending.value?.kind === 'draft') quote.value = pending.value.quote; busy() } catch (e) { fail(e) }
-  void load()
+  void load().then(() => { if (alive) emit('ready') })
 })
-onBeforeUnmount(() => { alive = false; ++generation; emit('busy', false) })
+onBeforeUnmount(() => { alive = false; ++generation; clearTimeout(loadingTimer); cancelAnimationFrame(positionFrame ?? 0); emit('busy', false) })
+defineExpose({ navigationBlocked: blocked, backWithin, viewScroll: () => quote.value ? listPosition : window.scrollY })
 </script>
 
 <template>
-  <main class="shop-content cart-workspace">
+  <main class="shop-content cart-workspace" :aria-busy="loading || writing">
     <p v-if="error" class="shop-error" role="alert">{{ error }}</p>
     <div v-if="pending" class="cart-recovery" role="status"><p>上次{{ pending.kind === 'draft' ? '订单提交' : '购物车操作' }}结果待确认。</p><button class="shop-primary" :disabled="writing" @click="retry">{{ writing ? '正在确认…' : '用原请求确认结果' }}</button></div>
     <template v-if="quote">
-      <button class="shop-back" :disabled="blocked" @click="quote = null">返回购物车</button><h1>确认订单</h1>
+      <button class="shop-back" :disabled="blocked" @click="backWithin">返回购物车</button><h1>确认订单</h1>
       <AddressPicker v-model="shipping" :account="account" :disabled="blocked" @working="addressBusy = $event" @expired="emit('expired')" />
       <section class="checkout-panel"><h2>{{ quote.store_name }}</h2>
         <div v-for="line in quote.lines" :key="line.sku_id" class="checkout-line"><ProductArt :asset="line.asset_key" :name="line.product_name" :variant="line.variant" /><div><h2>{{ line.product_name }}</h2><p>{{ line.variant }}</p></div><div><p>单价</p><strong>{{ money(line.unit_amount) }}</strong></div><div><p>数量</p><strong>{{ line.quantity }}</strong></div><div><p>小计</p><strong>{{ money(line.line_amount) }}</strong></div></div>
@@ -107,14 +116,14 @@ onBeforeUnmount(() => { alive = false; ++generation; emit('busy', false) })
     </template>
     <template v-else>
       <div class="cart-heading"><div><h1>购物车</h1><p>按店铺分别结算</p></div><button class="shop-secondary" :disabled="blocked || loading" @click="refresh">刷新购物车</button></div>
-      <p v-if="loading" class="shop-empty" role="status">正在读取购物车…</p>
-      <div v-else-if="!stores.some(s => s.items.length) && !error" class="shop-empty"><p>购物车还没有商品。</p><button class="shop-primary" :disabled="blocked" @click="emit('navigate', '#/shop')">去逛商城</button></div>
+      <div v-if="loading && slowLoading && !stores.length" class="cart-skeleton" role="status" aria-label="正在读取购物车"><div v-for="i in 2" :key="i" aria-hidden="true"><i /><span /></div></div>
+      <div v-else-if="!loading && !stores.some(s => s.items.length) && !error" class="shop-empty"><p>购物车还没有商品。</p><button class="shop-primary" :disabled="blocked" @click="emit('navigate', '#/shop')">去逛商城</button></div>
       <section v-for="s in stores.filter(s => s.items.length)" :key="s.store_id" class="cart-store">
         <header><Icon name="store" :size="20" /><h2>{{ s.store_name }}</h2></header>
         <div class="cart-columns" aria-hidden="true"><span></span><span>商品</span><span>单价</span><span>数量</span><span>小计</span><span>操作</span></div>
         <div v-for="i in s.items" :key="i.sku_id" class="cart-row" :data-sku="i.sku_id">
           <input v-model="selected" type="checkbox" :value="i.sku_id" :aria-label="`选择${i.product_name}`" :disabled="blocked || loading || i.availability !== 'AVAILABLE'" />
-          <div class="cart-product"><ProductArt :asset="i.asset_key" :name="i.product_name" :variant="i.variant" /><div><h2>{{ i.product_name }}</h2><p>{{ i.variant }}</p><p v-if="i.availability !== 'AVAILABLE'" class="cart-unavailable">{{ reasons[i.availability] }}</p><p v-else-if="i.price_changed" class="cart-unavailable">价格已更新，请结算时确认新报价。</p></div></div>
+          <div class="cart-product"><a :href="`#/shop/products/${i.product_id}`" :aria-label="`查看${i.product_name}`" :aria-disabled="blocked || loading" @click.prevent="openProduct(i.product_id)"><ProductArt :asset="i.asset_key" :name="i.product_name" :variant="i.variant" /></a><div><h2><a :href="`#/shop/products/${i.product_id}`" :aria-disabled="blocked || loading" @click.prevent="openProduct(i.product_id)">{{ i.product_name }}</a></h2><p>{{ i.variant }}</p><p v-if="i.availability !== 'AVAILABLE'" class="cart-unavailable">{{ reasons[i.availability] }}</p><p v-else-if="i.price_changed" class="cart-unavailable">价格已更新，请结算时确认新报价。</p></div></div>
           <strong class="cart-unit-price"><span class="cart-mobile-label">单价</span>{{ money(i.unit_amount) }}</strong>
           <div class="cart-quantity"><button :aria-label="`减少${i.product_name}数量`" :disabled="blocked || loading || i.quantity <= 1 || i.availability !== 'AVAILABLE'" @click="change(s, i, i.quantity - 1)">−</button><span>{{ i.quantity }}</span><button :aria-label="`增加${i.product_name}数量`" :disabled="blocked || loading || i.quantity >= i.max_quantity || i.availability !== 'AVAILABLE'" @click="change(s, i, i.quantity + 1)">＋</button></div>
           <strong class="cart-line-total"><span class="cart-mobile-label">小计</span>{{ money(i.total_amount) }}</strong><button class="cart-remove" :aria-label="`移除${i.product_name}`" :disabled="blocked || loading" @click="change(s, i, 0)">移除</button>

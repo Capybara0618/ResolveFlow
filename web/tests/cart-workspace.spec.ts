@@ -101,3 +101,38 @@ it('late quote after unmount cannot submit, navigate or persist a draft', async 
 })
 
 it('requires an address before submitting the cart order',async()=>{vi.mocked(accountApi.addresses).mockResolvedValue({items:[]});await confirm();expect(w.get('.cart-submit').attributes('disabled')).toBeDefined();await w.get('.cart-submit').trigger('click');expect(shopApi.cartDraft).not.toHaveBeenCalled()})
+
+
+it('restores only still-available selected rows from a previous cart visit', async () => {
+  w = mount(CartWorkspace, { props: { account, initialSelection: ['ear','removed-sku'] } })
+  await flushPromises()
+  expect(w.get<HTMLInputElement>('[aria-label="选择无线降噪耳机"]').element.checked).toBe(true)
+  expect(w.get<HTMLInputElement>('[aria-label="选择机械键盘"]').element.checked).toBe(false)
+  expect(w.emitted('selection')?.at(-1)).toEqual([['ear']])
+  expect(shopApi.cart).toHaveBeenCalledOnce()
+})
+
+it('keeps existing cart rows steady during a refresh without adding a loading row above them', async () => {
+  await open()
+  let resolve!: (v: {stores:CartGroup[]}) => void
+  vi.mocked(shopApi.cart).mockReturnValue(new Promise(r=>{resolve=r}))
+  await w.get('.cart-heading button').trigger('click')
+  expect(w.findAll('.cart-row')).toHaveLength(4)
+  expect(w.find('[role="status"]').exists()).toBe(false)
+  resolve({stores:structuredClone(groups)}); await flushPromises()
+})
+
+
+it('returns from a cart quote to its selection and list reading position', async () => {
+  vi.useFakeTimers()
+  const scroll = vi.spyOn(window,'scrollTo').mockImplementation(()=>{})
+  vi.spyOn(window,'scrollY','get').mockReturnValue(480)
+  await open(); await w.get('[aria-label="选择机械键盘"]').setValue(false)
+  await w.findAll('.cart-checkout')[0].trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(30)
+  expect(scroll).toHaveBeenLastCalledWith({top:0,behavior:'auto'})
+  await w.get('.shop-back').trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(30)
+  expect(scroll).toHaveBeenLastCalledWith({top:480,behavior:'auto'})
+  expect(w.get<HTMLInputElement>('[aria-label="选择机械键盘"]').element.checked).toBe(false)
+  expect(shopApi.cartDraft).not.toHaveBeenCalled()
+  vi.useRealTimers()
+})

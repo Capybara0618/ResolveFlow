@@ -179,3 +179,23 @@
 .workbench .marketplace .product-review-entry span:first-child { color: var(--rf-accent); font-weight: 500; }
 .workbench .marketplace .product-review-entry:hover { color: var(--rf-accent); background: transparent; box-shadow: none; text-decoration: underline; text-underline-offset: 4px; }
 .product-review-anchor { scroll-margin-top: 100px; }
+
+/* Keep the catalogue footprint while requests settle; refreshes retain their rows. */
+.shop-view { min-height: 70dvh; animation: rf-content-enter 160ms var(--rf-motion-ease); }
+.catalog-skeleton > div > i { display: block; aspect-ratio: 1; border-radius: 10px; }
+.catalog-skeleton span { display: block; height: 14px; width: 65%; border-radius: 4px; margin-top: 16px; }
+.catalog-skeleton span:last-child { width: 35%; margin-top: 10px; }
+.catalog-skeleton :is(i,span),.product-skeleton i,.cart-skeleton :is(i,span) { background: #edf0e8; animation: shop-placeholder 1.4s ease-in-out infinite alternate; }
+.product-skeleton { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.9fr); gap: 48px; }
+.product-skeleton > i { aspect-ratio: 1; border-radius: 12px; }
+.product-skeleton > div { padding: 32px 0; }
+.product-skeleton > div i { display: block; height: 22px; width: 80%; margin-bottom: 24px; border-radius: 5px; }
+.product-skeleton > div i:last-child { width: 50%; height: 44px; margin-top: 60px; }
+.cart-skeleton > div { display: flex; align-items: center; gap: 24px; min-height: 240px; background: white; border: 1px solid var(--rf-line); border-radius: 12px; padding: 28px; margin-bottom: 24px; }
+.cart-skeleton i { width: 80px; height: 80px; flex-shrink: 0; border-radius: 8px; }
+.cart-skeleton span { width: 35%; height: 18px; border-radius: 4px; }
+.cart-product > a { flex-shrink: 0; display: block; }
+.cart-product h2 a:hover { color: var(--shop-accent); }
+@keyframes shop-placeholder { from { opacity: .5; } to { opacity: 1; } }
+@media(max-width:650px) { .product-skeleton { grid-template-columns: minmax(0,1fr); gap: 16px; } }
+@media(prefers-reduced-motion:reduce) { .shop-view,.catalog-skeleton :is(i,span),.product-skeleton i,.cart-skeleton :is(i,span) { animation: none; } }

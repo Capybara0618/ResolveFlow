@@ -2,7 +2,7 @@
 import { beginBuyerNavigation, pushBuyerNavigation, hasBuyerPrevious } from '../buyer-navigation'
 import StoreMark from './StoreMark.vue'
 import { useDismissible } from './useDismissible'
-import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { shopApi, type ShopProduct, type ShopStore, type ShopQuote, type ShopDraft, type ShopDraftRequest } from '../shop-client'
 import { formatMinorUnits } from '../money'
@@ -45,18 +45,45 @@ const reviewSummary = ref<ReviewSummary | null>(null), reviewsAnchor = ref<HTMLE
 const sku = ref(''), quantity = ref(1), quote = ref<ShopQuote | null>(null), draft = ref<ShopDraft | null>(null)
 const loading = ref(false), writing = ref(false), uncertain = ref(false), error = ref(''), next = ref<string | null>(null)
 const pageIndex = ref(0), pageCursors = ref<Array<string | undefined>>([undefined])
-const activeWorkspace = ref<{ navigationBlocked: boolean }>()
+const activeWorkspace = ref<{ navigationBlocked: boolean; backWithin?: () => boolean; viewScroll?: () => number }>()
 const navigationOwner = () => props.account?.buyer_id ?? 'visitor'
 const hasPrevious = ref(false)
 const navigationBlocked = computed(() => writing.value || uncertain.value || cartBusy.value || addressBusy.value || activeWorkspace.value?.navigationBlocked === true)
 function back() {
   if (navigationBlocked.value) return
   if (accountMenu.value) accountMenu.value.open = false
-  if (screen.value === 'checkout') { ++quoteGeneration; quote.value = null; screen.value = 'product'; error.value = ''; return }
+  if (screen.value === 'cart' && activeWorkspace.value?.backWithin?.()) return
+  if (screen.value === 'checkout') { leaveCheckout(); return }
+  rememberView()
   if (hasBuyerPrevious(navigationOwner())) window.history.back()
   else { window.history.replaceState(null, '', '#/shop'); void route() }
 }
 let generation = 0, quoteGeneration = 0, alive = true, pending: { key: string; request: ShopDraftRequest } | null = null
+// Memory belongs to this account's workspace; history stores only the entry identity.
+type BrowseView = { hash: string; at: number; scroll: number; listing?: { products: ShopProduct[]; next: string | null; index: number; cursors: Array<string | undefined>; store: ShopStore | null }; product?: { sku: string; quantity: number }; cart?: string[] }
+const views = new Map<string, BrowseView>()
+const cartInitial = ref<string[] | undefined>(), cartSelection = ref<string[]>([]), slowLoading = ref(false)
+let currentHash = '', currentEntry = '', cartPosition = 0, productPosition = 0, catalogReadAt = 0
+let positionFrame: number | undefined, loadingTimer: ReturnType<typeof setTimeout> | undefined
+let previousScrollRestoration: ScrollRestoration
+watch(loading, value => { clearTimeout(loadingTimer); slowLoading.value = false; if (value) loadingTimer = setTimeout(() => { slowLoading.value = true }, 150) })
+function rememberView() {
+  if (!currentEntry || loading.value || error.value || !['home','search','store','product','cart'].includes(screen.value)) return
+  const value: BrowseView = { hash: currentHash, at: Date.now(), scroll: window.scrollY }
+  if (listingScreen.value) { value.at = catalogReadAt; value.listing = { products: products.value, next: next.value, index: pageIndex.value, cursors: [...pageCursors.value], store: store.value } }
+  if (screen.value === 'product' && product.value) value.product = { sku: sku.value, quantity: quantity.value }
+  if (screen.value === 'cart') { value.cart = [...cartSelection.value]; value.scroll = activeWorkspace.value?.viewScroll?.() ?? value.scroll }
+  views.delete(currentEntry); views.set(currentEntry, value)
+  if (views.size > 12) views.delete(views.keys().next().value!)
+}
+watch([sku, quantity], rememberView)
+async function position(top: number, g = generation) {
+  await nextTick(); cancelAnimationFrame(positionFrame ?? 0)
+  positionFrame = requestAnimationFrame(() => { if (alive && g === generation) window.scrollTo({ top, behavior: 'auto' }) })
+}
+function restoreCart() { if (screen.value === 'cart') void position(cartPosition) }
+function leaveCheckout() { ++quoteGeneration; quote.value = null; screen.value = 'product'; error.value = ''; void position(productPosition) }
+
 watch([sku, quantity], () => { added.value = false })
 const selectedSku = computed(() => product.value?.skus.find(s => s.sku_id === sku.value))
 const money = (amount: number) => `¥ ${formatMinorUnits(amount).replace(' CNY', '')}`
@@ -76,7 +103,7 @@ function failure(cause: unknown) {
 function go(hash: string) {
   if (accountMenu.value) accountMenu.value.open = false
   if (navigationBlocked.value) { error.value = '请先确认本次订单提交结果。'; return }
-  pushBuyerNavigation(hash, navigationOwner()); void route()
+  rememberView(); pushBuyerNavigation(hash, navigationOwner()); void route()
 }
 function openNotification(item: Notification) { go(item.target === 'APPLICATION' ? `#/customer/applications/${encodeURIComponent(item.target_id)}` : `#/shop/support?conversation=${encodeURIComponent(item.target_id)}`) }
 function search() { go(`${store.value ? `#/shop/stores/${encodeURIComponent(store.value.store_id)}` : '#/shop/search'}?${new URLSearchParams({ ...(query.value.trim() ? { query: query.value.trim() } : {}), ...(category.value ? { category: category.value } : {}) })}`) }
@@ -85,8 +112,16 @@ function changeStore(event: Event) {
   const params = new URLSearchParams({ ...(query.value.trim() ? { query: query.value.trim() } : {}), ...(category.value ? { category: category.value } : {}) }).toString()
   go(`${id ? `#/shop/stores/${encodeURIComponent(id)}` : params ? '#/shop/search' : '#/shop'}${params ? `?${params}` : ''}`)
 }
-async function route() {
-  if (navigationBlocked.value) return
+async function route(force = false) {
+  if (navigationBlocked.value || !force && window.location.hash === currentHash) return
+  rememberView()
+  currentHash = window.location.hash
+  const historyEntry = window.history.state?.resolveflow_browse
+  currentEntry = typeof historyEntry === 'string' && historyEntry.length < 80 ? historyEntry : crypto.randomUUID()
+  if (currentEntry !== historyEntry) window.history.replaceState({ ...window.history.state, resolveflow_browse: currentEntry }, '')
+  const candidate = views.get(currentEntry)
+  const saved = candidate?.hash === currentHash && Date.now() - candidate.at < 300000 ? candidate : undefined
+  cartInitial.value = saved?.cart; cartSelection.value = saved?.cart ?? []; cartPosition = saved?.scroll ?? 0
   beginBuyerNavigation(navigationOwner()); hasPrevious.value = hasBuyerPrevious(navigationOwner())
   const g = ++generation; ++quoteGeneration
   error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; reviewSummary.value = null; pending = null
@@ -100,7 +135,7 @@ async function route() {
   loading.value = true
   try {
     if (props.account?.buyer_id && readCartPending(props.account.buyer_id) && hash !== '#/shop/cart') {
-      hash = '#/shop/cart'; window.history.replaceState(null, '', hash)
+      hash = '#/shop/cart'; window.history.replaceState({ ...window.history.state }, '', hash); currentHash = hash; windowHash.value = hash
     }
     if (hash === '#/shop/cart') {
       screen.value = 'cart'; loading.value = false
@@ -113,7 +148,7 @@ async function route() {
     } else if (/^#\/shop\/products\//.test(hash)) {
       screen.value = 'product'
       const result = await shopApi.product(decodeURIComponent(hash.slice('#/shop/products/'.length)))
-      if (alive && g === generation) { product.value = result; sku.value = result.skus[0].sku_id; quantity.value = 1 }
+      if (alive && g === generation) { product.value = result; const choice = result.skus.find(s => s.sku_id === saved?.product?.sku) ?? result.skus[0]; sku.value = choice.sku_id; quantity.value = Math.max(1, Math.min(Number.isInteger(saved?.product?.quantity) ? saved!.product!.quantity : 1, choice.max_quantity)) }
     } else {
       const isStore = hash.startsWith('#/shop/stores/'), isSearch = hash.startsWith('#/shop/search')
       screen.value = isStore ? 'store' : isSearch ? 'search' : 'home'
@@ -122,12 +157,13 @@ async function route() {
       const storeId = isStore ? decodeURIComponent(hash.slice('#/shop/stores/'.length).split('?')[0]) : undefined
       const remembered = window.history.state?.resolveflow_listing
       if (remembered?.hash === hash && Number.isInteger(remembered.index) && remembered.index > 0 && Array.isArray(remembered.cursors) && remembered.cursors.length <= 1000 && remembered.index < remembered.cursors.length && remembered.cursors.every((c: unknown) => c === undefined || typeof c === 'string') && typeof remembered.cursors[remembered.index] === 'string') { pageIndex.value = remembered.index; pageCursors.value = remembered.cursors }
+      if (saved?.listing) { catalogReadAt = saved.at; products.value = saved.listing.products; next.value = saved.listing.next; pageIndex.value = saved.listing.index; pageCursors.value = [...saved.listing.cursors]; store.value = saved.listing.store; return }
       const after = pageCursors.value[pageIndex.value]
       const [listing, allStores, ownStore] = await Promise.all([shopApi.products({ ...(after ? { after } : {}), ...(query.value ? { query: query.value } : {}), ...(category.value ? { category: category.value } : {}), ...(storeId ? { store_id: storeId } : {}) }), shopApi.stores(), storeId ? shopApi.store(storeId) : Promise.resolve(null)])
-      if (alive && g === generation) { products.value = listing.items; next.value = listing.next_after; stores.value = allStores; store.value = ownStore }
+      if (alive && g === generation) { catalogReadAt = Date.now(); products.value = listing.items; next.value = listing.next_after; stores.value = allStores; store.value = ownStore }
     }
   } catch (cause) { if (alive && g === generation) failure(cause) }
-  finally { if (alive && g === generation) loading.value = false }
+  finally { if (alive && g === generation) { loading.value = false; if (listingScreen.value || screen.value === 'product') void position(saved?.scroll ?? 0, g) } }
 }
 async function changePage(target: number) {
   if (loading.value || target < 0 || target > pageIndex.value + 1 || target > pageIndex.value && !next.value) return
@@ -135,18 +171,19 @@ async function changePage(target: number) {
   const g = ++generation; loading.value = true; error.value = ''
   try {
     const result = await shopApi.products({ ...(cursor ? { after: cursor } : {}), ...(query.value ? { query: query.value } : {}), ...(category.value ? { category: category.value } : {}), ...(store.value ? { store_id: store.value.store_id } : {}) })
-    if (alive && g === generation) { products.value = result.items; next.value = result.next_after; pageCursors.value[target] = cursor; pageIndex.value = target; window.history.replaceState({ ...window.history.state, resolveflow_listing: { hash: windowHash.value, index: target, cursors: [...pageCursors.value] } }, ''); workspaceCatalog.value?.scrollIntoView({ block: 'start' }) }
+    if (alive && g === generation) { catalogReadAt = Date.now(); products.value = result.items; next.value = result.next_after; pageCursors.value[target] = cursor; pageIndex.value = target; window.history.replaceState({ ...window.history.state, resolveflow_listing: { hash: windowHash.value, index: target, cursors: [...pageCursors.value] } }, ''); workspaceCatalog.value?.scrollIntoView({ block: 'start' }) }
   } catch (cause) { if (alive && g === generation) failure(cause) } finally { if (alive && g === generation) loading.value = false }
 }
 
 async function buy() {
   if (!props.account) { emit('login'); return }
   if (!selectedSku.value || writing.value || !Number.isInteger(quantity.value) || quantity.value < 1 || quantity.value > selectedSku.value.max_quantity) { error.value = '请选择有效规格与数量。'; return }
+  rememberView(); productPosition = window.scrollY
   const g = ++quoteGeneration; loading.value = true; error.value = ''
   const requestSku = sku.value, requestQuantity = quantity.value
   try {
     const result = await shopApi.quote(requestSku, requestQuantity)
-    if (alive && g === quoteGeneration && requestSku === sku.value && requestQuantity === quantity.value) { quote.value = result; screen.value = 'checkout'; pending = null }
+    if (alive && g === quoteGeneration && requestSku === sku.value && requestQuantity === quantity.value) { quote.value = result; screen.value = 'checkout'; pending = null; void position(0) }
   } catch (cause) { if (alive && g === quoteGeneration) failure(cause) } finally { if (alive && g === quoteGeneration) loading.value = false }
 }
 async function submit() {
@@ -196,8 +233,9 @@ async function addCart() {
     else { if (pendingAdd && cause instanceof ApiError && cause.status !== 401) { clearCartPending(buyer, pendingAdd.key); pendingAdd = null; uncertain.value = false } failure(cause) }
   } finally { if (alive) writing.value = false }
 }
-onMounted(() => { void route(); window.addEventListener('hashchange', route); window.addEventListener('popstate', route) })
-onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.removeEventListener('hashchange', route); window.removeEventListener('popstate', route) })
+const handleRoute = () => { void route() }
+onMounted(() => { previousScrollRestoration = window.history.scrollRestoration; window.history.scrollRestoration = 'manual'; void route(); window.addEventListener('hashchange', handleRoute); window.addEventListener('popstate', handleRoute); window.addEventListener('scroll', rememberView, { passive: true }) })
+onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; clearTimeout(loadingTimer); cancelAnimationFrame(positionFrame ?? 0); views.clear(); window.history.scrollRestoration = previousScrollRestoration; window.removeEventListener('hashchange', handleRoute); window.removeEventListener('popstate', handleRoute); window.removeEventListener('scroll', rememberView) })
 </script>
 
 <template>
@@ -221,17 +259,17 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
     <PersonalCenter v-else-if="screen === 'me' && account" :account="account" @navigate="go" @expired="emit('expired')" />
     <NotificationCenter v-else-if="screen === 'messages' && account" :token="account.access_token" expanded @expired="emit('expired')" @open="openNotification" />
     <SupportWorkspace ref="activeWorkspace" v-else-if="screen === 'support' && account" :key="account.access_token + windowHash" :initial-id="supportInitialId" :account="account" @expired="emit('expired')" />
-    <CartWorkspace v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
+    <CartWorkspace ref="activeWorkspace" :initial-selection="cartInitial" @selection="cartSelection = $event" @ready="restoreCart" v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
     <CustomerWorkspace ref="activeWorkspace" v-else-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
     <BuyerOrders ref="activeWorkspace" v-else-if="screen === 'orders' && account" :route-key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
-    <main v-else class="shop-content">
+    <main v-else :key="windowHash + screen" class="shop-content shop-view" :aria-busy="loading">
 
       <section v-if="screen === 'home'" class="shop-hero"><h1>选喜欢的好物，<br />让日常更舒适。</h1><a href="#shop-catalog" @click.prevent="workspaceCatalog?.scrollIntoView({ behavior: 'smooth', block: 'start' })">浏览全部</a></section>
       <template v-if="listingScreen">
         <StoreProfile v-if="store" :id="store.store_id" :name="store.name" :description="store.description" @contact="go('#/shop/support')" />
         <div id="shop-catalog" ref="workspaceCatalog" class="shop-section-title"><h1 v-if="screen === 'search'">{{ query ? `“${query}”的搜索结果` : '全部商品' }}</h1><h2 v-else>{{ store ? '店铺商品' : '精选好物' }}</h2><div class="shop-categories" aria-label="商品分类"><button v-for="c in [{ id: '', name: '全部' }, { id: 'electronics', name: '数码' }, { id: 'home', name: '家居' }, { id: 'outdoor', name: '户外' }]" :key="c.id" :class="{ current: category === c.id }" :aria-pressed="category === c.id" @click="category = c.id; search()">{{ c.name }}</button></div><div class="shop-store-select"><Icon name="store" :size="18" /><select :value="store?.store_id ?? ''" aria-label="选择店铺" :disabled="loading" @change="changeStore"><option value="">全部店铺</option><option v-for="s in stores" :key="s.store_id" :value="s.store_id">{{ s.name }}</option></select></div></div>
-        <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
-        <p v-else-if="!products.length && !error" class="shop-empty">没有找到商品，请换个关键词或分类。</p>
+        <div v-if="loading && slowLoading && !products.length" class="shop-grid catalog-skeleton" role="status" aria-label="正在读取商品"><div v-for="i in 8" :key="i" aria-hidden="true"><i /><span /><span /></div></div>
+        <p v-else-if="!loading && !products.length && !error" class="shop-empty">没有找到商品，请换个关键词或分类。</p>
         <div v-else class="shop-grid"><article v-for="p in displayedProducts" :key="p.product_id" class="product-card">
           <a :href="`#/shop/products/${p.product_id}`" class="product-image" @click.prevent="go(`#/shop/products/${p.product_id}`)"><CatalogImage v-if="p.cover_image_id" :id="p.cover_image_id" :name="p.name" /><ProductArt v-else :asset="p.asset_key" :name="p.name" :variant="p.skus[0]?.variant" /></a>
           <div class="shop-product-copy"><a :href="`#/shop/products/${p.product_id}`" class="product-name" @click.prevent="go(`#/shop/products/${p.product_id}`)">{{ p.name }}</a><strong class="product-price">{{ catalogMoney(p.from_amount) }}<span v-if="p.skus.length > 1">起</span></strong><a :href="`#/shop/stores/${p.store_id}`" class="product-store" :aria-label="`进入${p.store_name}店铺`" @click.prevent="go(`#/shop/stores/${p.store_id}`)"><StoreMark :id="p.store_id" :size="16" />{{ p.store_name }}</a></div>
@@ -239,12 +277,12 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
         <nav v-if="products.length || pageIndex" class="catalog-pagination" aria-label="商品分页"><button class="shop-secondary" aria-label="上一页" :disabled="loading || pageIndex === 0" @click="changePage(pageIndex - 1)">上一页</button><span aria-live="polite">第 {{ pageIndex + 1 }} 页</span><button class="shop-secondary" aria-label="下一页" :disabled="loading || !next" @click="changePage(pageIndex + 1)">下一页</button></nav>
       </template>
       <template v-else-if="screen === 'product'">
-        <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>
-        <section v-if="product" class="shop-product-detail"><ProductGallery :product="product.product_id" :asset="product.asset_key" :name="product.name" :variant="selectedSku?.variant" /><div class="detail-copy"><a class="product-store" :href="`#/shop/stores/${product.store_id}`" :aria-label="`进入${product.store_name}店铺`" @click.prevent="go(`#/shop/stores/${product.store_id}`)"><StoreMark :id="product.store_id" :size="17" />{{ product.store_name }}</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><button v-if="reviewSummary?.count" class="product-review-entry" aria-label="查看买家评价" @click="reviewsAnchor?.scrollIntoView({ behavior: 'smooth', block: 'start' })"><span>{{ reviewSummary.average?.toFixed(1) }} 分</span><span>{{ reviewSummary.count }} 条评价</span></button><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :aria-pressed="sku === s.sku_id" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><span>已加入购物车</span><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route">重新读取商品</button></div></section>
+        <div v-if="loading && slowLoading && !product" class="product-skeleton" role="status" aria-label="正在读取商品"><i /><div><i /><i /><i /></div></div>
+        <section v-if="product" class="shop-product-detail"><ProductGallery :product="product.product_id" :asset="product.asset_key" :name="product.name" :variant="selectedSku?.variant" /><div class="detail-copy"><a class="product-store" :href="`#/shop/stores/${product.store_id}`" :aria-label="`进入${product.store_name}店铺`" @click.prevent="go(`#/shop/stores/${product.store_id}`)"><StoreMark :id="product.store_id" :size="17" />{{ product.store_name }}</a><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="detail-price">{{ money(selectedSku?.unit_amount ?? product.from_amount) }}</strong><button v-if="reviewSummary?.count" class="product-review-entry" aria-label="查看买家评价" @click="reviewsAnchor?.scrollIntoView({ behavior: 'smooth', block: 'start' })"><span>{{ reviewSummary.average?.toFixed(1) }} 分</span><span>{{ reviewSummary.count }} 条评价</span></button><fieldset><legend>选择规格</legend><button v-for="s in product.skus" :key="s.sku_id" :class="{ selected: sku === s.sku_id }" :aria-pressed="sku === s.sku_id" :disabled="loading || writing || uncertain" @click="sku = s.sku_id; quantity = Math.min(quantity, s.max_quantity); ++quoteGeneration">{{ s.variant }}</button></fieldset><label class="quantity-label">数量 <input v-model.number="quantity" type="number" min="1" :max="selectedSku?.max_quantity" step="1" aria-label="购买数量" :disabled="loading || writing || uncertain" /></label><div class="product-buy-actions"><button class="shop-primary buy-button" :disabled="loading || writing || uncertain" @click="buy">确认购买</button><button class="shop-secondary cart-add" :disabled="loading || writing" @click="addCart">{{ writing ? '正在确认…' : uncertain && pendingAdd ? '用原请求确认结果' : '加入购物车' }}</button></div><div v-if="added" class="cart-added" role="status"><span>已加入购物车</span><button class="shop-secondary" @click="go('#/shop/cart')">查看购物车</button></div><button v-if="error && !uncertain" class="shop-secondary" @click="route(true)">重新读取商品</button></div></section>
         <div v-if="product" ref="reviewsAnchor" class="product-review-anchor"><ProductReviews :key="product.product_id" :product="product.product_id" @summary="reviewSummary = $event" /></div>
       </template>
       <template v-else-if="screen === 'checkout' && quote">
-        <button class="shop-back" :disabled="writing || uncertain || addressBusy" @click="screen = 'product'; quote = null">修改规格与数量</button><h1>确认订单</h1>
+        <button class="shop-back" :disabled="writing || uncertain || addressBusy" @click="leaveCheckout">修改规格与数量</button><h1>确认订单</h1>
         <AddressPicker v-if="account" v-model="shipping" :account="account" :disabled="writing || uncertain" @working="addressBusy = $event" @expired="emit('expired')" />
         <section class="checkout-panel"><h2>{{ quote.product.store_name }}</h2><div class="checkout-line"><ProductArt :asset="quote.product.asset_key" :name="quote.product.name" :variant="quote.sku.variant" /><div><h2>{{ quote.product.name }}</h2><p>{{ quote.sku.variant }}</p></div><div><p>单价</p><strong>{{ money(quote.sku.unit_amount) }}</strong></div><div><p>数量</p><strong>{{ quote.quantity }}</strong></div><div><p>小计</p><strong>{{ money(quote.total_amount) }}</strong></div></div><div class="checkout-total"><span>应付合计</span><strong>{{ money(quote.total_amount) }}</strong></div><button class="shop-primary" :disabled="writing || addressBusy || (!shipping && !uncertain)" @click="submit">{{ writing ? '正在确认…' : uncertain ? '用原请求确认结果' : '提交订单' }}</button></section>
       </template>
