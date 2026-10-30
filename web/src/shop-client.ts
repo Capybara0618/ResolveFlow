@@ -40,7 +40,7 @@ export const shopApi = {
   stores: () => apiRequest<ShopStore[]>('/api/v1/shop/stores', null),
   store: (id: string) => apiRequest<ShopStore>(`/api/v1/shop/stores/${encodeURIComponent(id)}`, null),
   products: (filter: { query?: string; category?: string; store_id?: string; after?: string } = {}) => {
-    const params = new URLSearchParams({ ...filter, limit: '24' })
+    const params = new URLSearchParams({ ...filter, limit: '8' })
     return apiRequest<ShopProducts>(`/api/v1/shop/products?${params}`, null)
   },
   product: (id: string) => apiRequest<ShopProduct>(`/api/v1/shop/products/${encodeURIComponent(id)}`, null),

@@ -2,10 +2,12 @@ import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { notificationApi, type Notification } from '../src/notification-client'
 import NotificationCenter from '../src/ui/NotificationCenter.vue'
+import { accountApi } from '../src/account-client'
+import { shopApi } from '../src/shop-client'
 import PersonalCenter from '../src/ui/PersonalCenter.vue'
 const item: Notification = { notification_id: 'message:a', title: '商家回复了你的咨询', target: 'SUPPORT', target_id: 'conversation-a', conversation_id: 'conversation-a', created_at: '2026-10-29T08:00:00Z', read: false }
 let w: VueWrapper
-beforeEach(() => { vi.spyOn(notificationApi, 'list').mockResolvedValue({ items: [structuredClone(item)], unread_count: 1, next_cursor: null }); vi.spyOn(notificationApi, 'read').mockResolvedValue(undefined) })
+beforeEach(() => { vi.spyOn(shopApi, 'purchases').mockResolvedValue({ items: [], next_cursor: null }); vi.spyOn(accountApi, 'addresses').mockResolvedValue({ items: [] }); vi.spyOn(notificationApi, 'list').mockResolvedValue({ items: [structuredClone(item)], unread_count: 1, next_cursor: null }); vi.spyOn(notificationApi, 'read').mockResolvedValue(undefined) })
 afterEach(() => { w?.unmount(); vi.restoreAllMocks() })
 it('shows unread count and opens the exact destination after persisting read state', async () => {
   w = mount(NotificationCenter, { props: { token: 'owner' } }); await flushPromises()
@@ -36,4 +38,17 @@ it('connects personal-center stages to server-side order filters', async () => {
   expect(w.emitted('navigate')?.[0]).toEqual(['#/shop/orders?status=AWAITING_SHIPMENT'])
   await w.findAll('.personal-orders button').at(-1)!.trigger('click')
   expect(w.emitted('navigate')?.at(-1)).toEqual(['#/customer/applications'])
+})
+
+it('identifies the store in a buyer notification and uses its avatar component', async () => {
+  vi.mocked(notificationApi.list).mockResolvedValue({ items: [{ ...item, store_id: 'M-1001', sender_name: '松间数码', sender_kind: 'MERCHANT' }], unread_count: 1, next_cursor: null })
+  w = mount(NotificationCenter, { props: { token: 'buyer', expanded: true } }); await flushPromises()
+  expect(w.get('.notification-copy strong').text()).toBe('松间数码'); expect(w.findComponent({ name: 'StoreMark' }).props('id')).toBe('M-1001')
+})
+it('shows real recent orders even if address lookup fails', async () => {
+  vi.mocked(shopApi.purchases).mockResolvedValue({ items: [{ purchase_id: 'order:recent', store_id: 'M-1001', store_name: '松间数码', status: 'PAID', shopping_stage: 'AWAITING_SHIPMENT', total_amount: 32900, lines: [{ product_name: '无线耳机', asset_key: 'headphones', variant: '黑色' }] } as Awaited<ReturnType<typeof shopApi.purchases>>['items'][number]], next_cursor: null })
+  vi.mocked(accountApi.addresses).mockRejectedValue(new Error('lost'))
+  w = mount(PersonalCenter, { props: { account: { access_token: 'owner', role: 'CUSTOMER', buyer_id: 'b', expires_in: 3600 } } }); await flushPromises()
+  expect(w.get('.personal-order').text()).toContain('无线耳机'); expect(w.get('.personal-order').text()).toContain('待发货'); expect(w.text()).toContain('地址暂时无法读取')
+  await w.get('.personal-order').trigger('click'); expect(w.emitted('navigate')?.[0]).toEqual(['#/shop/orders/order%3Arecent'])
 })

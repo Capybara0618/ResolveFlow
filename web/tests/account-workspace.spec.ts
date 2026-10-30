@@ -1,6 +1,7 @@
 import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { accountApi } from '../src/account-client'
+import { enrollmentApi } from '../src/enrollment-client'
 import { ApiError } from '../src/client'
 import AccountWorkspace from '../src/ui/AccountWorkspace.vue'
 import AddressPicker from '../src/ui/AddressPicker.vue'
@@ -19,7 +20,7 @@ it('saves a nickname with its loaded version and updates the account display', a
   w = mount(AccountWorkspace, { props: { account } }); await flushPromises()
   await w.get('input[autocomplete="nickname"]').setValue('新昵称')
   await w.get('form').trigger('submit'); await flushPromises()
-  expect(accountApi.save).toHaveBeenCalledWith('owner', '新昵称', 3)
+  expect(accountApi.save).toHaveBeenCalledWith('owner', '新昵称', 3, { phone: '', gender: 'UNDISCLOSED', birth_date: null })
   expect(w.emitted('saved')?.[0][0]).toMatchObject({ display_name: '新昵称', version: 4 })
 })
 it('keeps the editor visible after an address version conflict', async () => {
@@ -45,4 +46,25 @@ it('locks address selection and closing the editor during a save', async () => {
   w.findComponent(AccountWorkspace).vm.$emit('working', true); await flushPromises()
   expect(w.get('.shipping-picker-head button').attributes('disabled')).toBeDefined()
   expect(w.get('input[type="radio"]').attributes('disabled')).toBeDefined()
+})
+
+it('saves optional profile details and retains login editor after password rejection', async () => {
+  vi.spyOn(accountApi, 'save').mockResolvedValue({ ...profile, phone: '13800000000', gender: 'MALE', birth_date: '2000-02-29', version: 4 })
+  vi.spyOn(enrollmentApi, 'changeLogin').mockRejectedValue(new ApiError(400, 'INVALID_ARGUMENT', '当前密码不正确'))
+  w = mount(AccountWorkspace, { props: { account } }); await flushPromises()
+  await w.get('input[type="tel"]').setValue('13800000000'); await w.get('select').setValue('MALE'); await w.get('input[type="date"]').setValue('2000-02-29')
+  await w.get('form').trigger('submit'); await flushPromises()
+  expect(accountApi.save).toHaveBeenCalledWith('owner', '原昵称', 3, { phone: '13800000000', gender: 'MALE', birth_date: '2000-02-29' })
+  await w.get('.account-login-row button').trigger('click'); await w.get('input[autocomplete="username"]').setValue('new-buyer'); await w.get('input[type="password"]').setValue('wrong-password')
+  await w.get('.login-name-form').trigger('submit'); await flushPromises()
+  expect(enrollmentApi.changeLogin).toHaveBeenCalledWith('owner', 'new-buyer', 'wrong-password', 4)
+  expect(w.emitted('expired')).toBeUndefined(); expect(w.get('[role="alert"]').text()).toContain('当前密码不正确'); expect(w.find('.login-name-form').exists()).toBe(true)
+})
+
+it('requests login with the new account name after a successful change and clears the password', async () => {
+  vi.spyOn(enrollmentApi, 'changeLogin').mockResolvedValue({ login_name: 'renamed-buyer' })
+  w = mount(AccountWorkspace, { props: { account } }); await flushPromises()
+  await w.get('.account-login-row button').trigger('click'); await w.get('input[autocomplete="username"]').setValue('renamed-buyer'); await w.get('input[type="password"]').setValue('current-password')
+  await w.get('.login-name-form').trigger('submit'); await flushPromises()
+  expect(w.emitted('reauthenticate')?.[0]).toEqual(['renamed-buyer']); expect(w.emitted('expired')).toBeUndefined(); expect(w.find('input[type="password"]').exists()).toBe(false)
 })

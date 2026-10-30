@@ -1,6 +1,6 @@
 import { apiRequest, ApiError } from './client'
 
-export interface AccountProfile { username: string; display_name: string; avatar_id: string | null; version: number }
+export interface AccountProfile { username: string; display_name: string; avatar_id: string | null; version: number; login_name?: string; phone?: string | null; gender?: string | null; birth_date?: string | null }
 export interface Address { address_id: string; recipient: string; phone: string; province: string; city: string; district: string; detail: string; is_default: boolean; version: number }
 export type AddressInput = Omit<Address, 'address_id' | 'version'> & { expected_version?: number }
 export interface ShippingSelection { address_id: string; expected_version: number }
@@ -8,7 +8,7 @@ export interface ShippingSnapshot { address_id: string; version: number; recipie
 const post = <T>(path: string, token: string, body: unknown) => apiRequest<T>(path, token, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
 export const accountApi = {
   profile: (token: string) => apiRequest<AccountProfile>('/api/v1/account/profile', token),
-  save: (token: string, name: string, version: number) => post<AccountProfile>('/api/v1/account/profile', token, { display_name: name, expected_version: version }),
+  save: (token: string, name: string, version: number, details?: { phone: string; gender: string; birth_date: string | null }) => post<AccountProfile>('/api/v1/account/profile', token, { display_name: name, expected_version: version, ...details }),
   upload: (token: string, file: File, version: number) => {
     const data = new FormData(); data.append('file', file); data.append('expected_version', String(version))
     return apiRequest<AccountProfile>('/api/v1/account/avatar', token, { method: 'POST', body: data })

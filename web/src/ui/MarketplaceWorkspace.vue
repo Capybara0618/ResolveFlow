@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import StoreMark from './StoreMark.vue'
 import { useDismissible } from './useDismissible'
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { shopApi, type ShopProduct, type ShopStore, type ShopQuote, type ShopDraft, type ShopDraftRequest } from '../shop-client'
 import { formatMinorUnits } from '../money'
@@ -27,7 +27,7 @@ import { readCartPending, saveCartPending, clearCartPending, type CartPending } 
 import './marketplace.css'
 
 const props = defineProps<{ account: LoginResponse | null }>()
-const emit = defineEmits<{ expired: []; login: []; logout: []; profile: [value: AccountProfile] }>()
+const emit = defineEmits<{ expired: []; reauthenticate: [loginName: string]; login: []; logout: []; profile: [value: AccountProfile] }>()
 type Screen = 'home' | 'search' | 'store' | 'product' | 'checkout' | 'orders' | 'customer' | 'cart' | 'support' | 'profile' | 'addresses' | 'me' | 'messages' | 'security'
 const windowHash = ref(window.location.hash)
 const supportInitialId = computed(() => new URLSearchParams(windowHash.value.split('?')[1] ?? '').get('conversation') ?? undefined)
@@ -41,7 +41,9 @@ let pendingAdd: Extract<CartPending, { kind: 'mutation' }> | null = null
 const products = ref<ShopProduct[]>([]), store = ref<ShopStore | null>(null), product = ref<ShopProduct | null>(null)
 const sku = ref(''), quantity = ref(1), quote = ref<ShopQuote | null>(null), draft = ref<ShopDraft | null>(null)
 const loading = ref(false), writing = ref(false), uncertain = ref(false), error = ref(''), next = ref<string | null>(null)
+const pageIndex = ref(0), pageCursors = ref<Array<string | undefined>>([undefined])
 let generation = 0, quoteGeneration = 0, alive = true, pending: { key: string; request: ShopDraftRequest } | null = null
+watch([sku, quantity], () => { added.value = false })
 const selectedSku = computed(() => product.value?.skus.find(s => s.sku_id === sku.value))
 const money = (amount: number) => `¥ ${formatMinorUnits(amount).replace(' CNY', '')}`
 const catalogMoney = (amount: number) => `¥${formatMinorUnits(amount).replace(' CNY', '').replace(/\.00$/, '')}`
@@ -73,7 +75,7 @@ async function route() {
   if (writing.value || uncertain.value || cartBusy.value || addressBusy.value) return
   const g = ++generation; ++quoteGeneration
   error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; pending = null
-  products.value = []; next.value = null
+  products.value = []; next.value = null; pageIndex.value = 0; pageCursors.value = [undefined]
   let hash = window.location.hash; windowHash.value = hash
   if (hash === '#/shop/profile' || hash === '#/shop/addresses') { screen.value = hash.endsWith('/profile') ? 'profile' : 'addresses'; loading.value = false; if (!props.account) emit('login'); return }
   if (hash === '#/shop/security') { screen.value = 'security'; loading.value = false; if (!props.account) emit('login'); return }
@@ -103,20 +105,25 @@ async function route() {
       const params = new URLSearchParams(hash.split('?')[1] ?? '')
       query.value = params.get('query') ?? ''; category.value = params.get('category') ?? ''
       const storeId = isStore ? decodeURIComponent(hash.slice('#/shop/stores/'.length).split('?')[0]) : undefined
-      const [listing, allStores, ownStore] = await Promise.all([shopApi.products({ ...(query.value ? { query: query.value } : {}), ...(category.value ? { category: category.value } : {}), ...(storeId ? { store_id: storeId } : {}) }), shopApi.stores(), storeId ? shopApi.store(storeId) : Promise.resolve(null)])
+      const remembered = window.history.state?.resolveflow_listing
+      if (remembered?.hash === hash && Number.isInteger(remembered.index) && remembered.index > 0 && Array.isArray(remembered.cursors) && remembered.cursors.length <= 1000 && remembered.index < remembered.cursors.length && remembered.cursors.every((c: unknown) => c === undefined || typeof c === 'string') && typeof remembered.cursors[remembered.index] === 'string') { pageIndex.value = remembered.index; pageCursors.value = remembered.cursors }
+      const after = pageCursors.value[pageIndex.value]
+      const [listing, allStores, ownStore] = await Promise.all([shopApi.products({ ...(after ? { after } : {}), ...(query.value ? { query: query.value } : {}), ...(category.value ? { category: category.value } : {}), ...(storeId ? { store_id: storeId } : {}) }), shopApi.stores(), storeId ? shopApi.store(storeId) : Promise.resolve(null)])
       if (alive && g === generation) { products.value = listing.items; next.value = listing.next_after; stores.value = allStores; store.value = ownStore }
     }
   } catch (cause) { if (alive && g === generation) failure(cause) }
   finally { if (alive && g === generation) loading.value = false }
 }
-async function more() {
-  if (!next.value || loading.value) return
-  const g = generation; loading.value = true
+async function changePage(target: number) {
+  if (loading.value || target < 0 || target > pageIndex.value + 1 || target > pageIndex.value && !next.value) return
+  const cursor = target === pageIndex.value + 1 ? next.value! : pageCursors.value[target]
+  const g = ++generation; loading.value = true; error.value = ''
   try {
-    const result = await shopApi.products({ after: next.value, ...(query.value ? { query: query.value } : {}), ...(category.value ? { category: category.value } : {}), ...(store.value ? { store_id: store.value.store_id } : {}) })
-    if (alive && g === generation) { products.value.push(...result.items); next.value = result.next_after }
+    const result = await shopApi.products({ ...(cursor ? { after: cursor } : {}), ...(query.value ? { query: query.value } : {}), ...(category.value ? { category: category.value } : {}), ...(store.value ? { store_id: store.value.store_id } : {}) })
+    if (alive && g === generation) { products.value = result.items; next.value = result.next_after; pageCursors.value[target] = cursor; pageIndex.value = target; window.history.replaceState({ ...window.history.state, resolveflow_listing: { hash: windowHash.value, index: target, cursors: [...pageCursors.value] } }, ''); workspaceCatalog.value?.scrollIntoView({ block: 'start' }) }
   } catch (cause) { if (alive && g === generation) failure(cause) } finally { if (alive && g === generation) loading.value = false }
 }
+
 async function buy() {
   if (!props.account) { emit('login'); return }
   if (!selectedSku.value || writing.value || !Number.isInteger(quantity.value) || quantity.value < 1 || quantity.value > selectedSku.value.max_quantity) { error.value = '请选择有效规格与数量。'; return }
@@ -194,9 +201,9 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
       </div>
     </nav>
     <p v-if="error" class="shop-error shop-global-error" role="alert">{{ error }}</p>
-    <AccountWorkspace :key="account.access_token" v-if="(screen === 'profile' || screen === 'addresses') && account" :account="account" :mode="screen" @saved="emit('profile', $event)" @working="cartBusy = $event" @expired="emit('expired')" />
+    <AccountWorkspace :key="account.access_token" v-if="(screen === 'profile' || screen === 'addresses') && account" :account="account" :mode="screen" @reauthenticate="emit('reauthenticate', $event)" @saved="emit('profile', $event)" @working="cartBusy = $event" @expired="emit('expired')" />
     <EnrollmentForm v-else-if="screen === 'security' && account" mode="rotate" :token="account.access_token" @working="cartBusy = $event" @close="go('#/shop/me')" @expired="emit('expired')" />
-    <PersonalCenter v-else-if="screen === 'me' && account" :account="account" @navigate="go" />
+    <PersonalCenter v-else-if="screen === 'me' && account" :account="account" @navigate="go" @expired="emit('expired')" />
     <NotificationCenter v-else-if="screen === 'messages' && account" :token="account.access_token" expanded @expired="emit('expired')" @open="openNotification" />
     <SupportWorkspace v-else-if="screen === 'support' && account" :key="account.access_token + windowHash" :initial-id="supportInitialId" :account="account" @expired="emit('expired')" />
     <CartWorkspace v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
@@ -214,7 +221,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; window.r
           <a :href="`#/shop/products/${p.product_id}`" class="product-image" @click.prevent="go(`#/shop/products/${p.product_id}`)"><CatalogImage v-if="p.cover_image_id" :id="p.cover_image_id" :name="p.name" /><ProductArt v-else :asset="p.asset_key" :name="p.name" :variant="p.skus[0]?.variant" /></a>
           <div class="shop-product-copy"><a :href="`#/shop/products/${p.product_id}`" class="product-name" @click.prevent="go(`#/shop/products/${p.product_id}`)">{{ p.name }}</a><strong class="product-price">{{ catalogMoney(p.from_amount) }}<span v-if="p.skus.length > 1">起</span></strong><a :href="`#/shop/stores/${p.store_id}`" class="product-store" :aria-label="`进入${p.store_name}店铺`" @click.prevent="go(`#/shop/stores/${p.store_id}`)"><StoreMark :id="p.store_id" :size="16" />{{ p.store_name }}</a></div>
         </article></div>
-        <button v-if="next" class="shop-secondary shop-load" :disabled="loading" @click="more">加载更多商品</button>
+        <nav v-if="products.length || pageIndex" class="catalog-pagination" aria-label="商品分页"><button class="shop-secondary" aria-label="上一页" :disabled="loading || pageIndex === 0" @click="changePage(pageIndex - 1)">上一页</button><span aria-live="polite">第 {{ pageIndex + 1 }} 页</span><button class="shop-secondary" aria-label="下一页" :disabled="loading || !next" @click="changePage(pageIndex + 1)">下一页</button></nav>
       </template>
       <template v-else-if="screen === 'product'">
         <p v-if="loading" class="shop-empty" role="status">正在读取商品…</p>

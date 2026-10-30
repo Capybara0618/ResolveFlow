@@ -48,6 +48,7 @@ function openNotification(item: Notification) {
   else if (item.target === 'CASE') overviewCase(item.target_id)
 }
 const profileOpen = ref(false), profileBusy = ref(false)
+function loginNameChanged(name: string) { logout(); username.value = name; password.value = ''; error.value = '账号已修改，请使用新账号登录。' }
 function updateProfile(value: AccountProfile) { if (account.value) { account.value = { ...account.value, display_name: value.display_name }; saveTabSession(account.value) } }
 const products = useAftercareProducts(() => account.value?.access_token)
 const productLines = products.lines, productStates = products.states
@@ -540,7 +541,7 @@ onUnmounted(() => { stopStream(); products.reset() })
     </header>
     <MarketplaceWorkspace v-if="!account && shopVisitor" :account="null" @login="shopLogin" />
     <main v-else-if="!account" class="login-stage">
-      <div class="login-intro"><h1>好物与服务，<br />都在这里。</h1><div class="login-still-life" aria-hidden="true"><img class="login-room" :src="'/marketplace/hero-v1.webp'" alt="" /></div></div>
+      <div class="login-intro"><h1>好物与服务，<br />都在这里。</h1><div class="login-still-life" aria-hidden="true"><img class="login-room" :src="'/identity/login-shopping.webp'" alt="" /></div></div>
       <EnrollmentForm v-if="enrollmentMode" :mode="enrollmentMode" @working="enrollmentBusy = $event" @close="finishEnrollment" />
       <form v-else class="panel login-panel" @submit.prevent="login">
         <h2>欢迎回来</h2>
@@ -552,7 +553,7 @@ onUnmounted(() => { stopStream(); products.reset() })
       </form>
     </main>
     <PlatformWorkspace v-else-if="account.role === 'PLATFORM_ADMIN'" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
-    <MarketplaceWorkspace v-else-if="account.buyer_id" :key="account.access_token" :account="account" @profile="updateProfile" @logout="logout" @expired="logout(); error = '登录已失效，请重新登录。'" />
+    <MarketplaceWorkspace v-else-if="account.buyer_id" :key="account.access_token" :account="account" @profile="updateProfile" @reauthenticate="loginNameChanged" @logout="logout" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <CustomerWorkspace v-else-if="isCustomer" :key="account.access_token" :account="account" @expired="logout(); error = '登录已失效，请重新登录。'" />
     <div v-else class="app-shell" :class="{ 'support-shell': merchantPage === 'support' && account.role === 'MERCHANT_ADMIN' }">
       <nav class="sidebar" aria-label="工作台导航">
@@ -666,7 +667,7 @@ onUnmounted(() => { stopStream(); products.reset() })
         </div>
       </main>
     </div>
-    <ReviewDialog v-if="profileOpen && account" title="个人资料" :busy="profileBusy" @close="profileOpen = false"><AccountWorkspace :key="account.access_token" :account="account" @saved="updateProfile" @working="profileBusy = $event" @expired="profileOpen = false; logout()" /></ReviewDialog>
+    <ReviewDialog v-if="profileOpen && account" title="个人资料" :busy="profileBusy" @close="profileOpen = false"><AccountWorkspace :key="account.access_token" :account="account" @saved="updateProfile" @reauthenticate="loginNameChanged" @working="profileBusy = $event" @expired="profileOpen = false; logout()" /></ReviewDialog>
     <ReviewDialog v-if="reviewDecision && reviewTarget" :title="decisionLabels[reviewDecision]" :merchant="true" :busy="busy" @close="closeReview">
       <MerchantDecisionForm v-model="decisionReason" :kind="reviewDecision" :line="reviewLine"><div v-if="reviewDecision === 'APPROVE'" class="dialog-refund-amount">退款金额 <strong>{{ reviewAmount !== null ? formatMinorUnits(reviewAmount, 'CNY') : '金额待核对' }}</strong></div></MerchantDecisionForm><p v-if="error" class="message error" role="alert">{{ error }}</p><div class="dialog-actions"><button type="button" class="secondary-button" :disabled="busy" @click="closeReview">取消</button><button type="button" data-test="confirm-review" :disabled="busy || !decisionReason.trim() || decisionReason.trim().length > 1000" @click="review(reviewDecision)">{{ busy ? '正在提交…' : reviewSubmitLabels[reviewDecision] }}</button></div>
     </ReviewDialog>

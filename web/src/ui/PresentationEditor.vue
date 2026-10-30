@@ -11,7 +11,7 @@ const loading = ref(false), busy = ref(false), error = ref(''), notice = ref('')
 const variantImages = ref<Record<string, string>>({})
 let generation = 0
 async function load() { const g = ++generation; loading.value = true; error.value = ''; notice.value = ''; conflict.value = false
-  try { if (props.product) { const p = await presentationApi.product(props.product, props.account.access_token); if (g !== generation) return; version.value = p.version; images.value = [...p.images]; variantImages.value = { ...p.variant_images }; specs.value = p.specifications.map(s => ({ ...s })); shipping.value = p.shipping_note; aftercare.value = p.aftercare_note }
+  try { if (props.product) { const p = await presentationApi.product(props.product, props.account.access_token); if (g !== generation) return; version.value = p.version; images.value = [...p.images]; variantImages.value = Object.fromEntries(Object.entries(p.variant_images ?? {}).filter(([variant]) => props.variants?.some(sku => sku.variant === variant))); specs.value = p.specifications.map(s => ({ ...s })); shipping.value = p.shipping_note; aftercare.value = p.aftercare_note }
     else { const p = await presentationApi.managedStore(props.account.access_token); if (g !== generation) return; version.value = p.version; intro.value = p.introduction; phone.value = p.contact_phone; hours.value = p.service_hours; logo.value = p.logo_id }
   } catch (e) { if (g === generation) fail(e) } finally { if (g === generation) loading.value = false }
 }

@@ -166,3 +166,8 @@
 .workbench .marketplace .cart-added button { padding:4px 0; background:transparent; border:0; text-decoration:underline; text-underline-offset:4px; }
 .workbench .marketplace .product-buy-actions { display:flex; flex-wrap:wrap; gap:12px; }
 .workbench .marketplace .product-buy-actions > button { flex:1; min-width:140px; }
+
+.workbench .marketplace .catalog-pagination{display:flex;justify-content:center;align-items:center;gap:24px;margin:36px 0 14px;padding:16px 0;background:transparent;border:0;position:static}.catalog-pagination span{font-size:14px;color:#6a766c}.workbench .marketplace .catalog-pagination button{border:1px solid #dce2d8;background:transparent;font-size:14px;padding:9px 20px}.catalog-pagination button:disabled{opacity:.4;cursor:default}
+
+.workbench .marketplace .shop-utilities .notification-toggle{background:transparent;padding:8px 4px;border:0}
+@media(max-width:650px){.workbench .marketplace nav.shop-nav{padding:14px 12px;gap:10px}.shop-utilities{gap:6px}.workbench .marketplace .shop-utilities .notification-toggle{font-size:12px;padding:6px 2px}}

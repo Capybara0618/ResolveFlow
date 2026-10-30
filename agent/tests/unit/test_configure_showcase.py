@@ -62,3 +62,18 @@ def test_avatar_does_not_adopt_a_concurrent_profile_version(monkeypatch, tmp_pat
     with pytest.raises(ValueError, match="version conflict"):
         work.avatar("buyer", "avatar.jpg")
     assert work.state["avatars"] == {}
+
+
+def test_new_empty_profile_fields_are_compatible_but_user_changes_are_not_ignored():
+    old = {"username": "buyer", "display_name": "买家", "avatar_id": "ours", "version": 2}
+    migrated = {**old, "login_name": "buyer", "phone": None, "gender": None, "birth_date": None}
+    assert module.profile_snapshot(old) == module.profile_snapshot(migrated)
+    assert module.profile_snapshot(old) != module.profile_snapshot({**migrated, "phone": "13800000000"})
+    assert module.profile_snapshot(old) != module.profile_snapshot({**migrated, "login_name": "renamed"})
+
+
+def test_empty_variant_mapping_upgrade_is_compatible_but_actual_mapping_changes_are_not():
+    saved = {"version": 2, "images": ["ours"]}
+    module.require_owned("商品", {**saved, "variant_images": {}}, saved)
+    with pytest.raises(ValueError, match="已有资料"):
+        module.require_owned("商品", {**saved, "variant_images": {"黑色": "other"}}, saved)

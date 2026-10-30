@@ -9,6 +9,7 @@ const product: ShopProduct = { product_id: 'P-1001', store_id: 'M-1001', store_n
 const buyer = { access_token: 'buyer-token', role: 'CUSTOMER' as const, buyer_id: 'B-3001', expires_in: 3600 }
 const draft: ShopDraft = { draft_id: 'draft-1', store_id: 'M-1001', store_name: '松间数码', product_id: 'P-1001', product_name: product.name, asset_key: 'headphones', sku_id: 'black', variant: '黑色', quantity: 2, unit_amount: 32900, total_amount: 65800, currency: 'CNY', status: 'WAITING_PAYMENT', created_at: '2026-10-03T04:00:00Z', expires_at: '2099-10-03T04:15:00Z' }
 const purchase: Purchase = { purchase_id: 'draft:draft-1', draft_id: draft.draft_id, store_id: draft.store_id, store_name: draft.store_name, status: draft.status, total_amount: draft.total_amount, currency: 'CNY', created_at: draft.created_at, expires_at: draft.expires_at, paid_at: null, order_id: null, payment: null, lines: [{ line_id: null, sku: draft.sku_id, product_name: draft.product_name, variant: draft.variant, asset_key: draft.asset_key, quantity: draft.quantity, unit_amount: draft.unit_amount, line_amount: draft.total_amount }] }
+Element.prototype.scrollIntoView = vi.fn()
 let w: VueWrapper
 beforeEach(() => {
   vi.spyOn(accountApi,'addresses').mockResolvedValue({items:[{address_id:'address-1',recipient:'测试收货人',phone:'13000000000',province:'测试省',city:'测试市',district:'测试区',detail:'测试路1号',is_default:true,version:1}]})
@@ -28,6 +29,7 @@ it('adds selected quantity to the current cart through an absolute versioned req
   await open(); await w.get('[aria-label="购买数量"]').setValue(2); await w.get('.cart-add').trigger('click'); await flushPromises()
   expect(shopApi.cartWrite).toHaveBeenCalledWith('buyer-token', 'M-1001', { sku_id: 'black', quantity: 3, expected_revision: 7, expected_sku_version: 1 }, expect.any(String))
   expect(w.text()).toContain('已加入购物车')
+  await w.get('[aria-label="购买数量"]').setValue(3); expect(w.text()).not.toContain('已加入购物车')
 })
 it('retries unknown add with frozen request instead of reading and incrementing again', async () => {
   vi.spyOn(shopApi, 'cart').mockResolvedValue({ stores: [{ store_id: 'M-1001', store_name: '松间数码', revision: 0, currency: 'CNY', items: [] }] })
@@ -131,3 +133,25 @@ it('requires login when an anonymous visitor opens a private buyer route', async
 })
 
 it('requires an address before submitting a direct purchase',async()=>{vi.mocked(accountApi.addresses).mockResolvedValue({items:[]});await open();await w.get('.buy-button').trigger('click');await flushPromises();expect(w.get('.checkout-panel > button').attributes('disabled')).toBeDefined();await w.get('.checkout-panel > button').trigger('click');expect(shopApi.draft).not.toHaveBeenCalled()})
+
+it('replaces rather than appends pages, keeps cursors for previous, and resets when filtering', async () => {
+  window.history.replaceState(null, '', '/#/shop/search')
+  vi.mocked(shopApi.products).mockResolvedValueOnce({ items: [product], next_after: 'cursor-1' }).mockResolvedValueOnce({ items: [{ ...product, product_id: 'page-two', name: '第二页商品' }], next_after: null }).mockResolvedValueOnce({ items: [product], next_after: 'cursor-1' }).mockResolvedValue({ items: [product], next_after: null })
+  await open()
+  expect(w.get('[aria-label="上一页"]').attributes('disabled')).toBeDefined()
+  await w.get('[aria-label="下一页"]').trigger('click'); await flushPromises()
+  expect(shopApi.products).toHaveBeenLastCalledWith({ after: 'cursor-1' })
+  expect(w.findAll('.product-card')).toHaveLength(1); expect(w.text()).toContain('第二页商品'); expect(w.text()).toContain('第 2 页')
+  expect(w.get('[aria-label="下一页"]').attributes('disabled')).toBeDefined()
+  await w.get('[aria-label="上一页"]').trigger('click'); await flushPromises()
+  expect(w.text()).toContain('第 1 页'); expect(shopApi.products).toHaveBeenLastCalledWith({})
+  await w.get('.shop-categories button:nth-child(2)').trigger('click'); await flushPromises()
+  expect(w.text()).toContain('第 1 页'); expect(shopApi.products).toHaveBeenLastCalledWith({ category: 'electronics' })
+})
+
+it('restores the catalogue cursor when returning from a product or refreshing', async () => {
+  window.history.replaceState({ resolveflow_listing: { hash: '#/shop/search', index: 1, cursors: [undefined, 'page-2-cursor'] } }, '', '/#/shop/search')
+  await open()
+  expect(shopApi.products).toHaveBeenLastCalledWith({ after: 'page-2-cursor' })
+  expect(w.text()).toContain('第 2 页')
+})

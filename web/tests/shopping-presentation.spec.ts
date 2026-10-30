@@ -53,3 +53,12 @@ it('selects uploaded variant images after load and variant changes without relyi
   await w.get('[aria-label="查看第2张商品图片"]').trigger('click'); expect(w.get('.gallery-main img').attributes('src')).toContain('black-photo')
   await w.setProps({ variant: '黑色' }); expect(w.get('.gallery-main img').attributes('src')).toContain('black-photo')
 })
+
+it('drops mappings for renamed variants and preserves selected images for current variants', async () => {
+  vi.mocked(presentationApi.product).mockResolvedValue({ product_id: 'p', version: 4, images: ['image-one', 'image-two'], variant_images: { 旧款: 'image-one', 黑色: 'image-two' }, specifications: [], shipping_note: '', aftercare_note: '' })
+  vi.spyOn(presentationApi, 'saveProduct').mockResolvedValue({ product_id: 'p', version: 5, images: ['image-one', 'image-two'], variant_images: { 黑色: 'image-two' }, specifications: [], shipping_note: '', aftercare_note: '' })
+  w = mount(PresentationEditor, { props: { account, product: 'p', variants: [{ sku_id: 'black', variant: '黑色' }] } }); await flushPromises()
+  expect(w.get('select').element.value).toBe('image-two')
+  await w.get('form').trigger('submit'); await flushPromises()
+  expect(presentationApi.saveProduct).toHaveBeenCalledWith('merchant', 'p', expect.objectContaining({ variant_images: { 黑色: 'image-two' } }))
+})
