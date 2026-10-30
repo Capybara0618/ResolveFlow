@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import ListPagination from './ListPagination.vue'
+import { useCursorPages } from '../cursor-pages'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ApiError, coreApi, type AdminAccount, type AccountAudit, type AccountFilter, type LoginResponse } from '../client'
 import Icon from './ReviewIcon.vue'
 import ReviewDialog from './ReviewDialog.vue'
 
+const { pageIndex, pageCursor, acceptPage, resetPages } = useCursorPages<string>()
+const historyPages = useCursorPages<string>()
 const props = defineProps<{ account: LoginResponse }>()
 const emit = defineEmits<{ expired: []; working: [value: boolean]; renamed: [name: string] }>()
 const rows = ref<AdminAccount[]>([]), total = ref<number | null>(null), enabledAdmins = ref(0), currentUsername = ref('')
@@ -28,13 +32,13 @@ function failed(cause: unknown) {
   error.value = cause instanceof Error ? cause.message : '请求失败，请刷新后查看现状。'
   if (!(cause instanceof ApiError)) error.value = '请求结果尚未确认，请刷新查看账号与操作记录；不要直接重复提交。'
 }
-async function load(more = false) {
+async function load(index = pageIndex.value) {
   const generation = ++listGeneration, token = props.account.access_token
   loading.value = true
   try {
-    const page = await coreApi.adminAccounts(token, { ...applied }, more ? cursor.value : undefined)
+    const page = await coreApi.adminAccounts(token, { ...applied }, pageCursor(index))
     if (!alive || generation !== listGeneration || token !== props.account.access_token) return
-    rows.value = more ? [...rows.value, ...page.items.filter(row => !rows.value.some(old => old.username === row.username))] : page.items
+    rows.value = page.items; acceptPage(index, page.page.next_cursor)
     total.value = page.total; cursor.value = page.page.next_cursor ?? undefined; enabledAdmins.value = page.enabled_admins; currentUsername.value = page.current_username
   } catch (cause) { if (alive && generation === listGeneration) failed(cause) }
   finally { if (alive && generation === listGeneration) loading.value = false }
@@ -42,22 +46,22 @@ async function load(more = false) {
 function filter() {
   if (busy.value || loading.value) return
   applied = { query: query.value.trim(), role: role.value, status: status.value }
-  closeDetails(); error.value = ''; notice.value = ''; void load()
+  closeDetails(); resetPages(); error.value = ''; notice.value = ''; void load(0)
 }
 function closeDetails() { selected.value = null; ++historyGeneration; history.value = []; historyError.value = ''; stale.value = false }
 function select(row: AdminAccount) {
   if (busy.value || loading.value) return
   selected.value = { ...row }; name.value = row.display_name; selectedRole.value = row.role; enabled.value = row.enabled; reason.value = ''
-  stale.value = false; error.value = ''; history.value = []; historyCursor.value = undefined; historyTotal.value = 0; void loadHistory()
+  stale.value = false; error.value = ''; history.value = []; historyCursor.value = undefined; historyTotal.value = 0; historyPages.resetPages(); void loadHistory()
 }
-async function loadHistory(more = false) {
+async function loadHistory(index = historyPages.pageIndex.value) {
   if (!selected.value) return
   const username = selected.value.username, generation = ++historyGeneration
   historyLoading.value = true; historyError.value = ''
   try {
-    const page = await coreApi.accountHistory(props.account.access_token, username, more ? historyCursor.value : undefined)
+    const page = await coreApi.accountHistory(props.account.access_token, username, historyPages.pageCursor(index))
     if (!alive || generation !== historyGeneration || selected.value?.username !== username) return
-    history.value = more ? [...history.value, ...page.items] : page.items; historyCursor.value = page.page.next_cursor ?? undefined; historyTotal.value = page.total
+    history.value = page.items; historyPages.acceptPage(index, page.page.next_cursor); historyCursor.value = page.page.next_cursor ?? undefined; historyTotal.value = page.total
   } catch (cause) {
     if (!alive || generation !== historyGeneration) return
     if (cause instanceof ApiError && cause.status === 401) emit('expired')
@@ -103,7 +107,7 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
 <template>
   <main class="people-workspace" aria-label="人员管理">
     <header class="people-heading"><div><p class="eyebrow">商家管理 · {{ account.merchant_name ?? account.merchant_id }}</p><h1>人员管理</h1></div><button type="button" :disabled="busy || loading" @click="openDialog('create')"><Icon name="user" :size="17" />新增工作人员</button></header>
-    <p v-if="error" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
+    <p v-if="error && !dialog" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
     <div class="people-columns" :class="{ 'with-details': selected }">
       <section class="panel people-list" aria-label="商家账号列表">
         <form class="people-filters" @submit.prevent="filter"><label class="people-search">搜索账号<input v-model="query" maxlength="100" placeholder="用户名或显示姓名" :disabled="busy || loading" /></label><label>角色<select v-model="role" aria-label="角色" :disabled="busy || loading"><option value="ALL">全部角色</option><option v-for="(label, value) in labels" :key="value" :value="value">{{ label }}</option></select></label><label>状态<select v-model="status" aria-label="状态" :disabled="busy || loading"><option value="ALL">全部状态</option><option value="ENABLED">已启用</option><option value="DISABLED">已停用</option></select></label><button class="secondary-button" type="submit" :disabled="busy || loading">查询</button></form>
@@ -111,7 +115,7 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
         <p v-if="loading" class="muted" role="status">正在读取账号…</p>
         <div class="people-table-wrap"><table><thead><tr><th>姓名 / 用户名</th><th>角色</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead><tbody><tr v-for="row in rows" :key="row.username" :class="{ selected: selected?.username === row.username }"><td><strong>{{ row.display_name }}</strong><small>{{ row.username }}<span v-if="row.username === currentUsername"> · 当前账号</span></small></td><td>{{ labels[row.role] }}</td><td><span class="status-tag" :class="{ enabled: row.enabled }">{{ row.enabled ? '已启用' : '已停用' }}</span></td><td class="people-time">{{ date(row.updated_at) }}</td><td><button class="text-button" type="button" :aria-label="`维护 ${row.username}`" :disabled="busy || loading" @click="select(row)">维护账号</button></td></tr></tbody></table></div>
         <div v-if="!loading && !rows.length" class="empty"><Icon name="user" :size="30" /><strong>没有符合条件的账号</strong><p>可调整角色、状态或查询条件。</p></div>
-        <footer class="people-footer"><span>已显示 {{ rows.length }}<template v-if="total !== null"> / {{ total }}</template> 个账号</span><button v-if="cursor" class="secondary-button" type="button" :disabled="busy || loading" @click="load(true)">加载更多</button></footer>
+        <footer class="people-footer"><span>已显示 {{ rows.length }}<template v-if="total !== null"> / {{ total }}</template> 个账号</span><ListPagination :page="pageIndex" :has-next="!!cursor" :disabled="busy || loading" label="人员账号分页" @change="load" /></footer>
 
       </section>
       <aside v-if="selected" class="panel people-details" aria-label="维护账号">
@@ -130,7 +134,7 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
         <section class="people-history" aria-label="账号操作记录"><div class="people-list-heading"><h3>操作记录（{{ historyTotal }}）</h3><button class="text-button" type="button" :disabled="historyLoading || busy" @click="loadHistory()">刷新</button></div>
           <p v-if="historyLoading" class="muted">正在读取记录…</p><p v-else-if="historyError" class="message error">{{ historyError }}</p><p v-else-if="!history.length" class="muted">暂无维护记录。</p>
           <ol><li v-for="event in history" :key="event.id"><strong>{{ { CREATED: '新增账号', UPDATED: '维护账号', PASSWORD_RESET: '重置密码' }[event.action] }}</strong><small>{{ date(event.occurred_at) }} · {{ event.actor_username }} · v{{ event.account_version }}</small><p>{{ event.reason }}</p><details v-if="event.action !== 'PASSWORD_RESET'"><summary>查看状态变化</summary><p v-if="event.before">之前：{{ event.before.display_name }} / {{ labels[event.before.role] }} / {{ event.before.enabled ? '启用' : '停用' }}</p><p>之后：{{ event.after.display_name }} / {{ labels[event.after.role] }} / {{ event.after.enabled ? '启用' : '停用' }}</p></details></li></ol>
-          <button v-if="historyCursor" class="secondary-button" type="button" :disabled="historyLoading || busy" @click="loadHistory(true)">更多操作记录</button>
+          <ListPagination :page="historyPages.pageIndex.value" :has-next="!!historyCursor" :disabled="historyLoading || busy" label="账号操作记录分页" @change="loadHistory" />
         </section>
       </aside>
     </div>
@@ -148,9 +152,9 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
 </template>
 
 <style scoped>
-.people-workspace { min-width: 0; padding: 28px; background: var(--rf-subtle); }
+.people-workspace { min-width: 0; padding:32px; background:var(--rf-canvas); }
 .people-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
-h1 { font-size: 24px; margin: 6px 0 10px; } h2 { font-size: 17px; margin: 0; } h3 { font-size: 14px; margin: 0; }
+h1 { font-size: 26px;font-weight:500; margin: 6px 0 10px; } h2 { font-size: 17px; margin: 0; } h3 { font-size: 14px; margin: 0; }
 .people-heading > button { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
 .people-columns { display: grid; gap: 20px; align-items: start; } .with-details { grid-template-columns: minmax(0, 1fr) 336px; }
 .people-list { padding: 0; overflow: hidden; } .people-filters { display: flex; align-items: end; gap: 12px; padding: 20px; border-bottom: 1px solid var(--rf-line); }

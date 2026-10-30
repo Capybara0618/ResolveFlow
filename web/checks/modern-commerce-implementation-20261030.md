@@ -84,3 +84,11 @@
 
 - shopping-presentation/merchant-reviews/admin-trades22项通过；补商品管理foundation/product-pagination及回复草稿检查后，实际4文件15项通过（与前轮重叠不相加）；build通过。商品分页旧“刷新回首页”断言改“刷新当前页”并保留游标检查。日志tmp/modern-merchant-editors-tests.log、modern-merchant-editors-final-tests.log、modern-merchant-editors-build.log。
 - 没有启动/实机、上传/商品发布或公开回复。布局与完整商家路径待M8。
+
+
+## M6 概览、交易、审批与人员（仅离线）
+
+概览待办合并成有分隔的轻量指标区，次级读失败保留原任务并显示错误。交易状态/金额先于地址，筛选用下划线而非整排主按钮，数字和字段缩到公共尺度；发货确认使用统一footer。审批保留原客户诉求→核查事实→决定顺序，只调整阅读/表单字号与表面，退款规则继续完整展示原文/版本/来源不改政策。人员列表与操作历史使用原服务端游标分页替换，刷新/保存留当前页，筛选重开页，失败不提交新页号。
+
+- 4相关文件45项/build通过；补分页替换和失败原页回归后admin-people12项通过（重叠），日志tmp/modern-merchant-work-tests.log、modern-merchant-work-build.log、modern-merchant-people-final.log。
+- M6代码阶段结束，未新建人员/发货/审批或实机验收。继续M7平台；实际布局和三角色完整路径留M8。

@@ -41,9 +41,9 @@ async function load() {
       const [trade, support, queue] = work
       for (const value of work) if (value.status === 'rejected' && value.reason instanceof ApiError && value.reason.status === 401) emit('expired')
       orderError.value = trade.status === 'rejected' ? '订单暂时无法读取，请刷新重试。' : ''
-      orders.value = trade.status === 'fulfilled' ? trade.value.items.slice(0, 3) : []
+      if (trade.status === 'fulfilled') orders.value = trade.value.items.slice(0,3)
       supportError.value = support.status === 'rejected' ? '咨询暂时无法读取，请刷新重试。' : ''
-      consultations.value = support.status === 'fulfilled' ? support.value.items.slice(0, 3) : []
+      if (support.status === 'fulfilled') consultations.value = support.value.items.slice(0,3)
       supportCount.value = support.status === 'fulfilled' ? support.value.counts?.PENDING ?? null : null
       reviewError.value = queue.status === 'rejected' ? '售后数量暂时无法读取，请刷新重试。' : ''
       reviewCount.value = queue.status === 'fulfilled' ? queue.value.counts?.total ?? null : null

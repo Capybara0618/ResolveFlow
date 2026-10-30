@@ -28,7 +28,7 @@ describe('merchant account administration', () => {
     await wrapper!.get('.people-filters').trigger('submit'); await flushPromises()
     expect(coreApi.adminAccounts).toHaveBeenLastCalledWith('t', { query: 'first', role: 'REVIEWER', status: 'ALL' }, undefined)
     await wrapper!.get('.people-search input').setValue('unapplied')
-    await click('加载更多')
+    await click('下一页')
     expect(coreApi.adminAccounts).toHaveBeenLastCalledWith('t', { query: 'first', role: 'REVIEWER', status: 'ALL' }, 'continue')
   })
 
@@ -123,4 +123,13 @@ describe('merchant account administration', () => {
     reject(new ApiError(401, 'UNAUTHENTICATED', 'late')); await flushPromises()
     expect(old.emitted('expired')).toBeUndefined()
   })
+})
+
+
+it('replaces a staff page and keeps its records and number when another page fails', async () => {
+  vi.mocked(coreApi.adminAccounts).mockResolvedValueOnce(page).mockResolvedValueOnce({...page,items:[{...worker,username:'second-page',display_name:'第二页专员'}],page:{limit:20,next_cursor:'third'}}).mockRejectedValueOnce(new Error('lost'))
+  await start();await click('下一页')
+  expect(wrapper!.findAll('tbody tr')).toHaveLength(1);expect(wrapper!.text()).toContain('第 2 页')
+  await click('下一页')
+  expect(wrapper!.findAll('tbody tr')).toHaveLength(1);expect(wrapper!.text()).toContain('第二页专员');expect(wrapper!.text()).toContain('第 2 页')
 })

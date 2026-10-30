@@ -5,7 +5,7 @@
   --rf-canvas: #fafaf7;
   color: var(--rf-ink);
   background: var(--rf-canvas);
-  font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "PingFang SC", sans-serif;
+  font-family:var(--rf-font-ui);
   font-size: 16px;
 }
 .merchant-review-workbench :is(button, input, textarea, select) { font-family: inherit; }
@@ -20,7 +20,7 @@
 .merchant-review-workbench .brand-mark i:last-child { background: #9ab7a1; }
 .merchant-review-workbench .avatar { background: #eaf3ec; color: #216b58; }
 .merchant-review-workbench .demo-tag { color: #6d786e; }
-.merchant-review-workbench button { font-size: 16px; font-weight: 500; border-color: #216b58; background: #216b58; box-shadow: none; }
+.merchant-review-workbench button { font-size:14px;min-height:40px;font-weight:500;border-color: #216b58; background: #216b58; box-shadow: none; }
 .merchant-review-workbench button:hover:not(:disabled) { background: #185744; border-color: #185744; box-shadow: none; }
 .merchant-review-workbench .secondary-button { color: #315b49; background: #fff; border-color: #cbd9cb; }
 .merchant-review-workbench .secondary-button:hover:not(:disabled) { background: #eff5ed; border-color: #a9c1ac; }
@@ -33,14 +33,14 @@
 .merchant-review-workbench .status-tag { background: #eff2eb; color: #52654f; border: 0; }
 .merchant-review-workbench .status-tag.waiting { background: #fff3dc; color: #906020; }
 .merchant-review-workbench .status-tag.success { background: #eaf3ec; color: #216b58; }
-.merchant-review-workbench .merchant-aftercare.merchant-case-view { display: block; max-width: 1320px; }
+.merchant-review-workbench .merchant-aftercare.merchant-case-view { display: block; max-width:var(--rf-page-max); }
 .merchant-review-workbench .merchant-detail-v4 { min-width: 0; }
-.merchant-review-workbench .merchant-detail-v4 :is(p, span, small, summary, label, input, select, textarea, button, dt, dd, pre, time, legend, li) { font-size: 16px; }
+.merchant-review-workbench .merchant-detail-v4 :is(p, span, summary, input, select, textarea, dd, li) { font-size:15px; }.merchant-review-workbench .merchant-detail-v4 :is(button,label,dt,legend){font-size:14px}.merchant-review-workbench .merchant-detail-v4 :is(small,time,pre){font-size:13px}
 .merchant-review-workbench .merchant-detail-heading { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-.merchant-review-workbench .merchant-detail-heading h2 { margin: 0; font-size: 24px; font-weight: 600; }
+.merchant-review-workbench .merchant-detail-heading h2 { margin: 0; font-size:24px;font-weight:500; }
 .merchant-review-workbench .merchant-detail-heading .status-tag { padding: 5px 10px; font-size: 14px; }
-.merchant-review-workbench .merchant-detail-card { min-width: 0; padding: 20px; background: #fff; border: 1px solid #e3e8e0; border-radius: 10px; }
-.merchant-review-workbench .merchant-detail-card h3 { margin: 0 0 12px; color: #25322c; font-size: 18px; font-weight: 600; }
+.merchant-review-workbench .merchant-detail-card { min-width: 0; padding: 20px; background: #fff; border: 1px solid #e3e8e0; border-radius:var(--rf-radius-surface); }
+.merchant-review-workbench .merchant-detail-card h3 { margin: 0 0 12px; color: #25322c; font-size:18px;font-weight:500; }
 .merchant-review-workbench .merchant-detail-v4 p { line-height: 1.65; margin: 10px 0; overflow-wrap: anywhere; }
 .merchant-review-workbench .merchant-detail-card > p:last-child { margin-bottom: 0; }
 .merchant-review-workbench .merchant-detail-v4 .muted { color: #69766b; }
@@ -49,7 +49,7 @@
 .merchant-review-workbench .merchant-product-row .aftercare-product { flex: 1; gap: 16px; }
 .merchant-review-workbench .merchant-product .aftercare-product-image { width: 68px; height: 68px; flex: 0 0 68px; border-radius: 8px; background: #f3f4ee; }
 .merchant-review-workbench .merchant-product .aftercare-product-copy { gap: 3px; }
-.merchant-review-workbench .merchant-product .aftercare-product-copy strong { color: #25322c; font-size: 18px; font-weight: 600; }
+.merchant-review-workbench .merchant-product .aftercare-product-copy strong { color: #25322c; font-size:18px;font-weight:500; }
 .merchant-review-workbench .merchant-product .aftercare-product-copy span { color: #69766b; font-size: 14px; }
 .merchant-review-workbench .merchant-product .aftercare-product-amount b { color: #25322c; font-size: 16px; font-weight: 600; }
 .merchant-review-workbench .merchant-product-links { display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
@@ -120,7 +120,7 @@
 .merchant-review-workbench .list-panel h2 { font-size: 24px; }
 .merchant-review-workbench .queue-filters { margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
 .merchant-review-workbench .merchant-case-list { gap: 12px; }
-.merchant-review-workbench .merchant-case-card { border-color: #e3e8e0; padding: 18px; gap: 18px; border-radius: 10px; }
+.merchant-review-workbench .merchant-case-card { border-color: #e3e8e0; padding: 18px; gap: 18px; border-radius:var(--rf-radius-surface); }
 .merchant-review-workbench .merchant-case-card .aftercare-product { gap: 16px; }
 .merchant-review-workbench .merchant-case-card .aftercare-product-image { width: 64px; height: 64px; flex: 0 0 64px; background: #f3f4ee; }
 .merchant-review-workbench .merchant-case-card .aftercare-product-copy { gap: 3px; }
