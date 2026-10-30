@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ListPagination from './ListPagination.vue'
+import { useCursorPages } from '../cursor-pages'
 import StoreMark from './StoreMark.vue'
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { ApiError, coreApi, type LoginResponse, type OrderLine } from '../client'
@@ -25,6 +27,9 @@ const emit = defineEmits<{ expired: [] }>()
 const merchant = computed(() => props.account.role === 'MERCHANT_ADMIN')
 const owner = `${props.account.role}:${props.account.buyer_id ?? props.account.merchant_id}`
 const token = props.account.access_token
+const { pageIndex, pageCursor, acceptPage } = useCursorPages<number>()
+const counts = ref<Record<string, number> | null>(null), listLoading = ref(false)
+let listGeneration = 0, searchTimer: ReturnType<typeof setTimeout> | undefined
 const items = ref<SupportConversation[]>([]), next = ref<number | null>(null)
 const orders = ref<OrderLine[]>([]), orderCursor = ref<string | null>(null)
 const orderLoading = ref(false), orderLoaded = ref(false), orderError = ref('')
@@ -42,8 +47,8 @@ const shareReport = ref(false)
 const tabs = [{ key: 'ALL', label: '全部' }, { key: 'PENDING', label: '待处理' }, { key: 'WAITING_CUSTOMER', label: '待补充' }, { key: 'ANSWERED', label: '已答复' }]
 const inFilter = (c: SupportConversation, key: string) => key === 'ALL' || (key === 'ANSWERED' ? ['REPLIED', 'RESOLVED'].includes(c.ticket?.status ?? '') : c.ticket?.status === key)
 const itemView = (c: SupportConversation) => (cache.get(c.conversation_id)?.version ?? -1) >= c.version ? cache.get(c.conversation_id)! : c
-const matching = computed(() => items.value.map(itemView).filter(c => [c.buyer?.display_name ?? '', c.product.name, c.store_name, c.order_id, c.ticket?.summary ?? '', conversationTitle(c)].join(' ').toLocaleLowerCase().includes(search.value.trim().toLocaleLowerCase())))
-const visibleItems = computed(() => matching.value.filter(c => !merchant.value || inFilter(c, filter.value)))
+const matching = computed(() => items.value.map(itemView).filter(c => merchant.value && counts.value ? true : [c.buyer?.display_name ?? '', c.product.name, c.store_name, c.order_id, c.ticket?.summary ?? '', conversationTitle(c)].join(' ').toLocaleLowerCase().includes(search.value.trim().toLocaleLowerCase())))
+const visibleItems = computed(() => matching.value.filter(c => !merchant.value || !!counts.value || inFilter(c, filter.value)))
 const visibleOrders = computed(() => orders.value.filter(o => [o.product_name, o.sku, o.merchant_name, o.order_id].join(' ').toLocaleLowerCase().includes(orderSearch.value.trim().toLocaleLowerCase())))
 const latestAssistant = computed(() => selected.value?.messages.find(m => m.author === 'ASSISTANT' && m.sequence === selected.value?.version && m.assistant))
 const sharedCitations = computed(() => latestAssistant.value?.assistant?.citations.filter(c => c.source_type !== 'CONVERSATION') ?? [])
@@ -86,11 +91,23 @@ function setSelected(value: SupportConversation) {
   if (resetRecipient) recipient.value = value.ticket ? 'MERCHANT' : 'ASSISTANT'
   remember(selected.value)
 }
-async function list(more = false) {
-  const result = merchant.value ? await supportApi.tickets(token, more ? next.value : null) : await supportApi.conversations(token, more ? next.value : null)
-  if (!alive) return
-  items.value = more ? [...items.value, ...result.items] : result.items; next.value = result.next_before
+async function list(more = false, page = 0) {
+  const g = ++listGeneration, query = search.value.trim(), status = filter.value
+  listLoading.value = true
+  try {
+    const result = merchant.value ? await supportApi.tickets(token, pageCursor(page) ?? null, { status, query }) : await supportApi.conversations(token, more ? next.value : null)
+    if (!alive || g !== listGeneration || merchant.value && (query !== search.value.trim() || status !== filter.value)) return
+    items.value = more && !merchant.value ? [...items.value, ...result.items] : result.items
+    next.value = result.next_before; counts.value = result.counts ?? null
+    if (merchant.value) acceptPage(page, next.value)
+  } finally { if (alive && g === listGeneration) listLoading.value = false }
 }
+watch(filter, () => { if (merchant.value) { clearTimeout(searchTimer); void list().catch(fail) } })
+watch(search, () => {
+  if (!merchant.value) return
+  ++listGeneration; clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => { void list().catch(fail) }, 300)
+})
 async function readOrders(more = false) {
   if (orderLoading.value) return
   orderLoading.value = true; orderError.value = ''
@@ -254,7 +271,7 @@ onMounted(() => {
     }
   }, 2000)
 })
-onBeforeUnmount(() => { alive = false; ++generation; subscription?.abort(); window.removeEventListener('resize', fit); document.fonts?.removeEventListener('loadingdone', refundLayout); if (timer) clearInterval(timer) })
+onBeforeUnmount(() => { alive = false; ++generation; ++listGeneration; clearTimeout(searchTimer); subscription?.abort(); window.removeEventListener('resize', fit); document.fonts?.removeEventListener('loadingdone', refundLayout); if (timer) clearInterval(timer) })
 defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) })
 </script>
 
@@ -267,18 +284,19 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
     </div>
     <div class="support-grid" :class="{ 'context-collapsed': !merchant && !contextOpen }" :inert="choosing || preview ? true : undefined">
       <aside class="support-history" aria-label="咨询列表">
-        <header class="support-queue-heading"><h1>{{ merchant ? '咨询核查' : '售后咨询' }} <small v-if="merchant">{{ items.length }}</small></h1><button class="icon-action" aria-label="刷新咨询列表" :disabled="loading || busy || !!pending" @click="load"><Icon name="clock" :size="17" /></button></header>
+        <header class="support-queue-heading"><h1>{{ merchant ? '咨询核查' : '售后咨询' }} <small v-if="merchant">{{ counts?.ALL ?? items.length }}</small></h1><button class="icon-action" aria-label="刷新咨询列表" :disabled="loading || busy || !!pending" @click="load"><Icon name="clock" :size="17" /></button></header>
         <button v-if="!merchant" class="primary support-new" :disabled="loading || busy || !!pending" @click="pickOrder"><span>＋</span> 选择订单</button>
-        <label class="support-search"><Icon name="search" :size="17" /><input v-model="search" aria-label="搜索已加载咨询" :placeholder="merchant ? '搜索买家、商品或订单' : '搜索咨询记录'" /></label>
-        <div v-if="merchant" class="support-filters" aria-label="核查状态筛选"><button v-for="tab in tabs" :key="tab.key" :class="{ current: filter === tab.key }" :aria-pressed="filter === tab.key" @click="filter = tab.key">{{ tab.label }} <small>{{ matching.filter(c => inFilter(c, tab.key)).length }}</small></button></div>
+        <label class="support-search"><Icon name="search" :size="17" /><input v-model="search" aria-label="搜索已加载咨询" maxlength="100" :placeholder="merchant ? '搜索买家、商品或订单' : '搜索咨询记录'" /></label>
+        <div v-if="merchant" class="support-filters" aria-label="核查状态筛选"><button v-for="tab in tabs" :key="tab.key" :class="{ current: filter === tab.key }" :aria-pressed="filter === tab.key" :disabled="listLoading || busy || !!pending" @click="filter = tab.key">{{ tab.label }} <small>{{ counts?.[tab.key] ?? matching.filter(c => inFilter(c, tab.key)).length }}</small></button></div>
 
         <div class="support-history-scroll">
           <button v-for="item in visibleItems" :key="item.conversation_id" data-conversation :data-line-id="item.line_id" :aria-current="selected?.conversation_id === item.conversation_id ? 'true' : undefined" :disabled="busy || !!pending" :class="['support-history-item', { current: selected?.conversation_id === item.conversation_id }]" @click="open(item)">
             <UserAvatar v-if="merchant" :token="token" :source="buyerAvatar(item)" :name="buyerName(item)" :size="38" /><ProductArt v-else :asset="item.product.asset_key || ''" :name="item.product.name" :variant="item.product.variant ?? ''" /><div><strong :title="merchant ? buyerName(item) : item.product.name">{{ merchant ? buyerName(item) : item.product.name }}</strong><span><template v-if="merchant">{{ item.product.name }} · {{ item.product.variant }}</template><template v-else><StoreMark :id="item.merchant_id" :size="13" />{{ item.store_name }}</template></span><small v-if="!merchant && conversationTitle(item) !== item.product.name" class="buyer-history-preview" :title="conversationTitle(item)">{{ conversationTitle(item) }}</small><small v-if="merchant">订单尾号 {{ tail(item.order_id) }}</small><em v-if="merchant || item.ticket" :class="['support-tag', item.ticket?.status === 'PENDING' ? 'amber' : 'blue']">{{ item.ticket ? labels[item.ticket.status] : '咨询中' }}</em></div>
           </button>
           <p v-if="!visibleItems.length && !loading" class="support-list-empty">{{ search ? '当前已加载记录中没有匹配项。' : merchant ? '当前筛选下暂无核查单。' : '选择订单，开始一次咨询。' }}</p>
-          <button v-if="next" class="support-more" :disabled="loading" @click="list(true).catch(fail)">加载更多咨询</button>
+          <button v-if="next && !merchant" class="support-more" :disabled="loading" @click="list(true).catch(fail)">加载更多咨询</button>
         </div>
+        <ListPagination v-if="merchant" :page="pageIndex" :has-next="!!next" :disabled="listLoading || loading || busy || !!pending" label="咨询核查分页" @change="index => list(false, index).catch(fail)" />
       </aside>
 
       <main class="support-main" :aria-busy="loading">

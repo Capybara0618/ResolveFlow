@@ -220,3 +220,6 @@
 .workbench .merchant-support .support-history-item > .user-avatar :is(img,svg) { width: 100%; height: 100%; }
 .workbench .merchant-support .support-chat-tabs { gap: 24px; }
 .workbench .merchant-support .support-filters { gap: 12px; flex-wrap: wrap; justify-content: flex-start; }
+
+.workbench .merchant-support .support-history > .list-pagination { flex-shrink: 0; justify-content: center; gap: 8px; padding: 12px 8px; border-top: 1px solid var(--rf-line); font-size: 12px; }
+.workbench .merchant-support .support-history > .list-pagination button { padding: 6px 8px; }

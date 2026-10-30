@@ -439,3 +439,20 @@ it('uses the buyer as the merchant conversation identity and keeps message avata
   expect(wrapper.find('.message-identity small').exists()).toBe(false)
   expect(wrapper.get('.support-ticket').text()).toContain(ticket.ticket!.summary)
 })
+
+it('pages the merchant ticket queue without losing the open conversation and uses server totals', async () => {
+  const first = structuredClone(fixture.TicketDetail) as SupportConversation
+  const second = { ...structuredClone(first), conversation_id: 'page-two', buyer: { display_name: '第二页买家', avatar_id: null }, ticket: { ...first.ticket!, ticket_id: 'ticket-two' } }
+  const tickets = vi.spyOn(supportApi, 'tickets').mockResolvedValueOnce({ items: [first], next_before: 10, counts: { ALL: 25, PENDING: 21, WAITING_CUSTOMER: 3, ANSWERED: 1 } })
+  vi.mocked(supportApi.read).mockResolvedValue(first)
+  wrapper = mount(SupportWorkspace, { props: { account: { access_token: 'merchant-token', role: 'MERCHANT_ADMIN', merchant_id: 'M-1001', expires_in: 3600 } } }); await flushPromises()
+  expect(wrapper.get('.support-queue-heading').text()).toContain('25')
+  const originalHeading = wrapper.get('.support-chat-heading h2').text()
+  tickets.mockResolvedValueOnce({ items: [second], next_before: null, counts: { ALL: 25, PENDING: 21, WAITING_CUSTOMER: 3, ANSWERED: 1 } })
+  await wrapper.findAll('button').find(b => b.text() === '下一页')!.trigger('click'); await flushPromises()
+  expect(tickets).toHaveBeenLastCalledWith('merchant-token', 10, { status: 'ALL', query: '' })
+  expect(wrapper.findAll('[data-conversation]')).toHaveLength(1)
+  expect(wrapper.get('[data-conversation]').text()).toContain('第二页买家')
+  expect(wrapper.get('.support-chat-heading h2').text()).toBe(originalHeading)
+  expect(wrapper.text()).toContain('第 2 页')
+})

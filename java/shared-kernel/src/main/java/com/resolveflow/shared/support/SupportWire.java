@@ -140,5 +140,11 @@ public final class SupportWire {
             BuyerIdentity buyer) {}
 
     public record Page<T>(
-            List<T> items, @JsonProperty("next_before") Long nextBefore) {}
+            List<T> items,
+            @JsonProperty("next_before") Long nextBefore,
+            @JsonInclude(JsonInclude.Include.NON_NULL) Map<String, Long> counts) {
+        public Page(List<T> items, Long nextBefore) {
+            this(items, nextBefore, null);
+        }
+    }
 }

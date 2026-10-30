@@ -157,7 +157,7 @@ describe('core workbench', () => {
     expect(wrapper.get('#queue-panel .panel-heading').text()).toContain('45')
     expect(wrapper.get('.queue-owner').text()).toContain('林专员（已停用）')
     await wrapper.get('[aria-label="搜索工单"]').setValue('unsubmitted draft')
-    await wrapper.get('.list-actions .secondary-button').trigger('click'); await flushPromises()
+    await wrapper.findAll('.list-actions button').find(b => b.text() === '下一页')!.trigger('click'); await flushPromises()
     const nextPage = fetcher.mock.calls.find(([url]) => url.includes('cursor=continue'))![0]
     expect(nextPage).not.toContain('unsubmitted')
     expect(wrapper.findAll('.queue-row')).toHaveLength(1)
@@ -380,7 +380,7 @@ describe('core workbench', () => {
     expect(wrapper.get('.case-title h3').text()).toBe('包裹未收到')
     expect(wrapper.get('.case-order').text()).toContain('正在读取订单信息')
     expect(wrapper.get('.review-unavailable').text()).toContain('暂无可审核授权')
-    expect(wrapper.get('.list-actions button').attributes('disabled')).toBeUndefined()
+    expect(wrapper.findAll('.list-actions button').find(b => b.text() === '刷新队列')!.attributes('disabled')).toBeUndefined()
     wrapper.unmount()
   })
 

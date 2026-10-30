@@ -86,8 +86,10 @@ public class SupportController {
     public Page<TicketDetail> tickets(
             @RequestHeader(name = "Authorization", required = false) String auth,
             @RequestParam(required = false) Integer limit,
-            @RequestParam(required = false) Long before) {
-        return service.tickets(principals.session(auth), limit, before);
+            @RequestParam(required = false) Long before,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String query) {
+        return service.tickets(principals.session(auth), limit, before, status, query);
     }
 
     @GetMapping("/tickets/{id}")

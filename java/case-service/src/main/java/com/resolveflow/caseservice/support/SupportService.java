@@ -350,17 +350,49 @@ public class SupportService {
         });
     }
 
-    public Page<TicketDetail> tickets(Session s, Integer n, Long before) {
+    public Page<TicketDetail> tickets(Session s, Integer n, Long before, String status, String query) {
         merchant(s);
         int size = limit(n);
-        if (before != null && before < 1) throw invalid();
+        String stage = status == null ? "ALL" : status;
+        String search = query == null ? "" : query.trim();
+        if ((before != null && before < 1)
+                || search.length() > 100
+                || !List.of("ALL", "PENDING", "WAITING_CUSTOMER", "ANSWERED").contains(stage)) throw invalid();
         return tx.execute(st -> {
+            String scope =
+                    " FROM support_conversation c JOIN support_ticket t ON c.conversation_id=t.conversation_id WHERE t.merchant_id=?";
+            var args = new ArrayList<Object>();
+            args.add(s.principal().merchantId());
+            if (!search.isEmpty()) {
+                scope +=
+                        " AND (t.summary LIKE ? ESCAPE '!' OR c.order_id LIKE ? ESCAPE '!' OR JSON_UNQUOTE(JSON_EXTRACT(c.product_json,'$.name')) LIKE ? ESCAPE '!' OR EXISTS (SELECT 1 FROM identity_account a WHERE a.buyer_id=c.buyer_id AND a.role='CUSTOMER' AND a.display_name LIKE ? ESCAPE '!'))";
+                String pattern =
+                        "%" + search.replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
+                for (int i = 0; i < 4; i++) args.add(pattern);
+            }
+            var counts = new LinkedHashMap<String, Long>();
+            for (String key : List.of("ALL", "PENDING", "WAITING_CUSTOMER", "ANSWERED")) counts.put(key, 0L);
+            db.query(
+                    "SELECT t.status,COUNT(*)" + scope + " GROUP BY t.status",
+                    (org.springframework.jdbc.core.RowCallbackHandler) r -> {
+                        long count = r.getLong(2);
+                        counts.merge("ALL", count, Long::sum);
+                        String key =
+                                List.of("REPLIED", "RESOLVED").contains(r.getString(1)) ? "ANSWERED" : r.getString(1);
+                        counts.merge(key, count, Long::sum);
+                    },
+                    args.toArray());
+            if (stage.equals("ANSWERED")) scope += " AND t.status IN ('REPLIED','RESOLVED')";
+            else if (!stage.equals("ALL")) {
+                scope += " AND t.status=?";
+                args.add(stage);
+            }
+            args.add(before == null ? Long.MAX_VALUE : before);
+            args.add(size + 1);
             var rows = db.query(
-                    "SELECT c.* FROM support_conversation c JOIN support_ticket t ON c.conversation_id=t.conversation_id WHERE t.merchant_id=? AND t.sort_id<? ORDER BY t.sort_id DESC LIMIT ?",
+                    "SELECT c.*" + scope + " AND t.sort_id<? ORDER BY t.sort_id DESC LIMIT ?",
                     this::row,
-                    s.principal().merchantId(),
-                    before == null ? Long.MAX_VALUE : before,
-                    size + 1);
+                    args.toArray());
             var identities = buyerIdentities(rows.stream().limit(size).toList());
             var items = rows.stream()
                     .limit(size)
@@ -383,7 +415,7 @@ public class SupportService {
                             Long.class,
                             rows.get(size - 1).id)
                     : null;
-            return new Page<>(items, next);
+            return new Page<>(items, next, counts);
         });
     }
 

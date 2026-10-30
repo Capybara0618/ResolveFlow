@@ -168,7 +168,7 @@ class SupportApiTest extends CaseDatabaseTest {
         when(commerce.listByLine(any(), anyString())).thenAnswer(i -> {
             AuthenticatedPrincipal p = i.getArgument(0);
             String id = i.getArgument(1);
-            boolean visible = (id.equals("support-A")
+            boolean visible = ((id.equals("support-A") || id.equals("support-A-2"))
                             && p.merchantId().equals("M-1001")
                             && p.customerId().equals("C-B3001-M1001"))
                     || (id.equals("support-B")
@@ -224,7 +224,7 @@ class SupportApiTest extends CaseDatabaseTest {
     }
 
     JsonNode get(String path, String auth, int status) {
-        var req = rest.get().uri("/api/v1/support" + path);
+        var req = rest.get().uri(java.net.URI.create("/api/v1/support" + path));
         if (auth != null) req.header("Authorization", auth);
         return json.readTree(req.exchange()
                 .expectStatus()
@@ -1053,6 +1053,67 @@ class SupportApiTest extends CaseDatabaseTest {
         });
         turns.dispatchOne();
         assertThat(get(path(c), buyer, 200).get("messages").size()).isEqualTo(1);
+    }
+
+    @Test
+    void ticketPaginationFiltersBeforePagingAndCountsTheWholeScopedSearch() {
+        var a = open("support-A");
+        a = post(
+                path(a) + "/tickets",
+                buyer,
+                "page-a",
+                Map.of(
+                        "expected_version",
+                        a.path("version").asLong(),
+                        "summary",
+                        "核查耳机",
+                        "shared_message_ids",
+                        List.of()),
+                200);
+        var b = open("support-A-2");
+        b = post(
+                path(b) + "/tickets",
+                buyer,
+                "page-b",
+                Map.of(
+                        "expected_version",
+                        b.path("version").asLong(),
+                        "summary",
+                        "核查键盘",
+                        "shared_message_ids",
+                        List.of()),
+                200);
+        post(
+                "/tickets/" + b.path("ticket").path("ticket_id").asString() + "/messages",
+                merchant,
+                "reply-b",
+                Map.of("expected_version", b.path("version").asLong(), "text", "正在处理", "kind", "REPLY"),
+                200);
+        var first = get("/tickets?limit=1", merchant, 200);
+        assertThat(first.path("counts").path("ALL").asLong()).isEqualTo(2);
+        assertThat(first.path("counts").path("PENDING").asLong()).isEqualTo(1);
+        assertThat(first.path("counts").path("ANSWERED").asLong()).isEqualTo(1);
+        var second = get("/tickets?limit=1&before=" + first.path("next_before").asLong(), merchant, 200);
+        assertThat(second.path("items").get(0).path("conversation_id"))
+                .isNotEqualTo(first.path("items").get(0).path("conversation_id"));
+        assertThat(second.path("counts")).isEqualTo(first.path("counts"));
+        var pending = get("/tickets?status=PENDING&limit=1", merchant, 200);
+        assertThat(pending.path("items").get(0).path("conversation_id")).isEqualTo(a.path("conversation_id"));
+        assertThat(pending.path("next_before").isNull()).isTrue();
+        var search = get(
+                "/tickets?query=" + java.net.URLEncoder.encode("键盘", java.nio.charset.StandardCharsets.UTF_8),
+                merchant,
+                200);
+        assertThat(search.path("counts").path("ALL").asLong()).isEqualTo(1);
+        assertThat(search.path("items").size()).isEqualTo(1);
+        assertThat(get("/tickets?query=%25", merchant, 200).path("items").isEmpty())
+                .isTrue();
+        assertThat(get("/tickets", otherMerchant, 200)
+                        .path("counts")
+                        .path("ALL")
+                        .asLong())
+                .isZero();
+        get("/tickets?status=FOREIGN", merchant, 400);
     }
 
     @Test

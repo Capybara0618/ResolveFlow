@@ -155,6 +155,12 @@
   },
   "TicketDetailPage": {
     "items": [],
-    "next_before": null
+    "next_before": null,
+    "counts": {
+      "ALL": 1,
+      "PENDING": 1,
+      "WAITING_CUSTOMER": 0,
+      "ANSWERED": 0
+    }
   }
 }

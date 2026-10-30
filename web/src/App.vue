@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ListPagination from './ui/ListPagination.vue'
+import { useCursorPages } from './cursor-pages'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { ApiError, coreApi, type CaseCollaboration, type CaseSnapshot, type LoginResponse, type OrderLine, type ReviewContext, type ReviewItem, type ReviewQueueCounts, type ReviewScope } from './client'
 import { watchCaseEvents } from './events'
@@ -69,6 +71,7 @@ const notice = ref('')
 const busy = ref(false)
 const reviewItems = ref<ReviewItem[]>([])
 const reviewCursor = ref<string | undefined>()
+const { pageIndex: reviewPageIndex, pageCursor: reviewPageCursor, acceptPage: acceptReviewPage, resetPages: resetReviewPages } = useCursorPages<string>()
 const reviewView = ref('REVIEW')
 const reviewQuery = ref('')
 const reviewSearch = ref('')
@@ -80,7 +83,7 @@ const queueScopes = [{ key: 'PUBLIC' as const, label: '公共', count: 'public' 
 let queueGeneration = 0
 let actionGeneration = 0
 const queueUpdate = ref('')
-let queueExpanded = false, pollingQueue = false, queueTimer: ReturnType<typeof setInterval> | undefined
+let pollingQueue = false, queueTimer: ReturnType<typeof setInterval> | undefined
 const lookupId = ref('')
 const snapshot = ref<CaseSnapshot | null>(null)
 const selectedOrderLine = ref<OrderLine | null>(null)
@@ -331,10 +334,11 @@ async function act(work: () => Promise<void>) {
   try { await work() } catch (cause) { if (generation === actionGeneration) fail(cause) }
   finally { if (generation === actionGeneration) busy.value = false }
 }
-async function loadReviewQueue(cursor?: string, background = false) {
+async function loadReviewQueue(cursor?: string, background = false, targetPage = 0) {
   const generation = ++queueGeneration
   const sessionToken = token()
   const stage = reviewView.value, query = reviewSearch.value, scope = reviewScope.value
+  if (background) { targetPage = reviewPageIndex.value; cursor = reviewPageCursor(targetPage) }
   let page
   try { page = await coreApi.reviewQueue(sessionToken, cursor, stage, query, scope) }
   catch (cause) {
@@ -344,15 +348,9 @@ async function loadReviewQueue(cursor?: string, background = false) {
   if (generation !== queueGeneration || account.value?.access_token !== sessionToken ||
       reviewView.value !== stage || reviewScope.value !== scope || reviewSearch.value !== query) return false
   reviewCounts.value = page.counts ?? null
-  if (background && queueExpanded) {
-    if (JSON.stringify(reviewItems.value.slice(0, page.items.length)) !== JSON.stringify(page.items))
-      queueUpdate.value = '队列有更新；点击刷新查看最新列表，已展开记录保持不变。'
-    return true
-  }
-  // Polling updates the list only. It never opens another case or clears form drafts.
-  reviewItems.value = cursor ? [...new Map([...reviewItems.value, ...page.items].map(item => [item.case_id, item])).values()] : page.items
+  reviewItems.value = page.items
   reviewCursor.value = page.page.next_cursor ?? undefined
-  queueExpanded = !!cursor; queueUpdate.value = ''
+  acceptReviewPage(targetPage, reviewCursor.value); queueUpdate.value = ''
   if (isSingleMerchant.value) void products.readMany(page.items.map(item => item.line_id), !background)
   return true
 }
@@ -478,7 +476,7 @@ function logout() {
   lookupId.value = ''; queryOpen.value = false; verificationReason.value = ''; focusedPolicy.value = null
   ++actionGeneration; busy.value = false
   reviewItems.value = []; reviewCursor.value = undefined; reviewCounts.value = null; collaboration.value = null; error.value = ''
-  merchantPage.value = 'review'; notice.value = ''; queueExpanded = false; queueUpdate.value = ''
+  merchantPage.value = 'review'; notice.value = ''; resetReviewPages(); queueUpdate.value = ''
   shopVisitor.value = false
   shopReturn.value = ''
 }
@@ -611,7 +609,7 @@ onUnmounted(() => { stopStream(); products.reset() })
               </button>
             </div>
             <p v-if="reviewCounts && !isSingleMerchant" class="queue-summary">已显示 {{ reviewItems.length }} / {{ reviewCounts.total }} 条 · 数量按已应用的筛选统计<template v-if="reviewSearch"><br />搜索：{{ reviewSearch }}</template></p>
-            <div class="list-actions"><button v-if="reviewCursor" type="button" class="secondary-button" :disabled="busy" @click="act(async () => { await loadReviewQueue(reviewCursor) })">加载更多</button><button type="button" class="text-button" :disabled="busy" @click="act(async () => { await loadReviewQueue() })">刷新队列</button></div>
+            <div class="list-actions"><ListPagination :page="reviewPageIndex" :has-next="!!reviewCursor" :disabled="busy" label="售后工单分页" @change="index => act(async () => { await loadReviewQueue(reviewPageCursor(index), false, index) })" /><button type="button" class="text-button" :disabled="busy" @click="act(async () => { await loadReviewQueue() })">刷新队列</button></div>
           </section>
           <MerchantCaseDetail v-if="isSingleMerchant && merchantCaseOpen && snapshot" :key="snapshot.case.case_id" :token="token()" :snapshot="snapshot" :line="selectedOrderLine" :busy="busy" :product-state="orderContextState" :trade-state="tradeReadState" :fulfillment="merchantTrade ? fulfillmentLabels[merchantTrade.fulfillment.lines.find(line => line.line_id === snapshot!.case.line_id)?.status ?? 'UNKNOWN'] : tradeReadState === 'loading' ? '正在读取…' : '暂未读取'" :context="reviewContext" :collaboration="collaboration" :context-loading="reviewContextLoading" :context-error="reviewContextError" :status-label="statusLabel(snapshot.case.status)" @back="backToList" @order="changeMerchantPage('orders')" @retry-product="loadOrderContext(snapshot, token())" @retry-trade="loadTrade(snapshot, token())" @review="beginReview" @refresh="refreshWorkspace" @working="busy = $event" @expired="logout(); error = '登录已失效，请重新登录。'">
             <template #materials>

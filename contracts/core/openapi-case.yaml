@@ -1080,6 +1080,12 @@ paths:
         schema:
           type: integer
           minimum: 1
+      - name: status
+        in: query
+        schema: {type: string, enum: [ALL, PENDING, WAITING_CUSTOMER, ANSWERED]}
+      - name: query
+        in: query
+        schema: {type: string, maxLength: 100}
       responses:
         '200':
           description: Persisted scoped result
@@ -5570,6 +5576,15 @@ components:
       - items
       - next_before
       properties:
+        counts:
+          type: object
+          additionalProperties: false
+          required: [ALL, PENDING, WAITING_CUSTOMER, ANSWERED]
+          properties:
+            ALL: {type: integer, minimum: 0}
+            PENDING: {type: integer, minimum: 0}
+            WAITING_CUSTOMER: {type: integer, minimum: 0}
+            ANSWERED: {type: integer, minimum: 0}
         items:
           type: array
           items:

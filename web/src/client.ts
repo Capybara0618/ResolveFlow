@@ -299,7 +299,7 @@ export const coreApi = {
     }, { ...(snapshot ? { 'If-Match': `"${snapshot.case.version}"` } : {}),
       ...(collaboration ? { 'If-Collaboration-Match': `"${collaboration.version}"` } : {}) }),
   reviewQueue: (token: string, cursor?: string, view = 'REVIEW', query = '', scope: ReviewScope = 'PUBLIC') =>
-    apiRequest<ReviewQueuePage>(`/api/v1/review/cases?limit=20&scope=${scope}&view=${encodeURIComponent(view)}&query=${encodeURIComponent(query)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, token),
+    apiRequest<ReviewQueuePage>(`/api/v1/review/cases?limit=8&scope=${scope}&view=${encodeURIComponent(view)}&query=${encodeURIComponent(query)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, token),
   review: (token: string, snapshot: CaseSnapshot, decision: 'APPROVE' | 'REJECT' | 'REQUEST_INFO', reason: string,
     collaboration?: CaseCollaboration | null) => {
     if (!snapshot.authorization) throw new Error('No authorization to review')

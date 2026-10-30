@@ -27,3 +27,16 @@ TicketDetail新增buyer公开资料（昵称、avatar_id），限已归属本店
 - 截图tmp/merchant-experience-20261030/orders-page2.png、products-page2.png。无订单/商品/评价/消息写入，未调用模型。
 
 后续继续售后工单、咨询核查分页和概览/政策展示；本节不代表其已完成。
+
+## 三、售后工单与咨询核查分页
+
+售后队列每页8条，翻页替换数据，后台轮询刷新当前页游标，筛选仍在后端执行。咨询核查每页8条，上/下页固定在侧栏底部；翻页保留正在处理的会话与草稿。新查询先在本店归属范围内按状态和关键词过滤，再求页；状态计数覆盖整个已应用搜索，跨页不变。搜索支持买家昵称、商品、订单与核查摘要，转义LIKE通配符；买家私人会话列表不增加商家统计字段。
+
+- 新前端分页/全量计数回归先红，后端同店两会话/过滤后分页/状态计数/跨店/文字通配符回归先红。测试REST客户端曾重复编码中文query导致0条，改URI载入编码好的路径后通过；没有修改生产查询来迎合错误编码。
+- Maven SupportApiTest：37项通过。`pnpm --dir web test -- tests/support-workspace.spec.ts tests/support-events.spec.ts tests/app.spec.ts`：62项通过；类型检查/build过。原“首个list-actions按钮应可用”测试现在落在禁用的上一页，改为明确检查刷新按钮。
+- 支持契约/全OpenAPI相关105项通过。TicketDetailPage增加可选封闭counts，旧买家Page保持原响应；控制器/类型/fixture/参数同步。
+- Case重建重启后真实admin01：咨询ALL5/PENDING4/WAITING0/ANSWERED1，已答复筛出1条且总数保持5；搜索“买家10”返回1条且搜索计数1。真实API limit1第一页/第二页各1条、会话不同且计数相同。未创建假工单来凑页数。
+- 真实售后列表总10条：第一页8条→第二页2条/下一页禁用，页码第2页。截图tmp/merchant-experience-20261030/tickets-search.png、cases-page2.png，读API摘要tickets-api-check.json。
+- 仅读取已有数据，未新消息/订单/退款/审批/模型。开发浏览器中断后新建独立商家页继续，原数据未重置。
+
+继续概览与退款规则页面。
