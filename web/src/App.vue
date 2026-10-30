@@ -38,6 +38,7 @@ import { useAftercareProducts } from './ui/aftercare-products'
 import { fulfillmentApi, fulfillmentLabels, type MerchantTrade } from './fulfillment-client'
 import { clearTabSession, readTabSession, saveTabSession } from './tab-session'
 
+const loginNotice = ref('')
 const username = ref('')
 const password = ref('')
 const account = ref<LoginResponse | null>(null)
@@ -48,7 +49,7 @@ function openNotification(item: Notification) {
   else if (item.target === 'CASE') overviewCase(item.target_id)
 }
 const profileOpen = ref(false), profileBusy = ref(false)
-function loginNameChanged(name: string) { logout(); username.value = name; password.value = ''; error.value = '账号已修改，请使用新账号登录。' }
+function loginNameChanged(name: string) { logout(); username.value = name; password.value = ''; loginNotice.value = '账号已修改，请使用新账号登录。' }
 function updateProfile(value: AccountProfile) { if (account.value) { account.value = { ...account.value, display_name: value.display_name }; saveTabSession(account.value) } }
 const products = useAftercareProducts(() => account.value?.access_token)
 const productLines = products.lines, productStates = products.states
@@ -57,7 +58,7 @@ const merchantTrade = ref<MerchantTrade | null>(null)
 const tradeReadState = ref<'idle' | 'loading' | 'unavailable'>('idle')
 const shopVisitor = ref(window.location.hash.startsWith('#/shop'))
 const enrollmentMode = ref<'register' | 'recover' | null>(null), enrollmentBusy = ref(false)
-function finishEnrollment(name?: string) { enrollmentMode.value = null; if (name) username.value = name; password.value = ''; error.value = '' }
+function finishEnrollment(name?: string) { loginNotice.value = ''; enrollmentMode.value = null; if (name) username.value = name; password.value = ''; error.value = '' }
 const shopReturn = ref('')
 function updateShopVisitor() { shopVisitor.value = window.location.hash.startsWith('#/shop') }
 function shopLogin() { shopReturn.value = window.location.hash; window.history.pushState(null, '', '#/login'); shopVisitor.value = false }
@@ -452,6 +453,7 @@ async function enterSession(session: LoginResponse) {
   }
 }
 function login() {
+  loginNotice.value = ''
   void act(async () => {
     const session = await coreApi.login(username.value, password.value)
     saveTabSession(session)
@@ -463,6 +465,7 @@ onMounted(() => {
   if (session) void act(() => enterSession(session))
 })
 function logout() {
+  loginNotice.value = ''
   enrollmentMode.value = null
   profileOpen.value = false; profileBusy.value = false; notificationTicket.value = undefined
   clearTabSession()
@@ -549,6 +552,7 @@ onUnmounted(() => { stopStream(); products.reset() })
         <label>密码 <input v-model="password" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" /></label>
         <button data-test="login" type="submit" :disabled="busy">{{ busy ? '正在登录…' : '登录工作台' }}</button>
         <p v-if="error" class="message error" role="alert">{{ error }}</p>
+        <p v-else-if="loginNotice" class="message success" role="status">{{ loginNotice }}</p>
         <div class="login-account-links"><button type="button" :disabled="busy" @click="enrollmentMode = 'register'">注册账号</button><button type="button" :disabled="busy" @click="enrollmentMode = 'recover'">忘记密码</button></div>
       </form>
     </main>

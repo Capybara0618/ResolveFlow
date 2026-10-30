@@ -33,3 +33,18 @@ it('a restored token rejected by the backend returns to login and clears the sto
   expect(wrapper.find('.login-panel').exists()).toBe(true)
   expect(readTabSession()).toBeNull()
 })
+
+it('returns a renamed buyer to login with a success notice and no retained password', async () => {
+  saveTabSession({ access_token: 'buyer-token', role: 'CUSTOMER', buyer_id: 'B-1', expires_in: 3600 })
+  wrapper = mount(App, { global: { stubs: { MarketplaceWorkspace: stub } } }); await flushPromises()
+  wrapper.findComponent(MarketplaceWorkspace).vm.$emit('reauthenticate', 'renamed-buyer'); await flushPromises()
+  expect(readTabSession()).toBeNull()
+  expect(wrapper.get<HTMLInputElement>('input[name="username"]').element.value).toBe('renamed-buyer')
+  expect(wrapper.get<HTMLInputElement>('input[name="password"]').element.value).toBe('')
+  expect(wrapper.get('[role="status"]').text()).toBe('账号已修改，请使用新账号登录。')
+  expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ code: 'UNAUTHENTICATED', message: '账号或密码不正确' }), { status: 401 })))
+  await wrapper.get('.login-panel').trigger('submit'); await flushPromises()
+  expect(wrapper.find('[role="status"]').exists()).toBe(false)
+  expect(wrapper.get('[role="alert"]').text()).toContain('账号或密码不正确')
+})
