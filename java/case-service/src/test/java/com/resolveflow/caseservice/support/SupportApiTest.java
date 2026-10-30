@@ -1056,6 +1056,36 @@ class SupportApiTest extends CaseDatabaseTest {
     }
 
     @Test
+    void merchantSeesBuyerIdentityEvenWithoutSharedMessagesButOtherStoreCannotReadIt() {
+        var c = message(open("support-A"), "buyer-name", "帮我查物流", "ASSISTANT");
+        var shared = post(
+                "/conversations/" + c.path("conversation_id").asString() + "/tickets",
+                buyer,
+                "buyer-name-share",
+                Map.of(
+                        "expected_version",
+                        c.path("version").asLong(),
+                        "summary",
+                        "请核查物流",
+                        "shared_message_ids",
+                        List.of()),
+                200);
+        String id = shared.path("ticket").path("ticket_id").asString();
+        var ticket = get("/tickets/" + id, merchant, 200);
+        String name = jdbc.queryForObject(
+                "SELECT display_name FROM identity_account WHERE username='demo-buyer'", String.class);
+        assertThat(ticket.path("buyer").path("display_name").asString()).isEqualTo(name);
+        assertThat(ticket.path("buyer").has("avatar_id")).isTrue();
+        assertThat(ticket.path("buyer").has("username")).isFalse();
+        assertThat(ticket.path("buyer").has("phone")).isFalse();
+        var page = get("/tickets?limit=2", merchant, 200);
+        assertThat(page.path("items").get(0).path("buyer")).isEqualTo(ticket.path("buyer"));
+        get("/tickets/" + id, otherMerchant, 404);
+        get("/tickets/" + id + "/buyer/avatar", otherMerchant, 404);
+        get("/tickets/" + id + "/buyer/avatar", buyer, 403);
+    }
+
+    @Test
     void messageIdentityRespectsPrivateAndExplicitlySharedHistory() {
         var c = message(open("support-A"), "identity-private", "私人咨询", "ASSISTANT");
         String privateId = c.path("messages").get(0).path("message_id").asString();

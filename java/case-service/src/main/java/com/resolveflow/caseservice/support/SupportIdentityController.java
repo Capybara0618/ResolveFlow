@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 /** Resolves only authors of messages already visible through the consultation's own projection. */
 @RestController
-@RequestMapping("/api/v1/support/conversations/{conversation}/messages/{message}/identity")
+@RequestMapping("/api/v1/support")
 public class SupportIdentityController {
     public record Identity(String display_name, String avatar_id, String author) {}
 
@@ -72,7 +72,7 @@ public class SupportIdentityController {
         return new Refused(404, "NOT_FOUND", "消息不存在");
     }
 
-    @GetMapping
+    @GetMapping("/conversations/{conversation}/messages/{message}/identity")
     public Identity read(
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable String conversation,
@@ -80,7 +80,7 @@ public class SupportIdentityController {
         return identity(principals.session(auth), conversation, message);
     }
 
-    @GetMapping(value = "/avatar", produces = "image/png")
+    @GetMapping(value = "/conversations/{conversation}/messages/{message}/identity/avatar", produces = "image/png")
     public ResponseEntity<byte[]> image(
             @RequestHeader(name = "Authorization", required = false) String auth,
             @PathVariable String conversation,
@@ -91,6 +91,18 @@ public class SupportIdentityController {
                 .header("Cache-Control", "private, no-store")
                 .header("X-Content-Type-Options", "nosniff")
                 .body(avatars.read(i.avatar_id()));
+    }
+
+    @GetMapping(value = "/tickets/{ticket}/buyer/avatar", produces = "image/png")
+    public ResponseEntity<byte[]> buyerImage(
+            @RequestHeader(name = "Authorization", required = false) String auth, @PathVariable String ticket) {
+        var identity =
+                support.readTicket(principals.session(auth), ticket, null).buyer();
+        if (identity.avatar_id() == null) throw missing();
+        return ResponseEntity.ok()
+                .header("Cache-Control", "private, no-store")
+                .header("X-Content-Type-Options", "nosniff")
+                .body(avatars.read(identity.avatar_id()));
     }
 
     @ExceptionHandler(Refused.class)

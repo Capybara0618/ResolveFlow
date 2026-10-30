@@ -98,7 +98,11 @@
       ]
     },
     "messages": [],
-    "next_before_sequence": null
+    "next_before_sequence": null,
+    "buyer": {
+      "display_name": "卡皮巴拉",
+      "avatar_id": null
+    }
   },
   "ConversationPage": {
     "items": [

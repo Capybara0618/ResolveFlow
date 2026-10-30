@@ -13,5 +13,5 @@ watch(() => [props.token, props.conversation, props.message], async () => {
 }, { immediate: true })
 onBeforeUnmount(() => { generation++ })
 </script>
-<template><span class="message-identity" :title="display"><UserAvatar :token="token" :source="avatar ? `${path()}/avatar` : undefined" :name="display" :kind="author" :size="32" /><small>{{ display }}</small></span></template>
-<style scoped>.message-identity{display:flex;flex-direction:column;align-items:center;gap:5px;flex:0 0 46px;width:46px}.message-identity small{font-size:11px;line-height:1.3;width:64px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center;color:#68756c}</style>
+<template><span class="message-identity" :title="display"><UserAvatar :token="token" :source="avatar ? `${path()}/avatar` : undefined" :name="display" :kind="author" :size="32" /></span></template>
+<style scoped>.message-identity{display:inline-flex;align-items:flex-start;justify-content:center;flex:0 0 36px;width:36px}</style>

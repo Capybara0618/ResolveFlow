@@ -426,3 +426,16 @@ it('stops the waiting indicator and explains an unavailable assistant in buyer l
   await wrapper.get('[aria-label="咨询消息"]').setValue('请再查一下')
   expect(wrapper.get('[data-action="send"]').attributes('disabled')).toBeUndefined()
 })
+
+it('uses the buyer as the merchant conversation identity and keeps message avatars free of repeated labels', async () => {
+  const ticket = { ...structuredClone(fixture.TicketDetail), buyer: { display_name: '卡皮巴拉', avatar_id: 'avatar-1' } } as SupportConversation
+  vi.spyOn(supportApi, 'tickets').mockResolvedValue({ items: [ticket], next_before: null })
+  vi.mocked(supportApi.read).mockResolvedValue(ticket)
+  wrapper = mount(SupportWorkspace, { props: { account: { access_token: 'merchant-token', role: 'MERCHANT_ADMIN', merchant_id: 'M-1001', expires_in: 3600 } } })
+  await flushPromises()
+  expect(wrapper.get('.support-chat-heading h2').text()).toBe('卡皮巴拉')
+  expect(wrapper.get('.support-history-item strong').text()).toBe('卡皮巴拉')
+  expect(wrapper.get('.support-chat-heading .user-avatar').attributes('aria-label')).toBe('卡皮巴拉的头像')
+  expect(wrapper.find('.message-identity small').exists()).toBe(false)
+  expect(wrapper.get('.support-ticket').text()).toContain(ticket.ticket!.summary)
+})

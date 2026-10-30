@@ -1133,6 +1133,32 @@ paths:
       - bearerAuth: []
       description: 'Authority: docs/customer-support-contract-v1.md. Scoped persistent
         consultation, no refund authority.'
+  /api/v1/support/tickets/{id}/buyer/avatar:
+    get:
+      operationId: supportTicketBuyerAvatar
+      summary: 本店已转交咨询的买家头像
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: 买家头像
+          headers:
+            Cache-Control:
+              schema: {type: string, const: 'private, no-store'}
+          content:
+            image/png:
+              schema: {type: string, contentEncoding: base64}
+        '400': {description: 请求无效或无权读取, content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}}
+        '401': {description: 请求无效或无权读取, content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}}
+        '403': {description: 请求无效或无权读取, content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}}
+        '404': {description: 请求无效或无权读取, content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}}
+        '409': {description: 请求无效或无权读取, content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}}
+        '503': {description: 请求无效或无权读取, content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}}
   /api/v1/support/tickets/{id}:
     get:
       operationId: readMerchantSupportTicket
@@ -5433,6 +5459,15 @@ components:
           - type: 'null'
         assistant_turn:
           $ref: '#/components/schemas/SupportAssistantTurn'
+    SupportBuyerIdentity:
+      type: object
+      additionalProperties: false
+      required: [display_name, avatar_id]
+      properties:
+        display_name:
+          type: string
+        avatar_id:
+          type: [string, 'null']
     SupportTicketDetail:
       type: object
       additionalProperties: false
@@ -5448,6 +5483,8 @@ components:
       - messages
       - next_before_sequence
       properties:
+        buyer:
+          $ref: '#/components/schemas/SupportBuyerIdentity'
         conversation_id:
           type: string
           format: uuid

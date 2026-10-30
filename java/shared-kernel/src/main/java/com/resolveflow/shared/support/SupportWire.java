@@ -124,6 +124,8 @@ public final class SupportWire {
         }
     }
 
+    public record BuyerIdentity(String display_name, String avatar_id) {}
+
     public record TicketDetail(
             @JsonProperty("conversation_id") String conversationId,
             @JsonProperty("merchant_id") String merchantId,
@@ -134,7 +136,8 @@ public final class SupportWire {
             long version,
             Ticket ticket,
             List<Message> messages,
-            @JsonProperty("next_before_sequence") Long nextBeforeSequence) {}
+            @JsonProperty("next_before_sequence") Long nextBeforeSequence,
+            BuyerIdentity buyer) {}
 
     public record Page<T>(
             List<T> items, @JsonProperty("next_before") Long nextBefore) {}

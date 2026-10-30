@@ -9,6 +9,7 @@ export interface SupportTicket { ticket_id: string; status: 'PENDING' | 'WAITING
 export interface SupportConversation {
   conversation_id: string; merchant_id: string; store_name: string; order_id: string; line_id: string
   product: { name: string; variant: string | null; asset_key: string | null; quantity: number; amount_minor: number; currency: string }
+  buyer?: { display_name: string; avatar_id: string | null }
   version: number; ticket: SupportTicket | null; messages: SupportMessage[]; next_before_sequence: number | null
   assistant_turn?: { run_id: string; status: 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'STALE'; reason: string | null }
   /** Local candidate view only: never part of a write/share/refund request. */

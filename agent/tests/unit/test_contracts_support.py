@@ -33,8 +33,8 @@ def test_support_writes_refuse_invalid_versions_and_user_authority(name):
 def test_support_routes_are_authenticated_and_keyed_with_no_refund_execution():
     doc = load_openapi('case', 'contracts/core')
     paths = {p: item for p, item in doc['paths'].items() if p.startswith('/api/v1/support/')}
-    assert len(paths) == 14
-    assert sum(len(item) for item in paths.values()) == 15
+    assert len(paths) == 15
+    assert sum(len(item) for item in paths.values()) == 16
     for path, item in paths.items():
         for method, operation in item.items():
             assert operation['security'] == [{'bearerAuth': []}]

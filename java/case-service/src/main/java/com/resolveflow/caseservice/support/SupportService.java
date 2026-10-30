@@ -212,10 +212,34 @@ public class SupportService {
                 turns.view(r.id));
     }
 
+    /** Only the already merchant-scoped ticket projection receives public buyer profile fields. */
+    private Map<String, BuyerIdentity> buyerIdentities(List<Row> rows) {
+        var result = new HashMap<String, BuyerIdentity>();
+        var ids = rows.stream().map(Row::buyer).distinct().toList();
+        if (ids.isEmpty()) return result;
+        db.query(
+                "SELECT buyer_id,display_name,avatar_id FROM identity_account WHERE role='CUSTOMER' AND buyer_id IN ("
+                        + String.join(",", Collections.nCopies(ids.size(), "?")) + ")",
+                (org.springframework.jdbc.core.RowCallbackHandler)
+                        rs -> result.put(rs.getString(1), new BuyerIdentity(rs.getString(2), rs.getString(3))),
+                ids.toArray());
+        return result;
+    }
+
     private TicketDetail staffDetail(Row r, Long before) {
         var page = messages(r, true, before);
         return new TicketDetail(
-                r.id, r.merchant, r.store, r.order, r.line, r.product, r.version, ticket(r), page.items, page.next);
+                r.id,
+                r.merchant,
+                r.store,
+                r.order,
+                r.line,
+                r.product,
+                r.version,
+                ticket(r),
+                page.items,
+                page.next,
+                buyerIdentities(List.of(r)).getOrDefault(r.buyer, new BuyerIdentity("买家", null)));
     }
 
     public Conversation open(Session s, Open body) {
@@ -337,6 +361,7 @@ public class SupportService {
                     s.principal().merchantId(),
                     before == null ? Long.MAX_VALUE : before,
                     size + 1);
+            var identities = buyerIdentities(rows.stream().limit(size).toList());
             var items = rows.stream()
                     .limit(size)
                     .map(r -> new TicketDetail(
@@ -349,7 +374,8 @@ public class SupportService {
                             r.version,
                             ticket(r),
                             List.of(),
-                            null))
+                            null,
+                            identities.getOrDefault(r.buyer, new BuyerIdentity("买家", null))))
                     .toList();
             Long next = rows.size() > size
                     ? db.queryForObject(

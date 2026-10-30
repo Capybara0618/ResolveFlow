@@ -34,13 +34,15 @@ const cache = reactive(new Map<string, SupportConversation>())
 const workspace = ref<HTMLElement>(), messagePane = ref<HTMLElement>()
 const refundEntry = ref<HTMLElement>(), contextOpen = ref(window.innerWidth > 1100)
 const loading = ref(false), busy = ref(false), error = ref(''), notice = ref(''), draft = ref('')
+const buyerName = (c: SupportConversation) => c.buyer?.display_name || '买家'
+const buyerAvatar = (c: SupportConversation) => c.buyer?.avatar_id && c.ticket ? `/api/v1/support/tickets/${encodeURIComponent(c.ticket.ticket_id)}/buyer/avatar` : undefined
 const recipient = ref<'ASSISTANT' | 'MERCHANT'>('ASSISTANT'), replyKind = ref<'REPLY' | 'REQUEST_INFO'>('REPLY')
 const preview = ref(false), summary = ref(''), share = ref<string[]>([]), previewVersion = ref(0)
 const shareReport = ref(false)
 const tabs = [{ key: 'ALL', label: '全部' }, { key: 'PENDING', label: '待处理' }, { key: 'WAITING_CUSTOMER', label: '待补充' }, { key: 'ANSWERED', label: '已答复' }]
 const inFilter = (c: SupportConversation, key: string) => key === 'ALL' || (key === 'ANSWERED' ? ['REPLIED', 'RESOLVED'].includes(c.ticket?.status ?? '') : c.ticket?.status === key)
 const itemView = (c: SupportConversation) => (cache.get(c.conversation_id)?.version ?? -1) >= c.version ? cache.get(c.conversation_id)! : c
-const matching = computed(() => items.value.map(itemView).filter(c => [c.product.name, c.store_name, c.order_id, c.ticket?.summary ?? '', conversationTitle(c)].join(' ').toLocaleLowerCase().includes(search.value.trim().toLocaleLowerCase())))
+const matching = computed(() => items.value.map(itemView).filter(c => [c.buyer?.display_name ?? '', c.product.name, c.store_name, c.order_id, c.ticket?.summary ?? '', conversationTitle(c)].join(' ').toLocaleLowerCase().includes(search.value.trim().toLocaleLowerCase())))
 const visibleItems = computed(() => matching.value.filter(c => !merchant.value || inFilter(c, filter.value)))
 const visibleOrders = computed(() => orders.value.filter(o => [o.product_name, o.sku, o.merchant_name, o.order_id].join(' ').toLocaleLowerCase().includes(orderSearch.value.trim().toLocaleLowerCase())))
 const latestAssistant = computed(() => selected.value?.messages.find(m => m.author === 'ASSISTANT' && m.sequence === selected.value?.version && m.assistant))
@@ -267,12 +269,12 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
       <aside class="support-history" aria-label="咨询列表">
         <header class="support-queue-heading"><h1>{{ merchant ? '咨询核查' : '售后咨询' }} <small v-if="merchant">{{ items.length }}</small></h1><button class="icon-action" aria-label="刷新咨询列表" :disabled="loading || busy || !!pending" @click="load"><Icon name="clock" :size="17" /></button></header>
         <button v-if="!merchant" class="primary support-new" :disabled="loading || busy || !!pending" @click="pickOrder"><span>＋</span> 选择订单</button>
-        <label class="support-search"><Icon name="search" :size="17" /><input v-model="search" aria-label="搜索已加载咨询" :placeholder="merchant ? '搜索客户问题或订单' : '搜索咨询记录'" /></label>
+        <label class="support-search"><Icon name="search" :size="17" /><input v-model="search" aria-label="搜索已加载咨询" :placeholder="merchant ? '搜索买家、商品或订单' : '搜索咨询记录'" /></label>
         <div v-if="merchant" class="support-filters" aria-label="核查状态筛选"><button v-for="tab in tabs" :key="tab.key" :class="{ current: filter === tab.key }" :aria-pressed="filter === tab.key" @click="filter = tab.key">{{ tab.label }} <small>{{ matching.filter(c => inFilter(c, tab.key)).length }}</small></button></div>
 
         <div class="support-history-scroll">
           <button v-for="item in visibleItems" :key="item.conversation_id" data-conversation :data-line-id="item.line_id" :aria-current="selected?.conversation_id === item.conversation_id ? 'true' : undefined" :disabled="busy || !!pending" :class="['support-history-item', { current: selected?.conversation_id === item.conversation_id }]" @click="open(item)">
-            <ProductArt :asset="item.product.asset_key || ''" :name="item.product.name" :variant="item.product.variant ?? ''" /><div><strong :title="merchant ? conversationTitle(item) : item.product.name">{{ merchant ? conversationTitle(item) : item.product.name }}</strong><span><StoreMark v-if="!merchant" :id="item.merchant_id" :size="13" />{{ item.store_name }}<template v-if="merchant"> · {{ item.product.name }}</template></span><small v-if="!merchant && conversationTitle(item) !== item.product.name" class="buyer-history-preview" :title="conversationTitle(item)">{{ conversationTitle(item) }}</small><small v-if="merchant">订单尾号 {{ tail(item.order_id) }}</small><em v-if="merchant || item.ticket" :class="['support-tag', item.ticket?.status === 'PENDING' ? 'amber' : 'blue']">{{ item.ticket ? labels[item.ticket.status] : '咨询中' }}</em></div>
+            <UserAvatar v-if="merchant" :token="token" :source="buyerAvatar(item)" :name="buyerName(item)" :size="38" /><ProductArt v-else :asset="item.product.asset_key || ''" :name="item.product.name" :variant="item.product.variant ?? ''" /><div><strong :title="merchant ? buyerName(item) : item.product.name">{{ merchant ? buyerName(item) : item.product.name }}</strong><span><template v-if="merchant">{{ item.product.name }} · {{ item.product.variant }}</template><template v-else><StoreMark :id="item.merchant_id" :size="13" />{{ item.store_name }}</template></span><small v-if="!merchant && conversationTitle(item) !== item.product.name" class="buyer-history-preview" :title="conversationTitle(item)">{{ conversationTitle(item) }}</small><small v-if="merchant">订单尾号 {{ tail(item.order_id) }}</small><em v-if="merchant || item.ticket" :class="['support-tag', item.ticket?.status === 'PENDING' ? 'amber' : 'blue']">{{ item.ticket ? labels[item.ticket.status] : '咨询中' }}</em></div>
           </button>
           <p v-if="!visibleItems.length && !loading" class="support-list-empty">{{ search ? '当前已加载记录中没有匹配项。' : merchant ? '当前筛选下暂无核查单。' : '选择订单，开始一次咨询。' }}</p>
           <button v-if="next" class="support-more" :disabled="loading" @click="list(true).catch(fail)">加载更多咨询</button>
@@ -281,7 +283,7 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
 
       <main class="support-main" :aria-busy="loading">
         <template v-if="selected">
-          <header class="support-chat-heading"><div class="support-chat-identity"><UserAvatar kind="ASSISTANT" name="售后助手" :size="34" /><div><h2 :title="merchant ? conversationTitle(selected) : '售后助手'">{{ merchant ? conversationTitle(selected) : '售后助手' }}</h2><p>{{ selected.store_name }} · {{ merchant ? `核查单 #${tail(selected.ticket!.ticket_id)}` : selected.product.name }}</p></div></div>
+          <header class="support-chat-heading"><div class="support-chat-identity"><UserAvatar v-if="merchant" :token="token" :source="buyerAvatar(selected)" :name="buyerName(selected)" :size="36" /><UserAvatar v-else kind="ASSISTANT" name="售后助手" :size="34" /><div><h2 :title="merchant ? buyerName(selected) : '售后助手'">{{ merchant ? buyerName(selected) : '售后助手' }}</h2><p>{{ merchant ? `${selected.product.name} · ${selected.product.variant || '默认规格'} · 订单 ${tail(selected.order_id)}` : `${selected.store_name} · ${selected.product.name}` }}</p></div></div>
             <span v-if="selected.ticket" class="support-tag amber">{{ labels[selected.ticket.status] }}</span><button v-if="!merchant && !selected.ticket" data-action="handoff" class="support-heading-handoff" :disabled="busy || !!pending" @click="handoff"><Icon name="file" :size="16" />请商家核查</button>
             <button v-if="!merchant" class="support-context-toggle" data-action="toggle-context" :aria-expanded="contextOpen" aria-controls="support-order-context" @click="contextOpen = !contextOpen; refundLayout()">{{ contextOpen ? '收起资料' : '订单与物流' }}</button>
           </header>
