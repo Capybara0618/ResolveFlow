@@ -674,7 +674,7 @@ onUnmounted(() => { stopStream(); products.reset() })
         </div>
       </main>
     </div>
-    <ReviewDialog v-if="profileOpen && account" title="个人资料" :busy="profileBusy" @close="profileOpen = false"><AccountWorkspace :key="account.access_token" :account="account" @saved="updateProfile" @reauthenticate="loginNameChanged" @working="profileBusy = $event" @expired="profileOpen = false; logout()" /></ReviewDialog>
+    <ReviewDialog v-if="profileOpen && account" title="个人资料" :busy="profileBusy" @close="profileOpen = false"><AccountWorkspace embedded :key="account.access_token" :account="account" @saved="updateProfile" @reauthenticate="loginNameChanged" @working="profileBusy = $event" @expired="profileOpen = false; logout()" /></ReviewDialog>
     <ReviewDialog v-if="reviewDecision && reviewTarget" :title="decisionLabels[reviewDecision]" :merchant="true" :busy="busy" @close="closeReview">
       <MerchantDecisionForm v-model="decisionReason" :kind="reviewDecision" :line="reviewLine"><div v-if="reviewDecision === 'APPROVE'" class="dialog-refund-amount">退款金额 <strong>{{ reviewAmount !== null ? formatMinorUnits(reviewAmount, 'CNY') : '金额待核对' }}</strong></div></MerchantDecisionForm><p v-if="error" class="message error" role="alert">{{ error }}</p><div class="dialog-actions"><button type="button" class="secondary-button" :disabled="busy" @click="closeReview">取消</button><button type="button" data-test="confirm-review" :disabled="busy || !decisionReason.trim() || decisionReason.trim().length > 1000" @click="review(reviewDecision)">{{ busy ? '正在提交…' : reviewSubmitLabels[reviewDecision] }}</button></div>
     </ReviewDialog>

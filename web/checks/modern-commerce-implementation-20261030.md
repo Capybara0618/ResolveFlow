@@ -60,3 +60,11 @@
 
 - 刷新丢草稿/地址未弹层两项先红后绿；补跨挂载草稿及新版资料显式选择回归。account/review-dialog/cart共33项通过，build通过；日志tmp/modern-account-red.log、modern-account-final-tests.log、modern-account-build.log。
 - 原密码错误、版本冲突、地址选择版本和保存时关闭禁用断言保留。未启动/实机/真实账号修改，视觉和跨路由体验待M8。
+
+
+## M4 账户入口与消息连续性（仅离线）
+
+消息游标页号由当前买家工作区持有，进入咨询后返回重新读取原页，普通刷新不重置第一页；切换token清游标，未读写入失败保留消息。下拉层增加短淡入，展开页与资料页同宽。个人中心刷新不清旧订单/地址，不把读取失败当作空数据；登录关联注册/安全表单统一控件尺度，管理端资料复用嵌入形式避免双标题。
+
+- notifications/account/marketplace共45项通过，新增消息第2页卸载返回及当前页刷新回归；build通过。日志tmp/modern-account-navigation-tests.log、modern-account-navigation-build.log。
+- 不启动服务或浏览器，视觉与真实跳转待M8。

@@ -62,3 +62,17 @@ it('pages message records without marking them read or accumulating prior record
   expect(w.findAll('.notification-item')).toHaveLength(1); expect(w.text()).toContain('第二页消息')
   expect(w.text()).not.toContain('商家回复了你的咨询'); expect(notificationApi.read).not.toHaveBeenCalled()
 })
+
+
+it('restores the visited message page on return and refreshes that page', async () => {
+  const memory={index:0,cursors:[undefined] as Array<string|undefined>}
+  vi.mocked(notificationApi.list).mockResolvedValueOnce({items:[structuredClone(item)],unread_count:2,next_cursor:'messages:2'})
+    .mockResolvedValue({items:[{...item,title:'保留第二页'}],unread_count:2,next_cursor:null})
+  w=mount(NotificationCenter,{props:{token:'owner',expanded:true,memory}});await flushPromises()
+  await w.findAll('button').find(b=>b.text()==='下一页')!.trigger('click');await flushPromises();w.unmount()
+  w=mount(NotificationCenter,{props:{token:'owner',expanded:true,memory}});await flushPromises()
+  expect(notificationApi.list).toHaveBeenLastCalledWith('owner','messages:2')
+  await w.findAll('button').find(b=>b.text()==='刷新')!.trigger('click');await flushPromises()
+  expect(notificationApi.list).toHaveBeenLastCalledWith('owner','messages:2')
+  expect(w.text()).toContain('第 2 页');expect(w.text()).toContain('保留第二页')
+})

@@ -21,6 +21,7 @@ import OrderSummary from './OrderSummary.vue'
 import './purchase-layout.css'
 import AccountWorkspace from './AccountWorkspace.vue'
 import type { AccountEditMemory } from './account-edit-memory'
+import type { CursorPageMemory } from '../cursor-pages'
 import NotificationCenter from './NotificationCenter.vue'
 import PersonalCenter from './PersonalCenter.vue'
 import EnrollmentForm from './EnrollmentForm.vue'
@@ -31,6 +32,7 @@ import type { AccountProfile, ShippingSelection } from '../account-client'
 import { readCartPending, saveCartPending, clearCartPending, type CartPending } from '../cart-pending'
 import './marketplace.css'
 
+const notificationMemory: CursorPageMemory<string> = { index: 0, cursors: [undefined] }
 const accountEditMemory = reactive<AccountEditMemory>({})
 const props = defineProps<{ account: LoginResponse | null }>()
 const emit = defineEmits<{ expired: []; reauthenticate: [loginName: string]; login: []; logout: []; profile: [value: AccountProfile] }>()
@@ -262,7 +264,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; clearTim
     <AccountWorkspace :key="account.access_token" v-if="(screen === 'profile' || screen === 'addresses') && account" :account="account" :mode="screen" :memory="accountEditMemory" @reauthenticate="emit('reauthenticate', $event)" @saved="emit('profile', $event)" @working="cartBusy = $event" @expired="emit('expired')" />
     <EnrollmentForm v-else-if="screen === 'security' && account" mode="rotate" :token="account.access_token" @working="cartBusy = $event" @close="go('#/shop/me')" @expired="emit('expired')" />
     <PersonalCenter v-else-if="screen === 'me' && account" :account="account" @navigate="go" @expired="emit('expired')" />
-    <NotificationCenter v-else-if="screen === 'messages' && account" :token="account.access_token" expanded @expired="emit('expired')" @open="openNotification" />
+    <NotificationCenter v-else-if="screen === 'messages' && account" :token="account.access_token" expanded :memory="notificationMemory" @expired="emit('expired')" @open="openNotification" />
     <SupportWorkspace ref="activeWorkspace" v-else-if="screen === 'support' && account" :key="account.access_token + windowHash" :initial-id="supportInitialId" :account="account" @expired="emit('expired')" />
     <CartWorkspace :initial-store="cartInitialStore" @store="cartStore = $event" ref="activeWorkspace" :initial-selection="cartInitial" @selection="cartSelection = $event" @ready="restoreCart" v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
     <CustomerWorkspace ref="activeWorkspace" v-else-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
