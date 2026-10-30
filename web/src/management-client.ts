@@ -14,6 +14,6 @@ export const managementApi = {
   syncMerchant: (token: string, id: string) => post<PlatformMerchant>(`/api/v1/platform/merchants/${encodeURIComponent(id)}/sync`, token, {}),
   createBuyer: (token: string, body: { username: string; display_name: string; password: string; reason: string }) => post<PlatformBuyer>('/api/v1/platform/buyers', token, body),
   updateBuyer: (token: string, row: PlatformBuyer, password?: string) => post<PlatformBuyer>(`/api/v1/platform/buyers/${encodeURIComponent(row.username)}`, token, { display_name: row.display_name, enabled: password ? row.enabled : !row.enabled, password: password || null, expected_version: row.version, reason: password ? '平台管理员重置买家密码' : '平台管理员调整买家状态' }),
-  products: (token: string, after?: string) => apiRequest<{ items: ManagedProduct[]; next_after: string | null }>(`/api/v1/merchant/products?limit=24${after ? `&after=${encodeURIComponent(after)}` : ''}`, token),
+  products: (token: string, after?: string) => apiRequest<{ items: ManagedProduct[]; next_after: string | null }>(`/api/v1/merchant/products?limit=8${after ? `&after=${encodeURIComponent(after)}` : ''}`, token),
   saveProduct: (token: string, id: string | null, body: ProductWrite) => post<ManagedProduct>(`/api/v1/merchant/products${id ? `/${encodeURIComponent(id)}` : ''}`, token, body),
 }

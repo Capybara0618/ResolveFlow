@@ -1,21 +1,24 @@
 <script setup lang="ts">
+import ListPagination from './ListPagination.vue'
+import { useCursorPages } from '../cursor-pages'
 import { ref, watch, onBeforeUnmount } from 'vue'
 import StoreMark from './StoreMark.vue'
 import UserAvatar from './UserAvatar.vue'
 import { useDismissible } from './useDismissible'
 import { ApiError } from '../client'
 import { notificationApi, type Notification } from '../notification-client'
+const { pageIndex, pageCursor, acceptPage } = useCursorPages<string>()
 const props = defineProps<{ token: string; disabled?: boolean; expanded?: boolean }>()
 const emit = defineEmits<{ expired: []; open: [item: Notification] }>()
 const visible = ref(false), items = ref<Notification[]>([]), unread = ref<number | null>(null), next = ref<string | null>(null), loading = ref(false), error = ref('')
 const root = ref<HTMLElement>()
 useDismissible(root, () => visible.value && !props.expanded, () => { visible.value = false })
 let generation = 0, timer: ReturnType<typeof setInterval> | undefined
-async function load(more = false) {
+async function load(index = 0) {
   if (loading.value) return
   const g = generation; loading.value = true; error.value = ''
-  try { const page = await notificationApi.list(props.token, more ? next.value ?? undefined : undefined); if (g !== generation) return
-    items.value = more ? [...items.value, ...page.items.filter(i => !items.value.some(old => old.notification_id === i.notification_id))] : page.items
+  try { const page = await notificationApi.list(props.token, pageCursor(index)); if (g !== generation) return
+    items.value = page.items; acceptPage(index, page.next_cursor)
     unread.value = page.unread_count; next.value = page.next_cursor
   } catch (e) { if (g === generation) { if (e instanceof ApiError && e.status === 401) emit('expired'); error.value = '消息暂时无法读取，请重试' } }
   finally { if (g === generation) loading.value = false }
@@ -39,7 +42,7 @@ onBeforeUnmount(() => { generation++; if (timer) clearInterval(timer) })
       <header><h2>消息</h2><button :disabled="loading" @click="load()">刷新</button><button v-if="!expanded" @click="visible = false">关闭</button></header>
       <p v-if="error" role="alert">{{ error }}</p><p v-else-if="loading && !items.length" role="status">正在读取消息…</p><p v-else-if="!items.length">暂时没有消息</p>
       <button v-for="item in items" :key="item.notification_id" class="notification-item" :class="{ unread: !item.read }" :disabled="disabled || loading" @click="open(item)"><StoreMark v-if="item.store_id" :id="item.store_id" :size="42" /><UserAvatar v-else :kind="item.sender_kind === 'CUSTOMER' ? 'CUSTOMER' : 'ASSISTANT'" :name="item.sender_name || 'ResolveFlow 客服'" :size="42" /><div class="notification-copy"><strong>{{ item.sender_name || 'ResolveFlow 客服' }}</strong><p>{{ item.title }}</p><div class="notification-meta"><time>{{ new Date(item.created_at).toLocaleString('zh-CN', { hour12: false }) }}</time><span>{{ item.read ? '已读' : '未读' }}</span></div></div></button>
-      <button v-if="next" :disabled="loading" @click="load(true)">加载更多消息</button>
+      <ListPagination :page="pageIndex" :has-next="!!next" :disabled="loading || disabled" label="消息分页" @change="load" />
     </div>
   </section>
 </template>

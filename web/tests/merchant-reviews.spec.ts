@@ -34,3 +34,14 @@ it('unknown replies freeze their original target and content until confirmed', a
   await w.get('form').trigger('submit'); await flushPromises()
   expect(vi.mocked(reviewApi.reply).mock.calls[0]).toEqual(vi.mocked(reviewApi.reply).mock.calls[1])
 })
+
+it('replaces review pages and closes the editor instead of replying to an off-page selection', async () => {
+  vi.mocked(reviewApi.merchant).mockResolvedValueOnce({ items: [review], summary: null, next_before: 2 })
+  await open()
+  vi.mocked(reviewApi.merchant).mockResolvedValueOnce({ items: [{ ...review, review_id: 1, body: '第二页评价' }], summary: null, next_before: null })
+  await w.findAll('button').find(b => b.text() === '下一页')!.trigger('click'); await flushPromises()
+  expect(reviewApi.merchant).toHaveBeenLastCalledWith('merchant-token', 2, 8)
+  expect(w.findAll('[data-test="select-review"]')).toHaveLength(1)
+  expect(w.text()).toContain('第二页评价'); expect(w.find('textarea').exists()).toBe(false)
+  expect(w.text()).toContain('第 2 页')
+})

@@ -60,14 +60,31 @@ it('refuses to write if the browser cannot persist the original request', async 
 })
 it('filters and pagination carry the exact scope filter rather than claiming a total', async () => {
   vi.mocked(fulfillmentApi.orders).mockResolvedValue({ items: [trade], next_cursor: 'next' }); await open()
-  await w.findAll('button').find(b => b.text() === '加载更多')!.trigger('click'); await flushPromises()
+  await w.findAll('button').find(b => b.text() === '下一页')!.trigger('click'); await flushPromises()
   expect(fulfillmentApi.orders).toHaveBeenLastCalledWith(token, { cursor: 'next' })
   await w.findAll('.trade-filters button').find(b => b.text() === '运输中')!.trigger('click'); await flushPromises()
-  expect(fulfillmentApi.orders).toHaveBeenLastCalledWith(token, { status: 'IN_TRANSIT' }); expect(w.text()).toContain('已显示 1 笔订单')
+  expect(fulfillmentApi.orders).toHaveBeenLastCalledWith(token, { status: 'IN_TRANSIT' }); expect(w.text()).toContain('第 1 页'); expect(w.findAll('.trade-order')).toHaveLength(1)
 })
 it('a different actor or store never consumes another administrators local receipt', async () => {
   saveShipmentPending(shipmentOwner(account), { order: id, key: 'original', request: { expected_version: 1 } })
   const other = { ...account, access_token: `header.${btoa(JSON.stringify({ sub: 'other-admin' }))}.signature` }
   w = mount(AdminTrades, { props: { account: other } }); await flushPromises()
   expect(w.find('[data-test="retry-shipment"]').exists()).toBe(false); expect(readShipmentPending(shipmentOwner(account))?.key).toBe('original')
+})
+
+it('replaces order pages, preserves the current page on failed navigation and returns using the original cursor', async () => {
+  const second = structuredClone(trade); second.purchase.order_id = 'second'; second.purchase.lines[0].product_name = '第二页商品'
+  vi.mocked(fulfillmentApi.orders).mockResolvedValueOnce({ items: [trade], next_cursor: 'cursor-2' })
+    .mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce({ items: [second], next_cursor: null })
+    .mockResolvedValueOnce({ items: [trade], next_cursor: 'cursor-2' })
+  await open()
+  const next = () => w.findAll('button').filter(b => b.text() === '下一页')[0]
+  await next().trigger('click'); await flushPromises()
+  expect(w.text()).toContain('第 1 页'); expect(w.text()).toContain('无线降噪耳机')
+  await next().trigger('click'); await flushPromises()
+  expect(fulfillmentApi.orders).toHaveBeenLastCalledWith(token, { cursor: 'cursor-2' })
+  expect(w.findAll('.trade-order')).toHaveLength(1); expect(w.text()).toContain('第二页商品'); expect(w.text()).not.toContain('无线降噪耳机')
+  await w.findAll('button').filter(b => b.text() === '上一页')[0].trigger('click'); await flushPromises()
+  expect(fulfillmentApi.orders).toHaveBeenLastCalledWith(token, {})
+  expect(w.text()).toContain('第 1 页'); expect(w.text()).not.toContain('第二页商品')
 })

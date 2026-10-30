@@ -10,7 +10,7 @@ export interface MerchantTrade { purchase: Purchase; fulfillment: OrderFulfillme
 export const fulfillmentLabels: Record<FulfillmentStatus, string> = { NOT_SHIPPED: '待发货', IN_TRANSIT: '运输中', DELIVERED: '已签收', LOST: '物流丢失', UNKNOWN: '物流状态未知' }
 export const fulfillmentApi = {
   buyer: (token: string, purchase: string) => apiRequest<OrderFulfillment>(`/api/v1/shop/purchases/${encodeURIComponent(purchase)}/fulfillment`, token),
-  orders: (token: string, filter: { status?: FulfillmentStatus; cursor?: string } = {}) => apiRequest<{ items: MerchantTrade[]; next_cursor: string | null }>(`/api/v1/merchant/orders?${new URLSearchParams({ ...filter, limit: '24' })}`, token),
+  orders: (token: string, filter: { status?: FulfillmentStatus; cursor?: string } = {}) => apiRequest<{ items: MerchantTrade[]; next_cursor: string | null }>(`/api/v1/merchant/orders?${new URLSearchParams({ ...filter, limit: '8' })}`, token),
   order: (token: string, id: string) => apiRequest<MerchantTrade>(`/api/v1/merchant/orders/${encodeURIComponent(id)}`, token),
   ship: (token: string, id: string, request: { expected_version: number }, key: string) => apiRequest<OrderFulfillment>(`/api/v1/merchant/orders/${encodeURIComponent(id)}/simulated-shipment`, token,
     { method: 'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key }, body: JSON.stringify(request) }),

@@ -52,3 +52,13 @@ it('shows real recent orders even if address lookup fails', async () => {
   expect(w.get('.personal-order').text()).toContain('无线耳机'); expect(w.get('.personal-order').text()).toContain('待发货'); expect(w.text()).toContain('地址暂时无法读取')
   await w.get('.personal-order').trigger('click'); expect(w.emitted('navigate')?.[0]).toEqual(['#/shop/orders/order%3Arecent'])
 })
+
+it('pages message records without marking them read or accumulating prior records', async () => {
+  vi.mocked(notificationApi.list).mockResolvedValueOnce({ items: [structuredClone(item)], unread_count: 20, next_cursor: 'next-messages' })
+    .mockResolvedValueOnce({ items: [{ ...item, notification_id: 'message:b', title: '第二页消息' }], unread_count: 20, next_cursor: null })
+  w = mount(NotificationCenter, { props: { token: 'owner', expanded: true } }); await flushPromises()
+  await w.findAll('button').find(b => b.text() === '下一页')!.trigger('click'); await flushPromises()
+  expect(notificationApi.list).toHaveBeenLastCalledWith('owner', 'next-messages')
+  expect(w.findAll('.notification-item')).toHaveLength(1); expect(w.text()).toContain('第二页消息')
+  expect(w.text()).not.toContain('商家回复了你的咨询'); expect(notificationApi.read).not.toHaveBeenCalled()
+})

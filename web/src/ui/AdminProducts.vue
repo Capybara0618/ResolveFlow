@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useCursorPages } from '../cursor-pages'
+import ListPagination from './ListPagination.vue'
+
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { managementApi, type ManagedProduct, type ProductWrite } from '../management-client'
@@ -8,6 +11,7 @@ import './foundation.css'
 
 const props = defineProps<{ account: LoginResponse }>()
 const emit = defineEmits<{ expired: []; working: [value: boolean] }>()
+const { pageIndex, pageCursor, acceptPage } = useCursorPages<string>()
 const rows = ref<ManagedProduct[]>([]), after = ref<string | null>(null), busy = ref(false), error = ref(''), notice = ref('')
 const presentation = ref<{ product?: string } | null>(null)
 const edit = ref(false), selected = ref<ManagedProduct | null>(null), name = ref(''), description = ref(''), category = ref('electronics'), asset = ref('headphones'), listed = ref(true)
@@ -18,7 +22,7 @@ let alive = true
 onBeforeUnmount(() => { alive = false })
 function cents(price: string) { if (!/^\d{1,7}(\.\d{1,2})?$/.test(price)) return null; const [whole, fraction = ''] = price.split('.'); const amount = Number(whole) * 100 + Number(fraction.padEnd(2, '0')); return amount > 0 && amount <= 100000000 ? amount : null }
 const valid = computed(() => !!name.value.trim() && !!description.value.trim() && skus.value.length > 0 && skus.value.every(s => !!s.variant.trim() && cents(s.price) !== null && Number.isInteger(s.max_quantity) && s.max_quantity >= 1 && s.max_quantity <= 100) && (!listed.value || skus.value.some(s => s.listed)))
-async function load(more = false) { const page = await managementApi.products(props.account.access_token, more ? after.value ?? undefined : undefined); if (alive) { rows.value = more ? [...rows.value, ...page.items] : page.items; after.value = page.next_after } }
+async function load(index = 0) { const page = await managementApi.products(props.account.access_token, pageCursor(index)); if (alive) { rows.value = page.items; after.value = page.next_after; acceptPage(index, after.value) } }
 async function act(work: () => Promise<void>) {
   if (busy.value) return
   busy.value = true; emit('working', true); error.value = ''; notice.value = ''
@@ -52,6 +56,6 @@ onMounted(() => { void act(() => load()) })
       <div class="foundation-actions"><button type="button" :disabled="busy || skus.length >= 20" @click="skus.push({ sku_id: null, variant: '', price: '', max_quantity: 10, listed: true })">添加规格</button><button type="submit" class="primary-button" :disabled="busy || !valid">{{ busy ? '正在保存…' : '保存商品' }}</button><button type="button" :disabled="busy" @click="edit = false">取消</button></div>
     </form>
     <table class="foundation-table"><thead><tr><th>商品</th><th>价格</th><th>规格</th><th>状态</th><th>操作</th></tr></thead><tbody><tr v-for="row in rows" :key="row.product_id"><td><div class="foundation-product-name"><ProductArt :asset="row.asset_key" :name="row.name" :variant="row.skus.find(s => s.listed)?.variant || row.skus[0]?.variant" /><strong>{{ row.name }}</strong></div></td><td>¥ {{ (Math.min(...row.skus.map(s => s.unit_amount)) / 100).toFixed(2) }}</td><td>{{ row.skus.length }} 个</td><td>{{ row.listed ? '已上架' : '已下架' }}</td><td><button :disabled="busy" @click="open(row)">编辑</button><button :disabled="busy" @click="presentation = { product: row.product_id }; edit = false">图片与详情</button></td></tr></tbody></table>
-    <button v-if="after" :disabled="busy" @click="act(() => load(true))">加载更多</button><p v-if="!busy && rows.length === 0" class="empty">本店还没有商品，可以新增第一件。</p>
+    <ListPagination :page="pageIndex" :has-next="!!after" :disabled="busy" label="商品管理分页" @change="index => act(() => load(index))" /><p v-if="!busy && rows.length === 0" class="empty">本店还没有商品，可以新增第一件。</p>
   </main>
 </template>
