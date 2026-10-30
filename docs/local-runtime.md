@@ -52,6 +52,8 @@ $env:RESOLVEFLOW_MODEL_API_KEY = '你的模型密钥'
 
 启动MySQL/PostgreSQL/Redis/RocketMQ、三个Java服务、Agent与网页。网页 `http://127.0.0.1:5174/#/shop`，Gateway `http://127.0.0.1:8180`，日志 `tmp/reviewer-demo/logs/`。旧内部项目名resolveflow-review-demo用于保留数据归属。
 
+PostgreSQL 使用 `127.0.0.1:55533`，避开 Windows 保留的旧端口55433；普通启动沿用原 `demo-postgres-data` 卷，现有记录与政策索引保持。
+
 ## 体验
 
 本机初始演示口令123456：买家buyer01–buyer10、商家admin01–admin03、平台platform。

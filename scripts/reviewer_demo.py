@@ -10,7 +10,7 @@ one run.
 What it is careful about, and why:
 
 * **Isolation is checked, not assumed.** The demonstration owns host ports 5174, 8180-8183,
-  3307, 55433, 9877 and 10912, one compose project (``resolveflow-review-demo``) and its
+  3307, 55533, 9877 and 10912, one compose project (``resolveflow-review-demo``) and its
   own named volumes. ``guard()`` refuses to run if any demo port collides with a port the
   shared ``resolveflow`` project uses, and every database statement goes through a
   container whose compose project label is the demo's. A run that pointed at the shared
@@ -103,7 +103,7 @@ DEMO_SERVICES = {
 DEFAULT_PORTS: dict[str, int] = {
     "redis": 56380,
     "mysql": 3307,
-    "postgres": 55433,
+    "postgres": 55533,
     "namesrv": 9877,
     "broker": 10912,
     "broker_ha": 10913,

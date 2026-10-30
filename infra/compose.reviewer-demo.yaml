@@ -10,7 +10,7 @@
 # MySQL/PostgreSQL init scripts, the RocketMQ broker config and entrypoint, and Flyway
 # inside the services. No business database snapshot is copied, no volume is shared.
 #
-# Every host port is bound to 127.0.0.1 and is deliberately one away from the shared
+# Every host port is bound to 127.0.0.1 and is distinct from the shared
 # stack's: running both at once must be possible. DEMO_* names keep this file from
 # picking up infra/.env, which belongs to the shared project.
 #
@@ -64,13 +64,14 @@ services:
 
   postgres:
     # The Agent's own database: policy index and run records. Own volume, own port.
+    # 55533 avoids the Windows reserved range containing the former 55433.
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: ${PG_USER:-agent}
       POSTGRES_PASSWORD: ${PG_PASSWORD:-agent}
       POSTGRES_DB: ${PG_DB:-agent_db}
     ports:
-      - "127.0.0.1:${DEMO_PG_PORT:-55433}:5432"
+      - "127.0.0.1:${DEMO_PG_PORT:-55533}:5432"
     volumes:
       - demo-postgres-data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
