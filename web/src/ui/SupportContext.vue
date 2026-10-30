@@ -28,7 +28,6 @@ const policies = computed(() => report.value?.citations.filter(c => c.source_typ
       <h3 class="report-label">客户共享原文</h3><blockquote v-for="m in conversation.ticket?.shared_messages" :key="m.message_id">{{ m.text }}</blockquote><p v-if="!conversation.ticket?.shared_messages.length" class="context-muted">客户未共享原文，请以已确认的摘要为核查诉求。</p>
       <h3 class="report-label">已查事实与政策</h3><SupportSources v-if="report?.citations.length" :citations="report.citations" /><p v-else class="context-muted">本次未共享助手调查依据。</p>
       <h3 class="report-label">客户确认的核查事项</h3><p>{{ conversation.ticket?.summary }}</p>
-      <h3 class="report-label">后续操作</h3><p class="context-muted">结合共享材料核查后，回复客户或请求补充信息。</p>
     </section>
     <template v-else>
       <section v-if="shipment" class="context-card"><h2>物流</h2><p class="buyer-shipment-status">{{ buyerShipmentLabel(shipment.data.status) }}</p><details data-logistics-details class="buyer-evidence"><summary>查看物流记录</summary><ol class="shipment-timeline"><li v-for="(event, index) in events" :key="index"><span>{{ stamp(event.occurred_at, true) }}</span><strong>{{ buyerShipmentLabel(event.code) }}</strong></li></ol></details></section>

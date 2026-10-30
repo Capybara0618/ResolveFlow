@@ -13,6 +13,7 @@ import UserAvatar from './UserAvatar.vue'
 import SupportSources from './SupportSources.vue'
 import BuyerSources from './BuyerSources.vue'
 import SupportContext from './SupportContext.vue'
+import ReviewDialog from './ReviewDialog.vue'
 import SupportDialog from './SupportDialog.vue'
 import SupportRefundCard from './SupportRefundCard.vue'
 import SupportBuyerReply from './SupportBuyerReply.vue'
@@ -38,7 +39,7 @@ const selected = ref<SupportConversation | null>(null), choosing = ref(false)
 const search = ref(''), orderSearch = ref(''), filter = ref('ALL'), historyTab = ref(false)
 const cache = reactive(new Map<string, SupportConversation>())
 const workspace = ref<HTMLElement>(), messagePane = ref<HTMLElement>(), messageContent = ref<HTMLElement>()
-const refundEntry = ref<HTMLElement>(), contextOpen = ref(window.innerWidth > 1100)
+const refundEntry = ref<HTMLElement>(), contextOpen = ref(false)
 const loading = ref(false), busy = ref(false), error = ref(''), notice = ref(''), draft = ref('')
 const buyerName = (c: SupportConversation) => c.buyer?.display_name || '买家'
 const buyerAvatar = (c: SupportConversation) => c.buyer?.avatar_id && c.ticket ? `/api/v1/support/tickets/${encodeURIComponent(c.ticket.ticket_id)}/buyer/avatar` : undefined
@@ -303,7 +304,7 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
       <p v-if="notice" role="status" class="support-notice">{{ notice }}</p>
       <p v-if="pending && !busy" role="status" class="support-notice">“{{ pending.label }}”的提交结果尚待确认。<button data-action="retry" :disabled="busy" @click="retry">{{ busy ? '正在确认…' : '用原请求确认结果' }}</button></p>
     </div>
-    <div class="support-grid" :class="{ 'context-collapsed': !merchant && !contextOpen }" :inert="choosing || preview ? true : undefined">
+    <div class="support-grid" :class="{ 'context-collapsed': true }" :inert="choosing || preview ? true : undefined">
       <aside class="support-history" aria-label="咨询列表">
         <header class="support-queue-heading"><h1>{{ merchant ? '咨询核查' : '售后咨询' }} <small v-if="merchant">{{ counts?.ALL ?? items.length }}</small></h1><button class="icon-action" aria-label="刷新咨询列表" :disabled="loading || busy || !!pending" @click="load"><Icon name="clock" :size="17" /></button></header>
         <button v-if="!merchant" class="primary support-new" :disabled="loading || busy || !!pending" @click="pickOrder"><span>＋</span> 选择订单</button>
@@ -312,7 +313,7 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
 
         <div class="support-history-scroll">
           <button v-for="item in visibleItems" :key="item.conversation_id" data-conversation :data-line-id="item.line_id" :aria-current="selected?.conversation_id === item.conversation_id ? 'true' : undefined" :disabled="busy || !!pending" :class="['support-history-item', { current: selected?.conversation_id === item.conversation_id }]" @click="open(item)">
-            <UserAvatar v-if="merchant" :token="token" :source="buyerAvatar(item)" :name="buyerName(item)" :size="38" /><ProductArt v-else :asset="item.product.asset_key || ''" :name="item.product.name" :variant="item.product.variant ?? ''" /><div><strong :title="merchant ? buyerName(item) : item.product.name">{{ merchant ? buyerName(item) : item.product.name }}</strong><span><template v-if="merchant">{{ item.product.name }} · {{ item.product.variant }}</template><template v-else><StoreMark :id="item.merchant_id" :size="13" />{{ item.store_name }}</template></span><small v-if="!merchant && conversationTitle(item) !== item.product.name" class="buyer-history-preview" :title="conversationTitle(item)">{{ conversationTitle(item) }}</small><small v-if="merchant">订单尾号 {{ tail(item.order_id) }}</small><em v-if="merchant || item.ticket" :class="['support-tag', item.ticket?.status === 'PENDING' ? 'amber' : 'blue']">{{ item.ticket ? labels[item.ticket.status] : '咨询中' }}</em></div>
+            <UserAvatar v-if="merchant" :token="token" :source="buyerAvatar(item)" :name="buyerName(item)" :size="38" /><ProductArt v-else :asset="item.product.asset_key || ''" :name="item.product.name" :variant="item.product.variant ?? ''" /><div><strong :title="merchant ? buyerName(item) : item.product.name">{{ merchant ? buyerName(item) : item.product.name }}</strong><span><template v-if="merchant">{{ item.product.name }} · {{ item.product.variant }}</template><template v-else><StoreMark :id="item.merchant_id" :size="13" />{{ item.store_name }}</template></span><small v-if="!merchant && conversationTitle(item) !== item.product.name" class="buyer-history-preview" :title="conversationTitle(item)">{{ conversationTitle(item) }}</small><small v-if="!merchant" class="buyer-history-time">{{ stamp(item.messages.at(-1)?.created_at, true) }} · {{ tail(item.order_id) }}</small><small v-if="merchant">订单尾号 {{ tail(item.order_id) }}</small><em v-if="merchant || item.ticket" :class="['support-tag', item.ticket?.status === 'PENDING' ? 'amber' : 'blue']">{{ item.ticket ? labels[item.ticket.status] : '咨询中' }}</em></div>
           </button>
           <p v-if="!visibleItems.length && !loading" class="support-list-empty">{{ search ? '当前已加载记录中没有匹配项。' : merchant ? '当前筛选下暂无核查单。' : '选择订单，开始一次咨询。' }}</p>
           <button v-if="next && !merchant" class="support-more" :disabled="loading" @click="list(true).catch(fail)">加载更多咨询</button>
@@ -324,7 +325,7 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
         <template v-if="selected">
           <header class="support-chat-heading"><div class="support-chat-identity"><UserAvatar v-if="merchant" :token="token" :source="buyerAvatar(selected)" :name="buyerName(selected)" :size="36" /><UserAvatar v-else kind="ASSISTANT" name="售后助手" :size="34" /><div><h2 :title="merchant ? buyerName(selected) : '售后助手'">{{ merchant ? buyerName(selected) : '售后助手' }}</h2><p>{{ merchant ? `${selected.product.name} · ${selected.product.variant || '默认规格'} · 订单 ${tail(selected.order_id)}` : `${selected.store_name} · ${selected.product.name}` }}</p></div></div>
             <span v-if="selected.ticket" class="support-tag amber">{{ labels[selected.ticket.status] }}</span><button v-if="!merchant && !selected.ticket" data-action="handoff" class="support-heading-handoff" :disabled="busy || !!pending" @click="handoff"><Icon name="file" :size="16" />请商家核查</button>
-            <button v-if="!merchant" class="support-context-toggle" data-action="toggle-context" :aria-expanded="contextOpen" aria-controls="support-order-context" @click="contextOpen = !contextOpen; refundLayout()">{{ contextOpen ? '收起资料' : '订单与物流' }}</button>
+            <button class="support-context-toggle" data-action="toggle-context" :aria-expanded="contextOpen" aria-controls="support-order-context" @click="contextOpen = true">{{ merchant ? '订单与资料' : '订单与物流' }}</button>
           </header>
           <div v-if="merchant" class="support-chat-tabs"><button :class="{ current: !historyTab }" @click="historyTab = false">客户沟通</button><button :class="{ current: historyTab }" @click="historyTab = true">消息记录</button></div>
 
@@ -366,11 +367,11 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
         </template>
         <div v-else class="support-empty"><span class="support-avatar assistant"><Icon :name="loading ? 'clock' : 'queue'" :size="32" /></span><h2>{{ loading ? '正在读取咨询…' : merchant ? '本店咨询，集中核查' : '售后咨询，从这件商品开始' }}</h2><button v-if="!merchant && !loading" class="primary" @click="pickOrder">选择订单商品</button></div>
       </main>
-      <SupportContext v-if="selected" id="support-order-context" :collapsed="!merchant && !contextOpen" :conversation="selected" :merchant="merchant" :disabled="loading || busy || !!pending" @change-order="pickOrder" />
-      <aside v-else class="support-context support-context-empty"><Icon name="box" :size="28" /><p>选择咨询后查看订单与相关依据</p></aside>
+      
     </div>
 
-    <SupportDialog v-if="choosing" title="选择需要咨询的商品" subtitle="按订单商品独立咨询，切换后仍能恢复历史记录。" @close="choosing = false">
+    <ReviewDialog v-if="selected" :open="contextOpen" :title="merchant ? '订单与调查资料' : '订单与物流'" @close="contextOpen = false"><SupportContext id="support-order-context" :conversation="selected" :merchant="merchant" :disabled="loading || busy || !!pending" @change-order="contextOpen = false; pickOrder()" /></ReviewDialog>
+    <SupportDialog v-if="choosing" title="选择需要咨询的商品" @close="choosing = false">
       <label class="support-search"><Icon name="search" /><input v-model="orderSearch" data-autofocus aria-label="搜索已加载订单商品" placeholder="搜索商品、店铺或订单号" /></label>
       <p v-if="orderLoading" role="status" class="support-list-empty">正在读取订单…</p><p v-if="orderError" role="alert" class="support-error">{{ orderError }} <button @click="readOrders().catch(fail)">重试读取订单</button></p>
       <div class="support-order-grid"><button v-for="line in visibleOrders" :key="line.line_id" class="support-order" :data-line-id="line.line_id" :disabled="loading || busy || !!pending" @click="choose(line)"><ProductArt :asset="line.asset_key || ''" :name="line.product_name || line.sku" :variant="line.variant_text ?? ''" /><div><strong>{{ line.product_name || line.sku }}</strong><p>{{ line.merchant_name }} · {{ line.variant_text || '默认规格' }} · {{ line.quantity }}件</p><small>{{ stamp(line.paid_at, true) || '历史订单' }} · 尾号 {{ tail(line.order_id) }}</small></div><span>¥{{ formatMinorUnits(line.line_paid_amount).replace(' CNY', '') }}<small>咨询这件商品</small></span></button></div>

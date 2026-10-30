@@ -68,3 +68,11 @@
 
 - notifications/account/marketplace共45项通过，新增消息第2页卸载返回及当前页刷新回归；build通过。日志tmp/modern-account-navigation-tests.log、modern-account-navigation-build.log。
 - 不启动服务或浏览器，视觉与真实跳转待M8。
+
+
+## M5 聊天阅读主区与按需资料（仅离线）
+
+买家/商家聊天从固定三栏改为列表+主对话；订单物流/共享依据放共享阅读弹层，关闭不丢消息草稿、不重读当前咨询，商家也提供明确入口。同商品咨询显示真实末条时间及订单尾号，不造新摘要。聊天内容约束阅读宽度，字体与控件回同一基准；订单选择与转交弹层去冗余副标题、统一分区和底部。移除资料中泛泛“后续操作”指导。流式、失败恢复、退款卡出现次序及消息权限未改。
+
+- 初次67项中5项因原固定资料区断言失败，更新为用户显式打开资料后保留原断言（共享报告、晚事件隔离、选中订单不串店），没有删除业务断言；编译发现Conversation无updated_at，改只用真实末条created_at。最终4文件67项/build通过，日志tmp/modern-support-tests.log、modern-support-final-tests.log、modern-support-build.log。
+- 同步个人中心token切换清旧数据，普通刷新仍保留；避免连续性逻辑跨账号泄露旧视图。无实机/模型调用，聊天宽度与真实输出手感待M8。

@@ -6,18 +6,18 @@
   --support-ink: #25322c;
   --support-muted: #69766e;
   --support-line: #e6eae4;
-  padding: 18px 24px 20px;
+  padding: 20px var(--rf-page-gutter);
   background: #fafaf7;
-  font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "PingFang SC", sans-serif;
+  font-family: var(--rf-font-ui);
   font-size: 14px;
   font-weight: 400;
 }
-.workbench .buyer-support .support-grid { grid-template-columns: 205px minmax(0, 1fr) 210px; gap: 0; border: 1px solid var(--support-line); border-radius: 12px; overflow: hidden; }
+.workbench .buyer-support .support-grid { grid-template-columns: 220px minmax(0, 1fr); gap: 0; border: 1px solid var(--support-line); border-radius: 12px; overflow: hidden; }
 .workbench .buyer-support :is(.support-history, .support-main) { border: 0; border-radius: 0; }
 .workbench .buyer-support .support-main { border-inline: 1px solid var(--support-line); }
 .workbench .buyer-support .support-history { padding: 24px 10px 10px; background: transparent; }
 .workbench .buyer-support .support-queue-heading { margin-bottom: 18px; }
-.workbench .buyer-support .support-queue-heading h1 { font-size: 18px; font-weight: 600; }
+.workbench .buyer-support .support-queue-heading h1 { font-size: 18px; font-weight: 500; }
 .workbench .buyer-support.buyer-support button.primary { background: #176b5c; border-color: #176b5c; color: white; }
 .workbench .buyer-support.buyer-support button.primary:hover { background: #12584c; border-color: #12584c; }
 .workbench .buyer-support.buyer-support button:hover { background: #f0f5ef; border-color: #c7d9cc; color: #176b5c; }
@@ -39,7 +39,7 @@
 .workbench .buyer-support .support-history-item small { color: var(--support-muted); font-size: 12px; margin: 3px 0 0; }
 .workbench .buyer-support .support-tag { font-size: 12px; }
 .workbench .buyer-support .support-chat-heading { min-height: 76px; padding: 16px 24px; }
-.workbench .buyer-support .support-chat-identity h2 { font-size: 18px; font-weight: 600; }
+.workbench .buyer-support .support-chat-identity h2 { font-size: 18px; font-weight: 500; }
 .workbench .buyer-support .support-chat-identity p { color: #727f77; }
 .workbench .buyer-support .support-avatar.assistant { color: #176b5c; background: #eaf4ed; }
 .workbench .buyer-support .support-avatar.customer { color: #6e7d70; background: #f0f2ed; }
@@ -136,11 +136,11 @@
 .workbench .buyer-support .refund-entry > span { margin-right: auto; }
 .workbench .buyer-support.buyer-support .refund-entry > button { border: 0; padding: 4px 0; background: transparent; color: var(--support-muted); font-size: 12px; }
 .workbench .buyer-support .refund-progress a { color: #176b5c; }
-@media (min-width: 1500px) { .workbench .buyer-support .support-grid { grid-template-columns: 224px minmax(0, 1fr) 240px; }.workbench .buyer-support .support-messages { padding: 28px 34px; } }
-@media (max-width: 1200px) { .workbench .support-workspace.buyer-support { padding: 12px; }.workbench .buyer-support .support-grid { grid-template-columns: 190px minmax(0, 1fr) 200px; }.workbench .buyer-support .support-messages { padding: 20px; }.workbench .buyer-support .support-chat-heading { padding: 16px 20px; } }
+@media (min-width: 1500px) { .workbench .buyer-support .support-grid { grid-template-columns: 220px minmax(0, 1fr); }.workbench .buyer-support .support-messages { padding: 28px 34px; } }
+@media (max-width: 1200px) { .workbench .support-workspace.buyer-support { padding: 12px; }.workbench .buyer-support .support-grid { grid-template-columns: 220px minmax(0, 1fr); }.workbench .buyer-support .support-messages { padding: 20px; }.workbench .buyer-support .support-chat-heading { padding: 16px 20px; } }
 @media (max-width: 1000px) { .workbench .buyer-support .support-grid { grid-template-columns: 190px minmax(0, 1fr); }.workbench .buyer-support .support-context { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; grid-column: 1 / -1; max-height: 220px; }.workbench .buyer-support .support-grid { grid-template-rows: minmax(0, 1fr) auto; }.workbench .buyer-support .context-card { margin: 0; } }
 @media (max-width: 760px) { .workbench .support-workspace.buyer-support { height: auto; padding: 10px; }.workbench .buyer-support .support-grid { display: flex; flex-direction: column; }.workbench .buyer-support .support-history { max-height: 210px; }.workbench .buyer-support .support-main { height: 650px; border-inline: 0; border-block: 1px solid var(--support-line); }.workbench .buyer-support .support-context { display: block; max-height: 420px; }.workbench .buyer-support .support-context .context-card { margin-bottom: 0; }.workbench .buyer-support .chat-refund { margin-left: 0; } }
-.workbench .buyer-support .support-grid.context-collapsed { grid-template-columns: 190px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.workbench .buyer-support .support-grid.context-collapsed { grid-template-columns: 220px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
 .workbench .buyer-support .support-grid.context-collapsed .support-main { border-right: 0; }
 
 /* One scroll owner; reserve composer geometry when the refund shortcut disappears. */
@@ -153,3 +153,5 @@
 .workbench .buyer-support .support-stream-identity { display:inline-flex;align-items:flex-start;justify-content:center;flex:0 0 36px;width:36px; }
 
 .workbench .buyer-support .support-stream-part + .support-stream-part { margin-top:18px; }
+
+.workbench .buyer-support .support-message-list{max-width:900px;margin-inline:auto}.workbench .buyer-support .buyer-history-time{font-size:11px;color:var(--rf-muted);margin-top:5px}.workbench .buyer-support .support-chat-identity{min-width:0}.workbench .buyer-support .support-chat-identity p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.workbench .buyer-support .support-context-toggle{flex-shrink:0}

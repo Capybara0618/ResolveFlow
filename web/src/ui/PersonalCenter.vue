@@ -25,7 +25,7 @@ async function load() {
   else { addressError.value = '地址暂时无法读取'; unavailable(addresses.reason) }
   loading.value = false
 }
-watch(() => props.account.access_token, load, { immediate: true }); onBeforeUnmount(() => { generation++ })
+watch(() => props.account.access_token, () => { orders.value = []; address.value = null; void load() }, { immediate: true }); onBeforeUnmount(() => { generation++ })
 </script>
 <template><main class="personal-center"><header class="personal-header"><UserAvatar :token="account.access_token" source="/api/v1/account/avatar" :name="account.display_name" :size="64" /><div><h1>{{ account.display_name || '我的账户' }}</h1><a href="#/shop/profile" @click.prevent="emit('navigate','#/shop/profile')">编辑资料</a></div></header>
 <section class="personal-orders" aria-label="购物阶段"><div class="personal-heading"><h2>我的订单</h2><a href="#/shop/orders" @click.prevent="emit('navigate','#/shop/orders')">全部订单</a></div><div class="personal-stages"><button v-for="stage in stages" :key="stage.status" @click="emit('navigate',stage.status === 'AFTER_SALES' ? '#/customer/applications' : `#/shop/orders?status=${stage.status}`)">{{ stage.name }}</button></div></section>
