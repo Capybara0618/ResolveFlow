@@ -18,7 +18,6 @@
 .workbench.merchant-review-workbench :is(button, input, select, textarea) { font-family: var(--display-font-ui); }
 
 /* Storefront chrome and short product labels stay in the UI face. */
-.workbench .display-chain-marketplace nav.shop-nav a.shop-brand { font-size: 22px; font-weight: 500; letter-spacing: -.4px; }
 .workbench .display-chain-marketplace .shop-hero h1 { font-weight: 500; }
 .workbench .display-chain-marketplace .shop-section-title :is(h1, h2) { font-size: 22px; font-weight: 500; }
 .workbench .display-chain-marketplace .product-name { font-size: 16px; font-weight: 500; }

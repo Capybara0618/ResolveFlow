@@ -11,7 +11,7 @@ const emit = defineEmits<{ change: [page: number] }>()
 </template>
 <style scoped>
 .workbench .list-pagination{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;padding:16px 0;color:var(--rf-muted);font-size:14px}
-.workbench .list-pagination button{font:inherit;color:var(--rf-ink);background:white;border:1px solid var(--rf-line);border-radius:7px;padding:7px 12px;line-height:1.5;box-shadow:none;white-space:nowrap}
+.workbench .list-pagination button{font:inherit;color:var(--rf-ink);background:var(--rf-surface);border:1px solid var(--rf-line);border-radius:var(--rf-radius);min-height:var(--rf-control-sm);padding:7px 12px;line-height:1.5;box-shadow:none;white-space:nowrap}
 .workbench .list-pagination button:hover:not(:disabled){color:var(--rf-accent);border-color:var(--rf-accent);background:var(--rf-accent-soft)}
 .workbench .list-pagination button:disabled{opacity:.4;cursor:default}
 </style>
