@@ -57,3 +57,7 @@ TicketDetail新增buyer公开资料（昵称、avatar_id），限已归属本店
 - 重启Codex后浏览器可访问，应用端口未运行导致首个页面连接拒绝；既有受归属脚本恢复3Java与前端，沿用数据卷。未启动Agent/PostgreSQL、未新增消息/订单/审批/退款/模型请求，不称完整模型链路复验。
 
 截图：tmp/merchant-experience-20261030/overview-final.png、overview-mobile.png、chat-final.png、chat-mobile.png、policies-final.png、policies-mobile.png。最终本批四类问题处理完成；政策业务范围仍为现有退款规则，完整退换货政策扩充需另行设计。
+
+## 五、订单分页仅保留底部
+
+按用户截图意见，删除交易订单筛选区下方的重复分页栏，仅保留订单列表底端分页，原游标/切页/详情返回行为不变。`pnpm --dir web test -- tests/admin-trades.spec.ts`：12项通过；源码核对仅1个ListPagination，位于trade-order之后，`git diff --check`通过。浏览器本轮连接不可用，未将UI检查记为通过；本步只删除重复组件，未改业务逻辑，无新增业务操作。
