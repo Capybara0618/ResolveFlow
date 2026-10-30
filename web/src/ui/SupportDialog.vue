@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import Icon from './ReviewIcon.vue'
+import { lockDialogScroll } from './dialog-lock'
 defineProps<{ title: string; subtitle?: string }>()
 const emit = defineEmits<{ close: [] }>()
 const panel = ref<HTMLElement>()
 const previous = document.activeElement as HTMLElement | null
+let unlock: (() => void) | undefined
 function keys(event: KeyboardEvent) {
-  if (event.key === 'Escape') { event.preventDefault(); emit('close') }
+  if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); emit('close') }
   if (event.key !== 'Tab') return
   const controls = [...(panel.value?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex="0"]') ?? [])]
   const first = controls[0], last = controls[controls.length - 1]
@@ -14,8 +16,8 @@ function keys(event: KeyboardEvent) {
   if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
 }
-onMounted(async () => { await nextTick(); (panel.value?.querySelector<HTMLElement>('[data-autofocus]') || panel.value)?.focus() })
-onBeforeUnmount(() => previous?.isConnected && previous.focus())
+onMounted(async () => { unlock = lockDialogScroll(); await nextTick(); (panel.value?.querySelector<HTMLElement>('[data-autofocus]') || panel.value)?.focus({ preventScroll: true }) })
+onBeforeUnmount(() => { unlock?.(); if (previous?.isConnected) previous.focus({ preventScroll: true }) })
 </script>
 
 <template>

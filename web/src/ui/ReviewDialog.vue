@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import Icon from './ReviewIcon.vue'
+import { lockDialogScroll } from './dialog-lock'
 const props = withDefaults(defineProps<{ title: string; busy?: boolean; workspace?: string; merchant?: boolean; open?: boolean; compact?: boolean }>(), { workspace: '审核工作台', open: true })
 const emit = defineEmits<{ close: [] }>()
 const panel = ref<HTMLElement | null>(null)
-let opener: HTMLElement | null = null, previousOverflow = '', locked = false, mounted = false
+let opener: HTMLElement | null = null, unlock: (() => void) | undefined, locked = false, mounted = false
 async function engage() {
   if (!locked) {
     opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    previousOverflow = document.body.style.overflow; locked = true
-    document.body.style.overflow = 'hidden'
+    unlock = lockDialogScroll(); locked = true
   }
   await nextTick()
   if (props.open) panel.value?.focus({ preventScroll: true })
 }
 function release(force = false) {
   if (!locked || props.open && !force) return
-  document.body.style.overflow = previousOverflow; locked = false
+  unlock?.(); unlock = undefined; locked = false
   if (opener?.isConnected) opener.focus({ preventScroll: true })
 }
 function close() { if (!props.busy) emit('close') }
@@ -38,7 +38,7 @@ function trap(event: KeyboardEvent) {
 
 <template>
   <Transition name="rf-dialog-presence" appear @after-leave="release()">
-  <div v-if="open" class="rf-dialog-backdrop" @click.self="close" @keydown.esc.prevent="close">
+  <div v-if="open" class="rf-dialog-backdrop" @click.self="close" @keydown.esc.stop.prevent="close">
     <section ref="panel" class="rf-dialog" :class="{ 'merchant-dialog': merchant, 'compact-dialog': compact }" role="dialog" aria-modal="true" :aria-label="title" tabindex="-1" @keydown="trap">
       <header class="rf-dialog-header"><h2>{{ title }}</h2>
         <button class="rf-dialog-close" type="button" aria-label="关闭弹窗" :disabled="busy" @click="close"><Icon name="close" :size="20" /></button>

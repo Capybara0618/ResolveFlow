@@ -73,3 +73,22 @@ it('contains keyboard focus through the separate action footer', async () => {
   expect(document.activeElement?.getAttribute('aria-label')).toBe('关闭弹窗')
   w.unmount()
 })
+
+
+it('keeps the page locked until the last dialog closes even when the owner unmounts first', async () => {
+  const before=document.body.style.overflow
+  const outer=mount(ReviewDialog,{attachTo:document.body,props:{title:'地址管理'}})
+  const inner=mount(ReviewDialog,{attachTo:document.body,props:{title:'编辑地址'}})
+  await flushPromises(); outer.unmount()
+  expect(document.body.style.overflow).toBe('hidden')
+  inner.unmount(); expect(document.body.style.overflow).toBe(before)
+})
+
+it('Escape closes only the innermost dialog', async () => {
+  const outer=mount(ReviewDialog,{attachTo:document.body,props:{title:'地址管理'}})
+  const inner=mount(ReviewDialog,{attachTo:outer.get('.rf-dialog-content').element as HTMLElement,props:{title:'编辑地址'}})
+  await flushPromises(); await inner.get('[role="dialog"]').trigger('keydown',{key:'Escape'})
+  expect(inner.emitted('close')).toHaveLength(1)
+  expect(outer.emitted('close')).toBeUndefined()
+  inner.unmount();outer.unmount()
+})

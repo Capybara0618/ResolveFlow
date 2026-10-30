@@ -47,3 +47,8 @@
 
 - 相关4文件40项通过、build通过；日志tmp/modern-results-tests.log、modern-results-build.log。失败物流测试仍同时断言错误存在和“不显示商家尚未发货”，仅替换旧冗长错误文案。
 - 纯排版不新增镜像CSS测试；本步无服务/浏览器或模型调用，视觉待整批M8。
+
+
+## M4 复合编辑的弹窗基础（仅离线）
+
+地址管理内编辑需要多层弹窗，原每实例各自恢复overflow会在父层先卸载时提前解锁/残留锁，Esc还会冒泡关闭两层。新增同Document计数锁，最后一层退出才恢复背景；ReviewDialog与SupportDialog共享，Esc停止冒泡，恢复焦点不滚动。两个关键回归先红后绿，相关50项与build过，日志tmp/modern-dialog-stack-red.log、modern-dialog-stack-tests.log、modern-dialog-stack-build.log。未实机，下一步用于账户/地址编辑。
