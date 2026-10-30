@@ -2,6 +2,7 @@
 import { useCursorPages } from '../cursor-pages'
 import ListPagination from './ListPagination.vue'
 
+import ReviewDialog from './ReviewDialog.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { ApiError, type LoginResponse } from '../client'
 import { reviewApi, type ProductReview } from '../review-client'
@@ -23,9 +24,12 @@ async function load(page = 0) {
   } catch (cause) { if (alive && g === generation) failure(cause, '商品评价暂时无法读取，请重试。') }
   finally { if (alive && g === generation) loading.value = false }
 }
+const replyDrafts = new Map<number, string>()
+function closeReply() { if (writing.value || unknown.value || !selected.value) return; replyDrafts.set(selected.value.review_id, body.value); selected.value = null }
 function select(item: ProductReview) {
   if (writing.value || unknown.value) return
-  selected.value = item; body.value = item.reply ?? ''; error.value = ''; notice.value = ''; conflict.value = false; pending = null
+  if (selected.value) replyDrafts.set(selected.value.review_id, body.value)
+  selected.value = item; body.value = replyDrafts.get(item.review_id) ?? item.reply ?? ''; error.value = ''; notice.value = ''; conflict.value = false; pending = null
 }
 async function current() {
   if (!selected.value || writing.value) return
@@ -50,7 +54,7 @@ async function save() {
     const result = await reviewApi.reply(props.account.access_token, request.id, request.body, request.version)
     if (!alive || g !== generation) return
     selected.value = result; items.value = items.value.map(i => i.review_id === result.review_id ? result : i)
-    body.value = result.reply ?? ''; pending = null; unknown.value = false; notice.value = '回复已保存。'
+    body.value = result.reply ?? ''; replyDrafts.delete(result.review_id); pending = null; unknown.value = false; notice.value = '回复已保存。'
   } catch (cause) {
     if (!alive || g !== generation) return
     if (cause instanceof ApiError && cause.status < 500) { conflict.value = cause.status === 409; pending = null; unknown.value = false; failure(cause, '') }
@@ -62,14 +66,14 @@ onBeforeUnmount(() => { alive = false; ++generation; emit('working', false) })
 </script>
 <template>
   <main class="merchant-reviews">
-    <h1>商品评价</h1><p class="review-muted">阅读本店买家的实际体验，回复将公开展示。</p>
+    <h1>商品评价</h1>
     <p v-if="loading" role="status">正在读取评价…</p><p v-if="error" class="review-error" role="alert">{{ error }}</p><p v-if="notice" class="review-notice" role="status">{{ notice }}</p>
     <div class="review-columns">
       <section class="product-reviews"><h2>买家反馈</h2><p v-if="!loading && !items.length && !error" class="review-muted">本店暂无商品评价。</p>
         <article v-for="item in items" :key="item.review_id" class="review-entry"><button class="review-select" data-test="select-review" :aria-pressed="selected?.review_id === item.review_id" :disabled="writing || unknown || loading" @click="select(item)"><strong>{{ item.product_name }} · {{ item.variant }}</strong><p class="review-stars">{{ item.rating }} 星 · {{ item.reply ? '已回复' : '待回复' }}</p><p class="review-body">{{ item.body }}</p><span class="review-muted">已购用户 · {{ new Date(item.updated_at).toLocaleDateString('zh-CN') }}</span></button><div v-if="item.reply" class="review-reply"><strong>商家回复</strong><p>{{ item.reply }}</p></div></article>
         <ListPagination :page="pageIndex" :has-next="!!next" :disabled="loading || writing || unknown" label="商品评价分页" @change="load" /><button v-if="error && !selected" class="review-button" :disabled="loading" @click="load()">重新读取</button>
       </section>
-      <section class="product-reviews review-editor"><h2>回复评价</h2><p v-if="!selected" class="review-muted">先选择一条评价，阅读买家原文后回复。</p><template v-else><p><strong>{{ selected.product_name }} · {{ selected.rating }} 星</strong></p><p class="review-body">{{ selected.body }}</p><p v-if="selected.reply" class="review-body">当前回复：{{ selected.reply }}</p><form @submit.prevent="save"><label for="merchant-review-reply">公开回复</label><textarea id="merchant-review-reply" v-model="body" maxlength="1000" :disabled="writing || unknown || loading" placeholder="认真回应买家的实际反馈…" /><div class="review-actions"><button data-test="save-reply" class="review-button review-primary" :disabled="!canSave" type="submit">{{ writing ? '正在保存…' : unknown ? '用原内容确认结果' : '发布回复' }}</button></div></form><button v-if="conflict || unknown" data-test="refresh-review" class="review-button" :disabled="loading || writing" @click="current">读取当前评价</button></template></section>
+      <ReviewDialog v-if="selected" title="回复买家评价" :busy="writing || unknown" @close="closeReply"><div class="review-editor"><p><strong>{{ selected.product_name }} · {{ selected.rating }} 星</strong></p><p class="review-body">{{ selected.body }}</p><p v-if="selected.reply" class="review-body">当前回复：{{ selected.reply }}</p><form @submit.prevent="save"><label for="merchant-review-reply">公开回复</label><textarea id="merchant-review-reply" v-model="body" maxlength="1000" :disabled="writing || unknown || loading" placeholder="认真回应买家的实际反馈…" /><div class="review-actions"><button data-test="save-reply" class="review-button review-primary" :disabled="!canSave" type="submit">{{ writing ? '正在保存…' : unknown ? '用原内容确认结果' : '发布回复' }}</button></div></form><button v-if="conflict || unknown" data-test="refresh-review" class="review-button" :disabled="loading || writing" @click="current">读取当前评价</button></div></ReviewDialog>
     </div>
   </main>
 </template>

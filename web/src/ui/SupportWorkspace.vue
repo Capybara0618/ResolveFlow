@@ -367,7 +367,7 @@ defineExpose({ navigationBlocked: computed(() => busy.value || !!pending.value) 
         </template>
         <div v-else class="support-empty"><span class="support-avatar assistant"><Icon :name="loading ? 'clock' : 'queue'" :size="32" /></span><h2>{{ loading ? '正在读取咨询…' : merchant ? '本店咨询，集中核查' : '售后咨询，从这件商品开始' }}</h2><button v-if="!merchant && !loading" class="primary" @click="pickOrder">选择订单商品</button></div>
       </main>
-      
+
     </div>
 
     <ReviewDialog v-if="selected" :open="contextOpen" :title="merchant ? '订单与调查资料' : '订单与物流'" @close="contextOpen = false"><SupportContext id="support-order-context" :conversation="selected" :merchant="merchant" :disabled="loading || busy || !!pending" @change-order="contextOpen = false; pickOrder()" /></ReviewDialog>

@@ -76,3 +76,11 @@
 
 - 初次67项中5项因原固定资料区断言失败，更新为用户显式打开资料后保留原断言（共享报告、晚事件隔离、选中订单不串店），没有删除业务断言；编译发现Conversation无updated_at，改只用真实末条created_at。最终4文件67项/build通过，日志tmp/modern-support-tests.log、modern-support-final-tests.log、modern-support-build.log。
 - 同步个人中心token切换清旧数据，普通刷新仍保留；避免连续性逻辑跨账号泄露旧视图。无实机/模型调用，聊天宽度与真实输出手感待M8。
+
+
+## M6 商品资料与评价回复（仅离线）
+
+商品新增/编辑与图片/店铺资料进入共享弹层，商品表单保存操作置独立footer，保存/刷新保留当前服务端分页；表格有水平边界，移除foundation多轮覆盖，统一字段/控件/商品图尺度。评价列表改单列，选中后弹层回复，关闭后再打开同评价保留未发布草稿；冲突、结果未知和原回复确认路径保持。修正上步残留空行空白。
+
+- shopping-presentation/merchant-reviews/admin-trades22项通过；补商品管理foundation/product-pagination及回复草稿检查后，实际4文件15项通过（与前轮重叠不相加）；build通过。商品分页旧“刷新回首页”断言改“刷新当前页”并保留游标检查。日志tmp/modern-merchant-editors-tests.log、modern-merchant-editors-final-tests.log、modern-merchant-editors-build.log。
+- 没有启动/实机、上传/商品发布或公开回复。布局与完整商家路径待M8。

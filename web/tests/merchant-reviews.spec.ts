@@ -45,3 +45,13 @@ it('replaces review pages and closes the editor instead of replying to an off-pa
   expect(w.text()).toContain('第二页评价'); expect(w.find('textarea').exists()).toBe(false)
   expect(w.text()).toContain('第 2 页')
 })
+
+
+it('keeps a reply draft when dismissing the editor and reopening the same review', async () => {
+  await open();await w.get('textarea').setValue('未发布回复')
+  await w.get('.rf-dialog-close').trigger('click');await flushPromises()
+  expect(w.find('textarea').exists()).toBe(false)
+  await w.get('[data-test="select-review"]').trigger('click')
+  expect(w.get<HTMLTextAreaElement>('textarea').element.value).toBe('未发布回复')
+  expect(reviewApi.reply).not.toHaveBeenCalled()
+})
