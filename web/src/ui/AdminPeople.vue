@@ -112,7 +112,7 @@ onBeforeUnmount(() => { alive = false; ++listGeneration; ++historyGeneration; se
         <div class="people-table-wrap"><table><thead><tr><th>姓名 / 用户名</th><th>角色</th><th>状态</th><th>更新时间</th><th>操作</th></tr></thead><tbody><tr v-for="row in rows" :key="row.username" :class="{ selected: selected?.username === row.username }"><td><strong>{{ row.display_name }}</strong><small>{{ row.username }}<span v-if="row.username === currentUsername"> · 当前账号</span></small></td><td>{{ labels[row.role] }}</td><td><span class="status-tag" :class="{ enabled: row.enabled }">{{ row.enabled ? '已启用' : '已停用' }}</span></td><td class="people-time">{{ date(row.updated_at) }}</td><td><button class="text-button" type="button" :aria-label="`维护 ${row.username}`" :disabled="busy || loading" @click="select(row)">维护账号</button></td></tr></tbody></table></div>
         <div v-if="!loading && !rows.length" class="empty"><Icon name="user" :size="30" /><strong>没有符合条件的账号</strong><p>可调整角色、状态或查询条件。</p></div>
         <footer class="people-footer"><span>已显示 {{ rows.length }}<template v-if="total !== null"> / {{ total }}</template> 个账号</span><button v-if="cursor" class="secondary-button" type="button" :disabled="busy || loading" @click="load(true)">加载更多</button></footer>
-        
+
       </section>
       <aside v-if="selected" class="panel people-details" aria-label="维护账号">
         <div class="people-list-heading"><h2>维护账号</h2><button class="text-button" type="button" aria-label="关闭维护栏" :disabled="busy" @click="closeDetails"><Icon name="close" :size="18" /></button></div>

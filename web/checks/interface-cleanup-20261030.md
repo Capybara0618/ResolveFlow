@@ -19,3 +19,5 @@
 `AdminOverview.vue`删除指标复述、排序说明、角色兼容解释和协调规则整栏，仅保留指标/队列/入口及实际读取时间；`AdminPolicies.vue`删除顶部说明栏和重复索引解释，政策原文、有效区间及版本仍保留，技术来源在展开项查看；`AdminPeople.vue`删除页头口号、账户归属说明和密码实现细节，密码长度放入输入占位；`PlatformWorkspace.vue`删除标题下重复的页面职责描述。没有删除错误、最后管理员保护、本人修改后退出或密钥保存等实际操作信息。
 
 `pnpm --dir web test -- tests/admin-workspace.spec.ts tests/admin-people.spec.ts tests/foundation.spec.ts`：16项通过。实机admin01登录后概览/政策可进入，政策原文仍完整显示、版本来源可展开，全局标签不再出现。当前调查服务没有启动，政策索引状态显示暂不可用，保留实际状态。入口小步d9d03418已普通推送并核实远端同HEAD。
+
+管理页批量文本脚本在Windows将四文件写为CRLF，暂存差异检查报告trailing whitespace，但该次shell未在非零退出后停止，cabfee6e已提交推送。发现后立即恢复四文件原LF并单独提交修正，不重写历史；后续提交以显式检查退出码为门禁。此处保留失败经过，功能测试16项结论不受行尾修正影响。
