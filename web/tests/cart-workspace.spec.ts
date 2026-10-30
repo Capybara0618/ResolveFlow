@@ -25,7 +25,7 @@ async function open() { w = mount(CartWorkspace, { props: { account } }); await 
 async function confirm() { await open(); await w.findAll('.cart-checkout')[0].trigger('click'); await flushPromises() }
 it('groups stores with explicit unit quantity and subtotal columns and submits only selected store rows', async () => {
   vi.mocked(shopApi.cartQuote).mockResolvedValue({ ...quote, lines: quote.lines.slice(0, 1), total_amount: 32900 })
-  await open(); expect(w.text()).toContain('727.00'); expect(w.text()).toContain('218.00')
+  await open(); expect(w.get('.cart-settlement').text()).toContain('727.00'); await w.get('[data-checkout-store="M-1002"]').trigger('click'); expect(w.get('.cart-settlement').text()).toContain('218.00'); await w.get('[data-checkout-store="M-1001"]').trigger('click')
   await w.get('[aria-label="选择机械键盘"]').setValue(false)
   await w.findAll('.cart-checkout')[0].trigger('click'); await flushPromises()
   expect(shopApi.cartQuote).toHaveBeenCalledWith('buyer-token', 'M-1001', 2, ['ear'])
@@ -41,13 +41,13 @@ it('sets absolute quantity with original revision and disables competing writes 
   const original = vi.mocked(shopApi.cartWrite).mock.calls[0]
   expect(original.slice(0, 3)).toEqual(['buyer-token', 'M-1001', { sku_id: 'ear', quantity: 2, expected_revision: 2, expected_sku_version: 1 }])
   expect(w.get('[aria-label="增加机械键盘数量"]').attributes('disabled')).toBeDefined()
-  expect(w.findAll('.cart-checkout')[1].attributes('disabled')).toBeDefined()
+  expect(w.get('.cart-checkout').attributes('disabled')).toBeDefined(); expect(w.get('[data-checkout-store="M-1002"]').attributes('disabled')).toBeDefined()
   await w.get('.cart-recovery button').trigger('click'); await flushPromises()
   expect(vi.mocked(shopApi.cartWrite).mock.calls[1]).toEqual(original)
 })
 it('restores uncertain cart mutation after remount without automatic writes or a new key', async () => {
   vi.mocked(shopApi.cartWrite).mockRejectedValueOnce(new TypeError('lost'))
-  await open(); await w.get('[aria-label="移除无线降噪耳机"]').trigger('click'); await flushPromises()
+  await open(); await w.get('[aria-label="移除无线降噪耳机"]').trigger('click'); await flushPromises(); await w.get('[role="dialog"] .dialog-danger').trigger('click'); await flushPromises()
   const original = vi.mocked(shopApi.cartWrite).mock.calls[0]; w.unmount(); await open()
   expect(shopApi.cartWrite).toHaveBeenCalledTimes(1); expect(w.text()).toContain('结果待确认')
   await w.get('.cart-recovery button').trigger('click'); await flushPromises()
@@ -75,7 +75,7 @@ it('delisted cart rows stay visible and removable but cannot be selected or incr
   vi.mocked(shopApi.cart).mockResolvedValue({ stores: unavailable })
   await open(); expect(w.text()).toContain('商品已下架')
   expect(w.get('[aria-label="选择无线降噪耳机"]').attributes('disabled')).toBeDefined()
-  await w.get('[aria-label="移除无线降噪耳机"]').trigger('click'); await flushPromises()
+  await w.get('[aria-label="移除无线降噪耳机"]').trigger('click'); await flushPromises(); await w.get('[role="dialog"] .dialog-danger').trigger('click'); await flushPromises()
   expect(vi.mocked(shopApi.cartWrite).mock.calls[0][2]).toEqual({ sku_id: 'ear', quantity: 0, expected_revision: 2, expected_sku_version: null })
 })
 it('failed complete read never claims an empty cart and can be refreshed', async () => {
@@ -85,7 +85,7 @@ it('failed complete read never claims an empty cart and can be refreshed', async
 })
 it('login expiry requests logout and leaves uncertain request recoverable for the same buyer', async () => {
   vi.mocked(shopApi.cartWrite).mockRejectedValue(new ApiError(401, 'UNAUTHENTICATED', 'expired'))
-  await open(); await w.get('[aria-label="移除无线降噪耳机"]').trigger('click'); await flushPromises()
+  await open(); await w.get('[aria-label="移除无线降噪耳机"]').trigger('click'); await flushPromises(); await w.get('[role="dialog"] .dialog-danger').trigger('click'); await flushPromises()
   expect(w.emitted('expired')).toHaveLength(1); expect(readCartPending('B-3001')).not.toBeNull()
 })
 it('different buyer cannot restore or clear another buyers pending request', async () => {
@@ -130,9 +130,25 @@ it('returns from a cart quote to its selection and list reading position', async
   await open(); await w.get('[aria-label="选择机械键盘"]').setValue(false)
   await w.findAll('.cart-checkout')[0].trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(30)
   expect(scroll).toHaveBeenLastCalledWith({top:0,behavior:'auto'})
-  await w.get('.shop-back').trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(30)
+  await w.get('.checkout-heading button').trigger('click'); await flushPromises(); await vi.advanceTimersByTimeAsync(30)
   expect(scroll).toHaveBeenLastCalledWith({top:480,behavior:'auto'})
   expect(w.get<HTMLInputElement>('[aria-label="选择机械键盘"]').element.checked).toBe(false)
   expect(shopApi.cartDraft).not.toHaveBeenCalled()
   vi.useRealTimers()
+})
+
+
+it('quotes only the chosen store from the single settlement panel', async () => {
+  await open()
+  expect(w.findAll('.cart-settlement .cart-checkout')).toHaveLength(1)
+  await w.get('[data-checkout-store="M-1002"]').trigger('click')
+  await w.get('.cart-settlement .cart-checkout').trigger('click'); await flushPromises()
+  expect(shopApi.cartQuote).toHaveBeenCalledWith('buyer-token','M-1002',2,['lamp','cup'])
+})
+
+it('does not remove an item before explicit confirmation', async () => {
+  await open(); await w.get('[aria-label="移除无线降噪耳机"]').trigger('click'); await flushPromises()
+  expect(shopApi.cartWrite).not.toHaveBeenCalled()
+  await w.get('[role="dialog"] .shop-secondary').trigger('click'); await flushPromises()
+  expect(shopApi.cartWrite).not.toHaveBeenCalled()
 })

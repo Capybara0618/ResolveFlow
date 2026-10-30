@@ -60,8 +60,9 @@ function back() {
 }
 let generation = 0, quoteGeneration = 0, alive = true, pending: { key: string; request: ShopDraftRequest } | null = null
 // Memory belongs to this account's workspace; history stores only the entry identity.
-type BrowseView = { hash: string; at: number; scroll: number; listing?: { products: ShopProduct[]; next: string | null; index: number; cursors: Array<string | undefined>; store: ShopStore | null }; product?: { sku: string; quantity: number }; cart?: string[] }
+type BrowseView = { hash: string; at: number; scroll: number; listing?: { products: ShopProduct[]; next: string | null; index: number; cursors: Array<string | undefined>; store: ShopStore | null }; product?: { sku: string; quantity: number }; cart?: string[]; cartStore?: string }
 const views = new Map<string, BrowseView>()
+const cartInitialStore = ref<string | undefined>(), cartStore = ref('')
 const cartInitial = ref<string[] | undefined>(), cartSelection = ref<string[]>([]), slowLoading = ref(false)
 let currentHash = '', currentEntry = '', cartPosition = 0, productPosition = 0, catalogReadAt = 0
 let positionFrame: number | undefined, loadingTimer: ReturnType<typeof setTimeout> | undefined
@@ -72,7 +73,7 @@ function rememberView() {
   const value: BrowseView = { hash: currentHash, at: Date.now(), scroll: window.scrollY }
   if (listingScreen.value) { value.at = catalogReadAt; value.listing = { products: products.value, next: next.value, index: pageIndex.value, cursors: [...pageCursors.value], store: store.value } }
   if (screen.value === 'product' && product.value) value.product = { sku: sku.value, quantity: quantity.value }
-  if (screen.value === 'cart') { value.cart = [...cartSelection.value]; value.scroll = activeWorkspace.value?.viewScroll?.() ?? value.scroll }
+  if (screen.value === 'cart') { value.cart = [...cartSelection.value]; value.cartStore = cartStore.value; value.scroll = activeWorkspace.value?.viewScroll?.() ?? value.scroll }
   views.delete(currentEntry); views.set(currentEntry, value)
   if (views.size > 12) views.delete(views.keys().next().value!)
 }
@@ -121,7 +122,7 @@ async function route(force = false) {
   if (currentEntry !== historyEntry) window.history.replaceState({ ...window.history.state, resolveflow_browse: currentEntry }, '')
   const candidate = views.get(currentEntry)
   const saved = candidate?.hash === currentHash && Date.now() - candidate.at < 300000 ? candidate : undefined
-  cartInitial.value = saved?.cart; cartSelection.value = saved?.cart ?? []; cartPosition = saved?.scroll ?? 0
+  cartInitialStore.value = saved?.cartStore; cartStore.value = saved?.cartStore ?? ''; cartInitial.value = saved?.cart; cartSelection.value = saved?.cart ?? []; cartPosition = saved?.scroll ?? 0
   beginBuyerNavigation(navigationOwner()); hasPrevious.value = hasBuyerPrevious(navigationOwner())
   const g = ++generation; ++quoteGeneration
   error.value = ''; added.value = false; quote.value = null; draft.value = null; store.value = null; product.value = null; reviewSummary.value = null; pending = null
@@ -259,7 +260,7 @@ onBeforeUnmount(() => { alive = false; ++generation; ++quoteGeneration; clearTim
     <PersonalCenter v-else-if="screen === 'me' && account" :account="account" @navigate="go" @expired="emit('expired')" />
     <NotificationCenter v-else-if="screen === 'messages' && account" :token="account.access_token" expanded @expired="emit('expired')" @open="openNotification" />
     <SupportWorkspace ref="activeWorkspace" v-else-if="screen === 'support' && account" :key="account.access_token + windowHash" :initial-id="supportInitialId" :account="account" @expired="emit('expired')" />
-    <CartWorkspace ref="activeWorkspace" :initial-selection="cartInitial" @selection="cartSelection = $event" @ready="restoreCart" v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
+    <CartWorkspace :initial-store="cartInitialStore" @store="cartStore = $event" ref="activeWorkspace" :initial-selection="cartInitial" @selection="cartSelection = $event" @ready="restoreCart" v-else-if="screen === 'cart' && account" :account="account" @expired="emit('expired')" @navigate="go" @busy="cartBusy = $event" />
     <CustomerWorkspace ref="activeWorkspace" v-else-if="screen === 'customer' && account" :account="account" @expired="emit('expired')" />
     <BuyerOrders ref="activeWorkspace" v-else-if="screen === 'orders' && account" :route-key="ordersRoute" :account="account" @expired="emit('expired')" @navigate="go" />
     <main v-else :key="windowHash + screen" class="shop-content shop-view" :aria-busy="loading">
