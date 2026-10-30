@@ -21,3 +21,12 @@
 - 原双店总额同时可见断言失败，改为切换结算店铺后分别检查727/218，保留单店请求、地址、版本、原幂等键和未知恢复断言；原移除场景补显式确认，不删业务检查。
 - `pnpm --dir web test -- tests/cart-workspace.spec.ts tests/marketplace.spec.ts tests/cart-pending.spec.ts`：实际匹配前两文件42项通过，第三文件不存在未计入。`pnpm --dir web build`通过；日志tmp/modern-cart-red.log、modern-cart-tests.log、modern-cart-build.log。
 - 按用户节奏不启动/浏览器验收，无本步真实交易/模型；视觉与整链等M8集中验收。
+
+
+## M2 商城、商品与直接确认（仅离线）
+
+主内容1280px及导航内边距按同一基准对齐，主视觉降至284px/40px标题，分类与商品文字减轻。商品媒体与购买区同一首行，参数/配送/售后说明移到全宽下一行，单次资料请求保持；主图按窗口高度限制并contain完整呈现。数量增加/减少使用服务端SKU上限；加购反馈预留位置。直接购买确认复用OrderSummary，金额取quote.total_amount，原请求未知时允许原请求重试并禁止更换输入。删除废弃draft展示样式，替换原商品规则而非另叠新主题。
+
+- 相关4文件50项通过（指定presentation.spec.ts未存在，不计为运行）；新增数量控件边界后marketplace27项通过。`pnpm --dir web build`通过，日志tmp/modern-catalog-tests.log、modern-catalog-final-tests.log、modern-catalog-build.log。
+- 原直接提交断言只改明确的checkout-submit定位，保留未知原key/冻结输入、价格冲突、无地址禁止提交、晚响应丢弃及历史状态测试。
+- 不启服务、不浏览器验收；主图是否完整、各桌面尺寸排版与手感留M8，不用静态CSS推断最终视觉通过。

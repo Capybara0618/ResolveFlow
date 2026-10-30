@@ -52,8 +52,8 @@ it('uses selected variant and bounded quantity for a server quote', async () => 
 it('retries an uncertain creation with the exact same key and immutable payload', async () => {
   vi.mocked(shopApi.draft).mockRejectedValueOnce(new TypeError('connection lost')).mockResolvedValueOnce(draft)
   await open(); await w.get('.buy-button').trigger('click'); await flushPromises()
-  await w.get('.checkout-panel > button').trigger('click'); await flushPromises()
-  expect(w.text()).toContain('原请求'); await w.get('.checkout-panel > button').trigger('click'); await flushPromises()
+  await w.get('.checkout-submit').trigger('click'); await flushPromises()
+  expect(w.text()).toContain('原请求'); await w.get('.checkout-submit').trigger('click'); await flushPromises()
   const calls = vi.mocked(shopApi.draft).mock.calls
   expect(calls[0]).toEqual(calls[1]); expect(calls[0][1]).toEqual({ sku_id: 'black', quantity: 2, expected_sku_version: 1, shipping: {address_id:'address-1',expected_version:1} })
   expect(w.text()).toContain('待付款'); expect(w.text()).not.toContain('模拟付款完成于')
@@ -61,7 +61,7 @@ it('retries an uncertain creation with the exact same key and immutable payload'
 it('does not submit a stale quote after a price conflict', async () => {
   vi.mocked(shopApi.draft).mockRejectedValue(new ApiError(409, 'PRICE_CHANGED', 'changed'))
   await open(); await w.get('.buy-button').trigger('click'); await flushPromises()
-  await w.get('.checkout-panel > button').trigger('click'); await flushPromises()
+  await w.get('.checkout-submit').trigger('click'); await flushPromises()
   expect(w.text()).toContain('重新读取商品'); expect(w.find('.checkout-panel').exists()).toBe(false)
 })
 it('allows anonymous browsing but asks for login before quoting a purchase', async () => {
@@ -134,7 +134,7 @@ it('requires login when an anonymous visitor opens a private buyer route', async
   expect(shopApi.quote).not.toHaveBeenCalled()
 })
 
-it('requires an address before submitting a direct purchase',async()=>{vi.mocked(accountApi.addresses).mockResolvedValue({items:[]});await open();await w.get('.buy-button').trigger('click');await flushPromises();expect(w.get('.checkout-panel > button').attributes('disabled')).toBeDefined();await w.get('.checkout-panel > button').trigger('click');expect(shopApi.draft).not.toHaveBeenCalled()})
+it('requires an address before submitting a direct purchase',async()=>{vi.mocked(accountApi.addresses).mockResolvedValue({items:[]});await open();await w.get('.buy-button').trigger('click');await flushPromises();expect(w.get('.checkout-submit').attributes('disabled')).toBeDefined();await w.get('.checkout-submit').trigger('click');expect(shopApi.draft).not.toHaveBeenCalled()})
 
 it('replaces rather than appends pages, keeps cursors for previous, and resets when filtering', async () => {
   window.history.replaceState(null, '', '/#/shop/search')
@@ -268,4 +268,15 @@ it('does not turn a failed catalogue read into a cached empty result', async () 
   expect(shopApi.products).toHaveBeenCalledTimes(3)
   expect(w.findAll('.product-card')).toHaveLength(1)
   vi.useRealTimers()
+})
+
+
+it('keeps the product quantity controls within the server SKU limit', async () => {
+  await open()
+  expect(w.get('[aria-label="减少购买数量"]').attributes('disabled')).toBeDefined()
+  await w.get('[aria-label="购买数量"]').setValue(10)
+  expect(w.get('[aria-label="增加购买数量"]').attributes('disabled')).toBeDefined()
+  await w.get('[aria-label="减少购买数量"]').trigger('click')
+  expect(w.get<HTMLInputElement>('[aria-label="购买数量"]').element.value).toBe('9')
+  expect(shopApi.quote).not.toHaveBeenCalled()
 })
