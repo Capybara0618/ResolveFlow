@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount } from 'vue'
+import { useDismissible } from './useDismissible'
 import { ApiError } from '../client'
 import { notificationApi, type Notification } from '../notification-client'
 const props = defineProps<{ token: string; disabled?: boolean; expanded?: boolean }>()
 const emit = defineEmits<{ expired: []; open: [item: Notification] }>()
 const visible = ref(false), items = ref<Notification[]>([]), unread = ref<number | null>(null), next = ref<string | null>(null), loading = ref(false), error = ref('')
+const root = ref<HTMLElement>()
+useDismissible(root, () => visible.value && !props.expanded, () => { visible.value = false })
 let generation = 0, timer: ReturnType<typeof setInterval> | undefined
 async function load(more = false) {
   if (loading.value) return
@@ -28,7 +31,7 @@ watch(() => props.token, () => { generation++; items.value = []; unread.value = 
 onBeforeUnmount(() => { generation++; if (timer) clearInterval(timer) })
 </script>
 <template>
-  <section class="notification-center" :class="{ expanded }" aria-label="站内消息">
+  <section ref="root" class="notification-center" :class="{ expanded }" aria-label="站内消息">
     <button v-if="!expanded" type="button" class="notification-toggle" :disabled="disabled" :aria-expanded="visible" @click="visible = !visible; visible && load()">消息<span v-if="unread" class="notification-count">{{ unread > 99 ? '99+' : unread }}</span><span v-else-if="error" class="notification-unavailable" aria-label="消息读取失败">!</span></button>
     <div v-if="visible || expanded" class="notification-panel">
       <header><h2>消息</h2><button :disabled="loading" @click="load()">刷新</button><button v-if="!expanded" @click="visible = false">关闭</button></header>
