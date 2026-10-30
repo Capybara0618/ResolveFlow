@@ -74,7 +74,7 @@ export function applySupportEvent(current: SupportConversation, event: SupportSt
   const statuses: Partial<Record<SupportStreamEvent['kind'], NonNullable<SupportConversation['assistant_turn']>['status']>> = {
     'turn.accepted': 'PENDING', 'turn.started': 'RUNNING', 'answer.failed': 'FAILED', 'answer.stale': 'STALE' }
   const status = statuses[event.kind]
-  return status ? { ...current, generation: undefined, assistant_turn: { run_id: event.run_id, status, reason: null } } : current
+  return status ? { ...current, generation: undefined, assistant_turn: { run_id: event.run_id, status, reason: typeof event.payload.reason === 'string' ? event.payload.reason : null } } : current
 }
 
 function delay(milliseconds: number, signal: AbortSignal): Promise<void> {

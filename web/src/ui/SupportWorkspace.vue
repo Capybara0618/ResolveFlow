@@ -49,6 +49,8 @@ const assistantBusy = computed(() => !merchant.value && ['PENDING', 'RUNNING'].i
 const assistantState = computed(() => {
   const turn = selected.value?.assistant_turn
   if (!turn || merchant.value) return ''
+  if (turn.status === 'FAILED' && turn.reason === 'ASSISTANT_UNAVAILABLE') return '客服暂时无法回复，请稍后重试。你的消息已保留，也可以请商家核查。'
+  if (turn.status === 'FAILED' && turn.reason === 'ASSISTANT_TIMEOUT') return '这次查询用时较长，已停止等待。请稍后重试，或请商家核查。'
   const category = selected.value?.generation?.activity
   if (turn.status === 'RUNNING' && category) return ({ ORDER: '正在核对订单…', SHIPMENT: '正在查看物流…', POLICY: '正在查阅售后政策…', GUIDE: '正在查找处理方式…', HISTORY: '正在查看之前的沟通…' } as Record<string, string>)[category] || '正在帮你查看，请稍候…'
   if (turn.status === 'RUNNING' && selected.value?.generation?.attempt_id) return generationText.value ? '' : '正在完善回答…'

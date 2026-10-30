@@ -99,6 +99,56 @@ class SupportApiTest extends CaseDatabaseTest {
         verifyNoInteractions(assistant);
     }
 
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"CONNECTION_REFUSED", "HTTP_503"})
+    void unavailableAssistantEndsWaitingAndKeepsMessageWithoutAutomaticReplay(String failure) {
+        RuntimeException error = failure.equals("CONNECTION_REFUSED")
+                ? new org.springframework.web.client.ResourceAccessException("connection refused")
+                : org.springframework.web.client.HttpServerErrorException.create(
+                        org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE,
+                        "unavailable",
+                        org.springframework.http.HttpHeaders.EMPTY,
+                        new byte[0],
+                        null);
+        when(assistant.execute(anyString(), any())).thenThrow(error);
+        var c = message(open("support-A"), "unavailable", "帮我查物流", "ASSISTANT");
+        turns.dispatchOne();
+        c = get(path(c), buyer, 200);
+        assertThat(c.path("assistant_turn").path("status").asString()).isEqualTo("FAILED");
+        assertThat(c.path("assistant_turn").path("reason").asString()).isEqualTo("ASSISTANT_UNAVAILABLE");
+        assertThat(c.path("messages").size()).isEqualTo(1);
+        assertThat(c.path("messages").get(0).path("text").asString()).isEqualTo("帮我查物流");
+        turns.dispatchOne();
+        verify(assistant, times(1)).execute(anyString(), any());
+        assertThat(jdbc.queryForList(
+                        "SELECT kind FROM support_stream_event WHERE conversation_id=? ORDER BY event_id",
+                        String.class,
+                        c.path("conversation_id").asString()))
+                .containsExactly("turn.accepted", "turn.started", "answer.failed");
+        var payload = json.readTree(jdbc.queryForObject(
+                "SELECT payload_json FROM support_stream_event WHERE conversation_id=? AND kind='answer.failed'",
+                String.class,
+                c.path("conversation_id").asString()));
+        assertThat(payload.path("reason").asString()).isEqualTo("ASSISTANT_UNAVAILABLE");
+        c = message(c, "explicit-retry", "请再帮我查一下", "ASSISTANT");
+        assertThat(c.path("assistant_turn").path("status").asString()).isEqualTo("PENDING");
+        assertThat(c.path("messages").size()).isEqualTo(2);
+    }
+
+    @Test
+    void expiredQueuedTurnFailsWithoutCallingAssistantOrResettingDeadline() {
+        var c = message(open("support-A"), "expired-queue", "帮我查物流", "ASSISTANT");
+        String run = c.path("assistant_turn").path("run_id").asString();
+        jdbc.update(
+                "UPDATE support_agent_turn SET created_at=TIMESTAMPADD(SECOND,-601,CURRENT_TIMESTAMP(6)) WHERE run_id=?",
+                run);
+        turns.dispatchOne();
+        c = get(path(c), buyer, 200);
+        assertThat(c.path("assistant_turn").path("status").asString()).isEqualTo("FAILED");
+        assertThat(c.path("assistant_turn").path("reason").asString()).isEqualTo("ASSISTANT_TIMEOUT");
+        verifyNoInteractions(assistant);
+    }
+
     @BeforeEach
     void prepare() {
         // Only this new module's rows in the disposable test container.

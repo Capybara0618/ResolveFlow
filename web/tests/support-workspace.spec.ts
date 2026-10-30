@@ -416,3 +416,13 @@ it('keeps an order read failure distinct from an empty purchase history and allo
   await wrapper.get('[role="dialog"]').findAll('button').find(b => b.text() === '重试读取订单')!.trigger('click'); await flushPromises()
   expect(wrapper.get('[role="dialog"]').text()).toContain('暂无已付款订单')
 })
+
+it('stops the waiting indicator and explains an unavailable assistant in buyer language', async () => {
+  vi.mocked(supportApi.read).mockResolvedValue({ ...original(), assistant_turn: { run_id: 'offline', status: 'FAILED', reason: 'ASSISTANT_UNAVAILABLE' } })
+  await open()
+  expect(wrapper.get('.support-agent-state').text()).toBe('客服暂时无法回复，请稍后重试。你的消息已保留，也可以请商家核查。')
+  expect(wrapper.find('[data-buyer-waiting]').exists()).toBe(false)
+  expect(wrapper.find('.support-waiting-dots').exists()).toBe(false)
+  await wrapper.get('[aria-label="咨询消息"]').setValue('请再查一下')
+  expect(wrapper.get('[data-action="send"]').attributes('disabled')).toBeUndefined()
+})

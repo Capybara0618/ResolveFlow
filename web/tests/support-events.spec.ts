@@ -104,3 +104,9 @@ it('restores a current draft snapshot and clears it on failure or new input', ()
   const next = { ...original(), version: 3 }
   expect(applySupportEvent(restored, { ...snapshot, payload: { conversation: next, generation: null } })?.generation).toBeUndefined()
 })
+
+it('keeps the server failure reason when the live turn ends', () => {
+  const c = { ...original(), version: accepted().input_version, assistant_turn: { run_id: accepted().run_id!, status: 'RUNNING' as const, reason: null } }
+  const result = applySupportEvent(c, { ...accepted(), kind: 'answer.failed', payload: { reason: 'ASSISTANT_UNAVAILABLE' } })
+  expect(result?.assistant_turn).toMatchObject({ status: 'FAILED', reason: 'ASSISTANT_UNAVAILABLE' })
+})

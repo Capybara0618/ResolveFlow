@@ -225,6 +225,20 @@ public class SupportAgentTurns {
                     Instant active = clock.instant().plusSeconds(120);
                     deadline = cap.isBefore(active) ? cap : active;
                 }
+                if (!deadline.isAfter(clock.instant())) {
+                    db.update(
+                            "UPDATE support_agent_turn SET status='FAILED',reason='ASSISTANT_TIMEOUT',deadline_at=? WHERE run_id=?",
+                            java.sql.Timestamp.from(deadline),
+                            id);
+                    events.append(
+                            t.conversation,
+                            t.id,
+                            t.input,
+                            t.fence,
+                            "answer.failed",
+                            Map.of("reason", "ASSISTANT_TIMEOUT"));
+                    return null;
+                }
                 db.update(
                         "UPDATE support_agent_turn SET status='RUNNING',reason=NULL,fence=fence+1,lease_until=?,deadline_at=?,progress_sequence=0,progress_batch_json=NULL,progress_json=NULL,progress_event_count=0 WHERE run_id=?",
                         java.sql.Timestamp.from(clock.instant().plusSeconds(150)),
@@ -397,13 +411,18 @@ public class SupportAgentTurns {
                     codec.issueServiceToken("case-service", t.merchant, t.customer, "support:run", clock.instant());
             publish(t, agent.execute(identity, body));
         } catch (RestClientResponseException e) {
-            retry(t, e.getStatusCode().value() == 409 || e.getStatusCode().is5xxServerError());
+            retry(
+                    t,
+                    e.getStatusCode().value() == 409,
+                    e.getStatusCode().is5xxServerError() ? "ASSISTANT_UNAVAILABLE" : "AGENT_REQUEST_REJECTED");
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            retry(t, false, "ASSISTANT_UNAVAILABLE");
         } catch (RuntimeException e) {
-            retry(t, true);
+            retry(t, false, "ASSISTANT_FAILED");
         }
     }
 
-    private void retry(Turn t, boolean retryable) {
+    private void retry(Turn t, boolean retryable, String reason) {
         tx.executeWithoutResult(st -> {
             Turn live = lock(t.id);
             if (live.fence != t.fence) return;
@@ -411,18 +430,21 @@ public class SupportAgentTurns {
                 markStale(live, t);
                 return;
             }
+            boolean expired = !t.deadline.isAfter(clock.instant());
+            boolean requeue = retryable && !expired;
+            String failure = expired ? "ASSISTANT_TIMEOUT" : reason;
             db.update(
                     "UPDATE support_agent_turn SET status=?,reason=?,not_before=TIMESTAMPADD(SECOND,3,CURRENT_TIMESTAMP(6)) WHERE run_id=?",
-                    retryable ? "PENDING" : "FAILED",
-                    retryable ? "ASSISTANT_UNAVAILABLE" : "AGENT_REQUEST_REJECTED",
+                    requeue ? "PENDING" : "FAILED",
+                    failure,
                     t.id);
             events.append(
                     t.conversation,
                     t.id,
                     t.input,
                     t.fence,
-                    retryable ? "turn.accepted" : "answer.failed",
-                    Map.of("status", retryable ? "PENDING" : "FAILED"));
+                    requeue ? "turn.accepted" : "answer.failed",
+                    Map.of("status", requeue ? "PENDING" : "FAILED", "reason", failure));
         });
     }
 
