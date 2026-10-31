@@ -60,3 +60,20 @@
 - 审片入口仍为8766，默认60fps，原index另存index-30fps.html，提供旧30fps链接；新视频使用独立文件名，旧30fps媒体与交付副本均未覆盖。
 - 初次HTTP核对发现旧预览服务已停止（连接拒绝），恢复同一脚本后HTML200、新视频Range206/moov、旧30fps页面200均通过。未进行浏览器实际播放，最终文件已全片解码。
 - 输出目录保留独立build.py、edit-plan.json、verify_preview.py、verification.json、日志与关键帧。无业务/模型写入；没有新增补录要求，正式README/GIF仍待作者审片。
+
+## 同日追加：选曲与60fps配乐版
+
+用户改为授权助手选择音乐并直接配入视频；保留此前无声交付，不追加旁白。选曲为Lily J的《Pop Track 06》（Mixkit曲目732），官网分类为Electronica、Corporate Music、Futuristic、Instrumental、Relaxation，按这些曲风信息选择与暖白绿色产品界面搭配的轻电子方向。本轮未通过音频播放器人工试听，不把标签筛选及技术检查写作听感验收；实际听感由交付文件审看。
+
+- [曲目所在官网目录](https://mixkit.co/free-stock-music/tag/corporate/?page=2)，其JSON-LD声明作者、曲名、音频地址与对应许可；直接下载官网提供的`https://assets.mixkit.co/music/732/732.mp3`，4,568,293字节，SHA256 `44cd034c7cbeaa00fe849c9c00b6815ea3f6999f6ee335e31434304e5f3fff1f`。
+- 2026-10-31读取并保存[Stock Music Free License](https://mixkit.co/license/modal/musicFree/)及[User Terms](https://mixkit.co/terms/)。许可允许商业/非商业网络视频、在线广告及社交平台项目；此处仅将音乐同步到产品视频，不单独公开分发原曲、不改变音乐版权归属。音乐不属于仓库代码许可，未来发布使用成片及来源说明。
+- 本批目录`tmp/film-edit-v3-music-20261031/`保留mix.py、verification.json、CREDITS.txt、完整FFmpeg日志及music目录下来源HTML/许可/条款/原MP3，全部忽略。Videos交付旁另有同名`.credits.txt`来源说明。
+
+实际执行`agent/.venv/Scripts/python.exe tmp/film-edit-v3-music-20261031/mix.py`，FFmpeg7.1对原曲前111.90秒做1.2秒淡入、108.4秒开始3.5秒淡出，双遍loudnorm目标-21 LUFS、TP上限-3 dBTP，AAC 192kbps/48kHz/双声道编码；视频`-c:v copy`，保留原章节并`+faststart`。没有改动剪辑顺序、页面尺寸或已有鼠标。
+
+- 成片`resolveflow-first-cut-music-2560x1600-60fps.mp4`：111.90秒、2560×1600、60fps、6714视频帧、1条AAC音轨，15,397,273字节（约14.68MiB）。Videos副本“ResolveFlow-配乐初剪-v3-60fps.mp4”字节摘要一致。
+- 成片SHA256 `6fc21f8063e51ba01e04f296cd82b8ce49a969c817802e1f79dc2f343a328b48`。
+- 最终音视频完整解码退出0；AAC回读48kHz双声道。成片实测音轨-21.02 LUFS、真峰值-9.50 dBTP，无削波。verification.json中loudness的`input_*`是成片测量值，`output_*`是测量过滤器再次归一化的模拟值，不是交付音轨参数。
+- 原无声版与配乐版视频流`-c:v copy -f hash -hash sha256`相同：`55c01df746700947618beb203f3074d12ec0cba4a98d9da4337fb1d6ec994880`，证明画面未重新压缩；7段原片文件SHA256全部不变。
+- 审片页默认配乐版；此前60fps入口另存`index-silent-60fps.html`、30fps入口不变，两个无声媒体和副本保持。Python/httpx核对主页及两个旧页200、起始/中段Range206及字节相符、moov在文件头。未进行浏览器实际播放或扬声器试听，不宣称已完成这些检查。
+- 首次来源HTML打印遇Windows GBK无法编码作者名，改stdout为UTF-8后成功，不影响下载文件。随后混音、解码、码流核对、交付及HTTP检查均通过。无业务/模型请求，不重跑业务测试；git diff --check检查本批文档，四个历史脏文件保持。
