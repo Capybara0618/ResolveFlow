@@ -10,7 +10,8 @@ import ReviewDialog from './ReviewDialog.vue'
 import PresentationEditor from './PresentationEditor.vue'
 import './foundation.css'
 
-const productFormId = useId()
+const productFormId = useId(), presentationFormId = useId()
+const presentationReady = ref(false)
 const props = defineProps<{ account: LoginResponse }>()
 const emit = defineEmits<{ expired: []; working: [value: boolean] }>()
 const { pageIndex, pageCursor, acceptPage } = useCursorPages<string>()
@@ -49,7 +50,7 @@ onMounted(() => { void act(() => load()) })
   <main class="foundation-main">
     <header class="foundation-heading"><div><h1>商品管理</h1></div><div class="foundation-actions"><button :disabled="busy" @click="act(() => load())">刷新</button><button class="primary-button" :disabled="busy" @click="open(null)">新增商品</button><button :disabled="busy" @click="presentation = {}; edit = false">店铺资料</button></div></header>
     <p v-if="error && !edit" class="message error" role="alert">{{ error }}</p><p v-if="notice" class="message success" role="status">{{ notice }}</p>
-    <ReviewDialog v-if="presentation" :title="presentation.product ? '商品图片与详情' : '店铺资料'" :busy="busy" merchant @close="presentation = null"><PresentationEditor embedded :key="presentation.product ?? 'store'" :account="account" :product="presentation.product" :variants="rows.find(row => row.product_id === presentation?.product)?.skus" @working="busy = $event; emit('working', $event)" @expired="emit('expired')" @close="presentation = null" /></ReviewDialog>
+    <ReviewDialog v-if="presentation" :title="presentation.product ? '商品图片与详情' : '店铺资料'" :busy="busy" merchant @close="presentation = null"><PresentationEditor embedded :form-id="presentationFormId" @can-save="presentationReady = $event" :key="presentation.product ?? 'store'" :account="account" :product="presentation.product" :variants="rows.find(row => row.product_id === presentation?.product)?.skus" @working="busy = $event; emit('working', $event)" @expired="emit('expired')" @close="presentation = null" /><template #footer><button type="button" :disabled="busy" @click="presentation = null">取消</button><button type="submit" class="primary-button" :form="presentationFormId" :disabled="!presentationReady">{{ busy ? '正在保存…' : '保存资料' }}</button></template></ReviewDialog>
     <ReviewDialog :open="edit" :title="selected ? '编辑商品' : '新增商品'" :busy="busy" class="product-editor-dialog" @close="edit = false"><form :id="productFormId" class="foundation-editor" @submit.prevent="save">
       <p v-if="error" role="alert" class="message error">{{ error }}</p><fieldset :disabled="busy"><div class="foundation-fields">
         <label>商品名称<input v-model="name" required maxlength="120" /></label><label>商品分类<select v-model="category"><option value="electronics">数码</option><option value="home">家居</option><option value="outdoor">户外</option></select></label>

@@ -52,17 +52,17 @@ function trap(event: KeyboardEvent) {
 
 <style scoped>
 .rf-dialog-backdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: #1f29283d; backdrop-filter: blur(2px); }
-.rf-dialog { width: min(540px, 100%); max-height: calc(100dvh - 48px); overflow: auto; border: 1px solid #e5e7e0; border-radius: var(--rf-radius-dialog); background: var(--rf-surface); color: var(--rf-ink); box-shadow: 0 20px 70px #172b2424, 0 2px 8px #172b2408; }
+.rf-dialog { width: min(540px, 100%); max-height: calc(100dvh - 48px); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e5e7e0; border-radius: var(--rf-radius-dialog); background: var(--rf-surface); color: var(--rf-ink); box-shadow: 0 20px 70px #172b2424, 0 2px 8px #172b2408; }
 .rf-dialog:focus { outline: none; }
-.rf-dialog .rf-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 26px 28px 0; border: 0; }
+.rf-dialog .rf-dialog-header { display: flex; flex-shrink: 0; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 26px 28px 0; border: 0; }
 .rf-dialog .rf-dialog-header h2 { margin: 0; color: inherit; font-size: 20px; font-weight: 500; line-height: 1.5; letter-spacing: -.3px; }
 .rf-dialog .rf-dialog-close { display: grid; place-items: center; flex-shrink: 0; width: 30px; min-height: 30px; height: 30px; padding: 0; margin: 0 -5px 0 0; border: 0; border-radius: 7px; background: transparent; color: #7a857d; }
 .rf-dialog .rf-dialog-close:hover:not(:disabled) { background: #f2f4ef; color: #25372e; }
-.rf-dialog .rf-dialog-content { padding: 14px 28px 28px; font-size: 15px; line-height: 1.7; }
+.rf-dialog .rf-dialog-content { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 14px 28px 28px; font-size: 15px; line-height: 1.7; }
 .rf-dialog .rf-dialog-content :deep(p) { font-size: 15px; line-height: 1.7; }
 .rf-dialog .rf-dialog-content :deep(> p:first-child) { margin: 0; color: #69756d; }
 .rf-dialog:has(.rf-dialog-footer) .rf-dialog-content { padding-bottom: 0; }
-.rf-dialog .rf-dialog-footer { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 10px; padding: 26px 28px 26px; }
+.rf-dialog .rf-dialog-footer { display: flex; flex-shrink: 0; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 10px; padding: 26px 28px 26px; }
 .rf-dialog .rf-dialog-footer :deep(button) { min-width: 100px; min-height: var(--rf-control-height); margin: 0; padding: 9px 18px; border-radius: var(--rf-radius); font-size: 14px; line-height: 20px; }
 .rf-dialog .rf-dialog-footer :deep(.dialog-danger) { background: #a34e42; color: #fff; border: 1px solid #a34e42; }
 .rf-dialog .rf-dialog-footer :deep(.dialog-danger:hover:not(:disabled)) { background: #8c4036; border-color: #8c4036; }

@@ -14,11 +14,12 @@ it('shows original buyer text and submits only a reply against the observed vers
   await open(); expect(w.text()).toContain('买家原文'); expect(w.text()).not.toContain('删除评价')
   await w.get('textarea').setValue('商家答复'); await w.get('form').trigger('submit'); await flushPromises()
   expect(reviewApi.reply).toHaveBeenCalledWith('merchant-token', 2, '商家答复', 3)
-  expect(w.text()).toContain('回复已保存')
+  expect(w.get('[role="dialog"] [role="status"]').text()).toContain('回复已保存')
 })
 it('retains local reply on conflict and reads the exact original review before allowing another write', async () => {
   vi.mocked(reviewApi.reply).mockRejectedValueOnce(new ApiError(409, 'REVIEW_CHANGED', '评价已更新'))
   await open(); await w.get('textarea').setValue('本地答复'); await w.get('form').trigger('submit'); await flushPromises()
+  expect(w.get('[role="dialog"] [role="alert"]').text()).toContain('评价已更新')
   expect(w.get('textarea').element.value).toBe('本地答复'); expect(w.get('[data-test="save-reply"]').attributes('disabled')).toBeDefined()
   vi.mocked(reviewApi.merchant).mockResolvedValue({ items: [{ ...review, body: '买家更新原文', version: 5 }], summary: null, next_before: null })
   await w.get('[data-test="refresh-review"]').trigger('click'); await flushPromises()

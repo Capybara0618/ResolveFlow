@@ -36,6 +36,7 @@ it('persists image ordering with the loaded version and preserves edits on a con
   await w.get('form').trigger('submit'); await flushPromises()
   expect(presentationApi.saveProduct).toHaveBeenCalledWith('merchant', 'p', expect.objectContaining({ expected_version: 4, images: ['image-two', 'image-one'] }))
   expect(w.get('[role="alert"]').text()).toContain('请刷新'); expect(w.get('.presentation-save').attributes('disabled')).toBeDefined()
+  expect(w.emitted('can-save')?.at(-1)).toEqual([false])
   expect(w.findAll('.presentation-images article')).toHaveLength(2)
 })
 it('renders ordered gallery thumbnails and the supplied facts without inventing missing notes', async () => {

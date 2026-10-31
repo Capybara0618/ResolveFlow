@@ -131,3 +131,20 @@
 - 截图保留在tmp/modern-commerce-live-20261030：login-1280.jpg、storefront-1280.jpg、product-silver-1280.jpg、cart-1280.jpg、checkout-1280.jpg、profile-1280.jpg。收货截图使用本批合成资料；不提交账号令牌或个人原始资料。
 
 继续操作时浏览器工具返回“Local browser use is disabled in Work settings”，因此没有把后续项目标通过，也不绕过设置。尚待：修正后订单页视觉/翻页返回；真实Agent流式、调查等待与确认→商家审批→退款结果；评价与回复；商家/平台界面；1440/1920及390边界、最终控制台检查。本轮380项全前端回归为上述两项小修正前的集中证据，修正后运行27相关及构建，不将两者相加。服务和样本保留，M8仍未完成，不更新README录制素材。
+
+
+## M8 真实退款闭环与共享弹窗修正（2026-10-30至31）
+
+浏览器恢复后，统一恢复服务，正式入口全部10项PASS（tmp/modern-commerce-resume-start.log）；10/31会话中断后应用进程退出，再按同一入口恢复，未重新导入政策或造单（tmp/modern-commerce-resume-20261031.log）。买家订单第2页实际7条，详情返回保留第2页；原已付款草稿路由标题已显示订单详情。
+
+使用前段保留的同一buyer10订单（32900分、耳机黑色1件），先询问未发货订单能否退款，再请求准备退款；两次咨询实际mode=live、SUCCEEDED，分别3/4次模型请求和2/2次工具尝试。初读列表messages为空，随后通过正式会话详情补读确认，未把空列表当零请求。本次另有确认后正式工单的真实调查，商家页显示真实模型建议与引用；不将咨询7次误写成本批全部模型请求。退款原因经买家编辑为“耳机尚未发货，我不再需要，申请全额退款。”，确认创建7881ca42-9205-464d-8893-37314fb4724b，商家admin01批准同一申请，买家聊天页自动显示退款完成、329.00 CNY；正式API读回CLOSED_SUCCESS、purchase PAID/refund_status REFUNDED。没有再次付款或重新审批。样本及脱敏汇总tmp/modern-commerce-live-20261030/sample.json、live-refund-summary.json。
+
+80次约125ms间隔的真实退款回复采样记录10种可见增量长度；主区top96.6667、输入top606.3334和document.scrollY=0全程不变。采样refund-stream-samples.json，正文/确认/提交/完成/商家审批截图均在同目录。本批第一条答复与第二条答复用语有重复，但事实/金额与确认顺序正确；不是无限扩大prompt打磨的阻塞项。
+
+实机390×844发现ReviewDialog长商品表单footer在y1010以后，需滚完整框才能保存。共享弹窗改flex列，标题/footer不收缩，正文min-height0独立滚动；最终footer.bottom819.3334<844，标题和取消/保存均可见。商品资料还发现embedded样式未绑定、重复关闭与排序按钮受外层样式挤成竖排：补类绑定、限定排序按钮网格和字号，资料表单借正式form id接独立底栏；子组件can-save跟随加载/写入/冲突，不能绕过版本冲突保存。评价保存/冲突提示移到当前回复弹窗内，未知请求约束保持。
+
+- 共享弹窗调整后全量46文件380项与build通过：tmp/modern-commerce-m8-web-tests.log、modern-commerce-m8-build.log。
+- 其后资料/评价细修最终4文件19项及类型/build通过：tmp/modern-commerce-m8-editors-final-tests.log、modern-commerce-m8-final-build.log；与380重叠不相加。
+- 最终商品资料1280和390实机：按钮横排、关闭去重、固定footer可见、无横向溢出；保存未实际提交，不改原商品/政策。截图product-media-final-1280.jpg、product-media-final-390.jpg。
+- 商家商品8→2、编辑取消/刷新保留第2页、焦点还给编辑按钮；交易订单第2页详情返回原页；评价未发布草稿关闭重开保留；咨询标题为真实买家/双方只显示头像，1440与390无横溢；退款规则完整保留1版6条原文。未发布测试回复，没有更改账号权限/密码。
+- 尺寸控制最初只作用于当前标签页，误将一张1280截图命名1440；不以该文件名证明尺寸。后续单标签页尺寸以实际innerWidth/innerHeight核对，当前还有平台、买家1440/1920/390及读取失败恢复待验。中断前未落盘的临时检查数组不冒充独立机器报告；可复核截图/80样本和正式业务结果保持。
