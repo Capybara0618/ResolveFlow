@@ -161,3 +161,29 @@
 - 实际工单调查接口读回COMPLETED、deepseek/deepseek-flash，run_id=7ced3c4f-79bd-518f-ba88-dfe8a9b31a29；咨询两个live run的7请求另计，未取得本工单模型请求数不作总次数主张。无本段新增模型调用，证据live-refund-summary.json。
 
 本段操作后浏览器再次返回“Local browser use is disabled in Work settings”。网络模拟已在中断前明确恢复online；临时视口在最后一次可用时为1440×900，工具关闭后无法reset，后续恢复先清除覆盖。M8仍待：平台客服运行页/创建表单取消、买家评价与回复实际展示、买家1440/1920/390布局和最终控制台；商家窄屏截图无横溢，但不声称整个项目的移动端逐页验收。不得以本轮闭环成功代替这些未运行项。服务保留，README素材未更新。
+
+
+## M8 最终页面与尺寸收口（2026-10-31）
+
+用户重启后浏览器恢复，正式入口一次恢复应用、原索引及数据库数据，10项PASS，日志tmp/modern-commerce-final-resume.log。没有再造订单、确认退款或重复请求模型。先清除旧视口覆盖，最终仅一个验收标签页做尺寸切换，按innerWidth/innerHeight核对。
+
+补齐平台客服运行页：8条替换到第2页，刷新仍第2页；搜索本轮05abcec2-6da3-4885-a0f8-f9a13adeb74b，只显示对应记录。打开后真实显示4模型请求/2业务工具/2本地读取以及开始、返回、保存事件，未把空指标改0。1280创建商家弹窗与390长表单布局、取消关闭和焦点恢复通过，没有创建账号/改权限/密码。运行页390页面不横溢，表格自身横向滚动。
+
+补齐买家实际展示：商品页评分入口可定位评价，3条已购评价/4.7分/2条既有商家回复实际可见；只复用先前专用样例，本批没有发布新评价或回复。1920商城内容保持有界四列，1920聊天正文有阅读宽度、输入区完整可见；1440商品/评价和退款详情、390商品评价/聊天/退款详情/地址编辑/首页均核对。地址编辑取消不写入合成收货资料，390操作底栏bottom819<844。
+
+本轮最后发现并修正两项真实布局缺陷：
+- 390导航back.right144.5大于我的订单.left134.89，实际重叠约9.6px；480以下改品牌/返回、功能、搜索各自一行，最终返回bottom46、功能top56，首页搜索top102，不重叠。
+- 商品购买区sticky的包含块是整个商品详情grid，滚动到全宽参数说明时仍压在其上。购买区改普通流，随首行商品主区一起滚出；1440最终copyBottom=-485.92、infoTop=-302，截图中说明与评价不再被按钮遮挡。主图/SKU/报价与返回记忆逻辑不改。
+
+实际尺寸、边界与剩余页面机器读数：tmp/modern-commerce-live-20261030/final-ui-checks.json；截图platform-run-1440.jpg、platform-create-390.jpg、storefront-1920.jpg、storefront-390-final.jpg、buyer-reviews-1440-final.jpg、buyer-reviews-390.jpg、buyer-chat-1920.jpg、buyer-chat-390-final.jpg、refund-detail-390.jpg、address-editor-390.jpg。旧buyer-reviews-1440.jpg保留修复前覆盖现象，不作为最终通过图。最后当前标签dev.logs(error/warn)为空；临时视口reset成功，商城页标记保留，应用服务供用户体验。
+
+最终命令：
+- `pnpm --dir web test -- tests/marketplace.spec.ts tests/buyer-orders.spec.ts tests/notifications.spec.ts`：3文件54项通过，tmp/modern-commerce-layout-final-tests.log。
+- `pnpm --dir web build`：vue-tsc与生产构建通过，tmp/modern-commerce-layout-final-build.log。
+- `pnpm --dir web test`：最终46文件381项通过，tmp/modern-commerce-acceptance-final-tests.log。jsdom的scrollTo未实现提示保留，实际返回位置另有浏览器证据；不是测试失败。所有重叠分组不累加。
+
+### 本批验收结论
+
+按现代商城体验计划的现有业务范围，M1至M8本批收口。三角色主要任务路径、真实购物到退款闭环、分页搜索/返回与草稿、长表单可达性、失败恢复及代表性桌面/窄屏布局均已实测。Java独立分页5项、契约12项为M7证据，真实SQL/HTTP为M8证据；没有把它们描述成新跑全后端套件。
+
+验收边界：未在本批实际重置密码、停用/创建账号、上传替换商品资料或重复发表评价；保留相应离线权限/版本/未知写入检查，正式素材仍使用既有专用样例。窄屏是窗口可操作性验证，未承诺每个页面的独立移动产品；真实模型本样本有两轮相近回复，事实与资金/确认正确，保留为次要文字体验改进点，不无限重跑。没有新增生产用户/真实资金/公网部署主张。README素材与视频没有自动制作或替换，后续按用户录制安排使用本次已验页面。

@@ -79,7 +79,7 @@
 .shop-product-detail .gallery-media { grid-column:1;grid-row:1 }
 .shop-product-detail .gallery-main { height:min(580px,calc(100dvh - 220px));min-height:320px;aspect-ratio:auto }
 .shop-product-detail .gallery-information { grid-column:1/-1;grid-row:2;border-top:1px solid var(--rf-line);padding-top:2px }
-.detail-copy { grid-column:2;grid-row:1;padding:6px 0;min-width:0;position:sticky;top:104px }
+.detail-copy { grid-column:2;grid-row:1;padding:6px 0;min-width:0;position:static }
 .detail-copy>a { color:var(--shop-muted);font-size:13px }
 .detail-copy h1 { margin:12px 0;font-size:28px;font-weight:500;line-height:1.35;letter-spacing:-.6px }
 .detail-copy>p { color:var(--shop-muted);font-size:14px;line-height:1.8;margin:0;max-width:440px }
@@ -125,6 +125,7 @@
 
 .shop-brand-block{display:flex;align-items:center;gap:18px;min-width:0}.workbench .marketplace .shop-brand-block .shop-back{margin:0;flex-shrink:0;background:transparent;color:#62746a;border:0;border-left:1px solid #dfe4da;border-radius:0;padding:4px 0 4px 16px;font-size:14px;line-height:24px;white-space:nowrap}.workbench .marketplace .shop-back:hover:not(:disabled){color:#176b5c;background:transparent}.shop-back:disabled{opacity:.35;cursor:default}
 @media(max-width:650px){.shop-brand-block{gap:8px}.workbench .marketplace nav.shop-nav .shop-brand-block a.shop-brand{font-size:16px}.workbench .marketplace .shop-brand-block .shop-back{font-size:12px;padding-left:8px}}
+@media(max-width:480px){.workbench .marketplace nav.shop-nav{grid-template-columns:minmax(0,1fr);gap:10px}.shop-brand-block{justify-content:space-between}.shop-utilities{grid-column:1;grid-row:2;justify-content:space-between;gap:10px}.shop-search{grid-column:1;grid-row:3}}
 
 .workbench .marketplace .product-review-entry { display: flex; align-items: center; gap: 14px; margin: 12px 0 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: var(--rf-muted); font: inherit; font-size: 14px; cursor: pointer; }
 .workbench .marketplace .product-review-entry span:first-child { color: var(--rf-accent); font-weight: 500; }
